@@ -100,7 +100,7 @@ public class VisualEffect implements SyntaxElement, YggdrasilSerializable {
 			}
 
 			// Some particles use offset as RGB color codes
-			if (type.isColorable() && (!HAS_REDSTONE_DATA || particle != Particle.REDSTONE) && data instanceof ParticleOption) {
+			if (type.isColorable() && (!HAS_REDSTONE_DATA || particle != (VisualEffects.OLD_REDSTONE_PARTICLE != null ? VisualEffects.OLD_REDSTONE_PARTICLE : Particle.DUST)) && data instanceof ParticleOption) {
 				ParticleOption option = ((ParticleOption) data);
 				dX = option.getRed();
 				dY = option.getGreen();

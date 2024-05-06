@@ -72,32 +72,32 @@ skript command:
 		all:
 			enabling: Tüm script'ler aktif ediliyor...
 			enabled: Önceden devre dışı olan tüm script'ler başarıyla aktif edildi ve yüklendi.
-			error: Devre dışı script'ler yüklenirken %s adet hata ile karşılaşıldı!
-			io error: Bir veya daha fazla script yüklenemedi - bazı scriptler zaten yeniden adlandırılmış olabilir ve sunucu tekrar başlatılınca aktif edilecektir: %s
+			error: <light red>Devre dışı script'ler yüklenirken <gold>%s <light red>adet hata ile karşılaşıldı!
+			io error: <light red>Bir veya daha fazla script yüklenemedi - bazı scriptler zaten yeniden adlandırılmış olabilir ve sunucu tekrar başlatılınca aktif edilecektir: <gold>%s
 		single:
 			already enabled: <gold>%s<reset> zaten aktif! Değişiklikleri uygulamak için <gray>/<gold>skript <cyan>reload <red>%s<reset> komutunu kullanın.
 			enabling: <gold>%s<reset> aktif ediliyor...
 			enabled: <gold>%s<reset> başarıyla aktif edildi ve yüklendi.
-			error: <gold>%1$s<red> yüklenirken %2$s adet hata ile karşılaşıldı!
-			io error: <gold>%s<red> aktif edilemedi: %s
+			error: <gold>%1$s<light red> yüklenirken <gold>%2$s <light red>adet hata ile karşılaşıldı!
+			io error: <gold>%s <light red>aktif edilemedi: <gold>%s
 		folder:
 			empty: <gold>%s<reset> devre dışı script içermiyor.
 			enabling: <gold>%1$s<reset> klasöründeki <gold>%2$s <reset>script aktif ediliyor...
 			enabled: <gold>%1$s<reset> klasöründeki önceden devre dışı olan <gold>%2$s<reset> başarıyla yüklendi ve aktifleştirildi.
-			error: <gold>%1$s<red> klasöründeki script'ler yüklenirken %2$s tane hatayla karşılaşıldı!
-			io error: <gold>%s<red> klasöründeki bir veya daha fazla script aktif edilirken hatayla karşılaşıldı. (bazı script'ler sunucu tekrar başlatılınca aktifleşebilir): %s
+			error: <gold>%1$s<light red> klasöründeki script'ler yüklenirken <gold>%2$s <light red>tane hatayla karşılaşıldı!
+			io error: <gold>%s <light red>klasöründeki bir veya daha fazla script aktif edilirken hatayla karşılaşıldı. (bazı script'ler sunucu tekrar başlatılınca aktifleşebilir): <gold>%s
 	disable:
 		all:
 			disabled: Tüm script'ler devre dışı bırakıldı.
-			io error: Bir veya daha fazla script yeniden adlandırılamadı - bazı scriptler zaten yeniden adlandırılmış olabilir ve sunucu tekrar başlatılınca devre dışı bırakılacaktır: %s
+			io error: <light red>Bir veya daha fazla script yeniden adlandırılamadı - bazı scriptler zaten yeniden adlandırılmış olabilir ve sunucu tekrar başlatılınca devre dışı bırakılacaktır: <gold>%s
 		single:
 			already disabled: <gold>%s<reset> zaten devre dışı!
 			disabled: <gold>%s<reset> başarıyla devre dışı bırakıldı.
-			io error: <gold>%s<red> yeniden adlandırılamadı, sunucuyu tekrar başlattığında tekrar aktifleşecek: %s
+			io error: <gold>%s <light red>yeniden adlandırılamadı, sunucuyu tekrar başlattığında tekrar aktifleşecek: <gold>%s
 		folder:
 			empty: <gold>%s<reset> aktif script içermiyor.
 			disabled: <gold>%1$s<reset> klasöründeki <gold>%2$s<reset> script başarıyla devre dışı bırakıldı.
-			io error: <gold>%s<red> klasöründeki bir veya daha fazla script devre dışı bırakılamadı. (bazı script'ler sunucu tekrar başladığında devre dışı olabilir): %s
+			io error: <gold>%s <light red>klasöründeki bir veya daha fazla script devre dışı bırakılamadı. (bazı script'ler sunucu tekrar başladığında devre dışı olabilir): <gold>%s
 	update:
 		# check/download: see Updater
 		changes:

@@ -74,32 +74,32 @@ skript command:
 		all:
 			enabling: 正在启用所有已禁用的脚本…
 			enabled: 已成功启用并解析了所有先前禁用的脚本。
-			error: 在解析禁用的脚本时遇到了%s个错误！
-			io error: 无法加载一个或多个脚本 - 一些脚本可能已被重命名，并在服务器重新启动时启用：%s
+			error: <light red>在解析禁用的脚本时遇到了<gold>%s<light red>个错误！
+			io error: <light red>无法加载一个或多个脚本 - 一些脚本可能已被重命名，并在服务器重新启动时启用：<gold>%s
 		single:
 			already enabled: <gold>%s<reset>已经启用了！如果它已被更改，使用<gray>/<gold>skript <cyan>reload <red>%s<reset>来重新加载。
 			enabling: 正在启用<gold>%s<reset>…
 			enabled: 已成功启用并解析<gold>%s<reset>。
-			error: 在解析<gold>%1$s<red>时遇到了%2$s个错误！
-			io error: 无法启用<gold>%s<red>：%s
+			error: <light red>在解析<gold>%1$s<light red>时遇到了<gold>%2$s<light red>个错误！
+			io error: <light red>无法启用<gold>%s<light red>：<gold>%s
 		folder:
 			empty: <gold>%s<reset>不包含任何已禁用的脚本。
 			enabling: 正在启用<gold>%1$s<reset>中的<gold>%2$s<reset>个脚本…
 			enabled: 已成功启用并解析<gold>%1$s<reset>中的<gold>%2$s<reset>个先前禁用的脚本。
-			error: 在解析<gold>%1$s<red>时遇到了%2$s个错误！
-			io error: 在启用<gold>%s<red>中的一个或多个脚本时出错（有些脚本可能会在服务器重新启动时启用）：%s
+			error: <light red>在解析<gold>%1$s<light red>时遇到了<gold>%2$s<light red>个错误！
+			io error: <light red>在启用<gold>%s<light red>中的一个或多个脚本时出错（有些脚本可能会在服务器重新启动时启用）：<gold>%s
 	disable:
 		all:
 			disabled: 已成功禁用所有脚本。
-			io error: 无法重命名一个或多个脚本 - 一些脚本可能已被重命名，并在服务器重新启动时禁用：%s
+			io error: <light red>无法重命名一个或多个脚本 - 一些脚本可能已被重命名，并在服务器重新启动时禁用：<gold>%s
 		single:
 			already disabled: <gold>%s<reset>已经被禁用了！
 			disabled: 已成功禁用<gold>%s<reset>。
-			io error: 无法重命名<gold>%s<red>当你重新启动服务器时，它会再次启用：%s
+			io error: <light red>无法重命名<gold>%s<light red>当你重新启动服务器时，它会再次启用：<gold>%s
 		folder:
 			empty: <gold>%s<reset>不包含任何已启用的脚本。
 			disabled: 已成功禁用了<gold>%1$s<reset>中的<gold>%2$s<reset>的脚本。
-			io error: 在禁用<gold>%s<red>中的一个或多个脚本时出错（有些脚本可能会在服务器重新启动时禁用）：%s
+			io error: <light red>在禁用<gold>%s<light red>中的一个或多个脚本时出错（有些脚本可能会在服务器重新启动时禁用）：<gold>%s
 	update:
 		# check/download: see Updater
 		changes:

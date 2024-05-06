@@ -163,9 +163,9 @@ Your comments should look something like these:
 ## Language Features
 
 ### Compatibility
-* Contributions should maintain Java 8 source/binary compatibility, even though compiling Skript requires Java 17
+* Contributions should maintain Java 8 source/binary compatibility, even though compiling Skript requires Java 21
   - Users must not need JRE newer than version 8
-* Versions up to and including Java 17 should work too
+* Versions up to and including Java 21 should work too
   - Please avoid using unsafe reflection
 * It is recommended to make fields final, if they are effectively final
 * Local variables and method parameters should not be declared final

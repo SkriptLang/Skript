@@ -57,11 +57,6 @@ public class EvtClick extends SkriptEvent {
 	 */
 	public static final ClickEventTracker interactTracker = new ClickEventTracker(Skript.getInstance());
 
-	/**
-	 * Tracks PlayerInteractEntityEvents to deduplicate them.
-	 */
-	private static final ClickEventTracker entityInteractTracker = new ClickEventTracker(Skript.getInstance());
-
 	static {
 		Class<? extends PlayerEvent>[] eventTypes = CollectionUtils.array(
 			PlayerInteractEvent.class, PlayerInteractEntityEvent.class, PlayerInteractAtEntityEvent.class
@@ -147,7 +142,7 @@ public class EvtClick extends SkriptEvent {
 			
 			// PlayerInteractAtEntityEvent called only once for armor stands
 			if (!(event instanceof PlayerInteractAtEntityEvent)) {
-				if (!entityInteractTracker.checkEvent(clickEvent.getPlayer(), clickEvent, clickEvent.getHand())) {
+				if (!interactTracker.checkEvent(clickEvent.getPlayer(), clickEvent, clickEvent.getHand())) {
 					return false; // Not first event this tick
 				}
 			}

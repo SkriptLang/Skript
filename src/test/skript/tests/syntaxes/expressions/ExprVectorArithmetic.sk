@@ -1,0 +1,16 @@
+test "vector arithmetic":
+	assert vector(0, 0, 0) + vector(1, 1, 1) is vector(1, 1, 1) with "vector addition failed (expected %vector(1, 1, 1)%, got %vector(0, 0, 0) ++ vector(1, 1, 1)%)"
+	assert vector(1, 1, 1) - vector(1, 1, 1) is vector(0, 0, 0) with "vector subtraction failed (expected %vector(0, 0, 0)%, got %vector(1, 1, 1) -- vector(1, 1, 1)%)"
+	assert vector(1, 1, 2) * vector(1, 2, 3) is vector(1, 2, 6) with "vector multiplication failed (expected %vector(1, 2, 6)%, got %vector(1, 1, 2) ** vector(1, 2, 3)%)"
+	assert vector(1, 2, 6) / vector(1, 2, 3) is vector(1, 1, 2) with "vector division failed (expected %vector(1, 1, 2)%, got %vector(1, 2, 6) // vector(1, 2, 3)%)"
+
+	set {_v} to vector(0, 0, 0) * random vector
+	assert {_v} is vector(0, 0, 0) with "zero vector multiplication failed (expected %vector(0, 0, 0)%, got %{_v}%)"
+
+	set {_v} to vector(1, 0, 1) / vector(0, 0, 0)
+	set {_x} to x component of {_v}
+	set {_y} to y component of {_v}
+	set {_z} to z component of {_v}
+	assert {_x} is infinity value with "division by zero failed (x component) (expected infinity, got %{_x}%)"
+	assert isNaN({_y}) is true with "division by zero failed (y component) (expected NaN, got %{_y}%"
+	assert {_z} is infinity value with "division by zero failed (z component) (expected infinity, got %{_z}%)"

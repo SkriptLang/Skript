@@ -1,0 +1,14 @@
+test "location vector offset":
+	set {_location} to the spawn of world "world"
+	set {_offset} to {_location} offset by vector(0, 0, 0)
+	assert {_offset} is {_location} with "no offset equality check failed"
+	assert the distance between {_offset} and {_location} is 0 with "0 offset check failed"
+	set {_offset} to {_location} offset by vector(0, 1, 0)
+	assert the distance between {_offset} and {_location} is 1 with "1 offset check failed"
+	loop 60 times:
+		set {_x} to a random number between -100 and 100
+		set {_y} to a random number between -100 and 100
+		set {_z} to a random number between -100 and 100
+		set {_offset} to {_location} ~ vector({_x}, {_y}, {_z})
+		set {_length} to the normal length of vector({_x}, {_y}, {_z})
+		assert the distance between {_offset} and {_location} is {_length} with "randomly-created vector offset failed (expected %{_length}%, got %distance between {_offset} and {_location}%)"

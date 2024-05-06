@@ -143,19 +143,22 @@ public class StructCommand extends Structure {
 		);
 	}
 
+	@SuppressWarnings("NotNullFieldNotInitialized")
+	private EntryContainer entryContainer;
+
 	@Nullable
 	private ScriptCommand scriptCommand;
 
 	@Override
-	public boolean init(Literal<?>[] args, int matchedPattern, ParseResult parseResult, EntryContainer entryContainer) {
+	public boolean init(Literal<?>[] args, int matchedPattern, ParseResult parseResult, @Nullable EntryContainer entryContainer) {
+		assert entryContainer != null; // cannot be null for non-simple structures
+		this.entryContainer = entryContainer;
 		return true;
 	}
 
 	@Override
 	public boolean load() {
 		getParser().setCurrentEvent("command", ScriptCommandEvent.class);
-
-		EntryContainer entryContainer = getEntryContainer();
 
 		String fullCommand = entryContainer.getSource().getKey();
 		assert fullCommand != null;

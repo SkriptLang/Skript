@@ -1,0 +1,3 @@
+test "timespan overflow exception":
+	assert 1000000000 years + 10000000 years is set with "timespan addition overflow did not return max value"
+	assert 1000000000 years * 10000000 is set with "timespan addition overflow did not return max value"

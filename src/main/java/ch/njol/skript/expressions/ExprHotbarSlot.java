@@ -58,7 +58,7 @@ import ch.njol.util.Kleenean;
 public class ExprHotbarSlot extends PropertyExpression<Player, Slot> {
 
 	static {
-		registerDefault(ExprHotbarSlot.class, Slot.class, "[the] [([current:currently] selected|current:current)] hotbar slot[s]", "players");
+		registerDefault(ExprHotbarSlot.class, Slot.class, "[([current:currently] selected|current:current)] hotbar slot[s]", "players");
 	}
 
 	// This exists because time states should not register when the 'currently' tag of the syntax is present.

@@ -29,7 +29,7 @@ import java.util.WeakHashMap;
  * @see ch.njol.skript.sections.SecWhile
  * @see ch.njol.skript.sections.SecLoop
  */
-public abstract class LoopSection extends Section implements SyntaxElement, Debuggable {
+public abstract class LoopSection extends Section implements SyntaxElement, Debuggable, SectionExitHandler {
 
 	protected final transient Map<Event, Long> currentLoopCounter = new WeakHashMap<>();
 
@@ -50,6 +50,7 @@ public abstract class LoopSection extends Section implements SyntaxElement, Debu
 	 * Exit the loop, used to reset the loop properties such as iterations counter
 	 * @param event The event where the loop is used to reset its relevant properties
 	 */
+	@Override
 	public void exit(Event event) {
 		currentLoopCounter.remove(event);
 	}

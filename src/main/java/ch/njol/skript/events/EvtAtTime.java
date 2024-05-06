@@ -32,12 +32,10 @@ import org.bukkit.World;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.PriorityQueue;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class EvtAtTime extends SkriptEvent implements Comparable<EvtAtTime> {
@@ -54,12 +52,19 @@ public class EvtAtTime extends SkriptEvent implements Comparable<EvtAtTime> {
 	private static final Map<World, EvtAtInfo> TRIGGERS = new ConcurrentHashMap<>();
 
 	private static final class EvtAtInfo {
-		private int lastTick; // as Bukkit's scheduler is inconsistent this saves the exact tick when the events were last checked
-		private int currentIndex;
-		private final List<EvtAtTime> instances = new ArrayList<>();
+		/**
+		 * Stores the last world time that this object's instances were checked.
+		 */
+		private int lastCheckedTime;
+
+		/**
+		 * A list of all {@link EvtAtTime}s in the world this info object is responsible for.
+		 * Sorted by the time they're listening for in increasing order.
+		 */
+		private final PriorityQueue<EvtAtTime> instances = new PriorityQueue<>(EvtAtTime::compareTo);
 	}
 
-	private int tick;
+	private int time;
 
 	@SuppressWarnings("NotNullFieldNotInitialized")
 	private World[] worlds;
@@ -67,7 +72,7 @@ public class EvtAtTime extends SkriptEvent implements Comparable<EvtAtTime> {
 	@Override
 	@SuppressWarnings("unchecked")
 	public boolean init(Literal<?>[] args, int matchedPattern, ParseResult parseResult) {
-		tick = ((Literal<Time>) args[0]).getSingle().getTicks();
+		time = ((Literal<Time>) args[0]).getSingle().getTicks();
 		worlds = args[1] == null ? Bukkit.getWorlds().toArray(new World[0]) : ((Literal<World>) args[1]).getAll();
 		return true;
 	}
@@ -78,10 +83,9 @@ public class EvtAtTime extends SkriptEvent implements Comparable<EvtAtTime> {
 			EvtAtInfo info = TRIGGERS.get(world);
 			if (info == null) {
 				TRIGGERS.put(world, info = new EvtAtInfo());
-				info.lastTick = (int) world.getTime() - 1;
+				info.lastCheckedTime = (int) world.getTime() - 1;
 			}
 			info.instances.add(this);
-			Collections.sort(info.instances);
 		}
 		registerListener();
 		return true;
@@ -93,13 +97,11 @@ public class EvtAtTime extends SkriptEvent implements Comparable<EvtAtTime> {
 		while (iterator.hasNext()) {
 			EvtAtInfo info = iterator.next();
 			info.instances.remove(this);
-			if (info.currentIndex >= info.instances.size())
-				info.currentIndex--;
 			if (info.instances.isEmpty())
 				iterator.remove();
 		}
 
-		if (taskID == -1 && TRIGGERS.isEmpty()) { // Unregister Bukkit listener if possible
+		if (taskID != -1 && TRIGGERS.isEmpty()) { // Unregister Bukkit listener if possible
 			Bukkit.getScheduler().cancelTask(taskID);
 			taskID = -1;
 		}
@@ -120,59 +122,64 @@ public class EvtAtTime extends SkriptEvent implements Comparable<EvtAtTime> {
 	private static void registerListener() {
 		if (taskID != -1)
 			return;
+		// For each world:
+		// check each instance in order until triggerTime > (worldTime + period)
 		taskID = Bukkit.getScheduler().scheduleSyncRepeatingTask(Skript.getInstance(), () -> {
 			for (Entry<World, EvtAtInfo> entry : TRIGGERS.entrySet()) {
 				EvtAtInfo info = entry.getValue();
-				int tick = (int) entry.getKey().getTime();
+				int worldTime = (int) entry.getKey().getTime();
 
 				// Stupid Bukkit scheduler
-				if (info.lastTick == tick)
+				// TODO: is this really necessary?
+				if (info.lastCheckedTime == worldTime)
 					continue;
 
 				// Check if time changed, e.g. by a command or plugin
-				if (info.lastTick + CHECK_PERIOD * 2 < tick || info.lastTick > tick && info.lastTick - 24000 + CHECK_PERIOD * 2 < tick)
-					info.lastTick = Math2.mod(tick - CHECK_PERIOD, 24000);
+				// if the info was last checked more than 2 cycles ago
+				// then reset the last checked time to the period just before now.
+				if (info.lastCheckedTime + CHECK_PERIOD * 2 < worldTime || (info.lastCheckedTime > worldTime && info.lastCheckedTime - 24000 + CHECK_PERIOD * 2 < worldTime))
+					info.lastCheckedTime = Math2.mod(worldTime - CHECK_PERIOD, 24000);
 
-				boolean midnight = info.lastTick > tick; // actually 6:00
+				// if we rolled over from 23999 to 0, subtract 24000 from last checked
+				boolean midnight = info.lastCheckedTime > worldTime; // actually 6:00
 				if (midnight)
-					info.lastTick -= 24000;
+					info.lastCheckedTime -= 24000;
 
-				int startIndex = info.currentIndex;
-				while (true) {
-					EvtAtTime next = info.instances.get(info.currentIndex);
-					int nextTick = midnight && next.tick > 12000 ? next.tick - 24000 : next.tick;
+				// loop instances from earliest to latest
+				for (EvtAtTime event : info.instances) {
+					// if we just rolled over, the last checked time will be x - 24000, so we need to do the same to the event time
+					int eventTime = midnight && event.time > 12000 ? event.time - 24000 : event.time;
 
-					if (!(info.lastTick < nextTick && nextTick <= tick))
+					// if the event time is in the future, we don't need to check any more events.
+					if (eventTime > worldTime)
 						break;
 
-					// Execute our event
-					ScheduledEvent event = new ScheduledEvent(entry.getKey());
-					SkriptEventHandler.logEventStart(event);
-					SkriptEventHandler.logTriggerEnd(next.trigger);
-					next.trigger.execute(event);
-					SkriptEventHandler.logTriggerEnd(next.trigger);
+					// if we should have already caught this time previously, check the next one
+					if (eventTime <= info.lastCheckedTime)
+						continue;
+
+					// anything that makes it here must satisfy lastCheckedTime < eventTime <= worldTime
+					// and therefore should trigger this event.
+					ScheduledEvent scheduledEvent = new ScheduledEvent(entry.getKey());
+					SkriptEventHandler.logEventStart(scheduledEvent);
+					SkriptEventHandler.logTriggerEnd(event.trigger);
+					event.trigger.execute(scheduledEvent);
+					SkriptEventHandler.logTriggerEnd(event.trigger);
 					SkriptEventHandler.logEventEnd();
-
-					info.currentIndex++;
-					if (info.currentIndex == info.instances.size())
-						info.currentIndex = 0;
-					if (info.currentIndex == startIndex) // All events executed at once
-						break;
 				}
-
-				info.lastTick = tick;
+				info.lastCheckedTime = worldTime;
 			}
 		}, 0, CHECK_PERIOD);
 	}
 	
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return "at " + Time.toString(tick) + " in worlds " + Classes.toString(worlds, true);
+		return "at " + Time.toString(time) + " in worlds " + Classes.toString(worlds, true);
 	}
 	
 	@Override
 	public int compareTo(@Nullable EvtAtTime event) {
-		return event == null ? tick : tick - event.tick;
+		return event == null ? time : time - event.time;
 	}
 	
 }

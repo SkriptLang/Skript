@@ -37,6 +37,7 @@ import org.bukkit.Location;
 import org.bukkit.RegionAccessor;
 import org.bukkit.World;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.eclipse.jdt.annotation.Nullable;
 
@@ -94,6 +95,7 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 		} catch (NoSuchMethodException | SecurityException ignored) { /* We already checked if the method exists */ }
 	}
 
+	private static final boolean HAS_ENABLED_BY_FEATURE = Skript.methodExists(EntityType.class, "isEnabledByFeature", World.class);
 	public final static String LANGUAGE_NODE = "entities";
 
 	public final static Message m_age_pattern = new Message(LANGUAGE_NODE + ".age pattern");
@@ -464,6 +466,28 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 	}
 
 	/**
+	 * Check if this entity type can spawn.
+	 * <p>Some entity types may be restricted by experimental datapacks.</p>
+	 *
+	 * @param world World to check if entity can spawn in
+	 * @return True if entity can spawn else false
+	 */
+	@SuppressWarnings("ConstantValue")
+	public boolean canSpawn(@Nullable World world) {
+		if (world == null)
+			return false;
+		EntityType bukkitEntityType = EntityUtils.toBukkitEntityType(this);
+		if (bukkitEntityType == null)
+			return false;
+		if (HAS_ENABLED_BY_FEATURE) {
+			// Check if the entity can actually be spawned
+			// Some entity types may be restricted by experimental datapacks
+            return bukkitEntityType.isEnabledByFeature(world) && bukkitEntityType.isSpawnable();
+		}
+		return bukkitEntityType.isSpawnable();
+	}
+
+	/**
 	 * Spawn this entity data at a location.
 	 *
 	 * @param location The {@link Location} to spawn the entity at.
@@ -476,7 +500,7 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 
 	/**
 	 * Spawn this entity data at a location.
-	 * The consumer allows for modiciation to the entity before it actually gets spawned.
+	 * The consumer allows for modification to the entity before it actually gets spawned.
 	 * <p>
 	 * Bukkit's own {@link org.bukkit.util.Consumer} is deprecated.
 	 * Use {@link #spawn(Location, Consumer)}
@@ -494,7 +518,7 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 
 	/**
 	 * Spawn this entity data at a location.
-	 * The consumer allows for modiciation to the entity before it actually gets spawned.
+	 * The consumer allows for modification to the entity before it actually gets spawned.
 	 *
 	 * @param location The {@link Location} to spawn the entity at.
 	 * @param consumer A {@link Consumer} to apply the entity changes to.
@@ -503,10 +527,13 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 	@Nullable
 	public E spawn(Location location, @Nullable Consumer<E> consumer) {
 		assert location != null;
+		World world = location.getWorld();
+		if (!canSpawn(world))
+			return null;
 		if (consumer != null) {
 			return EntityData.spawn(location, getType(), e -> consumer.accept(this.apply(e)));
 		} else {
-			return apply(location.getWorld().spawn(location, getType()));
+			return apply(world.spawn(location, getType()));
 		}
 	}
 
@@ -646,15 +673,18 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 	protected boolean deserialize(final String s) {
 		return false;
 	}
-	
+
 	@SuppressWarnings({"unchecked", "deprecation"})
 	protected static <E extends Entity> @Nullable E spawn(Location location, Class<E> type, Consumer<E> consumer) {
+		World world = location.getWorld();
+		if (world == null)
+			return null;
 		try {
 			if (WORLD_1_17_CONSUMER) {
-				return (@Nullable E) WORLD_1_17_CONSUMER_METHOD.invoke(location.getWorld(), location, type,
+				return (@Nullable E) WORLD_1_17_CONSUMER_METHOD.invoke(world, location, type,
 					(org.bukkit.util.Consumer<E>) consumer::accept);
 			} else if (WORLD_1_13_CONSUMER) {
-				return (@Nullable E) WORLD_1_13_CONSUMER_METHOD.invoke(location.getWorld(), location, type,
+				return (@Nullable E) WORLD_1_13_CONSUMER_METHOD.invoke(world, location, type,
 					(org.bukkit.util.Consumer<E>) consumer::accept);
 			}
 		} catch (InvocationTargetException | IllegalAccessException e) {
@@ -662,7 +692,7 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 				Skript.exception(e, "Can't spawn " + type.getName());
 			return null;
         }
-        return location.getWorld().spawn(location, type, consumer);
+        return world.spawn(location, type, consumer);
 	}
-	
+
 }

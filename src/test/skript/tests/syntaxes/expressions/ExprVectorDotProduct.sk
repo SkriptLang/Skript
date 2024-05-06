@@ -1,0 +1,33 @@
+test "cross product":
+	set {_v} to vector(1, 0, 0)
+	set {_w} to vector(0, 1, 0)
+	set {_u} to {_v} dot {_w}
+	assert {_u} is 0 with "dot product of orthogonal unit vectors failed (expected 0, got %{_u}%)"
+
+	set {_v} to vector(-5, 0, 0)
+	set {_w} to vector(0, 0, 10)
+	set {_u} to {_v} dot {_w}
+	assert {_u} is 0 with "dot product of orthogonal non-unit vectors failed (expected 0, got %{_u}%)"
+
+	set {_v} to vector(1, 0, 0)
+	set {_u} to {_v} dot {_v}
+	assert {_u} is 1 with "dot product of parallel unit vectors failed (expected 1, got %{_u}%)"
+
+	set {_v} to vector(1, 1, 1)
+	set {_u} to {_v} dot {_v}
+	assert {_u} is 3 with "dot product of parallel non-unit vectors failed (expected 3, got %{_u}%)"
+
+	set {_v} to vector(1, 0, 0)
+	set {_w} to vector(-1, 0, 0)
+	set {_u} to {_v} dot {_w}
+	assert {_u} is -1 with "dot product of anti-parallel unit vectors failed (expected -1, got %{_u}%)"
+
+	set {_v} to vector(1, 1, 1)
+	set {_w} to vector(-1, -1, -1)
+	set {_u} to {_v} dot {_w}
+	assert {_u} is -3 with "dot product of anti-parallel non-unit vectors failed (expected -3, got %{_u}%)"
+
+	set {_v} to vector(1, 0, 0)
+	set {_w} to vector(0, 0, 0)
+	set {_u} to {_v} dot {_w}
+	assert {_u} is 0 with "dot product of zero vector failed (expected 0, got %{_u}%)"

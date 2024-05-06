@@ -120,6 +120,28 @@ public class VisualEffects {
 		effectTypeModifiers.put(id, consumer);
 	}
 
+	@Nullable
+	static final Particle OLD_REDSTONE_PARTICLE;
+	@Nullable
+	static final Particle OLD_ITEM_CRACK_PARTICLE;
+
+	static {
+		Particle oldRedstoneParticle = null;
+		Particle oldItemCrackParticle = null;
+		if (Skript.fieldExists(Particle.class, "REDSTONE")) { // initialize legacy particle support
+			try {
+				oldRedstoneParticle = Particle.valueOf("REDSTONE");
+				oldItemCrackParticle = Particle.valueOf("ITEM_CRACK");
+			} catch (IllegalArgumentException e) {
+				oldRedstoneParticle = null;
+				oldItemCrackParticle = null;
+				Skript.exception(e, "Failed to initialize legacy particle support. Some particles may not work as expected.");
+			}
+		}
+		OLD_REDSTONE_PARTICLE = oldRedstoneParticle;
+		OLD_ITEM_CRACK_PARTICLE = oldItemCrackParticle;
+	}
+
 	static {
 		Language.addListener(() -> {
 			if (visualEffectTypes != null) // Already registered
@@ -152,7 +174,7 @@ public class VisualEffects {
 				Color color = raw == null ? defaultColor : (Color) raw;
 				ParticleOption particleOption = new ParticleOption(color, 1);
 
-				if (HAS_REDSTONE_DATA && Particle.REDSTONE.getDataType() == Particle.DustOptions.class) {
+				if (HAS_REDSTONE_DATA && (OLD_REDSTONE_PARTICLE == null || OLD_REDSTONE_PARTICLE.getDataType() == Particle.DustOptions.class)) {
 					return new Particle.DustOptions(particleOption.getBukkitColor(), particleOption.size);
 				} else {
 					return particleOption;
@@ -174,7 +196,7 @@ public class VisualEffects {
 				}
 
 				assert itemStack != null;
-				if (Particle.ITEM_CRACK.getDataType() == Material.class)
+				if (OLD_ITEM_CRACK_PARTICLE == null || OLD_ITEM_CRACK_PARTICLE.getDataType() == Material.class)
 					return itemStack.getType();
 				return itemStack;
 			});

@@ -1,0 +1,15 @@
+
+# TODO properly add test after merge of https://github.com/SkriptLang/Skript/pull/6261
+options:
+	junit: org.skriptlang.skript.test.tests.syntaxes.InventoryMoveItemEventTest
+	objective: inventory move item event success
+
+on script load:
+	ensure junit test "{@junit}" completes "{@objective}"
+
+on inventory item move:
+	assert type of event-initiator-inventory is a hopper inventory with "event-initiator-inventory should be a hopper inventory, but got %type of event-initiator-inventory%"
+	assert type of event-inventory is a chest inventory with "past event-inventory should be a chest inventory, but got %type of past event-inventory%"
+	assert type of future event-inventory is a hopper inventory with "event-inventory should be a hopper inventory, but got %type of event-inventory%"
+	assert type of event-item is a stone with "event-item should be a stone, but got %type of event-item%"
+	complete objective "{@objective}" for junit test "{@junit}"

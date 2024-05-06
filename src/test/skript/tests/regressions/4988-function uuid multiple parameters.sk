@@ -1,0 +1,36 @@
+
+# The exact function from the issue
+local function test(uuid: string, s: string) :: boolean:
+	if {_uuid} is set:
+		if  {_s} is set:
+			return true
+	return false
+
+local function return_a(a: string, b: string) :: string:
+	return {_a}
+
+local function return_b(a: string, b: string) :: string:
+	return {_b}
+
+test "4988 function uuid multiple parameters":
+
+	set {_var} to return_a(uuid of {_nothing}, "hello")
+	assert {_var} doesn't exist with "first parameter was wrong: %{_var}%"
+
+	set {_var} to return_b(uuid of {_nothing}, "hello")
+	assert {_var} is "hello" with "second parameter was wrong: %{_var}%"
+	delete {_var}
+
+	# This failed to parse in the original issue
+	set {_var} to test(uuid of {_nothing}, "foo")
+	assert {_var} is false with "function parameters were set (1): %{_var}%"
+
+	# This should parse fine
+	set {_uuid} to uuid of {_nothing}
+	set {_var} to test({_uuid}, "foo")
+	assert {_var} is false with "function parameters were set (2): %{_var}%"
+
+	# This should also parse fine
+	set {_var} to test((uuid of {_nothing}), "foo")
+	assert {_var} is false with "function parameters were set (3) %{_var}%"
+

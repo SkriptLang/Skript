@@ -1,0 +1,11 @@
+parse:
+  results: {StructParse::parse::*}
+  code:
+    parse:
+      results: "oops"
+      code:
+        on script load:
+          broadcast "hi"
+
+test "StructParse":
+  assert {StructParse::parse::*} contains """oops"" cannot be set to strings" with "StructParse error not found"

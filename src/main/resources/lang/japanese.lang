@@ -74,32 +74,32 @@ skript command:
 		all:
 			enabling: 無効化された全てのスクリプトを有効化しています...
 			enabled: 全ての無効化されていたスクリプトの解析・有効化に成功しました。
-			error: 解析中に%s個のエラーが見つかりました！
-			io error: 一つもしくは複数のスクリプトがロードできませんでした。 一部のスクリプトはファイル名が変更された可能性があります。 またサーバー再起動時に有効化されます: %s
+			error: <light red>解析中に%s個のエラーが見つかりました！
+			io error: <light red>一つもしくは複数のスクリプトがロードできませんでした。 一部のスクリプトはファイル名が変更された可能性があります。 またサーバー再起動時に有効化されます: <gold>%s
 		single:
 			already enabled: <gold>%s<reset>はすでに有効化されています! もし変更を反映したい場合は<gray>/<gold>skript <cyan>reload <red>%s<reset>を使用して再読み込みします。
 			enabling: <gold>%s<reset>を有効化しています...
 			enabled: <gold>%s<reset>の解析・有効化に成功しました。
-			error: <gold>%1$s<red>を解析中に%2$s個のエラーが見つかりました！
-			io error: <gold>%s<red>は有効化できませんでした。: %s
+			error: <gold>%1$s<light red>を解析中に<gold>%2$s<light red>個のエラーが見つかりました！
+			io error: <gold>%s<light red>は有効化できませんでした。: <gold>%s
 		folder:
 			empty: <gold>%s<reset>フォルダ内に無効化されたスクリプトが見つかりませんでした。
 			enabling: <gold>%1$s<reset>フォルダ内の<gold>%2$s<reset>個のスクリプトを有効化しています...
 			enabled: <gold>%1$s<reset>フォルダ内にある無効化されていた<gold>%2$s<reset>の解析・有効化に成功しました。
-			error: <gold>%1$s<red>フォルダ内のスクリプトを解析中に%2$s個のエラーが見つかりました！
-			io error: <gold>%s<red>フォルダ内の一つもしくは複数のスクリプトのロード時にエラーが発生しました。 (一部のスクリプトはサーバー再起動時に有効になる場合があります): %s
+			error: <gold>%1$s<light red>フォルダ内のスクリプトを解析中に<gold>%2$s<light red>個のエラーが見つかりました！
+			io error: <gold>%s<light red>フォルダ内の一つもしくは複数のスクリプトのロード時にエラーが発生しました。 (一部のスクリプトはサーバー再起動時に有効になる場合があります): <gold>%s
 	disable:
 		all:
 			disabled: 全てのスクリプトの無効化に成功しました。
-			io error: 一つもしくは複数のスクリプトのファイル名を変更できませんでした。 一部のスクリプトはファイル名が変更された可能性があります。 またサーバー再起動時に無効化されます: %s
+			io error: <light red>一つもしくは複数のスクリプトのファイル名を変更できませんでした。 一部のスクリプトはファイル名が変更された可能性があります。 またサーバー再起動時に無効化されます: <gold>%s
 		single:
 			already disabled: <gold>%s<reset>はすでに無効化されています！
 			disabled: <gold>%s<reset>の無効化に成功しました。
-			io error: <gold>%s<red>のファイル名の変更ができませんでした。 サーバー再起動時に再度有効化されます: %s
+			io error: <gold>%s<light red>のファイル名の変更ができませんでした。 サーバー再起動時に再度有効化されます: <gold>%s
 		folder:
 			empty: <gold>%s<reset>フォルダ内に有効化されたスクリプトが見つかりませんでした。
 			disabled: <gold>%1$s<reset>フォルダ内の<gold>%2$s<reset>個のスクリプトが無効化されました。
-			io error: <gold>%s<red>フォルダ内の一つもしくは複数のスクリプトのファイル名を変更できませんでした。 (一部のスクリプトはサーバー再起動時に無効化される場合があります): %s
+			io error: <gold>%s<light red>フォルダ内の一つもしくは複数のスクリプトのファイル名を変更できませんでした。 (一部のスクリプトはサーバー再起動時に無効化される場合があります): <gold>%s
 	update:
 		# check/download: Upadater をご確認ください
 		changes:
