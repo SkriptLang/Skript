@@ -47,6 +47,10 @@ skript command:
 		info: Prints a message with links to Skript's aliases and documentation
 		gen-docs: Generates documentation using docs/templates in plugin folder
 		test: Used for running internal Skript tests
+		search:
+			description: Search for any phrase inside your scripts.
+			all: Searches all of your scripts for your desired phrase.
+			<script>: Searches a specific script, or a folder of scripts
 
 	invalid script: Can't find the script <grey>'<gold>%s<grey>'<red> in the scripts folder!
 	invalid folder: Can't find the folder <grey>'<gold>%s<grey>'<red> in the scripts folder!
@@ -117,6 +121,18 @@ skript command:
 		server: Server Version: <aqua>%s
 		addons: Installed Skript Addons: <aqua>%s
 		dependencies: Installed dependencies: <aqua>%s
+	search:
+		all:
+			searching: Searching all scripts for '<gold>%s<reset>'...
+			found: Found '<gold>%s<reset>' in <gold>%s<reset> on line <gold>%s<reset>: <gold>%s
+			not found: No results found for '<gold>%s<reset>'.
+			error: <light red>Encountered an error while searching scripts: <gold>%s
+		single:
+			searching: Searching <gold>%s<reset> for '<gold>%s<reset>'...
+			found: Found '<gold>%s<reset>' on line <gold>%s<reset>: <gold>%s
+			not found: No results found for '<gold>%s<reset>' in <gold>%s<reset>.
+			error: <light red>Encountered an error while searching <gold>%s<reset>: <gold>%s
+
 
 # -- Updater --
 updater:

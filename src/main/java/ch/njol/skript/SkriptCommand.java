@@ -44,9 +44,12 @@ import org.bukkit.plugin.PluginDescriptionFile;
 import org.eclipse.jdt.annotation.Nullable;
 import org.skriptlang.skript.lang.script.Script;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileFilter;
+import java.io.FileReader;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
@@ -55,7 +58,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 public class SkriptCommand implements CommandExecutor {
-	
+
 	private static final String CONFIG_NODE = "skript command";
 	private static final ArgsMessage m_reloading = new ArgsMessage(CONFIG_NODE + ".reload.reloading");
 
@@ -79,7 +82,10 @@ public class SkriptCommand implements CommandExecutor {
 			.add("changes")
 			.add("download")
 		).add("info"
-		).add("help");
+		).add("help"
+		).add(new CommandHelp("search", SkriptColor.DARK_RED)
+			.add("all")
+			.add("<script>"));
 
 	static {
 		// Add command to generate documentation
@@ -90,15 +96,15 @@ public class SkriptCommand implements CommandExecutor {
 		if (TestMode.DEV_MODE)
 			SKRIPT_COMMAND_HELP.add("test");
 	}
-	
+
 	private static void reloading(CommandSender sender, String what, Object... args) {
 		what = args.length == 0 ? Language.get(CONFIG_NODE + ".reload." + what) : Language.format(CONFIG_NODE + ".reload." + what, args);
 		Skript.info(sender, StringUtils.fixCapitalization(m_reloading.toString(what)));
 	}
-	
+
 	private static final ArgsMessage m_reloaded = new ArgsMessage(CONFIG_NODE + ".reload.reloaded");
 	private static final ArgsMessage m_reload_error = new ArgsMessage(CONFIG_NODE + ".reload.error");
-	
+
 	private static void reloaded(CommandSender sender, RedirectingLogHandler r, TimingLogHandler timingLogHandler, String what, Object... args) {
 		what = args.length == 0 ? Language.get(CONFIG_NODE + ".reload." + what) : PluralizingArgsMessage.format(Language.format(CONFIG_NODE + ".reload." + what, args));
 		String timeTaken  = String.valueOf(timingLogHandler.getTimeTaken());
@@ -108,12 +114,12 @@ public class SkriptCommand implements CommandExecutor {
 		else
 			Skript.error(sender, StringUtils.fixCapitalization(PluralizingArgsMessage.format(m_reload_error.toString(what, r.numErrors(), timeTaken))));
 	}
-	
+
 	private static void info(CommandSender sender, String what, Object... args) {
 		what = args.length == 0 ? Language.get(CONFIG_NODE + "." + what) : PluralizingArgsMessage.format(Language.format(CONFIG_NODE + "." + what, args));
 		Skript.info(sender, StringUtils.fixCapitalization(what));
 	}
-	
+
 	private static void error(CommandSender sender, String what, Object... args) {
 		what = args.length == 0 ? Language.get(CONFIG_NODE + "." + what) : PluralizingArgsMessage.format(Language.format(CONFIG_NODE + "." + what, args));
 		Skript.error(sender, StringUtils.fixCapitalization(what));
@@ -450,6 +456,41 @@ public class SkriptCommand implements CommandExecutor {
 				SKRIPT_COMMAND_HELP.showHelp(sender);
 			}
 
+			if (args[0].equalsIgnoreCase("search")) {
+				if (args.length < 3) {
+					Skript.info(sender, "search.usage");
+					return false;
+				}
+
+				String scriptName = args[1];
+				String phrase = String.join(" ", Arrays.copyOfRange(args, 2, args.length));
+
+				if (scriptName.equalsIgnoreCase("all")) {
+					info(sender, "search.all.searching", phrase);
+					List<String> results = new ArrayList<>();
+					for (File scriptFile : Skript.getInstance().getScriptsFolder().listFiles()) {
+						searchInScript(sender, scriptFile, phrase, results);
+					}
+					info(sender, "Found " + results.size() + " results");
+					for (String result : results) {
+						sender.sendMessage(result);
+					}
+				} else {
+					File scriptFile = new File(Skript.getInstance().getScriptsFolder(), scriptName);
+					if (!scriptFile.exists()) {
+						info(sender, "search.single.not found", scriptName);
+						return false;
+					}
+					info(sender, "search.single.searching", scriptName, phrase);
+					List<String> results = new ArrayList<>();
+					searchInScript(sender, scriptFile, phrase, results);
+					Skript.info(sender, "Found " + results.size() + " results");
+					for (String result : results) {
+						sender.sendMessage(result);
+					}
+				}
+			}
+
 		} catch (Exception e) {
 			//noinspection ThrowableNotThrown
 			Skript.exception(e, "Exception occurred in Skript's main command", "Used command: /" + label + " " + StringUtils.join(args, " "));
@@ -457,10 +498,10 @@ public class SkriptCommand implements CommandExecutor {
 
 		return true;
 	}
-	
+
 	private static final ArgsMessage m_invalid_script = new ArgsMessage(CONFIG_NODE + ".invalid script");
 	private static final ArgsMessage m_invalid_folder = new ArgsMessage(CONFIG_NODE + ".invalid folder");
-	
+
 	@Nullable
 	private static File getScriptFromArgs(CommandSender sender, String[] args) {
 		String script = StringUtils.join(args, " ", 1, args.length);
@@ -473,7 +514,7 @@ public class SkriptCommand implements CommandExecutor {
 		}
 		return f;
 	}
-	
+
 	@Nullable
 	public static File getScriptFromName(String script) {
 		if (script.endsWith("/") || script.endsWith("\\")) { // Always allow '/' and '\' regardless of OS
@@ -515,7 +556,7 @@ public class SkriptCommand implements CommandExecutor {
 			false
 		);
 	}
-	
+
 	private static Set<File> toggleFiles(File folder, boolean enable) throws IOException {
 		FileFilter filter = enable ? ScriptLoader.getDisabledScriptsFilter() : ScriptLoader.getLoadedScriptsFilter();
 
@@ -537,5 +578,25 @@ public class SkriptCommand implements CommandExecutor {
 
 		return changed;
 	}
-	
+
+	private void searchInScript(CommandSender sender, File file, String phrase, List<String> results) {
+		if (file.isDirectory()) {
+			for (File subFile : file.listFiles()) {
+				searchInScript(sender, subFile, phrase, results);
+			}
+		} else {
+			try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+				String line;
+				int lineNumber = 0;
+				while ((line = reader.readLine()) != null) {
+					lineNumber++;
+					if (line.contains(phrase)) {
+						results.add("§6§lLine " + lineNumber + " §r§7(" + file.getName() + ")\n    §6Line: §7" + line.trim().replace(phrase, "§e" + phrase + "§7"));
+					}
+				}
+			} catch (IOException e) {
+				Skript.error(sender, "An error occurred while reading the script '" + file.getName() + "': " + e.getMessage());
+			}
+		}
+	}
 }
