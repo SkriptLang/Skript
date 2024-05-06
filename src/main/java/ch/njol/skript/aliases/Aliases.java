@@ -244,6 +244,7 @@ public abstract class Aliases {
 	public static ItemType parseItemType(String s) {
 		if (s.isEmpty())
 			return null;
+		s = s.replace("_", " ");
 		s = "" + s.trim();
 		
 		final ItemType t = new ItemType();
