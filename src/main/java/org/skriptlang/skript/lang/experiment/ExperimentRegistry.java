@@ -47,6 +47,7 @@ public class ExperimentRegistry implements Experimented {
 
 	/**
 	 * Finds an experiment matching this name. If none exist, an 'unknown' one will be created.
+	 *
 	 * @param text The text provided by the user.
 	 * @return An experiment.
 	 */
@@ -70,6 +71,7 @@ public class ExperimentRegistry implements Experimented {
 	/**
 	 * Registers a new experimental feature flag, which will be available to scripts
 	 * with the {@code using %name%} structure.
+	 *
 	 * @param addon The source of this feature.
 	 * @param experiment The experimental feature flag.
 	 */
@@ -79,8 +81,30 @@ public class ExperimentRegistry implements Experimented {
 	}
 
 	/**
+	 * @see #register(SkriptAddon, Experiment)
+	 */
+	public void registerAll(SkriptAddon addon, Experiment... experiments) {
+		for (Experiment experiment : experiments) {
+			this.register(addon, experiment);
+		}
+	}
+
+	/**
+	 * Unregisters an experimental feature flag.
+	 * Loaded scripts currently using the flag will not have it disabled.
+	 *
+	 * @param addon The source of this feature.
+	 * @param experiment The experimental feature flag.
+	 */
+	public void unregister(SkriptAddon addon, Experiment experiment) {
+		// the addon instance is requested for now in case we need it in future (for error triage)
+		this.experiments.remove(experiment);
+	}
+
+	/**
 	 * Creates (and registers) a new experimental feature flag, which will be available to scripts
 	 * with the {@code using %name%} structure.
+	 *
 	 * @param addon The source of this feature.
 	 * @param codeName The debug 'code name' of this feature.
 	 * @param phase The stability of this feature.
