@@ -23,6 +23,7 @@ import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Events;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
+import ch.njol.skript.doc.RequiredPlugins;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Condition;
 import ch.njol.skript.lang.Expression;
@@ -34,26 +35,28 @@ import org.bukkit.event.player.PlayerUnleashEntityEvent;
 import org.jetbrains.annotations.Nullable;
 
 @Name("Leash Will Drop")
-@Description("Checks whether the leash will drop in an unleash event.")
+@Description("Checks whether the leash item will drop during the leash detached in an unleash event.")
 @Examples({
 	"on unleash:",
 		"\tif the leash will drop:",
 			"\t\tprevent the leash from dropping",
-		"\telse if the leash will drop:",
+		"\telse:",
 			"\t\tallow the leash to drop"
 })
 @Events("Unleash")
+@RequiredPlugins("Paper 1.16+")
 @Since("INSERT VERSION")
 public class CondLeashWillDrop extends Condition {
 
 	static {
-		Skript.registerCondition(CondLeashWillDrop.class, "[the] (lead|leash) will [:not] (drop|be dropped)");
+		if (Skript.methodExists(EntityUnleashEvent.class, "isDropLeash"))
+			Skript.registerCondition(CondLeashWillDrop.class, "[the] (lead|leash) [item] [not:(won't|will not)] (drop|be dropped)");
 	}
 
 	@Override
 	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		if (!getParser().isCurrentEvent(PlayerUnleashEntityEvent.class, EntityUnleashEvent.class)) {
-			Skript.error("The 'leash will drop' condition can only be used in an 'unleash' event.");
+			Skript.error("The 'leash will drop' condition can only be used in an 'unleash' event");
 			return false;
 		}
 		setNegated(parseResult.hasTag("not"));
@@ -69,7 +72,7 @@ public class CondLeashWillDrop extends Condition {
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return "leash will" + (isNegated() ? " not " : " ") + "be dropped";
+		return "leash will" + (isNegated() ? " not" : "") + " be dropped";
 	}
 
 }

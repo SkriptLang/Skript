@@ -36,20 +36,18 @@ import org.jetbrains.annotations.Nullable;
 public class EvtLeash extends SkriptEvent {
 
 	static {
-		Skript.registerEvent("Leash / Unleash", EvtLeash.class, CollectionUtils.array(PlayerLeashEntityEvent.class, EntityUnleashEvent.class), "[:un]leash[ing] [[of] %-entitydatas%]")
-			.description("Called when an entity is leashed or unleashed.")
+		Skript.registerEvent("Leash / Unleash", EvtLeash.class, CollectionUtils.array(PlayerLeashEntityEvent.class, EntityUnleashEvent.class), "[:player] [:un]leash[ing] [[of] %-entitydatas%]")
+			.description("Called when an entity is leashed or unleashed. Cancelling any of these respective events will prevent the leash or unleash to occur.")
 			.examples(
-					"on leash of a sheep:",
+					"on player leash of a sheep:",
 						"\tsend \"Baaaaa--\" to player",
+					"on player leash:",
+						"\tsend \"<%event-entity%> Let me go!\" to player",
 					"on unleash:",
-						"\tbroadcast \"%event-entity% has been unleashed!\""
+						"\tbroadcast \"<%event-entity%> I'm free\"",
+					"on player unleash:",
+						"\tsend \"<%event-entity%> Thanks for free-ing me!\" to player"
 			)
-			.since("INSERT VERSION");
-		Skript.registerEvent("Player Unleash", EvtLeash.class, PlayerUnleashEntityEvent.class, "(:player) unleash[ing] [[of] %-entitydatas%]")
-			.description("Called when an entity is unleashed specifically by a player.")
-			.examples(
-					"on player unleashing a sheep:",
-						"\tsend \"Baaa baaaaa--\" to player")
 			.since("INSERT VERSION");
 	}
 
@@ -80,12 +78,12 @@ public class EvtLeash extends SkriptEvent {
 	@Override
 	public boolean init(Literal<?>[] args, int matchedPattern, ParseResult parseResult) {
 		types = args[0] == null ? null : ((Literal<EntityData<?>>) args[0]).getAll();
-		if (parseResult.hasTag("player")) {
-			eventType = EventType.UNLEASH_BY_PLAYER;
-		} else if (parseResult.hasTag("un")) {
+		eventType = EventType.LEASH;
+		if (parseResult.hasTag("un")) {
 			eventType = EventType.UNLEASH;
-		} else {
-			eventType = EventType.LEASH;
+			if (parseResult.hasTag("player")) {
+				eventType = EventType.UNLEASH_BY_PLAYER;
+			}
 		}
 		return true;
 	}
