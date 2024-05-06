@@ -20,7 +20,9 @@ package org.skriptlang.skript.lang.experiment;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptAddon;
+import org.eclipse.jdt.annotation.Nullable;
 import org.jetbrains.annotations.NotNull;
+import org.skriptlang.skript.lang.script.Script;
 
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -125,6 +127,24 @@ public class ExperimentRegistry implements Experimented {
 	@Override
 	public boolean hasExperiment(String featureName) {
 		return this.find(featureName).isKnown();
+	}
+
+	public boolean isUsing(Script script, Experiment experiment) {
+		if (script == null)
+			return false;
+		@Nullable ExperimentSet set = script.getData(ExperimentSet.class);
+		if (set == null)
+			return false;
+		return set.hasExperiment(experiment);
+	}
+
+	public boolean isUsing(Script script, String featureName) {
+		if (script == null)
+			return false;
+		@Nullable ExperimentSet set = script.getData(ExperimentSet.class);
+		if (set == null)
+			return false;
+		return set.hasExperiment(featureName);
 	}
 
 }

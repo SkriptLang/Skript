@@ -22,9 +22,6 @@ import ch.njol.skript.config.Config;
 import org.eclipse.jdt.annotation.Nullable;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Unmodifiable;
-import org.skriptlang.skript.lang.experiment.Experiment;
-import org.skriptlang.skript.lang.experiment.ExperimentSet;
-import org.skriptlang.skript.lang.experiment.Experimented;
 import org.skriptlang.skript.lang.structure.Structure;
 
 import java.util.List;
@@ -42,7 +39,7 @@ import java.util.stream.Collectors;
  * Every script also has its own internal information, such as
  *  custom data, suppressed warnings, and associated event handlers.
  */
-public final class Script implements Experimented {
+public final class Script {
 
 	private final Config config;
 
@@ -220,40 +217,6 @@ public final class Script implements Experimented {
 				.filter(event -> type.isAssignableFrom(event.getClass()))
 				.collect(Collectors.toSet())
 		);
-	}
-
-	@Override
-	public boolean hasExperiment(Experiment experiment) {
-		@Nullable ExperimentSet set = this.getData(ExperimentSet.class);
-		if (set == null)
-			return false;
-		return set.contains(experiment);
-	}
-
-	/**
-	 * Marks this as using an experimental feature.
-	 * @param experiment The feature to register.
-	 */
-	@ApiStatus.Internal
-	public void addExperiment(Experiment experiment) {
-		@Nullable ExperimentSet set = this.getData(ExperimentSet.class);
-		if (set == null) {
-			set = new ExperimentSet();
-			this.addData(set);
-		}
-		set.add(experiment);
-	}
-
-	/**
-	 * Marks this as no longer using an experimental feature (e.g. during de-registration or reload).
-	 * @param experiment The feature to unregister.
-	 */
-	@ApiStatus.Internal
-	public void removeExperiment(Experiment experiment) {
-		@Nullable ExperimentSet set = this.getData(ExperimentSet.class);
-		if (set == null)
-			return;
-		set.remove(experiment);
 	}
 
 }

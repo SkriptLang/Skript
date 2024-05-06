@@ -71,7 +71,7 @@ public class StructUsing extends Structure {
 			case UNKNOWN:
 				Skript.warning("The experimental feature '" + name + "' was not found.");
 		}
-		this.getParser().getCurrentScript().addExperiment(experiment);
+		this.getParser().addExperiment(experiment);
 	}
 
 	@Override

@@ -42,7 +42,7 @@ public class ExprExperimentalOnly extends SimpleExpression<Boolean> {
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		return this.getParser().getCurrentScript().hasExperiment(TestFeatures.EXAMPLE_FEATURE);
+		return this.getParser().hasExperiment(TestFeatures.EXAMPLE_FEATURE);
 	}
 
 	@Override

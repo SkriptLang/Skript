@@ -26,13 +26,11 @@ import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Condition;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
-import ch.njol.skript.lang.VariableString;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.lang.experiment.Experiment;
-import org.skriptlang.skript.lang.script.Script;
+import org.skriptlang.skript.lang.experiment.Experimented;
 
 @SuppressWarnings("NotNullFieldNotInitialized")
 @Name("Is Using Experimental Feature")
@@ -50,8 +48,7 @@ public class CondIsUsingFeature extends Condition {
 	}
 
 	private Expression<String> names;
-	private Script script;
-	private @Nullable Boolean knownResult;
+	private Experimented snapshot;
 
 	@SuppressWarnings("null")
 	@Override
@@ -59,22 +56,12 @@ public class CondIsUsingFeature extends Condition {
 		//noinspection unchecked
 		this.names = (Expression<String>) expressions[0];
 		this.setNegated(pattern == 1);
-		this.script = this.getParser().getCurrentScript();
-		// if this is a 'simple' variablestring with no inputs we can check it during parse time
-		if (names instanceof VariableString) {
-			VariableString string = (VariableString) names;
-			if (string.isSimple()) {
-				String value = string.toString(null);
-				knownResult = this.isNegated() ^ this.hasExperiment(value);
-			}
-		}
+		this.snapshot = this.getParser().experimentSnapshot();
 		return true;
 	}
 
 	@Override
 	public boolean check(Event event) {
-		if (knownResult != null) // we checked this in advance during init
-			return knownResult;
 		String[] array = names.getArray(event);
 		if (array.length == 0)
 			return true;
@@ -86,8 +73,7 @@ public class CondIsUsingFeature extends Condition {
 	}
 
 	protected boolean hasExperiment(String name) {
-		Experiment experiment = Skript.experiments().find(name);
-		return script.hasExperiment(experiment);
+		return snapshot.hasExperiment(name);
 	}
 
 	@Override
