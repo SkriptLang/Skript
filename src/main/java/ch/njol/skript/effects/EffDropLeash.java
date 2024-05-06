@@ -47,9 +47,10 @@ import org.jetbrains.annotations.Nullable;
 public class EffDropLeash extends Effect {
 
 	static {
-		Skript.registerEffect(EffDropLeash.class,
-			"allow [the] (lead|leash) to drop",
-			"prevent [the] (lead|leash) from dropping"
+		if (Skript.methodExists(EntityUnleashEvent.class, "setDropLeash", boolean.class))
+			Skript.registerEffect(EffDropLeash.class,
+			"allow [the] (lead|leash) [item] to drop",
+			"prevent [the] (lead|leash) [item] from dropping"
 		);
 	}
 
@@ -58,7 +59,7 @@ public class EffDropLeash extends Effect {
 	@Override
 	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
 		if (!getParser().isCurrentEvent(PlayerUnleashEntityEvent.class, EntityUnleashEvent.class)) {
-			Skript.error("The 'drop leash' effect can only be used in an 'unleash' event.");
+			Skript.error("The 'drop leash' effect can only be used in an 'unleash' event");
 			return false;
 		}
 		allowLeashDrop = matchedPattern == 0;
