@@ -31,10 +31,10 @@ import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.jetbrains.annotations.UnknownNullability;
 import org.skriptlang.skript.lang.experiment.Experiment;
 import org.skriptlang.skript.lang.script.Script;
 
+@SuppressWarnings("NotNullFieldNotInitialized")
 @Name("Is Using Experimental Feature")
 @Description("Checks whether a script is using an experimental feature by name.")
 @Examples({"the script is using \"example feature\"",
@@ -49,10 +49,10 @@ public class CondIsUsingFeature extends Condition {
 								 "[the] [current] script is(n't| not) using %strings%");
 	}
 
-	private @UnknownNullability Expression<String> names;
-	private @UnknownNullability Script script;
+	private Expression<String> names;
+	private Script script;
 	private @Nullable Boolean knownResult;
-	
+
 	@SuppressWarnings("null")
 	@Override
 	public boolean init(Expression<?>[] expressions, int pattern, Kleenean delayed, ParseResult result) {
@@ -70,7 +70,7 @@ public class CondIsUsingFeature extends Condition {
 		}
 		return true;
 	}
-	
+
 	@Override
 	public boolean check(Event event) {
 		if (knownResult != null) // we checked this in advance during init
@@ -85,15 +85,14 @@ public class CondIsUsingFeature extends Condition {
 		return this.isNegated() ^ isUsing;
 	}
 
-	@Override
-	public boolean hasExperiment(String name) {
+	protected boolean hasExperiment(String name) {
 		Experiment experiment = Skript.experiments().find(name);
 		return script.hasExperiment(experiment);
 	}
-	
+
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
 		return "the current script " + (isNegated() ? " isn't" : " is") + " using " + names.toString(event, debug);
 	}
-	
+
 }

@@ -23,12 +23,12 @@ import org.eclipse.jdt.annotation.Nullable;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Unmodifiable;
 import org.skriptlang.skript.lang.experiment.Experiment;
+import org.skriptlang.skript.lang.experiment.ExperimentSet;
 import org.skriptlang.skript.lang.experiment.Experimented;
 import org.skriptlang.skript.lang.structure.Structure;
 
 import java.util.List;
 import java.util.Set;
-import java.util.LinkedHashSet;
 import java.util.Collections;
 import java.util.Map;
 import java.util.HashSet;
@@ -47,7 +47,6 @@ public final class Script implements Experimented {
 	private final Config config;
 
 	private final List<Structure> structures;
-	private final Set<Experiment> experiments;
 
 	/**
 	 * Creates a new Script to be used across the API.
@@ -59,7 +58,6 @@ public final class Script implements Experimented {
 	public Script(Config config, List<Structure> structures) {
 		this.config = config;
 		this.structures = structures;
-		this.experiments = new LinkedHashSet<>();
 	}
 
 	/**
@@ -226,7 +224,10 @@ public final class Script implements Experimented {
 
 	@Override
 	public boolean hasExperiment(Experiment experiment) {
-		return experiments.contains(experiment);
+		@Nullable ExperimentSet set = this.getData(ExperimentSet.class);
+		if (set == null)
+			return false;
+		return set.contains(experiment);
 	}
 
 	/**
@@ -235,7 +236,12 @@ public final class Script implements Experimented {
 	 */
 	@ApiStatus.Internal
 	public void addExperiment(Experiment experiment) {
-		this.experiments.add(experiment);
+		@Nullable ExperimentSet set = this.getData(ExperimentSet.class);
+		if (set == null) {
+			set = new ExperimentSet();
+			this.addData(set);
+		}
+		set.add(experiment);
 	}
 
 	/**
@@ -244,7 +250,10 @@ public final class Script implements Experimented {
 	 */
 	@ApiStatus.Internal
 	public void removeExperiment(Experiment experiment) {
-		this.experiments.remove(experiment);
+		@Nullable ExperimentSet set = this.getData(ExperimentSet.class);
+		if (set == null)
+			return;
+		set.remove(experiment);
 	}
 
 }

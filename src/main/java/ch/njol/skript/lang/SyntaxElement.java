@@ -18,22 +18,18 @@
  */
 package ch.njol.skript.lang;
 
-import ch.njol.skript.SkriptAPIException;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.parser.ParserInstance;
 import ch.njol.util.Kleenean;
-import org.skriptlang.skript.lang.experiment.Experiment;
-import org.skriptlang.skript.lang.experiment.Experimented;
-import org.skriptlang.skript.lang.script.Script;
 
 /**
  * Represents a general part of the syntax.
  */
-public interface SyntaxElement extends Experimented {
+public interface SyntaxElement {
 
 	/**
 	 * Called just after the constructor.
-	 * 
+	 *
 	 * @param expressions all %expr%s included in the matching pattern in the order they appear in the pattern. If an optional value was left out, it will still be included in this list
 	 *            holding the default value of the desired type, which usually depends on the event.
 	 * @param matchedPattern The index of the pattern which matched
@@ -49,20 +45,6 @@ public interface SyntaxElement extends Experimented {
 	 */
 	default ParserInstance getParser() {
 		return ParserInstance.get();
-	}
-
-	/**
-	 * Available during parsing to check whether a script has an experiment enabled.
-	 * @param experiment The experiment to test.
-	 * @return Whether the currently-parsing script
-	 * @throws SkriptAPIException If the current script is not available in the parser instance.
-	 */
-	@Override
-	default boolean hasExperiment(Experiment experiment) throws SkriptAPIException {
-		if (!this.getParser().isActive())
-			return false;
-		Script script = this.getParser().getCurrentScript();
-		return script.hasExperiment(experiment);
 	}
 
 }
