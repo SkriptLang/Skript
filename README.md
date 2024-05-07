@@ -20,7 +20,7 @@ Skript supports only the **latest** patch versions of Minecraft 1.13+.
 For example, this means that 1.16.5 is supported, but 1.16.4 is *not*.
 Testing with all old patch versions is not feasible for us.
 
-Minecraft 1.13 and earlier are not, and will not be supported. New Minecraft
+Minecraft 1.12 and earlier are not, and will not be supported. New Minecraft
 versions will be supported as soon as possible.
 
 ## Download
