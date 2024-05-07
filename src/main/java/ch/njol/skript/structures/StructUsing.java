@@ -51,7 +51,8 @@ public class StructUsing extends Structure {
 		Skript.registerSimpleStructure(StructUsing.class, "using <.+>");
 	}
 
-	private @UnknownNullability Experiment experiment;
+	@SuppressWarnings("NotNullFieldNotInitialized")
+	private Experiment experiment;
 
 	@Override
 	public boolean init(Literal<?> @NotNull [] arguments, int pattern, ParseResult result, @Nullable EntryContainer container) {

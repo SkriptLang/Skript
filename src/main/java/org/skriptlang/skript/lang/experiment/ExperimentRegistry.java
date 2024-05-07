@@ -129,6 +129,12 @@ public class ExperimentRegistry implements Experimented {
 		return this.find(featureName).isKnown();
 	}
 
+	/**
+	 * Whether a script is using an experiment.
+	 * @param script The script to test
+	 * @param experiment The experimental flag
+	 * @return Whether the script declared itself as `using X`
+	 */
 	public boolean isUsing(Script script, Experiment experiment) {
 		if (script == null)
 			return false;
@@ -138,6 +144,12 @@ public class ExperimentRegistry implements Experimented {
 		return set.hasExperiment(experiment);
 	}
 
+	/**
+	 * Whether a script is using an experiment.
+	 * @param script The script to test
+	 * @param featureName The experimental flag's name
+	 * @return Whether the script declared itself as `using X`
+	 */
 	public boolean isUsing(Script script, String featureName) {
 		if (script == null)
 			return false;
