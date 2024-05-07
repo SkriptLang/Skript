@@ -34,6 +34,8 @@ import org.bukkit.ServerTickManager;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 
+import java.util.Locale;
+
 @Name("Server Tick State")
 @Description("Represents the ticking state of the server, for example, if the server is frozen, or running normally.")
 @Examples({"if server's tick state is currently frozen:", "if server tick state is normal:"})
@@ -56,16 +58,13 @@ public class CondServerTickState extends Condition {
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		String tag = parseResult.expr;
-		if (tag != null) {
-			try {
-				state = ServerState.valueOf(tag.toUpperCase());
-			} catch (IllegalArgumentException e) {
-				Skript.error("Invalid argument.");
-			}
+		if (!parseResult.tags.isEmpty()) {
+			String tag = parseResult.tags.get(0).toUpperCase(Locale.ENGLISH);
+			state = ServerState.valueOf(tag);
 		}
 		return true;
 	}
+
 
 
 	@Override
