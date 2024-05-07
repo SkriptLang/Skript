@@ -37,9 +37,12 @@ import org.jetbrains.annotations.Nullable;
 @Name("Sprint Server")
 @Description({
 	"Requests the server to sprint for a certain amount of time, or stops the server from sprinting.",
-	"Sprinting is where the server increases the tick rate depending on the time you input, and resets the tick rate to what it was after it has finished sprinting."
+	"Sprinting is where the server increases the tick rate depending on the time you input, and resets the tick rate to what it was after the server has finished sprinting."
 })
-@Examples({"request server to sprint for 10 seconds", "make server stop sprinting"})
+@Examples({
+	"request server to sprint for 10 seconds",
+	"make server stop sprinting"
+})
 @Since("INSERT VERSION")
 @RequiredPlugins("Minecraft 1.20.4+")
 public class EffSprintServer extends Effect {

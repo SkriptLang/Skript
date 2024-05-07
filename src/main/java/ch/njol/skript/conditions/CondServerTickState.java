@@ -38,7 +38,10 @@ import java.util.Locale;
 
 @Name("Server Tick State")
 @Description("Represents the ticking state of the server, for example, if the server is frozen, or running normally.")
-@Examples({"if server's tick state is currently frozen:", "if server tick state is normal:"})
+@Examples({
+	"if server's tick state is currently frozen:",
+	"if server tick state is normal:"
+})
 @Since("INSERT VERSION")
 @RequiredPlugins("Minecraft 1.20.4+")
 public class CondServerTickState extends Condition {

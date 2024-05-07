@@ -37,7 +37,10 @@ import org.jetbrains.annotations.Nullable;
 @Description({
 	"Makes the server \"step\" for a certain amount of time while the server's tick state is frozen.",
 	"When you step, the server goes forward that amount of time in ticks."})
-@Examples({"make server step for 5 seconds", "make server stop stepping"})
+@Examples({
+	"make server step for 5 seconds",
+	"make server stop stepping"
+})
 @Since("INSERT VERSION")
 @RequiredPlugins("Minecraft 1.20.4+")
 public class EffStepServer extends Effect {

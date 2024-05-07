@@ -34,7 +34,10 @@ import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 @Name("Freeze/Unfreeze Server")
 @Description("Freezes or unfreezes the server.")
-@Examples({"freeze server", "unfreeze server"})
+@Examples({
+	"freeze server",
+	"unfreeze server"
+})
 @Since("INSERT VERSION")
 @RequiredPlugins("Minecraft 1.20.4+")
 public class EffFreezeServer extends Effect {
