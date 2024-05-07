@@ -424,11 +424,7 @@ public final class ParserInstance implements Experimented {
 	@ApiStatus.Internal
 	public void addExperiment(Experiment experiment) {
 		Script script = this.getCurrentScript();
-		@Nullable ExperimentSet set = script.getData(ExperimentSet.class);
-		if (set == null) {
-			set = new ExperimentSet();
-			script.addData(set);
-		}
+		ExperimentSet set = script.getData(ExperimentSet.class, () -> new ExperimentSet());
 		set.add(experiment);
 	}
 

@@ -1,4 +1,3 @@
-
 test "using before declaration":
 	assert the current script is using "example feature" with "using feature failed"
 	assert experimental only is true with "feature-conditional syntax failed"
