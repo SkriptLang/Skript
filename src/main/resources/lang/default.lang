@@ -95,6 +95,10 @@ enchantments:
 		soul_speed: Soul Speed
 		# new 1.19 Enchantment
 		swift_sneak: Swift Sneak
+		# new 1.21 Enchantments (added in 1.20.5 experimental)
+		density: Density
+		breach: Breach
+		wind_burst: Wind Burst
 
 # -- Potion Effects --
 potions:
@@ -137,6 +141,14 @@ potions:
 
 	# 1.19 potion effect types
 	darkness: darkness
+
+	# 1.21 potion effect types (added in 1.20.5 experimental)
+	wind_charged: wind charged
+	raid_omen: bad omen, raid omen
+	infested: infested
+	weaving: weaving
+	trial_omen: trial omen
+	oozing: oozing
 
 # -- Weather --
 weather:
@@ -1248,6 +1260,13 @@ entities:
 	wind charge:
 		name: wind charge¦s
 		pattern: wind charge(|1¦s)
+	# 1.20.5 Entities
+	armadillo:
+		name: armadillo¦s @an
+		pattern: <age> armadillo(|1¦s)|(4¦)armadillo (kid(|1¦s)|child(|1¦ren))
+	bogged:
+		name: bogged
+		pattern: bogged
 
 # -- Heal Reasons --
 heal reasons:
