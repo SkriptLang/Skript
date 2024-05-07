@@ -45,18 +45,22 @@ import ch.njol.util.Kleenean;
 	"on explode:",
 		"\tloop exploded blocks:",
 			"\t\tadd loop-block to {exploded::blocks::*}",
+	"",
 	"on explode:",
 		"\tloop exploded blocks:",
 			"\t\tif loop-block is grass:",
 				"\t\t\tremove loop-block from exploded blocks",
+	"",
 	"on explode:",
 		"\tclear exploded blocks",
+	"",
 	"on explode:",
 		"\tset exploded blocks to blocks in radius 10 around event-entity",
+	"",
 	"on explode:",
 		"\tadd blocks above event-entity to exploded blocks"})
 @Events("explode")
-@Since("2.5, INSERT VERSION (modify list)")
+@Since("2.5, INSERT VERSION (modify blocks)")
 public class ExprExplodedBlocks extends SimpleExpression<Block> {
 
 	static {
@@ -108,12 +112,15 @@ public class ExprExplodedBlocks extends SimpleExpression<Block> {
 		}
 		if (mode == ChangeMode.SET)
 			blocks.clear();
-		for (Object object : delta) {
-			if (object instanceof Block) {
-				if (mode == ChangeMode.REMOVE)
-					blocks.remove((Block) object);
-				else if (mode == ChangeMode.ADD || mode == ChangeMode.SET)
+		if (mode == ChangeMode.ADD || mode == ChangeMode.SET) {
+			for (Object object : delta) {
+				if (object instanceof Block)
 					blocks.add((Block) object);
+			}
+		} else if (mode == ChangeMode.REMOVE) {
+			for (Object object : delta) {
+				if (object instanceof Block)
+					blocks.remove((Block) object);
 			}
 		}
 	}
