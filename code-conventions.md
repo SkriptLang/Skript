@@ -163,8 +163,8 @@ Your comments should look something like these:
 ## Language Features
 
 ### Compatibility
-* Contributions should maintain Java 8 source/binary compatibility, even though compiling Skript requires Java 21
-  - Users must not need JRE newer than version 8
+* Contributions should maintain Java 11 source/binary compatibility, even though compiling Skript requires Java 21
+  - Users must not need JRE newer than version 11
 * Versions up to and including Java 21 should work too
   - Please avoid using unsafe reflection
 * It is recommended to make fields final, if they are effectively final
