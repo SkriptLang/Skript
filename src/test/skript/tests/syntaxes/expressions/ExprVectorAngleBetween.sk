@@ -1,0 +1,16 @@
+test "angle between vectors":
+	set {_x} to vector(1,0,0)
+	set {_y} to vector(0,1,0)
+	assert angle between vectors {_x} and {_y} is 90 with "angle between x and y vectors is not 90"
+
+	rotate {_x} around {_y} by 90
+	assert angle between vectors {_x} and {_y} is 90 with "angle between vectors changed after rotation around one another"
+
+	set vector length of {_x} to 2
+	assert angle between vectors {_x} and {_y} is 90 with "angle between vectors changed after changing length of one"
+
+	assert angle between vector(1, 0, 0) and vector(-1, 0, 0) is 180 with "angle between opposite vectors is not 180"
+	assert angle between {_x} and {_x} is 0 with "angle between same vectors is not 0"
+
+	assert isNaN(angle between vector(0, 0, 0) and vector(0, 1, 0)) is true with "angle between zero vector is not NaN"
+

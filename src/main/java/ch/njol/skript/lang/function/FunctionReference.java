@@ -116,6 +116,16 @@ public class FunctionReference<T> implements Contract {
 		this.parameters = params;
 		this.contract = this;
 	}
+
+	public boolean validateParameterArity(boolean first) {
+		if (!first && script == null)
+			return false;
+		Signature<?> sign = Functions.getSignature(functionName, script);
+		if (sign == null)
+			return false;
+		// Not enough parameters
+		return parameters.length >= sign.getMinParameters();
+	}
 	
 	/**
 	 * Validates this function reference. Prints errors if needed.

@@ -74,32 +74,32 @@ skript command:
 		all:
 			enabling: 비활성화된 모든 스크립트를 활성화하는 중...
 			enabled: 비활성화된 모든 스크립트를 성공적으로 활성화하고 구문을 분석했습니다.
-			error: 비활성화된 스크립트의 구문을 분석하는 동안 %s개의 오류를 발견했습니다!
-			io error: 스크립트를 로드할 수 없습니다 (일부 스크립트의 이름이 변경되어 서버가 다시 시작될 때 활성화됩니다): %s
+			error: <light red>비활성화된 스크립트의 구문을 분석하는 동안 %s개의 오류를 발견했습니다!
+			io error: <light red>스크립트를 로드할 수 없습니다 (일부 스크립트의 이름이 변경되어 서버가 다시 시작될 때 활성화됩니다): <gold>%s
 		single:
 			already enabled: <gold> %s<reset>이(가) 이미 활성화되었습니다! 파일이 변경된 경우 <gray>/<gold>skript<cyan> reload <red>%s<reset>을(를) 사용하여 다시 로드하십시오.
 			enabling: <gold>%s<reset>을(를) 활성화하는 중...
 			enabled: <gold>%s<reset>을(를) 활성화하고 구문을 분석했습니다.
-			error: <gold>%1$s<red>의 구문을 분석하는 동안 %2$s개의 오류를 발견했습니다!
-			io error: <gold>%s<red>을(를) 활성화 할 수 없습니다: %s
+			error: <gold>%1$s<light red>의 구문을 분석하는 동안 <gold>%2$s<light red>개의 오류를 발견했습니다!
+			io error: <gold>%s<light red>을(를) 활성화 할 수 없습니다: <gold>%s
 		folder:
 			empty: <gold>%s<reset>에 비활성화된 스크립트가 없습니다.
 			enabling: <gold>%1$s<reset>에서 <gold>%2$s<reset>개의 스크립트를 활성화하는 중...
 			enabled: <gold>%1$s<reset>에서 비활성화된 <gold>%2$s<reset>개의 스크립트를 성공적으로 활성화하고 구문을 분석했습니다.
-			error: <gold>%1$s<red>의 스크립트의 구문을 분석하는 동안 %2$s개의 오류를 발견했습니다!
-			io error: <gold>%s<red>의 스크립트를 활성화하는 동안 오류가 발생했습니다 (서버가 다시 시작될 때 일부 스크립트가 활성화될 수 있습니다): %s
+			error: <gold>%1$s<light red>의 스크립트의 구문을 분석하는 동안 <gold>%2$s<light red>개의 오류를 발견했습니다!
+			io error: <gold>%s<light red>의 스크립트를 활성화하는 동안 오류가 발생했습니다 (서버가 다시 시작될 때 일부 스크립트가 활성화될 수 있습니다): <gold>%s
 	disable:
 		all:
 			disabled: 모든 스크립트를 성공적으로 비활성화했습니다.
-			io error: 모든 스크립트를 비활성화 할 수 없습니다 (서버를 다시 시작할 때 일부 스크립트가 다시 활성화될 수 있습니다): %s
+			io error: <light red>모든 스크립트를 비활성화 할 수 없습니다 (서버를 다시 시작할 때 일부 스크립트가 다시 활성화될 수 있습니다): <gold>%s
 		single:
 			already disabled: <gold>%s<reset>은(는) 이미 비활성화되었습니다!
 			disabled: <gold>%s<reset>을(를) 비활성화했습니다.
-			io error: <gold>%s<red>의 이름을 바꿀 수 없습니다 (서버를 다시 시작할 때 다시 활성화됩니다): %s
+			io error: <gold>%s<light red>의 이름을 바꿀 수 없습니다 (서버를 다시 시작할 때 다시 활성화됩니다): <gold>%s
 		folder:
 			empty: <gold>%s<reset>에 활성화된 스크립트가 없습니다.
 			disabled: <gold>%1$s<reset>에서 <gold>%2$s<reset>개의 스크립트를 성공적으로 비활성화했습니다.
-			io error: <gold>%s<red>의 스크립트를 비활성화 할 수 없습니다 (서버가 다시 시작될 때 일부 스크립트가 비활성화될 수 있음): %s
+			io error: <gold>%s<light red>의 스크립트를 비활성화 할 수 없습니다 (서버가 다시 시작될 때 일부 스크립트가 비활성화될 수 있음): <gold>%s
 	update:
 		# check/download: Updater 확인
 		changes:
