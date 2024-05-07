@@ -27,11 +27,13 @@ import org.bukkit.entity.AbstractHorse;
 import org.bukkit.entity.Allay;
 import org.bukkit.entity.Animals;
 import org.bukkit.entity.AreaEffectCloud;
+import org.bukkit.entity.Armadillo;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Arrow;
 import org.bukkit.entity.Bat;
 import org.bukkit.entity.Blaze;
 import org.bukkit.entity.BlockDisplay;
+import org.bukkit.entity.Bogged;
 import org.bukkit.entity.Breeze;
 import org.bukkit.entity.Camel;
 import org.bukkit.entity.CaveSpider;
@@ -315,6 +317,11 @@ public class SimpleEntityData extends EntityData<Entity> {
 		if (Skript.isRunningMinecraft(1, 20, 3)) {
 			addSimpleEntity("breeze", Breeze.class);
 			addSimpleEntity("wind charge", WindCharge.class);
+		}
+
+		if (Skript.isRunningMinecraft(1,20,5)) {
+			addSimpleEntity("armadillo", Armadillo.class);
+			addSimpleEntity("bogged", Bogged.class);
 		}
 
 		// Register zombie after Husk and Drowned to make sure both work
