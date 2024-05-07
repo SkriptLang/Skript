@@ -192,7 +192,7 @@ public interface Expression<T> extends SyntaxElement, Debuggable {
 	 * @param returnType The type to test
 	 * @return true if the argument is within the bounds of the return types
 	 */
-	default boolean mayReturn(Class<?> returnType) {
+	default boolean canReturn(Class<?> returnType) {
 		for (Class<?> type : this.possibleReturnTypes()) {
 			if (returnType.isAssignableFrom(type))
 				return true;

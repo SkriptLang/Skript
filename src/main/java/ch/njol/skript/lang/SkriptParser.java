@@ -57,7 +57,6 @@ import org.skriptlang.skript.lang.script.ScriptWarning;
 
 import java.util.ArrayList;
 import java.util.Deque;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -371,7 +370,7 @@ public class SkriptParser {
 				if (parsedExpression != null) { // Expression/VariableString parsing success
 					for (Class<? extends T> type : types) {
 						// Check return type against everything that expression accepts
-						if (parsedExpression.mayReturn(type)) {
+						if (parsedExpression.canReturn(type)) {
 							log.printLog();
 							return (Expression<? extends T>) parsedExpression;
 						}
@@ -547,7 +546,7 @@ public class SkriptParser {
 							continue;
 
 						// Check return type against everything that expression accepts
-						if (parsedExpression.mayReturn(type)) {
+						if (parsedExpression.canReturn(type)) {
 							if (!exprInfo.isPlural[i] && !parsedExpression.isSingle()) { // Wrong number of arguments
 								if (context == ParseContext.COMMAND) {
 									Skript.error(Commands.m_too_many_arguments.toString(exprInfo.classes[i].getName().getIndefiniteArticle(), exprInfo.classes[i].getName().toString()), ErrorQuality.SEMANTIC_ERROR);

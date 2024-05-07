@@ -153,8 +153,8 @@ public abstract class WrapperExpression<T> extends SimpleExpression<T> {
 	}
 
 	@Override
-	public boolean mayReturn(Class<?> returnType) {
-		return expr.mayReturn(returnType);
+	public boolean canReturn(Class<?> returnType) {
+		return expr.canReturn(returnType);
 	}
 
 }

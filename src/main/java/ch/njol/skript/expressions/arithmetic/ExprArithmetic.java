@@ -342,7 +342,7 @@ public class ExprArithmetic<L, R, T> extends SimpleExpression<T> {
 	}
 
 	@Override
-	public boolean mayReturn(Class<?> returnType) {
+	public boolean canReturn(Class<?> returnType) {
 		if (this.returnType == Object.class) {
 			if (knownReturnTypes.contains(returnType))
 				return true;
@@ -352,7 +352,7 @@ public class ExprArithmetic<L, R, T> extends SimpleExpression<T> {
 			}
 			return false;
 		}
-		return super.mayReturn(returnType);
+		return super.canReturn(returnType);
 	}
 
 	@Override
