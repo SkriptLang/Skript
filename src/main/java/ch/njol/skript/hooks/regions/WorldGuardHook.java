@@ -110,7 +110,17 @@ public class WorldGuardHook extends RegionsPlugin<WorldGuardPlugin> {
 		public boolean isMember(final OfflinePlayer p) {
 			return region.isMember(plugin.wrapOfflinePlayer(p));
 		}
-		
+
+		@Override
+		public String getName(){
+			return region.getId();
+		}
+
+		@Override
+		public World getWorld(){
+			return world;
+		}
+
 		@Override
 		public Collection<OfflinePlayer> getMembers() {
 			final Collection<UUID> ids = region.getMembers().getUniqueIds();

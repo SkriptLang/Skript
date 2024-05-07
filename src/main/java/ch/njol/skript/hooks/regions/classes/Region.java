@@ -124,6 +124,10 @@ public abstract class Region implements YggdrasilExtendedSerializable {
 	public abstract boolean contains(Location l);
 	
 	public abstract boolean isMember(OfflinePlayer p);
+
+	public abstract String getName();
+
+	public abstract World getWorld();
 	
 	public abstract Collection<OfflinePlayer> getMembers();
 	

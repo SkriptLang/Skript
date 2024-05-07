@@ -112,6 +112,16 @@ public class PreciousStonesHook extends RegionsPlugin<PreciousStones> {
             return field.isInAllowedList(p.getName());
         }
 
+		@Override
+		public String getName(){
+			return field.getName();
+		}
+
+		@Override
+		public World getWorld(){
+			return Bukkit.getWorld(field.getWorld());
+		}
+
         @Override
         public Collection<OfflinePlayer> getMembers() {
             @SuppressWarnings("deprecation")
