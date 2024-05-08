@@ -24,7 +24,6 @@ import ch.njol.skript.entity.EntityData;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptEvent;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
-import ch.njol.util.Checker;
 
 import org.bukkit.entity.Enderman;
 import org.bukkit.entity.FallingBlock;
@@ -35,6 +34,7 @@ import org.bukkit.event.entity.EntityChangeBlockEvent;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Locale;
+import java.util.function.Predicate;
 
 public class EvtEntityBlockChange extends SkriptEvent {
 
@@ -74,14 +74,14 @@ public class EvtEntityBlockChange extends SkriptEvent {
 		GENERIC("(entity|%*-entitydatas%) chang(e|ing) block[s]");
 
 		@Nullable
-		private final Checker<EntityChangeBlockEvent> checker;
+		private final Predicate<EntityChangeBlockEvent> checker;
 		private final String pattern;
 
 		ChangeEvent(String pattern) {
 			this(pattern, null);
 		}
 
-		ChangeEvent(String pattern, @Nullable Checker<EntityChangeBlockEvent> checker) {
+		ChangeEvent(String pattern, @Nullable Predicate<EntityChangeBlockEvent> checker) {
 			this.pattern = pattern;
 			this.checker = checker;
 		}
@@ -116,7 +116,7 @@ public class EvtEntityBlockChange extends SkriptEvent {
 			return false;
 		if (this.event.checker == null)
 			return true;
-		return this.event.checker.check((EntityChangeBlockEvent) event);
+		return this.event.checker.test((EntityChangeBlockEvent) event);
 	}
 
 	@Override
