@@ -184,11 +184,11 @@ public interface Expression<T> extends SyntaxElement, Debuggable {
 	 */
 	default Class<? extends T>[] possibleReturnTypes() {
 		//noinspection unchecked
-		return new Class[]{this.getReturnType()};
+		return new Class[] {this.getReturnType()};
 	}
 
 	/**
-	 * Whether this expression *might* return the following type.
+	 * Whether this expression <b>might</b> return the following type.
 	 * @param returnType The type to test
 	 * @return true if the argument is within the bounds of the return types
 	 */
