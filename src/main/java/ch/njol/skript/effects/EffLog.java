@@ -49,10 +49,9 @@ import ch.njol.util.Kleenean;
 @Name("Log")
 @Description({"Writes text into a .log file. Skript will write these files to /plugins/Skript/logs.",
 		"NB: Using 'server.log' as the log file will write to the default server log. Omitting the log file altogether will log the message as '[Skript] [&lt;script&gt;.sk] &lt;message&gt;' in the server log."})
-@Examples({"on place of TNT:",
-		"log \"%player% placed a TNT in %world% at %location of block%\"",
-		"log \"A TNT was just placed at %location of block%!\" to file \"tnt/placement.log\"",
-		"log \"A player named %player% just placed a TNT in %world%!\" to file \"tnt/placement.log\"\"with a severity of warning\""})
+@Examples({"log \"%player% has just joined the server!\"",
+		"log \"Someone just went to %event-world%!\" to file \"worldlog/worlds.log\"",
+		"log \"%player% just executed %full command%!\" to file \"server/commands.log\"\"with a severity of warning\""})
 
 
 @Since("2.0, INSERT VERSION (severities)")
