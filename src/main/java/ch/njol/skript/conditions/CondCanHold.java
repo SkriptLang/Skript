@@ -18,13 +18,9 @@
  */
 package ch.njol.skript.conditions;
 
-import org.bukkit.event.Event;
-import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.ItemStack;
-import org.eclipse.jdt.annotation.Nullable;
-
 import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.ItemType;
+import ch.njol.skript.bukkitutil.ItemUtils;
 import ch.njol.skript.conditions.base.PropertyCondition;
 import ch.njol.skript.conditions.base.PropertyCondition.PropertyType;
 import ch.njol.skript.doc.Description;
@@ -35,8 +31,12 @@ import ch.njol.skript.lang.Condition;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
-import ch.njol.skript.log.ErrorQuality;
+import ch.njol.skript.util.slot.Slot;
 import ch.njol.util.Kleenean;
+import org.bukkit.event.Event;
+import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * @author Peter Güttinger
@@ -51,50 +51,79 @@ public class CondCanHold extends Condition {
 	static {
 		Skript.registerCondition(CondCanHold.class,
 				"%inventories% (can hold|ha(s|ve) [enough] space (for|to hold)) %itemtypes%",
-				"%inventories% (can(no|')t hold|(ha(s|ve) not|ha(s|ve)n't|do[es]n't have) [enough] space (for|to hold)) %itemtypes%");
+				"%inventories% (can(no|')t hold|(ha(s|ve) not|ha(s|ve)n't|do[es]n't have) [enough] space (for|to hold)) %itemtypes%",
+				"%slots% (can hold|ha(s|ve) [enough] space (for|to hold)) %itemtype%",
+				"%slots% (can(no|')t hold|(ha(s|ve) not|ha(s|ve)n't|do[es]n't have) [enough] space (for|to hold)) %itemtype%");
 	}
-	
-	@SuppressWarnings("null")
+
+	@Nullable
 	private Expression<Inventory> invis;
-	@SuppressWarnings("null")
+	@Nullable
+	private Expression<Slot> slots;
+	@SuppressWarnings("NotNullFieldNotInitialized")
 	private Expression<ItemType> items;
 	
 	@SuppressWarnings({"unchecked", "null"})
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parser) {
-		invis = (Expression<Inventory>) exprs[0];
+		if (matchedPattern >= 3) {
+			slots = (Expression<Slot>) exprs[0];
+        } else {
+			invis = (Expression<Inventory>) exprs[0];
+		}
 		items = (Expression<ItemType>) exprs[1];
 		if (items instanceof Literal) {
 			for (ItemType t : ((Literal<ItemType>) items).getAll()) {
 				t = t.getItem();
 				if (!(t.isAll() || t.getTypes().size() == 1)) {
-					Skript.error("The condition 'can hold' can currently only be used with aliases that start with 'every' or 'all', or only represent one item.", ErrorQuality.SEMANTIC_ERROR);
+					Skript.error("The condition 'can hold' can currently only be used with aliases that start with 'every' or 'all', or only represent one item.");
 					return false;
 				}
 			}
 		}
-		setNegated(matchedPattern == 1);
+		setNegated(matchedPattern % 2 == 0);
 		return true;
 	}
 	
 	@Override
-	public boolean check(Event e) {
-		return invis.check(e,
+	public boolean check(Event event) {
+		// Condition inventory has space
+		if (invis != null) {
+			return invis.check(event,
 				invi -> {
 					if (!items.getAnd()) {
-						return items.check(e,
-								t -> t.getItem().hasSpace(invi));
+						return items.check(event,
+							t -> t.getItem().hasSpace(invi));
 					}
 					final ItemStack[] buf = ItemType.getStorageContents(invi);
-					return items.check(e,
-							t -> t.getItem().addTo(buf));
+					return items.check(event,
+						t -> t.getItem().addTo(buf));
 				}, isNegated());
+		}
+		// Condition slot has space
+		ItemType itemType = items.getSingle(event);
+		if (itemType == null)
+			return false;
+		ItemStack itemStack = itemType.getRandom();
+		return slots.check(event, slot -> {
+			ItemStack slotItemStack = slot.getItem();
+			// null check is due to slot is outside of GUI
+			if (slotItemStack == null)
+				return false;
+			// Check if its AIR
+			if (ItemUtils.isAir(slotItemStack.getType()))
+				return true;
+			// Check if it can fit more of the same item
+			if (!itemStack.isSimilar(slotItemStack))
+				return false;
+            return slotItemStack.getMaxStackSize() - slotItemStack.getAmount() <= itemStack.getAmount();
+        });
 	}
 	
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
-		return PropertyCondition.toString(this, PropertyType.CAN, e, debug, invis,
-				"hold " + items.toString(e, debug));
+	public String toString(@Nullable Event event, boolean debug) {
+		return PropertyCondition.toString(this, PropertyType.CAN, event, debug, (invis != null ? invis : slots),
+				"hold " + items.toString(event, debug));
 	}
 	
 }
