@@ -23,7 +23,8 @@ import org.jetbrains.annotations.ApiStatus;
 
 import java.util.Collection;
 
-@ApiStatus.Internal
+@Deprecated
+@ApiStatus.ScheduledForRemoval
 public final class Validate {
 
 	private Validate() {}

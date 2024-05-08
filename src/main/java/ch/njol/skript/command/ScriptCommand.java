@@ -43,7 +43,6 @@ import ch.njol.skript.util.chat.BungeeConverter;
 import ch.njol.skript.util.chat.MessageComponent;
 import ch.njol.skript.variables.Variables;
 import ch.njol.util.StringUtils;
-import ch.njol.util.Validate;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.OfflinePlayer;
@@ -136,7 +135,6 @@ public class ScriptCommand implements TabExecutor {
 		@Nullable VariableString cooldownMessage, String cooldownBypass,
 		@Nullable VariableString cooldownStorage, int executableBy, SectionNode node
 	) {
-		Validate.notNull(name, pattern, arguments, description, usage, aliases, node);
 		this.name = name;
 		label = "" + name.toLowerCase(Locale.ENGLISH);
 		this.permission = permission;
