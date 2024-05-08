@@ -19,41 +19,39 @@
 package ch.njol.skript.entity;
 
 import java.util.Arrays;
+import java.util.function.Predicate;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.Enderman;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.material.MaterialData;
 import org.eclipse.jdt.annotation.Nullable;
 
-import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.localization.ArgsMessage;
 import ch.njol.skript.registrations.Classes;
-import ch.njol.util.Checker;
 import ch.njol.util.coll.CollectionUtils;
 
 @SuppressWarnings("deprecation")
 public class EndermanData extends EntityData<Enderman> {
-	
+
 	static {
 		EntityData.register(EndermanData.class, "enderman", Enderman.class, "enderman");
 	}
 
 	@Nullable
 	private ItemType[] hand = null;
-	
+
 	public EndermanData() {}
-	
+
 	public EndermanData(@Nullable ItemType[] hand) {
 		this.hand = hand;
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	@Override
 	protected boolean init(final Literal<?>[] exprs, final int matchedPattern, final ParseResult parseResult) {
@@ -61,7 +59,7 @@ public class EndermanData extends EntityData<Enderman> {
 			hand = ((Literal<ItemType>) exprs[0]).getAll();
 		return true;
 	}
-	
+
 	@Override
 	protected boolean init(final @Nullable Class<? extends Enderman> c, final @Nullable Enderman e) {
 		if (e != null) {
@@ -74,7 +72,7 @@ public class EndermanData extends EntityData<Enderman> {
 		}
 		return true;
 	}
-	
+
 	@Override
 	public void set(final Enderman entity) {
 		if (hand != null) {
@@ -86,28 +84,28 @@ public class EndermanData extends EntityData<Enderman> {
 				entity.setCarriedBlock(Bukkit.createBlockData(i.getType()));
 			}
 		}
-		
+
 	}
-	
+
 	@Override
 	public boolean match(final Enderman entity) {
-		return hand == null || SimpleExpression.check(hand, new Checker<ItemType>() {
+		return hand == null || SimpleExpression.check(hand, new Predicate<ItemType>() {
 			@SuppressWarnings("null")
 			@Override
-			public boolean check(final @Nullable ItemType t) {
+			public boolean test(final @Nullable ItemType t) {
 				// TODO {Block/Material}Data -> Material conversion is not 100% accurate, needs a better solution
 				return t != null && t.isOfType(entity.getCarriedBlock().getMaterial());
 			}
 		}, false, false);
 	}
-	
+
 	@Override
 	public Class<Enderman> getType() {
 		return Enderman.class;
 	}
-	
+
 	private final static ArgsMessage format = new ArgsMessage("entities.enderman.format");
-	
+
 	@Override
 	public String toString(final int flags) {
 		final ItemType[] hand = this.hand;
@@ -115,12 +113,12 @@ public class EndermanData extends EntityData<Enderman> {
 			return super.toString(flags);
 		return format.toString(super.toString(flags), Classes.toString(hand, false));
 	}
-	
+
 	@Override
 	protected int hashCode_i() {
 		return Arrays.hashCode(hand);
 	}
-	
+
 	@Override
 	protected boolean equals_i(final EntityData<?> obj) {
 		if (!(obj instanceof EndermanData))
@@ -128,7 +126,7 @@ public class EndermanData extends EntityData<Enderman> {
 		final EndermanData other = (EndermanData) obj;
 		return Arrays.equals(hand, other.hand);
 	}
-	
+
 //		if (hand == null)
 //			return "";
 //		final StringBuilder b = new StringBuilder();
@@ -162,23 +160,23 @@ public class EndermanData extends EntityData<Enderman> {
 		}
 		return false;
 	}
-	
+
 	private boolean isSubhand(final @Nullable ItemType[] sub) {
 		if (hand != null)
 			return sub != null && ItemType.isSubset(hand, sub);
 		return true;
 	}
-	
+
 	@Override
 	public boolean isSupertypeOf(final EntityData<?> e) {
 		if (e instanceof EndermanData)
 			return isSubhand(((EndermanData) e).hand);
 		return false;
 	}
-	
+
 	@Override
 	public EntityData getSuperType() {
 		return new EndermanData(hand);
 	}
-	
+
 }

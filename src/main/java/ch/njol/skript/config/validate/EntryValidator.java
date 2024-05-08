@@ -24,24 +24,25 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.config.EntryNode;
 import ch.njol.skript.config.Node;
 import ch.njol.skript.log.SkriptLogger;
-import ch.njol.util.Setter;
+
+import java.util.function.Consumer;
 
 /**
  * @author Peter Güttinger
  */
 public class EntryValidator implements NodeValidator {
-	
+
 	@Nullable
-	private final Setter<String> setter;
-	
+	private final Consumer<String> setter;
+
 	public EntryValidator() {
 		setter = null;
 	}
-	
-	public EntryValidator(final Setter<String> setter) {
+
+	public EntryValidator(final Consumer<String> setter) {
 		this.setter = setter;
 	}
-	
+
 	@Override
 	public boolean validate(final Node node) {
 		if (!(node instanceof EntryNode)) {
@@ -49,10 +50,10 @@ public class EntryValidator implements NodeValidator {
 			return false;
 		}
 		if (setter != null)
-			setter.set(((EntryNode) node).getValue());
+			setter.accept(((EntryNode) node).getValue());
 		return true;
 	}
-	
+
 	public static void notAnEntryError(final Node node) {
 		notAnEntryError(node, node.getConfig().getSeparator());
 	}
@@ -61,5 +62,5 @@ public class EntryValidator implements NodeValidator {
 		SkriptLogger.setNode(node);
 		Skript.error("'" + node.getKey() + "' is not an entry (like 'name " + separator + " value')");
 	}
-	
+
 }
