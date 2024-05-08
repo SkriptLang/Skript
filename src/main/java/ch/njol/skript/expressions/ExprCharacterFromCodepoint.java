@@ -32,15 +32,15 @@ import org.eclipse.jdt.annotation.Nullable;
 @Description("Returns the character at the specified codepoint")
 @Examples({
 	"function chars_between(lower: string, upper: string) :: strings:",
-	"\tset {_lower} to codepoint of {_lower}",
-	"\treturn {_none} if {_lower} is not set",
-	"",
-	"\tset {_upper} to codepoint of {_upper}",
-	"\treturn {_none} if {_upper} is not set",
-	"",
-	"\tloop integers between {_lower} and {_upper}:",
-	"\t\tadd character from codepoint loop-value to {_chars::*}",
-	"\treturn {_chars::*}",
+		"\tset {_lower} to codepoint of {_lower}",
+		"\treturn {_none} if {_lower} is not set",
+		"",
+		"\tset {_upper} to codepoint of {_upper}",
+		"\treturn {_none} if {_upper} is not set",
+		"",
+		"\tloop integers between {_lower} and {_upper}:",
+			"\t\tadd character from codepoint loop-value to {_chars::*}",
+		"\treturn {_chars::*}",
 })
 @Since("INSERT VERSION")
 public class ExprCharacterFromCodepoint extends SimplePropertyExpression<Integer, String> {
