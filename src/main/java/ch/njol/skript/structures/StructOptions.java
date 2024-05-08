@@ -73,7 +73,8 @@ public class StructOptions extends Structure {
 	}
 
 	@Override
-	public boolean init(Literal<?>[] args, int matchedPattern, ParseResult parseResult, EntryContainer entryContainer) {
+	public boolean init(Literal<?>[] args, int matchedPattern, ParseResult parseResult, @Nullable EntryContainer entryContainer) {
+		// noinspection ConstantConditions - entry container cannot be null as this structure is not simple
 		SectionNode node = entryContainer.getSource();
 		node.convertToEntries(-1);
 		loadOptions(node, "", getParser().getCurrentScript().getData(OptionsData.class, OptionsData::new).options);

@@ -325,16 +325,23 @@ public class NewBlockCompat implements BlockCompat {
 	}
 	
 	private NewBlockSetter setter = new NewBlockSetter();
-	
+
+	/**
+	 * @deprecated Use {@link #getBlockValues(BlockData)} instead
+	 */
+	@Deprecated
 	@Nullable
 	@Override
-	public BlockValues getBlockValues(BlockState block) {
-		// If block doesn't have useful data, data field of type is MaterialData
-		if (block.getType().isBlock())
-			return new NewBlockValues(block.getType(), block.getBlockData(), false);
-		return null;
+	public BlockValues getBlockValues(BlockState blockState) {
+		return getBlockValues(blockState.getBlockData());
 	}
-	
+
+	@Nullable
+	@Override
+	public BlockValues getBlockValues(BlockData blockData) {
+		return new NewBlockValues(blockData.getMaterial(), blockData, false);
+	}
+
 	@Override
 	@Nullable
 	public BlockValues getBlockValues(ItemStack stack) {
@@ -345,15 +352,16 @@ public class NewBlockCompat implements BlockCompat {
 		}
 		return null;
 	}
-	
+
 	@Override
 	public BlockSetter getSetter() {
 		return setter;
 	}
 
+	@Deprecated
 	@Override
 	public BlockState fallingBlockToState(FallingBlock entity) {
-		BlockState state = entity.getWorld().getBlockAt(0, 0, 0).getState();
+		BlockState state = entity.getLocation().getBlock().getState();
 		state.setBlockData(entity.getBlockData());
 		return state;
 	}

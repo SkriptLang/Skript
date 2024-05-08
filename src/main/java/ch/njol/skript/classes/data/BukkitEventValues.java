@@ -18,6 +18,9 @@
  */
 package ch.njol.skript.classes.data;
 
+import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.MethodType;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -62,6 +65,7 @@ import org.bukkit.block.BlockState;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.AbstractVillager;
+import org.bukkit.entity.AreaEffectCloud;
 import org.bukkit.entity.Egg;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Firework;
@@ -84,6 +88,8 @@ import org.bukkit.event.block.BlockGrowEvent;
 import org.bukkit.event.block.BlockIgniteEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.block.SignChangeEvent;
+import org.bukkit.event.block.BellRingEvent;
+import org.bukkit.event.block.BellResonateEvent;
 import org.bukkit.event.enchantment.EnchantItemEvent;
 import org.bukkit.event.enchantment.PrepareItemEnchantEvent;
 import org.bukkit.event.entity.AreaEffectCloudApplyEvent;
@@ -169,7 +175,9 @@ import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.Recipe;
+import org.bukkit.potion.PotionData;
 import org.bukkit.potion.PotionEffectType;
+import org.bukkit.potion.PotionType;
 import org.eclipse.jdt.annotation.Nullable;
 
 /**
@@ -655,10 +663,36 @@ public final class BukkitEventValues {
 			}
 		}, EventValues.TIME_NOW);
 		EventValues.registerEventValue(AreaEffectCloudApplyEvent.class, PotionEffectType.class, new Getter<PotionEffectType, AreaEffectCloudApplyEvent>() {
+			@Nullable
+			private final MethodHandle BASE_POTION_DATA_HANDLE;
+
+			{
+				MethodHandle basePotionDataHandle = null;
+				if (Skript.methodExists(AreaEffectCloud.class, "getBasePotionData")) {
+					try {
+						basePotionDataHandle = MethodHandles.lookup().findVirtual(AreaEffectCloud.class, "getBasePotionData", MethodType.methodType(PotionData.class));
+					} catch (NoSuchMethodException | IllegalAccessException e) {
+						Skript.exception(e, "Failed to load legacy potion data support. Potions may not work as expected.");
+					}
+				}
+				BASE_POTION_DATA_HANDLE = basePotionDataHandle;
+			}
+
 			@Override
 			@Nullable
 			public PotionEffectType get(AreaEffectCloudApplyEvent e) {
-				return e.getEntity().getBasePotionData().getType().getEffectType(); // Whoops this is a bit long call...
+				if (BASE_POTION_DATA_HANDLE != null) {
+					try {
+						return ((PotionData) BASE_POTION_DATA_HANDLE.invoke(e.getEntity())).getType().getEffectType();
+					} catch (Throwable ex) {
+						throw Skript.exception(ex, "An error occurred while trying to invoke legacy area effect cloud potion effect support.");
+					}
+				} else {
+					PotionType base = e.getEntity().getBasePotionType();
+					if (base != null) // TODO this is deprecated... this should become a multi-value event value
+						return base.getEffectType();
+				}
+				return null;
 			}
 		}, 0);
 		// ItemSpawnEvent
@@ -1123,6 +1157,8 @@ public final class BukkitEventValues {
 			@Nullable
 			public Slot get(final InventoryClickEvent e) {
 				Inventory invi = e.getClickedInventory(); // getInventory is WRONG and dangerous
+				if (invi == null)
+					return null;
 				int slotIndex = e.getSlot();
 
 				// Not all indices point to inventory slots. Equipment, for example
@@ -1799,6 +1835,44 @@ public final class BukkitEventValues {
 			}
 		}, EventValues.TIME_NOW);
 
+		// BellRingEvent - these are BlockEvents and not EntityEvents, so they have declared methods for getEntity()
+		if (Skript.classExists("org.bukkit.event.block.BellRingEvent")) {
+			EventValues.registerEventValue(BellRingEvent.class, Entity.class, new Getter<Entity, BellRingEvent>() {
+                @Override
+                @Nullable
+                public Entity get(BellRingEvent event) {
+                    return event.getEntity();
+                }
+            }, EventValues.TIME_NOW);
+
+			EventValues.registerEventValue(BellRingEvent.class, Direction.class, new Getter<Direction, BellRingEvent>() {
+                @Override
+                public Direction get(BellRingEvent event) {
+                    return new Direction(event.getDirection(), 1);
+                }
+            }, EventValues.TIME_NOW);
+		} else if (Skript.classExists("io.papermc.paper.event.block.BellRingEvent")) {
+			EventValues.registerEventValue(
+				io.papermc.paper.event.block.BellRingEvent.class, Entity.class,
+				new Getter<Entity, io.papermc.paper.event.block.BellRingEvent>() {
+					@Override
+					@Nullable
+					public Entity get(io.papermc.paper.event.block.BellRingEvent event) {
+						return event.getEntity();
+					}
+				}, EventValues.TIME_NOW);
+		}
+
+		if (Skript.classExists("org.bukkit.event.block.BellResonateEvent")) {
+			EventValues.registerEventValue(BellResonateEvent.class, Entity[].class, new Getter<Entity[], BellResonateEvent>() {
+				@Override
+				@Nullable
+				public Entity[] get(BellResonateEvent event) {
+					return event.getResonatedEntities().toArray(new LivingEntity[0]);
+				}
+			}, EventValues.TIME_NOW);
+		}
+    
 		// InventoryMoveItemEvent
 		EventValues.registerEventValue(InventoryMoveItemEvent.class, Inventory.class, new Getter<Inventory, InventoryMoveItemEvent>() {
 			@Override
@@ -1830,7 +1904,5 @@ public final class BukkitEventValues {
 				return event.getItem();
 			}
 		}, EventValues.TIME_NOW);
-
 	}
-
 }

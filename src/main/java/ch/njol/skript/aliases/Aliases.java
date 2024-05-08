@@ -61,6 +61,8 @@ import java.util.stream.Collectors;
 
 public abstract class Aliases {
 
+	static final boolean USING_ITEM_COMPONENTS = Skript.isRunningMinecraft(1, 20, 5);
+
 	private static final AliasesProvider provider = createProvider(10000, null);
 	private static final AliasesParser parser = createParser(provider);
 	
