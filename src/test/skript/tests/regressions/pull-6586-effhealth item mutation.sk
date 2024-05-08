@@ -1,0 +1,14 @@
+
+# Test not related to a made issue. Details at pull request.
+test "EffHealth item mutation fix":
+	set {_item1} and {_item1Copy} to diamond sword with damage 100
+	set {_item2} and {_item2Copy} to iron sword
+	repair {_item2} and {_item1}
+	assert {_item1} is iron sword to fail with "{_item1} is an iron sword even though it was diamond before repair"
+	assert {_item2} is {_item2Copy} with "{_item2} was no longer the same item"
+
+	set {_item1} to diamond sword with damage 100
+	set {_item2} to diamond with damage 10
+	repair {_item1}, {_item2}
+	assert {_item1} is diamond sword with damage 0 with "{_item1} was incorrectly repaired"
+	assert {_item2} is diamond with "{_item2} was no longer a diamond"

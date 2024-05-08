@@ -62,19 +62,18 @@ public final class CyclicList<E> extends AbstractList<E> {
 	
 	@Override
 	public boolean add(final @Nullable E e) {
-		return addLast(e);
+		addLast(e);
+		return true;
 	}
 	
-	public boolean addFirst(final @Nullable E e) {
+	public void addFirst(final @Nullable E e) {
 		start = Math2.mod(start - 1, items.length);
 		items[start] = e;
-		return true;
 	}
 	
-	public boolean addLast(final @Nullable E e) {
+	public void addLast(final @Nullable E e) {
 		items[start] = e;
 		start = Math2.mod(start + 1, items.length);
-		return true;
 	}
 	
 	@SuppressWarnings("null")
