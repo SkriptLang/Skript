@@ -18,10 +18,6 @@
  */
 package ch.njol.skript.effects;
 
-import org.bukkit.event.Event;
-import org.bukkit.util.Vector;
-import org.eclipse.jdt.annotation.Nullable;
-
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
@@ -31,7 +27,10 @@ import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
-import ch.njol.util.VectorMath;
+import org.bukkit.event.Event;
+import org.bukkit.util.Vector;
+import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.ApiStatus;
 
 @Name("Vectors - Rotate around XYZ")
 @Description("Rotates one or more vectors around the x, y, or z axis by some amount of degrees")
@@ -42,6 +41,8 @@ import ch.njol.util.VectorMath;
 })
 @Since("2.2-dev28")
 public class EffVectorRotateXYZ extends Effect {
+
+	private static final double DEG_TO_RAD = Math.PI / 180;
 
 	static {
 		Skript.registerEffect(EffVectorRotateXYZ.class, "rotate %vectors% around (0¦x|1¦y|2¦z)(-| )axis by %number% [degrees]");
@@ -74,21 +75,60 @@ public class EffVectorRotateXYZ extends Effect {
 		switch (axis) {
 			case 0:
 				for (Vector vector : vectors.getArray(event))
-					VectorMath.rotX(vector, angle.doubleValue());
+					rotX(vector, angle.doubleValue());
 				break;
 			case 1:
 				for (Vector vector : vectors.getArray(event))
-					VectorMath.rotY(vector, angle.doubleValue());
+					rotY(vector, angle.doubleValue());
 				break;
 			case 2:
 				for (Vector vector : vectors.getArray(event))
-					VectorMath.rotZ(vector, angle.doubleValue());
+					rotZ(vector, angle.doubleValue());
 		}
 	}
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
 		return "rotate " + vectors.toString(event, debug) + " around " + axes[axis] + "-axis" + " by " + degree.toString(event, debug) + "degrees";
+	}
+
+	// TODO Mark as private next version after VectorMath deletion
+	@ApiStatus.Internal
+	public static Vector rotX(Vector vector, double angle) {
+		double sin = Math.sin(angle * DEG_TO_RAD);
+		double cos = Math.cos(angle * DEG_TO_RAD);
+		Vector vy = new Vector(0, cos, -sin);
+		Vector vz = new Vector(0, sin, cos);
+		Vector clone = vector.clone();
+		vector.setY(clone.dot(vy));
+		vector.setZ(clone.dot(vz));
+		return vector;
+	}
+
+	// TODO Mark as private next version after VectorMath deletion
+	@ApiStatus.Internal
+	public static Vector rotY(Vector vector, double angle) {
+		double sin = Math.sin(angle * DEG_TO_RAD);
+		double cos = Math.cos(angle * DEG_TO_RAD);
+		Vector vx = new Vector(cos, 0, sin);
+		Vector vz = new Vector(-sin, 0, cos);
+		Vector clone = vector.clone();
+		vector.setX(clone.dot(vx));
+		vector.setZ(clone.dot(vz));
+		return vector;
+	}
+
+	// TODO Mark as private next version after VectorMath deletion
+	@ApiStatus.Internal
+	public static Vector rotZ(Vector vector, double angle) {
+		double sin = Math.sin(angle * DEG_TO_RAD);
+		double cos = Math.cos(angle * DEG_TO_RAD);
+		Vector vx = new Vector(cos, -sin, 0);
+		Vector vy = new Vector(sin, cos, 0);
+		Vector clone = vector.clone();
+		vector.setX(clone.dot(vx));
+		vector.setY(clone.dot(vy));
+		return vector;
 	}
 
 }

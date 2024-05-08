@@ -18,10 +18,6 @@
  */
 package ch.njol.skript.effects;
 
-import org.bukkit.event.Event;
-import org.bukkit.util.Vector;
-import org.eclipse.jdt.annotation.Nullable;
-
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
@@ -31,13 +27,18 @@ import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
-import ch.njol.util.VectorMath;
+import org.bukkit.event.Event;
+import org.bukkit.util.Vector;
+import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.ApiStatus;
 
 @Name("Vectors - Rotate Around Vector")
 @Description("Rotates one or more vectors around another vector")
 @Examples("rotate {_v} around vector 1, 0, 0 by 90")
 @Since("2.2-dev28")
 public class EffVectorRotateAroundAnother extends Effect {
+
+	private static final double DEG_TO_RAD = Math.PI / 180;
 
 	static {
 		Skript.registerEffect(EffVectorRotateAroundAnother.class, "rotate %vectors% around %vector% by %number% [degrees]");
@@ -66,12 +67,31 @@ public class EffVectorRotateAroundAnother extends Effect {
 		if (axis == null || angle == null)
 			return;
 		for (Vector vector : vectors.getArray(event))
-			VectorMath.rot(vector, axis, angle.doubleValue());
+			rot(vector, axis, angle.doubleValue());
 	}
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
 		return "rotate " + vectors.toString(event, debug) + " around " + axis.toString(event, debug) + " by " + degree.toString(event, debug) + "degrees";
+	}
+
+	// TODO Mark as private next version after VectorMath deletion
+	@ApiStatus.Internal
+	public static Vector rot(Vector vector, Vector axis, double angle) {
+		double sin = Math.sin(angle * DEG_TO_RAD);
+		double cos = Math.cos(angle * DEG_TO_RAD);
+		Vector a = axis.clone().normalize();
+		double ax = a.getX();
+		double ay = a.getY();
+		double az = a.getZ();
+		Vector rotx = new Vector(cos+ax*ax*(1-cos), ax*ay*(1-cos)-az*sin, ax*az*(1-cos)+ay*sin);
+		Vector roty = new Vector(ay*ax*(1-cos)+az*sin, cos+ay*ay*(1-cos), ay*az*(1-cos)-ax*sin);
+		Vector rotz = new Vector(az*ax*(1-cos)-ay*sin, az*ay*(1-cos)+ax*sin, cos+az*az*(1-cos));
+		double x = rotx.dot(vector);
+		double y = roty.dot(vector);
+		double z = rotz.dot(vector);
+		vector.setX(x).setY(y).setZ(z);
+		return vector;
 	}
 
 }
