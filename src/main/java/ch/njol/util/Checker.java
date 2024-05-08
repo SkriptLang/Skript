@@ -18,9 +18,16 @@
  */
 package ch.njol.util;
 
+import java.util.function.Predicate;
+
 @FunctionalInterface
-public interface Checker<T> {
-	
-	public boolean check(T o);
-	
+public interface Checker<T> extends Predicate<T> {
+
+	boolean check(T o);
+
+	@Override
+	default boolean test(T t) {
+		return this.check(t);
+	}
+
 }
