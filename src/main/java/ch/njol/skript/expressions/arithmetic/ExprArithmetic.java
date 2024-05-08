@@ -343,15 +343,8 @@ public class ExprArithmetic<L, R, T> extends SimpleExpression<T> {
 
 	@Override
 	public boolean canReturn(Class<?> returnType) {
-		if (this.returnType == Object.class) {
-			if (knownReturnTypes.contains(returnType))
-				return true;
-			for (Class<?> type : knownReturnTypes) {
-				if (returnType.isAssignableFrom(type))
-					return true;
-			}
-			return false;
-		}
+		if (this.returnType == Object.class && knownReturnTypes.contains(returnType))
+			return true;
 		return super.canReturn(returnType);
 	}
 
