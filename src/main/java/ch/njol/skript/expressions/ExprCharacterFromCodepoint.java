@@ -47,7 +47,7 @@ public class ExprCharacterFromCodepoint extends SimplePropertyExpression<Integer
 
 	static {
 		Skript.registerExpression(ExprCharacterFromCodepoint.class, String.class, ExpressionType.PROPERTY,
-				"character [from|at] code([ ]point|position) %integer%");
+				"character (from|at|with) code([ ]point| position) %integer%");
 	}
 	
 	@Override
