@@ -633,7 +633,7 @@ public class SkriptClasses {
                             case ADD:
                             case SET:
                             case REMOVE:
-								return CollectionUtils.array(Number.class, Experience.class);
+								return CollectionUtils.array(Experience.class, Number.class);
 							default:
 								return null;
                         }

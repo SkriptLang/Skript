@@ -79,7 +79,7 @@ public class ExprTotalExperience extends SimplePropertyExpression<Entity, Intege
 			case SET:
 			case DELETE:
 			case RESET:
-				return CollectionUtils.array(Number.class, Experience.class);
+				return CollectionUtils.array(Experience.class, Number.class);
 			case REMOVE_ALL:
 			default:
 				return null;
