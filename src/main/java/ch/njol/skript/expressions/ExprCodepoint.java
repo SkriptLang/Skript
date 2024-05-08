@@ -29,22 +29,22 @@ import org.eclipse.jdt.annotation.Nullable;
 @Description("Returns the Unicode codepoint of a character")
 @Examples({
 	"function is_in_order(letters: strings) :: boolean:",
-	"\tloop {_letters::*}:",
-	"\t\tset {_codepoint} to codepoint of lowercase loop-value",
-	"",
-	"\t\treturn false if {_codepoint} is not set # 'loop-value is not a single character'",
-	"",
-	"\t\tif:",
-	"\t\t\t{_previous-codepoint} is set",
-	"\t\t\t# if the codepoint of the current character is not",
-	"\t\t\t#  1 more than the codepoint of the previous character",
-	"\t\t\t#  then the letters are not in order",
-	"\t\t\t{_codepoint} - {_previous-codepoint} is not 1",
-	"\t\tthen:",
-	"\t\t\treturn false",
-	"",
-	"\t\tset {_previous-codepoint} to {_codepoint}",
-	"\treturn true"
+		"\tloop {_letters::*}:",
+			"\t\tset {_codepoint} to codepoint of lowercase loop-value",
+			"",
+			"\t\treturn false if {_codepoint} is not set # 'loop-value is not a single character'",
+			"",
+			"\t\tif:",
+				"\t\t\t{_previous-codepoint} is set",
+				"\t\t\t# if the codepoint of the current character is not",
+				"\t\t\t#  1 more than the codepoint of the previous character",
+				"\t\t\t#  then the letters are not in order",
+				"\t\t\t{_codepoint} - {_previous-codepoint} is not 1",
+			"\t\tthen:",
+				"\t\t\treturn false",
+			"",
+			"\t\tset {_previous-codepoint} to {_codepoint}",
+		"\treturn true"
 })
 @Since("INSERT VERSION")
 public class ExprCodepoint extends SimplePropertyExpression<String, Integer> {
