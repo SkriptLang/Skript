@@ -18,6 +18,9 @@
  */
 package ch.njol.skript.util;
 
+import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.MethodType;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -30,6 +33,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.inventory.meta.SuspiciousStewMeta;
 import org.bukkit.potion.Potion;
+import org.bukkit.potion.PotionData;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.potion.PotionType;
@@ -44,6 +48,7 @@ import ch.njol.skript.localization.LanguageChangeListener;
 public abstract class PotionEffectUtils {
 
 	private static final boolean HAS_SUSPICIOUS_META = Skript.classExists("org.bukkit.inventory.meta.SuspiciousStewMeta");
+	static final boolean HAS_OLD_POTION_FIELDS = Skript.fieldExists(PotionEffectType.class, "SLOW");
 
 	private PotionEffectUtils() {}
 
@@ -69,7 +74,10 @@ public abstract class PotionEffectUtils {
 				for (final PotionEffectType t : PotionEffectType.values()) {
 					if (t == null)
 						continue;
-					final String[] ls = Language.getList("potions." + t.getName());
+					String name = t.getName();
+					if (name.startsWith("minecraft:")) // seems to be the case for experimental entries...
+						name = name.substring(10); // trim off namespace
+					final String[] ls = Language.getList("potions." + name);
 					names[t.getId()] = ls[0];
 					for (final String l : ls) {
 						types.put(l.toLowerCase(Locale.ENGLISH), t);
@@ -139,13 +147,15 @@ public abstract class PotionEffectUtils {
 	 * Unused currently, will be used soon (TM).
 	 * @param name Name of potion type
 	 * @return
+	 * @deprecated To be removed in a future version.
 	 */
 	@Nullable
+	@Deprecated
 	public static PotionType checkPotionType(String name) {
 		switch (name) {
 			case "uncraftable":
 			case "empty":
-				return PotionType.UNCRAFTABLE;
+				return PotionType.valueOf("uncraftable");
 			case "mundane":
 				return PotionType.MUNDANE;
 			case "thick":
@@ -157,13 +167,13 @@ public abstract class PotionEffectUtils {
 				return PotionType.INVISIBILITY;
 			case "leaping":
 			case "jump boost":
-				return PotionType.JUMP;
+				return HAS_OLD_POTION_FIELDS ? PotionType.valueOf("JUMP") : PotionType.LEAPING;
 			case "fire resistance":
 			case "fire immunity":
 				return PotionType.FIRE_RESISTANCE;
 			case "swiftness":
 			case "speed":
-				return PotionType.SPEED;
+				return HAS_OLD_POTION_FIELDS ? PotionType.valueOf("SPEED") : PotionType.SWIFTNESS;
 			case "slowness":
 				return PotionType.SLOWNESS;
 			case "water breathing":
@@ -171,16 +181,16 @@ public abstract class PotionEffectUtils {
 			case "instant health":
 			case "healing":
 			case "health":
-				return PotionType.INSTANT_HEAL;
+				return HAS_OLD_POTION_FIELDS ? PotionType.valueOf("INSTANT_HEAL") : PotionType.HEALING;
 			case "instant damage":
 			case "harming":
 			case "damage":
-				return PotionType.INSTANT_DAMAGE;
+				return HAS_OLD_POTION_FIELDS ? PotionType.valueOf("INSTANT_DAMAGE") : PotionType.HARMING;
 			case "poison":
 				return PotionType.POISON;
 			case "regeneration":
 			case "regen":
-				return PotionType.REGEN;
+				return HAS_OLD_POTION_FIELDS ? PotionType.valueOf("REGEN") : PotionType.REGENERATION;
 			case "strength":
 				return PotionType.STRENGTH;
 			case "weakness":
@@ -335,7 +345,22 @@ public abstract class PotionEffectUtils {
 		}
 		itemType.setItemMeta(meta);
 	}
-	
+
+	@Nullable
+	private static final MethodHandle BASE_POTION_DATA_HANDLE;
+
+	static {
+		MethodHandle basePotionDataHandle = null;
+		if (Skript.methodExists(PotionMeta.class, "getBasePotionData")) {
+			try {
+				basePotionDataHandle = MethodHandles.lookup().findVirtual(PotionMeta.class, "getBasePotionData", MethodType.methodType(PotionData.class));
+			} catch (NoSuchMethodException | IllegalAccessException e) {
+				Skript.exception(e, "Failed to load legacy potion data support. Potions may not work as expected.");
+			}
+		}
+		BASE_POTION_DATA_HANDLE = basePotionDataHandle;
+	}
+
 	/**
 	 * Get all the PotionEffects of an ItemType
 	 *
@@ -350,7 +375,17 @@ public abstract class PotionEffectUtils {
 		if (meta instanceof PotionMeta) {
 			PotionMeta potionMeta = ((PotionMeta) meta);
 			effects.addAll(potionMeta.getCustomEffects());
-			effects.addAll(PotionDataUtils.getPotionEffects(potionMeta.getBasePotionData()));
+			if (BASE_POTION_DATA_HANDLE != null) {
+				try {
+					effects.addAll(PotionDataUtils.getPotionEffects((PotionData) BASE_POTION_DATA_HANDLE.invoke(meta)));
+				} catch (Throwable e) {
+					throw Skript.exception(e, "An error occurred while trying to invoke legacy potion data support.");
+				}
+			} else if (potionMeta.hasBasePotionType()) {
+				//noinspection ConstantConditions - checked via hasBasePotionType
+				effects.addAll(potionMeta.getBasePotionType().getPotionEffects());
+			}
+
 		} else if (HAS_SUSPICIOUS_META && meta instanceof SuspiciousStewMeta)
 			effects.addAll(((SuspiciousStewMeta) meta).getCustomEffects());
 		return effects;
