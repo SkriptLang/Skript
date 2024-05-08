@@ -25,6 +25,8 @@ import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
+import ch.njol.skript.util.Experience;
+import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.ExperienceOrb;
 import org.bukkit.entity.Player;
@@ -40,16 +42,17 @@ import org.eclipse.jdt.annotation.Nullable;
 	"set total experience of player to 100",
 	"",
 	"add 100 to player's experience",
+	"add 100 xp to player's xp",
 	"",
 	"if player's total experience is greater than 100:",
-	"\tset player's total experience to 0",
-	"\tgive player 1 diamond"
+		"\tset player's total experience to 0",
+		"\tgive player 1 diamond"
 })
 @Since("2.7")
 public class ExprTotalExperience extends SimplePropertyExpression<Entity, Integer> {
 
 	static {
-		register(ExprTotalExperience.class, Integer.class, "[total] experience", "entities");
+		register(ExprTotalExperience.class, Integer.class, "[total] (experience|xp)", "entities");
 	}
 
 	@Override
@@ -76,7 +79,7 @@ public class ExprTotalExperience extends SimplePropertyExpression<Entity, Intege
 			case SET:
 			case DELETE:
 			case RESET:
-				return new Class[]{Number.class};
+				return CollectionUtils.array(Number.class, Experience.class);
 			case REMOVE_ALL:
 			default:
 				return null;
@@ -85,7 +88,14 @@ public class ExprTotalExperience extends SimplePropertyExpression<Entity, Intege
 
 	@Override
 	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
-		int change = delta == null ? 0 : ((Number) delta[0]).intValue();
+		int change = 0;
+		if (delta != null) {
+			if (delta[0] instanceof Experience) {
+				change = ((Experience) delta[0]).getXP();
+			} else {
+				change = ((Number) delta[0]).intValue();
+			}
+		}
 		switch (mode) {
 			case RESET:
 			case DELETE:

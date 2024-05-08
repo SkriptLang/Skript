@@ -23,6 +23,7 @@ import java.util.Iterator;
 import java.util.Locale;
 import java.util.regex.Pattern;
 
+import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
@@ -624,6 +625,35 @@ public class SkriptClasses {
 				.usage("[&lt;number&gt;] ([e]xp|experience [point[s]])")
 				.examples("give 10 xp to the player")
 				.since("2.0")
+				.changer(new Changer<Experience>() {
+					@Override
+					@Nullable
+					public Class<?>[] acceptChange(ChangeMode mode) {
+                        switch (mode) {
+                            case ADD:
+                            case SET:
+                            case REMOVE:
+								return CollectionUtils.array(Number.class, Experience.class);
+							default:
+								return null;
+                        }
+					}
+
+					@Override
+					public void change(Experience[] xps, @Nullable Object[] delta, ChangeMode mode) {
+						if (delta == null)
+							return;
+						int change;
+						if (delta[0] instanceof Experience) {
+							change = ((Experience) delta[0]).getXP();
+						} else {
+							change = ((Number) delta[0]).intValue();
+						}
+						for (Experience xp : xps) {
+							xp.setInternalXP(xp.getInternalXP() + change);
+						}
+					}
+				})
 				.parser(new Parser<Experience>() {
 					private final RegexMessage pattern = new RegexMessage("types.experience.pattern", Pattern.CASE_INSENSITIVE);
 					
