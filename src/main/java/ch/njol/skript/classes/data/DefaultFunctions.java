@@ -25,6 +25,7 @@ import ch.njol.skript.lang.function.JavaFunction;
 import ch.njol.skript.lang.function.Parameter;
 import ch.njol.skript.lang.function.SimpleJavaFunction;
 import ch.njol.skript.lang.util.SimpleLiteral;
+import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.registrations.DefaultClasses;
 import ch.njol.skript.util.Color;
 import ch.njol.skript.util.ColorRGB;
@@ -568,6 +569,24 @@ public class DefaultFunctions {
 		}).description("Returns true if the input is NaN (not a number).")
 			.examples("isNaN(0) # false", "isNaN(0/0) # true", "isNaN(sqrt(-1)) # true")
 			.since("2.8.0");
+
+		Functions.registerFunction(new SimpleJavaFunction<String>("concat", new Parameter[] {
+			 new Parameter<>("texts", DefaultClasses.OBJECT, false, null)
+		}, DefaultClasses.STRING, true) {
+			@Override
+			public String[] executeSimple(Object[][] params) {
+				StringBuilder builder = new StringBuilder();
+				for (Object object : params[0]) {
+					builder.append(Classes.toString(object));
+				}
+				return new String[] {builder.toString()};
+			}
+		}).description("Joins the provided texts (and other things) into a single text.")
+			.examples(
+				"concat(\"hello \", \"there\") # hello there",
+				"concat(\"foo \", 100, \" bar\") # foo 100 bar"
+			).since("INSERT VERSION");
+
 	}
 	
 }
