@@ -61,14 +61,14 @@ public class EffLog extends Effect {
 		Skript.registerEffect(EffLog.class, "log %strings% [(to|in) [file[s]] %-strings%] [with [the|a] severity [of] (1:warning|2:severe)]");
 	}
 	
-	private final static File logsFolder = new File(Skript.getInstance().getDataFolder(), "logs");
+	private static File logsFolder = new File(Skript.getInstance().getDataFolder(), "logs");
 	
-	final static HashMap<String, PrintWriter> writers = new HashMap<>();
+	static HashMap<String, PrintWriter> writers = new HashMap<>();
 	static {
 		Skript.closeOnDisable(new Closeable() {
 			@Override
 			public void close() {
-				for (final PrintWriter pw : writers.values())
+				for (PrintWriter pw : writers.values())
 					pw.close();
 			}
 		});
@@ -83,7 +83,7 @@ public class EffLog extends Effect {
 
 	@SuppressWarnings({"unchecked", "null"})
 	@Override
-	public boolean init(final Expression<?>[] exprs, final int matchedPattern, final Kleenean isDelayed, final ParseResult parser) {
+	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parser) {
 		messages = (Expression<String>) exprs[0];
 		files = (Expression<String>) exprs[1];
 		if (parser.mark == 1) {
@@ -96,10 +96,10 @@ public class EffLog extends Effect {
 	
 	@SuppressWarnings("resource")
 	@Override
-	protected void execute(final Event e) {
-		for (final String message : messages.getArray(e)) {
+	protected void execute(Event event) {
+		for (String message : messages.getArray(event)) {
 			if (files != null) {
-				for (String logFile : files.getArray(e)) {
+				for (String logFile : files.getArray(event)) {
 					logFile = logFile.toLowerCase(Locale.ENGLISH);
 					if (!logFile.endsWith(".log"))
 						logFile += ".log";
@@ -108,12 +108,12 @@ public class EffLog extends Effect {
 					}
 					PrintWriter logWriter = writers.get(logFile);
 					if (logWriter == null) {
-						final File logFolder = new File(logsFolder, logFile); // REMIND what if logFile contains '..'?
+						File logFolder = new File(logsFolder, logFile); // REMIND what if logFile contains '..'?
 						try {
 							logFolder.getParentFile().mkdirs();
 							logWriter = new PrintWriter(new BufferedWriter(new FileWriter(logFolder, true)));
 							writers.put(logFile, logWriter);
-						} catch (final IOException ex) {
+						} catch (IOException ex) {
 							Skript.error("Cannot write to log file '" + logFile + "' (" + logFolder.getPath() + "): " + ExceptionUtils.toString(ex));
 							return;
 						}
@@ -130,10 +130,10 @@ public class EffLog extends Effect {
 						scriptName = script.getConfig().getFileName();
 				}
 				switch (logLevel.intValue()) {
-					case 900:
+					case 900: // warning
 						Skript.warning("[" + scriptName + "] " + messages);
 						break;
-					case 1000:
+					case 1000: // severe
 						Skript.error("[" + scriptName + "] " + messages);
 						break;
 					default:
@@ -144,7 +144,18 @@ public class EffLog extends Effect {
 	}
 
 	@Override
-	public String toString(final @Nullable Event e, final boolean debug) {
-		return "log " + messages.toString(e, debug) + (files != null ? " to " + files.toString(e, debug) : "");
+	public String toString(@Nullable Event e, boolean debug) {
+		String levelType;
+		switch (logLevel.intValue()) {
+			case 900:
+				levelType = "warning ";
+				break;
+			case 1000:
+				levelType = "severe ";
+				break;
+			default:
+				levelType = "info ";
+		}
+		return "log " + levelType + messages.toString(e, debug) + (files != null ? " to " + files.toString(e, debug) : "");
 	}
 }
