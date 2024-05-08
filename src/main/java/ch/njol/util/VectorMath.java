@@ -19,16 +19,23 @@
 package ch.njol.util;
 
 import org.bukkit.util.Vector;
+import org.jetbrains.annotations.ApiStatus;
 
-/**
- * @author bi0qaw
- */
-public class VectorMath {
-
+@ApiStatus.Internal
+// TODO: Move these static methods to their single usage
+public final class VectorMath {
+	@Deprecated
+	@ApiStatus.ScheduledForRemoval
 	public static final double PI = Math.PI;
+	@Deprecated
+	@ApiStatus.ScheduledForRemoval
 	public static final double HALF_PI = PI / 2;
-	public static final double DEG_TO_RAD = PI / 180;
-	public static final double RAD_TO_DEG =  180 / PI;
+	@ApiStatus.Internal // private next version
+	public static final double DEG_TO_RAD = Math.PI / 180;
+	@ApiStatus.Internal // private next version
+	public static final double RAD_TO_DEG =  180 / Math.PI;
+
+	private VectorMath() {}
 
 	public static Vector fromSphericalCoordinates(double radius, double theta, double phi) {
 		double r = Math.abs(radius);
@@ -47,7 +54,6 @@ public class VectorMath {
 		double x = r * Math.cos(p);
 		double z = r * Math.sin(p);
 		return new Vector(x, height, z);
-
 	}
 
 	public static Vector fromYawAndPitch(float yaw, float pitch) {
@@ -70,16 +76,6 @@ public class VectorMath {
 	public static float getPitch(Vector vector) {
 		double xy = Math.sqrt(vector.getX() * vector.getX() + vector.getZ() * vector.getZ());
 		return (float) (Math.atan(vector.getY() / xy) * RAD_TO_DEG);
-	}
-
-	public static Vector setYaw(Vector vector, float yaw) {
-		vector = fromYawAndPitch(yaw, getPitch(vector));
-		return vector;
-	}
-
-	public static Vector setPitch(Vector vector, float pitch) {
-		vector = fromYawAndPitch(getYaw(vector), pitch);
-		return vector;
 	}
 
 	public static Vector rotX(Vector vector, double angle) {
@@ -132,43 +128,19 @@ public class VectorMath {
 		return vector;
 	}
 
-	public static float notchYaw(float yaw){
+	public static float skriptYaw(float yaw) {
 		float y = yaw - 90;
-		if (y < -180){
+		if (y < 0) {
 			y += 360;
 		}
 		return y;
 	}
 
-	public static float notchPitch(float pitch){
+	public static float skriptPitch(float pitch) {
 		return -pitch;
 	}
 
-	public static float fromNotchYaw(float notchYaw){
-		float y = notchYaw + 90;
-		if (y > 180){
-			y -= 360;
-		}
-		return y;
-	}
-
-	public static float fromNotchPitch(float notchPitch){
-		return -notchPitch;
-	}
-
-	public static float skriptYaw(float yaw){
-		float y = yaw - 90;
-		if (y < 0){
-			y += 360;
-		}
-		return y;
-	}
-
-	public static float skriptPitch(float pitch){
-		return -pitch;
-	}
-
-	public static float fromSkriptYaw(float yaw){
+	public static float fromSkriptYaw(float yaw) {
 		float y = yaw + 90;
 		if (y > 360){
 			y -= 360;
@@ -176,7 +148,7 @@ public class VectorMath {
 		return y;
 	}
 
-	public static float fromSkriptPitch(float pitch){
+	public static float fromSkriptPitch(float pitch) {
 		return -pitch;
 	}
 
@@ -197,5 +169,4 @@ public class VectorMath {
 	public static void copyVector(Vector vector1, Vector vector2) {
 		vector1.setX(vector2.getX()).setY(vector2.getY()).setZ(vector2.getZ());
 	}
-
 }
