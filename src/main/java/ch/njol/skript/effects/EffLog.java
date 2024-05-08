@@ -53,11 +53,16 @@ import ch.njol.util.Kleenean;
 @Description({"Writes text into a .log file. Skript will write these files to /plugins/Skript/logs.",
 		"NB: Using 'server.log' as the log file will write to the default server log. Omitting the log file altogether will log the message as '[Skript] [&lt;script&gt;.sk] &lt;message&gt;' in the server log."})
 @Examples({"on place of TNT:",
-		"	log \"%player% placed TNT in %world% at %location of block%\" to \"tnt/placement.log\""})
+	    "	log \"%player% placed TNT in %world% at %location of block%\" to file \"tnt/placement.log\"",
+	    "	log \"%player% placed TNT in %world% at %location of block%\" to file \"tnt/placement.log\"\"with severity of info\"",
+		"	log \"%player% placed TNT in %world% at %location of block%\" to file \"tnt/placement.log\"\"with severity of warning\"",
+        "   log \"%player% placed TNT in %world% at %location of block%\" to file \"tnt/placement.log\"\"with severity of error\""})
+
+
 @Since("2.0")
 public class EffLog extends Effect {
 	static {
-		Skript.registerEffect(EffLog.class, "log %strings% [to|in [file[s]] %-strings%] [with severity of] [1:warning|2:severe]");
+		Skript.registerEffect(EffLog.class, "log %strings% [(to|in) [file[s]] %-strings%] [with severity (of) (1:warning|2:severe)]");
 	}
 	
 	private final static File logsFolder = new File(Skript.getInstance().getDataFolder(), "logs");
@@ -78,16 +83,14 @@ public class EffLog extends Effect {
 	@Nullable
 	private Expression<String> files;
 
-	private static final int WARNING = 1, SEVERE = 2;
-
-	private int mark;
+	private int loglevel;
 
 	@SuppressWarnings({"unchecked", "null"})
 	@Override
 	public boolean init(final Expression<?>[] exprs, final int matchedPattern, final Kleenean isDelayed, final ParseResult parser) {
 		messages = (Expression<String>) exprs[0];
 		files = (Expression<String>) exprs[1];
-		mark = parser.mark;
+		loglevel = parser.mark;
 		return true;
 	}
 	
@@ -101,31 +104,30 @@ public class EffLog extends Effect {
 					if (!logFile.endsWith(".log"))
 						logFile += ".log";
 					if (logFile.equals("server.log")) {
-						if (mark == 1) {
-							SkriptLogger.LOGGER.log(Level.WARNING, message);
-							continue;
+						switch (loglevel) {
+							case 1: SkriptLogger.LOGGER.log(Level.WARNING, message);
+								break;
+							case 2: SkriptLogger.LOGGER.log(Level.SEVERE, message);
+								break;
+							default:
+								SkriptLogger.LOGGER.log(Level.INFO, message);
+
 						}
-						else if (mark == 2) {
-							SkriptLogger.LOGGER.log(Level.SEVERE, message);
-							continue;
-						}
-						SkriptLogger.LOGGER.log(Level.INFO, message);
-						continue;
 					}
-					PrintWriter w = writers.get(logFile);
-					if (w == null) {
-						final File f = new File(logsFolder, logFile); // REMIND what if logFile contains '..'?
+					PrintWriter logWriter = writers.get(logFile);
+					if (logWriter == null) {
+						final File logFolder = new File(logsFolder, logFile); // REMIND what if logFile contains '..'?
 						try {
-							f.getParentFile().mkdirs();
-							w = new PrintWriter(new BufferedWriter(new FileWriter(f, true)));
-							writers.put(logFile, w);
+							logFolder.getParentFile().mkdirs();
+							logWriter = new PrintWriter(new BufferedWriter(new FileWriter(logFolder, true)));
+							writers.put(logFile, logWriter);
 						} catch (final IOException ex) {
-							Skript.error("Cannot write to log file '" + logFile + "' (" + f.getPath() + "): " + ExceptionUtils.toString(ex));
+							Skript.error("Cannot write to log file '" + logFile + "' (" + logFolder.getPath() + "): " + ExceptionUtils.toString(ex));
 							return;
 						}
 					}
-					w.println("[" + SkriptConfig.formatDate(System.currentTimeMillis()) + "] " + message);
-					w.flush();
+					logWriter.println("[" + SkriptConfig.formatDate(System.currentTimeMillis()) + "] " + message);
+					logWriter.flush();
 				}
 			} else {
 				Trigger t = getTrigger();
@@ -135,14 +137,14 @@ public class EffLog extends Effect {
 					if (script != null)
 						scriptName = script.getConfig().getFileName();
 				}
-
-				if (mark == 1) {
-					Skript.warning("[" + scriptName + "] " + message);
+				switch (loglevel) {
+					case 1: Skript.warning("[" + scriptName + "] " + message);
+						break;
+					case 2: Skript.error("[" + scriptName + "] " + message);
+						break;
+					default:
+						Skript.info("[" + scriptName + "] " + message);
 				}
-				if (mark == 2) {
-					Skript.error("[" + scriptName + "] " + message);
-				}
-				Skript.info("[" + scriptName + "] " + message);
 			}
 		}
 	}
