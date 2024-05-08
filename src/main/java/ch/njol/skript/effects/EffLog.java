@@ -59,7 +59,7 @@ import ch.njol.util.Kleenean;
         "   log \"%player% placed TNT in %world% at %location of block%\" to file \"tnt/placement.log\"\"with severity of error\""})
 
 
-@Since("2.0")
+@Since("2.0, 2.9 (Adds severity to logs)")
 public class EffLog extends Effect {
 	static {
 		Skript.registerEffect(EffLog.class, "log %strings% [(to|in) [file[s]] %-strings%] [with severity (of) (1:warning|2:severe)]");
