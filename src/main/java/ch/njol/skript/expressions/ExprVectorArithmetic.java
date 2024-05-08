@@ -37,6 +37,7 @@ import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.util.Patterns;
 import ch.njol.util.Kleenean;
 import org.skriptlang.skript.lang.arithmetic.Arithmetics;
+import org.skriptlang.skript.lang.script.ScriptWarning;
 
 @Name("Vectors - Arithmetic")
 @Description("Arithmetic expressions for vectors.")
@@ -72,7 +73,7 @@ public class ExprVectorArithmetic extends SimpleExpression<Vector> {
 		first = (Expression<Vector>) exprs[0];
 		second = (Expression<Vector>) exprs[1];
 		operator = patterns.getInfo(matchedPattern);
-		Skript.warning("This expression was deprecated in favor of the arithmetic expression, and will be removed in the future." +
+		ScriptWarning.printDeprecationWarning("This expression was deprecated in favor of the arithmetic expression and will be removed in the future." +
 			" Please use that instead. E.g. 'vector(2, 4, 1) + vector(5, 2, 3)'");
 		return true;
 	}
