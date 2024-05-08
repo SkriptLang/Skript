@@ -50,20 +50,20 @@ import ch.njol.util.Kleenean;
 @Description({"Writes text into a .log file. Skript will write these files to /plugins/Skript/logs.",
 		"NB: Using 'server.log' as the log file will write to the default server log. Omitting the log file altogether will log the message as '[Skript] [&lt;script&gt;.sk] &lt;message&gt;' in the server log."})
 @Examples({"on place of TNT:",
-		"   log \"%player% placed TNT in %world% at %location of block%\"",
-		"	log \"%player% placed TNT in %world% at %location of block%\" to file \"tnt/placement.log\"",
-		"	log \"%player% placed TNT in %world% at %location of block%\" to file \"tnt/placement.log\"\"with a severity of warning\""})
+		"log \"%player% placed TNT in %world% at %location of block%\"",
+		"log \"A TNT was just placed at %location of block%!\" to file \"tnt/placement.log\"",
+		"log \"A player named %player% just placed a TNT in %world%!\" to file \"tnt/placement.log\"\"with a severity of warning\""})
 
 
-@Since("2.0, INSERT VERSION (Adds severity to logs)")
+@Since("2.0, INSERT VERSION (severities)")
 public class EffLog extends Effect {
 	static {
 		Skript.registerEffect(EffLog.class, "log %strings% [(to|in) [file[s]] %-strings%] [with [the|a] severity [of] (1:warning|2:severe)]");
 	}
 	
-	private static File logsFolder = new File(Skript.getInstance().getDataFolder(), "logs");
+	private static final File logsFolder = new File(Skript.getInstance().getDataFolder(), "logs");
 	
-	static HashMap<String, PrintWriter> writers = new HashMap<>();
+	final static HashMap<String, PrintWriter> writers = new HashMap<>();
 	static {
 		Skript.closeOnDisable(new Closeable() {
 			@Override
@@ -80,6 +80,8 @@ public class EffLog extends Effect {
 	private Expression<String> files;
 
 	private Level logLevel = Level.INFO;
+	private static final int WARNING_LOG = 900;
+	private static final int SEVERE_LOG = 1000;
 
 	@SuppressWarnings({"unchecked", "null"})
 	@Override
@@ -118,7 +120,18 @@ public class EffLog extends Effect {
 							return;
 						}
 					}
-					logWriter.println("[" + SkriptConfig.formatDate(System.currentTimeMillis()) + "] " + message);
+					String levelType;
+					switch (logLevel.intValue()) {
+						case WARNING_LOG:
+							levelType = "WARNING";
+							break;
+						case SEVERE_LOG:
+							levelType = "SEVERE";
+							break;
+						default:
+							levelType = "INFO";
+					}
+					logWriter.println("[" + levelType + "]" + "[" + SkriptConfig.formatDate(System.currentTimeMillis()) + "] " + message);
 					logWriter.flush();
 				}
 			} else {
@@ -130,10 +143,10 @@ public class EffLog extends Effect {
 						scriptName = script.getConfig().getFileName();
 				}
 				switch (logLevel.intValue()) {
-					case 900: // warning
+					case WARNING_LOG:
 						Skript.warning("[" + scriptName + "] " + messages);
 						break;
-					case 1000: // severe
+					case SEVERE_LOG:
 						Skript.error("[" + scriptName + "] " + messages);
 						break;
 					default:
@@ -147,10 +160,10 @@ public class EffLog extends Effect {
 	public String toString(@Nullable Event e, boolean debug) {
 		String levelType;
 		switch (logLevel.intValue()) {
-			case 900:
+			case WARNING_LOG:
 				levelType = "warning ";
 				break;
-			case 1000:
+			case SEVERE_LOG:
 				levelType = "severe ";
 				break;
 			default:
