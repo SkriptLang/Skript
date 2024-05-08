@@ -46,23 +46,19 @@ import ch.njol.skript.util.ExceptionUtils;
 import ch.njol.util.Closeable;
 import ch.njol.util.Kleenean;
 
-/**
- * @author Peter Güttinger
- */
 @Name("Log")
 @Description({"Writes text into a .log file. Skript will write these files to /plugins/Skript/logs.",
 		"NB: Using 'server.log' as the log file will write to the default server log. Omitting the log file altogether will log the message as '[Skript] [&lt;script&gt;.sk] &lt;message&gt;' in the server log."})
 @Examples({"on place of TNT:",
-	    "	log \"%player% placed TNT in %world% at %location of block%\" to file \"tnt/placement.log\"",
-	    "	log \"%player% placed TNT in %world% at %location of block%\" to file \"tnt/placement.log\"\"with severity of info\"",
-		"	log \"%player% placed TNT in %world% at %location of block%\" to file \"tnt/placement.log\"\"with severity of warning\"",
-        "   log \"%player% placed TNT in %world% at %location of block%\" to file \"tnt/placement.log\"\"with severity of error\""})
+		"   log \"%player% placed TNT in %world% at %location of block%\"",
+		"	log \"%player% placed TNT in %world% at %location of block%\" to file \"tnt/placement.log\"",
+		"	log \"%player% placed TNT in %world% at %location of block%\" to file \"tnt/placement.log\"\"with a severity of warning\""})
 
 
-@Since("2.0, 2.9 (Adds severity to logs)")
+@Since("2.0, INSERT VERSION (Adds severity to logs)")
 public class EffLog extends Effect {
 	static {
-		Skript.registerEffect(EffLog.class, "log %strings% [(to|in) [file[s]] %-strings%] [with severity (of) (1:warning|2:severe)]");
+		Skript.registerEffect(EffLog.class, "log %strings% [(to|in) [file[s]] %-strings%] [with [the|a] severity [of] (1:warning|2:severe)]");
 	}
 	
 	private final static File logsFolder = new File(Skript.getInstance().getDataFolder(), "logs");
@@ -83,14 +79,18 @@ public class EffLog extends Effect {
 	@Nullable
 	private Expression<String> files;
 
-	private int loglevel;
+	private Level logLevel = Level.INFO;
 
 	@SuppressWarnings({"unchecked", "null"})
 	@Override
 	public boolean init(final Expression<?>[] exprs, final int matchedPattern, final Kleenean isDelayed, final ParseResult parser) {
 		messages = (Expression<String>) exprs[0];
 		files = (Expression<String>) exprs[1];
-		loglevel = parser.mark;
+		if (parser.mark == 1) {
+			logLevel = Level.WARNING;
+		} else if (parser.mark == 2) {
+			logLevel = Level.SEVERE;
+		}
 		return true;
 	}
 	
@@ -104,15 +104,7 @@ public class EffLog extends Effect {
 					if (!logFile.endsWith(".log"))
 						logFile += ".log";
 					if (logFile.equals("server.log")) {
-						switch (loglevel) {
-							case 1: SkriptLogger.LOGGER.log(Level.WARNING, message);
-								break;
-							case 2: SkriptLogger.LOGGER.log(Level.SEVERE, message);
-								break;
-							default:
-								SkriptLogger.LOGGER.log(Level.INFO, message);
-
-						}
+						SkriptLogger.LOGGER.log(logLevel, message);
 					}
 					PrintWriter logWriter = writers.get(logFile);
 					if (logWriter == null) {
@@ -137,18 +129,20 @@ public class EffLog extends Effect {
 					if (script != null)
 						scriptName = script.getConfig().getFileName();
 				}
-				switch (loglevel) {
-					case 1: Skript.warning("[" + scriptName + "] " + message);
+				switch (logLevel.intValue()) {
+					case 900:
+						Skript.warning("[" + scriptName + "] " + messages);
 						break;
-					case 2: Skript.error("[" + scriptName + "] " + message);
+					case 1000:
+						Skript.error("[" + scriptName + "] " + messages);
 						break;
 					default:
-						Skript.info("[" + scriptName + "] " + message);
+						Skript.info("[" + scriptName + "] " + messages);
 				}
 			}
 		}
 	}
-	
+
 	@Override
 	public String toString(final @Nullable Event e, final boolean debug) {
 		return "log " + messages.toString(e, debug) + (files != null ? " to " + files.toString(e, debug) : "");
