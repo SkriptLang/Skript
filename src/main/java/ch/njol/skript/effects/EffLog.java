@@ -49,7 +49,8 @@ import ch.njol.util.Kleenean;
 @Name("Log")
 @Description({"Writes text into a .log file. Skript will write these files to /plugins/Skript/logs.",
 		"NB: Using 'server.log' as the log file will write to the default server log. Omitting the log file altogether will log the message as '[Skript] [&lt;script&gt;.sk] &lt;message&gt;' in the server log."})
-@Examples({"log \"%player% has just joined the server!\"",
+@Examples({
+		"log \"%player% has just joined the server!\"",
 		"log \"Someone just went to %event-world%!\" to file \"worldlog/worlds.log\"",
 		"log \"%player% just executed %full command%!\" to file \"server/commands.log\"\"with a severity of warning\""})
 
@@ -122,15 +123,15 @@ public class EffLog extends Effect {
 					String levelType;
 					switch (logLevel.intValue()) {
 						case WARNING_LOG:
-							levelType = "WARNING";
+							levelType = " WARNING";
 							break;
 						case SEVERE_LOG:
-							levelType = "SEVERE";
+							levelType = " SEVERE";
 							break;
 						default:
-							levelType = "INFO";
+							levelType = " INFO";
 					}
-					logWriter.println("[" + levelType + "]" + "[" + SkriptConfig.formatDate(System.currentTimeMillis()) + "] " + message);
+					logWriter.println( "[" + SkriptConfig.formatDate(System.currentTimeMillis()) + levelType + "] " + message);
 					logWriter.flush();
 				}
 			} else {
@@ -168,6 +169,6 @@ public class EffLog extends Effect {
 			default:
 				levelType = "info ";
 		}
-		return "log " + levelType + messages.toString(e, debug) + (files != null ? " to " + files.toString(e, debug) : "");
+		return "log " + messages.toString(e, debug) + (files != null ? " to " + files.toString(e, debug) : "") + levelType;
 	}
 }
