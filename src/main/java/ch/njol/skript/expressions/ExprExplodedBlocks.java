@@ -92,9 +92,8 @@ public class ExprExplodedBlocks extends SimpleExpression<Block> {
 			case ADD:
 			case REMOVE:
 			case SET:
-				return CollectionUtils.array(Block[].class);
 			case DELETE:
-				return CollectionUtils.array();
+				return CollectionUtils.array(Block[].class);
 			default:
 				return null;
 		}
@@ -106,22 +105,25 @@ public class ExprExplodedBlocks extends SimpleExpression<Block> {
 			return;
 
 		List<Block> blocks = ((EntityExplodeEvent) event).blockList();
-		if (mode == ChangeMode.DELETE) {
-			blocks.clear();
-			return;
-		}
-		if (mode == ChangeMode.SET)
-			blocks.clear();
-		if (mode == ChangeMode.ADD || mode == ChangeMode.SET) {
-			for (Object object : delta) {
-				if (object instanceof Block)
-					blocks.add((Block) object);
-			}
-		} else if (mode == ChangeMode.REMOVE) {
-			for (Object object : delta) {
-				if (object instanceof Block)
-					blocks.remove((Block) object);
-			}
+		switch (mode) {
+			case DELETE:
+				blocks.clear();
+				break;
+			case SET:
+				blocks.clear();
+				// Fallthrough intended
+			case ADD:
+				for (Object object : delta) {
+					if (object instanceof Block)
+						blocks.add((Block) object);
+				}
+				break;
+			case REMOVE:
+				for (Object object : delta) {
+					if (object instanceof Block)
+						blocks.remove((Block) object);
+				}
+				break;
 		}
 	}
 	
