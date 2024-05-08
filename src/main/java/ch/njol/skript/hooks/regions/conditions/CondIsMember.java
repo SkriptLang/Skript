@@ -28,11 +28,12 @@ import ch.njol.skript.hooks.regions.classes.Region;
 import ch.njol.skript.lang.Condition;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
-import ch.njol.util.Checker;
 import ch.njol.util.Kleenean;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
+
+import java.util.function.Predicate;
 
 /**
  * @author Peter Güttinger
@@ -54,14 +55,14 @@ public class CondIsMember extends Condition {
 				"%offlineplayers% (is|are) (0¦[a] member|1¦[(the|an)] owner) of [[the] region] %regions%",
 				"%offlineplayers% (is|are)(n't| not) (0¦[a] member|1¦[(the|an)] owner) of [[the] region] %regions%");
 	}
-	
+
 	@SuppressWarnings("null")
 	private Expression<OfflinePlayer> players;
 	@SuppressWarnings("null")
 	Expression<Region> regions;
-	
+
 	boolean owner;
-	
+
 	@SuppressWarnings({"null", "unchecked"})
 	@Override
 	public boolean init(final Expression<?>[] exprs, final int matchedPattern, final Kleenean isDelayed, final ParseResult parseResult) {
@@ -71,22 +72,22 @@ public class CondIsMember extends Condition {
 		setNegated(matchedPattern == 1);
 		return true;
 	}
-	
+
 	@Override
 	public boolean check(final Event e) {
-		return players.check(e, new Checker<OfflinePlayer>() {
+		return players.check(e, new Predicate<OfflinePlayer>() {
 			@Override
-			public boolean check(final OfflinePlayer p) {
-				return regions.check(e, new Checker<Region>() {
+			public boolean test(final OfflinePlayer p) {
+				return regions.check(e, new Predicate<Region>() {
 					@Override
-					public boolean check(final Region r) {
+					public boolean test(final Region r) {
 						return owner ? r.isOwner(p) : r.isMember(p);
 					}
 				}, isNegated());
 			}
 		});
 	}
-	
+
 	@Override
 	public String toString(final @Nullable Event e, final boolean debug) {
 		return players.toString(e, debug) + " " + (players.isSingle() ? "is" : "are") + (isNegated() ? " not" : "") + " " + (owner ? "owner" : "member") + (players.isSingle() ? "" : "s") + " of " + regions.toString(e, debug);

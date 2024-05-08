@@ -19,7 +19,6 @@
 package ch.njol.skript.lang;
 
 import ch.njol.skript.Skript;
-import ch.njol.skript.SkriptConfig;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.expressions.ExprColoured;
@@ -36,14 +35,12 @@ import ch.njol.skript.util.StringMode;
 import ch.njol.skript.util.Utils;
 import ch.njol.skript.util.chat.ChatMessages;
 import ch.njol.skript.util.chat.MessageComponent;
-import ch.njol.util.Checker;
 import ch.njol.util.Kleenean;
 import ch.njol.util.StringUtils;
 import ch.njol.util.coll.CollectionUtils;
 import ch.njol.util.coll.iterator.SingleItemIterator;
 import com.google.common.collect.Lists;
 import org.bukkit.ChatColor;
-import org.bukkit.OfflinePlayer;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 import org.jetbrains.annotations.NotNull;
@@ -53,6 +50,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 /**
@@ -83,7 +81,7 @@ public class VariableString implements Expression<String> {
 
 	/**
 	 * Creates a new VariableString which does not contain variables.
-	 * 
+	 *
 	 * @param input Content for string.
 	 */
 	private VariableString(String input) {
@@ -103,7 +101,7 @@ public class VariableString implements Expression<String> {
 
 	/**
 	 * Creates a new VariableString which contains variables.
-	 * 
+	 *
 	 * @param original Original string (unparsed).
 	 * @param strings Objects, some of them are variables.
 	 * @param mode String mode.
@@ -151,7 +149,7 @@ public class VariableString implements Expression<String> {
 	/**
 	 * Creates an instance of VariableString by parsing given string.
 	 * Prints errors and returns null if it is somehow invalid.
-	 * 
+	 *
 	 * @param original Unquoted string to parse.
 	 * @return A new VariableString instance.
 	 */
@@ -285,7 +283,7 @@ public class VariableString implements Expression<String> {
 	/**
 	 * Tests whether a string is correctly quoted, i.e. only has doubled double quotes in it.
 	 * Singular double quotes are only allowed between percentage signs.
-	 * 
+	 *
 	 * @param string The string to test
 	 * @param withQuotes Whether the string must be surrounded by double quotes or not
 	 * @return Whether the string is quoted correctly
@@ -316,7 +314,7 @@ public class VariableString implements Expression<String> {
 
 	/**
 	 * Removes quoted quotes from a string.
-	 * 
+	 *
 	 * @param string The string to remove quotes from
 	 * @param surroundingQuotes Whether the string has quotes at the start & end that should be removed
 	 * @return The string with double quotes replaced with single ones and optionally with removed surrounding quotes.
@@ -330,7 +328,7 @@ public class VariableString implements Expression<String> {
 
 	/**
 	 * Copied from {@code SkriptParser#nextBracket(String, char, char, int, boolean)}, but removed escaping & returns -1 on error.
-	 * 
+	 *
 	 * @param string The string to search in
 	 * @param start Index after the opening bracket
 	 * @return The next closing curly bracket
@@ -485,7 +483,7 @@ public class VariableString implements Expression<String> {
 
 	/**
 	 * Parses all expressions in the string and returns it in chat JSON format.
-	 * 
+	 *
 	 * @param event Event to pass to the expressions.
 	 * @return The input string with all expressions replaced.
 	 */
@@ -513,7 +511,7 @@ public class VariableString implements Expression<String> {
 	/**
 	 * Parses all expressions in the string and returns it.
 	 * If this is a simple string, the event may be null.
-	 * 
+	 *
 	 * @param event Event to pass to the expressions.
 	 * @return The input string with all expressions replaced.
 	 */
@@ -573,7 +571,7 @@ public class VariableString implements Expression<String> {
 
 	/**
 	 * Builds all possible default variable type hints based on the super type of the expression.
-	 * 
+	 *
 	 * @return List<String> of all possible super class code names.
 	 */
 	@NotNull
@@ -664,12 +662,12 @@ public class VariableString implements Expression<String> {
 	}
 
 	@Override
-	public boolean check(Event event, Checker<? super String> checker, boolean negated) {
+	public boolean check(Event event, Predicate<? super String> checker, boolean negated) {
 		return SimpleExpression.check(getAll(event), checker, negated, false);
 	}
 
 	@Override
-	public boolean check(Event event, Checker<? super String> checker) {
+	public boolean check(Event event, Predicate<? super String> checker) {
 		return SimpleExpression.check(getAll(event), checker, false, false);
 	}
 

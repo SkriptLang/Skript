@@ -22,10 +22,10 @@ import org.eclipse.jdt.annotation.Nullable;
 
 import java.util.function.Predicate;
 
-public interface NullableChecker<T> extends Checker<T>, Predicate<T> {
+public interface NullableChecker<T> extends ch.njol.util.Checker<T>, Predicate<T> {
 
 	@Override
-	public boolean check(@Nullable T o);
+	boolean check(@Nullable T o);
 
 	public static final NullableChecker<Object> nullChecker = new NullableChecker<Object>() {
 		@Override

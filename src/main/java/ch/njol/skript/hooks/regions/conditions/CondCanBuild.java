@@ -29,12 +29,13 @@ import ch.njol.skript.lang.Condition;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.util.Direction;
-import ch.njol.util.Checker;
 import ch.njol.util.Kleenean;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
+
+import java.util.function.Predicate;
 
 /**
  * @author Peter Güttinger
@@ -61,12 +62,12 @@ public class CondCanBuild extends Condition {
 				"%players% (can|(is|are) allowed to) build %directions% %locations%",
 				"%players% (can('t|not)|(is|are)(n't| not) allowed to) build %directions% %locations%");
 	}
-	
+
 	@SuppressWarnings("null")
 	private Expression<Player> players;
 	@SuppressWarnings("null")
 	Expression<Location> locations;
-	
+
 	@SuppressWarnings({"unchecked", "null"})
 	@Override
 	public boolean init(final Expression<?>[] exprs, final int matchedPattern, final Kleenean isDelayed, final ParseResult parseResult) {
@@ -75,25 +76,25 @@ public class CondCanBuild extends Condition {
 		setNegated(matchedPattern == 1);
 		return true;
 	}
-	
+
 	@Override
 	public boolean check(final Event e) {
-		return players.check(e, new Checker<Player>() {
+		return players.check(e, new Predicate<Player>() {
 			@Override
-			public boolean check(final Player p) {
-				return locations.check(e, new Checker<Location>() {
+			public boolean test(final Player p) {
+				return locations.check(e, new Predicate<Location>() {
 					@Override
-					public boolean check(final Location l) {
+					public boolean test(final Location l) {
 						return RegionsPlugin.canBuild(p, l);
 					}
 				}, isNegated());
 			}
 		});
 	}
-	
+
 	@Override
 	public String toString(final @Nullable Event e, final boolean debug) {
 		return players.toString(e, debug) + " can build " + locations.toString(e, debug);
 	}
-	
+
 }

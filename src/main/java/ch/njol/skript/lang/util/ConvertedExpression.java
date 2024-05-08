@@ -24,7 +24,6 @@ import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.registrations.Classes;
-import ch.njol.util.Checker;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.event.Event;
@@ -35,6 +34,7 @@ import org.skriptlang.skript.lang.converter.Converters;
 
 import java.util.Iterator;
 import java.util.NoSuchElementException;
+import java.util.function.Predicate;
 
 /**
  * Represents a expression converted to another type. This, and not Expression, is the required return type of {@link SimpleExpression#getConvertedExpr(Class...)} because this
@@ -43,7 +43,7 @@ import java.util.NoSuchElementException;
  * <li>automatically lets the source expression handle everything apart from the get() methods</li>
  * <li>will never convert itself to another type, but rather request a new converted expression from the source expression.</li>
  * </ol>
- * 
+ *
  * @author Peter Güttinger
  */
 public class ConvertedExpression<F, T> implements Expression<T> {
@@ -166,18 +166,18 @@ public class ConvertedExpression<F, T> implements Expression<T> {
 	}
 
 	@Override
-	public boolean check(Event event, Checker<? super T> checker, boolean negated) {
+	public boolean check(Event event, Predicate<? super T> checker, boolean negated) {
 		return negated ^ check(event, checker);
 	}
 
 	@Override
-	public boolean check(Event event, Checker<? super T> checker) {
-		return source.check(event, (Checker<F>) value -> {
+	public boolean check(Event event, Predicate<? super T> checker) {
+		return source.check(event, (Predicate<F>) value -> {
 			T convertedValue = converter.convert(value);
 			if (convertedValue == null) {
 				return false;
 			}
-			return checker.check(convertedValue);
+			return checker.test(convertedValue);
 		});
 	}
 

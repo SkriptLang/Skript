@@ -26,7 +26,6 @@ import ch.njol.skript.SkriptAPIException;
 import ch.njol.skript.lang.Condition;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
-import ch.njol.util.Checker;
 import ch.njol.util.Kleenean;
 
 import java.util.function.Predicate;
@@ -54,7 +53,7 @@ import java.util.function.Predicate;
  * {@link PropertyCondition#register(Class, String, String)}, be aware that there can only be two patterns -
  * the first one needs to be a non-negated one and a negated one.
  */
-public abstract class PropertyCondition<T> extends Condition implements Checker<T>, Predicate<T> {
+public abstract class PropertyCondition<T> extends Condition implements ch.njol.util.Checker<T>, Predicate<T> {
 
 	/**
 	 * See {@link PropertyCondition} for more info

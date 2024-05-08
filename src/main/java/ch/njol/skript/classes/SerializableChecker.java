@@ -18,7 +18,6 @@
  */
 package ch.njol.skript.classes;
 
-import ch.njol.util.Checker;
 import org.jetbrains.annotations.ApiStatus;
 
 import java.util.function.Predicate;
@@ -29,4 +28,4 @@ import java.util.function.Predicate;
 @Deprecated
 @FunctionalInterface
 @ApiStatus.ScheduledForRemoval
-public interface SerializableChecker<T> extends Checker<T>, Predicate<T> {}
+public interface SerializableChecker<T> extends ch.njol.util.Checker<T>, Predicate<T> {}
