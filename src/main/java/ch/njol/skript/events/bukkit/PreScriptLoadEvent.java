@@ -19,6 +19,7 @@
 package ch.njol.skript.events.bukkit;
 
 import ch.njol.skript.config.Config;
+import com.google.common.base.Preconditions;
 import org.bukkit.Bukkit;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
@@ -36,6 +37,7 @@ public class PreScriptLoadEvent extends Event {
 
     public PreScriptLoadEvent(List<Config> scripts) {
         super(!Bukkit.isPrimaryThread());
+	    Preconditions.checkNotNull(scripts);
         this.scripts = scripts;
     }
 
