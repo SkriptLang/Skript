@@ -50,7 +50,7 @@ import org.eclipse.jdt.annotation.Nullable;
 	"set {_block} to actual target block of player",
 	"break actual target block of player"
 })
-@Since("1.0, INSERT VERSION (implement 'actual/exact' correctly)")
+@Since("1.0, INSERT VERSION (actual/exact)")
 public class ExprTargetedBlock extends PropertyExpression<LivingEntity, Block> {
 
 	static {
