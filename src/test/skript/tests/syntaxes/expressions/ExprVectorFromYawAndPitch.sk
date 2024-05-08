@@ -1,0 +1,12 @@
+test "vector from yaw and pitch":
+	assert (a new vector from yaw 0 and pitch 0) is vector(0, 0, 1) with "zero-angle vector creation failed: %a new vector from yaw 0 and pitch 0%"
+	assert (a new vector from yaw 90 and pitch 0) is vector(-1, 0, 0) with "90-yaw vector creation failed: %a new vector from yaw 90 and pitch 0%"
+	assert (a new vector from yaw 180 and pitch 0) is vector(0, 0, -1) with "180-yaw vector creation failed: %a new vector from yaw 180 and pitch 0%"
+	assert (a new vector from yaw -90 and pitch 0) is vector(1, 0, 0) with "-90-yaw vector creation failed: %a new vector from yaw -90 and pitch 0%"
+	assert (a new vector from yaw 0 and pitch 90) is vector(0, -1, 0) with "90-pitch vector creation failed: %a new vector from yaw 0 and pitch 90%"
+	assert (a new vector from yaw 0 and pitch -90) is vector(0, 1, 0) with "-90-pitch vector creation failed: %a new vector from yaw 0 and pitch -90%"
+	loop 60 times:
+		set {_yaw} to a random number between -180 and 180
+		set {_pitch} to a random number between -90 and 90
+		set {_vector} to a new vector from yaw {_yaw} and pitch {_pitch}
+		assert the normal length of {_vector} is 1 with "randomly-created vector was non-normal (expected length 1, got %normal length of {_vector}%)"
