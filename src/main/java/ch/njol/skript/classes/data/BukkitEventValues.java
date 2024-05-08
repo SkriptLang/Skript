@@ -713,12 +713,6 @@ public final class BukkitEventValues {
 		}, 0);
 		// EndermanAttackPlayerEvent
 		if (Skript.classExists("com.destroystokyo.paper.event.entity.EndermanAttackPlayerEvent")) {
-			EventValues.registerEventValue(EndermanAttackPlayerEvent.class, Entity.class, new Getter<Entity, EndermanAttackPlayerEvent>() {
-				@Override
-				public Entity get(EndermanAttackPlayerEvent event) {
-					return event.getEntity();
-				}
-			}, EventValues.TIME_NOW);
 			EventValues.registerEventValue(EndermanAttackPlayerEvent.class, Player.class, new Getter<Player, EndermanAttackPlayerEvent>() {
 				@Override
 				public Player get(EndermanAttackPlayerEvent event) {
