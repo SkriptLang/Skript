@@ -52,20 +52,13 @@ import ch.njol.util.Kleenean;
 })
 @Since("2.3")
 public class EffSendTitle extends Effect {
-	
-	private final static boolean TIME_SUPPORTED = Skript.methodExists(Player.class,"sendTitle", String.class, String.class, int.class, int.class, int.class);
-	
+
 	static {
-		if (TIME_SUPPORTED)
-			Skript.registerEffect(EffSendTitle.class,
-					"send title %string% [with subtitle %-string%] [to %players%] [for %-timespan%] [with fade[(-| )]in %-timespan%] [[and] [with] fade[(-| )]out %-timespan%]",
-					"send subtitle %string% [to %players%] [for %-timespan%] [with fade[(-| )]in %-timespan%] [[and] [with] fade[(-| )]out %-timespan%]");
-		else
-			Skript.registerEffect(EffSendTitle.class,
-					"send title %string% [with subtitle %-string%] [to %players%]",
-					"send subtitle %string% [to %players%]");
+		Skript.registerEffect(EffSendTitle.class,
+				"send title %string% [with subtitle %-string%] [to %players%] [for %-timespan%] [with fade[(-| )]in %-timespan%] [[and] [with] fade[(-| )]out %-timespan%]",
+				"send subtitle %string% [to %players%] [for %-timespan%] [with fade[(-| )]in %-timespan%] [[and] [with] fade[(-| )]out %-timespan%]");
 	}
-	
+
 	@Nullable
 	private Expression<String> title;
 	@Nullable
@@ -74,54 +67,48 @@ public class EffSendTitle extends Effect {
 	private Expression<Player> recipients;
 	@Nullable
 	private Expression<Timespan> fadeIn, stay, fadeOut;
-	
+
 	@SuppressWarnings({"unchecked", "null"})
 	@Override
 	public boolean init(final Expression<?>[] exprs, final int matchedPattern, final Kleenean isDelayed, final ParseResult parser) {
 		title = matchedPattern == 0 ? (Expression<String>) exprs[0] : null;
 		subtitle = (Expression<String>) exprs[1 - matchedPattern];
 		recipients = (Expression<Player>) exprs[2 - matchedPattern];
-		if (TIME_SUPPORTED) {
-			stay = (Expression<Timespan>) exprs[3 - matchedPattern];
-			fadeIn = (Expression<Timespan>) exprs[4 - matchedPattern];
-			fadeOut = (Expression<Timespan>) exprs[5 - matchedPattern];
-		}
+		stay = (Expression<Timespan>) exprs[3 - matchedPattern];
+		fadeIn = (Expression<Timespan>) exprs[4 - matchedPattern];
+		fadeOut = (Expression<Timespan>) exprs[5 - matchedPattern];
 		return true;
 	}
-	
+
 	@SuppressWarnings("null")
 	@Override
 	protected void execute(final Event e) {
 		String title = this.title != null ? this.title.getSingle(e) : null;
 		String subtitle = this.subtitle != null ? this.subtitle.getSingle(e) : null;
-		
-		if (TIME_SUPPORTED) {
-			int fadeIn, stay, fadeOut;
-			fadeIn = stay = fadeOut = -1;
 
-			if (this.fadeIn != null) {
-				Timespan t = this.fadeIn.getSingle(e);
-				fadeIn = t != null ? (int) t.getTicks() : -1;
-			}
+		int fadeIn, stay, fadeOut;
+		fadeIn = stay = fadeOut = -1;
 
-			if (this.stay != null) {
-				Timespan t = this.stay.getSingle(e);
-				stay = t != null ? (int) t.getTicks() : -1;
-			}
-
-			if (this.fadeOut != null) {
-				Timespan t = this.fadeOut.getSingle(e);
-				fadeOut = t != null ? (int) t.getTicks() : -1;
-			}
-			
-			for (Player p : recipients.getArray(e))
-				p.sendTitle(title, subtitle, fadeIn, stay, fadeOut);
-		} else {
-			for (Player p : recipients.getArray(e))
-				p.sendTitle(title, subtitle);
+		if (this.fadeIn != null) {
+			Timespan t = this.fadeIn.getSingle(e);
+			fadeIn = t != null ? (int) t.getTicks() : -1;
 		}
+
+		if (this.stay != null) {
+			Timespan t = this.stay.getSingle(e);
+			stay = t != null ? (int) t.getTicks() : -1;
+		}
+
+		if (this.fadeOut != null) {
+			Timespan t = this.fadeOut.getSingle(e);
+			fadeOut = t != null ? (int) t.getTicks() : -1;
+		}
+
+		for (Player p : recipients.getArray(e))
+			p.sendTitle(title, subtitle, fadeIn, stay, fadeOut);
+
 	}
-	
+
 	// TODO: util method to simplify this
 	@Override
 	public String toString(final @Nullable Event e, final boolean debug) {
@@ -131,9 +118,8 @@ public class EffSendTitle extends Effect {
 		stay = this.stay != null ? this.stay.toString(e, debug) : "",
 		out = fadeOut != null ? this.fadeOut.toString(e, debug) : "";
 		return ("send title " + title +
-				sub == "" ? "" : " with subtitle " + sub) + " to " +
-				recipients.toString(e, debug) + (TIME_SUPPORTED ?
-				" for " + stay + " with fade in " + in + " and fade out" + out : "");
+				(sub.isEmpty() ? "" : " with subtitle " + sub)) + " to " +
+				recipients.toString(e, debug) + (" for " + stay + " with fade in " + in + " and fade out" + out);
 	}
-	
+
 }
