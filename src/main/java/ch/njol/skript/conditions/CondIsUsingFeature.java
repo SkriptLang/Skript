@@ -68,13 +68,9 @@ public class CondIsUsingFeature extends Condition {
 			return true;
 		boolean isUsing = true;
 		for (@NotNull String object : array) {
-			isUsing &= this.hasExperiment(object);
+			isUsing &= snapshot.hasExperiment(object);
 		}
 		return this.isNegated() ^ isUsing;
-	}
-
-	protected boolean hasExperiment(String name) {
-		return snapshot.hasExperiment(name);
 	}
 
 	@Override

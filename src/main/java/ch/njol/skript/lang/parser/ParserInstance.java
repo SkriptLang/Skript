@@ -453,8 +453,7 @@ public final class ParserInstance implements Experimented {
 		@Nullable ExperimentSet set = script.getData(ExperimentSet.class);
 		if (set == null)
 			return new ExperimentSet();
-		else
-			return new ExperimentSet(set);
+		return new ExperimentSet(set);
 	}
 
 	// ParserInstance Data API
