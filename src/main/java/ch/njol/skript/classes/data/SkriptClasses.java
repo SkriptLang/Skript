@@ -649,8 +649,16 @@ public class SkriptClasses {
 						} else {
 							change = ((Number) delta[0]).intValue();
 						}
+						change = Math.max(0, change);
+						if (mode == ChangeMode.REMOVE) {
+							change = -change;
+						}
 						for (Experience xp : xps) {
-							xp.setInternalXP(xp.getInternalXP() + change);
+							if (mode == ChangeMode.SET) {
+								xp.setInternalXP(change);
+							} else {
+								xp.setInternalXP(xp.getInternalXP() + change);
+							}
 						}
 					}
 				})
