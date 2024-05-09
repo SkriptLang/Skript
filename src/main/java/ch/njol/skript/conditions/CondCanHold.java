@@ -37,14 +37,14 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
-/**
- * @author Peter Güttinger
- */
 @Name("Can Hold")
-@Description("Tests whether a player or a chest can hold the given item.")
-@Examples({"block can hold 200 cobblestone",
-		"player has enough space for 64 feathers"})
-@Since("1.0")
+@Description("Tests whether a player, an inventory, or a slot can hold the given item.")
+@Examples({
+	"block can hold 200 cobblestone",
+	"player has enough space for 64 feathers",
+	"slot 0 of player can hold a diamond sword"
+})
+@Since("1.0, INSERT VERSION (slots)")
 public class CondCanHold extends Condition {
 	
 	static {
@@ -61,10 +61,10 @@ public class CondCanHold extends Condition {
 	private Expression<Slot> slots;
 	@SuppressWarnings("NotNullFieldNotInitialized")
 	private Expression<ItemType> items;
-	
-	@SuppressWarnings({"unchecked", "null"})
+
 	@Override
-	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parser) {
+	@SuppressWarnings({"unchecked", "null"})
+	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		if (matchedPattern >= 3) {
 			slots = (Expression<Slot>) exprs[0];
         } else {
