@@ -20,7 +20,6 @@ package ch.njol.skript.conditions;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.ItemType;
-import ch.njol.skript.bukkitutil.ItemUtils;
 import ch.njol.skript.conditions.base.PropertyCondition;
 import ch.njol.skript.conditions.base.PropertyCondition.PropertyType;
 import ch.njol.skript.doc.Description;
@@ -110,9 +109,6 @@ public class CondCanHold extends Condition {
 			// null check is due to slot is outside of GUI
 			if (slotItemStack == null)
 				return false;
-			// Check if its AIR
-			if (ItemUtils.isAir(slotItemStack.getType()))
-				return true;
 			// Check if it can fit more of the same item
 			if (!itemStack.isSimilar(slotItemStack))
 				return false;
