@@ -46,7 +46,13 @@ import java.util.Iterator;
 		"The first, last, range or a random element of a set, e.g. a list variable.",
 		"See also: <a href='#ExprRandom'>random expression</a>"
 })
-@Examples("broadcast the first 3 elements of {top players::*}")
+@Examples({
+	"broadcast the first 3 elements of {top players::*}",
+	"set {_last} to last element of {top players::*}",
+	"set {_random player} to random element out of all players",
+	"send 2nd last element of {top players::*} to player",
+	"set {page2::*} to elements from 11 to 20 of {top players::*}"
+})
 @Since("2.0, 2.7 (relative to last element), 2.8.0 (range of elements)")
 public class ExprElement<T> extends SimpleExpression<T> {
 
