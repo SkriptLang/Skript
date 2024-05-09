@@ -1,0 +1,33 @@
+test "condition can hold - inventory":
+	set {_invi 1} to a new chest inventory with 1 row
+	set {_invi 2} to a new chest inventory with 1 row
+
+	# With empty inventory
+	assert {_invi 1} can hold a diamond with "Inventory should have space for 1 item"
+	assert {_invi 1} and {_invi 2} can hold a diamond with "Both inventories should have space for 1 item"
+	assert {_invi 1} can hold a diamond and an emerald with "Inventory should have space for 2 items"
+	assert {_invi 1} and {_invi 2} can hold a diamond and an emerald with "Both inventories should have space for 2 items"
+	assert {_null} can hold a diamond with "A null inventory shouldn't be able to hold any items"
+
+	# With a full inventory of diamonds - 1
+	add (64 * 9 - 1) of diamond to {_invi 1} and {_invi 2}
+	assert {_invi 1} can hold a diamond with "Inventory should have space for 1 more diamond"
+	assert {_invi 1} and {_invi 2} can hold a diamond with "Both inventories should have space for 1 more diamond"
+	assert {_invi 1} cannot hold an diamond of protection 1 with "Inventory should not have space for 1 custom item"
+	assert {_invi 1} cannot hold an emerald with "Inventory should not have space for 1 emerald"
+	assert {_invi 1} cannot hold 2 diamonds with "Inventory should not have space for 2 more diamond"
+
+test "condition can hold - slot":
+	set {_invi} to a new chest inventory with 1 row
+
+	# With empty inventory
+	assert slot 0 of {_invi} can hold a diamond with "Slot 0 should have space for 1 item"
+	assert slot 0 and 1 of {_invi} can hold a diamond with "Slot 0 and 1 should have space for 1 item"
+
+	# With 1 diamond on slot 0 and 1
+	set slot 0 and 1 of {_invi} to diamond
+	assert slot 0 of {_invi} can hold a diamond with "Slot 0 should have space for 1 diamond"
+	assert slot 0 and 1 of {_invi} can hold a diamond with "Slot 0 and 1 should have space for 1 diamond"
+	assert slot 0 of {_invi} cannot hold an emerald with "Slot 0 should not have space for 1 emerald"
+	assert slot 0 and 1 of {_invi} cannot hold an emerald with "Slot 0 and 1 should not have space for 1 emerald"
+	assert slot 0 of {_invi} cannot hold an unbreakable diamond with "Slot 0 should not have space for 1 custom item"
