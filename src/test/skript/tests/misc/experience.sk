@@ -1,0 +1,12 @@
+test "experience":
+	assert 10 xp is 10 xp with "xp comparison failed ##1"
+
+	set {_xp} to 10 xp
+	assert {_xp} is not {_null} with "xp comparison failed ##2"
+	assert {_xp} is 10 xp with "xp comparison failed ##3"
+
+	add 10 xp to {_xp}
+	assert {_xp} is 20 xp with "xp comparison failed ##4"
+
+	remove 10 xp from {_xp}
+	assert {_xp} is 10 xp with "xp comparison failed ##5"
