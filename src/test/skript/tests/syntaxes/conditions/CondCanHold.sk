@@ -30,4 +30,4 @@ test "condition can hold - slot":
 	assert slot 0 and 1 of {_invi} can hold a diamond with "Slot 0 and 1 should have space for 1 diamond"
 	assert slot 0 of {_invi} cannot hold an emerald with "Slot 0 should not have space for 1 emerald"
 	assert slot 0 and 1 of {_invi} cannot hold an emerald with "Slot 0 and 1 should not have space for 1 emerald"
-	assert slot 0 of {_invi} cannot hold an unbreakable diamond with "Slot 0 should not have space for 1 custom item"
+	assert slot 0 of {_invi} cannot hold unbreakable diamond with "Slot 0 should not have space for 1 custom item"
