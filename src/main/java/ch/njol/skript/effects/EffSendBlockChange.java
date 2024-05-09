@@ -18,8 +18,6 @@
  */
 package ch.njol.skript.effects;
 
-import org.bukkit.Location;
-import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.Player;
@@ -44,19 +42,9 @@ import ch.njol.util.Kleenean;
 @Since("2.2-dev37c, 2.5.1 (block data support)")
 public class EffSendBlockChange extends Effect {
 
-	private static final boolean BLOCK_DATA_SUPPORT = Skript.classExists("org.bukkit.block.data.BlockData");
-	private static final boolean SUPPORTED =
-			Skript.methodExists(
-					Player.class,
-					"sendBlockChange",
-					Location.class,
-					Material.class,
-					byte.class
-			);
-
 	static {
 		Skript.registerEffect(EffSendBlockChange.class,
-				BLOCK_DATA_SUPPORT ? "make %players% see %blocks% as %itemtype/blockdata%" : "make %players% see %blocks% as %itemtype%"
+			"make %players% see %blocks% as %itemtype/blockdata%"
 		);
 	}
 
@@ -68,17 +56,10 @@ public class EffSendBlockChange extends Effect {
 
 	@SuppressWarnings("null")
 	private Expression<Object> as;
-	
+
 	@Override
 	@SuppressWarnings("unchecked")
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
-		if (!SUPPORTED) {
-			Skript.error("The send block change effect is not supported on this version. " +
-				"If Spigot has added a replacement method without magic values " +
-				"please open an issue at https://github.com/SkriptLang/Skript/issues " +
-				"and support will be added for it.");
-			return false;
-		}
 		players = (Expression<Player>) exprs[0];
 		blocks = (Expression<Block>) exprs[1];
 		as = (Expression<Object>) exprs[2];
@@ -95,7 +76,7 @@ public class EffSendBlockChange extends Effect {
 					itemType.sendBlockChange(player, block.getLocation());
 				}
 			}
-		} else if (BLOCK_DATA_SUPPORT && object instanceof BlockData) {
+		} else if (object instanceof BlockData) {
 			BlockData blockData = (BlockData) object;
 			for (Player player : players.getArray(e)) {
 				for (Block block : blocks.getArray(e)) {
