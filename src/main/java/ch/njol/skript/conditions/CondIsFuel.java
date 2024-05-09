@@ -40,21 +40,19 @@ import ch.njol.skript.doc.Since;
 @Since("2.5.1")
 @RequiredPlugins("Minecraft 1.11.2+")
 public class CondIsFuel extends PropertyCondition<ItemType> {
-	
+
 	static {
-		if (Skript.methodExists(Material.class, "isFuel")) {
-			register(CondIsFuel.class, "[furnace] fuel", "itemtypes");
-		}
+		register(CondIsFuel.class, "[furnace] fuel", "itemtypes");
 	}
-	
+
 	@Override
 	public boolean check(ItemType item) {
 		return item.getMaterial().isFuel();
 	}
-	
+
 	@Override
 	protected String getPropertyName() {
 		return "fuel";
 	}
-	
+
 }
