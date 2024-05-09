@@ -26,11 +26,9 @@ import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser;
-import ch.njol.skript.lang.util.SimpleLiteral;
 import ch.njol.skript.expressions.ExprHiddenPlayers;
 import ch.njol.util.Kleenean;
 import org.bukkit.Bukkit;
-import org.bukkit.plugin.Plugin;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
@@ -49,8 +47,6 @@ import org.eclipse.jdt.annotation.Nullable;
 @Since("2.3")
 public class EffPlayerVisibility extends Effect {
 
-	private static final boolean USE_DEPRECATED_METHOD = !Skript.methodExists(Player.class, "hidePlayer", Plugin.class, Player.class);
-	
 	static {
 		Skript.registerEffect(EffPlayerVisibility.class,
 				"hide %players% [(from|for) %-players%]",
@@ -59,10 +55,10 @@ public class EffPlayerVisibility extends Effect {
 
 	@SuppressWarnings("null")
 	private Expression<Player> players;
-	
+
 	@Nullable
 	private Expression<Player> targetPlayers;
-	
+
 	private boolean reveal;
 
 	@SuppressWarnings({"unchecked", "null"})
@@ -84,15 +80,9 @@ public class EffPlayerVisibility extends Effect {
         for (Player targetPlayer : targets) {
             for (Player player : players.getArray(e)) {
                 if (reveal) {
-                    if (USE_DEPRECATED_METHOD)
-                        targetPlayer.showPlayer(player);
-                    else
-                        targetPlayer.showPlayer(Skript.getInstance(), player);
+                    targetPlayer.showPlayer(Skript.getInstance(), player);
                 } else {
-                    if (USE_DEPRECATED_METHOD)
-                        targetPlayer.hidePlayer(player);
-                    else
-                        targetPlayer.hidePlayer(Skript.getInstance(), player);
+                    targetPlayer.hidePlayer(Skript.getInstance(), player);
                 }
             }
         }
