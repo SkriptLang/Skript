@@ -14,52 +14,43 @@
  *  You should have received a copy of the GNU General Public License
  *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
  *
- *
  * Copyright Peter Güttinger, SkriptLang team and contributors
  */
 package ch.njol.skript.conditions;
 
+import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.conditions.base.PropertyCondition;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
+import ch.njol.skript.doc.RequiredPlugins;
 import ch.njol.skript.doc.Since;
-import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.SkriptParser.ParseResult;
-import ch.njol.util.Kleenean;
+import org.bukkit.inventory.meta.ItemMeta;
 
-@Name("Is Unbreakable")
-@Description("Checks whether an item is unbreakable.")
+@Name("Is Fire Resistant")
+@Description("Checks whether an item is fire resistant.")
 @Examples({
-	"if event-item is unbreakable:",
-		"\tsend \"This item is unbreakable!\" to player",
-	"if tool of {_p} is breakable:",
-		"\tsend \"Your tool is breakable!\" to {_p}"
+	"if player's tool is fire resistant:",
+	"if {_items::*} aren't resistant to fire:"
 })
-@Since("2.5.1, INSERT VERSION (breakable)")
-public class CondIsUnbreakable extends PropertyCondition<ItemType> {
-	
+@RequiredPlugins("Spigot 1.20.5+")
+@Since("INSERT VERSION")
+public class CondIsFireResistant extends PropertyCondition<ItemType> {
+
 	static {
-		register(CondIsUnbreakable.class, "[:un]breakable", "itemtypes");
-	}
-
-	private boolean breakable;
-
-	@Override
-	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		breakable = !parseResult.hasTag("un");
-		return super.init(exprs, matchedPattern, isDelayed, parseResult);
+		if (Skript.methodExists(ItemMeta.class, "isFireResistant"))
+			PropertyCondition.register(CondIsFireResistant.class, "(fire resistant|resistant to fire)", "itemtypes");
 	}
 
 	@Override
 	public boolean check(ItemType item) {
-		return item.getItemMeta().isUnbreakable() ^ breakable;
+		return item.getItemMeta().isFireResistant();
 	}
-	
+
 	@Override
-	protected String getPropertyName() {
-		return breakable ? "breakable" : "unbreakable";
+	public String getPropertyName() {
+		return "fire resistant";
 	}
-	
+
 }
