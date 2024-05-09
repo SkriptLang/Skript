@@ -49,6 +49,10 @@ public class PaperEntityUtils {
 		Bukkit.getMobGoals().getRunningGoals(mob, GoalType.LOOK).forEach(goal -> Bukkit.getMobGoals().removeGoal(mob, goal));
 		float speed = headRotationSpeed != null ? headRotationSpeed : mob.getHeadRotationSpeed();
 		float maxPitch = maxHeadPitch != null ? maxHeadPitch : mob.getMaxHeadPitch();
+		if (target instanceof Location && !((Location) target).isWorldLoaded()) {
+			Location location = (Location) target;
+			target = new Location(mob.getWorld(), location.getX(), location.getY(), location.getZ());
+		}
 		Bukkit.getMobGoals().addGoal(mob, 0, new LookGoal(target, mob, speed, maxPitch));
 	}
 
@@ -102,6 +106,10 @@ public class PaperEntityUtils {
 		if (target == null || !LOOK_AT || !LOOK_ANCHORS)
 			return;
 		for (LivingEntity entity : entities) {
+			if (target instanceof Location && !((Location) target).isWorldLoaded()) {
+				Location location = (Location) target;
+				target = new Location(entity.getWorld(), location.getX(), location.getY(), location.getZ());
+			}
 			if (entity instanceof Player) {
 				Player player = (Player) entity;
 				if (target instanceof Vector) {
