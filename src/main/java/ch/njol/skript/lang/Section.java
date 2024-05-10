@@ -44,14 +44,13 @@ import java.util.function.Supplier;
  * {@link #loadCode(SectionNode)}, {@link #loadCode(SectionNode, String, Class[])}, {@link #loadOptionalCode(SectionNode)},
  * {@link #loadReturnableCode(SectionNode, ClassInfo, boolean)}
  * <br><br>
- * Every section must override the {@link TriggerSection#walk(Event)} method. In this method, you can determine whether
- * or not the section should run. If you have stored a {@link Trigger} from {@link #loadCode(SectionNode, String, Class[])}, you
+ * Every section must override the {@link TriggerSection#walk(Event)} method. In this method, you can determine whether *  the section should run. If you have stored a {@link Trigger} from {@link #loadCode(SectionNode, String, Class[])}, you
  * should not run it with this event passed in this walk method.
  * <br><br>
  * In the walk method, it is recommended that you return {@link TriggerSection#walk(Event, boolean)}.
  * This method is very useful, as it will handle most of the things you need to do.
- * The boolean parameter for the method determines whether or not the section should run.
- * If it is true, Skript will attempt to run the section's code if it has been loaded. If the section's code hasn't be loaded, Skript will behave as if false was passed.
+ * The boolean parameter for the method determines whether the section should run.
+ * If it is true, Skript will attempt to run the section's code if it has been loaded. If the section's code hasn't been loaded, Skript will behave as if false was passed.
  * If it is false, Skript will just move onto the next syntax element after this section.
  * So, if you are using a normal section and your code should run immediately, you should just return the result of this method with true for the parameter.
  * However, in cases where you have loaded your code into a trigger using {@link #loadCode(SectionNode, String, Class[])}, it does not matter
@@ -69,12 +68,12 @@ public abstract class Section extends TriggerSection implements SyntaxElement {
 	 * This method should not be overridden unless you know what you are doing!
 	 */
 	@Override
-	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
+	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		SectionContext sectionContext = getParser().getData(SectionContext.class);
-		return init(exprs, matchedPattern, isDelayed, parseResult, sectionContext.sectionNode, sectionContext.triggerItems);
+		return init(expressions, matchedPattern, isDelayed, parseResult, sectionContext.sectionNode, sectionContext.triggerItems);
 	}
 
-	public abstract boolean init(Expression<?>[] exprs,
+	public abstract boolean init(Expression<?>[] expressions,
 								 int matchedPattern,
 								 Kleenean isDelayed,
 								 ParseResult parseResult,
@@ -101,7 +100,7 @@ public abstract class Section extends TriggerSection implements SyntaxElement {
 	/**
 	 * Loads the code in the given {@link SectionNode},
 	 * appropriately modifying {@link ParserInstance#getCurrentSections()}.
-	 *
+	 * <br>
 	 * This method differs from {@link #loadCode(SectionNode)} in that it
 	 * is meant for code that will be executed in a different event.
 	 *
@@ -119,7 +118,7 @@ public abstract class Section extends TriggerSection implements SyntaxElement {
 	/**
 	 * Loads the code in the given {@link SectionNode},
 	 * appropriately modifying {@link ParserInstance#getCurrentSections()}.
-	 *
+	 * <br>
 	 * This method differs from {@link #loadCode(SectionNode)} in that it
 	 * is meant for code that will be executed in a different event.
 	 *
@@ -196,8 +195,8 @@ public abstract class Section extends TriggerSection implements SyntaxElement {
 		}
 	}
 
-	@SuppressWarnings({"unchecked", "rawtypes"})
 	@Nullable
+	@SuppressWarnings({"unchecked", "rawtypes"})
 	public static Section parse(String expr, @Nullable String defaultError, SectionNode sectionNode, List<TriggerItem> triggerItems) {
 		SectionContext sectionContext = ParserInstance.get().getData(SectionContext.class);
 		return sectionContext.modify(sectionNode, triggerItems,
@@ -221,11 +220,11 @@ public abstract class Section extends TriggerSection implements SyntaxElement {
 		/**
 		 * Modifies this SectionContext temporarily, for the duration of the {@link Supplier#get()} call,
 		 * reverting the changes afterwards.
-		 *
+		 * <br>
 		 * This must be used instead of manually modifying the fields of this instance,
 		 * unless you also revert the changes afterwards.
-		 *
-		 * See https://github.com/SkriptLang/Skript/pull/4353 and https://github.com/SkriptLang/Skript/issues/4473.
+		 * <br>
+		 * See <a href="https://github.com/SkriptLang/Skript/pull/4353">Pull Request #4353</a> and <a href="https://github.com/SkriptLang/Skript/issues/4473">Issue #4473</a>.
 		 */
 		protected <T> T modify(SectionNode sectionNode, List<TriggerItem> triggerItems, Supplier<T> supplier) {
 			SectionNode prevSectionNode = this.sectionNode;

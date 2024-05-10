@@ -18,7 +18,9 @@
  */
 package ch.njol.skript.structures;
 
+import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.Skript;
+import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
@@ -35,7 +37,8 @@ import org.skriptlang.skript.lang.entry.EntryContainer;
 import org.skriptlang.skript.lang.structure.Structure;
 
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.regex.MatchResult;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Name("Function")
 @Description({
@@ -58,38 +61,53 @@ public class StructFunction extends Structure {
 
 	public static final Priority PRIORITY = new Priority(400);
 
+	private static final Pattern SIGNATURE_PATTERN =
+			Pattern.compile("^(?:local )?function (" + Functions.functionNamePattern + ")\\((.*?)\\)(?:\\s*(?:::| returns )\\s*(.+))?$");
 	private static final AtomicBoolean VALIDATE_FUNCTIONS = new AtomicBoolean();
 
 	static {
 		Skript.registerStructure(StructFunction.class,
-			"[:local] function <(" + Functions.functionNamePattern + ")\\((.*)\\)(?:\\s*(?:::| returns )\\s*(.+))?>"
+			"[:local] function <.+>"
 		);
 	}
 
 	@SuppressWarnings("NotNullFieldNotInitialized")
+	private SectionNode source;
+	@Nullable
 	private Signature<?> signature;
 	private boolean local;
 
 	@Override
-	@SuppressWarnings("all")
-	public boolean init(Literal<?>[] literals, int matchedPattern, ParseResult parseResult, EntryContainer entryContainer) {
+	public boolean init(Literal<?>[] literals, int matchedPattern, ParseResult parseResult, @Nullable EntryContainer entryContainer) {
+		assert entryContainer != null; // cannot be null for non-simple structures
+		this.source = entryContainer.getSource();
 		local = parseResult.hasTag("local");
-		MatchResult regex = parseResult.regexes.get(0);
-		String name = regex.group(1);
-		String args = regex.group(2);
-		String returnType = regex.group(3);
-
-		getParser().setCurrentEvent((local ? "local " : "") + "function", FunctionEvent.class);
-
-		signature = Functions.parseSignature(getParser().getCurrentScript().getConfig().getFileName(), name, args, returnType, local);
-
-		getParser().deleteCurrentEvent();
-		return signature != null;
+		return true;
 	}
 
 	@Override
 	public boolean preLoad() {
-		return Functions.registerSignature(signature) != null;
+		// match signature against pattern
+		// noinspection ConstantConditions - entry container cannot be null as this structure is not simple
+		String rawSignature = source.getKey();
+		assert rawSignature != null;
+		rawSignature = ScriptLoader.replaceOptions(rawSignature);
+		Matcher matcher = SIGNATURE_PATTERN.matcher(rawSignature);
+		if (!matcher.matches()) {
+			Skript.error("Invalid function signature: " + rawSignature);
+			return false;
+		}
+
+		// parse signature
+		getParser().setCurrentEvent((local ? "local " : "") + "function", FunctionEvent.class);
+		signature = Functions.parseSignature(
+			getParser().getCurrentScript().getConfig().getFileName(),
+			matcher.group(1), matcher.group(2), matcher.group(3), local
+		);
+		getParser().deleteCurrentEvent();
+
+		// attempt registration
+		return signature != null && Functions.registerSignature(signature) != null;
 	}
 
 	@Override
@@ -97,7 +115,9 @@ public class StructFunction extends Structure {
 		ParserInstance parser = getParser();
 		parser.setCurrentEvent((local ? "local " : "") + "function", FunctionEvent.class);
 
-		Functions.loadFunction(parser.getCurrentScript(), getEntryContainer().getSource(), signature);
+		assert signature != null;
+		// noinspection ConstantConditions - entry container cannot be null as this structure is not simple
+		Functions.loadFunction(parser.getCurrentScript(), source, signature);
 
 		parser.deleteCurrentEvent();
 
@@ -117,6 +137,7 @@ public class StructFunction extends Structure {
 
 	@Override
 	public void unload() {
+		assert signature != null;
 		Functions.unregisterFunction(signature);
 		VALIDATE_FUNCTIONS.set(true);
 	}
@@ -127,7 +148,7 @@ public class StructFunction extends Structure {
 	}
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
+	public String toString(@Nullable Event event, boolean debug) {
 		return (local ? "local " : "") + "function";
 	}
 

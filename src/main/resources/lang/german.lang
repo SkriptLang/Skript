@@ -47,7 +47,7 @@ skript command:
 		info: Druckt eine Nachricht mit Links zu den Aliases und der Dokumentation von Skript.
 		gen-docs: Generiert Dokumentation mithilfe von docs/templates im Plugin-Ordner
 		test: Wird zum Ausführen von Skript-Tests verwendet
-	
+
 	invalid script: Das Skript <grey>'<gold>%s<grey>'<red> konnte nicht gefunden werden.
 	invalid folder: Der Ordner <grey>'<gold>%s<grey>'<red> konnte nicht gefunden werden.
 	reload:
@@ -61,45 +61,45 @@ skript command:
 		error details: <light red>    %s<reset>\n
 		other details: <white>    %s<reset>\n
 		line details: <gold>    Linie: <gray>%s<reset>\n <reset>
-		
+
 		config, aliases and scripts: die Konfiguration, alle Itemnamen und alle Skripte
 		scripts: alle Skripte
 		main config: Konfiguration
 		aliases: die Itemnamen
 		script: <gold>%s<reset>
 		scripts in folder: alle Skripte in <gold>%s<reset>
-		x scripts in folder: <gold>%2$s <reset>Skript¦¦e¦ in <gold>%1$s<reset>
+		x scripts in folder: <gold>%2$s <lime>Skript¦¦e¦ in <gold>%1$s<reset>
 		empty folder: <gold>%s<reset> enthält keine aktivierten Skripte.
 	enable:
 		all:
 			enabling: Aktiviere alle deaktivierten Skripte...
 			enabled: Alle Skripte wurden erfolgreich geladen & geparst.
-			error: %s Fehler ¦ist¦sind¦ aufgetreten beim Laden aller Skripte!
-			io error: Konnte keine Skripte laden (einige Skripte könnten bereits umbenannt worden sein und werden beim nächsten Serverneustart geladen): %s
+			error: <gold>%s <light red>Fehler ¦ist¦sind¦ aufgetreten beim Laden aller Skripte!
+			io error: <light red>Konnte keine Skripte laden (einige Skripte könnten bereits umbenannt worden sein und werden beim nächsten Serverneustart geladen): <gold>%s
 		single:
 			already enabled: <gold>%s<reset> ist bereits aktiviert! Verwende <gray>/<gold>skript <cyan>reload <red>%s<reset> um es erneut zu laden.
 			enabling: Aktiviere <gold>%s<reset>...
 			enabled: <gold>%s<reset> wurde erfolgreich aktiviert & geparst.
-			error: %2$s Fehler ¦ist¦sind¦ aufgetreten beim Laden von <gold>%1$s<red>!
-			io error: Konnte <gold>%s<red> nicht aktivieren: %s
+			error: <gold>%2$s <light red>Fehler ¦ist¦sind¦ aufgetreten beim Laden von <gold>%1$s<light red>!
+			io error: <light red>Konnte <gold>%s <light red>nicht aktivieren: <gold>%s
 		folder:
 			empty: <gold>%s<reset> enthält keine deaktivierten Skripte.
 			enabling: Aktiviere <gold>%2$s <reset>Skript¦¦e¦ in <gold>%1$s<reset>...
 			enabled: <gold>%2$s <reset>Skript¦¦e¦ aus <gold>%1$s<reset> wurden erfolgreich aktiviert.
-			error: %2$s Fehler ¦ist¦sind¦ aufgetreten beim Aktivieren der Skripte in <gold>%1$s<red>!
-			io error: Fehler beim Aktivieren der Skripte in <gold>%s<red> (einige Skripte werden eventuell beim nächsten Serverneustart aktiviert): %s
+			error: <gold>%2$s <light red>Fehler ¦ist¦sind¦ aufgetreten beim Aktivieren der Skripte in <gold>%1$s<light red>!
+			io error: <light red>Fehler beim Aktivieren der Skripte in <gold>%s <light red>(einige Skripte werden eventuell beim nächsten Serverneustart aktiviert): <gold>%s
 	disable:
 		all:
 			disabled: Alle Skripte wurden erfolgreich deaktiviert.
-			io error: Konnte nicht alle Skripte umbennenen - einige Skripte werden beim nächsten Serverneustart wieder aktiviert: %s
+			io error: <light red>Konnte nicht alle Skripte umbennenen - einige Skripte werden beim nächsten Serverneustart wieder aktiviert: <gold>%s
 		single:
 			already disabled: <gold>%s<reset> ist bereits deaktiviert!
 			disabled: <gold>%s<reset> wurde erfolgreich deaktiviert.
-			io error: Konnte <gold>%s<red> nicht umbennenen, es wird beim nächsten Serverneustart wieder aktiviert sein: %s
+			io error: <light red>Konnte <gold>%s <light red>nicht umbennenen, es wird beim nächsten Serverneustart wieder aktiviert sein: <gold>%s
 		folder:
 			empty: <gold>%s<reset> enthält keine aktivierten Skripte.
 			disabled: <gold>%2$s <reset>Skript¦¦e¦ aus <gold>%1$s<reset> wurden erfolgreich deaktiviert.
-			io error: Konnte keine Skripte in <gold>%s<red> deaktivieren (einige Skripte werden beim nächten Neustart evtl. deaktiviert): %s
+			io error: <light red>Konnte keine Skripte in <gold>%s <light red>deaktivieren (einige Skripte werden beim nächten Neustart evtl. deaktiviert): <gold>%s
 	update:
 		# check/download: see Updater
 		changes:

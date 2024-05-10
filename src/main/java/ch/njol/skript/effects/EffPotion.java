@@ -47,7 +47,7 @@ import ch.njol.util.Kleenean;
 		"\tapply potion of strength of tier {strength::%uuid of player%} to the player for 999 days # Before 1.19.4",
 	"",
 	"apply potion effects of player's tool to player",
-	"apply haste potion of tier 3 without any particles to the player whilst hiding the potion icon # Hide potions"
+	"apply haste potion of tier 3 without any particles whilst hiding the potion icon to the player # Hide potions"
 })
 @Since(
 	"2.0, 2.2-dev27 (ambient and particle-less potion effects), " + 

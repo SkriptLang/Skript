@@ -18,6 +18,8 @@
  */
 package ch.njol.skript.conditions;
 
+import ch.njol.skript.lang.VerboseAssert;
+import ch.njol.skript.log.ParseLogHandler;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 
@@ -27,8 +29,6 @@ import ch.njol.skript.classes.ClassInfo;
 import org.skriptlang.skript.lang.comparator.Comparator;
 import org.skriptlang.skript.lang.comparator.ComparatorInfo;
 import org.skriptlang.skript.lang.comparator.Relation;
-import org.skriptlang.skript.lang.converter.ConverterInfo;
-import org.skriptlang.skript.lang.converter.Converters;
 
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
@@ -43,7 +43,6 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.UnparsedLiteral;
 import ch.njol.skript.lang.util.SimpleLiteral;
 import ch.njol.skript.log.ErrorQuality;
-import ch.njol.skript.log.RetainingLogHandler;
 import ch.njol.skript.log.SkriptLogger;
 import ch.njol.skript.registrations.Classes;
 
@@ -52,6 +51,7 @@ import ch.njol.skript.util.Patterns;
 import ch.njol.skript.util.Utils;
 import ch.njol.util.Checker;
 import ch.njol.util.Kleenean;
+import org.skriptlang.skript.lang.util.Cyclical;
 
 @Name("Comparison")
 @Description({"A very general condition, it simply compares two values. Usually you can only compare for equality (e.g. block is/isn't of &lt;type&gt;), " +
@@ -63,7 +63,7 @@ import ch.njol.util.Kleenean;
 		"time in the player's world is greater than 8:00",
 		"the creature is not an enderman or an ender dragon"})
 @Since("1.0")
-public class CondCompare extends Condition {
+public class CondCompare extends Condition implements VerboseAssert {
 	
 	private final static Patterns<Relation> patterns = new Patterns<>(new Object[][]{
 			{"(1¦neither|) %objects% ((is|are)(|2¦(n't| not|4¦ neither)) ((greater|more|higher|bigger|larger) than|above)|\\>) %objects%", Relation.GREATER},
@@ -164,9 +164,8 @@ public class CondCompare extends Condition {
 	
 	@SuppressWarnings("unchecked")
 	private boolean init(String expr) {
-		RetainingLogHandler log = SkriptLogger.startRetainingLog();
 		Expression<?> third = this.third;
-		try {
+		try (ParseLogHandler log = SkriptLogger.startParseLogHandler()) {
 			if (first.getReturnType() == Object.class) {
 				Expression<?> expression = null;
 				if (first instanceof UnparsedLiteral)
@@ -174,7 +173,7 @@ public class CondCompare extends Condition {
 				if (expression == null)
 					expression = first.getConvertedExpression(Object.class);
 				if (expression == null) {
-					log.printErrors();
+					log.printError();
 					return false;
 				}
 				first = expression;
@@ -186,7 +185,7 @@ public class CondCompare extends Condition {
 				if (expression == null)
 					expression = second.getConvertedExpression(Object.class);
 				if (expression == null) {
-					log.printErrors();
+					log.printError();
 					return false;
 				}
 				second = expression;
@@ -198,14 +197,13 @@ public class CondCompare extends Condition {
 				if (expression == null)
 					expression = third.getConvertedExpression(Object.class);
 				if (expression == null) {
-					log.printErrors();
+					log.printError();
 					return false;
 				}
 				this.third = third = expression;
 			}
-			log.printLog();
-		} finally {
-			log.stop();
+			// we do not want to print any errors as they are not applicable
+			log.printLog(false);
 		}
 		Class<?> firstReturnType = first.getReturnType();
 		Class<?> secondReturnType = third == null ? second.getReturnType() : Utils.getSuperType(second.getReturnType(), third.getReturnType());
@@ -315,6 +313,8 @@ public class CondCompare extends Condition {
 	 * a # x and y === a # x && a # y
 	 * a # x or y === a # x || a # y
 	 * a and b # x and y === a # x and y && b # x and y === a # x && a # y && b # x && b # y
+	 * 	- Special case if # is =: (a and b = x and y) === (a = x && b = y)
+	 *  - This allows direct list comparisons for equality.
 	 * a and b # x or y === a # x or y && b # x or y
 	 * a or b # x and y === a # x and y || b # x and y
 	 * a or b # x or y === a # x or y || b # x or y
@@ -342,39 +342,96 @@ public class CondCompare extends Condition {
 	 */
 	@Override
 	@SuppressWarnings("unchecked")
-	public boolean check(final Event e) {
+	public boolean check(final Event event) {
 		final Expression<?> third = this.third;
-		return first.check(e, (Checker<Object>) o1 ->
-			second.check(e, (Checker<Object>) o2 -> {
+		// if we are directly comparing the equality of two AND lists, we should change behavior to
+		// compare element-wise, instead of comparing everything to everything.
+		if (relation == Relation.EQUAL && third == null &&
+				first.getAnd() && !first.isSingle() &&
+				second.getAnd() && !second.isSingle())
+			return compareLists(event);
+
+		return first.check(event, (Checker<Object>) o1 ->
+			second.check(event, (Checker<Object>) o2 -> {
 				if (third == null)
 					return relation.isImpliedBy(comparator != null ? comparator.compare(o1, o2) : Comparators.compare(o1, o2));
-				return third.check(e, (Checker<Object>) o3 -> {
+				return third.check(event, (Checker<Object>) o3 -> {
 					boolean isBetween;
 					if (comparator != null) {
-						isBetween =
-							(Relation.GREATER_OR_EQUAL.isImpliedBy(comparator.compare(o1, o2)) && Relation.SMALLER_OR_EQUAL.isImpliedBy(comparator.compare(o1, o3)))
-							// Check OPPOSITE (switching o2 / o3)
-							|| (Relation.GREATER_OR_EQUAL.isImpliedBy(comparator.compare(o1, o3)) && Relation.SMALLER_OR_EQUAL.isImpliedBy(comparator.compare(o1, o2)));
+						if (o1 instanceof Cyclical<?> && o2 instanceof Cyclical<?> && o3 instanceof Cyclical<?>) {
+							if (Relation.GREATER_OR_EQUAL.isImpliedBy(comparator.compare(o2, o3)))
+								isBetween = Relation.GREATER_OR_EQUAL.isImpliedBy(comparator.compare(o1, o2)) || Relation.SMALLER_OR_EQUAL.isImpliedBy(comparator.compare(o1, o3));
+							else
+								isBetween = Relation.GREATER_OR_EQUAL.isImpliedBy(comparator.compare(o1, o2)) && Relation.SMALLER_OR_EQUAL.isImpliedBy(comparator.compare(o1, o3));
+						} else {
+							isBetween =
+								(Relation.GREATER_OR_EQUAL.isImpliedBy(comparator.compare(o1, o2)) && Relation.SMALLER_OR_EQUAL.isImpliedBy(comparator.compare(o1, o3)))
+								// Check OPPOSITE (switching o2 / o3)
+								|| (Relation.GREATER_OR_EQUAL.isImpliedBy(comparator.compare(o1, o3)) && Relation.SMALLER_OR_EQUAL.isImpliedBy(comparator.compare(o1, o2)));
+						}
 					} else {
-						isBetween =
-							(Relation.GREATER_OR_EQUAL.isImpliedBy(Comparators.compare(o1, o2)) && Relation.SMALLER_OR_EQUAL.isImpliedBy(Comparators.compare(o1, o3)))
-							// Check OPPOSITE (switching o2 / o3)
-							|| (Relation.GREATER_OR_EQUAL.isImpliedBy(Comparators.compare(o1, o3)) && Relation.SMALLER_OR_EQUAL.isImpliedBy(Comparators.compare(o1, o2)));
+						if (o1 instanceof Cyclical<?> && o2 instanceof Cyclical<?> && o3 instanceof Cyclical<?>) {
+							if (Relation.GREATER_OR_EQUAL.isImpliedBy(Comparators.compare(o2, o3)))
+								isBetween = Relation.GREATER_OR_EQUAL.isImpliedBy(Comparators.compare(o1, o2)) || Relation.SMALLER_OR_EQUAL.isImpliedBy(Comparators.compare(o1, o3));
+							else
+								isBetween = Relation.GREATER_OR_EQUAL.isImpliedBy(Comparators.compare(o1, o2)) && Relation.SMALLER_OR_EQUAL.isImpliedBy(Comparators.compare(o1, o3));
+						} else {
+							isBetween =
+									(Relation.GREATER_OR_EQUAL.isImpliedBy(Comparators.compare(o1, o2)) && Relation.SMALLER_OR_EQUAL.isImpliedBy(Comparators.compare(o1, o3)))
+									// Check OPPOSITE (switching o2 / o3)
+									|| (Relation.GREATER_OR_EQUAL.isImpliedBy(Comparators.compare(o1, o3)) && Relation.SMALLER_OR_EQUAL.isImpliedBy(Comparators.compare(o1, o2)));
+						}
 					}
 					return relation == Relation.NOT_EQUAL ^ isBetween;
 				});
 			}
 		), isNegated());
 	}
-	
+
+	public String getExpectedMessage(Event event) {
+		String message = "a value ";
+		if (third == null)
+			return message + (isNegated() ? "not " : "") + relation + " " + VerboseAssert.getExpressionValue(second, event);
+
+		// handle between
+		if (isNegated())
+			message += "not ";
+		message += "between " + VerboseAssert.getExpressionValue(second, event) + " and " + VerboseAssert.getExpressionValue(third, event);
+		return message;
+	}
+
+	public String getReceivedMessage(Event event) {
+		return VerboseAssert.getExpressionValue(first, event);
+	}
+
+	/**
+	 * Used to directly compare two lists for equality.
+	 * This method assumes that {@link CondCompare#first} and {@link CondCompare#second} are both non-single.
+	 * @param event the event with which to evaluate {@link CondCompare#first} and {@link CondCompare#second}.
+	 * @return Whether every element in {@link CondCompare#first} is equal to its counterpart in {@link CondCompare#second}.
+	 * 		e.g. (1,2,3) = (1,2,3), but (1,2,3) != (3,2,1)
+	 */
+	private boolean compareLists(Event event) {
+		Object[] first = this.first.getArray(event);
+		Object[] second = this.second.getArray(event);
+		boolean shouldMatch = !isNegated(); // for readability
+		if (first.length != second.length)
+			return !shouldMatch;
+		for (int i = 0; i < first.length; i++) {
+			if (!relation.isImpliedBy(comparator != null ? comparator.compare(first[i], second[i]) : Comparators.compare(first[i], second[i])))
+				return !shouldMatch;
+		}
+		return shouldMatch;
+	}
+
 	@Override
-	public String toString(final @Nullable Event e, final boolean debug) {
+	public String toString(final @Nullable Event event, final boolean debug) {
 		String s;
 		final Expression<?> third = this.third;
 		if (third == null)
-			s = first.toString(e, debug) + " is " + (isNegated() ? "not " : "") + relation + " " + second.toString(e, debug);
+			s = first.toString(event, debug) + " is " + (isNegated() ? "not " : "") + relation + " " + second.toString(event, debug);
 		else
-			s = first.toString(e, debug) + " is " + (isNegated() ? "not " : "") + "between " + second.toString(e, debug) + " and " + third.toString(e, debug);
+			s = first.toString(event, debug) + " is " + (isNegated() ? "not " : "") + "between " + second.toString(event, debug) + " and " + third.toString(event, debug);
 		if (debug)
 			s += " (comparator: " + comparator + ")";
 		return s;

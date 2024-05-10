@@ -18,6 +18,17 @@
  */
 package ch.njol.skript.sections;
 
+import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Consumer;
+
+import org.bukkit.Location;
+import org.bukkit.entity.Entity;
+import org.bukkit.event.Event;
+import org.bukkit.event.HandlerList;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
 import ch.njol.skript.Skript;
 import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.doc.Description;
@@ -35,16 +46,6 @@ import ch.njol.skript.util.Direction;
 import ch.njol.skript.util.Getter;
 import ch.njol.skript.variables.Variables;
 import ch.njol.util.Kleenean;
-import org.bukkit.Location;
-import org.bukkit.entity.Entity;
-import org.bukkit.event.Event;
-import org.bukkit.event.HandlerList;
-import org.bukkit.util.Consumer;
-import org.eclipse.jdt.annotation.Nullable;
-import org.jetbrains.annotations.NotNull;
-
-import java.util.List;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 @Name("Spawn")
 @Description({
@@ -93,15 +94,17 @@ public class EffSecSpawn extends EffectSection {
 		}, EventValues.TIME_NOW);
 	}
 
-	@Nullable
-	public static Entity lastSpawned = null;
-
 	@SuppressWarnings("NotNullFieldNotInitialized")
 	private Expression<Location> locations;
+
 	@SuppressWarnings("NotNullFieldNotInitialized")
 	private Expression<EntityType> types;
+
 	@Nullable
 	private Expression<Number> amount;
+
+	@Nullable
+	public static Entity lastSpawned;
 
 	@Nullable
 	private Trigger trigger;
@@ -137,16 +140,15 @@ public class EffSecSpawn extends EffectSection {
 	protected TriggerItem walk(Event event) {
 		lastSpawned = null;
 
-		Object localVars = Variables.copyLocalVariables(event);
-
 		Consumer<? extends Entity> consumer;
 		if (trigger != null) {
 			consumer = o -> {
 				lastSpawned = o;
 				SpawnEvent spawnEvent = new SpawnEvent(o);
 				// Copy the local variables from the calling code to this section
-				Variables.setLocalVariables(spawnEvent, localVars);
+				Variables.setLocalVariables(spawnEvent, Variables.copyLocalVariables(event));
 				TriggerItem.walk(trigger, spawnEvent);
+				// And copy our (possibly modified) local variables back to the calling code
 				Variables.setLocalVariables(event, Variables.copyLocalVariables(spawnEvent));
 				// Clear spawnEvent's local variables as it won't be done automatically
 				Variables.removeLocals(spawnEvent);

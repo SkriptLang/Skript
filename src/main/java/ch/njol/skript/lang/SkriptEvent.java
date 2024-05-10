@@ -25,15 +25,16 @@ import ch.njol.skript.SkriptEventHandler;
 import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.events.EvtClick;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
-import org.skriptlang.skript.lang.script.Script;
-import org.skriptlang.skript.lang.entry.EntryContainer;
-import org.skriptlang.skript.lang.structure.Structure;
-import ch.njol.util.StringUtils;
+import ch.njol.skript.structures.StructEvent.EventData;
+import ch.njol.skript.util.Utils;
+import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventPriority;
 import org.eclipse.jdt.annotation.Nullable;
+import org.skriptlang.skript.lang.entry.EntryContainer;
+import org.skriptlang.skript.lang.script.Script;
+import org.skriptlang.skript.lang.structure.Structure;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
@@ -53,8 +54,12 @@ public abstract class SkriptEvent extends Structure {
 	public static final Priority PRIORITY = new Priority(600);
 
 	private String expr;
+	private SectionNode source;
 	@Nullable
 	protected EventPriority eventPriority;
+	@Nullable
+	protected ListeningBehavior listeningBehavior;
+	protected boolean supportsListeningBehavior;
 	private SkriptEventInfo<?> skriptEventInfo;
 
 	/**
@@ -63,36 +68,42 @@ public abstract class SkriptEvent extends Structure {
 	protected Trigger trigger;
 
 	@Override
-	public final boolean init(Literal<?>[] args, int matchedPattern, ParseResult parseResult, EntryContainer entryContainer) {
-		String expr = parseResult.expr;
-		if (StringUtils.startsWithIgnoreCase(expr, "on "))
-			expr = expr.substring("on ".length());
+	public final boolean init(Literal<?>[] args, int matchedPattern, ParseResult parseResult, @Nullable EntryContainer entryContainer) {
+		this.expr = parseResult.expr;
 
-		String[] split = expr.split(" with priority ");
-		if (split.length != 1) {
-			if (!isEventPrioritySupported()) {
-				Skript.error("This event doesn't support event priority");
-				return false;
-			}
+		EventData eventData = getParser().getData(EventData.class);
 
-			expr = String.join(" with priority ", Arrays.copyOfRange(split, 0, split.length - 1));
-
-			String priorityString = split[split.length - 1];
-			try {
-				eventPriority = EventPriority.valueOf(priorityString.toUpperCase());
-			} catch (IllegalArgumentException e) {
-				throw new IllegalStateException(e);
-			}
-		} else {
-			eventPriority = null;
+		EventPriority priority = eventData.getPriority();
+		if (priority != null && !isEventPrioritySupported()) {
+			Skript.error("This event doesn't support event priority");
+			return false;
 		}
-
-		this.expr = parseResult.expr = expr;
+		eventPriority = priority;
 
 		SyntaxElementInfo<? extends Structure> syntaxElementInfo = getParser().getData(StructureData.class).getStructureInfo();
 		if (!(syntaxElementInfo instanceof SkriptEventInfo))
 			throw new IllegalStateException();
 		skriptEventInfo = (SkriptEventInfo<?>) syntaxElementInfo;
+
+		// evaluate whether this event supports listening to cancelled events
+		supportsListeningBehavior = false;
+		for (Class<? extends Event> eventClass : getEventClasses()) {
+			if (Cancellable.class.isAssignableFrom(eventClass)) {
+				supportsListeningBehavior = true;
+				break;
+			}
+		}
+
+		listeningBehavior = eventData.getListenerBehavior();
+		// if the behavior is non-null, it was set by the user
+		if (listeningBehavior != null && !isListeningBehaviorSupported()) {
+			String eventName = skriptEventInfo.name.toLowerCase(Locale.ENGLISH);
+			Skript.error(Utils.A(eventName) + " event does not support listening for cancelled or uncancelled events.");
+			return false;
+		}
+
+		assert entryContainer != null; // cannot be null for non-simple structures
+		this.source = entryContainer.getSource();
 
 		return init(args, matchedPattern, parseResult);
 	}
@@ -121,7 +132,7 @@ public abstract class SkriptEvent extends Structure {
 		if (!shouldLoadEvent())
 			return false;
 
-		SectionNode source = getEntryContainer().getSource();
+		// noinspection ConstantConditions - entry container cannot be null as this structure is not simple
 		if (Skript.debug() || source.debug())
 			Skript.debug(expr + " (" + this + "):");
 
@@ -134,7 +145,7 @@ public abstract class SkriptEvent extends Structure {
 			Script script = getParser().getCurrentScript();
 
 			trigger = new Trigger(script, expr, this, items);
-			int lineNumber = getEntryContainer().getSource().getLine();
+			int lineNumber = source.getLine();
 			trigger.setLineNumber(lineNumber); // Set line number for debugging
 			trigger.setDebugLabel(script + ": line " + lineNumber);
 		} finally {
@@ -179,7 +190,7 @@ public abstract class SkriptEvent extends Structure {
 	}
 
 	/**
-	 * Checks whether the given Event applies, e.g. the leftclick event is only part of the PlayerInteractEvent, and this checks whether the player leftclicked or not. This method
+	 * Checks whether the given Event applies, e.g. the left-click event is only part of the PlayerInteractEvent, and this checks whether the player left-clicked or not. This method
 	 * will only be called for events this SkriptEvent is registered for.
 	 * @return true if this is SkriptEvent is represented by the Bukkit Event or false if not
 	 */
@@ -217,6 +228,21 @@ public abstract class SkriptEvent extends Structure {
 	}
 
 	/**
+	 * @return the {@link ListeningBehavior} to be used for this event. Defaults to the default listening behavior
+	 * of the SkriptEventInfo for this SkriptEvent.
+	 */
+	public ListeningBehavior getListeningBehavior() {
+		return listeningBehavior != null ? listeningBehavior : skriptEventInfo.getListeningBehavior();
+	}
+
+	/**
+	 * @return whether this SkriptEvent supports listening behaviors
+	 */
+	public boolean isListeningBehaviorSupported() {
+		return supportsListeningBehavior;
+	}
+
+	/**
 	 * Override this method to allow Skript to not force synchronization.
 	 */
 	public boolean canExecuteAsynchronously() {
@@ -233,10 +259,10 @@ public abstract class SkriptEvent extends Structure {
 
 		boolean inType = false;
 		for (int i = 0; i < chars.length; i++) {
-			char c = chars[i];
-			stringBuilder.append(c);
+			char character = chars[i];
+			stringBuilder.append(character);
 
-			if (c == '%') {
+			if (character == '%') {
 				// toggle inType
 				inType = !inType;
 
@@ -244,13 +270,58 @@ public abstract class SkriptEvent extends Structure {
 				// a type specification can have two prefix characters for modification
 				if (inType && i + 2 < chars.length && chars[i + 1] != '-' && chars[i + 2] != '-')
 					stringBuilder.append('-');
-			} else if (c == '\\' && i + 1 < chars.length) {
+			} else if (character == '\\' && i + 1 < chars.length) {
 				// Make sure we don't toggle inType for escape percentage signs
 				stringBuilder.append(chars[i + 1]);
 				i++;
 			}
 		}
 		return stringBuilder.toString();
+	}
+
+	@Nullable
+	public static SkriptEvent parse(String expr, SectionNode sectionNode, @Nullable String defaultError) {
+		return (SkriptEvent) Structure.parse(expr, sectionNode, defaultError, Skript.getEvents().iterator());
+	}
+
+	/**
+	 * The listening behavior of a Skript event. This determines whether the event should run for cancelled events, uncancelled events, or both.
+	 */
+	public enum ListeningBehavior {
+
+		/**
+		 * This Skript event should run for any uncancelled event.
+		 */
+		UNCANCELLED,
+
+		/**
+		 * This Skript event should run for any cancelled event.
+		 */
+		CANCELLED,
+
+		/**
+		 * This Skript event should run for any event, cancelled or uncancelled.
+		 */
+		ANY;
+
+		/**
+		 * Checks whether this listening behavior matches the given cancelled state.
+		 * @param cancelled Whether the event is cancelled.
+		 * @return Whether an event with the given cancelled state should be run for this listening behavior.
+		 */
+		public boolean matches(final boolean cancelled) {
+			switch (this) {
+				case CANCELLED:
+					return cancelled;
+				case UNCANCELLED:
+					return !cancelled;
+				case ANY:
+					return true;
+				default:
+					assert false;
+					return false;
+			}
+		}
 	}
 
 }

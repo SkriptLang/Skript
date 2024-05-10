@@ -48,7 +48,7 @@ import java.util.stream.Collectors;
 		"\tset item cooldown of stone and grass for all players to 20 seconds",
 		"\treset item cooldown of cobblestone and dirt for all players"
 })
-@Since("INSERT VERSION")
+@Since("2.8.0")
 public class ExprItemCooldown extends SimpleExpression<Timespan> {
 	
 	static {

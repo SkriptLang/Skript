@@ -66,7 +66,10 @@ public class PlatformMain {
 		boolean jUnit = "true".equals(args[6]);
 		boolean debug = "true".equals(args[7]);
 		String verbosity = args[8].toUpperCase(Locale.ENGLISH);
-		Set<String> jvmArgs = Sets.newHashSet(Arrays.copyOfRange(args, 9, args.length));
+		long timeout = Long.parseLong(args[9]);
+		if (timeout < 0)
+			timeout = 0;
+		Set<String> jvmArgs = Sets.newHashSet(Arrays.copyOfRange(args, 10, args.length));
 		if (jvmArgs.stream().noneMatch(arg -> arg.contains("-Xmx")))
 			jvmArgs.add("-Xmx5G");
 
@@ -97,7 +100,7 @@ public class PlatformMain {
 		for (Environment env : envs) {
 			System.out.println("Starting testing on " + env.getName());
 			env.initialize(dataRoot, runnerRoot, false);
-			TestResults results = env.runTests(runnerRoot, testsRoot, devMode, genDocs, jUnit, debug, verbosity, jvmArgs);
+			TestResults results = env.runTests(runnerRoot, testsRoot, devMode, genDocs, jUnit, debug, verbosity, timeout, jvmArgs);
 			if (results == null) {
 				if (devMode) {
 					// Nothing to report, it's the dev mode environment.

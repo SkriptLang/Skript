@@ -51,7 +51,7 @@ import org.eclipse.jdt.annotation.Nullable;
 		"\tplayer have permission \"anvil.repair.max.bypass\"",
 		"\tset max repair cost of event-inventory to 99999"
 })
-@Since("INSERT VERSION")
+@Since("2.8.0")
 public class ExprAnvilRepairCost extends SimplePropertyExpression<Inventory, Integer> {
 
 	static {

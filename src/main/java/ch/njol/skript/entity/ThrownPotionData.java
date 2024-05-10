@@ -19,13 +19,13 @@
 package ch.njol.skript.entity;
 
 import java.util.Arrays;
+import java.util.function.Consumer;
 
 import org.bukkit.Location;
 import org.bukkit.entity.LingeringPotion;
 import org.bukkit.entity.ThrownPotion;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.util.Consumer;
 import org.eclipse.jdt.annotation.Nullable;
 
 import ch.njol.skript.Skript;
@@ -40,9 +40,6 @@ import ch.njol.skript.registrations.Classes;
 import org.skriptlang.skript.lang.converter.Converters;
 import ch.njol.util.coll.CollectionUtils;
 
-/**
- * @author Peter Güttinger
- */
 public class ThrownPotionData extends EntityData<ThrownPotion> {
 	static {
 		EntityData.register(ThrownPotionData.class, "thrown potion", ThrownPotion.class, "thrown potion");
@@ -103,9 +100,9 @@ public class ThrownPotionData extends EntityData<ThrownPotion> {
 		return true;
 	}
 
-	@SuppressWarnings({"unchecked", "rawtypes"})
 	@Override
-	public @Nullable ThrownPotion spawn(Location loc, @Nullable Consumer<ThrownPotion> consumer) {
+	@SuppressWarnings({"unchecked", "rawtypes"})
+	public @Nullable ThrownPotion spawn(Location location, @Nullable Consumer<ThrownPotion> consumer) {
 		ItemType t = CollectionUtils.getRandom(types);
 		assert t != null;
 		ItemStack i = t.getRandom();
@@ -114,11 +111,14 @@ public class ThrownPotionData extends EntityData<ThrownPotion> {
 
 		Class<ThrownPotion> thrownPotionClass = (Class) (LINGER_POTION.isOfType(i) ? LINGERING_POTION_ENTITY_CLASS : ThrownPotion.class);
 		ThrownPotion potion;
-		if (consumer != null)
-			potion = loc.getWorld().spawn(loc, thrownPotionClass, consumer);
-		else
-			potion = loc.getWorld().spawn(loc, thrownPotionClass);
+		if (consumer != null) {
+			potion = EntityData.spawn(location, thrownPotionClass, consumer);
+		} else {
+			potion = location.getWorld().spawn(location, thrownPotionClass);
+		}
 
+		if (potion == null)
+			return null;
 		potion.setItem(i);
 		return potion;
 	}

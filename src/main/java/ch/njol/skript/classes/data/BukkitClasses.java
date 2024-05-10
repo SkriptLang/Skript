@@ -19,6 +19,7 @@
 package ch.njol.skript.classes.data;
 
 import java.io.StreamCorruptedException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
@@ -59,6 +60,7 @@ import org.bukkit.entity.Projectile;
 import org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.bukkit.event.entity.EntityRegainHealthEvent.RegainReason;
+import org.bukkit.event.entity.EntityTransformEvent.TransformReason;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.event.inventory.InventoryCloseEvent;
@@ -66,6 +68,7 @@ import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.PlayerQuitEvent.QuitReason;
 import org.bukkit.event.player.PlayerResourcePackStatusEvent.Status;
 import org.bukkit.event.player.PlayerTeleportEvent.TeleportCause;
+import org.bukkit.inventory.BlockInventoryHolder;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
@@ -153,7 +156,7 @@ public class BukkitClasses {
 					
 					@Override
 					public boolean canParse(final ParseContext context) {
-						return context == ParseContext.COMMAND;
+						return context == ParseContext.COMMAND || context == ParseContext.PARSE;
 					}
 					
 					@Override
@@ -536,7 +539,7 @@ public class BukkitClasses {
 					@Nullable
 					public World parse(final String s, final ParseContext context) {
 						// REMIND allow shortcuts '[over]world', 'nether' and '[the_]end' (server.properties: 'level-name=world') // inconsistent with 'world is "..."'
-						if (context == ParseContext.COMMAND || context == ParseContext.CONFIG)
+						if (context == ParseContext.COMMAND || context == ParseContext.PARSE || context == ParseContext.CONFIG)
 							return Bukkit.getWorld(s);
 						final Matcher m = parsePattern.matcher(s);
 						if (m.matches())
@@ -659,32 +662,46 @@ public class BukkitClasses {
 		Classes.registerClass(new ClassInfo<>(Player.class, "player")
 				.user("players?")
 				.name("Player")
-				.description("A player. Depending on whether a player is online or offline several actions can be performed with them, " +
-								"though you won't get any errors when using effects that only work if the player is online (e.g. changing their inventory) on an offline player.",
+				.description(
+						"A player. Depending on whether a player is online or offline several actions can be performed with them, " +
+						"though you won't get any errors when using effects that only work if the player is online (e.g. changing their inventory) on an offline player.",
 						"You have two possibilities to use players as command arguments: &lt;player&gt; and &lt;offline player&gt;. " +
-								"The first requires that the player is online and also accepts only part of the name, " +
-								"while the latter doesn't require that the player is online, but the player's name has to be entered exactly.")
-				.usage("")
-				.examples("")
-				.since("1.0")
+						"The first requires that the player is online and also accepts only part of the name, " +
+						"while the latter doesn't require that the player is online, but the player's name has to be entered exactly."
+				).usage(
+						"Parsing an offline player as a player (online) will return nothing (none), for that case you would need to parse as " +
+						"offlineplayer which only returns nothing (none) if player doesn't exist in Minecraft databases (name not taken) otherwise it will return the player regardless of their online status."
+				).examples(
+						"set {_p} to \"Notch\" parsed as a player # returns <none> unless Notch is actually online or starts with Notch like Notchan",
+						"set {_p} to \"N\" parsed as a player # returns Notch if Notch is online because their name starts with 'N' (case insensitive) however, it would return nothing if no player whose name starts with 'N' is online."
+				).since("1.0")
 				.defaultExpression(new EventValueExpression<>(Player.class))
 				.after("string", "world")
 				.parser(new Parser<Player>() {
 					@Override
 					@Nullable
-					public Player parse(String s, ParseContext context) {
-						if (context == ParseContext.COMMAND) {
-							if (s.isEmpty())
+					public Player parse(String string, ParseContext context) {
+						if (context == ParseContext.COMMAND || context == ParseContext.PARSE) {
+							if (string.isEmpty())
 								return null;
-							if (UUID_PATTERN.matcher(s).matches())
-								return Bukkit.getPlayer(UUID.fromString(s));
-							List<Player> ps = Bukkit.matchPlayer(s);
-							if (ps.size() == 1)
-								return ps.get(0);
-							if (ps.size() == 0)
-								Skript.error(String.format(Language.get("commands.no player starts with"), s));
+							if (UUID_PATTERN.matcher(string).matches())
+								return Bukkit.getPlayer(UUID.fromString(string));
+							String name = string.toLowerCase(Locale.ENGLISH);
+							int nameLength = name.length(); // caching
+							List<Player> players = new ArrayList<>();
+							for (Player player : Bukkit.getOnlinePlayers()) {
+								if (player.getName().toLowerCase(Locale.ENGLISH).startsWith(name)) {
+									if (player.getName().length() == nameLength) // a little better in performance than String#equals()
+										return player;
+									players.add(player);
+								}
+							}
+							if (players.size() == 1)
+								return players.get(0);
+							if (players.size() == 0)
+								Skript.error(String.format(Language.get("commands.no player starts with"), string));
 							else
-								Skript.error(String.format(Language.get("commands.multiple players start with"), s));
+								Skript.error(String.format(Language.get("commands.multiple players start with"), string));
 							return null;
 						}
 						assert false;
@@ -693,7 +710,7 @@ public class BukkitClasses {
 					
 					@Override
 					public boolean canParse(final ParseContext context) {
-						return context == ParseContext.COMMAND;
+						return context == ParseContext.COMMAND || context == ParseContext.PARSE;
 					}
 					
 					@Override
@@ -720,20 +737,22 @@ public class BukkitClasses {
 		Classes.registerClass(new ClassInfo<>(OfflinePlayer.class, "offlineplayer")
 				.user("offline ?players?")
 				.name("Offline Player")
-				.description("A player that is possibly offline. See <a href='#player'>player</a> for more information. " +
+				.description(
+						"A player that is possibly offline. See <a href='#player'>player</a> for more information. " +
 						"Please note that while all effects and conditions that require a player can be used with an " +
-						"offline player as well, they will not work if the player is not actually online.")
-				.usage("")
-				.examples("")
-				.since("")
+						"offline player as well, they will not work if the player is not actually online."
+				).usage(
+						"Parsing an offline player as a player (online) will return nothing (none), for that case you would need to parse as " +
+						"offlineplayer which only returns nothing (none) if player doesn't exist in Minecraft databases (name not taken) otherwise it will return the player regardless of their online status."
+				).examples("set {_p} to \"Notch\" parsed as an offlineplayer # returns Notch even if they're offline")
+				.since("2.0 beta 8")
 				.defaultExpression(new EventValueExpression<>(OfflinePlayer.class))
 				.after("string", "world")
 				.parser(new Parser<OfflinePlayer>() {
 					@Override
 					@Nullable
-					@SuppressWarnings("deprecation")
 					public OfflinePlayer parse(final String s, final ParseContext context) {
-						if (context == ParseContext.COMMAND) {
+						if (context == ParseContext.COMMAND || context == ParseContext.PARSE) {
 							if (UUID_PATTERN.matcher(s).matches())
 								return Bukkit.getOfflinePlayer(UUID.fromString(s));
 							else if (!SkriptConfig.playerNameRegexPattern.value().matcher(s).matches())
@@ -746,7 +765,7 @@ public class BukkitClasses {
 					
 					@Override
 					public boolean canParse(ParseContext context) {
-						return context == ParseContext.COMMAND;
+						return context == ParseContext.COMMAND || context == ParseContext.PARSE;
 					}
 					
 					@Override
@@ -874,6 +893,10 @@ public class BukkitClasses {
 							return Classes.toString(((BlockState) holder).getBlock());
 						} else if (holder instanceof DoubleChest) {
 							return Classes.toString(holder.getInventory().getLocation().getBlock());
+						} else if (holder instanceof BlockInventoryHolder) {
+							return Classes.toString(((BlockInventoryHolder) holder).getBlock());
+						} else if (Classes.getSuperClassInfo(holder.getClass()).getC() == InventoryHolder.class) {
+							return holder.getClass().getSimpleName(); // an inventory holder and only that
 						} else {
 							return Classes.toString(holder);
 						}
@@ -1411,7 +1434,7 @@ public class BukkitClasses {
 					.user("(panda )?genes?")
 					.name("Gene")
 					.description("Represents a Panda's main or hidden gene. " +
-							"See <a href='https://minecraft.gamepedia.com/Panda#Genetics'>genetics</a> for more info.")
+							"See <a href='https://minecraft.wiki/w/Panda#Genetics'>genetics</a> for more info.")
 					.since("2.4")
 					.requiredPlugins("Minecraft 1.14 or newer"));
 		}
@@ -1487,7 +1510,7 @@ public class BukkitClasses {
 				.user("attribute ?types?")
 				.name("Attribute Type")
 				.description("Represents the type of an attribute. Note that this type does not contain any numerical values."
-						+ "See <a href='https://minecraft.gamepedia.com/Attribute#Attributes'>attribute types</a> for more info.")
+						+ "See <a href='https://minecraft.wiki/w/Attribute#Attributes'>attribute types</a> for more info.")
 				.since("2.5"));
 
 		Classes.registerClass(new EnumClassInfo<>(Environment.class, "environment", "environments")
@@ -1510,7 +1533,7 @@ public class BukkitClasses {
 					.name("Quit Reason")
 					.description("Represents a quit reason from a <a href='/events.html#quit'>player quit server event</a>.")
 					.requiredPlugins("Paper 1.16.5+")
-					.since("INSERT VERSION"));
+					.since("2.8.0"));
 
 		if (Skript.classExists("org.bukkit.event.inventory.InventoryCloseEvent$Reason"))
 			Classes.registerClass(new EnumClassInfo<>(InventoryCloseEvent.Reason.class, "inventoryclosereason", "inventory close reasons")
@@ -1518,7 +1541,13 @@ public class BukkitClasses {
 					.name("Inventory Close Reasons")
 					.description("The inventory close reason in an <a href='/events.html#inventory_close'>inventory close event</a>.")
 					.requiredPlugins("Paper")
-					.since("INSERT VERSION"));
+					.since("2.8.0"));
+
+		Classes.registerClass(new EnumClassInfo<>(TransformReason.class, "transformreason", "transform reasons")
+				.user("(entity)? ?transform ?(reason|cause)s?")
+				.name("Transform Reason")
+				.description("Represents a transform reason of an <a href='events.html#entity transform'>entity transform event</a>.")
+				.since("2.8.0"));
 	}
 
 }

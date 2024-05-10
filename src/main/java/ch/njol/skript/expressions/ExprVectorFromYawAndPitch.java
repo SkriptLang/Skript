@@ -35,17 +35,14 @@ import ch.njol.util.Kleenean;
 import ch.njol.util.VectorMath;
 import ch.njol.util.coll.CollectionUtils;
 
-/**
- * @author bi0qaw
- */
 @Name("Vectors - Vector from Pitch and Yaw")
 @Description("Creates a vector from a yaw and pitch value.")
-@Examples({"set {_v} to vector from yaw 45 and pitch 45"})
+@Examples("set {_v} to vector from yaw 45 and pitch 45")
 @Since("2.2-dev28")
 public class ExprVectorFromYawAndPitch extends SimpleExpression<Vector> {
 
 	static {
-		Skript.registerExpression(ExprVectorFromYawAndPitch.class, Vector.class, ExpressionType.SIMPLE,
+		Skript.registerExpression(ExprVectorFromYawAndPitch.class, Vector.class, ExpressionType.COMBINED,
 				"[a] [new] vector (from|with) yaw %number% and pitch %number%");
 	}
 
@@ -62,13 +59,13 @@ public class ExprVectorFromYawAndPitch extends SimpleExpression<Vector> {
 
 	@Override
 	@SuppressWarnings("null")
-	protected Vector[] get(Event e) {
-		Number y = yaw.getSingle(e);
-		Number p = pitch.getSingle(e);
-		if (y == null || p == null)
+	protected Vector[] get(Event event) {
+		Number skriptYaw = yaw.getSingle(event);
+		Number skriptPitch = pitch.getSingle(event);
+		if (skriptYaw == null || skriptPitch == null)
 			return null;
-		float yaw = VectorMath.fromSkriptYaw(VectorMath.wrapAngleDeg(y.floatValue()));
-		float pitch = VectorMath.fromSkriptPitch(VectorMath.wrapAngleDeg(p.floatValue()));
+		float yaw = VectorMath.fromSkriptYaw(VectorMath.wrapAngleDeg(skriptYaw.floatValue()));
+		float pitch = VectorMath.fromSkriptPitch(VectorMath.wrapAngleDeg(skriptPitch.floatValue()));
 		return CollectionUtils.array(VectorMath.fromYawAndPitch(yaw, pitch));
 	}
 
@@ -83,8 +80,8 @@ public class ExprVectorFromYawAndPitch extends SimpleExpression<Vector> {
 	}
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
-		return "vector from yaw " + yaw.toString(e, debug) + " and pitch " + pitch.toString(e, debug);
+	public String toString(@Nullable Event event, boolean debug) {
+		return "vector from yaw " + yaw.toString(event, debug) + " and pitch " + pitch.toString(event, debug);
 	}
 
 }

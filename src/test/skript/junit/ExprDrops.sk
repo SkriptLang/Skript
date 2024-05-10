@@ -1,0 +1,103 @@
+test "ExprDropsJUnit" when running JUnit:
+	set {_tests::1} to "clear drops"
+	set {_tests::2} to "set drops to two items"
+	set {_tests::3} to "add item to drops"
+	set {_tests::4} to "remove item from drops"
+	set {_tests::5} to "add multiple items to drops"
+	set {_tests::6} to "remove all of an item from drops"
+	set {_tests::7} to "remove multiple items from drops"
+	set {_tests::8} to "set drops to experience doesn't modify items"
+	set {_tests::9} to "add experience to drops doesn't modify items"
+	set {_tests::10} to "remove experience (special case) from drops doesn't modify items"
+	set {_tests::11} to "add and remove experience from drops doesn't modify items"
+	set {_tests::12} to "remove all experience from drops doesn't modify items"
+	set {_tests::13} to "drops test complete"
+	ensure junit test "org.skriptlang.skript.test.tests.syntaxes.ExprDropsTest" completes {_tests::*}
+
+# NOTE: Do NOT take the behavior described in this test as a guide for how ExprDrops SHOULD work, only for how it DOES work in 2.7.x.
+# The behavior should change in 2.8 and this test will be updated accordingly.
+
+on death of pig:
+	set {_test} to "org.skriptlang.skript.test.tests.syntaxes.ExprDropsTest"
+	junit test is {_test}
+
+	# Items
+
+	clear drops
+	if size of drops is 0:
+		complete objective "clear drops" for {_test}
+
+	set drops to 1 stick and 1 carrot
+	# this is stupid but comparing lists directly doesn't work
+	set {_i::*} to drops
+	if:
+		{_i::1} is 1 stick
+		{_i::2} is 1 carrot
+	then:
+		complete objective "set drops to two items" for {_test}
+
+	add 1 dirt to drops
+	set {_i::*} to drops
+	if:
+		{_i::1} is 1 stick
+		{_i::2} is 1 carrot
+		{_i::3} is 1 dirt
+	then:
+		complete objective "add item to drops" for {_test}
+
+	remove dirt from drops
+	set {_i::*} to drops
+	if:
+		{_i::1} is 1 stick
+		{_i::2} is 1 carrot
+	then:
+		complete objective "remove item from drops" for {_test}
+
+	add 1 dirt and 2 dirt to drops
+	set {_i::*} to drops
+	if:
+		{_i::1} is 1 stick
+		{_i::2} is 1 carrot
+		{_i::3} is 1 dirt
+		{_i::4} is 2 dirt
+	then:
+		complete objective "add multiple items to drops" for {_test}
+
+	remove all dirt from drops
+	set {_i::*} to drops
+	if:
+		{_i::1} is 1 stick
+		{_i::2} is 1 carrot
+	then:
+		complete objective "remove all of an item from drops" for {_test}
+
+	remove 1 stick and 1 carrot from drops
+	if size of drops is 0:
+		complete objective "remove multiple items from drops" for {_test}
+
+	# Experience
+	# to-do: add checks against experience changes once `on death` has access to dropped experience amount
+
+	set drops to 1 porkchop
+	set drops to 10 experience
+	if drops is 1 porkchop:
+		complete objective "set drops to experience doesn't modify items" for {_test}
+
+	add 10 experience to drops
+	if drops is 1 porkchop:
+		complete objective "add experience to drops doesn't modify items" for {_test}
+
+	remove xp from drops
+	if drops is 1 porkchop:
+		complete objective "remove experience (special case) from drops doesn't modify items" for {_test}
+
+	add 100 experience to drops
+	remove 50 experience from drops
+	if drops is 1 porkchop:
+		complete objective "add and remove experience from drops doesn't modify items" for {_test}
+
+	remove all 10 experience from drops
+	if drops is 1 porkchop:
+		complete objective "remove all experience from drops doesn't modify items" for {_test}
+
+	complete objective "drops test complete" for {_test}

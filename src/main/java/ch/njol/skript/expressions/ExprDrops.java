@@ -18,14 +18,6 @@
  */
 package ch.njol.skript.expressions;
 
-import java.util.List;
-
-import org.bukkit.event.Event;
-import org.bukkit.event.entity.EntityDeathEvent;
-import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.ItemStack;
-import org.eclipse.jdt.annotation.Nullable;
-
 import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.classes.Changer.ChangeMode;
@@ -42,7 +34,14 @@ import ch.njol.skript.log.ErrorQuality;
 import ch.njol.skript.util.Experience;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
-import ch.njol.util.coll.iterator.IteratorIterable;
+import org.bukkit.event.Event;
+import org.bukkit.event.entity.EntityDeathEvent;
+import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemStack;
+import org.eclipse.jdt.annotation.Nullable;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author Peter Güttinger
@@ -85,7 +84,7 @@ public class ExprDrops extends SimpleExpression<ItemType> {
 	@Nullable
 	public Class<?>[] acceptChange(ChangeMode mode) {
 		if (getParser().getHasDelayBefore().isTrue()) {
-			Skript.error("Can't change the drops anymore after the event has already passed");
+			Skript.error("Can't change the drops after the event has already passed");
 			return null;
 		}
 		switch (mode) {
@@ -94,7 +93,7 @@ public class ExprDrops extends SimpleExpression<ItemType> {
 			case REMOVE_ALL:
 			case SET:
 				return CollectionUtils.array(ItemType[].class, Inventory[].class, Experience[].class);
-			case DELETE:
+			case DELETE: // handled by EffClearDrops
 			case RESET:
 			default:
 				return null;
@@ -102,58 +101,94 @@ public class ExprDrops extends SimpleExpression<ItemType> {
 	}
 
 	@Override
-	public void change(Event e, @Nullable Object[] delta, ChangeMode mode) {
-		if (!(e instanceof EntityDeathEvent))
+	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
+		if (!(event instanceof EntityDeathEvent))
 			return;
 
-		List<ItemStack> drops = ((EntityDeathEvent) e).getDrops();
+		List<ItemStack> drops = ((EntityDeathEvent) event).getDrops();
+		int originalExperience = ((EntityDeathEvent) event).getDroppedExp();
 		assert delta != null;
+
+		// separate the delta into experience and drops to make it easier to handle
+		int deltaExperience = -1; // Skript does not support negative experience, so -1 is a safe "unset" value
+		boolean removeAllExperience = false;
+		List<ItemType> deltaDrops = new ArrayList<>();
 		for (Object o : delta) {
 			if (o instanceof Experience) {
-				if (mode == ChangeMode.REMOVE_ALL || mode == ChangeMode.REMOVE && ((Experience) o).getInternalXP() == -1) {
-					((EntityDeathEvent) e).setDroppedExp(0);
-				} else if (mode == ChangeMode.SET) {
-					((EntityDeathEvent) e).setDroppedExp(((Experience) o).getXP());
+				// Special case for `remove xp from the drops`
+				if ((((Experience) o).getInternalXP() == -1 && mode == ChangeMode.REMOVE) || mode == ChangeMode.REMOVE_ALL) {
+					removeAllExperience = true;
+				}
+				// add the value even if we're removing all experience, just so we know that experience was changed
+				if (deltaExperience == -1) {
+					deltaExperience = ((Experience) o).getXP();
 				} else {
-					((EntityDeathEvent) e).setDroppedExp(Math.max(0, ((EntityDeathEvent) e).getDroppedExp() + (mode == ChangeMode.ADD ? 1 : -1) * ((Experience) o).getXP()));
+					deltaExperience += ((Experience) o).getXP();
 				}
+			} else if (o instanceof Inventory) {
+				// inventories are unrolled into their contents
+				for (ItemStack item : ((Inventory) o).getContents()) {
+					if (item != null)
+						deltaDrops.add(new ItemType(item));
+				}
+			} else if (o instanceof ItemType) {
+				deltaDrops.add((ItemType) o);
 			} else {
-				switch (mode) {
-					case SET:
-						drops.clear();
-						//$FALL-THROUGH$
-					case ADD:
-						if (o instanceof Inventory) {
-							for (ItemStack is : new IteratorIterable<>(((Inventory) o).iterator())) {
-								if (is != null)
-									drops.add(is);
-							}
-						} else {
-							((ItemType) o).addTo(drops);
-						}
-						break;
-					case REMOVE:
-					case REMOVE_ALL:
-						if (o instanceof Inventory) {
-							for (ItemStack is : new IteratorIterable<>(((Inventory) o).iterator())) {
-								if (is == null)
-									continue;
-								if (mode == ChangeMode.REMOVE)
-									new ItemType(is).removeFrom(drops);
-								else
-									new ItemType(is).removeAll(drops);
-							}
-						} else {
-							if (mode == ChangeMode.REMOVE)
-								((ItemType) o).removeFrom(drops);
-							else
-								((ItemType) o).removeAll(drops);
-						}
-						break;
-					case DELETE:
-					case RESET:
-						assert false;
-				}
+				assert false;
+			}
+		}
+
+		// handle items and experience separately to maintain current behavior
+		// `set drops to iron sword` should not affect experience
+		// and `set drops to 1 xp` should not affect items
+		// todo: All the experience stuff should be removed from this class for 2.8 and given to ExprExperience
+
+		// handle experience
+		if (deltaExperience > -1) {
+			switch (mode) {
+				case SET:
+					((EntityDeathEvent) event).setDroppedExp(deltaExperience);
+					break;
+				case ADD:
+					((EntityDeathEvent) event).setDroppedExp(originalExperience + deltaExperience);
+					break;
+				case REMOVE:
+					((EntityDeathEvent) event).setDroppedExp(originalExperience - deltaExperience);
+					// fallthrough to check for removeAllExperience
+				case REMOVE_ALL:
+					if (removeAllExperience)
+						((EntityDeathEvent) event).setDroppedExp(0);
+					break;
+				case DELETE:
+				case RESET:
+					assert false;
+			}
+		}
+
+		// handle items
+		if (!deltaDrops.isEmpty()) {
+			switch (mode) {
+				case SET:
+					// clear drops and fallthrough to add
+					drops.clear();
+				case ADD:
+					for (ItemType item : deltaDrops) {
+						item.addTo(drops);
+					}
+					break;
+				case REMOVE:
+					for (ItemType item : deltaDrops) {
+						item.removeFrom(false, drops);
+					}
+					break;
+				case REMOVE_ALL:
+					for (ItemType item : deltaDrops) {
+						item.removeAll(false, drops);
+					}
+					break;
+				case DELETE:
+				case RESET:
+					assert false;
 			}
 		}
 	}
@@ -169,7 +204,7 @@ public class ExprDrops extends SimpleExpression<ItemType> {
 	}
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
+	public String toString(@Nullable Event event, boolean debug) {
 		return "the drops";
 	}
 

@@ -1,0 +1,21 @@
+test "filtering ExprItemsIn":
+	set {_world} to random world out of all worlds
+	set block at spawn of {_world} to chest
+	set {_inv} to inventory of (block at spawn of {_world})
+	set slot 1 of {_inv} to dirt
+	set slot 2 of {_inv} to stone
+	set slot 3 of {_inv} to bucket
+	assert all blocks in inventory {_inv} are dirt or stone with "found correct items with ExprItemsIn##get"
+	assert (all blocks in inventory {_inv} where [true is true]) are dirt or stone with "found correct items with ExprItemsIn##iterator"
+	set {_dirt} to dirt
+	assert all {_dirt} in inventory {_inv} is dirt with "found incorrect items with variable itemtypes"
+
+test "unfiltered ExprItemsIn":
+	set {_world} to random world out of all worlds
+	set block at spawn of {_world} to chest
+	set {_inv} to inventory of (block at spawn of {_world})
+	set slot 1 of {_inv} to dirt
+	set slot 2 of {_inv} to stone
+	set slot 3 of {_inv} to bucket
+	assert all items in inventory {_inv} are dirt, stone or bucket with "found correct items with ExprItemsIn##get"
+	assert (all items in inventory {_inv} where [true is true]) are dirt, stone or bucket with "found correct items with ExprItemsIn##iterator"

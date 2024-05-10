@@ -18,6 +18,7 @@
  */
 package ch.njol.skript.expressions;
 
+import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.config.Node;
 import ch.njol.skript.expressions.base.PropertyExpression;
 import ch.njol.skript.lang.Expression;
@@ -26,18 +27,23 @@ import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.log.SkriptLogger;
 import ch.njol.skript.util.slot.Slot;
 import ch.njol.util.Kleenean;
+import org.bukkit.block.BlockState;
+import org.bukkit.block.Container;
 import org.bukkit.event.Event;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
+import org.bukkit.inventory.meta.BlockStateMeta;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.eclipse.jdt.annotation.Nullable;
 
-import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
-import ch.njol.skript.expressions.base.SimplePropertyExpression;
 
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -54,28 +60,56 @@ public class ExprInventory extends SimpleExpression<Object> {
 
 	private boolean inLoop;
 	@SuppressWarnings("null")
-	private Expression<InventoryHolder> holders;
+	private Expression<?> holders;
 
 	static {
-		PropertyExpression.register(ExprInventory.class, Object.class, "inventor(y|ies)", "inventoryholders");
+		PropertyExpression.register(ExprInventory.class, Object.class, "inventor(y|ies)", "inventoryholders/itemtypes");
 	}
 
 	@Override
 	@SuppressWarnings("unchecked")
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
+		// prevent conflict with ExprItemsIn (https://github.com/SkriptLang/Skript/issues/6290)
+		if (exprs[0].getSource() instanceof ExprItemsIn)
+			return false;
 		// if we're dealing with a loop of just this expression
 		Node n = SkriptLogger.getNode();
 		inLoop = n != null && ("loop " + parseResult.expr).equals(n.getKey());
-		holders = (Expression<InventoryHolder>) exprs[0];
+		holders = exprs[0];
 		return true;
 	}
-
 
 	@Override
 	protected Object[] get(Event e) {
 		List<Inventory> inventories = new ArrayList<>();
-		for (InventoryHolder holder : holders.getArray(e)) {
-			inventories.add(holder.getInventory());
+		for (Object holder : holders.getArray(e)) {
+			if (holder instanceof InventoryHolder) {
+				inventories.add(((InventoryHolder) holder).getInventory());
+			} else if (holder instanceof ItemType) {
+				ItemMeta meta = ((ItemType) holder).getItemMeta();
+				if (!(meta instanceof  BlockStateMeta))
+					continue;
+				BlockState state = ((BlockStateMeta) meta).getBlockState();
+				if (!(state instanceof Container))
+					continue;
+				Inventory underlyingInv = ((Container) state).getInventory();
+				// The proxy is used here to ensure that any changes to the inventory are reflected in the
+				// BlockStateMeta and ItemMeta of `holder`
+				Inventory proxy = (Inventory) Proxy.newProxyInstance(getClass().getClassLoader(), new Class[]{Inventory.class}, new InvocationHandler() {
+					@Override
+					public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+						Object returnValue = method.invoke(underlyingInv, args);
+						// calling update here causes the changes to the inventory to be synced to the meta
+						boolean updateSucceeded = state.update();
+						if (updateSucceeded) {
+							((BlockStateMeta) meta).setBlockState(state);
+							((ItemType) holder).setItemMeta(meta);
+						}
+						return returnValue;
+					}
+				});
+				inventories.add(proxy);
+			}
 		}
 		Inventory[] invArray = inventories.toArray(new Inventory[0]);
 		if (inLoop) {

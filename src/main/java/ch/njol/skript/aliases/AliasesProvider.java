@@ -21,10 +21,12 @@ package ch.njol.skript.aliases;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.List;
 import java.util.Map;
 
+import ch.njol.skript.Skript;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
@@ -42,6 +44,9 @@ import ch.njol.skript.entity.EntityData;
  * Provides aliases on Bukkit/Spigot platform.
  */
 public class AliasesProvider {
+
+	// not supported on Spigot versions older than 1.18
+	private static final boolean FASTER_SET_SUPPORTED = Skript.classExists("it.unimi.dsi.fastutil.objects.ObjectOpenHashSet");
 	
 	/**
 	 * When an alias is not found, it will requested from this provider.
@@ -173,7 +178,12 @@ public class AliasesProvider {
 		this.aliases = new HashMap<>(expectedCount);
 		this.variations = new HashMap<>(expectedCount / 20);
 		this.aliasesMap = new AliasesMap();
-		this.materials = new ObjectOpenHashSet<>();
+
+		if (FASTER_SET_SUPPORTED) {
+			this.materials = new ObjectOpenHashSet<>();
+		} else {
+			this.materials = new HashSet<>();
+		}
 		
 		this.gson = new Gson();
 	}
@@ -208,9 +218,18 @@ public class AliasesProvider {
 			return flags;
 		
 		// Apply random tags using JSON
-		String json = gson.toJson(tags);
-		assert json != null;
-		BukkitUnsafe.modifyItemStack(stack, json);
+		if (Aliases.USING_ITEM_COMPONENTS) {
+			String components = (String) tags.get("components"); // only components are supported for modifying a stack
+			assert components != null;
+			// for modifyItemStack to work, you have to include an item id ... e.g. "minecraft:dirt[<components>]"
+			// just to be safe we use the same one as the provided stack
+			components = stack.getType().getKey() + components;
+			BukkitUnsafe.modifyItemStack(stack, components);
+		} else {
+			String json = gson.toJson(tags);
+			assert json != null;
+			BukkitUnsafe.modifyItemStack(stack, json);
+		}
 		flags |= ItemFlags.CHANGED_TAGS;
 		
 		return flags;
@@ -259,6 +278,14 @@ public class AliasesProvider {
 		ItemType typeOfId = getAlias(id);
 		EntityData<?> related = null;
 		List<ItemData> datas;
+
+		// check whether deduplication will occur
+		boolean deduplicate = true;
+		String deduplicateFlag = blockStates.remove("deduplicate");
+		if (deduplicateFlag != null) {
+			deduplicate = !deduplicateFlag.equals("false");
+		}
+
 		if (typeOfId != null) { // If it exists, use datas from it
 			datas = typeOfId.getTypes();
 		} else { // ... but quite often, we just got Vanilla id
@@ -291,11 +318,13 @@ public class AliasesProvider {
 			data.itemFlags = itemFlags;
 			
 			// Deduplicate item data if this has been loaded before
-			AliasesMap.Match canonical = aliasesMap.exactMatch(data);
-			if (canonical.getQuality().isAtLeast(MatchQuality.EXACT)) {
-				AliasesMap.AliasData aliasData = canonical.getData();
-				assert aliasData != null; // Match quality guarantees this
-				data = aliasData.getItem();
+			if (deduplicate) {
+				AliasesMap.Match canonical = aliasesMap.exactMatch(data);
+				if (canonical.getQuality().isAtLeast(MatchQuality.EXACT)) {
+					AliasesMap.AliasData aliasData = canonical.getData();
+					assert aliasData != null; // Match quality guarantees this
+					data = aliasData.getItem();
+				}
 			}
 			
 			datas = Collections.singletonList(data);

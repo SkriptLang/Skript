@@ -82,7 +82,6 @@ public class EventValues {
 		 * @return The classes of the Excludes associated with this event value
 		 */
 		@Nullable
-		@SuppressWarnings("null")
 		public Class<? extends E>[] getExcludes() {
 			if (excludes != null)
 				return Arrays.copyOf(excludes, excludes.length);
@@ -98,26 +97,26 @@ public class EventValues {
 			return excludeErrorMessage;
 		}
 	}
-	
+
 	private final static List<EventValueInfo<?, ?>> defaultEventValues = new ArrayList<>(30);
 	private final static List<EventValueInfo<?, ?>> futureEventValues = new ArrayList<>();
 	private final static List<EventValueInfo<?, ?>> pastEventValues = new ArrayList<>();
-	
+
 	/**
 	 * The past time of an event value. Represented by "past" or "former".
 	 */
 	public static final int TIME_PAST = -1;
-	
+
 	/**
 	 * The current time of an event value.
 	 */
 	public static final int TIME_NOW = 0;
-	
+
 	/**
 	 * The future time of an event value.
 	 */
 	public static final int TIME_FUTURE = 1;
-	
+
 	/**
 	 * Get Event Values list for the specified time
 	 * @param time The time of the event values. One of
@@ -127,7 +126,7 @@ public class EventValues {
 	public static List<EventValueInfo<?, ?>> getEventValuesListForTime(int time) {
 		return ImmutableList.copyOf(getEventValuesList(time));
 	}
-	
+
 	private static List<EventValueInfo<?, ?>> getEventValuesList(int time) {
 		if (time == -1)
 			return pastEventValues;
@@ -242,7 +241,7 @@ public class EventValues {
 	 * @return true or false if the event and type have multiple getters.
 	 */
 	public static <T, E extends Event> Kleenean hasMultipleGetters(Class<E> event, Class<T> type, int time) {
-		List<Getter<? extends T, ? super E>> getters = getEventValueGetters(event, type, time, true);
+		List<Getter<? extends T, ? super E>> getters = getEventValueGetters(event, type, time, true, false);
 		if (getters == null)
 			return Kleenean.UNKNOWN;
 		return Kleenean.get(getters.size() > 1);
@@ -273,13 +272,18 @@ public class EventValues {
 		return list.get(0);
 	}
 
+	@Nullable
+	private static <T, E extends Event> List<Getter<? extends T, ? super E>> getEventValueGetters(Class<E> event, Class<T> type, int time, boolean allowDefault) {
+		return getEventValueGetters(event, type, time, allowDefault, true);
+	}
+
 	/*
 	 * We need to be able to collect all possible event-values to a list for determining problematic collisions.
 	 * Always return after the loop check if the list is not empty.
 	 */
 	@Nullable
 	@SuppressWarnings("unchecked")
-	private static <T, E extends Event> List<Getter<? extends T, ? super E>> getEventValueGetters(Class<E> event, Class<T> type, int time, boolean allowDefault) {
+	private static <T, E extends Event> List<Getter<? extends T, ? super E>> getEventValueGetters(Class<E> event, Class<T> type, int time, boolean allowDefault, boolean allowConverting) {
 		List<EventValueInfo<?, ?>> eventValues = getEventValuesList(time);
 		List<Getter<? extends T, ? super E>> list = new ArrayList<>();
 		// First check for exact classes matching the parameters.
@@ -313,6 +317,8 @@ public class EventValues {
 		}
 		if (!list.isEmpty())
 			return list;
+		if (!allowConverting)
+			return null;
 		// Most checks have returned before this below is called, but Skript will attempt to convert or find an alternative.
 		// Third check is if the returned object matches the class.
 		for (EventValueInfo<?, ?> eventValueInfo : eventValues) {
@@ -361,11 +367,11 @@ public class EventValues {
 			// The requesting event must be assignable to the event value's event. Otherwise it'll throw an error.
 			if (!event.isAssignableFrom(eventValueInfo.event))
 				continue;
-			
+
 			Getter<? extends T, ? super E> getter = (Getter<? extends T, ? super E>) getConvertedGetter(eventValueInfo, type, true);
 			if (getter == null)
 				continue;
-			
+
 			if (!checkExcludes(eventValueInfo, event))
 				return null;
 			list.add(getter);

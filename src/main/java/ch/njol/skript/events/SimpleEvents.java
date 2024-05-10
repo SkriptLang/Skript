@@ -18,9 +18,21 @@
  */
 package ch.njol.skript.events;
 
+import ch.njol.skript.Skript;
+import ch.njol.skript.lang.SkriptEvent.ListeningBehavior;
+import ch.njol.skript.lang.util.SimpleEvent;
 import com.destroystokyo.paper.event.block.AnvilDamagedEvent;
+import com.destroystokyo.paper.event.entity.EntityJumpEvent;
+import com.destroystokyo.paper.event.entity.ProjectileCollideEvent;
+import com.destroystokyo.paper.event.player.PlayerArmorChangeEvent;
+import com.destroystokyo.paper.event.player.PlayerJumpEvent;
+import com.destroystokyo.paper.event.server.PaperServerListPingEvent;
+import com.destroystokyo.paper.event.player.PlayerReadyArrowEvent;
+import io.papermc.paper.event.player.PlayerStopUsingItemEvent;
 import io.papermc.paper.event.player.PlayerDeepSleepEvent;
 import io.papermc.paper.event.player.PlayerInventorySlotChangeEvent;
+import io.papermc.paper.event.player.PlayerTradeEvent;
+import org.bukkit.event.Event;
 import org.bukkit.event.block.BlockCanBuildEvent;
 import org.bukkit.event.block.BlockDamageEvent;
 import org.bukkit.event.block.BlockFertilizeEvent;
@@ -33,14 +45,16 @@ import org.bukkit.event.block.BlockRedstoneEvent;
 import org.bukkit.event.block.BlockSpreadEvent;
 import org.bukkit.event.block.LeavesDecayEvent;
 import org.bukkit.event.block.SignChangeEvent;
+import org.bukkit.event.block.SpongeAbsorbEvent;
 import org.bukkit.event.enchantment.EnchantItemEvent;
 import org.bukkit.event.enchantment.PrepareItemEnchantEvent;
-import org.bukkit.event.block.SpongeAbsorbEvent;
 import org.bukkit.event.entity.AreaEffectCloudApplyEvent;
 import org.bukkit.event.entity.CreeperPowerEvent;
 import org.bukkit.event.entity.EntityBreakDoorEvent;
 import org.bukkit.event.entity.EntityCombustEvent;
+import org.bukkit.event.entity.EntityDismountEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
+import org.bukkit.event.entity.EntityMountEvent;
 import org.bukkit.event.entity.EntityPortalEnterEvent;
 import org.bukkit.event.entity.EntityPortalEvent;
 import org.bukkit.event.entity.EntityRegainHealthEvent;
@@ -103,22 +117,6 @@ import org.bukkit.event.world.ChunkUnloadEvent;
 import org.bukkit.event.world.LootGenerateEvent;
 import org.bukkit.event.world.PortalCreateEvent;
 import org.bukkit.event.world.SpawnChangeEvent;
-import org.bukkit.event.world.WorldInitEvent;
-import org.bukkit.event.world.WorldLoadEvent;
-import org.bukkit.event.world.WorldSaveEvent;
-import org.bukkit.event.world.WorldUnloadEvent;
-import org.spigotmc.event.entity.EntityDismountEvent;
-import org.spigotmc.event.entity.EntityMountEvent;
-
-import com.destroystokyo.paper.event.entity.ProjectileCollideEvent;
-import com.destroystokyo.paper.event.player.PlayerArmorChangeEvent;
-import com.destroystokyo.paper.event.player.PlayerJumpEvent;
-import com.destroystokyo.paper.event.server.PaperServerListPingEvent;
-import com.destroystokyo.paper.event.entity.EntityJumpEvent;
-import io.papermc.paper.event.player.PlayerTradeEvent;
-import ch.njol.skript.Skript;
-import ch.njol.skript.SkriptEventHandler;
-import ch.njol.skript.lang.util.SimpleEvent;
 
 /**
  * @author Peter Güttinger
@@ -409,38 +407,35 @@ public class SimpleEvents {
 						"\tif event-entity is a spider:",
 						"\t\tkill event-entity")
 				.since("1.0");
-		if (Skript.classExists("org.spigotmc.event.entity.EntityMountEvent")) {
-			Skript.registerEvent("Entity Mount", SimpleEvent.class, EntityMountEvent.class, "mount[ing]")
+		if (Skript.classExists("org.bukkit.event.entity.EntityMountEvent") || Skript.classExists("org.spigotmc.event.entity.EntityMountEvent")) {
+			Class<? extends Event> mountEventClass = null;
+			Class<? extends Event> dismountEventClass = null;
+			if (Skript.classExists("org.bukkit.event.entity.EntityMountEvent")) {
+				mountEventClass = EntityMountEvent.class;
+				dismountEventClass = EntityDismountEvent.class;
+			} else {
+				try {
+					mountEventClass = (Class<? extends Event>) Class.forName("org.spigotmc.event.entity.EntityMountEvent");
+					dismountEventClass = (Class<? extends Event>) Class.forName("org.spigotmc.event.entity.EntityDismountEvent");
+				} catch (ClassNotFoundException e) {
+					Skript.exception(e, "Failed to load legacy mount/dismount event classes. These events may not work.");
+				}
+			}
+			if (mountEventClass != null) {
+				Skript.registerEvent("Entity Mount", SimpleEvent.class, mountEventClass, "mount[ing]")
 					.description("Called when entity starts riding another.")
 					.examples("on mount:",
 							"\tcancel event")
 					.since("2.2-dev13b");
-			Skript.registerEvent("Entity Dismount", SimpleEvent.class, EntityDismountEvent.class, "dismount[ing]")
+			}
+			if (dismountEventClass != null) {
+				Skript.registerEvent("Entity Dismount", SimpleEvent.class, dismountEventClass, "dismount[ing]")
 					.description("Called when an entity dismounts.")
 					.examples("on dismount:",
 							"\tkill event-entity")
 					.since("2.2-dev13b");
+			}
 		}
-		Skript.registerEvent("World Init", SimpleEvent.class, WorldInitEvent.class, "world init[ialization]")
-				.description("Called when a world is initialised. As all default worlds are initialised before any scripts are loaded, this event is only called for newly created worlds.",
-						"World management plugins might change the behaviour of this event though.")
-				.examples("on world init:")
-				.since("1.0");
-		Skript.registerEvent("World Load", SimpleEvent.class, WorldLoadEvent.class, "world load[ing]")
-				.description("Called when a world is loaded. As with the world init event, this event will not be called for the server's default world(s).")
-				.examples("on world load:",
-						"\tsend \"World is loading...\" to console")
-				.since("1.0");
-		Skript.registerEvent("World Save", SimpleEvent.class, WorldSaveEvent.class, "world sav(e|ing)")
-				.description("Called when a world is saved to disk. Usually all worlds are saved simultaneously, but world management plugins could change this.")
-				.examples("on world saving:",
-						"\tbroadcast \"World has been saved!\"")
-				.since("1.0");
-		Skript.registerEvent("World Unload", SimpleEvent.class, WorldUnloadEvent.class, "world unload[ing]")
-				.description("Called when a world is unloaded. This event might never be called if you don't have a world management plugin.")
-				.examples("on world unload:",
-						"\tcancel event")
-				.since("1.0");
 		if (Skript.classExists("org.bukkit.event.entity.EntityToggleGlideEvent")) {
 			Skript.registerEvent("Gliding State Change", SimpleEvent.class, EntityToggleGlideEvent.class, "(gliding state change|toggl(e|ing) gliding)")
 					.description("Called when an entity toggles glider on or off, or when server toggles gliding state of an entity forcibly.")
@@ -475,13 +470,13 @@ public class SimpleEvents {
 		Skript.registerEvent("Resurrect Attempt", SimpleEvent.class, EntityResurrectEvent.class, "[entity] resurrect[ion] [attempt]")
 				.description("Called when an entity dies, always. If they are not holding a totem, this is cancelled - you can, however, uncancel it.")
 				.examples(
-						"on resurrect attempt:",
+					"on resurrect attempt:",
 						"\tentity is player",
 						"\tentity has permission \"admin.undying\"",
 						"\tuncancel the event"
 				)
-				.since("2.2-dev28");
-		SkriptEventHandler.listenCancelled.add(EntityResurrectEvent.class); // Listen this even when cancelled
+				.since("2.2-dev28")
+				.listeningBehavior(ListeningBehavior.ANY);
 		Skript.registerEvent("Player World Change", SimpleEvent.class, PlayerChangedWorldEvent.class, "[player] world chang(ing|e[d])")
 				.description("Called when a player enters a world. Does not work with other entities!")
 				.examples("on player world change:",
@@ -558,12 +553,14 @@ public class SimpleEvents {
 				.since("2.5");
 		}
 		if (Skript.classExists("com.destroystokyo.paper.event.player.PlayerArmorChangeEvent")) {
-			Skript.registerEvent("Armor Change", SimpleEvent.class, PlayerArmorChangeEvent.class, "[player] armor change[d]")
+			Skript.registerEvent("Armor Change", SimpleEvent.class, PlayerArmorChangeEvent.class, "[player] armo[u]r change[d]")
 				.description("Called when armor pieces of a player are changed.")
 				.requiredPlugins("Paper")
-				.examples("on armor change:",
-					"	send \"You equipped %event-item%!\"")
-				.since("2.5");
+				.keywords("armour")
+				.examples(
+						"on armor change:",
+							"\tsend \"You equipped %event-item%!\""
+				).since("2.5");
 		}
 		if (Skript.classExists("org.bukkit.event.block.SpongeAbsorbEvent")) {
 			Skript.registerEvent("Sponge Absorb", SimpleEvent.class, SpongeAbsorbEvent.class, "sponge absorb")
@@ -604,7 +601,7 @@ public class SimpleEvents {
 				"\tsend \"Fertilized %size of fertilized blocks% blocks got fertilized.\"")
 			.since("2.5");
 		Skript.registerEvent("Arm Swing", SimpleEvent.class, PlayerAnimationEvent.class, "[player] arm swing")
-			.description("Called when a player swings his arm.")
+			.description("Called when a player swings their arm.")
 			.examples("on arm swing:",
 				"\tsend \"You swung your arm!\"")
 			.since("2.5.1");
@@ -654,17 +651,47 @@ public class SimpleEvents {
 					"\tcancel the event")
 				.since("2.7");
 		}
+
+		if (Skript.classExists("io.papermc.paper.event.player.PlayerStopUsingItemEvent")) {
+			Skript.registerEvent("Stop Using Item", SimpleEvent.class, PlayerStopUsingItemEvent.class,
+							"[player] (stop|end) (using item|item use)")
+					.description("Called when a player stops using an item. For example, when the player releases the " +
+							"interact button when holding a bow, an edible item, or a spyglass.",
+							"Note that event-timespan will return the time the item was used for.")
+					.requiredPlugins("Paper 1.18.2+")
+					.examples(
+						"on player stop using item:",
+							"\tbroadcast \"%player% used %event-item% for %event-timespan%.\"")
+					.since("2.8.0");
+		}
+
+		if (Skript.classExists("com.destroystokyo.paper.event.player.PlayerReadyArrowEvent")) {
+			Skript.registerEvent("Ready Arrow", SimpleEvent.class, PlayerReadyArrowEvent.class, "[player] ((ready|choose|draw|load) arrow|arrow (choose|draw|load))")
+					.description("Called when a player is firing a bow and the server is choosing an arrow to use.",
+							"Cancelling this event will skip the current arrow item and fire a new event for the next arrow item.",
+							"The arrow and bow in the event can be accessed with the Readied Arrow/Bow expression.")
+					.requiredPlugins("Paper")
+					.examples(
+						"on player ready arrow:",
+							"\tselected bow's name is \"Spectral Bow\"",
+							"\tif selected arrow is not a spectral arrow:",
+								"\t\tcancel event"
+					)
+					.since("2.8.0");
+		}
+
 		if (Skript.classExists("io.papermc.paper.event.player.PlayerInventorySlotChangeEvent")) {
 			Skript.registerEvent("Inventory Slot Change", SimpleEvent.class, PlayerInventorySlotChangeEvent.class, "[player] inventory slot chang(e|ing)")
-				.description("Called when a slot in a player's inventory is changed.", "Warning: setting the event-slot to a new item can result in an infinite loop.")
-				.requiredPlugins("Paper 1.19.2+")
-				.examples(
-					"on inventory slot change:",
-						"\tif event-item is a diamond:",
-							"\t\tsend \"You obtained a diamond!\" to player"
-				)
-				.since("2.7");
+					.description("Called when a slot in a player's inventory is changed.", "Warning: setting the event-slot to a new item can result in an infinite loop.")
+					.requiredPlugins("Paper 1.19.2+")
+					.examples(
+						"on inventory slot change:",
+							"\tif event-item is a diamond:",
+								"\t\tsend \"You obtained a diamond!\" to player"
+					)
+					.since("2.7");
 		}
+    
 		//noinspection deprecation
 		Skript.registerEvent("Chat", SimpleEvent.class, AsyncPlayerChatEvent.class, "chat")
 			.description(
@@ -718,7 +745,7 @@ public class SimpleEvents {
 								"\tcancel the event",
 								"\tteleport event-projectile to block 5 above event-projectile"
 				)
-				.since("INSERT VERSION")
+				.since("2.8.0")
 				.requiredPlugins("Minecraft 1.14+ (event-projectile)");
 
 		Skript.registerEvent("Inventory Drag", SimpleEvent.class, InventoryDragEvent.class, "inventory drag[ging]")
@@ -731,6 +758,45 @@ public class SimpleEvents {
 				)
 				.since("2.7");
 
+		{
+			final Class<? extends Event> eventClass;
+			if (Skript.classExists("org.bukkit.event.block.BellRingEvent")) {
+				eventClass = org.bukkit.event.block.BellRingEvent.class;
+			} else if (Skript.classExists("io.papermc.paper.event.block.BellRingEvent")) {
+				//noinspection deprecation
+				eventClass = io.papermc.paper.event.block.BellRingEvent.class;
+			} else {
+				eventClass = null;
+			}
+
+			if (eventClass != null) {
+				Skript.registerEvent("Bell Ring", SimpleEvent.class, eventClass, "bell ring[ing]")
+						.description("Called when a bell is rung.")
+						.examples(
+							"on bell ring:",
+								"\tsend \"<gold>Ding-dong!<reset>\" to all players in radius 10 of event-block"
+						)
+						.since("INSERT VERSION")
+						.requiredPlugins("Spigot 1.19.4+ or Paper 1.16.5+ (no event-direction)");
+			}
+		}
+
+		/*
+		* Paper supported this in 1.16.5 via io.papermc.paper.event.block.BellRevealRaiderEvent.
+		* The Paper event, however, is called for each raider, while the Spigot event is called once for all raiders.
+		* Supporting both would cause confusing behaviour, with the event being triggered in different ways depending
+		* on the server software and version, so we're only supporting the Spigot event.
+		*/
+		if (Skript.classExists("org.bukkit.event.block.BellResonateEvent")) {
+			Skript.registerEvent("Bell Resonate", SimpleEvent.class, org.bukkit.event.block.BellResonateEvent.class, "bell resonat(e|ing)")
+					.description("Called when a bell resonates, highlighting nearby raiders.")
+					.examples(
+						"on bell resonate:",
+							"\tsend \"<red>Raiders are nearby!\" to all players in radius 32 around event-block"
+					)
+					.since("INSERT VERSION")
+					.requiredPlugins("Spigot 1.19.4+");
+		}
 	}
 
 }

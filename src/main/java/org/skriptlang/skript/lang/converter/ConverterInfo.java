@@ -56,7 +56,7 @@ public final class ConverterInfo<F, T> {
 
 	@Override
 	public String toString() {
-		return "ConverterInfo{from=" + from + ",to=" + to + ",converter=" + converter + ",flag=" + flags + "}";
+		return "ConverterInfo{from=" + from + ",to=" + to + ",converter=" + converter + ",flags=" + flags + "}";
 	}
 
 }

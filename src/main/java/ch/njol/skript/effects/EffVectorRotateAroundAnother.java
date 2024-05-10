@@ -33,12 +33,9 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
 import ch.njol.util.VectorMath;
 
-/**
- * @author bi0qaw
- */
 @Name("Vectors - Rotate Around Vector")
-@Description("Rotates a vector around another vector")
-@Examples({"rotate {_v} around vector 1, 0, 0 by 90"})
+@Description("Rotates one or more vectors around another vector")
+@Examples("rotate {_v} around vector 1, 0, 0 by 90")
 @Since("2.2-dev28")
 public class EffVectorRotateAroundAnother extends Effect {
 
@@ -47,7 +44,7 @@ public class EffVectorRotateAroundAnother extends Effect {
 	}
 	
 	@SuppressWarnings("null")
-	private Expression<Vector> first, second;
+	private Expression<Vector> vectors, axis;
 
 	@SuppressWarnings("null")
 	private Expression<Number> degree;
@@ -55,26 +52,26 @@ public class EffVectorRotateAroundAnother extends Effect {
 	@SuppressWarnings({"unchecked", "null"})
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean kleenean, ParseResult parseResult) {
-		first = (Expression<Vector>) exprs[0];
-		second = (Expression<Vector>) exprs[1];
+		vectors = (Expression<Vector>) exprs[0];
+		axis = (Expression<Vector>) exprs[1];
 		degree = (Expression<Number>) exprs[2];
 		return true;
 	}
 
 	@SuppressWarnings("null")
 	@Override
-	protected void execute(Event e) {
-		Vector v2 = second.getSingle(e);
-		Number d = degree.getSingle(e);
-		if (v2 == null || d == null)
+	protected void execute(Event event) {
+		Vector axis = this.axis.getSingle(event);
+		Number angle = degree.getSingle(event);
+		if (axis == null || angle == null)
 			return;
-		for (Vector v1 : first.getArray(e))
-			VectorMath.rot(v1, v2, d.doubleValue());
+		for (Vector vector : vectors.getArray(event))
+			VectorMath.rot(vector, axis, angle.doubleValue());
 	}
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
-		return "rotate " + first.toString(e, debug) + " around " + second.toString(e, debug) + " by " + degree + "degrees";
+	public String toString(@Nullable Event event, boolean debug) {
+		return "rotate " + vectors.toString(event, debug) + " around " + axis.toString(event, debug) + " by " + degree.toString(event, debug) + "degrees";
 	}
 
 }

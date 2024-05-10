@@ -26,6 +26,7 @@ import ch.njol.skript.classes.data.BukkitEventValues;
 import ch.njol.skript.classes.data.DefaultComparators;
 import ch.njol.skript.classes.data.DefaultConverters;
 import ch.njol.skript.classes.data.DefaultFunctions;
+import ch.njol.skript.classes.data.DefaultOperations;
 import ch.njol.skript.classes.data.JavaClasses;
 import ch.njol.skript.classes.data.SkriptClasses;
 import ch.njol.skript.command.Commands;
@@ -82,6 +83,7 @@ import ch.njol.util.Closeable;
 import ch.njol.util.Kleenean;
 import ch.njol.util.NullableChecker;
 import ch.njol.util.StringUtils;
+import ch.njol.util.coll.CollectionUtils;
 import ch.njol.util.coll.iterator.CheckedIterator;
 import ch.njol.util.coll.iterator.EnumerationIterable;
 import com.google.common.collect.Lists;
@@ -106,6 +108,7 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.eclipse.jdt.annotation.Nullable;
+import org.junit.After;
 import org.junit.runner.JUnitCore;
 import org.junit.runner.Result;
 import org.skriptlang.skript.lang.comparator.Comparator;
@@ -147,7 +150,6 @@ import java.util.logging.Filter;
 import java.util.logging.Level;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
@@ -534,6 +536,7 @@ public final class Skript extends JavaPlugin implements Listener {
 		new DefaultComparators();
 		new DefaultConverters();
 		new DefaultFunctions();
+		new DefaultOperations();
 		
 		ChatMessages.registerListeners();
 		
@@ -591,6 +594,8 @@ public final class Skript extends JavaPlugin implements Listener {
 					tainted = true;
 					try {
 						getAddonInstance().loadClasses("ch.njol.skript.test.runner");
+						if (TestMode.JUNIT)
+							getAddonInstance().loadClasses("org.skriptlang.skript.test.junit.registration");
 					} catch (IOException e) {
 						Skript.exception("Failed to load testing environment.");
 						Bukkit.getServer().shutdown();
@@ -684,11 +689,13 @@ public final class Skript extends JavaPlugin implements Listener {
 								TestTracker.testFailed("exception was thrown during execution");
 							}
 							if (TestMode.JUNIT) {
-								SkriptLogger.setVerbosity(Verbosity.DEBUG);
 								info("Running all JUnit tests...");
 								long milliseconds = 0, tests = 0, fails = 0, ignored = 0, size = 0;
 								try {
 									List<Class<?>> classes = Lists.newArrayList(Utils.getClasses(Skript.getInstance(), "org.skriptlang.skript.test", "tests"));
+									// Don't attempt to run inner/anonymous classes as tests
+									classes.removeIf(Class::isAnonymousClass);
+									classes.removeIf(Class::isLocalClass);
 									// Test that requires package access. This is only present when compiling with src/test.
 									classes.add(Class.forName("ch.njol.skript.variables.FlatFileStorageTest"));
 									size = classes.size();
@@ -702,6 +709,23 @@ public final class Skript extends JavaPlugin implements Listener {
 										Result junit = JUnitCore.runClasses(clazz);
 										TestTracker.testStarted("JUnit: '" + test + "'");
 
+										/**
+										 * Usage of @After is pointless if the JUnit class requires delay. As the @After will happen instantly.
+										 * The JUnit must override the 'cleanup' method to avoid Skript automatically cleaning up the test data.
+										 */
+										boolean overrides = false;
+										for (Method method : clazz.getDeclaredMethods()) {
+											if (!method.isAnnotationPresent(After.class))
+												continue;
+											if (SkriptJUnitTest.getShutdownDelay() > 1)
+												warning("Using @After in JUnit classes, happens instantaneously, and JUnit class '" + test + "' requires a delay. Do your test cleanup in the script junit file or 'cleanup' method.");
+											if (method.getName().equals("cleanup"))
+												overrides = true;
+										}
+										if (SkriptJUnitTest.getShutdownDelay() > 1 && !overrides)
+											error("The JUnit class '" + test + "' does not override the method 'cleanup' thus the test data will instantly be cleaned up. " +
+													"This JUnit test requires longer shutdown time: " + SkriptJUnitTest.getShutdownDelay());
+
 										// Collect all data from the current JUnit test.
 										shutdownDelay = Math.max(shutdownDelay, SkriptJUnitTest.getShutdownDelay());
 										tests += junit.getRunCount();
@@ -712,7 +736,7 @@ public final class Skript extends JavaPlugin implements Listener {
 										// If JUnit failures are present, add them to the TestTracker.
 										junit.getFailures().forEach(failure -> {
 											String message = failure.getMessage() == null ? "" : " " + failure.getMessage();
-											TestTracker.testFailed("'" + test + "': " + message);
+											TestTracker.JUnitTestFailed(test, message);
 											Skript.exception(failure.getException(), "JUnit test '" + failure.getTestHeader() + " failed.");
 										});
 										SkriptJUnitTest.clearJUnitTest();
@@ -734,7 +758,7 @@ public final class Skript extends JavaPlugin implements Listener {
 						// Delay server shutdown to stop the server from crashing because the current tick takes a long time due to all the tests
 						Bukkit.getScheduler().runTaskLater(Skript.this, () -> {
 							if (TestMode.JUNIT && !EffObjectives.isJUnitComplete())
-								TestTracker.testFailed(EffObjectives.getFailedObjectivesString());
+								EffObjectives.fail();
 
 							info("Collecting results to " + TestMode.RESULTS_FILE);
 							String results = new Gson().toJson(TestTracker.collectResults());
@@ -1133,7 +1157,17 @@ public final class Skript extends JavaPlugin implements Listener {
 			try {
 				// Spigot removed the mapping for this method in 1.18, so its back to obfuscated method
 				// 1.19 mapping is u and 1.18 is v
-				String isRunningMethod = Skript.isRunningMinecraft(1, 19) ? "u" : Skript.isRunningMinecraft(1, 18) ? "v" :"isRunning";
+				String isRunningMethod = "isRunning";
+
+				if (Skript.isRunningMinecraft(1, 20, 5)) {
+					isRunningMethod = "x";
+				} else if (Skript.isRunningMinecraft(1, 20)) {
+					isRunningMethod = "v";
+				} else if (Skript.isRunningMinecraft(1, 19)) {
+					isRunningMethod = "u";
+				} else if (Skript.isRunningMinecraft(1, 18)) {
+					isRunningMethod = "v";
+				}
 				IS_RUNNING = MC_SERVER.getClass().getMethod(isRunningMethod);
 			} catch (NoSuchMethodException e) {
 				throw new RuntimeException(e);
@@ -1261,7 +1295,7 @@ public final class Skript extends JavaPlugin implements Listener {
 	}
 	
 	public static void checkAcceptRegistrations() {
-		if (!isAcceptRegistrations())
+		if (!isAcceptRegistrations() && !Skript.testing())
 			throw new SkriptAPIException("Registration can only be done during plugin initialization");
 	}
 	
@@ -1436,6 +1470,7 @@ public final class Skript extends JavaPlugin implements Listener {
 	
 	// ================ EVENTS ================
 
+	private static final List<SkriptEventInfo<?>> events = new ArrayList<>(50);
 	private static final List<StructureInfo<? extends Structure>> structures = new ArrayList<>(10);
 
 	/**
@@ -1468,10 +1503,10 @@ public final class Skript extends JavaPlugin implements Listener {
 
 		String[] transformedPatterns = new String[patterns.length];
 		for (int i = 0; i < patterns.length; i++)
-			transformedPatterns[i] = "[on] " + SkriptEvent.fixPattern(patterns[i]) + SkriptEventInfo.EVENT_PRIORITY_SYNTAX;
+			transformedPatterns[i] = SkriptEvent.fixPattern(patterns[i]);
 
 		SkriptEventInfo<E> r = new SkriptEventInfo<>(name, transformedPatterns, c, originClassPath, events);
-		structures.add(r);
+		Skript.events.add(r);
 		return r;
 	}
 
@@ -1482,6 +1517,13 @@ public final class Skript extends JavaPlugin implements Listener {
 		structures.add(structureInfo);
 	}
 
+	public static <E extends Structure> void registerSimpleStructure(Class<E> c, String... patterns) {
+		checkAcceptRegistrations();
+		String originClassPath = Thread.currentThread().getStackTrace()[2].getClassName();
+		StructureInfo<E> structureInfo = new StructureInfo<>(patterns, c, originClassPath, true);
+		structures.add(structureInfo);
+	}
+
 	public static <E extends Structure> void registerStructure(Class<E> c, EntryValidator entryValidator, String... patterns) {
 		checkAcceptRegistrations();
 		String originClassPath = Thread.currentThread().getStackTrace()[2].getClassName();
@@ -1489,14 +1531,8 @@ public final class Skript extends JavaPlugin implements Listener {
 		structures.add(structureInfo);
 	}
 
-	/**
-	 * Modifications made to the returned Collection will not be reflected in the events available for parsing.
-	 */
 	public static Collection<SkriptEventInfo<?>> getEvents() {
-		// Only used in documentation generation, so generating a new list each time is fine
-		return (Collection<SkriptEventInfo<?>>) (Collection<?>) structures.stream()
-			.filter(info -> info instanceof SkriptEventInfo)
-			.collect(Collectors.toList());
+		return events;
 	}
 
 	public static List<StructureInfo<? extends Structure>> getStructures() {

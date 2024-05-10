@@ -95,6 +95,10 @@ enchantments:
 		soul_speed: Soul Speed
 		# new 1.19 Enchantment
 		swift_sneak: Swift Sneak
+		# new 1.21 Enchantments (added in 1.20.5 experimental)
+		density: Density
+		breach: Breach
+		wind_burst: Wind Burst
 
 # -- Potion Effects --
 potions:
@@ -137,6 +141,14 @@ potions:
 
 	# 1.19 potion effect types
 	darkness: darkness
+
+	# 1.21 potion effect types (added in 1.20.5 experimental)
+	wind_charged: wind charged
+	raid_omen: bad omen, raid omen
+	infested: infested
+	weaving: weaving
+	trial_omen: trial omen
+	oozing: oozing
 
 # -- Weather --
 weather:
@@ -520,10 +532,10 @@ entities:
 		pattern: creeper(|1¦s)
 	unpowered creeper:
 		name: unpowered creeper¦s @an
-		pattern: unpowered creeper(|1¦s)
+		pattern: un(powered|charged) creeper(|1¦s)
 	powered creeper:
 		name: powered creeper¦s
-		pattern: powered creeper(|1¦s)
+		pattern: (powered|charged) creeper(|1¦s)
 	egg:
 		name: egg¦s @an
 		pattern: egg(|1¦s)
@@ -644,13 +656,13 @@ entities:
 		pattern: command [mine]cart(|1¦s)|[mine]cart(|1¦s) with command block[s]
 	mooshroom:
 		name: mooshroom¦s
-		pattern: <age> mooshroom(|1¦s)
+		pattern: <age> (mooshroom[ cow]|mushroom cow)(|1¦s)
 	red mooshroom:
 		name: red mooshroom¦s
-		pattern: <age> red mooshroom(|1¦s)|(4¦)mooshroom (kid(|1¦s)|child(|1¦ren))
+		pattern: <age> red (mooshroom[ cow]|mushroom cow)(|1¦s)|(4¦)mooshroom (kid(|1¦s)|child(|1¦ren))
 	brown mooshroom:
 		name: brown mooshroom¦s
-		pattern: <age> brown mooshroom(|1¦s)|(4¦)mooshroom (kid(|1¦s)|child(|1¦ren))
+		pattern: <age> brown (mooshroom[ cow]|mushroom cow)(|1¦s)|(4¦)mooshroom (kid(|1¦s)|child(|1¦ren))
 	ocelot:
 		name: ocelot¦s @an
 		pattern: <age> ocelot(|1¦s)
@@ -1241,6 +1253,20 @@ entities:
 	text display:
 		name: text display¦s
 		pattern: text display(|1¦s)
+	# 1.20.3 Entities
+	breeze:
+		name: breeze¦s
+		pattern: breeze(|1¦s)
+	wind charge:
+		name: wind charge¦s
+		pattern: wind charge(|1¦s)
+	# 1.20.5 Entities
+	armadillo:
+		name: armadillo¦s @an
+		pattern: <age> armadillo(|1¦s)|(4¦)armadillo (kid(|1¦s)|child(|1¦ren))
+	bogged:
+		name: bogged
+		pattern: bogged
 
 # -- Heal Reasons --
 heal reasons:
@@ -1819,6 +1845,8 @@ inventory types:
 	smithing: smithing inventory @a
 	composter: composter inventory @a
 	chiseled_bookshelf: chiseled bookshelf @a, bookshelf @a
+	decorated_pot: decorated pot @a
+	crafter: crafter inventory @a
 
 	jukebox: jukebox @a
 	# The smithing new table is required for Skript to work, but this is a draft API for 1.20
@@ -1888,6 +1916,10 @@ resource pack states:
 	declined: decline, refuse, reject, declined, refused, rejected
 	failed_download: download fail, fail, failed to download, failed
 	successfully_loaded: successfully load, successfully install, success, successfully loaded, successfully installed
+	downloaded: downloaded
+	invalid_url: invalid url
+	failed_reload: failed reload, failed to reload
+	discarded: discarded
 
 # -- Sound Categories --
 sound categories:
@@ -1921,11 +1953,21 @@ attribute types:
 	generic_attack_speed: generic attack speed, attack speed
 	generic_flying_speed: generic flying speed, flying speed
 	generic_follow_range: generic follow range, follow range
+	generic_gravity: generic gravity, gravity
+	generic_jump_strength: generic jump strength, jump strength
 	generic_knockback_resistance: generic knockback resistance, knockback resistance
 	generic_luck: generic luck, luck
+	generic_max_absorption: generic max absorption, max absorption
 	generic_max_health: generic max health, max health
 	generic_movement_speed: generic movement speed, movement speed
+	generic_safe_fall_distance: generic safe fall distance, safe fall distance
+	generic_fall_damage_multiplier: generic fall damage multiplier, fall damage multiplier
+	generic_scale: generic scale, scale
+	generic_step_height: generic step height, step height
 	horse_jump_strength: horse jump strength
+	player_block_break_speed: player block break speed, block break speed
+	player_block_interaction_range: player block interaction range, block interaction range
+	player_entity_interaction_range: player entity interaction range, entity interaction range
 	zombie_spawn_reinforcements: zombie spawn reinforcements
 
 # -- Environments --
@@ -1953,6 +1995,19 @@ quit reasons:
 	kicked: kicked
 	timed_out: timed out
 
+# -- Transform Reasons --
+transform reasons:
+	cured: zombie cure, zombie curing, curing
+	drowned: entity drowning, drowning, zombie converting to drowned, zombie drowning
+	frozen: entity freezing, entity freeze, skeleton freezing, skeleton freeze, skeleton converting to stray
+	lightning: lightning, creeper super charge
+	metamorphosis: tadpole converting, tadpole converting to frog, tadpole metamorphosis, metamorphosis
+	piglin_zombified: piglin zombification
+	sheared: mooshroom shear, mooshroom shearing
+	split: slime split, slime splitting, split, magma slime split, magma slime splitting
+	unknown: unknown
+	infection: infection, villager infection
+
 # -- Boolean --
 boolean:
 	true:
@@ -1961,6 +2016,14 @@ boolean:
 	false:
 		name: false
 		pattern: (false|no|off)
+
+# -- Operators --
+operators:
+	add: addition
+	subtract: subtraction
+	multiply: multiplication
+	divide: division
+	exponentiate: exponentiation
 
 # -- Types --
 types:
@@ -2023,6 +2086,7 @@ types:
 	gamerulevalue: gamerule value¦s @a
 	quitreason: quit reason¦s @a
 	inventoryclosereason: inventory close reason¦s @an
+	transformreason: transform reason¦s @a
 
 	# Skript
 	weathertype: weather type¦s @a

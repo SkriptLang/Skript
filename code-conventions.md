@@ -127,9 +127,11 @@ If we need to remove or alter contributed code due to a licensing issue we will 
   - Static constant fields should be named in `UPPER_SNAKE_CASE`
 * Localised messages should be named in `lower_snake_case`
   - And that is the only place where snake_case is acceptable
-* Use prefixes only where their use has been already estabilished (such as `ExprSomeRandomThing`)
+* Use prefixes only where their use has been already established (such as `ExprSomeRandomThing`)
   - Otherwise, use postfixes where necessary
   - Common occurrences include: Struct (Structure), Sec (Section), EffSec (EffectSection), Eff (Effect), Cond (Condition), Expr (Expression)
+* Ensure variable/field names are descriptive. Avoid using shorthand names like `e`, or `c`.
+  - e.g. Event should be `event`, not `e`. `e` is ambiguous and could mean a number of things.
   
 ### Comments
 * Prefer to comment *why* you're doing things instead of how you're doing them
@@ -161,9 +163,9 @@ Your comments should look something like these:
 ## Language Features
 
 ### Compatibility
-* Contributions should maintain Java 8 source/binary compatibility, even though compiling Skript requires Java 17
+* Contributions should maintain Java 8 source/binary compatibility, even though compiling Skript requires Java 21
   - Users must not need JRE newer than version 8
-* Versions up to and including Java 17 should work too
+* Versions up to and including Java 21 should work too
   - Please avoid using unsafe reflection
 * It is recommended to make fields final, if they are effectively final
 * Local variables and method parameters should not be declared final

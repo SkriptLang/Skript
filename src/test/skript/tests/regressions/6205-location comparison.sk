@@ -1,0 +1,9 @@
+test "compare similar locations":
+	set {_world} to world "world"
+	assert location(1, 2, 3, {_world}, 4, 5) = location(1, 2, 3, {_world}, 4, 5) with "basic location comparison failed"
+
+	assert location(1, 2, 3, {_world}, 270, 0) = location(1, 2, 3, {_world}, -90, 0) with "yaw normalization failed when comparing locations"
+	assert location(1, 2, 3, {_world}, 0, 270) = location(1, 2, 3, {_world}, 0, 90) with "pitch normalization failed when comparing locations"
+	assert location(1, 2, 3, {_world}, 270, 270) = location(1, 2, 3, {_world}, -90, 90) with "yaw and pitch normalization failed when comparing locations"
+
+	assert location(1, (-1/infinity value), 3, {_world}, (-1/infinity value), (-1/infinity value)) = location(1, 0, 3, {_world}, 0, 0) with "0 and -0.0 are not equal when comparing locations"

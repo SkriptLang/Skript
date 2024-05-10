@@ -27,15 +27,15 @@ import java.util.List;
 import java.util.function.Function;
 
 public class Trigger extends TriggerSection {
-	
+
 	private final String name;
 	private final SkriptEvent event;
-	
+
 	@Nullable
 	private final Script script;
 	private int line = -1; // -1 is default: it means there is no line number available
 	private String debugLabel;
-	
+
 	public Trigger(@Nullable Script script, String name, SkriptEvent event, List<TriggerItem> items) {
 		this(script, name, event, trigger -> items);
 	}
@@ -73,25 +73,25 @@ public class Trigger extends TriggerSection {
 
 		return success;
 	}
-	
+
 	@Override
 	@Nullable
-	protected TriggerItem walk(final Event e) {
-		return walk(e, true);
+	protected TriggerItem walk(Event event) {
+		return walk(event, true);
 	}
-	
+
 	@Override
-	public String toString(final @Nullable Event e, final boolean debug) {
-		return name + " (" + event.toString(e, debug) + ")";
+	public String toString(@Nullable Event event, boolean debug) {
+		return name + " (" + this.event.toString(event, debug) + ")";
 	}
-	
+
 	/**
 	 * @return The name of this trigger.
 	 */
 	public String getName() {
 		return name;
 	}
-	
+
 	public SkriptEvent getEvent() {
 		return event;
 	}
@@ -112,20 +112,20 @@ public class Trigger extends TriggerSection {
 	public void setLineNumber(int line) {
 		this.line  = line;
 	}
-	
+
 	/**
 	 * @return The line number where this trigger starts. This should ONLY be used for debugging!
 	 */
 	public int getLineNumber() {
 		return line;
 	}
-	
+
 	public void setDebugLabel(String label) {
 		this.debugLabel = label;
 	}
-	
+
 	public String getDebugLabel() {
 		return debugLabel;
 	}
-	
+
 }

@@ -18,6 +18,9 @@
  */
 package ch.njol.skript.classes.data;
 
+import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.MethodType;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -37,12 +40,14 @@ import ch.njol.skript.util.DelayedChangeBlock;
 import ch.njol.skript.util.Direction;
 import ch.njol.skript.util.EnchantmentType;
 import ch.njol.skript.util.Getter;
+import ch.njol.skript.util.Timespan;
 import ch.njol.skript.util.slot.InventorySlot;
 import ch.njol.skript.util.slot.Slot;
 import com.destroystokyo.paper.event.block.AnvilDamagedEvent;
 import com.destroystokyo.paper.event.entity.ProjectileCollideEvent;
 import com.destroystokyo.paper.event.player.PlayerArmorChangeEvent;
 import io.papermc.paper.event.entity.EntityMoveEvent;
+import io.papermc.paper.event.player.PlayerStopUsingItemEvent;
 import io.papermc.paper.event.player.PlayerInventorySlotChangeEvent;
 import io.papermc.paper.event.player.PlayerStonecutterRecipeSelectEvent;
 import io.papermc.paper.event.player.PlayerTradeEvent;
@@ -60,6 +65,7 @@ import org.bukkit.block.BlockState;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.AbstractVillager;
+import org.bukkit.entity.AreaEffectCloud;
 import org.bukkit.entity.Egg;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Firework;
@@ -82,6 +88,8 @@ import org.bukkit.event.block.BlockGrowEvent;
 import org.bukkit.event.block.BlockIgniteEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.block.SignChangeEvent;
+import org.bukkit.event.block.BellRingEvent;
+import org.bukkit.event.block.BellResonateEvent;
 import org.bukkit.event.enchantment.EnchantItemEvent;
 import org.bukkit.event.enchantment.PrepareItemEnchantEvent;
 import org.bukkit.event.entity.AreaEffectCloudApplyEvent;
@@ -96,6 +104,8 @@ import org.bukkit.event.entity.EntityEvent;
 import org.bukkit.event.entity.EntityPickupItemEvent;
 import org.bukkit.event.entity.EntityResurrectEvent;
 import org.bukkit.event.entity.EntityTameEvent;
+import org.bukkit.event.entity.EntityTransformEvent;
+import org.bukkit.event.entity.EntityTransformEvent.TransformReason;
 import org.bukkit.event.entity.FireworkExplodeEvent;
 import org.bukkit.event.entity.HorseJumpEvent;
 import org.bukkit.event.entity.ItemDespawnEvent;
@@ -114,6 +124,7 @@ import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
+import org.bukkit.event.inventory.InventoryMoveItemEvent;
 import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.event.inventory.InventoryPickupItemEvent;
 import org.bukkit.event.inventory.PrepareAnvilEvent;
@@ -164,7 +175,9 @@ import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.Recipe;
+import org.bukkit.potion.PotionData;
 import org.bukkit.potion.PotionEffectType;
+import org.bukkit.potion.PotionType;
 import org.eclipse.jdt.annotation.Nullable;
 
 /**
@@ -650,10 +663,36 @@ public final class BukkitEventValues {
 			}
 		}, EventValues.TIME_NOW);
 		EventValues.registerEventValue(AreaEffectCloudApplyEvent.class, PotionEffectType.class, new Getter<PotionEffectType, AreaEffectCloudApplyEvent>() {
+			@Nullable
+			private final MethodHandle BASE_POTION_DATA_HANDLE;
+
+			{
+				MethodHandle basePotionDataHandle = null;
+				if (Skript.methodExists(AreaEffectCloud.class, "getBasePotionData")) {
+					try {
+						basePotionDataHandle = MethodHandles.lookup().findVirtual(AreaEffectCloud.class, "getBasePotionData", MethodType.methodType(PotionData.class));
+					} catch (NoSuchMethodException | IllegalAccessException e) {
+						Skript.exception(e, "Failed to load legacy potion data support. Potions may not work as expected.");
+					}
+				}
+				BASE_POTION_DATA_HANDLE = basePotionDataHandle;
+			}
+
 			@Override
 			@Nullable
 			public PotionEffectType get(AreaEffectCloudApplyEvent e) {
-				return e.getEntity().getBasePotionData().getType().getEffectType(); // Whoops this is a bit long call...
+				if (BASE_POTION_DATA_HANDLE != null) {
+					try {
+						return ((PotionData) BASE_POTION_DATA_HANDLE.invoke(e.getEntity())).getType().getEffectType();
+					} catch (Throwable ex) {
+						throw Skript.exception(ex, "An error occurred while trying to invoke legacy area effect cloud potion effect support.");
+					}
+				} else {
+					PotionType base = e.getEntity().getBasePotionType();
+					if (base != null) // TODO this is deprecated... this should become a multi-value event value
+						return base.getEffectType();
+				}
+				return null;
 			}
 		}, 0);
 		// ItemSpawnEvent
@@ -708,14 +747,14 @@ public final class BukkitEventValues {
 			@Override
 			@Nullable
 			public Block get(final PlayerBucketFillEvent e) {
-				return e.getBlockClicked().getRelative(e.getBlockFace());
+				return e.getBlockClicked();
 			}
 		}, 0);
 		EventValues.registerEventValue(PlayerBucketFillEvent.class, Block.class, new Getter<Block, PlayerBucketFillEvent>() {
 			@Override
 			@Nullable
 			public Block get(final PlayerBucketFillEvent e) {
-				final BlockState s = e.getBlockClicked().getRelative(e.getBlockFace()).getState();
+				final BlockState s = e.getBlockClicked().getState();
 				s.setType(Material.AIR);
 				s.setRawData((byte) 0);
 				return new BlockStateBlock(s, true);
@@ -875,6 +914,30 @@ public final class BukkitEventValues {
 			@Override
 			public Block get(PlayerMoveEvent event) {
 				return event.getTo().clone().subtract(0, 0.5, 0).getBlock();
+			}
+		}, EventValues.TIME_NOW);
+		EventValues.registerEventValue(PlayerMoveEvent.class, Location.class, new Getter<Location, PlayerMoveEvent>() {
+			@Override
+			public Location get(PlayerMoveEvent event) {
+				return event.getFrom();
+			}
+		}, EventValues.TIME_PAST);
+		EventValues.registerEventValue(PlayerMoveEvent.class, Location.class, new Getter<Location, PlayerMoveEvent>() {
+			@Override
+			public Location get(PlayerMoveEvent event) {
+				return event.getTo();
+			}
+		}, EventValues.TIME_NOW);
+		EventValues.registerEventValue(PlayerMoveEvent.class, Chunk.class, new Getter<Chunk, PlayerMoveEvent>() {
+			@Override
+			public Chunk get(PlayerMoveEvent event) {
+				return event.getFrom().getChunk();
+			}
+		}, EventValues.TIME_PAST);
+		EventValues.registerEventValue(PlayerMoveEvent.class, Chunk.class, new Getter<Chunk, PlayerMoveEvent>() {
+			@Override
+			public Chunk get(PlayerMoveEvent event) {
+				return event.getTo().getChunk();
 			}
 		}, EventValues.TIME_NOW);
 		// PlayerItemDamageEvent
@@ -1094,6 +1157,8 @@ public final class BukkitEventValues {
 			@Nullable
 			public Slot get(final InventoryClickEvent e) {
 				Inventory invi = e.getClickedInventory(); // getInventory is WRONG and dangerous
+				if (invi == null)
+					return null;
 				int slotIndex = e.getSlot();
 
 				// Not all indices point to inventory slots. Equipment, for example
@@ -1464,21 +1529,6 @@ public final class BukkitEventValues {
 				return e.getCause();
 			}
 		}, 0);
-		//PlayerMoveEvent
-		EventValues.registerEventValue(PlayerMoveEvent.class, Location.class, new Getter<Location, PlayerMoveEvent>() {
-			@Override
-			@Nullable
-			public Location get(PlayerMoveEvent e) {
-				return e.getFrom();
-			}
-		}, EventValues.TIME_PAST);
-		EventValues.registerEventValue(PlayerMoveEvent.class, Location.class, new Getter<Location, PlayerMoveEvent>() {
-			@Override
-			@Nullable
-			public Location get(PlayerMoveEvent e) {
-				return e.getTo();
-			}
-		}, EventValues.TIME_NOW);
 		//EntityMoveEvent
 		if (Skript.classExists("io.papermc.paper.event.entity.EntityMoveEvent")) {
 			EventValues.registerEventValue(EntityMoveEvent.class, Location.class, new Getter<Location, EntityMoveEvent>() {
@@ -1666,6 +1716,22 @@ public final class BukkitEventValues {
 			}
 		}, EventValues.TIME_NOW);
 
+		// PlayerStopUsingItemEvent
+		if (Skript.classExists("io.papermc.paper.event.player.PlayerStopUsingItemEvent")) {
+			EventValues.registerEventValue(PlayerStopUsingItemEvent.class, Timespan.class, new Getter<Timespan, PlayerStopUsingItemEvent>() {
+				@Override
+				public Timespan get(PlayerStopUsingItemEvent event) {
+					return Timespan.fromTicks(event.getTicksHeldFor());
+				}
+			}, EventValues.TIME_NOW);
+			EventValues.registerEventValue(PlayerStopUsingItemEvent.class, ItemType.class, new Getter<ItemType, PlayerStopUsingItemEvent>() {
+				@Override
+				public ItemType get(PlayerStopUsingItemEvent event) {
+					return new ItemType(event.getItem());
+				}
+			}, EventValues.TIME_NOW);
+		}
+
 		// LootGenerateEvent
 		if (Skript.classExists("org.bukkit.event.world.LootGenerateEvent")) {
 			EventValues.registerEventValue(LootGenerateEvent.class, Entity.class, new Getter<Entity, LootGenerateEvent>() {
@@ -1753,6 +1819,90 @@ public final class BukkitEventValues {
 				}
 			}, EventValues.TIME_NOW);
 
-	}
+		// EntityTransformEvent
+		EventValues.registerEventValue(EntityTransformEvent.class, Entity[].class, new Getter<Entity[], EntityTransformEvent>() {
+			@Override
+			@Nullable
+			public Entity[] get(EntityTransformEvent event) {
+				return event.getTransformedEntities().stream().toArray(Entity[]::new);
+			}
+		}, EventValues.TIME_NOW);
+		EventValues.registerEventValue(EntityTransformEvent.class, TransformReason.class, new Getter<TransformReason, EntityTransformEvent>() {
+			@Override
+			@Nullable
+			public TransformReason get(EntityTransformEvent event) {
+				return event.getTransformReason();
+			}
+		}, EventValues.TIME_NOW);
 
+		// BellRingEvent - these are BlockEvents and not EntityEvents, so they have declared methods for getEntity()
+		if (Skript.classExists("org.bukkit.event.block.BellRingEvent")) {
+			EventValues.registerEventValue(BellRingEvent.class, Entity.class, new Getter<Entity, BellRingEvent>() {
+                @Override
+                @Nullable
+                public Entity get(BellRingEvent event) {
+                    return event.getEntity();
+                }
+            }, EventValues.TIME_NOW);
+
+			EventValues.registerEventValue(BellRingEvent.class, Direction.class, new Getter<Direction, BellRingEvent>() {
+                @Override
+                public Direction get(BellRingEvent event) {
+                    return new Direction(event.getDirection(), 1);
+                }
+            }, EventValues.TIME_NOW);
+		} else if (Skript.classExists("io.papermc.paper.event.block.BellRingEvent")) {
+			EventValues.registerEventValue(
+				io.papermc.paper.event.block.BellRingEvent.class, Entity.class,
+				new Getter<Entity, io.papermc.paper.event.block.BellRingEvent>() {
+					@Override
+					@Nullable
+					public Entity get(io.papermc.paper.event.block.BellRingEvent event) {
+						return event.getEntity();
+					}
+				}, EventValues.TIME_NOW);
+		}
+
+		if (Skript.classExists("org.bukkit.event.block.BellResonateEvent")) {
+			EventValues.registerEventValue(BellResonateEvent.class, Entity[].class, new Getter<Entity[], BellResonateEvent>() {
+				@Override
+				@Nullable
+				public Entity[] get(BellResonateEvent event) {
+					return event.getResonatedEntities().toArray(new LivingEntity[0]);
+				}
+			}, EventValues.TIME_NOW);
+		}
+    
+		// InventoryMoveItemEvent
+		EventValues.registerEventValue(InventoryMoveItemEvent.class, Inventory.class, new Getter<Inventory, InventoryMoveItemEvent>() {
+			@Override
+			public Inventory get(InventoryMoveItemEvent event) {
+				return event.getSource();
+			}
+		}, EventValues.TIME_NOW);
+		EventValues.registerEventValue(InventoryMoveItemEvent.class, Inventory.class, new Getter<Inventory, InventoryMoveItemEvent>() {
+			@Override
+			public Inventory get(InventoryMoveItemEvent event) {
+				return event.getDestination();
+			}
+		}, EventValues.TIME_FUTURE);
+		EventValues.registerEventValue(InventoryMoveItemEvent.class, Block.class, new Getter<Block, InventoryMoveItemEvent>() {
+			@Override
+			public Block get(InventoryMoveItemEvent event) {
+				return event.getSource().getLocation().getBlock();
+			}
+		}, EventValues.TIME_NOW);
+		EventValues.registerEventValue(InventoryMoveItemEvent.class, Block.class, new Getter<Block, InventoryMoveItemEvent>() {
+			@Override
+			public Block get(InventoryMoveItemEvent event) {
+				return event.getDestination().getLocation().getBlock();
+			}
+		}, EventValues.TIME_FUTURE);
+		EventValues.registerEventValue(InventoryMoveItemEvent.class, ItemStack.class, new Getter<ItemStack, InventoryMoveItemEvent>() {
+			@Override
+			public ItemStack get(InventoryMoveItemEvent event) {
+				return event.getItem();
+			}
+		}, EventValues.TIME_NOW);
+	}
 }

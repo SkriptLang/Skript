@@ -40,7 +40,7 @@ import org.eclipse.jdt.annotation.Nullable;
 	"set {_result::*} to 10% of {_numbers::*}",
 	"set experience to 50% of player's total experience"
 })
-@Since("INSERT VERSION")
+@Since("2.8.0")
 public class ExprPercent extends SimpleExpression<Number> {
 
 	static {

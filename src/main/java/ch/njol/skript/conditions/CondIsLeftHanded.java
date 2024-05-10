@@ -43,7 +43,7 @@ import org.bukkit.inventory.MainHand;
 		"\tif victim is left handed:",
 			"\t\tcancel event"
 })
-@Since("INSERT VERSION")
+@Since("2.8.0")
 @RequiredPlugins("Paper 1.17.1+ (entities)")
 public class CondIsLeftHanded extends PropertyCondition<LivingEntity> {
 
