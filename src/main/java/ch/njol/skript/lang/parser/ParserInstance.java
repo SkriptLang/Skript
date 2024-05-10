@@ -398,17 +398,19 @@ public final class ParserInstance {
 	 * <br>
 	 * <b>Note: After the trigger finished loading, {@link ParserInstance#popReturnData()} <u>MUST</u> be called</b>
 	 * @param data the return data
+	 * @see ParserInstance#popReturnData()   
 	 */
 	public void pushReturnData(ReturnData data) {
 		returnStack.push(data);
 	}
 
 	/**
-	 * Pops the current trigger off the return queue. Should be called after the trigger has finished loading.
+	 * Pops the current trigger off the return stack. Should be called after the trigger has finished loading.
+	 * @return the popped return data
 	 * @see ParserInstance#pushReturnData(ReturnData)
 	 */
-	public void popReturnData() {
-		returnStack.pop();
+	public ReturnData popReturnData() {
+		return returnStack.pop();
 	}
 
 	// Miscellaneous

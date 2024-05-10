@@ -18,7 +18,9 @@
  */
 package ch.njol.skript.lang.function;
 
+import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.lang.parser.ParserInstance;
+import org.jetbrains.annotations.ApiStatus;
 import org.skriptlang.skript.lang.script.Script;
 import org.eclipse.jdt.annotation.Nullable;
 
@@ -29,9 +31,6 @@ import ch.njol.skript.lang.Trigger;
 import ch.njol.skript.lang.util.SimpleEvent;
 import ch.njol.skript.variables.Variables;
 
-/**
- * @author Peter Güttinger
- */
 public class ScriptFunction<T> extends Function<T> {
 	
 	private final Trigger trigger;
@@ -58,20 +57,10 @@ public class ScriptFunction<T> extends Function<T> {
 		trigger.setLineNumber(node.getLine());
 	}
 	
-	/**
-	 * Should only be called by {@link EffReturn}.
-	 * @deprecated Use {@link ch.njol.skript.lang.TriggerSection#setReturnValue(Object[])}
-	 */
-	@Deprecated
-	public final void setReturnValue(final @Nullable T[] value) {
-		trigger.setReturnValue(value);
-	}
-	
 	// REMIND track possible types of local variables (including undefined variables) (consider functions, commands, and EffChange) - maybe make a general interface for this purpose
 	// REM: use patterns, e.g. {_a%b%} is like "a.*", and thus subsequent {_axyz} may be set and of that type.
 	@Override
-	@Nullable
-	public T[] execute(final FunctionEvent<?> e, final Object[][] params) {
+	public T @Nullable [] execute(final FunctionEvent<?> e, final Object[][] params) {
 		Parameter<?>[] parameters = getSignature().getParameters();
 		for (int i = 0; i < parameters.length; i++) {
 			Parameter<?> p = parameters[i];
@@ -86,12 +75,23 @@ public class ScriptFunction<T> extends Function<T> {
 		}
 		
 		trigger.execute(e);
-		return getReturnType() == null ? null : trigger.getReturnValue(getReturnType().getC());
+		ClassInfo<T> returnType = getReturnType();
+		return returnType != null ? trigger.getReturnValues(returnType.getC()) : null;
+	}
+
+	/**
+	 * Should only be called by {@link EffReturn}.
+	 * @deprecated Use {@link ch.njol.skript.lang.TriggerSection#setReturnValues(Object[])}
+	 */
+	@Deprecated
+	@ApiStatus.Internal
+	public final void setReturnValue(final @Nullable T[] value) {
+		trigger.setReturnValues(value);
 	}
 
 	@Override
 	public boolean resetReturnValue() {
-		trigger.resetReturnValue();
+		trigger.resetReturnValues();
 		return true;
 	}
 

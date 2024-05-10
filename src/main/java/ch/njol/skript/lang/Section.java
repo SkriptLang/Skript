@@ -139,7 +139,7 @@ public abstract class Section extends TriggerSection implements SyntaxElement {
 		Structure previousStructure = parser.getCurrentStructure();
 		List<TriggerSection> previousSections = parser.getCurrentSections();
 		Kleenean previousDelay = parser.getHasDelayBefore();
-		Deque<ReturnData> previousReturnQueue = parser.getReturnStack();
+		Deque<ReturnData> previousReturnStack = parser.getReturnStack();
 
 		parser.setCurrentEvent(name, events);
 		SkriptEvent skriptEvent = new SectionSkriptEvent(name, this);
@@ -157,7 +157,7 @@ public abstract class Section extends TriggerSection implements SyntaxElement {
 		parser.setCurrentStructure(previousStructure);
 		parser.setCurrentSections(previousSections);
 		parser.setHasDelayBefore(previousDelay);
-		parser.setReturnStack(previousReturnQueue);
+		parser.setReturnStack(previousReturnStack);
 
 		return new Trigger(parser.getCurrentScript(), name, skriptEvent, triggerItems);
 	}
@@ -181,7 +181,7 @@ public abstract class Section extends TriggerSection implements SyntaxElement {
 	/**
 	 * Loads the code using {@link Section#loadCode(SectionNode)}.
 	 * <br>
-	 * This method also pushes the current trigger into the return stack,
+	 * This method also pushes the current trigger onto the return stack,
 	 * and pops it once it's done loading.
 	 * @see ParserInstance#getReturnStack()
 	 * @see ParserInstance#pushReturnData(ReturnData)
@@ -189,6 +189,23 @@ public abstract class Section extends TriggerSection implements SyntaxElement {
 	protected void loadReturnableCode(SectionNode sectionNode, @Nullable ClassInfo<?> returnType, boolean single) {
 		try {
 			getParser().pushReturnData(new ReturnData(this, returnType, single));
+			loadCode(sectionNode);
+		} finally {
+			getParser().popReturnData();
+		}
+	}
+
+	/**
+	 * Loads the code using {@link Section#loadCode(SectionNode)}.
+	 * <br>
+	 * This method also pushes the current trigger onto the return stack,
+	 * and pops it once it's done loading.
+	 * @see ParserInstance#getReturnStack()
+	 * @see ParserInstance#pushReturnData(ReturnData)
+	 */
+	protected void loadReturnableCode(SectionNode sectionNode, ReturnData data) {
+		try {
+			getParser().pushReturnData(data);
 			loadCode(sectionNode);
 		} finally {
 			getParser().popReturnData();

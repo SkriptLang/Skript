@@ -104,7 +104,7 @@ public class EffReturn extends Effect {
 	@Nullable
 	protected TriggerItem walk(Event event) {
 		debug(event, false);
-		section.setReturnValue(value.getArray(event));
+		section.setReturnValues(value.getArray(event));
 
 		TriggerSection parent = getParent();
 		while (parent != null && parent != section) {
@@ -130,6 +130,9 @@ public class EffReturn extends Effect {
 		return "return " + value.toString(event, debug);
 	}
 
+	/**
+	 * Used to define the return data of a trigger.
+	 */
 	public static class ReturnData {
 
 		private final TriggerSection section;

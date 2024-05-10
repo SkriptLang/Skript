@@ -21,10 +21,9 @@ package ch.njol.skript.lang;
 import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.lang.parser.ParserInstance;
-import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
-import org.jetbrains.annotations.ApiStatus;
+import org.skriptlang.skript.lang.converter.Converters;
 
 import java.util.List;
 
@@ -36,7 +35,7 @@ public abstract class TriggerSection extends TriggerItem {
 	@Nullable
 	protected TriggerItem first, last;
 
-	private boolean returnValueSet = false;
+	private boolean returnValueSet;
 	private Object @Nullable [] returnValue;
 
 	/**
@@ -96,25 +95,26 @@ public abstract class TriggerSection extends TriggerItem {
 		return this;
 	}
 
-	public Object @Nullable [] getReturnValue() {
+	public Object @Nullable [] getReturnValues() {
 		return returnValue;
 	}
 
-	public <T> T @Nullable [] getReturnValue(Class<T> expectedType) {
-		return CollectionUtils.arrayType(expectedType).cast(getReturnValue());
+	/**
+	 * Returns the return values of the trigger execution, converting them to the specified type.
+	 * @param expectedType the type to convert to.
+	 * @return the return values. May be null if no return values were provided.
+	 */
+	public <T> T @Nullable [] getReturnValues(Class<T> expectedType) {
+		return Converters.convert(getReturnValues(), expectedType);
 	}
 
-	/**
-	 * Should only be called by {@link ch.njol.skript.effects.EffReturn}.
-	 */
-	@ApiStatus.Internal
-	public final void setReturnValue(Object @Nullable [] returnValue) {
+	public final void setReturnValues(Object @Nullable [] returnValue) {
 		assert !returnValueSet;
 		returnValueSet = true;
 		this.returnValue = returnValue;
 	}
 
-	public final void resetReturnValue() {
+	public final void resetReturnValues() {
 		returnValueSet = false;
 		returnValue = null;
 	}

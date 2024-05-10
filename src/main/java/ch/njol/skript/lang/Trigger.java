@@ -40,12 +40,12 @@ public class Trigger extends TriggerSection {
 		this(script, name, event, trigger -> items);
 	}
 
-	public Trigger(@Nullable Script script, String name, SkriptEvent event, Function<Trigger, List<TriggerItem>> function) {
+	public Trigger(@Nullable Script script, String name, SkriptEvent event, Function<Trigger, List<TriggerItem>> loadItems) {
 		this.script = script;
 		this.name = name;
 		this.event = event;
 		this.debugLabel = "unknown trigger";
-		setTriggerItems(function.apply(this));
+		setTriggerItems(loadItems.apply(this));
 	}
 
 	/**
