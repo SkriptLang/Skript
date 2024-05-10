@@ -26,7 +26,9 @@ import java.io.PrintWriter;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 
+import ch.njol.skript.log.RedirectingLogHandler;
 import org.skriptlang.skript.lang.script.Script;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
@@ -144,10 +146,10 @@ public class EffLog extends Effect {
 				}
 				switch (logLevel.intValue()) {
 					case WARNING_LOG:
-						Skript.warning("[" + scriptName + "] " + messages);
+						Skript.getInstance().getLogger().log(Level.WARNING, "[" + scriptName + "] " + messages);
 						break;
 					case SEVERE_LOG:
-						Skript.error("[" + scriptName + "] " + messages);
+						Skript.getInstance().getLogger().log(Level.SEVERE, "[" + scriptName + "] " + messages);
 						break;
 					default:
 						Skript.info("[" + scriptName + "] " + messages);
