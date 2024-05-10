@@ -107,12 +107,15 @@ public class EffReturn extends Effect {
 		section.setReturnValue(value.getArray(event));
 
 		TriggerSection parent = getParent();
-		while (parent != null) {
+		while (parent != null && parent != section) {
 			if (parent instanceof SectionExitHandler)
 				((SectionExitHandler) parent).exit(event);
 
 			parent = parent.getParent();
 		}
+
+		if (section instanceof SectionExitHandler)
+			((SectionExitHandler) section).exit(event);
 
 		return null;
 	}
