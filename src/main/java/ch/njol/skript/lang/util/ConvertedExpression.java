@@ -43,7 +43,7 @@ import java.util.NoSuchElementException;
  * <li>automatically lets the source expression handle everything apart from the get() methods</li>
  * <li>will never convert itself to another type, but rather request a new converted expression from the source expression.</li>
  * </ol>
- * 
+ *
  * @author Peter Güttinger
  */
 public class ConvertedExpression<F, T> implements Expression<T> {
@@ -73,7 +73,7 @@ public class ConvertedExpression<F, T> implements Expression<T> {
 			// casting <? super ? extends F> to <? super F> is wrong, but since the converter is only used for values returned by the expression
 			// (which are instances of "<? extends F>") this won't result in any ClassCastExceptions.
 			for (Class<? extends F> checking : from.possibleReturnTypes()) {
-				@SuppressWarnings("unchecked")
+				//noinspection unchecked
 				ConverterInfo<? super F, ? extends T> conv = (ConverterInfo<? super F, ? extends T>) Converters.getConverterInfo(checking, type);
 				if (conv == null)
 					continue;
