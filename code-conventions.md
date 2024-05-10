@@ -256,6 +256,14 @@ or try-with-resources sections where their immutability is necessary
 Skript must run with assertations enabled; use them in your development environment. \
 The JVM flag <code>-ea</code> is used to enable them.
 
+## Code Complexity
+
+Dense, highly-complex code should be avoided to preserve readability and to help with future maintenance, 
+especially within a single method body.
+
+There are many available metrics for measuring code complexity (for different purposes); [we have our own](https://stable.skriptlang.org/Radical_Complexity.pdf).
+There are no strict limits for code complexity, but you may be encouraged (or required) to reformat or break up methods
+into smaller, more manageable chunks. If in doubt, keep things simple.
 
 ## Minecraft Features
 
