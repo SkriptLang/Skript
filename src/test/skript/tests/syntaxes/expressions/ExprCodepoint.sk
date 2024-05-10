@@ -1,0 +1,8 @@
+test "codepoint":
+	assert character from codepoint 65 is "A" with "character from codepoint 65 is not 'A'"
+	assert codepoint of "A" is 65 with "codepoint of 'A' is not 65"
+	assert codepoint of "ABC" is 65 with "codepoint of 'A' is not 65"
+	assert codepoint of "" is not set with "codepoint of an empty string is set"
+	assert codepoint of (character from codepoint -1) is 65535 with "character from codepoint does not wrap around"
+	assert codepoint of (character from codepoint infinity value) is 65535 with "codepoint of infinity value is not 65535"
+	assert codepoint of (character from codepoint NaN value) is 0 with "codepoint of NaN value is not 0"

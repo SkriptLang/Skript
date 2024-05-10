@@ -1,0 +1,15 @@
+test "unbreakable":
+	set {_breakable1} to iron sword
+	assert {_breakable1} is breakable with "Iron Sword should be breakable ##1"
+	assert {_breakable1} is not unbreakable with "Iron Sword should be not unbreakable ##1"
+	set {_unbreakable1} to unbreakable iron sword
+	assert {_unbreakable1} is unbreakable with "Iron Sword should be unbreakable ##2"
+	assert {_unbreakable1} is not breakable with "Iron Sword should be not breakable ##2"
+	set {_breakable2} to breakable {_unbreakable1}
+	assert {_breakable2} is breakable with "Iron Sword should be breakable ##2"
+	assert {_breakable2} is not unbreakable with "Iron Sword should be not unbreakable ##2"
+	set {_unbreakable2} to unbreakable {_breakable1}
+	assert {_unbreakable2} is unbreakable with "Iron Sword should be unbreakable ##2"
+	assert {_unbreakable2} is not breakable with "Iron Sword should be not breakable ##2"
+	assert {_null} is not breakable with "CondIsUnbreakable on unset variable check failed ##1"
+	assert {_null} is not unbreakable with "CondIsUnbreakable on unset variable check failed ##2"

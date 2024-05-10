@@ -121,6 +121,20 @@ public interface Expression<T> extends SyntaxElement, Debuggable {
 	boolean isSingle();
 
 	/**
+	 * Whether there's a possibility this could return a single value.
+	 * Designed for expressions that may return more than one value, but are equally appropriate to use where
+	 * only singular values are accepted, in which case a single value (out of all available values) will be returned.
+	 * An example would be functions that return results based on their inputs.
+	 * Ideally, this will return {@link #isSingle()} based on its known inputs at initialisation, but for some syntax
+	 * this may not be known (or a syntax may be intentionally vague in its permissible returns).
+	 * @return Whether this can be used by single changers
+	 * @see #getSingle(Event)
+	 */
+	default boolean canBeSingle() {
+		return this.isSingle();
+	}
+
+	/**
 	 * Checks this expression against the given checker. This is the normal version of this method and the one which must be used for simple checks,
 	 * or as the innermost check of nested checks.
 	 * <p>

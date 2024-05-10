@@ -20,6 +20,7 @@ package ch.njol.skript.lang.function;
 
 import ch.njol.skript.classes.ClassInfo;
 import org.eclipse.jdt.annotation.Nullable;
+import ch.njol.skript.util.Contract;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -75,12 +76,19 @@ public class Signature<T> {
 	@Nullable
 	final String originClassPath;
 
+	/**
+	 * An overriding contract for this function (e.g. to base its return on its arguments).
+	 */
+	@Nullable
+	final Contract contract;
+
 	public Signature(String script,
 					 String name,
 					 Parameter<?>[] parameters, boolean local,
 					 @Nullable ClassInfo<T> returnType,
 					 boolean single,
-					 @Nullable String originClassPath) {
+					 @Nullable String originClassPath,
+					 @Nullable Contract contract) {
 		this.script = script;
 		this.name = name;
 		this.parameters = parameters;
@@ -88,8 +96,18 @@ public class Signature<T> {
 		this.returnType = returnType;
 		this.single = single;
 		this.originClassPath = originClassPath;
+		this.contract = contract;
 
 		calls = Collections.newSetFromMap(new WeakHashMap<>());
+	}
+
+	public Signature(String script,
+					 String name,
+					 Parameter<?>[] parameters, boolean local,
+					 @Nullable ClassInfo<T> returnType,
+					 boolean single,
+					 @Nullable String originClassPath) {
+		this(script, name, parameters, local, returnType, single, originClassPath, null);
 	}
 
 	public Signature(String script, String name, Parameter<?>[] parameters, boolean local, @Nullable ClassInfo<T> returnType, boolean single) {
@@ -124,6 +142,11 @@ public class Signature<T> {
 
 	public String getOriginClassPath() {
 		return originClassPath;
+	}
+
+	@Nullable
+	public Contract getContract() {
+		return contract;
 	}
 
 	/**

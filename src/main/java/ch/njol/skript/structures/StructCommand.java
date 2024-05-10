@@ -24,6 +24,7 @@ import ch.njol.skript.bukkitutil.CommandReloader;
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.classes.Parser;
 import ch.njol.skript.command.Argument;
+import ch.njol.skript.command.CommandUsage;
 import ch.njol.skript.command.Commands;
 import ch.njol.skript.command.ScriptCommand;
 import ch.njol.skript.command.ScriptCommandEvent;
@@ -92,7 +93,7 @@ public class StructCommand extends Structure {
 		Skript.registerStructure(
 			StructCommand.class,
 			EntryValidator.builder()
-				.addEntry("usage", null, true)
+				.addEntryData(new VariableStringEntryData("usage", null, true))
 				.addEntry("description", "", true)
 				.addEntry("prefix", null, true)
 				.addEntry("permission", "", true)
@@ -261,10 +262,9 @@ public class StructCommand extends Structure {
 		});
 		desc = Commands.unescape(desc).trim();
 
-		String usage = entryContainer.getOptional("usage", String.class, false);
-		if (usage == null) {
-			usage = Commands.m_correct_usage + " " + desc;
-		}
+		VariableString usageMessage = entryContainer.getOptional("usage", VariableString.class, false);
+		String defaultUsageMessage = Commands.m_correct_usage + " " + desc;
+		CommandUsage usage = new CommandUsage(usageMessage, defaultUsageMessage);
 
 		String description = entryContainer.get("description", String.class, true);
 		String prefix = entryContainer.getOptional("prefix", String.class, false);

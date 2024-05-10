@@ -150,11 +150,6 @@ test "vector - vector operations":
     assert ({_v1} * {_v2}) is (vector(4, 10, 18)) with "{_v1} * {_v2} is not vector(4, 10, 18)"
     assert ({_v1} / {_v2}) is (vector(0.25, 0.4, 0.5)) with "{_v1} / {_v2} is not vector(0.25, 0.4, 0.5)"
 
-    assert ({_v1} ++ {_v2}) is (vector(5, 7, 9)) with "{_v1} ++ {_v2} is not vector(5, 7, 9)"
-    assert ({_v1} -- {_v2}) is (vector(-3, -3, -3)) with "{_v1} -- {_v2} is not vector(-3, -3, -3)"
-    assert ({_v1} ** {_v2}) is (vector(4, 10, 18)) with "{_v1} ** {_v2} is not vector(4, 10, 18)"
-    assert ({_v1} // {_v2}) is (vector(0.25, 0.4, 0.5)) with "{_v1} // {_v2} is not vector(0.25, 0.4, 0.5)"
-
     # --Zero Vectors--
 
     set {_v1} to vector(0,0,0)

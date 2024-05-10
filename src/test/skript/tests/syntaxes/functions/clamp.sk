@@ -41,3 +41,15 @@ test "clamp numbers":
 	assert number within {_got::1} is not number within {_got::1} with "(edge cases list) NaN" # need within because the variables weren't cooperating
 	assert {_got::2} is {_expected::2} with "(edge cases list) -infinity"
 	assert {_got::3} is {_expected::3} with "(edge cases list) infinity"
+
+test "clamp numbers (single)":
+	set {_expected::*} to (1, 0.0, and 2.0)
+	set {_got::*} to clamp((1, -infinity value, infinity value), 0.0, 2.0)
+	assert size of {_got::*} is 3 with "(multiple) expected"
+	loop 3 times:
+		assert {_got::%loop-number%} is {_expected::%loop-number%} with "(plural) expected %{_expected::%loop-number%}% found %{_got::%loop-number%}%"
+
+	# single store
+	set {_expected} to 2
+	set {_got} to clamp(0, 2, 5)
+	assert {_got} is {_expected} with "(single) expected"
