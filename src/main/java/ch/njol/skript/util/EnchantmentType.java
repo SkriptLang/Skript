@@ -99,13 +99,7 @@ public class EnchantmentType implements YggdrasilSerializable {
 
 	@SuppressWarnings("null")
 	public static String toString(final Enchantment enchantment) {
-		NamespacedKey key = enchantment.getKey();
-		// If it's a minecraft enchant, just return the key
-		if (key.getNamespace().equalsIgnoreCase("minecraft"))
-			return key.getKey();
-		// Else if it's a custom enchant, return with the namespace
-		// ex: `some_namespace:explosive`
-		return key.toString();
+		return getEnchantmentName(enchantment);
 	}
 
 	// REMIND flags?
@@ -161,11 +155,26 @@ public class EnchantmentType implements YggdrasilSerializable {
 		return Enchantment.getByKey(key);
 	}
 
-	@SuppressWarnings("null")
+	@SuppressWarnings({"null", "deprecation"})
 	public static Collection<String> getNames() {
 		List<String> names = new ArrayList<>();
-		Registry.ENCHANTMENT.forEach(enchantment -> names.add(enchantment.getKey().getKey().replace("_", " ")));
+		if (HAS_REGISTRY)
+			Registry.ENCHANTMENT.forEach(enchantment -> names.add(getEnchantmentName(enchantment)));
+		else
+			for (Enchantment enchantment : Enchantment.values()) {
+				names.add(getEnchantmentName(enchantment));
+			}
 		return names;
+	}
+
+	private static String getEnchantmentName(Enchantment enchantment) {
+		NamespacedKey key = enchantment.getKey();
+		// If it's a minecraft enchant, just return the key
+		if (key.getNamespace().equalsIgnoreCase("minecraft"))
+			return key.getKey();
+		// Else if it's a custom enchant, return with the namespace
+		// ex: `some_namespace:explosive`
+		return key.toString();
 	}
 
 	@Override
