@@ -28,11 +28,11 @@ import ch.njol.skript.expressions.base.EventValueExpression;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
-import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.event.Event;
 import org.bukkit.event.entity.EntityUnleashEvent;
+import org.bukkit.event.entity.EntityUnleashEvent.UnleashReason;
 import org.eclipse.jdt.annotation.Nullable;
 
 @Name("Unleash Reason")
@@ -43,10 +43,10 @@ import org.eclipse.jdt.annotation.Nullable;
 })
 @Events("Unleash")
 @Since("INSERT VERSION")
-public class ExprUnleashReason extends EventValueExpression<EntityUnleashEvent.UnleashReason> {
+public class ExprUnleashReason extends EventValueExpression<UnleashReason> {
 
 	public ExprUnleashReason() {
-		super(EntityUnleashEvent.UnleashReason.class);
+		super(UnleashReason.class);
 	}
 
 	static {
@@ -63,9 +63,9 @@ public class ExprUnleashReason extends EventValueExpression<EntityUnleashEvent.U
 	}
 
 	@Override
-	protected EntityUnleashEvent.@Nullable UnleashReason[] get(Event event) {
+	protected UnleashReason[] get(Event event) {
 		if (!(event instanceof EntityUnleashEvent))
-			return new EntityUnleashEvent.UnleashReason[0];
+			return new UnleashReason[0];
 		return CollectionUtils.array(((EntityUnleashEvent) event).getReason());
 	}
 
@@ -75,8 +75,8 @@ public class ExprUnleashReason extends EventValueExpression<EntityUnleashEvent.U
 	}
 
 	@Override
-	public Class<? extends EntityUnleashEvent.UnleashReason> getReturnType() {
-		return EntityUnleashEvent.UnleashReason.class;
+	public Class<? extends UnleashReason> getReturnType() {
+		return UnleashReason.class;
 	}
 
 	@Override

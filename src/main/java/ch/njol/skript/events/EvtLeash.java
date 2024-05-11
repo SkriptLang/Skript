@@ -37,14 +37,17 @@ public class EvtLeash extends SkriptEvent {
 
 	static {
 		Skript.registerEvent("Leash / Unleash", EvtLeash.class, CollectionUtils.array(PlayerLeashEntityEvent.class, EntityUnleashEvent.class), "[:player] [:un]leash[ing] [[of] %-entitydatas%]")
-			.description("Called when an entity is leashed or unleashed. Cancelling any of these respective events will prevent the leash or unleash to occur.")
+			.description("Called when an entity is leashed or unleashed. Cancelling these events will prevent the leashing or unleashing from occurring.")
 			.examples(
 					"on player leash of a sheep:",
 						"\tsend \"Baaaaa--\" to player",
+					"",
 					"on player leash:",
 						"\tsend \"<%event-entity%> Let me go!\" to player",
+					"",
 					"on unleash:",
 						"\tbroadcast \"<%event-entity%> I'm free\"",
+					"",
 					"on player unleash:",
 						"\tsend \"<%event-entity%> Thanks for free-ing me!\" to player"
 			)
@@ -90,7 +93,7 @@ public class EvtLeash extends SkriptEvent {
 
 	@Override
 	public boolean check(Event event) {
-		Entity leashedEntity = null;
+		Entity leashedEntity;
 		switch (eventType) {
             case LEASH:
 				if (!(event instanceof PlayerLeashEntityEvent))

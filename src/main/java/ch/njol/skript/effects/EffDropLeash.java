@@ -30,7 +30,6 @@ import ch.njol.skript.lang.SkriptParser;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.bukkit.event.entity.EntityUnleashEvent;
-import org.bukkit.event.player.PlayerUnleashEntityEvent;
 import org.jetbrains.annotations.Nullable;
 
 @Name("Allow / Prevent Leash Drop")
@@ -49,8 +48,8 @@ public class EffDropLeash extends Effect {
 	static {
 		if (Skript.methodExists(EntityUnleashEvent.class, "setDropLeash", boolean.class))
 			Skript.registerEffect(EffDropLeash.class,
-			"allow [the] (lead|leash) [item] to drop",
-			"prevent [the] (lead|leash) [item] from dropping"
+					"(force|allow) [the] (lead|leash) [item] to drop",
+					"(block|disallow|prevent) [the] (lead|leash) [item] from dropping"
 		);
 	}
 
@@ -58,7 +57,7 @@ public class EffDropLeash extends Effect {
 
 	@Override
 	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
-		if (!getParser().isCurrentEvent(PlayerUnleashEntityEvent.class, EntityUnleashEvent.class)) {
+		if (!getParser().isCurrentEvent(EntityUnleashEvent.class)) {
 			Skript.error("The 'drop leash' effect can only be used in an 'unleash' event");
 			return false;
 		}
