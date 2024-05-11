@@ -145,7 +145,7 @@ public class EffBroadcast extends Effect {
 	private static boolean dispatchEvent(String message, List<CommandSender> receivers) {
 		Set<CommandSender> recipients = Collections.unmodifiableSet(new HashSet<>(receivers));
 		BroadcastMessageEvent broadcastEvent;
-		if (!Skript.isRunningMinecraft(1, 13)) {
+		if (Skript.isRunningMinecraft(1, 14)) {
 			broadcastEvent = new BroadcastMessageEvent(!Bukkit.isPrimaryThread(), message, recipients);
 		} else {
 			broadcastEvent = new BroadcastMessageEvent(message, recipients);
