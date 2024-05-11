@@ -93,7 +93,9 @@ If we need to remove or alter contributed code due to a licensing issue we will 
 * No trailing whitespace
 * At most 120 characters per line
   	- In Javadoc/multiline comments, at most 80 characters per line
-* When statements consume multiple lines, all lines but first have two tabs of additional indentation
+* When statements consume multiple lines, all lines but the first have two tabs of additional indentation
+	- The exception to this is breaking up conditional statements (e.g. `if (x || y)`) where the
+    condition starts may be aligned
 * Each class begins with an empty line
 * No squeezing of multiple lines of code on a single line
 * Separate method declarations with empty lines
@@ -139,6 +141,7 @@ but this is not strictly required:
   
 * When extending one of following classes: SimpleExpression, SimplePropertyExpression, Effect, Condition...
   - Put overridden methods in order
+  - Put static registration before all methods
   - SimpleExpression: init -> get/getAll -> acceptChange -> change -> setTime -> getTime -> isSingle -> getReturnType -> toString
   - SimplePropertyExpression: -> init -> convert -> acceptChange -> change -> setTime -> getTime -> getReturnType -> getPropertyName
   - Effect: init ->  execute  -> toString
