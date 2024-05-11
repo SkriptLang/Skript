@@ -104,7 +104,7 @@ public class EnchantmentType implements YggdrasilSerializable {
 		if (key.getNamespace().equalsIgnoreCase("minecraft"))
 			return key.getKey();
 		// Else if it's a custom enchant, return with the namespace
-		// ex: `my_key:explosive`
+		// ex: `some_namespace:explosive`
 		return key.toString();
 	}
 
