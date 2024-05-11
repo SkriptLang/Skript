@@ -31,7 +31,6 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.bukkit.event.entity.EntityUnleashEvent;
-import org.bukkit.event.player.PlayerUnleashEntityEvent;
 import org.jetbrains.annotations.Nullable;
 
 @Name("Leash Will Drop")
@@ -50,12 +49,12 @@ public class CondLeashWillDrop extends Condition {
 
 	static {
 		if (Skript.methodExists(EntityUnleashEvent.class, "isDropLeash"))
-			Skript.registerCondition(CondLeashWillDrop.class, "[the] (lead|leash) [item] [not:(won't|will not)] (drop|be dropped)");
+			Skript.registerCondition(CondLeashWillDrop.class, "[the] (lead|leash) [item] (will|not:(won't|will not)) (drop|be dropped)");
 	}
 
 	@Override
 	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		if (!getParser().isCurrentEvent(PlayerUnleashEntityEvent.class, EntityUnleashEvent.class)) {
+		if (!getParser().isCurrentEvent(EntityUnleashEvent.class)) {
 			Skript.error("The 'leash will drop' condition can only be used in an 'unleash' event");
 			return false;
 		}
