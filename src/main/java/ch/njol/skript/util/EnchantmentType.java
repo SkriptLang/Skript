@@ -21,6 +21,7 @@ package ch.njol.skript.util;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Locale;
 import java.util.regex.Pattern;
 
 import ch.njol.skript.Skript;
@@ -138,7 +139,7 @@ public class EnchantmentType implements YggdrasilSerializable {
 	@SuppressWarnings("deprecation")
 	@Nullable
 	public static Enchantment parseEnchantment(String s) {
-		s = s.replace(" ", "_");
+		s = s.replace(" ", "_").toLowerCase(Locale.ROOT);
 		NamespacedKey key;
 		try {
 			if (s.contains(":"))
