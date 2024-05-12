@@ -51,6 +51,7 @@ import io.papermc.paper.event.player.PlayerStopUsingItemEvent;
 import io.papermc.paper.event.player.PlayerInventorySlotChangeEvent;
 import io.papermc.paper.event.player.PlayerStonecutterRecipeSelectEvent;
 import io.papermc.paper.event.player.PlayerTradeEvent;
+import io.papermc.paper.event.server.WhitelistStateUpdateEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.FireworkEffect;
@@ -58,6 +59,7 @@ import org.bukkit.GameMode;
 import org.bukkit.Keyed;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
@@ -1904,5 +1906,12 @@ public final class BukkitEventValues {
 				return event.getItem();
 			}
 		}, EventValues.TIME_NOW);
+		if (Skript.classExists("io.papermc.paper.event.server.WhitelistStateUpdateEvent"))
+			EventValues.registerEventValue(WhitelistStateUpdateEvent.class, OfflinePlayer.class, new Getter<OfflinePlayer, WhitelistStateUpdateEvent>() {
+				@Override
+				public OfflinePlayer get(WhitelistStateUpdateEvent event) {
+					return event.getPlayer();
+				}
+			}, EventValues.TIME_NOW);
 	}
 }
