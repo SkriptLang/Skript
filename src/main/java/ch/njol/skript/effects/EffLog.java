@@ -152,7 +152,7 @@ public class EffLog extends Effect {
 						Skript.getInstance().getLogger().log(Level.SEVERE, "[" + scriptName + "] " + messages);
 						break;
 					default:
-						Skript.info("[" + scriptName + "] " + messages);
+						Skript.getInstance().getLogger().log(Level.INFO, "[" + scriptName + "] " + messages);
 				}
 			}
 		}
