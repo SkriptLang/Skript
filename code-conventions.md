@@ -208,7 +208,7 @@ or try-with-resources sections where their immutability is necessary
   on a version-dependent basis (e.g. in Library XYZ version 2 we override `getX()` but in version 3 it's
   gone, and we call it ourselves)
 
-### Nullness
+### null-ness
 * We use **JetBrains** Annotations for specifying null-ness and method contracts.
   * If editing a file using a different annotation set (e.g. Javax, Eclipse Sisu, Bukkit)
   these should be replaced with their JetBrains equivalent.
@@ -240,7 +240,7 @@ or try-with-resources sections where their immutability is necessary
 * Assertions must **not** have side-effects in non-test packages - they may be skipped in real environments
 * Avoid checking non-null values for nullability
   - Unless working around buggy addons, it is rarely necessary
-  - This is why ignoring nullness errors is particularly dangerous
+  - This is why ignoring null-ness errors is particularly dangerous
 * Annotations on array types **must** be placed properly:
   * Annotations on the array itself go before the array brackets
 	```java
