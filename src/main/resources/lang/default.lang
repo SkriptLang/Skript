@@ -13,6 +13,7 @@ not: not
 # not a: not a(n) # @a:not a @an:not an @x:not
 neither: neither
 nor: nor
+of: of
 
 genders:
 	0:
@@ -44,10 +45,6 @@ aliases:
 	of: of(?: any)?
 
 	named: named
-
-# -- Enchantments --
-enchantments:
-	of: of
 
 # -- Potion Effects --
 potions:
