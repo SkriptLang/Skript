@@ -161,8 +161,8 @@ but this is not strictly required:
 * Use prefixes only where their use has been already established (such as `ExprSomeRandomThing`)
   - Otherwise, use postfixes where necessary
   - Common occurrences include: Struct (Structure), Sec (Section), EffSec (EffectSection), Eff (Effect), Cond (Condition), Expr (Expression)
-* Ensure variable/field names are descriptive. Avoid using shorthand names like `e`, or `c`.
-  - e.g. Event should be `event`, not `e`. `e` is ambiguous and could mean a number of things.
+* Ensure variable/field names are descriptive. Avoid using shorthand names like `e`, or `c`
+  - e.g. Event should be `event`, not `e`. `e` is ambiguous and could mean a number of things
   
 ### Comments
 * Prefer to comment *why* you're doing things instead of how you're doing them
