@@ -45,6 +45,10 @@ aliases:
 
 	named: named
 
+# -- Enchantments --
+enchantments:
+	of: of
+
 # -- Potion Effects --
 potions:
 	speed: speed, swiftness
