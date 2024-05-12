@@ -1,5 +1,5 @@
 options:
-	junit: "org.skriptlang.skript.test.tests.syntaxes.events"
+	junit: "org.skriptlang.skript.test.tests.syntaxes.events.EvtWhitelistTest"
 
 test "EvtWhitelistTest" when running JUnit:
 	# Server whitelist tests
