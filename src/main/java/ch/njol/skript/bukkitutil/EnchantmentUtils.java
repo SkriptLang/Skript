@@ -26,6 +26,7 @@ import org.eclipse.jdt.annotation.Nullable;
 
 import ch.njol.skript.Skript;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
@@ -44,7 +45,12 @@ public class EnchantmentUtils {
 	static {
 		Language.addListener(() -> {
 			NAMES.clear();
-			List<Enchantment> enchantments = HAS_REGISTRY ? Registry.ENCHANTMENT.stream().toList() : Arrays.asList(Enchantment.values());
+			List<Enchantment> enchantments = new ArrayList<>();
+			if (HAS_REGISTRY) {
+				Registry.ENCHANTMENT.forEach(enchantments::add);
+			} else {
+				enchantments.addAll(Arrays.asList(Enchantment.values()));
+			}
 			for (Enchantment enchantment : enchantments) {
 				assert enchantment != null;
 				final String[] names = Language.getList("enchantments." + getKey(enchantment));
