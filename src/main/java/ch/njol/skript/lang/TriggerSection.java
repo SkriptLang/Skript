@@ -108,13 +108,13 @@ public abstract class TriggerSection extends TriggerItem {
 		return Converters.convert(getReturnValues(), expectedType);
 	}
 
-	public final void setReturnValues(Object @Nullable [] returnValue) {
+	public void setReturnValues(Object @Nullable [] returnValue) {
 		assert !returnValueSet;
 		returnValueSet = true;
 		this.returnValue = returnValue;
 	}
 
-	public final void resetReturnValues() {
+	public void resetReturnValues() {
 		returnValueSet = false;
 		returnValue = null;
 	}
