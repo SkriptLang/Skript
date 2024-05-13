@@ -18,28 +18,19 @@
  */
 package ch.njol.skript.util;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Locale;
 import java.util.regex.Pattern;
 
-import ch.njol.skript.Skript;
-import org.bukkit.NamespacedKey;
-import org.bukkit.Registry;
+import ch.njol.skript.bukkitutil.EnchantmentUtils;
 import org.bukkit.enchantments.Enchantment;
 import org.eclipse.jdt.annotation.Nullable;
 
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.yggdrasil.YggdrasilSerializable;
-import org.jetbrains.annotations.NotNull;
 
 /**
  * @author Peter Güttinger
  */
 public class EnchantmentType implements YggdrasilSerializable {
-
-	private static final boolean HAS_REGISTRY = Skript.classExists("org.bukkit.Registry") && Skript.fieldExists(Registry.class, "ENCHANTMENT");
 
 	private final Enchantment type;
 	private final int level;
@@ -95,18 +86,7 @@ public class EnchantmentType implements YggdrasilSerializable {
 
 	@Override
 	public String toString() {
-		return toString(type) + (level == -1 ? "" : " " + level);
-	}
-
-	@SuppressWarnings("null")
-	public static String toString(final Enchantment enchantment) {
-		return getEnchantmentName(enchantment);
-	}
-
-	// REMIND flags?
-	@SuppressWarnings("null")
-	public static String toString(final Enchantment enchantment, final int flags) {
-		return toString(enchantment);
+		return EnchantmentUtils.toString(type) + (level == -1 ? "" : " " + level);
 	}
 
 	@SuppressWarnings("null")
@@ -123,59 +103,17 @@ public class EnchantmentType implements YggdrasilSerializable {
 		if (pattern.matcher(s).matches()) {
 			String name = s.substring(0, s.lastIndexOf(' '));
 			assert name != null;
-			final Enchantment ench = parseEnchantment(name);
+			final Enchantment ench = EnchantmentUtils.parseEnchantment(name);
 			if (ench == null)
 				return null;
 			String level = s.substring(s.lastIndexOf(' ') + 1);
 			assert level != null;
 			return new EnchantmentType(ench, Utils.parseInt(level));
 		}
-		final Enchantment ench = parseEnchantment(s);
+		final Enchantment ench = EnchantmentUtils.parseEnchantment(s);
 		if (ench == null)
 			return null;
 		return new EnchantmentType(ench, -1);
-	}
-
-	@SuppressWarnings("deprecation")
-	@Nullable
-	public static Enchantment parseEnchantment(String s) {
-		s = s.replace(" ", "_").toLowerCase(Locale.ROOT);
-		NamespacedKey key;
-		try {
-			if (s.contains(":"))
-				key = NamespacedKey.fromString(s);
-			else
-				key = NamespacedKey.minecraft(s);
-		} catch (IllegalArgumentException ignore) {
-			return null;
-		}
-		if (key == null)
-			return null;
-		if (HAS_REGISTRY) // Registry added in Bukkit 1.14
-			return Registry.ENCHANTMENT.get(key);
-		return Enchantment.getByKey(key);
-	}
-
-	@SuppressWarnings({"null", "deprecation"})
-	public static Collection<String> getNames() {
-		List<String> names = new ArrayList<>();
-		if (HAS_REGISTRY)
-			Registry.ENCHANTMENT.forEach(enchantment -> names.add(getEnchantmentName(enchantment)));
-		else
-			for (Enchantment enchantment : Enchantment.values()) {
-				names.add(getEnchantmentName(enchantment));
-			}
-		return names;
-	}
-
-	private static String getEnchantmentName(Enchantment enchantment) {
-		NamespacedKey key = enchantment.getKey();
-		// If it's a minecraft enchant, just return the key
-		if (key.getNamespace().equalsIgnoreCase("minecraft"))
-			return key.getKey();
-		// Else if it's a custom enchant, return with the namespace
-		// ex: `some_namespace:explosive`
-		return key.toString();
 	}
 
 	@Override

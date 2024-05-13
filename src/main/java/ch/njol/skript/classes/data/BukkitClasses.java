@@ -1218,7 +1218,7 @@ public class BukkitClasses {
 				.name("Enchantment")
 				.description("An enchantment, e.g. 'sharpness' or 'fortune'. Unlike <a href='#enchantmenttype'>enchantment type</a> " +
 						"this type has no level, but you usually don't need to use this type anyway.")
-				.usage(StringUtils.join(EnchantmentType.getNames(), ", "))
+				.usage(StringUtils.join(EnchantmentUtils.getNames(), ", "))
 				.examples("")
 				.since("1.4.6")
 				.before("enchantmenttype")
@@ -1227,12 +1227,12 @@ public class BukkitClasses {
 					@Override
 					@Nullable
 					public Enchantment parse(final String s, final ParseContext context) {
-						return EnchantmentType.parseEnchantment(s);
+						return EnchantmentUtils.parseEnchantment(s);
 					}
 					
 					@Override
 					public String toString(final Enchantment e, final int flags) {
-						return EnchantmentType.toString(e, flags);
+						return EnchantmentUtils.toString(e, flags);
 					}
 					
 					@Override
@@ -1497,12 +1497,12 @@ public class BukkitClasses {
 	
 					@Override
 					public String toString(EnchantmentOffer eo, int flags) {
-						return EnchantmentType.toString(eo.getEnchantment(), flags) + " " + eo.getEnchantmentLevel();
+						return EnchantmentUtils.toString(eo.getEnchantment(), flags) + " " + eo.getEnchantmentLevel();
 					}
 	
 					@Override
 					public String toVariableNameString(EnchantmentOffer eo) {
-						return "offer:" + EnchantmentType.toString(eo.getEnchantment()) + "=" + eo.getEnchantmentLevel();
+						return "offer:" + EnchantmentUtils.toString(eo.getEnchantment()) + "=" + eo.getEnchantmentLevel();
 					}
 				}));
 

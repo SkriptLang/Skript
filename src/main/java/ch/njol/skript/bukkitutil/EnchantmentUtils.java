@@ -18,18 +18,43 @@
  */
 package ch.njol.skript.bukkitutil;
 
+import ch.njol.skript.localization.Language;
 import org.bukkit.NamespacedKey;
+import org.bukkit.Registry;
 import org.bukkit.enchantments.Enchantment;
 import org.eclipse.jdt.annotation.Nullable;
 
-import com.google.common.collect.BiMap;
-import com.google.common.collect.HashBiMap;
 import ch.njol.skript.Skript;
+
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 
 /**
  * Maps enchantments to their keys.
  */
 public class EnchantmentUtils {
+
+	private static final Map<Enchantment, String> NAMES = new HashMap<>();
+	private static final Map<String, Enchantment> PATTERNS = new HashMap<>();
+	private static final boolean HAS_REGISTRY = Skript.classExists("org.bukkit.Registry") && Skript.fieldExists(Registry.class, "ENCHANTMENT");
+	static {
+		Language.addListener(() -> {
+			NAMES.clear();
+			List<Enchantment> enchantments = HAS_REGISTRY ? Registry.ENCHANTMENT.stream().toList() : Arrays.asList(Enchantment.values());
+			for (Enchantment enchantment : enchantments) {
+				assert enchantment != null;
+				final String[] names = Language.getList("enchantments." + getKey(enchantment));
+				NAMES.put(enchantment, names[0]);
+
+				for (String name : names)
+					PATTERNS.put(name.toLowerCase(Locale.ENGLISH), enchantment);
+			}
+		});
+	}
 
 	public static String getKey(Enchantment enchantment) {
 		return enchantment.getKey().getKey();
@@ -38,6 +63,59 @@ public class EnchantmentUtils {
 	@Nullable
 	public static Enchantment getByKey(String key) {
 		return Enchantment.getByKey(NamespacedKey.minecraft(key));
+	}
+
+	@SuppressWarnings("deprecation")
+	@Nullable
+	public static Enchantment parseEnchantment(String s) {
+		s = s.toLowerCase(Locale.ROOT);
+		// First try to parse from the lang file
+		Enchantment enchantment = PATTERNS.get(s);
+		if (enchantment != null)
+			return enchantment;
+
+		// If that fails, we move forward with getting from key
+		s = s.replace(" ", "_");
+		NamespacedKey key;
+		try {
+			if (s.contains(":"))
+				key = NamespacedKey.fromString(s);
+			else
+				key = NamespacedKey.minecraft(s);
+		} catch (IllegalArgumentException ignore) {
+			return null;
+		}
+		if (key == null)
+			return null;
+		if (HAS_REGISTRY) // Registry added in Bukkit 1.14
+			return Registry.ENCHANTMENT.get(key);
+		return Enchantment.getByKey(key);
+	}
+
+	@SuppressWarnings("null")
+	public static Collection<String> getNames() {
+		return NAMES.values();
+	}
+
+	@SuppressWarnings("null")
+	public static String toString(final Enchantment enchantment) {
+		// If we have a name in the lang file, return that first
+		if (NAMES.containsKey(enchantment))
+			return NAMES.get(enchantment);
+
+		NamespacedKey key = enchantment.getKey();
+		// Else if it's a missing minecraft enchant, just return the key
+		if (key.getNamespace().equalsIgnoreCase("minecraft"))
+			return key.getKey();
+		// Else if it's a custom enchant, return with the namespace
+		// ex: `some_namespace:explosive`
+		return key.toString();
+	}
+
+	// REMIND flags?
+	@SuppressWarnings("null")
+	public static String toString(final Enchantment enchantment, final int flags) {
+		return toString(enchantment);
 	}
 
 }
