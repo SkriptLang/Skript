@@ -152,17 +152,6 @@ public class EffLog extends Effect {
 
 	@Override
 	public String toString(@Nullable Event e, boolean debug) {
-		String levelType;
-		switch (logLevel.intValue()) {
-			case WARNING_LOG:
-				levelType = "warning ";
-				break;
-			case SEVERE_LOG:
-				levelType = "severe ";
-				break;
-			default:
-				levelType = "info ";
-		}
-		return "log " + messages.toString(e, debug) + (files != null ? " to " + files.toString(e, debug) : "") + levelType;
+		return "log " + messages.toString(e, debug) + (files != null ? " to " + files.toString(e, debug) : "") + logLevel;
 	}
 }
