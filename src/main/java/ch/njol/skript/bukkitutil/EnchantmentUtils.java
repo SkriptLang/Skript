@@ -54,8 +54,11 @@ public class EnchantmentUtils {
 			}
 			for (Enchantment enchantment : enchantments) {
 				final String[] names = Language.getList("enchantments." + getKey(enchantment));
-				NAMES.put(enchantment, names[0]);
+				// Don't store the name/pattern if it doesn't exist, let toString handle it
+				if (names[0].contains("enchantments."))
+					continue;
 
+				NAMES.put(enchantment, names[0]);
 				for (String name : names)
 					PATTERNS.put(name.toLowerCase(Locale.ENGLISH), enchantment);
 			}
@@ -110,13 +113,8 @@ public class EnchantmentUtils {
 		if (NAMES.containsKey(enchantment))
 			return NAMES.get(enchantment);
 
-		NamespacedKey key = enchantment.getKey();
-		// Else if it's a missing minecraft enchant, just return the key
-		if (key.getNamespace().equalsIgnoreCase("minecraft"))
-			return key.getKey();
-		// Else if it's a custom enchant, return with the namespace
-		// ex: `some_namespace:explosive`
-		return key.toString();
+		// If no name is available, return the namespaced key
+		return enchantment.getKey().toString();
 	}
 
 	// REMIND flags?
