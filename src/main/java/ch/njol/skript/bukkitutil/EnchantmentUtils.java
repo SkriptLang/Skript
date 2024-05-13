@@ -47,10 +47,11 @@ public class EnchantmentUtils {
 		Language.addListener(() -> {
 			NAMES.clear();
 			List<Enchantment> enchantments = new ArrayList<>();
-			if (HAS_REGISTRY)
+			if (HAS_REGISTRY) {
 				Registry.ENCHANTMENT.forEach(enchantments::add);
-			else
+			} else {
 				enchantments.addAll(Arrays.asList(Enchantment.values()));
+			}
 			for (Enchantment enchantment : enchantments) {
 				final String[] names = Language.getList("enchantments." + getKey(enchantment));
 				NAMES.put(enchantment, names[0]);
