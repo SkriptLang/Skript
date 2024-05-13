@@ -85,6 +85,12 @@ public class EffLog extends Effect {
 	private Level logLevel = Level.INFO;
 	private static final int WARNING_LOG = 900;
 	private static final int SEVERE_LOG = 1000;
+	private static <LogLevel> String getLogPrefix(LogLevel logLevel) {
+		String timestamp = SkriptConfig.formatDate(System.currentTimeMillis());
+		if (logLevel == Level.INFO)
+			return "[" + timestamp + "]";
+		return "[" + timestamp + " " + logLevel + "]";
+	}
 
 	@SuppressWarnings({"unchecked", "null"})
 	@Override
@@ -123,18 +129,7 @@ public class EffLog extends Effect {
 							return;
 						}
 					}
-					String levelType;
-					switch (logLevel.intValue()) {
-						case WARNING_LOG:
-							levelType = " WARNING";
-							break;
-						case SEVERE_LOG:
-							levelType = " SEVERE";
-							break;
-						default:
-							levelType = " INFO";
-					}
-					logWriter.println( "[" + SkriptConfig.formatDate(System.currentTimeMillis()) + levelType + "] " + message);
+					logWriter.println(getLogPrefix(logLevel) + " " + message);
 					logWriter.flush();
 				}
 			} else {
