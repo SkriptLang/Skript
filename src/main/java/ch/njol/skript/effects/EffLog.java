@@ -144,16 +144,7 @@ public class EffLog extends Effect {
 					if (script != null)
 						scriptName = script.getConfig().getFileName();
 				}
-				switch (logLevel.intValue()) {
-					case WARNING_LOG:
-						Skript.getInstance().getLogger().log(Level.WARNING, "[" + scriptName + "] " + messages);
-						break;
-					case SEVERE_LOG:
-						Skript.getInstance().getLogger().log(Level.SEVERE, "[" + scriptName + "] " + messages);
-						break;
-					default:
-						Skript.getInstance().getLogger().log(Level.INFO, "[" + scriptName + "] " + messages);
-				}
+				SkriptLogger.LOGGER.log(logLevel, "[" + scriptName + "] " + messages);
 			}
 		}
 	}
