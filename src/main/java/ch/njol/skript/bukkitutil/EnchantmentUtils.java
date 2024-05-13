@@ -84,10 +84,11 @@ public class EnchantmentUtils {
 		s = s.replace(" ", "_");
 		NamespacedKey key;
 		try {
-			if (s.contains(":"))
+			if (s.contains(":")) {
 				key = NamespacedKey.fromString(s);
-			else
+			} else {
 				key = NamespacedKey.minecraft(s);
+			}
 		} catch (IllegalArgumentException ignore) {
 			return null;
 		}
