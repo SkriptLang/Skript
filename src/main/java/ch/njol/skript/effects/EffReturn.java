@@ -74,7 +74,7 @@ public class EffReturn extends Effect {
 		section = data.getSection();
 		ClassInfo<?> returnType = data.getReturnType();
 		if (returnType == null) {
-			Skript.error("This trigger doesn't return any value. Please use 'stop' or 'exit' if you want to stop the function.");
+			Skript.error("This trigger doesn't return any value. Please use 'stop' or 'exit' if you want to stop the trigger.");
 			return false;
 		}
 
