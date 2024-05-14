@@ -38,6 +38,7 @@ import org.bukkit.GameRule;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
+import org.bukkit.Registry;
 import org.bukkit.SoundCategory;
 import org.bukkit.World;
 import org.bukkit.World.Environment;
@@ -90,6 +91,7 @@ import ch.njol.skript.classes.ConfigurationSerializer;
 import ch.njol.skript.classes.EnumClassInfo;
 import ch.njol.skript.classes.Parser;
 import ch.njol.skript.classes.Serializer;
+import ch.njol.skript.classes.registry.RegistryClassInfo;
 import ch.njol.skript.entity.EntityData;
 import ch.njol.skript.expressions.ExprDamageCause;
 import ch.njol.skript.expressions.base.EventValueExpression;
@@ -976,8 +978,14 @@ public class BukkitClasses {
 				.name(ClassInfo.NO_DOC)
 				.since("2.0")
 				.changer(DefaultChangers.itemChanger));
-		
-		Classes.registerClass(new EnumClassInfo<>(Biome.class, "biome", "biomes")
+
+		ClassInfo<?> biomeClassInfo;
+		if (Skript.classExists("org.bukkit.Registry") && Skript.fieldExists(Registry.class, "BIOME")) {
+			biomeClassInfo = new RegistryClassInfo<>(Biome.class, Registry.BIOME, "biome", "biomes");
+		} else {
+			biomeClassInfo = new EnumClassInfo<>(Biome.class, "biome", "biomes");
+		}
+		Classes.registerClass(biomeClassInfo
 				.user("biomes?")
 				.name("Biome")
 				.description("All possible biomes Minecraft uses to generate a world.")
