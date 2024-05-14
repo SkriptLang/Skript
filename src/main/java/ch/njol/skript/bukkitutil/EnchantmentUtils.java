@@ -46,6 +46,7 @@ public class EnchantmentUtils {
 	static {
 		Language.addListener(() -> {
 			NAMES.clear();
+			PATTERNS.clear();
 			List<Enchantment> enchantments = new ArrayList<>();
 			if (HAS_REGISTRY) {
 				Registry.ENCHANTMENT.forEach(enchantments::add);
@@ -53,14 +54,20 @@ public class EnchantmentUtils {
 				enchantments.addAll(Arrays.asList(Enchantment.values()));
 			}
 			for (Enchantment enchantment : enchantments) {
-				final String[] names = Language.getList("enchantments." + getKey(enchantment));
-				// Don't store the name/pattern if it doesn't exist, let toString handle it
-				if (names[0].contains("enchantments."))
-					continue;
+				NamespacedKey key = enchantment.getKey();
+				final String[] names = Language.getList("enchantments." + key.getKey());
 
-				NAMES.put(enchantment, names[0]);
-				for (String name : names)
-					PATTERNS.put(name.toLowerCase(Locale.ENGLISH), enchantment);
+				if (!names[0].startsWith("enchantments.")) {
+					NAMES.put(enchantment, names[0]);
+					// Add lang file names
+					for (String name : names)
+						PATTERNS.put(name.toLowerCase(Locale.ENGLISH), enchantment);
+				}
+				// If Minecraft provided, add key without namespace and underscores (ex: "fire aspect")
+				if (key.getNamespace().equalsIgnoreCase("minecraft"))
+					PATTERNS.put(key.getKey().replace("_", " "), enchantment);
+				// Add full namespaced key as pattern (ex: "minecraft:fire_aspect", "custom:floopy_floopy")
+				PATTERNS.put(key.toString(), enchantment);
 			}
 		});
 	}
@@ -74,32 +81,9 @@ public class EnchantmentUtils {
 		return Enchantment.getByKey(NamespacedKey.minecraft(key));
 	}
 
-	@SuppressWarnings("deprecation")
 	@Nullable
 	public static Enchantment parseEnchantment(String s) {
-		s = s.toLowerCase(Locale.ROOT);
-		// First try to parse from the lang file
-		Enchantment enchantment = PATTERNS.get(s);
-		if (enchantment != null)
-			return enchantment;
-
-		// If that fails, we move forward with getting from key
-		s = s.replace(" ", "_");
-		NamespacedKey key;
-		try {
-			if (s.contains(":")) {
-				key = NamespacedKey.fromString(s);
-			} else {
-				key = NamespacedKey.minecraft(s);
-			}
-		} catch (IllegalArgumentException ignore) {
-			return null;
-		}
-		if (key == null)
-			return null;
-		if (HAS_REGISTRY) // Registry added in Bukkit 1.14
-			return Registry.ENCHANTMENT.get(key);
-		return Enchantment.getByKey(key);
+		return PATTERNS.get(s);
 	}
 
 	@SuppressWarnings("null")
