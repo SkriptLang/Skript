@@ -26,10 +26,13 @@ import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
+import ch.njol.skript.lang.ReturnHandler;
+import ch.njol.skript.lang.ReturnHandler.ReturnHandlerStack;
 import ch.njol.skript.lang.SectionExitHandler;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.TriggerItem;
 import ch.njol.skript.lang.TriggerSection;
+import ch.njol.skript.lang.parser.ParserInstance;
 import ch.njol.skript.log.RetainingLogHandler;
 import ch.njol.skript.log.SkriptLogger;
 import ch.njol.util.Kleenean;
@@ -50,18 +53,19 @@ public class EffReturn extends Effect {
 
 	static {
 		Skript.registerEffect(EffReturn.class, "return %objects%");
+		ParserInstance.registerData(ReturnHandlerStack.class, ReturnHandlerStack::new);
 	}
 
 	@SuppressWarnings("NotNullFieldNotInitialized")
-	private TriggerSection section;
+	private ReturnHandler<?> handler;
 	@SuppressWarnings("NotNullFieldNotInitialized")
 	private Expression<?> value;
 
 	@Override
 	@SuppressWarnings("unchecked")
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		ReturnData data = getParser().getCurrentReturnData();
-		if (data == null) {
+		handler = getParser().getData(ReturnHandlerStack.class).getCurrentHandler();
+		if (handler == null) {
 			Skript.error("The return statement cannot be used here");
 			return false;
 		}
@@ -71,8 +75,7 @@ public class EffReturn extends Effect {
 			return false;
 		}
 
-		section = data.getSection();
-		ClassInfo<?> returnType = data.getReturnType();
+		ClassInfo<?> returnType = handler.returnValueType();
 		if (returnType == null) {
 			Skript.error("This trigger doesn't return any value. Please use 'stop' or 'exit' if you want to stop the trigger.");
 			return false;
@@ -91,7 +94,7 @@ public class EffReturn extends Effect {
 			log.stop();
 		}
 
-		if (data.isSingle() && !convertedExpr.isSingle()) {
+		if (handler.singleReturnValue() && !convertedExpr.isSingle()) {
 			Skript.error("This trigger is defined to only return a single " + returnType + ", but this return statement can return multiple values.");
 			return false;
 		}
@@ -104,18 +107,19 @@ public class EffReturn extends Effect {
 	@Nullable
 	protected TriggerItem walk(Event event) {
 		debug(event, false);
-		section.setReturnValues(value.getArray(event));
+		//noinspection rawtypes,unchecked
+		((ReturnHandler) handler).returnValues(value.getArray(event));
 
 		TriggerSection parent = getParent();
-		while (parent != null && parent != section) {
+		while (parent != null && parent != handler) {
 			if (parent instanceof SectionExitHandler)
 				((SectionExitHandler) parent).exit(event);
 
 			parent = parent.getParent();
 		}
 
-		if (section instanceof SectionExitHandler)
-			((SectionExitHandler) section).exit(event);
+		if (handler instanceof SectionExitHandler)
+			((SectionExitHandler) handler).exit(event);
 
 		return null;
 	}
@@ -128,37 +132,6 @@ public class EffReturn extends Effect {
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
 		return "return " + value.toString(event, debug);
-	}
-
-	/**
-	 * Used to define the return data of a trigger.
-	 */
-	public static class ReturnData {
-
-		private final TriggerSection section;
-		@Nullable
-		private final ClassInfo<?> returnType;
-		private final boolean single;
-
-		public ReturnData(TriggerSection section, @Nullable ClassInfo<?> returnType, boolean single) {
-			this.section = section;
-			this.returnType = returnType;
-			this.single = single;
-		}
-
-		public TriggerSection getSection() {
-			return section;
-		}
-
-		@Nullable
-		public ClassInfo<?> getReturnType() {
-			return returnType;
-		}
-
-		public boolean isSingle() {
-			return single;
-		}
-
 	}
 
 }

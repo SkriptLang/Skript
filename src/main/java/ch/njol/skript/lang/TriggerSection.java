@@ -23,7 +23,6 @@ import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.lang.parser.ParserInstance;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
-import org.skriptlang.skript.lang.converter.Converters;
 
 import java.util.List;
 
@@ -34,9 +33,6 @@ public abstract class TriggerSection extends TriggerItem {
 
 	@Nullable
 	protected TriggerItem first, last;
-
-	private boolean returnValueSet;
-	private Object @Nullable [] returnValue;
 
 	/**
 	 * Reserved for new Trigger(...)
@@ -93,30 +89,6 @@ public abstract class TriggerSection extends TriggerItem {
 	public TriggerSection setParent(@Nullable TriggerSection parent) {
 		super.setParent(parent);
 		return this;
-	}
-
-	public Object @Nullable [] getReturnValues() {
-		return returnValue;
-	}
-
-	/**
-	 * Returns the return values of the trigger execution, converting them to the specified type.
-	 * @param expectedType the type to convert to.
-	 * @return the return values. May be null if no return values were provided.
-	 */
-	public <T> T @Nullable [] getReturnValues(Class<T> expectedType) {
-		return Converters.convert(getReturnValues(), expectedType);
-	}
-
-	public void setReturnValues(Object @Nullable [] returnValue) {
-		assert !returnValueSet;
-		returnValueSet = true;
-		this.returnValue = returnValue;
-	}
-
-	public void resetReturnValues() {
-		returnValueSet = false;
-		returnValue = null;
 	}
 
 	@Override
