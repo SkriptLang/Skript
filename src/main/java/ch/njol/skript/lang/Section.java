@@ -26,11 +26,13 @@ import ch.njol.skript.lang.parser.ParserInstance;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
+import org.skriptlang.skript.lang.script.Annotation;
 import org.skriptlang.skript.lang.structure.Structure;
 
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 import java.util.function.Supplier;
 
 /**
@@ -83,6 +85,8 @@ public abstract class Section extends TriggerSection implements SyntaxElement {
 	 * (although the loaded code may change it), the calling code must deal with this.
 	 */
 	protected void loadCode(SectionNode sectionNode) {
+		Set<Annotation> annotations = ParserInstance.get().copyAnnotations();
+		ParserInstance.get().forgetAnnotations(); // scope annotations correctly for section headers
 		List<TriggerSection> currentSections = getParser().getCurrentSections();
 		currentSections.add(this);
 		try {
@@ -90,6 +94,7 @@ public abstract class Section extends TriggerSection implements SyntaxElement {
 		} finally {
 			currentSections.remove(currentSections.size() - 1);
 		}
+		ParserInstance.get().replaceAnnotations(annotations);
 	}
 
 	/**
@@ -173,9 +178,17 @@ public abstract class Section extends TriggerSection implements SyntaxElement {
 	@Nullable
 	@SuppressWarnings({"unchecked", "rawtypes"})
 	public static Section parse(String expr, @Nullable String defaultError, SectionNode sectionNode, List<TriggerItem> triggerItems) {
-		SectionContext sectionContext = ParserInstance.get().getData(SectionContext.class);
+		ParserInstance parser = ParserInstance.get();
+		SectionContext sectionContext = parser.getData(SectionContext.class);
+		Set<Annotation> annotations = parser.copyAnnotations();
+		parser.forgetAnnotations();
 		return sectionContext.modify(sectionNode, triggerItems,
-			() -> (Section) SkriptParser.parse(expr, (Iterator) Skript.getSections().iterator(), defaultError));
+			() -> {
+				ParserInstance local = ParserInstance.get();
+				local.forgetAnnotations();
+				local.replaceAnnotations(annotations);
+				return (Section) SkriptParser.parse(expr, (Iterator) Skript.getSections().iterator(), defaultError);
+		});
 	}
 
 	static {

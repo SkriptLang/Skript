@@ -112,6 +112,8 @@ public class SecConditional extends Section {
 						ParseResult parseResult,
 						SectionNode sectionNode,
 						List<TriggerItem> triggerItems) {
+		if (SecSwitch.isInSwitch(this))
+			return false;
 		type = CONDITIONAL_PATTERNS.getInfo(matchedPattern);
 		ifAny = parseResult.hasTag("any");
 		parseIf = parseResult.hasTag("parse");

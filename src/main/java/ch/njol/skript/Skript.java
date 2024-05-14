@@ -83,7 +83,6 @@ import ch.njol.util.Closeable;
 import ch.njol.util.Kleenean;
 import ch.njol.util.NullableChecker;
 import ch.njol.util.StringUtils;
-import ch.njol.util.coll.CollectionUtils;
 import ch.njol.util.coll.iterator.CheckedIterator;
 import ch.njol.util.coll.iterator.EnumerationIterable;
 import com.google.common.collect.Lists;
@@ -108,6 +107,7 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.UnknownNullability;
 import org.junit.After;
 import org.junit.runner.JUnitCore;
 import org.junit.runner.Result;
@@ -116,6 +116,9 @@ import org.skriptlang.skript.lang.comparator.Comparators;
 import org.skriptlang.skript.lang.converter.Converter;
 import org.skriptlang.skript.lang.converter.Converters;
 import org.skriptlang.skript.lang.entry.EntryValidator;
+import org.skriptlang.skript.lang.experiment.ExperimentManager;
+import org.skriptlang.skript.lang.experiment.Feature;
+import org.skriptlang.skript.lang.script.Annotation;
 import org.skriptlang.skript.lang.script.Script;
 import org.skriptlang.skript.lang.structure.Structure;
 import org.skriptlang.skript.lang.structure.StructureInfo;
@@ -230,6 +233,7 @@ public final class Skript extends JavaPlugin implements Listener {
 	
 	@Nullable
 	private static Version version = null;
+	private static @UnknownNullability ExperimentManager experimentManager;
 	
 	public static Version getVersion() {
 		final Version v = version;
@@ -363,6 +367,13 @@ public final class Skript extends JavaPlugin implements Listener {
 	private File scriptsFolder;
 
 	/**
+	 * @return The manager for experimental, optional features.
+	 */
+	public static ExperimentManager experiments() {
+		return experimentManager;
+	}
+
+	/**
 	 * @return The folder containing all Scripts.
 	 */
 	public File getScriptsFolder() {
@@ -392,6 +403,8 @@ public final class Skript extends JavaPlugin implements Listener {
 		} catch (Exception e) {
 			Skript.exception(e, "Update checker could not be initialized.");
 		}
+		experimentManager = new ExperimentManager(this);
+		Feature.registerAll(getAddonInstance(), experimentManager);
 		
 		if (!getDataFolder().isDirectory())
 			getDataFolder().mkdirs();
@@ -1199,6 +1212,7 @@ public final class Skript extends JavaPlugin implements Listener {
 		if (disabled)
 			return;
 		disabled = true;
+		this.experimentManager = null;
 
 		if (!partDisabled) {
 			beforeDisable();
@@ -1614,7 +1628,8 @@ public final class Skript extends JavaPlugin implements Listener {
 	 */
 	@SuppressWarnings("null")
 	public static void warning(final String warning) {
-		SkriptLogger.log(Level.WARNING, warning);
+		if (!Annotation.isAnnotationPresent("suppress warnings"))
+			SkriptLogger.log(Level.WARNING, warning);
 	}
 	
 	/**
@@ -1622,8 +1637,9 @@ public final class Skript extends JavaPlugin implements Listener {
 	 */
 	@SuppressWarnings("null")
 	public static void error(final @Nullable String error) {
-		if (error != null)
-			SkriptLogger.log(Level.SEVERE, error);
+		if (error == null || Annotation.isAnnotationPresent("suppress errors"))
+			return;
+		SkriptLogger.log(Level.SEVERE, error);
 	}
 	
 	/**
@@ -1634,6 +1650,8 @@ public final class Skript extends JavaPlugin implements Listener {
 	 * @param quality
 	 */
 	public static void error(final String error, final ErrorQuality quality) {
+		if (Annotation.isAnnotationPresent("suppress errors"))
+			return;
 		SkriptLogger.log(new LogEntry(SkriptLogger.SEVERE, quality, error));
 	}
 	
