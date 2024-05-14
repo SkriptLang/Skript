@@ -204,7 +204,7 @@ Your comments should look something like these:
 or try-with-resources sections where their immutability is necessary
 * Methods should be declared final only where necessary
 * Use `@Override` whenever applicable
-  - `@Override` annotations may be omitted to prevent compilation errors when something overrides only
+  - They may be omitted to prevent compilation errors when something overrides only
   on a version-dependent basis (e.g. in Library XYZ version 2 we override `getX()` but in version 3 it's
   gone, and we call it ourselves)
 
