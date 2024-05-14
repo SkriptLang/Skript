@@ -38,6 +38,8 @@ import ch.njol.skript.variables.Variables;
 import ch.njol.util.Kleenean;
 import io.papermc.lib.PaperLib;
 import io.papermc.lib.environments.PaperEnvironment;
+import org.bukkit.Bukkit;
+import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.entity.Entity;
 import org.bukkit.event.Event;
@@ -45,24 +47,30 @@ import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 import org.eclipse.jdt.annotation.Nullable;
 
+import java.util.concurrent.CompletableFuture;
+
 @Name("Teleport")
 @Description({
 	"Teleport an entity to a specific location. ",
 	"This effect is delayed by default on Paper, meaning certain syntax such as the return effect for functions cannot be used after this effect.",
 	"The keyword 'force' indicates this effect will not be delayed, ",
-	"which may cause lag spikes or server crashes when using this effect to teleport entities to unloaded chunks."
-})
-@Examples({
-	"teleport the player to {homes.%player%}",
+	"which may cause lag spikes or server crashes when using this effect to teleport entities to unloaded chunks.",
+	"If your code doesn't need to wait for the teleport to finish before continuing, you can use the 'eventually' keyword",
+	"which indicates that your code should continue executing even if the teleport hasn't happened yet."})
+@Examples({"teleport the player to {homes::%player's uuid%}",
 	"teleport the attacker to the victim"
 })
-@Since("1.0")
+@Since("1.0, (INSERT VERSION for teleport eventually)")
 public class EffTeleport extends Effect {
 
 	private static final boolean CAN_RUN_ASYNC = PaperLib.getEnvironment() instanceof PaperEnvironment;
 
 	static {
-		Skript.registerEffect(EffTeleport.class, "[(1¦force)] teleport %entities% (to|%direction%) %location%");
+		Skript.registerEffect(EffTeleport.class,
+			"teleport %entities% (to|%direction%) %location%",
+					"(force|immediately) teleport %entities% (to|direction) %location%",
+					"teleport %entities% (to|direction) %location% (eventually|as soon as possible)"
+			);
 	}
 
 	@SuppressWarnings("NotNullFieldNotInitialized")
@@ -71,20 +79,22 @@ public class EffTeleport extends Effect {
 	private Expression<Location> location;
 
 	private boolean isAsync;
+	private boolean waitForCompletion;
 
 	@Override
 	@SuppressWarnings("unchecked")
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		entities = (Expression<Entity>) exprs[0];
 		location = Direction.combine((Expression<? extends Direction>) exprs[1], (Expression<? extends Location>) exprs[2]);
-		isAsync = CAN_RUN_ASYNC && parseResult.mark == 0;
+		isAsync = CAN_RUN_ASYNC && matchedPattern != 1;
+		waitForCompletion = matchedPattern != 2;
 
 		if (getParser().isCurrentEvent(SpawnEvent.class)) {
-			Skript.error("You cannot be teleporting an entity that hasn't spawned yet. Ensure you're using the location expression from the spawn section pattern.");
+			Skript.error("You cannot teleport an entity that hasn't spawned yet. Ensure you're using the location expression from the spawn section pattern.");
 			return false;
 		}
 
-		if (isAsync)
+		if (isAsync && waitForCompletion)
 			getParser().setHasDelayBefore(Kleenean.UNKNOWN); // UNKNOWN because it isn't async if the chunk is already loaded.
 		return true;
 	}
@@ -127,34 +137,43 @@ public class EffTeleport extends Effect {
 
 		Delay.addDelayedEvent(e);
 		Object localVars = Variables.removeLocals(e);
-		
+
 		// This will either fetch the chunk instantly if on Spigot or already loaded or fetch it async if on Paper.
-		PaperLib.getChunkAtAsync(loc).thenAccept(chunk -> {
-			// The following is now on the main thread
-			for (Entity entity : entityArray) {
-				EntityUtils.teleport(entity, loc);
-			}
-
-			// Re-set local variables
-			if (localVars != null)
-				Variables.setLocalVariables(e, localVars);
-			
-			// Continue the rest of the trigger if there is one
-			Object timing = null;
-			if (next != null) {
-				if (SkriptTimings.enabled()) {
-					Trigger trigger = getTrigger();
-					if (trigger != null) {
-						timing = SkriptTimings.start(trigger.getDebugLabel());
-					}
+		CompletableFuture<Chunk> chunkFuture = PaperLib.getChunkAtAsync(loc).thenApply(chunk -> {
+			Bukkit.getScheduler().runTask(Skript.getInstance(), () -> {
+				for (Entity entity : entityArray) {
+					EntityUtils.teleport(entity, loc);
 				}
-
-				TriggerItem.walk(next, e);
-			}
-			Variables.removeLocals(e); // Clean up local vars, we may be exiting now
-			SkriptTimings.stop(timing);
+			});
+			return chunk;
 		});
-		return null;
+
+		if (waitForCompletion) {
+			// execute code after the teleportation finishes
+			chunkFuture.thenAccept(chunk -> {
+				// Re-set local variables
+				if (localVars != null)
+					Variables.setLocalVariables(e, localVars);
+
+				// Continue the rest of the trigger if there is one
+				Object timing = null;
+				if (next != null) {
+					if (SkriptTimings.enabled()) {
+						Trigger trigger = getTrigger();
+						if (trigger != null) {
+							timing = SkriptTimings.start(trigger.getDebugLabel());
+						}
+					}
+
+					TriggerItem.walk(next, e);
+				}
+				Variables.removeLocals(e); // Clean up local vars, we may be exiting now
+				SkriptTimings.stop(timing);
+			});
+			return null;
+		}
+
+		return next;
 	}
 
 	@Override
