@@ -73,12 +73,25 @@ public class EnchantmentUtils {
 	}
 
 	public static String getKey(Enchantment enchantment) {
-		return enchantment.getKey().getKey();
+		return enchantment.getKey().toString();
 	}
 
 	@Nullable
 	public static Enchantment getByKey(String key) {
-		return Enchantment.getByKey(NamespacedKey.minecraft(key));
+		if (!key.contains(":")) {
+			// Old method for old variables
+			return Enchantment.getByKey(NamespacedKey.minecraft(key));
+		} else {
+			NamespacedKey namespacedKey = NamespacedKey.fromString(key);
+			if (namespacedKey == null)
+				return null;
+
+			if (HAS_REGISTRY) {
+				return Registry.ENCHANTMENT.get(namespacedKey);
+			} else {
+				return Enchantment.getByKey(namespacedKey);
+			}
+		}
 	}
 
 	@Nullable
