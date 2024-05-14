@@ -40,6 +40,6 @@ use-native-transport=true
 max-players=20
 resource-pack-sha1=
 spawn-protection=0
-online-mode=true
+online-mode=false
 allow-flight=false
 max-world-size=29999984

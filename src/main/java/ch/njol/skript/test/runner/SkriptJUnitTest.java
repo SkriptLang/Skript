@@ -27,6 +27,7 @@ import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Pig;
+import org.bukkit.entity.Player;
 import org.junit.After;
 import org.junit.Before;
 
@@ -82,7 +83,9 @@ public abstract class SkriptJUnitTest {
 	@Before
 	@After
 	public void cleanup() {
-		getTestWorld().getEntities().forEach(Entity::remove);
+		getTestWorld().getEntities().stream()
+			.filter(entity -> !(entity instanceof Player))
+			.forEach(Entity::remove);
 		setBlock(Material.AIR);
 	}
 

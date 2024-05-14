@@ -9,6 +9,16 @@
 			"target": "paperclip.jar"
 		}
 	],
+	"downloads": [
+		{
+			"source":  "https://github.com/Pikachu920/testing-room/raw/main/minosoft-fat-linux-amd64-ec602af.jar",
+			"target":  "plugins/Skript/minosoft/minosoft-linux.jar"
+		},
+		{
+			"source": "https://github.com/Pikachu920/testing-room/raw/main/minosoft-fat-windows-amd64-ec602af.jar",
+			"target": "plugins/Skript/minosoft/minosoft-windows.jar"
+		}
+	],
 	"skriptTarget": "plugins/Skript.jar",
 	"commandLine": [
 		"-Dcom.mojang.eula.agree=true",
