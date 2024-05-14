@@ -37,51 +37,62 @@ import java.util.List;
 
 public interface ReturnHandler<T> {
 
+	/**
+	 * Loads the code in the given {@link SectionNode} using the same logic as
+	 * {@link Section#loadCode(SectionNode)} and pushes the section onto the
+	 * return handler stack
+	 * <br>
+	 * <b>This method may only be called by a {@link Section}</b>
+	 * @throws SkriptAPIException if this return handler is not a {@link Section}
+	 */
 	@NonExtendable
 	default void loadReturnableSectionCode(SectionNode node) {
-		if (!(this instanceof TriggerSection))
+		if (!(this instanceof Section))
 			throw new SkriptAPIException("loadReturnableSectionCode called on a non-section object");
 		ParserInstance parser = ParserInstance.get();
 		ReturnHandlerStack stack = parser.getData(ReturnHandlerStack.class);
 		stack.push(this);
-		TriggerSection section = (TriggerSection) this;
-		List<TriggerSection> currentSections = parser.getCurrentSections();
-		currentSections.add(section);
+		Section section = (Section) this;
 		try {
-			section.setTriggerItems(ScriptLoader.loadItems(node));
+			section.loadCode(node);
 		} finally {
-			currentSections.remove(currentSections.size() - 1);
 			stack.pop();
 		}
 	}
 
+	/**
+	 * Loads the code in the given {@link SectionNode} using the same logic as
+	 * {@link Section#loadCode(SectionNode, String, Class[])} and pushes the section onto the
+	 * return handler stack
+	 * <br>
+	 * <b>This method may only be called by a {@link Section}</b>
+	 * @param node the section node
+	 * @param name the name of the event(s) being used
+	 * @param events the event(s) during the section's execution
+	 * @return a returnable trigger containing the loaded section.
+	 * This should be stored and used to run the section one or more times
+	 * @throws SkriptAPIException if this return handler is not a {@link Section}
+	 */
 	@NonExtendable
-	default Trigger loadReturnableTrigger(SectionNode node, String name, Class<? extends Event>[] events) {
+	default ReturnableTrigger<T> loadReturnableSectionCode(SectionNode node, String name, Class<? extends Event>[] events) {
+		if (!(this instanceof Section))
+			throw new SkriptAPIException("loadReturnableSectionCode called on a non-section object");
 		ParserInstance parser = ParserInstance.get();
 		ReturnHandlerStack stack = parser.getData(ReturnHandlerStack.class);
-		boolean isSection = this instanceof Section;
-		SkriptEvent skriptEvent = isSection ? new SectionSkriptEvent(name, (Section) this) : new SimpleEvent();
-		String previousName = null;
-		Class<? extends Event>[] previousEvents = null;
-		Structure previousStructure = null;
-		List<TriggerSection> previousSections = null;
-		Kleenean previousDelay = null;
-		Deque<ReturnHandler<?>> previousReturnStack = null;
-		if (isSection) {
-			previousName = parser.getCurrentEventName();
-			previousEvents = parser.getCurrentEvents();
-			previousStructure = parser.getCurrentStructure();
-			previousSections = parser.getCurrentSections();
-			previousDelay = parser.getHasDelayBefore();
 
-			parser.setCurrentEvent(name, events);
-			parser.setCurrentStructure(skriptEvent);
-			parser.setCurrentSections(new ArrayList<>());
-			parser.setHasDelayBefore(Kleenean.FALSE);
-		}
+		SkriptEvent skriptEvent = new SectionSkriptEvent(name, (Section) this);
+		String previousName = parser.getCurrentEventName();
+		Class<? extends Event>[] previousEvents = parser.getCurrentEvents();
+		Structure previousStructure = parser.getCurrentStructure();
+		List<TriggerSection> previousSections = parser.getCurrentSections();
+		Kleenean previousDelay = parser.getHasDelayBefore();
+
+		parser.setCurrentEvent(name, events);
+		parser.setCurrentStructure(skriptEvent);
+		parser.setCurrentSections(new ArrayList<>());
+		parser.setHasDelayBefore(Kleenean.FALSE);
 		try {
-			// push handler
-			return new ReturnableTrigger<T>(
+			return new ReturnableTrigger<>(
 				this,
 				parser.getCurrentScript(),
 				name,
@@ -93,17 +104,25 @@ public interface ReturnHandler<T> {
 			);
 		} finally {
 			stack.pop();
-			if (isSection) {
-				parser.setCurrentEvent(previousName, previousEvents);
-				parser.setCurrentStructure(previousStructure);
-				parser.setCurrentSections(previousSections);
-				parser.setHasDelayBefore(previousDelay);
-			}
+			parser.setCurrentEvent(previousName, previousEvents);
+			parser.setCurrentStructure(previousStructure);
+			parser.setCurrentSections(previousSections);
+			parser.setHasDelayBefore(previousDelay);
 		}
 	}
 
+	/**
+	 * Loads the code in the given {@link SectionNode} into a {@link ReturnableTrigger}.
+	 * <br>
+	 * This is a general method to load a section node without extra logic
+	 * done to the {@link ParserInstance}
+	 * @param node the section node to load
+	 * @param name the name of the trigger
+	 * @param event the {@link SkriptEvent} of the trigger
+	 * @return a returnable trigger containing the loaded section node
+	 */
 	@NonExtendable
-	default Trigger loadReturnableTrigger(SectionNode node, String name, SkriptEvent event) {
+	default ReturnableTrigger<T> loadReturnableTrigger(SectionNode node, String name, SkriptEvent event) {
 		ParserInstance parser = ParserInstance.get();
 		ReturnHandlerStack stack = parser.getData(ReturnHandlerStack.class);
 		try {
@@ -122,10 +141,21 @@ public interface ReturnHandler<T> {
 		}
 	}
 
+	/**
+	 * @param values the values to return
+	 */
 	void returnValues(T @Nullable [] values);
 
+	/**
+	 * @return whether this return handler may accept multiple return values
+	 */
 	boolean singleReturnValue();
 
+	/**
+	 * The return type of this return handler, or null if it can't
+	 * accept return values in this context (e.g. a function without a return type).
+	 * @return the return type
+	 */
 	@Nullable ClassInfo<T> returnValueType();
 
 	class ReturnHandlerStack extends ParserInstance.Data {
@@ -171,5 +201,5 @@ public interface ReturnHandler<T> {
 		}
 
 	}
-	
+
 }
