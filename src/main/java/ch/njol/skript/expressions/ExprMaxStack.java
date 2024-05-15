@@ -18,6 +18,7 @@
  */
 package ch.njol.skript.expressions;
 
+import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
@@ -56,6 +57,8 @@ public class ExprMaxStack extends SimplePropertyExpression<Object, Integer> {
 		register(ExprMaxStack.class, Integer.class, "max[imum] stack[[ ]size]", "itemtypes/inventories");
 	}
 
+	private static final boolean CHANGEABLE_ITEM_STACK_SIZE = Skript.methodExists(ItemMeta.class, "setMaxStackSize", Integer.class);
+
 	@Override
 	@Nullable
 	public Integer convert(Object source) {
@@ -78,6 +81,10 @@ public class ExprMaxStack extends SimplePropertyExpression<Object, Integer> {
             case REMOVE:
 			case RESET:
 			case SET:
+				if (!CHANGEABLE_ITEM_STACK_SIZE && ItemType.class.isAssignableFrom(getExpr().getReturnType())) {
+					Skript.error("Changers for maximum stack size of items requires Minecraft 1.20.5 or newer");
+					return null;
+				}
 				return CollectionUtils.array(Integer.class);
 			default:
 				return null;
@@ -91,6 +98,8 @@ public class ExprMaxStack extends SimplePropertyExpression<Object, Integer> {
 			if (mode != ChangeMode.DELETE && mode != ChangeMode.RESET)
 				change = (int) delta[0];
 			if (source instanceof ItemType) {
+				if (!CHANGEABLE_ITEM_STACK_SIZE)
+					continue;
 				ItemType itemType = ((ItemType) source);
 				int size = itemType.getRandom().getMaxStackSize();
                 switch (mode) {
