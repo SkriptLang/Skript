@@ -495,6 +495,15 @@ public final class ParserInstance {
 
 	// Backup API
 
+	/**
+	 * A Backup represents a ParserInstance at a certain point in time.
+	 * It does not include anything regarding a ParserInstance's logging data.
+	 * It is important to understand that this does not create a deep-copy of all data.
+	 *  That is, the contents of any collections will remain the same, but there is no guarantee that
+	 *  the contents themselves will remain unchanged.
+	 * @see #backup()
+	 * @see #restoreBackup(Backup) 
+	 */
 	public static class Backup {
 
 		private final Script currentScript;
@@ -534,7 +543,7 @@ public final class ParserInstance {
 	}
 
 	/**
-	 * A backup of a ParserInstance represents its current state (excluding Logging API).
+	 * Creates a backup of this ParserInstance, which represents its current state (excluding any Logging API).
 	 * @return A backup of this ParserInstance.
 	 * @see #restoreBackup(Backup)
 	 */
@@ -546,8 +555,9 @@ public final class ParserInstance {
 
 	/**
 	 * Restores a backup onto this ParserInstance.
-	 *  That is, the entire ParserInstance (except Logging API), will be overridden.
+	 *  That is, this entire ParserInstance, except any Logging API, will be overridden.
 	 * @param backup The backup to apply.
+	 * @see #backup()
 	 */
 	public void restoreBackup(Backup backup) {
 		backup.apply(this);
