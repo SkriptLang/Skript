@@ -157,7 +157,7 @@ public interface ReturnHandler<T> {
 	 * accept return values in this context (e.g. a function without a return type).
 	 * @return the return type
 	 */
-	@Nullable ClassInfo<T> returnValueType();
+	@Nullable ClassInfo<? extends T> returnValueType();
 
 	class ReturnHandlerStack extends ParserInstance.Data {
 

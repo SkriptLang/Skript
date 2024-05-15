@@ -47,7 +47,7 @@ public class ReturnableTrigger<T> extends Trigger implements ReturnHandler<T> {
 	}
 
 	@Override
-	public @Nullable ClassInfo<T> returnValueType() {
+	public @Nullable ClassInfo<? extends T> returnValueType() {
 		return handler.returnValueType();
 	}
 

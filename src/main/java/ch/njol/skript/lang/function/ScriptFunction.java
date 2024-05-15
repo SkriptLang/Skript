@@ -109,7 +109,7 @@ public class ScriptFunction<T> extends Function<T> implements ReturnHandler<T> {
 	}
 
 	@Override
-	public final @Nullable ClassInfo<T> returnValueType() {
+	public final @Nullable ClassInfo<? extends T> returnValueType() {
 		return getReturnType();
 	}
 
