@@ -31,14 +31,16 @@ import ch.njol.skript.structures.StructOptions.OptionsData;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.script.Script;
 import org.skriptlang.skript.lang.script.ScriptEvent;
 import org.skriptlang.skript.lang.structure.Structure;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -62,23 +64,22 @@ public final class ParserInstance {
 	 * Internal method for updating a ParserInstance's {@link #isActive()} status!
 	 * You probably don't need to use this method!
 	 */
+	@ApiStatus.Internal
 	public void setInactive() {
 		this.isActive = false;
+		reset();
 		setCurrentScript((Script) null);
-		setCurrentStructure(null);
-		deleteCurrentEvent();
-		getCurrentSections().clear();
-		setNode(null);
 	}
 
 	/**
 	 * Internal method for updating a ParserInstance's {@link #isActive()} status!
 	 * You probably don't need to use this method!
 	 */
+	@ApiStatus.Internal
 	public void setActive(Script script) {
 		this.isActive = true;
+		reset(); // just to be safe
 		setCurrentScript(script);
-		setNode(null);
 	}
 
 	/**
@@ -89,6 +90,20 @@ public final class ParserInstance {
 	 */
 	public boolean isActive() {
 		return isActive;
+	}
+
+	/**
+	 * Resets this ParserInstance to its default state.
+	 * The only data retained is {@link #getCurrentScript()} and any Logging API.
+	 */
+	public void reset() {
+		this.currentStructure = null;
+		this.currentEventName = null;
+		this.currentEvents = null;
+		this.currentSections = new ArrayList<>();
+		this.hasDelayBefore = Kleenean.FALSE;
+		this.node = null;
+		dataMap.clear();
 	}
 
 	// Script API
@@ -356,7 +371,7 @@ public final class ParserInstance {
 		return hasDelayBefore;
 	}
 
-	// Miscellaneous
+	// Logging API
 
 	private final HandlerList handlers = new HandlerList();
 
@@ -476,6 +491,66 @@ public final class ParserInstance {
 				dataList.add(data);
 		}
 		return dataList;
+	}
+
+	// Backup API
+
+	public static class Backup {
+
+		private final Script currentScript;
+		private final @Nullable Structure currentStructure;
+		private final @Nullable String currentEventName;
+		private final Class<? extends Event> @Nullable [] currentEvents;
+		private final List<TriggerSection> currentSections;
+		private final Kleenean hasDelayBefore;
+		private final Map<Class<? extends Data>, Data> dataMap;
+
+		private Backup(ParserInstance parser) {
+			//noinspection ConstantConditions - parser will be active, meaning there is a current script
+			this.currentScript = parser.currentScript;
+			this.currentStructure = parser.currentStructure;
+			this.currentEventName = parser.currentEventName != null ? parser.currentEventName : null;
+			this.currentEvents = parser.currentEvents != null
+				? Arrays.copyOf(parser.currentEvents, parser.currentEvents.length)
+				: null;
+			this.currentSections = new ArrayList<>();
+			this.currentSections.addAll(parser.currentSections);
+			this.hasDelayBefore = parser.hasDelayBefore;
+			this.dataMap = new HashMap<>();
+			this.dataMap.putAll(parser.dataMap);
+		}
+
+		private void apply(ParserInstance parser) {
+			parser.setCurrentScript(currentScript);
+			parser.currentStructure = this.currentStructure;
+			parser.currentEventName = this.currentEventName;
+			parser.currentEvents = this.currentEvents;
+			parser.currentSections = this.currentSections;
+			parser.hasDelayBefore = this.hasDelayBefore;
+			parser.dataMap.clear();
+			parser.dataMap.putAll(this.dataMap);
+		}
+
+	}
+
+	/**
+	 * A backup of a ParserInstance represents its current state (excluding Logging API).
+	 * @return A backup of this ParserInstance.
+	 * @see #restoreBackup(Backup)
+	 */
+	public Backup backup() {
+		if (!isActive())
+			throw new SkriptAPIException("Backups may only be created from active ParserInstances");
+		return new Backup(this);
+	}
+
+	/**
+	 * Restores a backup onto this ParserInstance.
+	 *  That is, the entire ParserInstance (except Logging API), will be overridden.
+	 * @param backup The backup to apply.
+	 */
+	public void restoreBackup(Backup backup) {
+		backup.apply(this);
 	}
 
 	// Deprecated API
