@@ -7,16 +7,24 @@ test "EvtWhitelistTest" when running JUnit:
 	set {_test::113.2} to "listen for server whitelist enabled"
 	set {_test::113.3} to "listen for server whitelist disabled"
 
-	# Player whitelist tests
+	# Player Whitelist tests for MC 1.20
 	if running minecraft "1.20":
+		set {_slashIndex} to last index of "/" in "%script%.sk"
+		set {_parent} to substring of "%script%.sk" from 0 to {_slashIndex}
+		load script "%{_parent}%-EvtPlayerWhitelistTest.sk"
+
 		set {_test::120.1} to "listen for player whitelist toggled"
 		set {_test::120.2} to "listen for player whitelist added"
 		set {_test::120.3} to "listen for player whitelist removed"
 
 	ensure junit test {@junit} completes {_test::*}
 
-
-# Server whitelist events
+# Unloads the Player Whitelist tests for MC 1.20
+on script unload:
+	running minecraft "1.20"
+	set {_slashIndex} to last index of "/" in "%script%.sk"
+	set {_parent} to substring of "%script%.sk" from 0 to {_slashIndex}
+	disable script "%{_parent}%EvtPlayerWhitelistTest.sk"
 
 on server whitelist toggled:
 	junit test is {@junit}
@@ -31,21 +39,3 @@ on server whitelist disabled:
 	junit test is {@junit}
 	the server will not be whitelisted
 	complete objective "listen for server whitelist disabled" for {@junit}
-
-
-# Player whitelist events
-
-on player whitelist toggled:
-	junit test is {@junit}
-	name of event-offline player is "Njol"
-	complete objective "listen for player whitelist toggled" for {@junit}
-
-on player whitelist added:
-	junit test is {@junit}
-	name of event-offline player is "Njol"
-	complete objective "listen for player whitelist added" for {@junit}
-
-on player whitelist removed:
-	junit test is {@junit}
-	name of event-offline player is "Njol"
-	complete objective "listen for player whitelist removed" for {@junit}
