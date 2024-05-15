@@ -37,7 +37,7 @@ test "max stack override - itemtype" when running minecraft "1.20.5":
 test "max stack override - inventory":
 	set {_inv} to a new chest inventory with 1 rows
 	# Based on manual testing, max stack size of an inventory defaults to 99
-	assert max stack size of {_inv} is 99 with "inventory should have max stack size of 99, got %max stack size of {_inv}%"
+	assert max stack size of {_inv} is 99 with "inventory should have max stack size of 99"
 	set max stack size of {_inv} to 32
 	assert max stack size of {_inv} is 32 with "inventory should have max stack size of 32"
 	add 2 to max stack size of {_inv}
@@ -45,4 +45,4 @@ test "max stack override - inventory":
 	remove 4 from max stack size of {_inv}
 	assert max stack size of {_inv} is 30 with "inventory should have max stack size of 30"
 	reset max stack size of {_inv}
-	assert max stack size of {_inv} is 64 with "inventory should have factory max stack size of 64"
+	assert max stack size of {_inv} is 99 with "inventory should have factory max stack size of 99"
