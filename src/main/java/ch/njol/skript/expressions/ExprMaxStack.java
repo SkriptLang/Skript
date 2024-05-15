@@ -50,7 +50,7 @@ import org.jetbrains.annotations.Nullable;
 	"reset the maximum stack size of {_gui}"
 })
 @Since("2.1, INSERT VERSION (changeable, inventory support)")
-@RequiredPlugins("MC 1.20.5+ (changeable item max stack size)")
+@RequiredPlugins("Spigot 1.20.5+ (changeable item max stack size)")
 public class ExprMaxStack extends SimplePropertyExpression<Object, Integer> {
 
 	static {
