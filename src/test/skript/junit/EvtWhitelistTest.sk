@@ -13,7 +13,7 @@ test "EvtWhitelistTest" when running JUnit:
 		set {_test::120.2} to "listen for player whitelist added"
 		set {_test::120.3} to "listen for player whitelist removed"
 
-	ensure junit test {@junit} completes {_tests::*}
+	ensure junit test {@junit} completes {_test::*}
 
 
 # Server whitelist events
