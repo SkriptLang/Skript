@@ -102,10 +102,10 @@ public class RegistryUtils<R extends Keyed> {
 	}
 
 	/**
-	 * This method attempts to match the string input against one of the string representations of the enumerators.
+	 * This method attempts to match the string input against one of the string representations of the registry.
 	 *
-	 * @param input a string to attempt to match against one the enumerators.
-	 * @return The enumerator matching the input, or null if no match could be made.
+	 * @param input a string to attempt to match against one in the registry.
+	 * @return The registry object matching the input, or null if no match could be made.
 	 */
 	@Nullable
 	public R parse(String input) {
@@ -113,11 +113,11 @@ public class RegistryUtils<R extends Keyed> {
 	}
 
 	/**
-	 * This method returns the string representation of an enumerator.
+	 * This method returns the string representation of a registry.
 	 *
 	 * @param object The object to represent as a string.
 	 * @param flags  not currently used
-	 * @return A string representation of the enumerator.
+	 * @return A string representation of the registry object.
 	 */
 	public String toString(R object, int flags) {
 		return names.get(object);
