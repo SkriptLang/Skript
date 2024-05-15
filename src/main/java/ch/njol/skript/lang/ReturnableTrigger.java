@@ -42,8 +42,8 @@ public class ReturnableTrigger<T> extends Trigger implements ReturnHandler<T> {
 	}
 
 	@Override
-	public boolean singleReturnValue() {
-		return handler.singleReturnValue();
+	public boolean isSingleReturnValue() {
+		return handler.isSingleReturnValue();
 	}
 
 	@Override

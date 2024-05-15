@@ -37,8 +37,7 @@ import java.util.function.Supplier;
  * A section that can decide what it does with its contents, as code isn't parsed by default.
  * <br><br>
  * In most cases though, a section should load its code through one of the following loading methods:
- * {@link #loadCode(SectionNode)}, {@link #loadCode(SectionNode, String, Class[])}, {@link #loadOptionalCode(SectionNode)},
- * {@link ReturnHandler#loadReturnableSectionCode(SectionNode)}
+ * {@link #loadCode(SectionNode)}, {@link #loadCode(SectionNode, String, Class[])}, {@link #loadOptionalCode(SectionNode)}
  * <br><br>
  * Every section must override the {@link TriggerSection#walk(Event)} method. In this method, you can determine whether *  the section should run. If you have stored a {@link Trigger} from {@link #loadCode(SectionNode, String, Class[])}, you
  * should not run it with this event passed in this walk method.

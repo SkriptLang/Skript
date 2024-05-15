@@ -104,7 +104,7 @@ public class ScriptFunction<T> extends Function<T> implements ReturnHandler<T> {
 	}
 
 	@Override
-	public final boolean singleReturnValue() {
+	public final boolean isSingleReturnValue() {
 		return isSingle();
 	}
 

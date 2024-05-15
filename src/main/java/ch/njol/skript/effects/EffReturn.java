@@ -77,7 +77,7 @@ public class EffReturn extends Effect {
 
 		ClassInfo<?> returnType = handler.returnValueType();
 		if (returnType == null) {
-			Skript.error("This trigger doesn't return any value. Please use 'stop' or 'exit' if you want to stop the trigger.");
+			Skript.error(handler + " doesn't return any value. Please use 'stop' or 'exit' if you want to stop the trigger.");
 			return false;
 		}
 
@@ -86,7 +86,7 @@ public class EffReturn extends Effect {
 		try {
 			convertedExpr = exprs[0].getConvertedExpression(returnType.getC());
 			if (convertedExpr == null) {
-				log.printErrors("This trigger is declared to return " + returnType.getName().withIndefiniteArticle() + ", but " + exprs[0].toString(null, false) + " is not of that type.");
+				log.printErrors(handler + " is declared to return " + returnType.getName().withIndefiniteArticle() + ", but " + exprs[0].toString(null, false) + " is not of that type.");
 				return false;
 			}
 			log.printLog();
@@ -94,8 +94,8 @@ public class EffReturn extends Effect {
 			log.stop();
 		}
 
-		if (handler.singleReturnValue() && !convertedExpr.isSingle()) {
-			Skript.error("This trigger is defined to only return a single " + returnType + ", but this return statement can return multiple values.");
+		if (handler.isSingleReturnValue() && !convertedExpr.isSingle()) {
+			Skript.error(handler + " is defined to only return a single " + returnType + ", but this return statement can return multiple values.");
 			return false;
 		}
 		value = convertedExpr;

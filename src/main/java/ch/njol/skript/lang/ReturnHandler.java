@@ -23,7 +23,6 @@ import ch.njol.skript.SkriptAPIException;
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.lang.parser.ParserInstance;
-import ch.njol.skript.lang.util.SimpleEvent;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
@@ -115,7 +114,9 @@ public interface ReturnHandler<T> {
 	 * Loads the code in the given {@link SectionNode} into a {@link ReturnableTrigger}.
 	 * <br>
 	 * This is a general method to load a section node without extra logic
-	 * done to the {@link ParserInstance}
+	 * done to the {@link ParserInstance}.
+	 * The calling code is expected to manage the {@code ParserInstance} accordingly, which may vary depending on
+	 * where the code being loaded is located and what state the {@code ParserInstance} is in.
 	 * @param node the section node to load
 	 * @param name the name of the trigger
 	 * @param event the {@link SkriptEvent} of the trigger
@@ -149,7 +150,7 @@ public interface ReturnHandler<T> {
 	/**
 	 * @return whether this return handler may accept multiple return values
 	 */
-	boolean singleReturnValue();
+	boolean isSingleReturnValue();
 
 	/**
 	 * The return type of this return handler, or null if it can't
