@@ -25,12 +25,17 @@ import ch.njol.util.StringUtils;
 import org.bukkit.Keyed;
 import org.bukkit.NamespacedKey;
 import org.bukkit.Registry;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
+/**
+ * Utility class for {@link Registry}
+ *
+ * @param <R> Registry class
+ */
 public class RegistryUtils<R extends Keyed> {
 
 	private final Registry<R> registry;
@@ -47,7 +52,7 @@ public class RegistryUtils<R extends Keyed> {
 		Language.addListener(this::refresh);
 	}
 
-	void refresh() {
+	private void refresh() {
 		names.clear();
 		parseMap.clear();
 		for (R registryObject : registry) {
@@ -61,14 +66,14 @@ public class RegistryUtils<R extends Keyed> {
 			parseMap.put(namespacedKey.toString(), registryObject);
 
 			// If the object is a vanilla Minecraft object, we'll add the key with spaces as a pattern
-			if (namespace.equalsIgnoreCase("minecraft")) {
+			if (namespace.equalsIgnoreCase(NamespacedKey.MINECRAFT)) {
 				parseMap.put(keyWithSpaces, registryObject);
 			}
 
 			String[] options = Language.getList(languageKey);
 			// Missing/Custom registry objects
 			if (options.length == 1 && options[0].equals(languageKey.toLowerCase(Locale.ENGLISH))) {
-				if (namespace.equalsIgnoreCase("minecraft")) {
+				if (namespace.equalsIgnoreCase(NamespacedKey.MINECRAFT)) {
 					// If the object is a vanilla Minecraft object, we'll use the key with spaces as a name
 					names.put(registryObject, keyWithSpaces);
 				} else {

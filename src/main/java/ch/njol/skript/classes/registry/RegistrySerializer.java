@@ -26,6 +26,11 @@ import org.bukkit.Registry;
 
 import java.io.StreamCorruptedException;
 
+/**
+ * Serializer for {@link RegistryClassInfo}
+ *
+ * @param <R> Registry class
+ */
 public class RegistrySerializer<R extends Keyed> extends Serializer<R> {
 
 	private final Registry<R> registry;
@@ -73,6 +78,7 @@ public class RegistrySerializer<R extends Keyed> extends Serializer<R> {
 
 	@Override
 	public void deserialize(R o, Fields f) {
+		throw new UnsupportedOperationException();
 	}
 
 }

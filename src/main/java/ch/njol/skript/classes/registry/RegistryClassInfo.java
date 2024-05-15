@@ -25,9 +25,16 @@ import ch.njol.skript.lang.DefaultExpression;
 import ch.njol.skript.lang.ParseContext;
 import org.bukkit.Keyed;
 import org.bukkit.Registry;
-import org.eclipse.jdt.annotation.Nullable;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
+/**
+ * This class can be used for an easier writing of ClassInfos that are registries,
+ * it registers a language node with usage, a serializer, default expression and a parser.
+ * Making it easier to register registry ClassInfos.
+ *
+ * @param <R> The Registry class.
+ */
 public class RegistryClassInfo<R extends Keyed> extends ClassInfo<R> {
 
 	public RegistryClassInfo(Class<R> registryClass, Registry<R> registry, String codeName, String languageNode) {
