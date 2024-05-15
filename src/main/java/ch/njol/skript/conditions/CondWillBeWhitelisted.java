@@ -78,7 +78,7 @@ public class CondWillBeWhitelisted extends Condition {
 	@Override
 	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
 		isPlayer = parseResult.hasTag("player");
-		if (!isPlayer && HAS_SERVER_WHITELIST_EVENT && getParser().isCurrentEvent(WhitelistToggleEvent.class)) {
+		if (!isPlayer && HAS_SERVER_WHITELIST_EVENT && !getParser().isCurrentEvent(WhitelistToggleEvent.class)) {
 			Skript.error("The 'server will be whitelisted' condition can only be used in a 'server whitelist' event");
 			return false;
 		}
