@@ -16,11 +16,14 @@
  *
  * Copyright Peter Güttinger, SkriptLang team and contributors
  */
-package org.skriptlang.skript.lang.experiment;
+package ch.njol.skript.registrations;
 
 import ch.njol.skript.SkriptAddon;
 import ch.njol.skript.patterns.PatternCompiler;
 import ch.njol.skript.patterns.SkriptPattern;
+import org.skriptlang.skript.lang.experiment.Experiment;
+import org.skriptlang.skript.lang.experiment.ExperimentRegistry;
+import org.skriptlang.skript.lang.experiment.LifeCycle;
 
 /**
  * Experimental feature toggles as provided by Skript itself.

@@ -20,6 +20,7 @@ package org.skriptlang.skript.lang.experiment;
 
 import ch.njol.skript.patterns.PatternCompiler;
 import ch.njol.skript.patterns.SkriptPattern;
+import ch.njol.skript.registrations.Feature;
 import org.jetbrains.annotations.ApiStatus;
 
 import java.util.Objects;
