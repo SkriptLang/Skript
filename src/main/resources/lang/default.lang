@@ -1397,15 +1397,6 @@ visual effects:
 		iron_golem_rose:
 			name: iron golem offering rose @an
 			pattern: (iron golem [offering] rose|rose in hand)
-		villager_heart:
-			name: villager hearts @x
-			pattern: villager hearts
-		villager_angry:
-			name: angry villager entity @an
-			pattern: angry villager entity
-		villager_happy:
-			name: happy villager entity @a
-			pattern: happy villager entity
 		witch_magic:
 			name: witch magic @-
 			pattern: witch magic
@@ -1458,39 +1449,15 @@ visual effects:
 			name: hurt by explosion @-
 			pattern: (hurt|damage) by explosion
 	particle:
-		fireworks_spark:
-			name: firework's spark @-
-			pattern: firework['s] spark
 		crit:
 			name: critical hit @a
 			pattern: (critical hit|crit) [spark]
-		crit_magic:
-			name: magical critical hit @a
-			pattern: (magic[al]|blue) (critical hit|crit) [spark]
-		spell_mob:
-			name: potion swirl @a
-			pattern: [%-color%] potion swirl
-		spell_mob_ambient:
-			name: transparent potion swirl @a
-			pattern: [%-color%] transparent potion swirl
-		spell:
-			name: spell @a
-			pattern: (spell|thrown potion|lingering potion)
-		spell_instant:
-			name: spell @a
-			pattern: instant (spell|thrown potion)
-		spell_witch:
-			name: witch spell @-
-			pattern: (witch (magic|spell)|purple spark)
 		note:
 			name: note @a
 			pattern: note [(of|with) [colo[u]r] %number%]
 		portal:
 			name: portal @a
 			pattern: [nether] portal
-		enchantment_table:
-			name: flying glyph @a
-			pattern: (flying (glyph|letter)|enchantment table)
 		flame:
 			name: flame @-
 			pattern: (flame|fire)
@@ -1500,69 +1467,12 @@ visual effects:
 		footstep:
 			name: footstep @x
 			pattern: footsteps
-		water_splash:
-			name: water splash @a
-			pattern: [water] splash
-		smoke_normal:
-			name: smoke particle @a
-			pattern: smoke particle
-		explosion_huge:
-			name: huge explosion @a
-			pattern: huge explosion
-		explosion_large:
-			name: large explosion @a
-			pattern: large explosion
-		explosion_normal:
-			name: explosion @an
-			pattern: explosion
-		suspended_depth:
-			name: void fog @-
-			pattern: void fog
-		town_aura:
-			name: small smoke @-
-			pattern: (small smoke|town aura)
 		cloud:
 			name: cloud @a
 			pattern: cloud
-		redstone:
-			name: coloured dust @-
-			pattern: [%-color%] [colo[u]red] dust
-		snowball:
-			name: snowball break @a
-			pattern: snowball break
-		drip_water:
-			name: water drip @a
-			pattern: water drip
-		drip_lava:
-			name: lava drip @a
-			pattern: lava drip
-		snow_shovel:
-			name: snow shovel @-
-			pattern: (snow shovel|snow(man| golem) spawn)
-		slime:
-			name: slime @-
-			pattern: slime
 		heart:
 			name: heart @a
 			pattern: heart
-		villager_angry:
-			name: angry villager @a
-			pattern: (angry villager|[villager] thundercloud)
-		villager_happy:
-			name: happy villager @-
-			pattern: (happy villager|green spark)
-		smoke_large:
-			name: large smoke @-
-			pattern: large smoke
-		item_crack:
-			name: item crack @-
-			pattern: %itemtype% item (break|crack)[ing]
-		block_crack:
-			name: block break @-
-			pattern: %itemtype% break[ing]
-		block_dust:
-			name: block dust @-
-			pattern: [sprinting] dust of [%itemtype%]
 		end_rod:
 			name: end rod @-
 			pattern: end rod
@@ -1571,9 +1481,6 @@ visual effects:
 			pattern: falling dust of [%itemtype%]
 
 		# 1.11 particles
-		totem:
-			name: totem @-
-			pattern: totem
 		spit:
 			name: spit @-
 			pattern: spit
@@ -1632,24 +1539,9 @@ visual effects:
 		dragon_breath:
 			name: dragon breath @-
 			pattern: dragon[s] breath
-		mob_appearance:
-			name: mob appearance @-
-			pattern: (mob appearance|guardian ghost)
-		suspended:
-			name: suspended @-
-			pattern: (suspended|underwater)
 		sweep_attack:
 			name: sweep attack @-
 			pattern: sweep attack
-		water_bubble:
-			name: water bubble @-
-			pattern: water bubble
-		water_wake:
-			name: water wake @-
-			pattern: water wake
-		water_drop:
-			name: water drop @-
-			pattern: water drop
 
 		# 1.15 particles
 		dripping_honey:
@@ -1765,7 +1657,7 @@ visual effects:
 		shriek:
 			name: shriek @-
 			pattern: shriek
-		
+
 		# 1.19.4 particles
 		dripping_cherry_leaves:
 			name: dripping cherry leaves @-
@@ -1776,6 +1668,232 @@ visual effects:
 		landing_cherry_leaves:
 			name: landing cherry leaves @-
 			pattern: landing cherry leaves
+		cherry_leaves: # previously dripping_cherry_leaves/falling_cherry_leaves/landing_cherry_leaves, changed in 1.20
+			name: cherry leaves @-
+			pattern: (dripping|falling|landing) cherry leaves
+
+		# 1.20.5 particle changes
+		# many particles were removed and replaced with their modern names
+
+		smoke_normal:
+			name: smoke particle @a
+			pattern: smoke particle
+		smoke: # previously smoke_normal, changed in 1.20.5
+			name: smoke particle @a
+			pattern: smoke particle
+
+		smoke_large:
+			name: large smoke @-
+			pattern: large smoke
+		large_smoke: # previous smoke_large, changed in 1.20.5
+			name: large smoke @-
+			pattern: large smoke
+
+		item_crack:
+			name: item crack @-
+			pattern: %itemtype% item (break|crack)[ing]
+		item: # previously item_crack, changed in 1.20.5
+			name: item crack @-
+			pattern: %itemtype% item (break|crack)[ing]
+
+		block_crack:
+			name: block break @-
+			pattern: %itemtype% break[ing]
+		block_dust:
+			name: block dust @-
+			pattern: [sprinting] dust of [%itemtype%]
+		block: # previously block_crack/block_dust, changed in 1.20.5
+			name: block @-
+			pattern: (%itemtype% break[ing]|[sprinting] dust of [%itemtype%])
+
+		crit_magic:
+			name: magical critical hit @a
+			pattern: (magic[al]|blue) (critical hit|crit) [spark]
+		enchanted_hit: # previously crit_magic, changed in 1.20.5
+			name: magical critical hit @a
+			pattern: (magic[al]|blue) (critical hit|crit) [spark]
+
+		drip_water:
+			name: water drip @a
+			pattern: water drip
+		dripping_water: # previously drip_water, changed in 1.20.5
+			name: water drip @a
+			pattern: water drip
+
+		drip_lava:
+			name: lava drip @a
+			pattern: lava drip
+		dripping_lava: # previously drip_lava, changed in 1.20.5
+			name: lava drip @a
+			pattern: lava drip
+
+		enchantment_table:
+			name: flying glyph @a
+			pattern: (flying (glyph|letter)|enchantment table)
+		enchant: # previously enchantment_table, changed in 1.20.5
+			name: flying glyph @a
+			pattern: (flying (glyph|letter)|enchantment table)
+
+		explosion_normal:
+			name: explosion @an
+			pattern: explosion
+		poof: # previously explosion_normal, changed in 1.20.5
+			name: explosion @an
+			pattern: explosion
+
+		explosion_large:
+			name: large explosion @a
+			pattern: large explosion
+		explosion: # previously explosion_large, changed in 1.20.5
+			name: large explosion @a
+			pattern: large explosion
+
+		explosion_huge:
+			name: huge explosion @a
+			pattern: huge explosion
+		explosion_emitter: # previously explosion_huge, changed in 1.20.5
+			name: huge explosion @a
+			pattern: huge explosion
+
+		fireworks_spark:
+			name: firework's spark @-
+			pattern: firework['s] spark
+		firework: # previously fireworks_spark, changed in 1.20.5
+			name: firework @-
+			pattern: firework['s] spark
+
+		mob_appearance:
+			name: mob appearance @-
+			pattern: (mob appearance|guardian ghost)
+		elder_guardian: # previously mob_appearance, changed in 1.20.5
+			name: elder guardian @-
+			pattern: (mob appearance|guardian ghost)
+
+		redstone:
+			name: coloured dust @-
+			pattern: [%-color%] [colo[u]red] dust
+		dust: # previously redstone, changed in 1.20.5
+			name: coloured dust @-
+			pattern: [%-color%] [colo[u]red] dust
+
+		slime:
+			name: slime @-
+			pattern: slime
+		item_slime: # previously slime, changed in 1.20.5
+			name: slime @-
+			pattern: slime
+
+		snow_shovel:
+			name: snow shovel @-
+			pattern: (snow shovel|snow(man| golem) spawn)
+		item_snowball: # previously snow_shovel, changed in 1.20.5
+			name: snow shovel @-
+			pattern: (snow shovel|snow(man| golem) spawn)
+
+		snowball:
+			name: snowball break @a
+			pattern: snowball break
+		item_snowball: # previously snowball, changed in 1.20.5
+			name: snowball break @a
+			pattern: snowball break
+
+		spell:
+			name: spell @a
+			pattern: (spell|thrown potion|lingering potion)
+		effect: # previously spell, changed in 1.20.6
+			name: effect @a
+			pattern: (spell|thrown potion) # lingering is part of entity_effect
+
+		spell_instant:
+			name: spell @a
+			pattern: instant (spell|thrown potion)
+		effect_instant: # previously spell_instant, changed in 1.20.6
+			name: instant effect @an
+			pattern: instant (spell|thrown potion)
+
+		spell_mob:
+			name: potion swirl @a
+			pattern: [%-color%] potion swirl
+		spell_mob_ambient:
+			name: transparent potion swirl @a
+			pattern: [%-color%] transparent potion swirl
+		# TODO ambient_entity_effect seems to exist, but is not supported by spigot particle enum?
+		entity_effect: # previously spell_mob/spell_mob_ambient, changed in 1.20.5
+			name: entity effect @an
+			pattern: (lingering potion|[%-color%] [transparent] potion swirl)
+
+		spell_witch:
+			name: witch spell @-
+			pattern: (witch (magic|spell)|purple spark)
+		witch: # previously spell_witch, changed in 1.20.5
+			name: witch spell @-
+			pattern: (witch (magic|spell)|purple spark)
+
+		suspended:
+			name: suspended @-
+			pattern: (suspended|underwater)
+		suspended_depth:
+			name: void fog @-
+			pattern: void fog
+		underwater: # previously suspended/suspended_depth, changed in 1.20.5
+			name: underwater @-
+			pattern: (suspended|underwater|void fog)
+
+		totem:
+			name: totem @-
+			pattern: totem
+		totem_of_undying: # previously totem, changed in 1.20.5
+			name: totem @-
+			pattern: totem
+
+		town_aura:
+			name: small smoke @-
+			pattern: (small smoke|town aura)
+		mycelium: # previously town_aura, changed in 1.20.5
+			name: small smoke @-
+			pattern: (small smoke|town aura)
+
+		villager_angry:
+			name: angry villager @a
+			pattern: (angry villager|[villager] thundercloud)
+		angry_villager: # previously villager_angry, changed in 1.20.5
+			name: angry villager @a
+			pattern: (angry villager|[villager] thundercloud)
+
+		villager_happy:
+			name: happy villager @-
+			pattern: (happy villager|green spark)
+		happy_villager: # previously villager_happy, changed in 1.20.5
+			name: happy villager @-
+			pattern: (happy villager|green spark)
+
+		water_splash:
+			name: water splash @a
+			pattern: [water] splash
+		splash: # previously water_splash, changed in 1.20.5
+			name: water splash @a
+			pattern: [water] splash
+
+		water_bubble:
+			name: water bubble @-
+			pattern: water bubble
+		bubble: # previously water_bubble, changed in 1.20.5
+			name: water bubble @-
+			pattern: water bubble
+
+		water_wake:
+			name: water wake @-
+			pattern: water wake
+		fishing:
+			name: water wake @-
+			pattern: water wake
+
+		water_drop:
+			name: water drop @-
+			pattern: water drop
+		rain: # previously water_drop, changed in 1.20.5
+			name: water drop @-
+			pattern: water drop
 
 # -- Inventory Actions --
 inventory actions:
