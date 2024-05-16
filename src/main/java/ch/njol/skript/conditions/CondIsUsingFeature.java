@@ -70,12 +70,12 @@ public class CondIsUsingFeature extends Condition {
 		for (@NotNull String object : array) {
 			isUsing &= snapshot.hasExperiment(object);
 		}
-		return this.isNegated() ^ isUsing;
+		return isUsing ^ this.isNegated();
 	}
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return "the current script " + (isNegated() ? " isn't" : " is") + " using " + names.toString(event, debug);
+		return "the current script " + (isNegated() ? "isn't" : "is") + " using " + names.toString(event, debug);
 	}
 
 }
