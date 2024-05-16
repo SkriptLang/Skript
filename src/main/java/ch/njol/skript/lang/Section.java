@@ -23,7 +23,6 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.parser.ParserInstance;
-import ch.njol.skript.lang.parser.ParserInstance.Backup;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
@@ -132,7 +131,7 @@ public abstract class Section extends TriggerSection implements SyntaxElement {
 		ParserInstance parser = getParser();
 
 		// backup the existing data
-		Backup parserSnapshot = parser.backup();
+		ParserInstance.Backup parserBackup = parser.backup();
 		parser.reset();
 
 		// set our new data for parsing this section
@@ -145,7 +144,7 @@ public abstract class Section extends TriggerSection implements SyntaxElement {
 			afterLoading.run();
 
 		// return the parser to its original state
-		parser.restoreBackup(parserSnapshot);
+		parser.restoreBackup(parserBackup);
 
 		return new Trigger(parser.getCurrentScript(), name, skriptEvent, triggerItems);
 	}
