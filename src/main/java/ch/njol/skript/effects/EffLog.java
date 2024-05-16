@@ -83,8 +83,6 @@ public class EffLog extends Effect {
 	private Expression<String> files;
 
 	private Level logLevel = Level.INFO;
-	private static final int WARNING_LOG = 900;
-	private static final int SEVERE_LOG = 1000;
 	private static <LogLevel> String getLogPrefix(LogLevel logLevel) {
 		String timestamp = SkriptConfig.formatDate(System.currentTimeMillis());
 		if (logLevel == Level.INFO)
@@ -140,13 +138,15 @@ public class EffLog extends Effect {
 					if (script != null)
 						scriptName = script.getConfig().getFileName();
 				}
-				SkriptLogger.LOGGER.log(logLevel, "[" + scriptName + "] " + messages);
+				SkriptLogger.LOGGER.log(logLevel, "[" + scriptName + "] " + message);
 			}
 		}
 	}
 
 	@Override
 	public String toString(@Nullable Event e, boolean debug) {
+		if (logLevel == Level.INFO)
+			return "log " + messages.toString(e, debug) + (files != null ? " to " + files.toString(e, debug) : "");
 		return "log " + messages.toString(e, debug) + (files != null ? " to " + files.toString(e, debug) : "") + logLevel;
 	}
 }
