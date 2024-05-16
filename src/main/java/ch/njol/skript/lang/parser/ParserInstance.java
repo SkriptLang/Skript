@@ -522,11 +522,9 @@ public final class ParserInstance {
 			this.currentEvents = parser.currentEvents != null
 				? Arrays.copyOf(parser.currentEvents, parser.currentEvents.length)
 				: null;
-			this.currentSections = new ArrayList<>();
-			this.currentSections.addAll(parser.currentSections);
+			this.currentSections = new ArrayList<>(parser.currentSections);
 			this.hasDelayBefore = parser.hasDelayBefore;
-			this.dataMap = new HashMap<>();
-			this.dataMap.putAll(parser.dataMap);
+			this.dataMap = new HashMap<>(parser.dataMap);
 		}
 
 		private void apply(ParserInstance parser) {
