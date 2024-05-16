@@ -49,15 +49,8 @@ public interface Experiment {
 	}
 
 	/**
-	 * @return The patterns that can be written in the `using` structure.
-	 */
-	default String[] patterns() {
-		return new String[] {this.codeName()};
-	}
-
-	/**
 	 * A simple, printable code-name for this pattern for warnings and debugging.
-	 * Ideally, this should be matched by one of the {@link #patterns()} entries.
+	 * Ideally, this should be matched by one of the {@link #pattern()} entries.
 	 *
 	 * @return The code name of this experiment.
 	 */
@@ -78,13 +71,13 @@ public interface Experiment {
 	/**
 	 * @return The compiled matching pattern for this experiment
 	 */
-	SkriptPattern compiledPattern();
+	SkriptPattern pattern();
 
 	/**
 	 * @return Whether the usage pattern of this experiment matches the input text
 	 */
 	default boolean matches(String text) {
-		return this.compiledPattern().match(text) != null;
+		return this.pattern().match(text) != null;
 	}
 
 }
@@ -95,7 +88,6 @@ public interface Experiment {
 class ConstantExperiment implements Experiment {
 
 	private final String codeName;
-	private final String[] patterns;
 	private final SkriptPattern compiledPattern;
 	private final LifeCycle phase;
 
@@ -108,15 +100,12 @@ class ConstantExperiment implements Experiment {
 		this.phase = phase;
 		switch (patterns.length) {
 			case 0:
-				this.patterns = new String[]{codeName};
 				this.compiledPattern = PatternCompiler.compile(codeName);
 				break;
 			case 1:
-				this.patterns = patterns;
 				this.compiledPattern = PatternCompiler.compile(patterns[0]);
 				break;
 			default:
-				this.patterns = patterns;
 				this.compiledPattern = PatternCompiler.compile(String.join("|", patterns));
 				break;
 		}
@@ -128,17 +117,12 @@ class ConstantExperiment implements Experiment {
 	}
 
 	@Override
-	public String[] patterns() {
-		return patterns;
-	}
-
-	@Override
 	public LifeCycle phase() {
 		return phase;
 	}
 
 	@Override
-	public SkriptPattern compiledPattern() {
+	public SkriptPattern pattern() {
 		return compiledPattern;
 	}
 

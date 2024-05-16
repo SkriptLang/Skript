@@ -37,13 +37,11 @@ public enum TestFeatures implements Experiment {
 
 	private final String codeName;
 	private final LifeCycle phase;
-	private final String[] patterns;
 	private final SkriptPattern compiledPattern;
 
 	TestFeatures(String codeName, LifeCycle phase, String... patterns) {
 		this.codeName = codeName;
 		this.phase = phase;
-		this.patterns = patterns;
 		switch (patterns.length) {
 			case 0:
 				this.compiledPattern = PatternCompiler.compile(codeName);
@@ -73,17 +71,12 @@ public enum TestFeatures implements Experiment {
 	}
 
 	@Override
-	public String[] patterns() {
-		return patterns;
-	}
-
-	@Override
 	public LifeCycle phase() {
 		return phase;
 	}
 
 	@Override
-	public SkriptPattern compiledPattern() {
+	public SkriptPattern pattern() {
 		return compiledPattern;
 	}
 
