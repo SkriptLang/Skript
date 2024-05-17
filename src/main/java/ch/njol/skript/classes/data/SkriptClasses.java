@@ -64,6 +64,8 @@ import ch.njol.skript.util.slot.Slot;
 import ch.njol.skript.util.visual.VisualEffect;
 import ch.njol.skript.util.visual.VisualEffects;
 import ch.njol.yggdrasil.Fields;
+import org.jetbrains.annotations.NotNull;
+import org.skriptlang.skript.lang.script.Script;
 
 import java.util.Arrays;
 
@@ -690,6 +692,14 @@ public class SkriptClasses {
 				.since("2.5")
 				.serializer(new YggdrasilSerializer<GameruleValue>())
 		);
+
+		Classes.registerClass(new ClassInfo<>(Script.class, "script")
+			.user("scripts?")
+			.name("Script")
+			.description("A script loaded by Skript.")
+			.usage("")
+			.examples("the current script")
+			.since("INSERT VERSION"));
 	}
 	
 }
