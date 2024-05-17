@@ -27,20 +27,21 @@ import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
+import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.UnknownNullability;
 import org.skriptlang.skript.lang.script.Script;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.util.FileUtils;
 import ch.njol.util.Kleenean;
 import ch.njol.util.OpenCloseable;
 import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.Nullable;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.Set;
 
-@Name("Enable/Disable/Reload Script File")
-@Description("Enables, disables, or reloads a script file.")
+@Name("Enable/Disable/Reload Script")
+@Description("Enables, disables, or reloads a script.")
 @Examples({
 	"reload script \"test\"",
 	"enable script file \"testing\"",
@@ -51,34 +52,61 @@ public class EffScriptFile extends Effect {
 
 	static {
 		Skript.registerEffect(EffScriptFile.class,
-			"(1:(enable|load)|2:reload|3:(disable|unload)) s(c|k)ript [file] %string%"
+			"(1:(enable|load)|2:reload|3:(disable|unload)) script [file|named] %string%",
+			"(1:(enable|load)|2:reload|3:(disable|unload)) skript file %string%",
+			"(2:reload|3:(disable|unload)) %scripts%"
 		);
+		/*
+			The string-pattern must come first (since otherwise `script X` would match the expression)
+			and we cannot get a script object for a non-loaded script.
+		 */
 	}
-	
+
 	private static final int ENABLE = 1, RELOAD = 2, DISABLE = 3;
-	
+
 	private int mark;
 
-	@SuppressWarnings("NotNullFieldNotInitialized")
-	private Expression<String> fileName;
+	private @UnknownNullability Expression<String> stringExpression;
+	private @UnknownNullability Expression<Script> scriptExpression;
+	private boolean scripts;
 
 	@Override
 	@SuppressWarnings("unchecked")
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
-		mark = parseResult.mark;
-		fileName = (Expression<String>) exprs[0];
+		this.mark = parseResult.mark;
+		switch (matchedPattern) {
+			case 0:
+			case 1:
+				this.stringExpression = (Expression<String>) exprs[0];
+				break;
+			case 2:
+				this.scriptExpression = (Expression<Script>) exprs[0];
+				this.scripts = true;
+		}
 		return true;
 	}
-	
-	@Override
-	protected void execute(Event e) {
-		String name = fileName.getSingle(e);
-		if (name == null)
-			return;
-		File scriptFile = SkriptCommand.getScriptFromName(name);
-		if (scriptFile == null)
-			return;
 
+	@Override
+	protected void execute(Event event) {
+		if (scripts) {
+			Script[] array = scriptExpression.getArray(event);
+			for (Script script : array) {
+				@Nullable File file = script.getConfig().getFile();
+				this.handle(file, script.getConfig().getFileName());
+			}
+		} else {
+			String name = stringExpression.getSingle(event);
+			if (name == null)
+				return;
+			this.handle(SkriptCommand.getScriptFromName(name), name);
+		}
+	}
+
+	private void handle(@Nullable File scriptFile, @Nullable String name) {
+		if (scriptFile == null || !scriptFile.exists())
+			return;
+		if (name == null)
+			name = scriptFile.getName();
 		switch (mark) {
 			case ENABLE: {
 				if (ScriptLoader.getLoadedScriptsFilter().accept(scriptFile))
@@ -103,9 +131,9 @@ public class EffScriptFile extends Effect {
 			case RELOAD: {
 				if (ScriptLoader.getDisabledScriptsFilter().accept(scriptFile))
 					return;
-				
+
 				this.unloadScripts(scriptFile);
-				
+
 				ScriptLoader.loadScripts(scriptFile, OpenCloseable.EMPTY);
 				break;
 			}
@@ -132,7 +160,7 @@ public class EffScriptFile extends Effect {
 				assert false;
 		}
 	}
-	
+
 	private void unloadScripts(File file) {
 		if (file.isDirectory()) {
 			Set<Script> scripts = ScriptLoader.getScripts(file);
@@ -147,9 +175,11 @@ public class EffScriptFile extends Effect {
 	}
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
-		return (mark == ENABLE ? "enable" : mark == RELOAD ? "disable" : mark == DISABLE ? "unload" : "")
-			+ " script file " + fileName.toString(e, debug);
+	public String toString(@Nullable Event event, boolean debug) {
+		String start = mark == ENABLE ? "enable " : mark == RELOAD ? "disable " : mark == DISABLE ? "unload " : " ";
+		if (scripts)
+			return start + scriptExpression.toString(event, debug);
+		return start + "script file " + stringExpression.toString(event, debug);
 	}
 
 }

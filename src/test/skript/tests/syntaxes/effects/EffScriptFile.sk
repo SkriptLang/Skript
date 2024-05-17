@@ -1,0 +1,26 @@
+options:
+	path: "../../../../../../src/test/skript/tests/"
+
+	# Princess test script is in another castle, Mario!
+	# paths are relativised to the /scripts/ directory
+	# but we are loading these scripts from the test folder :(
+
+test "enable script":
+	set {_path} to {@path} + "misc/-disabled.sk"
+	set {EffScriptFile} to false
+	load script named {_path}
+	assert {EffScriptFile} is true with "load event didn't run"
+	delete {EffScriptFile}
+
+test "reload script":
+	set {_path} to {@path} + "misc/disabled.sk"
+	set {EffScriptFile} to false
+	reload (script named {_path})
+	assert {EffScriptFile} is true with "load event didn't run"
+	delete {EffScriptFile}
+
+test "disable script":
+	set {_path} to {@path} + "misc/disabled.sk"
+	disable script named {_path}
+	delete {EffScriptFile}
+
