@@ -18,76 +18,98 @@
  */
 package ch.njol.skript.expressions;
 
+import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.Skript;
+import ch.njol.skript.SkriptCommand;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Events;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.parser.ParserInstance;
+import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.script.Script;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.Nullable;
 
-@Name("Script Name")
-@Description("Holds the current script's name (the file name without '.sk').")
+import java.util.Arrays;
+import java.util.Objects;
+
+@Name("Script")
+@Description("The current script, or a script from its (file) name.")
 @Examples({
+	"on script load:",
+	"\tbroadcast \"Loaded %the current script%\"",
 	"on script load:",
 	"\tset {running::%script%} to true",
 	"on script unload:",
-	"\tset {running::%script%} to false"
+	"\tset {running::%script%} to false",
+	"set {script} to the script named \"weather.sk\""
 })
 @Since("2.0")
-@Events("Script Load/Unload")
-public class ExprScript extends SimpleExpression<String> {
-	
+public class ExprScript extends SimpleExpression<Script> {
+
 	static {
-		Skript.registerExpression(ExprScript.class, String.class, ExpressionType.SIMPLE,
-			"[the] script[['s] name]",
-			"name of [the] script"
+		Skript.registerExpression(ExprScript.class, Script.class, ExpressionType.SIMPLE,
+			"[the] [current] script",
+			"[the] script[s] [named] %strings%"
 		);
 	}
-	
-	@SuppressWarnings("NotNullFieldNotInitialized")
-	private String name;
-	
+
+	private @Nullable Script script;
+	private @Nullable Expression<String> name;
+
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		ParserInstance parser = getParser();
-		if (!parser.isActive()) {
-			Skript.error("You can't use the script expression outside of scripts!");
-			return false;
+		if (matchedPattern == 0) {
+			ParserInstance parser = this.getParser();
+			if (!parser.isActive()) {
+				Skript.error("You can't use the current script expression outside of scripts!");
+				return false;
+			}
+			this.script = parser.getCurrentScript();
+		} else {
+			//noinspection unchecked
+			this.name = (Expression<String>) exprs[0];
 		}
-		String name = parser.getCurrentScript().getConfig().getFileName();
-		if (name.contains("."))
-			name = name.substring(0, name.lastIndexOf('.'));
-		this.name = name;
 		return true;
 	}
-	
+
 	@Override
-	protected String[] get(Event event) {
-		return new String[]{name};
+	protected Script[] get(Event event) {
+		if (script != null)
+			return new Script[]{script};
+		assert name != null;
+		return Arrays.stream(name.getArray(event))
+				.map(SkriptCommand::getScriptFromName)
+				.filter(Objects::nonNull)
+				.map(ScriptLoader::getScript)
+				.filter(Objects::nonNull)
+				.toArray(Script[]::new);
 	}
-	
+
 	@Override
 	public boolean isSingle() {
-		return true;
+		//noinspection DataFlowIssue
+		return script != null || name.isSingle();
 	}
-	
+
 	@Override
-	public Class<? extends String> getReturnType() {
-		return String.class;
+	public Class<? extends Script> getReturnType() {
+		return Script.class;
 	}
-	
+
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return "the script's name";
+		if (script != null)
+			return "the current script";
+		assert name != null;
+		if (name.isSingle())
+			return "the script named " + name.toString(event, debug);
+		return "the scripts named " + name.toString(event, debug);
 	}
-	
+
 }
