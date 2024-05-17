@@ -1,0 +1,17 @@
+options:
+	path: "../../../../../../src/test/skript/tests/syntaxes/expressions/"
+
+	# Princess test script is in another castle, Mario!
+	# paths are relativised to the /scripts/ directory
+	# but we are loading these scripts from the test folder :(
+
+test "current script":
+	assert the current script exists with "current script doesn't exist"
+	set {_expected} to {@path} + "ExprScript.sk"
+	assert "%script%" is {_expected} with "script stringify is wrong"
+
+test "script by name":
+	set {_script} to the script named {@path} + "ExprName.sk"
+	assert {_script} exists with "script not retrieved"
+	set {_script::*} to the scripts named ({@path} + "ExprName.sk" and {@path} + "ExprParse.sk")
+	assert size of {_script::*} is 2 with "wrong number of scripts found"

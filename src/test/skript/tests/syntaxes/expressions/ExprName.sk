@@ -1,0 +1,4 @@
+
+test "script name":
+	set {_name} to the script's name
+	assert the script's name is "ExprName" with "script name is wrong"

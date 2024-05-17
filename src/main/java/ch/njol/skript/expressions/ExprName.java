@@ -18,9 +18,7 @@
  */
 package ch.njol.skript.expressions;
 
-import java.lang.invoke.MethodHandle;
-import java.lang.invoke.MethodHandles;
-import java.lang.invoke.MethodType;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -164,6 +162,9 @@ public class ExprName extends SimplePropertyExpression<Object, String> {
 			String name = script.getConfig().getFileName();
 			if (name.contains("."))
 				name = name.substring(0, name.lastIndexOf('.'));
+			name = name.substring(name.lastIndexOf('/') + 1);
+			if (File.separatorChar != '/') // legacy windows FS reporting
+				name = name.substring(name.lastIndexOf(File.separatorChar) + 1);
 			return name;
 		} else if (object instanceof Player) {
 			switch (mark) {
