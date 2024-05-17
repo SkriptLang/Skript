@@ -18,11 +18,14 @@
  */
 package ch.njol.skript.classes.data;
 
+import java.io.File;
 import java.io.StreamCorruptedException;
 import java.util.Iterator;
 import java.util.Locale;
 import java.util.regex.Pattern;
 
+import ch.njol.skript.ScriptLoader;
+import ch.njol.skript.SkriptCommand;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
@@ -75,7 +78,7 @@ import java.util.Arrays;
 @SuppressWarnings("rawtypes")
 public class SkriptClasses {
 	public SkriptClasses() {}
-	
+
 	static {
 		//noinspection unchecked
 		Classes.registerClass(new ClassInfo<>(ClassInfo.class, "classinfo")
@@ -98,17 +101,17 @@ public class SkriptClasses {
 					public ClassInfo parse(final String s, final ParseContext context) {
 						return Classes.getClassInfoFromUserInput(Noun.stripIndefiniteArticle(s));
 					}
-					
+
 					@Override
 					public String toString(final ClassInfo c, final int flags) {
 						return c.toString(flags);
 					}
-					
+
 					@Override
 					public String toVariableNameString(final ClassInfo c) {
 						return c.getCodeName();
 					}
-					
+
 					@Override
 					public String getDebugMessage(final ClassInfo c) {
 						return c.getCodeName();
@@ -122,17 +125,17 @@ public class SkriptClasses {
 						f.putObject("codeName", c.getCodeName());
 						return f;
 					}
-					
+
 					@Override
 					public boolean canBeInstantiated() {
 						return false;
 					}
-					
+
 					@Override
 					public void deserialize(final ClassInfo o, final Fields f) throws StreamCorruptedException {
 						assert false;
 					}
-					
+
 					@Override
 					protected ClassInfo deserialize(final Fields fields) throws StreamCorruptedException {
 						final String codeName = fields.getObject("codeName", String.class);
@@ -143,20 +146,20 @@ public class SkriptClasses {
 							throw new StreamCorruptedException("Invalid ClassInfo " + codeName);
 						return ci;
 					}
-					
+
 //					return c.getCodeName();
 					@Override
 					@Nullable
 					public ClassInfo deserialize(final String s) {
 						return Classes.getClassInfoNoError(s);
 					}
-					
+
 					@Override
 					public boolean mustSyncDeserialization() {
 						return false;
 					}
 				}));
-		
+
 		Classes.registerClass(new ClassInfo<>(WeatherType.class, "weathertype")
 				.user("weather ?types?", "weather conditions?", "weathers?")
 				.name("Weather Type")
@@ -173,12 +176,12 @@ public class SkriptClasses {
 					public WeatherType parse(final String s, final ParseContext context) {
 						return WeatherType.parse(s);
 					}
-					
+
 					@Override
 					public String toString(final WeatherType o, final int flags) {
 						return o.toString(flags);
 					}
-					
+
 					@Override
 					public String toVariableNameString(final WeatherType o) {
 						return "" + o.name().toLowerCase(Locale.ENGLISH);
@@ -186,7 +189,7 @@ public class SkriptClasses {
 
 				})
 				.serializer(new EnumSerializer<>(WeatherType.class)));
-		
+
 		Classes.registerClass(new ClassInfo<>(ItemType.class, "itemtype")
 				.user("item ?types?", "materials?")
 				.name("Item Type")
@@ -628,7 +631,7 @@ public class SkriptClasses {
 				.since("2.0")
 				.parser(new Parser<Experience>() {
 					private final RegexMessage pattern = new RegexMessage("types.experience.pattern", Pattern.CASE_INSENSITIVE);
-					
+
 					@Override
 					@Nullable
 					public Experience parse(String s, final ParseContext context) {
@@ -641,12 +644,12 @@ public class SkriptClasses {
 							return new Experience(xp);
 						return null;
 					}
-					
+
 					@Override
 					public String toString(final Experience xp, final int flags) {
 						return xp.toString();
 					}
-					
+
 					@Override
 					public String toVariableNameString(final Experience xp) {
 						return "" + xp.getXP();
@@ -682,7 +685,7 @@ public class SkriptClasses {
 
 				})
 				.serializer(new YggdrasilSerializer<>()));
-		
+
 		Classes.registerClass(new ClassInfo<>(GameruleValue.class, "gamerulevalue")
 				.user("gamerule values?")
 				.name("Gamerule Value")
@@ -694,12 +697,32 @@ public class SkriptClasses {
 		);
 
 		Classes.registerClass(new ClassInfo<>(Script.class, "script")
-			.user("scripts?")
-			.name("Script")
-			.description("A script loaded by Skript.")
-			.usage("")
-			.examples("the current script")
-			.since("INSERT VERSION"));
+				.user("scripts?")
+				.name("Script")
+				.description("A script loaded by Skript.")
+				.usage("")
+				.examples("the current script")
+				.since("INSERT VERSION")
+				.parser(new Parser<Script>() {
+					@Override
+					@Nullable
+					public Script parse(final String name, final ParseContext context) {
+						@Nullable File file = SkriptCommand.getScriptFromName(name);
+						if (file == null)
+							return null;
+						return ScriptLoader.getScript(file);
+					}
+
+					@Override
+					public String toString(final Script script, final int flags) {
+						return script.getConfig().getFileName();
+					}
+
+					@Override
+					public String toVariableNameString(final Script script) {
+						return script.getConfig().getFileName();
+					}
+				}));
 	}
-	
+
 }

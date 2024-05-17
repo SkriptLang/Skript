@@ -64,6 +64,7 @@ import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.serializer.bungeecord.BungeeComponentSerializer;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.BaseComponent;
+import org.skriptlang.skript.lang.script.Script;
 
 @Name("Name / Display Name / Tab List Name")
 @Description({
@@ -128,7 +129,7 @@ public class ExprName extends SimplePropertyExpression<Object, String> {
 				Skript.methodExists(Bukkit.class, "createInventory", InventoryHolder.class, int.class, Component.class))
 			serializer = BungeeComponentSerializer.get();
 		HAS_GAMERULES = Skript.classExists("org.bukkit.GameRule");
-		register(ExprName.class, String.class, "(1¦name[s]|2¦(display|nick|chat|custom)[ ]name[s])", "offlineplayers/entities/blocks/itemtypes/inventories/slots/worlds"
+		register(ExprName.class, String.class, "(1¦name[s]|2¦(display|nick|chat|custom)[ ]name[s])", "offlineplayers/entities/blocks/itemtypes/inventories/slots/worlds/scripts"
 			+ (HAS_GAMERULES ? "/gamerules" : ""));
 		register(ExprName.class, String.class, "(3¦(player|tab)[ ]list name[s])", "players");
 	}
@@ -158,7 +159,13 @@ public class ExprName extends SimplePropertyExpression<Object, String> {
 		if (object instanceof OfflinePlayer && ((OfflinePlayer) object).isOnline())
 			object = ((OfflinePlayer) object).getPlayer();
 
-		if (object instanceof Player) {
+		if (object instanceof Script) {
+			Script script = (Script) object;
+			String name = script.getConfig().getFileName();
+			if (name.contains("."))
+				name = name.substring(0, name.lastIndexOf('.'));
+			return name;
+		} else if (object instanceof Player) {
 			switch (mark) {
 				case 1:
 					return ((Player) object).getName();
