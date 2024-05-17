@@ -149,7 +149,7 @@ public class VisualEffects {
 			// Colorables
 			registerColorable("Particle.SPELL_MOB");
 			registerColorable("Particle.SPELL_MOB_AMBIENT");
-			registerColorable("Particle.REDSTONE");
+			registerColorable(OLD_REDSTONE_PARTICLE != null ? "Particle.REDSTONE" : "Particle.DUST");
 			registerColorable("Particle.NOTE");
 
 			// Data suppliers
@@ -170,7 +170,7 @@ public class VisualEffects {
 				Color color = raw == null ? defaultColor : (Color) raw;
 				return new ParticleOption(color, 1);
 			});
-			registerDataSupplier("Particle.REDSTONE", (raw, location) -> {
+			registerDataSupplier(OLD_REDSTONE_PARTICLE != null ? "Particle.REDSTONE" : "Particle.DUST", (raw, location) -> {
 				Color color = raw == null ? defaultColor : (Color) raw;
 				ParticleOption particleOption = new ParticleOption(color, 1);
 
@@ -185,7 +185,7 @@ public class VisualEffects {
 				ColorRGB color = new ColorRGB(colorValue, 0, 0);
 				return new ParticleOption(color, 1);
 			});
-			registerDataSupplier("Particle.ITEM_CRACK", (raw, location) -> {
+			registerDataSupplier(OLD_ITEM_CRACK_PARTICLE != null ? "Particle.ITEM_CRACK" : "Particle.ITEM", (raw, location) -> {
 				ItemStack itemStack = Aliases.javaItemType("iron sword").getRandom();
 				if (raw instanceof ItemType) {
 					ItemStack rand = ((ItemType) raw).getRandom();
@@ -196,7 +196,7 @@ public class VisualEffects {
 				}
 
 				assert itemStack != null;
-				if (OLD_ITEM_CRACK_PARTICLE == null || OLD_ITEM_CRACK_PARTICLE.getDataType() == Material.class)
+				if (OLD_ITEM_CRACK_PARTICLE != null && OLD_ITEM_CRACK_PARTICLE.getDataType() == Material.class)
 					return itemStack.getType();
 				return itemStack;
 			});
