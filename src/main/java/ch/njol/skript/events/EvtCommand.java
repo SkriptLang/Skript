@@ -41,7 +41,7 @@ public class EvtCommand extends SkriptEvent {
 				"[1:console|2:player] command [%-string%]")
 				.description(
 						"Called when a player or the console enters a command (not necessarily a Skript command)" +
-						"but you can check if command is a skript command, see <a href='conditions.html#CondIsSkriptCommand'>Is a Skript command condition</a>.")
+						"but you can check if command is a skript command, see <a href='conditions.html#CondIsValidCommand'>Is Valid Command condition</a>.")
 				.examples(
 						"on command:",
 						"on command \"/stop\":",
