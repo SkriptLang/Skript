@@ -39,7 +39,7 @@ import java.util.Arrays;
 import java.util.Objects;
 
 @Name("Script")
-@Description("The current script, or a script from its (file) name.")
+@Description("The current script, all loaded scripts, or a script from its (file) name.")
 @Examples({
 	"on script load:",
 	"\tbroadcast \"Loaded %the current script%\"",
@@ -55,7 +55,8 @@ public class ExprScript extends SimpleExpression<Script> {
 	static {
 		Skript.registerExpression(ExprScript.class, Script.class, ExpressionType.SIMPLE,
 			"[the] [current] script",
-			"[the] script[s] [named] %strings%"
+			"[the] script[s] [named] %strings%",
+			"all [loaded] scripts"
 		);
 	}
 
@@ -71,7 +72,7 @@ public class ExprScript extends SimpleExpression<Script> {
 				return false;
 			}
 			this.script = parser.getCurrentScript();
-		} else {
+		} else if (matchedPattern == 1) {
 			//noinspection unchecked
 			this.name = (Expression<String>) exprs[0];
 		}
@@ -82,19 +83,20 @@ public class ExprScript extends SimpleExpression<Script> {
 	protected Script[] get(Event event) {
 		if (script != null)
 			return new Script[]{script};
-		assert name != null;
-		return Arrays.stream(name.getArray(event))
-				.map(SkriptCommand::getScriptFromName)
-				.filter(Objects::nonNull)
-				.map(ScriptLoader::getScript)
-				.filter(Objects::nonNull)
-				.toArray(Script[]::new);
+		if (name != null) {
+			return Arrays.stream(name.getArray(event))
+					.map(SkriptCommand::getScriptFromName)
+					.filter(Objects::nonNull)
+					.map(ScriptLoader::getScript)
+					.filter(Objects::nonNull)
+					.toArray(Script[]::new);
+		}
+		return ScriptLoader.getLoadedScripts().toArray(new Script[0]);
 	}
 
 	@Override
 	public boolean isSingle() {
-		//noinspection DataFlowIssue
-		return script != null || name.isSingle();
+		return script != null || name != null && name.isSingle();
 	}
 
 	@Override
@@ -106,10 +108,12 @@ public class ExprScript extends SimpleExpression<Script> {
 	public String toString(@Nullable Event event, boolean debug) {
 		if (script != null)
 			return "the current script";
-		assert name != null;
-		if (name.isSingle())
-			return "the script named " + name.toString(event, debug);
-		return "the scripts named " + name.toString(event, debug);
+		if (name != null) {
+			if (name.isSingle())
+				return "the script named " + name.toString(event, debug);
+			return "the scripts named " + name.toString(event, debug);
+		}
+		return "all loaded scripts";
 	}
 
 }
