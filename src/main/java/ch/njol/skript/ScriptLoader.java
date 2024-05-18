@@ -869,6 +869,7 @@ public class ScriptLoader {
 			parser.setInactive();
 
 			script.clearData();
+			script.invalidate();
 			loadedScripts.remove(script); // We just unloaded it, so...
 			File scriptFile = script.getConfig().getFile();
 			assert scriptFile != null;

@@ -54,9 +54,9 @@ public class EffScriptFile extends Effect {
 
 	static {
 		Skript.registerEffect(EffScriptFile.class,
-			"(1:(enable|load)|2:reload|3:(disable|unload)) script [file|named] %string%",
-			"(1:(enable|load)|2:reload|3:(disable|unload)) skript file %string%",
-			"(1:(enable|load)|2:reload|3:(disable|unload)) %scripts%"
+			"(1:(enable|load)|2:reload|3:disable|4:unload) script [file|named] %string%",
+			"(1:(enable|load)|2:reload|3:disable|4:unload) skript file %string%",
+			"(1:(enable|load)|2:reload|3:disable|4:unload) %scripts%"
 		);
 		/*
 			The string-pattern must come first (since otherwise `script X` would match the expression)
@@ -64,7 +64,7 @@ public class EffScriptFile extends Effect {
 		 */
 	}
 
-	private static final int ENABLE = 1, RELOAD = 2, DISABLE = 3;
+	private static final int ENABLE = 1, RELOAD = 2, DISABLE = 3, UNLOAD = 4;
 
 	private int mark;
 
@@ -110,27 +110,29 @@ public class EffScriptFile extends Effect {
 		if (name == null)
 			name = scriptFile.getName();
 		switch (mark) {
-			case ENABLE: {
-				if (ScriptLoader.getLoadedScriptsFilter().accept(scriptFile))
+			case ENABLE:
+				if (ScriptLoader.getLoadedScripts().contains(ScriptLoader.getScript(scriptFile)))
 					return;
-
-				try {
-					// TODO Central methods to be used between here and SkriptCommand should be created for enabling/disabling (renaming) files
-					scriptFile = FileUtils.move(
-						scriptFile,
-						new File(scriptFile.getParentFile(), scriptFile.getName().substring(ScriptLoader.DISABLED_SCRIPT_PREFIX_LENGTH)),
-						false
-					);
-				} catch (IOException ex) {
-					//noinspection ThrowableNotThrown
-					Skript.exception(ex, "Error while enabling script file: " + name);
-					return;
+				if (scriptFile.getName().startsWith(ScriptLoader.DISABLED_SCRIPT_PREFIX)) {
+					try {
+						// TODO Central methods to be used between here and SkriptCommand should be created for
+						//  enabling/disabling (renaming) files
+						scriptFile = FileUtils.move(
+							scriptFile,
+							new File(scriptFile.getParentFile(), scriptFile.getName()
+								.substring(ScriptLoader.DISABLED_SCRIPT_PREFIX_LENGTH)),
+							false
+						);
+					} catch (IOException ex) {
+						//noinspection ThrowableNotThrown
+						Skript.exception(ex, "Error while enabling script file: " + name);
+						return;
+					}
 				}
 
 				ScriptLoader.loadScripts(scriptFile, OpenCloseable.EMPTY);
 				break;
-			}
-			case RELOAD: {
+			case RELOAD:
 				if (ScriptLoader.getDisabledScriptsFilter().accept(scriptFile))
 					return;
 
@@ -138,8 +140,13 @@ public class EffScriptFile extends Effect {
 
 				ScriptLoader.loadScripts(scriptFile, OpenCloseable.EMPTY);
 				break;
-			}
-			case DISABLE: {
+			case UNLOAD:
+				if (!ScriptLoader.getLoadedScriptsFilter().accept(scriptFile))
+					return;
+
+				this.unloadScripts(scriptFile);
+				break;
+			case DISABLE:
 				if (ScriptLoader.getDisabledScriptsFilter().accept(scriptFile))
 					return;
 
@@ -157,20 +164,23 @@ public class EffScriptFile extends Effect {
 					return;
 				}
 				break;
-			}
 			default:
 				assert false;
 		}
 	}
 
 	private void unloadScripts(File file) {
+		Set<Script> loaded = ScriptLoader.getLoadedScripts();
 		if (file.isDirectory()) {
 			Set<Script> scripts = ScriptLoader.getScripts(file);
 			if (scripts.isEmpty())
 				return;
+			scripts.retainAll(loaded); // skip any that are not loaded (avoid throwing error)
 			ScriptLoader.unloadScripts(scripts);
 		} else {
 			Script script = ScriptLoader.getScript(file);
+			if (!loaded.contains(script))
+				return; // don't need to unload if not loaded (avoid throwing error)
 			if (script != null)
 				ScriptLoader.unloadScript(script);
 		}

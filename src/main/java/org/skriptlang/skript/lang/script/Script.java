@@ -23,7 +23,9 @@ import org.eclipse.jdt.annotation.Nullable;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Unmodifiable;
 import org.skriptlang.skript.lang.structure.Structure;
+import org.skriptlang.skript.util.Validated;
 
+import java.io.File;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -39,11 +41,14 @@ import java.util.stream.Collectors;
  * Every script also has its own internal information, such as
  *  custom data, suppressed warnings, and associated event handlers.
  */
-public final class Script {
+public final class Script implements Validated {
 
 	private final Config config;
 
 	private final List<Structure> structures;
+
+	// Note: this class will eventually become a record, so its members should be final.
+	private transient final Validated validator = Validated.validator();
 
 	/**
 	 * Creates a new Script to be used across the API.
@@ -217,6 +222,22 @@ public final class Script {
 				.filter(event -> type.isAssignableFrom(event.getClass()))
 				.collect(Collectors.toSet())
 		);
+	}
+
+	@Override
+	public void invalidate() throws UnsupportedOperationException {
+		this.validator.invalidate();
+	}
+
+	@Override
+	public boolean valid() {
+		if (validator.valid()) {
+			@Nullable File file = config.getFile();
+			return file == null || file.exists();
+			// If this is file-linked and that file was moved/deleted (e.g. this was disabled)
+			// then this is probably no longer a valid reference.
+		}
+		return false;
 	}
 
 }
