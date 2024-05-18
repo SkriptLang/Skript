@@ -699,18 +699,37 @@ public class SkriptClasses {
 		Classes.registerClass(new ClassInfo<>(Script.class, "script")
 				.user("scripts?")
 				.name("Script")
-				.description("A script loaded by Skript.")
+				.description("A script loaded by Skript.",
+					"Disabled scripts will report as being empty since their content has not been loaded.")
 				.usage("")
 				.examples("the current script")
 				.since("INSERT VERSION")
 				.parser(new Parser<Script>() {
+
+					@Override
+					public boolean canParse(final ParseContext context) {
+						switch (context) {
+							case PARSE:
+							case COMMAND:
+								return true;
+							default:
+								return false;
+						}
+					}
+
 					@Override
 					@Nullable
 					public Script parse(final String name, final ParseContext context) {
-						@Nullable File file = SkriptCommand.getScriptFromName(name);
-						if (file == null)
-							return null;
-						return ScriptLoader.getScript(file);
+						switch (context) {
+							case PARSE:
+							case COMMAND:
+								@Nullable File file = SkriptCommand.getScriptFromName(name);
+								if (file == null)
+									return null;
+								return ScriptLoader.getScript(file);
+							default:
+								return null;
+						}
 					}
 
 					@Override
