@@ -36,7 +36,6 @@ import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 
 import java.io.File;
-import java.util.Arrays;
 import java.util.Objects;
 
 @Name("Script")
@@ -86,7 +85,7 @@ public class ExprScript extends SimpleExpression<Script> {
 		if (script != null)
 			return new Script[]{script};
 		assert name != null;
-		return Arrays.stream(name.getArray(event))
+		return name.stream(event)
 				.map(SkriptCommand::getScriptFromName)
 				.map(ExprScript::getHandle)
 				.filter(Objects::nonNull)
