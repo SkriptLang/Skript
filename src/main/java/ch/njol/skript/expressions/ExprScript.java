@@ -36,6 +36,8 @@ import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 @Name("Script")
@@ -49,7 +51,9 @@ import java.util.Objects;
 	"\tset {running::%script%} to true",
 	"on script unload:",
 	"\tset {running::%script%} to false",
-	"set {script} to the script named \"weather.sk\""
+	"set {script} to the script named \"weather.sk\"",
+	"loop the scripts in directory \"quests/\":",
+	"\tenable loop-value"
 })
 @Since("2.0")
 public class ExprScript extends SimpleExpression<Script> {
@@ -57,15 +61,18 @@ public class ExprScript extends SimpleExpression<Script> {
 	static {
 		Skript.registerExpression(ExprScript.class, Script.class, ExpressionType.SIMPLE,
 			"[the] [current] script",
-			"[the] script[s] [named] %strings%"
+			"[the] script[s] [named] %strings%",
+			"[the] scripts in [directory|folder] %string%"
 		);
 	}
 
 	private @Nullable Script script;
 	private @Nullable Expression<String> name;
+	private int mode;
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
+		this.mode = matchedPattern;
 		if (matchedPattern == 0) {
 			ParserInstance parser = this.getParser();
 			if (!parser.isActive()) {
@@ -73,7 +80,7 @@ public class ExprScript extends SimpleExpression<Script> {
 				return false;
 			}
 			this.script = parser.getCurrentScript();
-		} else if (matchedPattern == 1) {
+		} else {
 			//noinspection unchecked
 			this.name = (Expression<String>) exprs[0];
 		}
@@ -85,6 +92,17 @@ public class ExprScript extends SimpleExpression<Script> {
 		if (script != null)
 			return new Script[]{script};
 		assert name != null;
+		if (mode == 2) {
+			@Nullable String string = name.getSingle(event);
+			if (string == null)
+				return new Script[0];
+			File folder = new File(Skript.getInstance().getScriptsFolder(), string);
+			List<Script> scripts = new ArrayList<>();
+			if (!folder.isDirectory())
+				return new Script[0];
+			this.getScripts(folder, scripts);
+			return scripts.toArray(new Script[0]);
+		}
 		return name.stream(event)
 				.map(SkriptCommand::getScriptFromName)
 				.map(ExprScript::getHandle)
@@ -92,9 +110,24 @@ public class ExprScript extends SimpleExpression<Script> {
 				.toArray(Script[]::new);
 	}
 
+	private void getScripts(File folder, List<Script> scripts) {
+		File[] files = folder.listFiles();
+		if (files == null)
+			return;
+		for (File file : files) {
+			if (file.isDirectory())
+				this.getScripts(file, scripts);
+			else if (file.getName().endsWith(".sk")) {
+				@Nullable Script handle = ExprScript.getHandle(file);
+				if (handle != null)
+					scripts.add(handle);
+			}
+		}
+	}
+
 	@Override
 	public boolean isSingle() {
-		return script != null || name != null && name.isSingle();
+		return script != null || name != null && name.isSingle() && mode != 2;
 	}
 
 	@Override
@@ -107,13 +140,15 @@ public class ExprScript extends SimpleExpression<Script> {
 		if (script != null)
 			return "the current script";
 		assert name != null;
+		if (mode == 2)
+			return "the scripts in directory " + name.toString(event, debug);
 		if (name.isSingle())
 			return "the script named " + name.toString(event, debug);
 		return "the scripts named " + name.toString(event, debug);
 	}
 
 	static @Nullable Script getHandle(@Nullable File file) {
-		if (file == null)
+		if (file == null || file.isDirectory())
 			return null;
 		Script script = ScriptLoader.getScript(file);
 		if (script != null)

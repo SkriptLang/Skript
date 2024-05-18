@@ -5,6 +5,8 @@ options:
 	# paths are relativised to the /scripts/ directory
 	# but we are loading these scripts from the test folder :(
 
+using script reflection
+
 test "enable script":
 	set {_path} to {@path} + "misc/-disabled.sk"
 	set {EffScriptFile} to false

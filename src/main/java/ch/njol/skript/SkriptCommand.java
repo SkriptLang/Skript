@@ -55,7 +55,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 public class SkriptCommand implements CommandExecutor {
-	
+
 	private static final String CONFIG_NODE = "skript command";
 	private static final ArgsMessage m_reloading = new ArgsMessage(CONFIG_NODE + ".reload.reloading");
 
@@ -90,15 +90,15 @@ public class SkriptCommand implements CommandExecutor {
 		if (TestMode.DEV_MODE)
 			SKRIPT_COMMAND_HELP.add("test");
 	}
-	
+
 	private static void reloading(CommandSender sender, String what, Object... args) {
 		what = args.length == 0 ? Language.get(CONFIG_NODE + ".reload." + what) : Language.format(CONFIG_NODE + ".reload." + what, args);
 		Skript.info(sender, StringUtils.fixCapitalization(m_reloading.toString(what)));
 	}
-	
+
 	private static final ArgsMessage m_reloaded = new ArgsMessage(CONFIG_NODE + ".reload.reloaded");
 	private static final ArgsMessage m_reload_error = new ArgsMessage(CONFIG_NODE + ".reload.error");
-	
+
 	private static void reloaded(CommandSender sender, RedirectingLogHandler r, TimingLogHandler timingLogHandler, String what, Object... args) {
 		what = args.length == 0 ? Language.get(CONFIG_NODE + ".reload." + what) : PluralizingArgsMessage.format(Language.format(CONFIG_NODE + ".reload." + what, args));
 		String timeTaken  = String.valueOf(timingLogHandler.getTimeTaken());
@@ -108,12 +108,12 @@ public class SkriptCommand implements CommandExecutor {
 		else
 			Skript.error(sender, StringUtils.fixCapitalization(PluralizingArgsMessage.format(m_reload_error.toString(what, r.numErrors(), timeTaken))));
 	}
-	
+
 	private static void info(CommandSender sender, String what, Object... args) {
 		what = args.length == 0 ? Language.get(CONFIG_NODE + "." + what) : PluralizingArgsMessage.format(Language.format(CONFIG_NODE + "." + what, args));
 		Skript.info(sender, StringUtils.fixCapitalization(what));
 	}
-	
+
 	private static void error(CommandSender sender, String what, Object... args) {
 		what = args.length == 0 ? Language.get(CONFIG_NODE + "." + what) : PluralizingArgsMessage.format(Language.format(CONFIG_NODE + "." + what, args));
 		Skript.error(sender, StringUtils.fixCapitalization(what));
@@ -457,10 +457,10 @@ public class SkriptCommand implements CommandExecutor {
 
 		return true;
 	}
-	
+
 	private static final ArgsMessage m_invalid_script = new ArgsMessage(CONFIG_NODE + ".invalid script");
 	private static final ArgsMessage m_invalid_folder = new ArgsMessage(CONFIG_NODE + ".invalid folder");
-	
+
 	@Nullable
 	private static File getScriptFromArgs(CommandSender sender, String[] args) {
 		String script = StringUtils.join(args, " ", 1, args.length);
@@ -473,7 +473,7 @@ public class SkriptCommand implements CommandExecutor {
 		}
 		return f;
 	}
-	
+
 	@Nullable
 	public static File getScriptFromName(String script) {
 		if (script.endsWith("/") || script.endsWith("\\")) { // Always allow '/' and '\' regardless of OS
@@ -488,7 +488,8 @@ public class SkriptCommand implements CommandExecutor {
 		if (script.startsWith(ScriptLoader.DISABLED_SCRIPT_PREFIX))
 			script = script.substring(ScriptLoader.DISABLED_SCRIPT_PREFIX_LENGTH);
 
-		File scriptFile = new File(Skript.getInstance().getScriptsFolder(), script);
+		File scriptsFolder = Skript.getInstance().getScriptsFolder();
+		File scriptFile = new File(scriptsFolder, script);
 		if (!scriptFile.exists()) {
 			scriptFile = new File(scriptFile.getParentFile(), ScriptLoader.DISABLED_SCRIPT_PREFIX + scriptFile.getName());
 			if (!scriptFile.exists()) {
@@ -496,7 +497,11 @@ public class SkriptCommand implements CommandExecutor {
 			}
 		}
 		try {
-			return scriptFile.getCanonicalFile();
+			// Unless it's a test, check if the user is asking for a script in the scripts folder
+			// and not something outside Skript's domain.
+			if (TestMode.ENABLED || scriptFile.getCanonicalPath().startsWith(scriptsFolder.getCanonicalPath() + File.separator))
+				return scriptFile.getCanonicalFile();
+			return null;
 		} catch (IOException e) {
 			throw Skript.exception(e, "An exception occurred while trying to get the script file from the string '" + script + "'");
 		}
@@ -515,7 +520,7 @@ public class SkriptCommand implements CommandExecutor {
 			false
 		);
 	}
-	
+
 	private static Set<File> toggleFiles(File folder, boolean enable) throws IOException {
 		FileFilter filter = enable ? ScriptLoader.getDisabledScriptsFilter() : ScriptLoader.getLoadedScriptsFilter();
 
@@ -537,5 +542,5 @@ public class SkriptCommand implements CommandExecutor {
 
 		return changed;
 	}
-	
+
 }

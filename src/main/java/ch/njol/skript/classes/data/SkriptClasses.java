@@ -26,6 +26,7 @@ import java.util.regex.Pattern;
 
 import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.SkriptCommand;
+import ch.njol.skript.expressions.ExprScripts;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
@@ -724,7 +725,7 @@ public class SkriptClasses {
 							case PARSE:
 							case COMMAND:
 								@Nullable File file = SkriptCommand.getScriptFromName(name);
-								if (file == null)
+								if (file == null || !file.isFile())
 									return null;
 								return ScriptLoader.getScript(file);
 							default:
@@ -734,12 +735,15 @@ public class SkriptClasses {
 
 					@Override
 					public String toString(final Script script, final int flags) {
-						return script.getConfig().getFileName();
+						return this.toVariableNameString(script);
 					}
 
 					@Override
 					public String toVariableNameString(final Script script) {
-						return script.getConfig().getFileName();
+						@Nullable File file = script.getConfig().getFile();
+						if (file == null)
+							return script.getConfig().getFileName();
+						return ExprScripts.SCRIPTS_PATH.relativize(file.toPath().toAbsolutePath()).toString();
 					}
 				}));
 	}
