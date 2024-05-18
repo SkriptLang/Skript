@@ -45,7 +45,9 @@ import java.util.Set;
 @Examples({
 	"reload script \"test\"",
 	"enable script file \"testing\"",
-	"unload script file \"script.sk\""
+	"unload script file \"script.sk\"",
+	"set {_script} to the script \"MyScript.sk\"",
+	"reload {_script}"
 })
 @Since("2.4")
 public class EffScriptFile extends Effect {
@@ -54,7 +56,7 @@ public class EffScriptFile extends Effect {
 		Skript.registerEffect(EffScriptFile.class,
 			"(1:(enable|load)|2:reload|3:(disable|unload)) script [file|named] %string%",
 			"(1:(enable|load)|2:reload|3:(disable|unload)) skript file %string%",
-			"(2:reload|3:(disable|unload)) %scripts%"
+			"(1:(enable|load)|2:reload|3:(disable|unload)) %scripts%"
 		);
 		/*
 			The string-pattern must come first (since otherwise `script X` would match the expression)
