@@ -63,7 +63,7 @@ public class ExprScript extends SimpleExpression<Script> {
 				return false;
 			}
 			this.script = parser.getCurrentScript();
-		} else if (matchedPattern == 1) {
+		} else {
 			//noinspection unchecked
 			this.name = (Expression<String>) exprs[0];
 		}
