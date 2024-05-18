@@ -1765,7 +1765,7 @@ visual effects:
 		shriek:
 			name: shriek @-
 			pattern: shriek
-		
+
 		# 1.19.4 particles
 		dripping_cherry_leaves:
 			name: dripping cherry leaves @-
@@ -2106,6 +2106,7 @@ types:
 	experience.pattern: (e?xp|experience( points?)?)
 	classinfo: type¦s @a
 	visualeffect: visual effect¦s @a
+	script: script¦s @a
 
 	# Hooks
 	money: money
