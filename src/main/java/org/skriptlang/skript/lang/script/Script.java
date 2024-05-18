@@ -31,6 +31,9 @@ public final class Script implements Validated, AnyNamed {
 
 	private final List<Structure> structures;
 
+	// Note: this class will eventually become a record, so its members should be final.
+	private transient final Validated validator = Validated.validator();
+
 	/**
 	 * Creates a new Script to be used across the API.
 	 * Only one Script should be created per Config. A loaded Script may be obtained through {@link ch.njol.skript.ScriptLoader}.
@@ -210,6 +213,22 @@ public final class Script implements Validated, AnyNamed {
 			// If this is file-linked and that file was moved/deleted (e.g. this was disabled)
 			// then we should not assume this is a safe reference to use, unless it was
 			// immediately obtained.
+		}
+		return false;
+	}
+
+	@Override
+	public void invalidate() throws UnsupportedOperationException {
+		this.validator.invalidate();
+	}
+
+	@Override
+	public boolean valid() {
+		if (validator.valid()) {
+			@Nullable File file = config.getFile();
+			return file == null || file.exists();
+			// If this is file-linked and that file was moved/deleted (e.g. this was disabled)
+			// then this is probably no longer a valid reference.
 		}
 		return false;
 	}
