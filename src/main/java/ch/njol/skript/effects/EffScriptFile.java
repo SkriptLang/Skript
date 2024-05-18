@@ -27,6 +27,7 @@ import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
+import ch.njol.skript.registrations.Feature;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnknownNullability;
 import org.skriptlang.skript.lang.script.Script;
@@ -70,7 +71,7 @@ public class EffScriptFile extends Effect {
 
 	private @UnknownNullability Expression<String> stringExpression;
 	private @UnknownNullability Expression<Script> scriptExpression;
-	private boolean scripts;
+	private boolean scripts, hasReflection;
 
 	@Override
 	@SuppressWarnings("unchecked")
@@ -85,6 +86,7 @@ public class EffScriptFile extends Effect {
 				this.scriptExpression = (Expression<Script>) exprs[0];
 				this.scripts = true;
 		}
+		this.hasReflection = this.getParser().hasExperiment(Feature.SCRIPT_REFLECTION);
 		return true;
 	}
 
@@ -141,11 +143,13 @@ public class EffScriptFile extends Effect {
 				ScriptLoader.loadScripts(scriptFile, OpenCloseable.EMPTY);
 				break;
 			case UNLOAD:
-				if (!ScriptLoader.getLoadedScriptsFilter().accept(scriptFile))
-					return;
+				if (hasReflection) { // if we don't use the new features this falls through into DISABLE
+					if (!ScriptLoader.getLoadedScriptsFilter().accept(scriptFile))
+						return;
 
-				this.unloadScripts(scriptFile);
-				break;
+					this.unloadScripts(scriptFile);
+					break;
+				}
 			case DISABLE:
 				if (ScriptLoader.getDisabledScriptsFilter().accept(scriptFile))
 					return;
