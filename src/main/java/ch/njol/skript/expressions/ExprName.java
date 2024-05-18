@@ -22,6 +22,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import ch.njol.skript.registrations.Feature;
 import org.bukkit.Bukkit;
 import org.bukkit.GameRule;
 import org.bukkit.Nameable;
@@ -58,7 +59,6 @@ import ch.njol.skript.util.slot.Slot;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.serializer.bungeecord.BungeeComponentSerializer;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.BaseComponent;
@@ -105,6 +105,11 @@ import org.skriptlang.skript.lang.script.Script;
 	"\t\t\t<li><strong>Name:</strong> The name of the world. Cannot be changed.</li>",
 	"\t\t</ul>",
 	"\t</li>",
+	"\t<li><strong>Scripts</strong>",
+	"\t\t<ul>",
+	"\t\t\t<li><strong>Name:</strong> The name of a script, excluding its file extension.</li>",
+	"\t\t</ul>",
+	"\t</li>",
 	"</ul>"
 })
 @Examples({
@@ -139,15 +144,17 @@ public class ExprName extends SimplePropertyExpression<Object, String> {
 	 */
 	private int mark;
 	private static final ItemType AIR = Aliases.javaItemType("air");
+	private boolean scriptResolvedName;
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		mark = parseResult.mark;
+		this.mark = parseResult.mark;
 		setExpr(exprs[0]);
 		if (mark != 1 && World.class.isAssignableFrom(getExpr().getReturnType())) {
 			Skript.error("Can't use 'display name' with worlds. Use 'name' instead.");
 			return false;
 		}
+		this.scriptResolvedName = this.getParser().hasExperiment(Feature.SCRIPT_REFLECTION);
 		return true;
 	}
 
@@ -162,9 +169,11 @@ public class ExprName extends SimplePropertyExpression<Object, String> {
 			String name = script.getConfig().getFileName();
 			if (name.contains("."))
 				name = name.substring(0, name.lastIndexOf('.'));
-			name = name.substring(name.lastIndexOf('/') + 1);
-			if (File.separatorChar != '/') // legacy windows FS reporting
-				name = name.substring(name.lastIndexOf(File.separatorChar) + 1);
+			if (scriptResolvedName) {
+				name = name.substring(name.lastIndexOf('/') + 1);
+				if (File.separatorChar != '/') // legacy windows FS reporting
+					name = name.substring(name.lastIndexOf(File.separatorChar) + 1);
+			}
 			return name;
 		} else if (object instanceof Player) {
 			switch (mark) {
