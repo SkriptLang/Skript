@@ -35,11 +35,12 @@ import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 
+import java.io.File;
 import java.util.Arrays;
 import java.util.Objects;
 
 @Name("Script")
-@Description("The current script, all loaded scripts, or a script from its (file) name.")
+@Description("The current script, or a script from its (file) name.")
 @Examples({
 	"on script load:",
 	"\tbroadcast \"Loaded %the current script%\"",
@@ -55,8 +56,7 @@ public class ExprScript extends SimpleExpression<Script> {
 	static {
 		Skript.registerExpression(ExprScript.class, Script.class, ExpressionType.SIMPLE,
 			"[the] [current] script",
-			"[the] script[s] [named] %strings%",
-			"all [loaded] scripts"
+			"[the] script[s] [named] %strings%"
 		);
 	}
 
@@ -83,15 +83,12 @@ public class ExprScript extends SimpleExpression<Script> {
 	protected Script[] get(Event event) {
 		if (script != null)
 			return new Script[]{script};
-		if (name != null) {
-			return Arrays.stream(name.getArray(event))
-					.map(SkriptCommand::getScriptFromName)
-					.filter(Objects::nonNull)
-					.map(ScriptLoader::getScript)
-					.filter(Objects::nonNull)
-					.toArray(Script[]::new);
-		}
-		return ScriptLoader.getLoadedScripts().toArray(new Script[0]);
+		assert name != null;
+		return Arrays.stream(name.getArray(event))
+				.map(SkriptCommand::getScriptFromName)
+				.map(ExprScript::getHandle)
+				.filter(Objects::nonNull)
+				.toArray(Script[]::new);
 	}
 
 	@Override
@@ -108,12 +105,19 @@ public class ExprScript extends SimpleExpression<Script> {
 	public String toString(@Nullable Event event, boolean debug) {
 		if (script != null)
 			return "the current script";
-		if (name != null) {
-			if (name.isSingle())
-				return "the script named " + name.toString(event, debug);
-			return "the scripts named " + name.toString(event, debug);
-		}
-		return "all loaded scripts";
+		assert name != null;
+		if (name.isSingle())
+			return "the script named " + name.toString(event, debug);
+		return "the scripts named " + name.toString(event, debug);
+	}
+
+	static @Nullable Script getHandle(@Nullable File file) {
+		if (file == null)
+			return null;
+		Script script = ScriptLoader.getScript(file);
+		if (script != null)
+			return script;
+		return ScriptLoader.createDummyScript(file.getName(), file);
 	}
 
 }
