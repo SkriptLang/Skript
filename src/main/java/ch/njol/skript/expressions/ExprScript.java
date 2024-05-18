@@ -40,7 +40,9 @@ import java.util.Arrays;
 import java.util.Objects;
 
 @Name("Script")
-@Description("The current script, or a script from its (file) name.")
+@Description({"The current script, or a script from its (file) name.",
+	"If the script is enabled or disabled (or reloaded) this reference will become invalid.",
+	"Therefore, it is recommended to obtain a script reference <em>when needed</em>."})
 @Examples({
 	"on script load:",
 	"\tbroadcast \"Loaded %the current script%\"",
