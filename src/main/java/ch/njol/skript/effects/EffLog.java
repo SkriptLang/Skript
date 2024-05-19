@@ -147,6 +147,7 @@ public class EffLog extends Effect {
 	public String toString(@Nullable Event e, boolean debug) {
 		if (logLevel == Level.INFO)
 			return "log " + messages.toString(e, debug) + (files != null ? " to " + files.toString(e, debug) : "");
-		return "log " + messages.toString(e, debug) + (files != null ? " to " + files.toString(e, debug) : "") + logLevel;
+		String logLevelMsg = " " + logLevel;
+		return "log " + messages.toString(e, debug) + (files != null ? " to " + files.toString(e, debug) : "") + logLevelMsg;
 	}
 }
