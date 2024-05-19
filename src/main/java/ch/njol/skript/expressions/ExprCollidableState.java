@@ -66,9 +66,8 @@ public class ExprCollidableState extends SimplePropertyExpression<LivingEntity, 
 				return CollectionUtils.array(Boolean.class);
 			case RESET:
 				return CollectionUtils.array();
-			default:
-				return null;
 		}
+		return null;
 	}
 
 	@Override
