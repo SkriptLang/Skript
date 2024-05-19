@@ -1,0 +1,8 @@
+test "ExprCollidableState":
+	spawn cow at spawn of "world":
+		set {_cow} to entity
+		set collidable state of entity to false
+	assert {_cow} is not collidable with "the cow was collidable"
+	reset collidable state of {_cow}
+	assert {_cow} is collidable with "the cow was not collidable"
+	assert collidable state of entity is true with "the cow is collidable"
