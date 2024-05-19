@@ -1,0 +1,56 @@
+options:
+	junit: "org.skriptlang.skript.test.tests.syntaxes.events.EvtCommandTest"
+
+command /evtcommandtest:
+	trigger:
+		junit test is {@junit}
+		send "EvtCommandTest command executed." to console
+		assert sender is console with "EvtCommandTest command was not executed by console"
+
+on script load:
+	set {_test::1} to "listen to command event"
+	set {_test::2} to "listen to command event - invalid command"
+	set {_test::3} to "listen to command event - valid command"
+	set {_test::4} to "listen to command event - invalid skript command"
+	set {_test::5} to "listen to command event - valid skript command"
+	set {_test::6} to "listen to console command event"
+	set {_test::7} to "listen to command event - command specified"
+	set {_test::8} to "listen to console command event - command specified"
+	ensure junit test {@junit} completes {_test::*}
+
+on command:
+	junit test is {@junit}
+	complete objective "listen to command event" for junit test {@junit}
+	
+	if command is "evtcommandtest":
+		assert command is a skript command with "Command %command% should be a skript command"
+		assert command is not an invalid skript command with "Command %command% should not be an invalid skript command"
+		complete objective "listen to command event - valid skript command" for junit test {@junit}
+
+on console command:
+	junit test is {@junit}
+	assert sender is console with "Command sender should be console ##1"
+	complete objective "listen to console command event" for junit test {@junit}
+	
+	# Bukkit.dispatchCommand(Bukkit.getConsoleSender(), UUID.randomUUID().toString())
+	if length of command is 36:
+		assert command is not a valid command with "Command %command% should not be a valid command"
+		complete objective "listen to command event - invalid command" for junit test {@junit}
+
+on command "skript":
+	junit test is {@junit}
+	assert command is "skript" with "Command %command% should be 'op' ##1"
+	complete objective "listen to command event - command specified" for junit test {@junit}
+	
+	assert command is a valid command with "Command %command% should be valid"
+	assert command is not an invalid command with "Command %command% should not be invalid"
+	complete objective "listen to command event - valid command" for junit test {@junit}
+	
+	assert command is not a skript command with "Command %command% should not be a skript command"
+	complete objective "listen to command event - invalid skript command" for junit test {@junit}
+
+on console command "skript":
+	junit test is {@junit}
+	assert sender is console with "Command sender should be console"
+	assert command is "skript" with "Command %command% should be 'op' ##2"
+	complete objective "listen to console command event - command specified" for junit test {@junit}
