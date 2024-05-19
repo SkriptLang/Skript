@@ -73,7 +73,9 @@ public class ExprCollidableState extends SimplePropertyExpression<LivingEntity, 
 
 	@Override
 	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
-		getExpr().stream(event).forEach(entity -> entity.setCollidable(mode == ChangeMode.RESET | (delta != null && (Boolean) delta[0])));
+		getExpr().stream(event).forEach(entity ->
+			entity.setCollidable(mode == ChangeMode.RESET | (delta != null && (Boolean) delta[0]))
+		);
 	}
 
 }
