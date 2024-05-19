@@ -48,6 +48,7 @@ public class EvtCommand extends SkriptEvent {
 						"on command \"pm Njol\":",
 						"on console command:",
 						"on player command \"/op\"")
+				.keywords("console", "player")
 				.since("2.0, INSERT VERSION (specific sender)");
 	}
 
