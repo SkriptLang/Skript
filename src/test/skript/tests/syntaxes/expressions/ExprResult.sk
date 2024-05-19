@@ -1,0 +1,57 @@
+options:
+	path: "../../../../../../src/test/skript/tests/syntaxes/expressions/"
+	misc: "../../../../../../src/test/skript/tests/misc/"
+
+	# Princess test script is in another castle, Mario!
+	# paths are relativised to the /scripts/ directory
+	# but we are loading these scripts from the test folder :(
+
+using script reflection
+
+function testExprResult0() :: boolean:
+	return true
+
+local function testExprResult1() :: boolean:
+	return true
+
+test "result of functions":
+	set {_function} to function "testExprResult0()"
+	set {_result} to result of {_function}
+	assert {_result} exists with "function didn't run"
+	assert {_result} is true with "function didn't return correctly"
+	delete {_result}
+
+	set {_function} to function "testExprResult1()"
+	set {_result} to result of {_function}
+	assert {_result} exists with "function didn't run"
+	assert {_result} is true with "function didn't return correctly"
+	delete {_result}
+
+test "result of external functions":
+	set {_script} to the script named {@misc} + "dummy.sk"
+	set {_function} to function "testDummy()" from {_script}
+	assert {_function} exists with "function wasn't found"
+	set {_result} to result of {_function}
+	assert {_result} exists with "function didn't run"
+	assert {_result} is true with "function didn't return correctly"
+	delete {_result}
+
+	set {_script} to the script named {@path} + "ExprFunction.sk"
+
+	set {_function} to function "testExprFunction1()" from {_script}
+	assert {_function} exists with "function wasn't found"
+	set {_result} to result of {_function}
+	assert {_result} exists with "function didn't run"
+	assert {_result} is true with "function didn't return correctly"
+	delete {_result}
+
+	set {_function} to function "testExprFunction2()" from {_script}
+	assert {_function} exists with "function wasn't found"
+	set {_result} to result of {_function} with arguments "hello" and 0
+	assert {_result} exists with "function didn't run"
+	assert {_result} is false with "function didn't return correctly"
+	set {_result} to result of {_function} with arguments "hello" and 3
+	assert {_result} is false with "function didn't return correctly"
+	set {_result} to result of {_function} with arguments "hello" and 5
+	assert {_result} is true with "function didn't return correctly"
+	delete {_result}

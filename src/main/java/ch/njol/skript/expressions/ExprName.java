@@ -22,6 +22,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import ch.njol.skript.lang.function.DynamicFunctionReference;
 import ch.njol.skript.registrations.Feature;
 import org.bukkit.Bukkit;
 import org.bukkit.GameRule;
@@ -132,7 +133,7 @@ public class ExprName extends SimplePropertyExpression<Object, String> {
 				Skript.methodExists(Bukkit.class, "createInventory", InventoryHolder.class, int.class, Component.class))
 			serializer = BungeeComponentSerializer.get();
 		HAS_GAMERULES = Skript.classExists("org.bukkit.GameRule");
-		register(ExprName.class, String.class, "(1¦name[s]|2¦(display|nick|chat|custom)[ ]name[s])", "offlineplayers/entities/blocks/itemtypes/inventories/slots/worlds/scripts"
+		register(ExprName.class, String.class, "(1¦name[s]|2¦(display|nick|chat|custom)[ ]name[s])", "offlineplayers/entities/blocks/itemtypes/inventories/slots/worlds/scripts/functions"
 			+ (HAS_GAMERULES ? "/gamerules" : ""));
 		register(ExprName.class, String.class, "(3¦(player|tab)[ ]list name[s])", "players");
 	}
@@ -150,9 +151,17 @@ public class ExprName extends SimplePropertyExpression<Object, String> {
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		this.mark = parseResult.mark;
 		setExpr(exprs[0]);
-		if (mark != 1 && World.class.isAssignableFrom(getExpr().getReturnType())) {
-			Skript.error("Can't use 'display name' with worlds. Use 'name' instead.");
-			return false;
+		if (mark != 1) {
+			if (World.class.isAssignableFrom(getExpr().getReturnType())) {
+				Skript.error("Can't use 'display name' with worlds. Use 'name' instead.");
+				return false;
+			} else if (Script.class.isAssignableFrom(getExpr().getReturnType())) {
+				Skript.error("Can't use 'display name' with scripts. Use 'name' instead.");
+				return false;
+			} else if (DynamicFunctionReference.class.isAssignableFrom(getExpr().getReturnType())) {
+				Skript.error("Can't use 'display name' with functions. Use 'name' instead.");
+				return false;
+			}
 		}
 		this.scriptResolvedName = this.getParser().hasExperiment(Feature.SCRIPT_REFLECTION);
 		return true;
@@ -175,6 +184,9 @@ public class ExprName extends SimplePropertyExpression<Object, String> {
 					name = name.substring(name.lastIndexOf(File.separatorChar) + 1);
 			}
 			return name;
+		} else if (object instanceof DynamicFunctionReference<?>) {
+			DynamicFunctionReference<?> function = (DynamicFunctionReference<?>) object;
+			return function.name();
 		} else if (object instanceof Player) {
 			switch (mark) {
 				case 1:
@@ -223,6 +235,10 @@ public class ExprName extends SimplePropertyExpression<Object, String> {
 					Skript.error("Can't change the Minecraft name of a player. Change the 'display name' or 'tab list name' instead.");
 					return null;
 				} else if (World.class.isAssignableFrom(getExpr().getReturnType())) {
+					return null;
+				} else if (Script.class.isAssignableFrom(getExpr().getReturnType())) {
+					return null;
+				} else if (DynamicFunctionReference.class.isAssignableFrom(getExpr().getReturnType())) {
 					return null;
 				}
 			}

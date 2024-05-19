@@ -27,6 +27,7 @@ import java.util.regex.Pattern;
 import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.SkriptCommand;
 import ch.njol.skript.expressions.ExprScripts;
+import ch.njol.skript.lang.function.DynamicFunctionReference;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
@@ -70,6 +71,7 @@ import ch.njol.skript.util.visual.VisualEffects;
 import ch.njol.yggdrasil.Fields;
 import org.jetbrains.annotations.NotNull;
 import org.skriptlang.skript.lang.script.Script;
+import org.skriptlang.skript.util.Executable;
 
 import java.util.Arrays;
 
@@ -746,6 +748,25 @@ public class SkriptClasses {
 						return ExprScripts.SCRIPTS_PATH.relativize(file.toPath().toAbsolutePath()).toString();
 					}
 				}));
+
+		Classes.registerClass(new ClassInfo<>(Executable.class, "executable")
+			.user("executables?")
+			.name("Executable")
+			.description("Something that can be executed (run) and may accept arguments, e.g. a function.",
+					"This may also return a result.")
+			.usage("")
+			.examples("run {_function} with arguments 1 and true")
+			.since("INSERT VERSION"));
+
+		Classes.registerClass(new ClassInfo<>(DynamicFunctionReference.class, "function")
+			.user("functions?")
+			.name("Function")
+			.description("A function loaded by Skript.",
+					"This can be executed (with arguments) and may return a result.")
+			.usage("")
+			.examples("run {_function} with arguments 1 and true",
+					"set {_result} to the result of {_function}")
+			.since("INSERT VERSION"));
 	}
 
 }
