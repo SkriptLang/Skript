@@ -49,7 +49,7 @@ public class EvtCommand extends SkriptEvent {
 						"on console command:",
 						"on player command \"/op\"")
 				.keywords("console", "player")
-				.since("2.0, INSERT VERSION (specific sender)");
+				.since("2.0, INSERT VERSION (specific executor)");
 	}
 
 	private enum Sender {

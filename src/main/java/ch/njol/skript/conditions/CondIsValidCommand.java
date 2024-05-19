@@ -32,11 +32,11 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
 
 @Name("Is Valid Command")
-@Description("Checks whether a command/string is a valid server command, or a custom Skript command.")
+@Description("Checks whether a command/string is a valid plugin command, or a custom Skript command.")
 @Examples({
 	"on command:",
 		"\tif command is a valid command:",
-			"\t\tsend \"%command% is a valid command!\" to executor",
+			"\t\tsend \"%command% is a valid plugin command!\" to executor",
 		"\tif command is a skript command:",
 			"\t\tsend \"%command% is a custom Skript command!\" to executor",
 })
