@@ -2107,6 +2107,8 @@ types:
 	classinfo: type¦s @a
 	visualeffect: visual effect¦s @a
 	script: script¦s @a
+	executable: executable¦s @an
+	function: function¦s @a
 
 	# Hooks
 	money: money
