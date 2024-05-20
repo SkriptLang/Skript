@@ -1,0 +1,7 @@
+options:
+	path: "../../../../../../src/test/skript/tests/"
+
+test "script name (old)":
+	set {_name} to the script's name
+	assert the script's name is {@path} + "misc/legacy script name" with "script name is wrong"
+	# Original behaviour included the file path and name but not the extension, e.g. `quests/MyQuestScript`
