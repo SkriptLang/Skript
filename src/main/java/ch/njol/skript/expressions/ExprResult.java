@@ -26,6 +26,7 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionList;
 import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser;
+import ch.njol.skript.lang.function.DynamicFunctionReference;
 import ch.njol.skript.registrations.Feature;
 import ch.njol.skript.util.LiteralUtils;
 import ch.njol.util.Kleenean;
@@ -57,6 +58,7 @@ public class ExprResult extends PropertyExpression<Executable<Event, Object>, Ob
 
 	private Expression<?> arguments;
 	private boolean hasArguments, isPlural;
+	private DynamicFunctionReference.Input input;
 
 	@SuppressWarnings({"unchecked", "null"})
 	@Override
@@ -69,20 +71,35 @@ public class ExprResult extends PropertyExpression<Executable<Event, Object>, Ob
 		this.isPlural = result.hasTag("plural");
 		if (hasArguments) {
 			this.arguments = LiteralUtils.defendExpression(expressions[1]);
-			return LiteralUtils.canInitSafely(arguments);
+			Expression<?>[] arguments;
+			if (this.arguments instanceof ExpressionList<?>)
+				arguments = ((ExpressionList<?>) this.arguments).getExpressions();
+			else
+				arguments = new Expression[]{this.arguments};
+			this.input = new DynamicFunctionReference.Input(arguments);
+			return LiteralUtils.canInitSafely(this.arguments);
+		} else {
+			this.input = new DynamicFunctionReference.Input();
 		}
 		return true;
 	}
 
 	@Override
 	protected Object[] get(Event event, Executable<Event, Object>[] source) {
-		Object[] arguments;
-		if (hasArguments)
-			arguments = this.arguments.getArray(event);
-		else
-			arguments = new Object[0];
-		for (Executable<Event, Object> executable : source) {
-			Object execute = executable.execute(event, arguments);
+		for (Executable<Event, Object> task : source) {
+			Object[] arguments;
+			if (task instanceof DynamicFunctionReference) {
+				//noinspection rawtypes
+				DynamicFunctionReference<?> reference = (DynamicFunctionReference) task;
+				Expression<?> validated = reference.validate(input);
+				if (validated == null)
+					return new Object[0];
+				arguments = validated.getArray(event);
+			} else if (hasArguments)
+				arguments = this.arguments.getArray(event);
+			else
+				arguments = new Object[0];
+			Object execute = task.execute(event, arguments);
 			if (execute instanceof Object[])
 				return (Object[]) execute;
 			return new Object[]{execute};

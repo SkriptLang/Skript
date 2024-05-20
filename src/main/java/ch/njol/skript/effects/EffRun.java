@@ -26,6 +26,8 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionList;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.Variable;
+import ch.njol.skript.lang.function.DynamicFunctionReference;
+import ch.njol.skript.lang.function.FunctionReference;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.registrations.Feature;
 import ch.njol.skript.util.LiteralUtils;
@@ -61,6 +63,7 @@ public class EffRun extends Effect {
 	// from the expression, and it makes casting more difficult to no benefit.
 	private Expression<Executable> executable;
 	private Expression<?> arguments;
+	private DynamicFunctionReference.Input input;
 	private boolean hasArguments;
 
 	@Override
@@ -71,7 +74,15 @@ public class EffRun extends Effect {
 		this.hasArguments = result.hasTag("arguments");
 		if (hasArguments) {
 			this.arguments = LiteralUtils.defendExpression(expressions[1]);
-			return LiteralUtils.canInitSafely(arguments);
+			Expression<?>[] arguments;
+			if (this.arguments instanceof ExpressionList<?>)
+				arguments = ((ExpressionList<?>) this.arguments).getExpressions();
+			else
+				arguments = new Expression[]{this.arguments};
+			this.input = new DynamicFunctionReference.Input(arguments);
+			return LiteralUtils.canInitSafely(this.arguments);
+		} else {
+			this.input = new DynamicFunctionReference.Input();
 		}
 		return true;
 	}
@@ -82,10 +93,17 @@ public class EffRun extends Effect {
 		if (task == null)
 			return;
 		Object[] arguments;
-		if (hasArguments)
+		if (task instanceof DynamicFunctionReference) {
+			DynamicFunctionReference<?> reference = (DynamicFunctionReference) task;
+			Expression<?> validated = reference.validate(input);
+			if (validated == null)
+				return;
+			arguments = validated.getArray(event);
+		} else if (hasArguments) {
 			arguments = this.arguments.getArray(event);
-		else
+		} else {
 			arguments = new Object[0];
+		}
 		task.execute(event, arguments);
 	}
 

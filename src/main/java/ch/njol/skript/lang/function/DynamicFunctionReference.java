@@ -21,6 +21,7 @@ package ch.njol.skript.lang.function;
 import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.SkriptCommand;
 import ch.njol.skript.lang.Expression;
+import ch.njol.skript.lang.ExpressionList;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.Contract;
 import org.bukkit.event.Event;
@@ -34,6 +35,10 @@ import org.skriptlang.skript.util.Validated;
 import java.io.File;
 import java.lang.ref.Reference;
 import java.lang.ref.WeakReference;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
 
 public class DynamicFunctionReference<Result>
 	implements Contract, Executable<Event, Result[]>, Validated {
@@ -43,6 +48,7 @@ public class DynamicFunctionReference<Result>
 	private final Reference<Function<? extends Result>> function;
 	private final @UnknownNullability Signature<? extends Result> signature;
 	private final Validated validator = Validated.validator();
+	private final Map<Input, Expression<?>> checkedInputs = new HashMap<>();
 	private final boolean resolved;
 
 	public DynamicFunctionReference(Function<? extends Result> function) {
@@ -150,6 +156,83 @@ public class DynamicFunctionReference<Result>
 		if (source != null)
 			return name + "() from " + Classes.toString(source);
 		return name + "()";
+	}
+
+	public @Nullable Expression<?> validate(Expression<?>[] parameters) {
+		Input input = new Input(parameters);
+		return this.validate(input);
+	}
+
+	public @Nullable Expression<?> validate(Input input) {
+		if (checkedInputs.containsKey(input))
+			return checkedInputs.get(input);
+		this.checkedInputs.put(input, null); // failure case
+		if (signature == null)
+			return null;
+		boolean varArgs = signature.getMaxParameters() == 1 && !signature.getParameter(0).single;
+		Expression<?>[] parameters = input.parameters();
+		// Too many parameters
+		if (parameters.length > signature.getMaxParameters() && !varArgs)
+			return null;
+		// Not enough parameters
+		else if (parameters.length < signature.getMinParameters())
+			return null;
+		Expression<?>[] checked = new Expression[parameters.length];
+
+		// Check parameter types
+		for (int i = 0; i < parameters.length; i++) {
+			Parameter<?> parameter = signature.parameters[varArgs ? 0 : i];
+			//noinspection unchecked
+			Expression<?> expression = parameters[i].getConvertedExpression(parameter.type.getC());
+			if (expression == null) {
+				return null;
+			} else if (parameter.single && !expression.isSingle()) {
+				return null;
+			}
+			checked[i] = expression;
+		}
+
+		// if successful, replace with our known result
+		ExpressionList<?> result = new ExpressionList<>(checked, Object.class, true);
+		this.checkedInputs.put(input, result);
+		return result;
+	}
+
+	/**
+	 * An index-linking key for a particular set of input expressions.
+	 * Validation only needs to be done once for a set of parameter types,
+	 * so this is used to prevent re-validation.
+	 */
+	public static class Input {
+		private final Class<?>[] types;
+		private transient final Expression<?>[] parameters;
+
+		public Input(Expression<?>... types) {
+			Class<?>[] classes = new Class<?>[types.length];
+			for (int i = 0; i < types.length; i++) {
+				classes[i] = types[i].getReturnType();
+			}
+			this.parameters = types;
+			this.types = classes;
+		}
+
+		private Expression<?>[] parameters() {
+			return parameters;
+		}
+
+		@Override
+		public boolean equals(Object object) {
+			if (this == object) return true;
+			if (!(object instanceof Input)) return false;
+			Input input = (Input) object;
+			return Arrays.equals(parameters, input.parameters) && Objects.deepEquals(types, input.types);
+		}
+
+		@Override
+		public int hashCode() {
+			return Arrays.hashCode(types) ^ Arrays.hashCode(parameters);
+		}
+
 	}
 
 }
