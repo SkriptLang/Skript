@@ -25,6 +25,7 @@ import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.SyntaxElement;
+import ch.njol.skript.lang.util.ContextlessEvent;
 import ch.njol.util.Kleenean;
 import ch.njol.yggdrasil.YggdrasilSerializable;
 import org.bukkit.Bukkit;
@@ -59,7 +60,17 @@ public class VisualEffect implements SyntaxElement, YggdrasilSerializable {
 		type = VisualEffects.get(matchedPattern);
 
 		if (exprs.length > 4 && exprs[0] != null) {
-			data = exprs[0].getSingle(null);
+			int exprCount = exprs.length - 4; // some effects might have multiple expressions
+			ContextlessEvent event = ContextlessEvent.get();
+			if (exprCount == 1) {
+				data = exprs[0].getSingle(event);
+			} else { // provide an array of expression values
+				Object[] dataArray = new Object[exprCount];
+				for (int i = 0; i < exprCount; i++) {
+					dataArray[i] = exprs[i].getSingle(event);
+				}
+				data = dataArray;
+			}
 		} else if (parseResult.hasTag("barrierbm")) { // barrier backcompat
 			data = Bukkit.createBlockData(barrier.getMaterial());
 		} else if (parseResult.hasTag("lightbm")) { // light backcompat
