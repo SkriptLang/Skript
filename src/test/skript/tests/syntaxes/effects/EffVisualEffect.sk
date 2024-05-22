@@ -32,7 +32,7 @@ test "visual effects":
 	play flame at {_}
 	play happy villager at {_}
 	play instant effect at {_}
-	play air item break at {_}
+	play iron sword item break at {_}
 	play slime at {_}
 	play snowball at {_}
 	play snowball break at {_}

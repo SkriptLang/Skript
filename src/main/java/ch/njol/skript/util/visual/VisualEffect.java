@@ -53,7 +53,7 @@ public class VisualEffect implements SyntaxElement, YggdrasilSerializable {
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		type = VisualEffects.get(matchedPattern);
 
-		if (exprs.length > 4 && exprs[0] != null) {
+		if (exprs.length > 4) {
 			int exprCount = exprs.length - 4; // some effects might have multiple expressions
 			ContextlessEvent event = ContextlessEvent.get();
 			if (exprCount == 1) {
@@ -64,7 +64,9 @@ public class VisualEffect implements SyntaxElement, YggdrasilSerializable {
 					dataArray[i] = exprs[i] != null ? exprs[i].getSingle(event) : null;
 				data = dataArray;
 			}
-		} else if (parseResult.hasTag("barrierbm")) { // barrier backcompat
+		}
+
+		if (parseResult.hasTag("barrierbm")) { // barrier backcompat
 			data = Bukkit.createBlockData(Material.BARRIER);
 		} else if (parseResult.hasTag("lightbm")) { // light backcompat
 			data = Bukkit.createBlockData(Material.LIGHT);

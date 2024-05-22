@@ -21,6 +21,7 @@ package ch.njol.skript.util.visual;
 import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.Aliases;
 import ch.njol.skript.aliases.ItemType;
+import ch.njol.skript.bukkitutil.ItemUtils;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.lang.SyntaxElementInfo;
 import ch.njol.skript.localization.Language;
@@ -144,6 +145,10 @@ public class VisualEffects {
 			 * Particles with BlockData DataType
 			 */
 			final BiFunction<Object, Location, Object> blockDataSupplier = (raw, location) -> {
+				if (raw instanceof Object[]) { // workaround for modern pattern since it contains a choice
+					Object[] data = (Object[]) raw;
+					raw = data[0] != null ? data[0] : data[1];
+				}
 				if (raw == null)
 					return Bukkit.createBlockData(Material.AIR);
 				if (raw instanceof ItemType)
@@ -175,7 +180,11 @@ public class VisualEffects {
 			 * Particles with Color DataType
 			 */
 			// TODO make sure returning a regular color is valid
-			registerDataSupplier("Particle.ENTITY_EFFECT", (raw, location) -> raw != null ? raw : defaultColor);
+			registerDataSupplier("Particle.ENTITY_EFFECT", (raw, location) -> {
+				if (raw == null)
+					return defaultColor.asBukkitColor();
+				return ((Color) raw).asBukkitColor();
+			});
 			final BiFunction<Object, Location, Object> oldColorSupplier = (raw, location) -> {
 				Color color = raw != null ? (Color) raw : defaultColor;
 				return new ParticleOption(color, 1);
@@ -186,12 +195,11 @@ public class VisualEffects {
 			registerDataSupplier("Particle.SPELL_MOB_AMBIENT", oldColorSupplier);
 
 			final BiFunction<Object, Location, Object> itemStackSupplier = (raw, location) -> {
-				ItemStack itemStack;
-				if (raw instanceof ItemType) {
+				ItemStack itemStack = null;
+				if (raw instanceof ItemType)
 					itemStack = ((ItemType) raw).getRandom();
-				} else {
+				if (itemStack == null || ItemUtils.isAir(itemStack.getType())) // item crack air is not allowed
 					itemStack = new ItemStack(Material.IRON_SWORD);
-				}
 				if (IS_ITEM_CRACK_MATERIAL)
 					return itemStack.getType();
 				return itemStack;

@@ -1756,7 +1756,7 @@ visual effects:
 			pattern: instant (effect|spell|thrown potion)
 
 		item: # added in 1.20.5
-			name: item crack @-
+			name: item @-
 			pattern: %itemtype% item (break|crack)[ing]
 		item_crack: # for versions below 1.20.5
 			name: item crack @-
