@@ -225,6 +225,12 @@ public class VisualEffects {
 			registerDataSupplier("Particle.BLOCK_DUST", crackDustBiFunction);
 			registerDataSupplier("Particle.FALLING_DUST", crackDustBiFunction);
 
+			registerDataSupplier("Particle.BLOCK_MARKER", (raw, location) -> {
+				if (raw == null)
+					return Bukkit.createBlockData(Material.AIR);
+				return raw;
+			});
+
 			generateTypes();
 		});
 	}

@@ -1471,13 +1471,13 @@ visual effects:
 			name: block dust @-
 			pattern: [sprinting] dust of %itemtype%
 
-		block_marker: # added in 1.18 TODO barrier/light backcompat support?
+		block_marker: # added in 1.18
 			name: block marker @a
-			pattern: %itemtype% block marker
-		barrier: # added in 1.18 TODO remove when 1.17 and below support is dropped
+			pattern: (barrierbm:barrier|lightbm:light|%-blockdata% block marker)
+		barrier:
 			name: barrier @a
 			pattern: barrier
-		light: # added in 1.17 TODO remove when 1.17 and below support is dropped (and only existed for 1 version)
+		light: # added in 1.17
 			name: light @-
 			pattern: light
 

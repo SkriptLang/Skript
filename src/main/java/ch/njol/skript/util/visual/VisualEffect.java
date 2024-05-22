@@ -20,11 +20,14 @@
 package ch.njol.skript.util.visual;
 
 import ch.njol.skript.Skript;
+import ch.njol.skript.aliases.Aliases;
+import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.SyntaxElement;
 import ch.njol.util.Kleenean;
 import ch.njol.yggdrasil.YggdrasilSerializable;
+import org.bukkit.Bukkit;
 import org.bukkit.Effect;
 import org.bukkit.Location;
 import org.bukkit.Particle;
@@ -45,6 +48,9 @@ public class VisualEffect implements SyntaxElement, YggdrasilSerializable {
 	private float speed = 0f;
 	private float dX, dY, dZ = 0f;
 
+	private static final ItemType barrier = Aliases.javaItemType("barrier");
+	private static final ItemType light = Aliases.javaItemType("light");
+
 	public VisualEffect() {}
 	
 	@SuppressWarnings({"null", "ConstantConditions"})
@@ -54,6 +60,10 @@ public class VisualEffect implements SyntaxElement, YggdrasilSerializable {
 
 		if (exprs.length > 4 && exprs[0] != null) {
 			data = exprs[0].getSingle(null);
+		} else if (parseResult.hasTag("barrierbm")) { // barrier backcompat
+			data = Bukkit.createBlockData(barrier.getMaterial());
+		} else if (parseResult.hasTag("lightbm")) { // light backcompat
+			data = Bukkit.createBlockData(light.getMaterial());
 		}
 
 		if ((parseResult.mark & 1) != 0) {
