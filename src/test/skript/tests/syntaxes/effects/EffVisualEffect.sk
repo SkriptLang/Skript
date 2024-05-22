@@ -101,10 +101,10 @@ test "visual effects":
 	parse if running minecraft "1.18.2":
 		play air block marker at {_}
 	parse if running minecraft "1.19.4":
-		play sculk charge at {_}
+		play 1 sculk charge at {_}
 		play sculk charge pop at {_}
 		play sculk soul at {_}
-		play shriek at {_}
+		play 1 shriek at {_}
 		play sonic boom at {_}
 	parse if running minecraft "1.20.6":
 		play cherry leaves at {_}

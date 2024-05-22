@@ -20,8 +20,6 @@
 package ch.njol.skript.util.visual;
 
 import ch.njol.skript.Skript;
-import ch.njol.skript.aliases.Aliases;
-import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.SyntaxElement;
@@ -31,6 +29,7 @@ import ch.njol.yggdrasil.YggdrasilSerializable;
 import org.bukkit.Bukkit;
 import org.bukkit.Effect;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
@@ -40,8 +39,6 @@ import java.util.Objects;
 
 public class VisualEffect implements SyntaxElement, YggdrasilSerializable {
 
-	private static final boolean HAS_REDSTONE_DATA = Skript.classExists("org.bukkit.Particle$DustOptions");
-
 	private VisualEffectType type;
 
 	@Nullable
@@ -49,11 +46,8 @@ public class VisualEffect implements SyntaxElement, YggdrasilSerializable {
 	private float speed = 0f;
 	private float dX, dY, dZ = 0f;
 
-	private static final ItemType barrier = Aliases.javaItemType("barrier");
-	private static final ItemType light = Aliases.javaItemType("light");
-
 	public VisualEffect() {}
-	
+
 	@SuppressWarnings({"null", "ConstantConditions"})
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
@@ -63,18 +57,17 @@ public class VisualEffect implements SyntaxElement, YggdrasilSerializable {
 			int exprCount = exprs.length - 4; // some effects might have multiple expressions
 			ContextlessEvent event = ContextlessEvent.get();
 			if (exprCount == 1) {
-				data = exprs[0].getSingle(event);
+				data = exprs[0] != null ? exprs[0].getSingle(event) : null;
 			} else { // provide an array of expression values
 				Object[] dataArray = new Object[exprCount];
-				for (int i = 0; i < exprCount; i++) {
-					dataArray[i] = exprs[i].getSingle(event);
-				}
+				for (int i = 0; i < exprCount; i++)
+					dataArray[i] = exprs[i] != null ? exprs[i].getSingle(event) : null;
 				data = dataArray;
 			}
 		} else if (parseResult.hasTag("barrierbm")) { // barrier backcompat
-			data = Bukkit.createBlockData(barrier.getMaterial());
+			data = Bukkit.createBlockData(Material.BARRIER);
 		} else if (parseResult.hasTag("lightbm")) { // light backcompat
-			data = Bukkit.createBlockData(light.getMaterial());
+			data = Bukkit.createBlockData(Material.LIGHT);
 		}
 
 		if ((parseResult.mark & 1) != 0) {
@@ -121,7 +114,7 @@ public class VisualEffect implements SyntaxElement, YggdrasilSerializable {
 			}
 
 			// Some particles use offset as RGB color codes
-			if (type.isColorable() && (!HAS_REDSTONE_DATA || particle != (VisualEffects.OLD_REDSTONE_PARTICLE != null ? VisualEffects.OLD_REDSTONE_PARTICLE : Particle.DUST)) && data instanceof ParticleOption) {
+			if (type.isColorable() && data instanceof ParticleOption) {
 				ParticleOption option = ((ParticleOption) data);
 				dX = option.getRed();
 				dY = option.getGreen();

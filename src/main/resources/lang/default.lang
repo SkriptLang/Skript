@@ -1463,17 +1463,17 @@ visual effects:
 
 		block: # added in 1.20.5
 			name: block @-
-			pattern: (%-itemtype% break[ing]|[sprinting] dust of %-itemtype%)
+			pattern: (%-blockdata/itemtype% break[ing]|[sprinting] dust of %-blockdata/itemtype%)
 		block_crack: # for versions below 1.20.5
 			name: block break @-
-			pattern: %itemtype% break[ing]
+			pattern: %blockdata/itemtype% break[ing]
 		block_dust: # for versions below 1.20.5
 			name: block dust @-
-			pattern: [sprinting] dust of %itemtype%
+			pattern: [sprinting] dust of %blockdata/itemtype%
 
 		block_marker: # added in 1.18
 			name: block marker @a
-			pattern: (barrierbm:barrier|lightbm:light|%-blockdata% block marker)
+			pattern: (barrierbm:barrier|lightbm:light|%-blockdata/itemtype% block marker)
 		barrier:
 			name: barrier @a
 			pattern: barrier
@@ -1577,13 +1577,13 @@ visual effects:
 			name: coloured dust @-
 			pattern: [%-color%] [colo[u]red] dust
 
-		dust_color_transition: # added in 1.17 TODO this was disabled?
+		dust_color_transition: # added in 1.17
 			name: dust color transition @a
-			pattern: dust colo[u]r transition [from %-color%] [to %-color%] [with size %-number%]
+			pattern: dust colo[u]r transition [from %-color%] [to %-color%] [with size %-float%]
 
 		dust_pillar: # added in 1.20.5 (for 1.21)
 			name: dust pillar @a
-			pattern: dust pillar # TODO has BlockData DataType
+			pattern: %blockdata/itemtype% dust pillar
 
 		dust_plume: # added in 1.20.3
 			name: dust plume @a
@@ -1665,7 +1665,7 @@ visual effects:
 
 		falling_dust:
 			name: falling dust @-
-			pattern: falling dust of %itemtype%
+			pattern: falling dust of %blockdata/itemtype%
 
 		falling_honey: # added in 1.15
 			name: falling honey @-
@@ -1819,7 +1819,7 @@ visual effects:
 
 		note:
 			name: note @a
-			pattern: note [(of|with) [colo[u]r] %number%] # TODO does not have color on new versions?
+			pattern: note [(of|with) [colo[u]r] %number%]
 
 		ominous_spawning: # added in 1.20.5 (for 1.21)
 			name: ominous spawning @-
@@ -1855,9 +1855,9 @@ visual effects:
 			name: scrape @-
 			pattern: scrape
 
-		sculk_charge: # added in 1.19 TODO has Float as DataType
+		sculk_charge: # added in 1.19 TODO figure out what the DataType does and adjust pattern
 			name: sculk charge @-
-			pattern: sculk charge
+			pattern: %float% sculk charge
 
 		sculk_charge_pop: # added in 1.19
 			name: sculk charge pop @-
@@ -1867,9 +1867,9 @@ visual effects:
 			name: sculk soul @-
 			pattern: sculk soul
 
-		shriek: # added in 1.19 TODO has Integer as DataType
+		shriek: # added in 1.19 TODO figure out what the DataType does and adjust pattern
 			name: shriek @-
-			pattern: shriek
+			pattern: %integer% shriek
 
 		small_flame: # added in 1.17
 			name: small flame @a
@@ -1962,9 +1962,9 @@ visual effects:
 			name: vault connection @-
 			pattern: vault connection
 
-		vibration: # added in 1.17 TODO has Vibration as DataType
+		vibration: # added in 1.17
 			name: vibration @a
-			pattern: vibration
+			pattern: vibration [to %-entity/location% over %-timespan%]
 
 		warped_spore: # added in 1.16
 			name: warped spore @a
