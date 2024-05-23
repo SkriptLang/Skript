@@ -24,12 +24,14 @@ import java.util.Set;
 
 import ch.njol.skript.log.SkriptLogger;
 import org.jetbrains.annotations.ApiStatus;
+import org.skriptlang.skript.util.Validated;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
  * Represents a config file.
  */
+public class Config implements Comparable<Config>, Validated {
 public class Config implements Comparable<Config>, AnyNamed {
 
 	/**
@@ -53,6 +55,7 @@ public class Config implements Comparable<Config>, AnyNamed {
 
 	String fileName;
 	@Nullable Path file = null;
+	private final Validated validator = Validated.validator();
 
 	public Config(InputStream source, String fileName, @Nullable File file,
 				  boolean simple, boolean allowEmptySections, String defaultSeparator) throws IOException {
@@ -403,6 +406,16 @@ public class Config implements Comparable<Config>, AnyNamed {
 		if (other == null)
 			return 0;
 		return fileName.compareTo(other.fileName);
+	}
+
+	@Override
+	public void invalidate() throws UnsupportedOperationException {
+		this.validator.invalidate();
+	}
+
+	@Override
+	public boolean valid() {
+		return validator.valid();
 	}
 
 	/**
