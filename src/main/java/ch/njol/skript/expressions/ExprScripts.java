@@ -40,6 +40,8 @@ public class ExprScripts extends SimpleExpression<Script> {
 				"[all [[of] the]|the] (disabled|unloaded) scripts");
 	}
 
+	public static final Path FOLDER_PATH = Skript.getInstance().getDataFolder().getAbsoluteFile().toPath(),
+		SCRIPTS_PATH = Skript.getInstance().getScriptsFolder().getAbsoluteFile().toPath();
 	private int pattern;
 
 	@Override
