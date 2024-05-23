@@ -1,5 +1,14 @@
 package ch.njol.skript.config;
 
+import java.io.PrintWriter;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import ch.njol.skript.SkriptConfig;
+import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.NotNull;
+
 import ch.njol.skript.Skript;
 import ch.njol.skript.lang.util.common.AnyNamed;
 import ch.njol.skript.log.SkriptLogger;
@@ -94,6 +103,9 @@ public abstract class Node implements AnyNamed, Validated, NodeNavigator {
 		p.remove(this);
 		newParent.add(this);
 	}
+
+	@SuppressWarnings("null")
+	private final static Pattern linePattern = Pattern.compile("^((?:[^#]|##)*)(\\s*#(?!#).*)$");
 
 	/**
 	 * Splits a line into value and comment.
