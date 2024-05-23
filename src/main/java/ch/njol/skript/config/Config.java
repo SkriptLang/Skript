@@ -26,6 +26,7 @@ import java.util.*;
 
 import ch.njol.skript.log.SkriptLogger;
 import org.jetbrains.annotations.ApiStatus;
+import org.skriptlang.skript.util.Validated;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
