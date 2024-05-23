@@ -40,7 +40,7 @@ import java.util.regex.PatternSyntaxException;
 
 /**
  * Important: don't save values from the config, a '/skript reload config/configs/all' won't work correctly otherwise!
- * 
+ *
  * @author Peter Güttinger
  */
 @SuppressWarnings("unused")
@@ -80,10 +80,10 @@ public class SkriptConfig {
 	@Nullable
 	static Config mainConfig;
 	static Collection<Config> configs = new ArrayList<>();
-	
+
 	static final Option<String> version = new Option<>("version", Skript.getVersion().toString())
 			.optional(true);
-	
+
 	public static final Option<String> language = new Option<>("language", "english")
 			.optional(true)
 			.setter(s -> {
@@ -147,10 +147,10 @@ public class SkriptConfig {
 
 	// everything handled by Variables
 	public static final OptionSection databases = new OptionSection("databases");
-	
+
 	public static final Option<Boolean> usePlayerUUIDsInVariableNames = new Option<>("use player UUIDs in variable names", false); // TODO change to true later (as well as in the default config)
 	public static final Option<Boolean> enablePlayerVariableFix = new Option<>("player variable fix", true);
-	
+
 	@SuppressWarnings("null")
 	private static final DateFormat shortDateFormat = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT);
 	public static final Option<DateFormat> dateFormat = new Option<>("date format", shortDateFormat, s -> {
@@ -163,7 +163,7 @@ public class SkriptConfig {
 		}
 		return null;
 	});
-	
+
 	public static String formatDate(final long timestamp) {
 		final DateFormat f = dateFormat.value();
 		synchronized (f) {
@@ -173,7 +173,7 @@ public class SkriptConfig {
 	
 	public static final Option<Verbosity> verbosity = new Option<>("verbosity", Verbosity.NORMAL, new EnumParser<>(Verbosity.class, "verbosity"))
 			.setter(SkriptLogger::setVerbosity);
-	
+
 	public static final Option<EventPriority> defaultEventPriority = new Option<>("plugin priority", EventPriority.NORMAL, s -> {
 		try {
 			return EventPriority.valueOf(s.toUpperCase(Locale.ENGLISH));
@@ -194,9 +194,9 @@ public class SkriptConfig {
 	 * Maximum number of digits to display after the period for floats and doubles
 	 */
 	public static final Option<Integer> numberAccuracy = new Option<>("number accuracy", 2);
-	
+
 	public static final Option<Integer> maxTargetBlockDistance = new Option<>("maximum target block distance", 100);
-	
+
 	public static final Option<Boolean> caseSensitive = new Option<>("case sensitive", false);
 	public static final Option<Boolean> allowFunctionsBeforeDefs = new Option<>("allow function calls before definations", false)
 			.optional(true);
@@ -210,15 +210,15 @@ public class SkriptConfig {
 	@Deprecated
 	public static final Option<Boolean> enableScriptCaching = new Option<>("enable script caching", false)
 			.optional(true);
-	
+
 	public static final Option<Boolean> keepConfigsLoaded = new Option<>("keep configs loaded", false)
 			.optional(true);
-	
+
 	public static final Option<Boolean> addonSafetyChecks = new Option<>("addon safety checks", false)
 			.optional(true);
-	
+
 	public static final Option<Boolean> apiSoftExceptions = new Option<>("soft api exceptions", false);
-	
+
 	public static final Option<Boolean> enableTimings = new Option<>("enable timings", false)
 			.setter(t -> {
 				if (!Skript.classExists("co.aikar.timings.Timings")) { // Check for Timings
@@ -238,7 +238,7 @@ public class SkriptConfig {
 					Skript.info("Timings support enabled!");
 				SkriptTimings.setEnabled(t); // Config option will be used
 			});
-	
+
 	public static final Option<String> parseLinks = new Option<>("parse links in chat messages", "disabled")
 			.setter(t -> {
 				try {
@@ -268,7 +268,7 @@ public class SkriptConfig {
 
 	public static final Option<Boolean> caseInsensitiveCommands = new Option<>("case-insensitive commands", false)
 		.optional(true);
-	
+
 	public static final Option<Boolean> colorResetCodes = new Option<>("color codes reset formatting", true)
 			.setter(t -> {
 				try {
@@ -281,7 +281,7 @@ public class SkriptConfig {
 	public static final Option<String> scriptLoaderThreadSize = new Option<>("script loader thread size", "0")
 			.setter(s -> {
 				int asyncLoaderSize;
-				
+
 				if (s.equalsIgnoreCase("processor count")) {
 					asyncLoaderSize = Runtime.getRuntime().availableProcessors();
 				} else {
@@ -292,17 +292,17 @@ public class SkriptConfig {
 						return;
 					}
 				}
-				
+
 				ScriptLoader.setAsyncLoaderSize(asyncLoaderSize);
 			})
 			.optional(true);
-	
+
 	public static final Option<Boolean> allowUnsafePlatforms = new Option<>("allow unsafe platforms", false)
 			.optional(true);
 
 	public static final Option<Boolean> keepLastUsageDates = new Option<>("keep command last usage dates", false)
 			.optional(true);
-	
+
 	public static final Option<Boolean> loadDefaultAliases = new Option<>("load default aliases", true)
 			.optional(true);
 
@@ -367,10 +367,10 @@ public class SkriptConfig {
 		return mainConfig;
 	}
 
-	/**
-	 * Reloads the main config file.
-	 */
-	static void load() {
+	// also used for reloading
+	static boolean load() {
+		if (mainConfig != null)
+			mainConfig.invalidate(); // todo
 		try {
 			File configFile = new File(Skript.getInstance().getDataFolder(), "config.sk");
 
