@@ -5,6 +5,7 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.SkriptCommand;
 import ch.njol.skript.config.Config;
+import ch.njol.skript.config.Node;
 import ch.njol.skript.aliases.Aliases;
 import ch.njol.skript.aliases.ItemData;
 import ch.njol.skript.aliases.ItemType;
@@ -792,6 +793,38 @@ public class SkriptClasses {
 				@Override
 				public String toVariableNameString(Node node) {
 					return this.toString(node, 0);
+				}
+
+			}));
+
+		Classes.registerClass(new ClassInfo<>(Node.class, "node")
+			.user("nodes?")
+			.name("Node")
+			.description("A node (entry) from a script config file.",
+				"This may have navigable children.")
+			.usage("")
+			.examples("the current script")
+			.since("INSERT VERSION")
+			.parser(new Parser<Node>() {
+
+				@Override
+				public boolean canParse(ParseContext context) {
+					return false;
+				}
+
+				@Override
+				public @Nullable Node parse(String name, ParseContext context) {
+					return null;
+				}
+
+				@Override
+				public String toString(Node node, int flags) {
+					return this.toVariableNameString(node);
+				}
+
+				@Override
+				public String toVariableNameString(Node node) {
+					return node.getPath();
 				}
 
 			}));
