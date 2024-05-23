@@ -27,6 +27,33 @@ test "name of item":
 
 using script reflection
 
+test "config name (new)":
+	set {_node} to the skript config
+	set {_node} to node "language" of {_node}
+	assert name of {_node} is "language" with "config node name was wrong"
+
+	# node in node
+	set {_node} to the skript config
+	set {_node} to node "disable hooks.vault" of {_node}
+	assert name of {_node} is "vault" with "config node name was wrong"
+	assert "%{_node}%" is "disable hooks.vault" with "config node path was wrong"
+
+test "node name (new)":
+	set {_node} to the current script
+	set {_node} to the first element of nodes of {_node}
+	assert name of {_node} is "using script reflection" with "first node name was wrong"
+
+	# root node
+	set {_node} to the skript config
+	set {_node} to node "language" of {_node}
+	assert name of {_node} is "language" with "config node name was wrong"
+
+	# node in node
+	set {_node} to the skript config
+	set {_node} to node "disable hooks.vault" of {_node}
+	assert name of {_node} is "vault" with "config node name was wrong"
+	assert "%{_node}%" is "disable hooks.vault" with "config node path was wrong"
+
 test "script name (new)":
 	set {_name} to the script's name
 	assert {_name} is "ExprName" with "script name is wrong"
