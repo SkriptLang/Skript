@@ -1596,9 +1596,9 @@ visual effects:
 			name: spell @a
 			pattern: (effect|spell|thrown potion|lingering potion)
 
-		egg_crack:
+		egg_crack: # added in 1.20
 			name: egg crack @an
-			pattern: egg crack
+			pattern: [sniffer] egg crack
 
 		elder_guardian: # added in 1.20.5
 			name: elder guardian @-

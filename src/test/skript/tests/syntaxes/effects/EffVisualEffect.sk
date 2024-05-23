@@ -16,7 +16,6 @@ test "visual effects":
 	play dripping water at {_}
 	play white dust with size 2 at {_}
 	play effect at {_}
-	play egg crack at {_}
 	play elder guardian at {_}
 	play enchant at {_}
 	play enchanted hit at {_}
@@ -109,4 +108,5 @@ test "visual effects":
 	parse if running minecraft "1.20.6":
 		play cherry leaves at {_}
 		play dust plume at {_}
+		play egg crack at {_}
 		play white smoke at {_}

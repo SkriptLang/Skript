@@ -239,26 +239,32 @@ public class VisualEffects {
 				return delay;
 			});
 
-			registerDataSupplier("Particle.VIBRATION", (raw, location) -> {
-				Object[] data = (Object[]) raw;
-				int arrivalTime = -1;
-				if (data[1] != null)
-					arrivalTime = (int) Math.min(Math.max(((Timespan) data[1]).getTicks(), 0), Integer.MAX_VALUE);
-				if (data[0] instanceof Entity) {
-					Entity entity = (Entity) data[0];
-					if (arrivalTime == -1)
-						arrivalTime = (int) (location.distance(entity.getLocation()) / 20);
-					return new Vibration(new Vibration.Destination.EntityDestination(entity), arrivalTime);
-				}
-				// assume it's a location
-				Location destination = data[0] != null ? (Location) data[0] : location;
-				if (arrivalTime == -1)
-					arrivalTime = (int) (location.distance(destination) / 20);
-				return new Vibration(new Vibration.Destination.BlockDestination(destination), arrivalTime);
-			});
+			registerDataSupplier("Particle.VIBRATION", (raw, location) -> VibrationUtils.buildVibration((Object[]) raw, location));
 
 			generateTypes();
 		});
+	}
+
+	// exists to avoid NoClassDefFoundError from Vibration
+	private static final class VibrationUtils {
+		private static Vibration buildVibration(Object[] data, Location location) {
+			int arrivalTime = -1;
+			if (data[1] != null)
+				arrivalTime = (int) Math.min(Math.max(((Timespan) data[1]).getTicks(), 0), Integer.MAX_VALUE);
+			if (data[0] instanceof Entity) {
+				Entity entity = (Entity) data[0];
+				if (arrivalTime == -1)
+					arrivalTime = (int) (location.distance(entity.getLocation()) / 20);
+				//noinspection removal - new constructor only exists on newer versions
+				return new Vibration(location, new Vibration.Destination.EntityDestination(entity), arrivalTime);
+			}
+			// assume it's a location
+			Location destination = data[0] != null ? (Location) data[0] : location;
+			if (arrivalTime == -1)
+				arrivalTime = (int) (location.distance(destination) / 20);
+			//noinspection removal - new constructor only exists on newer versions
+			return new Vibration(location, new Vibration.Destination.BlockDestination(destination), arrivalTime);
+		}
 	}
 
 }
