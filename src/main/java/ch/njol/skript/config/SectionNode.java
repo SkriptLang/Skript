@@ -21,7 +21,7 @@ import java.util.regex.Pattern;
 /**
  * @author Peter Güttinger
  */
-public class SectionNode extends Node implements Iterable<Node> {
+public class SectionNode extends Node implements Iterable<Node>, NodeNavigator {
 
 	private final ArrayList<Node> nodes = new ArrayList<>();
 
@@ -539,6 +539,21 @@ public class SectionNode extends Node implements Iterable<Node> {
 		}
 
 		return different;
+	}
+
+	@Override
+	public @NotNull Node getCurrentNode() {
+		return this;
+	}
+
+	@Override
+	public @Nullable Node getNodeAt(@NotNull String @NotNull ... keys) {
+		Node node = this;
+		for (String s : keys) {
+			if (!(node instanceof SectionNode)) return null;
+			node = ((SectionNode) node).get(s);
+		}
+		return node;
 	}
 
 }

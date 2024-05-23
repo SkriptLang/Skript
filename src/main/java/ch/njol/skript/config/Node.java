@@ -1,13 +1,20 @@
 package ch.njol.skript.config;
 
+import java.io.PrintWriter;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import ch.njol.skript.SkriptConfig;
+import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.NotNull;
+
 import ch.njol.skript.Skript;
 import ch.njol.skript.lang.util.common.AnyNamed;
 import ch.njol.skript.log.SkriptLogger;
 import ch.njol.util.NonNullPair;
 import ch.njol.util.StringUtils;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-import org.jetbrains.annotations.UnknownNullability;
+import org.skriptlang.skript.util.Validated;
 
 import java.io.PrintWriter;
 import java.util.*;
@@ -17,6 +24,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * @author Peter Güttinger
  */
 public abstract class Node implements AnyNamed {
+public abstract class Node implements Validated, NodeNavigator {
 
 	@Nullable
 	protected String key;
@@ -97,6 +105,9 @@ public abstract class Node implements AnyNamed {
 		p.remove(this);
 		newParent.add(this);
 	}
+
+	@SuppressWarnings("null")
+	private final static Pattern linePattern = Pattern.compile("^((?:[^#]|##)*)(\\s*#(?!#).*)$");
 
 	/**
 	 * Splits a line into value and comment.
@@ -408,6 +419,34 @@ public abstract class Node implements AnyNamed {
 	public boolean debug() {
 		return debug;
 	}
+
+	@Override
+	public void invalidate() throws UnsupportedOperationException {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public boolean valid() {
+		//noinspection ConstantValue
+		return config != null && config.valid();
+	}
+
+	public @Nullable String getPath() {
+		if (key == null)
+			return null;
+		else if (parent == null)
+			return key;
+		@Nullable String path = parent.getPath();
+		if (path == null)
+			return key;
+		return path + '.' + key;
+	}
+
+	@Override
+	public @NotNull Node getCurrentNode() {
+		return this;
+	}
+
 
 	/**
 	 * @return The index of this node relative to the other children of this node's parent,
