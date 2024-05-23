@@ -66,9 +66,9 @@ public class VisualEffect implements SyntaxElement, YggdrasilSerializable {
 			}
 		}
 
-		if (parseResult.hasTag("barrierbm")) { // barrier backcompat
+		if (parseResult.hasTag("barrierbm")) { // barrier compatibility
 			data = Bukkit.createBlockData(Material.BARRIER);
-		} else if (parseResult.hasTag("lightbm")) { // light backcompat
+		} else if (parseResult.hasTag("lightbm")) { // light compatibility
 			data = Bukkit.createBlockData(Material.LIGHT);
 		}
 

@@ -1572,10 +1572,10 @@ visual effects:
 
 		dust: # added in 1.20.5
 			name: dust @-
-			pattern: [%-color%] [colo[u]red] dust
+			pattern: [%-color%] [colo[u]red] dust [with size %-float%]
 		redstone: # for versions below 1.20.5
 			name: coloured dust @-
-			pattern: [%-color%] [colo[u]red] dust
+			pattern: [%-color%] [colo[u]red] dust [with size %-float%]
 
 		dust_color_transition: # added in 1.17
 			name: dust color transition @a
@@ -1855,9 +1855,9 @@ visual effects:
 			name: scrape @-
 			pattern: scrape
 
-		sculk_charge: # added in 1.19 TODO figure out what the DataType does and adjust pattern
+		sculk_charge: # added in 1.19
 			name: sculk charge @-
-			pattern: %float% sculk charge
+			pattern: sculk charge [with ([a] roll|[an] angle) [of] %-float%]
 
 		sculk_charge_pop: # added in 1.19
 			name: sculk charge pop @-
@@ -1867,9 +1867,9 @@ visual effects:
 			name: sculk soul @-
 			pattern: sculk soul
 
-		shriek: # added in 1.19 TODO figure out what the DataType does and adjust pattern
+		shriek: # added in 1.19
 			name: shriek @-
-			pattern: %integer% shriek
+			pattern: shriek [with [a] delay [of] %-timespan%]
 
 		small_flame: # added in 1.17
 			name: small flame @a
@@ -1964,7 +1964,8 @@ visual effects:
 
 		vibration: # added in 1.17
 			name: vibration @a
-			pattern: vibration [to %-entity/location% over %-timespan%]
+			# must be a literal, so you can't actually use this properly yet
+			pattern: vibration [to %-entity/location%] [over %-timespan%]
 
 		warped_spore: # added in 1.16
 			name: warped spore @a

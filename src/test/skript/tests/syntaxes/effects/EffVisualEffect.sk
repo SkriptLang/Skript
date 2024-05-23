@@ -14,7 +14,7 @@ test "visual effects":
 	play dolphin at {_}
 	play dripping lava at {_}
 	play dripping water at {_}
-	play white dust at {_}
+	play white dust with size 2 at {_}
 	play effect at {_}
 	play egg crack at {_}
 	play elder guardian at {_}
@@ -95,16 +95,16 @@ test "visual effects":
 		play small flame at {_}
 		play snowflake at {_}
 		play spore blossom air at {_}
-		play vibration at {_}
+		play vibration over 1 second at {_}
 		play wax off at {_}
 		play wax on at {_}
 	parse if running minecraft "1.18.2":
 		play air block marker at {_}
 	parse if running minecraft "1.19.4":
-		play 1 sculk charge at {_}
+		play sculk charge with a roll of 1 at {_}
 		play sculk charge pop at {_}
 		play sculk soul at {_}
-		play 1 shriek at {_}
+		play shriek with a delay of 0 seconds at {_}
 		play sonic boom at {_}
 	parse if running minecraft "1.20.6":
 		play cherry leaves at {_}

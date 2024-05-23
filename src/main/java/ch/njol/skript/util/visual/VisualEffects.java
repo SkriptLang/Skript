@@ -19,7 +19,6 @@
 package ch.njol.skript.util.visual;
 
 import ch.njol.skript.Skript;
-import ch.njol.skript.aliases.Aliases;
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.bukkitutil.ItemUtils;
 import ch.njol.skript.lang.SkriptParser;
@@ -35,7 +34,6 @@ import ch.njol.skript.variables.Variables;
 import ch.njol.util.StringUtils;
 import ch.njol.util.coll.iterator.SingleItemIterator;
 import org.bukkit.*;
-import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Entity;
 import org.bukkit.inventory.ItemStack;
@@ -141,6 +139,8 @@ public class VisualEffects {
 				return Direction.getFacing(((Direction) raw).getDirection(location), false);
 			});
 
+			// Useful: https://minecraft.wiki/w/Particle_format
+
 			/*
 			 * Particles with BlockData DataType
 			 */
@@ -170,8 +170,10 @@ public class VisualEffects {
 			 */
 			final Color defaultColor = SkriptColor.LIGHT_RED;
 			final BiFunction<Object, Location, Object> dustOptionsSupplier = (raw, location) -> {
-				Color color = raw != null ? (Color) raw : defaultColor;
-				return new Particle.DustOptions(color.asBukkitColor(), 1);
+				Object[] data = (Object[]) raw;
+				Color color = data[0] != null ? (Color) data[0] : defaultColor;
+				float size = data[1] != null ? (Float) data[1] : 1;
+				return new Particle.DustOptions(color.asBukkitColor(), size);
 			};
 			registerDataSupplier("Particle.DUST", dustOptionsSupplier);
 			registerDataSupplier("Particle.REDSTONE", dustOptionsSupplier);
@@ -179,7 +181,6 @@ public class VisualEffects {
 			/*
 			 * Particles with Color DataType
 			 */
-			// TODO make sure returning a regular color is valid
 			registerDataSupplier("Particle.ENTITY_EFFECT", (raw, location) -> {
 				if (raw == null)
 					return defaultColor.asBukkitColor();
@@ -214,7 +215,7 @@ public class VisualEffects {
 				Object[] data = (Object[]) raw;
 				Color fromColor = data[0] != null ? (Color) data[0] : defaultColor;
 				Color toColor = data[1] != null ? (Color) data[1] : defaultColor;
-				float size = data[2] != null ? (Float) data[2] : 1; // TODO what is the default size?
+				float size = data[2] != null ? (Float) data[2] : 1;
 				return new Particle.DustTransition(fromColor.asBukkitColor(), toColor.asBukkitColor(), size);
 			});
 
@@ -227,24 +228,33 @@ public class VisualEffects {
 				return new ParticleOption(color, 1);
 			});
 
-			// TODO what is the default value
-			registerDataSupplier("Particle.SCULK_CHARGE", (raw, location) -> raw != null ? raw : 0); // Float DataType
+			// Float DataType, represents "the angle the particle displays at in radians"
+			registerDataSupplier("Particle.SCULK_CHARGE", (raw, location) -> raw != null ? raw : 0);
 
-			// TODO what is the default value
-			registerDataSupplier("Particle.SHRIEK", (raw, location) -> raw != null ? raw : 0); // Integer DataType
+			// Integer DataType, represents "the delay in ticks"
+			registerDataSupplier("Particle.SHRIEK", (raw, location) -> {
+				int delay = 0;
+				if (raw instanceof Timespan)
+					delay = (int) Math.min(Math.max(((Timespan) raw).getTicks(), 0), Integer.MAX_VALUE);
+				return delay;
+			});
 
 			registerDataSupplier("Particle.VIBRATION", (raw, location) -> {
 				Object[] data = (Object[]) raw;
-				int arrivalTime = 20; // TODO what is the default arrival time?
+				int arrivalTime = -1;
 				if (data[1] != null)
 					arrivalTime = (int) Math.min(Math.max(((Timespan) data[1]).getTicks(), 0), Integer.MAX_VALUE);
-				if (data[0] instanceof Entity)
-					return new Vibration(new Vibration.Destination.EntityDestination((Entity) data[0]), arrivalTime);
-				// assume it's a block or some other location
-				Location destinationLocation = location;
-				if (data[0] instanceof Location)
-					destinationLocation = (Location) data[0];
-				return new Vibration(new Vibration.Destination.BlockDestination(destinationLocation), arrivalTime);
+				if (data[0] instanceof Entity) {
+					Entity entity = (Entity) data[0];
+					if (arrivalTime == -1)
+						arrivalTime = (int) (location.distance(entity.getLocation()) / 20);
+					return new Vibration(new Vibration.Destination.EntityDestination(entity), arrivalTime);
+				}
+				// assume it's a location
+				Location destination = data[0] != null ? (Location) data[0] : location;
+				if (arrivalTime == -1)
+					arrivalTime = (int) (location.distance(destination) / 20);
+				return new Vibration(new Vibration.Destination.BlockDestination(destination), arrivalTime);
 			});
 
 			generateTypes();
