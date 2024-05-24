@@ -28,3 +28,53 @@ test "node of":
 	assert {_time} is 12 hours with "wrong node timespan value"
 	assert {_time} is greater than 11 hours with "wrong node timespan value"
 	assert {_time} is less than 13 hours with "wrong node timespan value"
+
+register config "my cool ExprNodeValue config"
+
+test "user config registration & get":
+	set {_config} to the config named "my cool ExprNodeValue config"
+	assert {_config} exists with "config not found"
+	assert {_config} is valid with "config not valid"
+
+	set {_node} to node "testing node" of {_config}
+	assert {_node} does not exist with "node found"
+
+	set {_node} to node "welcome message" in {_config}
+	assert {_node} does not exist with "node existed in new config"
+
+	set the text value at "welcome message" in {_config} to "Hello world!"
+	set {_node} to node "welcome message" of {_config}
+	assert {_node} exists with "node was not created"
+	assert the text value of {_node} is "Hello world!" with "node was not set properly"
+
+	set {_node} to node "foo.bar" of {_config}
+	assert {_node} does not exist with "node existed in new config"
+
+	set the text value at "foo.bar" in {_config} to "10"
+	set {_node} to node "foo.bar" of {_config}
+	assert {_node} exists with "node was not created"
+	assert the text value of {_node} is "10" with "node was not set properly"
+	assert the number value of {_node} is 10 with "node was not set properly (converted)"
+
+	set the text value at "foo.baz" in {_config} to "5 hours"
+	set {_node} to node "foo.baz" in {_config}
+	assert {_node} exists with "node was not created"
+	assert the text value of {_node} is "5 hours" with "node was not set properly"
+	assert the timespan value of {_node} is 5 hours with "node was not set properly (converted)"
+
+	set {_node} to node "foo" of {_config}
+	assert {_node} exists with "section node was not created"
+	set {_count} to 0
+	loop nodes of {_node}:
+		add 1 to {_count}
+	assert {_count} is 2 with "wrong number of sub-nodes"
+
+	set {_node} to node "foo.bar" of {_config}
+	delete the text value of {_node}
+
+	set {_node} to node "foo.bar" of {_config}
+	assert {_node} does not exist with "node was not deleted"
+
+	delete node "foo.baz" of {_config}
+	set {_node} to node "foo.baz" of {_config}
+	assert {_node} does not exist with "node was not deleted"

@@ -77,7 +77,31 @@ public class ExprNode extends PropertyExpression<Node, Node> {
 
 	@Override
 	public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
-		return null; // todo editable configs in follow-up PR
+		switch (mode) {
+			case SET:
+				return CollectionUtils.array(String.class);
+			case REMOVE:
+			case DELETE:
+				return CollectionUtils.array();
+		}
+		return null;
+	}
+
+	@Override
+	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
+		switch (mode) {
+			case SET:
+				for (Node node : this.getArray(event)) {
+					if (node instanceof Map.Entry<?, ?>)
+						//noinspection unchecked,rawtypes
+						((Map.Entry) node).setValue(Objects.toString(delta[0]));
+				}
+				break;
+			case DELETE:
+			case RESET:
+				for (Node node : this.getArray(event))
+					node.remove();
+		}
 	}
 
 	@Override

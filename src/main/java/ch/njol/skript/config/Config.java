@@ -27,6 +27,7 @@ import java.util.*;
 import ch.njol.skript.log.SkriptLogger;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.UnknownNullability;
 import org.skriptlang.skript.util.Validated;
 import org.jetbrains.annotations.NotNull;
 import org.skriptlang.skript.util.Validated;
@@ -472,6 +473,41 @@ public class Config implements Comparable<Config>, Validated, NodeNavigator, Any
 	@Override
 	public @Nullable Node get(String step) {
 		return main.get(step);
+	}
+
+	/**
+	 * Creates a {@code key: value} entry node at the end of the given path, with the specified value.
+	 * This will overwrite existing entries in the node tree to conform with the request.
+	 * If parent sections are missing, they will be created.
+	 * If parent sections are not section nodes, they will be unlinked and replaced by section nodes.
+	 *
+	 * @param path The path in the node tree
+	 * @param value The initial value
+	 * @return The original value (or nothing)
+	 */
+	public @UnknownNullability String createNode(String[] path, String value) {
+		String original = this.get(path);
+		if (path.length == 0)
+			return null;
+		Node node = this.getMainNode();
+		SectionNode parent = (SectionNode) node;
+		for (int i = 0; i < path.length - 1; i++) {
+			node = node.get(path[i]);
+			if (!(node instanceof SectionNode)) {
+				String comment = node != null ? node.comment : "";
+				int lineNum = node != null ? node.lineNum : -1;
+				SectionNode section = new SectionNode(path[i], comment, parent, lineNum);
+				if (node != null)
+					node.remove();
+				parent.add(section);
+				node = section;
+			}
+			parent = (SectionNode) node;
+		}
+		String last = path[path.length - 1];
+		EntryNode entry = new EntryNode(last, value, "", parent, -1);
+		parent.add(entry);
+		return original;
 	}
 
 	/**

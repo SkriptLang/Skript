@@ -39,3 +39,10 @@ test "script config":
 	loop the nodes of {_node}:
 		add 1 to {_count}
 	assert {_count} is 7 with "wrong number of lines in this section"
+
+register config "my cool ExprConfig config"
+
+test "user config registration & get":
+	set {_config} to the config named "my cool ExprConfig config"
+	assert {_config} exists with "config not found"
+	assert {_config} is valid with "config not valid"

@@ -805,6 +805,25 @@ public class SkriptClasses {
 			.usage("")
 			.examples("the current script")
 			.since("INSERT VERSION")
+			.changer(new Changer<Node>() {
+				@Override
+				public @Nullable Class<?> @Nullable [] acceptChange(ChangeMode mode) {
+					switch (mode) {
+						case RESET:
+						case DELETE:
+							return new Class[0];
+						default:
+							return null;
+					}
+				}
+
+				@Override
+				public void change(Node[] what, @Nullable Object[] delta, ChangeMode mode) {
+					for (Node node : what) {
+						node.remove();
+					}
+				}
+			})
 			.parser(new Parser<Node>() {
 
 				@Override

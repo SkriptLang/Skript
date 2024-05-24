@@ -5,6 +5,7 @@ import ch.njol.skript.bukkitutil.BurgerHelper;
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.classes.data.*;
 import ch.njol.skript.command.Commands;
+import ch.njol.skript.config.ConfigRegistry;
 import ch.njol.skript.doc.Documentation;
 import ch.njol.skript.events.EvtSkript;
 import ch.njol.skript.hooks.Hook;
@@ -212,6 +213,8 @@ public final class Skript extends JavaPlugin implements Listener {
 	private static Version version = null;
 	@Deprecated(forRemoval = true) // TODO this field will be replaced by a proper registry later
 	private static @UnknownNullability ExperimentRegistry experimentRegistry;
+	@Deprecated(forRemoval = true) // TODO this field should be replaced by a proper registry later
+	private static @UnknownNullability ConfigRegistry configRegistry;
 
 	public static Version getVersion() {
 		final Version v = version;
@@ -342,13 +345,20 @@ public final class Skript extends JavaPlugin implements Listener {
 	 * The folder containing all Scripts.
 	 * Never reference this field directly. Use {@link #getScriptsFolder()}.
 	 */
-	private File scriptsFolder;
+	private File scriptsFolder, configsFolder;
 
 	/**
 	 * @return The manager for experimental, optional features.
 	 */
 	public static ExperimentRegistry experiments() {
 		return experimentRegistry;
+	}
+
+	/**
+	 * @return The manager for user-created configuration files
+	 */
+	public static ConfigRegistry userConfigs() {
+		return configRegistry;
 	}
 
 	/**
@@ -389,13 +399,15 @@ public final class Skript extends JavaPlugin implements Listener {
 			Skript.exception(e, "Update checker could not be initialized.");
 		}
 
-		if (!getDataFolder().isDirectory())
-			getDataFolder().mkdirs();
+		@NotNull File dataFolder = getDataFolder();
+		if (!dataFolder.isDirectory())
+			dataFolder.mkdirs();
 
-		scriptsFolder = new File(getDataFolder(), SCRIPTSFOLDER);
-		File config = new File(getDataFolder(), "config.sk");
-		File features = new File(getDataFolder(), "features.sk");
-		File lang = new File(getDataFolder(), "lang");
+		scriptsFolder = new File(dataFolder, SCRIPTSFOLDER);
+		configsFolder = new File(dataFolder, CONFIG_FOLDER);
+		File config = new File(dataFolder, "config.sk");
+		File features = new File(dataFolder, "features.sk");
+		File lang = new File(dataFolder, "lang");
 		if (!scriptsFolder.isDirectory() || !config.exists() || !features.exists() || !lang.exists()) {
 			ZipFile f = null;
 			try {
@@ -461,6 +473,10 @@ public final class Skript extends JavaPlugin implements Listener {
 				}
 			}
 		}
+		if (!configsFolder.isDirectory() && !configsFolder.mkdirs()) {
+			error("Error generating the default files: Could not create the directory " + configsFolder);
+		}
+		Skript.configRegistry = new ConfigRegistry(configsFolder);
 
 		// initialize the modern Skript instance
 		skript = org.skriptlang.skript.Skript.of(getClass(), getName());
@@ -1289,7 +1305,7 @@ public final class Skript extends JavaPlugin implements Listener {
 
 	// ================ CONSTANTS, OPTIONS & OTHER ================
 
-	public final static String SCRIPTSFOLDER = "scripts";
+	public final static String SCRIPTSFOLDER = "scripts", CONFIG_FOLDER = "configs";
 
 	public static void outdatedError() {
 		error("Skript v" + getInstance().getDescription().getVersion() + " is not fully compatible with Bukkit " + Bukkit.getVersion() + ". Some feature(s) will be broken until you update Skript.");

@@ -2,6 +2,10 @@ package ch.njol.skript.effects;
 
 import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.Skript;
+import ch.njol.skript.SkriptCommand;
+import ch.njol.skript.SkriptConfig;
+import ch.njol.skript.config.Config;
+import ch.njol.skript.config.SharedConfig;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
@@ -43,7 +47,8 @@ public class EffScriptFile extends Effect {
 		Skript.registerEffect(EffScriptFile.class,
 			"(1:(enable|load)|2:reload|3:disable|4:unload) script [file|named] %string%",
 			"(1:(enable|load)|2:reload|3:disable|4:unload) skript file %string%",
-			"(1:(enable|load)|2:reload|3:disable|4:unload) %scripts%"
+			"(1:(enable|load)|2:reload|3:disable|4:unload) %scripts%",
+			"(1:load|2:reload|4:unload|5:save) %configs%"
 		);
 		/*
 			The string-pattern must come first (since otherwise `script X` would match the expression)
@@ -51,13 +56,14 @@ public class EffScriptFile extends Effect {
 		 */
 	}
 
-	private static final int ENABLE = 1, RELOAD = 2, DISABLE = 3, UNLOAD = 4;
+	private static final int ENABLE = 1, RELOAD = 2, DISABLE = 3, UNLOAD = 4, SAVE = 5;
 
 	private int mark;
 
 	private @UnknownNullability Expression<String> scriptNameExpression;
 	private @UnknownNullability Expression<Script> scriptExpression;
-	private boolean scripts, hasReflection;
+	private @UnknownNullability Expression<Config> configExpression;
+	private boolean scripts, configs, hasReflection;
 
 	@Override
 	@SuppressWarnings("unchecked")
@@ -70,6 +76,10 @@ public class EffScriptFile extends Effect {
 			case 2:
 				this.scriptExpression = (Expression<Script>) exprs[0];
 				this.scripts = true;
+				break;
+			case 3:
+				this.configExpression = (Expression<Config>) exprs[0];
+				this.configs = true;
 		}
 		this.hasReflection = this.getParser().hasExperiment(Feature.SCRIPT_REFLECTION);
 		return true;
@@ -77,8 +87,13 @@ public class EffScriptFile extends Effect {
 
 	@Override
 	protected void execute(Event event) {
-		if (scripts) {
-			for (Script script : scriptExpression.getArray(event)) {
+		if (configs) {
+			Config[] array = configExpression.getArray(event);
+			for (Config config : array)
+				this.handle(config);
+		} else if (scripts) {
+			Script[] array = scriptExpression.getArray(event);
+			for (Script script : array) {
 				@Nullable File file = script.getConfig().getFile();
 				this.handle(file, script.getConfig().getFileName());
 			}
@@ -87,6 +102,46 @@ public class EffScriptFile extends Effect {
 			if (name == null)
 				return;
 			this.handle(ScriptLoader.getScriptFromName(name), name);
+		}
+	}
+
+	private void handle(Config config) {
+		if (config instanceof SharedConfig) {
+			SharedConfig shared = (SharedConfig) config;
+			switch (mark) {
+				case SAVE:
+					shared.save();
+					break;
+				case ENABLE:
+					shared.load();
+					break;
+				case RELOAD:
+					shared.reload();
+					break;
+				case UNLOAD:
+					shared.unload();
+					break;
+			}
+		} else {
+			switch (mark) {
+				case SAVE: {
+					try {
+						@Nullable File file = config.getFile();
+						if (file != null)
+							config.save(file);
+					} catch (IOException ignored) {
+					}
+					break;
+				}
+				case ENABLE:
+				case RELOAD:
+					if (config == SkriptConfig.getConfig()) {
+						SkriptConfig.load();
+						break;
+					}
+				default:
+					this.handle(config.getFile(), config.getFileName());
+			}
 		}
 	}
 

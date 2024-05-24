@@ -4,8 +4,7 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.classes.Parser;
-import ch.njol.skript.config.EntryNode;
-import ch.njol.skript.config.Node;
+import ch.njol.skript.config.*;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
@@ -16,14 +15,16 @@ import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.ParseContext;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.registrations.Feature;
+import ch.njol.skript.util.StringMode;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.lang.reflect.Array;
+import java.util.Map;
 
 @Name("Value (Experimental)")
 @Description({
@@ -111,19 +112,55 @@ public class ExprNodeValue extends SimplePropertyExpression<Node, Object> {
 
 	@Override
 	protected Object[] get(Event event, Node[] source) {
-		if (pathExpression != null) {
-			String path = pathExpression.getSingle(event);
-			Node node = source[0].getNodeAt(path);
-			Object[] array = (Object[]) Array.newInstance(this.getReturnType(), 1);
-			array[0] = this.convert(node);
-			return array;
-		}
-		return super.get(source, this);
+		return super.get(this.getRelativeNodes(event, source), this);
 	}
 
 	@Override
 	public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
-		return null; // todo editable configs in future
+		if (mode == ChangeMode.SET)
+			return CollectionUtils.array(classInfo.getC());
+		else if (mode == ChangeMode.DELETE || mode == ChangeMode.RESET)
+			return CollectionUtils.array();
+		return null;
+	}
+
+	@Override
+	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
+		Node[] nodes = this.getExpr().getArray(event);
+		switch (mode) {
+			case SET:
+				assert delta != null;
+				if (pathExpression != null) {
+					Node source = nodes[0];
+					Object value = delta.length > 0 ? delta[0] : null;
+					Map.Entry<String, String> relative = UnlinkedNode.findEntryNode(source, pathExpression.getSingle(event));
+					relative.setValue(Classes.toString(value, StringMode.MESSAGE));
+				} else {
+					for (int i = 0; i < Math.min(nodes.length, delta.length); i++) {
+						if (nodes[i] instanceof Map.Entry<?, ?>) // entry or unlinked node
+							//noinspection unchecked
+							((Map.Entry<?, String>) nodes[i]).setValue(Classes.toString(delta[i], StringMode.MESSAGE));
+					}
+				}
+				break;
+			case DELETE:
+			case RESET:
+				for (Node node : nodes) {
+					if (node != null && node.getParent() != null)
+						node.remove();
+				}
+		}
+	}
+
+	private Node[] getRelativeNodes(Event event, Node[] nodes) {
+		if (pathExpression == null)
+			return nodes;
+		Node[] converted = new Node[nodes.length];
+		String path = pathExpression.getSingle(event);
+		for (int i = 0; i < nodes.length; i++) {
+			converted[i] = nodes[i].getNodeAt(path);
+		}
+		return converted;
 	}
 
 	@Override

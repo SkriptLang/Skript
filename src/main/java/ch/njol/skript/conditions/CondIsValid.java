@@ -19,7 +19,7 @@ import org.skriptlang.skript.util.Validated;
 public class CondIsValid extends PropertyCondition<Object> {
 
 	static {
-		register(CondIsValid.class, "valid", "entities/scripts");
+		register(CondIsValid.class, "valid", "entities/scripts/configs/nodes");
 	}
 
 	@Override
