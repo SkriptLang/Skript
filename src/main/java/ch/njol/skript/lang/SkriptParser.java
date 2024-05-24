@@ -607,6 +607,15 @@ public class SkriptParser {
 					return new SimpleLiteral<>(parsedObject, false, new UnparsedLiteral(expr));
 				}
 			}
+			if (expr.startsWith("\"") && expr.endsWith("\"")) {
+				for (ClassInfo<?> aClass : exprInfo.classes) {
+					if (!aClass.getC().isAssignableFrom(String.class))
+						continue;
+					VariableString string = VariableString.newInstance(expr.substring(1, expr.length() - 1));
+					if (string instanceof LiteralString)
+						return string;
+				}
+			}
 			log.printError();
 			return null;
 		} finally {

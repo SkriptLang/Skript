@@ -30,22 +30,28 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.nio.channels.Channels;
 import java.nio.channels.FileChannel;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
+import java.util.Iterator;
 
-import org.eclipse.jdt.annotation.NonNull;
-import org.eclipse.jdt.annotation.Nullable;
+import ch.njol.skript.log.SkriptLogger;
+import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.UnknownNullability;
+import org.skriptlang.skript.util.Validated;
 
 /**
  * Represents a config file.
- * 
+ *
  * @author Peter Güttinger
  */
-public class Config implements Comparable<Config> {
-	
+public class Config implements Comparable<Config>, Validated, NodeNavigator {
+
 	boolean simple;
-	
+
 	/**
 	 * One level of the indentation, e.g. a tab or 4 spaces.
 	 */
@@ -54,22 +60,23 @@ public class Config implements Comparable<Config> {
 	 * The indentation's name, i.e. 'tab' or 'space'.
 	 */
 	private String indentationName = "tab";
-	
+
 	final String defaultSeparator;
 	String separator;
-	
+
 	int level = 0;
-	
+
 	private final SectionNode main;
-	
+
 	int errors = 0;
-	
+
 	final boolean allowEmptySections;
-	
+
 	String fileName;
 	@Nullable
 	Path file = null;
-	
+	private final Validated validator = Validated.validator();
+
 	public Config(final InputStream source, final String fileName, @Nullable final File file, final boolean simple, final boolean allowEmptySections, final String defaultSeparator) throws IOException {
 		try {
 			this.fileName = fileName;
@@ -79,16 +86,16 @@ public class Config implements Comparable<Config> {
 			this.allowEmptySections = allowEmptySections;
 			this.defaultSeparator = defaultSeparator;
 			separator = defaultSeparator;
-			
+
 			if (source.available() == 0) {
 				main = new SectionNode(this);
 				Skript.warning("'" + getFileName() + "' is empty");
 				return;
 			}
-			
+
 			if (Skript.logVeryHigh())
 				Skript.info("loading '" + fileName + "'");
-			
+
 			try (ConfigReader reader = new ConfigReader(source)) {
 				main = SectionNode.load(this, reader);
 			}
@@ -96,22 +103,22 @@ public class Config implements Comparable<Config> {
 			source.close();
 		}
 	}
-	
+
 	public Config(final InputStream source, final String fileName, final boolean simple, final boolean allowEmptySections, final String defaultSeparator) throws IOException {
 		this(source, fileName, null, simple, allowEmptySections, defaultSeparator);
 	}
-	
+
 	public Config(final File file, final boolean simple, final boolean allowEmptySections, final String defaultSeparator) throws IOException {
 		this(Files.newInputStream(file.toPath()), file.getName(), simple, allowEmptySections, defaultSeparator);
 		this.file = file.toPath();
 	}
-	
+
 	@SuppressWarnings("null")
 	public Config(final Path file, final boolean simple, final boolean allowEmptySections, final String defaultSeparator) throws IOException {
 		this(Channels.newInputStream(FileChannel.open(file)), "" + file.getFileName(), simple, allowEmptySections, defaultSeparator);
 		this.file = file;
 	}
-	
+
 	/**
 	 * For testing
 	 *
@@ -126,45 +133,57 @@ public class Config implements Comparable<Config> {
 		this(new ByteArrayInputStream(s.getBytes(ConfigReader.UTF_8)), fileName, simple, allowEmptySections, defaultSeparator);
 	}
 
+	/**
+	 * A dummy config with no (known) content.
+	 */
+	@ApiStatus.Internal
+	public Config(String fileName, @Nullable final File file) {
+		this.fileName = fileName;
+		if (file != null)
+			this.file = file.toPath();
+		this.simple = false;
+		this.allowEmptySections = false;
+		this.separator = defaultSeparator = "";
+		this.main = new SectionNode(this);
+		SkriptLogger.setNode(null); // clean-up after section node
+	}
+
 	void setIndentation(final String indent) {
 		assert indent != null && !indent.isEmpty() : indent;
 		indentation = indent;
 		indentationName = (indent.charAt(0) == ' ' ? "space" : "tab");
 	}
-	
+
 	String getIndentation() {
 		return indentation;
 	}
-	
+
 	String getIndentationName() {
 		return indentationName;
 	}
-	
+
 	public SectionNode getMainNode() {
 		return main;
 	}
-	
+
 	public String getFileName() {
 		return fileName;
 	}
-	
+
 	/**
 	 * Saves the config to a file.
 	 *
-	 * @param f The file to save to
+	 * @param file The file to save to
 	 * @throws IOException If the file could not be written to.
 	 */
-	public void save(final File f) throws IOException {
-		separator = defaultSeparator;
-		final PrintWriter w = new PrintWriter(f, "UTF-8");
-		try {
-			main.save(w);
-		} finally {
-			w.flush();
-			w.close();
+	public void save(File file) throws IOException {
+		this.separator = defaultSeparator;
+		try (final PrintWriter writer = new PrintWriter(file, StandardCharsets.UTF_8)) {
+			this.main.save(writer);
+			writer.flush();
 		}
 	}
-	
+
 	/**
 	 * Sets this config's values to those in the given config.
 	 * <p>
@@ -176,7 +195,7 @@ public class Config implements Comparable<Config> {
 	public boolean setValues(final Config other) {
 		return getMainNode().setValues(other.getMainNode());
 	}
-	
+
 	public boolean setValues(final Config other, final String... excluded) {
 		return getMainNode().setValues(other.getMainNode(), excluded);
 	}
@@ -191,7 +210,7 @@ public class Config implements Comparable<Config> {
 	public boolean compareValues(Config other, String... excluded) {
 		return getMainNode().compareValues(other.getMainNode(), excluded);
 	}
-	
+
 	@Nullable
 	public File getFile() {
 		if (file != null) {
@@ -203,19 +222,19 @@ public class Config implements Comparable<Config> {
 		}
 		return null;
 	}
-	
+
 	@Nullable
 	public Path getPath() {
 		return file;
 	}
-	
+
 	/**
 	 * @return The most recent separator. Only useful while the file is loading.
 	 */
 	public String getSeparator() {
 		return separator;
 	}
-	
+
 	/**
 	 * @return A separator string useful for saving, e.g. ": " or " = ".
 	 */
@@ -226,7 +245,7 @@ public class Config implements Comparable<Config> {
 			return " = ";
 		return " " + separator + " ";
 	}
-	
+
 	/**
 	 * Splits the given path at the dot character and passes the result to {@link #get(String...)}.
 	 *
@@ -238,7 +257,7 @@ public class Config implements Comparable<Config> {
 	public String getByPath(final String path) {
 		return get(path.split("\\."));
 	}
-	
+
 	/**
 	 * Gets an entry node's value at the designated path
 	 *
@@ -265,19 +284,19 @@ public class Config implements Comparable<Config> {
 		}
 		return null;
 	}
-	
+
 	public boolean isEmpty() {
 		return main.isEmpty();
 	}
-	
+
 	public HashMap<String, String> toMap(final String separator) {
 		return main.toMap("", separator);
 	}
-	
+
 	public boolean validate(final SectionValidator validator) {
 		return validator.validate(getMainNode());
 	}
-	
+
 	private void load(final Class<?> cls, final @Nullable Object object, final String path) {
 		for (final Field field : cls.getDeclaredFields()) {
 			field.setAccessible(true);
@@ -285,7 +304,7 @@ public class Config implements Comparable<Config> {
 				try {
 					if (OptionSection.class.isAssignableFrom(field.getType())) {
 						final OptionSection section = (OptionSection) field.get(object);
-						@NonNull final Class<?> pc = section.getClass();
+						@NotNull final Class<?> pc = section.getClass();
 						load(pc, section, path + section.key + ".");
 					} else if (Option.class.isAssignableFrom(field.getType())) {
 						((Option<?>) field.get(object)).set(this, path);
@@ -296,14 +315,14 @@ public class Config implements Comparable<Config> {
 			}
 		}
 	}
-	
+
 	/**
 	 * Sets all {@link Option} fields of the given object to the values from this config
 	 */
 	public void load(final Object o) {
 		load(o.getClass(), o, "");
 	}
-	
+
 	/**
 	 * Sets all static {@link Option} fields of the given class to the values from this config
 	 */
@@ -317,5 +336,71 @@ public class Config implements Comparable<Config> {
 			return 0;
 		return fileName.compareTo(other.fileName);
 	}
-	
+
+	@Override
+	public void invalidate() throws UnsupportedOperationException {
+		this.validator.invalidate();
+	}
+
+	@Override
+	public boolean valid() {
+		return validator.valid();
+	}
+
+	@Override
+	public @NotNull Node getCurrentNode() {
+		return main;
+	}
+
+	@Override
+	public @Nullable Node getNodeAt(@NotNull String @NotNull ... steps) {
+		return main.getNodeAt(steps);
+	}
+
+	@NotNull
+	@Override
+	public Iterator<Node> iterator() {
+		return main.iterator();
+	}
+
+	@Override
+	public @Nullable Node get(String step) {
+		return main.get(step);
+	}
+
+	/**
+	 * Creates a {@code key: value} entry node at the end of the given path, with the specified value.
+	 * This will overwrite existing entries in the node tree to conform with the request.
+	 * If parent sections are missing, they will be created.
+	 * If parent sections are not section nodes, they will be unlinked and replaced by section nodes.
+	 *
+	 * @param path The path in the node tree
+	 * @param value The initial value
+	 * @return The original value (or nothing)
+	 */
+	public @UnknownNullability String createNode(String[] path, String value) {
+		String original = this.get(path);
+		if (path.length == 0)
+			return null;
+		Node node = this.getMainNode();
+		SectionNode parent = (SectionNode) node;
+		for (int i = 0; i < path.length - 1; i++) {
+			node = node.get(path[i]);
+			if (!(node instanceof SectionNode)) {
+				String comment = node != null ? node.comment : "";
+				int lineNum = node != null ? node.lineNum : -1;
+				SectionNode section = new SectionNode(path[i], comment, parent, lineNum);
+				if (node != null)
+					node.remove();
+				parent.add(section);
+				node = section;
+			}
+			parent = (SectionNode) node;
+		}
+		String last = path[path.length - 1];
+		EntryNode entry = new EntryNode(last, value, "", parent, -1);
+		parent.add(entry);
+		return original;
+	}
+
 }
