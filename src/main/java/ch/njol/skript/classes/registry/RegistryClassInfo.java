@@ -29,9 +29,8 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * This class can be used for an easier writing of ClassInfos that are registries,
- * it registers a language node with usage, a serializer, default expression and a parser.
- * Making it easier to register registry ClassInfos.
+ * This class can be used for easily creating ClassInfos for {@link Registry}s.
+ * It registers a language node with usage, a serializer, default expression, and a parser.
  *
  * @param <R> The Registry class.
  */
