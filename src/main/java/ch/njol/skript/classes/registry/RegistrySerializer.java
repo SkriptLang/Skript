@@ -59,7 +59,6 @@ public class RegistrySerializer<R extends Keyed> extends Serializer<R> {
 			}
 			if (namespacedKey == null)
 				return null;
-
 			return registry.get(namespacedKey);
 		} catch (StreamCorruptedException e) {
 			return null;
