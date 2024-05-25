@@ -42,12 +42,12 @@ public class RegistryClassInfo<R extends Keyed> extends ClassInfo<R> {
 	 */
 	public RegistryClassInfo(Class<R> registryClass, Registry<R> registry, String codeName, String languageNode, DefaultExpression<R> defaultExpression) {
 		super(registryClass, codeName);
-		RegistryParser<R> registryUtils = new RegistryParser<>(registry, languageNode);
-		usage(registryUtils.getAllNames())
+		RegistryParser<R> registryParser = new RegistryParser<>(registry, languageNode);
+		usage(registryParser.getAllNames())
 			.supplier(registry::iterator)
 			.serializer(new RegistrySerializer<R>(registry))
 			.defaultExpression(defaultExpression)
-			.parser(new RegistryParser<R>(registry, codeName));
+			.parser(registryParser);
 	}
 
 }
