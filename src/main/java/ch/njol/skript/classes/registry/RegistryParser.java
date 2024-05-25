@@ -18,6 +18,7 @@
  */
 package ch.njol.skript.classes.registry;
 
+import ch.njol.skript.classes.Parser;
 import ch.njol.skript.localization.Language;
 import ch.njol.skript.localization.Noun;
 import ch.njol.util.NonNullPair;
@@ -25,6 +26,7 @@ import ch.njol.util.StringUtils;
 import org.bukkit.Keyed;
 import org.bukkit.NamespacedKey;
 import org.bukkit.Registry;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
@@ -32,11 +34,11 @@ import java.util.Locale;
 import java.util.Map;
 
 /**
- * Utility class for {@link Registry}
+ * A parser based on a {@link Registry} used to parse data from a string or turn data into a string.
  *
  * @param <R> Registry class
  */
-public class RegistryUtils<R extends Keyed> {
+public class RegistryParser<R extends Keyed> extends Parser<R> {
 
 	private final Registry<R> registry;
 	private final String languageNode;
@@ -44,7 +46,7 @@ public class RegistryUtils<R extends Keyed> {
 	private final Map<R, String> names = new HashMap<>();
 	private final Map<String, R> parseMap = new HashMap<>();
 
-	public RegistryUtils(Registry<R> registry, String languageNode) {
+	public RegistryParser(Registry<R> registry, String languageNode) {
 		assert !languageNode.isEmpty() && !languageNode.endsWith(".") : languageNode;
 		this.registry = registry;
 		this.languageNode = languageNode;
@@ -119,8 +121,19 @@ public class RegistryUtils<R extends Keyed> {
 	 * @param flags  not currently used
 	 * @return A string representation of the registry object.
 	 */
-	public String toString(R object, int flags) {
+	public @NotNull String toString(R object, int flags) {
 		return names.get(object);
+	}
+
+	/**
+	 * Returns a registry object's string representation in a variable name.
+	 *
+	 * @param object Object to represent in a variable name.
+	 * @return The given object's representation in a variable name.
+	 */
+	@Override
+	public @NotNull String toVariableNameString(R object) {
+		return toString(object, 0);
 	}
 
 	/**

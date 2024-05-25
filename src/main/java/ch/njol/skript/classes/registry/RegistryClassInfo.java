@@ -19,14 +19,10 @@
 package ch.njol.skript.classes.registry;
 
 import ch.njol.skript.classes.ClassInfo;
-import ch.njol.skript.classes.Parser;
 import ch.njol.skript.expressions.base.EventValueExpression;
 import ch.njol.skript.lang.DefaultExpression;
-import ch.njol.skript.lang.ParseContext;
 import org.bukkit.Keyed;
 import org.bukkit.Registry;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 /**
  * This class can be used for easily creating ClassInfos for {@link Registry}s.
@@ -46,28 +42,12 @@ public class RegistryClassInfo<R extends Keyed> extends ClassInfo<R> {
 	 */
 	public RegistryClassInfo(Class<R> registryClass, Registry<R> registry, String codeName, String languageNode, DefaultExpression<R> defaultExpression) {
 		super(registryClass, codeName);
-		RegistryUtils<R> registryUtils = new RegistryUtils<>(registry, languageNode);
+		RegistryParser<R> registryUtils = new RegistryParser<>(registry, languageNode);
 		usage(registryUtils.getAllNames())
 			.supplier(registry::iterator)
 			.serializer(new RegistrySerializer<R>(registry))
 			.defaultExpression(defaultExpression)
-			.parser(new Parser<R>() {
-
-				@Override
-				public @Nullable R parse(String string, ParseContext context) {
-					return registryUtils.parse(string);
-				}
-
-				@Override
-				public @NotNull String toString(R object, int flags) {
-					return registryUtils.toString(object, flags);
-				}
-
-				@Override
-				public @NotNull String toVariableNameString(R object) {
-					return toString(object, 0);
-				}
-			});
+			.parser(new RegistryParser<R>(registry, codeName));
 	}
 
 }
