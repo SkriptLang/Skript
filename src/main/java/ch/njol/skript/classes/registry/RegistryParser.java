@@ -19,6 +19,7 @@
 package ch.njol.skript.classes.registry;
 
 import ch.njol.skript.classes.Parser;
+import ch.njol.skript.lang.ParseContext;
 import ch.njol.skript.localization.Language;
 import ch.njol.skript.localization.Noun;
 import ch.njol.util.NonNullPair;
@@ -109,8 +110,8 @@ public class RegistryParser<R extends Keyed> extends Parser<R> {
 	 * @param input a string to attempt to match against one in the registry.
 	 * @return The registry object matching the input, or null if no match could be made.
 	 */
-	@Nullable
-	public R parse(String input) {
+	@Override
+	public @Nullable R parse(String input, ParseContext context) {
 		return parseMap.get(input.toLowerCase(Locale.ENGLISH));
 	}
 
@@ -121,6 +122,7 @@ public class RegistryParser<R extends Keyed> extends Parser<R> {
 	 * @param flags  not currently used
 	 * @return A string representation of the registry object.
 	 */
+	@Override
 	public @NotNull String toString(R object, int flags) {
 		return names.get(object);
 	}
