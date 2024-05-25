@@ -48,6 +48,7 @@ public class RegistryClassInfo<R extends Keyed> extends ClassInfo<R> {
 		super(registryClass, codeName);
 		RegistryUtils<R> registryUtils = new RegistryUtils<>(registry, languageNode);
 		usage(registryUtils.getAllNames())
+			.supplier(registry::iterator)
 			.serializer(new RegistrySerializer<R>(registry))
 			.defaultExpression(defaultExpression)
 			.parser(new Parser<R>() {
