@@ -108,10 +108,11 @@ public class RegistryParser<R extends Keyed> extends Parser<R> {
 	 * This method attempts to match the string input against one of the string representations of the registry.
 	 *
 	 * @param input a string to attempt to match against one in the registry.
+	 * @param context of parsing, may not be null
 	 * @return The registry object matching the input, or null if no match could be made.
 	 */
 	@Override
-	public @Nullable R parse(String input, ParseContext context) {
+	public @Nullable R parse(String input, @NotNull ParseContext context) {
 		return parseMap.get(input.toLowerCase(Locale.ENGLISH));
 	}
 
