@@ -110,6 +110,6 @@ public class ExprItemAmount extends SimplePropertyExpression<Object, Long> {
 
 	@Override
 	protected String getPropertyName() {
-		return "item[[ ]stack] (amount|size|number)";
+		return "item amount";
 	}
 }

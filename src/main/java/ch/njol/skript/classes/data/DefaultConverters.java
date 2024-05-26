@@ -23,6 +23,7 @@ import ch.njol.skript.command.Commands;
 import ch.njol.skript.entity.EntityData;
 import ch.njol.skript.entity.EntityType;
 import ch.njol.skript.entity.XpOrbData;
+import ch.njol.skript.lang.util.common.AnyAmount;
 import ch.njol.skript.lang.util.common.AnyNamed;
 import ch.njol.skript.lang.util.common.AnyProvider;
 import ch.njol.skript.util.BlockInventoryHolder;
@@ -50,6 +51,8 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.scoreboard.Objective;
 import org.bukkit.scoreboard.Team;
 import org.bukkit.util.Vector;
+import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.UnknownNullability;
 import org.skriptlang.skript.lang.converter.Converter;
 import org.skriptlang.skript.lang.converter.Converters;
@@ -227,6 +230,28 @@ public class DefaultConverters {
 			Converter.NO_RIGHT_CHAINING);
 		Converters.registerConverter(CommandSender.class, AnyNamed.class, thing -> thing::getName, Converter.NO_RIGHT_CHAINING);
 		// Command senders should be done last because there might be a better alternative above
+
+		// Anything with an amount -> AnyAmount
+		Converters.registerConverter(ItemStack.class, AnyAmount.class, //<editor-fold desc="Converter" defaultstate="collapsed">
+			item -> new AnyAmount() {
+
+				@Override
+				public @NotNull Number amount() {
+					return item.getAmount();
+				}
+
+				@Override
+				public boolean amountSupportsChange() {
+					return true;
+				}
+
+				@Override
+				public void setAmount(@Nullable Number amount) throws UnsupportedOperationException {
+					item.setAmount(amount != null ? amount.intValue() : 0);
+				}
+			},
+			//</editor-fold>
+			Converter.NO_RIGHT_CHAINING);
 
 		// InventoryHolder - Location
 		// since the individual ones can't be trusted to chain.

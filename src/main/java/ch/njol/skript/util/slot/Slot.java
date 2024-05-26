@@ -20,6 +20,7 @@ package ch.njol.skript.util.slot;
 
 import ch.njol.skript.aliases.Aliases;
 import ch.njol.skript.aliases.ItemType;
+import ch.njol.skript.lang.util.common.AnyAmount;
 import ch.njol.skript.lang.util.common.AnyNamed;
 import org.bukkit.Bukkit;
 import org.bukkit.inventory.ItemStack;
@@ -27,13 +28,14 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.eclipse.jdt.annotation.Nullable;
 
 import ch.njol.skript.lang.Debuggable;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.UnknownNullability;
 
 /**
  * Represents a container for a single item. It could be an ordinary inventory
  * slot or perhaps an item frame.
  */
-public abstract class Slot implements Debuggable, AnyNamed {
+public abstract class Slot implements Debuggable, AnyNamed, AnyAmount {
 
 	protected Slot() {}
 
@@ -89,6 +91,21 @@ public abstract class Slot implements Debuggable, AnyNamed {
 			stack.setItemMeta(meta);
 			this.setItem(stack);
 		}
+	}
+
+	@Override
+	public @NotNull Number amount() {
+		return this.getAmount();
+	}
+
+	@Override
+	public boolean amountSupportsChange() {
+		return true;
+	}
+
+	@Override
+	public void setAmount(@Nullable Number amount) throws UnsupportedOperationException {
+		this.setAmount(amount != null ? amount.intValue() : 0);
 	}
 
 }
