@@ -3,10 +3,6 @@ test "name of world":
 	assert name of {_thing} is "world" with "name was wrong"
 	set the name of {_thing} to "blob"
 	assert name of {_thing} is "world" with "world name changed"
-	set {_thing} to the world "world"
-	assert name of {_thing} is "world" with "name was wrong"
-	set the name of {_thing} to "blob"
-	assert name of {_thing} is "world" with "world name changed"
 
 test "name of entity":
 	set {_before} to 5
@@ -22,3 +18,9 @@ test "name of entity":
 	set {_test}'s name to "bar"
 	assert {_test}'s name is "bar" with "name didn't change"
 	delete the last spawned pig
+
+test "name of item":
+	set {_thing} to 3 of stone
+	assert name of {_thing} does not exist with "name was set"
+	set the name of {_thing} to "blob"
+	assert name of {_thing} is "blob" with "item name didn't change"
