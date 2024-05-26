@@ -30,7 +30,10 @@ import org.bukkit.Registry;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
@@ -144,7 +147,9 @@ public class RegistryParser<R extends Keyed> extends Parser<R> {
 	 * Note that some entries may represent the same registry object.
 	 */
 	public String getAllNames() {
-		return StringUtils.join(parseMap.keySet(), ", ");
+		List<String> strings = new ArrayList<>(parseMap.keySet());
+		Collections.sort(strings);
+		return StringUtils.join(strings, ", ");
 	}
 
 }
