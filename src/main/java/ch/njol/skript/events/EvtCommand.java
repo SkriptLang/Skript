@@ -38,7 +38,7 @@ public class EvtCommand extends SkriptEvent {
 
 	static {
 		Skript.registerEvent("Command", EvtCommand.class, CollectionUtils.array(PlayerCommandPreprocessEvent.class, ServerCommandEvent.class),
-				"[1:console|2:player] command [%-string%]")
+				"[sender:(1:console|player)] command [%-string%]")
 				.description(
 						"Called when a player or the console enters a command (not necessarily a Skript command)" +
 						"but you can check if command is a skript command, see <a href='conditions.html#CondIsValidCommand'>Is Valid Command condition</a>.")
@@ -52,39 +52,10 @@ public class EvtCommand extends SkriptEvent {
 				.since("2.0, INSERT VERSION (specific executor)");
 	}
 
-	private enum Sender {
-
-		ANY(""),
-		CONSOLE("console"),
-		PLAYER("player");
-
-		final String toString;
-
-		Sender(String toString) {
-			this.toString = toString;
-		}
-
-		static Sender valueOf(CommandSender sender) {
-			if (sender instanceof ConsoleCommandSender) {
-				return CONSOLE;
-			} else if (sender instanceof Player) {
-				return PLAYER;
-			} else {
-				return ANY;
-			}
-		}
-
-		@Override
-		public String toString() {
-			return toString;
-		}
-
-	}
-
 	@Nullable
 	private String command;
-	@SuppressWarnings("NotNullFieldNotInitialized")
-	private Sender sender;
+	@Nullable
+	private Class<? extends CommandSender> sender;
 
 	@Override
 	@SuppressWarnings("unchecked")
@@ -94,7 +65,9 @@ public class EvtCommand extends SkriptEvent {
 			if (command.startsWith("/"))
 				command = command.substring(1);
 		}
-		sender = Sender.values()[parseResult.mark];
+		if (parseResult.hasTag("sender")) {
+			sender = parseResult.mark == 1 ? ConsoleCommandSender.class : Player.class;
+		}
 		return true;
 	}
 
@@ -105,10 +78,10 @@ public class EvtCommand extends SkriptEvent {
 			if (command.isEmpty() || command.startsWith(SkriptConfig.effectCommandToken.value()))
 				return false;
 		}
-		Sender eventSender = Sender.valueOf(getSender(event));
+		CommandSender eventSender = getSender(event);
 		if (command == null) {
-			if (sender != Sender.ANY) {
-				return eventSender == sender;
+			if (sender != null) {
+				return eventSender.getClass().equals(sender);
 			}
 			return true;
 		}
@@ -123,8 +96,8 @@ public class EvtCommand extends SkriptEvent {
 		if (StringUtils.startsWithIgnoreCase(message, command)
 			&& (command.contains(" ") || message.length() == command.length()
 			|| Character.isWhitespace(message.charAt(command.length())))) {
-			if (sender != Sender.ANY) {
-				return eventSender == sender;
+			if (sender != null) {
+				return eventSender.getClass() == sender;
 			}
 			return true;
 		}
@@ -134,8 +107,8 @@ public class EvtCommand extends SkriptEvent {
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
 		String sender = "";
-		if (this.sender != Sender.ANY)
-			sender = this.sender + " ";
+		if (this.sender != null)
+			sender = (this.sender == ConsoleCommandSender.class ? "console " : "player ");
 		return sender + "command" + (command != null ? " /" + command : "");
 	}
 
