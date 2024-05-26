@@ -24,6 +24,7 @@ import java.util.Locale;
 import java.util.regex.Pattern;
 
 import ch.njol.skript.classes.*;
+import ch.njol.skript.lang.util.common.AnyAmount;
 import ch.njol.skript.lang.util.common.AnyNamed;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
@@ -689,9 +690,17 @@ public class SkriptClasses {
 
 		Classes.registerClass(new AnyInfo<>(AnyNamed.class, "named")
 			.name("Any Named Thing")
-			.description("Something that has a name.")
+			.description("Something that has a name (an item).")
 			.usage("")
 			.examples("{thing}'s name")
+			.since("INSERT VERSION")
+		);
+
+		Classes.registerClass(new AnyInfo<>(AnyAmount.class, "amount")
+			.name("Any Sized Thing")
+			.description("Something that has an amount or size.")
+			.usage("")
+			.examples("the size of {thing}")
 			.since("INSERT VERSION")
 		);
 	}
