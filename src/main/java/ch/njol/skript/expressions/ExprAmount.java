@@ -19,6 +19,8 @@
 package ch.njol.skript.expressions;
 
 import ch.njol.skript.Skript;
+import ch.njol.skript.aliases.ItemType;
+import ch.njol.skript.classes.Changer;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
@@ -30,18 +32,22 @@ import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.Variable;
 import ch.njol.skript.lang.util.SimpleExpression;
+import ch.njol.skript.lang.util.common.AnyAmount;
+import ch.njol.skript.util.slot.Slot;
 import ch.njol.util.Kleenean;
+import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.event.Event;
+import org.bukkit.inventory.ItemStack;
 import org.eclipse.jdt.annotation.Nullable;
 
 import java.util.Map;
 
 /**
- * 
+ *
  * @author Peter Güttinger
  */
 @Name("Amount")
-@Description({"The amount of something.",
+@Description({"The amount or size of something.",
 		"Please note that <code>amount of %items%</code> will not return the number of items, but the number of stacks, e.g. 1 for a stack of 64 torches. To get the amount of items in a stack, see the <a href='#ExprItemAmount'>item amount</a> expression.",
 		"",
 		"Also, you can get the recursive size of a list, which will return the recursive size of the list with sublists included, e.g.",
@@ -60,23 +66,30 @@ import java.util.Map;
 		"Please note that getting a list's recursive size can cause lag if the list is large, so only use this expression if you need to!"})
 @Examples({"message \"There are %number of all players% players online!\""})
 @Since("1.0")
-public class ExprAmount extends SimpleExpression<Long> {
+public class ExprAmount extends SimpleExpression<Number> {
 
 	static {
-		Skript.registerExpression(ExprAmount.class, Long.class, ExpressionType.PROPERTY,
+		Skript.registerExpression(ExprAmount.class, Number.class, ExpressionType.PROPERTY,
+			"[the] (amount|number|size) of %any-amount%",
 				"[the] (amount|number|size) of %objects%",
 				"[the] recursive (amount|number|size) of %objects%");
 	}
 
 	@SuppressWarnings("null")
 	private ExpressionList<?> exprs;
+	private @Nullable Expression<AnyAmount> any;
 
 	private boolean recursive;
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
+		if (matchedPattern == 0) {
+			//noinspection unchecked
+			this.any = (Expression<AnyAmount>) exprs[0];
+			return true;
+		}
 		this.exprs = exprs[0] instanceof ExpressionList ? (ExpressionList<?>) exprs[0] : new ExpressionList<>(new Expression<?>[]{exprs[0]}, Object.class, false);
-		this.recursive = matchedPattern == 1;
+		this.recursive = matchedPattern == 2;
 		for (Expression<?> expr : this.exprs.getExpressions()) {
 			if (expr instanceof Literal<?>) {
 				return false;
@@ -95,7 +108,9 @@ public class ExprAmount extends SimpleExpression<Long> {
 
 	@Override
 	@SuppressWarnings("unchecked")
-	protected Long[] get(Event e) {
+	protected Number[] get(Event e) {
+		if (any != null)
+			return new Number[] {any.getOptionalSingle(e).orElse(() -> 0).amount()};
 		if (recursive) {
 			int currentSize = 0;
 			for (Expression<?> expr : exprs.getExpressions()) {
@@ -107,6 +122,52 @@ public class ExprAmount extends SimpleExpression<Long> {
 			return new Long[]{(long) currentSize};
 		}
 		return new Long[]{(long) exprs.getArray(e).length};
+	}
+
+	@Override
+	public @Nullable Class<?>[] acceptChange(Changer.ChangeMode mode) {
+		if (any != null) {
+			switch (mode) {
+				case SET:
+				case ADD:
+				case RESET:
+				case DELETE:
+				case REMOVE:
+					return CollectionUtils.array(Number.class);
+			}
+			return null;
+		}
+		return super.acceptChange(mode);
+	}
+
+	@Override
+	public void change(Event event,  Object@Nullable[] delta, Changer.ChangeMode mode) {
+		if (any == null) {
+			super.change(event, delta, mode);
+			return;
+		}
+		double amount = delta != null ? ((Number) delta[0]).doubleValue() : 0;
+		// It's okay to treat it as a double even if it's a whole number because there's no case in
+		// the set of real numbers where (x->double + y->double)->long != (x+y)
+		switch (mode) {
+			case REMOVE:
+				amount = -amount;
+				// fall through
+			case ADD:
+				for (AnyAmount obj : any.getArray(event))
+					obj.setAmount(obj.amount().doubleValue() + amount);
+				break;
+			case RESET:
+			case DELETE:
+				amount = 1;
+				// fall through
+			case SET:
+				for (AnyAmount any : any.getArray(event)) {
+					if (any.amountSupportsChange())
+						any.setAmount(amount);
+				}
+				break;
+		}
 	}
 
 	@SuppressWarnings("unchecked")
@@ -128,13 +189,15 @@ public class ExprAmount extends SimpleExpression<Long> {
 	}
 
 	@Override
-	public Class<? extends Long> getReturnType() {
-		return Long.class;
+	public Class<? extends Number> getReturnType() {
+		return any != null ? Number.class : Long.class;
 	}
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
-		return (recursive ? "recursive size of " : "amount of ") + exprs.toString(e, debug);
+	public String toString(@Nullable Event event, boolean debug) {
+		if (any != null)
+			return "amount of " + any.toString(event, debug);
+		return (recursive ? "recursive size of " : "amount of ") + exprs.toString(event, debug);
 	}
 
 }
