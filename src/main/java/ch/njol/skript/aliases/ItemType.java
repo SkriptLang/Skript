@@ -22,6 +22,7 @@ import ch.njol.skript.aliases.ItemData.OldItemData;
 import ch.njol.skript.bukkitutil.BukkitUnsafe;
 import ch.njol.skript.bukkitutil.ItemUtils;
 import ch.njol.skript.lang.Unit;
+import ch.njol.skript.lang.util.common.AnyNamed;
 import ch.njol.skript.localization.Adjective;
 import ch.njol.skript.localization.GeneralWords;
 import ch.njol.skript.localization.Language;
@@ -70,7 +71,7 @@ import java.util.RandomAccess;
 import java.util.Set;
 
 @ContainerType(ItemStack.class)
-public class ItemType implements Unit, Iterable<ItemData>, Container<ItemStack>, YggdrasilExtendedSerializable {
+public class ItemType implements Unit, Iterable<ItemData>, Container<ItemStack>, YggdrasilExtendedSerializable, AnyNamed {
 
 	static {
 		// This handles updating ItemType and ItemData variable records
@@ -1387,4 +1388,23 @@ public class ItemType implements Unit, Iterable<ItemData>, Container<ItemStack>,
 		}
 		return copy;
 	}
+
+	@Override
+	public @Nullable String name() {
+		ItemMeta meta = this.getItemMeta();
+		return meta.hasDisplayName() ? meta.getDisplayName() : null;
+	}
+
+	@Override
+	public boolean nameSupportsChange() {
+		return true;
+	}
+
+	@Override
+	public void setName(String name) {
+		ItemMeta meta = this.getItemMeta();
+		meta.setDisplayName(name);
+		this.setItemMeta(meta);
+	}
+
 }
