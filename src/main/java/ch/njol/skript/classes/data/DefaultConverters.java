@@ -23,17 +23,15 @@ import ch.njol.skript.command.Commands;
 import ch.njol.skript.entity.EntityData;
 import ch.njol.skript.entity.EntityType;
 import ch.njol.skript.entity.XpOrbData;
+import ch.njol.skript.lang.util.common.AnyNamed;
+import ch.njol.skript.lang.util.common.AnyProvider;
 import ch.njol.skript.util.BlockInventoryHolder;
 import ch.njol.skript.util.BlockUtils;
 import ch.njol.skript.util.Direction;
 import ch.njol.skript.util.EnchantmentType;
 import ch.njol.skript.util.Experience;
 import ch.njol.skript.util.slot.Slot;
-import org.bukkit.Bukkit;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.OfflinePlayer;
-import org.bukkit.World;
+import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.DoubleChest;
@@ -48,14 +46,18 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
+import org.bukkit.plugin.Plugin;
+import org.bukkit.scoreboard.Objective;
+import org.bukkit.scoreboard.Team;
 import org.bukkit.util.Vector;
+import org.jetbrains.annotations.UnknownNullability;
 import org.skriptlang.skript.lang.converter.Converter;
 import org.skriptlang.skript.lang.converter.Converters;
 
 public class DefaultConverters {
-	
+
 	public DefaultConverters() {}
-	
+
 	static {
 		// Number to subtypes converters
 		Converters.registerConverter(Number.class, Byte.class, Number::byteValue);
@@ -100,27 +102,27 @@ public class DefaultConverters {
 				return (LivingEntity) e;
 			return null;
 		});
-		
+
 		// Block - Inventory
 		Converters.registerConverter(Block.class, Inventory.class, b -> {
 			if (b.getState() instanceof InventoryHolder)
 				return ((InventoryHolder) b.getState()).getInventory();
 			return null;
 		}, Commands.CONVERTER_NO_COMMAND_ARGUMENTS);
-		
+
 		// Entity - Inventory
 		Converters.registerConverter(Entity.class, Inventory.class, e -> {
 			if (e instanceof InventoryHolder)
 				return ((InventoryHolder) e).getInventory();
 			return null;
 		}, Commands.CONVERTER_NO_COMMAND_ARGUMENTS);
-		
+
 		// Block - ItemType
 		Converters.registerConverter(Block.class, ItemType.class, ItemType::new, Converter.NO_LEFT_CHAINING | Commands.CONVERTER_NO_COMMAND_ARGUMENTS);
 
 		// Block - Location
 		Converters.registerConverter(Block.class, Location.class, BlockUtils::getLocation, Commands.CONVERTER_NO_COMMAND_ARGUMENTS);
-		
+
 		// Entity - Location
 		Converters.registerConverter(Entity.class, Location.class, Entity::getLocation, Commands.CONVERTER_NO_COMMAND_ARGUMENTS);
 
@@ -129,21 +131,21 @@ public class DefaultConverters {
 
 		// EntityData - EntityType
 		Converters.registerConverter(EntityData.class, EntityType.class, data -> new EntityType(data, -1));
-		
+
 		// ItemType - ItemStack
 		Converters.registerConverter(ItemType.class, ItemStack.class, ItemType::getRandom);
 		Converters.registerConverter(ItemStack.class, ItemType.class, ItemType::new);
-		
+
 		// Experience - XpOrbData
 		Converters.registerConverter(Experience.class, XpOrbData.class, e -> new XpOrbData(e.getXP()));
 		Converters.registerConverter(XpOrbData.class, Experience.class, e -> new Experience(e.getExperience()));
-		
+
 		// Slot - ItemType
 		Converters.registerConverter(Slot.class, ItemType.class, s -> {
 			ItemStack i = s.getItem();
 			return new ItemType(i != null ? i : new ItemStack(Material.AIR, 1));
 		});
-		
+
 		// Block - InventoryHolder
 		Converters.registerConverter(Block.class, InventoryHolder.class, b -> {
 			BlockState s = b.getState();
@@ -166,6 +168,65 @@ public class DefaultConverters {
 				return (Entity) holder;
 			return null;
 		}, Converter.NO_CHAINING);
+
+		// Anything with a name -> AnyNamed
+		Converters.registerConverter(OfflinePlayer.class, AnyNamed.class, thing -> thing::getName, Converter.NO_RIGHT_CHAINING);
+		Converters.registerConverter(World.class, AnyNamed.class, thing -> thing::getName, Converter.NO_RIGHT_CHAINING);
+		Converters.registerConverter(GameRule.class, AnyNamed.class, thing -> thing::getName, Converter.NO_RIGHT_CHAINING);
+		Converters.registerConverter(Server.class, AnyNamed.class, thing -> thing::getName, Converter.NO_RIGHT_CHAINING);
+		Converters.registerConverter(Plugin.class, AnyNamed.class, thing -> thing::getName, Converter.NO_RIGHT_CHAINING);
+		Converters.registerConverter(WorldType.class, AnyNamed.class, thing -> thing::getName, Converter.NO_RIGHT_CHAINING);
+		Converters.registerConverter(Team.class, AnyNamed.class, thing -> thing::getName, Converter.NO_RIGHT_CHAINING);
+		Converters.registerConverter(Objective.class, AnyNamed.class, thing -> thing::getName, Converter.NO_RIGHT_CHAINING);
+		Converters.registerConverter(Nameable.class, AnyNamed.class, //<editor-fold desc="Converter" defaultstate="collapsed">
+			nameable -> new AnyNamed() {
+				@Override
+				public @UnknownNullability String name() {
+					//noinspection deprecation
+					return nameable.getCustomName();
+				}
+
+				@Override
+				public boolean nameSupportsChange() {
+					return true;
+				}
+
+				@Override
+				public void setName(String name) throws UnsupportedOperationException {
+					//noinspection deprecation
+					nameable.setCustomName(name);
+				}
+			},
+			//</editor-fold>
+			Converter.NO_RIGHT_CHAINING);
+		Converters.registerConverter(Block.class, AnyNamed.class, //<editor-fold desc="Converter" defaultstate="collapsed">
+			block -> new AnyNamed() {
+				@Override
+				public @UnknownNullability String name() {
+					BlockState state = block.getState();
+					if (state instanceof Nameable)
+						//noinspection deprecation
+						return ((Nameable) state).getCustomName();
+					return null;
+				}
+
+				@Override
+				public boolean nameSupportsChange() {
+					return true;
+				}
+
+				@Override
+				public void setName(String name) throws UnsupportedOperationException {
+					BlockState state = block.getState();
+					if (state instanceof Nameable)
+						//noinspection deprecation
+						((Nameable) state).setCustomName(name);
+				}
+			},
+			//</editor-fold>
+			Converter.NO_RIGHT_CHAINING);
+		Converters.registerConverter(CommandSender.class, AnyNamed.class, thing -> thing::getName, Converter.NO_RIGHT_CHAINING);
+		// Command senders should be done last because there might be a better alternative above
 
 		// InventoryHolder - Location
 		// since the individual ones can't be trusted to chain.
