@@ -18,6 +18,7 @@
  */
 package ch.njol.skript.classes.data;
 
+import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.command.Commands;
 import ch.njol.skript.entity.EntityData;
@@ -174,7 +175,10 @@ public class DefaultConverters {
 
 		// Anything with a name -> AnyNamed
 		Converters.registerConverter(OfflinePlayer.class, AnyNamed.class, thing -> thing::getName, Converter.NO_RIGHT_CHAINING);
-		Converters.registerConverter(World.class, AnyNamed.class, thing -> thing::getName, Converter.NO_RIGHT_CHAINING);
+		if (Skript.classExists("org.bukkit.generator.WorldInfo"))
+			Converters.registerConverter(World.class, AnyNamed.class, thing -> thing::getName, Converter.NO_RIGHT_CHAINING);
+		else //noinspection RedundantCast getName method is on World itself in older versions
+			Converters.registerConverter(World.class, AnyNamed.class, thing -> () -> ((World) thing).getName(), Converter.NO_RIGHT_CHAINING);
 		Converters.registerConverter(GameRule.class, AnyNamed.class, thing -> thing::getName, Converter.NO_RIGHT_CHAINING);
 		Converters.registerConverter(Server.class, AnyNamed.class, thing -> thing::getName, Converter.NO_RIGHT_CHAINING);
 		Converters.registerConverter(Plugin.class, AnyNamed.class, thing -> thing::getName, Converter.NO_RIGHT_CHAINING);
