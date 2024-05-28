@@ -49,15 +49,15 @@ import java.util.Locale;
 @Since("2.8.0, INSERT VERSION (front/back)")
 public class EffGlowingText extends Effect {
 
-	private static final boolean HAS_SIDES_METHOD = Skript.methodExists(Sign.class, "getSide", Side.class);
+	private static final boolean HAS_SIDES = Skript.classExists("org.bukkit.block.sign.Side");
 
 	static {
 		String sideChoice = " [on the (:front|:back) [side]]";
 
 		if (Skript.methodExists(Sign.class, "setGlowingText", boolean.class)) {
 			Skript.registerEffect(EffGlowingText.class,
-					"make %blocks/itemtypes% have glowing text" + (HAS_SIDES_METHOD ? "" : sideChoice),
-					"make %blocks/itemtypes% have (normal|non[-| ]glowing) text" + (HAS_SIDES_METHOD ? "" : sideChoice)
+					"make %blocks/itemtypes% have glowing text" + (HAS_SIDES ? "" : sideChoice),
+					"make %blocks/itemtypes% have (normal|non[-| ]glowing) text" + (HAS_SIDES ? "" : sideChoice)
 			);
 		}
 	}
@@ -110,7 +110,7 @@ public class EffGlowingText extends Effect {
 	}
 
 	private void setGlowingText(Sign sign) {
-		if (HAS_SIDES_METHOD) {
+		if (HAS_SIDES) {
 			if (side == null) {
 				sign.getSide(Side.FRONT).setGlowingText(glowing);
 				sign.getSide(Side.BACK).setGlowingText(glowing);

@@ -48,13 +48,13 @@ import java.util.Locale;
 @Since("2.8.0, INSERT VERSION (front/back)")
 public class CondGlowingText extends PropertyCondition<Object> {
 
-	private static final boolean HAS_SIDES_METHOD = Skript.methodExists(Sign.class, "getSide", Side.class);
+	private static final boolean HAS_SIDES = Skript.classExists("org.bukkit.block.sign.Side");
 
 	static {
 		String sideChoice = " [on the (:front|:back) [side]]";
 
 		if (Skript.methodExists(Sign.class, "isGlowingText")) {
-			register(CondGlowingText.class, PropertyType.HAVE, "glowing text" + (HAS_SIDES_METHOD ? "" : sideChoice), "blocks/itemtypes");
+			register(CondGlowingText.class, PropertyType.HAVE, "glowing text" + (HAS_SIDES ? "" : sideChoice), "blocks/itemtypes");
 		}
 	}
 
@@ -88,7 +88,7 @@ public class CondGlowingText extends PropertyCondition<Object> {
 	}
 
 	private boolean isGlowing(Sign sign) {
-		if (HAS_SIDES_METHOD) {
+		if (HAS_SIDES) {
 			if (side == null)
 				return sign.getSide(Side.FRONT).isGlowingText() || sign.getSide(Side.BACK).isGlowingText();
 			return sign.getSide(side).isGlowingText();
