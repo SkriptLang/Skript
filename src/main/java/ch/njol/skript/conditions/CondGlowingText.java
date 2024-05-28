@@ -21,7 +21,7 @@ package ch.njol.skript.conditions;
 import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.SkriptParser;
+import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
 import org.bukkit.block.Block;
 
@@ -62,7 +62,7 @@ public class CondGlowingText extends PropertyCondition<Object> {
 	private Side side;
 
 	@Override
-	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
+	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		side = null;
 		if (parseResult.hasTag("front")) {
 			side = Side.FRONT;
