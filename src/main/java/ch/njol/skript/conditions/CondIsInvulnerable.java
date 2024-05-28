@@ -35,7 +35,7 @@ import ch.njol.skript.doc.Since;
 		"\tif loop-value is not invulnerable:",
 			"\t\tbroadcast \"the gamemode %loop-value% is vulnerable!\""
 })
-@Since("2.5") // ?
+@Since("2.5, INSERT VERSION (gamemode)")
 public class CondIsInvulnerable extends PropertyCondition<Object> {
 	
 	static {
