@@ -41,7 +41,7 @@ public class CondIsInvulnerable extends PropertyCondition<Object> {
 	private static final boolean GAMEMODE = Skript.methodExists(GameMode.class,"isInvulnerable");
 	
 	static {
-		register(CondIsInvulnerable.class, PropertyType.BE, "invulnerable", "entities"+(GAMEMODE ? "/gamemodes" : ""));
+		register(CondIsInvulnerable.class, PropertyType.BE, "(invulnerable|invincible)", "entities" + (GAMEMODE ? "/gamemodes" : ""));
 	}
 	
 	@Override
