@@ -44,10 +44,11 @@ public class CondIsInvulnerable extends PropertyCondition<Object> {
 	
 	@Override
 	public boolean check(Object object) {
-		if (object instanceof Entity)
+		if (object instanceof Entity) {
 			return ((Entity) object).isInvulnerable();
-		else if (object instanceof GameMode)
+		} else if (object instanceof GameMode)
 			return ((GameMode) object).isInvulnerable();
+		}
 		return false;
 	}
 	
