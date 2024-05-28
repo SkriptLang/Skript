@@ -32,22 +32,32 @@ import ch.njol.util.Kleenean;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.Sign;
+import org.bukkit.block.sign.Side;
 import org.bukkit.event.Event;
 import org.bukkit.inventory.meta.BlockStateMeta;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.eclipse.jdt.annotation.Nullable;
 
+import java.util.Locale;
+
 @Name("Make Sign Glow")
 @Description("Makes a sign (either a block or item) have glowing text or normal text")
-@Examples("make target block of player have glowing text")
-@Since("2.8.0")
+@Examples({
+	"make target block of player have glowing text",
+	"make target block of player have normal text on the front side",
+})
+@Since("2.8.0, INSERT VERSION (front/back)")
 public class EffGlowingText extends Effect {
 
+	private static final boolean HAS_SIDES_METHOD = Skript.methodExists(Sign.class, "getSide", Side.class);
+
 	static {
+		String sideChoice = " [on the (:front|:back) [side]]";
+
 		if (Skript.methodExists(Sign.class, "setGlowingText", boolean.class)) {
 			Skript.registerEffect(EffGlowingText.class,
-					"make %blocks/itemtypes% have glowing text",
-					"make %blocks/itemtypes% have (normal|non[-| ]glowing) text"
+					"make %blocks/itemtypes% have glowing text" + (HAS_SIDES_METHOD ? "" : sideChoice),
+					"make %blocks/itemtypes% have (normal|non[-| ]glowing) text" + (HAS_SIDES_METHOD ? "" : sideChoice)
 			);
 		}
 	}
@@ -57,10 +67,19 @@ public class EffGlowingText extends Effect {
 
 	private boolean glowing;
 
+	@Nullable
+	private Side side;
+
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		objects = exprs[0];
 		glowing = matchedPattern == 0;
+		side = null;
+		if (parseResult.hasTag("front")) {
+			side = Side.FRONT;
+		} else if (parseResult.hasTag("back")) {
+			side = Side.BACK;
+		}
 		return true;
 	}
 
@@ -70,7 +89,7 @@ public class EffGlowingText extends Effect {
 			if (obj instanceof Block) {
 				BlockState state = ((Block) obj).getState();
 				if (state instanceof Sign) {
-					((Sign) state).setGlowingText(glowing);
+					setGlowingText((Sign) state);
 					state.update();
 				}
 			} else if (obj instanceof ItemType) {
@@ -82,7 +101,7 @@ public class EffGlowingText extends Effect {
 				BlockState state = blockMeta.getBlockState();
 				if (!(state instanceof Sign))
 					return;
-				((Sign) state).setGlowingText(glowing);
+				setGlowingText((Sign) state);
 				state.update();
 				blockMeta.setBlockState(state);
 				item.setItemMeta(meta);
@@ -90,9 +109,23 @@ public class EffGlowingText extends Effect {
 		}
 	}
 
+	private void setGlowingText(Sign sign) {
+		if (HAS_SIDES_METHOD) {
+			if (side == null) {
+				sign.getSide(Side.FRONT).setGlowingText(glowing);
+				sign.getSide(Side.BACK).setGlowingText(glowing);
+			} else {
+				sign.getSide(side).setGlowingText(glowing);
+			}
+		} else {
+			sign.setGlowingText(glowing);
+		}
+	}
+
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return "make " + objects.toString(event, debug) + " have " + (glowing ? "glowing text" : "normal text");
+		return "make " + objects.toString(event, debug) + " have " + (glowing ? "glowing text" : "normal text")
+			+ (side == null ? "" : " on the " + side.name().toLowerCase(Locale.ENGLISH)) + " side";
 	}
 
 }

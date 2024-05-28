@@ -2,11 +2,17 @@ test "glowing sign blocks" when running minecraft "1.17.1":
 	set {_loc} to spawn of "world"
 	set {_original block} to type of block at {_loc}
 	set block at {_loc} to sign
-	assert block at {_loc} doesn't have glowing text with "Sign had glowing text erroneously (1)"
+	assert block at {_loc} doesn't have glowing text with "Sign had glowing text erroneously"
 	make block at {_loc} have glowing text
 	assert block at {_loc} has glowing text with "Sign had normal text erroneously"
-	make block at {_loc} have normal text
-	assert block at {_loc} doesn't have glowing text with "Sign had glowing text erroneously (2)"
+	assert block at {_loc} has glowing text on the front with "Sign had normal text on the front erroneously"
+	assert block at {_loc} has glowing text on the back side with "Sign had normal text on the back erroneously"
+	make block at {_loc} have normal text on the front
+	assert block at {_loc} has glowing text with "Sign had all normal text erroneously"
+	assert block at {_loc} doesn't have glowing text on the front with "Sign had glowing text on the front erroneously"
+	make block at {_loc} have normal text on the back
+	assert block at {_loc} doesn't have glowing text with "Sign had glowing text erroneously"
+	assert block at {_loc} doesn't have glowing text on the back side with "Sign had glowing text on the back erroneously"
 	set block at {_loc} to {_original block}
 
 test "glowing sign items" when running minecraft "1.17.1":
