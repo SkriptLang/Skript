@@ -18,6 +18,8 @@
  */
 package ch.njol.skript.conditions;
 
+import ch.njol.skript.Skript;
+import org.bukkit.GameEvent;
 import org.bukkit.GameMode;
 import org.bukkit.entity.Entity;
 
@@ -28,7 +30,7 @@ import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 
 @Name("Is Invulnerable")
-@Description("Checks whether an entity or a gamemode is invulnerable.")
+@Description("Checks whether an entity or a gamemode is invulnerable.\nFor gamemodes, Paper and Minecraft 1.20.6 are required")
 @Examples({
 	"target entity is invulnerable",
 	"loop {_gamemodes::*}:",
@@ -46,7 +48,7 @@ public class CondIsInvulnerable extends PropertyCondition<Object> {
 	public boolean check(Object object) {
 		if (object instanceof Entity) {
 			return ((Entity) object).isInvulnerable();
-		} else if (object instanceof GameMode)
+		} else if (Skript.methodExists(GameEvent.class,"isInvulnerable") && object instanceof GameMode) {
 			return ((GameMode) object).isInvulnerable();
 		}
 		return false;
