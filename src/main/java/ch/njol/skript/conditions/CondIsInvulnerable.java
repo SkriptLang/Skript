@@ -29,10 +29,12 @@ import ch.njol.skript.doc.Since;
 
 @Name("Is Invulnerable")
 @Description("Checks whether an entity or a gamemode is invulnerable.")
-@Examples({"target entity is invulnerable",
-"loop {_gamemodes::*}:\n"+
-"\tif loop-value is not invulnerable:\n" +
-"\t\tbroadcast \"the gamemode %loop-value% is vulnerable!\""})
+@Examples({
+	"target entity is invulnerable",
+	"loop {_gamemodes::*}:",
+		"\tif loop-value is not invulnerable:",
+			"\t\tbroadcast \"the gamemode %loop-value% is vulnerable!\""
+})
 @Since("2.5") // ?
 public class CondIsInvulnerable extends PropertyCondition<Object> {
 	
