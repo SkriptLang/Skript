@@ -39,7 +39,7 @@ import ch.njol.skript.doc.Since;
 public class CondIsInvulnerable extends PropertyCondition<Object> {
 	
 	static {
-		register(CondIsInvulnerable.class, PropertyType.BE, "invulnerable", "objects");
+		register(CondIsInvulnerable.class, PropertyType.BE, "invulnerable", "entities/gamemodes");
 	}
 	
 	@Override
