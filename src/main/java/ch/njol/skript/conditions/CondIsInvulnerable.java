@@ -18,6 +18,7 @@
  */
 package ch.njol.skript.conditions;
 
+import org.bukkit.GameMode;
 import org.bukkit.entity.Entity;
 
 import ch.njol.skript.conditions.base.PropertyCondition;
@@ -27,18 +28,25 @@ import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 
 @Name("Is Invulnerable")
-@Description("Checks whether an entity is invulnerable.")
-@Examples("target entity is invulnerable")
-@Since("2.5")
-public class CondIsInvulnerable extends PropertyCondition<Entity> {
+@Description("Checks whether an entity or a gamemode is invulnerable.")
+@Examples({"target entity is invulnerable",
+"loop {_gamemodes::*}:\n"+
+"\tif loop-value is not invulnerable:\n" +
+"\t\tbroadcast \"the gamemode %loop-value% is vulnerable!\""})
+@Since("2.5") // ?
+public class CondIsInvulnerable extends PropertyCondition<Object> {
 	
 	static {
-		register(CondIsInvulnerable.class, PropertyType.BE, "invulnerable", "entities");
+		register(CondIsInvulnerable.class, PropertyType.BE, "invulnerable", "objects");
 	}
 	
 	@Override
-	public boolean check(Entity entity) {
-		return entity.isInvulnerable();
+	public boolean check(Object object) {
+		if (object instanceof Entity)
+			return ((Entity) object).isInvulnerable();
+		else if (object instanceof GameMode)
+			return ((GameMode) object).isInvulnerable();
+		return false;
 	}
 	
 	@Override
