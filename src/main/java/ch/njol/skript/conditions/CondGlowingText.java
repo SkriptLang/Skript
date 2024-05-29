@@ -48,7 +48,8 @@ import java.util.Locale;
 @Since("2.8.0, INSERT VERSION (front/back)")
 public class CondGlowingText extends PropertyCondition<Object> {
 
-	private static final boolean HAS_SIDES = Skript.classExists("org.bukkit.block.sign.Side");
+	// 1.19 has Side, but doesn't have Side.BACK, so ensure we're at least 1.20
+	private static final boolean HAS_SIDES = Skript.classExists("org.bukkit.block.sign.Side") && Skript.isRunningMinecraft(1,20);
 
 	static {
 		String sideChoice = " [on the (:front|:back) [side]]";
