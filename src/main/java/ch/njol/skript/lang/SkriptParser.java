@@ -614,6 +614,7 @@ public class SkriptParser {
 					VariableString string = VariableString.newInstance(expr.substring(1, expr.length() - 1));
 					if (string instanceof LiteralString)
 						return string;
+					break;
 				}
 			}
 			log.printError();
