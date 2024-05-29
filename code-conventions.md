@@ -108,7 +108,6 @@ If we need to remove or alter contributed code due to a licensing issue we will 
   String string = "example string " +
         "with more to add";
   ```
-  
 * When extending one of following classes: SimpleExpression, SimplePropertyExpression, Effect, Condition...
   - Put overridden methods in order
   - SimpleExpression: init -> get/getAll -> acceptChange -> change -> setTime -> getTime -> isSingle -> getReturnType -> toString
@@ -118,7 +117,15 @@ If we need to remove or alter contributed code due to a licensing issue we will 
   - PropertyCondition: (init) -> check -> (getPropertyType) -> getPropertyName
   - Section: init -> walk -> toString
   - Structure: init -> (preLoad) -> load -> (postLoad) -> unload -> (postUnload) -> (getPriority) -> toString
-
+* Return an empty array of the returning type in an expression rather than null.
+  ```java
+  @Override
+  protected String[] get(Event event) {
+  	if (value == null)
+  		return new String[0];
+  	// rest of code.
+  }
+  ```
 
 ### Naming
 * Class names are written in `UpperCamelCase`
