@@ -16,59 +16,62 @@
  *
  * Copyright Peter Güttinger, SkriptLang team and contributors
  */
-package ch.njol.skript.expressions;
+package ch.njol.skript.effects;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
+import ch.njol.skript.doc.RequiredPlugins;
 import ch.njol.skript.doc.Since;
-import ch.njol.skript.expressions.base.SimplePropertyExpression;
+import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
+import org.bukkit.event.Event;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.jetbrains.annotations.Nullable;
 
-@Name("Unbreakable Items")
-@Description("Creates breakable or unbreakable copies of given items.")
+@Name("Make Fire Resistant")
+@Description("Makes items fire resistant.")
 @Examples({
-	"set {_item} to unbreakable iron sword",
-	"give breakable {_weapon} to all players"
+	"make player's tool fire resistant:",
+	"make {_items::*} not resistant to fire"
 })
-@Since("2.2-dev13b, INSERT VERSION (breakable)")
-public class ExprUnbreakable extends SimplePropertyExpression<ItemType, ItemType> {
+@RequiredPlugins("Spigot 1.20.5+")
+@Since("INSERT VERSION")
+public class EffFireResistant extends Effect {
 
 	static {
-		Skript.registerExpression(ExprUnbreakable.class, ItemType.class, ExpressionType.PROPERTY, "[:un]breakable %itemtypes%");
+		if (Skript.methodExists(ItemMeta.class, "setFireResistant", boolean.class))
+			Skript.registerEffect(EffFireResistant.class, "make %itemtypes% [:not] (fire resistant|resistant to fire)");
 	}
 
-	private boolean unbreakable;
+	@SuppressWarnings("NotNullFieldNotInitialized")
+	private Expression<ItemType> items;
+	private boolean not;
 
 	@Override
+	@SuppressWarnings("unchecked")
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		unbreakable = parseResult.hasTag("un");
-		return super.init(exprs, matchedPattern, isDelayed, parseResult);
+		items = (Expression<ItemType>) exprs[0];
+		not = parseResult.hasTag("not");
+		return true;
 	}
 
 	@Override
-	public ItemType convert(ItemType itemType) {
-		ItemType clone = itemType.clone();
-		ItemMeta meta = clone.getItemMeta();
-		meta.setUnbreakable(unbreakable);
-		clone.setItemMeta(meta);
-		return clone;
+	protected void execute(Event event) {
+		for (ItemType item : this.items.getArray(event)) {
+			ItemMeta meta = item.getItemMeta();
+			meta.setFireResistant(!not);
+			item.setItemMeta(meta);
+		}
 	}
 
 	@Override
-	public Class<? extends ItemType> getReturnType() {
-		return ItemType.class;
-	}
-
-	@Override
-	protected String getPropertyName() {
-		return unbreakable ? "unbreakable" : "breakable";
+	public String toString(@Nullable Event event, boolean debug) {
+		return "make " + items.toString(event, debug) + (not ? " not" : "") + " fire resistant";
 	}
 
 }

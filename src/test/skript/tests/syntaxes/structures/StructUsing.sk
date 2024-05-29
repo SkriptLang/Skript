@@ -1,0 +1,19 @@
+test "using before declaration":
+	assert the current script is using "example feature" with "using feature failed"
+	assert experimental only is true with "feature-conditional syntax failed"
+
+using example feature
+using fizz buzz
+using deprecated feature
+
+test "using":
+	assert the current script is using "example feature" with "using feature failed"
+	assert the current script is using "fizz buzz" with "using exact failed"
+	assert the current script is using "fizzbuzz" with "using other pattern failed"
+	assert the current script is using "test" with "using codename failed"
+	assert the current script is using "testing" with "using alt pattern failed"
+	assert the current script is not using "foo bar" with "using not present failed"
+	assert experimental only is true with "feature-conditional syntax failed"
+
+	parse if the current script is using "foo bar fake experiment":
+		foo bar fake syntax!

@@ -14,52 +14,55 @@
  *  You should have received a copy of the GNU General Public License
  *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
  *
- *
  * Copyright Peter Güttinger, SkriptLang team and contributors
  */
-package ch.njol.skript.conditions;
+package ch.njol.skript.test.runner;
 
-import ch.njol.skript.aliases.ItemType;
-import ch.njol.skript.conditions.base.PropertyCondition;
+import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
-import ch.njol.skript.doc.Since;
+import ch.njol.skript.doc.NoDoc;
 import ch.njol.skript.lang.Expression;
+import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
+import org.bukkit.event.Event;
+import org.eclipse.jdt.annotation.Nullable;
 
-@Name("Is Unbreakable")
-@Description("Checks whether an item is unbreakable.")
-@Examples({
-	"if event-item is unbreakable:",
-		"\tsend \"This item is unbreakable!\" to player",
-	"if tool of {_p} is breakable:",
-		"\tsend \"Your tool is breakable!\" to {_p}"
-})
-@Since("2.5.1, INSERT VERSION (breakable)")
-public class CondIsUnbreakable extends PropertyCondition<ItemType> {
-	
+@Name("Experimental Only")
+@Description("A do-nothing syntax that only parses when `example feature` is enabled.")
+@NoDoc
+public class ExprExperimentalOnly extends SimpleExpression<Boolean> {
+
 	static {
-		register(CondIsUnbreakable.class, "[:un]breakable", "itemtypes");
+		if (TestMode.ENABLED)
+			Skript.registerExpression(ExprExperimentalOnly.class, Boolean.class, ExpressionType.SIMPLE, "experimental only");
 	}
-
-	private boolean breakable;
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		breakable = !parseResult.hasTag("un");
-		return super.init(exprs, matchedPattern, isDelayed, parseResult);
+		return this.getParser().hasExperiment(TestFeatures.EXAMPLE_FEATURE);
 	}
 
 	@Override
-	public boolean check(ItemType item) {
-		return item.getItemMeta().isUnbreakable() ^ breakable;
+	public String toString(@Nullable Event event, boolean debug) {
+		return "experimental only";
 	}
-	
+
 	@Override
-	protected String getPropertyName() {
-		return breakable ? "breakable" : "unbreakable";
+	protected @Nullable Boolean[] get(Event event) {
+		return new Boolean[]{true};
 	}
-	
+
+	@Override
+	public boolean isSingle() {
+		return true;
+	}
+
+	@Override
+	public Class<? extends Boolean> getReturnType() {
+		return Boolean.class;
+	}
+
 }
