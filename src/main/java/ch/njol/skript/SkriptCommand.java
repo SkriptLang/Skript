@@ -98,17 +98,26 @@ public class SkriptCommand implements CommandExecutor {
 	
 	private static final ArgsMessage m_reloaded = new ArgsMessage(CONFIG_NODE + ".reload.reloaded");
 	private static final ArgsMessage m_reload_error = new ArgsMessage(CONFIG_NODE + ".reload.error");
-	
+
 	private static void reloaded(CommandSender sender, RedirectingLogHandler r, TimingLogHandler timingLogHandler, String what, Object... args) {
 		what = args.length == 0 ? Language.get(CONFIG_NODE + ".reload." + what) : PluralizingArgsMessage.format(Language.format(CONFIG_NODE + ".reload." + what, args));
-		String timeTaken  = String.valueOf(timingLogHandler.getTimeTaken());
+		String timeTaken = String.valueOf(timingLogHandler.getTimeTaken());
 
-		if (r.numErrors() == 0)
-			Skript.info(sender, StringUtils.fixCapitalization(PluralizingArgsMessage.format(m_reloaded.toString(what, timeTaken))));
-		else
-			Skript.error(sender, StringUtils.fixCapitalization(PluralizingArgsMessage.format(m_reload_error.toString(what, r.numErrors(), timeTaken))));
+		String message;
+		if (r.numErrors() == 0) {
+			message = StringUtils.fixCapitalization(PluralizingArgsMessage.format(m_reloaded.toString(what, timeTaken)));
+			Skript.info(sender, message);
+		} else {
+			message = StringUtils.fixCapitalization(PluralizingArgsMessage.format(m_reload_error.toString(what, r.numErrors(), timeTaken)));
+			Skript.error(sender, message);
+		}
+
+		if (SkriptConfig.sendReloadingInfoToOps.value())
+			notifyOperators(message);
 	}
-	
+
+
+
 	private static void info(CommandSender sender, String what, Object... args) {
 		what = args.length == 0 ? Language.get(CONFIG_NODE + "." + what) : PluralizingArgsMessage.format(Language.format(CONFIG_NODE + "." + what, args));
 		Skript.info(sender, StringUtils.fixCapitalization(what));
@@ -537,5 +546,16 @@ public class SkriptCommand implements CommandExecutor {
 
 		return changed;
 	}
-	
+
+	private static void notifyOperators(String message) {
+		Bukkit.getOnlinePlayers().stream()
+			.filter(player -> player.isOp() && player.hasPermission("skript.reload.notify"))
+			.forEach(player -> player.sendMessage(message));
+
+		// notify the console
+		Bukkit.getConsoleSender().sendMessage(message);
+	}
+
+
+
 }
