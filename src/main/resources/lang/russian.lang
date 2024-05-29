@@ -1,0 +1,190 @@
+# Russian language file
+
+# Which version of Skript this language file was written for
+version: @version@
+
+# What null (nothing) should show up as in a string/text
+none: <none>
+
+# -- Skript --
+skript:
+	copyright: ~ created by & © Peter Güttinger aka Njol ~
+	prefix: <gray>[<gold>Skript<gray>] <reset>
+	quotes error: Неверное использование кавычек ("). Если вам необходимо использовать кавычки внутри строки, просто продублируйте их: "".
+	brackets error: Неверная расстановка скобок. Убедитесь, что каждой открывающей скобке соответствует закрывающая.
+	invalid reload: Skript может быть перезагружен только командой '/reload' из Bukkit или командой '/skript reload' из Skript.
+	no scripts: Папка со скриптами пуста. Думаю, вам стоит её наполнить :)
+	no errors: Все скрипты загружены без ошибок.
+	scripts loaded: %s скрипт¦¦ов¦ загружено. В них найдено %s структур. Загрузка заняла %s
+	finished loading: Загрузка завершена.
+
+# -- Skript command --
+skript command:
+	usage: Использование:
+	help:
+		description: Основная команда Skript
+		help: Выводит это сообщение. Напишите '/skript reload/enable/disable/update', чтобы получить больше информации.
+		reload:
+			description: Перезагружает один скрипт, все скрипты, основной конфиг, или всё сразу
+			all: Перезагружает основной конфиг, конфиги алиасов и все скрипты
+			config: Перезагружает основной конфиг
+			aliases: Перезагружает конфиг алиасов (aliases-english.zip или jar файл плагина)
+			scripts: Перезагружает все скрипты
+			<script>: Перезагружает конкретный скрипт или целую папку со скриптами
+		enable:
+			description: Включает конкретный скрипт или все сразу
+			all: Включает все скрипты
+			<script>: Включает конкретный скрипт или целую папку со скриптами
+		disable:
+			description: Выключает конкретный скрипт или все сразу
+			all: Выключает все скрипты
+			<script>: Выключает конкретный скрипт или целую папку со скриптами
+		update:
+			description: Проверить наличие обновлений, прочитать список изменений, или скачать последнюю версию Skript
+			check: Проверить наличие обновлений
+			changes: Вывести список всех изменений с текущей версии
+			download: Скачать самую новую версию
+		info: Выводит ссылки на алиасы Skript и документацию
+		gen-docs: Генерирует документацию, используя документации/шаблоны в папке плагина
+		test: Используется для внутреннего тестирования Skript
+
+	invalid script: Не смогли найти скрипт <grey>'<gold>%s<grey>'<red> в папке со скриптами!
+	invalid folder: Не смогли найти папку <grey>'<gold>%s<grey>'<red> в папке со скриптами!
+	reload:
+		warning line info: <gold><bold>Строка %s:<gray> (%s)<reset>\n
+		error line info: <light red><bold>Строка %s:<gray> (%s)<reset>\n
+		reloading: Перезагружаем <gold>%s<reset>...
+		reloaded: <lime>Успешно перезагрузили <gold>%s<lime>. <gray>(<gold>%2$sms<gray>)
+		error: <light red>Обнаружено <gold>%2$s <light red>ошибок после перезагрузки <gold>%1$s<light red>! <gray>(<gold>%3$sms<gray>)
+		script disabled: <gold>%s<reset> сейчас выключен. Напишите <gray>/<gold>skript <cyan>enable <red>%s<reset> для включения этого скрипта.
+		warning details: <yellow>    %s<reset>\n
+		error details: <light red>    %s<reset>\n
+		other details: <white>    %s<reset>\n
+		line details: <gold>    Line: <gray>%s<reset>\n <reset>
+
+		config, aliases and scripts: конфиг, алиасы и все скрипты
+		scripts: все скрипты
+		main config: основной конфиг
+		aliases: алиасы
+		script: <gold>%s<reset>
+		scripts in folder: все скрипты в <gold>%s<reset>
+		x scripts in folder: <gold>%2$s <lime>скриптов в <gold>%1$s<reset>
+		empty folder: <gold>%s<reset> не содержит включенных скриптов.
+	enable:
+		all:
+			enabling: Включаем все отключённые скрипты...
+			enabled: Успешно включили и пропарсили все ранее выключенные скрипты.
+			error: Найдено %s ошибок во время парсинга выключенных скриптов!
+			io error: Не удалось включить некоторые скрипты - они могут быть уже переименованы. В таком случае они включатся после перезагрузки: %s
+		single:
+			already enabled: <gold>%s<reset> уже включён! Используйте <gray>/<gold>skript <cyan>reload <red>%s<reset> для перезагрузки скрипта, если он был изменён.
+			enabling: Включаем <gold>%s<reset>...
+			enabled: Успешно включили и пропарсили <gold>%s<reset>.
+			error: Найдено %2$s ошибок во время парсинга <gold>%1$s<red>!
+			io error: Не удалось включить <gold>%s<red>: %s
+		folder:
+			empty: <gold>%s<reset> не содержит выключенных скриптов.
+			enabling: Включаем <gold>%2$s <reset>скриптов в <gold>%1$s<reset>...
+			enabled: Успешно включили и пропарсили <gold>%2$s<reset> ранее выключенных скриптов в <gold>%1$s<reset>.
+			error: Найдено %2$s ошибок во время парсинга скриптов в <gold>%1$s<red>!
+			io error: Не удалось загрузить некоторые скрипты в <gold>%s<red> (некоторые скрипты могут включиться после перезагрузки): %s
+	disable:
+		all:
+			disabled: Успешно выключили все скрипты.
+			io error: Не удалось выключить некоторые скрипты - они могут быть уже переименованы. В таком случае они включатся после перезагрузки: %s
+		single:
+			already disabled: <gold>%s<reset> уже выключен!
+			disabled: Успешно выключили <gold>%s<reset>.
+			io error: Не удалось включить <gold>%s<red>: %s
+		folder:
+			empty: <gold>%s<reset> не содержит включённых скриптов.
+			disabled: Успешно выключили <gold>%2$s<reset> скриптов в <gold>%1$s<reset>.
+			io error: Не удалось выключить некоторые скрипты в <gold>%s<red> (некоторые скрипты могут выключиться после перезагрузки): %s
+	update:
+		# check/download: see Updater
+		changes:
+			# multiple versions:
+			# 	title: <gold>%s<r> update¦ has¦s have¦ been released since this version (<gold>%s<r>) of Skript:
+			# 	footer: To show the changelog of a version type <gold>/skript update changes <version><reset>
+			# invalid version: No changelog for the version <gold>%s<red> available
+			title: <bold><cyan>%s<reset> (%s)
+			next page: <grey>страница %s из %s. Введите <gold>/skript update changes %s<gray> для перехода на следующую страницу (совет: используйте стрелку вверх)
+	info:
+		aliases: Алиасы Skript находятся тут: <aqua>https://github.com/SkriptLang/skript-aliases
+		documentation: Документация Skript находится тут: <aqua>https://docs.skriptlang.org/
+		tutorials: Туториалы по Skript находятся тут: <aqua>https://docs.skriptlang.org/tutorials
+		version: Версия Skript: <aqua>%s
+		server: Версия сервера: <aqua>%s
+		addons: Установленные аддоны: <aqua>%s
+		dependencies: Установленные зависимости: <aqua>%s
+
+# -- Updater --
+updater:
+	not started: Skript пока не проверял наличие обновлений. Напишите <gold>/skript update check<reset>, чтобы это сделать.
+	checking: Проверяем наличие обновлений...
+	check in progress: Мы всё ещё проверяем наличие обновлений.
+	updater disabled: Проверка на наличие обновлений выключена.
+	check error: <red>Пока мы проверяли наличие обновлений Skript, возникла ошибка:<light red> %s
+	running latest version: Сейчас Вы пользуетесь последней стабильной версией Skript.
+	running latest version (beta): Сейчас Вы пользуетесь <i>бета<r> версией Skript, новая <i>стабильная<r> версия ещё не вышла. Учтите, что Вам придётся обновляться до более новой бета версии самостоятельно.
+	update available: Новая версия Skript вышла: <gold>%s<reset> (сейчас Вы пользуетесь <gold>%s<reset>)
+	downloading: Скачиваем Skript <gold>%s<reset>...
+	download in progress: Скачивание новой версии Skript в процессе.
+	download error: <red>Пока мы скачивали новую версию Skript, возникла ошибка:<light red> %s
+	downloaded: Последняя версия Skript была успешно скачана! Перезагрузите сервер, чтобы начать пользоваться новой версией.
+	internal error: Возникла ошибка, пока мы проверяли наличие обновлений Skript. Загляните в логи сервера для дополнительной информации.
+	custom version: Сейчас вы используйте кастомную сборку Skript. Обновления не будут установлены автоматически.
+	nightly build: Сейчас вы используйте экспериментальную сборку Skript. Обновления не будут установлены автоматически.
+
+# -- Commands --
+commands:
+	no permission message: Нет прав для выполнения этой команды
+	cooldown message: Вы используете эту команду слишком часто
+	executable by players: Эту команду могут использовать только игроки
+	executable by console: Эту команду можно использовать только из консоли
+	correct usage: Верное использование:
+	invalid argument: Неверный аргумент <gray>'%s<gray>'<reset>. Список верных:
+	too many arguments: Эта команда может принять только один единственный %2$s.
+	internal error: Во время исполнения этой команды произошла ошибка.
+	no player starts with: Мы не нашли игрока, чьё имя начинается с '%s'
+	multiple players start with: Мы нашли несколько игроков, чьё имя начинается с '%s'
+
+# -- Hooks --
+hooks:
+	hooked: Успешно подключились к %s
+	error: Не смогли подключиться к %1$s. Это может произойти, если Skript ещё не поддерживает установленную версию %1$s
+
+# -- Aliases --
+aliases:
+	# Errors and warnings
+	empty string: '' не является типом предмета
+	invalid item type: '%s' не является типом предмета
+	empty name: Алиас должен иметь название
+	brackets error: Неверная расстановка скобок
+	not enough brackets: Секция, начинающаяся с символа %s ('%s') должна быть закончена
+	too many brackets: Символ %s ('%s') заканчивает неизвестную секцию
+	unknown variation: Вариация %s не была определена ранее
+	missing aliases: Эти Minecraft ids не имеют алиасов:
+	empty alias: В алиасе отсутствуют Minecraft id или NBT теги
+	invalid minecraft id: Minecraft id %s неверный
+	useless variation: В вариации отсутствуют Minecraft id или NBT тэги, так что эта вариация бесполезна
+	invalid tags: Указанные теги не определены в верном JSON
+	unexpected section: Тут нельзя использовать секции!
+	invalid variation section: Секция должна быть секцией вариаций, но %s не является верным названием вариации
+	outside section: Алиасы должны быть помещены в секции
+
+	# Other messages
+	loaded x aliases from: Загружено %s английских алиасов из %s
+	loaded x aliases: Загружено %s английских алиасов
+
+# -- Time --
+time:
+	errors:
+		24 hours: В одних сутках есть только 24 часа
+		12 hours: Вы используете 12-ти часовой формат, так что Вы не можете использовать больше 12 часов
+		60 minutes: В часе есть только 60 минут
+
+# -- IO Exceptions --
+io exceptions:
+	unknownhostexception: Не удалось подключиться к %s
+	accessdeniedexception: Отказано в доступе к %s
