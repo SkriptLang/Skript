@@ -18,6 +18,7 @@
  */
 package ch.njol.skript.classes.data;
 
+import ch.njol.skript.Skript;
 import ch.njol.skript.expressions.base.EventValueExpression;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.function.FunctionEvent;
@@ -351,6 +352,28 @@ public class DefaultFunctions {
 					"clamp((5, 0, 10, 9, 13), 7, 10) = (7, 7, 10, 9, 10)",
 					"set {_clamped::*} to clamp({_values::*}, 0, 10)")
 			.since("2.8.0");
+
+		Functions.registerFunction(new SimpleJavaFunction<Long>("factorial", numberParam, DefaultClasses.LONG, true) {
+			@Override
+			public Long[] executeSimple(Object[][] params) {
+				long n = ((Number) params[0][0]).longValue();
+				if (n < 0) {
+					Skript.error("You cannot use negative numbers when using the factorial function.");
+				}
+				return new Long[] {factorial(n)};
+			}
+
+			private long factorial(long n) {
+				if (n == 0) return 1;
+				long result = 1;
+				for (long i = 1; i <= n; i++) {
+					result *= i;
+				}
+				return result;
+			}
+		}.description("Calculates the factorial of a number.")
+			.examples("factorial(0) = 1", "factorial(5) = 120", "factorial(10) = 3628800")
+			.since("INSERT VERSION"));
 
 		// misc
 		
