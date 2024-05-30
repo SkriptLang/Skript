@@ -35,8 +35,9 @@ import ch.njol.skript.entity.EntityData;
 import ch.njol.skript.lang.Condition;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
-import ch.njol.util.Checker;
 import ch.njol.util.Kleenean;
+
+import java.util.function.Predicate;
 
 /**
  * @author Peter Güttinger
@@ -48,16 +49,16 @@ import ch.njol.util.Kleenean;
 		"victim is of type {villager type}"})
 @Since("1.4")
 public class CondIsOfType extends Condition {
-	
+
 	static {
 		PropertyCondition.register(CondIsOfType.class, "of type[s] %entitytypes/entitydatas%", "itemstacks/entities");
 	}
-	
+
 	@SuppressWarnings("null")
 	private Expression<?> what;
 	@SuppressWarnings("null")
 	private Expression<?> types;
-	
+
 	@SuppressWarnings("null")
 	@Override
 	public boolean init(final Expression<?>[] exprs, final int matchedPattern, final Kleenean isDelayed, final ParseResult parseResult) {
@@ -66,12 +67,12 @@ public class CondIsOfType extends Condition {
 		setNegated(matchedPattern == 1);
 		return true;
 	}
-	
+
 	@Override
 	public boolean check(final Event e) {
 		return what.check(e,
-				(Checker<Object>) o1 -> types.check(e,
-						(Checker<Object>) o2 -> {
+				(Predicate<Object>) o1 -> types.check(e,
+						(Predicate<Object>) o2 -> {
 							if (o2 instanceof ItemType && o1 instanceof ItemType) {
 								return ((ItemType) o2).isSupertypeOf((ItemType) o1);
 							} else if (o2 instanceof EntityData && o1 instanceof Entity) {
@@ -84,11 +85,11 @@ public class CondIsOfType extends Condition {
 						}),
 				isNegated());
 	}
-	
+
 	@Override
 	public String toString(final @Nullable Event e, final boolean debug) {
 		return PropertyCondition.toString(this, PropertyType.BE, e, debug, what,
 				"of " + (types.isSingle() ? "type " : "types") + types.toString(e, debug));
 	}
-	
+
 }

@@ -18,10 +18,6 @@
  */
 package ch.njol.skript.expressions;
 
-import org.bukkit.event.Event;
-import org.bukkit.util.Vector;
-import org.eclipse.jdt.annotation.Nullable;
-
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
@@ -32,14 +28,19 @@ import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
-import ch.njol.util.VectorMath;
 import ch.njol.util.coll.CollectionUtils;
+import org.bukkit.event.Event;
+import org.bukkit.util.Vector;
+import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.ApiStatus;
 
 @Name("Vectors - Vector from Pitch and Yaw")
 @Description("Creates a vector from a yaw and pitch value.")
 @Examples("set {_v} to vector from yaw 45 and pitch 45")
 @Since("2.2-dev28")
 public class ExprVectorFromYawAndPitch extends SimpleExpression<Vector> {
+
+	private static final double DEG_TO_RAD = Math.PI / 180;
 
 	static {
 		Skript.registerExpression(ExprVectorFromYawAndPitch.class, Vector.class, ExpressionType.COMBINED,
@@ -64,9 +65,9 @@ public class ExprVectorFromYawAndPitch extends SimpleExpression<Vector> {
 		Number skriptPitch = pitch.getSingle(event);
 		if (skriptYaw == null || skriptPitch == null)
 			return null;
-		float yaw = VectorMath.fromSkriptYaw(VectorMath.wrapAngleDeg(skriptYaw.floatValue()));
-		float pitch = VectorMath.fromSkriptPitch(VectorMath.wrapAngleDeg(skriptPitch.floatValue()));
-		return CollectionUtils.array(VectorMath.fromYawAndPitch(yaw, pitch));
+		float yaw = fromSkriptYaw(wrapAngleDeg(skriptYaw.floatValue()));
+		float pitch = fromSkriptPitch(wrapAngleDeg(skriptPitch.floatValue()));
+		return CollectionUtils.array(fromYawAndPitch(yaw, pitch));
 	}
 
 	@Override
@@ -82,6 +83,43 @@ public class ExprVectorFromYawAndPitch extends SimpleExpression<Vector> {
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
 		return "vector from yaw " + yaw.toString(event, debug) + " and pitch " + pitch.toString(event, debug);
+	}
+
+	private static Vector fromYawAndPitch(float yaw, float pitch) {
+		double y = Math.sin(pitch * DEG_TO_RAD);
+		double div = Math.cos(pitch * DEG_TO_RAD);
+		double x = Math.cos(yaw * DEG_TO_RAD);
+		double z = Math.sin(yaw * DEG_TO_RAD);
+		x *= div;
+		z *= div;
+		return new Vector(x,y,z);
+	}
+
+	// TODO Mark as private next version after VectorMath deletion
+	@ApiStatus.Internal
+	public static float wrapAngleDeg(float angle) {
+		angle %= 360f;
+		if (angle <= -180) {
+			return angle + 360;
+		} else if (angle > 180) {
+			return angle - 360;
+		} else {
+			return angle;
+		}
+	}
+
+	// TODO Mark as private next version after VectorMath deletion
+	@ApiStatus.Internal
+	public static float fromSkriptYaw(float yaw) {
+		return yaw > 270
+			? yaw - 270
+			: yaw + 90;
+	}
+
+	// TODO Mark as private next version after VectorMath deletion
+	@ApiStatus.Internal
+	public static float fromSkriptPitch(float pitch) {
+		return -pitch;
 	}
 
 }

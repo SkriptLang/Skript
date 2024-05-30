@@ -19,6 +19,7 @@
 package ch.njol.skript.events;
 
 import java.util.Locale;
+import java.util.function.Predicate;
 
 import org.bukkit.GameMode;
 import org.bukkit.event.Event;
@@ -29,7 +30,6 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptEvent;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
-import ch.njol.util.Checker;
 
 /**
  * @author Peter Güttinger
@@ -41,33 +41,33 @@ public final class EvtGameMode extends SkriptEvent {
 				.examples("on gamemode change:", "on gamemode change to adventure:")
 				.since("1.0");
 	}
-	
+
 	@Nullable
 	private Literal<GameMode> mode;
-	
+
 	@SuppressWarnings("unchecked")
 	@Override
 	public boolean init(final Literal<?>[] args, final int matchedPattern, final ParseResult parser) {
 		mode = (Literal<GameMode>) args[0];
 		return true;
 	}
-	
+
 	@Override
 	public boolean check(final Event e) {
 		if (mode != null) {
-			return mode.check(e, new Checker<GameMode>() {
+			return mode.check(e, new Predicate<GameMode>() {
 				@Override
-				public boolean check(final GameMode m) {
+				public boolean test(final GameMode m) {
 					return ((PlayerGameModeChangeEvent) e).getNewGameMode().equals(m);
 				}
 			});
 		}
 		return true;
 	}
-	
+
 	@Override
 	public String toString(final @Nullable Event e, final boolean debug) {
 		return "gamemode change" + (mode != null ? " to " + mode.toString().toLowerCase(Locale.ENGLISH) : "");
 	}
-	
+
 }

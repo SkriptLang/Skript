@@ -30,7 +30,7 @@ import ch.njol.skript.log.RetainingLogHandler;
 import ch.njol.skript.log.SkriptLogger;
 import ch.njol.skript.util.SkriptColor;
 import ch.njol.skript.variables.Variables;
-import org.apache.commons.lang.Validate;
+import com.google.common.base.Preconditions;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
@@ -339,7 +339,7 @@ public abstract class Commands {
 			this.aliasFor = aliasFor.startsWith("/") ? aliasFor : "/" + aliasFor;
 			this.helpMap = helpMap;
 			name = alias.startsWith("/") ? alias : "/" + alias;
-			Validate.isTrue(!name.equals(this.aliasFor), "Command " + name + " cannot be alias for itself");
+			Preconditions.checkState(!name.equals(this.aliasFor), "Command " + name + " cannot be alias for itself");
 			shortText = ChatColor.YELLOW + "Alias for " + ChatColor.WHITE + this.aliasFor;
 		}
 

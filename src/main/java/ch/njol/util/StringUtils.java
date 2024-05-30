@@ -20,6 +20,7 @@ package ch.njol.util;
 
 import java.util.Iterator;
 import java.util.Locale;
+import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -64,7 +65,7 @@ public abstract class StringUtils {
 	 */
 	@SuppressWarnings("null")
 	@Nullable
-	public static String replaceAll(final CharSequence string, final String regex, final Callback<String, Matcher> callback) {
+	public static String replaceAll(final CharSequence string, final String regex, final Function<Matcher, String> callback) {
 		return replaceAll(string, Pattern.compile(regex), callback);
 	}
 	
@@ -78,11 +79,11 @@ public abstract class StringUtils {
 	 * @return
 	 */
 	@Nullable
-	public static String replaceAll(final CharSequence string, final Pattern regex, final Callback<String, Matcher> callback) {
+	public static String replaceAll(final CharSequence string, final Pattern regex, final Function<Matcher, String> callback) {
 		final Matcher m = regex.matcher(string);
 		final StringBuffer sb = new StringBuffer();
 		while (m.find()) {
-			final String r = callback.run(m);
+			final String r = callback.apply(m);
 			if (r == null)
 				return null;
 			m.appendReplacement(sb, r);

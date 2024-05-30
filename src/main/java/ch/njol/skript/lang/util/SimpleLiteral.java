@@ -29,7 +29,6 @@ import ch.njol.skript.lang.UnparsedLiteral;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.StringMode;
 import ch.njol.skript.util.Utils;
-import ch.njol.util.Checker;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
 import ch.njol.util.coll.iterator.NonNullIterator;
@@ -38,6 +37,7 @@ import org.eclipse.jdt.annotation.Nullable;
 import org.skriptlang.skript.lang.converter.Converters;
 
 import java.lang.reflect.Array;
+import java.util.function.Predicate;
 
 /**
  * Represents a literal, i.e. a static value like a number or a string.
@@ -165,12 +165,12 @@ public class SimpleLiteral<T> implements Literal<T>, DefaultExpression<T> {
 	}
 
 	@Override
-	public boolean check(Event event, Checker<? super T> checker, boolean negated) {
+	public boolean check(Event event, Predicate<? super T> checker, boolean negated) {
 		return SimpleExpression.check(data, checker, negated, getAnd());
 	}
 
 	@Override
-	public boolean check(Event event, Checker<? super T> checker) {
+	public boolean check(Event event, Predicate<? super T> checker) {
 		return SimpleExpression.check(data, checker, false, getAnd());
 	}
 

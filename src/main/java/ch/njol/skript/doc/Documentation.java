@@ -29,7 +29,6 @@ import ch.njol.skript.lang.function.JavaFunction;
 import ch.njol.skript.lang.function.Parameter;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.Utils;
-import ch.njol.util.Callback;
 import ch.njol.util.NonNullPair;
 import ch.njol.util.StringUtils;
 import ch.njol.util.coll.CollectionUtils;
@@ -44,6 +43,7 @@ import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -205,7 +205,7 @@ public class Documentation {
 		cleanedPatterns = CP_PARSE_TAGS_PATTERN.matcher(cleanedPatterns).replaceAll(""); // Remove new parse tags, see https://regex101.com/r/mTebpn/1
 		cleanedPatterns = CP_EXTRA_OPTIONAL_PATTERN.matcher(cleanedPatterns).replaceAll("[$1]"); // Remove unnecessary parentheses such as [(script)]
 
-		Callback<String, Matcher> callback = m -> { // Replace optional parentheses with optional brackets
+		Function<Matcher, String> callback = m -> { // Replace optional parentheses with optional brackets
 			String group = m.group();
 
 			boolean startToEnd = group.contains("(|"); // Due to regex limitation we search from the beginning to the end but if it has '|)' we will begin from the opposite direction
@@ -264,9 +264,9 @@ public class Documentation {
 		assert cleanedPatterns != null;
 
 		final String s = StringUtils.replaceAll(cleanedPatterns, "(?<!\\\\)%(.+?)(?<!\\\\)%", // Convert %+?% (aka types) inside patterns to links
-			new Callback<String, Matcher>() {
+			new Function<Matcher, String>() {
 				@Override
-				public String run(final Matcher m) {
+				public String apply(final Matcher m) {
 					String s = m.group(1);
 					if (s.startsWith("-"))
 						s = s.substring(1);

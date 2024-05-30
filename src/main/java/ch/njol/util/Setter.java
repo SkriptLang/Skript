@@ -18,11 +18,19 @@
  */
 package ch.njol.util;
 
-/**
- * @author Peter Güttinger
- */
-public interface Setter<T> {
-	
-	public void set(T t);
-	
+import org.jetbrains.annotations.ApiStatus;
+
+import java.util.function.Consumer;
+
+@Deprecated
+@FunctionalInterface
+@ApiStatus.ScheduledForRemoval
+public interface Setter<T> extends Consumer<T> {
+
+	void set(T t);
+
+	@Override
+	default void accept(T t) {
+		this.set(t);
+	}
 }
