@@ -19,33 +19,28 @@
 package ch.njol.util;
 
 import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.ApiStatus;
 
-/**
- * @author Peter G�ttinger
- *
- */
-public class SynchronizedReference<V>
-{
-  @Nullable
-  private volatile V value;
-  
-  public SynchronizedReference(@Nullable V initialValue)
-  {
-    this.value = initialValue;
-  }
-  
-  public SynchronizedReference() {}
-  
-  @Nullable
-  public final V get()
-  {
-    assert (Thread.holdsLock(this));
-    return this.value;
-  }
-  
-  public final void set(@Nullable V newValue)
-  {
-    assert (Thread.holdsLock(this));
-    this.value = newValue;
-  }
+@Deprecated
+@ApiStatus.ScheduledForRemoval
+public class SynchronizedReference<V> {
+	@Nullable
+	private volatile V value;
+
+	public SynchronizedReference(@Nullable V initialValue) {
+		this.value = initialValue;
+	}
+
+	public SynchronizedReference() {}
+
+	@Nullable
+	public final V get() {
+		assert (Thread.holdsLock(this));
+		return this.value;
+	}
+
+	public final void set(@Nullable V newValue) {
+		assert (Thread.holdsLock(this));
+		this.value = newValue;
+	}
 }

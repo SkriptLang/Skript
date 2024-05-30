@@ -32,7 +32,6 @@ import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.variables.SerializedVariable.Value;
 import ch.njol.util.Kleenean;
 import ch.njol.util.NonNullPair;
-import ch.njol.util.SynchronizedReference;
 import ch.njol.yggdrasil.Yggdrasil;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
@@ -63,6 +62,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.regex.Pattern;
 
@@ -191,12 +191,15 @@ public class Variables {
 					Thread.sleep(Skript.logNormal() ? 1000 : 5000); // low verbosity won't disable these messages, but makes them more rare
 				} catch (InterruptedException ignored) {}
 
-				synchronized (TEMP_VARIABLES) {
-					Map<String, NonNullPair<Object, VariablesStorage>> tvs = TEMP_VARIABLES.get();
+				TEMP_VARIABLES_LOCK.lock();
+				try {
+					Map<String, NonNullPair<Object, VariablesStorage>> tvs = tempVariables;
 					if (tvs != null)
 						Skript.info("Loaded " + tvs.size() + " variables so far...");
 					else
 						break; // variables loaded, exit thread
+				} finally {
+					TEMP_VARIABLES_LOCK.unlock();
 				}
 			}
 		});
@@ -247,10 +250,13 @@ public class Variables {
 
 					// Get the amount of variables currently loaded
 					int totalVariablesLoaded;
-					synchronized (TEMP_VARIABLES) {
-						Map<String, NonNullPair<Object, VariablesStorage>> tvs = TEMP_VARIABLES.get();
+					TEMP_VARIABLES_LOCK.lock();
+					try {
+						Map<String, NonNullPair<Object, VariablesStorage>> tvs = tempVariables;
 						assert tvs != null;
 						totalVariablesLoaded = tvs.size();
+					}  finally {
+						TEMP_VARIABLES_LOCK.unlock();
 					}
 
 					long start = System.currentTimeMillis();
@@ -265,10 +271,13 @@ public class Variables {
 
 					// Get the amount of variables loaded by this variables storage object
 					int newVariablesLoaded;
-					synchronized (TEMP_VARIABLES) {
-						Map<String, NonNullPair<Object, VariablesStorage>> tvs = TEMP_VARIABLES.get();
+					TEMP_VARIABLES_LOCK.lock();
+					try {
+						Map<String, NonNullPair<Object, VariablesStorage>> tvs = tempVariables;
 						assert tvs != null;
 						newVariablesLoaded = tvs.size() - totalVariablesLoaded;
+					} finally {
+						TEMP_VARIABLES_LOCK.unlock();
 					}
 
 					if (Skript.logVeryHigh()) {
@@ -615,13 +624,14 @@ public class Variables {
 		}
 	}
 
+	private static final ReentrantLock TEMP_VARIABLES_LOCK = new ReentrantLock();
 	/**
 	 * Stores loaded variables while variable storages are being loaded.
 	 * <p>
-	 * Access must be synchronised.
+	 * Must use {@link Variables#TEMP_VARIABLES_LOCK}
 	 */
-	private static final SynchronizedReference<Map<String, NonNullPair<Object, VariablesStorage>>> TEMP_VARIABLES =
-			new SynchronizedReference<>(new HashMap<>());
+	@Nullable
+	private static Map<String, NonNullPair<Object, VariablesStorage>> tempVariables = new HashMap<>();
 
 	/**
 	 * The amount of variable conflicts between variable storages where
@@ -660,8 +670,9 @@ public class Variables {
 		if (value == null)
 			return false;
 
-		synchronized (TEMP_VARIABLES) {
-			Map<String, NonNullPair<Object, VariablesStorage>> tvs = TEMP_VARIABLES.get();
+		TEMP_VARIABLES_LOCK.lock();
+		try {
+			Map<String, NonNullPair<Object, VariablesStorage>> tvs = tempVariables;
 			if (tvs != null) {
 				NonNullPair<Object, VariablesStorage> existingVariable = tvs.get(name);
 
@@ -697,6 +708,8 @@ public class Variables {
 
 				return false;
 			}
+		} finally {
+			TEMP_VARIABLES_LOCK.unlock();
 		}
 
 		variablesLock.writeLock().lock();
@@ -748,9 +761,10 @@ public class Variables {
 
 		Skript.debug("Databases loaded, setting variables...");
 
-		synchronized (TEMP_VARIABLES) {
-			Map<String, NonNullPair<Object, VariablesStorage>> tvs = TEMP_VARIABLES.get();
-			TEMP_VARIABLES.set(null);
+		TEMP_VARIABLES_LOCK.lock();
+		try {
+			Map<String, NonNullPair<Object, VariablesStorage>> tvs = tempVariables;
+			tempVariables = null;
 			assert tvs != null;
 
 			variablesLock.writeLock().lock();
@@ -771,6 +785,8 @@ public class Variables {
 			} finally {
 				variablesLock.writeLock().unlock();
 			}
+		} finally {
+			TEMP_VARIABLES_LOCK.unlock();
 		}
 	}
 

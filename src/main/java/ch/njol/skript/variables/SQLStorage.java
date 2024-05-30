@@ -18,18 +18,6 @@
  */
 package ch.njol.skript.variables;
 
-import java.io.File;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.Map.Entry;
-import java.util.UUID;
-import java.util.concurrent.Callable;
-
-import org.bukkit.Bukkit;
-import org.bukkit.plugin.Plugin;
-import org.eclipse.jdt.annotation.Nullable;
-
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.classes.Serializer;
@@ -38,10 +26,21 @@ import ch.njol.skript.log.SkriptLogger;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.Task;
 import ch.njol.skript.util.Timespan;
-import ch.njol.util.SynchronizedReference;
 import lib.PatPeter.SQLibrary.Database;
 import lib.PatPeter.SQLibrary.DatabaseException;
 import lib.PatPeter.SQLibrary.SQLibrary;
+import org.bukkit.Bukkit;
+import org.bukkit.plugin.Plugin;
+import org.eclipse.jdt.annotation.Nullable;
+
+import java.io.File;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.Map.Entry;
+import java.util.UUID;
+import java.util.concurrent.Callable;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * TODO create a metadata table to store some properties (e.g. Skript version, Yggdrasil version) -- but what if some variables cannot be converted? move them to a different table?
@@ -64,7 +63,12 @@ public abstract class SQLStorage extends VariablesStorage {
 	private final String createTableQuery;
 	private String tableName;
 
-	final SynchronizedReference<Database> db = new SynchronizedReference<>(null);
+	final ReentrantLock dbLock = new ReentrantLock();
+	/**
+	 * Must use {@link SQLStorage#dbLock}
+	 */
+	@Nullable
+	Database db = null;
 
 	private boolean monitor = false;
 	long monitor_interval;
@@ -122,7 +126,8 @@ public abstract class SQLStorage extends VariablesStorage {
 	 */
 	@Override
 	protected boolean load_i(SectionNode n) {
-		synchronized (db) {
+		dbLock.lock();
+		try {
 			Plugin plugin = Bukkit.getPluginManager().getPlugin("SQLibrary");
 			if (plugin == null || !(plugin instanceof SQLibrary)) {
 				Skript.error("You need the plugin SQLibrary in order to use a database with Skript. You can download the latest version from https://dev.bukkit.org/projects/sqlibrary/files/");
@@ -141,7 +146,8 @@ public abstract class SQLStorage extends VariablesStorage {
 				Database database = initialize(n);
 				if (database == null)
 					return false;
-				this.db.set(db = database);
+				db = database;
+				this.db = db;
 			} catch (final RuntimeException e) {
 				if (e instanceof DatabaseException) {// not in a catch clause to not produce a ClassNotFoundException when this class is loaded and SQLibrary is not present
 					Skript.error(e.getLocalizedMessage());
@@ -175,7 +181,7 @@ public abstract class SQLStorage extends VariablesStorage {
 				if (!prepareQueries()) {
 					return false;
 				}
-				
+
 				// old
 				// Table name support was added after the verison that used the legacy database format
 				if (hasOldTable && !tableName.equals("variables")) {
@@ -253,13 +259,17 @@ public abstract class SQLStorage extends VariablesStorage {
 				@Override
 				public void run() {
 					while (!closed) {
-						synchronized (SQLStorage.this.db) {
+						dbLock.lock();
+						try {
 							try {
-								final Database db = SQLStorage.this.db.get();
+								final Database db = SQLStorage.this.db;
 								if (db != null)
 									db.query("SELECT * FROM " + getTableName() + " LIMIT 1");
 							} catch (final SQLException e) {}
+						} finally {
+							dbLock.unlock();
 						}
+
 						try {
 							Thread.sleep(1000 * 10);
 						} catch (final InterruptedException e) {}
@@ -268,6 +278,8 @@ public abstract class SQLStorage extends VariablesStorage {
 			}, "Skript database '" + databaseName + "' connection keep-alive thread").start();
 
 			return true;
+		} finally {
+			dbLock.unlock();
 		}
 	}
 
@@ -281,8 +293,9 @@ public abstract class SQLStorage extends VariablesStorage {
 			public void run() {
 				long lastCommit;
 				while (!closed) {
-					synchronized (db) {
-						final Database db = SQLStorage.this.db.get();
+					dbLock.lock();
+					try {
+						final Database db = SQLStorage.this.db;
 						try {
 							if (db != null)
 								db.getConnection().commit();
@@ -290,6 +303,8 @@ public abstract class SQLStorage extends VariablesStorage {
 							sqlException(e);
 						}
 						lastCommit = System.currentTimeMillis();
+					} finally {
+						dbLock.unlock();
 					}
 					try {
 						Thread.sleep(Math.max(0, lastCommit + TRANSACTION_DELAY - System.currentTimeMillis()));
@@ -345,11 +360,12 @@ public abstract class SQLStorage extends VariablesStorage {
 	}
 
 	private final boolean connect(final boolean first) {
-		synchronized (db) {
+		dbLock.lock();
+		try {
 			// isConnected doesn't work in SQLite
 //			if (db.isConnected())
 //				return;
-			final Database db = this.db.get();
+			final Database db = this.db;
 			if (db == null || !db.open()) {
 				if (first)
 					Skript.error("Cannot connect to the database '" + databaseName + "'! Please make sure that all settings are correct");// + (type == Type.MYSQL ? " and that the database software is running" : "") + ".");
@@ -364,6 +380,8 @@ public abstract class SQLStorage extends VariablesStorage {
 				return false;
 			}
 			return true;
+		} finally {
+			dbLock.unlock();
 		}
 	}
 
@@ -373,8 +391,9 @@ public abstract class SQLStorage extends VariablesStorage {
 	 * @return
 	 */
 	private boolean prepareQueries() {
-		synchronized (db) {
-			final Database db = this.db.get();
+		dbLock.lock();
+		try {
+			final Database db = this.db;
 			assert db != null;
 			try {
 				try {
@@ -403,18 +422,24 @@ public abstract class SQLStorage extends VariablesStorage {
 				Skript.exception(e, "Could not prepare queries for the database '" + databaseName + "': " + e.getLocalizedMessage());
 				return false;
 			}
+		} finally {
+			dbLock.unlock();
 		}
+
 		return true;
 	}
 
 	@Override
 	protected void disconnect() {
-		synchronized (db) {
-			final Database db = this.db.get();
+		dbLock.lock();
+		try {
+			final Database db = this.db;
 //			if (!db.isConnected())
 //				return;
 			if (db != null)
 				db.close();
+		} finally {
+			dbLock.unlock();
 		}
 	}
 
@@ -449,7 +474,8 @@ public abstract class SQLStorage extends VariablesStorage {
 
 	@Override
 	protected boolean save(final String name, final @Nullable String type, final @Nullable byte[] value) {
-		synchronized (db) {
+		dbLock.lock();
+		try {
 			// REMIND get the actual maximum size from the database
 			if (name.length() > MAX_VARIABLE_NAME_LENGTH)
 				Skript.error("The name of the variable {" + name + "} is too long to be saved in a database (length: " + name.length() + ", maximum allowed: " + MAX_VARIABLE_NAME_LENGTH + ")! It will be truncated and won't bet available under the same name again when loaded.");
@@ -476,15 +502,19 @@ public abstract class SQLStorage extends VariablesStorage {
 				sqlException(e);
 				return false;
 			}
+		} finally {
+			dbLock.unlock();
 		}
+
 		return true;
 	}
 
 	@Override
 	public void close() {
-		synchronized (db) {
+		dbLock.lock();
+		try {
 			super.close();
-			final Database db = this.db.get();
+			final Database db = this.db;
 			if (db != null) {
 				try {
 					db.getConnection().commit();
@@ -492,8 +522,10 @@ public abstract class SQLStorage extends VariablesStorage {
 					sqlException(e);
 				}
 				db.close();
-				this.db.set(null);
+				this.db = null;
 			}
+		} finally {
+			dbLock.unlock();
 		}
 	}
 
@@ -504,8 +536,9 @@ public abstract class SQLStorage extends VariablesStorage {
 			final long lastRowID; // local variable as this is used to clean the database below
 			ResultSet r = null;
 			try {
-				synchronized (db) {
-					if (closed || db.get() == null)
+				dbLock.lock();
+				try {
+					if (closed || db == null)
 						return;
 					lastRowID = this.lastRowID;
 					final PreparedStatement monitorQuery = this.monitorQuery;
@@ -515,7 +548,10 @@ public abstract class SQLStorage extends VariablesStorage {
 					monitorQuery.execute();
 					r = monitorQuery.getResultSet();
 					assert r != null;
+				} finally {
+					dbLock.unlock();
 				}
+
 				if (!closed)
 					loadVariables(r);
 			} finally {
@@ -528,13 +564,16 @@ public abstract class SQLStorage extends VariablesStorage {
 					@Override
 					public void run() {
 						try {
-							synchronized (db) {
-								if (closed || db.get() == null)
+							dbLock.lock();
+							try {
+								if (closed || db == null)
 									return;
 								final PreparedStatement monitorCleanUpQuery = SQLStorage.this.monitorCleanUpQuery;
 								assert monitorCleanUpQuery != null;
 								monitorCleanUpQuery.setLong(1, lastRowID);
 								monitorCleanUpQuery.executeUpdate();
+							} finally {
+								dbLock.unlock();
 							}
 						} catch (final SQLException e) {
 							sqlException(e);
