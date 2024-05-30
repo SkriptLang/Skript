@@ -115,6 +115,9 @@ public class DefaultOperations {
 		Arithmetics.registerOperation(Operator.SUBTRACTION, Date.class, Timespan.class, Date::minus);
 		Arithmetics.registerDifference(Date.class, Timespan.class, Date::difference);
 
+		// String - String
+		Arithmetics.registerOperation(Operator.ADDITION, String.class, String.class, String::concat);
+
 	}
 
 }

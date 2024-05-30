@@ -362,6 +362,11 @@ public class BlockStateBlock implements Block {
 	}
 
 	@Override
+	public void fluidTick() {
+		state.getBlock().fluidTick();
+	}
+
+	@Override
 	public void randomTick() {
 		state.getBlock().randomTick();
 	}

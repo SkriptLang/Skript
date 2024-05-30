@@ -19,6 +19,7 @@
 package ch.njol.skript.lang.parser;
 
 import ch.njol.skript.ScriptLoader;
+import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptAPIException;
 import ch.njol.skript.config.Config;
 import ch.njol.skript.config.Node;
@@ -32,7 +33,11 @@ import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
+import org.skriptlang.skript.lang.experiment.Experiment;
+import org.skriptlang.skript.lang.experiment.ExperimentSet;
+import org.skriptlang.skript.lang.experiment.Experimented;
 import org.skriptlang.skript.lang.script.Script;
 import org.skriptlang.skript.lang.script.ScriptEvent;
 import org.skriptlang.skript.lang.structure.Structure;
@@ -44,8 +49,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
-public final class ParserInstance {
-	
+public final class ParserInstance implements Experimented {
+
 	private static final ThreadLocal<ParserInstance> PARSER_INSTANCES = ThreadLocal.withInitial(ParserInstance::new);
 
 	/**
@@ -394,9 +399,61 @@ public final class ParserInstance {
 	public void setIndentation(String indentation) {
 		this.indentation = indentation;
 	}
-	
+
 	public String getIndentation() {
 		return indentation;
+	}
+
+	// Experiments API
+
+	@Override
+	public boolean hasExperiment(String featureName) {
+		return Skript.experiments().isUsing(this.getCurrentScript(), featureName);
+	}
+
+
+	@Override
+	public boolean hasExperiment(Experiment experiment) {
+		return Skript.experiments().isUsing(this.getCurrentScript(), experiment);
+	}
+
+	/**
+	 * Marks this as using an experimental feature.
+	 * @param experiment The feature to register.
+	 */
+	@ApiStatus.Internal
+	public void addExperiment(Experiment experiment) {
+		Script script = this.getCurrentScript();
+		ExperimentSet set = script.getData(ExperimentSet.class, () -> new ExperimentSet());
+		set.add(experiment);
+	}
+
+	/**
+	 * Marks this as no longer using an experimental feature (e.g. during de-registration or reload).
+	 * @param experiment The feature to unregister.
+	 */
+	@ApiStatus.Internal
+	public void removeExperiment(Experiment experiment) {
+		Script script = this.getCurrentScript();
+		@Nullable ExperimentSet set = script.getData(ExperimentSet.class);
+		if (set == null)
+			return;
+		set.remove(experiment);
+	}
+
+	/**
+	 * A snapshot of the experiments this script is currently known to be using.
+	 * This is safe to retain during runtime (e.g. to defer a check) but will
+	 * not see changes, such as if a script subsequently 'uses' another experiment.
+	 *
+	 * @return A snapshot of the current experiment flags in use
+	 */
+	public Experimented experimentSnapshot() {
+		Script script = this.getCurrentScript();
+		@Nullable ExperimentSet set = script.getData(ExperimentSet.class);
+		if (set == null)
+			return new ExperimentSet();
+		return new ExperimentSet(set);
 	}
 
 	// ParserInstance Data API
@@ -409,13 +466,13 @@ public final class ParserInstance {
 	 * {@code ParserInstance.registerData(MyData.class, MyData::new)}
 	 */
 	public static abstract class Data {
-		
+
 		private final ParserInstance parserInstance;
-		
+
 		public Data(ParserInstance parserInstance) {
 			this.parserInstance = parserInstance;
 		}
-		
+
 		protected final ParserInstance getParser() {
 			return parserInstance;
 		}
@@ -427,13 +484,13 @@ public final class ParserInstance {
 		public void onCurrentScriptChange(@Nullable Config currentScript) { }
 
 		public void onCurrentEventsChange(Class<? extends Event> @Nullable [] currentEvents) { }
-		
+
 	}
-	
+
 	private static final Map<Class<? extends Data>, Function<ParserInstance, ? extends Data>> dataRegister = new HashMap<>();
 	// Should be Map<Class<? extends Data>, ? extends Data>, but that caused issues (with generics) in #getData(Class)
 	private final Map<Class<? extends Data>, Data> dataMap = new HashMap<>();
-	
+
 	/**
 	 * Registers a data class to all {@link ParserInstance}s.
 	 *
@@ -444,11 +501,11 @@ public final class ParserInstance {
 													 Function<ParserInstance, T> dataFunction) {
 		dataRegister.put(dataClass, dataFunction);
 	}
-	
+
 	public static boolean isRegistered(Class<? extends Data> dataClass) {
 		return dataRegister.containsKey(dataClass);
 	}
-	
+
 	/**
 	 * @return the data object for the given class from this {@link ParserInstance},
 	 * or null (after {@code false} has been asserted) if the given data class isn't registered.
@@ -465,7 +522,7 @@ public final class ParserInstance {
 		assert false;
 		return null;
 	}
-	
+
 	private List<? extends Data> getDataInstances() {
 		// List<? extends Data> gave errors, so using this instead
 		List<Data> dataList = new ArrayList<>();
@@ -536,5 +593,5 @@ public final class ParserInstance {
 		if (script != null)
 			setActive(script);
 	}
-	
+
 }
