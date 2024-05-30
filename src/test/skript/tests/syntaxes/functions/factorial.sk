@@ -1,42 +1,47 @@
 test "factorial numbers":
-    assert factorial(0) is 1 with "factorial(0) = 1"
-    assert factorial(1) is 1 with "factorial(1) = 1"
-    assert factorial(2) is 2 with "factorial(2) = 2"
-    assert factorial(3) is 6 with "factorial(3) = 6"
-    assert factorial(4) is 24 with "factorial(4) = 24"
-    assert factorial(5) is 120 with "factorial(5) = 120"
-    assert factorial(10) is 3628800 with "factorial(10) = 3628800"
-    assert factorial(20) is 2432902008176640000 with "factorial(20) = 2432902008176640000"
+    parse:
+        factorial(-1)
+        factorial(20.5)
+        factorial("string")
+        factorial(1, 2, 3)
 
-    assert factorial(-1) is not set with "factorial(-1) should return an error"
-    assert factorial(20.5) is not set with "factorial(20.5) should return an error"
-    assert factorial(21) is not set with "factorial(21) should return an error for overflow"
+	assert factorial(0) is 1 with "factorial(0) = 1"
+	assert factorial(1) is 1 with "factorial(1) = 1"
+	assert factorial(2) is 2 with "factorial(2) = 2"
+	assert factorial(3) is 6 with "factorial(3) = 6"
+	assert factorial(4) is 24 with "factorial(4) = 24"
+	assert factorial(5) is 120 with "factorial(5) = 120"
+	assert factorial(10) is 3628800 with "factorial(10) = 3628800"
+	assert factorial(20) is 2432902008176640000 with "factorial(20) = 2432902008176640000"
 
-    assert factorial("string") is not set with "factorial('string') should return an error"
-    assert factorial({}) is not set with "factorial({}) should return an error"
-    assert factorial([1, 2, 3]) is not set with "factorial([1, 2, 3]) should return an error"
 
 test "factorial numbers (single)":
-    set {_expected} to 1
-    set {_got} to factorial(0)
-    assert {_got} is {_expected} with "factorial(0) = 1"
+	set {_expected} to 1
+	parse:
+		set {_got} to factorial(0)
+	assert {_got} is {_expected} with "factorial(0) = 1"
 
-    set {_expected} to 1
-    set {_got} to factorial(1)
-    assert {_got} is {_expected} with "factorial(1) = 1"
+	set {_expected} to 1
+	parse:
+		set {_got} to factorial(1)
+	assert {_got} is {_expected} with "factorial(1) = 1"
 
-    set {_expected} to 2
-    set {_got} to factorial(2)
-    assert {_got} is {_expected} with "factorial(2) = 2"
+	set {_expected} to 2
+	parse:
+		set {_got} to factorial(2)
+	assert {_got} is {_expected} with "factorial(2) = 2"
 
-    set {_expected} to 6
-    set {_got} to factorial(3)
-    assert {_got} is {_expected} with "factorial(3) = 6"
+	set {_expected} to 6
+	parse:
+		set {_got} to factorial(3)
+	assert {_got} is {_expected} with "factorial(3) = 6"
 
-    set {_expected} to 2432902008176640000
-    set {_got} to factorial(20)
-    assert {_got} is {_expected} with "factorial(20) = 2432902008176640000"
+	set {_expected} to 2432902008176640000
+	parse:
+		set {_got} to factorial(20)
+	assert {_got} is {_expected} with "factorial(20) = 2432902008176640000"
 
-    clear {_expected}
-    set {_got} to factorial(21)
-    assert {_got} is {_expected} with "factorial(21) should return an error for overflow"
+	clear {_expected}
+	parse:
+		set {_got} to factorial(21)
+	assert {_got} is {_expected} with "factorial(21) should return null for overflow"

@@ -359,7 +359,6 @@ public class DefaultFunctions {
 				double num = ((Number) params[0][0]).doubleValue();
 
 				if (num < 0 || num != Math.floor(num)) {
-					Skript.error("Factorial is only defined for positive integers");
 					return new Long[] {null};
 				}
 
@@ -367,7 +366,6 @@ public class DefaultFunctions {
 
 				// Handle potential overflow
 				if (n > 20) { // 20! is the largest factorial that fits in a long
-					Skript.error("Factorial result is too large!");
 					return new Long[] {null};
 				}
 
@@ -382,9 +380,9 @@ public class DefaultFunctions {
 				}
 				return result;
 			}
-		}.description("Calculates the factorial of a number.")
+		}).description("Calculates the factorial of a number.")
 			.examples("factorial(0) = 1", "factorial(5) = 120", "factorial(10) = 3628800")
-			.since("INSERT VERSION"));
+			.since("INSERT VERSION");
 
 		// misc
 		
