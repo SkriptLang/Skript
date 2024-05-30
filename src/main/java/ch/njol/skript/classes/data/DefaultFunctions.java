@@ -356,10 +356,21 @@ public class DefaultFunctions {
 		Functions.registerFunction(new SimpleJavaFunction<Long>("factorial", numberParam, DefaultClasses.LONG, true) {
 			@Override
 			public Long[] executeSimple(Object[][] params) {
-				long n = ((Number) params[0][0]).longValue();
-				if (n < 0) {
-					Skript.error("You cannot use negative numbers when using the factorial function.");
+				double num = ((Number) params[0][0]).doubleValue();
+
+				if (num < 0 || num != Math.floor(num)) {
+					Skript.error("Factorial is only defined for positive integers");
+					return new Long[] {null};
 				}
+
+				long n = (long) num;
+
+				// Handle potential overflow
+				if (n > 20) { // 20! is the largest factorial that fits in a long
+					Skript.error("Factorial result is too large!");
+					return new Long[] {null};
+				}
+
 				return new Long[] {factorial(n)};
 			}
 
