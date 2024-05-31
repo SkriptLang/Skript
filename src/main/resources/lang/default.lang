@@ -1397,15 +1397,6 @@ visual effects:
 		iron_golem_rose:
 			name: iron golem offering rose @an
 			pattern: (iron golem [offering] rose|rose in hand)
-		villager_heart:
-			name: villager hearts @x
-			pattern: villager hearts
-		villager_angry:
-			name: angry villager entity @an
-			pattern: angry villager entity
-		villager_happy:
-			name: happy villager entity @a
-			pattern: happy villager entity
 		witch_magic:
 			name: witch magic @-
 			pattern: witch magic
@@ -1458,324 +1449,550 @@ visual effects:
 			name: hurt by explosion @-
 			pattern: (hurt|damage) by explosion
 	particle:
-		fireworks_spark:
-			name: firework's spark @-
-			pattern: firework['s] spark
-		crit:
-			name: critical hit @a
-			pattern: (critical hit|crit) [spark]
-		crit_magic:
-			name: magical critical hit @a
-			pattern: (magic[al]|blue) (critical hit|crit) [spark]
-		spell_mob:
-			name: potion swirl @a
-			pattern: [%-color%] potion swirl
-		spell_mob_ambient:
-			name: transparent potion swirl @a
-			pattern: [%-color%] transparent potion swirl
-		spell:
-			name: spell @a
-			pattern: (spell|thrown potion|lingering potion)
-		spell_instant:
-			name: spell @a
-			pattern: instant (spell|thrown potion)
-		spell_witch:
-			name: witch spell @-
-			pattern: (witch (magic|spell)|purple spark)
-		note:
-			name: note @a
-			pattern: note [(of|with) [colo[u]r] %number%]
-		portal:
-			name: portal @a
-			pattern: [nether] portal
-		enchantment_table:
-			name: flying glyph @a
-			pattern: (flying (glyph|letter)|enchantment table)
-		flame:
-			name: flame @-
-			pattern: (flame|fire)
-		lava:
-			name: lava pop @a
-			pattern: lava pop
-		footstep:
-			name: footstep @x
-			pattern: footsteps
-		water_splash:
-			name: water splash @a
-			pattern: [water] splash
-		smoke_normal:
-			name: smoke particle @a
-			pattern: smoke particle
-		explosion_huge:
-			name: huge explosion @a
-			pattern: huge explosion
-		explosion_large:
-			name: large explosion @a
-			pattern: large explosion
-		explosion_normal:
-			name: explosion @an
-			pattern: explosion
-		suspended_depth:
-			name: void fog @-
-			pattern: void fog
-		town_aura:
-			name: small smoke @-
-			pattern: (small smoke|town aura)
-		cloud:
-			name: cloud @a
-			pattern: cloud
-		redstone:
-			name: coloured dust @-
-			pattern: [%-color%] [colo[u]red] dust
-		snowball:
-			name: snowball break @a
-			pattern: snowball break
-		drip_water:
-			name: water drip @a
-			pattern: water drip
-		drip_lava:
-			name: lava drip @a
-			pattern: lava drip
-		snow_shovel:
-			name: snow shovel @-
-			pattern: (snow shovel|snow(man| golem) spawn)
-		slime:
-			name: slime @-
-			pattern: slime
-		heart:
-			name: heart @a
-			pattern: heart
-		villager_angry:
+
+		angry_villager: # added in 1.20.5
 			name: angry villager @a
 			pattern: (angry villager|[villager] thundercloud)
-		villager_happy:
-			name: happy villager @-
-			pattern: (happy villager|green spark)
-		smoke_large:
-			name: large smoke @-
-			pattern: large smoke
-		item_crack:
-			name: item crack @-
-			pattern: %itemtype% item (break|crack)[ing]
-		block_crack:
+		villager_angry: # for versions below 1.20.5
+			name: angry villager @a
+			pattern: (angry villager|[villager] thundercloud)
+
+		ash: # added in 1.16
+			name: ash @-
+			pattern: ash
+
+		block: # added in 1.20.5
+			name: block @-
+			pattern: (%-blockdata/itemtype% break[ing]|[sprinting] dust of %-blockdata/itemtype%)
+		block_crack: # for versions below 1.20.5
 			name: block break @-
-			pattern: %itemtype% break[ing]
-		block_dust:
+			pattern: %blockdata/itemtype% break[ing]
+		block_dust: # for versions below 1.20.5
 			name: block dust @-
-			pattern: [sprinting] dust of [%itemtype%]
-		end_rod:
-			name: end rod @-
-			pattern: end rod
-		falling_dust:
-			name: falling dust @-
-			pattern: falling dust of [%itemtype%]
+			pattern: [sprinting] dust of %blockdata/itemtype%
 
-		# 1.11 particles
-		totem:
-			name: totem @-
-			pattern: totem
-		spit:
-			name: spit @-
-			pattern: spit
-
-		# 1.13 particles
-		squid_ink:
-			name: squid ink @-
-			pattern: squid ink
-		bubble_pop:
-			name: bubble pop @-
-			pattern: bubble pop
-		current_down:
-			name: current down @-
-			pattern: (current|bubble column) down
-		bubble_column_up:
-			name: bubble column up @-
-			pattern: (current|bubble column) up
-		nautilus:
-			name: nautilus @-
-			pattern: nautilus
-		dolphin:
-			name: dolphin @-
-			pattern: dolphin
-
-		# 1.14 particles
-		sneeze:
-			name: sneeze @-
-			pattern: sneeze
-		campfire_cosy_smoke:
-			name: campfire cosy smoke @-
-			pattern: campfire co(s|z)y smoke
-		campfire_signal_smoke:
-			name: campfire signal smoke @-
-			pattern: campfire signal smoke
-		composter:
-			name: composter @-
-			pattern: composter particle
-		flash:
-			name: flash @-
-			pattern: flash
-		falling_lava:
-			name: falling lava @-
-			pattern: falling lava
-		landing_lava:
-			name: landing lava @-
-			pattern: landing lava
-		falling_water:
-			name: falling water @-
-			pattern: falling water
+		block_marker: # added in 1.18
+			name: block marker @a
+			pattern: (barrierbm:barrier|lightbm:light|%-blockdata/itemtype% block marker)
 		barrier:
 			name: barrier @a
 			pattern: barrier
-		damage_indicator:
-			name: damage indicator @-
-			pattern: damage indicator
-		dragon_breath:
-			name: dragon breath @-
-			pattern: dragon[s] breath
-		mob_appearance:
-			name: mob appearance @-
-			pattern: (mob appearance|guardian ghost)
-		suspended:
-			name: suspended @-
-			pattern: (suspended|underwater)
-		sweep_attack:
-			name: sweep attack @-
-			pattern: sweep attack
-		water_bubble:
-			name: water bubble @-
-			pattern: water bubble
-		water_wake:
-			name: water wake @-
-			pattern: water wake
-		water_drop:
-			name: water drop @-
-			pattern: water drop
-
-		# 1.15 particles
-		dripping_honey:
-			name: dripping honey @-
-			pattern: dripping honey
-		falling_honey:
-			name: falling honey @-
-			pattern: falling honey
-		landing_honey:
-			name: landing honey @-
-			pattern: landing honey
-		falling_nectar:
-			name: falling nectar @-
-			pattern: falling nectar
-
-		# 1.16 particles
-		ash:
-			name: ash @-
-			pattern: ash
-		crimson_spore:
-			name: crimson spore @-
-			pattern: crimson spore
-		soul_fire_flame:
-			name: soul fire flame @-
-			pattern: soul fire flame
-		warped_spore:
-			name: warped spore @-
-			pattern: warped spore
-		dripping_obsidian_tear:
-			name: dripping obsidian tear @-
-			pattern: dripping obsidian tear
-		falling_obsidian_tear:
-			name: falling obsidian tear @-
-			pattern: falling obsidian tear
-		landing_obsidian_tear:
-			name: landing obsidian tear @-
-			pattern: landing obsidian tear
-		soul:
-			name: soul @-
-			pattern: soul
-		reverse_portal:
-			name: reverse portal @-
-			pattern: reverse portal
-		white_ash:
-			name: white ash @-
-			pattern: white ash
-		# 1.17 particles
-		light:
+		light: # added in 1.17
 			name: light @-
 			pattern: light
-		#dust_color_transition:
-			#name: dust color transition @a
-			#pattern: dust colo[u]r transition [from %-color%] [to %-color%] [with size %-number%]
-		#vibration:
-			#name: vibration @a
-			#pattern: vibration
-		falling_spore_blossom:
-			name: falling spore blossom @-
-			pattern: falling spore blossom
-		spore_blossom_air:
-			name: spore blossom air @-
-			pattern: spore blossom air
-		small_flame:
-			name: small flame @-
-			pattern: small flame
-		snowflake:
-			name: snowflake @-
-			pattern: snowflake
-		dripping_dripstone_lava:
+
+		bubble: # added in 1.20.5
+			name: bubble @-
+			pattern: [water] bubble
+		water_bubble: # for versions below 1.20.5
+			name: water bubble @-
+			pattern: [water] bubble
+
+		bubble_column_up: # added in 1.13
+			name: bubble column up @-
+			pattern: (current|bubble column) up
+
+		bubble_pop: # added in 1.13
+			name: bubble pop @-
+			pattern: bubble pop
+
+		campfire_cosy_smoke: # added in 1.14
+			name: campfire cosy smoke @-
+			pattern: campfire co(s|z)y smoke
+
+		campfire_signal_smoke: # added in 1.14
+			name: campfire signal smoke @-
+			pattern: campfire signal smoke
+
+		cherry_leaves: # added in 1.20
+			name: cherry leaves @-
+			pattern: cherry leaves
+
+		cloud:
+			name: cloud @a
+			pattern: cloud
+
+		composter: # added in 1.14
+			name: composter @-
+			pattern: composter [particle]
+
+		crimson_spore: # added in 1.16
+			name: crimson spore @-
+			pattern: crimson spore
+
+		crit:
+			name: critical hit @a
+			pattern: (critical hit|crit) [spark]
+
+		current_down: # added in 1.13
+			name: current down @-
+			pattern: (current|bubble column) down
+
+		damage_indicator: # added in 1.14
+			name: damage indicator @-
+			pattern: damage indicator
+
+		dolphin: # added in 1.13
+			name: dolphin @-
+			pattern: dolphin
+
+		dragon_breath: # added in 1.14
+			name: dragon breath @-
+			pattern: dragon[[']s] breath
+
+		dripping_dripstone_lava: # added in 1.17
 			name: dripping dripstone lava @-
 			pattern: dripping dripstone lava
-		falling_dripstone_lava:
-			name: falling dripstone lava @-
-			pattern: falling dripstone lava
-		dripping_dripstone_water:
+
+		dripping_dripstone_water: # added in 1.17
 			name: dripping dripstone water @-
 			pattern: dripping dripstone water
-		falling_dripstone_water:
-			name: falling dripstone water @-
-			pattern: falling dripstone water
-		glow_squid_ink:
-			name: glow squid ink @-
-			pattern: glow squid ink
-		glow:
-			name: glow @-
-			pattern: glow
-		wax_on:
-			name: wax on @-
-			pattern: wax on
-		wax_off:
-			name: wax off @-
-			pattern: wax off
+
+		dripping_honey: # added in 1.15
+			name: dripping honey @-
+			pattern: dripping honey
+
+		dripping_lava: # added in 1.20.5
+			name: dripping lava @a
+			pattern: (dripping lava|lava drip)
+		drip_lava: # for versions below 1.20.5
+			name: lava drip @a
+			pattern: (dripping lava|lava drip)
+
+		dripping_obsidian_tear: # added in 1.16
+			name: dripping obsidian tear @-
+			pattern: dripping obsidian tear
+
+		dripping_water: # added in 1.20.5
+			name: dripping water
+			pattern: (dripping water|water drip)
+		drip_water: # for versions below 1.20.5
+			name: water drip @a
+			pattern: (dripping water|water drip)
+
+		dust: # added in 1.20.5
+			name: dust @-
+			pattern: [%-color%] [colo[u]red] dust [with size %-float%]
+		redstone: # for versions below 1.20.5
+			name: coloured dust @-
+			pattern: [%-color%] [colo[u]red] dust [with size %-float%]
+
+		dust_color_transition: # added in 1.17
+			name: dust color transition @a
+			pattern: dust colo[u]r transition [from %-color%] [to %-color%] [with size %-float%]
+
+		dust_pillar: # added in 1.20.5 (for 1.21)
+			name: dust pillar @a
+			pattern: %blockdata/itemtype% dust pillar
+
+		dust_plume: # added in 1.20.3
+			name: dust plume @a
+			pattern: dust plume
+
+		effect: # added in 1.20.5
+			name: effect @an
+			pattern: (effect|spell|thrown potion) # lingering is part of entity_effect
+		spell: # for versions below 1.20.5
+			name: spell @a
+			pattern: (effect|spell|thrown potion|lingering potion)
+
+		egg_crack: # added in 1.20
+			name: egg crack @an
+			pattern: [sniffer] egg crack
+
+		elder_guardian: # added in 1.20.5
+			name: elder guardian @-
+			pattern: (elder guardian|mob appearance|guardian ghost)
+		mob_appearance: # for versions below 1.20.5
+			name: mob appearance @-
+			pattern: (elder guardian|mob appearance|guardian ghost)
+
 		electric_spark:
 			name: electric spark @-
 			pattern: electric spark
-		scrape:
+
+		enchant: # added in 1.20.5
+			name: enchant
+			pattern: (enchant|flying (glyph|letter)|enchantment table)
+		enchantment_table: # for versions below 1.20.5
+			name: flying glyph @a
+			pattern: (enchant|flying (glyph|letter)|enchantment table)
+
+		enchanted_hit: # added in 1.20.5
+			name: enchanted hit @an
+			pattern: (enchanted hit|(magic[al]|blue) (critical hit|crit) [spark])
+		crit_magic: # for versions below 1.20.5
+			name: magical critical hit @a
+			pattern: (enchanted hit|(magic[al]|blue) (critical hit|crit) [spark])
+
+		end_rod:
+			name: end rod @-
+			pattern: end rod
+
+		entity_effect: # added in 1.20.5
+			name: entity effect @an
+			pattern: (lingering potion|[%-color%] [transparent] potion swirl)
+		# TODO ambient_entity_effect seems to exist, but is not supported by spigot particle enum?
+		spell_mob: # for versions below 1.20.5
+			name: potion swirl @a
+			pattern: [%-color%] potion swirl
+		spell_mob_ambient: # for versions below 1.20.5
+			name: transparent potion swirl @a
+			pattern: [%-color%] transparent potion swirl
+
+		# TODO explosions are a mess (see explosion_normal, explosion_large, explosion_huge)
+		explosion: # added in 1.20.5
+			name: large explosion @a
+			pattern: large explosion
+		explosion_large: # for versions below 1.20.5
+			name: large explosion @a
+			pattern: large explosion
+
+		explosion_emitter: # added in 1.20.5
+			name: explosion emitter @an
+			pattern: (explosion emitter|huge explosion)
+		explosion_huge: # for versions below 1.20.5
+			name: huge explosion @a
+			pattern: (explosion emitter|huge explosion)
+
+		falling_dripstone_lava: # added in 1.17
+			name: falling dripstone lava @-
+			pattern: falling dripstone lava
+
+		falling_dripstone_water: # added in 1.17
+			name: falling dripstone water @-
+			pattern: falling dripstone water
+
+		falling_dust:
+			name: falling dust @-
+			pattern: falling dust of %blockdata/itemtype%
+
+		falling_honey: # added in 1.15
+			name: falling honey @-
+			pattern: falling honey
+
+		falling_lava: # added in 1.14
+			name: falling lava @-
+			pattern: falling lava
+
+		falling_nectar: # added in 1.15
+			name: falling nectar @-
+			pattern: falling nectar
+
+		falling_obsidian_tear: # added in 1.16
+			name: falling obsidian tear @-
+			pattern: falling obsidian tear
+
+		falling_spore_blossom: # added in 1.17
+			name: falling spore blossom @-
+			pattern: falling spore blossom
+
+		falling_water: # added in 1.14
+			name: falling water @-
+			pattern: falling water
+
+		firework: # added in 1.20.5
+			name: firework @-
+			pattern: (firework|firework['s] spark)
+		fireworks_spark: # for versions below 1.20.5
+			name: firework's spark @-
+			pattern: (firework|firework['s] spark)
+
+		fishing: # added in 1.20.5
+			name: water wake @-
+			pattern: (fishing|water wake)
+		water_wake: # for versions below 1.20.5
+			name: water wake @-
+			pattern: (fishing|water wake)
+
+		flame:
+			name: flame @-
+			pattern: (flame|fire)
+
+		flash: # added in 1.14
+			name: flash @-
+			pattern: flash
+
+		glow: # added in 1.17
+			name: glow @-
+			pattern: glow
+
+		glow_squid_ink: # added in 1.17
+			name: glow squid ink @-
+			pattern: glow squid ink
+
+		gust: # added in 1.20.5 (for 1.21)
+			name: gust @a
+			pattern: gust
+
+		gust_emitter_large: # added in 1.20.5 (for 1.21)
+			name: large gust emitter @a
+			pattern: large gust emitter
+
+		gust_emitter_small: # added in 1.20.5 (for 1.21)
+			name: small gust emitter @a
+			pattern: small gust emitter
+
+		happy_villager: # added in 1.20.5
+			name: happy villager @-
+			pattern: (happy villager|green spark)
+		villager_happy:
+			name: happy villager @-
+			pattern: (happy villager|green spark)
+
+		heart:
+			name: heart @a
+			pattern: heart
+
+		infested: # added in 1.20.5 (for 1.21)
+			name: infested @-
+			pattern: infested
+
+		instant_effect: # added in 1.20.5
+			name: instant effect @an
+			pattern: instant (effect|spell|thrown potion)
+		spell_instant: # for versions below 1.20.5
+			name: spell @a
+			pattern: instant (effect|spell|thrown potion)
+
+		item: # added in 1.20.5
+			name: item @-
+			pattern: %itemtype% item (break|crack)[ing]
+		item_crack: # for versions below 1.20.5
+			name: item crack @-
+			pattern: %itemtype% item (break|crack)[ing]
+
+		item_cobweb: # added in 1.20.5 (for 1.21)
+			name: cobweb @-
+			pattern: cobweb
+
+		item_slime: # added in 1.20.5
+			name: slime @-
+			pattern: slime
+		slime: # for versions below 1.20.5
+			name: slime @-
+			pattern: slime
+
+		item_snowball: # added in 1.20.5
+			name: snowball @-
+			pattern: (snowball [break]|snow shovel|snow(man| golem) spawn)
+		snowball: # for versions below 1.20.5
+			name: snowball break @-
+			pattern: snowball break
+		snow_shovel: # for versions below 1.20.5
+			name: snow shovel @-
+			pattern: (snowball|snow shovel|snow(man| golem) spawn)
+
+		landing_honey: # added in 1.15
+			name: landing honey @-
+			pattern: landing honey
+
+		landing_lava: # added in 1.14
+			name: landing lava @-
+			pattern: landing lava
+
+		landing_obsidian_tear: # added in 1.16
+			name: landing obsidian tear @-
+			pattern: landing obsidian tear
+
+		large_smoke: # added in 1.20.5
+			name: large smoke @-
+			pattern: large smoke
+		smoke_large: # for versions below 1.20.5
+			name: large smoke @-
+			pattern: large smoke
+
+		lava:
+			name: lava pop @a
+			pattern: lava pop
+
+		mycelium: # previously town_aura, changed in 1.20.5
+			name: mycelium @-
+			pattern: (mycelium|small smoke|town aura)
+		town_aura:
+			name: small smoke @-
+			pattern: (mycelium|small smoke|town aura)
+
+		nautilus: # added in 1.13
+			name: nautilus @-
+			pattern: nautilus
+
+		note:
+			name: note @a
+			pattern: note [(of|with) [colo[u]r] %number%]
+
+		ominous_spawning: # added in 1.20.5 (for 1.21)
+			name: ominous spawning @-
+			pattern: ominous spawning
+
+		poof: # added in 1.20.5
+			name: poof @a
+			pattern: (poof|explosion)
+		explosion_normal: # for versions below 1.20.5
+			name: explosion @an
+			pattern: (poof|explosion)
+
+		portal:
+			name: portal @a
+			pattern: [nether] portal
+
+		raid_omen: # added in 1.20.5 (1.21)
+			name: raid omen @a
+			pattern: raid omen
+
+		rain: # added in 1.20.5
+			name: rain @-
+			pattern: (rain|water drop)
+		water_drop: # for versions below 1.20.5
+			name: water drop @a
+			pattern: (rain|water drop)
+
+		reverse_portal: # added in 1.16
+			name: reverse portal @-
+			pattern: reverse portal
+
+		scrape: # added in 1.17
 			name: scrape @-
 			pattern: scrape
 
-		# 1.19 particles
-		sonic_boom:
-			name: sonic boom @-
-			pattern: sonic boom
-		sculk_soul:
-			name: sculk soul @-
-			pattern: sculk soul
-		sculk_charge:
+		sculk_charge: # added in 1.19
 			name: sculk charge @-
-			pattern: sculk charge
-		sculk_charge_pop:
+			pattern: sculk charge [with ([a] roll|[an] angle) [of] %-float%]
+
+		sculk_charge_pop: # added in 1.19
 			name: sculk charge pop @-
 			pattern: sculk charge pop
-		shriek:
+
+		sculk_soul: # added in 1.19
+			name: sculk soul @-
+			pattern: sculk soul
+
+		shriek: # added in 1.19
 			name: shriek @-
-			pattern: shriek
-		
-		# 1.19.4 particles
-		dripping_cherry_leaves:
-			name: dripping cherry leaves @-
-			pattern: dripping cherry leaves
-		falling_cherry_leaves:
-			name: falling cherry leaves @-
-			pattern: falling cherry leaves
-		landing_cherry_leaves:
-			name: landing cherry leaves @-
-			pattern: landing cherry leaves
+			pattern: shriek [with [a] delay [of] %-timespan%]
+
+		small_flame: # added in 1.17
+			name: small flame @a
+			pattern: small flame
+
+		small_gust: # added in 1.20.5 (for 1.21)
+			name: small gust @a
+			pattern: small gust
+
+		smoke: # added in 1.20.5
+			name: smoke @-
+			pattern: smoke [particle]
+		smoke_normal: # for versions below 1.20.5
+			name: smoke @-
+			pattern: smoke [particle]
+
+		sneeze: # added in 1.14
+			name: sneeze @a
+			pattern: sneeze
+
+		snowflake: # added in 1.17
+			name: snowflake @a
+			pattern: snowflake
+
+		sonic_boom: # added in 1.19
+			name: sonic boom @a
+			pattern: sonic boom
+
+		soul: # added in 1.16
+			name: soul @-
+			pattern: soul
+
+		soul_fire_flame: # added in 1.16
+			name: soul fire flame @a
+			pattern: soul fire flame
+
+		spit: # added in 1.11
+			name: spit @-
+			pattern: spit
+
+		splash: # added in 1.20.5
+			name: splash @a
+			pattern: [water] splash
+		water_splash: # for versions below 1.20.5
+			name: water splash @a
+			pattern: [water] splash
+
+		spore_blossom_air: # added in 1.17
+			name: spore blossom air @-
+			pattern: spore blossom air
+
+		squid_ink: # added in 1.13
+			name: squid ink @-
+			pattern: squid ink
+
+		sweep_attack: # added in 1.14
+			name: sweep attack @a
+			pattern: sweep attack
+
+		totem_of_undying: # added in 1.20.5
+			name: totem of undying @a
+			pattern: totem [of undying]
+		totem: # for versions below 1.20.5
+			name: totem @a
+			pattern: totem [of undying]
+
+		trial omen: # added in 1.20.5 (for 1.21)
+			name: trial omen @a
+			pattern: trial omen
+
+		trial_spawner_detection: # added in 1.20.5 (for 1.21)
+			name: trial spawner detection @-
+			pattern: trial spawner detection
+
+		trial_spawner_detection_ominous: # added in 1.20.5 (for 1.21)
+			name: ominous trial spawner detection @-
+			pattern: ominous trial spawner detection
+
+		underwater: # added in 1.20.5
+			name: underwater @-
+			pattern: (underwater|suspended|void fog)
+		suspended: # for versions below 1.20.5
+			name: suspended @-
+			pattern: (underwater|suspended)
+		suspended_depth: # for versions below 1.20.5
+			name: void fog @-
+			pattern: void fog
+
+		vault_connection: # added in 1.20.5 (for 1.21)
+			name: vault connection @-
+			pattern: vault connection
+
+		vibration: # added in 1.17
+			name: vibration @a
+			# must be a literal, so you can't actually use this properly yet
+			pattern: vibration [to %-entity/location%] [over %-timespan%]
+
+		warped_spore: # added in 1.16
+			name: warped spore @a
+			pattern: warped spore
+
+		wax_off: # added in 1.17
+			name: wax off @-
+			pattern: wax off
+
+		wax_on: # added in 1.17
+			name: wax on @-
+			pattern: wax on
+
+		white_ash: # added in 1.16
+			name: white ash @-
+			pattern: white ash
+
+		white_smoke: # added in 1.20.3
+			name: white smoke @-
+			pattern: white smoke
+
+		witch: # added in 1.20.5
+			name: witch @a
+			pattern: (witch [magic|spell]|purple spark)
+		spell_witch: # for versions below 1.20.5
+			name: witch spell @a
+			pattern: (witch [magic|spell]|purple spark)
 
 # -- Inventory Actions --
 inventory actions:

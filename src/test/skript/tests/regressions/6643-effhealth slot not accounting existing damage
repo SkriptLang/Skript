@@ -1,0 +1,8 @@
+test "slot damage accountability":
+	set {_inv} to chest inventory named "slot accountability"
+	set slot 0 of {_inv} to diamond sword with damage 100
+
+	repair slot 0 of {_inv} by 10
+	assert damage of slot 0 of {_inv} is 90 with "Durability of slot 0, was not updated correctly"
+	repair slot 0 of {_inv}
+	assert durability of slot 0 of {_inv} is maximum durability of slot 0 of {_inv} with "Durability of slot 0, was not fully repaired"
