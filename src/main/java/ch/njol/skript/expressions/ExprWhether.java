@@ -33,7 +33,7 @@ import org.bukkit.event.Event;
 import org.jetbrains.annotations.UnknownNullability;
 
 @Name("Whether")
-@Description("A shorthand for returning the result of a condition (true or false).")
+@Description("A shorthand for returning the result of a condition (true or false). This is functionally identical to using `true if <condition> else false`.")
 @Examples({
 	"set {fly} to whether player can fly",
 	"broadcast \"Flying: %whether player is flying%\""
