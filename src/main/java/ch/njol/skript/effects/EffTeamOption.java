@@ -3,17 +3,16 @@ package ch.njol.skript.effects;
 import ch.njol.skript.Skript;
 import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.SkriptParser;
+import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.bukkit.scoreboard.Team;
 import org.jetbrains.annotations.Nullable;
-import org.jetbrains.annotations.UnknownNullability;
 
 // todo doc
 public class EffTeamOption extends Effect {
 
-	private static final Team.OptionStatus[] OPTIONS = Team.OptionStatus.values();
+	public static final Team.OptionStatus[] OPTIONS = Team.OptionStatus.values();
 
 	public static String optionStatus() {
 		// test-only; make sure the enum erasure hasn't changed between versions
@@ -47,10 +46,10 @@ public class EffTeamOption extends Effect {
 
 	private Team.Option option;
 	private Team.OptionStatus status;
-	private @UnknownNullability Expression<Team> teamExpression;
+	private Expression<Team> teamExpression;
 
 	@Override
-	public boolean init(Expression<?>[] expressions, int pattern, Kleenean delayed, SkriptParser.ParseResult result) {
+	public boolean init(Expression<?>[] expressions, int pattern, Kleenean delayed, ParseResult result) {
 		if (result.hasTag("death"))
 			this.option = Team.Option.DEATH_MESSAGE_VISIBILITY;
 		else if (result.hasTag("tag"))
