@@ -42,11 +42,8 @@ import org.jetbrains.annotations.Nullable;
 })
 @Examples({
 	"send \"You can only pick up %max stack size of player's tool% of %type of (player's tool)%\" to player",
-	"",
 	"set the maximum stack size of inventory of all players to 16",
-	"",
 	"add 8 to the maximum stack size of player's tool",
-	"",
 	"reset the maximum stack size of {_gui}"
 })
 @Since("2.1, INSERT VERSION (changeable, inventory support)")
@@ -77,12 +74,11 @@ public class ExprMaxStack extends SimplePropertyExpression<Object, Integer> {
 	public Class<?>[] acceptChange(ChangeMode mode) {
 		switch (mode) {
             case ADD:
-			case DELETE:
             case REMOVE:
 			case RESET:
 			case SET:
 				if (!CHANGEABLE_ITEM_STACK_SIZE && ItemType.class.isAssignableFrom(getExpr().getReturnType())) {
-					Skript.error("Changers for maximum stack size of items requires Minecraft 1.20.5 or newer");
+					Skript.error("Changing the maximum stack size of items requires Minecraft 1.20.5 or newer!");
 					return null;
 				}
 				return CollectionUtils.array(Integer.class);
@@ -95,7 +91,7 @@ public class ExprMaxStack extends SimplePropertyExpression<Object, Integer> {
 	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
 		for (Object source : getExpr().getArray(event)) {
 			Integer change = null;
-			if (mode != ChangeMode.DELETE && mode != ChangeMode.RESET)
+			if (mode != ChangeMode.RESET)
 				change = (int) delta[0];
 			if (source instanceof ItemType) {
 				if (!CHANGEABLE_ITEM_STACK_SIZE)
@@ -130,7 +126,6 @@ public class ExprMaxStack extends SimplePropertyExpression<Object, Integer> {
 					case REMOVE:
 						size -= change;
 						break;
-					case DELETE:
 					case RESET:
 						size = Bukkit.createInventory(null, inv.getType()).getMaxStackSize();
 						break;
