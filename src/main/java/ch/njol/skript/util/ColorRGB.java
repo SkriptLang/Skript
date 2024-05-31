@@ -32,7 +32,7 @@ import java.util.regex.Pattern;
 
 public class ColorRGB implements Color {
 
-	private static final Pattern RGB_PATTERN = Pattern.compile("(?>rgb|RGB) (\\d+), (\\d+), (\\d+)");
+	private static final Pattern RGB_PATTERN = Pattern.compile("(?>rgb|RGB) (\\d+), ?(\\d+), ?(\\d+)");
 
 	private org.bukkit.Color bukkit;
 	@Nullable
@@ -72,6 +72,11 @@ public class ColorRGB implements Color {
 			NumberUtils.toInt(matcher.group(2)),
 			NumberUtils.toInt(matcher.group(3))
 		);
+	}
+
+	public static Color fromBukkitOrRgbColor(org.bukkit.Color color) {
+		Color fromBukkit = SkriptColor.fromBukkitColor(color);
+		return fromBukkit == null ? new ColorRGB(color.getRed(), color.getGreen(), color.getBlue()) : fromBukkit;
 	}
 
 	@Override

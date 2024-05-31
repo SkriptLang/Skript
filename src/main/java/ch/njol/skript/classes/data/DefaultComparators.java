@@ -24,6 +24,8 @@ import ch.njol.skript.aliases.Aliases;
 import ch.njol.skript.aliases.ItemData;
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.classes.ClassInfo;
+import ch.njol.skript.util.Color;
+import org.skriptlang.skript.lang.comparator.Comparator;
 import ch.njol.skript.entity.BoatChestData;
 import ch.njol.skript.entity.BoatData;
 import ch.njol.skript.entity.EntityData;
@@ -60,7 +62,6 @@ import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
-import org.skriptlang.skript.lang.comparator.Comparator;
 import org.skriptlang.skript.lang.comparator.Comparators;
 import org.skriptlang.skript.lang.comparator.Relation;
 
@@ -646,6 +647,19 @@ public class DefaultComparators {
 						Location.normalizeYaw(first.getYaw()) == Location.normalizeYaw(second.getYaw()) &&
 						Location.normalizePitch(first.getPitch()) == Location.normalizePitch(second.getPitch())
 				);
+			}
+
+			@Override
+			public boolean supportsOrdering() {
+				return false;
+			}
+		});
+
+		// Color - Color
+		Comparators.registerComparator(Color.class, Color.class, new Comparator<Color, Color>() {
+			@Override
+			public Relation compare(Color color1, Color color2) {
+				return Relation.get(color1.getName().equals(color2.getName()));
 			}
 
 			@Override
