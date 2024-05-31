@@ -22,6 +22,7 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Events;
 import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Keywords;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Effect;
@@ -41,6 +42,7 @@ import org.jetbrains.annotations.Nullable;
 		"\telse if player is op:",
 			"\t\tallow the leash to drop"
 })
+@Keywords("lead")
 @Events("Unleash")
 @Since("INSERT VERSION")
 public class EffDropLeash extends Effect {

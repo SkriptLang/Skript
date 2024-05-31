@@ -56,7 +56,7 @@ public class ExprUnleashReason extends EventValueExpression<UnleashReason> {
 	@Override
 	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		if (!getParser().isCurrentEvent(EntityUnleashEvent.class)) {
-			Skript.error("The 'unleash reason' expression can only be used in an 'unleash' event.");
+			Skript.error("The 'unleash reason' expression can only be used in an 'unleash' event");
 			return false;
 		}
 		return true;

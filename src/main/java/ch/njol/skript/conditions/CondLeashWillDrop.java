@@ -22,6 +22,7 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Events;
 import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Keywords;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.RequiredPlugins;
 import ch.njol.skript.doc.Since;
@@ -42,6 +43,7 @@ import org.jetbrains.annotations.Nullable;
 		"\telse:",
 			"\t\tallow the leash to drop"
 })
+@Keywords("lead")
 @Events("Unleash")
 @RequiredPlugins("Paper 1.16+")
 @Since("INSERT VERSION")
