@@ -19,16 +19,19 @@
 package ch.njol.skript.classes.data;
 
 import java.io.StreamCorruptedException;
-import java.util.Iterator;
-import java.util.Locale;
+import java.util.*;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import ch.njol.skript.classes.*;
 import ch.njol.skript.lang.util.common.AnyAmount;
 import ch.njol.skript.lang.util.common.AnyContains;
 import ch.njol.skript.lang.util.common.AnyNamed;
 import org.bukkit.Material;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.enchantments.Enchantment;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scoreboard.Objective;
 import org.bukkit.scoreboard.Scoreboard;
@@ -65,8 +68,6 @@ import ch.njol.skript.util.slot.Slot;
 import ch.njol.skript.util.visual.VisualEffect;
 import ch.njol.skript.util.visual.VisualEffects;
 import ch.njol.yggdrasil.Fields;
-
-import java.util.Arrays;
 
 /**
  * @author Peter Güttinger
@@ -698,6 +699,58 @@ public class SkriptClasses {
 			.usage("")
 			.examples("loop {_board}'s teams:")
 			.since("INSERT VERSION")
+			.changer(new Changer<Team>() {
+				//<editor-fold desc="Changers" defaultstate="collapsed">
+				@Override
+				public  Class<?> @Nullable [] acceptChange(ChangeMode mode) {
+					if (mode == ChangeMode.RESET || mode == ChangeMode.DELETE)
+						return new Class[0];
+					if (mode == ChangeMode.ADD)
+						return new Class[] {Entity[].class, Player[].class, OfflinePlayer[].class, String[].class};
+					// todo remove all <players/entities/zombies, etc.>
+					return null;
+				}
+
+				@Override
+				public void change(Team[] what, @Nullable Object[] delta, ChangeMode mode) {
+					switch (mode) {
+						case RESET:
+							for (Team team : what) {
+								team.getEntries().clear(); // todo check this actually clears
+							}
+							break;
+						case DELETE:
+							for (Team team : what) {
+								team.unregister();
+							}
+							break;
+						case REMOVE:
+							Set<String> set = Arrays.stream(delta).filter(Objects::nonNull)
+								.map(object -> {
+									if (object instanceof OfflinePlayer)
+										return ((OfflinePlayer) object).getName();
+									else if (object instanceof Entity)
+										return ((Entity) object).getUniqueId().toString();
+									return object.toString();
+								}).collect(Collectors.toSet());
+							for (Team team : what) {
+								team.removeEntries(set);
+							}
+						case ADD:
+							for (Team team : what) {
+								for (Object object : delta) {
+									if (object instanceof OfflinePlayer)
+										team.addPlayer(((OfflinePlayer) object));
+									else if (object instanceof Entity)
+										team.addEntity(((Entity) object));
+									else if (object != null)
+										team.addEntry(String.valueOf(object));
+								}
+							}
+					}
+				}
+				//</editor-fold>
+			})
 		);
 
 		Classes.registerClass(new ClassInfo<>(Objective.class, "objective")
