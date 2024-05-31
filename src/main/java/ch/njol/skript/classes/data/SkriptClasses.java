@@ -30,6 +30,9 @@ import ch.njol.skript.lang.util.common.AnyNamed;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.scoreboard.Objective;
+import org.bukkit.scoreboard.Scoreboard;
+import org.bukkit.scoreboard.Team;
 import org.eclipse.jdt.annotation.Nullable;
 
 import ch.njol.skript.Skript;
@@ -678,6 +681,34 @@ public class SkriptClasses {
 
 				})
 				.serializer(new YggdrasilSerializer<>()));
+
+		Classes.registerClass(new ClassInfo<>(Scoreboard.class, "scoreboard")
+			.user("scoreboards?")
+			.name("Scoreboard")
+			.description("A scoreboard. Either the main (displayed) board or a user-created (hidden) board.")
+			.usage("")
+			.examples("set {_scoreboard} to the scoreboard")
+			.since("INSERT VERSION")
+		);
+
+		Classes.registerClass(new ClassInfo<>(Team.class, "team")
+			.user("teams?")
+			.name("Team")
+			.description("A team for a scoreboard. Teams have their own visibility options and can contain members.")
+			.usage("")
+			.examples("loop {_board}'s teams:")
+			.since("INSERT VERSION")
+		);
+
+		Classes.registerClass(new ClassInfo<>(Objective.class, "objective")
+			.user("objectives?")
+			.name("Objective")
+			.description("A score objective for a scoreboard. Some objectives are scored according to game events, " +
+					"but custom objectives are also available.")
+			.usage("")
+			.examples("") // todo
+			.since("INSERT VERSION")
+		);
 
 		Classes.registerClass(new ClassInfo<>(GameruleValue.class, "gamerulevalue")
 				.user("gamerule values?")
