@@ -106,11 +106,13 @@ import org.bukkit.event.entity.EntityResurrectEvent;
 import org.bukkit.event.entity.EntityTameEvent;
 import org.bukkit.event.entity.EntityTransformEvent;
 import org.bukkit.event.entity.EntityTransformEvent.TransformReason;
+import org.bukkit.event.entity.EntityUnleashEvent;
 import org.bukkit.event.entity.FireworkExplodeEvent;
 import org.bukkit.event.entity.HorseJumpEvent;
 import org.bukkit.event.entity.ItemDespawnEvent;
 import org.bukkit.event.entity.ItemMergeEvent;
 import org.bukkit.event.entity.ItemSpawnEvent;
+import org.bukkit.event.entity.PlayerLeashEntityEvent;
 import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.entity.ProjectileLaunchEvent;
 import org.bukkit.event.hanging.HangingBreakByEntityEvent;
@@ -155,6 +157,7 @@ import org.bukkit.event.player.PlayerShearEntityEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.event.player.PlayerTeleportEvent.TeleportCause;
 import org.bukkit.event.player.PlayerToggleFlightEvent;
+import org.bukkit.event.player.PlayerUnleashEntityEvent;
 import org.bukkit.event.server.ServerCommandEvent;
 import org.bukkit.event.vehicle.VehicleDamageEvent;
 import org.bukkit.event.vehicle.VehicleDestroyEvent;
@@ -1872,7 +1875,7 @@ public final class BukkitEventValues {
 				}
 			}, EventValues.TIME_NOW);
 		}
-    
+
 		// InventoryMoveItemEvent
 		EventValues.registerEventValue(InventoryMoveItemEvent.class, Inventory.class, new Getter<Inventory, InventoryMoveItemEvent>() {
 			@Override
@@ -1904,5 +1907,38 @@ public final class BukkitEventValues {
 				return event.getItem();
 			}
 		}, EventValues.TIME_NOW);
+
+		// PlayerLeashEntityEvent
+		// event-player is explicitly registered due to event does not extend PlayerEvent
+		EventValues.registerEventValue(PlayerLeashEntityEvent.class, Player.class, new Getter<Player, PlayerLeashEntityEvent>() {
+			@Override
+			public Player get(PlayerLeashEntityEvent event) {
+				return event.getPlayer();
+			}
+		}, EventValues.TIME_NOW);
+		EventValues.registerEventValue(PlayerLeashEntityEvent.class, Entity.class, new Getter<Entity, PlayerLeashEntityEvent>() {
+			@Override
+			public Entity get(PlayerLeashEntityEvent event) {
+				return event.getEntity();
+			}
+		}, EventValues.TIME_NOW);
+
+		// EntityUnleashEvent
+		EventValues.registerEventValue(EntityUnleashEvent.class, EntityUnleashEvent.UnleashReason.class, new Getter<EntityUnleashEvent.UnleashReason, EntityUnleashEvent>() {
+			@Override
+			public EntityUnleashEvent.UnleashReason get(EntityUnleashEvent event) {
+				return event.getReason();
+			}
+		}, EventValues.TIME_NOW);
+
+		// PlayerUnleashEntityEvent
+		EventValues.registerEventValue(PlayerUnleashEntityEvent.class, Player.class, new Getter<Player, PlayerUnleashEntityEvent>() {
+			@Override
+			public Player get(PlayerUnleashEntityEvent event) {
+				return event.getPlayer();
+			}
+		}, EventValues.TIME_NOW);
+
 	}
+
 }
