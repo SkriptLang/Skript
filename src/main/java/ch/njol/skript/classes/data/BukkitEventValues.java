@@ -741,6 +741,7 @@ public final class BukkitEventValues {
 		}
 
 		// PlayerLeashEntityEvent
+		// event-player is explicitly registered due to event does not extend PlayerEvent
 		EventValues.registerEventValue(PlayerLeashEntityEvent.class, Player.class, new Getter<Player, PlayerLeashEntityEvent>() {
 			@Override
 			public Player get(PlayerLeashEntityEvent event) {
