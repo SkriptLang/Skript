@@ -43,7 +43,7 @@ import org.jetbrains.annotations.UnknownNullability;
 public class ExprWhether extends SimpleExpression<Boolean> {
 
 	static {
-		Skript.registerExpression(ExprWhether.class, Boolean.class, ExpressionType.SIMPLE,
+		Skript.registerExpression(ExprWhether.class, Boolean.class, ExpressionType.PATTERN_MATCHES_EVERYTHING,
 				"whether <.+>");
 	}
 
@@ -58,7 +58,7 @@ public class ExprWhether extends SimpleExpression<Boolean> {
 
 	@Override
 	protected Boolean[] get(Event event) {
-		return CollectionUtils.array(condition.check(event));
+		return new Boolean[]{(condition.check(event)};
 	}
 
 	@Override
