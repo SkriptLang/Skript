@@ -20,6 +20,11 @@ package ch.njol.skript.bukkitutil;
 
 import ch.njol.skript.Skript;
 import ch.njol.util.Math2;
+
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+
 import org.bukkit.attribute.Attributable;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
@@ -28,6 +33,7 @@ import org.bukkit.damage.DamageType;
 import org.bukkit.entity.Damageable;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
+import org.jetbrains.annotations.ApiStatus.ScheduledForRemoval;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Constructor;
@@ -46,7 +52,7 @@ public class HealthUtils {
 			return 0;
 		return e.getHealth() / 2;
 	}
-	
+
 	/**
 	 * Set the health of an entity
 	 * @param e Entity to set health for
@@ -55,7 +61,7 @@ public class HealthUtils {
 	public static void setHealth(Damageable e, double health) {
 		e.setHealth(Math2.fit(0, health, getMaxHealth(e)) * 2);
 	}
-	
+
 	/**
 	 * Get the max health an entity has
 	 * @param e Entity to get max health from
@@ -66,7 +72,7 @@ public class HealthUtils {
 		assert attributeInstance != null;
 		return attributeInstance.getValue() / 2;
 	}
-	
+
 	/**
 	 * Set the max health an entity can have
 	 * @param e Entity to set max health for
@@ -77,7 +83,7 @@ public class HealthUtils {
 		assert attributeInstance != null;
 		attributeInstance.setBaseValue(health * 2);
 	}
-	
+
 	/**
 	 * Apply damage to an entity
 	 * @param e Entity to apply damage to
@@ -103,39 +109,58 @@ public class HealthUtils {
 		}
 		setHealth(e, getHealth(e) + h);
 	}
-	
+
 	public static double getDamage(EntityDamageEvent e) {
 		return e.getDamage() / 2;
 	}
-	
+
 	public static double getFinalDamage(EntityDamageEvent e) {
 		return e.getFinalDamage() / 2;
 	}
-	
+
 	public static void setDamage(EntityDamageEvent e, double damage) {
 		e.setDamage(damage * 2);
 	}
 
+	/**
+	 * In a late 1.20.4 version. Spigot added a non null DamageSource parameter in all EntityDamageEvent constructors,
+	 * and removed existing constructors that did not contain a DamageSource parameter.
+	 * @ScheduledForRemoval Existing until proper support is added to ExprLastDamageCause for DamageSource
+	 */
+	@Deprecated
+	@ScheduledForRemoval
+	public static boolean DAMAGE_SOURCE;
+
 	@Nullable
-	private static final Constructor<EntityDamageEvent> OLD_DAMAGE_EVENT_CONSTRUCTOR;
+	private static Constructor<EntityDamageEvent> DAMAGE_EVENT_CONSTRUCTOR;
 
 	static {
-		Constructor<EntityDamageEvent> constructor = null;
-		try {
-			constructor = EntityDamageEvent.class.getConstructor(Damageable.class, DamageCause.class, double.class);
-		} catch (NoSuchMethodException ignored) { }
-		OLD_DAMAGE_EVENT_CONSTRUCTOR = constructor;
+		if (!DAMAGE_SOURCE) {
+			try {
+				DAMAGE_EVENT_CONSTRUCTOR = EntityDamageEvent.class.getConstructor(Damageable.class, DamageCause.class, double.class);
+				// Throws here. DAMAGE_SOURCE should only be set if DAMAGE_EVENT_CONSTRUCTOR doesn't exist.
+				DAMAGE_SOURCE = Skript.classExists("org.bukkit.damage.DamageSource");
+			} catch (NoSuchMethodException | SecurityException e) {}
+		}
 	}
 
-	public static void setDamageCause(Damageable e, DamageCause cause) {
-		if (OLD_DAMAGE_EVENT_CONSTRUCTOR != null) {
-			try {
-				e.setLastDamageCause(OLD_DAMAGE_EVENT_CONSTRUCTOR.newInstance(e, cause, 0));
-			} catch (InstantiationException | IllegalAccessException | InvocationTargetException ex) {
-				Skript.exception("Failed to set last damage cause");
-			}
-		} else {
-			e.setLastDamageCause(new EntityDamageEvent(e, cause, DamageSource.builder(DamageType.GENERIC).build(), 0));
+	/**
+	 * Used to set the damage cause of a damageable entity in an entity damage event.
+	 * Can only be used in versions below 1.20.4.
+	 * 
+	 * @param entity The damaged entity.
+	 * @param cause The damage cause in the damage event.
+	 * @deprecated Only used in versions below 1.20.4. See {@link org.bukkit.damage.DamageSource}
+	 */
+	@Deprecated
+	@ScheduledForRemoval
+	public static void setDamageCause(Damageable entity, DamageCause cause) {
+		if (DAMAGE_SOURCE)
+			return;
+		try {
+			entity.setLastDamageCause(DAMAGE_EVENT_CONSTRUCTOR.newInstance(entity, cause, 0));
+		} catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+			Skript.exception(e, "Failed to set last damage cause");
 		}
 	}
 

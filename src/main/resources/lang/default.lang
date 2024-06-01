@@ -2304,6 +2304,8 @@ types:
 	quitreason: quit reason¦s @a
 	inventoryclosereason: inventory close reason¦s @an
 	transformreason: transform reason¦s @a
+	damagesource: damage source¦s @a
+	damagetype: damage type¦s @a
 
 	# Skript
 	weathertype: weather type¦s @a
