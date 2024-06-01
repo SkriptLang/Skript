@@ -722,6 +722,7 @@ public class SkriptClasses {
 								team.setOption(Team.Option.DEATH_MESSAGE_VISIBILITY, Team.OptionStatus.ALWAYS);
 								team.setOption(Team.Option.COLLISION_RULE, Team.OptionStatus.ALWAYS);
 								team.setAllowFriendlyFire(true);
+								team.setCanSeeFriendlyInvisibles(false);
 							}
 							break;
 						case DELETE:

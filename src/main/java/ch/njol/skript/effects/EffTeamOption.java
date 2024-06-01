@@ -43,14 +43,16 @@ public class EffTeamOption extends Effect {
 			"(allow|permit) " + optionStatus + " to (collide:collide with|tag:see [the] name[ ]tag[s] of|death:see the death message[s] of) %teams%",
 				"(allow|permit) " + optionStatus + " to see %teams%'[s] (tag:name[ ]tag[s]|death:death message[s])",
 				"(allow|permit) friendly fire for %teams%",
-				"(prevent|deny) friendly fire for %teams%"
+				"(prevent|deny) friendly fire for %teams%",
+				"(allow|permit) %teams% to see [friendly] invisible[ player]s",
+				"(prevent|deny) %teams% from seeing [friendly] invisible[ player]s"
 		);
 	}
 
 	private Team.@UnknownNullability Option option;
 	private Team.@UnknownNullability OptionStatus status;
 	private Expression<Team> teamExpression;
-	private boolean allowFriendlyFire;
+	private boolean allow, friendlyFire;
 
 	@Override
 	public boolean init(Expression<?>[] expressions, int pattern, Kleenean delayed, ParseResult result) {
@@ -62,8 +64,12 @@ public class EffTeamOption extends Effect {
 			this.option = Team.Option.NAME_TAG_VISIBILITY;
 		else if (result.hasTag("collide"))
 			this.option = Team.Option.COLLISION_RULE;
-		else { // friendly fire fall-through
-			this.allowFriendlyFire = pattern == 2;
+		else if (pattern < 4) { // friendly fire
+			this.allow = pattern == 2;
+			this.friendlyFire = true;
+			return true;
+		} else { // invisible
+			this.allow = pattern == 4;
 			return true;
 		}
 		assert result.mark < OPTIONS.length;
@@ -76,15 +82,23 @@ public class EffTeamOption extends Effect {
 		for (Team team : teamExpression.getArray(event)) {
 			if (option != null)
 				team.setOption(option, status);
+			else if (friendlyFire)
+				team.setAllowFriendlyFire(allow);
 			else
-				team.setAllowFriendlyFire(allowFriendlyFire);
+				team.setCanSeeFriendlyInvisibles(allow);
 		}
 	}
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		if (option == null)
-			return (allowFriendlyFire ? "allow " : "deny ") + "friendly fire for " + teamExpression.toString(event, debug);
+		if (option == null) {
+			if (friendlyFire)
+				return (allow ? "allow " : "deny ") + "friendly fire for " + teamExpression.toString(event, debug);
+			else if (allow)
+				return "allow " + teamExpression.toString(event, debug) + " to see friendly invisible players";
+			else
+				return "prevent " + teamExpression.toString(event, debug) + " from seeing friendly invisible players";
+		}
 		switch (option) {
 			case COLLISION_RULE:
 				return "allow " + statusName(status) + " to collide with " + teamExpression.toString(event, debug);
