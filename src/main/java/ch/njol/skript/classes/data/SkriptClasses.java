@@ -28,6 +28,8 @@ import ch.njol.skript.lang.util.common.AnyAmount;
 import ch.njol.skript.lang.util.common.AnyContains;
 import ch.njol.skript.lang.util.common.AnyNamed;
 import ch.njol.skript.expressions.ExprScoreboard;
+import ch.njol.skript.util.scoreboard.Criterion;
+import ch.njol.skript.util.scoreboard.ScoreUtils;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.enchantments.Enchantment;
@@ -732,7 +734,7 @@ public class SkriptClasses {
 							break;
 						case REMOVE:
 							Set<String> set = Arrays.stream(delta).filter(Objects::nonNull)
-								.map(ExprScoreboard::toEntry).collect(Collectors.toSet());
+								.map(ScoreUtils::toEntry).collect(Collectors.toSet());
 							for (Team team : what) {
 								team.removeEntries(set);
 							}
@@ -741,7 +743,7 @@ public class SkriptClasses {
 								for (Object object : delta) {
 									if (object == null)
 										continue;
-									team.addEntry(ExprScoreboard.toEntry(object));
+									team.addEntry(ScoreUtils.toEntry(object));
 								}
 							}
 					}
@@ -755,6 +757,15 @@ public class SkriptClasses {
 			.name("Objective")
 			.description("A score objective for a scoreboard. Some objectives are scored according to game events, " +
 					"but custom objectives are also available.")
+			.usage("")
+			.examples("") // todo
+			.since("INSERT VERSION")
+		);
+
+		Classes.registerClass(new ClassInfo<>(Criterion.class, "criterion")
+			.user("criteri(on|a)")
+			.name("Criteria")
+			.description("Criteria are built-in game events or custom triggers that cause scoreboard scores to update.")
 			.usage("")
 			.examples("") // todo
 			.since("INSERT VERSION")

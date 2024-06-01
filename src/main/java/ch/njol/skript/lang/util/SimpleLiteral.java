@@ -96,7 +96,7 @@ public class SimpleLiteral<T> implements Literal<T>, DefaultExpression<T> {
 		return true;
 	}
 
-	private T[] data() {
+	protected T[] data() {
 		return Arrays.copyOf(data, data.length);
 	}
 
