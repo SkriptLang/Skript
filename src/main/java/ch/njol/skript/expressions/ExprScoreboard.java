@@ -8,10 +8,13 @@ import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.Bukkit;
+import org.bukkit.OfflinePlayer;
+import org.bukkit.entity.Entity;
 import org.bukkit.event.Event;
 import org.bukkit.scoreboard.Scoreboard;
 import org.jetbrains.annotations.Nullable;
 
+// TODO doc
 public class ExprScoreboard extends SimpleExpression<Scoreboard> {
 
 	static {
@@ -51,6 +54,21 @@ public class ExprScoreboard extends SimpleExpression<Scoreboard> {
 		if (main)
 			return "the main scoreboard";
 		return "a new scoreboard";
+	}
+
+	/**
+	 * Converts something into its string entry representation on a scoreboard.
+	 * Entities use their UUID. (Offline) players use their name.
+	 * @param object Either an entity or an offline player
+	 * @return The string entry name
+	 */
+	public static String toEntry(Object object) {
+		if (object instanceof OfflinePlayer)
+			return ((OfflinePlayer) object).getName();
+		if (object instanceof Entity)
+			return ((Entity) object).getUniqueId().toString();
+		assert object instanceof String; // May be a user text input or a bad value, but attempt it anyway
+		return String.valueOf(object); // It's fairly harmless, even if it's wrong
 	}
 
 }
