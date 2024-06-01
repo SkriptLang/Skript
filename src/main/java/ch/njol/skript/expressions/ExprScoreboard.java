@@ -11,13 +11,23 @@ import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Entity;
 import org.bukkit.event.Event;
+import org.bukkit.scoreboard.Criteria;
+import org.bukkit.scoreboard.Objective;
 import org.bukkit.scoreboard.Scoreboard;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 
 // TODO doc
 public class ExprScoreboard extends SimpleExpression<Scoreboard> {
 
+	public static final boolean ARE_CRITERIA_AVAILABLE; // todo remove in 2.10?
+
 	static {
+		ARE_CRITERIA_AVAILABLE = Skript.classExists("org.bukkit.scoreboard.Criteria");
 		Skript.registerExpression(ExprScoreboard.class, Scoreboard.class, ExpressionType.SIMPLE,
 			"[the] [main|server] scoreboard",
 			"[a] new scoreboard"
@@ -62,6 +72,7 @@ public class ExprScoreboard extends SimpleExpression<Scoreboard> {
 	 * @param object Either an entity or an offline player
 	 * @return The string entry name
 	 */
+	@ApiStatus.Internal
 	public static String toEntry(Object object) {
 		if (object instanceof OfflinePlayer)
 			return ((OfflinePlayer) object).getName();
@@ -69,6 +80,27 @@ public class ExprScoreboard extends SimpleExpression<Scoreboard> {
 			return ((Entity) object).getUniqueId().toString();
 		assert object instanceof String; // May be a user text input or a bad value, but attempt it anyway
 		return String.valueOf(object); // It's fairly harmless, even if it's wrong
+	}
+
+	/**
+	 * Gets objectives based on string (or Criteria) criteria
+	 */
+	@ApiStatus.Internal
+	public static Collection<Objective> getObjectivesByCriteria(Scoreboard scoreboard, Object... criteria) {
+		Set<Objective> objectives = new HashSet<>();
+		if (ARE_CRITERIA_AVAILABLE) {
+			for (Object criterion : criteria) {
+				if (criterion instanceof Criteria)
+					objectives.addAll(scoreboard.getObjectivesByCriteria((Criteria) criterion));
+			}
+		} else {
+			for (Object criterion : criteria) {
+				if (criterion != null)
+					objectives.addAll(scoreboard.getObjectivesByCriteria(String.valueOf(criterion)));
+			}
+
+		}
+		return objectives;
 	}
 
 }
