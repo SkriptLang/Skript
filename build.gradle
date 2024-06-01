@@ -5,7 +5,6 @@ import java.time.LocalTime
 
 plugins {
 	id 'com.github.johnrengelman.shadow' version '8.1.1'
-	id 'com.github.hierynomus.license' version '0.16.1'
 	id 'maven-publish'
 	id 'java'
 }
@@ -55,7 +54,7 @@ task checkAliases {
 }
 
 task testJar(type: ShadowJar) {
-	dependsOn(compileTestJava, licenseTest)
+	dependsOn(compileTestJava)
 	archiveFileName = 'Skript-JUnit.jar'
 	from sourceSets.test.output, sourceSets.main.output, project.configurations.testShadow
 }
@@ -141,15 +140,6 @@ publishing {
 	}
 }
 
-license {
-	header file('licenseheader.txt')
-	exclude('**/Metrics.java') // Not under GPLv3
-	exclude('**/BurgerHelper.java') // Not exclusively GPLv3
-	exclude('**/*.sk') // Sample scripts and maybe aliases
-	exclude('**/*.lang') // Language files do not have headers (still under GPLv3)
-	exclude('**/*.json') // JSON files do not have headers
-}
-
 task releaseJavadoc(type: Javadoc) {
 	title = project.name + ' ' + project.property('version')
 	source = sourceSets.main.allJava
@@ -204,7 +194,6 @@ void createTestTask(String name, String desc, String environments, int javaVersi
 	}
 	tasks.register(name, JavaExec) {
 		description = desc
-		dependsOn licenseTest
 		if (junit) {
 			dependsOn testJar
 		} else if (releaseDocs) {
@@ -307,7 +296,7 @@ task githubResources(type: ProcessResources) {
 		include '**'
 		version = project.property('version')
 		def channel = 'stable'
-		if (version.contains('pre'))
+		if (version.contains('-'))
 			channel = 'prerelease'
 		filter ReplaceTokens, tokens: [
 			'version'         : version,
@@ -340,7 +329,7 @@ task spigotResources(type: ProcessResources) {
 		include '**'
 		version = project.property('version')
 		def channel = 'stable'
-		if (version.contains('pre'))
+		if (version.contains('-'))
 			channel = 'prerelease'
 		filter ReplaceTokens, tokens: [
 			'version'         : version,
@@ -388,7 +377,7 @@ task nightlyResources(type: ProcessResources) {
 
 task nightlyRelease(type: ShadowJar) {
 	from sourceSets.main.output
-	dependsOn nightlyResources, licenseMain
+	dependsOn nightlyResources
 	archiveFileName = 'Skript-nightly.jar'
 	manifest {
 		attributes(
