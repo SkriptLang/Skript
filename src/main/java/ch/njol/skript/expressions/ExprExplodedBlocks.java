@@ -60,7 +60,7 @@ import ch.njol.util.Kleenean;
 	"on explode:",
 		"\tadd blocks above event-entity to exploded blocks"})
 @Events("explode")
-@Since("2.5, INSERT VERSION (modify blocks)")
+@Since("2.5, 2.8.6 (modify blocks)")
 public class ExprExplodedBlocks extends SimpleExpression<Block> {
 
 	static {

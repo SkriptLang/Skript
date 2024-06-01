@@ -61,7 +61,7 @@ import ch.njol.util.Kleenean;
 	"spawn a zombie at the player:",
 		"\tset name of the zombie to \"\""
 })
-@Since("1.0, 2.6.1 (with section), INSERT VERSION (dropped items)")
+@Since("1.0, 2.6.1 (with section), 2.8.6 (dropped items)")
 public class EffSecSpawn extends EffectSection {
 
 	public static class SpawnEvent extends Event {
