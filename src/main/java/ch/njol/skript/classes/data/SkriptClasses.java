@@ -27,6 +27,7 @@ import ch.njol.skript.classes.*;
 import ch.njol.skript.lang.util.common.AnyAmount;
 import ch.njol.skript.lang.util.common.AnyContains;
 import ch.njol.skript.lang.util.common.AnyNamed;
+import ch.njol.skript.expressions.ExprScoreboard;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.enchantments.Enchantment;
@@ -717,6 +718,10 @@ public class SkriptClasses {
 						case RESET:
 							for (Team team : what) {
 								team.getEntries().clear(); // todo check this actually clears
+								team.setOption(Team.Option.NAME_TAG_VISIBILITY, Team.OptionStatus.ALWAYS);
+								team.setOption(Team.Option.DEATH_MESSAGE_VISIBILITY, Team.OptionStatus.ALWAYS);
+								team.setOption(Team.Option.COLLISION_RULE, Team.OptionStatus.ALWAYS);
+								team.setAllowFriendlyFire(true);
 							}
 							break;
 						case DELETE:
@@ -726,25 +731,16 @@ public class SkriptClasses {
 							break;
 						case REMOVE:
 							Set<String> set = Arrays.stream(delta).filter(Objects::nonNull)
-								.map(object -> {
-									if (object instanceof OfflinePlayer)
-										return ((OfflinePlayer) object).getName();
-									else if (object instanceof Entity)
-										return ((Entity) object).getUniqueId().toString();
-									return object.toString();
-								}).collect(Collectors.toSet());
+								.map(ExprScoreboard::toEntry).collect(Collectors.toSet());
 							for (Team team : what) {
 								team.removeEntries(set);
 							}
 						case ADD:
 							for (Team team : what) {
 								for (Object object : delta) {
-									if (object instanceof OfflinePlayer)
-										team.addPlayer(((OfflinePlayer) object));
-									else if (object instanceof Entity)
-										team.addEntity(((Entity) object));
-									else if (object != null)
-										team.addEntry(String.valueOf(object));
+									if (object == null)
+										continue;
+									team.addEntry(ExprScoreboard.toEntry(object));
 								}
 							}
 					}
