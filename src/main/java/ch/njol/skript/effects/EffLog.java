@@ -56,7 +56,6 @@ import ch.njol.util.Kleenean;
 		"log \"Someone just went to %event-world%!\" to file \"worldlog/worlds.log\"",
 		"log \"%player% just executed %full command%!\" to file \"server/commands.log\" with a severity of warning"
 })
-
 @Since("2.0, INSERT VERSION (severities)")
 public class EffLog extends Effect {
 	static {
