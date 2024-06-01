@@ -23,16 +23,12 @@ import ch.njol.skript.SkriptAPIException;
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.lang.parser.ParserInstance;
-import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 import org.jetbrains.annotations.ApiStatus.NonExtendable;
-import org.skriptlang.skript.lang.structure.Structure;
 
-import java.util.ArrayList;
 import java.util.Deque;
 import java.util.LinkedList;
-import java.util.List;
 
 public interface ReturnHandler<T> {
 
@@ -77,19 +73,14 @@ public interface ReturnHandler<T> {
 		if (!(this instanceof Section))
 			throw new SkriptAPIException("loadReturnableSectionCode called on a non-section object");
 		ParserInstance parser = ParserInstance.get();
-		ReturnHandlerStack stack = parser.getData(ReturnHandlerStack.class);
-
-		SkriptEvent skriptEvent = new SectionSkriptEvent(name, (Section) this);
-		String previousName = parser.getCurrentEventName();
-		Class<? extends Event>[] previousEvents = parser.getCurrentEvents();
-		Structure previousStructure = parser.getCurrentStructure();
-		List<TriggerSection> previousSections = parser.getCurrentSections();
-		Kleenean previousDelay = parser.getHasDelayBefore();
+		ParserInstance.Backup parserBackup = parser.backup();
+		parser.reset();
 
 		parser.setCurrentEvent(name, events);
+		SkriptEvent skriptEvent = new SectionSkriptEvent(name, (Section) this);
 		parser.setCurrentStructure(skriptEvent);
-		parser.setCurrentSections(new ArrayList<>());
-		parser.setHasDelayBefore(Kleenean.FALSE);
+		ReturnHandlerStack stack = parser.getData(ReturnHandlerStack.class);
+
 		try {
 			return new ReturnableTrigger<>(
 				this,
@@ -103,10 +94,7 @@ public interface ReturnHandler<T> {
 			);
 		} finally {
 			stack.pop();
-			parser.setCurrentEvent(previousName, previousEvents);
-			parser.setCurrentStructure(previousStructure);
-			parser.setCurrentSections(previousSections);
-			parser.setHasDelayBefore(previousDelay);
+			parser.restoreBackup(parserBackup);
 		}
 	}
 
