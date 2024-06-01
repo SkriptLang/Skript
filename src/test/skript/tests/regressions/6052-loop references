@@ -1,0 +1,48 @@
+test "loop references":
+	set {_data::A} to 1
+	set {_data::B} to 2
+	set {_data::C} to 3
+
+	set {_balances::aa} to 10
+	set {_balances::bb} to 20
+	set {_balances::cc} to 30
+
+	# variables loop
+	loop {_data::*} as {_i} and {_d}:
+		if loop-counter = 1:
+			assert {_i} = "A" with "loop index reference failed ##1"
+			assert {_d} = 1 with "loop value reference failed ##1"
+		if loop-counter = 2:
+			assert {_i} = "B" with "loop index reference failed ##2"
+			assert {_d} = 2 with "loop value reference failed ##2"
+		if loop-counter = 3:
+			assert {_i} = "C" with "loop index reference failed ##3"
+			assert {_d} = 3 with "loop value reference failed ##3"
+
+		loop {_balances::*} as {_uuid} and {_balance}:
+			if loop-counter-2 = 1:
+				assert {_uuid} = "aa" with "loop index reference failed ##4"
+				assert {_balance} = 10 with "loop value reference failed ##4"
+			if loop-counter-2 = 2:
+				assert {_uuid} = "bb" with "loop index reference failed ##5"
+				assert {_balance} = 20 with "loop value reference failed ##5"
+			if loop-counter-2 = 3:
+				assert {_uuid} = "cc" with "loop index reference failed ##6"
+				assert {_balance} = 30 with "loop value reference failed ##6"
+
+	# non variables loop
+	loop 5 times as {_n}:
+		assert {_n} != {_t} with "Non-variable loop index reference failed ##7"
+		set {_t} to {_n}
+
+	# random loop
+	loop (20 stone, 10 dirt, 1, 2 and "try") as {_ref}:
+		assert loop-value = {_ref} with "Loop value reference failed comparing to loop-value (LV: %loop-value%, LR: %{_ref}%)"
+
+	# local vars aren't loop scope limited
+	assert {_ref} = "try" with "Last loop value reference failed after loop (should be ""try"") (value: %{_ref}%)"
+
+	# loop items
+	loop (20 stone, 10 dirt, 5 iron ingots) as {_ref}:
+		assert loop-value = {_ref} with "Loop value reference failed comparing to loop-value (LV: %loop-value%, LR: %{_ref}%) ##2"
+		assert loop-item = {_ref} with "Loop value reference failed comparing to loop-item (LV: %loop-item%, LR: %{_ref}%) ##3"
