@@ -25,6 +25,7 @@ import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 
 import org.bukkit.command.CommandSender;
 import org.eclipse.jdt.annotation.Nullable;
@@ -32,6 +33,8 @@ import org.eclipse.jdt.annotation.Nullable;
 import ch.njol.skript.Skript;
 import ch.njol.skript.localization.ArgsMessage;
 import ch.njol.skript.localization.Message;
+import ch.njol.skript.patterns.PatternCompiler;
+import ch.njol.skript.patterns.SkriptPattern;
 import ch.njol.skript.util.SkriptColor;
 
 public class CommandHelp {
@@ -41,18 +44,21 @@ public class CommandHelp {
 	private final static ArgsMessage m_invalid_argument = new ArgsMessage("commands.invalid argument");
 	private final static Message m_usage = new Message("skript command.usage");
 
+	private final Map<String, Object> arguments = new LinkedHashMap<>();
+
 	private final String actualCommand, actualNode, argsColor;
+	private boolean revalidate = true;
 	private String command;
 	private String langNode;
 
-	private boolean revalidate = true;
 	@Nullable
-	private Message description = null;
-
-	private final Map<String, Object> arguments = new LinkedHashMap<>();
+	private ArgumentHolder wildcardArg;
 
 	@Nullable
-	private ArgumentHolder wildcardArg = null;
+	private SkriptPattern pattern;
+
+	@Nullable
+	private Message description;
 
 	public CommandHelp(String command, SkriptColor argsColor, String langNode) {
 		this(command, argsColor.getFormattedChat(), langNode);
@@ -68,8 +74,27 @@ public class CommandHelp {
 		this.argsColor = argsColor;
 	}
 
+	/**
+	 * Add an argument to the CommandHelp.
+	 * 
+	 * @param argument String that represents the node path to the help info.
+	 * @return This CommandHelp for building.
+	 */
 	public CommandHelp add(String argument) {
+		return add(argument, null);
+	}
+
+	/**
+	 * Add an argument to the CommandHelp.
+	 * 
+	 * @param argument String that represents the node path to the help info.
+	 * @param pattern The pattern to match against user input.
+	 * @return This CommandHelp for building.
+	 */
+	public CommandHelp add(String argument, @Nullable String pattern) {
 		ArgumentHolder holder = new ArgumentHolder(argument);
+		if (pattern != null)
+			holder.pattern = PatternCompiler.compile(pattern);
 		if (argument.startsWith("<") && argument.endsWith(">")) {
 			argument = GRAY + "<" + argsColor + argument.substring(1, argument.length() - 1) + GRAY + ">";
 			wildcardArg = holder;
@@ -97,6 +122,18 @@ public class CommandHelp {
 		}
 	}
 
+	private Optional<Object> match(String argument) {
+		return arguments.entrySet().stream().filter(entry -> {
+			Object value = entry.getValue();
+			if (value instanceof ArgumentHolder) {
+				ArgumentHolder argumentHolder = (ArgumentHolder) value;
+				if (argumentHolder.pattern != null)
+					return argumentHolder.pattern.match(argument) != null;
+			}
+			return entry.getKey().equals(argument);
+		}).map(Entry::getValue).findFirst();
+	}
+
 	public boolean test(CommandSender sender, String[] args) {
 		return test(sender, args, 0);
 	}
@@ -106,12 +143,12 @@ public class CommandHelp {
 			showHelp(sender);
 			return false;
 		}
-		Object help = arguments.get(args[index].toLowerCase(Locale.ENGLISH));
-		if (help == null && wildcardArg == null) {
+		Optional<Object> help = match(args[index].toLowerCase(Locale.ENGLISH));
+		if (!help.isPresent() && wildcardArg == null) {
 			showHelp(sender, m_invalid_argument.toString(argsColor + args[index]));
 			return false;
 		}
-		return !(help instanceof CommandHelp) || ((CommandHelp) help).test(sender, args, index + 1);
+		return !(help.get() instanceof CommandHelp) || ((CommandHelp) help.get()).test(sender, args, index + 1);
 	}
 
 	public void showHelp(CommandSender sender) {
@@ -120,8 +157,9 @@ public class CommandHelp {
 
 	private void showHelp(CommandSender sender, String pre) {
 		Skript.message(sender, pre + " " + command + " " + argsColor + "...");
-		for (Entry<String, Object> entry : arguments.entrySet())
+		for (Entry<String, Object> entry : arguments.entrySet()) {
 			Skript.message(sender, "  " + argsColor + entry.getKey() + " " + GRAY + "-" + RESET + " " + entry.getValue());
+		}
 	}
 
 	@Override
@@ -136,10 +174,14 @@ public class CommandHelp {
 
 	private class ArgumentHolder {
 
-		private final String argument;
 		private boolean revalidate = true;
+		private final String argument;
+
 		@Nullable
-		private Message description = null; 
+		private SkriptPattern pattern;
+
+		@Nullable
+		private Message description; 
 
 		private ArgumentHolder(String argument) {
 			this.argument = argument;
