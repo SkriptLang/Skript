@@ -46,7 +46,4 @@ import java.util.function.Function;
  */
 public interface AnyProvider {
 
-	static <To, From extends AnyProvider> Converter<To, From> convert(Function<To, From> from) {
-		return from::apply;
-	}
 }
