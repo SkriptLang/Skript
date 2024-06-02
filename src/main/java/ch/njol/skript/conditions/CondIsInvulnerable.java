@@ -31,7 +31,7 @@ import ch.njol.skript.conditions.base.PropertyCondition;
 @Examples({
 	"target entity is invulnerable",
 	"",
-	"loop {_gamemodes::*}:",
+	"loop all gamemodes:",
 		"\tif loop-value is not invulnerable:",
 			"\t\tbroadcast \"the gamemode %loop-value% is vulnerable!\""
 })
