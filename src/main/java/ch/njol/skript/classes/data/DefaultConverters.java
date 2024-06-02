@@ -27,6 +27,7 @@ import ch.njol.skript.entity.XpOrbData;
 import ch.njol.skript.hooks.VaultHook;
 import ch.njol.skript.lang.util.common.*;
 import ch.njol.skript.util.*;
+import ch.njol.skript.util.scoreboard.Criterion;
 import ch.njol.skript.util.scoreboard.ScoreUtils;
 import ch.njol.skript.util.slot.Slot;
 import org.bukkit.*;
@@ -185,6 +186,7 @@ public class DefaultConverters {
 		Converters.registerConverter(WorldType.class, AnyNamed.class, thing -> thing::getName, Converter.NO_RIGHT_CHAINING);
 		Converters.registerConverter(Team.class, AnyNamed.class, thing -> thing::getName, Converter.NO_RIGHT_CHAINING);
 		Converters.registerConverter(Objective.class, AnyNamed.class, thing -> thing::getName, Converter.NO_RIGHT_CHAINING);
+		Converters.registerConverter(Criterion.class, AnyNamed.class, thing -> thing::name, Converter.NO_RIGHT_CHAINING);
 		Converters.registerConverter(Nameable.class, AnyNamed.class, //<editor-fold desc="Converter" defaultstate="collapsed">
 			nameable -> new AnyNamed() {
 				@Override
@@ -297,7 +299,7 @@ public class DefaultConverters {
 
 		// Anything that contains -> AnyContainer
 		Converters.registerConverter(Team.class, AnyContains.class, //<editor-fold desc="Converter" defaultstate="collapsed">
-			team -> new AnyContains<>() {
+			team -> new AnyContains<Object>() {
 				@Override
 				public boolean contains(Object value) {
 					if (ScoreUtils.ARE_CRITERIA_AVAILABLE) {
@@ -324,7 +326,7 @@ public class DefaultConverters {
 
 		// Anything with members -> AnyMembers
 		Converters.registerConverter(Team.class, AnyMembers.class, //<editor-fold desc="Converter" defaultstate="collapsed">
-			team -> new AnyMembers<>() {
+			team -> new AnyMembers<Object>() {
 				@Override
 				public Collection<Object> members() {
 					return ScoreUtils.getMembers(team);

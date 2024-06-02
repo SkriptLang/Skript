@@ -25,14 +25,12 @@ import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleLiteral;
-import ch.njol.skript.util.Direction;
 import ch.njol.skript.util.scoreboard.Criterion;
 import ch.njol.skript.util.scoreboard.ScoreUtils;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.bukkit.scoreboard.Criteria;
-import org.bukkit.scoreboard.Objective;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -58,7 +56,7 @@ public class LitCriterion extends SimpleLiteral<Criterion> {
 					if (field.getType() != Criteria.class)
 						continue;
 					Criteria criteria = (Criteria) field.get(null);
-					list.add(new Criterion(makeNiceName(field.getName()), criteria.getName()));
+					list.add(new Criterion(makeNiceName(field.getName()), criteria.getName(), criteria));
 				} catch (IllegalArgumentException | IllegalAccessException e) {
 					Skript.exception(e, "Can't get criteria patterns.");
 				}

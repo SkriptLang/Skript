@@ -44,23 +44,23 @@ public class Criterion implements CharSequence {
 
 	@Override
 	public int length() {
-		return name.length();
+		return pattern.length();
 	}
 
 	@Override
 	public char charAt(int index) {
-		return name.charAt(index);
+		return pattern.charAt(index);
 	}
 
 	@NotNull
 	@Override
 	public CharSequence subSequence(int start, int end) {
-		return name.subSequence(start, end);
+		return pattern.subSequence(start, end);
 	}
 
 	@Override
 	public @NotNull String toString() {
-		return name;
+		return pattern;
 	}
 
 }

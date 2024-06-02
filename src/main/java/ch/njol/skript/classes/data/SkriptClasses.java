@@ -803,7 +803,7 @@ public class SkriptClasses {
 			.since("INSERT VERSION")
 		);
 
-		Classes.registerClass(new ClassInfo<>(AnyMembers.class, "group")
+		Classes.registerClass(new AnyInfo<>(AnyMembers.class, "group")
 			.name("Anything With Members")
 			.description("Something that has members (e.g. a team).")
 			.usage("")
