@@ -7,10 +7,12 @@ import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.lang.util.common.AnyMembers;
+import ch.njol.skript.util.scoreboard.ScoreUtils;
 import ch.njol.util.Kleenean;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Entity;
 import org.bukkit.event.Event;
+import org.bukkit.scoreboard.Team;
 import org.eclipse.jdt.annotation.Nullable;
 
 import java.util.ArrayList;
@@ -18,62 +20,65 @@ import java.util.Arrays;
 import java.util.List;
 
 // TODO doc
-public class ExprMembers extends SimpleExpression<Object> {
+public class ExprEntries extends SimpleExpression<String> {
 
 	static {
-		Skript.registerExpression(ExprMembers.class, Object.class, ExpressionType.PROPERTY,
-			"[the] members of %any-group%", "%any-group%'[s] members");
+		Skript.registerExpression(ExprEntries.class, String.class, ExpressionType.PROPERTY,
+			"[the] entries of %team%", "%team%'[s] entries");
 	}
 
-	private Expression<AnyMembers<?>> expression;
+	private Expression<Team> expression;
 
 	@Override
 	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		this.expression = (Expression<AnyMembers<?>>) expressions[0];
+		this.expression = (Expression<Team>) expressions[0];
 		return true;
 	}
 
 	@Override
-	protected @Nullable Object[] get(Event event) {
-		List<Object> members = new ArrayList<>();
-		for (AnyMembers<?> objects : expression.getArray(event)) {
-			members.addAll(objects.members());
+	protected @Nullable String[] get(Event event) {
+		List<String> members = new ArrayList<>();
+		for (Team team : expression.getArray(event)) {
+			members.addAll(team.getEntries());
 		}
-		return members.toArray();
+		return members.toArray(new String[0]);
 	}
 
 	@Override
 	public Class<?> @Nullable [] acceptChange(Changer.ChangeMode mode) {
-		return changers(mode);
+		return ExprMembers.changers(mode);
 	}
 
 	@Override
 	public void change(Event event,  Object @Nullable [] delta, Changer.ChangeMode mode) {
 		if (delta == null && mode != Changer.ChangeMode.RESET)
 			return;
-		for (AnyMembers<?> group : expression.getArray(event)) {
-			if (!group.membersSupportChanges())
-				continue;
+		for (Team team : expression.getArray(event)) {
 			switch (mode) {
 				case RESET:
-					group.resetMembers();
-					break;
-				case SET:
-					group.setMembers(Arrays.asList(delta));
-					break;
+					for (String entry : team.getEntries())
+						team.removeEntry(entry); // remove entries is paper only :(
+				case SET: // set is reset + add
 				case ADD:
-					group.addMembers(Arrays.asList(delta));
+					if (delta == null)
+						break;
+					for (Object object : delta)
+						team.addEntry(ScoreUtils.toEntry(object));
 					break;
 				case REMOVE:
-					group.removeMembers(Arrays.asList(delta));
+					//noinspection ConstantValue IntelliJ is wrong here
+					if (delta == null)
+						break;
+					for (Object object : delta)
+						team.removeEntry(ScoreUtils.toEntry(object));
 					break;
 			}
 		}
 	}
 
 	@Override
-	public Class<?> getReturnType() {
-		return Object.class;
+	public Class<String> getReturnType() {
+		return String.class;
 	}
 
 	@Override
@@ -83,19 +88,7 @@ public class ExprMembers extends SimpleExpression<Object> {
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return "the members of " + expression.toString(event, debug);
-	}
-
-	static Class<?> @Nullable [] changers(Changer.ChangeMode mode) {
-		switch (mode) {
-			case ADD:
-			case REMOVE:
-			case SET:
-				return new Class[] {Entity[].class, String[].class, OfflinePlayer[].class, Object[].class};
-			case RESET:
-				return new Class[0];
-		}
-		return null;
+		return "the entries of " + expression.toString(event, debug);
 	}
 
 }

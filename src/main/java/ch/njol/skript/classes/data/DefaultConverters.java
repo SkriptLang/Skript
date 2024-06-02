@@ -359,8 +359,8 @@ public class DefaultConverters {
 				}
 
 				@Override
-				public void setPrefix(String prefix) throws UnsupportedOperationException {
-					team.setPrefix(prefix);
+				public void setPrefix(@Nullable String prefix) throws UnsupportedOperationException {
+					team.setPrefix(prefix != null ? prefix : "");
 				}
 			},
 			//</editor-fold>
@@ -381,7 +381,7 @@ public class DefaultConverters {
 				}
 
 				@Override
-				public void setPrefix(String prefix) throws UnsupportedOperationException {
+				public void setPrefix(@Nullable String prefix) throws UnsupportedOperationException {
 					VaultHook.chat.setPlayerPrefix(player, prefix);
 				}
 			},
@@ -402,8 +402,8 @@ public class DefaultConverters {
 				}
 
 				@Override
-				public void setSuffix(String suffix) throws UnsupportedOperationException {
-					team.setSuffix(suffix);
+				public void setSuffix(@Nullable String suffix) throws UnsupportedOperationException {
+					team.setSuffix(suffix != null ? suffix : "");
 				}
 			},
 			//</editor-fold>
@@ -424,7 +424,7 @@ public class DefaultConverters {
 				}
 
 				@Override
-				public void setSuffix(String suffix) throws UnsupportedOperationException {
+				public void setSuffix(@Nullable String suffix) throws UnsupportedOperationException {
 					VaultHook.chat.setPlayerSuffix(player, suffix);
 				}
 			},
