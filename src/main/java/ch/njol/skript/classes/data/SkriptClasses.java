@@ -25,6 +25,7 @@ import java.util.regex.Pattern;
 
 import ch.njol.skript.classes.*;
 import ch.njol.skript.lang.util.common.AnyAmount;
+import ch.njol.skript.lang.util.common.AnyContains;
 import ch.njol.skript.lang.util.common.AnyNamed;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
@@ -700,7 +701,15 @@ public class SkriptClasses {
 			.name("Any Sized Thing")
 			.description("Something that has an amount or size.")
 			.usage("")
-			.examples("the size of {thing}")
+			.examples("the size of {thing}", "the amount of {thing}")
+			.since("INSERT VERSION")
+		);
+
+		Classes.registerClass(new AnyInfo<>(AnyContains.class, "container")
+			.name("Anything With Contents")
+			.description("Something that contains other things.")
+			.usage("")
+			.examples("{a} contains {b}")
 			.since("INSERT VERSION")
 		);
 	}

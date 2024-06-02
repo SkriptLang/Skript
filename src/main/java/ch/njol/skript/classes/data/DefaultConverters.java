@@ -25,6 +25,7 @@ import ch.njol.skript.entity.EntityData;
 import ch.njol.skript.entity.EntityType;
 import ch.njol.skript.entity.XpOrbData;
 import ch.njol.skript.lang.util.common.AnyAmount;
+import ch.njol.skript.lang.util.common.AnyContains;
 import ch.njol.skript.lang.util.common.AnyNamed;
 import ch.njol.skript.lang.util.common.AnyProvider;
 import ch.njol.skript.util.BlockInventoryHolder;
