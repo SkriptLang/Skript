@@ -76,7 +76,7 @@ import java.util.stream.Stream;
  * Used for parsing my custom patterns.<br>
  * <br>
  * Note: All parse methods print one error at most xor any amount of warnings and lower level log messages. If the given string doesn't match any pattern then nothing is printed.
- * 
+ *
  * @author Peter Güttinger
  */
 public class SkriptParser {
@@ -102,7 +102,7 @@ public class SkriptParser {
 	 * Constructs a new SkriptParser object that can be used to parse the given expression.
 	 * <p>
 	 * A SkriptParser can be re-used indefinitely for the given expression, but to parse a new expression a new SkriptParser has to be created.
-	 * 
+	 *
 	 * @param expr The expression to parse
 	 * @param flags Some parse flags ({@link #PARSE_EXPRESSIONS}, {@link #PARSE_LITERALS})
 	 * @param context The parse context
@@ -607,7 +607,7 @@ public class SkriptParser {
 					return new SimpleLiteral<>(parsedObject, false, new UnparsedLiteral(expr));
 				}
 			}
-			if (expr.startsWith("\"") && expr.endsWith("\"")) {
+			if (expr.startsWith("\"") && expr.endsWith("\"") && expr.length() > 1) {
 				for (ClassInfo<?> aClass : exprInfo.classes) {
 					if (!aClass.getC().isAssignableFrom(String.class))
 						continue;
@@ -1054,7 +1054,7 @@ public class SkriptParser {
 
 	/**
 	 * Finds the closing bracket of the group at <tt>start</tt> (i.e. <tt>start</tt> has to be <i>in</i> a group).
-	 * 
+	 *
 	 * @param pattern The string to search in
 	 * @param closingBracket The bracket to look for, e.g. ')'
 	 * @param openingBracket A bracket that opens another group, e.g. '('
@@ -1105,7 +1105,7 @@ public class SkriptParser {
 
 	/**
 	 * Counts how often the given character occurs in the given string, ignoring any escaped occurrences of the character.
-	 * 
+	 *
 	 * @param haystack The string to search in
 	 * @param needle The character to search for
 	 * @return The number of unescaped occurrences of the given character
@@ -1140,7 +1140,7 @@ public class SkriptParser {
 
 	/**
 	 * Find the next unescaped (i.e. single) double quote in the string.
-	 * 
+	 *
 	 * @param string The string to search in
 	 * @param start Index after the starting quote
 	 * @return Index of the end quote
@@ -1211,7 +1211,7 @@ public class SkriptParser {
 	 * Returns the next character in the expression, skipping strings,
 	 * variables and parentheses
 	 * (unless {@code context} is {@link ParseContext#COMMAND} or {@link ParseContext#PARSE}).
-	 * 
+	 *
 	 * @param expr The expression to traverse.
 	 * @param startIndex The index to start at.
 	 * @return The next index (can be expr.length()), or -1 if
@@ -1329,7 +1329,7 @@ public class SkriptParser {
 
 	/**
 	 * Validates a user-defined pattern (used in {@link ExprParse}).
-	 * 
+	 *
 	 * @param pattern The pattern string to validate
 	 * @return The pattern with %codenames% and a boolean array that contains whether the expressions are plural or not
 	 */
