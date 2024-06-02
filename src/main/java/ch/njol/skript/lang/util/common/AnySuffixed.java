@@ -1,5 +1,7 @@
 package ch.njol.skript.lang.util.common;
 
+import org.jetbrains.annotations.Nullable;
+
 /**
  * A provider for anything with a (text) suffix, e.g. a player.
  * Anything implementing this (or convertible to this) can be used by the {@link ch.njol.skript.expressions.ExprSuffix}
@@ -30,10 +32,10 @@ public interface AnySuffixed extends AnyProvider {
 	 * If not possible, then {@link #suffixSupportsChange()} should return false and this
 	 * may throw an error.
 	 *
-	 * @param suffix The suffix to change
+	 * @param suffix The suffix to change, or nothing if this is to be deleted/reset
 	 * @throws UnsupportedOperationException If this is impossible
 	 */
-	default void setSuffix(String suffix) throws UnsupportedOperationException {
+	default void setSuffix(@Nullable String suffix) throws UnsupportedOperationException {
 		throw new UnsupportedOperationException();
 	}
 

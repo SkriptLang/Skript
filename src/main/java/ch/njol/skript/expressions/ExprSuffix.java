@@ -23,11 +23,11 @@ import org.jetbrains.annotations.Nullable;
 	"set {team}'s suffix to \" &lt;blue&gt;OK&lt;reset&gt;\""
 })
 @Since("2.0")
-@RequiredPlugins({"Vault", "a chat plugin that supports Vault"})
+@RequiredPlugins({"Vault & Any permissions plugin (player suffixes)"})
 public class ExprSuffix extends SimplePropertyExpression<AnySuffixed, String> {
 
 	static {
-		register(ExprPrefix.class, String.class, "[chat|team] suffix", "any-suffixed");
+		register(ExprPrefix.class, String.class, "suffix", "any-suffixed");
 	}
 
 	@Override
@@ -46,20 +46,26 @@ public class ExprSuffix extends SimplePropertyExpression<AnySuffixed, String> {
 	}
 
 	@Override
+	public boolean isSingle() {
+		return true;
+	}
+
+	@Override
 
 	public Class<?> @Nullable [] acceptChange(final ChangeMode mode) {
 		if (mode == ChangeMode.SET)
 			return new Class[] {String.class};
+		if (mode == ChangeMode.RESET || mode == ChangeMode.DELETE)
+			return new Class[0];
 		return null;
 	}
 
 	@Override
 	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
-		assert mode == ChangeMode.SET;
-		assert delta != null && delta.length > 0;
+		String value = delta != null && delta.length > 0 && delta[0] != null ? delta[0].toString() : null;
 		for (final AnySuffixed suffixed : getExpr().getArray(event)) {
 			if (suffixed.suffixSupportsChange())
-				suffixed.setSuffix(String.valueOf(delta[0]));
+				suffixed.setSuffix(value);
 		}
 	}
 

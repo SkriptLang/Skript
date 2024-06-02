@@ -1,5 +1,7 @@
 package ch.njol.skript.lang.util.common;
 
+import org.jetbrains.annotations.Nullable;
+
 /**
  * A provider for anything with a (text) prefix, e.g. a player.
  * Anything implementing this (or convertible to this) can be used by the {@link ch.njol.skript.expressions.ExprPrefix}
@@ -30,10 +32,10 @@ public interface AnyPrefixed extends AnyProvider {
 	 * If not possible, then {@link #prefixSupportsChange()} should return false and this
 	 * may throw an error.
 	 *
-	 * @param prefix The prefix to change
+	 * @param prefix The prefix to change, or nothing if this is to be deleted/reset
 	 * @throws UnsupportedOperationException If this is impossible
 	 */
-	default void setPrefix(String prefix) throws UnsupportedOperationException {
+	default void setPrefix(@Nullable String prefix) throws UnsupportedOperationException {
 		throw new UnsupportedOperationException();
 	}
 
