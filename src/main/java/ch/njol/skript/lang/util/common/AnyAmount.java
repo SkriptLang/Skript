@@ -38,7 +38,7 @@ public interface AnyAmount extends AnyProvider {
 
 	/**
 	 * This is called before {@link #setAmount(Number)}.
-	 * If the result is false, setting the name will never be attempted.
+	 * If the result is false, setting the amount will never be attempted.
 	 *
 	 * @return Whether this supports being set
 	 */
@@ -47,11 +47,11 @@ public interface AnyAmount extends AnyProvider {
 	}
 
 	/**
-	 * The behaviour for changing this thing's name, if possible.
+	 * The behaviour for changing this thing's amount, if possible.
 	 * If not possible, then {@link #amountSupportsChange()} should return false and this
 	 * may throw an error.
 	 *
-	 * @param amount The name to change
+	 * @param amount The new amount
 	 * @throws UnsupportedOperationException If this is impossible
 	 */
 	default void setAmount(Number amount) throws UnsupportedOperationException {
