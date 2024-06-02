@@ -31,6 +31,7 @@ import ch.njol.skript.util.BlockUtils;
 import ch.njol.skript.util.Direction;
 import ch.njol.skript.util.EnchantmentType;
 import ch.njol.skript.util.Experience;
+import ch.njol.skript.util.scoreboard.ScoreUtils;
 import ch.njol.skript.util.slot.Slot;
 import org.bukkit.*;
 import org.bukkit.block.Block;
@@ -251,6 +252,33 @@ public class DefaultConverters {
 				@Override
 				public void setAmount(@Nullable Number amount) throws UnsupportedOperationException {
 					item.setAmount(amount != null ? amount.intValue() : 0);
+				}
+			},
+			//</editor-fold>
+			Converter.NO_RIGHT_CHAINING);
+
+		// Anything that contains -> AnyContainer
+		Converters.registerConverter(Team.class, AnyContains.class, //<editor-fold desc="Converter" defaultstate="collapsed">
+			team -> new AnyContains<>() {
+				@Override
+				public boolean contains(Object value) {
+					if (ScoreUtils.ARE_CRITERIA_AVAILABLE) {
+						return value instanceof OfflinePlayer && team.hasPlayer((OfflinePlayer) value)
+							|| value instanceof Entity && team.hasEntity((Entity) value);
+					} else if (value instanceof OfflinePlayer) {
+						String name = ((OfflinePlayer) value).getName();
+						if (name == null)
+							return false;
+						return team.hasEntry(name);
+					} else if (value instanceof Entity) {
+						return team.hasEntry(((Entity) value).getUniqueId().toString());
+					}
+					return false;
+				}
+
+				@Override
+				public boolean isSafeToCheck(Object value) {
+					return value instanceof OfflinePlayer || value instanceof Entity;
 				}
 			},
 			//</editor-fold>
