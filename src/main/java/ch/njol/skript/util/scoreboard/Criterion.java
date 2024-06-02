@@ -42,6 +42,13 @@ public class Criterion implements CharSequence {
 		return scoreboard.getObjectivesByCriteria(name);
 	}
 
+	public void registerObjective(Scoreboard scoreboard, String name) {
+		if (handle != null)
+			scoreboard.registerNewObjective(name, (Criteria) handle, name);
+		else
+			scoreboard.registerNewObjective(name, this.name);
+	}
+
 	@Override
 	public int length() {
 		return pattern.length();
