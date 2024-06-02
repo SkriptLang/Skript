@@ -26,6 +26,7 @@ import java.util.stream.Collectors;
 import ch.njol.skript.classes.*;
 import ch.njol.skript.lang.util.common.AnyAmount;
 import ch.njol.skript.lang.util.common.AnyContains;
+import ch.njol.skript.lang.util.common.AnyMembers;
 import ch.njol.skript.lang.util.common.AnyNamed;
 import ch.njol.skript.expressions.ExprScoreboard;
 import ch.njol.skript.util.scoreboard.Criterion;
@@ -804,6 +805,15 @@ public class SkriptClasses {
 			.examples("{a} contains {b}")
 			.since("INSERT VERSION")
 		);
+
+		Classes.registerClass(new ClassInfo<>(AnyMembers.class, "group")
+			.name("Anything With Members")
+			.description("Something that has members (e.g. a team).")
+			.usage("")
+			.examples("the members of {thing}")
+			.since("INSERT VERSION")
+		);
+
 	}
 
 }

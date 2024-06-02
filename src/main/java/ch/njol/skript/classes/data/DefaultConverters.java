@@ -24,8 +24,7 @@ import ch.njol.skript.command.Commands;
 import ch.njol.skript.entity.EntityData;
 import ch.njol.skript.entity.EntityType;
 import ch.njol.skript.entity.XpOrbData;
-import ch.njol.skript.lang.util.common.AnyAmount;
-import ch.njol.skript.lang.util.common.AnyNamed;
+import ch.njol.skript.lang.util.common.*;
 import ch.njol.skript.util.BlockInventoryHolder;
 import ch.njol.skript.util.BlockUtils;
 import ch.njol.skript.util.Direction;
@@ -57,6 +56,9 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.UnknownNullability;
 import org.skriptlang.skript.lang.converter.Converter;
 import org.skriptlang.skript.lang.converter.Converters;
+
+import java.util.Collection;
+import java.util.List;
 
 public class DefaultConverters {
 
@@ -279,6 +281,27 @@ public class DefaultConverters {
 				@Override
 				public boolean isSafeToCheck(Object value) {
 					return value instanceof OfflinePlayer || value instanceof Entity;
+				}
+			},
+			//</editor-fold>
+			Converter.NO_RIGHT_CHAINING);
+
+		// Anything with members -> AnyMembers
+		Converters.registerConverter(Team.class, AnyMembers.class, //<editor-fold desc="Converter" defaultstate="collapsed">
+			team -> new AnyMembers<>() {
+				@Override
+				public Collection<Object> members() {
+					return ScoreUtils.getMembers(team);
+				}
+
+				@Override
+				public boolean membersSupportChanges() {
+					return true;
+				}
+
+				@Override
+				public boolean isSafeMemberType(@Nullable Object member) {
+					return member instanceof OfflinePlayer || member instanceof Entity;
 				}
 			},
 			//</editor-fold>
