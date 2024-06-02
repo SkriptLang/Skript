@@ -781,7 +781,7 @@ public class SkriptClasses {
 
 		Classes.registerClass(new AnyInfo<>(AnyNamed.class, "named")
 			.name("Any Named Thing")
-			.description("Something that has a name (an item).")
+			.description("Something that has a name (e.g. an item).")
 			.usage("")
 			.examples("{thing}'s name")
 			.since("INSERT VERSION")
@@ -824,6 +824,14 @@ public class SkriptClasses {
 			.description("Something that can have a (text) suffix, such as a player or a team.")
 			.usage("")
 			.examples("player's suffix")
+			.since("INSERT VERSION")
+		);
+
+		Classes.registerClass(new AnyInfo<>(AnyDisplayNamed.class, "displaynamed")
+			.name("Any Display-Named Thing")
+			.description("Something that has a display name (e.g. a player, an objective, a team).")
+			.usage("")
+			.examples("{objective}'s display name")
 			.since("INSERT VERSION")
 		);
 

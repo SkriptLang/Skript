@@ -235,6 +235,44 @@ public class DefaultConverters {
 		Converters.registerConverter(CommandSender.class, AnyNamed.class, thing -> thing::getName, Converter.NO_RIGHT_CHAINING);
 		// Command senders should be done last because there might be a better alternative above
 
+		// Anything with a name -> AnyDisplayNamed
+		Converters.registerConverter(Team.class, AnyDisplayNamed.class, //<editor-fold desc="Converter" defaultstate="collapsed">
+			team -> new AnyDisplayNamed() {
+				@Override
+				public @UnknownNullability String displayName() {
+					return team.getDisplayName();
+				}
+
+				@Override
+				public boolean displayNameSupportsChange() {
+					return true;
+				}
+
+				@Override
+				public void setDisplayName(String name) throws UnsupportedOperationException {
+					team.setDisplayName(name);
+				}
+			},//</editor-fold>
+			Converter.NO_RIGHT_CHAINING);
+		Converters.registerConverter(Objective.class, AnyDisplayNamed.class, //<editor-fold desc="Converter" defaultstate="collapsed">
+			objective -> new AnyDisplayNamed() {
+				@Override
+				public @UnknownNullability String displayName() {
+					return objective.getDisplayName();
+				}
+
+				@Override
+				public boolean displayNameSupportsChange() {
+					return true;
+				}
+
+				@Override
+				public void setDisplayName(String name) throws UnsupportedOperationException {
+					objective.setDisplayName(name);
+				}
+			},//</editor-fold>
+			Converter.NO_RIGHT_CHAINING);
+
 		// Anything with an amount -> AnyAmount
 		Converters.registerConverter(ItemStack.class, AnyAmount.class, //<editor-fold desc="Converter" defaultstate="collapsed">
 			item -> new AnyAmount() {

@@ -24,6 +24,7 @@ import java.lang.invoke.MethodType;
 import java.util.ArrayList;
 import java.util.List;
 
+import ch.njol.skript.lang.util.common.AnyDisplayNamed;
 import ch.njol.skript.lang.util.common.AnyNamed;
 import org.bukkit.Bukkit;
 import org.bukkit.GameRule;
@@ -129,7 +130,7 @@ public class ExprName extends SimplePropertyExpression<Object, String> {
 				Skript.methodExists(Bukkit.class, "createInventory", InventoryHolder.class, int.class, Component.class))
 			serializer = BungeeComponentSerializer.get();
 		register(ExprName.class, String.class, "(1:name[s])", "players/entities/inventories/any-named");
-		register(ExprName.class, String.class, "(2:(display|nick|chat|custom)[ ]name[s])", "players/entities/inventories/any-named");
+		register(ExprName.class, String.class, "(2:(display|nick|chat|custom)[ ]name[s])", "players/entities/inventories/any-displaynamed/any-named");
 		register(ExprName.class, String.class, "(3:(player|tab)[ ]list name[s])", "players");
 		// we keep the entity input because we want to do something special with entities
 	}
@@ -172,6 +173,8 @@ public class ExprName extends SimplePropertyExpression<Object, String> {
 			if (inventory.getViewers().isEmpty())
 				return null;
 			return inventory.getViewers().get(0).getOpenInventory().getTitle();
+		} else if (mark == 2 && object instanceof AnyDisplayNamed) {
+			return ((AnyDisplayNamed) object).displayName();
 		} else if (object instanceof AnyNamed) {
 			return ((AnyNamed) object).name();
 		}
@@ -214,6 +217,10 @@ public class ExprName extends SimplePropertyExpression<Object, String> {
 					((Entity) object).setCustomNameVisible(name != null);
 				if (object instanceof LivingEntity)
 					((LivingEntity) object).setRemoveWhenFarAway(name == null);
+			} else if (mark == 2 && object instanceof AnyDisplayNamed) {
+				AnyDisplayNamed named = (AnyDisplayNamed) object;
+				if (named.displayNameSupportsChange())
+					named.setDisplayName(name);
 			} else if (object instanceof AnyNamed) {
 				AnyNamed named = (AnyNamed) object;
 				if (named.nameSupportsChange())
