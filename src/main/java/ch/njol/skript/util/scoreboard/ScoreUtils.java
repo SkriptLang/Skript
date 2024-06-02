@@ -1,9 +1,11 @@
 package ch.njol.skript.util.scoreboard;
 
 import ch.njol.skript.Skript;
+import ch.njol.skript.util.Utils;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.Player;
 import org.bukkit.scoreboard.Criteria;
 import org.bukkit.scoreboard.Objective;
 import org.bukkit.scoreboard.Scoreboard;
@@ -69,6 +71,32 @@ public class ScoreUtils {
 				return false;
 		}
 		return string.indexOf('-', dash + 1) == -1;
+	}
+
+	public static String getPrefix(Team team) {
+		if (team == null || team.getPrefix() == null)
+			return null;
+		return Utils.replaceChatStyles(team.getPrefix());
+	}
+
+	public static String getSuffix(Team team) {
+		if (team == null || team.getSuffix() == null)
+			return null;
+		return Utils.replaceChatStyles(team.getSuffix());
+	}
+
+	public static String getTeamPrefix(Player player) {
+		Team team = Bukkit.getScoreboardManager().getMainScoreboard().getTeam(player.getName());
+		if (team != null)
+			return getPrefix(team);
+		return null;
+	}
+
+	public static String getTeamSuffix(Player player) {
+		Team team = Bukkit.getScoreboardManager().getMainScoreboard().getTeam(player.getName());
+		if (team != null)
+			return getSuffix(team);
+		return null;
 	}
 
 	protected static class MemberSet extends AbstractSet<Object> {

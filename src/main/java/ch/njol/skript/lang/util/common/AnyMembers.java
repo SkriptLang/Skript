@@ -8,7 +8,7 @@ import java.util.Iterator;
 
 /**
  * A provider for anything with members.
- * Anything implementing this (or convertible to this) can be used by the {@link ch.njol.skript.expressions.ExprName} // todo
+ * Anything implementing this (or convertible to this) can be used by the {@link ch.njol.skript.expressions.ExprMembers}
  * property expression.
  *
  * @see AnyProvider
@@ -46,7 +46,7 @@ public interface AnyMembers<MemberType> extends AnyProvider, Iterable<MemberType
 
 	default boolean isSafeMemberType(@Nullable Object member) {
 		try {
-			//noinspection unchecked
+			//noinspection unchecked (this is the best we can do to catch it here)
 			MemberType thing = (MemberType) member;
 			return thing != null;
 		} catch (ClassCastException e) {

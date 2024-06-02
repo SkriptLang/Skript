@@ -24,10 +24,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import ch.njol.skript.classes.*;
-import ch.njol.skript.lang.util.common.AnyAmount;
-import ch.njol.skript.lang.util.common.AnyContains;
-import ch.njol.skript.lang.util.common.AnyMembers;
-import ch.njol.skript.lang.util.common.AnyNamed;
+import ch.njol.skript.lang.util.common.*;
 import ch.njol.skript.expressions.ExprScoreboard;
 import ch.njol.skript.util.scoreboard.Criterion;
 import ch.njol.skript.util.scoreboard.ScoreUtils;
@@ -811,6 +808,22 @@ public class SkriptClasses {
 			.description("Something that has members (e.g. a team).")
 			.usage("")
 			.examples("the members of {thing}")
+			.since("INSERT VERSION")
+		);
+
+		Classes.registerClass(new AnyInfo<>(AnyPrefixed.class, "prefixed")
+			.name("Anything With A Prefix")
+			.description("Something that can have a (text) prefix, such as a player or a team.")
+			.usage("")
+			.examples("player's prefix")
+			.since("INSERT VERSION")
+		);
+
+		Classes.registerClass(new AnyInfo<>(AnySuffixed.class, "suffixed")
+			.name("Anything With A Suffix")
+			.description("Something that can have a (text) suffix, such as a player or a team.")
+			.usage("")
+			.examples("player's suffix")
 			.since("INSERT VERSION")
 		);
 

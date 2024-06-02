@@ -24,12 +24,9 @@ import ch.njol.skript.command.Commands;
 import ch.njol.skript.entity.EntityData;
 import ch.njol.skript.entity.EntityType;
 import ch.njol.skript.entity.XpOrbData;
+import ch.njol.skript.hooks.VaultHook;
 import ch.njol.skript.lang.util.common.*;
-import ch.njol.skript.util.BlockInventoryHolder;
-import ch.njol.skript.util.BlockUtils;
-import ch.njol.skript.util.Direction;
-import ch.njol.skript.util.EnchantmentType;
-import ch.njol.skript.util.Experience;
+import ch.njol.skript.util.*;
 import ch.njol.skript.util.scoreboard.ScoreUtils;
 import ch.njol.skript.util.slot.Slot;
 import org.bukkit.*;
@@ -49,6 +46,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.scoreboard.Objective;
+import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.Team;
 import org.bukkit.util.Vector;
 import org.eclipse.jdt.annotation.Nullable;
@@ -302,6 +300,92 @@ public class DefaultConverters {
 				@Override
 				public boolean isSafeMemberType(@Nullable Object member) {
 					return member instanceof OfflinePlayer || member instanceof Entity;
+				}
+			},
+			//</editor-fold>
+			Converter.NO_RIGHT_CHAINING);
+
+		// Anything with prefix -> AnyPrefixed
+		Converters.registerConverter(Team.class, AnyPrefixed.class, //<editor-fold desc="Converter" defaultstate="collapsed">
+			team -> new AnyPrefixed() {
+				@Override
+				public @NotNull String prefix() {
+					return Utils.replaceChatStyles(team.getPrefix());
+				}
+
+				@Override
+				public boolean prefixSupportsChange() {
+					return true;
+				}
+
+				@Override
+				public void setPrefix(String prefix) throws UnsupportedOperationException {
+					team.setPrefix(prefix);
+				}
+			},
+			//</editor-fold>
+			Converter.NO_RIGHT_CHAINING);
+		Converters.registerConverter(Player.class, AnyPrefixed.class, //<editor-fold desc="Converter" defaultstate="collapsed">
+			player -> new AnyPrefixed() {
+				@Override
+				public String prefix() {
+					if (Skript.isHookEnabled(VaultHook.class)) {
+						return Utils.replaceChatStyles(VaultHook.chat.getPlayerPrefix(player));
+					}
+					return ScoreUtils.getTeamPrefix(player);
+				}
+
+				@Override
+				public boolean prefixSupportsChange() {
+					return Skript.isHookEnabled(VaultHook.class);
+				}
+
+				@Override
+				public void setPrefix(String prefix) throws UnsupportedOperationException {
+					VaultHook.chat.setPlayerPrefix(player, prefix);
+				}
+			},
+			//</editor-fold>
+			Converter.NO_RIGHT_CHAINING);
+
+		// Anything with suffix -> AnySuffixed
+		Converters.registerConverter(Team.class, AnySuffixed.class, //<editor-fold desc="Converter" defaultstate="collapsed">
+			team -> new AnySuffixed() {
+				@Override
+				public @NotNull String suffix() {
+					return Utils.replaceChatStyles(team.getSuffix());
+				}
+
+				@Override
+				public boolean suffixSupportsChange() {
+					return true;
+				}
+
+				@Override
+				public void setSuffix(String suffix) throws UnsupportedOperationException {
+					team.setSuffix(suffix);
+				}
+			},
+			//</editor-fold>
+			Converter.NO_RIGHT_CHAINING);
+		Converters.registerConverter(Player.class, AnySuffixed.class, //<editor-fold desc="Converter" defaultstate="collapsed">
+			player -> new AnySuffixed() {
+				@Override
+				public String suffix() {
+					if (Skript.isHookEnabled(VaultHook.class)) {
+						return Utils.replaceChatStyles(VaultHook.chat.getPlayerSuffix(player));
+					}
+					return ScoreUtils.getTeamSuffix(player);
+				}
+
+				@Override
+				public boolean suffixSupportsChange() {
+					return Skript.isHookEnabled(VaultHook.class);
+				}
+
+				@Override
+				public void setSuffix(String suffix) throws UnsupportedOperationException {
+					VaultHook.chat.setPlayerSuffix(player, suffix);
 				}
 			},
 			//</editor-fold>
