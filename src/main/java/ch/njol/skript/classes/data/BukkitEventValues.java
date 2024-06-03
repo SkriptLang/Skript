@@ -18,9 +18,6 @@
  */
 package ch.njol.skript.classes.data;
 
-import java.lang.invoke.MethodHandle;
-import java.lang.invoke.MethodHandles;
-import java.lang.invoke.MethodType;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -662,34 +659,17 @@ public final class BukkitEventValues {
 			}
 		}, EventValues.TIME_NOW);
 		EventValues.registerEventValue(AreaEffectCloudApplyEvent.class, PotionEffectType.class, new Getter<PotionEffectType, AreaEffectCloudApplyEvent>() {
-			@Nullable
-			private final MethodHandle BASE_POTION_DATA_HANDLE;
-
-			{
-				MethodHandle basePotionDataHandle = null;
-				if (Skript.methodExists(AreaEffectCloud.class, "getBasePotionData")) {
-					try {
-						basePotionDataHandle = MethodHandles.lookup().findVirtual(AreaEffectCloud.class, "getBasePotionData", MethodType.methodType(PotionData.class));
-					} catch (NoSuchMethodException | IllegalAccessException e) {
-						Skript.exception(e, "Failed to load legacy potion data support. Potions may not work as expected.");
-					}
-				}
-				BASE_POTION_DATA_HANDLE = basePotionDataHandle;
-			}
-
+			private final boolean HAS_POTION_TYPE_METHOD = Skript.methodExists(AreaEffectCloud.class, "getBasePotionType");
 			@Override
 			@Nullable
 			public PotionEffectType get(AreaEffectCloudApplyEvent e) {
-				if (BASE_POTION_DATA_HANDLE != null) {
-					try {
-						return ((PotionData) BASE_POTION_DATA_HANDLE.invoke(e.getEntity())).getType().getEffectType();
-					} catch (Throwable ex) {
-						throw Skript.exception(ex, "An error occurred while trying to invoke legacy area effect cloud potion effect support.");
-					}
-				} else {
+				// TODO needs to be reworked to support multiple values (there can be multiple potion effects)
+				if (HAS_POTION_TYPE_METHOD) {
 					PotionType base = e.getEntity().getBasePotionType();
-					if (base != null) // TODO this is deprecated... this should become a multi-value event value
+					if (base != null)
 						return base.getEffectType();
+				} else {
+					return e.getEntity().getBasePotionData().getType().getEffectType();
 				}
 				return null;
 			}

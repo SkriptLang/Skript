@@ -18,9 +18,6 @@
  */
 package ch.njol.skript.util;
 
-import java.lang.invoke.MethodHandle;
-import java.lang.invoke.MethodHandles;
-import java.lang.invoke.MethodType;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -346,7 +343,7 @@ public abstract class PotionEffectUtils {
 		itemType.setItemMeta(meta);
 	}
 
-	private static final boolean HAS_POTION_TYPE = Skript.methodExists(PotionMeta.class, "getBasePotionType");
+	private static final boolean HAS_POTION_TYPE_METHOD = Skript.methodExists(PotionMeta.class, "hasBasePotionType");
 
 	/**
 	 * Get all the PotionEffects of an ItemType
@@ -361,8 +358,9 @@ public abstract class PotionEffectUtils {
 		ItemMeta meta = itemType.getItemMeta();
 		if (meta instanceof PotionMeta) {
 			PotionMeta potionMeta = ((PotionMeta) meta);
-			effects.addAll(potionMeta.getCustomEffects());
-			if (HAS_POTION_TYPE) {
+			if (potionMeta.hasCustomEffects())
+				effects.addAll(potionMeta.getCustomEffects());
+			if (HAS_POTION_TYPE_METHOD) {
 				if (potionMeta.hasBasePotionType()) {
 					//noinspection ConstantConditions - checked via hasBasePotionType
 					effects.addAll(potionMeta.getBasePotionType().getPotionEffects());
