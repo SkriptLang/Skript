@@ -759,7 +759,7 @@ public class SkriptClasses {
 			.examples("") // todo
 			.since("INSERT VERSION")
 			.changer(new Changer<Objective>() {
-
+				//<editor-fold desc="Changers" defaultstate="collapsed">
 				@Override
 				public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
 					switch (mode) {
@@ -783,6 +783,7 @@ public class SkriptClasses {
 							break;
 					}
 				}
+				//</editor-fold>
 			})
 		);
 
