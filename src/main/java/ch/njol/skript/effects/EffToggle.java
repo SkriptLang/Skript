@@ -58,8 +58,7 @@ public class EffToggle extends Effect {
 		Skript.registerEffect(EffToggle.class,
 			"(open|turn on|activate) %blocks%",
 			"(close|turn off|de[-]activate) %blocks%",
-			"(toggle|switch) [[the] state of] %booleans/blocks%"
-			);
+			"(toggle|switch) [[the] state of] %booleans/blocks%");
 	}
 
 	private enum State {
