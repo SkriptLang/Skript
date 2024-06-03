@@ -88,10 +88,11 @@ public class EffToggle extends Effect {
 				Block block = (Block) obj;
 				BlockData data = block.getBlockData();
 				if (state == State.TOGGLE) {
-					if (data instanceof Openable) // open = NOT was open
+					if (data instanceof Openable) { // open = NOT was open
 						((Openable) data).setOpen(!((Openable) data).isOpen());
-					else if (data instanceof Powerable) // power = NOT power
+					} else if (data instanceof Powerable) { // power = NOT power
 						((Powerable) data).setPowered(!((Powerable) data).isPowered());
+					}
 				} else {
 					boolean value = state == State.ACTIVATE; 
 					if (data instanceof Openable) {
