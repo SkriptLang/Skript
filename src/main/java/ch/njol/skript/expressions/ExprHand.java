@@ -31,7 +31,7 @@ public class ExprHand extends SimpleExpression<EquipmentSlot> {
 	private int pattern;
 
 	static {
-		Skript.registerExpression(ExprHand.class, EquipmentSlot.class, ExpressionType.SIMPLE, "1¦([event( |-)]hand)|2¦main hand|3¦off[ ]hand|4¦helmet|5¦chestplate|6¦leggings|7¦boots");
+		Skript.registerExpression(ExprHand.class, EquipmentSlot.class, ExpressionType.SIMPLE, "1¦([event( |-)]hand)|2¦main hand|3¦off[ ]hand");
 	}
 
 	@Override
@@ -81,14 +81,6 @@ public class ExprHand extends SimpleExpression<EquipmentSlot> {
 				return new EquipmentSlot[] {EquipmentSlot.HAND};
 			case 3:
 				return new EquipmentSlot[] {EquipmentSlot.OFF_HAND};
-			case 4:
-				return new EquipmentSlot[] {EquipmentSlot.HEAD};
-			case 5:
-				return new EquipmentSlot[] {EquipmentSlot.CHEST};
-			case 6:
-				return new EquipmentSlot[] {EquipmentSlot.LEGS};
-			case 7:
-				return new EquipmentSlot[] {EquipmentSlot.FEET};
 		}
 		if (!GET_HAND_METHODS.containsKey(event.getClass())) {
 			try {
