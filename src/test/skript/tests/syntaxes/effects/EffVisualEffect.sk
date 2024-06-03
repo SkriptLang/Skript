@@ -16,7 +16,7 @@ test "visual effects":
 	play dripping water at {_}
 	play white dust with size 2 at {_}
 	play effect at {_}
-	play elder guardian at {_}
+	play elder guardian particle at {_}
 	play enchant at {_}
 	play enchanted hit at {_}
 	play end rod at {_}
