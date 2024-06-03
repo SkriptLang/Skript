@@ -61,9 +61,18 @@ public class TestTracker {
 	}
 
 	public static void testFailed(String msg, Script script) {
-		String file = script.getConfig().getFileName();
-		file = file.substring(file.lastIndexOf(File.separator) + 1);
+		String file = getFileName(script);
 		failedTests.put(currentTest, msg + " [" + file + "]");
+	}
+
+	public static void testFailed(String msg, Script script, int line) {
+		String file = getFileName(script);
+		failedTests.put(currentTest, msg + " [" + file + ", line " + line + "]");
+	}
+
+	private static String getFileName(Script script) {
+		String file = script.getConfig().getFileName();
+		return file.substring(file.lastIndexOf(File.separator) + 1);
 	}
 
 	public static void junitTestFailed(String junit, String msg) {

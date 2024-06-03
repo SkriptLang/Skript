@@ -26,7 +26,7 @@ import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.LoopSection;
+import ch.njol.skript.lang.SectionExitHandler;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.TriggerItem;
 import ch.njol.skript.lang.TriggerSection;
@@ -117,8 +117,8 @@ public class EffReturn extends Effect {
 
 		TriggerSection parent = getParent();
 		while (parent != null) {
-			if (parent instanceof LoopSection)
-				((LoopSection) parent).exit(event);
+			if (parent instanceof SectionExitHandler)
+				((SectionExitHandler) parent).exit(event);
 
 			parent = parent.getParent();
 		}
