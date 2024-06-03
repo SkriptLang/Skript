@@ -758,6 +758,32 @@ public class SkriptClasses {
 			.usage("")
 			.examples("") // todo
 			.since("INSERT VERSION")
+			.changer(new Changer<Objective>() {
+
+				@Override
+				public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
+					switch (mode) {
+						case RESET:
+						case DELETE:
+							return new Class[0];
+					}
+					return null;
+				}
+
+				@Override
+				public void change(Objective[] what, @Nullable Object[] delta, ChangeMode mode) {
+					switch (mode) {
+						case RESET:
+							for (Objective objective : what)
+								objective.setDisplaySlot(null);
+							break;
+						case DELETE:
+							for (Objective objective : what)
+								objective.unregister();
+							break;
+					}
+				}
+			})
 		);
 
 		Classes.registerClass(new ClassInfo<>(Criterion.class, "criterion")
