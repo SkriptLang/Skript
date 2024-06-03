@@ -16,25 +16,39 @@
  *
  * Copyright Peter Güttinger, SkriptLang team and contributors
  */
-package ch.njol.skript.events.bukkit;
+package org.skriptlang.skript.lang.experiment;
 
-import org.bukkit.event.Event;
-import org.bukkit.event.HandlerList;
+import org.jetbrains.annotations.NotNull;
+import org.skriptlang.skript.lang.script.ScriptData;
+
+import java.util.Collection;
+import java.util.LinkedHashSet;
 
 /**
- * Internally used for parsing `parse if` sections
+ * A container for storing and testing experiments.
  */
-public class SkriptParseEvent extends Event {
+public class ExperimentSet extends LinkedHashSet<Experiment> implements ScriptData, Experimented {
 
-	private final static HandlerList handlers = new HandlerList();
-
-	@Override
-	public HandlerList getHandlers() {
-		return handlers;
+	public ExperimentSet(@NotNull Collection<? extends Experiment> collection) {
+		super(collection);
 	}
 
-	public static HandlerList getHandlerList() {
-		return handlers;
+	public ExperimentSet() {
+		super();
+	}
+
+	@Override
+	public boolean hasExperiment(Experiment experiment) {
+		return this.contains(experiment);
+	}
+
+	@Override
+	public boolean hasExperiment(String featureName) {
+		for (Experiment experiment : this) {
+			if (experiment.matches(featureName))
+				return true;
+		}
+		return false;
 	}
 
 }
