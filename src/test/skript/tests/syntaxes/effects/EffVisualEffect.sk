@@ -26,7 +26,7 @@ test "visual effects":
 	play large explosion at {_}
 	play explosion emitter at {_}
 	play falling dust of air at {_}
-	play firework at {_}
+	play firework spark at {_}
 	play fishing at {_}
 	play flame at {_}
 	play happy villager at {_}
