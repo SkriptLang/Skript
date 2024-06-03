@@ -1693,10 +1693,10 @@ visual effects:
 
 		firework: # added in 1.20.5
 			name: firework @-
-			pattern: (firework [particle]|firework['s] spark)
+			pattern: (firework particle|firework['s] spark)
 		fireworks_spark: # for versions below 1.20.5
 			name: firework's spark @-
-			pattern: (firework [particle]|firework['s] spark)
+			pattern: (firework particle|firework['s] spark)
 
 		fishing: # added in 1.20.5
 			name: water wake @-
