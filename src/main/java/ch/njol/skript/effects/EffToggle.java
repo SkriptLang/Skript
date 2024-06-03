@@ -62,7 +62,7 @@ public class EffToggle extends Effect {
 	}
 
 	private enum State {
-    ACTIVATE, DEACTIVATE, TOGGLE
+		ACTIVATE, DEACTIVATE, TOGGLE
 	}
 
 	@SuppressWarnings("null")
