@@ -334,11 +334,13 @@ public class StructCommand extends Structure {
 	private void attemptCommandSync() {
 		if (SYNC_COMMANDS.get()) {
 			SYNC_COMMANDS.set(false);
-			if (CommandReloader.syncCommands(Bukkit.getServer())) {
-				Skript.debug("Commands synced to clients");
-			} else {
-				Skript.debug("Commands changed but not synced to clients (normal on 1.12 and older)");
-			}
+			Bukkit.getScheduler().runTask(Skript.getInstance(), () -> {
+				if (CommandReloader.syncCommands(Bukkit.getServer())) {
+					Skript.debug("Commands synced to clients");
+				} else {
+					Skript.debug("Commands changed but not synced to clients (normal on 1.12 and older)");
+				}
+			});
 		}
 	}
 
