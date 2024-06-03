@@ -1989,10 +1989,10 @@ visual effects:
 
 		witch: # added in 1.20.5
 			name: witch @a
-			pattern: (witch [magic|spell|particle]|purple spark)
+			pattern: (witch (magic|spell|particle)|purple spark)
 		spell_witch: # for versions below 1.20.5
 			name: witch spell @a
-			pattern: (witch [magic|spell|particle]|purple spark)
+			pattern: (witch (magic|spell|particle)|purple spark)
 
 # -- Inventory Actions --
 inventory actions:
