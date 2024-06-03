@@ -346,20 +346,7 @@ public abstract class PotionEffectUtils {
 		itemType.setItemMeta(meta);
 	}
 
-	@Nullable
-	private static final MethodHandle BASE_POTION_DATA_HANDLE;
-
-	static {
-		MethodHandle basePotionDataHandle = null;
-		if (Skript.methodExists(PotionMeta.class, "getBasePotionData")) {
-			try {
-				basePotionDataHandle = MethodHandles.lookup().findVirtual(PotionMeta.class, "getBasePotionData", MethodType.methodType(PotionData.class));
-			} catch (NoSuchMethodException | IllegalAccessException e) {
-				Skript.exception(e, "Failed to load legacy potion data support. Potions may not work as expected.");
-			}
-		}
-		BASE_POTION_DATA_HANDLE = basePotionDataHandle;
-	}
+	private static final boolean HAS_POTION_TYPE = Skript.methodExists(PotionMeta.class, "getBasePotionType");
 
 	/**
 	 * Get all the PotionEffects of an ItemType
@@ -375,20 +362,20 @@ public abstract class PotionEffectUtils {
 		if (meta instanceof PotionMeta) {
 			PotionMeta potionMeta = ((PotionMeta) meta);
 			effects.addAll(potionMeta.getCustomEffects());
-			if (BASE_POTION_DATA_HANDLE != null) {
-				try {
-					effects.addAll(PotionDataUtils.getPotionEffects((PotionData) BASE_POTION_DATA_HANDLE.invoke(meta)));
-				} catch (Throwable e) {
-					throw Skript.exception(e, "An error occurred while trying to invoke legacy potion data support.");
+			if (HAS_POTION_TYPE) {
+				if (potionMeta.hasBasePotionType()) {
+					//noinspection ConstantConditions - checked via hasBasePotionType
+					effects.addAll(potionMeta.getBasePotionType().getPotionEffects());
 				}
-			} else if (potionMeta.hasBasePotionType()) {
-				//noinspection ConstantConditions - checked via hasBasePotionType
-				effects.addAll(potionMeta.getBasePotionType().getPotionEffects());
+			} else { // use deprecated method
+				PotionData data = potionMeta.getBasePotionData();
+				if (data != null) {
+					effects.addAll(PotionDataUtils.getPotionEffects(data));
+				}
 			}
-
 		} else if (HAS_SUSPICIOUS_META && meta instanceof SuspiciousStewMeta)
 			effects.addAll(((SuspiciousStewMeta) meta).getCustomEffects());
 		return effects;
 	}
-	
+
 }
