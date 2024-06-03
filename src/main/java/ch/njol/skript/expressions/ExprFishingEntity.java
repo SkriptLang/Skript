@@ -1,6 +1,9 @@
 package ch.njol.skript.expressions;
 
 import ch.njol.skript.Skript;
+import ch.njol.skript.doc.Description;
+import ch.njol.skript.doc.Name;
+import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser;
@@ -12,6 +15,9 @@ import org.bukkit.event.Event;
 import org.bukkit.event.player.PlayerFishEvent;
 import org.eclipse.jdt.annotation.Nullable;
 
+@Name("FishState")
+@Description({"Returns fish entity|hook in FishEvent"})
+@Since("2.8.6")
 public class ExprFishingEntity extends SimpleExpression<Entity> {
 	private int pattern;
 	static {

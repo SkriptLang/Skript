@@ -17,7 +17,7 @@ import org.eclipse.jdt.annotation.Nullable;
 
 @Name("FishState")
 @Description({"Returns fish state in FishEvent"})
-@Since("2.8.9")
+@Since("2.8.6")
 public class ExprFishingState extends SimpleExpression<PlayerFishEvent.State> {
 	private int pattern;
 	static {
