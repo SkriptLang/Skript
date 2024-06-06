@@ -36,7 +36,6 @@ import org.bukkit.event.entity.PiglinBarterEvent;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Name("Barter Drops")
@@ -45,13 +44,14 @@ import java.util.List;
 	"on piglin barter:",
 		"\tif the bartering drops contain a jack-o-lantern:",
 			"\t\tremove jack-o-lantern from bartering output",
-			"\t\tbroadcast \"it's not halloween yet!\""})
+			"\t\tbroadcast \"it's not halloween yet!\""
+})
 @Since("INSERT VERSION")
 public class ExprBarterDrops extends SimpleExpression<ItemType> {
 	
 	static {
 		Skript.registerExpression(ExprBarterDrops.class, ItemType.class,
-			ExpressionType.SIMPLE, "[the] [piglin] barter[ing] drops");
+				ExpressionType.SIMPLE, "[the] [piglin] barter[ing] drops");
 	}
 
 	private Kleenean delay;
@@ -105,36 +105,28 @@ public class ExprBarterDrops extends SimpleExpression<ItemType> {
 		if (!(event instanceof PiglinBarterEvent))
 			return;
 
-		List<ItemType> deltaOutput = new ArrayList<>();
-
-		if (delta != null) {
-			for (Object deltaDrop : delta) {
-				deltaOutput.add((ItemType) deltaDrop);
-			}
-		}
-
 		List<ItemStack> outcome = ((PiglinBarterEvent) event).getOutcome();
 
 		switch (mode) {
 			case SET:
 				outcome.clear();
-				for (ItemType item : deltaOutput) {
-					item.addTo(outcome);
+				for (Object item : delta) {
+					((ItemType) item).addTo(outcome);
 				}
 				break;
 			case ADD:
-				for (ItemType item : deltaOutput) {
-					item.addTo(outcome);
+				for (Object item : delta) {
+					((ItemType) item).addTo(outcome);
 				}
 				break;
 			case REMOVE:
-				for (ItemType item : deltaOutput) {
-					item.removeFrom(false, outcome);
+				for (Object item : delta) {
+					((ItemType) item).removeFrom(false, outcome);
 				}
 				break;
 			case REMOVE_ALL:
-				for (ItemType item : deltaOutput) {
-					item.removeAll(false, outcome);
+				for (Object item : delta) {
+					((ItemType) item).removeAll(false, outcome);
 				}
 				break;
 			case DELETE:

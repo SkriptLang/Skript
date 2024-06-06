@@ -38,15 +38,16 @@ import org.jetbrains.annotations.Nullable;
 @Examples({
 	"on piglin barter:",
 		"\tif the bartering input is a gold ingot:",
-			"\t\tbroadcast \"my precious...\""})
+			"\t\tbroadcast \"my precious...\""
+})
 @Since("INSERT VERSION")
 public class ExprBarterInput extends SimpleExpression<ItemType> {
-	
+
 	static {
 		Skript.registerExpression(ExprBarterInput.class, ItemType.class,
-			ExpressionType.SIMPLE, "[the] [piglin] barter[ing] input");
+				ExpressionType.SIMPLE, "[the] [piglin] barter[ing] input");
 	}
-	
+
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern,
 						Kleenean isDelayed, ParseResult result) {
@@ -56,7 +57,7 @@ public class ExprBarterInput extends SimpleExpression<ItemType> {
 		}
 		return true;
 	}
-	
+
 	@Override
 	@Nullable
 	protected ItemType[] get(Event event) {
@@ -65,17 +66,17 @@ public class ExprBarterInput extends SimpleExpression<ItemType> {
 
 		return new ItemType[] { new ItemType(((PiglinBarterEvent) event).getInput()) };
 	}
-	
+
 	@Override
 	public Class<? extends ItemType> getReturnType() {
 		return ItemType.class;
 	}
-	
+
 	@Override
 	public boolean isSingle() {
 		return true;
 	}
-	
+
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
 		return "the barter input";
