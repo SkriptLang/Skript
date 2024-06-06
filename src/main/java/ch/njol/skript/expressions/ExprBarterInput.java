@@ -28,16 +28,16 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
-import ch.njol.skript.log.ErrorQuality;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.bukkit.event.entity.PiglinBarterEvent;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 @Name("Barter Input")
 @Description("The item picked up by the piglin in a piglin bartering event.")
-@Examples({"on piglin barter:",
-			"\tif the bartering input is a gold ingot:",
+@Examples({
+	"on piglin barter:",
+		"\tif the bartering input is a gold ingot:",
 			"\t\tbroadcast \"my precious...\""})
 @Since("INSERT VERSION")
 public class ExprBarterInput extends SimpleExpression<ItemType> {
@@ -49,9 +49,9 @@ public class ExprBarterInput extends SimpleExpression<ItemType> {
 	
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern,
-						Kleenean isDelayed, ParseResult parser) {
+						Kleenean isDelayed, ParseResult result) {
 		if (!getParser().isCurrentEvent(PiglinBarterEvent.class)) {
-			Skript.error("The expression 'barter input' can only be used in the piglin bartering event", ErrorQuality.SEMANTIC_ERROR);
+			Skript.error("The expression 'barter input' can only be used in the piglin bartering event");
 			return false;
 		}
 		return true;
@@ -77,7 +77,7 @@ public class ExprBarterInput extends SimpleExpression<ItemType> {
 	}
 	
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
+	public String toString(@Nullable Event event, boolean debug) {
 		return "the barter input";
 	}
 }

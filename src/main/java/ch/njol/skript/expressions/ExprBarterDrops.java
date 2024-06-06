@@ -20,7 +20,7 @@ package ch.njol.skript.expressions;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.ItemType;
-import ch.njol.skript.classes.Changer;
+import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
@@ -29,38 +29,38 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
-import ch.njol.skript.log.ErrorQuality;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.event.Event;
 import org.bukkit.event.entity.PiglinBarterEvent;
 import org.bukkit.inventory.ItemStack;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
 
-@Name("Barter Output")
+@Name("Barter Drops")
 @Description("The items dropped by the piglin in a piglin bartering event.")
-@Examples({"on piglin barter:",
-			"\tif the bartering output contains a jack-o-lantern:",
+@Examples({
+	"on piglin barter:",
+		"\tif the bartering drops contain a jack-o-lantern:",
 			"\t\tremove jack-o-lantern from bartering output",
-			"\t\tbroadcast \"Get out your amulets!\""})
+			"\t\tbroadcast \"it's not halloween yet!\""})
 @Since("INSERT VERSION")
-public class ExprBarterOutput extends SimpleExpression<ItemType> {
+public class ExprBarterDrops extends SimpleExpression<ItemType> {
 	
 	static {
-		Skript.registerExpression(ExprBarterOutput.class, ItemType.class,
-			ExpressionType.SIMPLE, "[the] [piglin] barter[ing] out(come|put)");
+		Skript.registerExpression(ExprBarterDrops.class, ItemType.class,
+			ExpressionType.SIMPLE, "[the] [piglin] barter[ing] drops");
 	}
 
 	private Kleenean delay;
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern,
-						Kleenean isDelayed, ParseResult parser) {
+						Kleenean isDelayed, ParseResult result) {
 		if (!getParser().isCurrentEvent(PiglinBarterEvent.class)) {
-			Skript.error("The expression 'barter input' can only be used in the piglin bartering event", ErrorQuality.SEMANTIC_ERROR);
+			Skript.error("The expression 'barter drops' can only be used in the piglin bartering event");
 			return false;
 		}
 
@@ -72,9 +72,8 @@ public class ExprBarterOutput extends SimpleExpression<ItemType> {
 	@Override
 	@Nullable
 	protected ItemType[] get(Event event) {
-		if (!(event instanceof PiglinBarterEvent)) {
+		if (!(event instanceof PiglinBarterEvent))
 			return null;
-		}
 
 		return ((PiglinBarterEvent) event).getOutcome()
 			.stream()
@@ -83,10 +82,9 @@ public class ExprBarterOutput extends SimpleExpression<ItemType> {
 	}
 
 	@Override
-	@Nullable
-	public Class<?>[] acceptChange(Changer.ChangeMode mode) {
+	public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
 		if (delay != Kleenean.FALSE) {
-			Skript.error("Can't change the piglin bartering outcome after the event has already passed", ErrorQuality.SEMANTIC_ERROR);
+			Skript.error("Can't change the piglin bartering drops after the event has already passed");
 			return null;
 		}
 
@@ -103,20 +101,15 @@ public class ExprBarterOutput extends SimpleExpression<ItemType> {
 	}
 
 	@Override
-	public void change(Event event, @Nullable Object[] delta, Changer.ChangeMode mode) {
-		if (!(event instanceof PiglinBarterEvent)) {
+	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
+		if (!(event instanceof PiglinBarterEvent))
 			return;
-		}
 
 		List<ItemType> deltaOutput = new ArrayList<>();
 
 		if (delta != null) {
 			for (Object deltaDrop : delta) {
-				if (deltaDrop instanceof ItemType) {
-					deltaOutput.add((ItemType) deltaDrop);
-				} else {
-					throw new IllegalArgumentException("Passed output is not an item");
-				}
+				deltaOutput.add((ItemType) deltaDrop);
 			}
 		}
 
@@ -161,7 +154,7 @@ public class ExprBarterOutput extends SimpleExpression<ItemType> {
 	}
 	
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
-		return "the barter output";
+	public String toString(@Nullable Event event, boolean debug) {
+		return "the barter drops";
 	}
 }
