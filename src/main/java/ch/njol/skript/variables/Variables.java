@@ -141,6 +141,13 @@ public class Variables {
 	static final List<VariablesStorage> STORAGES = new ArrayList<>();
 
 	/**
+	 * @return a copy of the list of variable storage handlers
+	 */
+	public static List<VariablesStorage> getStores() {
+		return Collections.unmodifiableList(STORAGES);
+	}
+
+	/**
 	 * Register a VariableStorage class for Skript to create if the user config value matches.
 	 * 
 	 * @param <T> A class to extend VariableStorage.
