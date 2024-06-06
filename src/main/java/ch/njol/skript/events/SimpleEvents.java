@@ -764,7 +764,7 @@ public class SimpleEvents {
 			Skript.registerEvent("Piglin Barter", SimpleEvent.class, PiglinBarterEvent.class, "piglin (barter[ing]|trad(e|ing))")
 				.requiredPlugins("Minecraft 1.16.5 or newer")
 				.description(
-					"Called when a piglin finishes bartering.This event may be called when a piglin picks up an item on its bartering list.",
+					"Called when a piglin finishes bartering. This event may be called when a piglin picks up an item on its bartering list.",
 					"Cancelling will prevent piglins from dropping items, but will still make them pick up the input.")
 				.examples(
 					"on piglin barter:",
