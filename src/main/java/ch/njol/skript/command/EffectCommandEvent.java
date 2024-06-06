@@ -18,23 +18,45 @@
  */
 package ch.njol.skript.command;
 
+import ch.njol.skript.lang.Effect;
 import org.bukkit.command.CommandSender;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.HandlerList;
+import org.jetbrains.annotations.Nullable;
 
 /**
- * @author Peter Güttinger
+ * Called whenever an effect command attempt is done.
  */
 public class EffectCommandEvent extends CommandEvent implements Cancellable {
 
 	private boolean cancelled;
+	@Nullable
+	private final Effect effect;
 
-	public EffectCommandEvent(CommandSender sender, String command) {
+	public EffectCommandEvent(CommandSender sender, String command, @Nullable Effect effect) {
 		super(sender, command, new String[0]);
+		this.effect = effect;
 	}
 
+	/**
+	 * @see EffectCommandEvent#EffectCommandEvent(CommandSender, String, Effect)
+	 */
+	@Deprecated
+	public EffectCommandEvent(CommandSender sender, String command) {
+		this(sender, command, null);
+    }
+
+	/**
+	 * @return the parsed effect, if valid
+	 */
+	@Nullable
+	public Effect getEffect() {
+		return effect;
+	}
+
+	@Deprecated
 	public void setCommand(String command) {
-		this.command = command;
+		throw new UnsupportedOperationException();
 	}
 
 	@Override

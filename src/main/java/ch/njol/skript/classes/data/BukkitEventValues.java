@@ -30,6 +30,7 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.Aliases;
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.command.CommandEvent;
+import ch.njol.skript.command.EffectCommandEvent;
 import ch.njol.skript.events.bukkit.ScriptEvent;
 import ch.njol.skript.events.bukkit.SkriptStartEvent;
 import ch.njol.skript.events.bukkit.SkriptStopEvent;
@@ -1886,7 +1887,7 @@ public final class BukkitEventValues {
 				}
 			}, EventValues.TIME_NOW);
 		}
-    
+
 		// InventoryMoveItemEvent
 		EventValues.registerEventValue(InventoryMoveItemEvent.class, Inventory.class, new Getter<Inventory, InventoryMoveItemEvent>() {
 			@Override
@@ -1918,5 +1919,15 @@ public final class BukkitEventValues {
 				return event.getItem();
 			}
 		}, EventValues.TIME_NOW);
+
+		// EffectCommandEvent
+		EventValues.registerEventValue(EffectCommandEvent.class, CommandSender.class, new Getter<CommandSender, EffectCommandEvent>() {
+			@Override
+			public CommandSender get(EffectCommandEvent event) {
+				return event.getSender();
+			}
+		}, EventValues.TIME_NOW);
+
 	}
+
 }
