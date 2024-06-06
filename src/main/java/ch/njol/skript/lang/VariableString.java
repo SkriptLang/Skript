@@ -224,16 +224,6 @@ public class VariableString implements Expression<String> {
 							log.printErrors("Can't understand this expression: " + original.substring(exprStart + 1, exprEnd));
 							return null;
 						} else {
-							if (
-								mode == StringMode.VARIABLE_NAME &&
-								!SkriptConfig.usePlayerUUIDsInVariableNames.value() &&
-								OfflinePlayer.class.isAssignableFrom(expr.getReturnType())
-							) {
-								Skript.warning(
-										"In the future, players in variable names will use the player's UUID instead of their name. " +
-										"For information on how to make sure your scripts won't be impacted by this change, see https://github.com/SkriptLang/Skript/discussions/6270."
-								);
-							}
 							strings.add(expr);
 						}
 						log.printLog();

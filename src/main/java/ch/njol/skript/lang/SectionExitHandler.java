@@ -16,25 +16,21 @@
  *
  * Copyright Peter Güttinger, SkriptLang team and contributors
  */
-package ch.njol.skript.events.bukkit;
+package ch.njol.skript.lang;
 
 import org.bukkit.event.Event;
-import org.bukkit.event.HandlerList;
 
 /**
- * Internally used for parsing `parse if` sections
+ * A {@link Section} implementing this interface can execute a task when
+ * it is exited by an {@link ch.njol.skript.effects.EffExit 'exit'} or
+ * {@link ch.njol.skript.effects.EffReturn 'return'} effect.
  */
-public class SkriptParseEvent extends Event {
+public interface SectionExitHandler {
 
-	private final static HandlerList handlers = new HandlerList();
-
-	@Override
-	public HandlerList getHandlers() {
-		return handlers;
-	}
-
-	public static HandlerList getHandlerList() {
-		return handlers;
-	}
+	/**
+	 * Exits the section
+	 * @param event The involved event
+	 */
+	void exit(Event event);
 
 }
