@@ -740,13 +740,15 @@ public class SimpleEvents {
 
 		if (Skript.classExists("org.bukkit.event.entity.PiglinBarterEvent")) {
 			Skript.registerEvent("Piglin Barter", SimpleEvent.class, PiglinBarterEvent.class, "piglin (barter[ing]|trad(e|ing))")
+				.requiredPlugins("Minecraft 1.16.5 or newer")
 				.description(
 					"Called when a piglin finishes bartering.This event may be called when a piglin picks up an item on its bartering list.",
 					"Cancelling will prevent piglins from dropping items, but will still make them pick up the input.")
 				.examples(
 					"on piglin barter:",
 					"\tif piglin barter outcome contains diamond:",
-					"\t\tsend \"Diamonds belong in the money pit!\" to player"
+					"\t\tsend \"Diamonds belong in the money pit!\" to player",
+					"\t\tcancel event"
 				)
 				.since("INSERT VERSION");
 		}

@@ -86,7 +86,7 @@ public class ExprBarterOutput extends SimpleExpression<ItemType> {
 	@Nullable
 	public Class<?>[] acceptChange(Changer.ChangeMode mode) {
 		if (delay != Kleenean.FALSE) {
-			Skript.error("Can't change the outcome after the event has already passed", ErrorQuality.SEMANTIC_ERROR);
+			Skript.error("Can't change the piglin bartering outcome after the event has already passed", ErrorQuality.SEMANTIC_ERROR);
 			return null;
 		}
 
@@ -95,7 +95,6 @@ public class ExprBarterOutput extends SimpleExpression<ItemType> {
 			case ADD:
 			case REMOVE:
 			case REMOVE_ALL:
-
 			case DELETE:
 				return CollectionUtils.array(ItemType[].class);
 			default:
@@ -163,6 +162,6 @@ public class ExprBarterOutput extends SimpleExpression<ItemType> {
 	
 	@Override
 	public String toString(@Nullable Event e, boolean debug) {
-		return "the barter input";
+		return "the barter output";
 	}
 }
