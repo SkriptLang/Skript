@@ -33,8 +33,13 @@ import org.skriptlang.skript.lang.converter.Converter;
 import org.skriptlang.skript.lang.converter.ConverterInfo;
 import org.skriptlang.skript.lang.converter.Converters;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
+import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.stream.Collectors;
 
 /**
  * Represents a expression converted to another type. This, and not Expression, is the required return type of {@link SimpleExpression#getConvertedExpr(Class...)} because this
@@ -43,7 +48,7 @@ import java.util.NoSuchElementException;
  * <li>automatically lets the source expression handle everything apart from the get() methods</li>
  * <li>will never convert itself to another type, but rather request a new converted expression from the source expression.</li>
  * </ol>
- * 
+ *
  * @author Peter Güttinger
  */
 public class ConvertedExpression<F, T> implements Expression<T> {
@@ -55,28 +60,59 @@ public class ConvertedExpression<F, T> implements Expression<T> {
 	/**
 	 * Converter information.
 	 */
-	private final ConverterInfo<? super F, ? extends T> converterInfo;
+	private final Collection<ConverterInfo<? super F, ? extends T>> converterInfos;
 
 	public ConvertedExpression(Expression<? extends F> source, Class<T> to, ConverterInfo<? super F, ? extends T> info) {
 		this.source = source;
 		this.to = to;
 		this.converter = info.getConverter();
-		this.converterInfo = info;
+		this.converterInfos = Collections.singleton(info);
+	}
+
+	/**
+	 * @param source The expression to use for obtaining values
+	 * @param to The type we are converting to
+	 * @param infos A collection of converters to attempt
+	 * @param performFromCheck Whether a safety check should be performed to ensure that objects being converted
+	 *  are valid for the converter being attempted
+	 */
+	public ConvertedExpression(Expression<? extends F> source, Class<T> to, Collection<ConverterInfo<? super F, ? extends T>> infos, boolean performFromCheck) {
+		this.source = source;
+		this.to = to;
+		this.converterInfos = infos;
+		this.converter = fromObject -> {
+			for (ConverterInfo<? super F, ? extends T> info : converterInfos) {
+				if (!performFromCheck || info.getFrom().isInstance(fromObject)) { // the converter is safe to attempt
+					T converted = info.getConverter().convert(fromObject);
+					if (converted != null)
+						return converted;
+				}
+			}
+			return null;
+		};
 	}
 
 	@SafeVarargs
 	@Nullable
 	public static <F, T> ConvertedExpression<F, T> newInstance(Expression<F> from, Class<T>... to) {
 		assert !CollectionUtils.containsSuperclass(to, from.getReturnType());
+		// we track a list of converters that may work
+		List<ConverterInfo<? super F, ? extends T>> converters = new ArrayList<>();
 		for (Class<T> type : to) { // REMIND try more converters? -> also change WrapperExpression (and maybe ExprLoopValue)
 			assert type != null;
 			// casting <? super ? extends F> to <? super F> is wrong, but since the converter is only used for values returned by the expression
 			// (which are instances of "<? extends F>") this won't result in any ClassCastExceptions.
-			@SuppressWarnings("unchecked")
-			ConverterInfo<? super F, ? extends T> conv = (ConverterInfo<? super F, ? extends T>) Converters.getConverterInfo(from.getReturnType(), type);
-			if (conv == null)
-				continue;
-			return new ConvertedExpression<>(from, type, conv);
+			for (Class<? extends F> checking : from.possibleReturnTypes()) {
+				//noinspection unchecked
+				ConverterInfo<? super F, ? extends T> converter = (ConverterInfo<? super F, ? extends T>) Converters.getConverterInfo(checking, type);
+				if (converter != null)
+					converters.add(converter);
+			}
+			int size = converters.size();
+			if (size == 1) // if there is only one info, there is no need to wrap it in a list
+				return new ConvertedExpression<>(from, type, converters.get(0));
+			if (size > 1)
+				return new ConvertedExpression<>(from, type, converters, true);
 		}
 		return null;
 	}
@@ -90,7 +126,7 @@ public class ConvertedExpression<F, T> implements Expression<T> {
 	public String toString(@Nullable Event event, boolean debug) {
 		if (debug && event == null)
 			return "(" + source.toString(event, debug) + " >> " + converter + ": "
-				+ converterInfo + ")";
+				+ converterInfos.stream().map(Object::toString).collect(Collectors.joining(", ")) + ")";
 		return source.toString(event, debug);
 	}
 

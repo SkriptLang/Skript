@@ -100,6 +100,7 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.bukkit.event.entity.EntityDeathEvent;
+import org.bukkit.event.entity.EntityDropItemEvent;
 import org.bukkit.event.entity.EntityEvent;
 import org.bukkit.event.entity.EntityPickupItemEvent;
 import org.bukkit.event.entity.EntityResurrectEvent;
@@ -799,6 +800,19 @@ public final class BukkitEventValues {
 				return e.getItemDrop().getItemStack();
 			}
 		}, 0);
+		// EntityDropItemEvent
+		EventValues.registerEventValue(EntityDropItemEvent.class, Item.class, new Getter<Item, EntityDropItemEvent>() {
+			@Override
+			public Item get(EntityDropItemEvent event) {
+				return event.getItemDrop();
+			}
+		}, EventValues.TIME_NOW);
+		EventValues.registerEventValue(EntityDropItemEvent.class, ItemStack.class, new Getter<ItemStack, EntityDropItemEvent>() {
+			@Override
+			public ItemStack get(EntityDropItemEvent event) {
+				return event.getItemDrop().getItemStack();
+			}
+		}, EventValues.TIME_NOW);
 		// PlayerPickupItemEvent
 		EventValues.registerEventValue(PlayerPickupItemEvent.class, Player.class, new Getter<Player, PlayerPickupItemEvent>() {
 			@Override
