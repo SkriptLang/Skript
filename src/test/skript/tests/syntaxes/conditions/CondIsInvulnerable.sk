@@ -1,0 +1,3 @@
+test "CondIsInvulnerable":
+  assert creative is invulnerable with "Creative mode should be invulnerable"
+  assert survival is not invulnerable with "Survival mode should not be invulnerable"
