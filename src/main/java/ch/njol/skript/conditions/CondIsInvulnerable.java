@@ -31,7 +31,7 @@ import ch.njol.skript.conditions.base.PropertyCondition;
 @Examples({
 	"target entity is invulnerable",
 	"",
-	"loop {_gamemodes::*}:",
+	"loop all gamemodes:",
 		"\tif loop-value is not invulnerable:",
 			"\t\tbroadcast \"the gamemode %loop-value% is vulnerable!\""
 })
@@ -41,7 +41,7 @@ public class CondIsInvulnerable extends PropertyCondition<Object> {
 	private static final boolean GAMEMODE = Skript.methodExists(GameMode.class,"isInvulnerable");
 	
 	static {
-		register(CondIsInvulnerable.class, PropertyType.BE, "invulnerable", "entities"+(GAMEMODE ? "/gamemodes" : ""));
+		register(CondIsInvulnerable.class, PropertyType.BE, "(invulnerable|invincible)", "entities" + (GAMEMODE ? "/gamemodes" : ""));
 	}
 	
 	@Override
