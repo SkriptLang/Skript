@@ -20,7 +20,6 @@ package ch.njol.skript.conditions;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.*;
-import org.bukkit.GameEvent;
 import org.bukkit.GameMode;
 import org.bukkit.entity.Entity;
 
@@ -38,17 +37,17 @@ import ch.njol.skript.conditions.base.PropertyCondition;
 @Since("2.5, INSERT VERSION (gamemode)")
 @RequiredPlugins("Paper 1.20.6+ (gamemodes)")
 public class CondIsInvulnerable extends PropertyCondition<Object> {
-	private static final boolean GAMEMODE = Skript.methodExists(GameMode.class,"isInvulnerable");
+	private static final boolean SUPPORTS_GAMEMODE = Skript.methodExists(GameMode.class, "isInvulnerable");
 	
 	static {
-		register(CondIsInvulnerable.class, PropertyType.BE, "(invulnerable|invincible)", "entities" + (GAMEMODE ? "/gamemodes" : ""));
+		register(CondIsInvulnerable.class, PropertyType.BE, "(invulnerable|invincible)", "entities" + (SUPPORTS_GAMEMODE ? "/gamemodes" : ""));
 	}
 	
 	@Override
 	public boolean check(Object object) {
 		if (object instanceof Entity) {
 			return ((Entity) object).isInvulnerable();
-		} else if (GAMEMODE && object instanceof GameMode) {
+		} else if (SUPPORTS_GAMEMODE && object instanceof GameMode) {
 			return ((GameMode) object).isInvulnerable();
 		}
 		return false;
