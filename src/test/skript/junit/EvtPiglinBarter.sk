@@ -1,5 +1,15 @@
 test "EvtPiglinBarterJUnit" when running JUnit:
 
+	if running below minecraft "1.16.5":
+		complete objective "correct barter input" for {_test}
+		complete objective "clear barter drops" for {_test}
+		complete objective "set barter drops to 2 items" for {_test}
+		complete objective "remove item from barter drops" for {_test}
+		complete objective "add multiple items to barter drops" for {_test}
+		complete objective "remove all of an item from barter drops" for {_test}
+		complete objective "remove multiple items from barter drops" for {_test}
+		complete objective "barter drops test complete" for {_test}
+
 	set {_test} to "org.skriptlang.skript.test.tests.syntaxes.events.EvtPiglinBarterTest"
 
 	set {_tests::1} to "correct barter input"
