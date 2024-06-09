@@ -43,14 +43,14 @@ public class EvtPiglinBarterTest extends SkriptJUnitTest {
 	}
 
 	@Before
-	public void setBlocks() {
+	public void spawn() {
 		if (!canRun) return;
 
 		piglin = (Piglin) getTestWorld().spawnEntity(getTestLocation(), EntityType.PIGLIN);
 	}
 
 	@Test
-	public void testGrow() {
+	public void testCall() {
 		if (!canRun) return;
 
 		ItemStack input = new ItemStack(Material.GOLD_INGOT);
@@ -61,7 +61,7 @@ public class EvtPiglinBarterTest extends SkriptJUnitTest {
 	}
 
 	@After
-	public void resetBlocks() {
+	public void remove() {
 		if (!canRun) return;
 
 		piglin.remove();
