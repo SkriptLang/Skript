@@ -50,8 +50,10 @@ import java.util.List;
 public class ExprBarterDrops extends SimpleExpression<ItemType> {
 	
 	static {
-		Skript.registerExpression(ExprBarterDrops.class, ItemType.class,
-				ExpressionType.SIMPLE, "[the] [piglin] barter[ing] drops");
+		if (Skript.classExists("org.bukkit.event.entity.PiglinBarterEvent")) {
+			Skript.registerExpression(ExprBarterDrops.class, ItemType.class,
+					ExpressionType.SIMPLE, "[the] [piglin] barter[ing] drops");
+		}
 	}
 
 	private Kleenean delay;

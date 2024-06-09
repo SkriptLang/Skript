@@ -44,8 +44,10 @@ import org.jetbrains.annotations.Nullable;
 public class ExprBarterInput extends SimpleExpression<ItemType> {
 
 	static {
-		Skript.registerExpression(ExprBarterInput.class, ItemType.class,
-				ExpressionType.SIMPLE, "[the] [piglin] barter[ing] input");
+		if (Skript.classExists("org.bukkit.event.entity.PiglinBarterEvent")) {
+			Skript.registerExpression(ExprBarterInput.class, ItemType.class,
+					ExpressionType.SIMPLE, "[the] [piglin] barter[ing] input");
+		}
 	}
 
 	@Override
