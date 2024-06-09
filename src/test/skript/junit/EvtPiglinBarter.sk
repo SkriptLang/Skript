@@ -8,7 +8,7 @@ test "EvtPiglinBarterJUnit" when running JUnit:
 	set {_tests::6} to "remove all of an item from barter drops"
 	set {_tests::7} to "remove multiple items from barter drops"
 	set {_tests::8} to "barter drops test complete"
-	ensure junit test "org.skriptlang.skript.test.tests.syntaxes.events.EvtPiglinBarterTest"completes {_tests::*}
+	ensure junit test "org.skriptlang.skript.test.tests.syntaxes.events.EvtPiglinBarterTest" completes {_tests::*}
 
 on piglin barter:
 	set {_test} to "org.skriptlang.skript.test.tests.syntaxes.events.EvtPiglinBarterTest"
