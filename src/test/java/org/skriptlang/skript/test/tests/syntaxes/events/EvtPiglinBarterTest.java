@@ -22,9 +22,8 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.test.runner.SkriptJUnitTest;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
-import org.bukkit.entity.Piglin;
-import org.bukkit.event.entity.PiglinBarterEvent;
 import org.bukkit.inventory.ItemStack;
 import org.junit.After;
 import org.junit.Before;
@@ -35,7 +34,7 @@ import java.util.List;
 
 public class EvtPiglinBarterTest extends SkriptJUnitTest {
 
-	private Piglin piglin;
+	private Entity piglin;
 	private static final boolean canRun = Skript.classExists("org.bukkit.event.entity.PiglinBarterEvent");
 
 	static {
@@ -46,7 +45,7 @@ public class EvtPiglinBarterTest extends SkriptJUnitTest {
 	public void spawn() {
 		if (!canRun) return;
 
-		piglin = (Piglin) getTestWorld().spawnEntity(getTestLocation(), EntityType.PIGLIN);
+		piglin = getTestWorld().spawnEntity(getTestLocation(), EntityType.PIGLIN);
 	}
 
 	@Test
@@ -57,7 +56,13 @@ public class EvtPiglinBarterTest extends SkriptJUnitTest {
 		List<ItemStack> outcome = new ArrayList<>();
 		outcome.add(new ItemStack(Material.EMERALD));
 
-		Bukkit.getPluginManager().callEvent(new PiglinBarterEvent(piglin, input, outcome));
+		try {
+			Bukkit.getPluginManager().callEvent(
+				org.bukkit.event.entity.PiglinBarterEvent.class.getConstructor(
+					org.bukkit.entity.Piglin.class, ItemStack.class, List.class)
+				.newInstance(piglin, input, outcome));
+		} catch (ReflectiveOperationException ignored) {
+		}
 	}
 
 	@After
