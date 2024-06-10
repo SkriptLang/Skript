@@ -198,7 +198,7 @@ public class EffChange extends Effect {
 		final Class<?>[] acceptableChangeComponentTypes = new Class<?>[acceptableChangeTypes.length];
 		for (int i = 0; i < acceptableChangeTypes.length; i++)
 			acceptableChangeComponentTypes[i] = acceptableChangeTypes[i].isArray() ? acceptableChangeTypes[i].getComponentType() : acceptableChangeTypes[i];
-		allowMultipleChangeValues = !Arrays.equals(acceptableChangeTypes, acceptableChangeComponentTypes);
+		allowMultipleChangeValues = Arrays.equals(acceptableChangeTypes, acceptableChangeComponentTypes);
 
 		if (deltaValuesExpression != null) {
 			Expression<?> convertedChangeDeltaExpression = null;
