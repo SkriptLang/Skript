@@ -19,13 +19,16 @@
 package ch.njol.skript.effects;
 
 import java.util.Arrays;
-import java.util.logging.Level;
 
 import ch.njol.skript.expressions.ExprParse;
-import ch.njol.skript.lang.*;
+import ch.njol.skript.lang.Effect;
+import ch.njol.skript.lang.Expression;
+import ch.njol.skript.lang.ExpressionList;
+import ch.njol.skript.lang.SkriptParser;
+import ch.njol.skript.lang.Variable;
 import org.skriptlang.skript.lang.script.ScriptWarning;
 import org.bukkit.event.Event;
-import org.jetbrains.annotations.Nullable;
+import org.eclipse.jdt.annotation.Nullable;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptConfig;
@@ -78,246 +81,242 @@ public class EffChange extends Effect {
 			{"(add|give) %objects% to %~objects%", ChangeMode.ADD},
 			{"increase %~objects% by %objects%", ChangeMode.ADD},
 			{"give %~objects% %objects%", ChangeMode.ADD},
-
+			
 			{"set %~objects% to %objects%", ChangeMode.SET},
-
+			
 			{"remove (all|every) %objects% from %~objects%", ChangeMode.REMOVE_ALL},
-
+			
 			{"(remove|subtract) %objects% from %~objects%", ChangeMode.REMOVE},
 			{"(reduce|decrease) %~objects% by %objects%", ChangeMode.REMOVE},
-
+			
 			{"(delete|clear) %~objects%", ChangeMode.DELETE},
-
+			
 			{"reset %~objects%", ChangeMode.RESET}
 	});
-
+	
 	static {
 		Skript.registerEffect(EffChange.class, patterns.getPatterns());
 	}
-
+	
 	@SuppressWarnings("null")
-	private Expression<?> changed;
+	private Expression<?> expressionToChange;
+
 	@Nullable
-	private Expression<?> changer = null;
-
+	private Expression<?> deltaValuesExpression = null;
+	
 	@SuppressWarnings("null")
-	private ChangeMode mode;
-
-	private boolean single;
-
-//	private Changer<?, ?> c = null;
-
+	private ChangeMode changeMode;
+	
+	private boolean allowMultipleChangeValues;
+	
 	@SuppressWarnings({"unchecked", "null"})
 	@Override
 	public boolean init(final Expression<?>[] exprs, final int matchedPattern, final Kleenean isDelayed, final ParseResult parser) {
-		mode = patterns.getInfo(matchedPattern);
-
-		switch (mode) {
+		changeMode = patterns.getInfo(matchedPattern);
+		
+		switch (changeMode) {
 			case ADD:
 				if (matchedPattern == 0) {
-					changer = exprs[0];
-					changed = exprs[1];
+					deltaValuesExpression = exprs[0];
+					expressionToChange = exprs[1];
 				} else {
-					changer = exprs[1];
-					changed = exprs[0];
+					deltaValuesExpression = exprs[1];
+					expressionToChange = exprs[0];
 				}
 				break;
 			case SET:
-				changer = exprs[1];
-				changed = exprs[0];
+				deltaValuesExpression = exprs[1];
+				expressionToChange = exprs[0];
 				break;
 			case REMOVE_ALL:
-				changer = exprs[0];
-				changed = exprs[1];
+				deltaValuesExpression = exprs[0];
+				expressionToChange = exprs[1];
 				break;
 			case REMOVE:
 				if (matchedPattern == 5) {
-					changer = exprs[0];
-					changed = exprs[1];
+					deltaValuesExpression = exprs[0];
+					expressionToChange = exprs[1];
 				} else {
-					changer = exprs[1];
-					changed = exprs[0];
+					deltaValuesExpression = exprs[1];
+					expressionToChange = exprs[0];
 				}
 				break;
 			case DELETE:
-				changed = exprs[0];
-				break;
 			case RESET:
-				changed = exprs[0];
-		}
+				expressionToChange = exprs[0];
+				break;
+        }
 
-		CountingLogHandler h = new CountingLogHandler(Level.SEVERE).start();
-		Class<?>[] rs;
+		Class<?>[] acceptableChangeTypes;
 		String what;
+		CountingLogHandler acceptChangeLogs = new CountingLogHandler(SkriptLogger.SEVERE);
+		acceptChangeLogs.start();
 		try {
-			rs = changed.acceptChange(mode);
-			ClassInfo<?> c = Classes.getSuperClassInfo(changed.getReturnType());
-			Changer<?> changer = c.getChanger();
-			what = changer == null || !Arrays.equals(changer.acceptChange(mode), rs) ? changed.toString(null, false) : c.getName().withIndefiniteArticle();
+			acceptableChangeTypes = expressionToChange.acceptChange(changeMode);
+			ClassInfo<?> returnTypeClassInfo = Classes.getSuperClassInfo(expressionToChange.getReturnType());
+			Changer<?> returnTypeChanger = returnTypeClassInfo.getChanger();
+			if (returnTypeChanger == null || !Arrays.equals(returnTypeChanger.acceptChange(changeMode), acceptableChangeTypes)) {
+				what = expressionToChange.toString(null, false);
+			} else {
+				what = returnTypeClassInfo.getName().withIndefiniteArticle();
+			}
 		} finally {
-			h.stop();
+			acceptChangeLogs.stop();
 		}
-		if (rs == null) {
-			if (h.getCount() > 0)
+		if (acceptableChangeTypes == null) {
+			if (acceptChangeLogs.getCount() > 0)
 				return false;
-			switch (mode) {
+			switch (changeMode) {
 				case SET:
 					Skript.error(what + " can't be set to anything", ErrorQuality.SEMANTIC_ERROR);
 					break;
 				case DELETE:
-					if (changed.acceptChange(ChangeMode.RESET) != null)
+					if (expressionToChange.acceptChange(ChangeMode.RESET) != null)
 						Skript.error(what + " can't be deleted/cleared. It can however be reset which might result in the desired effect.", ErrorQuality.SEMANTIC_ERROR);
 					else
 						Skript.error(what + " can't be deleted/cleared", ErrorQuality.SEMANTIC_ERROR);
 					break;
 				case REMOVE_ALL:
-					if (changed.acceptChange(ChangeMode.REMOVE) != null) {
+					if (expressionToChange.acceptChange(ChangeMode.REMOVE) != null) {
 						Skript.error(what + " can't have 'all of something' removed from it. Use 'remove' instead of 'remove all' to fix this.", ErrorQuality.SEMANTIC_ERROR);
 						break;
 					}
 					//$FALL-THROUGH$
 				case ADD:
 				case REMOVE:
-					Skript.error(what + " can't have anything " + (mode == ChangeMode.ADD ? "added to" : "removed from") + " it", ErrorQuality.SEMANTIC_ERROR);
+					Skript.error(what + " can't have anything " + (changeMode == ChangeMode.ADD ? "added to" : "removed from") + " it", ErrorQuality.SEMANTIC_ERROR);
 					break;
 				case RESET:
-					if (changed.acceptChange(ChangeMode.DELETE) != null)
+					if (expressionToChange.acceptChange(ChangeMode.DELETE) != null)
 						Skript.error(what + " can't be reset. It can however be deleted which might result in the desired effect.", ErrorQuality.SEMANTIC_ERROR);
 					else
 						Skript.error(what + " can't be reset", ErrorQuality.SEMANTIC_ERROR);
 			}
 			return false;
 		}
+		
+		final Class<?>[] acceptableChangeComponentTypes = new Class<?>[acceptableChangeTypes.length];
+		for (int i = 0; i < acceptableChangeTypes.length; i++)
+			acceptableChangeComponentTypes[i] = acceptableChangeTypes[i].isArray() ? acceptableChangeTypes[i].getComponentType() : acceptableChangeTypes[i];
+		allowMultipleChangeValues = !Arrays.equals(acceptableChangeTypes, acceptableChangeComponentTypes);
 
-		final Class<?>[] rs2 = new Class<?>[rs.length];
-		for (int i = 0; i < rs.length; i++)
-			rs2[i] = rs[i].isArray() ? rs[i].getComponentType() : rs[i];
-		final boolean allSingle = Arrays.equals(rs, rs2);
-
-		Expression<?> ch = changer;
-		if (ch != null) {
-			Expression<?> v = null;
-			final ParseLogHandler log = SkriptLogger.startParseLogHandler();
+		if (deltaValuesExpression != null) {
+			Expression<?> convertedChangeDeltaExpression = null;
+			final ParseLogHandler parseLogs = SkriptLogger.startParseLogHandler();
 			try {
-				for (final Class<?> r : rs) {
-					log.clear();
-					if ((r.isArray() ? r.getComponentType() : r).isAssignableFrom(ch.getReturnType())) {
-						v = ch.getConvertedExpression(Object.class);
-						break; // break even if v == null as it won't convert to Object apparently
+				for (final Class<?> changeType : acceptableChangeTypes) {
+					parseLogs.clear();
+					Class<?> singleChangeType = changeType;
+					if (changeType.isArray())
+						singleChangeType = changeType.getComponentType();
+					if (singleChangeType.isAssignableFrom(deltaValuesExpression.getReturnType())) {
+						convertedChangeDeltaExpression = deltaValuesExpression.getConvertedExpression(Object.class);
+						break; // break even if convertedChangeDeltaExpression == null as it won't convert to Object apparently
 					}
 				}
-				if (v == null)
-					v = ch.getConvertedExpression((Class<Object>[]) rs2);
-				if (v == null) {
-					if (log.hasError()) {
-						log.printError();
+				if (convertedChangeDeltaExpression == null)
+					convertedChangeDeltaExpression = deltaValuesExpression.getConvertedExpression((Class<Object>[]) acceptableChangeComponentTypes);
+				if (convertedChangeDeltaExpression == null) {
+					if (parseLogs.hasError()) {
+						parseLogs.printError();
 						return false;
 					}
-					log.clear();
-					log.stop();
-					final Class<?>[] r = new Class[rs.length];
-					for (int i = 0; i < rs.length; i++)
-						r[i] = rs[i].isArray() ? rs[i].getComponentType() : rs[i];
-					if (r.length == 1 && r[0] == Object.class)
-						Skript.error("Can't understand this expression: " + changer, ErrorQuality.NOT_AN_EXPRESSION);
-					else if (mode == ChangeMode.SET)
-						Skript.error(what + " can't be set to " + changer + " because the latter is " + SkriptParser.notOfType(r), ErrorQuality.SEMANTIC_ERROR);
+					parseLogs.clear();
+					parseLogs.stop();
+					if (acceptableChangeComponentTypes.length == 1 && acceptableChangeComponentTypes[0] == Object.class)
+						Skript.error("Can't understand this expression: " + this.deltaValuesExpression, ErrorQuality.NOT_AN_EXPRESSION);
+					else if (changeMode == ChangeMode.SET)
+						Skript.error(what + " can't be set to " + this.deltaValuesExpression + " because the latter is " + SkriptParser.notOfType(acceptableChangeComponentTypes), ErrorQuality.SEMANTIC_ERROR);
 					else
-						Skript.error(changer + " can't be " + (mode == ChangeMode.ADD ? "added to" : "removed from") + " " + what + " because the former is " + SkriptParser.notOfType(r), ErrorQuality.SEMANTIC_ERROR);
-					log.printError();
+						Skript.error(this.deltaValuesExpression + " can't be " + (changeMode == ChangeMode.ADD ? "added to" : "removed from") + " " + what + " because the former is " + SkriptParser.notOfType(acceptableChangeComponentTypes), ErrorQuality.SEMANTIC_ERROR);
+					parseLogs.printError();
 					return false;
 				}
-				log.printLog();
+				parseLogs.printLog();
 			} finally {
-				log.stop();
+				parseLogs.stop();
 			}
-
-			Class<?> x = Utils.getSuperType(rs2);
-			single = allSingle;
-			for (int i = 0; i < rs.length; i++) {
-				if (rs2[i].isAssignableFrom(v.getReturnType())) {
-					single = !rs[i].isArray();
-					x = rs2[i];
+			
+			Class<?> superTypeOfAcceptableChangeTypes = Utils.getSuperType(acceptableChangeComponentTypes);
+			for (int i = 0; i < acceptableChangeTypes.length; i++) {
+				if (acceptableChangeComponentTypes[i].isAssignableFrom(convertedChangeDeltaExpression.getReturnType())) {
+					allowMultipleChangeValues = !acceptableChangeTypes[i].isArray();
+					superTypeOfAcceptableChangeTypes = acceptableChangeComponentTypes[i];
 					break;
 				}
 			}
-			assert x != null;
-			changer = ch = v;
+			assert superTypeOfAcceptableChangeTypes != null;
+			deltaValuesExpression = convertedChangeDeltaExpression;
 
-			if (!ch.canBeSingle() && single) {
-				if (mode == ChangeMode.SET)
-					Skript.error(changed + " can only be set to one " + Classes.getSuperClassInfo(x).getName() + ", not more", ErrorQuality.SEMANTIC_ERROR);
+			if (!deltaValuesExpression.isSingle() && !allowMultipleChangeValues) {
+				if (changeMode == ChangeMode.SET)
+					Skript.error(expressionToChange + " can only be set to one " + Classes.getSuperClassInfo(superTypeOfAcceptableChangeTypes).getName() + ", not more", ErrorQuality.SEMANTIC_ERROR);
 				else
-					Skript.error("only one " + Classes.getSuperClassInfo(x).getName() + " can be " + (mode == ChangeMode.ADD ? "added to" : "removed from") + " " + changed + ", not more", ErrorQuality.SEMANTIC_ERROR);
+					Skript.error("Only one " + Classes.getSuperClassInfo(superTypeOfAcceptableChangeTypes).getName() + " can be " + (changeMode == ChangeMode.ADD ? "added to" : "removed from") + " " + expressionToChange + ", not more", ErrorQuality.SEMANTIC_ERROR);
 				return false;
 			}
 
-			if (changed instanceof Variable && !changed.isSingle() && mode == ChangeMode.SET) {
-				if (ch instanceof ExprParse) {
-					((ExprParse) ch).flatten = false;
-				} else if (ch instanceof ExpressionList) {
-					for (Expression<?> expression : ((ExpressionList<?>) ch).getExpressions()) {
+			if (expressionToChange instanceof Variable && !expressionToChange.isSingle() && changeMode == ChangeMode.SET) {
+				if (deltaValuesExpression instanceof ExprParse) {
+					((ExprParse) deltaValuesExpression).flatten = false;
+				} else if (deltaValuesExpression instanceof ExpressionList) {
+					for (Expression<?> expression : ((ExpressionList<?>) deltaValuesExpression).getExpressions()) {
 						if (expression instanceof ExprParse)
 							((ExprParse) expression).flatten = false;
 					}
 				}
 			}
 
-			if (changed instanceof Variable && !((Variable<?>) changed).isLocal() && (mode == ChangeMode.SET || ((Variable<?>) changed).isList() && mode == ChangeMode.ADD)) {
-				final ClassInfo<?> ci = Classes.getSuperClassInfo(ch.getReturnType());
-				if (ci.getC() != Object.class && ci.getSerializer() == null && ci.getSerializeAs() == null && !SkriptConfig.disableObjectCannotBeSavedWarnings.value()) {
+			if (expressionToChange instanceof Variable && !((Variable<?>) expressionToChange).isLocal() && (changeMode == ChangeMode.SET || ((Variable<?>) expressionToChange).isList() && changeMode == ChangeMode.ADD)) {
+				final ClassInfo<?> deltaReturnTypeClassInfo = Classes.getSuperClassInfo(deltaValuesExpression.getReturnType());
+				if (deltaReturnTypeClassInfo.getC() != Object.class && deltaReturnTypeClassInfo.getSerializer() == null && deltaReturnTypeClassInfo.getSerializeAs() == null && !SkriptConfig.disableObjectCannotBeSavedWarnings.value()) {
 					if (getParser().isActive() && !getParser().getCurrentScript().suppressesWarning(ScriptWarning.VARIABLE_SAVE)) {
-						Skript.warning(ci.getName().withIndefiniteArticle() + " cannot be saved, i.e. the contents of the variable " + changed + " will be lost when the server stops.");
+						Skript.warning(deltaReturnTypeClassInfo.getName().withIndefiniteArticle() + " cannot be saved, i.e. the contents of the variable " + expressionToChange + " will be lost when the server stops.");
 					}
 				}
 			}
 		}
 		return true;
 	}
-
+	
 	@Override
 	protected void execute(Event event) {
-		Object[] delta = changer == null ? null : changer.getArray(event);
-		delta = changer == null ? delta : changer.beforeChange(changed, delta);
+		Object[] deltaValues = null;
+		if (deltaValuesExpression != null) {
+			deltaValues = deltaValuesExpression.getArray(event);
+			deltaValues = deltaValuesExpression.beforeChange(expressionToChange, deltaValues);
+		}
 
-		if ((delta == null || delta.length == 0) && (mode != ChangeMode.DELETE && mode != ChangeMode.RESET)) {
-			if (mode == ChangeMode.SET && changed.acceptChange(ChangeMode.DELETE) != null)
-				changed.change(event, null, ChangeMode.DELETE);
+		boolean deltaValuesPresent = deltaValues != null && deltaValues.length != 0;
+		boolean deltaValuesRequired = changeMode != ChangeMode.DELETE && changeMode != ChangeMode.RESET;
+		if (deltaValuesRequired && !deltaValuesPresent) {
+			boolean expressionToChangeAllowsDeletion = expressionToChange.acceptChange(ChangeMode.DELETE) != null);
+			if (changeMode == ChangeMode.SET && expressionToChangeAllowsDeletion)
+				expressionToChange.change(event, null, ChangeMode.DELETE);
 			return;
 		}
-		if (mode.supportsKeyedChange() && changer != null && delta != null
-			&& changer instanceof KeyProviderExpression<?> provider
-			&& changed instanceof KeyReceiverExpression<?> receiver
-			&& provider.areKeysRecommended()) {
-			receiver.change(event, delta, mode, provider.getArrayKeys(event));
-		} else {
-			changed.change(event, delta, mode);
-		}
+		expressionToChange.change(event, deltaValues, changeMode);
 	}
-
+	
 	@Override
-	public String toString(final @Nullable Event e, final boolean debug) {
-		final Expression<?> changer = this.changer;
-		switch (mode) {
+	public String toString(final @Nullable Event event, final boolean debug) {
+		assert deltaValuesExpression != null;
+		switch (changeMode) {
 			case ADD:
-				assert changer != null;
-				return "add " + changer.toString(e, debug) + " to " + changed.toString(e, debug);
+				return "add " + deltaValuesExpression.toString(event, debug) + " to " + expressionToChange.toString(event, debug);
 			case SET:
-				assert changer != null;
-				return "set " + changed.toString(e, debug) + " to " + changer.toString(e, debug);
+				return "set " + expressionToChange.toString(event, debug) + " to " + deltaValuesExpression.toString(event, debug);
 			case REMOVE:
-				assert changer != null;
-				return "remove " + changer.toString(e, debug) + " from " + changed.toString(e, debug);
+				return "remove " + deltaValuesExpression.toString(event, debug) + " from " + expressionToChange.toString(event, debug);
 			case REMOVE_ALL:
-				assert changer != null;
-				return "remove all " + changer.toString(e, debug) + " from " + changed.toString(e, debug);
+				return "remove all " + deltaValuesExpression.toString(event, debug) + " from " + expressionToChange.toString(event, debug);
 			case DELETE:
-				return "delete/clear " + changed.toString(e, debug);
+				return "delete/clear " + expressionToChange.toString(event, debug);
 			case RESET:
-				return "reset " + changed.toString(e, debug);
+				return "reset " + expressionToChange.toString(event, debug);
 		}
 		assert false;
 		return "";
 	}
-
+	
 }
