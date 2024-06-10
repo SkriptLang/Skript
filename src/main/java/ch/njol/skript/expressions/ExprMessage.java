@@ -181,18 +181,18 @@ public class ExprMessage extends SimpleExpression<String> {
 	@Override
 	@Nullable
 	public Class<?>[] acceptChange(final ChangeMode mode) {
-		if (mode == ChangeMode.SET)
+		if (mode == ChangeMode.SET || mode == ChangeMode.DELETE)
 			return CollectionUtils.array(String.class);
 		return null;
 	}
 	
 	@Override
 	public void change(final Event e, final @Nullable Object[] delta, final ChangeMode mode) {
-		assert mode == ChangeMode.SET;
-		assert delta != null;
+		assert mode == ChangeMode.SET || mode == ChangeMode.DELETE;
 		for (final Class<? extends Event> c : type.events) {
-			if (c.isInstance(e))
-				type.set(e, "" + delta[0]);
+			if (c.isInstance(e)) {
+				type.set(e, (mode == ChangeMode.DELETE) ? "" : "" + delta[0]);
+			}
 		}
 	}
 	
