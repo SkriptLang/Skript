@@ -290,7 +290,7 @@ public class EffChange extends Effect {
 		boolean deltaValuesPresent = deltaValues != null && deltaValues.length != 0;
 		boolean deltaValuesRequired = changeMode != ChangeMode.DELETE && changeMode != ChangeMode.RESET;
 		if (deltaValuesRequired && !deltaValuesPresent) {
-			boolean expressionToChangeAllowsDeletion = expressionToChange.acceptChange(ChangeMode.DELETE) != null);
+			boolean expressionToChangeAllowsDeletion = expressionToChange.acceptChange(ChangeMode.DELETE) != null;
 			if (changeMode == ChangeMode.SET && expressionToChangeAllowsDeletion)
 				expressionToChange.change(event, null, ChangeMode.DELETE);
 			return;
