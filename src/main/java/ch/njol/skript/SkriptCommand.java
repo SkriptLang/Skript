@@ -535,7 +535,7 @@ public class SkriptCommand implements CommandExecutor {
 	private static void notifyOperators(String message, CommandSender sender, RedirectingLogHandler logHandler) {
 		if (SkriptConfig.sendReloadingInfoToOps.value()) {
 			Bukkit.getOnlinePlayers().stream()
-				.filter(player -> player.isOp() && player.hasPermission("skript.notifyreload") && !player.equals(sender))
+				.filter(player -> player.isOp() && player.hasPermission("skript.reloadnotify") && !player.equals(sender))
 				.forEach(player -> {
 					if (logHandler.numErrors() == 0) {
 						Skript.info(player, message);
