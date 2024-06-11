@@ -1,0 +1,12 @@
+test "wrong parsing order for math in object expr":
+	spawn a zombie at spawn of world "world"
+	set {_e} to the last spawned zombie
+
+	set {_result} to health of {_e} + max health of {_e}
+	assert {_result} is set with "add result not calculated"
+	delete {_result}
+
+	set {_result} to health of {_e} / max health of {_e} # used to be parsed as `health of ({_e} / max health of {_e})`
+	assert {_result} is set with "divide result not calculated"
+
+	delete the last spawned zombie
