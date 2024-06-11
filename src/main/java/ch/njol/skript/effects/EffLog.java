@@ -26,9 +26,7 @@ import java.io.PrintWriter;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
-import ch.njol.skript.log.RedirectingLogHandler;
 import org.skriptlang.skript.lang.script.Script;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
@@ -143,8 +141,9 @@ public class EffLog extends Effect {
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
+		String lowerCaseLogLevel = String.valueOf(logLevel);
 		return "log " + messages.toString(event, debug)
 			+ (files != null ? " to " + files.toString(event, debug) : "")
-			+ (logLevel != Level.INFO ? "with severity " + logLevel : "");
+			+ (logLevel != Level.INFO ? "with severity " + lowerCaseLogLevel.toLowerCase() : "");
 	}
 }
