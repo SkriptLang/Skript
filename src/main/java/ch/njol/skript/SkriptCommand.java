@@ -25,7 +25,6 @@ import ch.njol.skript.doc.HTMLGenerator;
 import ch.njol.skript.localization.ArgsMessage;
 import ch.njol.skript.localization.Language;
 import ch.njol.skript.localization.PluralizingArgsMessage;
-import ch.njol.skript.log.LogHandler;
 import ch.njol.skript.log.RedirectingLogHandler;
 import ch.njol.skript.log.SkriptLogger;
 import ch.njol.skript.log.TimingLogHandler;
@@ -115,7 +114,6 @@ public class SkriptCommand implements CommandExecutor {
 		String timeTaken = String.valueOf(timingLogHandler.getTimeTaken());
 
 		String message;
-		String errorDetails = null;
 		if (logHandler.numErrors() == 0) {
 			message = StringUtils.fixCapitalization(PluralizingArgsMessage.format(m_reloaded.toString(what, timeTaken)));
 			Skript.info(sender, message);
@@ -130,12 +128,12 @@ public class SkriptCommand implements CommandExecutor {
 
 
 	private static void info(CommandSender sender, String what, Object... args) {
-		what = args.length == 0 ? Language.get(CONFIG_NODE + "." + what) : format(Language.format(CONFIG_NODE + "." + what, args));
+		what = args.length == 0 ? Language.get(CONFIG_NODE + "." + what) : PluralizingArgsMessage.format(Language.format(CONFIG_NODE + "." + what, args));
 		Skript.info(sender, StringUtils.fixCapitalization(what));
 	}
 
 	private static void error(CommandSender sender, String what, Object... args) {
-		what = args.length == 0 ? Language.get(CONFIG_NODE + "." + what) : format(Language.format(CONFIG_NODE + "." + what, args));
+		what = args.length == 0 ? Language.get(CONFIG_NODE + "." + what) : PluralizingArgsMessage.format(Language.format(CONFIG_NODE + "." + what, args));
 		Skript.error(sender, StringUtils.fixCapitalization(what));
 	}
 
@@ -532,10 +530,14 @@ public class SkriptCommand implements CommandExecutor {
 		return changed;
 	}
 
+	/**
+	 * Sends the Skript reloading message to operators and console, requires a {@link RedirectingLogHandler} and {@link CommandSender}.
+	 */
+
 	private static void notifyOperators(String message, CommandSender sender, RedirectingLogHandler logHandler) {
 		if (SkriptConfig.sendReloadingInfoToOps.value()) {
 			Bukkit.getOnlinePlayers().stream()
-				.filter(player -> player.isOp() && player.hasPermission("skript.reloadnotify") && !player.equals(sender))
+				.filter(player -> player.hasPermission("skript.reloadnotify") && !player.equals(sender))
 				.forEach(player -> {
 					if (logHandler.numErrors() == 0) {
 						Skript.info(player, message);
@@ -547,7 +549,7 @@ public class SkriptCommand implements CommandExecutor {
 					}
 				});
 
-			// Send the message to the console if the boolean is false
+			// send to console
 			if (logHandler.numErrors() == 0) {
 				Skript.info(Bukkit.getConsoleSender(), message);
 			} else {
