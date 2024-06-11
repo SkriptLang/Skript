@@ -18,10 +18,11 @@
  */
 package ch.njol.skript.log;
 
-import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.eclipse.jdt.annotation.Nullable;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Level;
 
 /**
@@ -30,31 +31,35 @@ import java.util.logging.Level;
 public class RedirectingLogHandler extends LogHandler {
 
 	private final CommandSender recipient;
-	
 	private final String prefix;
-	
 	private int numErrors = 0;
-	
+	private final List<String> errorMessages = new ArrayList<>();
+
 	public RedirectingLogHandler(CommandSender recipient, @Nullable String prefix) {
 		this.recipient = recipient;
 		this.prefix = prefix == null ? "" : prefix;
 	}
-	
+
 	@Override
 	public LogResult log(LogEntry entry) {
 		SkriptLogger.sendFormatted(recipient, prefix + entry.toFormattedString());
-		if (entry.level == Level.SEVERE)
+		if (entry.level == Level.SEVERE) {
 			numErrors++;
+			errorMessages.add(entry.toFormattedString());
+		}
 		return LogResult.DO_NOT_LOG;
 	}
-	
+
 	@Override
 	public RedirectingLogHandler start() {
 		return SkriptLogger.startLogHandler(this);
 	}
-	
+
 	public int numErrors() {
 		return numErrors;
 	}
 
+	public List<String> getErrors() {
+		return new ArrayList<>(errorMessages);
+	}
 }
