@@ -27,6 +27,7 @@ import java.util.regex.Pattern;
 import java.util.Locale;
 
 import ch.njol.skript.aliases.AliasesMap;
+import ch.njol.skript.lang.ParseContext;
 import org.eclipse.jdt.annotation.Nullable;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.ApiStatus.ScheduledForRemoval;
@@ -98,23 +99,31 @@ public class Timespan implements YggdrasilSerializable, Comparable<Timespan> { /
 	private static final Pattern TIMESPAN_SHORTENED_PATTERN = Pattern.compile("(\\d+)([smhd])");
 
 	private final long millis;
-	
+
 	@Nullable
 	public static Timespan parse(String value) {
-		if (value.isEmpty())
+		return parse(value, ParseContext.DEFAULT);
+	}
+
+	@Nullable
+	public static Timespan parse(String value, ParseContext context) {
+		if (value.isEmpty()) {
 			return null;
+		}
 
 		long t = 0;
 		boolean minecraftTime = false;
 		boolean isMinecraftTimeSet = false;
 
-		Matcher matcher = TIMESPAN_SHORTENED_PATTERN.matcher(value.toLowerCase(Locale.ENGLISH));
-		if (matcher.find()) {
-			return parseShortenedTimespan(value);
+		// Check if the context allows for shortened timespan parsing
+		if (context == ParseContext.COMMAND) {
+			Timespan shortenedTimespan = parseShortenedTimespan(value, context);
+			if (shortenedTimespan != null) {
+				return shortenedTimespan;
+			}
 		}
 
-
-		matcher = TIMESPAN_PATTERN.matcher(value);
+		Matcher matcher = TIMESPAN_PATTERN.matcher(value);
 		if (matcher.matches()) { // MM:SS[.ms] or HH:MM:SS[.ms] or DD:HH:MM:SS[.ms]
 			String[] substring = TIMESPAN_SPLIT_PATTERN.split(value);
 			long[] times = {1L, TimePeriod.SECOND.time, TimePeriod.MINUTE.time, TimePeriod.HOUR.time, TimePeriod.DAY.time}; // ms, s, m, h, d
@@ -189,34 +198,47 @@ public class Timespan implements YggdrasilSerializable, Comparable<Timespan> { /
 	}
 
 
-	private static Timespan parseShortenedTimespan(String input) {
+	/**
+	 * Parses a shortened timespan (e.g., "5m", "3d", "1h") based on the provided input string and parse context.
+	 * Returns null if the input does not represent a valid shortened timespan in the context of a command argument.
+	 *
+	 * @param input   The input string representing the shortened timespan.
+	 * @param context The parse context to determine if parsing is allowed.
+	 * @return A Timespan object representing the parsed timespan, or null if parsing fails or not allowed in context.
+	 */
+	@Nullable
+	public static Timespan parseShortenedTimespan(String input, ParseContext context) {
+		if (context != ParseContext.COMMAND) {
+			return null;
+		}
+
 		long totalMillis = 0;
 		Matcher matcher = TIMESPAN_SHORTENED_PATTERN.matcher(input);
 
-		while (matcher.find()){
+		while (matcher.find()) {
 			int value = Integer.parseInt(matcher.group(1));
 			char unit = matcher.group(2).charAt(0);
 
 			switch (unit) {
 				case 'd':
-					totalMillis += value * 86400000L; // 1 day in milliseconds
+					totalMillis += value * 86400000L; // 24 * 60 * 60 * 1000
 					break;
 				case 'h':
-					totalMillis += value * 3600000L; // 1 hour in milliseconds
+					totalMillis += value * 3600000L; // 60 * 60 * 1000
 					break;
 				case 'm':
-					totalMillis += value * 60000L; // 1 minute in milliseconds
+					totalMillis += value * 60000L; // 60 * 1000
 					break;
 				case 's':
-					totalMillis += value * 1000L; // 1 second in milliseconds
+					totalMillis += value * 1000L; // 1000
 					break;
 				default:
 					throw new IllegalArgumentException("Unknown time unit: " + unit);
-
 			}
 		}
-		return new Timespan(totalMillis);
+		return totalMillis > 0 ? new Timespan(totalMillis) : null;
 	}
+
 
 	public Timespan() {
 		millis = 0;
