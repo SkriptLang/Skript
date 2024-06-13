@@ -211,7 +211,7 @@ public class Timespan implements YggdrasilSerializable, Comparable<Timespan> { /
 					totalMillis += value * 1000L; // 1 second in milliseconds
 					break;
 				default:
-					throw new IllegalArgumentException("Unkown time unit: " + unit);
+					throw new IllegalArgumentException("Unknown time unit: " + unit);
 
 			}
 		}
