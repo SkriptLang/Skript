@@ -293,28 +293,28 @@ public class SkriptClasses {
 						"every 10 mc days and 12 hours:",
 						"	halt for 12.7 irl minutes, 12 hours and 120.5 seconds")
 				.since("1.0, 2.6.1 (weeks, months, years)")
-			.parser(new Parser<Timespan>() {
-				@Override
-				@Nullable
-				public Timespan parse(final String s, final ParseContext context) {
-					try {
-						return Timespan.parse(s, context);
-					} catch (IllegalArgumentException e) {
-						Skript.error("'" + s + "' is not a valid timespan");
-						return null;
+				.parser(new Parser<Timespan>() {
+					@Override
+					@Nullable
+					public Timespan parse(final String s, final ParseContext context) {
+						try {
+							return Timespan.parse(s, context);
+						} catch (IllegalArgumentException e) {
+							Skript.error("'" + s + "' is not a valid timespan");
+							return null;
+						}
 					}
-				}
 
-				@Override
-				public String toString(final Timespan t, final int flags) {
-					return t.toString(flags);
-				}
+					@Override
+					public String toString(final Timespan t, final int flags) {
+						return t.toString(flags);
+					}
 
-				@Override
-				public String toVariableNameString(final Timespan o) {
-					return "timespan:" + o.getMilliSeconds();
-				}
-			}).serializer(new YggdrasilSerializer<>()));
+					@Override
+					public String toVariableNameString(final Timespan o) {
+						return "timespan:" + o.getMilliSeconds();
+					}
+				}).serializer(new YggdrasilSerializer<>()));
 
 		// TODO remove
 		Classes.registerClass(new ClassInfo<>(Timeperiod.class, "timeperiod")
