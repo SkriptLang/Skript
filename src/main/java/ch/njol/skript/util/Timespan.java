@@ -26,6 +26,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.Locale;
 
+import ch.njol.skript.aliases.AliasesMap;
 import org.eclipse.jdt.annotation.Nullable;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.ApiStatus.ScheduledForRemoval;
@@ -94,6 +95,7 @@ public class Timespan implements YggdrasilSerializable, Comparable<Timespan> { /
 	private static final Pattern TIMESPAN_PATTERN = Pattern.compile("^(\\d+):(\\d\\d)(:\\d\\d){0,2}(?<ms>\\.\\d{1,4})?$");
 	private static final Pattern TIMESPAN_NUMBER_PATTERN = Pattern.compile("^\\d+(\\.\\d+)?$");
 	private static final Pattern TIMESPAN_SPLIT_PATTERN = Pattern.compile("[:.]");
+	private static final Pattern TIMESPAN_SHORTENED_PATTERN = Pattern.compile("(\\d+)([smhd])");
 
 	private final long millis;
 	
@@ -106,7 +108,13 @@ public class Timespan implements YggdrasilSerializable, Comparable<Timespan> { /
 		boolean minecraftTime = false;
 		boolean isMinecraftTimeSet = false;
 
-		Matcher matcher = TIMESPAN_PATTERN.matcher(value);
+		Matcher matcher = TIMESPAN_SHORTENED_PATTERN.matcher(value.toLowerCase(Locale.ENGLISH));
+		if (matcher.find()) {
+			return parseShortenedTimespan(value);
+		}
+
+
+		matcher = TIMESPAN_PATTERN.matcher(value);
 		if (matcher.matches()) { // MM:SS[.ms] or HH:MM:SS[.ms] or DD:HH:MM:SS[.ms]
 			String[] substring = TIMESPAN_SPLIT_PATTERN.split(value);
 			long[] times = {1L, TimePeriod.SECOND.time, TimePeriod.MINUTE.time, TimePeriod.HOUR.time, TimePeriod.DAY.time}; // ms, s, m, h, d
@@ -179,7 +187,37 @@ public class Timespan implements YggdrasilSerializable, Comparable<Timespan> { /
 
 		return new Timespan(t);
 	}
-	
+
+
+	private static Timespan parseShortenedTimespan(String input) {
+		long totalMillis = 0;
+		Matcher matcher = TIMESPAN_SHORTENED_PATTERN.matcher(input);
+
+		while (matcher.find()){
+			int value = Integer.parseInt(matcher.group(1));
+			char unit = matcher.group(2).charAt(0);
+
+			switch (unit) {
+				case 'd':
+					totalMillis += value * 86400000L; // 1 day in milliseconds
+					break;
+				case 'h':
+					totalMillis += value * 3600000L; // 1 hour in milliseconds
+					break;
+				case 'm':
+					totalMillis += value * 60000L; // 1 minute in milliseconds
+					break;
+				case 's':
+					totalMillis += value * 1000L; // 1 second in milliseconds
+					break;
+				default:
+					throw new IllegalArgumentException("Unkown time unit: " + unit);
+
+			}
+		}
+		return new Timespan(totalMillis);
+	}
+
 	public Timespan() {
 		millis = 0;
 	}
