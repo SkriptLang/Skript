@@ -221,16 +221,16 @@ public class Timespan implements YggdrasilSerializable, Comparable<Timespan> { /
 
 			switch (unit) {
 				case 'd':
-					totalMillis += value * 86400000L; // 24 * 60 * 60 * 1000
+					totalMillis += value * 86400000L; // 1 day in milliseconds
 					break;
 				case 'h':
-					totalMillis += value * 3600000L; // 60 * 60 * 1000
+					totalMillis += value * 3600000L; // 1 hour in milliseconds
 					break;
 				case 'm':
-					totalMillis += value * 60000L; // 60 * 1000
+					totalMillis += value * 60000L; // 1 minute in milliseconds
 					break;
 				case 's':
-					totalMillis += value * 1000L; // 1000
+					totalMillis += value * 1000L; // 1 second in milliseconds
 					break;
 				default:
 					throw new IllegalArgumentException("Unknown time unit: " + unit);
