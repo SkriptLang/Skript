@@ -18,7 +18,6 @@
  */
 package ch.njol.skript.lang;
 
-import ch.njol.skript.classes.ClassInfo;
 import org.eclipse.jdt.annotation.Nullable;
 import org.skriptlang.skript.lang.script.Script;
 
@@ -47,7 +46,7 @@ public class ReturnableTrigger<T> extends Trigger implements ReturnHandler<T> {
 	}
 
 	@Override
-	public @Nullable ClassInfo<? extends T> returnValueType() {
+	public @Nullable Class<? extends T> returnValueType() {
 		return handler.returnValueType();
 	}
 

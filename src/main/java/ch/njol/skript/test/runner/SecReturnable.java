@@ -66,13 +66,13 @@ public class SecReturnable extends Section implements ReturnHandler<Object> {
 	}
 
 	@Override
-	public @Nullable ClassInfo<?> returnValueType() {
-		return returnValueType;
+	public @Nullable Class<?> returnValueType() {
+		return returnValueType.getC();
 	}
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return "section";
+		return "returnable " + (singleReturnValue ? "" : "plural ") + returnValueType.toString(event, debug) + " section";
 	}
 
 	@NoDoc

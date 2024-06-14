@@ -20,12 +20,11 @@ package ch.njol.skript.lang;
 
 import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.SkriptAPIException;
-import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.lang.parser.ParserInstance;
 import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.Nullable;
 import org.jetbrains.annotations.ApiStatus.NonExtendable;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Deque;
 import java.util.LinkedList;
@@ -143,9 +142,10 @@ public interface ReturnHandler<T> {
 	/**
 	 * The return type of this return handler, or null if it can't
 	 * accept return values in this context (e.g. a function without a return type).
+	 *
 	 * @return the return type
 	 */
-	@Nullable ClassInfo<? extends T> returnValueType();
+	@Nullable Class<? extends T> returnValueType();
 
 	class ReturnHandlerStack extends ParserInstance.Data {
 

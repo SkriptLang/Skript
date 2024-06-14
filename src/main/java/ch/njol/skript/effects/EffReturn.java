@@ -35,6 +35,7 @@ import ch.njol.skript.lang.TriggerSection;
 import ch.njol.skript.lang.parser.ParserInstance;
 import ch.njol.skript.log.RetainingLogHandler;
 import ch.njol.skript.log.SkriptLogger;
+import ch.njol.skript.registrations.Classes;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
@@ -75,7 +76,7 @@ public class EffReturn extends Effect {
 			return false;
 		}
 
-		ClassInfo<?> returnType = handler.returnValueType();
+		Class<?> returnType = handler.returnValueType();
 		if (returnType == null) {
 			Skript.error(handler + " doesn't return any value. Please use 'stop' or 'exit' if you want to stop the trigger.");
 			return false;
@@ -84,9 +85,10 @@ public class EffReturn extends Effect {
 		RetainingLogHandler log = SkriptLogger.startRetainingLog();
 		Expression<?> convertedExpr;
 		try {
-			convertedExpr = exprs[0].getConvertedExpression(returnType.getC());
+			convertedExpr = exprs[0].getConvertedExpression(returnType);
 			if (convertedExpr == null) {
-				log.printErrors(handler + " is declared to return " + returnType.getName().withIndefiniteArticle() + ", but " + exprs[0].toString(null, false) + " is not of that type.");
+				String typeName = Classes.getSuperClassInfo(returnType).getName().withIndefiniteArticle();
+				log.printErrors(handler + " is declared to return " + typeName + ", but " + exprs[0].toString(null, false) + " is not of that type.");
 				return false;
 			}
 			log.printLog();
