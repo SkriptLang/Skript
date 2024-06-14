@@ -63,13 +63,14 @@ import ch.njol.util.coll.CollectionUtils;
 public class ExprClicked extends SimpleExpression<Object> {
 
 	private static enum ClickableType {
+
 		ENCHANT_BUTTON(1, Number.class, "clicked enchantment button", "clicked [enchant[ment]] (button|option)"),
 		BLOCK_AND_ITEMS(2, Block.class, "clicked block/itemtype/entity", "clicked (block|%-*itemtype/entitydata%)"),
 		SLOT(3, Slot.class, "clicked slot", "clicked slot"),
 		INVENTORY(4, Inventory.class, "clicked inventory", "clicked inventory"),
-		TYPE(5, ClickType.class, "click type", "click (type|action)"),
-		ACTION(6, InventoryAction.class, "inventory action", "inventory action"),;
-		
+		TYPE(5, ClickType.class, "click type", "click[ed] type"),
+		ACTION(6, InventoryAction.class, "inventory action", "(clicked|inventory) action");
+
 		private String name, syntax;
 		private Class<?> c;
 		private int value;
