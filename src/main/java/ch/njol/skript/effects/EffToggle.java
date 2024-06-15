@@ -19,8 +19,6 @@
 package ch.njol.skript.effects;
 
 import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
 
 import org.bukkit.block.Block;
 import org.bukkit.block.data.BlockData;
@@ -66,15 +64,15 @@ public class EffToggle extends Effect {
 	}
 
 	@SuppressWarnings("null")
-	private Expression<?> toggledExpr;
+	private Expression<?> togglables;
 	private State state;
 	
 	@Override
 	public boolean init(Expression<?>[] vars, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		toggledExpr = (Expression<?>) vars[0];
+		togglables = (Expression<?>) vars[0];
 		state = State.values()[matchedPattern];
-		if (toggledExpr.getReturnType() == Boolean.class && !ChangerUtils.acceptsChange(toggledExpr, ChangeMode.SET, Boolean.class)) {
-			Skript.error(toggledExpr.toString(null, false) + " cannot be toggled");
+		if (togglables.getReturnType() == Boolean.class && !ChangerUtils.acceptsChange(togglables, ChangeMode.SET, Boolean.class)) {
+			Skript.error(togglables.toString(null, false) + " cannot be toggled");
 			return false;
 		}
 		return true;
@@ -83,7 +81,7 @@ public class EffToggle extends Effect {
 	@Override
 	protected void execute(Event event) {
 		ArrayList<Object> toggledValues = new ArrayList<>();
-		for (Object obj : toggledExpr.getArray(event)) {
+		for (Object obj : togglables.getArray(event)) {
 			if (obj instanceof Block) {
 				Block block = (Block) obj;
 				BlockData data = block.getBlockData();
@@ -111,15 +109,15 @@ public class EffToggle extends Effect {
 		}
 
 		Object[] filteredValues = toggledValues.stream().filter(
-			obj -> ChangerUtils.acceptsChange(toggledExpr, ChangeMode.SET, obj.getClass())
+			obj -> ChangerUtils.acceptsChange(togglables, ChangeMode.SET, obj.getClass())
 		).toArray(Object[]::new);
-		toggledExpr.change(event, filteredValues, ChangeMode.SET);
+		togglables.change(event, filteredValues, ChangeMode.SET);
 		
 	}
 	
 	@Override
 	public String toString(@Nullable Event event, final boolean debug) {
-		return "toggle " + toggledExpr.toString(event, debug);
+		return "toggle " + togglables.toString(event, debug);
 	}
 	
 }
