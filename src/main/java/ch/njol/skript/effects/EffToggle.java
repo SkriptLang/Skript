@@ -111,7 +111,10 @@ public class EffToggle extends Effect {
 		Object[] filteredValues = toggledValues.stream().filter(
 			obj -> ChangerUtils.acceptsChange(togglables, ChangeMode.SET, obj.getClass())
 		).toArray(Object[]::new);
-		togglables.change(event, filteredValues, ChangeMode.SET);
+
+		if (filteredValues.length != 0) {
+			togglables.change(event, filteredValues, ChangeMode.SET);
+		}
 		
 	}
 	

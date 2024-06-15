@@ -25,3 +25,11 @@ test "toggle effect":
   assert "%block data of {_door}%" contains "open=false"  with "{_door} should be closed"
   toggle {_door}
   assert "%block data of {_door}%" contains "open=true" with "{_door} should be open"
+
+  set {_list::myFirstIndex::myFirstValue} to "hello"
+  set {_list::mySecondIndex::mySecondValue} to "world"
+  set {_list::myThirdIndex::myThirdValue} to false
+  toggle {_list::*}
+  assert {_list::myFirstIndex::myFirstValue} is "hello" with "{_list::myFirstIndex::myFirstValue} should be toggled to 'hello'"
+  assert {_list::mySecondIndex::mySecondValue} is "world" with "{_list::mySecondIndex::mySecondValue} should be toggled to 'world'"
+  assert {_list::myThirdIndex::myThirdValue} is true with "{_list::myThirdIndex::myThirdValue} should be toggled to true"
