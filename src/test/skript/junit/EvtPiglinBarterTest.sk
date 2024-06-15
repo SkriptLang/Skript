@@ -14,7 +14,6 @@ test "EvtPiglinBarterJUnit" when running JUnit:
 	else:
 		set {_slashIndex} to last index of "/" in "%script%.sk"
 		set {_parent} to substring of "%script%.sk" from 0 to {_slashIndex}
-		broadcast "Loading script %{_parent}%-EvtPiglinBarter.sk"
 		load script "%{_parent}%-EvtPiglinBarter.sk"
 
 	set {_tests::1} to "correct barter input"
