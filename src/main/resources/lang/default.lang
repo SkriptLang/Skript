@@ -1473,13 +1473,13 @@ visual effects:
 
 		block_marker: # added in 1.18
 			name: block marker @a
-			pattern: (barrierbm:barrier|lightbm:light|%-blockdata/itemtype% block marker)
+			pattern: (barrierbm:barrier [particle]|lightbm:light [particle]|%-blockdata/itemtype% block marker)
 		barrier:
 			name: barrier @a
-			pattern: barrier
+			pattern: barrier [particle]
 		light: # added in 1.17
 			name: light @-
-			pattern: light
+			pattern: light [particle]
 
 		bubble: # added in 1.20.5
 			name: bubble @-
@@ -1534,7 +1534,7 @@ visual effects:
 
 		dolphin: # added in 1.13
 			name: dolphin @-
-			pattern: dolphin
+			pattern: dolphin [particle]
 
 		dragon_breath: # added in 1.14
 			name: dragon breath @-
@@ -1602,10 +1602,10 @@ visual effects:
 
 		elder_guardian: # added in 1.20.5
 			name: elder guardian @-
-			pattern: (elder guardian|mob appearance|guardian ghost)
+			pattern: (elder guardian particle|mob appearance|guardian ghost)
 		mob_appearance: # for versions below 1.20.5
 			name: mob appearance @-
-			pattern: (elder guardian|mob appearance|guardian ghost)
+			pattern: (elder guardian particle|mob appearance|guardian ghost)
 
 		electric_spark:
 			name: electric spark @-
@@ -1627,7 +1627,7 @@ visual effects:
 
 		end_rod:
 			name: end rod @-
-			pattern: end rod
+			pattern: end rod [particle]
 
 		entity_effect: # added in 1.20.5
 			name: entity effect @an
@@ -1693,10 +1693,10 @@ visual effects:
 
 		firework: # added in 1.20.5
 			name: firework @-
-			pattern: (firework|firework['s] spark)
+			pattern: (firework particle|firework['s] spark)
 		fireworks_spark: # for versions below 1.20.5
 			name: firework's spark @-
-			pattern: (firework|firework['s] spark)
+			pattern: (firework particle|firework['s] spark)
 
 		fishing: # added in 1.20.5
 			name: water wake @-
@@ -1764,24 +1764,24 @@ visual effects:
 
 		item_cobweb: # added in 1.20.5 (for 1.21)
 			name: cobweb @-
-			pattern: cobweb
+			pattern: cobweb [item|particle]
 
 		item_slime: # added in 1.20.5
 			name: slime @-
-			pattern: slime
+			pattern: slime [item|particle]
 		slime: # for versions below 1.20.5
 			name: slime @-
-			pattern: slime
+			pattern: slime [item|particle]
 
 		item_snowball: # added in 1.20.5
 			name: snowball @-
-			pattern: (snowball [break]|snow shovel|snow(man| golem) spawn)
+			pattern: (snowball [item|break|particle]|snow shovel|snow(man| golem) spawn)
 		snowball: # for versions below 1.20.5
 			name: snowball break @-
 			pattern: snowball break
 		snow_shovel: # for versions below 1.20.5
 			name: snow shovel @-
-			pattern: (snowball|snow shovel|snow(man| golem) spawn)
+			pattern: (snowball [item|particle]|snow shovel|snow(man| golem) spawn)
 
 		landing_honey: # added in 1.15
 			name: landing honey @-
@@ -1808,7 +1808,7 @@ visual effects:
 
 		mycelium: # previously town_aura, changed in 1.20.5
 			name: mycelium @-
-			pattern: (mycelium|small smoke|town aura)
+			pattern: (mycelium [particle]|small smoke|town aura)
 		town_aura:
 			name: small smoke @-
 			pattern: (mycelium|small smoke|town aura)
@@ -1931,10 +1931,10 @@ visual effects:
 
 		totem_of_undying: # added in 1.20.5
 			name: totem of undying @a
-			pattern: totem [of undying]
+			pattern: totem [of undying] [particle]
 		totem: # for versions below 1.20.5
 			name: totem @a
-			pattern: totem [of undying]
+			pattern: totem [of undying] [particle]
 
 		trial omen: # added in 1.20.5 (for 1.21)
 			name: trial omen @a
@@ -1989,10 +1989,10 @@ visual effects:
 
 		witch: # added in 1.20.5
 			name: witch @a
-			pattern: (witch [magic|spell]|purple spark)
+			pattern: (witch (magic|spell|particle)|purple spark)
 		spell_witch: # for versions below 1.20.5
 			name: witch spell @a
-			pattern: (witch [magic|spell]|purple spark)
+			pattern: (witch (magic|spell|particle)|purple spark)
 
 # -- Inventory Actions --
 inventory actions:

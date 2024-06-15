@@ -16,7 +16,7 @@ test "visual effects":
 	play dripping water at {_}
 	play white dust with size 2 at {_}
 	play effect at {_}
-	play elder guardian at {_}
+	play elder guardian particle at {_}
 	play enchant at {_}
 	play enchanted hit at {_}
 	play end rod at {_}
@@ -26,7 +26,7 @@ test "visual effects":
 	play large explosion at {_}
 	play explosion emitter at {_}
 	play falling dust of air at {_}
-	play firework at {_}
+	play firework spark at {_}
 	play fishing at {_}
 	play flame at {_}
 	play happy villager at {_}
@@ -51,7 +51,7 @@ test "visual effects":
 	play totem of undying at {_}
 	play suspended at {_}
 	play void fog at {_}
-	play witch at {_}
+	play witch particle at {_}
 	parse if running minecraft "1.14.4":
 		play campfire cosy smoke at {_}
 		play campfire signal smoke at {_}
