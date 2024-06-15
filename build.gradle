@@ -188,7 +188,7 @@ void createTestTask(String name, String desc, String environments, int javaVersi
 	if (junit) {
 		artifact += 'Skript-JUnit.jar'
 	} else if (releaseDocs) {
-		artifact += 'Skript-github.jar'
+		artifact += 'Skript-' + version + '.jar'
 	} else {
 		artifact += 'Skript-nightly.jar'
 	}
