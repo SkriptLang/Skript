@@ -18,67 +18,6 @@
  */
 package ch.njol.skript.classes.data;
 
-import java.io.StreamCorruptedException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map.Entry;
-import java.util.UUID;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
-
-import org.bukkit.Bukkit;
-import org.bukkit.Chunk;
-import org.bukkit.Difficulty;
-import org.bukkit.FireworkEffect;
-import org.bukkit.GameMode;
-import org.bukkit.GameRule;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.OfflinePlayer;
-import org.bukkit.SoundCategory;
-import org.bukkit.World;
-import org.bukkit.World.Environment;
-import org.bukkit.attribute.Attribute;
-import org.bukkit.block.Biome;
-import org.bukkit.block.Block;
-import org.bukkit.block.BlockState;
-import org.bukkit.block.DoubleChest;
-import org.bukkit.block.data.BlockData;
-import org.bukkit.command.CommandSender;
-import org.bukkit.enchantments.Enchantment;
-import org.bukkit.enchantments.EnchantmentOffer;
-import org.bukkit.entity.Cat;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.Item;
-import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Panda.Gene;
-import org.bukkit.entity.Player;
-import org.bukkit.entity.Projectile;
-import org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason;
-import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
-import org.bukkit.event.entity.EntityRegainHealthEvent.RegainReason;
-import org.bukkit.event.entity.EntityTransformEvent.TransformReason;
-import org.bukkit.event.inventory.ClickType;
-import org.bukkit.event.inventory.InventoryAction;
-import org.bukkit.event.inventory.InventoryCloseEvent;
-import org.bukkit.event.inventory.InventoryType;
-import org.bukkit.event.player.PlayerQuitEvent.QuitReason;
-import org.bukkit.event.player.PlayerResourcePackStatusEvent.Status;
-import org.bukkit.event.player.PlayerTeleportEvent.TeleportCause;
-import org.bukkit.inventory.BlockInventoryHolder;
-import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.InventoryHolder;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.metadata.Metadatable;
-import org.bukkit.potion.PotionEffect;
-import org.bukkit.potion.PotionEffectType;
-import org.bukkit.util.CachedServerIcon;
-import org.bukkit.util.Vector;
-import org.eclipse.jdt.annotation.Nullable;
-
 import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptConfig;
 import ch.njol.skript.aliases.Aliases;
@@ -104,6 +43,68 @@ import ch.njol.skript.util.StringMode;
 import ch.njol.util.StringUtils;
 import ch.njol.yggdrasil.Fields;
 import io.papermc.paper.world.MoonPhase;
+import org.bukkit.Bukkit;
+import org.bukkit.Chunk;
+import org.bukkit.Difficulty;
+import org.bukkit.FireworkEffect;
+import org.bukkit.GameMode;
+import org.bukkit.GameRule;
+import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.OfflinePlayer;
+import org.bukkit.SoundCategory;
+import org.bukkit.World;
+import org.bukkit.World.Environment;
+import org.bukkit.attribute.Attribute;
+import org.bukkit.block.Biome;
+import org.bukkit.block.Block;
+import org.bukkit.block.BlockState;
+import org.bukkit.block.DoubleChest;
+import org.bukkit.block.data.BlockData;
+import org.bukkit.command.CommandSender;
+import org.bukkit.enchantments.Enchantment;
+import org.bukkit.enchantments.EnchantmentOffer;
+import org.bukkit.entity.Cat;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.FishHook;
+import org.bukkit.entity.Item;
+import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Panda.Gene;
+import org.bukkit.entity.Player;
+import org.bukkit.entity.Projectile;
+import org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason;
+import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
+import org.bukkit.event.entity.EntityRegainHealthEvent.RegainReason;
+import org.bukkit.event.entity.EntityTransformEvent.TransformReason;
+import org.bukkit.event.inventory.ClickType;
+import org.bukkit.event.inventory.InventoryAction;
+import org.bukkit.event.inventory.InventoryCloseEvent;
+import org.bukkit.event.inventory.InventoryType;
+import org.bukkit.event.player.PlayerFishEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.event.player.PlayerResourcePackStatusEvent.Status;
+import org.bukkit.event.player.PlayerTeleportEvent.TeleportCause;
+import org.bukkit.inventory.BlockInventoryHolder;
+import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.InventoryHolder;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.metadata.Metadatable;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
+import org.bukkit.util.CachedServerIcon;
+import org.bukkit.util.Vector;
+import org.eclipse.jdt.annotation.Nullable;
+
+import java.io.StreamCorruptedException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map.Entry;
+import java.util.UUID;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 /**
  * @author Peter Güttinger
@@ -1482,7 +1483,7 @@ public class BukkitClasses {
 		);
 
 		Classes.registerClass(new ClassInfo<>(EnchantmentOffer.class, "enchantmentoffer")
-				.user("enchant[ment][ ]offers?")
+				.user("enchant(ment)? offers?")
 				.name("Enchantment Offer")
 				.description("The enchantmentoffer in an enchant prepare event.")
 				.examples("on enchant prepare:",
@@ -1513,6 +1514,35 @@ public class BukkitClasses {
 						+ "See <a href='https://minecraft.wiki/w/Attribute#Attributes'>attribute types</a> for more info.")
 				.since("2.5"));
 
+		Classes.registerClass(new EnumClassInfo<>(PlayerFishEvent.State.class, "fishingstate", "fishing states")
+				.user("fish(ing)? ?states?")
+				.name("Fishing State")
+				.description("Represents the fishing state in a <a href='events.html#fishing'>fishing</a> event.")
+				.since("INSERT VERSION"));
+
+		Classes.registerClass(new ClassInfo<>(FishHook.class, "fishinghook")
+				.user("fish(ing)? ?hooks")
+				.name("Fishing Hook")
+				.description("Represents the fishing hook in a <a href='events.html#fishing'>fishing</a> event.")
+				.defaultExpression(new EventValueExpression<>(FishHook.class))
+				.since("INSERT VERSION")
+				.parser(new Parser<FishHook>() {
+					@Override
+					public boolean canParse(ParseContext context) {
+						return false;
+					}
+
+					@Override
+					public String toString(FishHook fishHook, int flags) {
+						return "fish hook";
+					}
+
+					@Override
+					public String toVariableNameString(FishHook fishHook) {
+						return "fish hook";
+					}
+				}));
+
 		Classes.registerClass(new EnumClassInfo<>(Environment.class, "environment", "environments")
 				.user("(world ?)?environments?")
 				.name("World Environment")
@@ -1528,7 +1558,7 @@ public class BukkitClasses {
 					.since("2.7"));
 
 		if (Skript.classExists("org.bukkit.event.player.PlayerQuitEvent$QuitReason"))
-			Classes.registerClass(new EnumClassInfo<>(QuitReason.class, "quitreason", "quit reasons")
+			Classes.registerClass(new EnumClassInfo<>(PlayerQuitEvent.QuitReason.class, "quitreason", "quit reasons")
 					.user("(quit|disconnect) ?(reason|cause)s?")
 					.name("Quit Reason")
 					.description("Represents a quit reason from a <a href='/events.html#quit'>player quit server event</a>.")
