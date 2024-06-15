@@ -3,86 +3,26 @@ test "EvtPiglinBarterJUnit" when running JUnit:
 	send "test called" to console
 
 	if running below minecraft "1.16.5":
-		send "old" to console
-		set {_tests::1} to "unsupported version"
-		if {EvtPiglinBarter::parse::*} contains "Can't understand this structure: on piglin barter":
-			complete objective {_tests::1} for {_test}
-		ensure {_test} completes {_tests::*}
+		complete objective "correct barter input" for {_test}
+		complete objective "clear barter drops" for {_test}
+		complete objective "set barter drops to 2 items" for {_test}
+		complete objective "remove item from barter drops" for {_test}
+		complete objective "add multiple items to barter drops" for {_test}
+		complete objective "remove all of an item from barter drops" for {_test}
+		complete objective "remove multiple items from barter drops" for {_test}
+		complete objective "barter drops test complete" for {_test}
 	else:
-		send "setting tests" to console
-		set {_tests::1} to "correct barter input"
-		set {_tests::2} to "clear barter drops"
-		set {_tests::3} to "set barter drops to 2 items"
-		set {_tests::4} to "remove item from barter drops"
-		set {_tests::5} to "add multiple items to barter drops"
-		set {_tests::6} to "remove all of an item from barter drops"
-		set {_tests::7} to "remove multiple items from barter drops"
-		set {_tests::8} to "barter drops test complete"
-		send {EvtPiglinBarter::parse::*} to console
-		ensure {_test} completes {_tests::*}
+		set {_slashIndex} to last index of "/" in "%script%.sk"
+		set {_parent} to substring of "%script%.sk" from 0 to {_slashIndex}
+		broadcast "Loading script %{_parent}%-EvtPiglinBarter.sk"
+		load script "%{_parent}%-EvtPiglinBarter.sk"
 
-parse:
-	results: {EvtPiglinBarter::parse::*}
-	code:
-		on piglin barter:
-			send "running barter" to console
-			set {_test} to "org.skriptlang.skript.test.tests.syntaxes.events.EvtPiglinBarterTest"
-			junit test is {_test}
-
-			# Items
-
-			if barter input is gold ingot:
-				complete objective "correct barter input" for {_test}
-
-			clear barter drops
-			if size of barter drops is 0:
-				complete objective "clear barter drops" for {_test}
-
-			set barter drops to 1 emerald and 1 diamond
-			if:
-				size of barter drops is 2
-				barter drops contains 1 emerald
-				barter drops contains 1 diamond
-			then:
-				complete objective "set barter drops to 2 items" for {_test}
-
-			add 1 iron ingot to barter drops
-			if:
-				size of barter drops is 3
-				barter drops contains 1 emerald
-				barter drops contains 1 diamond
-				barter drops contains 1 iron ingot
-			then:
-				complete objective "add item to barter drops" for {_test}
-
-			remove iron ingot from barter drops
-			if:
-				size of barter drops is 2
-				barter drops contains 1 emerald
-				barter drops contains 1 diamond
-			then:
-				complete objective "remove item from barter drops" for {_test}
-
-			add 1 dirt and 2 dirt to barter drops
-			if:
-				size of barter drops is 4
-				barter drops contains 1 emerald
-				barter drops contains 1 diamond
-				barter drops contains 1 dirt
-				barter drops contains 2 dirt
-			then:
-				complete objective "add multiple items to barter drops" for {_test}
-
-			remove all dirt from barter drops
-			if:
-				size of barter drops is 2
-				barter drops contains 1 emerald
-				barter drops contains 1 diamond
-			then:
-				complete objective "remove all of an item from barter drops" for {_test}
-
-			remove 1 emerald and 1 diamond from barter drops
-			if size of barter drops is 0:
-				complete objective "remove multiple items from barter drops" for {_test}
-
-			complete objective "barter drops test complete" for {_test}
+	set {_tests::1} to "correct barter input"
+	set {_tests::2} to "clear barter drops"
+	set {_tests::3} to "set barter drops to 2 items"
+	set {_tests::4} to "remove item from barter drops"
+	set {_tests::5} to "add multiple items to barter drops"
+	set {_tests::6} to "remove all of an item from barter drops"
+	set {_tests::7} to "remove multiple items from barter drops"
+	set {_tests::8} to "barter drops test complete"
+	ensure {_test} completes {_tests::*}
