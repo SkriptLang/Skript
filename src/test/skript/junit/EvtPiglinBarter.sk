@@ -25,7 +25,7 @@ parse:
 	results: {EvtPiglinBarter::parse::*}
 	code:
 		on piglin barter:
-			send "running barter"
+			send "running barter" to console
 			set {_test} to "org.skriptlang.skript.test.tests.syntaxes.events.EvtPiglinBarterTest"
 			junit test is {_test}
 
