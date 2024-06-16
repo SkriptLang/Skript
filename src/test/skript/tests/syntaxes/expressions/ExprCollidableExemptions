@@ -1,0 +1,9 @@
+test "ExprCollidableExemptions":
+	spawn chicken at spawn of "world":
+		set {_chicken} to entity
+	spawn cow at spawn of "world":
+		set {_cow} to entity
+	add {_chicken} to collidable exemptions of {_cow}
+	assert collidable exemptions of {_cow} contains {_chicken} with "collidable exemptions of {_cow} does not contain {_chicken}"
+	remove {_chicken} from collidable exemptions of {_cow}
+	assert collidable exemptions of {_cow} does not contain {_chicken} with "collidable exemptions of {_cow} contains {_chicken}"
