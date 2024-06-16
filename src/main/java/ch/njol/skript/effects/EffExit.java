@@ -25,50 +25,51 @@ import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
+import ch.njol.skript.lang.LoopSection;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.TriggerItem;
 import ch.njol.skript.lang.TriggerSection;
 import ch.njol.skript.lang.parser.ParserInstance;
 import ch.njol.skript.log.ErrorQuality;
 import ch.njol.skript.sections.SecConditional;
-import ch.njol.skript.sections.SecLoop;
-import ch.njol.skript.sections.SecWhile;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 
 import java.util.List;
 
-/**
- * @author Peter Güttinger
- */
 @Name("Exit")
 @Description("Exits a given amount of loops and conditionals, or the entire trigger.")
-@Examples({"if player has any ore:",
-		"	stop",
-		"message \"%player% has no ores!\"",
-		"loop blocks above the player:",
-		"	loop-block is not air:",
-		"		exit 2 sections",
-		"	set loop-block to water"})
+@Examples({
+	"if player has any ore:",
+		"\tstop",
+	"message \"%player% has no ores!\"",
+	"loop blocks above the player:",
+		"\tloop-block is not air:",
+			"\t\texit 2 sections",
+		"\tset loop-block to water"
+})
 @Since("<i>unknown</i> (before 2.1)")
 public class EffExit extends Effect { // TODO [code style] warn user about code after a stop effect
+
 	static {
 		Skript.registerEffect(EffExit.class,
 				"(exit|stop) [trigger]",
-				"(exit|stop) [(1|a|the|this)] (0¦section|1¦loop|2¦conditional)",
-				"(exit|stop) <\\d+> (0¦section|1¦loop|2¦conditional)s",
-				"(exit|stop) all (0¦section|1¦loop|2¦conditional)s");
+				"(exit|stop) [(1|a|the|this)] (section|1:loop|2:conditional)",
+				"(exit|stop) <\\d+> (section|1:loop|2:conditional)s",
+				"(exit|stop) all (section|1:loop|2:conditional)s");
 	}
 	
 	private int breakLevels;
 	
-	private final static int EVERYTHING = 0, LOOPS = 1, CONDITIONALS = 2;
-	private final static String[] names = {"sections", "loops", "conditionals"};
+	private static final int EVERYTHING = 0;
+	private static final int LOOPS = 1;
+	private static final int CONDITIONALS = 2;
+	private static final String[] names = {"sections", "loops", "conditionals"};
 	private int type;
 	
 	@Override
-	public boolean init(final Expression<?>[] exprs, final int matchedPattern, final Kleenean isDelayed, final ParseResult parser) {
+	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parser) {
 		switch (matchedPattern) {
 			case 0:
 				breakLevels = getParser().getCurrentSections().size() + 1;
@@ -102,44 +103,41 @@ public class EffExit extends Effect { // TODO [code style] warn user about code 
 		List<TriggerSection> currentSections = ParserInstance.get().getCurrentSections();
 		if (type == EVERYTHING)
 			return currentSections.size();
-		int r = 0;
-		for (TriggerSection s : currentSections) {
-			if (type == CONDITIONALS ? s instanceof SecConditional : s instanceof SecLoop || s instanceof SecWhile)
-				r++;
+		int level = 0;
+		for (TriggerSection section : currentSections) {
+			if (type == CONDITIONALS ? section instanceof SecConditional : section instanceof LoopSection)
+				level++;
 		}
-		return r;
+		return level;
 	}
 	
 	@Override
 	@Nullable
-	protected TriggerItem walk(final Event e) {
-		debug(e, false);
-		TriggerItem n = this;
+	protected TriggerItem walk(Event event) {
+		debug(event, false);
+		TriggerItem node = this;
 		for (int i = breakLevels; i > 0;) {
-			n = n.getParent();
-			if (n == null) {
+			node = node.getParent();
+			if (node == null) {
 				assert false : this;
 				return null;
 			}
-			if (n instanceof SecLoop) {
-				((SecLoop) n).exit(e);
-			} else if (n instanceof SecWhile) {
-				((SecWhile) n).reset();
-			}
+			if (node instanceof LoopSection)
+				((LoopSection) node).exit(event);
 
-			if (type == EVERYTHING || type == CONDITIONALS && n instanceof SecConditional || type == LOOPS && (n instanceof SecLoop || n instanceof SecWhile))
+			if (type == EVERYTHING || type == CONDITIONALS && node instanceof SecConditional || type == LOOPS && (node instanceof LoopSection))
 				i--;
 		}
-		return n instanceof SecLoop ? ((SecLoop) n).getActualNext() : n instanceof SecWhile ? ((SecWhile) n).getActualNext() : n.getNext();
+		return node instanceof LoopSection ? ((LoopSection) node).getActualNext() : node.getNext();
 	}
 	
 	@Override
-	protected void execute(final Event e) {
+	protected void execute(Event event) {
 		assert false;
 	}
 	
 	@Override
-	public String toString(final @Nullable Event e, final boolean debug) {
+	public String toString(@Nullable Event event, boolean debug) {
 		return "stop " + breakLevels + " " + names[type];
 	}
 	

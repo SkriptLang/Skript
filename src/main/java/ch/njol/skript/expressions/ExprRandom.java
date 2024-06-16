@@ -78,9 +78,7 @@ public class ExprRandom extends SimpleExpression<Object> {
 		} else {
 			expr = exprs[1].getConvertedExpression((((Literal<ClassInfo<?>>) exprs[0]).getSingle()).getC());
 		}
-		if (expr == null)
-			return false;
-		return true;
+		return expr != null && LiteralUtils.canInitSafely(expr);
 	}
 
 	@Override

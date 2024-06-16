@@ -18,6 +18,14 @@
  */
 package ch.njol.skript.expressions;
 
+import java.util.Iterator;
+import java.util.function.Supplier;
+
+import org.bukkit.event.Event;
+import org.eclipse.jdt.annotation.Nullable;
+
+import com.google.common.collect.Lists;
+
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.doc.Description;
@@ -31,33 +39,26 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.util.Utils;
 import ch.njol.util.Kleenean;
-import com.google.common.collect.Lists;
-import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.Nullable;
-
-import java.util.Iterator;
-import java.util.List;
-import java.util.function.Supplier;
 
 @Name("Sets")
-@Description("Returns a list of all the values of a type; useful for looping.")
+@Description("Returns a list of all the values of a type. Useful for looping.")
 @Examples({
 	"loop all attribute types:",
-	"\tset loop-value attribute of player to 10",
-	"\tmessage \"Set attribute %loop-value% to 10!\""
+		"\tset loop-value attribute of player to 10",
+		"\tmessage \"Set attribute %loop-value% to 10!\""
 })
-@Since("<i>unknown</i> (before 1.4.2), 2.7 (colors)")
+// Class history rename order: LoopItems.class -> ExprItems.class (renamed in 2.3-alpha1) -> ExprSets.class (renamed in 2.7.0)
+@Since("1.0 pre-5, 2.7 (classinfo)")
 public class ExprSets extends SimpleExpression<Object> {
 
 	static {
-		Skript.registerExpression(ExprSets.class, Object.class, ExpressionType.COMBINED,
-			"[all [[of] the]|the|every] %*classinfo%"
-		);
+		Skript.registerExpression(ExprSets.class, Object.class, ExpressionType.PATTERN_MATCHES_EVERYTHING,
+				"[all [[of] the]|the|every] %*classinfo%");
 	}
 
-	private ClassInfo<?> classInfo;
 	@Nullable
 	private Supplier<? extends Iterator<?>> supplier;
+	private ClassInfo<?> classInfo;
 
 	@Override
 	@SuppressWarnings("unchecked")
@@ -78,16 +79,13 @@ public class ExprSets extends SimpleExpression<Object> {
 
 	@Override
 	protected Object[] get(Event event) {
-		assert supplier != null;
 		Iterator<?> iterator = supplier.get();
-		List<?> elements = Lists.newArrayList(iterator);
-		return elements.toArray(new Object[0]);
+		return Lists.newArrayList(iterator).toArray(new Object[0]);
 	}
 
 	@Override
 	@Nullable
 	public Iterator<?> iterator(Event event) {
-		assert supplier != null;
 		return supplier.get();
 	}
 

@@ -1,0 +1,17 @@
+test "sort":
+	# Populate list
+	set {_i} to 0
+	loop 5 times:
+		set {_i} to {_i} + 1
+		set {_list::%{_i}%} to a random integer from 1 to 100
+	loop 5 times:
+		set {_i} to {_i} + 1
+		set {_list::%{_i}%} to a random number from 1 to 100
+
+	# Test sorting
+	loop sorted {_list::*}:
+		if {_prev} is set:
+			assert loop-value >= {_prev} with "Couldn't sort correctly"
+		set {_prev} to loop-value
+
+	assert (sorted 1 and "test") is not set with "Sorting incomparable values returned a value"

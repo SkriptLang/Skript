@@ -1,0 +1,43 @@
+test "clamp numbers":
+	# Normal Cases
+	assert clamp(1, 0, 2) is 1 with "(single ints) min < value < max"
+	assert clamp(1, 1, 2) is 1 with "(single ints) min = value < max"
+	assert clamp(2, 1, 2) is 2 with "(single ints) min < value = max"
+	assert clamp(0, 1, 2) is 1 with "(single ints) value < min < max"
+	assert clamp(3, 1, 2) is 2 with "(single ints) min < max < value"
+	assert clamp(3, 2, 1) is 2 with "(single ints) max < min < value"
+
+	assert clamp(1.999, 0.0, 2.0) is 1.999 with "(single floats) min < value < max"
+	assert clamp(1.999, 1.999, 2.0) is 1.999 with "(single floats) min = value < max"
+	assert clamp(2.0, 1.999, 2.0) is 2.0 with "(single floats) min < value = max"
+	assert clamp(0.0, 1.999, 2.0) is 1.999 with "(single floats) value < min < max"
+	assert clamp(3.0, 1.999, 2.0) is 2.0 with "(single floats) min < max < value"
+	assert clamp(2.999, 2.0, 1.999) is 2.0 with "(single floats) max < min < value"
+
+	# Lists
+	set {_expected::*} to (0, 0, 1, 2, 2, and 2)
+	# this is dumb but comparing the lists directly didn't work
+	set {_got::*} to clamp((-1, 0, 1, 2, 3, and 4), 0, 2)
+	loop {_expected::*}:
+		assert {_got::%loop-index%} is loop-value with "(multiple ints)"
+	set {_got::*} to clamp((-1.999, 0.0, 1.0, 2.0, 3.0, and 4.0), 0.0, 2.0)
+	loop {_expected::*}:
+		assert {_got::%loop-index%} is loop-value with "(multiple floats)"
+
+	# Edge Cases
+	assert clamp(1, {_null}, 2) is not set with "(single ints) min = null"
+	assert clamp(2, 1, {_null}) is not set with "(single ints) max = null"
+	assert clamp({_null}, 1, 2) is not set with "(single ints) value = null"
+	assert clamp(1, 0, NaN value) is not clamp(1, 0, NaN value) with "(single ints) min < value < NaN"
+	assert clamp(1, NaN value, 2) is not clamp(1, NaN value, 2) with "(single ints) NaN < value < max"
+	assert clamp(NaN value, 1, 2) is not clamp(NaN value, 1, 2) with "(single ints) min < NaN < max"
+	assert clamp(infinity value, 1, 2) is 2 with "(single ints) min < infinity < max"
+	assert clamp(-infinity value, 1, 2) is 1 with "(single ints) min < -infinity < max"
+	assert clamp(1, 0, infinity value) is 1 with "(single ints) min < value < infinity"
+	assert clamp(1, -infinity value, 2) is 1 with "(single ints) -infinity < value < max"
+
+	set {_expected::*} to (NaN value, 0.0, and 2.0)
+	set {_got::*} to clamp(({_null}, NaN value, -infinity value, infinity value), 0.0, 2.0)
+	assert number within {_got::1} is not number within {_got::1} with "(edge cases list) NaN" # need within because the variables weren't cooperating
+	assert {_got::2} is {_expected::2} with "(edge cases list) -infinity"
+	assert {_got::3} is {_expected::3} with "(edge cases list) infinity"

@@ -52,6 +52,10 @@ public class TestTracker {
 		currentTest = name;
 	}
 
+	public static void JUnitTestFailed(String currentTest, String msg) {
+		failedTests.put(currentTest, msg);
+	}
+
 	public static void testFailed(String msg) {
 		failedTests.put(currentTest, msg);
 	}

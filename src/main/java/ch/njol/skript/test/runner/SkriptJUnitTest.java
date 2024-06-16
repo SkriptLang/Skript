@@ -38,7 +38,7 @@ import ch.njol.skript.Skript;
 public abstract class SkriptJUnitTest {
 
 	static {
-		World world = Bukkit.getWorlds().get(0);
+		World world = getTestWorld();
 		world.setGameRule(GameRule.MAX_ENTITY_CRAMMING, 1000);
 		world.setGameRule(GameRule.DO_WEATHER_CYCLE, false);
 		// Natural entity spawning
@@ -76,9 +76,12 @@ public abstract class SkriptJUnitTest {
 		SkriptJUnitTest.delay = delay;
 	}
 
+	/**
+	 * Override this method if your JUnit test requires block modification with delay over 1 tick.
+	 */
 	@Before
 	@After
-	public final void cleanup() {
+	public void cleanup() {
 		getTestWorld().getEntities().forEach(Entity::remove);
 		setBlock(Material.AIR);
 	}

@@ -1,0 +1,14 @@
+test "durability":
+	set {_i} to an iron sword
+	set {_max} to max durability of {_i}
+	assert damage of {_i} is 0 with "default item damage failed"
+	assert durability of {_i} is {_max} with "default item durability failed"
+	set damage of {_i} to 64
+	assert damage of {_i} is 64 with "item damage failed"
+	assert durability of {_i} is {_max} - 64 with "item durability failed"
+	set durability of {_i} to 10
+	assert damage of {_i} is {_max} - 10 with "inverse item damage failed"
+	assert durability of {_i} is 10 with "inverse item durability failed"
+	set durability of {_i} to 0
+	assert damage of {_i} is {_max} with "max item damage failed"
+	assert durability of {_i} is 0 with "zero item durability failed"

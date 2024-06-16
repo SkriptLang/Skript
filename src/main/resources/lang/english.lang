@@ -68,38 +68,38 @@ skript command:
 		aliases: the aliases
 		script: <gold>%s<reset>
 		scripts in folder: all scripts in <gold>%s<reset>
-		x scripts in folder: <gold>%2$s <reset>script¦¦s¦ in <gold>%1$s<reset>
+		x scripts in folder: <gold>%2$s <lime>script¦¦s¦ in <gold>%1$s<reset>
 		empty folder: <gold>%s<reset> does not contain any enabled scripts.
 	enable:
 		all:
 			enabling: Enabling all disabled scripts...
 			enabled: Successfully enabled & parsed all previously disabled scripts.
-			error: Encountered %s error¦¦s¦ while parsing disabled scripts!
-			io error: Could not load one or more scripts - some scripts might have been renamed already and will be enabled when the server restarts: %s
+			error: <light red>Encountered <gold>%s <light red>error¦¦s¦ while parsing disabled scripts!
+			io error: <light red>Could not load one or more scripts - some scripts might have been renamed already and will be enabled when the server restarts: <gold>%s
 		single:
 			already enabled: <gold>%s<reset> is already enabled! Use <gray>/<gold>skript <cyan>reload <red>%s<reset> to reload it if it was changed.
 			enabling: Enabling <gold>%s<reset>...
 			enabled: Successfully enabled & parsed <gold>%s<reset>.
-			error: Encountered %2$s error¦¦s¦ while parsing <gold>%1$s<red>!
-			io error: Could not enable <gold>%s<red>: %s
+			error: <light red>Encountered <gold>%2$s <light red>error¦¦s¦ while parsing <gold>%1$s<light red>!
+			io error: <light red>Could not enable <gold>%s<light red>: <gold>%s
 		folder:
 			empty: <gold>%s<reset> does not contain any disabled scripts.
 			enabling: Enabling <gold>%2$s <reset>script¦¦s¦ in <gold>%1$s<reset>...
 			enabled: Successfully enabled & parsed <gold>%2$s<reset> previously disabled scripts in <gold>%1$s<reset>.
-			error: Encountered %2$s error¦¦s¦ while parsing scripts in <gold>%1$s<red>!
-			io error: Error while enabling one or more scripts in <gold>%s<red> (some scripts might get enabled when the server restarts): %s
+			error: <light red>Encountered <gold>%2$s <light red>error¦¦s¦ while parsing scripts in <gold>%1$s<light red>!
+			io error: <light red>Error while enabling one or more scripts in <gold>%s <light red>(some scripts might get enabled when the server restarts): <gold>%s
 	disable:
 		all:
 			disabled: Successfully disabled all scripts.
-			io error: Could not rename one or more scripts - some scripts might have been renamed already and will be disabled when the server restarts: %s
+			io error: <light red>Could not rename one or more scripts - some scripts might have been renamed already and will be disabled when the server restarts: <gold>%s
 		single:
 			already disabled: <gold>%s<reset> is already disabled!
 			disabled: Successfully disabled <gold>%s<reset>.
-			io error: Could not rename <gold>%s<red>, it will be enabled again when you restart the server: %s
+			io error: <light red>Could not rename <gold>%s<light red>, it will be enabled again when you restart the server: <gold>%s
 		folder:
 			empty: <gold>%s<reset> does not contain any enabled scripts.
 			disabled: Successfully disabled <gold>%2$s<reset> script(s) in <gold>%1$s<reset>.
-			io error: Could not disable one or more scripts in <gold>%s<red> (some scripts might get disabled when the server restarts): %s
+			io error: <light red>Could not disable one or more scripts in <gold>%s <light red>(some scripts might get disabled when the server restarts): <gold>%s
 	update:
 		# check/download: see Updater
 		changes:

@@ -1,0 +1,6 @@
+test "item inventory conflict":
+  parse:
+    loop all players:
+      loop all items in the loop-player's inventory:
+        set {_item} to loop-item
+  assert parse logs are not set with "failed to parse loop"

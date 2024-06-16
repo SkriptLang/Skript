@@ -1,0 +1,70 @@
+on script load:
+	# prior to 1.18, applyBoneMeal either did not exist or did not fire events
+	# so we need to complete the objectives manually to avoid the tests failing
+	if running below minecraft "1.18":
+		complete objective "grow of wheat" for junit test "org.skriptlang.skript.test.tests.syntaxes.events.EvtGrowTest"
+		complete objective "grow from wheat" for junit test "org.skriptlang.skript.test.tests.syntaxes.events.EvtGrowTest"
+		complete objective "grow to wheat" for junit test "org.skriptlang.skript.test.tests.syntaxes.events.EvtGrowTest"
+		complete objective "grow of wheat (blockdata)" for junit test "org.skriptlang.skript.test.tests.syntaxes.events.EvtGrowTest"
+		complete objective "grow from wheat (blockdata)" for junit test "org.skriptlang.skript.test.tests.syntaxes.events.EvtGrowTest"
+		complete objective "grow to wheat (blockdata)" for junit test "org.skriptlang.skript.test.tests.syntaxes.events.EvtGrowTest"
+		complete objective "grow of birch tree" for junit test "org.skriptlang.skript.test.tests.syntaxes.events.EvtGrowTest"
+		complete objective "grow of birch sapling" for junit test "org.skriptlang.skript.test.tests.syntaxes.events.EvtGrowTest"
+		complete objective "grow from birch sapling" for junit test "org.skriptlang.skript.test.tests.syntaxes.events.EvtGrowTest"
+		complete objective "grow to birch tree" for junit test "org.skriptlang.skript.test.tests.syntaxes.events.EvtGrowTest"
+
+	# itemtype
+	ensure junit test "org.skriptlang.skript.test.tests.syntaxes.events.EvtGrowTest" completes "grow of wheat"
+	ensure junit test "org.skriptlang.skript.test.tests.syntaxes.events.EvtGrowTest" completes "grow from wheat"
+	ensure junit test "org.skriptlang.skript.test.tests.syntaxes.events.EvtGrowTest" completes "grow to wheat"
+
+	# blockdata
+	ensure junit test "org.skriptlang.skript.test.tests.syntaxes.events.EvtGrowTest" completes "grow of wheat (blockdata)"
+	ensure junit test "org.skriptlang.skript.test.tests.syntaxes.events.EvtGrowTest" completes "grow from wheat (blockdata)"
+	ensure junit test "org.skriptlang.skript.test.tests.syntaxes.events.EvtGrowTest" completes "grow to wheat (blockdata)"
+
+	# structures
+	ensure junit test "org.skriptlang.skript.test.tests.syntaxes.events.EvtGrowTest" completes "grow of birch tree"
+	ensure junit test "org.skriptlang.skript.test.tests.syntaxes.events.EvtGrowTest" completes "grow of birch sapling"
+	ensure junit test "org.skriptlang.skript.test.tests.syntaxes.events.EvtGrowTest" completes "grow from birch sapling"
+	ensure junit test "org.skriptlang.skript.test.tests.syntaxes.events.EvtGrowTest" completes "grow to birch tree"
+
+on grow of wheat:
+	junit test is "org.skriptlang.skript.test.tests.syntaxes.events.EvtGrowTest"
+	complete objective "grow of wheat" for junit test "org.skriptlang.skript.test.tests.syntaxes.events.EvtGrowTest"
+
+on grow of wheat[age=0]:
+	junit test is "org.skriptlang.skript.test.tests.syntaxes.events.EvtGrowTest"
+	complete objective "grow of wheat (blockdata)" for junit test "org.skriptlang.skript.test.tests.syntaxes.events.EvtGrowTest"
+
+on grow from wheat:
+	junit test is "org.skriptlang.skript.test.tests.syntaxes.events.EvtGrowTest"
+	complete objective "grow from wheat" for junit test "org.skriptlang.skript.test.tests.syntaxes.events.EvtGrowTest"
+
+on grow from wheat[age=0]:
+	junit test is "org.skriptlang.skript.test.tests.syntaxes.events.EvtGrowTest"
+	complete objective "grow from wheat (blockdata)" for junit test "org.skriptlang.skript.test.tests.syntaxes.events.EvtGrowTest"
+
+on grow to wheat:
+	junit test is "org.skriptlang.skript.test.tests.syntaxes.events.EvtGrowTest"
+	complete objective "grow to wheat" for junit test "org.skriptlang.skript.test.tests.syntaxes.events.EvtGrowTest"
+
+on grow to wheat[age=7]:
+	junit test is "org.skriptlang.skript.test.tests.syntaxes.events.EvtGrowTest"
+	complete objective "grow to wheat (blockdata)" for junit test "org.skriptlang.skript.test.tests.syntaxes.events.EvtGrowTest"
+
+on grow of birch tree:
+	junit test is "org.skriptlang.skript.test.tests.syntaxes.events.EvtGrowTest"
+	complete objective "grow of birch tree" for junit test "org.skriptlang.skript.test.tests.syntaxes.events.EvtGrowTest"
+
+on grow of birch sapling:
+	junit test is "org.skriptlang.skript.test.tests.syntaxes.events.EvtGrowTest"
+	complete objective "grow of birch sapling" for junit test "org.skriptlang.skript.test.tests.syntaxes.events.EvtGrowTest"
+
+on grow from birch sapling:
+	junit test is "org.skriptlang.skript.test.tests.syntaxes.events.EvtGrowTest"
+	complete objective "grow from birch sapling" for junit test "org.skriptlang.skript.test.tests.syntaxes.events.EvtGrowTest"
+
+on grow to birch tree:
+	junit test is "org.skriptlang.skript.test.tests.syntaxes.events.EvtGrowTest"
+	complete objective "grow to birch tree" for junit test "org.skriptlang.skript.test.tests.syntaxes.events.EvtGrowTest"

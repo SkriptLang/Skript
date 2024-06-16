@@ -108,7 +108,7 @@ public class Delay extends Effect {
 				Variables.removeLocals(event); // Clean up local vars, we may be exiting now
 
 				SkriptTimings.stop(timing); // Stop timing if it was even started
-			}, Math.max(duration.getTicks_i(), 1)); // Minimum delay is one tick, less than it is useless!
+			}, Math.max(duration.getTicks(), 1)); // Minimum delay is one tick, less than it is useless!
 		}
 		return null;
 	}

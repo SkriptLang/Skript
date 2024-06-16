@@ -92,7 +92,10 @@ public class MessageComponent {
 
 	@Nullable
 	public String translation;
-	
+
+	@Nullable
+	public String keybind;
+
 	public static class ClickEvent {
 		public ClickEvent(ClickEvent.Action action, String value) {
 			this.action = action;
@@ -176,6 +179,8 @@ public class MessageComponent {
 		messageComponent.clickEvent = this.clickEvent;
 		messageComponent.font = this.font;
 		messageComponent.hoverEvent = this.hoverEvent;
+		messageComponent.translation = translation;
+		messageComponent.keybind = keybind;
 		return messageComponent;
 	}
 

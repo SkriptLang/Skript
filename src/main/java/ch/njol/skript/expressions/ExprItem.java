@@ -23,7 +23,6 @@ import org.bukkit.event.Event;
 import org.bukkit.inventory.ItemStack;
 import org.eclipse.jdt.annotation.Nullable;
 
-import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
@@ -31,35 +30,35 @@ import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.EventValueExpression;
-import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.util.slot.Slot;
 
-/**
- * @author Peter Güttinger
- */
 @Name("Item")
 @Description("The item involved in an event, e.g. in a drop, dispense, pickup or craft event.")
-@Examples({"on dispense:",
-		"	item is a clock",
-		"	set the time to 6:00"})
+@Examples({
+	"on dispense:",
+		"\titem is a clock",
+		"\tset the time to 6:00"
+})
 @Since("<i>unknown</i> (before 2.1)")
 public class ExprItem extends EventValueExpression<ItemStack> {
+
 	static {
-		Skript.registerExpression(ExprItem.class, ItemStack.class, ExpressionType.SIMPLE, "[the] item");
+		register(ExprItem.class, ItemStack.class, "item");
 	}
-	
+
 	public ExprItem() {
 		super(ItemStack.class);
 	}
-	
+
 	@Nullable
 	private EventValueExpression<Item> item;
+
 	@Nullable
 	private EventValueExpression<Slot> slot;
-	
+
 	@Override
 	@Nullable
-	public Class<?>[] acceptChange(final ChangeMode mode) {
+	public Class<?>[] acceptChange(ChangeMode mode) {
 		if (mode == ChangeMode.RESET)
 			return null;
 		item = new EventValueExpression<>(Item.class);
@@ -72,49 +71,49 @@ public class ExprItem extends EventValueExpression<ItemStack> {
 		slot = null;
 		return null;
 	}
-	
+
 	@Override
-	public void change(final Event e, final @Nullable Object[] delta, final ChangeMode mode) {
+	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
 		assert mode != ChangeMode.RESET;
-		
-		final ItemType t = delta == null ? null : (ItemType) delta[0];
-		final Item i = item != null ? item.getSingle(e) : null;
-		final Slot s = slot != null ? slot.getSingle(e) : null;
-		if (i == null && s == null)
+		ItemType itemType = delta == null ? null : (ItemType) delta[0];
+		Item item = this.item != null ? this.item.getSingle(event) : null;
+		Slot slot = this.slot != null ? this.slot.getSingle(event) : null;
+		if (item == null && slot == null)
 			return;
-		ItemStack is = i != null ? i.getItemStack() : s != null ? s.getItem() : null;
+		ItemStack itemstack = item != null ? item.getItemStack() : slot != null ? slot.getItem() : null;
 		switch (mode) {
 			case SET:
-				assert t != null;
-				is = t.getRandom();
+				assert itemType != null;
+				itemstack = itemType.getRandom();
 				break;
 			case ADD:
 			case REMOVE:
 			case REMOVE_ALL:
-				assert t != null;
-				if (t.isOfType(is)) {
+				assert itemType != null;
+				if (itemType.isOfType(itemstack)) {
 					if (mode == ChangeMode.ADD)
-						is = t.addTo(is);
+						itemstack = itemType.addTo(itemstack);
 					else if (mode == ChangeMode.REMOVE)
-						is = t.removeFrom(is);
+						itemstack = itemType.removeFrom(itemstack);
 					else
-						is = t.removeAll(is);
+						itemstack = itemType.removeAll(itemstack);
 				}
 				break;
 			case DELETE:
-				is = null;
-				if (i != null)
-					i.remove();
+				itemstack = null;
+				if (item != null)
+					item.remove();
 				break;
 			case RESET:
 				assert false;
 		}
-		if (i != null && is != null)
-			i.setItemStack(is);
-		else if (s != null)
-			s.setItem(is);
-		else
+		if (item != null && itemstack != null) {
+			item.setItemStack(itemstack);
+		} else if (slot != null) {
+			slot.setItem(itemstack);
+		} else {
 			assert false;
+		}
 	}
-	
+
 }

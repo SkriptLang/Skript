@@ -41,6 +41,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
+import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.event.server.ServerCommandEvent;
 import org.bukkit.help.HelpMap;
 import org.bukkit.help.HelpTopic;
@@ -68,7 +69,7 @@ import java.util.regex.Pattern;
  */
 @SuppressWarnings("deprecation")
 public abstract class Commands {
-	
+
 	public final static ArgsMessage m_too_many_arguments = new ArgsMessage("commands.too many arguments");
 	public final static Message m_internal_error = new Message("commands.internal error");
 	public final static Message m_correct_usage = new Message("commands.correct usage");
@@ -79,26 +80,26 @@ public abstract class Commands {
 	public static final int CONVERTER_NO_COMMAND_ARGUMENTS = 4;
 
 	private final static Map<String, ScriptCommand> commands = new HashMap<>();
-	
+
 	@Nullable
 	private static SimpleCommandMap commandMap = null;
 	@Nullable
 	private static Map<String, Command> cmKnownCommands;
 	@Nullable
 	private static Set<String> cmAliases;
-	
+
 	static {
 		init(); // separate method for the annotation
 	}
 	public static Set<String> getScriptCommands(){
 		return commands.keySet();
 	}
-	
+
 	@Nullable
 	public static SimpleCommandMap getCommandMap(){
 		return commandMap;
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	private static void init() {
 		try {
@@ -106,11 +107,11 @@ public abstract class Commands {
 				Field commandMapField = SimplePluginManager.class.getDeclaredField("commandMap");
 				commandMapField.setAccessible(true);
 				commandMap = (SimpleCommandMap) commandMapField.get(Bukkit.getPluginManager());
-				
+
 				Field knownCommandsField = SimpleCommandMap.class.getDeclaredField("knownCommands");
 				knownCommandsField.setAccessible(true);
 				cmKnownCommands = (Map<String, Command>) knownCommandsField.get(commandMap);
-				
+
 				try {
 					Field aliasesField = SimpleCommandMap.class.getDeclaredField("aliases");
 					aliasesField.setAccessible(true);
@@ -125,24 +126,42 @@ public abstract class Commands {
 			commandMap = null;
 		}
 	}
-	
+
 	@Nullable
 	public static List<Argument<?>> currentArguments = null;
-	
+
 	@SuppressWarnings("null")
 	private final static Pattern escape = Pattern.compile("[" + Pattern.quote("(|)<>%\\") + "]");
 	@SuppressWarnings("null")
 	private final static Pattern unescape = Pattern.compile("\\\\[" + Pattern.quote("(|)<>%\\") + "]");
-	
+
 	public static String escape(String string) {
 		return "" + escape.matcher(string).replaceAll("\\\\$0");
 	}
-	
+
 	public static String unescape(String string) {
 		return "" + unescape.matcher(string).replaceAll("$0");
 	}
-	
+
 	private final static Listener commandListener = new Listener() {
+
+		@EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+		public void onPlayerCommand(PlayerCommandPreprocessEvent event) {
+			// Spigot will simply report that the command doesn't exist if a player does not have permission to use it.
+			// This is good security but, well, it's a breaking change for Skript. So we need to check for permissions
+			// ourselves and handle those messages, for every command.
+
+			// parse command, see if it's a skript command
+			String[] cmd = event.getMessage().substring(1).split("\\s+", 2);
+			String label = cmd[0].toLowerCase(Locale.ENGLISH);
+			String arguments = cmd.length == 1 ? "" : "" + cmd[1];
+			ScriptCommand command = commands.get(label);
+
+			// if so, check permissions
+			if (command != null && !command.checkPermissions(event.getPlayer(), label, arguments))
+				event.setCancelled(true);
+		}
+
 		@SuppressWarnings("null")
 		@EventHandler(priority = EventPriority.HIGHEST)
 		public void onServerCommand(ServerCommandEvent event) {
@@ -154,7 +173,7 @@ public abstract class Commands {
 			}
 		}
 	};
-	
+
 	static boolean handleEffectCommand(CommandSender sender, String command) {
 		if (!(sender instanceof ConsoleCommandSender || sender.hasPermission("skript.effectcommands") || SkriptConfig.allowOpsToUseEffectCommands.value() && sender.isOp()))
 			return false;
@@ -170,7 +189,7 @@ public abstract class Commands {
 				parserInstance.setCurrentEvent("effect command", EffectCommandEvent.class);
 				Effect effect = Effect.parse(command, null);
 				parserInstance.deleteCurrentEvent();
-				
+
 				if (effect != null) {
 					log.clear(); // ignore warnings and stuff
 					log.printLog();
@@ -219,7 +238,7 @@ public abstract class Commands {
 		ScriptCommand scriptCommand = commands.get(command);
 		return scriptCommand != null && scriptCommand.getName().equals(command);
 	}
-	
+
 	public static void registerCommand(ScriptCommand command) {
 		// Validate that there are no duplicates
 		ScriptCommand existingCommand = commands.get(command.getLabel());
@@ -230,7 +249,7 @@ public abstract class Commands {
 			);
 			return;
 		}
-		
+
 		if (commandMap != null) {
 			assert cmKnownCommands != null;// && cmAliases != null;
 			command.register(commandMap, cmKnownCommands, cmAliases);
@@ -262,9 +281,9 @@ public abstract class Commands {
 		}
 		commands.values().removeIf(command -> command == scriptCommand);
 	}
-	
+
 	private static boolean registeredListeners = false;
-	
+
 	public static void registerListeners() {
 		if (!registeredListeners) {
 			Bukkit.getPluginManager().registerEvents(commandListener, Skript.getInstance());
@@ -298,15 +317,15 @@ public abstract class Commands {
 			registeredListeners = true;
 		}
 	}
-	
+
 	/**
 	 * copied from CraftBukkit (org.bukkit.craftbukkit.help.CommandAliasHelpTopic)
 	 */
 	public static final class CommandAliasHelpTopic extends HelpTopic {
-		
+
 		private final String aliasFor;
 		private final HelpMap helpMap;
-		
+
 		public CommandAliasHelpTopic(String alias, String aliasFor, HelpMap helpMap) {
 			this.aliasFor = aliasFor.startsWith("/") ? aliasFor : "/" + aliasFor;
 			this.helpMap = helpMap;
@@ -314,7 +333,7 @@ public abstract class Commands {
 			Validate.isTrue(!name.equals(this.aliasFor), "Command " + name + " cannot be alias for itself");
 			shortText = ChatColor.YELLOW + "Alias for " + ChatColor.WHITE + this.aliasFor;
 		}
-		
+
 		@Override
 		@NotNull
 		public String getFullText(CommandSender forWho) {
@@ -326,7 +345,7 @@ public abstract class Commands {
 			}
 			return "" + fullText;
 		}
-		
+
 		@Override
 		public boolean canSee(CommandSender commandSender) {
 			if (amendedPermission != null)
@@ -335,5 +354,5 @@ public abstract class Commands {
 			return aliasForTopic != null && aliasForTopic.canSee(commandSender);
 		}
 	}
-	
+
 }

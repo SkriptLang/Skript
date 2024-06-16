@@ -26,7 +26,7 @@ import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Condition;
 import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.Section;
+import ch.njol.skript.lang.LoopSection;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.TriggerItem;
 import ch.njol.util.Kleenean;
@@ -34,6 +34,8 @@ import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 
 import java.util.List;
+import java.util.Map;
+import java.util.WeakHashMap;
 
 @Name("While Loop")
 @Description("While Loop sections are loops that will just keep repeating as long as a condition is met.")
@@ -54,10 +56,10 @@ import java.util.List;
 	"\twait 1 second # without using a delay effect the server will crash",
 })
 @Since("2.0, 2.6 (do while)")
-public class SecWhile extends Section {
+public class SecWhile extends LoopSection {
 
 	static {
-		Skript.registerSection(SecWhile.class, "[(1¦do)] while <.+>");
+		Skript.registerSection(SecWhile.class, "[(:do)] while <.+>");
 	}
 
 	@SuppressWarnings("NotNullFieldNotInitialized")
@@ -81,23 +83,23 @@ public class SecWhile extends Section {
 		condition = Condition.parse(expr, "Can't understand this condition: " + expr);
 		if (condition == null)
 			return false;
-		doWhile = parseResult.mark == 1;
+
+		doWhile = parseResult.hasTag("do");
 		loadOptionalCode(sectionNode);
-
 		super.setNext(this);
-
 		return true;
 	}
 
 	@Nullable
 	@Override
-	protected TriggerItem walk(Event e) {
-		if ((doWhile && !ranDoWhile) || condition.check(e)) {
+	protected TriggerItem walk(Event event) {
+		if ((doWhile && !ranDoWhile) || condition.check(event)) {
 			ranDoWhile = true;
-			return walk(e, true);
+			currentLoopCounter.put(event, (currentLoopCounter.getOrDefault(event, 0L)) + 1);
+			return walk(event, true);
 		} else {
-			reset();
-			debug(e, false);
+			exit(event);
+			debug(event, false);
 			return actualNext;
 		}
 	}
@@ -114,12 +116,14 @@ public class SecWhile extends Section {
 	}
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
-		return (doWhile ? "do " : "") + "while " + condition.toString(e, debug);
+	public String toString(@Nullable Event event, boolean debug) {
+		return (doWhile ? "do " : "") + "while " + condition.toString(event, debug);
 	}
 
-	public void reset() {
+	@Override
+	public void exit(Event event) {
 		ranDoWhile = false;
+		super.exit(event);
 	}
 
 }

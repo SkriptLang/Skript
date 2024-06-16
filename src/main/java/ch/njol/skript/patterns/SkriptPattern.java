@@ -21,6 +21,7 @@ package ch.njol.skript.patterns;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ParseContext;
 import ch.njol.skript.lang.SkriptParser;
+import com.google.common.collect.ImmutableList;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -33,6 +34,8 @@ public class SkriptPattern {
 	private final int expressionAmount;
 
 	private final String[] keywords;
+	@Nullable
+	private List<TypePatternElement> types;
 
 	public SkriptPattern(PatternElement first, int expressionAmount) {
 		this.first = first;
@@ -51,6 +54,7 @@ public class SkriptPattern {
 		expr = expr.trim();
 
 		MatchResult matchResult = new MatchResult();
+		matchResult.source = this;
 		matchResult.expr = expr;
 		matchResult.expressions = new Expression[expressionAmount];
 		matchResult.parseContext = parseContext;
@@ -145,6 +149,47 @@ public class SkriptPattern {
 		}
 
 		return count;
+	}
+
+	/**
+	 * A method to obtain a list of all pattern elements of a specified type that are represented by this SkriptPattern.
+	 * @param type The type of pattern elements to obtain.
+	 * @return A list of all pattern elements of the specified type represented by this SkriptPattern.
+	 * @param <T> The type of pattern element.
+	 */
+	public <T extends PatternElement> List<T> getElements(Class<T> type) {
+		if (type == TypePatternElement.class) {
+			if (types == null)
+				types = ImmutableList.copyOf(getElements(TypePatternElement.class, first, new ArrayList<>()));
+			//noinspection unchecked - checked with type == TypePatternElement
+			return (List<T>) types;
+		}
+		return getElements(type, first, new ArrayList<>());
+	}
+
+	/**
+	 * A method to obtain a list of all pattern elements of a specified type (from a starting element).
+	 * @param type The type of pattern elements to obtain.
+	 * @param element The element to start searching for other elements from (this will unwrap certain elements).
+	 * @param elements A list to add matching elements to.
+	 * @return A list of all pattern elements of a specified type (from a starting element).
+	 * @param <T> The type of pattern element.
+	 */
+	private static <T extends PatternElement> List<T> getElements(Class<T> type, PatternElement element, List<T> elements) {
+		while (element != null) {
+			if (element instanceof ChoicePatternElement) {
+				((ChoicePatternElement) element).getPatternElements().forEach(e -> getElements(type, e, elements));
+			} else if (element instanceof GroupPatternElement) {
+				getElements(type, ((GroupPatternElement) element).getPatternElement(), elements);
+			} else if (element instanceof OptionalPatternElement) {
+				getElements(type, ((OptionalPatternElement) element).getPatternElement(), elements);
+			} else if (type.isInstance(element)) {
+				//noinspection unchecked - it is checked with isInstance
+				elements.add((T) element);
+			}
+			element = element.originalNext;
+		}
+		return elements;
 	}
 
 }

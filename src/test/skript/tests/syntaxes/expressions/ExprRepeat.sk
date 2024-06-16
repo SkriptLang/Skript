@@ -1,0 +1,72 @@
+test "repeat expression":
+
+	# Literal Test
+	assert "a" repeated 1 times is "a" with "ExprRepeat - 'a' repeated once is not 'a'"
+	assert length of "a a" repeated 10 times is less than 30 to fail with "ExprRepeat - length of 'a a' repeated 10 times is not less than 30"
+	assert nl repeated 3 times is "%nl%%nl%%nl%" with "ExprRepeat - 'nl' repeated 3 times is not '%nl%%nl%%nl%'"
+	assert "string" repeated 0 times is "string" to fail with "ExprRepeat - 'string' repeated 0 times is 'string'"
+	assert "" repeated 2 times is "" with "ExprRepeat - '' repeated 2 times is not ''"
+
+	# Variable Test
+	set {_string} to "a"
+	set {_repeat} to 1
+	assert {_string} repeated {_repeat} times is "a" with "ExprRepeat Var - 'a' repeated once is not 'a'"
+
+	set {_string} to "a a"
+	set {_repeat} to 10
+	assert length of {_string} repeated {_repeat} times is less than 30 to fail with "ExprRepeat Var - length of 'a a' repeated 10 times is not less than 30"
+
+	set {_string} to nl
+	set {_repeat} to 3
+	assert {_string} repeated {_repeat} times is "%nl%%nl%%nl%" with "ExprRepeat Var - 'nl' repeated 3 times is not '%nl%%nl%%nl%'"
+
+	set {_string} to "string"
+	set {_repeat} to 0
+	assert {_string} repeated {_repeat} times is "string" to fail with "ExprRepeat Var - 'string' repeated 0 times is 'string'"
+
+	set {_string} to ""
+	set {_repeat} to 2
+	assert {_string} repeated {_repeat} times is "" with "ExprRepeat Var - '' repeated times is not ''"
+
+	# Null Test
+	assert {_null} repeated 1 times is set to fail with "ExprRepeat Nulls - null repeated 1 time is set"
+	assert "1" repeated {_null} times is set to fail with "ExprRepeat Nulls - '1' repeated null times is set"
+	assert {_null} repeated {_null} times is set to fail with "ExprRepeat Nulls - null repeated null times is set"
+
+	# Multi Test
+	set {_repeat} to 3
+
+	set {_strings::*} to "aa" and "b" repeated 3 times
+	if any:
+		{_strings::1} is not "aaaaaa"
+		{_strings::2} is not "bbb"
+	then:
+		assert false is true with "ExprRepeat Multi - 1) 'aa' and 'b' repeated 3 times is not 'aaaaaa' and 'bbb'"
+
+	set {_strings::*} to "aa", "b"
+	set {_strings::*} to {_strings::*} repeated {_repeat} times
+	if any:
+		{_strings::1} is not "aaaaaa"
+		{_strings::2} is not "bbb"
+	then:
+		assert false is true with "ExprRepeat Multi - 2) 'aa' and 'b' repeated 3 times is not 'aaaaaa' and 'bbb'"
+
+	set {_strings::*} to "aa", "b"
+	set {_strings::*} to {_strings::*} repeated 3 times
+	if any:
+		{_strings::1} is not "aaaaaa"
+		{_strings::2} is not "bbb"
+	then:
+		assert false is true with "ExprRepeat Multi - 3) 'aa' and 'b' repeated 3 times is not 'aaaaaa' and 'bbb'"
+
+	set {_strings::*} to "aa", "b" repeated {_repeat} times
+	if any:
+		{_strings::1} is not "aaaaaa"
+		{_strings::2} is not "bbb"
+	then:
+		assert false is true with "ExprRepeat Multi - 4) 'aa' and 'b' repeated 3 times is not 'aaaaaa' and 'bbb'"
+
+
+	# More Usage Test
+	assert "&8 &1 &2 &3 &6" repeated 2 times is "&8 &1 &2 &3 &6&8 &1 &2 &3 &6" with "ExprRepeat Extra - '&8 &1 &2 &3 &6' is not properly repeated"
+	assert "aa" repeated -5 times is set to fail with "ExprRepeat Extra - 'aa' repeated -5 times was set"
