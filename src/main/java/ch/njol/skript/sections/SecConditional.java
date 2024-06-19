@@ -26,13 +26,13 @@ import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
-import ch.njol.skript.events.bukkit.SkriptParseEvent;
 import ch.njol.skript.lang.Condition;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.Section;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.TriggerItem;
 import ch.njol.skript.lang.parser.ParserInstance;
+import ch.njol.skript.lang.util.ContextlessEvent;
 import ch.njol.skript.patterns.PatternCompiler;
 import ch.njol.skript.patterns.SkriptPattern;
 import ch.njol.skript.util.Patterns;
@@ -40,7 +40,6 @@ import ch.njol.util.Kleenean;
 import com.google.common.collect.Iterables;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
-import org.skriptlang.skript.lang.structure.Structure;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -170,14 +169,12 @@ public class SecConditional extends Section {
 			ParserInstance parser = getParser();
 			Class<? extends Event>[] currentEvents = parser.getCurrentEvents();
 			String currentEventName = parser.getCurrentEventName();
-			Structure currentStructure = parser.getCurrentStructure();
 
 			// Change event if using 'parse if'
 			if (parseIf) {
 				//noinspection unchecked
-				parser.setCurrentEvents(new Class[]{SkriptParseEvent.class});
+				parser.setCurrentEvents(new Class[]{ContextlessEvent.class});
 				parser.setCurrentEventName("parse");
-				parser.setCurrentStructure(null);
 			}
 
 			// if this is a multiline "if", we have to parse each line as its own condition
@@ -217,7 +214,6 @@ public class SecConditional extends Section {
 			if (parseIf) {
 				parser.setCurrentEvents(currentEvents);
 				parser.setCurrentEventName(currentEventName);
-				parser.setCurrentStructure(currentStructure);
 			}
 
 			if (conditions.isEmpty())
@@ -226,7 +222,7 @@ public class SecConditional extends Section {
 
 		// ([else] parse if) If condition is valid and false, do not parse the section
 		if (parseIf) {
-			if (!checkConditions(new SkriptParseEvent())) {
+			if (!checkConditions(ContextlessEvent.get())) {
 				return true;
 			}
 			parseIfPassed = true;

@@ -1,0 +1,9 @@
+test "spawn dropped item":
+	spawn dropped stone at spawn of world "world":
+		set {_e} to entity
+	assert {_e} is set with "failed to spawn dropped stone"
+	delete entity within {_e}
+
+	spawn dropped item at spawn of world "world":
+		set {_e2} to entity
+	assert {_e2} is not set with "spawned `dropped item` despite undefined item type"

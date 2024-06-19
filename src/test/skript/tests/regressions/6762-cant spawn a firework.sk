@@ -1,0 +1,4 @@
+test "can't spawn a firework":
+
+	spawn a firework at spawn of world "world"
+	assert last spawned firework is set with "firework did not spawn"

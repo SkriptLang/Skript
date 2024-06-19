@@ -34,6 +34,8 @@ import java.util.HashMap;
  */
 public class ItemUtils {
 
+	public static final boolean HAS_MAX_DAMAGE = Skript.methodExists(Damageable.class, "getMaxDamage");
+
 	/**
 	 * Gets damage/durability of an item, or 0 if it does not have damage.
 	 * @param itemStack Item.
@@ -44,6 +46,18 @@ public class ItemUtils {
 		if (meta instanceof Damageable)
 			return ((Damageable) meta).getDamage();
 		return 0; // Non damageable item
+	}
+
+	/** Gets the max damage/durability of an item
+	 * <p>NOTE: Will account for custom damageable items in MC 1.20.5+</p>
+	 * @param itemStack Item to grab durability from
+	 * @return Max amount of damage this item can take
+	 */
+	public static int getMaxDamage(ItemStack itemStack) {
+		ItemMeta meta = itemStack.getItemMeta();
+		if (HAS_MAX_DAMAGE && meta instanceof Damageable && ((Damageable) meta).hasMaxDamage())
+			return ((Damageable) meta).getMaxDamage();
+		return itemStack.getType().getMaxDurability();
 	}
 
 	/**
@@ -70,6 +84,18 @@ public class ItemUtils {
 		if (meta instanceof Damageable)
 			return ((Damageable) meta).getDamage();
 		return 0; // Non damageable item
+	}
+
+	/** Gets the max damage/durability of an item
+	 * <p>NOTE: Will account for custom damageable items in MC 1.20.5+</p>
+	 * @param itemType Item to grab durability from
+	 * @return Max amount of damage this item can take
+	 */
+	public static int getMaxDamage(ItemType itemType) {
+		ItemMeta meta = itemType.getItemMeta();
+		if (HAS_MAX_DAMAGE && meta instanceof Damageable && ((Damageable) meta).hasMaxDamage())
+			return ((Damageable) meta).getMaxDamage();
+		return itemType.getMaterial().getMaxDurability();
 	}
 
 	/**

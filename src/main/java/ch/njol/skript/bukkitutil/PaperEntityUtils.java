@@ -114,8 +114,8 @@ public class PaperEntityUtils {
 				Player player = (Player) entity;
 				if (target instanceof Vector) {
 					Vector vector = (Vector) target;
-					player.lookAt(vector.getX(), vector.getY(), vector.getZ(), LookAnchor.EYES);
-					player.lookAt(vector.getX(), vector.getY(), vector.getZ(), LookAnchor.FEET);
+					player.lookAt(player.getEyeLocation().add(vector), LookAnchor.EYES);
+					player.lookAt(player.getEyeLocation().add(vector), LookAnchor.FEET);
 				} else if (target instanceof Location) {
 					player.lookAt((Location) target, LookAnchor.EYES);
 					player.lookAt((Location) target, LookAnchor.FEET);
@@ -159,7 +159,7 @@ public class PaperEntityUtils {
 			switch (type) {
 				case VECTOR:
 					Vector vector = ((Vector)target);
-					mob.lookAt(vector.getX(), vector.getY(), vector.getZ(), speed, maxPitch);
+					mob.lookAt(mob.getEyeLocation().add(vector), speed, maxPitch);
 					break;
 				case LOCATION:
 					mob.lookAt((Location) target, speed, maxPitch);

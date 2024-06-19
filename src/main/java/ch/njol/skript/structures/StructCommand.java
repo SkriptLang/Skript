@@ -81,6 +81,9 @@ import java.util.regex.Pattern;
 @Since("1.0")
 public class StructCommand extends Structure {
 
+	// Paper versions with the new command system need a delay before syncing commands or a CME will occur.
+	private static final boolean DELAY_COMMAND_SYNCING = Skript.classExists("io.papermc.paper.command.brigadier.Commands");
+
 	public static final Priority PRIORITY = new Priority(500);
 
 	private static final Pattern COMMAND_PATTERN = Pattern.compile("(?i)^command\\s+/?(\\S+)\\s*(\\s+(.+))?$");
@@ -318,7 +321,7 @@ public class StructCommand extends Structure {
 
 	@Override
 	public boolean postLoad() {
-		attemptCommandSync();
+		scheduleCommandSync();
 		return true;
 	}
 
@@ -331,17 +334,25 @@ public class StructCommand extends Structure {
 
 	@Override
 	public void postUnload() {
-		attemptCommandSync();
+		scheduleCommandSync();
 	}
 
-	private void attemptCommandSync() {
+	private void scheduleCommandSync() {
 		if (SYNC_COMMANDS.get()) {
 			SYNC_COMMANDS.set(false);
-			if (CommandReloader.syncCommands(Bukkit.getServer())) {
-				Skript.debug("Commands synced to clients");
+			if (DELAY_COMMAND_SYNCING) {
+				Bukkit.getScheduler().runTask(Skript.getInstance(), this::forceCommandSync);
 			} else {
-				Skript.debug("Commands changed but not synced to clients (normal on 1.12 and older)");
+				forceCommandSync();
 			}
+		}
+	}
+
+	private void forceCommandSync() {
+		if (CommandReloader.syncCommands(Bukkit.getServer())) {
+			Skript.debug("Commands synced to clients");
+		} else {
+			Skript.debug("Commands changed but not synced to clients (normal on 1.12 and older)");
 		}
 	}
 
