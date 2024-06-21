@@ -198,4 +198,13 @@ public class VectorMath {
 		vector1.setX(vector2.getX()).setY(vector2.getY()).setZ(vector2.getZ());
 	}
 
+	/**
+	 * Check whether or not each component of this vector is equal to 0.
+	 * <br>Replaces {@code Vector#isZero()} since that method was added in spigot 1.19.3
+	 * @return true if equal to zero, false if at least one component is non-zero
+	 */
+	public static boolean isZero(Vector vector) {
+		return (vector.getX() == 0 && vector.getY() == 0 && vector.getZ() == 0);
+	}
+
 }

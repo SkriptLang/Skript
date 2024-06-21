@@ -152,9 +152,9 @@ public class PlatformMain {
 			output.append("\nFailed:");
 			for (String failed : failNames) {
 				List<NonNullPair<Environment, String>> errors = failures.get(failed);
-				output.append("  " + failed + " (on " + errors.size() + " environment" + (errors.size() == 1 ? "" : "s") + ")");
+				output.append("\n  " + failed + " (on " + errors.size() + " environment" + (errors.size() == 1 ? "" : "s") + ")");
 				for (NonNullPair<Environment, String> error : errors) {
-					output.append("    " + error.getSecond() + " (on " + error.getFirst().getName() + ")");
+					output.append("\n    " + error.getSecond() + " (on " + error.getFirst().getName() + ")");
 				}
 			}
 			output.append(String.format("%n%n%s", StringUtils.repeat("-", 60)));

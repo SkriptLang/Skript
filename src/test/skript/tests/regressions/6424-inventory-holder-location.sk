@@ -1,0 +1,16 @@
+test "inventory holder location":
+	set {_b} to the block at spawn of world "world"
+	set {_prev} to type of block at {_b}
+	broadcast {_prev}
+
+	set block at {_b} to a chest
+	set {_inv} to inventory of {_b}
+	set {_holder} to holder of {_inv}
+
+	set {_a-loc} to location of {_holder}
+	set {_b-loc} to location of {_b}
+
+	# clean up first in case assert fails
+	set block at {_b} to {_prev}
+
+	assert {_a-loc} is {_b-loc} with "holder location differs from block location"
