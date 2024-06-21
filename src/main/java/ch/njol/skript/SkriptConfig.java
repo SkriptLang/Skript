@@ -105,7 +105,7 @@ public class SkriptConfig {
 						break;
 					case "stable":
 						// TODO a better option would be to check that it is not a pre-release through GH API
-						channel = new ReleaseChannel((name) -> !name.contains("pre"), t);
+						channel = new ReleaseChannel((name) -> !(name.contains("-")), t);
 						break;
 					case "none":
 						channel = new ReleaseChannel((name) -> false, t);
@@ -245,6 +245,9 @@ public class SkriptConfig {
 
 	public static final Option<Boolean> caseInsensitiveVariables = new Option<>("case-insensitive variables", true)
 			.setter(t -> Variables.caseInsensitiveVariables = t);
+
+	public static final Option<Boolean> caseInsensitiveCommands = new Option<>("case-insensitive commands", false)
+		.optional(true);
 	
 	public static final Option<Boolean> colorResetCodes = new Option<>("color codes reset formatting", true)
 			.setter(t -> {

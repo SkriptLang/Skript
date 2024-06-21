@@ -20,11 +20,8 @@ package org.skriptlang.skript.test.tests.lang;
 
 import ch.njol.skript.test.runner.SkriptJUnitTest;
 import org.bukkit.Bukkit;
-import org.bukkit.entity.Pig;
-import org.bukkit.event.entity.EntityDeathEvent;
+import org.bukkit.event.block.BlockFormEvent;
 import org.junit.Test;
-
-import java.util.ArrayList;
 
 public class CancelledEventsTest extends SkriptJUnitTest {
 
@@ -35,8 +32,7 @@ public class CancelledEventsTest extends SkriptJUnitTest {
 
 	@Test
 	public void callCancelledEvent() {
-		Pig pig = spawnTestPig();
-		EntityDeathEvent event = new EntityDeathEvent(pig, new ArrayList<>());
+		BlockFormEvent event = new BlockFormEvent(getBlock(), getBlock().getState());
 
 		// call cancelled event
 		event.setCancelled(true);
