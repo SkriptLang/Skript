@@ -1,0 +1,23 @@
+test "returns":
+	returnable string section:
+		return "hello"
+	assert last return value is "hello" with "failed single return value"
+	
+	returnable plural number section:
+		return (3 and 5)
+	assert last return values is 3 and 5 with "failed multiple return values"
+
+	returnable integer section:
+		return 2.5
+	assert last return value is 2 with "failed converted return value"
+
+test "returns (parsing)":
+	parse:
+		returnable string section:
+			return 1
+	assert last parse logs is set with "skript shouldn't be able to return a different type"
+	
+	parse:
+		returnable string section:
+			return ("foo" and "bar")
+	assert last parse logs is set with "skript shouldn't be able to return multiple values for a single return trigger"
