@@ -19,6 +19,7 @@
 package ch.njol.skript.expressions;
 
 import ch.njol.skript.Skript;
+import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
@@ -53,7 +54,7 @@ public class ExprMaxDurability extends SimplePropertyExpression<Object, Integer>
 	private static final boolean HAS_RESET = Skript.methodExists(Damageable.class, "resetDamage");
 
 	static {
-		register(ExprMaxDurability.class, Integer.class, "max[imum] (durabilit(y|ies)|damage)", "itemstacks/slots");
+		register(ExprMaxDurability.class, Integer.class, "max[imum] (durabilit(y|ies)|damage)", "itemtypes/itemstacks/slots");
 	}
 
 	@Override
@@ -120,8 +121,10 @@ public class ExprMaxDurability extends SimplePropertyExpression<Object, Integer>
 				damageable.setMaxDamage(Math.max(1, newValue));
 			}
 
-			itemStack.setItemMeta(meta);
-			if (object instanceof Slot)
+			itemStack.setItemMeta(damageable);
+			if (object instanceof ItemType)
+				((ItemType) object).setItemMeta(damageable);
+			else if (object instanceof Slot)
 				((Slot) object).setItem(itemStack);
 		}
 	}
@@ -138,6 +141,8 @@ public class ExprMaxDurability extends SimplePropertyExpression<Object, Integer>
 
 	@Nullable
 	private ItemStack getItemStack(Object object) {
+		if (object instanceof ItemType)
+			return ((ItemType) object).getRandom();
 		if (object instanceof Slot)
 			return ((Slot) object).getItem();
 		else
