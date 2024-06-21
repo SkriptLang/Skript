@@ -18,15 +18,14 @@
  */
 package ch.njol.skript.expressions;
 
+import ch.njol.skript.Skript;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
-import org.bukkit.Material;
 import org.bukkit.event.Event;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.eclipse.jdt.annotation.Nullable;
 
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.classes.Changer.ChangeMode;
@@ -37,6 +36,7 @@ import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import ch.njol.skript.util.slot.Slot;
 import ch.njol.util.coll.CollectionUtils;
+import org.jetbrains.annotations.Nullable;
 
 @Name("Damage Value/Durability")
 @Description("The damage value/durability of an item.")
@@ -47,6 +47,9 @@ import ch.njol.util.coll.CollectionUtils;
 })
 @Since("1.2, 2.7 (durability reversed)")
 public class ExprDurability extends SimplePropertyExpression<Object, Integer> {
+
+	// Minecraft 1.20.5+ item component "max_damage" (custom item durability)
+	private static final boolean HAS_MAX_DAMAGE = Skript.methodExists(Damageable.class, "hasMaxDamage");
 
 	private boolean durability;
 
@@ -67,7 +70,7 @@ public class ExprDurability extends SimplePropertyExpression<Object, Integer> {
 		if (itemType == null)
 			return null;
 		ItemMeta meta = itemType.getItemMeta();
-		return meta instanceof Damageable ? convertToDamage(itemType.getMaterial(), ((Damageable) meta).getDamage()) : 0;
+		return meta instanceof Damageable ? convertToDamage(itemType, ((Damageable) meta).getDamage()) : 0;
 	}
 
 	@Override
@@ -99,15 +102,14 @@ public class ExprDurability extends SimplePropertyExpression<Object, Integer> {
 				continue;
 			Damageable damageable = (Damageable) meta;
 
-			Material material = itemType.getMaterial();
 			switch (mode) {
 				case ADD:
 				case REMOVE:
-					int current = convertToDamage(material, damageable.getDamage());
-					damageable.setDamage(convertToDamage(material, current + change));
+					int current = convertToDamage(itemType, damageable.getDamage());
+					damageable.setDamage(convertToDamage(itemType, current + change));
 					break;
 				case SET:
-					damageable.setDamage(convertToDamage(material, change));
+					damageable.setDamage(convertToDamage(itemType, change));
 					break;
 				case DELETE:
 				case RESET:
@@ -120,10 +122,17 @@ public class ExprDurability extends SimplePropertyExpression<Object, Integer> {
 		}
 	}
 
-	private int convertToDamage(Material material, int value) {
+	private int convertToDamage(ItemType itemType, int value) {
 		if (!durability)
 			return value;
-		int maxDurability = material.getMaxDurability();
+		Damageable itemMeta = (Damageable) itemType.getItemMeta();
+
+		int maxDurability;
+		if (HAS_MAX_DAMAGE && itemMeta.hasMaxDamage())
+			maxDurability = itemMeta.getMaxDamage();
+		else
+			maxDurability = itemType.getMaterial().getMaxDurability();
+
 		if (maxDurability == 0)
 			return 0;
 		return maxDurability - value;
