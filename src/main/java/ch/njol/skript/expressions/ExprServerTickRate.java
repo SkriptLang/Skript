@@ -48,11 +48,11 @@ import org.jetbrains.annotations.Nullable;
 })
 @Since("INSERT VERSION")
 @RequiredPlugins("Minecraft 1.20.4+")
-public class ExprServerTickRate extends SimpleExpression<Number> {
+public class ExprServerTickRate extends SimpleExpression<Float> {
 
 	static {
 		if (ServerUtils.isServerTickManagerPresent())
-			Skript.registerExpression(ExprServerTickRate.class, Number.class, ExpressionType.SIMPLE, "[the] server['s] tick rate");
+			Skript.registerExpression(ExprServerTickRate.class, Float.class, ExpressionType.SIMPLE, "[the] server['s] tick rate");
 	}
 
 	@Override
@@ -62,8 +62,8 @@ public class ExprServerTickRate extends SimpleExpression<Number> {
 
 	@Nullable
 	@Override
-	protected Number[] get(Event event) {
-		return new Number[] {ServerUtils.getServerTickManager().getTickRate()};
+	protected Float[] get(Event event) {
+		return new Float[] {ServerUtils.getServerTickManager().getTickRate()};
 	}
 
 	public Class<?>[] acceptChange(ChangeMode mode) {
@@ -104,8 +104,8 @@ public class ExprServerTickRate extends SimpleExpression<Number> {
 	}
 
 	@Override
-	public Class<? extends Number> getReturnType() {
-		return Number.class;
+	public Class<? extends Float> getReturnType() {
+		return Float.class;
 	}
 
 	@Override

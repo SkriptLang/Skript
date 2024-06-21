@@ -18,3 +18,25 @@ test "Server Freezing Effect" when running minecraft "1.20.4":
 
 	unfreeze the server
 	assert server's tick state is normal with "Server did not unfreeze"
+
+test "Server Tick Rate Expression" when running minecraft "1.20.4":
+	set {_tickRate} to server's tick rate
+	assert {_tickRate} is 20 with "Default server tick rate is not 20"
+
+	set server's tick rate to 25
+	set {_tickRate} to server's tick rate
+	assert {_tickRate} is 25 with "Server tick rate was not set to 25"
+
+	add 5 to server's tick rate
+	set {_tickRate} to server's tick rate
+	assert {_tickRate} is 30 with "Server tick rate was not increased to 30"
+
+	remove 10 from server's tick rate
+	set {_tickRate} to server's tick rate
+	assert {_tickRate} is 20 with "Server tick rate was not decreased to 20"
+
+	# Reset the server tick rate to default and verify
+	reset server's tick rate
+	set {_tickRate} to server's tick rate
+	assert {_tickRate} is 20 with "Server tick rate was not reset to 20"
+
