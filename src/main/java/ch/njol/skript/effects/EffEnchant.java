@@ -18,11 +18,6 @@
  */
 package ch.njol.skript.effects;
 
-import org.bukkit.enchantments.Enchantment;
-import org.bukkit.event.Event;
-import org.bukkit.inventory.ItemStack;
-import org.eclipse.jdt.annotation.Nullable;
-
 import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.classes.Changer.ChangeMode;
@@ -36,68 +31,116 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.util.EnchantmentType;
 import ch.njol.util.Kleenean;
+import org.bukkit.enchantments.Enchantment;
+import org.bukkit.event.Event;
+import org.bukkit.inventory.ItemStack;
+import org.eclipse.jdt.annotation.Nullable;
 
-/**
- * @author Peter Güttinger
- */
 @Name("Enchant/Disenchant")
-@Description("Enchant or disenchant an existing item.")
-@Examples({"enchant the player's tool with sharpness 5",
-		"disenchant the player's tool"})
-@Since("2.0")
+@Description("Enchant or disenchant an existing item with/from [stored] enchantment.")
+@Examples({
+	"enchant the player's tool with sharpness 5",
+	"disenchant the player's tool",
+	"disenchant the player's tool from unbreaking and sharpness",
+	"",
+	"# For enchanted books",
+	"set {_book} to enchanted book",
+	"store unbreaking 3 on {_book}",
+	"unstore enchantments from {_book}",
+	"unstore sharpness from {_book}"
+})
+@Since("2.0, INSERT VERSION (store, specific disenchant)")
 public class EffEnchant extends Effect {
+
 	static {
 		Skript.registerEffect(EffEnchant.class,
 				"enchant %~itemtypes% with %enchantmenttypes%",
-				"disenchant %~itemtypes%");
+				"disenchant %~itemtypes% [specific:(of|from) %-enchantmenttypes%]",
+				"store %enchantmenttypes% (on|within) %~itemtypes%",
+				"unstore (specific:%enchantmenttypes%|enchant[ment]s) (of|from) %~itemtypes%");
 	}
-	
+
 	@SuppressWarnings("null")
 	private Expression<ItemType> items;
 	@Nullable
 	private Expression<EnchantmentType> enchantments;
-	
+	private boolean isStored, isDisenchant, isSpecificDisenchant;
+
 	@Override
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({"unchecked", "null"})
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		items = (Expression<ItemType>) exprs[0];
+		items = (Expression<ItemType>) (matchedPattern == 2 ? exprs[1] : exprs[0]);
+
 		if (!ChangerUtils.acceptsChange(items, ChangeMode.SET, ItemStack.class)) {
 			Skript.error(items + " cannot be changed, thus it cannot be (dis)enchanted");
 			return false;
 		}
-		if (matchedPattern == 0)
-			enchantments = (Expression<EnchantmentType>) exprs[1];
+		isStored = matchedPattern >= 2;
+		isDisenchant = matchedPattern == 1 || matchedPattern == 3;
+		isSpecificDisenchant = parseResult.tags.contains("specific");
+		enchantments = exprs.length == 2 ? (Expression<EnchantmentType>) exprs[(matchedPattern >= 2 ? 0 : 1)] : null;
 		return true;
 	}
-	
+
 	@Override
 	protected void execute(Event event) {
 		ItemType[] items = this.items.getArray(event);
-		if (items.length == 0) // short circuit
+		if (items.length == 0) // shortcut
 			return;
 
-		if (enchantments != null) {
-			EnchantmentType[] types = enchantments.getArray(event);
-			if (types.length == 0)
+		EnchantmentType[] types = null;
+
+		// enchantments must be set if isSpecificDisenchant or is enchanting
+		if ((isSpecificDisenchant || !isDisenchant)) {
+			if (enchantments == null)
 				return;
+
+			types = enchantments.getArray(event);
+			if (types.length == 0) // shortcut
+				return;
+		}
+
+		// enchanting
+		if (!isDisenchant) {
 			for (ItemType item : items) {
 				for (EnchantmentType type : types) {
 					Enchantment enchantment = type.getType();
 					assert enchantment != null;
-					item.addEnchantments(new EnchantmentType(enchantment, type.getLevel()));
+					if (isStored) {
+						item.addStoredEnchantments(new EnchantmentType(enchantment, type.getLevel()));
+					} else {
+						item.addEnchantments(new EnchantmentType(enchantment, type.getLevel()));
+					}
 				}
 			}
+		// disenchanting
 		} else {
 			for (ItemType item : items) {
-				item.clearEnchantments();
+				if (!isSpecificDisenchant)
+					types = isStored ? item.getStoredEnchantmentTypes() : item.getEnchantmentTypes();
+
+				if (types == null) // returned [stored] enchantments of item might be null
+					return;
+
+				if (isStored) {
+					item.removeStoredEnchantments(types);
+				} else {
+					item.removeEnchantments(types);
+				}
 			}
 		}
 		this.items.change(event, items.clone(), ChangeMode.SET);
 	}
-	
+
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return enchantments == null ? "disenchant " + items.toString(event, debug) : "enchant " + items.toString(event, debug) + " with " + enchantments;
+		if (isDisenchant) {
+			if (isStored)
+				return "unstore " + (isSpecificDisenchant ? enchantments.toString(event, debug) : "enchantments") + " of " + items.toString(event, debug);
+			else
+				return "disenchant " + items.toString(event, debug) + " from " + (isSpecificDisenchant ? enchantments.toString(event, debug) : "enchantments");
+		}
+		return (isStored ? "store " : "enchant ") + items.toString(event, debug) + (isStored ? " on " : " with ") + enchantments;
 	}
-	
+
 }

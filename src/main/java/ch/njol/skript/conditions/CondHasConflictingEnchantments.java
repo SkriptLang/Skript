@@ -18,7 +18,6 @@
  */
 package ch.njol.skript.conditions;
 
-import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.conditions.base.PropertyCondition;
 import ch.njol.skript.conditions.base.PropertyCondition.PropertyType;
@@ -29,65 +28,63 @@ import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Condition;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
-import ch.njol.skript.util.EnchantmentType;
 import ch.njol.util.Kleenean;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.event.Event;
+import org.bukkit.inventory.meta.EnchantmentStorageMeta;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.eclipse.jdt.annotation.Nullable;
 
-@Name("Is Enchanted")
-@Description("Checks whether an item is enchanted.")
-@Examples({"tool of the player is enchanted with efficiency 2",
-		"helm, chestplate, leggings or boots are enchanted",
-		"",
-		"# For enchanted books",
-		"player's tool is stored enchanted",
-		"event-item is enchanted with stored power 2"
+@Name("Has Conflicting Enchantments")
+@Description("Checks whether an item has conflicting enchantments with the given enchantment.")
+@Examples({
+		"player's tool has conflicting enchantments with efficiency",
+		"event-item has conflicting stored enchantments with power"
 })
-@Since("1.4.6, INSERT VERSION (stored enchantments)")
-public class CondIsEnchanted extends Condition {
+@Since("INSERT VERSION")
+public class CondHasConflictingEnchantments extends Condition {
 	
 	static {
-		Skript.registerCondition(CondIsEnchanted.class,
-				"%itemtypes% ((is|are)|not:(isn't|is not|aren't|are not)) enchanted [with %-enchantmenttypes%]",
-				"%itemtypes% ((has|have)|not:(doesn't have|don't have)) %enchantmenttypes% stored",
-				"%enchantmenttypes% ((is|are)|not:(is not|isn't|are not|aren't)) stored on %itemtypes%"
-		);
+		PropertyCondition.register(CondHasConflictingEnchantments.class, PropertyType.HAVE,
+				"conflicting [:stored] enchant[ment]s with %enchantment%", "itemtypes");
 	}
 	
 	@SuppressWarnings("NotNullFieldNotInitialized")
 	private Expression<ItemType> items;
-	@Nullable
-	private Expression<EnchantmentType> enchs;
+	@SuppressWarnings("NotNullFieldNotInitialized")
+	private Expression<Enchantment> ench;
 	private boolean isStored;
 	
 	@Override
 	@SuppressWarnings({"unchecked", "null"})
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		items = (Expression<ItemType>) (matchedPattern == 2 ? exprs[1] : exprs[0]);
-		enchs = (Expression<EnchantmentType>) (matchedPattern == 2 ? exprs[0] : exprs[1]);
-		isStored = matchedPattern > 0;
-		setNegated(parseResult.hasTag("not"));
+		items = (Expression<ItemType>) exprs[0];
+		ench = (Expression<Enchantment>) exprs[1];
+		isStored = parseResult.hasTag("stored");
+		setNegated(matchedPattern == 1);
 		return true;
 	}
 	
 	@Override
 	public boolean check(Event event) {
-		if (enchs != null) {
-			return items.check(event, item ->
-				(isStored && item.getEnchantmentStorageMeta() != null)
-					? enchs.check(event, item::hasStoredEnchantments) : enchs.check(event, item::hasEnchantments), isNegated());
-		} else {
-			return items.check(event, item ->
-				(isStored && item.getEnchantmentStorageMeta() != null)
-					? item.hasStoredEnchantments() : item.hasEnchantments(), isNegated());
-		}
+		Enchantment ench = this.ench.getSingle(event);
+		if (ench == null)
+			return false;
 
+		return items.check(event, item -> {
+			ItemMeta meta = item.getItemMeta();
+			if ((isStored && meta instanceof EnchantmentStorageMeta)) {
+				return ((EnchantmentStorageMeta) meta).hasConflictingStoredEnchant(ench);
+			} else {
+				return meta.hasConflictingEnchant(ench);
+			}
+		}, isNegated());
 	}
 	
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return PropertyCondition.toString(this, PropertyType.BE, event, debug, items, "enchanted" +
-				(isStored ? " and stored inside" : "") + (enchs == null ? "" : " with " + enchs.toString(event, debug)));
+		return PropertyCondition.toString(this, PropertyType.HAVE, event, debug, items,
+			"conflicting " + (isStored ? "stored " : "") + "enchantments with " + ench.toString(event, debug));
 	}
 	
 }

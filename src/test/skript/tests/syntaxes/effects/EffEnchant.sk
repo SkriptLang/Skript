@@ -8,3 +8,13 @@ test "enchant effect":
 	disenchant {_i}
 	assert enchantment level of sharpness on {_i} is not set with "1st enchant disenchant failed"
 	assert enchantment level of unbreaking on {_i} is not set with "2nd enchant disenchant failed"
+
+	# after pull #4366
+	set {_item} to diamond sword
+	assert enchantments of {_item} is not set with "enchanting effect failed test ##1"
+	
+	enchant {_item} with sharpness 3
+	assert enchantment level of sharpnees on {_item} is 3 with "enchanting effect failed test ##2"
+	
+	enchant {_item} with sharpness 2
+	assert enchantment level of sharpnees on {_item} is 2 with "enchanting effect failed test ##2"
