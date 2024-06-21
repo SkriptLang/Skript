@@ -20,6 +20,7 @@ package ch.njol.skript.bukkitutil;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.ItemType;
+import ch.njol.skript.util.slot.Slot;
 import org.bukkit.Material;
 import org.bukkit.TreeType;
 import org.bukkit.inventory.ItemStack;
@@ -35,6 +36,8 @@ import java.util.HashMap;
 public class ItemUtils {
 
 	public static final boolean HAS_MAX_DAMAGE = Skript.methodExists(Damageable.class, "getMaxDamage");
+	// Introduced in Paper 1.21
+	public static final boolean HAS_RESET = Skript.methodExists(Damageable.class, "resetDamage");
 
 	/**
 	 * Gets damage/durability of an item, or 0 if it does not have damage.
@@ -58,6 +61,25 @@ public class ItemUtils {
 		if (HAS_MAX_DAMAGE && meta instanceof Damageable && ((Damageable) meta).hasMaxDamage())
 			return ((Damageable) meta).getMaxDamage();
 		return itemStack.getType().getMaxDurability();
+	}
+
+	/**
+	 * Set the max damage/durability of an item
+	 *
+	 * @param itemStack ItemStack to set max damage
+	 * @param maxDamage Amount of new max damage
+	 */
+	public static void setMaxDamage(ItemStack itemStack, int maxDamage) {
+		ItemMeta meta = itemStack.getItemMeta();
+		if (HAS_MAX_DAMAGE && meta instanceof Damageable) {
+			Damageable damageable = (Damageable) meta;
+			if (HAS_RESET) {
+				//damageable.resetDamage(); TODO (waiting on Skript to update to Paper 1.21)
+			} else {
+				damageable.setMaxDamage(Math.max(1, maxDamage));
+			}
+			itemStack.setItemMeta(damageable);
+		}
 	}
 
 	/**
@@ -138,6 +160,24 @@ public class ItemUtils {
 	public static Material asItem(Material type) {
 		// Assume (naively) that all types are valid items
 		return type;
+	}
+
+	/**
+	 * Convert an ItemType/Slot to ItemStack
+	 * Will also accept an ItemStack that will return itself
+	 *
+	 * @param object Object to convert
+	 * @return ItemStack from slot/itemtype
+	 */
+	@Nullable
+	public static ItemStack asItemStack(Object object) {
+		if (object instanceof ItemType)
+			return ((ItemType) object).getRandom();
+		else if (object instanceof Slot)
+			return ((Slot) object).getItem();
+		else if (object instanceof ItemStack)
+			return ((ItemStack) object);
+		return null;
 	}
 	
 	/**

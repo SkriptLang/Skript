@@ -18,8 +18,8 @@
  */
 package ch.njol.skript.expressions;
 
-import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.ItemType;
+import ch.njol.skript.bukkitutil.ItemUtils;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
@@ -30,8 +30,6 @@ import ch.njol.skript.util.slot.Slot;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.event.Event;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.Damageable;
-import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.Nullable;
 
 @Name("Max Durability")
@@ -48,11 +46,6 @@ import org.jetbrains.annotations.Nullable;
 @Since("2.5, INSERT VERSION (change)")
 public class ExprMaxDurability extends SimplePropertyExpression<Object, Integer> {
 
-	// Minecraft 1.20.5+ item component "max_damage" (custom item durability)
-	private static final boolean HAS_MAX_DAMAGE = Skript.methodExists(Damageable.class, "hasMaxDamage");
-	// Introduced in Paper 1.21
-	private static final boolean HAS_RESET = Skript.methodExists(Damageable.class, "resetDamage");
-
 	static {
 		register(ExprMaxDurability.class, Integer.class, "max[imum] (durabilit(y|ies)|damage)", "itemtypes/itemstacks/slots");
 	}
@@ -60,15 +53,15 @@ public class ExprMaxDurability extends SimplePropertyExpression<Object, Integer>
 	@Override
 	@Nullable
 	public Integer convert(Object object) {
-		ItemStack itemStack = getItemStack(object);
+		ItemStack itemStack = ItemUtils.asItemStack(object);
 		if (itemStack == null)
 			return null;
-		return getMaxDurability(itemStack);
+		return ItemUtils.getMaxDamage(itemStack);
 	}
 
 	@Override
 	public @Nullable Class<?>[] acceptChange(ChangeMode mode) {
-		if (HAS_MAX_DAMAGE) {
+		if (ItemUtils.HAS_MAX_DAMAGE) {
 			switch (mode) {
 				case SET:
 				case ADD:
@@ -76,7 +69,7 @@ public class ExprMaxDurability extends SimplePropertyExpression<Object, Integer>
 				case RESET:
 					return CollectionUtils.array(Number.class);
 				case DELETE:
-					if (HAS_RESET)
+					if (ItemUtils.HAS_RESET)
 						return CollectionUtils.array();
 			}
 		}
@@ -90,21 +83,15 @@ public class ExprMaxDurability extends SimplePropertyExpression<Object, Integer>
 			change = -change;
 
 		for (Object object : getExpr().getArray(event)) {
-			ItemStack itemStack = getItemStack(object);
+			ItemStack itemStack = ItemUtils.asItemStack(object);
 			if (itemStack == null)
 				continue;
-
-			ItemMeta meta = itemStack.getItemMeta();
-			if (!(meta instanceof Damageable))
-				continue;
-
-			Damageable damageable = (Damageable) meta;
 
 			int newValue;
 			switch (mode) {
 				case ADD:
 				case REMOVE:
-					newValue = getMaxDurability(itemStack) + change;
+					newValue = ItemUtils.getMaxDamage(itemStack) + change;
 					break;
 				case SET:
 					newValue = change;
@@ -115,38 +102,13 @@ public class ExprMaxDurability extends SimplePropertyExpression<Object, Integer>
 				default:
 					newValue = itemStack.getType().getMaxDurability();
 			}
-			if (mode == ChangeMode.RESET && HAS_RESET) {
-				//damageable.resetDamage(); TODO (waiting on Skript to update to Paper 1.21)
-			} else {
-				damageable.setMaxDamage(Math.max(1, newValue));
-			}
 
-			itemStack.setItemMeta(damageable);
-			if (object instanceof ItemType)
-				((ItemType) object).setItemMeta(damageable);
-			else if (object instanceof Slot)
+			ItemUtils.setMaxDamage(itemStack, newValue);
+			if (object instanceof Slot)
 				((Slot) object).setItem(itemStack);
+			if (object instanceof ItemType)
+				((ItemType) object).setItemMeta(itemStack.getItemMeta());
 		}
-	}
-
-	private int getMaxDurability(ItemStack itemStack) {
-		ItemMeta itemMeta = itemStack.getItemMeta();
-		if (HAS_MAX_DAMAGE && itemMeta instanceof Damageable) {
-			Damageable damageable = (Damageable) itemMeta;
-			if (damageable.hasMaxDamage())
-				return damageable.getMaxDamage();
-		}
-		return itemStack.getType().getMaxDurability();
-	}
-
-	@Nullable
-	private ItemStack getItemStack(Object object) {
-		if (object instanceof ItemType)
-			return ((ItemType) object).getRandom();
-		if (object instanceof Slot)
-			return ((Slot) object).getItem();
-		else
-			return (ItemStack) object;
 	}
 
 	@Override
