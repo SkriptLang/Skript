@@ -31,14 +31,15 @@ import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
-import org.bukkit.Bukkit;
+import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
 @Name("Server Tick Rate")
 @Description({
 	"Gets or sets the current tick rate of the server. The tick rate is the number of game ticks that occur in a second. Higher values mean the game runs faster.",
-	"The server's default tick rate is 20."})
+	"The server's default tick rate is 20."
+})
 @Examples({
 	"send \"%server's tick rate%\" to player",
 	"set server's tick rate to 20 # This is the default tick rate.",
@@ -47,13 +48,11 @@ import org.jetbrains.annotations.Nullable;
 })
 @Since("INSERT VERSION")
 @RequiredPlugins("Minecraft 1.20.4+")
-public class ExprTick extends SimpleExpression<Number> {
-
+public class ExprServerTickRate extends SimpleExpression<Number> {
 
 	static {
-		if (Skript.methodExists(Bukkit.class, "getServerTickManager")) {
-			Skript.registerExpression(ExprTick.class, Number.class, ExpressionType.SIMPLE, "[the] server['s] tick rate");
-		}
+		if (ServerUtils.isServerTickManagerPresent())
+			Skript.registerExpression(ExprServerTickRate.class, Number.class, ExpressionType.SIMPLE, "[the] server['s] tick rate");
 	}
 
 	@Override
@@ -64,13 +63,19 @@ public class ExprTick extends SimpleExpression<Number> {
 	@Nullable
 	@Override
 	protected Number[] get(Event event) {
-		return new Number[]{ServerUtils.getServerTickManager().getTickRate()};
+		return new Number[] {ServerUtils.getServerTickManager().getTickRate()};
 	}
 
 	public Class<?>[] acceptChange(ChangeMode mode) {
-		if (mode == ChangeMode.SET || mode == ChangeMode.ADD || mode == ChangeMode.REMOVE || mode == ChangeMode.RESET)
-			return new Class[]{Number.class};
-		return null;
+		switch (mode) {
+			case SET:
+			case ADD:
+			case REMOVE:
+			case RESET:
+				return CollectionUtils.array(Number.class);
+			default:
+				return null;
+		}
 	}
 
 	@Override
@@ -92,7 +97,6 @@ public class ExprTick extends SimpleExpression<Number> {
 				break;
 		}
 	}
-
 
 	@Override
 	public boolean isSingle() {

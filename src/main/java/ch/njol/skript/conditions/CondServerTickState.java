@@ -45,19 +45,19 @@ import java.util.Locale;
 @Since("INSERT VERSION")
 @RequiredPlugins("Minecraft 1.20.4+")
 public class CondServerTickState extends Condition {
+
 	private ServerState state;
 
 	static {
-		if (Skript.methodExists(Bukkit.class, "getServerTickManager"))
+		if (ServerUtils.isServerTickManagerPresent())
 			Skript.registerCondition(CondServerTickState.class,
 				"[the] server['s] tick[ing] state is [currently] (:frozen|:stepping|:sprinting|:normal)",
-				"[the] server['s] tick[ing] state (is[n't| not]) [currently] (:frozen|:stepping|:sprinting|:normal)");
+				"[the] server['s] tick[ing] state is(n't| not) [currently] (:frozen|:stepping|:sprinting|:normal)");
 	}
 
 	public enum ServerState {
 		FROZEN, STEPPING, SPRINTING, NORMAL
 	}
-
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
@@ -90,5 +90,6 @@ public class CondServerTickState extends Condition {
 	public String toString(@Nullable Event event, boolean debug) {
 		return "the server's tick state is " + state;
 	}
+
 }
 

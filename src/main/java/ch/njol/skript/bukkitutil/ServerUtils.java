@@ -23,17 +23,24 @@ import org.bukkit.Bukkit;
 import org.bukkit.ServerTickManager;
 
 public class ServerUtils {
+
 	private static final ServerTickManager SERVER_TICK_MANAGER;
 
 	static {
-		ServerTickManager STM_VALUE = null;
+		ServerTickManager serverTickManager = null;
 		if (Skript.methodExists(Bukkit.class, "getServerTickManager")) {
-			STM_VALUE = Bukkit.getServerTickManager();
+			serverTickManager = Bukkit.getServerTickManager();
 		}
-		SERVER_TICK_MANAGER = STM_VALUE;
+		SERVER_TICK_MANAGER = serverTickManager;
 	}
 
 	public static ServerTickManager getServerTickManager() {
 		return SERVER_TICK_MANAGER;
 	}
+
+	public static boolean isServerTickManagerPresent() {
+		return SERVER_TICK_MANAGER != null;
+	}
+
 }
+

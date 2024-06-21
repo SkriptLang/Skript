@@ -30,13 +30,14 @@ import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.util.Kleenean;
-import org.bukkit.Bukkit;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+
 @Name("Step Server")
 @Description({
 	"Makes the server \"step\" for a certain amount of time while the server's tick state is frozen.",
-	"When you step, the server goes forward that amount of time in ticks."})
+	"When you step, the server goes forward that amount of time in ticks."
+})
 @Examples({
 	"make server step for 5 seconds",
 	"make server stop stepping"
@@ -45,9 +46,8 @@ import org.jetbrains.annotations.Nullable;
 @RequiredPlugins("Minecraft 1.20.4+")
 public class EffStepServer extends Effect {
 
-
 	static {
-		if (Skript.methodExists(Bukkit.class, "getServerTickManager"))
+		if (ServerUtils.isServerTickManagerPresent())
 			Skript.registerEffect(EffStepServer.class,
 				"make [the] server step for %timespan%",
 				"make [the] server stop stepping");
@@ -66,11 +66,9 @@ public class EffStepServer extends Effect {
 	@Override
 	protected void execute(Event event) {
 		if (timespan != null) {
-			Timespan timespanInstance = timespan.getSingle(event);
-			if (timespanInstance != null) {
-				long stepTicks = timespanInstance.getTicks();
-				ServerUtils.getServerTickManager().stepGameIfFrozen((int) stepTicks);
-			}
+			Timespan timespan = this.timespan.getSingle(event);
+			if (timespan != null)
+				ServerUtils.getServerTickManager().stepGameIfFrozen((int) timespan.getTicks());
 		} else {
 			ServerUtils.getServerTickManager().stopStepping();
 		}
@@ -81,4 +79,5 @@ public class EffStepServer extends Effect {
 	public String toString(@Nullable Event event, boolean debug) {
 		return timespan == null ? "make the server stop stepping" : "make the server step for " + timespan.toString(event, debug);
 	}
+
 }

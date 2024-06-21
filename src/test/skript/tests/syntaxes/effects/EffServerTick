@@ -1,0 +1,20 @@
+test "Server Sprinting Effect" when running minecraft "1.20.4":
+	request for the server to sprint for 10 seconds
+	assert server's tick state is sprinting with "Server did not start sprinting"
+
+	make the server stop sprinting
+	assert server's tick state is normal with "Server did not stop sprinting"
+
+test "Server Stepping Effect" when running minecraft "1.20.4":
+	make the server step for 5 seconds
+	assert server's tick state is stepping with "Server did not start stepping"
+
+	make the server stop stepping
+	assert server's tick state is normal with "Server did not stop stepping"
+
+test "Server Freezing Effect" when running minecraft "1.20.4":
+	freeze the server
+	assert server's tick state is frozen with "Server did not freeze"
+
+	unfreeze the server
+	assert server's tick state is normal with "Server did not unfreeze"

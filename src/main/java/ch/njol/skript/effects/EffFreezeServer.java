@@ -42,9 +42,8 @@ import org.jetbrains.annotations.Nullable;
 @RequiredPlugins("Minecraft 1.20.4+")
 public class EffFreezeServer extends Effect {
 
-
 	static {
-		if (Skript.methodExists(Bukkit.class, "getServerTickManager"))
+		if (ServerUtils.isServerTickManagerPresent())
 			Skript.registerEffect(EffFreezeServer.class,
 				"freeze [the] server",
 				"unfreeze [the] server");
@@ -67,4 +66,5 @@ public class EffFreezeServer extends Effect {
 	public String toString(@Nullable Event event, boolean debug) {
 		return freeze ? "freeze server" : "unfreeze server";
 	}
+
 }

@@ -47,9 +47,8 @@ import org.jetbrains.annotations.Nullable;
 @RequiredPlugins("Minecraft 1.20.4+")
 public class EffSprintServer extends Effect {
 
-
 	static {
-		if (Skript.methodExists(Bukkit.class, "getServerTickManager"))
+		if (ServerUtils.isServerTickManagerPresent())
 			Skript.registerEffect(EffSprintServer.class,
 				"request [for] [the] server [to] sprint for %timespan%",
 				"make [the] server stop sprinting");
@@ -58,8 +57,8 @@ public class EffSprintServer extends Effect {
 	private boolean sprint;
 	private Expression<Timespan> timespan;
 
-	@SuppressWarnings("unchecked")
 	@Override
+	@SuppressWarnings("unchecked")
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		sprint = matchedPattern == 0;
 		if (sprint)
@@ -70,17 +69,16 @@ public class EffSprintServer extends Effect {
 	@Override
 	protected void execute(Event event) {
 		if (sprint) {
-			Timespan timespanInstance = timespan.getSingle(event);
-			long sprintTicks = timespanInstance != null ? timespanInstance.getTicks() : 1;
+			long sprintTicks = timespan.getOptionalSingle(event).map(Timespan::getTicks).orElse(1L);
 			ServerUtils.getServerTickManager().requestGameToSprint((int) sprintTicks);
 		} else {
 			ServerUtils.getServerTickManager().stopSprinting();
 		}
 	}
 
-
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
 		return sprint ? "request to sprint server for" + timespan.toString(event, debug) : "stop sprinting server";
 	}
+
 }

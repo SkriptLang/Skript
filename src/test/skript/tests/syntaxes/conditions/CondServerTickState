@@ -1,0 +1,27 @@
+test "Server Tick State Expressions" when running minecraft "1.20.4":
+	# Test if server is normal
+	assert server's tick state is normal with "Server tick state is not normal"
+
+	freeze the server
+	assert server's tick state is frozen with "Server tick state is not frozen"
+	unfreeze the server
+
+	# Step the server and test
+	make the server step for 5 seconds
+	assert server's tick state is stepping with "Server tick state is not stepping"
+	make the server stop stepping
+
+
+	# Sprint the server and test
+	request for the server to sprint for 10 seconds
+	assert server's tick state is sprinting with "Server tick state is not sprinting"
+	make the server stop sprinting
+
+test "Entity Tick Frozen Expression" when running minecraft "1.20.4":
+	spawn a cow at spawn of world "world"
+	freeze the server
+	wait 1 tick
+	assert last spawned cow is tick frozen with "Entity is not tick frozen"
+	unfreeze the server
+	assert last spawned cow is not tick frozen with "Entity is still tick frozen after unfreezing"
+

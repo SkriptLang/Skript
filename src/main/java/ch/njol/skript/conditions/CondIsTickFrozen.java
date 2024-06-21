@@ -31,15 +31,15 @@ import org.bukkit.entity.Entity;
 
 @Name("Is Entity Tick Frozen")
 @Description("Checks if the specified entities are frozen due to the server's ticking state.")
-@Examples({"if target entity is tick frozen:"})
+@Examples("if target entity is tick frozen:")
 @Since("INSERT VERSION")
 @RequiredPlugins("Minecraft 1.20.4+")
 public class CondIsTickFrozen extends PropertyCondition<Entity> {
 
 
 	static {
-		if (Skript.methodExists(Bukkit.class, "getServerTickManager"))
-			register(CondIsTickFrozen.class, PropertyType.BE, "tick frozen", "entities");
+		if (ServerUtils.isServerTickManagerPresent())
+			register(CondIsTickFrozen.class, "tick frozen", "entities");
 	}
 
 	@Override
@@ -51,5 +51,6 @@ public class CondIsTickFrozen extends PropertyCondition<Entity> {
 	protected String getPropertyName() {
 		return "tick frozen";
 	}
+
 }
 
