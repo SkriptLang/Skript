@@ -4,13 +4,12 @@ test "Server Tick State Expressions" when running minecraft "1.20.4":
 
 	freeze the server
 	assert server's tick state is frozen with "Server tick state is not frozen"
-	unfreeze the server
 
 	# Step the server and test
 	make the server step for 5 seconds
 	assert server's tick state is stepping with "Server tick state is not stepping"
 	make the server stop stepping
-
+	unfreeze the server
 
 	# Sprint the server and test
 	request for the server to sprint for 10 seconds
