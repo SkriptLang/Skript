@@ -23,6 +23,7 @@ import java.util.Iterator;
 import java.util.Locale;
 import java.util.regex.Pattern;
 
+import ch.njol.skript.lang.function.Function;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
@@ -691,6 +692,39 @@ public class SkriptClasses {
 				.since("2.5")
 				.serializer(new YggdrasilSerializer<GameruleValue>())
 		);
+		
+		Classes.registerClass(new ClassInfo<>(Function.class, "function")
+			.user("functions?")
+			.name("Function")
+			.description("Represents a Skript function")
+			.examples(
+				"set {_func} to function named \"sum\"",
+				"set {_func} to function named \"foo\" in script \"bar\""
+			)
+			.since("INSERT VERSION")
+			.parser(new Parser<Function>() {
+				@Override
+				@Nullable
+				public Function parse(String s, ParseContext context) {
+					return null;
+				}
+
+				@Override
+				public boolean canParse(ParseContext context) {
+					return false;
+				}
+
+				@Override
+                public String toString(Function function, int flags) {
+                    return function.toString();
+                }
+
+                @Override
+                public String toVariableNameString(Function function) {
+                    return "function:" + function.getName() + "," + function.getSignature().isLocal();
+                }
+            })
+		);
 	}
-	
+
 }
