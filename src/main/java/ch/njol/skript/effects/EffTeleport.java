@@ -18,126 +18,150 @@
  */
 package ch.njol.skript.effects;
 
+import java.util.Arrays;
+import java.util.List;
+import java.util.Objects;
+import java.util.stream.Stream;
+
 import ch.njol.skript.Skript;
-import ch.njol.skript.sections.EffSecSpawn;
-import ch.njol.skript.sections.EffSecSpawn.SpawnEvent;
-import ch.njol.skript.bukkitutil.EntityUtils;
+import ch.njol.skript.bukkitutil.TeleportFlags;
+import ch.njol.skript.bukkitutil.TeleportFlags.SkriptTeleportFlag;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
+import ch.njol.skript.doc.RequiredPlugins;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.Trigger;
 import ch.njol.skript.lang.TriggerItem;
-import ch.njol.skript.lang.TriggerSection;
+import ch.njol.skript.sections.EffSecSpawn.SpawnEvent;
 import ch.njol.skript.timings.SkriptTimings;
 import ch.njol.skript.util.Direction;
 import ch.njol.skript.variables.Variables;
 import ch.njol.util.Kleenean;
+
 import io.papermc.lib.PaperLib;
 import io.papermc.lib.environments.PaperEnvironment;
+import io.papermc.paper.entity.TeleportFlag;
+
 import org.bukkit.Location;
 import org.bukkit.entity.Entity;
 import org.bukkit.event.Event;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.NotNull;
 
 @Name("Teleport")
 @Description({
 	"Teleport an entity to a specific location. ",
 	"This effect is delayed by default on Paper, meaning certain syntax such as the return effect for functions cannot be used after this effect.",
 	"The keyword 'force' indicates this effect will not be delayed, ",
-	"which may cause lag spikes or server crashes when using this effect to teleport entities to unloaded chunks."
+	"which may cause lag spikes or server crashes when using this effect to teleport entities to unloaded chunks.",
+	"Teleport flags are settings to retain during a teleport. Such as direction, passengers, x coordinate, etc."
 })
 @Examples({
-	"teleport the player to {homes.%player%}",
-	"teleport the attacker to the victim"
+	"teleport the player to {home::%uuid of player%}",
+	"teleport the attacker to the victim",
+	"",
+	"on dismount:",
+		"\tcancel event",
+		"\tteleport the player to {server::spawn} retaining vehicle and passengers"
 })
-@Since("1.0")
+@RequiredPlugins("Paper 1.19+ (teleport flags)")
+@Since("1.0, INSERT VERSION")
 public class EffTeleport extends Effect {
 
+	private static final boolean TELEPORT_FLAGS_SUPPORTED = Skript.classExists("io.papermc.paper.entity.TeleportFlag");
 	private static final boolean CAN_RUN_ASYNC = PaperLib.getEnvironment() instanceof PaperEnvironment;
 
 	static {
-		Skript.registerEffect(EffTeleport.class, "[(1¦force)] teleport %entities% (to|%direction%) %location%");
+		String extra = "";
+		if (TELEPORT_FLAGS_SUPPORTED)
+			extra = " [[[while] retaining] %teleportflags%]";
+		Skript.registerEffect(EffTeleport.class, "[:force] teleport %entities% (to|%direction%) %location%" + extra);
 	}
+
+	@Nullable
+	private Expression<SkriptTeleportFlag> teleportFlags;
 
 	@SuppressWarnings("NotNullFieldNotInitialized")
 	private Expression<Entity> entities;
+
 	@SuppressWarnings("NotNullFieldNotInitialized")
 	private Expression<Location> location;
-
-	private boolean isAsync;
+	private boolean async;
 
 	@Override
 	@SuppressWarnings("unchecked")
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		entities = (Expression<Entity>) exprs[0];
 		location = Direction.combine((Expression<? extends Direction>) exprs[1], (Expression<? extends Location>) exprs[2]);
-		isAsync = CAN_RUN_ASYNC && parseResult.mark == 0;
+		async = CAN_RUN_ASYNC && !parseResult.hasTag("force");
+		if (TELEPORT_FLAGS_SUPPORTED)
+			teleportFlags = (Expression<SkriptTeleportFlag>) exprs[3];
 
 		if (getParser().isCurrentEvent(SpawnEvent.class)) {
 			Skript.error("You cannot be teleporting an entity that hasn't spawned yet. Ensure you're using the location expression from the spawn section pattern.");
 			return false;
 		}
 
-		if (isAsync)
+		if (async)
 			getParser().setHasDelayBefore(Kleenean.UNKNOWN); // UNKNOWN because it isn't async if the chunk is already loaded.
 		return true;
 	}
 
 	@Nullable
 	@Override
-	protected TriggerItem walk(Event e) {
-		debug(e, true);
-
+	protected TriggerItem walk(Event event) {
+		debug(event, true);
 		TriggerItem next = getNext();
 
-		boolean delayed = Delay.isDelayed(e);
-		
-		Location loc = location.getSingle(e);
-		if (loc == null)
+		boolean delayed = Delay.isDelayed(event);
+		Location location = this.location.getSingle(event);
+		if (location == null)
 			return next;
 
-		Entity[] entityArray = entities.getArray(e); // We have to fetch this before possible async execution to avoid async local variable access.
+		Entity[] entityArray = entities.getArray(event); // We have to fetch this before possible async execution to avoid async local variable access.
 		if (entityArray.length == 0)
 			return next;
 
 		if (!delayed) {
-			if (e instanceof PlayerRespawnEvent && entityArray.length == 1 && entityArray[0].equals(((PlayerRespawnEvent) e).getPlayer())) {
-				((PlayerRespawnEvent) e).setRespawnLocation(loc);
+			if (event instanceof PlayerRespawnEvent && entityArray.length == 1 && entityArray[0].equals(((PlayerRespawnEvent) event).getPlayer())) {
+				((PlayerRespawnEvent) event).setRespawnLocation(location);
 				return next;
 			}
 
-			if (e instanceof PlayerMoveEvent && entityArray.length == 1 && entityArray[0].equals(((PlayerMoveEvent) e).getPlayer())) {
-				((PlayerMoveEvent) e).setTo(loc);
+			if (event instanceof PlayerMoveEvent && entityArray.length == 1 && entityArray[0].equals(((PlayerMoveEvent) event).getPlayer())) {
+				((PlayerMoveEvent) event).setTo(location);
 				return next;
 			}
 		}
 
-		if (!isAsync) {
+		if (!async) {
+			SkriptTeleportFlag[] teleportFlags = this.teleportFlags == null ? null : this.teleportFlags.getArray(event);
 			for (Entity entity : entityArray) {
-				EntityUtils.teleport(entity, loc);
+				teleport(Entity::teleport, TELEPORT_FLAGS_SUPPORTED ? Entity::teleport : null, entity, location, teleportFlags);
 			}
 			return next;
 		}
 
-		Delay.addDelayedEvent(e);
-		Object localVars = Variables.removeLocals(e);
+		Delay.addDelayedEvent(event);
+		Object localVars = Variables.removeLocals(event);
 		
 		// This will either fetch the chunk instantly if on Spigot or already loaded or fetch it async if on Paper.
-		PaperLib.getChunkAtAsync(loc).thenAccept(chunk -> {
+		PaperLib.getChunkAtAsync(location).thenAccept(chunk -> {
 			// The following is now on the main thread
+			SkriptTeleportFlag[] teleportFlags = this.teleportFlags == null ? null : this.teleportFlags.getArray(event);
 			for (Entity entity : entityArray) {
-				EntityUtils.teleport(entity, loc);
+				teleport(Entity::teleport, TELEPORT_FLAGS_SUPPORTED ? Entity::teleport : null, entity, location, teleportFlags);
 			}
 
 			// Re-set local variables
 			if (localVars != null)
-				Variables.setLocalVariables(e, localVars);
+				Variables.setLocalVariables(event, localVars);
 			
 			// Continue the rest of the trigger if there is one
 			Object timing = null;
@@ -149,22 +173,56 @@ public class EffTeleport extends Effect {
 					}
 				}
 
-				TriggerItem.walk(next, e);
+				TriggerItem.walk(next, event);
 			}
-			Variables.removeLocals(e); // Clean up local vars, we may be exiting now
+			Variables.removeLocals(event); // Clean up local vars, we may be exiting now
 			SkriptTimings.stop(timing);
 		});
 		return null;
 	}
 
 	@Override
-	protected void execute(Event e) {
-		// Nothing needs to happen here, we're executing in walk
+	protected void execute(Event event) {
+		assert false;
 	}
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
-		return "teleport " + entities.toString(e, debug) + " to " + location.toString(e, debug);
+	public String toString(@Nullable Event event, boolean debug) {
+		return "teleport " + entities.toString(event, debug) + " to " + location.toString(event, debug) +
+				teleportFlags == null ? "" : " retaining " + teleportFlags.toString(event, debug);
+	}
+
+	private void teleport(@NotNull Teleport teleport, @Nullable TeleportFlags paperTeleportFlags, @NotNull Entity entity, @NotNull Location location, SkriptTeleportFlag... skriptTeleportFlags) {
+		if (!TELEPORT_FLAGS_SUPPORTED || paperTeleportFlags == null || skriptTeleportFlags == null) {
+			teleport.teleport(entity, location);
+			return;
+		}
+		Stream<TeleportFlag> teleportFlags = Arrays.stream(skriptTeleportFlags).flatMap(teleportFlag -> {
+			if (teleportFlag == SkriptTeleportFlag.RETAIN_DIRECTION)
+				return Stream.of(TeleportFlag.Relative.PITCH, TeleportFlag.Relative.YAW);
+			return Stream.of(teleportFlag.getTeleportFlag());
+		}).filter(Objects::nonNull);
+
+		paperTeleportFlags.teleport(entity, location, teleportFlags.toArray(TeleportFlag[]::new));
+	}
+
+	@FunctionalInterface
+	public interface Teleport {
+		void teleport(
+			@NotNull Entity entity, @NotNull Location location
+		);
+
+		static <T, E> void teleport(
+			@NotNull Teleport teleport,
+			@NotNull Entity entity, @NotNull Location location
+		) {
+			if (location.getWorld() == null) {
+				location = location.clone();
+				location.setWorld(entity.getWorld());
+			}
+
+			teleport.teleport(entity, location);
+		}
 	}
 
 }
