@@ -116,7 +116,7 @@ public class BukkitClasses {
 
 	public static final Pattern UUID_PATTERN = Pattern.compile("(?i)[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}");
 
-	private static boolean registryExists(String registry) {
+	public static boolean registryExists(String registry) {
 		return Skript.classExists("org.bukkit.Registry") && Skript.fieldExists(Registry.class, registry);
 	}
 
