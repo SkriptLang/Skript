@@ -2242,6 +2242,21 @@ operators:
 	divide: division
 	exponentiate: exponentiation
 
+# -- Equipment Slots --
+equipmentslots:
+	tool: mainhand, mainhand slot
+	off_hand: offhand, offhand slot
+	helmet: helmet, helmet slot
+	chestplate: chestplate, chestplate slot
+	leggings: leggings, leggings slot
+	boots: boots, boots slot
+
+# -- Armour Stand Lock Types --
+lock types:
+	adding: putting, adding, placing
+	adding_or_changing: putting or changing, adding or changing, placing or changing
+	removing_or_changing: taking or changing, removing or changing
+
 # -- Types --
 types:
 	# Java
