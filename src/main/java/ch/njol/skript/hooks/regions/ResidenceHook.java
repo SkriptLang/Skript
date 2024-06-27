@@ -27,6 +27,7 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.World;
@@ -151,6 +152,16 @@ public class ResidenceHook extends RegionsPlugin<Residence> {
 		@Override
 		public boolean isMember(OfflinePlayer p) {
 			return res.getPermissions().playerHas(p.getName(), Flags.build, false);
+		}
+
+		@Override
+		public String getName(){
+			return res.getName();
+		}
+
+		@Override
+		public World getWorld(){
+			return world;
 		}
 
 		@SuppressWarnings("null")

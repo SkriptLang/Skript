@@ -18,6 +18,7 @@
  */
 package ch.njol.skript.expressions;
 
+import ch.njol.skript.hooks.regions.classes.Region;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -51,11 +52,11 @@ import ch.njol.util.coll.CollectionUtils;
 		"teleport the player to the world's spawn",
 		"set the weather in the player's world to rain",
 		"set {_world} to world of event-chunk"})
-@Since("1.0")
+@Since("1.0, INSERT VERSION (regions)")
 public class ExprWorld extends PropertyExpression<Object, World> {
 
 	static {
-		Skript.registerExpression(ExprWorld.class, World.class, ExpressionType.PROPERTY, "[the] world [of %locations/entities/chunk%]", "%locations/entities/chunk%'[s] world");
+		Skript.registerExpression(ExprWorld.class, World.class, ExpressionType.PROPERTY, "[the] world [of %locations/entities/chunk/regions%]", "%locations/entities/chunk/regions%'[s] world");
 	}
 	
 	@Override
@@ -84,6 +85,8 @@ public class ExprWorld extends PropertyExpression<Object, World> {
 				return ((Location) obj).getWorld();
 			} else if (obj instanceof Chunk) {
 				return ((Chunk) obj).getWorld();
+			} else if (obj instanceof Region) {
+				return ((Region) obj).getWorld();
 			}
 			assert false : obj;
 			return null;

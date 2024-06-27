@@ -153,6 +153,16 @@ public class GriefPreventionHook extends RegionsPlugin<GriefPrevention> {
 		public boolean isMember(final OfflinePlayer p) {
 			return isOwner(p);
 		}
+
+		@Override
+		public String getName(){
+			return claim.getOwnerName();
+		}
+
+		@Override
+		public World getWorld(){
+			return claim.getLesserBoundaryCorner().getWorld();
+		}
 		
 		@Override
 		public Collection<OfflinePlayer> getMembers() {

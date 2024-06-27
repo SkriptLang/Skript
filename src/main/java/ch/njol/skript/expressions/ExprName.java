@@ -24,6 +24,7 @@ import java.lang.invoke.MethodType;
 import java.util.ArrayList;
 import java.util.List;
 
+import ch.njol.skript.hooks.regions.classes.Region;
 import org.bukkit.Bukkit;
 import org.bukkit.GameRule;
 import org.bukkit.Nameable;
@@ -115,7 +116,7 @@ import net.md_5.bungee.api.chat.BaseComponent;
 	"\tset the player's tab list name to \"&lt;green&gt;%player's name%\"",
 	"set the name of the player's tool to \"Legendary Sword of Awesomeness\""
 })
-@Since("before 2.1, 2.2-dev20 (inventory name), 2.4 (non-living entity support, changeable inventory name), 2.7 (worlds)")
+@Since("before 2.1, 2.2-dev20 (inventory name), 2.4 (non-living entity support, changeable inventory name), 2.7 (worlds), INSERT VERSION (regions)")
 public class ExprName extends SimplePropertyExpression<Object, String> {
 
 	@Nullable
@@ -128,7 +129,7 @@ public class ExprName extends SimplePropertyExpression<Object, String> {
 				Skript.methodExists(Bukkit.class, "createInventory", InventoryHolder.class, int.class, Component.class))
 			serializer = BungeeComponentSerializer.get();
 		HAS_GAMERULES = Skript.classExists("org.bukkit.GameRule");
-		register(ExprName.class, String.class, "(1¦name[s]|2¦(display|nick|chat|custom)[ ]name[s])", "offlineplayers/entities/blocks/itemtypes/inventories/slots/worlds"
+		register(ExprName.class, String.class, "(1¦name[s]|2¦(display|nick|chat|custom)[ ]name[s])", "offlineplayers/entities/blocks/itemtypes/inventories/slots/worlds/regions"
 			+ (HAS_GAMERULES ? "/gamerules" : ""));
 		register(ExprName.class, String.class, "(3¦(player|tab)[ ]list name[s])", "players");
 	}
@@ -191,6 +192,8 @@ public class ExprName extends SimplePropertyExpression<Object, String> {
 			}
 		} else if (object instanceof World) {
 			return ((World) object).getName();
+		} else if (object instanceof Region){
+			return ((Region) object).getName();
 		} else if (HAS_GAMERULES && object instanceof GameRule) {
 			return ((GameRule) object).getName();
 		}
