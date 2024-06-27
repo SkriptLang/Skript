@@ -57,7 +57,7 @@ public class ExprWhether extends SimpleExpression<Boolean> {
 
 	@Override
 	protected Boolean[] get(Event event) {
-		return new Boolean[]{condition.check(event)};
+		return new Boolean[] {condition.check(event)};
 	}
 
 	@Override
