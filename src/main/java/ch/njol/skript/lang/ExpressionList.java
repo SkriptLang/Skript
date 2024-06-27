@@ -43,6 +43,7 @@ public class ExpressionList<T> implements Expression<T> {
 
 	protected final Expression<? extends T>[] expressions;
 	private final Class<T> returnType;
+	private final Class<?>[] possibleReturnTypes;
 	protected boolean and;
 	private final boolean single;
 
@@ -53,10 +54,19 @@ public class ExpressionList<T> implements Expression<T> {
 		this(expressions, returnType, and, null);
 	}
 
+	public ExpressionList(Expression<? extends T>[] expressions, Class<T> returnType, Class<?>[] possibleReturnTypes, boolean and) {
+		this(expressions, returnType, possibleReturnTypes, and, null);
+	}
+
 	protected ExpressionList(Expression<? extends T>[] expressions, Class<T> returnType, boolean and, @Nullable ExpressionList<?> source) {
+		this(expressions, returnType, new Class[]{returnType}, and, source);
+	}
+
+	protected ExpressionList(Expression<? extends T>[] expressions, Class<T> returnType, Class<?>[] possibleReturnTypes, boolean and, @Nullable ExpressionList<?> source) {
 		assert expressions != null;
 		this.expressions = expressions;
 		this.returnType = returnType;
+		this.possibleReturnTypes = possibleReturnTypes;
 		this.and = and;
 		if (and) {
 			single = false;
@@ -178,12 +188,18 @@ public class ExpressionList<T> implements Expression<T> {
 				return null;
 			returnTypes[i] = exprs[i].getReturnType();
 		}
-		return new ExpressionList<>(exprs, (Class<R>) Classes.getSuperClassInfo(returnTypes).getC(), and, this);
+		return new ExpressionList<>(exprs, (Class<R>) Classes.getSuperClassInfo(returnTypes).getC(), returnTypes, and, this);
 	}
 
 	@Override
 	public Class<T> getReturnType() {
 		return returnType;
+	}
+
+	@Override
+	public Class<? extends T>[] possibleReturnTypes() {
+		//noinspection unchecked
+		return (Class<? extends T>[]) possibleReturnTypes;
 	}
 
 	@Override
