@@ -70,6 +70,7 @@ public class ExprFrozenTicksToRun extends SimpleExpression<Integer> {
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return "frozen ticks to run";
+		return "the frozen ticks left to run";
 	}
+
 }

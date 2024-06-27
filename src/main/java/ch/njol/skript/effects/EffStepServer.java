@@ -35,7 +35,8 @@ import org.jetbrains.annotations.Nullable;
 
 @Name("Step Server")
 @Description({
-	"Makes the server \"step\" for a certain amount of time while the server's tick state is frozen.",
+	"Makes the server \"step\" for a certain amount of time",
+	"The server can only step when it's ticking state is frozen.",
 	"When you step, the server goes forward that amount of time in ticks."
 })
 @Examples({
@@ -55,8 +56,9 @@ public class EffStepServer extends Effect {
 
 	private Expression<Timespan> timespan;
 
-	@SuppressWarnings("unchecked")
+
 	@Override
+	@SuppressWarnings("unchecked")
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		if (matchedPattern == 0)
 			timespan = (Expression<Timespan>) exprs[0];

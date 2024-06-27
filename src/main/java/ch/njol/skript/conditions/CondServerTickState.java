@@ -46,8 +46,6 @@ import java.util.Locale;
 @RequiredPlugins("Minecraft 1.20.4+")
 public class CondServerTickState extends Condition {
 
-	private ServerState state;
-
 	static {
 		if (ServerUtils.isServerTickManagerPresent())
 			Skript.registerCondition(CondServerTickState.class,
@@ -55,16 +53,16 @@ public class CondServerTickState extends Condition {
 				"[the] server['s] tick[ing] state is(n't| not) [currently] (:frozen|:stepping|:sprinting|:normal)");
 	}
 
+	private ServerState state;
+
 	public enum ServerState {
 		FROZEN, STEPPING, SPRINTING, NORMAL
 	}
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		if (!parseResult.tags.isEmpty()) {
-			String tag = parseResult.tags.get(0).toUpperCase(Locale.ENGLISH);
-			state = ServerState.valueOf(tag);
-		}
+		String tag = parseResult.tags.get(0).toUpperCase(Locale.ENGLISH);
+		state = ServerState.valueOf(tag);
 		return true;
 	}
 

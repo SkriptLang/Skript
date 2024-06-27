@@ -50,7 +50,7 @@ public class EffSprintServer extends Effect {
 	static {
 		if (ServerUtils.isServerTickManagerPresent())
 			Skript.registerEffect(EffSprintServer.class,
-				"request [for] [the] server [to] sprint for %timespan%",
+				"(make|request) [for] [the] server [to] sprint for %timespan%",
 				"make [the] server stop sprinting");
 	}
 

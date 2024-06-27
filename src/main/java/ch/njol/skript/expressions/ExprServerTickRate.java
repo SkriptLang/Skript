@@ -81,7 +81,7 @@ public class ExprServerTickRate extends SimpleExpression<Float> {
 	@Override
 	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
 		float tickRate = ServerUtils.getServerTickManager().getTickRate();
-		float change = delta != null && delta.length != 0 ? ((Number) delta[0]).floatValue() : 0;
+		float change = delta != null ? ((Number) delta[0]).floatValue() : 0;
 		switch (mode) {
 			case SET:
 				ServerUtils.getServerTickManager().setTickRate(change);
