@@ -29,6 +29,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import ch.njol.skript.bukkitutil.BukkitUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.Difficulty;
@@ -115,10 +116,6 @@ public class BukkitClasses {
 	public BukkitClasses() {}
 
 	public static final Pattern UUID_PATTERN = Pattern.compile("(?i)[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}");
-
-	public static boolean registryExists(String registry) {
-		return Skript.classExists("org.bukkit.Registry") && Skript.fieldExists(Registry.class, registry);
-	}
 
 	static {
 		final boolean GET_ENTITY_METHOD_EXISTS = Skript.methodExists(Bukkit.class, "getEntity", UUID.class);
@@ -984,7 +981,7 @@ public class BukkitClasses {
 				.changer(DefaultChangers.itemChanger));
 
 		ClassInfo<?> biomeClassInfo;
-		if (registryExists("BIOME")) {
+		if (BukkitUtils.registryExists("BIOME")) {
 			biomeClassInfo = new RegistryClassInfo<>(Biome.class, Registry.BIOME, "biome", "biomes");
 		} else {
 			biomeClassInfo = new EnumClassInfo<>(Biome.class, "biome", "biomes");
@@ -1458,7 +1455,7 @@ public class BukkitClasses {
 			.since("2.5"));
 		if (Skript.classExists("org.bukkit.entity.Cat$Type")) {
 			ClassInfo<Cat.Type> catTypeClassInfo;
-			if (registryExists("CAT_VARIANT")) {
+			if (BukkitUtils.registryExists("CAT_VARIANT")) {
 				catTypeClassInfo = new RegistryClassInfo<>(Cat.Type.class, Registry.CAT_VARIANT, "cattype", "cat types");
 			} else {
 				catTypeClassInfo = new EnumClassInfo<>(Cat.Type.class, "cattype", "cat types");
@@ -1525,7 +1522,7 @@ public class BukkitClasses {
 				}));
 
 		ClassInfo<Attribute> attributeClassInfo;
-		if (registryExists("ATTRIBUTE")) {
+		if (BukkitUtils.registryExists("ATTRIBUTE")) {
 			attributeClassInfo = new RegistryClassInfo<>(Attribute.class, Registry.ATTRIBUTE, "attributetype", "attribute types");
 		} else {
 			attributeClassInfo = new EnumClassInfo<>(Attribute.class, "attributetype", "attribute types");
