@@ -176,6 +176,12 @@ public class DefaultConverters {
 				return ((Block) holder).getLocation();
 			if (holder instanceof BlockState)
 				return BlockUtils.getLocation(((BlockState) holder).getBlock());
+			if(holder instanceof DoubleChest)
+				return ((DoubleChest) holder).getLeftSide() != null
+					? BlockUtils.getLocation(((BlockState)((DoubleChest) holder).getLeftSide()).getBlock())
+					: ((DoubleChest) holder).getRightSide() != null
+						? BlockUtils.getLocation(((BlockState)((DoubleChest) holder).getRightSide()).getBlock())
+						: null;
 			return null;
 		});
 
