@@ -21,7 +21,6 @@ package ch.njol.skript.expressions;
 import org.bukkit.entity.Player;
 import org.eclipse.jdt.annotation.Nullable;
 
-import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
@@ -38,9 +37,7 @@ import ch.njol.skript.expressions.base.SimplePropertyExpression;
 public class ExprClientViewDistance extends SimplePropertyExpression<Player, Long> {
 	
 	static {
-		if (Skript.methodExists(Player.class, "getClientViewDistance")) {
-			register(ExprClientViewDistance.class, Long.class, "client view distance[s]", "players");
-		}
+		register(ExprClientViewDistance.class, Long.class, "client view distance[s]", "players");
 	}
 	
 	@Nullable

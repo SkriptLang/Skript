@@ -22,7 +22,6 @@ import org.bukkit.enchantments.EnchantmentOffer;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 
-import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
@@ -46,8 +45,7 @@ import ch.njol.util.coll.CollectionUtils;
 public class ExprEnchantmentOfferCost extends SimplePropertyExpression<EnchantmentOffer, Long> {
 
 	static {
-		if (Skript.classExists("org.bukkit.enchantments.EnchantmentOffer"))
-			register(ExprEnchantmentOfferCost.class, Long.class, "[enchant[ment]] cost", "enchantmentoffers");
+		register(ExprEnchantmentOfferCost.class, Long.class, "[enchant[ment]] cost", "enchantmentoffers");
 	}
 
 	@Override

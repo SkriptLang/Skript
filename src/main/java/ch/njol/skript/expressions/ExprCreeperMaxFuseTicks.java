@@ -23,7 +23,6 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 
-import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
@@ -39,8 +38,7 @@ import ch.njol.util.coll.CollectionUtils;
 public class ExprCreeperMaxFuseTicks extends SimplePropertyExpression<LivingEntity, Long> {
 	
 	static {
-		if(Skript.methodExists(LivingEntity.class, "getMaxFuseTicks"))
-			register(ExprCreeperMaxFuseTicks.class, Long.class, "[creeper] max[imum] fuse tick[s]", "livingentities");
+		register(ExprCreeperMaxFuseTicks.class, Long.class, "[creeper] max[imum] fuse tick[s]", "livingentities");
 	}
 
 	@Override

@@ -18,9 +18,6 @@
  */
 package ch.njol.skript.expressions;
 
-import java.lang.invoke.MethodHandle;
-import java.lang.invoke.MethodHandles;
-import java.lang.invoke.MethodType;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -60,7 +57,6 @@ import ch.njol.skript.util.slot.Slot;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.serializer.bungeecord.BungeeComponentSerializer;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.BaseComponent;
@@ -120,24 +116,18 @@ public class ExprName extends SimplePropertyExpression<Object, String> {
 
 	@Nullable
 	private static BungeeComponentSerializer serializer;
-	static final boolean HAS_GAMERULES;
 
 	static {
 		// Check for Adventure API
 		if (Skript.classExists("net.kyori.adventure.text.Component") &&
 				Skript.methodExists(Bukkit.class, "createInventory", InventoryHolder.class, int.class, Component.class))
 			serializer = BungeeComponentSerializer.get();
-		HAS_GAMERULES = Skript.classExists("org.bukkit.GameRule");
-		register(ExprName.class, String.class, "(1¦name[s]|2¦(display|nick|chat|custom)[ ]name[s])", "offlineplayers/entities/blocks/itemtypes/inventories/slots/worlds"
-			+ (HAS_GAMERULES ? "/gamerules" : ""));
-		register(ExprName.class, String.class, "(3¦(player|tab)[ ]list name[s])", "players");
+		register(ExprName.class, String.class, "(1:name[s]|2:(display|nick|chat|custom)[ ]name[s])", "offlineplayers/entities/blocks/itemtypes/inventories/slots/worlds/gamerules");
+		register(ExprName.class, String.class, "(3:(player|tab)[ ]list name[s])", "players");
 	}
 
-	/*
-	 * 1 = "name",
-	 * 2 = "display name",
-	 * 3 = "tablist name"
-	 */
+	private static final int NAME = 1, DISPLAY_NAME = 2, TABLIST_NAME = 3;
+
 	private int mark;
 	private static final ItemType AIR = Aliases.javaItemType("air");
 
@@ -145,7 +135,7 @@ public class ExprName extends SimplePropertyExpression<Object, String> {
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		mark = parseResult.mark;
 		setExpr(exprs[0]);
-		if (mark != 1 && World.class.isAssignableFrom(getExpr().getReturnType())) {
+		if (mark != NAME && World.class.isAssignableFrom(getExpr().getReturnType())) {
 			Skript.error("Can't use 'display name' with worlds. Use 'name' instead.");
 			return false;
 		}
@@ -160,15 +150,15 @@ public class ExprName extends SimplePropertyExpression<Object, String> {
 
 		if (object instanceof Player) {
 			switch (mark) {
-				case 1:
+				case NAME:
 					return ((Player) object).getName();
-				case 2:
+				case DISPLAY_NAME:
 					return ((Player) object).getDisplayName();
-				case 3:
+				case TABLIST_NAME:
 					return ((Player) object).getPlayerListName();
 			}
 		} else if (object instanceof OfflinePlayer) {
-			return mark == 1 ? ((OfflinePlayer) object).getName() : null;
+			return mark == NAME ? ((OfflinePlayer) object).getName() : null;
 		} else if (object instanceof Entity) {
 			return ((Entity) object).getCustomName();
 		} else if (object instanceof Block) {
@@ -191,7 +181,7 @@ public class ExprName extends SimplePropertyExpression<Object, String> {
 			}
 		} else if (object instanceof World) {
 			return ((World) object).getName();
-		} else if (HAS_GAMERULES && object instanceof GameRule) {
+		} else if (object instanceof GameRule) {
 			return ((GameRule) object).getName();
 		}
 		return null;
@@ -201,7 +191,7 @@ public class ExprName extends SimplePropertyExpression<Object, String> {
 	@Nullable
 	public Class<?>[] acceptChange(ChangeMode mode) {
 		if (mode == ChangeMode.SET || mode == ChangeMode.RESET) {
-			if (mark == 1) {
+			if (mark == NAME) {
 				if (Player.class.isAssignableFrom(getExpr().getReturnType())) {
 					Skript.error("Can't change the Minecraft name of a player. Change the 'display name' or 'tab list name' instead.");
 					return null;
@@ -220,16 +210,16 @@ public class ExprName extends SimplePropertyExpression<Object, String> {
 		for (Object object : getExpr().getArray(event)) {
 			if (object instanceof Player) {
 				switch (mark) {
-					case 2:
+					case DISPLAY_NAME:
 						((Player) object).setDisplayName(name != null ? name + ChatColor.RESET : ((Player) object).getName());
 						break;
-					case 3: // Null check not necessary. This method will use the player's name if 'name' is null.
+					case TABLIST_NAME: // Null check not necessary. This method will use the player's name if 'name' is null.
 						((Player) object).setPlayerListName(name);
 						break;
 				}
 			} else if (object instanceof Entity) {
 				((Entity) object).setCustomName(name);
-				if (mark == 2 || mode == ChangeMode.RESET) // Using "display name"
+				if (mark == DISPLAY_NAME || mode == ChangeMode.RESET)
 					((Entity) object).setCustomNameVisible(name != null);
 				if (object instanceof LivingEntity)
 					((LivingEntity) object).setRemoveWhenFarAway(name == null);
@@ -300,9 +290,8 @@ public class ExprName extends SimplePropertyExpression<Object, String> {
 	@Override
 	protected String getPropertyName() {
 		switch (mark) {
-			case 1: return "name";
-			case 2: return "display name";
-			case 3: return "tablist name";
+            case DISPLAY_NAME: return "display name";
+			case TABLIST_NAME: return "tablist name";
 			default: return "name";
 		}
 	}

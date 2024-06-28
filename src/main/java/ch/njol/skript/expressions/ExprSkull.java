@@ -22,7 +22,6 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.inventory.meta.SkullMeta;
 import org.eclipse.jdt.annotation.Nullable;
 
-import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.Aliases;
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.doc.Description;
@@ -42,18 +41,13 @@ import ch.njol.util.Kleenean;
 @Examples({"give the victim's skull to the attacker",
 		"set the block at the entity to the entity's skull"})
 @Since("2.0")
-public class ExprSkull extends SimplePropertyExpression<Object, ItemType> {
+public class ExprSkull extends SimplePropertyExpression<OfflinePlayer, ItemType> {
 	
 	static {
 		register(ExprSkull.class, ItemType.class, "(head|skull)", "offlineplayers");
 	}
 	
 	private static final ItemType playerSkull = Aliases.javaItemType("player skull");
-	
-	/**
-	 * In 2017, SkullMeta finally got a method that takes OfflinePlayer.
-	 */
-	private static final boolean newSkullOwner = Skript.methodExists(SkullMeta.class, "setOwningPlayer", OfflinePlayer.class);
 	
 	@Override
 	public boolean init(final Expression<?>[] exprs, final int matchedPattern, final Kleenean isDelayed, final ParseResult parseResult) {
@@ -63,13 +57,10 @@ public class ExprSkull extends SimplePropertyExpression<Object, ItemType> {
 	@SuppressWarnings("deprecation")
 	@Override
 	@Nullable
-	public ItemType convert(final Object o) {
+	public ItemType convert(OfflinePlayer o) {
 		ItemType skull = playerSkull.clone();
 		SkullMeta meta = (SkullMeta) skull.getItemMeta();
-		if (newSkullOwner)
-			meta.setOwningPlayer((OfflinePlayer) o);
-		else
-			meta.setOwner(((OfflinePlayer) o).getName());
+		meta.setOwningPlayer(o);
 		skull.setItemMeta(meta);
 		return skull;
 	}

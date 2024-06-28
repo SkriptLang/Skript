@@ -22,7 +22,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 
-import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
@@ -42,12 +41,11 @@ import ch.njol.util.coll.CollectionUtils;
 			"send \"%the player's tab list header%\" to player",
 			"reset all players' tab list header"})
 @Since("2.4")
-@RequiredPlugins("Minecraft 1.13 or newer")
+@RequiredPlugins("Minecraft 1.13+")
 public class ExprPlayerlistHeaderFooter extends SimplePropertyExpression<Player, String> {
 	
 	static {
-		if (Skript.methodExists(Player.class, "setPlayerListHeaderFooter", String.class, String.class)) //This method is only present if the header and footer methods we use are
-			PropertyExpression.register(ExprPlayerlistHeaderFooter.class, String.class, "(player|tab)[ ]list (header|1¦footer) [(text|message)]", "players");
+		PropertyExpression.register(ExprPlayerlistHeaderFooter.class, String.class, "(player|tab)[ ]list (header|1¦footer) [(text|message)]", "players");
 	}
 	
 	private static final int HEADER = 0, FOOTER = 1;

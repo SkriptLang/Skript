@@ -23,7 +23,6 @@ import org.bukkit.block.data.BlockData;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 
-import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
@@ -43,8 +42,7 @@ import ch.njol.util.coll.CollectionUtils;
 public class ExprBlockData extends SimplePropertyExpression<Block, BlockData> {
 	
 	static {
-		if (Skript.classExists("org.bukkit.block.data.BlockData"))
-			register(ExprBlockData.class, BlockData.class, "block[ ]data", "blocks");
+		register(ExprBlockData.class, BlockData.class, "block[ ]data", "blocks");
 	}
 	
 	@Nullable

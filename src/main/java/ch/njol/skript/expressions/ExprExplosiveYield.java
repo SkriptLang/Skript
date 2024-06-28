@@ -24,7 +24,6 @@ import org.bukkit.entity.Explosive;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 
-import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
@@ -47,13 +46,11 @@ public class ExprExplosiveYield extends SimplePropertyExpression<Entity, Number>
 		register(ExprExplosiveYield.class, Number.class, "explosive (yield|radius|size)", "entities");
 	}
 
-	private final static boolean CREEPER_USABLE = Skript.methodExists(Creeper.class, "getExplosionRadius");
-
 	@Override
 	public Number convert(Entity e) {
 		if (e instanceof Explosive)
 			return ((Explosive) e).getYield();
-		if (CREEPER_USABLE && e instanceof Creeper)
+		if (e instanceof Creeper)
 			return ((Creeper) e).getExplosionRadius();
 		return 0;
 	}
@@ -103,7 +100,7 @@ public class ExprExplosiveYield extends SimplePropertyExpression<Entity, Number>
 					default:
 						assert false;
 				}
-			} else if (CREEPER_USABLE && entity instanceof Creeper) {
+			} else if (entity instanceof Creeper) {
 				Creeper c = (Creeper) entity;
 				int i = change.intValue();
 				if (i < 0) // Negative values will throw an error.
