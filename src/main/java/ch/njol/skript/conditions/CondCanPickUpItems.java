@@ -35,7 +35,7 @@ import org.bukkit.entity.LivingEntity;
 		"\tif player can't pick	up items:",
 			"\t\tsend \"Be careful, you won't be able to pick that up!\" to player"
 })
-@Since("INSERT VERSION")
+@Since("2.8.0")
 public class CondCanPickUpItems extends PropertyCondition<LivingEntity> {
 
 	static {

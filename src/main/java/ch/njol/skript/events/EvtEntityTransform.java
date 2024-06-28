@@ -40,7 +40,7 @@ public class EvtEntityTransform extends SkriptEvent {
 						"a mooshroom that when sheared, spawns a new cow.")
 				.examples("on a zombie transforming due to curing:", "on mooshroom transforming:", "on zombie, skeleton or slime transform:")
 				.keywords("entity transform")
-				.since("INSERT VERSION");
+				.since("2.8.0");
 	}
 
 	@Nullable

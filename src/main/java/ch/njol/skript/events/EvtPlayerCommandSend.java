@@ -46,7 +46,7 @@ public class EvtPlayerCommandSend extends SkriptEvent {
 						"\tset command list to command list where [input does not contain \":\"]",
 						"\tremove \"help\" from command list"
 				)
-				.since("INSERT VERSION");
+				.since("2.8.0");
 	}
 
 	private final Collection<String> originalCommands = new ArrayList<>();

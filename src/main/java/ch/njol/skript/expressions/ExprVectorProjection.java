@@ -35,7 +35,7 @@ import org.eclipse.jdt.annotation.Nullable;
 @Name("Vectors - Vector Projection")
 @Description("An expression to get the vector projection of two vectors.")
 @Examples("set {_projection} to vector projection of vector(1, 2, 3) onto vector(4, 4, 4)")
-@Since("INSERT VERSION")
+@Since("2.8.0")
 public class ExprVectorProjection extends SimpleExpression<Vector> {
 
 	static {

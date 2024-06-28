@@ -42,7 +42,7 @@ import org.eclipse.jdt.annotation.Nullable;
 		"\tif the victim's active tool is a bow:",
 			"\t\tinterrupt the usage of the player's active item"
 })
-@Since("INSERT VERSION")
+@Since("2.8.0")
 @RequiredPlugins("Paper 1.16+")
 public class EffCancelItemUse extends Effect {
 

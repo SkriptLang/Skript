@@ -44,7 +44,7 @@ import org.eclipse.jdt.annotation.Nullable;
 			"\t\tdrop player's tool at player",
 			"\t\tset player's tool to air"
 })
-@Since("INSERT VERSION")
+@Since("2.8.0")
 @RequiredPlugins("Paper")
 public class CondIsHandRaised extends Condition {
 

@@ -38,7 +38,7 @@ import ch.njol.skript.registrations.EventValues;
 		"\tclear {server::player::%uuid of player%::*}"
 })
 @RequiredPlugins("Paper 1.16.5+")
-@Since("INSERT VERSION")
+@Since("2.8.0")
 public class ExprQuitReason extends EventValueExpression<QuitReason> {
 
 	static {

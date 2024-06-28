@@ -18,15 +18,6 @@
  */
 package ch.njol.skript.expressions;
 
-import java.util.Arrays;
-import java.util.Locale;
-import java.util.stream.Stream;
-
-import org.bukkit.entity.LivingEntity;
-import org.bukkit.event.Event;
-import org.bukkit.inventory.EntityEquipment;
-import org.eclipse.jdt.annotation.Nullable;
-
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Keywords;
@@ -39,6 +30,14 @@ import ch.njol.skript.util.slot.EquipmentSlot;
 import ch.njol.skript.util.slot.EquipmentSlot.EquipSlot;
 import ch.njol.skript.util.slot.Slot;
 import ch.njol.util.Kleenean;
+import org.bukkit.entity.LivingEntity;
+import org.bukkit.event.Event;
+import org.bukkit.inventory.EntityEquipment;
+import org.eclipse.jdt.annotation.Nullable;
+
+import java.util.Arrays;
+import java.util.Locale;
+import java.util.stream.Stream;
 
 @Name("Armour Slot")
 @Description("Equipment of living entities, i.e. the boots, leggings, chestplate or helmet.")
@@ -47,21 +46,23 @@ import ch.njol.util.Kleenean;
 	"helmet of player is neither a helmet nor air # player is wearing a block, e.g. from another plugin"
 })
 @Keywords("armor")
-@Since("1.0, INSERT VERSION (Armour)")
+@Since("1.0, 2.8.0 (Armour)")
 public class ExprArmorSlot extends PropertyExpression<LivingEntity, Slot> {
 
 	static {
-		register(ExprArmorSlot.class, Slot.class, "((:boots|:shoes|leggings:leg[ging]s|chestplate:chestplate[s]|helmet:helmet[s]) [(item|:slot)]|armour:armo[u]r[s])", "livingentities");
+		register(ExprArmorSlot.class, Slot.class, "((boots:(boots|shoes)|leggings:leg[ging]s|chestplate:chestplate[s]|helmet:helmet[s]) [(item|:slot)]|armour:armo[u]r[s])", "livingentities");
 	}
 
 	@Nullable
 	private EquipSlot slot;
 	private boolean explicitSlot;
+	private boolean isArmor;
 
 	@Override
 	@SuppressWarnings("unchecked")
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		slot = parseResult.hasTag("armour") ? null : EquipSlot.valueOf(parseResult.tags.get(0).toUpperCase(Locale.ENGLISH));
+		isArmor = parseResult.hasTag("armour");
+		slot = isArmor ? null : EquipSlot.valueOf(parseResult.tags.get(0).toUpperCase(Locale.ENGLISH));
 		explicitSlot = parseResult.hasTag("slot"); // User explicitly asked for SLOT, not item
 		setExpr((Expression<? extends LivingEntity>) exprs[0]);
 		return true;
@@ -91,6 +92,11 @@ public class ExprArmorSlot extends PropertyExpression<LivingEntity, Slot> {
 				return null;
 			return new EquipmentSlot(equipment, slot, explicitSlot);
 		});
+	}
+
+	@Override
+	public boolean isSingle() {
+		return !isArmor && super.isSingle();
 	}
 
 	@Override

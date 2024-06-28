@@ -66,7 +66,7 @@ import java.util.List;
 	"clear the result slot of the block"
 })
 @Events({"smelt", "fuel burn"})
-@Since("1.0, INSERT VERSION (syntax rework)")
+@Since("1.0, 2.8.0 (syntax rework)")
 public class ExprFurnaceSlot extends SimpleExpression<Slot> {
 
 	private static final int ORE = 0, FUEL = 1, RESULT = 2;

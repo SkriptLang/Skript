@@ -42,7 +42,7 @@ import org.eclipse.jdt.annotation.Nullable;
 		"\tif selected arrow is not a spectral arrow:",
 			"\t\tcancel event"
 })
-@Since("INSERT VERSION")
+@Since("2.8.0")
 @Events("ready arrow")
 public class ExprReadiedArrow extends SimpleExpression<ItemStack> {
 

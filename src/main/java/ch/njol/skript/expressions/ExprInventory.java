@@ -18,7 +18,6 @@
  */
 package ch.njol.skript.expressions;
 
-import ch.njol.skript.aliases.ItemData;
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.config.Node;
 import ch.njol.skript.expressions.base.PropertyExpression;
@@ -33,17 +32,14 @@ import org.bukkit.block.Container;
 import org.bukkit.event.Event;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
-import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BlockStateMeta;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.eclipse.jdt.annotation.Nullable;
 
-import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
-import ch.njol.skript.expressions.base.SimplePropertyExpression;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
@@ -73,6 +69,9 @@ public class ExprInventory extends SimpleExpression<Object> {
 	@Override
 	@SuppressWarnings("unchecked")
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
+		// prevent conflict with ExprItemsIn (https://github.com/SkriptLang/Skript/issues/6290)
+		if (exprs[0].getSource() instanceof ExprItemsIn)
+			return false;
 		// if we're dealing with a loop of just this expression
 		Node n = SkriptLogger.getNode();
 		inLoop = n != null && ("loop " + parseResult.expr).equals(n.getKey());

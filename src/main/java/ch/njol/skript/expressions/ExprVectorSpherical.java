@@ -47,7 +47,7 @@ public class ExprVectorSpherical extends SimpleExpression<Vector> {
 
 	static {
 		Skript.registerExpression(ExprVectorSpherical.class, Vector.class, ExpressionType.SIMPLE,
-				"[new] spherical vector [(from|with)] [radius] %number%, [yaw] %number%(,| and) [pitch] %number%");
+				"[a] [new] spherical vector [(from|with)] [radius] %number%, [yaw] %number%(,[ and]| and) [pitch] %number%");
 	}
 
 	@SuppressWarnings("null")

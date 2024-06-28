@@ -40,7 +40,7 @@ import org.eclipse.jdt.annotation.Nullable;
 	"if \"aa\" repeated 2 times is \"aaaa\":",
 		"\tbroadcast \"Ahhhh\" repeated 100 times"
 })
-@Since("INSERT VERSION")
+@Since("2.8.0")
 public class ExprRepeat extends SimpleExpression<String> {
 
 	static {

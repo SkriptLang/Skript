@@ -47,7 +47,7 @@ public class ExprVectorCylindrical extends SimpleExpression<Vector> {
 
 	static {
 		Skript.registerExpression(ExprVectorCylindrical.class, Vector.class, ExpressionType.SIMPLE,
-				"[a] [new] cylindrical vector [(from|with)] [radius] %number%, [yaw] %number%(,| and) [height] %number%");
+				"[a] [new] cylindrical vector [from|with] [radius] %number%, [yaw] %number%(,[ and]| and) [height] %number%");
 	}
 
 	@SuppressWarnings("null")

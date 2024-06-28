@@ -41,7 +41,7 @@ public class EvtWorld extends SkriptEvent {
 				.examples(
 					"on world save of \"world\":",
 					"\tbroadcast \"The world %event-world% has been saved\"")
-				.since("1.0, INSERT VERSION (defining worlds)");
+				.since("1.0, 2.8.0 (defining worlds)");
 
 		// World Init Event
 		Skript.registerEvent("World Init", EvtWorld.class, WorldInitEvent.class, "world init[ialization] [of %-worlds%]")
@@ -49,7 +49,7 @@ public class EvtWorld extends SkriptEvent {
 					"any scripts are loaded, this event is only called for newly created worlds.",
 					"World management plugins might change the behaviour of this event though.")
 				.examples("on world init of \"world_the_end\":")
-				.since("1.0, INSERT VERSION (defining worlds)");
+				.since("1.0, 2.8.0 (defining worlds)");
 
 		// World Unload Event
 		Skript.registerEvent("World Unload", EvtWorld.class, WorldUnloadEvent.class, "world unload[ing] [of %-worlds%]")
@@ -57,7 +57,7 @@ public class EvtWorld extends SkriptEvent {
 				.examples(
 					"on world unload:",
 					"\tbroadcast \"the %event-world% has been unloaded!\"")
-				.since("1.0, INSERT VERSION (defining worlds)");
+				.since("1.0, 2.8.0 (defining worlds)");
 
 		// World Load Event
 		Skript.registerEvent("World Load", EvtWorld.class, WorldLoadEvent.class, "world load[ing] [of %-worlds%]")
@@ -65,7 +65,7 @@ public class EvtWorld extends SkriptEvent {
 				.examples(
 					"on world load of \"world_nether\":",
 					"\tbroadcast \"The world %event-world% has been loaded!\"")
-				.since("1.0, INSERT VERSION (defining worlds)");
+				.since("1.0, 2.8.0 (defining worlds)");
 	}
 
 	private Literal<World> worlds;

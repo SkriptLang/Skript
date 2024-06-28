@@ -67,7 +67,7 @@ import ch.njol.util.coll.CollectionUtils;
 	"delete targeted entity of player # for players it will delete the target",
 	"delete target of last spawned zombie # for entities it will make them target-less"
 })
-@Since("1.4.2, 2.7 (Reset), INSERT VERSION (ignore blocks)")
+@Since("1.4.2, 2.7 (Reset), 2.8.0 (ignore blocks)")
 public class ExprTarget extends PropertyExpression<LivingEntity, Entity> {
 
 	static {
@@ -197,31 +197,31 @@ public class ExprTarget extends PropertyExpression<LivingEntity, Entity> {
 	public static <T extends Entity> T getTarget(LivingEntity origin, @Nullable EntityData<T> type, double raysize) {
 		if (origin instanceof Mob)
 			return ((Mob) origin).getTarget() == null || type != null && !type.isInstance(((Mob) origin).getTarget()) ? null : (T) ((Mob) origin).getTarget();
-		Location location = origin.getLocation();
-		RayTraceResult result = null;
-		// TODO when DisplayData is added.
-//		if (type.getClass().equals(DisplayData.class))
-//			raysize = 1.0D;
+
 		Predicate<Entity> predicate = entity -> {
 			if (entity.equals(origin))
 				return false;
 			if (type != null && !type.isInstance(entity))
 				return false;
+			//noinspection RedundantIfStatement
 			if (entity instanceof Player && ((Player) entity).getGameMode() == GameMode.SPECTATOR)
 				return false;
 			return true;
 		};
+
+		Location eyes = origin.getEyeLocation();
+		Vector direction = origin.getLocation().getDirection();
+
+		double distance = targetBlockDistance;
 		if (!ignoreBlocks) {
-			RayTraceResult blockResult = origin.getWorld().rayTraceBlocks(origin.getEyeLocation(), location.getDirection(), targetBlockDistance);
+			RayTraceResult blockResult = origin.getWorld().rayTraceBlocks(eyes, direction, targetBlockDistance);
 			if (blockResult != null) {
 				Vector hit = blockResult.getHitPosition();
-				Location eyes = origin.getEyeLocation();
-				if (hit != null)
-					result = origin.getWorld().rayTraceEntities(eyes, location.getDirection(), eyes.toVector().distance(hit), raysize, predicate);
+				distance = eyes.toVector().distance(hit);
 			}
-		} else {
-			result = origin.getWorld().rayTraceEntities(origin.getEyeLocation(), location.getDirection(), targetBlockDistance, raysize, predicate);
 		}
+
+		RayTraceResult result = origin.getWorld().rayTraceEntities(eyes, direction, distance, raysize, predicate);
 		if (result == null)
 			return null;
 		Entity hitEntity = result.getHitEntity();
