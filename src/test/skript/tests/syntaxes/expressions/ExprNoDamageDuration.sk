@@ -1,0 +1,17 @@
+test "no damage duration":
+	spawn zombie at location(0, 64, 0, world "world")
+	set {_m} to last spawned zombie
+	assert {_m}'s invulnerability time is 0 seconds with "entity spawned with no damage time"
+	set {_m}'s invulnerability time to 25 ticks
+	assert {_m}'s invulnerability time is 25 ticks with "no damage time set failed"
+	add 5 ticks to {_m}'s invulnerability time
+	assert {_m}'s invulnerability time is 30 ticks with "no damage time add ##1 failed"
+	remove 12 ticks from {_m}'s invulnerability time
+	assert {_m}'s invulnerability time is 18 ticks with "no damage time remove ##1 failed"
+	remove 999 ticks from {_m}'s invulnerability time
+	assert {_m}'s invulnerability time is 0 seconds with "no damage time remove ##2 failed"
+	add 1 tick to {_m}'s invulnerability time
+	assert {_m}'s invulnerability time is 1 tick with "no damage time add ##2 failed"
+	delete {_m}'s invulnerability time
+	assert {_m}'s invulnerability time is 0 seconds with "no damage time delete failed"
+	delete {_m}

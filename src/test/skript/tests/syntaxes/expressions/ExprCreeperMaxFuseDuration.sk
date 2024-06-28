@@ -1,0 +1,22 @@
+test "creeper max fuse duration":
+	spawn creeper at location(0, 64, 0, world "world")
+	set {_m} to last spawned creeper
+	spawn zombie at location(0, 64, 0, world "world")
+	set {_n} to last spawned zombie
+	assert {_n}'s max fuse time is 0 seconds with "zombie spawned with no max fuse"
+	add 1 tick to {_n}'s max fuse time
+	assert {_n}'s max fuse time is 0 seconds with "max fuse time set zombie failed"
+	set {_m}'s max fuse time to 25 ticks
+	assert {_m}'s max fuse time is 25 ticks with "max fuse time set failed"
+	add 5 ticks to {_m}'s max fuse time
+	assert {_m}'s max fuse time is 30 ticks with "max fuse time add ##1 failed"
+	remove 12 ticks from {_m}'s max fuse time
+	assert {_m}'s max fuse time is 18 ticks with "max fuse time remove ##1 failed"
+	remove 999 ticks from {_m}'s max fuse time
+	assert {_m}'s max fuse time is 0 seconds with "max fuse time remove ##2 failed"
+	add 1 tick to {_m}'s max fuse time
+	assert {_m}'s max fuse time is 1 tick with "max fuse time add ##2 failed"
+	delete {_m}'s max fuse time
+	assert {_m}'s max fuse time is 0 seconds with "max fuse time delete failed"
+	delete {_m}
+	delete {_n}
