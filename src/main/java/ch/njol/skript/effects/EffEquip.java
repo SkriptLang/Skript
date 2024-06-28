@@ -18,6 +18,18 @@
  */
 package ch.njol.skript.effects;
 
+import ch.njol.skript.Skript;
+import ch.njol.skript.aliases.Aliases;
+import ch.njol.skript.aliases.ItemType;
+import ch.njol.skript.bukkitutil.PlayerUtils;
+import ch.njol.skript.doc.Description;
+import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Name;
+import ch.njol.skript.doc.Since;
+import ch.njol.skript.lang.Effect;
+import ch.njol.skript.lang.Expression;
+import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.util.Kleenean;
 import org.bukkit.Material;
 import org.bukkit.entity.AbstractHorse;
 import org.bukkit.entity.ChestedHorse;
@@ -31,36 +43,26 @@ import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.LlamaInventory;
+import org.bukkit.inventory.PlayerInventory;
 import org.eclipse.jdt.annotation.Nullable;
 
-import ch.njol.skript.Skript;
-import ch.njol.skript.aliases.Aliases;
-import ch.njol.skript.aliases.ItemType;
-import ch.njol.skript.bukkitutil.PlayerUtils;
-import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
-import ch.njol.skript.doc.Name;
-import ch.njol.skript.doc.Since;
-import ch.njol.skript.lang.Effect;
-import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.SkriptParser.ParseResult;
-import ch.njol.util.Kleenean;
-
 @Name("Equip")
-@Description("Equips or unequips an entity with some given armor. This will replace any armor that the entity is wearing.")
+@Description("Equips or unequips an entity with some given armor or give them items. This will replace any armor that the entity is wearing.")
 @Examples({
 		"equip player with diamond helmet",
 		"equip player with all diamond armor",
 		"unequip diamond chestplate from player",
 		"unequip all armor from player",
-		"unequip player's armor"
+		"unequip player's armor",
+		"equip player with stained glass pane as a hat",
+		"equip player with diamond sword"
 })
-@Since("1.0, 2.7 (multiple entities, unequip)")
+@Since("1.0, 2.7 (multiple entities, unequip), INSERT VERSION (giving items/as hat)")
 public class EffEquip extends Effect {
 
 	static {
 		Skript.registerEffect(EffEquip.class,
-				"equip [%livingentities%] with %itemtypes%",
+				"equip [%livingentities%] with %itemtypes% [hat:as [a] (hat|helmet|cap)]",
 				"make %livingentities% wear %itemtypes%",
 				"unequip %itemtypes% [from %livingentities%]",
 				"unequip %livingentities%'[s] (armor|equipment)"
@@ -71,12 +73,16 @@ public class EffEquip extends Effect {
 	private Expression<LivingEntity> entities;
 	@Nullable
 	private Expression<ItemType> itemTypes;
+	private boolean isEquipWith;
+	private boolean isHat;
 
 	private boolean equip = true;
 
 	@Override
 	@SuppressWarnings("unchecked")
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parser) {
+		isEquipWith = matchedPattern == 0;
+		isHat = parser.hasTag("hat");
 		if (matchedPattern == 0 || matchedPattern == 1) {
 			entities = (Expression<LivingEntity>) exprs[0];
 			itemTypes = (Expression<ItemType>) exprs[1];
@@ -93,6 +99,8 @@ public class EffEquip extends Effect {
 
 	private static final boolean SUPPORTS_STEERABLE = Skript.classExists("org.bukkit.entity.Steerable");
 
+	private static final ItemType HELMET = Aliases.javaItemType("helmet");
+	private static final ItemType ELYTRA = Aliases.javaItemType("elytra");
 	private static final ItemType CHESTPLATE = Aliases.javaItemType("chestplate");
 	private static final ItemType LEGGINGS = Aliases.javaItemType("leggings");
 	private static final ItemType BOOTS = Aliases.javaItemType("boots");
@@ -101,26 +109,32 @@ public class EffEquip extends Effect {
 	private static final ItemType CHEST = Aliases.javaItemType("chest");
 	private static final ItemType CARPET = Aliases.javaItemType("carpet");
 
-	private static final ItemType[] ALL_EQUIPMENT = new ItemType[] {CHESTPLATE, LEGGINGS, BOOTS, HORSE_ARMOR, SADDLE, CHEST, CARPET};
-
 	@Override
 	protected void execute(Event event) {
 		ItemType[] itemTypes;
-		boolean unequipHelmet = false;
 		if (this.itemTypes != null) {
 			itemTypes = this.itemTypes.getArray(event);
 		} else {
-			itemTypes = ALL_EQUIPMENT;
-			unequipHelmet = true;
+			itemTypes = new ItemType[0];
 		}
+		boolean isUnequipAll = !equip && itemTypes.length == 0;
 		for (LivingEntity entity : entities.getArray(event)) {
 			if (SUPPORTS_STEERABLE && entity instanceof Steerable) {
+				if (isUnequipAll) { // shortcut
+					((Steerable) entity).setSaddle(false);
+					continue;
+				}
 				for (ItemType itemType : itemTypes) {
 					if (SADDLE.isOfType(itemType.getMaterial())) {
 						((Steerable) entity).setSaddle(equip);
+						break;
 					}
 				}
 			} else if (entity instanceof Pig) {
+				if (isUnequipAll) { // shortcut
+					((Pig) entity).setSaddle(false);
+					continue;
+				}
 				for (ItemType itemType : itemTypes) {
 					if (itemType.isOfType(Material.SADDLE)) {
 						((Pig) entity).setSaddle(equip);
@@ -129,6 +143,11 @@ public class EffEquip extends Effect {
 				}
 			} else if (entity instanceof Llama) {
 				LlamaInventory inv = ((Llama) entity).getInventory();
+				if (isUnequipAll) { // shortcut
+					inv.setDecor(null);
+					((Llama) entity).setCarryingChest(false);
+					continue;
+				}
 				for (ItemType itemType : itemTypes) {
 					for (ItemStack item : itemType.getAll()) {
 						if (CARPET.isOfType(item)) {
@@ -141,6 +160,13 @@ public class EffEquip extends Effect {
 			} else if (entity instanceof AbstractHorse) {
 				// Spigot's API is bad, just bad... Abstract horse doesn't have horse inventory!
 				Inventory inv = ((AbstractHorse) entity).getInventory();
+				if (isUnequipAll) { // shortcut
+					inv.setItem(0, null);
+					inv.setItem(1, null);
+					if (entity instanceof ChestedHorse)
+						((ChestedHorse) entity).setCarryingChest(false);
+					continue;
+				}
 				for (ItemType itemType : itemTypes) {
 					for (ItemStack item : itemType.getAll()) {
 						if (SADDLE.isOfType(item)) {
@@ -152,28 +178,38 @@ public class EffEquip extends Effect {
 						}
 					}
 				}
-			} else {
+			} else { // players and other entities
 				EntityEquipment equipment = entity.getEquipment();
 				if (equipment == null)
 					continue;
+				boolean isPlayer = entity instanceof Player;
+				if (isUnequipAll) { // shortcut
+					// We shouldn't affect player's inventory by removing anything other than armor
+					equipment.setHelmet(null);
+					equipment.setChestplate(null);
+					equipment.setLeggings(null);
+					equipment.setBoots(null);
+					if (isPlayer)
+						PlayerUtils.updateInventory((Player) entity);
+					continue;
+				}
 				for (ItemType itemType : itemTypes) {
 					for (ItemStack item : itemType.getAll()) {
-						if (CHESTPLATE.isOfType(item)) {
+						 if (isHat || HELMET.isOfType(item)) {
+							 // Apply all other items to head (if isHat), as all items will appear on a player's head
+							 equipment.setHelmet(equip ? item : null);
+						 } else if (CHESTPLATE.isOfType(item) || ELYTRA.isOfType(item)) {
 							equipment.setChestplate(equip ? item : null);
 						} else if (LEGGINGS.isOfType(item)) {
 							equipment.setLeggings(equip ? item : null);
 						} else if (BOOTS.isOfType(item)) {
 							equipment.setBoots(equip ? item : null);
-						} else {
-							// Apply all other items to head, as all items will appear on a player's head
-							equipment.setHelmet(equip ? item : null);
+						} else if (isEquipWith && isPlayer && item != null) { // only to players
+							((Player) entity).getInventory().addItem(item);
 						}
 					}
-					if (unequipHelmet) { // Since players can wear any helmet, itemTypes won't have the item in the array every time
-						equipment.setHelmet(null);
-					}
 				}
-				if (entity instanceof Player)
+				if (isPlayer)
 					PlayerUtils.updateInventory((Player) entity);
 			}
 		}
