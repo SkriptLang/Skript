@@ -53,8 +53,8 @@ import java.util.regex.Pattern;
 	"",
 	"# Very simple chat censor",
 	"on chat:",
-		"\treplace all \"kys\", \"idiot\" and \"noob\" with \"****\" in the message",
-		"\treplace using regex \"\\b(kys|idiot|noob)\\b\" with \"****\" in the message # Regex version for better results",
+		"\treplace all \"idiot\" and \"noob\" with \"****\" in the message",
+		"\treplace using regex \"\\b(idiot|noob)\\b\" with \"****\" in the message # Regex version for better results",
 	"",
 	"replace all stone and dirt in player's inventory and player's top inventory with diamond"
 })
