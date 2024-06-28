@@ -144,6 +144,6 @@ public class EffLog extends Effect {
 		String lowerCaseLogLevel = String.valueOf(logLevel);
 		return "log " + messages.toString(event, debug)
 			+ (files != null ? " to " + files.toString(event, debug) : "")
-			+ (logLevel != Level.INFO ? "with severity " + lowerCaseLogLevel.toLowerCase() : "");
+			+ (logLevel != Level.INFO ? "with severity " + lowerCaseLogLevel.toLowerCase(Locale.ENGLISH) : "");
 	}
 }
