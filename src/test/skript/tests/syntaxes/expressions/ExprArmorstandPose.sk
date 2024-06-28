@@ -1,0 +1,93 @@
+test "armorstand pose":
+    summon armor stand at spawn of world "world":
+        set {_armorstand} to event-armor stand
+
+        set {_dir} to east
+        set left arm pose of {_armorstand} to {_dir}
+        set {_dir2} to left arm pose of {_armorstand}
+
+        assert normalized vector from {_dir} is vector from {_dir2} with "Armor stand left arm pose doesn't match (set with direction))"
+
+        set {_dir} to vector 1,0,1
+        set right arm pose of {_armorstand} to {_dir}
+        set {_dir2} to right arm pose of {_armorstand}
+
+        assert normalized {_dir} is vector from {_dir2} with "Armor stand right arm pose doesn't match (set with vector)"
+
+        set {_dir} to west
+        set left leg pose of {_armorstand} to {_dir}
+        set {_dir2} to left leg pose of {_armorstand}
+
+        assert normalized vector from {_dir} is vector from {_dir2} with "Armor stand left leg pose doesn't match (set with direction))"
+
+        set {_dir} to north west
+        set right leg pose of {_armorstand} to {_dir}
+        set {_dir2} to right leg pose of {_armorstand}
+
+        assert normalized vector from {_dir} is vector from {_dir2} with "Armor stand right leg pose doesn't match (set with direction))"
+
+        set {_dir} to south east
+        set body pose of {_armorstand} to {_dir}
+        set {_dir2} to body pose of {_armorstand}
+
+        assert normalized vector from {_dir} is vector from {_dir2} with "Armor stand body pose doesn't match (set with direction))"
+
+        set {_dir} to up
+        set head pose of {_armorstand} to {_dir}
+        set {_dir2} to head pose of {_armorstand}
+
+        assert normalized vector from {_dir} is vector from {_dir2} with "Armor stand head pose doesn't match (set with direction))"
+
+    kill {_armorstand}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	summon armor stand at spawn of world "world":
+		set {_armorstand} to event-armor stand
+
+	set {_dir} to east
+	set left arm pose of {_armorstand} to {_dir}
+	set {_dir2} to left arm pose of {_armorstand}
+
+	assert normalized vector from {_dir} is vector from {_dir2} with "Armor stand left arm pose doesn't match (set with direction))"
+
+	set {_dir} to vector 1,0,1
+	set right arm pose of {_armorstand} to {_dir}
+	set {_dir2} to right arm pose of {_armorstand}
+
+	# clean up first in case assert fails
+	kill {_armorstand}
+
+	assert normalized {_dir} is vector from {_dir2} with "Armor stand right arm pose doesn't match (set with vector)"
+
+
+
