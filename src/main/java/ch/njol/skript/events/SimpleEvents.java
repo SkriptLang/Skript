@@ -797,6 +797,22 @@ public class SimpleEvents {
 					.since("INSERT VERSION")
 					.requiredPlugins("Spigot 1.19.4+");
 		}
+
+		if (Skript.classExists("com.destroystokyo.paper.event.entity.EndermanAttackPlayerEvent")) {
+			Skript.registerEvent("Enderman Enrage", SimpleEvent.class, com.destroystokyo.paper.event.entity.EndermanAttackPlayerEvent.class, "enderman (enrage|anger)")
+					.description(
+						"Called when an enderman gets mad because a player looked at them.",
+						"Note: This does not stop enderman from targeting the player as a result of getting damaged."
+					)
+					.examples(
+						"# Stops endermen from getting angry players with the permission \"safeFrom.enderman\"",
+						"on enderman enrage:",
+							"\tif player has permission \"safeFrom.enderman\":",
+								"\t\tcancel event"
+					)
+					.since("INSERT VERSION")
+					.requiredPlugins("Paper");
+		}
 	}
 
 }
