@@ -26,15 +26,12 @@ import org.easymock.EasyMock;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.HashSet;
 import java.util.Set;
 
 public class ExprMessageTest extends SkriptJUnitTest {
 
 	private Player testPlayer;
-
-	static {
-		setShutdownDelay(1);
-	}
 
 	@Before
 	public void setup() {
@@ -43,6 +40,8 @@ public class ExprMessageTest extends SkriptJUnitTest {
 
 	@Test
 	public void test() {
-		Bukkit.getServer().getPluginManager().callEvent(new AsyncPlayerChatEvent(false, testPlayer, "hi", Set.of(testPlayer)));
+		Set<Player> viewers = new HashSet<>();
+		viewers.add(testPlayer);
+		Bukkit.getServer().getPluginManager().callEvent(new AsyncPlayerChatEvent(false, testPlayer, "hi", viewers));
 	}
 }
