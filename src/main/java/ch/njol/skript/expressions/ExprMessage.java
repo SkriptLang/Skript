@@ -195,7 +195,7 @@ public class ExprMessage extends SimpleExpression<String> {
 		assert mode == ChangeMode.SET || mode == ChangeMode.DELETE;
 		for (final Class<? extends Event> c : type.events) {
 			if (c.isInstance(e)) {
-				type.set(e, (mode == ChangeMode.DELETE) ? "" : "" + delta[0]);
+				type.set(e, (mode == ChangeMode.DELETE) ? "" : delta[0].toString());
 			}
 		}
 	}
