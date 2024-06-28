@@ -2226,6 +2226,11 @@ transform reasons:
 	unknown: unknown
 	infection: infection, villager infection
 
+# -- Sign Sides --
+sign sides:
+	front: front
+	back: back
+
 # -- Boolean --
 boolean:
 	true:
@@ -2305,6 +2310,7 @@ types:
 	quitreason: quit reason¦s @a
 	inventoryclosereason: inventory close reason¦s @an
 	transformreason: transform reason¦s @a
+	signside: sign side¦s @a
 
 	# Skript
 	weathertype: weather type¦s @a

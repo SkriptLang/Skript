@@ -1,0 +1,21 @@
+test "set sign text and color" when running minecraft "1.18":
+	set event-block to an oak sign
+	set line 1 of event-block to "&aTesting"
+	assert line 1 of event-block is "&aTesting" with "Failed to test colored text on 1.18 index 1"
+	set the event-block to air
+
+test "set front and back side sign text and hex color" when running minecraft "1.20":
+	set event-block to an oak sign
+	set line 1 on the back side of event-block to "<##00ff00>Testing"
+	assert line 1 on the back side of event-block is "<##00ff00>Testing" with "Failed to test hex color on the back side of a sign"
+	set line 4 on the back side of event-block to "Testing Spaces"
+	assert the first element out of lines on the back side of event-block is "<##00ff00>Testing" with "Failed to test against multiple lines ##1"
+	assert the last element out of lines on the back side of event-block is "Testing Spaces" with "Failed to test against multiple lines ##2"
+	set line 3 of event-block to "&aTesting"
+	assert line 3 on the front side of event-block is "&aTesting" with "Failed to test color on the front side of a sign"
+	add "<##00ff00>Front" to the lines of event-block
+	assert the last element out of lines on the front side of event-block is "<##00ff00>Front" with "Failed to test against adding hex colored line"
+	add " <##800080>Hex " to the fourth line of event-block
+	set {_t} to the last element out of lines on the front side of event-block
+	assert the last element out of lines on the front side of event-block is "<##00ff00>Front <##800080>Hex " with "Failed to test with appending hex and trim tricking '%{_t}%'"
+	set the event-block to air

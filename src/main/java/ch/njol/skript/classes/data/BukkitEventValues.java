@@ -60,6 +60,7 @@ import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.BlockState;
+import org.bukkit.block.sign.Side;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.AbstractVillager;
@@ -457,6 +458,7 @@ public final class BukkitEventValues {
 				}
 			}, 0);
 		}
+
 		// SignChangeEvent
 		EventValues.registerEventValue(SignChangeEvent.class, Player.class, new Getter<Player, SignChangeEvent>() {
 			@Override
@@ -464,7 +466,7 @@ public final class BukkitEventValues {
 			public Player get(final SignChangeEvent e) {
 				return e.getPlayer();
 			}
-		}, 0);
+		}, EventValues.TIME_NOW);
 		EventValues.registerEventValue(SignChangeEvent.class, String[].class, new Getter<String[], SignChangeEvent>() {
 			@Override
 			@Nullable
@@ -472,6 +474,14 @@ public final class BukkitEventValues {
 				return event.getLines();
 			}
 		}, EventValues.TIME_NOW);
+		if (Skript.isRunningMinecraft(1, 20))
+			EventValues.registerEventValue(SignChangeEvent.class, Side.class, new Getter<Side, SignChangeEvent>() {
+				@Override
+				@Nullable
+				public Side get(SignChangeEvent event) {
+					return event.getSide();
+				}
+			}, EventValues.TIME_NOW);
 
 		// === EntityEvents ===
 		EventValues.registerEventValue(EntityEvent.class, Entity.class, new Getter<Entity, EntityEvent>() {
