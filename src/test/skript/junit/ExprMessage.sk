@@ -6,14 +6,14 @@ test "ExprMessageJUnit" when running JUnit:
 
 on chat:
 	set {_test} to "org.skriptlang.skript.test.tests.syntaxes.expressions.ExprMessageTest"
-    junit test is {_test}
+	junit test is {_test}
 
-    set chat message to "hello"
-    if message is "hello":
-    	complete objective "set message" for {_test}
+	set message to "hello"
+	if message is "hello":
+		complete objective "set message" for {_test}
 
-    clear message
-    if message is not set:
-    	complete objective "clear message" for {_test}
+	clear message
+	if message is "":
+		complete objective "clear message" for {_test}
 
-    complete objective "message test complete" for {_test}
+	complete objective "message test complete" for {_test}

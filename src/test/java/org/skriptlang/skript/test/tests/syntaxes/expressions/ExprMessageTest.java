@@ -19,14 +19,22 @@
 package org.skriptlang.skript.test.tests.syntaxes.expressions;
 
 import ch.njol.skript.test.runner.SkriptJUnitTest;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.easymock.EasyMock;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.Set;
+
 public class ExprMessageTest extends SkriptJUnitTest {
 
 	private Player testPlayer;
+
+	static {
+		setShutdownDelay(1);
+	}
 
 	@Before
 	public void setup() {
@@ -35,6 +43,6 @@ public class ExprMessageTest extends SkriptJUnitTest {
 
 	@Test
 	public void test() {
-		testPlayer.chat("hi");
+		Bukkit.getServer().getPluginManager().callEvent(new AsyncPlayerChatEvent(false, testPlayer, "hi", Set.of(testPlayer)));
 	}
 }
