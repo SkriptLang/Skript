@@ -141,9 +141,8 @@ public class EffLog extends Effect {
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		String lowerCaseLogLevel = logLevel.toString();
 		return "log " + messages.toString(event, debug)
 			+ (files != null ? " to " + files.toString(event, debug) : "")
-			+ (logLevel != Level.INFO ? "with severity " + lowerCaseLogLevel.toLowerCase(Locale.ENGLISH) : "");
+			+ (logLevel != Level.INFO ? "with severity " + logLevel.toString().toLowerCase(Locale.ENGLISH) : "");
 	}
 }
