@@ -40,7 +40,7 @@ import java.util.Locale;
 @Description("Represents the ticking state of the server, for example, if the server is frozen, or running normally.")
 @Examples({
 	"if server's tick state is currently frozen:",
-	"if server tick state is normal:"
+	"if the server is sprinting:"
 })
 @Since("INSERT VERSION")
 @RequiredPlugins("Minecraft 1.20.4+")
@@ -49,8 +49,8 @@ public class CondServerTickState extends Condition {
 	static {
 		if (ServerUtils.isServerTickManagerPresent())
 			Skript.registerCondition(CondServerTickState.class,
-				"[the] server['s] tick[ing] state is [currently] (:frozen|:stepping|:sprinting|:normal)",
-				"[the] server['s] tick[ing] state is(n't| not) [currently] (:frozen|:stepping|:sprinting|:normal)");
+				"[the] server['s tick[ing] state] is [currently] (:frozen|:stepping|:sprinting|:normal)",
+				"[the] server['s tick[ing] state] is(n't| not) [currently] (:frozen|:stepping|:sprinting|:normal)");
 	}
 
 	private ServerState state;
