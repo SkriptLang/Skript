@@ -55,7 +55,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static ch.njol.skript.localization.PluralizingArgsMessage.format;
 
 public class SkriptCommand implements CommandExecutor {
 
@@ -110,7 +109,7 @@ public class SkriptCommand implements CommandExecutor {
 	private static final ArgsMessage m_reload_error = new ArgsMessage(CONFIG_NODE + ".reload.error");
 
 	private static void reloaded(CommandSender sender, RedirectingLogHandler logHandler, TimingLogHandler timingLogHandler, String what, Object... args) {
-		what = args.length == 0 ? Language.get(CONFIG_NODE + ".reload." + what) : format(Language.format(CONFIG_NODE + ".reload." + what, args));
+		what = args.length == 0 ? Language.get(CONFIG_NODE + ".reload." + what) : PluralizingArgsMessage.format(Language.format(CONFIG_NODE + ".reload." + what, args));
 		String timeTaken = String.valueOf(timingLogHandler.getTimeTaken());
 
 		String message;
