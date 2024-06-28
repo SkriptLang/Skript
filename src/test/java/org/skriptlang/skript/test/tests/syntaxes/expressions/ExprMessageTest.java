@@ -16,29 +16,25 @@
  *
  * Copyright Peter Güttinger, SkriptLang team and contributors
  */
-package org.skriptlang.skript.test.tests.syntaxes;
+package org.skriptlang.skript.test.tests.syntaxes.expressions;
 
 import ch.njol.skript.test.runner.SkriptJUnitTest;
-import org.bukkit.entity.Pig;
+import org.bukkit.entity.Player;
+import org.easymock.EasyMock;
 import org.junit.Before;
 import org.junit.Test;
 
-public class ExprDropsTest extends SkriptJUnitTest {
+public class ExprMessageTest extends SkriptJUnitTest {
 
-	private Pig pig;
-
-	static {
-		setShutdownDelay(1);
-	}
+	private Player testPlayer;
 
 	@Before
-	public void spawnPig() {
-		pig = spawnTestPig();
+	public void setup() {
+		testPlayer = EasyMock.niceMock(Player.class);
 	}
 
 	@Test
-	public void killPig() {
-		pig.damage(100);
+	public void test() {
+		testPlayer.chat("hi");
 	}
-
 }
