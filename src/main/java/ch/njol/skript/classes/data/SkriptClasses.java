@@ -661,6 +661,7 @@ public class SkriptClasses {
 				.usage(VisualEffects.getAllNames())
 				.since("2.1")
 				.user("(visual|particle) effects?")
+				.after("itemtype")
 				.parser(new Parser<VisualEffect>() {
 					@Override
 					@Nullable
