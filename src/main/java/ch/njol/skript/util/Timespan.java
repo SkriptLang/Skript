@@ -44,6 +44,7 @@ public class Timespan implements YggdrasilSerializable, Comparable<Timespan> { /
 
 	public enum TimePeriod {
 
+		MILLISECOND(1L),
 		TICK(50L),
 		SECOND(1000L),
 		MINUTE(SECOND.time * 60L),

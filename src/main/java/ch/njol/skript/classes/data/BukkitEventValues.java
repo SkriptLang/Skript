@@ -41,6 +41,7 @@ import ch.njol.skript.util.Timespan;
 import ch.njol.skript.util.slot.InventorySlot;
 import ch.njol.skript.util.slot.Slot;
 import com.destroystokyo.paper.event.block.AnvilDamagedEvent;
+import com.destroystokyo.paper.event.entity.EndermanAttackPlayerEvent;
 import com.destroystokyo.paper.event.entity.ProjectileCollideEvent;
 import com.destroystokyo.paper.event.player.PlayerArmorChangeEvent;
 import io.papermc.paper.event.entity.EntityMoveEvent;
@@ -62,6 +63,7 @@ import org.bukkit.block.BlockState;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.AbstractVillager;
+import org.bukkit.entity.AreaEffectCloud;
 import org.bukkit.entity.Egg;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Firework;
@@ -97,6 +99,7 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.bukkit.event.entity.EntityDeathEvent;
+import org.bukkit.event.entity.EntityDropItemEvent;
 import org.bukkit.event.entity.EntityEvent;
 import org.bukkit.event.entity.EntityPickupItemEvent;
 import org.bukkit.event.entity.EntityPotionEffectEvent;
@@ -174,7 +177,9 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.Recipe;
 import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionData;
 import org.bukkit.potion.PotionEffectType;
+import org.bukkit.potion.PotionType;
 import org.eclipse.jdt.annotation.Nullable;
 
 /**
@@ -687,10 +692,19 @@ public final class BukkitEventValues {
 			}
 		}, EventValues.TIME_NOW);
 		EventValues.registerEventValue(AreaEffectCloudApplyEvent.class, PotionEffectType.class, new Getter<PotionEffectType, AreaEffectCloudApplyEvent>() {
+			private final boolean HAS_POTION_TYPE_METHOD = Skript.methodExists(AreaEffectCloud.class, "getBasePotionType");
 			@Override
 			@Nullable
 			public PotionEffectType get(AreaEffectCloudApplyEvent e) {
-				return e.getEntity().getBasePotionData().getType().getEffectType(); // Whoops this is a bit long call...
+				// TODO needs to be reworked to support multiple values (there can be multiple potion effects)
+				if (HAS_POTION_TYPE_METHOD) {
+					PotionType base = e.getEntity().getBasePotionType();
+					if (base != null)
+						return base.getEffectType();
+				} else {
+					return e.getEntity().getBasePotionData().getType().getEffectType();
+				}
+				return null;
 			}
 		}, 0);
 		// ItemSpawnEvent
@@ -708,6 +722,15 @@ public final class BukkitEventValues {
 				return event.getLightning();
 			}
 		}, 0);
+		// EndermanAttackPlayerEvent
+		if (Skript.classExists("com.destroystokyo.paper.event.entity.EndermanAttackPlayerEvent")) {
+			EventValues.registerEventValue(EndermanAttackPlayerEvent.class, Player.class, new Getter<Player, EndermanAttackPlayerEvent>() {
+				@Override
+				public Player get(EndermanAttackPlayerEvent event) {
+					return event.getPlayer();
+				}
+			}, EventValues.TIME_NOW);
+		}
 
 		// --- PlayerEvents ---
 		EventValues.registerEventValue(PlayerEvent.class, Player.class, new Getter<Player, PlayerEvent>() {
@@ -797,6 +820,19 @@ public final class BukkitEventValues {
 				return e.getItemDrop().getItemStack();
 			}
 		}, 0);
+		// EntityDropItemEvent
+		EventValues.registerEventValue(EntityDropItemEvent.class, Item.class, new Getter<Item, EntityDropItemEvent>() {
+			@Override
+			public Item get(EntityDropItemEvent event) {
+				return event.getItemDrop();
+			}
+		}, EventValues.TIME_NOW);
+		EventValues.registerEventValue(EntityDropItemEvent.class, ItemStack.class, new Getter<ItemStack, EntityDropItemEvent>() {
+			@Override
+			public ItemStack get(EntityDropItemEvent event) {
+				return event.getItemDrop().getItemStack();
+			}
+		}, EventValues.TIME_NOW);
 		// PlayerPickupItemEvent
 		EventValues.registerEventValue(PlayerPickupItemEvent.class, Player.class, new Getter<Player, PlayerPickupItemEvent>() {
 			@Override

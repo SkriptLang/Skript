@@ -19,12 +19,14 @@
 package ch.njol.skript.classes.data;
 
 import ch.njol.skript.expressions.base.EventValueExpression;
+import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.function.FunctionEvent;
 import ch.njol.skript.lang.function.Functions;
 import ch.njol.skript.lang.function.JavaFunction;
 import ch.njol.skript.lang.function.Parameter;
 import ch.njol.skript.lang.function.SimpleJavaFunction;
 import ch.njol.skript.lang.util.SimpleLiteral;
+import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.registrations.DefaultClasses;
 import ch.njol.skript.util.Color;
 import ch.njol.skript.util.ColorRGB;
@@ -39,6 +41,7 @@ import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 import org.eclipse.jdt.annotation.Nullable;
+import ch.njol.skript.util.Contract;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -308,11 +311,22 @@ public class DefaultFunctions {
 			.examples("min(1) = 1", "min(1, 2, 3, 4) = 1", "min({some list variable::*})")
 			.since("2.2"));
 
-		Functions.registerFunction(new SimpleJavaFunction<Number>("clamp", new Parameter[]{
-			new Parameter<>("values", DefaultClasses.NUMBER, false, null),
-			new Parameter<>("min", DefaultClasses.NUMBER, true, null),
-			new Parameter<>("max", DefaultClasses.NUMBER, true, null)
-		}, DefaultClasses.NUMBER, false) {
+		Functions.registerFunction(new SimpleJavaFunction<Number>("clamp", new Parameter[] {
+					 new Parameter<>("values", DefaultClasses.NUMBER, false, null),
+					 new Parameter<>("min", DefaultClasses.NUMBER, true, null),
+					 new Parameter<>("max", DefaultClasses.NUMBER, true, null)
+				 }, DefaultClasses.NUMBER, false, new Contract() {
+
+					 @Override
+					 public boolean isSingle(Expression<?>... arguments) {
+						 return arguments[0].isSingle();
+					 }
+
+					 @Override
+					 public Class<?> getReturnType(Expression<?>... arguments) {
+						 return Number.class;
+					 }
+				 }) {
 			@Override
 			public @Nullable Number[] executeSimple(Object[][] params) {
 				Number[] values = (Number[]) params[0];
@@ -568,6 +582,24 @@ public class DefaultFunctions {
 		}).description("Returns true if the input is NaN (not a number).")
 			.examples("isNaN(0) # false", "isNaN(0/0) # true", "isNaN(sqrt(-1)) # true")
 			.since("2.8.0");
+
+		Functions.registerFunction(new SimpleJavaFunction<String>("concat", new Parameter[] {
+			 new Parameter<>("texts", DefaultClasses.OBJECT, false, null)
+		}, DefaultClasses.STRING, true) {
+			@Override
+			public String[] executeSimple(Object[][] params) {
+				StringBuilder builder = new StringBuilder();
+				for (Object object : params[0]) {
+					builder.append(Classes.toString(object));
+				}
+				return new String[] {builder.toString()};
+			}
+		}).description("Joins the provided texts (and other things) into a single text.")
+			.examples(
+				"concat(\"hello \", \"there\") # hello there",
+				"concat(\"foo \", 100, \" bar\") # foo 100 bar"
+			).since("INSERT VERSION");
+
 	}
 	
 }

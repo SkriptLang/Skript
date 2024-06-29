@@ -18,14 +18,14 @@
  */
 package ch.njol.skript.bukkitutil;
 
+import ch.njol.skript.Skript;
+import ch.njol.skript.aliases.ItemType;
 import org.bukkit.Material;
 import org.bukkit.TreeType;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.eclipse.jdt.annotation.Nullable;
-
-import ch.njol.skript.Skript;
 
 import java.util.HashMap;
 
@@ -34,29 +34,81 @@ import java.util.HashMap;
  */
 public class ItemUtils {
 
+	public static final boolean HAS_MAX_DAMAGE = Skript.methodExists(Damageable.class, "getMaxDamage");
+
 	/**
 	 * Gets damage/durability of an item, or 0 if it does not have damage.
-	 * @param stack Item.
+	 * @param itemStack Item.
 	 * @return Damage.
 	 */
-	public static int getDamage(ItemStack stack) {
-		ItemMeta meta = stack.getItemMeta();
+	public static int getDamage(ItemStack itemStack) {
+		ItemMeta meta = itemStack.getItemMeta();
 		if (meta instanceof Damageable)
 			return ((Damageable) meta).getDamage();
-		return 0; // Not damageable item
+		return 0; // Non damageable item
 	}
-	
+
+	/** Gets the max damage/durability of an item
+	 * <p>NOTE: Will account for custom damageable items in MC 1.20.5+</p>
+	 * @param itemStack Item to grab durability from
+	 * @return Max amount of damage this item can take
+	 */
+	public static int getMaxDamage(ItemStack itemStack) {
+		ItemMeta meta = itemStack.getItemMeta();
+		if (HAS_MAX_DAMAGE && meta instanceof Damageable && ((Damageable) meta).hasMaxDamage())
+			return ((Damageable) meta).getMaxDamage();
+		return itemStack.getType().getMaxDurability();
+	}
+
 	/**
 	 * Sets damage/durability of an item if possible.
-	 * @param stack Item to modify.
+	 * @param itemStack Item to modify.
 	 * @param damage New damage. Note that on some Minecraft versions,
 	 * this might be truncated to short.
 	 */
-	public static void setDamage(ItemStack stack, int damage) {
-		ItemMeta meta = stack.getItemMeta();
+	public static void setDamage(ItemStack itemStack, int damage) {
+		ItemMeta meta = itemStack.getItemMeta();
 		if (meta instanceof Damageable) {
 			((Damageable) meta).setDamage(damage);
-			stack.setItemMeta(meta);
+			itemStack.setItemMeta(meta);
+		}
+	}
+
+	/**
+	 * Gets damage/durability of an item, or 0 if it does not have damage.
+	 * @param itemType Item.
+	 * @return Damage.
+	 */
+	public static int getDamage(ItemType itemType) {
+		ItemMeta meta = itemType.getItemMeta();
+		if (meta instanceof Damageable)
+			return ((Damageable) meta).getDamage();
+		return 0; // Non damageable item
+	}
+
+	/** Gets the max damage/durability of an item
+	 * <p>NOTE: Will account for custom damageable items in MC 1.20.5+</p>
+	 * @param itemType Item to grab durability from
+	 * @return Max amount of damage this item can take
+	 */
+	public static int getMaxDamage(ItemType itemType) {
+		ItemMeta meta = itemType.getItemMeta();
+		if (HAS_MAX_DAMAGE && meta instanceof Damageable && ((Damageable) meta).hasMaxDamage())
+			return ((Damageable) meta).getMaxDamage();
+		return itemType.getMaterial().getMaxDurability();
+	}
+
+	/**
+	 * Sets damage/durability of an item if possible.
+	 * @param itemType Item to modify.
+	 * @param damage New damage. Note that on some Minecraft versions,
+	 * this might be truncated to short.
+	 */
+	public static void setDamage(ItemType itemType, int damage) {
+		ItemMeta meta = itemType.getItemMeta();
+		if (meta instanceof Damageable) {
+			((Damageable) meta).setDamage(damage);
+			itemType.setItemMeta(meta);
 		}
 	}
 
