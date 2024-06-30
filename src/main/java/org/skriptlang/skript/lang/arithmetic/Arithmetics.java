@@ -29,6 +29,9 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Collection;
+import java.util.Set;
+import java.util.HashSet;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
@@ -264,6 +267,21 @@ public final class Arithmetics {
 	private static void assertIsOperationsDoneLoading() {
 		if (Skript.isAcceptRegistrations())
 			throw new SkriptAPIException("Operations cannot be retrieved until Skript has finished registrations.");
+	}
+
+	/**
+	 * All registered types that could be returned from a calculation using this operator.
+	 * This is used to fetch potential return types when unknown (variable) arguments are used in a sum.
+	 *
+	 * @param operator The operator to test
+	 * @return Every type this could return
+	 */
+	public static Collection<Class<?>> getAllReturnTypes(Operator operator) {
+		Set<Class<?>> types = new HashSet<>();
+		for (OperationInfo<?, ?, ?> info : getOperations_i(operator)) {
+			types.add(info.getReturnType());
+		}
+		return types;
 	}
 
 }

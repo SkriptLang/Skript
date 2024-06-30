@@ -26,9 +26,7 @@ import ch.njol.skript.lang.parser.ParserInstance;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
-import org.skriptlang.skript.lang.structure.Structure;
 
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.function.Supplier;
@@ -115,7 +113,10 @@ public abstract class Section extends TriggerSection implements SyntaxElement {
 	 * appropriately modifying {@link ParserInstance#getCurrentSections()}.
 	 * <br>
 	 * This method differs from {@link #loadCode(SectionNode)} in that it
-	 * is meant for code that will be executed in a different event.
+	 * is meant for code that will be executed at another time and potentially with different context.
+	 * The section's contents are parsed with the understanding that they have no relation
+	 *  to the section itself, along with any other code that may come before and after the section.
+	 * The {@link ParserInstance} is modified to reflect that understanding.
 	 *
 	 * @param sectionNode The section node to load.
 	 * @param name The name of the event(s) being used.
@@ -129,27 +130,21 @@ public abstract class Section extends TriggerSection implements SyntaxElement {
 	protected final Trigger loadCode(SectionNode sectionNode, String name, @Nullable Runnable afterLoading, Class<? extends Event>... events) {
 		ParserInstance parser = getParser();
 
-		String previousName = parser.getCurrentEventName();
-		Class<? extends Event>[] previousEvents = parser.getCurrentEvents();
-		Structure previousStructure = parser.getCurrentStructure();
-		List<TriggerSection> previousSections = parser.getCurrentSections();
-		Kleenean previousDelay = parser.getHasDelayBefore();
+		// backup the existing data
+		ParserInstance.Backup parserBackup = parser.backup();
+		parser.reset();
 
+		// set our new data for parsing this section
 		parser.setCurrentEvent(name, events);
 		SkriptEvent skriptEvent = new SectionSkriptEvent(name, this);
 		parser.setCurrentStructure(skriptEvent);
-		parser.setCurrentSections(new ArrayList<>());
-		parser.setHasDelayBefore(Kleenean.FALSE);
 		List<TriggerItem> triggerItems = ScriptLoader.loadItems(sectionNode);
 
 		if (afterLoading != null)
 			afterLoading.run();
 
-		//noinspection ConstantConditions - We are resetting it to what it was
-		parser.setCurrentEvent(previousName, previousEvents);
-		parser.setCurrentStructure(previousStructure);
-		parser.setCurrentSections(previousSections);
-		parser.setHasDelayBefore(previousDelay);
+		// return the parser to its original state
+		parser.restoreBackup(parserBackup);
 
 		return new Trigger(parser.getCurrentScript(), name, skriptEvent, triggerItems);
 	}
