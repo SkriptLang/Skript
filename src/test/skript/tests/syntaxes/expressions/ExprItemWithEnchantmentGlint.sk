@@ -1,22 +1,43 @@
 test "item with enchantment glint" when running minecraft "1.20.5":
 
 	# with enchantment glint
-	set {_item} to diamond with enchantment glint
-	assert {_item} is forced to glint with "Item is expected to be forced to glint"
-	clear enchantment glint override of {_item}
-	assert {_item} has enchantment glint override with "Item is expected to have enchantment glint override set ##1"
-	assert {_item} does not have enchantment glint override to fail with "Item is expected to have enchantment glint override set ##2"
-	delete {_item}
+	loop 2 times:
+		if loop-number = 1:
+			set {_item} to diamond with enchantment glint
+		else:
+			set {_item} to diamond
+			make {_item} glint
+		assert {_item} is forced to glint with "Item is expected to be forced to glint"
+		clear enchantment glint override of {_item}
+		assert {_item} has enchantment glint override with "Item is expected to have enchantment glint override set ##1"
+		assert {_item} does not have enchantment glint override to fail with "Item is expected to have enchantment glint override set ##2"
+		delete {_item}
 
 	# without enchantment glint
-	set {_item} to diamond without enchantment glint
-	assert {_item} is forced to not glint with "Item is expected to be forced to not glint"
-	assert {_item} has enchantment glint override with "Item is expected to have enchantment glint override set ##3"
-	assert {_item} does not have enchantment glint override to fail with "Item is expected to have enchantment glint override set ##4"
+	loop 2 times:
+		if loop-number = 1:
+			set {_item} to diamond without enchantment glint
+		else:
+			set {_item} to diamond
+			make {_item} to not glint
+		assert {_item} is forced to not glint with "Item is expected to be forced to not glint"
+		assert {_item} has enchantment glint override with "Item is expected to have enchantment glint override set ##3"
+		assert {_item} does not have enchantment glint override to fail with "Item is expected to have enchantment glint override set ##4"
+
+	# clear enchantment glint override
+	clear enchantment glint override of {_item}
+	assert {_item} is forced to glint to fail with "Item is expected to not have enchantment override set ##1"
+	assert {_item} is forced to not glint to fail with "Item is expected to not have enchantment override set ##2"
+	assert {_item} has enchantment glint override to fail with "Item is expected to not have enchantment override set ##3"
+	assert {_item} does not have enchantment glint override with "Item is expected to have enchantment glint override set ##4"
 
 	# edge cases
 	assert {_null} is forced to glint to fail with "Condition 'item is forced to glint' expected to fail with non itemtypes ##1"
 	assert {_null} is forced to not glint to fail with "Condition 'item is forced to glint' expected to fail with non itemtypes ##2"
 	assert {_null} has enchantment glint override to fail with "Condition 'item has enchantment glint override' expected to fail with non itemtypes ##1"
 	assert {_null} does not have enchantment glint override to fail with "Condition 'item has enchantment glint override' expected to fail with non itemtypes ##2"
+
+	assert diamond with enchantment glint and stone with enchantment glint is forced to glint with "Both items expected to be forced to glint ##1"
+	assert diamond without enchantment glint and stone without enchantment glint is forced to not glint with "Both items expected to be forced to glint ##2"
+	assert diamond with enchantment glint and stone without enchantment glint have enchantment glint override with "Both items expected to have enchantment glint override set"
 
