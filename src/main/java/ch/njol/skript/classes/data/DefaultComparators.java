@@ -60,6 +60,7 @@ import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.potion.PotionEffectType;
 import org.skriptlang.skript.lang.comparator.Comparator;
 import org.skriptlang.skript.lang.comparator.Comparators;
 import org.skriptlang.skript.lang.comparator.Relation;
@@ -651,6 +652,14 @@ public class DefaultComparators {
 			@Override
 			public boolean supportsOrdering() {
 				return false;
+			}
+		});
+
+		// Potion Effect Type
+		Comparators.registerComparator(PotionEffectType.class, PotionEffectType.class, new Comparator<PotionEffectType, PotionEffectType>() {
+			@Override
+			public Relation compare(PotionEffectType effectOne, PotionEffectType effectTwo) {
+				return Relation.get(effectOne.equals(effectTwo));
 			}
 		});
 	}
