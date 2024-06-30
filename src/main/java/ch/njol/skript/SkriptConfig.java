@@ -105,7 +105,7 @@ public class SkriptConfig {
 						break;
 					case "stable":
 						// TODO a better option would be to check that it is not a pre-release through GH API
-						channel = new ReleaseChannel((name) -> !name.contains("pre"), t);
+						channel = new ReleaseChannel((name) -> !(name.contains("-")), t);
 						break;
 					case "none":
 						channel = new ReleaseChannel((name) -> false, t);
