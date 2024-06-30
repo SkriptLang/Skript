@@ -8,7 +8,6 @@ test "item with enchantment glint" when running minecraft "1.20.5":
 			set {_item} to diamond
 			make {_item} glint
 		assert {_item} is forced to glint with "Item is expected to be forced to glint"
-		clear enchantment glint override of {_item}
 		assert {_item} has enchantment glint override with "Item is expected to have enchantment glint override set ##1"
 		assert {_item} does not have enchantment glint override to fail with "Item is expected to have enchantment glint override set ##2"
 		delete {_item}
