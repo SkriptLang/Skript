@@ -33,7 +33,7 @@ import java.util.Objects;
 public class BlockDataNotCloned6829 extends SkriptJUnitTest {
 
 	public void run(String unparsedEffect, Event event) {
-		Effect effect = Effect.parse(unparsedEffect, "Can't understand this condition: " + unparsedEffect);
+		Effect effect = Effect.parse(unparsedEffect, "Can't understand this effect: " + unparsedEffect);
 		if (effect == null)
 			throw new IllegalStateException();
 		TriggerItem.walk(effect, event);
