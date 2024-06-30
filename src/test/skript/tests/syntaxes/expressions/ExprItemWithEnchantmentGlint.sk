@@ -1,21 +1,22 @@
 test "item with enchantment glint" when running minecraft "1.20.5":
 
-	# Expression %itemtype% with enchantment glint
-	set {_glint1} to diamond with enchantment glint
-	assert {_glint1} has enchantment glint override with "{_glint1} expected to have enchantment glint override set"
-	assert enchantment glint of {_glint1} is true with "{_glint1} expected to have enchantment glint override set to true"
-	set {_glint1} to {_glint1} without enchantment glint
-	assert {_glint1} has enchantment glint override with "{_glint1} expected to have enchantment glint override set"
-	assert enchantment glint of {_glint1} is false with "{_glint1} expected to have enchantment glint override set to false"
+	# with enchantment glint
+	set {_item} to diamond with enchantment glint
+	assert {_item} is forced to glint with "Item is expected to be forced to glint"
+	clear enchantment glint override of {_item}
+	assert {_item} has enchantment glint override with "Item is expected to have enchantment glint override set ##1"
+	assert {_item} does not have enchantment glint override to fail with "Item is expected to have enchantment glint override set ##2"
+	delete {_item}
 
-	# Expression %itemtype%'s enchantment glint
-	set {_glint2} to diamond
-	set enchantment glint of {_glint2} to true
-	assert {_glint2} has enchantment glint override with "{_glint2} expected to have enchantment glint override set"
-	assert enchantment glint of {_glint2} is true with "{_glint2} expected to have enchantment glint override set to true"
-	set enchantment glint of {_glint2} to false
-	assert {_glint2} has enchantment glint override with "{_glint2} expected to have enchantment glint override set"
-	assert enchantment glint of {_glint2} is false with "{_glint2} expected to have enchantment glint override set to false"
-	clear enchantment glint of {_glint2}
-	assert {_glint2} does not have enchantment glint override with "{_glint2} expected to not have enchantment glint override set"
-	assert enchantment glint of {_glint2} is not set with "{_glint2} expected to have enchantment glint override cleared"
+	# without enchantment glint
+	set {_item} to diamond without enchantment glint
+	assert {_item} is forced to not glint with "Item is expected to be forced to not glint"
+	assert {_item} has enchantment glint override with "Item is expected to have enchantment glint override set ##3"
+	assert {_item} does not have enchantment glint override to fail with "Item is expected to have enchantment glint override set ##4"
+
+	# edge cases
+	assert {_null} is forced to glint to fail with "Condition 'item is forced to glint' expected to fail with non itemtypes ##1"
+	assert {_null} is forced to not glint to fail with "Condition 'item is forced to glint' expected to fail with non itemtypes ##2"
+	assert {_null} has enchantment glint override to fail with "Condition 'item has enchantment glint override' expected to fail with non itemtypes ##1"
+	assert {_null} does not have enchantment glint override to fail with "Condition 'item has enchantment glint override' expected to fail with non itemtypes ##2"
+

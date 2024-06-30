@@ -16,7 +16,11 @@
  *
  * Copyright Peter Güttinger, SkriptLang team and contributors
  */
-package ch.njol.skript.effects;
+package ch.njol.skript.conditions;
+
+import org.bukkit.event.Event;
+import org.bukkit.inventory.meta.ItemMeta;
+import org.eclipse.jdt.annotation.Nullable;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.ItemType;
@@ -25,34 +29,36 @@ import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.RequiredPlugins;
 import ch.njol.skript.doc.Since;
-import ch.njol.skript.lang.Effect;
+import ch.njol.skript.lang.Condition;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
-import org.bukkit.event.Event;
-import org.bukkit.inventory.meta.ItemMeta;
-import org.jetbrains.annotations.Nullable;
 
-@Name("Force Enchantment Glint")
-@Description("Forces the items to glint or not, or removes its existing enchantment glint enforcement.")
+@Name("Item Has Enchantment Glint Override")
+@Description("Checks whether an item has the enchantment glint overridden, or is forced to glint or not.")
 @Examples({
-	"force {_items::*} to glint",
-	"force the player's tool to stop glinting"
+	"if the player's tool has the enchantment glint override",
+		"\tsend \"Your tool has the enchantment glint override.\" to player",
+	"",
+	"if {_item} is forced to glint:",
+		"\tsend \"This item is forced to glint.\" to player",
+	"else if {_item} is forced to not glint:",
+		"\tsend \"This item is forced to not glint.\" to player",
+	"else:",
+		"\tsend \"This item does not have any glint override.\" to player"
 })
 @RequiredPlugins("Spigot 1.20.5+")
 @Since("INSERT VERSION")
-public class EffForceEnchantmentGlint extends Effect {
+public class CondItemEnchantmentGlint extends Condition {
 
 	static {
 		if (Skript.isRunningMinecraft(1, 20, 5))
-			Skript.registerEffect(EffForceEnchantmentGlint.class,
-					"(force|make) %itemtypes% [to] [start] glint[ing]",
-					"(force|make) %itemtypes% [to] (not|stop) glint[ing]",
-					"(clear|delete) [the] enchantment glint override of %itemtypes%",
-					"(clear|delete) %itemtypes%'s enchantment glint override");
+			Skript.registerCondition(CondItemEnchantmentGlint.class,
+				"%itemtypes% (has|have) [the] enchantment glint overrid(den|e)",
+				"%itemtypes% (doesn't|does not|do not|don't) have [the] enchantment glint overrid(den|e)",
+				"%itemtypes% (is|are) forced to [:not] glint");
 	}
 
-	@SuppressWarnings("NotNullFieldNotInitialized")
 	private Expression<ItemType> itemtypes;
 	private int pattern;
 
@@ -61,35 +67,33 @@ public class EffForceEnchantmentGlint extends Effect {
 	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		itemtypes = (Expression<ItemType>) expressions[0];
 		pattern = matchedPattern;
+		// Pattern 'is forced to glint'
+		if (matchedPattern == 2) {
+			setNegated(parseResult.hasTag("not"));
+		// Pattern 'has enchantment glint override'
+		} else {
+			setNegated(matchedPattern == 1);
+		}
 		return true;
 	}
 
 	@Override
-	protected void execute(Event event) {
-		for (ItemType itemType : itemtypes.getArray(event)) {
+	public boolean check(Event event) {
+		return itemtypes.check(event, itemType -> {
 			ItemMeta meta = itemType.getItemMeta();
-			Boolean glint;
-			// Pattern: forced to glint
-			if (pattern == 0) {
-				glint = true;
-			// Pattern: forced to not glint
-			} else if (pattern == 1) {
-				glint = false;
-			// Pattern: Clear glint override
+			// Pattern 'is forced to glint'
+			if (pattern == 2) {
+				return meta.getEnchantmentGlintOverride();
+			// Pattern 'has enchantment glint override'
 			} else {
-				glint = null;
+				return meta.hasEnchantmentGlintOverride();
 			}
-			meta.setEnchantmentGlintOverride(glint);
-			itemType.setItemMeta(meta);
-		}
+		}, isNegated());
 	}
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		// Pattern: Clear glint override
-		if (pattern > 1)
-			return "clear the enchantment glint override of " + itemtypes.toString(event, debug);
-		return "force the " + itemtypes.toString(event, debug) + " to " + (pattern == 0 ? "start" : "stop") + " glinting";
+		return null;
 	}
 
 }
