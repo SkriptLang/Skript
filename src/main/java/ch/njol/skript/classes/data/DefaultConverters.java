@@ -176,7 +176,7 @@ public class DefaultConverters {
 				return ((Block) holder).getLocation();
 			if (holder instanceof BlockState)
 				return BlockUtils.getLocation(((BlockState) holder).getBlock());
-			if(holder instanceof DoubleChest) {
+			if (holder instanceof DoubleChest) {
 				if (((DoubleChest) holder).getLeftSide() != null)
 					return BlockUtils.getLocation(((BlockState)((DoubleChest) holder).getLeftSide()).getBlock());
 				else if (((DoubleChest) holder).getRightSide() != null)
