@@ -656,12 +656,7 @@ public class DefaultComparators {
 		});
 
 		// Potion Effect Type
-		Comparators.registerComparator(PotionEffectType.class, PotionEffectType.class, new Comparator<PotionEffectType, PotionEffectType>() {
-			@Override
-			public Relation compare(PotionEffectType effectOne, PotionEffectType effectTwo) {
-				return Relation.get(effectOne.equals(effectTwo));
-			}
-		});
+		Comparators.registerComparator(PotionEffectType.class, PotionEffectType.class, (one, two) -> Relation.get(one.equals(two)));
 	}
 	
 }
