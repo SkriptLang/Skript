@@ -140,13 +140,12 @@ public class EffBan extends Effect {
 	
 	@Override
 	public String toString(final @Nullable Event event, final boolean debug) {
-		String ip = ipBan ? "IP-" : "";
-		String ban = this.ban ? "ban " : "unban ";
-		String andKick = kick ? "and kick " : "";
-		String players = this.players.toString(event, debug);
-		String reason = this.reason != null ? " on account of " + this.reason.toString(event, debug) : "";
-		String time = expires != null ? " for " + expires.toString(event, debug) : "";
-		return ip + ban + andKick + players + reason + time;
+		return (ipBan ? "IP-" : "") +
+			(this.ban ? "ban " : "unban ") +
+			(kick ? "and kick " : "") +
+			this.players.toString(event, debug) +
+			(this.reason != null ? " on account of " + this.reason.toString(event, debug) : "") +
+			(expires != null ? " for " + expires.toString(event, debug) : "");
 	}
 	
 }
