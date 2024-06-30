@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.regex.MatchResult;
 
 import org.bukkit.event.Event;
+import org.bukkit.event.command.UnknownCommandEvent;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.event.server.ServerCommandEvent;
 import org.eclipse.jdt.annotation.Nullable;
@@ -60,7 +61,7 @@ import ch.njol.util.StringUtils;
 	"add argument 1 to argument 2",
 	"heal the last argument"
 })
-@Since("1.0, 2.7 (support for command events)")
+@Since("1.0, 2.7 (support for command events), INSERT VERSION (unknown command)")
 public class ExprArgument extends SimpleExpression<Object> {
 
 	static {
@@ -81,13 +82,14 @@ public class ExprArgument extends SimpleExpression<Object> {
 	private Argument<?> argument;
 
 	private int ordinal = -1; // Available in ORDINAL and sometimes CLASSINFO
+	private boolean SUPPORTS_UNKNOWN_EVENT = Skript.classExists("org.bukkit.event.command.UnknownCommandEvent");
 	
 	@Override
 	@SuppressWarnings("unchecked")
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		boolean scriptCommand = getParser().isCurrentEvent(ScriptCommandEvent.class);
-		if (!scriptCommand && !getParser().isCurrentEvent(PlayerCommandPreprocessEvent.class, ServerCommandEvent.class)) {
-			Skript.error("The 'argument' expression can only be used in a script command or command event");
+		if (!scriptCommand && !getParser().isCurrentEvent(PlayerCommandPreprocessEvent.class, ServerCommandEvent.class, UnknownCommandEvent.class)) {
+			Skript.error("The 'argument' expression can only be used in a script command, command event or unknown command event");
 			return false;
 		}
 
@@ -213,16 +215,18 @@ public class ExprArgument extends SimpleExpression<Object> {
 	
 	@Override
 	@Nullable
-	protected Object[] get(final Event e) {
+	protected Object[] get(final Event event) {
 		if (argument != null) {
-			return argument.getCurrent(e);
+			return argument.getCurrent(event);
 		}
 
 		String fullCommand;
-		if (e instanceof PlayerCommandPreprocessEvent) {
-			fullCommand = ((PlayerCommandPreprocessEvent) e).getMessage().substring(1).trim();
-		} else if (e instanceof ServerCommandEvent) { // It's a ServerCommandEvent then
-			fullCommand = ((ServerCommandEvent) e).getCommand().trim();
+		if (SUPPORTS_UNKNOWN_EVENT && event instanceof UnknownCommandEvent) {
+			fullCommand = ((UnknownCommandEvent) event).getCommandLine().trim();
+		} else if (event instanceof PlayerCommandPreprocessEvent) {
+			fullCommand = ((PlayerCommandPreprocessEvent) event).getMessage().substring(1).trim();
+		} else if (event instanceof ServerCommandEvent) { // It's a ServerCommandEvent then
+			fullCommand = ((ServerCommandEvent) event).getCommand().trim();
 		} else {
 			return new Object[0];
 		}

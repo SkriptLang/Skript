@@ -19,6 +19,7 @@
 package ch.njol.skript.expressions;
 
 import org.bukkit.event.Event;
+import org.bukkit.event.command.UnknownCommandEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
@@ -47,25 +48,28 @@ import ch.njol.util.coll.CollectionUtils;
  */
 @SuppressWarnings("deprecation")
 @Name("Message")
-@Description("The (chat) message of a chat event, the join message of a join event, the quit message of a quit event, or the death message on a death event. This expression is mostly useful for being changed.")
+@Description("The (chat) message of a chat event, the join message of a join event, the quit message of a quit event, or the death message of a death event, or the unknown command message of a unknown command event. This expression is mostly useful for being changed.")
 @Examples({"on chat:",
-		"	player has permission \"admin\"",
-		"	set message to \"&c%message%\"",
+			"\tplayer has permission \"admin\"",
+			"\tset message to \"&c%message%\"",
 		"",
 		"on first join:",
-		"	set join message to \"Welcome %player% to our awesome server!\"",
+			"\tset join message to \"Welcome %player% to our awesome server!\"",
 		"",
 		"on join:",
-		"	player has played before",
-		"	set join message to \"Welcome back, %player%!\"",
+			"\tplayer has played before",
+			"\tset join message to \"Welcome back, %player%!\"",
 		"",
 		"on quit:",
-		"	set quit message to \"%player% left this awesome server!\"",
+			"\tset quit message to \"%player% left this awesome server!\"",
 		"",
 		"on death:",
-		"	set the death message to \"%player% died!\""})
-@Since("1.4.6 (chat message), 1.4.9 (join & quit messages), 2.0 (death message)")
-@Events({"chat", "join", "quit", "death"})
+			"\tset the death message to \"%player% died!\"",
+		"",
+		"on unknown command:",
+			"\tset unknown command message to \"This command does not exist.\""})
+@Since("1.4.6 (chat message), 1.4.9 (join & quit messages), 2.0 (death message), INSERT VERSION (unknown command message)")
+@Events({"chat", "join", "quit", "death", "unknown command"})
 public class ExprMessage extends SimpleExpression<String> {
 	
 	@SuppressWarnings("unchecked")
@@ -84,46 +88,58 @@ public class ExprMessage extends SimpleExpression<String> {
 		JOIN("join", "(join|log[ ]in)( |-)message", PlayerJoinEvent.class) {
 			@Override
 			@Nullable
-			String get(final Event e) {
-				return ((PlayerJoinEvent) e).getJoinMessage();
+			String get(Event event) {
+				return ((PlayerJoinEvent) event).getJoinMessage();
 			}
 			
 			@Override
-			void set(final Event e, final String message) {
-				((PlayerJoinEvent) e).setJoinMessage(message);
+			void set(Event event, final String message) {
+				((PlayerJoinEvent) event).setJoinMessage(message);
 			}
 		},
 		QUIT("quit", "(quit|leave|log[ ]out|kick)( |-)message", PlayerQuitEvent.class, PlayerKickEvent.class) {
 			@Override
 			@Nullable
-			String get(final Event e) {
-				if (e instanceof PlayerKickEvent)
-					return ((PlayerKickEvent) e).getLeaveMessage();
+			String get(Event event) {
+				if (event instanceof PlayerKickEvent)
+					return ((PlayerKickEvent) event).getLeaveMessage();
 				else
-					return ((PlayerQuitEvent) e).getQuitMessage();
+					return ((PlayerQuitEvent) event).getQuitMessage();
 			}
 			
 			@Override
-			void set(final Event e, final String message) {
-				if (e instanceof PlayerKickEvent)
-					((PlayerKickEvent) e).setLeaveMessage(message);
+			void set(Event event, final String message) {
+				if (event instanceof PlayerKickEvent)
+					((PlayerKickEvent) event).setLeaveMessage(message);
 				else
-					((PlayerQuitEvent) e).setQuitMessage(message);
+					((PlayerQuitEvent) event).setQuitMessage(message);
+			}
+		},
+		UNKNOWN("unknown command", "unknown command( |-)message", UnknownCommandEvent.class) {
+			@Override
+			@Nullable
+			String get(Event event) {
+				return ((UnknownCommandEvent) event).getMessage();
+			}
+
+			@Override
+			void set(Event event, final String message) {
+				((UnknownCommandEvent) event).setMessage(message);
 			}
 		},
 		DEATH("death", "death( |-)message", EntityDeathEvent.class) {
 			@Override
 			@Nullable
-			String get(final Event e) {
-				if (e instanceof PlayerDeathEvent)
-					return ((PlayerDeathEvent) e).getDeathMessage();
+			String get(Event event) {
+				if (event instanceof PlayerDeathEvent)
+					return ((PlayerDeathEvent) event).getDeathMessage();
 				return null;
 			}
 			
 			@Override
-			void set(final Event e, final String message) {
-				if (e instanceof PlayerDeathEvent)
-					((PlayerDeathEvent) e).setDeathMessage(message);
+			void set(Event event, String message) {
+				if (event instanceof PlayerDeathEvent)
+					((PlayerDeathEvent) event).setDeathMessage(message);
 			}
 		};
 		

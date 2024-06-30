@@ -20,6 +20,7 @@ package ch.njol.skript.expressions;
 
 import ch.njol.skript.command.ScriptCommandEvent;
 import org.bukkit.event.Event;
+import org.bukkit.event.command.UnknownCommandEvent;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.event.server.ServerCommandEvent;
 import org.eclipse.jdt.annotation.Nullable;
@@ -59,11 +60,12 @@ public class ExprCommand extends SimpleExpression<String> {
 	}
 
 	private boolean fullCommand;
+	private boolean SUPPORTS_UNKNOWN_EVENT = Skript.classExists("org.bukkit.event.command.UnknownCommandEvent");
 	
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		if (!getParser().isCurrentEvent(PlayerCommandPreprocessEvent.class, ServerCommandEvent.class, ScriptCommandEvent.class)) {
-			Skript.error("The 'command' expression can only be used in a script command or command event");
+		if (!getParser().isCurrentEvent(PlayerCommandPreprocessEvent.class, ServerCommandEvent.class, UnknownCommandEvent.class, ScriptCommandEvent.class)) {
+			Skript.error("The 'command' expression can only be used in a script command, command event or unknown command");
 			return false;
 		}
 		fullCommand = matchedPattern == 0;
@@ -72,16 +74,18 @@ public class ExprCommand extends SimpleExpression<String> {
 	
 	@Override
 	@Nullable
-	protected String[] get(final Event e) {
+	protected String[] get(Event event) {
 		final String s;
 
-		if (e instanceof PlayerCommandPreprocessEvent) {
-			s = ((PlayerCommandPreprocessEvent) e).getMessage().substring(1).trim();
-		} else if (e instanceof ServerCommandEvent) {
-			s = ((ServerCommandEvent) e).getCommand().trim();
+		if (event instanceof PlayerCommandPreprocessEvent) {
+			s = ((PlayerCommandPreprocessEvent) event).getMessage().substring(1).trim();
+		} else if (event instanceof ServerCommandEvent) {
+			s = ((ServerCommandEvent) event).getCommand().trim();
+		} else if (SUPPORTS_UNKNOWN_EVENT && event instanceof UnknownCommandEvent) {
+			s = ((UnknownCommandEvent) event).getCommandLine().trim();
 		} else { // It's a script command event
-			ScriptCommandEvent event = (ScriptCommandEvent) e;
-			s = event.getCommandLabel() + " " + event.getArgsString();
+			ScriptCommandEvent scriptCmdEvent = (ScriptCommandEvent) event;
+			s = scriptCmdEvent.getCommandLabel() + " " + scriptCmdEvent.getArgsString();
 		}
 
 		if (fullCommand) {

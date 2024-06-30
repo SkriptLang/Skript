@@ -45,6 +45,7 @@ import org.bukkit.event.block.BlockRedstoneEvent;
 import org.bukkit.event.block.BlockSpreadEvent;
 import org.bukkit.event.block.LeavesDecayEvent;
 import org.bukkit.event.block.SignChangeEvent;
+import org.bukkit.event.command.UnknownCommandEvent;
 import org.bukkit.event.block.SpongeAbsorbEvent;
 import org.bukkit.event.enchantment.EnchantItemEvent;
 import org.bukkit.event.enchantment.PrepareItemEnchantEvent;
@@ -758,6 +759,17 @@ public class SimpleEvents {
 				)
 				.since("2.7");
 
+		if (Skript.classExists("org.bukkit.event.command.UnknownCommandEvent")) {
+			Skript.registerEvent("Unknown Command", SimpleEvent.class, UnknownCommandEvent.class, "unknown command")
+				.description("Called when an unknown command is used.")
+				.examples(
+					"on unknown command:",
+						"\tset unknown command message to \"Hey, this command does not exist.\""
+				)
+				.since("INSERT VERSION")
+				.requiredPlugins("Paper");
+		}
+
 		{
 			final Class<? extends Event> eventClass;
 			if (Skript.classExists("org.bukkit.event.block.BellRingEvent")) {
@@ -814,5 +826,4 @@ public class SimpleEvents {
 					.requiredPlugins("Paper");
 		}
 	}
-
 }
