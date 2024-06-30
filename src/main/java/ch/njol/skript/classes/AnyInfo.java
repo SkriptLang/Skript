@@ -16,12 +16,19 @@
  *
  * Copyright Peter Güttinger, SkriptLang team and contributors
  */
-/**
- * @author Peter Güttinger
- */
-@NonNullByDefault({DefaultLocation.PARAMETER, DefaultLocation.RETURN_TYPE, DefaultLocation.FIELD})
-package ch.njol.skript.hooks.chat.expressions;
+package ch.njol.skript.classes;
 
-import org.eclipse.jdt.annotation.DefaultLocation;
-import org.eclipse.jdt.annotation.NonNullByDefault;
+import ch.njol.skript.lang.util.common.AnyProvider;
 
+public class AnyInfo<Type extends AnyProvider> extends ClassInfo<Type> {
+
+	/**
+	 * @param c        The class
+	 * @param codeName The name used in patterns
+	 */
+	public AnyInfo(Class<Type> c, String codeName) {
+		super(c, "any-" + codeName);
+		this.user("(any )?" + codeName + " (thing|object)s?");
+	}
+
+}

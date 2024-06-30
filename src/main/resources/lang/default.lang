@@ -2324,6 +2324,9 @@ types:
 	experience.pattern: (e?xp|experience( points?)?)
 	classinfo: type¦s @a
 	visualeffect: visual effect¦s @a
+	any-named: named thing¦s @a
+	any-amount: numbered thing¦s @a
+	any-container: container¦s @a
 
 	# Hooks
 	money: money

@@ -19,13 +19,24 @@
 package ch.njol.skript.classes.data;
 
 import java.io.StreamCorruptedException;
-import java.util.Iterator;
-import java.util.Locale;
+import java.util.*;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
+import ch.njol.skript.classes.*;
+import ch.njol.skript.lang.util.common.*;
+import ch.njol.skript.expressions.ExprScoreboard;
+import ch.njol.skript.util.scoreboard.Criterion;
+import ch.njol.skript.util.scoreboard.ScoreUtils;
 import org.bukkit.Material;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.enchantments.Enchantment;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.scoreboard.Objective;
+import org.bukkit.scoreboard.Scoreboard;
+import org.bukkit.scoreboard.Team;
 import org.eclipse.jdt.annotation.Nullable;
 
 import ch.njol.skript.Skript;
@@ -34,12 +45,6 @@ import ch.njol.skript.aliases.ItemData;
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.bukkitutil.EnchantmentUtils;
 import ch.njol.skript.bukkitutil.ItemUtils;
-import ch.njol.skript.classes.Changer;
-import ch.njol.skript.classes.ClassInfo;
-import ch.njol.skript.classes.EnumSerializer;
-import ch.njol.skript.classes.Parser;
-import ch.njol.skript.classes.Serializer;
-import ch.njol.skript.classes.YggdrasilSerializer;
 import ch.njol.skript.expressions.base.EventValueExpression;
 import ch.njol.skript.lang.ParseContext;
 import ch.njol.skript.lang.util.SimpleLiteral;
@@ -65,15 +70,13 @@ import ch.njol.skript.util.visual.VisualEffect;
 import ch.njol.skript.util.visual.VisualEffects;
 import ch.njol.yggdrasil.Fields;
 
-import java.util.Arrays;
-
 /**
  * @author Peter Güttinger
  */
 @SuppressWarnings("rawtypes")
 public class SkriptClasses {
 	public SkriptClasses() {}
-	
+
 	static {
 		//noinspection unchecked
 		Classes.registerClass(new ClassInfo<>(ClassInfo.class, "classinfo")
@@ -96,17 +99,17 @@ public class SkriptClasses {
 					public ClassInfo parse(final String s, final ParseContext context) {
 						return Classes.getClassInfoFromUserInput(Noun.stripIndefiniteArticle(s));
 					}
-					
+
 					@Override
 					public String toString(final ClassInfo c, final int flags) {
 						return c.toString(flags);
 					}
-					
+
 					@Override
 					public String toVariableNameString(final ClassInfo c) {
 						return c.getCodeName();
 					}
-					
+
 					@Override
 					public String getDebugMessage(final ClassInfo c) {
 						return c.getCodeName();
@@ -120,17 +123,17 @@ public class SkriptClasses {
 						f.putObject("codeName", c.getCodeName());
 						return f;
 					}
-					
+
 					@Override
 					public boolean canBeInstantiated() {
 						return false;
 					}
-					
+
 					@Override
 					public void deserialize(final ClassInfo o, final Fields f) throws StreamCorruptedException {
 						assert false;
 					}
-					
+
 					@Override
 					protected ClassInfo deserialize(final Fields fields) throws StreamCorruptedException {
 						final String codeName = fields.getObject("codeName", String.class);
@@ -141,20 +144,20 @@ public class SkriptClasses {
 							throw new StreamCorruptedException("Invalid ClassInfo " + codeName);
 						return ci;
 					}
-					
+
 //					return c.getCodeName();
 					@Override
 					@Nullable
 					public ClassInfo deserialize(final String s) {
 						return Classes.getClassInfoNoError(s);
 					}
-					
+
 					@Override
 					public boolean mustSyncDeserialization() {
 						return false;
 					}
 				}));
-		
+
 		Classes.registerClass(new ClassInfo<>(WeatherType.class, "weathertype")
 				.user("weather ?types?", "weather conditions?", "weathers?")
 				.name("Weather Type")
@@ -171,12 +174,12 @@ public class SkriptClasses {
 					public WeatherType parse(final String s, final ParseContext context) {
 						return WeatherType.parse(s);
 					}
-					
+
 					@Override
 					public String toString(final WeatherType o, final int flags) {
 						return o.toString(flags);
 					}
-					
+
 					@Override
 					public String toVariableNameString(final WeatherType o) {
 						return "" + o.name().toLowerCase(Locale.ENGLISH);
@@ -184,7 +187,7 @@ public class SkriptClasses {
 
 				})
 				.serializer(new EnumSerializer<>(WeatherType.class)));
-		
+
 		Classes.registerClass(new ClassInfo<>(ItemType.class, "itemtype")
 				.user("item ?types?", "materials?")
 				.name("Item Type")
@@ -626,7 +629,7 @@ public class SkriptClasses {
 				.since("2.0")
 				.parser(new Parser<Experience>() {
 					private final RegexMessage pattern = new RegexMessage("types.experience.pattern", Pattern.CASE_INSENSITIVE);
-					
+
 					@Override
 					@Nullable
 					public Experience parse(String s, final ParseContext context) {
@@ -639,12 +642,12 @@ public class SkriptClasses {
 							return new Experience(xp);
 						return null;
 					}
-					
+
 					@Override
 					public String toString(final Experience xp, final int flags) {
 						return xp.toString();
 					}
-					
+
 					@Override
 					public String toVariableNameString(final Experience xp) {
 						return "" + xp.getXP();
@@ -681,7 +684,119 @@ public class SkriptClasses {
 
 				})
 				.serializer(new YggdrasilSerializer<>()));
-		
+
+		Classes.registerClass(new ClassInfo<>(Scoreboard.class, "scoreboard")
+			.user("scoreboards?")
+			.name("Scoreboard")
+			.description("A scoreboard. Either the main (displayed) board or a user-created (hidden) board.")
+			.usage("")
+			.examples("set {_scoreboard} to the scoreboard")
+			.since("INSERT VERSION")
+		);
+
+		Classes.registerClass(new ClassInfo<>(Team.class, "team")
+			.user("teams?")
+			.name("Team")
+			.description("A team for a scoreboard. Teams have their own visibility options and can contain members.")
+			.usage("")
+			.examples("loop {_board}'s teams:")
+			.since("INSERT VERSION")
+			.changer(new Changer<Team>() {
+				//<editor-fold desc="Changers" defaultstate="collapsed">
+				@Override
+				public  Class<?> @Nullable [] acceptChange(ChangeMode mode) {
+					if (mode == ChangeMode.RESET || mode == ChangeMode.DELETE)
+						return new Class[0];
+					if (mode == ChangeMode.ADD)
+						return new Class[] {Entity[].class, Player[].class, OfflinePlayer[].class, String[].class};
+					// todo remove all <players/entities/zombies, etc.>
+					return null;
+				}
+
+				@Override
+				public void change(Team[] what, @Nullable Object[] delta, ChangeMode mode) {
+					switch (mode) {
+						case RESET:
+							for (Team team : what) {
+								team.getEntries().clear(); // todo check this actually clears
+								team.setOption(Team.Option.NAME_TAG_VISIBILITY, Team.OptionStatus.ALWAYS);
+								team.setOption(Team.Option.DEATH_MESSAGE_VISIBILITY, Team.OptionStatus.ALWAYS);
+								team.setOption(Team.Option.COLLISION_RULE, Team.OptionStatus.ALWAYS);
+								team.setAllowFriendlyFire(true);
+								team.setCanSeeFriendlyInvisibles(false);
+							}
+							break;
+						case DELETE:
+							for (Team team : what) {
+								team.unregister();
+							}
+							break;
+						case REMOVE:
+							Set<String> set = Arrays.stream(delta).filter(Objects::nonNull)
+								.map(ScoreUtils::toEntry).collect(Collectors.toSet());
+							for (Team team : what) {
+								team.removeEntries(set);
+							}
+						case ADD:
+							for (Team team : what) {
+								for (Object object : delta) {
+									if (object == null)
+										continue;
+									team.addEntry(ScoreUtils.toEntry(object));
+								}
+							}
+					}
+				}
+				//</editor-fold>
+			})
+		);
+
+		Classes.registerClass(new ClassInfo<>(Objective.class, "objective")
+			.user("objectives?")
+			.name("Objective")
+			.description("A score objective for a scoreboard. Some objectives are scored according to game events, " +
+					"but custom objectives are also available.")
+			.usage("")
+			.examples("") // todo
+			.since("INSERT VERSION")
+			.changer(new Changer<Objective>() {
+				//<editor-fold desc="Changers" defaultstate="collapsed">
+				@Override
+				public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
+					switch (mode) {
+						case RESET:
+						case DELETE:
+							return new Class[0];
+					}
+					return null;
+				}
+
+				@Override
+				public void change(Objective[] what, @Nullable Object[] delta, ChangeMode mode) {
+					switch (mode) {
+						case RESET:
+							for (Objective objective : what)
+								objective.setDisplaySlot(null);
+							break;
+						case DELETE:
+							for (Objective objective : what)
+								objective.unregister();
+							break;
+					}
+				}
+				//</editor-fold>
+			})
+		);
+
+		Classes.registerClass(new ClassInfo<>(Criterion.class, "criterion")
+			.user("criteri(on|a)")
+			.name("Criteria")
+			.description("Criteria are built-in game events or custom triggers that cause scoreboard scores to update.")
+			.usage("")
+			.examples("") // todo
+			.since("INSERT VERSION")
+		);
+
 		Classes.registerClass(new ClassInfo<>(GameruleValue.class, "gamerulevalue")
 				.user("gamerule values?")
 				.name("Gamerule Value")
@@ -691,6 +806,63 @@ public class SkriptClasses {
 				.since("2.5")
 				.serializer(new YggdrasilSerializer<GameruleValue>())
 		);
+
+		Classes.registerClass(new AnyInfo<>(AnyNamed.class, "named")
+			.name("Any Named Thing")
+			.description("Something that has a name (e.g. an item).")
+			.usage("")
+			.examples("{thing}'s name")
+			.since("INSERT VERSION")
+		);
+
+		Classes.registerClass(new AnyInfo<>(AnyAmount.class, "amount")
+			.name("Any Sized Thing")
+			.description("Something that has an amount or size.")
+			.usage("")
+			.examples("the size of {thing}", "the amount of {thing}")
+			.since("INSERT VERSION")
+		);
+
+		Classes.registerClass(new AnyInfo<>(AnyContains.class, "container")
+			.name("Anything With Contents")
+			.description("Something that contains other things.")
+			.usage("")
+			.examples("{a} contains {b}")
+			.since("INSERT VERSION")
+		);
+
+		Classes.registerClass(new AnyInfo<>(AnyMembers.class, "group")
+			.name("Anything With Members")
+			.description("Something that has members (e.g. a team).")
+			.usage("")
+			.examples("the members of {thing}")
+			.since("INSERT VERSION")
+		);
+
+		Classes.registerClass(new AnyInfo<>(AnyPrefixed.class, "prefixed")
+			.name("Anything With A Prefix")
+			.description("Something that can have a (text) prefix, such as a player or a team.")
+			.usage("")
+			.examples("player's prefix")
+			.since("INSERT VERSION")
+		);
+
+		Classes.registerClass(new AnyInfo<>(AnySuffixed.class, "suffixed")
+			.name("Anything With A Suffix")
+			.description("Something that can have a (text) suffix, such as a player or a team.")
+			.usage("")
+			.examples("player's suffix")
+			.since("INSERT VERSION")
+		);
+
+		Classes.registerClass(new AnyInfo<>(AnyDisplayNamed.class, "displaynamed")
+			.name("Any Display-Named Thing")
+			.description("Something that has a display name (e.g. a player, an objective, a team).")
+			.usage("")
+			.examples("{objective}'s display name")
+			.since("INSERT VERSION")
+		);
+
 	}
-	
+
 }
