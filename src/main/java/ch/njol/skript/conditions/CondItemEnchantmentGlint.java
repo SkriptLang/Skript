@@ -56,7 +56,7 @@ public class CondItemEnchantmentGlint extends Condition {
 			Skript.registerCondition(CondItemEnchantmentGlint.class,
 				"%itemtypes% (has|have) [the] enchantment glint overrid(den|e)",
 				"%itemtypes% (doesn't|does not|do not|don't) have [the] enchantment glint overrid(den|e)",
-				"%itemtypes% (is|are) forced to [:not] glint");
+				"%itemtypes% (is|are) forced (to [:not]|[:not] to) glint");
 	}
 
 	private Expression<ItemType> itemtypes;
