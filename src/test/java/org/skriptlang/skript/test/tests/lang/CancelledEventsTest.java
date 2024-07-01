@@ -16,29 +16,32 @@
  *
  * Copyright Peter Güttinger, SkriptLang team and contributors
  */
-package org.skriptlang.skript.test.tests.syntaxes;
+package org.skriptlang.skript.test.tests.lang;
 
 import ch.njol.skript.test.runner.SkriptJUnitTest;
-import org.bukkit.entity.Pig;
-import org.junit.Before;
+import org.bukkit.Bukkit;
+import org.bukkit.event.block.BlockFormEvent;
 import org.junit.Test;
 
-public class ExprDropsTest extends SkriptJUnitTest {
+public class CancelledEventsTest extends SkriptJUnitTest {
 
-	private Pig pig;
 
 	static {
 		setShutdownDelay(1);
 	}
 
-	@Before
-	public void spawnPig() {
-		pig = spawnTestPig();
-	}
-
 	@Test
-	public void killPig() {
-		pig.damage(100);
+	public void callCancelledEvent() {
+		BlockFormEvent event = new BlockFormEvent(getBlock(), getBlock().getState());
+
+		// call cancelled event
+		event.setCancelled(true);
+		Bukkit.getPluginManager().callEvent(event);
+
+		// call non-cancelled event
+		event.setCancelled(false);
+		Bukkit.getPluginManager().callEvent(event);
 	}
 
 }
+

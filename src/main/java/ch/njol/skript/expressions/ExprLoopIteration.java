@@ -45,7 +45,7 @@ import org.eclipse.jdt.annotation.Nullable;
 	"",
 	"loop {top-balances::*}:",
 	"\tif loop-iteration <= 10:",
-	"\t\tbroadcast \"##%loop-iteration% %loop-index% has $%loop-value%\"",
+	"\t\tbroadcast \"#%loop-iteration% %loop-index% has $%loop-value%\"",
 })
 @Since("2.8.0")
 public class ExprLoopIteration extends SimpleExpression<Long> {

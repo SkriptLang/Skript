@@ -1,34 +1,34 @@
 test "contains condition":
 	# Strings
-	assert "abc" contains "b" with "simple string contains failed ##1"
-	assert "abc" contains "abc" with "simple string contains failed ##2"
-	assert "abc" and "cde" contain "c" with "simple string contains failed ##3"
-	assert "abc" does not contain "d" with "simple string contains failed ##4"
-	assert "abc" and "def" do not contain "ghi" with "simple string contains failed ##5"
-	assert "abc" and "def" does not contain "ab" with "string object failed ##6"
+	assert "abc" contains "b" with "simple string contains failed"
+	assert "abc" contains "abc" with "simple string contains failed"
+	assert "abc" and "cde" contain "c" with "simple string contains failed"
+	assert "abc" does not contain "d" with "simple string contains failed"
+	assert "abc" and "def" do not contain "ghi" with "simple string contains failed"
+	assert "abc" and "def" does not contain "ab" with "string object failed"
 
 	# Objects
-	assert "abc" and "def" contains "abc" with "object contains failed ##1"
-	assert 123 and 456 contains 456 with "object contains failed ##2"
-	assert 123 and 456 does not contain 789 with "object contains failed ##3"
-	assert 123 contains 123 with "object contains failed ##4"
+	assert "abc" and "def" contains "abc" with "object contains failed"
+	assert 123 and 456 contains 456 with "object contains failed"
+	assert 123 and 456 does not contain 789 with "object contains failed"
+	assert 123 contains 123 with "object contains failed"
 	set {_l::*} to 5 times
-	assert {_l::*} contains 5 with "object contains failed ##5"
-	assert {_l::*} does not contain 6 with "object contains failed ##6"
+	assert {_l::*} contains 5 with "object contains failed"
+	assert {_l::*} does not contain 6 with "object contains failed"
 
 	# Inventory
 	set {_inv} to chest inventory with 3 rows
 	set slot 0 of {_inv} to stone named "pp"
 	set slot 1 of {_inv} to dirt
-	assert {_inv} contains stone with "inventory contains failed ##1"
-	assert {_inv} contains stone named "pp" with "inventory contains failed ##2"
-	assert {_inv} does not contain stone named "abc" with "inventory contains failed ##3"
-	assert {_inv} does not contain sand with "inventory contains failed ##4"
-	assert {_inv} contains dirt with "inventory contains failed ##5"
-	assert {_inv} does not contain 2 dirt with "inventory contains failed ##6"
+	assert {_inv} contains stone with "inventory contains failed"
+	assert {_inv} contains stone named "pp" with "inventory contains failed"
+	assert {_inv} does not contain stone named "abc" with "inventory contains failed"
+	assert {_inv} does not contain sand with "inventory contains failed"
+	assert {_inv} contains dirt with "inventory contains failed"
+	assert {_inv} does not contain 2 dirt with "inventory contains failed"
 	set slot 2 of {_inv} to dirt
-	assert {_inv} contains 2 dirt with "inventory contains failed ##7"
-	assert {_inv} does not contain 3 dirt with "inventory contains failed ##8"
+	assert {_inv} contains 2 dirt with "inventory contains failed"
+	assert {_inv} does not contain 3 dirt with "inventory contains failed"
 
 	set {_inv1} to chest inventory with 3 rows
 	set {_inv2} to chest inventory with 3 rows

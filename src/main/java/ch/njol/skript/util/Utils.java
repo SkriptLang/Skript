@@ -62,6 +62,7 @@ import ch.njol.util.StringUtils;
 import ch.njol.util.coll.CollectionUtils;
 import ch.njol.util.coll.iterator.EnumerationIterable;
 import net.md_5.bungee.api.ChatColor;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * Utility class.
@@ -640,7 +641,7 @@ public abstract class Utils {
 		return "" + m;
 	}
 
-	private static final Pattern HEX_PATTERN = Pattern.compile("(?i)#?[0-9a-f]{6}");
+	private static final Pattern HEX_PATTERN = Pattern.compile("(?i)#{0,2}[0-9a-f]{6}");
 
 	/**
 	 * Tries to get a {@link ChatColor} from the given string.
@@ -673,41 +674,64 @@ public abstract class Utils {
 			throw new IllegalArgumentException("end (" + end + ") must be > start (" + start + ")");
 		return start + random.nextInt(end - start);
 	}
-	
-	// TODO improve
-	public static Class<?> getSuperType(final Class<?>... cs) {
-		assert cs.length > 0;
-		Class<?> r = cs[0];
-		assert r != null;
-		outer: for (final Class<?> c : cs) {
-			assert c != null && !c.isArray() && !c.isPrimitive() : c;
-			if (c.isAssignableFrom(r)) {
-				r = c;
+
+	/**
+	 * @see #highestDenominator(Class, Class[])
+	 */
+	public static Class<?> getSuperType(final Class<?>... classes) {
+		return highestDenominator(Object.class, classes);
+	}
+
+	/**
+	 * Searches for the highest common denominator of the given types;
+	 * in other words, the first supertype they all share.
+	 *
+	 * <h3>Arbitrary Selection</h3>
+	 * Classes may have <b>multiple</b> highest common denominators: interfaces that they share
+	 * which do not extend each other.
+	 * This method selects a <b>superclass</b> first (where possible)
+	 * but its selection of interfaces is quite random.
+	 * For this reason, it is advised to specify a "best guess" class as the first parameter, which will be selected if
+	 * it's appropriate.
+	 * Note that if the "best guess" is <i>not</i> a real supertype, it can never be selected.
+	 *
+	 * @param bestGuess The fallback class to guess
+	 * @param classes The types to check
+	 * @return The most appropriate common class of all provided
+	 * @param <Found> The highest common denominator found
+	 * @param <Type> The input type spread
+	 */
+	@SafeVarargs
+	@SuppressWarnings("unchecked")
+	public static <Found, Type extends Found> Class<Found> highestDenominator(Class<? super Found> bestGuess, @NotNull Class<? extends Type> @NotNull ... classes) {
+		assert classes.length > 0;
+		Class<?> chosen = classes[0];
+		outer:
+		for (final Class<?> checking : classes) {
+			assert checking != null && !checking.isArray() && !checking.isPrimitive() : checking;
+			if (chosen.isAssignableFrom(checking))
 				continue;
+			Class<?> superType = checking;
+			do if (superType != Object.class && superType.isAssignableFrom(chosen)) {
+				chosen = superType;
+				continue outer;
 			}
-			if (!r.isAssignableFrom(c)) {
-				Class<?> s = c;
-				while ((s = s.getSuperclass()) != null) {
-					if (s != Object.class && s.isAssignableFrom(r)) {
-						r = s;
-						continue outer;
-					}
+			while ((superType = superType.getSuperclass()) != null);
+			for (final Class<?> anInterface : checking.getInterfaces()) {
+				superType = highestDenominator(Object.class, anInterface, chosen);
+				if (superType != Object.class) {
+					chosen = superType;
+					continue outer;
 				}
-				for (final Class<?> i : c.getInterfaces()) {
-					s = getSuperType(i, r);
-					if (s != Object.class) {
-						r = s;
-						continue outer;
-					}
-				}
-				return Object.class;
 			}
+			return (Class<Found>) bestGuess;
 		}
-		
+		if (!bestGuess.isAssignableFrom(chosen)) // we struck out on a type we don't want
+			return (Class<Found>) bestGuess;
 		// Cloneable is about as useful as object as super type
 		// However, it lacks special handling used for Object supertype
 		// See #1747 to learn how it broke returning items from functions
-		return r.equals(Cloneable.class) ? Object.class : r;
+		return (Class<Found>) (chosen == Cloneable.class ? bestGuess : chosen == Object.class ? bestGuess : chosen);
 	}
 	
 	/**

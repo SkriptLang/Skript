@@ -22,7 +22,7 @@
 # This file, all scripts and other files ending in .sk are NOT .yml/YAML files, but very similar!
 # Please remember the following when editing files:
 # - To indent sections you can use spaces like in YAML, but tabs are also allowed. Just remember to stick to the one or the other for a section/trigger.
-# - '#' starts a comment like in YAML. If you don't want it to start a comment simply double it: '##' (You also have to double these in "quoted text")
+# - '#' starts a comment like in YAML. If you don't want it to start a comment simply double it: '##' (You do NOT have to double these in "quoted text")
 # - If you use special characters (§, äöü, éèàôç, ñ, etc.) you have to encode the file in UTF-8.
 #
 
@@ -31,7 +31,7 @@
 # ==== General Options ====
 
 language: english
-# Which language to use. Currently English, German, Korean, French, Polish, Japanese, Simplified Chinese and Turkish
+# Which language to use. Currently English, German, Korean, French, Polish, Russian, Japanese, Simplified Chinese and Turkish
 # are included in the download, but custom languages can be created as well. Use the name in lowercase and no spaces as the value.
 # Please note that not everything can be translated yet, i.e. parts of Skript will still be english if you use another language.
 # If you want to translate Skript to your language please read the readme.txt located in the /lang/ folder in the jar
@@ -80,6 +80,16 @@ log effect commands: false
 # Whether Skript should log the usage of effect commands.
 # They will be logged as [INFORMATION] in this format: '<player> issued effect command: <command>'
 
+
+load default aliases: true
+# Whether Skript should use the default, Skript-provided aliases for items.
+# Disabling this will cause all aliases to be automatically generated. Some items, like potions,
+# will likely not have aliases in this case.
+#
+# You can provide your own aliases by making an 'aliases' folder in the Skript directory and putting the alias files there.
+# The default aliases folder is available with Skript releases on GitHub.
+
+
 player variable fix: true
 # Whether to enable the player variable fix if a player has rejoined and was reciding inside a variable.
 # Player objects inside a variable(list or normal) are not updated to the new player object
@@ -88,7 +98,7 @@ player variable fix: true
 # This fix should work around that and whenever a invalid(old) player object is attempted to be get through a variable
 # It will check if the player is online and then get the valid(new) player object and update the variable object to that one.
 
-use player UUIDs in variable names: false
+use player UUIDs in variable names: true
 # Whether to use a player's UUID instead of their name in variables, e.g. {home::%player%} will look like
 # {home::e5240337-a4a2-39dd-8ed9-e5ce729a8522} instead of {home::njol}.
 # Please note that if this setting is changed old variables WILL NOT be renamed automatically.
@@ -122,6 +132,9 @@ plugin priority: high
 # - effects 'remove ... from drops'/'clear drops': Drops added by other plugins are not removed => increase priority
 #                                                  Skript removes drops it shouldn't => decrease priority or specify which item types to remove
 
+listen to cancelled events by default: false
+# Determines whether `on <event>` will be triggered by all events (true) or only uncancelled events (false).
+# The default is false, which maintains traditional Skript behavior.
 
 number accuracy: 2
 # How many digits should be displayed after the dot at maximum when displaying numbers.
@@ -143,6 +156,11 @@ case sensitive: false
 case-insensitive variables: true
 # Whether Skript's variables should be case sensitive or not.
 # When set to true, all variable names and indices case will be ignored.
+
+case-insensitive commands: false
+# Whether Skript should accept custom commands regardless of case.
+# When set to true, /test, /Test, and /TEST will all be equivalent.
+# This does not affect non-Skript commands.
 
 disable variable will not be saved warnings: false
 # Disables the "... i.e contents cannot be saved ..." warning when reloading and something in your scripts sets a variable(non local) to a value that is not serializable.
