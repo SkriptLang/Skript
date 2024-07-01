@@ -30,8 +30,6 @@ import org.bukkit.Registry;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -147,8 +145,7 @@ public class RegistryParser<R extends Keyed> extends Parser<R> {
 	 * Note that some entries may represent the same registry object.
 	 */
 	public String getAllNames() {
-		List<String> strings = new ArrayList<>(parseMap.keySet());
-		Collections.sort(strings);
+		List<String> strings = parseMap.keySet().stream().filter(s -> !s.startsWith("minecraft:")).sorted().toList();
 		return StringUtils.join(strings, ", ");
 	}
 
