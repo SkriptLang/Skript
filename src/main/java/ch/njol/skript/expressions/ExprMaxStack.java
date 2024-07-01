@@ -88,7 +88,7 @@ public class ExprMaxStack extends SimplePropertyExpression<Object, Integer> {
 	}
 
 	@Override
-	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
+	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
 		for (Object source : getExpr().getArray(event)) {
 			Integer change = null;
 			if (mode != ChangeMode.RESET)
