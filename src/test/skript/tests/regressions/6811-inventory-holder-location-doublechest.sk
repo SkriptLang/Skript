@@ -1,0 +1,20 @@
+test "inventory holder location double chest":
+	set {_b::1} to the block at spawn of world "world"
+	set {_b::2} to the block north of {_b::1}
+	set {_prev::1} to type of block at {_b::1}
+	set {_prev::2} to type of block at {_b::2}
+
+	set block at {_b::1} to chest[facing=east;type=right]
+	set block at {_b::2} to chest[facing=east;type=left]
+
+	set {_inv} to inventory of {_b::1}
+	set {_holder} to holder of {_inv}
+
+	set {_a-loc} to location of {_holder}
+	set {_b-loc::*} to location of {_b::1} and location of {_b::2}
+
+	# clean up first in case assert fails
+	set block at {_b::1} to {_prev::1}
+	set block at {_b::2} to {_prev::2}
+
+	assert {_b-loc::*} contains {_a-loc} with "holder location of double chest differs from block location"

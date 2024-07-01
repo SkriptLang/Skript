@@ -23,6 +23,7 @@ import ch.njol.yggdrasil.Fields;
 import org.bukkit.Keyed;
 import org.bukkit.NamespacedKey;
 import org.bukkit.Registry;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.StreamCorruptedException;
 
@@ -40,10 +41,10 @@ public class RegistrySerializer<R extends Keyed> extends Serializer<R> {
 	}
 
 	@Override
-	public Fields serialize(R o) {
+	public @NotNull Fields serialize(R o) {
 		Fields fields = new Fields();
 		fields.putPrimitive("name", o.getKey().toString());
-		return null;
+		return fields;
 	}
 
 	@Override

@@ -2164,11 +2164,14 @@ genes:
 
 # -- Attribute Types --
 attribute types:
+	# Enum variation
 	generic_armor: generic armor, armor
 	generic_armor_toughness: generic armor toughness, armor toughness
 	generic_attack_damage: generic attack damage, attack damage
 	generic_attack_knockback: generic attack knockback, attack knockback
 	generic_attack_speed: generic attack speed, attack speed
+	generic_burning_time: generic burning time, burning time
+	generic_explosion_knockback_resistance: generic explosion knockback resistance, explosion knockback resistance
 	generic_flying_speed: generic flying speed, flying speed
 	generic_follow_range: generic follow range, follow range
 	generic_gravity: generic gravity, gravity
@@ -2177,16 +2180,56 @@ attribute types:
 	generic_luck: generic luck, luck
 	generic_max_absorption: generic max absorption, max absorption
 	generic_max_health: generic max health, max health
+	generic_movement_efficiency: generic movement efficiency, movement efficiency
 	generic_movement_speed: generic movement speed, movement speed
+	generic_oxygen_bonus: generic oxygen bonus, oxygen bonus
 	generic_safe_fall_distance: generic safe fall distance, safe fall distance
 	generic_fall_damage_multiplier: generic fall damage multiplier, fall damage multiplier
 	generic_scale: generic scale, scale
 	generic_step_height: generic step height, step height
+	generic_water_movement_efficiency: generic water movement efficiency, water movement efficiency
 	horse_jump_strength: horse jump strength
 	player_block_break_speed: player block break speed, block break speed
 	player_block_interaction_range: player block interaction range, block interaction range
 	player_entity_interaction_range: player entity interaction range, entity interaction range
+	player_mining_efficiency: player mining efficiency, mining efficiency
+	player_sneaking_speed: player sneaking speed, sneaking speed
+	player_submerged_mining_speed: player submerged mining speed, submerged mining speed
+	player_sweeping_damage_ratio: player sweeping damage ratio, sweeping damage ratio
 	zombie_spawn_reinforcements: zombie spawn reinforcements
+	# Registry variation (minecraft keys)
+	generic.armor: generic armor, armor
+	generic.armor_toughness: generic armor toughness, armor toughness
+	generic.attack_damage: generic attack damage, attack damage
+	generic.attack_knockback: generic attack knockback, attack knockback
+	generic.attack_speed: generic attack speed, attack speed
+	generic.burning_time: generic burning time, burning time
+	generic.explosion_knockback_resistance: generic explosion knockback resistance, explosion knockback resistance
+	generic.flying_speed: generic flying speed, flying speed
+	generic.follow_range: generic follow range, follow range
+	generic.gravity: generic gravity, gravity
+	generic.jump_strength: generic jump strength, jump strength
+	generic.knockback_resistance: generic knockback resistance, knockback resistance
+	generic.luck: generic luck, luck
+	generic.max_absorption: generic max absorption, max absorption
+	generic.max_health: generic max health, max health
+	generic.movement_efficiency: generic movement efficiency, movement efficiency
+	generic.movement_speed: generic movement speed, movement speed
+	generic.oxygen_bonus: generic oxygen bonus, oxygen bonus
+	generic.safe_fall_distance: generic safe fall distance, safe fall distance
+	generic.fall_damage_multiplier: generic fall damage multiplier, fall damage multiplier
+	generic.scale: generic scale, scale
+	generic.step_height: generic step height, step height
+	generic.water_movement_efficiency: generic water movement efficiency, water movement efficiency
+	horse_jump_strength: horse jump strength
+	player.block_break_speed: player block break speed, block break speed
+	player.block_interaction_range: player block interaction range, block interaction range
+	player.entity_interaction_range: player entity interaction range, entity interaction range
+	player.mining_efficiency: player mining efficiency, mining efficiency
+	player.sneaking_speed: player sneaking speed, sneaking speed
+	player.submerged_mining_speed: player submerged mining speed, submerged mining speed
+	player.sweeping_damage_ratio: player sweeping damage ratio, sweeping damage ratio
+	zombie.spawn_reinforcements: zombie spawn reinforcements
 
 # -- Environments --
 environments:

@@ -336,6 +336,13 @@ public class NewBlockCompat implements BlockCompat {
 		return getBlockValues(blockState.getBlockData());
 	}
 
+	@Override
+	public @Nullable BlockValues getBlockValues(Material material) {
+		if (material.isBlock())
+			return new NewBlockValues(material, Bukkit.createBlockData(material), false);
+		return null;
+	}
+
 	@Nullable
 	@Override
 	public BlockValues getBlockValues(BlockData blockData) {
