@@ -496,7 +496,6 @@ public class DefaultComparators {
 		});
 		
 		// DamageCause - ItemType
-		ItemType lava = Aliases.javaItemType("lava");
 		Comparators.registerComparator(DamageCause.class, ItemType.class, new Comparator<DamageCause, ItemType>() {
 			@Override
 			public Relation compare(DamageCause dc, ItemType t) {
@@ -504,7 +503,7 @@ public class DefaultComparators {
 					case FIRE:
 						return Relation.get(t.isOfType(Material.FIRE));
 					case LAVA:
-						return Relation.get(t.equals(lava));
+						return Relation.get(t.getMaterial() == Material.LAVA);
 					case MAGIC:
 						return Relation.get(t.isOfType(Material.POTION));
 					case HOT_FLOOR:

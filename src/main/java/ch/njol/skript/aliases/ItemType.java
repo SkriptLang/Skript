@@ -40,6 +40,7 @@ import ch.njol.yggdrasil.YggdrasilSerializable.YggdrasilExtendedSerializable;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
+import org.bukkit.Tag;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.Skull;
@@ -171,6 +172,18 @@ public class ItemType implements Unit, Iterable<ItemData>, Container<ItemStack>,
 
 	public ItemType(Material id) {
 		add_(new ItemData(id));
+	}
+
+	public ItemType(Material... ids) {
+		for (Material id : ids) {
+			add_(new ItemData(id));
+		}
+	}
+
+	public ItemType(Tag<Material> tag) {
+		for (Material id : tag.getValues()) {
+			add_(new ItemData(id));
+		}
 	}
 
 	public ItemType(Material id, String tags) {
