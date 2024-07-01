@@ -13,6 +13,7 @@ not: not
 # not a: not a(n) # @a:not a @an:not an @x:not
 neither: neither
 nor: nor
+of: of
 
 genders:
 	0:
@@ -47,58 +48,56 @@ aliases:
 
 # -- Enchantments --
 enchantments:
-	of: of
-	names:
-		protection: Protection
-		fire_protection: Fire Protection
-		feather_falling: Feather Falling
-		blast_protection: Blast Protection
-		projectile_protection: Projectile Protection
-		respiration: Respiration
-		aqua_affinity: Aqua Affinity
-		sharpness: Sharpness
-		smite: Smite
-		bane_of_arthropods: Bane of Arthropods
-		knockback: Knockback
-		fire_aspect: Fire Aspect
-		looting: Looting
-		efficiency: Efficiency
-		silk_touch: Silk Touch
-		unbreaking: Unbreaking
-		fortune: Fortune
-		power: Power
-		punch: Punch
-		flame: Flame
-		infinity: Infinity
-		thorns: Thorns
-		luck: Luck of the Sea
-		lure: Lure
-		depth_strider: Depth Strider
-		mending: Mending
-		frost_walker: Frost Walker
-		vanishing_curse: Curse of Vanishing
-		binding_curse: Curse of Binding
-		# It's sweeping on 1.10 and below for some reason.
-		sweeping: Sweeping Edge
-		sweeping_edge: Sweeping Edge
-		# New 1.13 Enchantments
-		channeling: Channeling, Channelling
-		riptide: Riptide
-		impaling: Impaling
-		loyalty: Loyalty
-		luck_of_the_sea: Luck of The Sea
-		# new 1.14 Enchantments
-		multishot: Multishot, Multi-Shot
-		piercing: Piercing
-		quick_charge: Quick Charge
-		# new 1.16 Enchantment
-		soul_speed: Soul Speed
-		# new 1.19 Enchantment
-		swift_sneak: Swift Sneak
-		# new 1.21 Enchantments (added in 1.20.5 experimental)
-		density: Density
-		breach: Breach
-		wind_burst: Wind Burst
+	protection: Protection
+	fire_protection: Fire Protection
+	feather_falling: Feather Falling
+	blast_protection: Blast Protection
+	projectile_protection: Projectile Protection
+	respiration: Respiration
+	aqua_affinity: Aqua Affinity
+	sharpness: Sharpness
+	smite: Smite
+	bane_of_arthropods: Bane of Arthropods
+	knockback: Knockback
+	fire_aspect: Fire Aspect
+	looting: Looting
+	efficiency: Efficiency
+	silk_touch: Silk Touch
+	unbreaking: Unbreaking
+	fortune: Fortune
+	power: Power
+	punch: Punch
+	flame: Flame
+	infinity: Infinity
+	thorns: Thorns
+	luck: Luck of the Sea
+	lure: Lure
+	depth_strider: Depth Strider
+	mending: Mending
+	frost_walker: Frost Walker
+	vanishing_curse: Curse of Vanishing
+	binding_curse: Curse of Binding
+	# It's sweeping on 1.10 and below for some reason.
+	sweeping: Sweeping Edge
+	sweeping_edge: Sweeping Edge
+	# New 1.13 Enchantments
+	channeling: Channeling, Channelling
+	riptide: Riptide
+	impaling: Impaling
+	loyalty: Loyalty
+	luck_of_the_sea: Luck of The Sea
+	# new 1.14 Enchantments
+	multishot: Multishot, Multi-Shot
+	piercing: Piercing
+	quick_charge: Quick Charge
+	# new 1.16 Enchantment
+	soul_speed: Soul Speed
+	# new 1.19 Enchantment
+	swift_sneak: Swift Sneak
+	# new 1.21 Enchantments (added in 1.20.5 experimental)
+	density: Density
+	breach: Breach
+	wind_burst: Wind Burst
 
 # -- Potion Effects --
 potions:
