@@ -50,9 +50,12 @@ import ch.njol.util.Kleenean;
 @Description({"Writes text into a .log file. Skript will write these files to /plugins/Skript/logs.",
 		"NB: Using 'server.log' as the log file will write to the default server log. Omitting the log file altogether will log the message as '[Skript] [&lt;script&gt;.sk] &lt;message&gt;' in the server log."})
 @Examples({
-		"log \"%player% has just joined the server!\"",
-		"log \"Someone just went to %event-world%!\" to file \"worldlog/worlds.log\"",
-		"log \"%player% just executed %full command%!\" to file \"server/commands.log\" with a severity of warning"
+	"on join:",
+	"\tlog \"%player% has just joined the server!\"",
+	"on world change:",
+	"\tlog \"Someone just went to %event-world%!\" to file \"worldlog/worlds.log\"",
+	"on command:",
+	"\tlog \"%player% just executed %full command%!\" to file \"server/commands.log\" with a severity of warning"
 })
 @Since("2.0, INSERT VERSION (severities)")
 public class EffLog extends Effect {
@@ -79,7 +82,7 @@ public class EffLog extends Effect {
 	private Expression<String> files;
 
 	private Level logLevel = Level.INFO;
-	private static <LogLevel> String getLogPrefix(LogLevel logLevel) {
+	private static String getLogPrefix(Level logLevel) {
 		String timestamp = SkriptConfig.formatDate(System.currentTimeMillis());
 		if (logLevel == Level.INFO)
 			return "[" + timestamp + "]";
@@ -110,6 +113,7 @@ public class EffLog extends Effect {
 						logFile += ".log";
 					if (logFile.equals("server.log")) {
 						SkriptLogger.LOGGER.log(logLevel, message);
+						continue;
 					}
 					PrintWriter logWriter = writers.get(logFile);
 					if (logWriter == null) {
