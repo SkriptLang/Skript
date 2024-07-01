@@ -31,11 +31,8 @@ import org.bukkit.enchantments.Enchantment;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.StreamCorruptedException;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
@@ -49,32 +46,28 @@ public class EnchantmentUtils {
 	private static final boolean HAS_REGISTRY = BukkitUtils.registryExists("ENCHANTMENT");
 
 	static {
-		Language.addListener(() -> {
-			NAMES.clear();
-			PATTERNS.clear();
-			List<Enchantment> enchantments = new ArrayList<>();
-			if (HAS_REGISTRY) {
-				Registry.ENCHANTMENT.forEach(enchantments::add);
-			} else {
-				enchantments.addAll(Arrays.asList(Enchantment.values()));
-			}
-			for (Enchantment enchantment : enchantments) {
-				NamespacedKey key = enchantment.getKey();
-				final String[] names = Language.getList("enchantments." + key.getKey());
+		if (!HAS_REGISTRY) {
+			Language.addListener(() -> {
+				NAMES.clear();
+				PATTERNS.clear();
+				for (Enchantment enchantment : Enchantment.values()) {
+					NamespacedKey key = enchantment.getKey();
+					final String[] names = Language.getList("enchantments." + key.getKey());
 
-				if (!names[0].startsWith("enchantments.")) {
-					NAMES.put(enchantment, names[0]);
-					// Add lang file names
-					for (String name : names)
-						PATTERNS.put(name.toLowerCase(Locale.ENGLISH), enchantment);
+					if (!names[0].startsWith("enchantments.")) {
+						NAMES.put(enchantment, names[0]);
+						// Add lang file names
+						for (String name : names)
+							PATTERNS.put(name.toLowerCase(Locale.ENGLISH), enchantment);
+					}
+					// If Minecraft provided, add key without namespace and underscores (ex: "fire aspect")
+					if (key.getNamespace().equalsIgnoreCase("minecraft"))
+						PATTERNS.put(key.getKey().replace("_", " "), enchantment);
+					// Add full namespaced key as pattern (ex: "minecraft:fire_aspect", "custom:floopy_floopy")
+					PATTERNS.put(key.toString(), enchantment);
 				}
-				// If Minecraft provided, add key without namespace and underscores (ex: "fire aspect")
-				if (key.getNamespace().equalsIgnoreCase("minecraft"))
-					PATTERNS.put(key.getKey().replace("_", " "), enchantment);
-				// Add full namespaced key as pattern (ex: "minecraft:fire_aspect", "custom:floopy_floopy")
-				PATTERNS.put(key.toString(), enchantment);
-			}
-		});
+			});
+		}
 	}
 
 	public static String getKey(Enchantment enchantment) {
