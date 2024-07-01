@@ -18,6 +18,7 @@
  */
 package ch.njol.skript.classes.data;
 
+import ch.njol.skript.Skript;
 import ch.njol.skript.expressions.base.EventValueExpression;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.function.FunctionEvent;
@@ -45,7 +46,9 @@ import ch.njol.skript.util.Contract;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 import java.util.UUID;
 
 public class DefaultFunctions {
@@ -556,23 +559,54 @@ public class DefaultFunctions {
 			.examples("set {_p} to player(\"Notch\") # will return an online player whose name is or starts with 'Notch'", "set {_p} to player(\"Notch\", true) # will return the only online player whose name is 'Notch'", "set {_p} to player(\"069a79f4-44e9-4726-a5be-fca90e38aaf5\") # <none> if player is offline")
 			.since("2.8.0");
 
-		Functions.registerFunction(new SimpleJavaFunction<OfflinePlayer>("offlineplayer", new Parameter[] {
-			new Parameter<>("nameOrUUID", DefaultClasses.STRING, true, null)
-		}, DefaultClasses.OFFLINE_PLAYER, true) {
-			@Override
-			public OfflinePlayer[] executeSimple(Object[][] params) {
-				String name = (String) params[0][0];
-				UUID uuid = null;
-				if (name.length() > 16 || name.contains("-")) { // shortcut
-					try {
-						uuid = UUID.fromString(name);
-					} catch (IllegalArgumentException ignored) {}
+		{ // offline player function
+			boolean hasIfCached = Skript.methodExists(Bukkit.class, "getOfflinePlayerIfCached", String.class);
+
+			List<Parameter<?>> params = new ArrayList<>();
+			params.add(new Parameter<>("nameOrUUID", DefaultClasses.STRING, true, null));
+			if (hasIfCached)
+				params.add(new Parameter<>("allowLookups", DefaultClasses.BOOLEAN, true, new SimpleLiteral<>(true, true)));
+
+			Functions.registerFunction(new SimpleJavaFunction<OfflinePlayer>("offlineplayer", params.toArray(new Parameter[0]),
+				DefaultClasses.OFFLINE_PLAYER, true) {
+				@Override
+				public OfflinePlayer[] executeSimple(Object[][] params) {
+					String name = (String) params[0][0];
+					UUID uuid = null;
+					if (name.length() > 16 || name.contains("-")) { // shortcut
+						try {
+							uuid = UUID.fromString(name);
+						} catch (IllegalArgumentException ignored) {
+						}
+					}
+					OfflinePlayer result;
+
+					if (uuid != null) {
+						result = Bukkit.getOfflinePlayer(uuid); // doesn't do lookups
+					} else if (hasIfCached && !((Boolean) params[1][0])) {
+						result = Bukkit.getOfflinePlayerIfCached(name);
+						if (result == null)
+							return new OfflinePlayer[0];
+					} else {
+						result = Bukkit.getOfflinePlayer(name);
+					}
+
+					return CollectionUtils.array(result);
 				}
-				return CollectionUtils.array(uuid != null ? Bukkit.getOfflinePlayer(uuid) : Bukkit.getOfflinePlayer(name));
-			}
-		}).description("Returns a offline player from their name or UUID. This function will still return the player if they're online.")
-			.examples("set {_p} to offlineplayer(\"Notch\")", "set {_p} to offlineplayer(\"069a79f4-44e9-4726-a5be-fca90e38aaf5\")")
-			.since("2.8.0");
+
+			}).description(
+				"Returns a offline player from their name or UUID. This function will still return the player if they're online. " +
+				"If Paper 1.16.5+ is used, the 'allowLookup' parameter can be set to false to prevent this function from doing a " +
+				"web lookup for players who have not joined before. Lookups can cause lag spikes of up to multiple seconds, so " +
+				"use offline players with caution."
+			)
+			.examples(
+				"set {_p} to offlineplayer(\"Notch\")",
+				"set {_p} to offlineplayer(\"069a79f4-44e9-4726-a5be-fca90e38aaf5\")",
+				"set {_p} to offlineplayer(\"Notch\", false)"
+			)
+			.since("2.8.0, INSERT VERSION (prevent lookups)");
+		} // end offline player function
 
 		Functions.registerFunction(new SimpleJavaFunction<Boolean>("isNaN", numberParam, DefaultClasses.BOOLEAN, true) {
 			@Override

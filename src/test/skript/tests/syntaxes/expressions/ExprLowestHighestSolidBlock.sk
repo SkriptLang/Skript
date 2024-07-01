@@ -1,0 +1,60 @@
+test "lowest/highest solid block (old height)" when running below minecraft "1.18":
+
+	# highest solid block
+	set {_oldBlock::1} to block data of block at location(0.5, 255.5, 0.5, "world")
+	set {_oldBlock::2} to block data of block at location(0.5, 254.5, 0.5, "world")
+	set {_oldBlock::3} to block data of block at location(0.5, 253.5, 0.5, "world")
+	set block at location(0.5, 255.5, 0.5, "world") to air
+	set block at location(0.5, 254.5, 0.5, "world") to air
+	set block at location(0.5, 253.5, 0.5, "world") to dirt
+	set {_highest} to highest solid block at location(0.5, 64, 0.5, "world")
+	assert type of {_highest} is dirt with "highest block is not dirt (got '%type of {_highest}%')"
+	assert location of {_highest} is location(0.5, 253.5, 0.5, "world") with "highest block is not at 0.5,253.5,0.5 (got '%location of {_highest}%')"
+	set block at location(0.5, 255.5, 0.5, "world") to {_oldBlock::1}
+	set block at location(0.5, 254.5, 0.5, "world") to {_oldBlock::2}
+	set block at location(0.5, 253.5, 0.5, "world") to {_oldBlock::3}
+
+	# lowest solid block
+	set {_oldBlock::1} to block data of block at location(0.5, 0.5, 0.5, "world")
+	set {_oldBlock::2} to block data of block at location(0.5, 1.5, 0.5, "world")
+	set {_oldBlock::3} to block data of block at location(0.5, 2.5, 0.5, "world")
+	set block at location(0.5, 0.5, 0.5, "world") to air
+	set block at location(0.5, 1.5, 0.5, "world") to air
+	set block at location(0.5, 2.5, 0.5, "world") to dirt
+	set {_lowest} to lowest solid block at location(0.5, 64, 0.5, "world")
+	assert type of {_lowest} is dirt with "lowest block is not dirt (got '%type of {_lowest}%')"
+	assert location of {_lowest} is location(0.5, 2.5, 0.5, "world") with "lowest block is not at 0.5,2.5,0.5 (got '%location of {_lowest}%')"
+	set block at location(0.5, 0.5, 0.5, "world") to {_oldBlock::1}
+	set block at location(0.5, 1.5, 0.5, "world") to {_oldBlock::2}
+	set block at location(0.5, 2.5, 0.5, "world") to {_oldBlock::3}
+
+test "lowest/highest solid block (new height)" when running minecraft "1.18":
+
+	# highest solid block
+	set {_oldBlock::1} to block data of block at location(0.5, 319.5, 0.5, "world")
+	set {_oldBlock::2} to block data of block at location(0.5, 318.5, 0.5, "world")
+	set {_oldBlock::3} to block data of block at location(0.5, 317.5, 0.5, "world")
+	set block at location(0.5, 319.5, 0.5, "world") to air
+	set block at location(0.5, 318.5, 0.5, "world") to air
+	set block at location(0.5, 317.5, 0.5, "world") to dirt
+	set {_highest} to highest solid block at location(0.5, 64, 0.5, "world")
+	assert type of {_highest} is dirt with "highest block is not dirt (got '%type of {_highest}%')"
+	assert location of {_highest} is location(0.5, 317.5, 0.5, "world") with "highest block is not at 0.5,317.5,0.5 (got '%location of {_highest}%')"
+	set block at location(0.5, 319.5, 0.5, "world") to {_oldBlock::1}
+	set block at location(0.5, 318.5, 0.5, "world") to {_oldBlock::1}
+	set block at location(0.5, 317.5, 0.5, "world") to {_oldBlock::1}
+
+	# lowest solid block
+	set {_oldBlock::1} to block data of block at location(0.5, -63.5, 0.5, "world")
+	set {_oldBlock::2} to block data of block at location(0.5, -62.5, 0.5, "world")
+	set {_oldBlock::3} to block data of block at location(0.5, -61.5, 0.5, "world")
+	set block at location(0.5, -63.5, 0.5, "world") to air
+	set block at location(0.5, -62.5, 0.5, "world") to air
+	set block at location(0.5, -61.5, 0.5, "world") to dirt
+	set {_lowest} to lowest solid block at location(0.5, 64, 0.5, "world")
+	assert type of {_lowest} is dirt with "lowest block is not dirt (got '%type of {_lowest}%')"
+	assert location of {_lowest} is location(0.5, -61.5, 0.5, "world") with "lowest block is not at 0.5,-61.5,0.5 (got '%location of {_lowest}%')"
+	set block at location(0.5, -63.5, 0.5, "world") to {_oldBlock::1}
+	set block at location(0.5, -62.5, 0.5, "world") to {_oldBlock::2}
+	set block at location(0.5, -61.5, 0.5, "world") to {_oldBlock::3}
+

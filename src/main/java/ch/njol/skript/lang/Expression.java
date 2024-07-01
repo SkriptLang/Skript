@@ -190,6 +190,31 @@ public interface Expression<T> extends SyntaxElement, Debuggable {
 	Class<? extends T> getReturnType();
 
 	/**
+	 * For expressions that might return multiple (incalculable at parse time) types,
+	 * this provides a list of all possible types.
+	 * Use cases include: expressions that depend on the return type of their input.
+	 *
+	 * @return A list of all possible types this might return
+	 */
+	default Class<? extends T>[] possibleReturnTypes() {
+		//noinspection unchecked
+		return new Class[] {this.getReturnType()};
+	}
+
+	/**
+	 * Whether this expression <b>might</b> return the following type.
+	 * @param returnType The type to test
+	 * @return true if the argument is within the bounds of the return types
+	 */
+	default boolean canReturn(Class<?> returnType) {
+		for (Class<?> type : this.possibleReturnTypes()) {
+			if (returnType.isAssignableFrom(type))
+				return true;
+		}
+		return false;
+	}
+
+	/**
 	 * Returns true if this expression returns all possible values, false if it only returns some of them.
 	 * <p>
 	 * This method significantly influences {@link #check(Event, Checker)}, {@link #check(Event, Checker, boolean)} and {@link CondIsSet} and thus breaks conditions that use this

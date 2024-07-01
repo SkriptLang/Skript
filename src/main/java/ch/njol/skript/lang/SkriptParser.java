@@ -57,7 +57,6 @@ import org.skriptlang.skript.lang.script.ScriptWarning;
 
 import java.util.ArrayList;
 import java.util.Deque;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -371,7 +370,7 @@ public class SkriptParser {
 				if (parsedExpression != null) { // Expression/VariableString parsing success
 					for (Class<? extends T> type : types) {
 						// Check return type against everything that expression accepts
-						if (type.isAssignableFrom(parsedExpression.getReturnType())) {
+						if (parsedExpression.canReturn(type)) {
 							log.printLog();
 							return (Expression<? extends T>) parsedExpression;
 						}
@@ -541,17 +540,13 @@ public class SkriptParser {
 			if ((flags & PARSE_EXPRESSIONS) != 0) {
 				Expression<?> parsedExpression = parseExpression(types, expr);
 				if (parsedExpression != null) { // Expression/VariableString parsing success
-					Class<?> returnType = parsedExpression.getReturnType(); // Sometimes getReturnType does non-trivial costly operations
-					if (returnType == null)
-						throw new SkriptAPIException("Expression '" + expr + "' returned null for method Expression#getReturnType. Null is not a valid return.");
-
 					for (int i = 0; i < types.length; i++) {
 						Class<?> type = types[i];
 						if (type == null) // Ignore invalid (null) types
 							continue;
 
 						// Check return type against everything that expression accepts
-						if (type.isAssignableFrom(returnType)) {
+						if (parsedExpression.canReturn(type)) {
 							if (!exprInfo.isPlural[i] && !parsedExpression.isSingle()) { // Wrong number of arguments
 								if (context == ParseContext.COMMAND) {
 									Skript.error(Commands.m_too_many_arguments.toString(exprInfo.classes[i].getName().getIndefiniteArticle(), exprInfo.classes[i].getName().toString()), ErrorQuality.SEMANTIC_ERROR);
@@ -762,11 +757,15 @@ public class SkriptParser {
 			exprReturnTypes[i] = parsedExpressions.get(i).getReturnType();
 
 		if (isLiteralList) {
-			Literal<T>[] literals = parsedExpressions.toArray(new Literal[parsedExpressions.size()]);
-			return new LiteralList<>(literals, (Class<T>) Classes.getSuperClassInfo(exprReturnTypes).getC(), !and.isFalse());
+			//noinspection unchecked,SuspiciousToArrayCall
+			Literal<T>[] literals = parsedExpressions.toArray(new Literal[0]);
+			//noinspection unchecked
+			return new LiteralList<>(literals, (Class<T>) Classes.getSuperClassInfo(exprReturnTypes).getC(), exprReturnTypes, !and.isFalse());
 		} else {
-			Expression<T>[] expressions = parsedExpressions.toArray(new Expression[parsedExpressions.size()]);
-			return new ExpressionList<>(expressions, (Class<T>) Classes.getSuperClassInfo(exprReturnTypes).getC(), !and.isFalse());
+			//noinspection unchecked
+			Expression<T>[] expressions = parsedExpressions.toArray(new Expression[0]);
+			//noinspection unchecked
+			return new ExpressionList<>(expressions, (Class<T>) Classes.getSuperClassInfo(exprReturnTypes).getC(), exprReturnTypes, !and.isFalse());
 		}
 	}
 
@@ -895,10 +894,10 @@ public class SkriptParser {
 
 			if (isLiteralList) {
 				Literal<?>[] literals = parsedExpressions.toArray(new Literal[parsedExpressions.size()]);
-				return new LiteralList(literals, Classes.getSuperClassInfo(exprReturnTypes).getC(), !and.isFalse());
+				return new LiteralList(literals, Classes.getSuperClassInfo(exprReturnTypes).getC(), exprReturnTypes, !and.isFalse());
 			} else {
 				Expression<?>[] expressions = parsedExpressions.toArray(new Expression[parsedExpressions.size()]);
-				return new ExpressionList(expressions, Classes.getSuperClassInfo(exprReturnTypes).getC(), !and.isFalse());
+				return new ExpressionList(expressions, Classes.getSuperClassInfo(exprReturnTypes).getC(), exprReturnTypes, !and.isFalse());
 
 			}
 		} finally {
