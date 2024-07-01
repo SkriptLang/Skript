@@ -19,7 +19,6 @@
 package ch.njol.skript.events;
 
 import ch.njol.skript.Skript;
-import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptEvent;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
@@ -29,8 +28,7 @@ import org.bukkit.entity.Entity;
 import org.bukkit.event.Event;
 import org.bukkit.event.entity.EntityTeleportEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
-
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 public class EvtTeleport extends SkriptEvent {
 
@@ -48,13 +46,16 @@ public class EvtTeleport extends SkriptEvent {
 			.since("1.0, INSERT VERSION (entity teleport)");
 	}
 
-	@SuppressWarnings("unchecked")
-	private Expression<EntityType> entities;
+	@Nullable
+	private Literal<EntityType> entitiesLiteral;
+	private EntityType @Nullable [] entities;
 
 	@Override
 	public boolean init(Literal<?>[] args, int matchedPattern, ParseResult parseResult) {
-		if (args[0] != null)
-			entities = (Expression<EntityType>) args[0];
+		if (args[0] != null) {
+			entitiesLiteral = ((Literal<EntityType>) args[0]); // evaluate only once
+			entities = entitiesLiteral.getAll();
+		}
 		return true;
 	}
 
@@ -63,18 +64,18 @@ public class EvtTeleport extends SkriptEvent {
 	public boolean check(Event event) {
 		if (event instanceof EntityTeleportEvent) {
 			Entity entity = ((EntityTeleportEvent) event).getEntity();
-			return checkEntity(entity, event);
+			return checkEntity(entity);
 		} else if (event instanceof PlayerTeleportEvent) {
 			Entity entity = ((PlayerTeleportEvent) event).getPlayer();
-			return checkEntity(entity, event);
+			return checkEntity(entity);
 		} else {
 			return false;
 		}
 	}
 
-	private boolean checkEntity(Entity entity, Event event) {
+	private boolean checkEntity(Entity entity) {
 		if (entities != null) {
-			for (EntityType entType : entities.getAll(event)) {
+			for (EntityType entType : entities) {
 				if (entType.isInstance(entity))
 					return true;
 			}
@@ -83,11 +84,9 @@ public class EvtTeleport extends SkriptEvent {
 		return true;
 	}
 
-	public String toString(@Nullable Event e, boolean debug) {
-		if (entities != null) {
-			return "on " + entities.toString(e, debug) + " teleport";
-		} else {
-			return "on teleport";
-		}
+	public String toString(@Nullable Event event, boolean debug) {
+		if (entitiesLiteral != null)
+			return "on " + entitiesLiteral.toString(event, debug) + " teleport";
+		return "on teleport";
 	}
 }
