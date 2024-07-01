@@ -61,7 +61,7 @@ public class EnchantmentUtils {
 							PATTERNS.put(name.toLowerCase(Locale.ENGLISH), enchantment);
 					}
 					// If Minecraft provided, add key without namespace and underscores (ex: "fire aspect")
-					if (key.getNamespace().equalsIgnoreCase("minecraft"))
+					if (key.getNamespace().equalsIgnoreCase(NamespacedKey.MINECRAFT))
 						PATTERNS.put(key.getKey().replace("_", " "), enchantment);
 					// Add full namespaced key as pattern (ex: "minecraft:fire_aspect", "custom:floopy_floopy")
 					PATTERNS.put(key.toString(), enchantment);
