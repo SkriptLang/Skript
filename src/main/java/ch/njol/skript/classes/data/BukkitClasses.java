@@ -1231,7 +1231,9 @@ public class BukkitClasses {
 				.user("enchantments?")
 				.name("Enchantment")
 				.description("An enchantment, e.g. 'sharpness' or 'fortune'. Unlike <a href='#enchantmenttype'>enchantment type</a> " +
-						"this type has no level, but you usually don't need to use this type anyway.")
+						"this type has no level, but you usually don't need to use this type anyway.",
+						"NOTE: Minecraft namespaces are supported, ex: 'minecraft:basalt_deltas'.",
+						"As of Minecraft 1.21 this will also support custom enchantments using namespaces, ex: 'myenchants:explosive'.")
 				.examples("")
 				.since("1.4.6")
 				.before("enchantmenttype"));
