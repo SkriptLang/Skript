@@ -81,7 +81,7 @@ public class ItemUtils {
 		ItemMeta meta = itemStack.getItemMeta();
 		if (HAS_MAX_DAMAGE && meta instanceof Damageable) {
 			Damageable damageable = (Damageable) meta;
-			if (HAS_RESET) {
+			if (HAS_RESET && maxDamage < 1) {
 				damageable.resetDamage();
 			} else {
 				damageable.setMaxDamage(Math.max(1, maxDamage));
