@@ -34,16 +34,38 @@ import java.util.HashMap;
  */
 public class ItemUtils {
 
+	public static final boolean HAS_MAX_DAMAGE = Skript.methodExists(Damageable.class, "getMaxDamage");
+
 	/**
 	 * Gets damage/durability of an item, or 0 if it does not have damage.
 	 * @param itemStack Item.
 	 * @return Damage.
 	 */
 	public static int getDamage(ItemStack itemStack) {
-		ItemMeta meta = itemStack.getItemMeta();
-		if (meta instanceof Damageable)
-			return ((Damageable) meta).getDamage();
+		return getDamage(itemStack.getItemMeta());
+	}
+
+	/**
+	 * Gets damage/durability of an itemmeta, or 0 if it does not have damage.
+	 * @param itemMeta ItemMeta.
+	 * @return Damage.
+	 */
+	public static int getDamage(ItemMeta itemMeta) {
+		if (itemMeta instanceof Damageable)
+			return ((Damageable) itemMeta).getDamage();
 		return 0; // Non damageable item
+	}
+
+	/** Gets the max damage/durability of an item
+	 * <p>NOTE: Will account for custom damageable items in MC 1.20.5+</p>
+	 * @param itemStack Item to grab durability from
+	 * @return Max amount of damage this item can take
+	 */
+	public static int getMaxDamage(ItemStack itemStack) {
+		ItemMeta meta = itemStack.getItemMeta();
+		if (HAS_MAX_DAMAGE && meta instanceof Damageable && ((Damageable) meta).hasMaxDamage())
+			return ((Damageable) meta).getMaxDamage();
+		return itemStack.getType().getMaxDurability();
 	}
 
 	/**
@@ -70,6 +92,18 @@ public class ItemUtils {
 		if (meta instanceof Damageable)
 			return ((Damageable) meta).getDamage();
 		return 0; // Non damageable item
+	}
+
+	/** Gets the max damage/durability of an item
+	 * <p>NOTE: Will account for custom damageable items in MC 1.20.5+</p>
+	 * @param itemType Item to grab durability from
+	 * @return Max amount of damage this item can take
+	 */
+	public static int getMaxDamage(ItemType itemType) {
+		ItemMeta meta = itemType.getItemMeta();
+		if (HAS_MAX_DAMAGE && meta instanceof Damageable && ((Damageable) meta).hasMaxDamage())
+			return ((Damageable) meta).getMaxDamage();
+		return itemType.getMaterial().getMaxDurability();
 	}
 
 	/**
@@ -117,15 +151,22 @@ public class ItemUtils {
 	/**
 	 * Tests whether two item stacks are of the same type, i.e. it ignores the amounts.
 	 *
-	 * @param is1
-	 * @param is2
+	 * @param itemStack1
+	 * @param itemStack2
 	 * @return Whether the item stacks are of the same type
 	 */
-	public static boolean itemStacksEqual(final @Nullable ItemStack is1, final @Nullable ItemStack is2) {
-		if (is1 == null || is2 == null)
-			return is1 == is2;
-		return is1.getType() == is2.getType() && ItemUtils.getDamage(is1) == ItemUtils.getDamage(is2)
-			&& is1.getItemMeta().equals(is2.getItemMeta());
+	public static boolean itemStacksEqual(@Nullable ItemStack itemStack1, @Nullable ItemStack itemStack2) {
+		if (itemStack1 == null || itemStack2 == null)
+			return itemStack1 == itemStack2;
+		if (itemStack1.getType() != itemStack2.getType())
+			return false;
+
+		ItemMeta itemMeta1 = itemStack1.getItemMeta();
+		ItemMeta itemMeta2 = itemStack2.getItemMeta();
+		if (itemMeta1 == null || itemMeta2 == null)
+			return itemMeta1 == itemMeta2;
+
+		return itemStack1.getItemMeta().equals(itemStack2.getItemMeta());
 	}
 
 	// Only 1.15 and versions after have Material#isAir method

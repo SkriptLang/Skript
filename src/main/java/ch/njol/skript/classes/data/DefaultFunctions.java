@@ -19,6 +19,7 @@
 package ch.njol.skript.classes.data;
 
 import ch.njol.skript.expressions.base.EventValueExpression;
+import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.function.FunctionEvent;
 import ch.njol.skript.lang.function.Functions;
 import ch.njol.skript.lang.function.JavaFunction;
@@ -40,6 +41,7 @@ import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 import org.eclipse.jdt.annotation.Nullable;
+import ch.njol.skript.util.Contract;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -309,11 +311,22 @@ public class DefaultFunctions {
 			.examples("min(1) = 1", "min(1, 2, 3, 4) = 1", "min({some list variable::*})")
 			.since("2.2"));
 
-		Functions.registerFunction(new SimpleJavaFunction<Number>("clamp", new Parameter[]{
-			new Parameter<>("values", DefaultClasses.NUMBER, false, null),
-			new Parameter<>("min", DefaultClasses.NUMBER, true, null),
-			new Parameter<>("max", DefaultClasses.NUMBER, true, null)
-		}, DefaultClasses.NUMBER, false) {
+		Functions.registerFunction(new SimpleJavaFunction<Number>("clamp", new Parameter[] {
+					 new Parameter<>("values", DefaultClasses.NUMBER, false, null),
+					 new Parameter<>("min", DefaultClasses.NUMBER, true, null),
+					 new Parameter<>("max", DefaultClasses.NUMBER, true, null)
+				 }, DefaultClasses.NUMBER, false, new Contract() {
+
+					 @Override
+					 public boolean isSingle(Expression<?>... arguments) {
+						 return arguments[0].isSingle();
+					 }
+
+					 @Override
+					 public Class<?> getReturnType(Expression<?>... arguments) {
+						 return Number.class;
+					 }
+				 }) {
 			@Override
 			public @Nullable Number[] executeSimple(Object[][] params) {
 				Number[] values = (Number[]) params[0];
