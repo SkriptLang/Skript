@@ -49,19 +49,13 @@ public class EvtEntityPotion extends SkriptEvent {
 
 	@Override
 	public boolean init(Literal<?>[] args, int matchedPattern, ParseResult parseResult) {
-		if (args.length > 0) {
-			potionEffects = (Expression<PotionEffectType>) args[0];
-			cause = (Expression<EntityPotionEffectEvent.Cause>) args[1];
-		}
+		potionEffects = (Expression<PotionEffectType>) args[0];
+		cause = (Expression<EntityPotionEffectEvent.Cause>) args[1];
 		return true;
 	}
 
 	@Override
 	public boolean check(Event event) {
-		if (!(event instanceof EntityPotionEffectEvent)) {
-			return false;
-		}
-
 		EntityPotionEffectEvent potionEvent = (EntityPotionEffectEvent) event;
 		boolean effectMatches = potionEffects == null ||
 			(potionEvent.getOldEffect() != null && potionEffects.check(event, effectType -> effectType.equals(potionEvent.getOldEffect().getType()))) ||
