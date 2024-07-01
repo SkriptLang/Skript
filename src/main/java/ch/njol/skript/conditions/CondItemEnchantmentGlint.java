@@ -84,7 +84,7 @@ public class CondItemEnchantmentGlint extends Condition {
 			// Pattern 'is forced to glint'
 			if (pattern == 2) {
 				if (!meta.hasEnchantmentGlintOverride())
-					return false;
+					return isNegated();
 				return meta.getEnchantmentGlintOverride();
 			// Pattern 'has enchantment glint override'
 			} else {
