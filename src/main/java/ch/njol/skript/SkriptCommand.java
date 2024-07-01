@@ -94,15 +94,16 @@ public class SkriptCommand implements CommandExecutor {
 	}
 
 	private static void reloading(CommandSender sender, String what, RedirectingLogHandler logHandler, Object... args) {
-		String prefix = args.length == 0 ? Language.get(CONFIG_NODE + ".reload." + "player reload") : Language.format(CONFIG_NODE + ".reload." + "player reload", sender.getName());
 		what = args.length == 0 ? Language.get(CONFIG_NODE + ".reload." + what) : Language.format(CONFIG_NODE + ".reload." + what, args);
 		String message = StringUtils.fixCapitalization(m_reloading.toString(what));
 		Skript.info(sender, message);
 		if (SkriptConfig.sendReloadingInfoToOps.value()) {
-			String lowerCaseMessage = lowerCaseFirstChar(message);
-			notifyOperators(prefix + " " + lowerCaseMessage, sender, logHandler);
+			String playerReloadMesssage = Language.format(CONFIG_NODE + ".reload." + "player reload", sender.getName(), what);
+			notifyOperators(playerReloadMesssage, sender, logHandler);
 		}
 	}
+
+
 
 
 	private static final ArgsMessage m_reloaded = new ArgsMessage(CONFIG_NODE + ".reload.reloaded");
@@ -142,7 +143,7 @@ public class SkriptCommand implements CommandExecutor {
 			return true;
 
 		try (
-			RedirectingLogHandler logHandler = new RedirectingLogHandler(sender, "").start();
+			RedirectingLogHandler logHandler = new RedirectingLogHandler(Arrays.asList(sender), "").start();
 			TimingLogHandler timingLogHandler = new TimingLogHandler().start()
 		) {
 
@@ -531,34 +532,38 @@ public class SkriptCommand implements CommandExecutor {
 
 	/**
 	 * Sends the Skript reloading message to operators and console, requires a {@link RedirectingLogHandler} and {@link CommandSender}.
+	 *
+	 * @param message the message to be sent to operators and console
+	 * @param sender the command sender who initiated the reload
+	 * @param logHandler the log handler that contains error information if any errors occurred during reloading
 	 */
-
 	private static void notifyOperators(String message, CommandSender sender, RedirectingLogHandler logHandler) {
-		if (SkriptConfig.sendReloadingInfoToOps.value()) {
-			Bukkit.getOnlinePlayers().stream()
-				.filter(player -> player.hasPermission("skript.reloadnotify") && !player.equals(sender))
-				.forEach(player -> {
-					if (logHandler.numErrors() == 0) {
-						Skript.info(player, message);
-					} else {
-						for (String errorMsg : logHandler.getErrors()) {
-							SkriptLogger.sendFormatted(player, errorMsg);
-						}
-						Skript.error(player, message);
+		if (!SkriptConfig.sendReloadingInfoToOps.value())
+			return;
+		Bukkit.getOnlinePlayers().stream()
+			.filter(player -> player.hasPermission("skript.reloadnotify") && !player.equals(sender))
+			.forEach(player -> {
+				if (logHandler.numErrors() == 0) {
+					Skript.info(player, message);
+				} else {
+					for (String errorMsg : logHandler.getErrors()) {
+						SkriptLogger.sendFormatted(player, errorMsg);
 					}
-				});
-
-			// send to console
-			if (logHandler.numErrors() == 0) {
-				Skript.info(Bukkit.getConsoleSender(), message);
-			} else {
-				for (String errorMsg : logHandler.getErrors()) {
-					SkriptLogger.sendFormatted(Bukkit.getConsoleSender(), errorMsg);
+					Skript.error(player, message);
 				}
-				Skript.error(Bukkit.getConsoleSender(), message);
+			});
+
+		// send to console
+		if (logHandler.numErrors() == 0) {
+			Skript.info(Bukkit.getConsoleSender(), message);
+		} else {
+			for (String errorMsg : logHandler.getErrors()) {
+				SkriptLogger.sendFormatted(Bukkit.getConsoleSender(), errorMsg);
 			}
+			Skript.error(Bukkit.getConsoleSender(), message);
 		}
 	}
+
 
 	private static String lowerCaseFirstChar(String str) {
 		if (str == null || str.isEmpty()) {
