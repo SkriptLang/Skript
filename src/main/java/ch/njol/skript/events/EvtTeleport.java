@@ -90,4 +90,5 @@ public class EvtTeleport extends SkriptEvent {
 			return "on teleport";
 		}
 	}
+
 }
