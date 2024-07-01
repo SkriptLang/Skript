@@ -18,20 +18,24 @@
  */
 package ch.njol.skript.util;
 
-import java.util.regex.Pattern;
-
-import ch.njol.skript.bukkitutil.EnchantmentUtils;
-import org.bukkit.enchantments.Enchantment;
-import org.eclipse.jdt.annotation.Nullable;
-
 import ch.njol.skript.aliases.ItemType;
+import ch.njol.skript.bukkitutil.EnchantmentUtils;
+import ch.njol.skript.classes.ClassInfo;
+import ch.njol.skript.classes.Parser;
+import ch.njol.skript.lang.ParseContext;
+import ch.njol.skript.registrations.Classes;
 import ch.njol.yggdrasil.YggdrasilSerializable;
+import org.bukkit.enchantments.Enchantment;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.regex.Pattern;
 
 /**
  * @author Peter Güttinger
  */
 public class EnchantmentType implements YggdrasilSerializable {
 
+	private static @Nullable Parser<Enchantment> ENCHANTMENT_PARSER = null;
 	private final Enchantment type;
 	private final int level;
 
@@ -49,6 +53,7 @@ public class EnchantmentType implements YggdrasilSerializable {
 		this.type = type;
 		this.level = -1;
 	}
+
 	public EnchantmentType(final Enchantment type, final int level) {
 		assert type != null;
 		this.type = type;
@@ -76,6 +81,7 @@ public class EnchantmentType implements YggdrasilSerializable {
 
 	/**
 	 * Checks whether the given item type has this enchantment.
+	 *
 	 * @param item the item to be checked.
 	 * @deprecated Use {@link ItemType#hasEnchantments(Enchantment...)}
 	 */
@@ -95,22 +101,33 @@ public class EnchantmentType implements YggdrasilSerializable {
 	/**
 	 * Parses an enchantment type from string. This includes an {@link Enchantment}
 	 * and its level.
+	 *
 	 * @param s String to parse.
 	 * @return Enchantment type, or null if parsing failed.
 	 */
 	@Nullable
 	public static EnchantmentType parse(final String s) {
+		if (ENCHANTMENT_PARSER == null) {
+			ClassInfo<Enchantment> classInfo = Classes.getExactClassInfo(Enchantment.class);
+			if (classInfo == null) {
+				throw new IllegalStateException("Enchantment ClassInfo not found");
+			}
+			ENCHANTMENT_PARSER = (Parser<Enchantment>) classInfo.getParser();
+			if (ENCHANTMENT_PARSER == null) {
+				throw new IllegalStateException("Enchantment parser not found");
+			}
+		}
 		if (pattern.matcher(s).matches()) {
 			String name = s.substring(0, s.lastIndexOf(' '));
 			assert name != null;
-			final Enchantment ench = EnchantmentUtils.parseEnchantment(name);
+			final Enchantment ench = ENCHANTMENT_PARSER.parse(name, ParseContext.DEFAULT);
 			if (ench == null)
 				return null;
 			String level = s.substring(s.lastIndexOf(' ') + 1);
 			assert level != null;
 			return new EnchantmentType(ench, Utils.parseInt(level));
 		}
-		final Enchantment ench = EnchantmentUtils.parseEnchantment(s);
+		final Enchantment ench = ENCHANTMENT_PARSER.parse(s, ParseContext.DEFAULT);
 		if (ench == null)
 			return null;
 		return new EnchantmentType(ench, -1);

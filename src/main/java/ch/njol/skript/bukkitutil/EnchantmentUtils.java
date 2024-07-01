@@ -18,14 +18,18 @@
  */
 package ch.njol.skript.bukkitutil;
 
+import ch.njol.skript.classes.ClassInfo;
+import ch.njol.skript.classes.Parser;
+import ch.njol.skript.classes.Serializer;
+import ch.njol.skript.lang.ParseContext;
 import ch.njol.skript.localization.Language;
+import ch.njol.yggdrasil.Fields;
 import org.bukkit.NamespacedKey;
 import org.bukkit.Registry;
 import org.bukkit.enchantments.Enchantment;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
-import ch.njol.skript.Skript;
-
+import java.io.StreamCorruptedException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -41,7 +45,7 @@ public class EnchantmentUtils {
 
 	private static final Map<Enchantment, String> NAMES = new HashMap<>();
 	private static final Map<String, Enchantment> PATTERNS = new HashMap<>();
-	private static final boolean HAS_REGISTRY = Skript.classExists("org.bukkit.Registry") && Skript.fieldExists(Registry.class, "ENCHANTMENT");
+	private static final boolean HAS_REGISTRY = BukkitUtils.registryExists("ENCHANTMENT");
 
 	static {
 		Language.addListener(() -> {
@@ -118,6 +122,65 @@ public class EnchantmentUtils {
 	@SuppressWarnings("null")
 	public static String toString(final Enchantment enchantment, final int flags) {
 		return toString(enchantment);
+	}
+
+	public static ClassInfo<Enchantment> createClassInfo() {
+		return new ClassInfo<>(Enchantment.class, "enchantment")
+			.parser(new Parser<>() {
+				@Override
+				@Nullable
+				public Enchantment parse(final String s, final ParseContext context) {
+					return EnchantmentUtils.parseEnchantment(s);
+				}
+
+				@Override
+				public String toString(final Enchantment e, final int flags) {
+					return EnchantmentUtils.toString(e, flags);
+				}
+
+				@Override
+				public String toVariableNameString(final Enchantment e) {
+					return "" + EnchantmentUtils.getKey(e);
+				}
+			}).serializer(new Serializer<>() {
+				@Override
+				public Fields serialize(final Enchantment ench) {
+					final Fields f = new Fields();
+					f.putObject("key", EnchantmentUtils.getKey(ench));
+					return f;
+				}
+
+				@Override
+				public boolean canBeInstantiated() {
+					return false;
+				}
+
+				@Override
+				public void deserialize(final Enchantment o, final Fields f) {
+					assert false;
+				}
+
+				@Override
+				protected Enchantment deserialize(final Fields fields) throws StreamCorruptedException {
+					final String key = fields.getObject("key", String.class);
+					assert key != null; // If a key happens to be null, something went really wrong...
+					final Enchantment e = EnchantmentUtils.getByKey(key);
+					if (e == null)
+						throw new StreamCorruptedException("Invalid enchantment " + key);
+					return e;
+				}
+
+				@Override
+				@Nullable
+				public Enchantment deserialize(String s) {
+					return Enchantment.getByName(s);
+				}
+
+				@Override
+				public boolean mustSyncDeserialization() {
+					return false;
+				}
+			}).supplier(Enchantment.values());
 	}
 
 }
