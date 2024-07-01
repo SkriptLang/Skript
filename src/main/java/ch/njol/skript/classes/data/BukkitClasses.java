@@ -29,6 +29,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import ch.njol.skript.bukkitutil.BukkitUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.Difficulty;
@@ -355,7 +356,7 @@ public class BukkitClasses {
 					protected boolean canBeInstantiated() {
 						return false;
 					}
-				}));
+				}).cloner(BlockData::clone));
 
 		Classes.registerClass(new ClassInfo<>(Location.class, "location")
 				.user("locations?")
@@ -980,7 +981,7 @@ public class BukkitClasses {
 				.changer(DefaultChangers.itemChanger));
 
 		ClassInfo<?> biomeClassInfo;
-		if (Skript.classExists("org.bukkit.Registry") && Skript.fieldExists(Registry.class, "BIOME")) {
+		if (BukkitUtils.registryExists("BIOME")) {
 			biomeClassInfo = new RegistryClassInfo<>(Biome.class, Registry.BIOME, "biome", "biomes");
 		} else {
 			biomeClassInfo = new EnumClassInfo<>(Biome.class, "biome", "biomes");
@@ -1453,7 +1454,13 @@ public class BukkitClasses {
 			.examples("")
 			.since("2.5"));
 		if (Skript.classExists("org.bukkit.entity.Cat$Type")) {
-			Classes.registerClass(new EnumClassInfo<>(Cat.Type.class, "cattype", "cat types")
+			ClassInfo<Cat.Type> catTypeClassInfo;
+			if (BukkitUtils.registryExists("CAT_VARIANT")) {
+				catTypeClassInfo = new RegistryClassInfo<>(Cat.Type.class, Registry.CAT_VARIANT, "cattype", "cat types");
+			} else {
+				catTypeClassInfo = new EnumClassInfo<>(Cat.Type.class, "cattype", "cat types");
+			}
+			Classes.registerClass(catTypeClassInfo
 					.user("cat ?(type|race)s?")
 					.name("Cat Type")
 					.description("Represents the race/type of a cat entity.")
@@ -1514,7 +1521,13 @@ public class BukkitClasses {
 					}
 				}));
 
-		Classes.registerClass(new EnumClassInfo<>(Attribute.class, "attributetype", "attribute types")
+		ClassInfo<Attribute> attributeClassInfo;
+		if (BukkitUtils.registryExists("ATTRIBUTE")) {
+			attributeClassInfo = new RegistryClassInfo<>(Attribute.class, Registry.ATTRIBUTE, "attributetype", "attribute types");
+		} else {
+			attributeClassInfo = new EnumClassInfo<>(Attribute.class, "attributetype", "attribute types");
+		}
+		Classes.registerClass(attributeClassInfo
 				.user("attribute ?types?")
 				.name("Attribute Type")
 				.description("Represents the type of an attribute. Note that this type does not contain any numerical values."
