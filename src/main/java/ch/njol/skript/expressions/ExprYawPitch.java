@@ -56,10 +56,10 @@ import org.eclipse.jdt.annotation.Nullable;
 })
 @Since("2.0, 2.2-dev28 (vector yaw/pitch), INSERT VERSION (entity changers)")
 @RequiredPlugins("Paper 1.19+ (player changers)")
-public class ExprYawPitch extends SimplePropertyExpression<Object, Number> {
+public class ExprYawPitch extends SimplePropertyExpression<Object, Float> {
 
 	static {
-		register(ExprYawPitch.class, Number.class, "(:yaw|pitch)", "entities/locations/vectors");
+		register(ExprYawPitch.class, Float.class, "(:yaw|pitch)", "entities/locations/vectors");
 	}
 
 	// For non-Paper versions lower than 1.19, changing the rotation of an entity is not supported for players.
@@ -74,7 +74,7 @@ public class ExprYawPitch extends SimplePropertyExpression<Object, Number> {
 	}
 
 	@Override
-	public Number convert(Object object) {
+	public Float convert(Object object) {
 		if (object instanceof Entity) {
 			Location location = ((Entity) object).getLocation();
 			return usesYaw
@@ -223,8 +223,8 @@ public class ExprYawPitch extends SimplePropertyExpression<Object, Number> {
 	}
 
 	@Override
-	public Class<? extends Number> getReturnType() {
-		return Number.class;
+	public Class<? extends Float> getReturnType() {
+		return Float.class;
 	}
 
 	@Override
