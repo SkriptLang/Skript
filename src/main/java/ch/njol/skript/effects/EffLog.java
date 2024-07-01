@@ -51,11 +51,11 @@ import ch.njol.util.Kleenean;
 		"NB: Using 'server.log' as the log file will write to the default server log. Omitting the log file altogether will log the message as '[Skript] [&lt;script&gt;.sk] &lt;message&gt;' in the server log."})
 @Examples({
 	"on join:",
-	"\tlog \"%player% has just joined the server!\"",
+		"\tlog \"%player% has just joined the server!\"",
 	"on world change:",
-	"\tlog \"Someone just went to %event-world%!\" to file \"worldlog/worlds.log\"",
+		"\tlog \"Someone just went to %event-world%!\" to file \"worldlog/worlds.log\"",
 	"on command:",
-	"\tlog \"%player% just executed %full command%!\" to file \"server/commands.log\" with a severity of warning"
+		"\tlog \"%player% just executed %full command%!\" to file \"server/commands.log\" with a severity of warning"
 })
 @Since("2.0, INSERT VERSION (severities)")
 public class EffLog extends Effect {
