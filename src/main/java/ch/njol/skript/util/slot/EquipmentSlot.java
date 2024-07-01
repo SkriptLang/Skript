@@ -20,6 +20,7 @@ package ch.njol.skript.util.slot;
 
 import java.util.Locale;
 
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
@@ -189,6 +190,11 @@ public class EquipmentSlot extends SlotWithIndex {
 
 	@Override
 	public int getIndex() {
+		if (slot == EquipSlot.TOOL) {
+			Entity holder = e.getHolder();
+			if (holder instanceof Player)
+				return ((Player) holder).getInventory().getHeldItemSlot();
+		}
 		return slot.slotNumber;
 	}
 
