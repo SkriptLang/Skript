@@ -356,7 +356,7 @@ public class BukkitClasses {
 					protected boolean canBeInstantiated() {
 						return false;
 					}
-				}));
+				}).cloner(BlockData::clone));
 
 		Classes.registerClass(new ClassInfo<>(Location.class, "location")
 				.user("locations?")
