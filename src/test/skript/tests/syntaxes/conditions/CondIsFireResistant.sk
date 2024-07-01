@@ -1,0 +1,41 @@
+test "is fire resistant" when running minecraft "1.20.5":
+
+	# single item: naturally not fire resistant
+	set {_item} to diamond
+	assert {_item} is not fire resistant with "diamond is unexpectedly fire resistant"
+
+	# TODO: enable in 1.21 (doesn't work in 1.20.5 or 1.20.6)
+	# single item: artificially not fire resistant
+	# set {_item} to netherite boots without fire resistance
+	# assert {_item} is not fire resistant with "netherite boots are unexpectedly fire resistant"
+
+	# TODO: enable in 1.21 (doesn't work in 1.20.5 or 1.20.6)
+	# single item: naturally fire resistant
+	# set {_item} to netherite boots
+	# assert {_item} is fire resistant with "netherite boots are unexpectedly not fire resistant"
+
+	# single item: artificially fire resistant
+	set {_item} to fire resistant diamond
+	assert {_item} is fire resistant with "fire resistant diamond is unexpectedly not fire resistant"
+
+	# multiple items: naturally not fire resistant
+	set {_item} to diamond
+	set {_item2} to stone block
+	assert ({_item} and {_item2}) are not fire resistant with "{_item} and {_item2} are unexpectedly fire resistant"
+
+	# TODO: enable in 1.21 (doesn't work in 1.20.5 or 1.20.6)
+	# multiple items: artificially not fire resistance
+	# set {_item} to netherite boots without fire resistance
+	# set {_item2} to netherite helmet without fire resistance
+	# assert ({_item} and {_item2}) are not fire resistant with "{_item} and {_item2} are unexpectedly fire resistant"
+
+	# TODO: enable in 1.21 (doesn't work in 1.20.5 or 1.20.6)
+	# multiple items: naturally fire resistant
+	# set {_item} to netherite boots
+	# set {_item2} to netherite helmet
+	# assert ({_item} and {_item2}) are fire resistant with "{_item} and {_item2} are unexpectedly not fire resistant"
+
+	# multiple items: artifically fire resistant
+	set {_item} to diamond with fire resistance
+	set {_item2} to fire resistant stone block
+	assert ({_item} and {_item2}) are fire resistant with "fire resistant {_item} and {_item2} are unexpectedly not fire resistant"

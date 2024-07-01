@@ -29,6 +29,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import ch.njol.skript.bukkitutil.BukkitUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.Difficulty;
@@ -38,6 +39,7 @@ import org.bukkit.GameRule;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
+import org.bukkit.Registry;
 import org.bukkit.SoundCategory;
 import org.bukkit.World;
 import org.bukkit.World.Environment;
@@ -77,7 +79,6 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.CachedServerIcon;
 import org.bukkit.util.Vector;
-import org.eclipse.jdt.annotation.Nullable;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptConfig;
@@ -90,6 +91,7 @@ import ch.njol.skript.classes.ConfigurationSerializer;
 import ch.njol.skript.classes.EnumClassInfo;
 import ch.njol.skript.classes.Parser;
 import ch.njol.skript.classes.Serializer;
+import ch.njol.skript.classes.registry.RegistryClassInfo;
 import ch.njol.skript.entity.EntityData;
 import ch.njol.skript.expressions.ExprDamageCause;
 import ch.njol.skript.expressions.base.EventValueExpression;
@@ -104,6 +106,7 @@ import ch.njol.skript.util.StringMode;
 import ch.njol.util.StringUtils;
 import ch.njol.yggdrasil.Fields;
 import io.papermc.paper.world.MoonPhase;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * @author Peter Güttinger
@@ -353,7 +356,7 @@ public class BukkitClasses {
 					protected boolean canBeInstantiated() {
 						return false;
 					}
-				}));
+				}).cloner(BlockData::clone));
 
 		Classes.registerClass(new ClassInfo<>(Location.class, "location")
 				.user("locations?")
@@ -930,6 +933,7 @@ public class BukkitClasses {
 				.since("1.0")
 				.after("number")
 				.supplier(() -> Arrays.stream(Material.values())
+					.filter(Material::isItem)
 					.map(ItemStack::new)
 					.iterator())
 				.parser(new Parser<ItemStack>() {
@@ -976,8 +980,14 @@ public class BukkitClasses {
 				.name(ClassInfo.NO_DOC)
 				.since("2.0")
 				.changer(DefaultChangers.itemChanger));
-		
-		Classes.registerClass(new EnumClassInfo<>(Biome.class, "biome", "biomes")
+
+		ClassInfo<?> biomeClassInfo;
+		if (BukkitUtils.registryExists("BIOME")) {
+			biomeClassInfo = new RegistryClassInfo<>(Biome.class, Registry.BIOME, "biome", "biomes");
+		} else {
+			biomeClassInfo = new EnumClassInfo<>(Biome.class, "biome", "biomes");
+		}
+		Classes.registerClass(biomeClassInfo
 				.user("biomes?")
 				.name("Biome")
 				.description("All possible biomes Minecraft uses to generate a world.")
@@ -1445,7 +1455,13 @@ public class BukkitClasses {
 			.examples("")
 			.since("2.5"));
 		if (Skript.classExists("org.bukkit.entity.Cat$Type")) {
-			Classes.registerClass(new EnumClassInfo<>(Cat.Type.class, "cattype", "cat types")
+			ClassInfo<Cat.Type> catTypeClassInfo;
+			if (BukkitUtils.registryExists("CAT_VARIANT")) {
+				catTypeClassInfo = new RegistryClassInfo<>(Cat.Type.class, Registry.CAT_VARIANT, "cattype", "cat types");
+			} else {
+				catTypeClassInfo = new EnumClassInfo<>(Cat.Type.class, "cattype", "cat types");
+			}
+			Classes.registerClass(catTypeClassInfo
 					.user("cat ?(type|race)s?")
 					.name("Cat Type")
 					.description("Represents the race/type of a cat entity.")
@@ -1506,7 +1522,13 @@ public class BukkitClasses {
 					}
 				}));
 
-		Classes.registerClass(new EnumClassInfo<>(Attribute.class, "attributetype", "attribute types")
+		ClassInfo<Attribute> attributeClassInfo;
+		if (BukkitUtils.registryExists("ATTRIBUTE")) {
+			attributeClassInfo = new RegistryClassInfo<>(Attribute.class, Registry.ATTRIBUTE, "attributetype", "attribute types");
+		} else {
+			attributeClassInfo = new EnumClassInfo<>(Attribute.class, "attributetype", "attribute types");
+		}
+		Classes.registerClass(attributeClassInfo
 				.user("attribute ?types?")
 				.name("Attribute Type")
 				.description("Represents the type of an attribute. Note that this type does not contain any numerical values."

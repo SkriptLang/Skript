@@ -20,6 +20,7 @@ package ch.njol.skript.config;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Pattern;
 
 import java.util.ArrayList;
@@ -270,13 +271,17 @@ public class SectionNode extends Node implements Iterable<Node> {
 	
 	private static final Pattern fullLinePattern = Pattern.compile("([^#]|##)*#-#(\\s.*)?");
 	
-	private final SectionNode load_i(final ConfigReader r) throws IOException {
+	private SectionNode load_i(final ConfigReader r) throws IOException {
 		boolean indentationSet = false;
 		String fullLine;
+		AtomicBoolean inBlockComment = new AtomicBoolean(false);
+		int blockCommentStartLine = -1;
 		while ((fullLine = r.readLine()) != null) {
 			SkriptLogger.setNode(this);
-			
-			final NonNullPair<String, String> line = Node.splitLine(fullLine);
+
+			if (!inBlockComment.get()) // this will be updated for the last time at the start of the comment
+				blockCommentStartLine = this.getLine();
+			final NonNullPair<String, String> line = Node.splitLine(fullLine, inBlockComment);
 			String value = line.getFirst();
 			final String comment = line.getSecond();
 			
@@ -363,7 +368,9 @@ public class SectionNode extends Node implements Iterable<Node> {
 			}
 			
 		}
-		
+		if (inBlockComment.get()) {
+			Skript.error("A block comment (###) was opened on line " + blockCommentStartLine + " but never closed.");
+		}
 		SkriptLogger.setNode(parent);
 		
 		return this;

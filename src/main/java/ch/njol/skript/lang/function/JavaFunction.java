@@ -21,6 +21,7 @@ package ch.njol.skript.lang.function;
 import org.eclipse.jdt.annotation.Nullable;
 
 import ch.njol.skript.classes.ClassInfo;
+import ch.njol.skript.util.Contract;
 
 /**
  * @author Peter Güttinger
@@ -32,7 +33,11 @@ public abstract class JavaFunction<T> extends Function<T> {
 	}
 
 	public JavaFunction(String name, Parameter<?>[] parameters, ClassInfo<T> returnType, boolean single) {
-		this(new Signature<>("none", name, parameters, false, returnType, single, Thread.currentThread().getStackTrace()[3].getClassName()));
+		this(name, parameters, returnType, single, null);
+	}
+
+	public JavaFunction(String name, Parameter<?>[] parameters, ClassInfo<T> returnType, boolean single, @Nullable Contract contract) {
+		this(new Signature<>("none", name, parameters, false, returnType, single, Thread.currentThread().getStackTrace()[3].getClassName(), contract));
 	}
 	
 	@Override
