@@ -42,9 +42,17 @@ public class ItemUtils {
 	 * @return Damage.
 	 */
 	public static int getDamage(ItemStack itemStack) {
-		ItemMeta meta = itemStack.getItemMeta();
-		if (meta instanceof Damageable)
-			return ((Damageable) meta).getDamage();
+		return getDamage(itemStack.getItemMeta());
+	}
+
+	/**
+	 * Gets damage/durability of an itemmeta, or 0 if it does not have damage.
+	 * @param itemMeta ItemMeta.
+	 * @return Damage.
+	 */
+	public static int getDamage(ItemMeta itemMeta) {
+		if (itemMeta instanceof Damageable)
+			return ((Damageable) itemMeta).getDamage();
 		return 0; // Non damageable item
 	}
 
@@ -143,15 +151,22 @@ public class ItemUtils {
 	/**
 	 * Tests whether two item stacks are of the same type, i.e. it ignores the amounts.
 	 *
-	 * @param is1
-	 * @param is2
+	 * @param itemStack1
+	 * @param itemStack2
 	 * @return Whether the item stacks are of the same type
 	 */
-	public static boolean itemStacksEqual(final @Nullable ItemStack is1, final @Nullable ItemStack is2) {
-		if (is1 == null || is2 == null)
-			return is1 == is2;
-		return is1.getType() == is2.getType() && ItemUtils.getDamage(is1) == ItemUtils.getDamage(is2)
-			&& is1.getItemMeta().equals(is2.getItemMeta());
+	public static boolean itemStacksEqual(@Nullable ItemStack itemStack1, @Nullable ItemStack itemStack2) {
+		if (itemStack1 == null || itemStack2 == null)
+			return itemStack1 == itemStack2;
+		if (itemStack1.getType() != itemStack2.getType())
+			return false;
+
+		ItemMeta itemMeta1 = itemStack1.getItemMeta();
+		ItemMeta itemMeta2 = itemStack2.getItemMeta();
+		if (itemMeta1 == null || itemMeta2 == null)
+			return itemMeta1 == itemMeta2;
+
+		return itemStack1.getItemMeta().equals(itemStack2.getItemMeta());
 	}
 
 	// Only 1.15 and versions after have Material#isAir method
