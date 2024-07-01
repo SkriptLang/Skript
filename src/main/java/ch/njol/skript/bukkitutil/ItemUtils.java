@@ -74,7 +74,7 @@ public class ItemUtils {
 		if (HAS_MAX_DAMAGE && meta instanceof Damageable) {
 			Damageable damageable = (Damageable) meta;
 			if (HAS_RESET) {
-				//damageable.resetDamage(); TODO (waiting on Skript to update to Paper 1.21)
+				damageable.resetDamage();
 			} else {
 				damageable.setMaxDamage(Math.max(1, maxDamage));
 			}
