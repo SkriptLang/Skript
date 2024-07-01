@@ -933,6 +933,7 @@ public class BukkitClasses {
 				.since("1.0")
 				.after("number")
 				.supplier(() -> Arrays.stream(Material.values())
+					.filter(Material::isItem)
 					.map(ItemStack::new)
 					.iterator())
 				.parser(new Parser<ItemStack>() {
@@ -1448,12 +1449,13 @@ public class BukkitClasses {
 					.since("2.4")
 					.requiredPlugins("Minecraft 1.14 or newer"));
 		}
+
 		Classes.registerClass(new EnumClassInfo<>(RegainReason.class, "healreason", "heal reasons")
-			.user("(regen|heal) (reason|cause)")
-			.name("Heal Reason")
-			.description("The heal reason in a heal event.")
-			.examples("")
-			.since("2.5"));
+				.user("(regen|heal) (reason|cause)")
+				.name("Heal Reason")
+				.description("The health regain reason in a <a href='events.html#heal'>heal</a> event.")
+				.since("2.5"));
+
 		if (Skript.classExists("org.bukkit.entity.Cat$Type")) {
 			ClassInfo<Cat.Type> catTypeClassInfo;
 			if (BukkitUtils.registryExists("CAT_VARIANT")) {
