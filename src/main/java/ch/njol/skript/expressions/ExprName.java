@@ -24,6 +24,7 @@ import java.lang.invoke.MethodType;
 import java.util.ArrayList;
 import java.util.List;
 
+import ch.njol.skript.bukkitutil.ItemUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.GameRule;
 import org.bukkit.Nameable;
@@ -139,7 +140,6 @@ public class ExprName extends SimplePropertyExpression<Object, String> {
 	 * 3 = "tablist name"
 	 */
 	private int mark;
-	private static final ItemType AIR = Aliases.javaItemType("air");
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
@@ -282,7 +282,7 @@ public class ExprName extends SimplePropertyExpression<Object, String> {
 			} else if (object instanceof Slot) {
 				Slot s = (Slot) object;
 				ItemStack is = s.getItem();
-				if (is != null && !AIR.isOfType(is)) {
+				if (is != null && !ItemUtils.isAir(is.getType())) {
 					ItemMeta m = is.hasItemMeta() ? is.getItemMeta() : Bukkit.getItemFactory().getItemMeta(is.getType());
 					m.setDisplayName(name);
 					is.setItemMeta(m);

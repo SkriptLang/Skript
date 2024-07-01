@@ -21,7 +21,13 @@ package ch.njol.skript.bukkitutil;
 import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.ItemType;
 import org.bukkit.Material;
+import org.bukkit.Tag;
 import org.bukkit.TreeType;
+import org.bukkit.block.Block;
+import org.bukkit.block.data.BlockData;
+import org.bukkit.block.data.type.Fence;
+import org.bukkit.block.data.type.Gate;
+import org.bukkit.block.data.type.Wall;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -42,9 +48,17 @@ public class ItemUtils {
 	 * @return Damage.
 	 */
 	public static int getDamage(ItemStack itemStack) {
-		ItemMeta meta = itemStack.getItemMeta();
-		if (meta instanceof Damageable)
-			return ((Damageable) meta).getDamage();
+		return getDamage(itemStack.getItemMeta());
+	}
+
+	/**
+	 * Gets damage/durability of an itemmeta, or 0 if it does not have damage.
+	 * @param itemMeta ItemMeta.
+	 * @return Damage.
+	 */
+	public static int getDamage(ItemMeta itemMeta) {
+		if (itemMeta instanceof Damageable)
+			return ((Damageable) itemMeta).getDamage();
 		return 0; // Non damageable item
 	}
 
@@ -143,15 +157,22 @@ public class ItemUtils {
 	/**
 	 * Tests whether two item stacks are of the same type, i.e. it ignores the amounts.
 	 *
-	 * @param is1
-	 * @param is2
+	 * @param itemStack1
+	 * @param itemStack2
 	 * @return Whether the item stacks are of the same type
 	 */
-	public static boolean itemStacksEqual(final @Nullable ItemStack is1, final @Nullable ItemStack is2) {
-		if (is1 == null || is2 == null)
-			return is1 == is2;
-		return is1.getType() == is2.getType() && ItemUtils.getDamage(is1) == ItemUtils.getDamage(is2)
-			&& is1.getItemMeta().equals(is2.getItemMeta());
+	public static boolean itemStacksEqual(@Nullable ItemStack itemStack1, @Nullable ItemStack itemStack2) {
+		if (itemStack1 == null || itemStack2 == null)
+			return itemStack1 == itemStack2;
+		if (itemStack1.getType() != itemStack2.getType())
+			return false;
+
+		ItemMeta itemMeta1 = itemStack1.getItemMeta();
+		ItemMeta itemMeta2 = itemStack2.getItemMeta();
+		if (itemMeta1 == null || itemMeta2 == null)
+			return itemMeta1 == itemMeta2;
+
+		return itemStack1.getItemMeta().equals(itemStack2.getItemMeta());
 	}
 
 	// Only 1.15 and versions after have Material#isAir method
@@ -219,5 +240,56 @@ public class ItemUtils {
 	public static Material getTreeSapling(TreeType treeType) {
 		return TREE_TO_SAPLING_MAP.get(treeType);
 	}
-	
+
+
+	private static final boolean HAS_FENCE_TAGS = !Skript.isRunningMinecraft(1, 14);
+
+	/**
+	 * Whether the block is a fence or a wall.
+	 * @param block the block to check.
+	 * @return whether the block is a fence/wall.
+	 */
+	public static boolean isFence(Block block) {
+		// TODO: 1.13 only, so remove in 2.10
+		if (!HAS_FENCE_TAGS) {
+			BlockData data = block.getBlockData();
+			return data instanceof Fence
+				|| data instanceof Wall
+				|| data instanceof Gate;
+		}
+
+		Material type = block.getType();
+		return Tag.FENCES.isTagged(type)
+			|| Tag.FENCE_GATES.isTagged(type)
+			|| Tag.WALLS.isTagged(type);
+	}
+
+	/**
+	 * @param material The material to check
+	 * @return whether the material is a full glass block
+	 */
+	public static boolean isGlass(Material material) {
+		switch (material) {
+			case GLASS:
+			case RED_STAINED_GLASS:
+			case ORANGE_STAINED_GLASS:
+			case YELLOW_STAINED_GLASS:
+			case LIGHT_BLUE_STAINED_GLASS:
+			case BLUE_STAINED_GLASS:
+			case CYAN_STAINED_GLASS:
+			case LIME_STAINED_GLASS:
+			case GREEN_STAINED_GLASS:
+			case MAGENTA_STAINED_GLASS:
+			case PURPLE_STAINED_GLASS:
+			case PINK_STAINED_GLASS:
+			case WHITE_STAINED_GLASS:
+			case LIGHT_GRAY_STAINED_GLASS:
+			case GRAY_STAINED_GLASS:
+			case BLACK_STAINED_GLASS:
+			case BROWN_STAINED_GLASS:
+				return true;
+			default:
+				return false;
+		}
+	}
 }
