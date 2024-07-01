@@ -41,6 +41,7 @@ import ch.njol.skript.util.Timespan;
 import ch.njol.skript.util.slot.InventorySlot;
 import ch.njol.skript.util.slot.Slot;
 import com.destroystokyo.paper.event.block.AnvilDamagedEvent;
+import com.destroystokyo.paper.event.entity.EndermanAttackPlayerEvent;
 import com.destroystokyo.paper.event.entity.ProjectileCollideEvent;
 import com.destroystokyo.paper.event.player.PlayerArmorChangeEvent;
 import io.papermc.paper.event.entity.EntityMoveEvent;
@@ -102,6 +103,8 @@ import org.bukkit.event.entity.EntityEnterLoveModeEvent;
 import org.bukkit.event.entity.EntityDropItemEvent;
 import org.bukkit.event.entity.EntityEvent;
 import org.bukkit.event.entity.EntityPickupItemEvent;
+import org.bukkit.event.entity.EntityRegainHealthEvent;
+import org.bukkit.event.entity.EntityRegainHealthEvent.RegainReason;
 import org.bukkit.event.entity.EntityResurrectEvent;
 import org.bukkit.event.entity.EntityTameEvent;
 import org.bukkit.event.entity.EntityTransformEvent;
@@ -391,12 +394,11 @@ public final class BukkitEventValues {
 				return new DelayedChangeBlock(e.getBlock());
 			}
 		}, 0);
-		ItemType stationaryWater = Aliases.javaItemType("stationary water");
 		EventValues.registerEventValue(BlockBreakEvent.class, Block.class, new Getter<Block, BlockBreakEvent>() {
 			@Override
 			public Block get(final BlockBreakEvent e) {
 				final BlockState s = e.getBlock().getState();
-				s.setType(s.getType() == Material.ICE ? stationaryWater.getMaterial() : Material.AIR);
+				s.setType(s.getType() == Material.ICE ? Material.WATER : Material.AIR);
 				s.setRawData((byte) 0);
 				return new BlockStateBlock(s, true);
 			}
@@ -693,6 +695,15 @@ public final class BukkitEventValues {
 				return event.getLightning();
 			}
 		}, 0);
+		// EndermanAttackPlayerEvent
+		if (Skript.classExists("com.destroystokyo.paper.event.entity.EndermanAttackPlayerEvent")) {
+			EventValues.registerEventValue(EndermanAttackPlayerEvent.class, Player.class, new Getter<Player, EndermanAttackPlayerEvent>() {
+				@Override
+				public Player get(EndermanAttackPlayerEvent event) {
+					return event.getPlayer();
+				}
+			}, EventValues.TIME_NOW);
+		}
 
 		// --- PlayerEvents ---
 		EventValues.registerEventValue(PlayerEvent.class, Player.class, new Getter<Player, PlayerEvent>() {
@@ -750,12 +761,11 @@ public final class BukkitEventValues {
 				return e.getBlockClicked().getRelative(e.getBlockFace());
 			}
 		}, -1);
-		ItemType stationaryLava = Aliases.javaItemType("stationary lava");
 		EventValues.registerEventValue(PlayerBucketEmptyEvent.class, Block.class, new Getter<Block, PlayerBucketEmptyEvent>() {
 			@Override
 			public Block get(final PlayerBucketEmptyEvent e) {
 				final BlockState s = e.getBlockClicked().getRelative(e.getBlockFace()).getState();
-				s.setType(e.getBucket() == Material.WATER_BUCKET ? stationaryWater.getMaterial() : stationaryLava.getMaterial());
+				s.setType(e.getBucket() == Material.WATER_BUCKET ? Material.WATER : Material.LAVA);
 				s.setRawData((byte) 0);
 				return new BlockStateBlock(s, true);
 			}
@@ -1924,6 +1934,15 @@ public final class BukkitEventValues {
 			@Override
 			public ItemStack get(InventoryMoveItemEvent event) {
 				return event.getItem();
+			}
+		}, EventValues.TIME_NOW);
+
+		// EntityRegainHealthEvent
+		EventValues.registerEventValue(EntityRegainHealthEvent.class, RegainReason.class, new Getter<RegainReason, EntityRegainHealthEvent>() {
+			@Override
+			@Nullable
+			public RegainReason get(EntityRegainHealthEvent event) {
+				return event.getRegainReason();
 			}
 		}, EventValues.TIME_NOW);
 	}
