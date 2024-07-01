@@ -48,7 +48,7 @@ public class ExprFreezeTicks extends SimplePropertyExpression<Entity, Timespan> 
 	@Override
 	@Nullable
 	public Timespan convert(Entity entity) {
-		return Timespan.fromTicks_i(entity.getFreezeTicks());
+		return Timespan.fromTicks(entity.getFreezeTicks());
 	}
 
 	@Override
@@ -59,7 +59,7 @@ public class ExprFreezeTicks extends SimplePropertyExpression<Entity, Timespan> 
 
 	@Override
 	public void change(Event e, @Nullable Object[] delta, ChangeMode mode) {
-		int time = delta == null ? 0 : (int) ((Timespan) delta[0]).getTicks_i();
+		int time = delta == null ? 0 : (int) ((Timespan) delta[0]).getTicks();
 		int newTime;
 		switch (mode) {
 			case ADD:

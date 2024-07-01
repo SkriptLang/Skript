@@ -35,17 +35,14 @@ import ch.njol.util.Kleenean;
 import ch.njol.util.VectorMath;
 import ch.njol.util.coll.CollectionUtils;
 
-/**
- * @author bi0qaw
- */
 @Name("Vectors - Angle Between")
 @Description("Gets the angle between two vectors.")
-@Examples({"send \"%the angle between vector 1, 0, 0 and vector 0, 1, 1%\""})
+@Examples("send \"%the angle between vector 1, 0, 0 and vector 0, 1, 1%\"")
 @Since("2.2-dev28")
 public class ExprVectorAngleBetween extends SimpleExpression<Number> {
 
 	static {
-		Skript.registerExpression(ExprVectorAngleBetween.class, Number.class, ExpressionType.SIMPLE,
+		Skript.registerExpression(ExprVectorAngleBetween.class, Number.class, ExpressionType.COMBINED,
 				"[the] angle between [[the] vectors] %vector% and %vector%");
 	}
 
@@ -62,12 +59,12 @@ public class ExprVectorAngleBetween extends SimpleExpression<Number> {
 
 	@Override
 	@SuppressWarnings("null")
-	protected Number[] get(Event e) {
-		Vector v1 = first.getSingle(e);
-		Vector v2 = second.getSingle(e);
-		if (v1 == null || v2 == null)
+	protected Number[] get(Event event) {
+		Vector first = this.first.getSingle(event);
+		Vector second = this.second.getSingle(event);
+		if (first == null || second == null)
 			return null;
-		return CollectionUtils.array(v1.angle(v2) * (float) VectorMath.RAD_TO_DEG);
+		return CollectionUtils.array(first.angle(second) * (float) VectorMath.RAD_TO_DEG);
 	}
 
 	@Override
@@ -81,8 +78,8 @@ public class ExprVectorAngleBetween extends SimpleExpression<Number> {
 	}
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
-		return "the angle between " + first.toString(e, debug) + " and " + second.toString(e, debug);
+	public String toString(@Nullable Event event, boolean debug) {
+		return "the angle between " + first.toString(event, debug) + " and " + second.toString(event, debug);
 	}
 
 }

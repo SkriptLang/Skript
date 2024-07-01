@@ -151,3 +151,13 @@ test "item comparisons":
 
 	remove all items from {_inventory}
 	set block at spawn of world "world" to air
+
+	# type comparisons (see https://github.com/SkriptLang/Skript/issues/5693)
+
+	set {_fire-resist} to type of potion of fire resistance
+	set {_water-breathing} to type of water breathing potion
+	set {_water-bottle} to type of water bottle
+	assert {_fire-resist} is {_fire-resist} with "fire resist is not fire resist"
+	assert {_fire-resist} is not {_water-breathing} with "fire resist is water breathing"
+	assert {_fire-resist} is not {_water-bottle} with "fire resist is water bottle"
+	assert {_water-bottle} is not {_water-breathing} with "water bottle is water breathing"

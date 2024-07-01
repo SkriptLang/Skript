@@ -32,49 +32,25 @@ import org.jetbrains.annotations.Nullable;
 
 /**
  * An entry data class designed to take a {@link SectionNode} and parse it into a Trigger.
- * Events specified during construction *should* be used when the Trigger is executed.
  * This data will <b>NEVER</b> return null.
  * @see SectionEntryData
  */
 public class TriggerEntryData extends EntryData<Trigger> {
 
-	private final Class<? extends Event>[] events;
-
-	/**
-	 * @param events Events to be present during parsing and Trigger execution.
-	 *               This allows the usage of event-restricted syntax and event-values.
-	 * @see ParserInstance#setCurrentEvents(Class[])
-	 */
-	@SafeVarargs
-	public TriggerEntryData(
-		String key, @Nullable Trigger defaultValue, boolean optional,
-		Class<? extends Event>... events
-	) {
+	public TriggerEntryData(String key, @Nullable Trigger defaultValue, boolean optional) {
 		super(key, defaultValue, optional);
-		this.events = events;
 	}
 
 	@Nullable
 	@Override
 	public Trigger getValue(Node node) {
 		assert node instanceof SectionNode;
-
-		ParserInstance parser = ParserInstance.get();
-
-		Class<? extends Event>[] oldEvents = parser.getCurrentEvents();
-		Kleenean oldHasDelayBefore = parser.getHasDelayBefore();
-
-		parser.setCurrentEvents(events);
-		parser.setHasDelayBefore(Kleenean.FALSE);
-
-		Trigger trigger = new Trigger(
-			parser.getCurrentScript(), "entry with key: " + getKey(), new SimpleEvent(), ScriptLoader.loadItems((SectionNode) node)
+		return new Trigger(
+			ParserInstance.get().getCurrentScript(),
+			"entry with key: " + getKey(),
+			new SimpleEvent(),
+			ScriptLoader.loadItems((SectionNode) node)
 		);
-
-		parser.setCurrentEvents(oldEvents);
-		parser.setHasDelayBefore(oldHasDelayBefore);
-
-		return trigger;
 	}
 
 	@Override

@@ -26,9 +26,9 @@ package org.skriptlang.skript.lang.comparator;
  */
 public final class ComparatorInfo<T1, T2> {
 
-	final Class<T1> firstType;
-	final Class<T2> secondType;
-	final Comparator<T1, T2> comparator;
+	private final Class<T1> firstType;
+	private final Class<T2> secondType;
+	private final Comparator<T1, T2> comparator;
 
 	ComparatorInfo(Class<T1> firstType, Class<T2> secondType, Comparator<T1, T2> comparator) {
 		this.firstType = firstType;

@@ -37,6 +37,7 @@ import org.eclipse.jdt.annotation.Nullable;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Set;
 
 @Name("Enable/Disable/Reload Script File")
 @Description("Enables, disables, or reloads a script file.")
@@ -102,10 +103,8 @@ public class EffScriptFile extends Effect {
 			case RELOAD: {
 				if (ScriptLoader.getDisabledScriptsFilter().accept(scriptFile))
 					return;
-
-				Script script = ScriptLoader.getScript(scriptFile);
-				if (script != null)
-					ScriptLoader.unloadScript(script);
+				
+				this.unloadScripts(scriptFile);
 				
 				ScriptLoader.loadScripts(scriptFile, OpenCloseable.EMPTY);
 				break;
@@ -114,9 +113,7 @@ public class EffScriptFile extends Effect {
 				if (ScriptLoader.getDisabledScriptsFilter().accept(scriptFile))
 					return;
 
-				Script script = ScriptLoader.getScript(scriptFile);
-				if (script != null)
-					ScriptLoader.unloadScript(script);
+				this.unloadScripts(scriptFile);
 
 				try {
 					FileUtils.move(
@@ -133,6 +130,19 @@ public class EffScriptFile extends Effect {
 			}
 			default:
 				assert false;
+		}
+	}
+	
+	private void unloadScripts(File file) {
+		if (file.isDirectory()) {
+			Set<Script> scripts = ScriptLoader.getScripts(file);
+			if (scripts.isEmpty())
+				return;
+			ScriptLoader.unloadScripts(scripts);
+		} else {
+			Script script = ScriptLoader.getScript(file);
+			if (script != null)
+				ScriptLoader.unloadScript(script);
 		}
 	}
 

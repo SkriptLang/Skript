@@ -22,16 +22,14 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptEvent;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
-
 import org.bukkit.event.Event;
 import org.bukkit.event.player.PlayerMoveEvent;
-
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 public class EvtPlayerChunkEnter extends SkriptEvent {
 
 	static {
-		Skript.registerEvent("Player Chunk Enters", EvtPlayerChunkEnter.class, PlayerMoveEvent.class, "[player] (enter[s] [a] chunk|chunk enter[ing])")
+		Skript.registerEvent("Player Chunk Enter", EvtPlayerChunkEnter.class, PlayerMoveEvent.class, "[player] (enter[s] [a] chunk|chunk enter[ing])")
 				.description("Called when a player enters a chunk. Note that this event is based on 'player move' event, and may be called frequent internally.")
 				.examples(
 						"on player enters a chunk:",
@@ -46,7 +44,8 @@ public class EvtPlayerChunkEnter extends SkriptEvent {
 
 	@Override
 	public boolean check(Event event) {
-		return ((PlayerMoveEvent) event).getFrom().getChunk() != ((PlayerMoveEvent) event).getTo().getChunk();
+		PlayerMoveEvent moveEvent = ((PlayerMoveEvent) event);
+		return !moveEvent.getFrom().getChunk().equals(moveEvent.getTo().getChunk());
 	}
 
 	@Override

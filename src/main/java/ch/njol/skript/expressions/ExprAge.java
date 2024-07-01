@@ -119,7 +119,7 @@ public class ExprAge extends SimplePropertyExpression<Object, Integer> {
 					setAge(obj, newValue);
 					break;
 				case RESET:
-					// baby animals takes 20 minutes to grow up - ref: https://minecraft.fandom.com/wiki/Breeding
+					// baby animals takes 20 minutes to grow up - ref: https://minecraft.wiki/w/Breeding
 					if (obj instanceof org.bukkit.entity.Ageable)
 						// it might change later on so removing entity age reset would be better unless
 						// bukkit adds a method returning the default age

@@ -1,6 +1,10 @@
 test "spawn xp orb overwriting merged value" when running minecraft "1.14.4":
 	# 1.13.2 seems not to merge xp orbs in the same way, so this test is skipped
 
+	# 1.21 also does not merge orbs, so this test is disabled.
+	# TODO: figure out how to force the orbs to merge on 1.21+
+	running below minecraft "1.21"
+
 	# sanitize
 	kill all xp orbs
 	set {_spawn} to spawn of world "world"

@@ -1,0 +1,3 @@
+test "potion missing base type":
+
+	assert potion effects of (plain potion of mundane) is not set with "it should not have any effects"

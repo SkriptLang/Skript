@@ -26,7 +26,7 @@ import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.Section;
+import ch.njol.skript.lang.LoopSection;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.TriggerItem;
 import ch.njol.skript.lang.Variable;
@@ -80,7 +80,7 @@ import java.util.WeakHashMap;
 		"the player and loop-value is the actually coins value such as 200"
 })
 @Since("1.0")
-public class SecLoop extends Section {
+public class SecLoop extends LoopSection {
 
 	static {
 		Skript.registerSection(SecLoop.class, "loop %objects%");
@@ -96,6 +96,7 @@ public class SecLoop extends Section {
 	private TriggerItem actualNext;
 
 	@Override
+	@SuppressWarnings("unchecked")
 	public boolean init(Expression<?>[] exprs,
 						int matchedPattern,
 						Kleenean isDelayed,
@@ -116,7 +117,7 @@ public class SecLoop extends Section {
 		}
 
 		if (expr.isSingle()) {
-			Skript.error("Can't loop " + expr + " because it's only a single value");
+			Skript.error("Can't loop '" + expr + "' because it's only a single value");
 			return false;
 		}
 
@@ -128,35 +129,36 @@ public class SecLoop extends Section {
 
 	@Override
 	@Nullable
-	protected TriggerItem walk(Event e) {
-		Iterator<?> iter = currentIter.get(e);
+	protected TriggerItem walk(Event event) {
+		Iterator<?> iter = currentIter.get(event);
 		if (iter == null) {
-			iter = expr instanceof Variable ? ((Variable<?>) expr).variablesIterator(e) : expr.iterator(e);
+			iter = expr instanceof Variable ? ((Variable<?>) expr).variablesIterator(event) : expr.iterator(event);
 			if (iter != null) {
 				if (iter.hasNext())
-					currentIter.put(e, iter);
+					currentIter.put(event, iter);
 				else
 					iter = null;
 			}
 		}
 		if (iter == null || !iter.hasNext()) {
-			exit(e);
-			debug(e, false);
+			exit(event);
+			debug(event, false);
 			return actualNext;
 		} else {
-			current.put(e, iter.next());
-			return walk(e, true);
+			current.put(event, iter.next());
+			currentLoopCounter.put(event, (currentLoopCounter.getOrDefault(event, 0L)) + 1);
+			return walk(event, true);
 		}
 	}
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
-		return "loop " + expr.toString(e, debug);
+	public String toString(@Nullable Event event, boolean debug) {
+		return "loop " + expr.toString(event, debug);
 	}
 
 	@Nullable
-	public Object getCurrent(Event e) {
-		return current.get(e);
+	public Object getCurrent(Event event) {
+		return current.get(event);
 	}
 
 	public Expression<?> getLoopedExpression() {
@@ -170,12 +172,16 @@ public class SecLoop extends Section {
 	}
 
 	@Nullable
+	@Override
 	public TriggerItem getActualNext() {
 		return actualNext;
 	}
 
+	@Override
 	public void exit(Event event) {
 		current.remove(event);
 		currentIter.remove(event);
+		super.exit(event);
 	}
+
 }

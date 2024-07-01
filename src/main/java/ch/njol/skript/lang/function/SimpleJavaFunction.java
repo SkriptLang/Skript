@@ -21,6 +21,7 @@ package ch.njol.skript.lang.function;
 import org.eclipse.jdt.annotation.Nullable;
 
 import ch.njol.skript.classes.ClassInfo;
+import ch.njol.skript.util.Contract;
 
 /**
  * A {@link JavaFunction} which doesn't make use of
@@ -35,6 +36,10 @@ public abstract class SimpleJavaFunction<T> extends JavaFunction<T> {
 	
 	public SimpleJavaFunction(String name, Parameter<?>[] parameters, ClassInfo<T> returnType, boolean single) {
 		super(name, parameters, returnType, single);
+	}
+
+	public SimpleJavaFunction(String name, Parameter<?>[] parameters, ClassInfo<T> returnType, boolean single, Contract contract) {
+		super(name, parameters, returnType, single, contract);
 	}
 	
 	@SuppressWarnings("ConstantConditions")

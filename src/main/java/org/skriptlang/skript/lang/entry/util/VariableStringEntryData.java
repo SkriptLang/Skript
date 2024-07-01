@@ -36,58 +36,34 @@ public class VariableStringEntryData extends KeyValueEntryData<VariableString> {
 
 	private final StringMode stringMode;
 
-	private final Class<? extends Event>[] events;
-
 	/**
-	 * @param events Events to be present during parsing and Trigger execution.
-	 *               This allows the usage of event-restricted syntax and event-values.
-	 * @see ParserInstance#setCurrentEvents(Class[])
+	 * Uses {@link StringMode#MESSAGE} as the default string mode.
+	 * @see #VariableStringEntryData(String, VariableString, boolean, StringMode)
 	 */
-	@SafeVarargs
 	public VariableStringEntryData(
-		String key, @Nullable VariableString defaultValue, boolean optional,
-		Class<? extends Event>... events
+		String key, @Nullable VariableString defaultValue, boolean optional
 	) {
-		this(key, defaultValue, optional, StringMode.MESSAGE, events);
+		this(key, defaultValue, optional, StringMode.MESSAGE);
 	}
 
 	/**
 	 * @param stringMode Sets <i>how</i> to parse the string (e.g. as a variable, message, etc.).
-	 * @param events Events to be present during parsing and Trigger execution.
-	 *               This allows the usage of event-restricted syntax and event-values.
-	 * @see ParserInstance#setCurrentEvents(Class[])
 	 */
-	@SafeVarargs
 	public VariableStringEntryData(
 		String key, @Nullable VariableString defaultValue, boolean optional,
-		StringMode stringMode, Class<? extends Event>... events
+		StringMode stringMode
 	) {
 		super(key, defaultValue, optional);
 		this.stringMode = stringMode;
-		this.events = events;
 	}
 
 	@Override
 	@Nullable
 	protected VariableString getValue(String value) {
-		ParserInstance parser = ParserInstance.get();
-
-		Class<? extends Event>[] oldEvents = parser.getCurrentEvents();
-		Kleenean oldHasDelayBefore = parser.getHasDelayBefore();
-
-		parser.setCurrentEvents(events);
-		parser.setHasDelayBefore(Kleenean.FALSE);
-
 		// Double up quotations outside of expressions
 		if (stringMode != StringMode.VARIABLE_NAME)
 			value = VariableString.quote(value);
-
-		VariableString variableString = VariableString.newInstance(value, stringMode);
-
-		parser.setCurrentEvents(oldEvents);
-		parser.setHasDelayBefore(oldHasDelayBefore);
-
-		return variableString;
+		return VariableString.newInstance(value, stringMode);
 	}
 
 }

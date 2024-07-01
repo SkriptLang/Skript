@@ -35,7 +35,7 @@ import org.eclipse.jdt.annotation.Nullable;
 @Examples({
 		"on inventory click:",
 		"\ttype of event-inventory is anvil inventory",
-		"\tif the anvil input text of the event-inventory is \"FREE OP\":",
+		"\tif the anvil text input of the event-inventory is \"FREE OP\":",
 		"\t\tban player"
 })
 @Since("2.7")
@@ -43,11 +43,6 @@ public class ExprAnvilText extends SimplePropertyExpression<Inventory, String> {
 
 	static {
 		register(ExprAnvilText.class, String.class, "anvil [inventory] (rename|text) input", "inventories");
-	}
-
-	@Override
-	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		return true;
 	}
 
 	@Override

@@ -19,12 +19,13 @@
 package ch.njol.skript.entity;
 
 import java.util.Arrays;
+
 import java.util.Iterator;
+import java.util.function.Consumer;
 
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.FallingBlock;
-import org.bukkit.util.Consumer;
 import org.eclipse.jdt.annotation.Nullable;
 
 import ch.njol.skript.Skript;
@@ -42,9 +43,6 @@ import ch.njol.skript.registrations.Classes;
 import org.skriptlang.skript.lang.converter.Converters;
 import ch.njol.util.coll.CollectionUtils;
 
-/**
- * @author Peter Güttinger
- */
 public class FallingBlockData extends EntityData<FallingBlock> {
 	static {
 		EntityData.register(FallingBlockData.class, "falling block", FallingBlock.class, "falling block");
@@ -95,7 +93,7 @@ public class FallingBlockData extends EntityData<FallingBlock> {
 	@Override
 	protected boolean init(final @Nullable Class<? extends FallingBlock> c, final @Nullable FallingBlock e) {
 		if (e != null) // TODO material data support
-			types = new ItemType[] {new ItemType(BlockCompat.INSTANCE.fallingBlockToState(e))};
+			types = new ItemType[] {new ItemType(e.getBlockData())};
 		return true;
 	}
 	
@@ -103,7 +101,7 @@ public class FallingBlockData extends EntityData<FallingBlock> {
 	protected boolean match(final FallingBlock entity) {
 		if (types != null) {
 			for (final ItemType t : types) {
-				if (t.isOfType(BlockCompat.INSTANCE.fallingBlockToState(entity)))
+				if (t.isOfType(entity.getBlockData()))
 					return true;
 			}
 			return false;
@@ -117,11 +115,11 @@ public class FallingBlockData extends EntityData<FallingBlock> {
 		ItemType t = types == null ? new ItemType(Material.STONE) : CollectionUtils.getRandom(types);
 		assert t != null;
 		Material material = t.getMaterial();
-
 		if (!material.isBlock()) {
 			assert false : t;
 			return null;
 		}
+
 		FallingBlock fallingBlock = loc.getWorld().spawnFallingBlock(loc, material.createBlockData());
 		if (consumer != null)
 			consumer.accept(fallingBlock);

@@ -18,7 +18,9 @@
  */
 package ch.njol.skript.effects;
 
+import ch.njol.skript.aliases.ItemData;
 import org.bukkit.Material;
+import org.bukkit.Tag;
 import org.bukkit.entity.AbstractHorse;
 import org.bukkit.entity.ChestedHorse;
 import org.bukkit.entity.LivingEntity;
@@ -93,13 +95,58 @@ public class EffEquip extends Effect {
 
 	private static final boolean SUPPORTS_STEERABLE = Skript.classExists("org.bukkit.entity.Steerable");
 
-	private static final ItemType CHESTPLATE = Aliases.javaItemType("chestplate");
-	private static final ItemType LEGGINGS = Aliases.javaItemType("leggings");
-	private static final ItemType BOOTS = Aliases.javaItemType("boots");
-	private static final ItemType HORSE_ARMOR = Aliases.javaItemType("horse armor");
-	private static final ItemType SADDLE = Aliases.javaItemType("saddle");
-	private static final ItemType CHEST = Aliases.javaItemType("chest");
-	private static final ItemType CARPET = Aliases.javaItemType("carpet");
+	private static ItemType CHESTPLATE;
+	private static ItemType LEGGINGS;
+	private static ItemType BOOTS;
+	private static ItemType CARPET;
+	private static final ItemType HORSE_ARMOR = new ItemType(Material.IRON_HORSE_ARMOR, Material.GOLDEN_HORSE_ARMOR, Material.DIAMOND_HORSE_ARMOR);
+	private static final ItemType SADDLE = new ItemType(Material.SADDLE);
+	private static final ItemType CHEST = new ItemType(Material.CHEST);
+
+	static {
+		boolean usesWoolCarpetTag = Skript.fieldExists(Tag.class, "WOOL_CARPET");
+		CARPET = new ItemType(usesWoolCarpetTag ? Tag.WOOL_CARPETS : Tag.CARPETS);
+		// added in 1.20.6
+		if (Skript.fieldExists(Tag.class, "ITEM_CHEST_ARMOR")) {
+			CHESTPLATE = new ItemType(Tag.ITEMS_CHEST_ARMOR);
+			LEGGINGS = new ItemType(Tag.ITEMS_LEG_ARMOR);
+			BOOTS = new ItemType(Tag.ITEMS_FOOT_ARMOR);
+		} else {
+			CHESTPLATE = new ItemType(
+				Material.LEATHER_CHESTPLATE,
+				Material.CHAINMAIL_CHESTPLATE,
+				Material.GOLDEN_CHESTPLATE,
+				Material.IRON_CHESTPLATE,
+				Material.DIAMOND_CHESTPLATE,
+				Material.ELYTRA
+			);
+
+			LEGGINGS = new ItemType(
+				Material.LEATHER_LEGGINGS,
+				Material.CHAINMAIL_LEGGINGS,
+				Material.GOLDEN_LEGGINGS,
+				Material.IRON_LEGGINGS,
+				Material.DIAMOND_LEGGINGS
+			);
+
+			BOOTS = new ItemType(
+				Material.LEATHER_BOOTS,
+				Material.CHAINMAIL_BOOTS,
+				Material.GOLDEN_BOOTS,
+				Material.IRON_BOOTS,
+				Material.DIAMOND_BOOTS
+			);
+
+			// netherite
+			if (Skript.isRunningMinecraft(1,16)) {
+				CHESTPLATE.add(new ItemData(Material.NETHERITE_CHESTPLATE));
+				LEGGINGS.add(new ItemData(Material.NETHERITE_LEGGINGS));
+				BOOTS.add(new ItemData(Material.NETHERITE_BOOTS));
+			}
+		}
+	}
+
+
 
 	private static final ItemType[] ALL_EQUIPMENT = new ItemType[] {CHESTPLATE, LEGGINGS, BOOTS, HORSE_ARMOR, SADDLE, CHEST, CARPET};
 

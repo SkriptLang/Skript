@@ -179,6 +179,8 @@ public class RetainingLogHandler extends LogHandler {
 	
 	@SuppressWarnings("null")
 	public Collection<LogEntry> getLog() {
+		// if something is grabbing the log entries, they're probably handling them manually
+		printedErrorOrLog = true;
 		return Collections.unmodifiableCollection(log);
 	}
 	
