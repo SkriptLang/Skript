@@ -56,6 +56,10 @@ release channel: @release-channel@
 # 'prerelease' means that development releases will also be checked for.
 # Initial value of this depends on the Skript version you first installed; it was '@release-channel@'.
 
+send reloading info to ops: false
+# Whether Skript should alert operators when someone reloads a script file.
+# This will look like the normal message you receive when reloading a script, containing reload time, errors and/or warnings.
+
 enable effect commands: false
 effect command token: !
 # If 'enable effect commands' is set to true, chat messages starting with the 'effect command token' will be interpreted as effects and executed.
@@ -80,9 +84,6 @@ log effect commands: false
 # Whether Skript should log the usage of effect commands.
 # They will be logged as [INFORMATION] in this format: '<player> issued effect command: <command>'
 
-send reloading info to ops: false
-# Whether Skript should alert operators when someone reloads a script file.
-# This will look like the normal message you receive when reloading a script, containing reload time, errors and/or warnings.
 
 player variable fix: true
 # Whether to enable the player variable fix if a player has rejoined and was reciding inside a variable.
