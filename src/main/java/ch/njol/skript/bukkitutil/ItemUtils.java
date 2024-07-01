@@ -18,14 +18,14 @@
  */
 package ch.njol.skript.bukkitutil;
 
+import ch.njol.skript.Skript;
+import ch.njol.skript.aliases.ItemType;
 import org.bukkit.Material;
 import org.bukkit.TreeType;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.eclipse.jdt.annotation.Nullable;
-
-import ch.njol.skript.Skript;
 
 import java.util.HashMap;
 
@@ -34,29 +34,89 @@ import java.util.HashMap;
  */
 public class ItemUtils {
 
+	public static final boolean HAS_MAX_DAMAGE = Skript.methodExists(Damageable.class, "getMaxDamage");
+
 	/**
 	 * Gets damage/durability of an item, or 0 if it does not have damage.
-	 * @param stack Item.
+	 * @param itemStack Item.
 	 * @return Damage.
 	 */
-	public static int getDamage(ItemStack stack) {
-		ItemMeta meta = stack.getItemMeta();
-		if (meta instanceof Damageable)
-			return ((Damageable) meta).getDamage();
-		return 0; // Not damageable item
+	public static int getDamage(ItemStack itemStack) {
+		return getDamage(itemStack.getItemMeta());
 	}
-	
+
+	/**
+	 * Gets damage/durability of an itemmeta, or 0 if it does not have damage.
+	 * @param itemMeta ItemMeta.
+	 * @return Damage.
+	 */
+	public static int getDamage(ItemMeta itemMeta) {
+		if (itemMeta instanceof Damageable)
+			return ((Damageable) itemMeta).getDamage();
+		return 0; // Non damageable item
+	}
+
+	/** Gets the max damage/durability of an item
+	 * <p>NOTE: Will account for custom damageable items in MC 1.20.5+</p>
+	 * @param itemStack Item to grab durability from
+	 * @return Max amount of damage this item can take
+	 */
+	public static int getMaxDamage(ItemStack itemStack) {
+		ItemMeta meta = itemStack.getItemMeta();
+		if (HAS_MAX_DAMAGE && meta instanceof Damageable && ((Damageable) meta).hasMaxDamage())
+			return ((Damageable) meta).getMaxDamage();
+		return itemStack.getType().getMaxDurability();
+	}
+
 	/**
 	 * Sets damage/durability of an item if possible.
-	 * @param stack Item to modify.
+	 * @param itemStack Item to modify.
 	 * @param damage New damage. Note that on some Minecraft versions,
 	 * this might be truncated to short.
 	 */
-	public static void setDamage(ItemStack stack, int damage) {
-		ItemMeta meta = stack.getItemMeta();
+	public static void setDamage(ItemStack itemStack, int damage) {
+		ItemMeta meta = itemStack.getItemMeta();
 		if (meta instanceof Damageable) {
 			((Damageable) meta).setDamage(damage);
-			stack.setItemMeta(meta);
+			itemStack.setItemMeta(meta);
+		}
+	}
+
+	/**
+	 * Gets damage/durability of an item, or 0 if it does not have damage.
+	 * @param itemType Item.
+	 * @return Damage.
+	 */
+	public static int getDamage(ItemType itemType) {
+		ItemMeta meta = itemType.getItemMeta();
+		if (meta instanceof Damageable)
+			return ((Damageable) meta).getDamage();
+		return 0; // Non damageable item
+	}
+
+	/** Gets the max damage/durability of an item
+	 * <p>NOTE: Will account for custom damageable items in MC 1.20.5+</p>
+	 * @param itemType Item to grab durability from
+	 * @return Max amount of damage this item can take
+	 */
+	public static int getMaxDamage(ItemType itemType) {
+		ItemMeta meta = itemType.getItemMeta();
+		if (HAS_MAX_DAMAGE && meta instanceof Damageable && ((Damageable) meta).hasMaxDamage())
+			return ((Damageable) meta).getMaxDamage();
+		return itemType.getMaterial().getMaxDurability();
+	}
+
+	/**
+	 * Sets damage/durability of an item if possible.
+	 * @param itemType Item to modify.
+	 * @param damage New damage. Note that on some Minecraft versions,
+	 * this might be truncated to short.
+	 */
+	public static void setDamage(ItemType itemType, int damage) {
+		ItemMeta meta = itemType.getItemMeta();
+		if (meta instanceof Damageable) {
+			((Damageable) meta).setDamage(damage);
+			itemType.setItemMeta(meta);
 		}
 	}
 
@@ -74,13 +134,15 @@ public class ItemUtils {
 			return null;
 		}
 	}
-	
+
 	/**
 	 * Gets an item material corresponding to given block material, which might
 	 * be the given material.
 	 * @param type Material.
 	 * @return Item version of material or null.
+	 * @deprecated This just returns itself and has no use
 	 */
+	@Deprecated
 	public static Material asItem(Material type) {
 		// Assume (naively) that all types are valid items
 		return type;
@@ -89,15 +151,22 @@ public class ItemUtils {
 	/**
 	 * Tests whether two item stacks are of the same type, i.e. it ignores the amounts.
 	 *
-	 * @param is1
-	 * @param is2
+	 * @param itemStack1
+	 * @param itemStack2
 	 * @return Whether the item stacks are of the same type
 	 */
-	public static boolean itemStacksEqual(final @Nullable ItemStack is1, final @Nullable ItemStack is2) {
-		if (is1 == null || is2 == null)
-			return is1 == is2;
-		return is1.getType() == is2.getType() && ItemUtils.getDamage(is1) == ItemUtils.getDamage(is2)
-			&& is1.getItemMeta().equals(is2.getItemMeta());
+	public static boolean itemStacksEqual(@Nullable ItemStack itemStack1, @Nullable ItemStack itemStack2) {
+		if (itemStack1 == null || itemStack2 == null)
+			return itemStack1 == itemStack2;
+		if (itemStack1.getType() != itemStack2.getType())
+			return false;
+
+		ItemMeta itemMeta1 = itemStack1.getItemMeta();
+		ItemMeta itemMeta2 = itemStack2.getItemMeta();
+		if (itemMeta1 == null || itemMeta2 == null)
+			return itemMeta1 == itemMeta2;
+
+		return itemStack1.getItemMeta().equals(itemStack2.getItemMeta());
 	}
 
 	// Only 1.15 and versions after have Material#isAir method

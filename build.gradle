@@ -5,7 +5,6 @@ import java.time.LocalTime
 
 plugins {
 	id 'com.github.johnrengelman.shadow' version '8.1.1'
-	id 'com.github.hierynomus.license' version '0.16.1'
 	id 'maven-publish'
 	id 'java'
 }
@@ -20,6 +19,7 @@ allprojects {
 		maven { url 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/' }
 		maven { url 'https://oss.sonatype.org/content/repositories/snapshots/' }
 		maven { url 'https://repo.papermc.io/repository/maven-public/' }
+		maven { url = 'https://s01.oss.sonatype.org/content/repositories/snapshots/' } // needed for paper adventure snapshot
 		maven { url 'https://ci.emc.gs/nexus/content/groups/aikar/' }
 	}
 }
@@ -29,7 +29,7 @@ dependencies {
 	shadow group: 'org.bstats', name: 'bstats-bukkit', version: '3.0.2'
 	shadow group: 'net.kyori', name: 'adventure-text-serializer-bungeecord', version: '4.3.2'
 
-	implementation group: 'io.papermc.paper', name: 'paper-api', version: '1.20.4-R0.1-SNAPSHOT'
+	implementation group: 'io.papermc.paper', name: 'paper-api', version: '1.21-R0.1-SNAPSHOT'
 	implementation group: 'org.eclipse.jdt', name: 'org.eclipse.jdt.annotation', version: '2.2.700'
 	implementation group: 'com.google.code.findbugs', name: 'findbugs', version: '3.0.1'
 	implementation group: 'com.sk89q.worldguard', name: 'worldguard-legacy', version: '7.0.0-SNAPSHOT'
@@ -54,23 +54,23 @@ task checkAliases {
 }
 
 task testJar(type: ShadowJar) {
-	dependsOn(compileTestJava, licenseTest)
+	dependsOn(compileTestJava)
 	archiveFileName = 'Skript-JUnit.jar'
 	from sourceSets.test.output, sourceSets.main.output, project.configurations.testShadow
 }
 
 task jar(overwrite: true, type: ShadowJar) {
 	dependsOn checkAliases
-	archiveFileName = jarName ? 'Skript.jar' : jarName
+	archiveFileName = jarName ? 'Skript-' + project.version + '.jar' : jarName
 	from sourceSets.main.output
 }
 
 task build(overwrite: true, type: ShadowJar) {
-	archiveFileName = jarName ? 'Skript.jar' : jarName
+	archiveFileName = jarName ? 'Skript-' + project.version + '.jar' : jarName
 	from sourceSets.main.output
 }
 
-// Excludes the tests for the build task. Should be using junit, junitJava17, junitJava8, skriptTest, quickTest.
+// Excludes the tests for the build task. Should be using junit, junitJava17, junitJava11, skriptTest, quickTest.
 // We do not want tests to run for building. That's time consuming and annoying. Especially in development.
 test {
 	exclude '**/*'
@@ -140,24 +140,6 @@ publishing {
 	}
 }
 
-license {
-	header file('licenseheader.txt')
-	exclude('**/Metrics.java') // Not under GPLv3
-	exclude('**/BurgerHelper.java') // Not exclusively GPLv3
-	exclude('**/*.sk') // Sample scripts and maybe aliases
-	exclude('**/*.lang') // Language files do not have headers (still under GPLv3)
-	exclude('**/*.json') // JSON files do not have headers
-}
-
-task releaseJavadoc(type: Javadoc) {
-	title = project.name + ' ' + project.property('version')
-	source = sourceSets.main.allJava
-	classpath = configurations.compileClasspath
-	options.encoding = 'UTF-8'
-	// currently our javadoc has a lot of errors, so we need to suppress the linter
-	options.addStringOption('Xdoclint:none', '-quiet')
-}
-
 // Task to check that test scripts are named correctly
 tasks.register('testNaming') {
 	doLast {
@@ -197,13 +179,12 @@ void createTestTask(String name, String desc, String environments, int javaVersi
 	if (junit) {
 		artifact += 'Skript-JUnit.jar'
 	} else if (releaseDocs) {
-		artifact += 'Skript-github.jar'
+		artifact += 'Skript-' + version + '.jar'
 	} else {
 		artifact += 'Skript-nightly.jar'
 	}
 	tasks.register(name, JavaExec) {
 		description = desc
-		dependsOn licenseTest
 		if (junit) {
 			dependsOn testJar
 		} else if (releaseDocs) {
@@ -243,16 +224,23 @@ void createTestTask(String name, String desc, String environments, int javaVersi
 			if (!gradle.taskGraph.hasTask(":tasks") && !gradle.startParameter.dryRun && modifiers.contains(Modifiers.PROFILE)) {
 				if (!project.hasProperty('profiler'))
 					throw new MissingPropertyException('Add parameter -Pprofiler=<path to profiler>', 'profiler', String.class)
-	
+
 				args += '-agentpath:' + project.property('profiler') + '=port=8849,nowait'
 			}
 		}
 	}
 }
 
-def latestEnv = 'java17/paper-1.20.4.json'
-def latestJava = 17
-def oldestJava = 8
+def java21 = 21
+def java17 = 17
+def java11 = 11
+
+def latestEnv = 'java21/paper-1.21.0.json'
+def latestJava = java21
+def oldestJava = java11
+
+def latestJUnitEnv = 'java17/paper-1.20.4.json'
+def latestJUnitJava = java17
 
 java {
     toolchain.languageVersion.set(JavaLanguageVersion.of(latestJava))
@@ -270,23 +258,27 @@ String environments = 'src/test/skript/environments/';
 String env = project.property('testEnv') == null ? latestEnv : project.property('testEnv') + '.json'
 int envJava = project.property('testEnvJavaVersion') == null ? latestJava : Integer.parseInt(project.property('testEnvJavaVersion') as String)
 createTestTask('quickTest', 'Runs tests on one environment being the latest supported Java and Minecraft.', environments + latestEnv, latestJava, 0)
-createTestTask('skriptTestJava17', 'Runs tests on all Java 17 environments.', environments + 'java17', latestJava, 0)
-createTestTask('skriptTestJava8', 'Runs tests on all Java 8 environments.', environments + 'java8', oldestJava, 0)
+createTestTask('skriptTestJava21', 'Runs tests on all Java 21 environments.', environments + 'java21', java21, 0)
+createTestTask('skriptTestJava17', 'Runs tests on all Java 17 environments.', environments + 'java17', java17, 0)
+createTestTask('skriptTestJava11', 'Runs tests on all Java 11 environments.', environments + 'java11', java11, 0)
 createTestTask('skriptTestDev', 'Runs testing server and uses \'system.in\' for command input, stop server to finish.', environments + env, envJava, 0, Modifiers.DEV_MODE, Modifiers.DEBUG)
 createTestTask('skriptProfile', 'Starts the testing server with JProfiler support.', environments + latestEnv, latestJava, -1, Modifiers.PROFILE)
 createTestTask('genNightlyDocs', 'Generates the Skript documentation website html files.', environments + env, envJava, 0, Modifiers.GEN_NIGHTLY_DOCS)
 createTestTask('genReleaseDocs', 'Generates the Skript documentation website html files for a release.', environments + env, envJava, 0, Modifiers.GEN_RELEASE_DOCS)
 tasks.register('skriptTest') {
 	description = 'Runs tests on all environments.'
-	dependsOn skriptTestJava8, skriptTestJava17
+	dependsOn skriptTestJava11, skriptTestJava17, skriptTestJava21
 }
 
-createTestTask('JUnitQuick', 'Runs JUnit tests on one environment being the latest supported Java and Minecraft.', environments + latestEnv, latestJava, 0, Modifiers.JUNIT)
-createTestTask('JUnitJava17', 'Runs JUnit tests on all Java 17 environments.', environments + 'java17', latestJava, 0, Modifiers.JUNIT)
-createTestTask('JUnitJava8', 'Runs JUnit tests on all Java 8 environments.', environments + 'java8', oldestJava, 0, Modifiers.JUNIT)
+createTestTask('JUnitQuick', 'Runs JUnit tests on one environment being the latest supported Java and Minecraft.', environments + latestJUnitEnv, latestJUnitJava, 0, Modifiers.JUNIT)
+// Disabled as EasyMock 5.2.0 is required for Java 21 support
+// However, we are currently using 5.0.1 (see https://github.com/SkriptLang/Skript/pull/6204#discussion_r1405302009)
+//createTestTask('JUnitJava21', 'Runs JUnit tests on all Java 21 environments.', environments + 'java21', java21, 0, Modifiers.JUNIT)
+createTestTask('JUnitJava17', 'Runs JUnit tests on all Java 17 environments.', environments + 'java17', java17, 0, Modifiers.JUNIT)
+createTestTask('JUnitJava11', 'Runs JUnit tests on all Java 11 environments.', environments + 'java11', java11, 0, Modifiers.JUNIT)
 tasks.register('JUnit') {
 	description = 'Runs JUnit tests on all environments.'
-	dependsOn JUnitJava8, JUnitJava17
+	dependsOn JUnitJava11, JUnitJava17//, JUnitJava21
 }
 
 // Build flavor configurations
@@ -295,7 +287,7 @@ task githubResources(type: ProcessResources) {
 		include '**'
 		version = project.property('version')
 		def channel = 'stable'
-		if (version.contains('pre'))
+		if (version.contains('-'))
 			channel = 'prerelease'
 		filter ReplaceTokens, tokens: [
 			'version'         : version,
@@ -313,7 +305,7 @@ task githubResources(type: ProcessResources) {
 task githubRelease(type: ShadowJar) {
 	from sourceSets.main.output
 	dependsOn githubResources
-	archiveFileName = 'Skript-github.jar'
+	archiveFileName = 'Skript-' + version +'.jar'
 	manifest {
 		attributes(
 			'Name': 'ch/njol/skript',
@@ -328,7 +320,7 @@ task spigotResources(type: ProcessResources) {
 		include '**'
 		version = project.property('version')
 		def channel = 'stable'
-		if (version.contains('pre'))
+		if (version.contains('-'))
 			channel = 'prerelease'
 		filter ReplaceTokens, tokens: [
 			'version'         : version,
@@ -366,7 +358,7 @@ task nightlyResources(type: ProcessResources) {
 			'today'           : '' + LocalTime.now(),
 			'release-flavor'  : 'skriptlang-nightly', // SkriptLang build, automatically done by CI
 			'release-channel' : 'prerelease', // No update checking, but these are VERY unstable
-			'release-updater' : 'ch.njol.skript.update.NoUpdateChecker', // No autoupdates for now
+			'release-updater' : 'ch.njol.skript.update.NoUpdateChecker', // No auto updates for now
 			'release-source'  : '',
 			'release-download': 'null'
 		]
@@ -376,7 +368,7 @@ task nightlyResources(type: ProcessResources) {
 
 task nightlyRelease(type: ShadowJar) {
 	from sourceSets.main.output
-	dependsOn nightlyResources, licenseMain
+	dependsOn nightlyResources
 	archiveFileName = 'Skript-nightly.jar'
 	manifest {
 		attributes(
@@ -388,8 +380,8 @@ task nightlyRelease(type: ShadowJar) {
 }
 
 javadoc {
-	dependsOn nightlyResources
-
+	mustRunAfter(tasks.withType(ProcessResources))
+	title = 'Skript ' + project.property('version')
 	source = sourceSets.main.allJava
 
 	exclude("ch/njol/skript/conditions/**")
@@ -402,10 +394,9 @@ javadoc {
 	exclude("ch/njol/skript/lang/function/ExprFunctionCall.java")
 	exclude("ch/njol/skript/hooks/**")
 	exclude("ch/njol/skript/test/**")
-	
+
 	classpath = configurations.compileClasspath + sourceSets.main.output
 	options.encoding = 'UTF-8'
 	// currently our javadoc has a lot of errors, so we need to suppress the linter
 	options.addStringOption('Xdoclint:none', '-quiet')
 }
-

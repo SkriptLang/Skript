@@ -64,8 +64,10 @@ some syntaxes for test development are available.
   * Contents of tests are not parsed when conditions are not met.
   * Typically the condition isn't required.
   * Required to start a test script.
-* Assertions are available as effects: <code>assert <.+> [(1¦to fail)] with %string%</code>
+* Assertions are available as effects: <code>assert <.+> [(1¦to fail)] with [error] %string%[, expected [value] %object%, [and] (received|got) [value] %object%]</code>
   * Example: <code>assert {_entity} is a zombie with "failure message"</code> will error if it's not a zombie.
+  * The optional 'expected' and 'got' values are used in the error report to show what the assertion expected and what it actually got.
+  * Assertions using some conditions, like CondCompare and CondIsSet, may automatically fill in the expected/got values.
   * If the tag `to fail` is defined, it will assume the condition is to fail. If it's successful the string is printed.
 * Take a look at existing tests for examples https://github.com/SkriptLang/Skript/tree/master/src/test/skript/tests
   <code>misc/dummy.sk</code> is useful for beginners

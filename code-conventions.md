@@ -66,6 +66,9 @@ With the exception of contacting our own resources (e.g. to check for updates) c
 Code contributed must be licensed under GPLv3, by **you**.
 We expect that any code you contribute is either owned by you or you have explicit permission to provide and license it to us.
 
+Licenses do not need to be printed in individual files (or packages) unless the licence applying to the code in
+that file (or package) deviates from the licence scope of its containing package.
+
 Third party code (under a compatible licence) _may_ be accepted in the following cases:
  - It is part of a public, freely-available library or resource.
  - It is somehow necessary to your contribution, and you have been given permission to include it.
@@ -75,34 +78,61 @@ If we receive complaints regarding the licensing of a contribution we will forwa
 
 If you have questions or complaints regarding the licensing or reproduction of a contribution you may contact us (the organisation) or the contributor of that code directly.
 
-If, in the future, we need to relicense contributed code, we will contact all contributors involved.
+If, in the future, we need to re-license contributed code, we will contact all contributors involved.
 If we need to remove or alter contributed code due to a licensing issue we will attempt to notify its contributor.
 
 
 ## Code Style
 
 ### Formatting
+* Imports should be grouped together by type (e.g. all `java.lang...` imports together)
+  * Following the style of existing imports in a class is encouraged, but not required
+  * Wildcard `*` imports are permitted (as long as they do not interfere with existing imports), e.g. `java.lang.*`.
 * Tabs, no spaces (unless in code imported from other projects)
-** No tabs/spaces in empty lines
+	- No tabs/spaces in empty lines
 * No trailing whitespace
 * At most 120 characters per line
-  - In Javadoc/multiline comments, at most 80 characters per line
-* When statements consume multiple lines, all lines but first have two tabs of additional indentation
+  	- In Javadoc/multiline comments, at most 80 characters per line
+* When statements consume multiple lines, all lines but the first have two tabs of additional indentation
+	- The exception to this is breaking up conditional statements (e.g. `if (x || y)`) where the
+    condition starts may be aligned
 * Each class begins with an empty line
 * No squeezing of multiple lines of code on a single line
 * Separate method declarations with empty lines
-  - Empty line after last method in a class is *not* required
-  - Otherwise, empty line before and after method is a good rule of thumb
+  	- Empty line after last method in a class is *not* required
+  	- Otherwise, empty line before and after method is a good rule of thumb
 * If fields have Javadoc, separate them with empty lines
 * Use empty lines liberally inside methods to improve readability
 * Use curly brackets to start and end most blocks
-  - Only when a conditional block (if or else) contains a single statement, they may be omitted
-  - When omitting brackets, still indent as if the code had brackets
-  - Avoid omitting brackets if it produces hard-to-read code
+  	- When a block contains a single statement, they may be omitted
+	    - Brackets may not be omitted in a chain of other blocks that require brackets, e.g `if ... else {}`
+  	- When omitting brackets, still indent as if the code had brackets
+  	- Avoid omitting brackets if it produces hard-to-read or ambiguous code
+* Ternaries should be avoided where it makes the code complex or difficult to read
 * Annotations for methods and classes are placed in lines before their declarations, one per line
-* When there are multiple annotations, place them in order:
-  - @Override -> @Nullable -> @SuppressWarnings
-  - For other annotations, doesn't matter; let your IDE decide
+  - Annotations for a structure go on the line before that structure
+      ```java 
+      @Override
+      @SuppressWarnings("xyz")
+      public void myMethod() {
+            // Override goes above method because method is overriding
+      }
+      ```
+    
+  - Annotations for the _value_ of a thing go before that value's type declaration
+      ```java 
+      @Override
+      public @Nullable Object myMethod() {
+          // Nullable goes before Object because Object is Nullable
+      }
+      ```
+* When there are multiple annotations, it looks nicer to place them in length order (longest last) 
+but this is not strictly required:
+	```java 
+	@Override
+	@Deprecated
+	@SuppressWarnings("xyz")
+	```
 * When splitting Strings into multiple lines the last part of the string must be (space character included) " " +
   ```java
   String string = "example string " +
@@ -111,6 +141,7 @@ If we need to remove or alter contributed code due to a licensing issue we will 
   
 * When extending one of following classes: SimpleExpression, SimplePropertyExpression, Effect, Condition...
   - Put overridden methods in order
+  - Put static registration before all methods
   - SimpleExpression: init -> get/getAll -> acceptChange -> change -> setTime -> getTime -> isSingle -> getReturnType -> toString
   - SimplePropertyExpression: -> init -> convert -> acceptChange -> change -> setTime -> getTime -> getReturnType -> getPropertyName
   - Effect: init ->  execute  -> toString
@@ -130,8 +161,8 @@ If we need to remove or alter contributed code due to a licensing issue we will 
 * Use prefixes only where their use has been already established (such as `ExprSomeRandomThing`)
   - Otherwise, use postfixes where necessary
   - Common occurrences include: Struct (Structure), Sec (Section), EffSec (EffectSection), Eff (Effect), Cond (Condition), Expr (Expression)
-* Ensure variable/field names are descriptive. Avoid using shorthand names like `e`, or `c`.
-  - e.g. Event should be `event`, not `e`. `e` is ambiguous and could mean a number of things.
+* Ensure variable/field names are descriptive. Avoid using shorthand names like `e`, or `c`
+  - e.g. Event should be `event`, not `e`. `e` is ambiguous and could mean a number of things
   
 ### Comments
 * Prefer to comment *why* you're doing things instead of how you're doing them
@@ -163,33 +194,79 @@ Your comments should look something like these:
 ## Language Features
 
 ### Compatibility
-* Contributions should maintain Java 8 source/binary compatibility, even though compiling Skript requires Java 17
-  - Users must not need JRE newer than version 8
-* Versions up to and including Java 17 should work too
+[//]: # (To be updated for 2.10 for Java 17)
+* Contributions should maintain Java 11 source/binary compatibility, even though compiling Skript requires Java 21
+  - Users must not need JRE newer than version 11
+* Versions up to and including Java 21 should work too
   - Please avoid using unsafe reflection
 * It is recommended to make fields final, if they are effectively final
-* Local variables and method parameters should not be declared final
+* Local variables and method parameters should not be declared final unless used in anonymous classes, lambdas
+or try-with-resources sections where their immutability is necessary
 * Methods should be declared final only where necessary
 * Use `@Override` whenever applicable
+  - They may be omitted to prevent compilation errors when something overrides only
+  on a version-dependent basis (e.g. in Library XYZ version 2 we override `getX()` but in version 3 it's
+  gone, and we call it ourselves)
 
-### Nullness
+### null-ness
+* We use **JetBrains** Annotations for specifying null-ness and method contracts.
+  * If editing a file using a different annotation set (e.g. Javax, Eclipse Sisu, Bukkit)
+  these should be replaced with their JetBrains equivalent.
+  * The semantics for JetBrains Annotations are strict _and should be observed!_
+    * Many IDEs have built-in compiler-level support for these, and can even be set to produce strict
+    errors when an annotation is misused; do not misuse them.
+  * **`@NotNull`**
+    * > An element annotated with NotNull claims null value is forbidden to return (for methods), 
+    pass to (parameters) and hold (local variables and fields).
+	* Something is `@NotNull` iff it is never null from its inception (new X) to its garbage collection, 
+    i.e. there is no point in time at which the value could ever be null.
+  * **`@Nullable`**
+    * > An element annotated with Nullable claims null value is perfectly valid to return (for methods), 
+	  > pass to (parameters) or hold in (local variables and fields). 
+	  > 
+	  > By convention, this annotation applied only when the value should always be checked 
+	  > against null because the developer could do nothing to prevent null from happening.
+	* Something is `@Nullable` iff there is _absolutely no way of determining_ (other than checking its 
+    value `!= null`) whether it is null.
+    * In other words, if there is another way of knowing (e.g. you set it yourself, an `isPresent` method, etc.)
+    then it should not be marked nullable.
+  * **`@Contract`**
+    * The contract annotation should be used to express other behaviour (e.g. null depending on parameters).
 * All fields, method parameters and their return values are non-null by default
-  - Exceptions: Github API JSON mappings, Metrics
-* When something is nullable, mark it as so
-* Only ignore nullness errors when a variable is effectively non-null - if in doubt: check
-  - Most common example is syntax elements, which are not initialised using a constructor
+  - Exceptions: GitHub API JSON mappings, Metrics
+* When ignoring warnings, use the no-inspection comment rather than a blanket suppression annotation
 * Use assertions liberally: if you're sure something is not null, assert so to the compiler
   - Makes finding bugs easier for developers
-* Assertions must **not** have side-effects - they may be skipped in real environments
+* Assertions must **not** have side-effects in non-test packages - they may be skipped in real environments
 * Avoid checking non-null values for nullability
   - Unless working around buggy addons, it is rarely necessary
-  - This is why ignoring nullness errors is particularly dangerous
+  - This is why ignoring null-ness errors is particularly dangerous
+* Annotations on array types **must** be placed properly:
+  * Annotations on the array itself go before the array brackets
+	```java
+	@Nullable Object @NotNull []
+	// a not-null array of nullable objects
+	```
+  * Annotations on values inside the array go before the value declaration
+	```java
+	@NotNull Object @Nullable []
+	// a nullable array of not-null objects
+	```
+  * If this is not adhered to, an IDE may provide incorrect feedback.
 
 ### Assertions
 
 Skript must run with assertations enabled; use them in your development environment. \
 The JVM flag <code>-ea</code> is used to enable them.
 
+## Code Complexity
+
+Dense, highly-complex code should be avoided to preserve readability and to help with future maintenance, 
+especially within a single method body.
+
+There are many available metrics for measuring code complexity (for different purposes); [we have our own](https://stable.skriptlang.org/Radical_Complexity.pdf).
+There are no strict limits for code complexity, but you may be encouraged (or required) to reformat or break up methods
+into smaller, more manageable chunks. If in doubt, keep things simple.
 
 ## Minecraft Features
 

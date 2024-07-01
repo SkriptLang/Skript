@@ -104,7 +104,7 @@ public class EvtBlock extends SkriptEvent {
 		if (event instanceof BlockFormEvent) {
 			BlockFormEvent blockFormEvent = (BlockFormEvent) event;
 			BlockState newState = blockFormEvent.getNewState();
-			item = new ItemType(newState);
+			item = new ItemType(newState.getBlockData());
 			blockData = newState.getBlockData();
 		} else if (event instanceof BlockEvent) {
 			BlockEvent blockEvent = (BlockEvent) event;
