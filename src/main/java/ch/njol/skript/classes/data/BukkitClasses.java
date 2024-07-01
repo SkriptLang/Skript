@@ -100,7 +100,6 @@ import ch.njol.skript.lang.util.SimpleLiteral;
 import ch.njol.skript.localization.Language;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.BlockUtils;
-import ch.njol.skript.util.EnchantmentType;
 import ch.njol.skript.util.PotionEffectUtils;
 import ch.njol.skript.util.StringMode;
 import ch.njol.util.StringUtils;
@@ -1078,12 +1077,12 @@ public class BukkitClasses {
 					public PotionEffectType parse(final String s, final ParseContext context) {
 						return PotionEffectUtils.parseType(s);
 					}
-					
+
 					@Override
 					public String toString(final PotionEffectType p, final int flags) {
 						return PotionEffectUtils.toString(p, flags);
 					}
-					
+
 					@Override
 					public String toVariableNameString(final PotionEffectType p) {
 						return "" + p.getName();
@@ -1223,74 +1222,23 @@ public class BukkitClasses {
 						return true;
 					}
 				}));
-		
-		Classes.registerClass(new ClassInfo<>(Enchantment.class, "enchantment")
+
+		ClassInfo<Enchantment> enchantmentClassInfo;
+		if (BukkitUtils.registryExists("ENCHANTMENT")) {
+			enchantmentClassInfo = new RegistryClassInfo<>(Enchantment.class, Registry.ENCHANTMENT, "enchantment", "enchantments");
+		} else {
+			enchantmentClassInfo = EnchantmentUtils.createClassInfo();
+		}
+		Classes.registerClass(enchantmentClassInfo
 				.user("enchantments?")
 				.name("Enchantment")
 				.description("An enchantment, e.g. 'sharpness' or 'fortune'. Unlike <a href='#enchantmenttype'>enchantment type</a> " +
-						"this type has no level, but you usually don't need to use this type anyway.")
-				.usage(StringUtils.join(EnchantmentType.getNames(), ", "))
+						"this type has no level, but you usually don't need to use this type anyway.",
+						"NOTE: Minecraft namespaces are supported, ex: 'minecraft:basalt_deltas'.",
+						"As of Minecraft 1.21 this will also support custom enchantments using namespaces, ex: 'myenchants:explosive'.")
 				.examples("")
 				.since("1.4.6")
-				.before("enchantmenttype")
-				.supplier(Enchantment.values())
-				.parser(new Parser<Enchantment>() {
-					@Override
-					@Nullable
-					public Enchantment parse(final String s, final ParseContext context) {
-						return EnchantmentType.parseEnchantment(s);
-					}
-					
-					@Override
-					public String toString(final Enchantment e, final int flags) {
-						return EnchantmentType.toString(e, flags);
-					}
-					
-					@Override
-					public String toVariableNameString(final Enchantment e) {
-						return "" + EnchantmentUtils.getKey(e);
-					}
-				})
-				.serializer(new Serializer<Enchantment>() {
-					@Override
-					public Fields serialize(final Enchantment ench) {
-						final Fields f = new Fields();
-						f.putObject("key", EnchantmentUtils.getKey(ench));
-						return f;
-					}
-					
-					@Override
-					public boolean canBeInstantiated() {
-						return false;
-					}
-					
-					@Override
-					public void deserialize(final Enchantment o, final Fields f) {
-						assert false;
-					}
-					
-					@Override
-					protected Enchantment deserialize(final Fields fields) throws StreamCorruptedException {
-						final String key = fields.getObject("key", String.class);
-						assert key != null; // If a key happens to be null, something went really wrong...
-						final Enchantment e = EnchantmentUtils.getByKey(key);
-						if (e == null)
-							throw new StreamCorruptedException("Invalid enchantment " + key);
-						return e;
-					}
-					
-					// return "" + e.getId();
-					@Override
-					@Nullable
-					public Enchantment deserialize(String s) {
-						return Enchantment.getByName(s);
-					}
-					
-					@Override
-					public boolean mustSyncDeserialization() {
-						return false;
-					}
-				}));
+				.before("enchantmenttype"));
 		
 		Material[] allMaterials = Material.values();
 		Classes.registerClass(new ClassInfo<>(Material.class, "material")
@@ -1516,12 +1464,12 @@ public class BukkitClasses {
 	
 					@Override
 					public String toString(EnchantmentOffer eo, int flags) {
-						return EnchantmentType.toString(eo.getEnchantment(), flags) + " " + eo.getEnchantmentLevel();
+						return EnchantmentUtils.toString(eo.getEnchantment(), flags) + " " + eo.getEnchantmentLevel();
 					}
 	
 					@Override
 					public String toVariableNameString(EnchantmentOffer eo) {
-						return "offer:" + EnchantmentType.toString(eo.getEnchantment()) + "=" + eo.getEnchantmentLevel();
+						return "offer:" + EnchantmentUtils.toString(eo.getEnchantment()) + "=" + eo.getEnchantmentLevel();
 					}
 				}));
 
