@@ -21,7 +21,13 @@ package ch.njol.skript.bukkitutil;
 import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.ItemType;
 import org.bukkit.Material;
+import org.bukkit.Tag;
 import org.bukkit.TreeType;
+import org.bukkit.block.Block;
+import org.bukkit.block.data.BlockData;
+import org.bukkit.block.data.type.Fence;
+import org.bukkit.block.data.type.Gate;
+import org.bukkit.block.data.type.Wall;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -234,5 +240,56 @@ public class ItemUtils {
 	public static Material getTreeSapling(TreeType treeType) {
 		return TREE_TO_SAPLING_MAP.get(treeType);
 	}
-	
+
+
+	private static final boolean HAS_FENCE_TAGS = !Skript.isRunningMinecraft(1, 14);
+
+	/**
+	 * Whether the block is a fence or a wall.
+	 * @param block the block to check.
+	 * @return whether the block is a fence/wall.
+	 */
+	public static boolean isFence(Block block) {
+		// TODO: 1.13 only, so remove in 2.10
+		if (!HAS_FENCE_TAGS) {
+			BlockData data = block.getBlockData();
+			return data instanceof Fence
+				|| data instanceof Wall
+				|| data instanceof Gate;
+		}
+
+		Material type = block.getType();
+		return Tag.FENCES.isTagged(type)
+			|| Tag.FENCE_GATES.isTagged(type)
+			|| Tag.WALLS.isTagged(type);
+	}
+
+	/**
+	 * @param material The material to check
+	 * @return whether the material is a full glass block
+	 */
+	public static boolean isGlass(Material material) {
+		switch (material) {
+			case GLASS:
+			case RED_STAINED_GLASS:
+			case ORANGE_STAINED_GLASS:
+			case YELLOW_STAINED_GLASS:
+			case LIGHT_BLUE_STAINED_GLASS:
+			case BLUE_STAINED_GLASS:
+			case CYAN_STAINED_GLASS:
+			case LIME_STAINED_GLASS:
+			case GREEN_STAINED_GLASS:
+			case MAGENTA_STAINED_GLASS:
+			case PURPLE_STAINED_GLASS:
+			case PINK_STAINED_GLASS:
+			case WHITE_STAINED_GLASS:
+			case LIGHT_GRAY_STAINED_GLASS:
+			case GRAY_STAINED_GLASS:
+			case BLACK_STAINED_GLASS:
+			case BROWN_STAINED_GLASS:
+				return true;
+			default:
+				return false;
+		}
+	}
 }
