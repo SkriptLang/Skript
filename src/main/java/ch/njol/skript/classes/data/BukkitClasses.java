@@ -990,7 +990,8 @@ public class BukkitClasses {
 		Classes.registerClass(biomeClassInfo
 				.user("biomes?")
 				.name("Biome")
-				.description("All possible biomes Minecraft uses to generate a world.")
+				.description("All possible biomes Minecraft uses to generate a world.",
+					"NOTE: Minecraft namespaces are supported, ex: 'minecraft:basalt_deltas'.")
 				.examples("biome at the player is desert")
 				.since("1.4.4")
 				.after("damagecause"));
@@ -1448,12 +1449,13 @@ public class BukkitClasses {
 					.since("2.4")
 					.requiredPlugins("Minecraft 1.14 or newer"));
 		}
+
 		Classes.registerClass(new EnumClassInfo<>(RegainReason.class, "healreason", "heal reasons")
-			.user("(regen|heal) (reason|cause)")
-			.name("Heal Reason")
-			.description("The heal reason in a heal event.")
-			.examples("")
-			.since("2.5"));
+				.user("(regen|heal) (reason|cause)")
+				.name("Heal Reason")
+				.description("The health regain reason in a <a href='events.html#heal'>heal</a> event.")
+				.since("2.5"));
+
 		if (Skript.classExists("org.bukkit.entity.Cat$Type")) {
 			ClassInfo<Cat.Type> catTypeClassInfo;
 			if (BukkitUtils.registryExists("CAT_VARIANT")) {
@@ -1464,7 +1466,8 @@ public class BukkitClasses {
 			Classes.registerClass(catTypeClassInfo
 					.user("cat ?(type|race)s?")
 					.name("Cat Type")
-					.description("Represents the race/type of a cat entity.")
+					.description("Represents the race/type of a cat entity.",
+						"NOTE: Minecraft namespaces are supported, ex: 'minecraft:british_shorthair'.")
 					.since("2.4")
 					.requiredPlugins("Minecraft 1.14 or newer")
 					.documentationId("CatType"));
@@ -1532,7 +1535,8 @@ public class BukkitClasses {
 				.user("attribute ?types?")
 				.name("Attribute Type")
 				.description("Represents the type of an attribute. Note that this type does not contain any numerical values."
-						+ "See <a href='https://minecraft.wiki/w/Attribute#Attributes'>attribute types</a> for more info.")
+						+ "See <a href='https://minecraft.wiki/w/Attribute#Attributes'>attribute types</a> for more info.",
+					"NOTE: Minecraft namespaces are supported, ex: 'minecraft:generic.attack_damage'.")
 				.since("2.5"));
 
 		Classes.registerClass(new EnumClassInfo<>(Environment.class, "environment", "environments")
