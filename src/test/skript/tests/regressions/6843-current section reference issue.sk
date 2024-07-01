@@ -6,4 +6,4 @@ test "outdated current section references":
 		loop {_list::*}:
 			set {_var} to loop-value
 			set {_var} to loop-value-1
-	assert last parse logs is not set with "loop-value and loop-value-1 should've worked: %last parse logs%"
+	assert last parse logs is not set with "loop-value and loop-value-1 should've worked"

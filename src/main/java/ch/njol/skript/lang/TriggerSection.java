@@ -44,16 +44,16 @@ public abstract class TriggerSection extends TriggerItem {
 
 	protected TriggerSection(SectionNode node) {
 		ParserInstance parser = ParserInstance.get();
-		List<TriggerSection> currentSections = parser.getCurrentSections();
+		List<TriggerSection> previousSections = parser.getCurrentSections();
 
-		List<TriggerSection> newSections = new ArrayList<>(currentSections);
-		newSections.add(this);
-		parser.setCurrentSections(newSections);
+		List<TriggerSection> sections = new ArrayList<>(previousSections);
+		sections.add(this);
+		parser.setCurrentSections(sections);
 
 		try {
 			setTriggerItems(ScriptLoader.loadItems(node));
 		} finally {
-			parser.setCurrentSections(currentSections);
+			parser.setCurrentSections(previousSections);
 		}
 	}
 

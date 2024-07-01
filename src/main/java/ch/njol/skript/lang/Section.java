@@ -83,16 +83,16 @@ public abstract class Section extends TriggerSection implements SyntaxElement {
 	 */
 	protected void loadCode(SectionNode sectionNode) {
 		ParserInstance parser = getParser();
-		List<TriggerSection> currentSections = parser.getCurrentSections();
+		List<TriggerSection> previousSections = parser.getCurrentSections();
 
-		List<TriggerSection> newSections = new ArrayList<>(currentSections);
-		newSections.add(this);
-		parser.setCurrentSections(newSections);
+		List<TriggerSection> sections = new ArrayList<>(previousSections);
+		sections.add(this);
+		parser.setCurrentSections(sections);
 
 		try {
 			setTriggerItems(ScriptLoader.loadItems(sectionNode));
 		} finally {
-			parser.setCurrentSections(currentSections);
+			parser.setCurrentSections(previousSections);
 		}
 	}
 
