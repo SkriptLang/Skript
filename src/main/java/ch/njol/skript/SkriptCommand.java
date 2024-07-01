@@ -104,8 +104,6 @@ public class SkriptCommand implements CommandExecutor {
 	}
 
 
-
-
 	private static final ArgsMessage m_reloaded = new ArgsMessage(CONFIG_NODE + ".reload.reloaded");
 	private static final ArgsMessage m_reload_error = new ArgsMessage(CONFIG_NODE + ".reload.error");
 
@@ -533,42 +531,30 @@ public class SkriptCommand implements CommandExecutor {
 	/**
 	 * Sends the Skript reloading message to operators and console, requires a {@link RedirectingLogHandler} and {@link CommandSender}.
 	 *
-	 * @param message the message to be sent to operators and console
-	 * @param sender the command sender who initiated the reload
+	 * @param message    the message to be sent to operators and console
+	 * @param sender     the command sender who initiated the reload
 	 * @param logHandler the log handler that contains error information if any errors occurred during reloading
 	 */
 	private static void notifyOperators(String message, CommandSender sender, RedirectingLogHandler logHandler) {
 		if (!SkriptConfig.sendReloadingInfoToOps.value())
 			return;
+
 		Bukkit.getOnlinePlayers().stream()
 			.filter(player -> player.hasPermission("skript.reloadnotify") && !player.equals(sender))
-			.forEach(player -> {
-				if (logHandler.numErrors() == 0) {
-					Skript.info(player, message);
-				} else {
-					for (String errorMsg : logHandler.getErrors()) {
-						SkriptLogger.sendFormatted(player, errorMsg);
-					}
-					Skript.error(player, message);
-				}
-			});
+			.forEach(logHandler::addRecipient);
 
-		// send to console
+		// add console
+		logHandler.addRecipient(Bukkit.getConsoleSender());
+
+		// send message
 		if (logHandler.numErrors() == 0) {
-			Skript.info(Bukkit.getConsoleSender(), message);
+			Skript.info(sender, message);
 		} else {
 			for (String errorMsg : logHandler.getErrors()) {
-				SkriptLogger.sendFormatted(Bukkit.getConsoleSender(), errorMsg);
+				SkriptLogger.sendFormatted(sender, errorMsg);
 			}
-			Skript.error(Bukkit.getConsoleSender(), message);
+			Skript.error(sender, message);
 		}
 	}
 
-
-	private static String lowerCaseFirstChar(String str) {
-		if (str == null || str.isEmpty()) {
-			return str;
-		}
-		return Character.toLowerCase(str.charAt(0)) + str.substring(1);
-	}
 }

@@ -40,6 +40,10 @@ public class RedirectingLogHandler extends LogHandler {
 		this.prefix = prefix == null ? "" : prefix;
 	}
 
+	public void addRecipient(CommandSender recipient) {
+		recipients.add(recipient);
+	}
+
 	@Override
 	public LogResult log(LogEntry entry) {
 		String formattedMessage = prefix + entry.toFormattedString();
