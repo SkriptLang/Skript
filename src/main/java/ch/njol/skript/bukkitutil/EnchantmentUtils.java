@@ -23,6 +23,7 @@ import ch.njol.skript.classes.Parser;
 import ch.njol.skript.classes.Serializer;
 import ch.njol.skript.lang.ParseContext;
 import ch.njol.skript.localization.Language;
+import ch.njol.util.StringUtils;
 import ch.njol.yggdrasil.Fields;
 import org.bukkit.NamespacedKey;
 import org.bukkit.Registry;
@@ -180,7 +181,9 @@ public class EnchantmentUtils {
 				public boolean mustSyncDeserialization() {
 					return false;
 				}
-			}).supplier(Enchantment.values());
+			})
+			.usage(StringUtils.join(EnchantmentUtils.getNames(), ", "))
+			.supplier(Enchantment.values());
 	}
 
 }

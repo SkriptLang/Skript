@@ -1232,7 +1232,6 @@ public class BukkitClasses {
 				.name("Enchantment")
 				.description("An enchantment, e.g. 'sharpness' or 'fortune'. Unlike <a href='#enchantmenttype'>enchantment type</a> " +
 						"this type has no level, but you usually don't need to use this type anyway.")
-				.usage(StringUtils.join(EnchantmentUtils.getNames(), ", "))
 				.examples("")
 				.since("1.4.6")
 				.before("enchantmenttype"));
