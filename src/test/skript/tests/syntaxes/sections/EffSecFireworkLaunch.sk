@@ -1,0 +1,10 @@
+test "firework launch section":
+	set {_foo} to true
+	launch a firework with effects ball large coloured red at spawn of "world":
+		assert {_foo} is true with "variables from previous section wasn't carried over"
+		set {_foo} to false
+		assert event-entity is a firework with "entity should be a firework but is %event-entity%"
+		assert location of event-entity is set with "location of firework is not set"
+		set metadata value "test" of event-entity to true
+		assert metadata value "test" of event-entity is true with "metadata value not true (check from section)"
+	assert {_foo} is false with "variables from launch section wasn't carried over"
