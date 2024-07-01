@@ -344,6 +344,7 @@ tree types:
 
 # -- Time --
 time:
+	millisecond: millisecond¦s
 	tick: tick¦s
 	second: second¦s
 	minute: minute¦s
