@@ -1104,32 +1104,6 @@ public final class BukkitEventValues {
 			}
 		}, 0);
 
-		// === ServerEvents ===
-		// Script load/unload event
-		EventValues.registerEventValue(ScriptEvent.class, CommandSender.class, new Getter<CommandSender, ScriptEvent>() {
-			@Nullable
-			@Override
-			public CommandSender get(ScriptEvent e) {
-				return Bukkit.getConsoleSender();
-			}
-		}, 0);
-		// Server load event
-		EventValues.registerEventValue(SkriptStartEvent.class, CommandSender.class, new Getter<CommandSender, SkriptStartEvent>() {
-			@Nullable
-			@Override
-			public CommandSender get(SkriptStartEvent e) {
-				return Bukkit.getConsoleSender();
-			}
-		}, 0);
-		// Server stop event
-		EventValues.registerEventValue(SkriptStopEvent.class, CommandSender.class, new Getter<CommandSender, SkriptStopEvent>() {
-			@Nullable
-			@Override
-			public CommandSender get(SkriptStopEvent e) {
-				return Bukkit.getConsoleSender();
-			}
-		}, 0);
-
 		// === InventoryEvents ===
 		// InventoryClickEvent
 		EventValues.registerEventValue(InventoryClickEvent.class, Player.class, new Getter<Player, InventoryClickEvent>() {
