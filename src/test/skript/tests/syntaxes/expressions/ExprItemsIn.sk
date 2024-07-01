@@ -5,8 +5,8 @@ test "filtering ExprItemsIn":
 	set slot 1 of {_inv} to dirt
 	set slot 2 of {_inv} to stone
 	set slot 3 of {_inv} to bucket
-	assert all blocks in inventory {_inv} are dirt or stone with "found correct items with ExprItemsIn##get"
-	assert (all blocks in inventory {_inv} where [true is true]) are dirt or stone with "found correct items with ExprItemsIn##iterator"
+	assert all blocks in inventory {_inv} are dirt or stone with "found correct items with ExprItemsIn#get"
+	assert (all blocks in inventory {_inv} where [true is true]) are dirt or stone with "found correct items with ExprItemsIn#iterator"
 	set {_dirt} to dirt
 	assert all {_dirt} in inventory {_inv} is dirt with "found incorrect items with variable itemtypes"
 
@@ -17,5 +17,5 @@ test "unfiltered ExprItemsIn":
 	set slot 1 of {_inv} to dirt
 	set slot 2 of {_inv} to stone
 	set slot 3 of {_inv} to bucket
-	assert all items in inventory {_inv} are dirt, stone or bucket with "found correct items with ExprItemsIn##get"
-	assert (all items in inventory {_inv} where [true is true]) are dirt, stone or bucket with "found correct items with ExprItemsIn##iterator"
+	assert all items in inventory {_inv} are dirt, stone or bucket with "found correct items with ExprItemsIn#get"
+	assert (all items in inventory {_inv} where [true is true]) are dirt, stone or bucket with "found correct items with ExprItemsIn#iterator"

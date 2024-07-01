@@ -1,0 +1,26 @@
+test "spawn fish types":
+	spawn a cod at spawn of world "world":
+		set {_e} to entity
+	assert {_e} is a cod with "failed to spawn a cod"
+	delete entity within {_e}
+
+	spawn a salmon at spawn of world "world":
+		set {_e} to entity
+	assert {_e} is a salmon with "failed to spawn a salmon"
+	delete entity within {_e}
+
+	spawn a puffer fish at spawn of world "world":
+		set {_e} to entity
+	assert {_e} is a puffer fish with "failed to spawn a puffer fish"
+	delete entity within {_e}
+
+	spawn a tropical fish at spawn of world "world":
+		set {_e} to entity
+	assert {_e} is a tropical fish with "failed to spawn a tropical fish"
+	delete entity within {_e}
+
+	parse if running minecraft "1.19":
+		spawn a tadpole at spawn of world "world":
+			set {_e} to entity
+		assert {_e} is a tadpole with "failed to spawn a tadpole"
+		delete entity within {_e}
