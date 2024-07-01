@@ -23,6 +23,8 @@ import java.io.StreamCorruptedException;
 import java.util.ArrayList;
 import java.util.List;
 
+import ch.njol.util.Kleenean;
+import org.bukkit.World;
 import org.bukkit.entity.AbstractHorse;
 import org.bukkit.entity.Allay;
 import org.bukkit.entity.Animals;
@@ -155,15 +157,13 @@ public class SimpleEntityData extends EntityData<Entity> {
 		final String codeName;
 		final Class<? extends Entity> c;
 		final boolean isSupertype;
+		final Kleenean allowSpawning;
 		
-		SimpleEntityDataInfo(final String codeName, final Class<? extends Entity> c) {
-			this(codeName, c, false);
-		}
-		
-		SimpleEntityDataInfo(final String codeName, final Class<? extends Entity> c, final boolean isSupertype) {
+		SimpleEntityDataInfo(String codeName, Class<? extends Entity> c, boolean isSupertype, Kleenean allowSpawning) {
 			this.codeName = codeName;
 			this.c = c;
 			this.isSupertype = isSupertype;
+			this.allowSpawning = allowSpawning;
 		}
 		
 		@Override
@@ -191,11 +191,18 @@ public class SimpleEntityData extends EntityData<Entity> {
 	private final static List<SimpleEntityDataInfo> types = new ArrayList<>();
 
 	private static void addSimpleEntity(String codeName, Class<? extends Entity> entityClass) {
-		types.add(new SimpleEntityDataInfo(codeName, entityClass));
+		addSimpleEntity(codeName, entityClass, Kleenean.UNKNOWN);
+	}
+
+	/**
+	 * @param allowSpawning Whether to override the default {@link #canSpawn(World)} behavior and allow this entity to be spawned.
+	 */
+	private static void addSimpleEntity(String codeName, Class<? extends Entity> entityClass, Kleenean allowSpawning) {
+		types.add(new SimpleEntityDataInfo(codeName, entityClass, false, allowSpawning));
 	}
 
 	private static void addSuperEntity(String codeName, Class<? extends Entity> entityClass) {
-		types.add(new SimpleEntityDataInfo(codeName, entityClass, true));
+		types.add(new SimpleEntityDataInfo(codeName, entityClass, true, Kleenean.UNKNOWN));
 	}
 	static {
 		// Simple Entities
@@ -238,7 +245,9 @@ public class SimpleEntityData extends EntityData<Entity> {
 		addSimpleEntity("witch", Witch.class);
 		addSimpleEntity("wither", Wither.class);
 		addSimpleEntity("wither skull", WitherSkull.class);
-		addSimpleEntity("firework", Firework.class);
+		// bukkit marks fireworks as not spawnable
+		// see https://hub.spigotmc.org/jira/browse/SPIGOT-7677
+		addSimpleEntity("firework", Firework.class, Kleenean.TRUE);
 		addSimpleEntity("endermite", Endermite.class);
 		addSimpleEntity("armor stand", ArmorStand.class);
 		addSimpleEntity("shulker", Shulker.class);
@@ -449,7 +458,16 @@ public class SimpleEntityData extends EntityData<Entity> {
 		final SimpleEntityData other = (SimpleEntityData) obj;
 		return info.equals(other.info);
 	}
-	
+
+	@Override
+	public boolean canSpawn(@Nullable World world) {
+		if (info.allowSpawning.isUnknown()) // unspecified, refer to default behavior
+			return super.canSpawn(world);
+		if (world == null)
+			return false;
+		return info.allowSpawning.isTrue();
+	}
+
 	@Override
 	public Fields serialize() throws NotSerializableException {
 		final Fields f = super.serialize();

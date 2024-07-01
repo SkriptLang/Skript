@@ -53,9 +53,6 @@ permissions:
     skript.admin:
         default: op
         description: Allows to use administrative commands and to recieve notifications of new versions.
-    skript.reloadnotify:
-        default: false
-        description: Sends reloading info to all players with this permission.
 #    skript.config:
 #        description: allows to modify the configuration files via commands
 #        default: false
