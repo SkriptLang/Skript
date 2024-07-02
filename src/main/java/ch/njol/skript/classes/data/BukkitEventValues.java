@@ -108,6 +108,7 @@ import org.bukkit.event.entity.EntityTameEvent;
 import org.bukkit.event.entity.EntityTeleportEvent;
 import org.bukkit.event.entity.EntityTransformEvent;
 import org.bukkit.event.entity.EntityTransformEvent.TransformReason;
+import org.bukkit.event.entity.EntityPotionEffectEvent;
 import org.bukkit.event.entity.FireworkExplodeEvent;
 import org.bukkit.event.entity.HorseJumpEvent;
 import org.bukkit.event.entity.ItemDespawnEvent;
@@ -177,6 +178,7 @@ import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.Recipe;
+import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionData;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.potion.PotionType;
@@ -547,6 +549,33 @@ public final class BukkitEventValues {
 				return ldc == null ? null : ldc.getCause();
 			}
 		}, 0);
+
+		// Entity Potion Effect
+		EventValues.registerEventValue(EntityPotionEffectEvent.class, PotionEffect.class, new Getter<PotionEffect, EntityPotionEffectEvent>() {
+			@Override
+			public PotionEffect get(EntityPotionEffectEvent event) {
+				return event.getOldEffect();
+			}
+		}, EventValues.TIME_PAST);
+		EventValues.registerEventValue(EntityPotionEffectEvent.class, PotionEffect.class, new Getter<PotionEffect, EntityPotionEffectEvent>() {
+			@Override
+			public PotionEffect get(EntityPotionEffectEvent event) {
+				return event.getNewEffect();
+			}
+		}, EventValues.TIME_NOW);
+		EventValues.registerEventValue(EntityPotionEffectEvent.class, PotionEffectType.class, new Getter<PotionEffectType, EntityPotionEffectEvent>() {
+			@Override
+			public PotionEffectType get(EntityPotionEffectEvent event) {
+				return event.getModifiedType();
+			}
+		}, EventValues.TIME_NOW);
+		EventValues.registerEventValue(EntityPotionEffectEvent.class, EntityPotionEffectEvent.Cause.class, new Getter<EntityPotionEffectEvent.Cause, EntityPotionEffectEvent>() {
+			@Override
+			public EntityPotionEffectEvent.Cause get(EntityPotionEffectEvent event) {
+				return event.getCause();
+			}
+		}, EventValues.TIME_NOW);
+
 		// ProjectileHitEvent
 		// ProjectileHitEvent#getHitBlock was added in 1.11
 		if (Skript.methodExists(ProjectileHitEvent.class, "getHitBlock"))
