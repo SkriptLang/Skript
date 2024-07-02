@@ -2317,7 +2317,7 @@ types:
 	itemstack: item stack¦s @an
 	itementity: dropped item¦s @a # same as entities.dropped item.name
 	biome: biome¦s @a
-	potioneffecttype: potion¦s @a
+	potioneffecttype: potion effect type¦s @a
 	potioneffect: potion effect¦s @a
 	enchantment: enchantment¦s @an
 	damagecause: damage cause¦s @a
