@@ -82,4 +82,5 @@ public class ExprBarterInput extends SimpleExpression<ItemType> {
 	public String toString(@Nullable Event event, boolean debug) {
 		return "the barter input";
 	}
+
 }

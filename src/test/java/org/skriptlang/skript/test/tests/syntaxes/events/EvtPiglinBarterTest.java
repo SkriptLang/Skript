@@ -43,7 +43,8 @@ public class EvtPiglinBarterTest extends SkriptJUnitTest {
 
 	@Before
 	public void spawn() {
-		if (!canRun) return;
+		if (!canRun)
+			return;
 
 		piglin = getTestWorld().spawnEntity(getTestLocation(), EntityType.PIGLIN);
 	}
@@ -67,7 +68,8 @@ public class EvtPiglinBarterTest extends SkriptJUnitTest {
 
 	@After
 	public void remove() {
-		if (!canRun) return;
+		if (!canRun)
+			return;
 
 		piglin.remove();
 	}
