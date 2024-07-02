@@ -147,11 +147,11 @@ public class SkriptCommand implements CommandExecutor {
 		if (!SKRIPT_COMMAND_HELP.test(sender, args))
 			return true;
 
-		boolean isReload = label.equalsIgnoreCase("reload");
+		boolean isReload = args[0].equalsIgnoreCase("reload");
 		List<CommandSender> recipients = new ArrayList<>();
+		recipients.add(sender);
 
 		if (isReload) {
-			recipients.add(sender);
 			recipients.addAll(Bukkit.getOnlinePlayers().stream()
 				.filter(player -> player.hasPermission("skript.reloadnotify") && !player.equals(sender))
 				.collect(Collectors.toList()));

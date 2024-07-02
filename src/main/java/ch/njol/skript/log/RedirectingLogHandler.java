@@ -26,24 +26,39 @@ import java.util.List;
 import java.util.logging.Level;
 
 /**
- * Redirects the log to multiple {@link CommandSender}s.
+ * Redirects the log to one or more {@link CommandSender}s.
  */
 public class RedirectingLogHandler extends LogHandler {
 
 	private final List<CommandSender> recipients;
+	private final CommandSender recipient;
 	private int numErrors = 0;
 	private final String prefix;
 
+	public RedirectingLogHandler(CommandSender recipient, @Nullable String prefix) {
+		this.recipient = recipient;
+		this.recipients = null;
+		this.prefix = prefix == null ? "" : prefix;
+	}
+
 	public RedirectingLogHandler(List<CommandSender> recipients, @Nullable String prefix) {
 		this.recipients = recipients;
+		this.recipient = null;
 		this.prefix = prefix == null ? "" : prefix;
 	}
 
 	@Override
 	public LogResult log(LogEntry entry) {
 		String formattedMessage = prefix + entry.toFormattedString();
-		for (CommandSender recipient : recipients) {
+		if (recipients != null) {
+			for (CommandSender recipient : recipients) {
+				SkriptLogger.sendFormatted(recipient, formattedMessage);
+			}
+		} else if (recipient != null) {
 			SkriptLogger.sendFormatted(recipient, formattedMessage);
+		}
+		if (entry.level == Level.SEVERE) {
+			numErrors++;
 		}
 		return LogResult.DO_NOT_LOG;
 	}
@@ -56,5 +71,5 @@ public class RedirectingLogHandler extends LogHandler {
 	public int numErrors() {
 		return numErrors;
 	}
-
 }
+
