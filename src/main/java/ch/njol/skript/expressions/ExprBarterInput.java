@@ -51,8 +51,7 @@ public class ExprBarterInput extends SimpleExpression<ItemType> {
 	}
 
 	@Override
-	public boolean init(Expression<?>[] exprs, int matchedPattern,
-						Kleenean isDelayed, ParseResult result) {
+	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult result) {
 		if (!getParser().isCurrentEvent(PiglinBarterEvent.class)) {
 			Skript.error("The expression 'barter input' can only be used in the piglin bartering event");
 			return false;
