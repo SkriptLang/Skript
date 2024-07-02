@@ -36,7 +36,7 @@ import org.jetbrains.annotations.Nullable;
 @Name("Step Server")
 @Description({
 	"Makes the server \"step\" for a certain amount of time",
-	"The server can only step when it's ticking state is frozen.",
+	"The server can only step when its ticking state is frozen.",
 	"When you step, the server goes forward that amount of time in ticks."
 })
 @Examples({

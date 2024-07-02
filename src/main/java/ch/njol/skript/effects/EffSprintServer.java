@@ -54,21 +54,19 @@ public class EffSprintServer extends Effect {
 				"make [the] server stop sprinting");
 	}
 
-	private boolean sprint;
 	private Expression<Timespan> timespan;
 
 	@Override
 	@SuppressWarnings("unchecked")
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		sprint = matchedPattern == 0;
-		if (sprint)
+		if (timespan != null)
 			timespan = (Expression<Timespan>) exprs[0];
 		return true;
 	}
 
 	@Override
 	protected void execute(Event event) {
-		if (sprint) {
+		if (timespan != null) {
 			long sprintTicks = timespan.getOptionalSingle(event).map(Timespan::getTicks).orElse(1L);
 			ServerUtils.getServerTickManager().requestGameToSprint((int) sprintTicks);
 		} else {
@@ -78,7 +76,7 @@ public class EffSprintServer extends Effect {
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return sprint ? "request to sprint server for" + timespan.toString(event, debug) : "stop sprinting server";
+		return timespan != null ? "request to sprint server for" + timespan.toString(event, debug) : "stop sprinting server";
 	}
 
 }

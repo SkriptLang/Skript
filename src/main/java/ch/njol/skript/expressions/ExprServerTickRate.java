@@ -110,7 +110,7 @@ public class ExprServerTickRate extends SimpleExpression<Float> {
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return "server tick rate";
+		return "the server's tick rate";
 	}
 
 }

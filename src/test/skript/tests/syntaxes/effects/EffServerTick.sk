@@ -20,23 +20,36 @@ test "Server Freezing Effect" when running minecraft "1.20.4":
 	assert server's tick state is normal with "Server did not unfreeze"
 
 test "Server Tick Rate Expression" when running minecraft "1.20.4":
-	set {_tickRate} to server's tick rate
-	assert {_tickRate} is 20 with "Default server tick rate is not 20"
+    # Ensure default tick rate is 20
+    set {_tickRate} to server's tick rate
+    assert {_tickRate} is 20 with "Default server tick rate is not 20"
 
-	set server's tick rate to 25
-	set {_tickRate} to server's tick rate
-	assert {_tickRate} is 25 with "Server tick rate was not set to 25"
+    set server's tick rate to 25
+    set {_tickRate} to server's tick rate
+    assert {_tickRate} is 25 with "Server tick rate was not set to 25"
 
-	add 5 to server's tick rate
-	set {_tickRate} to server's tick rate
-	assert {_tickRate} is 30 with "Server tick rate was not increased to 30"
+    add 5 to server's tick rate
+    set {_tickRate} to server's tick rate
+    assert {_tickRate} is 30 with "Server tick rate was not increased to 30"
 
-	remove 10 from server's tick rate
-	set {_tickRate} to server's tick rate
-	assert {_tickRate} is 20 with "Server tick rate was not decreased to 20"
+    remove 10 from server's tick rate
+    set {_tickRate} to server's tick rate
+    assert {_tickRate} is 20 with "Server tick rate was not decreased to 20"
 
-	# Reset the server tick rate to default and verify
-	reset server's tick rate
-	set {_tickRate} to server's tick rate
-	assert {_tickRate} is 20 with "Server tick rate was not reset to 20"
+    set server's tick rate to -5
+    set {_tickRate} to server's tick rate
+    assert {_tickRate} is 20 with "Setting negative tick rate did not revert to default"
+
+    add -3 to server's tick rate
+    set {_tickRate} to server's tick rate
+    assert {_tickRate} is 17 with "Adding negative value did not decrease tick rate"
+
+    remove -7 from server's tick rate
+    set {_tickRate} to server's tick rate
+    assert {_tickRate} is 24 with "Removing negative value did not increase tick rate"
+
+    # Reset the server tick rate to default and verify
+    reset server's tick rate
+    set {_tickRate} to server's tick rate
+    assert {_tickRate} is 20 with "Server tick rate was not reset to 20"
 
