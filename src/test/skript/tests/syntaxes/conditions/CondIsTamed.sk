@@ -1,0 +1,19 @@
+test "is tamed":
+	spawn a horse at (spawn of world "world")
+	set {_e} to last spawned horse
+
+	assert {_e} is not tamed with "a normally spawned horse should not be tamed"
+
+	tame {_e}
+	assert {_e} is tamed with "taming a horse should do exactly that"
+
+	tame {_}
+	assert {_} is not tamed with "taming null should do nothing"
+
+	spawn a zombie at (spawn of world "world")
+	set {_z} to last spawned zombie
+	tame {_z}
+	assert {_z} is not tamed with "taming an invalid entity should do nothing"
+
+	kill value within {_e}
+	kill value within {_z}
