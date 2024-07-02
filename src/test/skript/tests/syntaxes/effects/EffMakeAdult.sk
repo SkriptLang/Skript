@@ -1,0 +1,23 @@
+test "effect make adult 1" when running minecraft "1.16.5":
+	delete all zombies
+	set {_spawn} to spawn of world "world"
+	spawn baby zombie at {_spawn}
+	set {_zombie} to last spawned zombie
+	assert {_zombie} is not an adult with "Spawned zombie was an adult"
+	make {_zombie} an adult
+	assert {_zombie} is an adult with "Spawned zombie is still a baby zombie"
+	make {_zombie} a baby
+	assert {_zombie} is not an adult with "Spawned zombie didn't become a baby zombie"
+	delete all zombies
+
+test "effect make adult 2":
+	delete all sheep
+	set {_spawn} to spawn of world "world"
+	spawn baby sheep at {_spawn}
+	set {_sheep} to last spawned sheep
+	assert {_sheep} is not an adult with "Spawned sheep was an adult"
+	make {_sheep} an adult
+	assert {_sheep} is an adult with "Spawned sheep is still a baby sheep"
+	make {_sheep} a baby
+	assert {_sheep} is not an adult with "Spawned sheep didn't become a baby sheep"
+	delete all sheep
