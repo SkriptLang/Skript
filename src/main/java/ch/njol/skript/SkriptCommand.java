@@ -25,6 +25,7 @@ import ch.njol.skript.doc.HTMLGenerator;
 import ch.njol.skript.localization.ArgsMessage;
 import ch.njol.skript.localization.Language;
 import ch.njol.skript.localization.PluralizingArgsMessage;
+import ch.njol.skript.log.LogEntry;
 import ch.njol.skript.log.RedirectingLogHandler;
 import ch.njol.skript.log.SkriptLogger;
 import ch.njol.skript.log.TimingLogHandler;
@@ -48,11 +49,8 @@ import org.skriptlang.skript.lang.script.Script;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
+import java.util.logging.Level;
 import java.util.stream.Collectors;
 
 
@@ -97,11 +95,12 @@ public class SkriptCommand implements CommandExecutor {
 		what = args.length == 0 ? Language.get(CONFIG_NODE + ".reload." + what) : Language.format(CONFIG_NODE + ".reload." + what, args);
 		String message = StringUtils.fixCapitalization(m_reloading.toString(what));
 		Skript.info(sender, message);
-		if (SkriptConfig.sendReloadingInfoToOps.value()) {
-			String playerReloadMesssage = Language.format(CONFIG_NODE + ".reload." + "player reload", sender.getName(), what);
-			notifyOperators(playerReloadMesssage, sender, logHandler);
-		}
+
+		// Log reloading message
+		if (SkriptConfig.sendReloadingInfoToOps.value())
+			logHandler.log(new LogEntry(Level.INFO, Language.format(CONFIG_NODE + ".reload." + "player reload", sender.getName(), what)));
 	}
+
 
 
 	private static final ArgsMessage m_reloaded = new ArgsMessage(CONFIG_NODE + ".reload.reloaded");
@@ -120,9 +119,12 @@ public class SkriptCommand implements CommandExecutor {
 			Skript.error(sender, message);
 		}
 
+		String playerReloadMesssage = Language.format(CONFIG_NODE + ".reload." + "player reload", sender.getName(), what);
+		// Notify operators
 		if (SkriptConfig.sendReloadingInfoToOps.value())
-			notifyOperators(message, sender, logHandler);
+			logHandler.log(new LogEntry( Level.INFO, playerReloadMesssage));
 	}
+
 
 
 	private static void info(CommandSender sender, String what, Object... args) {
@@ -140,8 +142,18 @@ public class SkriptCommand implements CommandExecutor {
 		if (!SKRIPT_COMMAND_HELP.test(sender, args))
 			return true;
 
+		boolean isReload = label.equalsIgnoreCase("reload");
+		List<CommandSender> recipients = new ArrayList<>();
+
+		if (isReload) {
+			recipients.add(sender);
+			recipients.addAll(Bukkit.getOnlinePlayers().stream()
+				.filter(player -> player.hasPermission("skript.reloadnotify") && !player.equals(sender))
+				.collect(Collectors.toList()));
+		}
+
 		try (
-			RedirectingLogHandler logHandler = new RedirectingLogHandler(Arrays.asList(sender), "").start();
+			RedirectingLogHandler logHandler = new RedirectingLogHandler(recipients, "").start();
 			TimingLogHandler timingLogHandler = new TimingLogHandler().start()
 		) {
 
@@ -526,35 +538,6 @@ public class SkriptCommand implements CommandExecutor {
 		}
 
 		return changed;
-	}
-
-	/**
-	 * Sends the Skript reloading message to operators and console, requires a {@link RedirectingLogHandler} and {@link CommandSender}.
-	 *
-	 * @param message    the message to be sent to operators and console
-	 * @param sender     the command sender who initiated the reload
-	 * @param logHandler the log handler that contains error information if any errors occurred during reloading
-	 */
-	private static void notifyOperators(String message, CommandSender sender, RedirectingLogHandler logHandler) {
-		if (!SkriptConfig.sendReloadingInfoToOps.value())
-			return;
-
-		Bukkit.getOnlinePlayers().stream()
-			.filter(player -> player.hasPermission("skript.reloadnotify") && !player.equals(sender))
-			.forEach(logHandler::addRecipient);
-
-		// add console
-		logHandler.addRecipient(Bukkit.getConsoleSender());
-
-		// send message
-		if (logHandler.numErrors() == 0) {
-			Skript.info(sender, message);
-		} else {
-			for (String errorMsg : logHandler.getErrors()) {
-				SkriptLogger.sendFormatted(sender, errorMsg);
-			}
-			Skript.error(sender, message);
-		}
 	}
 
 }
