@@ -150,4 +150,5 @@ public class ExprBarterDrops extends SimpleExpression<ItemType> {
 	public String toString(@Nullable Event event, boolean debug) {
 		return "the barter drops";
 	}
+
 }
