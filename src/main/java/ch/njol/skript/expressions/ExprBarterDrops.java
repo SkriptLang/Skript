@@ -111,10 +111,6 @@ public class ExprBarterDrops extends SimpleExpression<ItemType> {
 		switch (mode) {
 			case SET:
 				outcome.clear();
-				for (Object item : delta) {
-					((ItemType) item).addTo(outcome);
-				}
-				break;
 			case ADD:
 				for (Object item : delta) {
 					((ItemType) item).addTo(outcome);

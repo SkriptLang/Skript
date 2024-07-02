@@ -59,10 +59,9 @@ public class EvtPiglinBarterTest extends SkriptJUnitTest {
 
 		try {
 			Bukkit.getPluginManager().callEvent(
-				org.bukkit.event.entity.PiglinBarterEvent.class.getConstructor(
-					org.bukkit.entity.Piglin.class, ItemStack.class, List.class)
-				.newInstance(piglin, input, outcome));
-		} catch (ReflectiveOperationException ignored) {
+				new org.bukkit.event.entity.PiglinBarterEvent(
+					(org.bukkit.entity.Piglin) piglin, input, outcome));
+		} catch (NoClassDefFoundError ignored) {
 		}
 	}
 
