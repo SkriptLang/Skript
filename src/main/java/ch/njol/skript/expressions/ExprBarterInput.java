@@ -69,19 +69,18 @@ public class ExprBarterInput extends SimpleExpression<ItemType> {
 	}
 
 	@Override
-	public Class<? extends ItemType> getReturnType() {
-		return ItemType.class;
+	public boolean isSingle() {
+		return true;
 	}
 
 	@Override
-	public boolean isSingle() {
-		return true;
+	public Class<? extends ItemType> getReturnType() {
+		return ItemType.class;
 	}
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
 		return "the barter input";
 	}
-
 
 }

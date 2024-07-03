@@ -51,7 +51,8 @@ public class EvtPiglinBarterTest extends SkriptJUnitTest {
 
 	@Test
 	public void testCall() {
-		if (!canRun) return;
+		if (!canRun)
+			return;
 
 		ItemStack input = new ItemStack(Material.GOLD_INGOT);
 		List<ItemStack> outcome = new ArrayList<>();
