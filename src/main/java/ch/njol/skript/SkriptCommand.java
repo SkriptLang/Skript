@@ -124,10 +124,9 @@ public class SkriptCommand implements CommandExecutor {
 			Skript.error(sender, message);
 		}
 
-		String playerReloadMesssage = Language.format(CONFIG_NODE + ".reload." + "player reload", sender.getName(), what);
 		// Notify operators
 		if (SkriptConfig.sendReloadingInfoToOps.value())
-			logHandler.log(new LogEntry( Level.INFO, playerReloadMesssage));
+			logHandler.log(new LogEntry( Level.INFO, message));
 	}
 
 
