@@ -84,7 +84,7 @@ public class ExprBarterDrops extends SimpleExpression<ItemType> {
 
 	@Override
 	public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
-		if (delay != Kleenean.FALSE) {
+		if (!delay.isFalse()) {
 			Skript.error("Can't change the piglin bartering drops after the event has already passed");
 			return null;
 		}
