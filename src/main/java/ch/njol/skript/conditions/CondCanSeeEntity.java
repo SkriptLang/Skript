@@ -12,10 +12,10 @@ import ch.njol.util.Kleenean;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
-@Name("Can See Entity")
-@Description("Checks whether the given players can see other entities.")
+@Name("Can See Entities")
+@Description("Checks whether the given players can see the provided entities.")
 @Examples({
 	"if the player can't see the last spawned entity:",
 		"\tmessage \"who dat?\""
@@ -54,9 +54,9 @@ public class CondCanSeeEntity extends Condition {
 	}
 
 	@Override
-	public boolean check(Event e) {
-		return players.check(e,
-				player -> entities.check(e,
+	public boolean check(Event event) {
+		return players.check(event,
+				player -> entities.check(event,
 						player::canSee
 				), isNegated());
 	}
@@ -64,6 +64,6 @@ public class CondCanSeeEntity extends Condition {
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
 		return PropertyCondition.toString(this, PropertyType.CAN, event, debug, players,
-				"see" + entities.toString(event, debug));
+				"see entities" + entities.toString(event, debug));
 	}
 }

@@ -78,7 +78,7 @@ public class EffEntityVisibility extends Effect {
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return (reveal ? "reveal " : "hide ")
+		return (reveal ? "reveal " : "hide ") + "entities "
 			+ entities.toString(event, debug)
 			+ (reveal ? " to " : " from ")
 			+ (players != null ? players.toString(event, debug) : "");
