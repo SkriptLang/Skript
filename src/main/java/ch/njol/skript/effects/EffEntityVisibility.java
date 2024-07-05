@@ -15,12 +15,12 @@ import org.jetbrains.annotations.Nullable;
 
 @Name("Entity Visibility")
 @Description({
-	"Change visibility of an entity for the given players.",
-	"If no players are given, will hide the entity from all online players."
+	"Change visibility of the given entities for the given players.",
+	"If no players are given, will hide the entities from all online players."
 })
 @Examples({
 	"on spawn:",
-		"\tif event-entity is a chicken:" +
+		"\tif event-entity is a chicken:",
 			"\t\thide event-entity"
 })
 @Since("INSERT VERSION")
@@ -34,8 +34,8 @@ public class EffEntityVisibility extends Effect {
 	static {
 		if (SUPPORTS_ENTITY_VISIBILITY)
 			Skript.registerEffect(EffEntityVisibility.class,
-					"hide %entities% [(from|for) %-players%]",
-					"reveal %entities% [(to|for|from) %-players%]");
+					"hide entit(y|ies) %entities% [(from|for) %-players%]",
+					"reveal entit(y|ies) %entities% [(to|for|from) %-players%]");
 	}
 
 	private boolean reveal;
@@ -47,8 +47,9 @@ public class EffEntityVisibility extends Effect {
 	private Expression<Player> players;
 
 	@Override
-	@SuppressWarnings({"unchecked", "null"})
-	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
+	@SuppressWarnings("unchecked")
+	public boolean init(Expression<?>[] exprs, int matchedPattern,
+						Kleenean isDelayed, SkriptParser.ParseResult result) {
 		reveal = matchedPattern == 1;
 		entities = (Expression<Entity>) exprs[0];
 		players = exprs.length > 1 ? (Expression<Player>) exprs[1] : null;
@@ -56,7 +57,6 @@ public class EffEntityVisibility extends Effect {
 	}
 
     @Override
-    @SuppressWarnings("null")
     protected void execute(Event e) {
 		Player[] pls;
         if (players != null) {

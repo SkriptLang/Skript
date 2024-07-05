@@ -27,10 +27,10 @@ public class CondCanSeeEntity extends Condition {
 	static {
 		if (EffEntityVisibility.SUPPORTS_ENTITY_VISIBILITY)
 			Skript.registerCondition(CondCanSeeEntity.class,
-					"%entities% (is|are) [(1¦in)]visible for %players%",
-					"%players% can see %entities%",
-					"%entities% (is|are)(n't| not) [(1¦in)]visible for %players%",
-					"%players% can('t| not) see %entities%");
+					"entit(y|ies) %entities% (is|are) [(1¦in)]visible for %players%",
+					"%players% can see entit(y|ies) %entities%",
+					"entit(y|ies) %entities% (is|are)(n't| not) [(1¦in)]visible for %players%",
+					"%players% can('t| not) see entit(y|ies) %entities%");
 	}
 
 	@SuppressWarnings("null")
@@ -38,9 +38,10 @@ public class CondCanSeeEntity extends Condition {
 	@SuppressWarnings("null")
 	private Expression<Entity> entities;
 
-	@SuppressWarnings({"unchecked", "null"})
 	@Override
-	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
+	@SuppressWarnings("unchecked")
+	public boolean init(Expression<?>[] exprs, int matchedPattern,
+						Kleenean isDelayed, ParseResult result) {
 		if (matchedPattern == 1 || matchedPattern == 3) {
 			players = (Expression<Player>) exprs[0];
 			entities = (Expression<Entity>) exprs[1];
@@ -48,7 +49,7 @@ public class CondCanSeeEntity extends Condition {
 			entities = (Expression<Entity>) exprs[0];
 			players = (Expression<Player>) exprs[1];
 		}
-		setNegated(matchedPattern > 1 ^ parseResult.mark == 1);
+		setNegated(matchedPattern > 1 ^ result.mark == 1);
 		return true;
 	}
 
