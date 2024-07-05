@@ -20,7 +20,7 @@ import org.jetbrains.annotations.Nullable;
 		"\tmessage \"who dat?\"",
 	"",
 	"if the player can see the last spawned entity:",
-		"\tmessage \"hello there!\"
+		"\tmessage \"hello there!\""
 })
 @Since("INSERT VERSION")
 @RequiredPlugins("Minecraft 1.19+")
@@ -41,8 +41,8 @@ public class CondCanSee extends Condition {
 
 	@Override
 	@SuppressWarnings("unchecked")
-	public boolean init(Expression<?>[] exprs, int matchedPattern,
-						Kleenean isDelayed, ParseResult result) {
+	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed,
+						ParseResult result) {
 		if (matchedPattern == 1 || matchedPattern == 3) {
 			players = (Expression<Player>) exprs[0];
 			entities = (Expression<Entity>) exprs[1];
@@ -70,4 +70,5 @@ public class CondCanSee extends Condition {
 		return PropertyCondition.toString(this, PropertyType.CAN, event, debug, players,
 				"see" + entities.toString(event, debug));
 	}
+
 }

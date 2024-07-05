@@ -22,7 +22,7 @@ import org.jetbrains.annotations.Nullable;
 	"expression and the viewers are not specified, " +
 	"this will default it to the given player in the hidden players expression.",
 	"",
-	"Note: if a player was hidden and relogs, this player will be visible again."
+	"Note: all previously hidden entities (including players) will be visible when a player leaves and rejoins.",
 })
 @Examples({
 	"on spawn:",
@@ -50,8 +50,8 @@ public class EffEntityVisibility extends Effect {
 
 	@Override
 	@SuppressWarnings("unchecked")
-	public boolean init(Expression<?>[] exprs, int matchedPattern,
-						Kleenean isDelayed, SkriptParser.ParseResult result) {
+	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed,
+						SkriptParser.ParseResult result) {
 		reveal = matchedPattern == 1;
 		hidden = (Expression<Entity>) exprs[0];
 
@@ -66,19 +66,15 @@ public class EffEntityVisibility extends Effect {
 
     @Override
     protected void execute(Event e) {
-		Player[] updatedViewers;
-		if (viewers != null) {
-			updatedViewers = viewers.getArray(e);
-		} else {
-			updatedViewers = Bukkit.getOnlinePlayers().toArray(new Player[0]);
-		}
+		Player[] updated = viewers != null ? viewers.getArray(e) : Bukkit.getOnlinePlayers().toArray(new Player[0]);
 
-		for (Player player : updatedViewers) {
+		Skript instance = Skript.getInstance();
+		for (Player player : updated) {
             for (Entity entity : hidden.getArray(e)) {
                 if (reveal) {
-					player.showEntity(Skript.getInstance(), entity);
+					player.showEntity(instance, entity);
                 } else {
-					player.hideEntity(Skript.getInstance(), entity);
+					player.hideEntity(instance, entity);
                 }
             }
         }
@@ -91,4 +87,5 @@ public class EffEntityVisibility extends Effect {
 				(reveal ? " to " : " from ") +
 				(viewers != null ? viewers.toString(event, debug) : "");
 	}
+
 }
