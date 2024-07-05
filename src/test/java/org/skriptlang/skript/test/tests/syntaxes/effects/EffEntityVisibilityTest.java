@@ -30,8 +30,8 @@ public class EffEntityVisibilityTest extends SkriptJUnitTest {
 	public void setup() {
 		testPlayer = EasyMock.niceMock(Player.class);
 		testEntity = spawnTestPig();
-		hideEntityEffect = Effect.parse("hide entity {_entity} from {_player}", null);
-		revealEntityEffect = Effect.parse("reveal entity {_entity} to {_player}", null);
+		hideEntityEffect = Effect.parse("hide {_entity} from {_player}", null);
+		revealEntityEffect = Effect.parse("reveal {_entity} to {_player}", null);
 	}
 
 	@Test
