@@ -14,7 +14,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
-@Name("Can See Entities")
+@Name("Can See Entity")
 @Description("Checks whether the given players can see the provided entities.")
 @Examples({
 	"if the player can't see the last spawned entity:",
