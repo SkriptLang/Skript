@@ -22,7 +22,6 @@ test "durability":
 	assert damage of {_i} is 0 with "damage of item should be 0 when setting damage less than 0"
 	assert durability of {_i} is {_max} with "durability of item should be max when setting damage below 0"
 
-
 test "durability - custom" when running minecraft "1.20.5":
 	set {_i} to 1 of iron sword
 	set max durability of {_i} to 1000
