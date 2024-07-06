@@ -28,9 +28,9 @@ public class CondCanSee extends Condition {
 
 	static {
 		Skript.registerCondition(CondCanSee.class,
-				"%entities% (is|are) [(1¦in)]visible for %players%",
+				"%entities% (is|are) [:in]visible for %players%",
 				"%players% can see %entities%",
-				"%entities% (is|are)(n't| not) [(1¦in)]visible for %players%",
+				"%entities% (is|are)(n't| not) [:in]visible for %players%",
 				"%players% can('t| not) see %entities%");
 	}
 
@@ -41,8 +41,7 @@ public class CondCanSee extends Condition {
 
 	@Override
 	@SuppressWarnings("unchecked")
-	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed,
-						ParseResult result) {
+	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult result) {
 		if (matchedPattern == 1 || matchedPattern == 3) {
 			players = (Expression<Player>) exprs[0];
 			entities = (Expression<Entity>) exprs[1];
@@ -50,7 +49,7 @@ public class CondCanSee extends Condition {
 			entities = (Expression<Entity>) exprs[0];
 			players = (Expression<Player>) exprs[1];
 		}
-		setNegated(matchedPattern > 1 ^ result.mark == 1);
+		setNegated(matchedPattern > 1 ^ result.hasTag("un"));
 		return true;
 	}
 

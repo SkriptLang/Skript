@@ -34,8 +34,7 @@ public class ExprHiddenPlayers extends SimpleExpression<Player> {
 
 	@Override
 	@SuppressWarnings("unchecked")
-	public boolean init(Expression<?>[] exprs, int matchedPattern,
-						Kleenean isDelayed, SkriptParser.ParseResult result) {
+	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult result) {
 		viewers = (Expression<Player>) exprs[0];
 		return true;
 	}
