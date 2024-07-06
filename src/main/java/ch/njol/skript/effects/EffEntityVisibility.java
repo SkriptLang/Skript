@@ -50,8 +50,7 @@ public class EffEntityVisibility extends Effect {
 
 	@Override
 	@SuppressWarnings("unchecked")
-	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed,
-						SkriptParser.ParseResult result) {
+	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult result) {
 		reveal = matchedPattern == 1;
 		hidden = (Expression<Entity>) exprs[0];
 
