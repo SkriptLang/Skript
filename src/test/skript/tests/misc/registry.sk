@@ -6,5 +6,3 @@ test "registry" when minecraft version is "1.14":
 	# Test serialization
 	set {test::enchantment} to minecraft:sharpness
 	assert {test::enchantment} = sharpness with "variable should have been set to sharpness enchantment"
-
-
