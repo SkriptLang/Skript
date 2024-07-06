@@ -31,8 +31,8 @@ import org.jetbrains.annotations.Nullable;
 	"",
 	"reveal hidden players of players"
 })
-@Since("INSERT VERSION")
-@RequiredPlugins("Minecraft 1.19+")
+@Since("2.3, INSERT VERSION (entities)")
+@RequiredPlugins("Minecraft 1.19+ (entities)")
 public class EffEntityVisibility extends Effect {
 
 	static {

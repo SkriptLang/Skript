@@ -22,8 +22,8 @@ import org.jetbrains.annotations.Nullable;
 	"if the player can see the last spawned entity:",
 		"\tmessage \"hello there!\""
 })
-@Since("INSERT VERSION")
-@RequiredPlugins("Minecraft 1.19+")
+@Since("2.3, INSERT VERSION (entities)")
+@RequiredPlugins("Minecraft 1.19+ (entities)")
 public class CondCanSee extends Condition {
 
 	static {
