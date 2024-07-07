@@ -18,12 +18,10 @@
  */
 package ch.njol.skript.expressions;
 
-import java.lang.invoke.MethodHandle;
-import java.lang.invoke.MethodHandles;
-import java.lang.invoke.MethodType;
 import java.util.ArrayList;
 import java.util.List;
 
+import ch.njol.skript.bukkitutil.InventoryUtils;
 import ch.njol.skript.bukkitutil.ItemUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.GameRule;
@@ -39,7 +37,6 @@ import org.bukkit.event.Event;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
-import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.World;
@@ -122,24 +119,7 @@ public class ExprName extends SimplePropertyExpression<Object, String> {
 	private static BungeeComponentSerializer serializer;
 	static final boolean HAS_GAMERULES;
 
-	/*
-	 * In newer versions (1.21+), InventoryView is an interface instead of an abstract class
-	 * Directing calling InventoryView#getTitle on 1.20.6 and below results in an IncompatibleClassChangeError
-	 *  as an interface, not an abstract class, is expected.
-	 */
-	private static final @Nullable MethodHandle OLD_GET_TITLE;
-
 	static {
-		MethodHandle oldInventoryView = null;
-		if (!InventoryView.class.isInterface()) { // initialize legacy support as it's likely an abstract class
-			try {
-				oldInventoryView = MethodHandles.lookup().findVirtual(InventoryView.class, "getTitle", MethodType.methodType(String.class));
-			} catch (NoSuchMethodException | IllegalAccessException e) {
-				Skript.exception("Failed to load old inventory view support.");
-			}
-		}
-		OLD_GET_TITLE = oldInventoryView;
-
 		// Check for Adventure API
 		if (Skript.classExists("net.kyori.adventure.text.Component") &&
 				Skript.methodExists(Bukkit.class, "createInventory", InventoryHolder.class, int.class, Component.class))
@@ -198,13 +178,7 @@ public class ExprName extends SimplePropertyExpression<Object, String> {
 			Inventory inventory = (Inventory) object;
 			if (inventory.getViewers().isEmpty())
 				return null;
-			if (OLD_GET_TITLE != null) {
-				try {
-					return (String) OLD_GET_TITLE.invoke(inventory.getViewers().get(0).getOpenInventory());
-				} catch (Throwable ignored) { }
-				return null;
-			}
-			return inventory.getViewers().get(0).getOpenInventory().getTitle();
+			return InventoryUtils.getTitle(inventory.getViewers().get(0).getOpenInventory());
 		} else if (object instanceof Slot) {
 			ItemStack is = ((Slot) object).getItem();
 			if (is != null && is.hasItemMeta()) {
