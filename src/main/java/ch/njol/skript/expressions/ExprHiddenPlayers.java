@@ -29,7 +29,7 @@ public class ExprHiddenPlayers extends SimpleExpression<Player> {
 				"[(all [[of] the]|the)] players hidden (from|for|by) %players%");
 	}
 
-	@Nullable
+	@SuppressWarnings("null")
 	private Expression<Player> viewers;
 
 	@Override
@@ -41,17 +41,12 @@ public class ExprHiddenPlayers extends SimpleExpression<Player> {
 
 	@Nullable
 	@Override
-	public Player[] get(Event e) {
+	public Player[] get(Event event) {
 		List<Player> list = new ArrayList<>();
-
-		if (viewers == null) {
-			return new Player[0];
-		}
-
-		for (Player player : viewers.getArray(e)) {
+		for (Player player : viewers.getArray(event)) {
 			list.addAll(player.spigot().getHiddenPlayers());
 		}
-		return list.toArray(new Player[list.size()]);
+		return list.toArray(new Player[0]);
 	}
 
 	@Nullable

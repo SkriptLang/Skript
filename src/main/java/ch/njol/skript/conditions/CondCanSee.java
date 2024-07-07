@@ -34,9 +34,9 @@ public class CondCanSee extends Condition {
 				"%players% can('t| not) see %entities%");
 	}
 
-	@Nullable
+	@SuppressWarnings("null")
 	private Expression<Player> players;
-	@Nullable
+	@SuppressWarnings("null")
 	private Expression<Entity> entities;
 
 	@Override
@@ -49,15 +49,12 @@ public class CondCanSee extends Condition {
 			entities = (Expression<Entity>) exprs[0];
 			players = (Expression<Player>) exprs[1];
 		}
-		setNegated(matchedPattern > 1 ^ result.hasTag("un"));
+		setNegated(matchedPattern > 1 ^ result.hasTag("in"));
 		return true;
 	}
 
 	@Override
 	public boolean check(Event event) {
-		if (players == null || entities == null)
-			return false;
-
 		return players.check(event,
 				player -> entities.check(event,
 						player::canSee
