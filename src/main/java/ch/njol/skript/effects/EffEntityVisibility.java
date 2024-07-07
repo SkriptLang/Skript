@@ -7,7 +7,6 @@ import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
@@ -43,9 +42,9 @@ public class EffEntityVisibility extends Effect {
 
 	private boolean reveal;
 
-	@Nullable
+	@SuppressWarnings("null")
 	private Expression<Entity> hidden;
-	@Nullable
+	@SuppressWarnings("null")
 	private Expression<Player> viewers;
 
 	@Override
@@ -65,18 +64,22 @@ public class EffEntityVisibility extends Effect {
 
     @Override
     protected void execute(Event e) {
-		Player[] updated = viewers != null ? viewers.getArray(e) : Bukkit.getOnlinePlayers().toArray(new Player[0]);
+		Player[] updated = viewers.getArray(e);
 
 		Skript instance = Skript.getInstance();
-		for (Player player : updated) {
-            for (Entity entity : hidden.getArray(e)) {
-                if (reveal) {
+		if (reveal) {
+			for (Player player : updated) {
+				for (Entity entity : hidden.getArray(e)) {
 					player.showEntity(instance, entity);
-                } else {
+				}
+			}
+		} else {
+			for (Player player : updated) {
+				for (Entity entity : hidden.getArray(e)) {
 					player.hideEntity(instance, entity);
-                }
-            }
-        }
+				}
+			}
+		}
     }
 
 	@Override
@@ -84,7 +87,7 @@ public class EffEntityVisibility extends Effect {
 		return (reveal ? "reveal " : "hide ") + "entities " +
 				hidden.toString(event, debug) +
 				(reveal ? " to " : " from ") +
-				(viewers != null ? viewers.toString(event, debug) : "");
+				viewers.toString(event, debug);
 	}
 
 }
