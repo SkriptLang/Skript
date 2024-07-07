@@ -55,7 +55,7 @@ public class InventoryUtils {
 		if (GET_TITLE == null)
 			return inventoryView.getTitle();
 		try {
-			GET_TITLE.invoke(inventoryView);
+			return (String) GET_TITLE.invoke(inventoryView);
 		} catch (Throwable ignored) { }
 		return null;
 	}
@@ -67,7 +67,7 @@ public class InventoryUtils {
 		if (GET_INVENTORY == null)
 			return inventoryView.getInventory(rawSlot);
 		try {
-			GET_INVENTORY.invoke(inventoryView, rawSlot);
+			return (Inventory) GET_INVENTORY.invoke(inventoryView, rawSlot);
 		} catch (Throwable ignored) { }
 		return null;
 	}
@@ -79,7 +79,7 @@ public class InventoryUtils {
 		if (CONVERT_SLOT == null)
 			return inventoryView.convertSlot(rawSlot);
 		try {
-			CONVERT_SLOT.invoke(inventoryView, rawSlot);
+			return (Integer) CONVERT_SLOT.invoke(inventoryView, rawSlot);
 		} catch (Throwable ignored) { }
 		return null;
 	}
@@ -91,7 +91,7 @@ public class InventoryUtils {
 		if (GET_TOP_INVENTORY == null)
 			return inventoryView.getTopInventory();
 		try {
-			GET_TOP_INVENTORY.invoke(inventoryView);
+			return (Inventory) GET_TOP_INVENTORY.invoke(inventoryView);
 		} catch (Throwable ignored) { }
 		return null;
 	}
@@ -103,7 +103,7 @@ public class InventoryUtils {
 		if (GET_BOTTOM_INVENTORY == null)
 			return inventoryView.getTopInventory();
 		try {
-			GET_BOTTOM_INVENTORY.invoke(inventoryView);
+			return (Inventory) GET_BOTTOM_INVENTORY.invoke(inventoryView);
 		} catch (Throwable ignored) { }
 		return null;
 	}
