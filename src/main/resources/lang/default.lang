@@ -2168,6 +2168,8 @@ attribute types:
 	generic_attack_damage: generic attack damage, attack damage
 	generic_attack_knockback: generic attack knockback, attack knockback
 	generic_attack_speed: generic attack speed, attack speed
+	generic_burning_time: generic burning time, burning time
+	generic_explosion_knockback_resistance: generic explosion knockback resistance, explosion knockback resistance
 	generic_flying_speed: generic flying speed, flying speed
 	generic_follow_range: generic follow range, follow range
 	generic_gravity: generic gravity, gravity
@@ -2176,15 +2178,22 @@ attribute types:
 	generic_luck: generic luck, luck
 	generic_max_absorption: generic max absorption, max absorption
 	generic_max_health: generic max health, max health
+	generic_movement_efficiency: generic movement efficiency, movement efficiency
 	generic_movement_speed: generic movement speed, movement speed
+	generic_oxygen_bonus: generic oxygen bonus, oxygen bonus
 	generic_safe_fall_distance: generic safe fall distance, safe fall distance
 	generic_fall_damage_multiplier: generic fall damage multiplier, fall damage multiplier
 	generic_scale: generic scale, scale
 	generic_step_height: generic step height, step height
+	generic_water_movement_efficiency: generic water movement efficiency, water movement efficiency
 	horse_jump_strength: horse jump strength
 	player_block_break_speed: player block break speed, block break speed
 	player_block_interaction_range: player block interaction range, block interaction range
 	player_entity_interaction_range: player entity interaction range, entity interaction range
+	player_mining_efficiency: player mining efficiency, mining efficiency
+	player_sneaking_speed: player sneaking speed, sneaking speed
+	player_submerged_mining_speed: player submerged mining speed, submerged mining speed
+	player_sweeping_damage_ratio: player sweeping damage ratio, sweeping damage ratio
 	zombie_spawn_reinforcements: zombie spawn reinforcements
 
 # -- Environments --

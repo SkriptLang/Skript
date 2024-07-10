@@ -930,6 +930,7 @@ public class BukkitClasses {
 				.since("1.0")
 				.after("number")
 				.supplier(() -> Arrays.stream(Material.values())
+					.filter(Material::isItem)
 					.map(ItemStack::new)
 					.iterator())
 				.parser(new Parser<ItemStack>() {

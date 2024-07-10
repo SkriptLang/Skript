@@ -68,6 +68,7 @@ import java.util.NoSuchElementException;
 import java.util.Random;
 import java.util.RandomAccess;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @ContainerType(ItemStack.class)
 public class ItemType implements Unit, Iterable<ItemData>, Container<ItemStack>, YggdrasilExtendedSerializable {
@@ -315,7 +316,7 @@ public class ItemType implements Unit, Iterable<ItemData>, Container<ItemStack>,
 
 	public boolean isOfType(Material id) {
 		// TODO avoid object creation
-		return isOfType(new ItemData(id, null));
+		return isOfType(new ItemData(id, (String) null));
 	}
 
 	/**
@@ -343,7 +344,7 @@ public class ItemType implements Unit, Iterable<ItemData>, Container<ItemStack>,
 	 */
 	public boolean hasItem() {
 		for (ItemData d : types) {
-			if (!d.type.isBlock())
+			if (d.type.isItem())
 				return true;
 		}
 		return false;
@@ -487,9 +488,13 @@ public class ItemType implements Unit, Iterable<ItemData>, Container<ItemStack>,
 
 			@Override
 			public ItemStack next() {
-				if (!hasNext())
-					throw new NoSuchElementException();
-				ItemStack is = iter.next().getStack().clone();
+				ItemStack is = null;
+				while (is == null) {
+					if (!hasNext())
+						throw new NoSuchElementException();
+					is = iter.next().getStack();
+				}
+				is = is.clone();
 				is.setAmount(getAmount());
 				return is;
 			}
@@ -588,10 +593,17 @@ public class ItemType implements Unit, Iterable<ItemData>, Container<ItemStack>,
 	 * @see #removeFrom(ItemStack)
 	 * @see #removeFrom(List...)
 	 */
-	public ItemStack getRandom() {
-		int numItems = types.size();
+	public @Nullable ItemStack getRandom() {
+		List<ItemData> datas = types.stream()
+				.filter(data -> data.stack != null)
+				.collect(Collectors.toList());
+		if (datas.isEmpty())
+			return null;
+		int numItems = datas.size();
 		int index = random.nextInt(numItems);
-		ItemStack is = types.get(index).getStack().clone();
+		ItemStack is = datas.get(index).getStack();
+		assert is != null; // verified above
+		is = is.clone();
 		is.setAmount(getAmount());
 		return is;
 	}
@@ -869,7 +881,9 @@ public class ItemType implements Unit, Iterable<ItemData>, Container<ItemStack>,
 	 */
 	public void addTo(final List<ItemStack> list) {
 		if (!isAll()) {
-			list.add(getItem().getRandom());
+			ItemStack random = getItem().getRandom();
+			if (random != null)
+				list.add(getItem().getRandom());
 			return;
 		}
 		for (final ItemStack is : getItem().getAll())
@@ -936,7 +950,9 @@ public class ItemType implements Unit, Iterable<ItemData>, Container<ItemStack>,
 
 	public boolean addTo(final ItemStack[] buf) {
 		if (!isAll()) {
-			return addTo(getItem().getRandom(), buf);
+			ItemStack random = getItem().getRandom();
+			if (random != null)
+				return addTo(getItem().getRandom(), buf);
 		}
 		boolean ok = true;
 		for (ItemStack is : getItem().getAll()) {

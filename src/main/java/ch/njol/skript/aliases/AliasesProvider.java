@@ -304,16 +304,19 @@ public class AliasesProvider {
 			}
 			
 			// Apply (NBT) tags to item stack
-			ItemStack stack = new ItemStack(material);
+			ItemStack stack = null;
 			int itemFlags = 0;
-			if (tags != null) {
-				itemFlags = applyTags(stack, new HashMap<>(tags));
+			if (material.isItem()) {
+				stack = new ItemStack(material);
+				if (tags != null) {
+					itemFlags = applyTags(stack, new HashMap<>(tags));
+				}
 			}
 			
 			// Parse block state to block values
 			BlockValues blockValues = BlockCompat.INSTANCE.createBlockValues(material, blockStates, stack, itemFlags);
 			
-			ItemData data = new ItemData(stack, blockValues);
+			ItemData data = stack != null ? new ItemData(stack, blockValues) : new ItemData(material, blockValues);
 			data.isAlias = true;
 			data.itemFlags = itemFlags;
 			
