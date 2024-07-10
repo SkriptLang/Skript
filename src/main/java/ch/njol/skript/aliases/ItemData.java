@@ -278,7 +278,7 @@ public class ItemData implements Cloneable, YggdrasilExtendedSerializable {
 			return false;
 		
 		ItemData other = (ItemData) obj;
-		if (isAlias) { // This is alias, other item might not be
+		if (isAlias()) { // This is alias, other item might not be
 			return other.matchAlias(this).isAtLeast(MatchQuality.SAME_ITEM);
 		} else { // This is not alias, but other might be
 			return matchAlias(other).isAtLeast(MatchQuality.SAME_ITEM);
