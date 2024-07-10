@@ -101,7 +101,7 @@ public class InventoryUtils {
 	 */
 	public static @Nullable Inventory getBottomInventory(InventoryView inventoryView) {
 		if (GET_BOTTOM_INVENTORY == null)
-			return inventoryView.getTopInventory();
+			return inventoryView.getBottomInventory();
 		try {
 			return (Inventory) GET_BOTTOM_INVENTORY.invoke(inventoryView);
 		} catch (Throwable ignored) { }
