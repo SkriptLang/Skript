@@ -24,6 +24,8 @@ import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
+import org.bukkit.Material;
+import org.bukkit.inventory.ItemStack;
 
 /**
  * @author joeuguce99
@@ -40,8 +42,11 @@ public class ExprMaxStack extends SimplePropertyExpression<ItemType, Long> {
 	
 	@SuppressWarnings("null")
 	@Override
-	public Long convert(final ItemType i) {
-		return (long) i.getRandom().getMaxStackSize();
+	public Long convert(ItemType itemType) {
+		Object random = itemType.getRandomStackOrMaterial();
+		if (random instanceof Material)
+			return (long) ((Material) random).getMaxStackSize();
+		return (long) ((ItemStack) random).getMaxStackSize();
 	}
 
 	@Override

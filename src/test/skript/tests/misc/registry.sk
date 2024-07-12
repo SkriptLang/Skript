@@ -1,0 +1,8 @@
+test "registry" when minecraft version is "1.14":
+
+	# Test namespaced keys
+	assert curse of vanishing = minecraft:vanishing_curse with "'curse of vanishing' enchant should match namespace key"
+
+	# Test serialization
+	set {test::enchantment} to minecraft:sharpness
+	assert {test::enchantment} = sharpness with "variable should have been set to sharpness enchantment"

@@ -349,7 +349,7 @@ public class NewBlockCompat implements BlockCompat {
 	@Override
 	public @Nullable BlockValues getBlockValues(Material material) {
 		if (material.isBlock())
-			return new NewBlockValues(material, Bukkit.createBlockData(material), false);
+			return new NewBlockValues(material, Bukkit.createBlockData(material), true);
 		return null;
 	}
 

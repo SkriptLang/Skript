@@ -612,13 +612,25 @@ public class ItemType implements Unit, Iterable<ItemData>, Container<ItemStack>,
 				.collect(Collectors.toList());
 		if (datas.isEmpty())
 			return null;
-		int numItems = datas.size();
-		int index = random.nextInt(numItems);
-		ItemStack is = datas.get(index).getStack();
+		ItemStack is = datas.get(random.nextInt(datas.size())).getStack();
 		assert is != null; // verified above
 		is = is.clone();
 		is.setAmount(getAmount());
 		return is;
+	}
+
+	/**
+	 * @return One random ItemStack or Material that this ItemType represents.
+	 * A Material may only be returned for ItemStacks containing a Material where {@link Material#isItem()} is false.
+	 */
+	public Object getRandomStackOrMaterial() {
+		ItemData randomData = types.get(random.nextInt(types.size()));
+		ItemStack stack = randomData.getStack();
+		if (stack == null)
+			return randomData.getType();
+		stack = stack.clone();
+		stack.setAmount(getAmount());
+		return stack;
 	}
 
 	/**
@@ -1396,8 +1408,11 @@ public class ItemType implements Unit, Iterable<ItemData>, Container<ItemStack>,
 		globalMeta = null;
 	}
 
+	/**
+	 * @return A random Material this ItemType represents.
+	 */
 	public Material getMaterial() {
-		ItemData data = types.get(0);
+		ItemData data = types.get(random.nextInt(types.size()));
 		if (data == null)
 			throw new IllegalStateException("material not found");
 		return data.getType();

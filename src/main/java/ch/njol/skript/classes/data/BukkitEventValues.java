@@ -26,6 +26,7 @@ import java.util.Set;
 import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.Aliases;
 import ch.njol.skript.aliases.ItemType;
+import ch.njol.skript.bukkitutil.InventoryUtils;
 import ch.njol.skript.command.CommandEvent;
 import ch.njol.skript.events.bukkit.ScriptEvent;
 import ch.njol.skript.events.bukkit.SkriptStartEvent;
@@ -1252,15 +1253,15 @@ public final class BukkitEventValues {
 				List<Slot> slots = new ArrayList<>(event.getRawSlots().size());
 				InventoryView view = event.getView();
 				for (Integer rawSlot : event.getRawSlots()) {
-					Inventory inventory = view.getInventory(rawSlot);
-					int slot = view.convertSlot(rawSlot);
-					if (inventory == null)
+					Inventory inventory = InventoryUtils.getInventory(view, rawSlot);
+					Integer slot = InventoryUtils.convertSlot(view, rawSlot);
+					if (inventory == null || slot == null)
 						continue;
 					// Not all indices point to inventory slots. Equipment, for example
 					if (inventory instanceof PlayerInventory && slot >= 36) {
 						slots.add(new ch.njol.skript.util.slot.EquipmentSlot(((PlayerInventory) view.getBottomInventory()).getHolder(), slot));
 					} else {
-						slots.add(new InventorySlot(inventory, view.convertSlot(rawSlot)));
+						slots.add(new InventorySlot(inventory, slot));
 					}
 				}
 				return slots.toArray(new Slot[0]);
@@ -1280,7 +1281,9 @@ public final class BukkitEventValues {
 				Set<Inventory> inventories = new HashSet<>();
 				InventoryView view = event.getView();
 				for (Integer rawSlot : event.getRawSlots()) {
-					inventories.add(view.getInventory(rawSlot));
+					Inventory inventory = InventoryUtils.getInventory(view, rawSlot);
+					if (inventory != null)
+						inventories.add(inventory);
 				}
 				return inventories.toArray(new Inventory[0]);
 			}

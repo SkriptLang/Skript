@@ -151,8 +151,11 @@ public class VisualEffects {
 				}
 				if (raw == null)
 					return Bukkit.createBlockData(Material.AIR);
-				if (raw instanceof ItemType)
-					return Bukkit.createBlockData(((ItemType) raw).getRandom().getType());
+				if (raw instanceof ItemType) {
+					ItemType type = (ItemType) raw;
+					ItemStack random = type.getRandom();
+					return Bukkit.createBlockData(random != null ? random.getType() : type.getMaterial());
+				}
 				return raw;
 			};
 			registerDataSupplier("Particle.BLOCK", blockDataSupplier);
