@@ -133,10 +133,18 @@ public class EquipmentSlot extends SlotWithIndex {
 	
 	private final EntityEquipment e;
 	private final EquipSlot slot;
+	private final int slotIndex;
 	private final boolean slotToString;
 	
 	public EquipmentSlot(final EntityEquipment e, final EquipSlot slot, final boolean slotToString) {
 		this.e = e;
+		int slotIndex = -1;
+		if (slot == EquipSlot.TOOL) {
+			Entity holder = e.getHolder();
+			if (holder instanceof Player)
+				slotIndex = ((Player) holder).getInventory().getHeldItemSlot();
+		}
+		this.slotIndex = slotIndex;
 		this.slot = slot;
 		this.slotToString = slotToString;
 	}
@@ -147,10 +155,12 @@ public class EquipmentSlot extends SlotWithIndex {
 	
 	@SuppressWarnings("null")
 	public EquipmentSlot(HumanEntity holder, int index) {
-		this.e = holder.getEquipment();
-		this.slot = values[41 - index]; // 6 entries in EquipSlot, indices descending
-		// So this math trick gets us the EquipSlot from inventory slot index
-		this.slotToString = true; // Referring to numeric slot id, right?
+		/*
+		 * slot: 6 entries in EquipSlot, indices descending
+		 *  So this math trick gets us the EquipSlot from inventory slot index
+		 * slotToString: Referring to numeric slot id, right?
+		 */
+		this(holder.getEquipment(), values[41 - index], true);
 	}
 
 	@Override
@@ -190,12 +200,8 @@ public class EquipmentSlot extends SlotWithIndex {
 
 	@Override
 	public int getIndex() {
-		if (slot == EquipSlot.TOOL) {
-			Entity holder = e.getHolder();
-			if (holder instanceof Player)
-				return ((Player) holder).getInventory().getHeldItemSlot();
-		}
-		return slot.slotNumber;
+		// use specific slotIndex if available
+		return slotIndex != -1 ? slotIndex : slot.slotNumber;
 	}
 
 	@Override
