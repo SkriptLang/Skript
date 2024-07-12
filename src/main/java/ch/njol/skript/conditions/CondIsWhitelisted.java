@@ -40,7 +40,7 @@ import org.eclipse.jdt.annotation.Nullable;
 	"if the server is whitelisted:",
 	"if the server whitelist is enforced:"
 })
-@Since("2.5.2, INSERT VERSION (enforce, offline players)")
+@Since("2.5.2, 2.9.0 (enforce, offline players)")
 @RequiredPlugins("MC 1.17+ (enforce)")
 public class CondIsWhitelisted extends Condition {
 

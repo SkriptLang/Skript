@@ -45,7 +45,7 @@ import org.eclipse.jdt.annotation.Nullable;
 	"if additional tooltip of {_item} is hidden:"
 })
 @RequiredPlugins("Spigot 1.20.5+")
-@Since("INSERT VERSION")
+@Since("2.9.0")
 public class CondTooltip extends Condition {
 
 	static {

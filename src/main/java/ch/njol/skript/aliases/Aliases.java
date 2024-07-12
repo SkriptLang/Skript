@@ -268,7 +268,7 @@ public abstract class Aliases {
 		}
 		
 		String lc = s.toLowerCase(Locale.ENGLISH);
-		String of = Language.getSpaced("enchantments.of").toLowerCase();
+		String of = Language.getSpaced("of").toLowerCase();
 		int c = -1;
 		outer: while ((c = lc.indexOf(of, c + 1)) != -1) {
 			ItemType t2 = t.clone();

@@ -52,7 +52,7 @@ import org.jetbrains.annotations.Nullable;
 	"IP-ban the player because \"he is an idiot\"",
 	"ban player due to \"inappropriate language\" for 2 days",
 	"ban and kick player due to \"inappropriate language\" for 2 days"})
-@Since("1.4, 2.1.1 (ban reason), 2.5 (timespan), INSERT VERSION (kick)")
+@Since("1.4, 2.1.1 (ban reason), 2.5 (timespan), 2.9.0 (kick)")
 public class EffBan extends Effect {
 	
 	static {

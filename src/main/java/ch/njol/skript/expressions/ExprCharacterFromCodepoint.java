@@ -42,7 +42,7 @@ import org.eclipse.jdt.annotation.Nullable;
 			"\t\tadd character from codepoint loop-value to {_chars::*}",
 		"\treturn {_chars::*}",
 })
-@Since("INSERT VERSION")
+@Since("2.9.0")
 public class ExprCharacterFromCodepoint extends SimplePropertyExpression<Integer, String> {
 
 	static {

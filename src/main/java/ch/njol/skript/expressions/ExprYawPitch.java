@@ -54,7 +54,7 @@ import org.eclipse.jdt.annotation.Nullable;
 		"set pitch of player to -90 # Makes the player look upwards, Paper 1.19+ only",
 		"add 180 to yaw of target of player # Makes the target look behind themselves"
 })
-@Since("2.0, 2.2-dev28 (vector yaw/pitch), INSERT VERSION (entity changers)")
+@Since("2.0, 2.2-dev28 (vector yaw/pitch), 2.9.0 (entity changers)")
 @RequiredPlugins("Paper 1.19+ (player changers)")
 public class ExprYawPitch extends SimplePropertyExpression<Object, Float> {
 

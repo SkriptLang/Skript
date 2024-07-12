@@ -45,7 +45,7 @@ import org.eclipse.jdt.annotation.Nullable;
 	"hide {_item}'s additional tool tip"
 })
 @RequiredPlugins("Spigot 1.20.5+")
-@Since("INSERT VERSION")
+@Since("2.9.0")
 public class EffTooltip extends Effect {
 
 	static {
