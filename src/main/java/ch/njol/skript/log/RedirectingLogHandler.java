@@ -18,6 +18,8 @@
  */
 package ch.njol.skript.log;
 
+import ch.njol.skript.SkriptConfig;
+import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.eclipse.jdt.annotation.Nullable;
 
@@ -40,17 +42,15 @@ public class RedirectingLogHandler extends LogHandler {
 	}
 
 	public RedirectingLogHandler(List<CommandSender> recipients, @Nullable String prefix) {
-		this.recipients = recipients;
+		this.recipients = new ArrayList<>(recipients);
 		this.prefix = prefix == null ? "" : prefix;
 	}
 
 	@Override
 	public LogResult log(LogEntry entry) {
 		String formattedMessage = prefix + entry.toFormattedString();
-		if (recipients != null) {
-			for (CommandSender recipient : recipients) {
-				SkriptLogger.sendFormatted(recipient, formattedMessage);
-			}
+		for (CommandSender recipient : recipients) {
+			SkriptLogger.sendFormatted(recipient, formattedMessage);
 		}
 		if (entry.level == Level.SEVERE) {
 			numErrors++;

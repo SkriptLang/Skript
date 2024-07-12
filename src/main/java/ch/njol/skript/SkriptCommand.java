@@ -118,15 +118,11 @@ public class SkriptCommand implements CommandExecutor {
 		String message;
 		if (logHandler.numErrors() == 0) {
 			message = StringUtils.fixCapitalization(PluralizingArgsMessage.format(m_reloaded.toString(what, timeTaken)));
-			Skript.info(sender, message);
+			logHandler.log(new LogEntry(Level.INFO, message));
 		} else {
 			message = StringUtils.fixCapitalization(PluralizingArgsMessage.format(m_reload_error.toString(what, logHandler.numErrors(), timeTaken)));
-			Skript.error(sender, message);
+			logHandler.log(new LogEntry(Level.SEVERE, message));
 		}
-
-		// Notify operators
-		if (SkriptConfig.sendReloadingInfoToOps.value())
-			logHandler.log(new LogEntry( Level.INFO, message));
 	}
 
 
@@ -146,11 +142,10 @@ public class SkriptCommand implements CommandExecutor {
 		if (!SKRIPT_COMMAND_HELP.test(sender, args))
 			return true;
 
-		boolean isReload = args[0].equalsIgnoreCase("reload");
 		List<CommandSender> recipients = new ArrayList<>();
 		recipients.add(sender);
 
-		if (isReload) {
+		if (args[0].equalsIgnoreCase("reload") && SkriptConfig.sendReloadingInfoToOps.value()) {
 			recipients.addAll(Bukkit.getOnlinePlayers().stream()
 				.filter(player -> player.hasPermission("skript.reloadnotify") && !player.equals(sender))
 				.collect(Collectors.toList()));
