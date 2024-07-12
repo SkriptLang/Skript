@@ -131,8 +131,8 @@ public interface ReturnHandler<T> {
 
 	/**
 	 * Called when {@link ch.njol.skript.effects.EffReturn} is executed
-	 * @param event the event
-	 * @param value the value to return
+	 * @param event the event providing context
+	 * @param value an expression representing the value(s) to return
 	 */
 	void returnValues(Event event, Expression<? extends T> value);
 
