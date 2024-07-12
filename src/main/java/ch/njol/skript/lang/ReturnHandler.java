@@ -130,9 +130,11 @@ public interface ReturnHandler<T> {
 	}
 
 	/**
-	 * @param values the values to return
+	 * Called when {@link ch.njol.skript.effects.EffReturn} is executed
+	 * @param event the event
+	 * @param value the value to return
 	 */
-	void returnValues(T @Nullable [] values);
+	void returnValues(Event event, Expression<? extends T> value);
 
 	/**
 	 * @return whether this return handler may accept multiple return values
