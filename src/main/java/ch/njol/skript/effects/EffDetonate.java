@@ -49,6 +49,9 @@ public class EffDetonate extends Effect {
 			else if (entity instanceof ExplosiveMinecart) {
 				((ExplosiveMinecart) entity).explode();
 			}
+			else if (entity instanceof Creeper) {
+				((Creeper) entity).explode();
+			}
 		}
 	}
 
