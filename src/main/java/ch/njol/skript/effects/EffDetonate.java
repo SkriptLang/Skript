@@ -37,8 +37,9 @@ public class EffDetonate extends Effect {
 	@Override
 	protected void execute(Event event) {
 		for (Projectile projectile : projectileExpression.getArray(event)) {
-			if (projectile instanceof Firework)
+			if (projectile instanceof Firework) {
 				((Firework) projectile).detonate();
+			}
 		}
 	}
 
