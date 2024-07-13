@@ -1,7 +1,7 @@
 package ch.njol.skript.effects;
 
-import org.bukkit.entity.Firework;
-import org.bukkit.entity.Projectile;
+import org.bukkit.entity.*;
+import org.bukkit.entity.minecart.ExplosiveMinecart;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 
@@ -17,34 +17,40 @@ import ch.njol.util.Kleenean;
 
 
 @Name("Detonate Entity")
-@Description("Automtically Detonates an entity")
+@Description("Automatically detonates an entity.\n Accepted entities are 'Fireworks, TNT Minecarts and WindCharges")
 @Examples("detonate last launched firework")
 @Since("INSERT VERSION")
 public class EffDetonate extends Effect {
 	static {
-		Skript.registerEffect(EffDetonate.class, "detonate %projectiles%");
+		Skript.registerEffect(EffDetonate.class, "detonate [a[n]|the] %entities%");
 	}
 
-	private Expression<Projectile> projectileExpression;
+	private Expression<Entity> entities;
 
 	@Override
 	@SuppressWarnings("unchecked")
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		this.projectileExpression = (Expression<Projectile>) exprs[0];
+		this.entities = (Expression<Entity>) exprs[0];
  		return true;
 	}
 
 	@Override
 	protected void execute(Event event) {
-		for (Projectile projectile : projectileExpression.getArray(event)) {
-			if (projectile instanceof Firework) {
-				((Firework) projectile).detonate();
+		for (Object entity : entities.getArray(event)) {
+			if (entity instanceof Firework) {
+				((Firework) entity).detonate();
+			}
+			if (entity instanceof WindCharge) {
+				((WindCharge) entity).explode();
+			}
+			if (entity instanceof ExplosiveMinecart) {
+				((ExplosiveMinecart) entity).explode();
 			}
 		}
 	}
 
 	public String toString(@Nullable Event event, boolean debug) {
-		return "detonate " + projectileExpression.toString(event, debug);
+		return "detonate " + entities.toString(event, debug);
 	}
 
 }
