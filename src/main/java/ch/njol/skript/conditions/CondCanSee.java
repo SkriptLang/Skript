@@ -35,7 +35,7 @@ public class CondCanSee extends Condition {
 	}
 
 	@SuppressWarnings("null")
-	private Expression<Player> players;
+	private Expression<Player> viewers;
 	@SuppressWarnings("null")
 	private Expression<Entity> entities;
 
@@ -43,11 +43,11 @@ public class CondCanSee extends Condition {
 	@SuppressWarnings("unchecked")
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult result) {
 		if (matchedPattern == 1 || matchedPattern == 3) {
-			players = (Expression<Player>) exprs[0];
+			viewers = (Expression<Player>) exprs[0];
 			entities = (Expression<Entity>) exprs[1];
 		} else {
 			entities = (Expression<Entity>) exprs[0];
-			players = (Expression<Player>) exprs[1];
+			viewers = (Expression<Player>) exprs[1];
 		}
 		setNegated(matchedPattern > 1 ^ result.hasTag("in"));
 		return true;
@@ -55,7 +55,7 @@ public class CondCanSee extends Condition {
 
 	@Override
 	public boolean check(Event event) {
-		return players.check(event,
+		return viewers.check(event,
 				player -> entities.check(event,
 						player::canSee
 				), isNegated());
@@ -63,7 +63,7 @@ public class CondCanSee extends Condition {
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return PropertyCondition.toString(this, PropertyType.CAN, event, debug, players,
+		return PropertyCondition.toString(this, PropertyType.CAN, event, debug, viewers,
 				"see" + entities.toString(event, debug));
 	}
 

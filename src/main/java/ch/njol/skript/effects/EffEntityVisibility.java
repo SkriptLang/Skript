@@ -63,19 +63,19 @@ public class EffEntityVisibility extends Effect {
 	}
 
     @Override
-    protected void execute(Event e) {
-		Player[] updated = viewers.getArray(e);
+    protected void execute(Event event) {
+		Player[] updated = viewers.getArray(event);
 
 		Skript instance = Skript.getInstance();
 		if (reveal) {
 			for (Player player : updated) {
-				for (Entity entity : hidden.getArray(e)) {
+				for (Entity entity : hidden.getArray(event)) {
 					player.showEntity(instance, entity);
 				}
 			}
 		} else {
 			for (Player player : updated) {
-				for (Entity entity : hidden.getArray(e)) {
+				for (Entity entity : hidden.getArray(event)) {
 					player.hideEntity(instance, entity);
 				}
 			}
