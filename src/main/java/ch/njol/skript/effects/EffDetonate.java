@@ -3,7 +3,7 @@ package ch.njol.skript.effects;
 import org.bukkit.entity.*;
 import org.bukkit.entity.minecart.ExplosiveMinecart;
 import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
@@ -17,15 +17,18 @@ import ch.njol.util.Kleenean;
 
 
 @Name("Detonate Entity")
-@Description("Automatically detonates an entity.\n Accepted entities are 'Fireworks, TNT Minecarts and WindCharges")
+@Description("Immediately detonates an entity. Accepted entities are fireworks, TNT minecarts, wind charges and creepers.")
 @Examples("detonate last launched firework")
 @Since("INSERT VERSION")
 public class EffDetonate extends Effect {
+
 	static {
-		Skript.registerEffect(EffDetonate.class, "detonate [a[n]|the] %entities%");
+		Skript.registerEffect(EffDetonate.class, "detonate %entities%");
 	}
 
 	private Expression<Entity> entities;
+
+	private static final boolean HAS_WINDCHARGE = Skript.classExists("org.bukkit.entity.WindCharge");
 
 	@Override
 	@SuppressWarnings("unchecked")
@@ -36,14 +39,14 @@ public class EffDetonate extends Effect {
 
 	@Override
 	protected void execute(Event event) {
-		for (Object entity : entities.getArray(event)) {
+		for (Entity entity : entities.getArray(event)) {
 			if (entity instanceof Firework) {
 				((Firework) entity).detonate();
 			}
-			if (entity instanceof WindCharge) {
+			else if (HAS_WINDCHARGE && entity instanceof WindCharge) {
 				((WindCharge) entity).explode();
 			}
-			if (entity instanceof ExplosiveMinecart) {
+			else if (entity instanceof ExplosiveMinecart) {
 				((ExplosiveMinecart) entity).explode();
 			}
 		}
