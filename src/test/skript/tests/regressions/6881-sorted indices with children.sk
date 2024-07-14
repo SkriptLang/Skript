@@ -9,5 +9,7 @@ test "sorted indices with children":
 	set {_test::3::b::bar} to "love"
 	set {_test::3::c::baz} to "skript"
 	set {_indices::*} to (sorted indices of {_test::*} in ascending order)
-	assert {_indices::*} is ("1", "3", "2") with "sorted indices on list with children threw or was incorrect"
 
+	assert {_indices::*} is ("1", "3", "2") with "sorted indices on list with children threw or was incorrect"
+	assert {_test::*} is (111, 555, 444) with "modified children wrongly"
+	assert {_test::3::*} is not 6 with "modified children wrongly"
