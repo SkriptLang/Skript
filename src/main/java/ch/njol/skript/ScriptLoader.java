@@ -47,13 +47,8 @@ import ch.njol.util.StringUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
-import org.skriptlang.skript.lang.script.event.ScriptPreInitEvent;
-import org.skriptlang.skript.lang.script.event.ScriptInitEvent;
-import org.skriptlang.skript.lang.script.event.ScriptLoadEvent;
-import org.skriptlang.skript.lang.script.event.ScriptUnloadEvent;
 import org.skriptlang.skript.util.EventRegistry;
 import org.skriptlang.skript.lang.script.Script;
-import org.skriptlang.skript.lang.script.event.ScriptLoaderEvent;
 import org.skriptlang.skript.lang.structure.Structure;
 
 import java.io.File;
@@ -64,6 +59,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -1082,12 +1078,87 @@ public class ScriptLoader {
 
 	// ScriptLoader Events
 
-	private static final EventRegistry<ScriptLoaderEvent> eventRegistry = new EventRegistry<>();
+	/**
+	 * Used for listening to events involving a ScriptLoader.
+	 * @see #eventRegistry()
+	 */
+	public interface LoaderEvent { }
+
+	/**
+	 * Called when {@link ScriptLoader} is preparing to load {@link Config}s into {@link Script}s.
+	 * @see #loadScripts(File, OpenCloseable)
+	 * @see #loadScripts(Set, OpenCloseable)
+	 */
+	@FunctionalInterface
+	public interface ScriptPreInitEvent extends LoaderEvent {
+
+		/**
+		 * The method that is called when this event triggers.
+		 * Modifications to the given collection will affect what is loaded.
+		 * @param configs The Configs to be loaded.
+		 */
+		void onPreInit(Collection<Config> configs);
+
+	}
+
+	/**
+	 * Called when a {@link Script} is created and preloaded in the {@link ScriptLoader}.
+	 * The initializing script may contain {@link Structure}s that are not fully loaded.
+	 * @see #loadScripts(File, OpenCloseable)
+	 * @see #loadScripts(Set, OpenCloseable)
+	 */
+	@FunctionalInterface
+	public interface ScriptInitEvent extends LoaderEvent {
+
+		/**
+		 * The method that is called when this event triggers.
+		 * @param script The Script being initialized.
+		 */
+		void onInit(Script script);
+
+	}
+
+	/**
+	 * Called when a {@link Script} is loaded in the {@link ScriptLoader}.
+	 * This event will trigger <b>after</b> the script is completely loaded ({@link Structure} initialization finished).
+	 * @see #loadScripts(File, OpenCloseable)
+	 * @see #loadScripts(Set, OpenCloseable)
+	 */
+	@FunctionalInterface
+	public interface ScriptLoadEvent extends LoaderEvent, Script.Event {
+
+		/**
+		 * The method that is called when this event triggers.
+		 * @param parser The ParserInstance handling the loading of <code>script</code>.
+		 * @param script The Script being loaded.
+		 */
+		void onLoad(ParserInstance parser, Script script);
+
+	}
+
+	/**
+	 * Called when a {@link Script} is unloaded in the {@link ScriptLoader}.
+	 * This event will trigger <b>before</b> the script is unloaded.
+	 * @see #unloadScript(Script)
+	 */
+	@FunctionalInterface
+	public interface ScriptUnloadEvent extends LoaderEvent, Script.Event {
+
+		/**
+		 * The method that is called when this event triggers.
+		 * @param parser The ParserInstance handling the unloading of <code>script</code>.
+		 * @param script The Script being unloaded.
+		 */
+		void onUnload(ParserInstance parser, Script script);
+
+	}
+
+	private static final EventRegistry<LoaderEvent> eventRegistry = new EventRegistry<>();
 
 	/**
 	 * @return An EventRegistry for the ScriptLoader's events.
 	 */
-	public static EventRegistry<ScriptLoaderEvent> eventRegistry() {
+	public static EventRegistry<LoaderEvent> eventRegistry() {
 		return eventRegistry;
 	}
 

@@ -22,7 +22,6 @@ import ch.njol.skript.config.Config;
 import org.eclipse.jdt.annotation.Nullable;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Unmodifiable;
-import org.skriptlang.skript.lang.script.event.ScriptEvent;
 import org.skriptlang.skript.util.EventRegistry;
 import org.skriptlang.skript.lang.structure.Structure;
 
@@ -161,12 +160,18 @@ public final class Script {
 
 	// Script Events
 
-	private final EventRegistry<ScriptEvent> eventRegistry = new EventRegistry<>();
+	/**
+	 * Used for listening to events involving a Script.
+	 * @see #eventRegistry()
+	 */
+	public interface Event { }
+
+	private final EventRegistry<Event> eventRegistry = new EventRegistry<>();
 
 	/**
 	 * @return An EventRegistry for this Script's events.
 	 */
-	public EventRegistry<ScriptEvent> eventRegistry() {
+	public EventRegistry<Event> eventRegistry() {
 		return eventRegistry;
 	}
 

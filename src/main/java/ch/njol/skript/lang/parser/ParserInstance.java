@@ -39,8 +39,6 @@ import org.skriptlang.skript.lang.experiment.Experiment;
 import org.skriptlang.skript.lang.experiment.ExperimentSet;
 import org.skriptlang.skript.lang.experiment.Experimented;
 import org.skriptlang.skript.lang.script.Script;
-import org.skriptlang.skript.lang.script.event.ScriptActivityChangeEvent;
-import org.skriptlang.skript.lang.script.event.ScriptLoaderEvent;
 import org.skriptlang.skript.lang.structure.Structure;
 
 import java.io.File;
@@ -499,7 +497,7 @@ public final class ParserInstance implements Experimented {
 		}
 
 		/**
-		 * @deprecated See {@link ScriptLoaderEvent}.
+		 * @deprecated See {@link ScriptLoader.LoaderEvent}.
 		 */
 		@Deprecated
 		public void onCurrentScriptChange(@Nullable Config currentScript) { }
@@ -554,6 +552,29 @@ public final class ParserInstance implements Experimented {
 				dataList.add(data);
 		}
 		return dataList;
+	}
+
+	/**
+	 * Called when a {@link Script} is made active or inactive in a {@link ParserInstance}.
+	 * This event will trigger <b>after</b> the change in activity has occurred.
+	 * @see #isActive()
+	 */
+	@FunctionalInterface
+	public interface ScriptActivityChangeEvent extends ScriptLoader.LoaderEvent, Script.Event {
+
+		/**
+		 * The method that is called when this event triggers.
+		 * @param parser The ParserInstance where the activity change occurred.
+		 * @param script The Script this event was registered for.
+		 * @param active Whether <code>script</code> became active or inactive within <code>parser</code>.
+		 * @param other The Script that was made active or inactive.
+		 *  Whether it was made active or inactive is the negation of the <code>active</code>.
+		 *  That is to say, if <code>script</code> became active, then <code>other</code> became inactive.
+		 *  Null if <code>parser</code> was inactive (meaning no script became inactive)
+		 *   or became inactive (meaning no script became active).
+		 */
+		void onActivityChange(ParserInstance parser, Script script, boolean active, @Nullable Script other);
+
 	}
 
 	// Backup API
