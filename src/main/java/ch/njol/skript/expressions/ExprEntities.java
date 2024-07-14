@@ -239,9 +239,14 @@ public class ExprEntities extends SimpleExpression<Entity> {
 	@Override
 	@SuppressWarnings("null")
 	public String toString(@Nullable Event e, boolean debug) {
-		return "all entities of type " + types.toString(e, debug) + (worlds != null ? " in " + worlds.toString(e, debug) :
-				radius != null && center != null ? " in radius " + radius.toString(e, debug) + " around " + center.toString(e, debug) : "")
-			+ (from != null && to != null ? " within " + from.toString(e, debug) + " and " + to.toString(e, debug) : "");
+		String message = "all entities of type " + types.toString(e, debug);
+		if (worlds != null)
+			message += " in " + worlds.toString(e, debug);
+		else if (radius != null && center != null)
+			message += " in radius " + radius.toString(e, debug) + " around " + center.toString(e, debug);
+		else if (from != null && to != null)
+			message += " within " + from.toString(e, debug) + " and " + to.toString(e, debug);
+		return message;
 	}
 
 }
