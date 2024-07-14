@@ -29,6 +29,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import ch.njol.skript.bukkitutil.BukkitUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.Difficulty;
@@ -38,6 +39,7 @@ import org.bukkit.GameRule;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
+import org.bukkit.Registry;
 import org.bukkit.SoundCategory;
 import org.bukkit.World;
 import org.bukkit.World.Environment;
@@ -77,7 +79,6 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.CachedServerIcon;
 import org.bukkit.util.Vector;
-import org.eclipse.jdt.annotation.Nullable;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptConfig;
@@ -90,6 +91,7 @@ import ch.njol.skript.classes.ConfigurationSerializer;
 import ch.njol.skript.classes.EnumClassInfo;
 import ch.njol.skript.classes.Parser;
 import ch.njol.skript.classes.Serializer;
+import ch.njol.skript.classes.registry.RegistryClassInfo;
 import ch.njol.skript.entity.EntityData;
 import ch.njol.skript.expressions.ExprDamageCause;
 import ch.njol.skript.expressions.base.EventValueExpression;
@@ -98,12 +100,12 @@ import ch.njol.skript.lang.util.SimpleLiteral;
 import ch.njol.skript.localization.Language;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.BlockUtils;
-import ch.njol.skript.util.EnchantmentType;
 import ch.njol.skript.util.PotionEffectUtils;
 import ch.njol.skript.util.StringMode;
 import ch.njol.util.StringUtils;
 import ch.njol.yggdrasil.Fields;
 import io.papermc.paper.world.MoonPhase;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * @author Peter Güttinger
@@ -353,7 +355,7 @@ public class BukkitClasses {
 					protected boolean canBeInstantiated() {
 						return false;
 					}
-				}));
+				}).cloner(BlockData::clone));
 
 		Classes.registerClass(new ClassInfo<>(Location.class, "location")
 				.user("locations?")
@@ -930,6 +932,7 @@ public class BukkitClasses {
 				.since("1.0")
 				.after("number")
 				.supplier(() -> Arrays.stream(Material.values())
+					.filter(Material::isItem)
 					.map(ItemStack::new)
 					.iterator())
 				.parser(new Parser<ItemStack>() {
@@ -946,7 +949,10 @@ public class BukkitClasses {
 						}
 						
 						final ItemStack i = t.getRandom();
-						assert i != null;
+						if (i == null) {
+							Skript.error("'" + s + "' cannot represent an item");
+							return null;
+						}
 						return i;
 					}
 					
@@ -976,11 +982,18 @@ public class BukkitClasses {
 				.name(ClassInfo.NO_DOC)
 				.since("2.0")
 				.changer(DefaultChangers.itemChanger));
-		
-		Classes.registerClass(new EnumClassInfo<>(Biome.class, "biome", "biomes")
+
+		ClassInfo<?> biomeClassInfo;
+		if (BukkitUtils.registryExists("BIOME")) {
+			biomeClassInfo = new RegistryClassInfo<>(Biome.class, Registry.BIOME, "biome", "biomes");
+		} else {
+			biomeClassInfo = new EnumClassInfo<>(Biome.class, "biome", "biomes");
+		}
+		Classes.registerClass(biomeClassInfo
 				.user("biomes?")
 				.name("Biome")
-				.description("All possible biomes Minecraft uses to generate a world.")
+				.description("All possible biomes Minecraft uses to generate a world.",
+					"NOTE: Minecraft namespaces are supported, ex: 'minecraft:basalt_deltas'.")
 				.examples("biome at the player is desert")
 				.since("1.4.4")
 				.after("damagecause"));
@@ -1067,12 +1080,12 @@ public class BukkitClasses {
 					public PotionEffectType parse(final String s, final ParseContext context) {
 						return PotionEffectUtils.parseType(s);
 					}
-					
+
 					@Override
 					public String toString(final PotionEffectType p, final int flags) {
 						return PotionEffectUtils.toString(p, flags);
 					}
-					
+
 					@Override
 					public String toVariableNameString(final PotionEffectType p) {
 						return "" + p.getName();
@@ -1212,74 +1225,23 @@ public class BukkitClasses {
 						return true;
 					}
 				}));
-		
-		Classes.registerClass(new ClassInfo<>(Enchantment.class, "enchantment")
+
+		ClassInfo<Enchantment> enchantmentClassInfo;
+		if (BukkitUtils.registryExists("ENCHANTMENT")) {
+			enchantmentClassInfo = new RegistryClassInfo<>(Enchantment.class, Registry.ENCHANTMENT, "enchantment", "enchantments");
+		} else {
+			enchantmentClassInfo = EnchantmentUtils.createClassInfo();
+		}
+		Classes.registerClass(enchantmentClassInfo
 				.user("enchantments?")
 				.name("Enchantment")
 				.description("An enchantment, e.g. 'sharpness' or 'fortune'. Unlike <a href='#enchantmenttype'>enchantment type</a> " +
-						"this type has no level, but you usually don't need to use this type anyway.")
-				.usage(StringUtils.join(EnchantmentType.getNames(), ", "))
+						"this type has no level, but you usually don't need to use this type anyway.",
+						"NOTE: Minecraft namespaces are supported, ex: 'minecraft:basalt_deltas'.",
+						"As of Minecraft 1.21 this will also support custom enchantments using namespaces, ex: 'myenchants:explosive'.")
 				.examples("")
 				.since("1.4.6")
-				.before("enchantmenttype")
-				.supplier(Enchantment.values())
-				.parser(new Parser<Enchantment>() {
-					@Override
-					@Nullable
-					public Enchantment parse(final String s, final ParseContext context) {
-						return EnchantmentType.parseEnchantment(s);
-					}
-					
-					@Override
-					public String toString(final Enchantment e, final int flags) {
-						return EnchantmentType.toString(e, flags);
-					}
-					
-					@Override
-					public String toVariableNameString(final Enchantment e) {
-						return "" + EnchantmentUtils.getKey(e);
-					}
-				})
-				.serializer(new Serializer<Enchantment>() {
-					@Override
-					public Fields serialize(final Enchantment ench) {
-						final Fields f = new Fields();
-						f.putObject("key", EnchantmentUtils.getKey(ench));
-						return f;
-					}
-					
-					@Override
-					public boolean canBeInstantiated() {
-						return false;
-					}
-					
-					@Override
-					public void deserialize(final Enchantment o, final Fields f) {
-						assert false;
-					}
-					
-					@Override
-					protected Enchantment deserialize(final Fields fields) throws StreamCorruptedException {
-						final String key = fields.getObject("key", String.class);
-						assert key != null; // If a key happens to be null, something went really wrong...
-						final Enchantment e = EnchantmentUtils.getByKey(key);
-						if (e == null)
-							throw new StreamCorruptedException("Invalid enchantment " + key);
-						return e;
-					}
-					
-					// return "" + e.getId();
-					@Override
-					@Nullable
-					public Enchantment deserialize(String s) {
-						return Enchantment.getByName(s);
-					}
-					
-					@Override
-					public boolean mustSyncDeserialization() {
-						return false;
-					}
-				}));
+				.before("enchantmenttype"));
 		
 		Material[] allMaterials = Material.values();
 		Classes.registerClass(new ClassInfo<>(Material.class, "material")
@@ -1438,17 +1400,25 @@ public class BukkitClasses {
 					.since("2.4")
 					.requiredPlugins("Minecraft 1.14 or newer"));
 		}
+
 		Classes.registerClass(new EnumClassInfo<>(RegainReason.class, "healreason", "heal reasons")
-			.user("(regen|heal) (reason|cause)")
-			.name("Heal Reason")
-			.description("The heal reason in a heal event.")
-			.examples("")
-			.since("2.5"));
+				.user("(regen|heal) (reason|cause)")
+				.name("Heal Reason")
+				.description("The health regain reason in a <a href='events.html#heal'>heal</a> event.")
+				.since("2.5"));
+
 		if (Skript.classExists("org.bukkit.entity.Cat$Type")) {
-			Classes.registerClass(new EnumClassInfo<>(Cat.Type.class, "cattype", "cat types")
+			ClassInfo<Cat.Type> catTypeClassInfo;
+			if (BukkitUtils.registryExists("CAT_VARIANT")) {
+				catTypeClassInfo = new RegistryClassInfo<>(Cat.Type.class, Registry.CAT_VARIANT, "cattype", "cat types");
+			} else {
+				catTypeClassInfo = new EnumClassInfo<>(Cat.Type.class, "cattype", "cat types");
+			}
+			Classes.registerClass(catTypeClassInfo
 					.user("cat ?(type|race)s?")
 					.name("Cat Type")
-					.description("Represents the race/type of a cat entity.")
+					.description("Represents the race/type of a cat entity.",
+						"NOTE: Minecraft namespaces are supported, ex: 'minecraft:british_shorthair'.")
 					.since("2.4")
 					.requiredPlugins("Minecraft 1.14 or newer")
 					.documentationId("CatType"));
@@ -1497,20 +1467,27 @@ public class BukkitClasses {
 	
 					@Override
 					public String toString(EnchantmentOffer eo, int flags) {
-						return EnchantmentType.toString(eo.getEnchantment(), flags) + " " + eo.getEnchantmentLevel();
+						return EnchantmentUtils.toString(eo.getEnchantment(), flags) + " " + eo.getEnchantmentLevel();
 					}
 	
 					@Override
 					public String toVariableNameString(EnchantmentOffer eo) {
-						return "offer:" + EnchantmentType.toString(eo.getEnchantment()) + "=" + eo.getEnchantmentLevel();
+						return "offer:" + EnchantmentUtils.toString(eo.getEnchantment()) + "=" + eo.getEnchantmentLevel();
 					}
 				}));
 
-		Classes.registerClass(new EnumClassInfo<>(Attribute.class, "attributetype", "attribute types")
+		ClassInfo<Attribute> attributeClassInfo;
+		if (BukkitUtils.registryExists("ATTRIBUTE")) {
+			attributeClassInfo = new RegistryClassInfo<>(Attribute.class, Registry.ATTRIBUTE, "attributetype", "attribute types");
+		} else {
+			attributeClassInfo = new EnumClassInfo<>(Attribute.class, "attributetype", "attribute types");
+		}
+		Classes.registerClass(attributeClassInfo
 				.user("attribute ?types?")
 				.name("Attribute Type")
 				.description("Represents the type of an attribute. Note that this type does not contain any numerical values."
-						+ "See <a href='https://minecraft.wiki/w/Attribute#Attributes'>attribute types</a> for more info.")
+						+ "See <a href='https://minecraft.wiki/w/Attribute#Attributes'>attribute types</a> for more info.",
+					"NOTE: Minecraft namespaces are supported, ex: 'minecraft:generic.attack_damage'.")
 				.since("2.5"));
 
 		Classes.registerClass(new EnumClassInfo<>(Environment.class, "environment", "environments")
