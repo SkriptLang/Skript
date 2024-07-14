@@ -34,8 +34,6 @@ import ch.njol.skript.log.LogHandler;
 import ch.njol.util.Kleenean;
 import ch.njol.util.StringUtils;
 import ch.njol.util.coll.iterator.CheckedIterator;
-import net.kyori.adventure.text.Component;
-import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -43,7 +41,8 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.util.BoundingBox;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.UnknownNullability;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
@@ -77,17 +76,17 @@ public class ExprEntities extends SimpleExpression<Entity> {
 	@SuppressWarnings("null")
 	Expression<? extends EntityData<?>> types;
 
-	@Nullable
+	@UnknownNullability
 	private Expression<World> worlds;
-	@Nullable
+	@UnknownNullability
 	private Expression<Chunk> chunks;
-	@Nullable
+	@UnknownNullability
 	private Expression<Number> radius;
-	@Nullable
+	@UnknownNullability
 	private Expression<Location> center;
-	@Nullable
+	@UnknownNullability
 	private Expression<Location> from;
-	@Nullable
+	@UnknownNullability
 	private Expression<Location> to;
 
 	private Class<? extends Entity> returnType = Entity.class;
