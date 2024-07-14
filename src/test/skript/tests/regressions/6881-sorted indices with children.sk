@@ -12,4 +12,4 @@ test "sorted indices with children":
 
 	assert {_indices::*} is ("1", "3", "2") with "sorted indices on list with children threw or was incorrect"
 	assert {_test::*} is (111, 555, 444) with "modified children wrongly"
-	assert {_test::3::*} is not 6 with "modified children wrongly"
+	assert {_test::3::*} is 6 with "modified children wrongly"
