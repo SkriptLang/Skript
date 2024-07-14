@@ -107,7 +107,6 @@ public class SkriptCommand implements CommandExecutor {
 	}
 
 
-
 	private static final ArgsMessage m_reloaded = new ArgsMessage(CONFIG_NODE + ".reload.reloaded");
 	private static final ArgsMessage m_reload_error = new ArgsMessage(CONFIG_NODE + ".reload.error");
 
@@ -126,7 +125,6 @@ public class SkriptCommand implements CommandExecutor {
 	}
 
 
-
 	private static void info(CommandSender sender, String what, Object... args) {
 		what = args.length == 0 ? Language.get(CONFIG_NODE + "." + what) : PluralizingArgsMessage.format(Language.format(CONFIG_NODE + "." + what, args));
 		Skript.info(sender, StringUtils.fixCapitalization(what));
@@ -142,14 +140,15 @@ public class SkriptCommand implements CommandExecutor {
 		if (!SKRIPT_COMMAND_HELP.test(sender, args))
 			return true;
 
-		List<CommandSender> recipients = new ArrayList<>();
+		Set<CommandSender> recipients = new HashSet<>();
 		recipients.add(sender);
 
 		if (args[0].equalsIgnoreCase("reload") && SkriptConfig.sendReloadingInfoToOps.value()) {
 			recipients.addAll(Bukkit.getOnlinePlayers().stream()
-				.filter(player -> player.hasPermission("skript.reloadnotify") && !player.equals(sender))
-				.collect(Collectors.toList()));
+				.filter(player -> player.hasPermission("skript.reloadnotify"))
+				.collect(Collectors.toSet()));
 		}
+
 
 		try (
 			RedirectingLogHandler logHandler = new RedirectingLogHandler(recipients, "").start();

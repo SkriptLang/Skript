@@ -24,6 +24,7 @@ import org.bukkit.command.CommandSender;
 import org.eclipse.jdt.annotation.Nullable;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.logging.Level;
@@ -33,7 +34,7 @@ import java.util.logging.Level;
  */
 public class RedirectingLogHandler extends LogHandler {
 
-	private final List<CommandSender> recipients;
+	private final Collection<CommandSender> recipients;
 	private int numErrors = 0;
 	private final String prefix;
 
@@ -41,7 +42,7 @@ public class RedirectingLogHandler extends LogHandler {
 		this(Collections.singletonList(recipient), prefix);
 	}
 
-	public RedirectingLogHandler(List<CommandSender> recipients, @Nullable String prefix) {
+	public RedirectingLogHandler(Collection<CommandSender> recipients, @Nullable String prefix) {
 		this.recipients = new ArrayList<>(recipients);
 		this.prefix = prefix == null ? "" : prefix;
 	}
