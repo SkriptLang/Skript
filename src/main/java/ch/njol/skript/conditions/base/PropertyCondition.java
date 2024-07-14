@@ -90,6 +90,7 @@ public abstract class PropertyCondition<T> extends Condition implements Checker<
 	 * @param property the property name, for example <i>fly</i> in <i>players can fly</i>
 	 * @param type must be plural, for example <i>players</i> in <i>players can fly</i>
 	 */
+
 	public static void register(Class<? extends Condition> condition, String property, String type) {
 		register(condition, PropertyType.BE, property, type);
 	}
@@ -100,6 +101,7 @@ public abstract class PropertyCondition<T> extends Condition implements Checker<
 	 * @param property the property name, for example <i>fly</i> in <i>players can fly</i>
 	 * @param type must be plural, for example <i>players</i> in <i>players can fly</i>
 	 */
+
 	public static void register(Class<? extends Condition> condition, PropertyType propertyType, String property, String type) {
 		if (type.contains("%"))
 			throw new SkriptAPIException("The type argument must not contain any '%'s");
@@ -131,9 +133,9 @@ public abstract class PropertyCondition<T> extends Condition implements Checker<
 	}
 
 	@Override
-	@SuppressWarnings("unchecked")
-	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		expr = (Expression<? extends T>) exprs[0];
+	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
+		expr = (Expression<? extends T>) expressions[0];
+
 		setNegated(matchedPattern == 1);
 		return true;
 	}
@@ -144,8 +146,8 @@ public abstract class PropertyCondition<T> extends Condition implements Checker<
 	}
 
 	@Override
-	public abstract boolean check(T t);
-
+	public abstract boolean check(T value);
+	
 	protected abstract String getPropertyName();
 
 	protected PropertyType getPropertyType() {

@@ -40,7 +40,7 @@ import org.eclipse.jdt.annotation.Nullable;
 @Name("Make Sign Glow")
 @Description("Makes a sign (either a block or item) have glowing text or normal text")
 @Examples("make target block of player have glowing text")
-@Since("INSERT VERSION")
+@Since("2.8.0")
 public class EffGlowingText extends Effect {
 
 	static {

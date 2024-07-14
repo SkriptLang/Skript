@@ -1,0 +1,4 @@
+# .git-blame-ignore-revs
+
+# cleanup lang package - mostly renaming variables
+98abf5d7773df11c65d66e4e9485d0f1e3ef8821

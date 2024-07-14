@@ -18,47 +18,50 @@
  */
 package ch.njol.skript.lang;
 
-import java.util.List;
-
-import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.Nullable;
-
 import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.lang.parser.ParserInstance;
+import org.bukkit.event.Event;
+import org.eclipse.jdt.annotation.Nullable;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Represents a section of a trigger, e.g. a conditional or a loop
  */
 public abstract class TriggerSection extends TriggerItem {
-	
+
 	@Nullable
-	protected TriggerItem first = null;
-	@Nullable
-	protected TriggerItem last = null;
-	
+	protected TriggerItem first, last;
+
 	/**
 	 * Reserved for new Trigger(...)
 	 */
 	protected TriggerSection(List<TriggerItem> items) {
 		setTriggerItems(items);
 	}
-	
+
 	protected TriggerSection(SectionNode node) {
-		List<TriggerSection> currentSections = ParserInstance.get().getCurrentSections();
-		currentSections.add(this);
+		ParserInstance parser = ParserInstance.get();
+		List<TriggerSection> previousSections = parser.getCurrentSections();
+
+		List<TriggerSection> sections = new ArrayList<>(previousSections);
+		sections.add(this);
+		parser.setCurrentSections(sections);
+
 		try {
 			setTriggerItems(ScriptLoader.loadItems(node));
 		} finally {
-			currentSections.remove(currentSections.size() - 1);
+			parser.setCurrentSections(previousSections);
 		}
 	}
-	
+
 	/**
 	 * Important when using this constructor: set the items with {@link #setTriggerItems(List)}!
 	 */
 	protected TriggerSection() {}
-	
+
 	/**
 	 * Remember to add this section to {@link ParserInstance#getCurrentSections()} before parsing child elements!
 	 * 
@@ -79,7 +82,7 @@ public abstract class TriggerSection extends TriggerItem {
 			}
 		}
 	}
-	
+
 	@Override
 	public TriggerSection setNext(@Nullable TriggerItem next) {
 		super.setNext(next);
@@ -87,30 +90,30 @@ public abstract class TriggerSection extends TriggerItem {
 			last.setNext(next);
 		return this;
 	}
-	
+
 	@Override
 	public TriggerSection setParent(@Nullable TriggerSection parent) {
 		super.setParent(parent);
 		return this;
 	}
-	
+
 	@Override
-	protected final boolean run(Event e) {
+	protected final boolean run(Event event) {
 		throw new UnsupportedOperationException();
 	}
-	
+
 	@Override
 	@Nullable
-	protected abstract TriggerItem walk(Event e);
-	
+	protected abstract TriggerItem walk(Event event);
+
 	@Nullable
-	protected final TriggerItem walk(Event e, boolean run) {
-		debug(e, run);
+	protected final TriggerItem walk(Event event, boolean run) {
+		debug(event, run);
 		if (run && first != null) {
 			return first;
 		} else {
 			return getNext();
 		}
 	}
-	
+
 }

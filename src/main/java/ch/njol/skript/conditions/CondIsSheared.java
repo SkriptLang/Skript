@@ -38,7 +38,7 @@ import org.bukkit.event.entity.CreatureSpawnEvent;
 	"if targeted entity of player is sheared:",
 		"\tsend \"This entity has nothing left to shear!\" to player"
 })
-@Since("INSERT VERSION")
+@Since("2.8.0")
 @RequiredPlugins("MC 1.13+ (cows, sheep & snowmen), Paper 1.19.4+ (all shearable entities)")
 public class CondIsSheared extends PropertyCondition<LivingEntity> {
 

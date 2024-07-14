@@ -18,6 +18,7 @@
  */
 package ch.njol.skript.expressions;
 
+import ch.njol.util.VectorMath;
 import org.bukkit.event.Event;
 import org.bukkit.util.Vector;
 import org.eclipse.jdt.annotation.Nullable;
@@ -41,7 +42,7 @@ import ch.njol.util.coll.CollectionUtils;
 public class ExprVectorNormalize extends SimpleExpression<Vector> {
 
 	static {
-		Skript.registerExpression(ExprVectorNormalize.class, Vector.class, ExpressionType.SIMPLE,
+		Skript.registerExpression(ExprVectorNormalize.class, Vector.class, ExpressionType.COMBINED,
 				"normalize[d] %vector%",
 				"%vector% normalized");
 	}
@@ -63,7 +64,7 @@ public class ExprVectorNormalize extends SimpleExpression<Vector> {
 		if (vector == null)
 			return null;
 		vector = vector.clone();
-		if (!vector.isNormalized())
+		if (!VectorMath.isZero(vector) && !vector.isNormalized())
 			vector.normalize();
 		return CollectionUtils.array(vector);
 	}

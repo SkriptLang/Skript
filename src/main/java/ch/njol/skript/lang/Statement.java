@@ -18,14 +18,14 @@
  */
 package ch.njol.skript.lang;
 
-import java.util.Iterator;
-
-import org.eclipse.jdt.annotation.Nullable;
-
 import ch.njol.skript.Skript;
 import ch.njol.skript.lang.function.EffFunctionCall;
 import ch.njol.skript.log.ParseLogHandler;
 import ch.njol.skript.log.SkriptLogger;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.Iterator;
+import java.util.List;
 
 /**
  * Supertype of conditions and effects
@@ -35,29 +35,34 @@ import ch.njol.skript.log.SkriptLogger;
  */
 public abstract class Statement extends TriggerItem implements SyntaxElement {
 
-	@SuppressWarnings({"rawtypes", "unchecked", "null"})
+
+	public static @Nullable Statement parse(String input, String defaultError) {
+		return parse(input, null, defaultError);
+	}
+
 	@Nullable
-	public static Statement parse(String s, String defaultError) {
+	@SuppressWarnings({"rawtypes", "unchecked"})
+	public static Statement parse(String input, @Nullable List<TriggerItem> items, String defaultError) {
 		ParseLogHandler log = SkriptLogger.startParseLogHandler();
 		try {
-			EffFunctionCall f = EffFunctionCall.parse(s);
-			if (f != null) {
+			EffFunctionCall functionCall = EffFunctionCall.parse(input);
+			if (functionCall != null) {
 				log.printLog();
-				return f;
+				return functionCall;
 			} else if (log.hasError()) {
 				log.printError();
 				return null;
 			}
 			log.clear();
 
-			EffectSection section = EffectSection.parse(s, null, null, null);
+			EffectSection section = EffectSection.parse(input, null, null, items);
 			if (section != null) {
 				log.printLog();
 				return new EffectSectionEffect(section);
 			}
 			log.clear();
 
-			Statement statement = (Statement) SkriptParser.parse(s, (Iterator) Skript.getStatements().iterator(), defaultError);
+			Statement statement = (Statement) SkriptParser.parse(input, (Iterator) Skript.getStatements().iterator(), defaultError);
 			if (statement != null) {
 				log.printLog();
 				return statement;

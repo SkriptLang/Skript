@@ -46,7 +46,7 @@ import ch.njol.util.coll.CollectionUtils;
 public class ExprLocationVectorOffset extends SimpleExpression<Location> {
 
 	static {
-		Skript.registerExpression(ExprLocationVectorOffset.class, Location.class, ExpressionType.SIMPLE,
+		Skript.registerExpression(ExprLocationVectorOffset.class, Location.class, ExpressionType.COMBINED,
 				"%location% offset by [[the] vectors] %vectors%",
 				"%location%[ ]~[~][ ]%vectors%");
 	}

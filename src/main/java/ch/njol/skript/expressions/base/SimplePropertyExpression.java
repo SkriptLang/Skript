@@ -38,18 +38,18 @@ public abstract class SimplePropertyExpression<F, T> extends PropertyExpression<
 
 	@Override
 	@SuppressWarnings("unchecked")
-	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		if (LiteralUtils.hasUnparsedLiteral(exprs[0])) {
-			setExpr(LiteralUtils.defendExpression(exprs[0]));
+	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
+		if (LiteralUtils.hasUnparsedLiteral(expressions[0])) {
+			setExpr(LiteralUtils.defendExpression(expressions[0]));
 			return LiteralUtils.canInitSafely(getExpr());
 		}
-		setExpr((Expression<? extends F>) exprs[0]);
+		setExpr((Expression<? extends F>) expressions[0]);
 		return true;
 	}
 
 	@Override
 	@Nullable
-	public abstract T convert(F f);
+	public abstract T convert(F from);
 
 	@Override
 	protected T[] get(Event event, F[] source) {

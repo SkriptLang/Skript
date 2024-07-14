@@ -40,7 +40,7 @@ import org.eclipse.jdt.annotation.Nullable;
 		"victim has line of sight to attacker",
 		"player has no line of sight to location 100 blocks in front of player"
 })
-@Since("INSERT VERSION")
+@Since("2.8.0")
 public class CondHasLineOfSight extends Condition {
 
 	static {

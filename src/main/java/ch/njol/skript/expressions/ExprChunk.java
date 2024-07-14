@@ -44,7 +44,7 @@ import org.jetbrains.annotations.Nullable;
 	"add the chunk at the player to {protected chunks::*}",
 	"set {_chunks::*} to the loaded chunks of the player's world"
 })
-@Since("2.0, INSERT VERSION (loaded chunks)")
+@Since("2.0, 2.8.0 (loaded chunks)")
 public class ExprChunk extends SimpleExpression<Chunk> {
 	
 	static {

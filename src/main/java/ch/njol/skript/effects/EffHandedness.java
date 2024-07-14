@@ -41,7 +41,7 @@ import org.eclipse.jdt.annotation.Nullable;
 	"",
 	"make all zombies in radius 10 of player right handed"
 })
-@Since("INSERT VERSION")
+@Since("2.8.0")
 @RequiredPlugins("Paper 1.17.1+")
 public class EffHandedness extends Effect {
 
