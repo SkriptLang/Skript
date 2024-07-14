@@ -98,8 +98,8 @@ public class ExprEntities extends SimpleExpression<Entity> {
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		types = (Expression<? extends EntityData<?>>) exprs[0];
 		if (matchedPattern % 2 == 0) {
-			for (EntityData<?> d : ((Literal<EntityData<?>>) types).getAll()) {
-				if (d.isPlural().isFalse() || d.isPlural().isUnknown() && !StringUtils.startsWithIgnoreCase(parseResult.expr, "all"))
+			for (EntityData<?> entityType : ((Literal<EntityData<?>>) types).getAll()) {
+				if (entityType.isPlural().isFalse() || entityType.isPlural().isUnknown() && !StringUtils.startsWithIgnoreCase(parseResult.expr, "all"))
 					return false;
 			}
 		}
@@ -129,11 +129,11 @@ public class ExprEntities extends SimpleExpression<Entity> {
 		if (!(types instanceof Literal<?>))
 			return false;
 		try (LogHandler ignored = new BlockingLogHandler().start()) {
-			EntityData<?> d = EntityData.parseWithoutIndefiniteArticle(s);
-			if (d != null) {
-				for (EntityData<?> t : ((Literal<EntityData<?>>) types).getAll()) {
-					assert t != null;
-					if (!d.isSupertypeOf(t))
+			EntityData<?> entityData = EntityData.parseWithoutIndefiniteArticle(s);
+			if (entityData != null) {
+				for (EntityData<?> entityType : ((Literal<EntityData<?>>) types).getAll()) {
+					assert entityType != null;
+					if (!entityData.isSupertypeOf(entityType))
 						return false;
 				}
 				return true;
@@ -145,21 +145,21 @@ public class ExprEntities extends SimpleExpression<Entity> {
 	@Override
 	@Nullable
 	@SuppressWarnings("null")
-	protected Entity[] get(Event e) {
+	protected Entity[] get(Event event) {
 		if (isUsingRadius || isUsingCuboid) {
-			Iterator<? extends Entity> iter = iterator(e);
+			Iterator<? extends Entity> iter = iterator(event);
 			if (iter == null || !iter.hasNext())
 				return null;
 
-			List<Entity> l = new ArrayList<>();
+			List<Entity> list = new ArrayList<>();
 			while (iter.hasNext())
-				l.add(iter.next());
-			return l.toArray((Entity[]) Array.newInstance(returnType, l.size()));
+				list.add(iter.next());
+			return list.toArray((Entity[]) Array.newInstance(returnType, list.size()));
 		} else {
 			if (chunks != null) {
-				return EntityData.getAll(types.getArray(e), returnType, chunks.getArray(e));
+				return EntityData.getAll(types.getArray(event), returnType, chunks.getArray(event));
 			} else {
-				return EntityData.getAll(types.getAll(e), returnType, worlds != null ? worlds.getArray(e) : null);
+				return EntityData.getAll(types.getAll(event), returnType, worlds != null ? worlds.getArray(event) : null);
 			}
 		}
 	}
@@ -167,52 +167,52 @@ public class ExprEntities extends SimpleExpression<Entity> {
 	@Override
 	@Nullable
 	@SuppressWarnings("null")
-	public Iterator<? extends Entity> iterator(Event e) {
+	public Iterator<? extends Entity> iterator(Event event) {
 		if (isUsingRadius) {
 			assert center != null;
-			Location l = center.getSingle(e);
-			if (l == null)
+			Location location = center.getSingle(event);
+			if (location == null)
 				return null;
 			assert radius != null;
-			Number n = radius.getSingle(e);
-			if (n == null)
+			Number number = radius.getSingle(event);
+			if (number == null)
 				return null;
-			double d = n.doubleValue();
+			double rad = number.doubleValue();
 
-			if (l.getWorld() == null) // safety
+			if (location.getWorld() == null) // safety
 				return null;
 
-			Collection<Entity> es = l.getWorld().getNearbyEntities(l, d, d, d);
-			double radiusSquared = d * d * Skript.EPSILON_MULT;
-			EntityData<?>[] ts = types.getAll(e);
-			return new CheckedIterator<>(es.iterator(), e1 -> {
-					if (e1 == null || e1.getLocation().distanceSquared(l) > radiusSquared)
+			Collection<Entity> nearbyEntities = location.getWorld().getNearbyEntities(location, rad, rad, rad);
+			double radiusSquared = rad * rad * Skript.EPSILON_MULT;
+			EntityData<?>[] entityTypes = types.getAll(event);
+			return new CheckedIterator<>(nearbyEntities.iterator(), entity -> {
+					if (entity == null || entity.getLocation().distanceSquared(location) > radiusSquared)
 						return false;
-					for (EntityData<?> t : ts) {
-						if (t.isInstance(e1))
+					for (EntityData<?> entityType : entityTypes) {
+						if (entityType.isInstance(entity))
 							return true;
 					}
 					return false;
 				});
 		} else if (isUsingCuboid) {
 			assert from != null;
-			Location corner1 = from.getSingle(e);
+			Location corner1 = from.getSingle(event);
 			if (corner1 == null) {
 				return null;
 			}
 			assert to != null;
-			Location corner2 = to.getSingle(e);
+			Location corner2 = to.getSingle(event);
 			if (corner2 == null) {
 				return null;
 			}
-			EntityData<?>[] ts = types.getAll(e);
+			EntityData<?>[] entityTypes = types.getAll(event);
 			Collection<Entity> entities = corner1.getWorld().getNearbyEntities(BoundingBox.of(corner1, corner2));
-			return new CheckedIterator<>(entities.iterator(), e1 -> {
-				if (e1 == null) {
+			return new CheckedIterator<>(entities.iterator(), entity -> {
+				if (entity == null) {
 					return false;
 				}
-				for (EntityData<?> t : ts) {
-					if (t.isInstance(e1)) {
+				for (EntityData<?> entityType : entityTypes) {
+					if (entityType.isInstance(entity)) {
 						return true;
 					}
 				}
@@ -220,9 +220,9 @@ public class ExprEntities extends SimpleExpression<Entity> {
 			});
 		} else {
 			if (chunks == null || returnType == Player.class)
-				return super.iterator(e);
+				return super.iterator(event);
 
-			return Arrays.stream(EntityData.getAll(types.getArray(e), returnType, chunks.getArray(e))).iterator();
+			return Arrays.stream(EntityData.getAll(types.getArray(event), returnType, chunks.getArray(event))).iterator();
 		}
 	}
 
