@@ -197,24 +197,20 @@ public class ExprEntities extends SimpleExpression<Entity> {
 		} else if (isUsingCuboid) {
 			assert from != null;
 			Location corner1 = from.getSingle(event);
-			if (corner1 == null) {
+			if (corner1 == null)
 				return null;
-			}
 			assert to != null;
 			Location corner2 = to.getSingle(event);
-			if (corner2 == null) {
+			if (corner2 == null)
 				return null;
-			}
 			EntityData<?>[] entityTypes = types.getAll(event);
 			Collection<Entity> entities = corner1.getWorld().getNearbyEntities(BoundingBox.of(corner1, corner2));
 			return new CheckedIterator<>(entities.iterator(), entity -> {
-				if (entity == null) {
+				if (entity == null)
 					return false;
-				}
 				for (EntityData<?> entityType : entityTypes) {
-					if (entityType.isInstance(entity)) {
+					if (entityType.isInstance(entity))
 						return true;
-					}
 				}
 				return false;
 			});
