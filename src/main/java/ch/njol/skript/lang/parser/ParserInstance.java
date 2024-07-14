@@ -133,15 +133,15 @@ public final class ParserInstance implements Experimented {
 
 		// "Script" events
 		if (previous != null) { // the 'previous' script is becoming inactive
-			ScriptLoader.getEventRegister().getEvents(ScriptActivityChangeEvent.class)
+			ScriptLoader.eventRegistry().events(ScriptActivityChangeEvent.class)
 					.forEach(event -> event.onActivityChange(this, previous, false, currentScript));
-			previous.getEventRegister().getEvents(ScriptActivityChangeEvent.class)
+			previous.eventRegistry().events(ScriptActivityChangeEvent.class)
 					.forEach(event -> event.onActivityChange(this, previous, false, currentScript));
 		}
 		if (currentScript != null) { // the 'currentScript' is becoming active
-			ScriptLoader.getEventRegister().getEvents(ScriptActivityChangeEvent.class)
+			ScriptLoader.eventRegistry().events(ScriptActivityChangeEvent.class)
 					.forEach(event -> event.onActivityChange(this, currentScript, true, previous));
-			currentScript.getEventRegister().getEvents(ScriptActivityChangeEvent.class)
+			currentScript.eventRegistry().events(ScriptActivityChangeEvent.class)
 					.forEach(event -> event.onActivityChange(this, currentScript, true, previous));
 		}
 	}

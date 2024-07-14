@@ -23,7 +23,7 @@ import org.eclipse.jdt.annotation.Nullable;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Unmodifiable;
 import org.skriptlang.skript.lang.script.event.ScriptEvent;
-import org.skriptlang.skript.util.EventRegister;
+import org.skriptlang.skript.util.EventRegistry;
 import org.skriptlang.skript.lang.structure.Structure;
 
 import java.util.Collections;
@@ -161,13 +161,13 @@ public final class Script {
 
 	// Script Events
 
-	private final EventRegister<ScriptEvent> eventRegister = new EventRegister<>();
+	private final EventRegistry<ScriptEvent> eventRegistry = new EventRegistry<>();
 
 	/**
-	 * @return An EventRegister for this Script's events.
+	 * @return An EventRegistry for this Script's events.
 	 */
-	public EventRegister<ScriptEvent> getEventRegister() {
-		return eventRegister;
+	public EventRegistry<ScriptEvent> eventRegistry() {
+		return eventRegistry;
 	}
 
 }

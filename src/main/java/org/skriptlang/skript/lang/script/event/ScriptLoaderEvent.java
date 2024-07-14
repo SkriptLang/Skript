@@ -5,6 +5,6 @@ import org.skriptlang.skript.lang.script.Script;
 
 /**
  * A ScriptLoaderEvent is used for listening to {@link Script}-related events on a global scale.
- * @see ScriptLoader#getEventRegister()
+ * @see ScriptLoader#eventRegistry()
  */
 public interface ScriptLoaderEvent { }

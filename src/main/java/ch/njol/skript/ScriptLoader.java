@@ -51,7 +51,7 @@ import org.skriptlang.skript.lang.script.event.PreScriptInitEvent;
 import org.skriptlang.skript.lang.script.event.ScriptInitEvent;
 import org.skriptlang.skript.lang.script.event.ScriptLoadEvent;
 import org.skriptlang.skript.lang.script.event.ScriptUnloadEvent;
-import org.skriptlang.skript.util.EventRegister;
+import org.skriptlang.skript.util.EventRegistry;
 import org.skriptlang.skript.lang.script.Script;
 import org.skriptlang.skript.lang.script.event.ScriptLoaderEvent;
 import org.skriptlang.skript.lang.structure.Structure;
@@ -494,7 +494,7 @@ public class ScriptLoader {
 		if (configs.isEmpty()) // Nothing to load
 			return CompletableFuture.completedFuture(new ScriptInfo());
 
-		getEventRegister().getEvents(PreScriptInitEvent.class)
+		eventRegistry().events(PreScriptInitEvent.class)
 				.forEach(event -> event.onPreInit(configs));
 		//noinspection deprecation - we still need to call it
 		Bukkit.getPluginManager().callEvent(new PreScriptLoadEvent(configs));
@@ -621,9 +621,9 @@ public class ScriptLoader {
 						parser.setActive(script);
 						parser.setNode(script.getConfig().getMainNode());
 
-						ScriptLoader.getEventRegister().getEvents(ScriptLoadEvent.class)
+						ScriptLoader.eventRegistry().events(ScriptLoadEvent.class)
 							.forEach(event -> event.onLoad(parser, script));
-						script.getEventRegister().getEvents(ScriptLoadEvent.class)
+						script.eventRegistry().events(ScriptLoadEvent.class)
 							.forEach(event -> event.onLoad(parser, script));
 					});
 					parser.setInactive();
@@ -727,7 +727,7 @@ public class ScriptLoader {
 			// Add to loaded files to use for future reloads
 			loadedScripts.add(script);
 
-			ScriptLoader.getEventRegister().getEvents(ScriptInitEvent.class)
+			ScriptLoader.eventRegistry().events(ScriptInitEvent.class)
 					.forEach(event -> event.onInit(script));
 
 			return null;
@@ -876,9 +876,9 @@ public class ScriptLoader {
 			parser.setActive(script);
 
 			// trigger unload event before beginning
-			getEventRegister().getEvents(ScriptUnloadEvent.class)
+			eventRegistry().events(ScriptUnloadEvent.class)
 					.forEach(event -> event.onUnload(parser, script));
-			script.getEventRegister().getEvents(ScriptUnloadEvent.class)
+			script.eventRegistry().events(ScriptUnloadEvent.class)
 					.forEach(event -> event.onUnload(parser, script));
 
 			for (Structure structure : script.getStructures())
@@ -1082,13 +1082,13 @@ public class ScriptLoader {
 
 	// ScriptLoader Events
 
-	private static final EventRegister<ScriptLoaderEvent> eventRegister = new EventRegister<>();
+	private static final EventRegistry<ScriptLoaderEvent> eventRegistry = new EventRegistry<>();
 
 	/**
-	 * @return An EventRegister for the ScriptLoader's events.
+	 * @return An EventRegistry for the ScriptLoader's events.
 	 */
-	public static EventRegister<ScriptLoaderEvent> getEventRegister() {
-		return eventRegister;
+	public static EventRegistry<ScriptLoaderEvent> eventRegistry() {
+		return eventRegistry;
 	}
 
 	/*
