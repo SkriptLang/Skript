@@ -62,8 +62,7 @@ public class EvtPiglinBarterTest extends SkriptJUnitTest {
 			Bukkit.getPluginManager().callEvent(
 				new org.bukkit.event.entity.PiglinBarterEvent(
 					(org.bukkit.entity.Piglin) piglin, input, outcome));
-		} catch (NoClassDefFoundError ignored) {
-		}
+		} catch (NoClassDefFoundError ignored) { }
 	}
 
 	@After
@@ -73,4 +72,5 @@ public class EvtPiglinBarterTest extends SkriptJUnitTest {
 
 		piglin.remove();
 	}
+
 }
