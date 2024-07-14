@@ -11,8 +11,7 @@ import java.util.Set;
 
 /**
  * Called when a {@link Script} is created and preloaded in the {@link ScriptLoader}.
- * The initializing script will contain {@link Structure}s that are not fully loaded.
- *
+ * The initializing script may contain {@link Structure}s that are not fully loaded.
  * @see ScriptLoader#loadScripts(File, OpenCloseable)
  * @see ScriptLoader#loadScripts(Set, OpenCloseable)
  */
@@ -21,7 +20,6 @@ public interface ScriptInitEvent extends ScriptLoaderEvent {
 
 	/**
 	 * The method that is called when this event triggers.
-	 *
 	 * @param script The Script being initialized.
 	 */
 	void onInit(Script script);

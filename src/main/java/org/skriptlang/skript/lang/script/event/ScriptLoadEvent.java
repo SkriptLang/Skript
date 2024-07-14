@@ -12,7 +12,6 @@ import java.util.Set;
 /**
  * Called when a {@link Script} is loaded in the {@link ScriptLoader}.
  * This event will trigger <b>after</b> the script is completely loaded ({@link Structure} initialization finished).
- *
  * @see ScriptLoader#loadScripts(File, OpenCloseable)
  * @see ScriptLoader#loadScripts(Set, OpenCloseable)
  */
@@ -21,7 +20,6 @@ public interface ScriptLoadEvent extends ScriptLoaderEvent, ScriptEvent {
 
 	/**
 	 * The method that is called when this event triggers.
-	 *
 	 * @param parser The ParserInstance handling the loading of <code>script</code>.
 	 * @param script The Script being loaded.
 	 */
