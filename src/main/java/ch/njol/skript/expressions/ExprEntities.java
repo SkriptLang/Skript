@@ -34,12 +34,15 @@ import ch.njol.skript.log.LogHandler;
 import ch.njol.util.Kleenean;
 import ch.njol.util.StringUtils;
 import ch.njol.util.coll.iterator.CheckedIterator;
+import net.kyori.adventure.text.Component;
+import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
+import org.bukkit.util.BoundingBox;
 import org.eclipse.jdt.annotation.Nullable;
 
 import java.lang.reflect.Array;
@@ -50,14 +53,15 @@ import java.util.Iterator;
 import java.util.List;
 
 @Name("Entities")
-@Description("All entities in all worlds, in a specific world, in a chunk or in a radius around a certain location, " +
+@Description("All entities in all worlds, in a specific world, in a chunk, in a radius around a certain location or in a cuboid. " +
 		"e.g. <code>all players</code>, <code>all creepers in the player's world</code>, or <code>players in radius 100 of the player</code>.")
 @Examples({"kill all creepers in the player's world",
 		"send \"Psst!\" to all players within 100 meters of the player",
 		"give a diamond to all ops",
 		"heal all tamed wolves in radius 2000 around {town center}",
-		"delete all monsters in chunk at player"})
-@Since("1.2.1, 2.5 (chunks)")
+		"delete all monsters in chunk at player",
+		"size of all players within {_corner::1} and {_corner::2}}"})
+@Since("1.2.1, 2.5 (chunks), INSERT VERSION (cuboids)")
 public class ExprEntities extends SimpleExpression<Entity> {
 
 	static {
@@ -65,7 +69,9 @@ public class ExprEntities extends SimpleExpression<Entity> {
 				"[(all [[of] the]|the)] %*entitydatas% [(in|of) ([world[s]] %-worlds%|1¦%-chunks%)]",
 				"[(all [[of] the]|the)] entities of type[s] %entitydatas% [(in|of) ([world[s]] %-worlds%|1¦%-chunks%)]",
 				"[(all [[of] the]|the)] %*entitydatas% (within|[with]in radius) %number% [(block[s]|met(er|re)[s])] (of|around) %location%",
-				"[(all [[of] the]|the)] entities of type[s] %entitydatas% in radius %number% (of|around) %location%");
+				"[(all [[of] the]|the)] entities of type[s] %entitydatas% in radius %number% (of|around) %location%",
+				"[(all [[of] the]|the)] %*entitydatas% within %location% and %location%",
+				"[(all [[of] the]|the)] entities of type[s] %entitydatas% within %location% and %location%");
 	}
 
 	@SuppressWarnings("null")
@@ -79,9 +85,14 @@ public class ExprEntities extends SimpleExpression<Entity> {
 	private Expression<Number> radius;
 	@Nullable
 	private Expression<Location> center;
+	@Nullable
+	private Expression<Location> from;
+	@Nullable
+	private Expression<Location> to;
 
 	private Class<? extends Entity> returnType = Entity.class;
 	private boolean isUsingRadius;
+	private boolean isUsingCuboid;
 
 	@Override
 	@SuppressWarnings("unchecked")
@@ -93,10 +104,14 @@ public class ExprEntities extends SimpleExpression<Entity> {
 					return false;
 			}
 		}
-		isUsingRadius = matchedPattern >= 2;
+		isUsingRadius = matchedPattern == 2 || matchedPattern == 3;
+		isUsingCuboid = matchedPattern >= 4;
 		if (isUsingRadius) {
-			radius = (Expression<Number>) exprs[exprs.length - 2];
-			center = (Expression<Location>) exprs[exprs.length - 1];
+			radius = (Expression<Number>) exprs[1];
+			center = (Expression<Location>) exprs[2];
+		} else if (isUsingCuboid) {
+			from = (Expression<Location>) exprs[1];
+			to = (Expression<Location>) exprs[2];
 		} else {
 			if (parseResult.mark == 1) {
 				chunks = (Expression<Chunk>) exprs[2];
@@ -132,7 +147,7 @@ public class ExprEntities extends SimpleExpression<Entity> {
 	@Nullable
 	@SuppressWarnings("null")
 	protected Entity[] get(Event e) {
-		if (isUsingRadius) {
+		if (isUsingRadius || isUsingCuboid) {
 			Iterator<? extends Entity> iter = iterator(e);
 			if (iter == null || !iter.hasNext())
 				return null;
@@ -180,6 +195,30 @@ public class ExprEntities extends SimpleExpression<Entity> {
 					}
 					return false;
 				});
+		} else if (isUsingCuboid) {
+			assert from != null;
+			Location corner1 = from.getSingle(e);
+			if (corner1 == null) {
+				return null;
+			}
+			assert to != null;
+			Location corner2 = to.getSingle(e);
+			if (corner2 == null) {
+				return null;
+			}
+			EntityData<?>[] ts = types.getAll(e);
+			Collection<Entity> entities = corner1.getWorld().getNearbyEntities(BoundingBox.of(corner1, corner2));
+			return new CheckedIterator<>(entities.iterator(), e1 -> {
+				if (e1 == null) {
+					return false;
+				}
+				for (EntityData<?> t : ts) {
+					if (t.isInstance(e1)) {
+						return true;
+					}
+				}
+				return false;
+			});
 		} else {
 			if (chunks == null || returnType == Player.class)
 				return super.iterator(e);
@@ -202,7 +241,8 @@ public class ExprEntities extends SimpleExpression<Entity> {
 	@SuppressWarnings("null")
 	public String toString(@Nullable Event e, boolean debug) {
 		return "all entities of type " + types.toString(e, debug) + (worlds != null ? " in " + worlds.toString(e, debug) :
-				radius != null && center != null ? " in radius " + radius.toString(e, debug) + " around " + center.toString(e, debug) : "");
+				radius != null && center != null ? " in radius " + radius.toString(e, debug) + " around " + center.toString(e, debug) : "")
+			+ (from != null && to != null ? " within " + from.toString(e, debug) + " and " + to.toString(e, debug) : "");
 	}
 
 }

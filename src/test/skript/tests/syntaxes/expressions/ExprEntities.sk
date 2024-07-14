@@ -1,11 +1,38 @@
 test "entities in chunk":
 	spawn 10 sheep at spawn of world "world"
+
+	set {_radius center} to location(-24, -60, -24)
+	spawn 10 sheep at {_radius center}
+
+	set {_corner::1} to location(20, -62, 20)
+	set {_corner::2} to location(28, -58, 28)
+	spawn 10 sheep at location(24, -60, 24)
+
 	wait 1 tick
-	assert size of all entities in chunk at spawn of world "world" >= 10 with "Size of all entities in spawn chunk is not > 10: %size of all entities in chunk at spawn of world "world"%"
+
+	assert size of all entities in chunk at spawn of world "world" >= 10 with "Size of all entities in spawn chunk is not >= 10"
+	assert size of all entities in radius 3 of {_radius center} >= 10 with "Size of all entities in radius 3 of spawn is not >= 10"
+	assert size of all entities within {_corner::1} and {_corner::2} >= 10 with "Size of all entities within cuboid is not >= 10"
+
 
 	loop all entities in chunk at spawn of world "world":
-		add loop-entity to {_e::*}
-	assert size of {_e::*} >= 10 with "Size of all entities in spawn chunk is not > 10 (iterating): %size of {_e::*}%"
+		add loop-entity to {_chunk::*}
+	assert size of {_chunk::*} >= 10 with "Size of all entities in spawn chunk is not >= 10 (iterating)"
+
+	loop all sheep in radius 3 of {_radius center}:
+		add loop-entity to {_radius::*}
+	assert size of {_radius::*} >= 10 with "Size of all sheep in radius 3 of spawn is not >= 10 (iterating)"
+
+	loop all sheep within {_corner::1} and {_corner::2}:
+		add loop-entity to {_cuboid::*}
+	assert size of {_cuboid::*} >= 10 with "Size of all sheep within cuboid is not >= 10 (iterating)"
+
 
 	delete all entities in chunk at spawn of world "world"
-	assert size of all entities in chunk at spawn of world "world" = 0 with "Size of all entities in spawn chunk != 0: %size of all entities in chunk at spawn of world "world"%"
+	assert size of all entities in chunk at spawn of world "world" = 0 with "Size of all entities in spawn chunk != 0"
+
+	delete all entities in radius 3 of {_cuboid spawn}
+	assert size of all entities in radius 3 of {_cuboid spawn} = 0 with "Size of all entities in radius 3 of spawn != 0"
+
+	delete all entities within {_corner::1} and {_corner::2}
+	assert size of all entities within {_corner::1} and {_corner::2} = 0 with "Size of all entities in cuboid != 0"
