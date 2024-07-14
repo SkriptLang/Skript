@@ -610,19 +610,16 @@ public class ScriptLoader {
 							loadingInfo.structures.remove(structure);
 							return true;
 						}
-
 						return false;
 					});
 					parser.setInactive();
 
 					// trigger events
-					pairs.forEach(pair -> {
-						Script script = pair.getFirst().getFirst();
-						Structure structure = pair.getSecond();
+					scripts.forEach(loadingInfo -> {
+						Script script = loadingInfo.script;
 
 						parser.setActive(script);
-						parser.setCurrentStructure(structure);
-						parser.setNode(structure.getEntryContainer().getSource());
+						parser.setNode(script.getConfig().getMainNode());
 
 						ScriptLoader.getEventRegister().getEvents(ScriptLoadEvent.class)
 							.forEach(event -> event.onLoad(parser, script));
