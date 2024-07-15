@@ -18,10 +18,10 @@ test "Brushable Item" when running minecraft "1.20":
 	set {_block} to block at spawn of world "world"
 
 	set {_block}'s brushable item to gold nugget
-	assert brushable item of {_block} is gold nugget with "Failed to set brushable item to gold nugget"
+	assert {_block}'s brushable item is gold nugget with "Failed to set brushable item to gold nugget"
 
 	set {_block}'s brushable item to diamond
-	assert brushable item of {_block} is diamond with "Failed to set brushable item to diamond"
+	assert {_block}'s brushable item is diamond with "Failed to set brushable item to diamond"
 
 	set {_block}'s brushable item to air
-	assert brushable item of {_block} is air with "Failed to clear brushable item"
+	assert {_block}'s brushable item is air with "Failed to clear brushable item"
