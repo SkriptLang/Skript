@@ -1,0 +1,46 @@
+test "comments":
+	parse:
+		set {_a} to {_b} # test
+	assert last parse logs is not set with "skript should be able to handle inline comments but did not"
+
+
+	parse:
+		assert "a" is "a" with "wrong number of hashtags"
+		assert "#a" is join "#", and "a" with "wrong number of hashtags"
+		assert "##a" is join "#", "#", and "a" with "wrong number of hashtags"
+		assert "###a" is join "#", "#", "#", and "a" with "wrong number of hashtags"
+	assert last parse logs is not set with "skript should be able to handle strings any number of hashtags but did not"
+
+
+	parse:
+		assert "a%"#"%" is join "a", and "#" with "wrong number of hashtags"
+		assert "#a%"#}"%" is join "#", "a", and "#}" with "wrong number of hashtags"
+		assert "##a%"#"%" is join "#", "#", "a", and "#" with "wrong number of hashtags"
+		assert "#{##a%"#"%" is join "#{", "#", "#", "a", and "#" with "wrong number of hashtags"
+	assert last parse logs is not set with "skript should be able to handle complex strings any number of hashtags but did not"
+
+
+	parse:
+		set {_a} to "<#abcdef>test"
+		set {_b} to "<##abcdef>test"
+		assert uncoloured {_a} is "test" with "failed to parse single hashtag colour code"
+		assert uncoloured {_b} is "test" with "failed to parse double hashtag colour code"
+	assert last parse logs is not set with "skript should be able to handle hex colour codes but did not"
+
+	parse:
+		set {_a} to "###SH#JABJ#BJ#JB#K#BH#G#J##J#HJ%%KJB#JKK%%""%%""%%""%%#""##%%""#""%%##""#%""%##%"#"""%#"#!!""#""#L@$L@:@#L@K:L%@^$:"#^#:^J$%:K^J%&LK:#::&&^^^%%test
+	assert last parse logs is not set with "skript should be able to handle very messy string but did not"
+
+
+	parse:
+		set {_a##} to "test"
+		set {##_b} to "test"
+		set {##_b::%"{}"%} to "test"
+		set {##_b::%"{}#"%} to "#test"
+		assert {##_b::%"{}#"%} is join "#" and "test" with "failed state machine check"
+	assert last parse logs is not set with "skript should be able to handle hashtags in variable names but did not"
+
+
+	parse:
+		set {##_b::%"{}"#%} to "#test"
+	assert last parse logs is set with "skript should not be able to handle hashtags in an expression in a variable name but did"

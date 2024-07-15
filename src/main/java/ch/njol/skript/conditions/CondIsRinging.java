@@ -33,7 +33,7 @@ import org.bukkit.block.BlockState;
 @Description("Checks to see if a bell is currently ringing. A bell typically rings for 50 game ticks.")
 @Examples("target block is ringing")
 @RequiredPlugins("Spigot 1.19.4+")
-@Since("INSERT VERSION")
+@Since("2.9.0")
 public class CondIsRinging extends PropertyCondition<Block> {
 
 	static {
