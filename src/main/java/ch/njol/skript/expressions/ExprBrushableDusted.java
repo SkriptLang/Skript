@@ -31,7 +31,7 @@ public class ExprBrushableDusted extends SimpleExpression<Number> {
 	static {
 		if (IS_RUNNING_120)
 			Skript.registerExpression(ExprBrushableDusted.class, Number.class, ExpressionType.SIMPLE,
-				"[the] [:max[imum]] dusted (value|number|stage) of %blocks%", // set the target block's dusted value to 2
+				"[the] [:max[imum]] dusted (value|number|stage) of %blocks%",
 				"%blocks%'[s] [:max[imum]] dusted (value|number|stage)");
 	}
 
