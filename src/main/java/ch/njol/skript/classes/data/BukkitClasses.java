@@ -949,7 +949,10 @@ public class BukkitClasses {
 						}
 						
 						final ItemStack i = t.getRandom();
-						assert i != null;
+						if (i == null) {
+							Skript.error("'" + s + "' cannot represent an item");
+							return null;
+						}
 						return i;
 					}
 					
