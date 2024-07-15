@@ -1,0 +1,9 @@
+test "detonate entity effect" when running minecraft "1.15.2":
+	spawn a creeper at location(0,100,0, world("world"))
+	assert last spawned entity exists with "creepers should not detonate when they are first spawned"
+	detonate the last spawned entity
+	assert last spawned entity exists with "creepers should instantly detonate when spawned"
+	launch a firework with effects ball large colored red, purple and white fading to light green and black at location(0,100,0, world("world"))
+	assert last launched firework exists with "fireworks should not detonate when they are first spawned"
+	detonate last launched firework
+	assert last launched firework exists with "fireworks should instantly detonate when spawned"
