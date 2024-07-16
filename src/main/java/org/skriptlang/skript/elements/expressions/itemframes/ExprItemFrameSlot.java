@@ -16,7 +16,7 @@
  *
  * Copyright Peter Güttinger, SkriptLang team and contributors
  */
-package ch.njol.skript.expressions;
+package org.skriptlang.skript.elements.expressions.itemframes;
 
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Item;
@@ -37,39 +37,44 @@ import ch.njol.skript.util.slot.Slot;
 import ch.njol.skript.util.slot.ThrowableProjectileSlot;
 
 @Name("Item of an Entity")
-@Description("An item associated with an entity. For dropped item entities, it gets, obviously, the item that was dropped. "
-		+ "For item frames, the item inside the frame is returned. For throwable projectiles (snowballs, enderpearls etc.),"
-		+ "it gets the displayed item. Other entities do not have items associated with them.")
-@Examples("")
+@Description({
+	"An item associated with an entity. For dropped item entities, it gets the item that was dropped.",
+	"For item frames, the item inside the frame is returned.",
+	"For throwable projectiles (snowballs, enderpearls etc.) it gets the displayed item.",
+	"Other entities do not have items associated with them."
+})
+@Examples("set item of target entity to stone")
 @Since("2.2-dev35, 2.2-dev36 (improved), 2.5.2 (throwable projectiles)")
 @RequiredPlugins("Minecraft 1.15.2+ (throwable projectiles)")
 public class ExprItemFrameSlot extends SimplePropertyExpression<Entity, Slot> {
-	
+
 	private static final boolean PROJECTILE_SUPPORT = Skript.classExists("org.bukkit.entity.ThrowableProjectile");
-	
+
 	static {
 		register(ExprItemFrameSlot.class, Slot.class, "item", "entities");
 	}
-	
+
 	@Override
 	@Nullable
-	public Slot convert(Entity e) {
-		if (e instanceof ItemFrame)
-			return new ItemFrameSlot((ItemFrame) e);
-		else if (e instanceof Item)
-			return new DroppedItemSlot((Item) e);
-		else if (PROJECTILE_SUPPORT && e instanceof ThrowableProjectile)
-			return new ThrowableProjectileSlot((ThrowableProjectile) e);
+	public Slot convert(Entity entity) {
+		if (entity instanceof ItemFrame) {
+			return new ItemFrameSlot((ItemFrame) entity);
+		} else if (entity instanceof Item) {
+			return new DroppedItemSlot((Item) entity);
+		} else if (PROJECTILE_SUPPORT && entity instanceof ThrowableProjectile) {
+			return new ThrowableProjectileSlot((ThrowableProjectile) entity);
+		}
 		return null; // Other entities don't have associated items
+	}
+
+	@Override
+	public Class<? extends Slot> getReturnType() {
+		return Slot.class;
 	}
 
 	@Override
 	protected String getPropertyName() {
 		return "item of entity";
 	}
-	
-	@Override
-	public Class<? extends Slot> getReturnType() {
-		return Slot.class;
-	}
+
 }
