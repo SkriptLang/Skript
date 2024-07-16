@@ -52,7 +52,7 @@ import java.util.Iterator;
 import java.util.List;
 
 @Name("Entities")
-@Description("All entities in all worlds, in a specific world, in a chunk, in a radius around a certain location or in a cuboid. " +
+@Description("All entities in all worlds, in a specific world, in a chunk, in a radius around a certain location or within two locations. " +
 		"e.g. <code>all players</code>, <code>all creepers in the player's world</code>, or <code>players in radius 100 of the player</code>.")
 @Examples({"kill all creepers in the player's world",
 		"send \"Psst!\" to all players within 100 meters of the player",
@@ -60,7 +60,7 @@ import java.util.List;
 		"heal all tamed wolves in radius 2000 around {town center}",
 		"delete all monsters in chunk at player",
 		"size of all players within {_corner::1} and {_corner::2}}"})
-@Since("1.2.1, 2.5 (chunks), INSERT VERSION (cuboids)")
+@Since("1.2.1, 2.5 (chunks), INSERT VERSION (within)")
 public class ExprEntities extends SimpleExpression<Entity> {
 
 	static {
