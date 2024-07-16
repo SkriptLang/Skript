@@ -18,6 +18,7 @@
  */
 package ch.njol.skript.lang;
 
+import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 import org.skriptlang.skript.lang.script.Script;
 
@@ -36,8 +37,8 @@ public class ReturnableTrigger<T> extends Trigger implements ReturnHandler<T> {
 	}
 
 	@Override
-	public void returnValues(T @Nullable [] values) {
-		handler.returnValues(values);
+	public void returnValues(Event event, Expression<? extends T> value) {
+		handler.returnValues(event, value);
 	}
 
 	@Override
