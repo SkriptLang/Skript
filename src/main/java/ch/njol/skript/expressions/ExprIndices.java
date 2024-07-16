@@ -109,7 +109,7 @@ public class ExprIndices extends SimpleExpression<String> {
 						: entry.getValue()
 				))
 				.sorted((a, b) -> ExprSortedList.compare(a.getValue(), b.getValue()) * direction)
-				.map(Entry::getKey)
+				.map(Pair::getKey)
 				.toArray(String[]::new);
 		}
 
