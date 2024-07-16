@@ -20,8 +20,15 @@ package ch.njol.skript.bukkitutil;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.ItemType;
+import ch.njol.skript.util.slot.Slot;
 import org.bukkit.Material;
+import org.bukkit.Tag;
 import org.bukkit.TreeType;
+import org.bukkit.block.Block;
+import org.bukkit.block.data.BlockData;
+import org.bukkit.block.data.type.Fence;
+import org.bukkit.block.data.type.Gate;
+import org.bukkit.block.data.type.Wall;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -35,6 +42,8 @@ import java.util.HashMap;
 public class ItemUtils {
 
 	public static final boolean HAS_MAX_DAMAGE = Skript.methodExists(Damageable.class, "getMaxDamage");
+	// Introduced in Paper 1.21
+	public static final boolean HAS_RESET = Skript.methodExists(Damageable.class, "resetDamage");
 
 	/**
 	 * Gets damage/durability of an item, or 0 if it does not have damage.
@@ -69,6 +78,25 @@ public class ItemUtils {
 	}
 
 	/**
+	 * Set the max damage/durability of an item
+	 *
+	 * @param itemStack ItemStack to set max damage
+	 * @param maxDamage Amount of new max damage
+	 */
+	public static void setMaxDamage(ItemStack itemStack, int maxDamage) {
+		ItemMeta meta = itemStack.getItemMeta();
+		if (HAS_MAX_DAMAGE && meta instanceof Damageable) {
+			Damageable damageable = (Damageable) meta;
+			if (HAS_RESET && maxDamage < 1) {
+				damageable.resetDamage();
+			} else {
+				damageable.setMaxDamage(Math.max(1, maxDamage));
+			}
+			itemStack.setItemMeta(damageable);
+		}
+	}
+
+	/**
 	 * Sets damage/durability of an item if possible.
 	 * @param itemStack Item to modify.
 	 * @param damage New damage. Note that on some Minecraft versions,
@@ -77,7 +105,7 @@ public class ItemUtils {
 	public static void setDamage(ItemStack itemStack, int damage) {
 		ItemMeta meta = itemStack.getItemMeta();
 		if (meta instanceof Damageable) {
-			((Damageable) meta).setDamage(damage);
+			((Damageable) meta).setDamage(Math.max(0, damage));
 			itemStack.setItemMeta(meta);
 		}
 	}
@@ -146,6 +174,24 @@ public class ItemUtils {
 	public static Material asItem(Material type) {
 		// Assume (naively) that all types are valid items
 		return type;
+	}
+
+	/**
+	 * Convert an ItemType/Slot to ItemStack
+	 * Will also accept an ItemStack that will return itself
+	 *
+	 * @param object Object to convert
+	 * @return ItemStack from slot/itemtype
+	 */
+	@Nullable
+	public static ItemStack asItemStack(Object object) {
+		if (object instanceof ItemType)
+			return ((ItemType) object).getRandom();
+		else if (object instanceof Slot)
+			return ((Slot) object).getItem();
+		else if (object instanceof ItemStack)
+			return ((ItemStack) object);
+		return null;
 	}
 	
 	/**
@@ -234,5 +280,56 @@ public class ItemUtils {
 	public static Material getTreeSapling(TreeType treeType) {
 		return TREE_TO_SAPLING_MAP.get(treeType);
 	}
-	
+
+
+	private static final boolean HAS_FENCE_TAGS = !Skript.isRunningMinecraft(1, 14);
+
+	/**
+	 * Whether the block is a fence or a wall.
+	 * @param block the block to check.
+	 * @return whether the block is a fence/wall.
+	 */
+	public static boolean isFence(Block block) {
+		// TODO: 1.13 only, so remove in 2.10
+		if (!HAS_FENCE_TAGS) {
+			BlockData data = block.getBlockData();
+			return data instanceof Fence
+				|| data instanceof Wall
+				|| data instanceof Gate;
+		}
+
+		Material type = block.getType();
+		return Tag.FENCES.isTagged(type)
+			|| Tag.FENCE_GATES.isTagged(type)
+			|| Tag.WALLS.isTagged(type);
+	}
+
+	/**
+	 * @param material The material to check
+	 * @return whether the material is a full glass block
+	 */
+	public static boolean isGlass(Material material) {
+		switch (material) {
+			case GLASS:
+			case RED_STAINED_GLASS:
+			case ORANGE_STAINED_GLASS:
+			case YELLOW_STAINED_GLASS:
+			case LIGHT_BLUE_STAINED_GLASS:
+			case BLUE_STAINED_GLASS:
+			case CYAN_STAINED_GLASS:
+			case LIME_STAINED_GLASS:
+			case GREEN_STAINED_GLASS:
+			case MAGENTA_STAINED_GLASS:
+			case PURPLE_STAINED_GLASS:
+			case PINK_STAINED_GLASS:
+			case WHITE_STAINED_GLASS:
+			case LIGHT_GRAY_STAINED_GLASS:
+			case GRAY_STAINED_GLASS:
+			case BLACK_STAINED_GLASS:
+			case BROWN_STAINED_GLASS:
+				return true;
+			default:
+				return false;
+		}
+	}
 }
