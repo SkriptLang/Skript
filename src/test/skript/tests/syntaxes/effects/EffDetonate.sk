@@ -1,4 +1,4 @@
-test "detonate entity effect" when running minecraft "1.15.2":
+test "detonate entity effect" when running minecraft "1.21":
 	spawn a creeper at location(0,100,0, world("world"))
 	assert last spawned entity exists with "creepers should not detonate when they are first spawned"
 	detonate the last spawned entity
