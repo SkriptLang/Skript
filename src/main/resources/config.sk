@@ -80,6 +80,16 @@ log effect commands: false
 # Whether Skript should log the usage of effect commands.
 # They will be logged as [INFORMATION] in this format: '<player> issued effect command: <command>'
 
+
+load default aliases: true
+# Whether Skript should use the default, Skript-provided aliases for items.
+# Disabling this will cause all aliases to be automatically generated. Some items, like potions,
+# will likely not have aliases in this case.
+#
+# You can provide your own aliases by making an 'aliases' folder in the Skript directory and putting the alias files there.
+# The default aliases folder is available with Skript releases on GitHub.
+
+
 player variable fix: true
 # Whether to enable the player variable fix if a player has rejoined and was reciding inside a variable.
 # Player objects inside a variable(list or normal) are not updated to the new player object
