@@ -41,7 +41,7 @@ import org.jetbrains.annotations.Nullable;
 	"Interpolation duration is the amount of time a display will take to interpolate, or shift, between its current state and a new state.",
 	"Interpolation delay is the amount of ticks before client-side interpolation will commence." +
 	"Setting to 0 seconds will make it immediate.",
-	"Resetting either value will return it to 0."
+	"Resetting either value will return that value to 0."
 })
 @Examples("set interpolation delay of the last spawned text display to 2 ticks")
 @RequiredPlugins("Spigot 1.19.4+")
@@ -69,7 +69,7 @@ public class ExprDisplayInterpolation extends SimplePropertyExpression<Display, 
 
 	public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
 		return switch (mode) {
-			case ADD, REMOVE, SET -> CollectionUtils.array(Timespan.class, Number.class);
+			case ADD, REMOVE, SET -> CollectionUtils.array(Timespan.class);
 			case RESET -> CollectionUtils.array();
 			case DELETE, REMOVE_ALL -> null;
 		};
@@ -79,18 +79,8 @@ public class ExprDisplayInterpolation extends SimplePropertyExpression<Display, 
 	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
 		Display[] displays = getExpr().getArray(event);
 		int ticks = 0;
-		if (delta != null) {
-			if (delta[0] instanceof Number) {
-				double number = ((Number) delta[0]).doubleValue();
-				if (Double.isInfinite(number) || Double.isNaN(number))
-					return;
-				ticks = (int) number;
-			} else if (delta[0] instanceof Timespan timespan) {
-				ticks = (int) timespan.getTicks(); // TODO: use getAs when fixed
-			} else {
-				assert false;
-			}
-		}
+		if (delta != null)
+			ticks = (int) ((Timespan) delta[0]).getTicks(); // TODO: use getAs when fixed
 
 		switch (mode) {
 			case REMOVE:

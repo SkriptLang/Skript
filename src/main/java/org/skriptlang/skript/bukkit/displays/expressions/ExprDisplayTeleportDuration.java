@@ -27,8 +27,9 @@ import ch.njol.skript.doc.RequiredPlugins;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import ch.njol.skript.util.Timespan;
+import ch.njol.skript.util.Timespan.TimePeriod;
+import ch.njol.util.Math2;
 import ch.njol.util.coll.CollectionUtils;
-
 import org.bukkit.entity.Display;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
@@ -42,8 +43,9 @@ import org.jetbrains.annotations.Nullable;
 })
 @Examples({
 	"set teleport delay of the last spawned text display to 2 ticks",
+	"teleport last spawned text display to {_location}",
 	"wait 2 ticks",
-	"message \"display entity has arived at location\""
+	"message \"display entity has arrived at %{_location}%\""
 })
 @RequiredPlugins("Spigot 1.20.4+")
 @Since("INSERT VERSION")
@@ -51,41 +53,39 @@ public class ExprDisplayTeleportDuration extends SimplePropertyExpression<Displa
 
 	static {
 		if (Skript.isRunningMinecraft(1, 20, 4))
-			registerDefault(ExprDisplayTeleportDuration.class, Timespan.class, "teleport duration[s]", "displays");
+			registerDefault(ExprDisplayTeleportDuration.class, Timespan.class, "teleport[ation] duration[s]", "displays");
 	}
 
 	@Override
 	@Nullable
 	public Timespan convert(Display display) {
-		return Timespan.fromTicks(display.getTeleportDuration());
+		return new Timespan(TimePeriod.TICK, display.getTeleportDuration());
 	}
 
-	@Nullable
-	public Class<?>[] acceptChange(ChangeMode mode) {
-		return CollectionUtils.array(Timespan.class, Number.class);
+	public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
+		return switch (mode) {
+			case ADD, REMOVE, SET -> CollectionUtils.array(Timespan.class);
+			case RESET -> CollectionUtils.array();
+			case DELETE, REMOVE_ALL -> null;
+		};
 	}
 
 	@Override
-	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
+	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
 		Display[] displays = getExpr().getArray(event);
-		int ticks = (int) (delta == null ? 0 : (delta[0] instanceof Number ? ((Number) delta[0]).intValue() : ((Timespan) delta[0]).getTicks()));
+		int ticks = (int) (delta == null ? 0 : ((Timespan) delta[0]).getTicks()); // TODO: use getAs once fixed
 		switch (mode) {
-			case REMOVE_ALL:
 			case REMOVE:
 				ticks = -ticks;
 			case ADD:
 				for (Display display : displays) {
-					int value = Math.max(0, Math.min(59, display.getTeleportDuration() + ticks));
+					int value = Math2.fit(0, display.getTeleportDuration() + ticks, 59);
 					display.setTeleportDuration(value);
 				}
 				break;
-			case DELETE:
 			case RESET:
-				for (Display display : displays)
-					display.setTeleportDuration(0);
-				break;
 			case SET:
-				ticks = Math.max(0, Math.min(59, ticks));
+				ticks = Math2.fit(0, ticks, 59);
 				for (Display display : displays)
 					display.setTeleportDuration(ticks);
 				break;
