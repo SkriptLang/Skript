@@ -19,8 +19,10 @@
 package ch.njol.skript.expressions;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.event.Event;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.Nullable;
 
@@ -61,10 +63,10 @@ public class ExprMaxStack extends SimplePropertyExpression<Object, Integer> {
 	@Nullable
 	public Integer convert(Object source) {
 		if (source instanceof ItemType) {
-			ItemType itemType = (ItemType) source;
-			if (itemType.getRandom() != null)
-				return itemType.getRandom().getMaxStackSize();
-			return itemType.getMaterial().getMaxStackSize();
+			Object itemType = ((ItemType) source).getRandomStackOrMaterial();
+			if (itemType instanceof ItemStack)
+				return ((ItemStack) itemType).getMaxStackSize();
+			return ((Material) itemType).getMaxStackSize();
 		} else if (source instanceof Inventory) {
 			return (((Inventory) source).getMaxStackSize());
 		} else {
