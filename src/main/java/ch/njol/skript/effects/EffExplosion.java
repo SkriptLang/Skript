@@ -48,10 +48,10 @@ public class EffExplosion extends Effect {
 
 	static {
 		Skript.registerEffect(EffExplosion.class,
-				"[(create|make)] [an] explosion (of|with) (force|strength|power) %number% [%directions% %locations%] [(1¦with fire)]",
-				"[(create|make)] [a] safe explosion (of|with) (force|strength|power) %number% [%directions% %locations%]",
-				"[(create|make)] [a] fake explosion [%directions% %locations%]",
-				"[(create|make)] [an] explosion[ ]effect [%directions% %locations%]");
+			"[(create|make)] [an] explosion (of|with) (force|strength|power) %number% [%directions% %locations%] [(1¦with fire)]",
+			"[(create|make)] [a] safe explosion (of|with) (force|strength|power) %number% [%directions% %locations%]",
+			"[(create|make)] [a] fake explosion [%directions% %locations%]",
+			"[(create|make)] [a[n]] [fake] explosion[ ]effect [%directions% %locations%]");
 	}
 
 	@Nullable
