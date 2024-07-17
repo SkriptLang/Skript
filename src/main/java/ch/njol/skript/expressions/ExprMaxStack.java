@@ -18,6 +18,12 @@
  */
 package ch.njol.skript.expressions;
 
+import org.bukkit.Bukkit;
+import org.bukkit.event.Event;
+import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.meta.ItemMeta;
+import org.jetbrains.annotations.Nullable;
+
 import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.classes.Changer.ChangeMode;
@@ -29,11 +35,6 @@ import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import ch.njol.util.Math2;
 import ch.njol.util.coll.CollectionUtils;
-import org.bukkit.Bukkit;
-import org.bukkit.event.Event;
-import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.meta.ItemMeta;
-import org.jetbrains.annotations.Nullable;
 
 @Name("Maximum Stack Size")
 @Description({
@@ -60,11 +61,14 @@ public class ExprMaxStack extends SimplePropertyExpression<Object, Integer> {
 	@Nullable
 	public Integer convert(Object source) {
 		if (source instanceof ItemType) {
-			return ((ItemType) source).getRandom().getMaxStackSize();
+			ItemType itemType = (ItemType) source;
+			if (itemType.getRandom() != null)
+				return itemType.getRandom().getMaxStackSize();
+			return itemType.getMaterial().getMaxStackSize();
 		} else if (source instanceof Inventory) {
 			return (((Inventory) source).getMaxStackSize());
 		} else {
-			// Invalid source -- return null
+			// Invalid source
 			return null;
 		}
 	}
