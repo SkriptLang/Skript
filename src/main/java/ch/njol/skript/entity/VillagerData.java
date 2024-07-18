@@ -18,6 +18,8 @@
  */
 package ch.njol.skript.entity;
 
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.MethodType;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -37,7 +39,7 @@ import ch.njol.util.coll.CollectionUtils;
  * @author Peter Güttinger
  */
 public class VillagerData extends EntityData<Villager> {
-	
+
 	/**
 	 * Professions can be for zombies also. These are the ones which are only
 	 * for villagers.
@@ -49,25 +51,34 @@ public class VillagerData extends EntityData<Villager> {
 		// NORMAL(-1), FARMER(0), LIBRARIAN(1), PRIEST(2), BLACKSMITH(3), BUTCHER(4), NITWIT(5);
 		
 		Variables.yggdrasil.registerSingleClass(Profession.class, "Villager.Profession");
-		
+
+		professions = new ArrayList<>();
 		if (Skript.isRunningMinecraft(1, 14)) {
 			EntityData.register(VillagerData.class, "villager", Villager.class, 0,
 					"villager", "normal", "armorer", "butcher", "cartographer",
 					"cleric", "farmer", "fisherman", "fletcher",
 					"leatherworker", "librarian", "mason", "nitwit",
 					"shepherd", "toolsmith", "weaponsmith");
-			professions = Arrays.asList(Profession.values());
+			professions = Arrays.asList(Profession.NONE, Profession.ARMORER, Profession.BUTCHER, Profession.CARTOGRAPHER,
+					Profession.CLERIC, Profession.FARMER, Profession.FISHERMAN, Profession.FLETCHER, Profession.LEATHERWORKER,
+					Profession.LIBRARIAN, Profession.MASON, Profession.NITWIT, Profession.SHEPHERD, Profession.TOOLSMITH,
+					Profession.WEAPONSMITH);
 		} else { // Post 1.10: Not all professions go for villagers
 			EntityData.register(VillagerData.class, "villager", Villager.class, 0,
 					"normal", "villager", "farmer", "librarian",
 					"priest", "blacksmith", "butcher", "nitwit");
 			// Normal is for zombie villagers, but needs to be here, since someone thought changing first element in enum was good idea :(
 
-			professions = new ArrayList<>();
-			for (Profession prof : Profession.values()) {
-				// We're better off doing stringfying the constants since these don't exist in 1.14
-				if (!prof.toString().equals("NORMAL") && !prof.toString().equals("HUSK"))
-					professions.add(prof);
+			try {
+				for (Profession prof : (Profession[]) MethodHandles.lookup().findStatic(Profession.class, "values", MethodType.methodType(Profession[].class)).invoke()) {
+					// We're better off doing stringfying the constants since these don't exist in 1.14
+					//noinspection RedundantCast - cast to prevent IncompatibleClassChangeError due to Enum->Interface change
+					String profString = ((Object) prof).toString();
+					if (!profString.equals("NORMAL") && !profString.equals("HUSK"))
+						professions.add(prof);
+				}
+			} catch (Throwable e) {
+				throw new RuntimeException("Failed to load legacy villager profession support", e);
 			}
 		}
 	}
@@ -116,7 +127,8 @@ public class VillagerData extends EntityData<Villager> {
 	
 	@Override
 	protected int hashCode_i() {
-		return profession != null ? profession.hashCode() : 0;
+		//noinspection RedundantCast - cast to prevent IncompatibleClassChangeError due to Enum->Interface change
+		return profession != null ? ((Object) profession).hashCode() : 0;
 	}
 	
 	@Override
@@ -133,7 +145,8 @@ public class VillagerData extends EntityData<Villager> {
 		if (s.isEmpty())
 			return true;
 		try {
-			profession = Profession.valueOf(s);
+			//noinspection unchecked, rawtypes - prevent IncompatibleClassChangeError due to Enum->Interface change
+			profession = (Profession) Enum.valueOf((Class) Profession.class, s);
 			return true;
 		} catch (final IllegalArgumentException e) {
 			return false;

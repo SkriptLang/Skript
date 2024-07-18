@@ -42,13 +42,28 @@ public class FrogData extends EntityData<Frog> {
 
 	public FrogData(@Nullable Variant variant) {
 		this.variant = variant;
-		matchedPattern = variant != null ? variant.ordinal() + 1 : 0;
+		matchedPattern = 0;
+		if (variant == Variant.TEMPERATE)
+			matchedPattern = 1;
+		if (variant == Variant.WARM)
+			matchedPattern = 2;
+		if (variant == Variant.COLD)
+			matchedPattern = 3;
 	}
 
 	@Override
 	protected boolean init(Literal<?>[] exprs, int matchedPattern, SkriptParser.ParseResult parseResult) {
-		if (matchedPattern > 0)
-			variant = Variant.values()[matchedPattern - 1];
+		switch (matchedPattern) {
+			case 1:
+				variant = Variant.TEMPERATE;
+				break;
+			case 2:
+				variant = Variant.WARM;
+				break;
+			case 3:
+				variant = Variant.COLD;
+				break;
+		}
 		return true;
 	}
 
@@ -82,7 +97,8 @@ public class FrogData extends EntityData<Frog> {
 
 	@Override
 	protected int hashCode_i() {
-		return variant != null ? variant.hashCode() : 0;
+		//noinspection RedundantCast - cast to prevent IncompatibleClassChangeError due to Enum->Interface change
+		return variant != null ? ((Object) variant).hashCode() : 0;
 	}
 
 	@Override
