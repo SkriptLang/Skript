@@ -15,3 +15,6 @@ test "detonate wind charge" when running minecraft "1.21":
 	assert last spawned entity is valid with "wind charges should not detonate when they are first spawned"
 	detonate last spawned entity
 	assert last spawned entity isn't valid with "wind charges should instantly detonate when spawned"
+
+
+# The fireworks test will not be added as fireworks are despawned a tick later and tests are instant
