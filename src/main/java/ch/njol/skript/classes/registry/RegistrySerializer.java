@@ -23,6 +23,7 @@ import ch.njol.yggdrasil.Fields;
 import org.bukkit.Keyed;
 import org.bukkit.NamespacedKey;
 import org.bukkit.Registry;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.StreamCorruptedException;
 
@@ -40,29 +41,29 @@ public class RegistrySerializer<R extends Keyed> extends Serializer<R> {
 	}
 
 	@Override
-	public Fields serialize(R o) {
+	public @NotNull Fields serialize(R o) {
 		Fields fields = new Fields();
-		fields.putPrimitive("name", o.getKey().toString());
-		return null;
+		fields.putObject("name", o.getKey().toString());
+		return fields;
 	}
 
 	@Override
-	protected R deserialize(Fields fields) {
-		try {
-			String name = fields.getAndRemovePrimitive("name", String.class);
-			NamespacedKey namespacedKey;
-			if (!name.contains(":")) {
-				// Old variables
-				namespacedKey = NamespacedKey.minecraft(name);
-			} else {
-				namespacedKey = NamespacedKey.fromString(name);
-			}
-			if (namespacedKey == null)
-				return null;
-			return registry.get(namespacedKey);
-		} catch (StreamCorruptedException e) {
-			return null;
+	protected R deserialize(Fields fields) throws StreamCorruptedException {
+		String name = fields.getAndRemoveObject("name", String.class);
+		assert name != null;
+		NamespacedKey namespacedKey;
+		if (!name.contains(":")) {
+			// Old variables
+			namespacedKey = NamespacedKey.minecraft(name);
+		} else {
+			namespacedKey = NamespacedKey.fromString(name);
 		}
+		if (namespacedKey == null)
+			throw new StreamCorruptedException("Invalid namespacedkey: " + name);
+		R object = registry.get(namespacedKey);
+		if (object == null)
+			throw new StreamCorruptedException("Invalid object from registry: " + namespacedKey);
+		return object;
 	}
 
 	@Override

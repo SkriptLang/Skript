@@ -18,7 +18,10 @@
  */
 package ch.njol.skript.expressions;
 
+import ch.njol.skript.bukkitutil.ItemUtils;
+import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockState;
 import org.bukkit.block.Sign;
 import org.bukkit.event.Event;
 import org.bukkit.event.block.SignChangeEvent;
@@ -55,8 +58,6 @@ public class ExprSignText extends SimpleExpression<String> {
 		Skript.registerExpression(ExprSignText.class, String.class, ExpressionType.PROPERTY,
 				"[the] line %number% [of %block%]", "[the] (1¦1st|1¦first|2¦2nd|2¦second|3¦3rd|3¦third|4¦4th|4¦fourth) line [of %block%]");
 	}
-	
-	private static final ItemType sign = Aliases.javaItemType("sign");
 	
 	@SuppressWarnings("null")
 	private Expression<Number> line;
@@ -99,7 +100,7 @@ public class ExprSignText extends SimpleExpression<String> {
 		final Block b = block.getSingle(e);
 		if (b == null)
 			return new String[0];
-		if (!sign.isOfType(b))
+		if (!(b.getState() instanceof Sign))
 			return new String[0];
 		return new String[] {((Sign) b.getState()).getLine(line)};
 	}
@@ -143,27 +144,28 @@ public class ExprSignText extends SimpleExpression<String> {
 					break;
 			}
 		} else {
-			if (!sign.isOfType(b))
+			BlockState state = b.getState();
+			if (!(state instanceof Sign))
 				return;
-			final Sign s = (Sign) b.getState();
+			Sign sign = (Sign) b.getState();
 			switch (mode) {
 				case DELETE:
-					s.setLine(line, "");
+					sign.setLine(line, "");
 					break;
 				case SET:
 					assert delta != null;
-					s.setLine(line, (String) delta[0]);
+					sign.setLine(line, (String) delta[0]);
 					break;
 			}
 			if (hasUpdateBooleanBoolean) {
 				try {
-					s.update(false, false);
+					sign.update(false, false);
 				} catch (final NoSuchMethodError err) {
 					hasUpdateBooleanBoolean = false;
-					s.update();
+					sign.update();
 				}
 			} else {
-				s.update();
+				sign.update();
 			}
 		}
 	}

@@ -24,6 +24,7 @@ import ch.njol.skript.lang.parser.ParserInstance;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -42,12 +43,17 @@ public abstract class TriggerSection extends TriggerItem {
 	}
 
 	protected TriggerSection(SectionNode node) {
-		List<TriggerSection> currentSections = ParserInstance.get().getCurrentSections();
-		currentSections.add(this);
+		ParserInstance parser = ParserInstance.get();
+		List<TriggerSection> previousSections = parser.getCurrentSections();
+
+		List<TriggerSection> sections = new ArrayList<>(previousSections);
+		sections.add(this);
+		parser.setCurrentSections(sections);
+
 		try {
 			setTriggerItems(ScriptLoader.loadItems(node));
 		} finally {
-			currentSections.remove(currentSections.size() - 1);
+			parser.setCurrentSections(previousSections);
 		}
 	}
 

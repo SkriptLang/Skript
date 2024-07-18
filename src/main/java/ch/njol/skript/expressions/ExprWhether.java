@@ -38,7 +38,7 @@ import org.jetbrains.annotations.UnknownNullability;
 	"set {fly} to whether player can fly",
 	"broadcast \"Flying: %whether player is flying%\""
 })
-@Since("INSERT VERSION")
+@Since("2.9.0")
 public class ExprWhether extends SimpleExpression<Boolean> {
 
 	static {

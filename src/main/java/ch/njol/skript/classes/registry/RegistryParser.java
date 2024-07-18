@@ -30,12 +30,11 @@ import org.bukkit.Registry;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * A parser based on a {@link Registry} used to parse data from a string or turn data into a string.
@@ -147,8 +146,7 @@ public class RegistryParser<R extends Keyed> extends Parser<R> {
 	 * Note that some entries may represent the same registry object.
 	 */
 	public String getAllNames() {
-		List<String> strings = new ArrayList<>(parseMap.keySet());
-		Collections.sort(strings);
+		List<String> strings = parseMap.keySet().stream().filter(s -> !s.startsWith("minecraft:")).sorted().collect(Collectors.toList());
 		return StringUtils.join(strings, ", ");
 	}
 
