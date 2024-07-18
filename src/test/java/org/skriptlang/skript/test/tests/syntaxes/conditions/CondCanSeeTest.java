@@ -14,6 +14,11 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.UUID;
+
 public class CondCanSeeTest extends SkriptJUnitTest {
 
 	static {
@@ -23,12 +28,14 @@ public class CondCanSeeTest extends SkriptJUnitTest {
 	private Player testPlayer;
 	private Entity testEntity;
 	private Condition canSeeCondition;
+	private Set<UUID> hiddenEntities;
 
 	@Before
 	public void setup() {
 		testPlayer = EasyMock.niceMock(Player.class);
 		testEntity = spawnTestPig();
 		canSeeCondition = Condition.parse("{_player} can see {_entity}", null);
+		hiddenEntities = new HashSet<>();
 	}
 
 	@Test
@@ -42,19 +49,25 @@ public class CondCanSeeTest extends SkriptJUnitTest {
 		Variables.setVariable("player", testPlayer, event, true);
 		Variables.setVariable("entity", testEntity, event, true);
 
-		EasyMock.expect(testPlayer.canSee(testEntity)).andReturn(true);
+		// entity not in hiddenEntities
+		EasyMock.expect(testPlayer.canSee(testEntity))
+			.andAnswer(() -> !hiddenEntities.contains(((Entity) EasyMock.getCurrentArgument(0)).getUniqueId()));
 		EasyMock.replay(testPlayer);
 		assert canSeeCondition.check(event);
 		EasyMock.verify(testPlayer);
 
+		hiddenEntities.add(testEntity.getUniqueId());
 		EasyMock.resetToNice(testPlayer);
-		EasyMock.expect(testPlayer.canSee(testEntity)).andReturn(false);
+		EasyMock.expect(testPlayer.canSee(testEntity))
+			.andAnswer(() -> !hiddenEntities.contains(((Entity) EasyMock.getCurrentArgument(0)).getUniqueId()));
 		EasyMock.replay(testPlayer);
 		assert !canSeeCondition.check(event);
 		EasyMock.verify(testPlayer);
 
+		hiddenEntities.remove(testEntity.getUniqueId());
 		EasyMock.resetToNice(testPlayer);
-		EasyMock.expect(testPlayer.canSee(testEntity)).andReturn(true);
+		EasyMock.expect(testPlayer.canSee(testEntity))
+			.andAnswer(() -> !hiddenEntities.contains(((Entity) EasyMock.getCurrentArgument(0)).getUniqueId()));
 		EasyMock.replay(testPlayer);
 		assert canSeeCondition.check(event);
 		EasyMock.verify(testPlayer);
