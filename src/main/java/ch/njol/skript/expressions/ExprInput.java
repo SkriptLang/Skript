@@ -53,7 +53,7 @@ import java.util.Set;
 	"send \"congrats on being staff!\" to all players where [input has permission \"staff\"]",
 	"sort {_list::*} based on length of input index"
 })
-@Since("2.2-dev36, INSERT_VERSION (input index)")
+@Since("2.2-dev36, 2.9.0 (input index)")
 public class ExprInput<T> extends SimpleExpression<T> {
 
 	static {

@@ -56,8 +56,8 @@ public class SecReturnable extends Section implements ReturnHandler<Object> {
 	}
 
 	@Override
-	public void returnValues(Object @Nullable [] values) {
-		returnedValues = values;
+	public void returnValues(Event event, Expression<?> value) {
+		returnedValues = value.getArray(event);
 	}
 
 	@Override
@@ -110,5 +110,5 @@ public class SecReturnable extends Section implements ReturnHandler<Object> {
 		}
 
 	}
-	
+
 }

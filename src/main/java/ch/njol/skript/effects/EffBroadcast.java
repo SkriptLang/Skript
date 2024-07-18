@@ -86,7 +86,7 @@ public class EffBroadcast extends Effect {
 	}
 
 	/**
-	 * This effect will call {@link BroadcastMessageEvent} as of INSERT_VERSION.
+	 * This effect will call {@link BroadcastMessageEvent} as of 2.9.0.
 	 */
 	@Override
 	@SuppressWarnings("deprecation")
