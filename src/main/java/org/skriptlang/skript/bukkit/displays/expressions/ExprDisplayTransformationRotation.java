@@ -60,14 +60,12 @@ public class ExprDisplayTransformationRotation extends SimplePropertyExpression<
 	}
 
 	@Override
-	@Nullable
-	public Quaternionf convert(Display display) {
+	public @Nullable Quaternionf convert(Display display) {
 		Transformation transformation = display.getTransformation();
 		return left ? transformation.getLeftRotation() : transformation.getRightRotation();
 	}
 
-	@Nullable
-	public Class<?>[] acceptChange(ChangeMode mode) {
+	public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
 		if (mode == ChangeMode.SET)
 			return CollectionUtils.array(Quaternionf.class);
 		if (mode == ChangeMode.RESET)
@@ -79,15 +77,15 @@ public class ExprDisplayTransformationRotation extends SimplePropertyExpression<
 	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
 		Quaternionf quaternion = null;
 		if (mode == ChangeMode.RESET)
-			quaternion = new Quaternionf(1, 0, 0, 0);
+			quaternion = new Quaternionf(0, 0, 0, 1);
 		if (delta != null) {
 			quaternion = (Quaternionf) delta[0];
 		}
-		if (quaternion == null)
+		if (quaternion == null || !quaternion.isFinite())
 			return;
 		for (Display display : getExpr().getArray(event)) {
 			Transformation transformation = display.getTransformation();
-			Transformation change = null;
+			Transformation change;
 			if (left) {
 				change = new Transformation(transformation.getTranslation(), quaternion, transformation.getScale(), transformation.getRightRotation());
 			} else {

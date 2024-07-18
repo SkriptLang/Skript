@@ -30,14 +30,12 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
-
 import org.bukkit.entity.Display;
 import org.bukkit.event.Event;
 import org.bukkit.util.Transformation;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3f;
-import org.skriptlang.skript.bukkit.util.JomlBukkitUtils;
 
 @Name("Display Transformation Scale/Translation")
 @Description("Returns or changes the transformation scale or translation of <a href='classes.html#display'>displays</a>.")
@@ -48,7 +46,7 @@ public class ExprDisplayTransformationScaleTranslation extends SimplePropertyExp
 
 	static {
 		if (Skript.isRunningMinecraft(1, 19, 4))
-			register(ExprDisplayTransformationScaleTranslation.class, Vector.class, "[transformation] (:scale|translation)", "displays");
+			register(ExprDisplayTransformationScaleTranslation.class, Vector.class, "(display|[display] transformation) (:scale|translation)", "displays");
 	}
 
 	private boolean scale;
@@ -60,14 +58,12 @@ public class ExprDisplayTransformationScaleTranslation extends SimplePropertyExp
 	}
 
 	@Override
-	@Nullable
-	public Vector convert(Display display) {
+	public @Nullable Vector convert(Display display) {
 		Transformation transformation = display.getTransformation();
-		return JomlBukkitUtils.toBukkitVector(scale ? transformation.getScale() : transformation.getTranslation());
+		return Vector.fromJOML(scale ? transformation.getScale() : transformation.getTranslation());
 	}
 
-	@Nullable
-	public Class<?>[] acceptChange(ChangeMode mode) {
+	public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
 		if (mode == ChangeMode.SET)
 			return CollectionUtils.array(Vector.class);
 		if (mode == ChangeMode.RESET)
@@ -76,13 +72,13 @@ public class ExprDisplayTransformationScaleTranslation extends SimplePropertyExp
 	}
 
 	@Override
-	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
+	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
 		Vector3f vector = null;
 		if (mode == ChangeMode.RESET)
-			vector = new Vector3f(1F, 1F, 1F);
+			vector = scale ? new Vector3f(1F, 1F, 1F) : new Vector3f(0F, 0F, 0F);
 		if (delta != null)
-			vector = JomlBukkitUtils.toVector((Vector) delta[0]);
-		if (vector == null)
+			vector = ((Vector) delta[0]).toVector3f();
+		if (vector == null || !vector.isFinite())
 			return;
 		for (Display display : getExpr().getArray(event)) {
 			Transformation transformation = display.getTransformation();

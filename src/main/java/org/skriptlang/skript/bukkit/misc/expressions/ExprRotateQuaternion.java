@@ -23,7 +23,6 @@ import org.bukkit.util.Vector;
 import org.eclipse.jdt.annotation.Nullable;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
-import org.skriptlang.skript.bukkit.util.JomlBukkitUtils;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
@@ -90,8 +89,8 @@ public class ExprRotateQuaternion extends SimpleExpression<Object> {
 							.map(object -> {
 								if (object instanceof Quaternionf) {
 									return ((Quaternionf) object).rotateX(degrees);
-								} else if (object instanceof Vector3f) {
-									return JomlBukkitUtils.toVector(((Vector) object)).rotateX(degrees);
+								} else if (object instanceof Vector) {
+									return ((Vector) object).toVector3f().rotateX(degrees);
 								}
 								return null;
 							})
@@ -101,8 +100,8 @@ public class ExprRotateQuaternion extends SimpleExpression<Object> {
 							.map(object -> {
 								if (object instanceof Quaternionf) {
 									return ((Quaternionf) object).rotateY(degrees);
-								} else if (object instanceof Vector3f) {
-									return JomlBukkitUtils.toVector(((Vector) object)).rotateY(degrees);
+								} else if (object instanceof Vector) {
+									return ((Vector) object).toVector3f().rotateY(degrees);
 								}
 								return null;
 							})
@@ -112,8 +111,8 @@ public class ExprRotateQuaternion extends SimpleExpression<Object> {
 							.map(object -> {
 								if (object instanceof Quaternionf) {
 									return ((Quaternionf) object).rotateZ(degrees);
-								} else if (object instanceof Vector3f) {
-									return JomlBukkitUtils.toVector(((Vector) object)).rotateZ(degrees);
+								} else if (object instanceof Vector) {
+									return ((Vector) object).toVector3f().rotateZ(degrees);
 								}
 								return null;
 							})
