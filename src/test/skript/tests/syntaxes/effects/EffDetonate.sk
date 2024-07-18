@@ -1,9 +1,22 @@
-test "detonate entity effect" when running minecraft "1.21":
-	spawn a creeper at location(0,100,0, world("world"))
-	assert last spawned entity exists with "creepers should not detonate when they are first spawned"
-	detonate the last spawned entity
-	assert last spawned entity exists with "creepers should instantly detonate when spawned"
-	launch a firework with effects ball large colored red, purple and white fading to light green and black at location(0,100,0, world("world"))
-	assert last launched firework exists with "fireworks should not detonate when they are first spawned"
+test "detonate entity effect":
+	spawn a creeper at event-location
+	assert last spawned entity is valid with "creepers should not detonate when they are first spawned"
+	detonate last spawned entity
+	assert last spawned entity isn't valid with "creepers should instantly detonate when spawned"
+	launch a firework with effects ball large colored red, purple and white fading to light green and black at event-location
+	assert last launched firework is valid with "fireworks should not detonate when they are first spawned"
 	detonate last launched firework
-	assert last launched firework exists with "fireworks should instantly detonate when spawned"
+	wait 1 tick
+	assert last launched firework isn't valid with "fireworks should instantly detonate when spawned"
+
+test "detonate explosive minecart" when running minecraft "1.19":
+	spawn a minecart with tnt at event-location
+	assert last spawned entity is valid with "minecarts with tnt should not detonate when they are first spawned"
+	detonate last spawned entity
+	assert last spawned entity isn't valid with "minecarts with tnt should instantly detonate when they are first spawned"
+
+test "detonate wind charge" when running minecraft "1.21":
+	spawn a wind charge at event-location
+	assert last spawned entity is valid with "wind charges should not detonate when they are first spawned"
+	detonate last spawned entity
+	assert last spawned entity isn't valid with "wind charges should instantly detonate when spawned"
