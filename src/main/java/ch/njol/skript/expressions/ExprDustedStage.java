@@ -24,15 +24,15 @@ import org.jetbrains.annotations.Nullable;
 })
 @Since("INSERT VERSION")
 @RequiredPlugins("Minecraft 1.20+")
-public class ExprBrushableDusted extends SimpleExpression<Number> {
+public class ExprDustedStage extends SimpleExpression<Integer> {
 
 	private static final boolean SUPPORTS_DUSTING = Skript.classExists("org.bukkit.block.data.Brushable");
 
 	static {
 		if (SUPPORTS_DUSTING)
-			Skript.registerExpression(ExprBrushableDusted.class, Number.class, ExpressionType.SIMPLE,
-				"[the] [:max[imum]] dusted (value|number|stage) of %blocks%",
-				"%blocks%'[s] [:max[imum]] dusted (value|number|stage)");
+			Skript.registerExpression(ExprDustedStage.class, Integer.class, ExpressionType.SIMPLE,
+				"[the] [:max[imum]] dusted (value|stage) of %blocks%",
+				"%blocks%'[s] [:max[imum]] dusted (value|stage)");
 	}
 
 	private Expression<Block> blocks;
@@ -47,14 +47,14 @@ public class ExprBrushableDusted extends SimpleExpression<Number> {
 
 	@Nullable
 	@Override
-	protected Number[] get(Event event) {
+	protected Integer[] get(Event event) {
 		for (Block block : blocks.getArray(event)) {
 			if (block != null && block.getBlockData() instanceof Brushable) {
 				Brushable brushableBlock = (Brushable) block.getBlockData();
-				return new Number[]{isMax ? brushableBlock.getMaximumDusted() : brushableBlock.getDusted()};
+				return new Integer[]{isMax ? brushableBlock.getMaximumDusted() : brushableBlock.getDusted()};
 			}
 		}
-		return new Number[0];
+		return new Integer[0];
 	}
 
 	@Override
@@ -63,8 +63,8 @@ public class ExprBrushableDusted extends SimpleExpression<Number> {
 	}
 
 	@Override
-	public Class<? extends Number> getReturnType() {
-		return Number.class;
+	public Class<? extends Integer> getReturnType() {
+		return Integer.class;
 	}
 
 	@Override
@@ -78,7 +78,7 @@ public class ExprBrushableDusted extends SimpleExpression<Number> {
 			for (Block block : blocks.getArray(event)) {
 				if (block != null && block.getBlockData() instanceof Brushable) {
 					Brushable brushableBlock = (Brushable) block.getBlockData();
-					brushableBlock.setDusted(((Number) delta[0]).intValue());
+					brushableBlock.setDusted(((Integer) delta[0]).intValue());
 					block.setBlockData(brushableBlock);
 				}
 			}
@@ -88,7 +88,7 @@ public class ExprBrushableDusted extends SimpleExpression<Number> {
 	@Override
 	public Class<?>[] acceptChange(Changer.ChangeMode mode) {
 		if (mode == Changer.ChangeMode.SET) {
-			return new Class[]{Number.class};
+			return new Class[]{Integer.class};
 		}
 		return null;
 	}
