@@ -15,7 +15,7 @@ import org.jetbrains.annotations.Nullable;
 
 @Name("Dusted Stage")
 @Description({
-	"Represents how far uncovered the block is.",
+	"Represents how far the block has been uncovered.",
 	"The only blocks that can currently be \"dusted\" are Suspicious Gravel and Suspicious Sand."
 })
 @Examples({
@@ -26,10 +26,10 @@ import org.jetbrains.annotations.Nullable;
 @RequiredPlugins("Minecraft 1.20+")
 public class ExprBrushableDusted extends SimpleExpression<Number> {
 
-	private static final boolean IS_RUNNING_120 = Skript.classExists("org.bukkit.block.data.Brushable");
+	private static final boolean SUPPORTS_DUSTING = Skript.classExists("org.bukkit.block.data.Brushable");
 
 	static {
-		if (IS_RUNNING_120)
+		if (SUPPORTS_DUSTING)
 			Skript.registerExpression(ExprBrushableDusted.class, Number.class, ExpressionType.SIMPLE,
 				"[the] [:max[imum]] dusted (value|number|stage) of %blocks%",
 				"%blocks%'[s] [:max[imum]] dusted (value|number|stage)");
@@ -48,10 +48,11 @@ public class ExprBrushableDusted extends SimpleExpression<Number> {
 	@Nullable
 	@Override
 	protected Number[] get(Event event) {
-		Block block = blocks.getSingle(event);
-		if (block != null && block.getBlockData() instanceof Brushable) {
-			Brushable brushableBlock = (Brushable) block.getBlockData();
-			return new Number[]{isMax ? brushableBlock.getMaximumDusted() : brushableBlock.getDusted()};
+		for (Block block : blocks.getArray(event)) {
+			if (block != null && block.getBlockData() instanceof Brushable) {
+				Brushable brushableBlock = (Brushable) block.getBlockData();
+				return new Number[]{isMax ? brushableBlock.getMaximumDusted() : brushableBlock.getDusted()};
+			}
 		}
 		return new Number[0];
 	}
@@ -74,11 +75,12 @@ public class ExprBrushableDusted extends SimpleExpression<Number> {
 	@Override
 	public void change(Event event, @Nullable Object[] delta, Changer.ChangeMode mode) {
 		if (mode == Changer.ChangeMode.SET && delta.length > 0) {
-			Block block = blocks.getSingle(event);
-			if (block != null && block.getBlockData() instanceof Brushable) {
-				Brushable brushableBlock = (Brushable) block.getBlockData();
-				brushableBlock.setDusted(((Number) delta[0]).intValue());
-				block.setBlockData(brushableBlock);
+			for (Block block : blocks.getArray(event)) {
+				if (block != null && block.getBlockData() instanceof Brushable) {
+					Brushable brushableBlock = (Brushable) block.getBlockData();
+					brushableBlock.setDusted(((Number) delta[0]).intValue());
+					block.setBlockData(brushableBlock);
+				}
 			}
 		}
 	}

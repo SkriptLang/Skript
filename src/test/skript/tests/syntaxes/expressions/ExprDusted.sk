@@ -1,4 +1,5 @@
 test "Dusted Stage" when running minecraft "1.20":
+	set block 1 block under spawn of world "world" to stone
 	set block at spawn of world "world" to suspicious gravel
     set {_block} to block at spawn of world "world"
 
@@ -12,8 +13,10 @@ test "Dusted Stage" when running minecraft "1.20":
 	assert dusted stage of {_block} is 0 with "Failed to reset dusted stage to 0"
 
 	set {_block} to air
+	set block 1 block under {_block} to air
 
 test "Brushable Item" when running minecraft "1.20":
+	set block 1 block under spawn of world "world" to stone
 	set block at spawn of world "world" to suspicious gravel
 	set {_block} to block at spawn of world "world"
 
@@ -25,3 +28,4 @@ test "Brushable Item" when running minecraft "1.20":
 
 	set {_block}'s brushable item to air
 	assert {_block}'s brushable item is air with "Failed to clear brushable item"
+	set block 1 block under {_block} to air

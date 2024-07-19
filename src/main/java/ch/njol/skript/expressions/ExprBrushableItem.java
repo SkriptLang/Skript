@@ -17,7 +17,7 @@ import org.jetbrains.annotations.Nullable;
 
 @Name("Dusted Item")
 @Description({
-	"Represents the item that can be uncovered when dusting.",
+	"Represents the item that is uncovered when dusting.",
 	"The only blocks that can currently be \"dusted\" are Suspicious Gravel and Suspicious Sand."
 })
 @Examples({
@@ -28,10 +28,10 @@ import org.jetbrains.annotations.Nullable;
 @RequiredPlugins("Minecraft 1.20+")
 public class ExprBrushableItem extends SimpleExpression<ItemStack> {
 
-	private static final boolean IS_RUNNING_120 = Skript.classExists("org.bukkit.block.data.BrushableBlock");
+	private static final boolean SUPPORTS_DUSTING = Skript.classExists("org.bukkit.block.BrushableBlock");
 
 	static {
-		if (IS_RUNNING_120)
+		if (SUPPORTS_DUSTING)
 			Skript.registerExpression(ExprBrushableItem.class, ItemStack.class, ExpressionType.SIMPLE,
 				"[the] %blocks% brush[able] item",
 				"%blocks%'[s] brush[able] item");
@@ -82,8 +82,7 @@ public class ExprBrushableItem extends SimpleExpression<ItemStack> {
 	public void change(Event event, @Nullable Object[] delta, Changer.ChangeMode mode) {
 		if (mode == Changer.ChangeMode.SET && delta.length > 0) {
 			ItemStack newItem = (ItemStack) delta[0];
-			Block[] blockArray = blocks.getArray(event);
-			for (Block block : blockArray) {
+			for (Block block : blocks.getArray(event)) {
 				BlockState state = block.getState();
 				if (state instanceof BrushableBlock) {
 					BrushableBlock brushableBlock = (BrushableBlock) state;
