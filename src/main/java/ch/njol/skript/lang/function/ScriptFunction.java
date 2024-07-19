@@ -19,13 +19,14 @@
 package ch.njol.skript.lang.function;
 
 import ch.njol.skript.classes.ClassInfo;
+import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ReturnHandler;
+import org.bukkit.event.Event;
 import org.jetbrains.annotations.ApiStatus;
 import org.skriptlang.skript.lang.script.Script;
 import org.eclipse.jdt.annotation.Nullable;
 
 import ch.njol.skript.config.SectionNode;
-import ch.njol.skript.effects.EffReturn;
 import ch.njol.skript.lang.Trigger;
 import ch.njol.skript.lang.util.SimpleEvent;
 import ch.njol.skript.variables.Variables;
@@ -80,13 +81,14 @@ public class ScriptFunction<T> extends Function<T> implements ReturnHandler<T> {
 	}
 
 	/**
-	 * Should only be called by {@link EffReturn}.
-	 * @deprecated Use {@link ScriptFunction#returnValues(Object[])}
+	 * @deprecated Use {@link ScriptFunction#returnValues(Event, Expression)}
 	 */
 	@Deprecated
 	@ApiStatus.Internal
 	public final void setReturnValue(@Nullable T[] values) {
-		returnValues(values);
+		assert !returnValueSet;
+		returnValueSet = true;
+		this.returnValues = values;
 	}
 
 	@Override
@@ -97,10 +99,10 @@ public class ScriptFunction<T> extends Function<T> implements ReturnHandler<T> {
 	}
 
 	@Override
-	public final void returnValues(T @Nullable [] values) {
+	public final void returnValues(Event event, Expression<? extends T> value) {
 		assert !returnValueSet;
 		returnValueSet = true;
-		this.returnValues = values;
+		this.returnValues = value.getArray(event);
 	}
 
 	@Override
