@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 import org.bukkit.entity.Villager;
 import org.bukkit.entity.Villager.Profession;
@@ -59,6 +60,9 @@ public class VillagerData extends EntityData<Villager> {
 					"cleric", "farmer", "fisherman", "fletcher",
 					"leatherworker", "librarian", "mason", "nitwit",
 					"shepherd", "toolsmith", "weaponsmith");
+			// TODO obtain from the registry in the future
+			// This is not currently done as the ordering of the professions is important
+			// There is no ordering guarantee from the registry
 			professions = Arrays.asList(Profession.NONE, Profession.ARMORER, Profession.BUTCHER, Profession.CARTOGRAPHER,
 					Profession.CLERIC, Profession.FARMER, Profession.FISHERMAN, Profession.FLETCHER, Profession.LEATHERWORKER,
 					Profession.LIBRARIAN, Profession.MASON, Profession.NITWIT, Profession.SHEPHERD, Profession.TOOLSMITH,
@@ -72,8 +76,8 @@ public class VillagerData extends EntityData<Villager> {
 			try {
 				for (Profession prof : (Profession[]) MethodHandles.lookup().findStatic(Profession.class, "values", MethodType.methodType(Profession[].class)).invoke()) {
 					// We're better off doing stringfying the constants since these don't exist in 1.14
-					//noinspection RedundantCast - cast to prevent IncompatibleClassChangeError due to Enum->Interface change
-					String profString = ((Object) prof).toString();
+					// Using String#valueOf to prevent IncompatibleClassChangeError due to Enum->Interface change
+					String profString = String.valueOf(prof);
 					if (!profString.equals("NORMAL") && !profString.equals("HUSK"))
 						professions.add(prof);
 				}
@@ -127,8 +131,7 @@ public class VillagerData extends EntityData<Villager> {
 	
 	@Override
 	protected int hashCode_i() {
-		//noinspection RedundantCast - cast to prevent IncompatibleClassChangeError due to Enum->Interface change
-		return profession != null ? ((Object) profession).hashCode() : 0;
+		return Objects.hashCode(profession);
 	}
 	
 	@Override
@@ -156,7 +159,7 @@ public class VillagerData extends EntityData<Villager> {
 	@Override
 	public boolean isSupertypeOf(final EntityData<?> e) {
 		if (e instanceof VillagerData)
-			return profession == null || ((VillagerData) e).profession == profession;
+			return profession == null || Objects.equals(((VillagerData) e).profession, profession);
 		return false;
 	}
 	

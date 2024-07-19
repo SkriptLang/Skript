@@ -28,6 +28,8 @@ import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.coll.CollectionUtils;
 
+import java.util.Objects;
+
 public class CatData extends EntityData<Cat> {
 	
 	static {
@@ -80,8 +82,7 @@ public class CatData extends EntityData<Cat> {
 	
 	@Override
 	protected int hashCode_i() {
-		//noinspection RedundantCast - cast to prevent IncompatibleClassChangeError due to Enum->Interface change
-		return race != null ? ((Object) race).hashCode() : 0;
+		return Objects.hashCode(race);
 	}
 	
 	@Override

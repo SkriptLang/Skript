@@ -32,6 +32,7 @@ import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 public class ZombieVillagerData extends EntityData<ZombieVillager> {
 
@@ -124,15 +125,13 @@ public class ZombieVillagerData extends EntityData<ZombieVillager> {
 	
 	@Override
 	protected int hashCode_i() {
-		//noinspection RedundantCast - cast to prevent IncompatibleClassChangeError due to Enum->Interface change
-		return ((Object) profession).hashCode();
+		return Objects.hashCode(profession);
 	}
 	
 	@Override
 	public boolean isSupertypeOf(final EntityData<?> e) {
 		if (e instanceof ZombieVillagerData)
-			//noinspection RedundantCast - cast to prevent IncompatibleClassChangeError due to Enum->Interface change
-			return ((Object) (((ZombieVillagerData) e).profession)).equals(profession);
+			return Objects.equals(((ZombieVillagerData) e).profession, profession);
 		return false;
 	}
 	

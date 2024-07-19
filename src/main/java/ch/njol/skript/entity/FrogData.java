@@ -25,6 +25,8 @@ import org.bukkit.entity.Frog;
 import org.bukkit.entity.Frog.Variant;
 import org.eclipse.jdt.annotation.Nullable;
 
+import java.util.Objects;
+
 public class FrogData extends EntityData<Frog> {
 
 	static {
@@ -97,8 +99,7 @@ public class FrogData extends EntityData<Frog> {
 
 	@Override
 	protected int hashCode_i() {
-		//noinspection RedundantCast - cast to prevent IncompatibleClassChangeError due to Enum->Interface change
-		return variant != null ? ((Object) variant).hashCode() : 0;
+		return Objects.hashCode(variant);
 	}
 
 	@Override
