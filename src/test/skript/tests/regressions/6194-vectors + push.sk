@@ -1,0 +1,9 @@
+test "normalize zero vector":
+	set {_vector} to vector(0,0,0)
+	add 1 to vector length of {_vector}
+	assert {_vector} is vector(0,0,0) with "add to zero vector's length failed"
+
+	set vector length of {_vector} to 1
+	assert {_vector} is vector(0,0,0) with "set zero vector's length failed"
+
+	assert normalize {_vector} is vector(0,0,0) with "normalize zero vector failed"

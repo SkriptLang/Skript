@@ -1,0 +1,14 @@
+test "apply fire resistance" when running minecraft "1.20.5":
+
+	# single item
+	set {_item} to diamond
+	make {_item} fire resistant
+	assert {_item} is fire resistant with "{_item} is unexpectedly not fire resistant"
+
+	# multiple items
+	set {_item} to diamond
+	set {_item2} to paper
+	make ({_item} and {_item2}) resistant to fire
+	assert ({_item} and {_item2}) are resistant to fire with "{_item} and {_item2} are unexpectedly not fire resistant"
+
+	# TODO: add tests for already fire resistant items (i.e. netherite) in 1.21 (doesn't work in 1.20.5 or 1.20.6)

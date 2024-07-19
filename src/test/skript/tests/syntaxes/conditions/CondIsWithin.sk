@@ -2,32 +2,32 @@ test "within condition" when running minecraft "1.17":
 	# two locations
 	set {_loc1} to location(0, 0, 0, "world")
 	set {_loc2} to location(20, 20, 20, "world")
-	assert location(10, 10, 10, "world") is within {_loc1} and {_loc2} with "failed within two locs ##1"
-	assert location(10, -10, 10, "world") is not within {_loc1} and {_loc2} with "failed within two locs ##2"
+	assert location(10, 10, 10, "world") is within {_loc1} and {_loc2} with "failed within two locs"
+	assert location(10, -10, 10, "world") is not within {_loc1} and {_loc2} with "failed within two locs"
 
 	# chunks
 	set {_chunk1} to chunk at {_loc1}
-	assert location(10, 10, 10, "world") is within {_chunk1} with "failed within chunk ##1"
-	assert location(-10, 10, -10, "world") is not within {_chunk1} with "failed within chunk ##2"
+	assert location(10, 10, 10, "world") is within {_chunk1} with "failed within chunk"
+	assert location(-10, 10, -10, "world") is not within {_chunk1} with "failed within chunk"
 
 	# worlds
-	assert location(10, 10, 10, "world") is within world("world") with "failed within world ##1"
+	assert location(10, 10, 10, "world") is within world("world") with "failed within world"
 
 	# blocks
 	set block at {_loc1} to stone
-	assert {_loc1} is within block at {_loc1} with "failed within block ##1"
-	assert {_loc2} is not within block at {_loc1} with "failed within block ##2"
+	assert {_loc1} is within block at {_loc1} with "failed within block"
+	assert {_loc2} is not within block at {_loc1} with "failed within block"
 	# special case, non-full blocks
 	set block at {_loc1} to lime carpet
-	assert {_loc1} is within block at {_loc1} with "failed within block ##3"
-	assert ({_loc1} ~ vector(0,0.3,0)) is not within block at {_loc1} with "failed within block ##4"
+	assert {_loc1} is within block at {_loc1} with "failed within block"
+	assert ({_loc1} ~ vector(0,0.3,0)) is not within block at {_loc1} with "failed within block"
 
 	# entities
 	set {_loc} to spawn of world "world"
 	spawn a pig at {_loc}
 	set {_pig} to last spawned entity
-	assert {_loc} is within {_pig} with "failed within entity ##1"
-	assert {_loc1} is not within {_pig} with "failed within entity ##2"
+	assert {_loc} is within {_pig} with "failed within entity"
+	assert {_loc1} is not within {_pig} with "failed within entity"
 
 	delete random entity of {_pig}
 
@@ -35,22 +35,22 @@ test "within condition" when running below minecraft "1.17":
 	# two locations
 	set {_loc1} to location(0, 0, 0, "world")
 	set {_loc2} to location(20, 20, 20, "world")
-	assert location(10, 10, 10, "world") is within {_loc1} and {_loc2} with "failed within two locs ##1"
-	assert location(10, -10, 10, "world") is not within {_loc1} and {_loc2} with "failed within two locs ##2"
+	assert location(10, 10, 10, "world") is within {_loc1} and {_loc2} with "failed within two locs"
+	assert location(10, -10, 10, "world") is not within {_loc1} and {_loc2} with "failed within two locs"
 
 	# chunks
 	set {_chunk1} to chunk at {_loc1}
-	assert location(10, 10, 10, "world") is within {_chunk1} with "failed within chunk ##1"
-	assert location(-10, 10, -10, "world") is not within {_chunk1} with "failed within chunk ##2"
+	assert location(10, 10, 10, "world") is within {_chunk1} with "failed within chunk"
+	assert location(-10, 10, -10, "world") is not within {_chunk1} with "failed within chunk"
 
 	# worlds
-	assert location(10, 10, 10, "world") is within world("world") with "failed within world ##1"
+	assert location(10, 10, 10, "world") is within world("world") with "failed within world"
 
 	# entities
 	set {_loc} to spawn of world "world"
 	spawn a pig at {_loc}
 	set {_pig} to last spawned entity
-	assert {_loc} is within {_pig} with "failed within entity ##1"
-	assert {_loc1} is not within {_pig} with "failed within entity ##2"
+	assert {_loc} is within {_pig} with "failed within entity"
+	assert {_loc1} is not within {_pig} with "failed within entity"
 
 	delete random entity of {_pig}

@@ -641,7 +641,7 @@ public abstract class Utils {
 		return "" + m;
 	}
 
-	private static final Pattern HEX_PATTERN = Pattern.compile("(?i)#?[0-9a-f]{6}");
+	private static final Pattern HEX_PATTERN = Pattern.compile("(?i)#{0,2}[0-9a-f]{6}");
 
 	/**
 	 * Tries to get a {@link ChatColor} from the given string.

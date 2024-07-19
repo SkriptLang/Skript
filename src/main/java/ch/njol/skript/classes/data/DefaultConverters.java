@@ -151,6 +151,7 @@ public class DefaultConverters {
 				return (InventoryHolder) s;
 			return null;
 		}, Converter.NO_RIGHT_CHAINING | Commands.CONVERTER_NO_COMMAND_ARGUMENTS);
+
 		Converters.registerConverter(InventoryHolder.class, Block.class, holder -> {
 			if (holder instanceof BlockState)
 				return new BlockInventoryHolder((BlockState) holder);
@@ -165,7 +166,27 @@ public class DefaultConverters {
 				return (Entity) holder;
 			return null;
 		}, Converter.NO_CHAINING);
-		
+
+		// InventoryHolder - Location
+		// since the individual ones can't be trusted to chain.
+		Converters.registerConverter(InventoryHolder.class, Location.class, holder -> {
+			if (holder instanceof Entity)
+				return ((Entity) holder).getLocation();
+			if (holder instanceof Block)
+				return ((Block) holder).getLocation();
+			if (holder instanceof BlockState)
+				return BlockUtils.getLocation(((BlockState) holder).getBlock());
+			if (holder instanceof DoubleChest) {
+				DoubleChest doubleChest = (DoubleChest) holder;
+				if (doubleChest.getLeftSide() != null) {
+					return BlockUtils.getLocation(((BlockState) doubleChest.getLeftSide()).getBlock());
+				} else if (((DoubleChest) holder).getRightSide() != null) {
+					return BlockUtils.getLocation(((BlockState) doubleChest.getRightSide()).getBlock());
+				}
+			}
+			return null;
+		});
+
 		// Enchantment - EnchantmentType
 		Converters.registerConverter(Enchantment.class, EnchantmentType.class, e -> new EnchantmentType(e, -1));
 

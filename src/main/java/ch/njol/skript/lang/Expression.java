@@ -121,6 +121,20 @@ public interface Expression<T> extends SyntaxElement, Debuggable {
 	boolean isSingle();
 
 	/**
+	 * Whether there's a possibility this could return a single value.
+	 * Designed for expressions that may return more than one value, but are equally appropriate to use where
+	 * only singular values are accepted, in which case a single value (out of all available values) will be returned.
+	 * An example would be functions that return results based on their inputs.
+	 * Ideally, this will return {@link #isSingle()} based on its known inputs at initialisation, but for some syntax
+	 * this may not be known (or a syntax may be intentionally vague in its permissible returns).
+	 * @return Whether this can be used by single changers
+	 * @see #getSingle(Event)
+	 */
+	default boolean canBeSingle() {
+		return this.isSingle();
+	}
+
+	/**
 	 * Checks this expression against the given checker. This is the normal version of this method and the one which must be used for simple checks,
 	 * or as the innermost check of nested checks.
 	 * <p>
@@ -174,6 +188,31 @@ public interface Expression<T> extends SyntaxElement, Debuggable {
 	 * @return A supertype of any objects returned by {@link #getSingle(Event)} and the component type of any arrays returned by {@link #getArray(Event)}
 	 */
 	Class<? extends T> getReturnType();
+
+	/**
+	 * For expressions that might return multiple (incalculable at parse time) types,
+	 * this provides a list of all possible types.
+	 * Use cases include: expressions that depend on the return type of their input.
+	 *
+	 * @return A list of all possible types this might return
+	 */
+	default Class<? extends T>[] possibleReturnTypes() {
+		//noinspection unchecked
+		return new Class[] {this.getReturnType()};
+	}
+
+	/**
+	 * Whether this expression <b>might</b> return the following type.
+	 * @param returnType The type to test
+	 * @return true if the argument is within the bounds of the return types
+	 */
+	default boolean canReturn(Class<?> returnType) {
+		for (Class<?> type : this.possibleReturnTypes()) {
+			if (returnType.isAssignableFrom(type))
+				return true;
+		}
+		return false;
+	}
 
 	/**
 	 * Returns true if this expression returns all possible values, false if it only returns some of them.

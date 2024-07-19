@@ -121,7 +121,7 @@ public abstract class Functions {
 			Skript.debug((signature.local ? "local " : "") + "function " + name + "(" + StringUtils.join(params, ", ") + ")"
 				+ (c != null ? " :: " + (signature.isSingle() ? c.getName().getSingular() : c.getName().getPlural()) : "") + ":");
 
-		Function<?> f = new ScriptFunction<>(signature, script, node);
+		Function<?> f = new ScriptFunction<>(signature, node);
 
 		// Register the function for signature
 		namespace.addFunction(f);

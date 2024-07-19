@@ -20,6 +20,7 @@ package ch.njol.skript.classes.data;
 
 import ch.njol.skript.util.Date;
 import ch.njol.skript.util.Timespan;
+import ch.njol.skript.util.Timespan.TimePeriod;
 import ch.njol.skript.util.Utils;
 import ch.njol.util.Math2;
 import org.bukkit.util.Vector;
@@ -85,9 +86,9 @@ public class DefaultOperations {
 		});
 
 		// Timespan - Timespan
-		Arithmetics.registerOperation(Operator.ADDITION, Timespan.class, (left, right) -> new Timespan(Math2.addClamped(left.getMilliSeconds(), right.getMilliSeconds())));
-		Arithmetics.registerOperation(Operator.SUBTRACTION, Timespan.class, (left, right) -> new Timespan(Math.max(0, left.getMilliSeconds() - right.getMilliSeconds())));
-		Arithmetics.registerDifference(Timespan.class, (left, right) -> new Timespan(Math.abs(left.getMilliSeconds() - right.getMilliSeconds())));
+		Arithmetics.registerOperation(Operator.ADDITION, Timespan.class, (left, right) -> new Timespan(Math2.addClamped(left.getAs(TimePeriod.MILLISECOND), right.getAs(TimePeriod.MILLISECOND))));
+		Arithmetics.registerOperation(Operator.SUBTRACTION, Timespan.class, (left, right) -> new Timespan(Math.max(0, left.getAs(TimePeriod.MILLISECOND) - right.getAs(TimePeriod.MILLISECOND))));
+		Arithmetics.registerDifference(Timespan.class, (left, right) -> new Timespan(Math.abs(left.getAs(TimePeriod.MILLISECOND) - right.getAs(TimePeriod.MILLISECOND))));
 		Arithmetics.registerDefaultValue(Timespan.class, Timespan::new);
 
 		// Timespan - Number
@@ -96,24 +97,31 @@ public class DefaultOperations {
 			long scalar = right.longValue();
 			if (scalar < 0)
 				return null;
-			return new Timespan(Math2.multiplyClamped(left.getMilliSeconds(), scalar));
+			return new Timespan(Math2.multiplyClamped(left.getAs(TimePeriod.MILLISECOND), scalar));
 		}, (left, right) -> {
 			long scalar = left.longValue();
 			if (scalar < 0)
 				return null;
-			return new Timespan(scalar * right.getMilliSeconds());
+			return new Timespan(scalar * right.getAs(TimePeriod.MILLISECOND));
 		});
 		Arithmetics.registerOperation(Operator.DIVISION, Timespan.class, Number.class, (left, right) -> {
 			long scalar = right.longValue();
 			if (scalar <= 0)
 				return null;
-			return new Timespan(left.getMilliSeconds() / scalar);
+			return new Timespan(left.getAs(TimePeriod.MILLISECOND) / scalar);
 		});
+
+		// Timespan / Timespan = Number
+		Arithmetics.registerOperation(Operator.DIVISION, Timespan.class, Timespan.class, Number.class,
+				(left, right) -> left.getAs(TimePeriod.MILLISECOND) / (double) right.getAs(TimePeriod.MILLISECOND));
 
 		// Date - Timespan
 		Arithmetics.registerOperation(Operator.ADDITION, Date.class, Timespan.class, Date::plus);
 		Arithmetics.registerOperation(Operator.SUBTRACTION, Date.class, Timespan.class, Date::minus);
 		Arithmetics.registerDifference(Date.class, Timespan.class, Date::difference);
+
+		// String - String
+		Arithmetics.registerOperation(Operator.ADDITION, String.class, String.class, String::concat);
 
 	}
 

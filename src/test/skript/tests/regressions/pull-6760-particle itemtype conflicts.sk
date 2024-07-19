@@ -1,0 +1,5 @@
+test "particle itemtype conflicts":
+
+	# itemtype parsing should take priority over visual effects
+	assert totem of undying is an itemtype with "totem of undying is not an itemtype"
+	assert mycelium is an itemtype with "mycelium is not an itemtype"

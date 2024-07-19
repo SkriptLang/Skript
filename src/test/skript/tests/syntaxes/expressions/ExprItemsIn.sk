@@ -1,3 +1,29 @@
+
+test "items in (inventory)":
+	set {_inventory} to a hopper inventory named "test"
+	add stone to {_inventory}
+	add stone named "bread" to {_inventory}
+	add 100 of iron ingot to {_inventory}
+	loop items in {_inventory}:
+		if loop-value is stone:
+			continue
+		else if loop-value is iron ingot:
+			continue
+		else:
+			assert true is false with "unexpected item in the inventory area: %loop-value%"
+	set {_list::*} to items in {_inventory}
+	assert size of {_list::*} is 4 with "size of items in failed"
+	assert {_list::1} is stone with "first item failed"
+	assert {_list::2} is stone named "bread" with "second item failed"
+	assert {_list::3} is 64 of iron ingot with "third item failed"
+	assert {_list::4} is 36 of iron ingot with "split fourth item failed"
+	remove stone from {_inventory}
+	set {_list::*} to items in {_inventory}
+	assert size of {_list::*} is 3 with "size of second items in failed"
+	assert {_list::1} is stone named "bread" with "new first item failed"
+	assert {_list::2} is 64 of iron ingot with "new second item failed"
+	assert {_list::3} is 36 of iron ingot with "new third item failed"
+
 test "filtering ExprItemsIn":
 	set {_world} to random world out of all worlds
 	set block at spawn of {_world} to chest
@@ -5,8 +31,8 @@ test "filtering ExprItemsIn":
 	set slot 1 of {_inv} to dirt
 	set slot 2 of {_inv} to stone
 	set slot 3 of {_inv} to bucket
-	assert all blocks in inventory {_inv} are dirt or stone with "found correct items with ExprItemsIn##get"
-	assert (all blocks in inventory {_inv} where [true is true]) are dirt or stone with "found correct items with ExprItemsIn##iterator"
+	assert all blocks in inventory {_inv} are dirt or stone with "found correct items with ExprItemsIn#get"
+	assert (all blocks in inventory {_inv} where [true is true]) are dirt or stone with "found correct items with ExprItemsIn#iterator"
 	set {_dirt} to dirt
 	assert all {_dirt} in inventory {_inv} is dirt with "found incorrect items with variable itemtypes"
 
@@ -17,5 +43,5 @@ test "unfiltered ExprItemsIn":
 	set slot 1 of {_inv} to dirt
 	set slot 2 of {_inv} to stone
 	set slot 3 of {_inv} to bucket
-	assert all items in inventory {_inv} are dirt, stone or bucket with "found correct items with ExprItemsIn##get"
-	assert (all items in inventory {_inv} where [true is true]) are dirt, stone or bucket with "found correct items with ExprItemsIn##iterator"
+	assert all items in inventory {_inv} are dirt, stone or bucket with "found correct items with ExprItemsIn#get"
+	assert (all items in inventory {_inv} where [true is true]) are dirt, stone or bucket with "found correct items with ExprItemsIn#iterator"

@@ -1,0 +1,18 @@
+test "whitelist":
+	reset whitelist
+	set {_player} to "Njol" parsed as offline player
+	add {_player} to whitelist
+	assert {_player} is whitelisted with "Failed to whitelist a player"
+
+	remove {_player} from whitelist
+	assert {_player} is not whitelisted with "Failed to remove a player from whitelist"
+
+	add {_player} to whitelist
+	reset whitelist
+	assert whitelist is not set with "Failed to empty whitelist"
+
+test "enforce whitelist" when running minecraft "1.17":
+	enforce whitelist
+	assert server whitelist is enforced with "Failed to enforce server whitelist"
+	unenforce whitelist
+	assert server whitelist is not enforced with "Failed to unenforce whitelist"

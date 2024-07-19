@@ -19,6 +19,7 @@
 package ch.njol.skript.lang;
 
 import ch.njol.skript.SkriptAPIException;
+import ch.njol.skript.SkriptConfig;
 import org.bukkit.event.Event;
 import org.bukkit.event.player.PlayerInteractAtEntityEvent;
 import org.eclipse.jdt.annotation.Nullable;
@@ -74,8 +75,8 @@ public final class SkriptEventInfo<E extends SkriptEvent> extends StructureInfo<
 		// uses the name without 'on ' or '*'
 		this.id = "" + name.toLowerCase(Locale.ENGLISH).replaceAll("[#'\"<>/&]", "").replaceAll("\\s+", "_");
 
-		// default listening behavior should be to listen to uncancelled events
-		this.listeningBehavior = ListeningBehavior.UNCANCELLED;
+		// default listening behavior should be dependent on config setting
+		this.listeningBehavior = SkriptConfig.listenCancelledByDefault.value() ? ListeningBehavior.ANY : ListeningBehavior.UNCANCELLED;
 	}
   
 	/**

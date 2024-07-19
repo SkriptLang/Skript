@@ -53,7 +53,7 @@ public class LiteralUtils {
 				newExpressions[i] = LiteralUtils.defendExpression(oldExpressions[i]);
 				returnTypes[i] = newExpressions[i].getReturnType();
 			}
-			return new ExpressionList<>(newExpressions, (Class<T>) Classes.getSuperClassInfo(returnTypes).getC(), expr.getAnd());
+			return new ExpressionList<>(newExpressions, (Class<T>) Classes.getSuperClassInfo(returnTypes).getC(), returnTypes, expr.getAnd());
 		} else if (expr instanceof UnparsedLiteral) {
 			Literal<?> parsedLiteral = ((UnparsedLiteral) expr).getConvertedExpression(Object.class);
 			return (Expression<T>) (parsedLiteral == null ? expr : parsedLiteral);

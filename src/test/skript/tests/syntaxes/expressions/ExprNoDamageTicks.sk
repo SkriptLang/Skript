@@ -5,14 +5,14 @@ test "no damage ticks":
 	set {_m}'s invulnerability ticks to 25
 	assert {_m}'s invulnerability ticks is 25 with "no damage ticks set failed"
 	add 5 to {_m}'s invulnerability ticks
-	assert {_m}'s invulnerability ticks is 30 with "no damage ticks add ##1 failed"
+	assert {_m}'s invulnerability ticks is 30 with "no damage ticks add failed"
 	remove 12 from {_m}'s invulnerability ticks
-	assert {_m}'s invulnerability ticks is 18 with "no damage ticks remove ##1 failed"
+	assert {_m}'s invulnerability ticks is 18 with "no damage ticks remove failed"
 	remove 999 from {_m}'s invulnerability ticks
-	assert {_m}'s invulnerability ticks is 0 with "no damage ticks remove ##2 failed"
+	assert {_m}'s invulnerability ticks is 0 with "no damage ticks remove failed"
 	remove -2 from {_m}'s invulnerability ticks
-	assert {_m}'s invulnerability ticks is 2 with "no damage ticks remove ##3 failed"
+	assert {_m}'s invulnerability ticks is 2 with "no damage ticks remove failed"
 	add -1 to {_m}'s invulnerability ticks
-	assert {_m}'s invulnerability ticks is 1 with "no damage ticks add ##2 failed"
+	assert {_m}'s invulnerability ticks is 1 with "no damage ticks add failed"
 	delete {_m}'s invulnerability ticks
 	assert {_m}'s invulnerability ticks is 0 with "no damage ticks delete failed"

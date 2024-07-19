@@ -18,8 +18,10 @@
  */
 package ch.njol.skript.entity;
 
+import java.lang.reflect.Method;
 import java.util.Random;
 
+import org.bukkit.Material;
 import org.bukkit.TreeSpecies;
 import org.bukkit.entity.Boat;
 import org.bukkit.inventory.ItemStack;
@@ -108,30 +110,21 @@ public class BoatData extends EntityData<Boat> {
 		return false;
 	}
 	
-	private static final ItemType oakBoat = Aliases.javaItemType("oak boat");
-	private static final ItemType spruceBoat = Aliases.javaItemType("spruce boat");
-	private static final ItemType birchBoat = Aliases.javaItemType("birch boat");
-	private static final ItemType jungleBoat = Aliases.javaItemType("jungle boat");
-	private static final ItemType acaciaBoat = Aliases.javaItemType("acacia boat");
-	private static final ItemType darkOakBoat = Aliases.javaItemType("dark oak boat");
-	
 	public boolean isOfItemType(ItemType i){
-		if (i.getRandom() == null)
-			return false;
 		int ordinal = -1;
-		
-		ItemStack stack = i.getRandom();
-		if (oakBoat.isOfType(stack))
+
+		Material type = i.getMaterial();
+		if (type == Material.OAK_BOAT)
 			ordinal = 0;
-		else if (spruceBoat.isOfType(stack))
+		else if (type == Material.SPRUCE_BOAT)
 			ordinal = TreeSpecies.REDWOOD.ordinal();
-		else if (birchBoat.isOfType(stack))
+		else if (type == Material.BIRCH_BOAT)
 			ordinal = TreeSpecies.BIRCH.ordinal();
-		else if (jungleBoat.isOfType(stack))
+		else if (type == Material.JUNGLE_BOAT)
 			ordinal = TreeSpecies.JUNGLE.ordinal();
-		else if (acaciaBoat.isOfType(stack))
+		else if (type == Material.ACACIA_BOAT)
 			ordinal = TreeSpecies.ACACIA.ordinal();
-		else if (darkOakBoat.isOfType(stack))
+		else if (type == Material.DARK_OAK_BOAT)
 			ordinal = TreeSpecies.DARK_OAK.ordinal();
 		return hashCode_i() == ordinal + 2 || (matchedPattern + ordinal == 0) || ordinal == 0;
 		

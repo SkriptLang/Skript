@@ -1,0 +1,29 @@
+
+test "string concatenation":
+
+	# string + string
+	assert "hello " + "there" is "hello there" with "string + string concat failed"
+	assert "foo" + "bar" is "foobar" with "string + string concat failed"
+	assert "foo" + " " + "bar" is "foo bar" with "string + string + string concat failed"
+	assert "hello" + " " + "there" is "hello there" with "string + string + string concat failed"
+
+	# ? + string
+	set {_var} to "hello"
+	set {_var} to {_var} + " there"
+	assert {_var} is "hello there" with "var + string concat failed"
+
+	# ? + string
+	set {_var1} to "hello "
+	set {_var2} to "there"
+	assert {_var1} + {_var2} is "hello there" with "var + var concat failed"
+
+	# variable-string + string
+	set {_var} to "hello"
+	assert "%{_var}% " + "there" is "hello there" with "var-string + string concat failed"
+
+	# string + number = <none>
+	# parser prevents us adding "foo" + 1 or comparing "foo" + 1 with a string
+	# we test the edge case where somebody slips past us!
+	set {_var} to 1
+	set {_var} to "foo" + {_var}
+	assert {_var} doesn't exist with "string + number concat succeeded"

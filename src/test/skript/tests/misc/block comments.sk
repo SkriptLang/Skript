@@ -1,0 +1,18 @@
+
+###
+foo bar fake syntax
+
+nothing's happening here
+###
+
+
+test "block comments":
+	###
+	this is a comment
+	###
+	assert "true" is "true" with "logic failed"
+	### this is a regular comment
+	###
+	### this is also a regular comment
+	###
+	assert "true" is "true" with "logic failed"

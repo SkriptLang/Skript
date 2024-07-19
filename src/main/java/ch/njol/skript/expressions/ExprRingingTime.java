@@ -37,7 +37,7 @@ import org.eclipse.jdt.annotation.Nullable;
 })
 @Examples("broadcast \"The bell has been ringing for %ringing time of target block%\"")
 @RequiredPlugins("Spigot 1.19.4+")
-@Since("INSERT VERSION")
+@Since("2.9.0")
 public class ExprRingingTime extends SimplePropertyExpression<Block, Timespan> {
 
 	static {

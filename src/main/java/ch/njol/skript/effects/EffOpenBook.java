@@ -18,6 +18,7 @@
  */
 package ch.njol.skript.effects;
 
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.inventory.ItemStack;
@@ -49,8 +50,6 @@ public class EffOpenBook extends Effect {
 		}
 	}
 	
-	private static final ItemType bookItemType = Aliases.javaItemType("written book");
-	
 	@SuppressWarnings("null")
 	private Expression<ItemType> book;
 	@SuppressWarnings("null")
@@ -69,7 +68,7 @@ public class EffOpenBook extends Effect {
 		ItemType itemType = book.getSingle(e);
 		if (itemType != null) {
 			ItemStack itemStack = itemType.getRandom();
-			if (itemStack != null && bookItemType.isOfType(itemStack)) {
+			if (itemStack != null && itemStack.getType() == Material.WRITTEN_BOOK) {
 				for (Player player : players.getArray(e)) {
 					player.openBook(itemStack);
 				}

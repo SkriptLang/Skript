@@ -42,7 +42,7 @@ import java.util.regex.Pattern;
 
 public final class Parameter<T> {
 
-	public final static Pattern PARAM_PATTERN = Pattern.compile("\\s*(.+?)\\s*:(?=[^:]*$)\\s*(.+?)(?:\\s*=\\s*(.+))?\\s*");
+	public final static Pattern PARAM_PATTERN = Pattern.compile("^\\s*([^:(){}\",]+?)\\s*:\\s*([a-zA-Z ]+?)\\s*(?:\\s*=\\s*(.+))?\\s*$");
 
 	/**
 	 * Name of this parameter. Will be used as name for the local variable

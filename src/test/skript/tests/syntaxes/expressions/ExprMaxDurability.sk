@@ -3,3 +3,13 @@ test "max durability":
 	assert max durability of glass is 0 with "max durability of glass failed"
 	assert max durability of shears is 238 with "max durability of shears failed"
 	assert max durability of diamond sword is 1561 with "max durability of diamond sword failed"
+
+test "max durability - custom" when running minecraft "1.20.5":
+	set {_i} to 1 of iron sword
+	assert max durability of {_i} = 250 with "max durability of iron sword should be 250"
+
+	set max durability of {_i} to 1000
+	assert max durability of {_i} = 1000 with "adjusted max durability of iron sword should be 1000"
+
+	reset max durability of {_i}
+	assert max durability of {_i} = 250 with "reset max durability of iron sword should be 250"

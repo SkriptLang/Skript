@@ -11,9 +11,9 @@ test "continue effect":
 		assert {_i} is not 5 with "continue in while failed"
 	loop integers from 1 to 10:
 		continue this loop if loop-value is 5
-		assert loop-value is not 5 with "leveled continue failed ##1"
+		assert loop-value is not 5 with "leveled continue failed"
 		loop integers from 11 to 20:
 			continue 2nd loop if loop-value-2 is 15
-			assert loop-value-2 is not 15 with "leveled continue failed ##2"
+			assert loop-value-2 is not 15 with "leveled continue failed"
 			continue 1st loop if loop-value-1 is 10
-		assert loop-value is not 10 with "leveled continue failed ##3"
+		assert loop-value is not 10 with "leveled continue failed"

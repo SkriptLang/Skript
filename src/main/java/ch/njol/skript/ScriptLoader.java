@@ -964,7 +964,7 @@ public class ScriptLoader {
 
 			if (subNode instanceof SimpleNode) {
 				long start = System.currentTimeMillis();
-				Statement stmt = Statement.parse(expr, "Can't understand this condition/effect: " + expr);
+				Statement stmt = Statement.parse(expr, items, "Can't understand this condition/effect: " + expr);
 				if (stmt == null)
 					continue;
 				long requiredTime = SkriptConfig.longParseTimeWarningThreshold.value().getMilliSeconds();

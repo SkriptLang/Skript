@@ -57,7 +57,6 @@ import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.entity.EntityMountEvent;
 import org.bukkit.event.entity.EntityPortalEnterEvent;
 import org.bukkit.event.entity.EntityPortalEvent;
-import org.bukkit.event.entity.EntityRegainHealthEvent;
 import org.bukkit.event.entity.EntityResurrectEvent;
 import org.bukkit.event.entity.EntityTameEvent;
 import org.bukkit.event.entity.EntityToggleGlideEvent;
@@ -209,10 +208,6 @@ public class SimpleEvents {
 				.description("Called when an entity enters a nether portal or an end portal. Please note that this event will be fired many times for a nether portal.")
 				.examples("on portal enter:")
 				.since("1.0");
-		Skript.registerEvent("Heal", SimpleEvent.class, EntityRegainHealthEvent.class, "heal[ing]")
-				.description("Called when an entity is healed, e.g. by eating (players), being fed (pets), or by the effect of a potion of healing (overworld mobs) or harm (nether mobs).")
-				.examples("on heal:")
-				.since("1.0");
 		Skript.registerEvent("Tame", SimpleEvent.class, EntityTameEvent.class, "[entity] tam(e|ing)")
 				.description("Called when a player tames a wolf or ocelot. Can be cancelled to prevent the entity from being tamed.")
 				.examples("on tame:")
@@ -324,10 +319,6 @@ public class SimpleEvents {
 		Skript.registerEvent("Respawn", SimpleEvent.class, PlayerRespawnEvent.class, "[player] respawn[ing]")
 				.description("Called when a player respawns. You should prefer this event over the <a href='#death'>death event</a> as the player is technically alive when this event is called.")
 				.examples("on respawn:")
-				.since("1.0");
-		Skript.registerEvent("Teleport", SimpleEvent.class, PlayerTeleportEvent.class, "[player] teleport[ing]")
-				.description("Called whenever a player is teleported, either by a nether/end portal or other means (e.g. by plugins).")
-				.examples("on teleport:")
 				.since("1.0");
 		Skript.registerEvent("Sneak Toggle", SimpleEvent.class, PlayerToggleSneakEvent.class, "[player] toggl(e|ing) sneak", "[player] sneak toggl(e|ing)")
 				.description("Called when a player starts or stops sneaking. Use <a href='conditions.html#CondIsSneaking'>is sneaking</a> to get whether the player was sneaking before the event was called.")
@@ -776,7 +767,7 @@ public class SimpleEvents {
 							"on bell ring:",
 								"\tsend \"<gold>Ding-dong!<reset>\" to all players in radius 10 of event-block"
 						)
-						.since("INSERT VERSION")
+						.since("2.9.0")
 						.requiredPlugins("Spigot 1.19.4+ or Paper 1.16.5+ (no event-direction)");
 			}
 		}
@@ -794,8 +785,24 @@ public class SimpleEvents {
 						"on bell resonate:",
 							"\tsend \"<red>Raiders are nearby!\" to all players in radius 32 around event-block"
 					)
-					.since("INSERT VERSION")
+					.since("2.9.0")
 					.requiredPlugins("Spigot 1.19.4+");
+		}
+
+		if (Skript.classExists("com.destroystokyo.paper.event.entity.EndermanAttackPlayerEvent")) {
+			Skript.registerEvent("Enderman Enrage", SimpleEvent.class, com.destroystokyo.paper.event.entity.EndermanAttackPlayerEvent.class, "enderman (enrage|anger)")
+					.description(
+						"Called when an enderman gets mad because a player looked at them.",
+						"Note: This does not stop enderman from targeting the player as a result of getting damaged."
+					)
+					.examples(
+						"# Stops endermen from getting angry players with the permission \"safeFrom.enderman\"",
+						"on enderman enrage:",
+							"\tif player has permission \"safeFrom.enderman\":",
+								"\t\tcancel event"
+					)
+					.since("2.9.0")
+					.requiredPlugins("Paper");
 		}
 	}
 

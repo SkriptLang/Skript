@@ -66,6 +66,9 @@ public interface BlockCompat {
 	}
 
 	@Nullable
+	BlockValues getBlockValues(Material material);
+
+	@Nullable
 	BlockValues getBlockValues(BlockData blockData);
 	
 	/**

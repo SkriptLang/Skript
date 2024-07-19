@@ -13,17 +13,17 @@ test "ExprDropsJUnit" when running JUnit:
 on load:
 	set {-cancelled-event-test::call-count} to 0
 
-on death of pig:
+on form:
 	junit test is {@test}
 
 	complete objective "listen for uncancelled event" for {@test}
 
-on cancelled death of pig:
+on cancelled form:
 	junit test is {@test}
 
 	complete objective "listen for cancelled event" for {@test}
 
-on any death of pig:
+on any form:
 	junit test is {@test}
 
 	add 1 to {-cancelled-event-test::call-count}
