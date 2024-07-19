@@ -77,4 +77,5 @@ public class CondCanSeeTest extends SkriptJUnitTest {
 	public void removeEntity() {
 		testEntity.remove();
 	}
+
 }
