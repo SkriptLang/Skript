@@ -71,6 +71,7 @@ public class ExprJoinSplit extends SimpleExpression<String> {
 		regex = matchedPattern >= 3;
 		caseSensitivity = SkriptConfig.caseSensitive.value() || parseResult.hasTag("case");
 		removeTrailing = parseResult.hasTag("trailing");
+
 		strings = (Expression<String>) exprs[0];
 		delimiter = (Expression<String>) exprs[1];
 		return true;
@@ -81,8 +82,10 @@ public class ExprJoinSplit extends SimpleExpression<String> {
 	protected String[] get(Event event) {
 		String[] strings = this.strings.getArray(event);
 		String delimiter = this.delimiter != null ? this.delimiter.getSingle(event) : "";
+
 		if (strings.length == 0 || delimiter == null)
 			return new String[0];
+
 		if (join) {
 			return new String[]{StringUtils.join(strings, delimiter)};
 		} else {
@@ -108,8 +111,8 @@ public class ExprJoinSplit extends SimpleExpression<String> {
 				(delimiter != null ? " with " + delimiter.toString(event, debug) : "");
 		return (regex ? "regex " : "") +
 			"split " + strings.toString(event, debug) +
-			(delimiter != null ? " at " + delimiter.toString(event, debug) : "")
-			+ (regex ? "" : "(case sensitive: " + caseSensitivity + ")");
+			(delimiter != null ? " at " + delimiter.toString(event, debug) : "") +
+			(regex ? "" : "(case sensitive: " + caseSensitivity + ")");
 	}
 
 }
