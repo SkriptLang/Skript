@@ -64,8 +64,15 @@ public class DroppedItemData extends EntityData<Item> {
 	
 	@Override
 	protected boolean init(Literal<?>[] expressions, int matchedPattern, ParseResult parseResult) {
-		if (expressions.length > 0 && expressions[0] != null)
+		if (expressions.length > 0 && expressions[0] != null) {
 			types = (ItemType[]) expressions[0].getAll();
+			for (ItemType type : types) {
+				if (!type.getMaterial().isItem()) {
+					Skript.error("'" + type + "' cannot represent a dropped item");
+					return false;
+				}
+			}
+		}
 		return true;
 	}
 	
@@ -97,6 +104,7 @@ public class DroppedItemData extends EntityData<Item> {
 		final ItemType t = CollectionUtils.getRandom(types);
 		assert t != null;
 		ItemStack stack = t.getItem().getRandom();
+		assert stack != null; // should be true by init checks
 		entity.setItemStack(stack);
 	}
 	
@@ -159,6 +167,7 @@ public class DroppedItemData extends EntityData<Item> {
 		final ItemType itemType = CollectionUtils.getRandom(types);
 		assert itemType != null;
 		ItemStack stack = itemType.getItem().getRandom();
+		assert stack != null; // should be true by init checks
 
 		Item item;
 		if (consumer == null) {

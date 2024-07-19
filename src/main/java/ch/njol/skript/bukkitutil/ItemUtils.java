@@ -105,7 +105,7 @@ public class ItemUtils {
 	public static void setDamage(ItemStack itemStack, int damage) {
 		ItemMeta meta = itemStack.getItemMeta();
 		if (meta instanceof Damageable) {
-			((Damageable) meta).setDamage(damage);
+			((Damageable) meta).setDamage(Math.max(0, damage));
 			itemStack.setItemMeta(meta);
 		}
 	}

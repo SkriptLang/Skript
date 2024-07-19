@@ -112,9 +112,8 @@ public class BoatData extends EntityData<Boat> {
 	
 	public boolean isOfItemType(ItemType i){
 		int ordinal = -1;
-		
-		ItemStack stack = i.getRandom();
-		Material type = stack.getType();
+
+		Material type = i.getMaterial();
 		if (type == Material.OAK_BOAT)
 			ordinal = 0;
 		else if (type == Material.SPRUCE_BOAT)

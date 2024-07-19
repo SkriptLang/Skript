@@ -19,7 +19,6 @@
 package ch.njol.skript.effects;
 
 import ch.njol.skript.Skript;
-import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
@@ -110,7 +109,7 @@ public class EffReturn extends Effect {
 	protected TriggerItem walk(Event event) {
 		debug(event, false);
 		//noinspection rawtypes,unchecked
-		((ReturnHandler) handler).returnValues(value.getArray(event));
+		((ReturnHandler) handler).returnValues(event, value);
 
 		TriggerSection parent = getParent();
 		while (parent != null && parent != handler) {
