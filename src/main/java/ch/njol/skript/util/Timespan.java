@@ -18,18 +18,6 @@
  */
 package ch.njol.skript.util;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.Locale;
-
-import org.eclipse.jdt.annotation.Nullable;
-import org.jetbrains.annotations.ApiStatus;
-import org.jetbrains.annotations.ApiStatus.ScheduledForRemoval;
-
 import ch.njol.skript.Skript;
 import ch.njol.skript.localization.GeneralWords;
 import ch.njol.skript.localization.Language;
@@ -38,6 +26,17 @@ import ch.njol.skript.localization.Noun;
 import ch.njol.util.NonNullPair;
 import ch.njol.util.coll.CollectionUtils;
 import ch.njol.yggdrasil.YggdrasilSerializable;
+import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.ApiStatus.ScheduledForRemoval;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class Timespan implements YggdrasilSerializable, Comparable<Timespan> { // REMIND unit
 
@@ -211,7 +210,7 @@ public class Timespan implements YggdrasilSerializable, Comparable<Timespan> { /
 	/**
 	 * Builds a Timespan from the given long parameter.
 	 *
-	 * @deprecated Use {@link Timespan#Timespan(TimePeriod, long)}
+	 * @deprecated Use {@link #Timespan(TimePeriod, long)}
 	 * 
 	 * @param ticks The amount of Minecraft ticks to convert to a timespan.
 	 * @return Timespan based on the provided long.
@@ -257,7 +256,7 @@ public class Timespan implements YggdrasilSerializable, Comparable<Timespan> { /
 	 * @return the amount of TimePeriod this timespan represents.
 	 */
 	public long getAs(TimePeriod timePeriod) {
-		return Math.round(millis * timePeriod.getTime());
+		return millis / timePeriod.getTime();
 	}
 
 	/**
