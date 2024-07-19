@@ -41,9 +41,9 @@ public class ExprJoinSplit extends SimpleExpression<String> {
 	private boolean caseSensitivity;
 	private boolean removeTrailing;
 
-	@UnknownNullability
+	@SuppressWarnings("NotNullFieldNotInitialized")
 	private Expression<String> strings;
-	@UnknownNullability
+	@SuppressWarnings("NotNullFieldNotInitialized")
 	private Expression<String> delimiter;
 
 	@Override
