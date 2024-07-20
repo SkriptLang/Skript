@@ -248,7 +248,7 @@ public class EffChange extends Effect {
 			assert x != null;
 			changer = ch = v;
 			
-			if (!ch.isSingle() && single) {
+			if (!ch.canBeSingle() && single) {
 				if (mode == ChangeMode.SET)
 					Skript.error(changed + " can only be set to one " + Classes.getSuperClassInfo(x).getName() + ", not more", ErrorQuality.SEMANTIC_ERROR);
 				else

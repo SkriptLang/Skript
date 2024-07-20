@@ -48,7 +48,7 @@ import ch.njol.util.Kleenean;
 	"enforce the whitelist",
 	"unenforce the whitelist"
 })
-@Since("INSERT VERSION")
+@Since("2.9.0")
 @RequiredPlugins("MC 1.17+")
 public class EffEnforceWhitelist extends Effect {
 
