@@ -94,7 +94,8 @@ public class ExprJoinSplit extends SimpleExpression<String> {
 		return (regex ? "regex " : "") +
 			"split " + strings.toString(event, debug) +
 			(delimiter != null ? " at " + delimiter.toString(event, debug) : "") +
-			(regex ? "" : "(case sensitive: " + caseSensitivity + ")");
+			(regex ? "" : "(case sensitive: " + caseSensitivity + ")") +
+			(removeTrailing ? " without trailing string" : "");
 	}
 
 }
