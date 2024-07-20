@@ -923,7 +923,7 @@ entities:
 		pattern: fish[ ]hook(|1¦s)
 	armor stand:
 		name: armor stand¦s
-		pattern: armor stand(|1¦s)
+		pattern: armo[u]r stand(|1¦s)
 	endermite:
 		name: endermite¦s
 		pattern: endermite(|1¦s)
