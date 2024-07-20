@@ -27,6 +27,7 @@ import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.function.Supplier;
@@ -81,12 +82,17 @@ public abstract class Section extends TriggerSection implements SyntaxElement {
 	 * (although the loaded code may change it), the calling code must deal with this.
 	 */
 	protected void loadCode(SectionNode sectionNode) {
-		List<TriggerSection> currentSections = getParser().getCurrentSections();
-		currentSections.add(this);
+		ParserInstance parser = getParser();
+		List<TriggerSection> previousSections = parser.getCurrentSections();
+
+		List<TriggerSection> sections = new ArrayList<>(previousSections);
+		sections.add(this);
+		parser.setCurrentSections(sections);
+
 		try {
 			setTriggerItems(ScriptLoader.loadItems(sectionNode));
 		} finally {
-			currentSections.remove(currentSections.size() - 1);
+			parser.setCurrentSections(previousSections);
 		}
 	}
 

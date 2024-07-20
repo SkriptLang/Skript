@@ -54,7 +54,7 @@ import org.eclipse.jdt.annotation.Nullable;
 	"clear entity within {_entity}"
 })
 @RequiredPlugins("Paper")
-@Since("INSERT VERSION")
+@Since("2.9.0")
 public class CondIsPathfinding extends Condition {
 
 	static {

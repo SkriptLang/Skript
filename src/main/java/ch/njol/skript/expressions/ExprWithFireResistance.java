@@ -44,7 +44,7 @@ import org.eclipse.jdt.annotation.Nullable;
 	"drop fire resistant stone at player"
 })
 @RequiredPlugins("Spigot 1.20.5+")
-@Since("INSERT VERSION")
+@Since("2.9.0")
 public class ExprWithFireResistance extends PropertyExpression<ItemType, ItemType> {
 
 	static {

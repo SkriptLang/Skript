@@ -11,13 +11,13 @@ test "health effect":
 	set {_m} to last spawned cow
 	assert health of {_m} is 5 with "default cow health failed"
 	damage {_m} by 0.5
-	assert health of {_m} is 4.5 with "damage cow ##1 failed"
+	assert health of {_m} is 4.5 with "damage cow failed"
 	damage {_m} by 99
-	assert health of {_m} is 0 with "damage cow ##2 failed"
+	assert health of {_m} is 0 with "damage cow failed"
 	heal {_m} by 1
-	assert health of {_m} is 1 with "heal cow ##1 failed"
+	assert health of {_m} is 1 with "heal cow failed"
 	heal {_m} by 0.5
-	assert health of {_m} is 1.5 with "heal cow ##2 failed"
+	assert health of {_m} is 1.5 with "heal cow failed"
 	heal {_m} by 99
-	assert health of {_m} is 5 with "heal cow ##3 failed"
+	assert health of {_m} is 5 with "heal cow failed"
 	clear all entities

@@ -18,10 +18,17 @@
  */
 package ch.njol.skript.patterns;
 
+import com.google.common.base.MoreObjects;
+import com.google.common.collect.ImmutableSet;
+import org.jetbrains.annotations.Contract;
+
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -42,57 +49,49 @@ abstract class Keyword {
 	 * @param first The pattern to build keywords from.
 	 * @return A list of all keywords within <b>first</b>.
 	 */
+	@Contract("_ -> new")
 	public static Keyword[] buildKeywords(PatternElement first) {
+		return buildKeywords(first, true, 0);
+	}
+
+	/**
+	 * Builds a list of keywords starting from the provided pattern element.
+	 * @param first The pattern to build keywords from.
+	 * @param starting Whether this is the start of a pattern.
+	 * @return A list of all keywords within <b>first</b>.
+	 */
+	@Contract("_, _, _ -> new")
+	private static Keyword[] buildKeywords(PatternElement first, boolean starting, int depth) {
 		List<Keyword> keywords = new ArrayList<>();
 		PatternElement next = first;
-		boolean starting = true; // whether it is the start of the pattern
-		boolean ending = next.next == null; // whether it is the end of the pattern
 		while (next != null) {
 			if (next instanceof LiteralPatternElement) { // simple literal strings are keywords
 				String literal = next.toString().trim();
 				while (literal.contains("  "))
 					literal = literal.replace("  ", " ");
-				keywords.add(new SimpleKeyword(literal, starting, ending));
-			} else if (next instanceof ChoicePatternElement) { // this element might contain some keywords
-				List<PatternElement> choiceElements = flatten(next);
-				if (choiceElements.stream().allMatch(e -> e instanceof LiteralPatternElement)) {
-					// all elements are literals, and this is a choice, meaning one of them must be required
-					// thus, we build a keyword that requires one of them to be present.
-					List<String> groupKeywords = choiceElements.stream()
-						.map(e -> {
-							String literal = e.toString().trim();
-							while (literal.contains("  "))
-								literal = literal.replace("  ", " ");
-							return literal;
-						})
-						.collect(Collectors.toList());
-					keywords.add(new GroupKeyword(groupKeywords, starting, ending));
-				}
-			} else if (next instanceof GroupPatternElement) { // groups need to be unwrapped (they might contain choices)
-				next = ((GroupPatternElement) next).getPatternElement();
-				continue;
+				if (!literal.isEmpty()) // empty string is not useful
+					keywords.add(new SimpleKeyword(literal, starting, next.next == null));
+			} else if (depth <= 1 && next instanceof ChoicePatternElement) { // attempt to build keywords from choices
+				final boolean finalStarting = starting;
+				final int finalDepth = depth;
+				// build the keywords for each choice
+				Set<Set<Keyword>> choices = ((ChoicePatternElement) next).getPatternElements().stream()
+					.map(element -> buildKeywords(element, finalStarting, finalDepth))
+					.map(ImmutableSet::copyOf)
+					.collect(Collectors.toSet());
+				if (choices.stream().noneMatch(Collection::isEmpty)) // each choice must have a keyword for this to work
+					keywords.add(new ChoiceKeyword(choices)); // a keyword where only one choice much
+			} else if (next instanceof GroupPatternElement) { // add in keywords from the group
+				Collections.addAll(keywords, buildKeywords(((GroupPatternElement) next).getPatternElement(), starting, depth + 1));
 			}
-			starting = false;
-			next = next.next;
+
+			// a parse tag does not represent actual content in a pattern, therefore it should not affect starting
+			if (!(next instanceof ParseTagPatternElement))
+				starting = false;
+
+			next = next.originalNext;
 		}
 		return keywords.toArray(new Keyword[0]);
-	}
-
-	/**
-	 * A method for flattening a pattern element.
-	 * For example, a {@link ChoicePatternElement} wraps multiple elements. This method unwraps it.
- 	 * @param element The element to flatten.
-	 * @return A list of all pattern elements contained within <code>element</code>.
-	 */
-	private static List<PatternElement> flatten(PatternElement element) {
-		if (element instanceof ChoicePatternElement) {
-			return ((ChoicePatternElement) element).getPatternElements().stream()
-				.flatMap(e -> flatten(e).stream())
-				.collect(Collectors.toList());
-		} else if (element instanceof GroupPatternElement) {
-			element = ((GroupPatternElement) element).getPatternElement();
-		}
-		return Collections.singletonList(element);
 	}
 
 	/**
@@ -118,31 +117,70 @@ abstract class Keyword {
 			return expr.contains(keyword);
 		}
 
+		@Override
+		public int hashCode() {
+			return Objects.hash(keyword, starting, ending);
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			if (this == obj)
+				return true;
+			if (!(obj instanceof SimpleKeyword))
+				return false;
+			SimpleKeyword other = (SimpleKeyword) obj;
+			return this.keyword.equals(other.keyword) &&
+					this.starting == other.starting &&
+					this.ending == other.ending;
+		}
+
+		@Override
+		public String toString() {
+			return MoreObjects.toStringHelper(this)
+					.add("keyword", keyword)
+					.add("starting", starting)
+					.add("ending", ending)
+					.toString();
+		}
+
 	}
 
 	/**
 	 * A keyword implementation that requires at least one string out of a collection of strings to be present.
 	 */
-	private static final class GroupKeyword extends Keyword {
+	private static final class ChoiceKeyword extends Keyword {
 
-		private final Collection<String> keywords;
-		private final boolean starting, ending;
+		private final Set<Set<Keyword>> choices;
 
-		GroupKeyword(Collection<String> keywords, boolean starting, boolean ending) {
-			this.keywords = keywords;
-			this.starting = starting;
-			this.ending = ending;
+		ChoiceKeyword(Set<Set<Keyword>> choices) {
+			this.choices = choices;
 		}
 
 		@Override
 		public boolean isPresent(String expr) {
-			if (starting)
-				return keywords.stream().anyMatch(expr::startsWith);
-			if (ending)
-				return keywords.stream().anyMatch(expr::endsWith);
-			return keywords.stream().anyMatch(expr::contains);
+			return choices.stream().anyMatch(keywords -> keywords.stream().allMatch(keyword -> keyword.isPresent(expr)));
 		}
 
+		@Override
+		public int hashCode() {
+			return Arrays.hashCode(choices.toArray());
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			if (this == obj)
+				return true;
+			if (!(obj instanceof ChoiceKeyword))
+				return false;
+			return choices.equals(((ChoiceKeyword) obj).choices);
+		}
+
+		@Override
+		public String toString() {
+			return MoreObjects.toStringHelper(this)
+				.add("choices", choices.stream().map(Object::toString).collect(Collectors.joining(", ")))
+				.toString();
+		}
 	}
 
 }

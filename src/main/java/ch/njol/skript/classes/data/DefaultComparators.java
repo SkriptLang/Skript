@@ -60,6 +60,7 @@ import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.potion.PotionEffectType;
 import org.skriptlang.skript.lang.comparator.Comparator;
 import org.skriptlang.skript.lang.comparator.Comparators;
 import org.skriptlang.skript.lang.comparator.Relation;
@@ -495,7 +496,6 @@ public class DefaultComparators {
 		});
 		
 		// DamageCause - ItemType
-		ItemType lava = Aliases.javaItemType("lava");
 		Comparators.registerComparator(DamageCause.class, ItemType.class, new Comparator<DamageCause, ItemType>() {
 			@Override
 			public Relation compare(DamageCause dc, ItemType t) {
@@ -503,7 +503,7 @@ public class DefaultComparators {
 					case FIRE:
 						return Relation.get(t.isOfType(Material.FIRE));
 					case LAVA:
-						return Relation.get(t.equals(lava));
+						return Relation.get(t.getMaterial() == Material.LAVA);
 					case MAGIC:
 						return Relation.get(t.isOfType(Material.POTION));
 					case HOT_FLOOR:
@@ -653,6 +653,9 @@ public class DefaultComparators {
 				return false;
 			}
 		});
+
+		// Potion Effect Type
+		Comparators.registerComparator(PotionEffectType.class, PotionEffectType.class, (one, two) -> Relation.get(one.equals(two)));
 	}
 	
 }

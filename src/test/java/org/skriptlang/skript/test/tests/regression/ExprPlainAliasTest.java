@@ -52,7 +52,7 @@ public class ExprPlainAliasTest extends SkriptJUnitTest {
 		ContextlessEvent event = ContextlessEvent.get();
 		Variables.setVariable("item", itemType, event, true);
 
-		EasyMock.expect(itemType.getRandom()).andReturn(new ItemStack(Material.STONE)).atLeastOnce();
+		EasyMock.expect(itemType.getMaterial()).andReturn(Material.STONE).atLeastOnce();
 		EasyMock.replay(itemType);
 		TriggerItem.walk(getPlainRandomItemEffect, event);
 		EasyMock.verify(itemType);

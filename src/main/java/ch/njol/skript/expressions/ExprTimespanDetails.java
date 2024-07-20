@@ -38,7 +38,7 @@ import java.util.Locale;
 	"set {_t} to difference between now and {Payouts::players::%uuid of player%::last-date}",
 	"send \"It has been %days of {_t}% day(s) since last payout.\""
 })
-@Since("INSERT VERSION")
+@Since("2.9.0")
 public class ExprTimespanDetails extends SimplePropertyExpression<Timespan, Long> {
 
 	static {
