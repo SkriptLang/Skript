@@ -7,10 +7,12 @@ import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.UnknownNullability;
 
 @Name("Entity Visibility")
 @Description({
@@ -42,9 +44,9 @@ public class EffEntityVisibility extends Effect {
 
 	private boolean reveal;
 
-	@SuppressWarnings("null")
+	@UnknownNullability
 	private Expression<Entity> hidden;
-	@SuppressWarnings("null")
+	@UnknownNullability
 	private Expression<Player> viewers;
 
 	@Override
@@ -64,7 +66,7 @@ public class EffEntityVisibility extends Effect {
 
     @Override
     protected void execute(Event event) {
-		Player[] updated = viewers.getArray(event);
+		Player[] updated = viewers != null ? viewers.getArray(event) : Bukkit.getOnlinePlayers().toArray(new Player[0]);
 
 		Skript instance = Skript.getInstance();
 		if (reveal) {
