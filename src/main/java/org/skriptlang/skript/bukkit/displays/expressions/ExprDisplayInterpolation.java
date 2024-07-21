@@ -29,6 +29,7 @@ import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.util.Timespan;
+import ch.njol.skript.util.Timespan.TimePeriod;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.entity.Display;
@@ -80,7 +81,7 @@ public class ExprDisplayInterpolation extends SimplePropertyExpression<Display, 
 		Display[] displays = getExpr().getArray(event);
 		int ticks = 0;
 		if (delta != null)
-			ticks = (int) ((Timespan) delta[0]).getTicks(); // TODO: use getAs when fixed
+			ticks = (int) ((Timespan) delta[0]).getAs(TimePeriod.TICK);
 
 		switch (mode) {
 			case REMOVE:

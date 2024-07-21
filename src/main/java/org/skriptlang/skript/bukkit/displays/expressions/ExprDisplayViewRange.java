@@ -35,7 +35,8 @@ import ch.njol.util.coll.CollectionUtils;
 @Name("Display View Range")
 @Description({
 	"Returns or changes the view range of <a href='classes.html#display'>displays</a>.",
-	"Default value is 1.0. This value is then multiplied by 64 and the player's entity view distance setting to determine the actual range."
+	"Default value is 1.0. This value is then multiplied by 64 and the player's entity view distance setting to determine the actual range.",
+	"For example, a player with 150% entity view distance will see a block display with a view range of 1.2 at 1.2 * 64 * 150% = 115.2 blocks away."
 })
 @Examples("set view range of the last spawned text display to 2.9")
 @RequiredPlugins("Spigot 1.19.4+")
@@ -48,23 +49,25 @@ public class ExprDisplayViewRange extends SimplePropertyExpression<Display, Floa
 	}
 
 	@Override
-	@Nullable
-	public Float convert(Display display) {
+	public @Nullable Float convert(Display display) {
 		return display.getViewRange();
 	}
 
-	@Nullable
-	public Class<?>[] acceptChange(ChangeMode mode) {
-		return CollectionUtils.array(Number.class);
+	public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
+		return switch (mode) {
+			case ADD, SET, REMOVE -> CollectionUtils.array(Number.class);
+			case RESET -> CollectionUtils.array();
+			case DELETE, REMOVE_ALL -> null;
+		};
 	}
 
 	@Override
-	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
+	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
 		Display[] displays = getExpr().getArray(event);
-		float change = delta == null ? 0F : (int) ((Number) delta[0]).floatValue();
-		change = Math.max(0F, change);
+		float change = delta == null ? 1F : ((Number) delta[0]).floatValue();
+		if (Float.isNaN(change) || Float.isInfinite(change))
+			return;
 		switch (mode) {
-			case REMOVE_ALL:
 			case REMOVE:
 				change = -change;
 			case ADD:
@@ -73,12 +76,9 @@ public class ExprDisplayViewRange extends SimplePropertyExpression<Display, Floa
 					display.setViewRange(value);
 				}
 				break;
-			case DELETE:
 			case RESET:
-				for (Display display : displays)
-					display.setViewRange(1.0F);
-				break;
 			case SET:
+				change = Math.max(0F, change);
 				for (Display display : displays)
 					display.setViewRange(change);
 				break;
