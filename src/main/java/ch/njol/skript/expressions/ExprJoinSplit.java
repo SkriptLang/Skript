@@ -21,7 +21,7 @@ import java.util.regex.Pattern;
 @Name("Join & Split")
 @Description("Joins several texts with a common delimiter (e.g. \", \"), or splits a text into multiple texts at a given delimiter.")
 @Examples({
-	"message \"Online players: %join all players with \"\" | \"\"%\" # %all players% would use the default \"x, y, and z\"",
+	"message \"Online players: %join all players' names with \"\" | \"\"%\" # %all players% would use the default \"x, y, and z\"",
 	"set {_s::*} to the string argument split at \",\""
 })
 @Since("2.1, 2.5.2 (regex support), 2.7 (case sensitivity), INSERT VERSION (without trailing string)")
@@ -71,8 +71,11 @@ public class ExprJoinSplit extends SimpleExpression<String> {
 		if (join) {
 			return new String[]{StringUtils.join(strings, delimiter)};
 		} else {
-			return strings[0].split(regex ? delimiter : (caseSensitivity ? "" : "(?i)") + Pattern.quote(delimiter),
-				removeTrailing ? 0 : -1);
+			if (!regex) {
+				delimiter = (caseSensitivity ? "" : "(?i)") + Pattern.quote(delimiter);
+			}
+
+			return strings[0].split(delimiter, removeTrailing ? 0 : -1);
 		}
 	}
 
