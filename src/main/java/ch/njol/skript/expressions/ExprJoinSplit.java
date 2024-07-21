@@ -14,7 +14,6 @@ import ch.njol.util.Kleenean;
 import ch.njol.util.StringUtils;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
-import org.jetbrains.annotations.UnknownNullability;
 
 import java.util.regex.Pattern;
 
