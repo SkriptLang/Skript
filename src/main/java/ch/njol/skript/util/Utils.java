@@ -63,6 +63,7 @@ import ch.njol.util.coll.CollectionUtils;
 import ch.njol.util.coll.iterator.EnumerationIterable;
 import net.md_5.bungee.api.ChatColor;
 import org.jetbrains.annotations.NotNull;
+import org.skriptlang.skript.util.ClassLoader;
 
 /**
  * Utility class.
@@ -169,49 +170,25 @@ public abstract class Utils {
 	 *            as well. Use an empty array to load all subpackages of the base package.
 	 * @throws IOException If some error occurred attempting to read the plugin's jar file.
 	 * @return This SkriptAddon
+	 * @deprecated Use {@link org.skriptlang.skript.util.ClassLoader}.
 	 */
+	@Deprecated
 	public static Class<?>[] getClasses(Plugin plugin, String basePackage, String... subPackages) throws IOException {
-		assert subPackages != null;
-		JarFile jar = new JarFile(getFile(plugin));
-		for (int i = 0; i < subPackages.length; i++)
-			subPackages[i] = subPackages[i].replace('.', '/') + "/";
-		basePackage = basePackage.replace('.', '/') + "/";
 		List<Class<?>> classes = new ArrayList<>();
-		try {
-			List<String> classNames = new ArrayList<>();
-
-			for (JarEntry e : new EnumerationIterable<>(jar.entries())) {
-				if (e.getName().startsWith(basePackage) && e.getName().endsWith(".class") && !e.getName().endsWith("package-info.class")) {
-					boolean load = subPackages.length == 0;
-					for (String sub : subPackages) {
-						if (e.getName().startsWith(sub, basePackage.length())) {
-							load = true;
-							break;
-						}
-					}
-
-					if (load)
-						classNames.add(e.getName().replace('/', '.').substring(0, e.getName().length() - ".class".length()));
-				}
-			}
-
-			classNames.sort(String::compareToIgnoreCase);
-
-			for (String c : classNames) {
-				try {
-					classes.add(Class.forName(c, true, plugin.getClass().getClassLoader()));
-				} catch (ClassNotFoundException | NoClassDefFoundError ex) {
-					Skript.exception(ex, "Cannot load class " + c);
-				} catch (ExceptionInInitializerError err) {
-					Skript.exception(err.getCause(), "class " + c + " generated an exception while loading");
-				}
-			}
-		} finally {
-			try {
-				jar.close();
-			} catch (IOException e) {}
+		ClassLoader loader = ClassLoader.builder()
+			.basePackage(basePackage)
+			.addSubPackages(subPackages)
+			.deep(true)
+			.initialize(true)
+			.forEachClass(classes::add)
+			.build();
+		File jarFile = getFile(plugin);
+		if (jarFile != null) {
+			loader.loadClasses(plugin.getClass(), jarFile);
+		} else {
+			loader.loadClasses(plugin.getClass());
 		}
-		return classes.toArray(new Class<?>[classes.size()]);
+		return classes.toArray(new Class[0]);
 	}
 
 	/**
