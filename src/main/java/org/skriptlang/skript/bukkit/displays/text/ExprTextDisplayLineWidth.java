@@ -30,41 +30,40 @@ public class ExprTextDisplayLineWidth extends SimplePropertyExpression<Display, 
 	@Override
 	@Nullable
 	public Integer convert(Display display) {
-		if (!(display instanceof TextDisplay))
-			return null;
-		return ((TextDisplay) display).getLineWidth();
+		if (display instanceof TextDisplay textDisplay)
+			return textDisplay.getLineWidth();
+		return null;
 	}
 
-	@Nullable
-	public Class<?>[] acceptChange(ChangeMode mode) {
-		return CollectionUtils.array(Number.class);
+	public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
+		return switch (mode) {
+			case ADD, REMOVE, SET -> CollectionUtils.array(Number.class);
+			case RESET -> CollectionUtils.array();
+			default -> null;
+		};
 	}
 
 	@Override
-	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
+	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
 		Display[] displays = getExpr().getArray(event);
 		int change = delta == null ? 200 : ((Number) delta[0]).intValue();
-		change = Math.max(0, change);
 		switch (mode) {
-			case REMOVE_ALL:
 			case REMOVE:
 				change = -change;
 			case ADD:
 				for (Display display : displays) {
-					if (!(display instanceof TextDisplay))
-						continue;
-					TextDisplay textDisplay = (TextDisplay) display;
-					int value = Math.max(0, textDisplay.getLineWidth() + change);
-					textDisplay.setLineWidth(value);
+					if (display instanceof TextDisplay textDisplay) {
+						int value = Math.max(0, textDisplay.getLineWidth() + change);
+						textDisplay.setLineWidth(value);
+					}
 				}
 				break;
-			case DELETE:
 			case RESET:
 			case SET:
+				change = Math.max(0, change);
 				for (Display display : displays) {
-					if (!(display instanceof TextDisplay))
-						continue;
-					((TextDisplay) display).setLineWidth(change);
+					if (display instanceof TextDisplay textDisplay)
+						textDisplay.setLineWidth(change);
 				}
 				break;
 		}

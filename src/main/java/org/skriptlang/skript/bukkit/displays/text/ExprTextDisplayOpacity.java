@@ -1,10 +1,5 @@
 package org.skriptlang.skript.bukkit.displays.text;
 
-import org.bukkit.entity.Display;
-import org.bukkit.entity.TextDisplay;
-import org.bukkit.event.Event;
-import org.jetbrains.annotations.Nullable;
-
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
@@ -13,7 +8,12 @@ import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.RequiredPlugins;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
+import ch.njol.util.Math2;
 import ch.njol.util.coll.CollectionUtils;
+import org.bukkit.entity.Display;
+import org.bukkit.entity.TextDisplay;
+import org.bukkit.event.Event;
+import org.jetbrains.annotations.Nullable;
 
 @Name("Text Display Opacity")
 @Description({
@@ -33,52 +33,41 @@ public class ExprTextDisplayOpacity extends SimplePropertyExpression<Display, By
 	@Override
 	@Nullable
 	public Byte convert(Display display) {
-		if (!(display instanceof TextDisplay))
-			return null;
-		return ((TextDisplay) display).getTextOpacity();
+		if (display instanceof TextDisplay textDisplay)
+			return textDisplay.getTextOpacity();
+		return null;
 	}
 
-	@Nullable
-	public Class<?>[] acceptChange(ChangeMode mode) {
-		switch (mode) {
-			case ADD:
-			case DELETE:
-			case REMOVE:
-			case RESET:
-			case SET:
-				return CollectionUtils.array(Number.class);
-			case REMOVE_ALL:
-			default:
-				return null;
-		}
+	public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
+		return switch (mode) {
+			case ADD, REMOVE, RESET, SET -> CollectionUtils.array(Number.class);
+			case REMOVE_ALL, DELETE -> null;
+		};
 	}
 
 	@Override
-	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
+	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
 		Display[] displays = getExpr().getArray(event);
-		byte change = delta == null ? -1 : ((Number) delta[0]).byteValue();
-		change = (byte) Math.max(-127, change);
+		int change = delta == null ? -1 : ((Number) delta[0]).intValue();
 		switch (mode) {
 			case REMOVE_ALL:
 			case REMOVE:
-				change = (byte) -change;
+				change = -change;
 			case ADD:
 				for (Display display : displays) {
-					if (!(display instanceof TextDisplay))
-						continue;
-					TextDisplay textDisplay = (TextDisplay) display;
-					byte value = (byte) Math.min(127, textDisplay.getTextOpacity() + change);
-					value = (byte) Math.max(-127, value);
-					textDisplay.setTextOpacity(value);
+					if (display instanceof TextDisplay textDisplay) {
+						byte value = (byte) Math2.fit(-127, textDisplay.getTextOpacity() + change, 127);
+						textDisplay.setTextOpacity(value);
+					}
 				}
 				break;
 			case DELETE:
 			case RESET:
 			case SET:
+				change = Math2.fit(-127, change, 127);
 				for (Display display : displays) {
-					if (!(display instanceof TextDisplay))
-						continue;
-					((TextDisplay) display).setTextOpacity(change);
+					if (display instanceof TextDisplay textDisplay)
+						textDisplay.setTextOpacity((byte) change);
 				}
 				break;
 		}

@@ -31,34 +31,26 @@ public class ExprTextDisplayAlignment extends SimplePropertyExpression<Display, 
 	@Override
 	@Nullable
 	public TextAlignment convert(Display display) {
-		if (!(display instanceof TextDisplay))
-			return null;
-		return ((TextDisplay) display).getAlignment();
-	}
-
-	@Nullable
-	public Class<?>[] acceptChange(ChangeMode mode) {
-		switch (mode) {
-			case ADD:
-			case DELETE:
-			case REMOVE:
-			case REMOVE_ALL:
-				break;
-			case RESET:
-				return CollectionUtils.array();
-			case SET:
-				return CollectionUtils.array(TextAlignment.class);
-		}
+		if (display instanceof TextDisplay textDisplay)
+			return textDisplay.getAlignment();
 		return null;
 	}
 
+	public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
+		return switch (mode) {
+			case RESET -> CollectionUtils.array();
+			case SET -> CollectionUtils.array(TextAlignment.class);
+			default -> null;
+		};
+	}
+
 	@Override
-	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
+	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
+		//noinspection ConstantConditions
 		TextAlignment alignment = mode == ChangeMode.RESET ? TextAlignment.CENTER : (TextAlignment) delta[0];
 		for (Display display : getExpr().getArray(event)) {
-			if (!(display instanceof TextDisplay))
-				continue;
-			((TextDisplay)display).setAlignment(alignment);
+			if (display instanceof TextDisplay textDisplay)
+				textDisplay.setAlignment(alignment);
 		}
 	}
 
