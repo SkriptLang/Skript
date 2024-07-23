@@ -28,7 +28,6 @@ import org.bukkit.attribute.Attributable;
 import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.entity.Entity;
 import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.Nullable;
 
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
@@ -39,6 +38,7 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
+import org.jetbrains.annotations.Nullable;
 
 @Name("Entity Attribute")
 @Description({
@@ -55,26 +55,29 @@ import ch.njol.util.coll.CollectionUtils;
 public class ExprEntityAttribute extends PropertyExpression<Entity, Number> {
 	
 	static {
-		register(ExprEntityAttribute.class, Number.class, "[(base|1:total|1:final|1:modified)] %attributetype% attribute [value]", "entities");
+		register(
+			ExprEntityAttribute.class,
+			Number.class,
+			"([(base|1:total|1:final|1:modified)] %attributetype%|%attributetype% [(base|1:total|1:final|1:modified)]) attribute [value]",
+			"entities"
+		);
 	}
 
-	@SuppressWarnings("NotNullFieldNotInitialized")
-	private Expression<Attribute> attributes;
+	private Expression<Attribute> attributeType;
 	private boolean withModifiers;
 
-	@SuppressWarnings({"null", "unchecked"})
+	@SuppressWarnings("unchecked")
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		attributes = (Expression<Attribute>) exprs[matchedPattern];
+		attributeType = (Expression<Attribute>) exprs[matchedPattern];
 		setExpr((Expression<? extends Entity>) exprs[matchedPattern ^ 1]);
 		withModifiers = parseResult.mark == 1;
 		return true;
 	}
 
 	@Override
-	@SuppressWarnings("null")
 	protected Number[] get(Event event, Entity[] entities) {
-		Attribute attribute = attributes.getSingle(event);
+		Attribute attribute = attributeType.getSingle(event);
 		if (attribute == null)
 			return new Number[0];
 
@@ -89,15 +92,17 @@ public class ExprEntityAttribute extends PropertyExpression<Entity, Number> {
 	@Override
 	@Nullable
 	public Class<?>[] acceptChange(ChangeMode mode) {
-		if (mode == ChangeMode.REMOVE_ALL || withModifiers)
+		// Only the base value can be changed
+		if (!withModifiers && (mode == ChangeMode.SET || mode == ChangeMode.ADD || mode == ChangeMode.REMOVE || mode == ChangeMode.DELETE || mode == ChangeMode.RESET)) {
+			return CollectionUtils.array(Number.class);
+		} else {
 			return null;
-		return CollectionUtils.array(Number.class);
+		}
 	}
 
 	@Override
-	@SuppressWarnings("null")
 	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
-		Attribute attribute = attributes.getSingle(event);
+		Attribute attribute = attributeType.getSingle(event);
 		if (attribute == null)
 			return;
 
@@ -110,6 +115,7 @@ public class ExprEntityAttribute extends PropertyExpression<Entity, Number> {
 			if (instance == null)
 				continue;
 
+			// Changes to the instance will be visible at once according to documentation
 			switch (mode) {
 				case SET:
 					instance.setBaseValue(value);
@@ -139,7 +145,7 @@ public class ExprEntityAttribute extends PropertyExpression<Entity, Number> {
 	@Override
 	@SuppressWarnings("null")
 	public String toString(@Nullable Event e, boolean debug) {
-		return "entity " + getExpr().toString(e, debug) + "'s " + attributes.toString(e, debug) + (withModifiers ? " modified" : "") + " attribute";
+		return "entity " + getExpr().toString(e, debug) + "'s " + attributeType.toString(e, debug) + (withModifiers ? " modified" : "") + " attribute";
 	}
 
 }
