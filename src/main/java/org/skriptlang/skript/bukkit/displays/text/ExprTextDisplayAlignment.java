@@ -29,8 +29,7 @@ public class ExprTextDisplayAlignment extends SimplePropertyExpression<Display, 
 	}
 
 	@Override
-	@Nullable
-	public TextAlignment convert(Display display) {
+	public @Nullable TextAlignment convert(Display display) {
 		if (display instanceof TextDisplay textDisplay)
 			return textDisplay.getAlignment();
 		return null;

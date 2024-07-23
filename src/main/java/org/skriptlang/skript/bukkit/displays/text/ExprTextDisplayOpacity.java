@@ -31,8 +31,7 @@ public class ExprTextDisplayOpacity extends SimplePropertyExpression<Display, By
 	}
 
 	@Override
-	@Nullable
-	public Byte convert(Display display) {
+	public @Nullable Byte convert(Display display) {
 		if (display instanceof TextDisplay textDisplay)
 			return textDisplay.getTextOpacity();
 		return null;

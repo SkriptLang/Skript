@@ -1,12 +1,5 @@
 package org.skriptlang.skript.bukkit.misc.expressions;
 
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.Item;
-import org.bukkit.entity.ItemDisplay;
-import org.bukkit.entity.ItemFrame;
-import org.bukkit.entity.ThrowableProjectile;
-import org.eclipse.jdt.annotation.Nullable;
-
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
@@ -19,6 +12,12 @@ import ch.njol.skript.util.slot.DroppedItemSlot;
 import ch.njol.skript.util.slot.ItemFrameSlot;
 import ch.njol.skript.util.slot.Slot;
 import ch.njol.skript.util.slot.ThrowableProjectileSlot;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.Item;
+import org.bukkit.entity.ItemDisplay;
+import org.bukkit.entity.ItemFrame;
+import org.bukkit.entity.ThrowableProjectile;
+import org.jetbrains.annotations.Nullable;
 
 @Name("Item of an Entity")
 @Description({
@@ -35,18 +34,17 @@ import ch.njol.skript.util.slot.ThrowableProjectileSlot;
 })
 @Since("2.2-dev35, 2.2-dev36 (improved), 2.5.2 (throwable projectiles)")
 @RequiredPlugins("Minecraft 1.15.2+ (throwable projectiles), 1.19.4+ (displays)")
-public class ExprItemFrameSlot extends SimplePropertyExpression<Entity, Slot> {
+public class ExprItemOfEntity extends SimplePropertyExpression<Entity, Slot> {
 
 	private static final boolean PROJECTILE_SUPPORT = Skript.classExists("org.bukkit.entity.ThrowableProjectile");
 	private static final boolean DISPLAYS_SUPPORT = Skript.classExists("org.bukkit.entity.ItemDisplay");
 
 	static {
-		register(ExprItemFrameSlot.class, Slot.class, "[the] item [inside]", "entities");
+		register(ExprItemOfEntity.class, Slot.class, "[the] item [inside]", "entities");
 	}
 
 	@Override
-	@Nullable
-	public Slot convert(Entity entity) {
+	public @Nullable Slot convert(Entity entity) {
 		if (entity instanceof ItemFrame) {
 			return new ItemFrameSlot((ItemFrame) entity);
 		} else if (entity instanceof Item) {

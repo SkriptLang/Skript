@@ -28,8 +28,7 @@ public class ExprTextDisplayLineWidth extends SimplePropertyExpression<Display, 
 	}
 
 	@Override
-	@Nullable
-	public Integer convert(Display display) {
+	public @Nullable Integer convert(Display display) {
 		if (display instanceof TextDisplay textDisplay)
 			return textDisplay.getLineWidth();
 		return null;
