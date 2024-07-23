@@ -2,6 +2,7 @@ package org.skriptlang.skript.bukkit.misc.rotation;
 
 import org.bukkit.entity.Display;
 import org.bukkit.util.Transformation;
+import org.jetbrains.annotations.Contract;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
@@ -17,6 +18,8 @@ public class DisplayRotator implements Rotator<Display> {
 		qRotator = new QuaternionRotator(axis, vector, angle);
 	}
 
+	@Override
+	@Contract("_ -> param1")
 	public Display rotate(Display input) {
 		Transformation transformation = input.getTransformation();
 		Quaternionf leftRotation = transformation.getLeftRotation();

@@ -4,7 +4,6 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
-import ch.njol.skript.doc.RequiredPlugins;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
@@ -41,17 +40,15 @@ import java.util.Objects;
 	"set {_new} to {_vector} rotated around vector(1, 1, 1) by 45",
 	"set {_new} to {_quaternion} rotated by x 45, y 90, z 135"
 })
-@RequiredPlugins("Spigot 1.19.4+")
 @Since("INSERT VERSION")
 public class ExprRotate extends SimpleExpression<Object> {
 
 	static {
-		if (Skript.isRunningMinecraft(1, 19, 4))
-			Skript.registerExpression(ExprRotate.class, Object.class, ExpressionType.SIMPLE,
-					"%quaternions/vectors% rotated around [the] [global] (:x|:y|:z)(-| )axis by %number% [degrees]",
-					"%quaternions% rotated around [the|its|their] local (:x|:y|:z)(-| )ax(i|e)s by %number% [degrees]",
-					"%quaternions/vectors% rotated around [the] %vector% by %number% [degrees]",
-					"%quaternions% rotated by x %number%, y %number%(, [and]| and) z %number%");
+		Skript.registerExpression(ExprRotate.class, Object.class, ExpressionType.SIMPLE,
+				"%quaternions/vectors% rotated around [the] [global] (:x|:y|:z)(-| )axis by %number% [degrees]",
+				"%quaternions% rotated around [the|its|their] local (:x|:y|:z)(-| )ax(i|e)s by %number% [degrees]",
+				"%quaternions/vectors% rotated around [the] %vector% by %number% [degrees]",
+				"%quaternions% rotated by x %number%, y %number%(, [and]| and) z %number%");
 	}
 
 	private Expression<?> toRotate;

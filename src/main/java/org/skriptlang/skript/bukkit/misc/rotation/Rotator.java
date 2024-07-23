@@ -1,7 +1,5 @@
 package org.skriptlang.skript.bukkit.misc.rotation;
 
-import org.jetbrains.annotations.Contract;
-
 import java.util.Locale;
 
 /**
@@ -75,7 +73,6 @@ public interface Rotator<T> {
 		 * @param axis the axis to convert from
 		 * @return the converted axis
 		 */
-		@Contract(value = "_ -> new", pure = true)
 		public Axis fromBukkit(org.bukkit.Axis axis) {
 			return switch (axis) {
 				case X -> Axis.X;

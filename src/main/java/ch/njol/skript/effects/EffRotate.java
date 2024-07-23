@@ -4,7 +4,6 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
-import ch.njol.skript.doc.RequiredPlugins;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
@@ -45,8 +44,7 @@ import java.util.Locale;
 	"rotate {_vector} around vector(1, 1, 1) by 45",
 	"rotate {_quaternion} by x 45, y 90, z 135"
 })
-@RequiredPlugins("Spigot 1.19.4+")
-@Since("INSERT VERSION")
+@Since("2.2-dev28, INSERT VERSION (quaternions, displays)")
 public class EffRotate extends Effect {
 
 	static {
