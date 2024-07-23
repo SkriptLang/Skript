@@ -40,7 +40,7 @@ import org.eclipse.jdt.annotation.Nullable;
 	"\t\tcancel event",
 	"\t\tsend \"You can't PVP in spawn.\""
 })
-@Since("INSERT VERSION")
+@Since("2.7")
 public class CondWithinRadius extends Condition {
 
 	static {

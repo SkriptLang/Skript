@@ -18,18 +18,18 @@ test "SecConditional":
 		delete {_b}
 		1 = 2
 	else if 1 = 1:
-		assert 1 = 2 with "conditional failed ##1"
+		assert 1 = 2 with "conditional failed"
 	else:
-		assert 1 = 2 with "conditional failed ##2"
+		assert 1 = 2 with "conditional failed"
 	if {_b} is set:
-		assert 1 = 2 with "conditional failed ##3"
+		assert 1 = 2 with "conditional failed"
 
 	if 1 = 2:
-		assert 1 = 2 with "conditional failed ##4"
+		assert 1 = 2 with "conditional failed"
 	else if 1 = 1:
 		exit 1 section
 	else:
-		assert 1 = 2 with "conditional failed ##5"
+		assert 1 = 2 with "conditional failed"
 
 test "SecConditional - if all true":
 	if:
@@ -143,3 +143,38 @@ test "SecConditional - else if all false":
 	then:
 		set {_a} to false
 	assert {_a} is not set with "'else if all' ran even though all conditions were false"
+
+test "SecConditional - starting with a non-multiline conditional":
+	if 1 is 1:
+		set {_a} to true
+	else if:
+		1 is 8
+		2 is 7
+	then:
+		set {_b} to true
+	assert {_a} is set with "non-multiline 'if' didn't run when before a multiline 'else if'"
+
+test "SecConditional - non-multiline conditional in the middle":
+	if:
+		1 is 2
+		3 is 4
+	then:
+		set {_b} to true
+	else if 1 is 1:
+		set {_a} to true
+	else if:
+		5 is 6
+		7 is 8
+	then:
+		set {_c} to true
+	assert {_a} is set with "non-multiline 'if' didn't run when used in the middle of a multiline 'else if'"
+
+test "SecConditional - non-multiline conditional at the end":
+	if:
+		1 is 2
+		3 is 4
+	then:
+		set {_b} to true
+	else if 1 is 1:
+		set {_a} to true
+	assert {_a} is set with "non-multiline 'if' didn't run used at the end of a multiline 'if'"

@@ -9,7 +9,7 @@ none: <none>
 # -- Skript --
 skript:
 	copyright: ~ créé par & © Peter Güttinger alias Njol ~
-	prefix: <gray>[<gold>Skript<gray>] # not used
+	prefix: <gray>[<gold>Skript<gray>] <reset>
 	quotes error: Utilisation incorrecte des guillemets ("). Si vous voulez utiliser des guillemets dans du texte "entre guillemets", doublez-les : "".
 	brackets error: Quantité ou emplacement des accolades incorrect. Assurez-vous que chaque accolade ouvrante '{' corresponde à une accolade fermante '}'.
 	invalid reload: Skript ne peut être rechargé qu'avec la commande '/reload' de Bukkit ou la commande '/skript reload' de Skript.
@@ -45,7 +45,7 @@ skript command:
 			changes: Liste toutes les modifications apportées depuis la version actuelle
 			download: Télécharge la dernière version
 		info: Affiche un message contenant les liens vers les alias et la documentation de Skript
-		gen-docs: Génère la documentation en utilisant doc-templates dans le dossier du plugin
+		gen-docs: Génère la documentation en utilisant docs/templates dans le dossier du plugin
 		test: Utilisé pour exécuter les tests Skript
 
 	invalid script: Impossible de trouver le script <grey>'<gold>%s<grey>'<red> dans le dossier des scripts !
@@ -68,38 +68,38 @@ skript command:
 		aliases: les alias
 		script: <gold>%s<reset>
 		scripts in folder: tous les scripts dans <gold>%s<reset>
-		x scripts in folder: <gold>%2$s <reset>script¦¦s¦ dans <gold>%1$s<reset>
+		x scripts in folder: <gold>%2$s <lime>script¦¦s¦ dans <gold>%1$s<reset>
 		empty folder: <gold>%s<reset> ne contient aucun script activé.
 	enable:
 		all:
 			enabling: Activation de tous les scripts désactivés...
 			enabled: Activation et analyse réussies de tous les scripts précédemment désactivés.
-			error: %s ¦erreur rencontrée¦erreurs rencontrées¦ lors de l'analyse des scripts désactivés !
-			io error: Impossible de charger les scripts (certains scripts ont peut-être déjà été renommés et seront activés au redémarrage du serveur) : %s
+			error: <gold>%s <light red>¦erreur rencontrée¦erreurs rencontrées¦ lors de l'analyse des scripts désactivés !
+			io error: <light red>Impossible de charger les scripts (certains scripts ont peut-être déjà été renommés et seront activés au redémarrage du serveur) : <gold>%s
 		single:
 			already enabled: <gold>%s<reset> est déjà activé ! Utilisez <gray>/<gold>skript <cyan>reload <red>%s<reset> pour le recharger s'il a été modifié.
 			enabling: Activation de <gold>%s<reset>...
 			enabled: <gold>%s<reset> activé et analysé avec succès.
-			error: %2$s ¦erreur rencontrée¦erreurs rencontrées¦ lors de l'analyse de <gold>%1$s<red> !
-			io error: Impossible d'activer <gold>%s<red>: %s
+			error: <gold>%2$s <light red>¦erreur rencontrée¦erreurs rencontrées¦ lors de l'analyse de <gold>%1$s<light red>!
+			io error: <light red>Impossible d'activer <gold>%s<light red>: <gold>%s
 		folder:
 			empty: <gold>%s<reset> ne contient aucun script désactivé.
 			enabling: Activation de <gold>%2$s <reset>script¦¦s¦ dans <gold>%1$s<reset>...
 			enabled: Activation et analyse réussies de <gold>%2$s<reset> script(s) précédemment désactivé(s) dans <gold>%1$s<reset>.
-			error: %2$s ¦erreur rencontrée¦erreurs rencontrées¦ lors de l'analyse des scripts dans <gold>%1$s<red> !
-			io error: Erreur lors de l'activation des scripts dans <gold>%s<red> (certains scripts pourraient être activés lors du redémarrage du serveur) : %s
+			error: <gold>%2$s <light red>¦erreur rencontrée¦erreurs rencontrées¦ lors de l'analyse des scripts dans <gold>%1$s<light red>!
+			io error: <light red>Erreur lors de l'activation des scripts dans <gold>%s <light red>(certains scripts pourraient être activés lors du redémarrage du serveur) : <gold>%s
 	disable:
 		all:
 			disabled: Désactivation de tous les scripts réussie.
-			io error: Impossible de renommer tous les scripts - certains scripts seront réactivés lorsque vous redémarrerez le serveur : %s
+			io error: <light red>Impossible de renommer tous les scripts - certains scripts seront réactivés lorsque vous redémarrerez le serveur : <gold>%s
 		single:
 			already disabled: <gold>%s<reset> est déjà désactivé !
 			disabled: <gold>%s<reset> désactivé avec succès.
-			io error: Impossible de renommer <gold>%s<red>, il sera à nouveau activé lorsque vous redémarrerez le serveur : %s
+			io error: <light red>Impossible de renommer <gold>%s<light red>, il sera à nouveau activé lorsque vous redémarrerez le serveur : <gold>%s
 		folder:
 			empty: <gold>%s<reset> ne contient aucun script activé.
 			disabled: Désactivation réussie de <gold>%2$s<reset> script(s) dans <gold>%1$s<reset>.
-			io error: Impossible de désactiver les scripts <gold>%s<red> (certains scripts pourraient être désactivés lors du redémarrage du serveur): %s
+			io error: <light red>Impossible de désactiver les scripts <gold>%s <light red>(certains scripts pourraient être désactivés lors du redémarrage du serveur): <gold>%s
 	update:
 		# check/download: see Updater
 		changes:

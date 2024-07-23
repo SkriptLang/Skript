@@ -1,0 +1,5 @@
+
+# Test not related to a made issue. Details at pull request.
+test "100 blocks fix":
+	assert blocks 5 below spawn of world "world" contains air, grass block, dirt block, dirt block, bedrock block and void air with "Failed to get correct blocks (got '%blocks 5 below spawn of world "world"%')"
+	assert size of blocks 3 below location below spawn of world "world" is 4 with "Failed to match asserted size"

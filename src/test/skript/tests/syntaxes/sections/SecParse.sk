@@ -1,0 +1,8 @@
+test "parsing section":
+  parse:
+    parse:
+      # intentionally empty to cause an error
+  assert last parse logs contain "A parse section must contain code" with "Parse section didn't return expected error"
+  parse:
+    set {_x} to {_y} # valid code
+  assert last parse logs is not set with "Parse section contained errors when code was valid"

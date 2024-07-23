@@ -32,9 +32,12 @@ import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
 
 import java.io.File;
+import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import org.bukkit.event.Event;
 
@@ -54,12 +57,12 @@ public class ExprScripts extends SimpleExpression<String> {
 
 	static {
 		Skript.registerExpression(ExprScripts.class, String.class, ExpressionType.SIMPLE,
-				"[all [of the]] scripts [(1:without ([subdirectory] paths|parents))]",
-				"[all [of the]] (enabled|loaded) scripts [(1:without ([subdirectory] paths|parents))]",
-				"[all [of the]] (disabled|unloaded) scripts [(1:without ([subdirectory] paths|parents))]");
+				"[all [of the]|the] scripts [1:without ([subdirectory] paths|parents)]",
+				"[all [of the]|the] (enabled|loaded) scripts [1:without ([subdirectory] paths|parents)]",
+				"[all [of the]|the] (disabled|unloaded) scripts [1:without ([subdirectory] paths|parents)]");
 	}
 
-	private static final String SCRIPTS_PATH = new File(Skript.getInstance().getDataFolder(), Skript.SCRIPTSFOLDER).getPath() + File.separator;
+	private static final Path SCRIPTS_PATH = Skript.getInstance().getScriptsFolder().getAbsoluteFile().toPath();
 
 	private boolean includeEnabled;
 	private boolean includeDisabled;
@@ -75,20 +78,27 @@ public class ExprScripts extends SimpleExpression<String> {
 
 	@Override
 	protected String[] get(Event event) {
-		List<File> scripts = new ArrayList<>();
+		List<Path> scripts = new ArrayList<>();
 		if (includeEnabled) {
 			for (Script script : ScriptLoader.getLoadedScripts())
-				scripts.add(script.getConfig().getFile());
+				scripts.add(script.getConfig().getPath());
 		}
 		if (includeDisabled)
-			scripts.addAll(ScriptLoader.getDisabledScripts());
-		return formatFiles(scripts);
+			scripts.addAll(ScriptLoader.getDisabledScripts()
+					.stream()
+					.map(File::toPath)
+					.collect(Collectors.toList()));
+		return formatPaths(scripts);
 	}
 
 	@SuppressWarnings("null")
-	private String[] formatFiles(List<File> files) {
-		return files.stream()
-			.map(f -> noPaths ? f.getName() : f.getPath().replaceFirst(Pattern.quote(SCRIPTS_PATH), ""))
+	private String[] formatPaths(List<Path> paths) {
+		return paths.stream()
+			.map(path -> {
+				if (noPaths)
+					return path.getFileName();
+				return SCRIPTS_PATH.relativize(path.toAbsolutePath()).toString();
+			})
 			.toArray(String[]::new);
 	}
 

@@ -45,7 +45,7 @@ import org.eclipse.jdt.annotation.Nullable;
 		"\tset the hatching number to 10"
 })
 @Events("Egg Throw")
-@Since("INSERT VERSION")
+@Since("2.7")
 public class ExprHatchingNumber extends SimpleExpression<Byte> {
 
 	static {

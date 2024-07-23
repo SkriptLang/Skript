@@ -44,7 +44,7 @@ import org.eclipse.jdt.annotation.Nullable;
 @Examples({"on server list ping:",
 		"	set the max players count to (online players count + 1)"})
 @RequiredPlugins("Paper 1.16+ (modify max real players)")
-@Since("2.3, INSERT VERSION (modify max real players)")
+@Since("2.3, 2.7 (modify max real players)")
 public class ExprMaxPlayers extends SimpleExpression<Integer> {
 
 	static {

@@ -35,7 +35,7 @@ import org.jetbrains.annotations.Nullable;
 @Name("Pi")
 @Description("Returns the mathematical constant pi. (approx. 3.1415926535)")
 @Examples("set {_tau} to pi * 2")
-@Since("INSERT VERSION")
+@Since("2.7")
 public class LitPi extends SimpleLiteral<Double> {
 
 	static {

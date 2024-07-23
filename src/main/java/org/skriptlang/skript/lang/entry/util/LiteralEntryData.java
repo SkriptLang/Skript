@@ -38,7 +38,10 @@ public class LiteralEntryData<T> extends KeyValueEntryData<T> {
 	/**
 	 * @param type The type to parse the value into.
 	 */
-	public LiteralEntryData(String key, @Nullable T defaultValue, boolean optional, Class<T> type) {
+	public LiteralEntryData(
+		String key, @Nullable T defaultValue, boolean optional,
+		Class<T> type
+	) {
 		super(key, defaultValue, optional);
 		this.type = type;
 	}

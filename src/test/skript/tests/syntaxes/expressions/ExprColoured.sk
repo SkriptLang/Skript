@@ -1,0 +1,5 @@
+test "(un)coloured":
+	assert uncoloured "<red>B" is "B" with "Tag strip failed"
+	assert uncoloured "<red<red<red>>>B" is "B" with "Recursive tag strip failed"
+	assert uncoloured "&aB" is "B" with "Colour strip failed"
+	assert uncoloured "&&aaB" is "B" with "Recursive colour strip failed"

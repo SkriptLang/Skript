@@ -43,7 +43,7 @@ public class EvtDamage extends SkriptEvent {
 		Skript.registerEvent("Damage", EvtDamage.class, EntityDamageEvent.class, "damag(e|ing) [of %-entitydata%] [by %-entitydata%]")
 				.description("Called when an entity receives damage, e.g. by an attack from another entity, lava, fire, drowning, fall, suffocation, etc.")
 				.examples("on damage:", "on damage of a player:", "on damage of player by zombie:")
-				.since("1.0, INSERT VERSION (by entity)");
+				.since("1.0, 2.7 (by entity)");
 	}
 	
 	@Nullable

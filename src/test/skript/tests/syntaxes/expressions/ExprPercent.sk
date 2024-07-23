@@ -1,0 +1,17 @@
+test "percent of":
+	assert 5% of 100 is 5 with "5%% of 100 is 5"
+	assert 0 percent of 100 is 0 with "0%% of 100 is 0"
+	assert -5% of 100 is -5 with "-5%% of 100 is -5"
+	assert infinity value% of 100 is infinity value with "infinity%% of 100 is infinity"
+	assert 20 percent of 0 is 0 with "20%% of 0 is 0"
+	assert 110% of 100 is 110 with "110%% of 100 is 110"
+
+	set {_a::*} to 50% of (100, 50, 0, and infinity value)
+	assert {_a::1} is 50 with "50%% of 100 is 50 (list)"
+	assert {_a::2} is 25 with "50%% of 50 is 25 (list)"
+	assert {_a::3} is 0 with "50%% of 0 is 0 (list)"
+	assert {_a::4} is infinity value with "50%% of infinity is infinity (list)"
+
+	assert {_none}% of 10 is not set with "none%% of 10 is none"
+	assert {_none}% of {_none} is not set with "none%% of none is none"
+	assert 10% of {_none} is not set with "10%% of none is none"

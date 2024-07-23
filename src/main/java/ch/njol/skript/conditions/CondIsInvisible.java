@@ -32,7 +32,7 @@ import org.bukkit.entity.LivingEntity;
 @Name("Is Invisible")
 @Description("Checks whether a living entity is invisible.")
 @Examples("target entity is invisible")
-@Since("INSERT VERSION")
+@Since("2.7")
 public class CondIsInvisible extends PropertyCondition<LivingEntity> {
 
 	static {

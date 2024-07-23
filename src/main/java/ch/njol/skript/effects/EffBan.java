@@ -26,7 +26,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.Nullable;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
@@ -38,6 +37,7 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.util.Timespan;
 import ch.njol.util.Kleenean;
+import org.jetbrains.annotations.Nullable;
 
 @Name("Ban")
 @Description({"Bans or unbans a player or an IP address.",
@@ -46,19 +46,23 @@ import ch.njol.util.Kleenean;
 	"We recommend that you test your scripts so that no accidental permanent bans are applied.",
 	"",
 	"Note that banning people does not kick them from the server.",
-	"Consider using the <a href='effects.html#EffKick'>kick effect</a> after applying a ban."})
+	"You can optionally use 'and kick' or consider using the <a href='effects.html#EffKick'>kick effect</a> after applying a ban."})
 @Examples({"unban player",
 	"ban \"127.0.0.1\"",
 	"IP-ban the player because \"he is an idiot\"",
-	"ban player due to \"inappropriate language\" for 2 days"})
-@Since("1.4, 2.1.1 (ban reason), 2.5 (timespan)")
+	"ban player due to \"inappropriate language\" for 2 days",
+	"ban and kick player due to \"inappropriate language\" for 2 days"})
+@Since("1.4, 2.1.1 (ban reason), 2.5 (timespan), 2.9.0 (kick)")
 public class EffBan extends Effect {
 	
 	static {
 		Skript.registerEffect(EffBan.class,
-			"ban %strings/offlineplayers% [(by reason of|because [of]|on account of|due to) %-string%] [for %-timespan%]", "unban %strings/offlineplayers%",
-			"ban %players% by IP [(by reason of|because [of]|on account of|due to) %-string%] [for %-timespan%]", "unban %players% by IP",
-			"IP(-| )ban %players% [(by reason of|because [of]|on account of|due to) %-string%] [for %-timespan%]", "(IP(-| )unban|un[-]IP[-]ban) %players%");
+			"ban [kick:and kick] %strings/offlineplayers% [(by reason of|because [of]|on account of|due to) %-string%] [for %-timespan%]",
+			"unban %strings/offlineplayers%",
+			"ban [kick:and kick] %players% by IP [(by reason of|because [of]|on account of|due to) %-string%] [for %-timespan%]",
+			"unban %players% by IP",
+			"IP(-| )ban [kick:and kick] %players% [(by reason of|because [of]|on account of|due to) %-string%] [for %-timespan%]",
+			"(IP(-| )unban|un[-]IP[-]ban) %players%");
 	}
 	
 	@SuppressWarnings("null")
@@ -70,6 +74,7 @@ public class EffBan extends Effect {
 	
 	private boolean ban;
 	private boolean ipBan;
+	private boolean kick;
 	
 	@SuppressWarnings({"null", "unchecked"})
 	@Override
@@ -79,6 +84,7 @@ public class EffBan extends Effect {
 		expires = exprs.length > 1 ? (Expression<Timespan>) exprs[2] : null;
 		ban = matchedPattern % 2 == 0;
 		ipBan = matchedPattern >= 2;
+		kick = parseResult.hasTag("kick");
 		return true;
 	}
 	
@@ -91,8 +97,9 @@ public class EffBan extends Effect {
 		final String source = "Skript ban effect";
 		for (final Object o : players.getArray(e)) {
 			if (o instanceof Player) {
+				Player player = (Player) o;
 				if (ipBan) {
-					InetSocketAddress addr = ((Player) o).getAddress();
+					InetSocketAddress addr = player.getAddress();
 					if (addr == null)
 						return; // Can't ban unknown IP
 					final String ip = addr.getAddress().getHostAddress();
@@ -102,10 +109,12 @@ public class EffBan extends Effect {
 						Bukkit.getBanList(BanList.Type.IP).pardon(ip);
 				} else {
 					if (ban)
-						Bukkit.getBanList(BanList.Type.NAME).addBan(((Player) o).getName(), reason, expires, source); // FIXME [UUID] ban UUID
+						Bukkit.getBanList(BanList.Type.NAME).addBan(player.getName(), reason, expires, source); // FIXME [UUID] ban UUID
 					else
-						Bukkit.getBanList(BanList.Type.NAME).pardon(((Player) o).getName());
+						Bukkit.getBanList(BanList.Type.NAME).pardon(player.getName());
 				}
+				if (kick)
+					player.kickPlayer(reason);
 			} else if (o instanceof OfflinePlayer) {
 				String name = ((OfflinePlayer) o).getName();
 				if (name == null)
@@ -130,9 +139,13 @@ public class EffBan extends Effect {
 	}
 	
 	@Override
-	public String toString(final @Nullable Event e, final boolean debug) {
-		return (ipBan ? "IP-" : "") + (ban ? "" : "un") + "ban " + players.toString(e, debug) +
-			(reason != null ? " on account of " + reason.toString(e, debug) : "") + (expires != null ? " for " + expires.toString(e, debug) : "");
+	public String toString(final @Nullable Event event, final boolean debug) {
+		return (ipBan ? "IP-" : "") +
+			(this.ban ? "ban " : "unban ") +
+			(kick ? "and kick " : "") +
+			this.players.toString(event, debug) +
+			(this.reason != null ? " on account of " + this.reason.toString(event, debug) : "") +
+			(expires != null ? " for " + expires.toString(event, debug) : "");
 	}
 	
 }

@@ -18,15 +18,11 @@
  */
 package ch.njol.skript.hooks.regions.conditions;
 
-import org.bukkit.Location;
-import org.bukkit.entity.Player;
-import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.Nullable;
-
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
+import ch.njol.skript.doc.RequiredPlugins;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.hooks.regions.RegionsPlugin;
 import ch.njol.skript.lang.Condition;
@@ -35,21 +31,30 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.util.Direction;
 import ch.njol.util.Checker;
 import ch.njol.util.Kleenean;
+import org.bukkit.Location;
+import org.bukkit.entity.Player;
+import org.bukkit.event.Event;
+import org.eclipse.jdt.annotation.Nullable;
 
 /**
  * @author Peter Güttinger
  */
 @Name("Can Build")
-@Description({"Tests whether a player is allowed to build at a certain location.",
-		"This condition requires a supported <a href='../classes.html#region'>regions</a> plugin to be installed."})
-@Examples({"command /setblock &lt;material&gt;:",
-		"	description: set the block at your crosshair to a different type",
-		"	trigger:",
-		"		player cannot build at the targeted block:",
-		"			message \"You do not have permission to change blocks there!\"",
-		"			stop",
-		"		set the targeted block to argument"})
+@Description({
+	"Tests whether a player is allowed to build at a certain location.",
+	"This condition requires a supported <a href='./classes.html#region'>regions</a> plugin to be installed."
+})
+@Examples({
+	"command /setblock &lt;material&gt;:",
+	"\tdescription: set the block at your crosshair to a different type",
+	"\ttrigger:",
+	"\t\tplayer cannot build at the targeted block:",
+	"\t\t\tmessage \"You do not have permission to change blocks there!\"",
+	"\t\t\tstop",
+	"\t\tset the targeted block to argument"
+})
 @Since("2.0")
+@RequiredPlugins("Supported regions plugin")
 public class CondCanBuild extends Condition {
 	static {
 		Skript.registerCondition(CondCanBuild.class,

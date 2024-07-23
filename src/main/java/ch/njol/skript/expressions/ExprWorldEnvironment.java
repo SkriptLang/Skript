@@ -33,7 +33,7 @@ import org.eclipse.jdt.annotation.Nullable;
 	"if environment of player's world is nether:",
 	"\tapply fire resistance to player for 10 minutes"
 })
-@Since("INSERT VERSION")
+@Since("2.7")
 public class ExprWorldEnvironment extends SimplePropertyExpression<World, Environment> {
 
 	static {

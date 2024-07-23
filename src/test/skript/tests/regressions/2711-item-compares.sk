@@ -1,0 +1,5 @@
+test "item comparison":
+	set {_test} to a dragon head
+	assert {_test} is a dragon head with "failed to compare against a head"
+	set {_test} to a door
+	assert {_test} is any door, any wood door, birch door or a closed birch door with "failed to compare against a door"

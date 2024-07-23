@@ -45,7 +45,7 @@ import org.eclipse.jdt.annotation.Nullable;
 		"\tset the hatching entity type to a primed tnt"
 })
 @Events("Egg Throw")
-@Since("INSERT VERSION")
+@Since("2.7")
 public class ExprHatchingType extends SimpleExpression<EntityData<?>> {
 
 	static {

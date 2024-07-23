@@ -1,0 +1,18 @@
+test "line of sight":
+	set {_a} to (spawn of world "world")
+	set {_b} to {_a} ~ vector(0, 10, 0)
+	loop blocks between {_a} and {_b}:
+		set {_block::%loop-block%} to type of loop-block
+		set loop-block to air
+	spawn pig at spawn of world "world"
+	set {_pig1} to last spawned entity
+	spawn pig at {_b}:
+		assert pig has line of sight to {_pig1} with "Pigs should have line of sight to each other 1"
+		assert {_pig1} has line of sight to pig with "Pigs should have line of sight to each other 2"
+		set block at ({_a} ~ vector(0, 5, 0)) to stone
+		assert pig has no line of sight to {_pig1} with "Pigs should not have line of sight to each other 1"
+		assert {_pig1} has no line of sight to pig with "Pigs should not have line of sight to each other 2"
+		delete pig
+	delete entity within {_pig1}
+	loop blocks between {_a} and {_b}:
+		set loop-block to {_block::%loop-block%}

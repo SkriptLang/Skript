@@ -40,7 +40,7 @@ import java.util.List;
 @Name("Potion Effect Tier")
 @Description("An expression to obtain the amplifier of a potion effect applied to an entity.")
 @Examples("if the amplifier of haste of player >= 3:")
-@Since("INSERT VERSION")
+@Since("2.7")
 public class ExprPotionEffectTier extends SimpleExpression<Integer> {
 
 	static {

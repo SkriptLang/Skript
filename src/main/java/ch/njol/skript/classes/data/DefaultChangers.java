@@ -77,6 +77,7 @@ public class DefaultChangers {
 				}
 				return;
 			}
+			boolean hasItem = false;
 			for (final Entity e : entities) {
 				for (final Object d : delta) {
 					if (d instanceof PotionEffectType) {
@@ -90,16 +91,18 @@ public class DefaultChangers {
 							if (d instanceof Experience) {
 								p.giveExp(((Experience) d).getXP());
 							} else if (d instanceof Inventory) {
-								final PlayerInventory invi = p.getInventory();
-								if (mode == ChangeMode.ADD) {
-									for (final ItemStack i : (Inventory) d) {
-										if (i != null)
-											invi.addItem(i);
+								PlayerInventory inventory = p.getInventory();
+								for (ItemStack itemStack : (Inventory) d) {
+									if (itemStack == null)
+										continue;
+									if (mode == ChangeMode.ADD) {
+										inventory.addItem(itemStack);
+									} else {
+										inventory.remove(itemStack);
 									}
-								} else {
-									invi.removeItem(((Inventory) d).getContents());
 								}
 							} else if (d instanceof ItemType) {
+								hasItem = true;
 								final PlayerInventory invi = p.getInventory();
 								if (mode == ChangeMode.ADD)
 									((ItemType) d).addTo(invi);
@@ -111,7 +114,7 @@ public class DefaultChangers {
 						}
 					}
 				}
-				if (e instanceof Player)
+				if (e instanceof Player && hasItem)
 					PlayerUtils.updateInventory((Player) e);
 			}
 		}
@@ -259,7 +262,10 @@ public class DefaultChangers {
 						for (final Object d : delta) {
 							if (d instanceof Inventory) {
 								assert mode == ChangeMode.REMOVE;
-								invi.removeItem(((Inventory) d).getContents());
+								for (ItemStack itemStack : (Inventory) d) {
+									if (itemStack != null)
+										invi.removeItem(itemStack);
+								}
 							} else {
 								if (mode == ChangeMode.REMOVE)
 									((ItemType) d).removeFrom(invi);

@@ -52,7 +52,7 @@ import org.eclipse.jdt.annotation.Nullable;
 	"set the bed location of player to spawn location of world(\"world\") # unsafe/invalid bed location",
 	"set the safe bed location of player to spawn location of world(\"world\") # safe/valid bed location"
 })
-@Since("2.0, INSERT VERSION (offlineplayers, safe bed)")
+@Since("2.0, 2.7 (offlineplayers, safe bed)")
 public class ExprBed extends SimplePropertyExpression<OfflinePlayer, Location> {
 
 	static {

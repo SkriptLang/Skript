@@ -38,7 +38,7 @@ import org.eclipse.jdt.annotation.Nullable;
 	"player has played on this server before",
 	"player hasn't played before"
 })
-@Since("1.4, INSERT VERSION (multiple players)")
+@Since("1.4, 2.7 (multiple players)")
 public class CondPlayedBefore extends Condition {
 	
 	static {

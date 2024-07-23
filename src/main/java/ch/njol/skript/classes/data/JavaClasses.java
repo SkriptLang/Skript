@@ -20,7 +20,6 @@ package ch.njol.skript.classes.data;
 
 import ch.njol.skript.SkriptConfig;
 import ch.njol.skript.classes.ClassInfo;
-import ch.njol.skript.classes.NumberArithmetic;
 import ch.njol.skript.classes.Parser;
 import ch.njol.skript.classes.Serializer;
 import ch.njol.skript.lang.ParseContext;
@@ -125,7 +124,7 @@ public class JavaClasses {
 					public boolean mustSyncDeserialization() {
 						return false;
 					}
-				}).math(Number.class, new NumberArithmetic()));
+				}));
 		
 		Classes.registerClass(new ClassInfo<>(Long.class, "long")
 				.user("int(eger)?s?")
@@ -184,7 +183,7 @@ public class JavaClasses {
 					public boolean mustSyncDeserialization() {
 						return false;
 					}
-				}).math(Number.class, new NumberArithmetic()));
+				}));
 		
 		Classes.registerClass(new ClassInfo<>(Integer.class, "integer")
 				.name(ClassInfo.NO_DOC)
@@ -241,7 +240,7 @@ public class JavaClasses {
 					public boolean mustSyncDeserialization() {
 						return false;
 					}
-				}).math(Number.class, new NumberArithmetic()));
+				}));
 		
 		Classes.registerClass(new ClassInfo<>(Double.class, "double")
 				.name(ClassInfo.NO_DOC)
@@ -303,7 +302,7 @@ public class JavaClasses {
 					public boolean mustSyncDeserialization() {
 						return false;
 					}
-				}).math(Number.class, new NumberArithmetic()));
+				}));
 		
 		Classes.registerClass(new ClassInfo<>(Float.class, "float")
 				.name(ClassInfo.NO_DOC)
@@ -364,7 +363,7 @@ public class JavaClasses {
 					public boolean mustSyncDeserialization() {
 						return false;
 					}
-				}).math(Number.class, new NumberArithmetic()));
+				}));
 		
 		Classes.registerClass(new ClassInfo<>(Boolean.class, "boolean")
 				.user("booleans?")
@@ -486,7 +485,7 @@ public class JavaClasses {
 					public boolean mustSyncDeserialization() {
 						return false;
 					}
-				}).math(Number.class, new NumberArithmetic()));
+				}));
 		
 		Classes.registerClass(new ClassInfo<>(Byte.class, "byte")
 				.name(ClassInfo.NO_DOC)
@@ -543,7 +542,7 @@ public class JavaClasses {
 					public boolean mustSyncDeserialization() {
 						return false;
 					}
-				}).math(Number.class, new NumberArithmetic()));
+				}));
 		
 		Classes.registerClass(new ClassInfo<>(String.class, "string")
 				.user("(text|string)s?")
@@ -551,7 +550,7 @@ public class JavaClasses {
 				.description("Text is simply text, i.e. a sequence of characters, which can optionally contain expressions which will be replaced with a meaningful representation " +
 						"(e.g. %player% will be replaced with the player's name).",
 						"Because scripts are also text, you have to put text into double quotes to tell Skript which part of the line is an effect/expression and which part is the text.",
-						"Please read the article on <a href='../strings/'>Texts and Variable Names</a> to learn more.")
+						"Please read the article on <a href='./text.html'>Texts and Variable Names</a> to learn more.")
 				.usage("simple: \"...\"",
 						"quotes: \"...\"\"...\"",
 						"expressions: \"...%expression%...\"",
@@ -576,6 +575,7 @@ public class JavaClasses {
 									return Utils.replaceChatStyles("" + s.substring(1, s.length() - 1).replace("\"\"", "\""));
 								return null;
 							case COMMAND:
+							case PARSE:
 								return s;
 						}
 						assert false;

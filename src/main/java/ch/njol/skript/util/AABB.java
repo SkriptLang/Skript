@@ -109,16 +109,16 @@ public class AABB implements Iterable<Block> {
 	@Override
 	public Iterator<Block> iterator() {
 		return new Iterator<Block>() {
-			private final int minX = Math2.ceilI(lowerBound.getX() - Skript.EPSILON),
-					minY = Math2.ceilI(lowerBound.getY() - Skript.EPSILON),
-					minZ = Math2.ceilI(lowerBound.getZ() - Skript.EPSILON);
-			private final int maxX = Math2.floorI(upperBound.getX() + Skript.EPSILON),
-					maxY = Math2.floorI(upperBound.getY() + Skript.EPSILON),
-					maxZ = Math2.floorI(upperBound.getZ() + Skript.EPSILON);
+			private final int minX = (int) Math2.ceil(lowerBound.getX());
+			private final int minY = (int) Math2.ceil(lowerBound.getY());
+			private final int minZ = (int) Math2.ceil(lowerBound.getZ());
+			private final int maxX = (int) Math2.floor(upperBound.getX());
+			private final int maxY = (int) Math2.floor(upperBound.getY());
+			private final int maxZ = (int) Math2.floor(upperBound.getZ());
 			
-			private int x = minX - 1,// next() increases x by one immediately
-					y = minY,
-					z = minZ;
+			private int x = minX - 1; // next() increases x by one immediately
+			private int y = minY;
+			private int z = minZ;
 			
 			@Override
 			public boolean hasNext() {

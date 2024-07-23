@@ -43,7 +43,7 @@ test "replace strings":
 	assert {_text::8} is "My name is bob and this is my friend bob!" with "replace first pattern 1 (case sensitivity enabled) (%{_text::7}%) failed"
 
 	# Replacing in an ExpressionList
-	set {_list::*} to "1", "2", "12"
+	set {_list::*} to "1", "2", and "12"
 	replace all "1" in {_list::1}, {_list::2} and {_list::3} with "(replaced)"
 	assert {_list::1} is "(replaced)" with "Incorrect ExpressionList replacement value (1)"
 	assert {_list::2} is "2" with "Incorrect ExpressionList replacement value (2)"

@@ -20,6 +20,7 @@ package ch.njol.skript.lang.function;
 
 import ch.njol.skript.classes.ClassInfo;
 import org.eclipse.jdt.annotation.Nullable;
+import ch.njol.skript.util.Contract;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -68,16 +69,49 @@ public class Signature<T> {
 	 * References (function calls) to function with this signature.
 	 */
 	final Collection<FunctionReference<?>> calls;
-	
-	Signature(String script, String name, Parameter<?>[] parameters, boolean local, @Nullable final ClassInfo<T> returnType, boolean single) {
+
+	/**
+	 * The class path for the origin of this signature.
+	 */
+	@Nullable
+	final String originClassPath;
+
+	/**
+	 * An overriding contract for this function (e.g. to base its return on its arguments).
+	 */
+	@Nullable
+	final Contract contract;
+
+	public Signature(String script,
+					 String name,
+					 Parameter<?>[] parameters, boolean local,
+					 @Nullable ClassInfo<T> returnType,
+					 boolean single,
+					 @Nullable String originClassPath,
+					 @Nullable Contract contract) {
 		this.script = script;
 		this.name = name;
 		this.parameters = parameters;
 		this.local = local;
 		this.returnType = returnType;
 		this.single = single;
-		
+		this.originClassPath = originClassPath;
+		this.contract = contract;
+
 		calls = Collections.newSetFromMap(new WeakHashMap<>());
+	}
+
+	public Signature(String script,
+					 String name,
+					 Parameter<?>[] parameters, boolean local,
+					 @Nullable ClassInfo<T> returnType,
+					 boolean single,
+					 @Nullable String originClassPath) {
+		this(script, name, parameters, local, returnType, single, originClassPath, null);
+	}
+
+	public Signature(String script, String name, Parameter<?>[] parameters, boolean local, @Nullable ClassInfo<T> returnType, boolean single) {
+		this(script, name, parameters, local, returnType, single, null);
 	}
 	
 	public String getName() {
@@ -105,7 +139,16 @@ public class Signature<T> {
 	public boolean isSingle() {
 		return single;
 	}
-	
+
+	public String getOriginClassPath() {
+		return originClassPath;
+	}
+
+	@Nullable
+	public Contract getContract() {
+		return contract;
+	}
+
 	/**
 	 * Gets maximum number of parameters that the function described by this
 	 * signature is able to take.

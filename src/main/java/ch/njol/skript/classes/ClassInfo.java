@@ -18,22 +18,27 @@
  */
 package ch.njol.skript.classes;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.regex.Pattern;
-import java.util.regex.PatternSyntaxException;
-
-import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.NonNull;
-import org.eclipse.jdt.annotation.Nullable;
-
+import ch.njol.skript.SkriptAPIException;
 import ch.njol.skript.expressions.base.EventValueExpression;
 import ch.njol.skript.lang.Debuggable;
 import ch.njol.skript.lang.DefaultExpression;
 import ch.njol.skript.lang.util.SimpleLiteral;
 import ch.njol.skript.localization.Noun;
+import ch.njol.util.coll.iterator.ArrayIterator;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import org.bukkit.event.Event;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
+
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Set;
+import java.util.function.Supplier;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
+import org.skriptlang.skript.lang.arithmetic.Operator;
+import org.skriptlang.skript.lang.arithmetic.Arithmetics;
 
 /**
  * @author Peter Güttinger
@@ -60,7 +65,10 @@ public class ClassInfo<T> implements Debuggable {
 	
 	@Nullable
 	private Changer<? super T> changer = null;
-	
+
+	@Nullable
+	private Supplier<Iterator<T>> supplier = null;
+
 	@Nullable
 	private Serializer<? super T> serializer = null;
 	@Nullable
@@ -162,7 +170,33 @@ public class ClassInfo<T> implements Debuggable {
 		this.defaultExpression = defaultExpression;
 		return this;
 	}
-	
+
+
+	/**
+	 * Used for dynamically getting all the possible values of a class
+	 *
+	 * @param supplier The supplier of the values
+	 * @return This ClassInfo object
+	 * @see ClassInfo#supplier(Object[])
+	 */
+	public ClassInfo<T> supplier(Supplier<Iterator<T>> supplier) {
+		if (this.supplier != null)
+			throw new SkriptAPIException("supplier of this class is already set");
+		this.supplier = supplier;
+		return this;
+	}
+
+	/**
+	 * Used for getting all the possible constants of a class
+	 *
+	 * @param values The array of the values
+	 * @return This ClassInfo object
+	 * @see ClassInfo#supplier(Supplier)
+	 */
+	public ClassInfo<T> supplier(T[] values) {
+		return supplier(() -> new ArrayIterator<>(values));
+	}
+
 	public ClassInfo<T> serializer(final Serializer<? super T> serializer) {
 		assert this.serializer == null;
 		if (serializeAs != null)
@@ -190,11 +224,19 @@ public class ClassInfo<T> implements Debuggable {
 		this.changer = changer;
 		return this;
 	}
-	
+
+	@Deprecated
+	@SuppressWarnings("unchecked")
 	public <R> ClassInfo<T> math(final Class<R> relativeType, final Arithmetic<? super T, R> math) {
 		assert this.math == null;
 		this.math = math;
 		mathRelativeType = relativeType;
+		Arithmetics.registerOperation(Operator.ADDITION, c, relativeType, (left, right) -> (T) math.add(left, right));
+		Arithmetics.registerOperation(Operator.SUBTRACTION, c, relativeType, (left, right) -> (T) math.subtract(left, right));
+		Arithmetics.registerOperation(Operator.MULTIPLICATION, c, relativeType, (left, right) -> (T) math.multiply(left, right));
+		Arithmetics.registerOperation(Operator.DIVISION, c, relativeType, (left, right) -> (T) math.divide(left, right));
+		Arithmetics.registerOperation(Operator.EXPONENTIATION, c, relativeType, (left, right) -> (T) math.power(left, right));
+		Arithmetics.registerDifference(c, relativeType, math::difference);
 		return this;
 	}
 	
@@ -336,7 +378,14 @@ public class ClassInfo<T> implements Debuggable {
 	public Changer<? super T> getChanger() {
 		return changer;
 	}
-	
+
+	@Nullable
+	public Supplier<Iterator<T>> getSupplier() {
+		if (supplier == null && c.isEnum())
+			supplier = () -> new ArrayIterator<>(c.getEnumConstants());
+		return supplier;
+	}
+
 	@Nullable
 	public Serializer<? super T> getSerializer() {
 		return serializer;
@@ -348,16 +397,19 @@ public class ClassInfo<T> implements Debuggable {
 	}
 	
 	@Nullable
+	@Deprecated
 	public Arithmetic<? super T, ?> getMath() {
 		return math;
 	}
 
 	@Nullable
+	@Deprecated
 	public <R> Arithmetic<T, R> getRelativeMath() {
 		return (Arithmetic<T, R>) math;
 	}
 	
 	@Nullable
+	@Deprecated
 	public Class<?> getMathRelativeType() {
 		return mathRelativeType;
 	}
@@ -386,6 +438,11 @@ public class ClassInfo<T> implements Debuggable {
 	public String getDocName() {
 		return docName;
 	}
+
+	@Nullable
+	public String[] getRequiredPlugins() {
+		return requiredPlugins;
+	}
 	
 	/**
 	 * Gets overridden documentation id of this this type. If no override has
@@ -396,6 +453,10 @@ public class ClassInfo<T> implements Debuggable {
 	@Nullable
 	public String getDocumentationID() {
 		return documentationId;
+	}
+
+	public boolean hasDocs() {
+		return getDocName() != null && !ClassInfo.NO_DOC.equals(getDocName());
 	}
 	
 	// === ORDERING ===
@@ -466,7 +527,7 @@ public class ClassInfo<T> implements Debuggable {
 	
 	@Override
 	@NonNull
-	public String toString(final @Nullable Event e, final boolean debug) {
+	public String toString(final @Nullable Event event, final boolean debug) {
 		if (debug)
 			return codeName + " (" + c.getCanonicalName() + ")";
 		return getName().getSingular();

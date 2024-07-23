@@ -18,11 +18,7 @@
  */
 package ch.njol.skript.expressions;
 
-import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.Nullable;
-
 import ch.njol.skript.Skript;
-import ch.njol.skript.classes.Converter;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
@@ -34,17 +30,19 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.util.Utils;
 import ch.njol.skript.util.chat.ChatMessages;
 import ch.njol.util.Kleenean;
+import org.bukkit.event.Event;
+import org.eclipse.jdt.annotation.Nullable;
 
-@Name("Coloured / Uncoloured")
-@Description({"Parses &lt;colour&gt;s and, optionally, chat styles in a message or removes",
-		"any colours <i>and</i> chat styles from the message. Parsing all",
+@Name("Colored / Uncolored")
+@Description({"Parses &lt;color&gt;s and, optionally, chat styles in a message or removes",
+		"any colors <i>and</i> chat styles from the message. Parsing all",
 		"chat styles requires this expression to be used in same line with",
 		"the <a href=effects.html#EffSend>send effect</a>."})
 @Examples({"on chat:",
-		"	set message to coloured message # Safe; only colors get parsed",
+		"	set message to colored message # Safe; only colors get parsed",
 		"command /fade &lt;player&gt;:",
 		"	trigger:",
-		"		set display name of the player-argument to uncoloured display name of the player-argument",
+		"		set display name of the player-argument to uncolored display name of the player-argument",
 		"command /format &lt;text&gt;:",
 		"	trigger:",
 		"		message formatted text-argument # Safe, because we're sending to whoever used this command"})
@@ -78,12 +76,7 @@ public class ExprColoured extends PropertyExpression<String, String> {
 	
 	@Override
 	protected String[] get(final Event e, final String[] source) {
-		return get(source, new Converter<String, String>() {
-			@Override
-			public String convert(final String s) {
-				return color ? Utils.replaceChatStyles(s) : "" + ChatMessages.stripStyles(s);
-			}
-		});
+		return get(source, s -> color ? Utils.replaceChatStyles(s) : "" + ChatMessages.stripStyles(s));
 	}
 	
 	@Override
@@ -93,7 +86,7 @@ public class ExprColoured extends PropertyExpression<String, String> {
 	
 	@Override
 	public String toString(final @Nullable Event e, final boolean debug) {
-		return (color ? "" : "un") + "coloured " + getExpr().toString(e, debug);
+		return (color ? "" : "un") + "colored " + getExpr().toString(e, debug);
 	}
 	
 	/**

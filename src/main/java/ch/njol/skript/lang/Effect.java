@@ -18,15 +18,14 @@
  */
 package ch.njol.skript.lang;
 
-import java.util.Iterator;
-
-import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.Nullable;
-
 import ch.njol.skript.Skript;
 import ch.njol.skript.lang.function.EffFunctionCall;
 import ch.njol.skript.log.ParseLogHandler;
 import ch.njol.skript.log.SkriptLogger;
+import org.bukkit.event.Event;
+import org.eclipse.jdt.annotation.Nullable;
+
+import java.util.Iterator;
 
 /**
  * An effect which is unconditionally executed when reached, and execution will usually continue with the next item of the trigger after this effect is executed (the stop effect
@@ -35,45 +34,45 @@ import ch.njol.skript.log.SkriptLogger;
  * @see Skript#registerEffect(Class, String...)
  */
 public abstract class Effect extends Statement {
-	
+
 	protected Effect() {}
-	
+
 	/**
 	 * Executes this effect.
 	 * 
-	 * @param e
+	 * @param event The event with which this effect will be executed
 	 */
-	protected abstract void execute(Event e);
-	
+	protected abstract void execute(Event event);
+
 	@Override
-	public final boolean run(final Event e) {
-		execute(e);
+	public final boolean run(Event event) {
+		execute(event);
 		return true;
 	}
-	
-	@SuppressWarnings({"rawtypes", "unchecked", "null"})
+
 	@Nullable
-	public static Effect parse(String s, @Nullable String defaultError) {
+	@SuppressWarnings({"rawtypes", "unchecked"})
+	public static Effect parse(String input, @Nullable String defaultError) {
 		ParseLogHandler log = SkriptLogger.startParseLogHandler();
 		try {
-			EffFunctionCall f = EffFunctionCall.parse(s);
-			if (f != null) {
+			EffFunctionCall functionCall = EffFunctionCall.parse(input);
+			if (functionCall != null) {
 				log.printLog();
-				return f;
+				return functionCall;
 			} else if (log.hasError()) {
 				log.printError();
 				return null;
 			}
 			log.clear();
 
-			EffectSection section = EffectSection.parse(s, null, null, null);
+			EffectSection section = EffectSection.parse(input, null, null, null);
 			if (section != null) {
 				log.printLog();
 				return new EffectSectionEffect(section);
 			}
 			log.clear();
 
-			Effect effect = (Effect) SkriptParser.parse(s, (Iterator) Skript.getEffects().iterator(), defaultError);
+			Effect effect = (Effect) SkriptParser.parse(input, (Iterator) Skript.getEffects().iterator(), defaultError);
 			if (effect != null) {
 				log.printLog();
 				return effect;
@@ -85,5 +84,5 @@ public abstract class Effect extends Statement {
 			log.stop();
 		}
 	}
-	
+
 }

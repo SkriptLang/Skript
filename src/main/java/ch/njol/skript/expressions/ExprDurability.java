@@ -18,13 +18,6 @@
  */
 package ch.njol.skript.expressions;
 
-import org.bukkit.block.Block;
-import org.bukkit.block.BlockState;
-import org.bukkit.event.Event;
-import org.bukkit.inventory.ItemStack;
-import org.eclipse.jdt.annotation.Nullable;
-
-import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.bukkitutil.ItemUtils;
 import ch.njol.skript.classes.Changer.ChangeMode;
@@ -33,113 +26,112 @@ import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
+import ch.njol.skript.lang.Expression;
+import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.util.slot.Slot;
+import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
+import org.bukkit.event.Event;
+import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.Nullable;
 
-/**
- * @author Peter Güttinger
- */
-@Name("Data/Damage Value")
-@Description({"The data/damage value of an item/block. Data values of blocks are only supported on 1.12.2 and below.",
-		"You usually don't need this expression as you can check and set items with aliases easily, ",
-		"but this expression can e.g. be used to \"add 1 to data of &lt;item&gt;\", e.g. for cycling through all wool colours."})
-@Examples({"set damage value of player's tool to 10",
-		"set data value of target block of player to 3",
-		"add 1 to the data value of the clicked block",
-		"reset data value of block at player"})
-@Since("1.2")
-public class ExprDurability extends SimplePropertyExpression<Object, Long> {
+@Name("Damage Value/Durability")
+@Description("The damage value/durability of an item.")
+@Examples({
+	"set damage value of player's tool to 10",
+	"reset the durability of {_item}",
+	"set durability of player's held item to 0"
+})
+@Since("1.2, 2.7 (durability reversed)")
+public class ExprDurability extends SimplePropertyExpression<Object, Integer> {
+
+	private boolean durability;
 
 	static {
-		register(ExprDurability.class, Long.class, "((data|damage)[s] [value[s]]|durabilit(y|ies))", "itemtypes/blocks/slots");
+		register(ExprDurability.class, Integer.class, "(damage[s] [value[s]]|1:durabilit(y|ies))", "itemtypes/itemstacks/slots");
 	}
-	
+
+	@Override
+	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
+		durability = parseResult.mark == 1;
+		return super.init(exprs, matchedPattern, isDelayed, parseResult);
+	}
+
 	@Override
 	@Nullable
-	public Long convert(final Object o) {
-		if (o instanceof Slot) {
-			final ItemStack i = ((Slot) o).getItem();
-			return i == null ? null : (long) ItemUtils.getDamage(i);
-		} else if (o instanceof ItemType) {
-			ItemStack item = ((ItemType) o).getRandom();
-			return (long) ItemUtils.getDamage(item);
-		}
-		return null;
+	public Integer convert(Object object) {
+		ItemStack itemStack = ItemUtils.asItemStack(object);
+		if (itemStack == null)
+			return null;
+		int damage = ItemUtils.getDamage(itemStack);
+		return convertToDamage(itemStack, damage);
 	}
-	
+
 	@Override
 	@Nullable
-	public Class<?>[] acceptChange(final ChangeMode mode) {
+	public Class<?>[] acceptChange(ChangeMode mode) {
 		switch (mode) {
-			case ADD:
 			case SET:
-			case RESET:
+			case ADD:
 			case REMOVE:
 			case DELETE:
+			case RESET:
 				return CollectionUtils.array(Number.class);
 		}
 		return null;
 	}
-	
-	@SuppressWarnings("null")
+
 	@Override
-	public void change(final Event e, final @Nullable Object[] delta, final ChangeMode mode) {
-		int a = delta == null ? 0 : ((Number) delta[0]).intValue();
-		final Object[] os = getExpr().getArray(e);
-		for (final Object o : os) {
-			ItemStack itemStack = null;
-			Block block = null;
-			
-			if (o instanceof ItemType)
-				itemStack = ((ItemType) o).getRandom();
-			else if (o instanceof Slot)
-				itemStack = ((Slot) o).getItem();
-			else
-				return;
-			
-			int changeValue = itemStack != null ? ItemUtils.getDamage(itemStack) : block != null ? block.getData() : 0;
-			
+	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
+		int change = delta == null ? 0 : ((Number) delta[0]).intValue();
+		if (mode == ChangeMode.REMOVE)
+			change = -change;
+		for (Object object : getExpr().getArray(event)) {
+			ItemStack itemStack = ItemUtils.asItemStack(object);
+			if (itemStack == null)
+				continue;
+
+			int newAmount;
 			switch (mode) {
-				case REMOVE:
-					a = -a;
-					//$FALL-THROUGH$
 				case ADD:
-					changeValue += a;
+				case REMOVE:
+					int current = convertToDamage(itemStack, ItemUtils.getDamage(itemStack));
+					newAmount = current + change;
 					break;
 				case SET:
-					changeValue = a;
+					newAmount = change;
 					break;
-				case DELETE:
-				case RESET:
-					changeValue = 0;
-					break;
-				case REMOVE_ALL:
-					assert false;
+				default:
+					newAmount = 0;
 			}
-			if (o instanceof ItemType && itemStack != null) {
-				ItemUtils.setDamage(itemStack,changeValue);
-				((ItemType) o).setTo(new ItemType(itemStack));
-			} else if (o instanceof Slot) {
-				ItemUtils.setDamage(itemStack,changeValue);
-				((Slot) o).setItem(itemStack);
-			} else {
-				BlockState blockState = ((Block) o).getState();
-				try {
-					blockState.setRawData((byte) Math.max(0, changeValue));
-					blockState.update();
-				} catch (IllegalArgumentException | NullPointerException ignore) {} // Catch when a user sets the amount too high
-			}
+
+			ItemUtils.setDamage(itemStack, convertToDamage(itemStack, newAmount));
+			if (object instanceof Slot)
+				((Slot) object).setItem(itemStack);
+			else if (object instanceof ItemType)
+				((ItemType) object).setItemMeta(itemStack.getItemMeta());
 		}
 	}
 
+	private int convertToDamage(ItemStack itemStack, int value) {
+		if (!durability)
+			return value;
+
+		int maxDurability = ItemUtils.getMaxDamage(itemStack);
+
+		if (maxDurability == 0)
+			return 0;
+		return maxDurability - value;
+	}
+
 	@Override
-	public Class<? extends Long> getReturnType() {
-		return Long.class;
+	public Class<? extends Integer> getReturnType() {
+		return Integer.class;
 	}
 
 	@Override
 	public String getPropertyName() {
-		return "data";
+		return durability ? "durability" : "damage";
 	}
 
 }

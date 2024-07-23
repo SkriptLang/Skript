@@ -19,6 +19,7 @@
 package ch.njol.skript.lang.parser;
 
 import ch.njol.skript.ScriptLoader;
+import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptAPIException;
 import ch.njol.skript.config.Config;
 import ch.njol.skript.config.Node;
@@ -26,26 +27,31 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptEvent;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.lang.TriggerSection;
-import ch.njol.skript.lang.util.ContextlessEvent;
 import ch.njol.skript.log.HandlerList;
-import ch.njol.skript.structures.StructOptions;
+import ch.njol.skript.structures.StructOptions.OptionsData;
 import ch.njol.util.Kleenean;
-import ch.njol.util.Validate;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.experiment.Experiment;
+import org.skriptlang.skript.lang.experiment.ExperimentSet;
+import org.skriptlang.skript.lang.experiment.Experimented;
 import org.skriptlang.skript.lang.script.Script;
+import org.skriptlang.skript.lang.script.ScriptEvent;
 import org.skriptlang.skript.lang.structure.Structure;
 
+import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
-public final class ParserInstance {
-	
+public final class ParserInstance implements Experimented {
+
 	private static final ThreadLocal<ParserInstance> PARSER_INSTANCES = ThreadLocal.withInitial(ParserInstance::new);
 
 	/**
@@ -62,23 +68,22 @@ public final class ParserInstance {
 	 * Internal method for updating a ParserInstance's {@link #isActive()} status!
 	 * You probably don't need to use this method!
 	 */
+	@ApiStatus.Internal
 	public void setInactive() {
 		this.isActive = false;
+		reset();
 		setCurrentScript((Script) null);
-		setCurrentStructure(null);
-		deleteCurrentEvent();
-		getCurrentSections().clear();
-		setNode(null);
 	}
 
 	/**
 	 * Internal method for updating a ParserInstance's {@link #isActive()} status!
 	 * You probably don't need to use this method!
 	 */
+	@ApiStatus.Internal
 	public void setActive(Script script) {
 		this.isActive = true;
+		reset(); // just to be safe
 		setCurrentScript(script);
-		setNode(null);
 	}
 
 	/**
@@ -89,6 +94,20 @@ public final class ParserInstance {
 	 */
 	public boolean isActive() {
 		return isActive;
+	}
+
+	/**
+	 * Resets this ParserInstance to its default state.
+	 * The only data retained is {@link #getCurrentScript()} and any Logging API.
+	 */
+	public void reset() {
+		this.currentStructure = null;
+		this.currentEventName = null;
+		this.currentEvents = null;
+		this.currentSections = new ArrayList<>();
+		this.hasDelayBefore = Kleenean.FALSE;
+		this.node = null;
+		dataMap.clear();
 	}
 
 	// Script API
@@ -113,9 +132,11 @@ public final class ParserInstance {
 
 		// "Script" events
 		if (previous != null)
-			previous.getEventHandlers().forEach(eventHandler -> eventHandler.whenMadeInactive(currentScript));
+			previous.getEvents(ScriptEvent.ScriptInactiveEvent.class)
+				.forEach(eventHandler -> eventHandler.onInactive(currentScript));
 		if (currentScript != null)
-			currentScript.getEventHandlers().forEach(eventHandler -> eventHandler.whenMadeActive(previous));
+			currentScript.getEvents(ScriptEvent.ScriptActiveEvent.class)
+				.forEach(eventHandler -> eventHandler.onActive(previous));
 	}
 
 	/**
@@ -172,7 +193,8 @@ public final class ParserInstance {
 
 	@Nullable
 	private String currentEventName;
-	private Class<? extends Event>[] currentEvents = CollectionUtils.array(ContextlessEvent.class);
+
+	private Class<? extends Event> @Nullable [] currentEvents = null;
 
 	public void setCurrentEventName(@Nullable String currentEventName) {
 		this.currentEventName = currentEventName;
@@ -186,17 +208,14 @@ public final class ParserInstance {
 	/**
 	 * @param currentEvents The events that may be present during execution.
 	 *                      An instance of the events present in the provided array MUST be used to execute any loaded items.
-	 *                      If items are to be loaded without context, use {@link ContextlessEvent}.
 	 */
-	public void setCurrentEvents(Class<? extends Event>[] currentEvents) {
-		Validate.isTrue(currentEvents.length != 0, "'currentEvents' may not be empty!");
+	public void setCurrentEvents(Class<? extends Event> @Nullable [] currentEvents) {
 		this.currentEvents = currentEvents;
 		getDataInstances().forEach(data -> data.onCurrentEventsChange(currentEvents));
 	}
 
 	@SafeVarargs
-	public final void setCurrentEvent(String name, Class<? extends Event>... events) {
-		Validate.isTrue(events.length != 0, "'events' may not be empty!");
+	public final void setCurrentEvent(String name, @Nullable Class<? extends Event>... events) {
 		currentEventName = name;
 		setCurrentEvents(events);
 		setHasDelayBefore(Kleenean.FALSE);
@@ -204,11 +223,11 @@ public final class ParserInstance {
 
 	public void deleteCurrentEvent() {
 		currentEventName = null;
-		setCurrentEvents(CollectionUtils.array(ContextlessEvent.class));
+		setCurrentEvents(null);
 		setHasDelayBefore(Kleenean.FALSE);
 	}
 
-	public Class<? extends Event>[] getCurrentEvents() {
+	public Class<? extends Event> @Nullable [] getCurrentEvents() {
 		return currentEvents;
 	}
 
@@ -225,8 +244,13 @@ public final class ParserInstance {
 	 * <br><br>
 	 * See also {@link #isCurrentEvent(Class[])} for checking with multiple argument classes
 	 */
-	public boolean isCurrentEvent(@Nullable Class<? extends Event> event) {
-		return CollectionUtils.containsSuperclass(currentEvents, event);
+	public boolean isCurrentEvent(Class<? extends Event> event) {
+		for (Class<? extends Event> currentEvent : currentEvents) {
+			// check that current event is same or child of event we want
+			if (event.isAssignableFrom(currentEvent))
+				return true;
+		}
+		return false;
 	}
 
 	/**
@@ -243,7 +267,11 @@ public final class ParserInstance {
 	 */
 	@SafeVarargs
 	public final boolean isCurrentEvent(Class<? extends Event>... events) {
-		return CollectionUtils.containsAnySuperclass(currentEvents, events);
+		for (Class<? extends Event> event : events) {
+			if (isCurrentEvent(event))
+				return true;
+		}
+		return false;
 	}
 
 	// Section API
@@ -347,7 +375,7 @@ public final class ParserInstance {
 		return hasDelayBefore;
 	}
 
-	// Miscellaneous
+	// Logging API
 
 	private final HandlerList handlers = new HandlerList();
 
@@ -385,9 +413,61 @@ public final class ParserInstance {
 	public void setIndentation(String indentation) {
 		this.indentation = indentation;
 	}
-	
+
 	public String getIndentation() {
 		return indentation;
+	}
+
+	// Experiments API
+
+	@Override
+	public boolean hasExperiment(String featureName) {
+		return Skript.experiments().isUsing(this.getCurrentScript(), featureName);
+	}
+
+
+	@Override
+	public boolean hasExperiment(Experiment experiment) {
+		return Skript.experiments().isUsing(this.getCurrentScript(), experiment);
+	}
+
+	/**
+	 * Marks this as using an experimental feature.
+	 * @param experiment The feature to register.
+	 */
+	@ApiStatus.Internal
+	public void addExperiment(Experiment experiment) {
+		Script script = this.getCurrentScript();
+		ExperimentSet set = script.getData(ExperimentSet.class, () -> new ExperimentSet());
+		set.add(experiment);
+	}
+
+	/**
+	 * Marks this as no longer using an experimental feature (e.g. during de-registration or reload).
+	 * @param experiment The feature to unregister.
+	 */
+	@ApiStatus.Internal
+	public void removeExperiment(Experiment experiment) {
+		Script script = this.getCurrentScript();
+		@Nullable ExperimentSet set = script.getData(ExperimentSet.class);
+		if (set == null)
+			return;
+		set.remove(experiment);
+	}
+
+	/**
+	 * A snapshot of the experiments this script is currently known to be using.
+	 * This is safe to retain during runtime (e.g. to defer a check) but will
+	 * not see changes, such as if a script subsequently 'uses' another experiment.
+	 *
+	 * @return A snapshot of the current experiment flags in use
+	 */
+	public Experimented experimentSnapshot() {
+		Script script = this.getCurrentScript();
+		@Nullable ExperimentSet set = script.getData(ExperimentSet.class);
+		if (set == null)
+			return new ExperimentSet();
+		return new ExperimentSet(set);
 	}
 
 	// ParserInstance Data API
@@ -400,31 +480,31 @@ public final class ParserInstance {
 	 * {@code ParserInstance.registerData(MyData.class, MyData::new)}
 	 */
 	public static abstract class Data {
-		
+
 		private final ParserInstance parserInstance;
-		
+
 		public Data(ParserInstance parserInstance) {
 			this.parserInstance = parserInstance;
 		}
-		
+
 		protected final ParserInstance getParser() {
 			return parserInstance;
 		}
 
 		/**
-		 * @deprecated See {@link org.skriptlang.skript.lang.script.ScriptEventHandler}.
+		 * @deprecated See {@link ScriptEvent}.
 		 */
 		@Deprecated
 		public void onCurrentScriptChange(@Nullable Config currentScript) { }
 
-		public void onCurrentEventsChange(Class<? extends Event>[] currentEvents) { }
-		
+		public void onCurrentEventsChange(Class<? extends Event> @Nullable [] currentEvents) { }
+
 	}
-	
+
 	private static final Map<Class<? extends Data>, Function<ParserInstance, ? extends Data>> dataRegister = new HashMap<>();
 	// Should be Map<Class<? extends Data>, ? extends Data>, but that caused issues (with generics) in #getData(Class)
 	private final Map<Class<? extends Data>, Data> dataMap = new HashMap<>();
-	
+
 	/**
 	 * Registers a data class to all {@link ParserInstance}s.
 	 *
@@ -435,11 +515,11 @@ public final class ParserInstance {
 													 Function<ParserInstance, T> dataFunction) {
 		dataRegister.put(dataClass, dataFunction);
 	}
-	
+
 	public static boolean isRegistered(Class<? extends Data> dataClass) {
 		return dataRegister.containsKey(dataClass);
 	}
-	
+
 	/**
 	 * @return the data object for the given class from this {@link ParserInstance},
 	 * or null (after {@code false} has been asserted) if the given data class isn't registered.
@@ -456,7 +536,7 @@ public final class ParserInstance {
 		assert false;
 		return null;
 	}
-	
+
 	private List<? extends Data> getDataInstances() {
 		// List<? extends Data> gave errors, so using this instead
 		List<Data> dataList = new ArrayList<>();
@@ -469,19 +549,88 @@ public final class ParserInstance {
 		return dataList;
 	}
 
+	// Backup API
+
+	/**
+	 * A Backup represents a ParserInstance at a certain point in time.
+	 * It does not include anything regarding a ParserInstance's logging data.
+	 * It is important to understand that this does not create a deep-copy of all data.
+	 *  That is, the contents of any collections will remain the same, but there is no guarantee that
+	 *  the contents themselves will remain unchanged.
+	 * @see #backup()
+	 * @see #restoreBackup(Backup) 
+	 */
+	public static class Backup {
+
+		private final Script currentScript;
+		private final @Nullable Structure currentStructure;
+		private final @Nullable String currentEventName;
+		private final Class<? extends Event> @Nullable [] currentEvents;
+		private final List<TriggerSection> currentSections;
+		private final Kleenean hasDelayBefore;
+		private final Map<Class<? extends Data>, Data> dataMap;
+
+		private Backup(ParserInstance parser) {
+			//noinspection ConstantConditions - parser will be active, meaning there is a current script
+			this.currentScript = parser.currentScript;
+			this.currentStructure = parser.currentStructure;
+			this.currentEventName = parser.currentEventName != null ? parser.currentEventName : null;
+			this.currentEvents = parser.currentEvents != null
+				? Arrays.copyOf(parser.currentEvents, parser.currentEvents.length)
+				: null;
+			this.currentSections = new ArrayList<>(parser.currentSections);
+			this.hasDelayBefore = parser.hasDelayBefore;
+			this.dataMap = new HashMap<>(parser.dataMap);
+		}
+
+		private void apply(ParserInstance parser) {
+			parser.setCurrentScript(currentScript);
+			parser.currentStructure = this.currentStructure;
+			parser.currentEventName = this.currentEventName;
+			parser.currentEvents = this.currentEvents;
+			parser.currentSections = this.currentSections;
+			parser.hasDelayBefore = this.hasDelayBefore;
+			parser.dataMap.clear();
+			parser.dataMap.putAll(this.dataMap);
+		}
+
+	}
+
+	/**
+	 * Creates a backup of this ParserInstance, which represents its current state (excluding any Logging API).
+	 * @return A backup of this ParserInstance.
+	 * @see #restoreBackup(Backup)
+	 */
+	public Backup backup() {
+		if (!isActive())
+			throw new SkriptAPIException("Backups may only be created from active ParserInstances");
+		return new Backup(this);
+	}
+
+	/**
+	 * Restores a backup onto this ParserInstance.
+	 *  That is, this entire ParserInstance, except any Logging API, will be overridden.
+	 * @param backup The backup to apply.
+	 * @see #backup()
+	 */
+	public void restoreBackup(Backup backup) {
+		backup.apply(this);
+	}
+
 	// Deprecated API
 
 	/**
-	 * @deprecated Use {@link ch.njol.skript.structures.StructOptions#getOptions(Script)} instead.
+	 * @deprecated Use {@link Script#getData(Class)} instead. The {@link OptionsData} class should be obtained.
+	 * Example: <code>script.getData(OptionsData.class)</code>
 	 */
 	@Deprecated
 	public HashMap<String, String> getCurrentOptions() {
 		if (!isActive())
 			return new HashMap<>(0);
-		HashMap<String, String> options = StructOptions.getOptions(getCurrentScript());
-		if (options == null)
+		OptionsData data = getCurrentScript().getData(OptionsData.class);
+		if (data == null)
 			return new HashMap<>(0);
-		return options;
+		return new HashMap<>(data.getOptions()); // ensure returned map is modifiable
 	}
 
 	/**
@@ -519,10 +668,12 @@ public final class ParserInstance {
 	public void setCurrentScript(@Nullable Config currentScript) {
 		if (currentScript == null)
 			return;
-		//noinspection ConstantConditions - shouldn't be null
-		Script script = ScriptLoader.getScript(currentScript.getFile());
+		File file = currentScript.getFile();
+		if (file == null)
+			return;
+		Script script = ScriptLoader.getScript(file);
 		if (script != null)
 			setActive(script);
 	}
-	
+
 }

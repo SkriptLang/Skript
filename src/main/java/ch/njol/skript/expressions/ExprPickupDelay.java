@@ -37,7 +37,7 @@ import org.eclipse.jdt.annotation.Nullable;
 	"drop diamond sword at {_location} without velocity",
 	"set pickup delay of last dropped item to 5 seconds"
 })
-@Since("INSERT VERSION")
+@Since("2.7")
 public class ExprPickupDelay extends SimplePropertyExpression<Entity, Timespan> {
 
 	static {
@@ -49,7 +49,7 @@ public class ExprPickupDelay extends SimplePropertyExpression<Entity, Timespan> 
 	public Timespan convert(Entity entity) {
 		if (!(entity instanceof Item))
 			return null;
-		return Timespan.fromTicks_i(((Item) entity).getPickupDelay());
+		return Timespan.fromTicks(((Item) entity).getPickupDelay());
 	}
 
 
@@ -70,7 +70,7 @@ public class ExprPickupDelay extends SimplePropertyExpression<Entity, Timespan> 
 	@Override
 	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
 		Entity[] entities = getExpr().getArray(event);
-		int change = delta == null ? 0 : (int) ((Timespan) delta[0]).getTicks_i();
+		int change = delta == null ? 0 : (int) ((Timespan) delta[0]).getTicks();
 		switch (mode) {
 			case REMOVE:
 				change = -change;

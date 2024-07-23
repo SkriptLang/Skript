@@ -1,0 +1,8 @@
+test "random characters":
+	assert random character between "a" and "a" is "a" with "Failed to generate random character between a and a"
+	assert random character between "a" and "b" is "a" or "b" with "Failed to generate random character between a and b"
+	assert size of (5 random characters between "a" and "b") is 5 with "Failed to generate 5 random characters between a and b"
+	assert size of (5 random characters between "A" and "a") is 5 with "Failed to generate 5 random characters between A and a"
+	assert random alphanumeric character from "Z" to "a" is "Z" or "a" with "Failed to generate random alphanumeric character from Z to a"
+	assert size of (5 random alphanumeric characters from "Z" to "a") is 5 with "Failed to generate 5 random alphanumeric characters from Z to a"
+	assert random character from "baby" to "alpine" is "a" or "b" with "Failed to generate random character from a to b when given strings of length >1"

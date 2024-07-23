@@ -94,7 +94,7 @@ public class PatcherTool {
 			// JSON injection, see issue #2198
 			copy("effects.EffMessage", true);
 			copy("expressions.ExprArgument", true);
-			copy("expressions.ExprColoured", true);
+			copy("expressions.ExprColored", true);
 			copy("lang.VariableString", true);
 			copy("util.chat.BungeeConverter", true);
 			copy("util.chat.ChatCode", true);

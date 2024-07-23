@@ -18,6 +18,9 @@
  */
 package ch.njol.yggdrasil;
 
+import com.google.common.collect.ImmutableList;
+import org.eclipse.jdt.annotation.Nullable;
+
 import java.io.NotSerializableException;
 import java.io.StreamCorruptedException;
 import java.util.ArrayList;
@@ -26,75 +29,68 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.UUID;
-
-import org.eclipse.jdt.annotation.Nullable;
 
 public class JRESerializer extends YggdrasilSerializer<Object> {
 	
-	private final static Class<?>[] supportedClasses = {
-			ArrayList.class, LinkedList.class,
-			HashSet.class,
-			HashMap.class,
-			UUID.class
-	};
-	
-	private final static Set<Class<?>> set = new HashSet<>(Arrays.asList(supportedClasses));
+	private static final List<Class<?>> SUPPORTED_CLASSES = ImmutableList.of(
+			ArrayList.class, LinkedList.class, HashSet.class, HashMap.class, UUID.class);
 	
 	@Override
 	@Nullable
-	public Class<?> getClass(final String id) {
-		for (final Class<?> c : supportedClasses)
-			if (c.getSimpleName().equals(id))
-				return c;
+	public Class<?> getClass(String id) {
+		for (Class<?> type : SUPPORTED_CLASSES)
+			if (type.getSimpleName().equals(id))
+				return type;
 		return null;
 	}
 	
 	@Override
 	@Nullable
-	public String getID(final Class<?> c) {
-		if (set.contains(c))
-			return c.getSimpleName();
+	public String getID(Class<?> type) {
+		if (SUPPORTED_CLASSES.contains(type))
+			return type.getSimpleName();
 		return null;
 	}
 	
 	@Override
-	public Fields serialize(final Object o) {
-		if (!set.contains(o.getClass()))
+	public Fields serialize(Object object) {
+		if (!SUPPORTED_CLASSES.contains(object.getClass()))
 			throw new IllegalArgumentException();
-		final Fields f = new Fields();
-		if (o instanceof Collection) {
-			final Collection<?> c = ((Collection<?>) o);
-			f.putObject("values", c.toArray());
-		} else if (o instanceof Map) {
-			final Map<?, ?> m = ((Map<?, ?>) o);
-			f.putObject("keys", m.keySet().toArray());
-			f.putObject("values", m.values().toArray());
-		} else if (o instanceof UUID) {
-			f.putPrimitive("mostSigBits", Long.valueOf(((UUID)o).getMostSignificantBits()));
-			f.putPrimitive("leastSigBits", Long.valueOf(((UUID)o).getLeastSignificantBits()));
+		Fields fields = new Fields();
+		if (object instanceof Collection) {
+			Collection<?> collection = ((Collection<?>) object);
+			fields.putObject("values", collection.toArray());
+		} else if (object instanceof Map) {
+			Map<?, ?> map = ((Map<?, ?>) object);
+			fields.putObject("keys", map.keySet().toArray());
+			fields.putObject("values", map.values().toArray());
+		} else if (object instanceof UUID) {
+			fields.putPrimitive("mostSigBits", ((UUID) object).getMostSignificantBits());
+			fields.putPrimitive("leastSigBits", ((UUID) object).getLeastSignificantBits());
 		}
-		assert f.size() > 0 : o;
-		return f;
+		assert fields.size() > 0 : object;
+		return fields;
 	}
 	
 	@Override
-	public boolean canBeInstantiated(Class<? extends Object> c){
-		return c != UUID.class;
+	public boolean canBeInstantiated(Class<?> type) {
+		return type != UUID.class;
 	}
 	
 	@Override
 	@Nullable
-	public <T> T newInstance(final Class<T> c) {
+	public <T> T newInstance(Class<T> type) {
 		try {
-			return c.newInstance();
-		} catch (final InstantiationException e) { // all collections handled here have public nullary constructors
+			//noinspection deprecation
+			return type.newInstance();
+		} catch (InstantiationException e) { // all collections handled here have public nullary constructors
 			e.printStackTrace();
 			assert false;
 			return null;
-		} catch (final IllegalAccessException e) {
+		} catch (IllegalAccessException e) {
 			e.printStackTrace();
 			assert false;
 			return null;
@@ -103,25 +99,25 @@ public class JRESerializer extends YggdrasilSerializer<Object> {
 	
 	@SuppressWarnings({"unchecked", "rawtypes"})
 	@Override
-	public void deserialize(final Object o, final Fields fields) throws StreamCorruptedException {
+	public void deserialize(Object object, Fields fields) throws StreamCorruptedException {
 		try {
-			if (o instanceof Collection) {
-				final Collection<?> c = ((Collection<?>) o);
-				final Object[] values = fields.getObject("values", Object[].class);
+			if (object instanceof Collection) {
+				Collection<?> collection = ((Collection<?>) object);
+				Object[] values = fields.getObject("values", Object[].class);
 				if (values == null)
 					throw new StreamCorruptedException();
-				c.addAll((Collection) Arrays.asList(values));
+				collection.addAll((Collection) Arrays.asList(values));
 				return;
-			} else if (o instanceof Map) {
-				final Map<?, ?> m = ((Map<?, ?>) o);
-				final Object[] keys = fields.getObject("keys", Object[].class), values = fields.getObject("values", Object[].class);
+			} else if (object instanceof Map) {
+				Map<?, ?> map = ((Map<?, ?>) object);
+				Object[] keys = fields.getObject("keys", Object[].class), values = fields.getObject("values", Object[].class);
 				if (keys == null || values == null || keys.length != values.length)
 					throw new StreamCorruptedException();
 				for (int i = 0; i < keys.length; i++)
-					((Map) m).put(keys[i], values[i]);
+					((Map) map).put(keys[i], values[i]);
 				return;
 			}
-		} catch (final Exception e) {
+		} catch (Exception e) {
 			throw new StreamCorruptedException(e.getClass().getSimpleName() + ": " + e.getMessage());
 		}
 		throw new StreamCorruptedException();
@@ -129,10 +125,12 @@ public class JRESerializer extends YggdrasilSerializer<Object> {
 	
 	@SuppressWarnings({"unchecked", "null"})
 	@Override
-	public <E> E deserialize(Class<E> c, Fields fields) throws StreamCorruptedException, NotSerializableException {
-		if (c == UUID.class) {
-			return (E) new UUID(fields.getPrimitive("mostSigBits", Long.TYPE).longValue(), fields.getPrimitive("leastSigBits", Long.TYPE).longValue());
-		}
+	public <E> E deserialize(Class<E> type, Fields fields) throws StreamCorruptedException, NotSerializableException {
+		if (type == UUID.class)
+			return (E) new UUID(
+					fields.getPrimitive("mostSigBits", Long.TYPE),
+					fields.getPrimitive("leastSigBits", Long.TYPE));
+		
 		throw new StreamCorruptedException();
 	}
 	

@@ -82,26 +82,6 @@ public class ExprXOf extends PropertyExpression<Object, Object> {
 	}
 
 	@Override
-	@Nullable
-	@SuppressWarnings("unchecked")
-	public <R> Expression<? extends R> getConvertedExpression(Class<R>... to) {
-		if (CollectionUtils.containsSuperclass(to, getReturnType()))
-			return (Expression<? extends R>) this;
-
-		if (!CollectionUtils.containsAnySuperclass(to, ItemStack.class, ItemType.class, EntityType.class))
-			return null;
-
-		Expression<? extends R> converted = getExpr().getConvertedExpression(to);
-		if (converted == null)
-			return null;
-
-		ExprXOf exprXOf = new ExprXOf();
-		exprXOf.setExpr(converted);
-		exprXOf.amount = amount;
-		return (Expression<? extends R>) exprXOf;
-	}
-
-	@Override
 	public Class<?> getReturnType() {
 		return getExpr().getReturnType();
 	}

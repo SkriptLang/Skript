@@ -40,7 +40,7 @@ import org.eclipse.jdt.annotation.Nullable;
 		"\tmake the egg hatch"
 })
 @Events("Egg Throw")
-@Since("INSERT VERSION")
+@Since("2.7")
 public class EffMakeEggHatch extends Effect {
 
 	static {

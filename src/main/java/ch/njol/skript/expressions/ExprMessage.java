@@ -22,7 +22,6 @@ import org.bukkit.event.Event;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
-import org.bukkit.event.player.PlayerChatEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerKickEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
@@ -35,7 +34,6 @@ import ch.njol.skript.doc.Events;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
-import ch.njol.skript.events.util.PlayerChatEventHandler;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
@@ -50,44 +48,41 @@ import ch.njol.util.coll.CollectionUtils;
 @SuppressWarnings("deprecation")
 @Name("Message")
 @Description("The (chat) message of a chat event, the join message of a join event, the quit message of a quit event, or the death message on a death event. This expression is mostly useful for being changed.")
-@Examples({"on chat:",
-		"	player has permission \"admin\"",
-		"	set message to \"&c%message%\"",
+@Examples({
+		"on chat:",
+			"\tplayer has permission \"admin\"",
+			"\tset message to \"&c%message%\"",
 		"",
 		"on first join:",
-		"	set join message to \"Welcome %player% to our awesome server!\"",
+			"\tset join message to \"Welcome %player% to our awesome server!\"",
 		"",
 		"on join:",
-		"	player has played before",
-		"	set join message to \"Welcome back, %player%!\"",
+			"\tplayer has played before",
+			"\tset join message to \"Welcome back, %player%!\"",
 		"",
 		"on quit:",
-		"	set quit message to \"%player% left this awesome server!\"",
+			"\tif {vanish::%player's uuid%} is set:",
+				"\t\tclear quit message",
+			"\telse:",
+				"\t\tset quit message to \"%player% left this awesome server!\"",
 		"",
 		"on death:",
-		"	set the death message to \"%player% died!\""})
-@Since("1.4.6 (chat message), 1.4.9 (join & quit messages), 2.0 (death message)")
+			"\tset the death message to \"%player% died!\""})
+@Since("1.4.6 (chat message), 1.4.9 (join & quit messages), 2.0 (death message), 2.9.0 (clear message)")
 @Events({"chat", "join", "quit", "death"})
 public class ExprMessage extends SimpleExpression<String> {
 	
 	@SuppressWarnings("unchecked")
 	private static enum MessageType {
-		CHAT("chat", "[chat( |-)]message", PlayerChatEventHandler.usesAsyncEvent ? AsyncPlayerChatEvent.class : PlayerChatEvent.class) {
+		CHAT("chat", "[chat( |-)]message", AsyncPlayerChatEvent.class) {
 			@Override
-			@Nullable
-			String get(final Event e) {
-				if (PlayerChatEventHandler.usesAsyncEvent)
-					return ((AsyncPlayerChatEvent) e).getMessage();
-				else
-					return ((PlayerChatEvent) e).getMessage();
+			String get(Event event) {
+				return ((AsyncPlayerChatEvent) event).getMessage();
 			}
 			
 			@Override
-			void set(final Event e, final String message) {
-				if (PlayerChatEventHandler.usesAsyncEvent)
-					((AsyncPlayerChatEvent) e).setMessage(message);
-				else
-					((PlayerChatEvent) e).setMessage(message);
+			void set(Event event, String message) {
+				((AsyncPlayerChatEvent) event).setMessage(message);
 			}
 		},
 		JOIN("join", "(join|log[ ]in)( |-)message", PlayerJoinEvent.class) {
@@ -190,18 +185,18 @@ public class ExprMessage extends SimpleExpression<String> {
 	@Override
 	@Nullable
 	public Class<?>[] acceptChange(final ChangeMode mode) {
-		if (mode == ChangeMode.SET)
+		if (mode == ChangeMode.SET || mode == ChangeMode.DELETE)
 			return CollectionUtils.array(String.class);
 		return null;
 	}
 	
 	@Override
 	public void change(final Event e, final @Nullable Object[] delta, final ChangeMode mode) {
-		assert mode == ChangeMode.SET;
-		assert delta != null;
+		assert mode == ChangeMode.SET || mode == ChangeMode.DELETE;
 		for (final Class<? extends Event> c : type.events) {
-			if (c.isInstance(e))
-				type.set(e, "" + delta[0]);
+			if (c.isInstance(e)) {
+				type.set(e, (mode == ChangeMode.DELETE) ? "" : delta[0].toString());
+			}
 		}
 	}
 	

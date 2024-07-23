@@ -87,7 +87,7 @@ public class ExprDirection extends SimpleExpression<Direction> {
 	}
 	
 	@Nullable
-	private Expression<Number> amount;
+	Expression<Number> amount;
 	
 	@Nullable
 	private Vector direction;

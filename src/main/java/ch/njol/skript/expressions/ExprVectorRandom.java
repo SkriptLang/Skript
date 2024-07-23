@@ -18,12 +18,6 @@
  */
 package ch.njol.skript.expressions;
 
-import java.util.Random;
-
-import org.bukkit.event.Event;
-import org.bukkit.util.Vector;
-import org.eclipse.jdt.annotation.Nullable;
-
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
@@ -35,17 +29,19 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
+import org.bukkit.event.Event;
+import org.bukkit.util.Vector;
+import org.eclipse.jdt.annotation.Nullable;
 
-/**
- * @author bi0qaw
- */
+import java.util.Random;
+
 @Name("Vectors - Random Vector")
-@Description("Creates a random vector.")
-@Examples({"set {_v} to a random vector"})
-@Since("2.2-dev28, INSERT VERSION (signed components)")
+@Description("Creates a random unit vector.")
+@Examples("set {_v} to a random vector")
+@Since("2.2-dev28, 2.7 (signed components)")
 public class ExprVectorRandom extends SimpleExpression<Vector> {
 
-	private static final Random random = new Random();
+	private static final Random RANDOM = new Random();
 	
 	static {
 		Skript.registerExpression(ExprVectorRandom.class, Vector.class, ExpressionType.SIMPLE, "[a] random vector");
@@ -57,8 +53,10 @@ public class ExprVectorRandom extends SimpleExpression<Vector> {
 	}
 
 	@Override
-	protected Vector[] get(Event e) {
-		return CollectionUtils.array(new Vector(randomSignedDouble(), randomSignedDouble(), randomSignedDouble()));
+	protected Vector[] get(Event event) {
+		// Generating uniform random numbers leads to bias towards the corners of the cube.
+		// Gaussian distribution is radially symmetric, so it avoids this bias.
+		return CollectionUtils.array(new Vector(RANDOM.nextGaussian(), RANDOM.nextGaussian(), RANDOM.nextGaussian()).normalize());
 	}
 
 	@Override
@@ -72,12 +70,8 @@ public class ExprVectorRandom extends SimpleExpression<Vector> {
 	}
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
+	public String toString(@Nullable Event event, boolean debug) {
 		return "random vector";
-	}
-	
-	private static double randomSignedDouble() {
-		return random.nextDouble() * (random.nextBoolean() ? 1 : -1);
 	}
 
 }

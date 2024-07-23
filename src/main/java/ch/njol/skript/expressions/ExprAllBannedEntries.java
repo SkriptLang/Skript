@@ -40,7 +40,7 @@ import org.eclipse.jdt.annotation.Nullable;
 	"\ttrigger:",
 	"\t\tsend all the banned players"
 })
-@Since("INSERT VERSION")
+@Since("2.7")
 public class ExprAllBannedEntries extends SimpleExpression<Object> {
 
 	static {

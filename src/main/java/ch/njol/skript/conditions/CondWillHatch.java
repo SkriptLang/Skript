@@ -40,7 +40,7 @@ import org.eclipse.jdt.annotation.Nullable;
 	"\t\tsend \"Better luck next time!\" to the player"
 })
 @Events("Egg Throw")
-@Since("INSERT VERSION")
+@Since("2.7")
 public class CondWillHatch extends Condition {
 
 	static {

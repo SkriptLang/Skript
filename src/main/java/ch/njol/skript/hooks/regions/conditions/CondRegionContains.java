@@ -18,14 +18,11 @@
  */
 package ch.njol.skript.hooks.regions.conditions;
 
-import org.bukkit.Location;
-import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.Nullable;
-
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
+import ch.njol.skript.doc.RequiredPlugins;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.hooks.regions.classes.Region;
 import ch.njol.skript.lang.Condition;
@@ -34,18 +31,27 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.util.Direction;
 import ch.njol.util.Checker;
 import ch.njol.util.Kleenean;
+import org.bukkit.Location;
+import org.bukkit.event.Event;
+import org.eclipse.jdt.annotation.Nullable;
 
 /**
  * @author Peter Güttinger
  */
 @Name("Region Contains")
-@Description({"Checks whether a location is contained in a particular <a href='../classes.html#region'>region</a>.",
-		"This condition requires a supported regions plugin to be installed."})
-@Examples({"player is in the region {regions::3}",
-		"on region enter:",
-		"	region contains {flags.%world%.red}",
-		"	message \"The red flag is near!\""})
+@Description({
+	"Checks whether a location is contained in a particular <a href='./classes.html#region'>region</a>.",
+	"This condition requires a supported regions plugin to be installed."
+})
+@Examples({
+	"player is in the region {regions::3}",
+	"",
+	"on region enter:",
+	"\tregion contains {flags.%world%.red}",
+	"\tmessage \"The red flag is near!\""
+})
 @Since("2.1")
+@RequiredPlugins("Supported regions plugin")
 public class CondRegionContains extends Condition {
 	static {
 		Skript.registerCondition(CondRegionContains.class,

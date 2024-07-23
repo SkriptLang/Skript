@@ -1,0 +1,44 @@
+test "ExprMessageJUnit" when running JUnit:
+	set {_tests::1} to "set chat message"
+	set {_tests::2} to "clear chat message"
+	set {_tests::3} to "set join message"
+	set {_tests::4} to "clear join message"
+	set {_tests::5} to "set quit message"
+	set {_tests::6} to "clear quit message"
+	ensure junit test "org.skriptlang.skript.test.tests.syntaxes.expressions.ExprMessageTest" completes {_tests::*}
+
+on chat:
+	set {_test} to "org.skriptlang.skript.test.tests.syntaxes.expressions.ExprMessageTest"
+	junit test is {_test}
+
+	set chat message to "hello"
+	if chat message is "hello":
+		complete objective "set chat message" for {_test}
+
+	clear message
+	if message is "":
+		complete objective "clear chat message" for {_test}
+
+on join:
+	set {_test} to "org.skriptlang.skript.test.tests.syntaxes.expressions.ExprMessageTest"
+	junit test is {_test}
+
+	set login message to "I joined"
+	if log in message is "I joined":
+		complete objective "set join message" for {_test}
+
+	clear join message
+	if join message is "":
+		complete objective "clear join message" for {_test}
+
+on quit:
+	set {_test} to "org.skriptlang.skript.test.tests.syntaxes.expressions.ExprMessageTest"
+	junit test is {_test}
+
+	set logout message to "I left"
+	if log out message is "I left":
+		complete objective "set quit message" for {_test}
+
+	clear quit message
+	if leave message is "":
+		complete objective "clear quit message" for {_test}

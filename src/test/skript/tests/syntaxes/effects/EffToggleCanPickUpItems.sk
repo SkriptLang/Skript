@@ -1,0 +1,7 @@
+test "entity can pick up items":
+	spawn a zombie at spawn of "world":
+		allow event-entity to pick up items
+		assert event-entity can pick up items with "failed to allow zombie to pick up items"
+		forbid event-entity from picking items up
+		assert event-entity can't pick up items with "failed to disallow zombie to pick up items"
+		delete event-entity

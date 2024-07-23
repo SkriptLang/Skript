@@ -21,7 +21,7 @@ package ch.njol.skript.lang.function;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
-import ch.njol.skript.registrations.Converters;
+import org.skriptlang.skript.lang.converter.Converters;
 import ch.njol.skript.util.Utils;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
@@ -59,7 +59,7 @@ public class ExprFunctionCall<T> extends SimpleExpression<T> {
 	protected T[] get(Event e) {
 		Object[] returnValue = function.execute(e);
 		function.resetReturnValue();
-		return Converters.convertArray(returnValue, returnTypes, returnType);
+		return Converters.convert(returnValue, returnTypes, returnType);
 	}
 
 	@Override

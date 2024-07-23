@@ -25,63 +25,93 @@ import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
+import ch.njol.skript.lang.Literal;
+import ch.njol.skript.lang.LoopSection;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.TriggerItem;
-import ch.njol.skript.lang.TriggerSection;
-import ch.njol.skript.lang.parser.ParserInstance;
-import ch.njol.skript.sections.SecLoop;
-import ch.njol.skript.sections.SecWhile;
 import ch.njol.util.Kleenean;
+import ch.njol.util.StringUtils;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Name("Continue")
-@Description("Skips the value currently being looped, moving on to the next value if it exists.")
-@Examples({"loop all players:",
+@Description("Moves the loop to the next iteration. You may also continue an outer loop from an inner one." +
+	" The loops are labelled from 1 until the current loop, starting with the outermost one.")
+@Examples({
+	"# Broadcast online moderators",
+	"loop all players:",
 		"\tif loop-value does not have permission \"moderator\":",
-		"\t\tcontinue # filter out non moderators",
-		"\tbroadcast \"%loop-player% is a moderator!\" # Only moderators get broadcast"})
-@Since("2.2-dev37, INSERT VERSION (while loops)")
+			"\t\tcontinue # filter out non moderators",
+		"\tbroadcast \"%loop-player% is a moderator!\" # Only moderators get broadcast",
+	" ",
+	"# Game starting counter",
+	"set {_counter} to 11",
+	"while {_counter} > 0:",
+		"\tremove 1 from {_counter}",
+		"\twait a second",
+		"\tif {_counter} != 1, 2, 3, 5 or 10:",
+			"\t\tcontinue # only print when counter is 1, 2, 3, 5 or 10",
+		"\tbroadcast \"Game starting in %{_counter}% second(s)\"",
+})
+@Since("2.2-dev37, 2.7 (while loops), 2.8.0 (outer loops)")
 public class EffContinue extends Effect {
 
 	static {
-		Skript.registerEffect(EffContinue.class, "continue [loop]");
+		Skript.registerEffect(EffContinue.class,
+			"continue [this loop|[the] [current] loop]",
+			"continue [the] %*integer%(st|nd|rd|th) loop"
+		);
 	}
 
 	@SuppressWarnings("NotNullFieldNotInitialized")
-	private TriggerSection section;
+	private LoopSection loop;
+	@SuppressWarnings("NotNullFieldNotInitialized")
+	private List<LoopSection> innerLoops;
 
 	@Override
+	@SuppressWarnings("unchecked")
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		List<TriggerSection> currentSections = ParserInstance.get().getCurrentSections().stream()
-			.filter(s -> s instanceof SecLoop || s instanceof SecWhile)
-			.collect(Collectors.toList());
-		
-		if (currentSections.isEmpty()) {
-			Skript.error("Continue may only be used in while or loops");
+		List<LoopSection> currentLoops = getParser().getCurrentSections(LoopSection.class);
+
+		int size = currentLoops.size();
+		if (size == 0) {
+			Skript.error("The 'continue' effect may only be used in loops");
 			return false;
 		}
-		
-		section = currentSections.get(currentSections.size() - 1);
+
+		int level = matchedPattern == 0 ? size : ((Literal<Integer>) exprs[0]).getSingle();
+		if (level < 1) {
+			Skript.error("Can't continue the " + StringUtils.fancyOrderNumber(level) + " loop");
+			return false;
+		}
+		if (level > size) {
+			Skript.error("Can't continue the " + StringUtils.fancyOrderNumber(level) + " loop as there " +
+				(size == 1 ? "is only 1 loop" : "are only " + size + " loops") + " present");
+			return false;
+		}
+
+		loop = currentLoops.get(level - 1);
+		innerLoops = currentLoops.subList(level, size);
 		return true;
 	}
 
 	@Override
-	protected void execute(Event e) {
+	protected void execute(Event event) {
 		throw new UnsupportedOperationException();
 	}
 
-	@Nullable
 	@Override
-	protected TriggerItem walk(Event e) {
-		return section;
+	@Nullable
+	protected TriggerItem walk(Event event) {
+		for (LoopSection loop : innerLoops)
+			loop.exit(event);
+		return loop;
 	}
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
+	public String toString(@Nullable Event event, boolean debug) {
 		return "continue";
 	}
 

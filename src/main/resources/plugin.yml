@@ -24,7 +24,7 @@ description: Customize Minecraft's mechanics with simple scripts written in plai
 
 authors: [Njol, Mirreski, 'SkriptLang Team', Contributors]
 
-website: https://skriptlang.github.io/Skript
+website: https://skriptlang.org
 
 main: ch.njol.skript.Skript
 

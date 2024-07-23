@@ -26,15 +26,16 @@ import org.eclipse.jdt.annotation.Nullable;
  * @author Peter Güttinger
  */
 public interface Literal<T> extends Expression<T> {
-	
-	public T[] getArray();
-	
-	public T getSingle();
-	
+
+	T[] getArray();
+
+	T getSingle();
+
 	@Override
 	@Nullable
-	public <R> Literal<? extends R> getConvertedExpression(Class<R>... to);
-	
-	public T[] getAll();
-	
+	@SuppressWarnings("unchecked")
+	<R> Literal<? extends R> getConvertedExpression(Class<R>... to);
+
+	T[] getAll();
+
 }

@@ -35,17 +35,14 @@ import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
 
-/**
- * @author bi0qaw
- */
 @Name("Vectors - Vector from Location")
 @Description("Creates a vector from a location.")
-@Examples({"set {_v} to vector of {_loc}"})
+@Examples("set {_v} to vector of {_loc}")
 @Since("2.2-dev28")
 public class ExprVectorOfLocation extends SimpleExpression<Vector> {
 
 	static {
-		Skript.registerExpression(ExprVectorOfLocation.class, Vector.class, ExpressionType.SIMPLE,
+		Skript.registerExpression(ExprVectorOfLocation.class, Vector.class, ExpressionType.PROPERTY,
 				"[the] vector (of|from|to) %location%",
 				"%location%'s vector");
 	}
@@ -62,11 +59,11 @@ public class ExprVectorOfLocation extends SimpleExpression<Vector> {
 
 	@Override
 	@SuppressWarnings("null")
-	protected Vector[] get(Event e) {
-		Location l = location.getSingle(e);
-		if (l == null)
+	protected Vector[] get(Event event) {
+		Location location = this.location.getSingle(event);
+		if (location == null)
 			return null;
-		return CollectionUtils.array(l.toVector());
+		return CollectionUtils.array(location.toVector());
 	}
 
 	@Override
@@ -80,8 +77,8 @@ public class ExprVectorOfLocation extends SimpleExpression<Vector> {
 	}
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
-		return "vector from " + location.toString(e, debug);
+	public String toString(@Nullable Event event, boolean debug) {
+		return "vector from " + location.toString(event, debug);
 	}
 
 }

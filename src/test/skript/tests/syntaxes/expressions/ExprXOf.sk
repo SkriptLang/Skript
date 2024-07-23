@@ -1,3 +1,7 @@
+function ExprXOf(c: number) :: item:
+	set {_gem} to diamond
+	return {_c} of {_gem}
+
 test "X of":
 	set {_x} to 5
 	assert 1 of {_x} is not set with "incorrect type failed"
@@ -5,3 +9,5 @@ test "X of":
 	assert 2 of {_y} is 2 zombie with "entity type amount failed"
 	set {_z} to stone
 	assert 2 of {_z} is 2 stone with "item failed"
+
+	assert ExprXOf(2) is 2 diamonds with "function return failed - got '%ExprXOf(2)%'"

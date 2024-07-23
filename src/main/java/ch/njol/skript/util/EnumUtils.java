@@ -28,90 +28,94 @@ import org.eclipse.jdt.annotation.Nullable;
 import java.util.HashMap;
 import java.util.Locale;
 
+/**
+ * A language utility class to be used for easily handling language values representing an Enum.
+ * @param <E> Generic representing the Enum.
+ * @see ch.njol.skript.classes.EnumClassInfo
+ */
 public final class EnumUtils<E extends Enum<E>> {
 	
-	private final Class<E> c;
+	private final Class<E> enumClass;
 	private final String languageNode;
 
+	@SuppressWarnings("NotNullFieldNotInitialized") // initialized in constructor's refresh() call
 	private String[] names;
 	private final HashMap<String, E> parseMap = new HashMap<>();
 	
-	public EnumUtils(Class<E> c, String languageNode) {
-		assert c != null && c.isEnum() : c;
-		assert languageNode != null && !languageNode.isEmpty() && !languageNode.endsWith(".") : languageNode;
+	public EnumUtils(Class<E> enumClass, String languageNode) {
+		assert enumClass.isEnum() : enumClass;
+		assert !languageNode.isEmpty() && !languageNode.endsWith(".") : languageNode;
 		
-		this.c = c;
+		this.enumClass = enumClass;
 		this.languageNode = languageNode;
 
-		names = new String[c.getEnumConstants().length];
+		refresh();
 		
-		Language.addListener(() -> validate(true));
+		Language.addListener(this::refresh);
 	}
 	
 	/**
-	 * Updates the names if the language has changed or the enum was modified (using reflection).
+	 * Refreshes the representation of this Enum based on the currently stored language entries.
 	 */
-	void validate(boolean force) {
-		boolean update = force;
+	void refresh() {
+		E[] constants = enumClass.getEnumConstants();
+		names = new String[constants.length];
+		parseMap.clear();
+		for (E constant : constants) {
+			String key = languageNode + "." + constant.name();
+			int ordinal = constant.ordinal();
 
-		E[] constants = c.getEnumConstants();
-
-		if (constants.length != names.length) { // Simple check
-			names = new String[constants.length];
-			update = true;
-		} else { // Deeper check
-			for (E constant : constants) {
-				if (!parseMap.containsValue(constant)) { // A new value was added to the enum
-					update = true;
-					break;
+			String[] options = Language.getList(key);
+			for (String option : options) {
+				option = option.toLowerCase(Locale.ENGLISH);
+				if (options.length == 1 && option.equals(key.toLowerCase(Locale.ENGLISH))) {
+					Skript.debug("Missing lang enum constant for '" + key + "'");
+					continue;
 				}
-			}
-		}
 
-		if (update) {
-			parseMap.clear();
-			for (E e : constants) {
-				String key = languageNode + "." + e.name();
-				int ordinal = e.ordinal();
+				// Isolate the gender if one is present
+				NonNullPair<String, Integer> strippedOption = Noun.stripGender(option, key);
+				String first = strippedOption.getFirst();
+				Integer second = strippedOption.getSecond();
 
-				String[] values = Language.getList(key);
-				for (String option : values) {
-					option = option.toLowerCase(Locale.ENGLISH);
-					if (values.length == 1 && option.equals(key.toLowerCase(Locale.ENGLISH))) {
-						Skript.warning("Missing lang enum constant for '" + key + "'");
-						continue;
-					}
+				if (names[ordinal] == null) { // Add to name array if needed
+					names[ordinal] = first;
+				}
 
-					NonNullPair<String, Integer> strippedOption = Noun.stripGender(option, key);
-					String first = strippedOption.getFirst();
-					Integer second = strippedOption.getSecond();
-
-					if (names[ordinal] == null) { // Add to name array if needed
-						names[ordinal] = first;
-					}
-
-					parseMap.put(first, e);
-					if (second != -1) { // There is a gender present
-						parseMap.put(Noun.getArticleWithSpace(second, Language.F_INDEFINITE_ARTICLE) + first, e);
-					}
+				parseMap.put(first, constant);
+				if (second != -1) { // There is a gender present
+					parseMap.put(Noun.getArticleWithSpace(second, Language.F_INDEFINITE_ARTICLE) + first, constant);
 				}
 			}
 		}
 	}
-	
+
+	/**
+	 * This method attempts to match the string input against one of the string representations of the enumerators.
+	 * @param input a string to attempt to match against one the enumerators.
+	 * @return The enumerator matching the input, or null if no match could be made.
+	 */
 	@Nullable
-	public E parse(String s) {
-		validate(false);
-		return parseMap.get(s.toLowerCase(Locale.ENGLISH));
+	public E parse(String input) {
+		return parseMap.get(input.toLowerCase(Locale.ENGLISH));
 	}
 
-	public String toString(E e, int flags) {
-		validate(false);
-		return names[e.ordinal()];
+	/**
+	 * This method returns the string representation of an enumerator.
+	 * @param enumerator The enumerator to represent as a string.
+	 * @param flags not currently used
+	 * @return A string representation of the enumerator.
+	 */
+	public String toString(E enumerator, int flags) {
+		String s = names[enumerator.ordinal()];
+		return s != null ? s : enumerator.name();
 	}
-	
+
+	/**
+	 * @return A comma-separated string containing a list of all names representing the enumerators.
+	 * Note that some entries may represent the same enumerator.
+	 */
 	public String getAllNames() {
-		validate(false);
 		return StringUtils.join(parseMap.keySet(), ", ");
 	}
 	

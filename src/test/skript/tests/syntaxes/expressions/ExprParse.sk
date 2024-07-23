@@ -1,0 +1,16 @@
+test "ExprParse":
+	assert "1" parsed as "%integer%" where [1 is 1] exists to fail with "Parsing as one single expression isn't single"
+	assert "1, 2" parsed as "%integers%" where [1 is 1] exists with "Parsing as one plural expression is single"
+	assert "1, 2" parsed as "%integer%, %integer%" where [1 is 1] exists with "Parsing as multiple expression is single"
+
+	assert "hello" parsed as "%object%" exists to fail with "Parsing as a type that can't be parsed should fail"
+	assert "hello" parsed as object exists to fail with "Parsing as a type that can't be parsed should fail"
+
+	assert "1" parsed as integer is 1 with "Failed parsing"
+	assert "1" parsed as "%integer%" is 1 with "Failed parsing with one single expression"
+	assert "1, 2" parsed as "%integers%" is 1 or 2 with "Failed parsing with one plural expression"
+	assert "1, 2" parsed as "%integer%, %integer%" is 1 or 2 with "Failed parsing with two single expressions"
+
+	set {_parse::*} to "1, 2" parsed as "%integers%"
+	assert {_parse::1::*} is 1 or 2 with "Setting list to plural expression in parsing doesn't create sublist"
+	assert indices of {_parse::1::*} is "1" or "2" with "Sublist doesn't start from 1"

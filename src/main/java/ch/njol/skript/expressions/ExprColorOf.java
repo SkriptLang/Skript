@@ -48,11 +48,11 @@ import ch.njol.skript.util.SkriptColor;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
 
-@Name("Colour of")
-@Description("The <a href='../classes.html#color'>colour</a> of an item, can also be used to colour chat messages with \"&lt;%colour of ...%&gt;this text is coloured!\".")
+@Name("Color of")
+@Description("The <a href='./classes.html#color'>color</a> of an item, can also be used to color chat messages with \"&lt;%color of ...%&gt;this text is colored!\".")
 @Examples({"on click on wool:",
-		"	message \"This wool block is <%colour of block%>%colour of block%<reset>!\"",
-		"	set the colour of the block to black"})
+		"	message \"This wool block is <%color of block%>%color of block%<reset>!\"",
+		"	set the color of the block to black"})
 @Since("1.2")
 public class ExprColorOf extends PropertyExpression<Object, Color> {
 
@@ -102,7 +102,7 @@ public class ExprColorOf extends PropertyExpression<Object, Color> {
 
 	@Override
 	public String toString(@Nullable Event e, boolean debug) {
-		return "colour of " + getExpr().toString(e, debug);
+		return "color of " + getExpr().toString(e, debug);
 	}
 
 	@Override
@@ -157,8 +157,8 @@ public class ExprColorOf extends PropertyExpression<Object, Color> {
 						colorable.setColor(color);
 					} catch (UnsupportedOperationException ex) {
 						// https://github.com/SkriptLang/Skript/issues/2931
-						Skript.error("Tried setting the colour of a bed, but this isn't possible in your Minecraft version, " +
-							"since different coloured beds are different materials. " +
+						Skript.error("Tried setting the color of a bed, but this isn't possible in your Minecraft version, " +
+							"since different colored beds are different materials. " +
 							"Instead, set the block to right material, such as a blue bed."); // Let's just assume it's a bed
 					}
 				}

@@ -18,39 +18,39 @@
  */
 package ch.njol.yggdrasil;
 
+import ch.njol.yggdrasil.Fields.FieldContext;
+
 import java.io.StreamCorruptedException;
 import java.lang.reflect.Field;
-
-import ch.njol.yggdrasil.Fields.FieldContext;
 
 public interface FieldHandler {
 	
 	/**
 	 * Called when a loaded field doesn't exist.
 	 * 
-	 * @param o The object whose filed is missing
+	 * @param object The object whose filed is missing
 	 * @param field The field read from stream
 	 * @return Whether this Handler handled the request
 	 */
-	public boolean excessiveField(Object o, FieldContext field) throws StreamCorruptedException;
+	boolean excessiveField(Object object, FieldContext field) throws StreamCorruptedException;
 	
 	/**
 	 * Called if a field was not found in the stream.
 	 * 
-	 * @param o The object whose filed is missing
+	 * @param object The object whose filed is missing
 	 * @param field The field that didn't occur in the stream
 	 * @return Whether this Handler handled the request
 	 */
-	public boolean missingField(Object o, Field field) throws StreamCorruptedException;
+	boolean missingField(Object object, Field field) throws StreamCorruptedException;
 	
 	/**
-	 * Called when a loaded value is not compatible with the type of a field.
+	 * Called when a loaded value is not compatible with the type of field.
 	 * 
-	 * @param o The object the field belongs to
-	 * @param f The field to set
-	 * @param field The field read from stream
+	 * @param object The object the field belongs to
+	 * @param field The field to set
+	 * @param context The field read from stream
 	 * @return Whether this Handler handled the request
 	 */
-	public boolean incompatibleField(Object o, Field f, FieldContext field) throws StreamCorruptedException;
+	boolean incompatibleField(Object object, Field field, FieldContext context) throws StreamCorruptedException;
 	
 }

@@ -29,7 +29,7 @@ import ch.njol.skript.conditions.base.PropertyCondition;
 @Name("Is Gliding")
 @Description("Checks whether a living entity is gliding.")
 @Examples("if player is gliding")
-@Since("INSERT VERSION")
+@Since("2.7")
 public class CondIsGliding extends PropertyCondition<LivingEntity> {
 
 	static {

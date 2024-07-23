@@ -33,7 +33,7 @@ import org.eclipse.jdt.annotation.Nullable;
 
 @Name("Special Number")
 @Description("Special number values, namely NaN, Infinity and -Infinity")
-@Examples({"if {_number} is NaN value:"})
+@Examples({"if {_number} is infinity value:"})
 @Since("2.2-dev32d")
 public class ExprSpecialNumber extends SimpleExpression<Number> {
 	private int value;

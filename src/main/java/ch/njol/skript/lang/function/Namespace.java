@@ -21,6 +21,7 @@ package ch.njol.skript.lang.function;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 import org.eclipse.jdt.annotation.Nullable;
 
@@ -50,46 +51,44 @@ public class Namespace {
 	public static class Key {
 		
 		private final Origin origin;
-		
-		private final String name;
 
-		public Key(Origin origin, String name) {
+		@Nullable
+		private final String scriptName;
+
+		public Key(Origin origin, @Nullable String scriptName) {
 			super();
 			this.origin = origin;
-			this.name = name;
+			this.scriptName = scriptName;
 		}
 		
 		public Origin getOrigin() {
 			return origin;
 		}
-		
-		public String getName() {
-			return name;
+
+		@Nullable
+		public String getScriptName() {
+			return scriptName;
 		}
 
 		@Override
 		public int hashCode() {
-			int prime = 31;
-			int result = 1;
-			result = prime * result + name.hashCode();
-			result = prime * result + origin.hashCode();
+			int result = origin.hashCode();
+			result = 31 * result + (scriptName != null ? scriptName.hashCode() : 0);
 			return result;
 		}
 
 		@Override
-		public boolean equals(@Nullable Object obj) {
-			if (this == obj)
+		public boolean equals(Object object) {
+			if (this == object)
 				return true;
-			if (obj == null)
+			if (object == null || getClass() != object.getClass())
 				return false;
-			if (getClass() != obj.getClass())
-				return false;
-			Key other = (Key) obj;
-			if (!name.equals(other.name))
-				return false;
+
+			Key other = (Key) object;
+
 			if (origin != other.origin)
 				return false;
-			return true;
+			return Objects.equals(scriptName, other.scriptName);
 		}
 	}
 

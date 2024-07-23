@@ -61,31 +61,7 @@ public class EntityType implements Cloneable, YggdrasilSerializable {
 						return "entitytype:" + t.toString();
 					}
                 })
-				.serializer(new YggdrasilSerializer<EntityType>() {
-//						return t.amount + "*" + EntityData.serializer.serialize(t.data);
-					@Override
-					@Deprecated
-					@Nullable
-					public EntityType deserialize(final String s) {
-						final String[] split = s.split("\\*", 2);
-						if (split.length != 2)
-							return null;
-						@SuppressWarnings("null")
-						final EntityData<?> d = EntityData.serializer.deserialize(split[1]);
-						if (d == null)
-							return null;
-						try {
-							return new EntityType(d, Integer.parseInt(split[0]));
-						} catch (final NumberFormatException e) {
-							return null;
-						}
-					}
-					
-					@Override
-					public boolean mustSyncDeserialization() {
-						return false;
-					}
-				}));
+				.serializer(new YggdrasilSerializer<>()));
 	}
 	
 	public int amount = -1;

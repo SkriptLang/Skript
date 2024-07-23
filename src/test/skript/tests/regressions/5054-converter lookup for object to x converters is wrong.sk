@@ -1,0 +1,11 @@
+test "converter lookup for object to x converters is wrong":
+
+	loop 1, 2, and 3:
+		assert loop-value + 1 > 1 with "loop-value is not greater than 1 (loop-value = '%loop-value%')"
+
+	set {_hello::*} to bananas()
+	assert size of {_hello::*} > 0 with "reversed list didn't work ({_hello::*} = '%{_hello::*}%')"
+
+function bananas() :: numbers:
+	set {_hello::*} to 1 and 2
+	return reversed {_hello::*}

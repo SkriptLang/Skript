@@ -18,6 +18,13 @@
  */
 package ch.njol.skript.expressions;
 
+import ch.njol.skript.classes.Changer;
+import ch.njol.skript.doc.Description;
+import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Name;
+import ch.njol.skript.doc.Since;
+import ch.njol.skript.expressions.base.SimplePropertyExpression;
+import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.GameMode;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
@@ -55,7 +62,7 @@ import ch.njol.util.coll.CollectionUtils;
 		"\tset spectator target to the nearest skeleton"
 })
 @RequiredPlugins("Paper")
-@Since("2.4-alpha4, INSERT VERSION (Paper Spectator Event)")
+@Since("2.4-alpha4, 2.7 (Paper Spectator Event)")
 public class ExprSpectatorTarget extends SimpleExpression<Entity> {
 
 	private static final boolean EVENT_SUPPORT = Skript.classExists("com.destroystokyo.paper.event.player.PlayerStartSpectatingEntityEvent");

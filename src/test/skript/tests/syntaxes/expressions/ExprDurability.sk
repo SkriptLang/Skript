@@ -1,0 +1,29 @@
+test "durability":
+	set {_i} to an iron sword
+	set {_max} to max durability of {_i}
+	assert damage of {_i} is 0 with "default item damage failed"
+	assert durability of {_i} is {_max} with "default item durability failed"
+	set damage of {_i} to 64
+	assert damage of {_i} is 64 with "item damage failed"
+	assert durability of {_i} is {_max} - 64 with "item durability failed"
+	set durability of {_i} to 10
+	assert damage of {_i} is {_max} - 10 with "inverse item damage failed"
+	assert durability of {_i} is 10 with "inverse item durability failed"
+	set durability of {_i} to 0
+	assert damage of {_i} is {_max} with "max item damage failed"
+	assert durability of {_i} is 0 with "zero item durability failed"
+
+	# Test out of bound values
+	set durability of {_i} to 500
+	assert damage of {_i} is 0 with "damage of item should be 0 when setting durability higher than max"
+	assert durability of {_i} is {_max} with "durability of item should be max when setting higher than max"
+
+	set damage of {_i} to -1
+	assert damage of {_i} is 0 with "damage of item should be 0 when setting damage less than 0"
+	assert durability of {_i} is {_max} with "durability of item should be max when setting damage below 0"
+
+test "durability - custom" when running minecraft "1.20.5":
+	set {_i} to 1 of iron sword
+	set max durability of {_i} to 1000
+	damage {_i} by 1
+	assert durability of {_i} = 999 with "durability of iron sword should be 999"

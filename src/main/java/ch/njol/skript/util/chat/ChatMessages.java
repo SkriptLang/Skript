@@ -18,6 +18,16 @@
  */
 package ch.njol.skript.util.chat;
 
+import ch.njol.skript.Skript;
+import ch.njol.skript.SkriptAddon;
+import ch.njol.skript.localization.Language;
+import ch.njol.skript.localization.LanguageChangeListener;
+import ch.njol.skript.util.Utils;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import net.md_5.bungee.api.ChatColor;
+import org.eclipse.jdt.annotation.Nullable;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -28,17 +38,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.regex.Pattern;
-
-import org.eclipse.jdt.annotation.Nullable;
-
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import ch.njol.skript.Skript;
-import ch.njol.skript.SkriptAddon;
-import ch.njol.skript.localization.Language;
-import ch.njol.skript.localization.LanguageChangeListener;
-import ch.njol.skript.util.Utils;
-import net.md_5.bungee.api.ChatColor;
 
 /**
  * Handles parsing chat messages.
@@ -96,6 +95,8 @@ public class ChatMessages {
 				Skript.debug("Parsing message style lang files");
 				for (SkriptChatCode code : SkriptChatCode.values()) {
 					assert code != null;
+					if (code == SkriptChatCode.copy_to_clipboard && !Utils.COPY_SUPPORTED)
+						continue;
 					registerChatCode(code);
 				}
 				
@@ -537,6 +538,8 @@ public class ChatMessages {
 			to.insertion = from.insertion;
 		if (to.hoverEvent == null)
 			to.hoverEvent = from.hoverEvent;
+		if (to.font == null)
+			to.font = from.font;
 	}
 
 	public static void shareStyles(MessageComponent[] components) {
@@ -573,25 +576,37 @@ public class ChatMessages {
 		registerChatCode(code);
 	}
 	
+	private static final Pattern HEX_COLOR_PATTERN = Pattern.compile("[§&]x");
+	private static final Pattern ANY_COLOR_PATTERN = Pattern.compile("(?i)[&§][0-9a-folkrnm]");
+	
 	/**
 	 * Strips all styles from given string.
 	 * @param text String to strip styles from.
 	 * @return A string without styles.
 	 */
 	public static String stripStyles(String text) {
-		List<MessageComponent> components = parse(text);
-		StringBuilder sb = new StringBuilder();
-		for (MessageComponent component : components) { // This also strips bracket tags ex. <red> <ttp:..> etc.
-			sb.append(component.text);
-		}
-		String plain = sb.toString();
-
-		if (Utils.HEX_SUPPORTED) // Strip '§x', '&x'
-			plain = plain.replaceAll("[§&]x", "");
-
-		plain = plain.replaceAll("(?i)[&§][0-9a-folkrnm]", ""); // strips colors & or § (ex. &5)
-
-		assert plain != null;
-		return plain;
+		String previous;
+		String result = text;
+		do {
+			previous = result;
+			
+			List<MessageComponent> components = parse(result);
+			StringBuilder builder = new StringBuilder();
+			for (MessageComponent component : components) { // This also strips bracket tags ex. <red> <ttp:..> etc.
+				if (component.translation != null)
+					builder.append(component.translation);
+				if (component.keybind != null)
+					builder.append(component.keybind);
+				builder.append(component.text);
+			}
+			String plain = builder.toString();
+			
+			if (Utils.HEX_SUPPORTED) // Strip '§x', '&x'
+				plain = HEX_COLOR_PATTERN.matcher(plain).replaceAll("");
+			
+			result = ANY_COLOR_PATTERN.matcher(plain).replaceAll(""); // strips colors & or § (ex. &5)
+		} while (!previous.equals(result));
+		
+		return result;
 	}
 }
