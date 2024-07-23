@@ -1,0 +1,259 @@
+package org.skriptlang.skript.bukkit.misc.expressions;
+
+import ch.njol.skript.Skript;
+import ch.njol.skript.doc.Description;
+import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Name;
+import ch.njol.skript.doc.RequiredPlugins;
+import ch.njol.skript.doc.Since;
+import ch.njol.skript.lang.Expression;
+import ch.njol.skript.lang.ExpressionType;
+import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.skript.lang.util.SimpleExpression;
+import ch.njol.util.Kleenean;
+import org.bukkit.event.Event;
+import org.bukkit.util.Vector;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.UnknownNullability;
+import org.joml.Quaternionf;
+import org.joml.Vector3f;
+
+import java.util.Locale;
+import java.util.Objects;
+import java.util.function.BiFunction;
+
+@Name("Rotate Quaternion/Vector")
+@Description({
+	"Rotates a Quaternion or Vector around an axis a set amount of degrees, or around all 3 axes at once.",
+	"Vectors can only be rotated around the global X/Y/Z axes, or an arbitrary vector axis.",
+	"Quaternions are more flexible, allowing rotation around the global or local X/Y/Z axes, arbitrary vectors, or all 3 local axis at once.",
+	"Global axes are the ones in the Minecraft world. Local axes are relative to how the quaternion is already oriented.",
+	"",
+	"Note that rotating a quaternion around a vector results in a rotation around the local vector, so results may not be what you expect. " +
+	"For example, rotating around vector(1, 0, 0) is the same as rotating around the local x axis.",
+	"In addition, rotating around all three axes at once will rotate in ZYX order, meaning the Z rotation will be applied first, and the X rotation last."
+})
+@Examples({
+	"set {_new} to {_quaternion} rotated around x axis by 10 degrees",
+	"set {_new} to {_vector} rotated around vector(1, 1, 1) by 45",
+	"set {_new} to {_quaternion} rotated by x 45, y 90, z 135"
+})
+@RequiredPlugins("Spigot 1.19.4+")
+@Since("INSERT VERSION")
+public class ExprRotate extends SimpleExpression<Object> {
+
+	// NOTE:
+	// The apparent mismatch of X -> rotateLocalX and LOCAL_X -> rotateX is intentional.
+	// When rotating display entities, rotateLocalX appears as if rotating around the global X,
+	// and vice versa for rotateX.
+	public enum Axis {
+		/**
+		 * The global X axis
+		 */
+		X ((object, angle) -> {
+			if (object instanceof Quaternionf quaternion) {
+				return quaternion.rotateLocalX(angle.floatValue(), new Quaternionf());
+			} else if (object instanceof Vector vector) {
+				return vector.clone().rotateAroundX(angle);
+			}
+			return null;
+		}),
+		/**
+		 * The global Y axis
+		 */
+		Y ((object, angle) -> {
+			if (object instanceof Quaternionf quaternion) {
+				return quaternion.rotateLocalY(angle.floatValue(), new Quaternionf());
+			} else if (object instanceof Vector vector) {
+				return vector.clone().rotateAroundY(angle);
+			}
+			return null;
+		}),
+		/**
+		 * The global Z axis
+		 */
+		Z ((object, angle) -> {
+			if (object instanceof Quaternionf quaternion) {
+				return quaternion.rotateLocalZ(angle.floatValue(), new Quaternionf());
+			} else if (object instanceof Vector vector) {
+				return vector.clone().rotateAroundZ(angle);
+			}
+			return null;
+		}),
+		/**
+		 * The local X axis for the given {@link Quaternionf}
+		 */
+		LOCAL_X ((object, angle) -> {
+			if (object instanceof Quaternionf quaternion) {
+				return quaternion.rotateX(angle.floatValue(), new Quaternionf());
+			}
+			return null;
+		}),
+		/**
+		 * The local Y axis for the given {@link Quaternionf}
+		 */
+		LOCAL_Y ((object, angle) -> {
+			if (object instanceof Quaternionf quaternion) {
+				return quaternion.rotateY(angle.floatValue(), new Quaternionf());
+			}
+			return null;
+		}),
+		/**
+		 * The local Z axis for the given {@link Quaternionf}
+		 */
+		LOCAL_Z ((object, angle) -> {
+			if (object instanceof Quaternionf quaternion) {
+				return quaternion.rotateZ(angle.floatValue(), new Quaternionf());
+			}
+			return null;
+		}),
+		/**
+		 * An unknown, arbitrary axis. {@link #applyRotation(Object, float)} is not supported.
+		 */
+		ARBITRARY (null);
+
+		private final BiFunction<Object, Double, Object> rotation;
+		Axis(@UnknownNullability BiFunction<Object, Double, Object> rotation) {
+			this.rotation = rotation;
+		}
+
+		/**
+		 * Rotates the given {@link Quaternionf} or {@link Vector} around this axis.
+		 * Vectors may not be rotated around local axes and will return null in these cases.
+		 * {@link #ARBITRARY} does not support this method, as the axis in unknown.
+		 *
+		 * @param toRotate the {@link Quaternionf} or {@link Vector} to rotate.
+		 * @param angle the angle <b>in radians</b> to rotate the object by.
+		 * @return a rotated copy of the object.
+		 */
+		@Contract(value = "_, _ -> new", pure = true)
+		public @UnknownNullability Object applyRotation(Object toRotate, double angle) {
+			return rotation.apply(toRotate, angle);
+		}
+
+		@Override
+		public String toString() {
+			return super.toString().toLowerCase(Locale.ENGLISH).replace("_", " ");
+		}
+	}
+
+	static {
+		if (Skript.isRunningMinecraft(1, 19, 4))
+			Skript.registerExpression(ExprRotate.class, Object.class, ExpressionType.SIMPLE,
+					"%quaternions/vectors% rotated (around|on) [the] ([global] (:x|:y|:z)(-| )axis|arbitrary:%-vector%) by %number% [degrees]",
+					"%quaternions% rotated (around|on) [the|its|their] local (:x|:y|:z)(-| )ax(i|e)s by %number% [degrees]",
+					"%quaternions% rotated by x %number%, y %number%(, [and]| and) z %number%");
+	}
+
+	private Expression<?> toRotate;
+
+	private @UnknownNullability Expression<Number> angle;
+	private @UnknownNullability Expression<Vector> vector;
+	private Axis axis;
+
+	private @UnknownNullability Expression<Number> x, y, z;
+
+	private int matchedPattern;
+
+	@Override
+	@SuppressWarnings("unchecked")
+	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
+		toRotate = exprs[0];
+		this.matchedPattern = matchedPattern;
+		if (matchedPattern < 2) {
+			String axisString = parseResult.tags.get(0).toUpperCase(Locale.ENGLISH);
+			if (matchedPattern == 1) {
+				axisString = "LOCAL_" + axisString;
+				angle = (Expression<Number>) exprs[1];
+			} else {
+				vector = (Expression<Vector>) exprs[1];
+				angle = (Expression<Number>) exprs[2];
+			}
+			axis = Axis.valueOf(axisString);
+		} else {
+			x = (Expression<Number>) exprs[1];
+			y = (Expression<Number>) exprs[2];
+			z = (Expression<Number>) exprs[3];
+		}
+		return true;
+	}
+
+	@Override
+	@Nullable
+	protected Object[] get(Event event) {
+		if (matchedPattern == 2) {
+			Number x = this.x.getSingle(event);
+			Number y = this.y.getSingle(event);
+			Number z = this.z.getSingle(event);
+			if (x == null || y == null || z == null)
+				return new Quaternionf[0];
+
+			float radX = (float) (x.floatValue() * Math.PI / 180);
+			float radY = (float) (y.floatValue() * Math.PI / 180);
+			float radZ = (float) (z.floatValue() * Math.PI / 180);
+
+			return toRotate.stream(event)
+				.map(Quaternionf.class::cast)
+				.map(quaternion -> quaternion.rotateZYX(radZ, radY, radX))
+				.toArray(Quaternionf[]::new);
+		}
+
+		// rotate around axis
+		Number angle = this.angle.getSingle(event);
+		if (angle == null)
+			return new Object[0];
+		double jomlAngle = (angle.doubleValue() * Math.PI / 180);
+		if (Double.isInfinite(jomlAngle) || Double.isNaN(jomlAngle))
+			return new Object[0];
+
+		if (axis != Axis.ARBITRARY) {
+			//noinspection ConstantConditions
+			return toRotate.stream(event)
+				.map(object -> axis.applyRotation(object, jomlAngle))
+				.filter(Objects::nonNull)
+				.toArray();
+		}
+
+		// rotate around arbitrary axis
+		Vector axis = vector.getSingle(event);
+		if (axis == null || axis.isZero())
+			return new Object[0];
+		Vector3f jomlAxis = axis.toVector3f().normalize();
+
+		return toRotate.stream(event)
+			.map(object -> {
+				if (object instanceof Quaternionf quaternion) {
+					return quaternion.rotateAxis((float) jomlAngle, jomlAxis, new Quaternionf());
+				} else if (object instanceof Vector vectorToRotate) {
+					return vectorToRotate.clone().rotateAroundAxis(axis, jomlAngle);
+				}
+				return null;
+			})
+			.filter(Objects::nonNull)
+			.toArray();
+	}
+
+	@Override
+	public boolean isSingle() {
+		return toRotate.isSingle();
+	}
+
+	@Override
+	public Class<?> getReturnType() {
+		return matchedPattern != 0 ? Quaternionf.class : toRotate.getReturnType();
+	}
+
+	@Override
+	public String toString(@Nullable Event event, boolean debug) {
+		if (matchedPattern < 2)
+			return toRotate.toString(event, debug) +
+					" rotated around the " + axis + "-axis " +
+					" by " + angle.toString(event, debug) + " degrees";
+		return toRotate.toString(event, debug) +
+				" rotated by yaw " + x.toString(event, debug) + ", " +
+				"pitch " + y.toString(event, debug) + ", " +
+				"and roll " + z.toString(event, debug);
+	}
+
+}
