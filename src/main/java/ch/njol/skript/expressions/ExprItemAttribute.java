@@ -57,7 +57,7 @@ import java.util.*;
 public class ExprItemAttribute extends PropertyExpression<ItemType, Number> {
 
 	static {
-		register(ExprItemAttribute.class, Number.class, "attribute [value] [(in|of|for) [the] (1:main[ ]hand|2:off[ ]hand|3:boot[s]|3:shoe[s]|4:leg[ging][s]|5:chestplate[s]|6:helm[et][s]) [slot]]", "itemtypes");
+		register(ExprItemAttribute.class, Number.class, "%attributetype% attribute [value] [(in|of|for) [the] (1:main[ ]hand|2:off[ ]hand|3:boot[s]|3:shoe[s]|4:leg[ging][s]|5:chestplate[s]|6:helm[et][s]) [slot]]", "itemtypes");
 	}
 
 	private static final String ATTRIBUTE_NAME = "skript";
