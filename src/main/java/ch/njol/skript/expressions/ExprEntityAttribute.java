@@ -42,25 +42,22 @@ import org.jetbrains.annotations.Nullable;
 
 @Name("Entity Attribute")
 @Description({
-		"The numerical value of an entity's particular attribute.",
-		"Note that the movement speed attribute cannot be reliably used for players. For that purpose, use the speed expression instead.",
-		"Resetting an entity's attribute is only available in Minecraft 1.11 and above."
+	"The numerical value of an entity's particular attribute.",
+	"Note that the movement speed attribute cannot be reliably used for players. For that purpose, use the speed expression instead.",
+	"Resetting an entity's attribute is only available in Minecraft 1.11 and above."
 })
 @Examples({
-		"on damage of player:",
-		"\tsend \"You are wounded!\"",
-		"\tset victim's attack speed attribute to 2"
+	"on damage of player:",
+	"\tsend \"You are wounded!\"",
+	"\tset victim's attack speed attribute to 2"
 })
 @Since("2.5, 2.6.1 (final attribute value)")
 public class ExprEntityAttribute extends PropertyExpression<Entity, Number> {
-	
+
 	static {
-		register(
-			ExprEntityAttribute.class,
-			Number.class,
-			"([(base|1:total|1:final|1:modified)] %attributetype%|%attributetype% [(base|1:total|1:final|1:modified)]) attribute [value]",
-			"entities"
-		);
+		// For backwards compatibility, the 'modified' optional tag can also be placed behind the attribute expression.
+		register(ExprEntityAttribute.class, Number.class, "[(base|1:total|1:final|1:modified)] %attributetype% attribute [value]", "entities");
+		register(ExprEntityAttribute.class, Number.class, "%attributetype% [(base|1:total|1:final|1:modified)] attribute [value]", "entities");
 	}
 
 	private Expression<Attribute> attributeType;
@@ -82,11 +79,11 @@ public class ExprEntityAttribute extends PropertyExpression<Entity, Number> {
 			return new Number[0];
 
 		return Arrays.stream(entities)
-				.filter(ent -> ent instanceof Attributable)
-				.map(ent -> ((Attributable) ent).getAttribute(attribute))
-				.filter(Objects::nonNull)
-				.map(att -> withModifiers ? att.getValue() : att.getBaseValue())
-				.toArray(Number[]::new);
+			.filter(ent -> ent instanceof Attributable)
+			.map(ent -> ((Attributable) ent).getAttribute(attribute))
+			.filter(Objects::nonNull)
+			.map(att -> withModifiers ? att.getValue() : att.getBaseValue())
+			.toArray(Number[]::new);
 	}
 
 	@Override
@@ -145,7 +142,7 @@ public class ExprEntityAttribute extends PropertyExpression<Entity, Number> {
 	@Override
 	@SuppressWarnings("null")
 	public String toString(@Nullable Event e, boolean debug) {
-		return "entity " + getExpr().toString(e, debug) + "'s " + attributeType.toString(e, debug) + (withModifiers ? " modified" : "") + " attribute";
+		return getExpr().toString(e, debug) + "'s " + (withModifiers ? "total " : "") + attributeType.toString(e, debug) + " attribute";
 	}
 
 }
