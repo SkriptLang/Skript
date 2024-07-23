@@ -1,0 +1,33 @@
+package org.skriptlang.skript.bukkit.misc.rotation;
+
+import org.bukkit.entity.Display;
+import org.bukkit.util.Transformation;
+import org.joml.Quaternionf;
+import org.joml.Vector3f;
+
+public class DisplayRotator implements Rotator<Display> {
+
+	private final QuaternionRotator qRotator;
+
+	public DisplayRotator(Axis axis, float angle) {
+		qRotator = new QuaternionRotator(axis, angle);
+	}
+
+	public DisplayRotator(Axis axis, Vector3f vector, float angle) {
+		qRotator = new QuaternionRotator(axis, vector, angle);
+	}
+
+	public Display rotate(Display input) {
+		Transformation transformation = input.getTransformation();
+		Quaternionf leftRotation = transformation.getLeftRotation();
+		input.setTransformation(
+			new Transformation(
+				transformation.getTranslation(),
+				qRotator.rotate(leftRotation),
+				transformation.getScale(),
+				transformation.getRightRotation()
+			)
+		);
+		return input;
+	}
+}
