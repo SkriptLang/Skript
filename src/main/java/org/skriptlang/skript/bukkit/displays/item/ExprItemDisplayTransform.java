@@ -18,47 +18,38 @@ import ch.njol.util.coll.CollectionUtils;
 
 @Name("Item Display Transform")
 @Description("Returns or changes the <a href='classes.html#itemdisplaytransform'>item display transform</a> of <a href='classes.html#display'>item displays</a>.")
-@Examples("set the item transform of the last spawned item display to fixed # Reset to default")
+@Examples("set the item transform of the last spawned item display to no transform # Reset to default")
 @RequiredPlugins("Spigot 1.19.4+")
 @Since("INSERT VERSION")
 public class ExprItemDisplayTransform extends SimplePropertyExpression<Display, ItemDisplayTransform> {
 
 	static {
 		if (Skript.isRunningMinecraft(1, 19, 4))
-			registerDefault(ExprItemDisplayTransform.class, ItemDisplayTransform.class, "[item] [display] transform", "displays");
+			registerDefault(ExprItemDisplayTransform.class, ItemDisplayTransform.class, "item [display] transform", "displays");
 	}
 
 	@Override
-	@Nullable
-	public ItemDisplayTransform convert(Display display) {
-		if (!(display instanceof ItemDisplay))
-			return null;
-		return ((ItemDisplay) display).getItemDisplayTransform();
-	}
-
-	@Nullable
-	public Class<?>[] acceptChange(ChangeMode mode) {
-		switch (mode) {
-			case ADD:
-			case REMOVE:
-			case REMOVE_ALL:
-				break;
-			case RESET:
-			case DELETE:
-				return CollectionUtils.array();
-			case SET:
-				return CollectionUtils.array(ItemDisplayTransform.class);
-		}
+	public @Nullable ItemDisplayTransform convert(Display display) {
+		if (display instanceof ItemDisplay itemDisplay)
+			return itemDisplay.getItemDisplayTransform();
 		return null;
 	}
 
+	public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
+		return switch (mode) {
+			case RESET -> CollectionUtils.array();
+			case SET -> CollectionUtils.array(ItemDisplayTransform.class);
+			default -> null;
+		};
+	}
+
 	@Override
-	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
-		ItemDisplayTransform transform = mode == ChangeMode.SET ? (ItemDisplayTransform) delta[0] : ItemDisplayTransform.FIXED;
+	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
+		//noinspection ConstantConditions
+		ItemDisplayTransform transform = mode == ChangeMode.SET ? (ItemDisplayTransform) delta[0] : ItemDisplayTransform.NONE;
 		for (Display display : getExpr().getArray(event)) {
-			if (!(display instanceof ItemDisplay))
-				continue;
-			((ItemDisplay) display).setItemDisplayTransform(transform);
+			if (display instanceof ItemDisplay itemDisplay)
+				itemDisplay.setItemDisplayTransform(transform);
 		}
 	}
 

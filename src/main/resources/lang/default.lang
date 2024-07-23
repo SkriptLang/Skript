@@ -2275,16 +2275,16 @@ transform reasons:
 
 # -- Display Billboards --
 billboards:
-	center: center, middle
+	center: center, middle, center pivot
 	fixed: fixed
-	horizontal: horizontal
-	vertical: vertical
+	horizontal: horizontal, horizontal pivot
+	vertical: vertical, vertical pivot
 
 # -- Text Display Alignments --
 text alignments:
-	center: center, middle, centered text, centered, center aligned
-	left: left, left aligned
-	right: right, right aligned
+	center: centered, center aligned, middle aligned
+	left: left aligned
+	right: right aligned
 
 # -- Item Display Transforms --
 item display transforms:
@@ -2294,7 +2294,7 @@ item display transforms:
 	ground: ground, the ground
 	gui: gui, menu
 	head: head
-	none: none, nothing
+	none: no transform
 	thirdperson_lefthand: third person left handed, third person left hand, left handed in third person
 	thirdperson_righthand: third person right handed, third person right hand, right handed in third person
 
