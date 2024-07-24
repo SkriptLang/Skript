@@ -22,7 +22,7 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Checker;
 import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Iterator;
 
@@ -67,12 +67,11 @@ public abstract class Condition extends Statement {
 		return negated;
 	}
 
-	@Nullable
-	@SuppressWarnings({"rawtypes", "unchecked"})
-	public static Condition parse(String input, @Nullable String defaultError) {
+	public static @Nullable Condition parse(String input, @Nullable String defaultError) {
 		input = input.trim();
 		while (input.startsWith("(") && SkriptParser.next(input, 0, ParseContext.DEFAULT) == input.length())
 			input = input.substring(1, input.length() - 1);
+		//noinspection unchecked,rawtypes
 		return (Condition) SkriptParser.parse(input, (Iterator) Skript.getConditions().iterator(), defaultError);
 	}
 
