@@ -143,9 +143,8 @@ public class ExprEntities extends SimpleExpression<Entity> {
 	}
 
 	@Override
-	@Nullable
 	@SuppressWarnings("null")
-	protected Entity[] get(Event event) {
+	protected Entity @Nullable [] get(Event event) {
 		if (isUsingRadius || isUsingCuboid) {
 			Iterator<? extends Entity> iter = iterator(event);
 			if (iter == null || !iter.hasNext())
