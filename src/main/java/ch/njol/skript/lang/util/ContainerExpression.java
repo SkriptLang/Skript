@@ -23,7 +23,7 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.util.Container;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
-import org.jetbrains.annotations.Nullable;
+import org.eclipse.jdt.annotation.Nullable;
 
 import java.util.Iterator;
 import java.util.NoSuchElementException;
@@ -47,12 +47,14 @@ public class ContainerExpression extends SimpleExpression<Object> {
 	}
 
 	@Override
-	public @Nullable Iterator<Object> iterator(Event event) {
+	@Nullable
+	public Iterator<Object> iterator(Event event) {
 		Iterator<? extends Container<?>> iterator = expr.iterator(event);
 		if (iterator == null)
 			return null;
-		return new Iterator<>() {
-			private @Nullable Iterator<?> current;
+		return new Iterator<Object>() {
+			@Nullable
+			private Iterator<?> current;
 
 			@Override
 			public boolean hasNext() {

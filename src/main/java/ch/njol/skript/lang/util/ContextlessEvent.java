@@ -47,7 +47,8 @@ public final class ContextlessEvent extends Event {
 	 * This method should never be called.
 	 */
 	@Override
-	public @NotNull HandlerList getHandlers() {
+	@NotNull
+	public HandlerList getHandlers() {
 		throw new IllegalStateException();
 	}
 

@@ -48,14 +48,14 @@ public class EffFunctionCall extends Effect {
 	}
 	
 	@Override
-	protected void execute(final Event event) {
-		function.execute(event);
+	protected void execute(final Event e) {
+		function.execute(e);
 		function.resetReturnValue(); // Function might have return value that we're ignoring
 	}
 	
 	@Override
-	public String toString(@Nullable final Event event, final boolean debug) {
-		return function.toString(event, debug);
+	public String toString(@Nullable final Event e, final boolean debug) {
+		return function.toString(e, debug);
 	}
 	
 	@Override

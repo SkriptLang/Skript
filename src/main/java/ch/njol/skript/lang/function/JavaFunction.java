@@ -18,9 +18,10 @@
  */
 package ch.njol.skript.lang.function;
 
+import org.eclipse.jdt.annotation.Nullable;
+
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.util.Contract;
-import org.jetbrains.annotations.Nullable;
 
 /**
  * @author Peter Güttinger
@@ -40,12 +41,17 @@ public abstract class JavaFunction<T> extends Function<T> {
 	}
 	
 	@Override
-	public abstract T @Nullable [] execute(FunctionEvent<?> event, Object[][] params);
-
-	private String @Nullable [] description = null;
-	private String @Nullable [] examples = null;
-	private String @Nullable [] keywords;
-	private @Nullable String since = null;
+	@Nullable
+	public abstract T[] execute(FunctionEvent<?> e, Object[][] params);
+	
+	@Nullable
+	private String[] description = null;
+	@Nullable
+	private String[] examples = null;
+	@Nullable
+	private String[] keywords;
+	@Nullable
+	private String since = null;
 	
 	/**
 	 * Only used for Skript's documentation.
@@ -91,20 +97,24 @@ public abstract class JavaFunction<T> extends Function<T> {
 		this.since = since;
 		return this;
 	}
-
-	public String @Nullable [] getDescription() {
+	
+	@Nullable
+	public String[] getDescription() {
 		return description;
 	}
-
-	public String @Nullable [] getExamples() {
+	
+	@Nullable
+	public String[] getExamples() {
 		return examples;
 	}
 
-	public String @Nullable [] getKeywords() {
+	@Nullable
+	public String[] getKeywords() {
 		return keywords;
 	}
-
-	public @Nullable String getSince() {
+	
+	@Nullable
+	public String getSince() {
 		return since;
 	}
 

@@ -25,7 +25,7 @@ import ch.njol.util.Checker;
 import ch.njol.util.coll.CollectionUtils;
 import ch.njol.util.coll.iterator.ArrayIterator;
 import org.bukkit.event.Event;
-import org.jetbrains.annotations.Nullable;
+import org.eclipse.jdt.annotation.Nullable;
 import org.skriptlang.skript.lang.converter.ConverterInfo;
 import org.skriptlang.skript.lang.converter.Converters;
 
@@ -46,8 +46,9 @@ public class ConvertedLiteral<F, T> extends ConvertedExpression<F, T> implements
 	}
 
 	@Override
+	@Nullable
 	@SuppressWarnings("unchecked")
-	public <R> @Nullable Literal<? extends R> getConvertedExpression(Class<R>... to) {
+	public <R> Literal<? extends R> getConvertedExpression(Class<R>... to) {
 		if (CollectionUtils.containsSuperclass(to, this.to))
 			return (Literal<? extends R>) this;
 		return ((Literal<F>) source).getConvertedExpression(to);
@@ -86,7 +87,8 @@ public class ConvertedLiteral<F, T> extends ConvertedExpression<F, T> implements
 	}
 
 	@Override
-	public @Nullable Iterator<T> iterator(Event event) {
+	@Nullable
+	public Iterator<T> iterator(Event event) {
 		return new ArrayIterator<>(data);
 	}
 

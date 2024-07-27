@@ -31,7 +31,7 @@ import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
 import ch.njol.util.coll.iterator.NonNullIterator;
 import org.bukkit.event.Event;
-import org.jetbrains.annotations.Nullable;
+import org.eclipse.jdt.annotation.Nullable;
 
 import java.util.logging.Level;
 
@@ -43,7 +43,8 @@ import java.util.logging.Level;
 public class UnparsedLiteral implements Literal<Object> {
 
 	private final String data;
-	private final @Nullable LogEntry error;
+	@Nullable
+	private final LogEntry error;
 
 	/**
 	 * @param data non-null, non-empty & trimmed string
@@ -75,11 +76,13 @@ public class UnparsedLiteral implements Literal<Object> {
 	}
 
 	@Override
-	public <R> @Nullable Literal<? extends R> getConvertedExpression(Class<R>... to) {
+	@Nullable
+	public <R> Literal<? extends R> getConvertedExpression(Class<R>... to) {
 		return getConvertedExpression(ParseContext.DEFAULT, to);
 	}
 
-	public <R> @Nullable Literal<? extends R> getConvertedExpression(ParseContext context, Class<? extends R>... to) {
+	@Nullable
+	public <R> Literal<? extends R> getConvertedExpression(ParseContext context, Class<? extends R>... to) {
 		assert to.length > 0;
 		assert to.length == 1 || !CollectionUtils.contains(to, Object.class);
 		ParseLogHandler log = SkriptLogger.startParseLogHandler();
@@ -175,7 +178,7 @@ public class UnparsedLiteral implements Literal<Object> {
 	}
 
 	@Override
-	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) throws UnsupportedOperationException {
+	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) throws UnsupportedOperationException {
 		throw invalidAccessException();
 	}
 

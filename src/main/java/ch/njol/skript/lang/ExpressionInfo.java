@@ -18,14 +18,15 @@
  */
 package ch.njol.skript.lang;
 
-import org.jetbrains.annotations.Nullable;
+import org.eclipse.jdt.annotation.Nullable;
 
 /**
  * Represents an expression's information, for use when creating new instances of expressions.
  */
 public class ExpressionInfo<E extends Expression<T>, T> extends SyntaxElementInfo<E> {
 
-	public @Nullable ExpressionType expressionType;
+	@Nullable
+	public ExpressionType expressionType;
 	public Class<T> returnType;
 
 	public ExpressionInfo(String[] patterns, Class<T> returnType, Class<E> expressionClass, String originClassPath) throws IllegalArgumentException {
@@ -50,7 +51,8 @@ public class ExpressionInfo<E extends Expression<T>, T> extends SyntaxElementInf
 	 * Get the type of this expression.
 	 * @return The type of this Expression
 	 */
-	public @Nullable ExpressionType getExpressionType() {
+	@Nullable
+	public ExpressionType getExpressionType() {
 		return expressionType;
 	}
 

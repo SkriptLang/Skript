@@ -22,7 +22,7 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.util.SkriptColor;
 import ch.njol.util.StringUtils;
 import org.bukkit.event.Event;
-import org.jetbrains.annotations.Nullable;
+import org.eclipse.jdt.annotation.Nullable;
 import org.skriptlang.skript.lang.script.Script;
 
 import java.io.File;
@@ -37,8 +37,10 @@ import java.io.File;
  */
 public abstract class TriggerItem implements Debuggable {
 
-	protected @Nullable TriggerSection parent = null;
-	private @Nullable TriggerItem next = null;
+	@Nullable
+	protected TriggerSection parent = null;
+	@Nullable
+	private TriggerItem next = null;
 
 	protected TriggerItem() {}
 
@@ -54,7 +56,8 @@ public abstract class TriggerItem implements Debuggable {
 	 * @param event The event
 	 * @return The next item to run or null to stop execution
 	 */
-	protected @Nullable TriggerItem walk(Event event) {
+	@Nullable
+	protected TriggerItem walk(Event event) {
 		if (run(event)) {
 			debug(event, true);
 			return next;
@@ -115,7 +118,8 @@ public abstract class TriggerItem implements Debuggable {
 	 */
 	private final static String INDENT = "  ";
 
-	private @Nullable String indentation = null;
+	@Nullable
+	private String indentation = null;
 
 	public String getIndentation() {
 		if (indentation == null) {
@@ -144,14 +148,16 @@ public abstract class TriggerItem implements Debuggable {
 		return this;
 	}
 
-	public final @Nullable TriggerSection getParent() {
+	@Nullable
+	public final TriggerSection getParent() {
 		return parent;
 	}
 
 	/**
 	 * @return The trigger this item belongs to, or null if this is a stand-alone item (e.g. the effect of an effect command)
 	 */
-	public final @Nullable Trigger getTrigger() {
+	@Nullable
+	public final Trigger getTrigger() {
 		TriggerItem triggerItem = this;
 		while (triggerItem != null && !(triggerItem instanceof Trigger))
 			triggerItem = triggerItem.getParent();
@@ -163,7 +169,8 @@ public abstract class TriggerItem implements Debuggable {
 		return this;
 	}
 
-	public @Nullable TriggerItem getNext() {
+	@Nullable
+	public TriggerItem getNext() {
 		return next;
 	}
 

@@ -18,10 +18,10 @@
  */
 package ch.njol.skript.lang;
 
+import org.skriptlang.skript.lang.script.Script;
 import ch.njol.skript.variables.Variables;
 import org.bukkit.event.Event;
-import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.lang.script.Script;
+import org.eclipse.jdt.annotation.Nullable;
 
 import java.util.List;
 
@@ -30,7 +30,8 @@ public class Trigger extends TriggerSection {
 	private final String name;
 	private final SkriptEvent event;
 
-	private final @Nullable Script script;
+	@Nullable
+	private final Script script;
 	private int line = -1; // -1 is default: it means there is no line number available
 	private String debugLabel;
 
@@ -69,7 +70,8 @@ public class Trigger extends TriggerSection {
 	}
 
 	@Override
-	protected @Nullable TriggerItem walk(Event event) {
+	@Nullable
+	protected TriggerItem walk(Event event) {
 		return walk(event, true);
 	}
 
@@ -92,7 +94,8 @@ public class Trigger extends TriggerSection {
 	/**
 	 * @return The script this trigger was created from.
 	 */
-	public @Nullable Script getScript() {
+	@Nullable
+	public Script getScript() {
 		return script;
 	}
 

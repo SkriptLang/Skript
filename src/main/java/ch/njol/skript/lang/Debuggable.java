@@ -19,7 +19,7 @@
 package ch.njol.skript.lang;
 
 import org.bukkit.event.Event;
-import org.jetbrains.annotations.Nullable;
+import org.eclipse.jdt.annotation.Nullable;
 
 /**
  * Represents an element that can print details involving an event.

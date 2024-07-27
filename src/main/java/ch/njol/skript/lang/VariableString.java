@@ -58,7 +58,8 @@ import java.util.stream.Collectors;
  */
 public class VariableString implements Expression<String> {
 
-	private final @Nullable Script script;
+	@Nullable
+	private final Script script;
 	protected final String original;
 
 
@@ -68,7 +69,8 @@ public class VariableString implements Expression<String> {
 	private Object @Nullable [] stringsUnformatted;
 	private final boolean isSimple;
 
-	private final @Nullable String simple, simpleUnformatted;
+	@Nullable
+	private final String simple, simpleUnformatted;
 	private final StringMode mode;
 
 	/**
@@ -139,7 +141,8 @@ public class VariableString implements Expression<String> {
 	/**
 	 * Prints errors
 	 */
-	public static @Nullable VariableString newInstance(String input) {
+	@Nullable
+	public static VariableString newInstance(String input) {
 		return newInstance(input, StringMode.MESSAGE);
 	}
 
@@ -150,7 +153,8 @@ public class VariableString implements Expression<String> {
 	 * @param original Unquoted string to parse.
 	 * @return A new VariableString instance.
 	 */
-	public static @Nullable VariableString newInstance(String original, StringMode mode) {
+	@Nullable
+	public static VariableString newInstance(String original, StringMode mode) {
 		if (mode != StringMode.VARIABLE_NAME && !isQuotedCorrectly(original, false))
 			return null;
 
@@ -360,7 +364,8 @@ public class VariableString implements Expression<String> {
 	 * @param args Quoted strings - This is not checked!
 	 * @return a new array containing all newly created VariableStrings, or null if one is invalid
 	 */
-	public static VariableString @Nullable [] makeStringsFromQuoted(List<String> args) {
+	@Nullable
+	public static VariableString[] makeStringsFromQuoted(List<String> args) {
 		VariableString[] strings = new VariableString[args.size()];
 		for (int i = 0; i < args.size(); i++) {
 			assert args.get(i).startsWith("\"") && args.get(i).endsWith("\"");
@@ -486,7 +491,8 @@ public class VariableString implements Expression<String> {
 		return ChatMessages.toJson(getMessageComponents(event));
 	}
 
-	private static @Nullable ChatColor getLastColor(CharSequence sequence) {
+	@Nullable
+	private static ChatColor getLastColor(CharSequence sequence) {
 		for (int i = sequence.length() - 2; i >= 0; i--) {
 			if (sequence.charAt(i) == ChatColor.COLOR_CHAR) {
 				ChatColor color = ChatColor.getByChar(sequence.charAt(i + 1));
@@ -568,7 +574,8 @@ public class VariableString implements Expression<String> {
 	 *
 	 * @return List<String> of all possible super class code names.
 	 */
-	public @NotNull List<String> getDefaultVariableNames(String variableName, Event event) {
+	@NotNull
+	public List<String> getDefaultVariableNames(String variableName, Event event) {
 		if (script == null || mode != StringMode.VARIABLE_NAME)
 			return Lists.newArrayList();
 
@@ -665,8 +672,9 @@ public class VariableString implements Expression<String> {
 	}
 
 	@Override
+	@Nullable
 	@SuppressWarnings("unchecked")
-	public <R> @Nullable Expression<? extends R> getConvertedExpression(Class<R>... to) {
+	public <R> Expression<? extends R> getConvertedExpression(Class<R>... to) {
 		if (CollectionUtils.containsSuperclass(to, String.class))
 			return (Expression<? extends R>) this;
 		return ConvertedExpression.newInstance(this, to);
@@ -678,12 +686,13 @@ public class VariableString implements Expression<String> {
 	}
 
 	@Override
-	public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
+	@Nullable
+	public Class<?>[] acceptChange(ChangeMode mode) {
 		return null;
 	}
 
 	@Override
-	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) throws UnsupportedOperationException {
+	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) throws UnsupportedOperationException {
 		throw new UnsupportedOperationException();
 	}
 
@@ -722,6 +731,7 @@ public class VariableString implements Expression<String> {
 		return this;
 	}
 
+	@SuppressWarnings("unchecked")
 	public static <T> Expression<T> setStringMode(Expression<T> expression, StringMode mode) {
 		if (expression instanceof ExpressionList) {
 			Expression<?>[] expressions = ((ExpressionList<?>) expression).getExpressions();
@@ -731,7 +741,6 @@ public class VariableString implements Expression<String> {
 				expressions[i] = setStringMode(expr, mode);
 			}
 		} else if (expression instanceof VariableString) {
-			//noinspection unchecked
 			return (Expression<T>) ((VariableString) expression).setMode(mode);
 		}
 		return expression;

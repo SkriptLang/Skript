@@ -19,16 +19,17 @@
 package ch.njol.skript.lang.function;
 
 import ch.njol.skript.classes.ClassInfo;
-import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ReturnHandler;
+import org.bukkit.event.Event;
+import org.jetbrains.annotations.ApiStatus;
+import org.skriptlang.skript.lang.script.Script;
+import org.eclipse.jdt.annotation.Nullable;
+
+import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.lang.Trigger;
 import ch.njol.skript.lang.util.SimpleEvent;
 import ch.njol.skript.variables.Variables;
-import org.bukkit.event.Event;
-import org.jetbrains.annotations.ApiStatus;
-import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.lang.script.Script;
 
 public class ScriptFunction<T> extends Function<T> implements ReturnHandler<T> {
 
@@ -60,21 +61,21 @@ public class ScriptFunction<T> extends Function<T> implements ReturnHandler<T> {
 	// REMIND track possible types of local variables (including undefined variables) (consider functions, commands, and EffChange) - maybe make a general interface for this purpose
 	// REM: use patterns, e.g. {_a%b%} is like "a.*", and thus subsequent {_axyz} may be set and of that type.
 	@Override
-	public T @Nullable [] execute(FunctionEvent<?> event, Object[][] params) {
+	public T @Nullable [] execute(final FunctionEvent<?> e, final Object[][] params) {
 		Parameter<?>[] parameters = getSignature().getParameters();
 		for (int i = 0; i < parameters.length; i++) {
-			Parameter<?> parameter = parameters[i];
+			Parameter<?> p = parameters[i];
 			Object[] val = params[i];
-			if (parameter.single && val.length > 0) {
-				Variables.setVariable(parameter.name, val[0], event, true);
+			if (p.single && val.length > 0) {
+				Variables.setVariable(p.name, val[0], e, true);
 			} else {
 				for (int j = 0; j < val.length; j++) {
-					Variables.setVariable(parameter.name + "::" + (j + 1), val[j], event, true);
+					Variables.setVariable(p.name + "::" + (j + 1), val[j], e, true);
 				}
 			}
 		}
 		
-		trigger.execute(event);
+		trigger.execute(e);
 		ClassInfo<T> returnType = getReturnType();
 		return returnType != null ? returnValues : null;
 	}

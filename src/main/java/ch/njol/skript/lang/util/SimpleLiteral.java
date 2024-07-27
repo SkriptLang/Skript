@@ -34,7 +34,7 @@ import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
 import ch.njol.util.coll.iterator.NonNullIterator;
 import org.bukkit.event.Event;
-import org.jetbrains.annotations.Nullable;
+import org.eclipse.jdt.annotation.Nullable;
 import org.skriptlang.skript.lang.converter.Converters;
 
 import java.lang.reflect.Array;
@@ -52,7 +52,8 @@ public class SimpleLiteral<T> implements Literal<T>, DefaultExpression<T> {
 	private final boolean isDefault;
 	private final boolean and;
 
-	private @Nullable UnparsedLiteral source = null;
+	@Nullable
+	private UnparsedLiteral source = null;
 
 	protected transient T[] data;
 
@@ -135,8 +136,9 @@ public class SimpleLiteral<T> implements Literal<T>, DefaultExpression<T> {
 	}
 
 	@Override
+	@Nullable
 	@SuppressWarnings("unchecked")
-	public <R> @Nullable Literal<? extends R> getConvertedExpression(Class<R>... to) {
+	public <R> Literal<? extends R> getConvertedExpression(Class<R>... to) {
 		if (CollectionUtils.containsSuperclass(to, type))
 			return (Literal<? extends R>) this;
 		R[] parsedData = Converters.convert(this.data(), to, (Class<R>) Utils.getSuperType(to));
@@ -181,7 +183,8 @@ public class SimpleLiteral<T> implements Literal<T>, DefaultExpression<T> {
 	private ClassInfo<? super T> returnTypeInfo;
 
 	@Override
-	public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
+	@Nullable
+	public Class<?>[] acceptChange(ChangeMode mode) {
 		ClassInfo<? super T> returnTypeInfo = this.returnTypeInfo;
 		if (returnTypeInfo == null)
 			this.returnTypeInfo = returnTypeInfo = Classes.getSuperClassInfo(getReturnType());
@@ -190,7 +193,7 @@ public class SimpleLiteral<T> implements Literal<T>, DefaultExpression<T> {
 	}
 
 	@Override
-	public void change(final Event event, final Object @Nullable [] delta, final ChangeMode mode) throws UnsupportedOperationException {
+	public void change(final Event event, final @Nullable Object[] delta, final ChangeMode mode) throws UnsupportedOperationException {
 		final ClassInfo<? super T> returnTypeInfo = this.returnTypeInfo;
 		if (returnTypeInfo == null)
 			throw new UnsupportedOperationException();

@@ -18,13 +18,14 @@
  */
 package ch.njol.skript.lang.function;
 
+import java.util.Arrays;
+
+import org.bukkit.Bukkit;
+import org.eclipse.jdt.annotation.Nullable;
+
 import ch.njol.skript.SkriptConfig;
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.util.coll.CollectionUtils;
-import org.bukkit.Bukkit;
-import org.jetbrains.annotations.Nullable;
-
-import java.util.Arrays;
 
 /**
  * Functions can be called using arguments.
@@ -67,8 +68,9 @@ public abstract class Function<T> {
 	public boolean isSingle() {
 		return sign.isSingle();
 	}
-
-	public @Nullable ClassInfo<T> getReturnType() {
+	
+	@Nullable
+	public ClassInfo<T> getReturnType() {
 		return sign.getReturnType();
 	}
 	
@@ -81,7 +83,9 @@ public abstract class Function<T> {
 	 * {@link Signature#getMaxParameters()} elements.
 	 * @return The result(s) of this function
 	 */
-	public final T @Nullable [] execute(Object[][] params) {
+	@SuppressWarnings("null")
+	@Nullable
+	public final T[] execute(Object[][] params) {
 		FunctionEvent<? extends T> e = new FunctionEvent<>(this);
 		
 		// Call function event only if requested by addon
@@ -138,13 +142,14 @@ public abstract class Function<T> {
 	 * Executes this function with given parameters. Usually, using
 	 * {@link #execute(Object[][])} is better; it handles optional arguments
 	 * and function event creation automatically.
-	 * @param event Associated function event. This is usually created by Skript.
+	 * @param e Associated function event. This is usually created by Skript.
 	 * @param params Function parameters.
 	 * There must be {@link Signature#getMaxParameters()} amount of them, and
 	 * you need to manually handle default values.
 	 * @return Function return value(s).
 	 */
-	public abstract T @Nullable [] execute(FunctionEvent<?> event, Object[][] params);
+	@Nullable
+	public abstract T[] execute(FunctionEvent<?> e, Object[][] params);
 
 	/**
 	 * Resets the return value of the {@code Function}.

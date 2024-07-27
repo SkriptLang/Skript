@@ -29,13 +29,14 @@ import ch.njol.skript.lang.Expression;
  * isn't overridden.
  * <p>
  * Some useful Changers can be found in {@link DefaultChangers}
- *
+ * 
+ * @author Peter Güttinger
  * @see DefaultChangers
  * @see Expression
  */
 public interface Changer<T> {
 	
-	enum ChangeMode {
+	public static enum ChangeMode {
 		ADD, SET, REMOVE, REMOVE_ALL, DELETE, RESET;
 	}
 	
@@ -44,44 +45,45 @@ public interface Changer<T> {
 	 * <p>
 	 * Unlike {@link Expression#acceptChange(ChangeMode)} this method must not print errors.
 	 * 
-	 * @param mode The {@link ChangeMode} to test.
+	 * @param mode
 	 * @return An array of types that {@link #change(Object[], Object[], ChangeMode)} accepts as its <code>delta</code> parameter (which can be arrays to denote that multiple of
 	 *         that type are accepted), or null if the given mode is not supported. For {@link ChangeMode#DELETE} and {@link ChangeMode#RESET} this can return any non-null array to
 	 *         mark them as supported.
 	 */
-	Class<?> @Nullable [] acceptChange(ChangeMode mode);
+	@Nullable
+	public abstract Class<?>[] acceptChange(ChangeMode mode);
 	
 	/**
 	 * @param what The objects to change
 	 * @param delta An array with one or more instances of one or more of the the classes returned by {@link #acceptChange(ChangeMode)} for the given change mode (null for
 	 *            {@link ChangeMode#DELETE} and {@link ChangeMode#RESET}). <b>This can be a Object[], thus casting is not allowed.</b>
-	 * @param mode The {@link ChangeMode} to test.
+	 * @param mode
 	 * @throws UnsupportedOperationException (optional) if this method was called on an unsupported ChangeMode.
 	 */
-	void change(T[] what, Object @Nullable [] delta, ChangeMode mode);
+	public abstract void change(T[] what, @Nullable Object[] delta, ChangeMode mode);
 	
-	abstract class ChangerUtils {
-
-		public static <T> void change(Changer<T> changer, Object[] what, Object @Nullable [] delta, ChangeMode mode) {
-			//noinspection unchecked
+	public static abstract class ChangerUtils {
+		
+		@SuppressWarnings("unchecked")
+		public static <T, V> void change(final Changer<T> changer, final Object[] what, final @Nullable Object[] delta, final ChangeMode mode) {
 			changer.change((T[]) what, delta, mode);
 		}
 		
 		/**
 		 * Tests whether an expression accepts changes of a certain type. If multiple types are given it test for whether any of the types is accepted.
 		 * 
-		 * @param expression The expression to test
+		 * @param e The expression to test
 		 * @param mode The ChangeMode to use in the test
 		 * @param types The types to test for
-		 * @return Whether <tt>expression.{@link Expression#change(Event, Object[], ChangeMode) change}(event, type[], mode)</tt> can be used or not.
+		 * @return Whether <tt>e.{@link Expression#change(Event, Object[], ChangeMode) change}(event, type[], mode)</tt> can be used or not.
 		 */
-		public static boolean acceptsChange(final Expression<?> expression, final ChangeMode mode, final Class<?>... types) {
-			final Class<?>[] validTypes = expression.acceptChange(mode);
-			if (validTypes == null)
+		public static boolean acceptsChange(final Expression<?> e, final ChangeMode mode, final Class<?>... types) {
+			final Class<?>[] cs = e.acceptChange(mode);
+			if (cs == null)
 				return false;
 			for (final Class<?> type : types) {
-				for (final Class<?> validType : validTypes) {
-					if (validType.isArray() ? validType.getComponentType().isAssignableFrom(type) : validType.isAssignableFrom(type))
+				for (final Class<?> c : cs) {
+					if (c.isArray() ? c.getComponentType().isAssignableFrom(type) : c.isAssignableFrom(type))
 						return true;
 				}
 			}

@@ -23,7 +23,7 @@ import ch.njol.skript.lang.function.EffFunctionCall;
 import ch.njol.skript.log.ParseLogHandler;
 import ch.njol.skript.log.SkriptLogger;
 import org.bukkit.event.Event;
-import org.jetbrains.annotations.Nullable;
+import org.eclipse.jdt.annotation.Nullable;
 
 import java.util.Iterator;
 
@@ -50,8 +50,11 @@ public abstract class Effect extends Statement {
 		return true;
 	}
 
-	public static @Nullable Effect parse(String input, @Nullable String defaultError) {
-		try (ParseLogHandler log = SkriptLogger.startParseLogHandler()) {
+	@Nullable
+	@SuppressWarnings({"rawtypes", "unchecked"})
+	public static Effect parse(String input, @Nullable String defaultError) {
+		ParseLogHandler log = SkriptLogger.startParseLogHandler();
+		try {
 			EffFunctionCall functionCall = EffFunctionCall.parse(input);
 			if (functionCall != null) {
 				log.printLog();
@@ -69,7 +72,6 @@ public abstract class Effect extends Statement {
 			}
 			log.clear();
 
-			//noinspection unchecked,rawtypes
 			Effect effect = (Effect) SkriptParser.parse(input, (Iterator) Skript.getEffects().iterator(), defaultError);
 			if (effect != null) {
 				log.printLog();
@@ -78,6 +80,8 @@ public abstract class Effect extends Statement {
 
 			log.printError();
 			return null;
+		} finally {
+			log.stop();
 		}
 	}
 

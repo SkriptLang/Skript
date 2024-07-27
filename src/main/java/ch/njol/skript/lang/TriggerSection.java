@@ -22,7 +22,7 @@ import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.lang.parser.ParserInstance;
 import org.bukkit.event.Event;
-import org.jetbrains.annotations.Nullable;
+import org.eclipse.jdt.annotation.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,7 +32,8 @@ import java.util.List;
  */
 public abstract class TriggerSection extends TriggerItem {
 
-	protected @Nullable TriggerItem first, last;
+	@Nullable
+	protected TriggerItem first, last;
 
 	/**
 	 * Reserved for new Trigger(...)
@@ -102,9 +103,11 @@ public abstract class TriggerSection extends TriggerItem {
 	}
 
 	@Override
-	protected abstract @Nullable TriggerItem walk(Event event);
+	@Nullable
+	protected abstract TriggerItem walk(Event event);
 
-	protected final @Nullable TriggerItem walk(Event event, boolean run) {
+	@Nullable
+	protected final TriggerItem walk(Event event, boolean run) {
 		debug(event, run);
 		if (run && first != null) {
 			return first;

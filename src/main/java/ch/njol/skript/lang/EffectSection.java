@@ -23,7 +23,7 @@ import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.parser.ParserInstance;
 import ch.njol.util.Kleenean;
-import org.jetbrains.annotations.Nullable;
+import org.eclipse.jdt.annotation.Nullable;
 
 import java.util.Iterator;
 import java.util.List;
@@ -69,10 +69,11 @@ public abstract class EffectSection extends Section {
 	/**
 	 * Similar to {@link Section#parse(String, String, SectionNode, List)}, but will only attempt to parse from other {@link EffectSection}s.
 	 */
-	public static @Nullable EffectSection parse(String input, @Nullable String defaultError, @Nullable SectionNode sectionNode, @Nullable List<TriggerItem> triggerItems) {
+	@Nullable
+	@SuppressWarnings({"unchecked", "rawtypes"})
+	public static EffectSection parse(String input, @Nullable String defaultError, @Nullable SectionNode sectionNode, @Nullable List<TriggerItem> triggerItems) {
 		SectionContext sectionContext = ParserInstance.get().getData(SectionContext.class);
 
-		//noinspection unchecked,rawtypes
 		return sectionContext.modify(sectionNode, triggerItems, () ->
 			(EffectSection) SkriptParser.parse(
 				input,

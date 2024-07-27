@@ -18,10 +18,10 @@
  */
 package ch.njol.skript.lang.function;
 
+import org.eclipse.jdt.annotation.Nullable;
 
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.util.Contract;
-import org.jetbrains.annotations.Nullable;
 
 /**
  * A {@link JavaFunction} which doesn't make use of
@@ -41,16 +41,19 @@ public abstract class SimpleJavaFunction<T> extends JavaFunction<T> {
 	public SimpleJavaFunction(String name, Parameter<?>[] parameters, ClassInfo<T> returnType, boolean single, Contract contract) {
 		super(name, parameters, returnType, single, contract);
 	}
-
+	
+	@SuppressWarnings("ConstantConditions")
+	@Nullable
 	@Override
-	public final T @Nullable [] execute(FunctionEvent<?> event, Object[][] params) {
+	public final T[] execute(FunctionEvent<?> e, Object[][] params) {
 		for (Object[] param : params) {
 			if (param == null || param.length == 0 || param[0] == null)
 				return null;
 		}
 		return executeSimple(params);
 	}
-
-	public abstract T @Nullable [] executeSimple(Object[][] params);
+	
+	@Nullable
+	public abstract T[] executeSimple(Object[][] params);
 	
 }

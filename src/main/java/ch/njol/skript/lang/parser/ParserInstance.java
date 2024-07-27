@@ -112,7 +112,8 @@ public final class ParserInstance implements Experimented {
 
 	// Script API
 
-	private @Nullable Script currentScript = null;
+	@Nullable
+	private Script currentScript = null;
 
 	/**
 	 * Internal method for updating the current script. Allows null parameter.
@@ -150,7 +151,8 @@ public final class ParserInstance implements Experimented {
 
 	// Structure API
 
-	private @Nullable Structure currentStructure = null;
+	@Nullable
+	private Structure currentStructure = null;
 
 	/**
 	 * Updates the Structure currently being handled by this ParserInstance.
@@ -163,7 +165,8 @@ public final class ParserInstance implements Experimented {
 	/**
 	 * @return The Structure currently being handled by this ParserInstance.
 	 */
-	public @Nullable Structure getCurrentStructure() {
+	@Nullable
+	public Structure getCurrentStructure() {
 		return currentStructure;
 	}
 
@@ -188,7 +191,8 @@ public final class ParserInstance implements Experimented {
 
 	// Event API
 
-	private @Nullable String currentEventName;
+	@Nullable
+	private String currentEventName;
 
 	private Class<? extends Event> @Nullable [] currentEvents = null;
 
@@ -196,7 +200,8 @@ public final class ParserInstance implements Experimented {
 		this.currentEventName = currentEventName;
 	}
 
-	public @Nullable String getCurrentEventName() {
+	@Nullable
+	public String getCurrentEventName() {
 		return currentEventName;
 	}
 
@@ -293,11 +298,12 @@ public final class ParserInstance implements Experimented {
 	 * Returns {@code null} if {@link #isCurrentSection(Class)} returns {@code false}.
 	 * @see #getCurrentSections()
 	 */
-	public <T extends TriggerSection> @Nullable T getCurrentSection(Class<T> sectionClass) {
+	@Nullable
+	@SuppressWarnings("unchecked")
+	public <T extends TriggerSection> T getCurrentSection(Class<T> sectionClass) {
 		for (int i = currentSections.size(); i-- > 0;) {
 			TriggerSection triggerSection = currentSections.get(i);
 			if (sectionClass.isInstance(triggerSection))
-				//noinspection unchecked
 				return (T) triggerSection;
 		}
 		return null;
@@ -308,11 +314,12 @@ public final class ParserInstance implements Experimented {
 	 * Modifications to the returned list are not saved.
 	 * @see #getCurrentSections()
 	 */
-	public <T extends TriggerSection> @NotNull List<T> getCurrentSections(Class<T> sectionClass) {
+	@NotNull
+	@SuppressWarnings("unchecked")
+	public <T extends TriggerSection> List<T> getCurrentSections(Class<T> sectionClass) {
 		List<T> list = new ArrayList<>();
 		for (TriggerSection triggerSection : currentSections) {
 			if (sectionClass.isInstance(triggerSection))
-				//noinspection unchecked
 				list.add((T) triggerSection);
 		}
 		return list;
@@ -381,7 +388,8 @@ public final class ParserInstance implements Experimented {
 		return handlers;
 	}
 
-	private @Nullable Node node;
+	@Nullable
+	private Node node;
 
 	/**
 	 * @param node The node to mark as being handled. This is mainly used for logging.
@@ -395,7 +403,8 @@ public final class ParserInstance implements Experimented {
 	 * @return The node currently marked as being handled. This is mainly used for logging.
 	 * Null indicates no node is currently being handled (that the ParserInstance is aware of).
 	 */
-	public @Nullable Node getNode() {
+	@Nullable
+	public Node getNode() {
 		return node;
 	}
 
@@ -627,8 +636,9 @@ public final class ParserInstance implements Experimented {
 	/**
 	 * @deprecated Use {@link #getCurrentStructure()}
 	 */
+	@Nullable
 	@Deprecated
-	public @Nullable SkriptEvent getCurrentSkriptEvent() {
+	public SkriptEvent getCurrentSkriptEvent() {
 		Structure structure = getCurrentStructure();
 		if (structure instanceof SkriptEvent)
 			return (SkriptEvent) structure;

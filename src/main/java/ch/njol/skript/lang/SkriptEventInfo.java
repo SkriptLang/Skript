@@ -20,11 +20,11 @@ package ch.njol.skript.lang;
 
 import ch.njol.skript.SkriptAPIException;
 import ch.njol.skript.SkriptConfig;
-import ch.njol.skript.lang.SkriptEvent.ListeningBehavior;
 import org.bukkit.event.Event;
 import org.bukkit.event.player.PlayerInteractAtEntityEvent;
-import org.jetbrains.annotations.Nullable;
+import org.eclipse.jdt.annotation.Nullable;
 import org.skriptlang.skript.lang.structure.StructureInfo;
+import ch.njol.skript.lang.SkriptEvent.ListeningBehavior;
 
 import java.util.Locale;
 
@@ -34,8 +34,12 @@ public final class SkriptEventInfo<E extends SkriptEvent> extends StructureInfo<
 	public final String name;
   
 	private ListeningBehavior listeningBehavior;
-	private String @Nullable [] description, examples, keywords, requiredPlugins;
-	private @Nullable String since, documentationID;
+  
+	@Nullable
+	private String[] description, examples, keywords, requiredPlugins;
+
+	@Nullable
+	private String since, documentationID;
 
 	private final String id;
 
@@ -176,28 +180,33 @@ public final class SkriptEventInfo<E extends SkriptEvent> extends StructureInfo<
 		return listeningBehavior;
 	}
   
-	public String @Nullable [] getDescription() {
+	@Nullable
+	public String[] getDescription() {
 		return description;
 	}
 
-	public String @Nullable [] getExamples() {
+	@Nullable
+	public String[] getExamples() {
 		return examples;
 	}
 
-	public String @Nullable [] getKeywords() {
+	@Nullable
+	public String[] getKeywords() {
 		return keywords;
 	}
 
-	public @Nullable String getSince() {
+	@Nullable
+	public String getSince() {
 		return since;
 	}
 
-	public String @Nullable [] getRequiredPlugins() {
+	@Nullable
+	public String[] getRequiredPlugins() {
 		return requiredPlugins;
 	}
 
-	public @Nullable String getDocumentationID() {
+	@Nullable
+	public String getDocumentationID() {
 		return documentationID;
 	}
-
 }
