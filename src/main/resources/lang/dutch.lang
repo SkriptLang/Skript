@@ -94,7 +94,7 @@ skript command:
 			io error: <light red>Kon een of meer scripts niet hernoemen - sommige scripts zijn mogelijk al hernoemd en worden uitgeschakeld wanneer de server opnieuw wordt opgestart: <gold>%s
 		single:
 			already disabled: <gold>%s<reset> is al uitgeschakeld!
-			disabled: <gold>%s<reset> succesvol uitgeschakeld.
+			disabled: <gold>%s<reset> is succesvol uitgeschakeld.
 			io error: <light red><gold>%s<light red> kon niet worden hernoemd. Het wordt weer ingeschakeld wanneer je de server opnieuw opstart: <gold>%s
 		folder:
 			empty: <gold>%s<reset> bevat geen ingeschakelde scripts.
