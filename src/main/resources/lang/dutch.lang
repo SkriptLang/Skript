@@ -120,7 +120,7 @@ skript command:
 
 # -- Updater --
 updater:
-	not started: Skript heeft nog niet gecontroleerd op de nieuwste versie. Gebruik <gold>/skript update check<reset> om dit te doen.
+	not started: Skript heeft nog niet gecontroleerd of je de nieuwste versie hebt. Gebruik <gold>/skript update check<reset> om dit te doen.
 	checking: Zoeken naar de nieuwste versie van Skript...
 	check in progress: Er wordt momenteel gecontroleerd op een nieuwe versie.
 	updater disabled: Het updateprogramma is uitgeschakeld, dus er is niet gecontroleerd op de nieuwste versie van Skript.
