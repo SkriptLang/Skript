@@ -147,7 +147,7 @@ commands:
 	too many arguments: Dit commando accepteert alleen %2$s.
 	internal error: Er is een interne fout opgetreden tijdens het uitvoeren van dit commando.
 	no player starts with: Er is geen speler online wiens naam begint met '%s'
-	multiple players start with: Er zijn verschillende spelers online van wie de naam begint met '%s'
+	multiple players start with: Er zijn meerdere spelers online van wie de naam begint met '%s'
 
 # -- Hooks --
 hooks:
