@@ -30,10 +30,10 @@ public class ExprJoinSplit extends SimpleExpression<String> {
 	static {
 		Skript.registerExpression(ExprJoinSplit.class, String.class, ExpressionType.COMBINED,
 			"(concat[enate]|join) %strings% [(with|using|by) [[the] delimiter] %-string%]",
-			"split %string% (at|using|by) [[the] delimiter] %string% [case:with case sensitivity] [trailing:without [the] trailing [empty] string]",
-			"%string% split (at|using|by) [[the] delimiter] %string% [case:with case sensitivity] [trailing:without [the] trailing [empty] string]",
-			"regex split %string% (at|using|by) [[the] delimiter] %string% [trailing:without [the] trailing [empty] string]",
-			"regex %string% split (at|using|by) [[the] delimiter] %string% [trailing:without [the] trailing [empty] string]");
+			"split %string% (at|using|by) [[the] delimiter] %string% [case:with case sensitivity] [trailing:without [the] trailing [empty] (string|text)]",
+			"%string% split (at|using|by) [[the] delimiter] %string% [case:with case sensitivity] [trailing:without [the] trailing [empty] (string|text)]",
+			"regex split %string% (at|using|by) [[the] delimiter] %string% [trailing:without [the] trailing [empty] (string|text)]",
+			"regex %string% split (at|using|by) [[the] delimiter] %string% [trailing:without [the] trailing [empty] (string|text)]");
 	}
 
 	private boolean join;
