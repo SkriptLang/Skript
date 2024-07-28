@@ -72,7 +72,7 @@ skript command:
 		empty folder: <gold>%s<reset> bevat geen ingeschakelde scripts.
 	enable:
 		all:
-			enabling: Alle uitgeschakelde scripts inschakelen...
+			enabling: Alle uitgeschakelde scripts worden ingeschakeld...
 			enabled: Alle eerder uitgeschakelde scripts ingeschakeld en geparseerd
 			error: <gold>%s <light red>error¦¦s¦ <light red>tegengekomen bij het parseren van uitgeschakelde scripts!
 			io error: <light red>Kon een of meer scripts niet laden - sommige scripts zijn mogelijk al hernoemd en zullen worden ingeschakeld wanneer de server opnieuw opstart: <gold>%s
