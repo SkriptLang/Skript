@@ -60,7 +60,7 @@ skript command:
 		warning details: <yellow>    %s<reset>\n
 		error details: <light red>    %s<reset>\n
 		other details: <white>    %s<reset>\n
-		line details: <gold>    Lijn: <gray>%s<reset>\n <reset>
+		line details: <gold>    Regel: <gray>%s<reset>\n <reset>
 
 		config, aliases and scripts: de configuratie, aliassen en alle scripts
 		scripts: alle scripts
