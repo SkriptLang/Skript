@@ -98,7 +98,7 @@ skript command:
 			io error: <light red>Kon <gold>%s<light red> niet hernoemen, het wordt weer ingeschakeld wanneer je de server opnieuw opstart: <gold>%s
 		folder:
 			empty: <gold>%s<reset> bevat geen ingeschakelde scripts.
-			disabled: <gold>%2$s<reset> script(s) in <gold>%1$s<reset> succesvol uitgeschakeld.
+			disabled: <gold>%2$s<reset> script(s) in <gold>%1$s<reset> zijn met succes uitgeschakeld.
 			io error: <light red>Kon een of meerdere scripts in <gold>%s <light red>niet uitschakelen <light red>(sommige scripts worden mogelijk uitgeschakeld wanneer de server opnieuw opstart): <gold>%s
 	update:
 		# check/download: see Updater
