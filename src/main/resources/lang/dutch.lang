@@ -14,7 +14,7 @@ skript:
 	brackets error: Ongeldige hoeveelheid of plaatsing van haakjes. Zorg ervoor dat elke openende haak een bijbehorende sluitende haak heeft.
 	invalid reload: Skript mag alleen worden herladen door Bukkit's '/reload' of Skript's '/skript reload' commando.
 	no scripts: Er zijn geen scripts gevonden, misschien moet je er een paar schrijven ;)
-	no errors: Alle scripts zonder fouten geladen.
+	no errors: Alle scripts zijn zonder fouten geladen.
 	scripts loaded: %s scripts geladen met in totaal %s structuren in %s
 	finished loading: Klaar met laden.
 
