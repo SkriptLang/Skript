@@ -22,13 +22,14 @@ import ch.njol.util.Kleenean;
 @Since("INSERT VERSION")
 public class EffDetonate extends Effect {
 
+	private static final boolean HAS_WINDCHARGE = Skript.classExists("org.bukkit.entity.WindCharge");
+
 	static {
 		Skript.registerEffect(EffDetonate.class, "detonate %entities%");
 	}
 
 	private Expression<Entity> entities;
 
-	private static final boolean HAS_WINDCHARGE = Skript.classExists("org.bukkit.entity.WindCharge");
 
 	@Override
 	@SuppressWarnings("unchecked")
@@ -51,6 +52,9 @@ public class EffDetonate extends Effect {
 			}
 			else if (entity instanceof Creeper) {
 				((Creeper) entity).explode();
+			}
+			else if (entity instanceof TNTPrimed) {
+				((TNTPrimed) entity).setFuseTicks(0);
 			}
 		}
 	}
