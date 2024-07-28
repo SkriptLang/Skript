@@ -126,7 +126,7 @@ updater:
 	updater disabled: Het updateprogramma is uitgeschakeld, dus er is niet gecontroleerd op de nieuwste versie van Skript.
 	check error: <red>Er is een fout opgetreden bij het controleren op de nieuwste versie van Skript:<light red> %s
 	running latest version: Je gebruikt momenteel de nieuwste stabiele versie van Skript.
-	running latest version (beta): Je gebruikt momenteel een <i>beta<r> versie van Skript en er is geen nieuwe <i>stabiele<r> versie beschikbaar. Houd er rekening mee dat je handmatig moet updaten naar nieuwere bètaversies!
+	running latest version (beta): Je gebruikt momenteel een <i>bèta<r> versie van Skript en er is geen nieuwe <i>stabiele<r> versie beschikbaar. Houd er rekening mee dat je handmatig moet updaten naar nieuwere bètaversies!
 	update available: Er is een nieuwe versie van Skript beschikbaar: <gold>%s<reset> (je gebruikt momenteel <gold>%s<reset>)
 	downloading: Skript downloaden <gold>%s<reset>...
 	download in progress: De nieuwste versie van Skript wordt momenteel gedownload.
