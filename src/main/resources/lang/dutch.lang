@@ -91,7 +91,7 @@ skript command:
 	disable:
 		all:
 			disabled: Alle scripts zijn met succes uitgeschakeld.
-			io error: <light red>Kon een of meer scripts niet hernoemen - sommige scripts zijn mogelijk al hernoemd en worden uitgeschakeld wanneer de server opnieuw wordt opgestart: <gold>%s
+			io error: <light red>Een of meer scripts konden niet hernoemd worden - sommige scripts zijn mogelijk al hernoemd en worden uitgeschakeld wanneer de server opnieuw wordt opgestart: <gold>%s
 		single:
 			already disabled: <gold>%s<reset> is al uitgeschakeld!
 			disabled: <gold>%s<reset> is succesvol uitgeschakeld.
