@@ -99,7 +99,7 @@ skript command:
 		folder:
 			empty: <gold>%s<reset> bevat geen ingeschakelde scripts.
 			disabled: <gold>%2$s<reset> script(s) in <gold>%1$s<reset> zijn met succes uitgeschakeld.
-			io error: <light red>Kon een of meerdere scripts in <gold>%s <light red>niet uitschakelen <light red>(sommige scripts worden mogelijk uitgeschakeld wanneer de server opnieuw opstart): <gold>%s
+			io error: <light red>Een of meerdere scripts in <gold>%s konden <light red>niet worden uitgeschakeld <light red>(sommige scripts worden mogelijk uitgeschakeld wanneer de server opnieuw opstart): <gold>%s
 	update:
 		# check/download: see Updater
 		changes:
