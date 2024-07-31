@@ -95,11 +95,9 @@ public abstract class SimpleExpression<T> implements Expression<T> {
 	@SuppressWarnings("unchecked")
 	public final T[] getArray(Event event) {
 		T[] values = get(event);
-		if (values == null) {
+		if (values == null || values.length == 0) {
 			return (T[]) Array.newInstance(getReturnType(), 0);
 		}
-		if (values.length == 0)
-			return values;
 
 		int numNonNull = 0;
 		for (T value : values)
