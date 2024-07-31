@@ -1328,6 +1328,8 @@ damage causes:
 	sonic_boom: sonic boom
 	kill: kill, killed
 	world_border: world border
+	# 1.21
+	campfire: campfire
 
 # -- Teleport Causes --
 teleport causes:
@@ -2111,6 +2113,9 @@ spawn reasons:
 	trap: trap
 	village_defense: village defense, golem defense, iron golem defense
 	village_invasion: village invasion, village invading
+	# 1.21
+	trial_spawner: trial spawner, trial mob spawner, trial creature spawner
+	enchantment: enchantment
 
 # -- Difficulties --
 difficulties:

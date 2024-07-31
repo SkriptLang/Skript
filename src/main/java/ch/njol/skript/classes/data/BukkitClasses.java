@@ -949,7 +949,10 @@ public class BukkitClasses {
 						}
 						
 						final ItemStack i = t.getRandom();
-						assert i != null;
+						if (i == null) {
+							Skript.error("'" + s + "' cannot represent an item");
+							return null;
+						}
 						return i;
 					}
 					
@@ -1409,7 +1412,8 @@ public class BukkitClasses {
 			if (BukkitUtils.registryExists("CAT_VARIANT")) {
 				catTypeClassInfo = new RegistryClassInfo<>(Cat.Type.class, Registry.CAT_VARIANT, "cattype", "cat types");
 			} else {
-				catTypeClassInfo = new EnumClassInfo<>(Cat.Type.class, "cattype", "cat types");
+				//noinspection unchecked, rawtypes - it is an enum on other versions
+				catTypeClassInfo = new EnumClassInfo<>((Class) Cat.Type.class, "cattype", "cat types");
 			}
 			Classes.registerClass(catTypeClassInfo
 					.user("cat ?(type|race)s?")
