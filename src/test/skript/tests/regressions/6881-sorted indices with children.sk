@@ -1,0 +1,15 @@
+test "sorted indices with children":
+	set {_test::1} to 111
+	set {_test::2} to 555
+	set {_test::3} to 444
+	set {_test::1::a} to 2
+	set {_test::2::b} to 3
+	set {_test::3::c} to 6
+	set {_test::3::a::foo} to "i"
+	set {_test::3::b::bar} to "love"
+	set {_test::3::c::baz} to "skript"
+	set {_indices::*} to (sorted indices of {_test::*} in ascending order)
+
+	assert {_indices::*} is ("1", "3", "2") with "sorted indices on list with children threw or was incorrect"
+	assert {_test::*} is (111, 555, 444) with "modified children wrongly"
+	assert {_test::3::*} is 6 with "modified children wrongly"

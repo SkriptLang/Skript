@@ -1,0 +1,6 @@
+test "large timespans truncated to ints":
+	set {_now} to now
+	set {_a} to unix timestamp of {_now} * 1 seconds
+	set {_b} to unix timestamp of 10 minutes from {_now} * 1 second
+	assert {_b} - {_a} is 10 minutes with "large timespan was truncated"
+
