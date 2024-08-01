@@ -2099,8 +2099,10 @@ spawn reasons:
 	natural: natural
 	nether_portal: nether portal
 	ocelot_baby: ocelot baby
+	ominous_item_spawner: ominous item spawner
 	patrol: patrol
 	piglin_zombified: piglin zombification
+	potion_effect: potion effect
 	raid: raid
 	reinforcements: reinforcements
 	sheared: shear, sheared
