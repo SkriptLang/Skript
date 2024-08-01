@@ -23,12 +23,14 @@ import ch.njol.util.Kleenean;
 
 
 @Name("Detonate Entity")
-@Description("Immediately detonates an entity or block. Accepted entities are fireworks, TNT minecarts, wind charges, creepers, tnt and withers. Accepted blocks are tnt.")
+@Description("Immediately detonates an entity or block. Accepted entities are fireworks, TNT minecarts, wind charges, creepers, and tnt. Accepted blocks are tnt.")
 @Examples("detonate last launched firework")
 @Since("INSERT VERSION")
 public class EffDetonate extends Effect {
 
 	private static final boolean HAS_WINDCHARGE = Skript.classExists("org.bukkit.entity.WindCharge");
+
+	private static final EntityType FIREWORK = EntityType.FIREWORK_ROCKET;
 
 	static {
 		Skript.registerEffect(EffDetonate.class, "detonate %entities/blocks%");
@@ -55,7 +57,7 @@ public class EffDetonate extends Effect {
 				TNTPrimed tnt = world.spawn(location, TNTPrimed.class);
 				tnt.setFuseTicks(0);
 			}
-			else if (object instanceof Entity && ((Entity) object).getType() == EntityType.FIREWORK_ROCKET) {
+			else if (object instanceof Entity && ((Entity) object).getType() == FIREWORK) {
 				Entity entity = (Entity) object;
 				((Firework) entity).detonate();
 			}
