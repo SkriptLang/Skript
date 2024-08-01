@@ -30,8 +30,6 @@ public class EffDetonate extends Effect {
 
 	private static final boolean HAS_WINDCHARGE = Skript.classExists("org.bukkit.entity.WindCharge");
 
-	private static final EntityType FIREWORK = EntityType.FIREWORK_ROCKET;
-
 	static {
 		Skript.registerEffect(EffDetonate.class, "detonate %entities/blocks%");
 	}
@@ -57,25 +55,20 @@ public class EffDetonate extends Effect {
 				TNTPrimed tnt = world.spawn(location, TNTPrimed.class);
 				tnt.setFuseTicks(0);
 			}
-			else if (object instanceof Entity && ((Entity) object).getType() == FIREWORK) {
-				Entity entity = (Entity) object;
-				((Firework) entity).detonate();
+			else if (object instanceof Firework) {
+				((Firework) object).detonate();
 			}
-			else if (HAS_WINDCHARGE && object instanceof Entity && ((Entity) object).getType() == EntityType.WIND_CHARGE) {
-				Entity entity = (Entity) object;
-				((WindCharge) entity).explode();
+			else if (HAS_WINDCHARGE && object instanceof WindCharge) {
+				((WindCharge) object).explode();
 			}
-			else if (object instanceof Entity && ((Entity) object).getType() == EntityType.TNT_MINECART) {
-				Entity entity = (Entity) object;
-				((ExplosiveMinecart) entity).explode();
+			else if (object instanceof ExplosiveMinecart) {
+				((ExplosiveMinecart) object).explode();
 			}
-			else if (object instanceof Entity && ((Entity) object).getType() == EntityType.CREEPER) {
-				Entity entity = (Entity) object;
-				((Creeper) entity).explode();
+			else if (object instanceof Creeper) {
+				((Creeper) object).explode();
 			}
-			else if (object instanceof Entity && ((Entity) object).getType() == EntityType.TNT) {
-				Entity entity = (Entity) object;
-				((TNTPrimed) entity).setFuseTicks(0);
+			else if (object instanceof TNTPrimed) {
+				((TNTPrimed) object).setFuseTicks(0);
 			}
 		}
 	}
