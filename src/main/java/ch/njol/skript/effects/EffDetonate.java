@@ -55,20 +55,25 @@ public class EffDetonate extends Effect {
 				TNTPrimed tnt = world.spawn(location, TNTPrimed.class);
 				tnt.setFuseTicks(0);
 			}
-			else if (object instanceof Entity entity && entity.getType() == EntityType.FIREWORK_ROCKET) {
+			else if (object instanceof Entity && ((Entity) object).getType() == EntityType.FIREWORK_ROCKET) {
+				Entity entity = (Entity) object;
 				((Firework) entity).detonate();
 			}
-			else if (HAS_WINDCHARGE && object instanceof Entity entity && entity.getType() == EntityType.WIND_CHARGE) {
+			else if (HAS_WINDCHARGE && object instanceof Entity && ((Entity) object).getType() == EntityType.WIND_CHARGE) {
+				Entity entity = (Entity) object;
 				((WindCharge) entity).explode();
 			}
-			else if (object instanceof Entity entity && entity.getType() == EntityType.TNT_MINECART) {
+			else if (object instanceof Entity && ((Entity) object).getType() == EntityType.TNT_MINECART) {
+				Entity entity = (Entity) object;
 				((ExplosiveMinecart) entity).explode();
 			}
-			else if (object instanceof Entity entity && entity.getType() == EntityType.CREEPER) {
+			else if (object instanceof Entity && ((Entity) object).getType() == EntityType.CREEPER) {
+				Entity entity = (Entity) object;
 				((Creeper) entity).explode();
 			}
-			else if (object instanceof TNTPrimed tntPrimed) {
-				((TNTPrimed) tntPrimed).setFuseTicks(0);
+			else if (object instanceof Entity && ((Entity) object).getType() == EntityType.TNT) {
+				Entity entity = (Entity) object;
+				((TNTPrimed) entity).setFuseTicks(0);
 			}
 		}
 	}
