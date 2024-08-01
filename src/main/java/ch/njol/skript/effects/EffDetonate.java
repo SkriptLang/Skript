@@ -46,29 +46,29 @@ public class EffDetonate extends Effect {
 
 	@Override
 	protected void execute(Event event) {
-		for (Object detonateThings : thingsToDetonate.getArray(event)) {
-			if (detonateThings instanceof Block && ((Block) detonateThings).getType() == Material.TNT) {
-				Block block = (Block) detonateThings;
+		for (Object detonateThis : thingsToDetonate.getArray(event)) {
+			if (detonateThis instanceof Block && ((Block) detonateThis).getType() == Material.TNT) {
+				Block block = (Block) detonateThis;
 				Location location = block.getLocation();
 				World world = block.getWorld();
 				block.setType(Material.AIR);
 				TNTPrimed tnt = world.spawn(location, TNTPrimed.class);
 				tnt.setFuseTicks(0);
 			}
-			else if (detonateThings instanceof Firework) {
-				((Firework) detonateThings).detonate();
+			else if (detonateThis instanceof Firework) {
+				((Firework) detonateThis).detonate();
 			}
-			else if (HAS_WINDCHARGE && detonateThings instanceof WindCharge) {
-				((WindCharge) detonateThings).explode();
+			else if (HAS_WINDCHARGE && detonateThis instanceof WindCharge) {
+				((WindCharge) detonateThis).explode();
 			}
-			else if (detonateThings instanceof ExplosiveMinecart) {
-				((ExplosiveMinecart) detonateThings).explode();
+			else if (detonateThis instanceof ExplosiveMinecart) {
+				((ExplosiveMinecart) detonateThis).explode();
 			}
-			else if (detonateThings instanceof Creeper) {
-				((Creeper) detonateThings).explode();
+			else if (detonateThis instanceof Creeper) {
+				((Creeper) detonateThis).explode();
 			}
-			else if (detonateThings instanceof TNTPrimed) {
-				((TNTPrimed) detonateThings).setFuseTicks(0);
+			else if (detonateThis instanceof TNTPrimed) {
+				((TNTPrimed) detonateThis).setFuseTicks(0);
 			}
 		}
 	}
