@@ -41,7 +41,7 @@ import java.util.Arrays;
  * TODO !Update with every version [blocks] - also update aliases-*.sk
  */
 public class BlockUtils {
-	
+
 	/**
 	 * Sets the given block.
 	 * @param block Block to set.
@@ -58,25 +58,23 @@ public class BlockUtils {
 
 		return true;
 	}
-	
+
 	public static boolean set(Block block, ItemData type, boolean applyPhysics) {
 		return set(block, type.getType(), type.getBlockValues(), applyPhysics);
 	}
-	
+
 	public static void sendBlockChange(Player player, Location location, Material type, @Nullable BlockValues blockValues) {
 		BlockCompat.SETTER.sendBlockChange(player, location, type, blockValues);
 	}
-	
-	@SuppressWarnings("null")
+
 	public static Iterable<Block> getBlocksAround(Block b) {
 		return Arrays.asList(b.getRelative(BlockFace.NORTH), b.getRelative(BlockFace.EAST), b.getRelative(BlockFace.SOUTH), b.getRelative(BlockFace.WEST));
 	}
-	
-	@SuppressWarnings("null")
+
 	public static Iterable<BlockFace> getFaces() {
 		return Arrays.asList(BlockFace.NORTH, BlockFace.EAST, BlockFace.SOUTH, BlockFace.WEST);
 	}
-	
+
 	/**
 	 * @param b A block
 	 * @return Location of the block, including its direction
@@ -93,7 +91,7 @@ public class BlockUtils {
 		}
 		return l;
 	}
-	
+
 	@Nullable
 	public static BlockData createBlockData(String dataString) {
 		// Skript uses a comma to separate lists, so we use a semi colon as a delimiter
@@ -162,6 +160,38 @@ public class BlockUtils {
 	 */
 	public static Block extractBlock(Block block) {
 		return block instanceof DelayedChangeBlock ? ((DelayedChangeBlock) block).block : block;
+	}
+
+	/**
+	 * Returns the lowest block location between the two locations.
+	 * 
+	 * @param location1 The first location.
+	 * @param location2 The second location.
+	 * @return Location of the lowest block location from the two locations. Null if worlds don't match.
+	 */
+	public static Location getLowestBlockLocation(Location location1, Location location2) {
+		if (location1.getWorld() != location2.getWorld())
+			return null;
+		int x = Math.min(location1.getBlockX(), location2.getBlockX());
+		int y = Math.min(location1.getBlockY(), location2.getBlockY());
+		int z = Math.min(location1.getBlockZ(), location2.getBlockZ());
+		return new Location(location1.getWorld(), x, y, z);
+	}
+
+	/**
+	 * Returns the highest block location between the two locations.
+	 * 
+	 * @param location1 The first location.
+	 * @param location2 The second location.
+	 * @return Location of the highest block location from the two locations. Null if worlds don't match.
+	 */
+	public static Location getHighestBlockLocation(Location location1, Location location2) {
+		if (location1.getWorld() != location2.getWorld())
+			return null;
+		int x = Math.max(location1.getBlockX(), location2.getBlockX());
+		int y = Math.max(location1.getBlockY(), location2.getBlockY());
+		int z = Math.max(location1.getBlockZ(), location2.getBlockZ());
+		return new Location(location1.getWorld(), x, y, z);
 	}
 
 }

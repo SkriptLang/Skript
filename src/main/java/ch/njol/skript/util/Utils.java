@@ -37,6 +37,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 import org.bukkit.Bukkit;
+import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -807,5 +808,20 @@ public abstract class Utils {
 		}
 		return true;
 	}
-	
+
+	/**
+	 * Returns a namespaced key. If the key contains a collon, it'll lookup a Minecraft key.
+	 * Otherwise will return a key registered under Skript.
+	 * Will return null if the Minecraft key doesn't exist.
+	 * 
+	 * @param key The string key to lookup.
+	 * @return The found NamespacedKey or null if not found when using a collon.
+	 */
+	@Nullable
+	public static NamespacedKey getNamespacedKey(String key) {
+		if (key.contains(":"))
+			return NamespacedKey.fromString(key);
+		return NamespacedKey.fromString(key, Skript.getInstance());
+	}
+
 }

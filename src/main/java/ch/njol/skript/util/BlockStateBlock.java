@@ -70,7 +70,7 @@ public class BlockStateBlock implements Block {
 	public BlockStateBlock(BlockState state, boolean delayChanges) {
 		assert state != null;
 		this.state = state;
-		if (ISPASSABLE_METHOD_EXISTS)
+		if (ISPASSABLE_METHOD_EXISTS && state.isPlaced())
 			this.isPassable = state.getBlock().isPassable();
 		else
 			this.isPassable = false;
