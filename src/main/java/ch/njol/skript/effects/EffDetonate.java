@@ -34,47 +34,47 @@ public class EffDetonate extends Effect {
 		Skript.registerEffect(EffDetonate.class, "detonate %entities/blocks%");
 	}
 
-	private Expression<?> objects;
+	private Expression<?> thingsToDetonate;
 
 
 	@Override
 	@SuppressWarnings("unchecked")
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		this.objects = (Expression<?>) exprs[0];
+		this.thingsToDetonate = (Expression<?>) exprs[0];
  		return true;
 	}
 
 	@Override
 	protected void execute(Event event) {
-		for (Object object : objects.getArray(event)) {
-			if (object instanceof Block && ((Block) object).getType() == Material.TNT) {
-				Block block = (Block) object;
+		for (Object detonateThings : thingsToDetonate.getArray(event)) {
+			if (detonateThings instanceof Block && ((Block) detonateThings).getType() == Material.TNT) {
+				Block block = (Block) detonateThings;
 				Location location = block.getLocation();
 				World world = block.getWorld();
 				block.setType(Material.AIR);
 				TNTPrimed tnt = world.spawn(location, TNTPrimed.class);
 				tnt.setFuseTicks(0);
 			}
-			else if (object instanceof Firework) {
-				((Firework) object).detonate();
+			else if (detonateThings instanceof Firework) {
+				((Firework) detonateThings).detonate();
 			}
-			else if (HAS_WINDCHARGE && object instanceof WindCharge) {
-				((WindCharge) object).explode();
+			else if (HAS_WINDCHARGE && detonateThings instanceof WindCharge) {
+				((WindCharge) detonateThings).explode();
 			}
-			else if (object instanceof ExplosiveMinecart) {
-				((ExplosiveMinecart) object).explode();
+			else if (detonateThings instanceof ExplosiveMinecart) {
+				((ExplosiveMinecart) detonateThings).explode();
 			}
-			else if (object instanceof Creeper) {
-				((Creeper) object).explode();
+			else if (detonateThings instanceof Creeper) {
+				((Creeper) detonateThings).explode();
 			}
-			else if (object instanceof TNTPrimed) {
-				((TNTPrimed) object).setFuseTicks(0);
+			else if (detonateThings instanceof TNTPrimed) {
+				((TNTPrimed) detonateThings).setFuseTicks(0);
 			}
 		}
 	}
 
 	public String toString(@Nullable Event event, boolean debug) {
-		return "detonate " + objects.toString(event, debug);
+		return "detonate " + thingsToDetonate.toString(event, debug);
 	}
 
 }
