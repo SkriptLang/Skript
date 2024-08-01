@@ -1,5 +1,11 @@
 package ch.njol.skript.effects;
 
+import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.World;
+import org.bukkit.block.Block;
+import org.bukkit.block.data.type.Fire;
+import org.bukkit.block.data.type.TNT;
 import org.bukkit.entity.*;
 import org.bukkit.entity.minecart.ExplosiveMinecart;
 import org.bukkit.event.Event;
@@ -17,7 +23,7 @@ import ch.njol.util.Kleenean;
 
 
 @Name("Detonate Entity")
-@Description("Immediately detonates an entity. Accepted entities are fireworks, TNT minecarts, wind charges and creepers.")
+@Description("Immediately detonates an entity or block. Accepted entities are fireworks, TNT minecarts, wind charges, creepers, tnt and withers. Accepted blocks are tnt.")
 @Examples("detonate last launched firework")
 @Since("INSERT VERSION")
 public class EffDetonate extends Effect {
@@ -25,42 +31,50 @@ public class EffDetonate extends Effect {
 	private static final boolean HAS_WINDCHARGE = Skript.classExists("org.bukkit.entity.WindCharge");
 
 	static {
-		Skript.registerEffect(EffDetonate.class, "detonate %entities%");
+		Skript.registerEffect(EffDetonate.class, "detonate %entities/blocks%");
 	}
 
-	private Expression<Entity> entities;
+	private Expression<?> objects;
 
 
 	@Override
 	@SuppressWarnings("unchecked")
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		this.entities = (Expression<Entity>) exprs[0];
+		this.objects = (Expression<?>) exprs[0];
  		return true;
 	}
 
 	@Override
 	protected void execute(Event event) {
-		for (Entity entity : entities.getArray(event)) {
-			if (entity instanceof Firework) {
-				((Firework) entity).detonate();
+		for (Object object : objects.getArray(event)) {
+			if (object instanceof Block && ((Block) object).getType() == Material.TNT) {
+				Block block = (Block) object;
+				Location location = block.getLocation();
+				World world = block.getWorld();
+				block.setType(Material.AIR);
+				TNTPrimed tnt = world.spawn(location, TNTPrimed.class);
+				tnt.setFuseTicks(0);
 			}
-			else if (HAS_WINDCHARGE && entity instanceof WindCharge) {
-				((WindCharge) entity).explode();
+			else if (object instanceof Firework firework) {
+				((Firework) firework).detonate();
 			}
-			else if (entity instanceof ExplosiveMinecart) {
-				((ExplosiveMinecart) entity).explode();
+			else if (HAS_WINDCHARGE && object instanceof WindCharge windCharge) {
+				((WindCharge) windCharge).explode();
 			}
-			else if (entity instanceof Creeper) {
-				((Creeper) entity).explode();
+			else if (object instanceof ExplosiveMinecart explosiveMinecart) {
+				((ExplosiveMinecart) explosiveMinecart).explode();
 			}
-			else if (entity instanceof TNTPrimed) {
-				((TNTPrimed) entity).setFuseTicks(0);
+			else if (object instanceof Creeper creeper) {
+				((Creeper) creeper).explode();
+			}
+			else if (object instanceof TNTPrimed tntPrimed) {
+				((TNTPrimed) tntPrimed).setFuseTicks(0);
 			}
 		}
 	}
 
 	public String toString(@Nullable Event event, boolean debug) {
-		return "detonate " + entities.toString(event, debug);
+		return "detonate " + objects.toString(event, debug);
 	}
 
 }
