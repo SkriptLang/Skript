@@ -40,6 +40,7 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.ApiStatus.ScheduledForRemoval;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptAPIException;
@@ -674,8 +675,14 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 		return false;
 	}
 
-	@SuppressWarnings({"unchecked", "deprecation"})
-	protected static <E extends Entity> @Nullable E spawn(Location location, Class<E> type, Consumer<E> consumer) {
+	/**
+	 * Utility method to handle Bukkit changing from org.bukkit.util.Consumer to java Consumer.
+	 * Subject to removal in the future, when some older versions get dropped.
+	 */
+	@Deprecated
+	@ScheduledForRemoval
+	@SuppressWarnings("unchecked")
+	public static <E extends Entity> @Nullable E spawn(Location location, Class<E> type, Consumer<E> consumer) {
 		World world = location.getWorld();
 		if (world == null)
 			return null;
