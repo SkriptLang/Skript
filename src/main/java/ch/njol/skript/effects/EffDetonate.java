@@ -55,17 +55,17 @@ public class EffDetonate extends Effect {
 				TNTPrimed tnt = world.spawn(location, TNTPrimed.class);
 				tnt.setFuseTicks(0);
 			}
-			else if (object instanceof Firework firework) {
-				((Firework) firework).detonate();
+			else if (object instanceof Entity entity && entity.getType() == EntityType.FIREWORK_ROCKET) {
+				((Firework) entity).detonate();
 			}
-			else if (HAS_WINDCHARGE && object instanceof WindCharge windCharge) {
-				((WindCharge) windCharge).explode();
+			else if (HAS_WINDCHARGE && object instanceof Entity entity && entity.getType() == EntityType.WIND_CHARGE) {
+				((WindCharge) entity).explode();
 			}
-			else if (object instanceof ExplosiveMinecart explosiveMinecart) {
-				((ExplosiveMinecart) explosiveMinecart).explode();
+			else if (object instanceof Entity entity && entity.getType() == EntityType.TNT_MINECART) {
+				((ExplosiveMinecart) entity).explode();
 			}
-			else if (object instanceof Creeper creeper) {
-				((Creeper) creeper).explode();
+			else if (object instanceof Entity entity && entity.getType() == EntityType.CREEPER) {
+				((Creeper) entity).explode();
 			}
 			else if (object instanceof TNTPrimed tntPrimed) {
 				((TNTPrimed) tntPrimed).setFuseTicks(0);
