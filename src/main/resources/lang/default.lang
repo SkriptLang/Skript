@@ -1061,7 +1061,7 @@ entities:
 		pattern: salmon(|1¦s)
 	puffer fish:
 		name: puffer fish¦es
-		pattern: puffer fish(|1¦es)
+		pattern: puffer[ ]fish(|1¦es)
 	tropical fish:
 		name: tropical fish¦es
 		pattern: tropical fish(|1¦es)
