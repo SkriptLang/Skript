@@ -21,6 +21,8 @@ package ch.njol.skript.effects;
 import java.util.Locale;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
+import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.inventory.InventoryType;
@@ -34,125 +36,220 @@ import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
+import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.skript.registrations.Classes;
+import ch.njol.skript.util.Version;
 import ch.njol.util.Kleenean;
 
 @Name("Open/Close Inventory")
-@Description({"Opens an inventory to a player. The player can then access and modify the inventory as if it was a chest that he just opened.",
-		"Please note that currently 'show' and 'open' have the same effect, but 'show' will eventually show an unmodifiable view of the inventory in the future."})
-@Examples({"show the victim's inventory to the player",
-		"open the player's inventory for the player"})
-@Since("2.0, 2.1.1 (closing), 2.2-Fixes-V10 (anvil), 2.4 (hopper, dropper, dispenser")
+@Description({
+	"Opens an inventory to a player. The player can then access and modify the inventory as if it was a chest that they just opened.",
+	"Note that 'show' and 'open' have different effects, 'show' will show just a view of the inventory.",
+	"Whereas 'open' will attempt to make an inventory real and usable. Like a workbench allowing recipes to work."
+})
+@Examples({
+	"show crafting table to player #unmodifiable, use open instead to allow for recipes to work",
+	"open a crafting table to the player",
+	"open a loom to the player",
+	"open the player's inventory for the player"
+})
+@Since("2.0, 2.1.1 (closing), 2.2-Fixes-V10 (anvil), INSERT VERSION (enchanting, cartography, grindstone, loom)")
 public class EffOpenInventory extends Effect {
-	
-	private final static int WORKBENCH = 0, CHEST = 1, ANVIL = 2, HOPPER = 3, DROPPER = 4, DISPENSER = 5;
-	
+
+	private static enum OpenableInventorySyntax {
+
+		ANVIL("anvil"),
+		CARTOGRAPHY("cartography [table]", Skript.methodExists(HumanEntity.class, "openCartographyTable", Location.class, boolean.class),
+				"Opening a cartography table inventory requires PaperSpigot."),
+		ENCHANTING("enchant(ment|ing) [table]", new Version(1, 14)),
+		GRINDSTONE("grindstone", Skript.methodExists(HumanEntity.class, "openGrindstone", Location.class, boolean.class),
+				"Opening a grindstone inventory requires PaperSpigot."),
+		LOOM("loom", Skript.methodExists(HumanEntity.class, "openLoom", Location.class, boolean.class),
+				"Opening a loom inventory requires PaperSpigot."),
+		SMITHING("smithing [table]", Skript.methodExists(HumanEntity.class, "openSmithingTable", Location.class, boolean.class),
+				"Opening a smithing table inventory requires PaperSpigot."),
+		STONECUTTER("stone[ ]cutter", Skript.methodExists(HumanEntity.class, "openSmithingTable", Location.class, boolean.class),
+				"Opening a stone cutter inventory requires PaperSpigot."),
+		WORKBENCH("(crafting [table]|workbench)");
+
+		@Nullable
+		private String methodError;
+
+		@Nullable
+		private Version version;
+		private final String property;
+		private boolean methodExists = true;
+
+		OpenableInventorySyntax(String property) {
+			this.property = property;
+		}
+
+		OpenableInventorySyntax(String property, Version version) {
+			this.property = property;
+			this.version = version;
+		}
+
+		OpenableInventorySyntax(String property, boolean methodExists, String methodError) {
+			this.methodExists = methodExists;
+			this.methodError = methodError;
+			this.property = property;
+		}
+
+		private String getFormatted() {
+			return this.toString().toLowerCase(Locale.ENGLISH) + ":" + property;
+		}
+
+		private Version getVersion() {
+			return version;
+		}
+
+		private boolean doesMethodExist() {
+			return methodExists;
+		}
+
+		private String getMethodError() {
+			return methodError;
+		}
+
+		private static String construct() {
+			StringBuilder builder = new StringBuilder("(");
+			OpenableInventorySyntax[] values = OpenableInventorySyntax.values();
+			for (int i = 0; i < values.length; i++ ) {
+				builder.append(values[i].getFormatted());
+				if (i + 1 < values.length)
+					builder.append("|");
+			}
+			return builder.append("|%-inventory%)").toString();
+		}
+	}
+
 	static {
 		Skript.registerEffect(EffOpenInventory.class,
-				"(open|show) ((0¦(crafting [table]|workbench)|1¦chest|2¦anvil|3¦hopper|4¦dropper|5¦dispenser) (view|window|inventory|)|%-inventory/inventorytype%) (to|for) %players%",
-				"close [the] inventory [view] (to|of|for) %players%", "close %players%'[s] inventory [view]");
+				"show %inventory/inventorytype% (to|for) %players%",
+				"open [a[n]] " + OpenableInventorySyntax.construct() + " [view|window|inventory] (to|for) %players%",
+				"close [the] inventory [view] (of|for) %players%",
+				"close %players%'[s] inventory [view]");
 	}
-	
+
+	private boolean open;
+
 	@Nullable
-	private Expression<?> invi;
-	
-	boolean open;
-	private int invType;
-	
-	@SuppressWarnings("null")
+	private OpenableInventorySyntax syntax;
+
+	@Nullable
+	private Expression<?> inventory;
 	private Expression<Player> players;
-	
-	@SuppressWarnings({"unchecked", "null"})
+
 	@Override
-	public boolean init(final Expression<?>[] exprs, final int matchedPattern, final Kleenean isDelayed, final ParseResult parseResult) {
-		int openFlag = 0;
-		if(parseResult.mark >= 5) {
-			openFlag = parseResult.mark ^ 5;
-			invType = DISPENSER;
-		} else if(parseResult.mark >= 4) {
-			openFlag = parseResult.mark ^ 4;
-			invType = DROPPER;
-		} else if(parseResult.mark >= 3) {
-			openFlag = parseResult.mark ^ 3;
-			invType = HOPPER;
-		} else if (parseResult.mark >= 2) {
-			openFlag = parseResult.mark ^ 2;
-			invType = ANVIL;
-		} else if (parseResult.mark >= 1) {
-			openFlag = parseResult.mark ^ 1;
-			invType = CHEST;
-		} else if (parseResult.mark >= 0) {
-			invType = WORKBENCH;
-			openFlag = parseResult.mark ^ 0;
-		} else {
-			openFlag = parseResult.mark;
+	@SuppressWarnings("unchecked")
+	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
+		inventory = exprs.length > 1 ? exprs[0] : null;
+		if (matchedPattern == 1) {
+			open = true;
+			if (!parseResult.tags.isEmpty()) { // %-inventory% was not used
+				syntax = OpenableInventorySyntax.valueOf(parseResult.tags.get(0).toUpperCase(Locale.ENGLISH));
+				if (syntax.getVersion() != null && !Skript.isRunningMinecraft(syntax.getVersion())) {
+					Skript.error("Opening an inventory of type '" + syntax.toString().toLowerCase(Locale.ENGLISH) + "' is only present on Minecraft version " + syntax.getVersion());
+					return false;
+				}
+				if (!syntax.doesMethodExist()) {
+					Skript.error(syntax.getMethodError());
+					return false;
+				}
+			}
 		}
-		
-		open = matchedPattern == 0;
-		invi = open ? exprs[0] : null;
 		players = (Expression<Player>) exprs[exprs.length - 1];
-		if (openFlag == 1 && invi != null) {
-			Skript.warning("Using 'show' inventory instead of 'open' is not recommended as it will eventually show an unmodifiable view of the inventory in the future.");
+		if (inventory instanceof Literal && inventory != null) {
+			Literal<?> literal = (Literal<?>) inventory;
+			Object object = literal.getSingle();
+			if (object instanceof InventoryType && !((InventoryType) object).isCreatable()) {
+				Skript.error("You can't open a '" + literal.toString() + "' inventory to players. It's not creatable.");
+				return false;
+			}
 		}
 		return true;
 	}
-	
+
+	/**
+	 * Method because SecOpenInventory also uses this code block.
+	 */
+	@Nullable
+	public static Inventory createInventory(InventoryType type) {
+		if (!type.isCreatable())
+			return null;
+		try {
+			return Bukkit.createInventory(null, type);
+		} catch (NullPointerException | IllegalArgumentException e) {
+			// Spigot forgot to label some InventoryType's as non creatable in some versions < 1.19.4
+			// So this throws NullPointerException aswell ontop of the IllegalArgumentException.
+			// See https://hub.spigotmc.org/jira/browse/SPIGOT-7301
+			Skript.error("You can't open a '" + Classes.toString(type) + "' inventory to players. It's not creatable.");
+		}
+		return null;
+	}
+
 	@Override
-	protected void execute(final Event e) {
-		if (invi != null) {
-			Inventory i;
-			
-			assert invi != null;
-			Object o = invi.getSingle(e);
-			if (o instanceof Inventory) {
-				i = (Inventory) o;
-			} else if (o instanceof InventoryType) {
-				i = Bukkit.createInventory(null, (InventoryType) o);
+	protected void execute(Event event) {
+		if (inventory != null) { // Show
+			Inventory inventory = null;
+			Object object = this.inventory.getSingle(event);
+			if (object == null)
+				return;
+			if (object instanceof Inventory) {
+				inventory = (Inventory) object;
+			} else if (object instanceof InventoryType) {
+				inventory = createInventory((InventoryType) object);
 			} else {
-				return;
+				assert false;
 			}
-			
-			if (i == null)
+			if (inventory == null)
 				return;
-			for (final Player p : players.getArray(e)) {
-				try {
-					p.openInventory(i);
-				} catch (IllegalArgumentException ex){
-					Skript.error("You can't open a " + i.getType().name().toLowerCase(Locale.ENGLISH).replaceAll("_", "") + " inventory to a player.");
-				}
-			}
+			for (Player player : players.getArray(event))
+				player.openInventory(inventory);
 		} else {
-			for (final Player p : players.getArray(e)) {
-				if (open) {
-					switch (invType) {
-						case WORKBENCH:
-							p.openWorkbench(null, true);
-							break;
-						case CHEST:
-							p.openInventory(Bukkit.createInventory(p, InventoryType.CHEST));
-							break;
-						case ANVIL:
-							p.openInventory(Bukkit.createInventory(p, InventoryType.ANVIL));
-							break;
-						case HOPPER:
-							p.openInventory(Bukkit.createInventory(p, InventoryType.HOPPER));
-							break;
-						case DROPPER:
-							p.openInventory(Bukkit.createInventory(p, InventoryType.DROPPER));
-							break;
-						case DISPENSER:
-							p.openInventory(Bukkit.createInventory(p, InventoryType.DISPENSER));
-					
-					}
-				} else
-					p.closeInventory();
+			for (Player player : players.getArray(event)) {
+				if (!open) {
+					player.closeInventory();
+					continue;
+				}
+				switch (syntax) {
+					case ANVIL:
+						player.openAnvil(null, true);
+						break;
+					case CARTOGRAPHY:
+						player.openCartographyTable(null, true);
+						break;
+					case ENCHANTING:
+						player.openEnchanting(null, true);
+						break;
+					case GRINDSTONE:
+						player.openGrindstone(null, true);
+						break;
+					case LOOM:
+						player.openLoom(null, true);
+						break;
+					case SMITHING:
+						player.openSmithingTable(null, true);
+						break;
+					case STONECUTTER:
+						player.openStonecutter(null, true);
+						break;
+					case WORKBENCH:
+						player.openWorkbench(null, true);
+						break;
+				}
 			}
 		}
 	}
-	
+
 	@Override
-	public String toString(final @Nullable Event e, final boolean debug) {
-		return (open ? "open " + (invi != null ? invi.toString(e, debug) : "crafting table") + " to " : "close inventory view of ") + players.toString(e, debug);
+	public String toString(@Nullable Event event, boolean debug) {
+		if (inventory != null)
+			return "show " + inventory.toString(event, debug) + " to " + players.toString(event, debug);
+		if (open)
+			return "open " + syntax.name().toLowerCase(Locale.ENGLISH) + " to " + players.toString(event, debug);
+		return "close inventory of " + players.toString(event, debug);
 	}
-	
+
 }
