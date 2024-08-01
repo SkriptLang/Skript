@@ -40,7 +40,7 @@ dependencies {
 	implementation fileTree(dir: 'lib', include: '*.jar')
 
 	testShadow group: 'junit', name: 'junit', version: '4.13.2'
-	testShadow group: 'org.easymock', name: 'easymock', version: '5.0.1'
+	testShadow group: 'org.easymock', name: 'easymock', version: '5.4.0'
 }
 
 task checkAliases {
@@ -70,7 +70,7 @@ task build(overwrite: true, type: ShadowJar) {
 	from sourceSets.main.output
 }
 
-// Excludes the tests for the build task. Should be using junit, junitJava17, junitJava11, skriptTest, quickTest.
+// Excludes the tests for the build task. Should be using JUnitQuick, JUnitJava21, JUnitJava17, JUnitJava11, skriptTest, quickTest.
 // We do not want tests to run for building. That's time consuming and annoying. Especially in development.
 test {
 	exclude '**/*'
@@ -239,8 +239,8 @@ def latestEnv = 'java21/paper-1.21.0.json'
 def latestJava = java21
 def oldestJava = java11
 
-def latestJUnitEnv = 'java17/paper-1.20.4.json'
-def latestJUnitJava = java17
+def latestJUnitEnv = latestEnv
+def latestJUnitJava = latestJava
 
 java {
     toolchain.languageVersion.set(JavaLanguageVersion.of(latestJava))
@@ -271,14 +271,12 @@ tasks.register('skriptTest') {
 }
 
 createTestTask('JUnitQuick', 'Runs JUnit tests on one environment being the latest supported Java and Minecraft.', environments + latestJUnitEnv, latestJUnitJava, 0, Modifiers.JUNIT)
-// Disabled as EasyMock 5.2.0 is required for Java 21 support
-// However, we are currently using 5.0.1 (see https://github.com/SkriptLang/Skript/pull/6204#discussion_r1405302009)
-//createTestTask('JUnitJava21', 'Runs JUnit tests on all Java 21 environments.', environments + 'java21', java21, 0, Modifiers.JUNIT)
+createTestTask('JUnitJava21', 'Runs JUnit tests on all Java 21 environments.', environments + 'java21', java21, 0, Modifiers.JUNIT)
 createTestTask('JUnitJava17', 'Runs JUnit tests on all Java 17 environments.', environments + 'java17', java17, 0, Modifiers.JUNIT)
 createTestTask('JUnitJava11', 'Runs JUnit tests on all Java 11 environments.', environments + 'java11', java11, 0, Modifiers.JUNIT)
 tasks.register('JUnit') {
 	description = 'Runs JUnit tests on all environments.'
-	dependsOn JUnitJava11, JUnitJava17//, JUnitJava21
+	dependsOn JUnitJava11, JUnitJava17, JUnitJava21
 }
 
 // Build flavor configurations
