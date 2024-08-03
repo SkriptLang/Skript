@@ -86,6 +86,7 @@ import ch.njol.skript.aliases.Aliases;
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.bukkitutil.EnchantmentUtils;
 import ch.njol.skript.bukkitutil.ItemUtils;
+import ch.njol.skript.bukkitutil.TeleportFlags.SkriptTeleportFlag;
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.classes.ConfigurationSerializer;
 import ch.njol.skript.classes.EnumClassInfo;
@@ -1526,6 +1527,14 @@ public class BukkitClasses {
 				.name("Transform Reason")
 				.description("Represents a transform reason of an <a href='events.html#entity transform'>entity transform event</a>.")
 				.since("2.8.0"));
+
+		if (Skript.classExists("io.papermc.paper.entity.TeleportFlag"))
+			Classes.registerClass(new EnumClassInfo<>(SkriptTeleportFlag.class, "teleportflag", "teleport flags")
+					.user("teleport ?flags?")
+					.name("Teleport Flag")
+					.description("Teleport Flags are settings to retain during a teleport.")
+					.requiredPlugins("Paper 1.19+")
+					.since("INSERT VERSION"));
 	}
 
 }
