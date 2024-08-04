@@ -933,8 +933,12 @@ public final class Skript extends JavaPlugin implements Listener {
 				String warningMessage = "It appears that /reload or another plugin reloaded Skript. This is not supported behaviour and may cause issues.";
 				String restartMessage = "Please consider restarting the server instead.";
 
-				Bukkit.broadcast(warningMessage, "op");
-				Bukkit.broadcast(restartMessage, "op");
+				for (Player player : Bukkit.getOnlinePlayers()) {
+					if (!player.isOp()) return;
+
+					player.sendMessage(ChatColor.RED + warningMessage);
+					player.sendMessage(ChatColor.RED + restartMessage);
+				}
 
 				Skript.warning(warningMessage);
 				Skript.warning(restartMessage);
