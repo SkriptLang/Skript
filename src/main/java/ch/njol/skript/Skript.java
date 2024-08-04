@@ -250,6 +250,9 @@ public final class Skript extends JavaPlugin implements Listener {
 		m_no_scripts = new Message("skript.no scripts");
 	private static final PluralizingArgsMessage m_scripts_loaded = new PluralizingArgsMessage("skript.scripts loaded");
 
+	private static final String WARNING_MESSAGE = "It appears that /reload or another plugin reloaded Skript. This is not supported behaviour and may cause issues.";
+	private static final String RESTART_MESSAGE = "Please consider restarting the server instead.";
+
 	public static ServerPlatform getServerPlatform() {
 		if (classExists("net.glowstone.GlowServer")) {
 			return ServerPlatform.BUKKIT_GLOWSTONE; // Glowstone has timings too, so must check for it first
@@ -930,18 +933,15 @@ public final class Skript extends JavaPlugin implements Listener {
 			public void onServerReload(ServerLoadEvent event) {
 				if (!(event.getType() == ServerLoadEvent.LoadType.RELOAD)) return;
 
-				String warningMessage = "It appears that /reload or another plugin reloaded Skript. This is not supported behaviour and may cause issues.";
-				String restartMessage = "Please consider restarting the server instead.";
-
 				for (Player player : Bukkit.getOnlinePlayers()) {
-					if (!player.isOp()) return;
-
-					player.sendMessage(ChatColor.RED + warningMessage);
-					player.sendMessage(ChatColor.RED + restartMessage);
+					if (player.isOp()) {
+						player.sendMessage(ChatColor.YELLOW + WARNING_MESSAGE);
+						player.sendMessage(ChatColor.YELLOW + RESTART_MESSAGE);
+					}
 				}
 
-				Skript.warning(warningMessage);
-				Skript.warning(restartMessage);
+				Skript.warning(WARNING_MESSAGE);
+				Skript.warning(RESTART_MESSAGE);
 			}
 		}, this);
 
