@@ -25,18 +25,15 @@ import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
-import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.LoopSection;
+import ch.njol.skript.lang.*;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
-import ch.njol.skript.lang.TriggerItem;
-import ch.njol.skript.lang.Variable;
 import ch.njol.skript.lang.util.ContainerExpression;
 import ch.njol.skript.util.Container;
 import ch.njol.skript.util.Container.ContainerType;
 import ch.njol.skript.util.LiteralUtils;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Iterator;
 import java.util.List;
@@ -92,8 +89,8 @@ public class SecLoop extends LoopSection {
 	private final transient Map<Event, Object> current = new WeakHashMap<>();
 	private final transient Map<Event, Iterator<?>> currentIter = new WeakHashMap<>();
 
-	@Nullable
-	private TriggerItem actualNext;
+	private @Nullable TriggerItem actualNext;
+	private boolean guaranteedToRun;
 
 	@Override
 	@SuppressWarnings("unchecked")
@@ -121,6 +118,12 @@ public class SecLoop extends LoopSection {
 			return false;
 		}
 
+		if (expr instanceof Literal<?>) {
+			guaranteedToRun = ((Literal<?>) expr).getAll().length > 0;
+		} else if (expr instanceof ExpressionList<?>) {
+			guaranteedToRun = ((ExpressionList<?>) expr).getAllExpressions().stream()
+				.anyMatch(expression -> expression instanceof Literal<?> && ((Literal<?>) expression).getAll().length > 0);
+		}
 		loadOptionalCode(sectionNode);
 		super.setNext(this);
 
@@ -149,6 +152,11 @@ public class SecLoop extends LoopSection {
 			currentLoopCounter.put(event, (currentLoopCounter.getOrDefault(event, 0L)) + 1);
 			return walk(event, true);
 		}
+	}
+
+	@Override
+	public @Nullable ExecutionIntent executionIntent() {
+		return guaranteedToRun ? triggerExecutionIntent() : null;
 	}
 
 	@Override
