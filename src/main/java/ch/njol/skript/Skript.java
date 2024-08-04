@@ -104,6 +104,7 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.server.PluginDisableEvent;
 import org.bukkit.event.server.ServerCommandEvent;
 import org.bukkit.event.server.ServerLoadEvent;
+import org.bukkit.permissions.Permission;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -930,9 +931,14 @@ public final class Skript extends JavaPlugin implements Listener {
 			public void onServerReload(ServerLoadEvent event) {
 				if (!(event.getType() == ServerLoadEvent.LoadType.RELOAD)) return;
 
-				Skript.warning("Looks like you've used /reload or used a plugin to reload Skript. This is not supported behaviour.");
-				Skript.warning("Reloading may cause issues.");
-				Skript.warning("Please consider restarting your server.");
+				String warningMessage = "It appears that /reload or another plugin reloaded Skript. This is not supported behaviour and may cause issues.";
+				String restartMessage = "Please consider restarting the server instead.";
+
+				Bukkit.broadcast(warningMessage, "op");
+				Bukkit.broadcast(restartMessage, "op");
+
+				Skript.warning(warningMessage);
+				Skript.warning(restartMessage);
 			}
 		}, this);
 
