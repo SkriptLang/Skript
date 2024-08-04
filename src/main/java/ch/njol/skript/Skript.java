@@ -927,7 +927,7 @@ public final class Skript extends JavaPlugin implements Listener {
 		// Send a warning to console when the plugin is reloaded
 		Bukkit.getPluginManager().registerEvents(new Listener() {
 			@EventHandler
-			public void OnServerReload(ServerLoadEvent event) {
+			public void onServerReload(ServerLoadEvent event) {
 				if (!(event.getType() == ServerLoadEvent.LoadType.RELOAD)) return;
 
 				Skript.warning("Looks like you've used /reload or used a plugin to reload Skript. This is not supported behaviour.");
