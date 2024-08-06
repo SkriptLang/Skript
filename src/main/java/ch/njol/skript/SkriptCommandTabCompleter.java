@@ -107,6 +107,7 @@ public class SkriptCommandTabCompleter implements TabCompleter {
 					options.add("config");
 					options.add("aliases");
 					options.add("scripts");
+					options.add("changed");
 				}
 			}
 
