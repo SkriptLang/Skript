@@ -48,6 +48,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 import org.skriptlang.skript.lang.script.Script;
+import org.skriptlang.skript.lang.script.ScriptWarning;
 import org.skriptlang.skript.lang.structure.Structure;
 
 import java.io.File;
@@ -1001,7 +1002,10 @@ public class ScriptLoader {
 				continue;
 			}
 
-			if (executionStops)
+			if (executionStops
+					&& !SkriptConfig.disableUnreachableCodeWarnings.value()
+					&& parser.isActive()
+					&& !parser.getCurrentScript().suppressesWarning(ScriptWarning.UNREACHABLE_CODE))
 				Skript.warning("Unreachable code. The previous statement stops further execution.");
 			executionStops = item.executionIntent() != null;
 		}

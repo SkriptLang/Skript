@@ -172,6 +172,9 @@ disable variable missing and/or warnings: false
 disable starting a variable's name with an expression warnings: false
 # Disables the "Starting a variable's name with an expression is discouraged..." warnings
 
+disable unreachable code warnings: false
+# Disables the "Unreachable code. The previous statement stops further execution." warnings.
+
 soft api exceptions: false
 # Allows Skript to ignore certain actions which would normally result in thrown exceptions.
 # If everything works correctly, you should keep this option disabled. It might cause problems in some cases.
