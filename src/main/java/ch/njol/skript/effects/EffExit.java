@@ -23,13 +23,8 @@ import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
-import ch.njol.skript.lang.Effect;
-import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.SectionExitHandler;
-import ch.njol.skript.lang.LoopSection;
+import ch.njol.skript.lang.*;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
-import ch.njol.skript.lang.TriggerItem;
-import ch.njol.skript.lang.TriggerSection;
 import ch.njol.skript.lang.parser.ParserInstance;
 import ch.njol.skript.log.ErrorQuality;
 import ch.njol.skript.sections.SecConditional;
@@ -51,7 +46,7 @@ import java.util.List;
 		"\tset loop-block to water"
 })
 @Since("<i>unknown</i> (before 2.1)")
-public class EffExit extends Effect { // TODO [code style] warn user about code after a stop effect
+public class EffExit extends Effect {
 
 	static {
 		Skript.registerEffect(EffExit.class,
@@ -60,15 +55,15 @@ public class EffExit extends Effect { // TODO [code style] warn user about code 
 				"(exit|stop) <\\d+> (section|1:loop|2:conditional)s",
 				"(exit|stop) all (section|1:loop|2:conditional)s");
 	}
-	
+
 	private int breakLevels;
-	
+
 	private static final int EVERYTHING = 0;
 	private static final int LOOPS = 1;
 	private static final int CONDITIONALS = 2;
 	private static final String[] names = {"sections", "loops", "conditionals"};
 	private int type;
-	
+
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parser) {
 		switch (matchedPattern) {
@@ -99,7 +94,7 @@ public class EffExit extends Effect { // TODO [code style] warn user about code 
 		}
 		return true;
 	}
-	
+
 	private static int numLevels(int type) {
 		List<TriggerSection> currentSections = ParserInstance.get().getCurrentSections();
 		if (type == EVERYTHING)
@@ -111,7 +106,7 @@ public class EffExit extends Effect { // TODO [code style] warn user about code 
 		}
 		return level;
 	}
-	
+
 	@Override
 	@Nullable
 	protected TriggerItem walk(Event event) {
@@ -131,15 +126,20 @@ public class EffExit extends Effect { // TODO [code style] warn user about code 
 		}
 		return node instanceof LoopSection ? ((LoopSection) node).getActualNext() : node.getNext();
 	}
-	
+
 	@Override
 	protected void execute(Event event) {
 		assert false;
 	}
-	
+
+	@Override
+	public @Nullable ExecutionIntent executionIntent() {
+		return ExecutionIntent.stopSections(breakLevels);
+	}
+
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
 		return "stop " + breakLevels + " " + names[type];
 	}
-	
+
 }

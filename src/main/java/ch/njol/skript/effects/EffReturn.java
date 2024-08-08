@@ -23,14 +23,9 @@ import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
-import ch.njol.skript.lang.Effect;
-import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.ReturnHandler;
+import ch.njol.skript.lang.*;
 import ch.njol.skript.lang.ReturnHandler.ReturnHandlerStack;
-import ch.njol.skript.lang.SectionExitHandler;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
-import ch.njol.skript.lang.TriggerItem;
-import ch.njol.skript.lang.TriggerSection;
 import ch.njol.skript.lang.parser.ParserInstance;
 import ch.njol.skript.log.RetainingLogHandler;
 import ch.njol.skript.log.SkriptLogger;
@@ -128,6 +123,11 @@ public class EffReturn extends Effect {
 	@Override
 	protected void execute(Event event) {
 		assert false;
+	}
+
+	@Override
+	public ExecutionIntent executionIntent() {
+		return ExecutionIntent.stopTrigger();
 	}
 
 	@Override

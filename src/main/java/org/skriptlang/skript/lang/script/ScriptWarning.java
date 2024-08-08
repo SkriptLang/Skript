@@ -23,6 +23,8 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.lang.parser.ParserInstance;
 import ch.njol.util.Kleenean;
+import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.UnknownNullability;
 
 /**
  * An enum containing {@link Script} warnings that can be suppressed.
@@ -30,24 +32,69 @@ import ch.njol.util.Kleenean;
 public enum ScriptWarning {
 
 	/**
+	 * Possible variable conflict (Deprecated)
+	 */
+	@Deprecated
+	VARIABLE_CONFLICT("conflict", "conflict", "Variable conflict warnings no longer need suppression, as they have been removed altogether"),
+
+	/**
 	 * Variable cannot be saved (the ClassInfo is not serializable)
 	 */
-	VARIABLE_SAVE,
+	VARIABLE_SAVE("variable save"),
 
 	/**
 	 * Missing "and" or "or"
 	 */
-	MISSING_CONJUNCTION,
+	MISSING_CONJUNCTION("[missing] conjunction", "missing conjunction"),
 
 	/**
 	 * Variable starts with an Expression
 	 */
-	VARIABLE_STARTS_WITH_EXPRESSION,
+	VARIABLE_STARTS_WITH_EXPRESSION("starting [with] expression[s]", "starting expression"),
 
 	/**
 	 * This syntax is deprecated and scheduled for future removal
 	 */
-	DEPRECATED_SYNTAX;
+	DEPRECATED_SYNTAX("deprecated syntax"),
+
+	/**
+	 * The code cannot be reached due to a previous statement stopping further execution
+	 */
+	UNREACHABLE_CODE("unreachable code");
+
+	ScriptWarning(String pattern) {
+		this(pattern, pattern);
+	}
+
+	ScriptWarning(String pattern, String warningName) {
+		this(pattern, warningName, null);
+	}
+
+	ScriptWarning(String pattern, String warningName, @Nullable String deprecationMessage) {
+		this.pattern = pattern;
+		this.warningName = warningName;
+		this.deprecationMessage = deprecationMessage;
+	}
+
+	private final String pattern;
+	private final String warningName;
+	private final @UnknownNullability String deprecationMessage;
+
+	public String getPattern() {
+		return pattern;
+	}
+
+	public String getWarningName() {
+		return warningName;
+	}
+
+	public boolean isDeprecated() {
+		return deprecationMessage != null;
+	}
+
+	public @UnknownNullability String getDeprecationMessage() {
+		return deprecationMessage;
+	}
 
 	/**
 	 * Prints the given message using {@link Skript#warning(String)} iff the current script does not suppress deprecation warnings.

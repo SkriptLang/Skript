@@ -111,6 +111,20 @@ public abstract class TriggerItem implements Debuggable {
 	}
 
 	/**
+	 * Returns whether this item stops the execution of the current trigger or section(s).
+	 * <br>
+	 * If present, and there are statement(s) after this one, the parser will print a warning
+	 * to the user.
+	 * <p>
+	 * <b>Note: This method is used purely to print warnings and doesn't affect parsing, execution or anything else.</b>
+	 *
+	 * @return whether this item stops the execution of the current trigger or section.
+	 */
+	public @Nullable ExecutionIntent executionIntent() {
+		return null;
+	}
+
+	/**
 	 * how much to indent each level
 	 */
 	private final static String INDENT = "  ";
@@ -164,6 +178,10 @@ public abstract class TriggerItem implements Debuggable {
 	}
 
 	public @Nullable TriggerItem getNext() {
+		return next;
+	}
+
+	public @Nullable TriggerItem getActualNext() {
 		return next;
 	}
 
