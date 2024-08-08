@@ -311,16 +311,12 @@ public class SimpleEntityData extends EntityData<Entity> {
 			addSimpleEntity("warden", Warden.class);
 		}
 
-		if (Skript.isRunningMinecraft(1,19,3))
+		if (Skript.isRunningMinecraft(1, 19, 3))
 			addSimpleEntity("camel", Camel.class);
 
-		if (Skript.isRunningMinecraft(1,19,4)) {
+		if (Skript.isRunningMinecraft(1, 19, 4)) {
 			addSimpleEntity("sniffer", Sniffer.class);
-			addSimpleEntity("text display", TextDisplay.class);
-			addSimpleEntity("item display", ItemDisplay.class);
-			addSimpleEntity("block display", BlockDisplay.class);
 			addSimpleEntity("interaction", Interaction.class);
-			addSuperEntity("display", Display.class);
 		}
 
 		if (Skript.isRunningMinecraft(1, 20, 3)) {
@@ -337,7 +333,7 @@ public class SimpleEntityData extends EntityData<Entity> {
 		addSimpleEntity("zombie", Zombie.class);
 		// Register squid after glow squid to make sure both work
 		addSimpleEntity("squid", Squid.class);
-		
+
 		// SuperTypes
 		addSuperEntity("human", HumanEntity.class);
 		addSuperEntity("damageable", Damageable.class);
@@ -358,12 +354,14 @@ public class SimpleEntityData extends EntityData<Entity> {
 		addSuperEntity("any fireball", Fireball.class);
 		addSuperEntity("illager", Illager.class);
 		addSuperEntity("spellcaster", Spellcaster.class);
-		if (Skript.classExists("org.bukkit.entity.Raider")) // Introduced in Spigot 1.14
+		if (Skript.classExists("org.bukkit.entity.Raider")) // 1.14
 			addSuperEntity("raider", Raider.class);
-		if (Skript.classExists("org.bukkit.entity.Enemy")) // Introduced in Spigot 1.19.3
+		if (Skript.classExists("org.bukkit.entity.Enemy")) // 1.19.3
 			addSuperEntity("enemy", Enemy.class);
+		if (Skript.classExists("org.bukkit.entity.Display")) // 1.19.4
+			addSuperEntity("display", Display.class);
 	}
-	
+
 	static {
 		final String[] codeNames = new String[types.size()];
 		int i = 0;

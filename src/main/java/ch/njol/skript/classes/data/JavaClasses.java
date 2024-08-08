@@ -18,10 +18,12 @@
  */
 package ch.njol.skript.classes.data;
 
+import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptConfig;
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.classes.Parser;
 import ch.njol.skript.classes.Serializer;
+import ch.njol.skript.expressions.base.EventValueExpression;
 import ch.njol.skript.lang.ParseContext;
 import ch.njol.skript.lang.VariableString;
 import ch.njol.skript.lang.util.SimpleLiteral;
@@ -31,7 +33,8 @@ import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.Utils;
 import ch.njol.util.StringUtils;
 import ch.njol.yggdrasil.Fields;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
+import org.joml.Quaternionf;
 
 import java.util.regex.Pattern;
 
@@ -627,5 +630,39 @@ public class JavaClasses {
 						return false;
 					}
 				}));
+
+		if (Skript.classExists("org.joml.Quaternionf"))
+			Classes.registerClass(new ClassInfo<>(Quaternionf.class, "quaternion")
+					.user("quaternionf?s?")
+					.name("Quaternion")
+					.description("Quaternions are used for representing x y z while having w representing the scale. All four numbers are real.")
+					.since("INSERT VERSION")
+					.parser(new Parser<>() {
+						public boolean canParse(ParseContext context) {
+							return false;
+						}
+
+						@Override
+						public String toString(Quaternionf quaternion, int flags) {
+							return "w:" + Skript.toString(quaternion.w()) + ", x:" + Skript.toString(quaternion.x()) + ", y:" + Skript.toString(quaternion.y()) + ", z:" + Skript.toString(quaternion.z());
+						}
+
+						@Override
+						public String toVariableNameString(Quaternionf quaternion) {
+							return quaternion.w() + "," + quaternion.x() + "," + quaternion.y() + "," + quaternion.z();
+						}
+					})
+					.defaultExpression(new EventValueExpression<>(Quaternionf.class))
+					.cloner(quaternion -> {
+						try {
+							// Implements cloneable, but doesn't return a Quaternionf.
+							// org.joml improper override. Returns Object.
+							return (Quaternionf) quaternion.clone();
+						} catch (CloneNotSupportedException e) {
+							return null;
+						}
+					}));
+
 	}
+
 }

@@ -1243,16 +1243,16 @@ entities:
 		pattern: interaction(|1¦s)
 	display:
 		name: display¦s
-		pattern: display(|1¦s)
+		pattern: [a] display(|1¦s) [entity]
 	block display:
 		name: block display¦s
-		pattern: block display(|1¦s)
+		pattern: [a] block display(|1¦s) [entity] [of %-blockdata/itemtype%]
 	item display:
 		name: item display¦s
-		pattern: item display(|1¦s)
+		pattern: item display(|1¦s) [entity] [of %-itemtype%]
 	text display:
 		name: text display¦s
-		pattern: text display(|1¦s)
+		pattern: [a] text display(|1¦s) [entity]
 	# 1.20.3 Entities
 	breeze:
 		name: breeze¦s
@@ -2275,6 +2275,31 @@ transform reasons:
 	unknown: unknown
 	infection: infection, villager infection
 
+# -- Display Billboards --
+billboards:
+	center: center, middle, center pivot
+	fixed: fixed
+	horizontal: horizontal, horizontal pivot
+	vertical: vertical, vertical pivot
+
+# -- Text Display Alignments --
+text alignments:
+	center: centered, center aligned, middle aligned
+	left: left aligned
+	right: right aligned
+
+# -- Item Display Transforms --
+item display transforms:
+	firstperson_lefthand: first person left handed, first person left hand, left handed in first person
+	firstperson_righthand: first person right handed, first person right hand, right handed in first person
+	fixed: fixed, fixed position
+	ground: ground, the ground
+	gui: gui, menu
+	head: head
+	none: no transform
+	thirdperson_lefthand: third person left handed, third person left hand, left handed in third person
+	thirdperson_righthand: third person right handed, third person right hand, right handed in third person
+
 # -- Boolean --
 boolean:
 	true:
@@ -2354,6 +2379,10 @@ types:
 	quitreason: quit reason¦s @a
 	inventoryclosereason: inventory close reason¦s @an
 	transformreason: transform reason¦s @a
+	display: display¦s @a
+	billboard: billboard¦s @a
+	textalignment: text alignment¦s @a
+	itemdisplaytransform: item display transform¦s @an
 
 	# Skript
 	weathertype: weather type¦s @a
@@ -2377,3 +2406,6 @@ types:
 	# Hooks
 	money: money
 	region: region¦s
+
+	# Other
+	quaternion: quaternion¦s @a
