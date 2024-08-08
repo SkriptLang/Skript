@@ -24,7 +24,7 @@ public class QuaternionRotator implements Rotator<Quaternionf> {
 			case LOCAL_Y -> (input) -> input.rotateY(angle);
 			case LOCAL_Z -> (input) -> input.rotateZ(angle);
 			case LOCAL_ARBITRARY -> throw new UnsupportedOperationException("Rotation around the " + axis + " axis requires addition data. Use a different constructor.");
-			case ARBITRARY -> throw new UnsupportedOperationException("Rotation around the " + axis + " axis is not supported.");
+			case ARBITRARY -> (input) -> input;
 		};
 	}
 
@@ -37,7 +37,7 @@ public class QuaternionRotator implements Rotator<Quaternionf> {
 			case LOCAL_Y -> (input) -> input.rotateY(angle);
 			case LOCAL_Z -> (input) -> input.rotateZ(angle);
 			case LOCAL_ARBITRARY -> (input) -> input.rotateAxis(angle, vector);
-			case ARBITRARY -> throw new UnsupportedOperationException("Rotation around the " + axis + " axis is not supported.");
+			case ARBITRARY -> (input) -> input;
 		};
 	}
 

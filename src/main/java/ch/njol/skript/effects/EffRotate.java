@@ -36,7 +36,8 @@ import java.util.Locale;
 	"",
 	"Note that rotating a quaternion/display around a vector results in a rotation around the local vector, so results may not be what you expect. " +
 	"For example, rotating quaternions/displays around vector(1, 0, 0) is the same as rotating around the local x axis.",
-	"In addition, rotating around all three axes of a quaternion/display at once will rotate in ZYX order, meaning the Z rotation will be applied first, and the X rotation last."
+	"The same applies to rotations by all three axes at once. " +
+	"In addition, rotating around all three axes of a quaternion/display at once will rotate in ZYX order, meaning the Z rotation will be applied first and the X rotation last."
 })
 @Examples({
 	"rotate {_quaternion} around x axis by 10 degrees",
@@ -123,6 +124,7 @@ public class EffRotate extends Effect {
 						);
 					}
 				});
+			return;
 		}
 
 		// rotate around axis
