@@ -27,15 +27,18 @@ import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Comparator;
 
 import org.skriptlang.skript.lang.converter.Converter;
+
 
 /**
  * @author Peter Güttinger
  */
 public abstract class FileUtils {
-	
+
 	private static boolean RUNNINGJAVA6 = true;// = System.getProperty("java.version").startsWith("1.6"); // doesn't work reliably?
 	static {
 		try {
@@ -47,11 +50,11 @@ public abstract class FileUtils {
 			RUNNINGJAVA6 = false;
 		}
 	}
-	
+
 	private FileUtils() {}
-	
+
 	private final static SimpleDateFormat backupFormat = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss");
-	
+
 	/**
 	 * @return The current date and time
 	 */
@@ -60,7 +63,24 @@ public abstract class FileUtils {
 			return "" + backupFormat.format(System.currentTimeMillis());
 		}
 	}
-	
+
+	public static void backupPurge(final File f, int tokeep) throws IOException {
+		if (tokeep < 0)
+			throw new IOException("Called with invalid input");
+		final File backupDir = new File(f.getParentFile(), "backups" + File.separator);
+		if (!backupDir.exists() || !backupDir.isDirectory())
+			throw new IOException("Backup directory not found");
+		final ArrayList<File> files = new ArrayList<File>(Arrays.asList(backupDir.listFiles()));
+		if (files == null || files.size() <= tokeep)
+			return;
+		if (tokeep > 0)
+			files.sort(Comparator.comparingLong(File::lastModified));
+		final int Iterations = files.size() - tokeep;
+		for (int i = 0; i < Iterations; i++) {
+			files.get(i).delete();
+		}
+	}
+
 	public static File backup(final File f) throws IOException {
 		String name = f.getName();
 		final int c = name.lastIndexOf('.');
@@ -76,7 +96,7 @@ public abstract class FileUtils {
 		copy(f, backup);
 		return backup;
 	}
-	
+
 	public static File move(final File from, final File to, final boolean replace) throws IOException {
 		if (!replace && to.exists())
 			throw new IOException("Can't rename " + from.getName() + " to " + to.getName() + ": The target file already exists");
@@ -105,7 +125,7 @@ public abstract class FileUtils {
 		}
 		return to;
 	}
-	
+
 	public static void copy(final File from, final File to) throws IOException {
 		if (!RUNNINGJAVA6) {
 			Files.copy(from.toPath(), to.toPath(), StandardCopyOption.COPY_ATTRIBUTES);
@@ -135,7 +155,7 @@ public abstract class FileUtils {
 			}
 		}
 	}
-	
+
 	/**
 	 * @param directory
 	 * @param renamer Renames files. Return null to leave a file as-is.
@@ -161,10 +181,10 @@ public abstract class FileUtils {
 		}
 		return changed;
 	}
-	
+
 	/**
 	 * Saves the contents of an InputStream in a file.
-	 * 
+	 *
 	 * @param in The InputStream to read from. This stream will not be closed when this method returns.
 	 * @param file The file to save to. Will be replaced if it exists, or created if it doesn't.
 	 * @throws IOException
@@ -184,5 +204,5 @@ public abstract class FileUtils {
 				out.close();
 		}
 	}
-	
+
 }
