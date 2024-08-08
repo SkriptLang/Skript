@@ -59,6 +59,7 @@ import ch.njol.skript.log.SkriptLogger;
 import ch.njol.skript.log.Verbosity;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.registrations.EventValues;
+import ch.njol.skript.registrations.Feature;
 import ch.njol.skript.test.runner.EffObjectives;
 import ch.njol.skript.test.runner.SkriptJUnitTest;
 import ch.njol.skript.test.runner.SkriptTestEvent;
@@ -85,8 +86,10 @@ import ch.njol.util.NullableChecker;
 import ch.njol.util.StringUtils;
 import ch.njol.util.coll.iterator.CheckedIterator;
 import ch.njol.util.coll.iterator.EnumerationIterable;
+
 import com.google.common.collect.Lists;
 import com.google.gson.Gson;
+
 import org.bstats.bukkit.Metrics;
 import org.bstats.charts.SimplePie;
 import org.bukkit.Bukkit;
@@ -117,10 +120,10 @@ import org.skriptlang.skript.lang.converter.Converter;
 import org.skriptlang.skript.lang.converter.Converters;
 import org.skriptlang.skript.lang.entry.EntryValidator;
 import org.skriptlang.skript.lang.experiment.ExperimentRegistry;
-import ch.njol.skript.registrations.Feature;
 import org.skriptlang.skript.lang.script.Script;
 import org.skriptlang.skript.lang.structure.Structure;
 import org.skriptlang.skript.lang.structure.StructureInfo;
+import org.skriptlang.skript.scheduler.TaskManager;
 
 import java.io.File;
 import java.io.IOException;
@@ -543,9 +546,14 @@ public final class Skript extends JavaPlugin implements Listener {
 		skriptCommand.setExecutor(new SkriptCommand());
 		skriptCommand.setTabCompleter(new SkriptCommandTabCompleter());
 
+		try {
+			new TaskManager(this);
+		} catch (IllegalAccessException e) {
+			Skript.exception(e, "Failed to initalize the Skript TaskManager, ensure you dont have two instances of Skript running.");
+		}
+
 		// Load Bukkit stuff. It is done after platform check, because something might be missing!
 		new BukkitEventValues();
-
 		new DefaultComparators();
 		new DefaultConverters();
 		new DefaultFunctions();
