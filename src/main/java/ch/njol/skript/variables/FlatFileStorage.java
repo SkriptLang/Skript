@@ -19,6 +19,7 @@
 package ch.njol.skript.variables;
 
 import ch.njol.skript.Skript;
+import ch.njol.skript.SkriptAddon;
 import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.lang.Variable;
 import ch.njol.skript.log.SkriptLogger;
@@ -128,8 +129,8 @@ public class FlatFileStorage extends VariablesStorage {
 	 *
 	 * @param name the name.
 	 */
-	FlatFileStorage(String name) {
-		super(name);
+	FlatFileStorage(SkriptAddon source, String name) {
+		super(source, name);
 	}
 
 	/**
@@ -140,7 +141,7 @@ public class FlatFileStorage extends VariablesStorage {
 	 */
 	@SuppressWarnings("deprecation")
 	@Override
-	protected boolean load_i(SectionNode sectionNode) {
+	protected boolean load(SectionNode sectionNode) {
 		SkriptLogger.setNode(null);
 
 		if (file == null) {

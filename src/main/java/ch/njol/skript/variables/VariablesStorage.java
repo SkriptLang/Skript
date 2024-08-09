@@ -27,6 +27,7 @@ import java.util.regex.PatternSyntaxException;
 import org.eclipse.jdt.annotation.Nullable;
 
 import ch.njol.skript.Skript;
+import ch.njol.skript.SkriptAddon;
 import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.lang.ParseContext;
 import ch.njol.skript.log.ParseLogHandler;
@@ -90,36 +91,45 @@ public abstract class VariablesStorage implements Closeable {
 	 */
 	// created in the constructor, started in load()
 	private final Thread writeThread;
+	private final SkriptAddon source;
 
 	/**
 	 * Creates a new variable storage with the given name.
 	 * <p>
 	 * This will also create the {@link #writeThread}, but it must be started
-	 * with {@link #load(SectionNode)}.
+	 * with {@link #load_i(SectionNode)}.
 	 *
 	 * @param name the name.
 	 */
-	protected VariablesStorage(String name) {
+	protected VariablesStorage(SkriptAddon source, String name) {
 		assert name != null;
 		databaseName = name;
+		this.source = source;
 
 		writeThread = Skript.newThread(() -> {
 			while (!closed) {
 				try {
 					// Take a variable from the queue and process it
 					SerializedVariable variable = changesQueue.take();
-					Value value = variable.value;
+					Value value = variable.getValue();
 
 					// Actually save the variable
 					if (value != null)
-						save(variable.name, value.type, value.data);
+						save(variable.getName(), value.type, value.data);
 					else
-						save(variable.name, null, null);
+						save(variable.getName(), null, null);
 				} catch (InterruptedException ignored) {
 					// Ignored as the `closed` field will indicate whether the thread actually needs to stop
 				}
 			}
 		}, "Skript variable save thread for database '" + name + "'");
+	}
+
+	/**
+	 * @return The SkriptAddon instance that registered this VariableStorage.
+	 */
+	public SkriptAddon getRegisterSource() {
+		return source;
 	}
 
 	/**
@@ -148,17 +158,51 @@ public abstract class VariablesStorage implements Closeable {
 	 */
 	@Nullable
 	protected <T> T getValue(SectionNode sectionNode, String key, Class<T> type) {
+		return getValue(sectionNode, key, type, true);
+	}
+
+	/**
+	 * Gets the value at the given key of the given section node,
+	 * parsed with the given type. Prints no errors, but can return null.
+	 *
+	 * @param sectionNode the section node.
+	 * @param key the key.
+	 * @param type the type.
+	 * @return the parsed value, or {@code null} if the value was invalid,
+	 * or not found.
+	 * @param <T> the type.
+	 */
+	@Nullable
+	protected <T> T getOptional(SectionNode sectionNode, String key, Class<T> type) {
+		return getValue(sectionNode, key, type, false);
+	}
+
+	/**
+	 * Gets the value at the given key of the given section node,
+	 * parsed with the given type.
+	 *
+	 * @param sectionNode the section node.
+	 * @param key the key.
+	 * @param type the type.
+	 * @param error if Skript should print errors and stop loading.
+	 * @return the parsed value, or {@code null} if the value was invalid,
+	 * or not found.
+	 * @param <T> the type.
+	 */
+	@Nullable
+	private <T> T getValue(SectionNode sectionNode, String key, Class<T> type, boolean error) {
 		String rawValue = sectionNode.getValue(key);
 		// Section node doesn't have this key
 		if (rawValue == null) {
-			Skript.error("The config is missing the entry for '" + key + "' in the database '" + databaseName + "'");
+			if (error)
+				Skript.error("The config is missing the entry for '" + key + "' in the database '" + databaseName + "'");
 			return null;
 		}
 
 		try (ParseLogHandler log = SkriptLogger.startParseLogHandler()) {
 			T parsedValue = Classes.parse(rawValue, type, ParseContext.CONFIG);
 
-			if (parsedValue == null)
+			if (parsedValue == null && error)
 				// Parsing failed
 				log.printError("The entry for '" + key + "' in the database '" + databaseName + "' must be " +
 					Classes.getSuperClassInfo(type).getName().withIndefiniteArticle());
@@ -171,12 +215,13 @@ public abstract class VariablesStorage implements Closeable {
 
 	/**
 	 * Loads the configuration for this variable storage
-	 * from the given section node.
+	 * from the given section node. Loads internal required values first in load_i.
+	 * {@link #load(SectionNode)} is for extending classes.
 	 *
 	 * @param sectionNode the section node.
 	 * @return whether the loading succeeded.
 	 */
-	public final boolean load(SectionNode sectionNode) {
+	public final boolean load_i(SectionNode sectionNode) {
 		String pattern = getValue(sectionNode, "pattern");
 		if (pattern == null)
 			return false;
@@ -231,7 +276,7 @@ public abstract class VariablesStorage implements Closeable {
 		}
 
 		// Load the entries custom to the variable storage
-		if (!load_i(sectionNode))
+		if (!load(sectionNode))
 			return false;
 
 		writeThread.start();
@@ -246,7 +291,7 @@ public abstract class VariablesStorage implements Closeable {
 	 * @return Whether the database could be loaded successfully,
 	 * i.e. whether the config is correct and all variables could be loaded.
 	 */
-	protected abstract boolean load_i(SectionNode n);
+	protected abstract boolean load(SectionNode n);
 
 	/**
 	 * Called after all storages have been loaded, and variables
@@ -283,7 +328,7 @@ public abstract class VariablesStorage implements Closeable {
 	/**
 	 * (Re)connects to the database.
 	 * <p>
-	 * Not called on the first connect: do this in {@link #load_i(SectionNode)}.
+	 * Not called on the first connect: do this in {@link #load(SectionNode)}.
 	 * An error should be printed by this method
 	 * prior to returning {@code false}.
 	 *
