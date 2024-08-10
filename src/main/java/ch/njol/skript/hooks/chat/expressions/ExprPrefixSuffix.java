@@ -34,6 +34,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 
+import java.util.concurrent.CompletableFuture;
+
 /**
  * @author Peter Güttinger
  */
@@ -44,9 +46,11 @@ import org.eclipse.jdt.annotation.Nullable;
 	"\tcancel event",
 	"\tbroadcast \"%player's prefix%%player's display name%%player's suffix%: %message%\" to the player's world",
 	"",
-	"set the player's prefix to \"[&lt;red&gt;Admin<reset>] \""
+	"set the player's prefix to \"[&lt;red&gt;Admin<reset>] \"",
+	"",
+	"clear player's prefix"
 })
-@Since("2.0")
+@Since("2.0, INSERT VERSION (delete)")
 @RequiredPlugins({"Vault", "a chat plugin that supports Vault"})
 public class ExprPrefixSuffix extends SimplePropertyExpression<Player, String> {
 	static {
@@ -86,14 +90,27 @@ public class ExprPrefixSuffix extends SimplePropertyExpression<Player, String> {
 	
 	@Override
 	public void change(final Event e, final @Nullable Object[] delta, final ChangeMode mode) {
-		assert mode == ChangeMode.SET;
-		assert delta != null;
-		for (final Player p : getExpr().getArray(e)) {
-			if (prefix)
-				VaultHook.chat.setPlayerPrefix(p, (String) delta[0]);
-			else
-				VaultHook.chat.setPlayerSuffix(p, (String) delta[0]);
-		}
+		CompletableFuture.runAsync(() -> {
+			for (final Player p : getExpr().getArray(e)) {
+				switch (mode) {
+					case SET:
+						if (prefix)
+							VaultHook.chat.setPlayerPrefix(p, (String) delta[0]);
+						else
+							VaultHook.chat.setPlayerSuffix(p, (String) delta[0]);
+						break;
+					case RESET:
+					case REMOVE:
+						if (prefix)
+							VaultHook.chat.setPlayerPrefix(p, null);
+						else
+							VaultHook.chat.setPlayerSuffix(p, null);
+						break;
+					default:
+						break;
+				}
+			}
+		}).join();
 	}
 	
 }
