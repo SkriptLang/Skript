@@ -36,9 +36,6 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.concurrent.CompletableFuture;
 
-/**
- * @author Peter Güttinger
- */
 @Name("Prefix/Suffix")
 @Description("The prefix or suffix as defined in the server's chat plugin.")
 @Examples({
@@ -67,15 +64,17 @@ public class ExprPrefixSuffix extends SimplePropertyExpression<Player, String> {
 	
 	@Override
 	public String convert(Player player) {
-		return Utils.replaceChatStyles(prefix ? "" + VaultHook.chat.getPlayerPrefix(player) : "" + VaultHook.chat.getPlayerSuffix(player));
+		return Utils.replaceChatStyles(prefix ? VaultHook.chat.getPlayerPrefix(player) : VaultHook.chat.getPlayerSuffix(player));
 	}
 
 	@Override
 	@Nullable
-	public Class<?>[] acceptChange(final ChangeMode mode) {
-		if (mode == ChangeMode.SET)
-			return new Class[] {String.class};
-		return null;
+	public Class<?>[] acceptChange(ChangeMode mode) {
+		return switch (mode) {
+			case SET -> new Class[] {String.class};
+			case RESET, REMOVE -> new Class[] {null};
+			default -> null;
+		};
 	}
 
 	@Override
@@ -83,21 +82,20 @@ public class ExprPrefixSuffix extends SimplePropertyExpression<Player, String> {
 		CompletableFuture.runAsync(() -> {
 			for (Player player : getExpr().getArray(event)) {
 				switch (mode) {
-					case SET:
-						if (prefix)
+					case SET -> {
+						if (prefix) {
 							VaultHook.chat.setPlayerPrefix(player, (String) delta[0]);
-						else
+						} else {
 							VaultHook.chat.setPlayerSuffix(player, (String) delta[0]);
-						break;
-					case RESET:
-					case REMOVE:
-						if (prefix)
+						}
+					}
+					case RESET, REMOVE -> {
+						if (prefix) {
 							VaultHook.chat.setPlayerPrefix(player, null);
-						else
+						} else {
 							VaultHook.chat.setPlayerSuffix(player, null);
-						break;
-					default:
-						break;
+						}
+					}
 				}
 			}
 		}).join();
