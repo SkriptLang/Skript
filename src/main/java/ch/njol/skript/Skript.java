@@ -931,7 +931,7 @@ public final class Skript extends JavaPlugin implements Listener {
 		Bukkit.getPluginManager().registerEvents(new Listener() {
 			@EventHandler
 			public void onServerReload(ServerLoadEvent event) {
-				if (!(event.getType() == ServerLoadEvent.LoadType.RELOAD)) return;
+				if ((event.getType() != ServerLoadEvent.LoadType.RELOAD)) return;
 
 				for (Player player : Bukkit.getOnlinePlayers()) {
 					if (player.isOp()) {
