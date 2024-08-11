@@ -32,7 +32,7 @@ import ch.njol.skript.util.Utils;
 import ch.njol.util.Kleenean;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.concurrent.CompletableFuture;
 
@@ -60,14 +60,14 @@ public class ExprPrefixSuffix extends SimplePropertyExpression<Player, String> {
 	private boolean prefix;
 	
 	@Override
-	public boolean init(final Expression<?>[] exprs, final int matchedPattern, final Kleenean isDelayed, final ParseResult parseResult) {
+	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		prefix = parseResult.mark == 1;
 		return super.init(exprs, matchedPattern, isDelayed, parseResult);
 	}
 	
 	@Override
-	public String convert(final Player p) {
-		return Utils.replaceChatStyles(prefix ? "" + VaultHook.chat.getPlayerPrefix(p) : "" + VaultHook.chat.getPlayerSuffix(p));
+	public String convert(Player player) {
+		return Utils.replaceChatStyles(prefix ? "" + VaultHook.chat.getPlayerPrefix(player) : "" + VaultHook.chat.getPlayerSuffix(player));
 	}
 	
 	@Override
@@ -89,22 +89,22 @@ public class ExprPrefixSuffix extends SimplePropertyExpression<Player, String> {
 	}
 	
 	@Override
-	public void change(final Event e, final @Nullable Object[] delta, final ChangeMode mode) {
+	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
 		CompletableFuture.runAsync(() -> {
-			for (final Player p : getExpr().getArray(e)) {
+			for (Player player : getExpr().getArray(event)) {
 				switch (mode) {
 					case SET:
 						if (prefix)
-							VaultHook.chat.setPlayerPrefix(p, (String) delta[0]);
+							VaultHook.chat.setPlayerPrefix(player, (String) delta[0]);
 						else
-							VaultHook.chat.setPlayerSuffix(p, (String) delta[0]);
+							VaultHook.chat.setPlayerSuffix(player, (String) delta[0]);
 						break;
 					case RESET:
 					case REMOVE:
 						if (prefix)
-							VaultHook.chat.setPlayerPrefix(p, null);
+							VaultHook.chat.setPlayerPrefix(player, null);
 						else
-							VaultHook.chat.setPlayerSuffix(p, null);
+							VaultHook.chat.setPlayerSuffix(player, null);
 						break;
 					default:
 						break;
