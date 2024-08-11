@@ -230,17 +230,27 @@ public class SecConditional extends Section {
 		if (!multiline || type == ConditionalType.THEN)
 			loadCode(sectionNode);
 
+		// Get the execution intent of the entire conditional chain.
 		if (type == ConditionalType.ELSE) {
 			List<SecConditional> conditionals = getPrecedingConditionals(triggerItems);
 			conditionals.add(0, this);
 			for (SecConditional conditional : conditionals) {
+				// Continue if the current conditional doesn't have executable code (the 'if' section of a multiline).
 				if (conditional.multiline && conditional.type != ConditionalType.THEN)
 					continue;
+
+				// If the current conditional doesn't have an execution intent,
+				//  then there is a possibility of the chain not stopping the execution.
+				// Therefore, we can't assume anything about the intention of the chain,
+				//  so we just set it to null and break out of the loop.
 				ExecutionIntent triggerIntent = conditional.triggerExecutionIntent();
 				if (triggerIntent == null) {
 					executionIntent = null;
 					break;
 				}
+
+				// If the current trigger's execution intent has a lower value than the chain's execution intent,
+				//  then set the chain's intent to the trigger's
                 if (executionIntent == null || triggerIntent.compareTo(executionIntent) < 0)
                     executionIntent = triggerIntent;
 			}
