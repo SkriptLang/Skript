@@ -69,17 +69,7 @@ public class ExprPrefixSuffix extends SimplePropertyExpression<Player, String> {
 	public String convert(Player player) {
 		return Utils.replaceChatStyles(prefix ? "" + VaultHook.chat.getPlayerPrefix(player) : "" + VaultHook.chat.getPlayerSuffix(player));
 	}
-	
-	@Override
-	protected String getPropertyName() {
-		return prefix ? "prefix" : "suffix";
-	}
-	
-	@Override
-	public Class<? extends String> getReturnType() {
-		return String.class;
-	}
-	
+
 	@Override
 	@Nullable
 	public Class<?>[] acceptChange(final ChangeMode mode) {
@@ -87,7 +77,7 @@ public class ExprPrefixSuffix extends SimplePropertyExpression<Player, String> {
 			return new Class[] {String.class};
 		return null;
 	}
-	
+
 	@Override
 	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
 		CompletableFuture.runAsync(() -> {
@@ -111,6 +101,16 @@ public class ExprPrefixSuffix extends SimplePropertyExpression<Player, String> {
 				}
 			}
 		}).join();
+	}
+
+	@Override
+	public Class<? extends String> getReturnType() {
+		return String.class;
+	}
+
+	@Override
+	protected String getPropertyName() {
+		return prefix ? "prefix" : "suffix";
 	}
 	
 }
