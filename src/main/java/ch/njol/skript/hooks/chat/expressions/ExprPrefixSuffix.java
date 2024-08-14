@@ -69,16 +69,16 @@ public class ExprPrefixSuffix extends SimplePropertyExpression<Player, String> {
 
 	@Override
 	@Nullable
-	public Class<?>[] acceptChange(ChangeMode mode) {
+	public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
 		return switch (mode) {
 			case SET -> new Class[] {String.class};
-			case RESET, REMOVE -> new Class[] {null};
+			case RESET, REMOVE -> new Class<?>[0];
 			default -> null;
 		};
 	}
 
 	@Override
-	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
+	public void change(Event event,  Object @Nullable [] delta, ChangeMode mode) {
 		CompletableFuture.runAsync(() -> {
 			for (Player player : getExpr().getArray(event)) {
 				switch (mode) {
