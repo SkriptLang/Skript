@@ -1,0 +1,13 @@
+test "item with custom model data" when minecraft version is not "1.13.2":
+	set {_i} to stone
+	assert the custom model data of {_i} is 0 with "default model data failed"
+	set {_i} to stone with custom model data 5
+	assert the custom model data of {_i} is 5 with "simple model data set failed"
+	set {_i} to stone with custom model data -1
+	assert the custom model data of {_i} is -1 with "negative model data set failed"
+	set {_i} to {_i} with custom model data 2
+	assert the custom model data of {_i} is 2 with "existing item model data set failed"
+	set {_i} to {_i} with custom model data 3.3
+	assert the custom model data of {_i} is 3 with "decimal item model data set failed"
+	set {_i} to {_i} with custom model data 3.999
+	assert the custom model data of {_i} is 3 with "close decimal item model data set failed"

@@ -105,7 +105,7 @@ public class SkriptConfig {
 						break;
 					case "stable":
 						// TODO a better option would be to check that it is not a pre-release through GH API
-						channel = new ReleaseChannel((name) -> !name.contains("pre"), t);
+						channel = new ReleaseChannel((name) -> !(name.contains("-")), t);
 						break;
 					case "none":
 						channel = new ReleaseChannel((name) -> false, t);
@@ -169,6 +169,12 @@ public class SkriptConfig {
 			return null;
 		}
 	});
+
+	/**
+	 * Determines whether `on &lt;event&gt;` will be triggered by cancelled events or not.
+	 */
+	public static final Option<Boolean> listenCancelledByDefault = new Option<>("listen to cancelled events by default", false)
+			.optional(true);
 
 	
 	/**
