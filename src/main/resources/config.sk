@@ -136,7 +136,7 @@ listen to cancelled events by default: false
 # Determines whether `on <event>` will be triggered by all events (true) or only uncancelled events (false).
 # The default is false, which maintains traditional Skript behavior.
 
-number accuracy: 20
+number accuracy: 2
 # How many digits should be displayed after the dot at maximum when displaying numbers.
 # Zeroes will never be displayed at all, so this setting only applies to numbers that actually have a decimal part with one or more non-zero digits.
 # Money bypasses this setting and is displayed as configured in your economy plugin if you have one.
