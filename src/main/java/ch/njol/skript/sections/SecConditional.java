@@ -251,8 +251,8 @@ public class SecConditional extends Section {
 
 				// If the current trigger's execution intent has a lower value than the chain's execution intent,
 				//  then set the chain's intent to the trigger's
-                if (executionIntent == null || triggerIntent.compareTo(executionIntent) < 0)
-                    executionIntent = triggerIntent;
+				if (executionIntent == null || triggerIntent.compareTo(executionIntent) < 0)
+					executionIntent = triggerIntent;
 			}
 		}
 
@@ -391,10 +391,10 @@ public class SecConditional extends Section {
 		// loop through the triggerItems in reverse order so that we find the most recent items first
 		for (int i = triggerItems.size() - 1; i >= 0; i--) {
 			TriggerItem triggerItem = triggerItems.get(i);
-            if (!(triggerItem instanceof SecConditional))
-                break;
+			if (!(triggerItem instanceof SecConditional)) 
+				 break;
 			SecConditional conditional = (SecConditional) triggerItem;
-            if (conditional.type == ConditionalType.ELSE)
+			if (conditional.type == ConditionalType.ELSE)
 				// if the conditional is an else, break because it belongs to a different condition and ends
 				// this one
 				break;

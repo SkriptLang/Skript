@@ -181,6 +181,13 @@ public abstract class TriggerItem implements Debuggable {
 		return next;
 	}
 
+	/**
+	 * This method guarantees to return next {@link TriggerItem} after this item.
+	 * This is not always the case for {@link #getNext()}, for example, {@code getNext()}
+	 * of a {@link ch.njol.skript.sections.SecLoop loop section} usually returns itself.
+	 * 
+	 * @return The next {@link TriggerItem}.
+	 */
 	public @Nullable TriggerItem getActualNext() {
 		return next;
 	}

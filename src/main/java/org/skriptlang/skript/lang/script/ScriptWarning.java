@@ -45,12 +45,12 @@ public enum ScriptWarning {
 	/**
 	 * Missing "and" or "or"
 	 */
-	MISSING_CONJUNCTION("[missing] conjunction", "missing conjunction"),
+	MISSING_CONJUNCTION("missing conjunction", "[missing] conjunction"),
 
 	/**
 	 * Variable starts with an Expression
 	 */
-	VARIABLE_STARTS_WITH_EXPRESSION("starting [with] expression[s]", "starting expression"),
+	VARIABLE_STARTS_WITH_EXPRESSION("starting expression", "starting [with] expression[s]"),
 
 	/**
 	 * This syntax is deprecated and scheduled for future removal
@@ -62,36 +62,41 @@ public enum ScriptWarning {
 	 */
 	UNREACHABLE_CODE("unreachable code");
 
-	ScriptWarning(String pattern) {
-		this(pattern, pattern);
-	}
-
-	ScriptWarning(String pattern, String warningName) {
-		this(pattern, warningName, null);
-	}
-
-	ScriptWarning(String pattern, String warningName, @Nullable String deprecationMessage) {
-		this.pattern = pattern;
-		this.warningName = warningName;
-		this.deprecationMessage = deprecationMessage;
-	}
-
-	private final String pattern;
 	private final String warningName;
+	private final String pattern;
 	private final @UnknownNullability String deprecationMessage;
 
-	public String getPattern() {
-		return pattern;
+	ScriptWarning(String warningName) {
+		this(warningName, warningName);
+	}
+
+	ScriptWarning(String warningName, String pattern) {
+		this(warningName, pattern, null);
+	}
+
+	ScriptWarning(String warningName, String pattern, @Nullable String deprecationMessage) {
+		this.warningName = warningName;
+		this.pattern = pattern;
+		this.deprecationMessage = deprecationMessage;
 	}
 
 	public String getWarningName() {
 		return warningName;
 	}
 
+	public String getPattern() {
+		return pattern;
+	}
+
 	public boolean isDeprecated() {
 		return deprecationMessage != null;
 	}
 
+	/**
+	 * Returns the deprecation message of this warning, or null if the warning isn't deprecated. 
+	 * @return The deprecation message.
+	 * @see #isDeprecated()
+	 */
 	public @UnknownNullability String getDeprecationMessage() {
 		return deprecationMessage;
 	}

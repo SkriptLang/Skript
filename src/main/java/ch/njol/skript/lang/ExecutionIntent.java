@@ -10,26 +10,25 @@ import org.jetbrains.annotations.Nullable;
  * 
  * @see TriggerItem#executionIntent() 
  */
-public abstract class ExecutionIntent implements Comparable<ExecutionIntent> {
+public sealed interface ExecutionIntent extends Comparable<ExecutionIntent>
+	permits ExecutionIntent.StopTrigger, ExecutionIntent.StopSections {
 
-	private ExecutionIntent() {}
-
-	public static StopTrigger stopTrigger() {
+	static StopTrigger stopTrigger() {
 		return new StopTrigger();
 	}
 
-	public static StopSections stopSections(int levels) {
+	static StopSections stopSections(int levels) {
 		Preconditions.checkArgument(levels > 0, "Depth must be at least 1");
 		return new StopSections(levels);
 	}
 
-	public static StopSections stopSection() {
+	static StopSections stopSection() {
 		return new StopSections(1); 
 	}
 
-	public abstract @Nullable ExecutionIntent use();
-	
-	public static class StopTrigger extends ExecutionIntent {
+	@Nullable ExecutionIntent use();
+
+	final class StopTrigger implements ExecutionIntent {
 
 		private StopTrigger() {}
 
@@ -51,17 +50,7 @@ public abstract class ExecutionIntent implements Comparable<ExecutionIntent> {
 
 	}
 
-	public static class StopSections extends ExecutionIntent {
-
-		private final int levels;
-
-        public StopSections(int levels) {
-			this.levels = levels;
-		}
-
-		public int levels() {
-			return levels;
-		}
+	record StopSections(int levels) implements ExecutionIntent {
 
 		public @Nullable ExecutionIntent.StopSections use() {
 			return levels > 1 ? new StopSections(levels - 1) : null;
@@ -73,11 +62,6 @@ public abstract class ExecutionIntent implements Comparable<ExecutionIntent> {
 				return -1;
 			int levels = ((StopSections) other).levels;
 			return Integer.compare(this.levels, levels);
-		}
-
-		@Override
-		public String toString() {
-			return "StopSections(" + levels + ")";
 		}
 
 	}

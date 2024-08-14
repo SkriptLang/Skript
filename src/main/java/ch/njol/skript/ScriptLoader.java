@@ -1005,8 +1005,9 @@ public class ScriptLoader {
 			if (executionStops
 					&& !SkriptConfig.disableUnreachableCodeWarnings.value()
 					&& parser.isActive()
-					&& !parser.getCurrentScript().suppressesWarning(ScriptWarning.UNREACHABLE_CODE))
+					&& !parser.getCurrentScript().suppressesWarning(ScriptWarning.UNREACHABLE_CODE)) {
 				Skript.warning("Unreachable code. The previous statement stops further execution.");
+			}
 			executionStops = item.executionIntent() != null;
 		}
 
