@@ -24,7 +24,7 @@ import org.skriptlang.skript.bukkit.misc.rotation.Rotator.Axis;
 import java.util.Locale;
 import java.util.Objects;
 
-@Name("Rotate Quaternion/Vector")
+@Name("Rotated Quaternion/Vector")
 @Description({
 	"Rotates a Quaternion or Vector around an axis a set amount of degrees, or around all 3 axes at once.",
 	"Vectors can only be rotated around the global X/Y/Z axes, or an arbitrary vector axis.",
