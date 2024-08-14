@@ -14,33 +14,31 @@ import org.bukkit.entity.TextDisplay;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
-@Name("Text Display Drop Shadow")
-@Description("Applies or removes drop shadow from the displayed text on a text display.")
+@Name("Text Display See Through Blocks")
+@Description("Forces a text display to either be or not be visible through blocks.")
 @Examples({
-	"apply drop shadow to last spawned text display",
-	"if {_display} has drop shadow:",
-		"\tremove drop shadow from the text of {_display}"
+	"force last spawned text display to be visible through walls",
+	"prevent all text displays from being visible through walls"
 })
 @Since("INSERT VERSION")
-public class EffTextDisplayDropShadow extends Effect {
+public class EffTextDisplaySeeThroughBlocks extends Effect {
 
 	static {
-		Skript.registerEffect(EffTextDisplayDropShadow.class,
-				"(apply|add) (drop|text) shadow to [[the] text of] %displays%",
-				"(apply|add) (drop|text) shadow to %displays%'[s] text",
-				"(remove|clear) (drop|text) shadow from [[the] text of] %displays%",
-				"(remove|clear) (drop|text) shadow from %displays%'[s] text"
+		Skript.registerEffect(EffTextDisplaySeeThroughBlocks.class,
+				"make %displays% visible through (blocks|walls)",
+				"force %displays% to be visible through (blocks|walls)",
+				"prevent %displays% from being (visible|seen) through (blocks|walls)"
 			);
 	}
 
 	Expression<Display> displays;
-	boolean shadowed;
+	boolean canSee;
 
 	@Override
 	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		//noinspection unchecked
 		displays = (Expression<Display>) expressions[0];
-		shadowed = matchedPattern <= 1;
+		canSee = matchedPattern != 2;
 		return true;
 	}
 
@@ -48,15 +46,15 @@ public class EffTextDisplayDropShadow extends Effect {
 	protected void execute(Event event) {
 		for (Display display : displays.getArray(event)) {
 			if (display instanceof TextDisplay textDisplay)
-				textDisplay.setShadowed(shadowed);
+				textDisplay.setSeeThrough(canSee);
 		}
 	}
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		if (shadowed)
-			return "add drop shadow to " + displays.toString(event, debug);
-		return "remove drop shadow from " + displays.toString(event, debug);
+		if (canSee)
+			return "force " + displays.toString(event, debug) + " to be visible through blocks";
+		return "prevent " + displays.toString(event, debug) + " from being visible through blocks";
 	}
 
 }
