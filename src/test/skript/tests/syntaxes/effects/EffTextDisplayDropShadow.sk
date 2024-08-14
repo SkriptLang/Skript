@@ -1,5 +1,5 @@
 test "text display drop shadow":
-	spawn item display at spawn of world "world":
+	spawn an item display at spawn of world "world":
 		set {_id} to entity
 
 	assert {_id} doesn't have drop shadow with "item display has drop shadow"
@@ -7,7 +7,7 @@ test "text display drop shadow":
 	assert {_id} doesn't have drop shadow with "item display has drop shadow"
 
 	delete entity within {_id}
-	spawn text display at spawn of world "world":
+	spawn a text display at spawn of world "world":
 		set {_td} to entity
 
 	assert {_td} doesn't have drop shadow with "text display has drop shadow by default"
