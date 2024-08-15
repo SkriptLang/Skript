@@ -1,0 +1,34 @@
+test "detonation time":
+	spawn tnt at block 50 blocks above spawn of world "world":
+		set {_tnt} to entity
+		
+	assert detonation time of {_tnt} is 4 seconds with "TNT default detonation time failed"
+	set detonation time of {_tnt} to 8 seconds
+	assert detonation time of {_tnt} is 8 seconds with "TNT detonation time set failed"
+	add 2 seconds to detonation time of {_tnt}
+	assert detonation time of {_tnt} is 10 seconds with "TNT detonation time add failed"
+	remove 4 seconds from detonation time of {_tnt}
+	assert detonation time of {_tnt} is 6 seconds with "TNT detonation time remove failed"
+	remove 10 seconds from detonation time of {_tnt}
+	assert detonation time of {_tnt} is 0 seconds with "TNT detonation time remove to 0 failed"
+
+	delete detonation time of {_tnt}
+	assert detonation time of {_tnt} is 0 seconds with "TNT detonation time delete failed"
+	delete {_tnt}
+
+	spawn creeper at block 50 blocks above spawn of world "world":
+		set {_creeper} to entity
+		
+	assert detonation time of {_creeper} is 0 seconds with "Creeper default detonation time failed"
+	assert max detonation time of {_creeper} is 1.5 seconds with "Creeper default detonation time failed"
+	set detonation time of {_creeper} to 3 seconds
+	assert detonation time of {_creeper} is 3 seconds with "Creeper detonation time set failed"
+	add 1 second to detonation time of {_creeper}
+	assert detonation time of {_creeper} is 4 seconds with "Creeper detonation time add failed"
+	remove 2 seconds from detonation time of {_creeper}
+	assert detonation time of {_creeper} is 2 seconds with "Creeper detonation time remove failed"
+	remove 999 seconds from detonation time of {_creeper}
+	assert detonation time of {_creeper} is 0 seconds with "Creeper detonation time remove to 0 failed"
+	delete detonation time of {_creeper}
+	assert detonation time of {_creeper} is 0 seconds with "Creeper detonation time delete failed"
+	delete {_creeper}
