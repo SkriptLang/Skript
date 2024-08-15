@@ -56,10 +56,6 @@ release channel: @release-channel@
 # 'prerelease' means that development releases will also be checked for.
 # Initial value of this depends on the Skript version you first installed; it was '@release-channel@'.
 
-send reloading info to ops: false
-# Whether Skript should alert operators when someone reloads a script file.
-# This will look like the normal message you receive when reloading a script, containing reload time, errors and/or warnings.
-
 enable effect commands: false
 effect command token: !
 # If 'enable effect commands' is set to true, chat messages starting with the 'effect command token' will be interpreted as effects and executed.

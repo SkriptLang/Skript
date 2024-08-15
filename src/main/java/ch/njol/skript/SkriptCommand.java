@@ -27,7 +27,6 @@ import ch.njol.skript.localization.Language;
 import ch.njol.skript.localization.PluralizingArgsMessage;
 import ch.njol.skript.log.LogEntry;
 import ch.njol.skript.log.RedirectingLogHandler;
-import ch.njol.skript.log.SkriptLogger;
 import ch.njol.skript.log.TimingLogHandler;
 import ch.njol.skript.test.runner.SkriptTestEvent;
 import ch.njol.skript.test.runner.TestMode;
@@ -54,7 +53,6 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 
@@ -102,8 +100,7 @@ public class SkriptCommand implements CommandExecutor {
 		Skript.info(sender, message);
 
 		// Log reloading message
-		if (SkriptConfig.sendReloadingInfoToOps.value())
-			logHandler.log(new LogEntry(Level.INFO, Language.format(CONFIG_NODE + ".reload." + "player reload", sender.getName(), what)));
+		logHandler.log(new LogEntry(Level.INFO, Language.format(CONFIG_NODE + ".reload." + "player reload", sender.getName(), what)));
 	}
 
 
@@ -124,7 +121,6 @@ public class SkriptCommand implements CommandExecutor {
 		}
 	}
 
-
 	private static void info(CommandSender sender, String what, Object... args) {
 		what = args.length == 0 ? Language.get(CONFIG_NODE + "." + what) : PluralizingArgsMessage.format(Language.format(CONFIG_NODE + "." + what, args));
 		Skript.info(sender, StringUtils.fixCapitalization(what));
@@ -143,12 +139,11 @@ public class SkriptCommand implements CommandExecutor {
 		Set<CommandSender> recipients = new HashSet<>();
 		recipients.add(sender);
 
-		if (args[0].equalsIgnoreCase("reload") && SkriptConfig.sendReloadingInfoToOps.value()) {
+		if (args[0].equalsIgnoreCase("reload")) {
 			recipients.addAll(Bukkit.getOnlinePlayers().stream()
 				.filter(player -> player.hasPermission("skript.reloadnotify"))
 				.collect(Collectors.toSet()));
 		}
-
 
 		try (
 			RedirectingLogHandler logHandler = new RedirectingLogHandler(recipients, "").start();

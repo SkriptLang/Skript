@@ -125,8 +125,6 @@ public class SkriptConfig {
 	public static final Option<String> effectCommandToken = new Option<>("effect command token", "!");
 	public static final Option<Boolean> allowOpsToUseEffectCommands = new Option<>("allow ops to use effect commands", false);
 
-	public static final Option<Boolean> sendReloadingInfoToOps = new Option<>("send reloading info to ops", false);
-
 	/*
 	 * @deprecated Will be removed in 2.8.0. Use {@link #logEffectCommands} instead.
 	 */

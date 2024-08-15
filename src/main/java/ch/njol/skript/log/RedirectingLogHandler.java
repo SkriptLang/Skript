@@ -18,15 +18,12 @@
  */
 package ch.njol.skript.log;
 
-import ch.njol.skript.SkriptConfig;
-import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.eclipse.jdt.annotation.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
 import java.util.logging.Level;
 
 /**
