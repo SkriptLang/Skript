@@ -1,0 +1,27 @@
+test "join strings":
+	assert join "a", "b", "c" is "abc" with "join strings without delimiter failed"
+	assert join "a", "b", "c" with " " is "a b c" with "join strings with delimiter failed"
+
+test "split strings on string":
+	assert split "abc" at "[a-z]" is "abc" with "split with regex chars failed"
+
+	assert split "a b c" at " " is "a", "b", "c" with "split failed"
+	assert split "a b c" at " " with case sensitivity is "a", "b", "c" with "split with case sensitivity failed"
+	assert split "a b c" at " " without trailing string is "a", "b", "c" with "split without trailing string failed"
+
+	assert split "abc" at "" is "a", "b", "c", "" with "split with empty delimiter failed"
+	assert split "abc" at "" with case sensitivity is "a", "b", "c", "" with "split with empty delimiter with case sensitivity failed"
+	assert split "abc" at "" without trailing string is "a", "b", "c" with "split with empty delimiter without trailing string failed"
+	assert split "abc" at "" with case sensitivity without trailing string is "a", "b", "c" with "split with empty delimiter with case sensitivity without trailing string failed"
+
+	assert split "-x-X" at "x" is "-", "-", "" with "split with delimiter at end failed"
+	assert split "-x-X" at "x" with case sensitivity is "-", "-X" with "split with delimiter at end with case sensitivity failed"
+	assert split "-x-X" at "x" without trailing string is "-", "-" with "split with delimiter at end without trailing string failed"
+	assert split "-x-X" at "x" with case sensitivity without trailing string is "-", "-X" with "split with delimiter at end with case sensitivity without trailing string failed"
+
+test "split strings on regex":
+	assert regex split "a b c" at " " is "a", "b", "c" with "regex split failed"
+	assert regex split "a b_c" at "( |_)" is "a", "b", "c" with "regex split with regex failed"
+
+	assert regex split "-a-b-c" at "[a-z]" is "-", "-", "-", "" with "regex split with delimiter at end failed"
+	assert regex split "-a-b-c" at "[a-z]" without trailing string is "-", "-", "-" with "regex split with delimiter at end without trailing string failed"

@@ -416,6 +416,7 @@ public class AliasesProvider {
 
 	public void clearAliases() {
 		aliases.clear();
+		materials.clear();
 		variations.clear();
 		aliasesMap.clear();
 	}
