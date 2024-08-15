@@ -27,7 +27,7 @@ import ch.njol.util.Checker;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
@@ -47,8 +47,7 @@ public class ExpressionList<T> implements Expression<T> {
 	protected boolean and;
 	private final boolean single;
 
-	@Nullable
-	private final ExpressionList<?> source;
+	private final @Nullable ExpressionList<?> source;
 
 	public ExpressionList(Expression<? extends T>[] expressions, Class<T> returnType, boolean and) {
 		this(expressions, returnType, and, null);
@@ -89,8 +88,7 @@ public class ExpressionList<T> implements Expression<T> {
 	}
 
 	@Override
-	@Nullable
-	public T getSingle(Event event) {
+	public @Nullable T getSingle(Event event) {
 		if (!single)
 			throw new UnsupportedOperationException();
 		Expression<? extends T> expression = CollectionUtils.getRandom(expressions);
@@ -98,31 +96,30 @@ public class ExpressionList<T> implements Expression<T> {
 	}
 
 	@Override
-	@SuppressWarnings("unchecked")
 	public T[] getArray(Event event) {
 		if (and)
 			return getAll(event);
 		Expression<? extends T> expression = CollectionUtils.getRandom(expressions);
+		//noinspection unchecked
 		return expression != null ? expression.getArray(event) : (T[]) Array.newInstance(returnType, 0);
 	}
 
 	@Override
-	@SuppressWarnings("unchecked")
 	public T[] getAll(Event event) {
 		List<T> values = new ArrayList<>();
 		for (Expression<? extends T> expr : expressions)
 			values.addAll(Arrays.asList(expr.getAll(event)));
+		//noinspection unchecked
 		return values.toArray((T[]) Array.newInstance(returnType, values.size()));
 	}
 
 	@Override
-	@Nullable
-	public Iterator<? extends T> iterator(Event event) {
+	public @Nullable Iterator<? extends T> iterator(Event event) {
 		if (!and) {
 			Expression<? extends T> expression = CollectionUtils.getRandom(expressions);
 			return expression != null ? expression.iterator(event) : null;
 		}
-		return new Iterator<T>() {
+		return new Iterator<>() {
 			private int i = 0;
 			@Nullable
 			private Iterator<? extends T> current = null;
@@ -178,9 +175,8 @@ public class ExpressionList<T> implements Expression<T> {
 	}
 
 	@Override
-	@Nullable
 	@SuppressWarnings("unchecked")
-	public <R> Expression<? extends R> getConvertedExpression(Class<R>... to) {
+	public <R> @Nullable Expression<? extends R> getConvertedExpression(Class<R>... to) {
 		Expression<? extends R>[] exprs = new Expression[expressions.length];
 		Class<?>[] returnTypes = new Class[expressions.length];
 		for (int i = 0; i < exprs.length; i++) {
@@ -215,8 +211,7 @@ public class ExpressionList<T> implements Expression<T> {
 	}
 
 	@Override
-	@Nullable
-	public Class<?>[] acceptChange(ChangeMode mode) {
+	public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
 		Class<?>[] exprClasses = expressions[0].acceptChange(mode);
 		if (exprClasses == null)
 			return null;
@@ -234,7 +229,7 @@ public class ExpressionList<T> implements Expression<T> {
 	}
 
 	@Override
-	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) throws UnsupportedOperationException {
+	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) throws UnsupportedOperationException {
 		for (Expression<?> expr : expressions) {
 			expr.change(event, delta, mode);
 		}

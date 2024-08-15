@@ -1061,7 +1061,7 @@ entities:
 		pattern: salmon(|1¦s)
 	puffer fish:
 		name: puffer fish¦es
-		pattern: puffer fish(|1¦es)
+		pattern: puffer[ ]fish(|1¦es)
 	tropical fish:
 		name: tropical fish¦es
 		pattern: tropical fish(|1¦es)
@@ -2099,8 +2099,10 @@ spawn reasons:
 	natural: natural
 	nether_portal: nether portal
 	ocelot_baby: ocelot baby
+	ominous_item_spawner: ominous item spawner
 	patrol: patrol
 	piglin_zombified: piglin zombification
+	potion_effect: potion effect
 	raid: raid
 	reinforcements: reinforcements
 	sheared: shear, sheared
@@ -2322,7 +2324,7 @@ types:
 	itemstack: item stack¦s @an
 	itementity: dropped item¦s @a # same as entities.dropped item.name
 	biome: biome¦s @a
-	potioneffecttype: potion¦s @a
+	potioneffecttype: potion effect type¦s @a
 	potioneffect: potion effect¦s @a
 	enchantment: enchantment¦s @an
 	damagecause: damage cause¦s @a

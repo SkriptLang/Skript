@@ -50,8 +50,8 @@ import ch.njol.util.StringUtils;
 import ch.njol.util.coll.CollectionUtils;
 import com.google.common.primitives.Booleans;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.eclipse.jdt.annotation.Nullable;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.script.Script;
 import org.skriptlang.skript.lang.script.ScriptWarning;
 
@@ -121,8 +121,7 @@ public class SkriptParser {
 	public static final String WILDCARD = "[^\"]*?(?:\"[^\"]*?\"[^\"]*?)*?";
 
 	public static class ParseResult {
-		@Nullable
-		public SkriptPattern source;
+		public @Nullable SkriptPattern source;
 		public Expression<?>[] exprs;
 		public List<MatchResult> regexes = new ArrayList<>(1);
 		public String expr;
@@ -153,12 +152,11 @@ public class SkriptParser {
 	 * <p>
 	 * Prints errors.
 	 */
-	@Nullable
-	@SuppressWarnings("unchecked")
-	public static <T> Literal<? extends T> parseLiteral(String expr, Class<T> expectedClass, ParseContext context) {
+	public static <T> @Nullable Literal<? extends T> parseLiteral(String expr, Class<T> expectedClass, ParseContext context) {
 		expr = "" + expr.trim();
 		if (expr.isEmpty())
 			return null;
+		//noinspection ReassignedVariable,unchecked
 		return new UnparsedLiteral(expr).getConvertedExpression(context, expectedClass);
 	}
 
@@ -167,15 +165,13 @@ public class SkriptParser {
 	 * <p>
 	 * Can print an error.
 	 */
-	@Nullable
-	public static <T extends SyntaxElement> T parse(String expr, Iterator<? extends SyntaxElementInfo<T>> source, @Nullable String defaultError) {
+	public static <T extends SyntaxElement> @Nullable T parse(String expr, Iterator<? extends SyntaxElementInfo<T>> source, @Nullable String defaultError) {
 		expr = "" + expr.trim();
 		if (expr.isEmpty()) {
 			Skript.error(defaultError);
 			return null;
 		}
-		ParseLogHandler log = SkriptLogger.startParseLogHandler();
-		try {
+		try (ParseLogHandler log = SkriptLogger.startParseLogHandler()) {
 			T element = new SkriptParser(expr).parse(source);
 			if (element != null) {
 				log.printLog();
@@ -183,27 +179,22 @@ public class SkriptParser {
 			}
 			log.printError(defaultError);
 			return null;
-		} finally {
-			log.stop();
 		}
 	}
 
-	@Nullable
-	public static <T extends SyntaxElement> T parseStatic(String expr, Iterator<? extends SyntaxElementInfo<? extends T>> source, @Nullable String defaultError) {
+	public static <T extends SyntaxElement> @Nullable T parseStatic(String expr, Iterator<? extends SyntaxElementInfo<? extends T>> source, @Nullable String defaultError) {
 		return parseStatic(expr, source, ParseContext.DEFAULT, defaultError);
 	}
 
-	@Nullable
-	public static <T extends SyntaxElement> T parseStatic(String expr, Iterator<? extends SyntaxElementInfo<? extends T>> source, ParseContext parseContext, @Nullable String defaultError) {
+	public static <T extends SyntaxElement> @Nullable T parseStatic(String expr, Iterator<? extends SyntaxElementInfo<? extends T>> source, ParseContext parseContext, @Nullable String defaultError) {
 		expr = expr.trim();
 		if (expr.isEmpty()) {
 			Skript.error(defaultError);
 			return null;
 		}
 
-		ParseLogHandler log = SkriptLogger.startParseLogHandler();
 		T element;
-		try {
+		try (ParseLogHandler log = SkriptLogger.startParseLogHandler()) {
 			element = new SkriptParser(expr, PARSE_LITERALS, parseContext).parse(source);
 			if (element != null) {
 				log.printLog();
@@ -211,15 +202,11 @@ public class SkriptParser {
 			}
 			log.printError(defaultError);
 			return null;
-		} finally {
-			log.stop();
 		}
 	}
 
-	@Nullable
-	private <T extends SyntaxElement> T parse(Iterator<? extends SyntaxElementInfo<? extends T>> source) {
-		ParseLogHandler log = SkriptLogger.startParseLogHandler();
-		try {
+	private <T extends SyntaxElement> @Nullable T parse(Iterator<? extends SyntaxElementInfo<? extends T>> source) {
+		try (ParseLogHandler log = SkriptLogger.startParseLogHandler()) {
 			while (source.hasNext()) {
 				SyntaxElementInfo<? extends T> info = source.next();
 				patternsLoop: for (int patternIndex = 0; patternIndex < info.patterns.length; patternIndex++) {
@@ -268,12 +255,10 @@ public class SkriptParser {
 			}
 			log.printError();
 			return null;
-		} finally {
-			log.stop();
 		}
 	}
 
-	private static <T extends SyntaxElement> @NotNull DefaultExpression<?> getDefaultExpression(ExprInfo exprInfo, String pattern) {
+	private static @NotNull DefaultExpression<?> getDefaultExpression(ExprInfo exprInfo, String pattern) {
 		DefaultExpression<?> expr = exprInfo.classes[0].getDefaultExpression();
 		if (expr == null)
 			throw new SkriptAPIException("The class '" + exprInfo.classes[0].getCodeName() + "' does not provide a default expression. Either allow null (with %-" + exprInfo.classes[0].getCodeName() + "%) or make it mandatory [pattern: " + pattern + "]");
@@ -293,8 +278,7 @@ public class SkriptParser {
 	/**
 	 * Prints errors
 	 */
-	@Nullable
-	private static <T> Variable<T> parseVariable(String expr, Class<? extends T>[] returnTypes) {
+	private static <T> @Nullable Variable<T> parseVariable(String expr, Class<? extends T>[] returnTypes) {
 		if (VARIABLE_PATTERN.matcher(expr).matches()) {
 			String variableName = "" + expr.substring(expr.indexOf('{') + 1, expr.lastIndexOf('}'));
 			boolean inExpression = false;
@@ -317,19 +301,18 @@ public class SkriptParser {
 		return null;
 	}
 
-	@Nullable
-	private static Expression<?> parseExpression(Class<?>[] types, String expr) {;
+	private static @Nullable Expression<?> parseExpression(Class<?>[] types, String expr) {;
 		if (expr.startsWith("\"") && expr.length() != 1 && nextQuote(expr, 1) == expr.length() - 1) {
 			return VariableString.newInstance("" + expr.substring(1, expr.length() - 1));
 		} else {
+			//noinspection unchecked,rawtypes
 			return (Expression<?>) parse(expr, (Iterator) Skript.getExpressions(types), null);
 		}
 	}
 
 
-	@Nullable
-	@SuppressWarnings({"unchecked", "rawtypes"})
-	private <T> Expression<? extends T> parseSingleExpr(boolean allowUnparsedLiteral, @Nullable LogEntry error, Class<? extends T>... types) {
+	@SuppressWarnings({"unchecked"})
+	private <T> @Nullable Expression<? extends T> parseSingleExpr(boolean allowUnparsedLiteral, @Nullable LogEntry error, Class<? extends T>... types) {
 		assert types.length > 0;
 		assert types.length == 1 || !CollectionUtils.contains(types, Object.class);
 		if (expr.isEmpty())
@@ -339,8 +322,7 @@ public class SkriptParser {
 					expr.startsWith("(") && expr.endsWith(")") &&
 					next(expr, 0, context) == expr.length())
 			return new SkriptParser(this, "" + expr.substring(1, expr.length() - 1)).parseSingleExpr(allowUnparsedLiteral, error, types);
-		ParseLogHandler log = SkriptLogger.startParseLogHandler();
-		try {
+		try (ParseLogHandler log = SkriptLogger.startParseLogHandler()) {
 			if (context == ParseContext.DEFAULT || context == ParseContext.EVENT) {
 				Variable<? extends T> parsedVariable = parseVariable(expr, types);
 				if (parsedVariable != null) {
@@ -358,6 +340,7 @@ public class SkriptParser {
 				FunctionReference<T> functionReference = parseFunction(types);
 				if (functionReference != null) {
 					log.printLog();
+					//noinspection rawtypes
 					return new ExprFunctionCall(functionReference);
 				} else if (log.hasError()) {
 					log.printError();
@@ -414,13 +397,10 @@ public class SkriptParser {
 			}
 			log.printError();
 			return null;
-		} finally {
-			log.stop();
 		}
 	}
 
-	@Nullable
-	private Expression<?> parseSingleExpr(boolean allowUnparsedLiteral, @Nullable LogEntry error, ExprInfo exprInfo) {
+	private @Nullable Expression<?> parseSingleExpr(boolean allowUnparsedLiteral, @Nullable LogEntry error, ExprInfo exprInfo) {
 		if (expr.isEmpty()) // Empty expressions return nothing, obviously
 			return null;
 
@@ -430,8 +410,7 @@ public class SkriptParser {
 					expr.startsWith("(") && expr.endsWith(")") &&
 					next(expr, 0, context) == expr.length())
 			return new SkriptParser(this, "" + expr.substring(1, expr.length() - 1)).parseSingleExpr(allowUnparsedLiteral, error, exprInfo);
-		ParseLogHandler log = SkriptLogger.startParseLogHandler();
-		try {
+		try (ParseLogHandler log = SkriptLogger.startParseLogHandler()) {
 			// Construct types array which contains all potential classes
 			Class<?>[] types = new Class[exprInfo.classes.length]; // This may contain nulls!
 			boolean hasSingular = false;
@@ -614,8 +593,6 @@ public class SkriptParser {
 			}
 			log.printError();
 			return null;
-		} finally {
-			log.stop();
 		}
 	}
 
@@ -637,13 +614,12 @@ public class SkriptParser {
 		return this;
 	}
 
-	@Nullable
 	@SuppressWarnings("unchecked")
-	public <T> Expression<? extends T> parseExpression(Class<? extends T>... types) {
+	public <T> @Nullable Expression<? extends T> parseExpression(Class<? extends T>... types) {
 		if (expr.length() == 0)
 			return null;
 
-		assert types != null && types.length > 0;
+		assert types.length > 0;
 		assert types.length == 1 || !CollectionUtils.contains(types, Object.class);
 
 		ParseLogHandler log = SkriptLogger.startParseLogHandler();
@@ -661,8 +637,7 @@ public class SkriptParser {
 		}
 	}
 
-	@Nullable
-	private <T> Expression<? extends T> parseExpressionList(ParseLogHandler log, Class<? extends T>... types) {
+	private <T> @Nullable Expression<? extends T> parseExpressionList(ParseLogHandler log, Class<? extends T>... types) {
 		boolean isObject = types.length == 1 && types[0] == Object.class;
 		List<Expression<? extends T>> parsedExpressions = new ArrayList<>();
 		Kleenean and = Kleenean.UNKNOWN;
@@ -769,14 +744,12 @@ public class SkriptParser {
 		}
 	}
 
-	@Nullable
-	public Expression<?> parseExpression(ExprInfo exprInfo) {
+	public @Nullable Expression<?> parseExpression(ExprInfo exprInfo) {
 		if (expr.length() == 0)
 			return null;
 
 		boolean isObject = exprInfo.classes.length == 1 && exprInfo.classes[0].getC() == Object.class;
-		ParseLogHandler log = SkriptLogger.startParseLogHandler();
-		try {
+		try (ParseLogHandler log = SkriptLogger.startParseLogHandler()) {
 			// Attempt to parse a single expression
 			Expression<?> parsedExpression = parseSingleExpr(true, null, exprInfo);
 			if (parsedExpression != null) {
@@ -900,8 +873,6 @@ public class SkriptParser {
 				return new ExpressionList(expressions, Classes.getSuperClassInfo(exprReturnTypes).getC(), exprReturnTypes, !and.isFalse());
 
 			}
-		} finally {
-			log.stop();
 		}
 	}
 
@@ -911,14 +882,12 @@ public class SkriptParser {
 	 * @param types The required return type or null if it is not used (e.g. when calling a void function)
 	 * @return The parsed function, or null if the given expression is not a function call or is an invalid function call (check for an error to differentiate these two)
 	 */
-	@Nullable
 	@SuppressWarnings("unchecked")
-	public <T> FunctionReference<T> parseFunction(@Nullable Class<? extends T>... types) {
+	public <T> @Nullable FunctionReference<T> parseFunction(@Nullable Class<? extends T>... types) {
 		if (context != ParseContext.DEFAULT && context != ParseContext.EVENT)
 			return null;
-		ParseLogHandler log = SkriptLogger.startParseLogHandler();
 		AtomicBoolean unaryArgument = new AtomicBoolean(false);
-		try {
+		try (ParseLogHandler log = SkriptLogger.startParseLogHandler()) {
 			Matcher matcher = FUNCTION_CALL_PATTERN.matcher(expr);
 			if (!matcher.matches()) {
 				log.printLog();
@@ -973,8 +942,6 @@ public class SkriptParser {
 			}
 			log.printLog();
 			return functionReference;
-		} finally {
-			log.stop();
 		}
 	}
 
@@ -1026,8 +993,7 @@ public class SkriptParser {
 	 * <p>
 	 * Prints parse errors (i.e. must start a ParseLog before calling this method)
 	 */
-	@Nullable
-	public static ParseResult parse(String text, String pattern) {
+	public static @Nullable ParseResult parse(String text, String pattern) {
 		return new SkriptParser(text, PARSE_LITERALS, ParseContext.COMMAND).parse_i(pattern);
 	}
 
@@ -1036,8 +1002,7 @@ public class SkriptParser {
 	 * <p>
 	 * Prints parse errors (i.e. must start a ParseLog before calling this method)
 	 */
-	@Nullable
-	public static ParseResult parse(String text, String pattern, int parseFlags, ParseContext parseContext) {
+	public static @Nullable ParseResult parse(String text, String pattern, int parseFlags, ParseContext parseContext) {
 		return new SkriptParser(text, parseFlags, parseContext).parse_i(pattern);
 	}
 
@@ -1046,8 +1011,7 @@ public class SkriptParser {
 	 * <p>
 	 * Prints parse errors (i.e. must start a ParseLog before calling this method)
 	 */
-	@Nullable
-	public static ParseResult parse(String text, SkriptPattern pattern, int parseFlags, ParseContext parseContext) {
+	public static @Nullable ParseResult parse(String text, SkriptPattern pattern, int parseFlags, ParseContext parseContext) {
 		return parse(text, pattern.toString(), parseFlags, parseContext);
 	}
 
@@ -1317,8 +1281,7 @@ public class SkriptParser {
 
 	private static final Map<String, SkriptPattern> patterns = new ConcurrentHashMap<>();
 
-	@Nullable
-	private ParseResult parse_i(String pattern) {
+	private @Nullable ParseResult parse_i(String pattern) {
 		SkriptPattern skriptPattern = patterns.computeIfAbsent(pattern, PatternCompiler::compile);
 		ch.njol.skript.patterns.MatchResult matchResult = skriptPattern.match(expr, flags, context);
 		if (matchResult == null)
@@ -1332,8 +1295,7 @@ public class SkriptParser {
 	 * @param pattern The pattern string to validate
 	 * @return The pattern with %codenames% and a boolean array that contains whether the expressions are plural or not
 	 */
-	@Nullable
-	public static NonNullPair<String, NonNullPair<ClassInfo<?>, Boolean>[]> validatePattern(String pattern) {
+	public static @Nullable NonNullPair<String, NonNullPair<ClassInfo<?>, Boolean>[]> validatePattern(String pattern) {
 		List<NonNullPair<ClassInfo<?>, Boolean>> pairs = new ArrayList<>();
 		int groupLevel = 0, optionalLevel = 0;
 		Deque<Character> groups = new LinkedList<>();
@@ -1400,8 +1362,7 @@ public class SkriptParser {
 		return new NonNullPair<>(stringBuilder.toString(), pairs.toArray(new NonNullPair[0]));
 	}
 
-	@Nullable
-	private static NonNullPair<String, NonNullPair<ClassInfo<?>, Boolean>[]> error(final String error) {
+	private static @Nullable NonNullPair<String, NonNullPair<ClassInfo<?>, Boolean>[]> error(final String error) {
 		Skript.error("Invalid pattern: " + error);
 		return null;
 	}

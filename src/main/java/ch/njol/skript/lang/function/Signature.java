@@ -19,8 +19,8 @@
 package ch.njol.skript.lang.function;
 
 import ch.njol.skript.classes.ClassInfo;
-import org.eclipse.jdt.annotation.Nullable;
 import ch.njol.skript.util.Contract;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -56,8 +56,7 @@ public class Signature<T> {
 	 * is null. void is never used as return type, because it is not registered
 	 * to Skript's type system.
 	 */
-	@Nullable
-	final ClassInfo<T> returnType;
+	final @Nullable ClassInfo<T> returnType;
 	
 	/**
 	 * Whether this function returns a single value, or multiple ones.
@@ -73,14 +72,12 @@ public class Signature<T> {
 	/**
 	 * The class path for the origin of this signature.
 	 */
-	@Nullable
-	final String originClassPath;
+	final @Nullable String originClassPath;
 
 	/**
 	 * An overriding contract for this function (e.g. to base its return on its arguments).
 	 */
-	@Nullable
-	final Contract contract;
+	final @Nullable Contract contract;
 
 	public Signature(String script,
 					 String name,
@@ -131,8 +128,7 @@ public class Signature<T> {
 		return local;
 	}
 
-	@Nullable
-	public ClassInfo<T> getReturnType() {
+	public @Nullable ClassInfo<T> getReturnType() {
 		return returnType;
 	}
 	
@@ -144,8 +140,7 @@ public class Signature<T> {
 		return originClassPath;
 	}
 
-	@Nullable
-	public Contract getContract() {
+	public @Nullable Contract getContract() {
 		return contract;
 	}
 
