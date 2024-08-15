@@ -70,7 +70,7 @@ task build(overwrite: true, type: ShadowJar) {
 	from sourceSets.main.output
 }
 
-// Excludes the tests for the build task. Should be using junit, junitJava17, junitJava11, skriptTest, quickTest.
+// Excludes the tests for the build task. Should be using junit, junitJava17, skriptTest, quickTest.
 // We do not want tests to run for building. That's time consuming and annoying. Especially in development.
 test {
 	exclude '**/*'
@@ -233,11 +233,10 @@ void createTestTask(String name, String desc, String environments, int javaVersi
 
 def java21 = 21
 def java17 = 17
-def java11 = 11
 
 def latestEnv = 'java21/paper-1.21.0.json'
 def latestJava = java21
-def oldestJava = java11
+def oldestJava = java17
 
 def latestJUnitEnv = 'java17/paper-1.20.4.json'
 def latestJUnitJava = java17
@@ -260,14 +259,13 @@ int envJava = project.property('testEnvJavaVersion') == null ? latestJava : Inte
 createTestTask('quickTest', 'Runs tests on one environment being the latest supported Java and Minecraft.', environments + latestEnv, latestJava, 0)
 createTestTask('skriptTestJava21', 'Runs tests on all Java 21 environments.', environments + 'java21', java21, 0)
 createTestTask('skriptTestJava17', 'Runs tests on all Java 17 environments.', environments + 'java17', java17, 0)
-createTestTask('skriptTestJava11', 'Runs tests on all Java 11 environments.', environments + 'java11', java11, 0)
 createTestTask('skriptTestDev', 'Runs testing server and uses \'system.in\' for command input, stop server to finish.', environments + env, envJava, 0, Modifiers.DEV_MODE, Modifiers.DEBUG)
 createTestTask('skriptProfile', 'Starts the testing server with JProfiler support.', environments + latestEnv, latestJava, -1, Modifiers.PROFILE)
 createTestTask('genNightlyDocs', 'Generates the Skript documentation website html files.', environments + env, envJava, 0, Modifiers.GEN_NIGHTLY_DOCS)
 createTestTask('genReleaseDocs', 'Generates the Skript documentation website html files for a release.', environments + env, envJava, 0, Modifiers.GEN_RELEASE_DOCS)
 tasks.register('skriptTest') {
 	description = 'Runs tests on all environments.'
-	dependsOn skriptTestJava11, skriptTestJava17, skriptTestJava21
+	dependsOn skriptTestJava17, skriptTestJava21
 }
 
 createTestTask('JUnitQuick', 'Runs JUnit tests on one environment being the latest supported Java and Minecraft.', environments + latestJUnitEnv, latestJUnitJava, 0, Modifiers.JUNIT)
@@ -275,10 +273,9 @@ createTestTask('JUnitQuick', 'Runs JUnit tests on one environment being the late
 // However, we are currently using 5.0.1 (see https://github.com/SkriptLang/Skript/pull/6204#discussion_r1405302009)
 //createTestTask('JUnitJava21', 'Runs JUnit tests on all Java 21 environments.', environments + 'java21', java21, 0, Modifiers.JUNIT)
 createTestTask('JUnitJava17', 'Runs JUnit tests on all Java 17 environments.', environments + 'java17', java17, 0, Modifiers.JUNIT)
-createTestTask('JUnitJava11', 'Runs JUnit tests on all Java 11 environments.', environments + 'java11', java11, 0, Modifiers.JUNIT)
 tasks.register('JUnit') {
 	description = 'Runs JUnit tests on all environments.'
-	dependsOn JUnitJava11, JUnitJava17//, JUnitJava21
+	dependsOn JUnitJava17//, JUnitJava21
 }
 
 // Build flavor configurations
