@@ -1,0 +1,39 @@
+test "item is of type condition":
+	assert stone is of type stone with "stone isn't of type stone"
+	assert 12 stone is of type stone with "12 stone isn't of type stone"
+	assert stone named "test" is of type stone with "named stone isn't of type stone"
+	assert stone is of type plain stone with "stone isn't of type plain stone"
+
+	assert diamond sword of sharpness is of type diamond sword with "enchanted diamond sword isn't of type diamond sword"
+	assert stone sword is of type sword with "stone sword isn't of type sword"
+
+	assert gold sword of smite named "test" is not of type iron sword with "enchanted named gold sword is of type iron sword"
+
+	assert armor stand is of type armor stand with "armor stand isn't of type armor stand"
+	assert 12 armor stand is of type 1 armor stand with "12 armor stand isn't of type 1 armor stand"
+	assert armor stand named "test" is of type armor stand with "named armor stand isn't of type armor stand"
+
+	assert ender pearl is of type ender pearl with "ender pearl isn't of type ender pearl"
+	assert ender pearl is of type plain ender pearl with "ender pearl isn't of type plain ender pearl"
+
+test "entity is of type condition":
+    spawn zombie at spawn of "world"
+    assert last spawned zombie is of type zombie with "zombie isn't of type zombie"
+    assert last spawned zombie is not of type ghast with "zombie isn't of type ghast"
+    set {_zombie} to last spawned zombie
+    assert {_zombie} is of type zombie with "zombie in a variable isn't of type zombie"
+    delete last spawned zombie
+
+    spawn armor stand at spawn of "world"
+    assert last spawned armor stand is of type armor stand with "armor stand isn't of type armor stand"
+    assert last spawned armor stand is not of type ghast with "armor stand isn't of type ghast"
+    set {_armor-stand} to last spawned armor stand
+    assert {_armor-stand} is of type armor stand with "armor stand in a variable isn't of type armor stand"
+    delete last spawned armor stand
+
+    spawn enderpearl at spawn of "world"
+    assert last spawned enderpearl is of type ender pearl with "enderpearl isn't of type enderpearl"
+    assert last spawned enderpearl is not of type ghast with "enderpearl isn't of type ghast"
+    set {_enderpearl} to last spawned enderpearl
+    assert {_enderpearl} is of type ender pearl with "enderpearl in a variable isn't of type enderpearl"
+    delete last spawned enderpearl
