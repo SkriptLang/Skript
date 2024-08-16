@@ -1,25 +1,8 @@
-/**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
-package ch.njol.skript.entity;
+package org.skriptlang.skript.bukkit.displays;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.ItemType;
+import ch.njol.skript.entity.EntityData;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.registrations.Classes;
@@ -44,10 +27,8 @@ public class DisplayData extends EntityData<Display> {
 	public static final Color DEFAULT_BACKGROUND_COLOR = ColorRGB.fromRGBA(0, 0, 0, 64).asBukkitColor();
 
 	static {
-		if (Skript.isRunningMinecraft(1, 19, 4)) {
-			EntityData.register(DisplayData.class, "display", Display.class, 0, DisplayType.codeNames);
-			Variables.yggdrasil.registerSingleClass(DisplayType.class, "DisplayType");
-		}
+		EntityData.register(DisplayData.class, "display", Display.class, 0, DisplayType.codeNames);
+		Variables.yggdrasil.registerSingleClass(DisplayType.class, "DisplayType");
 	}
 
 	private enum DisplayType {

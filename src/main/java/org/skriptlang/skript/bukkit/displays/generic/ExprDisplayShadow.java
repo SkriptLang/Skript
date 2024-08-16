@@ -1,10 +1,9 @@
-package org.skriptlang.skript.bukkit.displays.expressions;
+package org.skriptlang.skript.bukkit.displays.generic;
 
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
-import ch.njol.skript.doc.RequiredPlugins;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import ch.njol.skript.lang.Expression;
@@ -15,40 +14,34 @@ import org.bukkit.entity.Display;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
-@Name("Display Height/Width")
-@Description({
-	"Returns or changes the height or width of <a href='classes.html#display'>displays</a>.",
-	"The rendering culling bounding box spans horizontally width/2 from entity position, " +
-	"which determines the point at which the display will be frustum culled (no longer rendered because the game " +
-	"determines you are no longer able to see it).",
-	"If set to 0, no culling will occur on both the vertical and horizontal directions. Default is 0.0."
-})
-@Examples("set display height of the last spawned text display to 2.5")
-@RequiredPlugins("Spigot 1.19.4+")
+@Name("Display Shadow Radius/Strength")
+@Description("Returns or changes the shadow radius/strength of <a href='classes.html#display'>displays</a>.")
+@Examples("set shadow radius of the last spawned text display to 1.75")
 @Since("INSERT VERSION")
-public class ExprDisplayHeightWidth extends SimplePropertyExpression<Display, Float> {
+public class ExprDisplayShadow extends SimplePropertyExpression<Display, Float> {
 
 	static {
-		registerDefault(ExprDisplayHeightWidth.class, Float.class, "display (:height|width)", "displays");
+		registerDefault(ExprDisplayShadow.class, Float.class, "shadow (:radius|strength)", "displays");
 	}
 
-	private boolean height;
+	private boolean radius;
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		height = parseResult.hasTag("height");
+		radius = parseResult.hasTag("radius");
 		return super.init(exprs, matchedPattern, isDelayed, parseResult);
 	}
 
 	@Override
 	@Nullable
 	public Float convert(Display display) {
-		return height ? display.getDisplayHeight() : display.getDisplayWidth();
+		return radius ? display.getShadowRadius() : display.getShadowStrength();
 	}
 
 	public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
 		return switch (mode) {
-			case ADD, REMOVE, RESET, SET -> CollectionUtils.array(Number.class);
+			case ADD, SET, REMOVE -> CollectionUtils.array(Number.class);
+			case RESET -> CollectionUtils.array();
 			case DELETE, REMOVE_ALL -> null;
 		};
 	}
@@ -56,33 +49,33 @@ public class ExprDisplayHeightWidth extends SimplePropertyExpression<Display, Fl
 	@Override
 	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
 		Display[] displays = getExpr().getArray(event);
-
 		float change = delta == null ? 0F : ((Number) delta[0]).floatValue();
 		if (Float.isInfinite(change) || Float.isNaN(change))
 			return;
-
 		switch (mode) {
 			case REMOVE:
 				change = -change;
 			case ADD:
 				for (Display display : displays) {
-					if (height) {
-						float value = Math.max(0F, display.getDisplayHeight() + change);
-						display.setDisplayHeight(value);
+					if (radius) {
+						float value = Math.max(0F, display.getShadowRadius() + change);
+						display.setShadowRadius(value);
 					} else {
-						float value = Math.max(0F, display.getDisplayWidth() + change);
-						display.setDisplayWidth(value);
+						float value = Math.max(0F, display.getShadowStrength() + change);
+						display.setShadowStrength(value);
 					}
 				}
 				break;
 			case RESET:
+				if (!radius)
+					change = 1; // default strength is 1
 			case SET:
 				change = Math.max(0F, change);
 				for (Display display : displays) {
-					if (height) {
-						display.setDisplayHeight(change);
+					if (radius) {
+						display.setShadowRadius(change);
 					} else {
-						display.setDisplayWidth(change);
+						display.setShadowStrength(change);
 					}
 				}
 				break;
@@ -96,7 +89,7 @@ public class ExprDisplayHeightWidth extends SimplePropertyExpression<Display, Fl
 
 	@Override
 	protected String getPropertyName() {
-		return height ? "height" : "width";
+		return radius ? "radius" : "strength";
 	}
 
 }

@@ -107,23 +107,22 @@ public class EffRotate extends Effect {
 			float radY = (float) (y.floatValue() * Math.PI / 180);
 			float radZ = (float) (z.floatValue() * Math.PI / 180);
 
-			toRotate.stream(event)
-				.forEach(object -> {
-					if (object instanceof Quaternionf quaternion) {
-						quaternion.rotateZYX(radZ, radY, radX);
-					} else if (object instanceof Display display) {
-						Transformation transformation = display.getTransformation();
-						Quaternionf leftRotation = transformation.getLeftRotation();
-						display.setTransformation(
-							new Transformation(
-								transformation.getTranslation(),
-								leftRotation.rotateZYX(radZ, radY, radX),
-								transformation.getScale(),
-								transformation.getRightRotation()
-							)
-						);
-					}
-				});
+			for (Object object : toRotate.getArray(event)) {
+				if (object instanceof Quaternionf quaternion) {
+					quaternion.rotateZYX(radZ, radY, radX);
+				} else if (object instanceof Display display) {
+					Transformation transformation = display.getTransformation();
+					Quaternionf leftRotation = transformation.getLeftRotation();
+					display.setTransformation(
+						new Transformation(
+							transformation.getTranslation(),
+							leftRotation.rotateZYX(radZ, radY, radX),
+							transformation.getScale(),
+							transformation.getRightRotation()
+						)
+					);
+				}
+			}
 			return;
 		}
 
@@ -155,16 +154,15 @@ public class EffRotate extends Effect {
 			displayRotator = new DisplayRotator(axis, (float) radAngle);
 		}
 
-		toRotate.stream(event)
-			.forEach(object -> {
-				if (object instanceof Vector vectorToRotate) {
-					vectorRotator.rotate(vectorToRotate);
-				} else if (object instanceof Quaternionf quaternion) {
-					quaternionRotator.rotate(quaternion);
-				} else if (object instanceof Display display) {
-					displayRotator.rotate(display);
-				}
-			});
+		for (Object object : toRotate.getArray(event)) {
+			if (object instanceof Vector vectorToRotate) {
+				vectorRotator.rotate(vectorToRotate);
+			} else if (object instanceof Quaternionf quaternion) {
+				quaternionRotator.rotate(quaternion);
+			} else if (object instanceof Display display) {
+				displayRotator.rotate(display);
+			}
+		}
 	}
 
 	@Override

@@ -1,4 +1,4 @@
-package org.skriptlang.skript.bukkit.displays.expressions;
+package org.skriptlang.skript.bukkit.displays.generic;
 
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
