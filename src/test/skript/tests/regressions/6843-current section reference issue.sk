@@ -1,0 +1,9 @@
+test "outdated current section references":
+	parse:
+		loop {_list::*}:
+			spawn a sheep at {_loc}:
+				set {_e} to event-entity
+		loop {_list::*}:
+			set {_var} to loop-value
+			set {_var} to loop-value-1
+	assert last parse logs is not set with "loop-value and loop-value-1 should've worked"

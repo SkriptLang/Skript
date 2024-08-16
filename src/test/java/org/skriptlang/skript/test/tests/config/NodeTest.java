@@ -47,6 +47,7 @@ public class NodeTest {
 				{"#########", "", "#########"},
 				{"a##b#c##d#e", "a#b", "#c##d#e"},
 				{" a ## b # c ## d # e ", " a # b ", "# c ## d # e "},
+				{"a b \"#a  ##\" # b \"", "a b \"#a  ##\" ", "# b \""},
 		};
 		for (String[] d : data) {
 			NonNullPair<String, String> p = Node.splitLine(d[0]);
