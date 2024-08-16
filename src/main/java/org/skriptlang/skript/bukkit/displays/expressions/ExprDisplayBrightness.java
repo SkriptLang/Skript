@@ -5,7 +5,6 @@ import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
-import ch.njol.skript.doc.RequiredPlugins;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
@@ -39,15 +38,13 @@ import java.util.List;
 	"if sky light level override of {_display} is 5:",
 		"\tclear brightness override of {_display}"
 })
-@RequiredPlugins("Spigot 1.19.4+")
 @Since("INSERT VERSION")
 public class ExprDisplayBrightness extends SimpleExpression<Integer> {
 
 	static {
-		if (Skript.isRunningMinecraft(1, 19, 4))
-			Skript.registerExpression(ExprDisplayBrightness.class, Integer.class, ExpressionType.PROPERTY,
-					"[the] [:block|:sky] (light [level]|brightness) override[s] of %displays%",
-					"%displays%'[s] [:block|:sky] (light [level]|brightness) override[s]");
+		Skript.registerExpression(ExprDisplayBrightness.class, Integer.class, ExpressionType.PROPERTY,
+				"[the] [:block|:sky] (light [level]|brightness) override[s] of %displays%",
+				"%displays%'[s] [:block|:sky] (light [level]|brightness) override[s]");
 	}
 
 	private @UnknownNullability Expression<Display> displays;

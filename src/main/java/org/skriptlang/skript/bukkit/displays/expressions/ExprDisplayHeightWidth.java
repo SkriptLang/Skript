@@ -1,10 +1,5 @@
 package org.skriptlang.skript.bukkit.displays.expressions;
 
-import org.bukkit.entity.Display;
-import org.bukkit.event.Event;
-import org.jetbrains.annotations.Nullable;
-
-import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
@@ -16,6 +11,9 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
+import org.bukkit.entity.Display;
+import org.bukkit.event.Event;
+import org.jetbrains.annotations.Nullable;
 
 @Name("Display Height/Width")
 @Description({
@@ -31,8 +29,7 @@ import ch.njol.util.coll.CollectionUtils;
 public class ExprDisplayHeightWidth extends SimplePropertyExpression<Display, Float> {
 
 	static {
-		if (Skript.isRunningMinecraft(1, 19, 4))
-			registerDefault(ExprDisplayHeightWidth.class, Float.class, "display (:height|width)", "displays");
+		registerDefault(ExprDisplayHeightWidth.class, Float.class, "display (:height|width)", "displays");
 	}
 
 	private boolean height;

@@ -1,19 +1,16 @@
 package org.skriptlang.skript.bukkit.displays.expressions;
 
-import org.bukkit.entity.Display;
-import org.bukkit.entity.Display.Billboard;
-import org.bukkit.event.Event;
-import org.jetbrains.annotations.Nullable;
-
-import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
-import ch.njol.skript.doc.RequiredPlugins;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import ch.njol.util.coll.CollectionUtils;
+import org.bukkit.entity.Display;
+import org.bukkit.entity.Display.Billboard;
+import org.bukkit.event.Event;
+import org.jetbrains.annotations.Nullable;
 
 @Name("Display Billboard")
 @Description({
@@ -22,13 +19,11 @@ import ch.njol.util.coll.CollectionUtils;
 	"Displays spawn with the default setting as 'fixed'. Resetting this expression will also set it to 'fixed'."
 })
 @Examples("set billboard of the last spawned text display to center")
-@RequiredPlugins("Spigot 1.19.4+")
 @Since("INSERT VERSION")
 public class ExprDisplayBillboard extends SimplePropertyExpression<Display, Billboard> {
 
 	static {
-		if (Skript.isRunningMinecraft(1, 19, 4))
-			registerDefault(ExprDisplayBillboard.class, Billboard.class, "bill[ |-]board[ing] [setting]", "displays");
+		registerDefault(ExprDisplayBillboard.class, Billboard.class, "bill[ |-]board[ing] [setting]", "displays");
 	}
 
 	@Override

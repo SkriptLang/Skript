@@ -35,7 +35,7 @@ dependencies {
 	// Comes from Minecraft including Guava or Gson
 	implementation group: 'com.google.code.findbugs', name: 'findbugs', version: '3.0.1'
 
-	// bundled with Minecraft 1.19.4+
+	// bundled with Minecraft 1.19.4+ for display entity transforms
 	implementation group: 'org.joml', name: 'joml', version: '1.10.5'
 
 	// Plugin hook libraries

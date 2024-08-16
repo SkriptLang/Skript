@@ -36,7 +36,7 @@ import org.joml.Quaternionf;
 public class ExprQuaternionAxisAngle extends SimplePropertyExpression<Quaternionf, Object> {
 
 	static {
-		if (Skript.isRunningMinecraft(1, 19, 4))
+		if (Skript.classExists("org.joml.Quaternionf"))
 			register(ExprQuaternionAxisAngle.class, Object.class, "rotation (angle|:axis)", "quaternions");
 	}
 

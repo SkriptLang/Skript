@@ -643,7 +643,7 @@ public class DefaultFunctions {
 				"concat(\"foo \", 100, \" bar\") # foo 100 bar"
 			).since("2.9.0");
 
-		// display entities
+		// joml functions - for display entities
 		{
 			if (Skript.classExists("org.joml.Quaternionf")) {
 				Functions.registerFunction(new SimpleJavaFunction<>("quaternion", new Parameter[]{
@@ -685,7 +685,7 @@ public class DefaultFunctions {
 					.examples("axisangle(90, (vector from player's facing))")
 					.since("INSERT VERSION");
 			}
-		}// end display entities
+		} // end joml functions
 
 	}
 

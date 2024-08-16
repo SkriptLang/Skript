@@ -631,11 +631,12 @@ public class JavaClasses {
 					}
 				}));
 
+		// joml type - for display entities
 		if (Skript.classExists("org.joml.Quaternionf"))
 			Classes.registerClass(new ClassInfo<>(Quaternionf.class, "quaternion")
 					.user("quaternionf?s?")
 					.name("Quaternion")
-					.description("Quaternions are used for representing x y z while having w representing the scale. All four numbers are real.")
+					.description("Quaternions are four dimensional vectors, often used for representing rotations.")
 					.since("INSERT VERSION")
 					.parser(new Parser<>() {
 						public boolean canParse(ParseContext context) {

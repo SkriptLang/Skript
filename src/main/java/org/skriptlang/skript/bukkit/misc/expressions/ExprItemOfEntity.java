@@ -1,10 +1,8 @@
 package org.skriptlang.skript.bukkit.misc.expressions;
 
-import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
-import ch.njol.skript.doc.RequiredPlugins;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import ch.njol.skript.util.slot.DisplayEntitySlot;
@@ -33,11 +31,8 @@ import org.jetbrains.annotations.Nullable;
 	"set the item inside of event-entity to a diamond sword named \"Example\""
 })
 @Since("2.2-dev35, 2.2-dev36 (improved), 2.5.2 (throwable projectiles)")
-@RequiredPlugins("Minecraft 1.15.2+ (throwable projectiles), 1.19.4+ (displays)")
 public class ExprItemOfEntity extends SimplePropertyExpression<Entity, Slot> {
 
-	private static final boolean PROJECTILE_SUPPORT = Skript.classExists("org.bukkit.entity.ThrowableProjectile");
-	private static final boolean DISPLAYS_SUPPORT = Skript.classExists("org.bukkit.entity.ItemDisplay");
 
 	static {
 		register(ExprItemOfEntity.class, Slot.class, "[the] item [inside]", "entities");
@@ -49,9 +44,9 @@ public class ExprItemOfEntity extends SimplePropertyExpression<Entity, Slot> {
 			return new ItemFrameSlot((ItemFrame) entity);
 		} else if (entity instanceof Item) {
 			return new DroppedItemSlot((Item) entity);
-		} else if (PROJECTILE_SUPPORT && entity instanceof ThrowableProjectile) {
+		} else if (entity instanceof ThrowableProjectile) {
 			return new ThrowableProjectileSlot((ThrowableProjectile) entity);
-		} else if (DISPLAYS_SUPPORT && entity instanceof ItemDisplay) {
+		} else if (entity instanceof ItemDisplay) {
 			return new DisplayEntitySlot((ItemDisplay) entity);
 		}
 		return null; // Other entities don't have associated items

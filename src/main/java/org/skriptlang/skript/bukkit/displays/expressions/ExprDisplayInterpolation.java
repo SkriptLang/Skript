@@ -1,11 +1,9 @@
 package org.skriptlang.skript.bukkit.displays.expressions;
 
-import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
-import ch.njol.skript.doc.RequiredPlugins;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import ch.njol.skript.lang.Expression;
@@ -27,13 +25,11 @@ import org.jetbrains.annotations.Nullable;
 	"Resetting either value will return that value to 0."
 })
 @Examples("set interpolation delay of the last spawned text display to 2 ticks")
-@RequiredPlugins("Spigot 1.19.4+")
 @Since("INSERT VERSION")
 public class ExprDisplayInterpolation extends SimplePropertyExpression<Display, Timespan> {
 
 	static {
-		if (Skript.isRunningMinecraft(1, 19, 4))
-			registerDefault(ExprDisplayInterpolation.class, Timespan.class, "interpolation (:delay|duration)[s]", "displays");
+		registerDefault(ExprDisplayInterpolation.class, Timespan.class, "interpolation (:delay|duration)[s]", "displays");
 	}
 
 	private boolean delay;

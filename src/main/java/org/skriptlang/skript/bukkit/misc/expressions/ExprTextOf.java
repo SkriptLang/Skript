@@ -32,7 +32,7 @@ public class ExprTextOf extends SimplePropertyExpression<Object, String> {
 
 	static {
 		String types = "";
-		if (Skript.isRunningMinecraft(1, 19, 4)) {
+		if (Skript.classExists("org.bukkit.entity.Display")) {
 			serializer = BungeeComponentSerializer.get();
 			types += "displays";
 		}

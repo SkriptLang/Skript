@@ -111,6 +111,7 @@ import org.jetbrains.annotations.UnknownNullability;
 import org.junit.After;
 import org.junit.runner.JUnitCore;
 import org.junit.runner.Result;
+import org.skriptlang.skript.bukkit.displays.DisplayModule;
 import org.skriptlang.skript.lang.comparator.Comparator;
 import org.skriptlang.skript.lang.comparator.Comparators;
 import org.skriptlang.skript.lang.converter.Converter;
@@ -556,7 +557,9 @@ public final class Skript extends JavaPlugin implements Listener {
 		try {
 			getAddonInstance().loadClasses("ch.njol.skript",
 				"conditions", "effects", "events", "expressions", "entity", "sections", "structures");
-			getAddonInstance().loadClasses("org.skriptlang.skript.bukkit", "displays", "misc");
+			getAddonInstance().loadClasses("org.skriptlang.skript.bukkit", "misc");
+			// todo: become proper module once registry api is merged
+			DisplayModule.load();
 		} catch (final Exception e) {
 			exception(e, "Could not load required .class files: " + e.getLocalizedMessage());
 			setEnabled(false);

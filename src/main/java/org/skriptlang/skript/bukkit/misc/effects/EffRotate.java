@@ -1,4 +1,4 @@
-package ch.njol.skript.effects;
+package org.skriptlang.skript.bukkit.misc.effects;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
@@ -169,23 +169,19 @@ public class EffRotate extends Effect {
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		switch (matchedPattern) {
-			case 0, 1:
-				return "rotate " + toRotate.toString(event, debug) +
+		return switch (matchedPattern) {
+			case 0, 1 -> "rotate " + toRotate.toString(event, debug) +
 					" around the " + axis + "-axis " +
 					"by " + angle.toString(event, debug) + " degrees";
-			case 2:
-				return "rotate " + toRotate.toString(event, debug) +
+			case 2 -> "rotate " + toRotate.toString(event, debug) +
 					" around " + vector.toString(event, debug) + "-axis " +
 					"by " + angle.toString(event, debug) + " degrees";
-			case 3:
-				return "rotate " + toRotate.toString(event, debug) +
+			case 3 -> "rotate " + toRotate.toString(event, debug) +
 					" by x " + x.toString(event, debug) + ", " +
 					"y " + y.toString(event, debug) + ", " +
 					"and z " + z.toString(event, debug);
-		}
-		assert false;
-		return "invalid";
+			default -> "invalid";
+		};
 	}
 
 }
