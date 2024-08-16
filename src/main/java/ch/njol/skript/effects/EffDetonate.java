@@ -4,7 +4,6 @@ import org.bukkit.entity.*;
 import org.bukkit.entity.minecart.ExplosiveMinecart;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
-
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
@@ -15,9 +14,8 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
 
-
 @Name("Detonate Entities")
-@Description("Immediately detonates an entity. Accepted entities are fireworks, TNT minecarts, primed TNT, wind charges, and creepers.")
+@Description("Immediately detonates an entity. Accepted entities are fireworks, TNT minecarts, primed TNT, wind charges and creepers.")
 @Examples("detonate last launched firework")
 @Since("INSERT VERSION")
 public class EffDetonate extends Effect {
@@ -42,17 +40,16 @@ public class EffDetonate extends Effect {
 		for (Entity entity : entities.getArray(event)) {
 			if (entity instanceof Firework firework) {
 				firework.detonate();
-			}
-			else if (HAS_WINDCHARGE && entity instanceof WindCharge windCharge) {
+			} else if (HAS_WINDCHARGE && entity instanceof WindCharge windCharge) {
 				windCharge.explode();
-			}
-			else if (entity instanceof ExplosiveMinecart explosiveMinecart) {
+
+			} else if (entity instanceof ExplosiveMinecart explosiveMinecart) {
 				explosiveMinecart.explode();
-			}
-			else if (entity instanceof Creeper creeper) {
+
+			} else if (entity instanceof Creeper creeper) {
 				creeper.explode();
-			}
-			else if (entity instanceof TNTPrimed tntPrimed) {
+
+			} else if (entity instanceof TNTPrimed tntPrimed) {
 				tntPrimed.setFuseTicks(0);
 			}
 		}
