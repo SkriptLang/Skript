@@ -1,0 +1,55 @@
+test "fuse duration":
+	spawn tnt at block 50 blocks above spawn of world "world":
+		set {_tnt} to entity
+		
+	assert fuse duration of {_tnt} is 4 seconds with "TNT default fuse duration failed"
+	set fuse duration of {_tnt} to 8 seconds
+	assert fuse duration of {_tnt} is 8 seconds with "TNT fuse duration set failed"
+	add 2 seconds to fuse duration of {_tnt}
+	assert fuse duration of {_tnt} is 10 seconds with "TNT fuse duration add failed"
+	remove 4 seconds from fuse duration of {_tnt}
+	assert fuse duration of {_tnt} is 6 seconds with "TNT fuse duration remove failed"
+	remove 10 seconds from fuse duration of {_tnt}
+	assert fuse duration of {_tnt} is 0 seconds with "TNT fuse duration remove to 0 failed"
+
+	delete fuse duration of {_tnt}
+	assert fuse duration of {_tnt} is 0 seconds with "TNT fuse duration delete failed"
+	delete entity within {_tnt}
+
+	spawn creeper at block 50 blocks above spawn of world "world":
+		set {_creeper} to entity
+
+	assert fuse duration of {_creeper} is 0 seconds with "Creeper default fuse duration failed"
+	assert max fuse duration of {_creeper} is 1.5 seconds with "Creeper default max fuse duration failed"
+
+	set max fuse duration of {_creeper} to 999 seconds
+	set fuse duration of {_creeper} to 1.5 seconds
+	assert fuse duration of {_creeper} is 1.5 seconds with "Creeper fuse duration set failed"
+	add 1 second to fuse duration of {_creeper}
+	assert fuse duration of {_creeper} is 2.5 seconds with "Creeper fuse duration add failed"
+	remove 2 seconds from fuse duration of {_creeper}
+	assert fuse duration of {_creeper} is 0.5 seconds with "Creeper fuse duration remove failed"
+	remove 999 seconds from fuse duration of {_creeper}
+	assert fuse duration of {_creeper} is 0 seconds with "Creeper fuse duration remove to 0 failed"
+
+	delete fuse duration of {_creeper}
+	assert fuse duration of {_creeper} is 0 seconds with "Creeper fuse duration delete failed"
+	delete entity within {_creeper}
+
+
+	spawn explosive minecart at location 50 blocks above spawn of world "world":
+		set {_tnt_minecart} to entity
+
+	assert fuse duration of {_tnt_minecart} is 0 seconds with "TNT Minecart default fuse duration failed"
+	set fuse duration of {_tnt_minecart} to 8 seconds
+	assert fuse duration of {_tnt_minecart} is 8 seconds with "TNT Minecart fuse duration set failed"
+	add 2 seconds to fuse duration of {_tnt_minecart}
+	assert fuse duration of {_tnt_minecart} is 10 seconds with "TNT Minecart fuse duration add failed"
+	remove 4 seconds from fuse duration of {_tnt_minecart}
+	assert fuse duration of {_tnt_minecart} is 6 seconds with "TNT Minecart fuse duration remove failed"
+	remove 10 seconds from fuse duration of {_tnt_minecart}
+	assert fuse duration of {_tnt_minecart} is 0 seconds with "TNT Minecart fuse duration remove to 0 failed"
+
+	delete fuse duration of {_tnt_minecart}
+	assert fuse duration of {_tnt_minecart} is 0 seconds with "TNT Minecart fuse duration delete failed"
+	delete entity within {_tnt_minecart}
