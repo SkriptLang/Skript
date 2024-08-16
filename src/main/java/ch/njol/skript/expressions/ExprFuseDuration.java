@@ -114,18 +114,24 @@ public class ExprFuseDuration extends SimplePropertyExpression<Entity, Timespan>
 	}
 
 	private int calculateNewTicks(Entity entity, int currentTicks, Object[] delta, ChangeMode mode) {
-		int deltaTicks = (delta != null && delta.length > 0) ? (int) ((Timespan) delta[0]).getAs(Timespan.TimePeriod.TICK) : 0;
-
-		int newTicks = switch (mode) {
+		long deltaTicks = delta.length > 0 ? ((Timespan) delta[0]).getAs(Timespan.TimePeriod.TICK) : 0;
+		long newTicks = switch (mode) {
 			case SET -> deltaTicks;
-			case ADD -> currentTicks + deltaTicks;
-			case REMOVE -> currentTicks - deltaTicks;
+			case ADD -> (long) currentTicks + deltaTicks;
+			case REMOVE -> (long) currentTicks - deltaTicks;
 			case DELETE -> 0;
 			case RESET -> getDefaultTicks(entity);
 			default -> currentTicks;
 		};
 
-		return Math.max(newTicks, 0);
+		// check for overflow
+		if (newTicks > Integer.MAX_VALUE) {
+			newTicks = Integer.MAX_VALUE;
+		} else if (newTicks < 0) {
+			newTicks = 0;
+		}
+
+		return (int) newTicks;
 	}
 
 	private int getDefaultTicks(Entity entity) {
