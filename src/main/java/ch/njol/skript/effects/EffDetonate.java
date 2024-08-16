@@ -17,7 +17,7 @@ import ch.njol.util.Kleenean;
 
 
 @Name("Detonate Entities")
-@Description("Immediately detonates an entity. Accepted entities are fireworks, TNT minecarts, wind charges, creepers, and primed TNT.")
+@Description("Immediately detonates an entity. Accepted entities are fireworks, TNT minecarts, primed TNT, wind charges, and creepers.")
 @Examples("detonate last launched firework")
 @Since("INSERT VERSION")
 public class EffDetonate extends Effect {
@@ -29,7 +29,7 @@ public class EffDetonate extends Effect {
 	}
 
 	private Expression<Entity> entities;
-	
+
 	@Override
 	@SuppressWarnings("unchecked")
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
