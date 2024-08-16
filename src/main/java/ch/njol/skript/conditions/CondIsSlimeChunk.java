@@ -35,7 +35,7 @@ import ch.njol.skript.doc.Since;
 @Name("Is Slime Chunk")
 @Description({"Tests whether a chunk is a so-called slime chunk.",
 		"Slimes can generally spawn in the swamp biome and in slime chunks.",
-		"For more info, see <a href='https://minecraft.gamepedia.com/Slime#.22Slime_chunks.22'>the Minecraft wiki</a>."})
+		"For more info, see <a href='https://minecraft.wiki/w/Slime#.22Slime_chunks.22'>the Minecraft wiki</a>."})
 @Examples({"command /slimey:",
 		"\ttrigger:",
 		"\t\tif chunk at player is a slime chunk:",

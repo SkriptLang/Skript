@@ -26,12 +26,12 @@ import java.lang.annotation.Target;
 
 /**
  * Can be used to set a class's or field's id used by Yggdrasil.
- * 
- * @author Peter Güttinger
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.TYPE, ElementType.FIELD})
 @Documented
 public @interface YggdrasilID {
+	
 	String value();
+	
 }

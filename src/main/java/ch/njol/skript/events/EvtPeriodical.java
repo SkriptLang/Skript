@@ -72,7 +72,7 @@ public class EvtPeriodical extends SkriptEvent {
 
 	@Override
 	public boolean postLoad() {
-		long ticks = period.getTicks_i();
+		long ticks = period.getTicks();
 
 		if (worlds == null) {
 			taskIDs = new int[]{

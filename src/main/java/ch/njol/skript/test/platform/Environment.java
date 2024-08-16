@@ -50,11 +50,6 @@ import java.util.TimerTask;
  */
 public class Environment {
 
-	/**
-	 * Time before the process is killed if there was a stack stace etc.
-	 */
-	private static final int TIMEOUT = 5 * 60_000; // 5 minutes.
-
 	private static final Gson gson = new Gson();
 
 	/**
@@ -233,7 +228,7 @@ public class Environment {
 
 	@Nullable
 	public TestResults runTests(Path runnerRoot, Path testsRoot, boolean devMode, boolean genDocs, boolean jUnit, boolean debug,
-	                            String verbosity, Set<String> jvmArgs) throws IOException, InterruptedException {
+	                            String verbosity, long timeout, Set<String> jvmArgs) throws IOException, InterruptedException {
 		
 		Path env = runnerRoot.resolve(name);
 		Path resultsPath = env.resolve("test_results.json");
@@ -268,7 +263,7 @@ public class Environment {
 		Runtime.getRuntime().addShutdownHook(new Thread(process::destroy));
 
 		// Catch tests running for abnormally long time
-		if (!devMode) {
+		if (!devMode && timeout > 0) {
 			new Timer("runner watchdog", true).schedule(new TimerTask() {
 				@Override
 				public void run() {
@@ -277,7 +272,7 @@ public class Environment {
 						System.exit(1);
 					}
 				}
-			}, TIMEOUT);
+			}, timeout);
 		}
 
 		int code = process.waitFor();

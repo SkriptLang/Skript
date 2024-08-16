@@ -1,0 +1,15 @@
+test "tooltip" when running minecraft "1.20.5":
+
+	set {_item} to a diamond
+	assert entire tooltip of {_item} is shown with "item unexpectedly doesn't have entire tooltip"
+	assert additional tooltip of {_item} is shown with "item unexpectedly doesn't have additional tooltip"
+
+	hide entire tooltip of {_item}
+	assert entire tooltip of {_item} is hidden with "item unexpectedly has entire tooltip"
+	hide additional tooltip of {_item}
+	assert additional tooltip of {_item} is hidden with "item unexpectedly has additional tooltip"
+
+	show entire tooltip of {_item}
+	assert entire tooltip of {_item} is shown with "item unexpectedly doesn't have entire tooltip"
+	show additional tooltip of {_item}
+	assert additional tooltip of {_item} is shown with "item unexpectedly doesn't have additional tooltip"

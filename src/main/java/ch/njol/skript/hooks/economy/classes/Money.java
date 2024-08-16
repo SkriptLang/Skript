@@ -18,12 +18,13 @@
  */
 package ch.njol.skript.hooks.economy.classes;
 
+import ch.njol.skript.Skript;
 import ch.njol.skript.classes.data.JavaClasses;
 import org.eclipse.jdt.annotation.Nullable;
 
-import ch.njol.skript.Skript;
-import ch.njol.skript.classes.Arithmetic;
 import ch.njol.skript.classes.ClassInfo;
+import org.skriptlang.skript.lang.arithmetic.Arithmetics;
+import org.skriptlang.skript.lang.arithmetic.Operator;
 import org.skriptlang.skript.lang.comparator.Comparator;
 import org.skriptlang.skript.lang.converter.Converter;
 import ch.njol.skript.classes.Parser;
@@ -68,41 +69,7 @@ public class Money {
 					public String toVariableNameString(final Money o) {
 						return "money:" + o.amount;
 					}
-                })
-				.math(Money.class, new Arithmetic<Money, Money>() {
-					@Override
-					public Money difference(final Money first, final Money second) {
-						final double d = Math.abs(first.getAmount() - second.getAmount());
-						if (d < Skript.EPSILON)
-							return new Money(0);
-						return new Money(d);
-					}
-					
-					@Override
-					public Money add(final Money value, final Money difference) {
-						return new Money(value.amount + difference.amount);
-					}
-					
-					@Override
-					public Money subtract(final Money value, final Money difference) {
-						return new Money(value.amount - difference.amount);
-					}
-
-					@Override
-					public Money multiply(Money value, Money multiplier) {
-						return new Money(value.getAmount() * multiplier.getAmount());
-					}
-
-					@Override
-					public Money divide(Money value, Money divider) {
-						return new Money(value.getAmount() / divider.getAmount());
-					}
-
-					@Override
-					public Money power(Money value, Money exponent) {
-						throw new UnsupportedOperationException();
-					}
-				}));
+                }));
 		
 		Comparators.registerComparator(Money.class, Money.class, new Comparator<Money, Money>() {
 			@Override
@@ -133,6 +100,18 @@ public class Money {
 				return Double.valueOf(m.getAmount());
 			}
 		});
+
+		Arithmetics.registerOperation(Operator.ADDITION, Money.class, (left, right) -> new Money(left.getAmount() + right.getAmount()));
+		Arithmetics.registerOperation(Operator.SUBTRACTION, Money.class, (left, right) -> new Money(left.getAmount() - right.getAmount()));
+		Arithmetics.registerOperation(Operator.MULTIPLICATION, Money.class, (left, right) -> new Money(left.getAmount() * right.getAmount()));
+		Arithmetics.registerOperation(Operator.DIVISION, Money.class, (left, right) -> new Money(left.getAmount() / right.getAmount()));
+		Arithmetics.registerDifference(Money.class, (left, right) -> {
+			double result = Math.abs(left.getAmount() - right.getAmount());
+			if (result < Skript.EPSILON)
+				return new Money(0);
+			return new Money(result);
+		});
+		Arithmetics.registerDefaultValue(Money.class, () -> new Money(0));
 	}
 	
 	final double amount;

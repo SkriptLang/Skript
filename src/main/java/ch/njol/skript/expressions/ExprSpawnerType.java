@@ -22,6 +22,7 @@ import ch.njol.skript.bukkitutil.EntityUtils;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.CreatureSpawner;
+import org.bukkit.entity.EntityType;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 
@@ -44,18 +45,19 @@ import ch.njol.util.coll.CollectionUtils;
 @Since("2.4")
 public class ExprSpawnerType extends SimplePropertyExpression<Block, EntityData> {
 	
-	private static final Material MATERIAL_SPAWNER = Aliases.javaItemType("spawner").getMaterial();
-	
 	static {
 		register(ExprSpawnerType.class, EntityData.class, "(spawner|entity|creature) type[s]", "blocks");
 	}
 	
 	@Override
 	@Nullable
-	public EntityData convert(final Block b) {
-		if (b.getType() != MATERIAL_SPAWNER)
+	public EntityData convert(Block block) {
+		if (!(block.getState() instanceof CreatureSpawner))
 			return null;
-		return EntityUtils.toSkriptEntityData(((CreatureSpawner) b.getState()).getSpawnedType());
+		EntityType type = ((CreatureSpawner) block.getState()).getSpawnedType();
+		if (type == null)
+			return null;
+		return EntityUtils.toSkriptEntityData(type);
 	}
 	
 	@Nullable
@@ -68,13 +70,14 @@ public class ExprSpawnerType extends SimplePropertyExpression<Block, EntityData>
 	
 	@SuppressWarnings("null")
 	@Override
-	public void change(final Event e, final @Nullable Object[] delta, final ChangeMode mode) {
-		for (Block b : getExpr().getArray(e)) {
-			if (b.getType() != MATERIAL_SPAWNER)
+	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
+		for (Block b : getExpr().getArray(event)) {
+			if (!(b.getState() instanceof CreatureSpawner))
 				continue;
 			CreatureSpawner s = (CreatureSpawner) b.getState();
 			switch (mode) {
 				case SET:
+					assert delta != null;
 					s.setSpawnedType(EntityUtils.toBukkitEntityType((EntityData) delta[0]));
 					break;
 				case RESET:

@@ -29,9 +29,7 @@ import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
-import ch.njol.skript.util.Utils;
 import ch.njol.util.Kleenean;
-import ch.njol.util.coll.iterator.IteratorIterable;
 import com.google.common.collect.Iterables;
 import org.bukkit.Material;
 import org.bukkit.event.Event;
@@ -140,11 +138,11 @@ public class ExprItems extends SimpleExpression<ItemType> {
 	}
 
 	@Override
-	public boolean isLoopOf(String string) {
+	public boolean isLoopOf(String input) {
 		if (items) {
-			return string.equals("item");
+			return input.equals("item");
 		} else {
-			return string.equals("block");
+			return input.equals("block");
 		}
 	}
 

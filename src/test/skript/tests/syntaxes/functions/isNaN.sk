@@ -1,0 +1,7 @@
+test "is NaN function":
+	assert isNaN(0) is false with "0 should not be NaN"
+	assert isNaN(NaN value) is true with "NaN should be NaN"
+	assert isNaN(infinity value) is false with "Infinity should not be NaN"
+	assert isNaN(0/0) is true with "0/0 should be NaN"
+	assert isNaN(sqrt(2)) is false with "sqrt(2) should not be NaN"
+	assert isNaN(sqrt(-2)) is true with "sqrt(-2) should be NaN"

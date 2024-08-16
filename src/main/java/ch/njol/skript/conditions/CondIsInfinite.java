@@ -31,7 +31,7 @@ import ch.njol.skript.doc.Since;
 @Name("Is Infinite")
 @Description("Checks whether potion effects are infinite.")
 @Examples("all of the active potion effects of the player are infinite")
-@Since("INSERT VERSION")
+@Since("2.7")
 public class CondIsInfinite extends PropertyCondition<PotionEffect> {
 
 	static {

@@ -39,6 +39,7 @@ import java.util.regex.Pattern;
 
 import ch.njol.skript.command.Commands;
 import ch.njol.skript.entity.EntityData;
+import ch.njol.skript.util.Utils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Chunk;
@@ -320,6 +321,18 @@ public abstract class Classes {
 	}
 
 	/**
+	 * Gets the class info of the super type of given classes or its closest registered superclass.
+	 * This method is useful for Skript to avoid passing around "unknown" super types.
+	 *
+	 * @param classes The classes to determine a super type from.
+	 * @return The closest info for the super type of <code>classes</code>.
+	 */
+	// This method is used to avoid issues like https://github.com/SkriptLang/Skript/issues/5848
+	public static ClassInfo<?> getSuperClassInfo(Class<?>... classes) {
+		return getSuperClassInfo(Utils.getSuperType(classes));
+	}
+
+	/**
 	 * Gets all the class info of the given class in closest order to ending on object. This list will never be empty unless <tt>c</tt> is null.
 	 * 
 	 * @param c the class to check if assignable from
@@ -500,7 +513,7 @@ public abstract class Classes {
 				return t;
 			}
 			for (final ConverterInfo<?, ?> conv : Converters.getConverterInfos()) {
-				if (context == ParseContext.COMMAND && (conv.getFlags() & Commands.CONVERTER_NO_COMMAND_ARGUMENTS) != 0)
+				if ((context == ParseContext.COMMAND || context == ParseContext.PARSE) && (conv.getFlags() & Commands.CONVERTER_NO_COMMAND_ARGUMENTS) != 0)
 					continue;
 				if (c.isAssignableFrom(conv.getTo())) {
 					log.clear();

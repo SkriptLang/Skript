@@ -36,6 +36,9 @@ import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 import com.google.common.io.Files;
 import org.apache.commons.lang.StringUtils;
+import org.bukkit.event.Cancellable;
+import org.bukkit.event.Event;
+import org.bukkit.event.block.BlockCanBuildEvent;
 import org.eclipse.jdt.annotation.Nullable;
 import org.skriptlang.skript.lang.entry.EntryData;
 import org.skriptlang.skript.lang.entry.EntryValidator;
@@ -86,19 +89,19 @@ public class HTMLGenerator {
 			throw new NullPointerException();
 		}
 
-		if (o1.c.getAnnotation(NoDoc.class) != null) {
-			if (o2.c.getAnnotation(NoDoc.class) != null)
+		if (o1.getElementClass().getAnnotation(NoDoc.class) != null) {
+			if (o2.getElementClass().getAnnotation(NoDoc.class) != null)
 				return 0;
 			return 1;
-		} else if (o2.c.getAnnotation(NoDoc.class) != null)
+		} else if (o2.getElementClass().getAnnotation(NoDoc.class) != null)
 			return -1;
 
-		Name name1 = o1.c.getAnnotation(Name.class);
-		Name name2 = o2.c.getAnnotation(Name.class);
+		Name name1 = o1.getElementClass().getAnnotation(Name.class);
+		Name name2 = o2.getElementClass().getAnnotation(Name.class);
 		if (name1 == null)
-			throw new SkriptAPIException("Name annotation expected: " + o1.c);
+			throw new SkriptAPIException("Name annotation expected: " + o1.getElementClass());
 		if (name2 == null)
-			throw new SkriptAPIException("Name annotation expected: " + o2.c);
+			throw new SkriptAPIException("Name annotation expected: " + o2.getElementClass());
 
 		return name1.value().compareTo(name2.value());
 	};
@@ -115,8 +118,8 @@ public class HTMLGenerator {
 		while (it.hasNext()) {
 			SyntaxElementInfo<? extends T> item = it.next();
 			// Filter unnamed expressions (mostly caused by addons) to avoid throwing exceptions and stop the generation process
-			if (item.c.getAnnotation(Name.class) == null && item.c.getAnnotation(NoDoc.class) == null) {
-				Skript.warning("Skipped generating '" + item.c + "' class due to missing Name annotation");
+			if (item.getElementClass().getAnnotation(Name.class) == null && item.getElementClass().getAnnotation(NoDoc.class) == null) {
+				Skript.warning("Skipped generating '" + item.getElementClass() + "' class due to missing Name annotation");
 				continue;
 			}
 			list.add(item);
@@ -141,9 +144,9 @@ public class HTMLGenerator {
 				throw new NullPointerException();
 			}
 			
-			if (o1.c.getAnnotation(NoDoc.class) != null)
+			if (o1.getElementClass().getAnnotation(NoDoc.class) != null)
 				return 1;
-			else if (o2.c.getAnnotation(NoDoc.class) != null)
+			else if (o2.getElementClass().getAnnotation(NoDoc.class) != null)
 				return -1;
 			
 			return o1.name.compareTo(o2.name);
@@ -285,7 +288,7 @@ public class HTMLGenerator {
 
 						StructureInfo<?> info = it.next();
 						assert info != null;
-						if (info.c.getAnnotation(NoDoc.class) != null)
+						if (info.getElementClass().getAnnotation(NoDoc.class) != null)
 							continue;
 						String desc = generateAnnotated(descTemp, info, generated.toString(), "Structure");
 						generated.append(desc);
@@ -296,7 +299,7 @@ public class HTMLGenerator {
 					for (Iterator<ExpressionInfo<?,?>> it = sortedAnnotatedIterator((Iterator) Skript.getExpressions()); it.hasNext(); ) {
 						ExpressionInfo<?,?> info = it.next();
 						assert info != null;
-						if (info.c.getAnnotation(NoDoc.class) != null)
+						if (info.getElementClass().getAnnotation(NoDoc.class) != null)
 							continue;
 						String desc = generateAnnotated(descTemp, info, generated.toString(), "Expression");
 						generated.append(desc);
@@ -306,7 +309,7 @@ public class HTMLGenerator {
 					for (Iterator<SyntaxElementInfo<? extends Effect>> it = sortedAnnotatedIterator(Skript.getEffects().iterator()); it.hasNext(); ) {
 						SyntaxElementInfo<? extends Effect> info = it.next();
 						assert info != null;
-						if (info.c.getAnnotation(NoDoc.class) != null)
+						if (info.getElementClass().getAnnotation(NoDoc.class) != null)
 							continue;
 						generated.append(generateAnnotated(descTemp, info, generated.toString(), "Effect"));
 					}
@@ -314,8 +317,8 @@ public class HTMLGenerator {
 					for (Iterator<SyntaxElementInfo<? extends Section>> it = sortedAnnotatedIterator(Skript.getSections().iterator()); it.hasNext(); ) {
 						SyntaxElementInfo<? extends Section> info = it.next();
 						assert info != null;
-						if (EffectSection.class.isAssignableFrom(info.c)) {
-							if (info.c.getAnnotation(NoDoc.class) != null)
+						if (EffectSection.class.isAssignableFrom(info.getElementClass())) {
+							if (info.getElementClass().getAnnotation(NoDoc.class) != null)
 								continue;
 							generated.append(generateAnnotated(descTemp, info, generated.toString(), "EffectSection"));
 						}
@@ -325,7 +328,7 @@ public class HTMLGenerator {
 					for (Iterator<SyntaxElementInfo<? extends Condition>> it = sortedAnnotatedIterator(Skript.getConditions().iterator()); it.hasNext(); ) {
 						SyntaxElementInfo<? extends Condition> info = it.next();
 						assert info != null;
-						if (info.c.getAnnotation(NoDoc.class) != null)
+						if (info.getElementClass().getAnnotation(NoDoc.class) != null)
 							continue;
 						generated.append(generateAnnotated(descTemp, info, generated.toString(), "Condition"));
 					}
@@ -334,9 +337,9 @@ public class HTMLGenerator {
 					for (Iterator<SyntaxElementInfo<? extends Section>> it = sortedAnnotatedIterator(Skript.getSections().iterator()); it.hasNext(); ) {
 						SyntaxElementInfo<? extends Section> info = it.next();
 						assert info != null;
-						boolean isEffectSection = EffectSection.class.isAssignableFrom(info.c);
+						boolean isEffectSection = EffectSection.class.isAssignableFrom(info.getElementClass());
 						// exclude sections that are EffectSection from isDocsPage, they are added by the effects block above
-						if ((isEffectSection && isDocsPage) || info.c.getAnnotation(NoDoc.class) != null)
+						if ((isEffectSection && isDocsPage) || info.getElementClass().getAnnotation(NoDoc.class) != null)
 							continue;
 						generated.append(generateAnnotated(descTemp, info, generated.toString(), (isEffectSection ? "Effect" : "") +  "Section"));
 					}
@@ -346,7 +349,7 @@ public class HTMLGenerator {
 					events.sort(eventComparator);
 					for (SkriptEventInfo<?> info : events) {
 						assert info != null;
-						if (info.c.getAnnotation(NoDoc.class) != null)
+						if (info.getElementClass().getAnnotation(NoDoc.class) != null)
 							continue;
 						generated.append(generateEvent(descTemp, info, generated.toString()));
 					}
@@ -444,7 +447,7 @@ public class HTMLGenerator {
 	 * @return Generated HTML entry.
 	 */
 	private String generateAnnotated(String descTemp, SyntaxElementInfo<?> info, @Nullable String page, String type) {
-		Class<?> c = info.c;
+		Class<?> c = info.getElementClass();
 		String desc;
 
 		// Name
@@ -472,7 +475,7 @@ public class HTMLGenerator {
 
 		// Documentation ID
 		DocumentationId docId = c.getAnnotation(DocumentationId.class);
-		String ID = docId != null ? (docId != null ? docId.value() : null) : info.c.getSimpleName();
+		String ID = docId != null ? (docId != null ? docId.value() : null) : c.getSimpleName();
 		// Fix duplicated IDs
 		if (page != null) {
 			if (page.contains("href=\"#" + ID + "\"")) {
@@ -480,6 +483,9 @@ public class HTMLGenerator {
 			}
 		}
 		desc = desc.replace("${element.id}", ID);
+
+		// Cancellable
+		desc = handleIf(desc, "${if cancellable}", false);
 
 		// Events
 		Events events = c.getAnnotation(Events.class);
@@ -569,7 +575,7 @@ public class HTMLGenerator {
 	}
 	
 	private String generateEvent(String descTemp, SkriptEventInfo<?> info, @Nullable String page) {
-		Class<?> c = info.c;
+		Class<?> c = info.getElementClass();
 		String desc;
 
 		// Name
@@ -602,6 +608,17 @@ public class HTMLGenerator {
 
 		String[] keywords = info.getKeywords();
 		desc = desc.replace("${element.keywords}", keywords == null ? "" : Joiner.on(", ").join(keywords));
+
+		// Cancellable
+		boolean cancellable = false;
+		for (Class<? extends Event> event : info.events) {
+			if (Cancellable.class.isAssignableFrom(event) || BlockCanBuildEvent.class.isAssignableFrom(event)) {
+				cancellable = true; // let's assume all are cancellable otherwise EffCancelEvent would do the rest in action
+				break;
+			}
+		}
+		desc = handleIf(desc, "${if cancellable}", cancellable);
+		desc = desc.replace("${element.cancellable}", cancellable ? "Yes" : ""); // if not cancellable the section is hidden
 
 		// Documentation ID
 		String ID = info.getDocumentationID() != null ? info.getDocumentationID() : info.getId();
@@ -662,8 +679,7 @@ public class HTMLGenerator {
 			StringBuilder patterns = new StringBuilder();
 			for (String line : getDefaultIfNullOrEmpty(info.patterns, "Missing patterns.")) {
 				assert line != null;
-				line = cleanPatterns(line);
-				line = line.replace(SkriptEventInfo.EVENT_PRIORITY_SYNTAX, ""); // replace priority syntax in event syntaxes
+				line = "[on] " + cleanPatterns(line);
 				String parsed = pattern.replace("${element.pattern}", line);
 				patterns.append(parsed);
 			}
@@ -719,6 +735,9 @@ public class HTMLGenerator {
 			}
 		}
 		desc = desc.replace("${element.id}", ID);
+
+		// Cancellable
+		desc = handleIf(desc, "${if cancellable}", false);
 
 		// Events
 		Events events = c.getAnnotation(Events.class);
@@ -821,6 +840,9 @@ public class HTMLGenerator {
 
 		// Documentation ID
 		desc = desc.replace("${element.id}", info.getName());
+
+		// Cancellable
+		desc = handleIf(desc, "${if cancellable}", false);
 
 		// Events
 		desc = handleIf(desc, "${if events}", false); // Functions do not require events nor plugins (at time writing this)

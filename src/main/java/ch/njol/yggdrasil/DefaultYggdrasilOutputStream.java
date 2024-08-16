@@ -18,81 +18,75 @@
  */
 package ch.njol.yggdrasil;
 
+import java.io.IOException;
+import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
+import java.util.Map;
+
 import static ch.njol.yggdrasil.Tag.T_ARRAY;
 import static ch.njol.yggdrasil.Tag.T_REFERENCE;
 import static ch.njol.yggdrasil.Tag.getPrimitiveFromWrapper;
 import static ch.njol.yggdrasil.Tag.getType;
 
-import java.io.IOException;
-import java.io.OutputStream;
-import java.nio.charset.Charset;
-import java.util.HashMap;
-
 public final class DefaultYggdrasilOutputStream extends YggdrasilOutputStream {
 	
-	private final static Charset UTF_8 = Charset.forName("UTF-8");
-	
 	private final OutputStream out;
-	
 	private final short version;
 	
-	public DefaultYggdrasilOutputStream(final Yggdrasil y, final OutputStream out) throws IOException {
-		super(y);
+	public DefaultYggdrasilOutputStream(Yggdrasil yggdrasil, OutputStream out) throws IOException {
+		super(yggdrasil);
 		this.out = out;
-		version = y.version;
+		version = yggdrasil.version;
 		writeInt(Yggdrasil.MAGIC_NUMBER);
 		writeShort(version);
 	}
 	
-	// private
-	
-	private void write(final int b) throws IOException {
+	private void write(int b) throws IOException {
 		out.write(b);
 	}
 	
 	@Override
-	protected void writeTag(final Tag t) throws IOException {
-		out.write(t.tag);
+	protected void writeTag(Tag tag) throws IOException {
+		out.write(tag.tag);
 	}
 	
-	private final HashMap<String, Integer> writtenShortStrings = new HashMap<>();
+	private final Map<String, Integer> writtenShortStrings = new HashMap<>();
 	int nextShortStringID = 0;
 	
 	/**
 	 * Writes a class ID or Field name
 	 */
-	private void writeShortString(final String s) throws IOException {
-		if (writtenShortStrings.containsKey(s)) {
+	private void writeShortString(String string) throws IOException {
+		if (writtenShortStrings.containsKey(string)) {
 			writeTag(T_REFERENCE);
 			if (version <= 1)
-				writeInt(writtenShortStrings.get(s));
+				writeInt(writtenShortStrings.get(string));
 			else
-				writeUnsignedInt(writtenShortStrings.get(s));
+				writeUnsignedInt(writtenShortStrings.get(string));
 		} else {
 			if (nextShortStringID < 0)
 				throw new YggdrasilException("Too many field names/class IDs (max: " + Integer.MAX_VALUE + ")");
-			final byte[] d = s.getBytes(UTF_8);
+			byte[] d = string.getBytes(StandardCharsets.UTF_8);
 			if (d.length >= (T_REFERENCE.tag & 0xFF))
-				throw new YggdrasilException("Field name or Class ID too long: " + s);
+				throw new YggdrasilException("Field name or Class ID too long: " + string);
 			write(d.length);
 			out.write(d);
 			if (d.length > 4)
-				writtenShortStrings.put(s, nextShortStringID++);
+				writtenShortStrings.put(string, nextShortStringID++);
 		}
 	}
 	
-	// Primitives
-	
-	private void writeByte(final byte b) throws IOException {
+	private void writeByte(byte b) throws IOException {
 		write(b & 0xFF);
 	}
 	
-	private void writeShort(final short s) throws IOException {
+	private void writeShort(short s) throws IOException {
 		write((s >>> 8) & 0xFF);
 		write(s & 0xFF);
 	}
 	
-	private void writeUnsignedShort(final short s) throws IOException {
+	private void writeUnsignedShort(short s) throws IOException {
 		assert s >= 0;
 		if (s <= 0x7f)
 			writeByte((byte) (0x80 | s));
@@ -100,14 +94,14 @@ public final class DefaultYggdrasilOutputStream extends YggdrasilOutputStream {
 			writeShort(s);
 	}
 	
-	private void writeInt(final int i) throws IOException {
+	private void writeInt(int i) throws IOException {
 		write((i >>> 24) & 0xFF);
 		write((i >>> 16) & 0xFF);
 		write((i >>> 8) & 0xFF);
 		write(i & 0xFF);
 	}
 	
-	private void writeUnsignedInt(final int i) throws IOException {
+	private void writeUnsignedInt(int i) throws IOException {
 		assert i >= 0;
 		if (i <= 0x7FFF)
 			writeShort((short) (0x8000 | i));
@@ -115,7 +109,7 @@ public final class DefaultYggdrasilOutputStream extends YggdrasilOutputStream {
 			writeInt(i);
 	}
 	
-	private void writeLong(final long l) throws IOException {
+	private void writeLong(long l) throws IOException {
 		write((int) ((l >>> 56) & 0xFF));
 		write((int) ((l >>> 48) & 0xFF));
 		write((int) ((l >>> 40) & 0xFF));
@@ -126,102 +120,96 @@ public final class DefaultYggdrasilOutputStream extends YggdrasilOutputStream {
 		write((int) (l & 0xFF));
 	}
 	
-	private void writeFloat(final float f) throws IOException {
+	private void writeFloat(float f) throws IOException {
 		writeInt(Float.floatToIntBits(f));
 	}
 	
-	private void writeDouble(final double d) throws IOException {
+	private void writeDouble(double d) throws IOException {
 		writeLong(Double.doubleToLongBits(d));
 	}
 	
-	private void writeChar(final char c) throws IOException {
+	private void writeChar(char c) throws IOException {
 		writeShort((short) c);
 	}
 	
-	private void writeBoolean(final boolean b) throws IOException {
+	private void writeBoolean(boolean b) throws IOException {
 		write(b ? 1 : 0);
 	}
 	
 	@Override
-	protected void writePrimitive_(final Object o) throws IOException {
-		switch (getPrimitiveFromWrapper(o.getClass())) {
+	protected void writePrimitive_(Object object) throws IOException {
+		switch (getPrimitiveFromWrapper(object.getClass())) {
 			case T_BYTE:
-				writeByte((Byte) o);
+				writeByte((Byte) object);
 				break;
 			case T_SHORT:
-				writeShort((Short) o);
+				writeShort((Short) object);
 				break;
 			case T_INT:
-				writeInt((Integer) o);
+				writeInt((Integer) object);
 				break;
 			case T_LONG:
-				writeLong((Long) o);
+				writeLong((Long) object);
 				break;
 			case T_FLOAT:
-				writeFloat((Float) o);
+				writeFloat((Float) object);
 				break;
 			case T_DOUBLE:
-				writeDouble((Double) o);
+				writeDouble((Double) object);
 				break;
 			case T_CHAR:
-				writeChar((Character) o);
+				writeChar((Character) object);
 				break;
 			case T_BOOLEAN:
-				writeBoolean((Boolean) o);
+				writeBoolean((Boolean) object);
 				break;
 			//$CASES-OMITTED$
 			default:
-				throw new YggdrasilException("Invalid call to writePrimitive with argument " + o);
+				throw new YggdrasilException("Invalid call to writePrimitive with argument " + object);
 		}
 	}
 	
 	@Override
-	protected void writePrimitiveValue(final Object o) throws IOException {
-		writePrimitive_(o);
+	protected void writePrimitiveValue(Object object) throws IOException {
+		writePrimitive_(object);
 	}
 	
-	// String
-	
 	@Override
-	protected void writeStringValue(final String s) throws IOException {
-		final byte[] d = s.getBytes(UTF_8);
+	protected void writeStringValue(String string) throws IOException {
+		byte[] d = string.getBytes(StandardCharsets.UTF_8);
 		writeUnsignedInt(d.length);
 		out.write(d);
 	}
 	
-	// Array
-	
 	@Override
-	protected void writeArrayComponentType(final Class<?> componentType) throws IOException {
+	protected void writeArrayComponentType(Class<?> componentType) throws IOException {
 		writeClass_(componentType);
 	}
 	
 	@Override
-	protected void writeArrayLength(final int length) throws IOException {
+	protected void writeArrayLength(int length) throws IOException {
 		writeUnsignedInt(length);
 	}
 	
 	@Override
-	protected void writeArrayEnd() throws IOException {}
-	
-	// Class
+	protected void writeArrayEnd() {}
 	
 	@Override
-	protected void writeClassType(final Class<?> c) throws IOException {
-		writeClass_(c);
+	protected void writeClassType(Class<?> type) throws IOException {
+		writeClass_(type);
 	}
 	
-	private void writeClass_(Class<?> c) throws IOException {
-		while (c.isArray()) {
+	private void writeClass_(Class<?> type) throws IOException {
+		while (type.isArray()) {
 			writeTag(T_ARRAY);
-			c = c.getComponentType();
+			type = type.getComponentType();
 		}
-		final Tag t = getType(c);
-		switch (t) {
+		Tag tag = getType(type);
+		switch (tag) {
 			case T_OBJECT:
 			case T_ENUM:
-				writeTag(t);
-				writeShortString(yggdrasil.getID(c));
+				writeTag(tag);
+				writeShortString(yggdrasil.getID(type));
 				break;
 			case T_BOOLEAN:
 			case T_BOOLEAN_OBJ:
@@ -241,56 +229,48 @@ public final class DefaultYggdrasilOutputStream extends YggdrasilOutputStream {
 			case T_SHORT_OBJ:
 			case T_CLASS:
 			case T_STRING:
-				writeTag(t);
+				writeTag(tag);
 				break;
 			case T_NULL:
 			case T_REFERENCE:
 			case T_ARRAY:
 			default:
-				throw new YggdrasilException("" + c.getCanonicalName());
+				throw new YggdrasilException("" + type.getCanonicalName());
 		}
 	}
 	
-	// Enum
-	
 	@Override
-	protected void writeEnumType(final String type) throws IOException {
+	protected void writeEnumType(String type) throws IOException {
 		writeShortString(type);
 	}
 	
 	@Override
-	protected void writeEnumID(final String id) throws IOException {
+	protected void writeEnumID(String id) throws IOException {
 		writeShortString(id);
 	}
 	
-	// generic Object
-	
 	@Override
-	protected void writeObjectType(final String type) throws IOException {
+	protected void writeObjectType(String type) throws IOException {
 		writeShortString(type);
 	}
 	
 	@Override
-	protected void writeNumFields(final short numFields) throws IOException {
+	protected void writeNumFields(short numFields) throws IOException {
 		writeUnsignedShort(numFields);
 	}
 	
 	@Override
-	protected void writeFieldID(final String id) throws IOException {
+	protected void writeFieldID(String id) throws IOException {
 		writeShortString(id);
 	}
 	
 	@Override
-	protected void writeObjectEnd() throws IOException {}
-	
-	// Reference
+	protected void writeObjectEnd() {}
 	
 	@Override
-	protected void writeReferenceID(final int ref) throws IOException {
-		writeUnsignedInt(ref);
+	protected void writeReferenceID(int reference) throws IOException {
+		writeUnsignedInt(reference);
 	}
-	
-	// stream
 	
 	@Override
 	public void flush() throws IOException {

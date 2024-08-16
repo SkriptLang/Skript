@@ -36,14 +36,10 @@ public class CommandReloader {
 	
 	static {
 		try {
-			Class<?> craftServer;
-			String revision = Bukkit.getServer().getClass().getPackage().getName().split("\\.")[3];
-			craftServer = Class.forName("org.bukkit.craftbukkit." + revision + ".CraftServer");
-			
-			syncCommandsMethod = craftServer.getDeclaredMethod("syncCommands");
+			syncCommandsMethod = Bukkit.getServer().getClass().getDeclaredMethod("syncCommands");
 			if (syncCommandsMethod != null)
 				syncCommandsMethod.setAccessible(true);
-		} catch (ClassNotFoundException | NoSuchMethodException e) {
+		} catch (NoSuchMethodException e) {
 			// Ignore except for debugging. This is not necessary or in any way supported functionality
 			if (Skript.debug())
 				e.printStackTrace();

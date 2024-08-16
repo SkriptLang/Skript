@@ -80,14 +80,9 @@ public class EffStopSound extends Effect {
 	@SuppressWarnings("unchecked")
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		allSounds = parseResult.hasTag("all");
-		if (allSounds) {
-			category = (Expression<SoundCategory>) exprs[0];
-			players = (Expression<Player>) exprs[1];
-		} else {
-			sounds = (Expression<String>) exprs[0];
-			category = (Expression<SoundCategory>) exprs[1];
-			players = (Expression<Player>) exprs[2];
-		}
+		sounds = (Expression<String>) exprs[0];
+		category = (Expression<SoundCategory>) exprs[1];
+		players = (Expression<Player>) exprs[2];
 		return true;
 	}
 

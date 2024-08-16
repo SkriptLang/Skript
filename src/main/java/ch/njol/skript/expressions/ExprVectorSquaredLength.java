@@ -26,12 +26,9 @@ import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
 
-/**
- * @author bi0qaw
- */
 @Name("Vectors - Squared Length")
 @Description("Gets the squared length of a vector.")
-@Examples({"send \"%squared length of vector 1, 2, 3%\""})
+@Examples("send \"%squared length of vector 1, 2, 3%\"")
 @Since("2.2-dev28")
 public class ExprVectorSquaredLength extends SimplePropertyExpression<Vector, Number> {
 
@@ -46,13 +43,14 @@ public class ExprVectorSquaredLength extends SimplePropertyExpression<Vector, Nu
 	}
 
 	@Override
+	public Class<? extends Number> getReturnType() {
+		return Number.class;
+	}
+
+	@Override
 	protected String getPropertyName() {
 		return "squared length of vector";
 	}
 
-	@Override
-	public Class<? extends Number> getReturnType() {
-		return Number.class;
-	}
 
 }

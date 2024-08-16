@@ -1,0 +1,6 @@
+test "pvp effect":
+  set {_world} to first element out of all worlds
+  disable pvp in {_world}
+  assert pvp is disabled in {_world} with "PvP was not disabled"
+  enable pvp in {_world}
+  assert pvp is enabled in {_world} with "PvP was not enabled"

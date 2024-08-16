@@ -68,38 +68,38 @@ skript command:
 		aliases: aliasy
 		script: <gold>%s<reset>
 		scripts in folder: wszystkie skrypty w <gold>%s<reset>
-		x scripts in folder: <gold>%2$s <reset>skrypt¦¦ów¦ w <gold>%1$s<reset>
+		x scripts in folder: <gold>%2$s <lime>skrypt¦¦ów¦ w <gold>%1$s<reset>
 		empty folder: <gold>%s<reset> nie ma w sobie żadnych włączonych skryptów.
 	enable:
 		all:
 			enabling: Włączanie wszystkich wyłączonych skryptów...
 			enabled: Pomyślnie włączono i zinterpretowano wszystkie wyłączone skrypty.
-			error: Znaleziono %s bł¦ąd¦ędów¦ podczas interpretacji wyłączonych skryptów!
-			io error: Nie udało się włączyć jednego lub większej liczby skryptów (niektóre skrypty mogą pozostać wyłączone po restarcie serwera): %s
+			error: <light red>Znaleziono <gold>%s <light red>bł¦ąd¦ędów¦ podczas interpretacji wyłączonych skryptów!
+			io error: <light red>Nie udało się włączyć jednego lub większej liczby skryptów (niektóre skrypty mogą pozostać wyłączone po restarcie serwera): <gold>%s
 		single:
 			already enabled: <gold>%s<reset> jest już włączony! Użyj <gray>/<gold>skript <cyan>reload <red>%s<reset> aby odświeżyć skrypt, jeśli został edytowany.
 			enabling: Włączanie <gold>%s<reset>...
 			enabled: Pomyślnie włączono i zinterpretowano <gold>%s<reset>.
-			error: Znaleziono %2$s bł¦ąd¦ędów¦ podczas interpretacji <gold>%1$s<red>!
-			io error: Nie udało się włączyć <gold>%s<red>: %s
+			error: <light red>Znaleziono <gold>%2$s <light red>bł¦ąd¦ędów¦ podczas interpretacji <gold>%1$s<light red>!
+			io error: <light red>Nie udało się włączyć <gold>%s<light red>: <gold>%s
 		folder:
 			empty: <gold>%s<reset> nie zawiera w sobie żadnych wyłączonych skryptów.
 			enabling: Włączanie <gold>%2$s <reset>skrypt¦¦ów¦ in <gold>%1$s<reset>...
 			enabled: Pomyślnie włączono i zinterpretowano <gold>%2$s<reset> poprzednio wyłączonych skryptów <gold>%1$s<reset>.
-			error: Znaleziono %2$s bł¦ąd¦ędów¦ podczas interpretacji skryptów w folderze <gold>%1$s<red>!
-			io error: Nie udało się włączyć jednego lub większej liczby skryptów w folderze <gold>%s<red> (niektóre skrypty mogą pozostać wyłączone po restarcie serwera): %s
+			error: <light red>Znaleziono <gold>%2$s <light red>bł¦ąd¦ędów¦ podczas interpretacji skryptów w folderze <gold>%1$s<light red>!
+			io error: <light red>Nie udało się włączyć jednego lub większej liczby skryptów w folderze <gold>%s <light red>(niektóre skrypty mogą pozostać wyłączone po restarcie serwera): <gold>%s
 	disable:
 		all:
 			disabled: Pomyślnie wyłączono wszystkie skrypty.
-			io error: Nie udało się zmienić nazwy jednego lub większej liczby skryptów - niektóre skrypty mogą pozostać włączone po restarcie serwera: %s
+			io error: <light red>Nie udało się zmienić nazwy jednego lub większej liczby skryptów - niektóre skrypty mogą pozostać włączone po restarcie serwera: <gold>%s
 		single:
 			already disabled: <gold>%s<reset> jest już wyłączony!
 			disabled: Pomyślnie wyłączono <gold>%s<reset>.
-			io error: Nie udało się zmienić nazwy <gold>%s<red>, skrypt pozostanie włączony po restarcie serwera: %s
+			io error: <light red>Nie udało się zmienić nazwy <gold>%s<light red>, skrypt pozostanie włączony po restarcie serwera: <gold>%s
 		folder:
 			empty: <gold>%s<reset> nie zawiera żadnych włączonych skryptów.
 			disabled: Pomyślnie wyłączono <gold>%2$s<reset> skrypt¦¦ów¦ w <gold>%1$s<reset>.
-			io error: Nie udało się wyłączyć jednego lub większej liczby skryptów w folderze <gold>%s<red> (niektóre skrypty mogą pozostać włączone po restarcie serwera): %s
+			io error: <light red>Nie udało się wyłączyć jednego lub większej liczby skryptów w folderze <gold>%s <light red>(niektóre skrypty mogą pozostać włączone po restarcie serwera): <gold>%s
 	update:
 		# check/download: see Updater
 		changes:
