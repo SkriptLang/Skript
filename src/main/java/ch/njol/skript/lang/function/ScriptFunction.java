@@ -19,16 +19,16 @@
 package ch.njol.skript.lang.function;
 
 import ch.njol.skript.classes.ClassInfo;
-import ch.njol.skript.lang.ReturnHandler;
-import org.jetbrains.annotations.ApiStatus;
-import org.skriptlang.skript.lang.script.Script;
-import org.eclipse.jdt.annotation.Nullable;
-
 import ch.njol.skript.config.SectionNode;
-import ch.njol.skript.effects.EffReturn;
+import ch.njol.skript.lang.Expression;
+import ch.njol.skript.lang.ReturnHandler;
 import ch.njol.skript.lang.Trigger;
 import ch.njol.skript.lang.util.SimpleEvent;
 import ch.njol.skript.variables.Variables;
+import org.bukkit.event.Event;
+import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.script.Script;
 
 public class ScriptFunction<T> extends Function<T> implements ReturnHandler<T> {
 
@@ -60,33 +60,34 @@ public class ScriptFunction<T> extends Function<T> implements ReturnHandler<T> {
 	// REMIND track possible types of local variables (including undefined variables) (consider functions, commands, and EffChange) - maybe make a general interface for this purpose
 	// REM: use patterns, e.g. {_a%b%} is like "a.*", and thus subsequent {_axyz} may be set and of that type.
 	@Override
-	public T @Nullable [] execute(final FunctionEvent<?> e, final Object[][] params) {
+	public T @Nullable [] execute(FunctionEvent<?> event, Object[][] params) {
 		Parameter<?>[] parameters = getSignature().getParameters();
 		for (int i = 0; i < parameters.length; i++) {
-			Parameter<?> p = parameters[i];
+			Parameter<?> parameter = parameters[i];
 			Object[] val = params[i];
-			if (p.single && val.length > 0) {
-				Variables.setVariable(p.name, val[0], e, true);
+			if (parameter.single && val.length > 0) {
+				Variables.setVariable(parameter.name, val[0], event, true);
 			} else {
 				for (int j = 0; j < val.length; j++) {
-					Variables.setVariable(p.name + "::" + (j + 1), val[j], e, true);
+					Variables.setVariable(parameter.name + "::" + (j + 1), val[j], event, true);
 				}
 			}
 		}
 		
-		trigger.execute(e);
+		trigger.execute(event);
 		ClassInfo<T> returnType = getReturnType();
 		return returnType != null ? returnValues : null;
 	}
 
 	/**
-	 * Should only be called by {@link EffReturn}.
-	 * @deprecated Use {@link ScriptFunction#returnValues(Object[])}
+	 * @deprecated Use {@link ScriptFunction#returnValues(Event, Expression)}
 	 */
 	@Deprecated
 	@ApiStatus.Internal
 	public final void setReturnValue(@Nullable T[] values) {
-		returnValues(values);
+		assert !returnValueSet;
+		returnValueSet = true;
+		this.returnValues = values;
 	}
 
 	@Override
@@ -97,10 +98,10 @@ public class ScriptFunction<T> extends Function<T> implements ReturnHandler<T> {
 	}
 
 	@Override
-	public final void returnValues(T @Nullable [] values) {
+	public final void returnValues(Event event, Expression<? extends T> value) {
 		assert !returnValueSet;
 		returnValueSet = true;
-		this.returnValues = values;
+		this.returnValues = value.getArray(event);
 	}
 
 	@Override
