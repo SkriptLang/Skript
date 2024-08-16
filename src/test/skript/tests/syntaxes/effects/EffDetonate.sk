@@ -19,4 +19,3 @@ test "detonate wind charge" when running minecraft "1.21":
 
 
 # The fireworks test will not be added as fireworks are despawned a tick later and tests are instant
-# The tnt test will not be added as tnts are exploded a tick later and tests are instant
