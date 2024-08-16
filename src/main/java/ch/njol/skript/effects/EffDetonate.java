@@ -29,8 +29,7 @@ public class EffDetonate extends Effect {
 	}
 
 	private Expression<Entity> entities;
-
-
+	
 	@Override
 	@SuppressWarnings("unchecked")
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
