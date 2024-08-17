@@ -25,7 +25,7 @@ import ch.njol.skript.expressions.base.PropertyExpression;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionList;
 import ch.njol.skript.lang.ExpressionType;
-import ch.njol.skript.lang.SkriptParser;
+import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.function.DynamicFunctionReference;
 import ch.njol.skript.registrations.Feature;
 import ch.njol.skript.util.LiteralUtils;
@@ -60,12 +60,12 @@ public class ExprResult extends PropertyExpression<Executable<Event, Object>, Ob
 	private boolean hasArguments, isPlural;
 	private DynamicFunctionReference.Input input;
 
-	@SuppressWarnings({"unchecked", "null"})
 	@Override
 	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed,
 						ParseResult result) {
 		if (!this.getParser().hasExperiment(Feature.SCRIPT_REFLECTION))
 			return false;
+		//noinspection unchecked
 		this.setExpr((Expression<? extends Executable<Event, Object>>) expressions[0]);
 		this.hasArguments = result.hasTag("arguments");
 		this.isPlural = result.hasTag("plural");
