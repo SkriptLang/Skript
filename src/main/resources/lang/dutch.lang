@@ -181,7 +181,7 @@ aliases:
 time:
 	errors:
 		24 hours: Een dag heeft maar 24 uren
-		12 hours: Bij gebruik van de 12-uurs indeling is niet meer dan 12 uur mogelijk
+		12 hours: Bij gebruik van de 12-urenindeling zijn niet meer dan 12 uren mogelijk
 		60 minutes: Een uur heeft maar 60 minuten
 
 # -- IO Exceptions --
