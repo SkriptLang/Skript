@@ -10,7 +10,7 @@ none: <none>
 skript:
 	copyright: ~ gemaakt door & © Peter Güttinger aka Njol ~
 	prefix: <gray>[<gold>Skript<gray>] <reset>
-	quotes error: Ongeldig gebruik van aanhalingstekens ("). Als je aanhalingstekens wilt gebruiken in "aangehaalde tekst", verdubbel ze dan: "".
+	quotes error: Ongeldig gebruik van aanhalingstekens ("). Als je aanhalingstekens wil gebruiken in "aangehaalde tekst", verdubbel ze dan: "".
 	brackets error: Ongeldige hoeveelheid of plaatsing van haakjes. Zorg ervoor dat elke openende haak een bijbehorende sluitende haak heeft.
 	invalid reload: Skript mag alleen worden herladen door Bukkit's '/reload' of Skript's '/skript reload' commando.
 	no scripts: Er zijn geen scripts gevonden, misschien moet je er een paar schrijven ;)
