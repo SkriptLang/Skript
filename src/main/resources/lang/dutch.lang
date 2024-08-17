@@ -115,7 +115,7 @@ skript command:
 		documentation: Skripts documentatie kan hier gevonden worden: <aqua>https://docs.skriptlang.org/
 		tutorials: Skripts handleidingen kunnen hier gevonden worden: <aqua>https://docs.skriptlang.org/tutorials
 		version: Skriptversie: <aqua>%s
-		server: Server Versie: <aqua>%s
+		server: Serverversie: <aqua>%s
 		addons: Geïnstalleerde Skript addons: <aqua>%s
 		dependencies: Geïnstalleerde afhankelijkheden: <aqua>%s
 
