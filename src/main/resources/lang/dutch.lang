@@ -51,7 +51,7 @@ skript command:
 	invalid script: Kan het script <grey>'<gold>%s<gold>'<red> niet in de scripts folder vinden!
 	invalid folder: Kan de folder <grey>'<gold>%s<gold>'<red> niet in de scripts folder vinden!
 	reload:
-		warning line info: <gold><bold>Lijn %s:<gray> (%s)<reset>\n
+		warning line info: <gold><bold>Regel %s:<gray> (%s)<reset>\n
 		error line info: <light red><bold>Lijn%s:<gray> (%s)<reset>\n
 		reloading: <gold>%s<reset> wordt herladen...
 		reloaded: <lime><gold>%s<lime> is met succes opnieuw geladen. <gray>(<gold>%2$sms<gray>)
