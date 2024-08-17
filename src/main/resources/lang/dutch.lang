@@ -108,7 +108,8 @@ skript command:
 			# 	footer: Om de wijzigingen van een versie te tonen kan je <gold>/skript update changes <version><reset> gebruiken.
 			# invalid version: Er zijn geen wijzigingen voor de versie <gold>%s<red> beschikbaar
 			title: <bold><cyan>%s<reset> (%s)
-			next page: <grey>pagina %s van %s. Gebruik <gold>/skript update changes %s<gray> voor de volgende pagina (hint: gebruik de pijltjestoets omhoog)
+			next page: <grey>pagina %s van de %s. Gebruik <gold>/skript update changes %s<gray> voor de volgende pagina (hint: gebruik de pijltjestoets omhoog)
+``` not sure about this one tbf
 	info:
 		aliases: Skripts alliassen kunnen hier gevonden worden: <aqua>https://github.com/SkriptLang/skript-aliases
 		documentation: Skripts documentatie kan hier gevonden worden: <aqua>https://docs.skriptlang.org/
