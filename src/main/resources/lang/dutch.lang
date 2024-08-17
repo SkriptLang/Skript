@@ -8,7 +8,7 @@ none: <none>
 
 # -- Skript --
 skript:
-	copyright: ~ gemaakt door & © Peter Güttinger aka Njol ~
+	copyright: ~ gemaakt door & © Peter Güttinger oftewel Njol ~
 	prefix: <gray>[<gold>Skript<gray>] <reset>
 	quotes error: Ongeldig gebruik van aanhalingstekens ("). Als je aanhalingstekens wil gebruiken in "aangehaalde tekst", verdubbel ze dan: "".
 	brackets error: Ongeldige hoeveelheid of plaatsing van haakjes. Zorg ervoor dat elke openende haak een bijbehorende sluitende haak heeft.
