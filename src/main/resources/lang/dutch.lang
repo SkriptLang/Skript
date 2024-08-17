@@ -40,7 +40,7 @@ skript command:
 			all: Schakelt alle scripts uit
 			<script>: Schakelt een specifiek script of een folder met scripts uit
 		update:
-			description: Controleert of er updates zijn, laat de lijst met wijzigingen zien of download de nieuwste versie van Skript
+			description: Controleert of er updates zijn, laat de lijst met wijzigingen zien of downloadt de nieuwste versie van Skript
 			check: Controleert op een nieuwe versie
 			changes: Toont alle wijzigingen sinds de huidige versie
 			download: Download de nieuwste versie
