@@ -34,7 +34,7 @@ skript command:
 		enable:
 			description: Schakelt alle scripts of een specifiek script in
 			all: Schakelt alle scripts in
-			<script>: Schakelt een specifiek script of een map met scripts in
+			<script>: Schakelt een specifiek script of een folder met scripts in
 		disable:
 			description: Schakelt alle scripts of een specifiek script uit
 			all: Schakelt alle scripts uit
