@@ -1,21 +1,3 @@
-/**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
 package ch.njol.skript.expressions;
 
 import ch.njol.skript.Skript;
@@ -67,18 +49,18 @@ public class ExprXYZComponent extends SimplePropertyExpression<Object, Number> {
 		register(ExprXYZComponent.class, Number.class, "[vector|quaternion] (:w|:x|:y|:z) [component[s]]", types);
 	}
 
-	private enum AXIS {
+	private enum Axis {
 		W,
 		X,
 		Y,
 		Z;
 	}
 
-	private @UnknownNullability AXIS axis;
+	private ExprXYZComponent.@UnknownNullability Axis axis;
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		axis = AXIS.valueOf(parseResult.tags.get(0).toUpperCase(Locale.ENGLISH));
+		axis = Axis.valueOf(parseResult.tags.get(0).toUpperCase(Locale.ENGLISH));
 		return super.init(exprs, matchedPattern, isDelayed, parseResult);
 	}
 
@@ -106,10 +88,11 @@ public class ExprXYZComponent extends SimplePropertyExpression<Object, Number> {
 	public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
 		if ((mode == ChangeMode.ADD || mode == ChangeMode.REMOVE || mode == ChangeMode.SET)) {
 			boolean acceptsChange;
-			if (IS_RUNNING_1194)
+			if (IS_RUNNING_1194) {
 				acceptsChange = Changer.ChangerUtils.acceptsChange(getExpr(), ChangeMode.SET, Vector.class, Quaternionf.class);
-			else
+			} else {
 				acceptsChange = Changer.ChangerUtils.acceptsChange(getExpr(), ChangeMode.SET, Vector.class);
+			}
 			if (acceptsChange)
 				return CollectionUtils.array(Number.class);
 		}
@@ -158,7 +141,7 @@ public class ExprXYZComponent extends SimplePropertyExpression<Object, Number> {
 	 * @param mode the change mode to determine the modification type
 	 */
 	private void changeVector(Vector vector, double value, ChangeMode mode) {
-		if (axis == AXIS.W)
+		if (axis == Axis.W)
 			return;
 		switch (mode) {
 			case REMOVE:
@@ -191,27 +174,32 @@ public class ExprXYZComponent extends SimplePropertyExpression<Object, Number> {
 	 * @param mode the change mode to determine the modification type
 	 */
 	private void changeQuaternion(Quaternionf quaternion, float value, ChangeMode mode) {
+		float x = quaternion.x();
+		float y = quaternion.y();
+		float z = quaternion.z();
+		float w = quaternion.w();
 		switch (mode) {
 			case REMOVE:
 				value = -value;
 				//$FALL-THROUGH$
 			case ADD:
 				switch (axis) {
-					case W -> quaternion.set(quaternion.x(), quaternion.y(), quaternion.z(), quaternion.w() + value);
-					case X -> quaternion.set(quaternion.x() + value, quaternion.y(), quaternion.z(), quaternion.w());
-					case Y -> quaternion.set(quaternion.x(), quaternion.y() + value, quaternion.z(), quaternion.w());
-					case Z -> quaternion.set(quaternion.x(), quaternion.y(), quaternion.z() + value, quaternion.w());
+					case W -> w += value;
+					case X -> x += value;
+					case Y -> y += value;
+					case Z -> z += value;
 				}
 				break;
 			case SET:
 				switch (axis) {
-					case W -> quaternion.set(quaternion.x(), quaternion.y(), quaternion.z(), value);
-					case X -> quaternion.set(value, quaternion.y(), quaternion.z(), quaternion.w());
-					case Y -> quaternion.set(quaternion.x(), value, quaternion.z(), quaternion.w());
-					case Z -> quaternion.set(quaternion.x(), quaternion.y(), value, quaternion.w());
+					case W -> w = value;
+					case X -> x = value;
+					case Y -> y = value;
+					case Z -> z = value;
 				}
 				break;
 		}
+		quaternion.set(x, y, z, w);
 	}
 
 	@Override
