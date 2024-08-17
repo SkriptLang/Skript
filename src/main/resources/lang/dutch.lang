@@ -139,7 +139,7 @@ updater:
 
 # -- Commands --
 commands:
-	no permission message: Je hebt niet de vereiste rechten om dit commando te gebruiken
+	no permission message: Je hebt niet de vereiste rechten om dit commando te gebruiken.
 	cooldown message: Je hebt dit commando te vaak gebruikt. Probeer het later nog eens.
 	executable by players: Dit commando kan alleen worden gebruikt door spelers
 	executable by console: Dit commando kan alleen worden gebruikt door de console
