@@ -9,5 +9,4 @@ test "CondIsInvulnerable":
 		make entity vulnerable
 		assert entity is vulnerable with "Entity should be vulnerable"
 		delete entity
-	set {_} to {_}
-	assert {_} is vulnerable with "Empty variable should be vulnerable"
+	assert {_none} is vulnerable with "Empty variable should be vulnerable"
