@@ -22,7 +22,7 @@ skript:
 skript command:
 	usage: Usage:
 	help:
-		description: Skript's hoofdcommando
+		description: Skripts hoofdcommando
 		help: Drukt deze helpmelding af. Gebruik '/skript reload/enable/disable/update' voor meer informatie.
 		reload:
 			description: Herlaadt een specifiek script, alle scripts, de configuratie of alles
