@@ -20,7 +20,7 @@ skript:
 
 # -- Skript command --
 skript command:
-	usage: Usage:
+	usage: Gebruiksaanwijzing:
 	help:
 		description: Skripts hoofdcommando
 		help: Drukt deze helpmelding af. Gebruik '/skript reload/enable/disable/update' voor meer informatie.
