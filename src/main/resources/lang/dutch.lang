@@ -55,7 +55,7 @@ skript command:
 		error line info: <light red><bold>Regel%s:<gray> (%s)<reset>\n
 		reloading: <gold>%s<reset> wordt herladen...
 		reloaded: <lime><gold>%s<lime> is met succes opnieuw geladen. <gray>(<gold>%2$sms<gray>)
-		error: <gold>%2$s <light red>error¦¦s¦ <light red>tegengekomen tijdens het herladen <gold>%1$s<light red>! <gray>(<gold>%3$sms<gray>)
+		error: <gold>%2$s <light red>fout¦¦en¦ <light red>tegengekomen tijdens het herladen <gold>%1$s<light red>! <gray>(<gold>%3$sms<gray>)
 		script disabled: <gold>%s<reset> is momenteel uitgeschakeld. Gebruik <gray>/<gold>skript <cyan>enable <red>%s<reset> om het in te schakelen.
 		warning details: <yellow>    %s<reset>\n
 		error details: <light red>    %s<reset>\n
