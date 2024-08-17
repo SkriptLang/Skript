@@ -28,12 +28,12 @@ test "display entity data" when running minecraft "1.19":
 
 	assert size of block displays is 2 with "did not find all block displays"
 
-	spawn a block display of a red bed at spawn of world "world":
+	spawn a red bed block display at spawn of world "world":
 		set {_block2} to entity
 
 	assert size of block displays is 3 with "did not find all block displays"
 	assert size of block displays of a spruce log is 1 with "did not find correct amount of spruce block displays"
-	assert size of block displays of a red bed is 1 with "did not find correct amount of block display of a red beds"
+	assert size of red bed block displays is 1 with "did not find correct amount of block display of a red beds"
 
 	assert {_block2} is a display with "block display was not a display"
 	assert {_block2} is a block display with "block display was not a block display"
@@ -53,9 +53,9 @@ test "display entity data" when running minecraft "1.19":
 	assert size of item displays of diamond is 1 with "did not find correct amount of item displays of diamonds"
 
 	assert {_item2} is a display with "item display was not a display"
-	assert {_item2} is a item display with "item display was not a block display"
+	assert {_item2} is a item display with "item display was not a item display"
 	assert {_item2} is not an item display of an oak log with "item display of a diamond was an oak log block display"
-	assert {_item2} is a item display of a diamond with "item display of a diamond was not a diamond block display"
+	assert {_item2} is a diamond item display with "item display of a diamond was not a diamond block display"
 	assert {_item2} is not a block display with "item display was a block display"
 	assert {_item2} is not a text display with "item display was a text display"
 

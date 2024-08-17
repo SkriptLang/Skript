@@ -1419,6 +1419,21 @@ public class ItemType implements Unit, Iterable<ItemData>, Container<ItemStack>,
 	}
 
 	/**
+	 * @return A random block material this ItemType represents.
+	 */
+	public Material getBlockMaterial() {
+		List<ItemData> blockItemDatas = new ArrayList<>();
+		for (ItemData d : types) {
+			if (d.type.isBlock())
+				blockItemDatas.add(d);
+		}
+		ItemData data = blockItemDatas.get(random.nextInt(blockItemDatas.size()));
+		if (data == null)
+			throw new IllegalStateException("material not found");
+		return data.getType();
+	}
+
+	/**
 	 * Returns a base item type of this. Essentially, this calls
 	 * {@link ItemData#aliasCopy()} on all datas and creates a new type
 	 * containing the results.
@@ -1431,4 +1446,5 @@ public class ItemType implements Unit, Iterable<ItemData>, Container<ItemStack>,
 		}
 		return copy;
 	}
+
 }

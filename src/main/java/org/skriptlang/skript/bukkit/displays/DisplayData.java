@@ -10,7 +10,6 @@ import ch.njol.skript.util.ColorRGB;
 import ch.njol.skript.variables.Variables;
 import org.bukkit.Bukkit;
 import org.bukkit.Color;
-import org.bukkit.Material;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.BlockDisplay;
 import org.bukkit.entity.Display;
@@ -88,22 +87,29 @@ public class DisplayData extends EntityData<Display> {
 	@SuppressWarnings("unchecked")
 	protected boolean init(Literal<?>[] exprs, int matchedPattern, ParseResult parseResult) {
 		type = DisplayType.values()[matchedPattern];
-		if (exprs.length == 0 || exprs[0] == null)
+		// default to 0, use 1 for alternate pattern: %x% display instead of display of %x%
+		int exprIndex = parseResult.hasTag("alt") ? 1 : 0;
+		if (exprs.length == 0 || exprs[exprIndex] == null)
 			return true;
+
 		if (type == DisplayType.BLOCK) {
-			Object object = ((Literal<Object>) exprs[0]).getSingle();
-			if (object instanceof ItemType) {
-				Material material = ((ItemType) object).getMaterial();
-				if (!material.isBlock()) {
-					Skript.error("A block display must be a block item. " + Classes.toString(material) + " is not a block. If you want to spawn an item, use an 'item display'");
+			Object object = ((Literal<Object>) exprs[exprIndex]).getSingle();
+			if (object instanceof ItemType itemType) {
+				if (!itemType.hasBlock()) {
+					Skript.error("A block display must be of a block item. " + Classes.toString(itemType.getMaterial()) + " is not a block. If you want to display an item, use an 'item display'.");
 					return false;
 				}
-				blockData = Bukkit.createBlockData(material);
+				blockData = Bukkit.createBlockData(itemType.getBlockMaterial());
 			} else {
 				blockData = (BlockData) object;
 			}
 		} else if (type == DisplayType.ITEM) {
-			item = ((Literal<ItemType>) exprs[0]).getSingle().getRandom();
+			ItemType itemType = ((Literal<ItemType>) exprs[exprIndex]).getSingle();
+			if (!itemType.hasItem()) {
+				Skript.error("An item display must be of a valid item. " + Classes.toString(itemType.getMaterial()) + " is not a valid item. If you want to display a block, use a 'block display'.");
+				return false;
+			}
+			item = itemType.getRandom();
 		}
 		return true;
 	}
