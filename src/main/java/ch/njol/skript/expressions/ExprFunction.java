@@ -66,8 +66,8 @@ public class ExprFunction extends SimpleExpression<DynamicFunctionReference> {
 
 	@SuppressWarnings("null")
 	@Override
-	public boolean init(final Expression<?>[] expressions, final int matchedPattern, final Kleenean isDelayed,
-                        final ParseResult result) {
+	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed,
+                        ParseResult result) {
 		if (!this.getParser().hasExperiment(Feature.SCRIPT_REFLECTION))
 			return false;
 		this.mode = matchedPattern;
@@ -90,8 +90,8 @@ public class ExprFunction extends SimpleExpression<DynamicFunctionReference> {
 	}
 
 	@Override
-	protected DynamicFunctionReference<?>[] get(final Event event) {
-		final @Nullable Script script;
+	protected DynamicFunctionReference<?>[] get(Event event) {
+		@Nullable Script script;
 		if (local)
 			script = this.script.getSingle(event);
 		else
@@ -161,7 +161,7 @@ public class ExprFunction extends SimpleExpression<DynamicFunctionReference> {
 	}
 
 	@Override
-	public String toString(final @Nullable Event event, final boolean debug) {
+	public String toString(@Nullable Event event, boolean debug) {
 		switch (mode) {
 			case 0:
 				return "the function named " + name.toString(event, debug)

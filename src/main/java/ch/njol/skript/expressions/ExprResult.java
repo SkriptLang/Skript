@@ -53,7 +53,7 @@ public class ExprResult extends PropertyExpression<Executable<Event, Object>, Ob
 
 	static {
 		Skript.registerExpression(ExprResult.class, Object.class, ExpressionType.SIMPLE,
-			"[the] result[plural:s] of %executable% [arguments:with arg[ument]s %-objects%]");
+			"[the] result[plural:s] of [running] %executable% [arguments:with arg[ument]s %-objects%]");
 	}
 
 	private Expression<?> arguments;
@@ -62,8 +62,8 @@ public class ExprResult extends PropertyExpression<Executable<Event, Object>, Ob
 
 	@SuppressWarnings({"unchecked", "null"})
 	@Override
-	public boolean init(final Expression<?>[] expressions, final int matchedPattern, final Kleenean isDelayed,
-						final SkriptParser.ParseResult result) {
+	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed,
+						ParseResult result) {
 		if (!this.getParser().hasExperiment(Feature.SCRIPT_REFLECTION))
 			return false;
 		this.setExpr((Expression<? extends Executable<Event, Object>>) expressions[0]);
