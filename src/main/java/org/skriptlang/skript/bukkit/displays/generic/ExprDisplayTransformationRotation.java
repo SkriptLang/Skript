@@ -44,11 +44,10 @@ public class ExprDisplayTransformationRotation extends SimplePropertyExpression<
 	}
 
 	public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
-		if (mode == ChangeMode.SET)
-			return CollectionUtils.array(Quaternionf.class);
-		if (mode == ChangeMode.RESET)
-			return CollectionUtils.array();
-		return null;
+		return switch (mode) {
+			case SET, RESET -> CollectionUtils.array(Quaternionf.class);
+			default -> null;
+		};
 	}
 
 	@Override

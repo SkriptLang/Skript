@@ -35,9 +35,10 @@ public class ExprDisplayGlowOverride extends SimplePropertyExpression<Display, C
 	}
 
 	public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
-		if (mode == ChangeMode.SET || mode == ChangeMode.RESET || mode == ChangeMode.DELETE)
-			return CollectionUtils.array(Color.class);
-		return null;
+		return switch (mode) {
+			case SET, RESET, DELETE -> CollectionUtils.array(Color.class);
+			default -> null;
+		};
 	}
 
 	@Override

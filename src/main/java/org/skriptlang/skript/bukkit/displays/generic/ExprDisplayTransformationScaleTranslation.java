@@ -42,11 +42,10 @@ public class ExprDisplayTransformationScaleTranslation extends SimplePropertyExp
 	}
 
 	public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
-		if (mode == ChangeMode.SET)
-			return CollectionUtils.array(Vector.class);
-		if (mode == ChangeMode.RESET)
-			return CollectionUtils.array();
-		return null;
+		return switch (mode) {
+			case SET, RESET -> CollectionUtils.array(Vector.class);
+			default -> null;
+		};
 	}
 
 	@Override

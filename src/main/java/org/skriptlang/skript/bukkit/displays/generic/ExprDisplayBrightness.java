@@ -92,13 +92,13 @@ public class ExprDisplayBrightness extends SimpleExpression<Integer> {
 	public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
 		if (skyLight || blockLight) {
 			return switch (mode) {
-				case REMOVE_ALL, RESET, DELETE -> null;
 				case ADD, REMOVE, SET -> CollectionUtils.array(Number.class);
+				default -> null;
 			};
 		} else {
 			return switch (mode) {
-				case ADD, REMOVE, REMOVE_ALL -> null;
 				case SET, RESET, DELETE -> CollectionUtils.array(Number.class);
+				default -> null;
 			};
 		}
 	}

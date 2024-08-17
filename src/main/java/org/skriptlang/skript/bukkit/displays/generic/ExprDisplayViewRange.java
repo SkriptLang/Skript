@@ -34,7 +34,7 @@ public class ExprDisplayViewRange extends SimplePropertyExpression<Display, Floa
 		return switch (mode) {
 			case ADD, SET, REMOVE -> CollectionUtils.array(Number.class);
 			case RESET -> CollectionUtils.array();
-			case DELETE, REMOVE_ALL -> null;
+			default -> null;
 		};
 	}
 

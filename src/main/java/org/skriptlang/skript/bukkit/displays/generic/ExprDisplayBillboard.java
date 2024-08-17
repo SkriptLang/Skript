@@ -33,18 +33,11 @@ public class ExprDisplayBillboard extends SimplePropertyExpression<Display, Bill
 	}
 
 	public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
-		switch (mode) {
-			case ADD:
-			case DELETE:
-			case REMOVE:
-			case REMOVE_ALL:
-				break;
-			case RESET:
-				return CollectionUtils.array();
-			case SET:
-				return CollectionUtils.array(Billboard.class);
-		}
-		return null;
+		return switch (mode) {
+			case RESET -> CollectionUtils.array();
+			case SET -> CollectionUtils.array(Billboard.class);
+			default -> null;
+		};
 	}
 
 	@Override

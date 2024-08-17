@@ -36,7 +36,7 @@ public class ExprTextDisplayOpacity extends SimplePropertyExpression<Display, By
 	public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
 		return switch (mode) {
 			case ADD, REMOVE, RESET, SET -> CollectionUtils.array(Number.class);
-			case REMOVE_ALL, DELETE -> null;
+			default -> null;
 		};
 	}
 

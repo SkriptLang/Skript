@@ -48,7 +48,7 @@ public class ExprDisplayTeleportDuration extends SimplePropertyExpression<Displa
 		return switch (mode) {
 			case ADD, REMOVE, SET -> CollectionUtils.array(Timespan.class);
 			case RESET -> CollectionUtils.array();
-			case DELETE, REMOVE_ALL -> null;
+			default -> null;
 		};
 	}
 

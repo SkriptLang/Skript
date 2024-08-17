@@ -65,8 +65,10 @@ public class ExprQuaternionAxisAngle extends SimplePropertyExpression<Quaternion
 					return CollectionUtils.array(isAxis ? Vector.class : Number.class);
 				return null;
 			}
+			default -> {
+				return null;
+			}
 		}
-		return null;
 	}
 
 	@Override

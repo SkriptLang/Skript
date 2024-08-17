@@ -39,7 +39,7 @@ public class ExprTextOf extends SimplePropertyExpression<Object, String> {
 		// This is because this expression is setup to support future types.
 		// Remove this if non-versioning.
 		if (!types.isEmpty())
-			register(ExprTextOf.class, String.class, "(banana|string|text)[s]", types);
+			register(ExprTextOf.class, String.class, "(string|text)[s]", types);
 	}
 
 	@Override
@@ -50,18 +50,11 @@ public class ExprTextOf extends SimplePropertyExpression<Object, String> {
 	}
 
 	public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
-		switch (mode) {
-			case ADD:
-			case DELETE:
-			case REMOVE:
-			case REMOVE_ALL:
-				break;
-			case RESET:
-				return CollectionUtils.array();
-			case SET:
-				return CollectionUtils.array(String.class);
-		}
-		return null;
+		return switch (mode) {
+			case RESET -> CollectionUtils.array();
+			case SET -> CollectionUtils.array(String.class);
+			default -> null;
+		};
 	}
 
 	@Override

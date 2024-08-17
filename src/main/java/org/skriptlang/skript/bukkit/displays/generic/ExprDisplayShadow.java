@@ -42,7 +42,7 @@ public class ExprDisplayShadow extends SimplePropertyExpression<Display, Float> 
 		return switch (mode) {
 			case ADD, SET, REMOVE -> CollectionUtils.array(Number.class);
 			case RESET -> CollectionUtils.array();
-			case DELETE, REMOVE_ALL -> null;
+			default -> null;
 		};
 	}
 

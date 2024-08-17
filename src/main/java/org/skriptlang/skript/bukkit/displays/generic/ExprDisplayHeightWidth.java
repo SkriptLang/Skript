@@ -49,7 +49,7 @@ public class ExprDisplayHeightWidth extends SimplePropertyExpression<Display, Fl
 	public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
 		return switch (mode) {
 			case ADD, REMOVE, RESET, SET -> CollectionUtils.array(Number.class);
-			case DELETE, REMOVE_ALL -> null;
+			default -> null;
 		};
 	}
 
