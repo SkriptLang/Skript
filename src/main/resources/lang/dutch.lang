@@ -114,7 +114,7 @@ skript command:
 		aliases: Skripts alliassen kunnen hier gevonden worden: <aqua>https://github.com/SkriptLang/skript-aliases
 		documentation: Skripts documentatie kan hier gevonden worden: <aqua>https://docs.skriptlang.org/
 		tutorials: Skripts handleidingen kunnen hier gevonden worden: <aqua>https://docs.skriptlang.org/tutorials
-		version: Skript Versie: <aqua>%s
+		version: Skriptversie: <aqua>%s
 		server: Server Versie: <aqua>%s
 		addons: Geïnstalleerde Skript addons: <aqua>%s
 		dependencies: Geïnstalleerde afhankelijkheden: <aqua>%s
