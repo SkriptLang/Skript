@@ -105,7 +105,7 @@ skript command:
 		changes:
 			# multiple versions:
 			# 	title: <gold>%s<r> update¦ is¦s zijn¦ uitgebracht sinds deze versie (<gold>%s<r>) van Skript:
-			# 	footer: Om de changelog van een versie te tonen gebruik je <gold>/skript update changes <version><reset>
+			# 	footer: Om de wijzigingen van een versie te tonen kan je <gold>/skript update changes <version><reset> gebruiken.
 			# invalid version: Geen changelog voor de versie <gold>%s<red> beschikbaar
 			title: <bold><cyan>%s<reset> (%s)
 			next page: <grey>pagina %s van %s. Gebruik <gold>/skript update changes %s<gray> voor de volgende pagina (hint: gebruik de pijltjestoets omhoog)
