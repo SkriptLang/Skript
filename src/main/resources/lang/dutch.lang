@@ -74,7 +74,7 @@ skript command:
 		all:
 			enabling: Alle uitgeschakelde scripts worden ingeschakeld...
 			enabled: Alle eerder uitgeschakelde scripts zijn ingeschakeld en geparset
-			error: <gold>%s <light red>error¦¦s¦ <light red>tegengekomen bij het parseren van uitgeschakelde scripts!
+			error: <gold>%s <light red>fout¦¦en¦ <light red>tegengekomen bij het parsen van uitgeschakelde scripts!
 			io error: <light red>Kon een of meer scripts niet laden - sommige scripts zijn mogelijk al hernoemd en zullen worden ingeschakeld wanneer de server opnieuw opstart: <gold>%s
 		single:
 			already enabled: <gold>%s<reset> is al ingeschakeld! gebruik <gray>/<gold>skript <cyan>reload <red>%s<reset> om het te herladen als het aangepast is.
