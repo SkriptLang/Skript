@@ -28,7 +28,7 @@ skript command:
 			description: Herlaadt een specifiek script, alle scripts, de configuratie of alles
 			all: Herlaadt de configuratie, alle aliassenconfiguraties en alle scripts
 			config: Herlaadt de hoofdconfiguratie
-			aliases: Herlaadt de aliassen-configuratie (aliases-english.zip of plugin jar)
+			aliases: Herlaadt de aliassenconfiguratie (aliases-english.zip of plugin jar)
 			scripts: Herlaadt alle scripts
 			<script>: Herlaadt een specifiek script of een folder met scripts
 		enable:
