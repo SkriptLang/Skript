@@ -86,7 +86,7 @@ skript command:
 			empty: <gold>%s<reset> bevat geen uitgeschakelde scripts.
 			enabling: <gold>%2$s<reset> script¦¦s¦ in <gold>%1$s<reset> inschakelen...
 			enabled: <gold>%2$s<reset> eerder uitgeschakelde scripts in <gold>%1$s<reset> succesvol ingeschakeld en geparseerd.
-			error: <gold>%2$s <light red>error¦¦s¦ <light red>tegengekomen bij het parseren van scripts in <gold>%1$s<light red>!
+			error: <gold>%2$s <light red>fout¦¦en¦ <light red>tegengekomen bij het parsen van scripts in <gold>%1$s<light red>!
 			io error: <light red>Fout bij het inschakelen van een of meer scripts in <gold>%s <light red>(sommige scripts worden mogelijk ingeschakeld wanneer de server opnieuw opstart): <gold>%s
 	disable:
 		all:
