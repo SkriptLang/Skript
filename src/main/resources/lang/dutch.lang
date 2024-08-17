@@ -162,7 +162,7 @@ aliases:
 	invalid item type: '%s' is geen itemtype
 	empty name: Een alias moet een naam hebben
 	brackets error: Ongeldig gebruik van haakjes
-	not enough brackets: Sectie beginnend met teken %s ('%s') moet worden gesloten
+	not enough brackets: Sectie beginnend met karakter %s ('%s') moet worden gesloten
 	too many brackets: Karakter %s ('%s') sluit een niet-bestaande sectie
 	unknown variation: De variatie %s is niet eerder gedefinieerd
 	missing aliases: De volgende Minecraft id's hebben geen alliassen:
