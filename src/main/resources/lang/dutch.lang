@@ -80,7 +80,7 @@ skript command:
 			already enabled: <gold>%s<reset> is al ingeschakeld! Gebruik <gray>/<gold>skript <cyan>reload <red>%s<reset> om het script opnieuw te laden als je het hebt aangepast.
 			enabling: <gold>%s<reset> wordt ingeschakeld...
 			enabled: <gold>%s<reset> is met succes ingeschakeld en geparset.
-			error: <gold>%2$s <light red>error¦¦s¦ <light red>tegengekomen bij het parseren van <gold>%1$s<light red>!
+			error: <gold>%2$s <light red>fout¦¦en¦ <light red>tegengekomen bij het parsen van <gold>%1$s<light red>!
 			io error: <light red>Kon <gold>%s <light red>niet inschakelen: <gold>%s
 		folder:
 			empty: <gold>%s<reset> bevat geen uitgeschakelde scripts.
