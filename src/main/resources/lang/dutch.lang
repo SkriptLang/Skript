@@ -77,7 +77,7 @@ skript command:
 			error: <gold>%s <light red>fout¦¦en¦ <light red>tegengekomen bij het parsen van uitgeschakelde scripts!
 			io error: <light red>Kon een of meer scripts niet laden - sommige scripts zijn mogelijk al hernoemd en zullen worden ingeschakeld wanneer de server opnieuw opstart: <gold>%s
 		single:
-			already enabled: <gold>%s<reset> is al ingeschakeld! gebruik <gray>/<gold>skript <cyan>reload <red>%s<reset> om het te herladen als het aangepast is.
+			already enabled: <gold>%s<reset> is al ingeschakeld! Gebruik <gray>/<gold>skript <cyan>reload <red>%s<reset> om het script opnieuw te laden als je het hebt aangepast.
 			enabling: <gold>%s<reset> wordt ingeschakeld...
 			enabled: <gold>%s<reset> is met succes ingeschakeld en geparset.
 			error: <gold>%2$s <light red>error¦¦s¦ <light red>tegengekomen bij het parseren van <gold>%1$s<light red>!
