@@ -26,9 +26,9 @@ skript command:
 		help: Toont deze hulpmelding. Gebruik '/skript reload/enable/disable/update' voor meer informatie.
 		reload:
 			description: Herlaadt een specifiek script, alle scripts, de configuratie of alles
-			all: Herlaadt de configuratie, alle aliassenconfiguraties en alle scripts
+			all: Herlaadt de configuratie, alle alliassenconfiguraties en alle scripts
 			config: Herlaadt de hoofdconfiguratie
-			aliases: Herlaadt de aliassenconfiguratie (aliases-english.zip of plugin jar)
+			aliases: Herlaadt de alliassenconfiguratie (aliases-english.zip of plugin jar)
 			scripts: Herlaadt alle scripts
 			<script>: Herlaadt een specifiek script of een folder met scripts
 		enable:
@@ -44,7 +44,7 @@ skript command:
 			check: Controleert of er een nieuwe versie is
 			changes: Toont alle wijzigingen sinds de huidige versie
 			download: Downloadt de nieuwste versie
-		info: Drukt een bericht af met koppelingen naar de aliassen en documentatie van Skript
+		info: Toont koppelingen naar de alliassen en documentatie van Skript
 		gen-docs: Genereert documentatie met behulp van docs/templates in de plugin folder
 		test: Gebruikt voor het uitvoeren van interne Skript-tests
 
@@ -62,10 +62,10 @@ skript command:
 		other details: <white>    %s<reset>\n
 		line details: <gold>    Regel: <gray>%s<reset>\n <reset>
 
-		config, aliases and scripts: de configuratie, aliassen en alle scripts
+		config, aliases and scripts: de configuratie, alliassen en alle scripts
 		scripts: alle scripts
 		main config: de hoofdconfiguratie
-		aliases: de aliassen
+		aliases: de alliassen
 		script: <gold>%s<reset>
 		scripts in folder: alle scripts in <gold>%s<reset>
 		x scripts in folder: <gold>%2$s <lime>script¦¦s¦ in <gold>%1$s<reset>
@@ -110,7 +110,7 @@ skript command:
 			title: <bold><cyan>%s<reset> (%s)
 			next page: <grey>pagina %s van %s. Gebruik <gold>/skript update changes %s<gray> voor de volgende pagina (hint: gebruik de pijltjestoets omhoog)
 	info:
-		aliases: Skripts aliassen kunnen hier gevonden worden: <aqua>https://github.com/SkriptLang/skript-aliases
+		aliases: Skripts alliassen kunnen hier gevonden worden: <aqua>https://github.com/SkriptLang/skript-aliases
 		documentation: Skripts documentatie kan hier gevonden worden: <aqua>https://docs.skriptlang.org/
 		tutorials: Skripts handleidingen kunnen hier gevonden worden: <aqua>https://docs.skriptlang.org/tutorials
 		version: Skript Versie: <aqua>%s
@@ -164,14 +164,14 @@ aliases:
 	not enough brackets: Sectie beginnend met teken %s ('%s') moet worden gesloten
 	too many brackets: Karakter %s ('%s') sluit een niet-bestaande sectie
 	unknown variation: De variatie %s is niet eerder gedefinieerd
-	missing aliases: De volgende Minecraft id's hebben geen aliassen:
+	missing aliases: De volgende Minecraft id's hebben geen alliassen:
 	empty alias: Alias heeft geen gedefinieerde Minecraft id of tags
 	invalid minecraft id: Minecraft id %s is niet geldig
 	useless variation: Variatie heeft geen Minecraft id of tags gespecificeerd, dus het is nutteloos
 	invalid tags: Opgegeven tags zijn niet gedefinieerd in geldige JSON
 	unexpected section: Secties zijn hier niet toegestaan
 	invalid variation section: Een sectie zou variatiesectie moeten zijn, maar %s is geen geldige variatienaam
-	outside section: Aliassen moeten in secties worden gezet
+	outside section: Alliassen moeten in secties worden gezet
 
 	# Other messages
 	loaded x aliases from: %s Nederlandse alliasen geladen uit %s
