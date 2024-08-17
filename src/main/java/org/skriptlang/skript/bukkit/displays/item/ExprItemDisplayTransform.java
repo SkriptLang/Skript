@@ -15,7 +15,10 @@ import org.jetbrains.annotations.Nullable;
 
 @Name("Item Display Transform")
 @Description("Returns or changes the <a href='classes.html#itemdisplaytransform'>item display transform</a> of <a href='classes.html#display'>item displays</a>.")
-@Examples("set the item transform of the last spawned item display to no transform # Reset to default")
+@Examples({
+	"set the item transform of the last spawned item display to first person left handed",
+	"set the item transform of the last spawned item display to no transform # Reset to default"
+})
 @Since("INSERT VERSION")
 public class ExprItemDisplayTransform extends SimplePropertyExpression<Display, ItemDisplayTransform> {
 

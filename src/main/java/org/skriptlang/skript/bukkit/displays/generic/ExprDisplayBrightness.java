@@ -32,7 +32,6 @@ import java.util.List;
 	"Likewise, you can only clear the brightness override, you cannot clear/reset the sky/block values individually."
 })
 @Examples({
-	"set brightness override of the last spawned text display to brightness(5, 7)",
 	"set sky light override of the last spawned text display to 7",
 	"subtract 3 from the block light level override of the last spawned text display",
 	"if sky light level override of {_display} is 5:",

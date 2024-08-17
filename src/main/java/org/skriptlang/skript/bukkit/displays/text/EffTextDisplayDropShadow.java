@@ -33,14 +33,14 @@ public class EffTextDisplayDropShadow extends Effect {
 			);
 	}
 
-	Expression<Display> displays;
-	boolean shadowed;
+	private Expression<Display> displays;
+	private boolean addShadow;
 
 	@Override
 	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		//noinspection unchecked
 		displays = (Expression<Display>) expressions[0];
-		shadowed = matchedPattern <= 1;
+		addShadow = matchedPattern <= 1;
 		return true;
 	}
 
@@ -48,13 +48,13 @@ public class EffTextDisplayDropShadow extends Effect {
 	protected void execute(Event event) {
 		for (Display display : displays.getArray(event)) {
 			if (display instanceof TextDisplay textDisplay)
-				textDisplay.setShadowed(shadowed);
+				textDisplay.setShadowed(addShadow);
 		}
 	}
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		if (shadowed)
+		if (addShadow)
 			return "add drop shadow to " + displays.toString(event, debug);
 		return "remove drop shadow from " + displays.toString(event, debug);
 	}

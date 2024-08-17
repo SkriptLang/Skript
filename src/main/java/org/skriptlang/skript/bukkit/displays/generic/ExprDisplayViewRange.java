@@ -69,7 +69,7 @@ public class ExprDisplayViewRange extends SimplePropertyExpression<Display, Floa
 
 	@Override
 	protected String getPropertyName() {
-		return  "view range";
+		return "view range";
 	}
 
 }

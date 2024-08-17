@@ -103,8 +103,8 @@ public class ExprRotate extends SimpleExpression<Object> {
 			float radY = (float) (y.floatValue() * Math.PI / 180);
 			float radZ = (float) (z.floatValue() * Math.PI / 180);
 
-			return toRotate.stream(event)
-				.map(Quaternionf.class::cast)
+			//noinspection unchecked
+			return ((Expression<Quaternionf>) toRotate).stream(event)
 				.map(quaternion -> quaternion.rotateZYX(radZ, radY, radX))
 				.toArray(Quaternionf[]::new);
 		}
@@ -159,23 +159,19 @@ public class ExprRotate extends SimpleExpression<Object> {
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		switch (matchedPattern) {
-			case 0, 1:
-				return toRotate.toString(event, debug) +
-						" rotated around the " + axis + "-axis " +
-						"by " + angle.toString(event, debug) + " degrees";
-			case 2:
-				return toRotate.toString(event, debug) +
-						" rotated around " + vector.toString(event, debug) + "-axis " +
-						"by " + angle.toString(event, debug) + " degrees";
-			case 3:
-				return toRotate.toString(event, debug) +
-						" rotated by x " + x.toString(event, debug) + ", " +
-						"y " + y.toString(event, debug) + ", " +
-						"and z " + z.toString(event, debug);
-		}
-		assert false;
-		return "invalid";
+		return switch (matchedPattern) {
+			case 0, 1 -> toRotate.toString(event, debug) +
+				" rotated around the " + axis + "-axis " +
+				"by " + angle.toString(event, debug) + " degrees";
+			case 2 -> toRotate.toString(event, debug) +
+				" rotated around " + vector.toString(event, debug) + "-axis " +
+				"by " + angle.toString(event, debug) + " degrees";
+			case 3 -> toRotate.toString(event, debug) +
+				" rotated by x " + x.toString(event, debug) + ", " +
+				"y " + y.toString(event, debug) + ", " +
+				"and z " + z.toString(event, debug);
+			default -> "invalid";
+		};
 	}
 
 }

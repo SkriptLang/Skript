@@ -14,7 +14,7 @@ public class NonMutatingVectorRotator implements Rotator<Vector> {
 			case X -> (input) -> input.clone().rotateAroundX(angle);
 			case Y -> (input) -> input.clone().rotateAroundY(angle);
 			case Z -> (input) -> input.clone().rotateAroundZ(angle);
-			case ARBITRARY -> throw new UnsupportedOperationException("Rotation around the " + axis + " axis requires addition data. Use a different constructor.");
+			case ARBITRARY -> throw new UnsupportedOperationException("Rotation around the " + axis + " axis requires additional data. Use a different constructor.");
 			case LOCAL_ARBITRARY, LOCAL_X, LOCAL_Y, LOCAL_Z -> (input) -> input;
 		};
 	}

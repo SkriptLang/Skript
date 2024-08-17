@@ -68,9 +68,13 @@ public class ExprDisplayHeightWidth extends SimplePropertyExpression<Display, Fl
 				for (Display display : displays) {
 					if (height) {
 						float value = Math.max(0F, display.getDisplayHeight() + change);
+						if (Float.isInfinite(value))
+							continue;
 						display.setDisplayHeight(value);
 					} else {
 						float value = Math.max(0F, display.getDisplayWidth() + change);
+						if (Float.isInfinite(value))
+							continue;
 						display.setDisplayWidth(value);
 					}
 				}

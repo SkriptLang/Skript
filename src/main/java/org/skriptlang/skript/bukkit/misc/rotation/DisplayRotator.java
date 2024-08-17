@@ -33,4 +33,5 @@ public class DisplayRotator implements Rotator<Display> {
 		);
 		return input;
 	}
+
 }

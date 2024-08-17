@@ -23,16 +23,17 @@ public class CondTextDisplayHasDropShadow extends PropertyCondition<Display> {
 
 	static {
 		Skript.registerCondition(CondTextDisplayHasDropShadow.class,
-			"[[the] text of] %displays% (has|have) (drop|text) shadow",
-				"%displays%'[s] text (has|have) (drop|text) shadow",
-				"[[the] text of] %displays% (doesn't|does not|do not|don't) have (drop|text) shadow",
-				"%displays%'[s] text (doesn't|does not|do not|don't) have (drop|text) shadow"
+			"[[the] text of] %displays% (has|have) [a] (drop|text) shadow",
+				"%displays%'[s] text (has|have) [a] (drop|text) shadow",
+				"[[the] text of] %displays% (doesn't|does not|do not|don't) have [a] (drop|text) shadow",
+				"%displays%'[s] text (doesn't|does not|do not|don't) have [a] (drop|text) shadow"
 			);
 	}
 
 	@Override
 	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		super.init(expressions, matchedPattern, isDelayed, parseResult);
+		if (!super.init(expressions, matchedPattern, isDelayed, parseResult))
+			return false;
 		setNegated(matchedPattern > 1);
 		return true;
 	}
@@ -40,6 +41,11 @@ public class CondTextDisplayHasDropShadow extends PropertyCondition<Display> {
 	@Override
 	public boolean check(Display value) {
 		return value instanceof TextDisplay textDisplay && textDisplay.isShadowed();
+	}
+
+	@Override
+	protected PropertyType getPropertyType() {
+		return PropertyType.HAVE;
 	}
 
 	@Override

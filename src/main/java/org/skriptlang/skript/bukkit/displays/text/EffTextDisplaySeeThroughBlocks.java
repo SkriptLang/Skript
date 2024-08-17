@@ -27,7 +27,7 @@ public class EffTextDisplaySeeThroughBlocks extends Effect {
 		Skript.registerEffect(EffTextDisplaySeeThroughBlocks.class,
 				"make %displays% visible through (blocks|walls)",
 				"force %displays% to be visible through (blocks|walls)",
-				"prevent %displays% from being (visible|seen) through (blocks|walls)"
+				"(prevent|block) %displays% from being (visible|seen) through (blocks|walls)"
 			);
 	}
 

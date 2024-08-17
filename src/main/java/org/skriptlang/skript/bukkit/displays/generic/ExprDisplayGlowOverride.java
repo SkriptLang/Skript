@@ -29,9 +29,8 @@ public class ExprDisplayGlowOverride extends SimplePropertyExpression<Display, C
 	@Override
 	@Nullable
 	public Color convert(Display display) {
-		if (display.getGlowColorOverride() == null)
-			return null;
-		return ColorRGB.fromBukkitColor(display.getGlowColorOverride());
+		org.bukkit.Color color = display.getGlowColorOverride();
+		return color != null ? ColorRGB.fromBukkitColor(color) : null;
 	}
 
 	public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
@@ -43,17 +42,9 @@ public class ExprDisplayGlowOverride extends SimplePropertyExpression<Display, C
 
 	@Override
 	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
-		Display[] displays = getExpr().getArray(event);
-		if (mode != ChangeMode.SET) {
-			for (Display display : displays)
-				display.setGlowColorOverride(null);
-			return;
-		}
-		if (delta == null)
-			return;
-		Color color = (Color) delta[0];
-		for (Display display : displays)
-			display.setGlowColorOverride(color.asBukkitColor());
+		org.bukkit.Color color = delta != null ? ((Color) delta[0]).asBukkitColor() : null;
+		for (Display display : getExpr().getArray(event))
+			display.setGlowColorOverride(color);
 	}
 
 	@Override

@@ -59,8 +59,7 @@ public class ExprTextOf extends SimplePropertyExpression<Object, String> {
 
 	@Override
 	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
-		//noinspection ConstantConditions
-		String value = mode == ChangeMode.RESET ? null : (String) delta[0];
+		String value = delta == null ? null : (String) delta[0];
 		for (Object object : getExpr().getArray(event)) {
 			if (!(object instanceof TextDisplay))
 				continue;

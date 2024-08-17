@@ -53,13 +53,13 @@ public class ExprItemOfEntity extends SimplePropertyExpression<Entity, Slot> {
 	}
 
 	@Override
-	protected String getPropertyName() {
-		return "item of entity";
+	public Class<? extends Slot> getReturnType() {
+		return Slot.class;
 	}
 
 	@Override
-	public Class<? extends Slot> getReturnType() {
-		return Slot.class;
+	protected String getPropertyName() {
+		return "item of entity";
 	}
 
 }

@@ -73,7 +73,7 @@ public interface Rotator<T> {
 		 * @param axis the axis to convert from
 		 * @return the converted axis
 		 */
-		public Axis fromBukkit(org.bukkit.Axis axis) {
+		public static Axis fromBukkit(org.bukkit.Axis axis) {
 			return switch (axis) {
 				case X -> Axis.X;
 				case Y -> Axis.Y;

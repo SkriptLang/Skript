@@ -11,6 +11,7 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.util.Timespan;
 import ch.njol.skript.util.Timespan.TimePeriod;
 import ch.njol.util.Kleenean;
+import ch.njol.util.Math2;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.entity.Display;
 import org.bukkit.event.Event;
@@ -57,9 +58,9 @@ public class ExprDisplayInterpolation extends SimplePropertyExpression<Display, 
 	@Override
 	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
 		Display[] displays = getExpr().getArray(event);
-		int ticks = 0;
+		long ticks = 0;
 		if (delta != null)
-			ticks = (int) ((Timespan) delta[0]).getAs(TimePeriod.TICK);
+			ticks = Math2.fit(Integer.MIN_VALUE, ((Timespan) delta[0]).getAs(TimePeriod.TICK), Integer.MAX_VALUE);
 
 		switch (mode) {
 			case REMOVE:
@@ -67,22 +68,22 @@ public class ExprDisplayInterpolation extends SimplePropertyExpression<Display, 
 			case ADD:
 				for (Display display : displays) {
 					if (delay) {
-						int value = Math.max(0, display.getInterpolationDelay() + ticks);
+						int value = (int) Math2.fit(0, display.getInterpolationDelay() + ticks, Integer.MAX_VALUE);
 						display.setInterpolationDelay(value);
 					} else {
-						int value = Math.max(0, display.getInterpolationDuration() + ticks);
+						int value = (int) Math2.fit(0, display.getInterpolationDuration() + ticks, Integer.MAX_VALUE);
 						display.setInterpolationDuration(value);
 					}
 				}
 				break;
 			case RESET:
 			case SET:
-				ticks = Math.max(0, ticks);
+				ticks = Math2.fit(0, ticks, Integer.MAX_VALUE);
 				for (Display display : displays) {
 					if (delay) {
-						display.setInterpolationDelay(ticks);
+						display.setInterpolationDelay((int) ticks);
 					} else {
-						display.setInterpolationDuration(ticks);
+						display.setInterpolationDuration((int) ticks);
 					}
 				}
 				break;

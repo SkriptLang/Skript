@@ -55,13 +55,13 @@ public class ExprDisplayTeleportDuration extends SimplePropertyExpression<Displa
 	@Override
 	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
 		Display[] displays = getExpr().getArray(event);
-		int ticks = (int) (delta == null ? 0 : ((Timespan) delta[0]).getAs(TimePeriod.TICK));
+		long ticks = (delta == null ? 0 : ((Timespan) delta[0]).getAs(TimePeriod.TICK));
 		switch (mode) {
 			case REMOVE:
 				ticks = -ticks;
 			case ADD:
 				for (Display display : displays) {
-					int value = Math2.fit(0, display.getTeleportDuration() + ticks, 59);
+					int value = (int) Math2.fit(0, display.getTeleportDuration() + ticks, 59);
 					display.setTeleportDuration(value);
 				}
 				break;
@@ -69,7 +69,7 @@ public class ExprDisplayTeleportDuration extends SimplePropertyExpression<Displa
 			case SET:
 				ticks = Math2.fit(0, ticks, 59);
 				for (Display display : displays)
-					display.setTeleportDuration(ticks);
+					display.setTeleportDuration((int) ticks);
 				break;
 		}
 	}

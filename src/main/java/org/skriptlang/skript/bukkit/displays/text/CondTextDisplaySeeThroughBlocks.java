@@ -30,4 +30,5 @@ public class CondTextDisplaySeeThroughBlocks extends PropertyCondition<Display> 
 	protected String getPropertyName() {
 		return "visible through blocks";
 	}
+
 }

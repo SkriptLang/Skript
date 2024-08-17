@@ -42,13 +42,7 @@ public class ExprDisplayBillboard extends SimplePropertyExpression<Display, Bill
 
 	@Override
 	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
-		if (mode == ChangeMode.RESET) {
-			for (Display display : getExpr().getArray(event))
-				display.setBillboard(Billboard.FIXED);
-			return;
-		}
-		assert delta != null;
-		Billboard billboard = (Billboard) delta[0];
+		Billboard billboard = delta != null ? (Billboard) delta[0] : Billboard.FIXED;
 		for (Display display : getExpr().getArray(event))
 			display.setBillboard(billboard);
 	}
