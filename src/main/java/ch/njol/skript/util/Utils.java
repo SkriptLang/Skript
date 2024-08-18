@@ -241,6 +241,7 @@ public abstract class Utils {
 
 	private final static String[][] plurals = {
 
+			{"ive", "ives"}, // objective fix
 			{"fe", "ves"},// most -f words' plurals can end in -fs as well as -ves
 
 			{"axe", "axes"},
@@ -259,7 +260,7 @@ public abstract class Utils {
 
 			{"man", "men"},
 
-		    {"ui", "uis"},
+		    {"ui", "uis"}, // gui fix
 			{"us", "i"},
 
 			{"hoe", "hoes"},
