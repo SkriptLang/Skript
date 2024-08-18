@@ -22,12 +22,7 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Predicate;
 import java.util.jar.JarEntry;
@@ -42,7 +37,6 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.plugin.messaging.Messenger;
 import org.bukkit.plugin.messaging.PluginMessageListener;
-import org.eclipse.jdt.annotation.Nullable;
 
 import com.google.common.collect.Iterables;
 import com.google.common.io.ByteArrayDataInput;
@@ -62,6 +56,7 @@ import ch.njol.util.StringUtils;
 import ch.njol.util.coll.CollectionUtils;
 import ch.njol.util.coll.iterator.EnumerationIterable;
 import net.md_5.bungee.api.ChatColor;
+import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -71,9 +66,48 @@ import org.jetbrains.annotations.NotNull;
  */
 public abstract class Utils {
 
-	private Utils() {}
-
 	public final static Random random = new Random();
+	protected final static Deque<WordEnding> plurals = new LinkedList<>();
+
+	static {
+		plurals.add(new WordEnding("ive", "ives")); // objective fix
+		plurals.add(new WordEnding("fe", "ves"));// most -f words' plurals can end in -fs as well as -ves
+
+		plurals.add(new WordEnding("axe", "axes"));
+		plurals.add(new WordEnding("x", "xes"));
+
+		plurals.add(new WordEnding("ay", "ays"));
+		plurals.add(new WordEnding("ey", "eys"));
+		plurals.add(new WordEnding("iy", "iys"));
+		plurals.add(new WordEnding("oy", "oys"));
+		plurals.add(new WordEnding("uy", "uys"));
+		plurals.add(new WordEnding("kie", "kies"));
+		plurals.add(new WordEnding("zombie", "zombies"));
+		plurals.add(new WordEnding("y", "ies"));
+
+		plurals.add(new WordEnding("h", "hes"));
+
+		plurals.add(new WordEnding("man", "men"));
+
+		plurals.add(new WordEnding("ui", "uis")); // gui fix
+		plurals.add(new WordEnding("us", "i"));
+
+		plurals.add(new WordEnding("hoe", "hoes"));
+		plurals.add(new WordEnding("toe", "toes"));
+		plurals.add(new WordEnding("o", "oes"));
+
+		plurals.add(new WordEnding("alias", "aliases"));
+		plurals.add(new WordEnding("gas", "gases"));
+
+		plurals.add(new WordEnding("child", "children"));
+
+		plurals.add(new WordEnding("sheep", "sheep"));
+
+		// general ending
+		plurals.add(new WordEnding("", "s"));
+	}
+
+	private Utils() {}
 
 	public static String join(final Object[] objects) {
 		assert objects != null;
@@ -239,77 +273,38 @@ public abstract class Utils {
 		return null;
 	}
 
-	private final static String[][] plurals = {
-
-			{"ive", "ives"}, // objective fix
-			{"fe", "ves"},// most -f words' plurals can end in -fs as well as -ves
-
-			{"axe", "axes"},
-			{"x", "xes"},
-
-			{"ay", "ays"},
-			{"ey", "eys"},
-			{"iy", "iys"},
-			{"oy", "oys"},
-			{"uy", "uys"},
-			{"kie", "kies"},
-			{"zombie", "zombies"},
-			{"y", "ies"},
-
-			{"h", "hes"},
-
-			{"man", "men"},
-
-		    {"ui", "uis"}, // gui fix
-			{"us", "i"},
-
-			{"hoe", "hoes"},
-			{"toe", "toes"},
-			{"o", "oes"},
-
-			{"alias", "aliases"},
-			{"gas", "gases"},
-
-			{"child", "children"},
-
-			{"sheep", "sheep"},
-
-			// general ending
-			{"", "s"},
-	};
-
 	/**
-	 * @param s trimmed string
+	 * @param word trimmed string
 	 * @return Pair of singular string + boolean whether it was plural
 	 */
 	@SuppressWarnings("null")
-	public static NonNullPair<String, Boolean> getEnglishPlural(final String s) {
-		assert s != null;
-		if (s.isEmpty())
+	public static NonNullPair<String, Boolean> getEnglishPlural(final String word) {
+		assert word != null;
+		if (word.isEmpty())
 			return new NonNullPair<>("", Boolean.FALSE);
-		for (final String[] p : plurals) {
-			if (s.endsWith(p[1]))
-				return new NonNullPair<>(s.substring(0, s.length() - p[1].length()) + p[0], Boolean.TRUE);
-			if (s.endsWith(p[1].toUpperCase(Locale.ENGLISH)))
-				return new NonNullPair<>(s.substring(0, s.length() - p[1].length()) + p[0].toUpperCase(Locale.ENGLISH), Boolean.TRUE);
+		for (final WordEnding ending : plurals) {
+			if (word.endsWith(ending.plural()))
+				return new NonNullPair<>(word.substring(0, word.length() - ending.plural().length()) + ending.singular(), Boolean.TRUE);
+			if (word.endsWith(ending.plural().toUpperCase(Locale.ENGLISH)))
+				return new NonNullPair<>(word.substring(0, word.length() - ending.plural().length()) + ending.singular().toUpperCase(Locale.ENGLISH), Boolean.TRUE);
 		}
-		return new NonNullPair<>(s, Boolean.FALSE);
+		return new NonNullPair<>(word, Boolean.FALSE);
 	}
 
 	/**
 	 * Gets the english plural of a word.
 	 *
-	 * @param s
+	 * @param word
 	 * @return The english plural of the given word
 	 */
-	public static String toEnglishPlural(final String s) {
-		assert s != null && s.length() != 0;
-		for (final String[] p : plurals) {
-			if (s.endsWith(p[0]))
-				return s.substring(0, s.length() - p[0].length()) + p[1];
+	public static String toEnglishPlural(final String word) {
+		assert word != null && word.length() != 0;
+		for (final WordEnding ending : plurals) {
+			if (word.endsWith(ending.singular()))
+				return word.substring(0, word.length() - ending.singular().length()) + ending.plural();
 		}
 		assert false;
-		return s + "s";
+		return word + "s";
 	}
 
 	/**
@@ -808,6 +803,25 @@ public abstract class Utils {
 				return false;
 		}
 		return true;
+	}
+
+	protected static class WordEnding { // To be a record in 2.10
+
+		private final String singular, plural;
+
+		private WordEnding(String singular, String plural) {
+			this.singular = singular;
+			this.plural = plural;
+		}
+
+		public String singular() {
+			return singular;
+		}
+
+		public String plural() {
+			return plural;
+		}
+
 	}
 
 }
