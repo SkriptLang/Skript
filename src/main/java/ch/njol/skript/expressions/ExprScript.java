@@ -115,9 +115,9 @@ public class ExprScript extends SimpleExpression<Script> {
 		if (files == null)
 			return;
 		for (File file : files) {
-			if (file.isDirectory())
+			if (file.isDirectory()) {
 				this.getScripts(file, scripts);
-			else if (file.getName().endsWith(".sk")) {
+			} else if (file.getName().endsWith(".sk")) {
 				@Nullable Script handle = ExprScript.getHandle(file);
 				if (handle != null)
 					scripts.add(handle);
