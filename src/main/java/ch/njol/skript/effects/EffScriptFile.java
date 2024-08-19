@@ -38,11 +38,16 @@ import ch.njol.util.OpenCloseable;
 import org.bukkit.event.Event;
 
 import java.io.File;
+import java.io.FileFilter;
 import java.io.IOException;
 import java.util.Set;
 
-@Name("Enable/Disable/Reload Script")
-@Description("Enables, disables, or reloads a script.")
+@Name("Enable/Disable/Unload/Reload Script")
+@Description("""
+	Enables, disables, unloads, or reloads a script.
+	
+	Disabling a script unloads it and prepends - to its name so it will not be loaded the next time the server restarts.
+	If the script reflection experiment is enabled: unloading a script terminates it and removes it from memory, but does not alter the file.""")
 @Examples({
 	"reload script \"test\"",
 	"enable script file \"testing\"",
@@ -50,7 +55,7 @@ import java.util.Set;
 	"set {_script} to the script \"MyScript.sk\"",
 	"reload {_script}"
 })
-@Since("2.4")
+@Since("2.4, INSERT VERSION (unloading)")
 public class EffScriptFile extends Effect {
 
 	static {
@@ -78,8 +83,7 @@ public class EffScriptFile extends Effect {
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
 		this.mark = parseResult.mark;
 		switch (matchedPattern) {
-			case 0:
-			case 1:
+			case 0, 1:
 				this.stringExpression = (Expression<String>) exprs[0];
 				break;
 			case 2:
@@ -111,11 +115,12 @@ public class EffScriptFile extends Effect {
 			return;
 		if (name == null)
 			name = scriptFile.getName();
+		FileFilter filter = ScriptLoader.getDisabledScriptsFilter();
 		switch (mark) {
 			case ENABLE:
 				if (ScriptLoader.getLoadedScripts().contains(ScriptLoader.getScript(scriptFile)))
 					return;
-				if (scriptFile.getName().startsWith(ScriptLoader.DISABLED_SCRIPT_PREFIX)) {
+				if (!filter.accept(scriptFile)) {
 					try {
 						// TODO Central methods to be used between here and SkriptCommand should be created for
 						//  enabling/disabling (renaming) files
@@ -135,7 +140,7 @@ public class EffScriptFile extends Effect {
 				ScriptLoader.loadScripts(scriptFile, OpenCloseable.EMPTY);
 				break;
 			case RELOAD:
-				if (ScriptLoader.getDisabledScriptsFilter().accept(scriptFile))
+				if (filter.accept(scriptFile))
 					return;
 
 				this.unloadScripts(scriptFile);
@@ -151,7 +156,7 @@ public class EffScriptFile extends Effect {
 					break;
 				}
 			case DISABLE:
-				if (ScriptLoader.getDisabledScriptsFilter().accept(scriptFile))
+				if (filter.accept(scriptFile))
 					return;
 
 				this.unloadScripts(scriptFile);
@@ -179,7 +184,6 @@ public class EffScriptFile extends Effect {
 			Set<Script> scripts = ScriptLoader.getScripts(file);
 			if (scripts.isEmpty())
 				return;
-			scripts.retainAll(loaded); // skip any that are not loaded (avoid throwing error)
 			ScriptLoader.unloadScripts(scripts);
 		} else {
 			Script script = ScriptLoader.getScript(file);
@@ -192,7 +196,12 @@ public class EffScriptFile extends Effect {
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		String start = mark == ENABLE ? "enable " : mark == RELOAD ? "disable " : mark == DISABLE ? "unload " : " ";
+		String start = switch (mark) {
+			case ENABLE -> "enable";
+			case DISABLE -> "disable";
+			case RELOAD -> "reload";
+			default -> "unload";
+		} + " ";
 		if (scripts)
 			return start + scriptExpression.toString(event, debug);
 		return start + "script file " + stringExpression.toString(event, debug);

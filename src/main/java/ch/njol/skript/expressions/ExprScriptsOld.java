@@ -26,21 +26,23 @@ import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
+import ch.njol.skript.registrations.Feature;
+import org.skriptlang.skript.lang.script.Script;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
-import ch.njol.skript.registrations.Feature;
 import ch.njol.util.Kleenean;
-import org.bukkit.event.Event;
-import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.lang.script.Script;
 
 import java.io.File;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
-@Name("All Scripts (Experimental)")
+import org.bukkit.event.Event;
+
+import org.jetbrains.annotations.Nullable;
+
+@Name("All Scripts")
 @Description("Returns all of the scripts, or just the enabled or disabled ones.")
 @Examples({
 	"command /scripts:",
@@ -49,43 +51,56 @@ import java.util.stream.Collectors;
 	"\t\tsend \"Loaded Scripts: %enabled scripts%\" to player",
 	"\t\tsend \"Unloaded Scripts: %disabled scripts%\" to player"
 })
-@Since("INSERT VERSION")
-public class ExprScriptsNew extends SimpleExpression<Script> {
+@Since("2.5")
+public class ExprScriptsOld extends SimpleExpression<String> {
 
 	static {
-		Skript.registerExpression(ExprScriptsNew.class, Script.class, ExpressionType.SIMPLE,
-				"[all [[of] the]|the] scripts",
-				"[all [[of] the]|the] (enabled|loaded) scripts",
-				"[all [[of] the]|the] (disabled|unloaded) scripts");
+		Skript.registerExpression(ExprScriptsOld.class, String.class, ExpressionType.SIMPLE,
+				"[all [of the]|the] scripts [1:without ([subdirectory] paths|parents)]",
+				"[all [of the]|the] (enabled|loaded) scripts [1:without ([subdirectory] paths|parents)]",
+				"[all [of the]|the] (disabled|unloaded) scripts [1:without ([subdirectory] paths|parents)]");
 	}
+
+	public static final Path SCRIPTS_PATH = Skript.getInstance().getScriptsFolder().getAbsoluteFile().toPath();
 
 	private boolean includeEnabled;
 	private boolean includeDisabled;
-	private int pattern;
+	private boolean noPaths;
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		if (!this.getParser().hasExperiment(Feature.SCRIPT_REFLECTION))
+		if (this.getParser().hasExperiment(Feature.SCRIPT_REFLECTION))
 			return false;
-		this.includeEnabled = matchedPattern <= 1;
-		this.includeDisabled = matchedPattern != 1;
-		this.pattern = matchedPattern;
+		includeEnabled = matchedPattern <= 1;
+		includeDisabled = matchedPattern != 1;
+		noPaths = parseResult.mark == 1;
 		return true;
 	}
 
 	@Override
-	protected Script[] get(Event event) {
-		List<Script> scripts = new ArrayList<>();
-		if (includeEnabled)
-			scripts.addAll(ScriptLoader.getLoadedScripts());
-		if (includeDisabled) {
+	protected String[] get(Event event) {
+		List<Path> scripts = new ArrayList<>();
+		if (includeEnabled) {
+			for (Script script : ScriptLoader.getLoadedScripts())
+				scripts.add(script.getConfig().getPath());
+		}
+		if (includeDisabled)
 			scripts.addAll(ScriptLoader.getDisabledScripts()
 					.stream()
-					.map(ExprScript::getHandle)
-					.filter(Objects::nonNull)
-					.toList());
-		}
-		return scripts.toArray(new Script[0]);
+					.map(File::toPath)
+					.collect(Collectors.toList()));
+		return formatPaths(scripts);
+	}
+
+	@SuppressWarnings("null")
+	private String[] formatPaths(List<Path> paths) {
+		return paths.stream()
+			.map(path -> {
+				if (noPaths)
+					return path.getFileName();
+				return SCRIPTS_PATH.relativize(path.toAbsolutePath()).toString();
+			})
+			.toArray(String[]::new);
 	}
 
 	@Override
@@ -94,17 +109,22 @@ public class ExprScriptsNew extends SimpleExpression<Script> {
 	}
 
 	@Override
-	public Class<? extends Script> getReturnType() {
-		return Script.class;
+	public Class<? extends String> getReturnType() {
+		return String.class;
 	}
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		if (pattern == 1)
-		    return "all enabled scripts";
-		else if (pattern == 2)
-			return "all disabled scripts";
-		return "all scripts";
+		String text;
+		if (!includeEnabled)
+			text = "all disabled scripts";
+		else if (!includeDisabled)
+			text = "all enabled scripts";
+		else
+			text = "all scripts";
+		if (noPaths)
+			text = text + " without paths";
+		return text;
 	}
 
 }
