@@ -1,0 +1,6 @@
+using script reflection
+
+test "script name (new)":
+	set {_name} to the script's name
+	assert the script's name is "ExprName" with "script name is wrong"
+	# New behaviour includes just the name, since path is available by string-ifying the script

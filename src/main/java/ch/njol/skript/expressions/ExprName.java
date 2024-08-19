@@ -18,6 +18,11 @@
  */
 package ch.njol.skript.expressions;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+
+import ch.njol.skript.registrations.Feature;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -61,6 +66,7 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.bungeecord.BungeeComponentSerializer;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.BaseComponent;
+import org.skriptlang.skript.lang.script.Script;
 
 @Name("Name / Display Name / Tab List Name")
 @Description({
@@ -103,6 +109,11 @@ import net.md_5.bungee.api.chat.BaseComponent;
 	"\t\t\t<li><strong>Name:</strong> The name of the world. Cannot be changed.</li>",
 	"\t\t</ul>",
 	"\t</li>",
+	"\t<li><strong>Scripts</strong>",
+	"\t\t<ul>",
+	"\t\t\t<li><strong>Name:</strong> The name of a script, excluding its file extension.</li>",
+	"\t\t</ul>",
+	"\t</li>",
 	"</ul>"
 })
 @Examples({
@@ -125,7 +136,7 @@ public class ExprName extends SimplePropertyExpression<Object, String> {
 				Skript.methodExists(Bukkit.class, "createInventory", InventoryHolder.class, int.class, Component.class))
 			serializer = BungeeComponentSerializer.get();
 		HAS_GAMERULES = Skript.classExists("org.bukkit.GameRule");
-		register(ExprName.class, String.class, "(1¦name[s]|2¦(display|nick|chat|custom)[ ]name[s])", "offlineplayers/entities/blocks/itemtypes/inventories/slots/worlds"
+		register(ExprName.class, String.class, "(1¦name[s]|2¦(display|nick|chat|custom)[ ]name[s])", "offlineplayers/entities/blocks/itemtypes/inventories/slots/worlds/scripts"
 			+ (HAS_GAMERULES ? "/gamerules" : ""));
 		register(ExprName.class, String.class, "(3¦(player|tab)[ ]list name[s])", "players");
 	}
@@ -136,15 +147,17 @@ public class ExprName extends SimplePropertyExpression<Object, String> {
 	 * 3 = "tablist name"
 	 */
 	private int mark;
+	private boolean scriptResolvedName;
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		mark = parseResult.mark;
+		this.mark = parseResult.mark;
 		setExpr(exprs[0]);
 		if (mark != 1 && World.class.isAssignableFrom(getExpr().getReturnType())) {
 			Skript.error("Can't use 'display name' with worlds. Use 'name' instead.");
 			return false;
 		}
+		this.scriptResolvedName = this.getParser().hasExperiment(Feature.SCRIPT_REFLECTION);
 		return true;
 	}
 
@@ -154,7 +167,18 @@ public class ExprName extends SimplePropertyExpression<Object, String> {
 		if (object instanceof OfflinePlayer && ((OfflinePlayer) object).isOnline())
 			object = ((OfflinePlayer) object).getPlayer();
 
-		if (object instanceof Player) {
+		if (object instanceof Script) {
+			Script script = (Script) object;
+			String name = script.getConfig().getFileName();
+			if (name.contains("."))
+				name = name.substring(0, name.lastIndexOf('.'));
+			if (scriptResolvedName) {
+				name = name.substring(name.lastIndexOf('/') + 1);
+				if (File.separatorChar != '/') // legacy windows FS reporting
+					name = name.substring(name.lastIndexOf(File.separatorChar) + 1);
+			}
+			return name;
+		} else if (object instanceof Player) {
 			switch (mark) {
 				case 1:
 					return ((Player) object).getName();
