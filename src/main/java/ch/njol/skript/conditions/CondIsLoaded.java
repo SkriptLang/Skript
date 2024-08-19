@@ -86,63 +86,53 @@ public class CondIsLoaded extends Condition {
 		return true;
 	}
 
-	@SuppressWarnings({"null", "PatternVariableCanBeUsed"})
+	@SuppressWarnings({"null"})
 	@Override
 	public boolean check(Event e) {
-		switch (pattern) {
-			case 0:
-				return locations.check(e, location -> {
-					World world = location.getWorld();
-					if (world != null)
-						return world.isChunkLoaded(location.getBlockX() >> 4, location.getBlockZ() >> 4);
-					return false;
-				}, isNegated());
-			case 1:
-				return something.check(e, object -> {
-					if (!(object instanceof World))
-						return false;
-					World world = (World) object;
-					Number x = this.x.getSingle(e);
-					Number z = this.z.getSingle(e);
-					if (x == null || z == null)
-						return false;
-					return world.isChunkLoaded(x.intValue(), z.intValue());
-				}, isNegated());
-			case 2:
-			case 4:
-				return something.check(e, object -> {
-					if (object instanceof World) {
-						World world = (World) object;
-						return Bukkit.getWorld(world.getName()) != null;
-					} else if (object instanceof Script) {
-						Script script = (Script) object;
-						return ScriptLoader.getLoadedScripts().contains(script);
-					}
-					return false;
-				}, isNegated());
-			case 3:
-				return something.check(e, ScriptLoader.getLoadedScripts()::contains, isNegated());
-			default:
+		return switch (pattern) {
+			case 0 -> locations.check(e, location -> {
+				World world = location.getWorld();
+				if (world != null)
+					return world.isChunkLoaded(location.getBlockX() >> 4, location.getBlockZ() >> 4);
 				return false;
-		}
+			}, isNegated());
+			case 1 -> something.check(e, object -> {
+				if (!(object instanceof World world))
+					return false;
+				Number x = this.x.getSingle(e);
+				Number z = this.z.getSingle(e);
+				if (x == null || z == null)
+					return false;
+				return world.isChunkLoaded(x.intValue(), z.intValue());
+			}, isNegated());
+			case 2, 4 -> something.check(e, object -> {
+				if (object instanceof World world) {
+					return Bukkit.getWorld(world.getName()) != null;
+				} else if (object instanceof Script script) {
+					return ScriptLoader.getLoadedScripts().contains(script);
+				}
+				return false;
+			}, isNegated());
+			case 3 -> something.check(e, ScriptLoader.getLoadedScripts()::contains, isNegated());
+			default -> false;
+		};
 	}
 
 	@SuppressWarnings("null")
 	@Override
 	public String toString(@Nullable Event e, boolean d) {
 		String neg = isNegated() ? " not " : " ";
-		switch (pattern) {
-			case 0:
-				return "chunk[s] at " + locations.toString(e, d) + (locations.isSingle() ? " is" : " are") + neg + "loaded";
-			case 1:
-				return "chunk at " + x.toString(e, d) + ", " + z.toString(e, d) + " in " + something.toString(e,d) + ") is" + neg + "loaded";
-			case 3:
-				return "scripts " + this.something.toString(e, d) + (this.something.isSingle() ? " is" : " are") + neg + "loaded";
-			case 4:
-				return "worlds " + this.something.toString(e, d) + (this.something.isSingle() ? " is" : " are") + neg + "loaded";
-			default:
-				return this.something.toString(e, d) + (this.something.isSingle() ? " is" : " are") + neg + "loaded";
-		}
+		return switch (pattern) {
+			case 0 ->
+				"chunk[s] at " + locations.toString(e, d) + (locations.isSingle() ? " is" : " are") + neg + "loaded";
+			case 1 ->
+				"chunk at " + x.toString(e, d) + ", " + z.toString(e, d) + " in " + something.toString(e, d) + ") is" + neg + "loaded";
+			case 3 ->
+				"scripts " + this.something.toString(e, d) + (this.something.isSingle() ? " is" : " are") + neg + "loaded";
+			case 4 ->
+				"worlds " + this.something.toString(e, d) + (this.something.isSingle() ? " is" : " are") + neg + "loaded";
+			default -> this.something.toString(e, d) + (this.something.isSingle() ? " is" : " are") + neg + "loaded";
+		};
 	}
 
 }
