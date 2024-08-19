@@ -84,7 +84,9 @@ public abstract class Utils {
 
 		plurals.add(new WordEnding("wife", "wives")); // we have to do the -ife -> ives first
 		plurals.add(new WordEnding("life", "lives"));
+		plurals.add(new WordEnding("knife", "knives"));
 		plurals.add(new WordEnding("ive", "ives"));
+		plurals.add(new WordEnding("elf", "elves")); // self shelf elf
 		plurals.add(new WordEnding("fe", "ves"));// most -f words' plurals can end in -fs as well as -ves
 
 		plurals.add(new WordEnding("h", "hes"));
@@ -822,6 +824,19 @@ public abstract class Utils {
 
 		public String plural() {
 			return plural;
+		}
+
+		@Override
+		public boolean equals(Object object) {
+			if (this == object) return true;
+			if (!(object instanceof WordEnding)) return false;
+			WordEnding ending = (WordEnding) object;
+			return Objects.equals(singular, ending.singular) && Objects.equals(plural, ending.plural);
+		}
+
+		@Override
+		public int hashCode() {
+			return Objects.hash(singular, plural);
 		}
 
 	}
