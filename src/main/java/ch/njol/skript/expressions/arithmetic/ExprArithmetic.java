@@ -35,6 +35,7 @@ import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.LiteralUtils;
 import ch.njol.skript.util.Patterns;
 import ch.njol.util.Kleenean;
+import com.google.common.collect.ImmutableSet;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 import org.skriptlang.skript.lang.arithmetic.Arithmetics;
@@ -43,7 +44,6 @@ import org.skriptlang.skript.lang.arithmetic.Operator;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.Set;
 import java.util.List;
 import java.util.Collection;
 
@@ -258,7 +258,7 @@ public class ExprArithmetic<L, R, T> extends SimpleExpression<T> {
 				return error(firstClass, secondClass);
 			} else {
 				returnType = (Class<? extends T>) Classes.getSuperClassInfo(returnTypes).getC();
-				knownReturnTypes = Set.of(returnTypes);
+				knownReturnTypes = ImmutableSet.copyOf(returnTypes);
 			}
 		} else if (returnType == null) { // lookup
 			OperationInfo<L, R, T> operationInfo = (OperationInfo<L, R, T>) Arithmetics.lookupOperationInfo(operator, firstClass, secondClass);
