@@ -21,6 +21,7 @@ package ch.njol.skript.expressions;
 import java.util.ArrayList;
 import java.util.List;
 
+import ch.njol.skript.bukkitutil.InventoryUtils;
 import ch.njol.skript.lang.util.common.AnyNamed;
 import org.bukkit.Bukkit;
 import org.bukkit.GameRule;
@@ -148,27 +149,22 @@ public class ExprName extends SimplePropertyExpression<Object, String> {
 		if (object instanceof OfflinePlayer && ((OfflinePlayer) object).isOnline())
 			object = ((OfflinePlayer) object).getPlayer();
 
-		if (object instanceof Player) {
+		if (object instanceof Player player) {
 			switch (mark) {
-				case 1:
-					return ((Player) object).getName();
-				case 2:
-					return ((Player) object).getDisplayName();
-				case 3:
-					return ((Player) object).getPlayerListName();
+				case 1 -> player.getName();
+				case 2 -> player.getDisplayName();
+				case 3 -> player.getPlayerListName();
 			}
-		} else if (object instanceof Nameable) {
-			Nameable nameable = (Nameable) object;
-			if (mark == 1 && nameable instanceof CommandSender)
-				return ((CommandSender) nameable).getName();
+		} else if (object instanceof Nameable nameable) {
+			if (mark == 1 && nameable instanceof CommandSender sender)
+				return sender.getName();
 			return nameable.getCustomName();
-		} else if (object instanceof Inventory) {
-			Inventory inventory = (Inventory) object;
+		} else if (object instanceof Inventory inventory) {
 			if (inventory.getViewers().isEmpty())
 				return null;
 			return InventoryUtils.getTitle(inventory.getViewers().get(0).getOpenInventory());
-		} else if (object instanceof AnyNamed) {
-			return ((AnyNamed) object).name();
+		} else if (object instanceof AnyNamed named) {
+			return named.name();
 		}
 		return null;
 	}
@@ -194,34 +190,32 @@ public class ExprName extends SimplePropertyExpression<Object, String> {
 	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
 		String name = delta != null ? (String) delta[0] : null;
 		for (Object object : getExpr().getArray(event)) {
-			if (object instanceof Player) {
+			if (object instanceof Player player) {
 				switch (mark) {
 					case 2:
-						((Player) object).setDisplayName(name != null ? name + ChatColor.RESET : ((Player) object).getName());
+						player.setDisplayName(name != null ? name + ChatColor.RESET : ((Player) object).getName());
 						break;
 					case 3: // Null check not necessary. This method will use the player's name if 'name' is null.
-						((Player) object).setPlayerListName(name);
+						player.setPlayerListName(name);
 						break;
 				}
-			} else if (object instanceof Entity) {
-				((Entity) object).setCustomName(name);
+			} else if (object instanceof Entity entity) {
+				entity.setCustomName(name);
 				if (mark == 2 || mode == ChangeMode.RESET) // Using "display name"
-					((Entity) object).setCustomNameVisible(name != null);
-				if (object instanceof LivingEntity)
-					((LivingEntity) object).setRemoveWhenFarAway(name == null);
-			} else if (object instanceof AnyNamed) {
-				AnyNamed named = (AnyNamed) object;
+					entity.setCustomNameVisible(name != null);
+				if (object instanceof LivingEntity living)
+					living.setRemoveWhenFarAway(name == null);
+			} else if (object instanceof AnyNamed named) {
 				if (named.nameSupportsChange())
 					named.setName(name);
-			} else if (object instanceof Inventory) {
-				Inventory inv = (Inventory) object;
+			} else if (object instanceof Inventory inventory) {
 
-				if (inv.getViewers().isEmpty())
+				if (inventory.getViewers().isEmpty())
 					return;
 				// Create a clone to avoid a ConcurrentModificationException
-				List<HumanEntity> viewers = new ArrayList<>(inv.getViewers());
+				List<HumanEntity> viewers = new ArrayList<>(inventory.getViewers());
 
-				InventoryType type = inv.getType();
+				InventoryType type = inventory.getType();
 				if (!type.isCreatable())
 					return;
 
@@ -230,9 +224,9 @@ public class ExprName extends SimplePropertyExpression<Object, String> {
 					if (name == null)
 						name = type.getDefaultTitle();
 					if (type == InventoryType.CHEST) {
-						copy = Bukkit.createInventory(inv.getHolder(), inv.getSize(), name);
+						copy = Bukkit.createInventory(inventory.getHolder(), inventory.getSize(), name);
 					} else {
-						copy = Bukkit.createInventory(inv.getHolder(), type, name);
+						copy = Bukkit.createInventory(inventory.getHolder(), type, name);
 					}
 				} else {
 					Component component = type.defaultTitle();
@@ -241,12 +235,12 @@ public class ExprName extends SimplePropertyExpression<Object, String> {
 						component = serializer.deserialize(components);
 					}
 					if (type == InventoryType.CHEST) {
-						copy = Bukkit.createInventory(inv.getHolder(), inv.getSize(), component);
+						copy = Bukkit.createInventory(inventory.getHolder(), inventory.getSize(), component);
 					} else {
-						copy = Bukkit.createInventory(inv.getHolder(), type, component);
+						copy = Bukkit.createInventory(inventory.getHolder(), type, component);
 					}
 				}
-				copy.setContents(inv.getContents());
+				copy.setContents(inventory.getContents());
 				viewers.forEach(viewer -> viewer.openInventory(copy));
 			}
 		}
@@ -259,12 +253,11 @@ public class ExprName extends SimplePropertyExpression<Object, String> {
 
 	@Override
 	protected String getPropertyName() {
-		switch (mark) {
-			case 1: return "name";
-			case 2: return "display name";
-			case 3: return "tablist name";
-			default: return "name";
-		}
+		return switch (mark) {
+			case 2 -> "display name";
+			case 3 -> "tablist name";
+			default -> "name";
+		};
 	}
 
 }
