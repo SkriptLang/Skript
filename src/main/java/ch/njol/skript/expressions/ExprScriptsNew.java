@@ -54,9 +54,9 @@ public class ExprScriptsNew extends SimpleExpression<Script> {
 
 	static {
 		Skript.registerExpression(ExprScriptsNew.class, Script.class, ExpressionType.SIMPLE,
-				"[all [[of] the]] scripts",
-				"[all [[of] the]] (enabled|loaded) scripts",
-				"[all [[of] the]] (disabled|unloaded) scripts");
+				"[all [[of] the]|the] scripts",
+				"[all [[of] the]|the] (enabled|loaded) scripts",
+				"[all [[of] the]|the] (disabled|unloaded) scripts");
 	}
 
 	private boolean includeEnabled;
@@ -76,17 +76,14 @@ public class ExprScriptsNew extends SimpleExpression<Script> {
 	@Override
 	protected Script[] get(Event event) {
 		List<Script> scripts = new ArrayList<>();
-		if (includeEnabled) {
+		if (includeEnabled)
 			scripts.addAll(ScriptLoader.getLoadedScripts());
-		}
 		if (includeDisabled) {
-			// todo in Java 17 this can be streamlined
-			//noinspection SimplifyStreamApiCallChains
 			scripts.addAll(ScriptLoader.getDisabledScripts()
 					.stream()
 					.map(ExprScript::getHandle)
 					.filter(Objects::nonNull)
-					.collect(Collectors.toList()));
+					.toList());
 		}
 		return scripts.toArray(new Script[0]);
 	}

@@ -20,13 +20,13 @@ package ch.njol.skript.classes.data;
 
 import java.io.File;
 import java.io.StreamCorruptedException;
+import java.nio.file.Path;
 import java.util.Iterator;
 import java.util.Locale;
 import java.util.regex.Pattern;
 
 import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.SkriptCommand;
-import ch.njol.skript.expressions.ExprScripts;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
@@ -707,24 +707,21 @@ public class SkriptClasses {
 				.examples("the current script")
 				.since("INSERT VERSION")
 				.parser(new Parser<Script>() {
+					final Path path = Skript.getInstance().getScriptsFolder().getAbsoluteFile().toPath();
 
 					@Override
 					public boolean canParse(final ParseContext context) {
-						switch (context) {
-							case PARSE:
-							case COMMAND:
-								return true;
-							default:
-								return false;
-						}
+						return switch (context) {
+							case PARSE, COMMAND -> true;
+							default -> false;
+						};
 					}
 
 					@Override
 					@Nullable
 					public Script parse(final String name, final ParseContext context) {
 						switch (context) {
-							case PARSE:
-							case COMMAND:
+							case PARSE, COMMAND:
 								@Nullable File file = SkriptCommand.getScriptFromName(name);
 								if (file == null || !file.isFile())
 									return null;
@@ -744,7 +741,7 @@ public class SkriptClasses {
 						@Nullable File file = script.getConfig().getFile();
 						if (file == null)
 							return script.getConfig().getFileName();
-						return ExprScripts.SCRIPTS_PATH.relativize(file.toPath().toAbsolutePath()).toString();
+						return path.relativize(file.toPath().toAbsolutePath()).toString();
 					}
 				}));
 	}
