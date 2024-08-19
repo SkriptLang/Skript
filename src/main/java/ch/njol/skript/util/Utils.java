@@ -70,9 +70,6 @@ public abstract class Utils {
 	protected final static Deque<WordEnding> plurals = new LinkedList<>();
 
 	static {
-		plurals.add(new WordEnding("ive", "ives")); // objective fix
-		plurals.add(new WordEnding("fe", "ves"));// most -f words' plurals can end in -fs as well as -ves
-
 		plurals.add(new WordEnding("axe", "axes"));
 		plurals.add(new WordEnding("x", "xes"));
 
@@ -84,6 +81,11 @@ public abstract class Utils {
 		plurals.add(new WordEnding("kie", "kies"));
 		plurals.add(new WordEnding("zombie", "zombies"));
 		plurals.add(new WordEnding("y", "ies"));
+
+		plurals.add(new WordEnding("wife", "wives")); // we have to do the -ife -> ives first
+		plurals.add(new WordEnding("life", "lives"));
+		plurals.add(new WordEnding("ive", "ives"));
+		plurals.add(new WordEnding("fe", "ves"));// most -f words' plurals can end in -fs as well as -ves
 
 		plurals.add(new WordEnding("h", "hes"));
 
