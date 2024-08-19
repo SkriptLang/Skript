@@ -120,7 +120,7 @@ public class EffScriptFile extends Effect {
 			case ENABLE:
 				if (ScriptLoader.getLoadedScripts().contains(ScriptLoader.getScript(scriptFile)))
 					return;
-				if (!filter.accept(scriptFile)) {
+				if (filter.accept(scriptFile)) {
 					try {
 						// TODO Central methods to be used between here and SkriptCommand should be created for
 						//  enabling/disabling (renaming) files

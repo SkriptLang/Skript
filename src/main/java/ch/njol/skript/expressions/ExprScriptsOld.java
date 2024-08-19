@@ -116,12 +116,13 @@ public class ExprScriptsOld extends SimpleExpression<String> {
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
 		String text;
-		if (!includeEnabled)
+		if (!includeEnabled) {
 			text = "all disabled scripts";
-		else if (!includeDisabled)
+		} else if (!includeDisabled) {
 			text = "all enabled scripts";
-		else
+		} else {
 			text = "all scripts";
+		}
 		if (noPaths)
 			text = text + " without paths";
 		return text;
