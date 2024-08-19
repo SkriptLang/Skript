@@ -1,4 +1,3 @@
-
 test "burning":
 	spawn a pig at event-location
 	set {_pig} to the last spawned pig
