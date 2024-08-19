@@ -18,13 +18,16 @@
  */
 package ch.njol.skript.classes.data;
 
+import ch.njol.skript.Skript;
 import ch.njol.skript.expressions.base.EventValueExpression;
+import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.function.FunctionEvent;
 import ch.njol.skript.lang.function.Functions;
 import ch.njol.skript.lang.function.JavaFunction;
 import ch.njol.skript.lang.function.Parameter;
 import ch.njol.skript.lang.function.SimpleJavaFunction;
 import ch.njol.skript.lang.util.SimpleLiteral;
+import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.registrations.DefaultClasses;
 import ch.njol.skript.util.Color;
 import ch.njol.skript.util.ColorRGB;
@@ -39,10 +42,13 @@ import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 import org.eclipse.jdt.annotation.Nullable;
+import ch.njol.skript.util.Contract;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 import java.util.UUID;
 
 public class DefaultFunctions {
@@ -308,11 +314,22 @@ public class DefaultFunctions {
 			.examples("min(1) = 1", "min(1, 2, 3, 4) = 1", "min({some list variable::*})")
 			.since("2.2"));
 
-		Functions.registerFunction(new SimpleJavaFunction<Number>("clamp", new Parameter[]{
-			new Parameter<>("values", DefaultClasses.NUMBER, false, null),
-			new Parameter<>("min", DefaultClasses.NUMBER, true, null),
-			new Parameter<>("max", DefaultClasses.NUMBER, true, null)
-		}, DefaultClasses.NUMBER, false) {
+		Functions.registerFunction(new SimpleJavaFunction<Number>("clamp", new Parameter[] {
+					 new Parameter<>("values", DefaultClasses.NUMBER, false, null),
+					 new Parameter<>("min", DefaultClasses.NUMBER, true, null),
+					 new Parameter<>("max", DefaultClasses.NUMBER, true, null)
+				 }, DefaultClasses.NUMBER, false, new Contract() {
+
+					 @Override
+					 public boolean isSingle(Expression<?>... arguments) {
+						 return arguments[0].isSingle();
+					 }
+
+					 @Override
+					 public Class<?> getReturnType(Expression<?>... arguments) {
+						 return Number.class;
+					 }
+				 }) {
 			@Override
 			public @Nullable Number[] executeSimple(Object[][] params) {
 				Number[] values = (Number[]) params[0];
@@ -362,7 +379,7 @@ public class DefaultFunctions {
 		}, DefaultClasses.LOCATION, true) {
 			@Override
 			@Nullable
-			public Location[] execute(FunctionEvent<?> e, Object[][] params) {
+			public Location[] execute(FunctionEvent<?> event, Object[][] params) {
 				for (int i : new int[] {0, 1, 2, 4, 5}) {
 					if (params[i] == null || params[i].length == 0 || params[i][0] == null)
 						return null;
@@ -542,23 +559,54 @@ public class DefaultFunctions {
 			.examples("set {_p} to player(\"Notch\") # will return an online player whose name is or starts with 'Notch'", "set {_p} to player(\"Notch\", true) # will return the only online player whose name is 'Notch'", "set {_p} to player(\"069a79f4-44e9-4726-a5be-fca90e38aaf5\") # <none> if player is offline")
 			.since("2.8.0");
 
-		Functions.registerFunction(new SimpleJavaFunction<OfflinePlayer>("offlineplayer", new Parameter[] {
-			new Parameter<>("nameOrUUID", DefaultClasses.STRING, true, null)
-		}, DefaultClasses.OFFLINE_PLAYER, true) {
-			@Override
-			public OfflinePlayer[] executeSimple(Object[][] params) {
-				String name = (String) params[0][0];
-				UUID uuid = null;
-				if (name.length() > 16 || name.contains("-")) { // shortcut
-					try {
-						uuid = UUID.fromString(name);
-					} catch (IllegalArgumentException ignored) {}
+		{ // offline player function
+			boolean hasIfCached = Skript.methodExists(Bukkit.class, "getOfflinePlayerIfCached", String.class);
+
+			List<Parameter<?>> params = new ArrayList<>();
+			params.add(new Parameter<>("nameOrUUID", DefaultClasses.STRING, true, null));
+			if (hasIfCached)
+				params.add(new Parameter<>("allowLookups", DefaultClasses.BOOLEAN, true, new SimpleLiteral<>(true, true)));
+
+			Functions.registerFunction(new SimpleJavaFunction<OfflinePlayer>("offlineplayer", params.toArray(new Parameter[0]),
+				DefaultClasses.OFFLINE_PLAYER, true) {
+				@Override
+				public OfflinePlayer[] executeSimple(Object[][] params) {
+					String name = (String) params[0][0];
+					UUID uuid = null;
+					if (name.length() > 16 || name.contains("-")) { // shortcut
+						try {
+							uuid = UUID.fromString(name);
+						} catch (IllegalArgumentException ignored) {
+						}
+					}
+					OfflinePlayer result;
+
+					if (uuid != null) {
+						result = Bukkit.getOfflinePlayer(uuid); // doesn't do lookups
+					} else if (hasIfCached && !((Boolean) params[1][0])) {
+						result = Bukkit.getOfflinePlayerIfCached(name);
+						if (result == null)
+							return new OfflinePlayer[0];
+					} else {
+						result = Bukkit.getOfflinePlayer(name);
+					}
+
+					return CollectionUtils.array(result);
 				}
-				return CollectionUtils.array(uuid != null ? Bukkit.getOfflinePlayer(uuid) : Bukkit.getOfflinePlayer(name));
-			}
-		}).description("Returns a offline player from their name or UUID. This function will still return the player if they're online.")
-			.examples("set {_p} to offlineplayer(\"Notch\")", "set {_p} to offlineplayer(\"069a79f4-44e9-4726-a5be-fca90e38aaf5\")")
-			.since("2.8.0");
+
+			}).description(
+				"Returns a offline player from their name or UUID. This function will still return the player if they're online. " +
+				"If Paper 1.16.5+ is used, the 'allowLookup' parameter can be set to false to prevent this function from doing a " +
+				"web lookup for players who have not joined before. Lookups can cause lag spikes of up to multiple seconds, so " +
+				"use offline players with caution."
+			)
+			.examples(
+				"set {_p} to offlineplayer(\"Notch\")",
+				"set {_p} to offlineplayer(\"069a79f4-44e9-4726-a5be-fca90e38aaf5\")",
+				"set {_p} to offlineplayer(\"Notch\", false)"
+			)
+			.since("2.8.0, 2.9.0 (prevent lookups)");
+		} // end offline player function
 
 		Functions.registerFunction(new SimpleJavaFunction<Boolean>("isNaN", numberParam, DefaultClasses.BOOLEAN, true) {
 			@Override
@@ -568,6 +616,24 @@ public class DefaultFunctions {
 		}).description("Returns true if the input is NaN (not a number).")
 			.examples("isNaN(0) # false", "isNaN(0/0) # true", "isNaN(sqrt(-1)) # true")
 			.since("2.8.0");
+
+		Functions.registerFunction(new SimpleJavaFunction<String>("concat", new Parameter[] {
+			 new Parameter<>("texts", DefaultClasses.OBJECT, false, null)
+		}, DefaultClasses.STRING, true) {
+			@Override
+			public String[] executeSimple(Object[][] params) {
+				StringBuilder builder = new StringBuilder();
+				for (Object object : params[0]) {
+					builder.append(Classes.toString(object));
+				}
+				return new String[] {builder.toString()};
+			}
+		}).description("Joins the provided texts (and other things) into a single text.")
+			.examples(
+				"concat(\"hello \", \"there\") # hello there",
+				"concat(\"foo \", 100, \" bar\") # foo 100 bar"
+			).since("2.9.0");
+
 	}
 	
 }

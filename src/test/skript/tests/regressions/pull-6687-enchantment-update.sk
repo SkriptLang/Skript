@@ -1,0 +1,11 @@
+test "Enchantment Registry Update":
+	set {_i} to diamond sword of unbreaking 3 and sharpness 10
+
+	assert enchantment level of unbreaking of {_i} = 3 with "Unbreaking enchant on {_i} should have been 3"
+	assert enchantment level of sharpness of {_i} = 10 with "Sharpness enchant on {_i} should have been 10"
+
+	set enchantment level of lure of {_i} to 5
+	assert enchantment level of lure of {_i} = 5 with "Lure enchant on {_i} should have been 5"
+
+	set enchantment level of sharpness of {_i} to 5
+	assert enchantment level of sharpness of {_i} = 5 with "Sharpness enchant on {_i} should have been 5"

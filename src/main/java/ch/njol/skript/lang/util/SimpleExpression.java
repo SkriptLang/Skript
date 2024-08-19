@@ -32,13 +32,16 @@ import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
 import ch.njol.util.coll.iterator.ArrayIterator;
 import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.NonNull;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.converter.Converter;
+import org.skriptlang.skript.lang.converter.ConverterInfo;
 
 import java.lang.reflect.Array;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
+import java.util.List;
 
 /**
  * An implementation of the {@link Expression} interface. You should usually extend this class to make a new expression.
@@ -52,8 +55,7 @@ public abstract class SimpleExpression<T> implements Expression<T> {
 	protected SimpleExpression() {}
 
 	@Override
-	@Nullable
-	public final T getSingle(Event event) {
+	public final @Nullable T getSingle(Event event) {
 		T[] values = getArray(event);
 		if (values.length == 0)
 			return null;
@@ -63,10 +65,10 @@ public abstract class SimpleExpression<T> implements Expression<T> {
 	}
 
 	@Override
-	@SuppressWarnings("unchecked")
 	public T[] getAll(Event event) {
 		T[] values = get(event);
 		if (values == null) {
+			//noinspection unchecked
 			T[] emptyArray = (T[]) Array.newInstance(getReturnType(), 0);
 			assert emptyArray != null;
 			return emptyArray;
@@ -79,6 +81,7 @@ public abstract class SimpleExpression<T> implements Expression<T> {
 				numNonNull++;
 		if (numNonNull == values.length)
 			return Arrays.copyOf(values, values.length);
+		//noinspection unchecked
 		T[] valueArray = (T[]) Array.newInstance(getReturnType(), numNonNull);
 		assert valueArray != null;
 		int i = 0;
@@ -89,10 +92,10 @@ public abstract class SimpleExpression<T> implements Expression<T> {
 	}
 
 	@Override
-	@SuppressWarnings("unchecked")
 	public final T[] getArray(Event event) {
 		T[] values = get(event);
 		if (values == null) {
+			//noinspection unchecked
 			return (T[]) Array.newInstance(getReturnType(), 0);
 		}
 		if (values.length == 0)
@@ -107,6 +110,7 @@ public abstract class SimpleExpression<T> implements Expression<T> {
 			if (values.length == 1 && values[0] != null)
 				return Arrays.copyOf(values, 1);
 			int rand = Utils.random(0, numNonNull);
+			//noinspection unchecked
 			T[] valueArray = (T[]) Array.newInstance(getReturnType(), 1);
 			for (T value : values) {
 				if (value != null) {
@@ -122,6 +126,7 @@ public abstract class SimpleExpression<T> implements Expression<T> {
 
 		if (numNonNull == values.length)
 			return Arrays.copyOf(values, values.length);
+		//noinspection unchecked
 		T[] valueArray = (T[]) Array.newInstance(getReturnType(), numNonNull);
 		int i = 0;
 		for (T value : values)
@@ -137,8 +142,7 @@ public abstract class SimpleExpression<T> implements Expression<T> {
 	 * @param event The event with which this expression is evaluated.
 	 * @return An array of values for this event. May not contain nulls.
 	 */
-	@Nullable
-	protected abstract T[] get(Event event);
+	protected abstract T @Nullable [] get(Event event);
 
 	@Override
 	public final boolean check(Event event, Checker<? super T> checker) {
@@ -151,7 +155,7 @@ public abstract class SimpleExpression<T> implements Expression<T> {
 	}
 
 	// TODO return a kleenean (UNKNOWN if 'values' is null or empty)
-	public static <T> boolean check(@Nullable T[] values, Checker<? super T> checker, boolean invert, boolean and) {
+	public static <T> boolean check(T @Nullable [] values, Checker<? super T> checker, boolean invert, boolean and) {
 		if (values == null)
 			return invert;
 		boolean hasElement = false;
@@ -181,8 +185,7 @@ public abstract class SimpleExpression<T> implements Expression<T> {
 	 * @see ConvertedExpression#newInstance(Expression, Class...)
 	 * @see Converter
 	 */
-	@Nullable
-	protected <R> ConvertedExpression<T, ? extends R> getConvertedExpr(Class<R>... to) {
+	protected <R> @Nullable ConvertedExpression<T, ? extends R> getConvertedExpr(Class<R>... to) {
 		assert !CollectionUtils.containsSuperclass(to, getReturnType());
 		return ConvertedExpression.newInstance(this, to);
 	}
@@ -197,20 +200,45 @@ public abstract class SimpleExpression<T> implements Expression<T> {
 	 * @return The converted expression
 	 */
 	@Override
-	@Nullable
 	@SuppressWarnings("unchecked")
-	public <R> Expression<? extends R> getConvertedExpression(Class<R>... to) {
+	public <R> @Nullable Expression<? extends R> getConvertedExpression(Class<R>... to) {
+		// check whether this expression is already of type R
 		if (CollectionUtils.containsSuperclass(to, getReturnType()))
 			return (Expression<? extends R>) this;
+
+		// we might be to cast some of the possible return types to R
+		List<ConverterInfo<? extends T, R>> infos = new ArrayList<>();
+		for (Class<? extends T> type : this.possibleReturnTypes()) {
+			if (CollectionUtils.containsSuperclass(to, type)) { // this type is of R
+				// build a converter that for casting to R
+				// safety check is present in the event that we do not get this type at runtime
+				final Class<R> toType = (Class<R>) type;
+				infos.add(new ConverterInfo<>(getReturnType(), toType, fromObject -> {
+					if (toType.isInstance(fromObject))
+						return (R) fromObject;
+					return null;
+				}, 0));
+			}
+		}
+		int size = infos.size();
+		if (size == 1) { // if there is only one info, there is no need to wrap it in a list
+			ConverterInfo<? extends T, R> info = infos.get(0);
+			//noinspection rawtypes
+			return new ConvertedExpression(this, info.getTo(), info);
+		}
+		if (size > 1) {
+			//noinspection rawtypes
+			return new ConvertedExpression(this, Utils.getSuperType(infos.stream().map(ConverterInfo::getTo).toArray(Class[]::new)), infos, false);
+		}
+
+		// attempt traditional conversion with proper converters
 		return this.getConvertedExpr(to);
 	}
 
-	@Nullable
-	private ClassInfo<?> returnTypeInfo;
+	private @Nullable ClassInfo<?> returnTypeInfo;
 
 	@Override
-	@Nullable
-	public Class<?>[] acceptChange(ChangeMode mode) {
+	public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
 		ClassInfo<?> returnTypeInfo = this.returnTypeInfo;
 		if (returnTypeInfo == null)
 			this.returnTypeInfo = returnTypeInfo = Classes.getSuperClassInfo(getReturnType());
@@ -221,14 +249,14 @@ public abstract class SimpleExpression<T> implements Expression<T> {
 	}
 
 	@Override
-	@SuppressWarnings("unchecked")
-	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
+	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
 		ClassInfo<?> returnTypeInfo = this.returnTypeInfo;
 		if (returnTypeInfo == null)
 			throw new UnsupportedOperationException();
 		Changer<?> changer = returnTypeInfo.getChanger();
 		if (changer == null)
 			throw new UnsupportedOperationException();
+		//noinspection unchecked
 		((Changer<T>) changer).change(getArray(event), delta, mode);
 	}
 
@@ -273,7 +301,7 @@ public abstract class SimpleExpression<T> implements Expression<T> {
 		return true;
 	}
 
-	protected final boolean setTime(int time, Class<? extends Event> applicableEvent, @NonNull Expression<?>... mustbeDefaultVars) {
+	protected final boolean setTime(int time, Class<? extends Event> applicableEvent, @NotNull Expression<?>... mustbeDefaultVars) {
 		if (getParser().getHasDelayBefore() == Kleenean.TRUE && time != 0) {
 			Skript.error("Can't use time states after the event has already passed.");
 			return false;
@@ -325,8 +353,7 @@ public abstract class SimpleExpression<T> implements Expression<T> {
 	}
 
 	@Override
-	@Nullable
-	public Iterator<? extends T> iterator(Event event) {
+	public @Nullable Iterator<? extends T> iterator(Event event) {
 		return new ArrayIterator<>(getArray(event));
 	}
 

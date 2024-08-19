@@ -18,6 +18,7 @@
  */
 package ch.njol.skript.expressions;
 
+import ch.njol.util.VectorMath;
 import org.bukkit.event.Event;
 import org.bukkit.util.Vector;
 import org.eclipse.jdt.annotation.Nullable;
@@ -70,7 +71,7 @@ public class ExprVectorLength extends SimplePropertyExpression<Vector, Number> {
 				//$FALL-THROUGH$
 			case ADD:
 				for (Vector vector : vectors) {
-					if (deltaLength < 0 && vector.lengthSquared() < deltaLength * deltaLength) {
+					if (VectorMath.isZero(vector) || (deltaLength < 0 && vector.lengthSquared() < deltaLength * deltaLength)) {
 						vector.zero();
 					} else {
 						double newLength = deltaLength + vector.length();
@@ -82,7 +83,7 @@ public class ExprVectorLength extends SimplePropertyExpression<Vector, Number> {
 				break;
 			case SET:
 				for (Vector vector : vectors) {
-					if (deltaLength < 0) {
+					if (deltaLength < 0 || VectorMath.isZero(vector)) {
 						vector.zero();
 					} else {
 						if (!vector.isNormalized())

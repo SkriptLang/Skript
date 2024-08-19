@@ -150,11 +150,6 @@ test "vector - vector operations":
     assert ({_v1} * {_v2}) is (vector(4, 10, 18)) with "{_v1} * {_v2} is not vector(4, 10, 18)"
     assert ({_v1} / {_v2}) is (vector(0.25, 0.4, 0.5)) with "{_v1} / {_v2} is not vector(0.25, 0.4, 0.5)"
 
-    assert ({_v1} ++ {_v2}) is (vector(5, 7, 9)) with "{_v1} ++ {_v2} is not vector(5, 7, 9)"
-    assert ({_v1} -- {_v2}) is (vector(-3, -3, -3)) with "{_v1} -- {_v2} is not vector(-3, -3, -3)"
-    assert ({_v1} ** {_v2}) is (vector(4, 10, 18)) with "{_v1} ** {_v2} is not vector(4, 10, 18)"
-    assert ({_v1} // {_v2}) is (vector(0.25, 0.4, 0.5)) with "{_v1} // {_v2} is not vector(0.25, 0.4, 0.5)"
-
     # --Zero Vectors--
 
     set {_v1} to vector(0,0,0)
@@ -229,7 +224,13 @@ test "timespan arithmetic":
     assert (2 * {_t1}) is (2 seconds) with "2 * 1 second is not 2 seconds"
     assert (2 / {_t1}) is not set with "number divided by timespan is set" 
 
-    assert ({_t1} + 2) is not set with "timespan plus number is set"    
+    assert ({_t1} + 2) is not set with "timespan plus number is set"
+
+    assert {_t1} / {_t2} is 0.5 with "timespan / timespan failed"
+    assert {_t1} / 1 tick is 20 with "timespan / timespan of different units failed"
+    assert 0 seconds / {_t2} is 0 with "0 timespan / timespan failed"
+    assert {_t1} / 0 seconds is infinity value with "timespan / 0 timespan failed"
+    assert isNaN(0 seconds / 0 ticks) is true with "0 timespan / 0 timespan failed", expected NaN value, got (0 seconds / 0 ticks)
 
 test "date arithmetic":
     set {_d1} to now

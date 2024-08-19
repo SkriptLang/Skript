@@ -30,7 +30,7 @@ import ch.njol.skript.util.Utils;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventPriority;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.entry.EntryContainer;
 import org.skriptlang.skript.lang.script.Script;
 import org.skriptlang.skript.lang.structure.Structure;
@@ -54,10 +54,9 @@ public abstract class SkriptEvent extends Structure {
 	public static final Priority PRIORITY = new Priority(600);
 
 	private String expr;
-	@Nullable
-	protected EventPriority eventPriority;
-	@Nullable
-	protected ListeningBehavior listeningBehavior;
+	private SectionNode source;
+	protected @Nullable EventPriority eventPriority;
+	protected @Nullable ListeningBehavior listeningBehavior;
 	protected boolean supportsListeningBehavior;
 	private SkriptEventInfo<?> skriptEventInfo;
 
@@ -67,7 +66,7 @@ public abstract class SkriptEvent extends Structure {
 	protected Trigger trigger;
 
 	@Override
-	public final boolean init(Literal<?>[] args, int matchedPattern, ParseResult parseResult, EntryContainer entryContainer) {
+	public final boolean init(Literal<?>[] args, int matchedPattern, ParseResult parseResult, @Nullable EntryContainer entryContainer) {
 		this.expr = parseResult.expr;
 
 		EventData eventData = getParser().getData(EventData.class);
@@ -84,8 +83,17 @@ public abstract class SkriptEvent extends Structure {
 			throw new IllegalStateException();
 		skriptEventInfo = (SkriptEventInfo<?>) syntaxElementInfo;
 
+		assert entryContainer != null; // cannot be null for non-simple structures
+		this.source = entryContainer.getSource();
+
+		// use default value for now
+		listeningBehavior = eventData.getListenerBehavior();
+
+		// initialize implementation
+		if (!init(args, matchedPattern, parseResult))
+			return false;
+
 		// evaluate whether this event supports listening to cancelled events
-		supportsListeningBehavior = false;
 		for (Class<? extends Event> eventClass : getEventClasses()) {
 			if (Cancellable.class.isAssignableFrom(eventClass)) {
 				supportsListeningBehavior = true;
@@ -93,7 +101,6 @@ public abstract class SkriptEvent extends Structure {
 			}
 		}
 
-		listeningBehavior = eventData.getListenerBehavior();
 		// if the behavior is non-null, it was set by the user
 		if (listeningBehavior != null && !isListeningBehaviorSupported()) {
 			String eventName = skriptEventInfo.name.toLowerCase(Locale.ENGLISH);
@@ -101,7 +108,7 @@ public abstract class SkriptEvent extends Structure {
 			return false;
 		}
 
-		return init(args, matchedPattern, parseResult);
+		return true;
 	}
 
 	/**
@@ -128,7 +135,6 @@ public abstract class SkriptEvent extends Structure {
 		if (!shouldLoadEvent())
 			return false;
 
-		SectionNode source = getEntryContainer().getSource();
 		if (Skript.debug() || source.debug())
 			Skript.debug(expr + " (" + this + "):");
 
@@ -141,7 +147,7 @@ public abstract class SkriptEvent extends Structure {
 			Script script = getParser().getCurrentScript();
 
 			trigger = new Trigger(script, expr, this, items);
-			int lineNumber = getEntryContainer().getSource().getLine();
+			int lineNumber = source.getLine();
 			trigger.setLineNumber(lineNumber); // Set line number for debugging
 			trigger.setDebugLabel(script + ": line " + lineNumber);
 		} finally {

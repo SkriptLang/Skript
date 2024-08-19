@@ -218,9 +218,18 @@ public class AliasesProvider {
 			return flags;
 		
 		// Apply random tags using JSON
-		String json = gson.toJson(tags);
-		assert json != null;
-		BukkitUnsafe.modifyItemStack(stack, json);
+		if (Aliases.USING_ITEM_COMPONENTS) {
+			String components = (String) tags.get("components"); // only components are supported for modifying a stack
+			assert components != null;
+			// for modifyItemStack to work, you have to include an item id ... e.g. "minecraft:dirt[<components>]"
+			// just to be safe we use the same one as the provided stack
+			components = stack.getType().getKey() + components;
+			BukkitUnsafe.modifyItemStack(stack, components);
+		} else {
+			String json = gson.toJson(tags);
+			assert json != null;
+			BukkitUnsafe.modifyItemStack(stack, json);
+		}
 		flags |= ItemFlags.CHANGED_TAGS;
 		
 		return flags;
@@ -269,6 +278,14 @@ public class AliasesProvider {
 		ItemType typeOfId = getAlias(id);
 		EntityData<?> related = null;
 		List<ItemData> datas;
+
+		// check whether deduplication will occur
+		boolean deduplicate = true;
+		String deduplicateFlag = blockStates.remove("deduplicate");
+		if (deduplicateFlag != null) {
+			deduplicate = !deduplicateFlag.equals("false");
+		}
+
 		if (typeOfId != null) { // If it exists, use datas from it
 			datas = typeOfId.getTypes();
 		} else { // ... but quite often, we just got Vanilla id
@@ -287,25 +304,30 @@ public class AliasesProvider {
 			}
 			
 			// Apply (NBT) tags to item stack
-			ItemStack stack = new ItemStack(material);
+			ItemStack stack = null;
 			int itemFlags = 0;
-			if (tags != null) {
-				itemFlags = applyTags(stack, new HashMap<>(tags));
+			if (material.isItem()) {
+				stack = new ItemStack(material);
+				if (tags != null) {
+					itemFlags = applyTags(stack, new HashMap<>(tags));
+				}
 			}
 			
 			// Parse block state to block values
 			BlockValues blockValues = BlockCompat.INSTANCE.createBlockValues(material, blockStates, stack, itemFlags);
 			
-			ItemData data = new ItemData(stack, blockValues);
+			ItemData data = stack != null ? new ItemData(stack, blockValues) : new ItemData(material, blockValues);
 			data.isAlias = true;
 			data.itemFlags = itemFlags;
 			
 			// Deduplicate item data if this has been loaded before
-			AliasesMap.Match canonical = aliasesMap.exactMatch(data);
-			if (canonical.getQuality().isAtLeast(MatchQuality.EXACT)) {
-				AliasesMap.AliasData aliasData = canonical.getData();
-				assert aliasData != null; // Match quality guarantees this
-				data = aliasData.getItem();
+			if (deduplicate) {
+				AliasesMap.Match canonical = aliasesMap.exactMatch(data);
+				if (canonical.getQuality().isAtLeast(MatchQuality.EXACT)) {
+					AliasesMap.AliasData aliasData = canonical.getData();
+					assert aliasData != null; // Match quality guarantees this
+					data = aliasData.getItem();
+				}
 			}
 			
 			datas = Collections.singletonList(data);
@@ -394,6 +416,7 @@ public class AliasesProvider {
 
 	public void clearAliases() {
 		aliases.clear();
+		materials.clear();
 		variations.clear();
 		aliasesMap.clear();
 	}
