@@ -23,6 +23,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import ch.njol.skript.registrations.Feature;
+import java.util.ArrayList;
+import java.util.List;
+
+import ch.njol.skript.bukkitutil.InventoryUtils;
+import ch.njol.skript.bukkitutil.ItemUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.GameRule;
 import org.bukkit.Nameable;
@@ -43,7 +48,6 @@ import org.bukkit.World;
 import org.eclipse.jdt.annotation.Nullable;
 
 import ch.njol.skript.Skript;
-import ch.njol.skript.aliases.Aliases;
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
@@ -143,7 +147,6 @@ public class ExprName extends SimplePropertyExpression<Object, String> {
 	 * 3 = "tablist name"
 	 */
 	private int mark;
-	private static final ItemType AIR = Aliases.javaItemType("air");
 	private boolean scriptResolvedName;
 
 	@Override
@@ -199,7 +202,7 @@ public class ExprName extends SimplePropertyExpression<Object, String> {
 			Inventory inventory = (Inventory) object;
 			if (inventory.getViewers().isEmpty())
 				return null;
-			return inventory.getViewers().get(0).getOpenInventory().getTitle();
+			return InventoryUtils.getTitle(inventory.getViewers().get(0).getOpenInventory());
 		} else if (object instanceof Slot) {
 			ItemStack is = ((Slot) object).getItem();
 			if (is != null && is.hasItemMeta()) {
@@ -299,7 +302,7 @@ public class ExprName extends SimplePropertyExpression<Object, String> {
 			} else if (object instanceof Slot) {
 				Slot s = (Slot) object;
 				ItemStack is = s.getItem();
-				if (is != null && !AIR.isOfType(is)) {
+				if (is != null && !ItemUtils.isAir(is.getType())) {
 					ItemMeta m = is.hasItemMeta() ? is.getItemMeta() : Bukkit.getItemFactory().getItemMeta(is.getType());
 					m.setDisplayName(name);
 					is.setItemMeta(m);

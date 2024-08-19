@@ -16,25 +16,29 @@
  *
  * Copyright Peter Güttinger, SkriptLang team and contributors
  */
-package ch.njol.skript.events.bukkit;
+package org.skriptlang.skript.test.tests.syntaxes.expressions;
 
-import org.bukkit.event.Event;
-import org.bukkit.event.HandlerList;
+import ch.njol.skript.test.runner.SkriptJUnitTest;
+import org.bukkit.entity.Pig;
+import org.junit.Before;
+import org.junit.Test;
 
-/**
- * Internally used for parsing `parse if` sections
- */
-public class SkriptParseEvent extends Event {
+public class ExprDropsTest extends SkriptJUnitTest {
 
-	private final static HandlerList handlers = new HandlerList();
+	private Pig pig;
 
-	@Override
-	public HandlerList getHandlers() {
-		return handlers;
+	static {
+		setShutdownDelay(1);
 	}
 
-	public static HandlerList getHandlerList() {
-		return handlers;
+	@Before
+	public void spawnPig() {
+		pig = spawnTestPig();
+	}
+
+	@Test
+	public void killPig() {
+		pig.damage(100);
 	}
 
 }

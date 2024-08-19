@@ -146,5 +146,15 @@ public abstract class WrapperExpression<T> extends SimpleExpression<T> {
 	public Object[] beforeChange(Expression<?> changed, @Nullable Object[] delta) {
 		return expr.beforeChange(changed, delta); // Forward to what we're wrapping
 	}
-	
+
+	@Override
+	public Class<? extends T>[] possibleReturnTypes() {
+		return expr.possibleReturnTypes();
+	}
+
+	@Override
+	public boolean canReturn(Class<?> returnType) {
+		return expr.canReturn(returnType);
+	}
+
 }

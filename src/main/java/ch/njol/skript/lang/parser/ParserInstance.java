@@ -32,9 +32,9 @@ import ch.njol.skript.structures.StructOptions.OptionsData;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.Nullable;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.experiment.Experiment;
 import org.skriptlang.skript.lang.experiment.ExperimentSet;
 import org.skriptlang.skript.lang.experiment.Experimented;
@@ -44,6 +44,7 @@ import org.skriptlang.skript.lang.structure.Structure;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -67,23 +68,22 @@ public final class ParserInstance implements Experimented {
 	 * Internal method for updating a ParserInstance's {@link #isActive()} status!
 	 * You probably don't need to use this method!
 	 */
+	@ApiStatus.Internal
 	public void setInactive() {
 		this.isActive = false;
+		reset();
 		setCurrentScript((Script) null);
-		setCurrentStructure(null);
-		deleteCurrentEvent();
-		getCurrentSections().clear();
-		setNode(null);
 	}
 
 	/**
 	 * Internal method for updating a ParserInstance's {@link #isActive()} status!
 	 * You probably don't need to use this method!
 	 */
+	@ApiStatus.Internal
 	public void setActive(Script script) {
 		this.isActive = true;
+		reset(); // just to be safe
 		setCurrentScript(script);
-		setNode(null);
 	}
 
 	/**
@@ -96,10 +96,23 @@ public final class ParserInstance implements Experimented {
 		return isActive;
 	}
 
+	/**
+	 * Resets this ParserInstance to its default state.
+	 * The only data retained is {@link #getCurrentScript()} and any Logging API.
+	 */
+	public void reset() {
+		this.currentStructure = null;
+		this.currentEventName = null;
+		this.currentEvents = null;
+		this.currentSections = new ArrayList<>();
+		this.hasDelayBefore = Kleenean.FALSE;
+		this.node = null;
+		dataMap.clear();
+	}
+
 	// Script API
 
-	@Nullable
-	private Script currentScript = null;
+	private @Nullable Script currentScript = null;
 
 	/**
 	 * Internal method for updating the current script. Allows null parameter.
@@ -137,8 +150,7 @@ public final class ParserInstance implements Experimented {
 
 	// Structure API
 
-	@Nullable
-	private Structure currentStructure = null;
+	private @Nullable Structure currentStructure = null;
 
 	/**
 	 * Updates the Structure currently being handled by this ParserInstance.
@@ -151,8 +163,7 @@ public final class ParserInstance implements Experimented {
 	/**
 	 * @return The Structure currently being handled by this ParserInstance.
 	 */
-	@Nullable
-	public Structure getCurrentStructure() {
+	public @Nullable Structure getCurrentStructure() {
 		return currentStructure;
 	}
 
@@ -177,8 +188,7 @@ public final class ParserInstance implements Experimented {
 
 	// Event API
 
-	@Nullable
-	private String currentEventName;
+	private @Nullable String currentEventName;
 
 	private Class<? extends Event> @Nullable [] currentEvents = null;
 
@@ -186,8 +196,7 @@ public final class ParserInstance implements Experimented {
 		this.currentEventName = currentEventName;
 	}
 
-	@Nullable
-	public String getCurrentEventName() {
+	public @Nullable String getCurrentEventName() {
 		return currentEventName;
 	}
 
@@ -284,12 +293,11 @@ public final class ParserInstance implements Experimented {
 	 * Returns {@code null} if {@link #isCurrentSection(Class)} returns {@code false}.
 	 * @see #getCurrentSections()
 	 */
-	@Nullable
-	@SuppressWarnings("unchecked")
-	public <T extends TriggerSection> T getCurrentSection(Class<T> sectionClass) {
+	public <T extends TriggerSection> @Nullable T getCurrentSection(Class<T> sectionClass) {
 		for (int i = currentSections.size(); i-- > 0;) {
 			TriggerSection triggerSection = currentSections.get(i);
 			if (sectionClass.isInstance(triggerSection))
+				//noinspection unchecked
 				return (T) triggerSection;
 		}
 		return null;
@@ -300,12 +308,11 @@ public final class ParserInstance implements Experimented {
 	 * Modifications to the returned list are not saved.
 	 * @see #getCurrentSections()
 	 */
-	@NotNull
-	@SuppressWarnings("unchecked")
-	public <T extends TriggerSection> List<T> getCurrentSections(Class<T> sectionClass) {
+	public <T extends TriggerSection> @NotNull List<T> getCurrentSections(Class<T> sectionClass) {
 		List<T> list = new ArrayList<>();
 		for (TriggerSection triggerSection : currentSections) {
 			if (sectionClass.isInstance(triggerSection))
+				//noinspection unchecked
 				list.add((T) triggerSection);
 		}
 		return list;
@@ -361,7 +368,7 @@ public final class ParserInstance implements Experimented {
 		return hasDelayBefore;
 	}
 
-	// Miscellaneous
+	// Logging API
 
 	private final HandlerList handlers = new HandlerList();
 
@@ -374,8 +381,7 @@ public final class ParserInstance implements Experimented {
 		return handlers;
 	}
 
-	@Nullable
-	private Node node;
+	private @Nullable Node node;
 
 	/**
 	 * @param node The node to mark as being handled. This is mainly used for logging.
@@ -389,8 +395,7 @@ public final class ParserInstance implements Experimented {
 	 * @return The node currently marked as being handled. This is mainly used for logging.
 	 * Null indicates no node is currently being handled (that the ParserInstance is aware of).
 	 */
-	@Nullable
-	public Node getNode() {
+	public @Nullable Node getNode() {
 		return node;
 	}
 
@@ -535,6 +540,74 @@ public final class ParserInstance implements Experimented {
 		return dataList;
 	}
 
+	// Backup API
+
+	/**
+	 * A Backup represents a ParserInstance at a certain point in time.
+	 * It does not include anything regarding a ParserInstance's logging data.
+	 * It is important to understand that this does not create a deep-copy of all data.
+	 *  That is, the contents of any collections will remain the same, but there is no guarantee that
+	 *  the contents themselves will remain unchanged.
+	 * @see #backup()
+	 * @see #restoreBackup(Backup) 
+	 */
+	public static class Backup {
+
+		private final Script currentScript;
+		private final @Nullable Structure currentStructure;
+		private final @Nullable String currentEventName;
+		private final Class<? extends Event> @Nullable [] currentEvents;
+		private final List<TriggerSection> currentSections;
+		private final Kleenean hasDelayBefore;
+		private final Map<Class<? extends Data>, Data> dataMap;
+
+		private Backup(ParserInstance parser) {
+			//noinspection ConstantConditions - parser will be active, meaning there is a current script
+			this.currentScript = parser.currentScript;
+			this.currentStructure = parser.currentStructure;
+			this.currentEventName = parser.currentEventName != null ? parser.currentEventName : null;
+			this.currentEvents = parser.currentEvents != null
+				? Arrays.copyOf(parser.currentEvents, parser.currentEvents.length)
+				: null;
+			this.currentSections = new ArrayList<>(parser.currentSections);
+			this.hasDelayBefore = parser.hasDelayBefore;
+			this.dataMap = new HashMap<>(parser.dataMap);
+		}
+
+		private void apply(ParserInstance parser) {
+			parser.setCurrentScript(currentScript);
+			parser.currentStructure = this.currentStructure;
+			parser.currentEventName = this.currentEventName;
+			parser.currentEvents = this.currentEvents;
+			parser.currentSections = this.currentSections;
+			parser.hasDelayBefore = this.hasDelayBefore;
+			parser.dataMap.clear();
+			parser.dataMap.putAll(this.dataMap);
+		}
+
+	}
+
+	/**
+	 * Creates a backup of this ParserInstance, which represents its current state (excluding any Logging API).
+	 * @return A backup of this ParserInstance.
+	 * @see #restoreBackup(Backup)
+	 */
+	public Backup backup() {
+		if (!isActive())
+			throw new SkriptAPIException("Backups may only be created from active ParserInstances");
+		return new Backup(this);
+	}
+
+	/**
+	 * Restores a backup onto this ParserInstance.
+	 *  That is, this entire ParserInstance, except any Logging API, will be overridden.
+	 * @param backup The backup to apply.
+	 * @see #backup()
+	 */
+	public void restoreBackup(Backup backup) {
+		backup.apply(this);
+	}
+
 	// Deprecated API
 
 	/**
@@ -554,9 +627,8 @@ public final class ParserInstance implements Experimented {
 	/**
 	 * @deprecated Use {@link #getCurrentStructure()}
 	 */
-	@Nullable
 	@Deprecated
-	public SkriptEvent getCurrentSkriptEvent() {
+	public @Nullable SkriptEvent getCurrentSkriptEvent() {
 		Structure structure = getCurrentStructure();
 		if (structure instanceof SkriptEvent)
 			return (SkriptEvent) structure;

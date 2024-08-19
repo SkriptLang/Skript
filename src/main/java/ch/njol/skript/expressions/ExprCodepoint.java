@@ -46,7 +46,7 @@ import org.eclipse.jdt.annotation.Nullable;
 			"\t\tset {_previous-codepoint} to {_codepoint}",
 		"\treturn true"
 })
-@Since("INSERT VERSION")
+@Since("2.9.0")
 public class ExprCodepoint extends SimplePropertyExpression<String, Integer> {
 
 	static {
