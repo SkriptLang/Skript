@@ -1,0 +1,18 @@
+test "boss bars":
+	set {_bar} to a new boss bar
+
+	assert the title of {_bar} is "" with "title is %title of {_bar}%"
+	set the title of {_bar} to "foo bar"
+	assert the title of {_bar} is "foo bar" with "title is %title of {_bar}%"
+
+	# colors can't be compared with colors currently so we use strings
+	assert "%the color of {_bar}%" is "pink" with "color is %color of {_bar}%"
+	set the color of {_bar} to red
+	assert "%the color of {_bar}%" is "red" with "color is %color of {_bar}%"
+
+	assert the style of {_bar} is solid with "style is %style of {_bar}%"
+	set the style of {_bar} to 12 segments
+	assert the style of {_bar} is 12 segments with "style is %style of {_bar}%"
+
+	add play boss music to the flags of {_bar}
+	assert the flags of {_bar} contains play boss music with "flags are %flags of {_bar}%"
