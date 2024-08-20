@@ -31,8 +31,7 @@ import ch.njol.skript.util.slot.Slot;
 import ch.njol.util.Checker;
 import org.bukkit.event.Event;
 import org.bukkit.inventory.ItemStack;
-import org.eclipse.jdt.annotation.NonNull;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.converter.Converter;
 
 import java.util.HashMap;
@@ -64,8 +63,7 @@ public interface Expression<T> extends SyntaxElement, Debuggable {
 	 * @return The value or null if this expression doesn't have any value for the event
 	 * @throws UnsupportedOperationException (optional) if this was called on a non-single expression
 	 */
-	@Nullable
-	T getSingle(Event event);
+	@Nullable T getSingle(Event event);
 
 	/**
 	 * Get an optional of the single value of this expression.
@@ -107,7 +105,7 @@ public interface Expression<T> extends SyntaxElement, Debuggable {
 	 * @param event The event
 	 * @return A non-null stream of this expression's non-null values
 	 */
-	default Stream<@NonNull ? extends  T> stream(Event event) {
+	default Stream<? extends  T> stream(Event event) {
 		Iterator<? extends T> iterator = iterator(event);
 		if (iterator == null) {
 			return Stream.empty();
@@ -178,9 +176,8 @@ public interface Expression<T> extends SyntaxElement, Debuggable {
 	 * @see Converter
 	 * @see ConvertedExpression
 	 */
-	@Nullable
 	@SuppressWarnings("unchecked")
-	<R> Expression<? extends R> getConvertedExpression(Class<R>... to);
+	<R> @Nullable Expression<? extends R> getConvertedExpression(Class<R>... to);
 
 	/**
 	 * Gets the return type of this expression.
@@ -265,8 +262,7 @@ public interface Expression<T> extends SyntaxElement, Debuggable {
 	 * @param event The event to be used for evaluation
 	 * @return An iterator to iterate over all values of this expression which may be empty and/or null, but must not return null elements.
 	 */
-	@Nullable
-	Iterator<? extends T> iterator(Event event);
+	@Nullable Iterator<? extends T> iterator(Event event);
 
 	/**
 	 * Checks whether the given 'loop-...' expression should match this loop, e.g. loop-block matches any loops that loop through blocks and loop-argument matches an
@@ -316,8 +312,7 @@ public interface Expression<T> extends SyntaxElement, Debuggable {
 	 *         that type are accepted), or null if the given mode is not supported. For {@link ChangeMode#DELETE} and {@link ChangeMode#RESET} this can return any non-null array to
 	 *         mark them as supported.
 	 */
-	@Nullable
-	Class<?>[] acceptChange(ChangeMode mode);
+	Class<?> @Nullable [] acceptChange(ChangeMode mode);
 
 	/**
 	 * Tests all accepted change modes, and if so what type it expects the <code>delta</code> to be.
@@ -343,7 +338,7 @@ public interface Expression<T> extends SyntaxElement, Debuggable {
 	 * @param mode The {@link ChangeMode} of the attempted change
 	 * @throws UnsupportedOperationException (optional) - If this method was called on an unsupported ChangeMode.
 	 */
-	void change(Event event, @Nullable Object[] delta, ChangeMode mode);
+	void change(Event event, Object @Nullable [] delta, ChangeMode mode);
 
 	/**
 	 * This method is called before this expression is set to another one.
@@ -356,8 +351,7 @@ public interface Expression<T> extends SyntaxElement, Debuggable {
 	 * @param delta Initial delta array.
 	 * @return Delta array to use for change.
 	 */
-	@Nullable
-	default Object[] beforeChange(Expression<?> changed, @Nullable Object[] delta) {
+	default Object @Nullable [] beforeChange(Expression<?> changed, Object @Nullable [] delta) {
 		if (delta == null || delta.length == 0) // Nothing to nothing
 			return null;
 

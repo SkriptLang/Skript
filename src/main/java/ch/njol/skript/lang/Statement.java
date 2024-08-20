@@ -40,11 +40,8 @@ public abstract class Statement extends TriggerItem implements SyntaxElement {
 		return parse(input, null, defaultError);
 	}
 
-	@Nullable
-	@SuppressWarnings({"rawtypes", "unchecked"})
-	public static Statement parse(String input, @Nullable List<TriggerItem> items, String defaultError) {
-		ParseLogHandler log = SkriptLogger.startParseLogHandler();
-		try {
+	public static @Nullable Statement parse(String input, @Nullable List<TriggerItem> items, String defaultError) {
+		try (ParseLogHandler log = SkriptLogger.startParseLogHandler()) {
 			EffFunctionCall functionCall = EffFunctionCall.parse(input);
 			if (functionCall != null) {
 				log.printLog();
@@ -62,6 +59,7 @@ public abstract class Statement extends TriggerItem implements SyntaxElement {
 			}
 			log.clear();
 
+			//noinspection unchecked,rawtypes
 			Statement statement = (Statement) SkriptParser.parse(input, (Iterator) Skript.getStatements().iterator(), defaultError);
 			if (statement != null) {
 				log.printLog();
@@ -70,8 +68,6 @@ public abstract class Statement extends TriggerItem implements SyntaxElement {
 
 			log.printError();
 			return null;
-		} finally {
-			log.stop();
 		}
 	}
 

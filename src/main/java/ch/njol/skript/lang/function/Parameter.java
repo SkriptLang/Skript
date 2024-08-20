@@ -32,7 +32,7 @@ import ch.njol.skript.util.LiteralUtils;
 import ch.njol.skript.util.Utils;
 import ch.njol.util.NonNullPair;
 import ch.njol.util.StringUtils;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -61,8 +61,7 @@ public final class Parameter<T> {
 	 * Expression that will provide default value of this parameter
 	 * when the function is called.
 	 */
-	@Nullable
-	final Expression<? extends T> def;
+	final @Nullable Expression<? extends T> def;
 	
 	/**
 	 * Whether this parameter takes one or many values.
@@ -84,10 +83,8 @@ public final class Parameter<T> {
 	public ClassInfo<T> getType() {
 		return type;
 	}
-	
-	@SuppressWarnings("unchecked")
-	@Nullable
-	public static <T> Parameter<T> newInstance(String name, ClassInfo<T> type, boolean single, @Nullable String def) {
+
+	public static <T> @Nullable Parameter<T> newInstance(String name, ClassInfo<T> type, boolean single, @Nullable String def) {
 		if (!Variable.isValidVariableName(name, true, false)) {
 			Skript.error("A parameter's name must be a valid variable name.");
 			// ... because it will be made available as local variable
@@ -99,6 +96,7 @@ public final class Parameter<T> {
 			
 			// Parse the default value expression
 			try {
+				//noinspection unchecked
 				d = new SkriptParser(def, SkriptParser.ALL_FLAGS, ParseContext.DEFAULT).parseExpression(type.getC());
 				if (d == null || LiteralUtils.hasUnparsedLiteral(d)) {
 					log.printErrors("Can't understand this expression: " + def);
@@ -118,8 +116,7 @@ public final class Parameter<T> {
 	 * @param args The string to parse.
 	 * @return The parsed parameters
 	 */
-	@Nullable
-	public static List<Parameter<?>> parse(String args) {
+	public static @Nullable List<Parameter<?>> parse(String args) {
 		List<Parameter<?>> params = new ArrayList<>();
 		boolean caseInsensitive = SkriptConfig.caseInsensitiveVariables.value();
 		int j = 0;
@@ -188,8 +185,7 @@ public final class Parameter<T> {
 	 * Get the Expression that will be used to provide the default value of this parameter when the function is called.
 	 * @return Expression that will provide default value of this parameter
 	 */
-	@Nullable
-	public Expression<? extends T> getDefaultExpression() {
+	public @Nullable Expression<? extends T> getDefaultExpression() {
 		return def;
 	}
 	

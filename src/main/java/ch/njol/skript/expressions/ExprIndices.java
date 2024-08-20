@@ -30,6 +30,7 @@ import ch.njol.skript.lang.Variable;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.util.LiteralUtils;
 import ch.njol.util.Kleenean;
+import ch.njol.util.Pair;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
 
@@ -101,8 +102,14 @@ public class ExprIndices extends SimpleExpression<String> {
 		if (sort) {
 			int direction = descending ? -1 : 1;
 			return variable.entrySet().stream()
+				.map((entry) -> new Pair<>(
+					entry.getKey(),
+					entry.getValue() instanceof Map<?,?>
+						? ((Map<?,?>) entry.getValue()).get(null)
+						: entry.getValue()
+				))
 				.sorted((a, b) -> ExprSortedList.compare(a.getValue(), b.getValue()) * direction)
-				.map(Entry::getKey)
+				.map(Pair::getKey)
 				.toArray(String[]::new);
 		}
 

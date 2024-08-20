@@ -25,7 +25,7 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.parser.ParserInstance;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -172,9 +172,9 @@ public abstract class Section extends TriggerSection implements SyntaxElement {
 	}
 
 	@Nullable
-	@SuppressWarnings({"unchecked", "rawtypes"})
 	public static Section parse(String expr, @Nullable String defaultError, SectionNode sectionNode, List<TriggerItem> triggerItems) {
 		SectionContext sectionContext = ParserInstance.get().getData(SectionContext.class);
+		//noinspection unchecked,rawtypes
 		return sectionContext.modify(sectionNode, triggerItems,
 			() -> (Section) SkriptParser.parse(expr, (Iterator) Skript.getSections().iterator(), defaultError));
 	}
