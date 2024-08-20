@@ -1542,7 +1542,7 @@ public class BukkitClasses {
 
 		// Boss Bars
 		Classes.registerClass(new ClassInfo<>(BossBar.class, "bossbar")
-				.user("boss bars?")
+				.user("boss ?bars?")
 				.name("Boss Bar")
 				.description("A boss/event bar, displayed at the top of the screen.")
 				.examples("set {bar} to a new boss bar", "add player to {bar}")
