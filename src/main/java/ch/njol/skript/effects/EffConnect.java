@@ -19,8 +19,8 @@ import org.jetbrains.annotations.Nullable;
 @Description({
 	"Connects a player to another bungeecord server",
 	"If the server is running Minecraft 1.20.5 or above, you may specify an IP and Port to transfer a player over to that server.",
-	"This effect will not function if the `accepts-transfers` option isn't enabled in `server.properties`.",
-	"The port defaults to `25565` if not specified."
+	"When transferring players using an IP, the transfer will not complete if the `accepts-transfers` option isn't enabled in `server.properties` for the server specified.",
+	"The port will default to `25565` if not specified."
 })
 @Examples({
 	"connect all players to \"hub\"",
