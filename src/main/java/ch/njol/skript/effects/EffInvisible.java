@@ -31,7 +31,7 @@ public class EffInvisible extends Effect {
 	}
 
 	private boolean invisible;
-	private Expression<Object> targets;
+	private Expression<?> targets;
 
 	@Override
 	@SuppressWarnings("unchecked")
