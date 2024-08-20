@@ -16,7 +16,7 @@ import org.jetbrains.annotations.Nullable;
 
 @Name("Make Invisible")
 @Description({
-	"Makes a living entity or a boss baro visible/invisible. This is not a potion and therefore does not have features such as a time limit or particles.",
+	"Makes a living entity or a boss bar visible/invisible. This is not a potion and therefore does not have features such as a time limit or particles.",
 	"When setting an entity to invisible while using an invisibility potion on it, the potion will be overridden and when it runs out the entity keeps its invisibility."
 })
 @Examples("make target entity invisible")
@@ -36,8 +36,8 @@ public class EffInvisible extends Effect {
 	@Override
 	@SuppressWarnings("unchecked")
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		targets = (Expression<Object>) exprs[0];
-		invisible = matchedPattern == 0;
+		this.targets = (Expression<Object>) exprs[0];
+		this.invisible = matchedPattern == 0;
 		return true;
 	}
 

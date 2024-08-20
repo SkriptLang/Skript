@@ -18,7 +18,7 @@
  */
 package ch.njol.skript.expressions;
 
-import ch.njol.skript.classes.Changer;
+import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
@@ -44,7 +44,7 @@ public class ExprBossBarTitle extends SimplePropertyExpression<BossBar, String> 
 	}
 
 	@Override
-	public Class<?> @Nullable [] acceptChange(Changer.ChangeMode mode) {
+	public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
 		return switch (mode) {
 			case SET -> new Class[] {String.class};
 			case RESET, DELETE -> new Class[0];
@@ -53,9 +53,9 @@ public class ExprBossBarTitle extends SimplePropertyExpression<BossBar, String> 
 	}
 
 	@Override
-	public void change(Event event, @Nullable Object[] delta, Changer.ChangeMode mode) {
+	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
 		String title = null;
-			switch (mode) {
+		switch (mode) {
 			case SET:
 				assert delta.length > 0 && delta[0] != null;
 				title = (String) delta[0];

@@ -25,6 +25,7 @@ import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.PropertyExpression;
 import ch.njol.skript.lang.Expression;
+import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
 import org.bukkit.boss.BarFlag;
 import org.bukkit.boss.BossBar;
@@ -34,11 +35,10 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
-import static ch.njol.skript.lang.SkriptParser.*;
 
 @Name("Boss Bar Flags")
 @Description("The flags of a boss bar. These flags control the behavior of the boss bar.")
-@Examples({"add darken sky to flags of {_bar}"})
+@Examples({"add darken sky to flags of {_bar}t"})
 @Since("INSERT VERSION")
 public class ExprBossBarFlags extends PropertyExpression<BossBar, BarFlag> {
 
