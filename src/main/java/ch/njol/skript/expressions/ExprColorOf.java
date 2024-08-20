@@ -112,6 +112,12 @@ public class ExprColorOf extends PropertyExpression<Object, Color> {
 		) {
 			return CollectionUtils.array(Color.class);
 		}
+		else if (Block.class.isAssignableFrom(returnType))
+			return CollectionUtils.array(Color.class);
+		else if (BossBar.class.isAssignableFrom(returnType))
+			return CollectionUtils.array(Color.class);
+		if (ItemType.class.isAssignableFrom(returnType))
+			return CollectionUtils.array(Color.class);
 		return null;
 	}
 

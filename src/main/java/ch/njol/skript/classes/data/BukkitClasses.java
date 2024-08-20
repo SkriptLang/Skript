@@ -33,6 +33,9 @@ import org.bukkit.block.BlockState;
 import org.bukkit.block.DoubleChest;
 import org.bukkit.block.banner.PatternType;
 import org.bukkit.block.data.BlockData;
+import org.bukkit.boss.BarFlag;
+import org.bukkit.boss.BarStyle;
+import org.bukkit.boss.BossBar;
 import org.bukkit.command.CommandSender;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.enchantments.EnchantmentOffer;
@@ -1536,6 +1539,70 @@ public class BukkitClasses {
 					.description("Teleport Flags are settings to retain during a teleport.")
 					.requiredPlugins("Paper 1.19+")
 					.since("2.10"));
+
+		// Boss Bars
+		Classes.registerClass(new ClassInfo<>(BossBar.class, "bossbar")
+				.user("boss bars?")
+				.name("Boss Bar")
+				.description("A boss/event bar, displayed at the top of the screen.")
+				.examples("set {bar} to a new boss bar", "add player to {bar}")
+				.since("INSERT VERSION")
+				.changer(new Changer<>() {
+					@Override
+					public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
+						return switch (mode) {
+							case ADD, REMOVE -> new Class[] {Player.class};
+							case RESET -> new Class[0];
+							default -> null;
+						};
+					}
+
+					@Override
+					public void change(BossBar[] what, Object @Nullable [] delta, ChangeMode mode) {
+						switch (mode) {
+							case RESET -> {
+								for (BossBar bar : what) {
+									bar.removeAll();
+									for (BarFlag value : BarFlag.values())
+										bar.removeFlag(value);
+								}
+							}
+							case ADD -> {
+								if (delta == null)
+									break;
+								for (BossBar bar : what) {
+									for (Object object : delta) {
+										if (object instanceof Player player)
+											bar.addPlayer(player);
+									}
+								}
+							}
+							case REMOVE -> {
+								if (delta == null)
+									break;
+								for (BossBar bar : what) {
+									for (Object object : delta) {
+										if (object instanceof Player player)
+											bar.removePlayer(player);
+									}
+								}
+							}
+						}
+					}
+				}));
+
+		Classes.registerClass(new EnumClassInfo<>(BarStyle.class, "bossbarstyle", "boss bar styles")
+				.user("boss ?bar styles?")
+				.name("Boss Bar Style")
+				.description("Represents the style of a boss bar (e.g. segmented or solid)")
+				.since("INSERT VERSION"));
+
+		Classes.registerClass(new EnumClassInfo<>(BarFlag.class, "bossbarflag", "boss bar flags")
+				.user("boss ?bar flags?")
+				.name("Boss Bar Flags")
+				.description("Represents a flag that can be added to a boss bar (e.g. darken sky or play boss music)")
+				.since("INSERT VERSION"));
+
 	}
 
 }

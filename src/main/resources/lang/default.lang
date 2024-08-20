@@ -2689,3 +2689,16 @@ types:
 
 	# Other
 	quaternion: quaternion¦s @a
+
+# -- Boss Bars --
+boss bar styles:
+	segmented_6: 6 segments
+	segmented_10: 10 segments
+	segmented_12: 12 segments
+	segmented_20: 20 segments
+	solid: solid
+
+boss bar flags:
+	create_fog: fog
+	darken_sky: darken sky
+	play_boss_music: play boss music
