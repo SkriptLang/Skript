@@ -47,7 +47,7 @@ public class ExprBossBarProgress extends SimplePropertyExpression<BossBar, Doubl
 	@Override
 	public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
 		return switch (mode) {
-			case SET, ADD, REMOVE -> new Class[]{Number.class};
+			case SET, ADD, REMOVE -> new Class[] {Number.class};
 			case RESET -> new Class[0];
 			default -> null;
 		};
