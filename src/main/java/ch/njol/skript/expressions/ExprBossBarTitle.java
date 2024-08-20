@@ -26,11 +26,11 @@ import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import org.bukkit.boss.BossBar;
 import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 @Name("Boss Bar Title")
-@Description("The title/text of a boss bar. This is the text shown above the progress bar of the bossbar.")
-@Examples({"set title of player's bossbar to \"Goodbye!\""})
+@Description("The title/text of a boss bar. This is the text shown above the progress bar of the boss bar.")
+@Examples({"set the title of {bar} to \"Goodbye!\""})
 @Since("INSERT VERSION")
 public class ExprBossBarTitle extends SimplePropertyExpression<BossBar, String> {
 
@@ -39,25 +39,30 @@ public class ExprBossBarTitle extends SimplePropertyExpression<BossBar, String> 
 	}
 
 	@Override
-	@Nullable
-	public String convert(BossBar bossBar) {
+	public @Nullable String convert(BossBar bossBar) {
 		return bossBar.getTitle();
 	}
 
 	@Override
-	@Nullable
-	public Class<?>[] acceptChange(Changer.ChangeMode mode) {
-		if (mode == Changer.ChangeMode.SET)
-			return new Class[] {String.class};
-		return null;
+	public Class<?> @Nullable [] acceptChange(Changer.ChangeMode mode) {
+		return switch (mode) {
+			case SET -> new Class[] {String.class};
+			case RESET, DELETE -> new Class[0];
+			default -> null;
+		};
 	}
 
 	@Override
 	public void change(Event event, @Nullable Object[] delta, Changer.ChangeMode mode) {
-		assert delta[0] != null;
-		String title = (String) delta[0];
-		for (BossBar bossBar : getExpr().getArray(event))
-			bossBar.setTitle(title);
+		String title = null;
+			switch (mode) {
+			case SET:
+				assert delta.length > 0 && delta[0] != null;
+				title = (String) delta[0];
+			case RESET, DELETE:
+				for (BossBar bossBar : this.getExpr().getArray(event))
+					bossBar.setTitle(title);
+		}
 	}
 
 	@Override

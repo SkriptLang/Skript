@@ -27,11 +27,11 @@ import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import org.bukkit.boss.BarStyle;
 import org.bukkit.boss.BossBar;
 import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 @Name("Boss Bar Style")
 @Description("The style of a boss bar. This changes how the boss bar displays on the player's screen.")
-@Examples({"set style of player's bossbar to 10 segments"})
+@Examples({"set style of player's boss bar to 10 segments"})
 @Since("INSERT VERSION")
 public class ExprBossBarStyle extends SimplePropertyExpression<BossBar, BarStyle> {
 
@@ -40,25 +40,30 @@ public class ExprBossBarStyle extends SimplePropertyExpression<BossBar, BarStyle
 	}
 
 	@Override
-	@Nullable
-	public BarStyle convert(BossBar bossBar) {
+	public @Nullable BarStyle convert(BossBar bossBar) {
 		return bossBar.getStyle();
 	}
 
 	@Override
-	@Nullable
-	public Class<?>[] acceptChange(ChangeMode mode) {
-		if (mode == ChangeMode.SET)
-			return new Class[] {BarStyle.class};
-		return null;
+	public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
+		return switch (mode) {
+			case SET -> new Class[] {BarStyle.class};
+			case RESET -> new Class[0];
+			default -> null;
+		};
 	}
 
 	@Override
 	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
-		assert delta[0] != null;
-		BarStyle style = (BarStyle) delta[0];
-		for (BossBar bossBar : getExpr().getArray(event))
-			bossBar.setStyle(style);
+		BarStyle style = BarStyle.SOLID;
+		switch (mode) {
+			case SET:
+				assert delta.length > 0 && delta[0] != null;
+				style = (BarStyle) delta[0];
+			case RESET:
+				for (BossBar bossBar : this.getExpr().getArray(event))
+					bossBar.setStyle(style);
+		}
 	}
 
 	@Override

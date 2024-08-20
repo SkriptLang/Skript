@@ -25,22 +25,20 @@ import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.PropertyExpression;
 import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.SkriptParser;
 import ch.njol.util.Kleenean;
 import org.bukkit.boss.BarFlag;
 import org.bukkit.boss.BossBar;
 import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import static ch.njol.skript.lang.SkriptParser.*;
 
-
 @Name("Boss Bar Flags")
-@Description("The flags of a bossbar. These flags control the behavior of the bossbar.")
-@Examples({"add darken sky to flags of player's bossbar"})
+@Description("The flags of a boss bar. These flags control the behavior of the boss bar.")
+@Examples({"add darken sky to flags of player's boss bar"})
 @Since("INSERT VERSION")
 public class ExprBossBarFlags extends PropertyExpression<BossBar, BarFlag> {
 
@@ -51,7 +49,7 @@ public class ExprBossBarFlags extends PropertyExpression<BossBar, BarFlag> {
 	@Override
 	@SuppressWarnings("unchecked")
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		setExpr((Expression<? extends BossBar>) exprs[0]);
+		this.setExpr((Expression<? extends BossBar>) exprs[0]);
 		return true;
 	}
 
@@ -67,35 +65,29 @@ public class ExprBossBarFlags extends PropertyExpression<BossBar, BarFlag> {
 
 
 	@Override
-	@Nullable
-	public Class<?>[] acceptChange(ChangeMode mode) {
-		switch (mode) {
-			case SET:
-			case ADD:
-			case REMOVE:
-			case DELETE:
-				return new Class[] {BarFlag.class};
-			default:
-				return null;
-		}
+	public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
+		return switch (mode) {
+			case SET, ADD, REMOVE, DELETE -> new Class[] {BarFlag.class};
+			default -> null;
+		};
 	}
 
 	@Override
-	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
-		for (BossBar bossBar : getExpr().getArray(event))
+	public void change(Event event, Object[] delta, ChangeMode mode) {
+		for (BossBar bar : this.getExpr().getArray(event))
 			switch (mode) {
 				case SET:
-					clearFlags(bossBar);
+					this.clearFlags(bar);
 				case ADD:
 					for (Object flag : delta)
-						bossBar.addFlag((BarFlag) flag);
+						bar.addFlag((BarFlag) flag);
 					break;
 				case REMOVE:
 					for (Object flag : delta)
-						bossBar.removeFlag((BarFlag) flag);
+						bar.removeFlag((BarFlag) flag);
 					break;
 				case DELETE:
-					clearFlags(bossBar);
+					this.clearFlags(bar);
 			}
 	}
 
