@@ -69,10 +69,11 @@ public class ExprBossBar extends SimpleExpression<BossBar> {
 				break color;
 			color = getColor(dye);
 		}
-		if (name != null)
+		if (name != null) {
 			bar = Bukkit.createBossBar(name.getSingle(event), color, BarStyle.SOLID);
-		else
+		} else {
 			bar = Bukkit.createBossBar(null, color, BarStyle.SOLID);
+		}
 		return new BossBar[] {bar};
 	}
 

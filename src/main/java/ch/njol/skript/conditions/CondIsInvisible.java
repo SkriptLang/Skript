@@ -34,10 +34,11 @@ public class CondIsInvisible extends PropertyCondition<Object> {
 
 	@Override
 	public boolean check(Object target) {
-		if (target instanceof LivingEntity entity)
+		if (target instanceof LivingEntity entity) {
 			return entity.isInvisible();
-		else if (target instanceof BossBar bar)
+		} else if (target instanceof BossBar bar) {
 			return !bar.isVisible();
+		}
 		return false;
 	}
 
