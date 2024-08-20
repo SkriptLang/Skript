@@ -17,7 +17,7 @@ import org.jetbrains.annotations.Nullable;
 
 @Name("Connect")
 @Description({
-	"Connects a player to another bungeecord server",
+	"Connects a player to another bungeecord server. This isn't required in 1.20.5+",
 	"If the server is running Minecraft 1.20.5 or above, you may specify an IP and Port to transfer a player over to that server.",
 	"When transferring players using an IP, the transfer will not complete if the `accepts-transfers` option isn't enabled in `server.properties` for the server specified.",
 	"The port will default to `25565` if not specified."
@@ -33,12 +33,12 @@ public class EffConnect extends Effect {
 	public static final String BUNGEE_CHANNEL = "BungeeCord";
 	public static final String GET_SERVERS_CHANNEL = "GetServers";
 	public static final String CONNECT_CHANNEL = "Connect";
-	private static final boolean TRANSFER_PACKET_EXISTS = Skript.methodExists(Player.class, "transfer", String.class, int.class);
+	private static final boolean TRANSFER_METHOD_EXISTS = Skript.methodExists(Player.class, "transfer", String.class, int.class);
 
 	static {
 		Skript.registerEffect(EffConnect.class,
-				"connect %players% to [server] %string%",
-				"(transfer|send) %players% to server [with ip] %string% [(and|with|on) port %-number%]"
+				"(transfer|send|connect) %players% to (proxy|bungeecord) server %string%",
+				"(transfer|send|connect) %players% to server %string% [on port %-number%]"
 		);
 	}
 
@@ -51,11 +51,14 @@ public class EffConnect extends Effect {
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
 		players = (Expression<Player>) exprs[0];
 		server = (Expression<String>) exprs[1];
-		port = (Expression<Number>) exprs[2];
 		transfer = matchedPattern == 1;
-		if (!TRANSFER_PACKET_EXISTS && transfer) {
-			Skript.error("Transferring players via IP is not available on this version.");
-			return false;
+
+		if (transfer) {
+			port = exprs.length > 2 ? (Expression<Number>) exprs[2] : null;
+			if (!TRANSFER_METHOD_EXISTS) {
+				Skript.error("Transferring players via IP is not available on this version.");
+				return false;
+			}
 		}
 		return true;
 	}
@@ -67,7 +70,7 @@ public class EffConnect extends Effect {
 			.filter(Player::isOnline)
 			.toArray(Player[]::new);
 
-		if (players.length == 0)
+		if (server == null || players.length == 0)
 			return;
 
 		if (transfer) {
@@ -99,8 +102,12 @@ public class EffConnect extends Effect {
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		String portString = port != null ? (" and on port " + port.toString(event, debug)) : "";
-		return "connect or transfer " + players.toString(event, debug) + " to " + server.toString(event, debug) + portString;
+		if (transfer) {
+			String portString = port != null ? " on port " + port.toString(event, debug) : "";
+			return "transfer " + players.toString(event, debug) + " to server " + server.toString(event, debug) + portString;
+		} else {
+			return "connect " + players.toString(event, debug) + " to proxy server " + server.toString(event, debug);
+		}
 	}
 
 }
