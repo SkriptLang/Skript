@@ -38,7 +38,7 @@ import static ch.njol.skript.lang.SkriptParser.*;
 
 @Name("Boss Bar Flags")
 @Description("The flags of a boss bar. These flags control the behavior of the boss bar.")
-@Examples({"add darken sky to flags of player's boss bar"})
+@Examples({"add darken sky to flags of {_bar}"})
 @Since("INSERT VERSION")
 public class ExprBossBarFlags extends PropertyExpression<BossBar, BarFlag> {
 

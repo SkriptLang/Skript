@@ -31,7 +31,7 @@ import org.jetbrains.annotations.Nullable;
 
 @Name("Boss Bar Progress")
 @Description("The progress of a boss bar (ranges from 0 to 100)")
-@Examples({"set progress of player's boss bar to 56"})
+@Examples({"set the progress of {_bar} to 56"})
 @Since("INSERT VERSION")
 public class ExprBossBarProgress extends SimplePropertyExpression<BossBar, Double> {
 

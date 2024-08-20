@@ -31,7 +31,7 @@ import org.jetbrains.annotations.Nullable;
 
 @Name("Boss Bar Style")
 @Description("The style of a boss bar. This changes how the boss bar displays on the player's screen.")
-@Examples({"set style of player's boss bar to 10 segments"})
+@Examples({"set style of {_bar} to 10 segments"})
 @Since("INSERT VERSION")
 public class ExprBossBarStyle extends SimplePropertyExpression<BossBar, BarStyle> {
 
