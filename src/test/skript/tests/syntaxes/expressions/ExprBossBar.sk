@@ -16,3 +16,9 @@ test "boss bars":
 
 	add play boss music to the flags of {_bar}
 	assert the flags of {_bar} contains play boss music with "flags are %flags of {_bar}%"
+
+	assert {_bar} is visible with "invisible bar"
+	make {_bar} invisible
+	assert {_bar} is invisible with "still visible bar"
+	make {_bar} visible
+	assert {_bar} is visible with "still invisible bar"
