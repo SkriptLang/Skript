@@ -20,7 +20,7 @@ import org.jetbrains.annotations.Nullable;
 	"Connect a player to a server running on your proxy, or any server supporting transfers. Read below for more information.",
 	"If the server is running Minecraft 1.20.5 or above, you may specify an IP and Port to transfer a player over to that server.",
 	"When transferring players using an IP, the transfer will not complete if the `accepts-transfers` option isn't enabled in `server.properties` for the server specified.",
-	"The port will default to `25565` if not specified."
+	"If the port is not provided, it will default to `25565`."
 })
 @Examples({
 	"connect all players to proxy server \"hub\"",
