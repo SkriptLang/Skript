@@ -10,22 +10,22 @@ import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.SkriptParser;
+import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.util.Utils;
 import ch.njol.util.Kleenean;
 import org.jetbrains.annotations.Nullable;
 
 @Name("Connect")
 @Description({
-	"Connects a player to another bungeecord server. This isn't required in 1.20.5+",
+	"Connect a player to a server running on your proxy, or any server supporting transfers. Read below for more information.",
 	"If the server is running Minecraft 1.20.5 or above, you may specify an IP and Port to transfer a player over to that server.",
 	"When transferring players using an IP, the transfer will not complete if the `accepts-transfers` option isn't enabled in `server.properties` for the server specified.",
 	"The port will default to `25565` if not specified."
 })
 @Examples({
-	"connect all players to \"hub\"",
-	"transfer player to \"my.server.com\"",
-	"transfer player to \"localhost\" on port 25566"
+	"connect all players to proxy server \"hub\"",
+	"transfer player to server \"my.server.com\"",
+	"transfer player to server \"localhost\" on port 25566"
 })
 @Since("2.3, INSERT VERSION (transfer)")
 public class EffConnect extends Effect {
@@ -48,7 +48,7 @@ public class EffConnect extends Effect {
 	private boolean transfer;
 
 	@Override
-	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
+	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		players = (Expression<Player>) exprs[0];
 		server = (Expression<String>) exprs[1];
 		transfer = matchedPattern == 1;
