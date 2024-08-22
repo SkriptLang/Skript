@@ -33,6 +33,7 @@ import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.UnparsedLiteral;
 import ch.njol.skript.registrations.Classes;
+import ch.njol.skript.util.ClassInfoReference;
 import ch.njol.skript.util.Utils;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
@@ -69,9 +70,8 @@ public class ExprValueWithin extends WrapperExpression<Object> {
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		boolean plural;
 		if (exprs[0] != null) {
-			UnparsedLiteral unparsedLiteral = (UnparsedLiteral) exprs[0].getSource();
-			String input = unparsedLiteral.getData();
-			plural = Utils.getEnglishPlural(input).getSecond();
+			Literal<ClassInfoReference> classInfoReference = (Literal<ClassInfoReference>) ClassInfoReference.wrap((Expression<ClassInfo<?>>) exprs[0]);
+			plural = classInfoReference.getSingle().isPlural().isTrue();
 		} else {
 			plural = parseResult.hasTag("s");
 		}

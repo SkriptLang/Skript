@@ -170,6 +170,12 @@ public class SkriptConfig {
 		}
 	});
 
+	/**
+	 * Determines whether `on &lt;event&gt;` will be triggered by cancelled events or not.
+	 */
+	public static final Option<Boolean> listenCancelledByDefault = new Option<>("listen to cancelled events by default", false)
+			.optional(true);
+
 	
 	/**
 	 * Maximum number of digits to display after the period for floats and doubles
@@ -245,6 +251,9 @@ public class SkriptConfig {
 
 	public static final Option<Boolean> caseInsensitiveVariables = new Option<>("case-insensitive variables", true)
 			.setter(t -> Variables.caseInsensitiveVariables = t);
+
+	public static final Option<Boolean> caseInsensitiveCommands = new Option<>("case-insensitive commands", false)
+		.optional(true);
 	
 	public static final Option<Boolean> colorResetCodes = new Option<>("color codes reset formatting", true)
 			.setter(t -> {

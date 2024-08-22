@@ -19,10 +19,12 @@
 package ch.njol.skript.lang;
 
 import ch.njol.skript.SkriptAPIException;
+import ch.njol.skript.SkriptConfig;
 import org.bukkit.event.Event;
 import org.bukkit.event.player.PlayerInteractAtEntityEvent;
 import org.eclipse.jdt.annotation.Nullable;
 import org.skriptlang.skript.lang.structure.StructureInfo;
+import ch.njol.skript.lang.SkriptEvent.ListeningBehavior;
 
 import java.util.Locale;
 
@@ -30,7 +32,9 @@ public final class SkriptEventInfo<E extends SkriptEvent> extends StructureInfo<
 
 	public Class<? extends Event>[] events;
 	public final String name;
-
+  
+	private ListeningBehavior listeningBehavior;
+  
 	@Nullable
 	private String[] description, examples, keywords, requiredPlugins;
 
@@ -70,6 +74,20 @@ public final class SkriptEventInfo<E extends SkriptEvent> extends StructureInfo<
 
 		// uses the name without 'on ' or '*'
 		this.id = "" + name.toLowerCase(Locale.ENGLISH).replaceAll("[#'\"<>/&]", "").replaceAll("\\s+", "_");
+
+		// default listening behavior should be dependent on config setting
+		this.listeningBehavior = SkriptConfig.listenCancelledByDefault.value() ? ListeningBehavior.ANY : ListeningBehavior.UNCANCELLED;
+	}
+  
+	/**
+	 * Sets the default listening behavior for this SkriptEvent. If omitted, the default behavior is to listen to uncancelled events.
+	 *
+	 * @param listeningBehavior The listening behavior of this SkriptEvent.
+	 * @return This SkriptEventInfo object
+	 */
+	public SkriptEventInfo<E> listeningBehavior(ListeningBehavior listeningBehavior) {
+		this.listeningBehavior = listeningBehavior;
+		return this;
 	}
 
 	/**
@@ -158,6 +176,10 @@ public final class SkriptEventInfo<E extends SkriptEvent> extends StructureInfo<
 		return name;
 	}
 
+	public ListeningBehavior getListeningBehavior() {
+		return listeningBehavior;
+	}
+  
 	@Nullable
 	public String[] getDescription() {
 		return description;

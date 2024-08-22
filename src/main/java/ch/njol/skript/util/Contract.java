@@ -16,29 +16,29 @@
  *
  * Copyright Peter Güttinger, SkriptLang team and contributors
  */
-package org.skriptlang.skript.test.tests.syntaxes;
+package ch.njol.skript.util;
 
-import ch.njol.skript.test.runner.SkriptJUnitTest;
-import org.bukkit.entity.Pig;
-import org.junit.Before;
-import org.junit.Test;
+import ch.njol.skript.lang.Expression;
+import org.eclipse.jdt.annotation.Nullable;
 
-public class ExprDropsTest extends SkriptJUnitTest {
+/**
+ * The 'contract' of a function or another callable.
+ * This is a non-exhaustive helper for type hints, singularity, etc. that may change based on the arguments
+ * passed to a callable, in order for it to make better judgements on correct use at parse time.
+ */
+public interface Contract {
 
-	private Pig pig;
+	/**
+	 * @return Whether, given these parameters, this will return a single value
+	 * @see Expression#isSingle()
+	 */
+	boolean isSingle(Expression<?>... arguments);
 
-	static {
-		setShutdownDelay(1);
-	}
-
-	@Before
-	public void spawnPig() {
-		pig = spawnTestPig();
-	}
-
-	@Test
-	public void killPig() {
-		pig.damage(100);
-	}
+	/**
+	 * @return What this will return, given these parameters
+	 * @see Expression#getReturnType()
+	 */
+	@Nullable
+	Class<?> getReturnType(Expression<?>... arguments);
 
 }

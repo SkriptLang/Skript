@@ -6,9 +6,9 @@ test "attributes 1":
 		add 5 to movement speed attribute of event-entity
 		assert movement speed attribute of event-entity is 8.14 with "attribute add failed"
 		remove 4 from movement speed attribute of event-entity
-		assert movement speed attribute of event-entity is 4.14 with "attribute remove ##1 failed"
+		assert movement speed attribute of event-entity is 4.14 with "attribute remove failed"
 		remove 10 from movement speed attribute of event-entity
-		assert movement speed attribute of event-entity is -5.86 with "attribute remove ##2 failed" # Negative attribute values should be safe
+		assert movement speed attribute of event-entity is -5.86 with "attribute remove failed" # Negative attribute values should be safe
 		delete movement speed attribute of event-entity
 		assert movement speed attribute of event-entity is 0 with "attribute delete failed"
 		delete event-entity
