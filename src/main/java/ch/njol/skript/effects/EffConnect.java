@@ -37,8 +37,8 @@ public class EffConnect extends Effect {
 
 	static {
 		Skript.registerEffect(EffConnect.class,
-				"(transfer|send|connect) %players% to (proxy|bungeecord) server %string%",
-				"(transfer|send|connect) %players% to server %string% [on port %-number%]"
+				"(send|connect) %players% to [proxy|bungeecord] [server] %string%",
+				"transfer %players% to server %string% [on port %-number%]"
 		);
 	}
 
@@ -54,7 +54,7 @@ public class EffConnect extends Effect {
 		transfer = matchedPattern == 1;
 
 		if (transfer) {
-			port = exprs.length > 2 ? (Expression<Number>) exprs[2] : null;
+			port = (Expression<Number>) exprs[2];
 			if (!TRANSFER_METHOD_EXISTS) {
 				Skript.error("Transferring players via IP is not available on this version.");
 				return false;
@@ -74,15 +74,20 @@ public class EffConnect extends Effect {
 			return;
 
 		if (transfer) {
-			int port = 25565; // default port
 			if (this.port != null) {
 				Number portNum = this.port.getSingle(event);
-				if (portNum != null) {
-					port = portNum.intValue();
+				if (portNum == null) {
+					return;
 				}
-			}
-			for (Player player : players) {
-				player.transfer(server, port);
+				int port = portNum.intValue();
+				for (Player player : players) {
+					player.transfer(server, port);
+				}
+			} else {
+				int defaultPort = 25565;
+				for (Player player : players) {
+					player.transfer(server, defaultPort);
+				}
 			}
 		} else {
 			// the message channel is case-sensitive, so let's fix that
