@@ -1,10 +1,10 @@
 package org.skriptlang.skript.test.tests.syntaxes;
 
+import ch.njol.skript.Skript;
 import ch.njol.skript.test.runner.SkriptJUnitTest;
 import com.destroystokyo.paper.network.StatusClient;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
-import org.bukkit.entity.Player;
 import org.easymock.EasyMock;
 import org.junit.Test;
 
@@ -18,19 +18,27 @@ public class ExprHoverListTest extends SkriptJUnitTest {
 
 	@Test
 	public void test() {
-		Player testPlayer = EasyMock.niceMock(Player.class);
-		InetSocketAddress mockSocketAddress = EasyMock.niceMock(InetSocketAddress.class);
+		StatusClient client = EasyMock.niceMock(StatusClient.class);
+		InetSocketAddress address = new InetSocketAddress("localhost", 1103);
 
-		EasyMock.expect(testPlayer.getAddress()).andReturn(mockSocketAddress);
-		EasyMock.expect(mockSocketAddress.getAddress()).andReturn(new InetSocketAddress(1103).getAddress());
+		EasyMock.expect(client.getAddress()).andReturn(address);
+		EasyMock.replay(client);
 
-		EasyMock.replay(testPlayer, mockSocketAddress);
+		// event has to be called asynchronously
+		Bukkit.getScheduler().runTaskAsynchronously(Skript.getInstance(), () -> {
+			try {
+				String old = getCurrentJUnitTest(); // deal with async
+				setCurrentJUnitTest(getClass().getName());
 
-		try {
-			Bukkit.getPluginManager().callEvent(
-				new com.destroystokyo.paper.event.server.PaperServerListPingEvent(
-					(StatusClient) testPlayer, Component.empty(), 3, 20, "", 3, null));
-		} catch (NoClassDefFoundError ignored) {
-		} // TODO
+				Bukkit.getPluginManager().callEvent(
+					new com.destroystokyo.paper.event.server.PaperServerListPingEvent(
+						client, Component.empty(), 3, 20, "", 766, null));
+
+				setCurrentJUnitTest(old);
+			} catch (NoClassDefFoundError ignored) {
+
+			}
+		});
 	}
+
 }

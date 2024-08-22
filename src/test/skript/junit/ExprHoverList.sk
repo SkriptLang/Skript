@@ -1,0 +1,12 @@
+test "ExprHoverListJUnit" when running JUnit:
+	set {_tests::1} to "clear list"
+
+	ensure junit test "org.skriptlang.skript.test.tests.syntaxes.ExprHoverListTest" completes {_tests::*}
+
+on server list ping:
+	set {_test} to "org.skriptlang.skript.test.tests.syntaxes.ExprHoverListTest"
+	junit test is {_test}
+
+	clear hover list
+	if size of hover list is 0:
+		complete objective "clear list" for {_test}
