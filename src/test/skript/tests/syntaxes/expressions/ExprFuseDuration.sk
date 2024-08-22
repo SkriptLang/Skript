@@ -19,7 +19,7 @@ test "fuse duration":
 	spawn creeper at block 50 blocks above spawn of world "world":
 		set {_creeper} to entity
 
-	assert fuse duration of {_creeper} is 0 seconds with "Creeper default fuse duration failed"
+	assert fuse duration of {_creeper} is 1.5 seconds with "Creeper default fuse duration failed"
 	assert max fuse duration of {_creeper} is 1.5 seconds with "Creeper default max fuse duration failed"
 
 	set max fuse duration of {_creeper} to 999 seconds
