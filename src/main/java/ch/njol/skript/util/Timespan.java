@@ -30,6 +30,7 @@ import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.ApiStatus.ScheduledForRemoval;
 import org.jetbrains.annotations.Nullable;
 
+import java.time.Duration;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -329,6 +330,14 @@ public class Timespan implements YggdrasilSerializable, Comparable<Timespan> { /
 			return false;
 
 		return millis == ((Timespan) obj).millis;
+	}
+
+	public Duration getDuration() {
+		return Duration.ofMillis(millis);
+	}
+
+	public static Timespan fromDuration(Duration duration) {
+		return new Timespan(duration.toMillis());
 	}
 	
 }
