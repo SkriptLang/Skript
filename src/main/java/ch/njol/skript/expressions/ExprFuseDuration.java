@@ -11,6 +11,7 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.util.Timespan;
 import ch.njol.util.Kleenean;
+import ch.njol.util.Math2;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.entity.Creeper;
 import org.bukkit.entity.Entity;
@@ -51,7 +52,8 @@ public class ExprFuseDuration extends SimplePropertyExpression<Entity, Timespan>
 		if (entity instanceof TNTPrimed) {
 			return getTimespan(((TNTPrimed) entity).getFuseTicks());
 		} else if (entity instanceof Creeper) {
-			return getTimespan(max ? ((Creeper) entity).getMaxFuseTicks() : ((Creeper) entity).getFuseTicks());
+			int fuseTicks = max ? ((Creeper) entity).getMaxFuseTicks() : ((Creeper) entity).getMaxFuseTicks() - ((Creeper) entity).getFuseTicks();
+			return getTimespan(fuseTicks);
 		} else if (entity instanceof ExplosiveMinecart) {
 			return getTimespan(((ExplosiveMinecart) entity).getFuseTicks());
 		}
@@ -59,19 +61,16 @@ public class ExprFuseDuration extends SimplePropertyExpression<Entity, Timespan>
 	}
 
 	private Timespan getTimespan(int ticks) {
-		if (ticks < 0) {
-			ticks = 0;
-		}
-		return new Timespan(Timespan.TimePeriod.TICK, ticks);
+		return new Timespan(Timespan.TimePeriod.TICK, Math.max(ticks, 0));
 	}
 
 
 	@Override
 	public Class<?>[] acceptChange(Changer.ChangeMode mode) {
-		if (mode == ChangeMode.SET || mode == ChangeMode.ADD || mode == ChangeMode.REMOVE || mode == ChangeMode.DELETE || mode == ChangeMode.RESET) {
-			return CollectionUtils.array(Timespan.class);
-		}
-		return null;
+		return switch (mode) {
+			case SET, ADD, REMOVE, DELETE, RESET -> CollectionUtils.array(Timespan.class);
+			default -> null;
+		};
 	}
 
 	@Override
@@ -104,7 +103,8 @@ public class ExprFuseDuration extends SimplePropertyExpression<Entity, Timespan>
 		int maxTicks = creeper.getMaxFuseTicks();
 		int newTicks = calculateNewTicks(creeper, currentTicks, delta, mode);
 
-		creeper.setFuseTicks(Math.max(Math.min(newTicks, maxTicks), 0)); // Ensure non-negative value
+		//creeper.setFuseTicks(Math.max(maxTicks - Math.max(newTicks, 0), 0));
+		creeper.setFuseTicks(maxTicks - Math2.fit(newTicks, 0, maxTicks));
 	}
 
 	private void changeMinecartFuseTicks(ExplosiveMinecart minecart, Object[] delta, ChangeMode mode) {
@@ -115,23 +115,20 @@ public class ExprFuseDuration extends SimplePropertyExpression<Entity, Timespan>
 
 	private int calculateNewTicks(Entity entity, int currentTicks, Object[] delta, ChangeMode mode) {
 		long deltaTicks = delta != null && delta.length > 0 ? ((Timespan) delta[0]).getAs(Timespan.TimePeriod.TICK) : 0;
+
+		if (mode == ChangeMode.REMOVE) {
+			deltaTicks = -deltaTicks;
+		}
+
 		long newTicks = switch (mode) {
 			case SET -> deltaTicks;
-			case ADD -> (long) currentTicks + deltaTicks;
-			case REMOVE -> (long) currentTicks - deltaTicks;
+			case ADD, REMOVE -> Math2.addClamped(currentTicks, deltaTicks);
 			case DELETE -> 0;
 			case RESET -> getDefaultTicks(entity);
 			default -> currentTicks;
 		};
 
-		// check for overflow
-		if (newTicks > Integer.MAX_VALUE) {
-			newTicks = Integer.MAX_VALUE;
-		} else if (newTicks < 0) {
-			newTicks = 0;
-		}
-
-		return (int) newTicks;
+		return (int) Math2.fit(newTicks, 0, Integer.MAX_VALUE);
 	}
 
 	private int getDefaultTicks(Entity entity) {
@@ -152,6 +149,6 @@ public class ExprFuseDuration extends SimplePropertyExpression<Entity, Timespan>
 
 	@Override
 	protected String getPropertyName() {
-		return "fuse duration";
+		return max ? "maximum fuse duration" : "fuse duration";
 	}
 }
