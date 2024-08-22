@@ -94,6 +94,7 @@ public abstract class Utils {
 		plurals.add(new WordEnding("man", "men"));
 
 		plurals.add(new WordEnding("ui", "uis")); // gui fix
+		plurals.add(new WordEnding("api", "apis")); // api fix
 		plurals.add(new WordEnding("us", "i"));
 
 		plurals.add(new WordEnding("hoe", "hoes"));
