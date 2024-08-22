@@ -99,17 +99,23 @@ public class StructVariables extends Structure {
 			if (CollectionUtils.containsAll(hints, Object.class)) // Ignore useless type hint.
 				return;
 			// This important empty check ensures that the variable type hint came from a defined DefaultVariable.
-			if (this.hints.isEmpty())
-				return;
-			this.hints.getFirst().put(variable, hints);
+			synchronized (this.hints) {
+				if (this.hints.isEmpty())
+					return;
+				this.hints.getFirst().put(variable, hints);
+			}
 		}
 
 		public void enterScope() {
-			hints.push(new HashMap<>());
+			synchronized (hints) {
+				hints.push(new HashMap<>());
+			}
 		}
 
 		public void exitScope() {
-			hints.pop();
+			synchronized (hints) {
+				hints.pop();
+			}
 		}
 
 		/**
@@ -121,10 +127,12 @@ public class StructVariables extends Structure {
 		 */
 		@Nullable
 		public Class<?>[] get(String variable) {
-			for (Map<String, Class<?>[]> map : hints) {
-				Class<?>[] hints = map.get(variable);
-				if (hints != null && hints.length > 0)
-					return hints;
+			synchronized (hints) {
+				for (Map<String, Class<?>[]> map : hints) {
+					Class<?>[] hints = map.get(variable);
+					if (hints != null && hints.length > 0)
+						return hints;
+				}
 			}
 			return null;
 		}
