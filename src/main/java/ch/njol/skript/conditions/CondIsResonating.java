@@ -16,43 +16,43 @@
  *
  * Copyright Peter Güttinger, SkriptLang team and contributors
  */
-package ch.njol.skript.expressions;
+package ch.njol.skript.conditions;
 
 import ch.njol.skript.Skript;
+import ch.njol.skript.conditions.base.PropertyCondition;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
+import ch.njol.skript.doc.RequiredPlugins;
 import ch.njol.skript.doc.Since;
-import ch.njol.skript.expressions.base.SimplePropertyExpression;
-import ch.njol.skript.lang.ExpressionType;
-
-import org.bukkit.Location;
+import org.bukkit.block.Bell;
 import org.bukkit.block.Block;
-import org.eclipse.jdt.annotation.Nullable;
+import org.bukkit.block.BlockState;
 
-@Name("Highest Solid Block")
-@Description("Returns the highest solid block at the x and z coordinates of the world of a given location.")
-@Examples("highest block at location of arg-player")
-@Since("2.2-dev34")
-public class ExprHighestSolidBlock extends SimplePropertyExpression<Location, Block> {
+@Name("Bell Is Resonating")
+@Description({
+	"Checks to see if a bell is currently resonating.",
+	"A bell will start resonating five game ticks after being rung, and will continue to resonate for 40 game ticks."
+})
+@Examples("target block is resonating")
+@RequiredPlugins("Spigot 1.19.4+")
+@Since("2.9.0")
+public class CondIsResonating extends PropertyCondition<Block> {
 
 	static {
-		Skript.registerExpression(ExprHighestSolidBlock.class, Block.class, ExpressionType.PROPERTY, "highest [(solid|non-air)] block at %locations%");
+		if (Skript.classExists("org.bukkit.block.Bell") && Skript.methodExists(Bell.class, "isResonating"))
+			register(CondIsResonating.class, "resonating", "blocks");
+	}
+
+	@Override
+	public boolean check(Block value) {
+		BlockState state = value.getState(false);
+		return state instanceof Bell && ((Bell) state).isResonating();
 	}
 
 	@Override
 	protected String getPropertyName() {
-		return "highest [(solid|non-air)] block";
+		return "resonating";
 	}
 
-	@Nullable
-	@Override
-	public Block convert(Location location) {
-		return location.getWorld().getHighestBlockAt(location);
-	}
-
-	@Override
-	public Class<? extends Block> getReturnType() {
-		return Block.class;
-	}
 }

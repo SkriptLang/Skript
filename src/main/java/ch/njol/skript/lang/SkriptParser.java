@@ -602,6 +602,16 @@ public class SkriptParser {
 					return new SimpleLiteral<>(parsedObject, false, new UnparsedLiteral(expr));
 				}
 			}
+			if (expr.startsWith("\"") && expr.endsWith("\"") && expr.length() > 1) {
+				for (ClassInfo<?> aClass : exprInfo.classes) {
+					if (!aClass.getC().isAssignableFrom(String.class))
+						continue;
+					VariableString string = VariableString.newInstance(expr.substring(1, expr.length() - 1));
+					if (string instanceof LiteralString)
+						return string;
+					break;
+				}
+			}
 			log.printError();
 			return null;
 		} finally {
@@ -1019,6 +1029,26 @@ public class SkriptParser {
 	@Nullable
 	public static ParseResult parse(String text, String pattern) {
 		return new SkriptParser(text, PARSE_LITERALS, ParseContext.COMMAND).parse_i(pattern);
+	}
+
+	/**
+	 * Parses the text as the given pattern with the given parse context and parse flags.
+	 * <p>
+	 * Prints parse errors (i.e. must start a ParseLog before calling this method)
+	 */
+	@Nullable
+	public static ParseResult parse(String text, String pattern, int parseFlags, ParseContext parseContext) {
+		return new SkriptParser(text, parseFlags, parseContext).parse_i(pattern);
+	}
+
+	/**
+	 * Parses the text as the given pattern with the given parse context and parse flags.
+	 * <p>
+	 * Prints parse errors (i.e. must start a ParseLog before calling this method)
+	 */
+	@Nullable
+	public static ParseResult parse(String text, SkriptPattern pattern, int parseFlags, ParseContext parseContext) {
+		return parse(text, pattern.toString(), parseFlags, parseContext);
 	}
 
 	/**

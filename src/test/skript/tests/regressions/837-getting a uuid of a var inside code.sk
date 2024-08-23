@@ -2,8 +2,8 @@ test "variable parsing":
 	assert {_test::%{_x}%} is not set with "simple list index using local variable failed"
 	assert {_test::{_x}} is not set to fail with "list index with local variable without percentage signs failed"
 	
-	assert {_test::%uuid of {_x}%} is not set with "list index with expression and local variable ##1 failed"
-	assert {_test::%{_x}'s uuid%} is not set with "list index with expression and local variable ##2 failed"
+	assert {_test::%uuid of {_x}%} is not set with "list index with expression and local variable failed"
+	assert {_test::%{_x}'s uuid%} is not set with "list index with expression and local variable failed"
 	
 	assert {_test::%{_a} split at {_b}%} is not set with "list index with expression with local variables on both ends failed"
 	
