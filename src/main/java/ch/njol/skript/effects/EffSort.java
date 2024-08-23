@@ -59,7 +59,7 @@ import java.util.Set;
 	"sort {_words::*} in descending order by length of input # longest to shortest",
 	"sort {_words::*} based on {tastiness::%input%} # sort based on custom value"
 })
-@Since("2.9.0")
+@Since("2.9.0, INSERT VERSION (explicit order)")
 @Keywords("input")
 public class EffSort extends Effect implements InputSource {
 
