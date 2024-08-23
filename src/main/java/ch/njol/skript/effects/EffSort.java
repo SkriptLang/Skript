@@ -165,6 +165,7 @@ public class EffSort extends Effect implements InputSource {
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
 		return "sort" + unsortedObjects.toString(event, debug)
+				+ " in " + (descendingOrder ? "descending" : "ascending") + " order"
 				+ (mappingExpr == null ? "" : " by " + mappingExpr.toString(event, debug));
 	}
 
