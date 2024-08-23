@@ -72,7 +72,7 @@ public class ExprPrefixSuffix extends SimplePropertyExpression<Player, String> {
 	public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
 		return switch (mode) {
 			case SET -> new Class[] {String.class};
-			case RESET, REMOVE -> new Class<?>[0];
+			case RESET, DELETE -> new Class<?>[0];
 			default -> null;
 		};
 	}
