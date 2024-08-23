@@ -89,7 +89,7 @@ public class ExprPrefixSuffix extends SimplePropertyExpression<Player, String> {
 							VaultHook.chat.setPlayerSuffix(player, (String) delta[0]);
 						}
 					}
-					case RESET, REMOVE -> {
+					case RESET, DELETE -> {
 						if (prefix) {
 							VaultHook.chat.setPlayerPrefix(player, null);
 						} else {
