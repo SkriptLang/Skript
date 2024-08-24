@@ -26,7 +26,7 @@ import org.jetbrains.annotations.Nullable;
 public class EffForceEnchantmentGlint extends Effect {
 
 	static {
-		if (Skript.isRunningMinecraft(1, 20, 5))
+		if (Skript.methodExists(ItemMeta.class, "setEnchantmentGlintOverride", Boolean.class))
 			Skript.registerEffect(EffForceEnchantmentGlint.class,
 					"(force|make) %itemtypes% [to] [start] glint[ing]",
 					"(force|make) %itemtypes% [to] (not|stop) glint[ing]",
@@ -51,14 +51,14 @@ public class EffForceEnchantmentGlint extends Effect {
 		for (ItemType itemType : itemtypes.getArray(event)) {
 			ItemMeta meta = itemType.getItemMeta();
 			Boolean glint;
-			// Pattern: forced to glint
 			if (pattern == 0) {
+				// Pattern: forced to glint
 				glint = true;
-			// Pattern: forced to not glint
 			} else if (pattern == 1) {
+				// Pattern: forced to not glint
 				glint = false;
-			// Pattern: Clear glint override
 			} else {
+				// Pattern: Clear glint override
 				glint = null;
 			}
 			meta.setEnchantmentGlintOverride(glint);
