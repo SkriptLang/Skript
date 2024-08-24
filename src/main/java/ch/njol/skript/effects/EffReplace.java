@@ -129,9 +129,10 @@ public class EffReplace extends Effect {
 
 						if (new ItemType(itemStack).isSimilar(needle)) {
 							ItemStack newItemStack = ((ItemType) replacement).getRandom();
-							newItemStack.setAmount(itemStack.getAmount());
-
-							inv.setItem(slot, newItemStack);
+							if (newItemStack != null) {
+								newItemStack.setAmount(itemStack.getAmount());
+								inv.setItem(slot, newItemStack);
+							}
 						}
 					}
 		}

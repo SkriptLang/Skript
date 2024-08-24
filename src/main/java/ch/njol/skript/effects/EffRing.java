@@ -46,7 +46,7 @@ import org.eclipse.jdt.annotation.Nullable;
 })
 @Examples({"make player ring target-block"})
 @RequiredPlugins("Spigot 1.19.4+")
-@Since("INSERT VERSION")
+@Since("2.9.0")
 public class EffRing extends Effect {
 
 	static {

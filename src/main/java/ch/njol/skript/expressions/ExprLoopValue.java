@@ -62,7 +62,7 @@ import java.util.regex.Pattern;
 	"",
 	"loop {top-balances::*}:",
 		"\tloop-iteration <= 10",
-		"\tsend \"##%loop-iteration% %loop-index% has $%loop-value%\"",
+		"\tsend \"#%loop-iteration% %loop-index% has $%loop-value%\"",
 })
 @Since("1.0, 2.8.0 (loop-counter)")
 public class ExprLoopValue extends SimpleExpression<Object> {

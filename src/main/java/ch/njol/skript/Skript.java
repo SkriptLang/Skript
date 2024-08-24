@@ -752,6 +752,8 @@ public final class Skript extends JavaPlugin implements Listener {
 											TestTracker.JUnitTestFailed(test, message);
 											Skript.exception(failure.getException(), "JUnit test '" + failure.getTestHeader() + " failed.");
 										});
+										if (SkriptJUnitTest.class.isAssignableFrom(clazz))
+											((SkriptJUnitTest) clazz.getConstructor().newInstance()).cleanup();
 										SkriptJUnitTest.clearJUnitTest();
 									}
 								} catch (IOException e) {
@@ -759,6 +761,8 @@ public final class Skript extends JavaPlugin implements Listener {
 								} catch (ClassNotFoundException e) {
 									// Should be the Skript test jar gradle task.
 									assert false : "Class 'ch.njol.skript.variables.FlatFileStorageTest' was not found.";
+								} catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
+									Skript.exception(e, "Failed to initalize test JUnit classes.");
 								}
 								if (ignored > 0)
 									Skript.warning("There were " + ignored + " ignored test cases! This can mean they are not properly setup in order in that class!");

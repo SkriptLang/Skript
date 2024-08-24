@@ -18,12 +18,12 @@
  */
 package ch.njol.skript.lang.function;
 
+import org.jetbrains.annotations.Nullable;
+
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
-
-import org.eclipse.jdt.annotation.Nullable;
 
 /**
  * Contains a set of functions.
@@ -52,8 +52,7 @@ public class Namespace {
 		
 		private final Origin origin;
 
-		@Nullable
-		private final String scriptName;
+		private final @Nullable String scriptName;
 
 		public Key(Origin origin, @Nullable String scriptName) {
 			super();
@@ -65,8 +64,7 @@ public class Namespace {
 			return origin;
 		}
 
-		@Nullable
-		public String getScriptName() {
+		public @Nullable String getScriptName() {
 			return scriptName;
 		}
 
@@ -156,14 +154,12 @@ public class Namespace {
 		this.signatures = new HashMap<>();
 		this.functions = new HashMap<>();
 	}
-	
-	@Nullable
-	public Signature<?> getSignature(String name, boolean local) {
+
+	public @Nullable Signature<?> getSignature(String name, boolean local) {
 		return signatures.get(new Info(name, local));
 	}
 
-	@Nullable
-	public Signature<?> getSignature(String name) {
+	public @Nullable Signature<?> getSignature(String name) {
 		Signature<?> signature = getSignature(name, true);
 		return signature == null ? getSignature(name, false) : signature;
 	}
@@ -187,14 +183,12 @@ public class Namespace {
 	public Collection<Signature<?>> getSignatures() {
 		return signatures.values();
 	}
-	
-	@Nullable
-	public Function<?> getFunction(String name, boolean local) {
+
+	public @Nullable Function<?> getFunction(String name, boolean local) {
 		return functions.get(new Info(name, local));
 	}
 
-	@Nullable
-	public Function<?> getFunction(String name) {
+	public @Nullable Function<?> getFunction(String name) {
 		Function<?> function = getFunction(name, true);
 		return function == null ? getFunction(name, false) : function;
 	}

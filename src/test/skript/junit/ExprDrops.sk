@@ -12,13 +12,13 @@ test "ExprDropsJUnit" when running JUnit:
 	set {_tests::11} to "add and remove experience from drops doesn't modify items"
 	set {_tests::12} to "remove all experience from drops doesn't modify items"
 	set {_tests::13} to "drops test complete"
-	ensure junit test "org.skriptlang.skript.test.tests.syntaxes.ExprDropsTest" completes {_tests::*}
+	ensure junit test "org.skriptlang.skript.test.tests.syntaxes.expressions.ExprDropsTest" completes {_tests::*}
 
 # NOTE: Do NOT take the behavior described in this test as a guide for how ExprDrops SHOULD work, only for how it DOES work in 2.7.x.
 # The behavior should change in 2.8 and this test will be updated accordingly.
 
 on death of pig:
-	set {_test} to "org.skriptlang.skript.test.tests.syntaxes.ExprDropsTest"
+	set {_test} to "org.skriptlang.skript.test.tests.syntaxes.expressions.ExprDropsTest"
 	junit test is {_test}
 
 	# Items

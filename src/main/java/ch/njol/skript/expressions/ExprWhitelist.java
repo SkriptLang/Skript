@@ -49,7 +49,7 @@ import ch.njol.util.coll.CollectionUtils;
 	"add all players to whitelist",
 	"reset the whitelist"
 })
-@Since("2.5.2, INSERT VERSION (delete)")
+@Since("2.5.2, 2.9.0 (delete)")
 public class ExprWhitelist extends SimpleExpression<OfflinePlayer> {
 
 	static {

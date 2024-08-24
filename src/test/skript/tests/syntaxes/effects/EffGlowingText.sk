@@ -10,7 +10,7 @@ test "glowing sign blocks" when running minecraft "1.17.1":
 	set block at {_loc} to {_original block}
 
 test "glowing sign items" when running minecraft "1.17.1":
-	set {_sign} to sign
+	set {_sign} to floor sign
 	assert {_sign} doesn't have glowing text with "Sign had glowing text erroneously (1)"
 	make {_sign} have glowing text
 	assert {_sign} has glowing text with "Sign had normal text erroneously"

@@ -18,6 +18,7 @@
  */
 package ch.njol.skript.expressions;
 
+import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.inventory.meta.SkullMeta;
 import org.eclipse.jdt.annotation.Nullable;
@@ -48,8 +49,6 @@ public class ExprSkull extends SimplePropertyExpression<Object, ItemType> {
 		register(ExprSkull.class, ItemType.class, "(head|skull)", "offlineplayers");
 	}
 	
-	private static final ItemType playerSkull = Aliases.javaItemType("player skull");
-	
 	/**
 	 * In 2017, SkullMeta finally got a method that takes OfflinePlayer.
 	 */
@@ -64,7 +63,7 @@ public class ExprSkull extends SimplePropertyExpression<Object, ItemType> {
 	@Override
 	@Nullable
 	public ItemType convert(final Object o) {
-		ItemType skull = playerSkull.clone();
+		ItemType skull = new ItemType(Material.PLAYER_HEAD);
 		SkullMeta meta = (SkullMeta) skull.getItemMeta();
 		if (newSkullOwner)
 			meta.setOwningPlayer((OfflinePlayer) o);

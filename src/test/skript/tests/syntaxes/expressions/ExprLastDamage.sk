@@ -1,0 +1,15 @@
+test "last damage":
+	set {_l} to location 0.5 above highest block at location(1,1,1)
+	spawn a sheep at {_l}
+	set {_e} to last spawned entity
+
+	assert last damage of {_e} = 0 with "last damage of newly spawned entity should be 0"
+
+	damage {_e} by 1
+	assert last damage of {_e} = 1 with "last damage of entity should be 1 after damaging it by 1"
+
+	set last damage of {_e} to 3
+	assert last damage of {_e} = 3 with "last damage of entity should be 3 after setting to 3"
+
+	# thank you for your service
+	delete entity in {_e}

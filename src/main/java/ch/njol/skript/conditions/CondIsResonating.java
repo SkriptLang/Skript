@@ -36,7 +36,7 @@ import org.bukkit.block.BlockState;
 })
 @Examples("target block is resonating")
 @RequiredPlugins("Spigot 1.19.4+")
-@Since("INSERT VERSION")
+@Since("2.9.0")
 public class CondIsResonating extends PropertyCondition<Block> {
 
 	static {

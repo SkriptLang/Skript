@@ -30,7 +30,7 @@ import ch.njol.skript.util.Utils;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventPriority;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.entry.EntryContainer;
 import org.skriptlang.skript.lang.script.Script;
 import org.skriptlang.skript.lang.structure.Structure;
@@ -55,10 +55,8 @@ public abstract class SkriptEvent extends Structure {
 
 	private String expr;
 	private SectionNode source;
-	@Nullable
-	protected EventPriority eventPriority;
-	@Nullable
-	protected ListeningBehavior listeningBehavior;
+	protected @Nullable EventPriority eventPriority;
+	protected @Nullable ListeningBehavior listeningBehavior;
 	protected boolean supportsListeningBehavior;
 	private SkriptEventInfo<?> skriptEventInfo;
 
@@ -85,8 +83,17 @@ public abstract class SkriptEvent extends Structure {
 			throw new IllegalStateException();
 		skriptEventInfo = (SkriptEventInfo<?>) syntaxElementInfo;
 
+		assert entryContainer != null; // cannot be null for non-simple structures
+		this.source = entryContainer.getSource();
+
+		// use default value for now
+		listeningBehavior = eventData.getListenerBehavior();
+
+		// initialize implementation
+		if (!init(args, matchedPattern, parseResult))
+			return false;
+
 		// evaluate whether this event supports listening to cancelled events
-		supportsListeningBehavior = false;
 		for (Class<? extends Event> eventClass : getEventClasses()) {
 			if (Cancellable.class.isAssignableFrom(eventClass)) {
 				supportsListeningBehavior = true;
@@ -94,7 +101,6 @@ public abstract class SkriptEvent extends Structure {
 			}
 		}
 
-		listeningBehavior = eventData.getListenerBehavior();
 		// if the behavior is non-null, it was set by the user
 		if (listeningBehavior != null && !isListeningBehaviorSupported()) {
 			String eventName = skriptEventInfo.name.toLowerCase(Locale.ENGLISH);
@@ -102,10 +108,7 @@ public abstract class SkriptEvent extends Structure {
 			return false;
 		}
 
-		assert entryContainer != null; // cannot be null for non-simple structures
-		this.source = entryContainer.getSource();
-
-		return init(args, matchedPattern, parseResult);
+		return true;
 	}
 
 	/**
@@ -132,7 +135,6 @@ public abstract class SkriptEvent extends Structure {
 		if (!shouldLoadEvent())
 			return false;
 
-		// noinspection ConstantConditions - entry container cannot be null as this structure is not simple
 		if (Skript.debug() || source.debug())
 			Skript.debug(expr + " (" + this + "):");
 

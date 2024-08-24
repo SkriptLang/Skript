@@ -170,6 +170,12 @@ public class SkriptConfig {
 		}
 	});
 
+	/**
+	 * Determines whether `on &lt;event&gt;` will be triggered by cancelled events or not.
+	 */
+	public static final Option<Boolean> listenCancelledByDefault = new Option<>("listen to cancelled events by default", false)
+			.optional(true);
+
 	
 	/**
 	 * Maximum number of digits to display after the period for floats and doubles

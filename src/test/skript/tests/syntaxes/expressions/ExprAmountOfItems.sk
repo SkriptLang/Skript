@@ -1,0 +1,14 @@
+test "amount of items":
+	set {_inventory} to a hopper inventory named "test"
+	assert the amount of stone in {_inventory} is 0 with "default amount failed"
+	add stone to {_inventory}
+	assert the amount of stone in {_inventory} is 1 with "single amount failed"
+	add stone named "bread" to {_inventory}
+	assert the amount of stone in {_inventory} is 2 with "different named items amount failed"
+	add 100 of iron ingot to {_inventory}
+	assert the amount of stone in {_inventory} is 2 with "add different item amount failed"
+	assert the amount of iron ingot in {_inventory} is 100 with "add 100 item amount failed"
+	remove stone from {_inventory}
+	assert the amount of stone in {_inventory} is 1 with "removed one amount failed"
+	remove stone from {_inventory}
+	assert the amount of stone in {_inventory} is 0 with "removed all amount failed"

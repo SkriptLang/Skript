@@ -35,7 +35,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 	"if {_items::*} aren't resistant to fire:"
 })
 @RequiredPlugins("Spigot 1.20.5+")
-@Since("INSERT VERSION")
+@Since("2.9.0")
 public class CondIsFireResistant extends PropertyCondition<ItemType> {
 
 	static {

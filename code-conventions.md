@@ -194,9 +194,8 @@ Your comments should look something like these:
 ## Language Features
 
 ### Compatibility
-[//]: # (To be updated for 2.10 for Java 17)
-* Contributions should maintain Java 11 source/binary compatibility, even though compiling Skript requires Java 21
-  - Users must not need JRE newer than version 11
+* Contributions should maintain Java 17 source/binary compatibility, even though compiling Skript requires Java 21
+  - Users must not need JRE newer than version 17
 * Versions up to and including Java 21 should work too
   - Please avoid using unsafe reflection
 * It is recommended to make fields final, if they are effectively final

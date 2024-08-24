@@ -1,12 +1,12 @@
 test "floating point errors in rounding functions":
-	#assert ceil(100*0.07) is 7 with "ceil function doesn't adjust for floating point errors ##1"
-	#assert ceil(100*0.033 - 0.3) is 3 with "ceil function doesn't adjust for floating point errors ##2"
+	#assert ceil(100*0.07) is 7 with "ceil function doesn't adjust for floating point errors"
+	#assert ceil(100*0.033 - 0.3) is 3 with "ceil function doesn't adjust for floating point errors"
 
-	#assert rounded up 100*0.07 is 7 with "ceil expression doesn't adjust for floating point errors ##1"
-	#assert rounded up 100*0.033 - 0.3 is 3 with "ceil expression doesn't adjust for floating point errors ##2"
+	#assert rounded up 100*0.07 is 7 with "ceil expression doesn't adjust for floating point errors"
+	#assert rounded up 100*0.033 - 0.3 is 3 with "ceil expression doesn't adjust for floating point errors"
 
 	set {_sum} to 0
 	loop 100 times:
 		add 0.1 to {_sum}
-	assert floor({_sum}) is 10 with "floor function doesn't adjust for floating point errors ##1"
-	assert rounded down {_sum} is 10 with "floor expression doesn't adjust for floating point errors ##1"
+	assert floor({_sum}) is 10 with "floor function doesn't adjust for floating point errors"
+	assert rounded down {_sum} is 10 with "floor expression doesn't adjust for floating point errors"

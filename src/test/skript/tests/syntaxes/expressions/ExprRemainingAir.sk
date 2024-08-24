@@ -1,0 +1,18 @@
+test "remaining air":
+
+	spawn a pig at location of spawn of world "world":
+		set {_e} to event-entity
+
+	reset remaining air of {_e}
+	assert remaining air of {_e} is 15 seconds with "resetting did not set to 15 seconds"
+
+	set remaining air of {_e} to 3 years
+	assert remaining air of {_e} is 3 years with "setting to 3 years did not work"
+
+	remove 5 years from remaining air of {_e}
+	assert remaining air of {_e} is 0 seconds with "removing did not limit to 0 seconds"
+
+	add 10 years to remaining air of {_e}
+	assert ticks of remaining air of {_e} is 2147483647 with "adding did not limit to max int value"
+
+	delete the entity within {_e}

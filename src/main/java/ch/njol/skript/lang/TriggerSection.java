@@ -22,8 +22,9 @@ import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.lang.parser.ParserInstance;
 import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -31,8 +32,7 @@ import java.util.List;
  */
 public abstract class TriggerSection extends TriggerItem {
 
-	@Nullable
-	protected TriggerItem first, last;
+	protected @Nullable TriggerItem first, last;
 
 	/**
 	 * Reserved for new Trigger(...)
@@ -42,12 +42,17 @@ public abstract class TriggerSection extends TriggerItem {
 	}
 
 	protected TriggerSection(SectionNode node) {
-		List<TriggerSection> currentSections = ParserInstance.get().getCurrentSections();
-		currentSections.add(this);
+		ParserInstance parser = ParserInstance.get();
+		List<TriggerSection> previousSections = parser.getCurrentSections();
+
+		List<TriggerSection> sections = new ArrayList<>(previousSections);
+		sections.add(this);
+		parser.setCurrentSections(sections);
+
 		try {
 			setTriggerItems(ScriptLoader.loadItems(node));
 		} finally {
-			currentSections.remove(currentSections.size() - 1);
+			parser.setCurrentSections(previousSections);
 		}
 	}
 
@@ -97,11 +102,9 @@ public abstract class TriggerSection extends TriggerItem {
 	}
 
 	@Override
-	@Nullable
-	protected abstract TriggerItem walk(Event event);
+	protected abstract @Nullable TriggerItem walk(Event event);
 
-	@Nullable
-	protected final TriggerItem walk(Event event, boolean run) {
+	protected final @Nullable TriggerItem walk(Event event, boolean run) {
 		debug(event, run);
 		if (run && first != null) {
 			return first;
