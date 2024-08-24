@@ -2,7 +2,7 @@ package ch.njol.skript.conditions;
 
 import org.bukkit.event.Event;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.ItemType;
@@ -49,11 +49,11 @@ public class CondItemEnchantmentGlint extends Condition {
 	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		itemtypes = (Expression<ItemType>) expressions[0];
 		pattern = matchedPattern;
-		// Pattern 'is forced to glint'
 		if (matchedPattern == 2) {
+			// Pattern 'is forced to glint'
 			setNegated(parseResult.hasTag("not"));
-		// Pattern 'has enchantment glint override'
 		} else {
+			// Pattern 'has enchantment glint override'
 			setNegated(matchedPattern == 1);
 		}
 		return true;

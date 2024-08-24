@@ -1,5 +1,9 @@
 package ch.njol.skript.expressions;
 
+import org.bukkit.event.Event;
+import org.bukkit.inventory.meta.ItemMeta;
+import org.jetbrains.annotations.Nullable;
+
 import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.doc.Description;
@@ -12,9 +16,6 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
-import org.bukkit.event.Event;
-import org.bukkit.inventory.meta.ItemMeta;
-import org.jetbrains.annotations.Nullable;
 
 @Name("Item with Enchantment Glint")
 @Description("Get an item with or without enchantment glint.")
@@ -27,7 +28,7 @@ import org.jetbrains.annotations.Nullable;
 public class ExprItemWithEnchantmentGlint extends PropertyExpression<ItemType, ItemType> {
 
 	static {
-		if (Skript.isRunningMinecraft(1, 20, 5))
+		if (Skript.methodExists(ItemMeta.class, "getEnchantmentGlintOverride"))
 			Skript.registerExpression(ExprItemWithEnchantmentGlint.class, ItemType.class, ExpressionType.PROPERTY, "%itemtypes% with[:out] [enchant[ment]] glint");
 	}
 
@@ -43,7 +44,8 @@ public class ExprItemWithEnchantmentGlint extends PropertyExpression<ItemType, I
 
 	@Override
 	protected ItemType[] get(Event event, ItemType[] source) {
-		return get(source.clone(), itemType -> {
+		return get(source, itemType -> {
+			itemType = itemType.clone();
 			ItemMeta meta = itemType.getItemMeta();
 			meta.setEnchantmentGlintOverride(glint);
 			itemType.setItemMeta(meta);
