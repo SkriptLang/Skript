@@ -168,11 +168,9 @@ public class ExprEntities extends SimpleExpression<Entity> {
 	@SuppressWarnings("null")
 	public Iterator<? extends Entity> iterator(Event event) {
 		if (isUsingRadius) {
-			assert center != null;
 			Location location = center.getSingle(event);
 			if (location == null)
 				return null;
-			assert radius != null;
 			Number number = radius.getSingle(event);
 			if (number == null)
 				return null;
@@ -194,15 +192,18 @@ public class ExprEntities extends SimpleExpression<Entity> {
 					return false;
 				});
 		} else if (isUsingCuboid) {
-			assert from != null;
 			Location corner1 = from.getSingle(event);
 			if (corner1 == null)
 				return null;
-			assert to != null;
 			Location corner2 = to.getSingle(event);
 			if (corner2 == null)
 				return null;
 			EntityData<?>[] entityTypes = types.getAll(event);
+			World world = corner1.getWorld();
+			if (world == null)
+				world = corner2.getWorld();
+			if (world == null)
+				return null;
 			Collection<Entity> entities = corner1.getWorld().getNearbyEntities(BoundingBox.of(corner1, corner2));
 			return new CheckedIterator<>(entities.iterator(), entity -> {
 				if (entity == null)
