@@ -2,11 +2,19 @@ test "entities in chunk":
 	spawn 10 sheep at spawn of world "world"
 
 	set {_radius center} to location(-24, -60, -24, world "world")
-	spawn 10 sheep at {_radius center}
+	spawn 2 sheep at location(-26, -60, -24, world "world")
+	spawn 2 sheep at location(-25, -58, -25, world "world")
+	spawn 2 sheep at location(-24, -60, -23, world "world")
+	spawn 2 sheep at location(-23, -60, -22, world "world")
+	spawn 2 sheep at location(-22, -60, -25, world "world")
 
 	set {_corner::1} to location(20, -62, 20, world "world")
 	set {_corner::2} to location(28, -58, 28, world "world")
-	spawn 10 sheep at location(24, -60, 24, world "world")
+	spawn 2 sheep at location(21, -60, 21, world "world")
+	spawn 2 sheep at location(22, -59, 25, world "world")
+	spawn 2 sheep at location(24, -60, 23, world "world")
+	spawn 2 sheep at location(26, -60, 28, world "world")
+	spawn 2 sheep at location(28, -60, 20, world "world")
 
 	assert size of all entities in chunk at spawn of world "world" >= 10 with "Size of all entities in spawn chunk is not >= 10"
 	assert size of all entities in radius 3 of {_radius center} >= 10 with "Size of all entities in radius 3 of spawn is not >= 10"
