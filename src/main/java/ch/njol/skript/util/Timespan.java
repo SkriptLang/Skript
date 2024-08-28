@@ -106,6 +106,7 @@ public class Timespan implements YggdrasilSerializable, Comparable<Timespan> { /
 	private static final Pattern TIMESPAN_PATTERN = Pattern.compile("^(\\d+):(\\d\\d)(:\\d\\d){0,2}(?<ms>\\.\\d{1,4})?$");
 	private static final Pattern TIMESPAN_NUMBER_PATTERN = Pattern.compile("^\\d+(\\.\\d+)?$");
 	private static final Pattern TIMESPAN_SPLIT_PATTERN = Pattern.compile("[:.]");
+	private static final Pattern TIMESPAN_UNIT_PATTERN = Pattern.compile("(\\d+(?:\\.\\d+)?)\\s*([\\p{L}\\p{M}]+)");
 
 	private final long millis;
 
@@ -203,6 +204,8 @@ public class Timespan implements YggdrasilSerializable, Comparable<Timespan> { /
 	/**
 	 * Parses a string representing a shortened timespan, such as "1d" for 1 day,
 	 * "2h" for 2 hours, or "30m" for 30 minutes.
+	 * The specific units are based on the entries in the default.lang file.
+	 *
 	 * @param value The string representing the shortened timespan.
 	 * @return A {@link Timespan} object representing the parsed timespan, or {@code null} if the input string is invalid.
 	 */
@@ -213,17 +216,16 @@ public class Timespan implements YggdrasilSerializable, Comparable<Timespan> { /
 		}
 
 		long totalMillis = 0;
-		Pattern pattern = Pattern.compile("(\\d+)([a-zA-Z]+)");
-		Matcher matcher = pattern.matcher(value);
+		Matcher matcher = TIMESPAN_UNIT_PATTERN.matcher(value);
 
 		while (matcher.find()) {
-			long amount = Long.parseLong(matcher.group(1));
-			String shortUnit = matcher.group(2).toLowerCase(Locale.ENGLISH);
+			double amount = Double.parseDouble(matcher.group(1));
+			String unit = matcher.group(2).toLowerCase(Locale.ENGLISH);
 
 			boolean found = false;
 			for (TimePeriod timePeriod : TimePeriod.values()) {
-				if (timePeriod.getShortForm().equalsIgnoreCase(shortUnit)) {
-					totalMillis += amount * timePeriod.getTime();
+				if (timePeriod.getShortForm().equalsIgnoreCase(unit)) {
+					totalMillis += Math.round(amount * timePeriod.getTime());
 					found = true;
 					break;
 				}

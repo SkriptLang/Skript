@@ -343,8 +343,12 @@ tree types:
 
 # -- Time --
 time:
-  millisecond: millisecond¦s
-  tick: tick¦s
+  millisecond:
+	full: millisecond¦s
+	short: ms
+  tick:
+	full: tick¦s
+	short: t
   second:
     full: second¦s
     short: s
