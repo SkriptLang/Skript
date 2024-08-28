@@ -218,7 +218,7 @@ or try-with-resources sections where their immutability is necessary
   * **`@NotNull`**
     * > An element annotated with NotNull claims null value is forbidden to return (for methods), 
     pass to (parameters) and hold (local variables and fields).
-	* Something is `@NotNull` iff it is never null from its inception (new X) to its garbage collection, 
+	* Something is `@NotNull` if it is never null from its inception (new X) to its garbage collection, 
     i.e. there is no point in time at which the value could ever be null.
   * **`@Nullable`**
     * > An element annotated with Nullable claims null value is perfectly valid to return (for methods), 
