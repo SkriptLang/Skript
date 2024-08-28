@@ -106,7 +106,6 @@ public class Timespan implements YggdrasilSerializable, Comparable<Timespan> { /
 	private static final Pattern TIMESPAN_PATTERN = Pattern.compile("^(\\d+):(\\d\\d)(:\\d\\d){0,2}(?<ms>\\.\\d{1,4})?$");
 	private static final Pattern TIMESPAN_NUMBER_PATTERN = Pattern.compile("^\\d+(\\.\\d+)?$");
 	private static final Pattern TIMESPAN_SPLIT_PATTERN = Pattern.compile("[:.]");
-	private static final Pattern TIMESPAN_UNIT_PATTERN = Pattern.compile("(\\d+(?:\\.\\d+)?)\\s*([\\p{L}\\p{M}]+)");
 
 	private final long millis;
 
@@ -118,11 +117,6 @@ public class Timespan implements YggdrasilSerializable, Comparable<Timespan> { /
 		long totalMillis = 0;
 		boolean minecraftTime = false;
 		boolean isMinecraftTimeSet = false;
-
-		Timespan shortenedTimespan = parseShortenedTimespan(value);
-		if (shortenedTimespan != null) {
-			return shortenedTimespan;
-		}
 
 		Matcher matcher = TIMESPAN_PATTERN.matcher(value);
 		if (matcher.matches()) { // MM:SS[.ms] or HH:MM:SS[.ms] or DD:HH:MM:SS[.ms]
@@ -194,49 +188,11 @@ public class Timespan implements YggdrasilSerializable, Comparable<Timespan> { /
 			}
 		}
 
-		return totalMillis > 0 ? new Timespan(totalMillis) : null;
+		return new Timespan(totalMillis);
 	}
 
 	public Timespan() {
 		millis = 0;
-	}
-
-	/**
-	 * Parses a string representing a shortened timespan, such as "1d" for 1 day,
-	 * "2h" for 2 hours, or "30m" for 30 minutes.
-	 * The specific units are based on the entries in the default.lang file.
-	 *
-	 * @param value The string representing the shortened timespan.
-	 * @return A {@link Timespan} object representing the parsed timespan, or {@code null} if the input string is invalid.
-	 */
-	@Nullable
-	public static Timespan parseShortenedTimespan(String value) {
-		if (value.isEmpty()) {
-			return null;
-		}
-
-		long totalMillis = 0;
-		Matcher matcher = TIMESPAN_UNIT_PATTERN.matcher(value);
-
-		while (matcher.find()) {
-			double amount = Double.parseDouble(matcher.group(1));
-			String unit = matcher.group(2).toLowerCase(Locale.ENGLISH);
-
-			boolean found = false;
-			for (TimePeriod timePeriod : TimePeriod.values()) {
-				if (timePeriod.getShortForm().equalsIgnoreCase(unit)) {
-					totalMillis += Math.round(amount * timePeriod.getTime());
-					found = true;
-					break;
-				}
-			}
-
-			if (!found) {
-				return null; // invalid timespan unit
-			}
-		}
-
-		return totalMillis > 0 ? new Timespan(totalMillis) : null;
 	}
 
 	/**
