@@ -65,7 +65,6 @@ public class ExprSpawnerType extends SimplePropertyExpression<Block, EntityData>
 		switch (mode) { // needs update next version
 			case SET:
 			case RESET:
-			case DELETE:
 				return CollectionUtils.array(EntityData.class);
 			}
 		return null;
@@ -85,8 +84,6 @@ public class ExprSpawnerType extends SimplePropertyExpression<Block, EntityData>
 					case RESET:
 						spawner.setSpawnedType(EntityType.PIG);
 						break;
-					case DELETE:
-						spawner.setSpawnedType(null);
 				}
 				spawner.update(); // Actually trigger the spawner's update
 			}
@@ -106,8 +103,6 @@ public class ExprSpawnerType extends SimplePropertyExpression<Block, EntityData>
 					case RESET:
 						config.setSpawnedType(EntityType.PIG);
 						break;
-					case DELETE:
-						config.setSpawnedType(null);
 				}
 				trialSpawner.update();
 			}

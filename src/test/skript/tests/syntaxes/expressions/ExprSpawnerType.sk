@@ -8,9 +8,6 @@ test "spawner type":
 	reset spawner type of {_block}
 	assert spawner type of {_block} is pig with "Spawner type was not reset correctly"
 
-	delete spawner type of {_block}
-	assert spawner type of {_block} is not set with "Spawner Type was not deleted."
-
 	set block at {_block} to air
 
 test "trial spawner type" when running minecraft "1.21":
@@ -22,8 +19,5 @@ test "trial spawner type" when running minecraft "1.21":
 
 	reset spawner type of {_block}
 	assert spawner type of {_block} is pig with "Spawner type was not reset correctly"
-
-	delete spawner type of {_block}
-	assert spawner type of {_block} is not set with "Spawner Type was not deleted."
 
 	set block at {_block} to air
