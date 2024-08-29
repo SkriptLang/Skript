@@ -50,6 +50,10 @@ import io.papermc.paper.event.player.PlayerStopUsingItemEvent;
 import io.papermc.paper.event.player.PlayerInventorySlotChangeEvent;
 import io.papermc.paper.event.player.PlayerStonecutterRecipeSelectEvent;
 import io.papermc.paper.event.player.PlayerTradeEvent;
+import io.papermc.paper.event.world.border.WorldBorderBoundsChangeEvent;
+import io.papermc.paper.event.world.border.WorldBorderBoundsChangeFinishEvent;
+import io.papermc.paper.event.world.border.WorldBorderCenterChangeEvent;
+import io.papermc.paper.event.world.border.WorldBorderEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.FireworkEffect;
@@ -58,6 +62,7 @@ import org.bukkit.Keyed;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
+import org.bukkit.WorldBorder;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.BlockState;
@@ -181,7 +186,7 @@ import org.bukkit.inventory.Recipe;
 import org.bukkit.potion.PotionData;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.potion.PotionType;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * @author Peter Güttinger
@@ -1935,5 +1940,79 @@ public final class BukkitEventValues {
 				return event.getRegainReason();
 			}
 		}, EventValues.TIME_NOW);
+
+		// === WorldBorderEvents ===
+		if (Skript.classExists("io.papermc.paper.event.world.border.WorldBorderEvent")) {
+			// WorldBorderEvent
+			EventValues.registerEventValue(WorldBorderEvent.class, WorldBorder.class, new Getter<WorldBorder, WorldBorderEvent>() {
+				@Override
+				@Nullable
+				public WorldBorder get(WorldBorderEvent event) {
+					return event.getWorldBorder();
+				}
+			}, EventValues.TIME_NOW);
+
+			// WorldBorderBoundsChangeEvent
+			EventValues.registerEventValue(WorldBorderBoundsChangeEvent.class, Number.class, new Getter<Number, WorldBorderBoundsChangeEvent>() {
+				@Override
+				@Nullable
+				public Number get(WorldBorderBoundsChangeEvent event) {
+					return event.getNewSize();
+				}
+			}, EventValues.TIME_NOW);
+			EventValues.registerEventValue(WorldBorderBoundsChangeEvent.class, Number.class, new Getter<Number, WorldBorderBoundsChangeEvent>() {
+				@Override
+				@Nullable
+				public Number get(WorldBorderBoundsChangeEvent event) {
+					return event.getOldSize();
+				}
+			}, EventValues.TIME_PAST);
+			EventValues.registerEventValue(WorldBorderBoundsChangeEvent.class, Timespan.class, new Getter<Timespan, WorldBorderBoundsChangeEvent>() {
+				@Override
+				@Nullable
+				public Timespan get(WorldBorderBoundsChangeEvent event) {
+					return new Timespan(event.getDuration());
+				}
+			}, EventValues.TIME_NOW);
+
+			// WorldBorderBoundsChangeFinishEvent
+			EventValues.registerEventValue(WorldBorderBoundsChangeFinishEvent.class, Number.class, new Getter<Number, WorldBorderBoundsChangeFinishEvent>() {
+				@Override
+				@Nullable
+				public Number get(WorldBorderBoundsChangeFinishEvent event) {
+					return event.getNewSize();
+				}
+			}, EventValues.TIME_NOW);
+			EventValues.registerEventValue(WorldBorderBoundsChangeFinishEvent.class, Number.class, new Getter<Number, WorldBorderBoundsChangeFinishEvent>() {
+				@Override
+				@Nullable
+				public Number get(WorldBorderBoundsChangeFinishEvent event) {
+					return event.getOldSize();
+				}
+			}, EventValues.TIME_PAST);
+			EventValues.registerEventValue(WorldBorderBoundsChangeFinishEvent.class, Timespan.class, new Getter<Timespan, WorldBorderBoundsChangeFinishEvent>() {
+				@Override
+				@Nullable
+				public Timespan get(WorldBorderBoundsChangeFinishEvent event) {
+					return new Timespan((long) event.getDuration());
+				}
+			}, EventValues.TIME_NOW);
+
+			// WorldBorderCenterChangeEvent
+			EventValues.registerEventValue(WorldBorderCenterChangeEvent.class, Location.class, new Getter<Location, WorldBorderCenterChangeEvent>() {
+				@Override
+				@Nullable
+				public Location get(WorldBorderCenterChangeEvent event) {
+					return event.getNewCenter();
+				}
+			}, EventValues.TIME_NOW);
+			EventValues.registerEventValue(WorldBorderCenterChangeEvent.class, Location.class, new Getter<Location, WorldBorderCenterChangeEvent>() {
+				@Override
+				@Nullable
+				public Location get(WorldBorderCenterChangeEvent event) {
+					return event.getOldCenter();
+				}
+			}, EventValues.TIME_PAST);
+		}
 	}
 }

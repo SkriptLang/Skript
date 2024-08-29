@@ -1,0 +1,73 @@
+package ch.njol.skript.expressions;
+
+import ch.njol.skript.classes.Changer.ChangeMode;
+import ch.njol.skript.doc.Description;
+import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Name;
+import ch.njol.skript.doc.Since;
+import ch.njol.skript.expressions.base.SimplePropertyExpression;
+import ch.njol.skript.util.Timespan;
+import ch.njol.util.coll.CollectionUtils;
+import org.bukkit.WorldBorder;
+import org.bukkit.event.Event;
+import org.jetbrains.annotations.Nullable;
+
+@Name("Warning Time of World Border")
+@Description("The warning time of a world border. If the border is shrinking, the player's screen will be tinted red once the border will catch the player within this time period.")
+@Examples("set warning time of {_worldborder} to 1 second")
+@Since("INSERT VERSION")
+public class ExprWorldBorderWarningTime extends SimplePropertyExpression<WorldBorder, Timespan> {
+
+	static {
+		register(ExprWorldBorderWarningTime.class, Timespan.class, "[[world[ ]]border] warning time", "worldborders");
+	}
+
+	@Override
+	@Nullable
+	public Timespan convert(WorldBorder worldBorder) {
+		return new Timespan(worldBorder.getWarningTime() * 1000L);
+	}
+
+	@Override
+	@Nullable
+	public Class<?>[] acceptChange(ChangeMode mode) {
+		switch (mode) {
+			case SET:
+			case ADD:
+			case REMOVE:
+			case RESET:
+				return CollectionUtils.array(Timespan.class);
+		}
+		return null;
+	}
+
+	@Override
+	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
+		int input = mode == ChangeMode.RESET ? 15 : (int) (((Timespan) delta[0]).getMilliSeconds() / 1000);
+		for (WorldBorder worldBorder : getExpr().getArray(event)) {
+			switch (mode) {
+				case SET:
+				case RESET:
+					worldBorder.setWarningTime(input);
+					break;
+				case ADD:
+					worldBorder.setWarningTime(worldBorder.getWarningTime() + input);
+					break;
+				case REMOVE:
+					worldBorder.setWarningTime(worldBorder.getWarningTime() - input);
+					break;
+			}
+		}
+	}
+
+	@Override
+	protected String getPropertyName() {
+		return "border warning time";
+	}
+
+	@Override
+	public Class<? extends Timespan> getReturnType() {
+		return Timespan.class;
+	}
+
+}
