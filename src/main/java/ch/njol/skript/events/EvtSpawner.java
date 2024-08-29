@@ -58,7 +58,7 @@ public class EvtSpawner extends SkriptEvent {
 
 	@Override
 	public boolean check(Event event) {
-		if (event instanceof PreSpawnerSpawnEvent && isPre) {
+		if (HAS_PRE_SPAWNER_EVENT && event instanceof PreSpawnerSpawnEvent && isPre) {
 			PreSpawnerSpawnEvent spawnerEvent = (PreSpawnerSpawnEvent) event;
 			for (EntityData<?> entityType : entityTypes.getArray()) {
 				if (EntityUtils.toSkriptEntityData(spawnerEvent.getType()).equals(entityType)) {
