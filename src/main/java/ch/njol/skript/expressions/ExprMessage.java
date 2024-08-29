@@ -82,6 +82,9 @@ public class ExprMessage extends SimpleExpression<String> {
 			
 			@Override
 			void set(Event event, String message) {
+				if (message.isEmpty()) {
+					((AsyncPlayerChatEvent) event).setMessage(null);
+				}
 				((AsyncPlayerChatEvent) event).setMessage(message);
 			}
 		},
@@ -94,6 +97,9 @@ public class ExprMessage extends SimpleExpression<String> {
 			
 			@Override
 			void set(final Event e, final String message) {
+				if (message.isEmpty()) {
+					((PlayerJoinEvent) e).setJoinMessage(null);
+				}
 				((PlayerJoinEvent) e).setJoinMessage(message);
 			}
 		},
@@ -109,10 +115,18 @@ public class ExprMessage extends SimpleExpression<String> {
 			
 			@Override
 			void set(final Event e, final String message) {
-				if (e instanceof PlayerKickEvent)
-					((PlayerKickEvent) e).setLeaveMessage(message);
-				else
+				if (e instanceof PlayerKickEvent) {
+					if (message.isEmpty()) {
+						((PlayerKickEvent) e).setLeaveMessage(null);
+					} else {
+						((PlayerKickEvent) e).setLeaveMessage(message);
+					}
+				} else {
+					if (message.isEmpty()) {
+						((PlayerQuitEvent) e).setQuitMessage(null);
+					}
 					((PlayerQuitEvent) e).setQuitMessage(message);
+				}
 			}
 		},
 		DEATH("death", "death( |-)message", EntityDeathEvent.class) {
