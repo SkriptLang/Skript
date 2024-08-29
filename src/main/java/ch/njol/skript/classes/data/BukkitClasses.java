@@ -5,40 +5,7 @@ import ch.njol.skript.SkriptConfig;
 import ch.njol.skript.aliases.Aliases;
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.bukkitutil.BukkitUtils;
-import ch.njol.skript.bukkitutil.EnchantmentUtils;
-import ch.njol.skript.bukkitutil.ItemUtils;
-import ch.njol.skript.classes.ClassInfo;
-import ch.njol.skript.classes.ConfigurationSerializer;
-import ch.njol.skript.classes.EnumClassInfo;
-import ch.njol.skript.classes.Parser;
-import ch.njol.skript.classes.Serializer;
-import ch.njol.skript.classes.registry.RegistryClassInfo;
-import ch.njol.skript.entity.EntityData;
-import ch.njol.skript.entity.WolfData;
-import ch.njol.skript.expressions.ExprDamageCause;
-import ch.njol.skript.expressions.base.EventValueExpression;
-import ch.njol.skript.lang.ParseContext;
-import ch.njol.skript.lang.util.SimpleLiteral;
-import ch.njol.skript.localization.Language;
-import ch.njol.skript.registrations.Classes;
-import ch.njol.skript.util.BlockUtils;
-import ch.njol.skript.util.PotionEffectUtils;
-import ch.njol.skript.util.StringMode;
-import ch.njol.util.StringUtils;
-import ch.njol.yggdrasil.Fields;
-import io.papermc.paper.world.MoonPhase;
-import org.bukkit.Bukkit;
-import org.bukkit.Chunk;
-import org.bukkit.Difficulty;
-import org.bukkit.FireworkEffect;
-import org.bukkit.GameMode;
-import org.bukkit.GameRule;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.OfflinePlayer;
-import org.bukkit.Registry;
-import org.bukkit.SoundCategory;
-import org.bukkit.World;
+import org.bukkit.*;
 import org.bukkit.World.Environment;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.block.Biome;
@@ -1568,6 +1535,33 @@ public class BukkitClasses {
 			);
 		}
 
+		Classes.registerClass(new ClassInfo<>(WorldBorder.class, "worldborder")
+			.user("world ?borders?")
+			.name("World Border")
+			.description("Represents the border of a world.")
+			.since("INSERT VERSION")
+			.parser(new Parser<WorldBorder>() {
+				@Override
+				@Nullable
+				public WorldBorder parse(String s, ParseContext context) {
+					return null;
+				}
+
+				@Override
+				public boolean canParse(ParseContext context) {
+					return false;
+				}
+
+				@Override
+				public String toString(WorldBorder border, int flags) {
+					return "world border" + (border.getWorld() != null ? " of world named " + border.getWorld().getName() : "");
+				}
+
+				@Override
+				public String toVariableNameString(WorldBorder border) {
+					return border.toString();
+				}
+			}));
 	}
 
 }
