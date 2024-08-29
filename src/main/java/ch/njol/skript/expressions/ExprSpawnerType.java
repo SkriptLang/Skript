@@ -47,7 +47,7 @@ public class ExprSpawnerType extends SimplePropertyExpression<Block, EntityData>
 		if (HAS_TRIAL_SPAWNER && block.getState() instanceof TrialSpawner) {
 			TrialSpawner trialSpawner = (TrialSpawner) block.getState();
 			EntityType type;
-			if (((TrialSpawner) block.getState()).isOminous()) {
+			if (trialSpawner.isOminous()) {
 				type = trialSpawner.getOminousConfiguration().getSpawnedType();
 			} else {
 				type = trialSpawner.getNormalConfiguration().getSpawnedType();
