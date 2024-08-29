@@ -106,6 +106,7 @@ public class Timespan implements YggdrasilSerializable, Comparable<Timespan> { /
 	private static final Pattern TIMESPAN_PATTERN = Pattern.compile("^(\\d+):(\\d\\d)(:\\d\\d){0,2}(?<ms>\\.\\d{1,4})?$");
 	private static final Pattern TIMESPAN_NUMBER_PATTERN = Pattern.compile("^\\d+(\\.\\d+)?$");
 	private static final Pattern TIMESPAN_SPLIT_PATTERN = Pattern.compile("[:.]");
+	private static final Pattern SHORT_FORM_PATTERN = Pattern.compile("^(\\d+(?:\\.\\d+)?)([a-zA-Z]+)$");
 
 	private final long millis;
 
@@ -175,6 +176,12 @@ public class Timespan implements YggdrasilSerializable, Comparable<Timespan> { /
 				if (sub.endsWith(","))
 					sub = sub.substring(0, sub.length() - 1);
 
+				Matcher shortFormMatcher = SHORT_FORM_PATTERN.matcher(sub);
+				if (shortFormMatcher.matches()) {
+					amount = Double.parseDouble(shortFormMatcher.group(1));
+					sub = shortFormMatcher.group(2).toLowerCase(Locale.ENGLISH);
+				}
+
 				Long millis = PARSE_VALUES.get(sub.toLowerCase(Locale.ENGLISH));
 				if (millis == null)
 					return null;
@@ -187,7 +194,6 @@ public class Timespan implements YggdrasilSerializable, Comparable<Timespan> { /
 				isMinecraftTimeSet = true;
 			}
 		}
-
 		return new Timespan(totalMillis);
 	}
 

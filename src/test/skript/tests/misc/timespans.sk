@@ -1,0 +1,51 @@
+test "timespans":
+
+	set {_timespan} to 1 day
+	assert {_timespan} is a timespan with "Failed to parse '1 day'"
+	assert {_timespan} is 1 day with "Failed to set variable to '1 day'"
+
+	set {_timespan} to 2 hours
+	assert {_timespan} is a timespan with "Failed to parse '2 hours'"
+	assert {_timespan} is 2 hours with "Failed to set variable to '2 hours'"
+
+	set {_timespan} to 30 minutes
+	assert {_timespan} is a timespan with "Failed to parse '30 minutes'"
+	assert {_timespan} is 30 minutes with "Failed to set variable to '2 hours'"
+
+	set {_timespan} to 1d
+	assert {_timespan} is a timespan with "Failed to parse '1d'"
+	assert {_timespan} is 1d with "Failed to set variable to '1d'"
+
+	set {_timespan} to 2h
+	assert {_timespan} is a timespan with "Failed to parse '2h'"
+	assert {_timespan} is 2h with "Failed to set variable to '2h'"
+
+	set {_timespan} to 30m
+	assert {_timespan} is a timespan with "Failed to parse '30m'"
+	assert {_timespan} is 30m with "Failed to set variable to '30m'"
+
+	# comparisons with both long and short form
+	set {_timespan} to 30 minutes and 20s
+	assert {_timespan} is a timespan with "Failed to parse '30 minutes and 20s'"
+	assert {_timespan} is 30m and 20 seconds with "Failed to set variable to '30 minutes and 20s'"
+
+	set {_timespan} to 1 mo, 30 days, 12w, 20 minutes and 15s
+	assert {_timespan} is a timespan with "Failed to parse '1 mo, 30 days, 12w, 20 minutes and 15s'"
+	assert {_timespan} is 1 month, 30 days, 12 weeks, 20 minutes and 15 seconds with "Failed to set variable to '1 mo, 30 days, 12w, 20 minutes and 15s'"
+
+	set {_timespan} to 50 minutes and 45 seconds
+	assert {_timespan} is a timespan with "Failed to parse '50 minutes and 45 seconds'"
+	assert {_timespan} is 50m and 45s with "Failed to set variable to '50 minutes and 45 seconds'"
+
+	# edge cases
+	set {_timespan} to 0.5d
+	assert {_timespan} is a timespan with "Failed to parse '0.5d'"
+	assert {_timespan} is 0.5d with "Failed to set variable to 0.5d"
+
+	set {_timespan} to 90m
+	assert {_timespan} is a timespan with "Failed to parse '90m'"
+	assert {_timespan} is 90m with "Failed to set variable to 90m"
+
+	set {_timespan} to 3600s
+	assert {_timespan} is a timespan with "Failed to parse '3600s'"
+	assert {_timespan} is 3600s with "Failed to set variable to '3600s'"
