@@ -22,8 +22,8 @@ import java.util.Locale;
 
 @Name("Vector/Quaternion - XYZ Component")
 @Description({
-	"Gets or changes the x, y or z component of <a href='classes.html#vector'>vectors</a>/<a href='classes.html#quaternion'>quaternions</a>.",
-	"You cannot use w of vector. W is for quaternions only."
+	"Gets or changes the X, Y or Z component of <a href='classes.html#vector'>vectors</a>/<a href='classes.html#quaternion'>quaternions</a>.",
+	"You cannot use the W component with vectors; it is for quaternions only."
 })
 @Examples({
 	"set {_v} to vector 1, 2, 3",

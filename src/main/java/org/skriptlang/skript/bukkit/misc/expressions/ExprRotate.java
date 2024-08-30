@@ -26,13 +26,13 @@ import java.util.Objects;
 
 @Name("Rotated Quaternion/Vector")
 @Description({
-	"Rotates a Quaternion or Vector around an axis a set amount of degrees, or around all 3 axes at once.",
+	"Rotates a quaternion or vector around an axis a set amount of degrees, or around all 3 axes at once.",
 	"Vectors can only be rotated around the global X/Y/Z axes, or an arbitrary vector axis.",
-	"Quaternions are more flexible, allowing rotation around the global or local X/Y/Z axes, arbitrary vectors, or all 3 local axis at once.",
+	"Quaternions are more flexible, allowing rotation around the global or local X/Y/Z axes, arbitrary vectors, or all 3 local axes at once.",
 	"Global axes are the ones in the Minecraft world. Local axes are relative to how the quaternion is already oriented.",
 	"",
 	"Note that rotating a quaternion around a vector results in a rotation around the local vector, so results may not be what you expect. " +
-	"For example, rotating around vector(1, 0, 0) is the same as rotating around the local x axis.",
+	"For example, rotating around vector(1, 0, 0) is the same as rotating around the local X axis.",
 	"The same applies to rotations by all three axes at once. " +
 	"In addition, rotating around all three axes of a quaternion/display at once will rotate in ZYX order, meaning the Z rotation will be applied first and the X rotation last."
 })
