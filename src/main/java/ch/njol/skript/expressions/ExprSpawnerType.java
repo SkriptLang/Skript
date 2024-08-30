@@ -24,8 +24,8 @@ import ch.njol.util.coll.CollectionUtils;
 @Description("Retrieves, sets, or resets the spawner's entity type")
 @Examples({
 	"on right click:",
-	"\tif event-block is spawner:",
-	"\t\tsend \"Spawner's type is %target block's entity type%\""
+		"\tif event-block is spawner:",
+			"\t\tsend \"Spawner's type is %target block's entity type%\""
 })
 @Since("2.4, INSERT VERSION (trial spawner)")
 public class ExprSpawnerType extends SimplePropertyExpression<Block, EntityData> {
@@ -62,12 +62,13 @@ public class ExprSpawnerType extends SimplePropertyExpression<Block, EntityData>
 	@Nullable
 	@Override
 	public Class<?>[] acceptChange(Changer.ChangeMode mode) {
-		switch (mode) { // needs update next version
+		switch (mode) {
 			case SET:
 			case RESET:
 				return CollectionUtils.array(EntityData.class);
-			}
-		return null;
+			default:
+				return null;
+		}
 	}
 	
 	@SuppressWarnings("null")
@@ -86,8 +87,7 @@ public class ExprSpawnerType extends SimplePropertyExpression<Block, EntityData>
 						break;
 				}
 				spawner.update(); // Actually trigger the spawner's update
-			}
-			if (HAS_TRIAL_SPAWNER && block.getState() instanceof TrialSpawner) {
+			} else if (HAS_TRIAL_SPAWNER && block.getState() instanceof TrialSpawner) {
 				TrialSpawner trialSpawner = (TrialSpawner) block.getState();
 				TrialSpawnerConfiguration config;
 				if (trialSpawner.isOminous()) {
