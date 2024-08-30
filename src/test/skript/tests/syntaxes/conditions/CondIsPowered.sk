@@ -1,0 +1,55 @@
+test "powered condition":
+	set {_a} to event-location
+	set {_b} to location 1 block above event-location
+	set {_c} to location 2 blocks above event-location
+	set {_d} to location 4 blocks above event-location
+
+	set block at {_a} to spawner
+	set block at {_b} to redstone lamp
+	set block at {_c} to observer
+	set block at {_d} to stone
+
+	# activate redstone lamp and observer
+	set block at {_a} to air
+	set block at {_a} to redstone torch
+	wait 1 tick
+	set block at {_a} to air
+
+	# check initial activation states
+	assert block at {_a} is not activated with "Spawner should not be activated"
+	assert block at {_b} is powered with "Redstone lamp should be powered"
+	assert block at {_c} is powered with "Observer should be powered"
+	assert block at {_d} is not activated with "Stone block should not be activated"
+
+	# activate the spawner by spawning a pig nearby
+	spawn pig at {_a}
+	set {_pig} to last spawned entity
+	wait 1 tick
+
+	# check activation states again
+	assert block at {_a} is activated with "Spawner should be activated"
+	assert block at {_b} is powered with "Redstone lamp should be powered"
+	assert block at {_c} is powered with "Observer should be powered"
+	assert block at {_d} is not activated with "Stone block should not be activated"
+
+
+	delete entity within {_pig}
+	set block at {_a} to air
+	set block at {_b} to air
+	set block at {_c} to air
+	set block at {_d} to air
+
+test "powered condition 1.21" when running minecraft "1.21":
+	set {_a} to event-location
+	set block at {_a} to trial spawner
+
+	assert block at {_d} is not activated with "Trial spawner should not be activated"
+
+	spawn pig at {_a}
+	set {_pig} to last spawned entity
+	wait 1 tick
+
+	assert block at {_d} is not activated with "Trial spawner should not be activated"
+
+	delete entity within {_pig}
+	set block at {_a} to air
