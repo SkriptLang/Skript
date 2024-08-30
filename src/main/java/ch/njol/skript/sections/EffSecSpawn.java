@@ -54,7 +54,7 @@ import java.util.function.Consumer;
 	"You can modify the entity in this section, using for example 'event-entity' or 'cow'. ",
 	"Do note that other event values, such as 'player', won't work in this section.",
 	"",
-	"If you're spawning a display and want it to be empty on initialization, like not having a block display be stone; " + 
+	"If you're spawning a display and want it to be empty on initialization, like not having a block display be stone, " + 
 	"set hidden config node 'spawn empty displays' to true."
 })
 @Examples({

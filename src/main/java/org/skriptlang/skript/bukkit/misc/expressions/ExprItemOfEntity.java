@@ -19,7 +19,7 @@ import org.jetbrains.annotations.Nullable;
 
 @Name("Item of an Entity")
 @Description({
-	"An item associated with an entity. For dropped item entities, it gets the item that was dropped. ",
+	"An item associated with an entity. For dropped item entities, it gets the item that was dropped.",
 	"For item frames, the item inside the frame is returned.",
 	"For throwable projectiles (snowballs, enderpearls etc.) it gets the displayed item.",
 	"For display entities (snowballs, enderpearls etc.) it gets the displayed item.",
@@ -30,7 +30,7 @@ import org.jetbrains.annotations.Nullable;
 	"",
 	"set the item inside of event-entity to a diamond sword named \"Example\""
 })
-@Since("2.2-dev35, 2.2-dev36 (improved), 2.5.2 (throwable projectiles)")
+@Since("2.2-dev35, 2.2-dev36 (improved), 2.5.2 (throwable projectiles), INSERT VERSION (item displays)")
 public class ExprItemOfEntity extends SimplePropertyExpression<Entity, Slot> {
 
 
