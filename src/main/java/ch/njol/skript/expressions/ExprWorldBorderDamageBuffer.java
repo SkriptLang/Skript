@@ -16,12 +16,12 @@ import org.jetbrains.annotations.Nullable;
 	"The amount of blocks a player may safely be outside the border before taking damage.",
 	"Note: Players only take damage when outside of the world's world border"
 })
-@Examples("set damage buffer of {_worldborder} to 10")
+@Examples("set world border damage buffer of {_worldborder} to 10")
 @Since("INSERT VERSION")
 public class ExprWorldBorderDamageBuffer extends SimplePropertyExpression<WorldBorder, Double> {
 
 	static {
-		register(ExprWorldBorderDamageBuffer.class, Double.class, "[[world[ ]]border] damage buffer", "worldborders");
+		register(ExprWorldBorderDamageBuffer.class, Double.class, "world[ ]border damage buffer", "worldborders");
 	}
 
 	@Override

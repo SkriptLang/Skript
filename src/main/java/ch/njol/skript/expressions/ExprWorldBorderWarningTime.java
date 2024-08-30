@@ -15,12 +15,12 @@ import org.jetbrains.annotations.Nullable;
 
 @Name("Warning Time of World Border")
 @Description("The warning time of a world border. If the border is shrinking, the player's screen will be tinted red once the border will catch the player within this time period.")
-@Examples("set warning time of {_worldborder} to 1 second")
+@Examples("set world border warning time of {_worldborder} to 1 second")
 @Since("INSERT VERSION")
 public class ExprWorldBorderWarningTime extends SimplePropertyExpression<WorldBorder, Timespan> {
 
 	static {
-		register(ExprWorldBorderWarningTime.class, Timespan.class, "[[world[ ]]border] warning time", "worldborders");
+		register(ExprWorldBorderWarningTime.class, Timespan.class, "world[ ]border warning time", "worldborders");
 	}
 
 	@Override

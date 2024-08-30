@@ -16,12 +16,12 @@ import org.jetbrains.annotations.Nullable;
 	"The amount of damage a player takes per second for each block they are outside the border plus the border buffer.",
 	"Note: Players only take damage when outside of the world's world border"
 })
-@Examples("set damage amount of {_worldborder} to 1")
+@Examples("set world border damage amount of {_worldborder} to 1")
 @Since("INSERT VERSION")
 public class ExprWorldBorderDamageAmount extends SimplePropertyExpression<WorldBorder, Double> {
 
 	static {
-		register(ExprWorldBorderDamageAmount.class, Double.class, "[[world[ ]]border] damage amount", "worldborders");
+		register(ExprWorldBorderDamageAmount.class, Double.class, "world[ ]border damage amount", "worldborders");
 	}
 
 	@Override
