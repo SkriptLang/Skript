@@ -1,0 +1,27 @@
+test "powered condition":
+	set {_a} to event-location
+	set block at {_a} to spawner
+
+	# activate the spawner by spawning a pig nearby
+	spawn pig at {_a}
+	set {_pig} to last spawned entity
+	wait 1 tick
+
+	# check activation states again
+	assert block at {_a} is activated with "Spawner should be activated"
+
+	delete entity within {_pig}
+	set block at {_a} to air
+
+test "powered condition 1.21" when running minecraft "1.21":
+	set {_a} to event-location
+	set block at {_a} to trial spawner
+
+	spawn pig at {_a}
+	set {_pig} to last spawned entity
+	wait 1 tick
+
+	assert block at {_d} is not activated with "Trial spawner should not be activated"
+
+	delete entity within {_pig}
+	set block at {_a} to air
