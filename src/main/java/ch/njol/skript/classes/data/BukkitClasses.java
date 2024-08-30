@@ -1554,24 +1554,18 @@ public class BukkitClasses {
 			.since("INSERT VERSION")
 			.parser(new Parser<WorldBorder>() {
 				@Override
-				@Nullable
-				public WorldBorder parse(String s, ParseContext context) {
-					return null;
-				}
-
-				@Override
 				public boolean canParse(ParseContext context) {
 					return false;
 				}
 
 				@Override
 				public String toString(WorldBorder border, int flags) {
-					return "world border" + (border.getWorld() != null ? " of world named " + border.getWorld().getName() : "");
+					return "world border of " + (border.getWorld() != null ? " of world named " + border.getWorld().getName() : "");
 				}
 
 				@Override
 				public String toVariableNameString(WorldBorder border) {
-					return border.toString();
+					return toString(border, 0);
 				}
 			}));
 	}
