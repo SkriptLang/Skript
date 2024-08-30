@@ -21,8 +21,7 @@ import org.jetbrains.annotations.Nullable;
 @Description({
 	"An item associated with an entity. For dropped item entities, it gets the item that was dropped.",
 	"For item frames, the item inside the frame is returned.",
-	"For throwable projectiles (snowballs, enderpearls etc.) it gets the displayed item.",
-	"For display entities (snowballs, enderpearls etc.) it gets the displayed item.",
+	"For throwable projectiles (snowballs, enderpearls etc.) or item displays, it gets the displayed item.",
 	"Other entities do not have items associated with them."
 })
 @Examples({
