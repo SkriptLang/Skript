@@ -14,12 +14,12 @@ import org.jetbrains.annotations.Nullable;
 
 @Name("Center of World Border")
 @Description("The center of a world border.")
-@Examples("set border center of {_worldborder} to location(10, 0, 20)")
+@Examples("set world border center of {_worldborder} to location(10, 0, 20)")
 @Since("INSERT VERSION")
 public class ExprWorldBorderCenter extends SimplePropertyExpression<WorldBorder, Location> {
 
 	static {
-		register(ExprWorldBorderCenter.class, Location.class, "[world[ ]]border (center|middle)", "worldborders");
+		register(ExprWorldBorderCenter.class, Location.class, "world[ ]border (center|middle)", "worldborders");
 	}
 
 	@Override

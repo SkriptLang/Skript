@@ -17,11 +17,11 @@ import org.jetbrains.annotations.Nullable;
 
 @Name("Size of World Border")
 @Description("The size of a world border.")
-@Examples("set border radius of {_worldborder} to 10")
+@Examples("set world border radius of {_worldborder} to 10")
 @Since("INSERT VERSION")
 public class ExprWorldBorderSize extends SimplePropertyExpression<WorldBorder, Double> {
 	static {
-		register(ExprWorldBorderSize.class, Double.class, "[[world[ ]]border] (radius|:diameter)", "worldborders");
+		register(ExprWorldBorderSize.class, Double.class, "world[ ]border (radius|:diameter)", "worldborders");
 	}
 
 	private boolean diameter;

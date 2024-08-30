@@ -13,12 +13,12 @@ import org.jetbrains.annotations.Nullable;
 
 @Name("Warning Distance of World Border")
 @Description("The warning distance of a world border. The player's screen will be tinted red when they are within this distance of the border")
-@Examples("set warning distance of {_worldborder} to 1")
+@Examples("set world border warning distance of {_worldborder} to 1")
 @Since("INSERT VERSION")
 public class ExprWorldBorderWarningDistance extends SimplePropertyExpression<WorldBorder, Integer> {
 
 	static {
-		register(ExprWorldBorderWarningDistance.class, Integer.class, "[[world[ ]]border] warning distance", "worldborders");
+		register(ExprWorldBorderWarningDistance.class, Integer.class, "world[ ]border warning distance", "worldborders");
 	}
 
 	@Override
