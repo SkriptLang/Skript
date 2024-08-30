@@ -7,6 +7,7 @@ import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import ch.njol.skript.util.Timespan;
+import ch.njol.skript.util.Timespan.TimePeriod;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.WorldBorder;
 import org.bukkit.event.Event;
@@ -25,7 +26,7 @@ public class ExprWorldBorderWarningTime extends SimplePropertyExpression<WorldBo
 	@Override
 	@Nullable
 	public Timespan convert(WorldBorder worldBorder) {
-		return new Timespan(worldBorder.getWarningTime() * 1000L);
+		return new Timespan(TimePeriod.SECOND, worldBorder.getWarningTime());
 	}
 
 	@Override
@@ -39,7 +40,7 @@ public class ExprWorldBorderWarningTime extends SimplePropertyExpression<WorldBo
 
 	@Override
 	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
-		int input = mode == ChangeMode.RESET ? 15 : (int) (((Timespan) delta[0]).getMilliSeconds() / 1000);
+		int input = mode == ChangeMode.RESET ? 15 : (int) (((Timespan) delta[0]).getAs(TimePeriod.SECOND));
 		for (WorldBorder worldBorder : getExpr().getArray(event)) {
 			switch (mode) {
 				case SET, RESET -> worldBorder.setWarningTime(input);
