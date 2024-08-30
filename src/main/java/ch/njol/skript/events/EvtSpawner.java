@@ -10,20 +10,27 @@ import ch.njol.skript.registrations.EventValues;
 import ch.njol.skript.util.Getter;
 import ch.njol.util.coll.CollectionUtils;
 import com.destroystokyo.paper.event.entity.PreSpawnerSpawnEvent;
+import com.google.common.collect.Lists;
 import org.bukkit.block.Block;
 import org.bukkit.event.Event;
 import org.bukkit.event.entity.SpawnerSpawnEvent;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.List;
 
 public class EvtSpawner extends SkriptEvent {
 
 	private static final boolean HAS_PRE_SPAWNER_EVENT = Skript.classExists("com.destroystokyo.paper.event.entity.PreSpawnerSpawnEvent");
 
 	static {
-		Skript.registerEvent("Spawner Spawn", EvtSpawner.class, CollectionUtils.array(com.destroystokyo.paper.event.entity.PreSpawnerSpawnEvent.class, SpawnerSpawnEvent.class),"[:pre] spawner spawn[ing] [of %entitydatas%]")
+		List<Class<? extends Event>> events = Lists.newArrayList(SpawnerSpawnEvent.class);
+		if (HAS_PRE_SPAWNER_EVENT) {
+			events.add(PreSpawnerSpawnEvent.class);
+		}
+		Skript.registerEvent("Spawner Spawn", EvtSpawner.class, events.toArray(new Class[0]),"[:pre] spawner spawn[ing] [of %-entitydatas%]")
 			.description(
 				"Called when a spawner spawns an entity.",
-				"May also be called before a spawner spawns an entity when specified. This option requires Paper.")
+				"May also be called before a spawner spawns an entity when specified. This option requires a compatible Paper version.")
 			.examples(
 				"on spawner spawn of pig:",
 				"\tbroadcast \"A little piggy spawned!\"",
@@ -31,18 +38,7 @@ public class EvtSpawner extends SkriptEvent {
 				"on pre spawner spawn of zombie:",
 				"\tbroadcast \"A zombie is about to spawn from a spawner!\"")
 			.since("INSERT VERSION");
-		EventValues.registerEventValue(PreSpawnerSpawnEvent.class, Block.class, new Getter<>() {
-			@Override
-			public Block get(PreSpawnerSpawnEvent event) {
-				return event.getSpawnerLocation().getBlock();
-			}
-		}, EventValues.TIME_NOW);
-		EventValues.registerEventValue(SpawnerSpawnEvent.class, Block.class, new Getter<>() {
-			@Override
-			public Block get(SpawnerSpawnEvent event) {
-				return event.getSpawner().getBlock();
-			}
-		}, EventValues.TIME_NOW);
+
 	}
 
 

@@ -24,7 +24,6 @@ import java.util.List;
 import java.util.Set;
 
 import ch.njol.skript.Skript;
-import ch.njol.skript.aliases.Aliases;
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.bukkitutil.InventoryUtils;
 import ch.njol.skript.command.CommandEvent;
@@ -43,6 +42,7 @@ import ch.njol.skript.util.slot.InventorySlot;
 import ch.njol.skript.util.slot.Slot;
 import com.destroystokyo.paper.event.block.AnvilDamagedEvent;
 import com.destroystokyo.paper.event.entity.EndermanAttackPlayerEvent;
+import com.destroystokyo.paper.event.entity.PreSpawnerSpawnEvent;
 import com.destroystokyo.paper.event.entity.ProjectileCollideEvent;
 import com.destroystokyo.paper.event.player.PlayerArmorChangeEvent;
 import io.papermc.paper.event.entity.EntityMoveEvent;
@@ -91,31 +91,11 @@ import org.bukkit.event.block.BellRingEvent;
 import org.bukkit.event.block.BellResonateEvent;
 import org.bukkit.event.enchantment.EnchantItemEvent;
 import org.bukkit.event.enchantment.PrepareItemEnchantEvent;
-import org.bukkit.event.entity.AreaEffectCloudApplyEvent;
-import org.bukkit.event.entity.CreatureSpawnEvent;
+import org.bukkit.event.entity.*;
 import org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason;
-import org.bukkit.event.entity.EntityChangeBlockEvent;
-import org.bukkit.event.entity.EntityDamageByEntityEvent;
-import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
-import org.bukkit.event.entity.EntityDeathEvent;
-import org.bukkit.event.entity.EntityDropItemEvent;
-import org.bukkit.event.entity.EntityEvent;
-import org.bukkit.event.entity.EntityPickupItemEvent;
-import org.bukkit.event.entity.EntityRegainHealthEvent;
 import org.bukkit.event.entity.EntityRegainHealthEvent.RegainReason;
-import org.bukkit.event.entity.EntityResurrectEvent;
-import org.bukkit.event.entity.EntityTameEvent;
-import org.bukkit.event.entity.EntityTeleportEvent;
-import org.bukkit.event.entity.EntityTransformEvent;
 import org.bukkit.event.entity.EntityTransformEvent.TransformReason;
-import org.bukkit.event.entity.FireworkExplodeEvent;
-import org.bukkit.event.entity.HorseJumpEvent;
-import org.bukkit.event.entity.ItemDespawnEvent;
-import org.bukkit.event.entity.ItemMergeEvent;
-import org.bukkit.event.entity.ItemSpawnEvent;
-import org.bukkit.event.entity.ProjectileHitEvent;
-import org.bukkit.event.entity.ProjectileLaunchEvent;
 import org.bukkit.event.hanging.HangingBreakByEntityEvent;
 import org.bukkit.event.hanging.HangingBreakEvent;
 import org.bukkit.event.hanging.HangingEvent;
@@ -178,7 +158,6 @@ import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.Recipe;
-import org.bukkit.potion.PotionData;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.potion.PotionType;
 import org.eclipse.jdt.annotation.Nullable;
@@ -1935,5 +1914,22 @@ public final class BukkitEventValues {
 				return event.getRegainReason();
 			}
 		}, EventValues.TIME_NOW);
+
+		// SpawnerSpawnEvent
+		EventValues.registerEventValue(PreSpawnerSpawnEvent.class, Block.class, new Getter<>() {
+			@Override
+			public Block get(PreSpawnerSpawnEvent event) {
+				return event.getSpawnerLocation().getBlock();
+			}
+		}, EventValues.TIME_NOW);
+
+		if (Skript.classExists("com.destroystokyo.paper.event.entity.PreSpawnerSpawnEvent")) {
+			EventValues.registerEventValue(SpawnerSpawnEvent.class, Block.class, new Getter<>() {
+				@Override
+				public Block get(SpawnerSpawnEvent event) {
+					return event.getSpawner().getBlock();
+				}
+			}, EventValues.TIME_NOW);
+		}
 	}
 }
