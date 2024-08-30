@@ -33,14 +33,10 @@ public class ExprWorldBorderDamageBuffer extends SimplePropertyExpression<WorldB
 	@Override
 	@Nullable
 	public Class<?>[] acceptChange(ChangeMode mode) {
-		switch (mode) {
-			case SET:
-			case ADD:
-			case REMOVE:
-			case RESET:
-				return CollectionUtils.array(Number.class);
-		}
-		return null;
+		return switch (mode) {
+			case SET, ADD, REMOVE, RESET -> CollectionUtils.array(Number.class);
+			default -> null;
+		};
 	}
 
 	@Override
@@ -48,16 +44,9 @@ public class ExprWorldBorderDamageBuffer extends SimplePropertyExpression<WorldB
 		double input = mode == ChangeMode.RESET ? 5 : ((Number) delta[0]).doubleValue();
 		for (WorldBorder worldBorder : getExpr().getArray(event)) {
 			switch (mode) {
-				case SET:
-				case RESET:
-					worldBorder.setDamageBuffer(input);
-					break;
-				case ADD:
-					worldBorder.setDamageBuffer(worldBorder.getDamageBuffer() + input);
-					break;
-				case REMOVE:
-					worldBorder.setDamageBuffer(worldBorder.getDamageBuffer() - input);
-					break;
+				case SET, RESET -> worldBorder.setDamageBuffer(input);
+				case ADD -> worldBorder.setDamageBuffer(worldBorder.getDamageBuffer() + input);
+				case REMOVE -> worldBorder.setDamageBuffer(worldBorder.getDamageBuffer() - input);
 			}
 		}
 	}

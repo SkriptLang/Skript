@@ -31,12 +31,10 @@ public class ExprWorldBorderCenter extends SimplePropertyExpression<WorldBorder,
 	@Override
 	@Nullable
 	public Class<?>[] acceptChange(ChangeMode mode) {
-		switch (mode) {
-			case SET:
-			case RESET:
-				return CollectionUtils.array(Location.class);
-		}
-		return null;
+		return switch (mode) {
+			case SET, RESET -> CollectionUtils.array(Location.class);
+			default -> null;
+		};
 	}
 
 	@Override
@@ -44,13 +42,8 @@ public class ExprWorldBorderCenter extends SimplePropertyExpression<WorldBorder,
 		Location location = mode == ChangeMode.SET ? (Location) delta[0] : null;
 		for (WorldBorder worldBorder : getExpr().getArray(event)) {
 			switch (mode) {
-				case SET:
-					assert location != null;
-					worldBorder.setCenter(location);
-					break;
-				case RESET:
-					worldBorder.setCenter(0, 0);
-					break;
+				case SET -> worldBorder.setCenter(location);
+				case RESET -> worldBorder.setCenter(0, 0);
 			}
 		}
 	}

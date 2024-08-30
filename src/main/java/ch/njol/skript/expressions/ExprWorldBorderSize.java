@@ -42,14 +42,10 @@ public class ExprWorldBorderSize extends SimplePropertyExpression<WorldBorder, D
 	@Override
 	@Nullable
 	public Class<?>[] acceptChange(ChangeMode mode) {
-		switch (mode) {
-			case SET:
-			case ADD:
-			case REMOVE:
-			case RESET:
-				return CollectionUtils.array(Number.class);
-		}
-		return null;
+		return switch (mode) {
+			case SET, ADD, REMOVE, RESET -> CollectionUtils.array(Number.class);
+			default -> null;
+		};
 	}
 
 	@Override
@@ -57,16 +53,9 @@ public class ExprWorldBorderSize extends SimplePropertyExpression<WorldBorder, D
 		double input = mode == ChangeMode.RESET ? 6.0E7 : Math.max(1, Math.min(((Number) delta[0]).doubleValue() * (diameter ? 1 : 2), 6.0E7));
 		for (WorldBorder worldBorder : getExpr().getArray(event)) {
 			switch (mode) {
-				case SET:
-				case RESET:
-					worldBorder.setSize(input);
-					break;
-				case ADD:
-					worldBorder.setSize(worldBorder.getSize() + input);
-					break;
-				case REMOVE:
-					worldBorder.setSize(worldBorder.getSize() - input);
-					break;
+				case SET, RESET -> worldBorder.setSize(input);
+				case ADD -> worldBorder.setSize(worldBorder.getSize() + input);
+				case REMOVE -> worldBorder.setSize(worldBorder.getSize() - input);
 			}
 		}
 	}

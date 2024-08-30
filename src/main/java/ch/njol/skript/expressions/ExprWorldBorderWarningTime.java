@@ -31,14 +31,10 @@ public class ExprWorldBorderWarningTime extends SimplePropertyExpression<WorldBo
 	@Override
 	@Nullable
 	public Class<?>[] acceptChange(ChangeMode mode) {
-		switch (mode) {
-			case SET:
-			case ADD:
-			case REMOVE:
-			case RESET:
-				return CollectionUtils.array(Timespan.class);
-		}
-		return null;
+		return switch (mode) {
+			case SET, ADD, REMOVE, RESET -> CollectionUtils.array(Timespan.class);
+			default -> null;
+		};
 	}
 
 	@Override
@@ -46,16 +42,9 @@ public class ExprWorldBorderWarningTime extends SimplePropertyExpression<WorldBo
 		int input = mode == ChangeMode.RESET ? 15 : (int) (((Timespan) delta[0]).getMilliSeconds() / 1000);
 		for (WorldBorder worldBorder : getExpr().getArray(event)) {
 			switch (mode) {
-				case SET:
-				case RESET:
-					worldBorder.setWarningTime(input);
-					break;
-				case ADD:
-					worldBorder.setWarningTime(worldBorder.getWarningTime() + input);
-					break;
-				case REMOVE:
-					worldBorder.setWarningTime(worldBorder.getWarningTime() - input);
-					break;
+				case SET, RESET -> worldBorder.setWarningTime(input);
+				case ADD -> worldBorder.setWarningTime(worldBorder.getWarningTime() + input);
+				case REMOVE -> worldBorder.setWarningTime(worldBorder.getWarningTime() - input);
 			}
 		}
 	}
