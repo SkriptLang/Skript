@@ -9,6 +9,7 @@ import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.util.Timespan;
+import ch.njol.skript.util.Timespan.TimePeriod;
 import ch.njol.util.Kleenean;
 import org.bukkit.WorldBorder;
 import org.bukkit.event.Event;
@@ -64,7 +65,7 @@ public class EffWorldBorderExpand extends Effect {
 		if (timespan != null) {
 			Timespan timespan = this.timespan.getSingle(event);
 			if (timespan != null)
-				speed = timespan.getMilliSeconds() / 1000;
+				speed = timespan.getAs(TimePeriod.SECOND);
 		}
 		WorldBorder[] worldBorders = this.worldBorders.getAll(event);
 		if (to) {
