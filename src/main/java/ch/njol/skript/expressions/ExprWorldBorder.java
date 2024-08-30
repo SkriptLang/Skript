@@ -30,12 +30,14 @@ public class ExprWorldBorder extends SimplePropertyExpression<Object, WorldBorde
 	@Override
 	@Nullable
 	public WorldBorder convert(Object object) {
-		if (object instanceof World)
-			return ((World) object).getWorldBorder();
-		Player player = (Player) object;
-		if (player.getWorldBorder() == null)
-			player.setWorldBorder(Bukkit.createWorldBorder());
-		return player.getWorldBorder();
+		if (object instanceof World world)
+			return world.getWorldBorder();
+		if (object instanceof Player player) {
+			if (player.getWorldBorder() == null)
+				player.setWorldBorder(Bukkit.createWorldBorder());
+			return player.getWorldBorder();
+		}
+		return null;
 	}
 
 	@Override
@@ -49,10 +51,10 @@ public class ExprWorldBorder extends SimplePropertyExpression<Object, WorldBorde
 		Object[] objects = getExpr().getArray(event);
 		if (mode == ChangeMode.RESET) {
 			for (Object object : objects) {
-				if (object instanceof World) {
-					((World) object).getWorldBorder().reset();
-				} else {
-					((Player) object).setWorldBorder(null);
+				if (object instanceof World world) {
+					world.getWorldBorder().reset();
+				} else if (object instanceof Player player) {
+					player.setWorldBorder(null);
 				}
 			}
 			return;
@@ -60,16 +62,16 @@ public class ExprWorldBorder extends SimplePropertyExpression<Object, WorldBorde
 		WorldBorder to = (WorldBorder) delta[0];
 		assert to != null;
 		for (Object object : objects) {
-			if (object instanceof World) {
-				WorldBorder worldBorder = ((World) object).getWorldBorder();
+			if (object instanceof World world) {
+				WorldBorder worldBorder = world.getWorldBorder();
 				worldBorder.setCenter(to.getCenter());
 				worldBorder.setSize(to.getSize());
 				worldBorder.setDamageAmount(to.getDamageAmount());
 				worldBorder.setDamageBuffer(to.getDamageBuffer());
 				worldBorder.setWarningDistance(to.getWarningDistance());
 				worldBorder.setWarningTime(to.getWarningTime());
-			} else {
-				((Player) object).setWorldBorder(to);
+			} else if (object instanceof Player player) {
+				player.setWorldBorder(to);
 			}
 		}
 	}
