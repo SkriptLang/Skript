@@ -30,14 +30,10 @@ public class ExprWorldBorderWarningDistance extends SimplePropertyExpression<Wor
 	@Override
 	@Nullable
 	public Class<?>[] acceptChange(ChangeMode mode) {
-		switch (mode) {
-			case SET:
-			case ADD:
-			case REMOVE:
-			case RESET:
-				return CollectionUtils.array(Number.class);
-		}
-		return null;
+		return switch (mode) {
+			case SET, ADD, REMOVE, RESET -> CollectionUtils.array(Number.class);
+			default -> null;
+		};
 	}
 
 	@Override
@@ -45,16 +41,9 @@ public class ExprWorldBorderWarningDistance extends SimplePropertyExpression<Wor
 		int input = mode == ChangeMode.RESET ? 5 : ((Number) delta[0]).intValue();
 		for (WorldBorder worldBorder : getExpr().getArray(event)) {
 			switch (mode) {
-				case SET:
-				case RESET:
-					worldBorder.setWarningDistance(input);
-					break;
-				case ADD:
-					worldBorder.setWarningDistance(worldBorder.getWarningDistance() + input);
-					break;
-				case REMOVE:
-					worldBorder.setWarningDistance(worldBorder.getWarningDistance() - input);
-					break;
+				case SET, RESET -> worldBorder.setWarningDistance(input);
+				case ADD -> worldBorder.setWarningDistance(worldBorder.getWarningDistance() + input);
+				case REMOVE -> worldBorder.setWarningDistance(worldBorder.getWarningDistance() - input);
 			}
 		}
 	}
