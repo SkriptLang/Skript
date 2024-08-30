@@ -61,7 +61,7 @@ public class SectionNode extends Node implements Iterable<Node> {
 	@Nullable
 	private NodeMap nodeMap = null;
 	
-	private NodeMap getNodeMap() {
+	public NodeMap getNodeMap() {
 		NodeMap nodeMap = this.nodeMap;
 		if (nodeMap == null) {
 			nodeMap = this.nodeMap = new NodeMap();
@@ -349,6 +349,7 @@ public class SectionNode extends Node implements Iterable<Node> {
 					|| value.indexOf(config.separator) == -1
 					|| config.separator.endsWith(":") && value.indexOf(config.separator) == value.length() - config.separator.length()
 					)) {
+//				Skript.adminBroadcast("Looky here");
 				boolean matches = false;
 				try {
 					matches = fullLine.contains("#") && fullLinePattern.matcher(fullLine).matches();

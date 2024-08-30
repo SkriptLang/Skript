@@ -26,11 +26,8 @@ import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
-import ch.njol.skript.lang.Condition;
-import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.Section;
+import ch.njol.skript.lang.*;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
-import ch.njol.skript.lang.TriggerItem;
 import ch.njol.skript.lang.parser.ParserInstance;
 import ch.njol.skript.lang.util.ContextlessEvent;
 import ch.njol.skript.patterns.PatternCompiler;
@@ -82,7 +79,7 @@ public class SecConditional extends Section {
 		{"else [:parse] if [all]", ConditionalType.ELSE_IF},
 		{"[:parse] if (:any|any:at least one [of])", ConditionalType.IF},
 		{"[:parse] if [all]", ConditionalType.IF},
-		{"[:parse] if <.+>", ConditionalType.IF},
+		{"[:parse] if (<.+>|\\(<.+>\\))", ConditionalType.IF},
 		{THEN_PATTERN.toString(), ConditionalType.THEN},
 		{"implicit:<.+>", ConditionalType.IF}
 	});
@@ -91,11 +88,11 @@ public class SecConditional extends Section {
 		Skript.registerSection(SecConditional.class, CONDITIONAL_PATTERNS.getPatterns());
 	}
 
-	private enum ConditionalType {
+	enum ConditionalType {
 		ELSE, ELSE_IF, IF, THEN
 	}
 
-	private ConditionalType type;
+	ConditionalType type;
 	private List<Condition> conditions = new ArrayList<>();
 	private boolean ifAny;
 	private boolean parseIf;
@@ -111,6 +108,12 @@ public class SecConditional extends Section {
 						ParseResult parseResult,
 						SectionNode sectionNode,
 						List<TriggerItem> triggerItems) {
+//		int i = 0;
+//		for (TriggerItem item : triggerItems) {
+//			i++;
+//			Skript.adminBroadcast("" + i + ": " + item.toString());
+//
+//		}
 		type = CONDITIONAL_PATTERNS.getInfo(matchedPattern);
 		ifAny = parseResult.hasTag("any");
 		parseIf = parseResult.hasTag("parse");
@@ -207,8 +210,10 @@ public class SecConditional extends Section {
 				String expr = parseResult.regexes.get(0).group();
 				// Don't print a default error if 'if' keyword wasn't provided
 				Condition condition = Condition.parse(expr, parseResult.hasTag("implicit") ? null : "Can't understand this condition: '" + expr + "'");
-				if (condition != null)
+				if (condition != null) {
+//					Skript.adminBroadcast(condition.toString());
 					conditions.add(condition);
+				}
 			}
 
 			if (parseIf) {
@@ -274,12 +279,19 @@ public class SecConditional extends Section {
 		return super.getNext();
 	}
 
+	public List<Condition> getConditions() {
+		return conditions;
+	}
+
 	@Nullable
 	@Override
 	protected TriggerItem walk(Event event) {
 		if (type == ConditionalType.THEN || (parseIf && !parseIfPassed)) {
 			return getNormalNext();
 		} else if (parseIf || checkConditions(event)) {
+//			for (Condition cond : conditions) {
+//				Skript.adminBroadcast(event.toString() + " : " + cond.toString());
+//			}
 			// if this is a multiline if, we need to run the "then" section instead
 			SecConditional sectionToRun = multiline ? (SecConditional) getNormalNext() : this;
 			TriggerItem skippedNext = getSkippedNext();
@@ -287,6 +299,9 @@ public class SecConditional extends Section {
 				sectionToRun.last.setNext(skippedNext);
 			return sectionToRun.first != null ? sectionToRun.first : skippedNext;
 		} else {
+//			for (Condition cond : conditions) {
+//				Skript.adminBroadcast(event.toString() + " : " + cond.toString());
+//			}
 			return getNormalNext();
 		}
 	}
@@ -331,7 +346,7 @@ public class SecConditional extends Section {
 	 * @return the closest conditional section
 	 */
 	@Nullable
-	private static SecConditional getPrecedingConditional(List<TriggerItem> triggerItems, @Nullable ConditionalType type) {
+	public static SecConditional getPrecedingConditional(List<TriggerItem> triggerItems, @Nullable ConditionalType type) {
 		// loop through the triggerItems in reverse order so that we find the most recent items first
 		for (int i = triggerItems.size() - 1; i >= 0; i--) {
 			TriggerItem triggerItem = triggerItems.get(i);
@@ -346,6 +361,8 @@ public class SecConditional extends Section {
 					// if the conditional matches the type argument, we found our most recent preceding conditional section
 					return conditionalSection;
 				}
+			} else if (triggerItem instanceof EffectSectionEffect) { //   Yes this looks bad, but it shouldn't break anything since it should
+				return new SecConditional(); //                           Only have one case where this happens and gets something back (hopefully)
 			} else {
 				return null;
 			}
@@ -353,7 +370,7 @@ public class SecConditional extends Section {
 		return null;
 	}
 
-	private static List<SecConditional> getElseIfs(List<TriggerItem> triggerItems) {
+	public static List<SecConditional> getElseIfs(List<TriggerItem> triggerItems) {
 		List<SecConditional> list = new ArrayList<>();
 		for (int i = triggerItems.size() - 1; i >= 0; i--) {
 			TriggerItem triggerItem = triggerItems.get(i);
@@ -371,7 +388,7 @@ public class SecConditional extends Section {
 		return list;
 	}
 
-	private boolean checkConditions(Event event) {
+	public boolean checkConditions(Event event) {
 		if (conditions.isEmpty()) { // else and then
 			return true;
 		} else if (ifAny) {

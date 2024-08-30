@@ -184,10 +184,10 @@ public abstract class Section extends TriggerSection implements SyntaxElement {
 	}
 
 	@SuppressWarnings("NotNullFieldNotInitialized")
-	protected static class SectionContext extends ParserInstance.Data {
+	public static class SectionContext extends ParserInstance.Data {
 
-		protected SectionNode sectionNode;
-		protected List<TriggerItem> triggerItems;
+		public SectionNode sectionNode;
+		public List<TriggerItem> triggerItems;
 
 		public SectionContext(ParserInstance parserInstance) {
 			super(parserInstance);
