@@ -46,6 +46,7 @@ import ch.njol.skript.lang.SyntaxElementInfo;
 import ch.njol.skript.lang.Trigger;
 import ch.njol.skript.lang.TriggerItem;
 import ch.njol.skript.lang.util.SimpleExpression;
+import ch.njol.skript.localization.ArgsMessage;
 import ch.njol.skript.localization.Language;
 import ch.njol.skript.localization.Message;
 import ch.njol.skript.localization.PluralizingArgsMessage;
@@ -89,10 +90,7 @@ import com.google.common.collect.Lists;
 import com.google.gson.Gson;
 import org.bstats.bukkit.Metrics;
 import org.bstats.charts.SimplePie;
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.Material;
-import org.bukkit.Server;
+import org.bukkit.*;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.entity.Player;
@@ -250,8 +248,16 @@ public final class Skript extends JavaPlugin implements Listener {
 		m_no_scripts = new Message("skript.no scripts");
 	private static final PluralizingArgsMessage m_scripts_loaded = new PluralizingArgsMessage("skript.scripts loaded");
 
-	private static final String WARNING_MESSAGE = "It appears that /reload or another plugin reloaded Skript. This is not supported behaviour and may cause issues.";
-	private static final String RESTART_MESSAGE = "Please consider restarting the server instead.";
+	private static final Message WARNING_MESSAGE = new Message("skript.warning message");
+	private static final Message RESTART_MESSAGE = new Message("skript.restart message");
+
+	public static String getWarningMessage() {
+		return WARNING_MESSAGE.getValueOrDefault("It appears that /reload or another plugin reloaded Skript. This is not supported behaviour and may cause issues.");
+	}
+
+	public static String getRestartMessage() {
+		return RESTART_MESSAGE.getValueOrDefault("Please consider restarting the server instead.");
+	}
 
 	public static ServerPlatform getServerPlatform() {
 		if (classExists("net.glowstone.GlowServer")) {
@@ -931,17 +937,18 @@ public final class Skript extends JavaPlugin implements Listener {
 		Bukkit.getPluginManager().registerEvents(new Listener() {
 			@EventHandler
 			public void onServerReload(ServerLoadEvent event) {
-				if ((event.getType() != ServerLoadEvent.LoadType.RELOAD)) return;
+				if ((event.getType() != ServerLoadEvent.LoadType.RELOAD))
+					return;
 
-				for (Player player : Bukkit.getOnlinePlayers()) {
-					if (player.isOp()) {
-						player.sendMessage(ChatColor.YELLOW + WARNING_MESSAGE);
-						player.sendMessage(ChatColor.YELLOW + RESTART_MESSAGE);
+				for (OfflinePlayer player : Bukkit.getOperators()) {
+					if (player.isOnline()) {
+						player.getPlayer().sendMessage(ChatColor.YELLOW + getWarningMessage());
+						player.getPlayer().sendMessage(ChatColor.YELLOW + getRestartMessage());
 					}
 				}
 
-				Skript.warning(WARNING_MESSAGE);
-				Skript.warning(RESTART_MESSAGE);
+				Skript.warning(getWarningMessage());
+				Skript.warning(getRestartMessage());
 			}
 		}, this);
 
