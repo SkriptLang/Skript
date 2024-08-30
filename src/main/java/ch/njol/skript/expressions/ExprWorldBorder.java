@@ -24,15 +24,15 @@ import org.jetbrains.annotations.Nullable;
 public class ExprWorldBorder extends SimplePropertyExpression<Object, WorldBorder> {
 
 	static {
-		register(ExprWorldBorder.class, WorldBorder.class, "[world[ ]]border", "worlds/players");
+		register(ExprWorldBorder.class, WorldBorder.class, "world[ ]border", "worlds/players");
 	}
 
 	@Override
 	@Nullable
 	public WorldBorder convert(Object object) {
-		if (object instanceof World world)
+		if (object instanceof World world) {
 			return world.getWorldBorder();
-		if (object instanceof Player player) {
+		} else if (object instanceof Player player) {
 			if (player.getWorldBorder() == null)
 				player.setWorldBorder(Bukkit.createWorldBorder());
 			return player.getWorldBorder();
