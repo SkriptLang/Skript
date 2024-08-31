@@ -283,7 +283,7 @@ public abstract class Utils {
 	 * @return Pair of singular string + boolean whether it was plural
 	 */
 	@SuppressWarnings("null")
-	public static NonNullPair<String, Boolean> getEnglishPlural(final String word) {
+	public static NonNullPair<String, Boolean> getEnglishPlural(String word) {
 		assert word != null;
 		if (word.isEmpty())
 			return new NonNullPair<>("", Boolean.FALSE);
@@ -302,9 +302,9 @@ public abstract class Utils {
 	 * @param word
 	 * @return The english plural of the given word
 	 */
-	public static String toEnglishPlural(final String word) {
+	public static String toEnglishPlural(String word) {
 		assert word != null && word.length() != 0;
-		for (final WordEnding ending : plurals) {
+		for (WordEnding ending : plurals) {
 			if (word.endsWith(ending.singular()))
 				return word.substring(0, word.length() - ending.singular().length()) + ending.plural();
 		}
