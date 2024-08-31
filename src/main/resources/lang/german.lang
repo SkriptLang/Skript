@@ -134,7 +134,7 @@ updater:
 	downloaded: Die neueste Version von Skript wurde heruntergeladen! Starte den Server neu oder benutze /reload um die Änderungen zu übernehmen.
 	internal error: Während der Überprüfung auf eine neue Version ist ein interner Fehler aufgetreten. Im Server-Log finden sich weitere Informationen.
 	custom version: Du besitzt eine inoffizielle Version von Skript. Demnach konnte nach keinem Update gesucht werden.
-	nightly build: You're currently running a development build of Skript. No updates will be automatically installed.
+	nightly build: Sie verwenden derzeit eine Entwicklungsversion von Skript. Es werden keine Updates automatisch installiert.
 
 # -- Commands --
 commands:
