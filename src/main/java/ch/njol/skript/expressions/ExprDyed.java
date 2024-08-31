@@ -45,16 +45,14 @@ import java.util.regex.Matcher;
 @Name("Dyed")
 @Description("An expression to return colored items.")
 @Examples({
-		"give player leather chestplate dyed red",
-		"give player potion of invisibility dyed rgb 200, 70, 88",
-		"give player filled map colored rgb(20, 60, 70)",
-		"give player wool painted red"
+	"give player leather chestplate dyed red",
+	"give player potion of invisibility dyed rgb 200, 70, 88",
+	"give player filled map colored rgb(20, 60, 70)",
+	"give player wool painted red"
 })
 @Since("INSERT VERSION")
 public class ExprDyed extends SimpleExpression<ItemType> {
 
-	private static final boolean MAPS_AND_POTIONS_COLORS = Skript.methodExists(PotionMeta.class, "setColor", org.bukkit.Color.class);
-	
 	static {
 		Skript.registerExpression(ExprDyed.class, ItemType.class, ExpressionType.COMBINED, "%itemtypes% (dyed|painted|colo[u]red) %color%");
 	}
@@ -90,11 +88,11 @@ public class ExprDyed extends SimpleExpression<ItemType> {
 				LeatherArmorMeta leatherArmorMeta = (LeatherArmorMeta) meta;
 				leatherArmorMeta.setColor(bukkitColor);
 				item.setItemMeta(leatherArmorMeta);
-			} else if (meta instanceof MapMeta && MAPS_AND_POTIONS_COLORS) {
+			} else if (meta instanceof MapMeta) {
 				MapMeta mapMeta = (MapMeta) meta;
 				mapMeta.setColor(bukkitColor);
 				item.setItemMeta(mapMeta);
-			} else if (meta instanceof PotionMeta && MAPS_AND_POTIONS_COLORS) {
+			} else if (meta instanceof PotionMeta) {
 				PotionMeta potionMeta = (PotionMeta) meta;
 				potionMeta.setColor(bukkitColor);
 				item.setItemMeta(potionMeta);
