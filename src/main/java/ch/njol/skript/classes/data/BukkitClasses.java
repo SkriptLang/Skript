@@ -73,6 +73,7 @@ import org.bukkit.event.player.PlayerTeleportEvent.TeleportCause;
 import org.bukkit.inventory.BlockInventoryHolder;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
+import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.metadata.Metadatable;
 import org.bukkit.potion.PotionEffect;
@@ -1526,6 +1527,14 @@ public class BukkitClasses {
 				.name("Transform Reason")
 				.description("Represents a transform reason of an <a href='events.html#entity transform'>entity transform event</a>.")
 				.since("2.8.0"));
+		if (Skript.classExists("org.bukkit.inventory.ItemFlag"))
+			Classes.registerClass(new EnumClassInfo<>(ItemFlag.class, "itemflag", "item flag")
+				.user("item ?flags?")
+				.name("ItemFlag")
+				.description("This represents the different ItemFlags that can be used on an item",
+					"NOTE: Underscores aren't required, spaces are accepted",
+					"NOTE: These are auto-generated and may differ between server versions.")
+				.since("INSERT VERSION"));
 	}
 
 }

@@ -2323,6 +2323,7 @@ types:
 	material: material¦s @a
 	itemstack: item stack¦s @an
 	itementity: dropped item¦s @a # same as entities.dropped item.name
+	itemflag: item flag¦s @an
 	biome: biome¦s @a
 	potioneffecttype: potion effect type¦s @a
 	potioneffect: potion effect¦s @a
@@ -2377,3 +2378,4 @@ types:
 	# Hooks
 	money: money
 	region: region¦s
+
