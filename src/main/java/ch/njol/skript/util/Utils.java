@@ -282,7 +282,6 @@ public abstract class Utils {
 	 * @param word trimmed string
 	 * @return Pair of singular string + boolean whether it was plural
 	 */
-	@SuppressWarnings("null")
 	public static NonNullPair<String, Boolean> getEnglishPlural(String word) {
 		assert word != null;
 		if (word.isEmpty())
