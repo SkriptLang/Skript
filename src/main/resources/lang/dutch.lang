@@ -1,0 +1,191 @@
+# Default Dutch language file
+
+# Which version of Skript this language file was written for
+version: @version@
+
+# What null (nothing) should show up as in a string/text
+none: <none>
+
+# -- Skript --
+skript:
+	copyright: ~ gemaakt door & © Peter Güttinger oftewel Njol ~
+	prefix: <gray>[<gold>Skript<gray>] <reset>
+	quotes error: Ongeldig gebruik van aanhalingstekens ("). Als je aanhalingstekens wil gebruiken in "aangehaalde tekst", verdubbel ze dan: "".
+	brackets error: Ongeldige hoeveelheid of plaatsing van haakjes. Zorg ervoor dat elke openend haakje een bijbehorend sluitend haakje heeft.
+	invalid reload: Skript mag alleen worden herladen door Bukkits '/reload' of Skripts '/skript reload' commando.
+	no scripts: Er zijn geen scripts gevonden, misschien moet je er een paar schrijven ;)
+	no errors: Alle scripts zijn zonder fouten geladen.
+	scripts loaded: %s scripts zijn geladen met in totaal %s structuren in %s
+	finished loading: Klaar met laden.
+
+# -- Skript command --
+skript command:
+	usage: Gebruiksaanwijzing:
+	help:
+		description: Skripts hoofdcommando
+		help: Toont deze hulpmelding. Gebruik '/skript reload/enable/disable/update' voor meer informatie.
+		reload:
+			description: Herlaadt een specifiek script, alle scripts, de configuratie of alles
+			all: Herlaadt de configuratie, alle alliassenconfiguraties en alle scripts
+			config: Herlaadt de hoofdconfiguratie
+			aliases: Herlaadt de alliassenconfiguratie (aliases-english.zip of plugin jar)
+			scripts: Herlaadt alle scripts
+			<script>: Herlaadt een specifiek script of een folder met scripts
+		enable:
+			description: Schakelt alle scripts of een specifiek script in
+			all: Schakelt alle scripts in
+			<script>: Schakelt een specifiek script of een folder met scripts in
+		disable:
+			description: Schakelt alle scripts of een specifiek script uit
+			all: Schakelt alle scripts uit
+			<script>: Schakelt een specifiek script of een folder met scripts uit
+		update:
+			description: Controleert of er updates zijn, laat de lijst met wijzigingen zien of downloadt de nieuwste versie van Skript
+			check: Controleert of er een nieuwe versie is
+			changes: Toont alle wijzigingen sinds de huidige versie
+			download: Downloadt de nieuwste versie
+		info: Toont koppelingen naar de alliassen en documentatie van Skript
+		gen-docs: Genereert documentatie met behulp van docs/templates in de plugin folder
+		test: Gebruikt voor het uitvoeren van interne Skript-tests
+
+	invalid script: Kan het script <grey>'<gold>%s<gold>'<red> niet in de scripts folder vinden!
+	invalid folder: Kan de folder <grey>'<gold>%s<gold>'<red> niet in de scripts folder vinden!
+	reload:
+		warning line info: <gold><bold>Regel %s:<gray> (%s)<reset>\n
+		error line info: <light red><bold>Regel%s:<gray> (%s)<reset>\n
+		reloading: <gold>%s<reset> wordt herladen...
+		reloaded: <lime><gold>%s<lime> is met succes opnieuw geladen. <gray>(<gold>%2$sms<gray>)
+		error: <gold>%2$s <light red>fout¦¦en¦ <light red>tegengekomen tijdens het herladen <gold>%1$s<light red>! <gray>(<gold>%3$sms<gray>)
+		script disabled: <gold>%s<reset> is momenteel uitgeschakeld. Gebruik <gray>/<gold>skript <cyan>enable <red>%s<reset> om het script in te schakelen.
+		warning details: <yellow>    %s<reset>\n
+		error details: <light red>    %s<reset>\n
+		other details: <white>    %s<reset>\n
+		line details: <gold>    Regel: <gray>%s<reset>\n <reset>
+
+		config, aliases and scripts: de configuratie, alliassen en alle scripts
+		scripts: alle scripts
+		main config: de hoofdconfiguratie
+		aliases: de alliassen
+		script: <gold>%s<reset>
+		scripts in folder: alle scripts in <gold>%s<reset>
+		x scripts in folder: <gold>%2$s <lime>script¦¦s¦ in <gold>%1$s<reset>
+		empty folder: <gold>%s<reset> bevat geen ingeschakelde scripts.
+	enable:
+		all:
+			enabling: Alle uitgeschakelde scripts worden ingeschakeld...
+			enabled: Alle eerder uitgeschakelde scripts zijn ingeschakeld en geparset
+			error: <gold>%s <light red>fout¦¦en¦ <light red>tegengekomen bij het parsen van uitgeschakelde scripts!
+			io error: <light red>Kon een of meer scripts niet laden - sommige scripts zijn mogelijk al hernoemd en zullen worden ingeschakeld wanneer de server opnieuw opstart: <gold>%s
+		single:
+			already enabled: <gold>%s<reset> is al ingeschakeld! Gebruik <gray>/<gold>skript <cyan>reload <red>%s<reset> om het script opnieuw te laden als je het hebt aangepast.
+			enabling: <gold>%s<reset> wordt ingeschakeld...
+			enabled: <gold>%s<reset> is met succes ingeschakeld en geparset.
+			error: <gold>%2$s <light red>fout¦¦en¦ <light red>tegengekomen bij het parsen van <gold>%1$s<light red>!
+			io error: <light red>Kon <gold>%s <light red>niet inschakelen: <gold>%s
+		folder:
+			empty: <gold>%s<reset> bevat geen uitgeschakelde scripts.
+			enabling: <gold>%2$s<reset> script¦¦s¦ in <gold>%1$s<reset> word¦t¦en¦ ingeschakeld...
+			enabled: <gold>%2$s<reset> eerder uitgeschakelde scripts in <gold>%1$s<reset> zijn succesvol ingeschakeld en geparset.
+			error: <gold>%2$s <light red>fout¦¦en¦ <light red>tegengekomen bij het parsen van scripts in <gold>%1$s<light red>!
+			io error: <light red>Fout bij het inschakelen van een of meerdere scripts in <gold>%s <light red>(sommige scripts worden mogelijk ingeschakeld wanneer de server opnieuw opstart): <gold>%s
+	disable:
+		all:
+			disabled: Alle scripts zijn met succes uitgeschakeld.
+			io error: <light red>Een of meer scripts konden niet hernoemd worden - sommige scripts zijn mogelijk al hernoemd en worden uitgeschakeld wanneer de server opnieuw wordt opgestart: <gold>%s
+		single:
+			already disabled: <gold>%s<reset> is al uitgeschakeld!
+			disabled: <gold>%s<reset> is succesvol uitgeschakeld.
+			io error: <light red><gold>%s<light red> kon niet worden hernoemd. Het script wordt weer ingeschakeld wanneer je de server opnieuw opstart: <gold>%s
+		folder:
+			empty: <gold>%s<reset> bevat geen ingeschakelde scripts.
+			disabled: <gold>%2$s<reset> script(s) in <gold>%1$s<reset> zijn met succes uitgeschakeld.
+			io error: <light red>Een of meerdere scripts in <gold>%s konden <light red>niet worden uitgeschakeld <light red>(sommige scripts worden mogelijk uitgeschakeld wanneer de server opnieuw opstart): <gold>%s
+	update:
+		# check/download: see Updater
+		changes:
+			# multiple versions:
+			# 	title: <gold>%s<r> update¦ is¦s zijn¦ uitgebracht sinds deze versie (<gold>%s<r>) van Skript:
+			# 	footer: Om de wijzigingen van een versie te tonen kan je <gold>/skript update changes <version><reset> gebruiken.
+			# invalid version: Er zijn geen wijzigingen voor de versie <gold>%s<red> beschikbaar
+			title: <bold><cyan>%s<reset> (%s)
+			next page: <grey>pagina %s van de %s. Gebruik <gold>/skript update changes %s<gray> voor de volgende pagina (hint: gebruik de pijltjestoets omhoog)
+``` not sure about this one tbf
+	info:
+		aliases: Skripts alliassen kunnen hier gevonden worden: <aqua>https://github.com/SkriptLang/skript-aliases
+		documentation: Skripts documentatie kan hier gevonden worden: <aqua>https://docs.skriptlang.org/
+		tutorials: Skripts handleidingen kunnen hier gevonden worden: <aqua>https://docs.skriptlang.org/tutorials
+		version: Skriptversie: <aqua>%s
+		server: Serverversie: <aqua>%s
+		addons: Geïnstalleerde Skript addons: <aqua>%s
+		dependencies: Geïnstalleerde afhankelijkheden: <aqua>%s
+
+# -- Updater --
+updater:
+	not started: Skript heeft nog niet gecontroleerd of je de nieuwste versie hebt. Gebruik <gold>/skript update check<reset> om dit te doen.
+	checking: Zoeken naar de nieuwste versie van Skript...
+	check in progress: Er wordt momenteel gecontroleerd op een nieuwe versie.
+	updater disabled: Het updateprogramma is uitgeschakeld, dus er is niet gecontroleerd op de nieuwste versie van Skript.
+	check error: <red>Er is een fout opgetreden bij het controleren op de nieuwste versie van Skript:<light red> %s
+	running latest version: Je gebruikt momenteel de nieuwste stabiele versie van Skript.
+	running latest version (beta): Je gebruikt momenteel een <i>bèta<r> versie van Skript en er is geen nieuwe <i>stabiele<r> versie beschikbaar. Houd er rekening mee dat je handmatig moet updaten naar nieuwere bètaversies!
+	update available: Er is een nieuwe versie van Skript beschikbaar: <gold>%s<reset> (je gebruikt momenteel <gold>%s<reset>)
+	downloading: Skript downloaden <gold>%s<reset>...
+	download in progress: De nieuwste versie van Skript wordt momenteel gedownload.
+	download error: <red>Er is een fout opgetreden bij het downloaden van de nieuwste versie van Skript:<light red> %s
+	downloaded: De nieuwste versie van Skript is gedownload! Start de server opnieuw op of gebruik /reload om de wijzigingen toe te passen.
+	internal error: Er is een interne fout opgetreden tijdens het zoeken naar de nieuwste versie van Skript. Raadpleeg het serverlogboek voor meer informatie.
+	custom version: Je gebruikt momenteel een aangepaste Skript-versie. Er worden geen updates automatisch geïnstalleerd.
+	nightly build: Je gebruikt momenteel een ontwikkelingsversie van Skript. Er worden geen updates automatisch geïnstalleerd.
+
+# -- Commands --
+commands:
+	no permission message: Je hebt niet de vereiste rechten om dit commando te gebruiken.
+	cooldown message: Je hebt dit commando te vaak gebruikt. Probeer het later nog eens.
+	executable by players: Dit commando kan alleen worden gebruikt door spelers
+	executable by console: Dit commando kan alleen worden gebruikt door de console
+	correct usage: Correct gebruik:
+	invalid argument: Ongeldig argument <gray>'%s<gray>'<reset>. Toegestaan zijn:
+	too many arguments: Dit commando accepteert alleen %2$s.
+	internal error: Er is een interne fout opgetreden tijdens het uitvoeren van dit commando.
+	no player starts with: Er is geen speler online van wie de naam begint met '%s'
+	multiple players start with: Er zijn meerdere spelers online van wie de naam begint met '%s'
+
+# -- Hooks --
+hooks:
+	hooked: Succesvol aangesloten op %s
+	error: Kan niet aansluiten op %1$s. Dit kan gebeuren als Skript de geïnstalleerde versie van %1$s niet ondersteunt.
+
+# -- Aliases --
+aliases:
+	# Errors and warnings
+	empty string: '' is geen itemtype
+	invalid item type: '%s' is geen itemtype
+	empty name: Een alias moet een naam hebben
+	brackets error: Ongeldig gebruik van haakjes
+	not enough brackets: Sectie beginnend met karakter %s ('%s') moet worden gesloten
+	too many brackets: Karakter %s ('%s') sluit een niet-bestaande sectie
+	unknown variation: De variatie %s is niet eerder gedefinieerd
+	missing aliases: De volgende Minecraft id's hebben geen alliassen:
+	empty alias: Alias heeft geen gedefinieerde Minecraft id of tags
+	invalid minecraft id: Minecraft id %s is niet geldig
+	useless variation: Variatie heeft geen Minecraft id of tags gespecificeerd, dus het is nutteloos
+	invalid tags: Opgegeven tags zijn niet gedefinieerd in geldige JSON
+	unexpected section: Secties zijn hier niet toegestaan
+	invalid variation section: Een sectie zou variatiesectie moeten zijn, maar %s is geen geldige variatienaam
+	outside section: Alliassen moeten in secties worden gezet
+
+	# Other messages
+	loaded x aliases from: %s Nederlandse alliasen geladen uit %s
+	loaded x aliases: totaal %s Nederlandse alliasen geladen
+
+# -- Time --
+time:
+	errors:
+		24 hours: Een dag heeft maar 24 uren
+		12 hours: Bij gebruik van de 12-urenindeling zijn niet meer dan 12 uren mogelijk
+		60 minutes: Een uur heeft maar 60 minuten
+
+# -- IO Exceptions --
+io exceptions:
+	unknownhostexception: Kan niet verbinden met %s
+	accessdeniedexception: Toegang tot %s geweigerd
