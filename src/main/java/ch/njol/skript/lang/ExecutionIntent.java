@@ -10,8 +10,8 @@ import java.util.Objects;
 /**
  * Used to describe the intention of a {@link TriggerItem}.
  * As of now, it is only used to tell whether the item halts the execution or not and print the appropriate warnings.
- * 
- * @see TriggerItem#executionIntent() 
+ *
+ * @see TriggerItem#executionIntent()
  */
 public sealed interface ExecutionIntent extends Comparable<ExecutionIntent>
 		permits ExecutionIntent.StopTrigger, ExecutionIntent.StopSections {
@@ -46,7 +46,7 @@ public sealed interface ExecutionIntent extends Comparable<ExecutionIntent>
 	 */
 	@Contract(value = " -> new", pure = true)
 	static StopSections stopSection() {
-		return new StopSections(1); 
+		return new StopSections(1);
 	}
 
 	/**
@@ -85,53 +85,53 @@ public sealed interface ExecutionIntent extends Comparable<ExecutionIntent>
 	 * Represents a stop sections intent.
 	 * This intent stops the execution of the current section and the specified number of levels.
 	 */
-    final class StopSections implements ExecutionIntent {
+	final class StopSections implements ExecutionIntent {
 
-        private final int levels;
+		private final int levels;
 
-        private StopSections(int levels) {
+		private StopSections(int levels) {
 			this.levels = levels;
 		}
 
-        public @Nullable ExecutionIntent.StopSections use() {
-            return levels > 1 ? new StopSections(levels - 1) : null;
-        }
+		public @Nullable ExecutionIntent.StopSections use() {
+			return levels > 1 ? new StopSections(levels - 1) : null;
+		}
 
-        @Override
-        public int compareTo(@NotNull ExecutionIntent other) {
-            if (!(other instanceof StopSections)) {return other.compareTo(this) * -1;}
-            int levels = ((StopSections) other).levels;
-            return Integer.compare(this.levels, levels);
-        }
+		@Override
+		public int compareTo(@NotNull ExecutionIntent other) {
+			if (!(other instanceof StopSections)) {return other.compareTo(this) * -1;}
+			int levels = ((StopSections) other).levels;
+			return Integer.compare(this.levels, levels);
+		}
 
 		/**
 		 * Returns the number of levels to stop.
-		 * 
+		 *
 		 * @return the number of levels to stop.
 		 */
-        public int levels() {
+		public int levels() {
 			return levels;
 		}
 
-        @Override
-        public boolean equals(Object obj) {
-            if (obj == this)
+		@Override
+		public boolean equals(Object obj) {
+			if (obj == this)
 				return true;
-            if (obj == null || obj.getClass() != this.getClass())
+			if (obj == null || obj.getClass() != this.getClass())
 				return false;
 			return this.levels == ((StopSections) obj).levels;
-        }
+		}
 
-        @Override
-        public int hashCode() {
-            return Objects.hash(levels);
-        }
+		@Override
+		public int hashCode() {
+			return Objects.hash(levels);
+		}
 
-        @Override
-        public String toString() {
-            return "StopSections[levels=" + levels + "]";
-        }
+		@Override
+		public String toString() {
+			return "StopSections[levels=" + levels + "]";
+		}
 
-    }
+	}
 
 }
