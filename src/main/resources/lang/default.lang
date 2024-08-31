@@ -2379,3 +2379,13 @@ types:
 	money: money
 	region: region¦s
 
+# -- Item Flags --
+item flags:
+	hide_additional_tooltip: hide additional tooltip
+	hide_armor_trim: hide armor trim
+	hide_attributes: hide attributes
+	hide_destroys: hide_dye
+	hide_enchants: hide enchants
+	hide_placed_on: hide placed on
+	hide_stored_enchants: hide stored enchants
+	hide_unbreakable: hide unbreakable

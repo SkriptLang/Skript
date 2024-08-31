@@ -16,7 +16,7 @@ import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.Nullable;
 
-@Name("ItemFlag - Item with ItemFlags")
+@Name("Item with ItemFlags")
 @Description("Get an item with ItemFlags.")
 @Examples({"set {_sword} to diamond sword with all item flags",
 	"set {_sword} to diamond sword of sharpness 3 with hide enchants item flag",

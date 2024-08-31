@@ -20,7 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-@Name("ItemFlag - The ItemFlags of an Item")
+@Name("ItemFlags of an Item")
 @Description("Get or Set the ItemFlags of an item")
 @Examples({"set {_flags::*} to item flags of player's tool",
 	"add hide enchants to item flags of player's tool",
@@ -55,10 +55,13 @@ public class ExprItemFlags extends PropertyExpression<ItemType, ItemFlag> {
 	@SuppressWarnings("NullableProblems")
 	@Override
 	public Class<?> @Nullable [] acceptChange(Changer.ChangeMode mode) {
-		if (mode == Changer.ChangeMode.ADD || mode == Changer.ChangeMode.REMOVE) {
-			return CollectionUtils.array(ItemFlag[].class);
-		} else if (mode == Changer.ChangeMode.DELETE || mode == Changer.ChangeMode.RESET) {
-			return CollectionUtils.array();
+		switch (mode) {
+			case ADD, REMOVE -> {
+				return CollectionUtils.array(ItemFlag[].class);
+			}
+			case DELETE, RESET -> {
+				return CollectionUtils.array();
+			}
 		}
 		return null;
 	}
