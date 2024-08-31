@@ -30,14 +30,16 @@ public class EffWorldBorderExpand extends Effect {
 
 	static {
 		Skript.registerEffect(EffWorldBorderExpand.class,
-			"(expand|:shrink) (radius|:diameter) of %worldborders% (by|:to) %number% [over [[a ](time|period) of] %-timespan%]",
-			"(expand|:shrink) %worldborders%'s (radius|:diameter) (by|:to) %number% [over [[a ](time|period) of] %-timespan%]"
+			"(expand|grow) [(diameter|:radius) of] %worldborders% (by|:to) %number% [over [[a ](time|period) of] %-timespan%]",
+			"(expand|grow) %worldborders%['s (diameter|:radius)] (by|:to) %number% [over [[a ](time|period) of] %-timespan%]",
+			"(contract|shrink) [(diameter|:radius) of] %worldborders% (by|:to) %number% [over [[a ](time|period) of] %-timespan%]",
+			"(contract|shrink) %worldborders%['s (diameter|:radius)] (by|:to) %number% [over [[a ](time|period) of] %-timespan%]"
 
 		);
 	}
 
 	private boolean shrink;
-	private boolean diameter;
+	private boolean radius;
 	private boolean to;
 	private Expression<WorldBorder> worldBorders;
 	private Expression<Number> number;
@@ -50,8 +52,8 @@ public class EffWorldBorderExpand extends Effect {
 		worldBorders = (Expression<WorldBorder>) exprs[0];
 		number = (Expression<Number>) exprs[1];
 		timespan = (Expression<Timespan>) exprs[2];
-		shrink = parseResult.hasTag("shrink");
-		diameter = parseResult.hasTag("diameter");
+		shrink = matchedPattern > 1;
+		radius = parseResult.hasTag("radius");
 		to = parseResult.hasTag("to");
 		return true;
 	}
@@ -59,7 +61,7 @@ public class EffWorldBorderExpand extends Effect {
 	@Override
 	protected void execute(Event event) {
 		double input = number.getOptionalSingle(event).orElse(0).doubleValue();
-		if (!diameter)
+		if (radius)
 			input *= 2;
 		long speed = 0;
 		if (timespan != null) {
@@ -85,7 +87,7 @@ public class EffWorldBorderExpand extends Effect {
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
 		return (shrink ? "shrink " : "expand ")
-			+ (diameter ? "diameter " : "radius ") + "of " + worldBorders.toString(event, debug)
+			+ (radius ? "radius " : "diameter ") + "of " + worldBorders.toString(event, debug)
 			+ (to ? " to " : " by ") + number.toString(event, debug)
 			+ (timespan == null ? "" : " over " + timespan.toString(event, debug));
 	}
