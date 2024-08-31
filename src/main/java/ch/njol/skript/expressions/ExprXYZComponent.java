@@ -20,9 +20,9 @@ import org.joml.Quaternionf;
 
 import java.util.Locale;
 
-@Name("Vector/Quaternion - XYZ Component")
+@Name("Vector/Quaternion - WXYZ Component")
 @Description({
-	"Gets or changes the X, Y or Z component of <a href='classes.html#vector'>vectors</a>/<a href='classes.html#quaternion'>quaternions</a>.",
+	"Gets or changes the W, X, Y or Z component of <a href='classes.html#vector'>vectors</a>/<a href='classes.html#quaternion'>quaternions</a>.",
 	"You cannot use the W component with vectors; it is for quaternions only."
 })
 @Examples({

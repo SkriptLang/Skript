@@ -30,7 +30,7 @@ test "vector xyz":
 	assert the x component of {_v::*} is (-1.5, -1.5, and -1.5) with "x component of multiple vectors failed"
 	assert the y component of {_v::*} is (2, 3, and 4) with "changing x component of multiple vectors changed y components too"
 
-test "quaternion xyz" when running minecraft "1.19.4":
+test "quaternion wxyz" when running minecraft "1.19.4":
 	assert the w component of quaternion(1, 0, 0, 0) is 1 with "w vector component failed"
 	assert the x component of quaternion(1, 0, 0, 0) is 0 with "x vector component failed"
 	assert the y component of quaternion(1, 0, 0, 0) is 0 with "y vector component failed"

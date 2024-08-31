@@ -661,7 +661,7 @@ public class DefaultFunctions {
 							return CollectionUtils.array(new Quaternionf(x, y, z, w));
 						}
 					})
-					.description("Returns a quaternion from the given w, x, y and z parameters. ")
+					.description("Returns a quaternion from the given W, X, Y and Z parameters. ")
 					.examples("quaternion(1, 5.6, 45.21, 10)")
 					.since("INSERT VERSION");
 			}
