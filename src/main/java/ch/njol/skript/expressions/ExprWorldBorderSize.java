@@ -21,14 +21,14 @@ import org.jetbrains.annotations.Nullable;
 @Since("INSERT VERSION")
 public class ExprWorldBorderSize extends SimplePropertyExpression<WorldBorder, Double> {
 	static {
-		register(ExprWorldBorderSize.class, Double.class, "world[ ]border (radius|:diameter)", "worldborders");
+		register(ExprWorldBorderSize.class, Double.class, "world[ ]border (size|diameter|:radius)", "worldborders");
 	}
 
-	private boolean diameter;
+	private boolean radius;
 
 	@Override
     public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-        this.diameter = parseResult.hasTag("diameter");
+        radius = parseResult.hasTag("radius");
         setExpr((Expression<? extends WorldBorder>) exprs[0]);
         return true;
     }
@@ -36,7 +36,7 @@ public class ExprWorldBorderSize extends SimplePropertyExpression<WorldBorder, D
 	@Override
 	@Nullable
 	public Double convert(WorldBorder worldBorder) {
-		return worldBorder.getSize() * (diameter ? 1 : 0.5);
+		return worldBorder.getSize() * (radius ? 0.5 : 1);
 	}
 
 	@Override
@@ -50,7 +50,7 @@ public class ExprWorldBorderSize extends SimplePropertyExpression<WorldBorder, D
 
 	@Override
 	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
-		double input = mode == ChangeMode.RESET ? 6.0E7 : Math.max(1, Math.min(((Number) delta[0]).doubleValue() * (diameter ? 1 : 2), 6.0E7));
+		double input = mode == ChangeMode.RESET ? 6.0E7 : Math.max(1, Math.min(((Number) delta[0]).doubleValue() * (radius ? 2 : 1), 6.0E7));
 		for (WorldBorder worldBorder : getExpr().getArray(event)) {
 			switch (mode) {
 				case SET, RESET -> worldBorder.setSize(input);
@@ -72,6 +72,6 @@ public class ExprWorldBorderSize extends SimplePropertyExpression<WorldBorder, D
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return "border " + (diameter ? "diameter" : "radius") + " of " + getExpr().toString(event, debug);
+		return "border " + (radius ? "radius" : "diameter") + " of " + getExpr().toString(event, debug);
 	}
 }
