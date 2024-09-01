@@ -35,16 +35,9 @@ public class ExprBookAuthor extends SimplePropertyExpression<ItemType, String> {
 	@Nullable
 	@Override
 	public Class<?>[] acceptChange(ChangeMode mode) {
-		switch (mode) {
-			case DELETE:
-			case RESET:
-			case SET:
-				return CollectionUtils.array(String.class);
-			case ADD:
-			case REMOVE:
-			case REMOVE_ALL:
-			default:
-				return null;
+		return switch (mode) {
+			case SET, RESET, DELETE -> CollectionUtils.array(String.class);
+			default -> null;
 		}
 	}
 
