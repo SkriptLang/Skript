@@ -42,7 +42,7 @@ public class ExprBookAuthor extends SimplePropertyExpression<ItemType, String> {
 	}
 
 	@Override
-	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
+	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
 		String author = delta == null ? null : (String) delta[0];
 		for (ItemType item : getExpr().getArray(event)) {
 			if (item.getItemMeta() instanceof BookMeta bookMeta) {
