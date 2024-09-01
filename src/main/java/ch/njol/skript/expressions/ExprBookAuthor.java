@@ -32,9 +32,8 @@ public class ExprBookAuthor extends SimplePropertyExpression<ItemType, String> {
 		return item.getItemMeta() instanceof BookMeta bookMeta ? bookMeta.getAuthor() : null;
 	}
 
-	@Nullable
 	@Override
-	public Class<?>[] acceptChange(ChangeMode mode) {
+	public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
 		return switch (mode) {
 			case SET, RESET, DELETE -> CollectionUtils.array(String.class);
 			default -> null;
