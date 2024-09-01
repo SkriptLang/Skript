@@ -38,7 +38,7 @@ public class ExprBookAuthor extends SimplePropertyExpression<ItemType, String> {
 		return switch (mode) {
 			case SET, RESET, DELETE -> CollectionUtils.array(String.class);
 			default -> null;
-		}
+		};
 	}
 
 	@Override
