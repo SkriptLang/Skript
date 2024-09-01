@@ -54,7 +54,7 @@ import java.util.regex.Pattern;
 	"<a href=\"https://hub.spigotmc.org/javadocs/spigot/org/bukkit/Sound.html\">Spigot sound names</a> " +
 	"are supported. Playing resource pack sounds are supported too. The sound category is 'master' by default. ",
 	"",
-	"When running 1.18+, playing a sound from an entity directly will result in the sound coming from said entity, even while moving.",
+	"When running 1.19+, playing a sound from an entity directly will result in the sound coming from said entity, even while moving.",
 	"If the sound is custom, a location emitter will follow the entity. Do note that pitch and volume ",
 	"are reflected based on the entity, and Minecraft may not use the values from this syntax.",
 	"",
@@ -64,17 +64,17 @@ import java.util.regex.Pattern;
 	"Please note that sound names can get changed in any Minecraft or Spigot version, or even removed from Minecraft itself.",
 })
 @Examples({
-	"play sound \"block.note_block.pling\" # It is block.note.pling in 1.12.2",
+	"play sound \"block.note_block.pling\"",
 	"play sound \"entity.experience_orb.pickup\" with volume 0.5 to the player",
 	"play sound \"custom.music.1\" in jukebox category at {speakerBlock}",
 	"play sound \"BLOCK_AMETHYST_BLOCK_RESONATE\" with seed 1 on target entity for the player #1.20.1+"
 })
-@RequiredPlugins("Minecraft 1.18.1+ (entity emitters), Paper 1.19.4+ or Adventure API 4.12.0+ (sound seed)")
+@RequiredPlugins("Minecraft 1.19.4+ (entity emitters), Paper 1.19.4+ or Adventure API 4.12.0+ (sound seed)")
 @Since("2.2-dev28, 2.4 (sound categories), 2.9.0 (sound seed & entity emitter)")
 public class EffPlaySound extends Effect {
 
 	private static final boolean ADVENTURE_API = Skript.classExists("net.kyori.adventure.sound.Sound$Builder");
-	private static final boolean PLAYER_ENTITY_EMITTER = Skript.methodExists(Player.class, "playSound", Entity.class, Sound.class, SoundCategory.class, float.class, float.class);
+	private static final boolean PLAYER_ENTITY_EMITTER = Skript.methodExists(Player.class, "playSound", Entity.class, String.class, SoundCategory.class, float.class, float.class);
 	private static final boolean WORLD_ENTITY_EMITTER = Skript.methodExists(World.class, "playSound", Entity.class, String.class, SoundCategory.class, float.class, float.class);
 	public static final Pattern KEY_PATTERN = Pattern.compile("([a-z0-9._-]+:)?([a-z0-9/._-]+)");
 
