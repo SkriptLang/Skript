@@ -40,7 +40,7 @@ public class CondCanSeeTest extends SkriptJUnitTest {
 
 	@Test
 	public void test() {
-		if (Skript.getMinecraftVersion().isSmallerThan(new Version("1.19")))
+		if (Skript.getMinecraftVersion().isSmallerThan(new Version(1, 19)))
 			return;
 		if (canSeeCondition == null)
 			Assert.fail("Hide entity effect is null");
