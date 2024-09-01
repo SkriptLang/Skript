@@ -28,9 +28,9 @@ public class CondCanSee extends Condition {
 
 	static {
 		Skript.registerCondition(CondCanSee.class,
-				"%entities% (is|are) [:in]visible for %players%",
+				"%entities% (is|are) [visible|:invisible] for %players%",
 				"%players% can see %entities%",
-				"%entities% (is|are)(n't| not) [:in]visible for %players%",
+				"%entities% (is|are)(n't| not) [visible|:invisible] for %players%",
 				"%players% can('t| not) see %entities%");
 	}
 
@@ -49,7 +49,7 @@ public class CondCanSee extends Condition {
 			entities = (Expression<Entity>) exprs[0];
 			viewers = (Expression<Player>) exprs[1];
 		}
-		setNegated(matchedPattern > 1 ^ result.hasTag("in"));
+		setNegated(matchedPattern > 1 ^ result.hasTag("invisible"));
 		return true;
 	}
 
