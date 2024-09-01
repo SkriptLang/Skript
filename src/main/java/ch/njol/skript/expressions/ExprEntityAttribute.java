@@ -18,27 +18,27 @@
  */
 package ch.njol.skript.expressions;
 
-import ch.njol.skript.Skript;
+import ch.njol.skript.expressions.base.PropertyExpression;
+import org.bukkit.attribute.Attribute;
+
+import java.util.Arrays;
+import java.util.Objects;
+
+import org.bukkit.attribute.Attributable;
+import org.bukkit.attribute.AttributeInstance;
+import org.bukkit.entity.Entity;
+import org.bukkit.event.Event;
+
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
-import ch.njol.skript.expressions.base.PropertyExpression;
 import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
-import org.bukkit.attribute.Attributable;
-import org.bukkit.attribute.Attribute;
-import org.bukkit.attribute.AttributeInstance;
-import org.bukkit.entity.Entity;
-import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.Nullable;
-
-import java.util.Objects;
-import java.util.stream.Stream;
+import org.jetbrains.annotations.Nullable;
 
 @Name("Entity Attribute")
 @Description({
@@ -48,77 +48,88 @@ import java.util.stream.Stream;
 })
 @Examples({
 	"on damage of player:",
-		"\tsend \"You are wounded!\" to victim",
-		"\tset victim's attack speed attribute to 2"
+	"\tsend \"You are wounded!\"",
+	"\tset victim's attack speed attribute to 2"
 })
 @Since("2.5, 2.6.1 (final attribute value)")
 public class ExprEntityAttribute extends PropertyExpression<Entity, Number> {
-	
+
 	static {
-		Skript.registerExpression(ExprEntityAttribute.class, Number.class, ExpressionType.COMBINED,
-				"[the] %attributetype% [(1:(total|final|modified))] attribute [value] of %entities%",
-				"%entities%'[s] %attributetype% [(1:(total|final|modified))] attribute [value]");
+		// For backwards compatibility, the 'modified' optional tag can also be placed behind the attribute expression.
+		register(ExprEntityAttribute.class, Number.class, "[(base|1:total|1:final|1:modified)] %attributetype% attribute [value]", "entities");
+		register(ExprEntityAttribute.class, Number.class, "%attributetype% [(base|1:total|1:final|1:modified)] attribute [value]", "entities");
 	}
 
-	@Nullable
-	private Expression<Attribute> attributes;
+	private Expression<Attribute> attributeType;
 	private boolean withModifiers;
 
-	@SuppressWarnings({"null", "unchecked"})
+	@SuppressWarnings("unchecked")
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		attributes = (Expression<Attribute>) exprs[matchedPattern];
+		attributeType = (Expression<Attribute>) exprs[matchedPattern];
 		setExpr((Expression<? extends Entity>) exprs[matchedPattern ^ 1]);
 		withModifiers = parseResult.mark == 1;
 		return true;
 	}
 
 	@Override
-	@SuppressWarnings("null")
 	protected Number[] get(Event event, Entity[] entities) {
-		Attribute attribute = attributes.getSingle(event);
-		return Stream.of(entities)
-		    .map(ent -> getAttribute(ent, attribute))
+		Attribute attribute = attributeType.getSingle(event);
+		if (attribute == null)
+			return new Number[0];
+
+		return Arrays.stream(entities)
+			.filter(ent -> ent instanceof Attributable)
+			.map(ent -> ((Attributable) ent).getAttribute(attribute))
 			.filter(Objects::nonNull)
-		    .map(att -> withModifiers ? att.getValue() : att.getBaseValue())
-		    .toArray(Number[]::new);
+			.map(att -> withModifiers ? att.getValue() : att.getBaseValue())
+			.toArray(Number[]::new);
 	}
 
 	@Override
 	@Nullable
 	public Class<?>[] acceptChange(ChangeMode mode) {
-		if (mode == ChangeMode.REMOVE_ALL || withModifiers)
+		// Only the base value can be changed
+		if (!withModifiers && (mode == ChangeMode.SET || mode == ChangeMode.ADD || mode == ChangeMode.REMOVE || mode == ChangeMode.DELETE || mode == ChangeMode.RESET)) {
+			return CollectionUtils.array(Number.class);
+		} else {
 			return null;
-		return CollectionUtils.array(Number.class);
+		}
 	}
 
 	@Override
-	@SuppressWarnings("null")
 	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
-		Attribute attribute = attributes.getSingle(event);
-		double deltaValue = delta == null ? 0 : ((Number) delta[0]).doubleValue();
+		Attribute attribute = attributeType.getSingle(event);
+		if (attribute == null)
+			return;
+
+		double value = delta == null ? 0 : ((Number) delta[0]).doubleValue();
 		for (Entity entity : getExpr().getArray(event)) {
-			AttributeInstance instance = getAttribute(entity, attribute);
-			if (instance != null) {
-				switch(mode) {
-					case ADD:
-						instance.setBaseValue(instance.getBaseValue() + deltaValue);
-						break;
-					case SET:
-						instance.setBaseValue(deltaValue);
-						break;
-					case DELETE:
-						instance.setBaseValue(0);
-						break;
-					case RESET:
-						instance.setBaseValue(instance.getDefaultValue());
-						break;
-					case REMOVE:
-						instance.setBaseValue(instance.getBaseValue() - deltaValue);
-						break;
-					case REMOVE_ALL:
-						assert false;
-				}
+			if (!(entity instanceof Attributable))
+				continue;
+
+			AttributeInstance instance = ((Attributable) entity).getAttribute(attribute);
+			if (instance == null)
+				continue;
+
+			// Changes to the instance will be visible at once according to documentation
+			switch (mode) {
+				case SET:
+					instance.setBaseValue(value);
+					break;
+				case REMOVE:
+					value = -value;
+				case ADD:
+					instance.setBaseValue(instance.getBaseValue() + value);
+					break;
+				case DELETE:
+					instance.setBaseValue(0);
+					break;
+				case RESET:
+					instance.setBaseValue(instance.getDefaultValue());
+					break;
+				default:
+					return;
 			}
 		}
 	}
@@ -130,16 +141,8 @@ public class ExprEntityAttribute extends PropertyExpression<Entity, Number> {
 
 	@Override
 	@SuppressWarnings("null")
-	public String toString(@Nullable Event event, boolean debug) {
-		return "entity " + getExpr().toString(event, debug) + "'s " + (attributes == null ? "" : attributes.toString(event, debug)) + "attribute";
-	}
-	
-	@Nullable
-	private static AttributeInstance getAttribute(Entity entity, @Nullable Attribute attribute) {
-	    if (attribute != null && entity instanceof Attributable) {
-	        return ((Attributable) entity).getAttribute(attribute);
-	    }
-	   return null;
+	public String toString(@Nullable Event e, boolean debug) {
+		return getExpr().toString(e, debug) + "'s " + (withModifiers ? "total " : "") + attributeType.toString(e, debug) + " attribute";
 	}
 
 }

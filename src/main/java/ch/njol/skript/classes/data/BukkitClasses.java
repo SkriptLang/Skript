@@ -44,6 +44,7 @@ import org.bukkit.SoundCategory;
 import org.bukkit.World;
 import org.bukkit.World.Environment;
 import org.bukkit.attribute.Attribute;
+import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.block.Biome;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
@@ -1490,6 +1491,64 @@ public class BukkitClasses {
 						+ "See <a href='https://minecraft.wiki/w/Attribute#Attributes'>attribute types</a> for more info.",
 					"NOTE: Minecraft namespaces are supported, ex: 'minecraft:generic.attack_damage'.")
 				.since("2.5"));
+
+		Classes.registerClass(new ClassInfo<>(AttributeModifier.class, "attributemodifier")
+				.user("attribute ?modifiers?")
+				.name("Attribute Modifier")
+				.description("Represents a modifier for an attribute of an item.")
+				.examples("set {_mod} to new additive scaling attribute modifier named \"1234\" with amount 1")
+				.since("INSERT VERSION")
+				.parser(new Parser<>() {
+					@Override
+					public boolean canParse(ParseContext context) {
+						return false;
+					}
+
+					@Override
+					public String toString(AttributeModifier am, int flags) {
+						StringBuilder sb = new StringBuilder();
+						if (am.getOperation() == AttributeModifier.Operation.ADD_SCALAR) {
+							sb.append("additively scaling ");
+						} else if (am.getOperation() == AttributeModifier.Operation.MULTIPLY_SCALAR_1) {
+							sb.append("multiplicatively scaling ");
+						}
+						sb.append("attribute modifier named \"")
+							.append(am.getName())
+							.append("\" with amount ")
+							.append(am.getAmount());
+
+						if (am.getSlot() != null)
+							sb.append(" for ");
+						switch (am.getSlot()) {
+							case HAND:
+								sb.append("main hand");
+								break;
+							case OFF_HAND:
+								sb.append("off hand");
+								break;
+							case FEET:
+								sb.append("feet");
+								break;
+							case LEGS:
+								sb.append("leggings slot");
+								break;
+							case CHEST:
+								sb.append("chestplate slot");
+								break;
+							case HEAD:
+								sb.append("helmet slot");
+								break;
+							default:
+								throw new IllegalStateException();
+						}
+						return sb.toString();
+					}
+
+					@Override
+					public String toVariableNameString(AttributeModifier am) {
+						return "attribute modifier: " + am.getName();
+					}
+				}));
 
 		Classes.registerClass(new EnumClassInfo<>(Environment.class, "environment", "environments")
 				.user("(world ?)?environments?")
