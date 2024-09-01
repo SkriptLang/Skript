@@ -18,25 +18,22 @@
  */
 package ch.njol.skript.expressions;
 
-import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.SkriptParser.ParseResult;
-import ch.njol.util.Kleenean;
-import org.bukkit.Material;
-import org.bukkit.event.Event;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.Damageable;
-import org.bukkit.inventory.meta.ItemMeta;
-import org.eclipse.jdt.annotation.Nullable;
-
 import ch.njol.skript.aliases.ItemType;
+import ch.njol.skript.bukkitutil.ItemUtils;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
+import ch.njol.skript.lang.Expression;
+import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.util.slot.Slot;
+import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
+import org.bukkit.event.Event;
+import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.Nullable;
 
 @Name("Damage Value/Durability")
 @Description("The damage value/durability of an item.")
@@ -51,7 +48,7 @@ public class ExprDurability extends SimplePropertyExpression<Object, Integer> {
 	private boolean durability;
 
 	static {
-		register(ExprDurability.class, Integer.class, "(damage[s] [value[s]]|1:durabilit(y|ies))", "itemtypes/slots");
+		register(ExprDurability.class, Integer.class, "(damage[s] [value[s]]|1:durabilit(y|ies))", "itemtypes/itemstacks/slots");
 	}
 
 	@Override
@@ -63,11 +60,11 @@ public class ExprDurability extends SimplePropertyExpression<Object, Integer> {
 	@Override
 	@Nullable
 	public Integer convert(Object object) {
-		ItemType itemType = asItemType(object);
-		if (itemType == null)
+		ItemStack itemStack = ItemUtils.asItemStack(object);
+		if (itemStack == null)
 			return null;
-		ItemMeta meta = itemType.getItemMeta();
-		return meta instanceof Damageable ? convertToDamage(itemType.getMaterial(), ((Damageable) meta).getDamage()) : 0;
+		int damage = ItemUtils.getDamage(itemStack);
+		return convertToDamage(itemStack, damage);
 	}
 
 	@Override
@@ -90,40 +87,38 @@ public class ExprDurability extends SimplePropertyExpression<Object, Integer> {
 		if (mode == ChangeMode.REMOVE)
 			change = -change;
 		for (Object object : getExpr().getArray(event)) {
-			ItemType itemType = asItemType(object);
-			if (itemType == null)
+			ItemStack itemStack = ItemUtils.asItemStack(object);
+			if (itemStack == null)
 				continue;
 
-			ItemMeta meta = itemType.getItemMeta();
-			if (!(meta instanceof Damageable))
-				continue;
-			Damageable damageable = (Damageable) meta;
-
-			Material material = itemType.getMaterial();
+			int newAmount;
 			switch (mode) {
 				case ADD:
 				case REMOVE:
-					int current = convertToDamage(material, damageable.getDamage());
-					damageable.setDamage(convertToDamage(material, current + change));
+					int current = convertToDamage(itemStack, ItemUtils.getDamage(itemStack));
+					newAmount = current + change;
 					break;
 				case SET:
-					damageable.setDamage(convertToDamage(material, change));
+					newAmount = change;
 					break;
-				case DELETE:
-				case RESET:
-					damageable.setDamage(0);
+				default:
+					newAmount = 0;
 			}
 
-			itemType.setItemMeta(meta);
+			ItemUtils.setDamage(itemStack, convertToDamage(itemStack, newAmount));
 			if (object instanceof Slot)
-				((Slot) object).setItem(itemType.getRandom());
+				((Slot) object).setItem(itemStack);
+			else if (object instanceof ItemType)
+				((ItemType) object).setItemMeta(itemStack.getItemMeta());
 		}
 	}
 
-	private int convertToDamage(Material material, int value) {
+	private int convertToDamage(ItemStack itemStack, int value) {
 		if (!durability)
 			return value;
-		int maxDurability = material.getMaxDurability();
+
+		int maxDurability = ItemUtils.getMaxDamage(itemStack);
+
 		if (maxDurability == 0)
 			return 0;
 		return maxDurability - value;
@@ -137,16 +132,6 @@ public class ExprDurability extends SimplePropertyExpression<Object, Integer> {
 	@Override
 	public String getPropertyName() {
 		return durability ? "durability" : "damage";
-	}
-
-	@Nullable
-	private static ItemType asItemType(Object object) {
-		if (object instanceof ItemType)
-			return (ItemType) object;
-		ItemStack itemStack = ((Slot) object).getItem();
-		if (itemStack == null)
-			return null;
-		return new ItemType(itemStack);
 	}
 
 }

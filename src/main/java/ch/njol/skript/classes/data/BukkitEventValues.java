@@ -26,6 +26,7 @@ import java.util.Set;
 import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.Aliases;
 import ch.njol.skript.aliases.ItemType;
+import ch.njol.skript.bukkitutil.InventoryUtils;
 import ch.njol.skript.command.CommandEvent;
 import ch.njol.skript.events.bukkit.ScriptEvent;
 import ch.njol.skript.events.bukkit.SkriptStartEvent;
@@ -41,6 +42,7 @@ import ch.njol.skript.util.Timespan;
 import ch.njol.skript.util.slot.InventorySlot;
 import ch.njol.skript.util.slot.Slot;
 import com.destroystokyo.paper.event.block.AnvilDamagedEvent;
+import com.destroystokyo.paper.event.entity.EndermanAttackPlayerEvent;
 import com.destroystokyo.paper.event.entity.ProjectileCollideEvent;
 import com.destroystokyo.paper.event.player.PlayerArmorChangeEvent;
 import io.papermc.paper.event.entity.EntityMoveEvent;
@@ -85,6 +87,8 @@ import org.bukkit.event.block.BlockGrowEvent;
 import org.bukkit.event.block.BlockIgniteEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.block.SignChangeEvent;
+import org.bukkit.event.block.BellRingEvent;
+import org.bukkit.event.block.BellResonateEvent;
 import org.bukkit.event.enchantment.EnchantItemEvent;
 import org.bukkit.event.enchantment.PrepareItemEnchantEvent;
 import org.bukkit.event.entity.AreaEffectCloudApplyEvent;
@@ -98,8 +102,11 @@ import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.EntityDropItemEvent;
 import org.bukkit.event.entity.EntityEvent;
 import org.bukkit.event.entity.EntityPickupItemEvent;
+import org.bukkit.event.entity.EntityRegainHealthEvent;
+import org.bukkit.event.entity.EntityRegainHealthEvent.RegainReason;
 import org.bukkit.event.entity.EntityResurrectEvent;
 import org.bukkit.event.entity.EntityTameEvent;
+import org.bukkit.event.entity.EntityTeleportEvent;
 import org.bukkit.event.entity.EntityTransformEvent;
 import org.bukkit.event.entity.EntityTransformEvent.TransformReason;
 import org.bukkit.event.entity.FireworkExplodeEvent;
@@ -387,12 +394,11 @@ public final class BukkitEventValues {
 				return new DelayedChangeBlock(e.getBlock());
 			}
 		}, 0);
-		ItemType stationaryWater = Aliases.javaItemType("stationary water");
 		EventValues.registerEventValue(BlockBreakEvent.class, Block.class, new Getter<Block, BlockBreakEvent>() {
 			@Override
 			public Block get(final BlockBreakEvent e) {
 				final BlockState s = e.getBlock().getState();
-				s.setType(s.getType() == Material.ICE ? stationaryWater.getMaterial() : Material.AIR);
+				s.setType(s.getType() == Material.ICE ? Material.WATER : Material.AIR);
 				s.setRawData((byte) 0);
 				return new BlockStateBlock(s, true);
 			}
@@ -620,6 +626,20 @@ public final class BukkitEventValues {
 			}
 		}, 0);
 
+		// EntityTeleportEvent
+		EventValues.registerEventValue(EntityTeleportEvent.class, Location.class, new Getter<Location, EntityTeleportEvent>() {
+			@Override
+			public @Nullable Location get(EntityTeleportEvent event) {
+				return event.getFrom();
+			}
+		}, EventValues.TIME_PAST);
+		EventValues.registerEventValue(EntityTeleportEvent.class, Location.class, new Getter<Location, EntityTeleportEvent>() {
+			@Override
+			public @Nullable Location get(EntityTeleportEvent event) {
+				return event.getTo();
+			}
+		}, EventValues.TIME_NOW);
+
 		// EntityChangeBlockEvent
 		EventValues.registerEventValue(EntityChangeBlockEvent.class, Block.class, new Getter<Block, EntityChangeBlockEvent>() {
 			@Override
@@ -689,6 +709,15 @@ public final class BukkitEventValues {
 				return event.getLightning();
 			}
 		}, 0);
+		// EndermanAttackPlayerEvent
+		if (Skript.classExists("com.destroystokyo.paper.event.entity.EndermanAttackPlayerEvent")) {
+			EventValues.registerEventValue(EndermanAttackPlayerEvent.class, Player.class, new Getter<Player, EndermanAttackPlayerEvent>() {
+				@Override
+				public Player get(EndermanAttackPlayerEvent event) {
+					return event.getPlayer();
+				}
+			}, EventValues.TIME_NOW);
+		}
 
 		// --- PlayerEvents ---
 		EventValues.registerEventValue(PlayerEvent.class, Player.class, new Getter<Player, PlayerEvent>() {
@@ -746,12 +775,11 @@ public final class BukkitEventValues {
 				return e.getBlockClicked().getRelative(e.getBlockFace());
 			}
 		}, -1);
-		ItemType stationaryLava = Aliases.javaItemType("stationary lava");
 		EventValues.registerEventValue(PlayerBucketEmptyEvent.class, Block.class, new Getter<Block, PlayerBucketEmptyEvent>() {
 			@Override
 			public Block get(final PlayerBucketEmptyEvent e) {
 				final BlockState s = e.getBlockClicked().getRelative(e.getBlockFace()).getState();
-				s.setType(e.getBucket() == Material.WATER_BUCKET ? stationaryWater.getMaterial() : stationaryLava.getMaterial());
+				s.setType(e.getBucket() == Material.WATER_BUCKET ? Material.WATER : Material.LAVA);
 				s.setRawData((byte) 0);
 				return new BlockStateBlock(s, true);
 			}
@@ -1225,15 +1253,15 @@ public final class BukkitEventValues {
 				List<Slot> slots = new ArrayList<>(event.getRawSlots().size());
 				InventoryView view = event.getView();
 				for (Integer rawSlot : event.getRawSlots()) {
-					Inventory inventory = view.getInventory(rawSlot);
-					int slot = view.convertSlot(rawSlot);
-					if (inventory == null)
+					Inventory inventory = InventoryUtils.getInventory(view, rawSlot);
+					Integer slot = InventoryUtils.convertSlot(view, rawSlot);
+					if (inventory == null || slot == null)
 						continue;
 					// Not all indices point to inventory slots. Equipment, for example
 					if (inventory instanceof PlayerInventory && slot >= 36) {
 						slots.add(new ch.njol.skript.util.slot.EquipmentSlot(((PlayerInventory) view.getBottomInventory()).getHolder(), slot));
 					} else {
-						slots.add(new InventorySlot(inventory, view.convertSlot(rawSlot)));
+						slots.add(new InventorySlot(inventory, slot));
 					}
 				}
 				return slots.toArray(new Slot[0]);
@@ -1253,7 +1281,9 @@ public final class BukkitEventValues {
 				Set<Inventory> inventories = new HashSet<>();
 				InventoryView view = event.getView();
 				for (Integer rawSlot : event.getRawSlots()) {
-					inventories.add(view.getInventory(rawSlot));
+					Inventory inventory = InventoryUtils.getInventory(view, rawSlot);
+					if (inventory != null)
+						inventories.add(inventory);
 				}
 				return inventories.toArray(new Inventory[0]);
 			}
@@ -1827,6 +1857,44 @@ public final class BukkitEventValues {
 			}
 		}, EventValues.TIME_NOW);
 
+		// BellRingEvent - these are BlockEvents and not EntityEvents, so they have declared methods for getEntity()
+		if (Skript.classExists("org.bukkit.event.block.BellRingEvent")) {
+			EventValues.registerEventValue(BellRingEvent.class, Entity.class, new Getter<Entity, BellRingEvent>() {
+                @Override
+                @Nullable
+                public Entity get(BellRingEvent event) {
+                    return event.getEntity();
+                }
+            }, EventValues.TIME_NOW);
+
+			EventValues.registerEventValue(BellRingEvent.class, Direction.class, new Getter<Direction, BellRingEvent>() {
+                @Override
+                public Direction get(BellRingEvent event) {
+                    return new Direction(event.getDirection(), 1);
+                }
+            }, EventValues.TIME_NOW);
+		} else if (Skript.classExists("io.papermc.paper.event.block.BellRingEvent")) {
+			EventValues.registerEventValue(
+				io.papermc.paper.event.block.BellRingEvent.class, Entity.class,
+				new Getter<Entity, io.papermc.paper.event.block.BellRingEvent>() {
+					@Override
+					@Nullable
+					public Entity get(io.papermc.paper.event.block.BellRingEvent event) {
+						return event.getEntity();
+					}
+				}, EventValues.TIME_NOW);
+		}
+
+		if (Skript.classExists("org.bukkit.event.block.BellResonateEvent")) {
+			EventValues.registerEventValue(BellResonateEvent.class, Entity[].class, new Getter<Entity[], BellResonateEvent>() {
+				@Override
+				@Nullable
+				public Entity[] get(BellResonateEvent event) {
+					return event.getResonatedEntities().toArray(new LivingEntity[0]);
+				}
+			}, EventValues.TIME_NOW);
+		}
+    
 		// InventoryMoveItemEvent
 		EventValues.registerEventValue(InventoryMoveItemEvent.class, Inventory.class, new Getter<Inventory, InventoryMoveItemEvent>() {
 			@Override
@@ -1859,6 +1927,13 @@ public final class BukkitEventValues {
 			}
 		}, EventValues.TIME_NOW);
 
+		// EntityRegainHealthEvent
+		EventValues.registerEventValue(EntityRegainHealthEvent.class, RegainReason.class, new Getter<RegainReason, EntityRegainHealthEvent>() {
+			@Override
+			@Nullable
+			public RegainReason get(EntityRegainHealthEvent event) {
+				return event.getRegainReason();
+			}
+		}, EventValues.TIME_NOW);
 	}
-
 }

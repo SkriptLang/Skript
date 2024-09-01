@@ -19,7 +19,6 @@
 package ch.njol.skript.lang;
 
 import ch.njol.skript.Skript;
-import ch.njol.skript.SkriptConfig;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.expressions.ExprColoured;
@@ -43,9 +42,8 @@ import ch.njol.util.coll.CollectionUtils;
 import ch.njol.util.coll.iterator.SingleItemIterator;
 import com.google.common.collect.Lists;
 import org.bukkit.ChatColor;
-import org.bukkit.OfflinePlayer;
 import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.NotNull;
 import org.skriptlang.skript.lang.script.Script;
 
@@ -62,13 +60,13 @@ public class VariableString implements Expression<String> {
 
 	@Nullable
 	private final Script script;
-	private final String orig;
+	protected final String original;
 
-	@Nullable
-	private final Object[] strings;
 
-	@Nullable
-	private Object[] stringsUnformatted;
+	private final Object @Nullable [] strings;
+
+
+	private Object @Nullable [] stringsUnformatted;
 	private final boolean isSimple;
 
 	@Nullable
@@ -83,15 +81,15 @@ public class VariableString implements Expression<String> {
 
 	/**
 	 * Creates a new VariableString which does not contain variables.
-	 * 
+	 *
 	 * @param input Content for string.
 	 */
-	private VariableString(String input) {
+	protected VariableString(String input) {
 		this.isSimple = true;
 		this.simpleUnformatted = input.replace("%%", "%"); // This doesn't contain variables, so this wasn't done in newInstance!
 		this.simple = Utils.replaceChatStyles(simpleUnformatted);
 
-		this.orig = simple;
+		this.original = simple;
 		this.strings = null;
 		this.mode = StringMode.MESSAGE;
 
@@ -103,13 +101,13 @@ public class VariableString implements Expression<String> {
 
 	/**
 	 * Creates a new VariableString which contains variables.
-	 * 
+	 *
 	 * @param original Original string (unparsed).
 	 * @param strings Objects, some of them are variables.
 	 * @param mode String mode.
 	 */
 	private VariableString(String original, Object[] strings, StringMode mode) {
-		this.orig = original;
+		this.original = original;
 		this.strings = new Object[strings.length];
 		this.stringsUnformatted = new Object[strings.length];
 
@@ -151,7 +149,7 @@ public class VariableString implements Expression<String> {
 	/**
 	 * Creates an instance of VariableString by parsing given string.
 	 * Prints errors and returns null if it is somehow invalid.
-	 * 
+	 *
 	 * @param original Unquoted string to parse.
 	 * @return A new VariableString instance.
 	 */
@@ -224,16 +222,6 @@ public class VariableString implements Expression<String> {
 							log.printErrors("Can't understand this expression: " + original.substring(exprStart + 1, exprEnd));
 							return null;
 						} else {
-							if (
-								mode == StringMode.VARIABLE_NAME &&
-								!SkriptConfig.usePlayerUUIDsInVariableNames.value() &&
-								OfflinePlayer.class.isAssignableFrom(expr.getReturnType())
-							) {
-								Skript.warning(
-										"In the future, players in variable names will use the player's UUID instead of their name. " +
-										"For information on how to make sure your scripts won't be impacted by this change, see https://github.com/SkriptLang/Skript/discussions/6270."
-								);
-							}
 							strings.add(expr);
 						}
 						log.printLog();
@@ -261,7 +249,7 @@ public class VariableString implements Expression<String> {
 
 		// Check if this isn't actually variable string, and return
 		if (strings.size() == 1 && strings.get(0) instanceof String)
-			return new VariableString(original);
+			return new LiteralString(original);
 
 		if (strings.size() == 1 && strings.get(0) instanceof Expression &&
 				((Expression<?>) strings.get(0)).getReturnType() == String.class &&
@@ -295,7 +283,7 @@ public class VariableString implements Expression<String> {
 	/**
 	 * Tests whether a string is correctly quoted, i.e. only has doubled double quotes in it.
 	 * Singular double quotes are only allowed between percentage signs.
-	 * 
+	 *
 	 * @param string The string to test
 	 * @param withQuotes Whether the string must be surrounded by double quotes or not
 	 * @return Whether the string is quoted correctly
@@ -326,7 +314,7 @@ public class VariableString implements Expression<String> {
 
 	/**
 	 * Removes quoted quotes from a string.
-	 * 
+	 *
 	 * @param string The string to remove quotes from
 	 * @param surroundingQuotes Whether the string has quotes at the start & end that should be removed
 	 * @return The string with double quotes replaced with single ones and optionally with removed surrounding quotes.
@@ -340,7 +328,7 @@ public class VariableString implements Expression<String> {
 
 	/**
 	 * Copied from {@code SkriptParser#nextBracket(String, char, char, int, boolean)}, but removed escaping & returns -1 on error.
-	 * 
+	 *
 	 * @param string The string to search in
 	 * @param start Index after the opening bracket
 	 * @return The next closing curly bracket
@@ -495,7 +483,7 @@ public class VariableString implements Expression<String> {
 
 	/**
 	 * Parses all expressions in the string and returns it in chat JSON format.
-	 * 
+	 *
 	 * @param event Event to pass to the expressions.
 	 * @return The input string with all expressions replaced.
 	 */
@@ -523,7 +511,7 @@ public class VariableString implements Expression<String> {
 	/**
 	 * Parses all expressions in the string and returns it.
 	 * If this is a simple string, the event may be null.
-	 * 
+	 *
 	 * @param event Event to pass to the expressions.
 	 * @return The input string with all expressions replaced.
 	 */
@@ -583,7 +571,7 @@ public class VariableString implements Expression<String> {
 
 	/**
 	 * Builds all possible default variable type hints based on the super type of the expression.
-	 * 
+	 *
 	 * @return List<String> of all possible super class code names.
 	 */
 	@NotNull
@@ -639,7 +627,7 @@ public class VariableString implements Expression<String> {
 		if (this.mode == mode || isSimple)
 			return this;
 		try (BlockingLogHandler ignored = new BlockingLogHandler().start()) {
-			VariableString variableString = newInstance(orig, mode);
+			VariableString variableString = newInstance(original, mode);
 			if (variableString == null) {
 				assert false : this + "; " + mode;
 				return this;
