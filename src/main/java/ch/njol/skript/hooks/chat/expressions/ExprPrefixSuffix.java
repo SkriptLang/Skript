@@ -32,11 +32,10 @@ import ch.njol.skript.util.Utils;
 import ch.njol.util.Kleenean;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
-/**
- * @author Peter Güttinger
- */
+import java.util.concurrent.CompletableFuture;
+
 @Name("Prefix/Suffix")
 @Description("The prefix or suffix as defined in the server's chat plugin.")
 @Examples({
@@ -44,9 +43,11 @@ import org.eclipse.jdt.annotation.Nullable;
 	"\tcancel event",
 	"\tbroadcast \"%player's prefix%%player's display name%%player's suffix%: %message%\" to the player's world",
 	"",
-	"set the player's prefix to \"[&lt;red&gt;Admin<reset>] \""
+	"set the player's prefix to \"[&lt;red&gt;Admin<reset>] \"",
+	"",
+	"clear player's prefix"
 })
-@Since("2.0")
+@Since("2.0, INSERT VERSION (delete)")
 @RequiredPlugins({"Vault", "a chat plugin that supports Vault"})
 public class ExprPrefixSuffix extends SimplePropertyExpression<Player, String> {
 	static {
@@ -56,44 +57,58 @@ public class ExprPrefixSuffix extends SimplePropertyExpression<Player, String> {
 	private boolean prefix;
 	
 	@Override
-	public boolean init(final Expression<?>[] exprs, final int matchedPattern, final Kleenean isDelayed, final ParseResult parseResult) {
+	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		prefix = parseResult.mark == 1;
 		return super.init(exprs, matchedPattern, isDelayed, parseResult);
 	}
 	
 	@Override
-	public String convert(final Player p) {
-		return Utils.replaceChatStyles(prefix ? "" + VaultHook.chat.getPlayerPrefix(p) : "" + VaultHook.chat.getPlayerSuffix(p));
+	public String convert(Player player) {
+		return Utils.replaceChatStyles(prefix ? VaultHook.chat.getPlayerPrefix(player) : VaultHook.chat.getPlayerSuffix(player));
 	}
-	
+
 	@Override
-	protected String getPropertyName() {
-		return prefix ? "prefix" : "suffix";
+	@Nullable
+	public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
+		return switch (mode) {
+			case SET -> new Class[] {String.class};
+			case RESET, DELETE -> new Class<?>[0];
+			default -> null;
+		};
 	}
-	
+
+	@Override
+	public void change(Event event,  Object @Nullable [] delta, ChangeMode mode) {
+		CompletableFuture.runAsync(() -> {
+			for (Player player : getExpr().getArray(event)) {
+				switch (mode) {
+					case SET -> {
+						if (prefix) {
+							VaultHook.chat.setPlayerPrefix(player, (String) delta[0]);
+						} else {
+							VaultHook.chat.setPlayerSuffix(player, (String) delta[0]);
+						}
+					}
+					case RESET, DELETE -> {
+						if (prefix) {
+							VaultHook.chat.setPlayerPrefix(player, null);
+						} else {
+							VaultHook.chat.setPlayerSuffix(player, null);
+						}
+					}
+				}
+			}
+		}).join();
+	}
+
 	@Override
 	public Class<? extends String> getReturnType() {
 		return String.class;
 	}
-	
+
 	@Override
-	@Nullable
-	public Class<?>[] acceptChange(final ChangeMode mode) {
-		if (mode == ChangeMode.SET)
-			return new Class[] {String.class};
-		return null;
-	}
-	
-	@Override
-	public void change(final Event e, final @Nullable Object[] delta, final ChangeMode mode) {
-		assert mode == ChangeMode.SET;
-		assert delta != null;
-		for (final Player p : getExpr().getArray(e)) {
-			if (prefix)
-				VaultHook.chat.setPlayerPrefix(p, (String) delta[0]);
-			else
-				VaultHook.chat.setPlayerSuffix(p, (String) delta[0]);
-		}
+	protected String getPropertyName() {
+		return prefix ? "prefix" : "suffix";
 	}
 	
 }
