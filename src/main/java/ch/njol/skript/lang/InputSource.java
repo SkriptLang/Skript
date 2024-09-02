@@ -69,8 +69,7 @@ public interface InputSource {
 	 */
 	class InputData extends ParserInstance.Data {
 
-		@Nullable
-		private InputSource source;
+		private @Nullable InputSource source;
 
 		public InputData(ParserInstance parserInstance) {
 			super(parserInstance);
@@ -92,8 +91,7 @@ public interface InputSource {
 		 *
 		 * @return the source of information.
 		 */
-		@Nullable
-		public InputSource getSource() {
+		public @Nullable InputSource getSource() {
 			return source;
 		}
 

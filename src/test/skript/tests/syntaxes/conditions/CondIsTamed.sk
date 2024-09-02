@@ -1,0 +1,21 @@
+test "is tamed":
+	spawn a horse at (spawn of world "world"):
+		set {_e} to entity
+	spawn an adult zombie at (spawn of world "world"):
+		set {_z} to entity
+
+	assert {_e} is not tamed with "a normally spawned horse should not be tamed"
+
+	tame {_e}
+	assert {_e} is tamed with "taming a horse should do exactly that"
+
+	untame {_e}
+	assert {_e} is not tamed with "untaming a horse should do exactly that"
+
+	tame {_}
+	tame {_z}
+	assert {_} is not tamed with "taming null should do nothing"
+	assert {_z} is not tamed with "taming an invalid entity should do nothing"
+
+	delete entity within {_e}
+	delete entity within {_z}
