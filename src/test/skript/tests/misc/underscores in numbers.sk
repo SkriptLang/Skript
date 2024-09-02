@@ -8,9 +8,13 @@ test "underscores in numbers":
 
 	assert 1_23_456 is 123456 with "1_23_456 is not 123456"
 	assert -1_23_456 is -123456 with "-1_23_456 is not -123456"
-
 	assert 1__23_4 is 1234 with "1__23_4 is not 1234"
-	assert -1__23_4 is -1234 with "-1__23_4 is not 1234"
+	assert -1__23_4 is -1234 with "-1__23_4 is not -1234"
+
+	assert 1_2.3_456 is 12.3456 with "1_2.3_456 is not 12.3456"
+	assert -1_2.3_456 is -12.3456 with "-1_2.3_456 is not -12.3456"
+	assert 1__2.3_4 is 12.34 with "1__2.3_4 is not 12.34"
+	assert -1__2.3_4 is -12.34 with "-1__2.3_4 is not -12.34"
 
 	assert 1_23_456___65665_7354 is 123456656657354 with "1_23_456___65665_7354 is not 123456656657354"
 	assert -1_23_456___65665_7354 is -123456656657354 with "-1_23_456___65665_7354 is not -123456656657354"
