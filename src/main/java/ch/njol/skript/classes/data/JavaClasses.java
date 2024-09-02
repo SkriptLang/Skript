@@ -38,8 +38,8 @@ import java.util.regex.Pattern;
 public class JavaClasses {
 
 	public static final int VARIABLENAME_NUMBERACCURACY = 8;
-	public static final Pattern INTEGER_PATTERN = Pattern.compile("-?\\d+(_*\\d+)*");
-	public static final Pattern NUMBER_PATTERN = Pattern.compile("-?\\d+(_*\\d+)*(?>\\.\\d+(_*\\d+)*)?%?");
+	public static final Pattern INTEGER_PATTERN = Pattern.compile("-?\\d+(_\\d+)*");
+	public static final Pattern NUMBER_PATTERN = Pattern.compile("-?\\d+(_\\d+)*(?>\\.\\d+(_\\d+)*)?%?");
 
 	static {
 		Classes.registerClass(new ClassInfo<>(Object.class, "object")
