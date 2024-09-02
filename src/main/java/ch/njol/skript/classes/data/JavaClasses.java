@@ -64,18 +64,18 @@ public class JavaClasses {
 				.parser(new Parser<Number>() {
 					@Override
 					@Nullable
-					public Number parse(String string, ParseContext context) {
-						if (!NUMBER_PATTERN.matcher(string).matches())
+					public Number parse(String s, ParseContext context) {
+						if (!NUMBER_PATTERN.matcher(s).matches())
 							return null;
-						if (INTEGER_PATTERN.matcher(string).matches()) {
+						if (INTEGER_PATTERN.matcher(s).matches()) {
 							try {
-								return Long.valueOf(string.replace("_", ""));
+								return Long.valueOf(s.replace("_", ""));
 							} catch (NumberFormatException ignored) { }
 						}
 						try {
-							string = string.replace("_", "");
+							s = s.replace("_", "");
 
-							Double d = string.endsWith("%") ? Double.parseDouble(string.substring(0, string.length() - 1)) / 100 : Double.parseDouble(string);
+							Double d = s.endsWith("%") ? Double.parseDouble(s.substring(0, s.length() - 1)) / 100 : Double.parseDouble(s);
 							if (d.isNaN() || d.isInfinite())
 								return null;
 							return d;
