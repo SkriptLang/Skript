@@ -53,15 +53,13 @@ public class ExprDyed extends SimpleExpression<ItemType> {
 	}
 	
 	@Override
-	@Nullable
-	protected ItemType[] get(Event event) {
+	protected ItemType @Nullable [] get(Event event) {
 		Color color = this.color.getSingle(event);
 		if (color == null)
 			return new ItemType[0];
 
 		ItemType[] items = this.items.getArray(event);
-		org.bukkit.Color bukkitColor;
-		bukkitColor = color.asBukkitColor();
+		org.bukkit.Color bukkitColor = color.asBukkitColor();
 
 		for (ItemType item : items) {
 			ItemMeta meta = item.getItemMeta();

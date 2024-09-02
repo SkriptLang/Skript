@@ -24,8 +24,8 @@ import ch.njol.skript.variables.Variables;
 import ch.njol.yggdrasil.Fields;
 import org.bukkit.ChatColor;
 import org.bukkit.DyeColor;
-import org.eclipse.jdt.annotation.NonNull;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.NotSerializableException;
 import java.io.StreamCorruptedException;
@@ -96,7 +96,6 @@ public enum SkriptColor implements Color {
 	
 	@Override
 	public String getName() {
-		assert adjective != null;
 		return toString();
 	}
 	
@@ -106,7 +105,7 @@ public enum SkriptColor implements Color {
 	}
 	
 	@Override
-	public void deserialize(@NonNull Fields fields) throws StreamCorruptedException {
+	public void deserialize(@NotNull Fields fields) throws StreamCorruptedException {
 		dye = fields.getObject("dye", DyeColor.class);
 		chat = fields.getObject("chat", ChatColor.class);
 		try {

@@ -1,6 +1,5 @@
 package ch.njol.skript.expressions;
 
-import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
@@ -26,19 +25,21 @@ import org.bukkit.inventory.meta.LeatherArmorMeta;
 import org.bukkit.inventory.meta.MapMeta;
 import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.material.Colorable;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 @Name("Color of")
 @Description("The <a href='./classes.html#color'>color</a> of an item, can also be used to color chat messages with \"&lt;%color of player's tool%&gt;this text is colored!\".")
 @Examples({
 	"on click on wool:",
-	"\tsend \"This wool block is <%colour of block%>%colour of block%<reset>!\" to player",
-	"\tset the color of the block to black"
+		"\tsend \"This wool block is <%colour of block%>%colour of block%<reset>!\" to player",
+		"\tset the color of the block to black"
 })
 @Since("1.2, INSERT VERSION (potions, maps and leather armor, block colors for MC 1.14+)")
 @Keywords("colour")
@@ -49,10 +50,9 @@ public class ExprColorOf extends SimplePropertyExpression<Object, Color> {
 
 	static {
 		DyeColor[] dyeColors = DyeColor.values();
-		StringBuilder colors = new StringBuilder();
-		for (int i = 0; i < dyeColors.length; i++) {
-			colors.append(dyeColors[i].name()).append(i + 1 != dyeColors.length ? "|" : "");
-		}
+		String colors = Arrays.stream(dyeColors)
+			.map(DyeColor::name)
+			.collect(Collectors.joining("|"));
 		MATERIAL_COLORS_PATTERN = Pattern.compile("^(" + colors + ")_.+");
 		register(ExprColorOf.class, Color.class, "colo[u]r[s]", "blocks/itemtypes/entities/fireworkeffects/slots");
 	}
@@ -63,7 +63,7 @@ public class ExprColorOf extends SimplePropertyExpression<Object, Color> {
 		if (obj instanceof FireworkEffect) {
 			List<Color> colors = new ArrayList<>();
 			((FireworkEffect) obj).getColors().stream()
-				.map(ColorRGB::fromBukkitOrRgbColor)
+				.map(ColorRGB::fromBukkitColor)
 				.forEach(colors::add);
 			return colors.isEmpty() ? null : colors.get(0);
 		}
@@ -89,15 +89,15 @@ public class ExprColorOf extends SimplePropertyExpression<Object, Color> {
 
 			if (meta instanceof LeatherArmorMeta) {
 				LeatherArmorMeta leatherArmorMeta = (LeatherArmorMeta) meta;
-				return ColorRGB.fromBukkitOrRgbColor(leatherArmorMeta.getColor());
+				return ColorRGB.fromBukkitColor(leatherArmorMeta.getColor());
 			} else if (meta instanceof MapMeta) {
 				MapMeta mapMeta = (MapMeta) meta;
 				if (mapMeta.hasColor())
-					return ColorRGB.fromBukkitOrRgbColor(mapMeta.getColor());
+					return ColorRGB.fromBukkitColor(mapMeta.getColor());
 			} else if (meta instanceof PotionMeta) {
 				PotionMeta potionMeta = (PotionMeta) meta;
 				if (potionMeta.hasColor())
-					return ColorRGB.fromBukkitOrRgbColor(potionMeta.getColor());
+					return ColorRGB.fromBukkitColor(potionMeta.getColor());
 			} else {
 				return getMaterialColor(material);
 			}
@@ -135,17 +135,18 @@ public class ExprColorOf extends SimplePropertyExpression<Object, Color> {
 	}
 
 	@Override
-	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
+	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
 		DyeColor originalColor = (mode == ChangeMode.DELETE || mode == ChangeMode.RESET) ? null : ((Color) delta[0]).asDyeColor();
+		org.bukkit.Color bukkitColor = (mode == ChangeMode.DELETE || mode == ChangeMode.RESET) ? null : ((Color) delta[0]).asBukkitColor();
 
 		for (Object obj : getExpr().getArray(event)) {
 			DyeColor color = originalColor; // reset
 			if (obj instanceof Item || obj instanceof ItemType || obj instanceof Slot) {
 				ItemStack stack;
-				if (obj instanceof ItemType) {
-					stack = ((ItemType) obj).getRandom();
-				} else if (obj instanceof Item) {
-					stack = ((Item) obj).getItemStack();
+				if (obj instanceof ItemType itemType) {
+					stack = itemType.getRandom();
+				} else if (obj instanceof Item item) {
+					stack = item.getItemStack();
 				} else {
 					stack = ((Slot) obj).getItem();
 				}
@@ -153,59 +154,63 @@ public class ExprColorOf extends SimplePropertyExpression<Object, Color> {
 				if (stack == null)
 					continue;
 
-				org.bukkit.Color bukkitColor = (mode == ChangeMode.DELETE || mode == ChangeMode.RESET) ? null : ((Color) delta[0]).asBukkitColor();
 				ItemMeta meta = stack.getItemMeta();
-				if (meta instanceof LeatherArmorMeta) {
-					LeatherArmorMeta leatherArmorMeta = (LeatherArmorMeta) meta;
+				if (meta instanceof LeatherArmorMeta leatherArmorMeta) {
 					leatherArmorMeta.setColor(bukkitColor);
 					stack.setItemMeta(leatherArmorMeta);
-				} else if (meta instanceof MapMeta) {
-					MapMeta mapMeta = (MapMeta) meta;
+				} else if (meta instanceof MapMeta mapMeta) {
 					mapMeta.setColor(bukkitColor);
 					stack.setItemMeta(mapMeta);
-				} else if (meta instanceof PotionMeta) {
-					PotionMeta potionMeta = (PotionMeta) meta;
+				} else if (meta instanceof PotionMeta potionMeta) {
 					potionMeta.setColor(bukkitColor);
 					stack.setItemMeta(potionMeta);
 				} else {
-					if (color == null)
-						color = DEFAULT_MATERIAL_COLOR;
+					color = (color == null) ? DEFAULT_MATERIAL_COLOR : color;
 					Material newItem = setMaterialColor(stack.getType(), color);
 					if (newItem == null)
 						continue;
 					ItemMeta oldItemMeta = stack.getItemMeta();
 					stack.setType(newItem);
 					stack.setItemMeta(oldItemMeta);
-					if (obj instanceof ItemType) {
+					if (obj instanceof ItemType itemType) {
 						ItemType newItemType = new ItemType(newItem);
 						newItemType.setItemMeta(oldItemMeta);
-						((ItemType) obj).setTo(newItemType);
-					} else if (obj instanceof Item) {
-						((Item) obj).setItemStack(stack);
-					} else if (obj instanceof Slot)
-						((Slot) obj).setItem(stack);
+						itemType.setTo(newItemType);
+					} else if (obj instanceof Item item) {
+						item.setItemStack(stack);
+					} else if (obj instanceof Slot slot)
+						slot.setItem(stack);
 				}
 			} else if (obj instanceof Colorable) {
 				Colorable colorable = getColorable(obj);
 				if (colorable != null) {
 					colorable.setColor(color);
 				}
-			} else if (obj instanceof Block) {
-				Block block = (Block) obj;
+			} else if (obj instanceof Block block) {
+				Material blockType = block.getType();
+				if (blockType == Material.WHITE_BED || blockType == Material.ORANGE_BED || blockType == Material.MAGENTA_BED ||
+					blockType == Material.LIGHT_BLUE_BED || blockType == Material.YELLOW_BED || blockType == Material.LIME_BED ||
+					blockType == Material.PINK_BED || blockType == Material.GRAY_BED || blockType == Material.LIGHT_GRAY_BED ||
+					blockType == Material.CYAN_BED || blockType == Material.PURPLE_BED || blockType == Material.BLUE_BED ||
+					blockType == Material.BROWN_BED || blockType == Material.GREEN_BED || blockType == Material.RED_BED ||
+					blockType == Material.BLACK_BED || blockType == Material.WHITE_BANNER || blockType == Material.ORANGE_BANNER ||
+					blockType == Material.MAGENTA_BANNER || blockType == Material.LIGHT_BLUE_BANNER || blockType == Material.YELLOW_BANNER ||
+					blockType == Material.LIME_BANNER || blockType == Material.PINK_BANNER || blockType == Material.GRAY_BANNER ||
+					blockType == Material.LIGHT_GRAY_BANNER || blockType == Material.CYAN_BANNER || blockType == Material.PURPLE_BANNER ||
+					blockType == Material.BLUE_BANNER || blockType == Material.BROWN_BANNER || blockType == Material.GREEN_BANNER ||
+					blockType == Material.RED_BANNER || blockType == Material.BLACK_BANNER) {
+					continue;
+				}
 
-				if (color == null)
-					color = DEFAULT_MATERIAL_COLOR;
+				color = (color == null) ? DEFAULT_MATERIAL_COLOR : color;
 
 				Material newBlock = setMaterialColor(block.getType(), color);
 				if (newBlock == null)
 					continue;
 
-				// TODO add special logic for blocks that need it, like banners or beds (beds get broken, and lose their top half, and banners reset their yaw and pitch.)
-				// I tried adding it myself, but it proved to be difficult, and I couldn't figure it out.
 				block.setType(newBlock);
-			} else if (obj instanceof FireworkEffect) {
+			} else if (obj instanceof FireworkEffect effect) {
 				Color[] input = (Color[]) delta;
-				FireworkEffect effect = ((FireworkEffect) obj);
 				switch (mode) {
 					case ADD -> {
 						for (Color inputColor : input)
@@ -239,24 +244,26 @@ public class ExprColorOf extends SimplePropertyExpression<Object, Color> {
 		return "color";
 	}
 
+	@Nullable
 	private static Colorable getColorable(Object object) {
-		if (object instanceof Colorable)
-			return (Colorable) object;
-		if (object instanceof Block)
-			return (Colorable) ((Block) object).getState().getBlockData();
-		if (object instanceof Item)
-			return getColorable(((Item) object).getItemStack());
-		if (object instanceof Slot)
-			return getColorable(((Slot) object).getItem());
-		if (object instanceof ItemType)
-			return getColorable(((ItemType) object).getMaterial());
-		if (object instanceof ItemStack)
-			return getColorable(((ItemStack) object).getType());
+		if (object instanceof Colorable colorable) {
+			return colorable;
+		} else if (object instanceof Block block) {
+			return (Colorable) block.getState().getBlockData();
+		} else if (object instanceof Item item) {
+			return getColorable(item.getItemStack().getType());
+		} else if (object instanceof Slot slot) {
+			return getColorable(slot.getItem().getType());
+		} else if (object instanceof ItemType itemType) {
+			return getColorable(itemType.getMaterial());
+		} else if (object instanceof ItemStack itemStack) {
+			return getColorable(itemStack.getType());
+		}
 		return null;
 	}
 
-	@Nullable
-	private static Color getMaterialColor(@Nullable Material material) {
+
+	private static @Nullable Color getMaterialColor(@Nullable Material material) {
 		if (material == null)
 			return null;
 		String matName = material.name();
@@ -266,11 +273,8 @@ public class ExprColorOf extends SimplePropertyExpression<Object, Color> {
 		return null;
 	}
 
-	@Nullable
-	private static Material setMaterialColor(Material mat, DyeColor color) {
-		if (mat == null)
-			return null;
-		String matName = mat.name();
+	private static @Nullable Material setMaterialColor(Material material, DyeColor color) {
+		String matName = material.name();
 		Matcher matcher = MATERIAL_COLORS_PATTERN.matcher(matName);
 		if (matcher.find())
 			matName = matName.replace(matcher.group(1), color.name());
