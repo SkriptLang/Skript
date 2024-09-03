@@ -130,7 +130,7 @@ public class SecLoop extends LoopSection {
 	protected TriggerItem walk(Event event) {
 		Iterator<?> iter = currentIter.get(event);
 		if (iter == null) {
-			iter = expr instanceof Variable ? ((Variable<?>) expr).variablesIterator(event) : expr.iterator(event);
+			iter = expr instanceof Variable<?> variable ? variable.variablesIterator(event) : expr.iterator(event);
 			if (iter != null) {
 				if (iter.hasNext())
 					currentIter.put(event, iter);
@@ -188,8 +188,8 @@ public class SecLoop extends LoopSection {
 	}
 
 	private static boolean guaranteedToLoop(Expression<?> expression) {
-		if (expression instanceof Literal<?>)
-			return ((Literal<?>) expression).getAll().length > 0;
+		if (expression instanceof Literal<?> literal)
+			return literal.getAll().length > 0;
 		if (!(expression instanceof ExpressionList<?> list))
 			return false;
 

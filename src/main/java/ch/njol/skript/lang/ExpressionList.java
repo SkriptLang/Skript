@@ -307,8 +307,8 @@ public class ExpressionList<T> implements Expression<T> {
 	public List<Expression<? extends T>> getAllExpressions() {
 		List<Expression<? extends T>> expressions = new ArrayList<>();
 		for (Expression<? extends T> expression : this.expressions) {
-			if (expression instanceof ExpressionList<?>) {
-				expressions.addAll(((ExpressionList<? extends T>) expression).getAllExpressions());
+			if (expression instanceof ExpressionList<? extends T> innerList) {
+				expressions.addAll(innerList.getAllExpressions());
 				continue;
 			}
 			expressions.add(expression);

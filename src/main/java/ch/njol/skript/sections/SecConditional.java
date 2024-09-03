@@ -328,7 +328,7 @@ public class SecConditional extends Section {
 	private TriggerItem getSkippedNext() {
 		TriggerItem next = getActualNext();
 		while (next instanceof SecConditional && ((SecConditional) next).type != ConditionalType.IF)
-			next = ((SecConditional) next).getActualNext();
+			next = next.getActualNext();
 		return next;
 	}
 
@@ -368,9 +368,7 @@ public class SecConditional extends Section {
 		// loop through the triggerItems in reverse order so that we find the most recent items first
 		for (int i = triggerItems.size() - 1; i >= 0; i--) {
 			TriggerItem triggerItem = triggerItems.get(i);
-			if (triggerItem instanceof SecConditional) {
-				SecConditional conditionalSection = (SecConditional) triggerItem;
-
+			if (triggerItem instanceof SecConditional conditionalSection) {
 				if (conditionalSection.type == ConditionalType.ELSE) {
 					// if the conditional is an else, return null because it belongs to a different condition and ends
 					// this one
@@ -391,10 +389,9 @@ public class SecConditional extends Section {
 		// loop through the triggerItems in reverse order so that we find the most recent items first
 		for (int i = triggerItems.size() - 1; i >= 0; i--) {
 			TriggerItem triggerItem = triggerItems.get(i);
-			if (!(triggerItem instanceof SecConditional)) 
+			if (!(triggerItem instanceof SecConditional conditional)) 
 				 break;
-			SecConditional conditional = (SecConditional) triggerItem;
-			if (conditional.type == ConditionalType.ELSE)
+            if (conditional.type == ConditionalType.ELSE)
 				// if the conditional is an else, break because it belongs to a different condition and ends
 				// this one
 				break;
@@ -407,13 +404,12 @@ public class SecConditional extends Section {
 		List<SecConditional> list = new ArrayList<>();
 		for (int i = triggerItems.size() - 1; i >= 0; i--) {
 			TriggerItem triggerItem = triggerItems.get(i);
-			if (triggerItem instanceof SecConditional) {
-				SecConditional secConditional = (SecConditional) triggerItem;
-
-				if (secConditional.type == ConditionalType.ELSE_IF)
+			if (triggerItem instanceof SecConditional secConditional) {
+                if (secConditional.type == ConditionalType.ELSE_IF) {
 					list.add(secConditional);
-				else
+				} else {
 					break;
+				}
 			} else {
 				break;
 			}

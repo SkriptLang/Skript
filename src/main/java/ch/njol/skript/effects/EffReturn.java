@@ -109,14 +109,14 @@ public class EffReturn extends Effect {
 
 		TriggerSection parent = getParent();
 		while (parent != null && parent != handler) {
-			if (parent instanceof SectionExitHandler)
-				((SectionExitHandler) parent).exit(event);
+			if (parent instanceof SectionExitHandler exitHandler)
+				exitHandler.exit(event);
 
 			parent = parent.getParent();
 		}
 
-		if (handler instanceof SectionExitHandler)
-			((SectionExitHandler) handler).exit(event);
+		if (handler instanceof SectionExitHandler exitHandler)
+			exitHandler.exit(event);
 
 		return null;
 	}

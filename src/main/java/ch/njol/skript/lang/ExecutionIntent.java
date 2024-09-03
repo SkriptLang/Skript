@@ -99,7 +99,8 @@ public sealed interface ExecutionIntent extends Comparable<ExecutionIntent>
 
 		@Override
 		public int compareTo(@NotNull ExecutionIntent other) {
-			if (!(other instanceof StopSections)) {return other.compareTo(this) * -1;}
+			if (!(other instanceof StopSections))
+				return other.compareTo(this) * -1;
 			int levels = ((StopSections) other).levels;
 			return Integer.compare(this.levels, levels);
 		}

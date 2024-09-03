@@ -118,13 +118,13 @@ public class EffExit extends Effect {
 				assert false : this;
 				return null;
 			}
-			if (node instanceof SectionExitHandler)
-				((SectionExitHandler) node).exit(event);
+			if (node instanceof SectionExitHandler exitHandler)
+				exitHandler.exit(event);
 
 			if (type == EVERYTHING || type == CONDITIONALS && node instanceof SecConditional || type == LOOPS && (node instanceof LoopSection))
 				i--;
 		}
-		return node instanceof LoopSection ? ((LoopSection) node).getActualNext() : node.getNext();
+		return node instanceof LoopSection ? node.getActualNext() : node.getNext();
 	}
 
 	@Override
