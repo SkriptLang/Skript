@@ -40,7 +40,7 @@ import io.papermc.paper.entity.LookAnchor;
 @Name("Look At")
 @Description("Forces the mob(s) or player(s) to look at an entity, vector or location. Vanilla max head pitches range from 10 to 50.")
 @Examples({
-	"force the head of the player to look towards event-entity's feet",
+	"force the player to look towards event-entity's feet",
 	"",
 	"on entity explosion:",
 		"\tset {_player} to the nearest player",
