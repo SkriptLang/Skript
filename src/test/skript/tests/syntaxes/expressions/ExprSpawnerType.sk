@@ -1,0 +1,23 @@
+test "spawner type":
+	set block at event-location to spawner
+	set {_block} to block at event-location
+
+	set spawner type of {_block} to zombie
+	assert spawner type of {_block} is zombie with "Spawner type was set to a Zombie"
+
+	reset spawner type of {_block}
+	assert spawner type of {_block} is pig with "Spawner type was not reset correctly"
+
+	set block at {_block} to air
+
+test "trial spawner type" when running minecraft "1.21":
+	set block at event-location to trial spawner
+	set {_block} to block at event-location
+
+	set spawner type of {_block} to zombie
+	assert spawner type of {_block} is zombie with "Spawner type was set to a Zombie"
+
+	reset spawner type of {_block}
+	assert spawner type of {_block} is pig with "Spawner type was not reset correctly"
+
+	set block at {_block} to air
