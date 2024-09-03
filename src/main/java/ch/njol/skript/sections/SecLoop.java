@@ -90,7 +90,7 @@ public class SecLoop extends LoopSection {
 	private final transient Map<Event, Iterator<?>> currentIter = new WeakHashMap<>();
 
 	private @Nullable TriggerItem actualNext;
-	private boolean guaranteedToRun;
+	private boolean guaranteedToLoop;
 
 	@Override
 	@SuppressWarnings("unchecked")
@@ -118,12 +118,7 @@ public class SecLoop extends LoopSection {
 			return false;
 		}
 
-		if (expr instanceof Literal<?>) {
-			guaranteedToRun = ((Literal<?>) expr).getAll().length > 0;
-		} else if (expr instanceof ExpressionList<?>) {
-			guaranteedToRun = ((ExpressionList<?>) expr).getAllExpressions().stream()
-				.anyMatch(expression -> expression instanceof Literal<?> && ((Literal<?>) expression).getAll().length > 0);
-		}
+		guaranteedToLoop = guaranteedToLoop(expr);
 		loadOptionalCode(sectionNode);
 		super.setNext(this);
 
@@ -156,7 +151,7 @@ public class SecLoop extends LoopSection {
 
 	@Override
 	public @Nullable ExecutionIntent executionIntent() {
-		return guaranteedToRun ? triggerExecutionIntent() : null;
+		return guaranteedToLoop ? triggerExecutionIntent() : null;
 	}
 
 	@Override
@@ -190,6 +185,27 @@ public class SecLoop extends LoopSection {
 		current.remove(event);
 		currentIter.remove(event);
 		super.exit(event);
+	}
+
+	private static boolean guaranteedToLoop(Expression<?> expression) {
+		if (expression instanceof Literal<?>)
+			return ((Literal<?>) expression).getAll().length > 0;
+		if (!(expression instanceof ExpressionList<?> list))
+			return false;
+
+		if (!list.getAnd()) {
+			for (Expression<?> expr : list.getExpressions()) {
+				if (!guaranteedToLoop(expr))
+					return false;
+			}
+			return true;
+		}
+
+		for (Expression<?> expr : list.getExpressions()) {
+			if (guaranteedToLoop(expr))
+				return true;
+		}
+		return false;
 	}
 
 }
