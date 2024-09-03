@@ -23,17 +23,15 @@ import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
-import ch.njol.skript.lang.Effect;
-import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.Literal;
-import ch.njol.skript.lang.LoopSection;
+import ch.njol.skript.lang.*;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
-import ch.njol.skript.lang.TriggerItem;
 import ch.njol.util.Kleenean;
 import ch.njol.util.StringUtils;
 import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.UnknownNullability;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Name("Continue")
@@ -65,35 +63,56 @@ public class EffContinue extends Effect {
 		);
 	}
 
-	@SuppressWarnings("NotNullFieldNotInitialized")
-	private LoopSection loop;
-	@SuppressWarnings("NotNullFieldNotInitialized")
-	private List<LoopSection> innerLoops;
+	private @UnknownNullability LoopSection loop;
+	private @UnknownNullability List<LoopSection> innerLoops;
+	private int breakLevels;
 
 	@Override
 	@SuppressWarnings("unchecked")
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		List<LoopSection> currentLoops = getParser().getCurrentSections(LoopSection.class);
+		List<TriggerSection> sections = getParser().getCurrentSections();
+		innerLoops = new ArrayList<>();
+		int loopLevels = 0;
+		LoopSection lastLoop = null;
 
-		int size = currentLoops.size();
-		if (size == 0) {
+		int level = matchedPattern == 0 ? -1 : ((Literal<Integer>) exprs[0]).getSingle();
+		if (matchedPattern != 0 && level < 1) {
+			Skript.error("Can't continue the " + StringUtils.fancyOrderNumber(level) + " loop");
+			return false;
+		}
+
+		for (TriggerSection section : sections) {
+			if (loop != null)
+				breakLevels++;
+            if (!(section instanceof LoopSection loopSection))
+				continue;
+			loopLevels++;
+			if (level == -1) {
+				lastLoop = loopSection;
+			} else if (loopLevels == level) {
+				loop = loopSection;
+				breakLevels++;
+			} else if (loopLevels > level) {
+				innerLoops.add(loopSection);
+			}
+        }
+
+		if (loopLevels == 0) {
 			Skript.error("The 'continue' effect may only be used in loops");
 			return false;
 		}
 
-		int level = matchedPattern == 0 ? size : ((Literal<Integer>) exprs[0]).getSingle();
-		if (level < 1) {
-			Skript.error("Can't continue the " + StringUtils.fancyOrderNumber(level) + " loop");
-			return false;
-		}
-		if (level > size) {
+		if (level > loopLevels) {
 			Skript.error("Can't continue the " + StringUtils.fancyOrderNumber(level) + " loop as there " +
-				(size == 1 ? "is only 1 loop" : "are only " + size + " loops") + " present");
+				(loopLevels == 1 ? "is only 1 loop" : "are only " + loopLevels + " loops") + " present");
 			return false;
 		}
 
-		loop = currentLoops.get(level - 1);
-		innerLoops = currentLoops.subList(level, size);
+		if (level == -1) {
+			loop = lastLoop;
+			breakLevels++;
+		}
+
 		return true;
 	}
 
@@ -111,8 +130,13 @@ public class EffContinue extends Effect {
 	}
 
 	@Override
+	public @Nullable ExecutionIntent executionIntent() {
+		return ExecutionIntent.stopSections(breakLevels);
+	}
+
+	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return "continue";
+		return "continue" + (loop == null ? "" : " the " + StringUtils.fancyOrderNumber(innerLoops.size() + 1) + " loop");
 	}
 
 }
