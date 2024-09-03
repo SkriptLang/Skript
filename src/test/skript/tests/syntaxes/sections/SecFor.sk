@@ -47,3 +47,15 @@ test "for section":
 
 	delete {_key}
 	delete {_value}
+
+	# 'loop' syntax alternative
+	loop {_key} and {_value} in {_list::*}:
+		assert {_key} is greater than 0 with "Expected key > 0, found %{_key}%"
+		assert {_key} is less than 4 with "Expected key < 4, found %{_key}%"
+		assert {_value} is greater than 0 with "Expected value > 0, found %{_value}%"
+
+	assert {_key} is 3 with "Expected key = 3, found %{_key}%"
+	assert {_value} is 10 with "Expected value = 10, found %{_value}%"
+
+	delete {_key}
+	delete {_value}
