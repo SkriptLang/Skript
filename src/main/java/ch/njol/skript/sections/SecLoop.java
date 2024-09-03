@@ -36,7 +36,8 @@ import ch.njol.skript.util.Container.ContainerType;
 import ch.njol.skript.util.LiteralUtils;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.UnknownNullability;
 
 import java.util.Iterator;
 import java.util.List;
@@ -86,14 +87,13 @@ public class SecLoop extends LoopSection {
 		Skript.registerSection(SecLoop.class, "loop %objects%");
 	}
 
-	@SuppressWarnings("NotNullFieldNotInitialized")
-	private Expression<?> expr;
+	protected @UnknownNullability Expression<?> expression;
 
-	private final transient Map<Event, Object> current = new WeakHashMap<>();
-	private final transient Map<Event, Iterator<?>> currentIter = new WeakHashMap<>();
+	protected final transient Map<Event, Object> current = new WeakHashMap<>();
+	protected final transient Map<Event, Iterator<?>> iteratorMap = new WeakHashMap<>();
 
 	@Nullable
-	private TriggerItem actualNext;
+	protected TriggerItem actualNext;
 
 	@Override
 	@SuppressWarnings("unchecked")
@@ -103,21 +103,21 @@ public class SecLoop extends LoopSection {
 						ParseResult parseResult,
 						SectionNode sectionNode,
 						List<TriggerItem> triggerItems) {
-		expr = LiteralUtils.defendExpression(exprs[0]);
-		if (!LiteralUtils.canInitSafely(expr)) {
+		expression = LiteralUtils.defendExpression(exprs[0]);
+		if (!LiteralUtils.canInitSafely(expression)) {
 			Skript.error("Can't understand this loop: '" + parseResult.expr.substring(5) + "'");
 			return false;
 		}
 
-		if (Container.class.isAssignableFrom(expr.getReturnType())) {
-			ContainerType type = expr.getReturnType().getAnnotation(ContainerType.class);
+		if (Container.class.isAssignableFrom(expression.getReturnType())) {
+			ContainerType type = expression.getReturnType().getAnnotation(ContainerType.class);
 			if (type == null)
-				throw new SkriptAPIException(expr.getReturnType().getName() + " implements Container but is missing the required @ContainerType annotation");
-			expr = new ContainerExpression((Expression<? extends Container<?>>) expr, type.value());
+				throw new SkriptAPIException(expression.getReturnType().getName() + " implements Container but is missing the required @ContainerType annotation");
+			expression = new ContainerExpression((Expression<? extends Container<?>>) expression, type.value());
 		}
 
-		if (expr.isSingle()) {
-			Skript.error("Can't loop '" + expr + "' because it's only a single value");
+		if (expression.isSingle()) {
+			Skript.error("Can't loop '" + expression + "' because it's only a single value");
 			return false;
 		}
 
@@ -130,12 +130,12 @@ public class SecLoop extends LoopSection {
 	@Override
 	@Nullable
 	protected TriggerItem walk(Event event) {
-		Iterator<?> iter = currentIter.get(event);
+		Iterator<?> iter = iteratorMap.get(event);
 		if (iter == null) {
-			iter = expr instanceof Variable ? ((Variable<?>) expr).variablesIterator(event) : expr.iterator(event);
+			iter = expression instanceof Variable ? ((Variable<?>) expression).variablesIterator(event) : expression.iterator(event);
 			if (iter != null) {
 				if (iter.hasNext())
-					currentIter.put(event, iter);
+					iteratorMap.put(event, iter);
 				else
 					iter = null;
 			}
@@ -153,7 +153,7 @@ public class SecLoop extends LoopSection {
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return "loop " + expr.toString(event, debug);
+		return "loop " + expression.toString(event, debug);
 	}
 
 	@Nullable
@@ -162,7 +162,7 @@ public class SecLoop extends LoopSection {
 	}
 
 	public Expression<?> getLoopedExpression() {
-		return expr;
+		return expression;
 	}
 
 	@Override
@@ -180,7 +180,7 @@ public class SecLoop extends LoopSection {
 	@Override
 	public void exit(Event event) {
 		current.remove(event);
-		currentIter.remove(event);
+		iteratorMap.remove(event);
 		super.exit(event);
 	}
 
