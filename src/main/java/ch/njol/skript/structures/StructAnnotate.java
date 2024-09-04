@@ -8,6 +8,7 @@ import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.MetaSyntaxElement;
 import ch.njol.skript.lang.SkriptParser;
+import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.test.runner.TestMode;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
@@ -41,7 +42,7 @@ public class StructAnnotate extends Structure implements MetaSyntaxElement {
 	private @UnknownNullability Annotation annotation;
 
 	@Override
-	public boolean init(Literal<?>[] arguments, int pattern, SkriptParser.ParseResult result,
+	public boolean init(Literal<?>[] arguments, int pattern, ParseResult result,
 						@Nullable EntryContainer container) {
 		String text = result.regexes.get(0).group().trim();
 		if (text.isEmpty()) {
