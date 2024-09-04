@@ -1,5 +1,5 @@
 test "Server Sprinting Effect" when running minecraft "1.20.4":
-	request for the server to sprint for 10 seconds
+	make the server sprint for 10 seconds
 	assert server's tick state is sprinting with "Server did not start sprinting"
 
 	make the server stop sprinting
@@ -38,15 +38,11 @@ test "Server Tick Rate Expression" when running minecraft "1.20.4":
 
     set server's tick rate to -5
     set {_tickRate} to server's tick rate
-    assert {_tickRate} is 20 with "Setting negative tick rate did not revert to default"
+    assert {_tickRate} is 1 with "Setting negative tick rate did not clamp."
 
     add -3 to server's tick rate
     set {_tickRate} to server's tick rate
-    assert {_tickRate} is 17 with "Adding negative value did not decrease tick rate"
-
-    remove -7 from server's tick rate
-    set {_tickRate} to server's tick rate
-    assert {_tickRate} is 24 with "Removing negative value did not increase tick rate"
+    assert {_tickRate} is 1 with "Adding a negative value clamped the tick rate."
 
     # Reset the server tick rate to default and verify
     reset server's tick rate

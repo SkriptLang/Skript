@@ -1,21 +1,3 @@
-/**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
 package ch.njol.skript.conditions;
 
 import ch.njol.skript.Skript;
@@ -29,7 +11,6 @@ import ch.njol.skript.lang.Condition;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
-import org.bukkit.Bukkit;
 import org.bukkit.ServerTickManager;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
@@ -49,8 +30,8 @@ public class CondServerTickState extends Condition {
 	static {
 		if (ServerUtils.isServerTickManagerPresent())
 			Skript.registerCondition(CondServerTickState.class,
-				"[the] server['s tick[ing] state] is [currently] (:frozen|:stepping|:sprinting|:normal)",
-				"[the] server['s tick[ing] state] is(n't| not) [currently] (:frozen|:stepping|:sprinting|:normal)");
+				"[the] server's tick[ing] state is [currently] (:frozen|:stepping|:sprinting|:normal)",
+				"[the] server's tick[ing] state (isn't|is not) [currently] (:frozen|:stepping|:sprinting|:normal)");
 	}
 
 	private ServerState state;
@@ -63,31 +44,30 @@ public class CondServerTickState extends Condition {
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		String tag = parseResult.tags.get(0).toUpperCase(Locale.ENGLISH);
 		state = ServerState.valueOf(tag);
+		setNegated(matchedPattern == 1);
 		return true;
 	}
-
-
-
 	@Override
 	public boolean check(Event event) {
 		ServerTickManager serverTickManager = ServerUtils.getServerTickManager();
-		switch (state) {
-			case FROZEN:
-				return serverTickManager.isFrozen() != isNegated();
-			case STEPPING:
-				return serverTickManager.isStepping() != isNegated();
-			case SPRINTING:
-				return serverTickManager.isSprinting() != isNegated();
-			case NORMAL:
-				return serverTickManager.isRunningNormally() != isNegated();
-		}
-		return isNegated();
+		boolean result = switch (state) {
+			case FROZEN -> serverTickManager.isFrozen();
+			case STEPPING -> serverTickManager.isStepping();
+			case SPRINTING -> serverTickManager.isSprinting();
+			case NORMAL -> serverTickManager.isRunningNormally();
+		};
+		return isNegated() != result;
 	}
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return "the server's tick state is " + state;
+		String stateStr;
+		if (isNegated()) {
+			stateStr = "the server's tick state isn't ";
+		} else {
+			stateStr = "the server's tick state is ";
+		}
+		return stateStr + state.toString().toLowerCase(Locale.ENGLISH);
 	}
-
 }
 

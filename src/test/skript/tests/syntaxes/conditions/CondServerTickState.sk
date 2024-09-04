@@ -12,7 +12,7 @@ test "Server Tick State Expressions" when running minecraft "1.20.4":
 	unfreeze the server
 
 	# Sprint the server and test
-	request for the server to sprint for 10 seconds
+	make the server sprint for 10 seconds
 	assert server's tick state is sprinting with "Server tick state is not sprinting"
 	make the server stop sprinting
 

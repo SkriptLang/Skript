@@ -1,21 +1,3 @@
-/**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
 package ch.njol.skript.expressions;
 
 import ch.njol.skript.Skript;
@@ -31,6 +13,7 @@ import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
+import ch.njol.util.Math2;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
@@ -68,13 +51,8 @@ public class ExprServerTickRate extends SimpleExpression<Float> {
 
 	public Class<?>[] acceptChange(ChangeMode mode) {
 		switch (mode) {
-			case SET:
-			case ADD:
-			case REMOVE:
-			case RESET:
-				return CollectionUtils.array(Number.class);
-			default:
-				return null;
+			case SET, ADD, REMOVE, RESET -> { return CollectionUtils.array(Number.class); }
+			default -> { return null; }
 		}
 	}
 
@@ -82,20 +60,26 @@ public class ExprServerTickRate extends SimpleExpression<Float> {
 	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
 		float tickRate = ServerUtils.getServerTickManager().getTickRate();
 		float change = delta != null ? ((Number) delta[0]).floatValue() : 0;
+		float newTickRate = tickRate;
+
 		switch (mode) {
 			case SET:
-				ServerUtils.getServerTickManager().setTickRate(change);
+				newTickRate = change;
 				break;
 			case ADD:
-				ServerUtils.getServerTickManager().setTickRate(tickRate + change);
+				newTickRate = tickRate + change;
 				break;
 			case REMOVE:
-				ServerUtils.getServerTickManager().setTickRate(tickRate - change);
+				newTickRate = tickRate - change;
 				break;
 			case RESET:
-				ServerUtils.getServerTickManager().setTickRate(20);
+				newTickRate = 20;
 				break;
 		}
+
+		newTickRate = Math2.fit(newTickRate, 1.0f, 10000f);
+
+		ServerUtils.getServerTickManager().setTickRate(newTickRate);
 	}
 
 	@Override
