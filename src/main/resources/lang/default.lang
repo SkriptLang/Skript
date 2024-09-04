@@ -2227,7 +2227,7 @@ attribute types:
 	generic.scale: generic scale, scale
 	generic.step_height: generic step height, step height
 	generic.water_movement_efficiency: generic water movement efficiency, water movement efficiency
-	horse_jump_strength: horse jump strength
+	horse.jump_strength: horse jump strength
 	player.block_break_speed: player block break speed, block break speed
 	player.block_interaction_range: player block interaction range, block interaction range
 	player.entity_interaction_range: player entity interaction range, entity interaction range
