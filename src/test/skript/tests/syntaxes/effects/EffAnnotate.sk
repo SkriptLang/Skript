@@ -1,3 +1,4 @@
+
 test "annotation":
 	@suppress warnings
 	@suppress errors

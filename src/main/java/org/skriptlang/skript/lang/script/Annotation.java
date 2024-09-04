@@ -34,7 +34,7 @@ import java.util.Objects;
  *
  * <pre>{@code
  * 	on event:
- *        @my cool annotation
+ *      @my cool annotation
  * 		my annotated effect
  * }</pre>
  * <p>
