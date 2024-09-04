@@ -29,6 +29,7 @@ import org.bukkit.Nameable;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
+import org.bukkit.boss.BossBar;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.LivingEntity;
@@ -103,6 +104,11 @@ import net.md_5.bungee.api.chat.BaseComponent;
 	"\t\t\t<li><strong>Name:</strong> The name of the world. Cannot be changed.</li>",
 	"\t\t</ul>",
 	"\t</li>",
+	"\t<li><strong>Boss Bars</strong>",
+	"\t\t<ul>",
+	"\t\t\t<li><strong>Name:</strong> The title of the boss bar.</li>",
+	"\t\t</ul>",
+	"\t</li>",
 	"</ul>"
 })
 @Examples({
@@ -125,7 +131,7 @@ public class ExprName extends SimplePropertyExpression<Object, String> {
 				Skript.methodExists(Bukkit.class, "createInventory", InventoryHolder.class, int.class, Component.class))
 			serializer = BungeeComponentSerializer.get();
 		HAS_GAMERULES = Skript.classExists("org.bukkit.GameRule");
-		register(ExprName.class, String.class, "(1¦name[s]|2¦(display|nick|chat|custom)[ ]name[s])", "offlineplayers/entities/blocks/itemtypes/inventories/slots/worlds"
+		register(ExprName.class, String.class, "(1¦name[s]|2¦(display|nick|chat|custom)[ ]name[s])", "offlineplayers/entities/blocks/bossbars/itemtypes/inventories/slots/worlds"
 			+ (HAS_GAMERULES ? "/gamerules" : ""));
 		register(ExprName.class, String.class, "(3¦(player|tab)[ ]list name[s])", "players");
 	}
@@ -167,7 +173,9 @@ public class ExprName extends SimplePropertyExpression<Object, String> {
 			return mark == 1 ? ((OfflinePlayer) object).getName() : null;
 		} else if (object instanceof Entity) {
 			return ((Entity) object).getCustomName();
-		} else if (object instanceof Block) {
+		} else if (object instanceof BossBar bar) {
+			return bar.getTitle();
+		}else if (object instanceof Block) {
 			BlockState state = ((Block) object).getState();
 			if (state instanceof Nameable)
 				return ((Nameable) state).getCustomName();
@@ -229,6 +237,8 @@ public class ExprName extends SimplePropertyExpression<Object, String> {
 					((Entity) object).setCustomNameVisible(name != null);
 				if (object instanceof LivingEntity)
 					((LivingEntity) object).setRemoveWhenFarAway(name == null);
+			} else if (object instanceof BossBar bar) {
+				bar.setTitle(name);
 			} else if (object instanceof Block) {
 				BlockState state = ((Block) object).getState();
 				if (state instanceof Nameable) {
