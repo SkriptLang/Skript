@@ -70,7 +70,10 @@ public abstract class Section extends TriggerSection implements SyntaxElement {
 	 * (although the loaded code may change it), the calling code must deal with this.
 	 */
 	protected void loadCode(SectionNode sectionNode) {
-		ParserInstance parser = getParser();
+		ParserInstance parser = this.getParser();
+		Set<Annotation> annotations = parser.copyAnnotations();
+		parser.forgetAnnotations(); // scope annotations correctly for section headers
+
 		List<TriggerSection> previousSections = parser.getCurrentSections();
 
 		List<TriggerSection> sections = new ArrayList<>(previousSections);
@@ -81,6 +84,7 @@ public abstract class Section extends TriggerSection implements SyntaxElement {
 			setTriggerItems(ScriptLoader.loadItems(sectionNode));
 		} finally {
 			parser.setCurrentSections(previousSections);
+			parser.replaceAnnotations(annotations);
 		}
 	}
 
