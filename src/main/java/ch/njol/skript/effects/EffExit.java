@@ -77,9 +77,9 @@ public class EffExit extends Effect {
 				int levels = getParser().getCurrentSections(types[type]).size();
 				if (breakLevels > levels) {
 					if (levels == 0) {
-						Skript.error("can't stop any " + names[type] + " as there are no " + names[type] + " present");
+						Skript.error("Can't stop any " + names[type] + " as there are no " + names[type] + " present");
 					} else {
-						Skript.error("can't stop " + breakLevels + " " + names[type] + " as there are only " + levels + " " + names[type] + " present");
+						Skript.error("Can't stop " + breakLevels + " " + names[type] + " as there are only " + levels + " " + names[type] + " present");
 					}
 					return false;
 				}
@@ -89,7 +89,7 @@ public class EffExit extends Effect {
 				List<? extends TriggerSection> sections = getParser().getCurrentSections(types[type]);
 				breakLevels = sections.size();
 				if (sections.isEmpty()) {
-					Skript.error("can't stop any " + names[type] + " as there are no " + names[type] + " present");
+					Skript.error("Can't stop any " + names[type] + " as there are no " + names[type] + " present");
 					return false;
 				}
 				TriggerSection firstSection = sections.get(0);
