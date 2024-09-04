@@ -389,9 +389,9 @@ public class SecConditional extends Section {
 		// loop through the triggerItems in reverse order so that we find the most recent items first
 		for (int i = triggerItems.size() - 1; i >= 0; i--) {
 			TriggerItem triggerItem = triggerItems.get(i);
-			if (!(triggerItem instanceof SecConditional conditional)) 
-				 break;
-            if (conditional.type == ConditionalType.ELSE)
+			if (!(triggerItem instanceof SecConditional conditional))
+				break;
+			if (conditional.type == ConditionalType.ELSE)
 				// if the conditional is an else, break because it belongs to a different condition and ends
 				// this one
 				break;
@@ -405,7 +405,7 @@ public class SecConditional extends Section {
 		for (int i = triggerItems.size() - 1; i >= 0; i--) {
 			TriggerItem triggerItem = triggerItems.get(i);
 			if (triggerItem instanceof SecConditional secConditional) {
-                if (secConditional.type == ConditionalType.ELSE_IF) {
+				if (secConditional.type == ConditionalType.ELSE_IF) {
 					list.add(secConditional);
 				} else {
 					break;
