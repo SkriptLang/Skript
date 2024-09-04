@@ -68,7 +68,8 @@ public class ExprVehicle extends SimplePropertyExpression<Entity, Entity> {
 		register(ExprVehicle.class, Entity.class, "vehicle[s]", "entities");
 
 		// legacy support
-		boolean hasOldMountEvents = Skript.classExists("org.spigotmc.event.entity.EntityMountEvent");
+		boolean hasOldMountEvents = !HAS_NEW_MOUNT_EVENTS &&
+				Skript.classExists("org.spigotmc.event.entity.EntityMountEvent");
 		Class<?> oldMountEventClass = null;
 		MethodHandle oldGetMountHandle = null;
 		Class<?> oldDismountEventClass = null;
