@@ -241,6 +241,8 @@ public class SkriptParser {
 							boolean success = element.init(parseResult.exprs, patternIndex, getParser().getHasDelayBefore(), parseResult);
 							if (success) {
 								log.printLog();
+								if (element.consumeAnnotations())
+									ParserInstance.get().forgetAnnotations();
 								return element;
 							}
 						}
