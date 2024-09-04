@@ -44,7 +44,7 @@ public class EffAnnotate extends Effect implements MetaSyntaxElement {
 	public boolean init(Expression<?>[] expressions, int pattern, Kleenean delayed, ParseResult result) {
 		String text = result.regexes.get(0).group().trim();
 		if (text.isEmpty()) {
-			Skript.error("You must specify a text to annotate.");
+			Skript.error("An empty annotation (@) is not allowed. Please specify an annotation.");
 			return false;
 		}
 		this.annotation = Annotation.create(text);
