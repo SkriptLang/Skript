@@ -31,7 +31,6 @@ import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnknownNullability;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Name("Continue")
@@ -63,56 +62,36 @@ public class EffContinue extends Effect {
 		);
 	}
 
+	// Used for toString
+	private int level;
+
 	private @UnknownNullability LoopSection loop;
-	private @UnknownNullability List<LoopSection> innerLoops;
-	private int breakLevels;
+	private @UnknownNullability List<TriggerSection> innerSections;
 
 	@Override
 	@SuppressWarnings("unchecked")
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		List<TriggerSection> sections = getParser().getCurrentSections();
-		innerLoops = new ArrayList<>();
-		int loopLevels = 0;
-		LoopSection lastLoop = null;
-
-		int level = matchedPattern == 0 ? -1 : ((Literal<Integer>) exprs[0]).getSingle();
+		level = matchedPattern == 0 ? -1 : ((Literal<Integer>) exprs[0]).getSingle();
 		if (matchedPattern != 0 && level < 1) {
 			Skript.error("Can't continue the " + StringUtils.fancyOrderNumber(level) + " loop");
 			return false;
 		}
 
-		for (TriggerSection section : sections) {
-			if (loop != null)
-				breakLevels++;
-            if (!(section instanceof LoopSection loopSection))
-				continue;
-			loopLevels++;
-			if (level == -1) {
-				lastLoop = loopSection;
-			} else if (loopLevels == level) {
-				loop = loopSection;
-				breakLevels++;
-			} else if (loopLevels > level) {
-				innerLoops.add(loopSection);
-			}
-        }
-
-		if (loopLevels == 0) {
+		int loops = getParser().getCurrentSections(LoopSection.class).size();
+		if (loops == 0) {
 			Skript.error("The 'continue' effect may only be used in loops");
 			return false;
 		}
 
-		if (level > loopLevels) {
+		int levels = level == -1 ? 1 : loops - level + 1;
+		if (levels <= 0) {
 			Skript.error("Can't continue the " + StringUtils.fancyOrderNumber(level) + " loop as there " +
-				(loopLevels == 1 ? "is only 1 loop" : "are only " + loopLevels + " loops") + " present");
+				(loops == 1 ? "is only 1 loop" : "are only " + loops + " loops") + " present");
 			return false;
 		}
 
-		if (level == -1) {
-			loop = lastLoop;
-			breakLevels++;
-		}
-
+        innerSections = Section.getSections(levels, LoopSection.class);
+		loop = (LoopSection) innerSections.remove(0);
 		return true;
 	}
 
@@ -122,21 +101,23 @@ public class EffContinue extends Effect {
 	}
 
 	@Override
-	@Nullable
-	protected TriggerItem walk(Event event) {
-		for (LoopSection loop : innerLoops)
-			loop.exit(event);
+	protected @Nullable TriggerItem walk(Event event) {
+		debug(event, false);
+		for (TriggerSection section : innerSections) {
+			if (section instanceof SectionExitHandler exitHandler)
+				exitHandler.exit(event);
+		}
 		return loop;
 	}
 
 	@Override
-	public @Nullable ExecutionIntent executionIntent() {
-		return ExecutionIntent.stopSections(breakLevels);
+	public ExecutionIntent executionIntent() {
+		return ExecutionIntent.stopSections(innerSections.size() + 1);
 	}
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return "continue" + (loop == null ? "" : " the " + StringUtils.fancyOrderNumber(innerLoops.size() + 1) + " loop");
+		return "continue" + (level == -1 ? "" : " the " + StringUtils.fancyOrderNumber(level) + " loop");
 	}
 
 }

@@ -33,6 +33,9 @@ import ch.njol.skript.registrations.Classes;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.UnknownNullability;
+
+import java.util.List;
 
 @Name("Return")
 @Description("Makes a trigger (e.g. a function) return a value")
@@ -51,10 +54,9 @@ public class EffReturn extends Effect {
 		ParserInstance.registerData(ReturnHandlerStack.class, ReturnHandlerStack::new);
 	}
 
-	@SuppressWarnings("NotNullFieldNotInitialized")
-	private ReturnHandler<?> handler;
-	@SuppressWarnings("NotNullFieldNotInitialized")
-	private Expression<?> value;
+	private @UnknownNullability ReturnHandler<?> handler;
+	private @UnknownNullability Expression<?> value;
+	private @UnknownNullability List<TriggerSection> sectionsToExit;
 
 	@Override
 	@SuppressWarnings("unchecked")
@@ -97,6 +99,7 @@ public class EffReturn extends Effect {
 		}
 		value = convertedExpr;
 
+		sectionsToExit = Section.getSectionsUntil((TriggerSection) handler);
 		return true;
 	}
 
@@ -107,18 +110,14 @@ public class EffReturn extends Effect {
 		//noinspection rawtypes,unchecked
 		((ReturnHandler) handler).returnValues(event, value);
 
-		TriggerSection parent = getParent();
-		while (parent != null && parent != handler) {
-			if (parent instanceof SectionExitHandler exitHandler)
+		for (TriggerSection section : sectionsToExit) {
+			if (section instanceof SectionExitHandler exitHandler)
 				exitHandler.exit(event);
-
-			parent = parent.getParent();
 		}
-
 		if (handler instanceof SectionExitHandler exitHandler)
 			exitHandler.exit(event);
 
-		return null;
+		return ((TriggerSection) handler).getNext();
 	}
 
 	@Override
@@ -128,7 +127,7 @@ public class EffReturn extends Effect {
 
 	@Override
 	public ExecutionIntent executionIntent() {
-		return ExecutionIntent.stopTrigger();
+		return ExecutionIntent.stopSections(sectionsToExit.size() + 1);
 	}
 
 	@Override

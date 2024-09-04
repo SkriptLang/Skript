@@ -24,6 +24,7 @@ import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.parser.ParserInstance;
 import ch.njol.util.Kleenean;
+import com.google.common.base.Preconditions;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
@@ -169,6 +170,45 @@ public abstract class Section extends TriggerSection implements SyntaxElement {
 			return;
 		if (!getParser().getHasDelayBefore().isFalse())
 			getParser().setHasDelayBefore(Kleenean.UNKNOWN);
+	}
+
+	/**
+	 * Returns the sections from the current section (inclusive) until the specified section (exclusive).
+	 *
+	 * @param section The section to stop at. (exclusive)
+	 * @return A list of sections from the current section (inclusive) until the specified section (exclusive).
+	 */
+	public static List<TriggerSection> getSectionsUntil(TriggerSection section) {
+		List<TriggerSection> sections = ParserInstance.get().getCurrentSections();
+		return sections.subList(sections.indexOf(section) + 1, sections.size());
+	}
+
+	/**
+	 * Returns a list of sections up to the specified number of levels.
+	 *
+	 * @param levels The number of levels to retrieve.
+	 * @return A list of sections up to the specified number of levels.
+	 */
+	public static List<TriggerSection> getSections(int levels) {
+		Preconditions.checkArgument(levels > 0, "Depth must be at least 1");
+		List<TriggerSection> sections = ParserInstance.get().getCurrentSections();
+		return sections.subList(Math.max(sections.size() - levels, 0), sections.size());
+	}
+
+	/**
+	 * Returns a list of sections to the specified number of levels. Only counting sections of the specified type.
+	 *
+	 * @param levels The number of levels to retrieve.
+	 * @param type The class type of the sections to count.
+	 * @return A list of sections of the specified type up to the specified number of levels.
+	 */
+	public static List<TriggerSection> getSections(int levels, Class<? extends TriggerSection> type) {
+		Preconditions.checkArgument(levels > 0, "Depth must be at least 1");
+		ParserInstance parser = ParserInstance.get();
+		List<? extends TriggerSection> sections = parser.getCurrentSections(type);
+		TriggerSection section = sections.get(Math.max(sections.size() - levels, 0));
+		List<TriggerSection> allSections = parser.getCurrentSections();
+		return allSections.subList(allSections.indexOf(section), allSections.size());
 	}
 
 	@Nullable

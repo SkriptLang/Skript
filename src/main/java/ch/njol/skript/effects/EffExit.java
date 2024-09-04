@@ -25,12 +25,11 @@ import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.*;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
-import ch.njol.skript.lang.parser.ParserInstance;
-import ch.njol.skript.log.ErrorQuality;
 import ch.njol.skript.sections.SecConditional;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.UnknownNullability;
 
 import java.util.List;
 
@@ -38,93 +37,80 @@ import java.util.List;
 @Description("Exits a given amount of loops and conditionals, or the entire trigger.")
 @Examples({
 	"if player has any ore:",
-		"\tstop",
+	"\tstop",
 	"message \"%player% has no ores!\"",
 	"loop blocks above the player:",
-		"\tloop-block is not air:",
-			"\t\texit 2 sections",
-		"\tset loop-block to water"
+	"\tloop-block is not air:",
+	"\t\texit 2 sections",
+	"\tset loop-block to water"
 })
 @Since("<i>unknown</i> (before 2.1)")
 public class EffExit extends Effect {
 
 	static {
 		Skript.registerEffect(EffExit.class,
-				"(exit|stop) [trigger]",
-				"(exit|stop) [(1|a|the|this)] (section|1:loop|2:conditional)",
-				"(exit|stop) <\\d+> (section|1:loop|2:conditional)s",
-				"(exit|stop) all (section|1:loop|2:conditional)s");
+			"(exit|stop) [trigger]",
+			"(exit|stop) [(1|a|the|this)] (section|1:loop|2:conditional)",
+			"(exit|stop) <\\d+> (section|1:loop|2:conditional)s",
+			"(exit|stop) all (section|1:loop|2:conditional)s");
 	}
 
-	private int breakLevels;
-
-	private static final int EVERYTHING = 0;
-	private static final int LOOPS = 1;
-	private static final int CONDITIONALS = 2;
+	@SuppressWarnings("unchecked")
+	private static final Class<? extends TriggerSection>[] types = new Class[]{TriggerSection.class, LoopSection.class, SecConditional.class};
 	private static final String[] names = {"sections", "loops", "conditionals"};
 	private int type;
+
+	private int breakLevels;
+	private @UnknownNullability List<TriggerSection> sectionsToExit;
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parser) {
 		switch (matchedPattern) {
-			case 0:
-				breakLevels = getParser().getCurrentSections().size() + 1;
-				type = EVERYTHING;
-				break;
-			case 1:
-			case 2:
+			case 0 -> {
+				sectionsToExit = getParser().getCurrentSections();
+				breakLevels = sectionsToExit.size() + 1;
+			}
+			case 1, 2 -> {
 				breakLevels = matchedPattern == 1 ? 1 : Integer.parseInt(parser.regexes.get(0).group());
 				type = parser.mark;
-				if (breakLevels > numLevels(type)) {
-					if (numLevels(type) == 0)
-						Skript.error("can't stop any " + names[type] + " as there are no " + names[type] + " present", ErrorQuality.SEMANTIC_ERROR);
-					else
-						Skript.error("can't stop " + breakLevels + " " + names[type] + " as there are only " + numLevels(type) + " " + names[type] + " present", ErrorQuality.SEMANTIC_ERROR);
+				sectionsToExit = Section.getSections(breakLevels, types[type]);
+				int levels = getParser().getCurrentSections(types[type]).size();
+				if (breakLevels > levels) {
+					if (levels == 0) {
+						Skript.error("can't stop any " + names[type] + " as there are no " + names[type] + " present");
+					} else {
+						Skript.error("can't stop " + breakLevels + " " + names[type] + " as there are only " + levels + " " + names[type] + " present");
+					}
 					return false;
 				}
-				break;
-			case 3:
+			}
+			case 3 -> {
 				type = parser.mark;
-				breakLevels = numLevels(type);
-				if (breakLevels == 0) {
-					Skript.error("can't stop any " + names[type] + " as there are no " + names[type] + " present", ErrorQuality.SEMANTIC_ERROR);
+				List<? extends TriggerSection> sections = getParser().getCurrentSections(types[type]);
+				breakLevels = sections.size();
+				if (sections.isEmpty()) {
+					Skript.error("can't stop any " + names[type] + " as there are no " + names[type] + " present");
 					return false;
 				}
-				break;
+				TriggerSection firstSection = sections.get(0);
+				sectionsToExit = Section.getSectionsUntil(firstSection);
+				sectionsToExit.add(0, firstSection);
+			}
 		}
 		return true;
-	}
-
-	private static int numLevels(int type) {
-		List<TriggerSection> currentSections = ParserInstance.get().getCurrentSections();
-		if (type == EVERYTHING)
-			return currentSections.size();
-		int level = 0;
-		for (TriggerSection section : currentSections) {
-			if (type == CONDITIONALS ? section instanceof SecConditional : section instanceof LoopSection)
-				level++;
-		}
-		return level;
 	}
 
 	@Override
 	@Nullable
 	protected TriggerItem walk(Event event) {
 		debug(event, false);
-		TriggerItem node = this;
-		for (int i = breakLevels; i > 0;) {
-			node = node.getParent();
-			if (node == null) {
-				assert false : this;
-				return null;
-			}
-			if (node instanceof SectionExitHandler exitHandler)
+		for (TriggerSection section : sectionsToExit) {
+			if (section instanceof SectionExitHandler exitHandler)
 				exitHandler.exit(event);
-
-			if (type == EVERYTHING || type == CONDITIONALS && node instanceof SecConditional || type == LOOPS && (node instanceof LoopSection))
-				i--;
 		}
-		return node instanceof LoopSection ? node.getActualNext() : node.getNext();
+		if (breakLevels > sectionsToExit.size())
+			return null;
+		return sectionsToExit.get(0).getActualNext();
 	}
 
 	@Override
