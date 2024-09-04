@@ -88,6 +88,7 @@ import org.skriptlang.skript.lang.converter.Converter;
 import org.skriptlang.skript.lang.converter.Converters;
 import org.skriptlang.skript.lang.entry.EntryValidator;
 import org.skriptlang.skript.lang.experiment.ExperimentRegistry;
+import org.skriptlang.skript.lang.script.Annotation;
 import org.skriptlang.skript.lang.script.Script;
 import org.skriptlang.skript.lang.structure.Structure;
 import org.skriptlang.skript.lang.structure.StructureInfo;
@@ -1776,7 +1777,8 @@ public final class Skript extends JavaPlugin implements Listener {
 	 */
 	@SuppressWarnings("null")
 	public static void warning(final String warning) {
-		SkriptLogger.log(Level.WARNING, warning);
+		if (!Annotation.isAnnotationPresent("suppress warnings"))
+			SkriptLogger.log(Level.WARNING, warning);
 	}
 
 	/**
@@ -1784,8 +1786,9 @@ public final class Skript extends JavaPlugin implements Listener {
 	 */
 	@SuppressWarnings("null")
 	public static void error(final @Nullable String error) {
-		if (error != null)
-			SkriptLogger.log(Level.SEVERE, error);
+		if (error == null || Annotation.isAnnotationPresent("suppress errors"))
+			return;
+		SkriptLogger.log(Level.SEVERE, error);
 	}
 
 	/**
@@ -1796,6 +1799,8 @@ public final class Skript extends JavaPlugin implements Listener {
 	 * @param quality
 	 */
 	public static void error(final String error, final ErrorQuality quality) {
+		if (Annotation.isAnnotationPresent("suppress errors"))
+			return;
 		SkriptLogger.log(new LogEntry(SkriptLogger.SEVERE, quality, error));
 	}
 

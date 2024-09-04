@@ -161,7 +161,12 @@ public abstract class Section extends TriggerSection implements SyntaxElement {
 		SectionContext sectionContext = ParserInstance.get().getData(SectionContext.class);
 		//noinspection unchecked,rawtypes
 		return sectionContext.modify(sectionNode, triggerItems,
-			() -> (Section) SkriptParser.parse(expr, (Iterator) Skript.getSections().iterator(), defaultError));
+			() -> {
+				Section section = (Section) SkriptParser.parse(expr, (Iterator) Skript.getSections().iterator(), defaultError);
+				if (section != null && section.consumeAnnotations())
+					ParserInstance.get().forgetAnnotations();
+				return section;
+		});
 	}
 
 	static {

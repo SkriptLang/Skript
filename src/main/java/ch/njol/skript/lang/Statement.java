@@ -66,6 +66,8 @@ public abstract class Statement extends TriggerItem implements SyntaxElement {
 
 			if (statement != null) {
 				log.printLog();
+				if (statement.consumeAnnotations())
+					ParserInstance.get().forgetAnnotations();
 				return statement;
 			}
 
