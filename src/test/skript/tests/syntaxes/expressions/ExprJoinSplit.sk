@@ -14,10 +14,10 @@ test "split strings on string":
 	assert split "abc" at "" without trailing string is "a", "b", "c" with "split with empty delimiter without trailing string failed"
 	assert split "abc" at "" with case sensitivity without trailing string is "a", "b", "c" with "split with empty delimiter with case sensitivity without trailing string failed"
 
-	assert split "-x-X" at "x" is "-", "-", "" with "split with delimiter at end failed"
-	assert split "-x-X" at "x" with case sensitivity is "-", "-X" with "split with delimiter at end with case sensitivity failed"
-	assert split "-x-X" at "x" without trailing string is "-", "-" with "split with delimiter at end without trailing string failed"
-	assert split "-x-X" at "x" with case sensitivity without trailing string is "-", "-X" with "split with delimiter at end with case sensitivity without trailing string failed"
+	assert split "-x-X" at "x" is "-", "-", and "" with "split with delimiter at end failed"
+	assert split "-x-X" at "x" with case sensitivity is "-" and "-X" with "split with delimiter at end with case sensitivity failed"
+	assert split "-x-X" at "x" without trailing string is "-" and "-" with "split with delimiter at end without trailing string failed"
+	assert split "-x-X" at "x" with case sensitivity without trailing string is "-" and "-X" with "split with delimiter at end with case sensitivity without trailing string failed"
 
 test "split strings on regex":
 	assert regex split "a b c" at " " is "a", "b", "c" with "regex split failed"
