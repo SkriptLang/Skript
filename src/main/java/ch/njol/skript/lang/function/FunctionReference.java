@@ -32,7 +32,7 @@ import org.skriptlang.skript.lang.converter.Converters;
 import ch.njol.skript.util.LiteralUtils;
 import ch.njol.util.StringUtils;
 import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 import ch.njol.skript.util.Contract;
 
 import java.util.ArrayList;

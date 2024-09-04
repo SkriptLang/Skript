@@ -22,7 +22,7 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.util.SkriptColor;
 import ch.njol.util.StringUtils;
 import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.script.Script;
 
 import java.io.File;

@@ -22,7 +22,7 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Checker;
 import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Iterator;
 

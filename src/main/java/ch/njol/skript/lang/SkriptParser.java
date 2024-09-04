@@ -50,7 +50,7 @@ import ch.njol.util.StringUtils;
 import ch.njol.util.coll.CollectionUtils;
 import com.google.common.primitives.Booleans;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.NotNull;
 import org.skriptlang.skript.lang.script.Script;
 import org.skriptlang.skript.lang.script.ScriptWarning;

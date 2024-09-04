@@ -32,8 +32,8 @@ import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
 import ch.njol.util.coll.iterator.ArrayIterator;
 import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.NonNull;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.converter.Converter;
 import org.skriptlang.skript.lang.converter.ConverterInfo;
 
@@ -304,7 +304,7 @@ public abstract class SimpleExpression<T> implements Expression<T> {
 		return true;
 	}
 
-	protected final boolean setTime(int time, Class<? extends Event> applicableEvent, @NonNull Expression<?>... mustbeDefaultVars) {
+	protected final boolean setTime(int time, Class<? extends Event> applicableEvent, @NotNull Expression<?>... mustbeDefaultVars) {
 		if (getParser().getHasDelayBefore() == Kleenean.TRUE && time != 0) {
 			Skript.error("Can't use time states after the event has already passed.");
 			return false;
