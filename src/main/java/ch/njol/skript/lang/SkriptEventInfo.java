@@ -19,11 +19,12 @@
 package ch.njol.skript.lang;
 
 import ch.njol.skript.SkriptAPIException;
+import ch.njol.skript.SkriptConfig;
+import ch.njol.skript.lang.SkriptEvent.ListeningBehavior;
 import org.bukkit.event.Event;
 import org.bukkit.event.player.PlayerInteractAtEntityEvent;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.structure.StructureInfo;
-import ch.njol.skript.lang.SkriptEvent.ListeningBehavior;
 
 import java.util.Locale;
 
@@ -33,12 +34,8 @@ public final class SkriptEventInfo<E extends SkriptEvent> extends StructureInfo<
 	public final String name;
   
 	private ListeningBehavior listeningBehavior;
-  
-	@Nullable
-	private String[] description, examples, keywords, requiredPlugins;
-
-	@Nullable
-	private String since, documentationID;
+	private String @Nullable [] description, examples, keywords, requiredPlugins;
+	private @Nullable String since, documentationID;
 
 	private final String id;
 
@@ -74,8 +71,8 @@ public final class SkriptEventInfo<E extends SkriptEvent> extends StructureInfo<
 		// uses the name without 'on ' or '*'
 		this.id = "" + name.toLowerCase(Locale.ENGLISH).replaceAll("[#'\"<>/&]", "").replaceAll("\\s+", "_");
 
-		// default listening behavior should be to listen to uncancelled events
-		this.listeningBehavior = ListeningBehavior.UNCANCELLED;
+		// default listening behavior should be dependent on config setting
+		this.listeningBehavior = SkriptConfig.listenCancelledByDefault.value() ? ListeningBehavior.ANY : ListeningBehavior.UNCANCELLED;
 	}
   
 	/**
@@ -179,33 +176,28 @@ public final class SkriptEventInfo<E extends SkriptEvent> extends StructureInfo<
 		return listeningBehavior;
 	}
   
-	@Nullable
-	public String[] getDescription() {
+	public String @Nullable [] getDescription() {
 		return description;
 	}
 
-	@Nullable
-	public String[] getExamples() {
+	public String @Nullable [] getExamples() {
 		return examples;
 	}
 
-	@Nullable
-	public String[] getKeywords() {
+	public String @Nullable [] getKeywords() {
 		return keywords;
 	}
 
-	@Nullable
-	public String getSince() {
+	public @Nullable String getSince() {
 		return since;
 	}
 
-	@Nullable
-	public String[] getRequiredPlugins() {
+	public String @Nullable [] getRequiredPlugins() {
 		return requiredPlugins;
 	}
 
-	@Nullable
-	public String getDocumentationID() {
+	public @Nullable String getDocumentationID() {
 		return documentationID;
 	}
+
 }

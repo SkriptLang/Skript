@@ -4,15 +4,15 @@ test "arrows stuck":
 		set arrows stuck in event-entity to 31
 		assert arrows stuck in event-entity is 31 with "arrows stuck set failed"
 		add 5 to arrows stuck in event-entity
-		assert arrows stuck in event-entity is 36 with "arrows stuck add ##1 failed"
+		assert arrows stuck in event-entity is 36 with "arrows stuck add failed"
 		remove 10 from arrows stuck in event-entity
-		assert arrows stuck in event-entity is 26 with "arrows stuck remove ##1 failed"
+		assert arrows stuck in event-entity is 26 with "arrows stuck remove failed"
 		remove 999 from arrows stuck in event-entity
-		assert arrows stuck in event-entity is 0 with "arrows stuck remove ##2 failed"
+		assert arrows stuck in event-entity is 0 with "arrows stuck remove failed"
 		remove -2 from arrows stuck in event-entity
-		assert arrows stuck in event-entity is 2 with "arrows stuck remove ##3 failed"
+		assert arrows stuck in event-entity is 2 with "arrows stuck remove failed"
 		add -1 to arrows stuck in event-entity
-		assert arrows stuck in event-entity is 1 with "arrows stuck add ##2 failed"
+		assert arrows stuck in event-entity is 1 with "arrows stuck add failed"
 		delete arrows stuck in event-entity
 		assert arrows stuck in event-entity is 0 with "arrows stuck delete failed"
 		delete event-entity
