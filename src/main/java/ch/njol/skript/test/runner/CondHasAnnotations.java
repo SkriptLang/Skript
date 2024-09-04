@@ -10,7 +10,6 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.VariableString;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.Nullable;
 
 @Name("Has Annotations")
 @Description({
@@ -49,7 +48,7 @@ public class CondHasAnnotations extends Condition {
 	}
 
 	@Override
-	public String toString(@Nullable Event event, boolean debug) {
+	public String toString(Event event, boolean debug) {
 		return "annotation" + pattern + (negated ? " not " : " ") + "present";
 	}
 
