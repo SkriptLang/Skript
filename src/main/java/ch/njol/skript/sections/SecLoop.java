@@ -188,11 +188,15 @@ public class SecLoop extends LoopSection {
 	}
 
 	private static boolean guaranteedToLoop(Expression<?> expression) {
+		// If the expression is a literal, it's guaranteed to loop if it has at least one value
 		if (expression instanceof Literal<?> literal)
 			return literal.getAll().length > 0;
+		
+		// If the expression isn't a list, then we can't guarantee that it will loop
 		if (!(expression instanceof ExpressionList<?> list))
 			return false;
 
+		// If the list is an OR list (a, b or c), then it's guaranteed to loop iff all its values are guaranteed to loop
 		if (!list.getAnd()) {
 			for (Expression<?> expr : list.getExpressions()) {
 				if (!guaranteedToLoop(expr))
@@ -201,10 +205,13 @@ public class SecLoop extends LoopSection {
 			return true;
 		}
 
+		// If the list is an AND list (a, b and c), then it's guaranteed to loop if any of its values are guaranteed to loop
 		for (Expression<?> expr : list.getExpressions()) {
 			if (guaranteedToLoop(expr))
 				return true;
 		}
+
+		// Otherwise, we can't guarantee that it will loop
 		return false;
 	}
 
