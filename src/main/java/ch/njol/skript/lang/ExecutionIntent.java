@@ -1,5 +1,6 @@
 package ch.njol.skript.lang;
 
+import com.google.common.base.MoreObjects;
 import com.google.common.base.Preconditions;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
@@ -130,7 +131,9 @@ public sealed interface ExecutionIntent extends Comparable<ExecutionIntent>
 
 		@Override
 		public String toString() {
-			return "StopSections[levels=" + levels + "]";
+			return MoreObjects.toStringHelper(this)
+					.add("levels", levels)
+					.toString();
 		}
 
 	}
