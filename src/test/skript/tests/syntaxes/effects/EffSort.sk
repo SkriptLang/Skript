@@ -1,0 +1,51 @@
+test "sorting":
+	set {_numbers::*} to shuffled integers from 1 to 50
+	sort {_numbers::*}
+	assert {_numbers::*} is integers from 1 to 50 with "improper sorting of numbers"
+
+	set {_numbers::*} to shuffled integers from 1 to 50
+	sort {_numbers::*} in descending order
+	assert {_numbers::*} is integers from 50 to 1 with "improper sorting of numbers in descending order"
+
+	set {_numbers::*} to shuffled integers from 1 to 5
+	sort {_numbers::*} by input * 20 + 4 - 3 # linear transformations don't affect order
+	assert {_numbers::*} is integers from 1 to 5 with "improper custom sorting of numbers"
+
+	set {_numbers::*} to shuffled integers from 1 to 5
+	set {_pre-sort-numbers::*} to {_numbers::*}
+	sort {_numbers::*} by "%input%" parsed as time # map expression returns null
+	assert {_numbers::*} is {_pre-sort-numbers::*} with "Invalid sorting expression adjusted list"
+
+	set {_numbers::*} to shuffled integers from 1 to 5
+	set {_pre-sort-numbers::*} to {_numbers::*}
+	sort {_numbers::*} by {_}
+	assert {_numbers::*} is {_pre-sort-numbers::*} with "Invalid sorting expression adjusted list"
+
+	set {_numbers::*} to {_}
+	sort {_numbers::*} by input + 3
+	assert {_numbers::*} is not set with "Invalid sorting of unset list"
+
+	set {_chars::*} to shuffled characters between "a" and "f"
+	sort {_chars::*}
+	assert {_chars::*} is characters between "a" and "f" with "improper sorting of chars"
+
+	set {_chars::*} to shuffled characters between "a" and "f"
+	sort {_chars::*} based on codepoint of input
+	assert {_chars::*} is characters between "a" and "f" with "improper custom sorting of chars"
+
+	set {_mixed::*} to shuffled (characters between "a" and "f", integers from 1 to 5)
+	set {_pre-sort-mixed::*} to {_mixed::*}
+	sort {_mixed::*}
+	assert {_mixed::*} is {_pre-sort-mixed::*} with "incomparable mixed list was adjusted"
+
+	set {_mixed::*} to shuffled (characters between "a" and "f", integers from 1 to 5)
+	sort {_mixed::*} by "%input%"
+	assert {_mixed::*} is 1, 2, 3, 4, 5, and characters between "a" and "f" with "improper custom sorting of mixed list"
+
+	set {_list::x} to 1
+	set {_list::aa} to 2
+	set {_list::bxs} to 3
+	set {_list::zysa} to 4
+	set {_list::aaaaa} to 5
+	sort {_list::*} by length of input index
+	assert {_list::*} is integers from 1 to 5 with "improper custom sorting based on index"

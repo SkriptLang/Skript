@@ -1,21 +1,3 @@
-/**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
 package ch.njol.skript;
 
 import ch.njol.skript.config.Config;
@@ -43,7 +25,7 @@ import ch.njol.skript.util.chat.LinkParseMode;
 import ch.njol.skript.variables.Variables;
 import co.aikar.timings.Timings;
 import org.bukkit.event.EventPriority;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.io.IOException;
@@ -79,13 +61,13 @@ public class SkriptConfig {
 				}
 			});
 	
-	static final Option<Boolean> checkForNewVersion = new Option<>("check for new version", false)
+	public static final Option<Boolean> checkForNewVersion = new Option<>("check for new version", false)
 			.setter(t -> {
 				SkriptUpdater updater = Skript.getInstance().getUpdater();
 				if (updater != null)
 					updater.setEnabled(t);
 			});
-	static final Option<Timespan> updateCheckInterval = new Option<>("update check interval", new Timespan(12 * 60 * 60 * 1000))
+	public static final Option<Timespan> updateCheckInterval = new Option<>("update check interval", new Timespan(12 * 60 * 60 * 1000))
 			.setter(t -> {
 				SkriptUpdater updater = Skript.getInstance().getUpdater();
 				if (updater != null)
@@ -93,7 +75,7 @@ public class SkriptConfig {
 			});
 	static final Option<Integer> updaterDownloadTries = new Option<>("updater download tries", 7)
 			.optional(true);
-	static final Option<String> releaseChannel = new Option<>("release channel", "none")
+	public static final Option<String> releaseChannel = new Option<>("release channel", "none")
 			.setter(t -> {
 				ReleaseChannel channel;
 				switch (t) {
@@ -105,7 +87,7 @@ public class SkriptConfig {
 						break;
 					case "stable":
 						// TODO a better option would be to check that it is not a pre-release through GH API
-						channel = new ReleaseChannel((name) -> !name.contains("pre"), t);
+						channel = new ReleaseChannel((name) -> !(name.contains("-")), t);
 						break;
 					case "none":
 						channel = new ReleaseChannel((name) -> false, t);
@@ -140,7 +122,7 @@ public class SkriptConfig {
 	
 	@SuppressWarnings("null")
 	private static final DateFormat shortDateFormat = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT);
-	private static final Option<DateFormat> dateFormat = new Option<>("date format", shortDateFormat, s -> {
+	public static final Option<DateFormat> dateFormat = new Option<>("date format", shortDateFormat, s -> {
 		try {
 			if (s.equalsIgnoreCase("default"))
 				return null;
@@ -158,7 +140,7 @@ public class SkriptConfig {
 		}
 	}
 	
-	static final Option<Verbosity> verbosity = new Option<>("verbosity", Verbosity.NORMAL, new EnumParser<>(Verbosity.class, "verbosity"))
+	public static final Option<Verbosity> verbosity = new Option<>("verbosity", Verbosity.NORMAL, new EnumParser<>(Verbosity.class, "verbosity"))
 			.setter(SkriptLogger::setVerbosity);
 	
 	public static final Option<EventPriority> defaultEventPriority = new Option<>("plugin priority", EventPriority.NORMAL, s -> {
@@ -169,6 +151,12 @@ public class SkriptConfig {
 			return null;
 		}
 	});
+
+	/**
+	 * Determines whether `on &lt;event&gt;` will be triggered by cancelled events or not.
+	 */
+	public static final Option<Boolean> listenCancelledByDefault = new Option<>("listen to cancelled events by default", false)
+			.optional(true);
 
 	
 	/**
@@ -245,6 +233,9 @@ public class SkriptConfig {
 
 	public static final Option<Boolean> caseInsensitiveVariables = new Option<>("case-insensitive variables", true)
 			.setter(t -> Variables.caseInsensitiveVariables = t);
+
+	public static final Option<Boolean> caseInsensitiveCommands = new Option<>("case-insensitive commands", false)
+		.optional(true);
 	
 	public static final Option<Boolean> colorResetCodes = new Option<>("color codes reset formatting", true)
 			.setter(t -> {

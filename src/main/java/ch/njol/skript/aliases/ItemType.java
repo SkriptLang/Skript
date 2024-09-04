@@ -40,6 +40,7 @@ import ch.njol.yggdrasil.YggdrasilSerializable.YggdrasilExtendedSerializable;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
+import org.bukkit.Tag;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.Skull;
@@ -68,6 +69,7 @@ import java.util.NoSuchElementException;
 import java.util.Random;
 import java.util.RandomAccess;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @ContainerType(ItemStack.class)
 public class ItemType implements Unit, Iterable<ItemData>, Container<ItemStack>, YggdrasilExtendedSerializable {
@@ -170,6 +172,18 @@ public class ItemType implements Unit, Iterable<ItemData>, Container<ItemStack>,
 
 	public ItemType(Material id) {
 		add_(new ItemData(id));
+	}
+
+	public ItemType(Material... ids) {
+		for (Material id : ids) {
+			add_(new ItemData(id));
+		}
+	}
+
+	public ItemType(Tag<Material> tag) {
+		for (Material id : tag.getValues()) {
+			add_(new ItemData(id));
+		}
 	}
 
 	public ItemType(Material id, String tags) {
@@ -315,7 +329,7 @@ public class ItemType implements Unit, Iterable<ItemData>, Container<ItemStack>,
 
 	public boolean isOfType(Material id) {
 		// TODO avoid object creation
-		return isOfType(new ItemData(id, null));
+		return isOfType(new ItemData(id, (String) null));
 	}
 
 	/**
@@ -343,7 +357,7 @@ public class ItemType implements Unit, Iterable<ItemData>, Container<ItemStack>,
 	 */
 	public boolean hasItem() {
 		for (ItemData d : types) {
-			if (!d.type.isBlock())
+			if (d.type.isItem())
 				return true;
 		}
 		return false;
@@ -487,9 +501,13 @@ public class ItemType implements Unit, Iterable<ItemData>, Container<ItemStack>,
 
 			@Override
 			public ItemStack next() {
-				if (!hasNext())
-					throw new NoSuchElementException();
-				ItemStack is = iter.next().getStack().clone();
+				ItemStack is = null;
+				while (is == null) {
+					if (!hasNext())
+						throw new NoSuchElementException();
+					is = iter.next().getStack();
+				}
+				is = is.clone();
 				is.setAmount(getAmount());
 				return is;
 			}
@@ -588,12 +606,31 @@ public class ItemType implements Unit, Iterable<ItemData>, Container<ItemStack>,
 	 * @see #removeFrom(ItemStack)
 	 * @see #removeFrom(List...)
 	 */
-	public ItemStack getRandom() {
-		int numItems = types.size();
-		int index = random.nextInt(numItems);
-		ItemStack is = types.get(index).getStack().clone();
+	public @Nullable ItemStack getRandom() {
+		List<ItemData> datas = types.stream()
+				.filter(data -> data.stack != null)
+				.collect(Collectors.toList());
+		if (datas.isEmpty())
+			return null;
+		ItemStack is = datas.get(random.nextInt(datas.size())).getStack();
+		assert is != null; // verified above
+		is = is.clone();
 		is.setAmount(getAmount());
 		return is;
+	}
+
+	/**
+	 * @return One random ItemStack or Material that this ItemType represents.
+	 * A Material may only be returned for ItemStacks containing a Material where {@link Material#isItem()} is false.
+	 */
+	public Object getRandomStackOrMaterial() {
+		ItemData randomData = types.get(random.nextInt(types.size()));
+		ItemStack stack = randomData.getStack();
+		if (stack == null)
+			return randomData.getType();
+		stack = stack.clone();
+		stack.setAmount(getAmount());
+		return stack;
 	}
 
 	/**
@@ -869,7 +906,9 @@ public class ItemType implements Unit, Iterable<ItemData>, Container<ItemStack>,
 	 */
 	public void addTo(final List<ItemStack> list) {
 		if (!isAll()) {
-			list.add(getItem().getRandom());
+			ItemStack random = getItem().getRandom();
+			if (random != null)
+				list.add(getItem().getRandom());
 			return;
 		}
 		for (final ItemStack is : getItem().getAll())
@@ -936,7 +975,9 @@ public class ItemType implements Unit, Iterable<ItemData>, Container<ItemStack>,
 
 	public boolean addTo(final ItemStack[] buf) {
 		if (!isAll()) {
-			return addTo(getItem().getRandom(), buf);
+			ItemStack random = getItem().getRandom();
+			if (random != null)
+				return addTo(getItem().getRandom(), buf);
 		}
 		boolean ok = true;
 		for (ItemStack is : getItem().getAll()) {
@@ -1367,8 +1408,11 @@ public class ItemType implements Unit, Iterable<ItemData>, Container<ItemStack>,
 		globalMeta = null;
 	}
 
+	/**
+	 * @return A random Material this ItemType represents.
+	 */
 	public Material getMaterial() {
-		ItemData data = types.get(0);
+		ItemData data = types.get(random.nextInt(types.size()));
 		if (data == null)
 			throw new IllegalStateException("material not found");
 		return data.getType();

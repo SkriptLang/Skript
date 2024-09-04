@@ -74,32 +74,32 @@ skript command:
 		all:
 			enabling: Aktiviere alle deaktivierten Skripte...
 			enabled: Alle Skripte wurden erfolgreich geladen & geparst.
-			error: %s Fehler ¦ist¦sind¦ aufgetreten beim Laden aller Skripte!
-			io error: Konnte keine Skripte laden (einige Skripte könnten bereits umbenannt worden sein und werden beim nächsten Serverneustart geladen): %s
+			error: <gold>%s <light red>Fehler ¦ist¦sind¦ aufgetreten beim Laden aller Skripte!
+			io error: <light red>Konnte keine Skripte laden (einige Skripte könnten bereits umbenannt worden sein und werden beim nächsten Serverneustart geladen): <gold>%s
 		single:
 			already enabled: <gold>%s<reset> ist bereits aktiviert! Verwende <gray>/<gold>skript <cyan>reload <red>%s<reset> um es erneut zu laden.
 			enabling: Aktiviere <gold>%s<reset>...
 			enabled: <gold>%s<reset> wurde erfolgreich aktiviert & geparst.
-			error: %2$s Fehler ¦ist¦sind¦ aufgetreten beim Laden von <gold>%1$s<red>!
-			io error: Konnte <gold>%s<red> nicht aktivieren: %s
+			error: <gold>%2$s <light red>Fehler ¦ist¦sind¦ aufgetreten beim Laden von <gold>%1$s<light red>!
+			io error: <light red>Konnte <gold>%s <light red>nicht aktivieren: <gold>%s
 		folder:
 			empty: <gold>%s<reset> enthält keine deaktivierten Skripte.
 			enabling: Aktiviere <gold>%2$s <reset>Skript¦¦e¦ in <gold>%1$s<reset>...
 			enabled: <gold>%2$s <reset>Skript¦¦e¦ aus <gold>%1$s<reset> wurden erfolgreich aktiviert.
-			error: %2$s Fehler ¦ist¦sind¦ aufgetreten beim Aktivieren der Skripte in <gold>%1$s<red>!
-			io error: Fehler beim Aktivieren der Skripte in <gold>%s<red> (einige Skripte werden eventuell beim nächsten Serverneustart aktiviert): %s
+			error: <gold>%2$s <light red>Fehler ¦ist¦sind¦ aufgetreten beim Aktivieren der Skripte in <gold>%1$s<light red>!
+			io error: <light red>Fehler beim Aktivieren der Skripte in <gold>%s <light red>(einige Skripte werden eventuell beim nächsten Serverneustart aktiviert): <gold>%s
 	disable:
 		all:
 			disabled: Alle Skripte wurden erfolgreich deaktiviert.
-			io error: Konnte nicht alle Skripte umbennenen - einige Skripte werden beim nächsten Serverneustart wieder aktiviert: %s
+			io error: <light red>Konnte nicht alle Skripte umbennenen - einige Skripte werden beim nächsten Serverneustart wieder aktiviert: <gold>%s
 		single:
 			already disabled: <gold>%s<reset> ist bereits deaktiviert!
 			disabled: <gold>%s<reset> wurde erfolgreich deaktiviert.
-			io error: Konnte <gold>%s<red> nicht umbennenen, es wird beim nächsten Serverneustart wieder aktiviert sein: %s
+			io error: <light red>Konnte <gold>%s <light red>nicht umbennenen, es wird beim nächsten Serverneustart wieder aktiviert sein: <gold>%s
 		folder:
 			empty: <gold>%s<reset> enthält keine aktivierten Skripte.
 			disabled: <gold>%2$s <reset>Skript¦¦e¦ aus <gold>%1$s<reset> wurden erfolgreich deaktiviert.
-			io error: Konnte keine Skripte in <gold>%s<red> deaktivieren (einige Skripte werden beim nächten Neustart evtl. deaktiviert): %s
+			io error: <light red>Konnte keine Skripte in <gold>%s <light red>deaktivieren (einige Skripte werden beim nächten Neustart evtl. deaktiviert): <gold>%s
 	update:
 		# check/download: see Updater
 		changes:
@@ -134,7 +134,7 @@ updater:
 	downloaded: Die neueste Version von Skript wurde heruntergeladen! Starte den Server neu oder benutze /reload um die Änderungen zu übernehmen.
 	internal error: Während der Überprüfung auf eine neue Version ist ein interner Fehler aufgetreten. Im Server-Log finden sich weitere Informationen.
 	custom version: Du besitzt eine inoffizielle Version von Skript. Demnach konnte nach keinem Update gesucht werden.
-	nightly build: You're currently running a development build of Skript. No updates will be automatically installed.
+	nightly build: Sie verwenden derzeit eine Entwicklungsversion von Skript. Es werden keine Updates automatisch installiert.
 
 # -- Commands --
 commands:

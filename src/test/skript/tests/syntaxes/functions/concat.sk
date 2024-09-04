@@ -1,0 +1,31 @@
+
+test "concat() function":
+
+	# string + string
+	assert concat("hello ", "there") is "hello there" with "string + string concat() failed"
+	assert concat("foo", "bar") is "foobar" with "string + string concat() failed"
+	assert concat("foo", " ", "bar") is "foo bar" with "string + string + string concat() failed"
+	assert concat("hello", " ", "there") is "hello there" with "string + string + string concat() failed"
+	assert concat("a", "b", "c", "d", "e") is "abcde" with "5 strings concat() failed"
+
+	# ? + string
+	set {_var} to "hello"
+	set {_var} to concat({_var}, " there")
+	assert {_var} is "hello there" with "var + string concat() failed"
+
+	# ? + string
+	set {_var1} to "hello "
+	set {_var2} to "there"
+	assert concat({_var1}, {_var2}) is "hello there" with "var + var concat() failed"
+
+	# variable-string + string
+	set {_var} to "hello"
+	assert concat("%{_var}% ", "there") is "hello there" with "var-string + string concat() failed"
+
+	# string + non-string
+	# unlike the maths expression we CAN concat objects here!
+	set {_var} to 1
+	set {_var} to concat("foo", {_var})
+	assert {_var} is "foo1" with "string + number concat() failed"
+	assert concat("a", 1, "b", 2) is "a1b2" with "strings + numbers concat() failed"
+	assert concat("my nice new ", stone sword) is "my nice new stone sword" with "string + item concat() failed"

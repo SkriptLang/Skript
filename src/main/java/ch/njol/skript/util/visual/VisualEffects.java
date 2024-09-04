@@ -19,8 +19,8 @@
 package ch.njol.skript.util.visual;
 
 import ch.njol.skript.Skript;
-import ch.njol.skript.aliases.Aliases;
 import ch.njol.skript.aliases.ItemType;
+import ch.njol.skript.bukkitutil.ItemUtils;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.lang.SyntaxElementInfo;
 import ch.njol.skript.localization.Language;
@@ -29,13 +29,14 @@ import ch.njol.skript.util.Color;
 import ch.njol.skript.util.ColorRGB;
 import ch.njol.skript.util.Direction;
 import ch.njol.skript.util.SkriptColor;
+import ch.njol.skript.util.Timespan;
 import ch.njol.skript.variables.Variables;
 import ch.njol.util.StringUtils;
 import ch.njol.util.coll.iterator.SingleItemIterator;
 import org.bukkit.*;
 import org.bukkit.block.BlockFace;
+import org.bukkit.entity.Entity;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.material.MaterialData;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.eclipse.jdt.annotation.Nullable;
@@ -53,7 +54,6 @@ import java.util.stream.Stream;
 public class VisualEffects {
 
 	private static final boolean NEW_EFFECT_DATA = Skript.classExists("org.bukkit.block.data.BlockData");
-	private static final boolean HAS_REDSTONE_DATA = Skript.classExists("org.bukkit.Particle$DustOptions");
 
 	private static final Map<String, Consumer<VisualEffectType>> effectTypeModifiers = new HashMap<>();
 	private static SyntaxElementInfo<VisualEffect> elementInfo;
@@ -120,15 +120,15 @@ public class VisualEffects {
 		effectTypeModifiers.put(id, consumer);
 	}
 
+	// only applies to some older versions where ITEM_CRACK exists
+	private static final boolean IS_ITEM_CRACK_MATERIAL =
+			Skript.fieldExists(Particle.class, "ITEM_CRACK")
+			&& Particle.valueOf("ITEM_CRACK").getDataType() == Material.class;
+
 	static {
 		Language.addListener(() -> {
 			if (visualEffectTypes != null) // Already registered
 				return;
-			// Colorables
-			registerColorable("Particle.SPELL_MOB");
-			registerColorable("Particle.SPELL_MOB_AMBIENT");
-			registerColorable("Particle.REDSTONE");
-			registerColorable("Particle.NOTE");
 
 			// Data suppliers
 			registerDataSupplier("Effect.POTION_BREAK", (raw, location) ->
@@ -139,72 +139,135 @@ public class VisualEffects {
 				return Direction.getFacing(((Direction) raw).getDirection(location), false);
 			});
 
-			Color defaultColor = SkriptColor.LIGHT_RED;
-			registerDataSupplier("Particle.SPELL_MOB", (raw, location) -> {
-				Color color = raw == null ? defaultColor : (Color) raw;
-				return new ParticleOption(color, 1);
-			});
-			registerDataSupplier("Particle.SPELL_MOB_AMBIENT", (raw, location) -> {
-				Color color = raw == null ? defaultColor : (Color) raw;
-				return new ParticleOption(color, 1);
-			});
-			registerDataSupplier("Particle.REDSTONE", (raw, location) -> {
-				Color color = raw == null ? defaultColor : (Color) raw;
-				ParticleOption particleOption = new ParticleOption(color, 1);
+			// Useful: https://minecraft.wiki/w/Particle_format
 
-				if (HAS_REDSTONE_DATA && Particle.REDSTONE.getDataType() == Particle.DustOptions.class) {
-					return new Particle.DustOptions(particleOption.getBukkitColor(), particleOption.size);
-				} else {
-					return particleOption;
+			/*
+			 * Particles with BlockData DataType
+			 */
+			final BiFunction<Object, Location, Object> blockDataSupplier = (raw, location) -> {
+				if (raw instanceof Object[]) { // workaround for modern pattern since it contains a choice
+					Object[] data = (Object[]) raw;
+					raw = data[0] != null ? data[0] : data[1];
 				}
+				if (raw == null)
+					return Bukkit.createBlockData(Material.AIR);
+				if (raw instanceof ItemType) {
+					ItemType type = (ItemType) raw;
+					ItemStack random = type.getRandom();
+					return Bukkit.createBlockData(random != null ? random.getType() : type.getMaterial());
+				}
+				return raw;
+			};
+			registerDataSupplier("Particle.BLOCK", blockDataSupplier);
+			registerDataSupplier("Particle.BLOCK_CRACK", blockDataSupplier);
+			registerDataSupplier("Particle.BLOCK_DUST", blockDataSupplier);
+
+			registerDataSupplier("Particle.BLOCK_MARKER", blockDataSupplier);
+
+			registerDataSupplier("Particle.DUST_PILLAR", blockDataSupplier);
+
+			registerDataSupplier("Particle.FALLING_DUST", blockDataSupplier);
+
+			/*
+			 * Particles with DustOptions DataType
+			 */
+			final Color defaultColor = SkriptColor.LIGHT_RED;
+			final BiFunction<Object, Location, Object> dustOptionsSupplier = (raw, location) -> {
+				Object[] data = (Object[]) raw;
+				Color color = data[0] != null ? (Color) data[0] : defaultColor;
+				float size = data[1] != null ? (Float) data[1] : 1;
+				return new Particle.DustOptions(color.asBukkitColor(), size);
+			};
+			registerDataSupplier("Particle.DUST", dustOptionsSupplier);
+			registerDataSupplier("Particle.REDSTONE", dustOptionsSupplier);
+
+			/*
+			 * Particles with Color DataType
+			 */
+			registerDataSupplier("Particle.ENTITY_EFFECT", (raw, location) -> {
+				if (raw == null)
+					return defaultColor.asBukkitColor();
+				return ((Color) raw).asBukkitColor();
 			});
+			final BiFunction<Object, Location, Object> oldColorSupplier = (raw, location) -> {
+				Color color = raw != null ? (Color) raw : defaultColor;
+				return new ParticleOption(color, 1);
+			};
+			registerColorable("Particle.SPELL_MOB");
+			registerDataSupplier("Particle.SPELL_MOB", oldColorSupplier);
+			registerColorable("Particle.SPELL_MOB_AMBIENT");
+			registerDataSupplier("Particle.SPELL_MOB_AMBIENT", oldColorSupplier);
+
+			final BiFunction<Object, Location, Object> itemStackSupplier = (raw, location) -> {
+				ItemStack itemStack = null;
+				if (raw instanceof ItemType)
+					itemStack = ((ItemType) raw).getRandom();
+				if (itemStack == null || ItemUtils.isAir(itemStack.getType())) // item crack air is not allowed
+					itemStack = new ItemStack(Material.IRON_SWORD);
+				if (IS_ITEM_CRACK_MATERIAL)
+					return itemStack.getType();
+				return itemStack;
+			};
+			registerDataSupplier("Particle.ITEM", itemStackSupplier);
+			registerDataSupplier("Particle.ITEM_CRACK", itemStackSupplier);
+
+			/*
+			 * Particles with other DataTypes
+			 */
+			registerDataSupplier("Particle.DUST_COLOR_TRANSITION", (raw, location) -> {
+				Object[] data = (Object[]) raw;
+				Color fromColor = data[0] != null ? (Color) data[0] : defaultColor;
+				Color toColor = data[1] != null ? (Color) data[1] : defaultColor;
+				float size = data[2] != null ? (Float) data[2] : 1;
+				return new Particle.DustTransition(fromColor.asBukkitColor(), toColor.asBukkitColor(), size);
+			});
+
+			// uses color differently
+			registerColorable("Particle.NOTE");
+			// TODO test how this works
 			registerDataSupplier("Particle.NOTE", (raw, location) -> {
 				int colorValue = (int) (((Number) raw).floatValue() * 255);
 				ColorRGB color = new ColorRGB(colorValue, 0, 0);
 				return new ParticleOption(color, 1);
 			});
-			registerDataSupplier("Particle.ITEM_CRACK", (raw, location) -> {
-				ItemStack itemStack = Aliases.javaItemType("iron sword").getRandom();
-				if (raw instanceof ItemType) {
-					ItemStack rand = ((ItemType) raw).getRandom();
-					if (rand != null)
-						itemStack = rand;
-				} else if (raw != null) {
-					return raw;
-				}
 
-				assert itemStack != null;
-				if (Particle.ITEM_CRACK.getDataType() == Material.class)
-					return itemStack.getType();
-				return itemStack;
+			// Float DataType, represents "the angle the particle displays at in radians"
+			registerDataSupplier("Particle.SCULK_CHARGE", (raw, location) -> raw != null ? raw : 0);
+
+			// Integer DataType, represents "the delay in ticks"
+			registerDataSupplier("Particle.SHRIEK", (raw, location) -> {
+				int delay = 0;
+				if (raw instanceof Timespan)
+					delay = (int) Math.min(Math.max(((Timespan) raw).getTicks(), 0), Integer.MAX_VALUE);
+				return delay;
 			});
 
-			BiFunction<Object, Location, Object> crackDustBiFunction = (raw, location) -> {
-				if (raw == null) {
-					return Material.STONE.getData();
-				} else if (raw instanceof ItemType) {
-					ItemStack rand = ((ItemType) raw).getRandom();
-					if (NEW_EFFECT_DATA) {
-						return Bukkit.createBlockData(rand != null ? rand.getType() : Material.STONE);
-					} else {
-						if (rand == null)
-							return Material.STONE.getData();
-
-						@SuppressWarnings("deprecation")
-						MaterialData type = rand.getData();
-						assert type != null;
-						return type;
-					}
-				} else {
-					return raw;
-				}
-			};
-			registerDataSupplier("Particle.BLOCK_CRACK", crackDustBiFunction);
-			registerDataSupplier("Particle.BLOCK_DUST", crackDustBiFunction);
-			registerDataSupplier("Particle.FALLING_DUST", crackDustBiFunction);
+			registerDataSupplier("Particle.VIBRATION", (raw, location) -> VibrationUtils.buildVibration((Object[]) raw, location));
 
 			generateTypes();
 		});
+	}
+
+	// exists to avoid NoClassDefFoundError from Vibration
+	private static final class VibrationUtils {
+		private static Vibration buildVibration(Object[] data, Location location) {
+			int arrivalTime = -1;
+			if (data[1] != null)
+				arrivalTime = (int) Math.min(Math.max(((Timespan) data[1]).getTicks(), 0), Integer.MAX_VALUE);
+			if (data[0] instanceof Entity) {
+				Entity entity = (Entity) data[0];
+				if (arrivalTime == -1)
+					arrivalTime = (int) (location.distance(entity.getLocation()) / 20);
+				//noinspection removal - new constructor only exists on newer versions
+				return new Vibration(location, new Vibration.Destination.EntityDestination(entity), arrivalTime);
+			}
+			// assume it's a location
+			Location destination = data[0] != null ? (Location) data[0] : location;
+			if (arrivalTime == -1)
+				arrivalTime = (int) (location.distance(destination) / 20);
+			//noinspection removal - new constructor only exists on newer versions
+			return new Vibration(location, new Vibration.Destination.BlockDestination(destination), arrivalTime);
+		}
 	}
 
 }
