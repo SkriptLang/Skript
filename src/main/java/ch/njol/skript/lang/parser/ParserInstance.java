@@ -482,7 +482,7 @@ public final class ParserInstance implements Experimented {
 	@ApiStatus.Internal
 	public void addExperiment(Experiment experiment) {
 		Script script = this.getCurrentScript();
-		ExperimentSet set = script.getData(ExperimentSet.class, () -> new ExperimentSet());
+		ExperimentSet set = script.getData(ExperimentSet.class, ExperimentSet::new);
 		set.add(experiment);
 	}
 

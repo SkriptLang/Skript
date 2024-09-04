@@ -13,10 +13,7 @@ import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.script.Annotation;
 import org.skriptlang.skript.lang.structure.Structure;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Supplier;
 
 /**
@@ -51,6 +48,7 @@ public abstract class Section extends TriggerSection implements SyntaxElement {
 	@Override
 	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		SectionContext sectionContext = getParser().getData(SectionContext.class);
+		sectionContext.setAnnotations(this.getParser().copyAnnotations());
 		return init(expressions, matchedPattern, isDelayed, parseResult, sectionContext.sectionNode, sectionContext.triggerItems)
 			&& sectionContext.claim(this);
 	}
@@ -187,6 +185,7 @@ public abstract class Section extends TriggerSection implements SyntaxElement {
 
 		protected SectionNode sectionNode;
 		protected List<TriggerItem> triggerItems;
+		protected @Nullable Collection<Annotation> annotations;
 		protected @Nullable Debuggable owner;
 
 		public SectionContext(ParserInstance parserInstance) {
@@ -256,6 +255,27 @@ public abstract class Section extends TriggerSection implements SyntaxElement {
 		 */
 		public boolean claimed() {
 			return owner != null;
+		}
+
+		/**
+		 * Sets the annotation container for this section.
+		 *
+		 * @param annotations The annotations container
+		 */
+		public void setAnnotations(@Nullable Collection<Annotation> annotations) {
+			this.annotations = annotations;
+		}
+
+		/**
+		 * Returns the annotations visible to the section header (the line that it started from).
+		 * The collection may be empty if no annotations were placed before the header line.
+		 *
+		 * @return The annotation applied to the current section
+		 */
+		public @NotNull Collection<Annotation> getAnnotations() {
+			if (annotations == null)
+				return Collections.emptySet();
+			return annotations;
 		}
 
 	}

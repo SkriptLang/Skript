@@ -22,9 +22,9 @@ import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.entry.EntryContainer;
 import org.skriptlang.skript.lang.entry.EntryData;
 import org.skriptlang.skript.lang.entry.EntryValidator;
+import org.skriptlang.skript.lang.script.Annotation;
 
-import java.util.Arrays;
-import java.util.Iterator;
+import java.util.*;
 
 /**
  * Structures are the root elements in every script. They are essentially the "headers".
@@ -86,7 +86,7 @@ public abstract class Structure implements SyntaxElement, Debuggable {
 
 	@Override
 	public final boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		StructureData structureData = getParser().getData(StructureData.class);
+		StructureData structureData = this.getParser().getData(StructureData.class);
 
 		Literal<?>[] literals = Arrays.copyOf(expressions, expressions.length, Literal[].class);
 
@@ -96,6 +96,9 @@ public abstract class Structure implements SyntaxElement, Debuggable {
 		if (structureData.node instanceof SimpleNode) { // simple structures do not have validators
 			return init(literals, matchedPattern, parseResult, null);
 		}
+		// make the top-level annotations visible inside this structure
+		// note: simple structures don't need this since they have no contents
+		structureData.setAnnotations(this.getParser().copyAnnotations());
 
 		EntryValidator entryValidator = structureInfo.entryValidator;
 		if (entryValidator == null) {
@@ -217,8 +220,8 @@ public abstract class Structure implements SyntaxElement, Debuggable {
 	public static class StructureData extends ParserInstance.Data {
 
 		private Node node;
-		@Nullable
-		private StructureInfo<? extends Structure> structureInfo;
+		private @Nullable StructureInfo<? extends Structure> structureInfo;
+		private @Nullable Collection<Annotation> annotations;
 
 		public StructureData(ParserInstance parserInstance) {
 			super(parserInstance);
@@ -227,6 +230,27 @@ public abstract class Structure implements SyntaxElement, Debuggable {
 		@Nullable
 		public StructureInfo<? extends Structure> getStructureInfo() {
 			return structureInfo;
+		}
+
+		/**
+		 * Sets the annotation container for this structure.
+		 *
+		 * @param annotations The annotation container
+		 */
+		public void setAnnotations(@Nullable Collection<Annotation> annotations) {
+			this.annotations = annotations;
+		}
+
+		/**
+		 * Returns the annotations visible to the structure.
+		 * The collection may be empty if no annotations were placed before the structure.
+		 *
+		 * @return The annotations applied to the current structure
+		 */
+		public @NotNull Collection<Annotation> getAnnotations() {
+			if (annotations == null)
+				return Collections.emptySet();
+			return annotations;
 		}
 
 	}
