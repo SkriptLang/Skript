@@ -38,14 +38,23 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Iterator;
+import java.util.Objects;
 import java.util.stream.Stream;
 
+/**
+ * Generates JSON docs
+ */
 public class JSONGenerator extends DocumentationGenerator {
 
 	public JSONGenerator(File templateDir, File outputDir) {
 		super(templateDir, outputDir);
 	}
 
+	/**
+	 * Coverts a String array to a JsonArray
+	 * @param strings the String array to convert
+	 * @return the JsonArray containing the Strings
+	 */
 	private static @Nullable JsonArray convertToJsonArray(String @Nullable[] strings) {
 		if (strings == null)
 			return null;
@@ -55,15 +64,13 @@ public class JSONGenerator extends DocumentationGenerator {
 		return jsonArray;
 	}
 
-	private static JsonArray convertArrayToJsonArray(String[] strings) {
-		JsonArray jsonArray = new JsonArray();
-		for (String string : strings) {
-			jsonArray.add(string);
-		}
-		return jsonArray;
-	}
-
-	private @Nullable JsonObject generatedAnnotatedElement(SyntaxElementInfo<?> syntaxInfo, String[] patterns) {
+	/**
+	 * Generates the documentation JsonObject for an element that is annotated with documentation
+	 * annotations (e.g. effects, conditions, etc.)
+	 * @param syntaxInfo the syntax info element to generate the documentation object of
+	 * @return the JsonObject representing the documentation of the provided syntax element
+	 */
+	private @Nullable JsonObject generatedAnnotatedElement(SyntaxElementInfo<?> syntaxInfo) {
 		Class<?> syntaxClass = syntaxInfo.getElementClass();
 		Name nameAnnotation = syntaxClass.getAnnotation(Name.class);
 		if (nameAnnotation == null || syntaxClass.getAnnotation(NoDoc.class) != null)
@@ -77,7 +84,7 @@ public class JSONGenerator extends DocumentationGenerator {
 
 		Description descriptionAnnotation = syntaxClass.getAnnotation(Description.class);
 		if (descriptionAnnotation != null)
-			syntaxJsonObject.add("description", convertArrayToJsonArray(descriptionAnnotation.value()));
+			syntaxJsonObject.add("description", convertToJsonArray(descriptionAnnotation.value()));
 		else
 			syntaxJsonObject.add("description", new JsonArray());
 
@@ -88,29 +95,39 @@ public class JSONGenerator extends DocumentationGenerator {
 			syntaxJsonObject.add("examples", new JsonArray());
 
 
-		syntaxJsonObject.add("patterns", convertToJsonArray(patterns));
+		syntaxJsonObject.add("patterns", convertToJsonArray(syntaxInfo.getPatterns()));
 		return syntaxJsonObject;
 	}
 
+	/**
+	 * Generates the documentation JsonObject for an event
+	 * @param eventInfo the event to generate the documentation object for
+	 * @return a documentation JsonObject for the event
+	 */
 	private JsonObject generateEventElement(SkriptEventInfo<?> eventInfo) {
 		JsonObject syntaxJsonObject = new JsonObject();
 		syntaxJsonObject.addProperty("id", DocumentationIdProvider.getId(eventInfo));
 		syntaxJsonObject.addProperty("name", eventInfo.name);
 		syntaxJsonObject.addProperty("since", eventInfo.getSince());
-		syntaxJsonObject.add("description", convertArrayToJsonArray(eventInfo.getDescription()));
-		syntaxJsonObject.add("examples", convertArrayToJsonArray(eventInfo.getExamples()));
+		syntaxJsonObject.add("description", convertToJsonArray(eventInfo.getDescription()));
+		syntaxJsonObject.add("examples", convertToJsonArray(eventInfo.getExamples()));
 		syntaxJsonObject.add("patterns", convertToJsonArray(eventInfo.patterns));
 		return syntaxJsonObject;
 	}
 
 
+	/**
+	 * Generates a JsonArray containing the documentation JsonObjects for each structure in the iterator
+	 * @param infos the structures to generate documentation for
+	 * @return a JsonArray containing the documentation JsonObjects for each structure
+	 */
 	private <T extends StructureInfo<? extends Structure>> JsonArray generateStructureElementArray(Iterator<T> infos) {
 		JsonArray syntaxArray = new JsonArray();
 		infos.forEachRemaining(info -> {
 			if (info instanceof SkriptEventInfo) {
 				syntaxArray.add(generateEventElement((SkriptEventInfo<?>) info));
 			} else {
-				JsonObject structureElementJsonObject = generatedAnnotatedElement(info, info.patterns);
+				JsonObject structureElementJsonObject = generatedAnnotatedElement(info);
 				if (structureElementJsonObject != null)
 					syntaxArray.add(structureElementJsonObject);
 			}
@@ -118,16 +135,26 @@ public class JSONGenerator extends DocumentationGenerator {
 		return syntaxArray;
 	}
 
+	/**
+	 * Generates a JsonArray containing the documentation JsonObjects for each syntax element in the iterator
+	 * @param infos the syntax elements to generate documentation for
+	 * @return a JsonArray containing the documentation JsonObjects for each syntax element
+	 */
 	private <T extends SyntaxElementInfo<? extends SyntaxElement>> JsonArray generateSyntaxElementArray(Iterator<T> infos) {
 		JsonArray syntaxArray = new JsonArray();
 		infos.forEachRemaining(info -> {
-			JsonObject syntaxJsonObject = generatedAnnotatedElement(info, info.patterns);
+			JsonObject syntaxJsonObject = generatedAnnotatedElement(info);
 			if (syntaxJsonObject != null)
 				syntaxArray.add(syntaxJsonObject);
 		});
 		return syntaxArray;
 	}
 
+	/**
+	 * Generates the documentation JsonObject for a classinfo
+	 * @param classInfo the ClassInfo to generate the documentation of
+	 * @return the documentation Jsonobject of the ClassInfo
+	 */
 	private @Nullable JsonObject generateClassInfoElement(ClassInfo<?> classInfo) {
 		if (!classInfo.hasDocs())
 			return null;
@@ -141,6 +168,11 @@ public class JSONGenerator extends DocumentationGenerator {
 		return syntaxJsonObject;
 	}
 
+	/**
+	 * Generates a JsonArray containing the documentation JsonObjects for each classinfo in the iterator
+	 * @param classInfos the classinfos to generate documentation for
+	 * @return a JsonArray containing the documentation JsonObjects for each classinfo
+	 */
 	private JsonArray generateClassInfoArray(Iterator<ClassInfo<?>> classInfos) {
 		JsonArray syntaxArray = new JsonArray();
 		classInfos.forEachRemaining(classInfo -> {
@@ -151,14 +183,20 @@ public class JSONGenerator extends DocumentationGenerator {
 		return syntaxArray;
 	}
 
+	/**
+	 * Gets either the explicitly declared documentation name or code name of a ClassInfo
+	 * @param classInfo the ClassInfo to get the effective name of
+	 * @return the effective name of the ClassInfo
+	 */
 	private String getClassInfoName(ClassInfo<?> classInfo) {
-		String docName = classInfo.getDocName();
-		if (docName != null) {
-			return docName;
-		}
-		return classInfo.getCodeName();
+		return Objects.requireNonNullElse(classInfo.getDocName(), classInfo.getCodeName());
 	}
 
+	/**
+	 * Generates the documentation JsonObject for a JavaFunction
+	 * @param function the JavaFunction to generate the JsonObject of
+	 * @return the JsonObject of the JavaFunction
+	 */
 	private JsonObject generateFunctionElement(JavaFunction<?> function) {
 		JsonObject functionJsonObject = new JsonObject();
 		functionJsonObject.addProperty("id", DocumentationIdProvider.getId(function));
@@ -177,12 +215,22 @@ public class JSONGenerator extends DocumentationGenerator {
 		return functionJsonObject;
 	}
 
+	/**
+	 * Generates a JsonArray containing the documentation JsonObjects for each function in the iterator
+	 * @param functions the functions to generate documentation for
+	 * @return a JsonArray containing the documentation JsonObjects for each function
+	 */
 	private JsonArray generateFunctionArray(Iterator<JavaFunction<?>> functions) {
 		JsonArray syntaxArray = new JsonArray();
 		functions.forEachRemaining(function -> syntaxArray.add(generateFunctionElement(function)));
 		return syntaxArray;
 	}
 
+	/**
+	 * Writes the documentation JsonObject to an output path
+	 * @param outputPath the path to write the documentation to
+	 * @param jsonDocs the documentation JsonObject
+	 */
 	private void saveDocs(Path outputPath, JsonObject jsonDocs) {
 		try {
 			Files.writeString(outputPath, jsonDocs.toString());

@@ -37,6 +37,13 @@ import java.util.function.Predicate;
 
 public class DocumentationIdProvider {
 
+	/**
+	 * Some syntax classes are registered more than once. This method applies a suffix
+	 * to the id in order to differentiate them
+	 * @param id the potentially conflicting ID
+	 * @param collisionCount the number of conflicts this element has
+	 * @return the unique ID for the element
+	 */
 	private static String addCollisionSuffix(String id, int collisionCount) {
 		if (collisionCount == 0) {
 			return id;
@@ -44,6 +51,13 @@ public class DocumentationIdProvider {
 		return id + "-" + (collisionCount + 1);
 	}
 
+	/**
+	 * Calculates the number of collisions in an iterator
+	 * @param potentialCollisions the iterator of potential collisions
+	 * @param collisionCriteria a predicate which checks whether a potential collision is really a collision
+	 * @param equalsCriteria a predicate which checks whether a potential collision equals the current element we are generating
+	 * @return the number of collisions in potentialCollisions up until equalsCriteria was true
+	 */
 	private static <T> int calculateCollisionCount(Iterator<? extends T> potentialCollisions, Predicate<T> collisionCriteria,
 											Predicate<T> equalsCriteria) {
 		int collisionCount = 0;
@@ -59,6 +73,11 @@ public class DocumentationIdProvider {
 		return collisionCount;
 	}
 
+	/**
+	 * Gets the documentation ID of a syntax element
+	 * @param syntaxInfo the SyntaxElementInfo to get the ID of
+	 * @return the ID of the syntax element
+	 */
 	public static <T> String getId(SyntaxElementInfo<? extends T> syntaxInfo) {
 		Class<?> syntaxClass = syntaxInfo.getElementClass();
 		Iterator<? extends SyntaxElementInfo<?>> syntaxElementIterator;
@@ -85,6 +104,11 @@ public class DocumentationIdProvider {
 		return addCollisionSuffix(documentationIdAnnotation.value(), collisionCount);
 	}
 
+	/**
+	 * Gets the documentation ID of a function
+	 * @param function the function to get the ID of
+	 * @return the documentation ID of the function
+	 */
 	public static String getId(Function<?> function) {
 		int collisionCount = calculateCollisionCount(Functions.getJavaFunctions().iterator(),
 			javaFunction -> function.getName().equals(javaFunction.getName()),
@@ -92,10 +116,20 @@ public class DocumentationIdProvider {
 		return addCollisionSuffix(function.getName(), collisionCount);
 	}
 
+	/**
+	 * Gets either the explicitly declared documentation ID or code name of a classinfo
+	 * @param classInfo the ClassInfo to get the ID of
+	 * @return the ID of the ClassInfo
+	 */
 	private static String getClassInfoId(ClassInfo<?> classInfo) {
 		return Objects.requireNonNullElse(classInfo.getDocumentationID(), classInfo.getCodeName());
 	}
 
+	/**
+	 * Gets the documentation ID of a ClassInfo
+	 * @param classInfo the ClassInfo to get the ID of
+	 * @return the ID of the ClassInfo
+	 */
 	public static String getId(ClassInfo<?> classInfo) {
 		String classInfoId = getClassInfoId(classInfo);
 		int collisionCount = calculateCollisionCount(Classes.getClassInfos().iterator(),
@@ -104,10 +138,20 @@ public class DocumentationIdProvider {
 		return addCollisionSuffix(classInfoId, collisionCount);
 	}
 
+	/**
+	 * Gets either the explicitly declared documentation ID or default ID of an event
+	 * @param eventInfo the event to get the ID of
+	 * @return the ID of the event
+	 */
 	private static String getEventId(SkriptEventInfo<?> eventInfo) {
 		return Objects.requireNonNullElse(eventInfo.getDocumentationID(), eventInfo.getId());
 	}
 
+	/**
+	 * Gets the documentation ID of an event
+	 * @param eventInfo the event to get the ID of
+	 * @return the ID of the event
+	 */
 	public static String getId(SkriptEventInfo<?> eventInfo) {
 		String eventId = getEventId(eventInfo);
 		int collisionCount = calculateCollisionCount(Skript.getEvents().iterator(),

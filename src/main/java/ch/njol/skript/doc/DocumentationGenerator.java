@@ -20,6 +20,9 @@ package ch.njol.skript.doc;
 
 import java.io.File;
 
+/**
+ * Represents a class which generates a documentation format (like HTML or JSON)
+ */
 public abstract class DocumentationGenerator {
 
 	protected File templateDir;
@@ -30,6 +33,9 @@ public abstract class DocumentationGenerator {
 		this.outputDir = outputDir;
 	}
 
+	/**
+	 * Generates the documentation file
+	 */
 	public abstract void generate();
 
 }
