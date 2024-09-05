@@ -51,7 +51,7 @@ public class EffExit extends Effect {
 		Skript.registerEffect(EffExit.class,
 			"(exit|stop) [trigger]",
 			"(exit|stop) [(1|a|the|this)] (section|1:loop|2:conditional)",
-			"(exit|stop) <\\d+> (section|1:loop|2:conditional)s",
+			"(exit|stop) <[1-9][0-9]*> (section|1:loop|2:conditional)s",
 			"(exit|stop) all (section|1:loop|2:conditional)s");
 	}
 
@@ -110,7 +110,8 @@ public class EffExit extends Effect {
 		}
 		if (breakLevels > sectionsToExit.size())
 			return null;
-		return sectionsToExit.get(0).getActualNext();
+		TriggerSection section = sectionsToExit.get(0);
+		return section instanceof LoopSection loopSection ? loopSection.getActualNext() : section.getNext();
 	}
 
 	@Override

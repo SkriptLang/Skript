@@ -58,7 +58,7 @@ public class EffContinue extends Effect {
 	static {
 		Skript.registerEffect(EffContinue.class,
 			"continue [this loop|[the] [current] loop]",
-			"continue [the] %*integer%(st|nd|rd|th) loop"
+			"continue [the] <[1-9][0-9]*>(st|nd|rd|th) loop"
 		);
 	}
 
@@ -69,13 +69,8 @@ public class EffContinue extends Effect {
 	private @UnknownNullability List<TriggerSection> innerSections;
 
 	@Override
-	@SuppressWarnings("unchecked")
-	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		level = matchedPattern == 0 ? -1 : ((Literal<Integer>) exprs[0]).getSingle();
-		if (matchedPattern != 0 && level < 1) {
-			Skript.error("Can't continue the " + StringUtils.fancyOrderNumber(level) + " loop");
-			return false;
-		}
+    public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
+		level = matchedPattern == 0 ? 1 : Integer.parseInt(parseResult.regexes.get(0).group());
 
 		int loops = getParser().getCurrentSections(LoopSection.class).size();
 		if (loops == 0) {
