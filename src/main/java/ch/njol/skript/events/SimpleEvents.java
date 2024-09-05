@@ -69,6 +69,7 @@ import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.entity.ProjectileLaunchEvent;
 import org.bukkit.event.entity.SheepRegrowWoolEvent;
 import org.bukkit.event.entity.SlimeSplitEvent;
+import org.bukkit.event.entity.PiglinBarterEvent;
 import org.bukkit.event.inventory.FurnaceBurnEvent;
 import org.bukkit.event.inventory.FurnaceSmeltEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
@@ -749,6 +750,20 @@ public class SimpleEvents {
 				)
 				.since("2.7");
 
+		if (Skript.classExists("org.bukkit.event.entity.PiglinBarterEvent")) {
+			Skript.registerEvent("Piglin Barter", SimpleEvent.class, PiglinBarterEvent.class, "piglin (barter[ing]|trad(e|ing))")
+				.requiredPlugins("Minecraft 1.16+")
+				.description(
+					"Called when a piglin finishes bartering. A piglin may start bartering after picking up an item on its bartering list.",
+					"Cancelling will prevent piglins from dropping items, but will still make them pick up the input.")
+				.examples(
+					"on piglin barter:",
+					"\tif barter drops contain diamond:",
+					"\t\tsend \"Diamonds belong in the money pit!\" to player",
+					"\t\tcancel event"
+				)
+				.since("INSERT VERSION");
+		}
 		{
 			final Class<? extends Event> eventClass;
 			if (Skript.classExists("org.bukkit.event.block.BellRingEvent")) {
@@ -787,6 +802,7 @@ public class SimpleEvents {
 					)
 					.since("2.9.0")
 					.requiredPlugins("Spigot 1.19.4+");
+
 		}
 
 		if (Skript.classExists("com.destroystokyo.paper.event.entity.EndermanAttackPlayerEvent")) {
@@ -805,5 +821,4 @@ public class SimpleEvents {
 					.requiredPlugins("Paper");
 		}
 	}
-
 }

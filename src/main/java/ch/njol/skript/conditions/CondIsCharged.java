@@ -18,36 +18,38 @@
  */
 package ch.njol.skript.conditions;
 
-import org.bukkit.entity.Creeper;
-import org.bukkit.entity.LivingEntity;
-
 import ch.njol.skript.conditions.base.PropertyCondition;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
+import org.bukkit.entity.Creeper;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.WitherSkull;
 
 @Name("Is Charged")
-@Description("Checks if a creeper is charged (powered).")
+@Description("Checks if a creeper or wither skull is charged (powered).")
 @Examples({"if the last spawned creeper is charged:",
-			"\tbroadcast \"A charged creeper is at %location of last spawned creeper%\""})
-@Since("2.5")
-public class CondIsCharged extends PropertyCondition<LivingEntity> {
-	
+	"\tbroadcast \"A charged creeper is at %location of last spawned creeper%\""})
+@Since("2.5, INSERT VERSION (wither skulls)")
+public class CondIsCharged extends PropertyCondition<Entity> {
+
 	static {
-		register(CondIsCharged.class, "(charged|powered)", "livingentities");
+		register(CondIsCharged.class, "(charged|powered)", "entities");
 	}
-	
+
 	@Override
-	public boolean check(final LivingEntity e) {
-		if (e instanceof Creeper)
-			return ((Creeper) e).isPowered();
+	public boolean check(Entity entity) {
+		if (entity instanceof Creeper)
+			return ((Creeper) entity).isPowered();
+		else if (entity instanceof WitherSkull)
+			return ((WitherSkull) entity).isCharged();
 		return false;
 	}
-	
+
 	@Override
 	protected String getPropertyName() {
 		return "charged";
 	}
-	
+
 }
