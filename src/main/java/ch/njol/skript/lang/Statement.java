@@ -50,9 +50,15 @@ public abstract class Statement extends TriggerItem implements SyntaxElement {
 			Statement statement;
 			if (node != null) {
 				Section.SectionContext sectionContext = ParserInstance.get().getData(Section.SectionContext.class);
-				//noinspection unchecked,rawtypes
-				statement = sectionContext.modify(node, items,
-					() -> (Statement) SkriptParser.parse(input, (Iterator) Skript.getSections().iterator(), defaultError));
+				statement = sectionContext.modify(node, items, () -> {
+						//noinspection unchecked,rawtypes
+						Statement parsed = (Statement) SkriptParser.parse(input, (Iterator) Skript.getStatements().iterator(), defaultError);
+						if (!sectionContext.claimed()) {
+							Skript.error("The effect '" + input + "' started a section (:) but no syntax was detected that can manage it.");
+							return null;
+						}
+						return parsed;
+				});
 			} else {
 				//noinspection unchecked,rawtypes
 				statement = (Statement) SkriptParser.parse(input, (Iterator) Skript.getStatements().iterator(), defaultError);

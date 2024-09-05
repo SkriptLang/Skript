@@ -1,0 +1,4 @@
+test "expression sections":
+	set {_runnable} to a new runnable:
+		broadcast "HELLO THERE"
+	run {_runnable}
