@@ -27,12 +27,13 @@ import org.eclipse.jdt.annotation.Nullable;
 
 import java.io.NotSerializableException;
 import java.io.StreamCorruptedException;
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class ColorRGB implements Color {
 
-	private static final Pattern RGB_PATTERN = Pattern.compile("(?>rgb|RGB) (\\d+), (\\d+), (\\d+)");
+	private static final Pattern RGB_PATTERN = Pattern.compile("(?>rgb|RGB) (\\d+), ?(\\d+), ?(\\d+)");
 
 	private org.bukkit.Color bukkit;
 	@Nullable
@@ -74,6 +75,11 @@ public class ColorRGB implements Color {
 		);
 	}
 
+	public static Color fromBukkitColor(org.bukkit.Color color) {
+		Color fromBukkit = SkriptColor.fromBukkitColor(color);
+		return fromBukkit == null ? new ColorRGB(color.getRed(), color.getGreen(), color.getBlue()) : fromBukkit;
+	}
+
 	@Override
 	public Fields serialize() throws NotSerializableException {
 		return new Fields(this, Variables.yggdrasil);
@@ -90,5 +96,19 @@ public class ColorRGB implements Color {
 		else
 			dye = d;
 		bukkit = b;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) return true;
+		if (obj == null || getClass() != obj.getClass()) return false;
+		ColorRGB colorRGB = (ColorRGB) obj;
+		return Objects.equals(bukkit, colorRGB.bukkit) &&
+			Objects.equals(dye, colorRGB.dye);
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(bukkit, dye);
 	}
 }
