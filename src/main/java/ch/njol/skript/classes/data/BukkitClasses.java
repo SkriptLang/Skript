@@ -49,6 +49,7 @@ import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.DoubleChest;
 import org.bukkit.block.data.BlockData;
+import org.bukkit.block.sign.Side;
 import org.bukkit.command.CommandSender;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.enchantments.EnchantmentOffer;
@@ -1526,6 +1527,14 @@ public class BukkitClasses {
 				.name("Transform Reason")
 				.description("Represents a transform reason of an <a href='events.html#entity transform'>entity transform event</a>.")
 				.since("2.8.0"));
+
+		if (Skript.isRunningMinecraft(1, 20))
+			Classes.registerClass(new EnumClassInfo<>(Side.class, "signside", "sign sides")
+					.user("sign ?sides?")
+					.name("Sign Sides")
+					.description("Represents a side of a sign.")
+					.requiredPlugins("Spigot 1.20+"));
+
 	}
 
 }
