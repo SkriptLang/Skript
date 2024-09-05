@@ -206,6 +206,8 @@ public abstract class Section extends TriggerSection implements SyntaxElement {
 		Preconditions.checkArgument(levels > 0, "Depth must be at least 1");
 		ParserInstance parser = ParserInstance.get();
 		List<? extends TriggerSection> sections = parser.getCurrentSections(type);
+		if (sections.isEmpty())
+			return new ArrayList<>();
 		TriggerSection section = sections.get(Math.max(sections.size() - levels, 0));
 		List<TriggerSection> allSections = parser.getCurrentSections();
 		return new ArrayList<>(allSections.subList(allSections.indexOf(section), allSections.size()));
