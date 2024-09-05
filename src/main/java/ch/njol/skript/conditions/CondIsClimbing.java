@@ -37,7 +37,7 @@ import ch.njol.skript.doc.Since;
 		"\tmessage\"The spider is now climbing!\""
 })
 @RequiredPlugins("Minecraft 1.17+")
-@Since("INSERT VERSION")
+@Since("2.8.0")
 public class CondIsClimbing extends PropertyCondition<LivingEntity> {
 
 	static {

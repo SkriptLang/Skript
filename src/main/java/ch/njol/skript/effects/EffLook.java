@@ -40,7 +40,7 @@ import io.papermc.paper.entity.LookAnchor;
 @Name("Look At")
 @Description("Forces the mob(s) or player(s) to look at an entity, vector or location. Vanilla max head pitches range from 10 to 50.")
 @Examples({
-	"force the head of the player to look towards event-entity's feet",
+	"force the player to look towards event-entity's feet",
 	"",
 	"on entity explosion:",
 		"\tset {_player} to the nearest player",
@@ -110,9 +110,9 @@ public class EffLook extends Effect {
 		Float maxPitch = this.maxPitch == null ? null : this.maxPitch.getSingle(event).floatValue();
 		if (LOOK_ANCHORS) {
 			PaperEntityUtils.lookAt(anchor, object, speed, maxPitch, entities.getArray(event));
-			return;
+		} else {
+			PaperEntityUtils.lookAt(object, speed, maxPitch, entities.getArray(event));
 		}
-		PaperEntityUtils.lookAt(object, speed, maxPitch, entities.getArray(event));
 	}
 
 	@Override

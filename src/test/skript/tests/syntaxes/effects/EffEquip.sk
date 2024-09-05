@@ -1,0 +1,12 @@
+test "equip effect":
+	spawn a zombie at spawn of "world":
+		set {_entity} to event-entity
+
+	equip {_entity} with a diamond chestplate
+	assert chestplate of {_entity} is a diamond chestplate with "entity was not wearing a diamond chestplate"
+	set chestplate of {_entity} to air
+
+	equip {_entity} with a diamond chestplate named "Test"
+	assert chestplate of {_entity} is a diamond chestplate named "Test" with "entity was not wearing a named diamond chestplate"
+
+	delete the entity within {_entity}

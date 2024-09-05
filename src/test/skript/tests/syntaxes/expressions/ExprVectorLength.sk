@@ -1,0 +1,11 @@
+test "vector length":
+	assert the normal length of vector(0, 0, 0) is 0 with "0-length vector check failed"
+	assert the standard length of vector(0, 1, 0) is 1 with "1-length vector check failed"
+	assert the vector length of vector(0, 0, 2) is 2 with "2-length vector check failed"
+	loop 60 times:
+		set {_x} to a random number between -100 and 100
+		set {_y} to a random number between -100 and 100
+		set {_z} to a random number between -100 and 100
+		set {_vector} to vector({_x}, {_y}, {_z})
+		set {_length} to sqrt(({_x} ^ 2) + ({_y} ^ 2) + ({_z} ^ 2))
+		assert the normal length of {_vector} is {_length} with "randomly-created vector length failed (expected %{_length}%, got %normal length of {_vector}%)"

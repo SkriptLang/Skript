@@ -1,0 +1,10 @@
+command single-quotes-in-commands ["<text="success 2">"]:
+	trigger:
+		set {sqic::output} to arg
+
+test "single-quotes-in-commands":
+	execute console command "single-quotes-in-commands ""success 1"""
+	assert {sqic::output} is "success 1" with "failed to parse arg in quotes"
+	execute console command "single-quotes-in-commands"
+	assert {sqic::output} is "success 2" with "failed to use default arg"
+	delete {sqic::output}

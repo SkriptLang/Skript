@@ -40,6 +40,9 @@ public class ExprParseLogs extends SimpleExpression<String> {
 		Skript.registerExpression(ExprParseLogs.class, String.class, ExpressionType.SIMPLE, "[the] [last] parse logs");
 	}
 
+	@Nullable
+	public static String[] lastLogs;
+
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		return true;
@@ -47,7 +50,7 @@ public class ExprParseLogs extends SimpleExpression<String> {
 
 	@Override
 	protected String[] get(Event event) {
-		return SecParse.lastLogs;
+		return lastLogs;
 	}
 
 	@Override

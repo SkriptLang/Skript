@@ -52,10 +52,10 @@ import net.md_5.bungee.api.chat.BaseComponent;
 	"set slot 4 of {_inventory} to a diamond named \"example\"",
 	"open {_inventory} to player",
 	"",
-	"open chest inventory named \"<##00ff00>hex coloured title!\" with 6 rows to player",
+	"open chest inventory named \"<#00ff00>hex coloured title!\" with 6 rows to player",
 })
 @RequiredPlugins("Paper 1.16+ (chat format)")
-@Since("2.2-dev34, INSERT VERSION (chat format)")
+@Since("2.2-dev34, 2.8.0 (chat format)")
 public class ExprChestInventory extends SimpleExpression<Inventory> {
 
 	@Nullable

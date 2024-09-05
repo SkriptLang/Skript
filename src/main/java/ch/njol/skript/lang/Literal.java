@@ -18,7 +18,7 @@
  */
 package ch.njol.skript.lang;
 
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * A literal, e.g. a number, string or item. Literals are constants which do not depend on the event and can thus e.g. be used in events.
@@ -26,15 +26,15 @@ import org.eclipse.jdt.annotation.Nullable;
  * @author Peter Güttinger
  */
 public interface Literal<T> extends Expression<T> {
-	
-	public T[] getArray();
-	
-	public T getSingle();
-	
+
+	T[] getArray();
+
+	T getSingle();
+
 	@Override
-	@Nullable
-	public <R> Literal<? extends R> getConvertedExpression(Class<R>... to);
-	
-	public T[] getAll();
-	
+	@SuppressWarnings("unchecked")
+	<R> @Nullable Literal<? extends R> getConvertedExpression(Class<R>... to);
+
+	T[] getAll();
+
 }

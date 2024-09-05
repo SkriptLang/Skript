@@ -18,23 +18,22 @@
  */
 package ch.njol.skript.lang;
 
-import org.skriptlang.skript.lang.script.Script;
 import ch.njol.skript.variables.Variables;
 import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.script.Script;
 
 import java.util.List;
 
 public class Trigger extends TriggerSection {
-	
+
 	private final String name;
 	private final SkriptEvent event;
-	
-	@Nullable
-	private final Script script;
+
+	private final @Nullable Script script;
 	private int line = -1; // -1 is default: it means there is no line number available
 	private String debugLabel;
-	
+
 	public Trigger(@Nullable Script script, String name, SkriptEvent event, List<TriggerItem> items) {
 		super(items);
 		this.script = script;
@@ -68,25 +67,24 @@ public class Trigger extends TriggerSection {
 
 		return success;
 	}
-	
+
 	@Override
-	@Nullable
-	protected TriggerItem walk(final Event e) {
-		return walk(e, true);
+	protected @Nullable TriggerItem walk(Event event) {
+		return walk(event, true);
 	}
-	
+
 	@Override
-	public String toString(final @Nullable Event e, final boolean debug) {
-		return name + " (" + event.toString(e, debug) + ")";
+	public String toString(@Nullable Event event, boolean debug) {
+		return name + " (" + this.event.toString(event, debug) + ")";
 	}
-	
+
 	/**
 	 * @return The name of this trigger.
 	 */
 	public String getName() {
 		return name;
 	}
-	
+
 	public SkriptEvent getEvent() {
 		return event;
 	}
@@ -94,8 +92,7 @@ public class Trigger extends TriggerSection {
 	/**
 	 * @return The script this trigger was created from.
 	 */
-	@Nullable
-	public Script getScript() {
+	public @Nullable Script getScript() {
 		return script;
 	}
 
@@ -107,20 +104,20 @@ public class Trigger extends TriggerSection {
 	public void setLineNumber(int line) {
 		this.line  = line;
 	}
-	
+
 	/**
 	 * @return The line number where this trigger starts. This should ONLY be used for debugging!
 	 */
 	public int getLineNumber() {
 		return line;
 	}
-	
+
 	public void setDebugLabel(String label) {
 		this.debugLabel = label;
 	}
-	
+
 	public String getDebugLabel() {
 		return debugLabel;
 	}
-	
+
 }

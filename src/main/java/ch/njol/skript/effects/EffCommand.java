@@ -48,16 +48,16 @@ import ch.njol.util.Kleenean;
 	"execute console command \"/say Hello everyone!\"",
 	"execute player bungeecord command \"/alert &6Testing Announcement!\""
 })
-@Since("1.0, INSERT VERSION (bungeecord command)")
+@Since("1.0, 2.8.0 (bungeecord command)")
 public class EffCommand extends Effect {
 
 	public static final String MESSAGE_CHANNEL = "Message";
 
 	static {
 		Skript.registerEffect(EffCommand.class,
-				"[execute] [the] [bungee:bungee[cord]] command %strings% [by %-commandsenders%]",
-				"[execute] [the] %commandsenders% [bungee:bungee[cord]] command %strings%",
-				"(let|make) %commandsenders% execute [[the] [bungee:bungee[cord]] command] %strings%");
+				"[execute] [the] [bungee:bungee[cord]] command[s] %strings% [by %-commandsenders%]",
+				"[execute] [the] %commandsenders% [bungee:bungee[cord]] command[s] %strings%",
+				"(let|make) %commandsenders% execute [[the] [bungee:bungee[cord]] command[s]] %strings%");
 	}
 
 	@Nullable

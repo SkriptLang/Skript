@@ -3,8 +3,8 @@ variables:
 	{testing::variables1::%entity%} = 1337
 	{testing::variables2::%object%} = 1337
 	{testing::variables3::%entity%::%object%} = 1337
-	testing::no brackets::%living entity% = "String"
-	testing::variables4 = 1.6900000000001
+	{testing::living entity::%living entity%} = "String"
+	{testing::variables4} = 1.6900000000001
 	{testing::regression::%offlineplayer%} = 1337
 
 on test "default variables":
@@ -17,7 +17,7 @@ on test "default variables":
 
 	assert {testing::variables2::%{_string}%} is 1337 with "default variable 2 failed: Value with string"
 	assert {testing::variables3::%last spawned pig%::%{_string}%} is 1337 with "default variable 3 failed: Value with entity and string"
-	assert {testing::no brackets::%last spawned pig%} is "String" with "default variable 4 failed: Value with entity and string"
+	assert {testing::living entity::%last spawned pig%} is "String" with "default variable 4 failed: Value with entity and string"
 	assert {testing::variables4} is 1.6900000000001 with "default variable 5 failed: Value with no entity and double"
 
 	set {_player} to "Njol" parsed as offlineplayer

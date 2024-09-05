@@ -50,7 +50,7 @@ import org.jetbrains.annotations.Nullable;
 		"\tchance of 10%",
 		"\tforce shear the clicked sheep"
 })
-@Since("2.0 (cows, sheep & snowmen), INSERT VERSION (all shearable entities)")
+@Since("2.0 (cows, sheep & snowmen), 2.8.0 (all shearable entities)")
 @RequiredPlugins("Paper 1.19.4+ (all shearable entities)")
 public class EffShear extends Effect {
 
