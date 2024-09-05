@@ -18,17 +18,8 @@
  */
 package ch.njol.skript.test.runner;
 
-import ch.njol.skript.conditions.CondCompare;
-import ch.njol.skript.config.Node;
-import ch.njol.skript.lang.VerboseAssert;
-import ch.njol.skript.registrations.Classes;
-import ch.njol.skript.util.LiteralUtils;
-import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.Nullable;
-import org.skriptlang.skript.lang.comparator.Relation;
-import org.skriptlang.skript.lang.script.Script;
-
 import ch.njol.skript.Skript;
+import ch.njol.skript.config.Node;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.NoDoc;
@@ -37,9 +28,15 @@ import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.TriggerItem;
+import ch.njol.skript.lang.VerboseAssert;
 import ch.njol.skript.log.ParseLogHandler;
 import ch.njol.skript.log.SkriptLogger;
+import ch.njol.skript.util.LiteralUtils;
 import ch.njol.util.Kleenean;
+
+import org.bukkit.event.Event;
+import org.eclipse.jdt.annotation.Nullable;
+import org.skriptlang.skript.lang.script.Script;
 
 @Name("Assert")
 @Description("Assert that condition is true. Test fails when it is not.")
@@ -47,10 +44,9 @@ import ch.njol.util.Kleenean;
 public class EffAssert extends Effect  {
 
 	static {
-		if (TestMode.ENABLED)
-			Skript.registerEffect(EffAssert.class,
-					"assert <.+> [(1:to fail)] with [error] %string%",
-					"assert <.+> [(1:to fail)] with [error] %string%, expected [value] %object%, [and] (received|got) [value] %object%");
+		Skript.registerEffect(EffAssert.class,
+				"assert [that] <.+> [(1:to fail)] with [error] %string%",
+				"assert [that] <.+> [(1:to fail)] with [error] %string%, expected [value] %object%, [and] (received|got) [value] %object%");
 	}
 
 	@Nullable

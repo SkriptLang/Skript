@@ -47,7 +47,12 @@ public enum ScriptWarning {
 	/**
 	 * This syntax is deprecated and scheduled for future removal
 	 */
-	DEPRECATED_SYNTAX;
+	DEPRECATED_SYNTAX,
+
+	/**
+	 * Suppressible because an event structure can contain multiple events, and some may be cancellable and others not.
+	 */
+	EVENT_CANNOT_BE_CANCELLED;
 
 	/**
 	 * Prints the given message using {@link Skript#warning(String)} iff the current script does not suppress deprecation warnings.

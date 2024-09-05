@@ -37,26 +37,24 @@ import ch.njol.skript.util.Getter;
 public class EvtTestCase extends SkriptEvent {
 
 	static {
-		if (TestMode.ENABLED) {
-			Skript.registerEvent("Test Case", EvtTestCase.class, SkriptTestEvent.class, "test %string% [when <.+>]")
-					.description("Contents represent one test case.")
-					.examples("")
-					.since("2.5");
-			EventValues.registerEventValue(SkriptTestEvent.class, Block.class, new Getter<Block, SkriptTestEvent>() {
-				@Override
-				@Nullable
-				public Block get(SkriptTestEvent ignored) {
-					return SkriptJUnitTest.getBlock();
-				}
-			}, EventValues.TIME_NOW);
-			EventValues.registerEventValue(SkriptTestEvent.class, Location.class, new Getter<Location, SkriptTestEvent>() {
-				@Override
-				@Nullable
-				public Location get(SkriptTestEvent ignored) {
-					return SkriptJUnitTest.getTestLocation();
-				}
-			}, EventValues.TIME_NOW);
-		}
+		Skript.registerEvent("Test Case", EvtTestCase.class, SkriptTestEvent.class, "test %string% [when <.+>]")
+				.description("Contents represent one test case.")
+				.examples("")
+				.since("2.5");
+		EventValues.registerEventValue(SkriptTestEvent.class, Block.class, new Getter<Block, SkriptTestEvent>() {
+			@Override
+			@Nullable
+			public Block get(SkriptTestEvent ignored) {
+				return SkriptJUnitTest.getBlock();
+			}
+		}, EventValues.TIME_NOW);
+		EventValues.registerEventValue(SkriptTestEvent.class, Location.class, new Getter<Location, SkriptTestEvent>() {
+			@Override
+			@Nullable
+			public Location get(SkriptTestEvent ignored) {
+				return SkriptJUnitTest.getTestLocation();
+			}
+		}, EventValues.TIME_NOW);
 	}
 
 	private Expression<String> name;
