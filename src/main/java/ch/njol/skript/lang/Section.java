@@ -180,7 +180,7 @@ public abstract class Section extends TriggerSection implements SyntaxElement {
 	 */
 	public static List<TriggerSection> getSectionsUntil(TriggerSection section) {
 		List<TriggerSection> sections = ParserInstance.get().getCurrentSections();
-		return sections.subList(sections.indexOf(section) + 1, sections.size());
+		return new ArrayList<>(sections.subList(sections.indexOf(section) + 1, sections.size()));
 	}
 
 	/**
@@ -192,7 +192,7 @@ public abstract class Section extends TriggerSection implements SyntaxElement {
 	public static List<TriggerSection> getSections(int levels) {
 		Preconditions.checkArgument(levels > 0, "Depth must be at least 1");
 		List<TriggerSection> sections = ParserInstance.get().getCurrentSections();
-		return sections.subList(Math.max(sections.size() - levels, 0), sections.size());
+		return new ArrayList<>(sections.subList(Math.max(sections.size() - levels, 0), sections.size()));
 	}
 
 	/**
@@ -208,7 +208,7 @@ public abstract class Section extends TriggerSection implements SyntaxElement {
 		List<? extends TriggerSection> sections = parser.getCurrentSections(type);
 		TriggerSection section = sections.get(Math.max(sections.size() - levels, 0));
 		List<TriggerSection> allSections = parser.getCurrentSections();
-		return allSections.subList(allSections.indexOf(section), allSections.size());
+		return new ArrayList<>(allSections.subList(allSections.indexOf(section), allSections.size()));
 	}
 
 	@Nullable
