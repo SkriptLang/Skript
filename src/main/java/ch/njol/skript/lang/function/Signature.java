@@ -18,10 +18,10 @@
  */
 package ch.njol.skript.lang.function;
 
-import ch.njol.skript.util.Contract;
 import ch.njol.skript.classes.ClassInfo;
-import org.jetbrains.annotations.Nullable;
 import ch.njol.skript.util.Utils;
+import ch.njol.skript.util.Contract;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.Collections;
