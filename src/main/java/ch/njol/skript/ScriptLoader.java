@@ -54,16 +54,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.*;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CompletableFuture;
@@ -983,12 +974,15 @@ public class ScriptLoader {
 				TypeHints.enterScope(); // Begin conditional type hints
 
 				TriggerItem section;
+				RetainingLogHandler handler = SkriptLogger.startRetainingLog();
 				find_section:
-				try (ParseLogHandler handler = SkriptLogger.startParseLogHandler()) {
+				try {
 					section = Section.parse(expr, "Can't understand this section: " + expr, (SectionNode) subNode, items);
 					if (section != null)
 						break find_section;
-					ParseLogHandler copy = handler.backup();
+
+					// back up the failure log
+					RetainingLogHandler backup = handler.backup();
 					handler.clear();
 
 					section = Statement.parse(expr, "Can't understand this effect: " + expr, (SectionNode) subNode, items);
@@ -996,9 +990,12 @@ public class ScriptLoader {
 					if (section != null)
 						break find_section;
 
-					handler.restore(copy);
-					handler.printLog();
+					// restore the failure log
+					handler.restore(backup);
 					continue;
+				} finally {
+					handler.printLog();
+					handler.close();
 				}
 
 				if (Skript.debug() || subNode.debug())
