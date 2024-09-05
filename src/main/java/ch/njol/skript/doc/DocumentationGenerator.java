@@ -25,10 +25,7 @@ public abstract class DocumentationGenerator {
 	protected File templateDir;
 	protected File outputDir;
 
-	protected DocumentationIdProvider idProvider;
-
-	public DocumentationGenerator(File templateDir, File outputDir, DocumentationIdProvider idProvider) {
-		this.idProvider = idProvider;
+	public DocumentationGenerator(File templateDir, File outputDir) {
 		this.templateDir = templateDir;
 		this.outputDir = outputDir;
 	}

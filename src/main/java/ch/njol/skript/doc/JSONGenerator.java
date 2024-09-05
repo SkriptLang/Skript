@@ -42,11 +42,11 @@ import java.util.stream.Stream;
 
 public class JSONGenerator extends DocumentationGenerator {
 
-	public JSONGenerator(File templateDir, File outputDir, DocumentationIdProvider idProvider) {
-		super(templateDir, outputDir, idProvider);
+	public JSONGenerator(File templateDir, File outputDir) {
+		super(templateDir, outputDir);
 	}
 
-	private static JsonArray convertToJsonArray(String @Nullable[] strings) {
+	private static @Nullable JsonArray convertToJsonArray(String @Nullable[] strings) {
 		if (strings == null)
 			return null;
 		JsonArray jsonArray = new JsonArray();
@@ -63,12 +63,13 @@ public class JSONGenerator extends DocumentationGenerator {
 		return jsonArray;
 	}
 
-	private @Nullable JsonObject generatedAnnotatedElement(Class<?> syntaxClass, String[] patterns) {
+	private @Nullable JsonObject generatedAnnotatedElement(SyntaxElementInfo<?> syntaxInfo, String[] patterns) {
+		Class<?> syntaxClass = syntaxInfo.getElementClass();
 		Name nameAnnotation = syntaxClass.getAnnotation(Name.class);
 		if (nameAnnotation == null || syntaxClass.getAnnotation(NoDoc.class) != null)
 			return null;
 		JsonObject syntaxJsonObject = new JsonObject();
-		syntaxJsonObject.addProperty("id", idProvider.getId(syntaxClass));
+		syntaxJsonObject.addProperty("id", DocumentationIdProvider.getId(syntaxInfo));
 		syntaxJsonObject.addProperty("name", nameAnnotation.value());
 
 		Since sinceAnnotation = syntaxClass.getAnnotation(Since.class);
@@ -93,7 +94,7 @@ public class JSONGenerator extends DocumentationGenerator {
 
 	private JsonObject generateEventElement(SkriptEventInfo<?> eventInfo) {
 		JsonObject syntaxJsonObject = new JsonObject();
-		syntaxJsonObject.addProperty("id", idProvider.getId(eventInfo));
+		syntaxJsonObject.addProperty("id", DocumentationIdProvider.getId(eventInfo));
 		syntaxJsonObject.addProperty("name", eventInfo.name);
 		syntaxJsonObject.addProperty("since", eventInfo.getSince());
 		syntaxJsonObject.add("description", convertArrayToJsonArray(eventInfo.getDescription()));
@@ -109,7 +110,7 @@ public class JSONGenerator extends DocumentationGenerator {
 			if (info instanceof SkriptEventInfo) {
 				syntaxArray.add(generateEventElement((SkriptEventInfo<?>) info));
 			} else {
-				JsonObject structureElementJsonObject = generatedAnnotatedElement(info.getElementClass(), info.patterns);
+				JsonObject structureElementJsonObject = generatedAnnotatedElement(info, info.patterns);
 				if (structureElementJsonObject != null)
 					syntaxArray.add(structureElementJsonObject);
 			}
@@ -120,7 +121,7 @@ public class JSONGenerator extends DocumentationGenerator {
 	private <T extends SyntaxElementInfo<? extends SyntaxElement>> JsonArray generateSyntaxElementArray(Iterator<T> infos) {
 		JsonArray syntaxArray = new JsonArray();
 		infos.forEachRemaining(info -> {
-			JsonObject syntaxJsonObject = generatedAnnotatedElement(info.getElementClass(), info.patterns);
+			JsonObject syntaxJsonObject = generatedAnnotatedElement(info, info.patterns);
 			if (syntaxJsonObject != null)
 				syntaxArray.add(syntaxJsonObject);
 		});
@@ -131,7 +132,7 @@ public class JSONGenerator extends DocumentationGenerator {
 		if (!classInfo.hasDocs())
 			return null;
 		JsonObject syntaxJsonObject = new JsonObject();
-		syntaxJsonObject.addProperty("id", idProvider.getId(classInfo));
+		syntaxJsonObject.addProperty("id", DocumentationIdProvider.getId(classInfo));
 		syntaxJsonObject.addProperty("name", getClassInfoName(classInfo));
 		syntaxJsonObject.addProperty("since", classInfo.getSince());
 		syntaxJsonObject.add("description", convertToJsonArray(classInfo.getDescription()));
@@ -160,7 +161,7 @@ public class JSONGenerator extends DocumentationGenerator {
 
 	private JsonObject generateFunctionElement(JavaFunction<?> function) {
 		JsonObject functionJsonObject = new JsonObject();
-		functionJsonObject.addProperty("id", idProvider.getId(function));
+		functionJsonObject.addProperty("id", DocumentationIdProvider.getId(function));
 		functionJsonObject.addProperty("name", function.getName());
 		functionJsonObject.addProperty("since", function.getSince());
 		functionJsonObject.add("description", convertToJsonArray(function.getDescription()));

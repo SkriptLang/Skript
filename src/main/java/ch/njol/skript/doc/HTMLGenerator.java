@@ -65,8 +65,8 @@ public class HTMLGenerator extends DocumentationGenerator {
 
 	private final String skeleton;
 
-	public HTMLGenerator(File templateDir, File outputDir, DocumentationIdProvider idGenerator) {
-		super(templateDir, outputDir, idGenerator);
+	public HTMLGenerator(File templateDir, File outputDir) {
+		super(templateDir, outputDir);
 		this.skeleton = readFile(new File(this.templateDir + "/template.html")); // Skeleton which contains every other page
 	}
 
@@ -466,7 +466,7 @@ public class HTMLGenerator extends DocumentationGenerator {
 			.replace("\\", "\\\\").replace("\"", "\\\"").replace("\t", "    "));
 
 		// Documentation ID
-		desc = desc.replace("${element.id}", idProvider.getId(c));
+		desc = desc.replace("${element.id}", DocumentationIdProvider.getId(info));
 
 		// Events
 		Events events = c.getAnnotation(Events.class);
@@ -591,7 +591,7 @@ public class HTMLGenerator extends DocumentationGenerator {
 		desc = desc.replace("${element.keywords}", keywords == null ? "" : Joiner.on(", ").join(keywords));
 
 		// Documentation ID
-		desc = desc.replace("${element.id}", idProvider.getId(c));
+		desc = desc.replace("${element.id}", DocumentationIdProvider.getId(info));
 
 		// Events
 		Events events = c.getAnnotation(Events.class);
@@ -690,7 +690,7 @@ public class HTMLGenerator extends DocumentationGenerator {
 		desc = desc.replace("${element.keywords}", keywords == null ? "" : Joiner.on(", ").join(keywords.value()));
 
 		// Documentation ID
-		desc = desc.replace("${element.id}", idProvider.getId(info));
+		desc = desc.replace("${element.id}", DocumentationIdProvider.getId(info));
 
 		// Events
 		Events events = c.getAnnotation(Events.class);
@@ -792,7 +792,7 @@ public class HTMLGenerator extends DocumentationGenerator {
 		desc = desc.replace("${element.keywords}", keywords == null ? "" : Joiner.on(", ").join(keywords));
 
 		// Documentation ID
-		desc = desc.replace("${element.id}", idProvider.getId(info));
+		desc = desc.replace("${element.id}", DocumentationIdProvider.getId(info));
 
 		// Events
 		desc = handleIf(desc, "${if events}", false); // Functions do not require events nor plugins (at time writing this)
