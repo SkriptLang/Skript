@@ -40,7 +40,7 @@ import org.eclipse.jdt.annotation.Nullable;
 	"if player has player's tool on cooldown:",
 		"\tsend \"You can't use this item right now. Wait %item cooldown of player's tool for player%\""
 })
-@Since("INSERT VERSION")
+@Since("2.8.0")
 public class CondHasItemCooldown extends Condition {
 
 	static {

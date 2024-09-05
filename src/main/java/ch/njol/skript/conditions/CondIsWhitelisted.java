@@ -18,73 +18,77 @@
  */
 package ch.njol.skript.conditions;
 
-import org.bukkit.Bukkit;
-import org.bukkit.entity.Player;
-import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.Nullable;
-
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
+import ch.njol.skript.doc.RequiredPlugins;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Condition;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
+import org.bukkit.Bukkit;
+import org.bukkit.OfflinePlayer;
+import org.bukkit.event.Event;
+import org.eclipse.jdt.annotation.Nullable;
 
 @Name("Is Whitelisted")
-@Description("Whether or not the server or a player is whitelisted.")
-@Examples({"if server is whitelisted:", "if player is whitelisted"})
-@Since("2.5.2")
+@Description("Whether or not the server or a player is whitelisted, or the server is whitelist enforced.")
+@Examples({
+	"if the player is whitelisted:",
+	"if the server is whitelisted:",
+	"if the server whitelist is enforced:"
+})
+@Since("2.5.2, 2.9.0 (enforce, offline players)")
+@RequiredPlugins("MC 1.17+ (enforce)")
 public class CondIsWhitelisted extends Condition {
-	
+
+	private static final boolean ENFORCE_SUPPORT = Skript.methodExists(Bukkit.class, "isWhitelistEnforced");
+
 	static {
-		Skript.registerCondition(CondIsWhitelisted.class,
-			"[the] server (is|1¦is(n't| not)) white[ ]listed",
-			"%players% (is|are)(|1¦(n't| not)) white[ ]listed");
+		String[] patterns = new String[ENFORCE_SUPPORT ? 3 : 2];
+		patterns[0] = "[the] server (is|not:(isn't|is not)) (in white[ ]list mode|white[ ]listed)";
+		patterns[1] = "%offlineplayers% (is|are|not:(isn't|is not|aren't|are not)) white[ ]listed";
+		if (ENFORCE_SUPPORT)
+			patterns[2] = "[the] server white[ ]list (is|not:(isn't|is not)) enforced";
+		Skript.registerCondition(CondIsWhitelisted.class, patterns);
 	}
-	
+
 	@Nullable
-	private Expression<Player> player;
-	
+	private Expression<OfflinePlayer> players;
+
 	private boolean isServer;
-	
+	private boolean isEnforce;
+
 	@Override
+	@SuppressWarnings("unchecked")
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		setNegated(parseResult.mark == 1);
-		isServer = matchedPattern == 0;
+		setNegated(parseResult.hasTag("not"));
+		isServer = matchedPattern != 1;
+		isEnforce = matchedPattern == 2;
 		if (matchedPattern == 1)
-			player = (Expression<Player>) exprs[0];
+			players = (Expression<OfflinePlayer>) exprs[0];
 		return true;
 	}
-	
+
 	@Override
-	@SuppressWarnings("null")
-	public boolean check(Event e) {
+	public boolean check(Event event) {
 		if (isServer)
-			return Bukkit.hasWhitelist() == isNegated();
-		Player[] players = player.getAll(e);
-		if (player.getAnd() && isNegated()) {
-			for (Player player : players)
-				if (player.isWhitelisted())
-					return false;
-		} else if(player.getAnd()){
-			for (Player player : players)
-				if (!player.isWhitelisted())
-					return false;
-		} else {
-			for (Player player: players)
-				if(player.isWhitelisted())
-					return !isNegated();
-		}
-		return !isNegated();
+			return (isEnforce ? Bukkit.isWhitelistEnforced() : Bukkit.hasWhitelist()) ^ isNegated();
+		return players.check(event, OfflinePlayer::isWhitelisted, isNegated());
 	}
-	
+
 	@Override
-	@SuppressWarnings("null")
-	public String toString(@Nullable Event e, boolean debug) {
-		return (player.getSingle(e) != null ? "player" : "server") + (isNegated() ? "not" : "") + "  whitelisted";
+	public String toString(@Nullable Event event, boolean debug) {
+		String negation = isNegated() ? "not" : "";
+		if (isServer) {
+			if (isEnforce) {
+				return "the server whitelist is " + negation + " enforced";
+			}
+			return "the server is " + negation + " whitelisted";
+		}
+		return players.toString(event, debug) + " is " + negation + " whitelisted";
 	}
-	
+
 }

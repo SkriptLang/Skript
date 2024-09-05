@@ -44,8 +44,10 @@ public class CommandHelp {
 	private final String actualCommand, actualNode, argsColor;
 	private String command;
 	private String langNode;
+
+	private boolean revalidate = true;
 	@Nullable
-	private Message description;
+	private Message description = null;
 
 	private final Map<String, Object> arguments = new LinkedHashMap<>();
 
@@ -53,18 +55,17 @@ public class CommandHelp {
 	private ArgumentHolder wildcardArg = null;
 
 	public CommandHelp(String command, SkriptColor argsColor, String langNode) {
-		this(command, argsColor.getFormattedChat(), langNode, new Message(langNode + "." + DEFAULTENTRY));
+		this(command, argsColor.getFormattedChat(), langNode);
 	}
 
 	public CommandHelp(String command, SkriptColor argsColor) {
-		this(command, argsColor.getFormattedChat(), command, null);
+		this(command, argsColor.getFormattedChat(), command);
 	}
 
-	private CommandHelp(String command, String argsColor, String node, @Nullable Message description) {
+	private CommandHelp(String command, String argsColor, String node) {
 		this.actualCommand = this.command = command;
 		this.actualNode = this.langNode = node;
 		this.argsColor = argsColor;
-		this.description = description;
 	}
 
 	public CommandHelp add(String argument) {
@@ -85,14 +86,14 @@ public class CommandHelp {
 
 	protected void onAdd(CommandHelp parent) {
 		langNode = parent.langNode + "." + actualNode;
-		description = new Message(langNode + "." + DEFAULTENTRY);
 		command = parent.command + " " + parent.argsColor + actualCommand;
+		revalidate = true;
 		for (Entry<String, Object> entry : arguments.entrySet()) {
 			if (entry.getValue() instanceof CommandHelp) {
 				((CommandHelp) entry.getValue()).onAdd(this);
 				continue;
 			}
-			((ArgumentHolder) entry.getValue()).update();
+			((ArgumentHolder) entry.getValue()).revalidate = true;
 		}
 	}
 
@@ -125,26 +126,32 @@ public class CommandHelp {
 
 	@Override
 	public String toString() {
+		if (revalidate) {
+			// We don't want to create a new Message object each time toString is called
+			description = new Message(langNode + "." + DEFAULTENTRY);
+			revalidate = false;
+		}
 		return "" + description;
 	}
 
 	private class ArgumentHolder {
 
 		private final String argument;
-		private Message description;
+		private boolean revalidate = true;
+		@Nullable
+		private Message description = null; 
 
 		private ArgumentHolder(String argument) {
 			this.argument = argument;
-			this.description = new Message(langNode + "." + argument);
-		}
-
-		private void update() {
-			description = new Message(langNode + "." + argument);
 		}
 
 		@Override
 		public String toString() {
-			return description.toString();
+			if (revalidate) {
+				description = new Message(langNode + "." + argument);
+				revalidate = false;
+			}
+			return "" + description;
 		}
 
 	}

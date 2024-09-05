@@ -41,7 +41,7 @@ import org.eclipse.jdt.annotation.Nullable;
 		"\tif victim's active tool is a bow:",
 			"\t\tinterrupt player's active item use"
 })
-@Since("INSERT VERSION")
+@Since("2.8.0")
 @RequiredPlugins("Paper")
 public class ExprActiveItem extends SimplePropertyExpression<LivingEntity, ItemStack> {
 

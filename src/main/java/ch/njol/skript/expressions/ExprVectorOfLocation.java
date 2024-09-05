@@ -42,7 +42,7 @@ import ch.njol.util.coll.CollectionUtils;
 public class ExprVectorOfLocation extends SimpleExpression<Vector> {
 
 	static {
-		Skript.registerExpression(ExprVectorOfLocation.class, Vector.class, ExpressionType.SIMPLE,
+		Skript.registerExpression(ExprVectorOfLocation.class, Vector.class, ExpressionType.PROPERTY,
 				"[the] vector (of|from|to) %location%",
 				"%location%'s vector");
 	}

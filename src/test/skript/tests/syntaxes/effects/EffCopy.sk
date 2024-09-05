@@ -1,0 +1,30 @@
+test "list copy":
+	set {_foo} to "should not be copied"
+	set {_foo::a} to "foo"
+	set {_foo::a::b} to "bar"
+	set {_foo::c::*} to "hello" and "world"
+
+	set {_bar::*} to "should", "be" and "removed"
+	copy {_foo::*} into {_bar::*}
+
+	assert {_bar} is not set with "Copied value of base variable"
+	assert {_bar::1} is not set with "Didn't override existing data 1"
+	assert {_bar::a} is "foo" with "Didn't copy {_foo::a}"
+	assert {_bar::a::b} is "bar" with "Didn't copy {_foo::a::b}"
+	assert {_bar::c::*} is "hello" or "world" with "Didn't copy {_foo::c::*}"
+
+	set {_var} to 10
+	copy {_var} into {_bar::*}
+	assert {_bar::1} is 10 with "Didn't copy single value"
+	assert {_bar::a} is not set with "Didn't override existing data 2"
+
+	copy {_none} into {_bar::*}
+	assert {_bar::*} doesn't exist with "Copying nothing didn't delete existing data"
+
+test "single copy":
+	set {_var} to 10
+	copy {_var} into {_foo}
+	assert {_foo} is 10 with "Didn't copy single value"
+
+	copy {_none} into {_foo}
+	assert {_foo} is not set with "Copying nothing didn't delete variable"

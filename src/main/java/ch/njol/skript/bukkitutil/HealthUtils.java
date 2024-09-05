@@ -18,13 +18,21 @@
  */
 package ch.njol.skript.bukkitutil;
 
+import ch.njol.skript.Skript;
 import ch.njol.util.Math2;
 import org.bukkit.attribute.Attributable;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
+import org.bukkit.damage.DamageSource;
+import org.bukkit.damage.DamageType;
 import org.bukkit.entity.Damageable;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
+import org.jetbrains.annotations.Nullable;
+
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 
 public class HealthUtils {
 
@@ -104,12 +112,34 @@ public class HealthUtils {
 		return e.getFinalDamage() / 2;
 	}
 	
-	public static void setDamage(EntityDamageEvent e, double damage) {
-		e.setDamage(damage * 2);
+	public static void setDamage(EntityDamageEvent event, double damage) {
+		event.setDamage(damage * 2);
+		// Set last damage manually as Bukkit doesn't appear to do that
+		if (event.getEntity() instanceof LivingEntity)
+			((LivingEntity) event.getEntity()).setLastDamage(damage * 2);
 	}
-	
+
+	@Nullable
+	private static final Constructor<EntityDamageEvent> OLD_DAMAGE_EVENT_CONSTRUCTOR;
+
+	static {
+		Constructor<EntityDamageEvent> constructor = null;
+		try {
+			constructor = EntityDamageEvent.class.getConstructor(Damageable.class, DamageCause.class, double.class);
+		} catch (NoSuchMethodException ignored) { }
+		OLD_DAMAGE_EVENT_CONSTRUCTOR = constructor;
+	}
+
 	public static void setDamageCause(Damageable e, DamageCause cause) {
-		e.setLastDamageCause(new EntityDamageEvent(e, cause, 0));
+		if (OLD_DAMAGE_EVENT_CONSTRUCTOR != null) {
+			try {
+				e.setLastDamageCause(OLD_DAMAGE_EVENT_CONSTRUCTOR.newInstance(e, cause, 0));
+			} catch (InstantiationException | IllegalAccessException | InvocationTargetException ex) {
+				Skript.exception("Failed to set last damage cause");
+			}
+		} else {
+			e.setLastDamageCause(new EntityDamageEvent(e, cause, DamageSource.builder(DamageType.GENERIC).build(), 0));
+		}
 	}
-	
+
 }
