@@ -19,7 +19,7 @@
 package org.skriptlang.skript.lang.script;
 
 import ch.njol.skript.config.Config;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Unmodifiable;
 import org.skriptlang.skript.lang.structure.Structure;

@@ -24,7 +24,7 @@ import ch.njol.skript.lang.ReturnHandler;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.ApiStatus;
 import org.skriptlang.skript.lang.script.Script;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.lang.Trigger;
