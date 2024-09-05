@@ -18,81 +18,106 @@
  */
 package ch.njol.skript.expressions;
 
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Projectile;
+import org.bukkit.event.Event;
+import org.bukkit.event.entity.EntityShootBowEvent;
+import org.bukkit.projectiles.ProjectileSource;
+import org.eclipse.jdt.annotation.Nullable;
+
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
-import ch.njol.skript.expressions.base.PropertyExpression;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.skript.lang.util.SimpleExpression;
+import ch.njol.skript.registrations.Classes;
+import ch.njol.skript.registrations.EventValues;
 import ch.njol.util.Kleenean;
-import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Projectile;
-import org.bukkit.event.Event;
-import org.bukkit.projectiles.ProjectileSource;
-import org.eclipse.jdt.annotation.Nullable;
 
-/**
- * @author Peter Güttinger
- */
 @Name("Shooter")
-@Description("The shooter of a projectile.")
-@Examples({"shooter is a skeleton"})
-@Since("1.3.7")
-public class ExprShooter extends PropertyExpression<Projectile, LivingEntity> {
+@Description("The shooter of a projectile or <a href='events.html#entity_shoot_event'>entity shoot event</a>.")
+@Examples({
+	"on shoot:",
+		"\tshooter is a skeleton",
+		"\tset helmet of shooter to a diamond helmet"
+})
+@Since("1.3.7, INSERT VERSION (entity shoot bow)")
+public class ExprShooter extends SimpleExpression<Entity> {
+
 	static {
-		Skript.registerExpression(ExprShooter.class, LivingEntity.class, ExpressionType.SIMPLE, "[the] shooter [of %projectile%]");
+		Skript.registerExpression(ExprShooter.class, Entity.class, ExpressionType.SIMPLE, "[the] shooter [of %-projectiles%]");
 	}
-	
-	@SuppressWarnings({"unchecked", "null"})
+
+	private Expression<Projectile> projectiles;
+
 	@Override
-	public boolean init(final Expression<?>[] exprs, final int matchedPattern, final Kleenean isDelayed, final ParseResult parseResult) {
-		setExpr((Expression<? extends Projectile>) exprs[0]);
+	@SuppressWarnings("unchecked")
+	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
+		projectiles = (Expression<Projectile>) exprs[0];
+		// We want to allow projectile expression to be null in the case of EntityShootBowEvent. As EntityShootBowEvent does not provide a Projectile.
+		// While still maintaining default expression behaviour for other events.
+		if (projectiles == null && !getParser().isCurrentEvent(EntityShootBowEvent.class)) {
+			projectiles = Classes.getDefaultExpression(Projectile.class);
+			assert projectiles != null : "There was no default expression present for Projectile ClassInfo.";
+			return projectiles.init(exprs, matchedPattern, isDelayed, parseResult);
+		}
 		return true;
 	}
-	
+
 	@Override
-	protected LivingEntity[] get(final Event e, final Projectile[] source) {
-		return get(source, projectile -> {
+	protected Entity[] get(Event event) {
+		if (event instanceof EntityShootBowEvent)
+			return new LivingEntity[] {((EntityShootBowEvent) event).getEntity()};
+		return projectiles.stream(event).map(projectile -> {
 			Object shooter = projectile != null ? projectile.getShooter() : null;
-			if (shooter instanceof LivingEntity)
-				return (LivingEntity) shooter;
+			if (shooter instanceof Entity)
+				return (Entity) shooter;
 			return null;
-		});
+		}).toArray(Entity[]::new);
 	}
-	
+
 	@Override
 	@Nullable
-	public Class<?>[] acceptChange(final ChangeMode mode) {
+	public Class<?>[] acceptChange(ChangeMode mode) {
 		if (mode == ChangeMode.SET)
 			return new Class[] {LivingEntity.class};
 		return super.acceptChange(mode);
 	}
-	
+
 	@Override
-	public void change(final Event e, final @Nullable Object[] delta, final ChangeMode mode) {
+	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
 		if (mode == ChangeMode.SET) {
-			assert delta != null;
-			for (final Projectile p : getExpr().getArray(e)) {
-				assert p != null : getExpr();
-				p.setShooter((ProjectileSource) delta[0]);
-			}
+			for (Projectile projectile : projectiles.getArray(event))
+				projectile.setShooter((ProjectileSource) delta[0]);
 		} else {
-			super.change(e, delta, mode);
+			super.change(event, delta, mode);
 		}
 	}
-	
+
+	@Override
+	public boolean setTime(int time) {
+		return time != EventValues.TIME_FUTURE;
+	}
+
+	@Override
+	public boolean isSingle() {
+		return projectiles == null || projectiles.isSingle();
+	}
+
 	@Override
 	public Class<LivingEntity> getReturnType() {
 		return LivingEntity.class;
 	}
-	
+
 	@Override
-	public String toString(final @Nullable Event e, final boolean debug) {
-		return "the shooter" + (getExpr().isDefault() ? "" : " of " + getExpr().toString(e, debug));
+	public String toString(@Nullable Event event, boolean debug) {
+		return "shooter" + (projectiles == null ? "" : " of " + projectiles.toString(event, debug));
 	}
-	
+
 }
