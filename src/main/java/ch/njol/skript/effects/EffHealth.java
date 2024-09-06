@@ -32,8 +32,12 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.util.slot.Slot;
 import ch.njol.util.Kleenean;
 import ch.njol.util.Math2;
+import org.bukkit.damage.DamageSource;
+import org.bukkit.damage.DamageType;
 import org.bukkit.entity.Damageable;
+import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
+import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.inventory.ItemStack;
 import org.eclipse.jdt.annotation.Nullable;
 
@@ -58,18 +62,21 @@ public class EffHealth extends Effect {
 	@Nullable
 	private Expression<Number> amount;
 	private boolean isHealing, isRepairing;
+	private final boolean canSetDamageCause = Skript.classExists("org.bukkit.damage.DamageSource");
+	@Nullable
+	private Expression<EntityDamageEvent.DamageCause> exprCause;
 
 	@SuppressWarnings("unchecked")
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		if (matchedPattern == 0 && exprs[2] != null)
-			Skript.warning("The fake damage cause extension of this effect has no functionality, " +
-				"and will be removed in the future");
+		if (matchedPattern == 0 && exprs[2] != null && !canSetDamageCause)
+			Skript.warning("The fake damage cause extension of this effect has no functionality in your server, it need MC 1.20.4+");
 
 		this.damageables = exprs[0];
 		this.isHealing = matchedPattern >= 1;
 		this.isRepairing = matchedPattern == 2;
 		this.amount = (Expression<Number>) exprs[1];
+		this.exprCause = (Expression<EntityDamageEvent.DamageCause>) exprs[2];
 		return true;
 	}
 
@@ -117,6 +124,39 @@ public class EffHealth extends Effect {
 				} else if (isHealing) {
 					HealthUtils.heal(damageable, amount);
 				} else {
+					if (canSetDamageCause && exprCause != null) {
+						EntityDamageEvent.DamageCause cause = exprCause.getSingle(event);
+						if (cause != null) {
+							damageable.damage(amount * 2, DamageSource.builder(switch (cause) {
+								case KILL, SUICIDE -> DamageType.GENERIC_KILL;
+								case WORLD_BORDER, VOID -> DamageType.OUT_OF_WORLD;
+								case CONTACT -> DamageType.CACTUS;
+								case SUFFOCATION -> DamageType.IN_WALL;
+								case FALL -> DamageType.FALL;
+								case FIRE -> DamageType.ON_FIRE;
+								case FIRE_TICK -> DamageType.IN_FIRE;
+								case LAVA -> DamageType.LAVA;
+								case DROWNING -> DamageType.DROWN;
+								case BLOCK_EXPLOSION, ENTITY_EXPLOSION -> DamageType.EXPLOSION;
+								case LIGHTNING -> DamageType.LIGHTNING_BOLT;
+								case STARVATION -> DamageType.STARVE;
+								case MAGIC, POISON -> DamageType.MAGIC;
+								case WITHER -> DamageType.WITHER;
+								case FALLING_BLOCK -> DamageType.FALLING_BLOCK;
+								case THORNS -> DamageType.THORNS;
+								case DRAGON_BREATH -> DamageType.DRAGON_BREATH;
+								case FLY_INTO_WALL -> DamageType.FLY_INTO_WALL;
+								case HOT_FLOOR -> DamageType.HOT_FLOOR;
+								case CAMPFIRE -> DamageType.CAMPFIRE;
+								case CRAMMING -> DamageType.CRAMMING;
+								case DRYOUT -> DamageType.DRY_OUT;
+								case FREEZE -> DamageType.FREEZE;
+								case SONIC_BOOM -> DamageType.SONIC_BOOM;
+								default -> DamageType.GENERIC;
+							}).build());
+							return;
+						}
+					}
 					HealthUtils.damage(damageable, amount);
 				}
 
