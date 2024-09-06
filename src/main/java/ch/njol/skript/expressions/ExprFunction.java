@@ -44,8 +44,10 @@ import java.util.Objects;
 
 @Name("Function (Experimental)")
 @Description("Obtain a function by name, which can be executed.")
-@Examples({"set {_function} to the function named \"myFunction\"",
-		"run {_function} with arguments 13 and true"})
+@Examples({
+		"set {_function} to the function named \"myFunction\"",
+		"run {_function} with arguments 13 and true"
+})
 @Since("INSERT VERSION")
 @SuppressWarnings({"rawtypes", "NotNullFieldNotInitialized"})
 public class ExprFunction extends SimpleExpression<DynamicFunctionReference> {
