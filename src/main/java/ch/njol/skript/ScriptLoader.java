@@ -989,9 +989,17 @@ public class ScriptLoader {
 
 					if (section != null)
 						break find_section;
+					Collection<LogEntry> errors = handler.getErrors();
 
 					// restore the failure log
-					handler.restore(backup);
+					if (errors.isEmpty()) {
+						handler.restore(backup);
+					} else { // We specifically want these two errors in preference to the section error!
+						String firstError = errors.iterator().next().getMessage();
+						if (!firstError.contains("starts a section (:) but no syntax in the line is able to manage it")
+							&& !firstError.contains("You cannot have two section-starters in the same line"))
+							handler.restore(backup);
+					}
 					continue;
 				} finally {
 					handler.printLog();
