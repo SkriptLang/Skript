@@ -51,9 +51,11 @@ public class UtilsPlurals {
 				{"kidney", "kidneys"},
 				{"anatomy", "anatomies"},
 				{"axe", "axes"},
-				{"elf", "elfs"},
 				{"knife", "knives"},
-				{"shelf", "shelfs"},
+				{"elf", "elves"},
+				{"shelf", "shelves"},
+				{"self", "selves"},
+				{"gui", "guis"},
 		};
 		for (String[] s : strings) {
 			assertEquals(s[1], Utils.toEnglishPlural(s[0]));
