@@ -199,7 +199,7 @@ public final class Parameter<T> {
 	
 	@Override
 	public String toString() {
-		return toString(true);
+		return toString(Skript.debug());
 	}
 
 	public String toString(boolean debug) {

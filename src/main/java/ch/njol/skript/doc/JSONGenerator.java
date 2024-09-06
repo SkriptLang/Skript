@@ -71,10 +71,11 @@ public class JSONGenerator extends DocumentationGenerator {
 			syntaxJsonObject.add("description", new JsonArray());
 
 		Examples examplesAnnotation = syntaxClass.getAnnotation(Examples.class);
-		if (examplesAnnotation != null)
+		if (examplesAnnotation != null) {
 			syntaxJsonObject.add("examples", convertToJsonArray(examplesAnnotation.value()));
-		else
+		} else {
 			syntaxJsonObject.add("examples", new JsonArray());
+		}
 
 
 		syntaxJsonObject.add("patterns", convertToJsonArray(syntaxInfo.getPatterns()));
