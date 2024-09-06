@@ -15,7 +15,7 @@ test "expression sections":
 
 test "expression sections that don't work":
 	# Section with no section expression!
-	set {_expected} to "The line 'set {_var} to true' starts a section (:) but no syntax in the line is able to manage it."
+	set {_expected} to "The line 'set {_var} to true' is a valid statement but cannot function as a section (:) because there is no syntax in the line to manage it."
 	parse:
 		set {_var} to true:
 			broadcast "NO BAD"

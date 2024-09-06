@@ -996,7 +996,7 @@ public class ScriptLoader {
 						handler.restore(backup);
 					} else { // We specifically want these two errors in preference to the section error!
 						String firstError = errors.iterator().next().getMessage();
-						if (!firstError.contains("starts a section (:) but no syntax in the line is able to manage it")
+						if (!firstError.contains("is a valid statement but cannot function as a section (:)")
 							&& !firstError.contains("You cannot have two section-starters in the same line"))
 							handler.restore(backup);
 					}
