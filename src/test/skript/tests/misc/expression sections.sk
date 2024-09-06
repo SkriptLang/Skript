@@ -14,17 +14,23 @@ test "expression sections":
 	assert {_var} is true with "expression section didn't run again!"
 
 test "expression sections that don't work":
+	# Section with no section expression!
+	set {_expected} to "The line 'set {_var} to true' starts a section (:) but no syntax in the line is able to manage it."
 	parse:
 		set {_var} to true:
 			broadcast "NO BAD"
-	assert last parse logs is set with "section was allowed with no header"
+	assert last parse logs contain {_expected} with "section was allowed with no header syntax"
 
+	# Multiple section expressions in one line!
+	set {_expected} to "The syntax 'a new runnable' tried to claim the current section, but it was already claimed by 'a new runnable'. You cannot have two section-starters in the same line."
 	parse:
 		set {_list::*} to a new runnable, a new runnable and a new runnable:
 			broadcast "NO BAD"
-	assert last parse logs is set with "section was allowed with multiple headers"
+	assert last parse logs contain {_expected} with "section was allowed with multiple headers"
 
+	# Regular section and a section expression in one line!
+	set {_expected} to "The syntax 'if {_var} is equal to a new runnable' tried to claim the current section, but it was already claimed by 'a new runnable'. You cannot have two section-starters in the same line."
 	parse:
 		if {_var} is a new runnable:
 			broadcast "NO BAD"
-	assert last parse logs is set with "section and section expression allowed in same line"
+	assert last parse logs contain {_expected} with "section was allowed with multiple headers"
