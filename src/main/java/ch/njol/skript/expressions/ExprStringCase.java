@@ -153,22 +153,28 @@ public class ExprStringCase extends SimpleExpression<String> {
 	}
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
+	public String toString(@Nullable Event event, boolean debug) {
+		String mode = "";
 		switch (type) {
 			case 0: // Basic Case Change 
-				return (casemode == 1) ? "uppercase" : "lowercase";
+				mode = (casemode == 1) ? "uppercase" : "lowercase";
+				break;
 			case 1: // Proper Case 
-				return ((casemode == 3) ? "strict" : "lenient") + " proper case";
+				mode = ((casemode == 3) ? "strict" : "lenient") + " proper case";
+				break;
 			case 2: // Camel Case 
-				return ((casemode == 3) ? "strict" : "lenient") + " camel case";
+				mode = ((casemode == 3) ? "strict" : "lenient") + " camel case";
+				break;
 			case 3: // Pascal Case 
-				return ((casemode == 3) ? "strict" : "lenient") + " pascal case";
+				mode = ((casemode == 3) ? "strict" : "lenient") + " pascal case";
+				break;
 			case 4: // Snake Case 
-				return ((casemode == 0) ? "" : ((casemode == 1)) ? "upper " : "lower ") + "snake case";
+				mode = ((casemode == 0) ? "" : ((casemode == 1)) ? "upper " : "lower ") + "snake case";
+				break;
 			case 5: // Kebab Case 
-				return ((casemode == 0) ? "" : ((casemode == 1)) ? "upper " : "lower ") + "kebab case";
+				mode = ((casemode == 0) ? "" : ((casemode == 1)) ? "upper " : "lower ") + "kebab case";
 		}
-		return ""; // Shouldn't reach here anyways 
+		return mode + " " + expr.toString(event, debug);
 	}
 	
 	@SuppressWarnings("null")

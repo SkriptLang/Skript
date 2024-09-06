@@ -85,8 +85,17 @@ public abstract class SkriptEvent extends Structure {
 			throw new IllegalStateException();
 		skriptEventInfo = (SkriptEventInfo<?>) syntaxElementInfo;
 
+		assert entryContainer != null; // cannot be null for non-simple structures
+		this.source = entryContainer.getSource();
+
+		// use default value for now
+		listeningBehavior = eventData.getListenerBehavior();
+
+		// initialize implementation
+		if (!init(args, matchedPattern, parseResult))
+			return false;
+
 		// evaluate whether this event supports listening to cancelled events
-		supportsListeningBehavior = false;
 		for (Class<? extends Event> eventClass : getEventClasses()) {
 			if (Cancellable.class.isAssignableFrom(eventClass)) {
 				supportsListeningBehavior = true;
@@ -94,7 +103,6 @@ public abstract class SkriptEvent extends Structure {
 			}
 		}
 
-		listeningBehavior = eventData.getListenerBehavior();
 		// if the behavior is non-null, it was set by the user
 		if (listeningBehavior != null && !isListeningBehaviorSupported()) {
 			String eventName = skriptEventInfo.name.toLowerCase(Locale.ENGLISH);
@@ -102,10 +110,7 @@ public abstract class SkriptEvent extends Structure {
 			return false;
 		}
 
-		assert entryContainer != null; // cannot be null for non-simple structures
-		this.source = entryContainer.getSource();
-
-		return init(args, matchedPattern, parseResult);
+		return true;
 	}
 
 	/**

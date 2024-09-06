@@ -16,29 +16,9 @@
  *
  * Copyright Peter Güttinger, SkriptLang team and contributors
  */
-package org.skriptlang.skript.test.tests.syntaxes;
+@NonNullByDefault({DefaultLocation.PARAMETER, DefaultLocation.RETURN_TYPE, DefaultLocation.FIELD})
+package ch.njol.skript.bukkitutil.sounds;
 
-import ch.njol.skript.test.runner.SkriptJUnitTest;
-import org.bukkit.entity.Pig;
-import org.junit.Before;
-import org.junit.Test;
+import org.eclipse.jdt.annotation.DefaultLocation;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 
-public class ExprDropsTest extends SkriptJUnitTest {
-
-	private Pig pig;
-
-	static {
-		setShutdownDelay(1);
-	}
-
-	@Before
-	public void spawnPig() {
-		pig = spawnTestPig();
-	}
-
-	@Test
-	public void killPig() {
-		pig.damage(100);
-	}
-
-}
