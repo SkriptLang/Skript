@@ -40,12 +40,16 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Name("Result (Experimental)")
-@Description({"Runs something (like a function) and returns its result.",
-		"If the thing is expected to return multiple values, specify 'results'."})
-@Examples({"set {_function} to the function named \"myFunction\"",
+@Description({
+		"Runs something (like a function) and returns its result.",
+		"If the thing is expected to return multiple values, specify 'results'."
+})
+@Examples({
+		"set {_function} to the function named \"myFunction\"",
 		"set {_result} to the result of {_function}",
 		"set {_list::*} to the results of {_function}",
-		"set {_result} to the result of {_function} with arguments 13 and true"})
+		"set {_result} to the result of {_function} with arguments 13 and true"
+})
 @Since("INSERT VERSION")
 @Keywords({"run", "result", "execute", "function", "reflection"})
 @SuppressWarnings("NotNullFieldNotInitialized")
