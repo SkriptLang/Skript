@@ -28,10 +28,9 @@ public class ExprSpawnCount extends SimplePropertyExpression<Block, Integer> {
 
 	@Override
 	public @Nullable Integer convert(Block block) {
-		if (block.getState() instanceof CreatureSpawner) {
-			CreatureSpawner spawner = (CreatureSpawner) block.getState();
+		if (block.getState() instanceof CreatureSpawner spawner)
 			return spawner.getSpawnCount();
-		}
+
 		return null;
 	}
 
