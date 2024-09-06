@@ -96,7 +96,8 @@ public class EffReturn extends Effect {
 		}
 
 		if (handler.isSingleReturnValue() && !convertedExpr.isSingle()) {
-			Skript.error(handler + " is defined to only return a single " + returnType + ", but this return statement can return multiple values.");
+			String typeName = Classes.getSuperClassInfo(returnType).getName().getSingular();
+			Skript.error(handler + " is defined to only return a single " + typeName + ", but this return statement can return multiple values.");
 			return false;
 		}
 		value = convertedExpr;
