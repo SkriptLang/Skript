@@ -2,16 +2,29 @@ test "expression sections":
 	set {_var} to false
 	set {_runnable} to a new runnable:
 		set {_var} to true
+
 	assert {_var} is false with "expression section ran too early!"
+
 	run {_runnable}
 	assert {_var} is true with "expression section didn't run!"
+
+	# try it again in case it stops working for some reason
+	set {_var} to false
+	run {_runnable}
+	assert {_var} is true with "expression section didn't run again!"
 
 test "expression sections that don't work":
 	parse:
 		set {_var} to true:
 			broadcast "NO BAD"
 	assert last parse logs is set with "section was allowed with no header"
+
 	parse:
 		set {_list::*} to a new runnable, a new runnable and a new runnable:
 			broadcast "NO BAD"
 	assert last parse logs is set with "section was allowed with multiple headers"
+
+	parse:
+		if {_var} is a new runnable:
+			broadcast "NO BAD"
+	assert last parse logs is set with "section and section expression allowed in same line"
