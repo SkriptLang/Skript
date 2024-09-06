@@ -4,10 +4,23 @@ import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.expressions.base.SectionExpression;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
+/**
+ * A dummy trigger item representing the 'section' aspect of a {@link SectionExpression}.
+ * This is not a parsed or registered syntax in itself, and can be used for getting access to the parse-time features
+ * of a section syntax (e.g. loading body code).
+ * <p>
+ * This is not safe to be used during runtime, since it is not a part of the trigger item tree.
+ *
+ * @see SectionExpression
+ * @see Section
+ * @see EffectSectionEffect
+ */
+@ApiStatus.Internal
 public class ExpressionSection extends Section {
 
 	protected final SectionExpression<?> expression;
@@ -78,6 +91,7 @@ public class ExpressionSection extends Section {
 		return super.loadCode(sectionNode, name, afterLoading, events);
 	}
 
+	@ApiStatus.Internal
 	protected boolean canInitSafely() {
 		return this.getParser().getData(SectionContext.class).claim(expression);
 	}
