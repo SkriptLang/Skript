@@ -18,6 +18,7 @@
  */
 package ch.njol.skript.lang.function;
 
+import ch.njol.skript.Skript;
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.util.Utils;
 import ch.njol.skript.util.Contract;
@@ -175,7 +176,7 @@ public class Signature<T> {
 
 	@Override
 	public String toString() {
-		return toString(true, true);
+		return toString(true, Skript.debug());
 	}
 
 	public String toString(boolean includeReturnType, boolean debug) {
