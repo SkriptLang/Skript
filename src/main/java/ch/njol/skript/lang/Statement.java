@@ -53,8 +53,8 @@ public abstract class Statement extends TriggerItem implements SyntaxElement {
 				statement = sectionContext.modify(node, items, () -> {
 						//noinspection unchecked,rawtypes
 						Statement parsed = (Statement) SkriptParser.parse(input, (Iterator) Skript.getStatements().iterator(), defaultError);
-						if (!sectionContext.claimed()) {
-							Skript.error("The effect '" + input + "' started a section (:) but no syntax was detected that can manage it.");
+						if (parsed != null && !sectionContext.claimed()) {
+							Skript.error("The line '" + input + "' starts a section (:) but no syntax in the line is able to manage it.");
 							return null;
 						}
 						return parsed;
