@@ -25,6 +25,7 @@ import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerKickEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.event.server.BroadcastMessageEvent;
 import org.eclipse.jdt.annotation.Nullable;
 
 import ch.njol.skript.Skript;
@@ -68,7 +69,7 @@ import ch.njol.util.coll.CollectionUtils;
 		"",
 		"on death:",
 			"\tset the death message to \"%player% died!\""})
-@Since("1.4.6 (chat message), 1.4.9 (join & quit messages), 2.0 (death message), 2.9.0 (clear message)")
+@Since("1.4.6 (chat message), 1.4.9 (join & quit messages), 2.0 (death message), 2.9.0 (clear message), INSERT VERSION (broadcast message)")
 @Events({"chat", "join", "quit", "death"})
 public class ExprMessage extends SimpleExpression<String> {
 	
@@ -128,6 +129,21 @@ public class ExprMessage extends SimpleExpression<String> {
 			void set(final Event e, final String message) {
 				if (e instanceof PlayerDeathEvent)
 					((PlayerDeathEvent) e).setDeathMessage(message);
+			}
+		},
+		BROADCAST("broadcast", "broadcast[-|ed ]message", BroadcastMessageEvent.class) {
+			@Override
+			@Nullable
+			String get(Event event) {
+				if (event instanceof BroadcastMessageEvent)
+					return ((BroadcastMessageEvent) event).getMessage();
+				return null;
+			}
+
+			@Override
+			void set(Event event, final String message) {
+				if (event instanceof BroadcastMessageEvent)
+					((BroadcastMessageEvent) event).setMessage(message);
 			}
 		};
 		
