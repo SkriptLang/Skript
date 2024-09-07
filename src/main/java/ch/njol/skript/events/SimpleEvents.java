@@ -104,6 +104,7 @@ import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.event.player.PlayerToggleFlightEvent;
 import org.bukkit.event.player.PlayerToggleSneakEvent;
 import org.bukkit.event.player.PlayerToggleSprintEvent;
+import org.bukkit.event.server.BroadcastMessageEvent;
 import org.bukkit.event.server.ServerListPingEvent;
 import org.bukkit.event.vehicle.VehicleCreateEvent;
 import org.bukkit.event.vehicle.VehicleDamageEvent;
@@ -820,5 +821,16 @@ public class SimpleEvents {
 					.since("2.9.0")
 					.requiredPlugins("Paper");
 		}
+
+		Skript.registerEvent("Broadcast", SimpleEvent.class, BroadcastMessageEvent.class, "broadcast")
+			.description("Called when a message is broadcasted.")
+			.examples(
+				"# Stops endermen from getting angry players with the permission \"safeFrom.enderman\"",
+				"on enderman enrage:",
+				"\tif player has permission \"safeFrom.enderman\":",
+				"\t\tcancel event"
+			)
+			.since("INSERT VERSION")
+			.requiredPlugins("Paper");
 	}
 }
