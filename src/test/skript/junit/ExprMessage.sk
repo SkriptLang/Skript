@@ -5,6 +5,8 @@ test "ExprMessageJUnit" when running JUnit:
 	set {_tests::4} to "clear join message"
 	set {_tests::5} to "set quit message"
 	set {_tests::6} to "clear quit message"
+	set {_tests::7} to "set broadcasted message"
+	set {_tests::8} to "clear broadcasted message"
 	ensure junit test "org.skriptlang.skript.test.tests.syntaxes.expressions.ExprMessageTest" completes {_tests::*}
 
 on chat:
@@ -42,3 +44,15 @@ on quit:
 	clear quit message
 	if leave message is "":
 		complete objective "clear quit message" for {_test}
+
+on broadcast:
+	set {_test} to "org.skriptlang.skript.test.tests.syntaxes.expressions.ExprMessageTest"
+	junit test is {_test}
+
+	set broadcasted message to "I left"
+	if broadcast message is "I left":
+		complete objective "set broadcasted message" for {_test}
+
+	clear broadcasted message
+	if broadcast message is "":
+		complete objective "clear broadcasted message" for {_test}
