@@ -128,6 +128,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
@@ -720,7 +721,7 @@ public final class Skript extends JavaPlugin implements Listener {
 							}
 						}
 
-						Bukkit.getScheduler().runTaskAsynchronously(Skript.this, () -> {
+						CompletableFuture.runAsync(() -> {
 							if (TestMode.JUNIT) {
 								info("Running async JUnit tests...");
 								try {
@@ -738,10 +739,11 @@ public final class Skript extends JavaPlugin implements Listener {
 								info("Completed " + tests + " JUnit tests in " + size + " classes with " + fails +
 									" failures in " + milliseconds + " milliseconds.");
 							}
-
+						}).thenRun(() -> {
 							double display = shutdownDelay.get() / 20.0;
 							info("Testing done, shutting down the server in " + display + " second" + (display == 1 ? "" : "s") + "...");
 
+							// Delay server shutdown to stop the server from crashing because the current tick takes a long time due to all the tests
 							Bukkit.getScheduler().runTaskLater(Skript.this, () -> {
 								info("Shutting down server.");
 								if (TestMode.JUNIT && !EffObjectives.isJUnitComplete())
