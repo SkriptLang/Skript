@@ -52,10 +52,11 @@ import ch.njol.util.coll.CollectionUtils;
 		"",
 		"on death:",
 			"\tset the death message to \"%player% died!\"",
+		"",
 		"on broadcast:",
 			"\tset broadcast message to \"&a[BROADCAST] %broadcast message%\""
 })
-@Since("1.4.6 (chat message), 1.4.9 (join & quit messages), 2.0 (death message), 2.9.0 (clear message), INSERT VERSION (broadcast message)")
+@Since("1.4.6 (chat message), 1.4.9 (join & quit messages), 2.0 (death message), 2.9.0 (clear message), INSERT VERSION (broadcasted message)")
 @Events({"chat", "join", "quit", "death", "broadcast"})
 public class ExprMessage extends SimpleExpression<String> {
 	
@@ -119,8 +120,7 @@ public class ExprMessage extends SimpleExpression<String> {
 		},
 		BROADCAST("broadcast", "broadcast(-|[ed] )message", BroadcastMessageEvent.class) {
 			@Override
-			@Nullable
-			String get(Event event) {
+			@Nullable String get(Event event) {
 				if (event instanceof BroadcastMessageEvent)
 					return ((BroadcastMessageEvent) event).getMessage();
 				return null;
