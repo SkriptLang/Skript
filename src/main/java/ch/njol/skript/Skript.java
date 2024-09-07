@@ -43,11 +43,7 @@ import ch.njol.skript.log.Verbosity;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.registrations.EventValues;
 import ch.njol.skript.registrations.Feature;
-import ch.njol.skript.test.runner.EffObjectives;
-import ch.njol.skript.test.runner.SkriptJUnitTest;
-import ch.njol.skript.test.runner.SkriptTestEvent;
-import ch.njol.skript.test.runner.TestMode;
-import ch.njol.skript.test.runner.TestTracker;
+import ch.njol.skript.test.runner.*;
 import ch.njol.skript.timings.SkriptTimings;
 import ch.njol.skript.update.ReleaseManifest;
 import ch.njol.skript.update.ReleaseStatus;
@@ -96,6 +92,7 @@ import org.jetbrains.annotations.UnknownNullability;
 import org.junit.After;
 import org.junit.runner.JUnitCore;
 import org.junit.runner.Result;
+import org.junit.runner.notification.Failure;
 import org.skriptlang.skript.bukkit.SkriptMetrics;
 import org.skriptlang.skript.lang.comparator.Comparator;
 import org.skriptlang.skript.lang.comparator.Comparators;
@@ -131,6 +128,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.logging.Filter;
@@ -657,7 +655,11 @@ public final class Skript extends JavaPlugin implements Listener {
 					// Ignore late init (scripts, etc.) in test mode
 					Bukkit.getScheduler().runTaskLater(Skript.this, () -> {
 						// Delay is in Minecraft ticks.
-						long shutdownDelay = 0;
+						AtomicLong shutdownDelay = new AtomicLong(), milliseconds = new AtomicLong(),
+							tests = new AtomicLong(), fails = new AtomicLong(),
+							ignored = new AtomicLong(), size = new AtomicLong();
+						List<Class<?>> asyncTests = new ArrayList<>();
+
 						if (TestMode.GEN_DOCS) {
 							Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "skript gen-docs");
 						} else if (TestMode.DEV_MODE) { // Developer controlled environment.
@@ -687,8 +689,7 @@ public final class Skript extends JavaPlugin implements Listener {
 								TestTracker.testFailed("exception was thrown during execution");
 							}
 							if (TestMode.JUNIT) {
-								info("Running all JUnit tests...");
-								long milliseconds = 0, tests = 0, fails = 0, ignored = 0, size = 0;
+								info("Running sync JUnit tests...");
 								try {
 									List<Class<?>> classes = Lists.newArrayList(Utils.getClasses(Skript.getInstance(), "org.skriptlang.skript.test", "tests"));
 									// Don't attempt to run inner/anonymous classes as tests
@@ -696,50 +697,14 @@ public final class Skript extends JavaPlugin implements Listener {
 									classes.removeIf(Class::isLocalClass);
 									// Test that requires package access. This is only present when compiling with src/test.
 									classes.add(Class.forName("ch.njol.skript.variables.FlatFileStorageTest"));
-									size = classes.size();
+									size.set(classes.size());
 									for (Class<?> clazz : classes) {
-										// Reset class SkriptJUnitTest which stores test requirements.
-										String test = clazz.getName();
-										SkriptJUnitTest.setCurrentJUnitTest(test);
-										SkriptJUnitTest.setShutdownDelay(0);
-
-										info("Running JUnit test '" + test + "'");
-										Result junit = JUnitCore.runClasses(clazz);
-										TestTracker.testStarted("JUnit: '" + test + "'");
-
-										/**
-										 * Usage of @After is pointless if the JUnit class requires delay. As the @After will happen instantly.
-										 * The JUnit must override the 'cleanup' method to avoid Skript automatically cleaning up the test data.
-										 */
-										boolean overrides = false;
-										for (Method method : clazz.getDeclaredMethods()) {
-											if (!method.isAnnotationPresent(After.class))
-												continue;
-											if (SkriptJUnitTest.getShutdownDelay() > 1)
-												warning("Using @After in JUnit classes, happens instantaneously, and JUnit class '" + test + "' requires a delay. Do your test cleanup in the script junit file or 'cleanup' method.");
-											if (method.getName().equals("cleanup"))
-												overrides = true;
+										if (SkriptAsyncJUnitTest.class.isAssignableFrom(clazz)) {
+											asyncTests.add(clazz); // do these later, all together
+											continue;
 										}
-										if (SkriptJUnitTest.getShutdownDelay() > 1 && !overrides)
-											error("The JUnit class '" + test + "' does not override the method 'cleanup' thus the test data will instantly be cleaned up. " +
-													"This JUnit test requires longer shutdown time: " + SkriptJUnitTest.getShutdownDelay());
 
-										// Collect all data from the current JUnit test.
-										shutdownDelay = Math.max(shutdownDelay, SkriptJUnitTest.getShutdownDelay());
-										tests += junit.getRunCount();
-										milliseconds += junit.getRunTime();
-										ignored += junit.getIgnoreCount();
-										fails += junit.getFailureCount();
-
-										// If JUnit failures are present, add them to the TestTracker.
-										junit.getFailures().forEach(failure -> {
-											String message = failure.getMessage() == null ? "" : " " + failure.getMessage();
-											TestTracker.JUnitTestFailed(test, message);
-											Skript.exception(failure.getException(), "JUnit test '" + failure.getTestHeader() + " failed.");
-										});
-										if (SkriptJUnitTest.class.isAssignableFrom(clazz))
-											((SkriptJUnitTest) clazz.getConstructor().newInstance()).cleanup();
-										SkriptJUnitTest.clearJUnitTest();
+										runTest(clazz, shutdownDelay, tests, milliseconds, ignored, fails);
 									}
 								} catch (IOException e) {
 									Skript.exception(e, "Failed to execute JUnit runtime tests.");
@@ -749,29 +714,44 @@ public final class Skript extends JavaPlugin implements Listener {
 								} catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
 									Skript.exception(e, "Failed to initalize test JUnit classes.");
 								}
-								if (ignored > 0)
+								if (ignored.get() > 0)
 									Skript.warning("There were " + ignored + " ignored test cases! This can mean they are not properly setup in order in that class!");
 
-								info("Completed " + tests + " JUnit tests in " + size + " classes with " + fails + " failures in " + milliseconds + " milliseconds.");
 							}
 						}
-						double display = shutdownDelay / 20;
-						info("Testing done, shutting down the server in " + display + " second" + (display <= 1D ? "" : "s") + "...");
-						// Delay server shutdown to stop the server from crashing because the current tick takes a long time due to all the tests
-						Bukkit.getScheduler().runTaskLater(Skript.this, () -> {
-							if (TestMode.JUNIT && !EffObjectives.isJUnitComplete())
-								EffObjectives.fail();
 
-							info("Collecting results to " + TestMode.RESULTS_FILE);
-							String results = new Gson().toJson(TestTracker.collectResults());
+						Bukkit.getScheduler().runTaskAsynchronously(Skript.this, () -> {
+							info("Running async JUnit tests...");
 							try {
-								Files.write(TestMode.RESULTS_FILE, results.getBytes(StandardCharsets.UTF_8));
-							} catch (IOException e) {
-								Skript.exception(e, "Failed to write test results.");
+								for (Class<?> clazz : asyncTests) {
+									runTest(clazz, shutdownDelay, tests, milliseconds, ignored, fails);
+								}
+							} catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+								Skript.exception(e, "Failed to initalize test JUnit classes.");
 							}
+							if (ignored.get() > 0)
+								Skript.warning("There were " + ignored + " ignored test cases! This can mean they are not properly setup in order in that class!");
 
-							Bukkit.getServer().shutdown();
-						}, shutdownDelay);
+							info("Completed " + tests + " JUnit tests in " + size + " classes with " + fails + " failures in " + milliseconds + " milliseconds.");
+							double display = shutdownDelay.get() / 20.0;
+							info("Testing done, shutting down the server in " + display + " second" + (display == 1 ? "" : "s") + "...");
+
+							Bukkit.getScheduler().runTaskLater(Skript.this, () -> {
+								info("Shutting down server.");
+								if (TestMode.JUNIT && !EffObjectives.isJUnitComplete())
+									EffObjectives.fail();
+
+								info("Collecting results to " + TestMode.RESULTS_FILE);
+								String results = new Gson().toJson(TestTracker.collectResults());
+								try {
+									Files.write(TestMode.RESULTS_FILE, results.getBytes(StandardCharsets.UTF_8));
+								} catch (IOException e) {
+									Skript.exception(e, "Failed to write test results.");
+								}
+
+								Bukkit.getServer().shutdown();
+							}, shutdownDelay.get());
+						});
 					}, 100);
 				}
 
@@ -861,6 +841,53 @@ public final class Skript extends JavaPlugin implements Listener {
 
 		// Tell Timings that we are here!
 		SkriptTimings.setSkript(this);
+	}
+
+	private void runTest(Class<?> clazz, AtomicLong shutdownDelay, AtomicLong tests,
+						 AtomicLong milliseconds, AtomicLong ignored, AtomicLong fails)
+		throws NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
+		String test = clazz.getName();
+		SkriptJUnitTest.setCurrentJUnitTest(test);
+		SkriptJUnitTest.setShutdownDelay(0);
+
+		info("Running JUnit test '" + test + "'");
+		Result result = JUnitCore.runClasses(clazz);
+		TestTracker.testStarted("JUnit: '" + test + "'");
+
+		/*
+		 * Usage of @After is pointless if the JUnit class requires delay. As the @After will happen instantly.
+		 * The JUnit must override the 'cleanup' method to avoid Skript automatically cleaning up the test data.
+		 */
+		boolean overrides = false;
+		for (Method method : clazz.getDeclaredMethods()) {
+			if (!method.isAnnotationPresent(After.class))
+				continue;
+			if (SkriptJUnitTest.getShutdownDelay() > 1)
+				warning("Using @After in JUnit classes, happens instantaneously, and JUnit class '" + test + "' requires a delay. Do your test cleanup in the script junit file or 'cleanup' method.");
+			if (method.getName().equals("cleanup"))
+				overrides = true;
+		}
+		if (SkriptJUnitTest.getShutdownDelay() > 1 && !overrides)
+			error("The JUnit class '" + test + "' does not override the method 'cleanup' thus the test data will instantly be cleaned up. " +
+				"This JUnit test requires longer shutdown time: " + SkriptJUnitTest.getShutdownDelay());
+
+		shutdownDelay.set(Math.max(shutdownDelay.get(), SkriptJUnitTest.getShutdownDelay()));
+		tests.getAndAdd(result.getRunCount());
+		milliseconds.getAndAdd(result.getRunTime());
+		ignored.getAndAdd(result.getIgnoreCount());
+		fails.getAndAdd(result.getFailureCount());
+
+		// If JUnit failures are present, add them to the TestTracker.
+		for (Failure failure : result.getFailures()) {
+			String message = failure.getMessage() == null ? "" : " " + failure.getMessage();
+			TestTracker.JUnitTestFailed(test, message);
+			Skript.exception(failure.getException(), "JUnit test '" + failure.getTestHeader() + " failed.");
+		}
+
+		if (SkriptJUnitTest.class.isAssignableFrom(clazz) &&
+			!SkriptAsyncJUnitTest.class.isAssignableFrom(clazz)) // can't access blocks, entities async
+			((SkriptJUnitTest) clazz.getConstructor().newInstance()).cleanup();
+		SkriptJUnitTest.clearJUnitTest();
 	}
 
 	/**

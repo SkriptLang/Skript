@@ -150,8 +150,7 @@ public class ExprHoverList extends SimpleExpression<String> {
 		switch (mode) {
 			case SET:
 				sample.clear();
-				sample.addAll(values);
-				break;
+				// $FALL-THROUGH$
 			case ADD:
 				sample.addAll(values);
 				break;
