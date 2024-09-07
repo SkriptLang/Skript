@@ -1,21 +1,3 @@
-/**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
 package ch.njol.skript.expressions;
 
 import org.bukkit.event.Event;
@@ -43,12 +25,13 @@ import ch.njol.skript.log.ErrorQuality;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
 
-/**
- * @author Peter Güttinger
- */
 @SuppressWarnings("deprecation")
 @Name("Message")
-@Description("The (chat) message of a chat event, the join message of a join event, the quit message of a quit event, or the death message on a death event. This expression is mostly useful for being changed.")
+@Description(
+	"The (chat) message of a chat event, the join message of a join event, the quit message of a quit event, " +
+	"the death message of a death event or the broadcasted message in a broadcast event. " +
+	"This expression is mostly useful for being changed."
+)
 @Examples({
 		"on chat:",
 			"\tplayer has permission \"admin\"",
@@ -68,9 +51,12 @@ import ch.njol.util.coll.CollectionUtils;
 				"\t\tset quit message to \"%player% left this awesome server!\"",
 		"",
 		"on death:",
-			"\tset the death message to \"%player% died!\""})
+			"\tset the death message to \"%player% died!\"",
+		"on broadcast:",
+			"\tset broadcast message to \"&a[BROADCAST] %broadcast message%\""
+})
 @Since("1.4.6 (chat message), 1.4.9 (join & quit messages), 2.0 (death message), 2.9.0 (clear message), INSERT VERSION (broadcast message)")
-@Events({"chat", "join", "quit", "death"})
+@Events({"chat", "join", "quit", "death", "broadcast"})
 public class ExprMessage extends SimpleExpression<String> {
 	
 	@SuppressWarnings("unchecked")

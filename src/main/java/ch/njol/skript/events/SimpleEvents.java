@@ -825,12 +825,9 @@ public class SimpleEvents {
 		Skript.registerEvent("Broadcast", SimpleEvent.class, BroadcastMessageEvent.class, "broadcast")
 			.description("Called when a message is broadcasted.")
 			.examples(
-				"# Stops endermen from getting angry players with the permission \"safeFrom.enderman\"",
-				"on enderman enrage:",
-				"\tif player has permission \"safeFrom.enderman\":",
-				"\t\tcancel event"
+				"on broadcast:",
+					"\tset broadcast-message to \"&c[BROADCAST] %broadcasted message%\""
 			)
-			.since("INSERT VERSION")
-			.requiredPlugins("Paper");
+			.since("INSERT VERSION");
 	}
 }
