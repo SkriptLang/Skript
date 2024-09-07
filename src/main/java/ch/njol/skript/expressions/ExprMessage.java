@@ -131,7 +131,7 @@ public class ExprMessage extends SimpleExpression<String> {
 					((PlayerDeathEvent) e).setDeathMessage(message);
 			}
 		},
-		BROADCAST("broadcast", "broadcast[-|ed ]message", BroadcastMessageEvent.class) {
+		BROADCAST("broadcast", "broadcast(-|[ed] )message", BroadcastMessageEvent.class) {
 			@Override
 			@Nullable
 			String get(Event event) {

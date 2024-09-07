@@ -32,6 +32,5 @@ public class ExprMessageTest extends SkriptJUnitTest {
 		manager.callEvent(new AsyncPlayerChatEvent(false, testPlayer, "hi", viewers));
 		manager.callEvent(new PlayerJoinEvent(testPlayer, "hi"));
 		manager.callEvent(new PlayerQuitEvent(testPlayer, "hi"));
-		manager.callEvent(new BroadcastMessageEvent(true, "hi", Set.of(testPlayer)));
 	}
 }

@@ -1,4 +1,4 @@
-package org.skriptlang.skript.test.tests.regression;
+package org.skriptlang.skript.test.tests.syntaxes.events;
 
 import ch.njol.skript.test.runner.SkriptAsyncJUnitTest;
 import org.bukkit.Bukkit;
@@ -7,7 +7,7 @@ import org.junit.Test;
 
 import java.util.Set;
 
-public class SimpleAsyncJUnitTest extends SkriptAsyncJUnitTest {
+public class EvtBroadcastTest extends SkriptAsyncJUnitTest {
 
 	static {
 		setShutdownDelay(1);
@@ -19,4 +19,5 @@ public class SimpleAsyncJUnitTest extends SkriptAsyncJUnitTest {
 			new BroadcastMessageEvent(true, "Intentional broadcast!",
 				Set.of(Bukkit.getConsoleSender())));
 	}
+
 }
