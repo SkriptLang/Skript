@@ -28,13 +28,13 @@ import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.log.RetainingLogHandler;
 import ch.njol.skript.log.SkriptLogger;
 import ch.njol.skript.registrations.Classes;
-import org.skriptlang.skript.lang.converter.Converters;
+import ch.njol.skript.util.Contract;
 import ch.njol.skript.util.LiteralUtils;
 import ch.njol.util.StringUtils;
 import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.Nullable;
-import ch.njol.skript.util.Contract;
 import org.skriptlang.skript.util.Executable;
+import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.converter.Converters;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -54,15 +54,13 @@ public class FunctionReference<T> implements Contract, Executable<Event, T[]> {
 	 * Signature of referenced function. If {@link #validateFunction(boolean)}
 	 * succeeds, this is not null.
 	 */
-	@Nullable
-	private Signature<? extends T> signature;
-
+	private @Nullable Signature<? extends T> signature;
+  
 	/**
 	 * Actual function reference. Null before the function is called for first
 	 * time.
 	 */
-	@Nullable
-	private Function<? extends T> function;
+	private @Nullable Function<? extends T> function;
 
 	/**
 	 * If all function parameters can be condensed to a single list.
@@ -90,15 +88,13 @@ public class FunctionReference<T> implements Contract, Executable<Event, T[]> {
 	/**
 	 * Node for {@link #validateFunction(boolean)} to use for logging.
 	 */
-	@Nullable
-	private final Node node;
+	private final @Nullable Node node;
 
 	/**
 	 * Script in which this reference is found. Used for function unload
 	 * safety checks.
 	 */
-	@Nullable
-	public final String script;
+	public final @Nullable String script;
 
 	/**
 	 * The contract for this function (typically the function reference itself).
@@ -134,7 +130,6 @@ public class FunctionReference<T> implements Contract, Executable<Event, T[]> {
 	 * this is called when the function signature changes.
 	 * @return True if validation succeeded.
 	 */
-	@SuppressWarnings("unchecked")
 	public boolean validateFunction(boolean first) {
 		if (!first && script == null)
 			return false;
@@ -231,6 +226,7 @@ public class FunctionReference<T> implements Contract, Executable<Event, T[]> {
 			Parameter<?> p = sign.parameters[singleListParam ? 0 : i];
 			RetainingLogHandler log = SkriptLogger.startRetainingLog();
 			try {
+				//noinspection unchecked
 				Expression<?> e = parameters[i].getConvertedExpression(p.type.getC());
 				if (e == null) {
 					if (first) {
@@ -264,6 +260,7 @@ public class FunctionReference<T> implements Contract, Executable<Event, T[]> {
 			}
 		}
 
+		//noinspection unchecked
 		signature = (Signature<? extends T>) sign;
 		sign.calls.add(this);
 
@@ -274,8 +271,7 @@ public class FunctionReference<T> implements Contract, Executable<Event, T[]> {
 		return true;
 	}
 
-	@Nullable
-	public Function<? extends T> getFunction() {
+	public @Nullable Function<? extends T> getFunction() {
 		return function;
 	}
 
@@ -285,11 +281,10 @@ public class FunctionReference<T> implements Contract, Executable<Event, T[]> {
 		return false;
 	}
 
-	@SuppressWarnings("unchecked")
-	@Nullable
-	protected T[] execute(Event e) {
+	protected T @Nullable [] execute(Event event) {
 		// If needed, acquire the function reference
 		if (function == null)
+			//noinspection unchecked
 			function = (Function<? extends T>) Functions.getFunction(functionName, script);
 
 		if (function == null) { // It might be impossible to resolve functions in some cases!
@@ -302,7 +297,7 @@ public class FunctionReference<T> implements Contract, Executable<Event, T[]> {
 		if (singleListParam && parameters.length > 1) { // All parameters to one list
 			List<Object> l = new ArrayList<>();
 			for (Expression<?> parameter : parameters)
-				l.addAll(Arrays.asList(parameter.getArray(e)));
+				l.addAll(Arrays.asList(parameter.getArray(event)));
 			params[0] = l.toArray();
 
 			// Don't allow mutating across function boundary; same hack is applied to variables
@@ -311,7 +306,7 @@ public class FunctionReference<T> implements Contract, Executable<Event, T[]> {
 			}
 		} else { // Use parameters in normal way
 			for (int i = 0; i < parameters.length; i++) {
-				Object[] array = parameters[i].getArray(e);
+				Object[] array = parameters[i].getArray(event);
 				params[i] = Arrays.copyOf(array, array.length);
 				// Don't allow mutating across function boundary; same hack is applied to variables
 				for (int j = 0; j < params[i].length; j++) {
@@ -333,19 +328,16 @@ public class FunctionReference<T> implements Contract, Executable<Event, T[]> {
 		return single;
 	}
 
-	@Nullable
-	public Class<? extends T> getReturnType() {
+	public @Nullable Class<? extends T> getReturnType() {
 		//noinspection unchecked
 		return (Class<? extends T>) contract.getReturnType(parameters);
 	}
 
 	@Override
-	@Nullable
-	public Class<?> getReturnType(Expression<?>... arguments) {
+	public @Nullable Class<?> getReturnType(Expression<?>... arguments) {
 		if (signature == null)
 			throw new SkriptAPIException("Signature of function is null when return type is asked!");
 
-		@SuppressWarnings("ConstantConditions")
 		ClassInfo<? extends T> ret = signature.returnType;
 		return ret == null ? null : ret.getC();
 	}
@@ -358,12 +350,12 @@ public class FunctionReference<T> implements Contract, Executable<Event, T[]> {
 		return contract;
 	}
 
-	public String toString(@Nullable Event e, boolean debug) {
+	public String toString(@Nullable Event event, boolean debug) {
 		StringBuilder b = new StringBuilder(functionName + "(");
 		for (int i = 0; i < parameters.length; i++) {
 			if (i != 0)
 				b.append(", ");
-			b.append(parameters[i].toString(e, debug));
+			b.append(parameters[i].toString(event, debug));
 		}
 		b.append(")");
 		return b.toString();
