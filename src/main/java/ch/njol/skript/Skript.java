@@ -721,18 +721,24 @@ public final class Skript extends JavaPlugin implements Listener {
 						}
 
 						Bukkit.getScheduler().runTaskAsynchronously(Skript.this, () -> {
-							info("Running async JUnit tests...");
-							try {
-								for (Class<?> clazz : asyncTests) {
-									runTest(clazz, shutdownDelay, tests, milliseconds, ignored, fails);
+							if (TestMode.JUNIT) {
+								info("Running async JUnit tests...");
+								try {
+									for (Class<?> clazz : asyncTests) {
+										runTest(clazz, shutdownDelay, tests, milliseconds, ignored, fails);
+									}
+								} catch (InstantiationException | IllegalAccessException | InvocationTargetException |
+										 NoSuchMethodException e) {
+									Skript.exception(e, "Failed to initalize test JUnit classes.");
 								}
-							} catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
-								Skript.exception(e, "Failed to initalize test JUnit classes.");
-							}
-							if (ignored.get() > 0)
-								Skript.warning("There were " + ignored + " ignored test cases! This can mean they are not properly setup in order in that class!");
+								if (ignored.get() > 0)
+									Skript.warning("There were " + ignored + " ignored test cases! " +
+										"This can mean they are not properly setup in order in that class!");
 
-							info("Completed " + tests + " JUnit tests in " + size + " classes with " + fails + " failures in " + milliseconds + " milliseconds.");
+								info("Completed " + tests + " JUnit tests in " + size + " classes with " + fails +
+									" failures in " + milliseconds + " milliseconds.");
+							}
+
 							double display = shutdownDelay.get() / 20.0;
 							info("Testing done, shutting down the server in " + display + " second" + (display == 1 ? "" : "s") + "...");
 
