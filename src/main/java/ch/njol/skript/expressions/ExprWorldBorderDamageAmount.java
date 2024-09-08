@@ -14,7 +14,8 @@ import org.jetbrains.annotations.Nullable;
 @Name("Damage Amount of World Border")
 @Description({
 	"The amount of damage a player takes per second for each block they are outside the border plus the border buffer.",
-	"Note: Players only take damage when outside of the world's world border"
+	"Note: Players only take damage when outside of the world's world border",
+	"Note: Damage can not be less than 0"
 })
 @Examples("set world border damage amount of {_worldborder} to 1")
 @Since("INSERT VERSION")
@@ -48,6 +49,7 @@ public class ExprWorldBorderDamageAmount extends SimplePropertyExpression<WorldB
 				case ADD -> worldBorder.setDamageAmount(worldBorder.getDamageAmount() + input);
 				case REMOVE -> worldBorder.setDamageAmount(worldBorder.getDamageAmount() - input);
 			}
+			worldBorder.setDamageAmount(Math.max(worldBorder.getDamageAmount(), 0));
 		}
 	}
 
