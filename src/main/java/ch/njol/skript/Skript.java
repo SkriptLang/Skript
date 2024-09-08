@@ -874,7 +874,7 @@ public final class Skript extends JavaPlugin implements Listener {
 			if (!method.isAnnotationPresent(After.class))
 				continue;
 			if (SkriptJUnitTest.getShutdownDelay() > 1)
-				warning("Using @After in JUnit classes, happens instantaneously, and JUnit class '" + test + "' requires a delay. Do your test cleanup in the script junit file or 'cleanup' method.");
+				warning("Methods annotated with @After in happen instantaneously, and '" + test + "' requires a delay. Do test cleanup in the junit script file or 'cleanup' method.");
 			if (method.getName().equals("cleanup"))
 				overrides = true;
 		}
