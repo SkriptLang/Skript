@@ -879,8 +879,8 @@ public final class Skript extends JavaPlugin implements Listener {
 				overrides = true;
 		}
 		if (SkriptJUnitTest.getShutdownDelay() > 1 && !overrides)
-			error("The JUnit class '" + test + "' does not override the method 'cleanup' thus the test data will instantly be cleaned up. " +
-				"This JUnit test requires longer shutdown time: " + SkriptJUnitTest.getShutdownDelay());
+			error("The JUnit class '" + test + "' does not override the method 'cleanup', thus the test data will instantly be cleaned up " +
+				"despite requiring a longer shutdown time: " + SkriptJUnitTest.getShutdownDelay());
 
 		shutdownDelay.set(Math.max(shutdownDelay.get(), SkriptJUnitTest.getShutdownDelay()));
 		tests.getAndAdd(result.getRunCount());
