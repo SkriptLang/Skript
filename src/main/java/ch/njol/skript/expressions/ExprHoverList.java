@@ -64,15 +64,15 @@ public class ExprHoverList extends SimpleExpression<String> {
 	@Override
 	@Nullable
 	public String[] get(Event event) {
-		if (!(event instanceof PaperServerListPingEvent))
+		if (!(event instanceof PaperServerListPingEvent pingEvent))
 			return null;
 
 		if (HAS_NEW_LISTED_PLAYER_INFO) {
-			return ((PaperServerListPingEvent) event).getListedPlayers().stream()
+			return pingEvent.getListedPlayers().stream()
 				.map(PaperServerListPingEvent.ListedPlayerInfo::name)
 				.toArray(String[]::new);
 		} else {
-			return ((PaperServerListPingEvent) event).getPlayerSample().stream()
+			return pingEvent.getPlayerSample().stream()
 				.map(PlayerProfile::getName)
 				.toArray(String[]::new);
 		}
@@ -99,15 +99,14 @@ public class ExprHoverList extends SimpleExpression<String> {
 	@SuppressWarnings("null")
 	@Override
 	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
-		if (!(event instanceof PaperServerListPingEvent))
+		if (!(event instanceof PaperServerListPingEvent pingEvent))
 			return;
 
 		if (HAS_NEW_LISTED_PLAYER_INFO) {
 			List<PaperServerListPingEvent.ListedPlayerInfo> values = new ArrayList<>();
 			if (mode != ChangeMode.DELETE && mode != ChangeMode.RESET && mode != ChangeMode.REMOVE) {
 				for (Object object : delta) {
-					if (object instanceof Player) {
-						Player player = (Player) object;
+					if (object instanceof Player player) {
 						values.add(new PaperServerListPingEvent.ListedPlayerInfo(player.getName(), player.getUniqueId()));
 					} else {
 						values.add(new PaperServerListPingEvent.ListedPlayerInfo((String) object, UUID.randomUUID()));
@@ -115,7 +114,7 @@ public class ExprHoverList extends SimpleExpression<String> {
 				}
 			}
 
-			List<PaperServerListPingEvent.ListedPlayerInfo> sample = ((PaperServerListPingEvent) event).getListedPlayers();
+			List<PaperServerListPingEvent.ListedPlayerInfo> sample = pingEvent.getListedPlayers();
 			switch (mode) {
 				case SET:
 					sample.clear();
@@ -139,8 +138,7 @@ public class ExprHoverList extends SimpleExpression<String> {
 		List<PlayerProfile> values = new ArrayList<>();
 		if (mode != ChangeMode.DELETE && mode != ChangeMode.RESET && mode != ChangeMode.REMOVE) {
 			for (Object object : delta) {
-				if (object instanceof Player) {
-					Player player = (Player) object;
+				if (object instanceof Player player) {
 					values.add(Bukkit.createProfile(player.getUniqueId(), player.getName()));
 				} else {
 					values.add(Bukkit.createProfile(UUID.randomUUID(), (String) object));
@@ -148,7 +146,7 @@ public class ExprHoverList extends SimpleExpression<String> {
 			}
 		}
 
-		List<PlayerProfile> sample = ((PaperServerListPingEvent) event).getPlayerSample();
+		List<PlayerProfile> sample = pingEvent.getPlayerSample();
 		switch (mode) {
 			case SET:
 				sample.clear();

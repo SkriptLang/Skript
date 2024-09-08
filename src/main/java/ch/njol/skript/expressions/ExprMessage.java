@@ -121,15 +121,15 @@ public class ExprMessage extends SimpleExpression<String> {
 		BROADCAST("broadcast", "broadcast(-|[ed] )message", BroadcastMessageEvent.class) {
 			@Override
 			@Nullable String get(Event event) {
-				if (event instanceof BroadcastMessageEvent)
-					return ((BroadcastMessageEvent) event).getMessage();
+				if (event instanceof BroadcastMessageEvent broadcastMessageEvent)
+					return broadcastMessageEvent.getMessage();
 				return null;
 			}
 
 			@Override
 			void set(Event event, final String message) {
-				if (event instanceof BroadcastMessageEvent)
-					((BroadcastMessageEvent) event).setMessage(message);
+				if (event instanceof BroadcastMessageEvent broadcastMessageEvent)
+					broadcastMessageEvent.setMessage(message);
 			}
 		};
 		
