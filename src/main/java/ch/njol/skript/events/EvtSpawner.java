@@ -6,12 +6,8 @@ import ch.njol.skript.entity.EntityData;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptEvent;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
-import ch.njol.skript.registrations.EventValues;
-import ch.njol.skript.util.Getter;
-import ch.njol.util.coll.CollectionUtils;
 import com.destroystokyo.paper.event.entity.PreSpawnerSpawnEvent;
 import com.google.common.collect.Lists;
-import org.bukkit.block.Block;
 import org.bukkit.event.Event;
 import org.bukkit.event.entity.SpawnerSpawnEvent;
 import org.jetbrains.annotations.Nullable;
@@ -33,10 +29,10 @@ public class EvtSpawner extends SkriptEvent {
 				"May also be called before a spawner spawns an entity when specified. This option requires a compatible Paper version.")
 			.examples(
 				"on spawner spawn of pig:",
-				"\tbroadcast \"A little piggy spawned!\"",
+					"\tbroadcast \"A little piggy spawned!\"",
 				"",
 				"on pre spawner spawn of zombie:",
-				"\tbroadcast \"A zombie is about to spawn from a spawner!\"")
+					"\tbroadcast \"A zombie is about to spawn from a spawner!\"")
 			.since("INSERT VERSION");
 
 	}

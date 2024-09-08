@@ -4,38 +4,37 @@ import ch.njol.skript.classes.Changer;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
-import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import org.bukkit.block.Block;
 import org.bukkit.block.CreatureSpawner;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
-@Name("Spawner Spawn Count")
+@Name("Spawner Required Player Range")
 @Description({
-	"Gets or sets the spawn count of a Spawner block. This determines how many mobs attempt to spawn."
+	"Gets or sets the required player range of a Spawner block.",
+	"This determines the maximum distance (squared) a player can be in order for this spawner to be active."
 })
 @Examples({
-	"set {_count} to spawn count of target block",
-	"set spawn count of {_spawner} to 10"
+	"set {_count} to required player range of target block",
+	"set required player range of {_spawner} to 10"
 })
-@Since("INSERT VERSION")
-public class ExprSpawnCount extends SimplePropertyExpression<Block, Integer> {
+public class ExprRequiredPlayerRange extends SimplePropertyExpression<Block, Integer> {
 
 	static {
-		register(ExprSpawnCount.class, Integer.class, "spawn count", "blocks");
+		register(ExprRequiredPlayerRange.class, Integer.class, "required player range", "blocks");
 	}
 
 	@Override
 	public @Nullable Integer convert(Block block) {
 		if (block.getState() instanceof CreatureSpawner spawner)
-			return spawner.getSpawnCount();
+			return spawner.getRequiredPlayerRange();
 
 		return null;
 	}
 
 	@Override
-	public Class<?>[] acceptChange(Changer.ChangeMode mode) {
+	public Class<?> @Nullable [] acceptChange(Changer.ChangeMode mode) {
 		return switch (mode) {
 			case SET, ADD, REMOVE -> new Class[]{Number.class};
 			default -> null;
@@ -43,7 +42,7 @@ public class ExprSpawnCount extends SimplePropertyExpression<Block, Integer> {
 	}
 
 	@Override
-	public void change(Event event, @Nullable Object[] delta, Changer.ChangeMode mode) {
+	public void change(Event event, Object @Nullable [] delta, Changer.ChangeMode mode) {
 		Block block = getExpr().getSingle(event);
 		if (block == null || !(block.getState() instanceof CreatureSpawner)) return;
 
@@ -52,19 +51,19 @@ public class ExprSpawnCount extends SimplePropertyExpression<Block, Integer> {
 
 		switch (mode) {
 			case SET:
-				spawner.setSpawnCount(count);
+				spawner.setRequiredPlayerRange(count);
 				block.getState().update();
 				break;
 			case ADD:
-				spawner.setSpawnCount(spawner.getSpawnCount() + count);
+				spawner.setRequiredPlayerRange(spawner.getSpawnCount() + count);
 				block.getState().update();
 				break;
 			case REMOVE:
-				spawner.setSpawnCount(spawner.getSpawnCount() - count);
+				spawner.setRequiredPlayerRange(spawner.getSpawnCount() - count);
 				block.getState().update();
 				break;
 			case RESET:
-				spawner.setSpawnCount(4); // Default is 4 according to javadoc.
+				spawner.setRequiredPlayerRange(16); // Default is 16 according to javadoc.
 				block.getState().update();
 				break;
 			default:
@@ -79,7 +78,6 @@ public class ExprSpawnCount extends SimplePropertyExpression<Block, Integer> {
 
 	@Override
 	protected String getPropertyName() {
-		return "spawn count";
+		return "required player range";
 	}
-
 }

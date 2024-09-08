@@ -4,38 +4,39 @@ import ch.njol.skript.classes.Changer;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
-import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import org.bukkit.block.Block;
 import org.bukkit.block.CreatureSpawner;
 import org.bukkit.event.Event;
+import org.bukkit.spawner.Spawner;
 import org.jetbrains.annotations.Nullable;
 
-@Name("Spawner Spawn Count")
+@Name("Spawner Max Nearby Entities")
 @Description({
-	"Gets or sets the spawn count of a Spawner block. This determines how many mobs attempt to spawn."
+	"Gets or sets the maximum nearby entities of a Spawner block.",
+	"This determines the maximum amount of similar entities that are allowed to be within spawning range of the spawner.",
+	"If there are more entities then the maximum number, the spawner will not spawn mobs."
 })
 @Examples({
-	"set {_count} to spawn count of target block",
-	"set spawn count of {_spawner} to 10"
+	"set {_count} to maximum nearby entities of target block",
+	"set max nearby entities of {_spawner} to 10"
 })
-@Since("INSERT VERSION")
-public class ExprSpawnCount extends SimplePropertyExpression<Block, Integer> {
+public class ExprMaxNearbyEntities extends SimplePropertyExpression<Block, Integer> {
 
 	static {
-		register(ExprSpawnCount.class, Integer.class, "spawn count", "blocks");
+		register(ExprMaxNearbyEntities.class, Integer.class, "max[imum] nearby entities", "blocks");
 	}
 
 	@Override
 	public @Nullable Integer convert(Block block) {
-		if (block.getState() instanceof CreatureSpawner spawner)
-			return spawner.getSpawnCount();
+		if (block.getState() instanceof Spawner spawner)
+			return spawner.getMaxNearbyEntities();
 
 		return null;
 	}
 
 	@Override
-	public Class<?>[] acceptChange(Changer.ChangeMode mode) {
+	public Class<?> @Nullable [] acceptChange(Changer.ChangeMode mode) {
 		return switch (mode) {
 			case SET, ADD, REMOVE -> new Class[]{Number.class};
 			default -> null;
@@ -43,7 +44,7 @@ public class ExprSpawnCount extends SimplePropertyExpression<Block, Integer> {
 	}
 
 	@Override
-	public void change(Event event, @Nullable Object[] delta, Changer.ChangeMode mode) {
+	public void change(Event event, Object @Nullable [] delta, Changer.ChangeMode mode) {
 		Block block = getExpr().getSingle(event);
 		if (block == null || !(block.getState() instanceof CreatureSpawner)) return;
 
@@ -52,19 +53,19 @@ public class ExprSpawnCount extends SimplePropertyExpression<Block, Integer> {
 
 		switch (mode) {
 			case SET:
-				spawner.setSpawnCount(count);
+				spawner.setMaxNearbyEntities(count);
 				block.getState().update();
 				break;
 			case ADD:
-				spawner.setSpawnCount(spawner.getSpawnCount() + count);
+				spawner.setMaxNearbyEntities(spawner.getSpawnCount() + count);
 				block.getState().update();
 				break;
 			case REMOVE:
-				spawner.setSpawnCount(spawner.getSpawnCount() - count);
+				spawner.setMaxNearbyEntities(spawner.getSpawnCount() - count);
 				block.getState().update();
 				break;
 			case RESET:
-				spawner.setSpawnCount(4); // Default is 4 according to javadoc.
+				spawner.setMaxNearbyEntities(16); // Default is 16 according to javadoc.
 				block.getState().update();
 				break;
 			default:
@@ -79,7 +80,6 @@ public class ExprSpawnCount extends SimplePropertyExpression<Block, Integer> {
 
 	@Override
 	protected String getPropertyName() {
-		return "spawn count";
+		return "maximum nearby entities";
 	}
-
 }
