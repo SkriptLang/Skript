@@ -656,10 +656,9 @@ public final class Skript extends JavaPlugin implements Listener {
 					// Ignore late init (scripts, etc.) in test mode
 					Bukkit.getScheduler().runTaskLater(Skript.this, () -> {
 						// Delay is in Minecraft ticks.
-						AtomicLong shutdownDelay = new AtomicLong(), milliseconds = new AtomicLong(),
-							tests = new AtomicLong(), fails = new AtomicLong(),
-							ignored = new AtomicLong(), size = new AtomicLong();
+						AtomicLong shutdownDelay = new AtomicLong(0);
 						List<Class<?>> asyncTests = new ArrayList<>();
+						CompletableFuture<Void> onAsyncComplete = CompletableFuture.completedFuture(null);
 
 						if (TestMode.GEN_DOCS) {
 							Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "skript gen-docs");
@@ -690,6 +689,10 @@ public final class Skript extends JavaPlugin implements Listener {
 								TestTracker.testFailed("exception was thrown during execution");
 							}
 							if (TestMode.JUNIT) {
+								AtomicLong milliseconds = new AtomicLong(0),
+									tests = new AtomicLong(0), fails = new AtomicLong(0),
+									ignored = new AtomicLong(0), size = new AtomicLong(0);
+
 								info("Running sync JUnit tests...");
 								try {
 									List<Class<?>> classes = Lists.newArrayList(Utils.getClasses(Skript.getInstance(), "org.skriptlang.skript.test", "tests"));
@@ -712,34 +715,34 @@ public final class Skript extends JavaPlugin implements Listener {
 								} catch (ClassNotFoundException e) {
 									// Should be the Skript test jar gradle task.
 									assert false : "Class 'ch.njol.skript.variables.FlatFileStorageTest' was not found.";
-								} catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
+								} catch (InstantiationException | IllegalAccessException | IllegalArgumentException |
+										 InvocationTargetException | NoSuchMethodException | SecurityException e) {
 									Skript.exception(e, "Failed to initalize test JUnit classes.");
 								}
 								if (ignored.get() > 0)
 									Skript.warning("There were " + ignored + " ignored test cases! This can mean they are not properly setup in order in that class!");
 
+								onAsyncComplete = CompletableFuture.runAsync(() -> {
+									info("Running async JUnit tests...");
+									try {
+										for (Class<?> clazz : asyncTests) {
+											runTest(clazz, shutdownDelay, tests, milliseconds, ignored, fails);
+										}
+									} catch (InstantiationException | IllegalAccessException | IllegalArgumentException |
+											 InvocationTargetException | NoSuchMethodException | SecurityException e) {
+										Skript.exception(e, "Failed to initalize test JUnit classes.");
+									}
+									if (ignored.get() > 0)
+										Skript.warning("There were " + ignored + " ignored test cases! " +
+											"This can mean they are not properly setup in order in that class!");
+
+									info("Completed " + tests + " JUnit tests in " + size + " classes with " + fails +
+										" failures in " + milliseconds + " milliseconds.");
+								});
 							}
 						}
 
-						CompletableFuture.runAsync(() -> {
-							if (TestMode.JUNIT) {
-								info("Running async JUnit tests...");
-								try {
-									for (Class<?> clazz : asyncTests) {
-										runTest(clazz, shutdownDelay, tests, milliseconds, ignored, fails);
-									}
-								} catch (InstantiationException | IllegalAccessException | InvocationTargetException |
-										 NoSuchMethodException e) {
-									Skript.exception(e, "Failed to initalize test JUnit classes.");
-								}
-								if (ignored.get() > 0)
-									Skript.warning("There were " + ignored + " ignored test cases! " +
-										"This can mean they are not properly setup in order in that class!");
-
-								info("Completed " + tests + " JUnit tests in " + size + " classes with " + fails +
-									" failures in " + milliseconds + " milliseconds.");
-							}
-						}).thenRun(() -> {
+						onAsyncComplete.thenRun(() -> {
 							double display = shutdownDelay.get() / 20.0;
 							info("Testing done, shutting down the server in " + display + " second" + (display == 1 ? "" : "s") + "...");
 
