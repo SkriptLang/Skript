@@ -18,11 +18,11 @@
  */
 package ch.njol.skript.expressions;
 
-import java.util.Set;
-
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
+import org.bukkit.event.server.BroadcastMessageEvent;
 import org.eclipse.jdt.annotation.Nullable;
 
 import ch.njol.skript.Skript;
@@ -40,71 +40,68 @@ import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
 
 @Name("Chat Recipients")
-@Description("Recipients of chat events where this is called.")
+@Description("Recipients of chat/broadcast events where this is called.")
 @Examples("chat recipients")
-@Since("2.2-Fixes-v7, 2.2-dev35 (clearing recipients)")
-public class ExprChatRecipients extends SimpleExpression<Player> {
+@Since("2.2-Fixes-v7, 2.2-dev35 (clearing recipients), INSERT VERSION (broadcast event)")
+public class ExprChatRecipients extends SimpleExpression<CommandSender> {
 
 	static {
-		Skript.registerExpression(ExprChatRecipients.class, Player.class, ExpressionType.SIMPLE, "[chat][( |-)]recipients");
-	}
-
-	@Override
-	public boolean isSingle() {
-		return false;
-	}
-
-	@Override
-	public Class<Player> getReturnType() {
-		return Player.class;
-	}
-
-	@Override
-	public Class<?>[] acceptChange(final ChangeMode mode) {
-		return CollectionUtils.array(Player[].class);
+		Skript.registerExpression(ExprChatRecipients.class, CommandSender.class, ExpressionType.SIMPLE, "[chat( |-)]recipients");
 	}
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		if (!(getParser().isCurrentEvent(AsyncPlayerChatEvent.class))) {
-			Skript.error("Cannot use chat recipients expression outside of a chat event", ErrorQuality.SEMANTIC_ERROR);
+		if (!(getParser().isCurrentEvent(AsyncPlayerChatEvent.class, BroadcastMessageEvent.class))) {
+			Skript.error("Cannot use chat recipients expression outside of a chat or a server broadcast event");
 			return false;
 		}
 		return true;
 	}
 
 	@Override
-	public String toString(@Nullable Event event, boolean debug) {
-		return "chat recipients";
+	@Nullable
+	protected CommandSender[] get(Event event) {
+		if (event instanceof AsyncPlayerChatEvent async) {
+			return async.getRecipients().toArray(new Player[0]);
+		} else if (event instanceof BroadcastMessageEvent broadcast) {
+			return broadcast.getRecipients().toArray(new CommandSender[0]);
+		}
+		return null;
 	}
 
 	@Override
-	@Nullable
-	protected Player[] get(Event event) {
-		if (!(event instanceof AsyncPlayerChatEvent))
-			return null;
-
-		AsyncPlayerChatEvent ae = (AsyncPlayerChatEvent) event;
-		Set<Player> playerSet = ae.getRecipients();
-		return playerSet.toArray(new Player[playerSet.size()]);
+	public Class<?>[] acceptChange(ChangeMode mode) {
+		return CollectionUtils.array(CommandSender[].class);
 	}
 
 	@Override
 	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
-		if (!(event instanceof AsyncPlayerChatEvent))
+		if (!(event instanceof AsyncPlayerChatEvent) && !(event instanceof BroadcastMessageEvent))
 			return;
 
-		final Player[] recipients = (Player[]) delta;
+		CommandSender[] recipients = (CommandSender[]) delta;
 		switch (mode) {
 			case REMOVE:
 				assert recipients != null;
-				for (Player player : recipients)
-					((AsyncPlayerChatEvent) event).getRecipients().remove(player);
+				if (event instanceof AsyncPlayerChatEvent) {
+					for (CommandSender sender : recipients)
+						((AsyncPlayerChatEvent) event).getRecipients().remove(sender);
+				} else {
+					for (CommandSender sender : recipients)
+						((BroadcastMessageEvent) event).getRecipients().remove(sender);
+				}
 				break;
 			case ADD:
 				assert recipients != null;
-				for (Player player : recipients)
-					((AsyncPlayerChatEvent) event).getRecipients().add(player);
+				if (event instanceof AsyncPlayerChatEvent) {
+					for (CommandSender sender : recipients) {
+						if (sender instanceof Player)
+							((AsyncPlayerChatEvent) event).getRecipients().add((Player) sender);
+					}
+				} else {
+					for (CommandSender sender : recipients)
+						((BroadcastMessageEvent) event).getRecipients().add(sender);
+				}
 				break;
 			case SET:
 				change(event, delta, ChangeMode.DELETE);
@@ -113,8 +110,28 @@ public class ExprChatRecipients extends SimpleExpression<Player> {
 			case REMOVE_ALL:
 			case RESET:
 			case DELETE:
-				((AsyncPlayerChatEvent) event).getRecipients().clear();
+				if (event instanceof AsyncPlayerChatEvent) {
+					((AsyncPlayerChatEvent) event).getRecipients().clear();
+				} else {
+					((BroadcastMessageEvent) event).getRecipients().clear();
+				}
 				break;
 		}
 	}
+
+	@Override
+	public boolean isSingle() {
+		return false;
+	}
+
+	@Override
+	public Class<CommandSender> getReturnType() {
+		return CommandSender.class;
+	}
+
+	@Override
+	public String toString(@Nullable Event event, boolean debug) {
+		return "chat recipients";
+	}
+
 }
