@@ -63,7 +63,7 @@ public class EffHealth extends Effect {
 	private boolean isHealing, isRepairing;
 	private final boolean canSetDamageCause = Skript.classExists("org.bukkit.damage.DamageSource");
 	@Nullable
-	private Expression<EntityDamageEvent.DamageCause> exprCause;
+	private Expression<EntityDamageEvent.DamageCause> exprCause = null;
 
 	@SuppressWarnings("unchecked")
 	@Override
@@ -75,7 +75,9 @@ public class EffHealth extends Effect {
 		this.isHealing = matchedPattern >= 1;
 		this.isRepairing = matchedPattern == 2;
 		this.amount = (Expression<Number>) exprs[1];
-		this.exprCause = (Expression<EntityDamageEvent.DamageCause>) exprs[2];
+		if (exprs.length > 2) {
+			this.exprCause = (Expression<EntityDamageEvent.DamageCause>) exprs[2];
+		}
 		return true;
 	}
 
@@ -115,9 +117,7 @@ public class EffHealth extends Effect {
 
 				slot.setItem(itemStack);
 
-			} else if (obj instanceof Damageable) {
-				Damageable damageable = (Damageable) obj;
-
+			} else if (obj instanceof Damageable damageable) {
 				if (this.amount == null) {
 					HealthUtils.heal(damageable, HealthUtils.getMaxHealth(damageable));
 				} else if (isHealing) {
