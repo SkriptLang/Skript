@@ -8,10 +8,12 @@ import ch.njol.skript.lang.SyntaxElementInfo;
 import ch.njol.skript.lang.function.Functions;
 import ch.njol.skript.lang.function.JavaFunction;
 import ch.njol.skript.registrations.Classes;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.structure.Structure;
 import org.skriptlang.skript.lang.structure.StructureInfo;
 
@@ -62,13 +64,14 @@ public class JSONGenerator extends DocumentationGenerator {
 		syntaxJsonObject.addProperty("name", nameAnnotation.value());
 
 		Since sinceAnnotation = syntaxClass.getAnnotation(Since.class);
-		syntaxJsonObject.addProperty("since", sinceAnnotation.value());
+		syntaxJsonObject.addProperty("since", sinceAnnotation == null ? null : sinceAnnotation.value());
 
 		Description descriptionAnnotation = syntaxClass.getAnnotation(Description.class);
-		if (descriptionAnnotation != null)
+		if (descriptionAnnotation != null) {
 			syntaxJsonObject.add("description", convertToJsonArray(descriptionAnnotation.value()));
-		else
+		} else {
 			syntaxJsonObject.add("description", new JsonArray());
+		}
 
 		Examples examplesAnnotation = syntaxClass.getAnnotation(Examples.class);
 		if (examplesAnnotation != null) {
@@ -216,7 +219,8 @@ public class JSONGenerator extends DocumentationGenerator {
 	 */
 	private void saveDocs(Path outputPath, JsonObject jsonDocs) {
 		try {
-			Files.writeString(outputPath, jsonDocs.toString());
+			Gson jsonGenerator = new GsonBuilder().disableHtmlEscaping().setPrettyPrinting().create();
+			Files.writeString(outputPath, jsonGenerator.toJson(jsonDocs));
 		} catch (IOException exception) {
 			//noinspection ThrowableNotThrown
 			Skript.exception(exception, "An error occurred while trying to generate JSON documentation");
