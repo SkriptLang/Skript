@@ -43,6 +43,7 @@ import org.jetbrains.annotations.UnknownNullability;
 @Description("Damage/Heal/Repair an entity, or item.")
 @Examples({
 	"damage player by 5 hearts",
+	"damage player by 3 hearts with fake cause fall",
 	"heal the player",
 	"repair tool of player"
 })
