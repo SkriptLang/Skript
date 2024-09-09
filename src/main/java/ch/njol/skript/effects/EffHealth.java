@@ -1,19 +1,19 @@
 /**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
+ * This file is part of Skript.
+ * <p>
+ * Skript is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * <p>
+ * Skript is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with Skript.  If not, see <http://www.gnu.org/licenses/>.
+ * <p>
  * Copyright Peter Güttinger, SkriptLang team and contributors
  */
 package ch.njol.skript.effects;
@@ -49,7 +49,6 @@ import org.jetbrains.annotations.UnknownNullability;
 })
 @Since("1.0")
 public class EffHealth extends Effect {
-
 	static {
 		Skript.registerEffect(EffHealth.class,
 			"damage %livingentities/itemtypes/slots% by %number% [heart[s]] [with fake cause %-damagecause%]",
@@ -57,11 +56,11 @@ public class EffHealth extends Effect {
 			"repair %itemtypes/slots% [by %-number%]");
 	}
 
+	private final boolean canSetDamageCause = Skript.classExists("org.bukkit.damage.DamageSource");
 	private Expression<?> damageables;
 	@UnknownNullability
 	private Expression<Number> amount;
 	private boolean isHealing, isRepairing;
-	private final boolean canSetDamageCause = Skript.classExists("org.bukkit.damage.DamageSource");
 	@UnknownNullability
 	private Expression<DamageCause> exprCause = null;
 
@@ -92,8 +91,7 @@ public class EffHealth extends Effect {
 		}
 
 		for (Object obj : this.damageables.getArray(event)) {
-			if (obj instanceof ItemType) {
-				ItemType itemType = (ItemType) obj;
+			if (obj instanceof ItemType itemType) {
 
 				if (this.amount == null) {
 					ItemUtils.setDamage(itemType, 0);
@@ -101,8 +99,7 @@ public class EffHealth extends Effect {
 					ItemUtils.setDamage(itemType, (int) Math2.fit(0, (ItemUtils.getDamage(itemType) + (isHealing ? -amount : amount)), ItemUtils.getMaxDamage(itemType)));
 				}
 
-			} else if (obj instanceof Slot) {
-				Slot slot = (Slot) obj;
+			} else if (obj instanceof Slot slot) {
 				ItemStack itemStack = slot.getItem();
 
 				if (itemStack == null)
@@ -139,14 +136,12 @@ public class EffHealth extends Effect {
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-
 		String prefix = "damage ";
 		if (isRepairing) {
 			prefix = "repair ";
 		} else if (isHealing) {
 			prefix = "heal ";
 		}
-
 		return prefix + damageables.toString(event, debug) + (amount != null ? " by " + amount.toString(event, debug) : "");
 	}
 
