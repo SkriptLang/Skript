@@ -18,7 +18,7 @@
  */
 package org.skriptlang.skript.lang.converter;
 
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * A Chained Converter is very similar to a regular {@link Converter}.

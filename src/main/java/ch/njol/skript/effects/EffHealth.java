@@ -35,7 +35,7 @@ import ch.njol.util.Math2;
 import org.bukkit.entity.Damageable;
 import org.bukkit.event.Event;
 import org.bukkit.inventory.ItemStack;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 @Name("Damage/Heal/Repair")
 @Description("Damage/Heal/Repair an entity, or item.")

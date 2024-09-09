@@ -22,7 +22,7 @@ import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.config.Node;
 import ch.njol.skript.config.SimpleNode;
 import org.skriptlang.skript.lang.entry.EntryValidator.EntryValidatorBuilder;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * An entry based on {@link SimpleNode}s containing a key and a value.
