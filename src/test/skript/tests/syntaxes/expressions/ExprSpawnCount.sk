@@ -1,0 +1,19 @@
+test "Spawn Count":
+	set block at event-location to spawner
+
+	set {_block} to block at event-location
+
+	set spawn count of {_block} to 10
+	assert spawn count of {_block} is 10 with "Spawn Count of spawner did not get set to 10"
+
+	add 5 to spawn count of {_block}
+	assert spawn count of {_block} is 15 with "Spawn Count of spawner did not get added to, not 15"
+
+	remove 7 from spawn count of {_block}
+	assert spawn count of {_block} is 8 with "Spawn Count of spawner did not get subtracted from, not 8"
+
+	reset spawn count of {_block}
+	assert spawn count of {_block} is 4 with "Spawn Count of spawner did not get reset, not 4"
+
+	# clean up
+	set block at {_block} to air

@@ -63,10 +63,10 @@ public class ExprSpawnDelay extends SimplePropertyExpression<Block, Integer> {
 	@Override
 	public void change(Event event, @Nullable Object[] delta, Changer.ChangeMode mode) {
 		int count = delta != null ? ((Number) delta[0]).intValue() : 0;
-		Skript.info(String.valueOf(count));
 
 		for (Block block : getExpr().getArray(event)) {
-			if (block.getState() instanceof CreatureSpawner spawner) {
+			CreatureSpawner spawner = (CreatureSpawner) block.getState();
+			if (spawner != null) {
 				int newCount = 0;
 				switch (mode) {
 					case SET:
@@ -85,17 +85,15 @@ public class ExprSpawnDelay extends SimplePropertyExpression<Block, Integer> {
 							newCount = 200; // Default min spawn delay
 						} else {
 							spawner.setDelay(-1); // reset
-							block.getState().update();
+							spawner.update();
 							continue;
 						}
 						break;
 					default:
 						return;
 				}
-				Skript.info(String.valueOf(newCount));
 				setSpawnDelay(spawner, Math.max(newCount, 0));
-				Skript.info(String.valueOf(Math.max(newCount, 0)));
-				block.getState().update();
+				spawner.update();
 			}
 		}
 	}
@@ -107,7 +105,6 @@ public class ExprSpawnDelay extends SimplePropertyExpression<Block, Integer> {
 			spawner.setMinSpawnDelay(delay);
 		} else {
 			spawner.setDelay(delay);
-			Skript.info(String.valueOf(delay));
 		}
 	}
 

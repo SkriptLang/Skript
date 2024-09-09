@@ -1,0 +1,43 @@
+test "Spawn Delay":
+	set block at event-location to spawner
+
+	set {_block} to block at event-location
+
+	set spawn delay of {_block} to 300
+	assert spawn delay of {_block} is 300 with "Normal spawn delay of spawner did not get set to 300"
+
+	add 100 to spawn delay of {_block}
+	assert spawn delay of {_block} is 400 with "Normal spawn delay of spawner did not get added to, not 400"
+
+	remove 150 from spawn delay of {_block}
+	assert spawn delay of {_block} is 250 with "Normal spawn delay of spawner did not get subtracted from, not 250"
+
+	reset spawn delay of {_block}
+	assert spawn delay of {_block} is not 250 with "Normal spawn delay of spawner did not get reset"
+
+	set minimum spawn delay of {_block} to 150
+	assert minimum spawn delay of {_block} is 150 with "Minimum spawn delay of spawner did not get set to 150"
+
+	add 50 to minimum spawn delay of {_block}
+	assert minimum spawn delay of {_block} is 200 with "Minimum spawn delay of spawner did not get added to, not 200"
+
+	remove 30 from minimum spawn delay of {_block}
+	assert minimum spawn delay of {_block} is 170 with "Minimum spawn delay of spawner did not get subtracted from, not 170"
+
+	reset minimum spawn delay of {_block}
+	assert minimum spawn delay of {_block} is 200 with "Minimum spawn delay of spawner did not get reset to default"
+
+	set maximum spawn delay of {_block} to 900
+	assert maximum spawn delay of {_block} is 900 with "Maximum spawn delay of spawner did not get set to 900"
+
+	add 100 to maximum spawn delay of {_block}
+	assert maximum spawn delay of {_block} is 1000 with "Maximum spawn delay of spawner did not get added to, not 1000"
+
+	remove 200 from maximum spawn delay of {_block}
+	assert maximum spawn delay of {_block} is 800 with "Maximum spawn delay of spawner did not get subtracted from, not 800"
+
+	reset maximum spawn delay of {_block}
+	assert maximum spawn delay of {_block} is 800 with "Maximum spawn delay of spawner did not get reset to default"
+
+	# Clean up
+	set block at event-location to air

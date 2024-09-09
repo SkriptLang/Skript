@@ -5,6 +5,7 @@ import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
+import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.block.Block;
 import org.bukkit.block.CreatureSpawner;
 import org.bukkit.event.Event;
@@ -38,38 +39,37 @@ public class ExprMaxNearbyEntities extends SimplePropertyExpression<Block, Integ
 	@Override
 	public Class<?> @Nullable [] acceptChange(Changer.ChangeMode mode) {
 		return switch (mode) {
-			case SET, ADD, REMOVE -> new Class[]{Number.class};
+			case SET, ADD, REMOVE, RESET -> CollectionUtils.array(Number.class);
 			default -> null;
 		};
 	}
 
 	@Override
 	public void change(Event event, Object @Nullable [] delta, Changer.ChangeMode mode) {
-		Block block = getExpr().getSingle(event);
-		if (block == null || !(block.getState() instanceof CreatureSpawner)) return;
+		int count = delta != null ? ((Number) delta[0]).intValue() : 0;
 
-		CreatureSpawner spawner = (CreatureSpawner) block.getState();
-		Integer count = delta != null && delta[0] instanceof Integer ? (Integer) delta[0] : null;
-
-		switch (mode) {
-			case SET:
-				spawner.setMaxNearbyEntities(count);
-				block.getState().update();
-				break;
-			case ADD:
-				spawner.setMaxNearbyEntities(spawner.getSpawnCount() + count);
-				block.getState().update();
-				break;
-			case REMOVE:
-				spawner.setMaxNearbyEntities(spawner.getSpawnCount() - count);
-				block.getState().update();
-				break;
-			case RESET:
-				spawner.setMaxNearbyEntities(16); // Default is 16 according to javadoc.
-				block.getState().update();
-				break;
-			default:
-				break;
+		for (Block block : getExpr().getArray(event)) {
+			if (block.getState() instanceof CreatureSpawner spawner) {
+				int newCount = 0;
+				switch (mode) {
+					case REMOVE:
+						newCount = spawner.getMaxNearbyEntities() - count;
+						break;
+					case ADD:
+						newCount = spawner.getMaxNearbyEntities() + count;
+						break;
+					case SET:
+						newCount = count;
+						break;
+					case RESET:
+						newCount = 16; // Default value according to javadoc
+						break;
+					default:
+						return;
+				}
+				spawner.setMaxNearbyEntities(Math.max(newCount, 0));
+				spawner.update();
+			}
 		}
 	}
 

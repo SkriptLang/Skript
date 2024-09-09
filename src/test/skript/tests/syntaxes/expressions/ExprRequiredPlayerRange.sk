@@ -1,0 +1,19 @@
+test "Required Player Range":
+	set block at event-location to spawner
+
+	set {_block} to block at event-location
+
+	set required player range of {_block} to 10
+	assert required player range of {_block} is 10 with "Required Player Range of spawner did not get set to 10"
+
+	add 7 to required player range of {_block}
+	assert required player range of {_block} is 17 with "Required Player Range of spawner did not get added to, not 17"
+
+	remove 5 from required player range of {_block}
+	assert required player range of {_block} is 12 with "Required Player Range of spawner did not get subtracted from, not 8"
+
+	reset required player range of {_block}
+	assert required player range of {_block} is 16 with "Required Player Range of spawner did not get reset, not 16"
+
+	# clean up
+	set block at {_block} to air

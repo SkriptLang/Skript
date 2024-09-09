@@ -1,0 +1,19 @@
+test "Max Nearby Entities":
+	set block at event-location to spawner
+
+	set {_block} to block at event-location
+
+	set maximum nearby entities of {_block} to 10
+	assert maximum nearby entities of {_block} is 10 with "Max Nearby Entities of spawner did not get set to 10"
+
+	add 7 to max nearby entities of {_block}
+	assert max nearby entities of {_block} is 17 with "Max Nearby Entities of spawner did not get added to, not 17"
+
+	remove 5 from maximum nearby entities of {_block}
+	assert maximum nearby entities of {_block} is 12 with "Max Nearby Entities of spawner did not get subtracted from, not 8"
+
+	reset max nearby entities of {_block}
+	assert max nearby entities of {_block} is 16 with "Max Nearby Entities of spawner did not get reset, not 16"
+
+	# clean up
+	set block at {_block} to air
