@@ -2275,6 +2275,13 @@ transform reasons:
 	unknown: unknown
 	infection: infection, villager infection
 
+# -- Unleash Reasons --
+unleash reasons:
+	distance: distance
+	holder_gone: holder gone
+	player_unleash: player unleash, player unleashed, unleashed by player
+	unknown: unknown
+
 # -- Boolean --
 boolean:
 	true:
@@ -2354,6 +2361,7 @@ types:
 	quitreason: quit reason¦s @a
 	inventoryclosereason: inventory close reason¦s @an
 	transformreason: transform reason¦s @a
+	unleashreason: unleash reason¦s @an
 
 	# Skript
 	weathertype: weather type¦s @a
