@@ -39,7 +39,6 @@ test "queue start/end":
 	add "foo" to the start of {_queue}
 
 	set {_words::*} to the last 3 elements in {_queue}
-	broadcast "%{_words::*}%"
 	assert {_words::*} are "foo", "hello" and "there" with "elements not polled"
 
 	assert {_queue} is empty with "queue was not empty"
@@ -57,3 +56,16 @@ test "queue emptiness":
 	set {_var} to the first element in {_queue}
 	assert {_queue} is empty with "queue was not empty"
 
+test "dequeue queue":
+
+	set {_queue} to a new queue of "hello" and "there"
+	assert {_queue} is not empty with "queue was empty"
+
+	set {_words::*} to dequeued {_queue}
+	assert {_words::*} are "hello" and "there" with "elements not dequeued"
+	delete {_words::*}
+
+	set {_words::*} to the first 2 elements in {_queue}
+	assert {_words::*} are "hello" and "there" with "elements not polled"
+
+	assert {_queue} is empty with "queue was not empty"

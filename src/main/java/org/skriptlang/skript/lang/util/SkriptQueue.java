@@ -1,6 +1,7 @@
 package org.skriptlang.skript.lang.util;
 
 import ch.njol.yggdrasil.YggdrasilSerializable;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 
@@ -8,7 +9,7 @@ import java.util.*;
  * A queue of elements.
  * This is designed not to support null elements, i.e. putting in nothing should do nothing.
  */
-public class SkriptQueue extends LinkedList<Object>
+public class SkriptQueue extends LinkedList<@NotNull Object>
 	implements Deque<Object>, Queue<Object>, YggdrasilSerializable {
 
 	@Override
@@ -55,6 +56,11 @@ public class SkriptQueue extends LinkedList<Object>
 		List<?> copy = new ArrayList<>(list);
 		copy.removeIf(Objects::isNull);
 		return super.addAll(index, copy);
+	}
+
+	@Override
+	public @NotNull Object @NotNull [] toArray() {
+		return super.toArray();
 	}
 
 	public Object removeSafely(int i) {
