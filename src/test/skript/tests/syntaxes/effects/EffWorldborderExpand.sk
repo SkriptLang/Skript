@@ -1,0 +1,34 @@
+test "worldborder expand":
+	set {_border} to worldborder of world("world")
+	assert worldborder size of {_border} is 59999968 with "The original diameter of the world's worldborder isn't 59,999,968"
+	shrink {_border} to 100
+	assert worldborder size of {_border} is 100 with "The diameter did not shrink to 100"
+	grow {_border} by 10
+	assert worldborder size of {_border} is 110 with "The diameter did not grow by 10"
+	expand {_border} by -10
+	assert worldborder size of {_border} is 100 with "The diameter did not expand by -10"
+	shrink diameter of {_border} by 10
+	assert worldborder size of {_border} is 90 with "The diameter did not shrink by 10"
+	contract {_border} by -10
+	assert worldborder size of {_border} is 100 with "The diameter did not contract by -10"
+	grow {_border}'s diameter by 0
+	assert worldborder size of {_border} is 100 with "Growing the diameter by 0 changed the diameter"
+
+	grow {_border}'s radius to 100
+	assert worldborder radius of {_border} is 100 with "The radius did not grow to 100"
+	grow {_border}'s radius by 10
+	assert worldborder radius of {_border} is 110 with "The radius did not grow by 10"
+	expand radius of {_border} by -10
+	assert worldborder radius of {_border} is 100 with "The radius did not expand by -10"
+	shrink radius of {_border} by 10
+	assert worldborder radius of {_border} is 90 with "The radius did not shrink by 10"
+	contract {_border}'s radius by -10
+	assert worldborder radius of {_border} is 100 with "The radius did not contract by -10"
+	shrink {_border}'s radius by 0
+	assert worldborder radius of {_border} is 100 with "Shrinking the radius by 0 changed the radius"
+
+
+	grow {_border} by {_None}
+	assert worldborder radius of {_border} is 100 with "Growing border by None changed the radius"
+
+	reset worldborder size of {_border}

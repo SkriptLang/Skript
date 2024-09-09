@@ -1,0 +1,17 @@
+test "worldborder size":
+	set {_border} to worldborder of world("world")
+	assert worldborder size of {_border} is 59999968 with "The original diameter of the world's worldborder isn't 59,999,968"
+	set worldborder size of {_border} to 60000001
+	assert worldborder size of {_border} is 59999968 with "The maximum diameter of the world's worldborder isn't 59,999,968"
+	set worldborder size of {_border} to -1
+	assert worldborder size of {_border} is 1 with "The minimum diameter of the world's worldborder isn't 1"
+	set worldborder diameter of {_border} to 10
+	assert worldborder size of {_border} is 10 with "Worldborder size is not the same as worldborder diameter"
+	assert worldborder radius of {_border} is 5 with "Worldborder radius is not half of worldborder diameter"
+	set worldborder radius of {_border} to 10
+	assert worldborder radius of {_border} is 10 with "Worldborder radius failed to set"
+	assert worldborder diameter of {_border} is 20 with "Worldborder diameter is not double worldborder radius"
+	set worldborder size of {_border} to {_none}
+	assert worldborder size of {_border} is 20 with "Setting worldborder size to None changes value"
+	reset worldborder size of {_border}
+	assert worldborder size of {_border} is 59999968 with "The reset diameter of the world's worldborder isn't 59,999,968"
