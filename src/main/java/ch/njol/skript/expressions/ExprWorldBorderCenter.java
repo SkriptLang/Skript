@@ -42,8 +42,17 @@ public class ExprWorldBorderCenter extends SimplePropertyExpression<WorldBorder,
 		Location location = mode == ChangeMode.SET ? (Location) delta[0] : null;
 		for (WorldBorder worldBorder : getExpr().getArray(event)) {
 			switch (mode) {
-				case SET -> worldBorder.setCenter(location);
-				case RESET -> worldBorder.setCenter(0, 0);
+				case SET:
+					if (Math.abs(location.getX()) > worldBorder.getMaxCenterCoordinate()) {
+						location.setX(location.getX() > 0 ? worldBorder.getMaxCenterCoordinate() : -1 * worldBorder.getMaxCenterCoordinate());
+					}
+					if (Math.abs(location.getZ()) > worldBorder.getMaxCenterCoordinate()) {
+						location.setZ(location.getZ() > 0 ? worldBorder.getMaxCenterCoordinate() : -1 * worldBorder.getMaxCenterCoordinate());
+					}
+					worldBorder.setCenter(location);
+					break;
+				case RESET:
+					worldBorder.setCenter(0, 0);
 			}
 		}
 	}
