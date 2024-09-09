@@ -14,7 +14,8 @@ import org.jetbrains.annotations.Nullable;
 @Name("Damage Buffer of World Border")
 @Description({
 	"The amount of blocks a player may safely be outside the border before taking damage.",
-	"Note: Players only take damage when outside of the world's world border"
+	"Note: Players only take damage when outside of the world's world border",
+	"Note: Damage buffer distance can not be less than 0"
 })
 @Examples("set world border damage buffer of {_worldborder} to 10")
 @Since("INSERT VERSION")
@@ -48,6 +49,7 @@ public class ExprWorldBorderDamageBuffer extends SimplePropertyExpression<WorldB
 				case ADD -> worldBorder.setDamageBuffer(worldBorder.getDamageBuffer() + input);
 				case REMOVE -> worldBorder.setDamageBuffer(worldBorder.getDamageBuffer() - input);
 			}
+			worldBorder.setDamageBuffer(Math.max(worldBorder.getDamageBuffer(), 0));
 		}
 	}
 
