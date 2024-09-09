@@ -10,24 +10,28 @@ import ch.njol.skript.util.slot.Slot;
 import org.bukkit.Material;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.skriptlang.skript.lang.util.SkriptQueue;
 
 @Name("Is Empty")
-@Description("Checks whether an inventory, an inventory slot, or a text is empty.")
+@Description("Checks whether an inventory, an inventory slot, a queue, or a text is empty.")
 @Examples("player's inventory is empty")
 @Since("<i>unknown</i> (before 2.1)")
 public class CondIsEmpty extends PropertyCondition<Object> {
 
 	static {
+		register(CondIsEmpty.class, "empty", "queues/inventories/slots/strings");
 		register(CondIsEmpty.class, "empty", "inventories/slots/strings/numbered");
 	}
 
 	@Override
-	public boolean check(Object object) {
-		if (object instanceof String string)
-			return string.isEmpty();
-		if (object instanceof Inventory inventory) {
-			for (ItemStack item : inventory.getContents()) {
-				if (item != null && item.getType() != Material.AIR)
+	public boolean check(final Object o) {
+		if (o instanceof String)
+			return ((String) o).isEmpty();
+		if (o instanceof SkriptQueue queue)
+			return queue.isEmpty();
+		if (o instanceof Inventory) {
+			for (ItemStack s : ((Inventory) o).getContents()) {
+				if (s != null && s.getType() != Material.AIR)
 					return false; // There is an item here!
 			}
 			return true;
