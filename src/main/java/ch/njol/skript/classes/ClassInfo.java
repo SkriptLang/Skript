@@ -27,8 +27,8 @@ import ch.njol.skript.localization.Noun;
 import ch.njol.util.coll.iterator.ArrayIterator;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.NonNull;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -516,7 +516,7 @@ public class ClassInfo<T> implements Debuggable {
 	// === GENERAL ===
 	
 	@Override
-	@NonNull
+	@NotNull
 	public String toString() {
 		return getName().getSingular();
 	}
@@ -526,7 +526,7 @@ public class ClassInfo<T> implements Debuggable {
 	}
 	
 	@Override
-	@NonNull
+	@NotNull
 	public String toString(final @Nullable Event event, final boolean debug) {
 		if (debug)
 			return codeName + " (" + c.getCanonicalName() + ")";

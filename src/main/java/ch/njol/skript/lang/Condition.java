@@ -22,7 +22,7 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Checker;
 import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Iterator;
 
@@ -32,6 +32,25 @@ import java.util.Iterator;
  * @see Skript#registerCondition(Class, String...)
  */
 public abstract class Condition extends Statement {
+
+	public enum ConditionType {
+		/**
+		 * Conditions that contain other expressions, e.g. "%properties% is/are within %expressions%"
+		 * 
+		 * @see #PROPERTY
+		 */
+		COMBINED,
+
+		/**
+		 * Property conditions, e.g. "%properties% is/are data value[s]"
+		 */
+		PROPERTY,
+
+		/**
+		 * Conditions whose pattern matches (almost) everything or should be last checked.
+		 */
+		PATTERN_MATCHES_EVERYTHING;
+	}
 
 	private boolean negated;
 
@@ -67,12 +86,18 @@ public abstract class Condition extends Statement {
 		return negated;
 	}
 
-	@Nullable
-	@SuppressWarnings({"rawtypes", "unchecked"})
-	public static Condition parse(String input, @Nullable String defaultError) {
+	/**
+	 * Parse a raw string input as a condition.
+	 * 
+	 * @param input The string input to parse as a condition.
+	 * @param defaultError The error if the condition fails.
+	 * @return Condition if parsed correctly, otherwise null.
+	 */
+	public static @Nullable Condition parse(String input, @Nullable String defaultError) {
 		input = input.trim();
 		while (input.startsWith("(") && SkriptParser.next(input, 0, ParseContext.DEFAULT) == input.length())
 			input = input.substring(1, input.length() - 1);
+		//noinspection unchecked,rawtypes
 		return (Condition) SkriptParser.parse(input, (Iterator) Skript.getConditions().iterator(), defaultError);
 	}
 

@@ -26,7 +26,7 @@ import org.bukkit.event.Event;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.util.Utils;
 import ch.njol.util.Checker;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.arithmetic.Operation;
 import org.skriptlang.skript.lang.arithmetic.OperationInfo;
 import org.skriptlang.skript.lang.arithmetic.Operator;
