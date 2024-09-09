@@ -12,7 +12,10 @@ import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
 @Name("Warning Distance of World Border")
-@Description("The warning distance of a world border. The player's screen will be tinted red when they are within this distance of the border")
+@Description({
+	"The warning distance of a world border. The player's screen will be tinted red when they are within this distance of the border",
+	"Note: Distance can not be less than 0"
+})
 @Examples("set world border warning distance of {_worldborder} to 1")
 @Since("INSERT VERSION")
 public class ExprWorldBorderWarningDistance extends SimplePropertyExpression<WorldBorder, Integer> {
@@ -24,7 +27,7 @@ public class ExprWorldBorderWarningDistance extends SimplePropertyExpression<Wor
 	@Override
 	@Nullable
 	public Integer convert(WorldBorder worldBorder) {
-		return worldBorder.getWarningTime();
+		return worldBorder.getWarningDistance();
 	}
 
 	@Override
@@ -45,6 +48,7 @@ public class ExprWorldBorderWarningDistance extends SimplePropertyExpression<Wor
 				case ADD -> worldBorder.setWarningDistance(worldBorder.getWarningDistance() + input);
 				case REMOVE -> worldBorder.setWarningDistance(worldBorder.getWarningDistance() - input);
 			}
+			worldBorder.setWarningDistance(Math.max(worldBorder.getWarningDistance(), 0));
 		}
 	}
 
