@@ -37,7 +37,7 @@ public class JSONGenerator extends DocumentationGenerator {
 	 * @param strings the String array to convert
 	 * @return the JsonArray containing the Strings
 	 */
-	private static @Nullable JsonArray convertToJsonArray(String @Nullable[] strings) {
+	private static @Nullable JsonArray convertToJsonArray(String @Nullable [] strings) {
 		if (strings == null)
 			return null;
 		JsonArray jsonArray = new JsonArray();
