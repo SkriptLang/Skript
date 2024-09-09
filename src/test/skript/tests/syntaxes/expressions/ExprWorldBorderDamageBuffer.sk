@@ -1,0 +1,40 @@
+test "worldborder damage buffer":
+	set {_border} to worldborder of world("world")
+	assert worldborder damage buffer of {_border} is 5 with "Default worldborder damage buffer is not 0.2"
+
+	set worldborder damage buffer of {_border} to 1
+	assert worldborder damage buffer of {_border} is 1 with "Failed to set worldborder damage buffer to an integer"
+	set worldborder damage buffer of {_border} to 1.5
+	assert worldborder damage buffer of {_border} is 1.5 with "Failed to set worldborder damage buffer to a float"
+	set worldborder damage buffer of {_border} to {_None}
+	assert worldborder damage buffer of {_border} is 1.5 with "Setting worldborder damage buffer to None changed the damage"
+
+	add 0.5 to worldborder damage buffer of {_border}
+	assert worldborder damage buffer of {_border} is 2 with "Failed adding float to damage buffer"
+	add 1 to worldborder damage buffer of {_border}
+	assert worldborder damage buffer of {_border} is 3 with "Failed adding integer to damage buffer"
+	add -0.5 to worldborder damage buffer of {_border}
+	assert worldborder damage buffer of {_border} is 2.5 with "Failed adding negative float to damage buffer"
+	add -1 to worldborder damage buffer of {_border}
+	assert worldborder damage buffer of {_border} is 1.5 with "Failed adding negative integer to damage buffer"
+	add {_None} to worldborder damage buffer of {_border}
+	assert worldborder damage buffer of {_border} is 1.5 with "Adding None to worldborder damage buffer changed the damage buffer"
+
+	remove 0.5 from worldborder damage buffer of {_border}
+	assert worldborder damage buffer of {_border} is 1 with "Failed removing float from damage buffer"
+	remove 1 from worldborder damage buffer of {_border}
+	assert worldborder damage buffer of {_border} is 0 with "Failed removing integer from damage buffer"
+	remove -0.5 from worldborder damage buffer of {_border}
+	assert worldborder damage buffer of {_border} is 0.5 with "Failed removing negative float from damage buffer"
+	remove -1 from worldborder damage buffer of {_border}
+	assert worldborder damage buffer of {_border} is 1.5 with "Failed removing negative integer from damage buffer"
+	remove {_None} from worldborder damage buffer of {_border}
+	assert worldborder damage buffer of {_border} is 1.5 with "Removing None from worldborder damage buffer changed the damage buffer"
+
+	set worldborder damage buffer of {_border} to -10
+	assert worldborder damage buffer of {_border} is 0 with "damage buffer should was set to a number less than 0"
+	remove 1 from worldborder damage buffer of {_border}
+	assert worldborder damage buffer of {_border} is 0 with "damage buffer went below 0 when subtracting"
+
+	reset worldborder damage buffer of {_border}
+	assert worldborder damage buffer of {_border} is 5 with "Failed to reset border damage buffer"
