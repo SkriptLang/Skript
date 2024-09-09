@@ -1,5 +1,6 @@
 package ch.njol.skript.expressions;
 
+import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
@@ -9,6 +10,7 @@ import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
+import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.block.Block;
 import org.bukkit.block.CreatureSpawner;
 import org.bukkit.event.Event;
@@ -28,7 +30,7 @@ import org.jetbrains.annotations.Nullable;
 public class ExprSpawnDelay extends SimplePropertyExpression<Block, Integer> {
 
 	static {
-		register(ExprSpawnDelay.class, Integer.class, "[:min[imum]|:max[imum]|] spawn delay", "blocks");
+		register(ExprSpawnDelay.class, Integer.class, "[:max[imum]|:min[imum]] spawn delay", "blocks");
 	}
 
 	boolean isMax;
@@ -53,44 +55,48 @@ public class ExprSpawnDelay extends SimplePropertyExpression<Block, Integer> {
 	@Override
 	public Class<?>[] acceptChange(Changer.ChangeMode mode) {
 		return switch (mode) {
-			case SET, ADD, REMOVE -> new Class[]{Number.class};
+			case SET, ADD, REMOVE, RESET -> CollectionUtils.array(Number.class);
 			default -> null;
 		};
 	}
 
 	@Override
 	public void change(Event event, @Nullable Object[] delta, Changer.ChangeMode mode) {
-		Block block = getExpr().getSingle(event);
-		if (block == null || !(block.getState() instanceof CreatureSpawner)) return;
+		int count = delta != null ? ((Number) delta[0]).intValue() : 0;
+		Skript.info(String.valueOf(count));
 
-		CreatureSpawner spawner = (CreatureSpawner) block.getState();
-		Integer count = delta != null && delta[0] instanceof Integer ? (Integer) delta[0] : null;
-
-		switch (mode) {
-			case SET:
-				setSpawnDelay(spawner, count);
-				block.getState().update();
-				break;
-			case ADD:
-				setSpawnDelay(spawner,getSpawnDelay(spawner) + count);
-				block.getState().update();
-				break;
-			case REMOVE:
-				setSpawnDelay(spawner, getSpawnDelay(spawner) - count);
-				block.getState().update();
-				break;
-			case RESET:
-				if (isMax) {
-					setSpawnDelay(spawner, 800);
-				} else if (isMin) {
-					setSpawnDelay(spawner, 200);
-				} else {
-					spawner.setDelay(-1);
+		for (Block block : getExpr().getArray(event)) {
+			if (block.getState() instanceof CreatureSpawner spawner) {
+				int newCount = 0;
+				switch (mode) {
+					case SET:
+						newCount = count;
+						break;
+					case ADD:
+						newCount = getSpawnDelay(spawner) + count;
+						break;
+					case REMOVE:
+						newCount = getSpawnDelay(spawner) - count;
+						break;
+					case RESET:
+						if (isMax) {
+							newCount = 800; // Default max spawn delay
+						} else if (isMin) {
+							newCount = 200; // Default min spawn delay
+						} else {
+							spawner.setDelay(-1); // reset
+							block.getState().update();
+							continue;
+						}
+						break;
+					default:
+						return;
 				}
+				Skript.info(String.valueOf(newCount));
+				setSpawnDelay(spawner, Math.max(newCount, 0));
+				Skript.info(String.valueOf(Math.max(newCount, 0)));
 				block.getState().update();
-				break;
-			default:
-				break;
+			}
 		}
 	}
 
@@ -101,6 +107,7 @@ public class ExprSpawnDelay extends SimplePropertyExpression<Block, Integer> {
 			spawner.setMinSpawnDelay(delay);
 		} else {
 			spawner.setDelay(delay);
+			Skript.info(String.valueOf(delay));
 		}
 	}
 
