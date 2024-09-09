@@ -110,8 +110,8 @@ public class JSONGenerator extends DocumentationGenerator {
 	private <T extends StructureInfo<? extends Structure>> JsonArray generateStructureElementArray(Iterator<T> infos) {
 		JsonArray syntaxArray = new JsonArray();
 		infos.forEachRemaining(info -> {
-			if (info instanceof SkriptEventInfo) {
-				syntaxArray.add(generateEventElement((SkriptEventInfo<?>) info));
+			if (info instanceof SkriptEventInfo<?> eventInfo) {
+				syntaxArray.add(generateEventElement(eventInfo));
 			} else {
 				JsonObject structureElementJsonObject = generatedAnnotatedElement(info);
 				if (structureElementJsonObject != null)
