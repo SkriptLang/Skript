@@ -65,7 +65,6 @@ task jar(overwrite: true, type: ShadowJar) {
 }
 
 task build(overwrite: true, type: ShadowJar) {
-	setDestinationDirectory(new File('C:\\Users\\Lexi\\Desktop\\minecraft\\Plugin\\plugins\\'))
 	archiveFileName = jarName ? 'Skript-' + project.version + '.jar' : jarName
 	from sourceSets.main.output
 }

@@ -29,7 +29,7 @@ import ch.njol.skript.lang.SyntaxElementInfo;
 import ch.njol.skript.lang.Trigger;
 import ch.njol.skript.lang.TriggerItem;
 import ch.njol.skript.lang.util.SimpleExpression;
-import ch.njol.skript.listeners.PreScriptLoadEventTest;
+import ch.njol.skript.listeners.ScriptLoad;
 import ch.njol.skript.localization.Language;
 import ch.njol.skript.localization.Message;
 import ch.njol.skript.localization.PluralizingArgsMessage;
@@ -372,7 +372,7 @@ public final class Skript extends JavaPlugin implements Listener {
 	@Override
 	public void onEnable() {
 		Bukkit.getPluginManager().registerEvents(this, this);
-		Bukkit.getPluginManager().registerEvents(new PreScriptLoadEventTest(), this);
+		Bukkit.getPluginManager().registerEvents(new ScriptLoad(), this);
 		if (disabled) {
 			Skript.error(m_invalid_reload.toString());
 			setEnabled(false);

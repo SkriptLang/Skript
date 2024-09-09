@@ -86,7 +86,7 @@ public abstract class Node {
 //	protected Node(final String key, final SectionNode parent, final ConfigReader r) {
 //		this(key, parent, r.getLine(), r.getLineNum());
 //	}
-
+//
 	/**
 	 * Key of this node. <tt>null</tt> for empty or invalid nodes, and the config's main node.
 	 */

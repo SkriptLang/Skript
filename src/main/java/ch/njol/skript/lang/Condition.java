@@ -68,7 +68,7 @@ public abstract class Condition extends Statement {
 	public abstract boolean check(Event event);
 
 	@Override
-	protected final boolean run(Event event) {
+	public final boolean run(Event event) {
 		return check(event);
 	}
 

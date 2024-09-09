@@ -48,10 +48,7 @@ public class CondIsSet extends Condition implements VerboseAssert {
 	static {
 		Skript.registerCondition(CondIsSet.class,
 				"%~objects% (exist[s]|(is|are) set)",
-				"%~objects% (do[es](n't| not) exist|(is|are)(n't| not) set)",
-				"%~objects%",
-				"!%~objects%"
-		);
+				"%~objects% (do[es](n't| not) exist|(is|are)(n't| not) set)");
 	}
 	
 	@SuppressWarnings("null")
@@ -61,7 +58,7 @@ public class CondIsSet extends Condition implements VerboseAssert {
 	@Override
 	public boolean init(final Expression<?>[] exprs, final int matchedPattern, final Kleenean isDelayed, final ParseResult parseResult) {
 		expr = exprs[0];
-		setNegated(matchedPattern == (1 | 3));
+		setNegated(matchedPattern == 1);
 		return true;
 	}
 	

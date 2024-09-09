@@ -59,7 +59,7 @@ public class SectionNode extends Node implements Iterable<Node> {
 	@Nullable
 	private NodeMap nodeMap = null;
 
-	public NodeMap getNodeMap() {
+	private NodeMap getNodeMap() {
 		NodeMap nodeMap = this.nodeMap;
 		if (nodeMap == null) {
 			nodeMap = this.nodeMap = new NodeMap();
@@ -305,7 +305,7 @@ public class SectionNode extends Node implements Iterable<Node> {
 				} else {
 					if (parent != null && !config.allowEmptySections && isEmpty()) {
 						Skript.warning("Empty configuration section! You might want to indent one or more of the subsequent lines to make them belong to this section" +
-							" or remove the colon at the end of the line if you don't want this line to start a section.");
+								" or remove the colon at the end of the line if you don't want this line to start a section.");
 					}
 					r.reset();
 					return this;
@@ -347,7 +347,6 @@ public class SectionNode extends Node implements Iterable<Node> {
 				|| value.indexOf(config.separator) == -1
 				|| config.separator.endsWith(":") && value.indexOf(config.separator) == value.length() - config.separator.length()
 			)) {
-//				Skript.adminBroadcast("Looky here");
 				boolean matches = false;
 				try {
 					matches = fullLine.contains("#") && fullLinePattern.matcher(fullLine).matches();
