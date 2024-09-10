@@ -9,6 +9,7 @@ import ch.njol.util.Kleenean;
 import org.bukkit.block.Block;
 import org.bukkit.block.CreatureSpawner;
 import org.bukkit.event.Event;
+import org.bukkit.spawner.Spawner;
 import org.jetbrains.annotations.Nullable;
 
 @Name("Spawner Reset Timer")
@@ -23,7 +24,7 @@ import org.jetbrains.annotations.Nullable;
 @RequiredPlugins("Paper")
 public class EffSpawnerResetTimer extends Effect {
 
-	private static final boolean HAS_RESET_TIMER = Skript.methodExists(CreatureSpawner.class, "resetTimer");
+	private static final boolean HAS_RESET_TIMER = Skript.methodExists(Spawner.class, "resetTimer");
 
 	static {
 		if (HAS_RESET_TIMER)
