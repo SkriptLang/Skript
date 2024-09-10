@@ -29,33 +29,33 @@ public class HealthUtils {
 	/**
 	 * Get the health of an entity
 	 *
-	 * @param entity Entity to get health from
+	 * @param damageable Entity to get health from
 	 * @return The amount of hearts the entity has left
 	 */
-	public static double getHealth(Damageable entity) {
-		if (entity.isDead())
+	public static double getHealth(Damageable damageable) {
+		if (damageable.isDead())
 			return 0;
-		return entity.getHealth() / 2;
+		return damageable.getHealth() / 2;
 	}
 
 	/**
 	 * Set the health of an entity
 	 *
-	 * @param entity      Entity to set health for
+	 * @param damageable      Entity to set health for
 	 * @param health The amount of hearts to set
 	 */
-	public static void setHealth(Damageable entity, double health) {
-		entity.setHealth(Math2.fit(0, health, getMaxHealth(entity)) * 2);
+	public static void setHealth(Damageable damageable, double health) {
+		damageable.setHealth(Math2.fit(0, health, getMaxHealth(damageable)) * 2);
 	}
 
 	/**
 	 * Get the max health an entity has
 	 *
-	 * @param entity Entity to get max health from
+	 * @param damageable Entity to get max health from
 	 * @return How many hearts the entity can have at most
 	 */
-	public static double getMaxHealth(Damageable entity) {
-		AttributeInstance attributeInstance = ((Attributable) entity).getAttribute(Attribute.GENERIC_MAX_HEALTH);
+	public static double getMaxHealth(Damageable damageable) {
+		AttributeInstance attributeInstance = ((Attributable) damageable).getAttribute(Attribute.GENERIC_MAX_HEALTH);
 		assert attributeInstance != null;
 		return attributeInstance.getValue() / 2;
 	}
@@ -63,11 +63,11 @@ public class HealthUtils {
 	/**
 	 * Set the max health an entity can have
 	 *
-	 * @param entity      Entity to set max health for
+	 * @param damageable      Entity to set max health for
 	 * @param health How many hearts the entity can have at most
 	 */
-	public static void setMaxHealth(Damageable entity, double health) {
-		AttributeInstance attributeInstance = ((Attributable) entity).getAttribute(Attribute.GENERIC_MAX_HEALTH);
+	public static void setMaxHealth(Damageable damageable, double health) {
+		AttributeInstance attributeInstance = ((Attributable) damageable).getAttribute(Attribute.GENERIC_MAX_HEALTH);
 		assert attributeInstance != null;
 		attributeInstance.setBaseValue(health * 2);
 	}
@@ -75,37 +75,37 @@ public class HealthUtils {
 	/**
 	 * Apply damage to an entity
 	 *
-	 * @param entity Entity to apply damage to
+	 * @param damageable Entity to apply damage to
 	 * @param damage Amount of hearts to damage
 	 */
-	public static void damage(Damageable entity, double damage) {
+	public static void damage(Damageable damageable, double damage) {
 		if (damage < 0) {
-			heal(entity, -damage);
+			heal(damageable, -damage);
 			return;
 		}
-		entity.damage(damage * 2);
+		damageable.damage(damage * 2);
 	}
 
-	public static void damage(Damageable entity, double damage, DamageSource cause) {
+	public static void damage(Damageable damageable, double damage, DamageSource cause) {
 		if (damage < 0) {
-			heal(entity, -damage);
+			heal(damageable, -damage);
 			return;
 		}
-		entity.damage(damage * 2, cause);
+		damageable.damage(damage * 2, cause);
 	}
 
 	/**
 	 * Heal an entity
 	 *
-	 * @param entity Entity to heal
+	 * @param damageable Entity to heal
 	 * @param health Amount of hearts to heal
 	 */
-	public static void heal(Damageable entity, double health) {
+	public static void heal(Damageable damageable, double health) {
 		if (health < 0) {
-			damage(entity, -health);
+			damage(damageable, -health);
 			return;
 		}
-		setHealth(entity, getHealth(entity) + health);
+		setHealth(damageable, getHealth(damageable) + health);
 	}
 
 	public static double getDamage(EntityDamageEvent event) {
@@ -123,15 +123,15 @@ public class HealthUtils {
 			((LivingEntity) event.getEntity()).setLastDamage(damage * 2);
 	}
 
-	public static void setDamageCause(Damageable entity, DamageCause cause) {
+	public static void setDamageCause(Damageable damageable, DamageCause cause) {
 		if (OLD_DAMAGE_EVENT_CONSTRUCTOR != null) {
 			try {
-				entity.setLastDamageCause(OLD_DAMAGE_EVENT_CONSTRUCTOR.newInstance(entity, cause, 0));
+				damageable.setLastDamageCause(OLD_DAMAGE_EVENT_CONSTRUCTOR.newInstance(damageable, cause, 0));
 			} catch (InstantiationException | IllegalAccessException | InvocationTargetException ex) {
 				Skript.exception("Failed to set last damage cause");
 			}
 		} else {
-			entity.setLastDamageCause(new EntityDamageEvent(entity, cause, DamageSource.builder(DamageType.GENERIC).build(), 0));
+			damageable.setLastDamageCause(new EntityDamageEvent(damageable, cause, DamageSource.builder(DamageType.GENERIC).build(), 0));
 		}
 	}
 }

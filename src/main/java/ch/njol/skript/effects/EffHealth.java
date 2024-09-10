@@ -34,7 +34,7 @@ import org.jetbrains.annotations.UnknownNullability;
 	"heal the player",
 	"repair tool of player"
 })
-@Since("1.0")
+@Since("1.0, 2.10 (damage cause)")
 @RequiredPlugins("Spigot 1.20.4+ (for damage cause)")
 public class EffHealth extends Effect {
 	static {
@@ -44,7 +44,7 @@ public class EffHealth extends Effect {
 			"repair %itemtypes/slots% [by %-number%]");
 	}
 
-	private static final boolean canSetDamageCause = Skript.classExists("org.bukkit.damage.DamageSource");
+	private static final boolean SUPPORTS_DAMAGE_SOURCE = Skript.classExists("org.bukkit.damage.DamageSource");
 	private Expression<?> damageables;
 	private @UnknownNullability Expression<Number> amount;
 	private boolean isHealing, isRepairing;
@@ -53,7 +53,7 @@ public class EffHealth extends Effect {
 	@Override
 	@SuppressWarnings("unchecked")
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		if (matchedPattern == 0 && exprs[2] != null && !canSetDamageCause) {
+		if (matchedPattern == 0 && exprs[2] != null && !SUPPORTS_DAMAGE_SOURCE) {
 			Skript.error("Using the fake cause extension in effect 'damage' requires Spigot 1.20.4+");
 			return false;
 		}
@@ -107,7 +107,7 @@ public class EffHealth extends Effect {
 				} else if (isHealing) {
 					HealthUtils.heal(damageable, amount);
 				} else {
-					if (canSetDamageCause) {
+					if (SUPPORTS_DAMAGE_SOURCE) {
 						DamageCause cause = exprCause == null ? null : exprCause.getSingle(event);
 						if (cause != null) {
 							HealthUtils.damage(damageable, amount, DamageUtils.getDamageSourceFromCause(cause));
