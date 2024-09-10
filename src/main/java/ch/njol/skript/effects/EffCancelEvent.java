@@ -1,5 +1,29 @@
 package ch.njol.skript.effects;
 
+import ch.njol.skript.Skript;
+import ch.njol.skript.bukkitutil.PlayerUtils;
+import ch.njol.skript.doc.Description;
+import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Name;
+import ch.njol.skript.doc.Since;
+import ch.njol.skript.events.EvtClick;
+import ch.njol.skript.lang.Effect;
+import ch.njol.skript.lang.Expression;
+import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.skript.log.ErrorQuality;
+import ch.njol.skript.util.Utils;
+import ch.njol.util.Kleenean;
+import org.bukkit.entity.Player;
+import org.bukkit.event.Cancellable;
+import org.bukkit.event.Event;
+import org.bukkit.event.block.BlockCanBuildEvent;
+import org.bukkit.event.entity.EntityToggleSwimEvent;
+import org.bukkit.event.inventory.InventoryInteractEvent;
+import org.bukkit.event.player.PlayerDropItemEvent;
+import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerLoginEvent;
+import org.jetbrains.annotations.Nullable;
+
 @Name("Cancel Event")
 @Description("Cancels the event (e.g. prevent blocks from being placed, or damage being taken).")
 @Examples({
@@ -19,7 +43,7 @@ public class EffCancelEvent extends Effect {
 	
 	@SuppressWarnings("null")
 	@Override
-	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult result) {
+	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, ParseResult result) {
 		if (isDelayed == Kleenean.TRUE) {
 			Skript.error("Can't cancel an event after it has already passed", ErrorQuality.SEMANTIC_ERROR);
 			return false;
@@ -52,8 +76,8 @@ public class EffCancelEvent extends Effect {
 			((Cancellable) event).setCancelled(cancel);
 		if (event instanceof PlayerInteractEvent) {
 			EvtClick.interactTracker.eventModified((Cancellable) event);
-			((PlayerInteractEvent) event).setUseItemInHand(cancel ? Result.DENY : Result.DEFAULT);
-			((PlayerInteractEvent) event).setUseInteractedBlock(cancel ? Result.DENY : Result.DEFAULT);
+			((PlayerInteractEvent) event).setUseItemInHand(cancel ? Event.Result.DENY : Event.Result.DEFAULT);
+			((PlayerInteractEvent) event).setUseInteractedBlock(cancel ? Event.Result.DENY : Event.Result.DEFAULT);
 		} else if (event instanceof BlockCanBuildEvent) {
 			((BlockCanBuildEvent) event).setBuildable(!cancel);
 		} else if (event instanceof PlayerDropItemEvent) {
