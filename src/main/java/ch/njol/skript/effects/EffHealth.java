@@ -103,7 +103,7 @@ public class EffHealth extends Effect {
 					if (canSetDamageCause && exprCause != null) {
 						DamageCause cause = exprCause.getSingle(event);
 						if (cause != null) {
-							damageable.damage(amount * 2, DamageUtils.getDamageSourceFromCause(cause));
+							HealthUtils.damage(damageable, amount, DamageUtils.getDamageSourceFromCause(cause));
 							return;
 						}
 					}
@@ -124,7 +124,7 @@ public class EffHealth extends Effect {
 		}
 		return prefix + damageables.toString(event, debug)
 				   + (amount != null ? " by " + amount.toString(event, debug) : "")
-				   + (exprCause != null && event != null ? "with damage cause " + exprCause.getSingle(event) : "");
+				   + (exprCause != null && event != null ? " with damage cause " + exprCause.getSingle(event) : "");
 	}
 
 }

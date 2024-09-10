@@ -2,6 +2,8 @@ package ch.njol.skript.bukkitutil;
 
 import ch.njol.skript.Skript;
 import ch.njol.util.Math2;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import org.bukkit.attribute.Attributable;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
@@ -13,13 +15,22 @@ import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.jetbrains.annotations.Nullable;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
-
 public class HealthUtils {
+	@Nullable
+	private static final Constructor<EntityDamageEvent> OLD_DAMAGE_EVENT_CONSTRUCTOR;
+
+	static {
+		Constructor<EntityDamageEvent> constructor = null;
+		try {
+			constructor = EntityDamageEvent.class.getConstructor(Damageable.class, DamageCause.class, double.class);
+		} catch (NoSuchMethodException ignored) {
+		}
+		OLD_DAMAGE_EVENT_CONSTRUCTOR = constructor;
+	}
 
 	/**
 	 * Get the health of an entity
+	 *
 	 * @param e Entity to get health from
 	 * @return The amount of hearts the entity has left
 	 */
@@ -28,18 +39,20 @@ public class HealthUtils {
 			return 0;
 		return e.getHealth() / 2;
 	}
-	
+
 	/**
 	 * Set the health of an entity
-	 * @param e Entity to set health for
+	 *
+	 * @param e      Entity to set health for
 	 * @param health The amount of hearts to set
 	 */
 	public static void setHealth(Damageable e, double health) {
 		e.setHealth(Math2.fit(0, health, getMaxHealth(e)) * 2);
 	}
-	
+
 	/**
 	 * Get the max health an entity has
+	 *
 	 * @param e Entity to get max health from
 	 * @return How many hearts the entity can have at most
 	 */
@@ -48,10 +61,11 @@ public class HealthUtils {
 		assert attributeInstance != null;
 		return attributeInstance.getValue() / 2;
 	}
-	
+
 	/**
 	 * Set the max health an entity can have
-	 * @param e Entity to set max health for
+	 *
+	 * @param e      Entity to set max health for
 	 * @param health How many hearts the entity can have at most
 	 */
 	public static void setMaxHealth(Damageable e, double health) {
@@ -59,9 +73,10 @@ public class HealthUtils {
 		assert attributeInstance != null;
 		attributeInstance.setBaseValue(health * 2);
 	}
-	
+
 	/**
 	 * Apply damage to an entity
+	 *
 	 * @param e Entity to apply damage to
 	 * @param d Amount of hearts to damage
 	 */
@@ -73,8 +88,17 @@ public class HealthUtils {
 		e.damage(d * 2);
 	}
 
+	public static void damage(Damageable e, double d, DamageSource cause) {
+		if (d < 0) {
+			heal(e, -d);
+			return;
+		}
+		e.damage(d * 2, cause);
+	}
+
 	/**
 	 * Heal an entity
+	 *
 	 * @param e Entity to heal
 	 * @param h Amount of hearts to heal
 	 */
@@ -85,31 +109,22 @@ public class HealthUtils {
 		}
 		setHealth(e, getHealth(e) + h);
 	}
-	
+
 	public static double getDamage(EntityDamageEvent e) {
 		return e.getDamage() / 2;
+		//
 	}
-	
+
 	public static double getFinalDamage(EntityDamageEvent e) {
 		return e.getFinalDamage() / 2;
+		//
 	}
-	
+
 	public static void setDamage(EntityDamageEvent event, double damage) {
 		event.setDamage(damage * 2);
 		// Set last damage manually as Bukkit doesn't appear to do that
 		if (event.getEntity() instanceof LivingEntity)
 			((LivingEntity) event.getEntity()).setLastDamage(damage * 2);
-	}
-
-	@Nullable
-	private static final Constructor<EntityDamageEvent> OLD_DAMAGE_EVENT_CONSTRUCTOR;
-
-	static {
-		Constructor<EntityDamageEvent> constructor = null;
-		try {
-			constructor = EntityDamageEvent.class.getConstructor(Damageable.class, DamageCause.class, double.class);
-		} catch (NoSuchMethodException ignored) { }
-		OLD_DAMAGE_EVENT_CONSTRUCTOR = constructor;
 	}
 
 	public static void setDamageCause(Damageable e, DamageCause cause) {
