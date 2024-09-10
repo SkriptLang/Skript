@@ -6,9 +6,8 @@ import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.jetbrains.annotations.NotNull;
 
 public class DamageUtils {
-	@NotNull
 	@SuppressWarnings("all")
-	public static DamageSource getDamageSourceFromCause(DamageCause cause) {
+	public static @NotNull DamageSource getDamageSourceFromCause(DamageCause cause) {
 		return DamageSource.builder(switch (cause) {
 			case KILL, SUICIDE -> DamageType.GENERIC_KILL;
 			case WORLD_BORDER, VOID -> DamageType.OUT_OF_WORLD;
