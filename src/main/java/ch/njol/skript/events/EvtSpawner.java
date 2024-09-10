@@ -45,6 +45,10 @@ public class EvtSpawner extends SkriptEvent {
 	public boolean init(Literal<?>[] args, int matchedPattern, ParseResult parseResult) {
 		this.entityTypes =  (Literal<EntityData<?>>) args[0];
 		isPre = parseResult.hasTag("pre");
+		if (isPre && !HAS_PRE_SPAWNER_EVENT) {
+			Skript.error("This event does not exist on this server version!");
+			return false;
+		}
 		return true;
 	}
 

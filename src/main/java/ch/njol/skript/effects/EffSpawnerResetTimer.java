@@ -27,7 +27,7 @@ public class EffSpawnerResetTimer extends Effect {
 
 	static {
 		if (HAS_RESET_TIMER)
-			Skript.registerEffect(EffSpawnerResetTimer.class, "reset spawner [spawn delay] timer [of %-blocks%]");
+			Skript.registerEffect(EffSpawnerResetTimer.class, "reset spawner [spawn delay] timer [of %blocks%]");
 	}
 
 	private Expression<Block> blocks;
