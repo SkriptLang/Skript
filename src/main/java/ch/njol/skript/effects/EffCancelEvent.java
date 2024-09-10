@@ -36,7 +36,7 @@ import org.jetbrains.annotations.Nullable;
 public class EffCancelEvent extends Effect {
 
 	static {
-		Skript.registerEffect(EffCancelEvent.class, "[:un]cancel [the] event");
+		Skript.registerEffect(EffCancelEvent.class, "cancel [the] event", "uncancel [the] event");
 	}
 	
 	private boolean cancel;
@@ -49,24 +49,24 @@ public class EffCancelEvent extends Effect {
 			return false;
 		}
 
-		cancel = !result.hasTag("un");
+		cancel = matchedPattern == 0;
 		Class<? extends Event>[] currentEvents = getParser().getCurrentEvents();
 
 		if (currentEvents == null)
 			return false;
 
-		for (Class<? extends Event> e : currentEvents) {
-			if (Cancellable.class.isAssignableFrom(e) || BlockCanBuildEvent.class.isAssignableFrom(e))
+		if (cancel && getParser().isCurrentEvent(EntityToggleSwimEvent.class))
+			Skript.error("Cancelling a toggle swim event has no effect", ErrorQuality.SEMANTIC_ERROR);
+
+		for (Class<? extends Event> event : currentEvents) {
+			if (Cancellable.class.isAssignableFrom(event) || BlockCanBuildEvent.class.isAssignableFrom(event))
 				return true; // TODO warning if some event(s) cannot be cancelled even though some can (needs a way to be suppressed)
 		}
 
-		if (getParser().isCurrentEvent(PlayerLoginEvent.class)) {
+		if (getParser().isCurrentEvent(PlayerLoginEvent.class))
 			Skript.error("A connect event cannot be cancelled, but the player may be kicked ('kick player by reason of \"...\"')", ErrorQuality.SEMANTIC_ERROR);
-		} else if (getParser().isCurrentEvent(EntityToggleSwimEvent.class)) {
-			Skript.error("Cancelling a toggle swim event has no effect", ErrorQuality.SEMANTIC_ERROR);
-		} else {
+		else
 			Skript.error(Utils.A(getParser().getCurrentEventName()) + " event cannot be cancelled", ErrorQuality.SEMANTIC_ERROR);
-		}
 		return false;
 	}
 	
