@@ -26,7 +26,7 @@ import org.jetbrains.annotations.UnknownNullability;
 @Name("Damage/Heal/Repair")
 @Description({
 	"Damage, heal, or repair an entity or item.",
-	"We can use damage entity with a fake damage cause in Spigot 1.20.4+"
+	"Servers running Spigot 1.20.4+ can optionally choose to specify a fake damage cause."
 })
 @Examples({
 	"damage player by 5 hearts",
@@ -44,7 +44,7 @@ public class EffHealth extends Effect {
 			"repair %itemtypes/slots% [by %-number%]");
 	}
 
-	private final boolean canSetDamageCause = Skript.classExists("org.bukkit.damage.DamageSource");
+	private static final boolean canSetDamageCause = Skript.classExists("org.bukkit.damage.DamageSource");
 	private Expression<?> damageables;
 	private @UnknownNullability Expression<Number> amount;
 	private boolean isHealing, isRepairing;
@@ -107,8 +107,8 @@ public class EffHealth extends Effect {
 				} else if (isHealing) {
 					HealthUtils.heal(damageable, amount);
 				} else {
-					if (canSetDamageCause && exprCause != null) {
-						DamageCause cause = exprCause.getSingle(event);
+					if (canSetDamageCause) {
+						DamageCause cause = exprCause == null ? null : exprCause.getSingle(event);
 						if (cause != null) {
 							HealthUtils.damage(damageable, amount, DamageUtils.getDamageSourceFromCause(cause));
 							return;

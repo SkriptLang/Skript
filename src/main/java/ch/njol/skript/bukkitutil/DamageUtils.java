@@ -6,6 +6,7 @@ import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.jetbrains.annotations.NotNull;
 
 public class DamageUtils {
+
 	@SuppressWarnings("UnstableApiUsage")
 	public static @NotNull DamageSource getDamageSourceFromCause(DamageCause cause) {
 		return DamageSource.builder(switch (cause) {
@@ -36,4 +37,5 @@ public class DamageUtils {
 			default -> DamageType.GENERIC;
 		}).build();
 	}
+
 }
