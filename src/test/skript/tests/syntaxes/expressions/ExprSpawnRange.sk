@@ -1,0 +1,19 @@
+test "Spawn Range":
+	set block at event-location to spawner
+
+	set {_block} to block at event-location
+
+	set spawn range of {_block} to 10
+	assert spawn range of {_block} is 10 with "Spawn Range of spawner did not get set to 10"
+
+	add 10 to spawn range of {_block}
+	assert spawn range of {_block} is 20 with "Spawn Range of spawner did not get added to, not 20"
+
+	remove 19 from spawn range of {_block}
+	assert spawn range of {_block} is 1 with "Spawn Range of spawner did not get subtracted from, not 1"
+
+	reset spawn range of {_block}
+	assert spawn range of {_block} is 4 with "Spawn Range of spawner did not get reset, not 4"
+
+	# clean up
+	set block at {_block} to air
