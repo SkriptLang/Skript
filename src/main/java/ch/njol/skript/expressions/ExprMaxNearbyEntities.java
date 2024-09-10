@@ -9,7 +9,6 @@ import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.block.Block;
 import org.bukkit.block.CreatureSpawner;
 import org.bukkit.event.Event;
-import org.bukkit.spawner.Spawner;
 import org.jetbrains.annotations.Nullable;
 
 @Name("Spawner Max Nearby Entities")

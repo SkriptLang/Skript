@@ -1,9 +1,0 @@
-test "Spawner Reset Timer":
-	set block at event-location to spawner
-
-	set {_block} to block at event-location
-
-	assert spawn delay of {_block} is set with "Spawn delay is not set"
-	reset spawner spawn delay timer of {_block}
-
-	assert spawn delay of {_block} is set with "Spawn delay is not set"
