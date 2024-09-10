@@ -51,18 +51,16 @@ import org.jetbrains.annotations.UnknownNullability;
 public class EffHealth extends Effect {
 	static {
 		Skript.registerEffect(EffHealth.class,
-			"damage %livingentities/itemtypes/slots% by %number% [heart[s]] [with fake cause %-damagecause%]",
+			"damage %livingentities/itemtypes/slots% by %number% [heart[s]] [with [fake] [damage] cause %-damagecause%]",
 			"heal %livingentities% [by %-number% [heart[s]]]",
 			"repair %itemtypes/slots% [by %-number%]");
 	}
 
 	private final boolean canSetDamageCause = Skript.classExists("org.bukkit.damage.DamageSource");
 	private Expression<?> damageables;
-	@UnknownNullability
-	private Expression<Number> amount;
+	private @UnknownNullability Expression<Number> amount;
 	private boolean isHealing, isRepairing;
-	@UnknownNullability
-	private Expression<DamageCause> exprCause = null;
+	private @UnknownNullability Expression<DamageCause> exprCause = null;
 
 	@SuppressWarnings("unchecked")
 	@Override
@@ -74,9 +72,8 @@ public class EffHealth extends Effect {
 		this.isHealing = matchedPattern >= 1;
 		this.isRepairing = matchedPattern == 2;
 		this.amount = (Expression<Number>) exprs[1];
-		if (exprs.length > 2) {
+		if (exprs.length > 2)
 			this.exprCause = (Expression<DamageCause>) exprs[2];
-		}
 		return true;
 	}
 
@@ -142,7 +139,9 @@ public class EffHealth extends Effect {
 		} else if (isHealing) {
 			prefix = "heal ";
 		}
-		return prefix + damageables.toString(event, debug) + (amount != null ? " by " + amount.toString(event, debug) : "");
+		return prefix + damageables.toString(event, debug)
+				   + (amount != null ? " by " + amount.toString(event, debug) : "")
+				   + (exprCause != null && event != null ? "with damage cause " + exprCause.getSingle(event) : "");
 	}
 
 }
