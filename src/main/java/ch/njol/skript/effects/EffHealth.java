@@ -20,6 +20,7 @@ package ch.njol.skript.effects;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.ItemType;
+import ch.njol.skript.bukkitutil.DamageUtils;
 import ch.njol.skript.bukkitutil.HealthUtils;
 import ch.njol.skript.bukkitutil.ItemUtils;
 import ch.njol.skript.doc.Description;
@@ -120,7 +121,7 @@ public class EffHealth extends Effect {
 					if (canSetDamageCause && exprCause != null) {
 						DamageCause cause = exprCause.getSingle(event);
 						if (cause != null) {
-							damageable.damage(amount * 2, HealthUtils.getDamageSourceFromCause(cause));
+							damageable.damage(amount * 2, DamageUtils.getDamageSourceFromCause(cause));
 							return;
 						}
 					}
