@@ -23,7 +23,7 @@ import org.eclipse.jdt.annotation.Nullable;
 import org.jetbrains.annotations.UnknownNullability;
 
 @Name("Damage/Heal/Repair")
-@Description("Damage/Heal/Repair an entity, or item.")
+@Description("Damage, heal, or repair an entity or item.")
 @Examples({
 	"damage player by 5 hearts",
 	"damage player by 3 hearts with fake cause fall",
