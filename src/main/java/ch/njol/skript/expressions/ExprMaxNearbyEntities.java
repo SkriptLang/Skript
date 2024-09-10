@@ -30,7 +30,7 @@ public class ExprMaxNearbyEntities extends SimplePropertyExpression<Block, Integ
 
 	@Override
 	public @Nullable Integer convert(Block block) {
-		if (block.getState() instanceof Spawner spawner)
+		if (block.getState() instanceof CreatureSpawner spawner)
 			return spawner.getMaxNearbyEntities();
 
 		return null;
