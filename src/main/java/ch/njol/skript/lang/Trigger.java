@@ -21,7 +21,7 @@ package ch.njol.skript.lang;
 import org.skriptlang.skript.lang.script.Script;
 import ch.njol.skript.variables.Variables;
 import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 

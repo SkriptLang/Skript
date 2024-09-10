@@ -38,8 +38,8 @@ import org.bukkit.Bukkit;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.configuration.serialization.ConfigurationSerialization;
 import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.NonNull;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.converter.Converters;
 
 import com.google.common.collect.HashMultimap;
@@ -114,7 +114,7 @@ public class Variables {
 
 			@Override
 			@Nullable
-			public String getID(@NonNull Class<?> c) {
+			public String getID(@NotNull Class<?> c) {
 				if (ConfigurationSerializable.class.isAssignableFrom(c)
 						&& Classes.getSuperClassInfo(c) == Classes.getExactClassInfo(Object.class))
 					return CONFIGURATION_SERIALIZABLE_PREFIX +
@@ -125,7 +125,7 @@ public class Variables {
 
 			@Override
 			@Nullable
-			public Class<? extends ConfigurationSerializable> getClass(@NonNull String id) {
+			public Class<? extends ConfigurationSerializable> getClass(@NotNull String id) {
 				if (id.startsWith(CONFIGURATION_SERIALIZABLE_PREFIX))
 					return ConfigurationSerialization.getClassByAlias(
 							id.substring(CONFIGURATION_SERIALIZABLE_PREFIX.length()));

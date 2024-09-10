@@ -1,30 +1,5 @@
 package ch.njol.skript.effects;
 
-import ch.njol.skript.Skript;
-import ch.njol.skript.bukkitutil.PlayerUtils;
-import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
-import ch.njol.skript.doc.Name;
-import ch.njol.skript.doc.Since;
-import ch.njol.skript.events.EvtClick;
-import ch.njol.skript.lang.Effect;
-import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.SkriptParser;
-import ch.njol.skript.log.ErrorQuality;
-import ch.njol.skript.util.Utils;
-import ch.njol.util.Kleenean;
-import org.bukkit.entity.Player;
-import org.bukkit.event.Cancellable;
-import org.bukkit.event.Event;
-import org.bukkit.event.Event.Result;
-import org.bukkit.event.block.BlockCanBuildEvent;
-import org.bukkit.event.entity.EntityToggleSwimEvent;
-import org.bukkit.event.inventory.InventoryInteractEvent;
-import org.bukkit.event.player.PlayerDropItemEvent;
-import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.event.player.PlayerLoginEvent;
-import org.eclipse.jdt.annotation.Nullable;
-
 @Name("Cancel Event")
 @Description("Cancels the event (e.g. prevent blocks from being placed, or damage being taken).")
 @Examples({
