@@ -19,7 +19,7 @@ import org.bukkit.entity.Damageable;
 import org.bukkit.event.Event;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.bukkit.inventory.ItemStack;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnknownNullability;
 
 @Name("Damage/Heal/Repair")
