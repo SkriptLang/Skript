@@ -8,6 +8,7 @@ import ch.njol.skript.bukkitutil.ItemUtils;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
+import ch.njol.skript.doc.RequiredPlugins;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
@@ -31,6 +32,7 @@ import org.jetbrains.annotations.UnknownNullability;
 	"repair tool of player"
 })
 @Since("1.0")
+@RequiredPlugins("Spigot 1.20.4+ (for damage cause)")
 public class EffHealth extends Effect {
 	static {
 		Skript.registerEffect(EffHealth.class,
@@ -45,8 +47,8 @@ public class EffHealth extends Effect {
 	private boolean isHealing, isRepairing;
 	private @UnknownNullability Expression<DamageCause> exprCause = null;
 
-	@SuppressWarnings("unchecked")
 	@Override
+	@SuppressWarnings("unchecked")
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		if (matchedPattern == 0 && exprs[2] != null && !canSetDamageCause)
 			Skript.warning("Using the fake cause extension in effect 'damage' requires Spigot 1.20.4+");

@@ -16,15 +16,13 @@ import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.jetbrains.annotations.Nullable;
 
 public class HealthUtils {
-	@Nullable
-	private static final Constructor<EntityDamageEvent> OLD_DAMAGE_EVENT_CONSTRUCTOR;
+	private static final @Nullable Constructor<EntityDamageEvent> OLD_DAMAGE_EVENT_CONSTRUCTOR;
 
 	static {
 		Constructor<EntityDamageEvent> constructor = null;
 		try {
 			constructor = EntityDamageEvent.class.getConstructor(Damageable.class, DamageCause.class, double.class);
-		} catch (NoSuchMethodException ignored) {
-		}
+		} catch (NoSuchMethodException ignored) {}
 		OLD_DAMAGE_EVENT_CONSTRUCTOR = constructor;
 	}
 
@@ -48,6 +46,7 @@ public class HealthUtils {
 	 */
 	public static void setHealth(Damageable e, double health) {
 		e.setHealth(Math2.fit(0, health, getMaxHealth(e)) * 2);
+		//
 	}
 
 	/**
