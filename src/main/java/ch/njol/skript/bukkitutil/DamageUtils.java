@@ -6,7 +6,7 @@ import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.jetbrains.annotations.NotNull;
 
 public class DamageUtils {
-	@SuppressWarnings("all")
+	@SuppressWarnings("UnstableApiUsage")
 	public static @NotNull DamageSource getDamageSourceFromCause(DamageCause cause) {
 		return DamageSource.builder(switch (cause) {
 			case KILL, SUICIDE -> DamageType.GENERIC_KILL;
