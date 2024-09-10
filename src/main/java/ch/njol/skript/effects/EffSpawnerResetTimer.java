@@ -24,10 +24,11 @@ import org.jetbrains.annotations.Nullable;
 @RequiredPlugins("Paper")
 public class EffSpawnerResetTimer extends Effect {
 
+	private static final boolean HAS_SPAWNER_CLASS = Skript.classExists("org.bukkit.spawner.Spawner");
 	private static final boolean HAS_RESET_TIMER = Skript.methodExists(Spawner.class, "resetTimer");
 
 	static {
-		if (HAS_RESET_TIMER)
+		if (HAS_RESET_TIMER && HAS_SPAWNER_CLASS)
 			Skript.registerEffect(EffSpawnerResetTimer.class, "reset spawner [spawn delay] timer [of %-blocks%]");
 	}
 
