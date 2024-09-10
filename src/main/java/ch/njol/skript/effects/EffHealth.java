@@ -53,8 +53,10 @@ public class EffHealth extends Effect {
 	@Override
 	@SuppressWarnings("unchecked")
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		if (matchedPattern == 0 && exprs[2] != null && !canSetDamageCause)
-			Skript.warning("Using the fake cause extension in effect 'damage' requires Spigot 1.20.4+");
+		if (matchedPattern == 0 && exprs[2] != null && !canSetDamageCause) {
+			Skript.error("Using the fake cause extension in effect 'damage' requires Spigot 1.20.4+");
+			return false;
+		}
 
 		this.damageables = exprs[0];
 		this.isHealing = matchedPattern >= 1;
