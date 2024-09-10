@@ -78,6 +78,7 @@ public class EffContinue extends Effect {
 			return false;
 		}
 
+		// Section.getSections counts from the innermost section, so we need to invert the level 
 		int levels = level == -1 ? 1 : loops - level + 1;
 		if (levels <= 0) {
 			Skript.error("Can't continue the " + StringUtils.fancyOrderNumber(level) + " loop as there " +

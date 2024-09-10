@@ -174,7 +174,14 @@ public abstract class Section extends TriggerSection implements SyntaxElement {
 
 	/**
 	 * Returns the sections from the current section (inclusive) until the specified section (exclusive).
-	 *
+	 * <p>
+	 * If we have the following sections:
+	 * <pre>{@code
+	 * Section1
+	 *   └ Section2
+	 *       └ Section3} (we are here)</pre>
+	 * And we call {@code getSectionsUntil(Section1)}, the result will be {@code [Section2, Section3]}.
+	 * 
 	 * @param section The section to stop at. (exclusive)
 	 * @return A list of sections from the current section (inclusive) until the specified section (exclusive).
 	 */
@@ -184,10 +191,18 @@ public abstract class Section extends TriggerSection implements SyntaxElement {
 	}
 
 	/**
-	 * Returns a list of sections up to the specified number of levels.
+	 * Returns a list of sections up to the specified number of levels from the current section.
+	 * <p>
+	 * If we have the following sections:
+	 * <pre>{@code
+	 * Section1
+	 *   └ Section2
+	 *       └ Section3} (we are here)</pre>
+	 * And we call {@code getSections(2)}, the result will be {@code [Section2, Section3]}.
 	 *
-	 * @param levels The number of levels to retrieve.
+	 * @param levels The number of levels to retrieve from the current section upwards. Must be greater than 0.
 	 * @return A list of sections up to the specified number of levels.
+	 * @throws IllegalArgumentException if the levels is less than 1.
 	 */
 	public static List<TriggerSection> getSections(int levels) {
 		Preconditions.checkArgument(levels > 0, "Depth must be at least 1");
@@ -196,11 +211,21 @@ public abstract class Section extends TriggerSection implements SyntaxElement {
 	}
 
 	/**
-	 * Returns a list of sections to the specified number of levels. Only counting sections of the specified type.
+	 * Returns a list of sections to the specified number of levels from the current section.
+	 * Only counting sections of the specified type.
+	 * <p>
+	 * If we have the following sections:
+	 * <pre>{@code
+	 * Section1
+	 *   └ LoopSection2
+	 *       └ Section3
+	 *           └ LoopSection4} (we are here)</pre>
+	 * And we call {@code getSections(2, LoopSection.class)}, the result will be {@code [LoopSection2, Section3, LoopSection4]}.
 	 *
-	 * @param levels The number of levels to retrieve.
+	 * @param levels The number of levels to retrieve from the current section upwards. Must be greater than 0.
 	 * @param type The class type of the sections to count.
 	 * @return A list of sections of the specified type up to the specified number of levels.
+	 * @throws IllegalArgumentException if the levels is less than 1.
 	 */
 	public static List<TriggerSection> getSections(int levels, Class<? extends TriggerSection> type) {
 		Preconditions.checkArgument(levels > 0, "Depth must be at least 1");
