@@ -90,10 +90,11 @@ public class StructParse extends Structure {
 			Structure structure = Structure.parse(structureSectionNodeKey, structureSectionNodeToParse, error);
 
 			getParser().setCurrentStructure(structure);
-			if (structure == null || (!structure.preLoad() || !structure.load() || !structure.postLoad())) {
-				getParser().setCurrentStructure(null);
-				return false;
+			if (structure != null && structure.preLoad() && structure.load()) {
+				structure.postLoad();
 			}
+
+			getParser().setCurrentStructure(null);
 
 			logs = handler.getLog().stream()
 				.map(LogEntry::getMessage)
