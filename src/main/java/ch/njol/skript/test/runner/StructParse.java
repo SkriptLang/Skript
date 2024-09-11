@@ -61,12 +61,14 @@ public class StructParse extends Structure {
 		Expression<?> maybeResultsExpression = (Expression<?>) validatedEntries.get("results", false);
 		if (!ChangerUtils.acceptsChange(maybeResultsExpression, ChangeMode.SET, String[].class)) {
 			Skript.error(maybeResultsExpression.toString(null, false) + " cannot be set to strings");
+			return false;
 		}
 
 		SectionNode codeSectionNode = (SectionNode) validatedEntries.get("code", false);
 		Node maybeStructureSectionNodeToParse = Iterables.getFirst(codeSectionNode, null);
 		if (Iterables.size(codeSectionNode) != 1 || !(maybeStructureSectionNodeToParse instanceof SectionNode)) {
 			Skript.error("The code section must contain a single section to parse as a structure");
+			return false;
 		}
 
 		resultsExpression = maybeResultsExpression;
@@ -90,7 +92,7 @@ public class StructParse extends Structure {
 			getParser().setCurrentStructure(structure);
 			if (structure == null || (!structure.preLoad() || !structure.load() || !structure.postLoad())) {
 				getParser().setCurrentStructure(null);
-				return true;
+				return false;
 			}
 
 			logs = handler.getLog().stream()
