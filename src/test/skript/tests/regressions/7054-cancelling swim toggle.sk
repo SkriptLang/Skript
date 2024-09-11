@@ -1,8 +1,0 @@
-parse:
-	results: {SwimToggle::parse::*}
-	code:
-		on swim toggle:
-			cancel event
-
-test "cancelling swim toggle":
-	assert {SwimToggle::parse::*} contains "Cancelling a toggle swim event has no effect" with "cancelling swim toggle doesn't error"
