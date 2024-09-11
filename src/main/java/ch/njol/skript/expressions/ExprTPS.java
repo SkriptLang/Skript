@@ -32,7 +32,7 @@ import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Server;
 import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 @Name("TPS (ticks per second)")
 @Description("Returns the 3 most recent TPS readings, like the /tps command. " +

@@ -22,7 +22,7 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Mob;
 import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.bukkitutil.PaperEntityUtils;
@@ -106,8 +106,10 @@ public class EffLook extends Effect {
 		Object object = target.getSingle(event);
 		if (object == null)
 			return;
-		Float speed = this.speed == null ? null : this.speed.getSingle(event).floatValue();
-		Float maxPitch = this.maxPitch == null ? null : this.maxPitch.getSingle(event).floatValue();
+
+		Float speed = this.speed == null ? null : this.speed.getOptionalSingle(event).map(Number::floatValue).orElse(null);
+		Float maxPitch = this.maxPitch == null ? null : this.maxPitch.getOptionalSingle(event).map(Number::floatValue).orElse(null);
+
 		if (LOOK_ANCHORS) {
 			PaperEntityUtils.lookAt(anchor, object, speed, maxPitch, entities.getArray(event));
 		} else {

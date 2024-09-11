@@ -34,8 +34,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
 
-import org.eclipse.jdt.annotation.NonNull;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Represents a config file.
@@ -285,7 +285,7 @@ public class Config implements Comparable<Config> {
 				try {
 					if (OptionSection.class.isAssignableFrom(field.getType())) {
 						final OptionSection section = (OptionSection) field.get(object);
-						@NonNull final Class<?> pc = section.getClass();
+						@NotNull final Class<?> pc = section.getClass();
 						load(pc, section, path + section.key + ".");
 					} else if (Option.class.isAssignableFrom(field.getType())) {
 						((Option<?>) field.get(object)).set(this, path);
