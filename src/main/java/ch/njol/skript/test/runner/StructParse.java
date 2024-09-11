@@ -90,7 +90,7 @@ public class StructParse extends Structure {
 			getParser().setCurrentStructure(structure);
 			if (structure == null || (!structure.preLoad() || !structure.load() || !structure.postLoad())) {
 				getParser().setCurrentStructure(null);
-				return false;
+				return true;
 			}
 
 			logs = handler.getLog().stream()
