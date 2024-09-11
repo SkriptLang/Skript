@@ -29,7 +29,7 @@ import java.util.logging.Level;
 
 import org.skriptlang.skript.lang.script.Script;
 import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptConfig;
