@@ -37,6 +37,8 @@ import org.jetbrains.annotations.UnknownNullability;
 @Since("1.0, 2.10 (damage cause)")
 @RequiredPlugins("Spigot 1.20.4+ (for damage cause)")
 public class EffHealth extends Effect {
+	private static final boolean SUPPORTS_DAMAGE_SOURCE = Skript.classExists("org.bukkit.damage.DamageSource");
+
 	static {
 		Skript.registerEffect(EffHealth.class,
 			"damage %livingentities/itemtypes/slots% by %number% [heart[s]] [with [fake] [damage] cause %-damagecause%]",
@@ -44,7 +46,6 @@ public class EffHealth extends Effect {
 			"repair %itemtypes/slots% [by %-number%]");
 	}
 
-	private static final boolean SUPPORTS_DAMAGE_SOURCE = Skript.classExists("org.bukkit.damage.DamageSource");
 	private Expression<?> damageables;
 	private @UnknownNullability Expression<Number> amount;
 	private boolean isHealing, isRepairing;
