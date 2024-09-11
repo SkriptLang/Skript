@@ -2,8 +2,7 @@ parse:
 	results: {SwimToggle::parse::*}
 	code:
 		on swim toggle:
-			sgsfg
+			cancel event
 
 test "cancelling swim toggle":
-	send "%{SwimToggle::parse::*}%" to console
 	assert {SwimToggle::parse::*} contains "Cancelling a toggle swim event has no effect" with "cancelling swim toggle doesn't error"
