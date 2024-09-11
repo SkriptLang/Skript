@@ -12,6 +12,7 @@ import ch.njol.skript.doc.NoDoc;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.skript.lang.parser.ParserInstance;
 import ch.njol.skript.lang.util.ContextlessEvent;
 import ch.njol.skript.log.LogEntry;
 import ch.njol.skript.log.RetainingLogHandler;
@@ -86,10 +87,9 @@ public class StructParse extends Structure {
 			String error = "Can't understand this structure: " + structureSectionNodeKey;
 			Structure structure = Structure.parse(structureSectionNodeKey, structureSectionNodeToParse, error);
 
-			if (structure != null) {
-				structure.preLoad();
-				structure.load();
-				structure.postLoad();
+			getParser().setCurrentStructure(structure);
+			if (structure != null && (!structure.preLoad() || !structure.load() || !structure.postLoad())) {
+				return false;
 			}
 
 			logs = handler.getLog().stream()
