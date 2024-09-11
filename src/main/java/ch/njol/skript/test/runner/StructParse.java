@@ -87,7 +87,9 @@ public class StructParse extends Structure {
 			Structure structure = Structure.parse(structureSectionNodeKey, structureSectionNodeToParse, error);
 
 			if (structure != null) {
+				structure.preLoad();
 				structure.load();
+				structure.postLoad();
 			}
 
 			logs = handler.getLog().stream()
