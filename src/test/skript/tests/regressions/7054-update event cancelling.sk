@@ -23,4 +23,4 @@ test "cancelling player login":
 	assert {PlayerLogin::parse::*} contains "A connect event cannot be cancelled, but the player may be kicked ('kick player by reason of \"...\"')" with "cancelling player login doesn't error"
 
 test "cancelling regular event":
-	assert {PlayerQuit::parse::*} contains "A quit event cannot be cancelled" with "cancelling regular event doesn't error"
+	assert {PlayerQuit::parse::*} contains "An on quit event cannot be cancelled" with "cancelling regular event doesn't error"
