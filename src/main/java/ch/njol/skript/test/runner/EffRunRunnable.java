@@ -9,7 +9,6 @@ import ch.njol.skript.util.LiteralUtils;
 import ch.njol.util.Kleenean;
 import org.bukkit.Bukkit;
 import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.Nullable;
 
 @NoDoc
 public class EffRunRunnable extends Effect {
@@ -39,7 +38,7 @@ public class EffRunRunnable extends Effect {
 	}
 
 	@Override
-	public String toString(@Nullable Event event, boolean debug) {
+	public String toString(Event event, boolean debug) {
 		return "run " + task.toString(event, debug);
 	}
 
