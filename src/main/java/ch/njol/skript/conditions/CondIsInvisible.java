@@ -15,12 +15,12 @@ import org.bukkit.entity.LivingEntity;
 @Name("Is Invisible")
 @Description("Checks whether a living entity or a boss bar is invisible.")
 @Examples("target entity is invisible")
-@Since("2.7")
+@Since("2.7, INSERT VERSION (boss bars)")
 public class CondIsInvisible extends PropertyCondition<Object> {
 
 	static {
 		if (Skript.methodExists(LivingEntity.class, "isInvisible"))
-			register(CondIsInvisible.class, PropertyType.BE, "(invisible|:visible)", "livingentities/bossbars");
+			register(CondIsInvisible.class, "(invisible|:visible)", "livingentities/bossbars");
 	}
 
 	private boolean visible;

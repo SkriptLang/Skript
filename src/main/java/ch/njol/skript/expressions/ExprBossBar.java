@@ -1,5 +1,3 @@
-/**
- */
 package ch.njol.skript.expressions;
 
 import ch.njol.skript.Skript;
