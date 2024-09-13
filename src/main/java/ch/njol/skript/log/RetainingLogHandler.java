@@ -26,7 +26,7 @@ import java.util.LinkedList;
 import java.util.logging.Level;
 
 import org.bukkit.command.CommandSender;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.Skript;
 import org.jetbrains.annotations.ApiStatus;
