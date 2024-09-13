@@ -22,11 +22,7 @@ import java.util.Arrays;
 import java.util.logging.Level;
 
 import ch.njol.skript.expressions.ExprParse;
-import ch.njol.skript.lang.Effect;
-import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.ExpressionList;
-import ch.njol.skript.lang.SkriptParser;
-import ch.njol.skript.lang.Variable;
+import ch.njol.skript.lang.*;
 import org.skriptlang.skript.lang.script.ScriptWarning;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
@@ -278,20 +274,25 @@ public class EffChange extends Effect {
 		}
 		return true;
 	}
-	
+
 	@Override
-	protected void execute(Event e) {
-		Object[] delta = changer == null ? null : changer.getArray(e);
+	protected void execute(Event event) {
+		Object[] delta = changer == null ? null : changer.getArray(event);
 		delta = changer == null ? delta : changer.beforeChange(changed, delta);
 
 		if ((delta == null || delta.length == 0) && (mode != ChangeMode.DELETE && mode != ChangeMode.RESET)) {
 			if (mode == ChangeMode.SET && changed.acceptChange(ChangeMode.DELETE) != null)
-				changed.change(e, null, ChangeMode.DELETE);
+				changed.change(event, null, ChangeMode.DELETE);
 			return;
 		}
-		changed.change(e, delta, mode);
+		if (mode.supportsKeyedChange() && changer != null && delta != null
+			&& changer instanceof KeyProviderExpression<?> provider
+			&& changed instanceof KeyReceiverExpression<?> receiver) {
+			receiver.change(event, delta, mode, provider.getArrayKeys(event), provider.areKeysRecommended());
+		}
+		changed.change(event, delta, mode);
 	}
-	
+
 	@Override
 	public String toString(final @Nullable Event e, final boolean debug) {
 		final Expression<?> changer = this.changer;
