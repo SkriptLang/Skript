@@ -289,8 +289,9 @@ public class EffChange extends Effect {
 			&& changer instanceof KeyProviderExpression<?> provider
 			&& changed instanceof KeyReceiverExpression<?> receiver) {
 			receiver.change(event, delta, mode, provider.getArrayKeys(event), provider.areKeysRecommended());
+		} else {
+			changed.change(event, delta, mode);
 		}
-		changed.change(event, delta, mode);
 	}
 
 	@Override
