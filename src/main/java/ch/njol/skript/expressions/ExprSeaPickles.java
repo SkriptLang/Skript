@@ -33,7 +33,7 @@ import org.bukkit.block.Block;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.block.data.type.SeaPickle;
 import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 @Name("Sea Pickles")
 @Description("An expression to obtain or modify data relating to the pickles of a sea pickle block.")

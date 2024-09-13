@@ -30,6 +30,8 @@ import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.ApiStatus.ScheduledForRemoval;
 import org.jetbrains.annotations.Nullable;
 
+import java.time.Duration;
+import java.time.temporal.*;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -38,10 +40,11 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class Timespan implements YggdrasilSerializable, Comparable<Timespan> { // REMIND unit
+import static java.time.temporal.ChronoUnit.*;
 
+public class Timespan implements YggdrasilSerializable, Comparable<Timespan>, TemporalAmount { // REMIND unit
 
-	public enum TimePeriod {
+	public enum TimePeriod implements TemporalUnit {
 
 		MILLISECOND(1L),
 		TICK(50L),
@@ -63,6 +66,36 @@ public class Timespan implements YggdrasilSerializable, Comparable<Timespan> { /
 
 		public long getTime() {
 			return time;
+		}
+
+		@Override
+		public Duration getDuration() {
+			return Duration.ofMillis(time);
+		}
+
+		@Override
+		public boolean isDurationEstimated() {
+			return false;
+		}
+
+		@Override
+		public boolean isDateBased() {
+			return false;
+		}
+
+		@Override
+		public boolean isTimeBased() {
+			return true;
+		}
+
+		@Override
+		public <R extends Temporal> R addTo(R temporal, long amount) {
+			return (R) temporal.plus(amount, this);
+		}
+
+		@Override
+		public long between(Temporal temporal1Inclusive, Temporal temporal2Exclusive) {
+			return temporal1Inclusive.until(temporal2Exclusive, this);
 		}
 
 	}
@@ -96,7 +129,7 @@ public class Timespan implements YggdrasilSerializable, Comparable<Timespan> { /
 	private static final Pattern TIMESPAN_SPLIT_PATTERN = Pattern.compile("[:.]");
 
 	private final long millis;
-	
+
 	@Nullable
 	public static Timespan parse(String value) {
 		if (value.isEmpty())
@@ -126,13 +159,13 @@ public class Timespan implements YggdrasilSerializable, Comparable<Timespan> { /
 			String[] substring = value.toLowerCase(Locale.ENGLISH).split("\\s+");
 			for (int i = 0; i < substring.length; i++) {
 				String sub = substring[i];
-				
+
 				if (sub.equals(GeneralWords.and.toString())) {
 					if (i == 0 || i == substring.length - 1)
 						return null;
 					continue;
 				}
-				
+
 				double amount = 1;
 				if (Noun.isIndefiniteArticle(sub)) {
 					if (i == substring.length - 1)
@@ -148,7 +181,7 @@ public class Timespan implements YggdrasilSerializable, Comparable<Timespan> { /
 					}
 					sub = substring[++i];
 				}
-				
+
 				if (CollectionUtils.contains(Language.getList("time.real"), sub)) {
 					if (i == substring.length - 1 || isMinecraftTimeSet && minecraftTime)
 						return null;
@@ -159,27 +192,27 @@ public class Timespan implements YggdrasilSerializable, Comparable<Timespan> { /
 					minecraftTime = true;
 					sub = substring[++i];
 				}
-				
+
 				if (sub.endsWith(","))
 					sub = sub.substring(0, sub.length() - 1);
 
 				Long d = PARSE_VALUES.get(sub.toLowerCase(Locale.ENGLISH));
 				if (d == null)
 					return null;
-				
+
 				if (minecraftTime && d != TimePeriod.TICK.time)
 					amount /= 72f;
-				
+
 				t += Math.round(amount * d);
-				
+
 				isMinecraftTimeSet = true;
-				
+
 			}
 		}
 
 		return new Timespan(t);
 	}
-	
+
 	public Timespan() {
 		millis = 0;
 	}
@@ -211,7 +244,7 @@ public class Timespan implements YggdrasilSerializable, Comparable<Timespan> { /
 	 * Builds a Timespan from the given long parameter.
 	 *
 	 * @deprecated Use {@link #Timespan(TimePeriod, long)}
-	 * 
+	 *
 	 * @param ticks The amount of Minecraft ticks to convert to a timespan.
 	 * @return Timespan based on the provided long.
 	 */
@@ -272,15 +305,15 @@ public class Timespan implements YggdrasilSerializable, Comparable<Timespan> { /
 	public String toString() {
 		return toString(millis);
 	}
-	
+
 	public String toString(int flags) {
 		return toString(millis, flags);
 	}
-	
+
 	public static String toString(long millis) {
 		return toString(millis, 0);
 	}
-	
+
 	@SuppressWarnings("null")
 	public static String toString(long millis, int flags) {
 		for (int i = 0; i < SIMPLE_VALUES.size() - 1; i++) {
@@ -296,7 +329,7 @@ public class Timespan implements YggdrasilSerializable, Comparable<Timespan> { /
 		}
 		return toString(1. * millis / SIMPLE_VALUES.get(SIMPLE_VALUES.size() - 1).getSecond(), SIMPLE_VALUES.get(SIMPLE_VALUES.size() - 1), flags);
 	}
-	
+
 	private static String toString(double amount, NonNullPair<Noun, Long> pair, int flags) {
 		return pair.getFirst().withAmount(amount, flags);
 	}
@@ -310,7 +343,7 @@ public class Timespan implements YggdrasilSerializable, Comparable<Timespan> { /
 	public int compareTo(@Nullable Timespan time) {
 		return Long.compare(millis, time == null ? millis : time.millis);
 	}
-	
+
 	@Override
 	public int hashCode() {
 		int prime = 31;
@@ -318,7 +351,7 @@ public class Timespan implements YggdrasilSerializable, Comparable<Timespan> { /
 		result = prime * result + (int) (millis / Integer.MAX_VALUE);
 		return result;
 	}
-	
+
 	@Override
 	public boolean equals(@Nullable Object obj) {
 		if (this == obj)
@@ -330,5 +363,47 @@ public class Timespan implements YggdrasilSerializable, Comparable<Timespan> { /
 
 		return millis == ((Timespan) obj).millis;
 	}
-	
+
+	public Duration getDuration() {
+		return Duration.ofMillis(millis);
+	}
+
+	public static Timespan fromDuration(Duration duration) {
+		return new Timespan(duration.toMillis());
+	}
+
+	@Override
+	public long get(TemporalUnit unit) {
+		if (unit instanceof TimePeriod period)
+			return this.getAs(period);
+		if (!(unit instanceof ChronoUnit chrono))
+			throw new UnsupportedTemporalTypeException("Not a supported temporal unit: " + unit);
+		return switch (chrono) {
+			case MILLIS -> this.getAs(TimePeriod.MILLISECOND);
+			case SECONDS -> this.getAs(TimePeriod.SECOND);
+			case MINUTES -> this.getAs(TimePeriod.MINUTE);
+			case HOURS -> this.getAs(TimePeriod.HOUR);
+			case DAYS -> this.getAs(TimePeriod.DAY);
+			case WEEKS -> this.getAs(TimePeriod.WEEK);
+			case MONTHS -> this.getAs(TimePeriod.MONTH);
+			case YEARS -> this.getAs(TimePeriod.YEAR);
+			default -> throw new UnsupportedTemporalTypeException("Not a supported time unit: " + chrono);
+		};
+	}
+
+	@Override
+	public List<TemporalUnit> getUnits() {
+		return List.<TemporalUnit>of(TimePeriod.values()).reversed();
+	}
+
+	@Override
+	public Temporal addTo(Temporal temporal) {
+		return temporal.plus(millis, MILLIS);
+	}
+
+	@Override
+	public Temporal subtractFrom(Temporal temporal) {
+		return temporal.minus(millis, MILLIS);
+	}
+
 }

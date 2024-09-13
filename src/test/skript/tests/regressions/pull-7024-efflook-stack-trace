@@ -1,0 +1,14 @@
+test "efflook throwing stack trace":
+	spawn a zombie at (spawn of world "world"):
+		set {_z} to entity
+
+	set {_v} to random vector
+	set vector length of {_v} to 10
+	set {_loc} to ((spawn of world "world") ~ {_v})
+	set {_x} to "xyz"
+
+	make {_z} look at {_loc}
+	make {_z} look at {_loc} at speed 10
+	make {_z} look at {_loc} at speed {_x} # this should no longer throw a stack trace
+
+	delete entity within {_z}

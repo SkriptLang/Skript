@@ -21,7 +21,7 @@ package ch.njol.skript.entity;
 import org.bukkit.entity.Llama;
 import org.bukkit.entity.Llama.Color;
 import org.bukkit.entity.TraderLlama;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.lang.Literal;

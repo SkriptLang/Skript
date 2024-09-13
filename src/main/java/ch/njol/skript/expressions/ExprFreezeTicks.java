@@ -29,7 +29,7 @@ import ch.njol.skript.util.Timespan;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.entity.Entity;
 import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 @Name("Freeze Time")
 @Description("How much time an entity has been in powdered snow for.")

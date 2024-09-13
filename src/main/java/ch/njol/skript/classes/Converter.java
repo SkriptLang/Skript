@@ -21,7 +21,7 @@ package ch.njol.skript.classes;
 import ch.njol.skript.lang.Debuggable;
 import ch.njol.skript.registrations.Classes;
 import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.converter.Converters;
 
 import java.util.Arrays;

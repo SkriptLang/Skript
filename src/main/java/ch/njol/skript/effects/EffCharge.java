@@ -27,48 +27,54 @@ import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
-
 import org.bukkit.entity.Creeper;
-import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.WitherSkull;
 import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
-@Name("Charge Creeper")
-@Description("Charges or uncharges a creeper. A creeper is charged when it has been struck by lightning.")
-@Examples({"on spawn of creeper:", 
-			"\tcharge the event-entity"})
+@Name("Charge Entity")
+@Description("Charges or uncharges a creeper or wither skull. A creeper is charged when it has been struck by lightning.")
+@Examples({
+	"on spawn of creeper:",
+		"\tcharge the event-entity"
+})
 @Since("2.5")
-public class EffChargeCreeper extends Effect {
+public class EffCharge extends Effect {
 
 	static {
-		Skript.registerEffect(EffChargeCreeper.class,
-				"make %livingentities% [a[n]] (charged|powered|1¦((un|non[-])charged|(un|non[-])powered)) [creeper[s]]",
-				"(charge|power|1¦(uncharge|unpower)) %livingentities%");
+		Skript.registerEffect(EffCharge.class,
+				"make %entities% [un:(un|not |non[-| ])](charged|powered)",
+				"[:un](charge|power) %entities%");
 	}
 
 	@SuppressWarnings("null")
-	private Expression<LivingEntity> entities;
+	private Expression<Entity> entities;
 
 	private boolean charge;
 
 	@SuppressWarnings({"unchecked", "null"})
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		entities = (Expression<LivingEntity>) exprs[0];
-		charge = parseResult.mark != 1;
+		entities = (Expression<Entity>) exprs[0];
+		charge = !parseResult.hasTag("un");
 		return true;
 	}
 
 	@Override
-	protected void execute(Event e) {
-		for (LivingEntity le : entities.getArray(e)) {
-			if (le instanceof Creeper)
-				((Creeper) le).setPowered(charge);
+	protected void execute(Event event) {
+		for (Entity entity : entities.getArray(event)) {
+			if (entity instanceof Creeper) {
+				((Creeper) entity).setPowered(charge);
+			} else if (entity instanceof WitherSkull) {
+				((WitherSkull) entity).setCharged(charge);
+			}
 		}
 	}
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
-		return "make " + entities.toString(e, debug) + (charge == true ? " charged" : " not charged");
+	public String toString(@Nullable Event event, boolean debug) {
+		return "make " + entities.toString(event, debug) + (charge ? " charged" : " not charged");
 	}
+
 }

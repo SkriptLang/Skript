@@ -31,6 +31,7 @@ import ch.njol.skript.util.slot.Slot;
 import ch.njol.util.Checker;
 import org.bukkit.event.Event;
 import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.converter.Converter;
 
@@ -105,7 +106,7 @@ public interface Expression<T> extends SyntaxElement, Debuggable {
 	 * @param event The event
 	 * @return A non-null stream of this expression's non-null values
 	 */
-	default Stream<? extends  T> stream(Event event) {
+	default Stream<@NotNull ? extends  T> stream(Event event) {
 		Iterator<? extends T> iterator = iterator(event);
 		if (iterator == null) {
 			return Stream.empty();

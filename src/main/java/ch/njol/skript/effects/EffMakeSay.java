@@ -29,7 +29,7 @@ import ch.njol.skript.lang.SkriptParser;
 import ch.njol.util.Kleenean;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 @Name("Make Say")
 @Description("Forces a player to send a message to the chat. If the message starts with a slash it will force the player to use command.")

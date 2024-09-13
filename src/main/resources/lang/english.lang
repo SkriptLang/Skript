@@ -55,6 +55,7 @@ skript command:
 		error line info: <light red><bold>Line %s:<gray> (%s)<reset>\n
 		reloading: Reloading <gold>%s<reset>...
 		reloaded: <lime>Successfully reloaded <gold>%s<lime>. <gray>(<gold>%2$sms<gray>)
+		player reload: <lime>%s <reset>is reloading <gold>%s<reset>...
 		error: <light red>Encountered <gold>%2$s <light red>error¦¦s¦ while reloading <gold>%1$s<light red>! <gray>(<gold>%3$sms<gray>)
 		script disabled: <gold>%s<reset> is currently disabled. Use <gray>/<gold>skript <cyan>enable <red>%s<reset> to enable it.
 		warning details: <yellow>    %s<reset>\n

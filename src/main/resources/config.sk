@@ -91,9 +91,9 @@ load default aliases: true
 
 
 player variable fix: true
-# Whether to enable the player variable fix if a player has rejoined and was reciding inside a variable.
-# Player objects inside a variable(list or normal) are not updated to the new player object
-# A server creates whenever a player rejoins.
+# Whether to enable the player variable fix if a player has rejoined and was residing inside a variable.
+# Player objects inside a variable (list or normal) are not updated to the new player object
+# that a server creates whenever a player rejoins.
 # Basically the variable holds the old player object when a player has rejoined thus rendering the variable kinda broken.
 # This fix should work around that and whenever a invalid(old) player object is attempted to be get through a variable
 # It will check if the player is online and then get the valid(new) player object and update the variable object to that one.

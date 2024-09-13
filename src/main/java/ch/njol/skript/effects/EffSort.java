@@ -38,7 +38,7 @@ import ch.njol.skript.lang.parser.ParserInstance;
 import ch.njol.util.Kleenean;
 import ch.njol.util.Pair;
 import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnknownNullability;
 
 import java.util.HashSet;
@@ -56,14 +56,15 @@ import java.util.Set;
 	"set {_words::*} to \"pineapple\", \"banana\", \"yoghurt\", and \"apple\"",
 	"sort {_words::*} # alphabetical sort",
 	"sort {_words::*} by length of input # shortest to longest",
+	"sort {_words::*} in descending order by length of input # longest to shortest",
 	"sort {_words::*} based on {tastiness::%input%} # sort based on custom value"
 })
-@Since("2.9.0")
+@Since("2.9.0, INSERT VERSION (sort order)")
 @Keywords("input")
 public class EffSort extends Effect implements InputSource {
 
 	static {
-		Skript.registerEffect(EffSort.class, "sort %~objects% [(by|based on) <.+>]");
+		Skript.registerEffect(EffSort.class, "sort %~objects% [in (:descending|ascending) order] [(by|based on) <.+>]");
 		if (!ParserInstance.isRegistered(InputData.class))
 			ParserInstance.registerData(InputData.class, InputData::new);
 	}
@@ -73,6 +74,7 @@ public class EffSort extends Effect implements InputSource {
 	@Nullable
 	private String unparsedExpression;
 	private Variable<?> unsortedObjects;
+	private boolean descendingOrder;
 
 	private Set<ExprInput<?>> dependentInputs = new HashSet<>();
 
@@ -88,6 +90,7 @@ public class EffSort extends Effect implements InputSource {
 			return false;
 		}
 		unsortedObjects = (Variable<?>) expressions[0];
+		descendingOrder = parseResult.hasTag("descending");
 
 		if (!parseResult.regexes.isEmpty()) {
 			unparsedExpression = parseResult.regexes.get(0).group();
@@ -106,10 +109,11 @@ public class EffSort extends Effect implements InputSource {
 	@Override
 	protected void execute(Event event) {
 		Object[] sorted;
+		int sortingMultiplier = descendingOrder ? -1 : 1;
 		if (mappingExpr == null) {
 			try {
 				sorted = unsortedObjects.stream(event)
-					.sorted(ExprSortedList::compare)
+					.sorted((o1, o2) -> ExprSortedList.compare(o1, o2) * sortingMultiplier)
 					.toArray();
 			} catch (IllegalArgumentException | ClassCastException e) {
 				return;
@@ -127,7 +131,7 @@ public class EffSort extends Effect implements InputSource {
 			}
 			try {
 				sorted = valueToMappedValue.entrySet().stream()
-					.sorted(Map.Entry.comparingByValue(ExprSortedList::compare))
+					.sorted(Map.Entry.comparingByValue((o1, o2) -> ExprSortedList.compare(o1, o2) * sortingMultiplier))
 					.map(Map.Entry::getKey)
 					.toArray();
 			} catch (IllegalArgumentException | ClassCastException e) {
@@ -160,7 +164,8 @@ public class EffSort extends Effect implements InputSource {
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return "sort" + unsortedObjects.toString(event, debug)
+		return "sort " + unsortedObjects.toString(event, debug)
+				+ " in " + (descendingOrder ? "descending" : "ascending") + " order"
 				+ (mappingExpr == null ? "" : " by " + mappingExpr.toString(event, debug));
 	}
 

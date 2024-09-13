@@ -31,7 +31,7 @@ import org.bukkit.Location;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 @Name("Has Line of Sight")
 @Description("Checks whether living entities have an unobstructed line of sight to other entities or locations.")

@@ -23,7 +23,7 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
-import org.eclipse.jdt.annotation.NonNull;
+import org.jetbrains.annotations.NotNull;
 
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.util.Color;
@@ -50,7 +50,7 @@ public class DefaultClasses {
 	public static ClassInfo<OfflinePlayer> OFFLINE_PLAYER = getClassInfo(OfflinePlayer.class);
 	public static ClassInfo<Player> PLAYER = getClassInfo(Player.class);
 
-	@NonNull
+	@NotNull
 	private static <T> ClassInfo<T> getClassInfo(Class<T> tClass) {
 		//noinspection ConstantConditions
 		ClassInfo<T> classInfo = Classes.getExactClassInfo(tClass);

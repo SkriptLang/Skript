@@ -30,7 +30,7 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.bukkit.event.player.PlayerEggThrowEvent;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 @Name("Egg Will Hatch")
 @Description("Whether the egg will hatch in a Player Egg Throw event.")

@@ -18,7 +18,7 @@
  */
 package ch.njol.skript.classes;
 
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 import org.skriptlang.skript.lang.converter.Converters;
 
