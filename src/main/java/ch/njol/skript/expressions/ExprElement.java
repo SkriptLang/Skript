@@ -36,7 +36,7 @@ import ch.njol.util.coll.CollectionUtils;
 import com.google.common.collect.Iterators;
 import org.apache.commons.lang.ArrayUtils;
 import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Array;
 import java.util.Iterator;
