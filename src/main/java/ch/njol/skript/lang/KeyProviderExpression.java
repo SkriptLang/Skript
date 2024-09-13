@@ -90,8 +90,7 @@ public interface KeyProviderExpression<T> extends Expression<T> {
 	 * @return A set of keys, of the same length as {@link #getArray(Event)}
 	 * @throws IllegalStateException If this was not called directly after a {@link #getArray(Event)} call
 	 */
-	@NotNull
-	String @NotNull [] getArrayKeys(Event event) throws IllegalStateException;
+	@NotNull String @NotNull [] getArrayKeys(Event event) throws IllegalStateException;
 
 	/**
 	 * A set of keys, matching the length and order of the immediately-previous
@@ -110,8 +109,9 @@ public interface KeyProviderExpression<T> extends Expression<T> {
 	 * @return A set of keys, of the same length as {@link #getAll(Event)}
 	 * @throws IllegalStateException If this was not called directly after a {@link #getAll(Event)} call
 	 */
-	@NotNull
-	String @NotNull [] getAllKeys(Event event);
+	default @NotNull String @NotNull [] getAllKeys(Event event) {
+		return this.getArrayKeys(event);
+	}
 
 	@Override
 	T[] getArray(Event event);
