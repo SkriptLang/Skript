@@ -1,7 +1,7 @@
-test "time in worlds":
+test "time of worlds":
 
 	set {_w} to world "world"
-	set {_startTime} to time in {_w}
+	set {_startTime} to time of {_w}
 
 	set time of {_w} to 00:00
 	assert time of {_w} is 00:00 with "time in world should be 00:00"
