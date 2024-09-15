@@ -37,6 +37,8 @@ import org.jetbrains.annotations.Nullable;
 @Since("1.0")
 public class ExprTime extends PropertyExpression<World, Time> {
 
+	private static final int TIME_TO_TIMESPAN_OFFSET = 18000;
+
 	static {
 		Skript.registerExpression(ExprTime.class, Time.class, ExpressionType.PROPERTY,
 			"[the] time[s] [([with]in|of) %worlds%]", "%worlds%'[s] time[s]");
@@ -88,7 +90,7 @@ public class ExprTime extends PropertyExpression<World, Time> {
 		long ticks = 0;
 		if (time instanceof Time) {
 			if (mode != ChangeMode.SET) {
-				ticks = ((Time) time).getTicks() - 18000; // allows for using "add 2:00" without going to new day
+				ticks = ((Time) time).getTicks() - TIME_TO_TIMESPAN_OFFSET; // allows for using "add 2:00" without going to new day
 			} else {
 				ticks = ((Time) time).getTicks();
 			}
