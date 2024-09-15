@@ -481,6 +481,9 @@ public final class Skript extends JavaPlugin implements Listener {
 		// ... but also before platform check, because there is a config option to ignore some errors
 		SkriptConfig.load();
 
+		// Loaded before anything that might use them
+		CompletableFuture<Boolean> aliases = Aliases.load();
+
 		// Now override the verbosity if test mode is enabled
 		if (TestMode.VERBOSITY != null)
 			SkriptLogger.setVerbosity(Verbosity.valueOf(TestMode.VERBOSITY));
@@ -492,9 +495,6 @@ public final class Skript extends JavaPlugin implements Listener {
 			assert updater != null;
 			updater.updateCheck(console);
 		}
-
-		// Loaded before anything that might use them
-		CompletableFuture<Boolean> aliases = Aliases.load();
 
 		// If loading can continue (platform ok), check for potentially thrown error
 		if (classLoadError != null) {
