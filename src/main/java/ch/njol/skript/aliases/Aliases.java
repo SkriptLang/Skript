@@ -13,6 +13,7 @@ import ch.njol.skript.log.BlockingLogHandler;
 import ch.njol.skript.util.EnchantmentType;
 import ch.njol.skript.util.Utils;
 import ch.njol.skript.util.Version;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
@@ -355,8 +356,11 @@ public abstract class Aliases {
 	}
 	
 	/**
-	 * Loads aliases from Skript's standard locations.
+	 * Loads aliases from Skript's standard locations asynchronously.
 	 * Exceptions will be logged, but not thrown.
+	 *
+	 * @return A future that completes when the aliases are loaded.
+	 * The returned value is true if the loading was successful, false otherwise.
 	 */
 	public static CompletableFuture<Boolean> load() {
 		return CompletableFuture.supplyAsync(() -> {
@@ -379,6 +383,7 @@ public abstract class Aliases {
 					Skript.error("");
 				} else {
 					Skript.exception(e);
+					Bukkit.getPluginManager().disablePlugin(Skript.getInstance());
 				}
 				return false;
 			} catch (IOException e) {
