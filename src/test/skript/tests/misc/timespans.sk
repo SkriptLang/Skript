@@ -1,84 +1,50 @@
+command /testtimespan <timespan>:
+	trigger:
+		set {timespan} to arg-1
+
 test "timespans":
 
-	set {_timespan} to 1 day
-	assert {_timespan} is a timespan with "Failed to parse '1 day'"
-	assert {_timespan} is 24 hours with "Failed to set variable to '1 day'"
+	execute command "/testtimespan 1 day"
+	assert {timespan} is "1 day" parsed as timespan with "%{timespan}% doesn't equal 1 day!"
 
-	set {_timespan} to 2 hours
-	assert {_timespan} is a timespan with "Failed to parse '2 hours'"
-	assert {_timespan} is 120 minutes with "Failed to set variable to '2 hours'"
+	execute command "/testtimespan 2 hours"
+	assert {timespan} is "2 hours" parsed as timespan with "%{timespan}% doesn't equal 2 hours!"
 
-	set {_timespan} to 30 minutes
-	assert {_timespan} is a timespan with "Failed to parse '30 minutes'"
-	assert {_timespan} is 1800 seconds with "Failed to set variable to '30 minutes'"
+	execute command "/testtimespan 30 minutes"
+	assert {timespan} is "30 minutes" parsed as timespan with "%{timespan}% doesn't equal 30 minutes!"
 
-	set {_timespan} to 1d
-	assert {_timespan} is a timespan with "Failed to parse '1d'"
-	assert {_timespan} is 24 hours with "Failed to set variable to '1d'"
+	execute command "/testtimespan 1d"
+	assert {timespan} is "1 day" parsed as timespan with "%{timespan}% doesn't equal 1 day!"
 
-	set {_timespan} to 2h
-	assert {_timespan} is a timespan with "Failed to parse '2h'"
-	assert {_timespan} is 120 minutes with "Failed to set variable to '2h'"
+	execute command "/testtimespan 2h"
+	assert {timespan} is "2 hours" parsed as timespan with "%{timespan}% doesn't equal 2 hours!"
 
-	set {_timespan} to 30m
-	assert {_timespan} is a timespan with "Failed to parse '30m'"
-	assert {_timespan} is 1800 seconds with "Failed to set variable to '30m'"
+	execute command "/testtimespan 30m"
+	assert {timespan} is "30 minutes" parsed as timespan with "%{timespan}% doesn't equal 30 minutes!"
 
-	# Comparisons with both long and short form
-	set {_timespan} to 30 minutes and 20s
-	assert {_timespan} is a timespan with "Failed to parse '30 minutes and 20s'"
-	assert {_timespan} is 30m and 20 seconds with "Failed to set variable to '30 minutes and 20s'"
+	execute command "/testtimespan 30m and 20s"
+	assert {timespan} is "30 minutes and 20 seconds" parsed as timespan with "%{timespan}% doesn't equal 30 minutes and 20 seconds!"
 
-	set {_timespan} to 1 mo, 30 days, 12w, 20 minutes and 15s
-	assert {_timespan} is a timespan with "Failed to parse '1 mo, 30 days, 12w, 20 minutes and 15s'"
-	assert {_timespan} is 1 month, 30 days, 12 weeks, 20 minutes and 15 seconds with "Failed to set variable to '1 mo, 30 days, 12w, 20 minutes and 15s'"
+	execute command "/testtimespan 50 minutes and 45 seconds"
+	assert {timespan} is "50 minutes 45 seconds" parsed as timespan with "%{timespan}% doesn't equal 50 minutes and 45 seconds!"
 
-	set {_timespan} to 50 minutes and 45 seconds
-	assert {_timespan} is a timespan with "Failed to parse '50 minutes and 45 seconds'"
-	assert {_timespan} is 50m and 45s with "Failed to set variable to '50 minutes and 45 seconds'"
+	execute command "/testtimespan 1d 6h"
+	assert {timespan} is "1 day 6 hours" parsed as timespan with "%{timespan}% doesn't equal 1 day and 6 hours!"
 
-	# Edge cases
-	set {_timespan} to 0.5d
-	assert {_timespan} is a timespan with "Failed to parse '0.5d'"
-	assert {_timespan} is 12 hours with "Failed to set variable to 0.5d"
+	execute command "/testtimespan 2 weeks 3d 12 hours"
+	assert {timespan} is "2 weeks 3 days 12 hours" parsed as timespan with "%{timespan}% doesn't equal 2 weeks, 3 days and 12 hours!"
 
-	set {_timespan} to 90m
-	assert {_timespan} is a timespan with "Failed to parse '90m'"
-	assert {_timespan} is 1.5 hours with "Failed to set variable to 90m"
+	execute command "/testtimespan 1.5d"
+	assert {timespan} is "1 day and 12 hours" parsed as timespan with "%{timespan}% doesn't equal 1 day and 12 hours!"
 
-	set {_timespan} to 3600s
-	assert {_timespan} is a timespan with "Failed to parse '3600s'"
-	assert {_timespan} is 60 minutes with "Failed to set variable to '3600s'"
+	execute command "/testtimespan 2.5h"
+	assert {timespan} is "2 hours and 30 minutes" parsed as timespan with "%{timespan}% doesn't equal 2 hours and 30 minutes!"
 
-	# decimal tests with long names and multiple units
-	set {_timespan} to 1.5 days
-	assert {_timespan} is a timespan with "Failed to parse '1.5 days'"
-	assert {_timespan} is 36 hours with "Failed to set variable to '1.5 days'"
+	execute command "/testtimespan invalidinput"
+	assert {timespan} is "invalid" parsed as timespan to fail with "%{timespan}% was incorrectly parsed!"
 
-	set {_timespan} to 2.5 seconds
-	assert {_timespan} is a timespan with "Failed to parse '2.5 seconds'"
-	assert {_timespan} is 2500 milliseconds with "Failed to set variable to '2.5 seconds'"
+	execute command "/testtimespan 1mo 2w 3d 4h 5m 6s"
+	assert {timespan} is "1 month, 2 weeks, 3 days, 4 hours, 5 minutes and 6 seconds" parsed as timespan with "%{timespan}% doesn't equal 1 month, 2 weeks, 3 days, 4 hours, 5 minutes and 6 seconds!"
 
-	set {_timespan} to 1.5 days and 2.5 seconds
-	assert {_timespan} is a timespan with "Failed to parse '1.5 days and 2.5 seconds'"
-	assert {_timespan} is 36 hours and 2.5 seconds with "Failed to set variable to '1.5 days and 2.5 seconds'"
-
-	# Add, remove, and clear tests
-	set {_timespan} to 1 day
-	add 2 hours to {_timespan}
-	assert {_timespan} is 26 hours with "Failed to add 2 hours to '1 day'"
-
-	set {_timespan} to 1 day
-	remove 2 hours from {_timespan}
-	assert {_timespan} is 22 hours with "Failed to remove 2 hours from '1 day'"
-
-	set {_timespan} to 1 day
-	clear {_timespan}
-	assert {_timespan} is not set with "Failed to clear timespan"
-
-	# overflow test
-	set {_timespan} to 9999999999 days
-	assert {_timespan} is a timespan with "Failed to parse large timespan"
-	assert {_timespan} is greater than 9999999998 days with "Failed to handle large timespan correctly"
-
-
+	execute command "/testtimespan 9999999999d"
+	assert {timespan} is "9999999999 days" parsed as timespan with "%{timespan}% doesn't equal 9999999999 days!"

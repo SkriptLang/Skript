@@ -19,6 +19,7 @@
 package ch.njol.skript.util;
 
 import ch.njol.skript.Skript;
+import ch.njol.skript.lang.ParseContext;
 import ch.njol.skript.localization.GeneralWords;
 import ch.njol.skript.localization.Language;
 import ch.njol.skript.localization.LanguageChangeListener;
@@ -145,6 +146,11 @@ public class Timespan implements YggdrasilSerializable, Comparable<Timespan>, Te
 
 	@Nullable
 	public static Timespan parse(String value) {
+		return parse(value, ParseContext.DEFAULT);
+	}
+
+	@Nullable
+	public static Timespan parse(String value, ParseContext context) {
 		if (value.isEmpty())
 			return null;
 
@@ -209,10 +215,12 @@ public class Timespan implements YggdrasilSerializable, Comparable<Timespan>, Te
 				if (sub.endsWith(","))
 					sub = sub.substring(0, sub.length() - 1);
 
-				Matcher shortFormMatcher = SHORT_FORM_PATTERN.matcher(sub);
-				if (shortFormMatcher.matches()) {
-					amount = Double.parseDouble(shortFormMatcher.group(1));
-					sub = shortFormMatcher.group(2).toLowerCase(Locale.ENGLISH);
+				if (context == ParseContext.COMMAND) {
+					Matcher shortFormMatcher = SHORT_FORM_PATTERN.matcher(sub);
+					if (shortFormMatcher.matches()) {
+						amount = Double.parseDouble(shortFormMatcher.group(1));
+						sub = shortFormMatcher.group(2).toLowerCase(Locale.ENGLISH);
+					}
 				}
 
 				Long millis = PARSE_VALUES.get(sub.toLowerCase(Locale.ENGLISH));

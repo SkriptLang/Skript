@@ -298,7 +298,7 @@ public class SkriptClasses {
 					@Nullable
 					public Timespan parse(final String s, final ParseContext context) {
 						try {
-							return Timespan.parse(s);
+							return Timespan.parse(s, context);
 						} catch (IllegalArgumentException e) {
 							Skript.error("'" + s + "' is not a valid timespan");
 							return null;
