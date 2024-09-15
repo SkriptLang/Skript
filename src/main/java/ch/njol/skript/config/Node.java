@@ -19,10 +19,12 @@
 package ch.njol.skript.config;
 
 import java.io.PrintWriter;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.eclipse.jdt.annotation.Nullable;
+import ch.njol.skript.SkriptConfig;
+import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.log.SkriptLogger;
@@ -73,7 +75,6 @@ public abstract class Node {
 	
 	protected Node(final String key, final String comment, final SectionNode parent, final int lineNum) {
 		this.key = key;
-		assert comment.isEmpty() || comment.startsWith("#") : comment;
 		this.comment = comment;
 		debug = comment.equals("#DEBUG#");
 		this.lineNum = lineNum;
@@ -114,37 +115,133 @@ public abstract class Node {
 		p.remove(this);
 		newParent.add(this);
 	}
-	
-	@SuppressWarnings("null")
-	private final static Pattern linePattern = Pattern.compile("^((?:[^#]|##)*)(\\s*#(?!#).*)$");
-	
+
 	/**
 	 * Splits a line into value and comment.
 	 * <p>
 	 * Whitespace is preserved (whitespace in front of the comment is added to the value), and any ## in the value are replaced by a single #. The comment is returned with a
 	 * leading #, except if there is no comment in which case it will be the empty string.
-	 * 
-	 * @param line
+	 *
+	 * @param line the line to split
 	 * @return A pair (value, comment).
 	 */
-	public static NonNullPair<String, String> splitLine(final String line) {
-		if (line.trim().startsWith("#"))
+	public static NonNullPair<String, String> splitLine(String line) {
+		return splitLine(line, new AtomicBoolean(false));
+	}
+
+	/**
+	 * Splits a line into value and comment.
+	 * <p>
+	 * Whitespace is preserved (whitespace in front of the comment is added to the value), and any ## not in quoted strings in the value are replaced by a single #. The comment is returned with a
+	 * leading #, except if there is no comment in which case it will be the empty string.
+	 * 
+	 * @param line the line to split
+	 * @param inBlockComment Whether we are currently inside a block comment
+	 * @return A pair (value, comment).
+	 */
+	public static NonNullPair<String, String> splitLine(String line, AtomicBoolean inBlockComment) {
+		String trimmed = line.trim();
+		if (trimmed.equals("###")) { // we start or terminate a BLOCK comment
+			inBlockComment.set(!inBlockComment.get());
+			return new NonNullPair<>("", line);
+		} else if (trimmed.startsWith("#")) {
 			return new NonNullPair<>("", line.substring(line.indexOf('#')));
-		final Matcher m = linePattern.matcher(line);
-		boolean matches = false;
-		try {
-			matches = line.contains("#") && m.matches();
-		} catch (StackOverflowError e) { // Probably a very long line
-			handleNodeStackOverflow(e, line);
+		} else if (inBlockComment.get()) { // we're inside a comment, all text is a comment
+			return new NonNullPair<>("", line);
 		}
-		if (matches)
-			return new NonNullPair<>("" + m.group(1).replace("##", "#"), "" + m.group(2));
-		return new NonNullPair<>("" + line.replace("##", "#"), "");
+
+		// idea: find first # that is not within a string or variable name. Use state machine to determine whether a # is a comment or not.
+		int length = line.length();
+		StringBuilder finalLine = new StringBuilder(line);
+		int numRemoved = 0;
+		SplitLineState state = SplitLineState.CODE;
+		SplitLineState previousState = SplitLineState.CODE; // stores the state prior to entering %, so it can be re-set when leaving
+		// find next " or %
+		for (int i = 0; i < length; i++) {
+			char c = line.charAt(i);
+			// check for things that can be escaped by doubling
+			if (c == '%' || c == '"' || c == '#') {
+				// skip if doubled (only skip ## outside of strings)
+				if ((c != '#' || state != SplitLineState.STRING) && i + 1 < length && line.charAt(i + 1) == c) {
+					if (c == '#') { // remove duplicate #
+						finalLine.deleteCharAt(i - numRemoved);
+						numRemoved++;
+					}
+					i++;
+					continue;
+				}
+				SplitLineState tmp = state;
+				state = SplitLineState.update(c, state, previousState);
+				if (state == SplitLineState.HALT)
+					return new NonNullPair<>(finalLine.substring(0, i - numRemoved), line.substring(i));
+				// only update previous state when we go from !CODE -> CODE due to %
+				if (c == '%' && state == SplitLineState.CODE)
+					previousState = tmp;
+			}
+		}
+		return new NonNullPair<>(finalLine.toString(), "");
+	}
+
+	/**
+	 * state machine:<br>
+	 * ": CODE -> STRING,  			STRING -> CODE, 	VARIABLE -> VARIABLE<br>
+	 * %: CODE -> PREVIOUS_STATE, 	STRING -> CODE, 	VARIABLE -> CODE<br>
+	 * {: CODE -> VARIABLE, 		STRING -> STRING,	VARIABLE -> VARIABLE<br>
+	 * }: CODE -> CODE, 			STRING -> STRING, 	VARIABLE -> CODE<br>
+	 * #: CODE -> HALT, 			STRING -> STRING, 	VARIABLE -> HALT<br>
+	 * invalid characters simply return given state.<br>
+	 */
+	private enum SplitLineState {
+		HALT,
+		CODE,
+		STRING,
+		VARIABLE;
+
+		/**
+		 * Updates the state given a character input.
+		 * @param c character input. '"', '%', '{', '}', and '#' are valid.
+		 * @param state the current state of the machine
+		 * @param previousState the state of the machine when it last entered a % CODE % section
+		 * @return the new state of the machine
+		 */
+		private static SplitLineState update(char c, SplitLineState state, SplitLineState previousState) {
+			if (state == HALT)
+				return HALT;
+
+			switch (c) {
+				case '%':
+					if (state == CODE)
+						return previousState;
+					return CODE;
+				case '"':
+					switch (state) {
+						case CODE:
+							return STRING;
+						case STRING:
+							return CODE;
+						default:
+							return state;
+					}
+				case '{':
+					if (state == STRING)
+						return STRING;
+					return VARIABLE;
+				case '}':
+					if (state == STRING)
+						return STRING;
+					return CODE;
+				case '#':
+					if (state == STRING)
+						return STRING;
+					return HALT;
+			}
+			return state;
+		}
 	}
 	
 	static void handleNodeStackOverflow(StackOverflowError e, String line) {
 		Node n = SkriptLogger.getNode();
-		SkriptLogger.setNode(null); // Avoid duplicating the which node error occurred in paranthesis on every error message
+		SkriptLogger.setNode(null); // Avoid duplicating the which node error occurred in parentheses on every error message
 		
 		Skript.error("There was a StackOverFlowError occurred when loading a node. This maybe from your scripts, aliases or Skript configuration.");
 		Skript.error("Please make your script lines shorter! Do NOT report this to SkriptLang unless it occurs with a short script line or built-in aliases!");
@@ -193,12 +290,43 @@ public abstract class Node {
 	abstract String save_i();
 	
 	public final String save() {
-		return getIndentation() + save_i().replace("#", "##") + comment;
+		return getIndentation() + escapeUnquotedHashtags(save_i()) + comment;
 	}
 	
 	public void save(final PrintWriter w) {
 		w.println(save());
 	}
+
+	private static String escapeUnquotedHashtags(String input) {
+		int length = input.length();
+		StringBuilder output = new StringBuilder(input);
+		int numAdded = 0;
+		SplitLineState state = SplitLineState.CODE;
+		SplitLineState previousState = SplitLineState.CODE;
+		// find next " or %
+		for (int i = 0; i < length; i++) {
+			char c = input.charAt(i);
+			// check for things that can be escaped by doubling
+			if (c == '%' || c == '"' || c == '#') {
+				// escaped #s outside of strings
+				if (c == '#' && state != SplitLineState.STRING) {
+					output.insert(i + numAdded, "#");
+					numAdded++;
+					continue;
+				}
+				// skip if doubled (not #s)
+				if (i + 1 < length && input.charAt(i + 1) == c) {
+					i++;
+					continue;
+				}
+				SplitLineState tmp = state;
+				state = SplitLineState.update(c, state, previousState);
+				previousState = tmp;
+			}
+		}
+		return output.toString();
+	}
+
 	
 	@Nullable
 	public SectionNode getParent() {

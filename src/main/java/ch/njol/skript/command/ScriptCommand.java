@@ -60,7 +60,7 @@ import org.bukkit.help.HelpTopic;
 import org.bukkit.help.HelpTopicComparator;
 import org.bukkit.help.IndexHelpTopic;
 import org.bukkit.plugin.Plugin;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.script.Script;
 
 import java.lang.reflect.Constructor;
@@ -101,7 +101,7 @@ public class ScriptCommand implements TabExecutor {
 	private final String cooldownBypass;
 	@Nullable
 	private final Expression<String> cooldownStorage;
-	final String usage;
+	final CommandUsage usage;
 
 	private final Trigger trigger;
 
@@ -115,11 +115,13 @@ public class ScriptCommand implements TabExecutor {
 
 	private Map<UUID,Date> lastUsageMap = new HashMap<>();
 
+	//<editor-fold default-state="collapsed" desc="public ScriptCommand(... String usage ...)">
 	/**
-	 * Creates a new SkriptCommand.
+	 * Creates a new ScriptCommand.
+	 * Prefer using the CommandUsage class for the usage parameter.
 	 *
 	 * @param name /name
-	 * @param pattern
+	 * @param pattern the Skript pattern used to parse the input into arguments.
 	 * @param arguments the list of Arguments this command takes
 	 * @param description description to display in /help
 	 * @param prefix the prefix of the command
@@ -132,6 +134,33 @@ public class ScriptCommand implements TabExecutor {
 	public ScriptCommand(
 		Script script, String name, String pattern, List<Argument<?>> arguments,
 		String description, @Nullable String prefix, String usage, List<String> aliases,
+		String permission, @Nullable VariableString permissionMessage, @Nullable Timespan cooldown,
+		@Nullable VariableString cooldownMessage, String cooldownBypass,
+		@Nullable VariableString cooldownStorage, int executableBy, SectionNode node
+	) {
+		this(script, name, pattern, arguments, description, prefix, new CommandUsage(null, usage),
+				aliases, permission, permissionMessage, cooldown, cooldownMessage, cooldownBypass,
+				cooldownStorage, executableBy, node);
+	}
+	//</editor-fold>
+
+	/**
+	 * Creates a new ScriptCommand.
+	 *
+	 * @param name /name
+	 * @param pattern the Skript pattern used to parse the input into arguments.
+	 * @param arguments the list of Arguments this command takes
+	 * @param description description to display in /help
+	 * @param prefix the prefix of the command
+	 * @param usage message to display if the command was used incorrectly
+	 * @param aliases /alias1, /alias2, ...
+	 * @param permission permission or null if none
+	 * @param permissionMessage message to display if the player doesn't have the given permission
+	 * @param node the node to parse and load into a Trigger
+	 */
+	public ScriptCommand(
+		Script script, String name, String pattern, List<Argument<?>> arguments,
+		String description, @Nullable String prefix, CommandUsage usage, List<String> aliases,
 		String permission, @Nullable VariableString permissionMessage, @Nullable Timespan cooldown,
 		@Nullable VariableString cooldownMessage, String cooldownBypass,
 		@Nullable VariableString cooldownStorage, int executableBy, SectionNode node
@@ -180,7 +209,7 @@ public class ScriptCommand implements TabExecutor {
 		activeAliases = new ArrayList<>(aliases);
 
 		this.description = Utils.replaceEnglishChatStyles(description);
-		this.usage = Utils.replaceEnglishChatStyles(usage);
+		this.usage = usage;
 
 		this.executableBy = executableBy;
 
@@ -205,7 +234,7 @@ public class ScriptCommand implements TabExecutor {
 			// We can only set the message if it's simple (doesn't contains expressions)
 			if (permissionMessage.isSimple())
 				bukkitCommand.setPermissionMessage(permissionMessage.toString(null));
-			bukkitCommand.setUsage(usage);
+			bukkitCommand.setUsage(usage.getUsage());
 			bukkitCommand.setExecutor(this);
 			return bukkitCommand;
 		} catch (final Exception e) {
@@ -300,7 +329,7 @@ public class ScriptCommand implements TabExecutor {
 				final LogEntry e = log.getError();
 				if (e != null)
 					sender.sendMessage(ChatColor.DARK_RED + e.toString());
-				sender.sendMessage(usage);
+				sender.sendMessage(usage.getUsage(event));
 				log.clear();
 				return false;
 			}
@@ -342,7 +371,7 @@ public class ScriptCommand implements TabExecutor {
 	public void sendHelp(final CommandSender sender) {
 		if (!description.isEmpty())
 			sender.sendMessage(description);
-		sender.sendMessage(ChatColor.GOLD + "Usage" + ChatColor.RESET + ": " + usage);
+		sender.sendMessage(ChatColor.GOLD + "Usage" + ChatColor.RESET + ": " + usage.getUsage());
 	}
 
 	/**

@@ -1,0 +1,11 @@
+test "vector random":
+	loop 100 times:
+		set {_vector} to a random vector
+		assert {_vector} is set with "random vector creation failed"
+		assert {_vector} is not vector(0, 0, 0) with "random vector was non-normal zero"
+		assert x component of {_vector} is greater than or equal to -1 with "random vector x was too small"
+		assert y component of {_vector} is greater than or equal to -1 with "random vector y was too small"
+		assert z component of {_vector} is greater than or equal to -1 with "random vector z was too small"
+		assert x component of {_vector} is less than or equal to 1 with "random vector x was too large"
+		assert y component of {_vector} is less than or equal to 1 with "random vector y was too large"
+		assert z component of {_vector} is less than or equal to 1 with "random vector z was too large"

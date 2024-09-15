@@ -28,7 +28,7 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.script.ScriptWarning;
 
 @Name("Locally Suppress Warning")
@@ -42,11 +42,11 @@ public class EffSuppressWarnings extends Effect {
 
 	static {
 		Skript.registerEffect(EffSuppressWarnings.class,
-			"[local[ly]] suppress [the] (1:conflict|2:variable save|3:[missing] conjunction[s]|4:starting [with] expression[s]) warning[s]"
+			"[local[ly]] suppress [the] (1:conflict|2:variable save|3:[missing] conjunction[s]|4:starting [with] expression[s]|5:deprecated syntax) warning[s]"
 		);
 	}
 
-	private static final int CONFLICT = 1, INSTANCE = 2, CONJUNCTION = 3, START_EXPR = 4;
+	private static final int CONFLICT = 1, INSTANCE = 2, CONJUNCTION = 3, START_EXPR = 4, DEPRECATED = 5;
 	private int mark = 0;
 
 	@Override
@@ -83,6 +83,9 @@ public class EffSuppressWarnings extends Effect {
 				break;
 			case START_EXPR:
 				word = "starting expression";
+				break;
+			case DEPRECATED:
+				word = "deprecated syntax";
 				break;
 			default:
 				throw new IllegalStateException();

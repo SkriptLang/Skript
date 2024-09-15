@@ -43,7 +43,7 @@ import org.bukkit.util.BoundingBox;
 import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.Vector;
 import org.bukkit.util.VoxelShape;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collection;
@@ -360,6 +360,11 @@ public class DelayedChangeBlock implements Block {
 	@Override
 	public void tick() {
 		block.tick();
+	}
+
+	@Override
+	public void fluidTick() {
+		block.fluidTick();
 	}
 
 	@Override

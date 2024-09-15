@@ -25,6 +25,7 @@ import ch.njol.skript.config.Config;
 import ch.njol.skript.config.Node;
 import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.entity.EntityData;
+import org.bukkit.entity.EntityType;
 import org.skriptlang.skript.lang.script.Script;
 import ch.njol.skript.lang.parser.ParserInstance;
 import ch.njol.skript.localization.ArgsMessage;
@@ -39,7 +40,7 @@ import ch.njol.skript.util.Version;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -57,6 +58,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public abstract class Aliases {
+
+	static final boolean USING_ITEM_COMPONENTS = Skript.isRunningMinecraft(1, 20, 5);
 
 	private static final AliasesProvider provider = createProvider(10000, null);
 	private static final AliasesParser parser = createParser(provider);
@@ -265,7 +268,7 @@ public abstract class Aliases {
 		}
 		
 		String lc = s.toLowerCase(Locale.ENGLISH);
-		String of = Language.getSpaced("enchantments.of").toLowerCase();
+		String of = Language.getSpaced("of").toLowerCase();
 		int c = -1;
 		outer: while ((c = lc.indexOf(of, c + 1)) != -1) {
 			ItemType t2 = t.clone();
@@ -429,7 +432,6 @@ public abstract class Aliases {
 					Path aliasesPath = zipFs.getPath("/", "aliases-english");
 					assert aliasesPath != null;
 					loadDirectory(aliasesPath);
-					loadMissingAliases();
 				}
 			} catch (URISyntaxException e) {
 				assert false;
@@ -443,6 +445,9 @@ public abstract class Aliases {
 			assert aliasesFolder != null;
 			loadDirectory(aliasesFolder);
 		}
+
+		// generate aliases from item names for any missing items
+		loadMissingAliases();
 		
 		// Update tracked item types
 		for (Map.Entry<String, ItemType> entry : trackedTypes.entrySet()) {
@@ -552,10 +557,16 @@ public abstract class Aliases {
 	 * <p>Item types provided by this method are updated when aliases are
 	 * reloaded. However, this also means they are tracked by aliases system
 	 * and NOT necessarily garbage-collected.
+	 *
+	 * <p>Relying on this method to create item types is not safe,
+	 * as users can change aliases at any point. ItemTypes should instead be created
+	 * via {@link Material}s, {@link org.bukkit.Tag}s, or any other manual method.
+	 *
 	 * @param name Name of item to search from aliases.
 	 * @return An item.
 	 * @throws IllegalArgumentException When item is not found.
 	 */
+	@Deprecated(forRemoval = true, since = "2.9.0")
 	public static ItemType javaItemType(String name) {
 		ItemType type = parseItemType(name);
 		if (type == null) {

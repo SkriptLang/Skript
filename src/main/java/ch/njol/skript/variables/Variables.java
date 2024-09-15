@@ -32,28 +32,32 @@ import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.variables.SerializedVariable.Value;
 import ch.njol.util.Kleenean;
 import ch.njol.util.NonNullPair;
+import ch.njol.util.Pair;
+import ch.njol.util.StringUtils;
 import ch.njol.util.SynchronizedReference;
+import ch.njol.util.coll.iterator.EmptyIterator;
 import ch.njol.yggdrasil.Yggdrasil;
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Multimap;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.configuration.serialization.ConfigurationSerialization;
 import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.NonNull;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.converter.Converters;
-
-import com.google.common.collect.HashMultimap;
-import com.google.common.collect.Multimap;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.Queue;
 import java.util.TreeMap;
@@ -114,7 +118,7 @@ public class Variables {
 
 			@Override
 			@Nullable
-			public String getID(@NonNull Class<?> c) {
+			public String getID(@NotNull Class<?> c) {
 				if (ConfigurationSerializable.class.isAssignableFrom(c)
 						&& Classes.getSuperClassInfo(c) == Classes.getExactClassInfo(Object.class))
 					return CONFIGURATION_SERIALIZABLE_PREFIX +
@@ -125,7 +129,7 @@ public class Variables {
 
 			@Override
 			@Nullable
-			public Class<? extends ConfigurationSerializable> getClass(@NonNull String id) {
+			public Class<? extends ConfigurationSerializable> getClass(@NotNull String id) {
 				if (id.startsWith(CONFIGURATION_SERIALIZABLE_PREFIX))
 					return ConfigurationSerialization.getClassByAlias(
 							id.substring(CONFIGURATION_SERIALIZABLE_PREFIX.length()));
@@ -474,6 +478,67 @@ public class Variables {
 		}
 	}
 
+	/**
+	 * Returns an iterator over the values of this list variable.
+	 *
+	 * @param name the variable's name. This must be the name of a list variable, ie. it must end in *.
+	 * @param event if {@code local} is {@code true}, this is the event
+	 *                 the local variable resides in.
+	 * @param local if this variable is a local or global variable.
+	 * @return an {@link Iterator} of {@link Pair}s, containing the {@link String} index and {@link Object} value of the
+	 * 			elements of the list. An empty iterator is returned if the variable does not exist.
+	 */
+	public static Iterator<Pair<String, Object>> getVariableIterator(String name, boolean local, @Nullable Event event) {
+		assert name.endsWith("*");
+		Object val = getVariable(name, event, local);
+		String subName = StringUtils.substring(name, 0, -1);
+
+		if (val == null)
+			return new EmptyIterator<>();
+		assert val instanceof TreeMap;
+		// temporary list to prevent CMEs
+		@SuppressWarnings("unchecked")
+		Iterator<String> keys = new ArrayList<>(((Map<String, Object>) val).keySet()).iterator();
+		return new Iterator<>() {
+			@Nullable
+			private String key;
+			@Nullable
+			private Object next = null;
+
+			@Override
+			public boolean hasNext() {
+				if (next != null)
+					return true;
+				while (keys.hasNext()) {
+					key = keys.next();
+					if (key != null) {
+						next = Variable.convertIfOldPlayer(subName + key, local, event, Variables.getVariable(subName + key, event, local));
+						if (next != null && !(next instanceof TreeMap))
+							return true;
+					}
+				}
+				next = null;
+				return false;
+			}
+
+			@Override
+			public Pair<String, Object> next() {
+				if (!hasNext())
+					throw new NoSuchElementException();
+				Pair<String, Object> n = new Pair<>(key, next);
+				next = null;
+				return n;
+			}
+
+			@Override
+			public void remove() {
+				if (key == null)
+					throw new IllegalStateException();
+				Variables.deleteVariable(key, event, local);
+			}
+		};
+	}
+	
 	/**
 	 * Deletes a variable.
 	 *

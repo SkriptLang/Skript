@@ -26,7 +26,7 @@ import java.util.regex.Pattern;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.Aliases;
@@ -661,6 +661,7 @@ public class SkriptClasses {
 				.usage(VisualEffects.getAllNames())
 				.since("2.1")
 				.user("(visual|particle) effects?")
+				.after("itemtype")
 				.parser(new Parser<VisualEffect>() {
 					@Override
 					@Nullable

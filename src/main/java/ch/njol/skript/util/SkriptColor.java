@@ -30,8 +30,8 @@ import java.util.regex.Pattern;
 
 import org.bukkit.ChatColor;
 import org.bukkit.DyeColor;
-import org.eclipse.jdt.annotation.NonNull;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.localization.Adjective;
@@ -114,7 +114,7 @@ public enum SkriptColor implements Color {
 	}
 	
 	@Override
-	public void deserialize(@NonNull Fields fields) throws StreamCorruptedException {
+	public void deserialize(@NotNull Fields fields) throws StreamCorruptedException {
 		dye = fields.getObject("dye", DyeColor.class);
 		chat = fields.getObject("chat", ChatColor.class);
 		try {

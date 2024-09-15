@@ -22,9 +22,10 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.lang.function.EffFunctionCall;
 import ch.njol.skript.log.ParseLogHandler;
 import ch.njol.skript.log.SkriptLogger;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Iterator;
+import java.util.List;
 
 /**
  * Supertype of conditions and effects
@@ -34,11 +35,13 @@ import java.util.Iterator;
  */
 public abstract class Statement extends TriggerItem implements SyntaxElement {
 
-	@Nullable
-	@SuppressWarnings({"rawtypes", "unchecked"})
-	public static Statement parse(String input, String defaultError) {
-		ParseLogHandler log = SkriptLogger.startParseLogHandler();
-		try {
+
+	public static @Nullable Statement parse(String input, String defaultError) {
+		return parse(input, null, defaultError);
+	}
+
+	public static @Nullable Statement parse(String input, @Nullable List<TriggerItem> items, String defaultError) {
+		try (ParseLogHandler log = SkriptLogger.startParseLogHandler()) {
 			EffFunctionCall functionCall = EffFunctionCall.parse(input);
 			if (functionCall != null) {
 				log.printLog();
@@ -49,13 +52,14 @@ public abstract class Statement extends TriggerItem implements SyntaxElement {
 			}
 			log.clear();
 
-			EffectSection section = EffectSection.parse(input, null, null, null);
+			EffectSection section = EffectSection.parse(input, null, null, items);
 			if (section != null) {
 				log.printLog();
 				return new EffectSectionEffect(section);
 			}
 			log.clear();
 
+			//noinspection unchecked,rawtypes
 			Statement statement = (Statement) SkriptParser.parse(input, (Iterator) Skript.getStatements().iterator(), defaultError);
 			if (statement != null) {
 				log.printLog();
@@ -64,8 +68,6 @@ public abstract class Statement extends TriggerItem implements SyntaxElement {
 
 			log.printError();
 			return null;
-		} finally {
-			log.stop();
 		}
 	}
 

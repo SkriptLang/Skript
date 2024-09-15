@@ -20,7 +20,7 @@ package ch.njol.skript.effects;
 
 import org.bukkit.Location;
 import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
@@ -78,11 +78,13 @@ public class EffExplosion extends Effect {
 		final Number power = force != null ? force.getSingle(e) : 0;
 		if (power == null)
 			return;
-		for (final Location l : locations.getArray(e)) {
+		for (Location location : locations.getArray(e)) {
+			if (location.getWorld() == null)
+				continue;
 			if (!blockDamage)
-				l.getWorld().createExplosion(l.getX(), l.getY(), l.getZ(), power.floatValue(), false, false);
+				location.getWorld().createExplosion(location.getX(), location.getY(), location.getZ(), power.floatValue(), false, false);
 			else
-				l.getWorld().createExplosion(l, power.floatValue(), setFire);
+				location.getWorld().createExplosion(location, power.floatValue(), setFire);
 		}
 	}
 
