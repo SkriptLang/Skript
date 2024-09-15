@@ -10,7 +10,6 @@ import ch.njol.skript.expressions.base.PropertyExpression;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
-import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.Getter;
 import ch.njol.skript.util.Time;
 import ch.njol.skript.util.Timeperiod;
