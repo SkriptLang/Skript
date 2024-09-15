@@ -482,7 +482,7 @@ public final class Skript extends JavaPlugin implements Listener {
 		SkriptConfig.load();
 
 		// Loaded before anything that might use them
-		CompletableFuture<Boolean> aliases = Aliases.load();
+		CompletableFuture<Boolean> aliases = Aliases.loadAsync();
 
 		// Now override the verbosity if test mode is enabled
 		if (TestMode.VERBOSITY != null)

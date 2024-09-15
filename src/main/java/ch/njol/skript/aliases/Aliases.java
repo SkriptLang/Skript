@@ -354,7 +354,24 @@ public abstract class Aliases {
 	public static void clear() {
 		provider.clearAliases();
 	}
-	
+
+	/**
+	 * Loads aliases from Skript's standard locations.
+	 * Exceptions will be logged, but not thrown.
+	 *
+	 * @deprecated Freezes server on call. Use {@link #loadAsync()} instead.
+	 */
+	@Deprecated
+	public static void load() {
+		try {
+			long start = System.currentTimeMillis();
+			loadInternal();
+			Skript.info("Loaded " + provider.getAliasCount() + " aliases in " + (System.currentTimeMillis() - start) + "ms");
+		} catch (IOException e) {
+			Skript.exception(e);
+		}
+	}
+
 	/**
 	 * Loads aliases from Skript's standard locations asynchronously.
 	 * Exceptions will be logged, but not thrown.
@@ -362,7 +379,7 @@ public abstract class Aliases {
 	 * @return A future that completes when the aliases are loaded.
 	 * The returned value is true if the loading was successful, false otherwise.
 	 */
-	public static CompletableFuture<Boolean> load() {
+	public static CompletableFuture<Boolean> loadAsync() {
 		return CompletableFuture.supplyAsync(() -> {
 			try {
 				long start = System.currentTimeMillis();

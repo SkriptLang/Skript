@@ -156,7 +156,7 @@ public class SkriptCommand implements CommandExecutor {
 					reloading(sender, "config, aliases and scripts", logHandler);
 					SkriptConfig.load();
 					Aliases.clear();
-					Aliases.load().thenRun(() -> {
+					Aliases.loadAsync().thenRun(() -> {
 						ScriptLoader.unloadScripts(ScriptLoader.getLoadedScripts());
 						ScriptLoader.loadScripts(Skript.getInstance().getScriptsFolder(), OpenCloseable.combine(logHandler, timingLogHandler))
 							.thenAccept(info -> {
@@ -182,7 +182,7 @@ public class SkriptCommand implements CommandExecutor {
 				} else if (args[1].equalsIgnoreCase("aliases")) {
 					reloading(sender, "aliases", logHandler);
 					Aliases.clear();
-					Aliases.load().thenRun(() -> reloaded(sender, logHandler, timingLogHandler, "aliases"));
+					Aliases.loadAsync().thenRun(() -> reloaded(sender, logHandler, timingLogHandler, "aliases"));
 				} else { // Reloading an individual Script or folder
 					File scriptFile = getScriptFromArgs(sender, args);
 					if (scriptFile == null)
