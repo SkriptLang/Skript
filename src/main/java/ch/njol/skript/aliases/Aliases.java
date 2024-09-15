@@ -1,21 +1,3 @@
-/**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
 package ch.njol.skript.aliases;
 
 import ch.njol.skript.Skript;
@@ -25,14 +7,8 @@ import ch.njol.skript.config.Config;
 import ch.njol.skript.config.Node;
 import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.entity.EntityData;
-import org.bukkit.entity.EntityType;
-import org.skriptlang.skript.lang.script.Script;
 import ch.njol.skript.lang.parser.ParserInstance;
-import ch.njol.skript.localization.ArgsMessage;
-import ch.njol.skript.localization.Language;
-import ch.njol.skript.localization.Message;
-import ch.njol.skript.localization.Noun;
-import ch.njol.skript.localization.RegexMessage;
+import ch.njol.skript.localization.*;
 import ch.njol.skript.log.BlockingLogHandler;
 import ch.njol.skript.util.EnchantmentType;
 import ch.njol.skript.util.Utils;
@@ -41,19 +17,17 @@ import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.script.Script;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.nio.file.FileSystem;
-import java.nio.file.FileSystems;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.nio.file.*;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -384,14 +358,34 @@ public abstract class Aliases {
 	 * Loads aliases from Skript's standard locations.
 	 * Exceptions will be logged, but not thrown.
 	 */
-	public static void load() {
-		try {
-			long start = System.currentTimeMillis();
-			loadInternal();
-			Skript.info("Loaded " + provider.getAliasCount() + " aliases in " + (System.currentTimeMillis() - start) + "ms");
-		} catch (IOException e) {
-			Skript.exception(e);
-		}
+	public static CompletableFuture<Boolean> load() {
+		return CompletableFuture.supplyAsync(() -> {
+			try {
+				long start = System.currentTimeMillis();
+				loadInternal();
+				Skript.info("Loaded " + provider.getAliasCount() + " aliases in " + (System.currentTimeMillis() - start) + "ms");
+				return true;
+			} catch (StackOverflowError e) {
+				/*
+				 * Returns true if the underlying installed Java/JVM is 32-bit, false otherwise.
+				 * Note that this depends on a internal system property and these can always be overridden by user using -D JVM options,
+				 * more specifically, this method will return false on non OracleJDK/OpenJDK based JVMs, that don't include bit information in java.vm.name system property
+				 */
+				if (System.getProperty("java.vm.name").contains("32")) {
+					Skript.error("");
+					Skript.error("There was a StackOverflowError that occurred while loading aliases.");
+					Skript.error("As you are currently using 32-bit Java, please update to 64-bit Java to resolve the error.");
+					Skript.error("Please report this issue to our GitHub only if updating to 64-bit Java does not fix the issue.");
+					Skript.error("");
+				} else {
+					Skript.exception(e);
+				}
+				return false;
+			} catch (IOException e) {
+				Skript.exception(e);
+				return false;
+			}
+		});
 	}
 
 	/**
