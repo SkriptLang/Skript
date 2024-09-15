@@ -35,7 +35,7 @@ import org.bukkit.block.Sign;
 import org.bukkit.event.Event;
 import org.bukkit.inventory.meta.BlockStateMeta;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 @Name("Make Sign Glow")
 @Description("Makes a sign (either a block or item) have glowing text or normal text")
