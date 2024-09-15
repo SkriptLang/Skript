@@ -42,8 +42,7 @@ public class ExprTime extends PropertyExpression<World, Time> {
 	private static final int TIME_TO_TIMESPAN_OFFSET = 18000;
 
 	static {
-		Skript.registerExpression(ExprTime.class, Time.class, ExpressionType.PROPERTY,
-			"[the] time[s] [([with]in|of) %worlds%]", "%worlds%'[s] time[s]");
+		registerDefault(ExprTime.class, Time.class, "time", "world");
 	}
 
 	@SuppressWarnings("unchecked")
@@ -119,9 +118,6 @@ public class ExprTime extends PropertyExpression<World, Time> {
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		if (getExpr() == null)
-			return "the time";
-
 		return "the time in " + getExpr().toString(event, debug);
 	}
 
