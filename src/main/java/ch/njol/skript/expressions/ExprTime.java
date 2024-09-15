@@ -37,6 +37,8 @@ import org.jetbrains.annotations.Nullable;
 @Since("1.0")
 public class ExprTime extends PropertyExpression<World, Time> {
 
+	// 18000 is the offset to allow for using "add 2:00" without going to a new day
+	// and causing unexpected behaviour
 	private static final int TIME_TO_TIMESPAN_OFFSET = 18000;
 
 	static {
@@ -53,12 +55,7 @@ public class ExprTime extends PropertyExpression<World, Time> {
 
 	@Override
 	protected Time[] get(Event event, World[] worlds) {
-		return get(worlds, new Getter<>() {
-			@Override
-			public Time get(World world) {
-				return new Time((int) world.getTime());
-			}
-		});
+		return get(worlds, world -> new Time((int) world.getTime()));
 	}
 
 	@Override
@@ -90,7 +87,7 @@ public class ExprTime extends PropertyExpression<World, Time> {
 		long ticks = 0;
 		if (time instanceof Time) {
 			if (mode != ChangeMode.SET) {
-				ticks = ((Time) time).getTicks() - TIME_TO_TIMESPAN_OFFSET; // allows for using "add 2:00" without going to new day
+				ticks = ((Time) time).getTicks() - TIME_TO_TIMESPAN_OFFSET;
 			} else {
 				ticks = ((Time) time).getTicks();
 			}
