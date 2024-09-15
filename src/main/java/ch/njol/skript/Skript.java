@@ -131,6 +131,8 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.logging.Filter;
@@ -492,7 +494,7 @@ public final class Skript extends JavaPlugin implements Listener {
 		}
 
 		// Loaded before anything that might use them
-		Aliases.load();
+		CompletableFuture<Boolean> aliases = Aliases.load();
 
 		// If loading can continue (platform ok), check for potentially thrown error
 		if (classLoadError != null) {
@@ -564,6 +566,12 @@ public final class Skript extends JavaPlugin implements Listener {
 					Skript.exception(e);
 				}
 				finishedLoadingHooks = true;
+
+				try {
+					aliases.get(); // await alias load
+				} catch (InterruptedException | ExecutionException e) {
+					exception(e, "Could not load aliases concurrently");
+				}
 
 				if (TestMode.ENABLED) {
 					info("Preparing Skript for testing...");
