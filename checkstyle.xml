@@ -52,11 +52,6 @@
 
 		<module name="OneStatementPerLine"/>
 
-		<!--Use curly brackets to start and end most blocks-->
-		<module name="NeedBraces">
-			<property name="allowSingleLineStatement" value="true" />
-		</module>
-
 		<!--Annotations for a structure go on the line before that structure-->
 		<module name="AnnotationLocation"/>
 
@@ -74,30 +69,6 @@
 
 		<!--Static constant fields should be named in UPPER_SNAKE_CASE-->
 		<module name="ConstantName"/>
-
-		<!--Ensure variable/field names are descriptive. Avoid using shorthand names like e, or c-->
-		<module name="CatchParameterName">
-			<property name="format" value="(e|t|ex|^[a-z][a-zA-Z0-9]+)$" />
-		</module>
-		<module name="LambdaParameterName">
-			<property name="format" value="^[a-z][a-zA-Z0-9]+$" />
-		</module>
-		<module name="LocalFinalVariableName">
-			<property name="format" value="^[a-z][a-zA-Z0-9]+$" />
-		</module>
-		<module name="LocalVariableName">
-			<property name="format" value="^[a-z][a-zA-Z0-9]+$" />
-		</module>
-		<module name="ParameterName">
-			<property name="format" value="^[a-z][a-zA-Z0-9]+$" />
-			<property name="ignoreOverridden" value="true" />
-		</module>
-		<module name="PatternVariableName">
-			<property name="format" value="^[a-z][a-zA-Z0-9]+$" />
-		</module>
-		<module name="RecordComponentName">
-			<property name="format" value="^[a-z][a-zA-Z0-9]+$" />
-		</module>
 
 		<!--We use JetBrains Annotations for specifying null-ness-->
 		<module name="IllegalImport">
