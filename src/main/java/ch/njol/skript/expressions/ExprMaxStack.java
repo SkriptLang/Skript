@@ -43,36 +43,27 @@ public class ExprMaxStack extends SimplePropertyExpression<Object, Integer> {
 
 	@Override
 	@Nullable
-	public Integer convert(Object source) {
-		if (source instanceof ItemType) {
-			Object itemType = ((ItemType) source).getRandomStackOrMaterial();
-			if (itemType instanceof ItemStack)
-				return ((ItemStack) itemType).getMaxStackSize();
-			return ((Material) itemType).getMaxStackSize();
-		} else if (source instanceof Inventory) {
-			return (((Inventory) source).getMaxStackSize());
-		} else {
-			// Invalid source
-			return null;
-		}
+	public Integer convert(Object from) {
+		if (from instanceof ItemType itemType)
+			return getMaxStackSize(itemType);
+		if (from instanceof Inventory inventory)
+			return inventory.getMaxStackSize();
+		return null;
 	}
 
 	@Override
 	@Nullable
 	public Class<?>[] acceptChange(ChangeMode mode) {
-		switch (mode) {
-            case ADD:
-            case REMOVE:
-			case RESET:
-			case SET:
-				if (!CHANGEABLE_ITEM_STACK_SIZE && ItemType.class.isAssignableFrom(getExpr().getReturnType())) {
-					Skript.error("Changing the maximum stack size of items requires Minecraft 1.20.5 or newer!");
-					return null;
-				}
-				return CollectionUtils.array(Integer.class);
-			default:
-				return null;
-        }
+        return switch (mode) {
+            case ADD, REMOVE, RESET, SET -> {
+                if (!CHANGEABLE_ITEM_STACK_SIZE && ItemType.class.isAssignableFrom(getExpr().getReturnType())) {
+                    Skript.error("Changing the maximum stack size of items requires Minecraft 1.20.5 or newer!");
+                    yield null;
+                }
+                yield CollectionUtils.array(Integer.class);
+            }
+            default -> null;
+        };
 	}
 
 	@Override
@@ -81,11 +72,10 @@ public class ExprMaxStack extends SimplePropertyExpression<Object, Integer> {
 			Integer change = null;
 			if (mode != ChangeMode.RESET)
 				change = (int) delta[0];
-			if (source instanceof ItemType) {
+			if (source instanceof ItemType itemType) {
 				if (!CHANGEABLE_ITEM_STACK_SIZE)
 					continue;
-				ItemType itemType = ((ItemType) source);
-				int size = itemType.getRandom().getMaxStackSize();
+				int size = getMaxStackSize(itemType);
                 switch (mode) {
                     case ADD:
 						size += change;
@@ -101,24 +91,15 @@ public class ExprMaxStack extends SimplePropertyExpression<Object, Integer> {
 				// Minecraft only accepts stack size from 1 to 99
 				meta.setMaxStackSize(change != null ? Math2.fit(1, size, 99) : null);
 				itemType.setItemMeta(meta);
-			} else if (source instanceof Inventory) {
-				Inventory inv = ((Inventory) source);
-				int size = inv.getMaxStackSize();
+			} else if (source instanceof Inventory inventory) {
+                int size = inventory.getMaxStackSize();
 				switch (mode) {
-					case ADD:
-						size += change;
-						break;
-					case SET:
-						size = change;
-						break;
-					case REMOVE:
-						size -= change;
-						break;
-					case RESET:
-						size = Bukkit.createInventory(null, inv.getType()).getMaxStackSize();
-						break;
+					case ADD -> size += change;
+					case SET -> size = change;
+					case REMOVE -> size -= change;
+					case RESET -> size = Bukkit.createInventory(null, inventory.getType()).getMaxStackSize();
 				}
-				inv.setMaxStackSize(size);
+				inventory.setMaxStackSize(size);
 			}
 		}
 	}
@@ -131,6 +112,15 @@ public class ExprMaxStack extends SimplePropertyExpression<Object, Integer> {
 	@Override
 	protected String getPropertyName() {
 		return "maximum stack size";
+	}
+
+	private static int getMaxStackSize(ItemType itemType) {
+		Object item = itemType.getRandomStackOrMaterial();
+		if (item instanceof ItemStack stack)
+			return stack.getMaxStackSize();
+		if (item instanceof Material material)
+			return material.getMaxStackSize();
+		throw new UnsupportedOperationException();
 	}
 
 }
