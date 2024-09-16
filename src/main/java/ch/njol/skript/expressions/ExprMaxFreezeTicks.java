@@ -29,7 +29,7 @@ import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import ch.njol.skript.util.Timespan;
 import org.bukkit.entity.Entity;
 import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 @Name("Maximum Freeze Time")
 @Description("The maximum amount of time an entity can spend in powdered snow before taking damage.")

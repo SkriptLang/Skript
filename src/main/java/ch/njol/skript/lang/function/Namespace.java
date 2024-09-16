@@ -23,7 +23,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Contains a set of functions.

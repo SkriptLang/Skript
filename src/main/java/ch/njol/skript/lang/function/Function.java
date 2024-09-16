@@ -21,7 +21,7 @@ package ch.njol.skript.lang.function;
 import java.util.Arrays;
 
 import org.bukkit.Bukkit;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.SkriptConfig;
 import ch.njol.skript.classes.ClassInfo;

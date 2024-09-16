@@ -18,7 +18,7 @@
  */
 package ch.njol.skript.patterns;
 
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 public class MalformedPatternException extends IllegalArgumentException {
 
