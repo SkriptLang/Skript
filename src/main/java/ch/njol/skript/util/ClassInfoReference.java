@@ -29,8 +29,8 @@ import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.lang.util.SimpleLiteral;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.NonNull;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
 
@@ -67,8 +67,8 @@ public final class ClassInfoReference {
 	 * @param classInfoExpression the ClassInfo expression to wrap
 	 * @return a wrapper ClassInfoReference expression
 	 */
-	@NonNull
-	public static Expression<ClassInfoReference> wrap(@NonNull Expression<ClassInfo<?>> classInfoExpression) {
+	@NotNull
+	public static Expression<ClassInfoReference> wrap(@NotNull Expression<ClassInfo<?>> classInfoExpression) {
 		if (classInfoExpression instanceof ExpressionList) {
 			ExpressionList<?> classInfoExpressionList = (ExpressionList<?>) classInfoExpression;
 			Expression<ClassInfoReference>[] wrappedExpressions = Arrays.stream(classInfoExpressionList.getExpressions())

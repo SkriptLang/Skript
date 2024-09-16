@@ -24,7 +24,7 @@ import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.localization.Message;
 import ch.njol.skript.log.ErrorQuality;
 import ch.njol.skript.log.ParseLogHandler;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.entry.KeyValueEntryData;
 
 /**
