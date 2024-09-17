@@ -6,6 +6,10 @@ import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.bukkit.entity.Player;
+import org.bukkit.event.Event;
+import org.jetbrains.annotations.Nullable;
+
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
@@ -15,9 +19,6 @@ import ch.njol.skript.doc.RequiredPlugins;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import ch.njol.util.coll.CollectionUtils;
-import org.bukkit.entity.Player;
-import org.bukkit.event.Event;
-import org.jetbrains.annotations.Nullable;
 
 @Name("Player Chat Completions")
 @Description({
@@ -39,23 +40,16 @@ public class ExprPlayerChatCompletions extends SimplePropertyExpression<Player, 
 	}
 
 	@Override
-	@Nullable
-	public String convert(Player player) {
+	public @Nullable String convert(Player player) {
 		return null; // Due to Bukkit limitations
 	}
 
 	@Override
 	public @Nullable Class<?>[] acceptChange(ChangeMode mode) {
-        switch (mode) {
-            case ADD:
-            case SET:
-            case REMOVE:
-            case DELETE:
-            case RESET:
-				return CollectionUtils.array(String[].class);
-			default:
-				return null;
-        }
+        return switch (mode) {
+            case ADD, SET, REMOVE, DELETE, RESET -> CollectionUtils.array(String[].class);
+            default -> null;
+        };
 	}
 
 	@Override
@@ -71,20 +65,18 @@ public class ExprPlayerChatCompletions extends SimplePropertyExpression<Player, 
 				.collect(Collectors.toList());
 		}
 		switch (mode) {
-            case DELETE:
-            case RESET:
-			case SET:
+			case DELETE, RESET, SET -> {
 				for (Player player : players)
-                	player.setCustomChatCompletions(completions);
-                break;
-            case ADD:
+					player.setCustomChatCompletions(completions);
+			}
+            case ADD -> {
 				for (Player player : players)
 					player.addCustomChatCompletions(completions);
-				break;
-            case REMOVE:
+			}
+            case REMOVE -> {
 				for (Player player : players)
 					player.removeCustomChatCompletions(completions);
-                break;
+			}
         }
 	}
 
