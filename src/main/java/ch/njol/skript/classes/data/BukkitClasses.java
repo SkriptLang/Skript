@@ -1529,7 +1529,7 @@ public class BukkitClasses {
 				.since("2.8.0"));
 
 		if (Skript.classExists("org.bukkit.inventory.ItemFlag"))
-			Classes.registerClass(new EnumClassInfo<>(ItemFlag.class, "itemflags", "item flags")
+			Classes.registerClass(new EnumClassInfo<>(ItemFlag.class, "itemflag", "item flags")
 				.user("item ?flags?")
 				.name("Item Flag")
 				.description(
