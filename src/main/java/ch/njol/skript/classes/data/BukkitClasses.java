@@ -1535,7 +1535,6 @@ public class BukkitClasses {
 				.description(
 					"Represents flags that may be applied to hide certain attributes of an item.",
 					"Such as hiding enchantments, or hiding if the item is unbreakable.")
-				.requiredPlugins("Minecraft 1.20.4+")
 				.since("INSERT VERSION")
 				.supplier(ItemFlag.values()));
 	}

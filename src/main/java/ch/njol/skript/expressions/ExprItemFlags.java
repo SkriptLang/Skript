@@ -27,7 +27,6 @@ import java.util.List;
 	"add hide potion effects to item flags of player's held item",
 	"remove hide enchants from item flags of {legendary sword}"
 })
-@RequiredPlugins("Minecraft 1.20.4+")
 @Since("INSERT VERSION")
 public class ExprItemFlags extends PropertyExpression<ItemType, ItemFlag> {
 	static {
