@@ -22,8 +22,8 @@ import ch.njol.util.coll.CollectionUtils;
 
 @Name("Maximum Stack Size")
 @Description({
-	"The maximum stack size of an item (e.g. 64 for torches, 16 for buckets, and 1 for swords), or of an inventory to have items to stack up to.",
-	"Since MC 1.20.5 onwards, the maximum stack size of items can be changed (any integer from 1 to 99), and the said item can be stacked up to the set value, up to the maximum stack size of an inventory."
+	"The maximum stack size of an item (e.g. 64 for torches, 16 for buckets, 1 for swords, etc.) or inventory.",
+	"In 1.20.5+, the maximum stack size of items can be changed to any integer from 1 to 99, and stacked up to the maximum stack size of the inventory they're in."
 })
 @Examples({
 	"send \"You can only pick up %max stack size of player's tool% of %type of (player's tool)%\" to player",
@@ -42,8 +42,7 @@ public class ExprMaxStack extends SimplePropertyExpression<Object, Integer> {
 	private static final boolean CHANGEABLE_ITEM_STACK_SIZE = Skript.methodExists(ItemMeta.class, "setMaxStackSize", Integer.class);
 
 	@Override
-	@Nullable
-	public Integer convert(Object from) {
+	public @Nullable Integer convert(Object from) {
 		if (from instanceof ItemType itemType)
 			return getMaxStackSize(itemType);
 		if (from instanceof Inventory inventory)
@@ -52,8 +51,7 @@ public class ExprMaxStack extends SimplePropertyExpression<Object, Integer> {
 	}
 
 	@Override
-	@Nullable
-	public Class<?>[] acceptChange(ChangeMode mode) {
+	public @Nullable Class<?>[] acceptChange(ChangeMode mode) {
         return switch (mode) {
             case ADD, REMOVE, RESET, SET -> {
                 if (!CHANGEABLE_ITEM_STACK_SIZE && ItemType.class.isAssignableFrom(getExpr().getReturnType())) {
@@ -68,24 +66,18 @@ public class ExprMaxStack extends SimplePropertyExpression<Object, Integer> {
 
 	@Override
 	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
+		Integer change = null;
+		if (mode != ChangeMode.RESET)
+			change = (int) delta[0];
 		for (Object source : getExpr().getArray(event)) {
-			Integer change = null;
-			if (mode != ChangeMode.RESET)
-				change = (int) delta[0];
 			if (source instanceof ItemType itemType) {
 				if (!CHANGEABLE_ITEM_STACK_SIZE)
 					continue;
 				int size = getMaxStackSize(itemType);
                 switch (mode) {
-                    case ADD:
-						size += change;
-                        break;
-                    case SET:
-						size = change;
-						break;
-                    case REMOVE:
-						size -= change;
-                        break;
+                    case ADD -> size += change;
+                    case SET -> size = change;
+                    case REMOVE -> size -= change;
                 }
 				ItemMeta meta = itemType.getItemMeta();
 				// Minecraft only accepts stack size from 1 to 99
