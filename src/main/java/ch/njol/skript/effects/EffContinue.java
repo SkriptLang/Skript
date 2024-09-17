@@ -19,12 +19,14 @@
 package ch.njol.skript.effects;
 
 import ch.njol.skript.Skript;
+import ch.njol.skript.classes.data.JavaClasses;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.*;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.skript.lang.parser.ParserInstance;
 import ch.njol.util.Kleenean;
 import ch.njol.util.StringUtils;
 import org.bukkit.event.Event;
@@ -58,7 +60,7 @@ public class EffContinue extends Effect {
 	static {
 		Skript.registerEffect(EffContinue.class,
 			"continue [this loop|[the] [current] loop]",
-			"continue [the] <[1-9][0-9]*>(st|nd|rd|th) loop"
+			"continue [the] <" + JavaClasses.INTEGER_PATTERN + ">(st|nd|rd|th) loop"
 		);
 	}
 
@@ -66,13 +68,17 @@ public class EffContinue extends Effect {
 	private int level;
 
 	private @UnknownNullability LoopSection loop;
-	private @UnknownNullability List<TriggerSection> innerSections;
+	private @UnknownNullability List<SectionExitHandler> sectionsToExit;
+	private int breakLevels;
 
 	@Override
     public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		level = matchedPattern == 0 ? 1 : Integer.parseInt(parseResult.regexes.get(0).group());
+		if (level < 1)
+			return false;
 
-		int loops = getParser().getCurrentSections(LoopSection.class).size();
+		ParserInstance parser = getParser();
+		int loops = parser.getCurrentSections(LoopSection.class).size();
 		if (loops == 0) {
 			Skript.error("The 'continue' effect may only be used in loops");
 			return false;
@@ -86,8 +92,13 @@ public class EffContinue extends Effect {
 			return false;
 		}
 
-        innerSections = Section.getSections(levels, LoopSection.class);
+        List<TriggerSection> innerSections = parser.getSections(levels, LoopSection.class);
+		breakLevels = innerSections.size();
 		loop = (LoopSection) innerSections.remove(0);
+		sectionsToExit = innerSections.stream()
+			.filter(SectionExitHandler.class::isInstance)
+			.map(SectionExitHandler.class::cast)
+			.toList();
 		return true;
 	}
 
@@ -99,16 +110,14 @@ public class EffContinue extends Effect {
 	@Override
 	protected @Nullable TriggerItem walk(Event event) {
 		debug(event, false);
-		for (TriggerSection section : innerSections) {
-			if (section instanceof SectionExitHandler exitHandler)
-				exitHandler.exit(event);
-		}
+		for (SectionExitHandler section : sectionsToExit)
+			section.exit(event);
 		return loop;
 	}
 
 	@Override
 	public ExecutionIntent executionIntent() {
-		return ExecutionIntent.stopSections(innerSections.size() + 1);
+		return ExecutionIntent.stopSections(breakLevels);
 	}
 
 	@Override

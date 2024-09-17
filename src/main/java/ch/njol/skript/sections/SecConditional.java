@@ -34,6 +34,7 @@ import ch.njol.skript.patterns.PatternCompiler;
 import ch.njol.skript.patterns.SkriptPattern;
 import ch.njol.skript.util.Patterns;
 import ch.njol.util.Kleenean;
+import com.bekvon.bukkit.residence.commands.list;
 import com.google.common.collect.Iterables;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
@@ -404,12 +405,8 @@ public class SecConditional extends Section {
 		List<SecConditional> list = new ArrayList<>();
 		for (int i = triggerItems.size() - 1; i >= 0; i--) {
 			TriggerItem triggerItem = triggerItems.get(i);
-			if (triggerItem instanceof SecConditional secConditional) {
-				if (secConditional.type == ConditionalType.ELSE_IF) {
-					list.add(secConditional);
-				} else {
-					break;
-				}
+			if (triggerItem instanceof SecConditional secConditional && secConditional.type == ConditionalType.ELSE_IF) {
+				list.add(secConditional);
 			} else {
 				break;
 			}

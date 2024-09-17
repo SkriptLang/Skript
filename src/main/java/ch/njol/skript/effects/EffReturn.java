@@ -38,7 +38,7 @@ import org.jetbrains.annotations.UnknownNullability;
 import java.util.List;
 
 @Name("Return")
-@Description("Makes a trigger (e.g. a function) return a value")
+@Description("Makes a trigger or a section (e.g. a function) return a value")
 @Examples({
 	"function double(i: number) :: number:",
 		"\treturn 2 * {_i}",
@@ -56,12 +56,14 @@ public class EffReturn extends Effect {
 
 	private @UnknownNullability ReturnHandler<?> handler;
 	private @UnknownNullability Expression<?> value;
-	private @UnknownNullability List<TriggerSection> sectionsToExit;
+	private @UnknownNullability List<SectionExitHandler> sectionsToExit;
+	private int breakLevels;
 
 	@Override
 	@SuppressWarnings("unchecked")
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		handler = getParser().getData(ReturnHandlerStack.class).getCurrentHandler();
+		ParserInstance parser = getParser();
+		handler = parser.getData(ReturnHandlerStack.class).getCurrentHandler();
 		if (handler == null) {
 			Skript.error("The return statement cannot be used here");
 			return false;
@@ -99,23 +101,24 @@ public class EffReturn extends Effect {
 		}
 		value = convertedExpr;
 
-		sectionsToExit = Section.getSectionsUntil((TriggerSection) handler);
+		List<TriggerSection> innerSections = parser.getSectionsUntil((TriggerSection) handler);
+		innerSections.add(0, (TriggerSection) handler);
+		breakLevels = innerSections.size();
+		sectionsToExit = innerSections.stream()
+			.filter(SectionExitHandler.class::isInstance)
+			.map(SectionExitHandler.class::cast)
+			.toList();
 		return true;
 	}
 
 	@Override
-	@Nullable
-	protected TriggerItem walk(Event event) {
+	protected @Nullable TriggerItem walk(Event event) {
 		debug(event, false);
 		//noinspection rawtypes,unchecked
 		((ReturnHandler) handler).returnValues(event, value);
 
-		for (TriggerSection section : sectionsToExit) {
-			if (section instanceof SectionExitHandler exitHandler)
-				exitHandler.exit(event);
-		}
-		if (handler instanceof SectionExitHandler exitHandler)
-			exitHandler.exit(event);
+		for (SectionExitHandler section : sectionsToExit)
+			section.exit(event);
 
 		return ((TriggerSection) handler).getNext();
 	}
@@ -127,7 +130,7 @@ public class EffReturn extends Effect {
 
 	@Override
 	public ExecutionIntent executionIntent() {
-		return ExecutionIntent.stopSections(sectionsToExit.size() + 1);
+		return ExecutionIntent.stopSections(breakLevels);
 	}
 
 	@Override

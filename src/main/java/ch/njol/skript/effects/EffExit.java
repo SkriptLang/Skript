@@ -19,18 +19,21 @@
 package ch.njol.skript.effects;
 
 import ch.njol.skript.Skript;
+import ch.njol.skript.classes.data.JavaClasses;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.*;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.skript.lang.parser.ParserInstance;
 import ch.njol.skript.sections.SecConditional;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnknownNullability;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Name("Exit")
@@ -50,8 +53,8 @@ public class EffExit extends Effect {
 	static {
 		Skript.registerEffect(EffExit.class,
 			"(exit|stop) [trigger]",
-			"(exit|stop) [(1|a|the|this)] (section|1:loop|2:conditional)",
-			"(exit|stop) <[1-9][0-9]*> (section|1:loop|2:conditional)s",
+			"(exit|stop) [1|a|the|this] (section|1:loop|2:conditional)",
+			"(exit|stop) <" + JavaClasses.INTEGER_PATTERN + "> (section|1:loop|2:conditional)s",
 			"(exit|stop) all (section|1:loop|2:conditional)s");
 	}
 
@@ -61,20 +64,24 @@ public class EffExit extends Effect {
 	private int type;
 
 	private int breakLevels;
-	private @UnknownNullability List<TriggerSection> sectionsToExit;
+	private TriggerSection outerSection;
+	private @UnknownNullability List<SectionExitHandler> sectionsToExit;
 
 	@Override
-	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parser) {
+	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
+		List<TriggerSection> innerSections = null;
 		switch (matchedPattern) {
 			case 0 -> {
-				sectionsToExit = getParser().getCurrentSections();
-				breakLevels = sectionsToExit.size() + 1;
+				innerSections = getParser().getCurrentSections();
+				breakLevels = innerSections.size() + 1;
 			}
 			case 1, 2 -> {
-				breakLevels = matchedPattern == 1 ? 1 : Integer.parseInt(parser.regexes.get(0).group());
-				type = parser.mark;
-				sectionsToExit = Section.getSections(breakLevels, types[type]);
-				int levels = getParser().getCurrentSections(types[type]).size();
+				breakLevels = matchedPattern == 1 ? 1 : Integer.parseInt(parseResult.regexes.get(0).group());
+				if (breakLevels < 1)
+					return false;
+				type = parseResult.mark;
+				ParserInstance parser = getParser();
+				int levels = parser.getCurrentSections(types[type]).size();
 				if (breakLevels > levels) {
 					if (levels == 0) {
 						Skript.error("Can't stop any " + names[type] + " as there are no " + names[type] + " present");
@@ -83,35 +90,39 @@ public class EffExit extends Effect {
 					}
 					return false;
 				}
+				innerSections = parser.getSections(breakLevels, types[type]);
+				outerSection = innerSections.get(0);
 			}
 			case 3 -> {
-				type = parser.mark;
-				List<? extends TriggerSection> sections = getParser().getCurrentSections(types[type]);
-				breakLevels = sections.size();
+				ParserInstance parser = getParser();
+				type = parseResult.mark;
+				List<? extends TriggerSection> sections = parser.getCurrentSections(types[type]);
 				if (sections.isEmpty()) {
 					Skript.error("Can't stop any " + names[type] + " as there are no " + names[type] + " present");
 					return false;
 				}
-				TriggerSection firstSection = sections.get(0);
-				sectionsToExit = Section.getSectionsUntil(firstSection);
-				sectionsToExit.add(0, firstSection);
+				outerSection = sections.get(0);
+				innerSections = parser.getSectionsUntil(outerSection);
+				innerSections.add(0, outerSection);
+				breakLevels = innerSections.size();
 			}
 		}
+        assert innerSections != null;
+		sectionsToExit = innerSections.stream()
+			.filter(SectionExitHandler.class::isInstance)
+			.map(SectionExitHandler.class::cast)
+			.toList();
 		return true;
 	}
 
 	@Override
-	@Nullable
-	protected TriggerItem walk(Event event) {
+	protected @Nullable TriggerItem walk(Event event) {
 		debug(event, false);
-		for (TriggerSection section : sectionsToExit) {
-			if (section instanceof SectionExitHandler exitHandler)
-				exitHandler.exit(event);
-		}
-		if (breakLevels > sectionsToExit.size())
+		for (SectionExitHandler section : sectionsToExit)
+			section.exit(event);
+		if (outerSection == null)
 			return null;
-		TriggerSection section = sectionsToExit.get(0);
-		return section instanceof LoopSection loopSection ? loopSection.getActualNext() : section.getNext();
+		return outerSection instanceof LoopSection loopSection ? loopSection.getActualNext() : outerSection.getNext();
 	}
 
 	@Override
