@@ -2275,6 +2275,18 @@ transform reasons:
 	unknown: unknown
 	infection: infection, villager infection
 
+# -- Item Flags --
+item flags:
+	hide_additional_tooltip: hide additional tooltip
+	hide_armor_trim: hide armor trim
+	hide_attributes: hide attributes
+	hide_destroys: hide destroys
+	hide_dye: hide dye
+	hide_enchants: hide enchants
+	hide_placed_on: hide placed on
+	hide_stored_enchants: hide stored enchants
+	hide_unbreakable: hide unbreakable
+
 # -- Boolean --
 boolean:
 	true:
@@ -2323,6 +2335,7 @@ types:
 	material: material¦s @a
 	itemstack: item stack¦s @an
 	itementity: dropped item¦s @a # same as entities.dropped item.name
+	itemflag: item flag¦s @an
 	biome: biome¦s @a
 	potioneffecttype: potion effect type¦s @a
 	potioneffect: potion effect¦s @a
