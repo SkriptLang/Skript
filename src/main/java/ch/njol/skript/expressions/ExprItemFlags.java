@@ -98,4 +98,5 @@ public class ExprItemFlags extends PropertyExpression<ItemType, ItemFlag> {
 			}
 		}
 	}
+
 }

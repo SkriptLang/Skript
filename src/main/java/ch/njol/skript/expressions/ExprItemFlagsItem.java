@@ -89,4 +89,5 @@ public class ExprItemFlagsItem extends SimpleExpression<ItemType> {
 			return itemType.toString(event, debug) + " with item flags " + itemFlag.toString(event, debug);
 		}
 	}
+
 }
