@@ -26,7 +26,7 @@ import ch.njol.util.coll.CollectionUtils;
 	"In 1.20.5+, the maximum stack size of items can be changed to any integer from 1 to 99, and stacked up to the maximum stack size of the inventory they're in."
 })
 @Examples({
-	"send \"You can only pick up %max stack size of player's tool% of %type of (player's tool)%\" to player",
+	"send \"You can hold %max stack size of player's tool% of %type of player's tool% in a slot.\" to player",
 	"set the maximum stack size of inventory of all players to 16",
 	"add 8 to the maximum stack size of player's tool",
 	"reset the maximum stack size of {_gui}"
