@@ -1,22 +1,3 @@
-/**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
-
 package ch.njol.skript.expressions;
 
 import org.bukkit.entity.Entity;
@@ -31,7 +12,7 @@ import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import ch.njol.util.coll.CollectionUtils;
 
 @Name("Custom Name Visibility")
-@Description("Sets the visibility of an entity's display name (has no effect on players)")
+@Description("Sets the visibility of an entity's display name (has no effect on players).")
 @Examples({"set {_target} to target",
 	       "if {_target}'s custom name is visible:",
            "\tset custom name visibility of {_target} to false"})
