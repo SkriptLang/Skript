@@ -1,0 +1,2 @@
+on unknown command:
+	set unknown command message to "Hey, this command does not exist."

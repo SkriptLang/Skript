@@ -40,7 +40,7 @@ public class EvtPlayerCommandSend extends SkriptEvent {
 					"can be modified via the <a href='expressions.html#ExprSentCommands'>sent commands expression</a>.",
 					"Modifications will affect what commands show up for the player to tab complete. They will not affect what commands the player can actually run.",
 					"Adding new commands to the list is illegal behavior and will be ignored."
-				)
+				)s
 				.examples(
 					"on send command list:",
 						"\tset command list to command list where [input does not contain \":\"]",
