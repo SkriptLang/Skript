@@ -381,8 +381,8 @@ public class ItemType implements Unit, Iterable<ItemData>, Container<ItemStack>,
 
 			ItemMeta itemMeta = getItemMeta();
 
-			if (itemMeta instanceof SkullMeta skullMeta) {
-				OfflinePlayer offlinePlayer = skullMeta.getOwningPlayer();
+			if (itemMeta instanceof SkullMeta) {
+				OfflinePlayer offlinePlayer = ((SkullMeta) itemMeta).getOwningPlayer();
 				if (offlinePlayer == null) continue;
 				Skull skull = (Skull) block.getState();
 				if (offlinePlayer.getName() != null) {

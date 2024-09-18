@@ -48,9 +48,10 @@ public class ExprSkullOwner extends SimplePropertyExpression<Block, OfflinePlaye
 	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
 		OfflinePlayer offlinePlayer = (OfflinePlayer) delta[0];
 		for (Block block : getExpr().getArray(event)) {
-			if (!(block.getState() instanceof Skull skull))
+			if (!(block.getState() instanceof Skull))
 				continue;
 
+			Skull skull = (Skull) block.getState();
 			if (offlinePlayer.getName() != null) {
 				skull.setOwningPlayer(offlinePlayer);
 			} else {
