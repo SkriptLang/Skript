@@ -41,7 +41,7 @@ import java.util.stream.Collectors;
 
 import org.bukkit.event.Event;
 
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 @Name("All Scripts")
 @Description("Returns all of the scripts, or just the enabled or disabled ones.")

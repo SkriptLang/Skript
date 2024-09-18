@@ -18,7 +18,7 @@
  */
 package ch.njol.yggdrasil;
 
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.concurrent.ThreadSafe;
 import java.util.ArrayList;
