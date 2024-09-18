@@ -45,6 +45,7 @@ dependencies {
 
 checkstyle {
 	configFile = new File("checkstyle.xml")
+	sourceSets = [] // disables checkstyle after build task
 }
 
 task checkAliases {
