@@ -2277,15 +2277,16 @@ transform reasons:
 
 # -- Item Flags --
 item flags:
-    hide_additional_tooltip: hide additional tooltip
-    hide_armor_trim: hide armor trim
-    hide_attributes: hide attributes
-    hide_destroys: hide destroys, hide destroyable blocks, hide breakable blocks
-    hide_dye: hide dye, hide dye color
-    hide_enchants: hide enchants, hide enchantments, hidden enchants
-    hide_placed_on: hide placed on
-    hide_stored_enchants: hide stored enchants, hide stored enchantments
-    hide_unbreakable: hide unbreakable, hide unbreakable status
+    hide_additional_tooltip: hide additional tooltip, additional tooltip hidden
+    hide_armor_trim: hide armor trim, armor trim hidden
+    hide_attributes: hide attributes, attributes hidden
+    hide_destroys: hide destroys, hide destroyable blocks, hide breakable blocks, destroys hidden
+    hide_dye: hide dye, hide dye color, dye hidden, dye color hidden
+    hide_enchants: hide enchants, hide enchantments, enchants hidden, enchantments hidden
+    hide_placed_on: hide placed on, placed on hidden
+    hide_stored_enchants: hide stored enchants, hide stored enchantments, stored enchants hidden, stored enchantments hidden
+    hide_unbreakable: hide unbreakable, hide unbreakable status, unbreakable hidden, unbreakable status hidden
+	hide_potion_effects: hide potion effects, hide potions, potion effects hidden, potions hidden
 
 # -- Boolean --
 boolean:

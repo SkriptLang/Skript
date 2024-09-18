@@ -13,7 +13,6 @@ import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.bukkit.inventory.ItemFlag;
-import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.Nullable;
 
@@ -32,7 +31,7 @@ public class ExprWithItemFlags extends SimpleExpression<ItemType> {
 		Skript.registerExpression(ExprWithItemFlags.class, ItemType.class, ExpressionType.COMBINED,
 			"%itemtype% with [the] item flag[s] %itemflags%",
 			"%itemtype% with [the] %itemflags% item flag[s]",
-			"%itemtype% with all [the] item flags");
+			"%itemtype% with all [the] item flags [hidden]");
 	}
 
 	private Expression<ItemFlag> itemFlag;

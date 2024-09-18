@@ -1532,8 +1532,7 @@ public class BukkitClasses {
 			Classes.registerClass(new EnumClassInfo<>(ItemFlag.class, "itemflag", "item flags")
 				.user("item ?flags?")
 				.name("Item Flag")
-				.description(
-					"Represents flags that may be applied to hide certain attributes of an item.")
+				.description("Represents flags that may be applied to hide certain attributes of an item.")
 				.since("INSERT VERSION")
 				.supplier(ItemFlag.values()));
 	}
