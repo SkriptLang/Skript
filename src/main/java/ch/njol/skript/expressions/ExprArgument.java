@@ -82,13 +82,14 @@ public class ExprArgument extends SimpleExpression<Object> {
 	private Argument<?> argument;
 
 	private int ordinal = -1; // Available in ORDINAL and sometimes CLASSINFO
-	private boolean SUPPORTS_UNKNOWN_EVENT = Skript.classExists("org.bukkit.event.command.UnknownCommandEvent");
+	private boolean SUPPORTS_UNKNOWN_COMMAND_EVENT = Skript.classExists("org.bukkit.event.command.UnknownCommandEvent");
 	
 	@Override
 	@SuppressWarnings("unchecked")
-	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
+	public boolean init(Expression<?>[] expressions, int matchedPattern,
+						Kleenean isDelayed, ParseResult parseResult) {
 		boolean scriptCommand = getParser().isCurrentEvent(ScriptCommandEvent.class);
-		if (!scriptCommand && !getParser().isCurrentEvent(PlayerCommandPreprocessEvent.class, ServerCommandEvent.class, UnknownCommandEvent.class)) {
+		if (!scriptCommand && !getParser().isCurrentEvent(PlayerCommandPreprocessEvent.class, ServerCommandEvent.class, org.bukkit.event.command.UnknownCommandEvent.class)) {
 			Skript.error("The 'argument' expression can only be used in a script command, command event or unknown command event");
 			return false;
 		}
@@ -161,7 +162,7 @@ public class ExprArgument extends SimpleExpression<Object> {
 					Skript.error("'arguments' cannot be used for script commands. Use 'argument 1', 'argument 2', etc. instead", ErrorQuality.SEMANTIC_ERROR);
 					return false;
 				case CLASSINFO:
-					ClassInfo<?> c = ((Literal<ClassInfo<?>>) exprs[0]).getSingle();
+					ClassInfo<?> c = ((Literal<ClassInfo<?>>) expressions[0]).getSingle();
 					if (parseResult.regexes.size() > 0) {
 						ordinal = Utils.parseInt(parseResult.regexes.get(0).group());
 						if (ordinal > currentArguments.size()) {
@@ -215,13 +216,13 @@ public class ExprArgument extends SimpleExpression<Object> {
 	
 	@Override
 	@Nullable
-	protected Object[] get(final Event event) {
+	protected Object[] get(Event event) {
 		if (argument != null) {
 			return argument.getCurrent(event);
 		}
 
 		String fullCommand;
-		if (SUPPORTS_UNKNOWN_EVENT && event instanceof UnknownCommandEvent) {
+		if (SUPPORTS_UNKNOWN_COMMAND_EVENT && event instanceof UnknownCommandEvent) {
 			fullCommand = ((UnknownCommandEvent) event).getCommandLine().trim();
 		} else if (event instanceof PlayerCommandPreprocessEvent) {
 			fullCommand = ((PlayerCommandPreprocessEvent) event).getMessage().substring(1).trim();

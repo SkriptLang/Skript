@@ -49,7 +49,8 @@ import ch.njol.util.coll.CollectionUtils;
 @SuppressWarnings("deprecation")
 @Name("Message")
 @Description("The (chat) message of a chat event, the join message of a join event, the quit message of a quit event, or the death message of a death event, or the unknown command message of an unknown command event. This expression is mostly useful for being changed.")
-@Examples({"on chat:",
+@Examples({
+	"on chat:",
 			"\tplayer has permission \"admin\"",
 			"\tset message to \"&c%message%\"",
 		"",
@@ -67,7 +68,8 @@ import ch.njol.util.coll.CollectionUtils;
 			"\tset the death message to \"%player% died!\"",
 		"",
 		"on unknown command:",
-			"\tset unknown command message to \"This command does not exist.\""})
+			"\tset unknown command message to \"This command does not exist.\""
+})
 @Since("1.4.6 (chat message), 1.4.9 (join & quit messages), 2.0 (death message), INSERT VERSION (unknown command message)")
 @Events({"chat", "join", "quit", "death", "unknown command"})
 public class ExprMessage extends SimpleExpression<String> {
