@@ -1,5 +1,6 @@
 package ch.njol.skript.conditions;
 
+import ch.njol.skript.Skript;
 import ch.njol.skript.conditions.base.PropertyCondition;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
@@ -10,19 +11,20 @@ import org.bukkit.entity.Entity;
 @Name("From A Mob Spawner")
 @Description("Check if an entity was spawned from a mob spawner.")
 @Examples({
-	"send true if target is from a mob spawner"
+	"send whether target is from a mob spawner"
 })
 @Since("INSERT VERSION")
 public class CondFromMobSpawner extends PropertyCondition<Entity> {
 
 	static {
-		register(CondFromMobSpawner.class, PropertyType.BE,
+		if (Skript.methodExists(Entity.class, "fromMobSpawner"))
+			register(CondFromMobSpawner.class, PropertyType.BE,
 			"from a mob spawner", "entities");
 	}
 
 	@Override
-	public boolean check(Entity value) {
-		return value.fromMobSpawner();
+	public boolean check(Entity entity) {
+		return entity.fromMobSpawner();
 	}
 
 	@Override

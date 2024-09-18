@@ -6,9 +6,10 @@ import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
+import ch.njol.skript.lang.Expression;
+import ch.njol.skript.lang.SkriptParser;
+import ch.njol.util.Kleenean;
 import org.bukkit.entity.Entity;
-import org.bukkit.event.Event;
-import org.jetbrains.annotations.Nullable;
 
 @Name("Is Custom Name Visible")
 @Description("Check if an entity's custom name is visible.")
@@ -20,24 +21,28 @@ public class CondIsCustomNameVisible extends PropertyCondition<Entity> {
 
 	static {
 		Skript.registerCondition(CondIsCustomNameVisible.class,
-			"%entities%'s custom name (:is|isn't) visible",
-			"custom name of %entities% (:is|isn't) visible");
+			"%entities%'s custom name[s] (is|are) visible",
+			"%entities%'s custom name (isn't|is not|are not|aren't) visible",
+			"custom name of %entities% (is|are) visible",
+			"custom name of %entities% (isn't|is not|are not|aren't) visible");
 	}
 
 	@Override
-	public boolean check(Entity value) {
-		return value.isCustomNameVisible() && !isNegated();
+	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
+		setNegated(matchedPattern == 1 || matchedPattern == 3);
+		setExpr((Expression<Entity>) exprs[0]);
+		return true;
+	}
+
+	@Override
+	public boolean check(Entity entity) {
+		return entity.isCustomNameVisible();
+
 	}
 
 	@Override
 	protected String getPropertyName() {
 		return "custom name";
 	}
-
-	@Override
-	public String toString(@Nullable Event event, boolean debug) {
-		return "custom name";
-	}
-
 
 }

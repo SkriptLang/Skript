@@ -20,8 +20,8 @@ public class CondIsTicking extends PropertyCondition<Entity> {
 	}
 
 	@Override
-	public boolean check(Entity value) {
-		return value.isTicking();
+	public boolean check(Entity entity) {
+		return entity.isTicking();
 	}
 
 	@Override
