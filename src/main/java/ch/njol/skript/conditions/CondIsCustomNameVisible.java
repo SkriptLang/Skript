@@ -21,14 +21,14 @@ public class CondIsCustomNameVisible extends PropertyCondition<Entity> {
 
 	static {
 		Skript.registerCondition(CondIsCustomNameVisible.class,
-			"%entities%'s custom name[s] (is|are) visible",
-			"%entities%'s custom name (isn't|is not|are not|aren't) visible",
+			"%entities%'[s] custom name[s] (is|are) visible",
+			"%entities%'[s] custom name[s] (isn't|is not|are not|aren't) visible",
 			"custom name of %entities% (is|are) visible",
 			"custom name of %entities% (isn't|is not|are not|aren't) visible");
 	}
 
 	@Override
-	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
+	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		setNegated(matchedPattern == 1 || matchedPattern == 3);
 		setExpr((Expression<Entity>) exprs[0]);
 		return true;
@@ -46,3 +46,4 @@ public class CondIsCustomNameVisible extends PropertyCondition<Entity> {
 	}
 
 }
+

@@ -38,3 +38,4 @@ public class ExprMaxFireTicks extends SimplePropertyExpression<Entity, Timespan>
 	}
 
 }
+

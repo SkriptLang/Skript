@@ -7,7 +7,7 @@ import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import org.bukkit.entity.Entity;
 
-@Name("Is ticking")
+@Name("Is Ticking")
 @Description("Check if an entity is ticking.")
 @Examples({
 	"send true if target is ticking"
@@ -30,3 +30,4 @@ public class CondIsTicking extends PropertyCondition<Entity> {
 	}
 
 }
+

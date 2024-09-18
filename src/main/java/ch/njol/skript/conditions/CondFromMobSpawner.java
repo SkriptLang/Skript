@@ -8,7 +8,7 @@ import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import org.bukkit.entity.Entity;
 
-@Name("From A Mob Spawner")
+@Name("Is From A Mob Spawner")
 @Description("Check if an entity was spawned from a mob spawner.")
 @Examples({
 	"send whether target is from a mob spawner"
@@ -18,8 +18,7 @@ public class CondFromMobSpawner extends PropertyCondition<Entity> {
 
 	static {
 		if (Skript.methodExists(Entity.class, "fromMobSpawner"))
-			register(CondFromMobSpawner.class, PropertyType.BE,
-			"from a mob spawner", "entities");
+			register(CondFromMobSpawner.class, PropertyType.BE, "from a mob spawner", "entities");
 	}
 
 	@Override
@@ -33,3 +32,4 @@ public class CondFromMobSpawner extends PropertyCondition<Entity> {
 	}
 
 }
+
