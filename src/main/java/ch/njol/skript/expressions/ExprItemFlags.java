@@ -1,7 +1,7 @@
 package ch.njol.skript.expressions;
 
 import ch.njol.skript.Skript;
-import ch.njol.skript.classes.Changer;
+import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
@@ -11,14 +11,18 @@ import ch.njol.skript.expressions.base.PropertyExpression;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
+import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.event.Event;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import ch.njol.skript.aliases.ItemType;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Name("Item Flags")
 @Description("Returns or modifies the item flags of an item.")
@@ -30,7 +34,7 @@ import java.util.List;
 @Since("INSERT VERSION")
 public class ExprItemFlags extends PropertyExpression<ItemType, ItemFlag> {
 	static {
-		register(ExprItemFlags.class, ItemFlag.class, "item[ ]flags", "itemtypes");
+		register(ExprItemFlags.class, ItemFlag.class, "item flags", "itemtypes");
 	}
 
 	@Override
@@ -40,18 +44,47 @@ public class ExprItemFlags extends PropertyExpression<ItemType, ItemFlag> {
 	}
 
 	@Override
-	protected ItemFlag[] get(Event e, ItemType[] source) {
-		List<ItemFlag> flags = new ArrayList<>();
+	protected ItemFlag[] get(Event event, ItemType[] source) {
+		Set<ItemFlag> flags = new HashSet<>();
 		for (ItemType itemType : source) {
-			ItemStack item = itemType.getRandom();
-			if (item != null && item.hasItemMeta()) {
-				ItemMeta meta = item.getItemMeta();
-				if (meta != null) {
-					flags.addAll(meta.getItemFlags());
-				}
+			ItemMeta meta = itemType.getItemMeta();
+			if (meta != null) {
+				flags.addAll(meta.getItemFlags());
 			}
 		}
 		return flags.toArray(new ItemFlag[0]);
+	}
+
+	@Override
+	public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
+		return switch (mode) {
+			case SET, ADD, REMOVE, RESET, DELETE -> CollectionUtils.array(ItemFlag[].class);
+			default -> null;
+		};
+	}
+
+	@Override
+	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
+		ItemFlag[] flags = delta != null ? (ItemFlag[]) delta : new ItemFlag[0];
+
+		for (ItemType itemType : getExpr().getArray(event)) {
+			ItemMeta meta = itemType.getItemMeta();
+			if (meta != null) {
+				switch (mode) {
+					case SET -> {
+						meta.removeItemFlags(ItemFlag.values());
+						meta.addItemFlags(flags);
+					}
+					case ADD -> meta.addItemFlags(flags);
+					case REMOVE -> meta.removeItemFlags(flags);
+					case RESET, DELETE -> meta.removeItemFlags(ItemFlag.values());
+					default -> {
+						return;
+					}
+				}
+				itemType.setItemMeta(meta);
+			}
+		}
 	}
 
 	@Override
@@ -60,43 +93,8 @@ public class ExprItemFlags extends PropertyExpression<ItemType, ItemFlag> {
 	}
 
 	@Override
-	public String toString(Event e, boolean debug) {
-		return "item flags of " + getExpr().toString(e, debug);
-	}
-
-	@Override
-	public Class<?>[] acceptChange(Changer.ChangeMode mode) {
-		return switch (mode) {
-			case SET, ADD, REMOVE, RESET, DELETE -> new Class[]{ItemFlag[].class};
-			default -> null;
-		};
-	}
-
-	@Override
-	public void change(Event event, Object[] delta, ch.njol.skript.classes.Changer.ChangeMode mode) {
-		ItemFlag[] flags = (ItemFlag[]) delta;
-
-		for (ItemType itemType : getExpr().getArray(event)) {
-			ItemStack item = itemType.getRandom();
-			if (item != null) {
-				ItemMeta meta = item.getItemMeta();
-				if (meta != null) {
-					switch (mode) {
-						case SET -> {
-							meta.removeItemFlags(ItemFlag.values());
-							meta.addItemFlags(flags);
-						}
-						case ADD -> meta.addItemFlags(flags);
-						case REMOVE -> meta.removeItemFlags(flags);
-						case RESET, DELETE, REMOVE_ALL -> meta.removeItemFlags(ItemFlag.values());
-						default -> {
-							continue;
-						}
-					}
-					item.setItemMeta(meta);
-				}
-			}
-		}
+	public String toString(Event event, boolean debug) {
+		return "item flags of " + getExpr().toString(event, debug);
 	}
 
 }

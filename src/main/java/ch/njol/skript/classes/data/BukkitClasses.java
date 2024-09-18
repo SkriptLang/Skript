@@ -1533,8 +1533,7 @@ public class BukkitClasses {
 				.user("item ?flags?")
 				.name("Item Flag")
 				.description(
-					"Represents flags that may be applied to hide certain attributes of an item.",
-					"Such as hiding enchantments, or hiding if the item is unbreakable.")
+					"Represents flags that may be applied to hide certain attributes of an item.")
 				.since("INSERT VERSION")
 				.supplier(ItemFlag.values()));
 	}

@@ -5,7 +5,6 @@ import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
-import ch.njol.skript.doc.RequiredPlugins;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
@@ -27,13 +26,13 @@ import org.jetbrains.annotations.Nullable;
 	"set {_item} to diamond sword with all item flags"
 })
 @Since("INSERT VERSION")
-public class ExprItemFlagsItem extends SimpleExpression<ItemType> {
+public class ExprWithItemFlags extends SimpleExpression<ItemType> {
 
 	static {
-		Skript.registerExpression(ExprItemFlagsItem.class, ItemType.class, ExpressionType.COMBINED,
-			"%itemtype% with item[ ]flag[s] %itemflags%",
-			"%itemtype% with %itemflags% item[ ]flag[s]",
-			"%itemtype% with all item[ ]flags");
+		Skript.registerExpression(ExprWithItemFlags.class, ItemType.class, ExpressionType.COMBINED,
+			"%itemtype% with [the] item flag[s] %itemflags%",
+			"%itemtype% with [the] %itemflags% item flag[s]",
+			"%itemtype% with all [the] item flags");
 	}
 
 	private Expression<ItemFlag> itemFlag;
@@ -56,20 +55,20 @@ public class ExprItemFlagsItem extends SimpleExpression<ItemType> {
 		ItemType[] types = itemType.getArray(event);
 		ItemFlag[] flags = allFlags ? ItemFlag.values() : itemFlag.getArray(event);
 
+		ItemType[] result = new ItemType[types.length];
 		for (int i = 0; i < types.length; i++) {
-			ItemStack itemStack = types[i].getRandom();
-			if (itemStack != null) {
-				ItemMeta meta = itemStack.getItemMeta();
-				if (meta != null) {
-					meta.addItemFlags(flags);
-					itemStack.setItemMeta(meta);
-					types[i] = new ItemType(itemStack);
-				}
+			ItemType clonedType = types[i].clone();
+			ItemMeta meta = clonedType.getItemMeta();
+			if (meta != null) {
+				meta.addItemFlags(flags);
+				clonedType.setItemMeta(meta);
 			}
+			result[i] = clonedType;
 		}
 
-		return types;
+		return result;
 	}
+
 
 	@Override
 	public boolean isSingle() {
@@ -83,11 +82,9 @@ public class ExprItemFlagsItem extends SimpleExpression<ItemType> {
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		if (allFlags) {
+		if (allFlags)
 			return itemType.toString(event, debug) + " with all item flags";
-		} else {
-			return itemType.toString(event, debug) + " with item flags " + itemFlag.toString(event, debug);
-		}
+		return itemType.toString(event, debug) + " with item flags " + itemFlag.toString(event, debug);
 	}
 
 }
