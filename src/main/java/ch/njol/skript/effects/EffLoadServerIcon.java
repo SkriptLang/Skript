@@ -1,94 +1,75 @@
-/**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
 package ch.njol.skript.effects;
 
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-
+import ch.njol.skript.Skript;
+import ch.njol.skript.doc.*;
+import ch.njol.skript.lang.Expression;
+import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.skript.util.AsyncEffect;
+import ch.njol.util.Kleenean;
 import org.bukkit.Bukkit;
 import org.bukkit.event.Event;
 import org.bukkit.util.CachedServerIcon;
 import org.jetbrains.annotations.Nullable;
 
-import ch.njol.skript.ScriptLoader;
-import ch.njol.skript.Skript;
-import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
-import ch.njol.skript.doc.Name;
-import ch.njol.skript.doc.RequiredPlugins;
-import ch.njol.skript.doc.Since;
-import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.SkriptParser;
-import ch.njol.skript.util.AsyncEffect;
-import ch.njol.util.Kleenean;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 @Name("Load Server Icon")
-@Description({"Loads server icons from the given files. You can get the loaded icon using the",
-		"<a href='expressions.html#ExprLastLoadedServerIcon'>last loaded server icon</a> expression.",
-		"Please note that the image must be 64x64 and the file path starts from the server folder.",})
-@Examples({"on load:",
-		"	clear {server-icons::*}",
-		"	loop 5 times:",
-		"		load server icon from file \"icons/%loop-number%.png\"",
-		"		add the last loaded server icon to {server-icons::*}",
-		"",
-		"on server list ping:",
-		"	set the icon to a random server icon out of {server-icons::*}"})
+@Description({
+	"Loads server icons from the given files. You can get the loaded icon using the",
+	"<a href='expressions.html#ExprLastLoadedServerIcon'>last loaded server icon</a> expression.",
+	"Please note that the image must be 64x64 and the file path starts from the server folder.",
+})
+@Examples({
+	"on load:",
+		"\tclear {server-icons::*}",
+		"\tloop 5 times:",
+			"\t\tload server icon from file \"icons/%loop-number%.png\"",
+			"\t\tadd the last loaded server icon to {server-icons::*}",
+	"",
+	"on server list ping:",
+		"\tset the icon to a random server icon out of {server-icons::*}"})
 @Since("2.3")
 @RequiredPlugins("Paper 1.12.2 or newer")
 public class EffLoadServerIcon extends AsyncEffect {
+
+	private static final boolean SUPPORTS_SERVER_LIST_PING_EVENT = Skript.classExists("com.destroystokyo.paper.event.server.PaperServerListPingEvent");
 
 	static {
 		Skript.registerEffect(EffLoadServerIcon.class, "load [the] server icon (from|of) [the] [image] [file] %string%");
 	}
 
-	private static final boolean PAPER_EVENT_EXISTS = Skript.classExists("com.destroystokyo.paper.event.server.PaperServerListPingEvent");
-
-	@SuppressWarnings("null")
-	private Expression<String> path;
+	private Expression<String> file;
 
 	@Nullable
 	public static CachedServerIcon lastLoaded = null;
 
-	@SuppressWarnings({"unchecked", "null"})
 	@Override
-	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
+	@SuppressWarnings("unchecked")
+	public boolean init(Expression<?>[] expressions, int matchedPattern,
+						Kleenean isDelayed, ParseResult parseResult) {
 		getParser().setHasDelayBefore(Kleenean.TRUE);
-		if (!PAPER_EVENT_EXISTS) {
+
+		if (!SUPPORTS_SERVER_LIST_PING_EVENT) {
 			Skript.error("The load server icon effect requires Paper 1.12.2 or newer");
 			return false;
 		}
-		path = (Expression<String>) exprs[0];
+
+		file = (Expression<String>) expressions[0];
 		return true;
 	}
 
     @Override
     protected void execute(Event e) {
-		String pathString = path.getSingle(e);
+		String pathString = file.getSingle(e);
 		if (pathString == null)
 			return;
-		
-		Path p = Paths.get(pathString);
-		if (Files.isRegularFile(p)) {
+
+		Path path = Paths.get(pathString);
+		if (Files.isRegularFile(path)) {
 			try {
-				lastLoaded = Bukkit.loadServerIcon(p.toFile());
+				lastLoaded = Bukkit.loadServerIcon(path.toFile());
 			} catch (NullPointerException | IllegalArgumentException ignored) {
 			} catch (Exception ex) {
 				Skript.exception(ex);
@@ -97,8 +78,8 @@ public class EffLoadServerIcon extends AsyncEffect {
     }
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
-		return "load server icon from file " + path.toString(e, debug);
+	public String toString(@Nullable Event event, boolean debug) {
+		return "load server icon from file " + file.toString(event, debug);
 	}
 
 }

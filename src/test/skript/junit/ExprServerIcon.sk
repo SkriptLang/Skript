@@ -1,0 +1,22 @@
+test "ExprServerIconJUnit" when running JUnit:
+	set {_test} to "org.skriptlang.skript.test.tests.syntaxes.expressions.ExprServerIconTest"
+
+	set {_tests::1} to "set server icon"
+	set {_tests::2} to "reset server icon"
+
+	ensure junit test {_test} completes {_tests::*}
+
+on server list ping:
+	set {_test} to "org.skriptlang.skript.test.tests.syntaxes.expressions.ExprServerIconTest"
+	junit test is {_test}
+
+	load server icon from "server-icon.png"
+	set {_icon} to last loaded server icon
+	set server icon to {_icon}
+
+	if server icon is not {_icon}:
+		complete objective "set server icon" for {_test}
+
+	reset server icon
+	if server icon is not default server icon:
+		complete objective "reset server icon" for {_test}
