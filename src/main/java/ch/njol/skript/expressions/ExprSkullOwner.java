@@ -1,21 +1,3 @@
-/**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
 package ch.njol.skript.expressions;
 
 import ch.njol.skript.classes.Changer.ChangeMode;
@@ -25,6 +7,7 @@ import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import ch.njol.util.coll.CollectionUtils;
+import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
@@ -65,12 +48,16 @@ public class ExprSkullOwner extends SimplePropertyExpression<Block, OfflinePlaye
 	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
 		OfflinePlayer offlinePlayer = (OfflinePlayer) delta[0];
 		for (Block block : getExpr().getArray(event)) {
-			BlockState state = block.getState();
-			if (state instanceof Skull) {
-				Skull skull = (Skull) state;
+			if (!(block.getState() instanceof Skull skull))
+				continue;
+
+			if (offlinePlayer.getName() != null) {
 				skull.setOwningPlayer(offlinePlayer);
-				skull.update(true, false);
+			} else {
+				//noinspection deprecation
+				skull.setOwnerProfile(Bukkit.createPlayerProfile(offlinePlayer.getUniqueId(), ""));
 			}
+			skull.update(true, false);
 		}
 	}
 
