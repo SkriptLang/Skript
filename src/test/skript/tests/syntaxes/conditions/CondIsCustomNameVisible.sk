@@ -8,4 +8,8 @@ test "custom name visibility":
 
 	assert {_z}'s custom name is visible with "Setting an entity's display name sets the visibility to true"
 
+	hide {_z}'s custom name
+
+	assert {_z}'s custom name isn't visible with "New effect should hide the custom name"
+
 	delete entity within {_z}
