@@ -16,10 +16,10 @@ import org.jetbrains.annotations.Nullable;
 	"send target's fire damage delay"
 })
 @Since("INSERT VERSION")
-public class ExprMaxFireTicks extends SimplePropertyExpression<Entity, Timespan> {
+public class ExprFireDamageDelay extends SimplePropertyExpression<Entity, Timespan> {
 
 	static {
-		register(ExprMaxFireTicks.class, Timespan.class, "fire damage delay", "entities");
+		register(ExprFireDamageDelay.class, Timespan.class, "fire damage delay", "entities");
 	}
 
 	@Override
