@@ -1,9 +1,8 @@
 package ch.njol.skript.expressions;
 
-import org.bukkit.Bukkit;
+import ch.njol.skript.bukkitutil.ItemUtils;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
-import org.bukkit.inventory.meta.SkullMeta;
 import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.aliases.ItemType;
@@ -29,16 +28,7 @@ public class ExprSkull extends SimplePropertyExpression<OfflinePlayer, ItemType>
 	@Override
 	public @Nullable ItemType convert(OfflinePlayer player) {
 		ItemType skull = new ItemType(Material.PLAYER_HEAD);
-		SkullMeta meta = (SkullMeta) skull.getItemMeta();
-
-		if (player.getName() != null) {
-			meta.setOwningPlayer(player);
-		} else {
-			//noinspection deprecation
-			meta.setOwnerProfile(Bukkit.createPlayerProfile(player.getUniqueId(), ""));
-		}
-
-		skull.setItemMeta(meta);
+		ItemUtils.setHeadOwner(skull, player);
 		return skull;
 	}
 

@@ -1,5 +1,6 @@
 package ch.njol.skript.expressions;
 
+import ch.njol.skript.bukkitutil.ItemUtils;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
@@ -48,15 +49,19 @@ public class ExprSkullOwner extends SimplePropertyExpression<Block, OfflinePlaye
 	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
 		OfflinePlayer offlinePlayer = (OfflinePlayer) delta[0];
 		for (Block block : getExpr().getArray(event)) {
-			if (!(block.getState() instanceof Skull))
+			BlockState state = block.getState();
+			if (!(state instanceof Skull))
 				continue;
 
-			Skull skull = (Skull) block.getState();
+			Skull skull = (Skull) state;
 			if (offlinePlayer.getName() != null) {
 				skull.setOwningPlayer(offlinePlayer);
-			} else {
+			} else if (ItemUtils.CAN_CREATE_PLAYER_PROFILE) {
 				//noinspection deprecation
 				skull.setOwnerProfile(Bukkit.createPlayerProfile(offlinePlayer.getUniqueId(), ""));
+			} else {
+				//noinspection deprecation
+				skull.setOwner("");
 			}
 			skull.update(true, false);
 		}

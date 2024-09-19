@@ -19,7 +19,11 @@ import ch.njol.yggdrasil.FieldHandler;
 import ch.njol.yggdrasil.Fields;
 import ch.njol.yggdrasil.Fields.FieldContext;
 import ch.njol.yggdrasil.YggdrasilSerializable.YggdrasilExtendedSerializable;
-import org.bukkit.*;
+import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.OfflinePlayer;
+import org.bukkit.Tag;
+import org.bukkit.Bukkit;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.Skull;
@@ -383,13 +387,17 @@ public class ItemType implements Unit, Iterable<ItemData>, Container<ItemStack>,
 
 			if (itemMeta instanceof SkullMeta) {
 				OfflinePlayer offlinePlayer = ((SkullMeta) itemMeta).getOwningPlayer();
-				if (offlinePlayer == null) continue;
+				if (offlinePlayer == null)
+					continue;
 				Skull skull = (Skull) block.getState();
 				if (offlinePlayer.getName() != null) {
 					skull.setOwningPlayer(offlinePlayer);
-				} else {
+				} else if (ItemUtils.CAN_CREATE_PLAYER_PROFILE) {
 					//noinspection deprecation
 					skull.setOwnerProfile(Bukkit.createPlayerProfile(offlinePlayer.getUniqueId(), ""));
+				} else {
+					//noinspection deprecation
+					skull.setOwner("");
 				}
 				skull.update(false, applyPhysics);
 			}
