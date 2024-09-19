@@ -12,4 +12,8 @@ test "custom name visibility":
 
 	assert {_z}'s custom name isn't visible with "New effect should hide the custom name"
 
+	show {_z}'s custom name
+
+	assert {_z}'s custom name is visible with "New effect should show the custom name"
+
 	delete entity within {_z}
