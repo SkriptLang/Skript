@@ -1528,12 +1528,13 @@ public class BukkitClasses {
 				.description("Represents a transform reason of an <a href='events.html#entity transform'>entity transform event</a>.")
 				.since("2.8.0"));
 
-		if (Skript.classExists("org.bukkit.inventory.ItemFlag"))
+		if (Skript.classExists("org.bukkit.inventory.ItemFlag")) {
 			Classes.registerClass(new EnumClassInfo<>(ItemFlag.class, "itemflag", "item flags")
 				.user("item ?flags?")
 				.name("Item Flag")
 				.description("Represents flags that may be applied to hide certain attributes of an item.")
 				.since("INSERT VERSION"));
+		}
 	}
 
 }
