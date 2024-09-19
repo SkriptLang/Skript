@@ -27,3 +27,11 @@ jobs:
               run: chmod +x gradlew
             - name: Run checkstyle
               run: ./gradlew clean checkstyleMain
+            - name: Upload checkstyle report
+              uses: actions/upload-artifact@v4
+              if: success()
+              with:
+                  name: checkstyle-report
+                  path: |
+                    build/reports/checkstyle/*.xml
+                    build/reports/checkstyle/*.html
