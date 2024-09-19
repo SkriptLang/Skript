@@ -363,6 +363,8 @@ public class ClassInfo<T> implements Debuggable {
 
 	@Nullable
 	public Supplier<Iterator<T>> getSupplier() {
+		if (supplier == null && c.isEnum())
+			supplier = () -> new ArrayIterator<>(c.getEnumConstants());
 		return supplier;
 	}
 
