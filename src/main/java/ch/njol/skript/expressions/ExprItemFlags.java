@@ -81,7 +81,7 @@ public class ExprItemFlags extends PropertyExpression<ItemType, ItemFlag> {
 
 	@Override
 	public boolean isSingle() {
-		return getExpr().isSingle();
+		return false;
 	}
 
 	@Override
