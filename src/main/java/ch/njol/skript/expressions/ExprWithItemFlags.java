@@ -35,23 +35,18 @@ public class ExprWithItemFlags extends SimpleExpression<ItemType> {
 
 	private Expression<ItemFlag> itemFlags;
 	private Expression<ItemType> itemTypes;
-	private boolean allFlags;
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		itemTypes = (Expression<ItemType>) exprs[0];
-		if (matchedPattern == 2) {
-			allFlags = true;
-		} else {
-			itemFlags = (Expression<ItemFlag>) exprs[1];
-		}
+		itemFlags = (Expression<ItemFlag>) exprs[1];
 		return true;
 	}
 
 	@Override
 	protected ItemType[] get(Event event) {
 		ItemType[] types = itemTypes.getArray(event);
-		ItemFlag[] flags = allFlags ? ItemFlag.values() : itemFlags.getArray(event);
+		ItemFlag[] flags = itemFlags.getArray(event);
 
 		ItemType[] result = new ItemType[types.length];
 		for (int i = 0; i < types.length; i++) {
@@ -80,8 +75,6 @@ public class ExprWithItemFlags extends SimpleExpression<ItemType> {
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		if (allFlags)
-			return itemTypes.toString(event, debug) + " with all item flags";
 		return itemTypes.toString(event, debug) + " with item flags " + itemFlags.toString(event, debug);
 	}
 
