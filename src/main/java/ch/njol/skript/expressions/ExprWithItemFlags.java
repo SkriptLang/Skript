@@ -62,7 +62,6 @@ public class ExprWithItemFlags extends SimpleExpression<ItemType> {
 		return result;
 	}
 
-
 	@Override
 	public boolean isSingle() {
 		return itemTypes.isSingle();
