@@ -18,12 +18,10 @@
  */
 package ch.njol.skript.classes;
 
-import org.jetbrains.annotations.Nullable;
-
 import ch.njol.skript.lang.ParseContext;
-import ch.njol.skript.lang.parser.ParserInstance;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.StringMode;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * A parser used to parse data from a string or turn data into a string.
@@ -57,7 +55,7 @@ public abstract class Parser<T> {
 	 * @return Whether {@link #parse(String, ParseContext)} can actually return something other that null for the given context
 	 */
 	public boolean canParse(final ParseContext context) {
-		return true;
+		return false;
 	}
 	
 	/**
