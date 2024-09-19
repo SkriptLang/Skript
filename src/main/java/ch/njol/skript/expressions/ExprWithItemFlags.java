@@ -29,30 +29,29 @@ public class ExprWithItemFlags extends SimpleExpression<ItemType> {
 
 	static {
 		Skript.registerExpression(ExprWithItemFlags.class, ItemType.class, ExpressionType.COMBINED,
-			"%itemtype% with [the] item flag[s] %itemflags%",
-			"%itemtype% with [the] %itemflags% item flag[s]",
-			"%itemtype% with all [the] item flags [hidden]");
+			"%itemtypes% with [the] item flag[s] %itemflags%",
+			"%itemtypes% with [the] %itemflags% item flag[s]");
 	}
 
-	private Expression<ItemFlag> itemFlag;
-	private Expression<ItemType> itemType;
+	private Expression<ItemFlag> itemFlags;
+	private Expression<ItemType> itemTypes;
 	private boolean allFlags;
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		itemType = (Expression<ItemType>) exprs[0];
+		itemTypes = (Expression<ItemType>) exprs[0];
 		if (matchedPattern == 2) {
 			allFlags = true;
 		} else {
-			itemFlag = (Expression<ItemFlag>) exprs[1];
+			itemFlags = (Expression<ItemFlag>) exprs[1];
 		}
 		return true;
 	}
 
 	@Override
 	protected ItemType[] get(Event event) {
-		ItemType[] types = itemType.getArray(event);
-		ItemFlag[] flags = allFlags ? ItemFlag.values() : itemFlag.getArray(event);
+		ItemType[] types = itemTypes.getArray(event);
+		ItemFlag[] flags = allFlags ? ItemFlag.values() : itemFlags.getArray(event);
 
 		ItemType[] result = new ItemType[types.length];
 		for (int i = 0; i < types.length; i++) {
@@ -71,7 +70,7 @@ public class ExprWithItemFlags extends SimpleExpression<ItemType> {
 
 	@Override
 	public boolean isSingle() {
-		return itemType.isSingle();
+		return itemTypes.isSingle();
 	}
 
 	@Override
@@ -82,8 +81,8 @@ public class ExprWithItemFlags extends SimpleExpression<ItemType> {
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
 		if (allFlags)
-			return itemType.toString(event, debug) + " with all item flags";
-		return itemType.toString(event, debug) + " with item flags " + itemFlag.toString(event, debug);
+			return itemTypes.toString(event, debug) + " with all item flags";
+		return itemTypes.toString(event, debug) + " with item flags " + itemFlags.toString(event, debug);
 	}
 
 }

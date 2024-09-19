@@ -28,6 +28,7 @@ import java.util.Set;
 })
 @Since("INSERT VERSION")
 public class ExprItemFlags extends PropertyExpression<ItemType, ItemFlag> {
+
 	static {
 		register(ExprItemFlags.class, ItemFlag.class, "item flags", "itemtypes");
 	}
@@ -43,9 +44,7 @@ public class ExprItemFlags extends PropertyExpression<ItemType, ItemFlag> {
 		Set<ItemFlag> flags = new HashSet<>();
 		for (ItemType itemType : source) {
 			ItemMeta meta = itemType.getItemMeta();
-			if (meta != null) {
-				flags.addAll(meta.getItemFlags());
-			}
+			flags.addAll(meta.getItemFlags());
 		}
 		return flags.toArray(new ItemFlag[0]);
 	}
@@ -64,22 +63,25 @@ public class ExprItemFlags extends PropertyExpression<ItemType, ItemFlag> {
 
 		for (ItemType itemType : getExpr().getArray(event)) {
 			ItemMeta meta = itemType.getItemMeta();
-			if (meta != null) {
-				switch (mode) {
-					case SET -> {
-						meta.removeItemFlags(ItemFlag.values());
-						meta.addItemFlags(flags);
-					}
-					case ADD -> meta.addItemFlags(flags);
-					case REMOVE -> meta.removeItemFlags(flags);
-					case RESET, DELETE -> meta.removeItemFlags(ItemFlag.values());
-					default -> {
-						return;
-					}
+			switch (mode) {
+				case SET -> {
+					meta.removeItemFlags(ItemFlag.values());
+					meta.addItemFlags(flags);
 				}
-				itemType.setItemMeta(meta);
+				case ADD -> meta.addItemFlags(flags);
+				case REMOVE -> meta.removeItemFlags(flags);
+				case RESET, DELETE -> meta.removeItemFlags(ItemFlag.values());
+				default -> {
+					return;
+				}
 			}
+			itemType.setItemMeta(meta);
 		}
+	}
+
+	@Override
+	public boolean isSingle() {
+		return getExpr().isSingle();
 	}
 
 	@Override
