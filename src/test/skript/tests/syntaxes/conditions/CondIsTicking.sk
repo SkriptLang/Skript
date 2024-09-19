@@ -1,0 +1,18 @@
+test "is entity ticking":
+
+	spawn an adult zombie at location(512, 1, 512):
+		set {_z} to entity
+
+	assert {_z} isn't ticking with "Chunk isn't loaded, therefore should not tick"
+
+	make console execute command "forceload add 32 32"
+
+	wait 5 ticks
+
+	assert {_z} is ticking with "Chunk is loaded, therefore should tick"
+
+	make console execute command "forceload remove all"
+
+	assert {_z} isn't ticking with "Chunk isn't loaded, therefore should not tick"
+
+	delete entity within {_z}
