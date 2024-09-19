@@ -68,6 +68,11 @@ public class EffAssert extends Effect  {
 	@Override
 	@SuppressWarnings("unchecked")
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
+		if (isDelayed == Kleenean.TRUE && !TestMode.JUNIT && !TestMode.DEV_MODE) {
+			Skript.error("Assertions cannot be delayed");
+			return false;
+		}
+
 		String conditionString = parseResult.regexes.get(0).group();
 		errorMsg = (Expression<String>) exprs[0];
 		boolean canInit = true;
