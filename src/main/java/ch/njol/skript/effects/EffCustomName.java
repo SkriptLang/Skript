@@ -3,7 +3,7 @@ package ch.njol.skript.effects;
 import ch.njol.skript.Skript;
 import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.SkriptParser;
+import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
 import org.bukkit.entity.Entity;
 import org.bukkit.event.Event;
@@ -14,22 +14,22 @@ public class EffCustomName extends Effect {
 	static {
 		Skript.registerEffect(EffCustomName.class,
 			"(:show|hide) [the] (custom|display)[ ]name of %entities%",
-					  "(:show|hide) %entities%'[s] (custom|display)[ ]name");
+			"(:show|hide) %entities%'[s] (custom|display)[ ]name");
 	}
 
-	Boolean showCustomName;
-	Expression<Entity> entities;
+	private Boolean showCustomName;
+	private Expression<Entity> entities;
 
 	@Override
-	public boolean init(Expression<?>[] expr, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
+	public boolean init(Expression<?>[] expr, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		showCustomName = parseResult.hasTag("show");
 		entities = (Expression<Entity>) expr[0];
 		return true;
 	}
 
 	@Override
-	protected void execute(Event e) {
-		for (Entity entity : entities.getArray(e)) {
+	protected void execute(Event event) {
+		for (Entity entity : entities.getArray(event)) {
 			entity.setCustomNameVisible(showCustomName);
 		}
 	}
