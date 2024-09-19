@@ -17,7 +17,7 @@ public class EffCustomName extends Effect {
 			"(:show|hide) %entities%'[s] (custom|display)[ ]name");
 	}
 
-	private Boolean showCustomName;
+	private boolean showCustomName;
 	private Expression<Entity> entities;
 
 	@Override
