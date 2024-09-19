@@ -24,7 +24,7 @@ import ch.njol.skript.lang.VerboseAssert;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.LiteralUtils;
 import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.comparator.Relation;
 import org.skriptlang.skript.lang.script.Script;
 

@@ -22,7 +22,7 @@ import ch.njol.skript.SkriptAPIException;
 import ch.njol.skript.SkriptConfig;
 import org.bukkit.event.Event;
 import org.bukkit.event.player.PlayerInteractAtEntityEvent;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.structure.StructureInfo;
 import ch.njol.skript.lang.SkriptEvent.ListeningBehavior;
 

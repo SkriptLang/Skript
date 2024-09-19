@@ -1,0 +1,2 @@
+test "overflow exponents":
+	assert 10 ^ 25 is 10000000000000000000000000 with "exponentiation was unexpectedly capped"

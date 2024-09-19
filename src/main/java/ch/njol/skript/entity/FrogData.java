@@ -23,7 +23,7 @@ import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser;
 import org.bukkit.entity.Frog;
 import org.bukkit.entity.Frog.Variant;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 

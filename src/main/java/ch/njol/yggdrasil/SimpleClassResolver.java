@@ -20,7 +20,7 @@ package ch.njol.yggdrasil;
 
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
