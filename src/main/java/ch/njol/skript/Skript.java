@@ -29,7 +29,7 @@ import ch.njol.skript.lang.SyntaxElementInfo;
 import ch.njol.skript.lang.Trigger;
 import ch.njol.skript.lang.TriggerItem;
 import ch.njol.skript.lang.util.SimpleExpression;
-import ch.njol.skript.listeners.ScriptLoad;
+import ch.njol.skript.listeners.NodeConversions;
 import ch.njol.skript.localization.Language;
 import ch.njol.skript.localization.Message;
 import ch.njol.skript.localization.PluralizingArgsMessage;
@@ -372,7 +372,7 @@ public final class Skript extends JavaPlugin implements Listener {
 	@Override
 	public void onEnable() {
 		Bukkit.getPluginManager().registerEvents(this, this);
-		Bukkit.getPluginManager().registerEvents(new ScriptLoad(), this);
+		Bukkit.getPluginManager().registerEvents(new NodeConversions(), this);
 		if (disabled) {
 			Skript.error(m_invalid_reload.toString());
 			setEnabled(false);
@@ -1349,7 +1349,7 @@ public final class Skript extends JavaPlugin implements Listener {
 
 	/**
 	 * registers a {@link Condition}.
-	 * 
+	 *
 	 * @param condition The condition's class
 	 * @param type The conditions {@link ConditionType type}. This is used to determine in which order to try to parse conditions.
 	 * @param patterns Skript patterns to match this condition

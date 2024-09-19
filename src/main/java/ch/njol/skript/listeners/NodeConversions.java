@@ -7,10 +7,10 @@ import org.bukkit.event.Listener;
 
 import java.util.*;
 
-public class ScriptLoad implements Listener {
+public class NodeConversions implements Listener {
 
 	@EventHandler
-	public void onScriptLoad(PreScriptLoadEvent e) {
+	public void onNodeConversion(PreScriptLoadEvent e) {
 		List<Node> nodesToRemove = new ArrayList<>();
 		List<Node> nodesToAdd = new ArrayList<>();
 		for (Config item : e.getScripts()) {
