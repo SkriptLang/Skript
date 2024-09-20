@@ -1,0 +1,19 @@
+test "teleport":
+	spawn pig at location(0, 0, 0):
+		set {_pig} to entity
+	teleport {_pig} to location(1, 30, 1)
+	assert location of {_pig} is location(1, 30, 1) with "failed to teleport entity"
+	delete entity within {_pig}
+
+test "teleport flags":
+	spawn pig at location(0, 0, 0):
+		set {_pig} to entity
+	spawn pig at location(0, 0, 0):
+		make entity ride {_pig}
+		set {_pig2} to entity
+	teleport {_pig} to location(1, 30, 1) retaining passengers, xyz velocity, and yaw and pitch velocity
+	assert location of {_pig} is location(1, 30, 1) with "failed to teleport entity"
+	assert passenger of {_pig} is {_pig2} with "failed to retain passenger"
+
+	delete entity within {_pig2}
+	delete entity within {_pig}
