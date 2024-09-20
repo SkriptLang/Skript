@@ -29,12 +29,14 @@ import java.nio.file.Paths;
 			"\t\tadd the last loaded server icon to {server-icons::*}",
 	"",
 	"on server list ping:",
-		"\tset the icon to a random server icon out of {server-icons::*}"})
+		"\tset the icon to a random server icon out of {server-icons::*}"
+})
 @Since("2.3")
 @RequiredPlugins("Paper 1.12.2 or newer")
 public class EffLoadServerIcon extends AsyncEffect {
 
-	private static final boolean SUPPORTS_SERVER_LIST_PING_EVENT = Skript.classExists("com.destroystokyo.paper.event.server.PaperServerListPingEvent");
+	private static final boolean SUPPORTS_SERVER_LIST_PING_EVENT =
+		Skript.classExists("com.destroystokyo.paper.event.server.PaperServerListPingEvent");
 
 	static {
 		Skript.registerEffect(EffLoadServerIcon.class, "load [the] server icon (from|of) [the] [image] [file] %string%");
@@ -42,8 +44,7 @@ public class EffLoadServerIcon extends AsyncEffect {
 
 	private Expression<String> file;
 
-	@Nullable
-	public static CachedServerIcon lastLoaded = null;
+	public static @Nullable CachedServerIcon lastLoaded = null;
 
 	@Override
 	@SuppressWarnings("unchecked")

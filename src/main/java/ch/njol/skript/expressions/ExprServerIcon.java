@@ -24,7 +24,8 @@ import org.jetbrains.annotations.Nullable;
 })
 @Examples({
 	"on script load:",
-	"\tset {server-icons::default} to the default server icon"})
+		"\tset {server-icons::default} to the default server icon"
+})
 @Since("2.3")
 @RequiredPlugins("Paper 1.12.2 or newer")
 public class ExprServerIcon extends SimpleExpression<CachedServerIcon> {
@@ -84,7 +85,7 @@ public class ExprServerIcon extends SimpleExpression<CachedServerIcon> {
 		}
 
 		if (getParser().getHasDelayBefore().isTrue()) {
-			Skript.error("Can't change the server icon anymore after the server list ping event has already passed");
+			Skript.error("The server icon can't be changed after the server list ping event has passed");
 			return null;
 		}
 
