@@ -36,9 +36,7 @@ public abstract class Parser<T> {
 	/**
 	 * @return Whether {@link #parse(String, ParseContext)} can actually return something other that null for the given context
 	 */
-	public boolean canParse(final ParseContext context) {
-		return false;
-	}
+	public abstract boolean canParse(final ParseContext context);
 	
 	/**
 	 * Returns a string representation of the given object to be used in messages.
