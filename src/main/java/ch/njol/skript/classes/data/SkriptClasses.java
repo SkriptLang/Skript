@@ -18,16 +18,6 @@
  */
 package ch.njol.skript.classes.data;
 
-import java.io.StreamCorruptedException;
-import java.util.Iterator;
-import java.util.Locale;
-import java.util.regex.Pattern;
-
-import org.bukkit.Material;
-import org.bukkit.enchantments.Enchantment;
-import org.bukkit.inventory.ItemStack;
-import org.jetbrains.annotations.Nullable;
-
 import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.Aliases;
 import ch.njol.skript.aliases.ItemData;
@@ -64,8 +54,16 @@ import ch.njol.skript.util.slot.Slot;
 import ch.njol.skript.util.visual.VisualEffect;
 import ch.njol.skript.util.visual.VisualEffects;
 import ch.njol.yggdrasil.Fields;
+import org.bukkit.Material;
+import org.bukkit.enchantments.Enchantment;
+import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.Nullable;
 
+import java.io.StreamCorruptedException;
 import java.util.Arrays;
+import java.util.Iterator;
+import java.util.Locale;
+import java.util.regex.Pattern;
 
 /**
  * @author Peter Güttinger
@@ -91,6 +89,12 @@ public class SkriptClasses {
 				.after("entitydata", "entitytype", "itemtype")
 				.supplier(() -> (Iterator) Classes.getClassInfos().iterator())
 				.parser(new Parser<ClassInfo>() {
+
+					@Override
+					public boolean canParse(ParseContext context) {
+						return true;
+					}
+
 					@Override
 					@Nullable
 					public ClassInfo parse(final String s, final ParseContext context) {
@@ -166,6 +170,12 @@ public class SkriptClasses {
 				.since("1.0")
 				.defaultExpression(new SimpleLiteral<>(WeatherType.CLEAR, true))
 				.parser(new Parser<WeatherType>() {
+
+					@Override
+					public boolean canParse(ParseContext context) {
+						return true;
+					}
+
 					@Override
 					@Nullable
 					public WeatherType parse(final String s, final ParseContext context) {
@@ -206,6 +216,12 @@ public class SkriptClasses {
 					.map(ItemType::new)
 					.iterator())
 				.parser(new Parser<ItemType>() {
+
+					@Override
+					public boolean canParse(ParseContext context) {
+						return true;
+					}
+
 					@Override
 					@Nullable
 					public ItemType parse(final String s, final ParseContext context) {
@@ -261,6 +277,12 @@ public class SkriptClasses {
 				.since("1.0")
 				.defaultExpression(new EventValueExpression<>(Time.class))
 				.parser(new Parser<Time>() {
+
+					@Override
+					public boolean canParse(ParseContext context) {
+						return true;
+					}
+
 					@Override
 					@Nullable
 					public Time parse(final String s, final ParseContext context) {
@@ -294,6 +316,12 @@ public class SkriptClasses {
 						"	halt for 12.7 irl minutes, 12 hours and 120.5 seconds")
 				.since("1.0, 2.6.1 (weeks, months, years)")
 				.parser(new Parser<Timespan>() {
+
+					@Override
+					public boolean canParse(ParseContext context) {
+						return true;
+					}
+
 					@Override
 					@Nullable
 					public Timespan parse(final String s, final ParseContext context) {
@@ -329,6 +357,12 @@ public class SkriptClasses {
 				.before("timespan") // otherwise "day" gets parsed as '1 day'
 				.defaultExpression(new SimpleLiteral<>(new Timeperiod(0, 23999), true))
 				.parser(new Parser<Timeperiod>() {
+
+					@Override
+					public boolean canParse(ParseContext context) {
+						return true;
+					}
+
 					@Override
 					@Nullable
 					public Timeperiod parse(final String s, final ParseContext context) {
@@ -542,6 +576,12 @@ public class SkriptClasses {
 				.since("")
 				.supplier(SkriptColor.values())
 				.parser(new Parser<Color>() {
+
+					@Override
+					public boolean canParse(ParseContext context) {
+						return true;
+					}
+
 					@Override
 					@Nullable
 					public Color parse(String input, ParseContext context) {
@@ -572,6 +612,12 @@ public class SkriptClasses {
 				.since("")
 				.defaultExpression(new SimpleLiteral<>(StructureType.TREE, true))
 				.parser(new Parser<StructureType>() {
+
+					@Override
+					public boolean canParse(ParseContext context) {
+						return true;
+					}
+
 					@Override
 					@Nullable
 					public StructureType parse(final String s, final ParseContext context) {
@@ -598,6 +644,12 @@ public class SkriptClasses {
 						"helmet is enchanted with waterbreathing")
 				.since("1.4.6")
 				.parser(new Parser<EnchantmentType>() {
+
+					@Override
+					public boolean canParse(ParseContext context) {
+						return true;
+					}
+
 					@Override
 					@Nullable
 					public EnchantmentType parse(final String s, final ParseContext context) {
@@ -626,7 +678,12 @@ public class SkriptClasses {
 				.since("2.0")
 				.parser(new Parser<Experience>() {
 					private final RegexMessage pattern = new RegexMessage("types.experience.pattern", Pattern.CASE_INSENSITIVE);
-					
+
+					@Override
+					public boolean canParse(ParseContext context) {
+						return true;
+					}
+
 					@Override
 					@Nullable
 					public Experience parse(String s, final ParseContext context) {
@@ -663,6 +720,12 @@ public class SkriptClasses {
 				.user("(visual|particle) effects?")
 				.after("itemtype")
 				.parser(new Parser<VisualEffect>() {
+
+					@Override
+					public boolean canParse(ParseContext context) {
+						return true;
+					}
+
 					@Override
 					@Nullable
 					public VisualEffect parse(String s, ParseContext context) {

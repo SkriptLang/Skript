@@ -18,18 +18,32 @@
  */
 package ch.njol.skript.classes.data;
 
-import java.io.StreamCorruptedException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map.Entry;
-import java.util.UUID;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
-
+import ch.njol.skript.Skript;
+import ch.njol.skript.SkriptConfig;
+import ch.njol.skript.aliases.Aliases;
+import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.bukkitutil.BukkitUtils;
+import ch.njol.skript.bukkitutil.EnchantmentUtils;
+import ch.njol.skript.bukkitutil.ItemUtils;
+import ch.njol.skript.classes.ClassInfo;
+import ch.njol.skript.classes.ConfigurationSerializer;
+import ch.njol.skript.classes.EnumClassInfo;
+import ch.njol.skript.classes.Parser;
+import ch.njol.skript.classes.Serializer;
+import ch.njol.skript.classes.registry.RegistryClassInfo;
+import ch.njol.skript.entity.EntityData;
+import ch.njol.skript.expressions.ExprDamageCause;
+import ch.njol.skript.expressions.base.EventValueExpression;
+import ch.njol.skript.lang.ParseContext;
+import ch.njol.skript.lang.util.SimpleLiteral;
+import ch.njol.skript.localization.Language;
+import ch.njol.skript.registrations.Classes;
+import ch.njol.skript.util.BlockUtils;
+import ch.njol.skript.util.PotionEffectUtils;
+import ch.njol.skript.util.StringMode;
+import ch.njol.util.StringUtils;
+import ch.njol.yggdrasil.Fields;
+import io.papermc.paper.world.MoonPhase;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.Difficulty;
@@ -79,33 +93,18 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.CachedServerIcon;
 import org.bukkit.util.Vector;
-
-import ch.njol.skript.Skript;
-import ch.njol.skript.SkriptConfig;
-import ch.njol.skript.aliases.Aliases;
-import ch.njol.skript.aliases.ItemType;
-import ch.njol.skript.bukkitutil.EnchantmentUtils;
-import ch.njol.skript.bukkitutil.ItemUtils;
-import ch.njol.skript.classes.ClassInfo;
-import ch.njol.skript.classes.ConfigurationSerializer;
-import ch.njol.skript.classes.EnumClassInfo;
-import ch.njol.skript.classes.Parser;
-import ch.njol.skript.classes.Serializer;
-import ch.njol.skript.classes.registry.RegistryClassInfo;
-import ch.njol.skript.entity.EntityData;
-import ch.njol.skript.expressions.ExprDamageCause;
-import ch.njol.skript.expressions.base.EventValueExpression;
-import ch.njol.skript.lang.ParseContext;
-import ch.njol.skript.lang.util.SimpleLiteral;
-import ch.njol.skript.localization.Language;
-import ch.njol.skript.registrations.Classes;
-import ch.njol.skript.util.BlockUtils;
-import ch.njol.skript.util.PotionEffectUtils;
-import ch.njol.skript.util.StringMode;
-import ch.njol.util.StringUtils;
-import ch.njol.yggdrasil.Fields;
-import io.papermc.paper.world.MoonPhase;
 import org.jetbrains.annotations.Nullable;
+
+import java.io.StreamCorruptedException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map.Entry;
+import java.util.UUID;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 /**
  * @author Peter Güttinger
@@ -306,12 +305,18 @@ public class BukkitClasses {
 				.after("itemtype")
 				.since("2.5")
 				.parser(new Parser<BlockData>() {
+
+					@Override
+					public boolean canParse(ParseContext context) {
+						return true;
+					}
+
 					@Nullable
 					@Override
 					public BlockData parse(String input, ParseContext context) {
 						return BlockUtils.createBlockData(input);
 					}
-	
+
 					@Override
 					public String toString(BlockData o, int flags) {
 						return o.getAsString().replace(",", ";");
@@ -536,7 +541,12 @@ public class BukkitClasses {
 				.parser(new Parser<World>() {
 					@SuppressWarnings("null")
 					private final Pattern parsePattern = Pattern.compile("(?:(?:the )?world )?\"(.+)\"", Pattern.CASE_INSENSITIVE);
-					
+
+					@Override
+					public boolean canParse(ParseContext context) {
+						return true;
+					}
+
 					@Override
 					@Nullable
 					public World parse(final String s, final ParseContext context) {
@@ -936,6 +946,12 @@ public class BukkitClasses {
 					.map(ItemStack::new)
 					.iterator())
 				.parser(new Parser<ItemStack>() {
+
+					@Override
+					public boolean canParse(ParseContext context) {
+						return true;
+					}
+
 					@Override
 					@Nullable
 					public ItemStack parse(final String s, final ParseContext context) {
@@ -1075,6 +1091,12 @@ public class BukkitClasses {
 				.since("")
 				.supplier(PotionEffectType.values())
 				.parser(new Parser<PotionEffectType>() {
+
+					@Override
+					public boolean canParse(ParseContext context) {
+						return true;
+					}
+
 					@Override
 					@Nullable
 					public PotionEffectType parse(final String s, final ParseContext context) {
@@ -1434,6 +1456,12 @@ public class BukkitClasses {
 			.requiredPlugins("Minecraft 1.13 or newer")
 			.supplier(GameRule.values())
 			.parser(new Parser<GameRule>() {
+
+				@Override
+				public boolean canParse(ParseContext context) {
+					return true;
+				}
+
 				@Override
 				@Nullable
 				public GameRule parse(final String input, final ParseContext context) {

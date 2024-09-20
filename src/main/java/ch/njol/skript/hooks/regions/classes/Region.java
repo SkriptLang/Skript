@@ -55,6 +55,12 @@ public abstract class Region implements YggdrasilExtendedSerializable {
 				.user("regions?")
 				.requiredPlugins("Supported regions plugin")
 				.parser(new Parser<Region>() {
+
+					@Override
+					public boolean canParse(ParseContext context) {
+						return true;
+					}
+
 					@Override
 					@Nullable
 					public Region parse(String s, final ParseContext context) {
