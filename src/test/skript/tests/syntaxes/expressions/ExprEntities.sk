@@ -8,7 +8,7 @@ test "entities in chunk":
 
 	loop all sheep in chunk at spawn of world "world":
 		add loop-entity to {_e::*}
-	assert size of {_e::*} >= 10 with "Size of all sheep in spawn chunk is not > 10 (iterating): %size of {_e::*}%"
+	assert size of {_e::*} >= 10 with "Size of all sheep in spawn chunk is not >= 10 (iterating): %size of {_e::*}%"
 
 	clear entities within {_e::*}
 	assert entities within {_e::*} where [entity input is valid] is not set with "Not all the sheep were cleared"
