@@ -24,7 +24,11 @@ import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
+import ch.njol.skript.lang.Expression;
+import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.util.Timespan;
+import ch.njol.skript.util.Timespan.TimePeriod;
+import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.entity.Entity;
 import org.bukkit.event.Event;
@@ -37,40 +41,52 @@ import org.jetbrains.annotations.Nullable;
 public class ExprFireTicks extends SimplePropertyExpression<Entity, Timespan> {
 
 	static {
-		register(ExprFireTicks.class, Timespan.class, "(burn[ing]|fire) (time|duration)", "entities");
+		register(ExprFireTicks.class, Timespan.class, "[:max[imum]] (burn[ing]|fire) (time|duration)", "entities");
+	}
+
+	private boolean max;
+
+	@Override
+	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
+		max = (parseResult.hasTag("max"));
+		return true;
 	}
 
 	@Override
 	@Nullable
 	public Timespan convert(Entity entity) {
-		return Timespan.fromTicks(Math.max(entity.getFireTicks(), 0));
+		return new Timespan(TimePeriod.TICK, (max ? entity.getMaxFireTicks() : Math.max(entity.getFireTicks(), 0)));
 	}
 
 	@Override
 	@Nullable
 	public Class<?>[] acceptChange(ChangeMode mode) {
-		return (mode != ChangeMode.REMOVE_ALL) ? CollectionUtils.array(Timespan.class) :  null;
+		if (!max)
+			return (mode != ChangeMode.REMOVE_ALL) ? CollectionUtils.array(Timespan.class) :  null;
+		return null;
 	}
 
 	@Override
 	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
-		Entity[] entities = getExpr().getArray(event);
-		int change = delta == null ? 0 : (int) ((Timespan) delta[0]).getTicks();
-		switch (mode) {
-			case REMOVE:
-				change = -change;
-			case ADD:
-				for (Entity entity : entities)
-					entity.setFireTicks(entity.getFireTicks() + change);
-				break;
-			case DELETE:
-			case RESET:
-			case SET:
-				for (Entity entity : entities)
-					entity.setFireTicks(change);
-				break;
-			default:
-				assert false;
+		if (!max) {
+			Entity[] entities = getExpr().getArray(event);
+			int change = delta == null ? 0 : (int) ((Timespan) delta[0]).getTicks();
+			switch (mode) {
+				case REMOVE:
+					change = -change;
+				case ADD:
+					for (Entity entity : entities)
+						entity.setFireTicks(entity.getFireTicks() + change);
+					break;
+				case DELETE:
+				case RESET:
+				case SET:
+					for (Entity entity : entities)
+						entity.setFireTicks(change);
+					break;
+				default:
+					assert false;
+			}
 		}
 	}
 

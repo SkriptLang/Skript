@@ -22,13 +22,15 @@ public class CondFromMobSpawner extends PropertyCondition<Entity> {
 	static {
 		if (Skript.methodExists(Entity.class, "fromMobSpawner"))
 			Skript.registerCondition(CondFromMobSpawner.class,
-				"%entities%('s | is| are) from [a] [mob] spawner",
-				"%entities% (isn't|aren't|is not|are not) from [a] [mob] spawner");
+				"%entities% (is|are) from a [mob] spawner",
+				"%entities% (isn't|aren't|is not|are not) from a [mob] spawner",
+				"%entities% (was|were) spawned (from|by) a [mob] spawner",
+				"%entities% (wasn't|weren't) spawned (from|by) a [mob] spawner");
 	}
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		setNegated(matchedPattern == 1);
+		setNegated(matchedPattern == 1 || matchedPattern == 3);
 		setExpr((Expression<Entity>) exprs[0]);
 		return true;
 	}
