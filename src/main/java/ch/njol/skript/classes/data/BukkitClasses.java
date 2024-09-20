@@ -38,6 +38,7 @@ import org.bukkit.GameMode;
 import org.bukkit.GameRule;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.Registry;
 import org.bukkit.SoundCategory;
@@ -49,6 +50,8 @@ import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.DoubleChest;
 import org.bukkit.block.data.BlockData;
+import org.bukkit.block.structure.Mirror;
+import org.bukkit.block.structure.StructureRotation;
 import org.bukkit.command.CommandSender;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.enchantments.EnchantmentOffer;
@@ -77,6 +80,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.metadata.Metadatable;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
+import org.bukkit.structure.Structure;
 import org.bukkit.util.CachedServerIcon;
 import org.bukkit.util.Vector;
 
@@ -102,6 +106,7 @@ import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.BlockUtils;
 import ch.njol.skript.util.PotionEffectUtils;
 import ch.njol.skript.util.StringMode;
+import ch.njol.skript.util.Utils;
 import ch.njol.util.StringUtils;
 import ch.njol.yggdrasil.Fields;
 import io.papermc.paper.world.MoonPhase;
@@ -1526,6 +1531,60 @@ public class BukkitClasses {
 				.name("Transform Reason")
 				.description("Represents a transform reason of an <a href='events.html#entity transform'>entity transform event</a>.")
 				.since("2.8.0"));
+
+    if (Skript.classExists("org.bukkit.structure.Structure")) {
+			Classes.registerClass(new ClassInfo<>(Structure.class, "structure")
+					.user("structures?")
+					.name("Structure")
+					.description("Represents a structure in a namespace.")
+					.defaultExpression(new EventValueExpression<>(Structure.class))
+					.requiredPlugins("Minecraft 1.17.1")
+					.since("INSERT VERSION")
+					.parser(new Parser<Structure>() {
+						@Override
+						@Nullable
+						public Structure parse(String input, ParseContext context) {
+							NamespacedKey key = Utils.getNamespacedKey(input);
+							if (key == null)
+								return null;
+							return Bukkit.getStructureManager().loadStructure(key, false);
+						}
+
+						@Override
+						public boolean canParse(ParseContext context) {
+							return context != ParseContext.CONFIG;
+						}
+
+						@Override
+						public String toString(Structure structure, int flags) {
+							return Bukkit.getStructureManager().getStructures().entrySet().stream()
+									.filter(entry -> entry.getValue().equals(structure))
+									.map(entry -> "structure " + entry.getKey().asString())
+									.findFirst()
+									.orElse("structure " + structure.toString());
+						}
+
+						@Override
+						public String toVariableNameString(Structure structure) {
+							return toString(structure, 0);
+						}
+					}));
+
+			Classes.registerClass(new EnumClassInfo<>(StructureRotation.class, "structurerotation", "structure rotations")
+					.user("structure ?rotations?")
+					.name("Structure Rotations")
+					.description("Represents a rotation a structure can be rotated as when placed.")
+					.requiredPlugins("Minecraft 1.17.1")
+					.since("INSERT VERSION"));
+
+			Classes.registerClass(new EnumClassInfo<>(Mirror.class, "mirror", "mirrors")
+					.user("mirrors?")
+					.name("mirror")
+					.description("Represents a mirror setting a structure can be when placed.")
+					.requiredPlugins("Minecraft 1.17.1")
+					.since("INSERT VERSION"));
+		}
+
 	}
 
 }
