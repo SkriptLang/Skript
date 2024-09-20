@@ -481,7 +481,6 @@ public final class Skript extends JavaPlugin implements Listener {
 		// ... but also before platform check, because there is a config option to ignore some errors
 		SkriptConfig.load();
 
-		// Loaded before anything that might use them
 		CompletableFuture<Boolean> aliases = Aliases.loadAsync();
 
 		// Now override the verbosity if test mode is enabled
