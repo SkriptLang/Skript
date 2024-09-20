@@ -122,7 +122,7 @@ public class ExprMessage extends SimpleExpression<String> {
 			}
 
 			@Override
-			void set(Event event, final String message) {
+			void set(Event event, String message) {
 				if (event instanceof BroadcastMessageEvent broadcastMessageEvent)
 					broadcastMessageEvent.setMessage(message);
 			}
