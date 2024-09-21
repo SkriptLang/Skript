@@ -27,12 +27,6 @@ public class ExprChatVisibilityTest extends SkriptJUnitTest {
 			return;
 
 		player = EasyMock.niceMock(Player.class);
-	}
-
-	@Test
-	public void test() {
-		if (!SUPPORTS_CHAT_VISIBILITY)
-			return;
 
 		EasyMock.expect(player.getClientOption(ClientOption.CHAT_VISIBILITY))
 			.andReturn(ClientOption.ChatVisibility.SYSTEM);
@@ -40,8 +34,14 @@ public class ExprChatVisibilityTest extends SkriptJUnitTest {
 			.andReturn(false);
 		EasyMock.expect(player.getClientOption(ClientOption.CHAT_COLORS_ENABLED))
 			.andReturn(true);
+	}
 
-		Bukkit.getPluginManager().callEvent(new PlayerJoinEvent(player, ""));
+	@Test
+	public void test() {
+		if (!SUPPORTS_CHAT_VISIBILITY)
+			return;
+
+		Bukkit.getPluginManager().callEvent(new PlayerJoinEvent(player, "hi"));
 	}
 
 }
