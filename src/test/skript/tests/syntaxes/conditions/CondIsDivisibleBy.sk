@@ -1,0 +1,3 @@
+test "is divisible":
+	assert 5 can be divided by 5 with "5 can be divided by 5!"
+	assert 5 can be divided by 10 to fail with "5 cannot be divided by 10!"
