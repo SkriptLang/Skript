@@ -15,10 +15,10 @@ import org.jetbrains.annotations.Nullable;
 
 @Name("Divisible By")
 @Description("Check if a number is divisible by another number.")
-@Examples({"if 5 is divisible by 5:",
-		"if 1964903306 is divisible by 982451653:",
-		"if 11 cannot be divided by 10:",
-		"if 10007 cannnot be divided by 10007:"})
+@Examples({
+	"if 5 is divisible by 5:",
+	"if 11 cannot be divided by 10:",
+})
 @Since("INSERT VERSION")
 public class CondIsDivisibleBy extends Condition {
 
@@ -44,7 +44,7 @@ public class CondIsDivisibleBy extends Condition {
 	}
 
 	@Override
-	public boolean check(final Event event) {
+	public boolean check(Event event) {
 		Number number2 = dividedExpression.getSingle(event);
 		return divisorExpression.check(event, new Checker<Number>() {
 			@Override
