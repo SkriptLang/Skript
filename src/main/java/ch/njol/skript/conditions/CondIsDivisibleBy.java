@@ -8,6 +8,7 @@ import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Condition;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.util.Checker;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
@@ -23,8 +24,10 @@ public class CondIsDivisibleBy extends Condition {
 
 	static {
 		Skript.registerCondition(CondIsDivisibleBy.class,
-			"%number% (is|can be) (divisible|divided) by %number%",
-			"%number% (isn't|is not|can[ ]not be) (divisible|divided) by %number%");
+			"%numbers% (is|are) divisible by %number%",
+			"%numbers% (isn't|is not|aren't|are not) divisible by %number%",
+			"%numbers% can be [evenly] divided by %number%",
+			"%numbers% (can't|cannot|can not) be [evenly] divided by %number%");
 	}
 
 	@SuppressWarnings("null")
@@ -36,25 +39,21 @@ public class CondIsDivisibleBy extends Condition {
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		num1 = (Expression<Number>) exprs[0];
 		num2 = (Expression<Number>) exprs[1];
+		setNegated(matchedPattern == 1 || matchedPattern == 3);
 		return true;
 	}
 
 	@Override
-	public boolean check(Event event) {
-		Number number1 = num1.getSingle(event);
+	public boolean check(final Event event) {
 		Number number2 = num2.getSingle(event);
-
-		if (number1 == null || number2 == null) {
-			return false; // Prevent NullPointerException
-		}
-
-		double divisor = number2.doubleValue();
-
-		if (divisor == 0) {
-			return false; // Avoid division by zero
-		}
-
-		return number1.doubleValue() % divisor == 0;
+		return num1.check(event, new Checker<Number>() {
+			@Override
+			public boolean check(Number number1) {
+				double divided = number1.doubleValue();
+				double divisor = number2 != null ? number2.doubleValue() : 0;
+				return divided % divisor == 0;
+			}
+		}, isNegated());
 	}
 
 	@Override
