@@ -1,6 +1,7 @@
 package ch.njol.skript.expressions;
 
 import ch.njol.skript.Skript;
+import ch.njol.skript.classes.Changer;
 import ch.njol.skript.doc.*;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import com.destroystokyo.paper.ClientOption;
@@ -8,9 +9,9 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Nullable;
 
 @Name("Chat Visibility")
-@Description("The chat visibility of a player.")
+@Description("The chat visibility of a player. Can only be read.")
 @Examples({
-	"if chat visibility of player is hidden:",
+	"if chat visibility of player is hidden or commands only:",
 		"\tsend actionbar \"Server restart in 5 minutes\" to player"
 })
 @RequiredPlugins("Paper")
