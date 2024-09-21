@@ -1,3 +1,7 @@
 test "is divisible":
 	assert 5 can be divided by 5 with "5 can be divided by 5!"
-	assert 5 can be divided by 10 to fail with "5 cannot be divided by 10!"
+	assert 5 can not be divided by 10 to fail with "5 cannot be divided by 10!"
+	assert 5 isn't divisible by 0 to fail with "nothing can be divided by 0!"
+	assert 1964903306 is divisible by 982451653 with "1964903306 is divisible by 982451653!"
+	set {_none} to ("" parsed as int)
+	assert {_none} is divisible by 10 to fail with "you cannot divide by <none>!"

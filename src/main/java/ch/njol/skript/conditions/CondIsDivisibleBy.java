@@ -14,13 +14,17 @@ import org.jetbrains.annotations.Nullable;
 
 @Name("Divisible By")
 @Description("Check if a number is divisible by another number.")
-@Examples("5 is divisible by 5")
+@Examples({"if 5 is divisible by 5:",
+		"if 1964903306 is divisible by 982451653:",
+		"if 11 cannot be divided by 10:",
+		"if 10007 cannnot be divided by 10007:"})
 @Since("INSERT VERSION")
 public class CondIsDivisibleBy extends Condition {
 
 	static {
 		Skript.registerCondition(CondIsDivisibleBy.class,
-			"%number% (is|can be) (divisible|divided) by %number%");
+			"%number% (is|can be) (divisible|divided) by %number%",
+			"%number% (isn't|is not|can[ ]not be) (divisible|divided) by %number%");
 	}
 
 	@SuppressWarnings("null")
