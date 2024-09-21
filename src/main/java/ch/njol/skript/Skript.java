@@ -843,29 +843,30 @@ public final class Skript extends JavaPlugin implements Listener {
 	private class JoinUpdateNotificationListener implements Listener {
 		@EventHandler
 		public void onJoin(PlayerJoinEvent event) {
-			if (event.getPlayer().hasPermission("skript.admin")) {
-				new Task(Skript.this, 0) {
-					@Override
-					public void run() {
-						Player player = event.getPlayer();
-						SkriptUpdater updater = getUpdater();
+			if (!event.getPlayer().hasPermission("skript.admin"))
+				return;
 
-						// Don't actually check for updates to avoid breaking GitHub rate limit
-						if (updater == null || updater.getReleaseStatus() != ReleaseStatus.OUTDATED)
-							return;
+			new Task(Skript.this, 0) {
+				@Override
+				public void run() {
+					Player player = event.getPlayer();
+					SkriptUpdater updater = getUpdater();
 
-						// Last check indicated that an update is available
-						UpdateManifest update = updater.getUpdateManifest();
+					// Don't actually check for updates to avoid breaking GitHub rate limit
+					if (updater == null || updater.getReleaseStatus() != ReleaseStatus.OUTDATED)
+						return;
 
-						if (update == null)
-							return;
+					// Last check indicated that an update is available
+					UpdateManifest update = updater.getUpdateManifest();
 
-						Skript.info(player, SkriptUpdater.m_update_available.toString(update.id, Skript.getVersion()));
-						player.spigot().sendMessage(BungeeConverter.convert(ChatMessages.parseToArray(
-							"Download it at: <aqua><u><link:" + update.downloadUrl + ">" + update.downloadUrl)));
-					}
-				};
-			}
+					if (update == null)
+						return;
+
+					Skript.info(player, SkriptUpdater.m_update_available.toString(update.id, Skript.getVersion()));
+					player.spigot().sendMessage(BungeeConverter.convert(ChatMessages.parseToArray(
+						"Download it at: <aqua><u><link:" + update.downloadUrl + ">" + update.downloadUrl)));
+				}
+			};
 		}
 	}
 
