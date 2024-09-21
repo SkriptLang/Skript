@@ -40,7 +40,7 @@ public class EnumClassInfo<T extends Enum<T>> extends ClassInfo<T> {
 			.parser(new Parser<T>() {
 				@Override
 				@Nullable
-				public T parse(String input, ParseContext context) {
+				public @Nullable T parse(String input, ParseContext context) {
 					return enumUtils.parse(input);
 				}
 
