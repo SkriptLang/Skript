@@ -52,6 +52,7 @@ import org.bukkit.block.data.BlockData;
 import org.bukkit.command.CommandSender;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.enchantments.EnchantmentOffer;
+import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Cat;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Item;
@@ -1526,6 +1527,12 @@ public class BukkitClasses {
 				.name("Transform Reason")
 				.description("Represents a transform reason of an <a href='events.html#entity transform'>entity transform event</a>.")
 				.since("2.8.0"));
+
+		Classes.registerClass(new EnumClassInfo<>(ArmorStand.LockType.class, "locktype", "lock types")
+				.user("(armou?r ?stand)? ?lock ?types?")
+				.name("Armor Stand Lock Types")
+				.description("Represents an armor stands' slots' lock type.")
+				.since("INSERT VERSION"));
 	}
 
 }

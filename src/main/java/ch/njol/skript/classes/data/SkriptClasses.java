@@ -36,6 +36,7 @@ import ch.njol.skript.bukkitutil.EnchantmentUtils;
 import ch.njol.skript.bukkitutil.ItemUtils;
 import ch.njol.skript.classes.Changer;
 import ch.njol.skript.classes.ClassInfo;
+import ch.njol.skript.classes.EnumClassInfo;
 import ch.njol.skript.classes.EnumSerializer;
 import ch.njol.skript.classes.Parser;
 import ch.njol.skript.classes.Serializer;
@@ -61,6 +62,7 @@ import ch.njol.skript.util.Timespan;
 import ch.njol.skript.util.Utils;
 import ch.njol.skript.util.WeatherType;
 import ch.njol.skript.util.slot.Slot;
+import ch.njol.skript.util.slot.EquipmentSlot;
 import ch.njol.skript.util.visual.VisualEffect;
 import ch.njol.skript.util.visual.VisualEffects;
 import ch.njol.yggdrasil.Fields;
@@ -691,6 +693,14 @@ public class SkriptClasses {
 				.since("2.5")
 				.serializer(new YggdrasilSerializer<GameruleValue>())
 		);
+
+		Classes.registerClass(new EnumClassInfo<>(EquipmentSlot.EquipSlot.class, "equipmentslot", "equipmentslots")
+				.user("equip(ment)? ?slots?")
+				.name("Equipment Slot")
+				.description("Represents an equipment slot.")
+				.examples("")
+				.since("INSERT VERSION")
+				.after("slot")
+		);
 	}
-	
 }
