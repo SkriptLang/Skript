@@ -832,35 +832,41 @@ public final class Skript extends JavaPlugin implements Listener {
 			}
 		});
 
-		Bukkit.getPluginManager().registerEvents(new Listener() {
-			@EventHandler
-			public void onJoin(final PlayerJoinEvent e) {
-				if (e.getPlayer().hasPermission("skript.admin")) {
-					new Task(Skript.this, 0) {
-						@Override
-						public void run() {
-							Player p = e.getPlayer();
-							SkriptUpdater updater = getUpdater();
-							if (updater == null)
-								return;
-
-							// Don't actually check for updates to avoid breaking Github rate limit
-							if (updater.getReleaseStatus() == ReleaseStatus.OUTDATED) {
-								// Last check indicated that an update is available
-								UpdateManifest update = updater.getUpdateManifest();
-								assert update != null; // Because we just checked that one is available
-								Skript.info(p, "" + SkriptUpdater.m_update_available.toString(update.id, Skript.getVersion()));
-								p.spigot().sendMessage(BungeeConverter.convert(ChatMessages.parseToArray(
-										"Download it at: <aqua><u><link:" + update.downloadUrl + ">" + update.downloadUrl)));
-							}
-						}
-					};
-				}
-			}
-		}, this);
+		if (!TestMode.ENABLED) {
+			Bukkit.getPluginManager().registerEvents(new JoinUpdateNotificationListener(), this);
+		}
 
 		// Tell Timings that we are here!
 		SkriptTimings.setSkript(this);
+	}
+
+	private class JoinUpdateNotificationListener implements Listener {
+		@EventHandler
+		public void onJoin(PlayerJoinEvent event) {
+			if (event.getPlayer().hasPermission("skript.admin")) {
+				new Task(Skript.this, 0) {
+					@Override
+					public void run() {
+						Player player = event.getPlayer();
+						SkriptUpdater updater = getUpdater();
+
+						// Don't actually check for updates to avoid breaking GitHub rate limit
+						if (updater == null || updater.getReleaseStatus() != ReleaseStatus.OUTDATED)
+							return;
+
+						// Last check indicated that an update is available
+						UpdateManifest update = updater.getUpdateManifest();
+
+						if (update == null)
+							return;
+
+						Skript.info(player, SkriptUpdater.m_update_available.toString(update.id, Skript.getVersion()));
+						player.spigot().sendMessage(BungeeConverter.convert(ChatMessages.parseToArray(
+							"Download it at: <aqua><u><link:" + update.downloadUrl + ">" + update.downloadUrl)));
+					}
+				};
+			}
+		}
 	}
 
 	/**
