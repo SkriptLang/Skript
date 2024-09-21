@@ -31,26 +31,26 @@ public class CondIsDivisibleBy extends Condition {
 	}
 
 	@SuppressWarnings("null")
-	private Expression<Number> num1;
+	private Expression<Number> divisorExpression;
 	@SuppressWarnings("null")
-	private Expression<Number> num2;
+	private Expression<Number> dividedExpression;
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		num1 = (Expression<Number>) exprs[0];
-		num2 = (Expression<Number>) exprs[1];
+		divisorExpression = (Expression<Number>) exprs[0];
+		dividedExpression = (Expression<Number>) exprs[1];
 		setNegated(matchedPattern == 1 || matchedPattern == 3);
 		return true;
 	}
 
 	@Override
 	public boolean check(final Event event) {
-		Number number2 = num2.getSingle(event);
-		return num1.check(event, new Checker<Number>() {
+		Number number2 = dividedExpression.getSingle(event);
+		return divisorExpression.check(event, new Checker<Number>() {
 			@Override
-			public boolean check(Number number1) {
-				double divided = number1.doubleValue();
-				double divisor = number2 != null ? number2.doubleValue() : 0;
+			public boolean check(Number number) {
+				double divided = number.doubleValue();
+				double divisor = number2 != null ? number2.doubleValue() : null;
 				return divided % divisor == 0;
 			}
 		}, isNegated());
@@ -58,7 +58,7 @@ public class CondIsDivisibleBy extends Condition {
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return num1.toString(event, debug) + " is divisible by " + num2.toString(event, debug);
+		return divisorExpression.toString(event, debug) + " is divisible by " + dividedExpression.toString(event, debug);
 	}
 
 }
