@@ -33,7 +33,7 @@ public class CondChatColors extends PropertyCondition<Player> {
 
 	@Override
 	protected String getPropertyName() {
-		return "can see chat colors";
+		return "see chat colors";
 	}
 
 }

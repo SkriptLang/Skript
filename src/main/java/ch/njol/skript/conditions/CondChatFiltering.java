@@ -31,7 +31,7 @@ public class CondChatFiltering extends PropertyCondition<Player> {
 
 	@Override
 	protected String getPropertyName() {
-		return "has chat filtering enabled";
+		return "chat filtering enabled";
 	}
 
 }

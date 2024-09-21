@@ -2277,9 +2277,9 @@ transform reasons:
 
 # -- Chat Visibilities --
 chat visibilities:
-	full: full, visible
+	full: fully visible, visible
 	hidden: hidden
-	system: system, commands only, only commands
+	system: system messages only, only system messages, commands only, only commands
 	unknown: unknown
 
 # -- Boolean --
