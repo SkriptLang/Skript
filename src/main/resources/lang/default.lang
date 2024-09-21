@@ -2275,6 +2275,13 @@ transform reasons:
 	unknown: unknown
 	infection: infection, villager infection
 
+# -- Chat Visibilities --
+chat visibilities:
+	full: full, visible
+	hidden: hidden
+	system: system, commands only, only commands
+	unknown: unknown
+
 # -- Boolean --
 boolean:
 	true:

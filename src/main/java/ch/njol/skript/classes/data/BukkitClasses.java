@@ -30,6 +30,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import ch.njol.skript.bukkitutil.BukkitUtils;
+import com.destroystokyo.paper.ClientOption;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.Difficulty;
@@ -1526,6 +1527,14 @@ public class BukkitClasses {
 				.name("Transform Reason")
 				.description("Represents a transform reason of an <a href='events.html#entity transform'>entity transform event</a>.")
 				.since("2.8.0"));
+
+		if (Skript.classExists("com.destroystokyo.paper.ClientOption$ChatVisibility"))
+			Classes.registerClass(new EnumClassInfo<>(ClientOption.ChatVisibility.class, "chatvisibility", "chat visibilities")
+				.user("chat ?visibility")
+				.name("Chat Visibility")
+				.description("The chat visibility of a player.")
+				.requiredPlugins("Paper")
+				.since("INSERT VERSION"));
 	}
 
 }
