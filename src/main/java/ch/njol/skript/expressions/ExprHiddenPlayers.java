@@ -32,7 +32,7 @@ import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 @Name("Hidden Players")
 @Description({"The players hidden from a player that were hidden using the <a href='effects.html#EffPlayerVisibility'>player visibility</a> effect."})
