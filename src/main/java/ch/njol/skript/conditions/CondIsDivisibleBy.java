@@ -45,12 +45,12 @@ public class CondIsDivisibleBy extends Condition {
 
 	@Override
 	public boolean check(Event event) {
-		Number number2 = dividedExpression.getSingle(event);
+		Number divisorNumber = dividedExpression.getSingle(event);
 		return divisorExpression.check(event, new Checker<Number>() {
 			@Override
-			public boolean check(Number number) {
-				double divided = number.doubleValue();
-				double divisor = number2 != null ? number2.doubleValue() : null;
+			public boolean check(Number dividedNumber) {
+				double divided = dividedNumber.doubleValue();
+				double divisor = divisorNumber != null ? divisorNumber.doubleValue() : null;
 				return divided % divisor == 0;
 			}
 		}, isNegated());
