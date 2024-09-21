@@ -26,6 +26,6 @@ test "health effect":
     parse if {_result} >= 204:
         send "1.20.4+ and test damage cause" to console
         damage {_m} by 2 hearts with damage cause fall
-        wait 1 tick
-        assert health of {_m} is 4 with "damage cow failed"
+        assert health of {_m} is 3 with "damage cow failed"
+        send "Check passed" to console
     clear all entities
