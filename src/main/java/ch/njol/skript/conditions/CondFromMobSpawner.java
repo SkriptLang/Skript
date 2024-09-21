@@ -25,7 +25,7 @@ public class CondFromMobSpawner extends PropertyCondition<Entity> {
 				"%entities% (is|are) from a [mob] spawner",
 				"%entities% (isn't|aren't|is not|are not) from a [mob] spawner",
 				"%entities% (was|were) spawned (from|by) a [mob] spawner",
-				"%entities% (wasn't|weren't) spawned (from|by) a [mob] spawner");
+				"%entities% (wasn't|weren't|was not|were not) spawned (from|by) a [mob] spawner");
 	}
 
 	@Override

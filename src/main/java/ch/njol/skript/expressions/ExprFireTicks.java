@@ -62,31 +62,32 @@ public class ExprFireTicks extends SimplePropertyExpression<Entity, Timespan> {
 	@Nullable
 	public Class<?>[] acceptChange(ChangeMode mode) {
 		if (!max)
-			return (mode != ChangeMode.REMOVE_ALL) ? CollectionUtils.array(Timespan.class) :  null;
+			return switch (mode) {
+				case ADD, SET, RESET, DELETE, REMOVE -> CollectionUtils.array(Timespan.class);
+				default -> null;
+			};
 		return null;
 	}
 
 	@Override
 	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
-		if (!max) {
-			Entity[] entities = getExpr().getArray(event);
-			int change = delta == null ? 0 : (int) ((Timespan) delta[0]).getTicks();
-			switch (mode) {
-				case REMOVE:
-					change = -change;
-				case ADD:
-					for (Entity entity : entities)
-						entity.setFireTicks(entity.getFireTicks() + change);
-					break;
-				case DELETE:
-				case RESET:
-				case SET:
-					for (Entity entity : entities)
-						entity.setFireTicks(change);
-					break;
-				default:
-					assert false;
-			}
+		Entity[] entities = getExpr().getArray(event);
+		int change = delta == null ? 0 : (int) ((Timespan) delta[0]).getTicks();
+		switch (mode) {
+			case REMOVE:
+				change = -change;
+			case ADD:
+				for (Entity entity : entities)
+					entity.setFireTicks(entity.getFireTicks() + change);
+				break;
+			case DELETE:
+			case RESET:
+			case SET:
+				for (Entity entity : entities)
+					entity.setFireTicks(change);
+				break;
+			default:
+				assert false;
 		}
 	}
 
