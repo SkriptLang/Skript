@@ -55,6 +55,7 @@ public class ExprDisplayShadow extends SimplePropertyExpression<Display, Float> 
 		switch (mode) {
 			case REMOVE:
 				change = -change;
+				//$FALL-THROUGH$
 			case ADD:
 				for (Display display : displays) {
 					if (radius) {

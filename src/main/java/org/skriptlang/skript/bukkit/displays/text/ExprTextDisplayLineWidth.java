@@ -44,6 +44,8 @@ public class ExprTextDisplayLineWidth extends SimplePropertyExpression<Display, 
 		switch (mode) {
 			case REMOVE:
 				change = -change;
+				//$FALL-THROUGH$
+				
 			case ADD:
 				for (Display display : displays) {
 					if (display instanceof TextDisplay textDisplay) {

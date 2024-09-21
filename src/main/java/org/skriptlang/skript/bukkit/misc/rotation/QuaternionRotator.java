@@ -46,4 +46,5 @@ public class QuaternionRotator implements Rotator<Quaternionf> {
 	public Quaternionf rotate(Quaternionf input) {
 		return rotator.apply(input);
 	}
+
 }

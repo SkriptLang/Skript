@@ -62,6 +62,7 @@ public class ExprDisplayHeightWidth extends SimplePropertyExpression<Display, Fl
 		switch (mode) {
 			case REMOVE:
 				change = -change;
+				//$FALL-THROUGH$
 			case ADD:
 				for (Display display : displays) {
 					if (height) {

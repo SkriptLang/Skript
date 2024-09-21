@@ -48,6 +48,7 @@ public class ExprTextDisplayOpacity extends SimplePropertyExpression<Display, By
 			case REMOVE_ALL:
 			case REMOVE:
 				change = -change;
+				//$FALL-THROUGH$
 			case ADD:
 				for (Display display : displays) {
 					if (display instanceof TextDisplay textDisplay) {

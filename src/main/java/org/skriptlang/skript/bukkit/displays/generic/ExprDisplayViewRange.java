@@ -47,6 +47,7 @@ public class ExprDisplayViewRange extends SimplePropertyExpression<Display, Floa
 		switch (mode) {
 			case REMOVE:
 				change = -change;
+				//$FALL-THROUGH$
 			case ADD:
 				for (Display display : displays) {
 					float value = Math.max(0F, display.getViewRange() + change);

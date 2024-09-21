@@ -44,8 +44,8 @@ public class ExprTextOf extends SimplePropertyExpression<Object, String> {
 
 	@Override
 	public @Nullable String convert(Object object) {
-		if (object instanceof TextDisplay)
-			return ((TextDisplay) object).getText();
+		if (object instanceof TextDisplay textDisplay)
+			return textDisplay.getText();
 		return null;
 	}
 
@@ -61,13 +61,13 @@ public class ExprTextOf extends SimplePropertyExpression<Object, String> {
 	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
 		String value = delta == null ? null : (String) delta[0];
 		for (Object object : getExpr().getArray(event)) {
-			if (!(object instanceof TextDisplay))
+			if (!(object instanceof TextDisplay textDisplay))
 				continue;
 			if (IS_RUNNING_PAPER && serializer != null && value != null) {
 				BaseComponent[] components = BungeeConverter.convert(ChatMessages.parseToArray(value));
-				((TextDisplay) object).text(serializer.deserialize(components));
+				textDisplay.text(serializer.deserialize(components));
 			} else {
-				((TextDisplay) object).setText(value);
+				textDisplay.setText(value);
 			}
 		}
 	}

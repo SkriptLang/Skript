@@ -85,6 +85,7 @@ public class ColorRGB implements Color {
 	 * @param bukkit the bukkit color to replicate
 	 * @return ColorRGB
 	 */
+	@Contract("_ -> new")
 	public static ColorRGB fromBukkitColor(org.bukkit.Color bukkit) {
 		return new ColorRGB(bukkit);
 	}

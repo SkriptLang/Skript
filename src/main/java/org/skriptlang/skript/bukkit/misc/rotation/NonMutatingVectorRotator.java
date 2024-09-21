@@ -34,4 +34,5 @@ public class NonMutatingVectorRotator implements Rotator<Vector> {
 	public Vector rotate(Vector input) {
 		return rotator.apply(input);
 	}
+
 }

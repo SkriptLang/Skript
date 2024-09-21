@@ -40,7 +40,7 @@ public class ExprQuaternionAxisAngle extends SimplePropertyExpression<Quaternion
 			register(ExprQuaternionAxisAngle.class, Object.class, "rotation (angle|:axis)", "quaternions");
 	}
 
-	boolean isAxis;
+	private boolean isAxis;
 
 	@Override
 	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
@@ -59,15 +59,13 @@ public class ExprQuaternionAxisAngle extends SimplePropertyExpression<Quaternion
 
 	@Override
 	public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
-		switch (mode) {
+		return switch (mode) {
 			case ADD, SET, REMOVE ->  {
 				if (Changer.ChangerUtils.acceptsChange(getExpr(), ChangeMode.SET, Quaternionf.class))
-					return CollectionUtils.array(isAxis ? Vector.class : Number.class);
-				return null;
+					yield CollectionUtils.array(isAxis ? Vector.class : Number.class);
+				yield null;
 			}
-			default -> {
-				return null;
-			}
+			default -> null;
 		}
 	}
 
@@ -102,6 +100,5 @@ public class ExprQuaternionAxisAngle extends SimplePropertyExpression<Quaternion
 	protected String getPropertyName() {
 		return isAxis ? "axis" : "angle";
 	}
-
 
 }

@@ -23,7 +23,7 @@ public class CondTextDisplayHasDropShadow extends PropertyCondition<Display> {
 
 	static {
 		Skript.registerCondition(CondTextDisplayHasDropShadow.class,
-			"[[the] text of] %displays% (has|have) [a] (drop|text) shadow",
+				"[[the] text of] %displays% (has|have) [a] (drop|text) shadow",
 				"%displays%'[s] text (has|have) [a] (drop|text) shadow",
 				"[[the] text of] %displays% (doesn't|does not|do not|don't) have [a] (drop|text) shadow",
 				"%displays%'[s] text (doesn't|does not|do not|don't) have [a] (drop|text) shadow"

@@ -65,6 +65,7 @@ public class ExprDisplayInterpolation extends SimplePropertyExpression<Display, 
 		switch (mode) {
 			case REMOVE:
 				ticks = -ticks;
+				//$FALL-THROUGH$
 			case ADD:
 				for (Display display : displays) {
 					if (delay) {

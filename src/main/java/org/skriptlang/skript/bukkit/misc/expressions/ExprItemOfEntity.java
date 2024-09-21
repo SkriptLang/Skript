@@ -34,19 +34,19 @@ public class ExprItemOfEntity extends SimplePropertyExpression<Entity, Slot> {
 
 
 	static {
-		register(ExprItemOfEntity.class, Slot.class, "[the] item [inside]", "entities");
+		register(ExprItemOfEntity.class, Slot.class, "item [inside]", "entities");
 	}
 
 	@Override
 	public @Nullable Slot convert(Entity entity) {
-		if (entity instanceof ItemFrame) {
-			return new ItemFrameSlot((ItemFrame) entity);
-		} else if (entity instanceof Item) {
-			return new DroppedItemSlot((Item) entity);
-		} else if (entity instanceof ThrowableProjectile) {
-			return new ThrowableProjectileSlot((ThrowableProjectile) entity);
-		} else if (entity instanceof ItemDisplay) {
-			return new DisplayEntitySlot((ItemDisplay) entity);
+		if (entity instanceof ItemFrame itemFrame) {
+			return new ItemFrameSlot(itemFrame);
+		} else if (entity instanceof Item item) {
+			return new DroppedItemSlot(item);
+		} else if (entity instanceof ThrowableProjectile throwableProjectile) {
+			return new ThrowableProjectileSlot(throwableProjectile);
+		} else if (entity instanceof ItemDisplay itemDisplay) {
+			return new DisplayEntitySlot(itemDisplay);
 		}
 		return null; // Other entities don't have associated items
 	}
@@ -58,7 +58,7 @@ public class ExprItemOfEntity extends SimplePropertyExpression<Entity, Slot> {
 
 	@Override
 	protected String getPropertyName() {
-		return "item of entity";
+		return "item inside";
 	}
 
 }

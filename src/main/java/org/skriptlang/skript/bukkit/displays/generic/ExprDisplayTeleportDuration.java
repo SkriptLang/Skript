@@ -59,6 +59,7 @@ public class ExprDisplayTeleportDuration extends SimplePropertyExpression<Displa
 		switch (mode) {
 			case REMOVE:
 				ticks = -ticks;
+				//$FALL-THROUGH$
 			case ADD:
 				for (Display display : displays) {
 					int value = (int) Math2.fit(0, display.getTeleportDuration() + ticks, 59);
