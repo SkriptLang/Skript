@@ -60,7 +60,7 @@ public class ExprServerIcon extends SimpleExpression<CachedServerIcon> {
 	}
 
 	@Override
-	public @Nullable CachedServerIcon[] get(Event event) {
+	public CachedServerIcon @Nullable [] get(Event event) {
 		CachedServerIcon icon;
 
 		if ((isServerPingEvent && !isDefault) && SUPPORTS_SERVER_LIST_PING_EVENT) {
@@ -79,7 +79,7 @@ public class ExprServerIcon extends SimpleExpression<CachedServerIcon> {
 	}
 
 	@Override
-	public @Nullable Class<?>[] acceptChange(ChangeMode mode) {
+	public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
 		if (!isServerPingEvent || isDefault || (mode != ChangeMode.SET && mode != ChangeMode.RESET)) {
 			return null;
 		}
