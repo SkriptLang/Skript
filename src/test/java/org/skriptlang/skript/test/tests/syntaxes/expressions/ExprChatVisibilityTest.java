@@ -34,7 +34,7 @@ public class ExprChatVisibilityTest extends SkriptJUnitTest {
 			.andReturn(false);
 		EasyMock.expect(player.getClientOption(ClientOption.CHAT_COLORS_ENABLED))
 			.andReturn(true);
-		EasyMock.expect(player.hasPermission("skript.admin")).andReturn(false);
+		EasyMock.replay(player);
 	}
 
 	@Test
