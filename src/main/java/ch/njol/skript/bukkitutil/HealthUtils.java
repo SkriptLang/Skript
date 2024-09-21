@@ -86,6 +86,7 @@ public class HealthUtils {
 		damageable.damage(damage * 2);
 	}
 
+	@SuppressWarnings("UnstableApiUsage")
 	public static void damage(Damageable damageable, double damage, DamageSource cause) {
 		if (damage < 0) {
 			heal(damageable, -damage);

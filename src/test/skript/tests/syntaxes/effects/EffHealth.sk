@@ -20,7 +20,8 @@ test "health effect":
 	assert health of {_m} is 1.5 with "heal cow failed"
 	heal {_m} by 99
 	assert health of {_m} is 5 with "heal cow failed"
-	wait 1 tick
+
 	damage {_m} by 2 hearts with damage cause fall
+	wait 1 tick
 	assert health of {_m} is 3 with "damage cow failed"
 	clear all entities
