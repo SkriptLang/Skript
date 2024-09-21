@@ -21,7 +21,9 @@ package ch.njol.skript;
 import ch.njol.skript.aliases.Aliases;
 import ch.njol.skript.command.CommandHelp;
 import ch.njol.skript.doc.Documentation;
+import ch.njol.skript.doc.DocumentationIdProvider;
 import ch.njol.skript.doc.HTMLGenerator;
+import ch.njol.skript.doc.JSONGenerator;
 import ch.njol.skript.localization.ArgsMessage;
 import ch.njol.skript.localization.Language;
 import ch.njol.skript.localization.PluralizingArgsMessage;
@@ -403,9 +405,11 @@ public class SkriptCommand implements CommandExecutor {
 				}
 				File outputDir = Documentation.getDocsOutputDirectory();
 				outputDir.mkdirs();
-				HTMLGenerator generator = new HTMLGenerator(templateDir, outputDir);
+				HTMLGenerator htmlGenerator = new HTMLGenerator(templateDir, outputDir);
+				JSONGenerator jsonGenerator = new JSONGenerator(templateDir, outputDir);
 				Skript.info(sender, "Generating docs...");
-				generator.generate(); // Try to generate docs... hopefully
+				htmlGenerator.generate(); // Try to generate docs... hopefully
+				jsonGenerator.generate();
 				Skript.info(sender, "Documentation generated!");
 			} else if (args[0].equalsIgnoreCase("test") && TestMode.DEV_MODE) {
 				File scriptFile;
