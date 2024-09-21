@@ -6,7 +6,6 @@ import com.destroystokyo.paper.ClientOption;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.event.player.PlayerMoveEvent;
 import org.easymock.EasyMock;
 import org.junit.Before;
 import org.junit.Test;
