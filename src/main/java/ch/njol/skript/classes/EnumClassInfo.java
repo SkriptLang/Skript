@@ -4,7 +4,9 @@ import ch.njol.skript.expressions.base.EventValueExpression;
 import ch.njol.skript.lang.DefaultExpression;
 import ch.njol.skript.lang.ParseContext;
 import ch.njol.skript.util.EnumUtils;
+import ch.njol.skript.util.StringMode;
 import ch.njol.util.coll.iterator.ArrayIterator;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -39,19 +41,18 @@ public class EnumClassInfo<T extends Enum<T>> extends ClassInfo<T> {
 			.supplier(() -> new ArrayIterator<>(enumClass.getEnumConstants()))
 			.parser(new Parser<T>() {
 				@Override
-				@Nullable
 				public @Nullable T parse(String input, ParseContext context) {
 					return enumUtils.parse(input);
 				}
 
 				@Override
-				public String toString(T constant, int flags) {
-					return enumUtils.toString(constant, flags);
+				public @NotNull String toString(T constant, int flags) {
+					return enumUtils.toString(constant, StringMode.MESSAGE);
 				}
 
 				@Override
-				public String toVariableNameString(T constant) {
-					return constant.name();
+				public @NotNull String toVariableNameString(T constant) {
+					return enumUtils.toString(constant, StringMode.VARIABLE_NAME);
 				}
 			});
 	}
