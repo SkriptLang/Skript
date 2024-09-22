@@ -1,4 +1,4 @@
-package org.skriptlang.skript.test.tests.syntaxes.expressions;
+package org.skriptlang.skript.test.tests.syntaxes.conditions;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.test.runner.SkriptJUnitTest;
@@ -10,7 +10,7 @@ import org.easymock.EasyMock;
 import org.junit.Before;
 import org.junit.Test;
 
-public class ExprChatVisibilityTest extends SkriptJUnitTest {
+public class CondChatVisibilityTest extends SkriptJUnitTest {
 
 	private static final boolean SUPPORTS_CHAT_VISIBILITY =
 		Skript.classExists("com.destroystokyo.paper.ClientOption$ChatVisibility");
