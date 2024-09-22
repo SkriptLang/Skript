@@ -7,6 +7,6 @@ test "CondIsInvulnerable":
 		make entity invulnerable
 		assert entity is invulnerable with "Entity should be invulnerable"
 		make entity vulnerable
-		assert entity is vulnerable with "Entity should be vulnerable"
+		assert entity is not invulnerable with "Entity should be vulnerable"
 		delete entity
 	assert {_none} is vulnerable with "Empty variable should be vulnerable"
