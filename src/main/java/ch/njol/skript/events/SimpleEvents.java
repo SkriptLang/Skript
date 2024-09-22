@@ -732,13 +732,6 @@ public class SimpleEvents {
 					.requiredPlugins("Paper 1.16+");
 		}
 
-		Skript.registerEvent("Entity Breed", SimpleEvent.class, EntityBreedEvent.class, "[entity] breed[ing]")
-				.description("Called whenever two breedable entities begin to conceive a child.")
-				.examples(
-					"on breeding:",
-						"\tsend \"When a %breeding mother% and %breeding father% love each other they make %offspring%\" to breeder"
-				)
-				.since("INSERT VERSION");
 		Skript.registerEvent("Love Mode Enter", SimpleEvent.class, EntityEnterLoveModeEvent.class, "[entity] enter[s] love mode", "[entity] love mode [enter]")
 				.description("Called whenever an entity enters a state of being in love.")
 				.examples(
