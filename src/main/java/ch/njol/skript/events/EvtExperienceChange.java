@@ -27,7 +27,7 @@ import ch.njol.skript.util.Experience;
 import ch.njol.skript.util.Getter;
 import org.bukkit.event.Event;
 import org.bukkit.event.player.PlayerExpChangeEvent;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 public class EvtExperienceChange extends SkriptEvent {
 

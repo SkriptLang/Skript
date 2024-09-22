@@ -18,7 +18,7 @@
  */
 package ch.njol.skript.util.chat;
 
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Chat codes; includes color codes (<a href="https://wiki.vg/Chat#Colors">reference</a>)

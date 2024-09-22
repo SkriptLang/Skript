@@ -41,7 +41,7 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 import ch.njol.skript.util.Contract;
 
 import java.math.BigDecimal;
@@ -379,7 +379,7 @@ public class DefaultFunctions {
 		}, DefaultClasses.LOCATION, true) {
 			@Override
 			@Nullable
-			public Location[] execute(FunctionEvent<?> e, Object[][] params) {
+			public Location[] execute(FunctionEvent<?> event, Object[][] params) {
 				for (int i : new int[] {0, 1, 2, 4, 5}) {
 					if (params[i] == null || params[i].length == 0 || params[i][0] == null)
 						return null;
