@@ -75,7 +75,7 @@ public abstract class Slot implements Debuggable, AnyNamed, AnyAmount {
 	}
 
 	@Override
-	public boolean nameSupportsChange() {
+	public boolean supportsNameChange() {
 		return true;
 	}
 
@@ -99,7 +99,7 @@ public abstract class Slot implements Debuggable, AnyNamed, AnyAmount {
 	}
 
 	@Override
-	public boolean amountSupportsChange() {
+	public boolean supportsAmountChange() {
 		return true;
 	}
 

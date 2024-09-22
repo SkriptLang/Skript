@@ -126,10 +126,10 @@ public class CondContains extends Condition {
 					Inventory inventory = (Inventory) o;
 
 					return items.check(event, o1 -> {
-						if (o1 instanceof ItemType)
-							return ((ItemType) o1).isContainedIn(inventory);
-						else if (o1 instanceof ItemStack)
-							return inventory.containsAtLeast((ItemStack) o1, ((ItemStack) o1).getAmount());
+						if (o1 instanceof ItemType type)
+							return type.isContainedIn(inventory);
+						else if (o1 instanceof ItemStack stack)
+							return inventory.containsAtLeast(stack, stack.getAmount());
 						else if (o1 instanceof Inventory)
 							return Objects.equals(inventory, o1);
 						else
@@ -143,8 +143,8 @@ public class CondContains extends Condition {
 					String string = (String) o;
 
 					return items.check(event, o1 -> {
-						if (o1 instanceof String) {
-							return StringUtils.contains(string, (String) o1, caseSensitive);
+						if (o1 instanceof String text) {
+							return StringUtils.contains(string, text, caseSensitive);
 						} else {
 							return false;
 						}

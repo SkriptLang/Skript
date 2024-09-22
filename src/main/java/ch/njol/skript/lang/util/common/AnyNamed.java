@@ -23,13 +23,13 @@ public interface AnyNamed extends AnyProvider {
 	 *
 	 * @return Whether this supports being set
 	 */
-	default boolean nameSupportsChange() {
+	default boolean supportsNameChange() {
 		return false;
 	}
 
 	/**
 	 * The behaviour for changing this thing's name, if possible.
-	 * If not possible, then {@link #nameSupportsChange()} should return false and this
+	 * If not possible, then {@link #supportsNameChange()} should return false and this
 	 * may throw an error.
 	 *
 	 * @param name The name to change

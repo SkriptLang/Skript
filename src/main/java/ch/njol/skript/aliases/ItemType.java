@@ -1443,7 +1443,7 @@ public class ItemType implements Unit, Iterable<ItemData>, Container<ItemStack>,
 	}
 
 	@Override
-	public boolean nameSupportsChange() {
+	public boolean supportsNameChange() {
 		return true;
 	}
 
@@ -1460,7 +1460,7 @@ public class ItemType implements Unit, Iterable<ItemData>, Container<ItemStack>,
 	}
 
 	@Override
-	public boolean amountSupportsChange() {
+	public boolean supportsAmountChange() {
 		return true;
 	}
 

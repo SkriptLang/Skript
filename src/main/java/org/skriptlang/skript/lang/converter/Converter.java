@@ -65,7 +65,7 @@ public interface Converter<F, T> {
 	 * When combined with {@link #NO_RIGHT_CHAINING} the output can be conformed with an unchecked cast,
 	 * e.g. {@code (cast Object ->) Integer -> String}.
 	 */
-	int ALLOW_UNSAFE_CASTS = 4;
+	int ALLOW_UNSAFE_CASTS = 8;
 
 	/**
 	 * A Converter flag declaring that this Converter cannot be a part of a chain.

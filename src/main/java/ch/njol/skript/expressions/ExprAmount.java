@@ -163,7 +163,7 @@ public class ExprAmount extends SimpleExpression<Number> {
 				// fall through
 			case SET:
 				for (AnyAmount any : any.getArray(event)) {
-					if (any.amountSupportsChange())
+					if (any.supportsAmountChange())
 						any.setAmount(amount);
 				}
 				break;

@@ -692,22 +692,22 @@ public class SkriptClasses {
 
 		Classes.registerClass(new AnyInfo<>(AnyNamed.class, "named")
 			.name("Any Named Thing")
-			.description("Something that has a name (an item).")
+			.description("Something that has a name (e.g. an item).")
 			.usage("")
 			.examples("{thing}'s name")
 			.since("INSERT VERSION")
 		);
 
-		Classes.registerClass(new AnyInfo<>(AnyAmount.class, "amount")
-			.name("Any Sized Thing")
+		Classes.registerClass(new AnyInfo<>(AnyAmount.class, "numbered")
+			.name("Any Numbered/Sized Thing")
 			.description("Something that has an amount or size.")
 			.usage("")
 			.examples("the size of {thing}", "the amount of {thing}")
 			.since("INSERT VERSION")
 		);
 
-		Classes.registerClass(new AnyInfo<>(AnyContains.class, "container")
-			.name("Anything With Contents")
+		Classes.registerClass(new AnyInfo<>(AnyContains.class, "containing")
+			.name("Anything with Contents")
 			.description("Something that contains other things.")
 			.usage("")
 			.examples("{a} contains {b}")

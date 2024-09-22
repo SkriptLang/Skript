@@ -25,9 +25,7 @@ import ch.njol.skript.entity.EntityData;
 import ch.njol.skript.entity.EntityType;
 import ch.njol.skript.entity.XpOrbData;
 import ch.njol.skript.lang.util.common.AnyAmount;
-import ch.njol.skript.lang.util.common.AnyContains;
 import ch.njol.skript.lang.util.common.AnyNamed;
-import ch.njol.skript.lang.util.common.AnyProvider;
 import ch.njol.skript.util.BlockInventoryHolder;
 import ch.njol.skript.util.BlockUtils;
 import ch.njol.skript.util.Direction;
@@ -53,7 +51,6 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.scoreboard.Objective;
 import org.bukkit.scoreboard.Team;
 import org.bukkit.util.Vector;
-import org.eclipse.jdt.annotation.Nullable;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.UnknownNullability;
 import org.skriptlang.skript.lang.converter.Converter;
@@ -169,23 +166,23 @@ public class DefaultConverters {
 
 		// InventoryHolder - Entity
 		Converters.registerConverter(InventoryHolder.class, Entity.class, holder -> {
-			if (holder instanceof Entity)
-				return (Entity) holder;
+			if (holder instanceof Entity entity)
+				return entity;
 			return null;
 		}, Converter.NO_CHAINING);
 
 		// Anything with a name -> AnyNamed
-		Converters.registerConverter(OfflinePlayer.class, AnyNamed.class, thing -> thing::getName, Converter.NO_RIGHT_CHAINING);
+		Converters.registerConverter(OfflinePlayer.class, AnyNamed.class, player -> player::getName, Converter.NO_RIGHT_CHAINING);
 		if (Skript.classExists("org.bukkit.generator.WorldInfo"))
-			Converters.registerConverter(World.class, AnyNamed.class, thing -> thing::getName, Converter.NO_RIGHT_CHAINING);
+			Converters.registerConverter(World.class, AnyNamed.class, world -> world::getName, Converter.NO_RIGHT_CHAINING);
 		else //noinspection RedundantCast getName method is on World itself in older versions
-			Converters.registerConverter(World.class, AnyNamed.class, thing -> () -> ((World) thing).getName(), Converter.NO_RIGHT_CHAINING);
-		Converters.registerConverter(GameRule.class, AnyNamed.class, thing -> thing::getName, Converter.NO_RIGHT_CHAINING);
-		Converters.registerConverter(Server.class, AnyNamed.class, thing -> thing::getName, Converter.NO_RIGHT_CHAINING);
-		Converters.registerConverter(Plugin.class, AnyNamed.class, thing -> thing::getName, Converter.NO_RIGHT_CHAINING);
-		Converters.registerConverter(WorldType.class, AnyNamed.class, thing -> thing::getName, Converter.NO_RIGHT_CHAINING);
-		Converters.registerConverter(Team.class, AnyNamed.class, thing -> thing::getName, Converter.NO_RIGHT_CHAINING);
-		Converters.registerConverter(Objective.class, AnyNamed.class, thing -> thing::getName, Converter.NO_RIGHT_CHAINING);
+			Converters.registerConverter(World.class, AnyNamed.class, world -> () -> ((World) world).getName(), Converter.NO_RIGHT_CHAINING);
+		Converters.registerConverter(GameRule.class, AnyNamed.class, rule -> rule::getName, Converter.NO_RIGHT_CHAINING);
+		Converters.registerConverter(Server.class, AnyNamed.class, server -> server::getName, Converter.NO_RIGHT_CHAINING);
+		Converters.registerConverter(Plugin.class, AnyNamed.class, plugin -> plugin::getName, Converter.NO_RIGHT_CHAINING);
+		Converters.registerConverter(WorldType.class, AnyNamed.class, type -> type::getName, Converter.NO_RIGHT_CHAINING);
+		Converters.registerConverter(Team.class, AnyNamed.class, team -> team::getName, Converter.NO_RIGHT_CHAINING);
+		Converters.registerConverter(Objective.class, AnyNamed.class, objective -> objective::getName, Converter.NO_RIGHT_CHAINING);
 		Converters.registerConverter(Nameable.class, AnyNamed.class, //<editor-fold desc="Converter" defaultstate="collapsed">
 			nameable -> new AnyNamed() {
 				@Override
@@ -195,7 +192,7 @@ public class DefaultConverters {
 				}
 
 				@Override
-				public boolean nameSupportsChange() {
+				public boolean supportsNameChange() {
 					return true;
 				}
 
@@ -219,7 +216,7 @@ public class DefaultConverters {
 				}
 
 				@Override
-				public boolean nameSupportsChange() {
+				public boolean supportsNameChange() {
 					return true;
 				}
 
@@ -246,12 +243,12 @@ public class DefaultConverters {
 				}
 
 				@Override
-				public boolean amountSupportsChange() {
+				public boolean supportsAmountChange() {
 					return true;
 				}
 
 				@Override
-				public void setAmount(@Nullable Number amount) throws UnsupportedOperationException {
+				public void setAmount(Number amount) throws UnsupportedOperationException {
 					item.setAmount(amount != null ? amount.intValue() : 0);
 				}
 			},
@@ -261,17 +258,16 @@ public class DefaultConverters {
 		// InventoryHolder - Location
 		// since the individual ones can't be trusted to chain.
 		Converters.registerConverter(InventoryHolder.class, Location.class, holder -> {
-			if (holder instanceof Entity)
-				return ((Entity) holder).getLocation();
-			if (holder instanceof Block)
-				return ((Block) holder).getLocation();
-			if (holder instanceof BlockState)
-				return BlockUtils.getLocation(((BlockState) holder).getBlock());
-			if (holder instanceof DoubleChest) {
-				DoubleChest doubleChest = (DoubleChest) holder;
+			if (holder instanceof Entity entity)
+				return entity.getLocation();
+			if (holder instanceof Block block)
+				return block.getLocation();
+			if (holder instanceof BlockState state)
+				return BlockUtils.getLocation(state.getBlock());
+			if (holder instanceof DoubleChest doubleChest) {
 				if (doubleChest.getLeftSide() != null) {
 					return BlockUtils.getLocation(((BlockState) doubleChest.getLeftSide()).getBlock());
-				} else if (((DoubleChest) holder).getRightSide() != null) {
+				} else if (doubleChest.getRightSide() != null) {
 					return BlockUtils.getLocation(((BlockState) doubleChest.getRightSide()).getBlock());
 				}
 			}

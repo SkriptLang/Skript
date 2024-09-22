@@ -206,7 +206,7 @@ public class ExprName extends SimplePropertyExpression<Object, String> {
 				if (object instanceof LivingEntity living)
 					living.setRemoveWhenFarAway(name == null);
 			} else if (object instanceof AnyNamed named) {
-				if (named.nameSupportsChange())
+				if (named.supportsNameChange())
 					named.setName(name);
 			} else if (object instanceof Inventory inventory) {
 
