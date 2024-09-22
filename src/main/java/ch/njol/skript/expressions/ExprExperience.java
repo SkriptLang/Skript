@@ -15,7 +15,7 @@ import org.bukkit.event.Event;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.entity.EntityBreedEvent;
 import org.bukkit.event.player.PlayerExpChangeEvent;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 @Name("Experience")
 @Description("How much experience was spawned in an experience spawn or block break event. Can be changed.")
