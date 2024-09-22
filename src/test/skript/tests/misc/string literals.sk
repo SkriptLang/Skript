@@ -1,0 +1,20 @@
+test "string literals":
+	set {_c} to (test string literal "blob blob blob")
+	assert {_c} is "blob blob blob" with "string literal value wrong"
+	assert test string literal "blob blob blob" is "blob blob blob" with "string literal value wrong"
+
+test "string literals (parsing)":
+
+	parse:
+		set {_test} to test string literal "hello there this is a long string blah blah blah"
+	assert last parse logs is not set with "skript should be able to understand literal: %last parse logs%"
+
+	parse:
+		set {_test} to test string literal "hello %% percent"
+	assert last parse logs is not set with "percents shouldn't invalidate literal: %last parse logs%"
+
+	parse:
+		set {_test} to test string literal "hello %now%"
+	assert last parse logs is set with "the non-literal should not have been accepted"
+
+	assert (test string literal "hello") is "hello" with "string literal value wrong"

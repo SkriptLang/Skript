@@ -22,7 +22,7 @@ import java.io.Serializable;
 import java.util.Map.Entry;
 import java.util.Objects;
 
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * @author Peter Güttinger

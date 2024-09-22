@@ -18,10 +18,12 @@
  */
 package ch.njol.skript.expressions;
 
+import ch.njol.skript.bukkitutil.InventoryUtils;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.inventory.Inventory;
-import org.eclipse.jdt.annotation.Nullable;
+import org.bukkit.inventory.InventoryView;
+import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
@@ -61,10 +63,12 @@ public class ExprOpenedInventory extends PropertyExpression<Player, Inventory> {
 	@Override
 	protected Inventory[] get(Event event, Player[] source) {
 		return get(source, new Getter<Inventory, Player>() {
-			@SuppressWarnings("null")
 			@Override
-			public Inventory get(final Player player) {
-				return player.getOpenInventory() != null ? player.getOpenInventory().getTopInventory() : null;
+			public @Nullable Inventory get(final Player player) {
+				InventoryView openInventory = player.getOpenInventory();
+				if (openInventory == null)
+					return null;
+				return InventoryUtils.getTopInventory(openInventory);
 			}
 		});
 	}

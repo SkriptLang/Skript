@@ -25,7 +25,7 @@ import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerKickEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer.ChangeMode;
@@ -48,23 +48,27 @@ import ch.njol.util.coll.CollectionUtils;
 @SuppressWarnings("deprecation")
 @Name("Message")
 @Description("The (chat) message of a chat event, the join message of a join event, the quit message of a quit event, or the death message on a death event. This expression is mostly useful for being changed.")
-@Examples({"on chat:",
-		"	player has permission \"admin\"",
-		"	set message to \"&c%message%\"",
+@Examples({
+		"on chat:",
+			"\tplayer has permission \"admin\"",
+			"\tset message to \"&c%message%\"",
 		"",
 		"on first join:",
-		"	set join message to \"Welcome %player% to our awesome server!\"",
+			"\tset join message to \"Welcome %player% to our awesome server!\"",
 		"",
 		"on join:",
-		"	player has played before",
-		"	set join message to \"Welcome back, %player%!\"",
+			"\tplayer has played before",
+			"\tset join message to \"Welcome back, %player%!\"",
 		"",
 		"on quit:",
-		"	set quit message to \"%player% left this awesome server!\"",
+			"\tif {vanish::%player's uuid%} is set:",
+				"\t\tclear quit message",
+			"\telse:",
+				"\t\tset quit message to \"%player% left this awesome server!\"",
 		"",
 		"on death:",
-		"	set the death message to \"%player% died!\""})
-@Since("1.4.6 (chat message), 1.4.9 (join & quit messages), 2.0 (death message)")
+			"\tset the death message to \"%player% died!\""})
+@Since("1.4.6 (chat message), 1.4.9 (join & quit messages), 2.0 (death message), 2.9.0 (clear message)")
 @Events({"chat", "join", "quit", "death"})
 public class ExprMessage extends SimpleExpression<String> {
 	
@@ -181,18 +185,18 @@ public class ExprMessage extends SimpleExpression<String> {
 	@Override
 	@Nullable
 	public Class<?>[] acceptChange(final ChangeMode mode) {
-		if (mode == ChangeMode.SET)
+		if (mode == ChangeMode.SET || mode == ChangeMode.DELETE)
 			return CollectionUtils.array(String.class);
 		return null;
 	}
 	
 	@Override
 	public void change(final Event e, final @Nullable Object[] delta, final ChangeMode mode) {
-		assert mode == ChangeMode.SET;
-		assert delta != null;
+		assert mode == ChangeMode.SET || mode == ChangeMode.DELETE;
 		for (final Class<? extends Event> c : type.events) {
-			if (c.isInstance(e))
-				type.set(e, "" + delta[0]);
+			if (c.isInstance(e)) {
+				type.set(e, (mode == ChangeMode.DELETE) ? "" : delta[0].toString());
+			}
 		}
 	}
 	

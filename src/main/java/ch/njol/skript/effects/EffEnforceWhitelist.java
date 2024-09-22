@@ -23,7 +23,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 
@@ -48,7 +48,7 @@ import ch.njol.util.Kleenean;
 	"enforce the whitelist",
 	"unenforce the whitelist"
 })
-@Since("INSERT VERSION")
+@Since("2.9.0")
 @RequiredPlugins("MC 1.17+")
 public class EffEnforceWhitelist extends Effect {
 
