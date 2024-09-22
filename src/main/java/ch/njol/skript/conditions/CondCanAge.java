@@ -10,7 +10,7 @@ import org.bukkit.entity.Breedable;
 import org.bukkit.entity.LivingEntity;
 
 @Name("Can Age")
-@Description("Returns whether or not an entity will be able to age/grow up.")
+@Description("Checks whether or not an entity will be able to age/grow up.")
 @Examples({
 	"on breeding:",
 		"\tentity can't age",
@@ -20,8 +20,7 @@ import org.bukkit.entity.LivingEntity;
 public class CondCanAge extends PropertyCondition<LivingEntity> {
 
 	static {
-		if (Skript.classExists("org.bukkit.entity.Breedable"))
-			register(CondCanAge.class, PropertyType.CAN, "age", "livingentities");
+		register(CondCanAge.class, PropertyType.CAN, "age", "livingentities");
 	}
 
 	@Override

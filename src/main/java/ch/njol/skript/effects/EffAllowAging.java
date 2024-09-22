@@ -24,14 +24,13 @@ import org.jetbrains.annotations.Nullable;
 public class EffAllowAging extends Effect {
 
 	static {
-		if (Skript.classExists("org.bukkit.entity.Breedable"))
-			Skript.registerEffect(EffAllowAging.class,
-				"lock age of %livingentities%",
-				"prevent aging of %livingentities%",
-				"prevent %livingentities% from aging",
-				"unlock age of %livingentities%",
-				"allow aging of %livingentities%",
-				"allow %livingentities% to age");
+		Skript.registerEffect(EffAllowAging.class,
+			"lock age of %livingentities%",
+			"prevent aging of %livingentities%",
+			"prevent %livingentities% from aging",
+			"unlock age of %livingentities%",
+			"allow aging of %livingentities%",
+			"allow %livingentities% to age");
 	}
 
 	private boolean unlock;

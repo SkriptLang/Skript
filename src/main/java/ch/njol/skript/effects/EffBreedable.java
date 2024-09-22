@@ -24,12 +24,11 @@ import org.jetbrains.annotations.Nullable;
 public class EffBreedable extends Effect {
 
 	static {
-		if (Skript.classExists("org.bukkit.entity.Breedable"))
-			Skript.registerEffect(EffBreedable.class,
-				"make %livingentities% breedable",
-				"unsterilize %livingentities%",
-				"make %livingentities% (not |non(-| )|un)breedable",
-				"sterilize %livingentities%");
+		Skript.registerEffect(EffBreedable.class,
+			"make %livingentities% breedable",
+			"unsterilize %livingentities%",
+			"make %livingentities% (not |non(-| )|un)breedable",
+			"sterilize %livingentities%");
 	}
 
 	private boolean sterilize;

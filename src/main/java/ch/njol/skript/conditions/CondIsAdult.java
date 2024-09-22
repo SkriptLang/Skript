@@ -9,7 +9,7 @@ import org.bukkit.entity.Ageable;
 import org.bukkit.entity.LivingEntity;
 
 @Name("Is Adult")
-@Description("Returns whether or not a living entity is an adult.")
+@Description("Checks whether or not a living entity is an adult.")
 @Examples({
 	"on drink:",
 		"\tevent-entity is not an adult",

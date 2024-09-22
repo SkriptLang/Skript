@@ -10,7 +10,7 @@ import org.bukkit.entity.Breedable;
 import org.bukkit.entity.LivingEntity;
 
 @Name("Can Breed")
-@Description("Returns whether or not a living entity can be bred.")
+@Description("Checks whether or not a living entity can be bred.")
 @Examples({
 	"on right click on living entity:",
 		"\tevent-entity can't breed",
@@ -20,8 +20,7 @@ import org.bukkit.entity.LivingEntity;
 public class CondCanBreed extends PropertyCondition<LivingEntity> {
 
 	static {
-		if (Skript.classExists("org.bukkit.entity.Breedable"))
-			register(CondCanBreed.class, PropertyType.CAN, "breed", "livingentities");
+		register(CondCanBreed.class, PropertyType.CAN, "breed", "livingentities");
 	}
 
 	@Override

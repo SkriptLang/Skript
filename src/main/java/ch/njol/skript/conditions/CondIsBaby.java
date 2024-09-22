@@ -9,7 +9,7 @@ import org.bukkit.entity.Ageable;
 import org.bukkit.entity.LivingEntity;
 
 @Name("Is Baby")
-@Description("Returns whether or not a living entity is a baby.")
+@Description("Checks whether or not a living entity is a baby.")
 @Examples({
 	"on drink:",
 		"\tevent-entity is a baby",
