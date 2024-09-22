@@ -2406,3 +2406,6 @@ types:
 	# Hooks
 	money: money
 	region: region¦s
+
+	# Spark
+	msptstatistic: mspt statistic¦s @an

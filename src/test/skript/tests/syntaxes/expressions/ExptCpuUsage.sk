@@ -1,0 +1,10 @@
+test "cpu usage" when running minecraft "1.21":
+	set {_usage::*} to the cpu usage
+	assert size of {_usage::*} is 3 with "didn't get all 3 windows of cpu usage"
+
+	assert system cpu usage over the last 10 seconds is set with "failed to get cpu usage"
+	assert process cpu usage of the last 10 seconds is set with "failed to get cpu usage"
+	assert system cpu usage from the last minute is set with "failed to get cpu usage"
+	assert process cpu usage over the last minute is set with "failed to get cpu usage"
+	assert system cpu usage of the last 15 minutes is set with "failed to get cpu usage"
+	assert process cpu usage from the last 15 minutes is set with "failed to get cpu usage"
