@@ -104,7 +104,7 @@ public class ExprHoverList extends SimpleExpression<String> {
 
 		if (HAS_NEW_LISTED_PLAYER_INFO) {
 			List<PaperServerListPingEvent.ListedPlayerInfo> values = new ArrayList<>();
-			if (mode != ChangeMode.DELETE && mode != ChangeMode.RESET) {
+			if (mode != ChangeMode.DELETE && mode != ChangeMode.RESET && mode != ChangeMode.REMOVE) {
 				for (Object object : delta) {
 					if (object instanceof Player) {
 						Player player = (Player) object;
@@ -124,7 +124,9 @@ public class ExprHoverList extends SimpleExpression<String> {
 					sample.addAll(values);
 					break;
 				case REMOVE:
-					sample.removeAll(values);
+					for (Object value : delta) {
+						sample.removeIf(profile -> profile.name().equals(value));
+					}
 					break;
 				case DELETE:
 				case RESET:
@@ -135,7 +137,7 @@ public class ExprHoverList extends SimpleExpression<String> {
 		}
 
 		List<PlayerProfile> values = new ArrayList<>();
-		if (mode != ChangeMode.DELETE && mode != ChangeMode.RESET) {
+		if (mode != ChangeMode.DELETE && mode != ChangeMode.RESET && mode != ChangeMode.REMOVE) {
 			for (Object object : delta) {
 				if (object instanceof Player) {
 					Player player = (Player) object;
@@ -150,13 +152,14 @@ public class ExprHoverList extends SimpleExpression<String> {
 		switch (mode) {
 			case SET:
 				sample.clear();
-				sample.addAll(values);
-				break;
+				// $FALL-THROUGH$
 			case ADD:
 				sample.addAll(values);
 				break;
 			case REMOVE:
-				sample.removeAll(values);
+				for (Object value : delta) {
+					sample.removeIf(profile -> profile.getName() != null && profile.getName().equals(value));
+				}
 				break;
 			case DELETE:
 			case RESET:
