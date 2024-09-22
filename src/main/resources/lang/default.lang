@@ -2361,7 +2361,6 @@ types:
 	quitreason: quit reason¦s @a
 	inventoryclosereason: inventory close reason¦s @an
 	transformreason: transform reason¦s @a
-	chatvisibility: chat visibility¦s @a
 
 	# Skript
 	weathertype: weather type¦s @a
