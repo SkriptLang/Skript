@@ -2301,13 +2301,6 @@ transform reasons:
 	unknown: unknown
 	infection: infection, villager infection
 
-# -- Chat Visibilities --
-chat visibilities:
-	full: fully visible, visible
-	hidden: hidden
-	system: system messages only, only system messages, commands only, only commands
-	unknown: unknown
-
 # -- Boolean --
 boolean:
 	true:

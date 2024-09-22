@@ -18,11 +18,8 @@ import org.bukkit.entity.Player;
 @Since("INSERT VERSION")
 public class CondChatColors extends PropertyCondition<Player> {
 
-	private static final boolean SUPPORTS_CLIENT_OPTION =
-		Skript.classExists("com.destroystokyo.paper.ClientOption");
-
 	static {
-		if (SUPPORTS_CLIENT_OPTION)
+		if (Skript.classExists("com.destroystokyo.paper.ClientOption"))
 			register(CondChatColors.class, PropertyType.CAN, "see chat colo[u]r[s|ing]", "players");
 	}
 

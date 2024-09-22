@@ -8,7 +8,7 @@ on join:
 	set {_test} to "org.skriptlang.skript.test.tests.syntaxes.expressions.ExprChatVisibilityTest"
 	junit test is {_test}
 
-	if player's chat visibility is only commands:
+	if player can only see commands:
 		complete objective "chat visibility is only commands" for {_test}
 
 	if player doesn't have chat filtering enabled:

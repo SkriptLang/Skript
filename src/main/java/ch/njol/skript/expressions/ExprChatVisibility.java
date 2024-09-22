@@ -17,11 +17,8 @@ import org.jetbrains.annotations.Nullable;
 @Since("INSERT VERSION")
 public class ExprChatVisibility extends SimplePropertyExpression<Player, ClientOption.ChatVisibility> {
 
-	private static final boolean SUPPORTS_CHAT_VISIBILITY =
-		Skript.classExists("com.destroystokyo.paper.ClientOption$ChatVisibility");
-
 	static {
-		if (SUPPORTS_CHAT_VISIBILITY)
+		if (Skript.classExists("com.destroystokyo.paper.ClientOption$ChatVisibility"))
 			register(ExprChatVisibility.class, ClientOption.ChatVisibility.class,
 				"chat visibility", "players");
 	}

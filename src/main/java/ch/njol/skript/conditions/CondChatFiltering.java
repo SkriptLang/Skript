@@ -16,12 +16,10 @@ import org.bukkit.entity.Player;
 @Since("INSERT VERSION")
 public class CondChatFiltering extends PropertyCondition<Player> {
 
-	private static final boolean SUPPORTS_CLIENT_OPTION =
-		Skript.classExists("com.destroystokyo.paper.ClientOption");
-
 	static {
-		if (SUPPORTS_CLIENT_OPTION)
-			register(CondChatFiltering.class, PropertyType.HAVE, "(chat|text) filtering (on|enabled)", "players");
+		if (Skript.classExists("com.destroystokyo.paper.ClientOption"))
+			register(CondChatFiltering.class, PropertyType.HAVE,
+				"(chat|text) filtering (on|enabled)", "players");
 	}
 
 	@Override
