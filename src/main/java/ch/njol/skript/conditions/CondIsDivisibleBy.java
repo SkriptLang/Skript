@@ -26,7 +26,7 @@ public class CondIsDivisibleBy extends Condition {
 		Skript.registerCondition(CondIsDivisibleBy.class,
 			"%numbers% (is|are) divisible by %number%",
 			"%numbers% (isn't|is not|aren't|are not) divisible by %number%",
-			"%numbers% can be [evenly] divided by %number%",
+			"%numbers% can be evenly divided by %number%",
 			"%numbers% (can't|cannot|can not) be [evenly] divided by %number%");
 	}
 
