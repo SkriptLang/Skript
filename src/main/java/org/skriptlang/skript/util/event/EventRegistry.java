@@ -1,4 +1,4 @@
-package org.skriptlang.skript.util;
+package org.skriptlang.skript.util.event;
 
 import com.google.common.collect.ImmutableSet;
 import org.jetbrains.annotations.Unmodifiable;
@@ -11,7 +11,7 @@ import java.util.Set;
  * They are to be used for providing standardized Event functionality wherever deemed useful.
  * @param <E> The class representing the type of events this register will hold.
  */
-public class EventRegistry<E> {
+public class EventRegistry<E extends Event> {
 
 	private final Set<E> events = new HashSet<>();
 

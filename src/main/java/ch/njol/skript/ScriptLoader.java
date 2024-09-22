@@ -47,7 +47,7 @@ import ch.njol.util.StringUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.util.EventRegistry;
+import org.skriptlang.skript.util.event.EventRegistry;
 import org.skriptlang.skript.lang.script.Script;
 import org.skriptlang.skript.lang.structure.Structure;
 
@@ -1082,7 +1082,7 @@ public class ScriptLoader {
 	 * Used for listening to events involving a ScriptLoader.
 	 * @see #eventRegistry()
 	 */
-	public interface LoaderEvent { }
+	public interface LoaderEvent extends org.skriptlang.skript.util.event.Event { }
 
 	/**
 	 * Called when {@link ScriptLoader} is preparing to load {@link Config}s into {@link Script}s.
