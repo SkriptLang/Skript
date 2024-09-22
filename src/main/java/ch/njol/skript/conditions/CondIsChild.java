@@ -8,31 +8,31 @@ import ch.njol.skript.doc.Since;
 import org.bukkit.entity.Ageable;
 import org.bukkit.entity.LivingEntity;
 
-@Name("Is Adult")
-@Description("Returns whether or not a living entity is an adult.")
+@Name("Is Child")
+@Description("Returns whether or not a living entity is a child.")
 @Examples({
 	"on drink:",
-		"\tevent-entity is not an adult",
+		"\tevent-entity is a child",
 		"\tkill event-entity"
 })
 @Since("INSERT VERSION")
-public class CondIsAdult extends PropertyCondition<LivingEntity> {
+public class CondIsChild extends PropertyCondition<LivingEntity> {
 
 	static {
-		register(CondIsAdult.class, "[an] adult", "livingentities");
+		register(CondIsChild.class, "[a] child", "livingentities");
 	}
 
 	@Override
 	public boolean check(LivingEntity entity) {
 		if (entity instanceof Ageable ageable)
-			return ageable.isAdult();
+			return !ageable.isAdult();
 
 		return false;
 	}
 
 	@Override
 	protected String getPropertyName() {
-		return "an adult";
+		return "a child";
 	}
 
 }

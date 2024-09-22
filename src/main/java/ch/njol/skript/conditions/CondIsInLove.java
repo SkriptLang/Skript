@@ -1,21 +1,3 @@
-/**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
 package ch.njol.skript.conditions;
 
 import ch.njol.skript.conditions.base.PropertyCondition;
@@ -26,12 +8,12 @@ import ch.njol.skript.doc.Since;
 import org.bukkit.entity.Animals;
 import org.bukkit.entity.LivingEntity;
 
-@Name("Entity In Love")
-@Description("Whether or not animals are currently in a love state")
+@Name("Is In Love")
+@Description("Whether or not the animals are currently in the love state.")
 @Examples({
-	"on right click on living entity:",
-		"\tevent-entity is in love",
-		"\tsend \"&c&oOhhh, this entity in love <3\" to player"
+	"on spawn of living entity:",
+		"\tif entity is in love:",
+			""
 })
 @Since("INSERT VERSION")
 public class CondIsInLove extends PropertyCondition<LivingEntity> {
