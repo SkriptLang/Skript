@@ -2244,6 +2244,34 @@ environments:
 	the_end: end, the end
 	custom: custom
 
+# -- Entity Potion Causes --
+entity potion causes:
+	area_effect_cloud: enter area effect cloud
+	arrow: arrow infliction
+	attack: attack
+	axolotl: axolotl
+	warden: warden
+	beacon: beacon effect
+	command: command
+	conduit: conduit effect
+	conversion: conversion, converted
+	death: death
+	dolphin: dolphin boost
+	expiration: expiration, expired
+	food: food
+	illusion: illusion
+	milk: drinking milk
+	plugin: plugin
+	potion_drink: potion drunk, drinking potion
+	potion_splash: potion splash, splash potion
+	spider_spawn: spider spawn, spawned spider
+	totem: removal by resurrection
+	turtle_helmet: turtle helmet effect
+	unknown: unknown
+	villager_trade: villager trade
+	patrol_captain: pillager captain, patrol captain
+	wither_rose: wither rose infliction
+
 # -- Moon Phases --
 moon phases:
 	first_quarter: first quarter
@@ -2326,6 +2354,7 @@ types:
 	biome: biome¦s @a
 	potioneffecttype: potion effect type¦s @a
 	potioneffect: potion effect¦s @a
+	entitypotioncause: entity potion cause¦s @an
 	enchantment: enchantment¦s @an
 	damagecause: damage cause¦s @a
 	teleportcause: teleport cause¦s @a
