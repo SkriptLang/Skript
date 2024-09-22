@@ -2244,7 +2244,7 @@ environments:
 	the_end: end, the end
 	custom: custom
 
-
+# -- Entity Potion Causes --
 entity potion causes:
 	area_effect_cloud: enter area effect cloud
 	arrow: arrow infliction
