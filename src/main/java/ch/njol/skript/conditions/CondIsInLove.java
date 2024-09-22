@@ -9,7 +9,7 @@ import org.bukkit.entity.Animals;
 import org.bukkit.entity.LivingEntity;
 
 @Name("Is In Love")
-@Description("Whether or not the animals are currently in the love state.")
+@Description("Checks whether or not a living entity is in love.")
 @Examples({
 	"on spawn of living entity:",
 		"\tif entity is in love:",

@@ -8,18 +8,18 @@ import ch.njol.skript.doc.Since;
 import org.bukkit.entity.Ageable;
 import org.bukkit.entity.LivingEntity;
 
-@Name("Is Child")
-@Description("Returns whether or not a living entity is a child.")
+@Name("Is Baby")
+@Description("Returns whether or not a living entity is a baby.")
 @Examples({
 	"on drink:",
-		"\tevent-entity is a child",
+		"\tevent-entity is a baby",
 		"\tkill event-entity"
 })
 @Since("INSERT VERSION")
-public class CondIsChild extends PropertyCondition<LivingEntity> {
+public class CondIsBaby extends PropertyCondition<LivingEntity> {
 
 	static {
-		register(CondIsChild.class, "[a] child", "livingentities");
+		register(CondIsBaby.class, "[a] (child|baby)", "livingentities");
 	}
 
 	@Override
@@ -32,7 +32,7 @@ public class CondIsChild extends PropertyCondition<LivingEntity> {
 
 	@Override
 	protected String getPropertyName() {
-		return "a child";
+		return "a baby";
 	}
 
 }

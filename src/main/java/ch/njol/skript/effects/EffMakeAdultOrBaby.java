@@ -22,10 +22,10 @@ import org.jetbrains.annotations.Nullable;
 	"\tmake entity an adult",
 })
 @Since("INSERT VERSION")
-public class EffMakeAdult extends Effect {
+public class EffMakeAdultOrBaby extends Effect {
 
 	static {
-		Skript.registerEffect(EffMakeAdult.class, "make %livingentities% [a[n]] (adult|:baby)");
+		Skript.registerEffect(EffMakeAdultOrBaby.class, "make %livingentities% [a[n]] (adult|:baby)");
 	}
 
 	private boolean baby;
