@@ -37,7 +37,7 @@ import ch.njol.skript.util.Patterns;
 import ch.njol.util.Kleenean;
 import com.google.common.collect.ImmutableSet;
 import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.arithmetic.Arithmetics;
 import org.skriptlang.skript.lang.arithmetic.OperationInfo;
 import org.skriptlang.skript.lang.arithmetic.Operator;
