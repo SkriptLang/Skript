@@ -17,6 +17,8 @@ import org.bukkit.event.entity.EntityBreedEvent;
 import org.bukkit.event.player.PlayerExpChangeEvent;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Objects;
+
 @Name("Experience")
 @Description("How much experience was spawned in an experience spawn or block break event. Can be changed.")
 @Examples({
@@ -57,17 +59,21 @@ public class ExprExperience extends SimpleExpression<Experience> {
 	
 	@Override
 	protected @Nullable Experience[] get(Event event) {
-		return switch (event) {
-			case ExperienceSpawnEvent experienceSpawnEvent ->
-				new Experience[]{new Experience(experienceSpawnEvent.getSpawnedXP())};
-			case BlockBreakEvent blockBreakEvent ->
-				new Experience[]{new Experience(blockBreakEvent.getExpToDrop())};
-			case PlayerExpChangeEvent playerExpChangeEvent ->
-				new Experience[]{new Experience(playerExpChangeEvent.getAmount())};
-			case EntityBreedEvent entityBreedEvent ->
-				new Experience[]{new Experience(entityBreedEvent.getExperience())};
-			default -> new Experience[0];
-		};
+		Experience[] exp;
+
+		if (event instanceof ExperienceSpawnEvent experienceSpawnEvent) {
+			exp = new Experience[]{new Experience(experienceSpawnEvent.getSpawnedXP())};
+		} else if (event instanceof BlockBreakEvent blockBreakEvent) {
+			exp = new Experience[]{new Experience(blockBreakEvent.getExpToDrop())};
+		} else if (event instanceof PlayerExpChangeEvent playerExpChangeEvent) {
+			exp = new Experience[]{new Experience(playerExpChangeEvent.getAmount())};
+		} else if (event instanceof EntityBreedEvent entityBreedEvent) {
+			exp = new Experience[]{new Experience(entityBreedEvent.getExperience())};
+		} else {
+			exp = new Experience[0];
+		}
+
+		return exp;
 	}
 	
 	@Override
