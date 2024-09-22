@@ -29,16 +29,16 @@ import org.jetbrains.annotations.Nullable;
 public class ExprBlockData extends SimplePropertyExpression<Object, BlockData> {
 
 	static {
-		if (Skript.classExists("org.bukkit.block.data.BlockData"))
-			register(ExprBlockData.class, BlockData.class, "block[ ]data", Skript.isRunningMinecraft(1, 19, 4) ? "blocks/displays" : "blocks");
+		String types = Skript.isRunningMinecraft(1, 19, 4) ? "blocks/displays" : "blocks";
+		register(ExprBlockData.class, BlockData.class, "block[ ]data", types);
 	}
 
 	@Override
 	public @Nullable BlockData convert(Object object) {
-		if (object instanceof Block)
-			return ((Block) object).getBlockData();
-		if (object instanceof BlockDisplay)
-			return ((BlockDisplay) object).getBlock();
+		if (object instanceof Block block)
+			return block.getBlockData();
+		if (object instanceof BlockDisplay blockDisplay)
+			return blockDisplay.getBlock();
 		return null;
 
 	}
@@ -55,10 +55,10 @@ public class ExprBlockData extends SimplePropertyExpression<Object, BlockData> {
 		assert delta != null; // reset/delete not supported
 		BlockData blockData = ((BlockData) delta[0]);
 		for (Object object : getExpr().getArray(event)) {
-			if (object instanceof Block) {
-				((Block) object).setBlockData(blockData);
-			} else if (object instanceof BlockDisplay) {
-				((BlockDisplay) object).setBlock(blockData);
+			if (object instanceof Block block) {
+				block.setBlockData(blockData);
+			} else if (object instanceof BlockDisplay blockDisplay) {
+				blockDisplay.setBlock(blockData);
 			}
 		}
 	}

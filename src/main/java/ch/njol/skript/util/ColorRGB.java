@@ -6,6 +6,7 @@ import ch.njol.util.Math2;
 import ch.njol.yggdrasil.Fields;
 import org.apache.commons.lang.math.NumberUtils;
 import org.bukkit.DyeColor;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
 
@@ -28,6 +29,7 @@ public class ColorRGB implements Color {
 	 * This is to keep inline with other color classes.
 	 */
 	@Deprecated
+	@ApiStatus.Internal
 	public ColorRGB(int red, int green, int blue) {
 		this(org.bukkit.Color.fromRGB(
 			Math2.fit(0, red, 255),
@@ -40,6 +42,7 @@ public class ColorRGB implements Color {
 	 * This is to keep inline with other color classes.
 	 */
 	@Deprecated
+	@ApiStatus.Internal
 	public ColorRGB(org.bukkit.Color bukkit) {
 		this.dye = DyeColor.getByColor(bukkit);
 		this.bukkit = bukkit;
@@ -103,9 +106,10 @@ public class ColorRGB implements Color {
 
 	@Override
 	public String getName() {
+		String rgb = bukkit.getRed() + ", " + bukkit.getGreen() + ", " + bukkit.getBlue();
 		if (HAS_ARGB && bukkit.getAlpha() != 255)
-			return "argb " + bukkit.getAlpha() + ", " + bukkit.getRed() + ", " + bukkit.getGreen() + ", " + bukkit.getBlue();
-		return "rgb " + bukkit.getRed() + ", " + bukkit.getGreen() + ", " + bukkit.getBlue();
+			return "argb " + bukkit.getAlpha() + ", " + rgb;
+		return "rgb " + rgb;
 	}
 
 	@Nullable

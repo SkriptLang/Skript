@@ -60,9 +60,13 @@ public class ExprDisplayShadow extends SimplePropertyExpression<Display, Float> 
 				for (Display display : displays) {
 					if (radius) {
 						float value = Math.max(0F, display.getShadowRadius() + change);
+						if (Float.isInfinite(value))
+							continue;
 						display.setShadowRadius(value);
 					} else {
 						float value = Math.max(0F, display.getShadowStrength() + change);
+						if (Float.isInfinite(value))
+							continue;
 						display.setShadowStrength(value);
 					}
 				}

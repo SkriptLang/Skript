@@ -6,6 +6,11 @@ import org.jetbrains.annotations.Contract;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
+/**
+ * Rotates {@link Display}s around the X, Y, and Z axes, as well as any arbitrary axis.
+ * Supports all local axes.
+ * Modifies the left rotation of the display.
+ */
 public class DisplayRotator implements Rotator<Display> {
 
 	private final QuaternionRotator qRotator;

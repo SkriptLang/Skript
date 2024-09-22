@@ -111,10 +111,10 @@ public class ExprXYZComponent extends SimplePropertyExpression<Object, Number> {
 
 		for (Object object : objects) {
 			if (object instanceof Vector vector) {
-				changeVector(vector, value, mode);
+				changeVector(vector, axis, value, mode);
 				hasVectors = true;
 			} else if (object instanceof Quaternionf quaternion) {
-				changeQuaternion(quaternion, (float) value, mode);
+				changeQuaternion(quaternion, axis, (float) value, mode);
 				hasQuaternions = true;
 			} else {
 				hasInvalidInput = true;
@@ -140,7 +140,7 @@ public class ExprXYZComponent extends SimplePropertyExpression<Object, Number> {
 	 * @param value the value to modify by
 	 * @param mode the change mode to determine the modification type
 	 */
-	private void changeVector(Vector vector, double value, ChangeMode mode) {
+	private static void changeVector(Vector vector, Axis axis, double value, ChangeMode mode) {
 		if (axis == Axis.W)
 			return;
 		switch (mode) {
@@ -173,7 +173,7 @@ public class ExprXYZComponent extends SimplePropertyExpression<Object, Number> {
 	 * @param value the value to modify by
 	 * @param mode the change mode to determine the modification type
 	 */
-	private void changeQuaternion(Quaternionf quaternion, float value, ChangeMode mode) {
+	private static void changeQuaternion(Quaternionf quaternion, Axis axis, float value, ChangeMode mode) {
 		float x = quaternion.x();
 		float y = quaternion.y();
 		float z = quaternion.z();

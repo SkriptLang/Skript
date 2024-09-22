@@ -66,7 +66,7 @@ public class ExprQuaternionAxisAngle extends SimplePropertyExpression<Quaternion
 				yield null;
 			}
 			default -> null;
-		}
+		};
 	}
 
 	@Override

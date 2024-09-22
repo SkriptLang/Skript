@@ -54,7 +54,7 @@ public class DisplayData extends EntityData<Display> {
 			return codeName;
 		}
 
-		public static final String[] codeNames;
+		private static final String[] codeNames;
 		static {
 			List<String> codeNamesList = new ArrayList<>();
 			for (DisplayType type : values()) {
@@ -166,23 +166,23 @@ public class DisplayData extends EntityData<Display> {
 	public boolean match(Display entity) {
 		switch (type) {
 			case BLOCK -> {
-				if (!(entity instanceof BlockDisplay))
+				if (!(entity instanceof BlockDisplay blockDisplay))
 					return false;
-				if (blockData != null && !((BlockDisplay) entity).getBlock().equals(blockData))
+				if (blockData != null && !blockDisplay.getBlock().equals(blockData))
 					return false;
 			}
 			case ITEM -> {
-				if (!(entity instanceof ItemDisplay))
+				if (!(entity instanceof ItemDisplay itemDisplay))
 					return false;
-				if (item != null && !((ItemDisplay) entity).getItemStack().isSimilar(item))
+				if (item != null && !itemDisplay.getItemStack().isSimilar(item))
 					return false;
 			}
 			case TEXT -> {
-				if (!(entity instanceof TextDisplay))
+				if (!(entity instanceof TextDisplay textDisplay))
 					return false;
 				if (text == null) // all text displays should match a blank one.
 					return true;
-				String displayText = ((TextDisplay) entity).getText();
+				String displayText = textDisplay.getText();
 				if (displayText == null)
 					return false;
 				return displayText.equals(text);

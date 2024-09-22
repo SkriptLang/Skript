@@ -39,7 +39,7 @@ public class ExprTextOf extends SimplePropertyExpression<Object, String> {
 		// This is because this expression is setup to support future types.
 		// Remove this if non-versioning.
 		if (!types.isEmpty())
-			register(ExprTextOf.class, String.class, "(string|text)[s]", types);
+			register(ExprTextOf.class, String.class, "text[s]", types);
 	}
 
 	@Override

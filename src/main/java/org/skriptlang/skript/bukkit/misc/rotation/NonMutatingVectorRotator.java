@@ -4,7 +4,11 @@ import org.bukkit.util.Vector;
 import org.jetbrains.annotations.Contract;
 
 import java.util.function.Function;
-
+/**
+ * Rotates {@link Vector}s around the X, Y, and Z axes, as well as any arbitrary axis.
+ * Does not support local axes.
+ * Returns new vector objects rather than mutating the input vector.
+ */
 public class NonMutatingVectorRotator implements Rotator<Vector> {
 
 	private final Function<Vector, Vector> rotator;
