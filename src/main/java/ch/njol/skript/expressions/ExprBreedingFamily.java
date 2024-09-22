@@ -1,21 +1,3 @@
-/**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
 package ch.njol.skript.expressions;
 
 import ch.njol.skript.Skript;
@@ -34,52 +16,49 @@ import org.bukkit.event.entity.EntityBreedEvent;
 import org.eclipse.jdt.annotation.Nullable;
 
 @Name("Breeding Family")
-@Description("Represents a family within a breeding event")
+@Description("Represents family members within a breeding event.")
 @Examples({
 	"on breeding:",
-		"\tsend \"When a %breeding mother% and %breeding father% love each other they make a %bred offspring%\" to breeder"
+		"\tsend \"When a %breeding mother% and %breeding father% love each other very much, " +
+		"they make a %bred offspring%\" to breeder"
 })
 @Since("INSERT VERSION")
 public class ExprBreedingFamily extends SimpleExpression<LivingEntity> {
 
 	static {
 		Skript.registerExpression(ExprBreedingFamily.class, LivingEntity.class, ExpressionType.SIMPLE,
-				"breed[ing] mother",
-				"breed[ing] father",
-				"[bred] (offspring|child)",
-				"breeder");
+			"[the] breed[ing] mother",
+			"[the] breed[ing] father",
+			"[the] [bred] (offspring|child)",
+			"[the] breeder");
 	}
 
 	private int pattern;
 
 	@Override
-	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
+	public boolean init(Expression<?>[] expressions, int matchedPattern,
+						Kleenean isDelayed, ParseResult parseResult) {
 		if (!getParser().isCurrentEvent(EntityBreedEvent.class)) {
 			Skript.error("'breeding family' expression can only be used within an Entity Breed event.");
 			return false;
 		}
+		
 		pattern = matchedPattern;
 		return true;
 	}
 
 	@Override
 	protected @Nullable LivingEntity[] get(Event event) {
-		if (!(event instanceof EntityBreedEvent))
+		if (!(event instanceof EntityBreedEvent breedEvent))
 			return new LivingEntity[0];
-			
-		EntityBreedEvent breedEvent = (EntityBreedEvent) event;
-		switch (pattern) {
-			case 0:
-				return new LivingEntity[]{breedEvent.getMother()};
-			case 1:
-				return new LivingEntity[]{breedEvent.getFather()};
-			case 2:
-				return new LivingEntity[]{breedEvent.getEntity()};
-			case 3:
-				return new LivingEntity[]{breedEvent.getBreeder()};
-			default:
-				return new LivingEntity[0];
-		}
+
+		return switch (pattern) {
+			case 0 -> new LivingEntity[]{breedEvent.getMother()};
+			case 1 -> new LivingEntity[]{breedEvent.getFather()};
+			case 2 -> new LivingEntity[]{breedEvent.getEntity()};
+			case 3 -> new LivingEntity[]{breedEvent.getBreeder()};
+			default -> new LivingEntity[0];
+		};
 	}
 
 	@Override
