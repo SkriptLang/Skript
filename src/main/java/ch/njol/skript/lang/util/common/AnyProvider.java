@@ -1,9 +1,5 @@
 package ch.njol.skript.lang.util.common;
 
-import org.skriptlang.skript.lang.converter.Converter;
-
-import java.util.function.Function;
-
 /**
  * 'AnyProvider' types are holders for common properties (e.g. name, size) where
  * it is highly likely that things other than Skript may wish to register
