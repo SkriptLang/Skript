@@ -47,6 +47,7 @@ skript command:
 		info: Skriptのエイリアスとドキュメントをリンク付きで表示します。
 		gen-docs: pluginフォルダ内にテンプレートを使用してドキュメントを生成します。
 		test: 内部テストを実行するために使用します。
+		locate: 関数を見つけるために使用されます
 
 	invalid script: 指定されたスクリプト <grey>'<gold>%s<grey>'<red> はscriptsフォルダ内では見つかりませんでした！
 	invalid folder: 指定されたフォルダ <grey>'<gold>%s<grey>'<red> はscriptsフォルダ内では見つかりませんでした！
@@ -117,6 +118,10 @@ skript command:
 		server: サーバーのバージョン: <aqua>%s
 		addons: インストール済みのSkriptアドオン: <aqua>%s
 		dependencies: インストール済みの依存関係: <aqua>%s
+	locate:
+		function found: 関数 '&e%s&f' は次の場所にあります: &6%s&f, 行: &6%s
+		function provided: 関数 '&e%s&f' が提供します Skript
+		function not found: 関数 '%s' が見つかりません
 
 # -- Updater --
 updater:

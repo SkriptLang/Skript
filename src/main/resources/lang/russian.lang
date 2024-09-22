@@ -47,6 +47,7 @@ skript command:
 		info: Выводит ссылки на алиасы Skript и документацию
 		gen-docs: Генерирует документацию, используя документации/шаблоны в папке плагина
 		test: Используется для внутреннего тестирования Skript
+		locate: Используется для поиска функции
 
 	invalid script: Не смогли найти скрипт <grey>'<gold>%s<grey>'<red> в папке со скриптами!
 	invalid folder: Не смогли найти папку <grey>'<gold>%s<grey>'<red> в папке со скриптами!
@@ -117,6 +118,10 @@ skript command:
 		server: Версия сервера: <aqua>%s
 		addons: Установленные аддоны: <aqua>%s
 		dependencies: Установленные зависимости: <aqua>%s
+	locate:
+		function found: Функция '&e%s&f' находится в: &6%s&f, Линия: &6%s
+		function provided: Функция '&e%s&f' предоставляется Skript
+		function not found: Функция '%s' не может быть найдена
 
 # -- Updater --
 updater:

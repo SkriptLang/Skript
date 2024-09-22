@@ -47,6 +47,7 @@ skript command:
 		info: Wyświetla linki do aliasów i oficjalnej dokumentacji Skripta
 		gen-docs: Generuje dokumentację używając szablonów w folderze Skripta
 		test: Służy do uruchamiania wewnętrznych testów Skripta
+		locate: Służy do lokalizowania funkcji
 
 	invalid script: Nie znaleziono skryptu <grey>'<gold>%s<grey>'<red> w folderze scripts!
 	invalid folder: Nie znaleziono folderu <grey>'<gold>%s<grey>'<red> w folderze scripts!
@@ -117,6 +118,10 @@ skript command:
 		server: Wersja serwera: <aqua>%s
 		addons: Zainstalowane dodatki do Skripta: <aqua>%s
 		dependencies: Zainstalowane zależności: <aqua>%s
+	locate:
+		function found: Funkcja '&e%s&f' znajduje się w: &6%s&f, Linia: &6%s
+		function provided: Funkcja '&e%s&f' zapewnia Skript
+		function not found: Funkcja '%s' nie może zostać znaleziona
 
 # -- Updater --
 updater:

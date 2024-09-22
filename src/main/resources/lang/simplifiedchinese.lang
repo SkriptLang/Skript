@@ -47,6 +47,7 @@ skript command:
 		info: 打印一个带有Skript的别名和文档链接的信息
 		gen-docs: 使用插件文件夹中的docs/templates生成文档
 		test: 用于运行内部的Skript测试
+		locate: 用于定位函数
 
 	invalid script: 无法在scripts文件夹中找到脚本<grey>“<gold>%s<grey>”<red>！
 	invalid folder: 无法在scripts文件夹中找到文件夹<grey>“<gold>%s<grey>”<red>！
@@ -117,6 +118,10 @@ skript command:
 		server: 服务器版本：<aqua>%s
 		addons: 已安装的Skript插件：<aqua>%s
 		dependencies: 已安装的依赖：<aqua>%s
+	locate:
+		function found: 该函数 '&e%s&f' 位于: &6%s&f, 行: &6%s
+		function provided: 该功能 '&e%s&f' 由以下提供 Skript
+		function not found: 该功能 '%s' 找不到
 
 # -- Updater --
 updater:

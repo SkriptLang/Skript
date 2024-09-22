@@ -47,6 +47,7 @@ skript command:
 		info: Skript의 별명 및 문서에 대한 링크가있는 메시지를 표시합니다
 		gen-docs: 플러그인 폴더의 문서 템플릿을 사용하여 문서를 생성합니다.
 		test: Skript 테스트를 실행할 때 사용됩니다.
+		locate: 함수를 찾는 데 사용됩니다.
 
 	invalid script: 스크립트 폴더에서 <grey>'<gold>%s<grey>'<red> 스크립트를 찾을 수 없습니다!
 	invalid folder: 스크립트 폴더에서 <grey>'<gold>%s<grey>'<red> 폴더를 찾을 수 없습니다!
@@ -117,6 +118,10 @@ skript command:
 		server: 서버 버전: <aqua>%s
 		addons: 설치된 Skript 애드온: <aqua>%s
 		dependencies: 설치된 종속성: <aqua>%s
+	locate:
+		function found: 기능은 '&e%s&f' 에 있습니다.: &6%s&f, 줄: &6%s
+		function provided: 기능은 '&e%s&f' 에 의해 제공됩니다 Skript
+		function not found: 기능은 '%s' 찾을 수 없습니다
 
 # -- Updater --
 updater:

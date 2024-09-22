@@ -171,5 +171,9 @@ public class Signature<T> {
 	public int hashCode() {
 		return name.hashCode();
 	}
+
+	public String getScript() {
+		return this.script;
+	}
 	
 }

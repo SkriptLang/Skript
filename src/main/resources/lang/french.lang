@@ -47,6 +47,7 @@ skript command:
 		info: Affiche un message contenant les liens vers les alias et la documentation de Skript
 		gen-docs: Génère la documentation en utilisant docs/templates dans le dossier du plugin
 		test: Utilisé pour exécuter les tests Skript
+		locate: Utilisé pour localiser une fonction
 
 	invalid script: Impossible de trouver le script <grey>'<gold>%s<grey>'<red> dans le dossier des scripts !
 	invalid folder: Impossible de trouver le dossier <grey>'<gold>%s<grey>'<red> dans le dossier des scripts !
@@ -117,6 +118,10 @@ skript command:
 		server: Version du serveur : <aqua>%s
 		addons: Addons Skript installés : <aqua>%s
 		dependencies: Dépendances installées : <aqua>%s
+	locate:
+		function found: La fonction '&e%s&f' se trouve dans: &6%s&f, Ligne : &6%s
+		function provided: La fonction '&e%s&f' est assurée par Skript
+		function not found: La fonction '%s' est introuvable
 
 # -- Updater --
 updater:

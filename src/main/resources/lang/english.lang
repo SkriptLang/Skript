@@ -47,6 +47,7 @@ skript command:
 		info: Prints a message with links to Skript's aliases and documentation
 		gen-docs: Generates documentation using docs/templates in plugin folder
 		test: Used for running internal Skript tests
+		locate: Used to locate a function
 
 	invalid script: Can't find the script <grey>'<gold>%s<grey>'<red> in the scripts folder!
 	invalid folder: Can't find the folder <grey>'<gold>%s<grey>'<red> in the scripts folder!
@@ -118,6 +119,10 @@ skript command:
 		server: Server Version: <aqua>%s
 		addons: Installed Skript Addons: <aqua>%s
 		dependencies: Installed dependencies: <aqua>%s
+	locate:
+		function found: The function '&e%s&f' is located in: &6%s&f, Line: &6%s
+		function provided: The function '&e%s&f' is provided by Skript
+		function not found: The function '%s' can not be found
 
 # -- Updater --
 updater:
