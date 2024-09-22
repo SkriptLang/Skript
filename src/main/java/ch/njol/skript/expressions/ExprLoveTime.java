@@ -11,7 +11,7 @@ import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.entity.Animals;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 @Name("Love Time")
 @Description({

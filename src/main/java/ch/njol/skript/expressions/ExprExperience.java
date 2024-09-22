@@ -74,15 +74,16 @@ public class ExprExperience extends SimpleExpression<Experience> {
 	@Nullable
 	public Class<?>[] acceptChange(ChangeMode mode) {
 		return switch (mode) {
-			case SET, DELETE, RESET -> CollectionUtils.array(Experience.class, Integer.class);
+			case SET, DELETE -> CollectionUtils.array(Experience.class, Integer.class);
 			case ADD, REMOVE -> CollectionUtils.array(Experience[].class, Integer[].class);
+			case RESET -> CollectionUtils.array();
 			default -> null;
 		};
 	}
 	
 	@Override
 	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
-		int exp = 0;
+		int exp;
 
 		switch (event) {
 			case ExperienceSpawnEvent experienceSpawnEvent -> exp = experienceSpawnEvent.getSpawnedXP();
@@ -101,7 +102,7 @@ public class ExprExperience extends SimpleExpression<Experience> {
 				switch (mode) {
 					case ADD -> exp += value;
 					case SET -> exp = value;
-					case REMOVE -> exp -= value;
+					case REMOVE, REMOVE_ALL -> exp -= value;
 				}
 			}
 		}

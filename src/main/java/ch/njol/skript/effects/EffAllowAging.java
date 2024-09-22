@@ -21,11 +21,11 @@ import org.jetbrains.annotations.Nullable;
 		"\tlock age of entity"
 })
 @Since("INSERT VERSION")
-public class EffLockAge extends Effect {
+public class EffAllowAging extends Effect {
 
 	static {
 		if (Skript.classExists("org.bukkit.entity.Breedable"))
-			Skript.registerEffect(EffLockAge.class,
+			Skript.registerEffect(EffAllowAging.class,
 				"lock age of %livingentities%",
 				"prevent aging of %livingentities%",
 				"prevent %livingentities% from aging",

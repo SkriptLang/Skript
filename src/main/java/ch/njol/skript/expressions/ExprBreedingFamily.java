@@ -13,7 +13,7 @@ import ch.njol.util.Kleenean;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.Event;
 import org.bukkit.event.entity.EntityBreedEvent;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 @Name("Breeding Family")
 @Description("Represents family members within a breeding event.")
@@ -27,8 +27,8 @@ public class ExprBreedingFamily extends SimpleExpression<LivingEntity> {
 
 	static {
 		Skript.registerExpression(ExprBreedingFamily.class, LivingEntity.class, ExpressionType.SIMPLE,
-			"[the] breed[ing] mother",
-			"[the] breed[ing] father",
+			"[the] breeding mother",
+			"[the] breeding father",
 			"[the] [bred] (offspring|child)",
 			"[the] breeder");
 	}
