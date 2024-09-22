@@ -85,15 +85,16 @@ public class ExprExperience extends SimpleExpression<Experience> {
 	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
 		int exp;
 
-		switch (event) {
-			case ExperienceSpawnEvent experienceSpawnEvent -> exp = experienceSpawnEvent.getSpawnedXP();
-			case BlockBreakEvent blockBreakEvent -> exp = blockBreakEvent.getExpToDrop();
-			case PlayerExpChangeEvent playerExpChangeEvent -> exp = playerExpChangeEvent.getAmount();
-			case EntityBreedEvent entityBreedEvent -> exp = entityBreedEvent.getExperience();
-
-			default -> {
-				return;
-			}
+		if (event instanceof ExperienceSpawnEvent experienceSpawnEvent) {
+			exp = experienceSpawnEvent.getSpawnedXP();
+		} else if (event instanceof BlockBreakEvent blockBreakEvent) {
+			exp = blockBreakEvent.getExpToDrop();
+		} else if (event instanceof PlayerExpChangeEvent playerExpChangeEvent) {
+			exp = playerExpChangeEvent.getAmount();
+		} else if (event instanceof EntityBreedEvent entityBreedEvent) {
+			exp = entityBreedEvent.getExperience();
+		} else {
+			return;
 		}
 
 		if (delta != null) {
@@ -108,12 +109,14 @@ public class ExprExperience extends SimpleExpression<Experience> {
 		}
 
 		exp = Math.max(0, exp);
-		switch (event) {
-			case ExperienceSpawnEvent experienceSpawnEvent -> experienceSpawnEvent.setSpawnedXP(exp);
-			case BlockBreakEvent blockBreakEvent -> blockBreakEvent.setExpToDrop(exp);
-			case PlayerExpChangeEvent playerExpChangeEvent -> playerExpChangeEvent.setAmount(exp);
-			case EntityBreedEvent entityBreedEvent -> entityBreedEvent.setExperience(exp);
-			default -> {}
+		if (event instanceof ExperienceSpawnEvent experienceSpawnEvent) {
+			experienceSpawnEvent.setSpawnedXP(exp);
+		} else if (event instanceof BlockBreakEvent blockBreakEvent) {
+			blockBreakEvent.setExpToDrop(exp);
+		} else if (event instanceof PlayerExpChangeEvent playerExpChangeEvent) {
+			playerExpChangeEvent.setAmount(exp);
+		} else if (event instanceof EntityBreedEvent entityBreedEvent) {
+			entityBreedEvent.setExperience(exp);
 		}
 	}
 	
