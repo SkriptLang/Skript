@@ -1757,26 +1757,24 @@ public final class BukkitEventValues {
 		}
 
 		// EntityBreedEvent
-		EventValues.registerEventValue(EntityBreedEvent.class, ItemStack.class, new Getter<ItemStack, EntityBreedEvent>() {
+		EventValues.registerEventValue(EntityBreedEvent.class, ItemStack.class, new Getter<>() {
 			@Override
-			@Nullable
-			public ItemStack get(EntityBreedEvent event) {
+			public @Nullable ItemStack get(EntityBreedEvent event) {
 				return event.getBredWith();
 			}
 		}, EventValues.TIME_NOW);
 
 		if (Skript.classExists("org.bukkit.event.entity.EntityEnterLoveModeEvent")) {
-			EventValues.registerEventValue(EntityEnterLoveModeEvent.class, LivingEntity.class, new Getter<LivingEntity, EntityEnterLoveModeEvent>() {
+			EventValues.registerEventValue(EntityEnterLoveModeEvent.class, LivingEntity.class, new Getter<>() {
 				@Override
-				@Nullable
 				public LivingEntity get(EntityEnterLoveModeEvent event) {
 					return event.getEntity();
 				}
 			}, EventValues.TIME_NOW);
-			EventValues.registerEventValue(EntityEnterLoveModeEvent.class, HumanEntity.class, new Getter<HumanEntity, EntityEnterLoveModeEvent>() {
+
+			EventValues.registerEventValue(EntityEnterLoveModeEvent.class, HumanEntity.class, new Getter<>() {
 				@Override
-				@Nullable
-				public HumanEntity get(EntityEnterLoveModeEvent event) {
+				public @Nullable HumanEntity get(EntityEnterLoveModeEvent event) {
 					return event.getHumanEntity();
 				}
 			}, EventValues.TIME_NOW);
