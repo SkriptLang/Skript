@@ -1534,14 +1534,6 @@ public class BukkitClasses {
 				.name("Entity Potion Cause")
 				.description("Represents the cause of the action of a potion effect on an entity, e.g. arrow, command")
 				.since("INSERT VERSION"));
-    
-    if (Skript.classExists("com.destroystokyo.paper.ClientOption$ChatVisibility"))
-			Classes.registerClass(new EnumClassInfo<>(ClientOption.ChatVisibility.class, "chatvisibility", "chat visibilities")
-				.user("chat ?visibility")
-				.name("Chat Visibility")
-				.description("The chat visibility of a player.")
-				.requiredPlugins("Paper")
-				.since("INSERT VERSION"));
 	}
 
 }
