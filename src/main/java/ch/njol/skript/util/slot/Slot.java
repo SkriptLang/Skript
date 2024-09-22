@@ -25,7 +25,7 @@ import ch.njol.skript.lang.util.common.AnyNamed;
 import org.bukkit.Bukkit;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.lang.Debuggable;
 import org.jetbrains.annotations.NotNull;

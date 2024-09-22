@@ -21,7 +21,7 @@ package ch.njol.skript.entity;
 import ch.njol.skript.registrations.Classes;
 import com.google.common.collect.Iterators;
 import org.bukkit.entity.Cat;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.lang.Literal;

@@ -29,7 +29,7 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 @Name("Toggle Picking Up Items")
 @Description("Determines whether living entities are able to pick up items or not")

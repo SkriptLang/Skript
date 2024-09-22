@@ -32,7 +32,7 @@ import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 @Name("Amount of Items")
 @Description("Counts how many of a particular <a href='./classes.html#itemtype'>item type</a> are in a given inventory.")
