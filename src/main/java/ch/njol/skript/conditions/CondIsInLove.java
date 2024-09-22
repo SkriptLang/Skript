@@ -13,7 +13,7 @@ import org.bukkit.entity.LivingEntity;
 @Examples({
 	"on spawn of living entity:",
 		"\tif entity is in love:",
-			""
+			"broadcast \"That was quick!\""
 })
 @Since("INSERT VERSION")
 public class CondIsInLove extends PropertyCondition<LivingEntity> {
@@ -23,9 +23,10 @@ public class CondIsInLove extends PropertyCondition<LivingEntity> {
 	}
 
 	@Override
-	public boolean check(LivingEntity livingEntity) {
-		if (livingEntity instanceof Animals)
-			return ((Animals) livingEntity).isLoveMode();
+	public boolean check(LivingEntity entity) {
+		if (entity instanceof Animals animals)
+			return animals.isLoveMode();
+
 		return false;
 	}
 
