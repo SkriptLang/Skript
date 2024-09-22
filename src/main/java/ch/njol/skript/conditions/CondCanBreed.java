@@ -20,7 +20,7 @@ import org.bukkit.entity.LivingEntity;
 public class CondCanBreed extends PropertyCondition<LivingEntity> {
 
 	static {
-		register(CondCanBreed.class, PropertyType.CAN, "breed", "livingentities");
+		register(CondCanBreed.class, PropertyType.CAN, "(breed|be bred)", "livingentities");
 	}
 
 	@Override
