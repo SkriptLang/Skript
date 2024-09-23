@@ -18,13 +18,13 @@ on breed of pig:
 		complete objective "correct breeder" for {_test}
 
 	if:
-		breeding mother is pig
+		breeding mother is a pig
 		breeding mother's name is "mother"
 	then:
 		complete objective "correct breeding mother" for {_test}
 
 	if:
-		breeding father is pig
+		breeding father is a pig
 		breeding father's name is "father"
 	then:
 		complete objective "correct breeding father" for {_test}
