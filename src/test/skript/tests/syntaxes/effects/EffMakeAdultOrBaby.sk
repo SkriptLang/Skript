@@ -1,9 +1,8 @@
 test "make mob adult":
-	delete all zombies
 	set {_spawn} to spawn of world "world"
 	spawn baby zombie at {_spawn}
 	set {_zombie} to last spawned zombie
-	assert {_zombie} is not an adult with "spawned zombie was an adult"
+	assert {_zombie} is a baby with "spawned zombie was an adult"
 	make {_zombie} an adult
 	assert {_zombie} is an adult with "spawned zombie is still a baby zombie"
 	make {_zombie} a baby
@@ -11,11 +10,10 @@ test "make mob adult":
 	delete all zombies
 
 test "make animal adult":
-	delete all sheep
 	set {_spawn} to spawn of world "world"
 	spawn baby sheep at {_spawn}
 	set {_sheep} to last spawned sheep
-	assert {_sheep} is not an adult with "spawned sheep was an adult"
+	assert {_sheep} is a baby with "spawned sheep was an adult"
 	make {_sheep} an adult
 	assert {_sheep} is an adult with "spawned sheep is still a baby sheep"
 	make {_sheep} a baby

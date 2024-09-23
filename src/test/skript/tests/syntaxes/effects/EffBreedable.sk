@@ -1,5 +1,4 @@
 test "breedable":
-	delete all chickens
 	set {_spawn} to spawn of world "world"
 	spawn baby chicken at {_spawn}
 	set {_chicken} to last spawned chicken

@@ -1,5 +1,4 @@
 test "valid entity is in love":
-	delete all cows
 	set {_spawn} to spawn of world "world"
 	spawn adult cow at {_spawn}
 	set {_cow} to last spawned cow
@@ -18,7 +17,6 @@ test "valid entity is in love":
 	delete all cows
 
 test "invalid entity is in love":
-	delete all zombies
 	set {_spawn} to spawn of world "world"
 	spawn adult zombie at {_spawn}
 	set {_zombie} to last spawned zombie

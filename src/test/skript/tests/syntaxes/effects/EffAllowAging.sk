@@ -1,5 +1,4 @@
 test "allow aging":
-	delete all pigs
 	set {_spawn} to spawn of world "world"
 	spawn baby pig at {_spawn}
 	set {_pig} to last spawned pig
