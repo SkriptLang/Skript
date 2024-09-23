@@ -23,10 +23,10 @@ import java.util.Arrays;
 @Name("MSPT Usage")
 @RequiredPlugins("Paper 1.21+ or Spark")
 @Description({
-    "Returns the MSPT (milliseconds per tick) readings from the last 10 seconds, 1 minute and 5 minutes. " +
+	"Returns the MSPT (milliseconds per tick) readings from the last 10 seconds, 1 minute and 5 minutes. " +
 	"The returned values will be numbers which represent milliseconds, rather than timespans.",
 	"The average, minimum, maximum, and median values are available, as well as any percentile between 0 and 100.",
-    "This expression can only be used if the server has Spark or you have Spark installed as a plugin."
+	"This expression can only be used if the server has Spark or you have Spark installed as a plugin."
 })
 @Examples({
 	"broadcast the average mspt over the last 10 seconds",

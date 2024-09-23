@@ -41,7 +41,7 @@ public class ExprCPUUsage extends SimpleExpression<Double> {
 
 	static {
 		Skript.registerExpression(ExprCPUUsage.class, Double.class, ExpressionType.SIMPLE,
-				"[the] [:system|process] cpu usage [measurement|value] (over|from|of) the last 10 seconds",
+				"[the] [:system|process] cpu usage [measurement|value] (over|from|of) the last (10|ten) seconds",
 				"[the] [:system|process] cpu usage [measurement|value] (over|from|of) the last [1|one] minute",
 				"[the] [:system|process] cpu usage [measurement|value] (over|from|of) the last (15|fifteen) minutes",
 				"[the] [:system|process] cpu usage [measurements|values]");
