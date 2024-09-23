@@ -8,6 +8,8 @@ import me.lucko.spark.api.statistic.StatisticWindow.TicksPerSecond;
 import me.lucko.spark.api.statistic.misc.DoubleAverageInfo;
 import me.lucko.spark.api.statistic.types.DoubleStatistic;
 import me.lucko.spark.api.statistic.types.GenericStatistic;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnknownNullability;
 
@@ -18,16 +20,14 @@ import java.util.Arrays;
  */
 public class SparkUtils {
 
-	private static Spark sparkInstance;
-	private static DoubleStatistic<CpuUsage> cpuProcess;
-	private static DoubleStatistic<CpuUsage> cpuSystem;
-	private static GenericStatistic<DoubleAverageInfo, MillisPerTick> mspt;
-	private static DoubleStatistic<TicksPerSecond> tps;
+	private static volatile DoubleStatistic<CpuUsage> cpuProcess;
+	private static volatile DoubleStatistic<CpuUsage> cpuSystem;
+	private static volatile GenericStatistic<DoubleAverageInfo, MillisPerTick> mspt;
+	private static volatile DoubleStatistic<TicksPerSecond> tps;
 
-	private static Spark spark() {
-		if (sparkInstance == null)
-			sparkInstance = SparkProvider.get();
-		return sparkInstance;
+	@Contract(pure = true)
+	private static @NotNull Spark spark() {
+		return SparkProvider.get();
 	}
 
 	/**
@@ -40,9 +40,10 @@ public class SparkUtils {
 
 	private static @UnknownNullability GenericStatistic<DoubleAverageInfo, MillisPerTick> mspt() {
 		if (mspt == null) {
-			mspt = spark().mspt();
-			if (mspt == null)
-				return null;
+			synchronized (SparkUtils.class) {
+				if (mspt == null)
+					mspt = spark().mspt();
+			}
 		}
 		return mspt;
 	}
@@ -72,8 +73,12 @@ public class SparkUtils {
 	}
 
 	private static DoubleStatistic<CpuUsage> cpuProcess() {
-		if (cpuProcess == null)
-			cpuProcess = spark().cpuProcess();
+		if (cpuProcess == null) {
+			synchronized (SparkUtils.class) {
+				if (cpuProcess == null)
+					cpuProcess = spark().cpuProcess();
+			}
+		}
 		return cpuProcess;
 	}
 
@@ -91,14 +96,18 @@ public class SparkUtils {
 	 * @param windows the windows for which to gather statistics from.
 	 * @return the process cpu usages.
 	 */
-	public static Double[] cpuProcess(CpuUsage... windows) {
+	public static Double @NotNull [] cpuProcess(CpuUsage... windows) {
 		DoubleStatistic<CpuUsage> cpu = cpuProcess();
 		return Arrays.stream(windows).map(cpu::poll).toArray(Double[]::new);
 	}
 
 	private static DoubleStatistic<CpuUsage> cpuSystem() {
-		if (cpuSystem == null)
-			cpuSystem = spark().cpuSystem();
+		if (cpuSystem == null) {
+			synchronized (SparkUtils.class) {
+				if (cpuSystem == null)
+					cpuSystem = spark().cpuSystem();
+			}
+		}
 		return cpuSystem;
 	}
 
@@ -116,14 +125,18 @@ public class SparkUtils {
 	 * @param windows the windows for which to gather statistics from.
 	 * @return the system cpu usages.
 	 */
-	public static Double[] cpuSystem(CpuUsage... windows) {
+	public static Double @NotNull [] cpuSystem(CpuUsage... windows) {
 		DoubleStatistic<CpuUsage> cpu = cpuSystem();
 		return Arrays.stream(windows).map(cpu::poll).toArray(Double[]::new);
 	}
 
 	private static DoubleStatistic<TicksPerSecond> tps() {
-		if (tps == null)
-			tps = spark().tps();
+		if (tps == null) {
+			synchronized (SparkUtils.class) {
+				if (tps == null)
+					tps = spark().tps();
+			}
+		}
 		return tps;
 	}
 
@@ -141,7 +154,7 @@ public class SparkUtils {
 	 * @param windows the windows for which to gather statistics from.
 	 * @return the TPS values.
 	 */
-	public static Double[] tps(TicksPerSecond... windows) {
+	public static Double @NotNull [] tps(TicksPerSecond... windows) {
 		DoubleStatistic<TicksPerSecond> tps = tps();
 		return Arrays.stream(windows).map(tps::poll).toArray(Double[]::new);
 	}
