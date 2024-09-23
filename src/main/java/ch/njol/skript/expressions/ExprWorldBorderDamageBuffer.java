@@ -32,8 +32,7 @@ public class ExprWorldBorderDamageBuffer extends SimplePropertyExpression<WorldB
 	}
 
 	@Override
-	@Nullable
-	public Class<?>[] acceptChange(ChangeMode mode) {
+	public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
 		return switch (mode) {
 			case SET, ADD, REMOVE, RESET -> CollectionUtils.array(Number.class);
 			default -> null;
