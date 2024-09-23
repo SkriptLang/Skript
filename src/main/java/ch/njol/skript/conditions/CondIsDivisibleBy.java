@@ -27,25 +27,25 @@ public class CondIsDivisibleBy extends Condition {
 			"%numbers% (is|are) divisible by %number%",
 			"%numbers% (isn't|is not|aren't|are not) divisible by %number%",
 			"%numbers% can be evenly divided by %number%",
-			"%numbers% (can't|cannot|can not) be [evenly] divided by %number%");
+			"%numbers% (can't|cannot|can not) be evenly divided by %number%");
 	}
 
 	@SuppressWarnings("null")
 	private Expression<Number> divisorExpression;
 	@SuppressWarnings("null")
-	private Expression<Number> dividedExpression;
+	private Expression<Number> dividendExpression;
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		divisorExpression = (Expression<Number>) exprs[0];
-		dividedExpression = (Expression<Number>) exprs[1];
+		dividendExpression = (Expression<Number>) exprs[1];
 		setNegated(matchedPattern == 1 || matchedPattern == 3);
 		return true;
 	}
 
 	@Override
 	public boolean check(Event event) {
-		Number divisorNumber = dividedExpression.getSingle(event);
+		Number divisorNumber = dividendExpression.getSingle(event);
 		return divisorExpression.check(event, new Checker<Number>() {
 			@Override
 			public boolean check(Number dividedNumber) {
@@ -58,7 +58,7 @@ public class CondIsDivisibleBy extends Condition {
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return divisorExpression.toString(event, debug) + " is divisible by " + dividedExpression.toString(event, debug);
+		return divisorExpression.toString(event, debug) + " is divisible by " + dividendExpression.toString(event, debug);
 	}
 
 }
