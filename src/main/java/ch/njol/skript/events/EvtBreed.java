@@ -5,7 +5,6 @@ import ch.njol.skript.entity.EntityType;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptEvent;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
-import ch.njol.skript.lang.util.SimpleEvent;
 import org.bukkit.entity.Entity;
 import org.bukkit.event.Event;
 import org.bukkit.event.entity.EntityBreedEvent;
@@ -14,7 +13,7 @@ import org.jetbrains.annotations.Nullable;
 public class EvtBreed extends SkriptEvent {
 
 	static {
-		Skript.registerEvent("Entity Breed", SimpleEvent.class, EntityBreedEvent.class,
+		Skript.registerEvent("Entity Breed", EvtBreed.class, EntityBreedEvent.class,
 				"[entity] breed[ing] [of %-entitytypes%]")
 			.description("Called whenever two animals begin to conceive a child. The type can be specified.")
 			.examples(
