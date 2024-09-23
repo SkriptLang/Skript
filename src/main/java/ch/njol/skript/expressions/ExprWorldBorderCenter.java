@@ -29,8 +29,7 @@ public class ExprWorldBorderCenter extends SimplePropertyExpression<WorldBorder,
 	}
 
 	@Override
-	@Nullable
-	public Class<?>[] acceptChange(ChangeMode mode) {
+	public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
 		return switch (mode) {
 			case SET, RESET -> CollectionUtils.array(Location.class);
 			default -> null;

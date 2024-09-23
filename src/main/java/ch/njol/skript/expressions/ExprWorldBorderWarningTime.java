@@ -30,8 +30,7 @@ public class ExprWorldBorderWarningTime extends SimplePropertyExpression<WorldBo
 	}
 
 	@Override
-	@Nullable
-	public Class<?>[] acceptChange(ChangeMode mode) {
+	public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
 		return switch (mode) {
 			case SET, ADD, REMOVE, RESET -> CollectionUtils.array(Timespan.class);
 			default -> null;
