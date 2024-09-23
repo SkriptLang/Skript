@@ -11,16 +11,28 @@ on breed of pig:
 	set {_test} to "org.skriptlang.skript.test.tests.syntaxes.events.EvtBreedTest"
 	junit test is {_test}
 
-	if breeder is player named "Efnilite":
+	if:
+		breeder is a player
+		breeder's name is "Efnilite"
+	then:
 		complete objective "correct breeder" for {_test}
 
-	if breeding mother is pig named "mother":
+	if:
+		breeding mother is pig
+		breeding mother's name is "mother"
+	then:
 		complete objective "correct breeding mother" for {_test}
 
-	if breeding father is pig named "father":
+	if:
+		breeding father is pig
+		breeding father's name is "father"
+	then:
 		complete objective "correct breeding father" for {_test}
 
-	if bred child is pig named "child":
+	if:
+		bred child is pig
+		bred child's name is "child"
+	then:
 		complete objective "correct bred child" for {_test}
 
 	if event-item is a carrot:
