@@ -43,8 +43,7 @@ public class EffWorldBorderExpand extends Effect {
 	private boolean to;
 	private Expression<WorldBorder> worldBorders;
 	private Expression<Number> number;
-	@Nullable
-	private Expression<Timespan> timespan;
+	private @Nullable Expression<Timespan> timespan;
 
 	@Override
 	@SuppressWarnings("unchecked")
