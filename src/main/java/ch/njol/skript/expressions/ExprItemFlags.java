@@ -20,7 +20,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 @Name("Item Flags")
-@Description("Returns or modifies the item flags of an item.")
+@Description("The item flags of an item. Can be modified.")
 @Examples({
 	"set item flags of player's tool to hide enchants and hide attributes",
 	"add hide potion effects to item flags of player's held item",
@@ -50,7 +50,7 @@ public class ExprItemFlags extends PropertyExpression<ItemType, ItemFlag> {
 	}
 
 	@Override
-	public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
+	public @Nullable Class<?>[] acceptChange(ChangeMode mode) {
 		return switch (mode) {
 			case SET, ADD, REMOVE, RESET, DELETE -> CollectionUtils.array(ItemFlag[].class);
 			default -> null;
