@@ -17,8 +17,6 @@ import org.bukkit.event.entity.EntityBreedEvent;
 import org.bukkit.event.player.PlayerExpChangeEvent;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Objects;
-
 @Name("Experience")
 @Description("How much experience was spawned in an experience spawn or block break event. Can be changed.")
 @Examples({
@@ -77,8 +75,7 @@ public class ExprExperience extends SimpleExpression<Experience> {
 	}
 	
 	@Override
-	@Nullable
-	public Class<?>[] acceptChange(ChangeMode mode) {
+	public @Nullable Class<?>[] acceptChange(ChangeMode mode) {
 		return switch (mode) {
 			case SET, DELETE -> CollectionUtils.array(Experience.class, Integer.class);
 			case ADD, REMOVE -> CollectionUtils.array(Experience[].class, Integer[].class);
