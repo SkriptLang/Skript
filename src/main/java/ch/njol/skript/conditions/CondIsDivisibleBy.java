@@ -24,8 +24,8 @@ public class CondIsDivisibleBy extends Condition {
 
 	static {
 		Skript.registerCondition(CondIsDivisibleBy.class,
-			"%numbers% (is|are) divisible by %number%",
-			"%numbers% (isn't|is not|aren't|are not) divisible by %number%",
+			"%numbers% (is|are) evenly divisible by %number%",
+			"%numbers% (isn't|is not|aren't|are not) evenly divisible by %number%",
 			"%numbers% can be evenly divided by %number%",
 			"%numbers% (can't|cannot|can not) be evenly divided by %number%");
 	}
@@ -45,13 +45,13 @@ public class CondIsDivisibleBy extends Condition {
 
 	@Override
 	public boolean check(Event event) {
-		Number divisorNumber = dividendExpression.getSingle(event);
+		Number divisorNumber = divisorExpression.getSingle(event);
 		return divisorExpression.check(event, new Checker<Number>() {
 			@Override
-			public boolean check(Number dividedNumber) {
-				double divided = dividedNumber.doubleValue();
+			public boolean check(Number dividendNumber) {
+				double dividend = dividendNumber.doubleValue();
 				double divisor = divisorNumber != null ? divisorNumber.doubleValue() : null;
-				return divided % divisor == 0;
+				return dividend % divisor == 0;
 			}
 		}, isNegated());
 	}
