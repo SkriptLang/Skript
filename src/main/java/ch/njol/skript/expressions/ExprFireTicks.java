@@ -36,8 +36,11 @@ import org.jetbrains.annotations.Nullable;
 
 @Name("Entity Fire Burn Duration")
 @Description("How much time an entity will be burning for.")
-@Examples({"send \"You will stop burning in %fire time of player%\""})
-@Since("2.7")
+@Examples({
+	"send \"You will stop burning in %fire time of player%\"",
+	"send the max burn time of target"
+})
+@Since("2.7, INSERT VERSION (maximum)")
 public class ExprFireTicks extends SimplePropertyExpression<Entity, Timespan> {
 
 	static {
@@ -61,12 +64,12 @@ public class ExprFireTicks extends SimplePropertyExpression<Entity, Timespan> {
 	@Override
 	@Nullable
 	public Class<?>[] acceptChange(ChangeMode mode) {
-		if (!max)
-			return switch (mode) {
-				case ADD, SET, RESET, DELETE, REMOVE -> CollectionUtils.array(Timespan.class);
-				default -> null;
-			};
-		return null;
+		if (max)
+			return null;
+		return switch (mode) {
+			case ADD, SET, RESET, DELETE, REMOVE -> CollectionUtils.array(Timespan.class);
+			default -> null;
+		};
 	}
 
 	@Override

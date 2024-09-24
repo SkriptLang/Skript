@@ -11,3 +11,4 @@ test "is entity ticking":
 	assert {_z::2} is ticking with "Chunk is loaded, therefore should tick"
 
 	delete entities within {_z::*}
+

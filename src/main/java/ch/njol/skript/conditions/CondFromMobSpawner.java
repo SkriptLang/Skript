@@ -12,10 +12,8 @@ import ch.njol.util.Kleenean;
 import org.bukkit.entity.Entity;
 
 @Name("Is From A Mob Spawner")
-@Description("Check if an entity was spawned from a mob spawner.")
-@Examples({
-	"send whether target is from a mob spawner"
-})
+@Description("Checks if an entity was spawned from a mob spawner.")
+@Examples("send whether target is from a mob spawner")
 @Since("INSERT VERSION")
 public class CondFromMobSpawner extends PropertyCondition<Entity> {
 

@@ -1,6 +1,10 @@
 package ch.njol.skript.effects;
 
 import ch.njol.skript.Skript;
+import ch.njol.skript.doc.Description;
+import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Name;
+import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
@@ -9,6 +13,13 @@ import org.bukkit.entity.Entity;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
+@Name("Toggle Custom Name Visibility")
+@Description("Toggles the custom name visibility of an entity.")
+@Examples({
+	"show the custom name of event-entity",
+	"hide target's display name"
+})
+@Since("INSERT VERSION")
 public class EffCustomName extends Effect {
 
 	static {
@@ -21,9 +32,9 @@ public class EffCustomName extends Effect {
 	private Expression<Entity> entities;
 
 	@Override
-	public boolean init(Expression<?>[] expr, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
+	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		showCustomName = parseResult.hasTag("show");
-		entities = (Expression<Entity>) expr[0];
+		entities = (Expression<Entity>) exprs[0];
 		return true;
 	}
 

@@ -12,10 +12,8 @@ import ch.njol.util.Kleenean;
 import org.bukkit.entity.Entity;
 
 @Name("Is Custom Name Visible")
-@Description("Check if an entity's custom name is visible.")
-@Examples({
-	"send true if target's custom name is visible"
-})
+@Description("Checks if an entity's custom name is visible.")
+@Examples("send true if target's custom name is visible")
 @Since("INSERT VERSION")
 public class CondIsCustomNameVisible extends PropertyCondition<Entity> {
 
@@ -37,7 +35,6 @@ public class CondIsCustomNameVisible extends PropertyCondition<Entity> {
 	@Override
 	public boolean check(Entity entity) {
 		return entity.isCustomNameVisible();
-
 	}
 
 	@Override

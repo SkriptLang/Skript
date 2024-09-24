@@ -8,10 +8,8 @@ import ch.njol.skript.doc.Since;
 import org.bukkit.entity.Entity;
 
 @Name("Is Ticking")
-@Description("Check if an entity is ticking.")
-@Examples({
-	"send true if target is ticking"
-})
+@Description("Checks if an entity is ticking.")
+@Examples("send true if target is ticking")
 @Since("INSERT VERSION")
 public class CondIsTicking extends PropertyCondition<Entity> {
 
