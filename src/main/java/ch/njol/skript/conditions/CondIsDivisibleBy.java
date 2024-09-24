@@ -29,16 +29,15 @@ public class CondIsDivisibleBy extends Condition {
 			"%numbers% can be evenly divided by %number%",
 			"%numbers% (can't|cannot|can not) be evenly divided by %number%");
 	}
-
-	@SuppressWarnings("null")
-	private Expression<Number> divisorExpression;
 	@SuppressWarnings("null")
 	private Expression<Number> dividendExpression;
+	@SuppressWarnings("null")
+	private Expression<Number> divisorExpression;
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		divisorExpression = (Expression<Number>) exprs[0];
-		dividendExpression = (Expression<Number>) exprs[1];
+		dividendExpression = (Expression<Number>) exprs[0];
+		divisorExpression = (Expression<Number>) exprs[1];
 		setNegated(matchedPattern == 1 || matchedPattern == 3);
 		return true;
 	}
@@ -46,11 +45,11 @@ public class CondIsDivisibleBy extends Condition {
 	@Override
 	public boolean check(Event event) {
 		Number divisorNumber = divisorExpression.getSingle(event);
-		return divisorExpression.check(event, new Checker<Number>() {
+		return dividendExpression.check(event, new Checker<Number>() {
 			@Override
 			public boolean check(Number dividendNumber) {
 				double dividend = dividendNumber.doubleValue();
-				double divisor = divisorNumber != null ? divisorNumber.doubleValue() : null;
+				double divisor = divisorNumber.doubleValue();
 				return dividend % divisor == 0;
 			}
 		}, isNegated());
