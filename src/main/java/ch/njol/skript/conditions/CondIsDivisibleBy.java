@@ -24,10 +24,10 @@ public class CondIsDivisibleBy extends Condition {
 
 	static {
 		Skript.registerCondition(CondIsDivisibleBy.class,
-			"%numbers% (is|are) evenly divisible by %number%",
-			"%numbers% (isn't|is not|aren't|are not) evenly divisible by %number%",
-			"%numbers% can be evenly divided by %number%",
-			"%numbers% (can't|cannot|can not) be evenly divided by %number%");
+			"%numbers% (is|are) [evenly] divisible by %number%",
+			"%numbers% (isn't|is not|aren't|are not) [evenly] divisible by %number%",
+			"%numbers% can be [evenly] divided by %number%",
+			"%numbers% (can't|cannot|can not) be [evenly] divided by %number%");
 	}
 	@SuppressWarnings("null")
 	private Expression<Number> dividendExpression;
