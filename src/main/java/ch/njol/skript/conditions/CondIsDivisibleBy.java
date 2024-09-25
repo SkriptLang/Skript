@@ -16,8 +16,8 @@ import org.jetbrains.annotations.Nullable;
 @Name("Divisible By")
 @Description("Check if a number is divisible by another number.")
 @Examples({
-	"if 5 is divisible by 5:",
-	"if 11 cannot be divided by 10:",
+	"if 5 is evenly divisible by 5:",
+	"if 11 cannot be evenly divided by 10:",
 })
 @Since("INSERT VERSION")
 public class CondIsDivisibleBy extends Condition {
