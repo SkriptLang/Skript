@@ -1,0 +1,72 @@
+test "random numbers":
+	loop 1000 times:
+		set {_num} to random number between 1 and 2.5
+		assert {_num} is set with "(1) failed to generate random number: %{_num}%"
+		assert {_num} is between 1 and 2.5 with "(1) random number outside bounds: %{_num}%"
+
+		set {_int} to random integer between 1 and 2.5
+		assert {_int} is set with "(2) failed to generate random int: %{_int}%"
+		assert {_int} is between 1 and 2.5 with "(2) random int outside bounds: %{_int}%"
+		assert {_int} is 1 or 2 with "(2) random int generated an invalid result: %{_int}%"
+
+		# negatives
+		set {_num} to random number between 1 and -2.5
+		assert {_num} is set with "(3) failed to generate random number: %{_num}%"
+		assert {_num} is between 1 and -2.5 with "(3) random number outside bounds: %{_num}%"
+
+		set {_int} to random integer between 1 and -2.5
+		assert {_int} is set with "(4) failed to generate random int: %{_int}%"
+		assert {_int} is between 1 and -2.5 with "(4) random int outside bounds: %{_int}%"
+		assert {_int} is 1 or 0 or -1 or -2 with "(4) random int generated an invalid result: %{_int}%"
+
+		# multiple values
+		set {_nums::*} to 3 random numbers between 1 and -2.5
+		assert {_nums::*} is set with "(5) failed to generate random number: %{_nums::*}%"
+		assert size of {_nums::*} is 3 with "(6) random numbers generated the wrong amount of results: %size of {_nums::*}% != 3"
+		assert {_nums::*} is between 1 and -2.5 with "(5) random number outside bounds: %{_nums::*}%"
+
+		set {_ints::*} to 3 random integers between 1 and -2.5
+		assert {_ints::*} is set with "(6) failed to generate random int: %{_ints::*}%"
+		assert size of {_ints::*} is 3 with "(6) random ints generated the wrong amount of results: %size of {_ints::*}% != 3"
+		assert {_ints::*} are between 1 and -2.5 with "(6) random int outside bounds: %{_ints::*}%"
+		assert {_ints::*} are 1 or 0 or -1 or -2 with "(6) random int generated an invalid result: %{_ints::*}%"
+
+		# null checks
+		set {_num} to random number between {_null} and 1
+		assert {_num} is not set with "(7) random number with null bound returned non-null result: %{_num}%"
+		set {_num} to random number between 0 and {_null}
+		assert {_num} is not set with "(8) random number with null bound returned non-null result: %{_num}%"
+		set {_num::*} to {_null} random numbers between 0 and 10
+		assert {_num::*} is not set with "(9) random number with null amount returned non-null result: %{_num::*}%"
+
+		set {_int} to random integer between {_null} and 1
+		assert {_int} is not set with "(10) random integer with null bound returned non-null result: %{_int}%"
+		set {_int} to random integer between 0 and {_null}
+		assert {_int} is not set with "(11) random integer with null bound returned non-null result: %{_int}%"
+		set {_int::*} to {_null} random integers between 0 and 10
+		assert {_int::*} is not set with "(12) random integer with null bound returned non-null result: %{_int::*}%"
+
+		# edge cases
+		set {_num} to random number between 0 and 0
+		assert {_num} is 0 with "(13) random number between 0 and 0 returned non-zero result: %{_num}%"
+		set {_int} to random integer between 0 and 0
+		assert {_int} is 0 with "(14) random integer between 0 and 0 returned non-zero result: %{_int}%"
+
+		set {_int} to random integer between 0.5 and 0.6
+		assert {_int} is not set with "(15) random integer between 0.5 and 0.6 returned non-null result: %{_int}%"
+
+		set {_int::*} to -10 random integers between 1 and 10
+		assert {_int::*} is not set with "(16) -10 random integers returned non-null result: %{_int::*}%"
+
+		# NaN/infinity
+		set {_int} to random integer between 10 and NaN value
+		assert {_int} is not set with "(17) random integer between 10 and NaN value returned non-null result: %{_int}%"
+
+		set {_int} to random integer between 10 and infinity value
+		assert {_int} is not set with "(18) random integer between 10 and infinity value returned non-null result: %{_int}%"
+
+		set {_int} to random integer between 10 and -infinity value
+		assert {_int} is not set with "(19) random integer between 10 and -infinity value returned non-null result: %{_int}%"
+
+		set {_int::*} to NaN value random integers between 1 and 10
+		assert {_int::*} is not set with "(20) NaN value random integers returned non-null result: %{_int}%"
