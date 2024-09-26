@@ -76,8 +76,7 @@ public class VisualEffects {
 		return visualEffectTypes[i];
 	}
 
-	@Nullable
-	public static VisualEffectType get(String id) {
+	public static @Nullable VisualEffectType get(String id) {
 		for (VisualEffectType type : visualEffectTypes) {
 			if (id.equals(type.getId()))
 				return type;

@@ -41,43 +41,40 @@ public class VisualEffectType implements YggdrasilSerializable {
 
 	static {
 		Variables.yggdrasil.registerClassResolver(new YggdrasilSerializer<VisualEffectType>() {
-			@Nullable
 			@Override
-			public Class<? extends VisualEffectType> getClass(String id) {
+			public @Nullable Class<? extends VisualEffectType> getClass(String id) {
 				return id.equals("VisualEffectType") ? VisualEffectType.class : null;
 			}
 
 			@Override
-			public Fields serialize(VisualEffectType o) {
-				Fields f = new Fields();
-				f.putObject("id", o.getId());
-				return f;
+			public Fields serialize(VisualEffectType visualEffectType) {
+				Fields fields = new Fields();
+				fields.putObject("id", visualEffectType.getId());
+				return fields;
 			}
 
-			@Nullable
 			@Override
-			public <E extends VisualEffectType> E newInstance(Class<E> c) {
+			public @Nullable <E extends VisualEffectType> E newInstance(Class<E> clazz) {
 				return null;
 			}
 
 			@Override
-			public boolean canBeInstantiated(Class<? extends VisualEffectType> c) {
+			public boolean canBeInstantiated(Class<? extends VisualEffectType> clazz) {
 				return false;
 			}
 
 			@Override
-			public void deserialize(VisualEffectType o, Fields fields) { }
+			public void deserialize(VisualEffectType visualEffectType, Fields fields) { }
 
-			@SuppressWarnings("unchecked")
 			@Override
-			public <E extends VisualEffectType> E deserialize(Class<E> c, Fields fields) throws StreamCorruptedException, NotSerializableException {
+			@SuppressWarnings("unchecked")
+			public <E extends VisualEffectType> E deserialize(Class<E> clazz, Fields fields) throws StreamCorruptedException, NotSerializableException {
 				return (E) VisualEffects.get(fields.getObject("id", String.class));
 			}
 
-			@Nullable
 			@Override
-			public String getID(Class<?> c) {
-				return c.equals(VisualEffectType.class) ? "VisualEffectType" : null;
+			public @Nullable String getID(Class<?> clazz) {
+				return clazz.equals(VisualEffectType.class) ? "VisualEffectType" : null;
 			}
 		});
 	}
