@@ -1527,7 +1527,6 @@ public class BukkitClasses {
 				.name("Transform Reason")
 				.description("Represents a transform reason of an <a href='events.html#entity transform'>entity transform event</a>.")
 				.since("2.8.0"));
-
 		Classes.registerClass(new EnumClassInfo<>(EntityPotionEffectEvent.Cause.class, "entitypotioncause", "entity potion causes")
 				.user("(entity )?potion ?effect ?cause")
 				.name("Entity Potion Cause")
