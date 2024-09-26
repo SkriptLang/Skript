@@ -68,7 +68,7 @@ public class VisualEffectType implements YggdrasilSerializable {
 			@Override
 			public void deserialize(VisualEffectType o, Fields fields) { }
 
-			@SuppressWarnings("ConstantConditions")
+			@SuppressWarnings("unchecked")
 			@Override
 			public <E extends VisualEffectType> E deserialize(Class<E> c, Fields fields) throws StreamCorruptedException, NotSerializableException {
 				return (E) VisualEffects.get(fields.getObject("id", String.class));
