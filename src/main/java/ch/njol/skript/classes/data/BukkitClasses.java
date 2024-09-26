@@ -30,7 +30,6 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import ch.njol.skript.bukkitutil.BukkitUtils;
-import com.destroystokyo.paper.ClientOption;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.Difficulty;

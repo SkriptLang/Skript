@@ -81,4 +81,5 @@ public class CondChatVisibility extends Condition {
 			default -> throw new IllegalStateException("Unexpected value: " + pattern);
 		};
 	}
+
 }
