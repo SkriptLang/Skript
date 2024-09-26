@@ -122,7 +122,7 @@ skript command:
 	locate:
 		function found: The function '&e%s&f' is located in: &6%s&f, Line: &6%s
 		function provided: The function '&e%s&f' is provided by Skript
-		function not found: The function '%s' can not be found
+		function not found: The function '%s' can't be found
 
 # -- Updater --
 updater:

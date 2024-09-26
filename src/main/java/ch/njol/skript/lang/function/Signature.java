@@ -174,7 +174,7 @@ public class Signature<T> {
 		return name.hashCode();
 	}
   
-  	@Override
+	@Override
 	public String toString() {
 		return toString(true, Skript.debug());
 	}

@@ -87,9 +87,9 @@ public class SkriptCommand implements CommandExecutor {
 			.add("check")
 			.add("changes")
 			.add("download")
-		).add("info"
-		).add("help"
-		).add("locate");
+		).add("info")
+		.add("help")
+		.add("locate");
 
 	static {
 		// Add command to generate documentation
@@ -457,18 +457,17 @@ public class SkriptCommand implements CommandExecutor {
 				SKRIPT_COMMAND_HELP.showHelp(sender);
 			} else if (args[0].equalsIgnoreCase("locate")) {
 				String name = args[1];
-				Signature<?> sign = Functions.getGlobalSignature(name);
-				if (sign != null) {
-					Function<?> func = Functions.getGlobalFunction(name);
-					if (!(func instanceof ScriptFunction<?>)) {
+				Signature<?> signature = Functions.getGlobalSignature(name);
+				if (signature != null) {
+					Function<?> function = Functions.getGlobalFunction(name);
+					if (!(function instanceof ScriptFunction<?> scriptFunction)) {
 						Skript.info(sender, m_function_provided.toString(name));
 						return true;
 					}
-					ScriptFunction<?> scriptFunc = (ScriptFunction<?>) func;
 					Skript.info(sender, m_function_found.toString(
 						name,
-						sign.getScript(),
-						scriptFunc.getTrigger().getLineNumber()
+						signature.getScript(),
+						scriptFunction.getTrigger().getLineNumber()
 					));
 					return true;
 				}

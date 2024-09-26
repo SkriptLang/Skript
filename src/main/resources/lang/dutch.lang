@@ -47,7 +47,7 @@ skript command:
 		info: Toont koppelingen naar de alliassen en documentatie van Skript
 		gen-docs: Genereert documentatie met behulp van docs/templates in de plugin folder
 		test: Gebruikt voor het uitvoeren van interne Skript-tests
-		locate: Wordt gebruikt om een ​​functie te lokaliseren
+		locate: Wordt gebruikt om de locatie van een functie te vinden
 
 	invalid script: Kan het script <grey>'<gold>%s<gold>'<red> niet in de scripts folder vinden!
 	invalid folder: Kan de folder <grey>'<gold>%s<gold>'<red> niet in de scripts folder vinden!
@@ -120,9 +120,9 @@ skript command:
 		addons: Geïnstalleerde Skript addons: <aqua>%s
 		dependencies: Geïnstalleerde afhankelijkheden: <aqua>%s
 	locate:
-		function found: De functie '&e%s&f' bevindt zich in: &6%s&f, Line: &6%s
-		function provided: De functie '&e%s&f' wordt verzorgd door Skript
-		function not found: De functie '%s' kan niet worden gevonden
+		function found: De functie '&e%s&f' bevindt zich in: &6%s&f, Regel: &6%s
+		function provided: De functie '&e%s&f' wordt door Skript verzorgd
+		function not found: De functie '%s' kan niet gevonden worden
 
 # -- Updater --
 updater:
