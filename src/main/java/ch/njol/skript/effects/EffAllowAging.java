@@ -18,7 +18,7 @@ import org.jetbrains.annotations.Nullable;
 @Description("Sets whether or not living entities will be able to age.")
 @Examples({
 	"on spawn of animal:",
-		"\tlock age of entity"
+		"\tallow aging of entity"
 })
 @Since("INSERT VERSION")
 public class EffAllowAging extends Effect {
@@ -57,7 +57,7 @@ public class EffAllowAging extends Effect {
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return (unlock ? "unlock" : "lock") + " age of " + entities.toString(event,debug);
+		return (unlock ? "allow" : "prevent") + " aging of " + entities.toString(event,debug);
 	}
 
 }
