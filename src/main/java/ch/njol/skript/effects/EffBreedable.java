@@ -35,10 +35,10 @@ public class EffBreedable extends Effect {
 	private Expression<LivingEntity> entities;
 
 	@Override
-	@SuppressWarnings("unchecked")
 	public boolean init(Expression<?>[] expressions, int matchedPattern,
 						Kleenean isDelayed, ParseResult parseResult) {
 		sterilize = matchedPattern > 1;
+		//noinspection unchecked
 		entities = (Expression<LivingEntity>) expressions[0];
 		return true;
 	}

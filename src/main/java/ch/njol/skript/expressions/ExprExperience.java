@@ -44,7 +44,8 @@ public class ExprExperience extends SimpleExpression<Experience> {
 	}
 
 	@Override
-	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
+	public boolean init(Expression<?>[] expressions, int matchedPattern,
+						Kleenean isDelayed, ParseResult parseResult) {
 		if (!getParser().isCurrentEvent(ExperienceSpawnEvent.class, BlockBreakEvent.class,
 			PlayerExpChangeEvent.class, EntityBreedEvent.class)) {
 			Skript.error("The experience expression can only be used in experience spawn, " +
@@ -56,7 +57,7 @@ public class ExprExperience extends SimpleExpression<Experience> {
 	}
 	
 	@Override
-	protected @Nullable Experience[] get(Event event) {
+	protected Experience @Nullable [] get(Event event) {
 		Experience[] exp;
 
 		if (event instanceof ExperienceSpawnEvent experienceSpawnEvent) {
@@ -75,7 +76,7 @@ public class ExprExperience extends SimpleExpression<Experience> {
 	}
 	
 	@Override
-	public @Nullable Class<?>[] acceptChange(ChangeMode mode) {
+	public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
 		return switch (mode) {
 			case SET, DELETE -> CollectionUtils.array(Experience.class, Integer.class);
 			case ADD, REMOVE -> CollectionUtils.array(Experience[].class, Integer[].class);

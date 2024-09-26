@@ -25,7 +25,9 @@ import org.jetbrains.annotations.Nullable;
 public class EffMakeAdultOrBaby extends Effect {
 
 	static {
-		Skript.registerEffect(EffMakeAdultOrBaby.class, "make %livingentities% [a[n]] (adult|:baby)");
+		Skript.registerEffect(EffMakeAdultOrBaby.class,
+			"make %livingentities% [a[n]] (adult|:baby)",
+			"force %livingentities% to be[come] a[n] (adult|:baby)");
 	}
 
 	private boolean baby;
@@ -35,6 +37,7 @@ public class EffMakeAdultOrBaby extends Effect {
 	public boolean init(Expression<?>[] expressions, int matchedPattern,
 						Kleenean isDelayed, ParseResult parseResult) {
 		baby = parseResult.hasTag("baby");
+		//noinspection unchecked
 		entities = (Expression<LivingEntity>) expressions[0];
 		return true;
 	}

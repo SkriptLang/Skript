@@ -1,6 +1,5 @@
 package ch.njol.skript.conditions;
 
-import ch.njol.skript.Skript;
 import ch.njol.skript.conditions.base.PropertyCondition;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
@@ -20,14 +19,12 @@ import org.bukkit.entity.LivingEntity;
 public class CondCanAge extends PropertyCondition<LivingEntity> {
 
 	static {
-		register(CondCanAge.class, PropertyType.CAN, "age", "livingentities");
+		register(CondCanAge.class, PropertyType.CAN, "(age|grow (up|old[er]))", "livingentities");
 	}
 
 	@Override
 	public boolean check(LivingEntity entity) {
-		if (entity instanceof Breedable breedable)
-			return !breedable.getAgeLock();
-		return false;
+		return entity instanceof Breedable breedable && !breedable.getAgeLock();
 	}
 
 	@Override

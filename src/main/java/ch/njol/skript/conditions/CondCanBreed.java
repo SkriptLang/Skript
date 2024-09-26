@@ -25,10 +25,7 @@ public class CondCanBreed extends PropertyCondition<LivingEntity> {
 
 	@Override
 	public boolean check(LivingEntity entity) {
-		if (entity instanceof Breedable breedable)
-			return breedable.canBreed();
-
-		return false;
+		return entity instanceof Breedable breedable && breedable.canBreed();
 	}
 
 	@Override

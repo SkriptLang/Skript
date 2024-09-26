@@ -28,9 +28,9 @@ public class EvtBreed extends SkriptEvent {
 	private EntityType @Nullable [] entities;
 
 	@Override
-	@SuppressWarnings("unchecked")
 	public boolean init(Literal<?>[] args, int matchedPattern, ParseResult parseResult) {
 		if (args[0] != null) {
+			//noinspection unchecked
 			entitiesLiteral = ((Literal<EntityType>) args[0]);
 			entities = entitiesLiteral.getAll();
 		}
@@ -39,11 +39,7 @@ public class EvtBreed extends SkriptEvent {
 
 	@Override
 	public boolean check(Event event) {
-		if (!(event instanceof EntityBreedEvent breedEvent)) {
-			return false;
-		}
-
-		return checkEntity(breedEvent.getEntity());
+		return event instanceof EntityBreedEvent breedEvent && checkEntity(breedEvent.getEntity());
 	}
 
 	private boolean checkEntity(Entity entity) {

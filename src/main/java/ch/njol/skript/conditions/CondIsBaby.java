@@ -19,15 +19,13 @@ import org.bukkit.entity.LivingEntity;
 public class CondIsBaby extends PropertyCondition<LivingEntity> {
 
 	static {
-		register(CondIsBaby.class, "[a] (child|baby)", "livingentities");
+		register(CondIsBaby.class, "a (child|baby)", "livingentities");
 	}
 
 	@Override
 	public boolean check(LivingEntity entity) {
-		if (entity instanceof Ageable ageable)
-			return !ageable.isAdult();
+		return entity instanceof Ageable ageable && !ageable.isAdult();
 
-		return false;
 	}
 
 	@Override
