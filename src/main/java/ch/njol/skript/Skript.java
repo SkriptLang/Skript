@@ -1678,6 +1678,7 @@ public final class Skript extends JavaPlugin implements Listener {
 		}
 
 		String issuesUrl = "https://github.com/SkriptLang/Skript/issues";
+		String downloadUrl = "https://github.com/SkriptLang/Skript/releases/latest";
 
 		logEx();
 		logEx("[Skript] Severe Error:");
@@ -1714,13 +1715,12 @@ public final class Skript extends JavaPlugin implements Listener {
 			logEx("");
 			logEx("Again, we do not support Minecraft versions this old.");
 		} else if (!serverPlatform.supported){
-			logEx("Your server platform appears to be unsupported by Skript. It might not work reliably.");
-			logEx("You can report this at " + issuesUrl + ". However, we may be unable to fix the issue.");
+			logEx("Your server platform appears to be unsupported by Skript. The plugin may not function correctly.");
 			logEx("It is recommended that you switch to Paper or Spigot, should you encounter more problems.");
 		} else if (updater != null && updater.getReleaseStatus() == ReleaseStatus.OUTDATED) {
-			logEx("You're running outdated version of Skript! Please try updating it NOW; it might fix this.");
-			logEx("Run /sk update check to get a download link to latest Skript!");
-			logEx("You will be given instructions how to report this error if it persists after update.");
+			logEx("You're running an outdated version of Skript! Please try updating it NOW; it might fix this issue.");
+			logEx("Visit " + downloadUrl + " for the latest version of Skript.");
+			logEx("You will be given instructions on how to report this error if it persists after the update.");
 		} else {
 			logEx("Something went horribly wrong with Skript.");
 			logEx("This issue is NOT your fault! You probably can't fix it yourself, either.");
@@ -1741,9 +1741,9 @@ public final class Skript extends JavaPlugin implements Listener {
 						pluginsMessage.append(" ");
 					}
 					logEx(pluginsMessage.toString());
-					logEx("We could not identify which of those are specially related, so this might also be Skript issue.");
+					logEx("We could not identify which of those are specially related, so this might also be a Skript issue.");
 				} else {
-					logEx("Following plugins are probably related to this error in some way:");
+					logEx("The following plugins are most likely related to this error in some way:");
 					StringBuilder pluginsMessage = new StringBuilder();
 					for (PluginDescriptionFile desc : stackPlugins) {
 						pluginsMessage.append(desc.getName());
@@ -1757,9 +1757,9 @@ public final class Skript extends JavaPlugin implements Listener {
 				}
 
 				logEx("You should try disabling those plugins one by one, trying to find which one causes it.");
-				logEx("If the error doesn't disappear even after disabling all listed plugins, it is probably Skript issue.");
+				logEx("If the error doesn't disappear even after disabling all listed plugins, it is probably a Skript issue.");
 				logEx("In that case, you will be given instruction on how should you report it.");
-				logEx("On the other hand, if the error disappears when disabling some plugin, report it to author of that plugin.");
+				logEx("On the other hand, if the error disappears after disabling another plugin, report it to author of that plugin.");
 				logEx("Only if the author tells you to do so, report it to Skript's issue tracker.");
 			}
 		}
