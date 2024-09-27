@@ -58,7 +58,7 @@ public class CondIsDivisibleBy extends Condition {
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
 		return dividend.toString(event, debug) + " is " + (isNegated() ? "not " : "")
-			+ "evenly divisible by" + divisor.toString(event, debug);
+			+ "evenly divisible by " + divisor.toString(event, debug);
 	}
 
 }
