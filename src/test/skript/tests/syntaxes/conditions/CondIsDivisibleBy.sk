@@ -4,3 +4,5 @@ test "is divisible":
 	assert 5 isn't evenly divisible by 0 with "nothing can be divided by 0!"
 	assert 1964903306 is evenly divisible by 982451653 with "1964903306 is divisible by 982451653!"
 	assert {_none} is evenly divisible by 10 to fail with "you cannot divide by <none>!"
+	assert 5, 10, 15 can be evenly divided by 5 with "5, 10, and 15 can be evenly divided by 5!"
+	assert 3, 5, 7 cannot be evenly divided by 2 with "3, 5, and 7 cannot be evenly divided by 2!"

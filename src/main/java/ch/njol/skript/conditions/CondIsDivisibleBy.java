@@ -13,8 +13,8 @@ import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
-@Name("Divisible By")
-@Description("Check if a number is divisible by another number.")
+@Name("Is Evenly Divisible By")
+@Description("Check if a number is evenly divisible by another number.")
 @Examples({
 	"if 5 is evenly divisible by 5:",
 	"if 11 cannot be evenly divided by 10:",
@@ -27,7 +27,7 @@ public class CondIsDivisibleBy extends Condition {
 			"%numbers% (is|are) evenly divisible by %number%",
 			"%numbers% (isn't|is not|aren't|are not) evenly divisible by %number%",
 			"%numbers% can be evenly divided by %number%",
-			"%numbers% (can't|cannot|can not) be evenly divided by %number%");
+			"%numbers% (can't|can[ ]not) be evenly divided by %number%");
 	}
 	@SuppressWarnings("null")
 	private Expression<Number> dividendExpression;
@@ -57,7 +57,7 @@ public class CondIsDivisibleBy extends Condition {
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return divisorExpression.toString(event, debug) + " is divisible by " + dividendExpression.toString(event, debug);
+		return dividendExpression.toString(event, debug) + " is " + (isNegated() ? "not " : "") + "evenly divisible by" + divisorExpression.toString(event, debug);
 	}
 
 }
