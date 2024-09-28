@@ -40,10 +40,10 @@ public class EffCancelEvent extends Effect {
 	}
 	
 	private boolean cancel;
-	
-	@SuppressWarnings("null")
+
 	@Override
-	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, ParseResult result) {
+	public boolean init(Expression<?>[] expressions, int matchedPattern,
+						Kleenean isDelayed, ParseResult parseResult) {
 		if (isDelayed == Kleenean.TRUE) {
 			Skript.error("Can't cancel an event after it has already passed", ErrorQuality.SEMANTIC_ERROR);
 			return false;
