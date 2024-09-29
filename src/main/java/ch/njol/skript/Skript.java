@@ -1726,8 +1726,6 @@ public final class Skript extends JavaPlugin implements Listener {
 		} else if (getInstance().getDescription().getVersion().contains("nightly")) {
 			logEx("You're running a (buggy) nightly version of Skript. If this is not a test server, switch to a stable release.");
 			logEx("Please report this bug to: " + issuesUrl);
-		} else if (!isRunningMinecraft(1, 9)) {
-			logEx("You are running an outdated Minecraft version not supported by Skript. Consider updating to 1.9.4 or later.");
 		} else if (!serverPlatform.supported) {
 			logEx("Your server platform appears to be unsupported by Skript. Consider switching to Paper or Spigot for better compatibility.");
 		} else if (updater != null && updater.getReleaseStatus() == ReleaseStatus.OUTDATED) {
@@ -1751,7 +1749,7 @@ public final class Skript extends JavaPlugin implements Listener {
 				logEx("The following plugins are likely related to this error:");
 				stackPlugins.forEach(desc -> logEx(getPluginDescription(desc)));
 			}
-			logEx("Try disabling the listed plugins one by one to identify the cause.");
+			logEx("Try temporarily removing the listed plugins one by one to identify the cause.");
 			logEx("If disabling a plugin resolves the issue, please report the problem to the plugin developer.");
 		}
 	}
@@ -1797,7 +1795,7 @@ public final class Skript extends JavaPlugin implements Listener {
 	private static String getStatusDescription(ReleaseStatus status) {
 		switch (status) {
 			case LATEST: return "latest";
-			case OUTDATED: return "OUTDATED";
+			case OUTDATED: return "outdated";
 			case CUSTOM: return "custom version";
 			default: return "";
 		}
