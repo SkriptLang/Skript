@@ -1,10 +1,7 @@
 package ch.njol.skript.conditions;
 
 import ch.njol.skript.Skript;
-import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
-import ch.njol.skript.doc.Name;
-import ch.njol.skript.doc.Since;
+import ch.njol.skript.doc.*;
 import ch.njol.skript.lang.Condition;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
@@ -24,6 +21,7 @@ import org.jetbrains.annotations.Nullable;
 	"if player can't see any messages:",
 		"\tsend action bar \"Server shutting down in 5 minutes!\""
 })
+@RequiredPlugins("Paper")
 @Since("INSERT VERSION")
 public class CondChatVisibility extends Condition {
 
