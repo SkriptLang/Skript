@@ -1750,7 +1750,7 @@ public final class Skript extends JavaPlugin implements Listener {
 				stackPlugins.forEach(desc -> logEx(getPluginDescription(desc)));
 			}
 			logEx("Try temporarily removing the listed plugins one by one to identify the cause.");
-			logEx("If disabling a plugin resolves the issue, please report the problem to the plugin developer.");
+			logEx("If removing a plugin resolves the issue, please report the problem to the plugin developer.");
 		}
 	}
 
