@@ -72,18 +72,18 @@ public class PreciousStonesHook extends RegionsPlugin<PreciousStones> {
 
 		private final transient Field field;
 
-		public PreciousStonesRegion(final Field field) {
+		public PreciousStonesRegion(Field field) {
 			this.field = field;
 		}
 
 		@Override
-		public boolean contains(final Location l) {
-			return field.envelops(l);
+		public boolean contains(Location location) {
+			return field.envelops(location);
 		}
 
 		@Override
-		public boolean isMember(final OfflinePlayer p) {
-			return field.isInAllowedList(p.getName());
+		public boolean isMember(OfflinePlayer offlinePlayer) {
+			return field.isInAllowedList(offlinePlayer.getName());
 		}
 
 		@Override
