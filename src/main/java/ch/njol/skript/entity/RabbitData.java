@@ -32,17 +32,17 @@ public class RabbitData extends EntityData<Rabbit> {
 		return true;
 	}
 
-	@SuppressWarnings("null")
 	@Override
-	protected boolean init(Class<? extends Rabbit> c, Rabbit rabbit) {
+	@SuppressWarnings("null")
+	protected boolean init(Class<? extends Rabbit> clazz, Rabbit rabbit) {
 		type = (rabbit == null) ? 0 : intFromType(rabbit.getRabbitType());
 		return true;
 	}
 
 	@Override
-	public void set(Rabbit entity) {
+	public void set(Rabbit rabbit) {
 		if (type != 0)
-			entity.setRabbitType(typeFromInt(type));
+			rabbit.setRabbitType(typeFromInt(type));
 	}
 
 	@Override
@@ -66,16 +66,16 @@ public class RabbitData extends EntityData<Rabbit> {
 	}
 
 	@Override
-	protected boolean equals_i(EntityData<?> obj) {
-		if (!(obj instanceof RabbitData))
+	protected boolean equals_i(EntityData<?> data) {
+		if (!(data instanceof RabbitData))
 			return false;
-		final RabbitData other = (RabbitData) obj;
-		return type == other.type;
+		RabbitData rabbitData = (RabbitData) data;
+		return type == rabbitData.type;
 	}
 
 	@Override
-	public boolean isSupertypeOf(EntityData<?> e) {
-		return e instanceof RabbitData && (type == 0 || ((RabbitData) e).type == type);
+	public boolean isSupertypeOf(EntityData<?> data) {
+		return data instanceof RabbitData && (type == 0 || ((RabbitData) data).type == type);
 	}
 
 	private static Rabbit.Type typeFromInt(int i) {

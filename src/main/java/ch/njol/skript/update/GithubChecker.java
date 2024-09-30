@@ -12,12 +12,12 @@ import java.util.Scanner;
 import java.util.concurrent.CompletableFuture;
 
 /**
- * Uses Github API to check for updates.
+ * Uses GitHub API to check for updates.
  */
 public class GithubChecker implements UpdateChecker {
 
 	/**
-	 * Github API response for GSON deserialization.
+	 * GitHub API response for GSON deserialization.
 	 */
 	public static class ResponseEntry {
 		public String url;
@@ -57,7 +57,7 @@ public class GithubChecker implements UpdateChecker {
 	}
 
 	/**
-	 * Used for deserializing Github API output.
+	 * Used for deserializing GitHub API output.
 	 */
 	private final Gson gson;
 
@@ -67,8 +67,8 @@ public class GithubChecker implements UpdateChecker {
 
 	private List<ResponseEntry> deserialize(String str) {
 		assert str != null : "Cannot deserialize null string";
-		@SuppressWarnings("serial")
-		Type listType = new TypeToken<List<ResponseEntry>>() {}.getType();
+		Type listType = new TypeToken<List<ResponseEntry>>() {
+		}.getType();
 		List<ResponseEntry> responses = gson.fromJson(str, listType);
 		assert responses != null;
 
@@ -93,14 +93,10 @@ public class GithubChecker implements UpdateChecker {
 				throw new RuntimeException(e);
 			}
 		}).thenApply((releases) -> {
-			/**
-			 * Latest release in the channel we're using.
-			 */
+			// Latest release in the channel we're using.
 			ResponseEntry latest = null;
 
-			/**
-			 * Current release, if found.
-			 */
+			// Current release, if found.
 			ResponseEntry current = null;
 
 			// Go through all releases, attempting to find current one

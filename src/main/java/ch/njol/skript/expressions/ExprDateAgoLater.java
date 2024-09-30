@@ -17,9 +17,11 @@ import org.jetbrains.annotations.Nullable;
 
 @Name("Date Ago/Later")
 @Description("A date the specified timespan before/after another date.")
-@Examples({"set {_yesterday} to 1 day ago",
+@Examples({
+	"set {_yesterday} to 1 day ago",
 	"set {_hourAfter} to 1 hour after {someOtherDate}",
-	"set {_hoursBefore} to 5 hours before {someOtherDate}"})
+	"set {_hoursBefore} to 5 hours before {someOtherDate}"
+})
 @Since("2.2-dev33")
 public class ExprDateAgoLater extends SimpleExpression<Date> {
 
@@ -29,27 +31,27 @@ public class ExprDateAgoLater extends SimpleExpression<Date> {
 			"%timespan% (later|(from|after) [the] [date] %-date%)");
 	}
 
-	@SuppressWarnings("null")
-	private Expression<Timespan> timespan;
-	@Nullable
-	private Expression<Date> date;
 	private boolean ago;
+	private Expression<Timespan> timespanExpr;
+	private @Nullable Expression<Date> dateExpr;
 
 	@Override
-	@SuppressWarnings({"unchecked", "null"})
-	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		timespan = (Expression<Timespan>) exprs[0];
-		date = (Expression<Date>) exprs[1];
+	@SuppressWarnings("unchecked")
+	public boolean init(Expression<?>[] expressions, int matchedPattern,
+						Kleenean isDelayed, ParseResult parseResult) {
+		timespanExpr = (Expression<Timespan>) expressions[0];
+		if (dateExpr != null)
+			dateExpr = (Expression<Date>) expressions[1];
+
 		ago = matchedPattern == 0;
 		return true;
 	}
 
 	@Override
-	@Nullable
 	@SuppressWarnings("null")
-	protected Date[] get(Event e) {
-		Timespan timespan = this.timespan.getSingle(e);
-		Date date = this.date != null ? this.date.getSingle(e) : new Date();
+	protected Date @Nullable [] get(Event event) {
+		Timespan timespan = timespanExpr.getSingle(event);
+		Date date = dateExpr != null ? dateExpr.getSingle(event) : new Date();
 		if (timespan == null || date == null)
 			return null;
 
@@ -67,9 +69,10 @@ public class ExprDateAgoLater extends SimpleExpression<Date> {
 	}
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
-		return timespan.toString(e, debug) + " " +
-			(ago ? (date != null ? "before " + date.toString(e, debug) : "ago")
-			: (date != null ? "after " + date.toString(e, debug) : "later"));
+	public String toString(@Nullable Event event, boolean debug) {
+		return timespanExpr.toString(event, debug) + " " +
+			(ago ? (dateExpr != null ? "before " + dateExpr.toString(event, debug) : "ago")
+				: (dateExpr != null ? "after " + dateExpr.toString(event, debug) : "later"));
 	}
+
 }

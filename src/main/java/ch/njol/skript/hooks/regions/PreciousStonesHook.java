@@ -14,6 +14,7 @@ import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
@@ -39,22 +40,20 @@ public class PreciousStonesHook extends RegionsPlugin<PreciousStones> {
 	}
 
 	@Override
-	public boolean canBuild_i(final Player p, final Location l) {
-		return PreciousStones.API().canBreak(p, l) && PreciousStones.API().canPlace(p, l);
+	public boolean canBuild_i(Player player, Location location) {
+		return PreciousStones.API().canBreak(player, location) && PreciousStones.API().canPlace(player, location);
 	}
 
 	@Override
-	public Collection<? extends Region> getRegionsAt_i(final Location l) {
-		Set<PreciousStonesRegion> collect = PreciousStones.API().getFieldsProtectingArea(FieldFlag.ALL, l)
+	public Collection<? extends Region> getRegionsAt_i(Location location) {
+		return PreciousStones.API().getFieldsProtectingArea(FieldFlag.ALL, location)
 			.stream()
 			.map(PreciousStonesRegion::new)
 			.collect(Collectors.toSet());
-		assert collect != null;
-		return collect;
 	}
 
 	@Override
-	public @Nullable Region getRegion_i(final World world, final String name) {
+	public @Nullable Region getRegion_i(World world, String name) {
 		return null;
 	}
 
@@ -71,7 +70,7 @@ public class PreciousStonesHook extends RegionsPlugin<PreciousStones> {
 	@YggdrasilID("PreciousStonesRegion")
 	public final class PreciousStonesRegion extends Region {
 
-		private transient Field field;
+		private final transient Field field;
 
 		public PreciousStonesRegion(final Field field) {
 			this.field = field;
@@ -89,32 +88,26 @@ public class PreciousStonesHook extends RegionsPlugin<PreciousStones> {
 
 		@Override
 		public Collection<OfflinePlayer> getMembers() {
-			@SuppressWarnings("deprecation")
-			Set<OfflinePlayer> collect = field.getAllAllowed().stream()
+			return field.getAllAllowed().stream()
 				.map(Bukkit::getOfflinePlayer)
 				.collect(Collectors.toSet());
-			assert collect != null;
-			return collect;
 		}
 
 		@Override
-		public boolean isOwner(final OfflinePlayer p) {
-			return field.isOwner(p.getName());
+		public boolean isOwner(OfflinePlayer offlinePlayer) {
+			return field.isOwner(offlinePlayer.getName());
 		}
 
 		@Override
 		public Collection<OfflinePlayer> getOwners() {
-			@SuppressWarnings("deprecation")
-			Set<OfflinePlayer> collect = Stream.of(Bukkit.getOfflinePlayer(field.getOwner()))
+			return Stream.of(Bukkit.getOfflinePlayer(field.getOwner()))
 				.collect(Collectors.toSet());
-			assert collect != null;
-			return collect;
 		}
 
-		@SuppressWarnings("null")
 		@Override
 		public Iterator<Block> getBlocks() {
-			final List<Vector> vectors = field.getCorners();
+			List<Vector> vectors = field.getCorners();
+
 			return new AABB(Bukkit.getWorld(field.getWorld()), vectors.get(0), vectors.get(7)).iterator();
 		}
 
@@ -129,15 +122,16 @@ public class PreciousStonesHook extends RegionsPlugin<PreciousStones> {
 		}
 
 		@Override
-		public boolean equals(@Nullable final Object o) {
-			if (this == o) {
+		public boolean equals(@Nullable Object object) {
+			if (this == object)
 				return true;
-			}
-			if (o == null || getClass() != o.getClass()) {
+
+			if (object == null || getClass() != object.getClass())
 				return false;
-			}
-			final PreciousStonesRegion that = (PreciousStonesRegion) o;
-			return Objects.equals(field, that.field);
+
+			PreciousStonesRegion region = (PreciousStonesRegion) object;
+
+			return Objects.equals(field, region.field);
 		}
 
 		@Override
@@ -151,8 +145,9 @@ public class PreciousStonesHook extends RegionsPlugin<PreciousStones> {
 		}
 
 		@Override
-		public void deserialize(final Fields fields) throws StreamCorruptedException, NotSerializableException {
+		public void deserialize(@NotNull Fields fields) throws StreamCorruptedException, NotSerializableException {
 			new Fields(fields).setFields(this);
 		}
 	}
+
 }
