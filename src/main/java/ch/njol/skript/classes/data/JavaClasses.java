@@ -126,18 +126,21 @@ public class JavaClasses {
 		public @Nullable Number parse(String string, ParseContext context) {
 			if (!NUMBER_PATTERN.matcher(string).matches())
 				return null;
+
 			if (INTEGER_PATTERN.matcher(string).matches()) {
 				try {
 					return Long.valueOf(string);
 				} catch (NumberFormatException ignored) {
 				}
 			}
+
 			try {
 				Double d = string.endsWith("%") ?
 					Double.parseDouble(string.substring(0, string.length() - 1)) / 100 :
 					Double.parseDouble(string);
 				if (d.isNaN() || d.isInfinite())
 					return null;
+
 				return d;
 			} catch (NumberFormatException e) {
 				return null;
