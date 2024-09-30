@@ -40,8 +40,7 @@ public class ExprDateAgoLater extends SimpleExpression<Date> {
 	public boolean init(Expression<?>[] expressions, int matchedPattern,
 						Kleenean isDelayed, ParseResult parseResult) {
 		timespanExpr = (Expression<Timespan>) expressions[0];
-		if (dateExpr != null)
-			dateExpr = (Expression<Date>) expressions[1];
+		dateExpr = (Expression<Date>) expressions[1];
 
 		ago = matchedPattern == 0;
 		return true;
