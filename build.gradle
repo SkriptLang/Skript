@@ -7,6 +7,7 @@ plugins {
 	id 'com.github.johnrengelman.shadow' version '8.1.1'
 	id 'maven-publish'
 	id 'java'
+	id 'checkstyle'
 }
 
 configurations {
@@ -40,6 +41,11 @@ dependencies {
 
 	testShadow group: 'junit', name: 'junit', version: '4.13.2'
 	testShadow group: 'org.easymock', name: 'easymock', version: '5.4.0'
+}
+
+checkstyle {
+	configFile = new File("checkstyle.xml")
+	sourceSets = [] // disables checkstyle after build task
 }
 
 task checkAliases {
