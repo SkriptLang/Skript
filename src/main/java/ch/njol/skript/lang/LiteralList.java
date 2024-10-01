@@ -20,7 +20,7 @@ package ch.njol.skript.lang;
 
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.lang.util.SimpleLiteral;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Array;
 

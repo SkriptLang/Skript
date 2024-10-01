@@ -31,7 +31,7 @@ import ch.njol.util.Kleenean;
 import org.bukkit.entity.Creeper;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 @Name("Charge Creeper")
 @Description("Charges or uncharges a creeper. A creeper is charged when it has been struck by lightning.")
