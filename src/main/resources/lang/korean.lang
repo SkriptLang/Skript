@@ -68,7 +68,8 @@ skript command:
 		aliases: 별칭(aliases)
 		script: <gold>%s<reset>
 		scripts in folder: <gold>%s<reset>폴더 속 모든 스크립트
-		x scripts in folder: <gold>%1$s<lime> 폴더 속 <gold>%2$s<reset>개의 스크립트
+		x scripts in folder success: <gold>%1$s<lime> 폴더 속 <gold>%2$s<reset>개의 스크립트
+		x scripts in folder error: <gold>%1$s<light red> 폴더 속 <gold>%2$s<reset>개의 스크립트
 		empty folder: <gold>%s<reset>에 활성화된 스크립트가 없습니다.
 	enable:
 		all:
