@@ -55,8 +55,10 @@ public class EffCancelEvent extends Effect {
 		if (currentEvents == null)
 			return false;
 
-		if (cancel && getParser().isCurrentEvent(EntityToggleSwimEvent.class))
+		if (cancel && getParser().isCurrentEvent(EntityToggleSwimEvent.class)) {
 			Skript.error("Cancelling a toggle swim event has no effect");
+			return false;
+		}
 
 		for (Class<? extends Event> event : currentEvents) {
 			if (Cancellable.class.isAssignableFrom(event) || BlockCanBuildEvent.class.isAssignableFrom(event))
