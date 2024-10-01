@@ -18,7 +18,7 @@
  */
 package ch.njol.skript.lang;
 
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Represents an expression's information, for use when creating new instances of expressions.

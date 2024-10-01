@@ -31,7 +31,7 @@ import ch.njol.skript.util.Utils;
 import ch.njol.skript.util.chat.ChatMessages;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 @Name("Colored / Uncolored")
 @Description({"Parses &lt;color&gt;s and, optionally, chat styles in a message or removes",
