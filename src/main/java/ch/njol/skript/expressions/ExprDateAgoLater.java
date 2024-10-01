@@ -47,7 +47,6 @@ public class ExprDateAgoLater extends SimpleExpression<Date> {
 	}
 
 	@Override
-	@SuppressWarnings("null")
 	protected Date @Nullable [] get(Event event) {
 		Timespan timespan = timespanExpr.getSingle(event);
 		Date date = dateExpr != null ? dateExpr.getSingle(event) : new Date();
