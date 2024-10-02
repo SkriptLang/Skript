@@ -406,7 +406,7 @@ public abstract class Aliases {
 								   ? key.getKey()
 								   : key.getNamespace() + "'s " + key.getKey()
 				).replace("_", " ");
-				// mod:an_item → mod:an item
+				// mod:an_item → mod's an item
 				// minecraft:dirt → dirt
 				parser.loadAlias(name + "¦s", key.toString());
 				Skript.debug(ChatColor.YELLOW + "Creating temporary alias for: " + key);
