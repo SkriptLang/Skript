@@ -51,6 +51,8 @@ public class ExprDisplayViewRange extends SimplePropertyExpression<Display, Floa
 			case ADD:
 				for (Display display : displays) {
 					float value = Math.max(0F, display.getViewRange() + change);
+					if (Float.isInfinite(value))
+						continue;
 					display.setViewRange(value);
 				}
 				break;

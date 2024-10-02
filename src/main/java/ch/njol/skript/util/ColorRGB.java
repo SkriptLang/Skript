@@ -8,6 +8,7 @@ import org.apache.commons.lang.math.NumberUtils;
 import org.bukkit.DyeColor;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.NotSerializableException;
@@ -17,12 +18,12 @@ import java.util.regex.Pattern;
 
 public class ColorRGB implements Color {
 
+	private static final boolean HAS_ARGB = Skript.methodExists(org.bukkit.Color.class, "getAlpha");
 	private static final Pattern RGB_PATTERN = Pattern.compile("(?>rgb|RGB) (\\d+), (\\d+), (\\d+)");
 
 	private org.bukkit.Color bukkit;
 
-	@Nullable
-	private DyeColor dye;
+	private @Nullable DyeColor dye;
 
 	/**
 	 * Subject to being private in the future. Use {@link #fromRGB(int, int, int)}
@@ -48,7 +49,6 @@ public class ColorRGB implements Color {
 		this.bukkit = bukkit;
 	}
 
-	private static final boolean HAS_ARGB = Skript.methodExists(org.bukkit.Color.class, "getAlpha");
 	/**
 	 * Returns a ColorRGB object from the provided arguments. Versions lower than 1.19 will not support alpha values.
 	 * 
@@ -59,7 +59,7 @@ public class ColorRGB implements Color {
 	 * @return ColorRGB
 	 */
 	@Contract("_,_,_,_ -> new")
-	public static ColorRGB fromRGBA(int red, int green, int blue, int alpha) {
+	public static @NotNull ColorRGB fromRGBA(int red, int green, int blue, int alpha) {
 		org.bukkit.Color bukkit;
 		if (HAS_ARGB) {
 			bukkit = org.bukkit.Color.fromARGB(alpha, red, green, blue);
@@ -78,7 +78,7 @@ public class ColorRGB implements Color {
 	 * @return ColorRGB
 	 */
 	@Contract("_,_,_ -> new")
-	public static ColorRGB fromRGB(int red, int green, int blue) {
+	public static @NotNull ColorRGB fromRGB(int red, int green, int blue) {
 		return new ColorRGB(red, green, blue);
 	}
 
@@ -89,7 +89,7 @@ public class ColorRGB implements Color {
 	 * @return ColorRGB
 	 */
 	@Contract("_ -> new")
-	public static ColorRGB fromBukkitColor(org.bukkit.Color bukkit) {
+	public static @NotNull ColorRGB fromBukkitColor(org.bukkit.Color bukkit) {
 		return new ColorRGB(bukkit);
 	}
 
@@ -99,8 +99,7 @@ public class ColorRGB implements Color {
 	}
 
 	@Override
-	@Nullable
-	public DyeColor asDyeColor() {
+	public @Nullable DyeColor asDyeColor() {
 		return dye;
 	}
 
@@ -112,8 +111,7 @@ public class ColorRGB implements Color {
 		return "rgb " + rgb;
 	}
 
-	@Nullable
-	public static ColorRGB fromString(String string) {
+	public static @Nullable ColorRGB fromString(String string) {
 		Matcher matcher = RGB_PATTERN.matcher(string);
 		if (!matcher.matches())
 			return null;

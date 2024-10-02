@@ -1415,8 +1415,8 @@ public class ItemType implements Unit, Iterable<ItemData>, Container<ItemStack>,
 	}
 
 	/**
-	 * @return A random block material this ItemType represents. {@link Material#AIR} will be returned if no block
-	 * 			material exists.
+	 * @return A random block material this ItemType represents.
+	 * @throws IllegalStateException If {@link #hasBlock()} is false.
 	 */
 	public Material getBlockMaterial() {
 		List<ItemData> blockItemDatas = new ArrayList<>();
@@ -1426,7 +1426,7 @@ public class ItemType implements Unit, Iterable<ItemData>, Container<ItemStack>,
 		}
 		if (blockItemDatas.isEmpty())
 			throw new IllegalStateException("This ItemType does not represent a material. " +
-					"ItemData#hasBlock() should return true before invoking this method.");
+					"ItemType#hasBlock() should return true before invoking this method.");
 		return blockItemDatas.get(random.nextInt(blockItemDatas.size())).getType();
 	}
 
