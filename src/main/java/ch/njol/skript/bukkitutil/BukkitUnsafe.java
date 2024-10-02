@@ -71,7 +71,7 @@ public class BukkitUnsafe {
 	 * @param id Namespaced ID with or without a namespace. IDs without a namespace will be treated
 	 * 		as minecraft namespaced IDs. ('minecraft:dirt' and 'dirt' are equivalent.)
 	 * @return The Material which the id represents, or null if no material can be matched.
-	 * @deprecated Prefer {@link BukkitUnsafe#getMaterialFromNamespacedId(String)}
+	 * @deprecated Prefer {@link BukkitUnsafe#getMaterialFromNamespacedId(String)} for including modded item support
 	 */
 	@Deprecated
 	public static @Nullable Material getMaterialFromMinecraftId(String id) {
