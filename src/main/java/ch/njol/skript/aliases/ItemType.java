@@ -1,21 +1,3 @@
-/**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
 package ch.njol.skript.aliases;
 
 import ch.njol.skript.aliases.ItemData.OldItemData;
@@ -41,6 +23,7 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.Tag;
+import org.bukkit.Bukkit;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.Skull;
@@ -391,22 +374,35 @@ public class ItemType implements Unit, Iterable<ItemData>, Container<ItemStack>,
 	 */
 	public boolean setBlock(Block block, boolean applyPhysics) {
 		for (int i = random.nextInt(types.size()); i < types.size(); i++) {
-			ItemData d = types.get(i);
-			Material blockType = ItemUtils.asBlock(d.type);
+			ItemData data = types.get(i);
+			Material blockType = ItemUtils.asBlock(data.type);
+
 			if (blockType == null) // Ignore items which cannot be placed
 				continue;
-			if (BlockUtils.set(block, blockType, d.getBlockValues(), applyPhysics)) {
-				ItemMeta itemMeta = getItemMeta();
-				if (itemMeta instanceof SkullMeta) {
-					OfflinePlayer offlinePlayer = ((SkullMeta) itemMeta).getOwningPlayer();
-					if (offlinePlayer == null)
-						continue;
-					Skull skull = (Skull) block.getState();
+
+			if (!BlockUtils.set(block, blockType, data.getBlockValues(), applyPhysics))
+				continue;
+
+			ItemMeta itemMeta = getItemMeta();
+
+			if (itemMeta instanceof SkullMeta) {
+				OfflinePlayer offlinePlayer = ((SkullMeta) itemMeta).getOwningPlayer();
+				if (offlinePlayer == null)
+					continue;
+				Skull skull = (Skull) block.getState();
+				if (offlinePlayer.getName() != null) {
 					skull.setOwningPlayer(offlinePlayer);
-					skull.update(false, applyPhysics);
+				} else if (ItemUtils.CAN_CREATE_PLAYER_PROFILE) {
+					//noinspection deprecation
+					skull.setOwnerProfile(Bukkit.createPlayerProfile(offlinePlayer.getUniqueId(), ""));
+				} else {
+					//noinspection deprecation
+					skull.setOwner("");
 				}
-				return true;
+				skull.update(false, applyPhysics);
 			}
+
+			return true;
 		}
 		return false;
 	}
