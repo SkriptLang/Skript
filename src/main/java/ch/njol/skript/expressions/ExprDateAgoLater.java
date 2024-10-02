@@ -1,21 +1,3 @@
-/**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
 package ch.njol.skript.expressions;
 
 import ch.njol.skript.Skript;
@@ -35,58 +17,60 @@ import org.jetbrains.annotations.Nullable;
 
 @Name("Date Ago/Later")
 @Description("A date the specified timespan before/after another date.")
-@Examples({"set {_yesterday} to 1 day ago",
-			"set {_hourAfter} to 1 hour after {someOtherDate}",
-			"set {_hoursBefore} to 5 hours before {someOtherDate}"})
+@Examples({
+	"set {_yesterday} to 1 day ago",
+	"set {_hourAfter} to 1 hour after {someOtherDate}",
+	"set {_hoursBefore} to 5 hours before {someOtherDate}"
+})
 @Since("2.2-dev33")
 public class ExprDateAgoLater extends SimpleExpression<Date> {
 
-    static {
-        Skript.registerExpression(ExprDateAgoLater.class, Date.class, ExpressionType.COMBINED,
-                "%timespan% (ago|in the past|before [the] [date] %-date%)",
-                "%timespan% (later|(from|after) [the] [date] %-date%)");
-    }
+	static {
+		Skript.registerExpression(ExprDateAgoLater.class, Date.class, ExpressionType.COMBINED,
+			"%timespan% (ago|in the past|before [the] [date] %-date%)",
+			"%timespan% (later|(from|after) [the] [date] %-date%)");
+	}
 
-    @SuppressWarnings("null")
-    private Expression<Timespan> timespan;
-    @Nullable
-    private Expression<Date> date;
-    private boolean ago;
+	private boolean ago;
+	private Expression<Timespan> timespanExpr;
+	private @Nullable Expression<Date> dateExpr;
 
-    @Override
-    @SuppressWarnings({"unchecked", "null"})
-    public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-        timespan = (Expression<Timespan>) exprs[0];
-        date = (Expression<Date>) exprs[1];
-        ago = matchedPattern == 0;
-        return true;
-    }
+	@Override
+	@SuppressWarnings("unchecked")
+	public boolean init(Expression<?>[] expressions, int matchedPattern,
+						Kleenean isDelayed, ParseResult parseResult) {
+		timespanExpr = (Expression<Timespan>) expressions[0];
+		dateExpr = (Expression<Date>) expressions[1];
 
-    @Override
-    @Nullable
-    @SuppressWarnings("null")
-    protected Date[] get(Event e) {
-        Timespan timespan = this.timespan.getSingle(e);
-		Date date = this.date != null ? this.date.getSingle(e) : new Date();
+		ago = matchedPattern == 0;
+		return true;
+	}
+
+	@Override
+	protected Date @Nullable [] get(Event event) {
+		Timespan timespan = timespanExpr.getSingle(event);
+		Date date = dateExpr != null ? dateExpr.getSingle(event) : new Date();
 		if (timespan == null || date == null)
 			return null;
 
-        return new Date[] { ago ? date.minus(timespan) : date.plus(timespan) };
-    }
+		return new Date[]{ago ? date.minus(timespan) : date.plus(timespan)};
+	}
 
-    @Override
-    public boolean isSingle() {
-        return true;
-    }
+	@Override
+	public boolean isSingle() {
+		return true;
+	}
 
-    @Override
-    public Class<? extends Date> getReturnType() {
-        return Date.class;
-    }
+	@Override
+	public Class<? extends Date> getReturnType() {
+		return Date.class;
+	}
 
-    @Override
-    public String toString(@Nullable Event e, boolean debug) {
-        return timespan.toString(e, debug) + " " + (ago ? (date != null ? "before " + date.toString(e, debug) : "ago")
-			: (date != null ? "after " + date.toString(e, debug) : "later"));
-    }
+	@Override
+	public String toString(@Nullable Event event, boolean debug) {
+		return timespanExpr.toString(event, debug) + " " +
+			(ago ? (dateExpr != null ? "before " + dateExpr.toString(event, debug) : "ago")
+				: (dateExpr != null ? "after " + dateExpr.toString(event, debug) : "later"));
+	}
+
 }
