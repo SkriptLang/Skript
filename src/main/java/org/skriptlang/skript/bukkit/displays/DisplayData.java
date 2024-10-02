@@ -142,22 +142,16 @@ public class DisplayData extends EntityData<Display> {
 	public void set(Display entity) {
 		switch (type) {
 			case BLOCK -> {
-				if (!(entity instanceof BlockDisplay))
-					return;
-				if (blockData != null)
-					((BlockDisplay) entity).setBlock(blockData);
+				if (blockData != null && entity instanceof BlockDisplay blockDisplay)
+					blockDisplay.setBlock(blockData);
 			}
 			case ITEM -> {
-				if (!(entity instanceof ItemDisplay))
-					return;
-				if (item != null)
-					((ItemDisplay) entity).setItemStack(item);
+				if (item != null && entity instanceof ItemDisplay itemDisplay)
+					itemDisplay.setItemStack(item);
 			}
 			case TEXT -> {
-				if (!(entity instanceof TextDisplay))
-					return;
-				if (text != null)
-					((TextDisplay) entity).setText(text);
+				if (text != null && entity instanceof TextDisplay textDisplay)
+					textDisplay.setText(text);
 			}
 		}
 	}
