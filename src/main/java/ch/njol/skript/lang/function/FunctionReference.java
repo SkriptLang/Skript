@@ -25,15 +25,19 @@ import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.config.Node;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser;
+import ch.njol.skript.lang.Variable;
+import ch.njol.skript.lang.parser.ParserInstance;
 import ch.njol.skript.log.RetainingLogHandler;
 import ch.njol.skript.log.SkriptLogger;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.Contract;
 import ch.njol.skript.util.LiteralUtils;
+import ch.njol.skript.variables.TypeHints;
 import ch.njol.util.StringUtils;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.converter.Converters;
+import org.skriptlang.skript.lang.script.ScriptWarning;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -225,6 +229,19 @@ public class FunctionReference<T> implements Contract {
 			Parameter<?> p = sign.parameters[singleListParam ? 0 : i];
 			RetainingLogHandler log = SkriptLogger.startRetainingLog();
 			try {
+				// Check type hints
+				if (parameters[i] instanceof Variable) {
+					Variable<?> variable = (Variable<?>) parameters[i];
+					Class<?> hint = TypeHints.get(variable);
+					if (hint != null && !p.type.getC().isAssignableFrom(hint)) {
+						ParserInstance parser = ParserInstance.get();
+						if (parser.isActive() && !parser.getCurrentScript().suppressesWarning(ScriptWarning.LOCAL_VARIABLE_TYPE)) {
+							// This section of code is expecting an error, we cannot change to a warning, otherwise 'cannot understand condition/effect' errors also print for this line.
+							Skript.error("Variable '" + variable.toString() + "' is of type " + Classes.toString(Classes.getExactClassInfo(hint)) + ", and is " + SkriptParser.notOfType(p.getType()));
+							return false;
+						}
+					}
+				}
 				//noinspection unchecked
 				Expression<?> e = parameters[i].getConvertedExpression(p.type.getC());
 				if (e == null) {

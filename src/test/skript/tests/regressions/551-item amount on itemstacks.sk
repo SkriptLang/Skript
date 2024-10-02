@@ -4,9 +4,9 @@ test "item amount of itemstack":
 	set block at {_loc} to chest
 	add 10 stone to inventory of block at {_loc}
 	set {_item} to slot 0 of inventory of block at {_loc}
-	assert item amount of {_item} is 10 with "Amount of itemstack is not 10: %{_amount}%"
+	assert item amount of {_item} is 10 with "Amount of itemstack is not 10"
 	remove 1 from item amount of {_item}
-	assert item amount of {_item} is 9 with "Amount of itemstack is not 9: %{_amount}%"
+	assert item amount of {_item} is 9 with "Amount of itemstack is not 9"
 	set block at {_loc} to {_old-block}
 
 test "item amount of itemtype":
@@ -20,8 +20,9 @@ test "item amount of slot":
 	set {_loc} to spawn of world "world"
 	set {_old-block} to type of block at {_loc}
 	set block at {_loc} to chest
+	clear inventory of block at {_loc}
 	add 10 stone to inventory of block at {_loc}
-	assert item amount of (slot 0 of inventory of block at {_loc}) is 10 with "Amount of slot is not 10: %{_amount}%"
+	assert item amount of (slot 0 of inventory of block at {_loc}) is 10 with "Amount of slot is not 10"
 	remove 1 from item amount of (slot 0 of inventory of block at {_loc})
-	assert item amount of (slot 0 of inventory of block at {_loc}) is 9 with "Amount of slot is not 9: %{_amount}%"
+	assert item amount of (slot 0 of inventory of block at {_loc}) is 9 with "Amount of slot is not 9"
 	set block at {_loc} to {_old-block}

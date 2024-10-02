@@ -418,7 +418,6 @@ public class Variables {
 		VariablesMap from = localVariables.get(event);
 		if (from == null)
 			return null;
-
 		return from.copy();
 	}
 
