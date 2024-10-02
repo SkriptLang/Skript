@@ -58,7 +58,7 @@ public class ExprBlocks extends SimpleExpression<Block> {
 
 	static {
 		Skript.registerExpression(ExprBlocks.class, Block.class, ExpressionType.COMBINED,
-				"[(all [[of] the]|the)] blocks %direction% [%locations%]", // TODO doesn't loop all blocks?
+				"[(all [[of] the]|the)] blocks %direction% [%locations%]",
 				"[(all [[of] the]|the)] blocks from %location% [on] %direction%",
 				"[(all [[of] the]|the)] blocks from %location% to %location%",
 				"[(all [[of] the]|the)] blocks between %location% and %location%",
