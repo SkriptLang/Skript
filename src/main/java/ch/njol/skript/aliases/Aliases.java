@@ -403,7 +403,10 @@ public abstract class Aliases {
 		for (Material material : Material.values()) {
 			if (!material.isLegacy() && !provider.hasAliasForMaterial(material)) {
 				NamespacedKey key = material.getKey();
-				String name = key.getKey().replace("_", " ");
+				String name = (key.getNamespace().equals(NamespacedKey.MINECRAFT) ? key.getKey() : key.toString())
+								  .replace("_", " ");
+				// mod:an_item → mod:an item
+				// minecraft:dirt → dirt
 				parser.loadAlias(name + "¦s", key.toString());
 				Skript.debug(ChatColor.YELLOW + "Creating temporary alias for: " + key);
 			}

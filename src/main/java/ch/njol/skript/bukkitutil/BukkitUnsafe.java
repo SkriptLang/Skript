@@ -70,7 +70,10 @@ public class BukkitUnsafe {
 
 	@Nullable
 	public static Material getMaterialFromMinecraftId(String id) {
-		return Material.matchMaterial(id);
+		return Material.matchMaterial(id.toLowerCase().startsWith("minecraft:")
+										  ? id
+										  : id.replace(":", "_")  //For Hybrid Server
+		);
 	}
 
 	public static void modifyItemStack(ItemStack stack, String arguments) {
