@@ -30,6 +30,7 @@ import java.util.Map;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 import org.bukkit.UnsafeValues;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Nullable;
@@ -70,7 +71,7 @@ public class BukkitUnsafe {
 
 	@Nullable
 	public static Material getMaterialFromMinecraftId(String id) {
-		return Material.matchMaterial(id.toLowerCase().startsWith("minecraft:")
+		return Material.matchMaterial(id.toLowerCase().startsWith(NamespacedKey.MINECRAFT + ":")
 										  ? id
 										  : id.replace(":", "_")  //For Hybrid Server
 		);
