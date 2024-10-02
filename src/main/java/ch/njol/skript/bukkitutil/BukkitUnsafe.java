@@ -20,9 +20,6 @@ package ch.njol.skript.bukkitutil;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.invoke.MethodHandle;
-import java.lang.invoke.MethodHandles;
-import java.lang.invoke.MethodType;
 import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
@@ -40,7 +37,6 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import ch.njol.util.EnumTypeAdapter;
 import ch.njol.skript.Skript;
-import ch.njol.skript.util.Version;
 
 /**
  * Contains helpers for Bukkit's not so safe stuff.
@@ -70,7 +66,7 @@ public class BukkitUnsafe {
 	private static Map<Integer,Material> idMappings;
 
 	@Nullable
-	public static Material getMaterialFromMinecraftId(String id) {
+	public static Material getMaterialFromNamespacedId(String id) {
 		return Material.matchMaterial(id.toLowerCase().startsWith(NamespacedKey.MINECRAFT + ":")
 										  ? id
 										  : id.replace(":", "_")  //For Hybrid Server

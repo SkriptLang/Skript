@@ -25,7 +25,6 @@ import ch.njol.skript.config.Config;
 import ch.njol.skript.config.Node;
 import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.entity.EntityData;
-import org.bukkit.entity.EntityType;
 import org.skriptlang.skript.lang.script.Script;
 import ch.njol.skript.lang.parser.ParserInstance;
 import ch.njol.skript.localization.ArgsMessage;
@@ -403,8 +402,10 @@ public abstract class Aliases {
 		for (Material material : Material.values()) {
 			if (!material.isLegacy() && !provider.hasAliasForMaterial(material)) {
 				NamespacedKey key = material.getKey();
-				String name = (key.getNamespace().equals(NamespacedKey.MINECRAFT) ? key.getKey() : key.toString())
-								  .replace("_", " ");
+				String name = (key.getNamespace().equals(NamespacedKey.MINECRAFT)
+								   ? key.getKey()
+								   : key.getNamespace() + "'s " + key.getKey()
+				).replace("_", " ");
 				// mod:an_item → mod:an item
 				// minecraft:dirt → dirt
 				parser.loadAlias(name + "¦s", key.toString());
