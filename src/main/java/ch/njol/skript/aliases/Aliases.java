@@ -407,7 +407,7 @@ public abstract class Aliases {
 				if (NamespacedKey.MINECRAFT.equals(key.getNamespace())) {
 					parser.loadAlias(key.getKey().replace("_", " "), key.toString());
 				} else {
-					parser.loadAlias((key.getNamespace() + " 's " + key.getKey() + "¦s").replace("_", " "), key.toString());
+					parser.loadAlias((key.getNamespace() + "'s " + key.getKey() + "¦s").replace("_", " "), key.toString());
 					parser.loadAlias((key.getKey() + "¦s from " + key.getNamespace()).replace("_", " "), key.toString());
 				}
 				Skript.debug(ChatColor.YELLOW + "Creating temporary alias for: " + key);
