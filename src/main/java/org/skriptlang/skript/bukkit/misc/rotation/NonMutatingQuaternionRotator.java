@@ -5,6 +5,7 @@ import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
 import java.util.function.Function;
+
 /**
  * Rotates {@link Quaternionf}s around the X, Y, and Z axes, as well as any arbitrary axis.
  * Supports all local axes.
