@@ -66,27 +66,27 @@ public class BukkitUnsafe {
 	private static Map<Integer,Material> idMappings;
 
 	/**
-	 * @deprecated You should use {@link BukkitUnsafe#getMaterialFromNamespacedId(String)}
 	 * Get a material from a minecraft id.
 	 *
-	 * @param id Namespaced id (just like 'minecraft:dirt'), or normally just a material name (just like 'dirt')
-	 * @return Material or null
+	 * @param id Namespaced ID with or without a namespace. IDs without a namespace will be treated
+	 * 		as minecraft namespaced IDs. ('minecraft:dirt' and 'dirt' are equivalent.)
+	 * @return The Material the id represents, or null if no material can be matched.
+	 * @deprecated Prefer {@link BukkitUnsafe#getMaterialFromNamespacedId(String)}
 	 */
-	@Nullable
 	@Deprecated
-	public static Material getMaterialFromMinecraftId(String id) {
+	public static @Nullable Material getMaterialFromMinecraftId(String id) {
 		return getMaterialFromNamespacedId(id);
 	}
 
 	/**
-	 * Get a material from a namespaced id.
-	 * Such as, minecraft:iron_ingot -> IRON_INGOT; mod:an_item -> MOD_AN_ITEM
+	 * Get a material from a namespaced ID.
+	 * For example, 'minecraft:iron_ingot' -> Material.IRON_INGOT; 'mod:an_item' -> Material.MOD_AN_ITEM
 	 *
-	 * @param id Namespaced id (just like 'minecraft:dirt'), or normally just a material name (just like 'dirt')
-	 * @return Material or null
+	 * @param id Namespaced ID with or without a namespace. IDs without a namespace will be treated
+	 * 		as minecraft namespaced IDs. ('minecraft:dirt' and 'dirt' are equivalent.)
+	 * @return The Material the id represents, or null if no material can be matched.
 	 */
-	@Nullable
-	public static Material getMaterialFromNamespacedId(String id) {
+	public static @Nullable Material getMaterialFromNamespacedId(String id) {
 		return Material.matchMaterial(id.toLowerCase().startsWith(NamespacedKey.MINECRAFT + ":")
 										  ? id
 										  : id.replace(":", "_")  //For Hybrid Server
