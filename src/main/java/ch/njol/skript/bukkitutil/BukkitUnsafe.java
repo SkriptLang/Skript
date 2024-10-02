@@ -80,7 +80,7 @@ public class BukkitUnsafe {
 
 	/**
 	 * Get a material from a namespaced id.
-	 * Such as, minecraft:iron_ingot -> IRON_INGOT; mod:an_item -> mod_an_item
+	 * Such as, minecraft:iron_ingot -> IRON_INGOT; mod:an_item -> MOD_AN_ITEM
 	 *
 	 * @param id Namespaced id (just like 'minecraft:dirt'), or normally just a material name (just like 'dirt')
 	 * @return Material or null
