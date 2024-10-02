@@ -65,6 +65,11 @@ public class BukkitUnsafe {
 	@Nullable
 	private static Map<Integer,Material> idMappings;
 
+	@Deprecated
+	public static Material getMaterialFromMinecraftId(String id) {
+		return getMaterialFromNamespacedId(id);
+	}
+
 	@Nullable
 	public static Material getMaterialFromNamespacedId(String id) {
 		return Material.matchMaterial(id.toLowerCase().startsWith(NamespacedKey.MINECRAFT + ":")
