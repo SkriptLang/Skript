@@ -402,13 +402,14 @@ public abstract class Aliases {
 		for (Material material : Material.values()) {
 			if (!material.isLegacy() && !provider.hasAliasForMaterial(material)) {
 				NamespacedKey key = material.getKey();
-				String name = (key.getNamespace().equals(NamespacedKey.MINECRAFT)
-								   ? key.getKey()
-								   : key.getNamespace() + "'s " + key.getKey()
-				).replace("_", " ");
-				// mod:an_item -> mod's an item
+				// mod:an_item -> (mod's an item) | (an item from mod)
 				// minecraft:dirt -> dirt
-				parser.loadAlias(name + "¦s", key.toString());
+				if (NamespacedKey.MINECRAFT.equals(key.getNamespace())) {
+					parser.loadAlias(key.getKey().replace("_", " "), key.toString());
+				} else {
+					parser.loadAlias((key.getNamespace() + " 's " + key.getKey() + "¦s").replace("_", " "), key.toString());
+					parser.loadAlias((key.getKey() + "¦s from " + key.getNamespace()).replace("_", " "), key.toString());
+				}
 				Skript.debug(ChatColor.YELLOW + "Creating temporary alias for: " + key);
 			}
 		}
