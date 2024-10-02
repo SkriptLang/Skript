@@ -65,12 +65,26 @@ public class BukkitUnsafe {
 	@Nullable
 	private static Map<Integer,Material> idMappings;
 
+	/**
+	 * @deprecated You should use {@link BukkitUnsafe#getMaterialFromNamespacedId(String)}
+	 * Get a material from a minecraft id.
+	 *
+	 * @param id Namespaced id (just like 'minecraft:dirt'), or normally just a material name (just like 'dirt')
+	 * @return Material or null
+	 */
 	@Nullable
 	@Deprecated
 	public static Material getMaterialFromMinecraftId(String id) {
 		return getMaterialFromNamespacedId(id);
 	}
 
+	/**
+	 * Get a material from a namespaced id.
+	 * Such as, minecraft:iron_ingot -> IRON_INGOT; mod:an_item -> mod_an_item
+	 *
+	 * @param id Namespaced id (just like 'minecraft:dirt'), or normally just a material name (just like 'dirt')
+	 * @return Material or null
+	 */
 	@Nullable
 	public static Material getMaterialFromNamespacedId(String id) {
 		return Material.matchMaterial(id.toLowerCase().startsWith(NamespacedKey.MINECRAFT + ":")
