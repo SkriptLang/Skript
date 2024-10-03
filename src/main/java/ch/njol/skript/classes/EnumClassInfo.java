@@ -54,6 +54,12 @@ public class EnumClassInfo<T extends Enum<T>> extends ClassInfo<T> {
 			.serializer(new EnumSerializer<>(c))
 			.defaultExpression(defaultExpression)
 			.parser(new Parser<T>() {
+
+				@Override
+				public boolean canParse(ParseContext context) {
+					return true;
+				}
+
 				@Override
 				@Nullable
 				public T parse(String s, ParseContext context) {

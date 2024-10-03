@@ -18,6 +18,39 @@
  */
 package ch.njol.skript.registrations;
 
+import ch.njol.skript.Skript;
+import ch.njol.skript.SkriptAPIException;
+import ch.njol.skript.SkriptConfig;
+import ch.njol.skript.classes.ClassInfo;
+import ch.njol.skript.classes.Parser;
+import ch.njol.skript.classes.Serializer;
+import ch.njol.skript.command.Commands;
+import ch.njol.skript.entity.EntityData;
+import ch.njol.skript.lang.DefaultExpression;
+import ch.njol.skript.lang.ParseContext;
+import ch.njol.skript.localization.Language;
+import ch.njol.skript.log.ParseLogHandler;
+import ch.njol.skript.log.SkriptLogger;
+import ch.njol.skript.util.StringMode;
+import ch.njol.skript.util.Utils;
+import ch.njol.skript.variables.SQLStorage;
+import ch.njol.skript.variables.SerializedVariable;
+import ch.njol.skript.variables.Variables;
+import ch.njol.util.Kleenean;
+import ch.njol.util.StringUtils;
+import ch.njol.yggdrasil.Tag;
+import ch.njol.yggdrasil.Yggdrasil;
+import ch.njol.yggdrasil.YggdrasilInputStream;
+import ch.njol.yggdrasil.YggdrasilOutputStream;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
+import org.bukkit.Chunk;
+import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.converter.Converter;
+import org.skriptlang.skript.lang.converter.ConverterInfo;
+import org.skriptlang.skript.lang.converter.Converters;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -36,40 +69,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 import java.util.regex.Pattern;
-
-import ch.njol.skript.command.Commands;
-import ch.njol.skript.entity.EntityData;
-import ch.njol.skript.util.Utils;
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.Chunk;
-import org.jetbrains.annotations.Nullable;
-
-import ch.njol.skript.Skript;
-import ch.njol.skript.SkriptAPIException;
-import ch.njol.skript.SkriptConfig;
-import ch.njol.skript.classes.ClassInfo;
-import ch.njol.skript.classes.Parser;
-import ch.njol.skript.classes.Serializer;
-import ch.njol.skript.lang.DefaultExpression;
-import ch.njol.skript.lang.ParseContext;
-import ch.njol.skript.localization.Language;
-import ch.njol.skript.log.ParseLogHandler;
-import ch.njol.skript.log.SkriptLogger;
-import ch.njol.skript.util.StringMode;
-import ch.njol.skript.variables.SQLStorage;
-import ch.njol.skript.variables.SerializedVariable;
-import ch.njol.skript.variables.Variables;
-import ch.njol.util.Kleenean;
-import ch.njol.util.StringUtils;
-import ch.njol.yggdrasil.Tag;
-import ch.njol.yggdrasil.Yggdrasil;
-import ch.njol.yggdrasil.YggdrasilInputStream;
-import ch.njol.yggdrasil.YggdrasilOutputStream;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-import org.skriptlang.skript.lang.converter.Converter;
-import org.skriptlang.skript.lang.converter.ConverterInfo;
-import org.skriptlang.skript.lang.converter.Converters;
 
 /**
  * @author Peter Güttinger
@@ -590,6 +589,12 @@ public abstract class Classes {
 	
 	private static <F, T> Parser<T> createConvertedParser(final Parser<?> parser, final Converter<F, T> converter) {
 		return new Parser<T>() {
+
+			@Override
+			public boolean canParse(ParseContext context) {
+				return parser.canParse(context);
+			}
+
 			@SuppressWarnings("unchecked")
 			@Override
 			@Nullable

@@ -54,6 +54,12 @@ public class Money {
 				.before("itemtype", "itemstack")
 				.requiredPlugins("Vault", "an economy plugin that supports Vault")
 				.parser(new Parser<Money>() {
+
+					@Override
+					public boolean canParse(ParseContext context) {
+						return true;
+					}
+
 					@Override
 					@Nullable
 					public Money parse(final String s, final ParseContext context) {

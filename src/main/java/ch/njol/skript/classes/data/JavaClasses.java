@@ -62,6 +62,12 @@ public class JavaClasses {
 				// is registered after all other number classes
 				.defaultExpression(new SimpleLiteral<>(1, true))
 				.parser(new Parser<Number>() {
+
+					@Override
+					public boolean canParse(ParseContext context) {
+						return true;
+					}
+
 					@Override
 					@Nullable
 					public Number parse(String s, ParseContext context) {
@@ -132,6 +138,12 @@ public class JavaClasses {
 				.before("integer", "short", "byte")
 				.defaultExpression(new SimpleLiteral<>((long) 1, true))
 				.parser(new Parser<Long>() {
+
+					@Override
+					public boolean canParse(ParseContext context) {
+						return true;
+					}
+
 					@Override
 					@Nullable
 					public Long parse(String s, ParseContext context) {
@@ -189,6 +201,12 @@ public class JavaClasses {
 				.name(ClassInfo.NO_DOC)
 				.defaultExpression(new SimpleLiteral<>(1, true))
 				.parser(new Parser<Integer>() {
+
+					@Override
+					public boolean canParse(ParseContext context) {
+						return true;
+					}
+
 					@Override
 					@Nullable
 					public Integer parse(String s, ParseContext context) {
@@ -248,6 +266,12 @@ public class JavaClasses {
 				.after("long")
 				.before("float", "integer", "short", "byte")
 				.parser(new Parser<Double>() {
+
+					@Override
+					public boolean canParse(ParseContext context) {
+						return true;
+					}
+
 					@Override
 					@Nullable
 					public Double parse(String s, ParseContext context) {
@@ -308,6 +332,12 @@ public class JavaClasses {
 				.name(ClassInfo.NO_DOC)
 				.defaultExpression(new SimpleLiteral<>(1f, true))
 				.parser(new Parser<Float>() {
+
+					@Override
+					public boolean canParse(ParseContext context) {
+						return true;
+					}
+
 					@Override
 					@Nullable
 					public Float parse(String s, ParseContext context) {
@@ -375,7 +405,12 @@ public class JavaClasses {
 				.parser(new Parser<Boolean>() {
 					private final RegexMessage truePattern = new RegexMessage("boolean.true.pattern");
 					private final RegexMessage falsePattern = new RegexMessage("boolean.false.pattern");
-					
+
+					@Override
+					public boolean canParse(ParseContext context) {
+						return true;
+					}
+
 					@Override
 					@Nullable
 					public Boolean parse(String s, ParseContext context) {
@@ -434,6 +469,12 @@ public class JavaClasses {
 				.name(ClassInfo.NO_DOC)
 				.defaultExpression(new SimpleLiteral<>((short) 1, true))
 				.parser(new Parser<Short>() {
+
+					@Override
+					public boolean canParse(ParseContext context) {
+						return true;
+					}
+
 					@Override
 					@Nullable
 					public Short parse(String s, ParseContext context) {
@@ -491,6 +532,12 @@ public class JavaClasses {
 				.name(ClassInfo.NO_DOC)
 				.defaultExpression(new SimpleLiteral<>((byte) 1, true))
 				.parser(new Parser<Byte>() {
+
+					@Override
+					public boolean canParse(ParseContext context) {
+						return true;
+					}
+
 					@Override
 					@Nullable
 					public Byte parse(String s, ParseContext context) {
@@ -502,12 +549,12 @@ public class JavaClasses {
 							return null;
 						}
 					}
-					
+
 					@Override
 					public String toString(Byte b, int flags) {
 						return "" + b;
 					}
-					
+
 					@Override
 					public String toVariableNameString(Byte b) {
 						return "" + b;

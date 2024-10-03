@@ -106,6 +106,11 @@ public class RegistryParser<R extends Keyed> extends Parser<R> {
 		}
 	}
 
+	@Override
+	public boolean canParse(ParseContext context) {
+		return true;
+	}
+
 	/**
 	 * This method attempts to match the string input against one of the string representations of the registry.
 	 *

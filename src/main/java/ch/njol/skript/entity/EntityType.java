@@ -45,6 +45,12 @@ public class EntityType implements Cloneable, YggdrasilSerializable {
 				.since("1.3")
 				.defaultExpression(new SimpleLiteral<>(new EntityType(Entity.class, 1), true))
 				.parser(new Parser<EntityType>() {
+
+					@Override
+					public boolean canParse(ParseContext context) {
+						return true;
+					}
+
 					@Override
 					@Nullable
 					public EntityType parse(final String s, final ParseContext context) {

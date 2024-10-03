@@ -121,6 +121,12 @@ public class EnchantmentUtils {
 	public static ClassInfo<Enchantment> createClassInfo() {
 		return new ClassInfo<>(Enchantment.class, "enchantment")
 			.parser(new Parser<>() {
+
+				@Override
+				public boolean canParse(ParseContext context) {
+					return true;
+				}
+
 				@Override
 				@Nullable
 				public Enchantment parse(final String s, final ParseContext context) {
