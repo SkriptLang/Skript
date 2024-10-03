@@ -184,6 +184,13 @@ import org.bukkit.potion.PotionData;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.potion.PotionType;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.commands.api.CommandSenderEvent;
+import org.skriptlang.skript.commands.api.ScriptCommandEvent;
+
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * @author Peter Güttinger
@@ -1129,23 +1136,23 @@ public final class BukkitEventValues {
 				return e.getSender();
 			}
 		}, 0);
-		EventValues.registerEventValue(CommandEvent.class, String[].class, new Getter<String[], CommandEvent>() {
+		EventValues.registerEventValue(ScriptCommandEvent.class, String[].class, new Getter<String[], ScriptCommandEvent>() {
 			@Override
-			public String[] get(CommandEvent event) {
+			public String[] get(ScriptCommandEvent event) {
 				return event.getArgs();
 			}
 		}, EventValues.TIME_NOW);
-		EventValues.registerEventValue(CommandEvent.class, CommandSender.class, new Getter<CommandSender, CommandEvent>() {
+		EventValues.registerEventValue(CommandSenderEvent.class, CommandSender.class, new Getter<CommandSender, CommandSenderEvent>() {
 			@Override
-			public CommandSender get(final CommandEvent e) {
-				return e.getSender();
+			public CommandSender get(CommandSenderEvent event) {
+				return (CommandSender) event.getSender().getOriginal();
 			}
 		}, 0);
-		EventValues.registerEventValue(CommandEvent.class, World.class, new Getter<World, CommandEvent>() {
+		EventValues.registerEventValue(CommandSenderEvent.class, World.class, new Getter<World, CommandSenderEvent>() {
 			@Override
 			@Nullable
-			public World get(final CommandEvent e) {
-				return e.getSender() instanceof Player ? ((Player) e.getSender()).getWorld() : null;
+			public World get(CommandSenderEvent event) {
+				return event.getSender().getOriginal() instanceof Player ? ((Player) event.getSender().getOriginal()).getWorld() : null;
 			}
 		}, 0);
 

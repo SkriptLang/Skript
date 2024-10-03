@@ -80,7 +80,9 @@ import java.util.UUID;
 
 /**
  * This class is used for user-defined commands.
+ * @deprecated Use {@link org.skriptlang.skript.commands.api.ScriptCommand}.
  */
+@Deprecated
 public class ScriptCommand implements TabExecutor {
 
 	public final static Message m_executable_by_players = new Message("commands.executable by players");
