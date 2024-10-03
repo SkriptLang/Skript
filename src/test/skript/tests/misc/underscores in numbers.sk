@@ -1,0 +1,44 @@
+test "underscores in numbers":
+	assert 1 is a number with "1 is not a number"
+	assert -1 is a number with "-1 is not a number"
+	assert 1.236 is a number with "1.236 is not a number"
+	assert -1.236 is a number with "1.236 is not a number"
+	assert 1234567890 is a number with "1234567890 is not a number"
+	assert -1234567890 is a number with "-1234567890 is not a number"
+
+	assert 1_23_456 is 123456 with "1_23_456 is not 123456"
+	assert -1_23_456 is -123456 with "-1_23_456 is not -123456"
+	assert 1_23_4 is 1234 with "1_23_4 is not 1234"
+	assert -1_23_4 is -1234 with "-1_23_4 is not -1234"
+
+	assert 1_2.3_456 is 12.3456 with "1_2.3_456 is not 12.3456"
+	assert -1_2.3_456 is -12.3456 with "-1_2.3_456 is not -12.3456"
+	assert 1_2.3_4 is 12.34 with "1_2.3_4 is not 12.34"
+	assert -1_2.3_4 is -12.34 with "-1_2.3_4 is not -12.34"
+
+	assert 1_23_456_65665_7354 is 123456656657354 with "1_23_456_65665_7354 is not 123456656657354"
+	assert -1_23_456_65665_7354 is -123456656657354 with "-1_23_456_65665_7354 is not -123456656657354"
+
+	assert 1_23_4% is 1234/100 with "1_23_4%% is not 1234/100"
+	assert -1_23_4% is -1234/100 with "-1_23_4%% is not -1234/100"
+	assert 1_2.3_4% is 12.34/100 with "1_2.3_4%% is not 12.34/100"
+	assert -1_2.3_4% is -12.34/100 with "-1_2.3_4%% is not -12.34/100"
+
+	assert ("1__00" parsed as number) is not a number with "1__00 is a number"
+	assert ("1.2__3_6" parsed as number) is not a number with "1.2__3_6 is a number"
+	assert ("1.2__3_6%%" parsed as number) is not a number with "1.2__3_6%% is a number"
+
+	assert ("_1" parsed as number) is not a number with "_1 is a number"
+	assert ("_1.2_3_6" parsed as number) is not a number with "_1.2_3_6 is a number"
+	assert ("___1" parsed as number) is not a number with "___1 is a number"
+	assert ("___1.2_3_6" parsed as number) is not a number with "___1.2_3_6 is a number"
+
+	assert ("1_" parsed as number) is not a number with "1_ is a number"
+	assert ("1.2_3_6_" parsed as number) is not a number with "1.2_3_6_ is a number"
+	assert ("1___" parsed as number) is not a number with "1___ is a number"
+	assert ("1.2_3_6___" parsed as number) is not a number with "1.2_3_6___ is a number"
+
+	assert ("_1_" parsed as number) is not a number with "_1_ is a number"
+	assert ("_1.2_3_6_" parsed as number) is not a number with "_1.2_3_6_ is a number"
+	assert ("___1___" parsed as number) is not a number with "___1___ is a number"
+	assert ("___1.2_3_6___" parsed as number) is not a number with "___1.2_3_6___ is a number"

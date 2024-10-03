@@ -38,8 +38,8 @@ import java.util.regex.Pattern;
 public class JavaClasses {
 
 	public static final int VARIABLENAME_NUMBERACCURACY = 8;
-	public static final Pattern INTEGER_PATTERN = Pattern.compile("-?[0-9]+");
-	public static final Pattern NUMBER_PATTERN = Pattern.compile("-?[0-9]+(?>\\.[0-9]+)?%?");
+	public static final Pattern INTEGER_PATTERN = Pattern.compile("-?\\d+(_\\d+)*");
+	public static final Pattern NUMBER_PATTERN = Pattern.compile("-?\\d+(_\\d+)*(?>\\.\\d+(_\\d+)*)?%?");
 
 	static {
 		Classes.registerClass(new ClassInfo<>(Object.class, "object")
@@ -69,10 +69,12 @@ public class JavaClasses {
 							return null;
 						if (INTEGER_PATTERN.matcher(s).matches()) {
 							try {
-								return Long.valueOf(s);
+								return Long.valueOf(s.replace("_", ""));
 							} catch (NumberFormatException ignored) { }
 						}
 						try {
+							s = s.replace("_", "");
+
 							Double d = s.endsWith("%") ? Double.parseDouble(s.substring(0, s.length() - 1)) / 100 : Double.parseDouble(s);
 							if (d.isNaN() || d.isInfinite())
 								return null;
@@ -138,7 +140,7 @@ public class JavaClasses {
 						if (!INTEGER_PATTERN.matcher(s).matches())
 							return null;
 						try {
-							return Long.valueOf(s);
+							return Long.valueOf(s.replace("_", ""));
 						} catch (NumberFormatException e) {
 							return null;
 						}
@@ -195,7 +197,7 @@ public class JavaClasses {
 						if (!INTEGER_PATTERN.matcher(s).matches())
 							return null;
 						try {
-							return Integer.valueOf(s);
+							return Integer.valueOf(s.replace("_", ""));
 						} catch (NumberFormatException e) {
 							return null;
 						}
@@ -254,6 +256,8 @@ public class JavaClasses {
 						if (!NUMBER_PATTERN.matcher(s).matches())
 							return null;
 						try {
+							s = s.replace("_", "");
+
 							Double d = s.endsWith("%") ? Double.parseDouble(s.substring(0, s.length() - 1)) / 100 : Double.parseDouble(s);
 							if (d.isNaN() || d.isInfinite())
 								return null;
@@ -314,6 +318,8 @@ public class JavaClasses {
 						if (!NUMBER_PATTERN.matcher(s).matches())
 							return null;
 						try {
+							s = s.replace("_", "");
+
 							Float f = s.endsWith("%") ? Float.parseFloat(s.substring(0, s.length() - 1)) / 100 : Float.parseFloat(s);
 							if (f.isNaN() || f.isInfinite()) {
 								return null;
@@ -440,7 +446,7 @@ public class JavaClasses {
 						if (!INTEGER_PATTERN.matcher(s).matches())
 							return null;
 						try {
-							return Short.valueOf(s);
+							return Short.valueOf(s.replace("_", ""));
 						} catch (NumberFormatException e) {
 							return null;
 						}
@@ -497,7 +503,7 @@ public class JavaClasses {
 						if (!INTEGER_PATTERN.matcher(s).matches())
 							return null;
 						try {
-							return Byte.valueOf(s);
+							return Byte.valueOf(s.replace("_", ""));
 						} catch (NumberFormatException e) {
 							return null;
 						}
