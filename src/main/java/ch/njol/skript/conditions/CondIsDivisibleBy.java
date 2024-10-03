@@ -45,14 +45,10 @@ public class CondIsDivisibleBy extends Condition {
 	@Override
 	public boolean check(Event event) {
 		Number divisorNumber = divisor.getSingle(event);
-		return dividend.check(event, new Checker<Number>() {
-			@Override
-			public boolean check(Number dividendNumber) {
-				double dividend = dividendNumber.doubleValue();
-				double divisor = divisorNumber.doubleValue();
-				return dividend % divisor == 0;
-			}
-		}, isNegated());
+		if (divisorNumber == null)
+			return isNegated();
+		double divisor = divisorNumber.doubleValue();
+		return dividend.check(event, dividendNumber -> (dividendNumber.doubleValue() % divisor == 0), isNegated());
 	}
 
 	@Override
