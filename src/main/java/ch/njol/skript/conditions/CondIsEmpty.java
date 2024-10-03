@@ -28,24 +28,27 @@ import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.util.slot.Slot;
+import org.skriptlang.skript.lang.util.SkriptQueue;
 
 /**
  * @author Peter Güttinger
  */
 @Name("Is Empty")
-@Description("Checks whether an inventory, an inventory slot, or a text is empty.")
+@Description("Checks whether an inventory, an inventory slot, a queue, or a text is empty.")
 @Examples("player's inventory is empty")
 @Since("<i>unknown</i> (before 2.1)")
 public class CondIsEmpty extends PropertyCondition<Object> {
-	
+
 	static {
-		register(CondIsEmpty.class, "empty", "inventories/slots/strings");
+		register(CondIsEmpty.class, "empty", "queues/inventories/slots/strings");
 	}
-	
+
 	@Override
 	public boolean check(final Object o) {
 		if (o instanceof String)
 			return ((String) o).isEmpty();
+		if (o instanceof SkriptQueue queue)
+			return queue.isEmpty();
 		if (o instanceof Inventory) {
 			for (ItemStack s : ((Inventory) o).getContents()) {
 				if (s != null && s.getType() != Material.AIR)
@@ -61,10 +64,10 @@ public class CondIsEmpty extends PropertyCondition<Object> {
 		assert false;
 		return false;
 	}
-	
+
 	@Override
 	protected String getPropertyName() {
 		return "empty";
 	}
-	
+
 }
