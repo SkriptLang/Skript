@@ -42,6 +42,7 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.Registry;
 import org.bukkit.SoundCategory;
 import org.bukkit.World;
+import org.bukkit.WorldBorder;
 import org.bukkit.World.Environment;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.block.Biome;
@@ -1527,6 +1528,29 @@ public class BukkitClasses {
 				.name("Transform Reason")
 				.description("Represents a transform reason of an <a href='events.html#entity transform'>entity transform event</a>.")
 				.since("2.8.0"));
+    
+		Classes.registerClass(new ClassInfo<>(WorldBorder.class, "worldborder")
+			.user("world ?borders?")
+			.name("World Border")
+			.description("Represents the border of a world.")
+			.since("INSERT VERSION")
+			.parser(new Parser<WorldBorder>() {
+				@Override
+				public boolean canParse(ParseContext context) {
+					return false;
+				}
+
+				@Override
+				public String toString(WorldBorder border, int flags) {
+					return "world border of " + (border.getWorld() != null ? " of world named " + border.getWorld().getName() : "");
+				}
+
+				@Override
+				public String toVariableNameString(WorldBorder border) {
+					return toString(border, 0);
+				}
+			}));
+    
 		Classes.registerClass(new EnumClassInfo<>(EntityPotionEffectEvent.Cause.class, "entitypotioncause", "entity potion causes")
 				.user("(entity )?potion ?effect ?cause")
 				.name("Entity Potion Cause")
