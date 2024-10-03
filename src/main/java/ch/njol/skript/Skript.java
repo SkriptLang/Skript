@@ -1680,7 +1680,7 @@ public final class Skript extends JavaPlugin implements Listener {
 
 	private static String getPackageName(String qualifiedClassName) {
 		int lastDotIndex = qualifiedClassName.lastIndexOf('.');
-		return (lastDotIndex == -1) ? "" : qualifiedClassName.substring(0, lastDotIndex + 1);
+		return (lastDotIndex == -1) ? "" : qualifiedClassName.substring(0, lastDotIndex);
 	}
 
 	private static void logErrorDetails(@Nullable Throwable cause, String[] info, @Nullable Thread thread, @Nullable TriggerItem item) {
@@ -1712,7 +1712,7 @@ public final class Skript extends JavaPlugin implements Listener {
 		Set<PluginDescriptionFile> stackPlugins = new HashSet<>();
 		for (StackTraceElement element : stackTrace) {
 			pluginPackages.entrySet().stream()
-				.filter(entry -> element.getClassName().contains(entry.getKey()))
+				.filter(entry -> element.getClassName().startsWith(entry.getKey()))
 				.forEach(entry -> stackPlugins.add(entry.getValue()));
 		}
 		return stackPlugins;
