@@ -18,66 +18,109 @@
  */
 package ch.njol.skript.events;
 
+import org.bukkit.command.CommandSender;
+import org.bukkit.command.ConsoleCommandSender;
+import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.event.server.ServerCommandEvent;
 import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.Skript;
+import ch.njol.skript.SkriptConfig;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptEvent;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.StringUtils;
 import ch.njol.util.coll.CollectionUtils;
 
-/**
- * @author Peter Güttinger
- */
-@SuppressWarnings("unchecked")
-public class EvtCommand extends SkriptEvent { // TODO condition to check whether a given command exists, & a conditon to check whether it's a custom skript command
+public class EvtCommand extends SkriptEvent {
+
 	static {
-		Skript.registerEvent("Command", EvtCommand.class, CollectionUtils.array(PlayerCommandPreprocessEvent.class, ServerCommandEvent.class), "command [%-string%]")
-				.description("Called when a player enters a command (not necessarily a Skript command) but you can check if command is a skript command, see <a href='conditions.html#CondIsSkriptCommand'>Is a Skript command condition</a>.")
-				.examples("on command:", "on command \"/stop\":", "on command \"pm Njol \":")
-				.since("2.0");
+		Skript.registerEvent("Command", EvtCommand.class, CollectionUtils.array(PlayerCommandPreprocessEvent.class, ServerCommandEvent.class),
+				"[sender:(1:console|player)] command [%-string%]")
+				.description(
+						"Called when a player or the console enters a command (not necessarily a Skript command)" +
+						"but you can check if command is a skript command, see <a href='conditions.html#CondIsValidCommand'>Is Valid Command condition</a>.")
+				.examples(
+						"on command:",
+						"on command \"/stop\":",
+						"on command \"pm Njol\":",
+						"on console command:",
+						"on player command \"/op\"")
+				.keywords("console", "player")
+				.since("2.0, INSERT VERSION (specific executor)");
 	}
-	
+
 	@Nullable
-	private String command = null;
+	private String command;
+	@Nullable
+	private Class<? extends CommandSender> sender;
 
 	@Override
-	@SuppressWarnings("null")
-	public boolean init(final Literal<?>[] args, final int matchedPattern, final ParseResult parser) {
+	@SuppressWarnings("unchecked")
+	public boolean init(Literal<?>[] args, int matchedPattern, ParseResult parseResult) {
 		if (args[0] != null) {
 			command = ((Literal<String>) args[0]).getSingle();
 			if (command.startsWith("/"))
 				command = command.substring(1);
 		}
+		if (parseResult.hasTag("sender")) {
+			sender = parseResult.mark == 1 ? ConsoleCommandSender.class : Player.class;
+		}
 		return true;
 	}
 
 	@Override
-	@SuppressWarnings("null")
-	public boolean check(final Event e) {
-		if (e instanceof ServerCommandEvent && ((ServerCommandEvent) e).getCommand().isEmpty())
-			return false;
-
-		if (command == null)
-			return true;
-		final String message;
-		if (e instanceof PlayerCommandPreprocessEvent) {
-			assert ((PlayerCommandPreprocessEvent) e).getMessage().startsWith("/");
-			message = ((PlayerCommandPreprocessEvent) e).getMessage().substring(1);
-		} else {
-			message = ((ServerCommandEvent) e).getCommand();
+	public boolean check(Event event) {
+		if (event instanceof ServerCommandEvent) {
+			String command = ((ServerCommandEvent) event).getCommand();
+			if (command.isEmpty() || command.startsWith(SkriptConfig.effectCommandToken.value()))
+				return false;
 		}
-		return StringUtils.startsWithIgnoreCase(message, command)
-				&& (command.contains(" ") || message.length() == command.length() || Character.isWhitespace(message.charAt(command.length()))); // if only the command is given, match that command only
+		CommandSender eventSender = getSender(event);
+		if (command == null) {
+			if (sender != null) {
+				return eventSender.getClass().equals(sender);
+			}
+			return true;
+		}
+		String message;
+		if (event instanceof PlayerCommandPreprocessEvent) {
+			assert ((PlayerCommandPreprocessEvent) event).getMessage().startsWith("/");
+			message = ((PlayerCommandPreprocessEvent) event).getMessage().substring(1);
+		} else {
+			message = ((ServerCommandEvent) event).getCommand();
+		}
+		// if only the command is given, match that command only
+		if (StringUtils.startsWithIgnoreCase(message, command)
+			&& (command.contains(" ") || message.length() == command.length()
+			|| Character.isWhitespace(message.charAt(command.length())))) {
+			if (sender != null) {
+				return eventSender.getClass() == sender;
+			}
+			return true;
+		}
+		return false;
 	}
 	
 	@Override
-	public String toString(final @Nullable Event e, final boolean debug) {
-		return "command" + (command != null ? " /" + command : "");
+	public String toString(@Nullable Event event, boolean debug) {
+		String sender = "";
+		if (this.sender != null)
+			sender = (this.sender == ConsoleCommandSender.class ? "console " : "player ");
+		return sender + "command" + (command != null ? " /" + command : "");
 	}
-	
+
+	private static CommandSender getSender(Event event) {
+		if (event instanceof PlayerCommandPreprocessEvent) {
+			return ((PlayerCommandPreprocessEvent) event).getPlayer();
+		} else if (event instanceof ServerCommandEvent) {
+			return ((ServerCommandEvent) event).getSender();
+		} else {
+			assert false;
+			return null;
+		}
+	}
+
 }
