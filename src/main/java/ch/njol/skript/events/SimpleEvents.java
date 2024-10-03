@@ -52,6 +52,7 @@ import org.bukkit.event.entity.AreaEffectCloudApplyEvent;
 import org.bukkit.event.entity.CreeperPowerEvent;
 import org.bukkit.event.entity.EntityBreakDoorEvent;
 import org.bukkit.event.entity.EntityCombustEvent;
+import org.bukkit.event.entity.EntityEnterLoveModeEvent;
 import org.bukkit.event.entity.EntityDismountEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.entity.EntityMountEvent;
@@ -730,7 +731,15 @@ public class SimpleEvents {
 					.requiredPlugins("Paper 1.16+");
 		}
 
-		Skript.registerEvent("Player Pickup Arrow", SimpleEvent.class, PlayerPickupArrowEvent.class, "[player] (pick[ing| ]up [an] arrow|arrow pick[ing| ]up)")
+		Skript.registerEvent("Love Mode Enter", SimpleEvent.class, EntityEnterLoveModeEvent.class, "[entity] enter[s] love mode", "[entity] love mode [enter]")
+				.description("Called whenever an entity enters a state of being in love.")
+				.examples(
+					"on love mode enter:",
+						"\tcancel event # No one is allowed love here"
+				)
+				.since("INSERT VERSION");
+
+    	Skript.registerEvent("Player Pickup Arrow", SimpleEvent.class, PlayerPickupArrowEvent.class, "[player] (pick[ing| ]up [an] arrow|arrow pick[ing| ]up)")
 				.description("Called when a player picks up an arrow from the ground.")
 				.examples(
 						"on arrow pickup:",

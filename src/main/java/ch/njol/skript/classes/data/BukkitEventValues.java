@@ -94,11 +94,13 @@ import org.bukkit.event.enchantment.PrepareItemEnchantEvent;
 import org.bukkit.event.entity.AreaEffectCloudApplyEvent;
 import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason;
+import org.bukkit.event.entity.EntityBreedEvent;
 import org.bukkit.event.entity.EntityChangeBlockEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.bukkit.event.entity.EntityDeathEvent;
+import org.bukkit.event.entity.EntityEnterLoveModeEvent;
 import org.bukkit.event.entity.EntityDropItemEvent;
 import org.bukkit.event.entity.EntityEvent;
 import org.bukkit.event.entity.EntityPickupItemEvent;
@@ -1800,6 +1802,28 @@ public final class BukkitEventValues {
 				}
 			}, EventValues.TIME_NOW);
 		}
+
+		// EntityBreedEvent
+		EventValues.registerEventValue(EntityBreedEvent.class, ItemStack.class, new Getter<>() {
+			@Override
+			public @Nullable ItemStack get(EntityBreedEvent event) {
+				return event.getBredWith();
+			}
+		}, EventValues.TIME_NOW);
+
+		EventValues.registerEventValue(EntityEnterLoveModeEvent.class, LivingEntity.class, new Getter<>() {
+			@Override
+			public LivingEntity get(EntityEnterLoveModeEvent event) {
+				return event.getEntity();
+			}
+		}, EventValues.TIME_NOW);
+
+		EventValues.registerEventValue(EntityEnterLoveModeEvent.class, HumanEntity.class, new Getter<>() {
+			@Override
+			public @Nullable HumanEntity get(EntityEnterLoveModeEvent event) {
+				return event.getHumanEntity();
+			}
+		}, EventValues.TIME_NOW);
 
 		// EntityResurrectEvent
 		EventValues.registerEventValue(EntityResurrectEvent.class, Slot.class, new Getter<Slot, EntityResurrectEvent>() {
