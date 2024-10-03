@@ -29,6 +29,7 @@ import ch.njol.skript.lang.SyntaxElementInfo;
 import ch.njol.skript.lang.Trigger;
 import ch.njol.skript.lang.TriggerItem;
 import ch.njol.skript.lang.util.SimpleExpression;
+import ch.njol.skript.localization.ArgsMessage;
 import ch.njol.skript.localization.Language;
 import ch.njol.skript.localization.Message;
 import ch.njol.skript.localization.PluralizingArgsMessage;
@@ -74,10 +75,8 @@ import com.google.common.collect.Lists;
 import com.google.gson.Gson;
 
 import org.bstats.bukkit.Metrics;
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.Material;
-import org.bukkit.Server;
+import org.bstats.charts.SimplePie;
+import org.bukkit.*;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.entity.Player;
@@ -88,6 +87,7 @@ import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.server.PluginDisableEvent;
 import org.bukkit.event.server.ServerCommandEvent;
+import org.bukkit.event.server.ServerLoadEvent;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -233,6 +233,17 @@ public final class Skript extends JavaPlugin implements Listener {
 		m_no_errors = new Message("skript.no errors"),
 		m_no_scripts = new Message("skript.no scripts");
 	private static final PluralizingArgsMessage m_scripts_loaded = new PluralizingArgsMessage("skript.scripts loaded");
+
+	private static final Message WARNING_MESSAGE = new Message("skript.warning message");
+	private static final Message RESTART_MESSAGE = new Message("skript.restart message");
+
+	public static String getWarningMessage() {
+		return WARNING_MESSAGE.getValueOrDefault("It appears that /reload or another plugin reloaded Skript. This is not supported behaviour and may cause issues.");
+	}
+
+	public static String getRestartMessage() {
+		return RESTART_MESSAGE.getValueOrDefault("Please consider restarting the server instead.");
+	}
 
 	public static ServerPlatform getServerPlatform() {
 		if (classExists("net.glowstone.GlowServer")) {
@@ -856,6 +867,25 @@ public final class Skript extends JavaPlugin implements Listener {
 						}
 					};
 				}
+			}
+		}, this);
+
+		// Send a warning to console when the plugin is reloaded
+		Bukkit.getPluginManager().registerEvents(new Listener() {
+			@EventHandler
+			public void onServerReload(ServerLoadEvent event) {
+				if ((event.getType() != ServerLoadEvent.LoadType.RELOAD))
+					return;
+
+				for (OfflinePlayer player : Bukkit.getOperators()) {
+					if (player.isOnline()) {
+						player.getPlayer().sendMessage(ChatColor.YELLOW + getWarningMessage());
+						player.getPlayer().sendMessage(ChatColor.YELLOW + getRestartMessage());
+					}
+				}
+
+				Skript.warning(getWarningMessage());
+				Skript.warning(getRestartMessage());
 			}
 		}, this);
 
