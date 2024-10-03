@@ -18,12 +18,9 @@
  */
 package ch.njol.skript.effects;
 
-import java.lang.invoke.MethodHandle;
-import java.lang.invoke.MethodHandles;
-import java.lang.invoke.MethodType;
+import java.util.ArrayList;
 
 import org.bukkit.block.Block;
-import org.bukkit.block.BlockFace;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.block.data.Openable;
 import org.bukkit.block.data.Powerable;
@@ -31,6 +28,8 @@ import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.Skript;
+import ch.njol.skript.classes.Changer.ChangeMode;
+import ch.njol.skript.classes.Changer.ChangerUtils;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
@@ -40,63 +39,88 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
 
-/**
- * @author Peter Güttinger
- */
-@SuppressWarnings("deprecation")
 @Name("Toggle")
-@Description("Toggle the state of a block.")
+@Description("Toggle a boolean or the state of a block.")
 @Examples({"# use arrows to toggle switches, doors, etc.",
 		"on projectile hit:",
 		"\tprojectile is arrow",
-		"\ttoggle the block at the arrow"})
-@Since("1.4")
+		"\ttoggle the block at the arrow",
+		"",
+		"# With booleans",
+		"toggle gravity of player"
+})
+@Since("1.4, INSERT VERSION (booleans)")
 public class EffToggle extends Effect {
 	
 	static {
-		Skript.registerEffect(EffToggle.class, "(close|turn off|de[-]activate) %blocks%", "(toggle|switch) [[the] state of] %blocks%", "(open|turn on|activate) %blocks%");
+		Skript.registerEffect(EffToggle.class,
+			"(open|turn on|activate) %blocks%",
+			"(close|turn off|de[-]activate) %blocks%",
+			"(toggle|switch) [[the] state of] %booleans/blocks%");
+	}
+
+	private enum State {
+		ACTIVATE, DEACTIVATE, TOGGLE
 	}
 
 	@SuppressWarnings("null")
-	private Expression<Block> blocks;
-	private int toggle;
+	private Expression<?> togglables;
+	private State state;
 	
-	@SuppressWarnings({"unchecked", "null"})
 	@Override
-	public boolean init(final Expression<?>[] vars, final int matchedPattern, final Kleenean isDelayed, final ParseResult parseResult) {
-		blocks = (Expression<Block>) vars[0];
-		toggle = matchedPattern - 1;
+	public boolean init(Expression<?>[] vars, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
+		togglables = (Expression<?>) vars[0];
+		state = State.values()[matchedPattern];
+		if (togglables.getReturnType() == Boolean.class && !ChangerUtils.acceptsChange(togglables, ChangeMode.SET, Boolean.class)) {
+			Skript.error(togglables.toString(null, false) + " cannot be toggled");
+			return false;
+		}
 		return true;
 	}
 
 	@Override
-	protected void execute(final Event e) {
-		for (Block b : blocks.getArray(e)) {
-			BlockData data = b.getBlockData();
-			if (toggle == -1) {
-				if (data instanceof Openable)
-					((Openable) data).setOpen(false);
-				else if (data instanceof Powerable)
-					((Powerable) data).setPowered(false);
-			} else if (toggle == 1) {
-				if (data instanceof Openable)
-					((Openable) data).setOpen(true);
-				else if (data instanceof Powerable)
-					((Powerable) data).setPowered(true);
-			} else {
-				if (data instanceof Openable) // open = NOT was open
-					((Openable) data).setOpen(!((Openable) data).isOpen());
-				else if (data instanceof Powerable) // power = NOT power
-					((Powerable) data).setPowered(!((Powerable) data).isPowered());
-			}
-			
-			b.setBlockData(data);
-		}
-	}
+	protected void execute(Event event) {
+		ArrayList<Object> toggledValues = new ArrayList<>();
+		for (Object obj : togglables.getArray(event)) {
+			if (obj instanceof Block) {
+				Block block = (Block) obj;
+				BlockData data = block.getBlockData();
+				if (state == State.TOGGLE) {
+					if (data instanceof Openable) { // open = NOT was open
+						((Openable) data).setOpen(!((Openable) data).isOpen());
+					} else if (data instanceof Powerable) { // power = NOT power
+						((Powerable) data).setPowered(!((Powerable) data).isPowered());
+					}
+				} else {
+					boolean value = state == State.ACTIVATE; 
+					if (data instanceof Openable) {
+						((Openable) data).setOpen(value);
+					} else if (data instanceof Powerable) {
+						((Powerable) data).setPowered(value);
+					}
+				}
 
+				block.setBlockData(data);
+				toggledValues.add(block);
+
+			} else if (obj instanceof Boolean) {
+				toggledValues.add(!(Boolean) obj);
+			}
+		}
+
+		Object[] filteredValues = toggledValues.stream().filter(
+			obj -> ChangerUtils.acceptsChange(togglables, ChangeMode.SET, obj.getClass())
+		).toArray(Object[]::new);
+
+		if (filteredValues.length != 0) {
+			togglables.change(event, filteredValues, ChangeMode.SET);
+		}
+		
+	}
+	
 	@Override
-	public String toString(final @Nullable Event e, final boolean debug) {
-		return "toggle " + blocks.toString(e, debug);
+	public String toString(@Nullable Event event, final boolean debug) {
+		return "toggle " + togglables.toString(event, debug);
 	}
 	
 }
