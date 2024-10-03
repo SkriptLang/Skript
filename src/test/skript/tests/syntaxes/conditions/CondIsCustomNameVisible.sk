@@ -1,0 +1,20 @@
+test "custom name visibility":
+	spawn an adult zombie at (spawn of world "world"):
+		set {_z} to entity
+
+	assert {_z}'s custom name isn't visible with "A zombie shouldn't be spawned with a visible display name"
+
+	set {_z}'s display name to "aaa"
+
+	assert {_z}'s custom name is visible with "Setting an entity's display name sets the visibility to true"
+
+	hide {_z}'s custom name
+
+	assert {_z}'s custom name isn't visible with "New effect should hide the custom name"
+
+	show {_z}'s custom name
+
+	assert {_z}'s custom name is visible with "New effect should show the custom name"
+
+	delete entity within {_z}
+
