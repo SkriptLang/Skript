@@ -4,6 +4,7 @@ import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.Skript;
 import ch.njol.skript.config.Node;
 import ch.njol.skript.config.SectionNode;
+import ch.njol.skript.config.SimpleNode;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
@@ -34,7 +35,7 @@ import java.util.Spliterator;
 import java.util.Spliterators;
 import java.util.stream.StreamSupport;
 
-@Name("Filter (Section)")
+@Name("Filter")
 @Description({
 	"Filters a variable list based on the supplied conditions. Unlike the filter expression, this effect " +
 	"maintains the indices of the filtered list.",
@@ -55,20 +56,18 @@ public class SecFilter extends Section implements InputSource {
 
 	static {
 		Skript.registerSection(SecFilter.class,
-				"filter %objects% to match [:any|all]");
+				"filter %~objects% to match [:any|all]");
 		if (!ParserInstance.isRegistered(InputSource.InputData.class))
 			ParserInstance.registerData(InputSource.InputData.class, InputSource.InputData::new);
 	}
 
-	@UnknownNullability
-	private Variable<?> unfilteredObjects;
+
+	private @UnknownNullability Variable<?> unfilteredObjects;
 	private final List<Condition> conditions = new ArrayList<>();
 	private boolean isAny;
 
-	@Nullable
-	private Object currentValue;
-	@UnknownNullability
-	private String currentIndex;
+	private @Nullable Object currentValue;
+	private @UnknownNullability String currentIndex;
 	private final Set<ExprInput<?>> dependentInputs = new HashSet<>();
 
 	@Override
@@ -91,8 +90,8 @@ public class SecFilter extends Section implements InputSource {
 		inputData.setSource(this);
 		try {
 			for (Node childNode : sectionNode) {
-				if (childNode instanceof SectionNode) {
-					Skript.error("filter sections may not contain other sections");
+				if (!(childNode instanceof SimpleNode)) {
+					Skript.error("Filter sections may not contain other sections");
 					return false;
 				}
 				String childKey = childNode.getKey();
@@ -159,7 +158,7 @@ public class SecFilter extends Section implements InputSource {
 		// optimize by either removing or clearing + adding depending on which is fewer operations
 		// for instances where only a handful of values are removed from a large list, this can be a 400% speedup
 		if (toKeep.size() < initialSize / 2) {
-			Variables.setVariable(varName, null, event, local);
+			Variables.deleteVariable(varName, event, local);
 			for (Pair<String, Object> pair : toKeep)
 				Variables.setVariable(varSubName + pair.getKey(), pair.getValue(), event, local);
 		} else {
