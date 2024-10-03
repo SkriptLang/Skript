@@ -343,15 +343,33 @@ tree types:
 
 # -- Time --
 time:
-	millisecond: millisecond¦s
-	tick: tick¦s
-	second: second¦s
-	minute: minute¦s
-	hour: hour¦s
-	day: day¦s
-	week: week¦s
-	month: month¦s
-	year: year¦s
+	millisecond:
+		full: millisecond¦s
+		short: ms
+	tick:
+		full: tick¦s
+		short: t
+	second:
+		full: second¦s
+		short: s
+	minute:
+		full: minute¦s
+		short: m
+	hour:
+		full: hour¦s
+		short: h
+	day:
+		full: day¦s
+		short: d
+	week:
+		full: week¦s
+		short: w
+	month:
+		full: month¦s
+		short: mo
+	year:
+		full: year¦s
+		short: y
 	real: real, rl, irl
 	minecraft: mc, minecraft
 
