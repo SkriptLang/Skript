@@ -405,7 +405,7 @@ public abstract class Aliases {
 				// mod:an_item -> (mod's an item) | (an item from mod)
 				// minecraft:dirt -> dirt
 				if (NamespacedKey.MINECRAFT.equals(key.getNamespace())) {
-					parser.loadAlias(key.getKey().replace("_", " "), key.toString());
+					parser.loadAlias(key.getKey().replace("_", " ") + "¦s", key.toString());
 				} else {
 					parser.loadAlias((key.getNamespace() + "'s " + key.getKey() + "¦s").replace("_", " "), key.toString());
 					parser.loadAlias((key.getKey() + "¦s from " + key.getNamespace()).replace("_", " "), key.toString());
