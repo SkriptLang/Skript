@@ -1,21 +1,3 @@
-/**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
 package ch.njol.skript.classes;
 
 import ch.njol.skript.SkriptAPIException;
@@ -39,9 +21,9 @@ import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 import org.skriptlang.skript.lang.arithmetic.Operator;
 import org.skriptlang.skript.lang.arithmetic.Arithmetics;
+import org.skriptlang.skript.lang.experiment.LifeCycle;
 
 /**
- * @author Peter Güttinger
  * @param <T> The class this info is for
  */
 @SuppressFBWarnings("DM_STRING_VOID_CTOR")
@@ -50,53 +32,38 @@ public class ClassInfo<T> implements Debuggable {
 	private final Class<T> c;
 	private final String codeName;
 	private final Noun name;
-	
-	@Nullable
-	private DefaultExpression<T> defaultExpression = null;
-	
-	@Nullable
-	private Parser<? extends T> parser = null;
-	
-	@Nullable
-	private Cloner<T> cloner = null;
-	
-	@Nullable
-	private Pattern[] userInputPatterns = null;
-	
-	@Nullable
-	private Changer<? super T> changer = null;
 
-	@Nullable
-	private Supplier<Iterator<T>> supplier = null;
+	private @Nullable DefaultExpression<T> defaultExpression = null;
 
-	@Nullable
-	private Serializer<? super T> serializer = null;
-	@Nullable
-	private Class<?> serializeAs = null;
-	
-	@Nullable
-	private Arithmetic<? super T, ?> math = null;
-	@Nullable
-	private Class<?> mathRelativeType = null;
-	
-	@Nullable
-	private String docName = null;
-	@Nullable
-	private String[] description = null;
-	@Nullable
-	private String[] usage = null;
-	@Nullable
-	private String[] examples = null;
-	@Nullable
-	private String since = null;
-	@Nullable
-	private String[] requiredPlugins = null;
+	private @Nullable Parser<? extends T> parser = null;
+
+	private @Nullable Cloner<T> cloner = null;
+
+	private Pattern @Nullable [] userInputPatterns = null;
+
+	private @Nullable Changer<? super T> changer = null;
+
+	private @Nullable Supplier<Iterator<T>> supplier = null;
+
+	private @Nullable Serializer<? super T> serializer = null;
+	private @Nullable Class<?> serializeAs = null;
+
+	private @Nullable Arithmetic<? super T, ?> math = null;
+	private @Nullable Class<?> mathRelativeType = null;
+
+	private @Nullable String docName, experimentName = null;
+	private String @Nullable [] description = null;
+	private String @Nullable [] usage = null;
+	private String @Nullable [] examples = null;
+	private @Nullable String since = null;
+	private String @Nullable [] requiredPlugins = null;
+	private @Nullable LifeCycle phase = null;
+	private @Nullable String feedbackLink = null;
 	
 	/**
 	 * Overrides documentation id assigned from class name.
 	 */
-	@Nullable
-	private String documentationId = null;
+	private @Nullable String documentationId = null;
 	
 	/**
 	 * @param c The class
@@ -248,7 +215,7 @@ public class ClassInfo<T> implements Debuggable {
 	/**
 	 * Only used for Skript's documentation.
 	 * 
-	 * @param name
+	 * @param name The name of this ClassInfo
 	 * @return This ClassInfo object
 	 */
 	public ClassInfo<T> name(final String name) {
@@ -260,7 +227,7 @@ public class ClassInfo<T> implements Debuggable {
 	/**
 	 * Only used for Skript's documentation.
 	 * 
-	 * @param description
+	 * @param description The description(s) of this ClassInfo
 	 * @return This ClassInfo object
 	 */
 	public ClassInfo<T> description(final String... description) {
@@ -272,7 +239,7 @@ public class ClassInfo<T> implements Debuggable {
 	/**
 	 * Only used for Skript's documentation.
 	 * 
-	 * @param usage
+	 * @param usage The usage(s) of this ClassInfo
 	 * @return This ClassInfo object
 	 */
 	public ClassInfo<T> usage(final String... usage) {
@@ -284,7 +251,7 @@ public class ClassInfo<T> implements Debuggable {
 	/**
 	 * Only used for Skript's documentation.
 	 * 
-	 * @param examples
+	 * @param examples The example(s) for this ClassInfo
 	 * @return This ClassInfo object
 	 */
 	public ClassInfo<T> examples(final String... examples) {
@@ -296,7 +263,7 @@ public class ClassInfo<T> implements Debuggable {
 	/**
 	 * Only used for Skript's documentation.
 	 * 
-	 * @param since
+	 * @param since The version of the plugin in which this ClassInfo was added
 	 * @return This ClassInfo object
 	 */
 	public ClassInfo<T> since(final String since) {
@@ -310,12 +277,32 @@ public class ClassInfo<T> implements Debuggable {
 	 *
 	 * Only used for Skript's documentation.
 	 *
-	 * @param pluginNames
+	 * @param pluginNames The plugins, other than Skript, that this ClassInfo requires
 	 * @return This ClassInfo object
 	 */
 	public ClassInfo<T> requiredPlugins(final String... pluginNames) {
 		assert this.requiredPlugins == null;
 		this.requiredPlugins = pluginNames;
+		return this;
+	}
+
+	/**
+	 * Provides information regarding the experiment which this ClassInfo requires.
+	 *
+	 * Only used for Skript's documentation.
+	 *
+	 * @param experimentName The name of the experiment which this ClassInfo requires
+	 * @param phase The phase of the associated experiment
+	 * @param feedbackLink The feedback link for the associated experiment
+	 * @return This ClassInfo object
+	 */
+	public ClassInfo<T> experimental(String experimentName, LifeCycle phase, String feedbackLink) {
+		assert this.experimentName == null;
+		assert this.phase == null;
+		assert this.feedbackLink == null;
+		this.experimentName = experimentName;
+		this.phase = phase;
+		this.feedbackLink = feedbackLink;
 		return this;
 	}
 	
@@ -345,19 +332,16 @@ public class ClassInfo<T> implements Debuggable {
 	public String getCodeName() {
 		return codeName;
 	}
-	
-	@Nullable
-	public DefaultExpression<T> getDefaultExpression() {
+
+	public @Nullable DefaultExpression<T> getDefaultExpression() {
 		return defaultExpression;
 	}
-	
-	@Nullable
-	public Parser<? extends T> getParser() {
+
+	public @Nullable Parser<? extends T> getParser() {
 		return parser;
 	}
-	
-	@Nullable
-	public Cloner<? extends T> getCloner() {
+
+	public @Nullable Cloner<? extends T> getCloner() {
 		return cloner;
 	}
 	
@@ -368,80 +352,78 @@ public class ClassInfo<T> implements Debuggable {
 	public T clone(T t) {
 		return cloner == null ? t : cloner.clone(t);
 	}
-	
-	@Nullable
-	public Pattern[] getUserInputPatterns() {
+
+	public Pattern @Nullable [] getUserInputPatterns() {
 		return userInputPatterns;
 	}
-	
-	@Nullable
-	public Changer<? super T> getChanger() {
+
+	public @Nullable Changer<? super T> getChanger() {
 		return changer;
 	}
 
-	@Nullable
-	public Supplier<Iterator<T>> getSupplier() {
+	public @Nullable Supplier<Iterator<T>> getSupplier() {
 		if (supplier == null && c.isEnum())
 			supplier = () -> new ArrayIterator<>(c.getEnumConstants());
 		return supplier;
 	}
 
-	@Nullable
-	public Serializer<? super T> getSerializer() {
+	public @Nullable Serializer<? super T> getSerializer() {
 		return serializer;
 	}
-	
-	@Nullable
-	public Class<?> getSerializeAs() {
+
+	public @Nullable Class<?> getSerializeAs() {
 		return serializeAs;
 	}
-	
-	@Nullable
+
 	@Deprecated
-	public Arithmetic<? super T, ?> getMath() {
+	public @Nullable Arithmetic<? super T, ?> getMath() {
 		return math;
 	}
 
-	@Nullable
 	@Deprecated
-	public <R> Arithmetic<T, R> getRelativeMath() {
+	public @Nullable <R> Arithmetic<T, R> getRelativeMath() {
 		return (Arithmetic<T, R>) math;
 	}
-	
-	@Nullable
+
 	@Deprecated
-	public Class<?> getMathRelativeType() {
+	public @Nullable Class<?> getMathRelativeType() {
 		return mathRelativeType;
 	}
-	
-	@Nullable
-	public String[] getDescription() {
+
+	public String @Nullable [] getDescription() {
 		return description;
 	}
-	
-	@Nullable
-	public String[] getUsage() {
+
+	public String @Nullable [] getUsage() {
 		return usage;
 	}
-	
-	@Nullable
-	public String[] getExamples() {
+
+	public String @Nullable [] getExamples() {
 		return examples;
 	}
-	
-	@Nullable
-	public String getSince() {
+
+	public @Nullable String getSince() {
 		return since;
 	}
-	
-	@Nullable
-	public String getDocName() {
+
+	public @Nullable String getDocName() {
 		return docName;
 	}
 
-	@Nullable
-	public String[] getRequiredPlugins() {
+	public String @Nullable [] getRequiredPlugins() {
 		return requiredPlugins;
+	}
+
+	public @Nullable String getExperimentName() {
+		return experimentName;
+	}
+
+	public @Nullable LifeCycle getPhase() {
+		return phase;
+	}
+
+	public @Nullable String getFeedbackLink() {
+		return feedbackLink;
 	}
 	
 	/**
@@ -450,8 +432,7 @@ public class ClassInfo<T> implements Debuggable {
 	 * name of {@code #getC()}.
 	 * @return Documentation id override, or null.
 	 */
-	@Nullable
-	public String getDocumentationID() {
+	public @Nullable String getDocumentationID() {
 		return documentationId;
 	}
 
@@ -460,9 +441,8 @@ public class ClassInfo<T> implements Debuggable {
 	}
 	
 	// === ORDERING ===
-	
-	@Nullable
-	private Set<String> before;
+
+	private @Nullable Set<String> before;
 	private final Set<String> after = new HashSet<>();
 	
 	/**
@@ -501,8 +481,7 @@ public class ClassInfo<T> implements Debuggable {
 	/**
 	 * @return Set of classes that should be after this one. May return null.
 	 */
-	@Nullable
-	public Set<String> before() {
+	public @Nullable Set<String> before() {
 		return before;
 	}
 	
@@ -516,8 +495,7 @@ public class ClassInfo<T> implements Debuggable {
 	// === GENERAL ===
 	
 	@Override
-	@NotNull
-	public String toString() {
+	public @NotNull String toString() {
 		return getName().getSingular();
 	}
 	
@@ -526,8 +504,7 @@ public class ClassInfo<T> implements Debuggable {
 	}
 	
 	@Override
-	@NotNull
-	public String toString(final @Nullable Event event, final boolean debug) {
+	public @NotNull String toString(final @Nullable Event event, final boolean debug) {
 		if (debug)
 			return codeName + " (" + c.getCanonicalName() + ")";
 		return getName().getSingular();

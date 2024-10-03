@@ -1,21 +1,3 @@
-/**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
 package ch.njol.skript.lang;
 
 import ch.njol.skript.SkriptAPIException;
@@ -24,6 +6,7 @@ import ch.njol.skript.lang.SkriptEvent.ListeningBehavior;
 import org.bukkit.event.Event;
 import org.bukkit.event.player.PlayerInteractAtEntityEvent;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.experiment.LifeCycle;
 import org.skriptlang.skript.lang.structure.StructureInfo;
 
 import java.util.Locale;
@@ -35,7 +18,8 @@ public final class SkriptEventInfo<E extends SkriptEvent> extends StructureInfo<
   
 	private ListeningBehavior listeningBehavior;
 	private String @Nullable [] description, examples, keywords, requiredPlugins;
-	private @Nullable String since, documentationID;
+	private @Nullable String since, documentationID, experimentName, feedbackLink;
+	private @Nullable LifeCycle phase;
 
 	private final String id;
 
@@ -63,13 +47,13 @@ public final class SkriptEventInfo<E extends SkriptEvent> extends StructureInfo<
 		this.events = events;
 
 		if (name.startsWith("*")) {
-			this.name = name = "" + name.substring(1);
+			this.name = name = name.substring(1);
 		} else {
 			this.name = "On " + name;
 		}
 
 		// uses the name without 'on ' or '*'
-		this.id = "" + name.toLowerCase(Locale.ENGLISH).replaceAll("[#'\"<>/&]", "").replaceAll("\\s+", "_");
+		this.id = name.toLowerCase(Locale.ENGLISH).replaceAll("[#'\"<>/&]", "").replaceAll("\\s+", "_");
 
 		// default listening behavior should be dependent on config setting
 		this.listeningBehavior = SkriptConfig.listenCancelledByDefault.value() ? ListeningBehavior.ANY : ListeningBehavior.UNCANCELLED;
@@ -137,6 +121,21 @@ public final class SkriptEventInfo<E extends SkriptEvent> extends StructureInfo<
 	}
 
 	/**
+	 * Only used for Skript's documentation.
+	 *
+	 * @param experimentName The name of the experiment which this event requires
+	 * @param phase The phase of the associated experiment
+	 * @param feedbackLink The feedback link for the associated experiment
+	 * @return This SkriptEventInfo object
+	 */
+	public SkriptEventInfo<E> experimental(String experimentName, LifeCycle phase, String feedbackLink) {
+		this.experimentName = experimentName;
+		this.phase = phase;
+		this.feedbackLink = feedbackLink;
+		return this;
+	}
+
+	/**
 	 * A non-critical ID remapping for syntax elements register using the same class multiple times.
 	 * <br>
 	 * Only used for Skript's documentation.
@@ -194,6 +193,18 @@ public final class SkriptEventInfo<E extends SkriptEvent> extends StructureInfo<
 
 	public String @Nullable [] getRequiredPlugins() {
 		return requiredPlugins;
+	}
+
+	public @Nullable String getExperiment() {
+		return experimentName;
+	}
+
+	public @Nullable String getFeedbackLink() {
+		return feedbackLink;
+	}
+
+	public @Nullable LifeCycle getPhase() {
+		return phase;
 	}
 
 	public @Nullable String getDocumentationID() {
