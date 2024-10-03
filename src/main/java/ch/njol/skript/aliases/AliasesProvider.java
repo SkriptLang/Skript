@@ -290,7 +290,7 @@ public class AliasesProvider {
 			datas = typeOfId.getTypes();
 		} else { // ... but quite often, we just got Vanilla id
 			// Prepare and modify ItemStack (using somewhat Unsafe methods)
-			Material material = BukkitUnsafe.getMaterialFromMinecraftId(id);
+			Material material = BukkitUnsafe.getMaterialFromNamespacedId(id);
 			if (material == null) { // If server doesn't recognize id, do not proceed
 				throw new InvalidMinecraftIdException(id);
 			}

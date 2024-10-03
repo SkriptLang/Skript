@@ -25,7 +25,6 @@ import ch.njol.skript.config.Config;
 import ch.njol.skript.config.Node;
 import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.entity.EntityData;
-import org.bukkit.entity.EntityType;
 import org.skriptlang.skript.lang.script.Script;
 import ch.njol.skript.lang.parser.ParserInstance;
 import ch.njol.skript.localization.ArgsMessage;
@@ -403,8 +402,14 @@ public abstract class Aliases {
 		for (Material material : Material.values()) {
 			if (!material.isLegacy() && !provider.hasAliasForMaterial(material)) {
 				NamespacedKey key = material.getKey();
-				String name = key.getKey().replace("_", " ");
-				parser.loadAlias(name + "¦s", key.toString());
+				// mod:an_item -> (mod's an item) | (an item from mod)
+				// minecraft:dirt -> dirt
+				if (NamespacedKey.MINECRAFT.equals(key.getNamespace())) {
+					parser.loadAlias(key.getKey().replace("_", " ") + "¦s", key.toString());
+				} else {
+					parser.loadAlias((key.getNamespace() + "'s " + key.getKey() + "¦s").replace("_", " "), key.toString());
+					parser.loadAlias((key.getKey() + "¦s from " + key.getNamespace()).replace("_", " "), key.toString());
+				}
 				Skript.debug(ChatColor.YELLOW + "Creating temporary alias for: " + key);
 			}
 		}

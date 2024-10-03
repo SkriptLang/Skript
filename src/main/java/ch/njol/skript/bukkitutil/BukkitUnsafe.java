@@ -20,9 +20,6 @@ package ch.njol.skript.bukkitutil;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.invoke.MethodHandle;
-import java.lang.invoke.MethodHandles;
-import java.lang.invoke.MethodType;
 import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
@@ -30,6 +27,7 @@ import java.util.Map;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 import org.bukkit.UnsafeValues;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Nullable;
@@ -39,7 +37,6 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import ch.njol.util.EnumTypeAdapter;
 import ch.njol.skript.Skript;
-import ch.njol.skript.util.Version;
 
 /**
  * Contains helpers for Bukkit's not so safe stuff.
@@ -68,9 +65,32 @@ public class BukkitUnsafe {
 	@Nullable
 	private static Map<Integer,Material> idMappings;
 
-	@Nullable
-	public static Material getMaterialFromMinecraftId(String id) {
-		return Material.matchMaterial(id);
+	/**
+	 * Get a material from a minecraft id.
+	 *
+	 * @param id Namespaced ID with or without a namespace. IDs without a namespace will be treated
+	 * 		as minecraft namespaced IDs. ('minecraft:dirt' and 'dirt' are equivalent.)
+	 * @return The Material which the id represents, or null if no material can be matched.
+	 * @deprecated Prefer {@link BukkitUnsafe#getMaterialFromNamespacedId(String)} for including modded item support
+	 */
+	@Deprecated
+	public static @Nullable Material getMaterialFromMinecraftId(String id) {
+		return getMaterialFromNamespacedId(id);
+	}
+
+	/**
+	 * Get a material from a namespaced ID.
+	 * For example, 'minecraft:iron_ingot' -> Material.IRON_INGOT; 'mod:an_item' -> Material.MOD_AN_ITEM
+	 *
+	 * @param id Namespaced ID with or without a namespace. IDs without a namespace will be treated
+	 * 		as minecraft namespaced IDs. ('minecraft:dirt' and 'dirt' are equivalent.)
+	 * @return The Material which the id represents, or null if no material can be matched.
+	 */
+	public static @Nullable Material getMaterialFromNamespacedId(String id) {
+		return Material.matchMaterial(id.toLowerCase().startsWith(NamespacedKey.MINECRAFT + ":")
+										  ? id
+										  : id.replace(":", "_")  //For Hybrid Server
+		);
 	}
 
 	public static void modifyItemStack(ItemStack stack, String arguments) {
