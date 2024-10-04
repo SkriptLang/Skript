@@ -31,6 +31,10 @@ main: ch.njol.skript.Skript
 version: @version@
 api-version: 1.13
 
+libraries:
+    - 'com.h2database:h2:@h2.version@'
+    - 'com.zaxxer:HikariCP:@hikaricp.version@'
+
 commands:
     skript:
         description: Skript's main command. Type '/skript help' for more information.

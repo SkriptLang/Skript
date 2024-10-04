@@ -29,7 +29,7 @@ public class SerializedVariable {
 	/**
 	 * The name of the variable.
 	 */
-	public final String name;
+	private final String name;
 
 	/**
 	 * The serialized value of the variable.
@@ -37,7 +37,7 @@ public class SerializedVariable {
 	 * A value of {@code null} indicates the variable will be deleted.
 	 */
 	@Nullable
-	public final Value value;
+	private final Value value;
 
 	/**
 	 * Creates a new serialized variable with the given name and value.
@@ -48,6 +48,33 @@ public class SerializedVariable {
 	public SerializedVariable(String name, @Nullable Value value) {
 		this.name = name;
 		this.value = value;
+	}
+
+	public SerializedVariable(String name, String type, byte[] value) {
+		this(name, new Value(type, value));
+	}
+
+	@Nullable
+	public String getType() {
+		if (value == null)
+			return null;
+		return value.type;
+	}
+
+	@Nullable
+	public byte[] getData() {
+		if (value == null)
+			return null;
+		return value.data;
+	}
+
+	@Nullable
+	public Value getValue() {
+		return value;
+	}
+
+	public String getName() {
+		return name;
 	}
 
 	/**
