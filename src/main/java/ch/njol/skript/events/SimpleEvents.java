@@ -70,8 +70,6 @@ import org.bukkit.event.entity.ProjectileLaunchEvent;
 import org.bukkit.event.entity.SheepRegrowWoolEvent;
 import org.bukkit.event.entity.SlimeSplitEvent;
 import org.bukkit.event.entity.PiglinBarterEvent;
-import org.bukkit.event.inventory.FurnaceBurnEvent;
-import org.bukkit.event.inventory.FurnaceSmeltEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.event.inventory.InventoryOpenEvent;
@@ -222,14 +220,6 @@ public class SimpleEvents {
 				.description("Called when the hunger bar of a player changes, i.e. either increases by eating or decreases over time.")
 				.examples("on food bar change:")
 				.since("1.4.4");
-		Skript.registerEvent("Fuel Burn", SimpleEvent.class, FurnaceBurnEvent.class, "fuel burn[ing]")
-				.description("Called when a furnace burns an item from its <a href='expressions.html#ExprFurnaceSlot'>fuel slot</a>.")
-				.examples("on fuel burning:")
-				.since("1.0");
-		Skript.registerEvent("Smelt", SimpleEvent.class, FurnaceSmeltEvent.class, "[ore] smelt[ing]", "smelt[ing] of ore") //TODO SkriptEvent for "smelt[ing] of %itemtype%"
-		.description("Called when a furnace smelts an item in its <a href='expressions.html#ExprFurnaceSlot'>ore slot</a>.")
-				.examples("on smelt:")
-				.since("1.0");
 		Skript.registerEvent("Leaves Decay", SimpleEvent.class, LeavesDecayEvent.class, "leaves decay[ing]")
 				.description("Called when a leaf block decays due to not being connected to a tree.")
 				.examples("on leaves decay:")
