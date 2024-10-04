@@ -1,0 +1,27 @@
+test "display view range" when running minecraft "1.19":
+
+	spawn block display at spawn of world "world":
+		set {_e::1} to entity
+	spawn item display at spawn of world "world":
+		set {_e::2} to entity
+	spawn text display at spawn of world "world":
+		set {_e::3} to entity
+
+	assert view range of {_e::*} is 1 with "default view range is incorrect"
+
+	set view range of {_e::*} to 0
+	assert view range of {_e::*} is 0 with "failed to set view range"
+
+	add 20.1 to view range of {_e::*}
+	assert view range of {_e::*} is 20.1 with "failed to add to view range"
+
+	remove 50.75 from view range of {_e::*}
+	assert view range of {_e::*} is 0 with "failed to remove from view range"
+
+	reset view range of {_e::*}
+	assert view range of {_e::*} is 1 with "failed to reset view range"
+
+	set view range of {_e::*} to NaN value
+	assert view range of {_e::*} is 1 with "set view range to NaN value changed value"
+
+	delete entities within {_e::*}
