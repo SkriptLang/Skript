@@ -547,6 +547,9 @@ public final class Skript extends JavaPlugin implements Listener {
 			return;
 		}
 
+		// Must load after loadClasses
+		CustomEvents.load(getFile());
+
 		Commands.registerListeners();
 
 		if (logNormal())
