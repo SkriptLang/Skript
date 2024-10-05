@@ -87,10 +87,10 @@ public class ExprFireworkEffect extends SimpleExpression<FireworkEffect> {
 		FireworkEffect.Builder builder = FireworkEffect.builder().with(type);
 		
 		for (Color colour : color.getArray(e))
-			builder.withColor(colour.asBukkitColor());
+			builder.withColor(colour.asDyeColor().getFireworkColor());
 		if (hasFade)
 			for (Color colour : fade.getArray(e))
-				builder.withFade(colour.asBukkitColor());
+				builder.withFade(colour.asDyeColor().getFireworkColor());
 		
 		builder.flicker(flicker);
 		builder.trail(trail);
