@@ -20,6 +20,7 @@ package ch.njol.skript.util;
 
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.Literal;
+import ch.njol.skript.lang.Simplifiable;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.localization.GeneralWords;
@@ -376,72 +377,7 @@ public class Direction implements YggdrasilRobustSerializable {
 	}
 	
 	public static Expression<Location> combine(final Expression<? extends Direction> dirs, final Expression<? extends Location> locs) {
-		return new SimpleExpression<Location>() {
-			@SuppressWarnings("null")
-			@Override
-			protected Location[] get(final Event e) {
-				final Direction[] ds = dirs.getArray(e);
-				final Location[] ls = locs.getArray(e);
-				final Location[] r = ls; //ds.length == 1 ? ls : new Location[ds.length * ls.length];
-				for (int i = 0; i < ds.length; i++) {
-					for (int j = 0; j < ls.length; j++) {
-//						r[i + j * ds.length] = ds[i].getRelative(ls[j]);
-						r[j] = ds[i].getRelative(r[j]);
-					}
-				}
-				return r;
-			}
-			
-			@SuppressWarnings("null")
-			@Override
-			public Location[] getAll(final Event e) {
-				final Direction[] ds = dirs.getAll(e);
-				final Location[] ls = locs.getAll(e);
-				final Location[] r = ls; //ds.length == 1 ? ls : new Location[ds.length * ls.length];
-				for (int i = 0; i < ds.length; i++) {
-					for (int j = 0; j < ls.length; j++) {
-//						r[i + j * ds.length] = ds[i].getRelative(ls[j]);
-						r[j] = ds[i].getRelative(r[j]);
-					}
-				}
-				return r;
-			}
-			
-			@Override
-			public boolean getAnd() {
-//				return (dirs.isSingle() || dirs.getAnd()) && (locs.isSingle() || locs.getAnd());
-				return locs.getAnd();
-			}
-			
-			@Override
-			public boolean isSingle() {
-//				return dirs.isSingle() && locs.isSingle();
-				return locs.isSingle();
-			}
-			
-			@Override
-			public Class<? extends Location> getReturnType() {
-				return Location.class;
-			}
-			
-			@Override
-			public boolean init(final Expression<?>[] exprs, final int matchedPattern, final Kleenean isDelayed, final ParseResult parseResult) {
-				throw new UnsupportedOperationException();
-			}
-			
-			@Override
-			public String toString(final @Nullable Event e, final boolean debug) {
-				return dirs.toString(e, debug) + " " + locs.toString(e, debug);
-			}
-			
-			@Override
-			public Expression<? extends Location> simplify() {
-				if (dirs instanceof Literal && dirs.isSingle() && Direction.ZERO.equals(((Literal<?>) dirs).getSingle())) {
-					return locs;
-				}
-				return this;
-			}
-		};
+		return new LocationExpression(dirs, locs);
 	}
 	
 	@Override
@@ -497,5 +433,79 @@ public class Direction implements YggdrasilRobustSerializable {
 			return true;
 		return false;
 	}
-	
+
+	private static class LocationExpression extends SimpleExpression<Location> implements Simplifiable<Location> {
+		private final Expression<? extends Direction> dirs;
+		private final Expression<? extends Location> locs;
+
+		public LocationExpression(Expression<? extends Direction> dirs, Expression<? extends Location> locs) {
+			this.dirs = dirs;
+			this.locs = locs;
+		}
+
+		@SuppressWarnings("null")
+		@Override
+		protected Location[] get(final Event e) {
+			final Direction[] ds = dirs.getArray(e);
+			final Location[] ls = locs.getArray(e);
+			final Location[] r = ls; //ds.length == 1 ? ls : new Location[ds.length * ls.length];
+			for (int i = 0; i < ds.length; i++) {
+				for (int j = 0; j < ls.length; j++) {
+//						r[i + j * ds.length] = ds[i].getRelative(ls[j]);
+					r[j] = ds[i].getRelative(r[j]);
+				}
+			}
+			return r;
+		}
+
+		@SuppressWarnings("null")
+		@Override
+		public Location[] getAll(final Event e) {
+			final Direction[] ds = dirs.getAll(e);
+			final Location[] ls = locs.getAll(e);
+			final Location[] r = ls; //ds.length == 1 ? ls : new Location[ds.length * ls.length];
+			for (int i = 0; i < ds.length; i++) {
+				for (int j = 0; j < ls.length; j++) {
+//						r[i + j * ds.length] = ds[i].getRelative(ls[j]);
+					r[j] = ds[i].getRelative(r[j]);
+				}
+			}
+			return r;
+		}
+
+		@Override
+		public boolean getAnd() {
+//				return (dirs.isSingle() || dirs.getAnd()) && (locs.isSingle() || locs.getAnd());
+			return locs.getAnd();
+		}
+
+		@Override
+		public boolean isSingle() {
+//				return dirs.isSingle() && locs.isSingle();
+			return locs.isSingle();
+		}
+
+		@Override
+		public Class<? extends Location> getReturnType() {
+			return Location.class;
+		}
+
+		@Override
+		public boolean init(final Expression<?>[] exprs, final int matchedPattern, final Kleenean isDelayed, final ParseResult parseResult) {
+			throw new UnsupportedOperationException();
+		}
+
+		@Override
+		public String toString(final @Nullable Event e, final boolean debug) {
+			return dirs.toString(e, debug) + " " + locs.toString(e, debug);
+		}
+
+		@Override
+		public @NotNull Expression<? extends Location> simplified() {
+			if (dirs instanceof Literal && dirs.isSingle() && Direction.ZERO.equals(((Literal<?>) dirs).getSingle())) {
+				return locs;
+			}
+			return this;
+		}
+	}
 }

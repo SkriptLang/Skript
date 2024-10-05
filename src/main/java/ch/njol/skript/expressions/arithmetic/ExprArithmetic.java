@@ -24,11 +24,8 @@ import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
-import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.ExpressionType;
-import ch.njol.skript.lang.Literal;
+import ch.njol.skript.lang.*;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
-import ch.njol.skript.lang.UnparsedLiteral;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.lang.util.SimpleLiteral;
 import ch.njol.skript.registrations.Classes;
@@ -37,6 +34,7 @@ import ch.njol.skript.util.Patterns;
 import ch.njol.util.Kleenean;
 import com.google.common.collect.ImmutableSet;
 import org.bukkit.event.Event;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.arithmetic.Arithmetics;
 import org.skriptlang.skript.lang.arithmetic.OperationInfo;
@@ -55,7 +53,7 @@ import java.util.Collection;
 	"message \"You have %health of player * 2% half hearts of HP!\""})
 @Since("1.4.2")
 @SuppressWarnings("null")
-public class ExprArithmetic<L, R, T> extends SimpleExpression<T> {
+public class ExprArithmetic<L, R, T> extends SimpleExpression<T> implements Simplifiable<T> {
 
 	private static final Class<?>[] INTEGER_CLASSES = {Long.class, Integer.class, Short.class, Byte.class};
 
@@ -365,10 +363,11 @@ public class ExprArithmetic<L, R, T> extends SimpleExpression<T> {
 	}
 
 	@Override
-	@SuppressWarnings("unchecked")
-	public Expression<? extends T> simplify() {
+	public @NotNull Expression<? extends T> simplified() {
 		if (first instanceof Literal && second instanceof Literal)
+			//noinspection unchecked
 			return new SimpleLiteral<>(getArray(null), (Class<T>) getReturnType(), false);
+
 		return this;
 	}
 

@@ -20,6 +20,7 @@ package ch.njol.skript.lang;
 
 import ch.njol.skript.lang.util.SimpleLiteral;
 import ch.njol.skript.registrations.Classes;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Array;
@@ -81,8 +82,7 @@ public class LiteralList<T> extends ExpressionList<T> implements Literal<T> {
 	}
 
 	@Override
-	@SuppressWarnings("unchecked")
-	public Expression<T> simplify() {
+	public @NotNull Expression<? extends T> simplified() {
 		boolean isSimpleList = true;
 		for (Expression<? extends T> expression : expressions)
 			isSimpleList &= expression.isSingle();

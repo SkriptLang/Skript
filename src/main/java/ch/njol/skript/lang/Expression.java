@@ -286,18 +286,6 @@ public interface Expression<T> extends SyntaxElement, Debuggable {
 	Expression<?> getSource();
 
 	/**
-	 * Simplifies the expression, e.g. if it only contains literals the expression may be simplified to a literal, and wrapped expressions are unwrapped.
-	 * <p>
-	 * After this method was used the toString methods are likely not useful anymore.
-	 * <p>
-	 * This method is not yet used but will be used to improve efficiency in the future.
-	 * 
-	 * @return A reference to a simpler version of this expression. Can change this expression directly and return itself if applicable, i.e. no references to the expression before
-	 *         this method call should be kept!
-	 */
-	Expression<? extends T> simplify();
-
-	/**
 	 * Tests whether this expression supports the given mode, and if yes what type it expects the <code>delta</code> to be.
 	 * <p>
 	 * <b>Use {@link ChangerUtils#acceptsChange(Expression, ChangeMode, Class...)} to test whether an expression supports changing</b>, don't directly use this method!

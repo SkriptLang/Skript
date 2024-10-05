@@ -27,6 +27,7 @@ import ch.njol.util.Checker;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.event.Event;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Array;
@@ -39,7 +40,7 @@ import java.util.NoSuchElementException;
 /**
  * A list of expressions.
  */
-public class ExpressionList<T> implements Expression<T> {
+public class ExpressionList<T> implements Expression<T>, Simplifiable<T> {
 
 	protected final Expression<? extends T>[] expressions;
 	private final Class<T> returnType;
@@ -303,15 +304,18 @@ public class ExpressionList<T> implements Expression<T> {
 	}
 
 	@Override
-	@SuppressWarnings("unchecked")
-	public Expression<T> simplify() {
+	public @NotNull Expression<? extends T> simplified() {
 		boolean isLiteralList = true;
 		boolean isSimpleList = true;
 		for (int i = 0; i < expressions.length; i++) {
-			expressions[i] = expressions[i].simplify();
-			isLiteralList &= expressions[i] instanceof Literal;
-			isSimpleList &= expressions[i].isSingle();
+			Expression<? extends T> expression = expressions[i];
+			if (expression instanceof Simplifiable<?> simplifiable)
+				expressions[i] = ((Simplifiable<? extends T>) simplifiable).simplified();
+
+			isLiteralList &= expression instanceof Literal;
+			isSimpleList &= expression.isSingle();
 		}
+
 		if (isLiteralList && isSimpleList) {
 			T[] values = (T[]) Array.newInstance(returnType, expressions.length);
 			for (int i = 0; i < values.length; i++)
@@ -324,5 +328,4 @@ public class ExpressionList<T> implements Expression<T> {
 		}
 		return this;
 	}
-
 }

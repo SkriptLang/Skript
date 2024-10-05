@@ -754,6 +754,9 @@ public class SkriptParser {
 			Expression<?> parsedExpression = parseSingleExpr(true, null, exprInfo);
 			if (parsedExpression != null) {
 				log.printLog();
+
+				if (parsedExpression instanceof Simplifiable<?> simplifiable)
+					return simplifiable.simplified();
 				return parsedExpression;
 			}
 			log.clear();
@@ -784,7 +787,11 @@ public class SkriptParser {
 			if (pieces.size() == 1) { // not a list of expressions, and a single one has failed to parse above
 				if (expr.startsWith("(") && expr.endsWith(")") && next(expr, 0, context) == expr.length()) {
 					log.clear();
-					return new SkriptParser(this, "" + expr.substring(1, expr.length() - 1)).parseExpression(exprInfo);
+
+					Expression<?> expression = new SkriptParser(this, expr.substring(1, expr.length() - 1)).parseExpression(exprInfo);
+					if (expression instanceof Simplifiable<?> simplifiable)
+						return simplifiable.simplified();
+					return expression;
 				}
 				if (isObject && (flags & PARSE_LITERALS) != 0) { // single expression - can return an UnparsedLiteral now
 					log.clear();
@@ -867,11 +874,12 @@ public class SkriptParser {
 
 			if (isLiteralList) {
 				Literal<?>[] literals = parsedExpressions.toArray(new Literal[parsedExpressions.size()]);
-				return new LiteralList(literals, Classes.getSuperClassInfo(exprReturnTypes).getC(), exprReturnTypes, !and.isFalse());
+				return new LiteralList(literals, Classes.getSuperClassInfo(exprReturnTypes).getC(), exprReturnTypes, !and.isFalse())
+					.simplified();
 			} else {
 				Expression<?>[] expressions = parsedExpressions.toArray(new Expression[parsedExpressions.size()]);
-				return new ExpressionList(expressions, Classes.getSuperClassInfo(exprReturnTypes).getC(), exprReturnTypes, !and.isFalse());
-
+				return new ExpressionList(expressions, Classes.getSuperClassInfo(exprReturnTypes).getC(), exprReturnTypes, !and.isFalse())
+					.simplified();
 			}
 		}
 	}

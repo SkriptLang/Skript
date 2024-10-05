@@ -737,9 +737,4 @@ public class VariableString implements Expression<String> {
 		return expression;
 	}
 
-	@Override
-	public Expression<String> simplify() {
-		return this;
-	}
-
 }

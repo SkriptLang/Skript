@@ -368,11 +368,6 @@ public abstract class SimpleExpression<T> implements Expression<T> {
 	}
 
 	@Override
-	public Expression<? extends T> simplify() {
-		return this;
-	}
-
-	@Override
 	public boolean getAnd() {
 		return true;
 	}

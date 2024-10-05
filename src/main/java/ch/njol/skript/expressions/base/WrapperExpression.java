@@ -20,12 +20,14 @@ package ch.njol.skript.expressions.base;
 
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.lang.Expression;
+import ch.njol.skript.lang.Simplifiable;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.SyntaxElement;
 import ch.njol.skript.lang.util.ConvertedExpression;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.converter.ConverterInfo;
 import org.skriptlang.skript.lang.converter.Converters;
@@ -39,7 +41,7 @@ import java.util.Iterator;
  * 
  * @author Peter Güttinger
  */
-public abstract class WrapperExpression<T> extends SimpleExpression<T> {
+public abstract class WrapperExpression<T> extends SimpleExpression<T> implements Simplifiable<T> {
 	
 	private Expression<? extends T> expr;
 	
@@ -137,7 +139,7 @@ public abstract class WrapperExpression<T> extends SimpleExpression<T> {
 	}
 	
 	@Override
-	public Expression<? extends T> simplify() {
+	public @NotNull Expression<? extends T> simplified() {
 		return expr;
 	}
 	

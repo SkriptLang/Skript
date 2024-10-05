@@ -22,12 +22,14 @@ import ch.njol.skript.classes.Changer;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.lang.Expression;
+import ch.njol.skript.lang.Simplifiable;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.util.Checker;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.event.Event;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.converter.Converter;
 import org.skriptlang.skript.lang.converter.ConverterInfo;
@@ -51,7 +53,7 @@ import java.util.stream.Collectors;
  *
  * @author Peter Güttinger
  */
-public class ConvertedExpression<F, T> implements Expression<T> {
+public class ConvertedExpression<F, T> implements Expression<T>, Simplifiable<T> {
 
 	protected Expression<? extends F> source;
 	protected Class<T> to;
@@ -279,11 +281,15 @@ public class ConvertedExpression<F, T> implements Expression<T> {
 	}
 
 	@Override
-	@SuppressWarnings("unchecked")
-	public Expression<? extends T> simplify() {
-		Expression<? extends T> convertedExpression = source.simplify().getConvertedExpression(to);
+	public @NotNull Expression<? extends T> simplified() {
+		if (!(source instanceof Simplifiable<?> simplifiable))
+			return this;
+
+		//noinspection unchecked
+		Expression<? extends T> convertedExpression = simplifiable.simplified().getConvertedExpression(to);
 		if (convertedExpression != null)
 			return convertedExpression;
+
 		return this;
 	}
 
