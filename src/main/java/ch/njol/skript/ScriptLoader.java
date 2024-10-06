@@ -50,6 +50,7 @@ import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.script.Script;
 import org.skriptlang.skript.lang.structure.Structure;
 
+import javax.swing.plaf.nimbus.State;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
@@ -1006,6 +1007,92 @@ public class ScriptLoader {
 		if (Skript.debug())
 			parser.setIndentation(parser.getIndentation().substring(0, parser.getIndentation().length() - 4));
 		
+		return items;
+	}
+
+	public static ArrayList<TriggerItem> loadRestrictedItems(SectionNode node, Class<? extends Statement> @Nullable [] restrictedClasses) {
+		ParserInstance parser = getParser();
+
+		if (Skript.debug())
+			parser.setIndentation(parser.getIndentation() + "    ");
+
+		ArrayList<TriggerItem> items = new ArrayList<>();
+
+		for (Node subNode : node) {
+			parser.setNode(subNode);
+
+			String subNodeKey = subNode.getKey();
+			if (subNodeKey == null)
+				throw new IllegalArgumentException("Encountered node with null key: '" + subNode + "'");
+			String expr = replaceOptions(subNodeKey);
+			if (!SkriptParser.validateLine(expr))
+				continue;
+
+			if (subNode instanceof SimpleNode simpleNode) {
+				long start = System.currentTimeMillis();
+				Statement stmt = Statement.parse(expr, items, "Can't understand this condition/effect: " + expr);
+				if (stmt == null)
+					continue;
+				boolean canParse = false;
+				for (Class clazz : restrictedClasses) {
+					if (clazz.isInstance(stmt)) {
+						canParse = true;
+						break;
+					}
+				}
+				if (!canParse) {
+					Skript.error("Can not use this within in this section: " + expr);
+					continue;
+				}
+				long requiredTime = SkriptConfig.longParseTimeWarningThreshold.value().getMilliSeconds();
+				if (requiredTime > 0) {
+					long timeTaken = System.currentTimeMillis() - start;
+					if (timeTaken > requiredTime)
+						Skript.warning(
+							"The current line took a long time to parse (" + new Timespan(timeTaken) + ")."
+								+ " Avoid using long lines and use parentheses to create clearer instructions."
+						);
+				}
+
+				if (Skript.debug() || subNode.debug())
+					Skript.debug(SkriptColor.replaceColorChar(parser.getIndentation() + stmt.toString(null, true)));
+
+				items.add(stmt);
+			} else if (subNode instanceof SectionNode) {
+				TypeHints.enterScope(); // Begin conditional type hints
+
+				Section section = Section.parse(expr, "Can't understand this section: " + expr, (SectionNode) subNode, items);
+				if (section == null)
+					continue;
+				boolean canParse = false;
+				for (Class clazz : restrictedClasses) {
+					if (clazz.isInstance(section)) {
+						canParse = true;
+						break;
+					}
+				}
+				if (!canParse) {
+					Skript.error("Can not use this within in this section: " + expr);
+					continue;
+				}
+				if (Skript.debug() || subNode.debug())
+					Skript.debug(SkriptColor.replaceColorChar(parser.getIndentation() + section.toString(null, true)));
+
+				items.add(section);
+
+				// Destroy these conditional type hints
+				TypeHints.exitScope();
+			}
+		}
+
+		for (int i = 0; i < items.size() - 1; i++)
+			items.get(i).setNext(items.get(i + 1));
+
+		parser.setNode(node);
+
+		if (Skript.debug())
+			parser.setIndentation(parser.getIndentation().substring(0, parser.getIndentation().length() - 4));
+
 		return items;
 	}
 
