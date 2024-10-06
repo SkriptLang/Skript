@@ -128,8 +128,8 @@ public class FlatFileStorage extends VariablesStorage {
 	 *
 	 * @param name the name.
 	 */
-	FlatFileStorage(String name) {
-		super(name);
+	FlatFileStorage(String type) {
+		super(type);
 	}
 
 	/**
@@ -439,7 +439,7 @@ public class FlatFileStorage extends VariablesStorage {
 						pw.close();
 						FileUtils.move(tempFile, file, true);
 					} catch (IOException e) {
-						Skript.error("Unable to make a final save of the database '" + databaseName +
+						Skript.error("Unable to make a final save of the database '" + getUserConfigurationName() +
 								"' (no variables are lost): " + ExceptionUtils.toString(e));
 						// FIXME happens at random - check locks/threads
 					}
