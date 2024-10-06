@@ -117,6 +117,7 @@ import org.bukkit.event.world.ChunkUnloadEvent;
 import org.bukkit.event.world.LootGenerateEvent;
 import org.bukkit.event.world.PortalCreateEvent;
 import org.bukkit.event.world.SpawnChangeEvent;
+import io.papermc.paper.event.player.PlayerChangeBeaconEffectEvent;
 
 /**
  * @author Peter Güttinger
@@ -473,7 +474,7 @@ public class SimpleEvents {
 				.description("Called when a player enters a world. Does not work with other entities!")
 				.examples("on player world change:",
 						"	world is \"city\"",
-					 	"	send \"Welcome to the City!\"")
+						"	send \"Welcome to the City!\"")
 				.since("2.2-dev28");
 		Skript.registerEvent("Flight Toggle", SimpleEvent.class, PlayerToggleFlightEvent.class, "[player] flight toggl(e|ing)", "[player] toggl(e|ing) flight")
 				.description("Called when a players stops/starts flying.")
@@ -502,11 +503,11 @@ public class SimpleEvents {
 		if (Skript.classExists("org.bukkit.event.player.PlayerSwapHandItemsEvent")) {
 			Skript.registerEvent("Hand Item Swap", SimpleEvent.class, PlayerSwapHandItemsEvent.class, "swap[ping of] [(hand|held)] item[s]")
 					.description("Called whenever a player swaps the items in their main- and offhand slots.",
-						     "Works also when one or both of the slots are empty.",
-						     "The event is called before the items are actually swapped,",
-						     "so when you use the player's tool or player's offtool expressions,",
-						     "they will return the values before the swap -",
-						     "this enables you to cancel the event before anything happens.")
+							 "Works also when one or both of the slots are empty.",
+							 "The event is called before the items are actually swapped,",
+							 "so when you use the player's tool or player's offtool expressions,",
+							 "they will return the values before the swap -",
+							 "this enables you to cancel the event before anything happens.")
 					.examples("on swap hand items:",
 							"	event-player's tool is a diamond sword",
 							"	cancel event")
@@ -637,7 +638,7 @@ public class SimpleEvents {
 		if (Skript.classExists("com.destroystokyo.paper.event.block.AnvilDamagedEvent")) {
 			Skript.registerEvent("Anvil Damage", SimpleEvent.class, AnvilDamagedEvent.class, "anvil damag(e|ing)")
 				.description("Called when an anvil is damaged/broken from being used to repair/rename items.",
-					 		 "Note: this does not include anvil damage from falling.")
+							 "Note: this does not include anvil damage from falling.")
 				.requiredPlugins("Paper")
 				.examples("on anvil damage:",
 					"\tcancel the event")
@@ -683,7 +684,7 @@ public class SimpleEvents {
 					)
 					.since("2.7");
 		}
-    
+
 		//noinspection deprecation
 		Skript.registerEvent("Chat", SimpleEvent.class, AsyncPlayerChatEvent.class, "chat")
 			.description(
@@ -819,6 +820,22 @@ public class SimpleEvents {
 					)
 					.since("2.9.0")
 					.requiredPlugins("Paper");
+		}
+		if (Skript.classExists("io.papermc.paper.event.player.PlayerChangeBeaconEffectEvent")) {
+			Skript.registerEvent("Beacon Change Effect", SimpleEvent.class, PlayerChangeBeaconEffectEvent.class,
+					"beacon change effect", "beacon effect change", "player chang(e[s]|ing) [of] beacon effect")
+				.description("Called when a player changes the effects of a beacon.")
+				.examples(
+					"on beacon effect change:",
+						"\tbroadcast event-player",
+						"\tbroadcast event-block",
+						"\tbroadcast primary beacon effect",
+						"\tbroadcast secondary beacon effect",
+					"on beacon change effect:",
+					"on player change beacon effect:"
+				)
+				.since("INSERT VERSION")
+				.requiredPlugins("Paper");
 		}
 	}
 }
