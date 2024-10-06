@@ -306,7 +306,7 @@ public class ExpressionList<T> implements Expression<T>, Simplifiable<T> {
 		for (int i = 0; i < expressions.length; i++) {
 			Expression<? extends T> expression = expressions[i];
 			if (expression instanceof Simplifiable<?> simplifiable) {
-				expression = ((Simplifiable<? extends T>) simplifiable).simplified();
+				expression = (Expression<? extends T>) simplifiable.simplified();
 				expressions[i] = expression;
 			}
 
