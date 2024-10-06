@@ -154,8 +154,10 @@ public class ExprAmount extends SimpleExpression<Number> {
 				amount = -amount;
 				// fall through
 			case ADD:
-				for (AnyAmount obj : any.getArray(event))
-					obj.setAmount(obj.amount().doubleValue() + amount);
+				for (AnyAmount obj : any.getArray(event)) {
+					if (obj.supportsAmountChange())
+						obj.setAmount(obj.amount().doubleValue() + amount);
+				}
 				break;
 			case RESET:
 			case DELETE:

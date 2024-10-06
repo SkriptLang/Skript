@@ -120,26 +120,25 @@ public class CondContains extends Condition {
 			}
 		}
 
-		switch (checkType) {
-			case INVENTORY:
-				return SimpleExpression.check(containerValues, o -> {
-					Inventory inventory = (Inventory) o;
+		return switch (checkType) {
+			case INVENTORY -> SimpleExpression.check(containerValues, o -> {
+				Inventory inventory = (Inventory) o;
 
-					return items.check(event, o1 -> {
-						if (o1 instanceof ItemType type)
-							return type.isContainedIn(inventory);
-						else if (o1 instanceof ItemStack stack)
-							return inventory.containsAtLeast(stack, stack.getAmount());
-						else if (o1 instanceof Inventory)
-							return Objects.equals(inventory, o1);
-						else
-							return false;
-					});
-				}, isNegated(), containers.getAnd());
-			case STRING:
+				return items.check(event, o1 -> {
+					if (o1 instanceof ItemType type)
+						return type.isContainedIn(inventory);
+					else if (o1 instanceof ItemStack stack)
+						return inventory.containsAtLeast(stack, stack.getAmount());
+					else if (o1 instanceof Inventory)
+						return Objects.equals(inventory, o1);
+					else
+						return false;
+				});
+			}, isNegated(), containers.getAnd());
+			case STRING -> {
 				boolean caseSensitive = SkriptConfig.caseSensitive.value();
 
-				return SimpleExpression.check(containerValues, o -> {
+				yield SimpleExpression.check(containerValues, o -> {
 					String string = (String) o;
 
 					return items.check(event, o1 -> {
@@ -150,27 +149,28 @@ public class CondContains extends Condition {
 						}
 					});
 				}, isNegated(), containers.getAnd());
-			case CONTAINER:
-				return SimpleExpression.check(containerValues, object -> {
-					AnyContains container;
-					if (object instanceof AnyContains<?>)
-						container = (AnyContains) object;
-					else
-						container = Converters.convert(object, AnyContains.class);
-					if (container == null)
-						return false;
-					return items.check(event, container::checkSafely);
-				}, isNegated(), containers.getAnd());
-			default:
+			}
+			case CONTAINER -> SimpleExpression.check(containerValues, object -> {
+				AnyContains container;
+				if (object instanceof AnyContains<?>)
+					container = (AnyContains) object;
+				else
+					container = Converters.convert(object, AnyContains.class);
+				if (container == null)
+					return false;
+				return items.check(event, container::checkSafely);
+			}, isNegated(), containers.getAnd());
+			default -> {
 				assert checkType == CheckType.OBJECTS;
-				return items.check(event, o1 -> {
+				yield items.check(event, o1 -> {
 					for (Object o2 : containerValues) {
 						if (Comparators.compare(o1, o2) == Relation.EQUAL)
 							return true;
 					}
 					return false;
 				}, isNegated());
-		}
+			}
+		};
 	}
 
 	@Override

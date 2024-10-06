@@ -197,7 +197,7 @@ public class DefaultConverters {
 				}
 
 				@Override
-				public void setName(String name) throws UnsupportedOperationException {
+				public void setName(String name) {
 					//noinspection deprecation
 					nameable.setCustomName(name);
 				}
