@@ -1,0 +1,12 @@
+test "amount of objects":
+	set {_objects::*} to (1 and 2)
+	set {_amount} to amount of {_objects::*}
+	assert {_amount} is 2 with "was wrong"
+	set {_objects::*} to ("hello", "there" and 1)
+	set {_amount} to amount of {_objects::*}
+	assert {_amount} is 3 with "was wrong"
+
+test "amount of items":
+	assert amount of (3 of stone) is 3 with "was wrong"
+	set {_item} to 3 of stone
+	assert amount of {_item} is 3 with "was wrong"
