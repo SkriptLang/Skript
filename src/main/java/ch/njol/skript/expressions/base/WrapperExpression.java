@@ -142,7 +142,7 @@ public abstract class WrapperExpression<T> extends SimpleExpression<T> implement
 	public @NotNull Expression<? extends T> simplified() {
 		return expr;
 	}
-	
+
 	@Override
 	@Nullable
 	public Object[] beforeChange(Expression<?> changed, @Nullable Object[] delta) {
