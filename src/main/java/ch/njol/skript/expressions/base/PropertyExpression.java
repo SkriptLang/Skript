@@ -22,6 +22,7 @@ import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.Skript;
+import org.jetbrains.annotations.ApiStatus;
 import org.skriptlang.skript.lang.converter.Converter;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
@@ -30,6 +31,9 @@ import ch.njol.skript.lang.SyntaxElement;
 import ch.njol.skript.lang.util.SimpleExpression;
 import org.skriptlang.skript.lang.converter.Converters;
 import ch.njol.util.Kleenean;
+import org.skriptlang.skript.registration.SyntaxInfo;
+import org.skriptlang.skript.registration.SyntaxRegistry;
+import org.skriptlang.skript.util.Priority;
 
 import java.util.Arrays;
 
@@ -43,6 +47,38 @@ import java.util.Arrays;
 public abstract class PropertyExpression<F, T> extends SimpleExpression<T> {
 
 	/**
+	 * A priority for {@link PropertyExpression}s.
+	 * They will be registered before {@link SyntaxInfo#PATTERN_MATCHES_EVERYTHING} expressions
+	 *  but after {@link SyntaxInfo#COMBINED} expressions.
+	 */
+	@ApiStatus.Experimental
+	public static final Priority DEFAULT_PRIORITY = Priority.before(SyntaxInfo.PATTERN_MATCHES_EVERYTHING);
+
+	/**
+	 * Registers an expression with the two default property patterns "property of %types%" and "%types%'[s] property"
+	 *
+	 * @param registry The SyntaxRegistry to register with.
+	 * @param expressionClass The PropertyExpression class being registered.
+	 * @param returnType The class representing the expression's return type.
+	 * @param property The name of the property.
+	 * @param fromType Should be plural to support multiple objects but doesn't have to be.
+	 * @param <T> The return type.
+	 * @param <E> The Expression type.
+	 * @return The registered {@link SyntaxInfo}.
+	 */
+	@ApiStatus.Experimental
+	public static <E extends Expression<T>, T> SyntaxInfo.Expression<E, T> register(SyntaxRegistry registry, Class<E> expressionClass, Class<T> returnType, String property, String fromType) {
+		SyntaxInfo.Expression<E, T> info = SyntaxInfo.Expression.builder(expressionClass)
+				.returnType(returnType)
+				.priority(DEFAULT_PRIORITY)
+				.addPatterns("[the] " + property + " of %" + fromType + "%",
+						"%" + fromType + "%'[s] " + property)
+				.build();
+		registry.register(SyntaxRegistry.EXPRESSION, info);
+		return info;
+	}
+
+	/**
 	 * Registers an expression as {@link ExpressionType#PROPERTY} with the two default property patterns "property of %types%" and "%types%'[s] property"
 	 * 
 	 * @param expressionClass the PropertyExpression class being registered.
@@ -52,6 +88,31 @@ public abstract class PropertyExpression<F, T> extends SimpleExpression<T> {
 	 */
 	public static <T> void register(Class<? extends Expression<T>> expressionClass, Class<T> type, String property, String fromType) {
 		Skript.registerExpression(expressionClass, type, ExpressionType.PROPERTY, "[the] " + property + " of %" + fromType + "%", "%" + fromType + "%'[s] " + property);
+	}
+
+	/**
+	 * Registers an expression with the two default property patterns "property [of %types%]" and "%types%'[s] property"
+	 * This method also makes the expression type optional to force a default expression on the property expression.
+	 *
+	 * @param registry The SyntaxRegistry to register with.
+	 * @param expressionClass The PropertyExpression class being registered.
+	 * @param returnType The class representing the expression's return type.
+	 * @param property The name of the property.
+	 * @param fromType Should be plural to support multiple objects but doesn't have to be.
+	 * @param <T> The return type.
+	 * @param <E> The Expression type.
+	 * @return The registered {@link SyntaxInfo}.
+	 */
+	@ApiStatus.Experimental
+	public static <E extends Expression<T>, T> SyntaxInfo.Expression<E, T> registerDefault(SyntaxRegistry registry, Class<E> expressionClass, Class<T> returnType, String property, String fromType) {
+		SyntaxInfo.Expression<E, T> info = SyntaxInfo.Expression.builder(expressionClass)
+				.returnType(returnType)
+				.priority(DEFAULT_PRIORITY)
+				.addPatterns("[the] " + property + " [of %" + fromType + "%]",
+						"%" + fromType + "%'[s] " + property)
+				.build();
+		registry.register(SyntaxRegistry.EXPRESSION, info);
+		return info;
 	}
 
 	/**
