@@ -2303,6 +2303,11 @@ transform reasons:
 	unknown: unknown
 	infection: infection, villager infection
 
+# -- Change Reasons --
+experience cooldown change reasons:
+	plugin: plugin
+	pickup_orb: orb pickup, pickup orb
+
 # -- Boolean --
 boolean:
 	true:
@@ -2383,6 +2388,7 @@ types:
 	quitreason: quit reason¦s @a
 	inventoryclosereason: inventory close reason¦s @an
 	transformreason: transform reason¦s @a
+	experiencecooldownchangereason: experience cooldown change reason¦s @a
 
 	# Skript
 	weathertype: weather type¦s @a
