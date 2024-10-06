@@ -434,7 +434,7 @@ public class Direction implements YggdrasilRobustSerializable {
 		return false;
 	}
 
-	private static class LocationExpression extends SimpleExpression<Location> {
+	private static class LocationExpression extends SimpleExpression<Location> implements Simplifiable<Location> {
 		private final Expression<? extends Direction> dirs;
 		private final Expression<? extends Location> locs;
 
@@ -492,6 +492,14 @@ public class Direction implements YggdrasilRobustSerializable {
 		@Override
 		public String toString(@Nullable Event event, boolean debug) {
 			return dirs.toString(event, debug) + " " + locs.toString(event, debug);
+		}
+
+		@Override
+		public @NotNull Expression<? extends Location> simplified() {
+			if (dirs instanceof Literal<?> literal && dirs.isSingle() && Direction.ZERO.equals(literal.getSingle())) {
+				return locs;
+			}
+			return this;
 		}
 	}
 }
