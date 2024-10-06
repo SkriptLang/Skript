@@ -1,7 +1,11 @@
 package ch.njol.skript.effects;
 
-import org.bukkit.entity.*;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.WindCharge;
 import org.bukkit.entity.minecart.ExplosiveMinecart;
+import org.bukkit.entity.Firework;
+import org.bukkit.entity.Creeper;
+import org.bukkit.entity.TNTPrimed;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 import ch.njol.skript.Skript;
@@ -42,13 +46,10 @@ public class EffDetonate extends Effect {
 				firework.detonate();
 			} else if (HAS_WINDCHARGE && entity instanceof WindCharge windCharge) {
 				windCharge.explode();
-
 			} else if (entity instanceof ExplosiveMinecart explosiveMinecart) {
 				explosiveMinecart.explode();
-
 			} else if (entity instanceof Creeper creeper) {
 				creeper.explode();
-
 			} else if (entity instanceof TNTPrimed tntPrimed) {
 				tntPrimed.setFuseTicks(0);
 			}
