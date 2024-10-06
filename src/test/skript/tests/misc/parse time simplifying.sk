@@ -1,0 +1,2 @@
+test "parse time simplifying":
+	assert 10 - 3 - 2 - 1 - (1 + 3 * 4) = -9 with "chained math failed"

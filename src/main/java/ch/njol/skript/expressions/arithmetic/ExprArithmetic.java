@@ -24,17 +24,17 @@ import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
-import ch.njol.skript.lang.*;
+import ch.njol.skript.lang.Expression;
+import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.skript.lang.UnparsedLiteral;
 import ch.njol.skript.lang.util.SimpleExpression;
-import ch.njol.skript.lang.util.SimpleLiteral;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.LiteralUtils;
 import ch.njol.skript.util.Patterns;
 import ch.njol.util.Kleenean;
 import com.google.common.collect.ImmutableSet;
 import org.bukkit.event.Event;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.arithmetic.Arithmetics;
 import org.skriptlang.skript.lang.arithmetic.OperationInfo;
@@ -42,8 +42,8 @@ import org.skriptlang.skript.lang.arithmetic.Operator;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Collection;
+import java.util.List;
 
 @Name("Arithmetic")
 @Description("Arithmetic expressions, e.g. 1 + 2, (health of player - 2) / 3, etc.")
@@ -53,7 +53,7 @@ import java.util.Collection;
 	"message \"You have %health of player * 2% half hearts of HP!\""})
 @Since("1.4.2")
 @SuppressWarnings("null")
-public class ExprArithmetic<L, R, T> extends SimpleExpression<T> implements Simplifiable<T> {
+public class ExprArithmetic<L, R, T> extends SimpleExpression<T> {
 
 	private static final Class<?>[] INTEGER_CLASSES = {Long.class, Integer.class, Short.class, Byte.class};
 
@@ -139,21 +139,21 @@ public class ExprArithmetic<L, R, T> extends SimpleExpression<T> implements Simp
 		 * If there are no unparsed literals, nothing happens at this step.
 		 * If there are unparsed literals, one of three possible execution flows will occur:
 		 *
-	 	 * Case 1. 'first' and 'second' are unparsed literals
-	 	 * In this case, there is not a lot of information to work with.
-	 	 * 'first' and 'second' are attempted to be converted to fit one of all operations using 'operator'.
-	 	 * If they cannot be matched with the types of a known operation, init will fail.
-	 	 *
-	 	 * Case 2. 'first' is an unparsed literal, 'second' is not
-	 	 * In this case, 'first' needs to be converted into the "left" type of
-	 	 *  any operation using 'operator' with the type of 'second' as the right type.
-	 	 * If 'first' cannot be converted, init will fail.
-	 	 * If no operations are found for converting 'first', init will fail, UNLESS the type of 'second' is object,
-	 	 *  where operations will be searched again later with the context of the type of first.
-	 	 * TODO When 'first' can represent multiple literals, it might be worth checking which of those can work with 'operator' and 'second'
-	 	 *
-	 	 * Case 3. 'second' is an unparsed literal, 'first' is not
-	 	 * In this case, 'second' needs to be converted into the "right" type of
+		 * Case 1. 'first' and 'second' are unparsed literals
+		 * In this case, there is not a lot of information to work with.
+		 * 'first' and 'second' are attempted to be converted to fit one of all operations using 'operator'.
+		 * If they cannot be matched with the types of a known operation, init will fail.
+		 *
+		 * Case 2. 'first' is an unparsed literal, 'second' is not
+		 * In this case, 'first' needs to be converted into the "left" type of
+		 *  any operation using 'operator' with the type of 'second' as the right type.
+		 * If 'first' cannot be converted, init will fail.
+		 * If no operations are found for converting 'first', init will fail, UNLESS the type of 'second' is object,
+		 *  where operations will be searched again later with the context of the type of first.
+		 * TODO When 'first' can represent multiple literals, it might be worth checking which of those can work with 'operator' and 'second'
+		 *
+		 * Case 3. 'second' is an unparsed literal, 'first' is not
+		 * In this case, 'second' needs to be converted into the "right" type of
 		 *  any operation using 'operator' with the type of 'first' as the "left" type.
 		 * If 'second' cannot be converted, init will fail.
 		 * If no operations are found for converting 'second', init will fail, UNLESS the type of 'first' is object,
@@ -202,8 +202,8 @@ public class ExprArithmetic<L, R, T> extends SimpleExpression<T> implements Simp
 				second = (Expression<R>) second.getConvertedExpression(Object.class);
 			} else {
 				second = (Expression<R>) second.getConvertedExpression(operations.stream()
-						.map(OperationInfo::getRight)
-						.toArray(Class[]::new)
+					.map(OperationInfo::getRight)
+					.toArray(Class[]::new)
 				);
 			}
 		}
@@ -240,9 +240,9 @@ public class ExprArithmetic<L, R, T> extends SimpleExpression<T> implements Simp
 			if (!(firstClass == Object.class && secondClass == Object.class)) { // both aren't object
 				if (firstClass == Object.class) {
 					returnTypes = Arithmetics.getOperations(operator).stream()
-							.filter(info -> info.getRight().isAssignableFrom(secondClass))
-							.map(OperationInfo::getReturnType)
-							.toArray(Class[]::new);
+						.filter(info -> info.getRight().isAssignableFrom(secondClass))
+						.map(OperationInfo::getReturnType)
+						.toArray(Class[]::new);
 				} else { // secondClass is Object
 					returnTypes = Arithmetics.getOperations(operator, firstClass).stream()
 						.map(OperationInfo::getReturnType)
@@ -360,15 +360,6 @@ public class ExprArithmetic<L, R, T> extends SimpleExpression<T> implements Simp
 		if (rightGrouped)
 			two = '(' + two + ')';
 		return one + ' ' + operator + ' ' + two;
-	}
-
-	@Override
-	public @NotNull Expression<? extends T> simplified() {
-		if (first instanceof Literal && second instanceof Literal)
-			//noinspection unchecked
-			return new SimpleLiteral<>(getArray(null), (Class<T>) getReturnType(), false);
-
-		return this;
 	}
 
 }
