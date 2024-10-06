@@ -12,3 +12,21 @@ test "armour slot":
 		clear armour of event-entity
 		assert armour of event-entity does not contain dirt block, diamond chestplate, iron leggings and gold boots with "Failed to clear EquipmentSlots"
 		delete event-entity
+
+test "body armor wolf" when running minecraft "1.20.5":
+	spawn wolf at spawn of world "world":
+		set {_entity} to event-entity
+
+	set body armor of {_entity} to wolf armor
+	assert body armor of {_entity} is wolf armor with "Body armor of entity is not wolf armor"
+	clear body armor of {_entity}
+	assert body armor of {_entity} is air with "Body armor of entity did not get cleared"
+	clear entity within {_entity}
+
+test "invalid body armor":
+	loop a zombie, a skeleton, a zombie horse and a skeleton horse:
+		spawn loop-value at spawn of world "world":
+			assert (body armor of event-entity) is not set with "Entity body armor is accessible"
+			set body armor of event-entity to diamond armor
+			assert (body armor of event-entity) is not set with "Entity body armor is accessible"
+			clear event-entity
