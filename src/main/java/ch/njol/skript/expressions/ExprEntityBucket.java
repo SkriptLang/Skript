@@ -2,10 +2,15 @@ package ch.njol.skript.expressions;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.*;
-import ch.njol.skript.expressions.base.EventValueExpression;
+import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
+import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
+import ch.njol.util.Kleenean;
+import org.bukkit.event.Event;
+import org.bukkit.event.player.PlayerBucketEntityEvent;
 import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.Nullable;
 
 @Name("Entity Bucket")
 @Description("Gets the bucket that the Entity will be put into such as 'puffer fish bucket'.")
@@ -19,12 +24,13 @@ import org.bukkit.inventory.ItemStack;
 public class ExprEntityBucket extends SimpleExpression<ItemStack> {
 
 	static {
-		if (Skript.classExists("org.bukkit.event.player.PlayerBucketEntityEvent"))
-			Skript.registerExpression(ExprEntityBucket.class, ItemStack.class, ExpressionType.SIMPLE, "[the] entity bucket");
+		Skript.registerExpression(ExprEntityBucket.class, ItemStack.class, ExpressionType.SIMPLE,
+			"[the] entity bucket");
 	}
 
 	@Override
-	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
+	public boolean init(Expression<?>[] expressions, int matchedPattern,
+						Kleenean isDelayed, ParseResult parseResult) {
 		if (!getParser().isCurrentEvent(PlayerBucketEntityEvent.class)) {
 			Skript.error("The 'entity bucket' expression can only be used in the bucket capture entity event");
 			return false;
@@ -34,9 +40,9 @@ public class ExprEntityBucket extends SimpleExpression<ItemStack> {
 
 	@Override
 	protected @Nullable ItemStack[] get(Event event) {
-		if (!(event instanceof PlayerBucketEntityEvent))
+		if (!(event instanceof PlayerBucketEntityEvent bucketEvent))
 			return null;
-		return new ItemStack[]{((PlayerBucketEntityEvent) event).getEntityBucket()};
+		return new ItemStack[]{bucketEvent.getEntityBucket()};
 	}
 
 	@Override
