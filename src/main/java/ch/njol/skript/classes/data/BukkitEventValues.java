@@ -1732,6 +1732,7 @@ public final class BukkitEventValues {
 				return e.getEnchantBlock();
 			}
 		}, 0);
+    	//HorseJumpEvent
 		EventValues.registerEventValue(HorseJumpEvent.class, Entity.class, new Getter<Entity, HorseJumpEvent>() {
 			@Nullable
 			@Override

@@ -39,7 +39,6 @@ import org.bukkit.GameRule;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
-import org.bukkit.Registry;
 import org.bukkit.SoundCategory;
 import org.bukkit.World;
 import org.bukkit.World.Environment;
@@ -52,22 +51,17 @@ import org.bukkit.block.data.BlockData;
 import org.bukkit.command.CommandSender;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.enchantments.EnchantmentOffer;
-import org.bukkit.entity.Cat;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.Item;
-import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.*;
 import org.bukkit.entity.Panda.Gene;
-import org.bukkit.entity.Player;
-import org.bukkit.entity.Projectile;
 import org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
-import org.bukkit.event.entity.EntityPotionEffectEvent;
 import org.bukkit.event.entity.EntityRegainHealthEvent.RegainReason;
 import org.bukkit.event.entity.EntityTransformEvent.TransformReason;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryType;
+import org.bukkit.event.player.PlayerFishEvent;
 import org.bukkit.event.player.PlayerQuitEvent.QuitReason;
 import org.bukkit.event.player.PlayerResourcePackStatusEvent.Status;
 import org.bukkit.event.player.PlayerTeleportEvent.TeleportCause;
@@ -80,6 +74,7 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.CachedServerIcon;
 import org.bukkit.util.Vector;
+import org.eclipse.jdt.annotation.Nullable;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptConfig;
@@ -108,9 +103,6 @@ import ch.njol.yggdrasil.Fields;
 import io.papermc.paper.world.MoonPhase;
 import org.jetbrains.annotations.Nullable;
 
-/**
- * @author Peter Güttinger
- */
 public class BukkitClasses {
 
 	public BukkitClasses() {}
@@ -1507,7 +1499,7 @@ public class BukkitClasses {
 					.since("2.7"));
 
 		if (Skript.classExists("org.bukkit.event.player.PlayerQuitEvent$QuitReason"))
-			Classes.registerClass(new EnumClassInfo<>(QuitReason.class, "quitreason", "quit reasons")
+			Classes.registerClass(new EnumClassInfo<>(PlayerQuitEvent.QuitReason.class, "quitreason", "quit reasons")
 					.user("(quit|disconnect) ?(reason|cause)s?")
 					.name("Quit Reason")
 					.description("Represents a quit reason from a <a href='/events.html#quit'>player quit server event</a>.")
@@ -1527,11 +1519,41 @@ public class BukkitClasses {
 				.name("Transform Reason")
 				.description("Represents a transform reason of an <a href='events.html#entity transform'>entity transform event</a>.")
 				.since("2.8.0"));
+
 		Classes.registerClass(new EnumClassInfo<>(EntityPotionEffectEvent.Cause.class, "entitypotioncause", "entity potion causes")
 				.user("(entity )?potion ?effect ?cause")
 				.name("Entity Potion Cause")
 				.description("Represents the cause of the action of a potion effect on an entity, e.g. arrow, command")
 				.since("INSERT VERSION"));
+
+		Classes.registerClass(new EnumClassInfo<>(PlayerFishEvent.State.class, "fishingstate", "fishing states")
+			.user("fish(ing)? ?states?")
+			.name("Fishing State")
+			.description("Represents the fishing state in a <a href='events.html#fishing'>fishing</a> event.")
+			.since("INSERT VERSION"));
+
+		Classes.registerClass(new ClassInfo<>(FishHook.class, "fishinghook")
+			.user("fish(ing)? ?hooks")
+			.name("Fishing Hook")
+			.description("Represents the fishing hook in a <a href='events.html#fishing'>fishing</a> event.")
+			.defaultExpression(new EventValueExpression<>(FishHook.class))
+			.since("INSERT VERSION")
+			.parser(new Parser<FishHook>() {
+				@Override
+				public boolean canParse(ParseContext context) {
+					return false;
+				}
+
+				@Override
+				public String toString(FishHook fishHook, int flags) {
+					return "fish hook";
+				}
+
+				@Override
+				public String toVariableNameString(FishHook fishHook) {
+					return "fish hook";
+				}
+			}));
 	}
 
 }
