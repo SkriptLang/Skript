@@ -1,21 +1,3 @@
-/**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
 package ch.njol.skript.expressions;
 
 import ch.njol.skript.Skript;
@@ -36,7 +18,7 @@ import org.bukkit.event.Event;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.player.PlayerExpChangeEvent;
 import org.bukkit.event.player.PlayerFishEvent;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 @Name("Experience")
 @Description("How much experience was spawned in an experience spawn or block break event. Can be changed.")
@@ -52,37 +34,39 @@ import org.eclipse.jdt.annotation.Nullable;
 		"\tadd 70 to dropped experience"
 })
 @Since("2.1, 2.5.3 (block break event), 2.7 (experience change event), INSERT VERSION (fishing)")
-@Events({"experience spawn", "break / mine", "experience change", "fishing"})
+@Events({"experience spawn", "break / mine", "experience change", "Fishing"})
 public class ExprExperience extends SimpleExpression<Experience> {
 
 	static {
 		Skript.registerExpression(ExprExperience.class, Experience.class, ExpressionType.SIMPLE, "[the] [spawned|dropped] [e]xp[erience] [orb[s]]");
 	}
-	
+
 	@Override
-	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		if (!getParser().isCurrentEvent(ExperienceSpawnEvent.class, BlockBreakEvent.class, PlayerExpChangeEvent.class, PlayerFishEvent.class)) {
-			Skript.error("The 'experience' expression can only be used in experience spawn, block break, player experience change and fishing events");
+	public boolean init(Expression<?>[] expressions, int matchedPattern,
+						Kleenean isDelayed, ParseResult parseResult) {
+		if (!getParser().isCurrentEvent(ExperienceSpawnEvent.class, BlockBreakEvent.class,
+			PlayerExpChangeEvent.class, PlayerFishEvent.class)) {
+			Skript.error("The 'experience' expression can only be used in experience spawn, " +
+				"block break, player experience change and fishing events");
 			return false;
 		}
 		return true;
 	}
-	
+
 	@Override
-	@Nullable
-	protected Experience[] get(Event event) {
+	protected Experience @Nullable [] get(Event event) {
 		if (event instanceof ExperienceSpawnEvent)
-			return new Experience[] {new Experience(((ExperienceSpawnEvent) event).getSpawnedXP())};
+			return new Experience[]{new Experience(((ExperienceSpawnEvent) event).getSpawnedXP())};
 		else if (event instanceof BlockBreakEvent)
-			return new Experience[] {new Experience(((BlockBreakEvent) event).getExpToDrop())};
+			return new Experience[]{new Experience(((BlockBreakEvent) event).getExpToDrop())};
 		else if (event instanceof PlayerFishEvent)
-			return new Experience[] {new Experience(((PlayerFishEvent) event).getExpToDrop())};
+			return new Experience[]{new Experience(((PlayerFishEvent) event).getExpToDrop())};
 		else if (event instanceof PlayerExpChangeEvent)
-			return new Experience[] {new Experience(((PlayerExpChangeEvent) event).getAmount())};
+			return new Experience[]{new Experience(((PlayerExpChangeEvent) event).getAmount())};
 		else
 			return new Experience[0];
 	}
-	
+
 	@Override
 	@Nullable
 	public Class<?>[] acceptChange(ChangeMode mode) {
@@ -91,16 +75,16 @@ public class ExprExperience extends SimpleExpression<Experience> {
 			case DELETE:
 			case REMOVE:
 			case REMOVE_ALL:
-				return new Class[] {Experience[].class, Number[].class};
+				return new Class[]{Experience[].class, Number[].class};
 			case SET:
-				return new Class[] {Experience.class, Number.class};
+				return new Class[]{Experience.class, Number.class};
 			default:
 				return null;
 		}
 	}
-	
+
 	@Override
-	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
+	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
 		int experience;
 		if (event instanceof ExperienceSpawnEvent)
 			experience = ((ExperienceSpawnEvent) event).getSpawnedXP();
@@ -136,7 +120,7 @@ public class ExprExperience extends SimpleExpression<Experience> {
 		} else {
 			experience = 0;
 		}
-		
+
 		experience = Math.max(0, Math.round(experience));
 		if (event instanceof ExperienceSpawnEvent)
 			((ExperienceSpawnEvent) event).setSpawnedXP(experience);
@@ -147,20 +131,20 @@ public class ExprExperience extends SimpleExpression<Experience> {
 		else
 			((PlayerExpChangeEvent) event).setAmount(experience);
 	}
-	
+
 	@Override
 	public boolean isSingle() {
 		return true;
 	}
-	
+
 	@Override
 	public Class<? extends Experience> getReturnType() {
 		return Experience.class;
 	}
-	
+
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
 		return "the experience";
 	}
-	
+
 }

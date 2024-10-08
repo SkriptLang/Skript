@@ -1,21 +1,3 @@
-/**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
 package ch.njol.skript.expressions;
 
 import ch.njol.skript.classes.Changer.ChangeMode;
@@ -32,40 +14,47 @@ import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.entity.FishHook;
 import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 @Name("Fishing Hook Wait Time")
 @Description({
-	"Returns the minimum and/or maximum waiting time of the fishing hook. Default minimum value is 5 seconds and maximum is 30 seconds.",
-	"NOTE: Changing the values in a non sense results such as setting max time less than min time will set both min and max " +
-		"waiting time to the same provided value."
+	"Returns the minimum and/or maximum waiting time of the fishing hook. " +
+		"Default minimum value is 5 seconds and maximum is 30 seconds, before lure is applied.",
+	"Changing values outside the default range, like setting the max wait time to " +
+		"less than the min wait time, will set both the min and max " +
+		"waiting time to the same value."
 })
 @Examples({
 	"on fish:",
-		"\tset max waiting time of fishing hook to 1 second # Will also force setting the minimum to 1 second"
+	"\tset min waiting time of fishing hook to 10 seconds",
+	"\tset max waiting time of fishing hook to 20 seconds",
+	"",
+	"on fish:",
+	"\tset max waiting time of fishing hook to 1 second # Will also force setting the minimum to 1 second"
 })
 @Events("Fishing")
 @Since("INSERT VERSION")
 public class ExprFishingHookWaitTime extends SimplePropertyExpression<FishHook, Timespan> {
 
 	static {
-		register(ExprFishingHookWaitTime.class, Timespan.class, "(min:min[imum]|max[imum]) wait[ing] time", "fishinghooks");
+		register(ExprFishingHookWaitTime.class, Timespan.class,
+			"(min:min[imum]|max[imum]) wait[ing] time", "fishinghooks");
 	}
 
-	private static final int DEFAULT_MINIMUM_TIME = 100;
-	private static final int DEFAULT_MAXIMUM_TIME = 600;
+	private static final int DEFAULT_MINIMUM_TIME = 5 * 20;
+	private static final int DEFAULT_MAXIMUM_TIME = 30 * 20;
 	private boolean isMin;
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		isMin = parseResult.hasTag("min");
+
 		return super.init(exprs, matchedPattern, isDelayed, parseResult);
 	}
 
 	@Override
-	@Nullable
-	public Timespan convert(FishHook fishHook) {
-		return Timespan.fromTicks_i(isMin ? fishHook.getMinWaitTime() : fishHook.getMaxWaitTime());
+	public @Nullable Timespan convert(FishHook fishHook) {
+		return new Timespan(Timespan.TimePeriod.TICK, isMin ? fishHook.getMinWaitTime() : fishHook.getMaxWaitTime());
 	}
 
 	@Override
@@ -78,32 +67,27 @@ public class ExprFishingHookWaitTime extends SimplePropertyExpression<FishHook, 
 		return (isMin ? "minimum" : "maximum") + " waiting time";
 	}
 
-	@Nullable
 	@Override
-	public Class<?>[] acceptChange(ChangeMode mode) {
-		switch (mode) {
-			case DELETE:
-			case REMOVE_ALL:
-				return null;
-			default:
-				return CollectionUtils.array(Timespan.class);
-		}
+	public @Nullable Class<?>[] acceptChange(ChangeMode mode) {
+		return switch (mode) {
+			case DELETE, REMOVE_ALL -> null;
+			default -> CollectionUtils.array(Timespan.class);
+		};
 	}
 
 	@Override
-	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
-		int ticks = mode == ChangeMode.RESET ? (isMin ? DEFAULT_MINIMUM_TIME : DEFAULT_MAXIMUM_TIME) : (int) ((Timespan) delta[0]).getTicks_i();
+	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
+		if (delta[0] == null || !(delta[0] instanceof Timespan timespan))
+			return;
+
+		int ticks = mode == ChangeMode.RESET ?
+			(isMin ? DEFAULT_MINIMUM_TIME : DEFAULT_MAXIMUM_TIME) :
+			(int) timespan.getAs(Timespan.TimePeriod.TICK);
+
 		switch (mode) {
-			case ADD:
-				setWaitingTime(event, ticks, false);
-				break;
-			case REMOVE:
-				setWaitingTime(event, (-ticks), false);
-				break;
-			case SET:
-			case RESET:
-				setWaitingTime(event, ticks, true);
-				break;
+			case ADD -> setWaitingTime(event, ticks, false);
+			case SET, RESET -> setWaitingTime(event, ticks, true);
+			case REMOVE -> setWaitingTime(event, -ticks, false);
 		}
 	}
 

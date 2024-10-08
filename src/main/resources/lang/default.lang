@@ -1282,13 +1282,13 @@ heal reasons:
 
 # -- Fishing States --
 fishing states:
-	bite: bite, a bite
+	bite: bite
 	caught_entity: caught entity
 	caught_fish: caught fish
-	failed_attempt: failed attempt, a failed attempt
+	failed_attempt: failed attempt
 	fishing: fishing
-	in_ground: hook in the ground, hook in ground
-	reel_in: reel in
+	in_ground: hook in the ground, hook in ground, grounded hook
+	reel_in: reel in, reeling in
 
 # -- Cat Types --
 cat types:
@@ -2393,6 +2393,7 @@ types:
 	quitreason: quit reason¦s @a
 	inventoryclosereason: inventory close reason¦s @an
 	transformreason: transform reason¦s @a
+	fishingstate: fishing state¦s @a
 
 	# Skript
 	weathertype: weather type¦s @a

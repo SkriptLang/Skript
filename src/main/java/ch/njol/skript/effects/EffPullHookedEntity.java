@@ -17,25 +17,26 @@ import org.jetbrains.annotations.Nullable;
 	"on fishing state of caught entity:",
 		"\tpull hooked entity"
 })
-@Events("fishing")
+@Events("Fishing")
 @Since("INSERT VERSION")
 public class EffPullHookedEntity extends Effect {
 
 	static {
 		Skript.registerEffect(EffPullHookedEntity.class,
-			"(reel|pull) [in] hook[ed] entity [ofType:of %fishinghooks%]");
+			"(reel|pull) [in] hook[ed] entity [typed:of %fishinghooks%]");
 	}
 
 	private Expression<FishHook> fishHook;
 
 	@Override
-	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		if (!getParser().isCurrentEvent(PlayerFishEvent.class) && !parseResult.hasTag("ofType")) {
-			Skript.error("The 'pull hooked entity' effect can either be used in the fishing event or by providing a fishing hook");
+	public boolean init(Expression<?>[] expressions, int matchedPattern,
+						Kleenean isDelayed, ParseResult parseResult) {
+		if (!getParser().isCurrentEvent(PlayerFishEvent.class) && !parseResult.hasTag("typed")) {
+			Skript.error("The 'pull hooked entity' effect can only be used in the fishing event or by providing a fishing hook");
 			return false;
 		}
 		//noinspection unchecked
-		fishHook = (Expression<FishHook>) exprs[0];
+		fishHook = (Expression<FishHook>) expressions[0];
 		return true;
 	}
 

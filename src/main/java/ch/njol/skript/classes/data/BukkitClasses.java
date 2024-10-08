@@ -1490,33 +1490,33 @@ public class BukkitClasses {
 				.since("INSERT VERSION"));
 
 		Classes.registerClass(new EnumClassInfo<>(PlayerFishEvent.State.class, "fishingstate", "fishing states")
-			.user("fish(ing)? ?states?")
-			.name("Fishing State")
-			.description("Represents the fishing state in a <a href='events.html#fishing'>fishing</a> event.")
-			.since("INSERT VERSION"));
+				.user("fish(ing)? ?states?")
+				.name("Fishing State")
+				.description("Represents the fishing state in a <a href='events.html#fishing'>fishing</a> event.")
+				.since("INSERT VERSION"));
 
 		Classes.registerClass(new ClassInfo<>(FishHook.class, "fishinghook")
-			.user("fish(ing)? ?hooks")
-			.name("Fishing Hook")
-			.description("Represents the fishing hook in a <a href='events.html#fishing'>fishing</a> event.")
-			.defaultExpression(new EventValueExpression<>(FishHook.class))
-			.since("INSERT VERSION")
-			.parser(new Parser<>() {
-				@Override
-				public boolean canParse(ParseContext context) {
-					return false;
-				}
+				.user("fish(ing)? ?hooks")
+				.name("Fishing Hook")
+				.description("Represents the fishing hook in a <a href='events.html#fishing'>fishing</a> event.")
+				.defaultExpression(new EventValueExpression<>(FishHook.class))
+				.since("INSERT VERSION")
+				.parser(new Parser<>() {
+					@Override
+					public boolean canParse(ParseContext context) {
+						return false;
+					}
 
-				@Override
-				public String toString(FishHook fishHook, int flags) {
-					return "fish hook";
-				}
+					@Override
+					public String toString(FishHook fishHook, int flags) {
+						return "fish hook";
+					}
 
-				@Override
-				public String toVariableNameString(FishHook fishHook) {
-					return "fish hook";
-				}
-			}));
+					@Override
+					public String toVariableNameString(FishHook fishHook) {
+						return "fish hook";
+					}
+				}));
 	}
 
 }
