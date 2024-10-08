@@ -1,21 +1,3 @@
-/**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
 package ch.njol.skript.expressions;
 
 import ch.njol.skript.classes.Changer.ChangeMode;
@@ -30,7 +12,7 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.FishHook;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 @Name("Fishing Hooked Entity")
 @Description("Returns the hooked entity of the fishing hook.")
@@ -48,8 +30,7 @@ public class ExprFishingHookEntity extends SimplePropertyExpression<FishHook, En
 	}
 
 	@Override
-	@Nullable
-	public Entity convert(FishHook fishHook) {
+	public @Nullable Entity convert(FishHook fishHook) {
 		return fishHook.getHookedEntity();
 	}
 
@@ -63,34 +44,29 @@ public class ExprFishingHookEntity extends SimplePropertyExpression<FishHook, En
 		return "hooked entity";
 	}
 
-	@Nullable
 	@Override
-	public Class<?>[] acceptChange(ChangeMode mode) {
-		switch (mode) {
-			case DELETE:
-			case SET:
-				return CollectionUtils.array(Entity.class);
-			default:
-				return null;
-		}
+	public @Nullable Class<?>[] acceptChange(ChangeMode mode) {
+		return switch (mode) {
+			case DELETE, SET -> CollectionUtils.array(Entity.class);
+			default -> null;
+		};
 	}
 
 	@Override
 	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
 		FishHook[] hooks = getExpr().getArray(event);
 		switch (mode) {
-			case SET:
+			case SET -> {
 				for (FishHook fishHook : hooks)
 					fishHook.setHookedEntity((Entity) delta[0]);
-				break;
-			case DELETE:
+			}
+			case DELETE -> {
 				for (FishHook fishHook : hooks) {
 					if (fishHook.getHookedEntity() != null && !(fishHook.getHookedEntity() instanceof Player))
 						fishHook.getHookedEntity().remove();
 				}
-				break;
-			default:
-				assert false;
+			}
+			default -> throw new IllegalStateException("Unexpected value: " + mode);
 		}
 	}
 
