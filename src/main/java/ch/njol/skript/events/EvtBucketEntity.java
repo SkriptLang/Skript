@@ -1,11 +1,7 @@
 package ch.njol.skript.events;
 
 import ch.njol.skript.Skript;
-import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
-import ch.njol.skript.doc.Name;
-import ch.njol.skript.doc.RequiredPlugins;
-import ch.njol.skript.doc.Since;
+import ch.njol.skript.doc.*;
 import ch.njol.skript.entity.EntityData;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptEvent;
@@ -32,13 +28,12 @@ import java.util.List;
 	"on bucket catch of a puffer fish:",
 	"\tsend \"You caught a fish with your bucket!\" to player"
 })
-@RequiredPlugins("MC 1.17+")
 @Since("INSERT VERSION")
 public class EvtBucketEntity extends SkriptEvent {
 
 	static {
-		Skript.registerEvent("Bucket Capture Entity", EvtBucketEntity.class, PlayerFishEvent.class,
-			"[player] bucket (catch[ing]|captur(e|ing)) [[of] %-entitydatas%]");
+		Skript.registerEvent("Bucket Catch Entity", EvtBucketEntity.class, PlayerFishEvent.class,
+			"bucket (catch[ing]|captur(e|ing)) [[of] %-entitydatas%]");
 
 		EventValues.registerEventValue(PlayerBucketEntityEvent.class, ItemStack.class, new Getter<>() {
 			@Override
@@ -78,12 +73,17 @@ public class EvtBucketEntity extends SkriptEvent {
 		if (!(event instanceof PlayerBucketEntityEvent bucketEvent))
 			return false;
 
-		return entities.isEmpty() || entities.contains(bucketEvent.getEntity()); // TODO convert
+		return entities.isEmpty() || entities.stream()
+			.map(EntityData::getType)
+			.anyMatch(it -> it.isInstance(bucketEvent.getEntity()));
 	}
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return "bucket catching" + (entities.isEmpty() ? "" : " of " + StringUtils.join(entities, ", ", " and "));
+		return "bucket catch" +
+			(entities.isEmpty() ?
+				"" :
+				" of " + StringUtils.join(entities, ", ", " and "));
 	}
 
 }

@@ -1489,12 +1489,6 @@ public class BukkitClasses {
 				.description("Represents the cause of the action of a potion effect on an entity, e.g. arrow, command")
 				.since("INSERT VERSION"));
 
-		Classes.registerClass(new EnumClassInfo<>(PlayerFishEvent.State.class, "fishingstate", "fishing states")
-				.user("fish(ing)? ?states?")
-				.name("Fishing State")
-				.description("Represents the fishing state in a <a href='events.html#fishing'>fishing</a> event.")
-				.since("INSERT VERSION"));
-
 		Classes.registerClass(new ClassInfo<>(FishHook.class, "fishinghook")
 				.user("fish(ing)? ?hooks")
 				.name("Fishing Hook")
