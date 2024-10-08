@@ -1,92 +1,13 @@
-/**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
 package ch.njol.skript.classes.data;
-
-import java.io.StreamCorruptedException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map.Entry;
-import java.util.UUID;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
-
-import ch.njol.skript.bukkitutil.BukkitUtils;
-import org.bukkit.Bukkit;
-import org.bukkit.Chunk;
-import org.bukkit.Difficulty;
-import org.bukkit.FireworkEffect;
-import org.bukkit.GameMode;
-import org.bukkit.GameRule;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.OfflinePlayer;
-import org.bukkit.SoundCategory;
-import org.bukkit.World;
-import org.bukkit.World.Environment;
-import org.bukkit.attribute.Attribute;
-import org.bukkit.block.Biome;
-import org.bukkit.block.Block;
-import org.bukkit.block.BlockState;
-import org.bukkit.block.DoubleChest;
-import org.bukkit.block.data.BlockData;
-import org.bukkit.command.CommandSender;
-import org.bukkit.enchantments.Enchantment;
-import org.bukkit.enchantments.EnchantmentOffer;
-import org.bukkit.entity.*;
-import org.bukkit.entity.Panda.Gene;
-import org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason;
-import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
-import org.bukkit.event.entity.EntityRegainHealthEvent.RegainReason;
-import org.bukkit.event.entity.EntityTransformEvent.TransformReason;
-import org.bukkit.event.inventory.ClickType;
-import org.bukkit.event.inventory.InventoryAction;
-import org.bukkit.event.inventory.InventoryCloseEvent;
-import org.bukkit.event.inventory.InventoryType;
-import org.bukkit.event.player.PlayerFishEvent;
-import org.bukkit.event.player.PlayerQuitEvent.QuitReason;
-import org.bukkit.event.player.PlayerResourcePackStatusEvent.Status;
-import org.bukkit.event.player.PlayerTeleportEvent.TeleportCause;
-import org.bukkit.inventory.BlockInventoryHolder;
-import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.InventoryHolder;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.metadata.Metadatable;
-import org.bukkit.potion.PotionEffect;
-import org.bukkit.potion.PotionEffectType;
-import org.bukkit.util.CachedServerIcon;
-import org.bukkit.util.Vector;
-import org.eclipse.jdt.annotation.Nullable;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptConfig;
 import ch.njol.skript.aliases.Aliases;
 import ch.njol.skript.aliases.ItemType;
+import ch.njol.skript.bukkitutil.BukkitUtils;
 import ch.njol.skript.bukkitutil.EnchantmentUtils;
 import ch.njol.skript.bukkitutil.ItemUtils;
-import ch.njol.skript.classes.ClassInfo;
-import ch.njol.skript.classes.ConfigurationSerializer;
-import ch.njol.skript.classes.EnumClassInfo;
-import ch.njol.skript.classes.Parser;
-import ch.njol.skript.classes.Serializer;
+import ch.njol.skript.classes.*;
 import ch.njol.skript.classes.registry.RegistryClassInfo;
 import ch.njol.skript.entity.EntityData;
 import ch.njol.skript.expressions.ExprDamageCause;
@@ -101,7 +22,49 @@ import ch.njol.skript.util.StringMode;
 import ch.njol.util.StringUtils;
 import ch.njol.yggdrasil.Fields;
 import io.papermc.paper.world.MoonPhase;
+import org.bukkit.*;
+import org.bukkit.World.Environment;
+import org.bukkit.attribute.Attribute;
+import org.bukkit.block.Biome;
+import org.bukkit.block.Block;
+import org.bukkit.block.BlockState;
+import org.bukkit.block.DoubleChest;
+import org.bukkit.block.data.BlockData;
+import org.bukkit.command.CommandSender;
+import org.bukkit.enchantments.Enchantment;
+import org.bukkit.enchantments.EnchantmentOffer;
+import org.bukkit.entity.*;
+import org.bukkit.entity.Panda.Gene;
+import org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason;
+import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
+import org.bukkit.event.entity.EntityPotionEffectEvent;
+import org.bukkit.event.entity.EntityRegainHealthEvent.RegainReason;
+import org.bukkit.event.entity.EntityTransformEvent.TransformReason;
+import org.bukkit.event.inventory.ClickType;
+import org.bukkit.event.inventory.InventoryAction;
+import org.bukkit.event.inventory.InventoryCloseEvent;
+import org.bukkit.event.inventory.InventoryType;
+import org.bukkit.event.player.PlayerFishEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.event.player.PlayerResourcePackStatusEvent.Status;
+import org.bukkit.event.player.PlayerTeleportEvent.TeleportCause;
+import org.bukkit.inventory.BlockInventoryHolder;
+import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.InventoryHolder;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.metadata.Metadatable;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
+import org.bukkit.util.CachedServerIcon;
+import org.bukkit.util.Vector;
 import org.jetbrains.annotations.Nullable;
+
+import java.io.StreamCorruptedException;
+import java.util.*;
+import java.util.Map.Entry;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 public class BukkitClasses {
 
@@ -1538,7 +1501,7 @@ public class BukkitClasses {
 			.description("Represents the fishing hook in a <a href='events.html#fishing'>fishing</a> event.")
 			.defaultExpression(new EventValueExpression<>(FishHook.class))
 			.since("INSERT VERSION")
-			.parser(new Parser<FishHook>() {
+			.parser(new Parser<>() {
 				@Override
 				public boolean canParse(ParseContext context) {
 					return false;
