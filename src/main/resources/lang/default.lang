@@ -1280,16 +1280,6 @@ heal reasons:
 	wither: withering, withered, wither potion, a wither effect, wither effect, wither
 	wither_spawn: wither spawning, wither spawn, wither summoning, a wither summoning, a wither spawn, a wither spawning
 
-# -- Fishing States --
-fishing states:
-	bite: bite
-	caught_entity: caught entity
-	caught_fish: caught fish
-	failed_attempt: failed attempt
-	fishing: fishing
-	in_ground: hook in the ground, hook in ground, grounded hook
-	reel_in: reel in, reeling in
-
 # -- Cat Types --
 cat types:
 	tabby: tabby
@@ -2393,7 +2383,6 @@ types:
 	quitreason: quit reason¦s @a
 	inventoryclosereason: inventory close reason¦s @an
 	transformreason: transform reason¦s @a
-	fishingstate: fishing state¦s @a
 
 	# Skript
 	weathertype: weather type¦s @a
