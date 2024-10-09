@@ -28,13 +28,14 @@ import org.jetbrains.annotations.Nullable;
 @Since("INSERT VERSION")
 public class ExprFishingWaitTime extends SimpleExpression<Timespan> {
 
+	private static final int DEFAULT_MINIMUM_TICKS = 5 * 20;
+	private static final int DEFAULT_MAXIMUM_TICKS = 30 * 20;
+
 	static {
 		Skript.registerExpression(ExprFishingWaitTime.class, Timespan.class, ExpressionType.SIMPLE,
 			"(min:min[imum]|max[imum]) fish[ing] wait[ing] time");
 	}
 
-	private static final int DEFAULT_MINIMUM_TICKS = 5 * 20;
-	private static final int DEFAULT_MAXIMUM_TICKS = 30 * 20;
 	private boolean isMin;
 
 	@Override

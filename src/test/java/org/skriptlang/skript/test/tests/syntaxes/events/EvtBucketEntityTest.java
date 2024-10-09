@@ -3,9 +3,11 @@ package org.skriptlang.skript.test.tests.syntaxes.events;
 import ch.njol.skript.test.runner.SkriptJUnitTest;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
-import org.bukkit.entity.*;
+import org.bukkit.entity.Cod;
+import org.bukkit.entity.Fish;
+import org.bukkit.entity.Player;
+import org.bukkit.entity.Salmon;
 import org.bukkit.event.player.PlayerBucketEntityEvent;
-import org.bukkit.event.player.PlayerFishEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.easymock.EasyMock;
@@ -17,13 +19,11 @@ public class EvtBucketEntityTest extends SkriptJUnitTest {
 
 	private Fish salmon;
 	private Fish cod;
-	private FishHook hook;
 
 	@Before
 	public void setup() {
 		salmon = getTestLocation().getWorld().spawn(getTestLocation(), Salmon.class);
 		cod = getTestLocation().getWorld().spawn(getTestLocation(), Cod.class);
-		hook = cod.launchProjectile(FishHook.class);
 	}
 
 	@Test
@@ -45,7 +45,6 @@ public class EvtBucketEntityTest extends SkriptJUnitTest {
 	public void reset() {
 		salmon.remove();
 		cod.remove();
-		hook.remove();
 	}
 
 }

@@ -27,6 +27,9 @@ import org.jetbrains.annotations.Nullable;
 @Since("INSERT VERSION")
 public class ExprFishingApproachAngle extends SimpleExpression<Float> {
 
+	private static final int DEFAULT_MINIMUM_DEGREES = 0;
+	private static final int DEFAULT_MAXIMUM_DEGREES = 360;
+
 	static {
 		Skript.registerExpression(ExprFishingApproachAngle.class, Float.class, ExpressionType.SIMPLE,
 			"(min:min[imum]|max[imum]) fish[ing] approach[ing] angle");
@@ -71,7 +74,9 @@ public class ExprFishingApproachAngle extends SimpleExpression<Float> {
 
 		FishHook hook = fishEvent.getHook();
 
-		float angle = mode == ChangeMode.RESET ? (isMin ? 0 : 360) : (Float) delta[0];
+		float angle = mode == ChangeMode.RESET ?
+			(isMin ? DEFAULT_MINIMUM_DEGREES : DEFAULT_MAXIMUM_DEGREES) :
+			(Float) delta[0];
 
 		switch (mode) {
 			case SET, RESET -> {
