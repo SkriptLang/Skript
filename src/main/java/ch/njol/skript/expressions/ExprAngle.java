@@ -42,7 +42,7 @@ public class ExprAngle extends SimpleExpression<Number> {
 						Kleenean isDelayed, ParseResult parseResult) {
 		//noinspection unchecked
 		angle = (Expression<Number>) expressions[0];
-		isRadians = matchedPattern == 0;
+		isRadians = matchedPattern == 1;
 		return true;
 	}
 
@@ -82,4 +82,5 @@ public class ExprAngle extends SimpleExpression<Number> {
 	public String toString(@Nullable Event event, boolean debug) {
 		return angle.toString(event, debug) + (isRadians ? " degrees" : " radians");
 	}
+
 }
