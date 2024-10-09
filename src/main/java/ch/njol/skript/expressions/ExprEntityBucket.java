@@ -13,7 +13,7 @@ import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
 @Name("Entity Bucket")
-@Description("Gets the bucket that the Entity will be put into such as 'puffer fish bucket'.")
+@Description("Gets the bucket that the entity will be put into such as 'puffer fish bucket'.")
 @Examples({
 	"on bucket capture entity:",
 		"\tif entity bucket is salmon bucket:",
