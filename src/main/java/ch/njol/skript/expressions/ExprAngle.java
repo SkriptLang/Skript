@@ -57,15 +57,7 @@ public class ExprAngle extends SimpleExpression<Number> {
 			return new Double[]{Math.toDegrees(number.doubleValue())};
 		}
 
-		if (number instanceof Integer integer) {
-			return new Integer[]{integer};
-		} else if (number instanceof Long lng) {
-			return new Long[]{lng};
-		} else if (number instanceof Double dbl) {
-			return new Double[]{dbl};
-		}
-
-		return new Float[]{number.floatValue()};
+		return new Number[]{number};
 	}
 
 	@Override
