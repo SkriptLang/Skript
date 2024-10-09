@@ -69,7 +69,7 @@ on fishing line cast:
 		complete objective "cast - set approach angle" for {_test}
 
 	add 10 degrees to min fish approach angle
-	if min fish approach angle is 10 degrees:
+	if min fish approach angle is 10 z:
 		complete objective "cast - add approach angle" for {_test}
 
 	remove 10 degrees from min fish approach angle

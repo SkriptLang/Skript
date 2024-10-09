@@ -26,10 +26,10 @@ import org.jetbrains.annotations.Nullable;
 })
 @Events("Fishing")
 @Since("INSERT VERSION")
-public class ExprFishingWaitTime extends SimpleExpression<Integer> {
+public class ExprFishingWaitTime extends SimpleExpression<Timespan> {
 
 	static {
-		Skript.registerExpression(ExprFishingWaitTime.class, Integer.class, ExpressionType.SIMPLE,
+		Skript.registerExpression(ExprFishingWaitTime.class, Timespan.class, ExpressionType.SIMPLE,
 			"(min:min[imum]|max[imum]) fish[ing] wait[ing] time");
 	}
 
@@ -50,13 +50,17 @@ public class ExprFishingWaitTime extends SimpleExpression<Integer> {
 	}
 
 	@Override
-	protected Integer @Nullable [] get(Event event) {
+	protected Timespan @Nullable [] get(Event event) {
 		if (!(event instanceof PlayerFishEvent fishEvent))
 			return null;
 
 		if (isMin)
-			return new Integer[]{fishEvent.getHook().getMinWaitTime()};
-		return new Integer[]{fishEvent.getHook().getMaxWaitTime()};
+			return toTimespan(fishEvent.getHook().getMinWaitTime());
+		return toTimespan(fishEvent.getHook().getMaxWaitTime());
+	}
+
+	private Timespan[] toTimespan(int ticks) {
+		return new Timespan[]{new Timespan(Timespan.TimePeriod.TICK, ticks)};
 	}
 
 	@Override
@@ -112,8 +116,8 @@ public class ExprFishingWaitTime extends SimpleExpression<Integer> {
 	}
 
 	@Override
-	public Class<? extends Integer> getReturnType() {
-		return Integer.class;
+	public Class<? extends Timespan> getReturnType() {
+		return Timespan.class;
 	}
 
 	@Override
