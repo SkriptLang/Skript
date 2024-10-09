@@ -60,13 +60,22 @@ import ch.njol.util.Kleenean;
 @Since("1.0, 2.7 (multiple entities, unequip)")
 public class EffEquip extends Effect {
 
+	private static ItemType HORSE_ARMOR;
+
 	static {
+		try {
+			HORSE_ARMOR = new ItemType(Material.IRON_HORSE_ARMOR, Material.GOLDEN_HORSE_ARMOR,
+				Material.DIAMOND_HORSE_ARMOR, Material.LEATHER_HORSE_ARMOR);
+		} catch (NoSuchFieldError ex) {
+			HORSE_ARMOR = new ItemType(Material.IRON_HORSE_ARMOR, Material.GOLDEN_HORSE_ARMOR,
+				Material.DIAMOND_HORSE_ARMOR);
+		}
+
 		Skript.registerEffect(EffEquip.class,
 				"equip [%livingentities%] with %itemtypes%",
 				"make %livingentities% wear %itemtypes%",
 				"unequip %itemtypes% [from %livingentities%]",
-				"unequip %livingentities%'[s] (armor|equipment)"
-			);
+				"unequip %livingentities%'[s] (armor|equipment)");
 	}
 
 	@SuppressWarnings("NotNullFieldNotInitialized")
@@ -99,8 +108,6 @@ public class EffEquip extends Effect {
 	private static ItemType LEGGINGS;
 	private static ItemType BOOTS;
 	private static ItemType CARPET;
-	private static final ItemType HORSE_ARMOR = new ItemType(Material.IRON_HORSE_ARMOR, Material.GOLDEN_HORSE_ARMOR,
-		Material.DIAMOND_HORSE_ARMOR, Material.LEATHER_HORSE_ARMOR);
 	private static final ItemType SADDLE = new ItemType(Material.SADDLE);
 	private static final ItemType CHEST = new ItemType(Material.CHEST);
 
