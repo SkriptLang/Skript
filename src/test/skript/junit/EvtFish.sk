@@ -3,10 +3,27 @@ test "EvtFishJUnit" when running JUnit:
 	set {_tests::2} to "cast - correct fish"
 	set {_tests::3} to "cast - not in open water"
 	set {_tests::4} to "cast - correct fish hooked"
-	set {_tests::5} to "catch - correct player"
-	set {_tests::6} to "catch - correct fish"
-	set {_tests::7} to "catch - not in open water"
-	set {_tests::8} to "catch - correct fish hooked"
+	set {_tests::5} to "cast - set waiting time"
+	set {_tests::6} to "cast - add waiting time"
+	set {_tests::7} to "cast - remove waiting time"
+	set {_tests::8} to "cast - reset waiting time"
+	set {_tests::9} to "cast - set approach angle"
+	set {_tests::10} to "cast - add approach angle"
+	set {_tests::11} to "cast - remove approach angle"
+	set {_tests::12} to "cast - reset approach angle"
+
+	set {_tests::13} to "catch - correct player"
+	set {_tests::14} to "catch - correct fish"
+	set {_tests::15} to "catch - not in open water"
+	set {_tests::16} to "catch - correct fish hooked"
+	set {_tests::17} to "catch - set waiting time"
+	set {_tests::18} to "catch - add waiting time"
+	set {_tests::19} to "catch - remove waiting time"
+	set {_tests::20} to "catch - reset waiting time"
+	set {_tests::21} to "catch - set approach angle"
+	set {_tests::22} to "catch - add approach angle"
+	set {_tests::23} to "catch - remove approach angle"
+	set {_tests::24} to "catch - reset approach angle"
 
 	ensure junit test "org.skriptlang.skript.test.tests.syntaxes.events.EvtFishTest" completes {_tests::*}
 
@@ -26,6 +43,47 @@ on fishing line cast:
 	if hooked entity of fishing hook is a cod:
 		complete objective "cast - correct fish hooked" for {_test}
 
+	set max fish waiting time to 20 seconds
+	if max fish waiting time is 20 seconds:
+		complete objective "cast - set waiting time" for {_test}
+
+	add 1 second to min fish waiting time
+	if min fish waiting time is 6 seconds:
+		complete objective "cast - add waiting time" for {_test}
+
+	remove 1 second from max fish waiting time
+	if max fish waiting time is 19 seconds:
+		complete objective "cast - remove waiting time" for {_test}
+
+	reset max fish waiting time
+	reset min fish waiting time
+
+	if:
+		min fish waiting time is 5 seconds
+		max fish waiting time is 20 seconds
+	then:
+		complete objective "cast - reset waiting time" for {_test}
+
+	set max fish approach angle to 40 degrees
+	if max fish approach angle is 40 degrees:
+		complete objective "cast - set approach angle" for {_test}
+
+	add 10 degrees to min fish approach angle
+	if min fish approach angle is 10 degrees:
+		complete objective "cast - add approach angle" for {_test}
+
+	remove 10 degrees from min fish approach angle
+	if min fish approach angle is 0 degrees:
+		complete objective "cast - remove approach angle" for {_test}
+
+	reset max fish approach angle
+	reset min fish approach angle
+	if:
+		min fish approach angle is 0 degrees
+		max fish approach angle is 360 degrees
+	then:
+		complete objective "cast - reset approach angle" for {_test}
+
 on fish catch:
 	set {_test} to "org.skriptlang.skript.test.tests.syntaxes.events.EvtFishTest"
 	junit test is {_test}
@@ -41,3 +99,44 @@ on fish catch:
 
 	if hooked entity of fishing hook is a salmon:
 		complete objective "catch - correct fish hooked" for {_test}
+
+	set max fish waiting time to 20 seconds
+	if max fish waiting time is 20 seconds:
+		complete objective "catch - set waiting time" for {_test}
+
+	add 1 second to min fish waiting time
+	if min fish waiting time is 6 seconds:
+		complete objective "catch - add waiting time" for {_test}
+
+	remove 1 second from max fish waiting time
+	if max fish waiting time is 19 seconds:
+		complete objective "catch - remove waiting time" for {_test}
+
+	reset max fish waiting time
+	reset min fish waiting time
+
+	if:
+		min fish waiting time is 5 seconds
+		max fish waiting time is 20 seconds
+	then:
+		complete objective "catch - reset waiting time" for {_test}
+
+	set max fish approach angle to 40 degrees
+	if max fish approach angle is 40 degrees:
+		complete objective "cast - set approach angle" for {_test}
+
+	add 10 degrees to min fish approach angle
+	if min fish approach angle is 10 degrees:
+		complete objective "cast - add approach angle" for {_test}
+
+	remove 10 degrees from min fish approach angle
+	if min fish approach angle is 0 degrees:
+		complete objective "cast - remove approach angle" for {_test}
+
+	reset max fish approach angle
+	reset min fish approach angle
+	if:
+		min fish approach angle is 0 degrees
+		max fish approach angle is 360 degrees
+	then:
+		complete objective "cast - reset approach angle" for {_test}

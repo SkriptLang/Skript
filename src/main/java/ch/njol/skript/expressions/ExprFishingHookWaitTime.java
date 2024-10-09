@@ -1,117 +1,124 @@
 package ch.njol.skript.expressions;
 
+import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer.ChangeMode;
-import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Events;
-import ch.njol.skript.doc.Examples;
-import ch.njol.skript.doc.Name;
-import ch.njol.skript.doc.Since;
-import ch.njol.skript.expressions.base.SimplePropertyExpression;
+import ch.njol.skript.doc.*;
 import ch.njol.skript.lang.Expression;
+import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.util.Timespan;
 import ch.njol.util.Kleenean;
-import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.entity.FishHook;
 import org.bukkit.event.Event;
+import org.bukkit.event.player.PlayerFishEvent;
 import org.jetbrains.annotations.Nullable;
 
-@Name("Fishing Hook Wait Time")
+@Name("Fishing Wait Time")
 @Description({
-	"Returns the minimum and/or maximum waiting time of the fishing hook. " +
-		"Default minimum value is 5 seconds and maximum is 30 seconds, before lure is applied.",
-	"Changing values outside the default range, like setting the max wait time to " +
-		"less than the min wait time, will set both the min and max " +
-		"waiting time to the same value."
+	"Returns the minimum and/or maximum waiting time of the fishing hook. ",
+	"Default minimum value is 5 seconds and maximum is 30 seconds, before lure is applied."
 })
 @Examples({
 	"on fishing line cast:",
-		"\tset min waiting time of fishing hook to 10 seconds",
-		"\tset max waiting time of fishing hook to 20 seconds",
-	"",
-	"on rod cast:",
-		"\tset max waiting time of fishing hook to 1 second # Will also force setting the minimum to 1 second"
+		"\tset min waiting time to 10 seconds",
+		"\tset max waiting time to 20 seconds",
 })
 @Events("Fishing")
 @Since("INSERT VERSION")
-public class ExprFishingHookWaitTime extends SimplePropertyExpression<FishHook, Timespan> {
+public class ExprFishingHookWaitTime extends SimpleExpression<Integer> {
 
 	static {
-		register(ExprFishingHookWaitTime.class, Timespan.class,
-			"(min:min[imum]|max[imum]) wait[ing] time", "fishinghooks");
+		Skript.registerExpression(ExprFishingHookWaitTime.class, Integer.class, ExpressionType.SIMPLE,
+			"(min:min[imum]|max[imum]) fish[ing] wait[ing] time");
 	}
 
-	private static final int DEFAULT_MINIMUM_TIME = 5 * 20;
-	private static final int DEFAULT_MAXIMUM_TIME = 30 * 20;
+	private static final int DEFAULT_MINIMUM_TICKS = 5 * 20;
+	private static final int DEFAULT_MAXIMUM_TICKS = 30 * 20;
 	private boolean isMin;
 
 	@Override
-	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
+	public boolean init(Expression<?>[] expressions, int matchedPattern,
+						Kleenean isDelayed, ParseResult parseResult) {
+		if (!getParser().isCurrentEvent(PlayerFishEvent.class)) {
+			Skript.error("The fishing approach angle expression can only be used in a fishing event.");
+			return false;
+		}
+
 		isMin = parseResult.hasTag("min");
-
-		return super.init(exprs, matchedPattern, isDelayed, parseResult);
+		return true;
 	}
 
 	@Override
-	public @Nullable Timespan convert(FishHook fishHook) {
-		return new Timespan(Timespan.TimePeriod.TICK, isMin ? fishHook.getMinWaitTime() : fishHook.getMaxWaitTime());
-	}
+	protected Integer @Nullable [] get(Event event) {
+		if (!(event instanceof PlayerFishEvent fishEvent))
+			return null;
 
-	@Override
-	public Class<? extends Timespan> getReturnType() {
-		return Timespan.class;
-	}
-
-	@Override
-	protected String getPropertyName() {
-		return (isMin ? "minimum" : "maximum") + " waiting time";
+		if (isMin)
+			return new Integer[]{fishEvent.getHook().getMinWaitTime()};
+		return new Integer[]{fishEvent.getHook().getMaxWaitTime()};
 	}
 
 	@Override
 	public @Nullable Class<?>[] acceptChange(ChangeMode mode) {
 		return switch (mode) {
 			case DELETE, REMOVE_ALL -> null;
-			default -> CollectionUtils.array(Timespan.class);
+			default -> new Class[]{Timespan.class};
 		};
 	}
 
 	@Override
 	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
+		if (!(event instanceof PlayerFishEvent fishEvent))
+			return;
+
+		FishHook hook = fishEvent.getHook();
+
 		if (delta[0] == null || !(delta[0] instanceof Timespan timespan))
 			return;
 
 		int ticks = mode == ChangeMode.RESET ?
-			(isMin ? DEFAULT_MINIMUM_TIME : DEFAULT_MAXIMUM_TIME) :
+			(isMin ? DEFAULT_MINIMUM_TICKS : DEFAULT_MAXIMUM_TICKS) :
 			(int) timespan.getAs(Timespan.TimePeriod.TICK);
 
 		switch (mode) {
-			case ADD -> setWaitingTime(event, ticks, false);
-			case SET, RESET -> setWaitingTime(event, ticks, true);
-			case REMOVE -> setWaitingTime(event, -ticks, false);
-		}
-	}
-
-	private void setWaitingTime(Event event, int value, boolean isSet) {
-		for (FishHook hook : getExpr().getArray(event)) {
-			if (isMin) {
-				int newValue = Math.max((isSet ? 0 : hook.getMinWaitTime()) + value, 0);
-				if (hook.getMaxWaitTime() < newValue)
-					hook.setMaxWaitTime(newValue);
-
-				hook.setMinWaitTime(newValue);
-			} else {
-				int newValue = Math.max((isSet ? 0 : hook.getMaxWaitTime()) + value, 0);
-				if (hook.getMinWaitTime() > newValue)
-					hook.setMinWaitTime(newValue);
-
-				hook.setMaxWaitTime(newValue);
+			case ADD -> {
+				if (isMin) {
+					hook.setMinWaitTime(hook.getMinWaitTime() + ticks);
+				} else {
+					hook.setMaxWaitTime(hook.getMaxWaitTime() + ticks);
+				}
+			}
+			case SET, RESET -> {
+				if (isMin) {
+					hook.setMinWaitTime(ticks);
+				} else {
+					hook.setMaxWaitTime(ticks);
+				}
+			}
+			case REMOVE -> {
+				if (isMin) {
+					hook.setMinWaitTime(hook.getMinWaitTime() - ticks);
+				} else {
+					hook.setMaxWaitTime(hook.getMaxWaitTime() - ticks);
+				}
 			}
 		}
 	}
 
 	@Override
+	public boolean isSingle() {
+		return true;
+	}
+
+	@Override
+	public Class<? extends Integer> getReturnType() {
+		return Integer.class;
+	}
+
+	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return (isMin ? "minimum" : "maximum") + " waiting time of " + getExpr().toString(event, debug);
+		return (isMin ? "minimum" : "maximum") + " fishing waiting time";
 	}
 
 }
