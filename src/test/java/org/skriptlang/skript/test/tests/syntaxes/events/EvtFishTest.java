@@ -19,7 +19,7 @@ public class EvtFishTest extends SkriptJUnitTest {
 	public void setup() {
 		salmon = getTestLocation().getWorld().spawn(getTestLocation(), Salmon.class);
 		cod = getTestLocation().getWorld().spawn(getTestLocation(), Cod.class);
-		hook = getTestLocation().getWorld().spawn(getTestLocation(), FishHook.class);
+		hook = cod.launchProjectile(FishHook.class);
 	}
 
 	@Test
