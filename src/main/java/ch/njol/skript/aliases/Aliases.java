@@ -395,17 +395,17 @@ public abstract class Aliases {
 	}
 
 	/**
-	 * Temporarily create an alias for a material which may not have an alias yet.
+	 * Temporarily create an alias for materials which do not have aliases yet.
 	 */
 	private static void loadMissingAliases() {
 		if (!Skript.methodExists(Material.class, "getKey"))
 			return;
 		for (Material material : Material.values()) {
-			if (!provider.hasAliasForMaterial(material)) {
+			if (!material.isLegacy() && !provider.hasAliasForMaterial(material)) {
 				NamespacedKey key = material.getKey();
 				String name = key.getKey().replace("_", " ");
 				parser.loadAlias(name + "¦s", key.toString());
-				Skript.debug(ChatColor.YELLOW + "Creating temporary alias for: " + key.toString());
+				Skript.debug(ChatColor.YELLOW + "Creating temporary alias for: " + key);
 			}
 		}
 	}
