@@ -1,4 +1,4 @@
-test "leather horse armor unequipable":
+test "leather horse armor unequipable" when running minecraft "1.14":
 	spawn horse at spawn of world "world":
 		set {_h} to entity
 
