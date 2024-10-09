@@ -11,6 +11,7 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.FishHook;
 import org.bukkit.event.Event;
 import org.bukkit.event.player.PlayerFishEvent;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -42,30 +43,34 @@ public class EvtFish extends SkriptEvent {
 		FISH_ESCAPE(PlayerFishEvent.State.FAILED_ATTEMPT, "fish (escape|get away)", "fish escape"),
 		REEL_IN(PlayerFishEvent.State.REEL_IN, "[fishing] (rod|line) reel in", "fishing rod reel in"),
 		BITE(PlayerFishEvent.State.BITE, "fish bit(e|ing)", "fish bite"),
-		LURED(PlayerFishEvent.State.LURED, "(fish approach[ing]|(bobber|hook) lure[d])", "fish approaching");
+		LURED(getOptional("LURED"), "(fish approach[ing]|(bobber|hook) lure[d])", "fish approaching");
 
-		private final PlayerFishEvent.State state;
+		private final @Nullable PlayerFishEvent.State state;
 		private final String pattern;
 		private final String toString;
 
-		State(PlayerFishEvent.State state, String pattern, String toString) {
+		State(@Nullable PlayerFishEvent.State state, @NotNull String pattern, @NotNull String toString) {
 			this.state = state;
 			this.pattern = pattern;
 			this.toString = toString;
+		}
+
+		private static PlayerFishEvent.State getOptional(String name) {
+			try {
+				return PlayerFishEvent.State.valueOf(name);
+			} catch (IllegalArgumentException ex) {
+				return null;
+			}
 		}
 	}
 
 	static {
 		List<String> patterns = new ArrayList<>();
 		for (State state : State.values()) {
-			if (state == State.LURED) { // only available on paper
-				try {
-					PlayerFishEvent.State.valueOf("LURED");
-					patterns.add(State.LURED.pattern);
-				} catch (IllegalArgumentException ignored) {}
-			} else {
-				patterns.add(state.pattern);
-			}
+			if (state.state == null)
+				continue;
+
+			patterns.add(state.pattern);
 		}
 
 		Skript.registerEvent("Fishing", EvtFish.class, PlayerFishEvent.class, patterns.toArray(new String[0]));

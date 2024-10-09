@@ -1,0 +1,43 @@
+test "EvtFishJUnit" when running JUnit:
+	set {_tests::1} to "cast - correct player"
+	set {_tests::2} to "cast - correct fish"
+	set {_tests::3} to "cast - not in open water"
+	set {_tests::4} to "cast - correct fish hooked"
+	set {_tests::5} to "catch - correct player"
+	set {_tests::6} to "catch - correct fish"
+	set {_tests::7} to "catch - not in open water"
+	set {_tests::8} to "catch - correct fish hooked"
+
+	ensure junit test "org.skriptlang.skript.test.tests.syntaxes.events.EvtFishTest" completes {_tests::*}
+
+on fishing line cast:
+	set {_test} to "org.skriptlang.skript.test.tests.syntaxes.events.EvtFishTest"
+	junit test is {_test}
+
+	if player's name is "Efnilite":
+		complete objective "cast - correct player" for {_test}
+
+	if event-entity is a cod:
+		complete objective "cast - correct fish" for {_test}
+
+	if fishing hook is not in open water:
+		complete objective "cast - not in open water" for {_test}
+
+	if hooked entity of fishing hook is a cod:
+		complete objective "cast - correct fish hooked" for {_test}
+
+on fish catch:
+	set {_test} to "org.skriptlang.skript.test.tests.syntaxes.events.EvtFishTest"
+	junit test is {_test}
+
+	if player's name is "Efnilite":
+		complete objective "catch - correct player" for {_test}
+
+	if event-entity is a salmon:
+		complete objective "catch - correct fish" for {_test}
+
+	if fishing hook is not in open water:
+		complete objective "catch - not in open water" for {_test}
+
+	if hooked entity of fishing hook is a salmon:
+		complete objective "catch - correct fish hooked" for {_test}
