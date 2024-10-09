@@ -23,7 +23,7 @@ public class EffFishingHookLure extends Effect {
 
 	static {
 		Skript.registerEffect(EffFishingHookLure.class,
-			"apply [the] lure enchantment [of %fishinghook%]",
+			"apply [the] lure enchantment [to %fishinghook%]",
 			"remove [the] lure enchantment [from %fishinghook%]");
 	}
 
