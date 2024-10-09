@@ -11,7 +11,7 @@ import org.jetbrains.annotations.Nullable;
 @Name("Fishing Hook Apply Lure")
 @Description("Returns whether the lure enchantment should be applied to reduce the wait time.")
 @Examples({
-	"on fish:",
+	"on fishing line cast:",
 		"\tset apply lure enchantment of fishing hook to true"
 })
 @Events("Fishing")

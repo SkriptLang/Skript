@@ -7,7 +7,7 @@ import org.bukkit.entity.FishHook;
 @Name("Is Fish Hook in Open Water")
 @Description("Checks whether the fish hook is in open water.")
 @Examples({
-	"on fish:",
+	"on fish catch:",
 		"\tif fish hook is in open water:",
 			"\t\tsend \"You will catch a shark soon!\""
 })

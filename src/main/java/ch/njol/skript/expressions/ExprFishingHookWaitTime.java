@@ -25,12 +25,12 @@ import org.jetbrains.annotations.Nullable;
 		"waiting time to the same value."
 })
 @Examples({
-	"on fish:",
-	"\tset min waiting time of fishing hook to 10 seconds",
-	"\tset max waiting time of fishing hook to 20 seconds",
+	"on fishing line cast:",
+		"\tset min waiting time of fishing hook to 10 seconds",
+		"\tset max waiting time of fishing hook to 20 seconds",
 	"",
-	"on fish:",
-	"\tset max waiting time of fishing hook to 1 second # Will also force setting the minimum to 1 second"
+	"on rod cast:",
+		"\tset max waiting time of fishing hook to 1 second # Will also force setting the minimum to 1 second"
 })
 @Events("Fishing")
 @Since("INSERT VERSION")

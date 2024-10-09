@@ -17,7 +17,7 @@ import org.jetbrains.annotations.Nullable;
 @Name("Fishing Hooked Entity")
 @Description("Returns the hooked entity of the fishing hook.")
 @Examples({
-	"on fish:",
+	"on entity hooked:",
 		"\tif hooked entity of fishing hook is a player:",
 			"\t\tteleport hooked entity of fishing hook to player"
 })
