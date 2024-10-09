@@ -26,10 +26,10 @@ import org.jetbrains.annotations.Nullable;
 })
 @Events("Fishing")
 @Since("INSERT VERSION")
-public class ExprFishingHookWaitTime extends SimpleExpression<Integer> {
+public class ExprFishingWaitTime extends SimpleExpression<Integer> {
 
 	static {
-		Skript.registerExpression(ExprFishingHookWaitTime.class, Integer.class, ExpressionType.SIMPLE,
+		Skript.registerExpression(ExprFishingWaitTime.class, Integer.class, ExpressionType.SIMPLE,
 			"(min:min[imum]|max[imum]) fish[ing] wait[ing] time");
 	}
 

@@ -31,7 +31,7 @@ import java.util.List;
 		"\tpush event-entity vector from entity to player"
 })
 @RequiredPlugins("Paper (bobber lured)")
-@Since("1.0, INSERT VERSION (fishing states, entity and hook)")
+@Since("INSERT VERSION")
 public class EvtFish extends SkriptEvent {
 
 	private enum State {
