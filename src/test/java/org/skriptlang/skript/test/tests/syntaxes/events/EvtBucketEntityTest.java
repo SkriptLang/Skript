@@ -34,11 +34,11 @@ public class EvtBucketEntityTest extends SkriptJUnitTest {
 
 		Bukkit.getPluginManager().callEvent(new PlayerBucketEntityEvent(
 			player, salmon, new ItemStack(Material.WATER_BUCKET),
-			new ItemStack(Material.COD_BUCKET), EquipmentSlot.HAND));
+			new ItemStack(Material.SALMON_BUCKET), EquipmentSlot.HAND));
 
 		Bukkit.getPluginManager().callEvent(new PlayerBucketEntityEvent(
 			player, cod, new ItemStack(Material.WATER_BUCKET),
-			new ItemStack(Material.SALMON_BUCKET), EquipmentSlot.HAND));
+			new ItemStack(Material.COD_BUCKET), EquipmentSlot.HAND));
 	}
 
 	@After

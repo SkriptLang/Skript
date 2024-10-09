@@ -24,8 +24,8 @@ import org.jetbrains.annotations.Nullable;
 public class ExprEntityBucket extends SimpleExpression<ItemStack> {
 
 	static {
-		Skript.registerExpression(ExprEntityBucket.class, ItemStack.class, ExpressionType.SIMPLE,
-			"[the] entity bucket");
+		Skript.registerExpression(ExprEntityBucket.class, ItemStack.class, ExpressionType.EVENT,
+			"[the] [event-]entity bucket");
 	}
 
 	@Override
@@ -42,6 +42,7 @@ public class ExprEntityBucket extends SimpleExpression<ItemStack> {
 	protected @Nullable ItemStack[] get(Event event) {
 		if (!(event instanceof PlayerBucketEntityEvent bucketEvent))
 			return null;
+
 		return new ItemStack[]{bucketEvent.getEntityBucket()};
 	}
 

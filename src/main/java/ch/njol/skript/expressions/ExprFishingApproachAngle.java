@@ -16,7 +16,7 @@ import org.jetbrains.annotations.Nullable;
 @Name("Fishing Approach Angle")
 @Description({
 	"Returns the angle at which the fish will approach the fishing hook, after the wait time.",
-	"By default, returns a value between 0 and 360 (in degrees)."
+	"By default, returns a value between 0 and 360 degrees."
 })
 @Examples({
 	"on fish approach:",
@@ -41,7 +41,7 @@ public class ExprFishingApproachAngle extends SimpleExpression<Float> {
 	public boolean init(Expression<?>[] expressions, int matchedPattern,
 						Kleenean isDelayed, ParseResult parseResult) {
 		if (!getParser().isCurrentEvent(PlayerFishEvent.class)) {
-			Skript.error("The fishing approach angle expression can only be used in a fishing event.");
+			Skript.error("The 'fishing approach angle' expression can only be used in a fishing event.");
 			return false;
 		}
 
@@ -55,8 +55,8 @@ public class ExprFishingApproachAngle extends SimpleExpression<Float> {
 			return null;
 
 		if (isMin)
-			return new Float[] {fishEvent.getHook().getMinLureAngle()};
-		return new Float[] {fishEvent.getHook().getMaxLureAngle()};
+			return new Float[]{fishEvent.getHook().getMinLureAngle()};
+		return new Float[]{fishEvent.getHook().getMaxLureAngle()};
 	}
 
 	@Override
