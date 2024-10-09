@@ -1,0 +1,9 @@
+test "leather horse armor unequipable":
+	spawn horse at spawn of world "world":
+		set {_h} to entity
+
+	equip {_h} with leather horse armor
+
+	assert {_h} has leather horse armor with "horse doesn't have horse armor"
+
+	delete entity within {_h}

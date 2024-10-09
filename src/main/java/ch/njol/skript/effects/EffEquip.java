@@ -99,7 +99,8 @@ public class EffEquip extends Effect {
 	private static ItemType LEGGINGS;
 	private static ItemType BOOTS;
 	private static ItemType CARPET;
-	private static final ItemType HORSE_ARMOR = new ItemType(Material.IRON_HORSE_ARMOR, Material.GOLDEN_HORSE_ARMOR, Material.DIAMOND_HORSE_ARMOR);
+	private static final ItemType HORSE_ARMOR = new ItemType(Material.IRON_HORSE_ARMOR, Material.GOLDEN_HORSE_ARMOR,
+		Material.DIAMOND_HORSE_ARMOR);
 	private static final ItemType SADDLE = new ItemType(Material.SADDLE);
 	private static final ItemType CHEST = new ItemType(Material.CHEST);
 
