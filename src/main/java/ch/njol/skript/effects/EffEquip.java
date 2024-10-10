@@ -36,7 +36,7 @@ import ch.njol.util.Kleenean;
 public class EffEquip extends Effect {
 
 	private static final boolean SUPPORTS_SET_ARMOR =
-		Skript.methodExists(HorseInventory.class, "setArmor", ItemStack.class);
+		Skript.classExists("org.bukkit.inventory.ArmoredHorseInventory");
 
 	private static ItemType HORSE_ARMOR;
 
