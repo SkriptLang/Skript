@@ -1,0 +1,5 @@
+test "test world":
+	assert test world is world "world" with "test world was not world 'world'"
+
+test "test location":
+	assert test location is spawn of test world ~ vector(0, 1, 0) with "test location was not spawn location ~ (0, 1, 0)"
