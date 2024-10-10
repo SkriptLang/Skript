@@ -16,11 +16,12 @@ import org.bukkit.World;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
-@Name("World")
-@Description("The world the testing is taking place in.")
+@Name("Test Location")
+@Description("The location the testing is taking place at.")
 @Examples({
 	"test \"example\":",
-		"\tspawn zombie at spawn of world"
+		"\tspawn zombie at test location",
+		"\tassert last spawned zombie's world is test world with \"zombie did not spawn in test world\""
 })
 @NoDoc
 public class ExprTestLocation extends SimpleExpression<Location> {

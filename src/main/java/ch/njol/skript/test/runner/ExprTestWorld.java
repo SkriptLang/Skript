@@ -20,7 +20,8 @@ import org.jetbrains.annotations.Nullable;
 @Description("The world the testing is taking place in.")
 @Examples({
 	"test \"example\":",
-		"\tspawn zombie at spawn of world"
+		"\tspawn zombie at test location",
+		"\tassert last spawned zombie's world is test world with \"zombie did not spawn in test world\""
 })
 @NoDoc
 public class ExprTestWorld extends SimpleExpression<World> {
