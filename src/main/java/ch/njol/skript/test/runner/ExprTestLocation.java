@@ -56,6 +56,6 @@ public class ExprTestLocation extends SimpleExpression<Location> {
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return "the test world";
+		return "the test location";
 	}
 }
