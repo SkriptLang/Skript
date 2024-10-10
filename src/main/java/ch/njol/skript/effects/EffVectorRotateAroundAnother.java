@@ -40,7 +40,7 @@ import ch.njol.util.VectorMath;
 public class EffVectorRotateAroundAnother extends Effect {
 
 	static {
-		Skript.registerEffect(EffVectorRotateAroundAnother.class, "rotate %vectors% around %vector% by %number% [degrees]");
+		Skript.registerEffect(EffVectorRotateAroundAnother.class, "rotate %vectors% around %vector% by %number%");
 	}
 	
 	@SuppressWarnings("null")

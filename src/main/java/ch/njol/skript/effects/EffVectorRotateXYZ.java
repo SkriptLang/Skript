@@ -44,7 +44,7 @@ import ch.njol.util.VectorMath;
 public class EffVectorRotateXYZ extends Effect {
 
 	static {
-		Skript.registerEffect(EffVectorRotateXYZ.class, "rotate %vectors% around (0¦x|1¦y|2¦z)(-| )axis by %number% [degrees]");
+		Skript.registerEffect(EffVectorRotateXYZ.class, "rotate %vectors% around (0¦x|1¦y|2¦z)(-| )axis by %number%");
 	}
 
 	private final static Character[] axes = new Character[] {'x', 'y', 'z'};
