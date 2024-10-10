@@ -16,7 +16,6 @@ import ch.njol.yggdrasil.Fields;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Map;
 import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -26,7 +25,7 @@ public class JavaClasses {
 	public static final int VARIABLENAME_NUMBERACCURACY = 8;
 	public static final Pattern INTEGER_PATTERN =
 		Pattern.compile("(?<num>-?[0-9]+)( (in )?(?<rad>rad(ian)?s?)|deg(ree)?s?)?");
-	public static final Pattern NUMBER_PATTERN =
+	public static final Pattern DECIMAL_PATTERN =
 		Pattern.compile("(?<num>-?[0-9]+(?>\\.[0-9]+)?%?)( (in )?(?<rad>rad(ian)?s?)|deg(ree)?s?)?");
 
 	static {
@@ -273,9 +272,8 @@ public class JavaClasses {
 		if (!matcher.matches())
 			return null;
 
-		Map<String, Integer> namedGroups = matcher.namedGroups();
 		String number = matcher.group("num");
-		if (namedGroups.containsKey("rad")) {
+		if (matcher.group("rad") != null) {
 			try {
 				return converter.apply(Math.toDegrees(stringToNumber.apply(number).doubleValue()));
 			} catch (NumberFormatException ignored) {
@@ -312,27 +310,28 @@ public class JavaClasses {
 		Function<Double, T> converter,
 		Function<T, Boolean> isValid
 	) {
-		Matcher matcher = NUMBER_PATTERN.matcher(string);
+		Matcher matcher = DECIMAL_PATTERN.matcher(string);
 
 		if (!matcher.matches())
 			return null;
 
-		Map<String, Integer> namedGroups = matcher.namedGroups();
 		String number = matcher.group("num");
 
 		try {
-			double d = number.endsWith("%") ?
-				stringToNumber.apply(number.substring(0, number.length() - 1)).doubleValue() / 100.0 :
-				stringToNumber.apply(number).doubleValue();
+			T result;
+			if (number.endsWith("%")) {
+				double d = stringToNumber.apply(number.substring(0, number.length() - 1)).doubleValue() / 100.0;
+				result = converter.apply(d);
+			} else {
+				result = stringToNumber.apply(number);
+			}
 
-			T result = converter.apply(d);
-
-			if (isValid.apply(result))
+			if (!isValid.apply(result))
 				return null;
 
-			if (namedGroups.containsKey("rad")) {
+			if (matcher.group("rad") != null) {
 				try {
-					return converter.apply(Math.toDegrees(d));
+					return converter.apply(Math.toDegrees(result.doubleValue()));
 				} catch (NumberFormatException ignored) {
 				}
 			}
@@ -347,7 +346,7 @@ public class JavaClasses {
 
 		@Override
 		public @Nullable Number parse(String string, ParseContext context) {
-			Matcher numberMatcher = NUMBER_PATTERN.matcher(string);
+			Matcher numberMatcher = DECIMAL_PATTERN.matcher(string);
 			if (!numberMatcher.matches())
 				return null;
 
