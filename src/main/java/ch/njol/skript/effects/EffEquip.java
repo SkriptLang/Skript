@@ -1,14 +1,7 @@
 package ch.njol.skript.effects;
 
-import ch.njol.skript.aliases.ItemData;
-import org.bukkit.Material;
-import org.bukkit.Tag;
-import org.bukkit.entity.*;
-import org.bukkit.event.Event;
-import org.bukkit.inventory.*;
-import org.jetbrains.annotations.Nullable;
-
 import ch.njol.skript.Skript;
+import ch.njol.skript.aliases.ItemData;
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.bukkitutil.PlayerUtils;
 import ch.njol.skript.doc.Description;
@@ -19,6 +12,15 @@ import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
+import org.bukkit.Material;
+import org.bukkit.Tag;
+import org.bukkit.entity.*;
+import org.bukkit.event.Event;
+import org.bukkit.inventory.EntityEquipment;
+import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.LlamaInventory;
+import org.jetbrains.annotations.Nullable;
 
 @Name("Equip")
 @Description(
@@ -34,9 +36,6 @@ import ch.njol.util.Kleenean;
 })
 @Since("1.0, 2.7 (multiple entities, unequip)")
 public class EffEquip extends Effect {
-
-	private static final boolean SUPPORTS_SET_ARMOR =
-		Skript.classExists("org.bukkit.inventory.ArmoredHorseInventory");
 
 	private static ItemType HORSE_ARMOR;
 
@@ -179,11 +178,7 @@ public class EffEquip extends Effect {
 						if (SADDLE.isOfType(item) && entity instanceof Horse) {
 							((Horse) entity).getInventory().setSaddle(equip ? item : null);
 						} else if (HORSE_ARMOR.isOfType(item)) {
-							if (SUPPORTS_SET_ARMOR) {
-								((Horse) entity).getInventory().setArmor(equip ? item : null);
-							} else {
-								inv.setItem(1, equip ? item : null);
-							}
+							inv.setItem(1, equip ? item : null);
 						} else if (CHEST.isOfType(item) && entity instanceof ChestedHorse) {
 							((ChestedHorse) entity).setCarryingChest(equip);
 						}
