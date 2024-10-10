@@ -45,7 +45,7 @@ public class JavaClasses {
 					"Please note that many expressions only need integers, i.e. " +
 						"will discard any fractional parts of any numbers without producing an error.",
 					"Radians will be converted to degrees.")
-				.usage("[-]###[.###]</code> (any amount of digits; very large numbers will be truncated though)")
+				.usage("[-]###[.###] [[in ](rad[ian][s]|deg[ree][s])]</code> (any amount of digits; very large numbers will be truncated though)")
 				.examples(
 					"set the player's health to 5.5",
 					"set {_temp} to 2*{_temp} - 2.5",
@@ -295,10 +295,12 @@ public class JavaClasses {
 	 * If the number is a percentage, it gets parsed as a double between 0-1.
 	 * Then tries to convert radians to degrees if the string contains a radian group.
 	 * If the string could be parsed, applies {@code converter} to convert the number to the desired type.
+	 * If the number is not valid by {@code isValid}, returns null.
 	 * </p>
 	 *
 	 * @param string The string with the possible number.
 	 * @param stringToNumber The function to parse the number, e.g. {@link Integer#parseInt(String)}.
+	 * @param fromPercentage A function that divides the value by 100.
 	 * @param converter The function to convert the number to the desired type, e.g. {@link Number#intValue()}.
 	 * @param isValid The function to check if the number is valid, e.g. {@link Double#isNaN()}.
 	 * @return The parsed string, or null if the string could not be parsed.
@@ -307,6 +309,7 @@ public class JavaClasses {
 	private static <T extends Number> @Nullable T convertDecimalFormatted(
 		String string,
 		Function<String, T> stringToNumber,
+		Function<T, T> fromPercentage,
 		Function<Double, T> converter,
 		Function<T, Boolean> isValid
 	) {
@@ -320,8 +323,7 @@ public class JavaClasses {
 		try {
 			T result;
 			if (number.endsWith("%")) {
-				double d = stringToNumber.apply(number.substring(0, number.length() - 1)).doubleValue() / 100.0;
-				result = converter.apply(d);
+				result = fromPercentage.apply(stringToNumber.apply(number.substring(0, number.length() - 1)));
 			} else {
 				result = stringToNumber.apply(number);
 			}
@@ -356,6 +358,7 @@ public class JavaClasses {
 
 			return convertDecimalFormatted(string,
 				Double::parseDouble,
+				d -> d / 100.0,
 				Function.identity(),
 				d -> !d.isNaN() && !d.isInfinite());
 		}
@@ -513,6 +516,7 @@ public class JavaClasses {
 		public @Nullable Double parse(String string, ParseContext context) {
 			return convertDecimalFormatted(string,
 				Double::parseDouble,
+				d -> d / 100.0,
 				Function.identity(),
 				d -> !d.isNaN() && !d.isInfinite());
 		}
@@ -566,6 +570,7 @@ public class JavaClasses {
 		public @Nullable Float parse(String string, ParseContext context) {
 			return convertDecimalFormatted(string,
 				Float::parseFloat,
+				d -> d / 100f,
 				Number::floatValue,
 				f -> !f.isNaN() && !f.isInfinite());
 		}
