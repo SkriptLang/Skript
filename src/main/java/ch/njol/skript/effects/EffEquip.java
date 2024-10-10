@@ -175,7 +175,7 @@ public class EffEquip extends Effect {
 				Inventory inv = ((AbstractHorse) entity).getInventory();
 				for (ItemType itemType : itemTypes) {
 					for (ItemStack item : itemType.getAll()) {
-						if (SADDLE.isOfType(item) && entity instanceof Horse) {
+						if (SADDLE.isOfType(item)) {
 							inv.setItem(0, equip ? item : null); // Slot 0=saddle
 						} else if (HORSE_ARMOR.isOfType(item)) {
 							inv.setItem(1, equip ? item : null); // Slot 1=armor
