@@ -13,9 +13,11 @@ import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.Utils;
 import ch.njol.util.StringUtils;
 import ch.njol.yggdrasil.Fields;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
+import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -61,239 +63,28 @@ public class JavaClasses {
 				.name(ClassInfo.NO_DOC)
 				.before("integer", "short", "byte")
 				.defaultExpression(new SimpleLiteral<>((long) 1, true))
-				.parser(new Parser<Long>() {
-					@Override
-					@Nullable
-					public Long parse(String s, ParseContext context) {
-						if (!INTEGER_PATTERN.matcher(s).matches())
-							return null;
-						try {
-							return Long.valueOf(s);
-						} catch (NumberFormatException e) {
-							return null;
-						}
-					}
-
-					@Override
-					public String toString(Long l, int flags) {
-						return "" + l;
-					}
-
-					@Override
-					public String toVariableNameString(Long l) {
-						return "" + l;
-					}
-                }).serializer(new Serializer<Long>() {
-					@Override
-					public Fields serialize(Long n) {
-						throw new IllegalStateException(); // serialised natively by Yggdrasil
-					}
-
-					@Override
-					public boolean canBeInstantiated() {
-						return true;
-					}
-
-					@Override
-					public void deserialize(Long o, Fields f) {
-						assert false;
-					}
-
-					@Override
-					@Nullable
-					public Long deserialize(String s) {
-						try {
-							return Long.parseLong(s);
-						} catch (NumberFormatException e) {
-							return null;
-						}
-					}
-
-					@Override
-					public boolean mustSyncDeserialization() {
-						return false;
-					}
-				}));
+				.parser(new LongParser())
+				.serializer(new LongSerializer()));
 
 		Classes.registerClass(new ClassInfo<>(Integer.class, "integer")
 				.name(ClassInfo.NO_DOC)
 				.defaultExpression(new SimpleLiteral<>(1, true))
-				.parser(new Parser<Integer>() {
-					@Override
-					@Nullable
-					public Integer parse(String s, ParseContext context) {
-						if (!INTEGER_PATTERN.matcher(s).matches())
-							return null;
-						try {
-							return Integer.valueOf(s);
-						} catch (NumberFormatException e) {
-							return null;
-						}
-					}
-
-					@Override
-					public String toString(Integer i, int flags) {
-						return "" + i;
-					}
-
-					@Override
-					public String toVariableNameString(Integer i) {
-						return "" + i;
-					}
-                }).serializer(new Serializer<Integer>() {
-					@Override
-					public Fields serialize(Integer n) {
-						throw new IllegalStateException(); // serialised natively by Yggdrasil
-					}
-
-					@Override
-					public boolean canBeInstantiated() {
-						return true;
-					}
-
-					@Override
-					public void deserialize(Integer o, Fields f) {
-						assert false;
-					}
-
-					@Override
-					@Nullable
-					public Integer deserialize(String s) {
-						try {
-							return Integer.parseInt(s);
-						} catch (NumberFormatException e) {
-							return null;
-						}
-					}
-
-					@Override
-					public boolean mustSyncDeserialization() {
-						return false;
-					}
-				}));
+				.parser(new IntegerParser())
+				.serializer(new IntegerSerializer()));
 
 		Classes.registerClass(new ClassInfo<>(Double.class, "double")
 				.name(ClassInfo.NO_DOC)
 				.defaultExpression(new SimpleLiteral<>(1., true))
 				.after("long")
 				.before("float", "integer", "short", "byte")
-				.parser(new Parser<Double>() {
-					@Override
-					@Nullable
-					public Double parse(String s, ParseContext context) {
-						if (!NUMBER_PATTERN.matcher(s).matches())
-							return null;
-						try {
-							Double d = s.endsWith("%") ? Double.parseDouble(s.substring(0, s.length() - 1)) / 100 : Double.parseDouble(s);
-							if (d.isNaN() || d.isInfinite())
-								return null;
-							return d;
-						} catch (NumberFormatException e) {
-							return null;
-						}
-					}
-
-					@Override
-					public String toString(Double d, int flags) {
-						return StringUtils.toString(d, SkriptConfig.numberAccuracy.value());
-					}
-
-					@Override
-					public String toVariableNameString(Double d) {
-						return StringUtils.toString(d, VARIABLENAME_NUMBERACCURACY);
-					}
-                }).serializer(new Serializer<Double>() {
-					@Override
-					public Fields serialize(Double n) {
-						throw new IllegalStateException(); // serialised natively by Yggdrasil
-					}
-
-					@Override
-					public boolean canBeInstantiated() {
-						return true;
-					}
-
-					@Override
-					public void deserialize(Double o, Fields f) {
-						assert false;
-					}
-
-					@Override
-					@Nullable
-					public Double deserialize(String s) {
-						try {
-							return Double.parseDouble(s);
-						} catch (NumberFormatException e) {
-							return null;
-						}
-					}
-
-					@Override
-					public boolean mustSyncDeserialization() {
-						return false;
-					}
-				}));
+				.parser(new DoubleParser())
+				.serializer(new DoubleSerializer()));
 
 		Classes.registerClass(new ClassInfo<>(Float.class, "float")
 				.name(ClassInfo.NO_DOC)
 				.defaultExpression(new SimpleLiteral<>(1f, true))
-				.parser(new Parser<Float>() {
-					@Override
-					@Nullable
-					public Float parse(String s, ParseContext context) {
-						if (!NUMBER_PATTERN.matcher(s).matches())
-							return null;
-						try {
-							Float f = s.endsWith("%") ? Float.parseFloat(s.substring(0, s.length() - 1)) / 100 : Float.parseFloat(s);
-							if (f.isNaN() || f.isInfinite()) {
-								return null;
-							}
-							return f;
-						} catch (NumberFormatException e) {
-							return null;
-						}
-					}
-
-					@Override
-					public String toString(Float f, int flags) {
-						return StringUtils.toString(f, SkriptConfig.numberAccuracy.value());
-					}
-
-					@Override
-					public String toVariableNameString(Float f) {
-						return StringUtils.toString(f.doubleValue(), VARIABLENAME_NUMBERACCURACY);
-					}
-                }).serializer(new Serializer<Float>() {
-					@Override
-					public Fields serialize(Float n) {
-						throw new IllegalStateException(); // serialised natively by Yggdrasil
-					}
-
-					@Override
-					public boolean canBeInstantiated() {
-						return true;
-					}
-
-					@Override
-					public void deserialize(Float o, Fields f) {
-						assert false;
-					}
-
-					@Override
-					@Nullable
-					public Float deserialize(String s) {
-						try {
-							return Float.parseFloat(s);
-						} catch (NumberFormatException e) {
-							return null;
-						}
-					}
-
-					@Override
-					public boolean mustSyncDeserialization() {
-						return false;
-					}
-				}));
+				.parser(new FloatParser())
+				.serializer(new FloatSerializer()));
 
 		Classes.registerClass(new ClassInfo<>(Boolean.class, "boolean")
 				.user("booleans?")
@@ -363,116 +154,14 @@ public class JavaClasses {
 		Classes.registerClass(new ClassInfo<>(Short.class, "short")
 				.name(ClassInfo.NO_DOC)
 				.defaultExpression(new SimpleLiteral<>((short) 1, true))
-				.parser(new Parser<Short>() {
-					@Override
-					@Nullable
-					public Short parse(String s, ParseContext context) {
-						if (!INTEGER_PATTERN.matcher(s).matches())
-							return null;
-						try {
-							return Short.valueOf(s);
-						} catch (NumberFormatException e) {
-							return null;
-						}
-					}
-
-					@Override
-					public String toString(Short s, int flags) {
-						return "" + s;
-					}
-
-					@Override
-					public String toVariableNameString(Short s) {
-						return "" + s;
-					}
-                }).serializer(new Serializer<Short>() {
-					@Override
-					public Fields serialize(Short n) {
-						throw new IllegalStateException(); // serialised natively by Yggdrasil
-					}
-
-					@Override
-					public boolean canBeInstantiated() {
-						return true;
-					}
-
-					@Override
-					public void deserialize(Short o, Fields f) {
-						assert false;
-					}
-
-					@Override
-					@Nullable
-					public Short deserialize(String s) {
-						try {
-							return Short.parseShort(s);
-						} catch (NumberFormatException e) {
-							return null;
-						}
-					}
-
-					@Override
-					public boolean mustSyncDeserialization() {
-						return false;
-					}
-				}));
+				.parser(new ShortParser())
+				.serializer(new ShortSerializer()));
 
 		Classes.registerClass(new ClassInfo<>(Byte.class, "byte")
 				.name(ClassInfo.NO_DOC)
 				.defaultExpression(new SimpleLiteral<>((byte) 1, true))
-				.parser(new Parser<Byte>() {
-					@Override
-					@Nullable
-					public Byte parse(String s, ParseContext context) {
-						if (!INTEGER_PATTERN.matcher(s).matches())
-							return null;
-						try {
-							return Byte.valueOf(s);
-						} catch (NumberFormatException e) {
-							return null;
-						}
-					}
-
-					@Override
-					public String toString(Byte b, int flags) {
-						return "" + b;
-					}
-
-					@Override
-					public String toVariableNameString(Byte b) {
-						return "" + b;
-					}
-                }).serializer(new Serializer<Byte>() {
-					@Override
-					public Fields serialize(Byte n) {
-						throw new IllegalStateException(); // serialised natively by Yggdrasil
-					}
-
-					@Override
-					public boolean canBeInstantiated() {
-						return true;
-					}
-
-					@Override
-					public void deserialize(Byte o, Fields f) {
-						assert false;
-					}
-
-					@Override
-					@Nullable
-					public Byte deserialize(String s) {
-						try {
-							return Byte.parseByte(s);
-						} catch (NumberFormatException e) {
-							return null;
-						}
-					}
-
-					@Override
-					public boolean mustSyncDeserialization() {
-						return false;
-					}
-				}));
+				.parser(new ByteParser())
+				.serializer(new ByteSerializer()));
 
 		Classes.registerClass(new ClassInfo<>(String.class, "string")
 				.user("(text|string)s?")
@@ -559,6 +248,101 @@ public class JavaClasses {
 				}));
 	}
 
+	/**
+	 * Converts a string to a number formatted as an integer.
+	 * <p>
+	 * Applies {@code stringToNumber} for parsing the number, then tries to
+	 * convert radians to degrees if the string contains a radian group.
+	 * If the string could be parsed, applies {@code converter} to convert
+	 * the number to the desired type.
+	 * </p>
+	 *
+	 * @param string The string with the possible number.
+	 * @param stringToNumber The function to parse the number, e.g. {@link Integer#parseInt(String)}.
+	 * @param converter The function to convert the number to the desired type, e.g. {@link Number#intValue()}.
+	 * @return The parsed string, or null if the string could not be parsed.
+	 */
+	@Contract(pure = true)
+	private static <T extends Number> @Nullable T convertIntegerFormatted(
+		String string,
+		Function<String, Number> stringToNumber,
+		Function<Number, T> converter
+	) {
+		Matcher matcher = INTEGER_PATTERN.matcher(string);
+
+		if (!matcher.matches())
+			return null;
+
+		Map<String, Integer> namedGroups = matcher.namedGroups();
+		String number = matcher.group("num");
+		if (namedGroups.containsKey("rad")) {
+			try {
+				return converter.apply(Math.toDegrees(stringToNumber.apply(number).doubleValue()));
+			} catch (NumberFormatException ignored) {
+			}
+		} else {
+			try {
+				return converter.apply(stringToNumber.apply(number));
+			} catch (NumberFormatException ignored) {
+			}
+		}
+
+		return null;
+	}
+
+	/**
+	 * Converts a string to a number formatted as an decimal.
+	 * <p>
+	 * Applies {@code stringToNumber} for parsing the number.
+	 * If the number is a percentage, it gets parsed as a double between 0-1.
+	 * Then tries to convert radians to degrees if the string contains a radian group.
+	 * If the string could be parsed, applies {@code converter} to convert the number to the desired type.
+	 * </p>
+	 *
+	 * @param string The string with the possible number.
+	 * @param stringToNumber The function to parse the number, e.g. {@link Integer#parseInt(String)}.
+	 * @param converter The function to convert the number to the desired type, e.g. {@link Number#intValue()}.
+	 * @param isValid The function to check if the number is valid, e.g. {@link Double#isNaN()}.
+	 * @return The parsed string, or null if the string could not be parsed.
+	 */
+	@Contract(pure = true)
+	private static <T extends Number> @Nullable T convertDecimalFormatted(
+		String string,
+		Function<String, T> stringToNumber,
+		Function<Double, T> converter,
+		Function<T, Boolean> isValid
+	) {
+		Matcher matcher = NUMBER_PATTERN.matcher(string);
+
+		if (!matcher.matches())
+			return null;
+
+		Map<String, Integer> namedGroups = matcher.namedGroups();
+		String number = matcher.group("num");
+
+		try {
+			double d = number.endsWith("%") ?
+				stringToNumber.apply(number.substring(0, number.length() - 1)).doubleValue() / 100.0 :
+				stringToNumber.apply(number).doubleValue();
+
+			T result = converter.apply(d);
+
+			if (isValid.apply(result))
+				return null;
+
+			if (namedGroups.containsKey("rad")) {
+				try {
+					return converter.apply(Math.toDegrees(d));
+				} catch (NumberFormatException ignored) {
+				}
+			}
+
+			return result;
+		} catch (NumberFormatException ex) {
+			return null;
+		}
+	}
+
 	private static class NumberParser extends Parser<Number> {
 
 		@Override
@@ -567,57 +351,14 @@ public class JavaClasses {
 			if (!numberMatcher.matches())
 				return null;
 
-			Matcher intMatcher = INTEGER_PATTERN.matcher(string);
-			if (intMatcher.matches()) {
-				Number integer = convertInteger(intMatcher);
-				if (integer != null)
-					return integer;
-			}
+			Integer integerAttempt = convertIntegerFormatted(string, Integer::parseInt, Number::intValue);
+			if (integerAttempt != null)
+				return integerAttempt;
 
-			return convertDouble(numberMatcher);
-		}
-
-		private @Nullable Number convertInteger(Matcher matcher) {
-			Map<String, Integer> namedGroups = matcher.namedGroups();
-			String number = matcher.group("num");
-			if (namedGroups.containsKey("rad")) {
-				try {
-					return Math.toDegrees(Double.parseDouble(number));
-				} catch (NumberFormatException ignored) {
-				}
-			} else {
-				try {
-					return Long.valueOf(number);
-				} catch (NumberFormatException ignored) {
-				}
-			}
-
-			return null;
-		}
-
-		private @Nullable Double convertDouble(Matcher matcher) {
-			Map<String, Integer> namedGroups = matcher.namedGroups();
-			String number = matcher.group("num");
-
-			try {
-				double d = number.endsWith("%") ?
-					Double.parseDouble(number.substring(0, number.length() - 1)) / 100 :
-					Double.parseDouble(number);
-
-				if (Double.isNaN(d))
-					return null;
-
-				if (namedGroups.containsKey("rad")) {
-					try {
-						d = Math.toDegrees(Double.parseDouble(number));
-					} catch (NumberFormatException ignored) {
-					}
-				}
-
-				return d;
-			} catch (NumberFormatException e) {
-				return null;
-			}
+			return convertDecimalFormatted(string,
+				Double::parseDouble,
+				Function.identity(),
+				d -> !d.isNaN() && !d.isInfinite());
 		}
 
 		@Override
@@ -657,6 +398,312 @@ public class JavaClasses {
 			try {
 				return Double.valueOf(string);
 			} catch (NumberFormatException e) {
+				return null;
+			}
+		}
+
+		@Override
+		public boolean mustSyncDeserialization() {
+			return false;
+		}
+	}
+
+	private static class LongParser extends Parser<Long> {
+
+		@Override
+		public @Nullable Long parse(String string, ParseContext context) {
+			return convertIntegerFormatted(string, Long::parseLong, Number::longValue);
+		}
+
+		@Override
+		public String toString(Long l, int flags) {
+			return l.toString();
+		}
+
+		@Override
+		public String toVariableNameString(Long l) {
+			return l.toString();
+		}
+	}
+
+	private static class LongSerializer extends Serializer<Long> {
+
+		@Override
+		public Fields serialize(Long l) {
+			throw new IllegalStateException(); // serialised natively by Yggdrasil
+		}
+
+		@Override
+		public boolean canBeInstantiated() {
+			return true;
+		}
+
+		@Override
+		public void deserialize(Long l, Fields fields) {
+			assert false;
+		}
+
+		@Override
+		public @Nullable Long deserialize(String string) {
+			try {
+				return Long.parseLong(string);
+			} catch (NumberFormatException ex) {
+				return null;
+			}
+		}
+
+		@Override
+		public boolean mustSyncDeserialization() {
+			return false;
+		}
+	}
+
+	private static class IntegerParser extends Parser<Integer> {
+
+		@Override
+		public @Nullable Integer parse(String string, ParseContext context) {
+			return convertIntegerFormatted(string, Integer::parseInt, Number::intValue);
+		}
+
+		@Override
+		public String toString(Integer i, int flags) {
+			return i.toString();
+		}
+
+		@Override
+		public String toVariableNameString(Integer i) {
+			return i.toString();
+		}
+	}
+
+	private static class IntegerSerializer extends Serializer<Integer> {
+
+		@Override
+		public Fields serialize(Integer i) {
+			throw new IllegalStateException(); // serialised natively by Yggdrasil
+		}
+
+		@Override
+		public boolean canBeInstantiated() {
+			return true;
+		}
+
+		@Override
+		public void deserialize(Integer i, Fields fields) {
+			assert false;
+		}
+
+		@Override
+		public @Nullable Integer deserialize(String string) {
+			try {
+				return Integer.parseInt(string);
+			} catch (NumberFormatException ex) {
+				return null;
+			}
+		}
+
+		@Override
+		public boolean mustSyncDeserialization() {
+			return false;
+		}
+	}
+
+	private static class DoubleParser extends Parser<Double> {
+
+		@Override
+		public @Nullable Double parse(String string, ParseContext context) {
+			return convertDecimalFormatted(string,
+				Double::parseDouble,
+				Function.identity(),
+				d -> !d.isNaN() && !d.isInfinite());
+		}
+
+		@Override
+		public String toString(Double d, int flags) {
+			return StringUtils.toString(d, SkriptConfig.numberAccuracy.value());
+		}
+
+		@Override
+		public String toVariableNameString(Double d) {
+			return StringUtils.toString(d, VARIABLENAME_NUMBERACCURACY);
+		}
+	}
+
+	private static class DoubleSerializer extends Serializer<Double> {
+
+		@Override
+		public Fields serialize(Double d) {
+			throw new IllegalStateException(); // serialised natively by Yggdrasil
+		}
+
+		@Override
+		public boolean canBeInstantiated() {
+			return true;
+		}
+
+		@Override
+		public void deserialize(Double d, Fields fields) {
+			assert false;
+		}
+
+		@Override
+		public @Nullable Double deserialize(String string) {
+			try {
+				return Double.parseDouble(string);
+			} catch (NumberFormatException ex) {
+				return null;
+			}
+		}
+
+		@Override
+		public boolean mustSyncDeserialization() {
+			return false;
+		}
+	}
+
+	private static class FloatParser extends Parser<Float> {
+
+		@Override
+		public @Nullable Float parse(String string, ParseContext context) {
+			return convertDecimalFormatted(string,
+				Float::parseFloat,
+				Number::floatValue,
+				f -> !f.isNaN() && !f.isInfinite());
+		}
+
+		@Override
+		public String toString(Float f, int flags) {
+			return StringUtils.toString(f, SkriptConfig.numberAccuracy.value());
+		}
+
+		@Override
+		public String toVariableNameString(Float f) {
+			return StringUtils.toString(f.doubleValue(), VARIABLENAME_NUMBERACCURACY);
+		}
+	}
+
+	private static class FloatSerializer extends Serializer<Float> {
+
+		@Override
+		public Fields serialize(Float f) {
+			throw new IllegalStateException(); // serialised natively by Yggdrasil
+		}
+
+		@Override
+		public boolean canBeInstantiated() {
+			return true;
+		}
+
+		@Override
+		public void deserialize(Float f, Fields fields) {
+			assert false;
+		}
+
+		@Override
+		public @Nullable Float deserialize(String string) {
+			try {
+				return Float.parseFloat(string);
+			} catch (NumberFormatException ex) {
+				return null;
+			}
+		}
+
+		@Override
+		public boolean mustSyncDeserialization() {
+			return false;
+		}
+	}
+
+	private static class ShortParser extends Parser<Short> {
+
+		@Override
+		public @Nullable Short parse(String string, ParseContext context) {
+			return convertIntegerFormatted(string, Short::parseShort, Number::shortValue);
+		}
+
+		@Override
+		public String toString(Short s, int flags) {
+			return s.toString();
+		}
+
+		@Override
+		public String toVariableNameString(Short s) {
+			return s.toString();
+		}
+	}
+
+	private static class ShortSerializer extends Serializer<Short> {
+
+		@Override
+		public Fields serialize(Short s) {
+			throw new IllegalStateException(); // serialised natively by Yggdrasil
+		}
+
+		@Override
+		public boolean canBeInstantiated() {
+			return true;
+		}
+
+		@Override
+		public void deserialize(Short s, Fields fields) {
+			assert false;
+		}
+
+		@Override
+		public @Nullable Short deserialize(String string) {
+			try {
+				return Short.parseShort(string);
+			} catch (NumberFormatException ex) {
+				return null;
+			}
+		}
+
+		@Override
+		public boolean mustSyncDeserialization() {
+			return false;
+		}
+	}
+
+	private static class ByteParser extends Parser<Byte> {
+
+		@Override
+		public @Nullable Byte parse(String string, ParseContext context) {
+			return convertIntegerFormatted(string, Byte::parseByte, Number::byteValue);
+		}
+
+		@Override
+		public String toString(Byte b, int flags) {
+			return b.toString();
+		}
+
+		@Override
+		public String toVariableNameString(Byte b) {
+			return b.toString();
+		}
+	}
+
+	private static class ByteSerializer extends Serializer<Byte> {
+
+		@Override
+		public Fields serialize(Byte b) {
+			throw new IllegalStateException(); // serialised natively by Yggdrasil
+		}
+
+		@Override
+		public boolean canBeInstantiated() {
+			return true;
+		}
+
+		@Override
+		public void deserialize(Byte b, Fields fields) {
+			assert false;
+		}
+
+		@Override
+		public @Nullable Byte deserialize(String string) {
+			try {
+				return Byte.parseByte(string);
+			} catch (NumberFormatException ex) {
 				return null;
 			}
 		}
