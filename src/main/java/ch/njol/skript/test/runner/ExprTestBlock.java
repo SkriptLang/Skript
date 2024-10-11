@@ -39,7 +39,7 @@ public class ExprTestBlock extends SimpleExpression<Block> {
 
 	@Override
 	protected Block @Nullable [] get(Event event) {
-		return new Block[]{SkriptJUnitTest.getTestLocation().getBlock()};
+		return new Block[]{SkriptJUnitTest.getBlock()};
 	}
 
 	@Override
