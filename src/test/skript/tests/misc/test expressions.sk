@@ -3,3 +3,6 @@ test "test world":
 
 test "test location":
 	assert test location is spawn of test world ~ vector(0, 1, 0) with "test location was not spawn location ~ (0, 1, 0)"
+
+test "test block":
+	assert location of test block is spawn of test world ~ vector(0, 1, 0) with "test block was not at spawn location ~ (0, 1, 0)"

@@ -1,5 +1,5 @@
 test "is charged":
-	spawn a creeper at (spawn of world "world"):
+	spawn a creeper at (test-location):
 		set {_e} to entity
 	shoot a wither skull from {_e}
 	set {_w} to last shot entity
@@ -17,7 +17,7 @@ test "is charged":
 	assert {_e} is not charged with "uncharging a creeper should do exactly that"
 	assert {_w} is not charged with "uncharging a wither skull should do exactly that"
 
-	spawn an adult zombie at (spawn of world "world"):
+	spawn an adult zombie at (test-location):
 		set {_z} to entity
 
 	assert {_z} is not charged with "a non-creeper/wither skull should never be charged"

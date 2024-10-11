@@ -1,5 +1,5 @@
 on test "health utils update":
-	spawn a pig at spawn of world "world"
+	spawn a pig at test-location
 	set {_pig} to last spawned pig
 	set max health of {_pig} to 20
 	set health of {_pig} to 20

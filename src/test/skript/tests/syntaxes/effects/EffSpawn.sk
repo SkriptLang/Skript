@@ -1,6 +1,6 @@
 test "spawn cats by type" when running minecraft "1.15.2":
 	delete all cats
-	set {_l} to location of spawn of world "world"
+	set {_l} to test-location
 	spawn 5 all black cats at {_l}
 	assert size of all cats = 5 with "Size of all cats is not 5"
 	assert size of all all black cats = 5 with "Size of all all black cats is not 5"
