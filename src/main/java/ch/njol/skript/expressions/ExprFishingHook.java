@@ -9,16 +9,16 @@ import org.jetbrains.annotations.Nullable;
 @Name("Fishing Hook")
 @Description("The <a href='classes.html#entity'>fishing hook</a> in a fishing event.")
 @Examples({
-	"on fishing:",
-	"\twait a second",
-	"\tteleport player to fishing hook"
+	"on fish line cast:",
+		"\twait a second",
+		"\tteleport player to fishing hook"
 })
 @Events("Fishing")
 @Since("INSERT VERSION")
 public class ExprFishingHook extends EventValueExpression<FishHook> {
 
 	static {
-		register(ExprFishingHook.class, FishHook.class, "fish[ing](-| )hook");
+		register(ExprFishingHook.class, FishHook.class, "fish[ing](-| )(hook|bobber)");
 	}
 
 	public ExprFishingHook() {

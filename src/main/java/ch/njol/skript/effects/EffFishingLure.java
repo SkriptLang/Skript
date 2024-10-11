@@ -11,23 +11,22 @@ import org.bukkit.event.Event;
 import org.bukkit.event.player.PlayerFishEvent;
 import org.jetbrains.annotations.Nullable;
 
-@Name("Fishing Hook Apply Lure")
+@Name("Apply Fishing Lure")
 @Description("Returns whether the lure enchantment should be applied to reduce the wait time.")
 @Examples({
 	"on fishing line cast:",
-	"\tset apply lure enchantment of fishing hook to true"
+		"\tapply lure enchantment"
 })
 @Events("Fishing")
 @Since("INSERT VERSION")
-public class EffFishingHookLure extends Effect {
+public class EffFishingLure extends Effect {
 
 	static {
-		Skript.registerEffect(EffFishingHookLure.class,
-			"apply [the] lure enchantment [to %fishinghook%]",
-			"remove [the] lure enchantment [from %fishinghook%]");
+		Skript.registerEffect(EffFishingLure.class,
+			"apply [the] lure enchantment",
+			"remove [the] lure enchantment");
 	}
 
-	private Expression<FishHook> hook;
 	private boolean remove;
 
 	@Override
@@ -37,8 +36,6 @@ public class EffFishingHookLure extends Effect {
 			Skript.error("The fishing hook lure effect can only be used in a fishing event.");
 			return false;
 		}
-		//noinspection unchecked
-		hook = (Expression<FishHook>) expressions[0];
 		remove = matchedPattern == 1;
 
 		return false;
@@ -46,19 +43,14 @@ public class EffFishingHookLure extends Effect {
 
 	@Override
 	protected void execute(Event event) {
-		if (!(event instanceof PlayerFishEvent))
+		if (!(event instanceof PlayerFishEvent fishEvent))
 			return;
 
-		FishHook hook = this.hook.getSingle(event);
-
-		if (hook == null)
-			return;
-
-		hook.setApplyLure(!remove);
+		fishEvent.getHook().setApplyLure(!remove);
 	}
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return (remove ? "remove" : "apply") + " lure enchantment to " + hook.toString(event, debug);
+		return (remove ? "remove" : "apply") + " lure enchantment";
 	}
 }
