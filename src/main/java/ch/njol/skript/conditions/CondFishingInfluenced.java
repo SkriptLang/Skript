@@ -33,7 +33,7 @@ public class CondFishingInfluenced extends PropertyCondition<FishHook> {
 	@Override
 	public boolean init(Expression<?>[] expressions, int matchedPattern,
 						Kleenean isDelayed, ParseResult parseResult) {
-		if (getParser().isCurrentEvent(PlayerFishEvent.class)) {
+		if (!getParser().isCurrentEvent(PlayerFishEvent.class)) {
 			Skript.error("The 'influenced by' condition can only be used in a fishing event.");
 			return false;
 		}
