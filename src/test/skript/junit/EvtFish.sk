@@ -11,19 +11,23 @@ test "EvtFishJUnit" when running JUnit:
 	set {_tests::10} to "cast - add approach angle"
 	set {_tests::11} to "cast - remove approach angle"
 	set {_tests::12} to "cast - reset approach angle"
+	set {_tests::13} to "cast - sky access"
+	set {_tests::14} to "cast - rain"
 
-	set {_tests::13} to "catch - correct player"
-	set {_tests::14} to "catch - correct fish"
-	set {_tests::15} to "catch - not in open water"
-	set {_tests::16} to "catch - correct fish hooked"
-	set {_tests::17} to "catch - set waiting time"
-	set {_tests::18} to "catch - add waiting time"
-	set {_tests::19} to "catch - remove waiting time"
-	set {_tests::20} to "catch - reset waiting time"
-	set {_tests::21} to "catch - set approach angle"
-	set {_tests::22} to "catch - add approach angle"
-	set {_tests::23} to "catch - remove approach angle"
-	set {_tests::24} to "catch - reset approach angle"
+	set {_tests::15} to "catch - correct player"
+	set {_tests::16} to "catch - correct fish"
+	set {_tests::17} to "catch - not in open water"
+	set {_tests::18} to "catch - correct fish hooked"
+	set {_tests::19} to "catch - set waiting time"
+	set {_tests::20} to "catch - add waiting time"
+	set {_tests::21} to "catch - remove waiting time"
+	set {_tests::22} to "catch - reset waiting time"
+	set {_tests::23} to "catch - set approach angle"
+	set {_tests::24} to "catch - add approach angle"
+	set {_tests::25} to "catch - remove approach angle"
+	set {_tests::26} to "catch - reset approach angle"
+	set {_tests::27} to "catch - sky access"
+	set {_tests::28} to "catch - rain"
 
 	ensure junit test "org.skriptlang.skript.test.tests.syntaxes.events.EvtFishTest" completes {_tests::*}
 
@@ -83,6 +87,12 @@ on fishing line cast:
 	then:
 		complete objective "cast - reset approach angle" for {_test}
 
+	if fishing hook is influenced by sky access:
+		complete objective "cast - sky access" for {_test}
+
+	if fishing hook is not influenced by rain:
+		complete objective "cast - rain" for {_test}
+
 on fish catch:
 	set {_test} to "org.skriptlang.skript.test.tests.syntaxes.events.EvtFishTest"
 	junit test is {_test}
@@ -138,3 +148,9 @@ on fish catch:
 		max fish approach angle is 360
 	then:
 		complete objective "catch - reset approach angle" for {_test}
+
+	if fishing hook is influenced by sky access:
+		complete objective "catch - sky access" for {_test}
+
+	if fishing hook is not influenced by rain:
+		complete objective "catch - rain" for {_test}

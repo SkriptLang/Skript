@@ -44,15 +44,15 @@ public class EvtFishTest extends SkriptJUnitTest {
 	private static class FishHookMock {
 
 		private final FishHook hook;
-		private final Entity hooked;
 		private int maxWaitTime = 30 * 20;
 		private int minWaitTime = 5 * 20;
 		private float minApproachAngle = 0;
 		private float maxApproachAngle = 360;
+		private boolean skyInfluenced = true;
+		private boolean rainInfluenced = false;
+		private boolean lure = false;
 
 		public FishHookMock(Entity hooked) {
-			this.hooked = hooked;
-
 			hook = EasyMock.niceMock(FishHook.class);
 
 			EasyMock.expect(hook.isInOpenWater()).andReturn(false).anyTimes();
@@ -62,6 +62,9 @@ public class EvtFishTest extends SkriptJUnitTest {
 			EasyMock.expect(hook.getMinWaitTime()).andAnswer(() -> minWaitTime).anyTimes();
 			EasyMock.expect(hook.getMinLureAngle()).andAnswer(() -> minApproachAngle).anyTimes();
 			EasyMock.expect(hook.getMaxLureAngle()).andAnswer(() -> maxApproachAngle).anyTimes();
+			EasyMock.expect(hook.isSkyInfluenced()).andAnswer(() -> skyInfluenced).anyTimes();
+			EasyMock.expect(hook.isRainInfluenced()).andAnswer(() -> rainInfluenced).anyTimes();
+			EasyMock.expect(hook.getApplyLure()).andAnswer(() -> lure).anyTimes();
 
 			hook.setMaxWaitTime(EasyMock.anyInt());
 			EasyMock.expectLastCall().andAnswer(() -> {
@@ -84,6 +87,24 @@ public class EvtFishTest extends SkriptJUnitTest {
 			hook.setMaxLureAngle(EasyMock.anyFloat());
 			EasyMock.expectLastCall().andAnswer(() -> {
 				maxApproachAngle = (float) EasyMock.getCurrentArguments()[0];
+				return null;
+			}).anyTimes();
+
+			hook.setSkyInfluenced(EasyMock.anyBoolean());
+			EasyMock.expectLastCall().andAnswer(() -> {
+				skyInfluenced = (boolean) EasyMock.getCurrentArguments()[0];
+				return null;
+			}).anyTimes();
+
+			hook.setRainInfluenced(EasyMock.anyBoolean());
+			EasyMock.expectLastCall().andAnswer(() -> {
+				rainInfluenced = (boolean) EasyMock.getCurrentArguments()[0];
+				return null;
+			}).anyTimes();
+
+			hook.setApplyLure(EasyMock.anyBoolean());
+			EasyMock.expectLastCall().andAnswer(() -> {
+				lure = (boolean) EasyMock.getCurrentArguments()[0];
 				return null;
 			}).anyTimes();
 
