@@ -1,6 +1,6 @@
 test "spawner type":
 	set test-block to spawner
-	set {_block} to event-block
+	set {_block} to test-block
 
 	set spawner type of {_block} to zombie
 	assert spawner type of {_block} is zombie with "Spawner type was set to a Zombie"
