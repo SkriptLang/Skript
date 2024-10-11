@@ -6,5 +6,5 @@ test "angle":
 	assert pi radians is 180.0 degrees with "pi radians is not 180 degrees"
 	assert 2 * pi in radians is 360.0 degrees with "2pi radians is not 360 degrees"
 
-	assert 180 degrees is pi radians with "180 degrees is not pi radians"
-	assert 360 in degrees is 2 * pi radians with "360 degrees is not 2pi radians"
+	assert 180.0 degrees is pi radians with "180 degrees is not pi radians"
+	assert 360.0 in degrees is 2 * pi radians with "360 degrees is not 2pi radians"

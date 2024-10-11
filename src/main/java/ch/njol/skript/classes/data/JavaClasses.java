@@ -24,9 +24,9 @@ public class JavaClasses {
 
 	public static final int VARIABLENAME_NUMBERACCURACY = 8;
 	public static final Pattern INTEGER_PATTERN =
-		Pattern.compile("(?<num>-?[0-9]+)( (in )?(?<rad>rad(ian)?s?)|deg(ree)?s?)?");
+		Pattern.compile("(?<num>-?[0-9]+)( (in )?((?<rad>rad(ian)?s?)|deg(ree)?s?))?");
 	public static final Pattern DECIMAL_PATTERN =
-		Pattern.compile("(?<num>-?[0-9]+(?>\\.[0-9]+)?%?)( (in )?(?<rad>rad(ian)?s?)|deg(ree)?s?)?");
+		Pattern.compile("(?<num>-?[0-9]+(?>\\.[0-9]+)?%?)( (in )?((?<rad>rad(ian)?s?)|deg(ree)?s?))?");
 
 	static {
 		Classes.registerClass(new ClassInfo<>(Object.class, "object")
