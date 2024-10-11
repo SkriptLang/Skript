@@ -27,8 +27,8 @@ import org.jetbrains.annotations.Nullable;
 @Since("INSERT VERSION")
 public class ExprFishingApproachAngle extends SimpleExpression<Float> {
 
-	private static final int DEFAULT_MINIMUM_DEGREES = 0;
-	private static final int DEFAULT_MAXIMUM_DEGREES = 360;
+	private static final float DEFAULT_MINIMUM_DEGREES = 0;
+	private static final float DEFAULT_MAXIMUM_DEGREES = 360;
 
 	static {
 		Skript.registerExpression(ExprFishingApproachAngle.class, Float.class, ExpressionType.SIMPLE,

@@ -43,6 +43,5 @@ on bucket catch of cod:
 	if event-item is a water bucket:
 		complete objective "specific - correct item" for {_test}
 
-	broadcast "%entity bucket%"
 	if entity bucket is a cod bucket:
 		complete objective "specific - correct entity bucket" for {_test}

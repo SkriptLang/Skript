@@ -67,8 +67,8 @@ public class ExprFishingWaitTime extends SimpleExpression<Timespan> {
 	@Override
 	public @Nullable Class<?>[] acceptChange(ChangeMode mode) {
 		return switch (mode) {
-			case DELETE, REMOVE_ALL -> null;
-			default -> new Class[]{Timespan.class};
+			case ADD, REMOVE, SET, RESET -> new Class[]{Timespan.class};
+			default -> null;
 		};
 	}
 
@@ -79,26 +79,23 @@ public class ExprFishingWaitTime extends SimpleExpression<Timespan> {
 
 		FishHook hook = fishEvent.getHook();
 
-		if (delta[0] == null || !(delta[0] instanceof Timespan timespan))
-			return;
-
 		int ticks = mode == ChangeMode.RESET ?
 			(isMin ? DEFAULT_MINIMUM_TICKS : DEFAULT_MAXIMUM_TICKS) :
-			(int) timespan.getAs(Timespan.TimePeriod.TICK);
+			(int) ((Timespan) delta[0]).getAs(Timespan.TimePeriod.TICK);
 
 		switch (mode) {
-			case ADD -> {
-				if (isMin) {
-					hook.setMinWaitTime(hook.getMinWaitTime() + ticks);
-				} else {
-					hook.setMaxWaitTime(hook.getMaxWaitTime() + ticks);
-				}
-			}
 			case SET, RESET -> {
 				if (isMin) {
 					hook.setMinWaitTime(ticks);
 				} else {
 					hook.setMaxWaitTime(ticks);
+				}
+			}
+			case ADD -> {
+				if (isMin) {
+					hook.setMinWaitTime(hook.getMinWaitTime() + ticks);
+				} else {
+					hook.setMaxWaitTime(hook.getMaxWaitTime() + ticks);
 				}
 			}
 			case REMOVE -> {
