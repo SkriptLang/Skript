@@ -10,23 +10,24 @@ import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
-import org.bukkit.Location;
+import org.bukkit.block.Block;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
-@Name("Test Location")
-@Description("The location the testing is taking place at.")
+@Name("Test Block")
+@Description("The block the testing is taking place at.")
 @Examples({
 	"test \"example\":",
-		"\tset test block to air"
+		"\tspawn zombie at test location",
+		"\tassert last spawned zombie's world is test world with \"zombie did not spawn in test world\""
 })
 @NoDoc
-public class ExprTestLocation extends SimpleExpression<Location> {
+public class ExprTestBlock extends SimpleExpression<Block> {
 
 	static {
 		if (TestMode.ENABLED)
-			Skript.registerExpression(ExprTestLocation.class, Location.class, ExpressionType.SIMPLE,
-				"[the] test(-| )location");
+			Skript.registerExpression(ExprTestBlock.class, Block.class, ExpressionType.SIMPLE,
+				"[the] test(-| )block");
 	}
 
 
@@ -37,8 +38,8 @@ public class ExprTestLocation extends SimpleExpression<Location> {
 	}
 
 	@Override
-	protected Location @Nullable [] get(Event event) {
-		return new Location[]{SkriptJUnitTest.getTestLocation()};
+	protected Block @Nullable [] get(Event event) {
+		return new Block[]{SkriptJUnitTest.getTestLocation().getBlock()};
 	}
 
 	@Override
@@ -47,12 +48,12 @@ public class ExprTestLocation extends SimpleExpression<Location> {
 	}
 
 	@Override
-	public Class<? extends Location> getReturnType() {
-		return Location.class;
+	public Class<? extends Block> getReturnType() {
+		return Block.class;
 	}
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return "the test location";
+		return "the test block";
 	}
 }
