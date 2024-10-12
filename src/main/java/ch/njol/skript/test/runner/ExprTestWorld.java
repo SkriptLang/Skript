@@ -27,9 +27,8 @@ public class ExprTestWorld extends SimpleExpression<World> {
 	static {
 		if (TestMode.ENABLED)
 			Skript.registerExpression(ExprTestWorld.class, World.class, ExpressionType.SIMPLE,
-				"[the] test(-| )world");
+					"[the] test(-| )world");
 	}
-
 
 	@Override
 	public boolean init(Expression<?>[] expressions, int matchedPattern,
@@ -56,4 +55,5 @@ public class ExprTestWorld extends SimpleExpression<World> {
 	public String toString(@Nullable Event event, boolean debug) {
 		return "the test world";
 	}
+
 }

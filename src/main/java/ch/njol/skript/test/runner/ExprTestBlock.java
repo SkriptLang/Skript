@@ -27,9 +27,8 @@ public class ExprTestBlock extends SimpleExpression<Block> {
 	static {
 		if (TestMode.ENABLED)
 			Skript.registerExpression(ExprTestBlock.class, Block.class, ExpressionType.SIMPLE,
-				"[the] test(-| )block");
+					"[the] test(-| )block");
 	}
-
 
 	@Override
 	public boolean init(Expression<?>[] expressions, int matchedPattern,
@@ -56,4 +55,5 @@ public class ExprTestBlock extends SimpleExpression<Block> {
 	public String toString(@Nullable Event event, boolean debug) {
 		return "the test block";
 	}
+
 }

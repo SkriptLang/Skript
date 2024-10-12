@@ -26,9 +26,8 @@ public class ExprTestLocation extends SimpleExpression<Location> {
 	static {
 		if (TestMode.ENABLED)
 			Skript.registerExpression(ExprTestLocation.class, Location.class, ExpressionType.SIMPLE,
-				"[the] test(-| )location");
+					"[the] test(-| )location");
 	}
-
 
 	@Override
 	public boolean init(Expression<?>[] expressions, int matchedPattern,
@@ -55,4 +54,5 @@ public class ExprTestLocation extends SimpleExpression<Location> {
 	public String toString(@Nullable Event event, boolean debug) {
 		return "the test location";
 	}
+
 }
