@@ -276,20 +276,20 @@ public class JavaClasses {
 	 * <p>
 	 * Applies {@code stringToNumber} for parsing the number, then tries to
 	 * convert radians to degrees if the string contains a radian group.
-	 * If the string could be parsed, applies {@code converter} to convert
-	 * the number to the desired type.
+	 * If the string could be parsed and converted to radians,
+	 * applies {@code fromDouble} to convert the returned {@link Double} to the desired type.
 	 * </p>
 	 *
 	 * @param string The string with the possible number.
 	 * @param stringToNumber The function to parse the number, e.g. {@link Integer#parseInt(String)}.
-	 * @param converter The function to convert the number to the desired type, e.g. {@link Number#intValue()}.
+	 * @param fromDouble The function to convert a {@link Double} to the desired type, e.g. {@link Double#intValue()}.
 	 * @return The parsed string, or null if the string could not be parsed.
 	 */
 	@Contract(pure = true)
 	private static <T extends Number> @Nullable T convertIntegerFormatted(
 		String string,
-		Function<String, Number> stringToNumber,
-		Function<Number, T> converter
+		Function<String, T> stringToNumber,
+		Function<Double, T> fromDouble
 	) {
 		Matcher matcher = INTEGER_PATTERN.matcher(string);
 
@@ -299,12 +299,12 @@ public class JavaClasses {
 		String number = matcher.group("num");
 		if (matcher.group("rad") != null) {
 			try {
-				return converter.apply(Math.toDegrees(stringToNumber.apply(number).doubleValue()));
+				return fromDouble.apply(Math.toDegrees(stringToNumber.apply(number).doubleValue()));
 			} catch (NumberFormatException ignored) {
 			}
 		} else {
 			try {
-				return converter.apply(stringToNumber.apply(number));
+				return stringToNumber.apply(number);
 			} catch (NumberFormatException ignored) {
 			}
 		}
@@ -313,24 +313,25 @@ public class JavaClasses {
 	}
 
 	/**
-	 * Converts a string to a number formatted as an decimal.
+	 * Converts a string to a number formatted as a decimal.
 	 * <p>
 	 * Applies {@code stringToNumber} for parsing the number.
-	 * If the number is a percentage, it gets parsed as a double between 0-1.
+	 * If the number is a percentage, it gets parsed using the double value divided by 100, and {@code fromDouble}.
 	 * Then tries to convert radians to degrees if the string contains a radian group.
-	 * If the string could be parsed, applies {@code converter} to convert the number to the desired type.
+	 * If the string could be parsed and converted to radians,
+	 * applies {@code fromDouble} to convert the returned {@link Double} to the desired type.
 	 * </p>
 	 *
 	 * @param string The string with the possible number.
 	 * @param stringToNumber The function to parse the number, e.g. {@link Integer#parseInt(String)}.
-	 * @param converter The function to convert the number to the desired type, e.g. {@link Number#intValue()}.
+	 * @param fromDouble The function to convert a {@link Double} to the desired type, e.g. {@link Double#intValue()}.
 	 * @return The parsed string, or null if the string could not be parsed.
 	 */
 	@Contract(pure = true)
 	private static <T extends Number> @Nullable T convertDecimalFormatted(
 		String string,
 		Function<String, T> stringToNumber,
-		Function<Double, T> converter
+		Function<Double, T> fromDouble
 	) {
 		Matcher matcher = DECIMAL_PATTERN.matcher(string);
 
@@ -343,14 +344,14 @@ public class JavaClasses {
 			T result;
 			if (number.endsWith("%")) {
 				T extracted = stringToNumber.apply(number.substring(0, number.length() - 1));
-				result = converter.apply(extracted.doubleValue() / 100.0);
+				result = fromDouble.apply(extracted.doubleValue() / 100.0);
 			} else {
 				result = stringToNumber.apply(number);
 			}
 
 			if (matcher.group("rad") != null) {
 				try {
-					return converter.apply(Math.toDegrees(result.doubleValue()));
+					return fromDouble.apply(Math.toDegrees(result.doubleValue()));
 				} catch (NumberFormatException ignored) {
 				}
 			}
@@ -369,7 +370,7 @@ public class JavaClasses {
 			if (!numberMatcher.matches())
 				return null;
 
-			Integer integerAttempt = convertIntegerFormatted(string, Integer::parseInt, Number::intValue);
+			Integer integerAttempt = convertIntegerFormatted(string, Integer::parseInt, Double::intValue);
 			if (integerAttempt != null)
 				return integerAttempt;
 
@@ -386,6 +387,7 @@ public class JavaClasses {
 		public String toVariableNameString(Number number) {
 			return StringUtils.toString(number.doubleValue(), VARIABLENAME_NUMBERACCURACY);
 		}
+
 	}
 
 	private static class NumberSerializer extends Serializer<Number> {
@@ -422,13 +424,14 @@ public class JavaClasses {
 		public boolean mustSyncDeserialization() {
 			return false;
 		}
+
 	}
 
 	private static class LongParser extends Parser<Long> {
 
 		@Override
 		public @Nullable Long parse(String string, ParseContext context) {
-			return convertIntegerFormatted(string, Long::parseLong, Number::longValue);
+			return convertIntegerFormatted(string, Long::parseLong, Double::longValue);
 		}
 
 		@Override
@@ -440,6 +443,7 @@ public class JavaClasses {
 		public String toVariableNameString(Long l) {
 			return l.toString();
 		}
+
 	}
 
 	private static class LongSerializer extends Serializer<Long> {
@@ -472,13 +476,14 @@ public class JavaClasses {
 		public boolean mustSyncDeserialization() {
 			return false;
 		}
+
 	}
 
 	private static class IntegerParser extends Parser<Integer> {
 
 		@Override
 		public @Nullable Integer parse(String string, ParseContext context) {
-			return convertIntegerFormatted(string, Integer::parseInt, Number::intValue);
+			return convertIntegerFormatted(string, Integer::parseInt, Double::intValue);
 		}
 
 		@Override
@@ -490,6 +495,7 @@ public class JavaClasses {
 		public String toVariableNameString(Integer i) {
 			return i.toString();
 		}
+
 	}
 
 	private static class IntegerSerializer extends Serializer<Integer> {
@@ -522,6 +528,7 @@ public class JavaClasses {
 		public boolean mustSyncDeserialization() {
 			return false;
 		}
+
 	}
 
 	private static class DoubleParser extends Parser<Double> {
@@ -542,6 +549,7 @@ public class JavaClasses {
 		public String toVariableNameString(Double d) {
 			return StringUtils.toString(d, VARIABLENAME_NUMBERACCURACY);
 		}
+
 	}
 
 	private static class DoubleSerializer extends Serializer<Double> {
@@ -574,6 +582,7 @@ public class JavaClasses {
 		public boolean mustSyncDeserialization() {
 			return false;
 		}
+
 	}
 
 	private static class FloatParser extends Parser<Float> {
@@ -594,6 +603,7 @@ public class JavaClasses {
 		public String toVariableNameString(Float f) {
 			return StringUtils.toString(f.doubleValue(), VARIABLENAME_NUMBERACCURACY);
 		}
+
 	}
 
 	private static class FloatSerializer extends Serializer<Float> {
@@ -626,13 +636,14 @@ public class JavaClasses {
 		public boolean mustSyncDeserialization() {
 			return false;
 		}
+
 	}
 
 	private static class ShortParser extends Parser<Short> {
 
 		@Override
 		public @Nullable Short parse(String string, ParseContext context) {
-			return convertIntegerFormatted(string, Short::parseShort, Number::shortValue);
+			return convertIntegerFormatted(string, Short::parseShort, Double::shortValue);
 		}
 
 		@Override
@@ -644,6 +655,7 @@ public class JavaClasses {
 		public String toVariableNameString(Short s) {
 			return s.toString();
 		}
+
 	}
 
 	private static class ShortSerializer extends Serializer<Short> {
@@ -676,13 +688,14 @@ public class JavaClasses {
 		public boolean mustSyncDeserialization() {
 			return false;
 		}
+
 	}
 
 	private static class ByteParser extends Parser<Byte> {
 
 		@Override
 		public @Nullable Byte parse(String string, ParseContext context) {
-			return convertIntegerFormatted(string, Byte::parseByte, Number::byteValue);
+			return convertIntegerFormatted(string, Byte::parseByte, Double::byteValue);
 		}
 
 		@Override
@@ -694,6 +707,7 @@ public class JavaClasses {
 		public String toVariableNameString(Byte b) {
 			return b.toString();
 		}
+
 	}
 
 	private static class ByteSerializer extends Serializer<Byte> {
@@ -726,6 +740,7 @@ public class JavaClasses {
 		public boolean mustSyncDeserialization() {
 			return false;
 		}
+
 	}
 
 }
