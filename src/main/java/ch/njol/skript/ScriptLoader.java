@@ -28,11 +28,9 @@ import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.lang.Statement;
 import ch.njol.skript.lang.TriggerItem;
 import ch.njol.skript.lang.TriggerSection;
+import ch.njol.skript.lang.function.EffFunctionCall;
 import ch.njol.skript.lang.parser.ParserInstance;
-import ch.njol.skript.log.CountingLogHandler;
-import ch.njol.skript.log.LogEntry;
-import ch.njol.skript.log.RetainingLogHandler;
-import ch.njol.skript.log.SkriptLogger;
+import ch.njol.skript.log.*;
 import ch.njol.skript.sections.SecLoop;
 import ch.njol.skript.structures.StructOptions.OptionsData;
 import ch.njol.skript.util.ExceptionUtils;
@@ -56,16 +54,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.*;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CompletableFuture;
@@ -984,9 +973,38 @@ public class ScriptLoader {
 			} else if (subNode instanceof SectionNode) {
 				TypeHints.enterScope(); // Begin conditional type hints
 
-				Section section = Section.parse(expr, "Can't understand this section: " + expr, (SectionNode) subNode, items);
-				if (section == null)
+				TriggerItem section;
+				RetainingLogHandler handler = SkriptLogger.startRetainingLog();
+				find_section:
+				try {
+					section = Section.parse(expr, "Can't understand this section: " + expr, (SectionNode) subNode, items);
+					if (section != null)
+						break find_section;
+
+					// back up the failure log
+					RetainingLogHandler backup = handler.backup();
+					handler.clear();
+
+					section = Statement.parse(expr, "Can't understand this effect: " + expr, (SectionNode) subNode, items);
+
+					if (section != null)
+						break find_section;
+					Collection<LogEntry> errors = handler.getErrors();
+
+					// restore the failure log
+					if (errors.isEmpty()) {
+						handler.restore(backup);
+					} else { // We specifically want these two errors in preference to the section error!
+						String firstError = errors.iterator().next().getMessage();
+						if (!firstError.contains("is a valid statement but cannot function as a section (:)")
+							&& !firstError.contains("You cannot have two section-starters in the same line"))
+							handler.restore(backup);
+					}
 					continue;
+				} finally {
+					handler.printLog();
+					handler.close();
+				}
 
 				if (Skript.debug() || subNode.debug())
 					Skript.debug(SkriptColor.replaceColorChar(parser.getIndentation() + section.toString(null, true)));
