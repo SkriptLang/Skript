@@ -3,18 +3,44 @@ package ch.njol.skript.test.runner;
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.NoDoc;
 import ch.njol.skript.lang.*;
+import ch.njol.skript.registrations.EventValues;
+import ch.njol.skript.util.Getter;
+import org.bukkit.Location;
+import org.bukkit.World;
+import org.bukkit.block.Block;
 import org.bukkit.event.Event;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 @NoDoc
 public class EvtTestCase extends SkriptEvent {
 
 	static {
-		if (TestMode.ENABLED)
+		if (TestMode.ENABLED) {
 			Skript.registerEvent("Test Case", EvtTestCase.class, SkriptTestEvent.class, "test %string% [when <.+>]")
 				.description("Contents represent one test case.")
 				.examples("")
 				.since("2.5");
+
+			EventValues.registerEventValue(SkriptTestEvent.class, Block.class, new Getter<>() {
+				@Override
+				public @NotNull Block get(SkriptTestEvent ignored) {
+					return SkriptJUnitTest.getBlock();
+				}
+			}, EventValues.TIME_NOW);
+			EventValues.registerEventValue(SkriptTestEvent.class, Location.class, new Getter<>() {
+				@Override
+				public @NotNull Location get(SkriptTestEvent ignored) {
+					return SkriptJUnitTest.getTestLocation();
+				}
+			}, EventValues.TIME_NOW);
+			EventValues.registerEventValue(SkriptTestEvent.class, World.class, new Getter<>() {
+				@Override
+				public @NotNull World get(SkriptTestEvent ignored) {
+					return SkriptJUnitTest.getTestWorld();
+				}
+			}, EventValues.TIME_NOW);
+		}
 	}
 
 	private Expression<String> name;
