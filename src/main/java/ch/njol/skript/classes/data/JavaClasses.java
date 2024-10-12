@@ -276,20 +276,16 @@ public class JavaClasses {
 	 * <p>
 	 * Applies {@code stringToNumber} for parsing the number, then tries to
 	 * convert radians to degrees if the string contains a radian group.
-	 * If the string could be parsed and converted to radians,
-	 * applies {@code fromDouble} to convert the returned {@link Double} to the desired type.
 	 * </p>
 	 *
 	 * @param string The string with the possible number.
 	 * @param stringToNumber The function to parse the number, e.g. {@link Integer#parseInt(String)}.
-	 * @param fromDouble The function to convert a {@link Double} to the desired type, e.g. {@link Double#intValue()}.
 	 * @return The parsed string, or null if the string could not be parsed.
 	 */
 	@Contract(pure = true)
 	private static <T extends Number> @Nullable T convertIntegerFormatted(
 		String string,
-		Function<String, T> stringToNumber,
-		Function<Double, T> fromDouble
+		Function<String, T> stringToNumber
 	) {
 		Matcher matcher = INTEGER_PATTERN.matcher(string);
 
@@ -299,7 +295,8 @@ public class JavaClasses {
 		String number = matcher.group("num");
 		if (matcher.group("rad") != null) {
 			try {
-				return fromDouble.apply(Math.toDegrees(stringToNumber.apply(number).doubleValue()));
+				//noinspection unchecked
+				return (T) (Double) Math.toDegrees(stringToNumber.apply(number).doubleValue());
 			} catch (NumberFormatException ignored) {
 			}
 		} else {
@@ -318,20 +315,16 @@ public class JavaClasses {
 	 * Applies {@code stringToNumber} for parsing the number.
 	 * If the number is a percentage, it gets parsed using the double value divided by 100, and {@code fromDouble}.
 	 * Then tries to convert radians to degrees if the string contains a radian group.
-	 * If the string could be parsed and converted to radians,
-	 * applies {@code fromDouble} to convert the returned {@link Double} to the desired type.
 	 * </p>
 	 *
 	 * @param string The string with the possible number.
 	 * @param stringToNumber The function to parse the number, e.g. {@link Integer#parseInt(String)}.
-	 * @param fromDouble The function to convert a {@link Double} to the desired type, e.g. {@link Double#intValue()}.
 	 * @return The parsed string, or null if the string could not be parsed.
 	 */
 	@Contract(pure = true)
 	private static <T extends Number> @Nullable T convertDecimalFormatted(
 		String string,
-		Function<String, T> stringToNumber,
-		Function<Double, T> fromDouble
+		Function<String, T> stringToNumber
 	) {
 		Matcher matcher = DECIMAL_PATTERN.matcher(string);
 
@@ -344,14 +337,16 @@ public class JavaClasses {
 			T result;
 			if (number.endsWith("%")) {
 				T extracted = stringToNumber.apply(number.substring(0, number.length() - 1));
-				result = fromDouble.apply(extracted.doubleValue() / 100.0);
+				//noinspection unchecked
+				result = (T) (Double) (extracted.doubleValue() / 100.0);
 			} else {
 				result = stringToNumber.apply(number);
 			}
 
 			if (matcher.group("rad") != null) {
 				try {
-					return fromDouble.apply(Math.toDegrees(result.doubleValue()));
+					//noinspection unchecked
+					return (T) (Double) Math.toDegrees(result.doubleValue());
 				} catch (NumberFormatException ignored) {
 				}
 			}
@@ -370,11 +365,11 @@ public class JavaClasses {
 			if (!numberMatcher.matches())
 				return null;
 
-			Integer integerAttempt = convertIntegerFormatted(string, Integer::parseInt, Double::intValue);
+			Integer integerAttempt = convertIntegerFormatted(string, Integer::parseInt);
 			if (integerAttempt != null)
 				return integerAttempt;
 
-			Double parsed = convertDecimalFormatted(string, Double::parseDouble, Function.identity());
+			Double parsed = convertDecimalFormatted(string, Double::parseDouble);
 			return parsed == null || parsed.isInfinite() || parsed.isNaN() ? null : parsed;
 		}
 
@@ -431,7 +426,7 @@ public class JavaClasses {
 
 		@Override
 		public @Nullable Long parse(String string, ParseContext context) {
-			return convertIntegerFormatted(string, Long::parseLong, Double::longValue);
+			return convertIntegerFormatted(string, Long::parseLong);
 		}
 
 		@Override
@@ -483,7 +478,7 @@ public class JavaClasses {
 
 		@Override
 		public @Nullable Integer parse(String string, ParseContext context) {
-			return convertIntegerFormatted(string, Integer::parseInt, Double::intValue);
+			return convertIntegerFormatted(string, Integer::parseInt);
 		}
 
 		@Override
@@ -535,7 +530,7 @@ public class JavaClasses {
 
 		@Override
 		public @Nullable Double parse(String string, ParseContext context) {
-			Double parsed = convertDecimalFormatted(string, Double::parseDouble, Function.identity());
+			Double parsed = convertDecimalFormatted(string, Double::parseDouble);
 
 			return parsed == null || parsed.isInfinite() || parsed.isNaN() ? null : parsed;
 		}
@@ -589,7 +584,7 @@ public class JavaClasses {
 
 		@Override
 		public @Nullable Float parse(String string, ParseContext context) {
-			Float parsed = convertDecimalFormatted(string, Float::parseFloat, Number::floatValue);
+			Float parsed = convertDecimalFormatted(string, Float::parseFloat);
 
 			return parsed == null || parsed.isInfinite() || parsed.isNaN() ? null : parsed;
 		}
@@ -643,7 +638,7 @@ public class JavaClasses {
 
 		@Override
 		public @Nullable Short parse(String string, ParseContext context) {
-			return convertIntegerFormatted(string, Short::parseShort, Double::shortValue);
+			return convertIntegerFormatted(string, Short::parseShort);
 		}
 
 		@Override
@@ -695,7 +690,7 @@ public class JavaClasses {
 
 		@Override
 		public @Nullable Byte parse(String string, ParseContext context) {
-			return convertIntegerFormatted(string, Byte::parseByte, Double::byteValue);
+			return convertIntegerFormatted(string, Byte::parseByte);
 		}
 
 		@Override
