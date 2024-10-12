@@ -23,10 +23,34 @@ import java.util.regex.Pattern;
 public class JavaClasses {
 
 	public static final int VARIABLENAME_NUMBERACCURACY = 8;
+
+	/**
+	 * Matches an integer with an optional unit of radians or degrees.
+	 * <p>
+	 * First, the actual number format {@code num} is specified. Then, an optional angle unit is specified.
+	 * For this, the {@code rad} group is used. This specifies that the number is in radians.
+	 * This is used to determine if the number should be converted to degrees.
+	 * Degrees is not a named group because it just returns the value in the {@code num} group, which
+	 * is the default behaviour.
+	 * Optionally, the user can use {@code x in degrees} instead of {@code x degrees}.
+	 * </p>
+	 */
 	public static final Pattern INTEGER_PATTERN =
-		Pattern.compile("(?<num>-?[0-9]+)( (in )?((?<rad>rad(ian)?s?)|deg(ree)?s?))?");
+		Pattern.compile("(?<num>-?[0-9]+)(?: (?:in )?(?:(?<rad>rad(?:ian)?s?)|deg(?:ree)?s?))?");
+
+	/**
+	 * Matches a decimal number with an optional unit of radians or degrees.
+	 * <p>
+	 * First, the actual number format {@code num} is specified. Then, an optional angle unit is specified.
+	 * For this, the {@code rad} group is used. This specifies that the number is in radians.
+	 * This is used to determine if the number should be converted to degrees.
+	 * Degrees is not a named group because it just returns the value in the {@code num} group, which
+	 * is the default behaviour.
+	 * Optionally, the user can use {@code x in degrees} instead of {@code x degrees}.
+	 * </p>
+	 */
 	public static final Pattern DECIMAL_PATTERN =
-		Pattern.compile("(?<num>-?[0-9]+(?>\\.[0-9]+)?%?)( (in )?((?<rad>rad(ian)?s?)|deg(ree)?s?))?");
+		Pattern.compile("(?<num>-?[0-9]+(?>\\.[0-9]+)?%?)(?: (?:in )?(?:(?<rad>rad(?:ian)?s?)|deg(?:ree)?s?))?");
 
 	static {
 		Classes.registerClass(new ClassInfo<>(Object.class, "object")
@@ -295,23 +319,18 @@ public class JavaClasses {
 	 * If the number is a percentage, it gets parsed as a double between 0-1.
 	 * Then tries to convert radians to degrees if the string contains a radian group.
 	 * If the string could be parsed, applies {@code converter} to convert the number to the desired type.
-	 * If the number is not valid by {@code isValid}, returns null.
 	 * </p>
 	 *
 	 * @param string The string with the possible number.
 	 * @param stringToNumber The function to parse the number, e.g. {@link Integer#parseInt(String)}.
-	 * @param fromPercentage A function that divides the value by 100.
 	 * @param converter The function to convert the number to the desired type, e.g. {@link Number#intValue()}.
-	 * @param isValid The function to check if the number is valid, e.g. {@link Double#isNaN()}.
 	 * @return The parsed string, or null if the string could not be parsed.
 	 */
 	@Contract(pure = true)
 	private static <T extends Number> @Nullable T convertDecimalFormatted(
 		String string,
 		Function<String, T> stringToNumber,
-		Function<T, T> fromPercentage,
-		Function<Double, T> converter,
-		Function<T, Boolean> isValid
+		Function<Double, T> converter
 	) {
 		Matcher matcher = DECIMAL_PATTERN.matcher(string);
 
@@ -323,13 +342,11 @@ public class JavaClasses {
 		try {
 			T result;
 			if (number.endsWith("%")) {
-				result = fromPercentage.apply(stringToNumber.apply(number.substring(0, number.length() - 1)));
+				T extracted = stringToNumber.apply(number.substring(0, number.length() - 1));
+				result = converter.apply(extracted.doubleValue() / 100.0);
 			} else {
 				result = stringToNumber.apply(number);
 			}
-
-			if (!isValid.apply(result))
-				return null;
 
 			if (matcher.group("rad") != null) {
 				try {
@@ -356,11 +373,8 @@ public class JavaClasses {
 			if (integerAttempt != null)
 				return integerAttempt;
 
-			return convertDecimalFormatted(string,
-				Double::parseDouble,
-				d -> d / 100.0,
-				Function.identity(),
-				d -> !d.isNaN() && !d.isInfinite());
+			Double parsed = convertDecimalFormatted(string, Double::parseDouble, Function.identity());
+			return parsed == null || parsed.isInfinite() || parsed.isNaN() ? null : parsed;
 		}
 
 		@Override
@@ -514,11 +528,9 @@ public class JavaClasses {
 
 		@Override
 		public @Nullable Double parse(String string, ParseContext context) {
-			return convertDecimalFormatted(string,
-				Double::parseDouble,
-				d -> d / 100.0,
-				Function.identity(),
-				d -> !d.isNaN() && !d.isInfinite());
+			Double parsed = convertDecimalFormatted(string, Double::parseDouble, Function.identity());
+
+			return parsed == null || parsed.isInfinite() || parsed.isNaN() ? null : parsed;
 		}
 
 		@Override
@@ -568,11 +580,9 @@ public class JavaClasses {
 
 		@Override
 		public @Nullable Float parse(String string, ParseContext context) {
-			return convertDecimalFormatted(string,
-				Float::parseFloat,
-				d -> d / 100f,
-				Number::floatValue,
-				f -> !f.isNaN() && !f.isInfinite());
+			Float parsed = convertDecimalFormatted(string, Float::parseFloat, Number::floatValue);
+
+			return parsed == null || parsed.isInfinite() || parsed.isNaN() ? null : parsed;
 		}
 
 		@Override

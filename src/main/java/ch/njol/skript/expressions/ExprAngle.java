@@ -30,8 +30,10 @@ public class ExprAngle extends SimpleExpression<Number> {
 
 	static {
 		Skript.registerExpression(ExprAngle.class, Number.class, ExpressionType.SIMPLE,
-			"%number% [in ]deg[ree][s]",
-			"%number% [in ]rad[ian][s]");
+			"%number% [in] deg[ree][s]",
+			"%number% [in] rad[ian][s]",
+			"%numbers% in deg[ree][s]",
+			"%numbers% in rad[ian][s]");
 	}
 
 	private Expression<Number> angle;
@@ -42,27 +44,30 @@ public class ExprAngle extends SimpleExpression<Number> {
 						Kleenean isDelayed, ParseResult parseResult) {
 		//noinspection unchecked
 		angle = (Expression<Number>) expressions[0];
-		isRadians = matchedPattern == 1;
+		isRadians = matchedPattern % 2 != 0;
 		return true;
 	}
 
 	@Override
 	protected Number @Nullable [] get(Event event) {
-		Number number = angle.getSingle(event);
+		Number[] numbers = angle.getAll(event);
 
-		if (number == null)
+		if (numbers == null)
 			return null;
 
 		if (isRadians) {
-			return new Double[]{Math.toDegrees(number.doubleValue())};
+			for (int i = 0; i < numbers.length; i++)
+				numbers[i] = Math.toDegrees(numbers[i].doubleValue());
+
+			return numbers;
 		}
 
-		return new Number[]{number};
+		return numbers;
 	}
 
 	@Override
 	public boolean isSingle() {
-		return true;
+		return angle.isSingle();
 	}
 
 	@Override
@@ -72,7 +77,7 @@ public class ExprAngle extends SimpleExpression<Number> {
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return angle.toString(event, debug) + (isRadians ? " degrees" : " radians");
+		return angle.toString(event, debug) + " in " + (isRadians ? "degrees" : "radians");
 	}
 
 }
