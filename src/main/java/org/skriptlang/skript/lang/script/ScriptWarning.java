@@ -47,7 +47,12 @@ public enum ScriptWarning {
 	/**
 	 * This syntax is deprecated and scheduled for future removal
 	 */
-	DEPRECATED_SYNTAX;
+	DEPRECATED_SYNTAX,
+
+	/**
+	 * Variable '{_example}' is of type 'string', not a 'player, entity type or entity data'
+	 */
+	LOCAL_VARIABLE_TYPE;
 
 	/**
 	 * Prints the given message using {@link Skript#warning(String)} iff the current script does not suppress deprecation warnings.
