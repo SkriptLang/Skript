@@ -37,13 +37,13 @@ import org.jetbrains.annotations.Nullable;
 @Since("1.0, 2.7 (multiple entities, unequip)")
 public class EffEquip extends Effect {
 
-	private static ItemType HORSE_ARMOR;
+	private static final ItemType HORSE_ARMOR;
 
 	static {
-		try {
+		if (Skript.isRunningMinecraft(1, 14)) {
 			HORSE_ARMOR = new ItemType(Material.IRON_HORSE_ARMOR, Material.GOLDEN_HORSE_ARMOR,
 				Material.DIAMOND_HORSE_ARMOR, Material.LEATHER_HORSE_ARMOR);
-		} catch (NoSuchFieldError ex) {
+		} else {
 			HORSE_ARMOR = new ItemType(Material.IRON_HORSE_ARMOR, Material.GOLDEN_HORSE_ARMOR,
 				Material.DIAMOND_HORSE_ARMOR);
 		}
@@ -52,7 +52,7 @@ public class EffEquip extends Effect {
 				"equip [%livingentities%] with %itemtypes%",
 				"make %livingentities% wear %itemtypes%",
 				"unequip %itemtypes% [from %livingentities%]",
-				"unequip %livingentities%'[s] (armor|equipment)");
+				"unequip %livingentities%'[s] (armo[u]r|equipment)");
 	}
 
 	@SuppressWarnings("NotNullFieldNotInitialized")
