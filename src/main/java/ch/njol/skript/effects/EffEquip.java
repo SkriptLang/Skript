@@ -42,10 +42,10 @@ public class EffEquip extends Effect {
 	static {
 		if (Skript.isRunningMinecraft(1, 14)) {
 			HORSE_ARMOR = new ItemType(Material.IRON_HORSE_ARMOR, Material.GOLDEN_HORSE_ARMOR,
-				Material.DIAMOND_HORSE_ARMOR, Material.LEATHER_HORSE_ARMOR);
+					Material.DIAMOND_HORSE_ARMOR, Material.LEATHER_HORSE_ARMOR);
 		} else {
 			HORSE_ARMOR = new ItemType(Material.IRON_HORSE_ARMOR, Material.GOLDEN_HORSE_ARMOR,
-				Material.DIAMOND_HORSE_ARMOR);
+					Material.DIAMOND_HORSE_ARMOR);
 		}
 
 		Skript.registerEffect(EffEquip.class,
