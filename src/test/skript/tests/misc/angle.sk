@@ -29,5 +29,5 @@ test "angle":
 	assert ("n degrees" parsed as number) is not set with "'n' parsed as number degrees is set"
 	assert ("n radians" parsed as number) is not set with "'n' parsed as number radians is set"
 
-	assert NaN value degrees is NaN value with "NaN degrees is not NaN"
-	assert NaN value radians is NaN value with "NaN radians is not NaN"
+	assert isNaN(NaN value degrees) is true with "NaN degrees is not NaN"
+	assert isNaN(NaN value radians) is true with "NaN radians is not NaN"
