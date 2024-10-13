@@ -31,6 +31,7 @@ import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.registrations.DefaultClasses;
 import ch.njol.skript.util.Color;
 import ch.njol.skript.util.ColorRGB;
+import ch.njol.skript.util.Contract;
 import ch.njol.skript.util.Date;
 import ch.njol.util.Math2;
 import ch.njol.util.StringUtils;
@@ -42,7 +43,9 @@ import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.Nullable;
-import ch.njol.skript.util.Contract;
+import org.joml.AxisAngle4f;
+import org.joml.Quaternionf;
+import org.joml.Vector3f;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -525,19 +528,25 @@ public class DefaultFunctions {
 		Functions.registerFunction(new SimpleJavaFunction<Color>("rgb", new Parameter[] {
 			new Parameter<>("red", DefaultClasses.LONG, true, null),
 			new Parameter<>("green", DefaultClasses.LONG, true, null),
-			new Parameter<>("blue", DefaultClasses.LONG, true, null)
+			new Parameter<>("blue", DefaultClasses.LONG, true, null),
+			new Parameter<>("alpha", DefaultClasses.LONG, true, new SimpleLiteral<>(255L,true))
 		}, DefaultClasses.COLOR, true) {
 			@Override
 			public ColorRGB[] executeSimple(Object[][] params) {
 				Long red = (Long) params[0][0];
 				Long green = (Long) params[1][0];
 				Long blue = (Long) params[2][0];
+				Long alpha = (Long) params[3][0];
 				
-				return CollectionUtils.array(new ColorRGB(red.intValue(), green.intValue(), blue.intValue()));
+				return CollectionUtils.array(ColorRGB.fromRGBA(red.intValue(), green.intValue(), blue.intValue(), alpha.intValue()));
 			}
-		}).description("Returns a RGB color from the given red, green and blue parameters.")
-			.examples("dye player's leggings rgb(120, 30, 45)")
-			.since("2.5");
+		}).description("Returns a RGB color from the given red, green and blue parameters. Alpha values can be added optionally, " +
+						"but these only take affect in certain situations, like text display backgrounds.")
+			.examples(
+				"dye player's leggings rgb(120, 30, 45)",
+				"set the colour of a text display to rgb(10, 50, 100, 50)"
+			)
+			.since("2.5, INSERT VERSION (alpha)");
 
 		Functions.registerFunction(new SimpleJavaFunction<Player>("player", new Parameter[] {
 			new Parameter<>("nameOrUUID", DefaultClasses.STRING, true, null),
@@ -634,6 +643,50 @@ public class DefaultFunctions {
 				"concat(\"foo \", 100, \" bar\") # foo 100 bar"
 			).since("2.9.0");
 
+		// joml functions - for display entities
+		{
+			if (Skript.classExists("org.joml.Quaternionf")) {
+				Functions.registerFunction(new SimpleJavaFunction<>("quaternion", new Parameter[]{
+						new Parameter<>("w", DefaultClasses.NUMBER, true, null),
+						new Parameter<>("x", DefaultClasses.NUMBER, true, null),
+						new Parameter<>("y", DefaultClasses.NUMBER, true, null),
+						new Parameter<>("z", DefaultClasses.NUMBER, true, null)
+					}, Classes.getExactClassInfo(Quaternionf.class), true) {
+						@Override
+						public Quaternionf[] executeSimple(Object[][] params) {
+							double w = ((Number) params[0][0]).doubleValue();
+							double x = ((Number) params[1][0]).doubleValue();
+							double y = ((Number) params[2][0]).doubleValue();
+							double z = ((Number) params[3][0]).doubleValue();
+							return CollectionUtils.array(new Quaternionf(x, y, z, w));
+						}
+					})
+					.description("Returns a quaternion from the given W, X, Y and Z parameters. ")
+					.examples("quaternion(1, 5.6, 45.21, 10)")
+					.since("INSERT VERSION");
+			}
+
+			if (Skript.classExists("org.joml.AxisAngle4f")) {
+				Functions.registerFunction(new SimpleJavaFunction<>("axisAngle", new Parameter[]{
+						new Parameter<>("angle", DefaultClasses.NUMBER, true, null),
+						new Parameter<>("axis", DefaultClasses.VECTOR, true, null)
+					}, Classes.getExactClassInfo(Quaternionf.class), true) {
+						@Override
+						public Quaternionf[] executeSimple(Object[][] params) {
+							float angle = (float) (((Number) params[0][0]).floatValue() / 180 * Math.PI);
+							Vector v = ((Vector) params[1][0]);
+							if (v.isZero() || !Double.isFinite(v.getX()) || !Double.isFinite(v.getY()) || !Double.isFinite(v.getZ()))
+								return new Quaternionf[0];
+							Vector3f axis = ((Vector) params[1][0]).toVector3f();
+							return CollectionUtils.array(new Quaternionf(new AxisAngle4f(angle, axis)));
+						}
+					})
+					.description("Returns a quaternion from the given angle (in degrees) and axis (as a vector). This represents a rotation around the given axis by the given angle.")
+					.examples("axisangle(90, (vector from player's facing))")
+					.since("INSERT VERSION");
+			}
+		} // end joml functions
+
 	}
-	
+
 }

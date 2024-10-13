@@ -94,7 +94,7 @@ public class EffColorItems extends Effect {
 					if (r == null || g == null || b == null)
 						return null;
 					
-					return CollectionUtils.array(new ColorRGB(r.intValue(), g.intValue(), b.intValue()));
+					return CollectionUtils.array(ColorRGB.fromRGB(r.intValue(), g.intValue(), b.intValue()));
 				}
 				
 				@Override
