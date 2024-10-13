@@ -1,7 +1,7 @@
 options:
 	junit: "org.skriptlang.skript.test.tests.syntaxes.events.EvtWhitelistTest"
 
-test "EvtWhitelistTest" when running JUnit:
+on script load:
 	# Server whitelist tests
 	set {_test::113.1} to "listen for server whitelist toggled"
 	set {_test::113.2} to "listen for server whitelist enabled"
