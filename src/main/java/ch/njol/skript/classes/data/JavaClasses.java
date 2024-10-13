@@ -39,7 +39,8 @@ public class JavaClasses {
 	 * </p>
 	 */
 	public static final Pattern INTEGER_PATTERN =
-		Pattern.compile("(?<num>-?[0-9]+)(?: (?:in )?(?:(?<rad>rad(?:ian)?s?)|deg(?:ree)?s?))?");
+		Pattern.compile("(?<num>-?\\d+(_\\d+)*)" +
+			"(?: (?:in )?(?:(?<rad>rad(?:ian)?s?)|deg(?:ree)?s?))?");
 
 	/**
 	 * Matches a decimal number with an optional unit of radians or degrees.
@@ -53,7 +54,8 @@ public class JavaClasses {
 	 * </p>
 	 */
 	public static final Pattern DECIMAL_PATTERN =
-		Pattern.compile("(?<num>-?[0-9]+(?>\\.[0-9]+)?%?)(?: (?:in )?(?:(?<rad>rad(?:ian)?s?)|deg(?:ree)?s?))?");
+		Pattern.compile("(?<num>-?\\d+(_\\d+)*(?>\\.\\d+(_\\d+)*)?%?)" +
+			"(?: (?:in )?(?:(?<rad>rad(?:ian)?s?)|deg(?:ree)?s?))?");
 
 	static {
 		Classes.registerClass(new ClassInfo<>(Object.class, "object")
