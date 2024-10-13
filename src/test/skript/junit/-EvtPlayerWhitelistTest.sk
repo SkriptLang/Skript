@@ -9,11 +9,9 @@ on player whitelist toggled:
 on player whitelist added:
 	junit test is {@junit}
 	name of event-offline player is "Njol"
-	the player will be whitelisted
 	complete objective "listen for player whitelist added" for {@junit}
 
 on player whitelist removed:
 	junit test is {@junit}
 	name of event-offline player is "Njol"
-	the player will not be whitelisted
 	complete objective "listen for player whitelist removed" for {@junit}
