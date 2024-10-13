@@ -68,7 +68,8 @@ skript command:
 		aliases: エイリアス
 		script: <gold>%s<reset>
 		scripts in folder: <gold>%s<reset>フォルダ内の全てのスクリプト
-		x scripts in folder: <gold>%1$s<lime>フォルダ内の<gold>%2$s<reset>個のスクリプト
+		x scripts in folder success: <gold>%1$s<lime>フォルダ内の<gold>%2$s<reset>個のスクリプト
+		x scripts in folder error: <gold>%1$s<light red>フォルダ内の<gold>%2$s<reset>個のスクリプト
 		empty folder: 有効化されたスクリプトが<gold>%s<reset>フォルダ内にありませんでした。
 	enable:
 		all:

@@ -68,7 +68,8 @@ skript command:
 		aliases: алиасы
 		script: <gold>%s<reset>
 		scripts in folder: все скрипты в <gold>%s<reset>
-		x scripts in folder: <gold>%2$s <lime>скриптов в <gold>%1$s<reset>
+		x scripts in folder success: <gold>%2$s <lime>скриптов в <gold>%1$s<reset>
+		x scripts in folder error: <gold>%2$s <light red>скриптов в <gold>%1$s<reset>
 		empty folder: <gold>%s<reset> не содержит включенных скриптов.
 	enable:
 		all:
