@@ -113,4 +113,20 @@ public abstract class TriggerSection extends TriggerItem {
 		}
 	}
 
+	/**
+	 * @return The execution intent of the section's trigger.
+	 */
+	protected @Nullable ExecutionIntent triggerExecutionIntent() {
+		TriggerItem current = first;
+		while (current != null) {
+			ExecutionIntent executionIntent = current.executionIntent();
+			if (executionIntent != null)
+				return executionIntent.use();
+			if (current == last)
+				break;
+			current = current.getActualNext();
+		}
+		return null;
+	}
+
 }

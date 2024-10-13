@@ -31,7 +31,7 @@ import ch.njol.skript.lang.SkriptParser;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.bukkit.metadata.Metadatable;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 @Name("Has Metadata")
 @Description("Checks whether a metadata holder has a metadata tag.")

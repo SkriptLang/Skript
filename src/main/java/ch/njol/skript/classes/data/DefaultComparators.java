@@ -29,6 +29,7 @@ import ch.njol.skript.entity.BoatData;
 import ch.njol.skript.entity.EntityData;
 import ch.njol.skript.entity.RabbitData;
 import ch.njol.skript.util.BlockUtils;
+import ch.njol.skript.util.Color;
 import ch.njol.skript.util.Date;
 import ch.njol.skript.util.EnchantmentType;
 import ch.njol.skript.util.Experience;
@@ -75,20 +76,28 @@ public class DefaultComparators {
 	static {
 		
 		// Number - Number
-		Comparators.registerComparator(Number.class, Number.class, new Comparator<Number, Number>() {
+		Comparators.registerComparator(Number.class, Number.class, new Comparator<>() {
 			@Override
 			public Relation compare(Number n1, Number n2) {
 				if (n1 instanceof Long && n2 instanceof Long)
 					return Relation.get(n1.longValue() - n2.longValue());
-				Double d1 = n1.doubleValue(),
-					   d2 = n2.doubleValue();
+				double epsilon = Skript.EPSILON;
+				@SuppressWarnings("WrapperTypeMayBePrimitive") Double d1, d2;
+				if (n1 instanceof Float || n2 instanceof Float) {
+					d1 = (double) n1.floatValue();
+					d2 = (double) n2.floatValue();
+					epsilon = Math.min(d1, d2) * 1e-6; // dynamic epsilon
+				} else {
+					d1 = n1.doubleValue();
+					d2 = n2.doubleValue();
+				}
 				if (d1.isNaN() || d2.isNaN()) {
 					return Relation.SMALLER;
 				} else if (d1.isInfinite() || d2.isInfinite()) {
 					return d1 > d2 ? Relation.GREATER : d1 < d2 ? Relation.SMALLER : Relation.EQUAL;
 				} else {
 					double diff = d1 - d2;
-					if (Math.abs(diff) < Skript.EPSILON)
+					if (Math.abs(diff) < epsilon)
 						return Relation.EQUAL;
 					return Relation.get(diff);
 				}
@@ -656,6 +665,11 @@ public class DefaultComparators {
 
 		// Potion Effect Type
 		Comparators.registerComparator(PotionEffectType.class, PotionEffectType.class, (one, two) -> Relation.get(one.equals(two)));
+
+		// Color - Color
+		Comparators.registerComparator(Color.class, Color.class, (one, two) -> Relation.get(one.asBukkitColor().equals(two.asBukkitColor())));
+		Comparators.registerComparator(Color.class, org.bukkit.Color.class, (one, two) -> Relation.get(one.asBukkitColor().equals(two)));
+		Comparators.registerComparator(org.bukkit.Color.class, org.bukkit.Color.class, (one, two) -> Relation.get(one.equals(two)));
 	}
 	
 }

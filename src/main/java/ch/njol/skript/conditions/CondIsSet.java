@@ -21,7 +21,7 @@ package ch.njol.skript.conditions;
 import ch.njol.skript.lang.VerboseAssert;
 import ch.njol.skript.localization.Language;
 import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
