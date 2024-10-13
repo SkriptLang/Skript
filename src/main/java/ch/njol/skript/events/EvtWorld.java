@@ -44,7 +44,7 @@ public class EvtWorld extends SkriptEvent {
 				.since("1.0, 2.8.0 (defining worlds)");
 
 		// World Init Event
-		Skript.registerEvent("World Init", EvtWorld.class, WorldInitEvent.class, "world init[ialization] [of %-worlds%]")
+		Skript.registerEvent("World Init", EvtWorld.class, WorldInitEvent.class, "world init[iali(z|s)ation] [of %-worlds%]")
 				.description("Called when a world is initialized. As all default worlds are initialized before",
 					"any scripts are loaded, this event is only called for newly created worlds.",
 					"World management plugins might change the behaviour of this event though.")
