@@ -215,7 +215,11 @@ public class SkriptCommand implements CommandExecutor {
 								if (scriptInfo.files == 0) {
 									info(sender, "reload.empty folder", fileName);
 								} else {
-									reloaded(sender, logHandler, timingLogHandler, "x scripts in folder", fileName, scriptInfo.files);
+									if (logHandler.numErrors() == 0) {
+										reloaded(sender, logHandler, timingLogHandler, "x scripts in folder success", fileName, scriptInfo.files);
+									} else {
+										reloaded(sender, logHandler, timingLogHandler, "x scripts in folder error", fileName, scriptInfo.files);
+									}
 								}
 							});
 					}
