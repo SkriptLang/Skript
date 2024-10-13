@@ -20,19 +20,35 @@ package ch.njol.skript.bukkitutil;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.ItemType;
+import ch.njol.skript.util.slot.Slot;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.OfflinePlayer;
+import org.bukkit.Tag;
 import org.bukkit.TreeType;
+import org.bukkit.block.Block;
+import org.bukkit.block.data.BlockData;
+import org.bukkit.block.data.type.Fence;
+import org.bukkit.block.data.type.Gate;
+import org.bukkit.block.data.type.Wall;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.eclipse.jdt.annotation.Nullable;
+import org.bukkit.inventory.meta.SkullMeta;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
+import java.util.UUID;
 
 /**
  * Miscellaneous static utility methods related to items.
  */
 public class ItemUtils {
+
+	public static final boolean HAS_MAX_DAMAGE = Skript.methodExists(Damageable.class, "getMaxDamage");
+	// Introduced in Paper 1.21
+	public static final boolean HAS_RESET = Skript.methodExists(Damageable.class, "resetDamage");
+	public static final boolean CAN_CREATE_PLAYER_PROFILE = Skript.methodExists(Bukkit.class, "createPlayerProfile", UUID.class, String.class);
 
 	/**
 	 * Gets damage/durability of an item, or 0 if it does not have damage.
@@ -40,10 +56,49 @@ public class ItemUtils {
 	 * @return Damage.
 	 */
 	public static int getDamage(ItemStack itemStack) {
-		ItemMeta meta = itemStack.getItemMeta();
-		if (meta instanceof Damageable)
-			return ((Damageable) meta).getDamage();
+		return getDamage(itemStack.getItemMeta());
+	}
+
+	/**
+	 * Gets damage/durability of an itemmeta, or 0 if it does not have damage.
+	 * @param itemMeta ItemMeta.
+	 * @return Damage.
+	 */
+	public static int getDamage(ItemMeta itemMeta) {
+		if (itemMeta instanceof Damageable)
+			return ((Damageable) itemMeta).getDamage();
 		return 0; // Non damageable item
+	}
+
+	/** Gets the max damage/durability of an item
+	 * <p>NOTE: Will account for custom damageable items in MC 1.20.5+</p>
+	 * @param itemStack Item to grab durability from
+	 * @return Max amount of damage this item can take
+	 */
+	public static int getMaxDamage(ItemStack itemStack) {
+		ItemMeta meta = itemStack.getItemMeta();
+		if (HAS_MAX_DAMAGE && meta instanceof Damageable && ((Damageable) meta).hasMaxDamage())
+			return ((Damageable) meta).getMaxDamage();
+		return itemStack.getType().getMaxDurability();
+	}
+
+	/**
+	 * Set the max damage/durability of an item
+	 *
+	 * @param itemStack ItemStack to set max damage
+	 * @param maxDamage Amount of new max damage
+	 */
+	public static void setMaxDamage(ItemStack itemStack, int maxDamage) {
+		ItemMeta meta = itemStack.getItemMeta();
+		if (HAS_MAX_DAMAGE && meta instanceof Damageable) {
+			Damageable damageable = (Damageable) meta;
+			if (HAS_RESET && maxDamage < 1) {
+				damageable.resetDamage();
+			} else {
+				damageable.setMaxDamage(Math.max(1, maxDamage));
+			}
+			itemStack.setItemMeta(damageable);
+		}
 	}
 
 	/**
@@ -55,7 +110,7 @@ public class ItemUtils {
 	public static void setDamage(ItemStack itemStack, int damage) {
 		ItemMeta meta = itemStack.getItemMeta();
 		if (meta instanceof Damageable) {
-			((Damageable) meta).setDamage(damage);
+			((Damageable) meta).setDamage(Math.max(0, damage));
 			itemStack.setItemMeta(meta);
 		}
 	}
@@ -72,6 +127,18 @@ public class ItemUtils {
 		return 0; // Non damageable item
 	}
 
+	/** Gets the max damage/durability of an item
+	 * <p>NOTE: Will account for custom damageable items in MC 1.20.5+</p>
+	 * @param itemType Item to grab durability from
+	 * @return Max amount of damage this item can take
+	 */
+	public static int getMaxDamage(ItemType itemType) {
+		ItemMeta meta = itemType.getItemMeta();
+		if (HAS_MAX_DAMAGE && meta instanceof Damageable && ((Damageable) meta).hasMaxDamage())
+			return ((Damageable) meta).getMaxDamage();
+		return itemType.getMaterial().getMaxDurability();
+	}
+
 	/**
 	 * Sets damage/durability of an item if possible.
 	 * @param itemType Item to modify.
@@ -84,6 +151,30 @@ public class ItemUtils {
 			((Damageable) meta).setDamage(damage);
 			itemType.setItemMeta(meta);
 		}
+	}
+
+	/**
+	 * Sets the owner of a player head.
+	 * @param skull player head item to modify
+	 * @param player owner of the head
+	 */
+	public static void setHeadOwner(ItemType skull, OfflinePlayer player) {
+		ItemMeta meta = skull.getItemMeta();
+		if (!(meta instanceof SkullMeta))
+			return;
+
+		SkullMeta skullMeta = (SkullMeta) meta;
+
+		if (player.getName() != null) {
+			skullMeta.setOwningPlayer(player);
+		} else if (CAN_CREATE_PLAYER_PROFILE) {
+			//noinspection deprecation
+			skullMeta.setOwnerProfile(Bukkit.createPlayerProfile(player.getUniqueId(), ""));
+		} else {
+			skullMeta.setOwningPlayer(null);
+		}
+
+		skull.setItemMeta(skullMeta);
 	}
 
 	/**
@@ -113,19 +204,44 @@ public class ItemUtils {
 		// Assume (naively) that all types are valid items
 		return type;
 	}
+
+	/**
+	 * Convert an ItemType/Slot to ItemStack
+	 * Will also accept an ItemStack that will return itself
+	 *
+	 * @param object Object to convert
+	 * @return ItemStack from slot/itemtype
+	 */
+	@Nullable
+	public static ItemStack asItemStack(Object object) {
+		if (object instanceof ItemType)
+			return ((ItemType) object).getRandom();
+		else if (object instanceof Slot)
+			return ((Slot) object).getItem();
+		else if (object instanceof ItemStack)
+			return ((ItemStack) object);
+		return null;
+	}
 	
 	/**
 	 * Tests whether two item stacks are of the same type, i.e. it ignores the amounts.
 	 *
-	 * @param is1
-	 * @param is2
+	 * @param itemStack1
+	 * @param itemStack2
 	 * @return Whether the item stacks are of the same type
 	 */
-	public static boolean itemStacksEqual(final @Nullable ItemStack is1, final @Nullable ItemStack is2) {
-		if (is1 == null || is2 == null)
-			return is1 == is2;
-		return is1.getType() == is2.getType() && ItemUtils.getDamage(is1) == ItemUtils.getDamage(is2)
-			&& is1.getItemMeta().equals(is2.getItemMeta());
+	public static boolean itemStacksEqual(@Nullable ItemStack itemStack1, @Nullable ItemStack itemStack2) {
+		if (itemStack1 == null || itemStack2 == null)
+			return itemStack1 == itemStack2;
+		if (itemStack1.getType() != itemStack2.getType())
+			return false;
+
+		ItemMeta itemMeta1 = itemStack1.getItemMeta();
+		ItemMeta itemMeta2 = itemStack2.getItemMeta();
+		if (itemMeta1 == null || itemMeta2 == null)
+			return itemMeta1 == itemMeta2;
+
+		return itemStack1.getItemMeta().equals(itemStack2.getItemMeta());
 	}
 
 	// Only 1.15 and versions after have Material#isAir method
@@ -193,5 +309,56 @@ public class ItemUtils {
 	public static Material getTreeSapling(TreeType treeType) {
 		return TREE_TO_SAPLING_MAP.get(treeType);
 	}
-	
+
+
+	private static final boolean HAS_FENCE_TAGS = !Skript.isRunningMinecraft(1, 14);
+
+	/**
+	 * Whether the block is a fence or a wall.
+	 * @param block the block to check.
+	 * @return whether the block is a fence/wall.
+	 */
+	public static boolean isFence(Block block) {
+		// TODO: 1.13 only, so remove in 2.10
+		if (!HAS_FENCE_TAGS) {
+			BlockData data = block.getBlockData();
+			return data instanceof Fence
+				|| data instanceof Wall
+				|| data instanceof Gate;
+		}
+
+		Material type = block.getType();
+		return Tag.FENCES.isTagged(type)
+			|| Tag.FENCE_GATES.isTagged(type)
+			|| Tag.WALLS.isTagged(type);
+	}
+
+	/**
+	 * @param material The material to check
+	 * @return whether the material is a full glass block
+	 */
+	public static boolean isGlass(Material material) {
+		switch (material) {
+			case GLASS:
+			case RED_STAINED_GLASS:
+			case ORANGE_STAINED_GLASS:
+			case YELLOW_STAINED_GLASS:
+			case LIGHT_BLUE_STAINED_GLASS:
+			case BLUE_STAINED_GLASS:
+			case CYAN_STAINED_GLASS:
+			case LIME_STAINED_GLASS:
+			case GREEN_STAINED_GLASS:
+			case MAGENTA_STAINED_GLASS:
+			case PURPLE_STAINED_GLASS:
+			case PINK_STAINED_GLASS:
+			case WHITE_STAINED_GLASS:
+			case LIGHT_GRAY_STAINED_GLASS:
+			case GRAY_STAINED_GLASS:
+			case BLACK_STAINED_GLASS:
+			case BROWN_STAINED_GLASS:
+				return true;
+			default:
+				return false;
+		}
+	}
 }

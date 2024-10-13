@@ -37,7 +37,7 @@ import ch.njol.util.Kleenean;
 	"if tool of {_p} is breakable:",
 		"\tsend \"Your tool is breakable!\" to {_p}"
 })
-@Since("2.5.1, INSERT VERSION (breakable)")
+@Since("2.5.1, 2.9.0 (breakable)")
 public class CondIsUnbreakable extends PropertyCondition<ItemType> {
 	
 	static {
