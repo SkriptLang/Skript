@@ -1,0 +1,111 @@
+test "EffSpread - spreading 1":
+	set {_1 through 10::*} to 1, 2, 3, 4, 5, 6, 7, 8, 9 and 10
+	spread {_1 through 10::*} across {_1}, {_2 through 9::*} and {_10}
+	assert {_1} is 1 with "Spread to {_1} failed"
+	assert {_2 through 9::*} is 2, 3, 4, 5, 6, 7, 8 and 9 with "Spread to {_2 through 9::*} failed"
+	assert {_10} is 10 with "Spread to {_10} failed"
+
+test "EffSpread - spreading 2":
+	set {_1 through 10::*} to 1, 2, 3, 4, 5, 6, 7, 8, 9 and 10
+	spread {_1 through 10::*} across {_1}, {_2}, {_3}, {_4 through 8::*} and {_9}, {_10}
+	assert {_1} is 1 with "Spread to {_1} failed"
+	assert {_2} is 2 with "Spread to {_2} failed"
+	assert {_3} is 3 with "Spread to {_3} failed"
+	assert {_4 through 8::*} is 4, 5, 6, 7 and 8 with "Spread to {_4 through 8::*} failed"
+	assert {_9} is 9 with "Spread to {_9} failed"
+	assert {_10} is 10 with "Spread to {_10} failed"
+
+test "EffSpread - spreading 3":
+	set {_1 through 10::*} to 1, 2, 3, 4, 5, 6, 7, 8, 9 and 10
+	spread {_1 through 10::*} across {_1} and {_2 through 10::*}
+	assert {_1} is 1 with "Spread to {_1} failed"
+	assert {_2 through 10::*} is 2, 3, 4, 5, 6, 7, 8, 9 and 10 with "Spread to {_2 through 10::*} failed"
+
+test "EffSpread - spreading 4":
+	set {_1 through 10::*} to 1, 2, 3, 4, 5, 6, 7, 8, 9 and 10
+	spread {_1 through 10::*} across {_1 through 9::*} and {_10}
+	assert {_1 through 9::*} is 1, 2, 3, 4, 5, 6, 7, 8 and 9 with "Spread to {_1 through 9::*} failed"
+	assert {_10} is 10 with "Spread to {_10} failed"
+
+test "EffSpread - spreading 5":
+	set {_1 through 10::*} to 1, 2, 3, 4, 5, 6, 7, 8, 9 and 10
+	spread {_1 through 10::*} across {_1 through 8::*}, {_9} and {_10}
+	assert {_1 through 8::*} is 1, 2, 3, 4, 5, 6, 7 and 8 with "Spread to {_1 through 8::*} failed"
+	assert {_9} is 9 with "Spread to {_9} failed"
+	assert {_10} is 10 with "Spread to {_10} failed"
+
+test "EffSpread - spreading 6":
+	set {_1 through 10::*} to 1, 2, 3, 4, 5, 6, 7, 8, 9 and 10
+	spread {_1 through 10::*} across {_1} and {_2 through 10::*}
+	assert {_1} is 1 with "Spread to {_1} failed"
+	assert {_2 through 10::*} is 2, 3, 4, 5, 6, 7, 8, 9 and 10 with "Spread to {_2 through 10::*} failed"
+
+test "EffSpread - spreading 6":
+	set {_1 through 10::*} to 1, 2, 3, 4, 5, 6, 7, 8, 9 and 10
+	spread {_1 through 10::*} across {_1}, {_2} and {_3 through 10::*}
+	assert {_1} is 1 with "Spread to {_1} failed"
+	assert {_2} is 2 with "Spread to {_2} failed"
+	assert {_3 through 10::*} is 3, 4, 5, 6, 7, 8, 9 and 10 with "Spread to {_3 through 10::*} failed"
+
+test "EffSpread - spreading 7":
+	set {_1 through 10::*} to 1, 2, 3, 4, 5, 6, 7, 8, 9 and 10
+	spread {_1 through 10::*} across {_1}, {_2} and {_3}
+	assert {_1} is 1 with "Spread to {_1} failed"
+	assert {_2} is 2 with "Spread to {_2} failed"
+	assert {_3} is 3 with "Spread to {_3} failed"
+
+test "EffSpread - spreading 8":
+	set {_1 through 10::*} to 1, 2, 3, 4, 5, 6, 7, 8, 9 and 10
+	spread {_1 through 10::*} across {_1} and {_2}
+	assert {_1} is 1 with "Spread to {_1} failed"
+	assert {_2} is 2 with "Spread to {_2} failed"
+
+test "EffSpread - spreading 9":
+	spawn a cat
+	set {_cat} to last spawned cat  
+	spread 1, 2 and 3 across (metadata value "1" of {_cat}), (metadata value "2" of {_cat}) and (metadata value "3" of {_cat})
+	assert metadata value "1" of {_cat} is 1 with "Incorrect spread to metadata value 1"
+	assert metadata value "2" of {_cat} is 2 with "Incorrect spread to metadata value 2"
+	assert metadata value "3" of {_cat} is 3 with "Incorrect spread to metadata value 3"
+	delete entity within {_cat}
+
+test "EffSpread - spreading 10":
+	spread 1 and 2 across {_1}, {_2} and {_3}
+	assert {_1} is 1 with "Spread to {_1} failed"
+	assert {_2} is 2 with "Spread to {_2} failed"
+	assert {_3} is not set with "Spread to {_3} occurred when only two objects were available"
+
+test "EffSpread - spreading 11":
+	set {_v::1} to vector(0,1,0)
+	set {_v::2} to vector(0,1,0)
+	set {_v::3} to vector(0,1,0)
+
+	spread 1, 2 and 3 across (vector length of {_v::1}), (vector length of {_v::2}), and (vector length of {_v::3})
+	assert {_v::1} is vector(0,1,0) with "Incorrect spread to vector length 1"
+	assert {_v::2} is vector(0,2,0) with "Incorrect spread to vector length 2"
+	assert {_v::3} is vector(0,3,0) with "Incorrect spread to vector length 3"
+
+	set {_1} to 3
+	set {_2} to 1
+	set {_3} to 2
+	spread {_1}, {_2} and {_3} across (vector length of {_v::1}), (vector length of {_v::2}), and (vector length of {_v::3})
+	assert {_v::1} is vector(0,3,0) with "Incorrect spread to vector length 4"
+	assert {_v::2} is vector(0,1,0) with "Incorrect spread to vector length 5"
+	assert {_v::3} is vector(0,2,0) with "Incorrect spread to vector length 6"
+
+test "EffSpread - parse errors":
+  parse:
+    spread 1, 2 and 3 across dirt and dirt
+  assert parse logs contain "All expressions in the spread target list must be settable" with "Non-settable expression was allowed in spread targets"
+  parse:
+    spread 1, 2 and 3 across {_a} or {_b}
+  assert parse logs contain "The spread target must be an 'and' list, not an 'or' list" with "An 'or' list was allowed as the spread target"
+  parse:
+    spread 1, 2 and 3 across {_a::*}
+  assert parse logs contain "The spread target must be a list of settable expressions" with "A non-list expression was allowed as the spread target"
+  parse:
+    spread 1 across {_a::*}
+  assert parse logs contain "You must provide more than one object to spread" with "A single expression was allowed as the objects to spread"
+  parse:
+    spread 1, "a" and a frog across (vector length of {_v::1}), (vector length of {_v::2}), and (vector length of {_v::3})
+  assert parse logs contain "All expressions in the spread target list must be settable" with "A source of the wrong type was able to spread to the targets."
