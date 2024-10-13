@@ -47,6 +47,7 @@ import ch.njol.util.StringUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.util.event.EventRegistry;
 import org.skriptlang.skript.lang.script.Script;
 import org.skriptlang.skript.lang.structure.Structure;
 
@@ -58,6 +59,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -488,6 +490,9 @@ public class ScriptLoader {
 		if (configs.isEmpty()) // Nothing to load
 			return CompletableFuture.completedFuture(new ScriptInfo());
 
+		eventRegistry().events(ScriptPreInitEvent.class)
+				.forEach(event -> event.onPreInit(configs));
+		//noinspection deprecation - we still need to call it
 		Bukkit.getPluginManager().callEvent(new PreScriptLoadEvent(configs));
 		
 		ScriptInfo scriptInfo = new ScriptInfo();
@@ -605,6 +610,20 @@ public class ScriptLoader {
 					});
 					parser.setInactive();
 
+					// trigger events
+					scripts.forEach(loadingInfo -> {
+						Script script = loadingInfo.script;
+
+						parser.setActive(script);
+						parser.setNode(script.getConfig().getMainNode());
+
+						ScriptLoader.eventRegistry().events(ScriptLoadEvent.class)
+							.forEach(event -> event.onLoad(parser, script));
+						script.eventRegistry().events(ScriptLoadEvent.class)
+							.forEach(event -> event.onLoad(parser, script));
+					});
+					parser.setInactive();
+
 					return scriptInfo;
 				} catch (Exception e) {
 					// Something went wrong, we need to make sure the exception is printed
@@ -700,10 +719,13 @@ public class ScriptLoader {
 			assert file != null;
 			File disabledFile = new File(file.getParentFile(), DISABLED_SCRIPT_PREFIX + file.getName());
 			disabledScripts.remove(disabledFile);
-			
+
 			// Add to loaded files to use for future reloads
 			loadedScripts.add(script);
-			
+
+			ScriptLoader.eventRegistry().events(ScriptInitEvent.class)
+					.forEach(event -> event.onInit(script));
+
 			return null;
 		};
 		if (isAsync()) { // Need to delegate to main thread
@@ -848,6 +870,13 @@ public class ScriptLoader {
 		// initial unload stage
 		for (Script script : scripts) {
 			parser.setActive(script);
+
+			// trigger unload event before beginning
+			eventRegistry().events(ScriptUnloadEvent.class)
+					.forEach(event -> event.onUnload(parser, script));
+			script.eventRegistry().events(ScriptUnloadEvent.class)
+					.forEach(event -> event.onUnload(parser, script));
+
 			for (Structure structure : script.getStructures())
 				structure.unload();
 		}
@@ -1041,6 +1070,96 @@ public class ScriptLoader {
 	 */
 	public static FileFilter getDisabledScriptsFilter() {
 		return disabledScriptFilter;
+	}
+
+	/*
+	 * Global Script Event API
+	 */
+
+	// ScriptLoader Events
+
+	/**
+	 * Used for listening to events involving a ScriptLoader.
+	 * @see #eventRegistry()
+	 */
+	public interface LoaderEvent extends org.skriptlang.skript.util.event.Event { }
+
+	/**
+	 * Called when {@link ScriptLoader} is preparing to load {@link Config}s into {@link Script}s.
+	 * @see #loadScripts(File, OpenCloseable)
+	 * @see #loadScripts(Set, OpenCloseable)
+	 */
+	@FunctionalInterface
+	public interface ScriptPreInitEvent extends LoaderEvent {
+
+		/**
+		 * The method that is called when this event triggers.
+		 * Modifications to the given collection will affect what is loaded.
+		 * @param configs The Configs to be loaded.
+		 */
+		void onPreInit(Collection<Config> configs);
+
+	}
+
+	/**
+	 * Called when a {@link Script} is created and preloaded in the {@link ScriptLoader}.
+	 * The initializing script may contain {@link Structure}s that are not fully loaded.
+	 * @see #loadScripts(File, OpenCloseable)
+	 * @see #loadScripts(Set, OpenCloseable)
+	 */
+	@FunctionalInterface
+	public interface ScriptInitEvent extends LoaderEvent {
+
+		/**
+		 * The method that is called when this event triggers.
+		 * @param script The Script being initialized.
+		 */
+		void onInit(Script script);
+
+	}
+
+	/**
+	 * Called when a {@link Script} is loaded in the {@link ScriptLoader}.
+	 * This event will trigger <b>after</b> the script is completely loaded ({@link Structure} initialization finished).
+	 * @see #loadScripts(File, OpenCloseable)
+	 * @see #loadScripts(Set, OpenCloseable)
+	 */
+	@FunctionalInterface
+	public interface ScriptLoadEvent extends LoaderEvent, Script.Event {
+
+		/**
+		 * The method that is called when this event triggers.
+		 * @param parser The ParserInstance handling the loading of <code>script</code>.
+		 * @param script The Script being loaded.
+		 */
+		void onLoad(ParserInstance parser, Script script);
+
+	}
+
+	/**
+	 * Called when a {@link Script} is unloaded in the {@link ScriptLoader}.
+	 * This event will trigger <b>before</b> the script is unloaded.
+	 * @see #unloadScript(Script)
+	 */
+	@FunctionalInterface
+	public interface ScriptUnloadEvent extends LoaderEvent, Script.Event {
+
+		/**
+		 * The method that is called when this event triggers.
+		 * @param parser The ParserInstance handling the unloading of <code>script</code>.
+		 * @param script The Script being unloaded.
+		 */
+		void onUnload(ParserInstance parser, Script script);
+
+	}
+
+	private static final EventRegistry<LoaderEvent> eventRegistry = new EventRegistry<>();
+
+	/**
+	 * @return An EventRegistry for the ScriptLoader's events.
+	 */
+	public static EventRegistry<LoaderEvent> eventRegistry() {
+		return eventRegistry;
 	}
 
 	/*
