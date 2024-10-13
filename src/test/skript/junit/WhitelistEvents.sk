@@ -1,0 +1,39 @@
+options:
+	junit: "org.skriptlang.skript.test.tests.syntaxes.events.EvtWhitelistTest"
+
+on script load:
+	# Server whitelist tests
+	set {_test::113.1} to "listen for server whitelist toggled"
+	set {_test::113.2} to "listen for server whitelist enabled"
+	set {_test::113.3} to "listen for server whitelist disabled"
+
+	# Player Whitelist tests for MC 1.20
+	if running minecraft "1.20":
+		set {_slashIndex} to last index of "/" in "%script%.sk"
+		set {_parent} to substring of "%script%.sk" from 0 to {_slashIndex}
+		load script "%{_parent}%-EvtPlayerWhitelistTest.sk"
+
+		set {_test::120.1} to "listen for player whitelist toggled"
+		set {_test::120.2} to "listen for player whitelist added"
+		set {_test::120.3} to "listen for player whitelist removed"
+
+	ensure junit test {@junit} completes {_test::*}
+
+# Unloads the Player Whitelist tests for MC 1.20
+on script unload:
+	running minecraft "1.20"
+	set {_slashIndex} to last index of "/" in "%script%.sk"
+	set {_parent} to substring of "%script%.sk" from 0 to {_slashIndex}
+	disable script "%{_parent}%EvtPlayerWhitelistTest.sk"
+
+on server whitelist toggled:
+	junit test is {@junit}
+	complete objective "listen for server whitelist toggled" for {@junit}
+
+on server whitelist enabled:
+	junit test is {@junit}
+	complete objective "listen for server whitelist enabled" for {@junit}
+
+on server whitelist disabled:
+	junit test is {@junit}
+	complete objective "listen for server whitelist disabled" for {@junit}
