@@ -23,7 +23,7 @@ import ch.njol.skript.effects.EffEnforceWhitelist;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer.ChangeMode;
@@ -49,7 +49,7 @@ import ch.njol.util.coll.CollectionUtils;
 	"add all players to whitelist",
 	"reset the whitelist"
 })
-@Since("2.5.2, INSERT VERSION (delete)")
+@Since("2.5.2, 2.9.0 (delete)")
 public class ExprWhitelist extends SimpleExpression<OfflinePlayer> {
 
 	static {

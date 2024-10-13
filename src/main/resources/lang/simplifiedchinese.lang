@@ -15,7 +15,7 @@ skript:
 	invalid reload: Skript只能通过Bukkit的“/reload”或Skript的“/skript reload”命令来重新加载。
 	no scripts: 没有发现任何脚本，也许你应该写一些 ;)
 	no errors: 所有脚本都已加载，没有错误。
-	scripts loaded: 已加载%s个脚本，包括%s个结构和%s个命令（%s内）
+	scripts loaded: 已加载%s个脚本，总共包含%s个结构。 (耗时%s）
 	finished loading: 已完成加载。
 
 # -- Skript command --
@@ -68,7 +68,8 @@ skript command:
 		aliases: 其它配置
 		script: <gold>%s<reset>
 		scripts in folder: <gold>%s<reset>中的所有脚本
-		x scripts in folder: <gold>%1$s<reset>中的<gold>%2$s<reset>个脚本
+		x scripts in folder success: <gold>%1$s<reset>中的<gold>%2$s<lime>个脚本
+		x scripts in folder error: <gold>%1$s<reset>中的<gold>%2$s<light red>个脚本
 		empty folder: <gold>%s<reset>不包含任何已启用的脚本。
 	enable:
 		all:

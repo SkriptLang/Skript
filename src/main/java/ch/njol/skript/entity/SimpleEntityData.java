@@ -23,6 +23,8 @@ import java.io.StreamCorruptedException;
 import java.util.ArrayList;
 import java.util.List;
 
+import ch.njol.util.Kleenean;
+import org.bukkit.World;
 import org.bukkit.entity.AbstractHorse;
 import org.bukkit.entity.Allay;
 import org.bukkit.entity.Animals;
@@ -142,7 +144,7 @@ import org.bukkit.entity.Zoglin;
 import org.bukkit.entity.Zombie;
 import org.bukkit.entity.ZombieHorse;
 
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.lang.Literal;
@@ -155,15 +157,13 @@ public class SimpleEntityData extends EntityData<Entity> {
 		final String codeName;
 		final Class<? extends Entity> c;
 		final boolean isSupertype;
+		final Kleenean allowSpawning;
 		
-		SimpleEntityDataInfo(final String codeName, final Class<? extends Entity> c) {
-			this(codeName, c, false);
-		}
-		
-		SimpleEntityDataInfo(final String codeName, final Class<? extends Entity> c, final boolean isSupertype) {
+		SimpleEntityDataInfo(String codeName, Class<? extends Entity> c, boolean isSupertype, Kleenean allowSpawning) {
 			this.codeName = codeName;
 			this.c = c;
 			this.isSupertype = isSupertype;
+			this.allowSpawning = allowSpawning;
 		}
 		
 		@Override
@@ -191,11 +191,18 @@ public class SimpleEntityData extends EntityData<Entity> {
 	private final static List<SimpleEntityDataInfo> types = new ArrayList<>();
 
 	private static void addSimpleEntity(String codeName, Class<? extends Entity> entityClass) {
-		types.add(new SimpleEntityDataInfo(codeName, entityClass));
+		addSimpleEntity(codeName, entityClass, Kleenean.UNKNOWN);
+	}
+
+	/**
+	 * @param allowSpawning Whether to override the default {@link #canSpawn(World)} behavior and allow this entity to be spawned.
+	 */
+	private static void addSimpleEntity(String codeName, Class<? extends Entity> entityClass, Kleenean allowSpawning) {
+		types.add(new SimpleEntityDataInfo(codeName, entityClass, false, allowSpawning));
 	}
 
 	private static void addSuperEntity(String codeName, Class<? extends Entity> entityClass) {
-		types.add(new SimpleEntityDataInfo(codeName, entityClass, true));
+		types.add(new SimpleEntityDataInfo(codeName, entityClass, true, Kleenean.UNKNOWN));
 	}
 	static {
 		// Simple Entities
@@ -238,7 +245,9 @@ public class SimpleEntityData extends EntityData<Entity> {
 		addSimpleEntity("witch", Witch.class);
 		addSimpleEntity("wither", Wither.class);
 		addSimpleEntity("wither skull", WitherSkull.class);
-		addSimpleEntity("firework", Firework.class);
+		// bukkit marks fireworks as not spawnable
+		// see https://hub.spigotmc.org/jira/browse/SPIGOT-7677
+		addSimpleEntity("firework", Firework.class, Kleenean.TRUE);
 		addSimpleEntity("endermite", Endermite.class);
 		addSimpleEntity("armor stand", ArmorStand.class);
 		addSimpleEntity("shulker", Shulker.class);
@@ -302,16 +311,12 @@ public class SimpleEntityData extends EntityData<Entity> {
 			addSimpleEntity("warden", Warden.class);
 		}
 
-		if (Skript.isRunningMinecraft(1,19,3))
+		if (Skript.isRunningMinecraft(1, 19, 3))
 			addSimpleEntity("camel", Camel.class);
 
-		if (Skript.isRunningMinecraft(1,19,4)) {
+		if (Skript.isRunningMinecraft(1, 19, 4)) {
 			addSimpleEntity("sniffer", Sniffer.class);
-			addSimpleEntity("text display", TextDisplay.class);
-			addSimpleEntity("item display", ItemDisplay.class);
-			addSimpleEntity("block display", BlockDisplay.class);
 			addSimpleEntity("interaction", Interaction.class);
-			addSuperEntity("display", Display.class);
 		}
 
 		if (Skript.isRunningMinecraft(1, 20, 3)) {
@@ -328,7 +333,7 @@ public class SimpleEntityData extends EntityData<Entity> {
 		addSimpleEntity("zombie", Zombie.class);
 		// Register squid after glow squid to make sure both work
 		addSimpleEntity("squid", Squid.class);
-		
+
 		// SuperTypes
 		addSuperEntity("human", HumanEntity.class);
 		addSuperEntity("damageable", Damageable.class);
@@ -336,6 +341,7 @@ public class SimpleEntityData extends EntityData<Entity> {
 		addSuperEntity("mob", Mob.class);
 		addSuperEntity("creature", Creature.class);
 		addSuperEntity("animal", Animals.class);
+		addSuperEntity("fish", Fish.class);
 		addSuperEntity("golem", Golem.class);
 		addSuperEntity("projectile", Projectile.class);
 		addSuperEntity("living entity", LivingEntity.class);
@@ -348,12 +354,14 @@ public class SimpleEntityData extends EntityData<Entity> {
 		addSuperEntity("any fireball", Fireball.class);
 		addSuperEntity("illager", Illager.class);
 		addSuperEntity("spellcaster", Spellcaster.class);
-		if (Skript.classExists("org.bukkit.entity.Raider")) // Introduced in Spigot 1.14
+		if (Skript.classExists("org.bukkit.entity.Raider")) // 1.14
 			addSuperEntity("raider", Raider.class);
-		if (Skript.classExists("org.bukkit.entity.Enemy")) // Introduced in Spigot 1.19.3
+		if (Skript.classExists("org.bukkit.entity.Enemy")) // 1.19.3
 			addSuperEntity("enemy", Enemy.class);
+		if (Skript.classExists("org.bukkit.entity.Display")) // 1.19.4
+			addSuperEntity("display", Display.class);
 	}
-	
+
 	static {
 		final String[] codeNames = new String[types.size()];
 		int i = 0;
@@ -448,7 +456,16 @@ public class SimpleEntityData extends EntityData<Entity> {
 		final SimpleEntityData other = (SimpleEntityData) obj;
 		return info.equals(other.info);
 	}
-	
+
+	@Override
+	public boolean canSpawn(@Nullable World world) {
+		if (info.allowSpawning.isUnknown()) // unspecified, refer to default behavior
+			return super.canSpawn(world);
+		if (world == null)
+			return false;
+		return info.allowSpawning.isTrue();
+	}
+
 	@Override
 	public Fields serialize() throws NotSerializableException {
 		final Fields f = super.serialize();

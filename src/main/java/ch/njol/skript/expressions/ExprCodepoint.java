@@ -23,7 +23,7 @@ import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 @Name("Character Codepoint")
 @Description("Returns the Unicode codepoint of a character")
@@ -46,7 +46,7 @@ import org.eclipse.jdt.annotation.Nullable;
 			"\t\tset {_previous-codepoint} to {_codepoint}",
 		"\treturn true"
 })
-@Since("INSERT VERSION")
+@Since("2.9.0")
 public class ExprCodepoint extends SimplePropertyExpression<String, Integer> {
 
 	static {

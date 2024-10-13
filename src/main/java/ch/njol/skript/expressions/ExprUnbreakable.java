@@ -37,7 +37,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 	"set {_item} to unbreakable iron sword",
 	"give breakable {_weapon} to all players"
 })
-@Since("2.2-dev13b, INSERT VERSION (breakable)")
+@Since("2.2-dev13b, 2.9.0 (breakable)")
 public class ExprUnbreakable extends SimplePropertyExpression<ItemType, ItemType> {
 
 	static {

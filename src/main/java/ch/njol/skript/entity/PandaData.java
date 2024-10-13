@@ -22,7 +22,7 @@ import java.util.concurrent.ThreadLocalRandom;
 
 import org.bukkit.entity.Panda;
 import org.bukkit.entity.Panda.Gene;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.lang.Literal;
