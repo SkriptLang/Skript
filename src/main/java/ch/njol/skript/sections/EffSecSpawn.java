@@ -18,18 +18,6 @@
  */
 package ch.njol.skript.sections;
 
-import java.util.List;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.function.Consumer;
-
-import ch.njol.skript.doc.RequiredPlugins;
-import org.bukkit.Location;
-import org.bukkit.entity.Entity;
-import org.bukkit.event.Event;
-import org.bukkit.event.HandlerList;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-
 import ch.njol.skript.Skript;
 import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.doc.Description;
@@ -47,24 +35,42 @@ import ch.njol.skript.util.Direction;
 import ch.njol.skript.util.Getter;
 import ch.njol.skript.variables.Variables;
 import ch.njol.util.Kleenean;
+import org.bukkit.Location;
+import org.bukkit.entity.Entity;
+import org.bukkit.event.Event;
+import org.bukkit.event.HandlerList;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Consumer;
 
 @Name("Spawn")
 @Description({
-	"Spawn a creature. This can be used as an effect and as a section.",
+	"Spawns entities. This can be used as an effect and as a section.",
+	"",
 	"If it is used as a section, the section is run before the entity is added to the world.",
 	"You can modify the entity in this section, using for example 'event-entity' or 'cow'. ",
-	"Do note that other event values, such as 'player', won't work in this section."
+	"Do note that other event values, such as 'player', won't work in this section.",
+	"",
+	"If you're spawning a display and want it to be empty on initialization, like not having a block display be stone, " + 
+	"set hidden config node 'spawn empty displays' to true."
 })
 @Examples({
 	"spawn 3 creepers at the targeted block",
 	"spawn a ghast 5 meters above the player",
 	"spawn a zombie at the player:",
-		"\tset name of the zombie to \"\""
+		"\tset name of the zombie to \"\"",
+	"",
+	"spawn a block display of a ladder[waterlogged=true] at location above player:",
+		"\tset billboard of event-display to center # allows the display to rotate around the center axis"
 })
 @Since("1.0, 2.6.1 (with section), 2.8.6 (dropped items)")
 public class EffSecSpawn extends EffectSection {
 
 	public static class SpawnEvent extends Event {
+
 		private final Entity entity;
 
 		public SpawnEvent(Entity entity) {
@@ -84,21 +90,19 @@ public class EffSecSpawn extends EffectSection {
 
 	static {
 		Skript.registerSection(EffSecSpawn.class,
-			"(spawn|summon) %entitytypes% [%directions% %locations%]",
-			"(spawn|summon) %number% of %entitytypes% [%directions% %locations%]"
+				"(spawn|summon) %entitytypes% [%directions% %locations%]",
+				"(spawn|summon) %number% of %entitytypes% [%directions% %locations%]"
 		);
 		EventValues.registerEventValue(SpawnEvent.class, Entity.class, new Getter<Entity, SpawnEvent>() {
 			@Override
-			public Entity get(SpawnEvent spawnEvent) {
-				return spawnEvent.getEntity();
+			public Entity get(SpawnEvent event) {
+				return event.getEntity();
 			}
 		}, EventValues.TIME_NOW);
 	}
 
-	@SuppressWarnings("NotNullFieldNotInitialized")
 	private Expression<Location> locations;
 
-	@SuppressWarnings("NotNullFieldNotInitialized")
 	private Expression<EntityType> types;
 
 	@Nullable
@@ -112,12 +116,9 @@ public class EffSecSpawn extends EffectSection {
 
 	@Override
 	@SuppressWarnings("unchecked")
-	public boolean init(Expression<?>[] exprs,
-						int matchedPattern,
-						Kleenean isDelayed,
-						ParseResult parseResult,
-						@Nullable SectionNode sectionNode,
-						@Nullable List<TriggerItem> triggerItems) {
+	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult,
+			@Nullable SectionNode sectionNode, @Nullable List<TriggerItem> triggerItems) {
+
 		amount = matchedPattern == 0 ? null : (Expression<Number>) (exprs[0]);
 		types = (Expression<EntityType>) exprs[matchedPattern];
 		locations = Direction.combine((Expression<? extends Direction>) exprs[1 + matchedPattern], (Expression<? extends Location>) exprs[2 + matchedPattern]);
@@ -131,7 +132,6 @@ public class EffSecSpawn extends EffectSection {
 				return false;
 			}
 		}
-
 		return true;
 	}
 
@@ -143,9 +143,9 @@ public class EffSecSpawn extends EffectSection {
 
 		Consumer<? extends Entity> consumer;
 		if (trigger != null) {
-			consumer = o -> {
-				lastSpawned = o;
-				SpawnEvent spawnEvent = new SpawnEvent(o);
+			consumer = entity -> {
+				lastSpawned = entity;
+				SpawnEvent spawnEvent = new SpawnEvent(entity);
 				// Copy the local variables from the calling code to this section
 				Variables.setLocalVariables(spawnEvent, Variables.copyLocalVariables(event));
 				TriggerItem.walk(trigger, spawnEvent);
@@ -182,7 +182,7 @@ public class EffSecSpawn extends EffectSection {
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
 		return "spawn " + (amount != null ? amount.toString(event, debug) + " of " : "") +
-			types.toString(event, debug) + " " + locations.toString(event, debug);
+				types.toString(event, debug) + " " + locations.toString(event, debug);
 	}
 
 }

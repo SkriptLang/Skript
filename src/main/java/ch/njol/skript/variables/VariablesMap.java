@@ -20,7 +20,7 @@ package ch.njol.skript.variables;
 
 import ch.njol.skript.lang.Variable;
 import ch.njol.util.StringUtils;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Comparator;
 import java.util.HashMap;
