@@ -20,7 +20,7 @@ package ch.njol.skript.expressions;
 
 import org.bukkit.event.Event;
 import org.bukkit.util.Vector;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
@@ -46,8 +46,8 @@ import ch.njol.util.coll.CollectionUtils;
 public class ExprVectorCylindrical extends SimpleExpression<Vector> {
 
 	static {
-		Skript.registerExpression(ExprVectorCylindrical.class, Vector.class, ExpressionType.COMBINED,
-				"[a] [new] cylindrical vector [(from|with)] [radius] %number%, [yaw] %number%(,| and) [height] %number%");
+		Skript.registerExpression(ExprVectorCylindrical.class, Vector.class, ExpressionType.SIMPLE,
+				"[a] [new] cylindrical vector [from|with] [radius] %number%, [yaw] %number%(,[ and]| and) [height] %number%");
 	}
 
 	@SuppressWarnings("null")

@@ -1,0 +1,8 @@
+parse:
+	results: {StructEvent::parse::*}
+	code:
+		on script load:
+			stop
+
+test "events in structs":
+	assert {StructEvent::parse::*} is not set with "using event in struct caused an error"

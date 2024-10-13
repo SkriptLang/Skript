@@ -37,7 +37,7 @@ import ch.njol.skript.sections.SecLoop;
 import ch.njol.skript.util.Utils;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Array;
 import java.util.Map.Entry;
@@ -62,7 +62,7 @@ import java.util.regex.Pattern;
 	"",
 	"loop {top-balances::*}:",
 		"\tloop-iteration <= 10",
-		"\tsend \"##%loop-iteration% %loop-index% has $%loop-value%\"",
+		"\tsend \"#%loop-iteration% %loop-index% has $%loop-value%\"",
 })
 @Since("1.0, 2.8.0 (loop-counter)")
 public class ExprLoopValue extends SimpleExpression<Object> {

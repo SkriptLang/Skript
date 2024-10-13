@@ -26,7 +26,7 @@ import org.bukkit.potion.PotionData;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.potion.PotionType;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 // Bukkit does not provide a way to get a PotionEffect from PotionData
 // This class allows us to convert base PotionData of an item into a PotionEffect
@@ -34,32 +34,32 @@ public enum PotionDataUtils {
 	
 	FIRE_RESISTANCE(PotionType.FIRE_RESISTANCE, false, false, 3600, 0),
 	FIRE_RESISTANCE_LONG(PotionType.FIRE_RESISTANCE, true, false, 9600, 0),
-	HARMING(PotionType.INSTANT_DAMAGE, false, false, 1, 0),
-	HARMING_STRONG(PotionType.INSTANT_DAMAGE, false, true, 1, 1),
-	HEALING(PotionType.INSTANT_HEAL, false, false, 1, 0),
-	HEALING_STRONG(PotionType.INSTANT_HEAL, false, true, 1, 1),
+	HARMING(PotionEffectUtils.HAS_OLD_POTION_FIELDS ? "INSTANT_DAMAGE" : "HARMING", false, false, 1, 0),
+	HARMING_STRONG(PotionEffectUtils.HAS_OLD_POTION_FIELDS ? "INSTANT_DAMAGE" : "HARMING", false, true, 1, 1),
+	HEALING(PotionEffectUtils.HAS_OLD_POTION_FIELDS ? "INSTANT_HEAL" : "HEALING", false, false, 1, 0),
+	HEALING_STRONG(PotionEffectUtils.HAS_OLD_POTION_FIELDS ? "INSTANT_HEAL" : "HEALING", false, true, 1, 1),
 	INVISIBILITY(PotionType.INVISIBILITY, false, false, 3600, 0),
 	INVISIBILITY_LONG(PotionType.INVISIBILITY, true, false, 9600, 0),
-	LEAPING(PotionType.JUMP, false, false, 3600, 0),
-	LEAPING_LONG(PotionType.JUMP, true, false, 9600, 0),
-	LEAPING_STRONG(PotionType.JUMP, false, true, 1800, 1),
+	LEAPING(PotionEffectUtils.HAS_OLD_POTION_FIELDS ? "JUMP" : "LEAPING", false, false, 3600, 0),
+	LEAPING_LONG(PotionEffectUtils.HAS_OLD_POTION_FIELDS ? "JUMP" : "LEAPING", true, false, 9600, 0),
+	LEAPING_STRONG(PotionEffectUtils.HAS_OLD_POTION_FIELDS ? "JUMP" : "LEAPING", false, true, 1800, 1),
 	LUCK(PotionType.LUCK, false, false, 6000, 0),
 	NIGHT_VISION(PotionType.NIGHT_VISION, false, false, 3600, 0),
 	NIGHT_VISION_LONG(PotionType.NIGHT_VISION, true, false, 9600, 0),
 	POISON(PotionType.POISON, false, false, 900, 0),
 	POISON_LONG(PotionType.POISON, true, false, 1800, 0),
 	POISON_STRONG(PotionType.POISON, false, true, 432, 1),
-	REGENERATION(PotionType.REGEN, false, false, 900, 0),
-	REGENERATION_LONG(PotionType.REGEN, true, false, 1800, 0),
-	REGENERATION_STRONG(PotionType.REGEN, false, true, 450, 1),
+	REGENERATION(PotionEffectUtils.HAS_OLD_POTION_FIELDS ? "REGEN" : "REGENERATION", false, false, 900, 0),
+	REGENERATION_LONG(PotionEffectUtils.HAS_OLD_POTION_FIELDS ? "REGEN" : "REGENERATION", true, false, 1800, 0),
+	REGENERATION_STRONG(PotionEffectUtils.HAS_OLD_POTION_FIELDS ? "REGEN" : "REGENERATION", false, true, 450, 1),
 	SLOW_FALLING("SLOW_FALLING", false, false, 1800, 0), // Added in 1.13
 	SLOW_FALLING_LONG("SLOW_FALLING", true, false, 4800, 0),
 	SLOWNESS(PotionType.SLOWNESS, false, false, 1800, 0),
 	SLOWNESS_LONG(PotionType.SLOWNESS, true, false, 4800, 0),
 	SLOWNESS_STRONG(PotionType.SLOWNESS, false, true, 400, 3),
-	SWIFTNESS(PotionType.SPEED, false, false, 3600, 0),
-	SWIFTNESS_LONG(PotionType.SPEED, true, false, 9600, 0),
-	SWIFTNESS_STRONG(PotionType.SPEED, false, true, 1800, 1),
+	SWIFTNESS(PotionEffectUtils.HAS_OLD_POTION_FIELDS ? "SPEED" : "SWIFTNESS", false, false, 3600, 0),
+	SWIFTNESS_LONG(PotionEffectUtils.HAS_OLD_POTION_FIELDS ? "SPEED" : "SWIFTNESS", true, false, 9600, 0),
+	SWIFTNESS_STRONG(PotionEffectUtils.HAS_OLD_POTION_FIELDS ? "SPEED" : "SWIFTNESS", false, true, 1800, 1),
 	STRENGTH(PotionType.STRENGTH, false, false, 3600, 0),
 	STRENGTH_LONG(PotionType.STRENGTH, true, false, 9600, 0),
 	STRENGTH_STRONG(PotionType.STRENGTH, false, true, 1800, 1),
@@ -124,6 +124,9 @@ public enum PotionDataUtils {
 		}
 		return potionEffects;
 	}
+
+	private static final PotionEffectType SLOW = PotionEffectUtils.HAS_OLD_POTION_FIELDS ? PotionEffectType.getByName("SLOW") : PotionEffectType.SLOWNESS;
+	private static final PotionEffectType DAMAGE_RESISTANCE = PotionEffectUtils.HAS_OLD_POTION_FIELDS ? PotionEffectType.getByName("DAMAGE_RESISTANCE") : PotionEffectType.RESISTANCE;
 	
 	// Bukkit does not account for the fact that Turtle Master has 2 potion effects
 	@SuppressWarnings("null")
@@ -134,8 +137,8 @@ public enum PotionDataUtils {
 		int resistanceAmp = data.upgraded ? 3 : 2;
 		
 		// This is a stupid bandaid because for some reason Skript wont compare these with potion effects from Skript
-		PotionEffectType slow = PotionEffectUtils.parseByEffectType(PotionEffectType.SLOW);
-		PotionEffectType damage = PotionEffectUtils.parseByEffectType(PotionEffectType.DAMAGE_RESISTANCE);
+		PotionEffectType slow = PotionEffectUtils.parseByEffectType(SLOW);
+		PotionEffectType damage = PotionEffectUtils.parseByEffectType(DAMAGE_RESISTANCE);
 		if (slow != null || damage != null) {
 			potionEffects.add(new PotionEffect(slow, duration, slowAmp, false));
 			potionEffects.add(new PotionEffect(damage, duration, resistanceAmp, false));

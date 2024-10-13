@@ -32,7 +32,8 @@ import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
 
 import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.Nullable;
+import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.Nullable;
 
 @Name("Plain Item")
 @Description("A plain item is an item with no modifications. It can be used to convert items to their default state or to match with other default items.")
@@ -61,7 +62,7 @@ public class ExprPlain extends SimpleExpression<ItemType> {
 		ItemType itemType = item.getSingle(e);
 		if (itemType == null)
 			return new ItemType[0];
-		ItemData data = new ItemData(itemType.getRandom().getType());
+		ItemData data = new ItemData(itemType.getMaterial());
 		data.setPlain(true);
 		ItemType plain = new ItemType(data);
 		return new ItemType[]{plain};

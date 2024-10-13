@@ -24,6 +24,7 @@ import ch.njol.skript.bukkitutil.CommandReloader;
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.classes.Parser;
 import ch.njol.skript.command.Argument;
+import ch.njol.skript.command.CommandUsage;
 import ch.njol.skript.command.Commands;
 import ch.njol.skript.command.ScriptCommand;
 import ch.njol.skript.command.ScriptCommandEvent;
@@ -52,7 +53,7 @@ import ch.njol.util.NonNullPair;
 import ch.njol.util.StringUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -80,6 +81,9 @@ import java.util.regex.Pattern;
 @Since("1.0")
 public class StructCommand extends Structure {
 
+	// Paper versions with the new command system need a delay before syncing commands or a CME will occur.
+	private static final boolean DELAY_COMMAND_SYNCING = Skript.classExists("io.papermc.paper.command.brigadier.Commands");
+
 	public static final Priority PRIORITY = new Priority(500);
 
 	private static final Pattern COMMAND_PATTERN = Pattern.compile("(?i)^command\\s+/?(\\S+)\\s*(\\s+(.+))?$");
@@ -92,7 +96,7 @@ public class StructCommand extends Structure {
 		Skript.registerStructure(
 			StructCommand.class,
 			EntryValidator.builder()
-				.addEntry("usage", null, true)
+				.addEntryData(new VariableStringEntryData("usage", null, true))
 				.addEntry("description", "", true)
 				.addEntry("prefix", null, true)
 				.addEntry("permission", "", true)
@@ -143,19 +147,22 @@ public class StructCommand extends Structure {
 		);
 	}
 
+	@SuppressWarnings("NotNullFieldNotInitialized")
+	private EntryContainer entryContainer;
+
 	@Nullable
 	private ScriptCommand scriptCommand;
 
 	@Override
-	public boolean init(Literal<?>[] args, int matchedPattern, ParseResult parseResult, EntryContainer entryContainer) {
+	public boolean init(Literal<?>[] args, int matchedPattern, ParseResult parseResult, @Nullable EntryContainer entryContainer) {
+		assert entryContainer != null; // cannot be null for non-simple structures
+		this.entryContainer = entryContainer;
 		return true;
 	}
 
 	@Override
 	public boolean load() {
 		getParser().setCurrentEvent("command", ScriptCommandEvent.class);
-
-		EntryContainer entryContainer = getEntryContainer();
 
 		String fullCommand = entryContainer.getSource().getKey();
 		assert fullCommand != null;
@@ -258,10 +265,9 @@ public class StructCommand extends Structure {
 		});
 		desc = Commands.unescape(desc).trim();
 
-		String usage = entryContainer.getOptional("usage", String.class, false);
-		if (usage == null) {
-			usage = Commands.m_correct_usage + " " + desc;
-		}
+		VariableString usageMessage = entryContainer.getOptional("usage", VariableString.class, false);
+		String defaultUsageMessage = Commands.m_correct_usage + " " + desc;
+		CommandUsage usage = new CommandUsage(usageMessage, defaultUsageMessage);
 
 		String description = entryContainer.get("description", String.class, true);
 		String prefix = entryContainer.getOptional("prefix", String.class, false);
@@ -315,7 +321,7 @@ public class StructCommand extends Structure {
 
 	@Override
 	public boolean postLoad() {
-		attemptCommandSync();
+		scheduleCommandSync();
 		return true;
 	}
 
@@ -328,17 +334,27 @@ public class StructCommand extends Structure {
 
 	@Override
 	public void postUnload() {
-		attemptCommandSync();
+		scheduleCommandSync();
 	}
 
-	private void attemptCommandSync() {
+	private void scheduleCommandSync() {
 		if (SYNC_COMMANDS.get()) {
 			SYNC_COMMANDS.set(false);
-			if (CommandReloader.syncCommands(Bukkit.getServer())) {
-				Skript.debug("Commands synced to clients");
+			if (DELAY_COMMAND_SYNCING) {
+				// if the plugin is disabled, the server is likely closing and delaying will cause an error.
+				if (Bukkit.getPluginManager().isPluginEnabled(Skript.getInstance()))
+					Bukkit.getScheduler().runTask(Skript.getInstance(), this::forceCommandSync);
 			} else {
-				Skript.debug("Commands changed but not synced to clients (normal on 1.12 and older)");
+				forceCommandSync();
 			}
+		}
+	}
+
+	private void forceCommandSync() {
+		if (CommandReloader.syncCommands(Bukkit.getServer())) {
+			Skript.debug("Commands synced to clients");
+		} else {
+			Skript.debug("Commands changed but not synced to clients (normal on 1.12 and older)");
 		}
 	}
 

@@ -18,16 +18,20 @@
  */
 package ch.njol.skript.classes.data;
 
+import ch.njol.skript.Skript;
 import ch.njol.skript.expressions.base.EventValueExpression;
+import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.function.FunctionEvent;
 import ch.njol.skript.lang.function.Functions;
 import ch.njol.skript.lang.function.JavaFunction;
 import ch.njol.skript.lang.function.Parameter;
 import ch.njol.skript.lang.function.SimpleJavaFunction;
 import ch.njol.skript.lang.util.SimpleLiteral;
+import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.registrations.DefaultClasses;
 import ch.njol.skript.util.Color;
 import ch.njol.skript.util.ColorRGB;
+import ch.njol.skript.util.Contract;
 import ch.njol.skript.util.Date;
 import ch.njol.util.Math2;
 import ch.njol.util.StringUtils;
@@ -38,11 +42,16 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
+import org.joml.AxisAngle4f;
+import org.joml.Quaternionf;
+import org.joml.Vector3f;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 import java.util.UUID;
 
 public class DefaultFunctions {
@@ -308,11 +317,22 @@ public class DefaultFunctions {
 			.examples("min(1) = 1", "min(1, 2, 3, 4) = 1", "min({some list variable::*})")
 			.since("2.2"));
 
-		Functions.registerFunction(new SimpleJavaFunction<Number>("clamp", new Parameter[]{
-			new Parameter<>("values", DefaultClasses.NUMBER, false, null),
-			new Parameter<>("min", DefaultClasses.NUMBER, true, null),
-			new Parameter<>("max", DefaultClasses.NUMBER, true, null)
-		}, DefaultClasses.NUMBER, false) {
+		Functions.registerFunction(new SimpleJavaFunction<Number>("clamp", new Parameter[] {
+					 new Parameter<>("values", DefaultClasses.NUMBER, false, null),
+					 new Parameter<>("min", DefaultClasses.NUMBER, true, null),
+					 new Parameter<>("max", DefaultClasses.NUMBER, true, null)
+				 }, DefaultClasses.NUMBER, false, new Contract() {
+
+					 @Override
+					 public boolean isSingle(Expression<?>... arguments) {
+						 return arguments[0].isSingle();
+					 }
+
+					 @Override
+					 public Class<?> getReturnType(Expression<?>... arguments) {
+						 return Number.class;
+					 }
+				 }) {
 			@Override
 			public @Nullable Number[] executeSimple(Object[][] params) {
 				Number[] values = (Number[]) params[0];
@@ -362,7 +382,7 @@ public class DefaultFunctions {
 		}, DefaultClasses.LOCATION, true) {
 			@Override
 			@Nullable
-			public Location[] execute(FunctionEvent<?> e, Object[][] params) {
+			public Location[] execute(FunctionEvent<?> event, Object[][] params) {
 				for (int i : new int[] {0, 1, 2, 4, 5}) {
 					if (params[i] == null || params[i].length == 0 || params[i][0] == null)
 						return null;
@@ -508,19 +528,25 @@ public class DefaultFunctions {
 		Functions.registerFunction(new SimpleJavaFunction<Color>("rgb", new Parameter[] {
 			new Parameter<>("red", DefaultClasses.LONG, true, null),
 			new Parameter<>("green", DefaultClasses.LONG, true, null),
-			new Parameter<>("blue", DefaultClasses.LONG, true, null)
+			new Parameter<>("blue", DefaultClasses.LONG, true, null),
+			new Parameter<>("alpha", DefaultClasses.LONG, true, new SimpleLiteral<>(255L,true))
 		}, DefaultClasses.COLOR, true) {
 			@Override
 			public ColorRGB[] executeSimple(Object[][] params) {
 				Long red = (Long) params[0][0];
 				Long green = (Long) params[1][0];
 				Long blue = (Long) params[2][0];
+				Long alpha = (Long) params[3][0];
 				
-				return CollectionUtils.array(new ColorRGB(red.intValue(), green.intValue(), blue.intValue()));
+				return CollectionUtils.array(ColorRGB.fromRGBA(red.intValue(), green.intValue(), blue.intValue(), alpha.intValue()));
 			}
-		}).description("Returns a RGB color from the given red, green and blue parameters.")
-			.examples("dye player's leggings rgb(120, 30, 45)")
-			.since("2.5");
+		}).description("Returns a RGB color from the given red, green and blue parameters. Alpha values can be added optionally, " +
+						"but these only take affect in certain situations, like text display backgrounds.")
+			.examples(
+				"dye player's leggings rgb(120, 30, 45)",
+				"set the colour of a text display to rgb(10, 50, 100, 50)"
+			)
+			.since("2.5, INSERT VERSION (alpha)");
 
 		Functions.registerFunction(new SimpleJavaFunction<Player>("player", new Parameter[] {
 			new Parameter<>("nameOrUUID", DefaultClasses.STRING, true, null),
@@ -542,23 +568,54 @@ public class DefaultFunctions {
 			.examples("set {_p} to player(\"Notch\") # will return an online player whose name is or starts with 'Notch'", "set {_p} to player(\"Notch\", true) # will return the only online player whose name is 'Notch'", "set {_p} to player(\"069a79f4-44e9-4726-a5be-fca90e38aaf5\") # <none> if player is offline")
 			.since("2.8.0");
 
-		Functions.registerFunction(new SimpleJavaFunction<OfflinePlayer>("offlineplayer", new Parameter[] {
-			new Parameter<>("nameOrUUID", DefaultClasses.STRING, true, null)
-		}, DefaultClasses.OFFLINE_PLAYER, true) {
-			@Override
-			public OfflinePlayer[] executeSimple(Object[][] params) {
-				String name = (String) params[0][0];
-				UUID uuid = null;
-				if (name.length() > 16 || name.contains("-")) { // shortcut
-					try {
-						uuid = UUID.fromString(name);
-					} catch (IllegalArgumentException ignored) {}
+		{ // offline player function
+			boolean hasIfCached = Skript.methodExists(Bukkit.class, "getOfflinePlayerIfCached", String.class);
+
+			List<Parameter<?>> params = new ArrayList<>();
+			params.add(new Parameter<>("nameOrUUID", DefaultClasses.STRING, true, null));
+			if (hasIfCached)
+				params.add(new Parameter<>("allowLookups", DefaultClasses.BOOLEAN, true, new SimpleLiteral<>(true, true)));
+
+			Functions.registerFunction(new SimpleJavaFunction<OfflinePlayer>("offlineplayer", params.toArray(new Parameter[0]),
+				DefaultClasses.OFFLINE_PLAYER, true) {
+				@Override
+				public OfflinePlayer[] executeSimple(Object[][] params) {
+					String name = (String) params[0][0];
+					UUID uuid = null;
+					if (name.length() > 16 || name.contains("-")) { // shortcut
+						try {
+							uuid = UUID.fromString(name);
+						} catch (IllegalArgumentException ignored) {
+						}
+					}
+					OfflinePlayer result;
+
+					if (uuid != null) {
+						result = Bukkit.getOfflinePlayer(uuid); // doesn't do lookups
+					} else if (hasIfCached && !((Boolean) params[1][0])) {
+						result = Bukkit.getOfflinePlayerIfCached(name);
+						if (result == null)
+							return new OfflinePlayer[0];
+					} else {
+						result = Bukkit.getOfflinePlayer(name);
+					}
+
+					return CollectionUtils.array(result);
 				}
-				return CollectionUtils.array(uuid != null ? Bukkit.getOfflinePlayer(uuid) : Bukkit.getOfflinePlayer(name));
-			}
-		}).description("Returns a offline player from their name or UUID. This function will still return the player if they're online.")
-			.examples("set {_p} to offlineplayer(\"Notch\")", "set {_p} to offlineplayer(\"069a79f4-44e9-4726-a5be-fca90e38aaf5\")")
-			.since("2.8.0");
+
+			}).description(
+				"Returns a offline player from their name or UUID. This function will still return the player if they're online. " +
+				"If Paper 1.16.5+ is used, the 'allowLookup' parameter can be set to false to prevent this function from doing a " +
+				"web lookup for players who have not joined before. Lookups can cause lag spikes of up to multiple seconds, so " +
+				"use offline players with caution."
+			)
+			.examples(
+				"set {_p} to offlineplayer(\"Notch\")",
+				"set {_p} to offlineplayer(\"069a79f4-44e9-4726-a5be-fca90e38aaf5\")",
+				"set {_p} to offlineplayer(\"Notch\", false)"
+			)
+			.since("2.8.0, 2.9.0 (prevent lookups)");
+		} // end offline player function
 
 		Functions.registerFunction(new SimpleJavaFunction<Boolean>("isNaN", numberParam, DefaultClasses.BOOLEAN, true) {
 			@Override
@@ -568,6 +625,68 @@ public class DefaultFunctions {
 		}).description("Returns true if the input is NaN (not a number).")
 			.examples("isNaN(0) # false", "isNaN(0/0) # true", "isNaN(sqrt(-1)) # true")
 			.since("2.8.0");
+
+		Functions.registerFunction(new SimpleJavaFunction<String>("concat", new Parameter[] {
+			 new Parameter<>("texts", DefaultClasses.OBJECT, false, null)
+		}, DefaultClasses.STRING, true) {
+			@Override
+			public String[] executeSimple(Object[][] params) {
+				StringBuilder builder = new StringBuilder();
+				for (Object object : params[0]) {
+					builder.append(Classes.toString(object));
+				}
+				return new String[] {builder.toString()};
+			}
+		}).description("Joins the provided texts (and other things) into a single text.")
+			.examples(
+				"concat(\"hello \", \"there\") # hello there",
+				"concat(\"foo \", 100, \" bar\") # foo 100 bar"
+			).since("2.9.0");
+
+		// joml functions - for display entities
+		{
+			if (Skript.classExists("org.joml.Quaternionf")) {
+				Functions.registerFunction(new SimpleJavaFunction<>("quaternion", new Parameter[]{
+						new Parameter<>("w", DefaultClasses.NUMBER, true, null),
+						new Parameter<>("x", DefaultClasses.NUMBER, true, null),
+						new Parameter<>("y", DefaultClasses.NUMBER, true, null),
+						new Parameter<>("z", DefaultClasses.NUMBER, true, null)
+					}, Classes.getExactClassInfo(Quaternionf.class), true) {
+						@Override
+						public Quaternionf[] executeSimple(Object[][] params) {
+							double w = ((Number) params[0][0]).doubleValue();
+							double x = ((Number) params[1][0]).doubleValue();
+							double y = ((Number) params[2][0]).doubleValue();
+							double z = ((Number) params[3][0]).doubleValue();
+							return CollectionUtils.array(new Quaternionf(x, y, z, w));
+						}
+					})
+					.description("Returns a quaternion from the given W, X, Y and Z parameters. ")
+					.examples("quaternion(1, 5.6, 45.21, 10)")
+					.since("INSERT VERSION");
+			}
+
+			if (Skript.classExists("org.joml.AxisAngle4f")) {
+				Functions.registerFunction(new SimpleJavaFunction<>("axisAngle", new Parameter[]{
+						new Parameter<>("angle", DefaultClasses.NUMBER, true, null),
+						new Parameter<>("axis", DefaultClasses.VECTOR, true, null)
+					}, Classes.getExactClassInfo(Quaternionf.class), true) {
+						@Override
+						public Quaternionf[] executeSimple(Object[][] params) {
+							float angle = (float) (((Number) params[0][0]).floatValue() / 180 * Math.PI);
+							Vector v = ((Vector) params[1][0]);
+							if (v.isZero() || !Double.isFinite(v.getX()) || !Double.isFinite(v.getY()) || !Double.isFinite(v.getZ()))
+								return new Quaternionf[0];
+							Vector3f axis = ((Vector) params[1][0]).toVector3f();
+							return CollectionUtils.array(new Quaternionf(new AxisAngle4f(angle, axis)));
+						}
+					})
+					.description("Returns a quaternion from the given angle (in degrees) and axis (as a vector). This represents a rotation around the given axis by the given angle.")
+					.examples("axisangle(90, (vector from player's facing))")
+					.since("INSERT VERSION");
+			}
+		} // end joml functions
+
 	}
-	
+
 }

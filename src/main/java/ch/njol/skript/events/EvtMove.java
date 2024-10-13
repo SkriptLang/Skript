@@ -57,7 +57,7 @@ public class EvtMove extends SkriptEvent {
 							"\tif event-entity is not in world \"world\":",
 								"\t\tkill event-entity",
 						"on player turning around:",
-							"send action bar \"You are currently turning your head around!\" to player")
+							"\tsend action bar \"You are currently turning your head around!\" to player")
 				.requiredPlugins("Paper 1.16.5+ (entity move)")
 				.since("2.6, 2.8.0 (turn around)");
 	}
@@ -132,7 +132,6 @@ public class EvtMove extends SkriptEvent {
 	}
 
 	@Override
-	@Nullable
 	@SuppressWarnings("unchecked")
 	public Class<? extends Event> [] getEventClasses() {
 		if (isPlayer) {
@@ -140,7 +139,7 @@ public class EvtMove extends SkriptEvent {
 		} else if (HAS_ENTITY_MOVE) {
 			return new Class[] {EntityMoveEvent.class};
 		}
-		return null;
+		throw new IllegalStateException("This event has not yet initialized!");
 	}
 
 	@Override
