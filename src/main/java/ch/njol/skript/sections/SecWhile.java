@@ -24,18 +24,13 @@ import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
-import ch.njol.skript.lang.Condition;
-import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.LoopSection;
+import ch.njol.skript.lang.*;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
-import ch.njol.skript.lang.TriggerItem;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
-import java.util.Map;
-import java.util.WeakHashMap;
 
 @Name("While Loop")
 @Description("While Loop sections are loops that will just keep repeating as long as a condition is met.")
@@ -59,7 +54,7 @@ import java.util.WeakHashMap;
 public class SecWhile extends LoopSection {
 
 	static {
-		Skript.registerSection(SecWhile.class, "[(:do)] while <.+>");
+		Skript.registerSection(SecWhile.class, "[:do] while <.+>");
 	}
 
 	@SuppressWarnings("NotNullFieldNotInitialized")
@@ -102,6 +97,11 @@ public class SecWhile extends LoopSection {
 			debug(event, false);
 			return actualNext;
 		}
+	}
+
+	@Override
+	public @Nullable ExecutionIntent executionIntent() {
+		return doWhile ? triggerExecutionIntent() : null;
 	}
 
 	@Override
