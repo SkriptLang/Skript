@@ -17,7 +17,7 @@ import org.jetbrains.annotations.Nullable;
 @Description({
 	"Represents the passed number value in degrees.",
 	"If radians is specified, converts the passed value to degrees. This conversion may not be entirely accurate, " +
-		"due to floating point precision.",
+	"due to floating point precision.",
 })
 @Examples({
 	"set {_angle} to 90 degrees",
@@ -51,9 +51,6 @@ public class ExprAngle extends SimpleExpression<Number> {
 	@Override
 	protected Number @Nullable [] get(Event event) {
 		Number[] numbers = angle.getAll(event);
-
-		if (numbers == null)
-			return null;
 
 		if (isRadians) {
 			for (int i = 0; i < numbers.length; i++)
