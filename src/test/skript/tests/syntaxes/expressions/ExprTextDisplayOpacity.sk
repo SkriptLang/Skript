@@ -1,0 +1,33 @@
+test "text opacity" when running minecraft "1.19.4":
+	
+	spawn item display at spawn of world "world":
+		set {_id} to entity
+
+	assert opacity of {_id} is not set with "item display has opacity"
+	set opacity of {_id} to 55
+	assert opacity of {_id} is not set with "item display has opacity"
+	reset opacity of {_id}
+	assert opacity of {_id} is not set with "item display has opacity"
+		
+	delete entity within {_id}
+	spawn text display at spawn of world "world":
+		set {_td} to entity
+
+	assert opacity of {_td} is -1 with "failed default opacity"
+	set opacity of {_td} to 185.4
+	assert opacity of {_td} is 127 with "failed to set opacity"
+	set opacity of {_td} to -50
+	assert opacity of {_td} is -50 with "failed to set opacity"
+	set opacity of {_td} to -900
+	assert opacity of {_td} is -127 with "failed to set opacity"
+	add 50 to opacity of {_td}
+	assert opacity of {_td} is -77 with "failed to add to opacity"
+	remove 1000 from opacity of {_td}
+	assert opacity of {_td} is -127 with "failed to remove from opacity"
+	reset opacity of {_td}
+	assert opacity of {_td} is -1 with "failed to reset opacity"
+
+	set opacity of {_td} to infinity value
+	assert opacity of {_td} is 127 with "failed to set opacity"
+
+	delete entity within {_td}
