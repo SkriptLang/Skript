@@ -1,5 +1,9 @@
 test "entities in chunk":
-	spawn 10 sheep at spawn of world "world"
+	clear all entities
+	spawn 10 sheep at spawn of world "world":
+		add event-entity to {_sheep::*}
+		add 1 to {_count}
+	assert {_count} and size of entities within {_sheep::*} is 10 with "Did not count 10 on the entities within {_sheep::*}: %{_sheep::*}%"
 
 	set {_radius center} to location(-24, -60, -24, world "world")
 	spawn 2 sheep at location(-26, -60, -24, world "world")
@@ -42,3 +46,7 @@ test "entities in chunk":
 
 	delete all entities within {_corner::1} and {_corner::2}
 	assert size of all entities within {_corner::1} and {_corner::2} = 0 with "Size of all entities in cuboid != 0"
+  
+	clear entities within {_e::*}
+	assert entities within {_e::*} where [entity input is valid] is not set with "Not all the sheep were cleared"
+	clear all entities

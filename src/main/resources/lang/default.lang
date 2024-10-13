@@ -1243,16 +1243,16 @@ entities:
 		pattern: interaction(|1¦s)
 	display:
 		name: display¦s
-		pattern: display(|1¦s)
+		pattern: display(1:s| [entit(y|1:ies)])
 	block display:
 		name: block display¦s
-		pattern: block display(|1¦s)
+		pattern: (block display(1:s| [entit(y|1:ies)]) [of %-blockdata/itemtype%]|alt:%-blockdata/itemtype% block display(1:s| [entit(y|1:ies)]))
 	item display:
 		name: item display¦s
-		pattern: item display(|1¦s)
+		pattern: (item display(1:s| [entit(y|1:ies)]) [of %-itemtype%]|alt:%-itemtype% item display(1:s| [entit(y|1:ies)]))
 	text display:
 		name: text display¦s
-		pattern: text display(|1¦s)
+		pattern: text display(1:s| [entit(y|1:ies)])
 	# 1.20.3 Entities
 	breeze:
 		name: breeze¦s
@@ -2227,7 +2227,7 @@ attribute types:
 	generic.scale: generic scale, scale
 	generic.step_height: generic step height, step height
 	generic.water_movement_efficiency: generic water movement efficiency, water movement efficiency
-	horse_jump_strength: horse jump strength
+	horse.jump_strength: horse jump strength
 	player.block_break_speed: player block break speed, block break speed
 	player.block_interaction_range: player block interaction range, block interaction range
 	player.entity_interaction_range: player entity interaction range, entity interaction range
@@ -2243,6 +2243,34 @@ environments:
 	nether: nether, the nether
 	the_end: end, the end
 	custom: custom
+
+# -- Entity Potion Causes --
+entity potion causes:
+	area_effect_cloud: enter area effect cloud
+	arrow: arrow infliction
+	attack: attack
+	axolotl: axolotl
+	warden: warden
+	beacon: beacon effect
+	command: command
+	conduit: conduit effect
+	conversion: conversion, converted
+	death: death
+	dolphin: dolphin boost
+	expiration: expiration, expired
+	food: food
+	illusion: illusion
+	milk: drinking milk
+	plugin: plugin
+	potion_drink: potion drunk, drinking potion
+	potion_splash: potion splash, splash potion
+	spider_spawn: spider spawn, spawned spider
+	totem: removal by resurrection
+	turtle_helmet: turtle helmet effect
+	unknown: unknown
+	villager_trade: villager trade
+	patrol_captain: pillager captain, patrol captain
+	wither_rose: wither rose infliction
 
 # -- Moon Phases --
 moon phases:
@@ -2274,6 +2302,31 @@ transform reasons:
 	split: slime split, slime splitting, split, magma slime split, magma slime splitting
 	unknown: unknown
 	infection: infection, villager infection
+
+# -- Display Billboards --
+billboards:
+	center: center, middle, center pivot
+	fixed: fixed
+	horizontal: horizontal, horizontal pivot
+	vertical: vertical, vertical pivot
+
+# -- Text Display Alignments --
+text alignments:
+	center: centered, center aligned, middle aligned
+	left: left aligned
+	right: right aligned
+
+# -- Item Display Transforms --
+item display transforms:
+	firstperson_lefthand: first person left handed, first person left hand, left handed in first person
+	firstperson_righthand: first person right handed, first person right hand, right handed in first person
+	fixed: fixed, fixed position
+	ground: ground, the ground
+	gui: gui, menu
+	head: head
+	none: no transform
+	thirdperson_lefthand: third person left handed, third person left hand, left handed in third person
+	thirdperson_righthand: third person right handed, third person right hand, right handed in third person
 
 # -- Boolean --
 boolean:
@@ -2326,6 +2379,7 @@ types:
 	biome: biome¦s @a
 	potioneffecttype: potion effect type¦s @a
 	potioneffect: potion effect¦s @a
+	entitypotioncause: entity potion cause¦s @an
 	enchantment: enchantment¦s @an
 	damagecause: damage cause¦s @a
 	teleportcause: teleport cause¦s @a
@@ -2354,6 +2408,10 @@ types:
 	quitreason: quit reason¦s @a
 	inventoryclosereason: inventory close reason¦s @an
 	transformreason: transform reason¦s @a
+	display: display¦s @a
+	billboard: billboard¦s @a
+	textalignment: text alignment¦s @a
+	itemdisplaytransform: item display transform¦s @an
 
 	# Skript
 	weathertype: weather type¦s @a
@@ -2377,3 +2435,6 @@ types:
 	# Hooks
 	money: money
 	region: region¦s
+
+	# Other
+	quaternion: quaternion¦s @a

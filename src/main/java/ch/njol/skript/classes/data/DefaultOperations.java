@@ -47,11 +47,7 @@ public class DefaultOperations {
 			return left.doubleValue() * right.doubleValue();
 		});
 		Arithmetics.registerOperation(Operator.DIVISION, Number.class, (left, right) -> left.doubleValue() / right.doubleValue());
-		Arithmetics.registerOperation(Operator.EXPONENTIATION, Number.class, (left, right) -> {
-			if (Utils.isInteger(left, right) && right.longValue() >= 0)
-				return (long) Math.pow(left.longValue(), right.longValue());
-			return Math.pow(left.doubleValue(), right.doubleValue());
-		});
+		Arithmetics.registerOperation(Operator.EXPONENTIATION, Number.class, (left, right) -> Math.pow(left.doubleValue(), right.doubleValue()));
 		Arithmetics.registerDifference(Number.class, (left, right) -> {
 			if (Utils.isInteger(left, right))
 				return Math.abs(left.longValue() - right.longValue());
