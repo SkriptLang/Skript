@@ -66,9 +66,9 @@ public class ExprMaxStack extends SimplePropertyExpression<Object, Integer> {
 
 	@Override
 	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
-		Integer change = null;
-		if (mode != ChangeMode.RESET)
-			change = (int) delta[0];
+		int change = 0;
+		if (mode != ChangeMode.RESET && delta[0] instanceof Number number)
+			change = number.intValue();
 		for (Object source : getExpr().getArray(event)) {
 			if (source instanceof ItemType itemType) {
 				if (!CHANGEABLE_ITEM_STACK_SIZE)
@@ -81,7 +81,7 @@ public class ExprMaxStack extends SimplePropertyExpression<Object, Integer> {
                 }
 				ItemMeta meta = itemType.getItemMeta();
 				// Minecraft only accepts stack size from 1 to 99
-				meta.setMaxStackSize(change != null ? Math2.fit(1, size, 99) : null);
+				meta.setMaxStackSize(mode != ChangeMode.RESET ? Math2.fit(1, size, 99) : null);
 				itemType.setItemMeta(meta);
 			} else if (source instanceof Inventory inventory) {
                 int size = inventory.getMaxStackSize();
