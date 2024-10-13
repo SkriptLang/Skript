@@ -37,7 +37,7 @@ please add your name below in your pull request.
 When adding your name, please follow the example format below:
 
 `<name> (<commit email address>)`
-> ![NOTE]
+> [!NOTE]
 > For name, you may choose to use your real name or GitHub account name. \
 > If you use more than one commit email address, please include all of them.
 
