@@ -31,7 +31,7 @@
 # ==== General Options ====
 
 language: english
-# Which language to use. Currently English, German, Korean, French, Polish, Russian, Japanese, Simplified Chinese and Turkish
+# Which language to use. Currently English, German, Korean, French, Polish, Russian, Japanese, Simplified Chinese, Turkish and Dutch
 # are included in the download, but custom languages can be created as well. Use the name in lowercase and no spaces as the value.
 # Please note that not everything can be translated yet, i.e. parts of Skript will still be english if you use another language.
 # If you want to translate Skript to your language please read the readme.txt located in the /lang/ folder in the jar
@@ -172,6 +172,9 @@ disable variable missing and/or warnings: false
 disable starting a variable's name with an expression warnings: false
 # Disables the "Starting a variable's name with an expression is discouraged..." warnings
 
+disable unreachable code warnings: false
+# Disables the "Unreachable code. The previous statement stops further execution." warnings.
+
 soft api exceptions: false
 # Allows Skript to ignore certain actions which would normally result in thrown exceptions.
 # If everything works correctly, you should keep this option disabled. It might cause problems in some cases.
@@ -289,6 +292,12 @@ databases:
 		# Variables are saved constantly no matter what is set here, thus a server crash will never make you loose any variables.
 		# Set this to 0 to disable this feature.
 
+		backups to keep: -1
+		# if set to a value greater than -1, Skript will ensure only that many backups are kept.
+		# Backups are removed from oldest to newest.
+		# If disabled (set to -1), no backup files will be deleted.
+		# WARNING: Setting to 0 will delete all files located in the backup directory upon plugin start/reload
+
 
 	MySQL example:
 		# A MySQL database example, with options unrelated to MySQL removed.
@@ -325,6 +334,8 @@ databases:
 		monitor changes: false
 		monitor interval: 20 seconds
 
+		backups to keep: -1
+
 	default:
 		# The default "database" is a simple text file, with each variable on a separate line and the variable's name, type, and value separated by commas.
 		# This is the last database in this list to catch all variables that have not been saved anywhere else.
@@ -337,6 +348,9 @@ databases:
 		file: ./plugins/Skript/variables.csv
 
 		backup interval: 2 hours
+
+		backups to keep: -1
+
 
 	# PS: If you don't want some variables to be saved in any database (e.g. variables that contain an %entity% which usually despawn when the server is shut down)
 	# you can modify the last database's pattern to not match all variables, e.g. use '(?!x_).*' to match all variables that don't start with 'x_'.
