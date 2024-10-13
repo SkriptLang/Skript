@@ -4,6 +4,7 @@ test "within condition" when running minecraft "1.17":
 	set {_loc2} to location(20, 20, 20, "world")
 	assert location(10, 10, 10, "world") is within {_loc1} and {_loc2} with "failed within two locs"
 	assert location(10, -10, 10, "world") is not within {_loc1} and {_loc2} with "failed within two locs"
+	assert location(0, 0, 0, "world") is not within {_none} and {_none} with "failed within two locs"
 
 	# chunks
 	set {_chunk1} to chunk at {_loc1}
@@ -37,6 +38,7 @@ test "within condition" when running below minecraft "1.17":
 	set {_loc2} to location(20, 20, 20, "world")
 	assert location(10, 10, 10, "world") is within {_loc1} and {_loc2} with "failed within two locs"
 	assert location(10, -10, 10, "world") is not within {_loc1} and {_loc2} with "failed within two locs"
+	assert location(0, 0, 0, "world") is not within {_none} and {_none} with "failed within two locs"
 
 	# chunks
 	set {_chunk1} to chunk at {_loc1}
