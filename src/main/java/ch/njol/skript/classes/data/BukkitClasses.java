@@ -32,6 +32,7 @@ import ch.njol.skript.classes.Parser;
 import ch.njol.skript.classes.Serializer;
 import ch.njol.skript.classes.registry.RegistryClassInfo;
 import ch.njol.skript.entity.EntityData;
+import ch.njol.skript.entity.WolfData;
 import ch.njol.skript.expressions.ExprDamageCause;
 import ch.njol.skript.expressions.base.EventValueExpression;
 import ch.njol.skript.lang.ParseContext;
@@ -67,6 +68,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.enchantments.EnchantmentOffer;
 import org.bukkit.entity.Cat;
+import org.bukkit.entity.Wolf;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.LivingEntity;
@@ -1523,12 +1525,30 @@ public class BukkitClasses {
 				.name("Transform Reason")
 				.description("Represents a transform reason of an <a href='events.html#entity transform'>entity transform event</a>.")
 				.since("2.8.0"));
-    
+
 		Classes.registerClass(new EnumClassInfo<>(EntityPotionEffectEvent.Cause.class, "entitypotioncause", "entity potion causes")
 				.user("(entity )?potion ?effect ?cause")
 				.name("Entity Potion Cause")
 				.description("Represents the cause of the action of a potion effect on an entity, e.g. arrow, command")
 				.since("INSERT VERSION"));
+
+		ClassInfo<?> wolfVariantClassInfo;
+		if (Skript.classExists("org.bukkit.entity.Wolf$Variant") && BukkitUtils.registryExists("WOLF_VARIANT")) {
+			wolfVariantClassInfo = new RegistryClassInfo<>(Wolf.Variant.class, Registry.WOLF_VARIANT, "wolfvariant", "wolf variants");
+		} else {
+			/*
+			 * Registers a dummy/placeholder class to ensure working operation on MC versions that do not have `Wolf.Variant`
+			 */
+			wolfVariantClassInfo = new ClassInfo<>(WolfData.VariantDummy.class, "wolfvariant");
+		}
+		Classes.registerClass(wolfVariantClassInfo
+			.user("wolf ?variants?")
+			.name("Wolf Variant")
+			.description("Represents the variant of a wolf entity.",
+				"NOTE: Minecraft namespaces are supported, ex: 'minecraft:ashen'.")
+			.since("@VERSION")
+			.requiredPlugins("Minecraft 1.21+")
+			.documentationId("WolfVariant"));
 	}
 
 }

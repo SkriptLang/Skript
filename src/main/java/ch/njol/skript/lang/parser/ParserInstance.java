@@ -31,6 +31,7 @@ import ch.njol.skript.log.HandlerList;
 import ch.njol.skript.structures.StructOptions.OptionsData;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
+import com.google.common.base.Preconditions;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
@@ -321,6 +322,68 @@ public final class ParserInstance implements Experimented {
 				list.add((T) triggerSection);
 		}
 		return list;
+	}
+
+	/**
+	 * Returns the sections from the current section (inclusive) until the specified section (exclusive).
+	 * <p>
+	 * If we have the following sections:
+	 * <pre>{@code
+	 * Section1
+	 *   └ Section2
+	 *       └ Section3} (we are here)</pre>
+	 * And we call {@code getSectionsUntil(Section1)}, the result will be {@code [Section2, Section3]}.
+	 *
+	 * @param section The section to stop at. (exclusive)
+	 * @return A list of sections from the current section (inclusive) until the specified section (exclusive).
+	 */
+	public List<TriggerSection> getSectionsUntil(TriggerSection section) {
+		return new ArrayList<>(currentSections.subList(currentSections.indexOf(section) + 1, currentSections.size()));
+	}
+
+	/**
+	 * Returns a list of sections up to the specified number of levels from the current section.
+	 * <p>
+	 * If we have the following sections:
+	 * <pre>{@code
+	 * Section1
+	 *   └ Section2
+	 *       └ Section3} (we are here)</pre>
+	 * And we call {@code getSections(2)}, the result will be {@code [Section2, Section3]}.
+	 *
+	 * @param levels The number of levels to retrieve from the current section upwards. Must be greater than 0.
+	 * @return A list of sections up to the specified number of levels.
+	 * @throws IllegalArgumentException if the levels is less than 1.
+	 */
+	public List<TriggerSection> getSections(int levels) {
+		Preconditions.checkArgument(levels > 0, "Depth must be at least 1");
+		return new ArrayList<>(currentSections.subList(Math.max(currentSections.size() - levels, 0), currentSections.size()));
+	}
+
+	/**
+	 * Returns a list of sections to the specified number of levels from the current section.
+	 * Only counting sections of the specified type.
+	 * <p>
+	 * If we have the following sections:
+	 * <pre>{@code
+	 * Section1
+	 *   └ LoopSection2
+	 *       └ Section3
+	 *           └ LoopSection4} (we are here)</pre>
+	 * And we call {@code getSections(2, LoopSection.class)}, the result will be {@code [LoopSection2, Section3, LoopSection4]}.
+	 *
+	 * @param levels The number of levels to retrieve from the current section upwards. Must be greater than 0.
+	 * @param type The class type of the sections to count.
+	 * @return A list of sections of the specified type up to the specified number of levels.
+	 * @throws IllegalArgumentException if the levels is less than 1.
+	 */
+	public List<TriggerSection> getSections(int levels, Class<? extends TriggerSection> type) {
+		Preconditions.checkArgument(levels > 0, "Depth must be at least 1");
+		List<? extends TriggerSection> sections = getCurrentSections(type);
+		if (sections.isEmpty())
+			return new ArrayList<>();
+		TriggerSection section = sections.get(Math.max(sections.size() - levels, 0));
+		return new ArrayList<>(currentSections.subList(currentSections.indexOf(section), currentSections.size()));
 	}
 
 	/**

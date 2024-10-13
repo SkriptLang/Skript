@@ -49,6 +49,7 @@ import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.util.event.EventRegistry;
 import org.skriptlang.skript.lang.script.Script;
+import org.skriptlang.skript.lang.script.ScriptWarning;
 import org.skriptlang.skript.lang.structure.Structure;
 
 import java.io.File;
@@ -978,9 +979,10 @@ public class ScriptLoader {
 
 		if (Skript.debug())
 			parser.setIndentation(parser.getIndentation() + "    ");
-		
+
 		ArrayList<TriggerItem> items = new ArrayList<>();
 
+		boolean executionStops = false;
 		for (Node subNode : node) {
 			parser.setNode(subNode);
 
@@ -991,10 +993,11 @@ public class ScriptLoader {
 			if (!SkriptParser.validateLine(expr))
 				continue;
 
+			TriggerItem item;
 			if (subNode instanceof SimpleNode) {
 				long start = System.currentTimeMillis();
-				Statement stmt = Statement.parse(expr, items, "Can't understand this condition/effect: " + expr);
-				if (stmt == null)
+				item = Statement.parse(expr, items, "Can't understand this condition/effect: " + expr);
+				if (item == null)
 					continue;
 				long requiredTime = SkriptConfig.longParseTimeWarningThreshold.value().getMilliSeconds();
 				if (requiredTime > 0) {
@@ -1007,34 +1010,44 @@ public class ScriptLoader {
 				}
 
 				if (Skript.debug() || subNode.debug())
-					Skript.debug(SkriptColor.replaceColorChar(parser.getIndentation() + stmt.toString(null, true)));
+					Skript.debug(SkriptColor.replaceColorChar(parser.getIndentation() + item.toString(null, true)));
 
-				items.add(stmt);
+				items.add(item);
 			} else if (subNode instanceof SectionNode) {
 				TypeHints.enterScope(); // Begin conditional type hints
 
-				Section section = Section.parse(expr, "Can't understand this section: " + expr, (SectionNode) subNode, items);
-				if (section == null)
+				item = Section.parse(expr, "Can't understand this section: " + expr, (SectionNode) subNode, items);
+				if (item == null)
 					continue;
 
 				if (Skript.debug() || subNode.debug())
-					Skript.debug(SkriptColor.replaceColorChar(parser.getIndentation() + section.toString(null, true)));
+					Skript.debug(SkriptColor.replaceColorChar(parser.getIndentation() + item.toString(null, true)));
 
-				items.add(section);
+				items.add(item);
 
 				// Destroy these conditional type hints
 				TypeHints.exitScope();
+			} else {
+				continue;
 			}
+
+			if (executionStops
+					&& !SkriptConfig.disableUnreachableCodeWarnings.value()
+					&& parser.isActive()
+					&& !parser.getCurrentScript().suppressesWarning(ScriptWarning.UNREACHABLE_CODE)) {
+				Skript.warning("Unreachable code. The previous statement stops further execution.");
+			}
+			executionStops = item.executionIntent() != null;
 		}
-		
+
 		for (int i = 0; i < items.size() - 1; i++)
 			items.get(i).setNext(items.get(i + 1));
 
 		parser.setNode(node);
-		
+
 		if (Skript.debug())
 			parser.setIndentation(parser.getIndentation().substring(0, parser.getIndentation().length() - 4));
-		
+
 		return items;
 	}
 
