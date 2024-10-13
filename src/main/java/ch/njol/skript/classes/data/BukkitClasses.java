@@ -18,18 +18,32 @@
  */
 package ch.njol.skript.classes.data;
 
-import java.io.StreamCorruptedException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map.Entry;
-import java.util.UUID;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
-
+import ch.njol.skript.Skript;
+import ch.njol.skript.SkriptConfig;
+import ch.njol.skript.aliases.Aliases;
+import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.bukkitutil.BukkitUtils;
+import ch.njol.skript.bukkitutil.EnchantmentUtils;
+import ch.njol.skript.bukkitutil.ItemUtils;
+import ch.njol.skript.classes.ClassInfo;
+import ch.njol.skript.classes.ConfigurationSerializer;
+import ch.njol.skript.classes.EnumClassInfo;
+import ch.njol.skript.classes.Parser;
+import ch.njol.skript.classes.Serializer;
+import ch.njol.skript.classes.registry.RegistryClassInfo;
+import ch.njol.skript.entity.EntityData;
+import ch.njol.skript.expressions.ExprDamageCause;
+import ch.njol.skript.expressions.base.EventValueExpression;
+import ch.njol.skript.lang.ParseContext;
+import ch.njol.skript.lang.util.SimpleLiteral;
+import ch.njol.skript.localization.Language;
+import ch.njol.skript.registrations.Classes;
+import ch.njol.skript.util.BlockUtils;
+import ch.njol.skript.util.PotionEffectUtils;
+import ch.njol.skript.util.StringMode;
+import ch.njol.util.StringUtils;
+import ch.njol.yggdrasil.Fields;
+import io.papermc.paper.world.MoonPhase;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.Difficulty;
@@ -80,37 +94,19 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.CachedServerIcon;
 import org.bukkit.util.Vector;
-
-import ch.njol.skript.Skript;
-import ch.njol.skript.SkriptConfig;
-import ch.njol.skript.aliases.Aliases;
-import ch.njol.skript.aliases.ItemType;
-import ch.njol.skript.bukkitutil.EnchantmentUtils;
-import ch.njol.skript.bukkitutil.ItemUtils;
-import ch.njol.skript.classes.ClassInfo;
-import ch.njol.skript.classes.ConfigurationSerializer;
-import ch.njol.skript.classes.EnumClassInfo;
-import ch.njol.skript.classes.Parser;
-import ch.njol.skript.classes.Serializer;
-import ch.njol.skript.classes.registry.RegistryClassInfo;
-import ch.njol.skript.entity.EntityData;
-import ch.njol.skript.expressions.ExprDamageCause;
-import ch.njol.skript.expressions.base.EventValueExpression;
-import ch.njol.skript.lang.ParseContext;
-import ch.njol.skript.lang.util.SimpleLiteral;
-import ch.njol.skript.localization.Language;
-import ch.njol.skript.registrations.Classes;
-import ch.njol.skript.util.BlockUtils;
-import ch.njol.skript.util.PotionEffectUtils;
-import ch.njol.skript.util.StringMode;
-import ch.njol.util.StringUtils;
-import ch.njol.yggdrasil.Fields;
-import io.papermc.paper.world.MoonPhase;
 import org.jetbrains.annotations.Nullable;
 
-/**
- * @author Peter Güttinger
- */
+import java.io.StreamCorruptedException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map.Entry;
+import java.util.UUID;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+
 public class BukkitClasses {
 
 	public BukkitClasses() {}
@@ -1527,6 +1523,7 @@ public class BukkitClasses {
 				.name("Transform Reason")
 				.description("Represents a transform reason of an <a href='events.html#entity transform'>entity transform event</a>.")
 				.since("2.8.0"));
+    
 		Classes.registerClass(new EnumClassInfo<>(EntityPotionEffectEvent.Cause.class, "entitypotioncause", "entity potion causes")
 				.user("(entity )?potion ?effect ?cause")
 				.name("Entity Potion Cause")
