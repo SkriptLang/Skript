@@ -32,10 +32,8 @@ on server whitelist toggled:
 
 on server whitelist enabled:
 	junit test is {@junit}
-	the server will be whitelisted
 	complete objective "listen for server whitelist enabled" for {@junit}
 
 on server whitelist disabled:
 	junit test is {@junit}
-	the server will not be whitelisted
 	complete objective "listen for server whitelist disabled" for {@junit}
