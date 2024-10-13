@@ -17,6 +17,8 @@ skript:
 	no errors: All scripts loaded without errors.
 	scripts loaded: Loaded %s script¦¦s¦ with a total of %s structure¦¦s¦ in %s
 	finished loading: Finished loading.
+	warning message: It appears that /reload or another plugin reloaded Skript. This is not supported behaviour and may cause issues.
+	restart message: Please consider restarting the server instead.
 
 # -- Skript command --
 skript command:
