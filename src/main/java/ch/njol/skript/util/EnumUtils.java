@@ -115,6 +115,16 @@ public final class EnumUtils<E extends Enum<E>> {
 	}
 
 	/**
+	 * This method returns the string representation of an enumerator
+	 * @param enumerator The enumerator to represent as a string
+	 * @param flag not currently used
+	 * @return A string representation of the enumerator
+	 */
+	public String toString(E enumerator, StringMode flag) {
+		return toString(enumerator, flag.ordinal());
+	}
+
+	/**
 	 * @return A comma-separated string containing a list of all names representing the enumerators.
 	 * Note that some entries may represent the same enumerator.
 	 */
