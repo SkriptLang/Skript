@@ -1,0 +1,86 @@
+test "domestication":
+	spawn a horse at (spawn of world "world"):
+		set {_e} to entity
+	spawn a zombie at (spawn of world "world"):
+		set {_z} to entity
+
+	# normal values, horse entity
+	set max domestication level of {_e} to 100
+	set domestication level of {_e} to 50
+	assert max domestication level of {_e} is 100 with "setting the max domestication of a horse should do exactly that"
+	assert domestication level of {_e} is 50 with "setting the domestication of a horse should do exactly that"
+
+	add 10 to max domestication level of {_e}
+	add 10 to domestication level of {_e}
+	assert max domestication level of {_e} is 110 with "adding to the max domestication of a horse should do exactly that"
+	assert domestication level of {_e} is 60 with "adding to the domestication of a horse should do exactly that"
+
+	subtract 10 from max domestication level of {_e}
+	subtract 10 from domestication level of {_e}
+	assert max domestication level of {_e} is 100 with "removing from the max domestication of a horse should do exactly that"
+	assert domestication level of {_e} is 50 with "removing from the domestication of a horse should do exactly that"
+
+	subtract 60 from max domestication level of {_e}
+	assert domestication level of {_e} is 40 with "removing from the max domestication level of a horse should also clamp the domestication level if need be"
+
+	reset max domestication level of {_e}
+	reset domestication level of {_e}
+	assert max domestication level of {_e} is 1 with "resetting the max domestication of a horse should do exactly that"
+	assert domestication level of {_e} is 1 with "resetting the domestication of a horse should do exactly that"
+
+	set domestication level of {_e} to (max domestication level of {_e}) + 1
+	add 100 to domestication level of {_e}
+	assert domestication level of {_e} is (max domestication level of {_e}) with "the domestication level of a horse should never exceed it's max domestication level"
+
+	set domestication level of {_e} to 0
+	subtract 100 from domestication level of {_e}
+	assert domestication level of {_e} is 1 with "the domestication level of a horse should never be less than 1"
+
+	set max domestication level of {_e} to 0
+	subtract 100 from max domestication level of {_e}
+	assert max domestication level of {_e} is 1 with "the max domestication level of a horse should never be less than 1"
+
+	# infinity values
+	add infinity value to max domestication level of {_e}
+	assert max domestication level of {_e} is 1 with "infinity value shouldn't affect the max domestication level of a horse when added"
+	subtract infinity value from max domestication level of {_e}
+	assert max domestication level of {_e} is 1 with "infinity value should result in 1 when subtracted from the max domestication level of a horse"
+	set max domestication level of {_e} to infinity value # set is done last so the domestication level tests can also go to infinity
+	assert max domestication level of {_e} is 2147483647 with "infinity value should set the max domestication level of a horse to the max integer value"
+
+	add infinity value to domestication level of {_e}
+	assert domestication level of {_e} is 1 with "infinity value shouldn't affect the domestication level of a horse when added"
+	subtract infinity value from domestication level of {_e}
+	assert domestication level of {_e} is 1 with "infinity value should result in 1 when subtracted from the domestication level of a horse"
+	set domestication level of {_e} to infinity value
+	assert domestication level of {_e} is 2147483647 with "infinity value should set the domestication level of a horse to the max integer value"
+
+	# NaN values
+	add NaN value to max domestication level of {_e}
+	assert max domestication level of {_e} is 2147483647 with "NaN value should result in 2147483647 when added to the max domestication level of a horse"
+	set max domestication level of {_e} to NaN value
+	assert max domestication level of {_e} is 1 with "NaN value should result in 1 when used to set the max domestication level of a horse"
+	subtract NaN value from max domestication level of {_e}
+	assert max domestication level of {_e} is 1 with "NaN value should not allow the max domestication level of a horse to drop below 1"
+
+	add NaN value to domestication level of {_e}
+	assert domestication level of {_e} is 1 with "NaN value should result in 1 when used to change the domestication level of a horse"
+	set domestication level of {_e} to NaN value
+	assert domestication level of {_e} is 1 with "NaN value should result in 1 when used to set the domestication level of a horse"
+	subtract NaN value from domestication level of {_e}
+	assert domestication level of {_e} is 1 with "NaN value should result in 1 when used to change the domestication level of a horse"
+
+	# non-horse entity
+	assert max domestication level of {_z} is not set with "the max domestication of a non-horse should be null"
+	assert domestication level of {_z} is not set with "the domestication of a non-horse should be null"
+	set max domestication level of {_z} to 1
+	set domestication level of {_z} to 1
+	add 1 to max domestication level of {_z}
+	add 1 to domestication level of {_z}
+	subtract 1 from max domestication level of {_z}
+	subtract 1 from domestication level of {_z}
+	assert max domestication level of {_z} is not set with "changing the max domestication of a non-horse should do nothing"
+	assert domestication level of {_z} is not set with "changing the domestication of a non-horse should do nothing"
+
+	delete entity within {_e}
+	delete entity within {_z}
