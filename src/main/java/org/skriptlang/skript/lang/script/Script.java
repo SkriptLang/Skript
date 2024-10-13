@@ -157,4 +157,9 @@ public final class Script {
 		return eventRegistry;
 	}
 
+	@Override
+	public String toString() {
+		return this.getConfig().getFileName();
+	}
+
 }
