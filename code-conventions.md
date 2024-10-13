@@ -64,6 +64,8 @@ With the exception of contacting our own resources (e.g. to check for updates) c
 ## Licensing
 
 Code contributed must be licensed under GPLv3, by **you**.
+Some contributors may choose to release their code under the MIT License.
+Further information can be found within [LICENSING.md](LICENSING.md).
 We expect that any code you contribute is either owned by you or you have explicit permission to provide and license it to us.
 
 Licenses do not need to be printed in individual files (or packages) unless the licence applying to the code in

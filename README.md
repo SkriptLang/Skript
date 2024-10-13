@@ -192,5 +192,5 @@ contact us about any problems you might have with them.
 You can find all contributors [here](https://github.com/SkriptLang/Skript/graphs/contributors).
 
 All code is owned by its writer, licensed for others under GPLv3 (see [LICENSE](LICENSE)).
-Some contributors may choose to release their code under the [MIT License](MIT.txt).
-Further information can be found within [LICENSE.md](LICENSE.md).
+Some contributors may choose to release their code under the MIT License.
+Further information can be found within [LICENSING.md](LICENSING.md).
