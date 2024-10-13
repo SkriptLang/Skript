@@ -48,4 +48,3 @@ test "timespans":
 
 	execute command "/testtimespan 9999999999d"
 	assert {timespan} is "9999999999 days" parsed as timespan with "%{timespan}% doesn't equal 9999999999 days!"
-	
