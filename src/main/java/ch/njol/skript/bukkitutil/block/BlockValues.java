@@ -20,7 +20,7 @@ package ch.njol.skript.bukkitutil.block;
 
 import ch.njol.skript.aliases.MatchQuality;
 import ch.njol.yggdrasil.YggdrasilSerializable.YggdrasilExtendedSerializable;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Contains all data block has that is needed for comparisions.
