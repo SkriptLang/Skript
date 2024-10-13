@@ -343,15 +343,33 @@ tree types:
 
 # -- Time --
 time:
-	millisecond: millisecond¦s
-	tick: tick¦s
-	second: second¦s
-	minute: minute¦s
-	hour: hour¦s
-	day: day¦s
-	week: week¦s
-	month: month¦s
-	year: year¦s
+	millisecond:
+		full: millisecond¦s
+		short: ms
+	tick:
+		full: tick¦s
+		short: t
+	second:
+		full: second¦s
+		short: s
+	minute:
+		full: minute¦s
+		short: m
+	hour:
+		full: hour¦s
+		short: h
+	day:
+		full: day¦s
+		short: d
+	week:
+		full: week¦s
+		short: w
+	month:
+		full: month¦s
+		short: mo
+	year:
+		full: year¦s
+		short: y
 	real: real, rl, irl
 	minecraft: mc, minecraft
 
@@ -795,19 +813,19 @@ entities:
 		pattern: wither skull((|1¦s)| projectile(|1¦s))
 	wolf:
 		name: wol¦f¦ves
-		pattern: <age> wol(f|1¦ves) [[with collar] colo[u]r[ed] %-color%]
+		pattern: <age> [%-wolfvariant%] wol(f|1¦ves) [[with collar] colo[u]r[ed] %-color%]
 	tamed wolf:
 		name: tamed wol¦f¦ves
-		pattern: (<age> dog(|1¦s)|tamed <age> wol(f|1¦ves)|(4¦)pupp(y|1¦ies)) [[with collar] colo[u]r[ed] %-color%]
+		pattern: (<age> [%-wolfvariant%] dog(|1¦s)|tamed <age> [%-wolfvariant%] wol(f|1¦ves)| [%-wolfvariant%] (4¦)pupp(y|1¦ies)) [[with collar] colo[u]r[ed] %-color%]
 	wild wolf:
 		name: wild wol¦f¦ves
-		pattern: (wild|untamed) <age> wol(f|1¦ves) [[with collar] colo[u]r[ed] %-color%]
+		pattern: (wild|untamed) <age> [%-wolfvariant%] wol(f|1¦ves) [[with collar] colo[u]r[ed] %-color%]
 	angry wolf:
 		name: angry wol¦f¦ves @an
-		pattern: (angry|aggressive) <age> wol(f|1¦ves) [[with collar] colo[u]r[ed] %-color%]
+		pattern: (angry|aggressive) <age> [%-wolfvariant%] wol(f|1¦ves) [[with collar] colo[u]r[ed] %-color%]
 	peaceful wolf:
 		name: peaceful wol¦f¦ves
-		pattern: (peaceful|neutral|unaggressive) <age> wol(f|1¦ves) [[with collar] colo[u]r[ed] %-color%]
+		pattern: (peaceful|neutral|unaggressive) <age> [%-wolfvariant%] wol(f|1¦ves) [[with collar] colo[u]r[ed] %-color%]
 	zombie:
 		name: zombie¦s
 		pattern: <age> zombie(|1¦s)|(4¦)zombie (kid(|1¦s)|child(|1¦ren))
@@ -1243,16 +1261,16 @@ entities:
 		pattern: interaction(|1¦s)
 	display:
 		name: display¦s
-		pattern: display(|1¦s)
+		pattern: display(1:s| [entit(y|1:ies)])
 	block display:
 		name: block display¦s
-		pattern: block display(|1¦s)
+		pattern: (block display(1:s| [entit(y|1:ies)]) [of %-blockdata/itemtype%]|alt:%-blockdata/itemtype% block display(1:s| [entit(y|1:ies)]))
 	item display:
 		name: item display¦s
-		pattern: item display(|1¦s)
+		pattern: (item display(1:s| [entit(y|1:ies)]) [of %-itemtype%]|alt:%-itemtype% item display(1:s| [entit(y|1:ies)]))
 	text display:
 		name: text display¦s
-		pattern: text display(|1¦s)
+		pattern: text display(1:s| [entit(y|1:ies)])
 	# 1.20.3 Entities
 	breeze:
 		name: breeze¦s
@@ -1293,6 +1311,18 @@ cat types:
 	white: white
 	jellie: jellie
 	all_black: all black
+
+# -- Wolf Variants --
+wolf variants:
+	ashen: ashen
+	black: black
+	chestnut: chestnut
+	pale: pale
+	rusty: rusty
+	snowy: snowy
+	spotted: spotted
+	striped: striped
+	woods: woods
 
 # -- Damage Causes --
 damage causes:
@@ -2303,6 +2333,31 @@ transform reasons:
 	unknown: unknown
 	infection: infection, villager infection
 
+# -- Display Billboards --
+billboards:
+	center: center, middle, center pivot
+	fixed: fixed
+	horizontal: horizontal, horizontal pivot
+	vertical: vertical, vertical pivot
+
+# -- Text Display Alignments --
+text alignments:
+	center: centered, center aligned, middle aligned
+	left: left aligned
+	right: right aligned
+
+# -- Item Display Transforms --
+item display transforms:
+	firstperson_lefthand: first person left handed, first person left hand, left handed in first person
+	firstperson_righthand: first person right handed, first person right hand, right handed in first person
+	fixed: fixed, fixed position
+	ground: ground, the ground
+	gui: gui, menu
+	head: head
+	none: no transform
+	thirdperson_lefthand: third person left handed, third person left hand, left handed in third person
+	thirdperson_righthand: third person right handed, third person right hand, right handed in third person
+
 # -- Boolean --
 boolean:
 	true:
@@ -2372,6 +2427,7 @@ types:
 	blockdata: block data¦s @a
 	healreason: heal reason¦s @a
 	cattype: cat type¦s @a
+	wolfvariant: wolf variant¦s @a
 	gamerule: gamerule¦s @a
 	attributetype: attribute type¦s @a
 	enchantmentoffer: enchantment offer¦s @an
@@ -2383,6 +2439,10 @@ types:
 	quitreason: quit reason¦s @a
 	inventoryclosereason: inventory close reason¦s @an
 	transformreason: transform reason¦s @a
+	display: display¦s @a
+	billboard: billboard¦s @a
+	textalignment: text alignment¦s @a
+	itemdisplaytransform: item display transform¦s @an
 
 	# Skript
 	weathertype: weather type¦s @a
@@ -2406,3 +2466,6 @@ types:
 	# Hooks
 	money: money
 	region: region¦s
+
+	# Other
+	quaternion: quaternion¦s @a

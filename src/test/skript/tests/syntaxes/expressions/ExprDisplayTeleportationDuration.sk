@@ -1,0 +1,30 @@
+test "display teleportation duration" when running minecraft "1.20.4":
+
+	spawn block display at spawn of world "world":
+		set {_e::1} to entity
+	spawn item display at spawn of world "world":
+		set {_e::2} to entity
+	spawn text display at spawn of world "world":
+		set {_e::3} to entity
+
+	assert teleportation duration of {_e::*} is 0 ticks with "default duration was not 0"
+
+	set teleportation duration of {_e::*} to 5 ticks
+	assert teleportation duration of {_e::*} is 5 ticks with "failed to set to duration"
+
+	set interpolation duration of {_e::*} to 0.1 seconds
+	assert teleportation duration of {_e::*} is 5 ticks with "setting width modified duration"
+
+	set teleportation duration of {_e::*} to 0 ticks
+	assert teleportation duration of {_e::*} is 0 ticks with "set to duration to 0 value"
+
+	add 20 ticks to teleportation duration of {_e::*}
+	assert teleportation duration of {_e::*} is 20 ticks with "add 20 to duration"
+
+	subtract 25 ticks from teleportation duration of {_e::*}
+	assert teleportation duration of {_e::*} is 0 ticks with "subtract 25 from duration"
+
+	reset teleportation duration of {_e::*}
+	assert teleportation duration of {_e::*} is 0 seconds with "reset duration"
+
+	delete entities within {_e::*}
