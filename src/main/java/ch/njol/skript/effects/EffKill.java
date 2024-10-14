@@ -44,12 +44,15 @@ import org.jetbrains.annotations.Nullable;
 		"Note: This effect does not set the entity's health to 0 (which causes issues), but damages the entity by 100 times its maximum health."})
 @Examples({"kill the player",
 		"kill all creepers in the player's world",
-		"kill all endermen, witches and bats"})
+		"kill all endermen, witches and bats",
+		"kill the player ignoring totem of undying",
+		"kill target entity ignoring the totem",
+		"kill target player ignoring resurrection"})
 @Since("1.0")
 public class EffKill extends Effect {
 
 	static {
-		Skript.registerEffect(EffKill.class, "kill %entities%", "kill %entities% ignoring ([undying] totem|totem [of undying])");
+		Skript.registerEffect(EffKill.class, "kill %entities%", "kill %entities% ignoring [the] (resurrection|revival|[undying] totem|totem [of undying])");
 	}
 	
 	@SuppressWarnings("null")
