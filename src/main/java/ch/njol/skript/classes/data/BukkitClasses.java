@@ -1511,6 +1511,24 @@ public class BukkitClasses {
 						return "fish hook";
 					}
 				}));
+    
+		ClassInfo<?> wolfVariantClassInfo;
+		if (Skript.classExists("org.bukkit.entity.Wolf$Variant") && BukkitUtils.registryExists("WOLF_VARIANT")) {
+			wolfVariantClassInfo = new RegistryClassInfo<>(Wolf.Variant.class, Registry.WOLF_VARIANT, "wolfvariant", "wolf variants");
+		} else {
+			/*
+			 * Registers a dummy/placeholder class to ensure working operation on MC versions that do not have `Wolf.Variant`
+			 */
+			wolfVariantClassInfo = new ClassInfo<>(WolfData.VariantDummy.class, "wolfvariant");
+		}
+		Classes.registerClass(wolfVariantClassInfo
+			.user("wolf ?variants?")
+			.name("Wolf Variant")
+			.description("Represents the variant of a wolf entity.",
+				"NOTE: Minecraft namespaces are supported, ex: 'minecraft:ashen'.")
+			.since("@VERSION")
+			.requiredPlugins("Minecraft 1.21+")
+			.documentationId("WolfVariant"));
 	}
 
 }
