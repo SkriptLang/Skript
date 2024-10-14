@@ -1,9 +1,14 @@
+# This test is to see if the `is burning` condition works properly.
+# Before, something like `if {x} is burning` would try to compare {x} to the burning damage cause
+# instead of whether or not the entity was burning.
 test "burning":
-	spawn a pig at event-location
-	set {_pig} to the last spawned pig
+	spawn a pig at event-location:
+		set {_pig} to entity
+
 	assert "burning" parsed as damage cause is burning with "burning damage cause compare"
-	set burning time of {_pig} to 9000 ticks
-	wait a tick
-	assert entity within {_pig} is burning with "is burning failed"
-	assert {_pig} is burning with "is burning failed ##2"
-	clear entity within {_pig}
+
+	ignite {_pig}
+	assert entity within {_pig} is burning with "entity within is burning failed"
+	assert {_pig} is burning with "is burning failed"
+
+	delete entity within {_pig}

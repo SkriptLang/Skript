@@ -7,6 +7,7 @@ plugins {
 	id 'com.github.johnrengelman.shadow' version '8.1.1'
 	id 'maven-publish'
 	id 'java'
+	id 'checkstyle'
 }
 
 configurations {
@@ -30,7 +31,15 @@ dependencies {
 	shadow group: 'net.kyori', name: 'adventure-text-serializer-bungeecord', version: '4.3.2'
 
 	implementation group: 'io.papermc.paper', name: 'paper-api', version: '1.21-R0.1-SNAPSHOT'
+	implementation group: 'org.eclipse.jdt', name: 'org.eclipse.jdt.annotation', version: '2.2.700'
+
+	// Comes from Minecraft including Guava or Gson
 	implementation group: 'com.google.code.findbugs', name: 'findbugs', version: '3.0.1'
+
+	// bundled with Minecraft 1.19.4+ for display entity transforms
+	implementation group: 'org.joml', name: 'joml', version: '1.10.5'
+
+	// Plugin hook libraries
 	implementation group: 'com.sk89q.worldguard', name: 'worldguard-legacy', version: '7.0.0-SNAPSHOT'
 	implementation group: 'net.milkbowl.vault', name: 'Vault', version: '1.7.3', {
 		exclude group: 'org.bstats', module: 'bstats-bukkit'
@@ -40,6 +49,11 @@ dependencies {
 
 	testShadow group: 'junit', name: 'junit', version: '4.13.2'
 	testShadow group: 'org.easymock', name: 'easymock', version: '5.4.0'
+}
+
+checkstyle {
+	configFile = new File("checkstyle.xml")
+	sourceSets = [] // disables checkstyle after build task
 }
 
 task checkAliases {
