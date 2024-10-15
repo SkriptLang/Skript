@@ -8,13 +8,12 @@ test "ExprServerIconJUnit" when running JUnit:
 
 on skript load:
 	load server icon from "server-icon.png"
-	set {-server-icon} to last loaded server icon
 
 on server list ping:
 	set {_test} to "org.skriptlang.skript.test.tests.syntaxes.expressions.ExprServerIconTest"
 	junit test is {_test}
 
-	if server icon is {-server-icon}:
+	if server icon is last loaded server icon:
 		complete objective "set server icon" for {_test}
 
 	reset server icon
