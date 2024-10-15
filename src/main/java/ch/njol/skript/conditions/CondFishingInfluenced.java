@@ -24,7 +24,7 @@ public class CondFishingInfluenced extends PropertyCondition<FishHook> {
 
 	static {
 		register(CondFishingInfluenced.class,
-			"(influenced|affected) by (sky:[direct ]sky access|rain)",
+			"(influenced|affected) by (sky:[direct] sky access|rain)",
 			"fishinghooks");
 	}
 
