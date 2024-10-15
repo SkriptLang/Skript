@@ -16,6 +16,7 @@ import org.jetbrains.annotations.Nullable;
 @Name("Fishing Approach Angle")
 @Description({
 	"Returns the angle at which the fish will approach the fishing hook, after the wait time.",
+	"The angle is in degrees, with 0 being positive Z, 90 being negative X, 180 being negative Z, and 270 being positive X.",
 	"By default, returns a value between 0 and 360 degrees."
 })
 @Examples({

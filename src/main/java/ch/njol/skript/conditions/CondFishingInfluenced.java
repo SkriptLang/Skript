@@ -57,7 +57,7 @@ public class CondFishingInfluenced extends PropertyCondition<Entity> {
 
 	@Override
 	protected String getPropertyName() {
-		return "influenced by " + (skyAccess ? "sky access" : "rain");
+		return "fishing influenced by " + (skyAccess ? "sky access" : "rain");
 	}
 
 	@Override
@@ -65,4 +65,5 @@ public class CondFishingInfluenced extends PropertyCondition<Entity> {
 		return "hook " + (isNegated() ? "is" : "isn't") + " influenced by " +
 			(skyAccess ? "sky access" : "rain");
 	}
+
 }

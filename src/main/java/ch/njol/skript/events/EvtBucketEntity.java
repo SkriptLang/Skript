@@ -1,7 +1,10 @@
 package ch.njol.skript.events;
 
 import ch.njol.skript.Skript;
-import ch.njol.skript.doc.*;
+import ch.njol.skript.doc.Description;
+import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Name;
+import ch.njol.skript.doc.Since;
 import ch.njol.skript.entity.EntityData;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptEvent;
@@ -13,12 +16,10 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.player.PlayerBucketEntityEvent;
-import org.bukkit.event.player.PlayerFishEvent;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -57,13 +58,13 @@ public class EvtBucketEntity extends SkriptEvent {
 		}, EventValues.TIME_NOW);
 	}
 
-	private List<EntityData<?>> entities = new ArrayList<>(0);
+	private EntityData<?>[] entities;
 
 	@Override
 	public boolean init(Literal<?>[] args, int matchedPattern, ParseResult parseResult) {
 		if (args[0] != null)
 			//noinspection unchecked
-			entities = Arrays.asList(((Literal<EntityData<?>>) args[0]).getAll());
+			entities = ((Literal<EntityData<?>>) args[0]).getAll();
 
 		return true;
 	}
@@ -73,17 +74,15 @@ public class EvtBucketEntity extends SkriptEvent {
 		if (!(event instanceof PlayerBucketEntityEvent bucketEvent))
 			return false;
 
-		return entities.isEmpty() || entities.stream()
+		return entities.length == 0 || Arrays.stream(entities)
 			.map(EntityData::getType)
 			.anyMatch(it -> it.isInstance(bucketEvent.getEntity()));
 	}
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return "bucket catch" +
-			(entities.isEmpty() ?
-				"" :
-				" of " + StringUtils.join(entities, ", ", " and "));
+		return "bucket catch" + (entities.length == 0 ? "" :
+				" of " + StringUtils.join(List.of(entities), ", ", " and "));
 	}
 
 }

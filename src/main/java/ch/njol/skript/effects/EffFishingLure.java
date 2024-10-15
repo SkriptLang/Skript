@@ -12,10 +12,10 @@ import org.bukkit.event.player.PlayerFishEvent;
 import org.jetbrains.annotations.Nullable;
 
 @Name("Apply Fishing Lure")
-@Description("Returns whether the lure enchantment should be applied to reduce the wait time.")
+@Description("Sets whether the lure enchantment should be applied, which reduces the wait time.")
 @Examples({
 	"on fishing line cast:",
-		"\tapply lure enchantment"
+		"\tapply lure enchantment bonus"
 })
 @Events("Fishing")
 @Since("INSERT VERSION")
@@ -23,8 +23,8 @@ public class EffFishingLure extends Effect {
 
 	static {
 		Skript.registerEffect(EffFishingLure.class,
-			"apply [the] lure enchantment",
-			"remove [the] lure enchantment");
+			"apply [the] lure enchantment bonus",
+			"remove [the] lure enchantment bonus");
 	}
 
 	private boolean remove;
@@ -53,4 +53,5 @@ public class EffFishingLure extends Effect {
 	public String toString(@Nullable Event event, boolean debug) {
 		return (remove ? "remove" : "apply") + " lure enchantment";
 	}
+
 }

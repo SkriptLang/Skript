@@ -16,7 +16,7 @@ import org.jetbrains.annotations.Nullable;
 @Description("Gets the bucket that the entity will be put into such as 'puffer fish bucket'.")
 @Examples({
 	"on bucket capture entity:",
-		"\tif entity bucket is salmon bucket:",
+		"\tif future item bucket is salmon bucket:",
 			"\t\tsend \"Congratulations you now have a salmon bucket!\" to player"
 })
 @Events("Bucket Catch Entity")
@@ -25,7 +25,7 @@ public class ExprEntityBucket extends SimpleExpression<ItemStack> {
 
 	static {
 		Skript.registerExpression(ExprEntityBucket.class, ItemStack.class, ExpressionType.EVENT,
-			"[the] [event-]entity bucket");
+			"[the] (future|resulting) [event][-| ]item [bucket]");
 	}
 
 	@Override

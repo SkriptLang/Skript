@@ -74,9 +74,24 @@ public class ExprFishingBiteTime extends SimpleExpression<Timespan> {
 		int ticks = (int) ((Timespan) delta[0]).getAs(Timespan.TimePeriod.TICK);
 
 		switch (mode) {
-			case SET -> hook.setTimeUntilBite(ticks);
-			case ADD -> hook.setTimeUntilBite(hook.getTimeUntilBite() + ticks);
-			case REMOVE -> hook.setTimeUntilBite(hook.getTimeUntilBite() - ticks);
+			case SET -> {
+				if (ticks < 1)
+					return;
+
+				hook.setTimeUntilBite(ticks);
+			}
+			case ADD -> {
+				if (hook.getTimeUntilBite() + ticks < 1)
+					return;
+
+				hook.setTimeUntilBite(hook.getTimeUntilBite() + ticks);
+			}
+			case REMOVE -> {
+				if (hook.getTimeUntilBite() - ticks < 1)
+					return;
+
+				hook.setTimeUntilBite(hook.getTimeUntilBite() - ticks);
+			}
 		}
 	}
 

@@ -13,7 +13,6 @@ test "EvtFishJUnit" when running JUnit:
 	add "cast - reset approach angle" to {_tests::*}
 	add "cast - sky access" to {_tests::*}
 	add "cast - rain" to {_tests::*}
-
 	if method "org.bukkit.entity.FishHook#getTimeUntilBite" exists:
 		add "cast - bite time" to {_tests::*}
 		add "cast - remove bite time" to {_tests::*}
