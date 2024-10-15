@@ -20,7 +20,9 @@ package ch.njol.skript.lang;
 
 import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.Skript;
+import ch.njol.skript.config.Node;
 import ch.njol.skript.config.SectionNode;
+import ch.njol.skript.config.SimpleNode;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.parser.ParserInstance;
 import ch.njol.util.Kleenean;
@@ -145,6 +147,29 @@ public abstract class Section extends TriggerSection implements SyntaxElement {
 		SkriptEvent skriptEvent = new SectionSkriptEvent(name, this);
 		parser.setCurrentStructure(skriptEvent);
 		List<TriggerItem> triggerItems = ScriptLoader.loadItems(sectionNode);
+
+		if (afterLoading != null)
+			afterLoading.run();
+
+		// return the parser to its original state
+		parser.restoreBackup(parserBackup);
+
+		return new Trigger(parser.getCurrentScript(), name, skriptEvent, triggerItems);
+	}
+
+	@SafeVarargs
+	protected final Trigger loadRestrictedCode(Class<? extends Statement> @Nullable [] restrictedClasses, SectionNode sectionNode, String name, @Nullable Runnable afterLoading, Class<? extends Event>... events) {
+		ParserInstance parser = getParser();
+
+		// backup the existing data
+		ParserInstance.Backup parserBackup = parser.backup();
+		parser.reset();
+
+		// set our new data for parsing this section
+		parser.setCurrentEvent(name, events);
+		SkriptEvent skriptEvent = new SectionSkriptEvent(name, this);
+		parser.setCurrentStructure(skriptEvent);
+		List<TriggerItem> triggerItems = ScriptLoader.loadRestrictedItems(sectionNode, restrictedClasses);
 
 		if (afterLoading != null)
 			afterLoading.run();
