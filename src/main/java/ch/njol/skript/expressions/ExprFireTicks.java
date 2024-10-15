@@ -24,7 +24,11 @@ import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
+import ch.njol.skript.lang.Expression;
+import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.util.Timespan;
+import ch.njol.skript.util.Timespan.TimePeriod;
+import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.entity.Entity;
 import org.bukkit.event.Event;
@@ -32,24 +36,40 @@ import org.jetbrains.annotations.Nullable;
 
 @Name("Entity Fire Burn Duration")
 @Description("How much time an entity will be burning for.")
-@Examples({"send \"You will stop burning in %fire time of player%\""})
-@Since("2.7")
+@Examples({
+	"send \"You will stop burning in %fire time of player%\"",
+	"send the max burn time of target"
+})
+@Since("2.7, INSERT VERSION (maximum)")
 public class ExprFireTicks extends SimplePropertyExpression<Entity, Timespan> {
 
 	static {
-		register(ExprFireTicks.class, Timespan.class, "(burn[ing]|fire) (time|duration)", "entities");
+		register(ExprFireTicks.class, Timespan.class, "[:max[imum]] (burn[ing]|fire) (time|duration)", "entities");
+	}
+
+	private boolean max;
+
+	@Override
+	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
+		max = (parseResult.hasTag("max"));
+		return true;
 	}
 
 	@Override
 	@Nullable
 	public Timespan convert(Entity entity) {
-		return Timespan.fromTicks(Math.max(entity.getFireTicks(), 0));
+		return new Timespan(TimePeriod.TICK, (max ? entity.getMaxFireTicks() : Math.max(entity.getFireTicks(), 0)));
 	}
 
 	@Override
 	@Nullable
 	public Class<?>[] acceptChange(ChangeMode mode) {
-		return (mode != ChangeMode.REMOVE_ALL) ? CollectionUtils.array(Timespan.class) :  null;
+		if (max)
+			return null;
+		return switch (mode) {
+			case ADD, SET, RESET, DELETE, REMOVE -> CollectionUtils.array(Timespan.class);
+			default -> null;
+		};
 	}
 
 	@Override
