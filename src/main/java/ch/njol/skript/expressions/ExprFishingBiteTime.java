@@ -28,8 +28,9 @@ import org.jetbrains.annotations.Nullable;
 public class ExprFishingBiteTime extends SimpleExpression<Timespan> {
 
 	static {
-		Skript.registerExpression(ExprFishingBiteTime.class, Timespan.class, ExpressionType.EVENT,
-			"fish[ing] bit(e|ing) [wait] time");
+		if (Skript.methodExists(FishHook.class, "getTimeUntilBite"))
+			Skript.registerExpression(ExprFishingBiteTime.class, Timespan.class, ExpressionType.EVENT,
+				"fish[ing] bit(e|ing) [wait] time");
 	}
 
 	@Override
