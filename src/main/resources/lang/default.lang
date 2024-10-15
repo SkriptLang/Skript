@@ -2452,6 +2452,7 @@ types:
 	billboard: billboard¦s @a
 	textalignment: text alignment¦s @a
 	itemdisplaytransform: item display transform¦s @an
+	minecrafttag: minecraft tag¦s @a
 
 	# Skript
 	weathertype: weather type¦s @a
