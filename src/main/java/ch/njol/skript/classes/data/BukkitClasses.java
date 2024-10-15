@@ -1489,29 +1489,6 @@ public class BukkitClasses {
 				.description("Represents the cause of the action of a potion effect on an entity, e.g. arrow, command")
 				.since("INSERT VERSION"));
 
-		Classes.registerClass(new ClassInfo<>(FishHook.class, "fishinghook")
-				.user("fish(ing)? ?hooks")
-				.name("Fishing Hook")
-				.description("Represents the fishing hook in a <a href='events.html#fishing'>fishing</a> event.")
-				.defaultExpression(new EventValueExpression<>(FishHook.class))
-				.since("INSERT VERSION")
-				.parser(new Parser<>() {
-					@Override
-					public boolean canParse(ParseContext context) {
-						return false;
-					}
-
-					@Override
-					public String toString(FishHook fishHook, int flags) {
-						return "fish hook";
-					}
-
-					@Override
-					public String toVariableNameString(FishHook fishHook) {
-						return "fish hook";
-					}
-				}));
-    
 		ClassInfo<?> wolfVariantClassInfo;
 		if (Skript.classExists("org.bukkit.entity.Wolf$Variant") && BukkitUtils.registryExists("WOLF_VARIANT")) {
 			wolfVariantClassInfo = new RegistryClassInfo<>(Wolf.Variant.class, Registry.WOLF_VARIANT, "wolfvariant", "wolf variants");

@@ -6,6 +6,7 @@ import ch.njol.skript.doc.*;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.FishHook;
 import org.bukkit.event.Event;
 import org.bukkit.event.player.PlayerFishEvent;
@@ -20,12 +21,12 @@ import org.jetbrains.annotations.Nullable;
 })
 @Events("Fishing")
 @Since("INSERT VERSION")
-public class CondFishingInfluenced extends PropertyCondition<FishHook> {
+public class CondFishingInfluenced extends PropertyCondition<Entity> {
 
 	static {
 		register(CondFishingInfluenced.class, PropertyType.BE,
 			"(influenced|affected) by (sky:[direct] sky access|rain)",
-			"fishinghooks");
+			"entities");
 	}
 
 	private boolean skyAccess;
@@ -43,7 +44,10 @@ public class CondFishingInfluenced extends PropertyCondition<FishHook> {
 	}
 
 	@Override
-	public boolean check(FishHook hook) {
+	public boolean check(Entity entity) {
+		if (!(entity instanceof FishHook hook))
+			return false;
+
 		if (skyAccess) {
 			return hook.isSkyInfluenced();
 		} else {

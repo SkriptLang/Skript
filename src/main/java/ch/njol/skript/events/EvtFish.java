@@ -75,12 +75,6 @@ public class EvtFish extends SkriptEvent {
 
 		Skript.registerEvent("Fishing", EvtFish.class, PlayerFishEvent.class, patterns.toArray(new String[0]));
 
-		EventValues.registerEventValue(PlayerFishEvent.class, FishHook.class, new Getter<>() {
-			@Override
-			public FishHook get(PlayerFishEvent event) {
-				return event.getHook();
-			}
-		}, EventValues.TIME_NOW);
 		EventValues.registerEventValue(PlayerFishEvent.class, Entity.class, new Getter<>() {
 			@Override
 			public @Nullable Entity get(PlayerFishEvent event) {

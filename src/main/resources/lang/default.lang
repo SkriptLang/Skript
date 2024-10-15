@@ -2471,7 +2471,6 @@ types:
 	experience.pattern: (e?xp|experience( points?)?)
 	classinfo: type¦s @a
 	visualeffect: visual effect¦s @a
-	fishinghook: fishing hook¦s @a
 
 	# Hooks
 	money: money

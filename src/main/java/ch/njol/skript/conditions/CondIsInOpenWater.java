@@ -2,6 +2,7 @@ package ch.njol.skript.conditions;
 
 import ch.njol.skript.conditions.base.PropertyCondition;
 import ch.njol.skript.doc.*;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.FishHook;
 
 @Name("Is Fish Hook in Open Water")
@@ -13,15 +14,19 @@ import org.bukkit.entity.FishHook;
 })
 @Events("Fishing")
 @Since("INSERT VERSION")
-public class CondIsInOpenWater extends PropertyCondition<FishHook> {
+public class CondIsInOpenWater extends PropertyCondition<Entity> {
 	
 	static {
-		register(CondIsInOpenWater.class, PropertyType.BE, "in open water[s]", "fishinghooks");
+		register(CondIsInOpenWater.class, PropertyType.BE,
+			"in open water[s]", "entities");
 	}
 
 	@Override
-	public boolean check(FishHook fishHook) {
-		return fishHook.isInOpenWater();
+	public boolean check(Entity entity) {
+		if (!(entity instanceof FishHook hook))
+			return false;
+
+		return hook.isInOpenWater();
 	}
 
 	@Override

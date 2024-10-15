@@ -2,6 +2,7 @@ package ch.njol.skript.expressions;
 
 import ch.njol.skript.doc.*;
 import ch.njol.skript.expressions.base.EventValueExpression;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.FishHook;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
@@ -15,10 +16,10 @@ import org.jetbrains.annotations.Nullable;
 })
 @Events("Fishing")
 @Since("INSERT VERSION")
-public class ExprFishingHook extends EventValueExpression<FishHook> {
+public class ExprFishingHook extends EventValueExpression<Entity> {
 
 	static {
-		register(ExprFishingHook.class, FishHook.class, "fish[ing](-| )(hook|bobber)");
+		register(ExprFishingHook.class, Entity.class, "fish[ing] (hook|bobber)");
 	}
 
 	public ExprFishingHook() {
