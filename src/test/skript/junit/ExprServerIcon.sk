@@ -13,6 +13,7 @@ on server list ping:
 	set {_test} to "org.skriptlang.skript.test.tests.syntaxes.expressions.ExprServerIconTest"
 	junit test is {_test}
 
+	set server icon to last loaded server icon
 	if server icon is last loaded server icon:
 		complete objective "set server icon" for {_test}
 
