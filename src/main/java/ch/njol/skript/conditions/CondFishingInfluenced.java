@@ -39,7 +39,7 @@ public class CondFishingInfluenced extends PropertyCondition<FishHook> {
 		}
 
 		skyAccess = parseResult.hasTag("sky");
-		return true;
+		return super.init(expressions, matchedPattern, isDelayed, parseResult);
 	}
 
 	@Override
