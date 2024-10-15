@@ -44,7 +44,7 @@ on fishing line cast:
 	if fishing hook is not in open water:
 		complete objective "cast - not in open water" for {_test}
 
-	if hooked entity of fishing hook is a cod:
+	if hooked entity is a cod:
 		complete objective "cast - correct fish hooked" for {_test}
 
 	set max fish waiting time to 20 seconds
@@ -106,7 +106,7 @@ on fish catch:
 	if fishing hook is not in open water:
 		complete objective "catch - not in open water" for {_test}
 
-	if hooked entity of fishing hook is a salmon:
+	if hooked entity is a salmon:
 		complete objective "catch - correct fish hooked" for {_test}
 
 	set max fish waiting time to 20 seconds
