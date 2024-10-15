@@ -32,6 +32,11 @@ dependencies {
 
 	implementation group: 'io.papermc.paper', name: 'paper-api', version: '1.21-R0.1-SNAPSHOT'
 	implementation group: 'com.google.code.findbugs', name: 'findbugs', version: '3.0.1'
+
+	// bundled with Minecraft 1.19.4+ for display entity transforms
+	implementation group: 'org.joml', name: 'joml', version: '1.10.5'
+
+	// Plugin hook libraries
 	implementation group: 'com.sk89q.worldguard', name: 'worldguard-legacy', version: '7.0.0-SNAPSHOT'
 	implementation group: 'net.milkbowl.vault', name: 'Vault', version: '1.7.3', {
 		exclude group: 'org.bstats', module: 'bstats-bukkit'
