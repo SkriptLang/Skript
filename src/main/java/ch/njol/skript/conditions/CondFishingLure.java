@@ -23,14 +23,14 @@ public class CondFishingLure extends Condition {
 
 	static  {
 		Skript.registerCondition(CondFishingLure.class,
-			"lure enchantment is (applied|active)",
-			"lure enchantment is(n't| not) (applied|active)");
+			"lure enchantment bonus is (applied|active)",
+			"lure enchantment bonus is(n't| not) (applied|active)");
 	}
 
 	@Override
 	public boolean init(Expression<?>[] expressions, int matchedPattern,
 						Kleenean isDelayed, ParseResult parseResult) {
-		if (getParser().isCurrentEvent(PlayerFishEvent.class)) {
+		if (!getParser().isCurrentEvent(PlayerFishEvent.class)) {
 			Skript.error("The 'lure enchantment' condition can only be used in a fishing event.");
 			return false;
 		}

@@ -13,6 +13,9 @@ test "EvtFishJUnit" when running JUnit:
 	add "cast - reset approach angle" to {_tests::*}
 	add "cast - sky access" to {_tests::*}
 	add "cast - rain" to {_tests::*}
+	add "cast - lure enchantment bonus" to {_tests::*}
+	add "cast - apply lure enchantment bonus" to {_tests::*}
+	add "cast - remove lure enchantment bonus" to {_tests::*}
 	if method "org.bukkit.entity.FishHook#getTimeUntilBite" exists:
 		add "cast - bite time" to {_tests::*}
 		add "cast - remove bite time" to {_tests::*}
@@ -32,6 +35,9 @@ test "EvtFishJUnit" when running JUnit:
 	add "catch - reset approach angle" to {_tests::*}
 	add "catch - sky access" to {_tests::*}
 	add "catch - rain" to {_tests::*}
+	add "catch - lure enchantment bonus" to {_tests::*}
+	add "catch - apply lure enchantment bonus" to {_tests::*}
+	add "catch - remove lure enchantment bonus" to {_tests::*}
 	if method "org.bukkit.entity.FishHook#getTimeUntilBite" exists:
 		add "catch - bite time" to {_tests::*}
 		add "catch - remove bite time" to {_tests::*}
@@ -101,6 +107,17 @@ on fishing line cast:
 	if fishing hook is not influenced by rain:
 		complete objective "cast - rain" for {_test}
 
+	if lure enchantment bonus isn't applied:
+		complete objective "cast - lure enchantment bonus" for {_test}
+
+	apply the lure enchantment bonus
+	if lure enchantment bonus is applied:
+		complete objective "cast - apply lure enchantment bonus" for {_test}
+
+	remove the lure enchantment bonus
+	if lure enchantment bonus is not applied:
+		complete objective "cast - remove lure enchantment bonus" for {_test}
+
 	if method "org.bukkit.entity.FishHook#getTimeUntilBite" exists:
 		parse:
 			set fishing bite time to 1 second
@@ -151,6 +168,11 @@ on fish catch:
 	then:
 		complete objective "catch - reset waiting time" for {_test}
 
+	set max fish waiting time to 5 seconds
+	set min fish waiting time to 25 seconds
+	broadcast "min fish waiting time: %min fish waiting time%"
+	broadcast "max fish waiting time: %max fish waiting time%"
+
 	set max fish approach angle to 40
 	if max fish approach angle is 40:
 		complete objective "catch - set approach angle" for {_test}
@@ -176,6 +198,17 @@ on fish catch:
 
 	if fishing hook is not influenced by rain:
 		complete objective "catch - rain" for {_test}
+
+	if lure enchantment bonus isn't applied:
+		complete objective "catch - lure enchantment bonus" for {_test}
+
+	apply the lure enchantment bonus
+	if lure enchantment bonus is applied:
+		complete objective "catch - apply lure enchantment bonus" for {_test}
+
+	remove the lure enchantment bonus
+	if lure enchantment bonus is not applied:
+		complete objective "catch - remove lure enchantment bonus" for {_test}
 
 	if method "org.bukkit.entity.FishHook#getTimeUntilBite" exists:
 		parse:

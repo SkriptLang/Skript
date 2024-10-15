@@ -33,12 +33,11 @@ public class EffFishingLure extends Effect {
 	public boolean init(Expression<?>[] expressions, int matchedPattern,
 						Kleenean isDelayed, ParseResult parseResult) {
 		if (!getParser().isCurrentEvent(PlayerFishEvent.class)) {
-			Skript.error("The fishing hook lure effect can only be used in a fishing event.");
+			Skript.error("The 'fishing hook lure' effect can only be used in a fishing event.");
 			return false;
 		}
 		remove = matchedPattern == 1;
-
-		return false;
+		return true;
 	}
 
 	@Override
@@ -51,7 +50,7 @@ public class EffFishingLure extends Effect {
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return (remove ? "remove" : "apply") + " lure enchantment";
+		return (remove ? "remove" : "apply") + " the lure enchantment bonus";
 	}
 
 }

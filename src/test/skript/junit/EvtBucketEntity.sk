@@ -25,7 +25,7 @@ on bucket catch:
 	if event-item is a water bucket:
 		complete objective "any - correct item" for {_test}
 
-	if entity bucket is a salmon bucket:
+	if future event-item is a salmon bucket:
 		complete objective "any - correct entity bucket" for {_test}
 
 on bucket catch of cod:
@@ -43,5 +43,5 @@ on bucket catch of cod:
 	if event-item is a water bucket:
 		complete objective "specific - correct item" for {_test}
 
-	if entity bucket is a cod bucket:
+	if future event-item is a cod bucket:
 		complete objective "specific - correct entity bucket" for {_test}

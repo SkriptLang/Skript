@@ -74,7 +74,7 @@ public class EvtBucketEntity extends SkriptEvent {
 		if (!(event instanceof PlayerBucketEntityEvent bucketEvent))
 			return false;
 
-		return entities.length == 0 || Arrays.stream(entities)
+		return entities == null || entities.length == 0 || Arrays.stream(entities)
 			.map(EntityData::getType)
 			.anyMatch(it -> it.isInstance(bucketEvent.getEntity()));
 	}
