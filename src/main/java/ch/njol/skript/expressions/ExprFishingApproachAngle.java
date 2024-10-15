@@ -31,7 +31,7 @@ public class ExprFishingApproachAngle extends SimpleExpression<Float> {
 	private static final float DEFAULT_MAXIMUM_DEGREES = 360;
 
 	static {
-		Skript.registerExpression(ExprFishingApproachAngle.class, Float.class, ExpressionType.SIMPLE,
+		Skript.registerExpression(ExprFishingApproachAngle.class, Float.class, ExpressionType.EVENT,
 			"(min:min[imum]|max[imum]) fish[ing] approach[ing] angle");
 	}
 
@@ -54,9 +54,11 @@ public class ExprFishingApproachAngle extends SimpleExpression<Float> {
 		if (!(event instanceof PlayerFishEvent fishEvent))
 			return null;
 
-		if (isMin)
+		if (isMin) {
 			return new Float[]{fishEvent.getHook().getMinLureAngle()};
-		return new Float[]{fishEvent.getHook().getMaxLureAngle()};
+		} else {
+			return new Float[]{fishEvent.getHook().getMaxLureAngle()};
+		}
 	}
 
 	@Override
@@ -117,4 +119,5 @@ public class ExprFishingApproachAngle extends SimpleExpression<Float> {
 	public String toString(@Nullable Event event, boolean debug) {
 		return (isMin ? "minimum" : "maximum") + " fishing approach angle";
 	}
+
 }

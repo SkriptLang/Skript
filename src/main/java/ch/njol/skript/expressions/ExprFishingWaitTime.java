@@ -32,7 +32,7 @@ public class ExprFishingWaitTime extends SimpleExpression<Timespan> {
 	private static final int DEFAULT_MAXIMUM_TICKS = 30 * 20;
 
 	static {
-		Skript.registerExpression(ExprFishingWaitTime.class, Timespan.class, ExpressionType.SIMPLE,
+		Skript.registerExpression(ExprFishingWaitTime.class, Timespan.class, ExpressionType.EVENT,
 			"(min:min[imum]|max[imum]) fish[ing] wait[ing] time");
 	}
 
@@ -42,7 +42,7 @@ public class ExprFishingWaitTime extends SimpleExpression<Timespan> {
 	public boolean init(Expression<?>[] expressions, int matchedPattern,
 						Kleenean isDelayed, ParseResult parseResult) {
 		if (!getParser().isCurrentEvent(PlayerFishEvent.class)) {
-			Skript.error("The fishing approach angle expression can only be used in a fishing event.");
+			Skript.error("The 'fishing wait time' expression can only be used in a fishing event.");
 			return false;
 		}
 
@@ -55,9 +55,11 @@ public class ExprFishingWaitTime extends SimpleExpression<Timespan> {
 		if (!(event instanceof PlayerFishEvent fishEvent))
 			return null;
 
-		if (isMin)
+		if (isMin) {
 			return toTimespan(fishEvent.getHook().getMinWaitTime());
-		return toTimespan(fishEvent.getHook().getMaxWaitTime());
+		} else {
+			return toTimespan(fishEvent.getHook().getMaxWaitTime());
+		}
 	}
 
 	private Timespan[] toTimespan(int ticks) {
