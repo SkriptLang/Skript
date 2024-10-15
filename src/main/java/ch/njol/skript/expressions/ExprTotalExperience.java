@@ -25,7 +25,7 @@ import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
-import org.bukkit.entity.Entity;
+import ch.njol.skript.util.Experience;
 import org.bukkit.entity.ExperienceOrb;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
@@ -43,44 +43,45 @@ import org.jetbrains.annotations.Nullable;
 	"",
 	"if player's total experience is greater than 100:",
 	"\tset player's total experience to 0",
-	"\tgive player 1 diamond"
+	"\tgive player 1 diamond",
+	"",
+	"on level progress change:",
+	"\tset {_changed.xp} to experience of event-experience"
 })
-@Since("2.7")
-public class ExprTotalExperience extends SimplePropertyExpression<Entity, Integer> {
+@Since("2.7, INSERT_VERSION (experience point support)")
+public class ExprTotalExperience extends SimplePropertyExpression<Object, Integer> {
 
 	static {
-		register(ExprTotalExperience.class, Integer.class, "[total] experience", "entities");
+		register(ExprTotalExperience.class, Integer.class, "[total] experience", "entities/experiences");
 	}
 
 	@Override
 	@Nullable
-	public Integer convert(Entity entity) {
+	public Integer convert(Object object) {
 		// experience orbs
-		if (entity instanceof ExperienceOrb)
-			return ((ExperienceOrb) entity).getExperience();
+		if (object instanceof ExperienceOrb experienceOrb)
+			return experienceOrb.getExperience();
 
 		// players need special treatment
-		if (entity instanceof Player)
-			return PlayerUtils.getTotalXP(((Player) entity).getLevel(), ((Player) entity).getExp());
+		if (object instanceof Player player)
+			return PlayerUtils.getTotalXP(player.getLevel(), player.getExp());
 
-		// invalid entity type
+		// experience points
+		if (object instanceof Experience experience) {
+			return experience.getXP();
+		}
+
+		// invalid type
 		return null;
 	}
 
 	@Override
 	@Nullable
 	public Class<?>[] acceptChange(ChangeMode mode) {
-		switch (mode) {
-			case ADD:
-			case REMOVE:
-			case SET:
-			case DELETE:
-			case RESET:
-				return new Class[]{Number.class};
-			case REMOVE_ALL:
-			default:
-				return null;
-		}
+		return switch (mode) {
+			case ADD, REMOVE, SET, DELETE, RESET -> new Class[]{Number.class};
+			default -> null;
+		};
 	}
 
 	@Override
@@ -93,11 +94,13 @@ public class ExprTotalExperience extends SimplePropertyExpression<Entity, Intege
 			case SET:
 				if (change < 0)
 					change = 0;
-				for (Entity entity : getExpr().getArray(event)) {
-					if (entity instanceof ExperienceOrb) {
-						((ExperienceOrb) entity).setExperience(change);
-					} else if (entity instanceof Player) {
-						PlayerUtils.setTotalXP((Player) entity, change);
+				for (Object object : getExpr().getArray(event)) {
+					if (object instanceof ExperienceOrb experienceOrb) {
+						experienceOrb.setExperience(change);
+					} else if (object instanceof Player player) {
+						PlayerUtils.setTotalXP(player, change);
+					} else if (object instanceof Experience experience) {
+						experience.setXP(change);
 					}
 				}
 				break;
@@ -106,20 +109,23 @@ public class ExprTotalExperience extends SimplePropertyExpression<Entity, Intege
 				// fall through to ADD
 			case ADD:
 				int xp;
-				for (Entity entity : getExpr().getArray(event)) {
-					if (entity instanceof ExperienceOrb) {
-						//ensure we don't go below 0
-						xp = ((ExperienceOrb) entity).getExperience() + change;
-						((ExperienceOrb) entity).setExperience(Math.max(xp, 0));
-					} else if (entity instanceof Player) {
+				for (Object object : getExpr().getArray(event)) {
+					if (object instanceof ExperienceOrb experienceOrb) {
+						// ensure we don't go below 0
+						xp = experienceOrb.getExperience() + change;
+						experienceOrb.setExperience(Math.max(xp, 0));
+					} else if (object instanceof Player player) {
 						// can only giveExp() positive experience
 						if (change < 0) {
 							// ensure we don't go below 0
-							xp = PlayerUtils.getTotalXP((Player) entity) + change;
-							PlayerUtils.setTotalXP((Player) entity, (Math.max(xp, 0)));
+							xp = PlayerUtils.getTotalXP(player) + change;
+							PlayerUtils.setTotalXP(player, Math.max(xp, 0));
 						} else {
-							((Player) entity).giveExp(change);
+							player.giveExp(change);
 						}
+					} else if (object instanceof Experience experience) {
+						xp = experience.getXP() + change;
+						experience.setXP(Math.max(xp, 0));
 					}
 				}
 				break;
