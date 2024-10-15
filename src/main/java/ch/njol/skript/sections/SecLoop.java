@@ -1,21 +1,3 @@
-/**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
 package ch.njol.skript.sections;
 
 import ch.njol.skript.Skript;
@@ -62,19 +44,27 @@ import java.util.WeakHashMap;
 })
 @Examples({
 	"loop all players:",
-	"\tsend \"Hello %loop-player%!\" to loop-player",
+		"\tsend \"Hello %loop-player%!\" to loop-player",
 	"",
 	"loop items in player's inventory:",
-	"\tif loop-item is dirt:",
-	"\t\tset loop-item to air",
+		"\tif loop-item is dirt:",
+			"\t\tset loop-item to air",
 	"",
 	"loop 10 times:",
-	"\tsend title \"%11 - loop-value%\" and subtitle \"seconds left until the game begins\" to player for 1 second # 10, 9, 8 etc.",
-	"\twait 1 second",
+		"\tsend title \"%11 - loop-value%\" and subtitle \"seconds left until the game begins\" to player for 1 second # 10, 9, 8 etc.",
+		"\twait 1 second",
 	"",
 	"loop {Coins::*}:",
-	"\tset {Coins::%loop-index%} to loop-value + 5 # Same as \"add 5 to {Coins::%loop-index%}\" where loop-index is the uuid of " +
-		"the player and loop-value is the actually coins value such as 200"
+		"\tset {Coins::%loop-index%} to loop-value + 5 # Same as \"add 5 to {Coins::%loop-index%}\" where loop-index is the uuid of " +
+		"the player and loop-value is the number of coins for the player",
+	"",
+	"loop shuffled (integers between 0 and 8):",
+		"\tif all:",
+			"\t\tprevious loop-value = 1",
+			"\t\tloop-value = 4",
+			"\t\tnext loop-value = 8",
+		"\tthen:",
+			"\t\t kill all players"
 })
 @Since("1.0")
 public class SecLoop extends LoopSection {
@@ -88,6 +78,8 @@ public class SecLoop extends LoopSection {
 
 	private final transient Map<Event, Object> current = new WeakHashMap<>();
 	private final transient Map<Event, Iterator<?>> currentIter = new WeakHashMap<>();
+	private final transient Map<Event, Object> next = new WeakHashMap<>();
+	private final transient Map<Event, Object> previous = new WeakHashMap<>();
 
 	private @Nullable TriggerItem actualNext;
 	private boolean guaranteedToLoop;
@@ -131,19 +123,24 @@ public class SecLoop extends LoopSection {
 		Iterator<?> iter = currentIter.get(event);
 		if (iter == null) {
 			iter = expr instanceof Variable<?> variable ? variable.variablesIterator(event) : expr.iterator(event);
-			if (iter != null) {
-				if (iter.hasNext())
-					currentIter.put(event, iter);
-				else
-					iter = null;
+			if (iter != null && iter.hasNext()) {
+				currentIter.put(event, iter);
+				next.put(event, iter.next());
 			}
 		}
-		if (iter == null || !iter.hasNext()) {
+
+		if (iter == null || next.get(event) == null) {
 			exit(event);
 			debug(event, false);
 			return actualNext;
 		} else {
-			current.put(event, iter.next());
+			previous.put(event, current.get(event));
+			current.put(event, next.get(event));
+			if (iter.hasNext()) {
+				next.put(event, iter.next());
+			} else {
+				next.put(event, null);
+			}
 			currentLoopCounter.put(event, (currentLoopCounter.getOrDefault(event, 0L)) + 1);
 			return walk(event, true);
 		}
@@ -159,9 +156,16 @@ public class SecLoop extends LoopSection {
 		return "loop " + expr.toString(event, debug);
 	}
 
-	@Nullable
-	public Object getCurrent(Event event) {
+	public @Nullable Object getCurrent(Event event) {
 		return current.get(event);
+	}
+
+	public @Nullable Object getNext(Event event) {
+		return next.get(event);
+	}
+
+	public @Nullable Object getPrevious(Event event) {
+		return previous.get(event);
 	}
 
 	public Expression<?> getLoopedExpression() {
@@ -184,6 +188,8 @@ public class SecLoop extends LoopSection {
 	public void exit(Event event) {
 		current.remove(event);
 		currentIter.remove(event);
+		previous.remove(event);
+		next.remove(event);
 		super.exit(event);
 	}
 
