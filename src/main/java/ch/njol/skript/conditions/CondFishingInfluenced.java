@@ -23,7 +23,7 @@ import org.jetbrains.annotations.Nullable;
 public class CondFishingInfluenced extends PropertyCondition<FishHook> {
 
 	static {
-		register(CondFishingInfluenced.class,
+		register(CondFishingInfluenced.class, PropertyType.BE,
 			"(influenced|affected) by (sky:[direct] sky access|rain)",
 			"fishinghooks");
 	}
@@ -34,7 +34,7 @@ public class CondFishingInfluenced extends PropertyCondition<FishHook> {
 	public boolean init(Expression<?>[] expressions, int matchedPattern,
 						Kleenean isDelayed, ParseResult parseResult) {
 		if (!getParser().isCurrentEvent(PlayerFishEvent.class)) {
-			Skript.error("The 'influenced by' condition can only be used in a fishing event.");
+			Skript.error("The 'fishing hook influenced by' condition can only be used in a fishing event.");
 			return false;
 		}
 
@@ -58,6 +58,7 @@ public class CondFishingInfluenced extends PropertyCondition<FishHook> {
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return "hook " + (isNegated() ? "is" : "isn't") + " influenced by " + (skyAccess ? "sky access" : "rain");
+		return "hook " + (isNegated() ? "is" : "isn't") + " influenced by " +
+			(skyAccess ? "sky access" : "rain");
 	}
 }
