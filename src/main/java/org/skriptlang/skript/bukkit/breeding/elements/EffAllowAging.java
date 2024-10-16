@@ -1,4 +1,4 @@
-package ch.njol.skript.effects;
+package org.skriptlang.skript.bukkit.breeding.elements;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
@@ -14,48 +14,50 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
-@Name("Make Breedable")
-@Description("Sets whether or not entities will be able to breed. Only works on animals.")
+@Name("Allow Aging")
+@Description("Sets whether or not living entities will be able to age.")
 @Examples({
 	"on spawn of animal:",
-		"\tmake entity unbreedable"
+		"\tallow aging of entity"
 })
 @Since("INSERT VERSION")
-public class EffBreedable extends Effect {
+public class EffAllowAging extends Effect {
 
 	static {
-		Skript.registerEffect(EffBreedable.class,
-			"make %livingentities% breedable",
-			"unsterilize %livingentities%",
-			"make %livingentities% (not |non(-| )|un)breedable",
-			"sterilize %livingentities%");
+		Skript.registerEffect(EffAllowAging.class,
+			"lock age of %livingentities%",
+			"prevent aging of %livingentities%",
+			"prevent %livingentities% from aging",
+			"unlock age of %livingentities%",
+			"allow aging of %livingentities%",
+			"allow %livingentities% to age");
 	}
 
-	private boolean sterilize;
+	private boolean unlock;
 	private Expression<LivingEntity> entities;
 
 	@Override
 	public boolean init(Expression<?>[] expressions, int matchedPattern,
 						Kleenean isDelayed, ParseResult parseResult) {
-		sterilize = matchedPattern > 1;
 		//noinspection unchecked
 		entities = (Expression<LivingEntity>) expressions[0];
+		unlock = matchedPattern > 2;
 		return true;
 	}
 
 	@Override
 	protected void execute(Event event) {
-		for (LivingEntity entity : entities.getArray(event)) {
-			if (!(entity instanceof Breedable breedable))
+		for (LivingEntity livingEntity : entities.getArray(event)) {
+			if (!(livingEntity instanceof Breedable breedable))
 				continue;
 
-			breedable.setBreed(!sterilize);
+			breedable.setAgeLock(!unlock);
 		}
 	}
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return "make " + entities.toString(event, debug) + (sterilize ? " non-" : " ") + "breedable";
+		return (unlock ? "allow" : "prevent") + " aging of " + entities.toString(event,debug);
 	}
 
 }

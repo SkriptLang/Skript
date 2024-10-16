@@ -1804,28 +1804,6 @@ public final class BukkitEventValues {
 			}, EventValues.TIME_NOW);
 		}
 
-		// EntityBreedEvent
-		EventValues.registerEventValue(EntityBreedEvent.class, ItemStack.class, new Getter<>() {
-			@Override
-			public @Nullable ItemStack get(EntityBreedEvent event) {
-				return event.getBredWith();
-			}
-		}, EventValues.TIME_NOW);
-
-		EventValues.registerEventValue(EntityEnterLoveModeEvent.class, LivingEntity.class, new Getter<>() {
-			@Override
-			public LivingEntity get(EntityEnterLoveModeEvent event) {
-				return event.getEntity();
-			}
-		}, EventValues.TIME_NOW);
-
-		EventValues.registerEventValue(EntityEnterLoveModeEvent.class, HumanEntity.class, new Getter<>() {
-			@Override
-			public @Nullable HumanEntity get(EntityEnterLoveModeEvent event) {
-				return event.getHumanEntity();
-			}
-		}, EventValues.TIME_NOW);
-
 		// EntityResurrectEvent
 		EventValues.registerEventValue(EntityResurrectEvent.class, Slot.class, new Getter<Slot, EntityResurrectEvent>() {
 			@Override
