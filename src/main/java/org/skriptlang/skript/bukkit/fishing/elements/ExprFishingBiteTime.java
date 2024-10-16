@@ -1,4 +1,4 @@
-package ch.njol.skript.expressions;
+package org.skriptlang.skript.bukkit.fishing.elements;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer.ChangeMode;
@@ -14,39 +14,33 @@ import org.bukkit.event.Event;
 import org.bukkit.event.player.PlayerFishEvent;
 import org.jetbrains.annotations.Nullable;
 
-@Name("Fishing Wait Time")
+@Name("Fishing Bite Time")
 @Description({
-	"Returns the minimum and/or maximum waiting time of the fishing hook. ",
-	"Default minimum value is 5 seconds and maximum is 30 seconds, before lure is applied."
+	"Returns the time it takes a fish to bite the fishing hook, after it started approaching the hook.",
+	"May return a timespan of 0 seconds. If modifying the value, it should be at least 1 tick.",
 })
 @Examples({
-	"on fishing line cast:",
-		"\tset min waiting time to 10 seconds",
-		"\tset max waiting time to 20 seconds",
+	"on fish approach:",
+	"\tset fishing bite time to 5 seconds",
 })
+@RequiredPlugins("Paper 1.20.6")
 @Events("Fishing")
 @Since("INSERT VERSION")
-public class ExprFishingWaitTime extends SimpleExpression<Timespan> {
-
-	private static final int DEFAULT_MINIMUM_TICKS = 5 * 20;
-	private static final int DEFAULT_MAXIMUM_TICKS = 30 * 20;
+public class ExprFishingBiteTime extends SimpleExpression<Timespan> {
 
 	static {
-		Skript.registerExpression(ExprFishingWaitTime.class, Timespan.class, ExpressionType.EVENT,
-			"(min:min[imum]|max[imum]) fish[ing] wait[ing] time");
+		if (Skript.methodExists(FishHook.class, "getTimeUntilBite"))
+			Skript.registerExpression(ExprFishingBiteTime.class, Timespan.class, ExpressionType.EVENT,
+				"fish[ing] bit(e|ing) [wait] time");
 	}
-
-	private boolean isMin;
 
 	@Override
 	public boolean init(Expression<?>[] expressions, int matchedPattern,
 						Kleenean isDelayed, ParseResult parseResult) {
 		if (!getParser().isCurrentEvent(PlayerFishEvent.class)) {
-			Skript.error("The 'fishing wait time' expression can only be used in a fishing event.");
+			Skript.error("The 'fishing bite time' expression can only be used in a fishing event.");
 			return false;
 		}
-
-		isMin = parseResult.hasTag("min");
 		return true;
 	}
 
@@ -55,11 +49,7 @@ public class ExprFishingWaitTime extends SimpleExpression<Timespan> {
 		if (!(event instanceof PlayerFishEvent fishEvent))
 			return null;
 
-		if (isMin) {
-			return toTimespan(fishEvent.getHook().getMinWaitTime());
-		} else {
-			return toTimespan(fishEvent.getHook().getMaxWaitTime());
-		}
+		return toTimespan(fishEvent.getHook().getTimeUntilBite());
 	}
 
 	private Timespan[] toTimespan(int ticks) {
@@ -69,7 +59,7 @@ public class ExprFishingWaitTime extends SimpleExpression<Timespan> {
 	@Override
 	public @Nullable Class<?>[] acceptChange(ChangeMode mode) {
 		return switch (mode) {
-			case ADD, REMOVE, SET, RESET -> new Class[]{Timespan.class};
+			case ADD, REMOVE, SET -> new Class[]{Timespan.class};
 			default -> null;
 		};
 	}
@@ -81,31 +71,26 @@ public class ExprFishingWaitTime extends SimpleExpression<Timespan> {
 
 		FishHook hook = fishEvent.getHook();
 
-		int ticks = mode == ChangeMode.RESET ?
-			(isMin ? DEFAULT_MINIMUM_TICKS : DEFAULT_MAXIMUM_TICKS) :
-			(int) ((Timespan) delta[0]).getAs(Timespan.TimePeriod.TICK);
+		int ticks = (int) ((Timespan) delta[0]).getAs(Timespan.TimePeriod.TICK);
 
 		switch (mode) {
-			case SET, RESET -> {
-				if (isMin) {
-					hook.setMinWaitTime(ticks);
-				} else {
-					hook.setMaxWaitTime(ticks);
-				}
+			case SET -> {
+				if (ticks < 1)
+					return;
+
+				hook.setTimeUntilBite(ticks);
 			}
 			case ADD -> {
-				if (isMin) {
-					hook.setMinWaitTime(hook.getMinWaitTime() + ticks);
-				} else {
-					hook.setMaxWaitTime(hook.getMaxWaitTime() + ticks);
-				}
+				if (hook.getTimeUntilBite() + ticks < 1)
+					return;
+
+				hook.setTimeUntilBite(hook.getTimeUntilBite() + ticks);
 			}
 			case REMOVE -> {
-				if (isMin) {
-					hook.setMinWaitTime(hook.getMinWaitTime() - ticks);
-				} else {
-					hook.setMaxWaitTime(hook.getMaxWaitTime() - ticks);
-				}
+				if (hook.getTimeUntilBite() - ticks < 1)
+					return;
+
+				hook.setTimeUntilBite(hook.getTimeUntilBite() - ticks);
 			}
 		}
 	}
@@ -122,7 +107,7 @@ public class ExprFishingWaitTime extends SimpleExpression<Timespan> {
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return (isMin ? "minimum" : "maximum") + " fishing waiting time";
+		return "fishing bite time";
 	}
 
 }

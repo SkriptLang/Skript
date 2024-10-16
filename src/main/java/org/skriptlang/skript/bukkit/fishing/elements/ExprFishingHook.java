@@ -1,4 +1,4 @@
-package ch.njol.skript.expressions;
+package org.skriptlang.skript.bukkit.fishing.elements;
 
 import ch.njol.skript.doc.*;
 import ch.njol.skript.expressions.base.EventValueExpression;
