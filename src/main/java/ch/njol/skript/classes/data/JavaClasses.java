@@ -348,7 +348,7 @@ public class JavaClasses {
 		if (!matcher.matches())
 			return null;
 
-		String number = matcher.group("num");
+		String number = matcher.group("num").replace("_", "");
 		if (matcher.group("rad") != null) {
 			try {
 				//noinspection unchecked
@@ -387,7 +387,7 @@ public class JavaClasses {
 		if (!matcher.matches())
 			return null;
 
-		String number = matcher.group("num");
+		String number = matcher.group("num").replace("_", "");
 
 		try {
 			T result;
