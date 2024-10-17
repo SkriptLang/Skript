@@ -8,7 +8,7 @@ variables:
 	{testing::regression::%offlineplayer%} = 1337
 
 on test "default variables":
-	spawn a pig at spawn of world "world"
+	spawn a pig at test-location
 	assert {testing::variables1::%last spawned pig%} is 1337 with "default variable 1 failed"
 
 	set {_string} to "empty string"
