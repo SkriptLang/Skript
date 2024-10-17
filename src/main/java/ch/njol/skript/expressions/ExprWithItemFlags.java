@@ -17,7 +17,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.Nullable;
 
 @Name("Item with Item Flags")
-@Description("Creates a new item with the specified item flags or with all item flags.")
+@Description("Creates a new item with the specified item flags.")
 @Examples({
 	"give player diamond sword with item flags hide enchants and hide attributes",
 	"set {_item} to player's tool with item flag hide additional tooltip",
