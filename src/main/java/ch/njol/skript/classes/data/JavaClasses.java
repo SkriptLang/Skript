@@ -28,6 +28,14 @@ public class JavaClasses {
 	public static final int VARIABLENAME_NUMBERACCURACY = 8;
 
 	/**
+	 * The format of an integer.
+	 * <p>
+	 * Has an optional negative sign and may contain one underscores followed by any number of digits.
+	 * </p>
+	 */
+	public static final String INTEGER_NUMBER_PATTERN = "-?\\d+(_\\d+)*";
+
+	/**
 	 * Matches an integer with an optional unit of radians or degrees.
 	 * <p>
 	 * First, the actual number format {@code num} is specified. Then, an optional angle unit is specified.
@@ -39,8 +47,18 @@ public class JavaClasses {
 	 * </p>
 	 */
 	public static final Pattern INTEGER_PATTERN =
-		Pattern.compile("(?<num>-?\\d+(_\\d+)*)" +
+		Pattern.compile("(?<num>" + INTEGER_NUMBER_PATTERN + ")" +
 			"(?: (?:in )?(?:(?<rad>rad(?:ian)?s?)|deg(?:ree)?s?))?");
+
+	/**
+	 * The format of a decimal number.
+	 * <p>
+	 * Has an optional negative sign and may contain one underscores followed by any number of digits,
+	 * in the whole part or the fractional part. The fractional part is optional. May be followed by a percentage sign,
+	 * to indicate that the number is a percentage.
+	 * </p>
+	 */
+	public static final String DECIMAL_NUMBER_PATTERN = "-?\\d+(_\\d+)*(?>\\.\\d+(_\\d+)*)?%?";
 
 	/**
 	 * Matches a decimal number with an optional unit of radians or degrees.
@@ -54,7 +72,7 @@ public class JavaClasses {
 	 * </p>
 	 */
 	public static final Pattern DECIMAL_PATTERN =
-		Pattern.compile("(?<num>-?\\d+(_\\d+)*(?>\\.\\d+(_\\d+)*)?%?)" +
+		Pattern.compile("(?<num>" + DECIMAL_NUMBER_PATTERN + ")" +
 			"(?: (?:in )?(?:(?<rad>rad(?:ian)?s?)|deg(?:ree)?s?))?");
 
 	static {
