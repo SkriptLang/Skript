@@ -46,9 +46,9 @@ public class ExprRotate extends SimpleExpression<Object> {
 
 	static {
 		Skript.registerExpression(ExprRotate.class, Object.class, ExpressionType.SIMPLE,
-				"%quaternions/vectors% rotated around [the] [global] (:x|:y|:z)(-| )axis by %number% [degrees]",
-				"%quaternions% rotated around [the|its|their] local (:x|:y|:z)(-| )ax(i|e)s by %number% [degrees]",
-				"%quaternions/vectors% rotated around [the] %vector% by %number% [degrees]",
+				"%quaternions/vectors% rotated around [the] [global] (:x|:y|:z)(-| )axis by %number%",
+				"%quaternions% rotated around [the|its|their] local (:x|:y|:z)(-| )ax(i|e)s by %number%",
+				"%quaternions/vectors% rotated around [the] %vector% by %number%",
 				"%quaternions% rotated by x %number%, y %number%(, [and]| and) z %number%");
 	}
 

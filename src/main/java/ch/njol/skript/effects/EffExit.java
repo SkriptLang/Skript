@@ -33,7 +33,6 @@ import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnknownNullability;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Name("Exit")
@@ -54,7 +53,7 @@ public class EffExit extends Effect {
 		Skript.registerEffect(EffExit.class,
 			"(exit|stop) [trigger]",
 			"(exit|stop) [1|a|the|this] (section|1:loop|2:conditional)",
-			"(exit|stop) <" + JavaClasses.INTEGER_PATTERN + "> (section|1:loop|2:conditional)s",
+			"(exit|stop) <" + JavaClasses.INTEGER_NUMBER_PATTERN + "> (section|1:loop|2:conditional)s",
 			"(exit|stop) all (section|1:loop|2:conditional)s");
 	}
 
