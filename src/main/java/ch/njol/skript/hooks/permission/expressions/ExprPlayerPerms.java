@@ -58,9 +58,8 @@ public class ExprPlayerPerms extends SimpleExpression<String> {
 		return true;
 	}
 
-	@Nullable
 	@Override
-	protected String[] get(Event event) {
+	protected @Nullable String[] get(Event event) {
 		Player player = exprPlayer.getSingle(event);
 		return player == null ? null : player.getEffectivePermissions().stream()
 										   .map(PermissionAttachmentInfo::getPermission)
@@ -68,7 +67,7 @@ public class ExprPlayerPerms extends SimpleExpression<String> {
 	}
 
 	@Override
-	public Class<?>[] @Nullable acceptChange(ChangeMode mode) {
+	public @Nullable Class<?>[] acceptChange(ChangeMode mode) {
 		if (exprPlayer == null) return null;
 		switch (mode) {
 			case ADD:

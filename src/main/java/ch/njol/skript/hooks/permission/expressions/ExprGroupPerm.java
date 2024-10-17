@@ -58,12 +58,12 @@ public class ExprGroupPerm extends SimpleExpression<String> {
 	}
 
 	@Override
-	protected String[] @Nullable get(Event event) {
+	protected @Nullable String[] get(Event event) {
 		return CollectionUtils.array("Not done yet");
 	}
 
 	@Override
-	public Class<?>[] @Nullable acceptChange(ChangeMode mode) {
+	public @Nullable Class<?>[] acceptChange(ChangeMode mode) {
 		if (exprGroup == null) return null;
 		switch (mode) {
 			case ADD:
