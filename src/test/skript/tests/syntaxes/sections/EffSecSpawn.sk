@@ -20,3 +20,69 @@ test "spawn section":
 	# Make sure variables carry over properly
 	assert {_before} is 10 with "value of {_before} should be 10 (got '%{_before}%')"
 	assert {_new var} is 5 with "value of {_new var} should be 5 (got '%{_new var}%')"
+
+test "spawn cats by type" when running minecraft "1.15.2":
+	delete all cats
+	set {_l} to location of spawn of world "world"
+	spawn 5 all black cats at {_l}
+	assert size of all cats = 5 with "Size of all cats is not 5"
+	assert size of all all black cats = 5 with "Size of all all black cats is not 5"
+	spawn 2 siamese cats at {_l}
+	assert size of all cats = 7 with "Size of all cats is not 7"
+	assert size of all siamese cats = 2 with "Size of all siamese cats is not 2"
+	delete all siamese cats
+	assert size of all cats = 5 with "Size of all cats is not 5 after delete 2 siamese cats"
+	delete all cats
+	assert size of all cats = 0 with "Size of all cats is greater than 0 after all were deleted"
+
+test "spawn wolves by variant" when running minecraft "1.21.0":
+	delete all wolves
+	set {_l} to location of spawn of world "world"
+	spawn 5 ashen wolves at {_l}
+	assert size of all wolves = 5 with "Size of all wolves is not 5"
+	assert size of all ashen wolves = 5 with "Size of all ashen wolves is not 5"
+	spawn 2 rusty wolves at {_l}
+	assert size of all wolves = 7 with "Size of all wolves is not 7"
+	assert size of all rusty wolves = 2 with "Size of all rusty wolves is not 2"
+	delete all rusty wolves
+	assert size of all wolves = 5 with "Size of all wolves is not 5 after delete 2 rusty wolves"
+	delete all wolves
+	assert size of all wolves = 0 with "Size of all wolves is greater than 0 after all were deleted"
+
+test "spawn entities":
+	set {_entities::*} to "allay", "axolotl", "bat", "bee", "blaze", "cat", "cave spider", "chicken" and "cod"
+	add "cow", "creeper", "dolphin", "donkey", "drowned", "elder guardian", "enderman" and "endermite" to {_entities::*}
+	add "evoker", "fox", "frog", "ghast", "glow squid", "goat", "guardian", "hoglin", "horse" and "husk" to {_entities::*}
+	add "iron golem", "llama", "magma cube", "mooshroom", "mule", "ocelot", "panda", "parrot" and "phantom" to {_entities::*}
+	add "pig", "piglin", "piglin brute", "pillager", "polar bear", "pufferfish", "rabbit" and "ravager" to {_entities::*}
+	add "salmon", "sheep", "shulker", "silverfish", "skeleton", "skeleton horse" and "slime" to {_entities::*}
+	add "snow golem", "spider", "squid", "stray", "strider", "tadpole", "trader llama" and "tropical fish" to {_entities::*}
+	add "turtle", "vex", "villager", "vindicator", "wandering trader", "warden", "witch" and "wither skeleton" to {_entities::*}
+	add "wolf", "zoglin", "zombie", "zombie horse", "zombie villager", "zombified piglin" to {_entities::*}
+	add "ender dragon" and "wither" to {_entities::*}
+	add "oak boat", "oak chest boat", "armor stand", "primed tnt", "firework", "arrow", "trident" and "egg" to {_entities::*}
+	add "snowball", "end crystal", "eye of ender", "regular minecart", "falling sand" and "falling gravel" to {_entities::*}
+	add "falling powder snow" to {_entities::*}
+
+	if running minecraft "1.20.0":
+		add "camel" and "sniffer"  to {_entities::*}
+	if running minecraft "1.20.6":
+		add "armadillo" to {_entities::*}
+	if running minecraft "1.21":
+		add "bogged" and "breeze" to {_entities::*}
+
+	# Note: Had to remove 'fireball' and 'wind charge'
+
+	clear all entities
+	loop {_entities::*}:
+		set {_parse} to loop-value parsed as entity type
+		if {_parse} is set:
+			spawn {_parse} at spawn of "world":
+				set {_ent} to entity
+			set {_assert} to whether {_ent} is entity type within {_parse}
+			assert {_assert} is true with "", expected (entity type within {_parse}), got {_ent}
+			clear entity within {_ent}
+			clear {_ent}
+		else:
+			assert false is true with "Failed to parse '%loop-value%' as an entity type", expected loop-value, got {_parse}
+	clear all entities

@@ -62,6 +62,7 @@ import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.data.BlockData;
+import org.bukkit.event.block.BlockDropItemEvent;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.AbstractVillager;
 import org.bukkit.entity.AreaEffectCloud;
@@ -1962,6 +1963,32 @@ public final class BukkitEventValues {
 			@Nullable
 			public RegainReason get(EntityRegainHealthEvent event) {
 				return event.getRegainReason();
+			}
+		}, EventValues.TIME_NOW);
+
+		// BlockDropItemEvent
+		EventValues.registerEventValue(BlockDropItemEvent.class, Block.class, new Getter<Block, BlockDropItemEvent>() {
+			@Override
+			public Block get(BlockDropItemEvent event) {
+				return new BlockStateBlock(event.getBlockState());
+			}
+		}, EventValues.TIME_PAST);
+		EventValues.registerEventValue(BlockDropItemEvent.class, Player.class, new Getter<Player, BlockDropItemEvent>() {
+			@Override
+			public Player get(BlockDropItemEvent event) {
+				return event.getPlayer();
+			}
+		}, EventValues.TIME_NOW);
+		EventValues.registerEventValue(BlockDropItemEvent.class, ItemStack[].class, new Getter<ItemStack[], BlockDropItemEvent>() {
+			@Override
+			public ItemStack[] get(BlockDropItemEvent event) {
+				return event.getItems().stream().map(Item::getItemStack).toArray(ItemStack[]::new);
+			}
+		}, EventValues.TIME_NOW);
+		EventValues.registerEventValue(BlockDropItemEvent.class, Entity[].class, new Getter<Entity[], BlockDropItemEvent>() {
+			@Override
+			public Entity[] get(BlockDropItemEvent event) {
+				return event.getItems().toArray(Entity[]::new);
 			}
 		}, EventValues.TIME_NOW);
 	}
