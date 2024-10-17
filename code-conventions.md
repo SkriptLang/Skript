@@ -139,7 +139,6 @@ but this is not strictly required:
   String string = "example string " +
         "with more to add";
   ```
-  
 * When extending one of following classes: SimpleExpression, SimplePropertyExpression, Effect, Condition...
   - Put overridden methods in order
   - Put static registration before all methods
@@ -150,7 +149,15 @@ but this is not strictly required:
   - PropertyCondition: (init) -> check -> (getPropertyType) -> getPropertyName
   - Section: init -> walk -> toString
   - Structure: init -> (preLoad) -> load -> (postLoad) -> unload -> (postUnload) -> (getPriority) -> toString
-
+* Return an empty array of the returning type in an expression rather than null.
+  ```java
+  @Override
+  protected String[] get(Event event) {
+  	if (value == null)
+  		return new String[0];
+  	// rest of code.
+  }
+  ```
 
 ### Naming
 * Class names are written in `UpperCamelCase`
