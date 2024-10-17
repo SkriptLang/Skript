@@ -1,0 +1,19 @@
+test "recipe crafting category":
+	register a new shaped recipe with the key "test_recipe_crafting_category":
+		set the recipe ingredients to oak log, oak plank and oak wood
+		set the recipe crafting category to crafting misc
+		set the recipe result to oak sapling
+	set {_last} to last registered recipe
+	set {_get} to recipe with the key "test_recipe_crafting_category"
+	assert the recipe crafting category of {_last} = crafting misc with "Crafting category mismatch of last registered recipe"
+	assert the recipe crafting category of {_get} = crafting misc with "Crafting category mismatch of get recipe"
+
+test "recipe cooking category":
+	register a new blasting recipe with the key "test_recipe_cooking_category":
+		set the recipe input item to raw copper named "test_recipe_cooking_category"
+		set the recipe cooking category to cooking misc
+		set the recipe result to copper ingot named "test_recipe_cooking_category"
+	set {_last} to last registered recipe
+	set {_get} to recipe with the key "test_recipe_cooking_category"
+	assert the recipe cooking category of {_last} = cooking misc with "Cooking category mismatch of last registered recipe"
+	assert the recipe cooking category of {_get} = cooking misc with "Cooking category mismatch of get recipe"

@@ -1,0 +1,10 @@
+test "invalid character conversion":
+	set {_chars::*} to (split ",<>?;'""[]{}\|=+)(*&^%%$#@!" using "") where [input is not ""]
+	set {_hexes::*} to split "2c,3c,3e,3f,3b,27,22,5b,5d,7b,7d,5c,7c,3d,2b,29,28,2a,26,5e,25,24,23,40,21,60,7e" using ","
+	loop {_chars::*}:
+		set {_key} to "test%loop-value%"
+		set {_skript} to converted key from {_key}
+		set {_minecraft} to converted key from {_key} using mc namespace
+		set {_hex} to {_hexes::%loop-iteration%}
+		assert {_skript} = "skript:test.x%{_hex}%" with "Improper key conversion of %loop-value% for Skript namespace"
+		assert {_minecraft} = "minecraft:test.x%{_hex}%" with "Improper key conversion of %loop-value% for Minecraft namespace"

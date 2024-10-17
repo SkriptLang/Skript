@@ -1,0 +1,65 @@
+test "recipe ingredients":
+	set {_ingredients::*} to raw iron, raw gold, raw copper, iron ingot, gold ingot, copper ingot, diamond, emerald and netherite ingot
+	register a new shaped recipe with the key "test_recipe_ingredients":
+		set the recipe ingredients to {_ingredients::*}
+		set the recipe result to nether star named "test_recipe_ingredients"
+	set {_last} to last registered recipe
+	set {_get} to recipe with the key "test_recipe_ingredients"
+	assert the recipe ingredients of {_last} contains {_ingredients::*} with "Mismatch of recipe ingredients from last registered recipe"
+	assert the recipe ingredients of {_get} contains {_ingredients::*} with "Mismatch of recipe ingredients from get recipe"
+
+test "recipe ingredients of rows":
+	set {_first::*} to diamond, emerald and netherite ingot
+	set {_second::*} to copper ingot, gold ingot and iron ingot
+	set {_third::*} to raw copper, raw gold and raw iron
+	register a new shaped recipe with the key "test_recipe_ingredients_rows":
+		set the recipe ingredients of first row to {_first::*}
+		set the recipe ingredients of second row to {_second::*}
+		set the recipe ingredients of third row to {_third::*}
+		set the recipe result to nether star named "test_recipe_ingredients_rows"
+	set {_last} to last registered recipe
+	set {_get} to recipe with the key "test_recipe_ingredients_rows"
+	assert the recipe ingredients of first row of {_last} contains {_first::*} with "Mismatch of recipe ingredients first row from last registered recipe"
+	assert the recipe ingredients of first row of {_get} contains {_first::*} with "Mismatch of recipe ingredients first row from get recipe"
+	assert the recipe ingredients of second row of {_last} contains {_second::*} with "Mismatch of recipe ingredients second row from last registered recipe"
+	assert the recipe ingredients of second row of {_get} contains {_second::*} with "Mismatch of recipe ingredients second row from get recipe"
+	assert the recipe ingredients of third row of {_last} contains {_third::*} with "Mismatch of recipe ingredients third row from last registered recipe"
+	assert the recipe ingredients of third row of {_get} contains {_third::*} with "Mismatch of recipe ingredients third row from get recipe"
+
+test "recipe cooking input":
+	set {_input} to grass block named "test_recipe_cooking_input"
+	register a new blasting recipe with the key "test_recipe_cooking_input":
+		set the recipe input item to {_input}
+		set the recipe result to nether star named "test_recipe_cooking_input"
+	set {_last} to last registered recipe
+	set {_get} to recipe with the key "test_recipe_cooking_input"
+	assert the recipe input item of {_last} = {_input} with "Mismatch of recipe input item from last registered recipe"
+	assert the recipe input item of {_get} = {_input} with "Mismatch of recipe input item from get recipe"
+
+test "recipe stonecutting input":
+	set {_input} to stone named "test_recipe_stonecutting_input"
+	register a new stonecutting recipe with the key "test_recipe_stonecutting_input":
+		set the recipe input item to {_input}
+		set the recipe result to smooth stone named "test_recipe_stonecutting_input"
+	set {_last} to last registered recipe
+	set {_get} to recipe with the key "test_recipe_stonecutting_input"
+	assert the recipe input item of {_last} = {_input} with "Mismatch of recipe input item from last registered recipe"
+	assert the recipe input item of {_get} = {_input} with "Mismatch of recipe input item from get recipe"
+
+test "recipe base, template and addition item" when running minecraft "1.20":
+	set {_base} to diamond named "test_recipe_base_template_addition"
+	set {_template} to netherite ingot named "test_recipe_base_template_addition"
+	set {_addition} to emerald named "test_recipe_base_template_addition"
+	register a new smithing transform recipe with the key "test_recipe_base_template_addition":
+		set the recipe base item to {_base}
+		set the recipe template item to {_template}
+		set the recipe addition item to {_addition}
+		set the recipe result to netherite sword named "test_recipe_base_template_addition"
+	set {_last} to last registered recipe
+	set {_get} to recipe with the key "test_recipe_base_template_addition"
+	assert the recipe base item of {_last} = {_base} with "Mismatch of recipe base item from last registered recipe"
+	assert the recipe base item of {_get} = {_base} with "Mismatch of recipe base item from last registered recipe"
+	assert the recipe template item of {_last} = {_template} with "Mismatch of recipe template item from last registered recipe"
+	assert the recipe template item of {_get} = {_template} with "Mismatch of recipe template item from last registered recipe"
+	assert the recipe addition item of {_last} = {_addition} with "Mismatch of recipe addition item from last registered recipe"
+	assert the recipe addition item of {_get} = {_addition} with "Mismatch of recipe addition item from last registered recipe"

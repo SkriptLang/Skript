@@ -1,0 +1,13 @@
+test "reset recipes":
+	register a new blasting recipe with the key "test_reset_recipes":
+		set the recipe input item to gold ingot named "test_reset_recipes"
+		set the recipe result to raw gold named "test_reset_recipes"
+	set {_all} to size of all recipes
+	set {_all_blasting} to size of all blasting recipes
+	set {_custom} to size of all custom recipes
+	set {_custom_blasting} to size of all custom blasting recipes
+	reset the server's recipes
+	assert (size of all recipes) < {_all} with "Size of all recipes did not reduce after resetting"
+	assert (size of all blasting recipes) < {_all_blasting} with "Size of all blasting recipes did not reduce after resetting"
+	assert (size of all custom recipes) < {_custom} with "Size of all custom recipes did not reduce after resetting"
+	assert (size of all custom blasting recipes) < {_custom_blasting} with "Size of all custom blasting recipes did not reduce after resetting"

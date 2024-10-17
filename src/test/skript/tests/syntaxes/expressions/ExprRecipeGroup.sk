@@ -1,0 +1,9 @@
+test "recipe group":
+	register a new blasting recipe with the key "test_recipe_group":
+		set the recipe input item to raw copper named "test_recipe_group"
+		set the recipe group to "test_group"
+		set the recipe result to copper ingot named "test_recipe_group"
+	set {_last} to last registered recipe
+	set {_get} to recipe with the key "test_recipe_group"
+	assert the recipe group of {_last} = "test_group" with "Group mismatch of last registered recipe"
+	assert the recipe group of {_get} = "test_group" with "Group mismatch of get recipe"

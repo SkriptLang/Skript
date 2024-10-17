@@ -1,0 +1,8 @@
+test "recipe key":
+	register a new blasting recipe with the key "test_recipe_key":
+		set the recipe input item to raw copper named "test_recipe_key"
+		set the recipe result to copper ingot named "test_recipe_key"
+	set {_last} to last registered recipe
+	set {_get} to recipe with the key "test_recipe_key"
+	assert the recipe key of {_last} = converted key from "test_recipe_key" with "Key mismatch of last registered recipe"
+	assert the recipe key of {_get} = converted key from "test_recipe_key" with "Key mismatch of get recipe"

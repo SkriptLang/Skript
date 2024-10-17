@@ -1,0 +1,9 @@
+test "recipe experience":
+	register a new blasting recipe with the key "test_recipe_experience":
+		set the recipe input item to raw copper named "test_recipe_experience"
+		set the recipe experience to 100
+		set the recipe result to copper ingot named "test_recipe_experience"
+	set {_last} to last registered recipe
+	set {_get} to recipe with the key "test_recipe_experience"
+	assert the recipe experience of {_last} = 100 with "Experience mismatch of last registered recipe"
+	assert the recipe experience of {_get} = 100 with "Experience mismatch of get recipe"

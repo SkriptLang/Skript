@@ -1,0 +1,72 @@
+test "register shaped recipe":
+	register a new shaped recipe with the key "test_register_shaped_recipe":
+		set the recipe ingredients to diamond, air, diamond, air, emerald, air, diamond, air and diamond
+		set the recipe result to netherite sword named "test_register_shaped_recipe"
+	assert the recipe "test_register_shaped_recipe" exists with "Shaped recipe does not exist"
+
+test "register shapeless recipe":
+	register a new shapeless recipe with the key "test_register_shapeless_recipe":
+		set the recipe ingredients to diamond, iron ingot and netherite ingot
+		set the recipe result to netherite sword named "test_register_shapeless_recipe"
+	assert the recipe "test_register_shapeless_recipe" exists with "Shapeless recipe does not exist"
+
+test "register shapeless recipe fail":
+	parse:
+		register a new shapeless recipe with the key "test_register_shapeless_recipe_fail":
+			set the recipe ingredients of the 1st row to iron ingot, diamond and gold ingot #Fail
+			set the recipe result to netherite sword named "test_register_shapeless_recipe_fail"
+	assert last parse logs contains "This can only be used when registering a Shaped Recipe." with "Ingredients of a row did not fail for Shapeless recipe"
+	assert the recipe "test_register_shapeless_recipe_fail" does not exist with "Shapeless recipe should not have registered after failing"
+
+test "register blasting recipe":
+	register a new blasting recipe with the key "test_register_blasting_recipe":
+		set the recipe input item to raw iron named "test_register_blasting_recipe"
+		set the recipe result to iron ingot named "test_register_blasting_recipe"
+	assert the recipe "test_register_blasting_recipe" exists with "Blasting recipe does not exist"
+
+test "register furnace recipe":
+	register a new furnace recipe with the key "test_register_furnace_recipe":
+		set the recipe input item to raw gold named "test_register_furnace_recipe"
+		set the recipe result to gold ingot named "test_register_furnace_recipe"
+	assert the recipe "test_register_furnace_recipe" exists with "Furnace recipe does not exist"
+
+test "register campfire recipe":
+	register a new campfire recipe with the key "test_register_campfire_recipe":
+		set the recipe input item to raw copper named "test_register_campfire_recipe"
+		set the recipe result to copper ingot named "test_register_campfire_recipe"
+	assert the recipe "test_register_campfire_recipe" exists with "Campfire recipe does not exist"
+
+test "register smoking recipe":
+	register a new smoking recipe with the key "test_register_smoking_recipe":
+		set the recipe input item to raw iron named "test_register_smoking_recipe"
+		set the recipe result to iron ingot named "test_register_smoking_recipe"
+	assert the recipe "test_register_smoking_recipe" exists with "Smoking recipe does not exist"
+
+test "register smithing recipe" when running below minecraft "1.20":
+	register a new smithing recipe with the key "test_register_smithing_recipe":
+		set the recipe base item to iron ingot named "test_register_smithing_recipe"
+		set the recipe additional item to gold ingot named "test_register_smithing_recipe"
+		set the recipe result to netherite ingot named "test_register_smithing_recipe"
+	assert the recipe "test_register_smithing_recipe" exists with "Smithing recipe does not exist"
+
+test "register smithing transform recipe":
+	register a new smithing transform recipe with the key "test_register_smithing_transform_recipe":
+		set the recipe base item to iron ingot named "test_register_smithing_transform_recipe"
+		set the recipe additional item to gold ingot named "test_register_smithing_transform_recipe"
+		set the recipe template item to diamond named "test_register_smithing_transform_recipe"
+		set the recipe result to netherite ingot named "test_register_smithing_transform_recipe"
+	assert the recipe "test_register_smithing_transform_recipe" exists with "Smithing Transform recipe does not exist"
+
+test "register smithing trim recipe":
+	register a new smithing trim recipe with the key "test_register_smithing_trim_recipe":
+		set the recipe base item to iron ingot named "test_register_smithing_trim_recipe"
+		set the recipe additional item to gold ingot named "test_register_smithing_trim_recipe"
+		set the recipe template item to diamond named "test_register_smithing_trim_recipe"
+		set the recipe result to netherite ingot named "test_register_smithing_trim_recipe"
+	assert the recipe "test_register_smithing_trim_recipe" exists with "Smithing Trim recipe does not exist"
+
+test "register stonecutting recipe":
+	register a new stonecutting recipe with the key "test_register_stonecutting_recipe":
+		set the recipe input item to stone named "test_register_stonecutting_recipe"
+		set the recipe result item to smooth stone named "test_register_stonecutting_recipe"
+	assert the recipe "test_register_stonecutting_recipe" exists with "Stonecutting recipe does not exist"
