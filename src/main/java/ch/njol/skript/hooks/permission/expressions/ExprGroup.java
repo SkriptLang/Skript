@@ -1,21 +1,3 @@
-/**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
 package ch.njol.skript.hooks.permission.expressions;
 
 import ch.njol.skript.Skript;
@@ -31,15 +13,14 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
-import net.milkbowl.vault.permission.Permission;
-import org.bukkit.OfflinePlayer;
-import org.bukkit.event.Event;
-import org.jetbrains.annotations.Nullable;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import net.milkbowl.vault.permission.Permission;
+import org.bukkit.OfflinePlayer;
+import org.bukkit.event.Event;
+import org.jetbrains.annotations.Nullable;
 
 @Name("Group")
 @Description({
@@ -47,8 +28,8 @@ import java.util.concurrent.CompletableFuture;
 	"If you have LuckPerms, ensure you have vault integration enabled in the luck perms configurations."
 })
 @Examples({"on join:",
-			"\tbroadcast \"%group of player%\" # this is the player's primary group",
-			"\tbroadcast \"%groups of player%\" # this is all of the player's groups"})
+	"\tbroadcast \"%group of player%\" # this is the player's primary group",
+	"\tbroadcast \"%groups of player%\" # this is all of the player's groups"})
 @Since("2.2-dev35")
 @RequiredPlugins({"Vault", "a permission plugin that supports Vault"})
 public class ExprGroup extends SimpleExpression<String> {
@@ -98,7 +79,7 @@ public class ExprGroup extends SimpleExpression<String> {
 				mode == Changer.ChangeMode.SET ||
 				mode == Changer.ChangeMode.DELETE ||
 				mode == Changer.ChangeMode.RESET) {
-			return new Class<?>[] {String[].class};
+			return new Class<?>[]{String[].class};
 		}
 		return null;
 	}
