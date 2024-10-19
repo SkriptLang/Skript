@@ -11,7 +11,7 @@ test "EvtFishJUnit" when running JUnit:
 	add "cast - add approach angle" to {_tests::*}
 	add "cast - remove approach angle" to {_tests::*}
 	add "cast - reset approach angle" to {_tests::*}
-	add "cast - sky access" to {_tests::*}
+	add "cast - direct sky access" to {_tests::*}
 	add "cast - rain" to {_tests::*}
 	add "cast - lure enchantment bonus" to {_tests::*}
 	add "cast - apply lure enchantment bonus" to {_tests::*}
@@ -33,7 +33,7 @@ test "EvtFishJUnit" when running JUnit:
 	add "catch - add approach angle" to {_tests::*}
 	add "catch - remove approach angle" to {_tests::*}
 	add "catch - reset approach angle" to {_tests::*}
-	add "catch - sky access" to {_tests::*}
+	add "catch - direct sky access" to {_tests::*}
 	add "catch - rain" to {_tests::*}
 	add "catch - lure enchantment bonus" to {_tests::*}
 	add "catch - apply lure enchantment bonus" to {_tests::*}
@@ -101,8 +101,8 @@ on fishing line cast:
 	then:
 		complete objective "cast - reset approach angle" for {_test}
 
-	if fishing hook is influenced by sky access:
-		complete objective "cast - sky access" for {_test}
+	if fishing hook is influenced by direct sky access:
+		complete objective "cast - direct sky access" for {_test}
 
 	if fishing hook is not influenced by rain:
 		complete objective "cast - rain" for {_test}
@@ -170,8 +170,6 @@ on fish catch:
 
 	set max fish waiting time to 5 seconds
 	set min fish waiting time to 25 seconds
-	broadcast "min fish waiting time: %min fish waiting time%"
-	broadcast "max fish waiting time: %max fish waiting time%"
 
 	set max fish approach angle to 40
 	if max fish approach angle is 40:
@@ -193,8 +191,8 @@ on fish catch:
 	then:
 		complete objective "catch - reset approach angle" for {_test}
 
-	if fishing hook is influenced by sky access:
-		complete objective "catch - sky access" for {_test}
+	if fishing hook is influenced by direct sky access:
+		complete objective "catch - direct sky access" for {_test}
 
 	if fishing hook is not influenced by rain:
 		complete objective "catch - rain" for {_test}

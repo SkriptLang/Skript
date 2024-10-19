@@ -25,7 +25,7 @@ public class CondFishingInfluenced extends PropertyCondition<Entity> {
 
 	static {
 		register(CondFishingInfluenced.class, PropertyType.BE,
-			"(influenced|affected) by (sky:[direct] sky access|rain)",
+			"(influenced|affected) by (sky:direct sky access|rain)",
 			"entities");
 	}
 
