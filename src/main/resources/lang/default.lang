@@ -2367,6 +2367,35 @@ item display transforms:
 	thirdperson_lefthand: third person left handed, third person left hand, left handed in third person
 	thirdperson_righthand: third person right handed, third person right hand, right handed in third person
 
+# -- Crafting Book Categories --
+crafting book categories:
+	building: crafting building, craftingcategory building, crafting category building
+	equipment: crafting equipment, craftingcategory equipment, crafting category equipment
+	misc: crafting misc, craftingcategory misc, crafting category misc
+	redstone: crafting redstone, craftingcategory redstone, crafting category redstone
+
+# -- Cooking Book Categories --
+cooking book categories:
+	blocks: cooking blocks, cookingcategory blocks, cooking category blocks
+	food: cooking food, cookingcategory food, cooking category food
+	misc: cooking misc, cookingcategory misc, cooking category misc
+
+# -- Recipe Types --
+recipe types:
+	crafting: crafting recipe, crafting recipes
+	shaped: shaped recipe, shaped crafting recipe, shaped recipes, shaped crafting recipes
+	shapeless: shapeless recipe, shapeless crafting recipe, shapeless recipes, shapeless crafting recipes
+	cooking: cooking recipe, cooking recipes
+	blasting: blasting recipe, blasting recipes
+	furnace: furnace recipe, furnace recipes
+	campfire: campfire recipe, campfire recipes
+	smoking: smoking recipe, smoking recipes
+	smithing: smithing recipe, smithing recipes
+	smithing_transform: smithing transform recipe, smithing transform recipes
+	smithing_trim: smithing trim recipe, smithing trim recipes
+	stonecutting: stonecutting recipe, stonecutting recipes
+	complex: complex recipe, complex recipes
+
 # -- Boolean --
 boolean:
 	true:
@@ -2452,6 +2481,9 @@ types:
 	billboard: billboard¦s @a
 	textalignment: text alignment¦s @a
 	itemdisplaytransform: item display transform¦s @an
+	recipe: recipe¦s @a
+	craftingbookcategory: crafting book categor¦y¦ies @a
+	cookingbookcategory: cooking book categor¦y¦ies @a
 
 	# Skript
 	weathertype: weather type¦s @a
@@ -2471,6 +2503,7 @@ types:
 	experience.pattern: (e?xp|experience( points?)?)
 	classinfo: type¦s @a
 	visualeffect: visual effect¦s @a
+	recipetype: recipe type¦s @a
 
 	# Hooks
 	money: money

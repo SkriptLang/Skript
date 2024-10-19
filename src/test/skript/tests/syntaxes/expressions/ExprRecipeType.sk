@@ -1,0 +1,123 @@
+test "shaped recipe type":
+	register a new shaped recipe with the key "test_shaped_recipe_type":
+		set the recipe ingredients to emerald and stick
+		set the recipe result to netherite sword named "test_shaped_recipe_type"
+	set {_last} to last registered recipe
+	set {_get} to recipe with the key "test_shaped_recipe_type"
+	assert the recipe type of {_last} = shaped recipe with "Shaped recipe type mismatch of last registered recipe"
+	assert the recipe type of {_get} = shaped recipe with "Shaped recipe type mismatch of get recipe"
+
+test "shapeless recipe type":
+	register a new shapeless recipe with the key "test_shapeless_recipe_type":
+		set the recipe ingredients to coal and oak log
+		set the recipe result to netherite sword named "test_shapeless_recipe_type"
+	set {_last} to last registered recipe
+	set {_get} to recipe with the key "test_shapeless_recipe_type"
+	assert the recipe type of {_last} = shapeless recipe with "Shapeless recipe type mismatch of last registered recipe"
+	assert the recipe type of {_get} = shapeless recipe with "Shapeless recipe type mismatch of get recipe"
+
+test "blasting recipe type":
+	register a new blasting recipe with the key "test_blasting_recipe_type":
+		set the recipe input item to raw iron named "test_blasting_recipe_type"
+		set the recipe result to iron ingot named "test_blasting_recipe_type"
+	set {_last} to last registered recipe
+	set {_get} to recipe with the key "test_blasting_recipe_type"
+	assert the recipe type of {_last} = blasting recipe with "Blasting recipe type mismatch of last registered recipe"
+	assert the recipe type of {_get} = blasting recipe with "Blasting recipe type mismatch of get recipe"
+
+test "furnace recipe type":
+	register a new furnace recipe with the key "test_furnace_recipe_type":
+		set the recipe input item to raw gold named "test_furnace_recipe_type"
+		set the recipe result to gold ingot named "test_furnace_recipe_type"
+	set {_last} to last registered recipe
+	set {_get} to recipe with the key "test_furnace_recipe_type"
+	assert the recipe type of {_last} = furnace recipe with "Furnace recipe type mismatch of last registered recipe"
+	assert the recipe type of {_get} = furnace recipe with "Furnace recipe type mismatch of get recipe"
+
+test "campfire recipe type":
+	register a new campfire recipe with the key "test_campfire_recipe_type":
+		set the recipe input item to raw copper named "test_campfire_recipe_type"
+		set the recipe result to copper ingot named "test_campfire_recipe_type"
+	set {_last} to last registered recipe
+	set {_get} to recipe with the key "test_campfire_recipe_type"
+	assert the recipe type of {_last} = campfire recipe with "Campfire recipe type mismatch of last registered recipe"
+	assert the recipe type of {_get} = campfire recipe with "Campfire recipe type mismatch of get recipe"
+
+test "smoking recipe type":
+	register a new smoking recipe with the key "test_smoking_recipe_type":
+		set the recipe input item to raw iron named "test_smoking_recipe_type"
+		set the recipe result to iron ingot named "test_smoking_recipe_type"
+	set {_last} to last registered recipe
+	set {_get} to recipe with the key "test_smoking_recipe_type"
+	assert the recipe type of {_last} = smoking recipe with "Smoking recipe type mismatch of last registered recipe"
+	assert the recipe type of {_get} = smoking recipe with "Smoking recipe type mismatch of get recipe"
+
+test "smithing recipe type" when running below minecraft "1.20":
+	register a new smithing recipe with the key "test_smithing_recipe_type":
+		set the recipe base item to iron ingot named "test_smithing_recipe_type"
+		set the recipe additional item to gold ingot named "test_smithing_recipe_type"
+		set the recipe result to netherite ingot named "test_smithing_recipe_type"
+	set {_last} to last registered recipe
+	set {_get} to recipe with the key "test_smithing_recipe_type"
+	assert the recipe type of {_last} = smithing recipe with "Smithing recipe type mismatch of last registered recipe"
+	assert the recipe type of {_get} = smithing recipe with "Smithing recipe type mismatch of get recipe"
+
+test "smithing transform recipe type":
+	register a new smithing transform recipe with the key "test_smithing_transform_recipe_type":
+		set the recipe base item to iron ingot named "test_smithing_transform_recipe_type"
+		set the recipe additional item to gold ingot named "test_smithing_transform_recipe_type"
+		set the recipe template item to diamond named "test_smithing_transform_recipe_type"
+		set the recipe result to netherite ingot named "test_smithing_transform_recipe_type"
+	set {_last} to last registered recipe
+	set {_get} to recipe with the key "test_smithing_transform_recipe_type"
+	assert the recipe type of {_last} = smithing transform recipe with "Smithing Transform recipe type mismatch of last registered recipe"
+	if running below minecraft "1.20":
+		assert the recipe type of {_get} = smithing recipe with "Smithing Transform recipe type mismatch of get recipe"
+	else:
+		assert the recipe type of {_get} = smithing transform recipe with "Smithing Transform recipe type mismatch of get recipe"
+
+test "smithing trim recipe type":
+	register a new smithing trim recipe with the key "test_smithing_trim_recipe_type":
+		set the recipe base item to iron ingot named "test_smithing_trim_recipe_type"
+		set the recipe additional item to gold ingot named "test_smithing_trim_recipe_type"
+		set the recipe template item to diamond named "test_smithing_trim_recipe_type"
+		set the recipe result to netherite ingot named "test_smithing_trim_recipe_type"
+	set {_last} to last registered recipe
+	set {_get} to recipe with the key "test_smithing_trim_recipe_type"
+	assert the recipe type of {_last} = smithing trim recipe with "Smithing Trim recipe type mismatch of last registered recipe"
+	if running below minecraft "1.20.0":
+		assert the recipe type of {_get} = smithing recipe with "Smithing Trim recipe type mismatch of get recipe"
+	else:
+		assert the recipe type of {_get} = smithing trim recipe with "Smithing Trim recipe type mismatch of get recipe"
+
+test "stonecutting recipe type":
+	register a new stonecutting recipe with the key "test_stonecutting_recipe_type":
+		set the recipe input item to stone named "test_stonecutting_recipe_type"
+		set the recipe result item to smooth stone named "test_stonecutting_recipe_type"
+	set {_last} to last registered recipe
+	set {_get} to recipe with the key "test_stonecutting_recipe_type"
+	assert the recipe type of {_last} = stonecutting recipe with "Stonecutting recipe type mismatch of last registered recipe"
+	assert the recipe type of {_get} = stonecutting recipe with "Stonecutting recipe type mismatch of get recipe"
+
+test "recipe types compared to super types":
+	if running minecraft "1.20":
+		assert shaped recipe = crafting recipe with "Shaped recipe should pass as crafting recipe"
+		assert shapeless recipe = crafting recipe with "Shapeless recipe should pass as crafting recipe"
+
+	assert blasting recipe = cooking recipe with "Blasting recipe should pass as cooking recipe"
+	assert furnace recipe = cooking recipe with "Furnace recipe should pass as cooking recipe"
+	assert smoking recipe = cooking recipe with "Smoking recipe should pass as cooking recipe"
+	assert campfire recipe = cooking recipe with "Campfire recipe should pass as cooking recipe"
+
+	assert smithing transform recipe = smithing recipe with "Smithing Transform recipe should pass as smithing recipe"
+	assert smithing trim recipe = smithing recipe with "Smithing Trim recipe should pass as smithing recipe"
+
+test "recipe types compared to neighbor sub types": #FAILS
+	assert shaped recipe != shapeless recipe with "Shaped recipe should not equal shapeless recipe"
+
+	set {_types::*} to blasting recipe, furnace recipe, smoking recipe and campfire recipe
+	loop {_types::*}:
+		loop ({_types::*} where [input != loop-value]):
+			assert loop-value-1 != loop-value-2 with "%loop-value-1% should not equal %loop-value-2%"
+
+	assert smithing transform recipe != smithing trim recipe with "Smithing Transform recipe should not equal smithing trim recipe"

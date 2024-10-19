@@ -1,0 +1,9 @@
+test "recipe cooking time":
+	register a new blasting recipe with the key "test_recipe_cooking_time":
+		set the recipe input item to raw copper named "test_recipe_cooking_time"
+		set the recipe cooking time to 20 seconds
+		set the recipe result to copper ingot named "test_recipe_cooking_time"
+	set {_last} to last registered recipe
+	set {_get} to recipe with the key "test_recipe_cooking_time"
+	assert the recipe cooking time of {_last} = 20 seconds with "Cooking time mismatch of last registered recipe"
+	assert the recipe cooking time of {_get} = 20 seconds with "Cooking time mismatch of get recipe"

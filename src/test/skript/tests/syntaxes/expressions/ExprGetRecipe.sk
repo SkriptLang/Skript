@@ -1,0 +1,6 @@
+test "get recipe":
+	register a new shaped recipe with the key "test_get_recipe":
+		set the recipe ingredients to diamond, air, diamond, air, emerald, air, diamond, air and diamond
+		set the recipe result to netherite sword named "test_get_recipe"
+	set {_get} to recipe with the key "test_get_recipe"
+	assert {_get} is set with "Could not retrieve recipe"
