@@ -667,9 +667,10 @@ public final class Skript extends JavaPlugin implements Listener {
 				debug("Early init done");
 
 				if (TestMode.ENABLED) {
-					Bukkit.getScheduler().runTaskLater(Skript.this, () -> info("Skript testing environment enabled, starting soon..."), 1);
 					// Ignore late init (scripts, etc.) in test mode
 					Bukkit.getScheduler().runTaskLater(Skript.this, () -> {
+						info("Skript testing environment enabled, starting...");
+
 						// Delay is in Minecraft ticks.
 						AtomicLong shutdownDelay = new AtomicLong(0);
 						List<Class<?>> asyncTests = new ArrayList<>();
@@ -778,7 +779,7 @@ public final class Skript extends JavaPlugin implements Listener {
 								Bukkit.getServer().shutdown();
 							}, shutdownDelay.get());
 						});
-					}, 100);
+					}, 5);
 				}
 
 				Skript.metrics = new Metrics(Skript.getInstance(), 722); // 722 is our bStats plugin ID
