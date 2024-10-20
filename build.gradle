@@ -41,6 +41,7 @@ dependencies {
 	implementation group: 'net.milkbowl.vault', name: 'Vault', version: '1.7.3', {
 		exclude group: 'org.bstats', module: 'bstats-bukkit'
 	}
+	implementation group: 'me.lucko', name: 'spark-api', version: '0.1-SNAPSHOT'
 
 	implementation fileTree(dir: 'lib', include: '*.jar')
 
