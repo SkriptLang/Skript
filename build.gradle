@@ -31,9 +31,6 @@ dependencies {
 	shadow group: 'net.kyori', name: 'adventure-text-serializer-bungeecord', version: '4.3.2'
 
 	implementation group: 'io.papermc.paper', name: 'paper-api', version: '1.21-R0.1-SNAPSHOT'
-	implementation group: 'org.eclipse.jdt', name: 'org.eclipse.jdt.annotation', version: '2.2.700'
-
-	// Comes from Minecraft including Guava or Gson
 	implementation group: 'com.google.code.findbugs', name: 'findbugs', version: '3.0.1'
 
 	// bundled with Minecraft 1.19.4+ for display entity transforms
