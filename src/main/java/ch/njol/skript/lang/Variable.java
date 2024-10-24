@@ -19,14 +19,8 @@
 package ch.njol.skript.lang;
 
 import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.NoSuchElementException;
-import java.util.TreeMap;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptAPIException;
@@ -578,14 +572,15 @@ public class Variable<T> implements Expression<T> {
 					if (mode == ChangeMode.REMOVE) {
 						if (map == null)
 							return;
-						ArrayList<String> toRemove = new ArrayList<>(); // prevents CMEs
+						Set<String> toRemove = new HashSet<>(); // prevents CMEs
 						for (Object value : delta) {
 							for (Entry<String, Object> entry : map.entrySet()) {
+								String key = entry.getKey();
+								if (key == null)
+									continue; // This is NOT a part of list variable
+								if (toRemove.contains(key))
+									continue; // Skip if we've already marked this key to be removed
 								if (Relation.EQUAL.isImpliedBy(Comparators.compare(entry.getValue(), value))) {
-									String key = entry.getKey();
-									if (key == null)
-										continue; // This is NOT a part of list variable
-
 									// Otherwise, we'll mark that key to be set to null
 									toRemove.add(key);
 									break;
@@ -599,7 +594,7 @@ public class Variable<T> implements Expression<T> {
 					} else if (mode == ChangeMode.REMOVE_ALL) {
 						if (map == null)
 							return;
-						ArrayList<String> toRemove = new ArrayList<>(); // prevents CMEs
+						Set<String> toRemove = new HashSet<>(); // prevents CMEs
 						for (Entry<String, Object> i : map.entrySet()) {
 							for (Object value : delta) {
 								if (Relation.EQUAL.isImpliedBy(Comparators.compare(i.getValue(), value)))
