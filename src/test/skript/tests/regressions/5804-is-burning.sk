@@ -2,7 +2,7 @@
 # Before, something like `if {x} is burning` would try to compare {x} to the burning damage cause
 # instead of whether or not the entity was burning.
 test "burning":
-	spawn a pig at event-location:
+	spawn a pig at test-location:
 		set {_pig} to entity
 
 	assert "burning" parsed as damage cause is burning with "burning damage cause compare"
