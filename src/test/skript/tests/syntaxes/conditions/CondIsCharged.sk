@@ -1,31 +1,35 @@
 test "is charged":
 	spawn a creeper at (spawn of world "world"):
-		set {_e} to entity
-	shoot a wither skull from {_e}
-	set {_w} to last shot entity
+		set {_c} to entity
+	spawn a wither at (spawn of world "world"):
+		set {_w} to entity
+	shoot a wither skull from {_w}
+	set {_s} to last shot entity
 
-	assert {_e} is not charged with "a normally spawned creeper should not be charged"
-	assert {_w} is not charged with "a normally spawned wither skull should not be charged"
+	assert {_c} is not charged with "a normally spawned creeper should not be charged"
+	assert {_w} is not charged with "a normally spawned wither should not be charged"
+	assert {_s} is not charged with "a normally spawned wither skull should not be charged"
 
-	charge {_e}
-	charge {_w}
-	assert {_e} is charged with "charging a creeper should do exactly that"
-	assert {_w} is charged with "charging a wither skull should do exactly that"
+	charge {_c}
+	charge {_s}
+	assert {_c} is charged with "charging a creeper should do exactly that"
+	assert {_s} is charged with "charging a wither skull should do exactly that"
 
-	uncharge {_e}
-	uncharge {_w}
-	assert {_e} is not charged with "uncharging a creeper should do exactly that"
-	assert {_w} is not charged with "uncharging a wither skull should do exactly that"
+	uncharge {_c}
+	uncharge {_s}
+	assert {_c} is not charged with "uncharging a creeper should do exactly that"
+	assert {_s} is not charged with "uncharging a wither skull should do exactly that"
 
 	spawn an adult zombie at (spawn of world "world"):
 		set {_z} to entity
 
-	assert {_z} is not charged with "a non-creeper/wither skull should never be charged"
+	assert {_z} is not charged with "a non-supported entity should never be charged"
 	charge {_z}
-	assert {_z} is not charged with "charging a non-creeper/wither skull should do nothing"
+	assert {_z} is not charged with "charging a non-supported entity should do nothing"
 	uncharge {_z}
-	assert {_z} is not charged with "uncharging a non-creeper/wither skull should do nothing"
+	assert {_z} is not charged with "uncharging a non-supported entity should do nothing"
 
-	delete entity within {_e}
+	delete entity within {_c}
 	delete entity within {_w}
+	delete entity within {_s}
 	delete entity within {_z}

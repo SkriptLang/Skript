@@ -31,6 +31,7 @@ import ch.njol.skript.log.HandlerList;
 import ch.njol.skript.structures.StructOptions.OptionsData;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
+import com.google.common.base.Preconditions;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
@@ -39,7 +40,6 @@ import org.skriptlang.skript.lang.experiment.Experiment;
 import org.skriptlang.skript.lang.experiment.ExperimentSet;
 import org.skriptlang.skript.lang.experiment.Experimented;
 import org.skriptlang.skript.lang.script.Script;
-import org.skriptlang.skript.lang.script.ScriptEvent;
 import org.skriptlang.skript.lang.structure.Structure;
 
 import java.io.File;
@@ -130,12 +130,18 @@ public final class ParserInstance implements Experimented {
 		);
 
 		// "Script" events
-		if (previous != null)
-			previous.getEvents(ScriptEvent.ScriptInactiveEvent.class)
-				.forEach(eventHandler -> eventHandler.onInactive(currentScript));
-		if (currentScript != null)
-			currentScript.getEvents(ScriptEvent.ScriptActiveEvent.class)
-				.forEach(eventHandler -> eventHandler.onActive(previous));
+		if (previous != null) { // 'previous' is becoming inactive
+			ScriptLoader.eventRegistry().events(ScriptActivityChangeEvent.class)
+					.forEach(event -> event.onActivityChange(this, previous, false, currentScript));
+			previous.eventRegistry().events(ScriptActivityChangeEvent.class)
+					.forEach(event -> event.onActivityChange(this, previous, false, currentScript));
+		}
+		if (currentScript != null) { // 'currentScript' is becoming active
+			ScriptLoader.eventRegistry().events(ScriptActivityChangeEvent.class)
+					.forEach(event -> event.onActivityChange(this, currentScript, true, previous));
+			currentScript.eventRegistry().events(ScriptActivityChangeEvent.class)
+					.forEach(event -> event.onActivityChange(this, currentScript, true, previous));
+		}
 	}
 
 	/**
@@ -319,6 +325,68 @@ public final class ParserInstance implements Experimented {
 	}
 
 	/**
+	 * Returns the sections from the current section (inclusive) until the specified section (exclusive).
+	 * <p>
+	 * If we have the following sections:
+	 * <pre>{@code
+	 * Section1
+	 *   └ Section2
+	 *       └ Section3} (we are here)</pre>
+	 * And we call {@code getSectionsUntil(Section1)}, the result will be {@code [Section2, Section3]}.
+	 *
+	 * @param section The section to stop at. (exclusive)
+	 * @return A list of sections from the current section (inclusive) until the specified section (exclusive).
+	 */
+	public List<TriggerSection> getSectionsUntil(TriggerSection section) {
+		return new ArrayList<>(currentSections.subList(currentSections.indexOf(section) + 1, currentSections.size()));
+	}
+
+	/**
+	 * Returns a list of sections up to the specified number of levels from the current section.
+	 * <p>
+	 * If we have the following sections:
+	 * <pre>{@code
+	 * Section1
+	 *   └ Section2
+	 *       └ Section3} (we are here)</pre>
+	 * And we call {@code getSections(2)}, the result will be {@code [Section2, Section3]}.
+	 *
+	 * @param levels The number of levels to retrieve from the current section upwards. Must be greater than 0.
+	 * @return A list of sections up to the specified number of levels.
+	 * @throws IllegalArgumentException if the levels is less than 1.
+	 */
+	public List<TriggerSection> getSections(int levels) {
+		Preconditions.checkArgument(levels > 0, "Depth must be at least 1");
+		return new ArrayList<>(currentSections.subList(Math.max(currentSections.size() - levels, 0), currentSections.size()));
+	}
+
+	/**
+	 * Returns a list of sections to the specified number of levels from the current section.
+	 * Only counting sections of the specified type.
+	 * <p>
+	 * If we have the following sections:
+	 * <pre>{@code
+	 * Section1
+	 *   └ LoopSection2
+	 *       └ Section3
+	 *           └ LoopSection4} (we are here)</pre>
+	 * And we call {@code getSections(2, LoopSection.class)}, the result will be {@code [LoopSection2, Section3, LoopSection4]}.
+	 *
+	 * @param levels The number of levels to retrieve from the current section upwards. Must be greater than 0.
+	 * @param type The class type of the sections to count.
+	 * @return A list of sections of the specified type up to the specified number of levels.
+	 * @throws IllegalArgumentException if the levels is less than 1.
+	 */
+	public List<TriggerSection> getSections(int levels, Class<? extends TriggerSection> type) {
+		Preconditions.checkArgument(levels > 0, "Depth must be at least 1");
+		List<? extends TriggerSection> sections = getCurrentSections(type);
+		if (sections.isEmpty())
+			return new ArrayList<>();
+		TriggerSection section = sections.get(Math.max(sections.size() - levels, 0));
+		return new ArrayList<>(currentSections.subList(currentSections.indexOf(section), currentSections.size()));
+	}
+
+	/**
 	 * @return Whether {@link #getCurrentSections()} contains
 	 * a section instance of the given class (or subclass).
 	 */
@@ -483,7 +551,7 @@ public final class ParserInstance implements Experimented {
 		}
 
 		/**
-		 * @deprecated See {@link ScriptEvent}.
+		 * @deprecated See {@link ScriptLoader.LoaderEvent}.
 		 */
 		@Deprecated
 		public void onCurrentScriptChange(@Nullable Config currentScript) { }
@@ -538,6 +606,29 @@ public final class ParserInstance implements Experimented {
 				dataList.add(data);
 		}
 		return dataList;
+	}
+
+	/**
+	 * Called when a {@link Script} is made active or inactive in a {@link ParserInstance}.
+	 * This event will trigger <b>after</b> the change in activity has occurred.
+	 * @see #isActive()
+	 */
+	@FunctionalInterface
+	public interface ScriptActivityChangeEvent extends ScriptLoader.LoaderEvent, Script.Event {
+
+		/**
+		 * The method that is called when this event triggers.
+		 * @param parser The ParserInstance where the activity change occurred.
+		 * @param script The Script this event was registered for.
+		 * @param active Whether <code>script</code> became active or inactive within <code>parser</code>.
+		 * @param other The Script that was made active or inactive.
+		 *  Whether it was made active or inactive is the negation of the <code>active</code>.
+		 *  That is to say, if <code>script</code> became active, then <code>other</code> became inactive.
+		 *  Null if <code>parser</code> was inactive (meaning no script became inactive)
+		 *   or became inactive (meaning no script became active).
+		 */
+		void onActivityChange(ParserInstance parser, Script script, boolean active, @Nullable Script other);
+
 	}
 
 	// Backup API

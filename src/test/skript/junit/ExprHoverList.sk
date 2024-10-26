@@ -1,0 +1,44 @@
+test "ExprHoverListJUnit" when running JUnit:
+	set {_test} to "org.skriptlang.skript.test.tests.syntaxes.expressions.ExprHoverListTest"
+
+	set {_tests::1} to "clear hover list"
+	set {_tests::2} to "set hover list"
+	set {_tests::3} to "add multiple items to hover list"
+	set {_tests::4} to "remove item from hover list"
+	set {_tests::5} to "reset hover list"
+
+	ensure junit test {_test} completes {_tests::*}
+
+on server list ping:
+	set {_test} to "org.skriptlang.skript.test.tests.syntaxes.expressions.ExprHoverListTest"
+	junit test is {_test}
+
+	clear hover list
+	if size of hover list is 0:
+		complete objective "clear hover list" for {_test}
+
+	set hover list to "hello"
+	if hover list is "hello":
+		complete objective "set hover list" for {_test}
+
+	add "world" to hover list
+	add "aghalfgdfalkhgj" to hover list
+	if:
+		size of hover list is 3
+		hover list contains "hello"
+		hover list contains "world"
+		hover list contains "aghalfgdfalkhgj"
+	then:
+		complete objective "add multiple items to hover list" for {_test}
+
+	remove "aghalfgdfalkhgj" from hover list
+	if:
+		size of hover list is 2
+		hover list contains "hello"
+		hover list contains "world"
+	then:
+		complete objective "remove item from hover list" for {_test}
+
+	reset hover list
+	if size of hover list is 0:
+		complete objective "reset hover list" for {_test}

@@ -1,0 +1,50 @@
+command /testtimespan <timespan>:
+	trigger:
+		set {timespan} to arg-1
+
+test "timespans":
+
+	execute command "/testtimespan 1 day"
+	assert {timespan} is "1 day" parsed as timespan with "%{timespan}% doesn't equal 1 day!"
+
+	execute command "/testtimespan 2 hours"
+	assert {timespan} is "2 hours" parsed as timespan with "%{timespan}% doesn't equal 2 hours!"
+
+	execute command "/testtimespan 30 minutes"
+	assert {timespan} is "30 minutes" parsed as timespan with "%{timespan}% doesn't equal 30 minutes!"
+
+	execute command "/testtimespan 1d"
+	assert {timespan} is "1 day" parsed as timespan with "%{timespan}% doesn't equal 1 day!"
+
+	execute command "/testtimespan 2h"
+	assert {timespan} is "2 hours" parsed as timespan with "%{timespan}% doesn't equal 2 hours!"
+
+	execute command "/testtimespan 30m"
+	assert {timespan} is "30 minutes" parsed as timespan with "%{timespan}% doesn't equal 30 minutes!"
+
+	execute command "/testtimespan 30m and 20s"
+	assert {timespan} is "30 minutes and 20 seconds" parsed as timespan with "%{timespan}% doesn't equal 30 minutes and 20 seconds!"
+
+	execute command "/testtimespan 50 minutes and 45 seconds"
+	assert {timespan} is "50 minutes 45 seconds" parsed as timespan with "%{timespan}% doesn't equal 50 minutes and 45 seconds!"
+
+	execute command "/testtimespan 1d 6h"
+	assert {timespan} is "1 day 6 hours" parsed as timespan with "%{timespan}% doesn't equal 1 day and 6 hours!"
+
+	execute command "/testtimespan 2 weeks 3d 12 hours"
+	assert {timespan} is "2 weeks 3 days 12 hours" parsed as timespan with "%{timespan}% doesn't equal 2 weeks, 3 days and 12 hours!"
+
+	execute command "/testtimespan 1.5d"
+	assert {timespan} is "1 day and 12 hours" parsed as timespan with "%{timespan}% doesn't equal 1 day and 12 hours!"
+
+	execute command "/testtimespan 2.5h"
+	assert {timespan} is "2 hours and 30 minutes" parsed as timespan with "%{timespan}% doesn't equal 2 hours and 30 minutes!"
+
+	execute command "/testtimespan invalidinput"
+	assert {timespan} is "invalid" parsed as timespan to fail with "%{timespan}% was incorrectly parsed!"
+
+	execute command "/testtimespan 1mo 2w 3d 4h 5m 6s"
+	assert {timespan} is "1 month, 2 weeks, 3 days, 4 hours, 5 minutes and 6 seconds" parsed as timespan with "%{timespan}% doesn't equal 1 month, 2 weeks, 3 days, 4 hours, 5 minutes and 6 seconds!"
+
+	execute command "/testtimespan 9999999999d"
+	assert {timespan} is "9999999999 days" parsed as timespan with "%{timespan}% doesn't equal 9999999999 days!"

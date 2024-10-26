@@ -19,6 +19,7 @@
 package ch.njol.skript.util;
 
 import ch.njol.skript.Skript;
+import ch.njol.skript.lang.ParseContext;
 import ch.njol.skript.localization.GeneralWords;
 import ch.njol.skript.localization.Language;
 import ch.njol.skript.localization.LanguageChangeListener;
@@ -57,16 +58,26 @@ public class Timespan implements YggdrasilSerializable, Comparable<Timespan>, Te
 		YEAR(DAY.time * 365L);
 
 		private final Noun name;
+		private final Noun shortName;
 		private final long time;
 
 		TimePeriod(long time) {
-			this.name = new Noun("time." + this.name().toLowerCase(Locale.ENGLISH));
+			this.name = new Noun("time." + this.name().toLowerCase(Locale.ENGLISH) + ".full");
+			this.shortName = new Noun("time." + this.name().toLowerCase(Locale.ENGLISH) + ".short");
 			this.time = time;
 		}
 
 		public long getTime() {
 			return time;
 		}
+
+		public String getFullForm() {
+			return name.toString();
+		}
+
+		public String getShortForm() {
+			return shortName.toString();
+    }
 
 		@Override
 		public Duration getDuration() {
@@ -119,6 +130,8 @@ public class Timespan implements YggdrasilSerializable, Comparable<Timespan>, Te
 				for (TimePeriod time : TimePeriod.values()) {
 					PARSE_VALUES.put(time.name.getSingular().toLowerCase(Locale.ENGLISH), time.getTime());
 					PARSE_VALUES.put(time.name.getPlural().toLowerCase(Locale.ENGLISH), time.getTime());
+					PARSE_VALUES.put(time.shortName.getSingular().toLowerCase(Locale.ENGLISH), time.getTime());
+					PARSE_VALUES.put(time.shortName.getPlural().toLowerCase(Locale.ENGLISH), time.getTime());
 				}
 			}
 		});
@@ -127,15 +140,21 @@ public class Timespan implements YggdrasilSerializable, Comparable<Timespan>, Te
 	private static final Pattern TIMESPAN_PATTERN = Pattern.compile("^(\\d+):(\\d\\d)(:\\d\\d){0,2}(?<ms>\\.\\d{1,4})?$");
 	private static final Pattern TIMESPAN_NUMBER_PATTERN = Pattern.compile("^\\d+(\\.\\d+)?$");
 	private static final Pattern TIMESPAN_SPLIT_PATTERN = Pattern.compile("[:.]");
+	private static final Pattern SHORT_FORM_PATTERN = Pattern.compile("^(\\d+(?:\\.\\d+)?)([a-zA-Z]+)$");
 
 	private final long millis;
 
 	@Nullable
 	public static Timespan parse(String value) {
+		return parse(value, ParseContext.DEFAULT);
+	}
+
+	@Nullable
+	public static Timespan parse(String value, ParseContext context) {
 		if (value.isEmpty())
 			return null;
 
-		long t = 0;
+		long totalMillis = 0;
 		boolean minecraftTime = false;
 		boolean isMinecraftTimeSet = false;
 
@@ -153,7 +172,7 @@ public class Timespan implements YggdrasilSerializable, Comparable<Timespan>, Te
 				offset = 1;
 
 			for (int i = 0; i < substring.length; i++) {
-				t += times[offset + i] * Utils.parseLong("" + substring[i]);
+				totalMillis += times[offset + i] * Utils.parseLong("" + substring[i]);
 			}
 		} else { // <number> minutes/seconds/.. etc
 			String[] substring = value.toLowerCase(Locale.ENGLISH).split("\\s+");
@@ -196,21 +215,27 @@ public class Timespan implements YggdrasilSerializable, Comparable<Timespan>, Te
 				if (sub.endsWith(","))
 					sub = sub.substring(0, sub.length() - 1);
 
-				Long d = PARSE_VALUES.get(sub.toLowerCase(Locale.ENGLISH));
-				if (d == null)
+				if (context == ParseContext.COMMAND) {
+					Matcher shortFormMatcher = SHORT_FORM_PATTERN.matcher(sub);
+					if (shortFormMatcher.matches()) {
+						amount = Double.parseDouble(shortFormMatcher.group(1));
+						sub = shortFormMatcher.group(2).toLowerCase(Locale.ENGLISH);
+					}
+				}
+
+				Long millis = PARSE_VALUES.get(sub.toLowerCase(Locale.ENGLISH));
+				if (millis == null)
 					return null;
 
-				if (minecraftTime && d != TimePeriod.TICK.time)
+				if (minecraftTime && millis != TimePeriod.TICK.time)
 					amount /= 72f;
 
-				t += Math.round(amount * d);
+				totalMillis += Math.round(amount * millis);
 
 				isMinecraftTimeSet = true;
-
 			}
 		}
-
-		return new Timespan(t);
+		return new Timespan(totalMillis);
 	}
 
 	public Timespan() {

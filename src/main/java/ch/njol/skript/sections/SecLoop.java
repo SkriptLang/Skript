@@ -25,11 +25,8 @@ import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
-import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.LoopSection;
+import ch.njol.skript.lang.*;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
-import ch.njol.skript.lang.TriggerItem;
-import ch.njol.skript.lang.Variable;
 import ch.njol.skript.lang.util.ContainerExpression;
 import ch.njol.skript.util.Container;
 import ch.njol.skript.util.Container.ContainerType;
@@ -92,8 +89,8 @@ public class SecLoop extends LoopSection {
 	private final transient Map<Event, Object> current = new WeakHashMap<>();
 	private final transient Map<Event, Iterator<?>> currentIter = new WeakHashMap<>();
 
-	@Nullable
-	private TriggerItem actualNext;
+	private @Nullable TriggerItem actualNext;
+	private boolean guaranteedToLoop;
 
 	@Override
 	@SuppressWarnings("unchecked")
@@ -121,6 +118,7 @@ public class SecLoop extends LoopSection {
 			return false;
 		}
 
+		guaranteedToLoop = guaranteedToLoop(expr);
 		loadOptionalCode(sectionNode);
 		super.setNext(this);
 
@@ -132,7 +130,7 @@ public class SecLoop extends LoopSection {
 	protected TriggerItem walk(Event event) {
 		Iterator<?> iter = currentIter.get(event);
 		if (iter == null) {
-			iter = expr instanceof Variable ? ((Variable<?>) expr).variablesIterator(event) : expr.iterator(event);
+			iter = expr instanceof Variable<?> variable ? variable.variablesIterator(event) : expr.iterator(event);
 			if (iter != null) {
 				if (iter.hasNext())
 					currentIter.put(event, iter);
@@ -149,6 +147,11 @@ public class SecLoop extends LoopSection {
 			currentLoopCounter.put(event, (currentLoopCounter.getOrDefault(event, 0L)) + 1);
 			return walk(event, true);
 		}
+	}
+
+	@Override
+	public @Nullable ExecutionIntent executionIntent() {
+		return guaranteedToLoop ? triggerExecutionIntent() : null;
 	}
 
 	@Override
@@ -182,6 +185,34 @@ public class SecLoop extends LoopSection {
 		current.remove(event);
 		currentIter.remove(event);
 		super.exit(event);
+	}
+
+	private static boolean guaranteedToLoop(Expression<?> expression) {
+		// If the expression is a literal, it's guaranteed to loop if it has at least one value
+		if (expression instanceof Literal<?> literal)
+			return literal.getAll().length > 0;
+		
+		// If the expression isn't a list, then we can't guarantee that it will loop
+		if (!(expression instanceof ExpressionList<?> list))
+			return false;
+
+		// If the list is an OR list (a, b or c), then it's guaranteed to loop iff all its values are guaranteed to loop
+		if (!list.getAnd()) {
+			for (Expression<?> expr : list.getExpressions()) {
+				if (!guaranteedToLoop(expr))
+					return false;
+			}
+			return true;
+		}
+
+		// If the list is an AND list (a, b and c), then it's guaranteed to loop if any of its values are guaranteed to loop
+		for (Expression<?> expr : list.getExpressions()) {
+			if (guaranteedToLoop(expr))
+				return true;
+		}
+
+		// Otherwise, we can't guarantee that it will loop
+		return false;
 	}
 
 }
