@@ -21,7 +21,6 @@ package ch.njol.skript;
 import ch.njol.skript.aliases.Aliases;
 import ch.njol.skript.command.CommandHelp;
 import ch.njol.skript.doc.Documentation;
-import ch.njol.skript.doc.DocumentationIdProvider;
 import ch.njol.skript.doc.HTMLGenerator;
 import ch.njol.skript.doc.JSONGenerator;
 import ch.njol.skript.localization.ArgsMessage;
@@ -36,6 +35,7 @@ import ch.njol.skript.test.runner.TestTracker;
 import ch.njol.skript.util.ExceptionUtils;
 import ch.njol.skript.util.FileUtils;
 import ch.njol.skript.util.SkriptColor;
+import ch.njol.skript.util.Utils;
 import ch.njol.util.OpenCloseable;
 import ch.njol.util.StringUtils;
 import org.bukkit.Bukkit;
@@ -102,7 +102,8 @@ public class SkriptCommand implements CommandExecutor {
 		Skript.info(sender, message);
 
 		// Log reloading message
-		logHandler.log(new LogEntry(Level.INFO, Language.format(CONFIG_NODE + ".reload." + "player reload", sender.getName(), what)));
+		String text = Language.format(CONFIG_NODE + ".reload." + "player reload", sender.getName(), what);
+		logHandler.log(new LogEntry(Level.INFO, Utils.replaceEnglishChatStyles(text)));
 	}
 
 
@@ -116,10 +117,10 @@ public class SkriptCommand implements CommandExecutor {
 		String message;
 		if (logHandler.numErrors() == 0) {
 			message = StringUtils.fixCapitalization(PluralizingArgsMessage.format(m_reloaded.toString(what, timeTaken)));
-			logHandler.log(new LogEntry(Level.INFO, message));
+			logHandler.log(new LogEntry(Level.INFO, Utils.replaceEnglishChatStyles(message)));
 		} else {
 			message = StringUtils.fixCapitalization(PluralizingArgsMessage.format(m_reload_error.toString(what, logHandler.numErrors(), timeTaken)));
-			logHandler.log(new LogEntry(Level.SEVERE, message));
+			logHandler.log(new LogEntry(Level.SEVERE, Utils.replaceEnglishChatStyles(message)));
 		}
 	}
 
