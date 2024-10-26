@@ -62,6 +62,7 @@ import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.data.BlockData;
+import org.bukkit.event.block.BlockDropItemEvent;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.AbstractVillager;
 import org.bukkit.entity.AreaEffectCloud;
@@ -109,6 +110,7 @@ import org.bukkit.event.entity.EntityTameEvent;
 import org.bukkit.event.entity.EntityTeleportEvent;
 import org.bukkit.event.entity.EntityTransformEvent;
 import org.bukkit.event.entity.EntityTransformEvent.TransformReason;
+import org.bukkit.event.entity.EntityPotionEffectEvent;
 import org.bukkit.event.entity.FireworkExplodeEvent;
 import org.bukkit.event.entity.HorseJumpEvent;
 import org.bukkit.event.entity.ItemDespawnEvent;
@@ -178,6 +180,7 @@ import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.Recipe;
+import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionData;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.potion.PotionType;
@@ -548,6 +551,33 @@ public final class BukkitEventValues {
 				return ldc == null ? null : ldc.getCause();
 			}
 		}, 0);
+
+		// Entity Potion Effect
+		EventValues.registerEventValue(EntityPotionEffectEvent.class, PotionEffect.class, new Getter<PotionEffect, EntityPotionEffectEvent>() {
+			@Override
+			public PotionEffect get(EntityPotionEffectEvent event) {
+				return event.getOldEffect();
+			}
+		}, EventValues.TIME_PAST);
+		EventValues.registerEventValue(EntityPotionEffectEvent.class, PotionEffect.class, new Getter<PotionEffect, EntityPotionEffectEvent>() {
+			@Override
+			public PotionEffect get(EntityPotionEffectEvent event) {
+				return event.getNewEffect();
+			}
+		}, EventValues.TIME_NOW);
+		EventValues.registerEventValue(EntityPotionEffectEvent.class, PotionEffectType.class, new Getter<PotionEffectType, EntityPotionEffectEvent>() {
+			@Override
+			public PotionEffectType get(EntityPotionEffectEvent event) {
+				return event.getModifiedType();
+			}
+		}, EventValues.TIME_NOW);
+		EventValues.registerEventValue(EntityPotionEffectEvent.class, EntityPotionEffectEvent.Cause.class, new Getter<EntityPotionEffectEvent.Cause, EntityPotionEffectEvent>() {
+			@Override
+			public EntityPotionEffectEvent.Cause get(EntityPotionEffectEvent event) {
+				return event.getCause();
+			}
+		}, EventValues.TIME_NOW);
+
 		// ProjectileHitEvent
 		// ProjectileHitEvent#getHitBlock was added in 1.11
 		if (Skript.methodExists(ProjectileHitEvent.class, "getHitBlock"))
@@ -1933,6 +1963,32 @@ public final class BukkitEventValues {
 			@Nullable
 			public RegainReason get(EntityRegainHealthEvent event) {
 				return event.getRegainReason();
+			}
+		}, EventValues.TIME_NOW);
+
+		// BlockDropItemEvent
+		EventValues.registerEventValue(BlockDropItemEvent.class, Block.class, new Getter<Block, BlockDropItemEvent>() {
+			@Override
+			public Block get(BlockDropItemEvent event) {
+				return new BlockStateBlock(event.getBlockState());
+			}
+		}, EventValues.TIME_PAST);
+		EventValues.registerEventValue(BlockDropItemEvent.class, Player.class, new Getter<Player, BlockDropItemEvent>() {
+			@Override
+			public Player get(BlockDropItemEvent event) {
+				return event.getPlayer();
+			}
+		}, EventValues.TIME_NOW);
+		EventValues.registerEventValue(BlockDropItemEvent.class, ItemStack[].class, new Getter<ItemStack[], BlockDropItemEvent>() {
+			@Override
+			public ItemStack[] get(BlockDropItemEvent event) {
+				return event.getItems().stream().map(Item::getItemStack).toArray(ItemStack[]::new);
+			}
+		}, EventValues.TIME_NOW);
+		EventValues.registerEventValue(BlockDropItemEvent.class, Entity[].class, new Getter<Entity[], BlockDropItemEvent>() {
+			@Override
+			public Entity[] get(BlockDropItemEvent event) {
+				return event.getItems().toArray(Entity[]::new);
 			}
 		}, EventValues.TIME_NOW);
 	}
