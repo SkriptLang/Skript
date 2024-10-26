@@ -23,7 +23,7 @@ public class BreedingModule {
 			.description("Called whenever an entity enters a state of being in love.")
 			.examples(
 				"on love mode enter:",
-				"\tcancel event # No one is allowed love here"
+					"\tcancel event # No one is allowed love here"
 			)
 			.since("INSERT VERSION");
 
