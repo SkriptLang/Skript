@@ -399,6 +399,7 @@ public abstract class Aliases {
 	private static void loadMissingAliases() {
 		if (!Skript.methodExists(Material.class, "getKey"))
 			return;
+		boolean modItemRegistered = false;
 		for (Material material : Material.values()) {
 			if (!material.isLegacy() && !provider.hasAliasForMaterial(material)) {
 				NamespacedKey key = material.getKey();
@@ -407,11 +408,24 @@ public abstract class Aliases {
 				if (NamespacedKey.MINECRAFT.equals(key.getNamespace())) {
 					parser.loadAlias(key.getKey().replace("_", " ") + "¦s", key.toString());
 				} else {
+					if (!modItemRegistered) modItemRegistered = true;
 					parser.loadAlias((key.getNamespace() + "'s " + key.getKey() + "¦s").replace("_", " "), key.toString());
 					parser.loadAlias((key.getKey() + "¦s from " + key.getNamespace()).replace("_", " "), key.toString());
 				}
 				Skript.debug(ChatColor.YELLOW + "Creating temporary alias for: " + key);
 			}
+		}
+		if (modItemRegistered) {
+			Skript.warning("==============================================================");
+			Skript.warning("We found some Materials, which are not registered by Minecraft.");
+			Skript.warning("For comfort of your coding, we register aliases from <MOD:AN_ITEM> to <mod's an item> or <an item from mod>");
+			Skript.warning("Please PAY ATTENTION: The Hybrid Servers are NOT supported now. We don't have enough energy to handle these now(maybe someday), sorry");
+			Skript.warning("So, DO NOT report any issues caused by this to us");
+			Skript.warning("The server will keep loading after 5 seconds");
+			Skript.warning("==============================================================");
+			try {
+				Thread.sleep(5000L);
+			} catch (InterruptedException ignored) {}
 		}
 	}
 	
