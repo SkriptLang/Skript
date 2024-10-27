@@ -1,5 +1,5 @@
 test "block data" when running minecraft "1.14.4":
-	set {_b} to block at spawn of world "world"
+	set {_b} to block at test-location
 	set block at {_b} to campfire[lit=false;waterlogged=true]
 	assert block at {_b} is an unlit campfire with "block at spawn should be an unlit campfire"
 
