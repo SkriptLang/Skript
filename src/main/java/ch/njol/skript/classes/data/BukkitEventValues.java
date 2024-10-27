@@ -18,6 +18,9 @@
  */
 package ch.njol.skript.classes.data;
 
+import java.time.Duration;
+import java.time.temporal.TemporalAmount;
+import java.time.temporal.TemporalUnit;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -76,6 +79,7 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
 import org.bukkit.entity.Vehicle;
+import org.bukkit.event.Event;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockCanBuildEvent;
 import org.bukkit.event.block.BlockDamageEvent;
@@ -154,6 +158,8 @@ import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerPickupArrowEvent;
 import org.bukkit.event.player.PlayerPickupItemEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.event.player.PlayerExpCooldownChangeEvent;
+import org.bukkit.event.player.PlayerExpCooldownChangeEvent.ChangeReason;
 import org.bukkit.event.player.PlayerQuitEvent.QuitReason;
 import org.bukkit.event.player.PlayerRiptideEvent;
 import org.bukkit.event.player.PlayerShearEntityEvent;
@@ -1991,5 +1997,26 @@ public final class BukkitEventValues {
 				return event.getItems().toArray(Entity[]::new);
 			}
 		}, EventValues.TIME_NOW);
+
+		// PlayerExpCooldownChangeEvent
+		EventValues.registerEventValue(PlayerExpCooldownChangeEvent.class, ChangeReason.class, new Getter<ChangeReason, PlayerExpCooldownChangeEvent>() {
+			@Override
+			public ChangeReason get(PlayerExpCooldownChangeEvent event) {
+				return event.getReason();
+			}
+		}, EventValues.TIME_NOW);
+		EventValues.registerEventValue(PlayerExpCooldownChangeEvent.class, Timespan.class, new Getter<Timespan, PlayerExpCooldownChangeEvent>() {
+			@Override
+			public Timespan get(PlayerExpCooldownChangeEvent event) {
+				return new Timespan(Timespan.TimePeriod.TICK, event.getNewCooldown());
+			}
+		}, EventValues.TIME_NOW);
+		EventValues.registerEventValue(PlayerExpCooldownChangeEvent.class, Timespan.class, new Getter<Timespan, PlayerExpCooldownChangeEvent>() {
+			@Override
+			public Timespan get(PlayerExpCooldownChangeEvent event) {
+				return new Timespan(Timespan.TimePeriod.TICK, event.getPlayer().getExpCooldown());
+			}
+		}, EventValues.TIME_PAST);
+
 	}
 }
