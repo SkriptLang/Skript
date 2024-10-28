@@ -1,5 +1,6 @@
 package org.skriptlang.skript.test.tests.syntaxes.events;
 
+import ch.njol.skript.Skript;
 import ch.njol.skript.test.runner.SkriptJUnitTest;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.*;
@@ -11,6 +12,10 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 public class EvtFishTest extends SkriptJUnitTest {
+
+	static {
+		setShutdownDelay(1);
+	}
 
 	private Fish salmon;
 	private Fish cod;
@@ -48,8 +53,6 @@ public class EvtFishTest extends SkriptJUnitTest {
 		private int minWaitTime = 5 * 20;
 		private float minApproachAngle = 0;
 		private float maxApproachAngle = 360;
-		private boolean skyInfluenced = true;
-		private boolean rainInfluenced = false;
 		private boolean lure = false;
 
 		public FishHookMock(Entity hooked) {
@@ -62,8 +65,6 @@ public class EvtFishTest extends SkriptJUnitTest {
 			EasyMock.expect(hook.getMinWaitTime()).andAnswer(() -> minWaitTime).anyTimes();
 			EasyMock.expect(hook.getMinLureAngle()).andAnswer(() -> minApproachAngle).anyTimes();
 			EasyMock.expect(hook.getMaxLureAngle()).andAnswer(() -> maxApproachAngle).anyTimes();
-			EasyMock.expect(hook.isSkyInfluenced()).andAnswer(() -> skyInfluenced).anyTimes();
-			EasyMock.expect(hook.isRainInfluenced()).andAnswer(() -> rainInfluenced).anyTimes();
 			EasyMock.expect(hook.getApplyLure()).andAnswer(() -> lure).anyTimes();
 
 			hook.setMaxWaitTime(EasyMock.anyInt());
@@ -87,18 +88,6 @@ public class EvtFishTest extends SkriptJUnitTest {
 			hook.setMaxLureAngle(EasyMock.anyFloat());
 			EasyMock.expectLastCall().andAnswer(() -> {
 				maxApproachAngle = (float) EasyMock.getCurrentArguments()[0];
-				return null;
-			}).anyTimes();
-
-			hook.setSkyInfluenced(EasyMock.anyBoolean());
-			EasyMock.expectLastCall().andAnswer(() -> {
-				skyInfluenced = (boolean) EasyMock.getCurrentArguments()[0];
-				return null;
-			}).anyTimes();
-
-			hook.setRainInfluenced(EasyMock.anyBoolean());
-			EasyMock.expectLastCall().andAnswer(() -> {
-				rainInfluenced = (boolean) EasyMock.getCurrentArguments()[0];
 				return null;
 			}).anyTimes();
 

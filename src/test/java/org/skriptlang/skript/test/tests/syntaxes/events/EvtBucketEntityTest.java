@@ -17,6 +17,10 @@ import org.junit.Test;
 
 public class EvtBucketEntityTest extends SkriptJUnitTest {
 
+	static {
+		setShutdownDelay(1);
+	}
+
 	private Fish salmon;
 	private Fish cod;
 

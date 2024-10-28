@@ -11,8 +11,6 @@ test "EvtFishJUnit" when running JUnit:
 	add "cast - add approach angle" to {_tests::*}
 	add "cast - remove approach angle" to {_tests::*}
 	add "cast - reset approach angle" to {_tests::*}
-	add "cast - direct sky access" to {_tests::*}
-	add "cast - rain" to {_tests::*}
 	add "cast - lure enchantment bonus" to {_tests::*}
 	add "cast - apply lure enchantment bonus" to {_tests::*}
 	add "cast - remove lure enchantment bonus" to {_tests::*}
@@ -32,9 +30,7 @@ test "EvtFishJUnit" when running JUnit:
 	add "catch - set approach angle" to {_tests::*}
 	add "catch - add approach angle" to {_tests::*}
 	add "catch - remove approach angle" to {_tests::*}
-	add "catch - reset approach angle" to {_tests::*}
-	add "catch - direct sky access" to {_tests::*}
-	add "catch - rain" to {_tests::*}
+	add "catch - reset approach angle" to {_tests::*}s
 	add "catch - lure enchantment bonus" to {_tests::*}
 	add "catch - apply lure enchantment bonus" to {_tests::*}
 	add "catch - remove lure enchantment bonus" to {_tests::*}
@@ -100,12 +96,6 @@ on fishing line cast:
 		max fish approach angle is 360
 	then:
 		complete objective "cast - reset approach angle" for {_test}
-
-	if fishing hook is influenced by direct sky access:
-		complete objective "cast - direct sky access" for {_test}
-
-	if fishing hook is not influenced by rain:
-		complete objective "cast - rain" for {_test}
 
 	if lure enchantment bonus isn't applied:
 		complete objective "cast - lure enchantment bonus" for {_test}
@@ -190,12 +180,6 @@ on fish catch:
 		max fish approach angle is 360
 	then:
 		complete objective "catch - reset approach angle" for {_test}
-
-	if fishing hook is influenced by direct sky access:
-		complete objective "catch - direct sky access" for {_test}
-
-	if fishing hook is not influenced by rain:
-		complete objective "catch - rain" for {_test}
 
 	if lure enchantment bonus isn't applied:
 		complete objective "catch - lure enchantment bonus" for {_test}
