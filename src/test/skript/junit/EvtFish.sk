@@ -32,7 +32,7 @@ test "EvtFishJUnit" when running JUnit:
 	add "catch - set approach angle" to {_tests::*}
 	add "catch - add approach angle" to {_tests::*}
 	add "catch - remove approach angle" to {_tests::*}
-	add "catch - reset approach angle" to {_tests::*}s
+	add "catch - reset approach angle" to {_tests::*}
 	add "catch - invalid approach angle" to {_tests::*}
 	add "catch - lure enchantment bonus" to {_tests::*}
 	add "catch - apply lure enchantment bonus" to {_tests::*}
