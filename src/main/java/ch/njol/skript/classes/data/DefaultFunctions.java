@@ -50,6 +50,7 @@ import org.joml.Vector3f;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
+import java.text.DecimalFormat;
 import java.util.Calendar;
 import java.util.List;
 import java.util.UUID;
@@ -59,7 +60,11 @@ public class DefaultFunctions {
 	private static String str(double n) {
 		return StringUtils.toString(n, 4);
 	}
-	
+	private static final String DEFAULT_NUMBER_FORMAT_STRING = "###,###";
+	private static final DecimalFormat DEFAULT_NUMBER_FORMAT = new DecimalFormat(DEFAULT_NUMBER_FORMAT_STRING);
+	private static final ThreadLocal<DecimalFormat> NUMBER_FORMAT = ThreadLocal.withInitial(DecimalFormat::new);
+
+
 	static {
 		Parameter<?>[] numberParam = new Parameter[] {new Parameter<>("n", DefaultClasses.NUMBER, true, null)};
 		Parameter<?>[] numbersParam = new Parameter[] {new Parameter<>("ns", DefaultClasses.NUMBER, false, null)};
@@ -537,7 +542,7 @@ public class DefaultFunctions {
 				Long green = (Long) params[1][0];
 				Long blue = (Long) params[2][0];
 				Long alpha = (Long) params[3][0];
-				
+
 				return CollectionUtils.array(ColorRGB.fromRGBA(red.intValue(), green.intValue(), blue.intValue(), alpha.intValue()));
 			}
 		}).description("Returns a RGB color from the given red, green and blue parameters. Alpha values can be added optionally, " +
@@ -625,6 +630,36 @@ public class DefaultFunctions {
 		}).description("Returns true if the input is NaN (not a number).")
 			.examples("isNaN(0) # false", "isNaN(0/0) # true", "isNaN(sqrt(-1)) # true")
 			.since("2.8.0");
+
+		Functions.registerFunction(new SimpleJavaFunction<String>("formatNumber", new Parameter[] {
+			new Parameter<>("number", DefaultClasses.NUMBER, true, null),
+			new Parameter<>("format", DefaultClasses.STRING, true, new SimpleLiteral<String>(DEFAULT_NUMBER_FORMAT_STRING, true))
+		}, DefaultClasses.STRING, true) {
+			@Override
+			public String[] executeSimple(Object[][] params) {
+				Number number = (Number) params[0][0];
+				String format = (String) params[1][0];
+
+				if (DEFAULT_NUMBER_FORMAT_STRING.equals(format)) // shortcut
+					return CollectionUtils.array(DEFAULT_NUMBER_FORMAT.format(number));
+
+				try {
+					DecimalFormat numberFormat = NUMBER_FORMAT.get();
+					numberFormat.applyPattern(format);
+					return CollectionUtils.array(numberFormat.format(number));
+				} catch (IllegalArgumentException e) {
+//					Skript.warning("Invalid number format: " + format); // TODO find a better solution for such warnings/errors that doesn't spam the console
+					return null;
+				}
+			}
+		}).description("Converts numbers to human-readable format. By default, '###,###' (e.g. '123,456,789') will be used. For reference, see this "
+		+ "<a href=\"https://docs.oracle.com/javase/7/docs/api/java/text/DecimalFormat.html\" target=\"_blank\">article</a>.")
+			.examples(
+					"command /formatnumber <number>:",
+						"\taliases: fn",
+						"\ttrigger:",
+							"\t\tsend \"Formatted: %formatNumber(arg-1)%\" to sender"
+			).since("INSERT VERSION");
 
 		Functions.registerFunction(new SimpleJavaFunction<String>("concat", new Parameter[] {
 			 new Parameter<>("texts", DefaultClasses.OBJECT, false, null)
