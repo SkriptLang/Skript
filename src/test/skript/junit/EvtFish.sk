@@ -11,6 +11,7 @@ test "EvtFishJUnit" when running JUnit:
 	add "cast - add approach angle" to {_tests::*}
 	add "cast - remove approach angle" to {_tests::*}
 	add "cast - reset approach angle" to {_tests::*}
+	add "cast - invalid approach angle" to {_tests::*}
 	add "cast - lure enchantment bonus" to {_tests::*}
 	add "cast - apply lure enchantment bonus" to {_tests::*}
 	add "cast - remove lure enchantment bonus" to {_tests::*}
@@ -18,6 +19,7 @@ test "EvtFishJUnit" when running JUnit:
 		add "cast - bite time" to {_tests::*}
 		add "cast - remove bite time" to {_tests::*}
 		add "cast - add bite time" to {_tests::*}
+		add "cast - invalid bite time" to {_tests::*}
 
 	add "catch - correct player" to {_tests::*}
 	add "catch - correct fish" to {_tests::*}
@@ -31,6 +33,7 @@ test "EvtFishJUnit" when running JUnit:
 	add "catch - add approach angle" to {_tests::*}
 	add "catch - remove approach angle" to {_tests::*}
 	add "catch - reset approach angle" to {_tests::*}s
+	add "catch - invalid approach angle" to {_tests::*}
 	add "catch - lure enchantment bonus" to {_tests::*}
 	add "catch - apply lure enchantment bonus" to {_tests::*}
 	add "catch - remove lure enchantment bonus" to {_tests::*}
@@ -38,6 +41,7 @@ test "EvtFishJUnit" when running JUnit:
 		add "catch - bite time" to {_tests::*}
 		add "catch - remove bite time" to {_tests::*}
 		add "catch - add bite time" to {_tests::*}
+		add "catch - invalid bite time" to {_tests::*}
 
 	ensure junit test "org.skriptlang.skript.test.tests.syntaxes.events.EvtFishTest" completes {_tests::*}
 
@@ -97,6 +101,10 @@ on fishing line cast:
 	then:
 		complete objective "cast - reset approach angle" for {_test}
 
+	set min fish approach angle to 720
+	if min fish approach angle is 720:
+		complete objective "cast - invalid approach angle" for {_test}
+
 	if lure enchantment bonus isn't applied:
 		complete objective "cast - lure enchantment bonus" for {_test}
 
@@ -121,6 +129,10 @@ on fishing line cast:
 			add 0.5 seconds to fishing bite time
 			if fishing bite time is 1 second:
 				complete objective "cast - add bite time" for {_test}
+
+			set fishing bite time to 0 second
+			if fishing bite time is 1 tick:
+				complete objective "catch - invalid bite time" for {_test}
 
 on fish catch:
 	set {_test} to "org.skriptlang.skript.test.tests.syntaxes.events.EvtFishTest"
@@ -158,9 +170,6 @@ on fish catch:
 	then:
 		complete objective "catch - reset waiting time" for {_test}
 
-	set max fish waiting time to 5 seconds
-	set min fish waiting time to 25 seconds
-
 	set max fish approach angle to 40
 	if max fish approach angle is 40:
 		complete objective "catch - set approach angle" for {_test}
@@ -172,6 +181,10 @@ on fish catch:
 	remove 10 from min fish approach angle
 	if min fish approach angle is 0:
 		complete objective "catch - remove approach angle" for {_test}
+
+	set min fish approach angle to 720
+	if min fish approach angle is 720:
+		complete objective "catch - invalid approach angle" for {_test}
 
 	reset min fish approach angle
 	reset max fish approach angle
@@ -205,3 +218,7 @@ on fish catch:
 			add 0.5 seconds to fishing bite time
 			if fishing bite time is 1 second:
 				complete objective "catch - add bite time" for {_test}
+
+			set fishing bite time to 0 second
+			if fishing bite time is 1 tick:
+				complete objective "catch - invalid bite time" for {_test}
