@@ -158,6 +158,11 @@ public class ExprRotate extends SimpleExpression<Object> {
 	}
 
 	@Override
+	public Class<?>[] possibleReturnTypes() {
+		return new Class<?>[]{Quaternionf.class, Vector.class};
+	}
+
+	@Override
 	public String toString(@Nullable Event event, boolean debug) {
 		return switch (matchedPattern) {
 			case 0, 1 -> toRotate.toString(event, debug) +
