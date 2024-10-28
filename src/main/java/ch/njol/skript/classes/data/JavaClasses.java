@@ -139,7 +139,7 @@ public class JavaClasses {
 				.usage("true/yes/on or false/no/off")
 				.examples("set {config.%player%.use mod} to false")
 				.since("1.0")
-				.parser(new Parser<Boolean>() {
+				.parser(new Parser<>() {
 					private final RegexMessage truePattern = new RegexMessage("boolean.true.pattern");
 					private final RegexMessage falsePattern = new RegexMessage("boolean.false.pattern");
 
@@ -165,7 +165,7 @@ public class JavaClasses {
 					public String toVariableNameString(Boolean b) {
 						return "" + b;
 					}
-                }).serializer(new Serializer<Boolean>() {
+				}).serializer(new Serializer<Boolean>() {
 					@Override
 					public Fields serialize(Boolean n) {
 						throw new IllegalStateException(); // serialised natively by Yggdrasil
@@ -224,7 +224,7 @@ public class JavaClasses {
 						"message \"Hello %player%\"",
 						"message \"The id of \"\"%type of tool%\"\" is %id of tool%.\"")
 				.since("1.0")
-				.parser(new Parser<String>() {
+				.parser(new Parser<>() {
 					@Override
 					@Nullable
 					public String parse(String s, ParseContext context) {
@@ -266,7 +266,7 @@ public class JavaClasses {
 					public String toVariableNameString(String s) {
 						return s;
 					}
-                }).serializer(new Serializer<String>() {
+				}).serializer(new Serializer<String>() {
 					@Override
 					public Fields serialize(String n) {
 						throw new IllegalStateException(); // serialised natively by Yggdrasil
@@ -388,7 +388,6 @@ public class JavaClasses {
 			return null;
 
 		String number = matcher.group("num").replace("_", "");
-
 		try {
 			T result;
 			if (number.endsWith("%")) {
