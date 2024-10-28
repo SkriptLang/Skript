@@ -580,7 +580,7 @@ public final class Skript extends JavaPlugin implements Listener {
 				finishedLoadingHooks = true;
 
 				try {
-					aliases.get(); // await alias load
+					aliases.get(); // wait for aliases to load
 				} catch (InterruptedException | ExecutionException e) {
 					exception(e, "Could not load aliases concurrently");
 				}
