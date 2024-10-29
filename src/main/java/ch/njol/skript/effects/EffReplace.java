@@ -98,8 +98,10 @@ public class EffReplace extends Effect {
 	private void replace(Event event, Object[] needles, Expression<?> haystackExpr) {
 		Object[] haystack = haystackExpr.getAll(event);
 		Object replacement = this.replacement.getSingle(event);
+
 		if (replacement == null || haystack == null || haystack.length == 0 || needles == null || needles.length == 0)
 			return;
+
 		if (replaceString) {
 			String stringReplacement = (String) replacement;
 			if (replaceRegex) { // replace all/first - regex
@@ -161,7 +163,7 @@ public class EffReplace extends Effect {
 		return "replace " + (replaceFirst ? "the first " : "") + (replaceRegex ? "regex " : "") + needles.toString(event, debug) +
 			" in " + haystack.toString(event, debug) +
 			" with " + replacement.toString(event, debug) +
-			(caseSensitive ? "(case sensitive)" : "");
+			(caseSensitive ? " (case sensitive)" : "");
 	}
 
 }
