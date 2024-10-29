@@ -52,11 +52,7 @@ test "replace strings":
 	# Regex replacing
 	set {_x} to "abc123aACAB"
 	regex replace "123a" in {_x} with "123"
-	broadcast {_x}
 	regex replace "\d" with "x" in {_x}
-	broadcast {_x}
 	regex replace "^[acb]+" in {_x} with "y"
-	broadcast {_x}
 	regex replace "(?i)[bAc]" in {_x} with "z"
-	broadcast {_x}
 	assert {_x} is "yxxxzzzz" with "regex replace failed"
