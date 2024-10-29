@@ -54,7 +54,7 @@ import org.jetbrains.annotations.Nullable;
 	"ban and kick player due to \"inappropriate language\" for 2 days"})
 @Since("1.4, 2.1.1 (ban reason), 2.5 (timespan), 2.9.0 (kick)")
 public class EffBan extends Effect {
-	
+
 	static {
 		Skript.registerEffect(EffBan.class,
 			"ban [kick:and kick] %strings/offlineplayers% [(by reason of|because [of]|on account of|due to) %-string%] [for %-timespan%]",
@@ -64,18 +64,18 @@ public class EffBan extends Effect {
 			"IP(-| )ban [kick:and kick] %players% [(by reason of|because [of]|on account of|due to) %-string%] [for %-timespan%]",
 			"(IP(-| )unban|un[-]IP[-]ban) %players%");
 	}
-	
+
 	@SuppressWarnings("null")
 	private Expression<?> players;
 	@Nullable
 	private Expression<String> reason;
 	@Nullable
 	private Expression<Timespan> expires;
-	
+
 	private boolean ban;
 	private boolean ipBan;
 	private boolean kick;
-	
+
 	@SuppressWarnings({"null", "unchecked"})
 	@Override
 	public boolean init(final Expression<?>[] exprs, final int matchedPattern, final Kleenean isDelayed, final ParseResult parseResult) {
@@ -87,7 +87,7 @@ public class EffBan extends Effect {
 		kick = parseResult.hasTag("kick");
 		return true;
 	}
-	
+
 	@SuppressWarnings("null")
 	@Override
 	protected void execute(final Event e) {
@@ -137,15 +137,16 @@ public class EffBan extends Effect {
 			}
 		}
 	}
-	
+
 	@Override
-	public String toString(final @Nullable Event event, final boolean debug) {
-		return (ipBan ? "IP-" : "") +
-			(this.ban ? "ban " : "unban ") +
-			(kick ? "and kick " : "") +
-			this.players.toString(event, debug) +
-			(this.reason != null ? " on account of " + this.reason.toString(event, debug) : "") +
-			(expires != null ? " for " + expires.toString(event, debug) : "");
+	public String toString(@Nullable Event event, boolean debug) {
+		return formattedToString("%s %s %s %s %s %s",
+			option(ipBan, "IP"),
+			ban ? "ban" : "unban",
+			option(kick, "and kick"),
+			players.toString(event, debug),
+			optional(reason, reason -> "on account of " + reason.toString(event, debug)),
+			optional(expires, expires -> "for " + expires.toString(event, debug)));
 	}
-	
+
 }
