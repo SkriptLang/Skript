@@ -38,57 +38,67 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Name("Replace")
-@Description("Replaces all occurrences of a given text with another text. Please note that you can only change variables and a few expressions, e.g. a <a href='./expressions.html#ExprMessage'>message</a> or a line of a sign.")
-@Examples({"replace \"<item>\" in {textvar} with \"%item%\"",
-		"replace every \"&\" with \"§\" in line 1",
-		"# The following acts as a simple chat censor, but it will e.g. censor mass, hassle, assassin, etc. as well:",
-		"on chat:",
-		"	replace all \"kys\", \"idiot\" and \"noob\" with \"****\" in the message",
-		" ",
-		"replace all stone and dirt in player's inventory and player's top inventory with diamond"})
-@Since("2.0, 2.2-dev24 (replace in multiple strings and replace items in inventory), 2.5 (replace first, case sensitivity)")
+@Description("Replaces all occurrences of a given text/regex with another text. Please note that you can only change " +
+	"variables and a few expressions, e.g. a <a href='/expressions.html#ExprMessage'>message</a> or a line of a sign.")
+@Examples({
+	"replace \"<item>\" in {_msg} with \"[%name of player's tool%]\"",
+	"replace every \"&\" with \"§\" in line 1 of targeted block",
+	"",
+	"# Very simple chat censor",
+	"on chat:",
+		"\treplace all \"idiot\" and \"noob\" with \"****\" in the message",
+		"\treplace using regex \"\\b(idiot|noob)\\b\" with \"****\" in the message # Regex version for better results",
+	"",
+	"replace all stone and dirt in player's inventory and player's top inventory with diamond"
+})
+@Since("2.0, 2.2-dev24 (multiple strings, items in inventory), 2.5 (replace first, case sensitivity), INSERT VERSION (regex)")
 public class EffReplace extends Effect {
 
 	static {
 		Skript.registerEffect(EffReplace.class,
-				"replace (all|every|) %strings% in %strings% with %string% [(1¦with case sensitivity)]",
-				"replace (all|every|) %strings% with %string% in %strings% [(1¦with case sensitivity)]",
-				"replace first %strings% in %strings% with %string% [(1¦with case sensitivity)]",
-				"replace first %strings% with %string% in %string% [(1¦with case sensitivity)]",
-				"replace (all|every|) %itemtypes% in %inventories% with %itemtype%",
-				"replace (all|every|) %itemtypes% with %itemtype% in %inventories%");
+				"replace [all:(all|every)|first:[the] first] %strings% in %strings% with %string% [case:with case sensitivity]",
+				"replace [all:(all|every)|first:[the] first] %strings% with %string% in %strings% [case:with case sensitivity]",
+				"regex:(replace [using] regex|regex replace) %strings% in %strings% with %string%",
+				"regex:(replace [using] regex|regex replace) %strings% with %string% in %strings%",
+				"replace [all|every] %itemtypes% in %inventories% with %itemtype%",
+				"replace [all|every] %itemtypes% with %itemtype% in %inventories%");
 	}
-	
-	@SuppressWarnings("null")
+
+	@SuppressWarnings("NotNullFieldNotInitialized")
 	private Expression<?> haystack, needles, replacement;
-	private boolean replaceString = true;
-	private boolean replaceFirst = false;
+	private boolean replaceString;
+	private boolean replaceRegex;
+	private boolean replaceFirst;
 	private boolean caseSensitive = false;
 
-	@SuppressWarnings({"null"})
 	@Override
+	@SuppressWarnings("null")
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		haystack =  exprs[1 + matchedPattern % 2];
 		replaceString = matchedPattern < 4;
-		replaceFirst = matchedPattern > 1 && matchedPattern < 4;
+		replaceFirst = parseResult.hasTag("first");
+		replaceRegex = parseResult.hasTag("regex");
 		if (replaceString && !ChangerUtils.acceptsChange(haystack, ChangeMode.SET, String.class)) {
-			Skript.error(haystack + " cannot be changed and can thus not have parts replaced.");
+			Skript.error(haystack + " cannot be changed and can thus not have parts replaced");
 			return false;
 		}
-		if (SkriptConfig.caseSensitive.value() || parseResult.mark == 1) {
+		if (SkriptConfig.caseSensitive.value() || parseResult.hasTag("case")) {
 			caseSensitive = true;
 		}
 		needles = exprs[0];
 		replacement = exprs[2 - matchedPattern % 2];
 		return true;
 	}
-	
-	@SuppressWarnings("null")
+
 	@Override
+	@SuppressWarnings("null")
 	protected void execute(Event event) {
 		Object[] needles = this.needles.getAll(event);
 		if (haystack instanceof ExpressionList) {
@@ -106,24 +116,45 @@ public class EffReplace extends Effect {
 		if (replacement == null || haystack == null || haystack.length == 0 || needles == null || needles.length == 0)
 			return;
 		if (replaceString) {
-			if (replaceFirst) {
-				for (int x = 0; x < haystack.length; x++)
-					for (Object n : needles) {
-						assert n != null;
-						haystack[x] = StringUtils.replaceFirst((String)haystack[x], (String)n, Matcher.quoteReplacement((String)replacement), caseSensitive);
+			String stringReplacement = (String) replacement;
+			if (replaceRegex) { // replace all/first - regex
+				List<Pattern> patterns = new ArrayList<>(needles.length);
+				for (Object needle : needles) {
+					assert needle != null;
+					try {
+						patterns.add(Pattern.compile((String) needle));
+					} catch (Exception ignored) { }
+				}
+				for (int i = 0; i < haystack.length; i++) {
+					for (Pattern pattern : patterns) {
+						assert pattern != null;
+						Matcher matcher = pattern.matcher((String) haystack[i]);
+						if (replaceFirst) // first
+							haystack[i] = matcher.replaceFirst(stringReplacement);
+						else // all
+							haystack[i] = matcher.replaceAll(stringReplacement);
 					}
-			} else {
-				for (int x = 0; x < haystack.length; x++)
-					for (Object n : needles) {
-						assert n != null;
-						haystack[x] = StringUtils.replace((String) haystack[x], (String) n, (String) replacement, caseSensitive);
+				}
+			} else if (replaceFirst) { // replace first - string
+				for (int i = 0; i < haystack.length; i++) {
+					for (Object needle : needles) {
+						assert needle != null;
+						haystack[i] = StringUtils.replaceFirst((String) haystack[i], (String) needle, Matcher.quoteReplacement(stringReplacement), caseSensitive);
 					}
+				}
+			} else { // replace all - string
+				for (int i = 0; i < haystack.length; i++) {
+					for (Object needle : needles) {
+						assert needle != null;
+						haystack[i] = StringUtils.replace((String) haystack[i], (String) needle, stringReplacement, caseSensitive);
+					}
+				}
 			}
 			haystackExpr.change(event, haystack, ChangeMode.SET);
 		} else {
-			for (Inventory inv : (Inventory[]) haystack)
-				for (ItemType needle : (ItemType[]) needles)
-					for (Map.Entry<Integer, ? extends ItemStack> entry : inv.all(needle.getMaterial()).entrySet()) {
+			for (Inventory inventory : (Inventory[]) haystack) {
+				for (ItemType needle : (ItemType[]) needles) {
+					for (Map.Entry<Integer, ? extends ItemStack> entry : inventory.all(needle.getMaterial()).entrySet()) {
 						int slot = entry.getKey();
 						ItemStack itemStack = entry.getValue();
 
@@ -135,15 +166,17 @@ public class EffReplace extends Effect {
 							}
 						}
 					}
+				}
+			}
 		}
 	}
-	
+
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
 		if (replaceFirst)
-			return "replace first " + needles.toString(event, debug) + " in " + haystack.toString(event, debug) + " with " + replacement.toString(event, debug)
+			return "replace first " + needles.toString(event, debug) + (replaceRegex ? " (regex) " : "") + " in " + haystack.toString(event, debug) + " with " + replacement.toString(event, debug)
 					+ "(case sensitive: " + caseSensitive + ")";
-		return "replace " + needles.toString(event, debug) + " in " + haystack.toString(event, debug) + " with " + replacement.toString(event, debug)
+		return "replace " + needles.toString(event, debug) + (replaceRegex ? " (regex) " : "") + " in " + haystack.toString(event, debug) + " with " + replacement.toString(event, debug)
 				+ "(case sensitive: " + caseSensitive + ")";
 	}
 	
