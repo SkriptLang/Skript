@@ -2367,6 +2367,11 @@ item display transforms:
 	thirdperson_lefthand: third person left handed, third person left hand, left handed in third person
 	thirdperson_righthand: third person right handed, third person right hand, right handed in third person
 
+# -- Change Reasons --
+experience cooldown change reasons:
+	plugin: plugin
+	pickup_orb: orb pickup, pickup orb
+
 # -- Boolean --
 boolean:
 	true:
@@ -2452,6 +2457,7 @@ types:
 	billboard: billboard¦s @a
 	textalignment: text alignment¦s @a
 	itemdisplaytransform: item display transform¦s @an
+	experiencecooldownchangereason: experience cooldown change reason¦s @a
 
 	# Skript
 	weathertype: weather type¦s @a
