@@ -9,4 +9,16 @@ test "equip effect":
 	equip {_entity} with a diamond chestplate named "Test"
 	assert chestplate of {_entity} is a diamond chestplate named "Test" with "entity was not wearing a named diamond chestplate"
 
+	unequip diamond chestplate of {_entity}
+	assert chestplate of {_entity} is air with "entity was not wearing air"
+
+	equip {_entity} with a turtle helmet named "test"
+	assert helmet of {_entity} is a turtle helmet named "test" with "entity was not wearing a named turtle helmet"
+
+	make {_entity} wear a dirt block as a hat
+	assert helmet slot of {_entity} is a dirt block with "entity was not wearing a dirt block as a hat"
+
+	unequip helmet of {_entity}
+	assert helmet of {_entity} is air with "entity was not wearing air"
+
 	delete the entity within {_entity}
