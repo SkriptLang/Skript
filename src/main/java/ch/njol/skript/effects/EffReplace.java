@@ -143,16 +143,16 @@ public class EffReplace extends Effect {
 	public String toString(@Nullable Event event, boolean debug) {
 		SyntaxStringBuilder builder = new SyntaxStringBuilder(event, debug);
 
-		builder.add("replace");
+		builder.append("replace");
 		if (replaceFirst)
-			builder.add("the first");
-		builder.add(needles);
-		builder.add("in");
-		builder.add(haystack);
-		builder.add("with");
-		builder.add(replacement);
+			builder.append("the first");
+		builder.append(needles);
+		builder.append("in");
+		builder.append(haystack);
+		builder.append("with");
+		builder.append(replacement);
 		if (caseSensitive)
-			builder.add("with case sensitivity");
+			builder.append("with case sensitivity");
 
 		return builder.toString();
 	}

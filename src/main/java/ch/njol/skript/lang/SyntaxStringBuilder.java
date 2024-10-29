@@ -28,73 +28,13 @@ public class SyntaxStringBuilder {
 	}
 
 	/**
-	 * Adds a boolean to the string.
-	 * @param b The boolean to add.
+	 * Adds an object to the string.
+	 * @param object The object to add.
 	 * @return This SyntaxStringBuilder.
 	 */
-	public SyntaxStringBuilder add(boolean b) {
-		joiner.add(Boolean.toString(b));
-		return this;
-	}
-
-	/**
-	 * Adds an integer to the string.
-	 * @param i The integer to add.
-	 * @return This SyntaxStringBuilder.
-	 */
-	public SyntaxStringBuilder add(int i) {
-		joiner.add(Integer.toString(i));
-		return this;
-	}
-
-	/**
-	 * Adds a long to the string.
-	 * @param l The long to add.
-	 * @return This SyntaxStringBuilder.
-	 */
-	public SyntaxStringBuilder add(long l) {
-		joiner.add(Long.toString(l));
-		return this;
-	}
-
-	/**
-	 * Adds a double to the string.
-	 * @param d The double to add.
-	 * @return This SyntaxStringBuilder.
-	 */
-	public SyntaxStringBuilder add(double d) {
-		joiner.add(Double.toString(d));
-		return this;
-	}
-
-	/**
-	 * Adds a float to the string.
-	 * @param f The float to add.
-	 * @return This SyntaxStringBuilder.
-	 */
-	public SyntaxStringBuilder add(float f) {
-		joiner.add(Float.toString(f));
-		return this;
-	}
-
-	/**
-	 * Adds a char to the string.
-	 * @param c The char to add.
-	 * @return This SyntaxStringBuilder.
-	 */
-	public SyntaxStringBuilder add(char c) {
-		joiner.add(Character.toString(c));
-		return this;
-	}
-
-	/**
-	 * Adds a string to the string.
-	 * @param string The string to add.
-	 * @return This SyntaxStringBuilder.
-	 */
-	public SyntaxStringBuilder add(@NotNull String string) {
-		Preconditions.checkNotNull(string);
-		joiner.add(string);
+	public SyntaxStringBuilder append(Object object) {
+		Preconditions.checkNotNull(object);
+		joiner.add(object.toString());
 		return this;
 	}
 
@@ -103,7 +43,7 @@ public class SyntaxStringBuilder {
 	 * @param debuggable The {@link Debuggable} to add.
 	 * @return This SyntaxStringBuilder.
 	 */
-	public SyntaxStringBuilder add(@NotNull Debuggable debuggable) {
+	public SyntaxStringBuilder append(@NotNull Debuggable debuggable) {
 		Preconditions.checkNotNull(debuggable);
 		joiner.add(debuggable.toString(event, debug));
 		return this;

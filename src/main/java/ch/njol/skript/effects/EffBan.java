@@ -144,15 +144,15 @@ public class EffBan extends Effect {
 		SyntaxStringBuilder builder = new SyntaxStringBuilder(event, debug);
 
 		if (ipBan)
-			builder.add("IP");
-		builder.add(ban ? "ban" : "unban");
+			builder.append("IP");
+		builder.append(ban ? "ban" : "unban");
 		if (kick)
-			builder.add("and kick");
-		builder.add(players);
+			builder.append("and kick");
+		builder.append(players);
 		if (reason != null)
-			builder.add("on account of").add(reason);
+			builder.append("on account of").append(reason);
 		if (expires != null)
-			builder.add("for").add(expires);
+			builder.append("for").append(expires);
 
 		return builder.toString();
 	}
