@@ -158,17 +158,10 @@ public class EffReplace extends Effect {
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return formatToString("replace %s %s %s in %s with %s %s",
-			replaceFirst ? "the first" : "",
-			needles.toString(event, debug),
-			replaceRegex ? "(regex)" : "",
-			haystack.toString(event, debug),
-			replacement.toString(event, debug),
-			caseSensitive ? "(case sensitive)" : "");
-	}
-
-	private String formatToString(String string, Object... replace) {
-		return String.format(string, replace).replaceAll("  +", "");
+		return "replace " + (replaceFirst ? "the first " : "") + (replaceRegex ? "regex " : "") + needles.toString(event, debug) +
+			" in " + haystack.toString(event, debug) +
+			" with " + replacement.toString(event, debug) +
+			(caseSensitive ? "(case sensitive)" : "");
 	}
 
 }
