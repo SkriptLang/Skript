@@ -1,5 +1,6 @@
 package ch.njol.skript.lang;
 
+import com.google.common.base.Preconditions;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -92,6 +93,7 @@ public class SyntaxStringBuilder {
 	 * @return This SyntaxStringBuilder.
 	 */
 	public SyntaxStringBuilder add(@NotNull String string) {
+		Preconditions.checkNotNull(string);
 		joiner.add(string);
 		return this;
 	}
@@ -102,6 +104,7 @@ public class SyntaxStringBuilder {
 	 * @return This SyntaxStringBuilder.
 	 */
 	public SyntaxStringBuilder add(@NotNull Debuggable debuggable) {
+		Preconditions.checkNotNull(debuggable);
 		joiner.add(debuggable.toString(event, debug));
 		return this;
 	}
@@ -110,4 +113,5 @@ public class SyntaxStringBuilder {
 	public String toString() {
 		return joiner.toString();
 	}
+
 }
