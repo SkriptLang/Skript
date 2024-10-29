@@ -19,20 +19,19 @@
 package ch.njol.skript.effects;
 
 import ch.njol.skript.Skript;
+import ch.njol.skript.classes.data.JavaClasses;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
-import ch.njol.skript.lang.Effect;
-import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.Literal;
-import ch.njol.skript.lang.LoopSection;
+import ch.njol.skript.lang.*;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
-import ch.njol.skript.lang.TriggerItem;
+import ch.njol.skript.lang.parser.ParserInstance;
 import ch.njol.util.Kleenean;
 import ch.njol.util.StringUtils;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.UnknownNullability;
 
 import java.util.List;
 
@@ -61,39 +60,45 @@ public class EffContinue extends Effect {
 	static {
 		Skript.registerEffect(EffContinue.class,
 			"continue [this loop|[the] [current] loop]",
-			"continue [the] %*integer%(st|nd|rd|th) loop"
+			"continue [the] <" + JavaClasses.INTEGER_PATTERN + ">(st|nd|rd|th) loop"
 		);
 	}
 
-	@SuppressWarnings("NotNullFieldNotInitialized")
-	private LoopSection loop;
-	@SuppressWarnings("NotNullFieldNotInitialized")
-	private List<LoopSection> innerLoops;
+	// Used for toString
+	private int level;
+
+	private @UnknownNullability LoopSection loop;
+	private @UnknownNullability List<SectionExitHandler> sectionsToExit;
+	private int breakLevels;
 
 	@Override
-	@SuppressWarnings("unchecked")
-	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		List<LoopSection> currentLoops = getParser().getCurrentSections(LoopSection.class);
+    public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
+		level = matchedPattern == 0 ? 1 : Integer.parseInt(parseResult.regexes.get(0).group());
+		if (level < 1)
+			return false;
 
-		int size = currentLoops.size();
-		if (size == 0) {
+		ParserInstance parser = getParser();
+		int loops = parser.getCurrentSections(LoopSection.class).size();
+		if (loops == 0) {
 			Skript.error("The 'continue' effect may only be used in loops");
 			return false;
 		}
 
-		int level = matchedPattern == 0 ? size : ((Literal<Integer>) exprs[0]).getSingle();
-		if (level < 1) {
-			Skript.error("Can't continue the " + StringUtils.fancyOrderNumber(level) + " loop");
-			return false;
-		}
-		if (level > size) {
+		// Section.getSections counts from the innermost section, so we need to invert the level 
+		int levels = level == -1 ? 1 : loops - level + 1;
+		if (levels <= 0) {
 			Skript.error("Can't continue the " + StringUtils.fancyOrderNumber(level) + " loop as there " +
-				(size == 1 ? "is only 1 loop" : "are only " + size + " loops") + " present");
+				(loops == 1 ? "is only 1 loop" : "are only " + loops + " loops") + " present");
 			return false;
 		}
 
-		loop = currentLoops.get(level - 1);
-		innerLoops = currentLoops.subList(level, size);
+        List<TriggerSection> innerSections = parser.getSections(levels, LoopSection.class);
+		breakLevels = innerSections.size();
+		loop = (LoopSection) innerSections.remove(0);
+		sectionsToExit = innerSections.stream()
+			.filter(SectionExitHandler.class::isInstance)
+			.map(SectionExitHandler.class::cast)
+			.toList();
 		return true;
 	}
 
@@ -103,16 +108,21 @@ public class EffContinue extends Effect {
 	}
 
 	@Override
-	@Nullable
-	protected TriggerItem walk(Event event) {
-		for (LoopSection loop : innerLoops)
-			loop.exit(event);
+	protected @Nullable TriggerItem walk(Event event) {
+		debug(event, false);
+		for (SectionExitHandler section : sectionsToExit)
+			section.exit(event);
 		return loop;
 	}
 
 	@Override
+	public ExecutionIntent executionIntent() {
+		return ExecutionIntent.stopSections(breakLevels);
+	}
+
+	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return "continue";
+		return "continue" + (level == -1 ? "" : " the " + StringUtils.fancyOrderNumber(level) + " loop");
 	}
 
 }

@@ -1,0 +1,19 @@
+test "text display drop shadow":
+	spawn an item display at spawn of world "world":
+		set {_id} to entity
+
+	assert {_id} doesn't have drop shadow with "item display has drop shadow"
+	add drop shadow to {_id}
+	assert {_id} doesn't have drop shadow with "item display has drop shadow"
+
+	delete entity within {_id}
+	spawn a text display at spawn of world "world":
+		set {_td} to entity
+
+	assert {_td} doesn't have drop shadow with "text display has drop shadow by default"
+	add drop shadow to {_td}
+	assert {_td}'s text has drop shadow with "failed to set drop shadow"
+	remove drop shadow from text of {_td}
+	assert {_td}'s text doesn't have drop shadow with "failed to remove drop shadow"
+
+	delete entity within {_td}

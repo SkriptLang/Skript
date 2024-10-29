@@ -1,21 +1,3 @@
-/**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
 package ch.njol.skript.effects;
 
 import ch.njol.skript.Skript;
@@ -39,7 +21,7 @@ import org.jetbrains.annotations.Nullable;
 	"on spawn of creeper:",
 		"\tcharge the event-entity"
 })
-@Since("2.5")
+@Since("2.5, INSERT VERSION (wither skulls)")
 public class EffCharge extends Effect {
 
 	static {
@@ -48,9 +30,8 @@ public class EffCharge extends Effect {
 				"[:un](charge|power) %entities%");
 	}
 
-	@SuppressWarnings("null")
+	@SuppressWarnings("NotNullFieldNotInitialized")
 	private Expression<Entity> entities;
-
 	private boolean charge;
 
 	@SuppressWarnings({"unchecked", "null"})
@@ -64,11 +45,11 @@ public class EffCharge extends Effect {
 	@Override
 	protected void execute(Event event) {
 		for (Entity entity : entities.getArray(event)) {
-			if (entity instanceof Creeper) {
-				((Creeper) entity).setPowered(charge);
-			} else if (entity instanceof WitherSkull) {
-				((WitherSkull) entity).setCharged(charge);
-			}
+			if (entity instanceof Creeper creeper) {
+				creeper.setPowered(charge);
+			} else if (entity instanceof WitherSkull witherSkull) {
+				witherSkull.setCharged(charge);
+            }
 		}
 	}
 

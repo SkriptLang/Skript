@@ -47,6 +47,7 @@ import ch.njol.util.Closeable;
  * @see DatabaseStorage
  */
 // FIXME ! large databases (>25 MB) cause the server to be unresponsive instead of loading slowly
+@SuppressWarnings("SuspiciousIndentAfterControlStatement")
 public abstract class VariablesStorage implements Closeable {
 
 	/**
@@ -224,9 +225,24 @@ public abstract class VariablesStorage implements Closeable {
 			// Set the backup interval, if present & enabled
 			if (!"0".equals(getValue(sectionNode, "backup interval"))) {
 				Timespan backupInterval = getValue(sectionNode, "backup interval", Timespan.class);
-
+				int toKeep = getValue(sectionNode, "backups to keep", Integer.class);
+				boolean removeBackups = false;
+				boolean startBackup = true;
 				if (backupInterval != null)
-					startBackupTask(backupInterval);
+					if (toKeep == 0) {
+						startBackup = false;
+					} else if (toKeep >= 1) {
+						removeBackups = true;
+					}
+					if (startBackup) {
+						startBackupTask(backupInterval, removeBackups, toKeep);
+					} else {
+						try {
+							FileUtils.backupPurge(file, toKeep);
+						} catch (IOException e) {
+							Skript.error("Variables backup wipe failed: " + e.getLocalizedMessage());
+						}
+					}
 			}
 		}
 
@@ -307,11 +323,10 @@ public abstract class VariablesStorage implements Closeable {
 	 *
 	 * @param backupInterval the backup interval.
 	 */
-	public void startBackupTask(Timespan backupInterval) {
+	public void startBackupTask(Timespan backupInterval, boolean removeBackups, int toKeep) {
 		// File is null or backup interval is invalid
 		if (file == null || backupInterval.getTicks() == 0)
 			return;
-
 		backupTask = new Task(Skript.getInstance(), backupInterval.getTicks(), backupInterval.getTicks(), true) {
 			@Override
 			public void run() {
@@ -321,6 +336,13 @@ public abstract class VariablesStorage implements Closeable {
 					try {
 						// ..., then backup
 						FileUtils.backup(file);
+						if (removeBackups) {
+							try {
+								FileUtils.backupPurge(file, toKeep);
+							} catch (IOException | IllegalArgumentException e) {
+								Skript.error("Automatic variables backup purge failed: " + e.getLocalizedMessage());
+							}
+						}
 					} catch (IOException e) {
 						Skript.error("Automatic variables backup failed: " + e.getLocalizedMessage());
 					} finally {

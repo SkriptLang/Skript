@@ -1,0 +1,19 @@
+test "text display see through blocks":
+	spawn item display at spawn of world "world":
+		set {_id} to entity
+
+	assert {_id} isn't visible through walls with "item display can be seen through walls"
+	force {_id} to be visible through walls
+	assert {_id} isn't visible through walls with "item display can be seen through walls"
+
+	delete entity within {_id}
+	spawn text display at spawn of world "world":
+		set {_td} to entity
+
+	assert {_td} isn't visible through walls with "text display can be seen through walls by default"
+	force {_td} to be visible through walls
+	assert {_td} is visible through walls with "failed to make see through"
+	prevent {_td} from being visible through walls
+	assert {_td} isn't visible through walls with "failed to prevent see through"
+
+	delete entity within {_td}
