@@ -67,9 +67,8 @@ public class ExprTotalExperience extends SimplePropertyExpression<Object, Intege
 			return PlayerUtils.getTotalXP(player.getLevel(), player.getExp());
 
 		// experience points
-		if (object instanceof Experience experience) {
+		if (object instanceof Experience experience)
 			return experience.getXP();
-		}
 
 		// invalid type
 		return null;
@@ -77,7 +76,7 @@ public class ExprTotalExperience extends SimplePropertyExpression<Object, Intege
 
 	@Override
 	@Nullable
-	public Class<?>[] acceptChange(ChangeMode mode) {
+	public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
 		return switch (mode) {
 			case ADD, REMOVE, SET, DELETE, RESET -> new Class[]{Number.class};
 			default -> null;
@@ -124,6 +123,7 @@ public class ExprTotalExperience extends SimplePropertyExpression<Object, Intege
 							player.giveExp(change);
 						}
 					} else if (object instanceof Experience experience) {
+						// ensure we don't go below 0
 						xp = experience.getXP() + change;
 						experience.setXP(Math.max(xp, 0));
 					}
