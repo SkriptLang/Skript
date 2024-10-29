@@ -100,14 +100,15 @@ public abstract class PropertyExpression<F, T> extends SimpleExpression<T> {
 	/**
 	 * Sets the expression this expression represents a property of. No reference to the expression should be kept.
 	 *
-	 * @param expr
+	 * @param expr The expression this expression represents a property of.
 	 */
 	protected final void setExpr(@NotNull Expression<? extends F> expr) {
-		Preconditions.checkNotNull(expr, "The set expression cannot be null");
+		Preconditions.checkNotNull(expr, "The expr param cannot be null");
 		this.expr = expr;
 	}
 
 	public final @NotNull Expression<? extends F> getExpr() {
+		Preconditions.checkNotNull(expr, "expr cannot be null"); // would NPE if expr is used anyway
 		return expr;
 	}
 
