@@ -10,6 +10,7 @@ import ch.njol.util.Kleenean;
 import com.google.common.base.Preconditions;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.UnknownNullability;
 import org.skriptlang.skript.lang.converter.Converter;
 import org.skriptlang.skript.lang.converter.Converters;
 
@@ -95,7 +96,7 @@ public abstract class PropertyExpression<F, T> extends SimpleExpression<T> {
 		Skript.registerExpression(expressionClass, type, ExpressionType.PROPERTY, getDefaultPatterns(property, fromType));
 	}
 
-	private Expression<? extends F> expr;
+	private @UnknownNullability Expression<? extends F> expr;
 
 	/**
 	 * Sets the expression this expression represents a property of. No reference to the expression should be kept.
@@ -107,8 +108,7 @@ public abstract class PropertyExpression<F, T> extends SimpleExpression<T> {
 		this.expr = expr;
 	}
 
-	public final @NotNull Expression<? extends F> getExpr() {
-		Preconditions.checkNotNull(expr, "expr cannot be null"); // would NPE if expr is used anyway
+	public final @UnknownNullability Expression<? extends F> getExpr() {
 		return expr;
 	}
 
