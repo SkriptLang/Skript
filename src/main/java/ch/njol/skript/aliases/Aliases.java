@@ -51,10 +51,12 @@ public abstract class Aliases {
 	private final static RegexMessage p_every = new RegexMessage("aliases.every", "", " (.+)", Pattern.CASE_INSENSITIVE);
 	private final static RegexMessage p_of_every = new RegexMessage("aliases.of every", "(\\d+) ", " (.+)", Pattern.CASE_INSENSITIVE);
 	private final static RegexMessage p_of = new RegexMessage("aliases.of", "(\\d+) (?:", " )?(.+)", Pattern.CASE_INSENSITIVE);
+
 	/**
 	 * Go through these whenever aliases are reloaded, and update them.
 	 */
 	private static final Map<String, ItemType> trackedTypes = new HashMap<>();
+
 	/**
 	 * If user had an obscure config option set, don't crash due to missing
 	 * Java item types.
@@ -402,13 +404,14 @@ public abstract class Aliases {
 				Skript.debug(ChatColor.YELLOW + "Creating temporary alias for: " + key);
 			}
 		}
+
 		if (modItemRegistered) {
 			Skript.warning("==============================================================");
-			Skript.warning("We found some Materials, which are not registered by Minecraft.");
-			Skript.warning("For comfort of your coding, we register aliases from <MOD:AN_ITEM> to <mod's an item> or <an item from mod>");
-			Skript.warning("Please PAY ATTENTION: The Hybrid Servers are NOT supported now. We don't have enough energy to handle these now(maybe someday), sorry");
-			Skript.warning("So, DO NOT report any issues caused by this to us");
-			Skript.warning("The server will keep loading after 5 seconds");
+			Skript.warning("Some materials were found that seem to be modded.");
+			Skript.warning("An item that has the id 'mod:item' can be used as 'mod's item' or 'item from mod'.");
+			Skript.warning("WARNING: Skript does not officially support any modded servers.");
+			Skript.warning("Any issues you encounter related to modded items will be your responsibility to fix.");
+			Skript.warning("The server will keep loading after 5 seconds.");
 			Skript.warning("==============================================================");
 			try {
 				Thread.sleep(5000L);
