@@ -1,6 +1,5 @@
 package ch.njol.skript.expressions.base;
 
-
 import ch.njol.skript.Skript;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
@@ -8,8 +7,9 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.SyntaxElement;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
+import com.google.common.base.Preconditions;
 import org.bukkit.event.Event;
-import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.NotNull;
 import org.skriptlang.skript.lang.converter.Converter;
 import org.skriptlang.skript.lang.converter.Converters;
 
@@ -95,7 +95,6 @@ public abstract class PropertyExpression<F, T> extends SimpleExpression<T> {
 		Skript.registerExpression(expressionClass, type, ExpressionType.PROPERTY, getDefaultPatterns(property, fromType));
 	}
 
-	@Nullable
 	private Expression<? extends F> expr;
 
 	/**
@@ -103,11 +102,12 @@ public abstract class PropertyExpression<F, T> extends SimpleExpression<T> {
 	 *
 	 * @param expr
 	 */
-	protected final void setExpr(Expression<? extends F> expr) {
+	protected final void setExpr(@NotNull Expression<? extends F> expr) {
+		Preconditions.checkNotNull(expr, "The set expression cannot be null");
 		this.expr = expr;
 	}
 
-	public final Expression<? extends F> getExpr() {
+	public final @NotNull Expression<? extends F> getExpr() {
 		return expr;
 	}
 
