@@ -141,11 +141,11 @@ public class EffReplace extends Effect {
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
 		return formattedToString("replace %s %s in %s with %s %s",
-			option(replaceFirst, "first"),
+			replaceFirst ? "first" : "",
 			needles.toString(event, debug),
 			haystack.toString(event, debug),
 			replacement.toString(event, debug),
-			option(caseSensitive, "with case sensitivity"));
+			caseSensitive ? "with case sensitivity" : "");
 	}
 
 }

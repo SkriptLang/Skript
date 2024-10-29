@@ -30,14 +30,6 @@ public interface Debuggable {
 		return string.formatted(args).replaceAll("  +", " ");
 	}
 
-	default <T> T option(boolean condition, T ifTrue, T ifFalse) {
-		return condition ? ifTrue : ifFalse;
-	}
-
-	default <T> String option(boolean condition, T ifTrue) {
-		return condition ? ifTrue.toString() : "";
-	}
-
 	default <T> OptionalDebugParameter<T> optional(T value, Function<@NotNull T, String> ifNotNull) {
 		return optional(value, ifNotNull, "");
 	}
@@ -62,5 +54,7 @@ public interface Debuggable {
 		public String toString() {
 			return value != null ? ifNotNull.apply(value) : ifNull;
 		}
+
 	}
+
 }

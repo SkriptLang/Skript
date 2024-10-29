@@ -141,9 +141,9 @@ public class EffBan extends Effect {
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
 		return formattedToString("%s %s %s %s %s %s",
-			option(ipBan, "IP"),
+			ipBan ? "IP" : "",
 			ban ? "ban" : "unban",
-			option(kick, "and kick"),
+			kick ? "and kick" : "",
 			players.toString(event, debug),
 			optional(reason, reason -> "on account of " + reason.toString(event, debug)),
 			optional(expires, expires -> "for " + expires.toString(event, debug)));
