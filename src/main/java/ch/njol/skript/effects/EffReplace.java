@@ -31,6 +31,7 @@ import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionList;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.skript.lang.SyntaxStringBuilder;
 import ch.njol.util.Kleenean;
 import ch.njol.util.StringUtils;
 import org.bukkit.event.Event;
@@ -140,12 +141,20 @@ public class EffReplace extends Effect {
 	
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return formattedToString("replace %s %s in %s with %s %s",
-			replaceFirst ? "first" : "",
-			needles.toString(event, debug),
-			haystack.toString(event, debug),
-			replacement.toString(event, debug),
-			caseSensitive ? "with case sensitivity" : "");
+		SyntaxStringBuilder builder = new SyntaxStringBuilder(event, debug);
+
+		builder.add("replace");
+		if (replaceFirst)
+			builder.add("the first");
+		builder.add(needles);
+		builder.add("in");
+		builder.add(haystack);
+		builder.add("with");
+		builder.add(replacement);
+		if (caseSensitive)
+			builder.add("with case sensitivity");
+
+		return builder.toString();
 	}
 
 }

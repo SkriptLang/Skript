@@ -21,6 +21,7 @@ package ch.njol.skript.effects;
 import java.net.InetSocketAddress;
 import java.util.Date;
 
+import ch.njol.skript.lang.SyntaxStringBuilder;
 import org.bukkit.BanList;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
@@ -140,13 +141,20 @@ public class EffBan extends Effect {
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return formattedToString("%s %s %s %s %s %s",
-			ipBan ? "IP" : "",
-			ban ? "ban" : "unban",
-			kick ? "and kick" : "",
-			players.toString(event, debug),
-			optional(reason, reason -> "on account of " + reason.toString(event, debug)),
-			optional(expires, expires -> "for " + expires.toString(event, debug)));
+		SyntaxStringBuilder builder = new SyntaxStringBuilder(event, debug);
+
+		if (ipBan)
+			builder.add("IP");
+		builder.add(ban ? "ban" : "unban");
+		if (kick)
+			builder.add("and kick");
+		builder.add(players);
+		if (reason != null)
+			builder.add("on account of").add(reason);
+		if (expires != null)
+			builder.add("for").add(expires);
+
+		return builder.toString();
 	}
 
 }
