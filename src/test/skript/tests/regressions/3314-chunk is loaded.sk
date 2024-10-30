@@ -1,6 +1,6 @@
 test "chunk/world is loaded":
 	#Chunks
-	assert chunk at spawn of world "world" is loaded with "chunk at spawn should have been loaded"
+	assert chunk at test-location is loaded with "chunk at spawn should have been loaded"
 	set block at location(16, 1, 16, world "world") to dirt
 	assert chunk at 1, 1 in world "world" is loaded with "chunk at 1, 1 in world should have been loaded"
 	assert chunk at location(16, 1, 16, world "world") is loaded with "chunk at location(1, 1, 1, world ""world"") should be loaded"
