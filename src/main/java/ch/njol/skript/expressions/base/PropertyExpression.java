@@ -108,7 +108,7 @@ public abstract class PropertyExpression<F, T> extends SimpleExpression<T> {
 		this.expr = expr;
 	}
 
-	public final @UnknownNullability Expression<? extends F> getExpr() {
+	public final Expression<? extends F> getExpr() {
 		return expr;
 	}
 
