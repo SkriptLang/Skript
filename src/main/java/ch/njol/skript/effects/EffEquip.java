@@ -213,17 +213,18 @@ public class EffEquip extends Effect {
 				}
 			} else { // players and other entities
 				EntityEquipment equipment = entity.getEquipment();
+
 				if (equipment == null)
 					continue;
-				boolean isPlayer = entity instanceof Player;
+
 				if (isUnequipAll) { // shortcut
 					// We shouldn't affect player's inventory by removing anything other than armor
 					equipment.setHelmet(null);
 					equipment.setChestplate(null);
 					equipment.setLeggings(null);
 					equipment.setBoots(null);
-					if (isPlayer)
-						PlayerUtils.updateInventory((Player) entity);
+					if (entity instanceof Player player)
+						PlayerUtils.updateInventory(player);
 					continue;
 				}
 				for (ItemType itemType : itemTypes) {
@@ -237,13 +238,14 @@ public class EffEquip extends Effect {
 							equipment.setLeggings(equip ? item : null);
 						} else if (BOOTS.isOfType(item)) {
 							equipment.setBoots(equip ? item : null);
-						} else if (isEquipWith && isPlayer && item != null) { // only to players
-							((Player) entity).getInventory().addItem(item);
+						} else if (isEquipWith && entity instanceof Player player && item != null) { // only to players
+							player.getInventory().addItem(item);
 						}
 					}
 				}
-				if (isPlayer)
-					PlayerUtils.updateInventory((Player) entity);
+
+				if (entity instanceof Player player)
+					PlayerUtils.updateInventory(player);
 			}
 		}
 	}
