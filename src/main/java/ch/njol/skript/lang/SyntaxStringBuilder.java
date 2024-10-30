@@ -8,7 +8,8 @@ import org.jetbrains.annotations.Nullable;
 import java.util.StringJoiner;
 
 /**
- * Utility class to build syntax strings, used in {@link Debuggable#toString(Event, boolean)}.
+ * Utility class to build syntax strings, primarily intended for use
+ * in {@link Debuggable#toString(Event, boolean)} implementations.
  */
 public class SyntaxStringBuilder {
 
@@ -30,23 +31,29 @@ public class SyntaxStringBuilder {
 	/**
 	 * Adds an object to the string.
 	 * @param object The object to add.
-	 * @return This SyntaxStringBuilder.
 	 */
-	public SyntaxStringBuilder append(Object object) {
+	public void append(Object object) {
 		Preconditions.checkNotNull(object);
 		joiner.add(object.toString());
-		return this;
 	}
 
 	/**
 	 * Adds a {@link Debuggable} object to the string, which is usually an expression or literal.
 	 * @param debuggable The {@link Debuggable} to add.
-	 * @return This SyntaxStringBuilder.
 	 */
-	public SyntaxStringBuilder append(@NotNull Debuggable debuggable) {
+	public void append(@NotNull Debuggable debuggable) {
 		Preconditions.checkNotNull(debuggable);
 		joiner.add(debuggable.toString(event, debug));
-		return this;
+	}
+
+	/**
+	 * Adds multiple objects to the string.
+	 * @param objects The objects to add.
+	 */
+	public void append(@NotNull Object... objects) {
+		for (Object object : objects) {
+			append(object);
+		}
 	}
 
 	@Override

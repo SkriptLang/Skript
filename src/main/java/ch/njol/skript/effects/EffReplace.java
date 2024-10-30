@@ -146,11 +146,7 @@ public class EffReplace extends Effect {
 		builder.append("replace");
 		if (replaceFirst)
 			builder.append("the first");
-		builder.append(needles);
-		builder.append("in");
-		builder.append(haystack);
-		builder.append("with");
-		builder.append(replacement);
+		builder.append(needles, "in", haystack, "with", replacement);
 		if (caseSensitive)
 			builder.append("with case sensitivity");
 

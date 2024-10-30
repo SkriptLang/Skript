@@ -18,16 +18,6 @@
  */
 package ch.njol.skript.effects;
 
-import java.net.InetSocketAddress;
-import java.util.Date;
-
-import ch.njol.skript.lang.SyntaxStringBuilder;
-import org.bukkit.BanList;
-import org.bukkit.Bukkit;
-import org.bukkit.OfflinePlayer;
-import org.bukkit.entity.Player;
-import org.bukkit.event.Event;
-
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
@@ -36,9 +26,18 @@ import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.skript.lang.SyntaxStringBuilder;
 import ch.njol.skript.util.Timespan;
 import ch.njol.util.Kleenean;
+import org.bukkit.BanList;
+import org.bukkit.Bukkit;
+import org.bukkit.OfflinePlayer;
+import org.bukkit.entity.Player;
+import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+
+import java.net.InetSocketAddress;
+import java.util.Date;
 
 @Name("Ban")
 @Description({"Bans or unbans a player or an IP address.",
@@ -150,9 +149,9 @@ public class EffBan extends Effect {
 			builder.append("and kick");
 		builder.append(players);
 		if (reason != null)
-			builder.append("on account of").append(reason);
+			builder.append("on account of", reason);
 		if (expires != null)
-			builder.append("for").append(expires);
+			builder.append("for", expires);
 
 		return builder.toString();
 	}
