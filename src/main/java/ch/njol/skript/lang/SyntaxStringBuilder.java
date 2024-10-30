@@ -30,20 +30,17 @@ public class SyntaxStringBuilder {
 
 	/**
 	 * Adds an object to the string.
+	 * If the object is a {@link Debuggable} it will be formatted using {@link Debuggable#toString(Event, boolean)}.
+	 *
 	 * @param object The object to add.
 	 */
-	public void append(Object object) {
+	public void append(@NotNull Object object) {
 		Preconditions.checkNotNull(object);
-		joiner.add(object.toString());
-	}
-
-	/**
-	 * Adds a {@link Debuggable} object to the string, which is usually an expression or literal.
-	 * @param debuggable The {@link Debuggable} to add.
-	 */
-	public void append(@NotNull Debuggable debuggable) {
-		Preconditions.checkNotNull(debuggable);
-		joiner.add(debuggable.toString(event, debug));
+		if (object instanceof Debuggable debuggable) {
+			joiner.add(debuggable.toString(event, debug));
+		} else {
+			joiner.add(object.toString());
+		}
 	}
 
 	/**
