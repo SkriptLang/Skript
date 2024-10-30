@@ -113,18 +113,22 @@ public class EffEquip extends Effect {
 	private @Nullable Expression<ItemType> itemTypes;
 	private boolean isEquipWith;
 	private boolean isHat;
-	private boolean equip = true;
+	private boolean equip;
+	private boolean isUnequipAll;
 
 	@Override
 	public boolean init(Expression<?>[] expressions, int matchedPattern,
 						Kleenean isDelayed, ParseResult parser) {
 		isEquipWith = matchedPattern == 0;
+		isUnequipAll = matchedPattern == 3;
 		isHat = parser.hasTag("hat");
+
 		if (matchedPattern == 0 || matchedPattern == 1) {
 			//noinspection unchecked
 			entities = (Expression<LivingEntity>) expressions[0];
 			//noinspection unchecked
 			itemTypes = (Expression<ItemType>) expressions[1];
+			equip = true;
 		} else if (matchedPattern == 2) {
 			//noinspection unchecked
 			itemTypes = (Expression<ItemType>) expressions[0];
@@ -147,7 +151,6 @@ public class EffEquip extends Effect {
 		} else {
 			itemTypes = new ItemType[0];
 		}
-		boolean isUnequipAll = !equip && itemTypes.length == 0;
 		for (LivingEntity entity : entities.getArray(event)) {
 			if (SUPPORTS_STEERABLE && entity instanceof Steerable steerable) {
 				if (isUnequipAll) { // shortcut
