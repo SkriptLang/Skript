@@ -36,7 +36,7 @@ import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.entity.EntityType;
 import org.bukkit.event.Event;
 import org.bukkit.event.player.PlayerEggThrowEvent;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 @Name("Hatching Entity Type")
 @Description("The type of the entity that will be hatched in a Player Egg Throw event.")

@@ -20,7 +20,7 @@ package ch.njol.skript.util;
 
 import java.util.TimeZone;
 
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.SkriptConfig;
 import ch.njol.yggdrasil.YggdrasilSerializable;
