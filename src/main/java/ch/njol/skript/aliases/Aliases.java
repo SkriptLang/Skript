@@ -31,11 +31,6 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import org.bukkit.ChatColor;
-import org.bukkit.Material;
-import org.bukkit.NamespacedKey;
-import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.lang.script.Script;
 
 public abstract class Aliases {
 	static final boolean USING_ITEM_COMPONENTS = Skript.isRunningMinecraft(1, 20, 5);
