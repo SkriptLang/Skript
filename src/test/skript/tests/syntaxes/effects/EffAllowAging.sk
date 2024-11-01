@@ -1,0 +1,10 @@
+test "allow aging":
+	set {_spawn} to spawn of world "world"
+	spawn baby pig at {_spawn}
+	set {_pig} to last spawned pig
+	assert {_pig} can age with "baby pig can't age before locking"
+	lock age of {_pig}
+	assert {_pig} can't age with "baby pig can still age after locking"
+	unlock age of {_pig}
+	assert {_pig} can age with "baby pig can't age after unlocking"
+	delete all pigs
