@@ -7,12 +7,17 @@ import ch.njol.skript.lang.SkriptParser;
 import org.bukkit.Material;
 import org.bukkit.entity.Boat;
 import org.bukkit.entity.ChestBoat;
+import org.bukkit.entity.boat.*;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.EnumMap;
 import java.util.Locale;
 import java.util.Random;
 
 public class BoatChestData extends EntityData<ChestBoat> {
+
+	private static final boolean IS_RUNNING_1_21_3 = Skript.isRunningMinecraft(1, 21, 3);
+	private static final EnumMap<Boat.Type, Class<? extends ChestBoat>> typeToClassMap = new EnumMap<>(Boat.Type.class);
 
 	private static final Boat.Type[] types = Boat.Type.values();
 
@@ -29,6 +34,18 @@ public class BoatChestData extends EntityData<ChestBoat> {
 			else
 				boatName = boat.toString().replace("_", " ").toLowerCase(Locale.ENGLISH) + " chest boat";
 			patterns[boat.ordinal() + 2] = boatName;
+		}
+
+		if (IS_RUNNING_1_21_3) {
+			typeToClassMap.put(Boat.Type.OAK, OakChestBoat.class);
+			typeToClassMap.put(Boat.Type.SPRUCE, SpruceChestBoat.class);
+			typeToClassMap.put(Boat.Type.BIRCH, BirchChestBoat.class);
+			typeToClassMap.put(Boat.Type.JUNGLE, JungleChestBoat.class);
+			typeToClassMap.put(Boat.Type.ACACIA, AcaciaChestBoat.class);
+			typeToClassMap.put(Boat.Type.DARK_OAK, DarkOakChestBoat.class);
+			typeToClassMap.put(Boat.Type.MANGROVE, MangroveChestBoat.class);
+			typeToClassMap.put(Boat.Type.CHERRY, CherryChestBoat.class);
+			typeToClassMap.put(Boat.Type.BAMBOO, BambooChestRaft.class);
 		}
 
 		if (Skript.classExists("org.bukkit.entity.ChestBoat")) {
@@ -65,7 +82,7 @@ public class BoatChestData extends EntityData<ChestBoat> {
 		if (matchedPattern == 1) // If the type is 'any boat'.
 			matchedPattern += new Random().nextInt(Boat.Type.values().length); // It will spawn a random boat type in case is 'any boat'.
 		if (matchedPattern > 1) // 0 and 1 are excluded
-			entity.setBoatType(Boat.Type.values()[matchedPattern - 2]); // Removes 2 to fix the index.
+			entity.setBoatType(types[matchedPattern - 2]); // Removes 2 to fix the index.
 	}
 
 	@Override
@@ -75,6 +92,8 @@ public class BoatChestData extends EntityData<ChestBoat> {
 
 	@Override
 	public Class<? extends ChestBoat> getType() {
+		if (IS_RUNNING_1_21_3)
+			return typeToClassMap.get(types[matchedPattern - 2]);
 		return ChestBoat.class;
 	}
 

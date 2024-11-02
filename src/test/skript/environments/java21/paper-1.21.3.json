@@ -1,11 +1,11 @@
 {
-	"name": "paper-1.21.0",
+	"name": "paper-1.21.3",
 	"resources": [
 		{"source": "server.properties.generic", "target": "server.properties"}
 	],
 	"paperDownloads": [
 		{
-			"version": "1.21",
+			"version": "1.21.3",
 			"target": "paperclip.jar"
 		}
 	],
