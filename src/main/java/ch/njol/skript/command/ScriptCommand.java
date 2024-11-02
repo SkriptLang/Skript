@@ -555,11 +555,11 @@ public class ScriptCommand implements TabExecutor {
 
 	public long getElapsedMilliseconds(UUID uuid, Event event) {
 		Date lastUsage = getLastUsage(uuid, event);
-		return lastUsage == null ? 0 : new Date().getTimestamp() - lastUsage.getTimestamp();
+		return lastUsage == null ? 0 : Date.now().getTime() - lastUsage.getTime();
 	}
 
 	public void setElapsedMilliSeconds(UUID uuid, Event event, long milliseconds) {
-		Date date = new Date();
+		Date date = Date.now();
 		date.subtract(new Timespan(milliseconds));
 		setLastUsage(uuid, event, date);
 	}

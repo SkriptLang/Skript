@@ -22,7 +22,7 @@ public class ExprUnixTicks extends SimplePropertyExpression<Date, Number> {
 	@Override
 	@Nullable
 	public Number convert(Date f) {
-		return f.getTimestamp() / 1000.0;
+		return f.getTime() / 1000.0;
 	}
 
 	@Override

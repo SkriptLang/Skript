@@ -100,7 +100,7 @@ public class ExprFormatDate extends PropertyExpression<Date, String> {
 		return get(source, new Getter<String, Date>() {
 			@Override
 			public String get(Date date) {
-				return format.format(new java.util.Date(date.getTimestamp()));
+				return format.format(date);
 			}
 		});
 	}
