@@ -6,7 +6,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.TimeZone;
 
-public class Date implements Comparable<Date>, YggdrasilSerializable {
+public class Date extends java.util.Date implements YggdrasilSerializable {
 
 	/**
 	 * Get a new Date with the current time
@@ -36,7 +36,7 @@ public class Date implements Comparable<Date>, YggdrasilSerializable {
 	 * Creates a new Date with the current time.
 	 */
 	public Date() {
-		this(System.currentTimeMillis());
+		super(System.currentTimeMillis());
 	}
 
 	/**
@@ -45,7 +45,7 @@ public class Date implements Comparable<Date>, YggdrasilSerializable {
 	 * @param timestamp The timestamp in milliseconds.
 	 */
 	public Date(long timestamp) {
-		this.timestamp = timestamp;
+		super(timestamp);
 	}
 
 	/**
@@ -55,8 +55,27 @@ public class Date implements Comparable<Date>, YggdrasilSerializable {
 	 * @param zone The timezone to use.
 	 */
 	public Date(long timestamp, TimeZone zone) {
-		long offset = zone.getOffset(timestamp);
-		this.timestamp = timestamp - offset;
+		super(timestamp - zone.getOffset(timestamp));
+	}
+
+	/**
+	 * Add a {@link Timespan} to this date
+	 *
+	 * @param other Timespan to add
+	 */
+	public void add(Timespan other) {
+		timestamp += other.getAs(Timespan.TimePeriod.MILLISECOND);
+		setTime(timestamp);
+	}
+
+	/**
+	 * Subtract a {@link Timespan} from this date
+	 *
+	 * @param other Timespan to subtract
+	 */
+	public void subtract(Timespan other) {
+		timestamp -= other.getAs(Timespan.TimePeriod.MILLISECOND);
+		setTime(timestamp);
 	}
 
 	/**
@@ -69,24 +88,6 @@ public class Date implements Comparable<Date>, YggdrasilSerializable {
 		return new Timespan(Math.abs(timestamp - other.timestamp));
 	}
 
-	/**
-	 * Add a {@link Timespan} to this date
-	 *
-	 * @param other Timespan to add
-	 */
-	public void add(Timespan other) {
-		timestamp += other.getAs(Timespan.TimePeriod.MILLISECOND);
-	}
-	
-	/**
-	 * Subtract a {@link Timespan} from this date
-	 *
-	 * @param other Timespan to subtract
-	 */
-	public void subtract(Timespan other) {
-		timestamp -= other.getAs(Timespan.TimePeriod.MILLISECOND);
-	}
-	
 	/**
 	 * Get a new instance of this Date with the added timespan
 	 *
@@ -108,23 +109,13 @@ public class Date implements Comparable<Date>, YggdrasilSerializable {
 	}
 
 	/**
-	 * Get the timestamp of this date
-	 *
-	 * @return The timestamp in milliseconds
+	 * @deprecated Use {@link #getTime()} instead.
 	 */
+	@Deprecated
 	public long getTimestamp() {
 		return timestamp;
 	}
 
-	/**
-	 * Convert this Date to a {@link java.util.Date}.
-	 *
-	 * @return The converted Date.
-	 */
-	public java.util.Date toJavaDate() {
-		return new java.util.Date(timestamp);
-	}
-	
 	@Override
 	public int hashCode() {
 		int prime = 31;
@@ -139,15 +130,15 @@ public class Date implements Comparable<Date>, YggdrasilSerializable {
 			return true;
 		if (obj == null)
 			return false;
-		if (!(obj instanceof Date other))
+		if (!(obj instanceof java.util.Date other))
 			return false;
 
-		return timestamp == other.timestamp;
+		return timestamp == other.getTime();
 	}
 
 	@Override
-	public int compareTo(@Nullable Date other) {
-		long delta = other == null ? timestamp : timestamp - other.timestamp;
+	public int compareTo(java.util.Date other) {
+		long delta = other == null ? timestamp : timestamp - other.getTime();
 		return delta < 0 ? -1 : delta > 0 ? 1 : 0;
 	}
 
