@@ -20,4 +20,11 @@ public class DateTest {
 		assertEquals(javaDate.getTime(), date.getTime());
 	}
 
+	@Test
+	public void testEquals() {
+		Date date1 = new Date(1000);
+		Date date2 = new Date(1000);
+		assertEquals(date1, date2);
+	}
+
 }
