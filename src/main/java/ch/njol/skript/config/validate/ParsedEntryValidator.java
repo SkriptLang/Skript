@@ -22,7 +22,8 @@ import ch.njol.skript.classes.Parser;
 import ch.njol.skript.config.EntryNode;
 import ch.njol.skript.config.Node;
 import ch.njol.skript.lang.ParseContext;
-import ch.njol.util.Setter;
+
+import java.util.function.Consumer;
 
 /**
  * @author Peter Güttinger
@@ -30,9 +31,9 @@ import ch.njol.util.Setter;
 public class ParsedEntryValidator<T> extends EntryValidator {
 	
 	private final Parser<? extends T> parser;
-	private final Setter<T> setter;
+	private final Consumer<T> setter;
 	
-	public ParsedEntryValidator(final Parser<? extends T> parser, final Setter<T> setter) {
+	public ParsedEntryValidator(final Parser<? extends T> parser, final Consumer<T> setter) {
 		assert parser != null;
 		assert setter != null;
 		this.parser = parser;
@@ -46,7 +47,7 @@ public class ParsedEntryValidator<T> extends EntryValidator {
 		final T t = parser.parse(((EntryNode) node).getValue(), ParseContext.CONFIG);
 		if (t == null)
 			return false;
-		setter.set(t);
+		setter.accept(t);
 		return true;
 	}
 	

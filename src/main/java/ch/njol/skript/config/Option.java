@@ -5,11 +5,11 @@ import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.classes.Parser;
 import ch.njol.skript.lang.ParseContext;
 import ch.njol.skript.registrations.Classes;
-import ch.njol.util.Setter;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.converter.Converter;
 
 import java.util.Locale;
+import java.util.function.Consumer;
 
 /**
  * @author Peter Güttinger
@@ -26,7 +26,7 @@ public class Option<T> {
 	private T parsedValue;
 	
 	@Nullable
-	private Setter<? super T> setter;
+	private Consumer<? super T> setter;
 	
 	public Option(final String key, final T defaultValue) {
 		this.key = "" + key.toLowerCase(Locale.ENGLISH);
@@ -68,7 +68,7 @@ public class Option<T> {
 		this.parser = parser;
 	}
 	
-	public final Option<T> setter(final Setter<? super T> setter) {
+	public final Option<T> setter(Consumer<? super T> setter) {
 		this.setter = setter;
 		return this;
 	}
@@ -94,7 +94,7 @@ public class Option<T> {
 	
 	protected void onValueChange() {
 		if (setter != null)
-			setter.set(parsedValue);
+			setter.accept(parsedValue);
 	}
 	
 	public final T value() {

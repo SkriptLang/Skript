@@ -19,8 +19,9 @@
 package ch.njol.util;
 
 /**
- * @author Peter Güttinger
+ * @deprecated Unused in Skript. Use {@link java.util.function.Consumer} instead.
  */
+@Deprecated(forRemoval = true)
 public interface Setter<T> {
 	
 	public void set(T t);
