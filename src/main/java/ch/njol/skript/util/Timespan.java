@@ -271,10 +271,7 @@ public class Timespan implements YggdrasilSerializable, Comparable<Timespan>, Te
 
 	@Override
 	public int hashCode() {
-		int prime = 31;
-		int result = 1;
-		result = prime * result + (int) (millis / Integer.MAX_VALUE);
-		return result;
+		return 31 + (int) (millis / Integer.MAX_VALUE);
 	}
 
 	@Override
@@ -283,10 +280,10 @@ public class Timespan implements YggdrasilSerializable, Comparable<Timespan>, Te
 			return true;
 		if (obj == null)
 			return false;
-		if (!(obj instanceof Timespan))
+		if (!(obj instanceof Timespan other))
 			return false;
 
-		return millis == ((Timespan) obj).millis;
+		return millis == other.millis;
 	}
 
 	public Duration getDuration() {
@@ -331,6 +328,9 @@ public class Timespan implements YggdrasilSerializable, Comparable<Timespan>, Te
 		return temporal.minus(millis, MILLIS);
 	}
 
+	/**
+	 * Represents the unit used for the current {@link Timespan}.
+	 */
 	public enum TimePeriod implements TemporalUnit {
 
 		MILLISECOND(1L),

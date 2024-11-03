@@ -134,7 +134,7 @@ public abstract class SQLStorage extends VariablesStorage {
 			if (monitor_changes == null || monitor_interval == null)
 				return false;
 			monitor = monitor_changes;
-			this.monitor_interval = monitor_interval.getMilliSeconds();
+			this.monitor_interval = monitor_interval.getAs(Timespan.TimePeriod.MILLISECOND);
 
 			final Database db;
 			try {
