@@ -59,7 +59,7 @@ public class SkriptCommandTabCompleter implements TabCompleter {
 
 			// Live update, this will get all old and new (even not loaded) scripts
 			// TODO Find a better way for caching, it isn't exactly ideal to be calling this method constantly
-			try (Stream<Path> files = Files.walk(scripts.toPath())) {
+			try (Stream<Path> files = Files.walk(scripts.toPath(), java.nio.file.FileVisitOption.FOLLOW_LINKS)) {
 				files.map(Path::toFile)
 					.forEach(file -> {
 						if (!(enable ? ScriptLoader.getDisabledScriptsFilter() : ScriptLoader.getLoadedScriptsFilter()).accept(file))
@@ -68,6 +68,17 @@ public class SkriptCommandTabCompleter implements TabCompleter {
 						// Ignore hidden files like .git/ for users that use git source control.
 						if (file.isHidden())
 							return;
+
+						// When following a soft link on linux, additional processing may be required to detect whether the content pointed to by the symbolic link exists
+						if (Files.isSymbolicLink(file.toPath())) {
+							try {
+								Path resolvedPath = file.toPath().toRealPath();
+								if (!Files.exists(resolvedPath))
+									return;
+							} catch (Exception e) {
+								return;
+							}
+						}
 
 						String fileString = file.toString().substring(scriptsPathLength);
 						if (fileString.isEmpty())
