@@ -237,7 +237,6 @@ public class Timespan implements YggdrasilSerializable, Comparable<Timespan>, Te
 		return toString(millis, 0);
 	}
 
-	@SuppressWarnings("null")
 	public static String toString(long millis, int flags) {
 		for (int i = 0; i < SIMPLE_VALUES.size() - 1; i++) {
 			NonNullPair<Noun, Long> pair = SIMPLE_VALUES.get(i);
