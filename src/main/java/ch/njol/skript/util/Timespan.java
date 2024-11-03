@@ -20,7 +20,7 @@ import java.util.regex.Pattern;
 import static java.time.temporal.ChronoUnit.MILLIS;
 
 /**
- * Represents an amount of time, such as 2 days.
+ * Represents a duration of time, such as 2 days, similar to {@link Duration}.
  */
 public class Timespan implements YggdrasilSerializable, Comparable<Timespan>, TemporalAmount { // REMIND unit
 
@@ -78,7 +78,7 @@ public class Timespan implements YggdrasilSerializable, Comparable<Timespan>, Te
 				offset = 1;
 
 			for (int i = 0; i < substring.length; i++) {
-				totalMillis += times[offset + i] * Utils.parseLong("" + substring[i]);
+				totalMillis += times[offset + i] * Utils.parseLong(substring[i]);
 			}
 		} else { // <number> minutes/seconds/.. etc
 			String[] substring = value.toLowerCase(Locale.ENGLISH).split("\\s+");
@@ -144,6 +144,35 @@ public class Timespan implements YggdrasilSerializable, Comparable<Timespan>, Te
 		return new Timespan(totalMillis);
 	}
 
+	public static Timespan fromDuration(Duration duration) {
+		return new Timespan(duration.toMillis());
+	}
+
+	public static String toString(long millis) {
+		return toString(millis, 0);
+	}
+
+	public static String toString(long millis, int flags) {
+		for (int i = 0; i < SIMPLE_VALUES.size() - 1; i++) {
+			NonNullPair<Noun, Long> pair = SIMPLE_VALUES.get(i);
+			long second1 = pair.getSecond();
+			if (millis >= second1) {
+				long remainder = millis % second1;
+				double second = 1. * remainder / SIMPLE_VALUES.get(i + 1).getSecond();
+				if (!"0".equals(Skript.toString(second))) { // bad style but who cares...
+					return toString(Math.floor(1. * millis / second1), pair, flags) + " " + GeneralWords.and + " " + toString(remainder, flags);
+				} else {
+					return toString(1. * millis / second1, pair, flags);
+				}
+			}
+		}
+		return toString(1. * millis / SIMPLE_VALUES.get(SIMPLE_VALUES.size() - 1).getSecond(), SIMPLE_VALUES.get(SIMPLE_VALUES.size() - 1), flags);
+	}
+
+	private static String toString(double amount, NonNullPair<Noun, Long> pair, int flags) {
+		return pair.getFirst().withAmount(amount, flags);
+	}
+
 	private final long millis;
 
 	public Timespan() {
@@ -172,10 +201,6 @@ public class Timespan implements YggdrasilSerializable, Comparable<Timespan>, Te
 	}
 
 	/**
-	 * Builds a Timespan from the given long parameter.
-	 *
-	 * @param ticks The amount of Minecraft ticks to convert to a timespan.
-	 * @return Timespan based on the provided long.
 	 * @deprecated Use {@link #Timespan(TimePeriod, long)}
 	 */
 	@Deprecated(forRemoval = true)
@@ -192,7 +217,6 @@ public class Timespan implements YggdrasilSerializable, Comparable<Timespan>, Te
 	}
 
 	/**
-	 * @return the amount of milliseconds this timespan represents.
 	 * @deprecated Use {@link Timespan#getAs(TimePeriod)}
 	 */
 	@Deprecated(forRemoval = true)
@@ -201,7 +225,6 @@ public class Timespan implements YggdrasilSerializable, Comparable<Timespan>, Te
 	}
 
 	/**
-	 * @return the amount of Minecraft ticks this timespan represents.
 	 * @deprecated Use {@link Timespan#getAs(TimePeriod)}
 	 */
 	@Deprecated(forRemoval = true)
@@ -224,82 +247,21 @@ public class Timespan implements YggdrasilSerializable, Comparable<Timespan>, Te
 		return millis / timePeriod.getTime();
 	}
 
-	@Override
-	public String toString() {
-		return toString(millis);
-	}
-
-	public String toString(int flags) {
-		return toString(millis, flags);
-	}
-
-	public static String toString(long millis) {
-		return toString(millis, 0);
-	}
-
-	public static String toString(long millis, int flags) {
-		for (int i = 0; i < SIMPLE_VALUES.size() - 1; i++) {
-			NonNullPair<Noun, Long> pair = SIMPLE_VALUES.get(i);
-			long second1 = pair.getSecond();
-			if (millis >= second1) {
-				long remainder = millis % second1;
-				double second = 1. * remainder / SIMPLE_VALUES.get(i + 1).getSecond();
-				if (!"0".equals(Skript.toString(second))) { // bad style but who cares...
-					return toString(Math.floor(1. * millis / second1), pair, flags) + " " + GeneralWords.and + " " + toString(remainder, flags);
-				} else {
-					return toString(1. * millis / second1, pair, flags);
-				}
-			}
-		}
-		return toString(1. * millis / SIMPLE_VALUES.get(SIMPLE_VALUES.size() - 1).getSecond(), SIMPLE_VALUES.get(SIMPLE_VALUES.size() - 1), flags);
-	}
-
-	private static String toString(double amount, NonNullPair<Noun, Long> pair, int flags) {
-		return pair.getFirst().withAmount(amount, flags);
-	}
-
 	/**
-	 * Compare this Timespan with another
-	 *
-	 * @param time the Timespan to be compared.
-	 * @return -1 if this Timespan is less than argument Timespan, 0 if equals and 1 if greater than
+	 * @return Converts this timespan to a {@link Duration}.
 	 */
-	@Override
-	public int compareTo(@Nullable Timespan time) {
-		return Long.compare(millis, time == null ? millis : time.millis);
-	}
-
-	@Override
-	public int hashCode() {
-		return 31 + (int) (millis / Integer.MAX_VALUE);
-	}
-
-	@Override
-	public boolean equals(@Nullable Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (!(obj instanceof Timespan other))
-			return false;
-
-		return millis == other.millis;
-	}
-
 	public Duration getDuration() {
 		return Duration.ofMillis(millis);
-	}
-
-	public static Timespan fromDuration(Duration duration) {
-		return new Timespan(duration.toMillis());
 	}
 
 	@Override
 	public long get(TemporalUnit unit) {
 		if (unit instanceof TimePeriod period)
 			return this.getAs(period);
+
 		if (!(unit instanceof ChronoUnit chrono))
 			throw new UnsupportedTemporalTypeException("Not a supported temporal unit: " + unit);
+
 		return switch (chrono) {
 			case MILLIS -> this.getAs(TimePeriod.MILLISECOND);
 			case SECONDS -> this.getAs(TimePeriod.SECOND);
@@ -326,6 +288,37 @@ public class Timespan implements YggdrasilSerializable, Comparable<Timespan>, Te
 	@Override
 	public Temporal subtractFrom(Temporal temporal) {
 		return temporal.minus(millis, MILLIS);
+	}
+
+	@Override
+	public int compareTo(@Nullable Timespan time) {
+		return Long.compare(millis, time == null ? millis : time.millis);
+	}
+
+	@Override
+	public int hashCode() {
+		return 31 + (int) (millis / Integer.MAX_VALUE);
+	}
+
+	@Override
+	public boolean equals(@Nullable Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (!(obj instanceof Timespan other))
+			return false;
+
+		return millis == other.millis;
+	}
+
+	@Override
+	public String toString() {
+		return toString(millis);
+	}
+
+	public String toString(int flags) {
+		return toString(millis, flags);
 	}
 
 	/**
