@@ -59,7 +59,7 @@ public class SkriptCommandTabCompleter implements TabCompleter {
 
 			// Live update, this will get all old and new (even not loaded) scripts
 			// TODO Find a better way for caching, it isn't exactly ideal to be calling this method constantly
-			try (Stream<Path> files = Files.walk(scripts.toPath(), java.nio.file.FileVisitOption.FOLLOW_LINKS)) {
+			try (Stream<Path> files = Files.walk(scripts.toPath(), FileVisitOption.FOLLOW_LINKS)) {
 				files.map(Path::toFile)
 					.forEach(file -> {
 						if (!(enable ? ScriptLoader.getDisabledScriptsFilter() : ScriptLoader.getLoadedScriptsFilter()).accept(file))
