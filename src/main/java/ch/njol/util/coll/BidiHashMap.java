@@ -26,7 +26,7 @@ import java.util.Set;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * @deprecated Unused in Skript. Use {@link java.util.LinkedHashMap} instead.
+ * @deprecated Unused in Skript. Use {@link com.google.common.collect.BiMap} instead.
  */
 @Deprecated(forRemoval = true)
 public class BidiHashMap<T1, T2> extends HashMap<T1, T2> implements BidiMap<T1, T2> {

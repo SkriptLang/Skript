@@ -22,7 +22,7 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * @deprecated Unused in Skript. Use {@link java.util.LinkedHashMap} instead.
+ * @deprecated Unused in Skript. Use {@link com.google.common.collect.BiMap} instead.
  */
 @Deprecated(forRemoval = true)
 public interface BidiMap<T1, T2> extends Map<T1, T2> {
