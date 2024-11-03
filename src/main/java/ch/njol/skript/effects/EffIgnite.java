@@ -99,7 +99,7 @@ public class EffIgnite extends Effect {
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
 		if (ignite)
-			return "set " + entities.toString(event, debug) + " on fire for " + (duration != null ? duration.toString(event, debug) : Timespan.fromTicks(DEFAULT_DURATION).toString());
+			return "set " + entities.toString(event, debug) + " on fire for " + (duration != null ? duration.toString(event, debug) : new Timespan(Timespan.TimePeriod.TICK, DEFAULT_DURATION).toString());
 		else
 			return "extinguish " + entities.toString(event, debug);
 	}

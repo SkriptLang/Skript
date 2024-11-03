@@ -43,7 +43,7 @@ public class ExprFireTicks extends SimplePropertyExpression<Entity, Timespan> {
 	@Override
 	@Nullable
 	public Timespan convert(Entity entity) {
-		return Timespan.fromTicks(Math.max(entity.getFireTicks(), 0));
+		return new Timespan(Timespan.TimePeriod.TICK, Math.max(entity.getFireTicks(), 0));
 	}
 
 	@Override
