@@ -2,6 +2,7 @@ package ch.njol.skript.util;
 
 import ch.njol.skript.SkriptConfig;
 import ch.njol.yggdrasil.YggdrasilSerializable;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.TimeZone;
 
@@ -121,6 +122,17 @@ public class Date extends java.util.Date implements YggdrasilSerializable {
 		int result = 1;
 		result = prime * result + Long.hashCode(timestamp);
 		return result;
+	}
+
+	@Override
+	public boolean equals(@Nullable Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (!(obj instanceof Date other))
+			return false;
+		return timestamp == other.timestamp;
 	}
 
 	@Override
