@@ -119,11 +119,10 @@ public interface Annotation extends CharSequence {
 
 		@Override
 		public boolean equals(Object obj) {
-			if (obj instanceof Annotation)
-				return Objects.equals(this.value(), ((Annotation) obj).value())
+			if (obj instanceof Annotation other)
+				return Objects.equals(this.value(), other.value())
 					|| annotation.equals(obj);
-			else
-				return false;
+			return false;
 		}
 
 	}
@@ -145,10 +144,9 @@ final class SimpleAnnotation implements Annotation, CharSequence {
 
 	@Override
 	public boolean equals(Object obj) {
-		if (obj instanceof Annotation)
-			return Objects.equals(value, ((Annotation) obj).value());
-		else
-			return false;
+		if (obj instanceof Annotation annotation)
+			return Objects.equals(value, annotation.value());
+		return false;
 	}
 
 	@Override

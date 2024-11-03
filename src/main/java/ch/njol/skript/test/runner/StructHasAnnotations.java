@@ -25,13 +25,13 @@ public class StructHasAnnotations extends Structure {
 	@Override
 	public boolean init(Literal<?>[] args, int matchedPattern, SkriptParser.ParseResult parseResult, @Nullable EntryContainer entryContainer) {
 		this.not = matchedPattern == 1;
-		boolean hasNone = ParserInstance.get().copyAnnotations().isEmpty();
+		boolean hasNone = getParser().copyAnnotations().isEmpty();
 		return not == hasNone;
 	}
 
 	@Override
 	public boolean load() {
-		return false;
+		return true;
 	}
 
 	@Override
