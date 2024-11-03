@@ -88,7 +88,7 @@ public class SecFor extends SecLoop {
 		}
 		//</editor-fold>
 		//<editor-fold desc="Check our input expressions are safe/correct" defaultstate="collapsed">
-		if (!(keyStore instanceof Variable || keyStore == null)) {
+		if (keyStore != null && !(keyStore instanceof Variable)) {
 			Skript.error("The 'key' input for a for-loop must be a variable to store the value.");
 			return false;
 		}
