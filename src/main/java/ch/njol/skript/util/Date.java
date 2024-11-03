@@ -118,10 +118,7 @@ public class Date extends java.util.Date implements YggdrasilSerializable {
 
 	@Override
 	public int hashCode() {
-		int prime = 31;
-		int result = 1;
-		result = prime * result + Long.hashCode(timestamp);
-		return result;
+		return 31 + Long.hashCode(timestamp);
 	}
 
 	@Override
