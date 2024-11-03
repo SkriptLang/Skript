@@ -45,6 +45,7 @@ import org.bukkit.configuration.serialization.ConfigurationSerialization;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.UnmodifiableView;
 import org.skriptlang.skript.lang.converter.Converters;
 
 import java.lang.reflect.Constructor;
@@ -147,13 +148,13 @@ public class Variables {
 	/**
 	 * @return a copy of the list of variable storage handlers
 	 */
-	public static List<VariablesStorage> getStores() {
+	public static @UnmodifiableView List<VariablesStorage> getStores() {
 		return Collections.unmodifiableList(STORAGES);
 	}
 
 	/**
 	 * Register a VariableStorage class for Skript to create if the user config value matches.
-	 * 
+	 *
 	 * @param <T> A class to extend VariableStorage.
 	 * @param storage The class of the VariableStorage implementation.
 	 * @param names The names used in the config of Skript to select this VariableStorage.
@@ -545,7 +546,7 @@ public class Variables {
 			}
 		};
 	}
-	
+
 	/**
 	 * Deletes a variable.
 	 *

@@ -141,7 +141,7 @@ public class Variable<T> implements Expression<T> {
 					}
 				}
 				Skript.warning("The character '" + token + "' is reserved at the start of variable names, " +
-								   "and may be restricted in future versions");
+					"and may be restricted in future versions");
 			}
 		}
 		name = name.startsWith(LOCAL_VARIABLE_TOKEN) ? name.substring(LOCAL_VARIABLE_TOKEN.length()).trim() : name.trim();
