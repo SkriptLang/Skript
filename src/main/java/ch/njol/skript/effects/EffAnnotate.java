@@ -15,9 +15,6 @@ import org.eclipse.jdt.annotation.Nullable;
 import org.jetbrains.annotations.UnknownNullability;
 import org.skriptlang.skript.lang.script.Annotation;
 
-/**
- * @author moderocky
- */
 @Name("Annotation (Code)")
 @Description({
 	"A special metadata note visible to the next real line of code.",
