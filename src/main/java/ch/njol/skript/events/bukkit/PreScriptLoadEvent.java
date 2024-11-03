@@ -18,15 +18,14 @@
  */
 package ch.njol.skript.events.bukkit;
 
-import java.util.List;
-
+import ch.njol.skript.ScriptLoader;
+import ch.njol.skript.config.Config;
+import com.google.common.base.Preconditions;
 import org.bukkit.Bukkit;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 
-import ch.njol.skript.config.Config;
-import ch.njol.util.Validate;
-import ch.njol.skript.ScriptLoader;
+import java.util.List;
 
 /**
  * This event has no guarantee of being on the main thread.
@@ -40,7 +39,7 @@ public class PreScriptLoadEvent extends Event {
 
     public PreScriptLoadEvent(List<Config> scripts) {
         super(!Bukkit.isPrimaryThread());
-        Validate.notNull(scripts);
+        Preconditions.checkNotNull(scripts, "scripts cannot be null");
         this.scripts = scripts;
     }
 

@@ -26,8 +26,9 @@ import java.util.Set;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * @author Peter Güttinger
+ * @deprecated Unused in Skript. Use {@link java.util.LinkedHashMap} instead.
  */
+@Deprecated(forRemoval = true)
 public class BidiHashMap<T1, T2> extends HashMap<T1, T2> implements BidiMap<T1, T2> {
 	
 	private static final long serialVersionUID = -9011678701069901061L;

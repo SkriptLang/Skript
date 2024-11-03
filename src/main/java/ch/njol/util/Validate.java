@@ -23,8 +23,9 @@ import java.util.Collection;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * @author Peter Güttinger
+ * @deprecated Unused in Skript. Use {@link com.google.common.base.Preconditions} instead
  */
+@Deprecated(forRemoval = true)
 public abstract class Validate {
 	
 	public static void notNull(final Object... objects) {

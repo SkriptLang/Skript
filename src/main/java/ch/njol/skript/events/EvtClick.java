@@ -1,6 +1,5 @@
 package ch.njol.skript.events;
 
-import ch.njol.util.Predicate;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.ArmorStand;
