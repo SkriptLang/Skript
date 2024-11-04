@@ -18,30 +18,43 @@
  */
 package ch.njol.skript.entity;
 
-import java.lang.reflect.Method;
-import java.util.Random;
-
-import org.bukkit.Material;
-import org.bukkit.TreeSpecies;
-import org.bukkit.entity.Boat;
-import org.bukkit.inventory.ItemStack;
-import org.jetbrains.annotations.Nullable;
-
 import ch.njol.skript.Skript;
-import ch.njol.skript.aliases.Aliases;
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
+import org.bukkit.Material;
+import org.bukkit.TreeSpecies;
+import org.bukkit.entity.Boat;
+import org.bukkit.entity.boat.AcaciaBoat;
+import org.bukkit.entity.boat.BirchBoat;
+import org.bukkit.entity.boat.DarkOakBoat;
+import org.bukkit.entity.boat.JungleBoat;
+import org.bukkit.entity.boat.OakBoat;
+import org.bukkit.entity.boat.SpruceBoat;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.EnumMap;
+import java.util.Random;
 
 public class BoatData extends EntityData<Boat> {
+
+	private static final EnumMap<TreeSpecies, Class<? extends Boat>> typeToClassMap = new EnumMap<>(TreeSpecies.class);
+	private static final boolean IS_RUNNING_1_21_3 = Skript.isRunningMinecraft(1, 21, 3);
+
 	static {
-		// It will only register for 1.10+,
-		// See SimpleEntityData if 1.9 or lower.
-		if (Skript.methodExists(Boat.class, "getWoodType")) { //The 'boat' is the same of 'oak boat', 'any boat' works as supertype and it can spawn random boat.
-			EntityData.register(BoatData.class, "boat", Boat.class, 0,
-					"boat", "any boat", "oak boat", "spruce boat", "birch boat", "jungle boat", "acacia boat", "dark oak boat");
+		EntityData.register(BoatData.class, "boat", Boat.class, 0,
+				"boat", "any boat", "oak boat", "spruce boat", "birch boat", "jungle boat", "acacia boat", "dark oak boat");
+		if (IS_RUNNING_1_21_3) {
+			typeToClassMap.put(TreeSpecies.GENERIC, OakBoat.class);
+			typeToClassMap.put(TreeSpecies.REDWOOD, SpruceBoat.class);
+			typeToClassMap.put(TreeSpecies.BIRCH, BirchBoat.class);
+			typeToClassMap.put(TreeSpecies.JUNGLE, JungleBoat.class);
+			typeToClassMap.put(TreeSpecies.ACACIA, AcaciaBoat.class);
+			typeToClassMap.put(TreeSpecies.DARK_OAK, DarkOakBoat.class);
 		}
 	}
+
+
 	
 	public BoatData(){
 		this(0);
@@ -83,6 +96,8 @@ public class BoatData extends EntityData<Boat> {
 
 	@Override
 	public Class<? extends Boat> getType() {
+		if (IS_RUNNING_1_21_3)
+			return typeToClassMap.get(TreeSpecies.values()[matchedPattern - 2]);
 		return Boat.class;
 	}
 
@@ -129,4 +144,5 @@ public class BoatData extends EntityData<Boat> {
 		return hashCode_i() == ordinal + 2 || (matchedPattern + ordinal == 0) || ordinal == 0;
 		
 	}
+
 }

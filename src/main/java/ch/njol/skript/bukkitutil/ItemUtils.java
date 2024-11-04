@@ -21,7 +21,9 @@ package ch.njol.skript.bukkitutil;
 import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.util.slot.Slot;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.Tag;
 import org.bukkit.TreeType;
 import org.bukkit.block.Block;
@@ -32,9 +34,11 @@ import org.bukkit.block.data.type.Wall;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.inventory.meta.SkullMeta;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
+import java.util.UUID;
 
 /**
  * Miscellaneous static utility methods related to items.
@@ -44,6 +48,7 @@ public class ItemUtils {
 	public static final boolean HAS_MAX_DAMAGE = Skript.methodExists(Damageable.class, "getMaxDamage");
 	// Introduced in Paper 1.21
 	public static final boolean HAS_RESET = Skript.methodExists(Damageable.class, "resetDamage");
+	public static final boolean CAN_CREATE_PLAYER_PROFILE = Skript.methodExists(Bukkit.class, "createPlayerProfile", UUID.class, String.class);
 
 	/**
 	 * Gets damage/durability of an item, or 0 if it does not have damage.
@@ -146,6 +151,30 @@ public class ItemUtils {
 			((Damageable) meta).setDamage(damage);
 			itemType.setItemMeta(meta);
 		}
+	}
+
+	/**
+	 * Sets the owner of a player head.
+	 * @param skull player head item to modify
+	 * @param player owner of the head
+	 */
+	public static void setHeadOwner(ItemType skull, OfflinePlayer player) {
+		ItemMeta meta = skull.getItemMeta();
+		if (!(meta instanceof SkullMeta))
+			return;
+
+		SkullMeta skullMeta = (SkullMeta) meta;
+
+		if (player.getName() != null) {
+			skullMeta.setOwningPlayer(player);
+		} else if (CAN_CREATE_PLAYER_PROFILE) {
+			//noinspection deprecation
+			skullMeta.setOwnerProfile(Bukkit.createPlayerProfile(player.getUniqueId(), ""));
+		} else {
+			skullMeta.setOwningPlayer(null);
+		}
+
+		skull.setItemMeta(skullMeta);
 	}
 
 	/**

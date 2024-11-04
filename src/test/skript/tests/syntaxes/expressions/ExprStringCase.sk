@@ -1,7 +1,7 @@
 test "string cases":
 	assert caseEquals("Oops!" in lowercase, "oops!") is true with "lowercase failed"
 	assert caseEquals("Oops!" in uppercase, "OOPS!") is true with "uppercase failed"
-	assert caseEquals(capitalised "Oops!", "OOPS!") is true with "capitalised failed"
+	assert caseEquals((capitalised "Oops!"), "OOPS!") is true with "capitalised failed"
 	assert caseEquals("hellO i'm steve!" in proper case, "HellO I'm Steve!") is true with "lenient proper case failed"
 	assert caseEquals("hellO i'm steve!" in strict proper case, "Hello I'm Steve!") is true with "strict proper case failed"
 	assert caseEquals("spAwn neW boSs ()" in camel case, "spAwnNeWBoSs()") is true with "lenient camel case failed"

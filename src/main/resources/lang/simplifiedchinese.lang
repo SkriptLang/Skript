@@ -68,7 +68,8 @@ skript command:
 		aliases: 其它配置
 		script: <gold>%s<reset>
 		scripts in folder: <gold>%s<reset>中的所有脚本
-		x scripts in folder: <gold>%1$s<reset>中的<gold>%2$s<reset>个脚本
+		x scripts in folder success: <gold>%1$s<reset>中的<gold>%2$s<lime>个脚本
+		x scripts in folder error: <gold>%1$s<reset>中的<gold>%2$s<light red>个脚本
 		empty folder: <gold>%s<reset>不包含任何已启用的脚本。
 	enable:
 		all:

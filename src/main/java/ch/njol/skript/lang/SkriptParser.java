@@ -1145,7 +1145,15 @@ public class SkriptParser {
 				}
 				Class<?> c = types[i];
 				assert c != null;
-				message.append(Classes.getSuperClassInfo(c).getName().withIndefiniteArticle());
+				ClassInfo<?> classInfo = Classes.getSuperClassInfo(c);
+				// if there's a registered class info,
+				if (classInfo != null) {
+					// use the article,
+					message.append(classInfo.getName().withIndefiniteArticle());
+				} else {
+					// otherwise fallback to class name
+					message.append(c.getName());
+				}
 			}
 			return message.toString();
 		}

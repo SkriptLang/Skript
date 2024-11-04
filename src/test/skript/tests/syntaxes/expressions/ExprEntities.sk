@@ -1,11 +1,15 @@
 test "entities in chunk":
-	spawn 10 sheep at spawn of world "world"
-	wait 1 tick
+	clear all entities
+	spawn 10 sheep at spawn of world "world":
+		add event-entity to {_sheep::*}
+		add 1 to {_count}
+	assert {_count} and size of entities within {_sheep::*} is 10 with "Did not count 10 on the entities within {_sheep::*}: %{_sheep::*}%"
 	assert size of all entities in chunk at spawn of world "world" >= 10 with "Size of all entities in spawn chunk is not > 10: %size of all entities in chunk at spawn of world "world"%"
 
-	loop all entities in chunk at spawn of world "world":
+	loop all sheep in chunk at spawn of world "world":
 		add loop-entity to {_e::*}
-	assert size of {_e::*} >= 10 with "Size of all entities in spawn chunk is not > 10 (iterating): %size of {_e::*}%"
+	assert size of {_e::*} >= 10 with "Size of all sheep in spawn chunk is not >= 10 (iterating): %size of {_e::*}%"
 
-	delete all entities in chunk at spawn of world "world"
-	assert size of all entities in chunk at spawn of world "world" = 0 with "Size of all entities in spawn chunk != 0: %size of all entities in chunk at spawn of world "world"%"
+	clear entities within {_e::*}
+	assert entities within {_e::*} where [entity input is valid] is not set with "Not all the sheep were cleared"
+	clear all entities

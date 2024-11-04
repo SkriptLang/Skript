@@ -70,11 +70,7 @@ public class BukkitUnsafe {
 
 	@Nullable
 	public static Material getMaterialFromMinecraftId(String id) {
-		// On 1.13, Vanilla and Spigot names are same
-		if (id.length() > 9)
-			return Material.matchMaterial(id.substring(10)); // Strip 'minecraft:' out
-		else // Malformed material name
-			return null;
+		return Material.matchMaterial(id);
 	}
 
 	public static void modifyItemStack(ItemStack stack, String arguments) {

@@ -1,26 +1,4 @@
-/**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
 package ch.njol.skript.expressions;
-
-import org.bukkit.World;
-import org.bukkit.event.Event;
-import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer.ChangeMode;
@@ -32,42 +10,51 @@ import ch.njol.skript.expressions.base.PropertyExpression;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
-import ch.njol.skript.registrations.Classes;
-import ch.njol.skript.util.Getter;
 import ch.njol.skript.util.Time;
 import ch.njol.skript.util.Timeperiod;
 import ch.njol.skript.util.Timespan;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
+import org.bukkit.World;
+import org.bukkit.event.Event;
+import org.jetbrains.annotations.Nullable;
 
-/**
- * @author Peter Güttinger
- */
 @Name("Time")
-@Description("The <a href='classes.html#time'>time</a> of a world.")
-@Examples({"time in world is between 18:00 and 6:00:",
-		"	broadcast \"It's night-time, watch out for monsters!\""})
+@Description({
+	"The <a href='classes.html#time'>time</a> of a world.",
+	"Use the \"minecraft <a href='classes.html#timespan'>timespan</a>\" syntax to change the time according " +
+	"to Minecraft's time intervals.",
+	"Since Minecraft uses discrete intervals for time (ticks), " +
+	"changing the time by real-world minutes or real-world seconds only changes it approximately.",
+	"Removing an amount of time from a world's time will move the clock forward a day."
+})
+@Examples({
+	"set time of world \"world\" to 2:00",
+	"add 2 minecraft hours to time of world \"world\"",
+	"add 54 real seconds to time of world \"world\" # approximately 1 minecraft hour"
+})
 @Since("1.0")
 public class ExprTime extends PropertyExpression<World, Time> {
+
+	// 18000 is the offset to allow for using "add 2:00" without going to a new day
+	// and causing unexpected behaviour
+	private static final int TIME_TO_TIMESPAN_OFFSET = 18000;
+
 	static {
-		Skript.registerExpression(ExprTime.class, Time.class, ExpressionType.PROPERTY, "[the] time[s] [([with]in|of) %worlds%]", "%worlds%'[s] time[s]");
+		Skript.registerExpression(ExprTime.class, Time.class, ExpressionType.PROPERTY,
+			"[the] time[s] [([with]in|of) %worlds%]", "%worlds%'[s] time[s]");
 	}
-	
-	@SuppressWarnings({"unchecked", "null"})
+
+	@SuppressWarnings("unchecked")
 	@Override
-	public boolean init(final Expression<?>[] exprs, final int matchedPattern, final Kleenean isDelayed, final ParseResult parser) {
-		setExpr((Expression<World>) exprs[0]);
+	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, ParseResult parser) {
+		setExpr((Expression<World>) expressions[0]);
 		return true;
 	}
-	
+
 	@Override
-	protected Time[] get(final Event e, final World[] source) {
-		return get(source, new Getter<Time, World>() {
-			@Override
-			public Time get(final World w) {
-				return new Time((int) w.getTime());
-			}
-		});
+	protected Time[] get(Event event, World[] worlds) {
+		return get(worlds, world -> new Time((int) world.getTime()));
 	}
 
 	@Override
@@ -76,56 +63,62 @@ public class ExprTime extends PropertyExpression<World, Time> {
 		switch (mode) {
 			case ADD:
 			case REMOVE:
-				return CollectionUtils.array(Timespan.class);
+				// allow time to avoid conversion to timespan, which causes all sorts of headaches
+				return CollectionUtils.array(Time.class, Timespan.class);
 			case SET:
 				return CollectionUtils.array(Time.class, Timeperiod.class);
-			case DELETE:
-			case REMOVE_ALL:
-			case RESET:
 			default:
 				return null;
 		}
 	}
-	
+
 	@Override
-	public void change(final Event e, final @Nullable Object[] delta, final ChangeMode mode) {
-		final World[] worlds = getExpr().getArray(e);
-		int mod = 1;
-		switch (mode) {
-			case SET:
-				assert delta != null;
-				final int time = delta[0] instanceof Time ? ((Time) delta[0]).getTicks() : ((Timeperiod) delta[0]).start;
-				for (final World w : worlds) {
-					w.setTime(time);
-				}
-				break;
-			case REMOVE:
-				mod = -1;
-				//$FALL-THROUGH$
-			case ADD:
-				assert delta != null;
-				final Timespan ts = (Timespan) delta[0];
-				for (final World w : worlds) {
-					w.setTime(w.getTime() + mod * ts.getTicks());
-				}
-				break;
-			case DELETE:
-			case REMOVE_ALL:
-			case RESET:
-				assert false;
+	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
+		if (getExpr() == null || delta == null)
+			return;
+
+		Object time = delta[0];
+		if (time == null)
+			return;
+
+		World[] worlds = getExpr().getArray(event);
+
+		long ticks = 0;
+		if (time instanceof Time) {
+			if (mode != ChangeMode.SET) {
+				ticks = ((Time) time).getTicks() - TIME_TO_TIMESPAN_OFFSET;
+			} else {
+				ticks = ((Time) time).getTicks();
+			}
+		} else if (time instanceof Timespan) {
+			ticks = ((Timespan) time).getAs(Timespan.TimePeriod.TICK);
+		} else if (time instanceof Timeperiod) {
+			ticks = ((Timeperiod) time).start;
+		}
+
+		for (World world : worlds) {
+			switch (mode) {
+				case ADD:
+					world.setTime(world.getTime() + ticks);
+					break;
+				case REMOVE:
+					world.setTime(world.getTime() - ticks);
+					break;
+				case SET:
+					world.setTime(ticks);
+					break;
+			}
 		}
 	}
-	
+
 	@Override
 	public Class<Time> getReturnType() {
 		return Time.class;
 	}
-	
+
 	@Override
-	public String toString(final @Nullable Event event, final boolean debug) {
-		if (event == null)
-			return "the time in " + getExpr().toString(event, debug);
-		return Classes.getDebugMessage(getAll(event));
+	public String toString(@Nullable Event event, boolean debug) {
+		return "the time in " + getExpr().toString(event, debug);
 	}
-	
+
 }
