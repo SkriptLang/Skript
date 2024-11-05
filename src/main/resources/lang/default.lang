@@ -163,119 +163,30 @@ weather:
 
 # -- Biomes --
 biomes:
-	swamp: swampland, swamp, marsh
-	swamp_hills: swamp hills
-	forest: forest
-	taiga: taiga
-	desert: desert
-	plains: plains
-	nether: hell, nether
-	the_end: sky, the end
-	ocean: ocean, sea
-	river: river
-	mountains: extreme hills, mountains
-	frozen_ocean: frozen ocean
-	frozen_river: frozen river
-	snowy_tundra: ice plains, snowy tundra
-	snowy_mountains: ice mountains, snowy mountains
-	mushroom_fields: mushroom island, mushroom fields
-	mushroom_field_shore: mushroom shore, mushroom island shore, mushroom fields shore
-	beach: beach
-	desert_hills: desert hills
-	wooded_hills: forest hills, wooded hills
-	taiga_hills: taiga hills
-	mountain_edge: small mountains, hills, mountain edge
-	jungle: jungle
-	jungle_hills: jungle hills
-	jungle_edge: jungle edge
-	deep_ocean: deep ocean
-	stone_shore: stone beach, stone shore
-	snowy_beach: cold beach, snowy beach
-	birch_forest: birch forest
-	birch_forest_hills: birch forest hills
-	dark_forest: roofed forest, black forest, dark forest
-	snowy_taiga: cold taiga, snowy taiga
-	snowy_taiga_hills: cold taiga hills, snowy taiga hills
-	giant_tree_taiga: mega taiga, giant tree taiga, redwood taiga
-	giant_tree_taiga_hills: mega taiga hills, giant tree taiga hills, redwood taiga hills
-	wooded_mountains: extreme hills plus, mountains with trees, wooded mountains
-	savanna: savanna
-	savanna_plateau: savanna plateau
-	badlands: mesa, badlands
-	wooded_badlands_plateau: mesa plateau forest, badlands plateau forest, wooded badlands plateau
-	badlands_plateau: mesa plateau, badlands plateau
-	eroded_badlands: eroded badlands, eroded mesa
-	sunflower_plains: sunflower plains
-	desert_lakes: desert lakes
-	flower_forest: flower forest
-	taiga_mountains: taiga mountains
-	swampland_mountains: swampland mountains, swamp hills
-	ice_spikes: ice plains spikes, spiked ice plains, ice plains with spikes, ice spikes
-	modified_jungle: jungle mountains
-	modified_jungle_edge: jungle edge mountains
-	snowy_taiga_mountains: cold taiga mountains, snowy taiga mountains
-	shattered_savanna: savanna mountains, shattered savanna
-	shattered_savanna_plateau: savanna plateau mountains, shattered savanna plateau
-	eroded badlands: bryce, mesa bryce, mesa (bryce), hoodoos, eroded badlands
-	modified_wooded_badlands_plateau: mesa plateau forest mountains, modified wooded badlands plateau, badlands plateau forest mountains
-	modified_badlands_plateau: mesa plateau mountains, badlands plateau mountains, modified badlands plateau
-	tall_birch_forest: birch forest mountains, tall birch forest
-	tall_birch_hills: birch forest hills mountains, tall birch hills
-	dark_forest_hills: roofed forest mountains, dark forest hills
-	giant_spruce_taiga: mega spruce taiga, giant spruce taiga
-	gravelly_mountains: extreme hills mountains, gravelly mountains
-	modified_gravelly_mountains: extreme hills plus mountains, modified gravelly mountains
-	giant_spruce_taiga_hills: mega spruce taiga hills, giant spruce taiga hills
-	the_void: void, the void
-	small_end_islands: small end islands
-	end_midlands: end midlands
-	end_highlands: end highlands
-	end_barrens: end barrens
-	warm_ocean: warm ocean
-	lukewarm_ocean: lukewarm ocean
-	cold_ocean: cold ocean
-	deep_warm_ocean: deep warm ocean
-	deep_lukewarm_ocean: deep lukewarm ocean
-	deep_cold_ocean: deep cold ocean
-	deep_frozen_ocean: deep frozen ocean
-	# 1.14 biomes
-	bamboo_jungle: bamboo jungle
-	bamboo_jungle_hills: bamboo jungle hills
-	# 1.16 biomes
-	nether_wastes: nether wastes, nether, hell
-	crimson_forest: crimson forest
-	soul_sand_valley: soul sand valley
-	warped_forest: warped forest
-	basalt_deltas: basalt deltas
 	custom: custom, unknown
-	# 1.17 biomes
-	dripstone_caves: dripstone caves
-	lush_caves: lush caves
-	# 1.18 biomes
-	meadow: meadow
-	snowy_slopes: snowy slopes
-	jagged_peaks: jagged peaks
-	stony_peaks: stony peaks
-	frozen_peaks: frozen peaks
-	grove: grove
+	badlands: badlands, mesa
+	dark_forest: dark forest, roofed forest, black forest
+	eroded badlands: eroded badlands, eroded mesa, bryce, mesa bryce, mesa (bryce), hoodoos
+	ice_spikes: ice spikes, ice plains spikes, spiked ice plains, ice plains with spikes
+	mushroom_fields: mushroom fields, mushroom island
+	nether_wastes: nether wastes, nether, hell
+	ocean: ocean, sea
 	old_growth_birch_forest: old growth birch forest, tall birch forest
 	old_growth_pine_taiga: old growth pine taiga, giant tree taiga
 	old_growth_spruce_taiga: old growth spruce taiga, giant spruce taiga
+	snowy_beach: snowy beach, cold beach
 	snowy_plains: snowy plains, snowy tundra
+	snowy_taiga: snowy taiga, cold taiga
 	sparse_jungle: sparse jungle, jungle edge
 	stony_shore: stony shore, stone shore
-	windswept_hills: windswept hills, mountains
+	swamp: swamp, swampland, marsh
+	the_end: the end, end
+	the_void: void, the void
 	windswept_forest: windswept forest, wooded mountains
 	windswept_gravelly_hills: windswept gravelly hills, gravelly mountains
+	windswept_hills: windswept hills, mountains
 	windswept_savanna: windswept savanna, shattered savanna
 	wooded_badlands: wooded badlands, wooded mesa, mesa forest, badlands forest
-	# 1.19 biomes
-	mangrove_swamp: mangrove swamp
-	deep_dark: deep dark
-	# 1.19.4
-	cherry_grove: cherry grove
-	# 1.21.3
-	pale_garden: pale garden
 
 # -- Tree Types --
 tree types:
