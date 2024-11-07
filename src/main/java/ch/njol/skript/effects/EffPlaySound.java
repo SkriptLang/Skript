@@ -73,7 +73,7 @@ public class EffPlaySound extends Effect {
 	private static final boolean ENTITY_EMITTER_SOUND = Skript.methodExists(Player.class, "playSound", Entity.class, Sound.class, SoundCategory.class, float.class, float.class);
 	private static final boolean ENTITY_EMITTER_STRING = Skript.methodExists(Player.class, "playSound", Entity.class, String.class, SoundCategory.class, float.class, float.class);
 	private static final boolean ENTITY_EMITTER = ENTITY_EMITTER_SOUND || ENTITY_EMITTER_STRING;
-	private static final boolean IS_INTERFACE = Sound.class.isInterface();
+	private static final boolean SOUND_IS_INTERFACE = Sound.class.isInterface();
   
 	public static final Pattern KEY_PATTERN = Pattern.compile("([a-z0-9._-]+:)?([a-z0-9/._-]+)");
 
@@ -240,11 +240,10 @@ public class EffPlaySound extends Effect {
 	}
 
 	@SuppressWarnings({"deprecation", "unchecked", "rawtypes"})
-	@Nullable
-	private static NamespacedKey getSoundKeyFromEnum(String soundString) {
+	private static @Nullable NamespacedKey getSoundKeyFromEnum(String soundString) {
 		soundString = soundString.toUpperCase(Locale.ENGLISH);
 		// Sound.class is an Interface (rather than an enum) as of MC 1.21.3
-		if (IS_INTERFACE) {
+		if (SOUND_IS_INTERFACE) {
 			try {
 				Sound sound = Sound.valueOf(soundString);
 				return sound.getKey();
