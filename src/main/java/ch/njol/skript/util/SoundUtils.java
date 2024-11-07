@@ -1,5 +1,6 @@
 package ch.njol.skript.util;
 
+import ch.njol.skript.Skript;
 import org.bukkit.NamespacedKey;
 import org.bukkit.Sound;
 import org.jetbrains.annotations.Nullable;
@@ -19,7 +20,13 @@ public class SoundUtils {
 			Class<?> SOUND_CLASS = Class.forName("org.bukkit.Sound");
 			IS_INTERFACE = SOUND_CLASS.isInterface();
 			VALUE_OF_METHOD = SOUND_CLASS.getDeclaredMethod("valueOf", String.class);
-			GET_KEY_METHOD = SOUND_CLASS.getDeclaredMethod("getKey");
+			if (Skript.methodExists(SOUND_CLASS, "getKey")) {
+				// I believe this method was added around Bukkit 1.16
+				// This is only added to make tests not fail when testing MC 1.15 and below
+				GET_KEY_METHOD = SOUND_CLASS.getDeclaredMethod("getKey");
+			} else {
+				GET_KEY_METHOD = null;
+			}
 		} catch (NoSuchMethodException | ClassNotFoundException e) {
 			throw new RuntimeException(e);
 		}
@@ -42,7 +49,7 @@ public class SoundUtils {
 				return sound.getKey();
 			} catch (IllegalArgumentException ignore) {
 			}
-		} else {
+		} else if (GET_KEY_METHOD != null) {
 			try {
 				Object sound = VALUE_OF_METHOD.invoke(null, soundString);
 				if (sound != null) {
