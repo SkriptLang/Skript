@@ -10,6 +10,7 @@ import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.skript.util.SoundUtils;
 import ch.njol.util.Kleenean;
 import org.bukkit.Location;
 import org.bukkit.NamespacedKey;
@@ -149,11 +150,8 @@ public class EffPlaySound extends Effect {
 		// validate strings
 		List<NamespacedKey> validSounds = new ArrayList<>();
 		for (String sound : sounds.getArray(event)) {
-			NamespacedKey key = null;
-			try {
-				Sound enumSound = Sound.valueOf(sound.toUpperCase(Locale.ENGLISH));
-				key = enumSound.getKey();
-			} catch (IllegalArgumentException alternative) {
+			NamespacedKey key = SoundUtils.getSoundKeyFromEnum(sound);
+			if (key == null) {
 				sound = sound.toLowerCase(Locale.ENGLISH);
 				Matcher keyMatcher = KEY_PATTERN.matcher(sound);
 				if (!keyMatcher.matches())

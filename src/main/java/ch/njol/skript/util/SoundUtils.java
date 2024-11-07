@@ -1,49 +1,58 @@
-/**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
 package ch.njol.skript.util;
 
+import org.bukkit.NamespacedKey;
 import org.bukkit.Sound;
 import org.jetbrains.annotations.Nullable;
 
-/**
- * @author Peter Güttinger
- */
-public abstract class SoundUtils {
-	private SoundUtils() {}
-	
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.Locale;
+
+public class SoundUtils {
+
+	private static final boolean IS_INTERFACE;
+	private static final Method VALUE_OF_METHOD;
+	private static final Method GET_KEY_METHOD;
+
 	static {
-		assert false;
+		try {
+			Class<?> SOUND_CLASS = Class.forName("org.bukkit.Sound");
+			IS_INTERFACE = SOUND_CLASS.isInterface();
+			VALUE_OF_METHOD = SOUND_CLASS.getDeclaredMethod("valueOf", String.class);
+			GET_KEY_METHOD = SOUND_CLASS.getDeclaredMethod("getKey");
+		} catch (NoSuchMethodException | ClassNotFoundException e) {
+			throw new RuntimeException(e);
+		}
 	}
-	
-	private final static EnumUtils<Sound> util = new EnumUtils<>(Sound.class, "sounds");
-	
+
+	/**
+	 * Get the NamespacedKey of a Bukkit Sound enum
+	 *
+	 * @param soundString String to check for enum
+	 * @return Sound key if available else null
+	 */
+	@SuppressWarnings("deprecation")
 	@Nullable
-	public static Sound parse(final String s) {
-		return util.parse(s);
+	public static NamespacedKey getSoundKeyFromEnum(String soundString) {
+		soundString = soundString.toUpperCase(Locale.ENGLISH);
+		// Sound.class is an Interface (rather than an enum) as of MC 1.21.3
+		if (IS_INTERFACE) {
+			try {
+				Sound sound = Sound.valueOf(soundString);
+				return sound.getKey();
+			} catch (IllegalArgumentException ignore) {
+			}
+		} else {
+			try {
+				Object sound = VALUE_OF_METHOD.invoke(null, soundString);
+				if (sound != null) {
+					return (NamespacedKey) GET_KEY_METHOD.invoke(sound);
+				}
+			} catch (IllegalAccessException |
+					 InvocationTargetException ignore) {
+			}
+		}
+		return null;
 	}
-	
-	public static String toString(final Sound s, final int flags) {
-		return util.toString(s, flags);
-	}
-	
-	public static String getAllNames() {
-		return util.getAllNames();
-	}
-	
+
 }
