@@ -69,11 +69,10 @@ public abstract class EffectSection extends Section {
 	/**
 	 * Similar to {@link Section#parse(String, String, SectionNode, List)}, but will only attempt to parse from other {@link EffectSection}s.
 	 */
-	@Nullable
-	@SuppressWarnings({"unchecked", "rawtypes"})
-	public static EffectSection parse(String input, @Nullable String defaultError, @Nullable SectionNode sectionNode, @Nullable List<TriggerItem> triggerItems) {
+	public static @Nullable EffectSection parse(String input, @Nullable String defaultError, @Nullable SectionNode sectionNode, @Nullable List<TriggerItem> triggerItems) {
 		SectionContext sectionContext = ParserInstance.get().getData(SectionContext.class);
 
+		//noinspection unchecked,rawtypes
 		return sectionContext.modify(sectionNode, triggerItems, () ->
 			(EffectSection) SkriptParser.parse(
 				input,
