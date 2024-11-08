@@ -11,6 +11,7 @@ import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
+import org.bukkit.Keyed;
 import org.bukkit.Location;
 import org.bukkit.NamespacedKey;
 import org.bukkit.Sound;
@@ -72,6 +73,7 @@ public class EffPlaySound extends Effect {
 	private static final boolean ENTITY_EMITTER_SOUND = Skript.methodExists(Player.class, "playSound", Entity.class, Sound.class, SoundCategory.class, float.class, float.class);
 	private static final boolean ENTITY_EMITTER_STRING = Skript.methodExists(Player.class, "playSound", Entity.class, String.class, SoundCategory.class, float.class, float.class);
 	private static final boolean ENTITY_EMITTER = ENTITY_EMITTER_SOUND || ENTITY_EMITTER_STRING;
+	private static final boolean SOUND_IS_INTERFACE = Sound.class.isInterface();
   
 	public static final Pattern KEY_PATTERN = Pattern.compile("([a-z0-9._-]+:)?([a-z0-9/._-]+)");
 
@@ -149,11 +151,8 @@ public class EffPlaySound extends Effect {
 		// validate strings
 		List<NamespacedKey> validSounds = new ArrayList<>();
 		for (String sound : sounds.getArray(event)) {
-			NamespacedKey key = null;
-			try {
-				Sound enumSound = Sound.valueOf(sound.toUpperCase(Locale.ENGLISH));
-				key = enumSound.getKey();
-			} catch (IllegalArgumentException alternative) {
+			NamespacedKey key = getSoundKeyFromEnum(sound);
+			if (key == null) {
 				sound = sound.toLowerCase(Locale.ENGLISH);
 				Matcher keyMatcher = KEY_PATTERN.matcher(sound);
 				if (!keyMatcher.matches())
@@ -238,6 +237,28 @@ public class EffPlaySound extends Effect {
 			builder.append(" to ").append(players.toString(event, debug));
 		
 		return builder.toString();
+	}
+
+	@SuppressWarnings({"deprecation", "unchecked", "rawtypes"})
+	private static @Nullable NamespacedKey getSoundKeyFromEnum(String soundString) {
+		soundString = soundString.toUpperCase(Locale.ENGLISH);
+		// Sound.class is an Interface (rather than an enum) as of MC 1.21.3
+		if (SOUND_IS_INTERFACE) {
+			try {
+				Sound sound = Sound.valueOf(soundString);
+				return sound.getKey();
+			} catch (IllegalArgumentException ignore) {
+			}
+		} else {
+			try {
+				Enum soundEnum = Enum.valueOf((Class) Sound.class, soundString);
+				if (soundEnum instanceof Keyed) {
+					return ((Keyed) soundEnum).getKey();
+				}
+			} catch (IllegalArgumentException ignore) {
+			}
+		}
+		return null;
 	}
 
 }
