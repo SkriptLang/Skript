@@ -10,6 +10,7 @@ import java.util.StringJoiner;
 /**
  * Utility class to build syntax strings, primarily intended for use
  * in {@link Debuggable#toString(Event, boolean)} implementations.
+ * Spaces are automatically added between the provided objects.
  */
 public class SyntaxStringBuilder {
 
@@ -30,7 +31,9 @@ public class SyntaxStringBuilder {
 
 	/**
 	 * Adds an object to the string.
-	 * If the object is a {@link Debuggable} it will be formatted using {@link Debuggable#toString(Event, boolean)}.
+	 * Spaces are automatically added between the provided objects.
+	 * If the object is a {@link Debuggable} it will be formatted using
+	 * {@link Debuggable#toString(Event, boolean)}.
 	 *
 	 * @param object The object to add.
 	 */
@@ -45,6 +48,7 @@ public class SyntaxStringBuilder {
 
 	/**
 	 * Adds multiple objects to the string.
+	 * Spaces are automatically added between the provided objects.
 	 * @param objects The objects to add.
 	 */
 	public void append(@NotNull Object... objects) {
