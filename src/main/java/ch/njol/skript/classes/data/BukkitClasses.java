@@ -88,6 +88,7 @@ import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.PlayerQuitEvent.QuitReason;
 import org.bukkit.event.player.PlayerResourcePackStatusEvent.Status;
 import org.bukkit.event.player.PlayerTeleportEvent.TeleportCause;
+import org.bukkit.event.player.PlayerExpCooldownChangeEvent.ChangeReason;
 import org.bukkit.inventory.BlockInventoryHolder;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
@@ -987,7 +988,8 @@ public class BukkitClasses {
 		if (BukkitUtils.registryExists("BIOME")) {
 			biomeClassInfo = new RegistryClassInfo<>(Biome.class, Registry.BIOME, "biome", "biomes");
 		} else {
-			biomeClassInfo = new EnumClassInfo<>(Biome.class, "biome", "biomes");
+			//noinspection rawtypes,unchecked
+			biomeClassInfo = new EnumClassInfo<>((Class) Biome.class, "biome", "biomes");
 		}
 		Classes.registerClass(biomeClassInfo
 				.user("biomes?")
@@ -1481,7 +1483,8 @@ public class BukkitClasses {
 		if (BukkitUtils.registryExists("ATTRIBUTE")) {
 			attributeClassInfo = new RegistryClassInfo<>(Attribute.class, Registry.ATTRIBUTE, "attributetype", "attribute types");
 		} else {
-			attributeClassInfo = new EnumClassInfo<>(Attribute.class, "attributetype", "attribute types");
+			//noinspection rawtypes,unchecked
+			attributeClassInfo = new EnumClassInfo<>((Class) Attribute.class, "attributetype", "attribute types");
 		}
 		Classes.registerClass(attributeClassInfo
 				.user("attribute ?types?")
@@ -1526,15 +1529,6 @@ public class BukkitClasses {
 				.name("Transform Reason")
 				.description("Represents a transform reason of an <a href='events.html#entity transform'>entity transform event</a>.")
 				.since("2.8.0"));
-  
-		if (Skript.classExists("io.papermc.paper.entity.TeleportFlag"))
-			Classes.registerClass(new EnumClassInfo<>(SkriptTeleportFlag.class, "teleportflag", "teleport flags")
-					.user("teleport ?flags?")
-					.name("Teleport Flag")
-					.description("Teleport Flags are settings to retain during a teleport.")
-					.requiredPlugins("Paper 1.19+")
-					.since("INSERT VERSION"));
-    
 		Classes.registerClass(new EnumClassInfo<>(EntityPotionEffectEvent.Cause.class, "entitypotioncause", "entity potion causes")
 				.user("(entity )?potion ?effect ?cause")
 				.name("Entity Potion Cause")
@@ -1558,6 +1552,20 @@ public class BukkitClasses {
 			.since("@VERSION")
 			.requiredPlugins("Minecraft 1.21+")
 			.documentationId("WolfVariant"));
+
+		Classes.registerClass(new EnumClassInfo<>(ChangeReason.class,  "experiencecooldownchangereason", "experience cooldown change reasons")
+			.user("(experience|[e]xp) cooldown change (reason|cause)s?")
+			.name("Experience Cooldown Change Reason")
+			.description("Represents a change reason of an <a href='events.html#experience cooldown change event'>experience cooldown change event</a>.")
+			.since("INSERT VERSION"));
+
+		if (Skript.classExists("io.papermc.paper.entity.TeleportFlag"))
+			Classes.registerClass(new EnumClassInfo<>(SkriptTeleportFlag.class, "teleportflag", "teleport flags")
+					.user("teleport ?flags?")
+					.name("Teleport Flag")
+					.description("Teleport Flags are settings to retain during a teleport.")
+					.requiredPlugins("Paper 1.19+")
+					.since("INSERT VERSION"));
 	}
 
 }
