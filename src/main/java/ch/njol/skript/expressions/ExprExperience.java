@@ -75,7 +75,7 @@ public class ExprExperience extends SimpleExpression<Experience> {
 			exp = new Experience[]{new Experience(playerExpChangeEvent.getAmount())};
 		} else if (event instanceof EntityBreedEvent entityBreedEvent) {
 			exp = new Experience[]{new Experience(entityBreedEvent.getExperience())};
-    } else if (event instanceof PlayerFishEvent fishEvent) {
+		} else if (event instanceof PlayerFishEvent fishEvent) {
 			exp = new Experience[]{new Experience(fishEvent.getExpToDrop())};
 		} else {
 			exp = new Experience[0];
@@ -106,8 +106,8 @@ public class ExprExperience extends SimpleExpression<Experience> {
 			exp = playerExpChangeEvent.getAmount();
 		} else if (event instanceof EntityBreedEvent entityBreedEvent) {
 			exp = entityBreedEvent.getExperience();
-    } else if (event instanceof PlayerFishEvent fishEvent) {
-			exp = fishEvent.getExperience();
+		} else if (event instanceof PlayerFishEvent fishEvent) {
+			exp = fishEvent.getExpToDrop();
 		} else {
 			return;
 		}
@@ -122,7 +122,7 @@ public class ExprExperience extends SimpleExpression<Experience> {
 				}
 			}
 		} else {
-			experience = 0;
+			exp = 0;
 		}
 
 		exp = Math.max(0, exp);
@@ -134,8 +134,8 @@ public class ExprExperience extends SimpleExpression<Experience> {
 			playerExpChangeEvent.setAmount(exp);
 		} else if (event instanceof EntityBreedEvent entityBreedEvent) {
 			entityBreedEvent.setExperience(exp);
-    } else if (event instanceof PlayerFishEvent fishEvent) {
-			fishEvent.setExpToDrop(experience);
+		} else if (event instanceof PlayerFishEvent fishEvent) {
+			fishEvent.setExpToDrop(exp);
 		}
 	}
 
