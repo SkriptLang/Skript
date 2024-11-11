@@ -1,6 +1,7 @@
 package ch.njol.skript.expressions;
 
 import ch.njol.skript.aliases.ItemType;
+import ch.njol.skript.bukkitutil.SoundUtils;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
@@ -78,9 +79,7 @@ public class ExprBlockSound extends SimpleExpression<String> {
 		SimplePropertyExpression.register(ExprBlockSound.class, String.class, "(1:break|2:fall|3:hit|4:place|5:step) sound[s]", "blocks/blockdatas/itemtypes");
 	}
 
-	@SuppressWarnings("NotNullFieldNotInitialized")
 	private SoundType soundType;
-	@SuppressWarnings("NotNullFieldNotInitialized")
 	private Expression<?> objects;
 
 	@Override
@@ -96,7 +95,7 @@ public class ExprBlockSound extends SimpleExpression<String> {
 			.map(this::convertAndGetSound)
 			.filter(Objects::nonNull)
 			.distinct()
-			.map(Sound::name)
+			.map(sound -> SoundUtils.getKey(sound).getKey())
 			.toArray(String[]::new);
 	}
 

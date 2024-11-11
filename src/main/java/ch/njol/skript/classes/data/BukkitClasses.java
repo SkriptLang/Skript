@@ -987,7 +987,8 @@ public class BukkitClasses {
 		if (BukkitUtils.registryExists("BIOME")) {
 			biomeClassInfo = new RegistryClassInfo<>(Biome.class, Registry.BIOME, "biome", "biomes");
 		} else {
-			biomeClassInfo = new EnumClassInfo<>(Biome.class, "biome", "biomes");
+			//noinspection rawtypes,unchecked
+			biomeClassInfo = new EnumClassInfo<>((Class) Biome.class, "biome", "biomes");
 		}
 		Classes.registerClass(biomeClassInfo
 				.user("biomes?")
@@ -1481,7 +1482,8 @@ public class BukkitClasses {
 		if (BukkitUtils.registryExists("ATTRIBUTE")) {
 			attributeClassInfo = new RegistryClassInfo<>(Attribute.class, Registry.ATTRIBUTE, "attributetype", "attribute types");
 		} else {
-			attributeClassInfo = new EnumClassInfo<>(Attribute.class, "attributetype", "attribute types");
+			//noinspection rawtypes,unchecked
+			attributeClassInfo = new EnumClassInfo<>((Class) Attribute.class, "attributetype", "attribute types");
 		}
 		Classes.registerClass(attributeClassInfo
 				.user("attribute ?types?")
