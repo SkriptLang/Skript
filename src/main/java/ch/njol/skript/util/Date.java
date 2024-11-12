@@ -24,6 +24,8 @@ public class Date extends java.util.Date implements YggdrasilSerializable {
 	 * @return The converted date.
 	 */
 	public static Date fromJavaDate(java.util.Date date) {
+		if (date instanceof Date ours)
+			return ours;
 		return new Date(date.getTime());
 	}
 
@@ -127,9 +129,9 @@ public class Date extends java.util.Date implements YggdrasilSerializable {
 			return true;
 		if (obj == null)
 			return false;
-		if (!(obj instanceof Date other))
+		if (!(obj instanceof java.util.Date other))
 			return false;
-		return timestamp == other.timestamp;
+		return getTime() == other.getTime();
 	}
 
 	@Override

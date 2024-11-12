@@ -9,8 +9,7 @@ public class DateTest {
 
 	@Test
 	public void testNow() {
-		Date now = Date.now();
-		assertEquals(System.currentTimeMillis(), now.getTime());
+		assertEquals(System.currentTimeMillis(), Date.now().getTime());
 	}
 
 	@Test
@@ -23,7 +22,7 @@ public class DateTest {
 	@Test
 	public void testEquals() {
 		Date date1 = new Date(1000);
-		Date date2 = new Date(1000);
+		java.util.Date date2 = new java.util.Date(1000);
 		assertEquals(date1, date2);
 	}
 
