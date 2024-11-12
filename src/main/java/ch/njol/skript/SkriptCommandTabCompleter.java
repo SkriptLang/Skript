@@ -99,7 +99,23 @@ public class SkriptCommandTabCompleter implements TabCompleter {
 				//noinspection ThrowableNotThrown
 				Skript.exception(e, "An error occurred while trying to update the list of disabled scripts!");
 			}
-			
+
+			// Handle directory completion
+			String partialPath = StringUtils.join(args, " ", 1, args.length);
+			File targetDir = new File(scripts, partialPath);
+
+			if (targetDir.exists() && targetDir.isDirectory()) {
+				File[] files = targetDir.listFiles();
+				if (files != null) {
+					for (File file : files) {
+						if (!file.isHidden()) {
+							String option = partialPath + (partialPath.endsWith(fs) ? "" : fs) + file.getName() + (file.isDirectory() ? fs : "");
+							options.add(option);
+						}
+					}
+				}
+			}
+
 			// These will be added even if there are incomplete script arg
 			if (args.length == 2) {
 				options.add("all");
