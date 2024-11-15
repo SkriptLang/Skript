@@ -20,7 +20,7 @@ package org.skriptlang.skript.lang.entry;
 
 import ch.njol.skript.config.Node;
 import ch.njol.skript.config.SectionNode;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * EntryData is used for defining the different entries of for a {@link SectionNode}.

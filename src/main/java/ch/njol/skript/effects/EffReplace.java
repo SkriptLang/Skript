@@ -31,12 +31,13 @@ import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionList;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.skript.lang.SyntaxStringBuilder;
 import ch.njol.util.Kleenean;
 import ch.njol.util.StringUtils;
 import org.bukkit.event.Event;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -140,11 +141,16 @@ public class EffReplace extends Effect {
 	
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
+		SyntaxStringBuilder builder = new SyntaxStringBuilder(event, debug);
+
+		builder.append("replace");
 		if (replaceFirst)
-			return "replace first " + needles.toString(event, debug) + " in " + haystack.toString(event, debug) + " with " + replacement.toString(event, debug)
-					+ "(case sensitive: " + caseSensitive + ")";
-		return "replace " + needles.toString(event, debug) + " in " + haystack.toString(event, debug) + " with " + replacement.toString(event, debug)
-				+ "(case sensitive: " + caseSensitive + ")";
+			builder.append("the first");
+		builder.append(needles, "in", haystack, "with", replacement);
+		if (caseSensitive)
+			builder.append("with case sensitivity");
+
+		return builder.toString();
 	}
-	
+
 }

@@ -1,5 +1,5 @@
 test "portal cooldown":
-	spawn zombie at spawn of world "world":
+	spawn zombie at test-location:
 		assert event-entity's portal cooldown is 0 seconds with "entity spawned with a portal cooldown"
 		set event-entity's portal cooldown to 25 ticks
 		assert event-entity's portal cooldown is 25 ticks with "portal cooldown set failed"

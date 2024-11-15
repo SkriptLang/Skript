@@ -308,7 +308,7 @@ public class Variable<T> implements Expression<T> {
 			// prevents e.g. {%expr%} where "%expr%" ends with "::*" from returning a Map
 			if (name.endsWith(Variable.SEPARATOR + "*") != list)
 				return null;
-			Object value = !list ? convertIfOldPlayer(name, event, Variables.getVariable(name, event, local)) : Variables.getVariable(name, event, local);
+			Object value = !list ? convertIfOldPlayer(name, local, event, Variables.getVariable(name, event, local)) : Variables.getVariable(name, event, local);
 			if (value != null)
 				return value;
 
@@ -346,7 +346,7 @@ public class Variable<T> implements Expression<T> {
 				else
 					value = variable.getValue();
 				if (value != null)
-					convertedValues.add(convertIfOldPlayer(name + variable.getKey(), event, value));
+					convertedValues.add(convertIfOldPlayer(name + variable.getKey(), local, event, value));
 			}
 		}
 		return convertedValues.toArray();
@@ -357,13 +357,13 @@ public class Variable<T> implements Expression<T> {
 	 * because the player object inside the variable will be a (kinda) dead variable
 	 * as a new player object has been created by the server.
 	 */
-	@Nullable Object convertIfOldPlayer(String key, Event event, @Nullable Object object) {
-		if (SkriptConfig.enablePlayerVariableFix.value() && object instanceof Player) {
-			Player oldPlayer = (Player) object;
+	public static <T> @Nullable T convertIfOldPlayer(String key, boolean local, Event event, @Nullable T object) {
+		if (SkriptConfig.enablePlayerVariableFix.value() && object instanceof Player oldPlayer) {
 			if (!oldPlayer.isValid() && oldPlayer.isOnline()) {
 				Player newPlayer = Bukkit.getPlayer(oldPlayer.getUniqueId());
 				Variables.setVariable(key, newPlayer, event, local);
-				return newPlayer;
+				//noinspection unchecked
+				return (T) newPlayer;
 			}
 		}
 		return object;
@@ -372,48 +372,7 @@ public class Variable<T> implements Expression<T> {
 	public Iterator<Pair<String, Object>> variablesIterator(Event event) {
 		if (!list)
 			throw new SkriptAPIException("Looping a non-list variable");
-		String name = StringUtils.substring(this.name.toString(event), 0, -1);
-		Object val = Variables.getVariable(name + "*", event, local);
-		if (val == null)
-			return new EmptyIterator<>();
-		assert val instanceof TreeMap;
-		// temporary list to prevent CMEs
-		@SuppressWarnings("unchecked")
-		Iterator<String> keys = new ArrayList<>(((Map<String, Object>) val).keySet()).iterator();
-		return new Iterator<>() {
-			private @Nullable String key;
-			private @Nullable Object next = null;
-
-			@Override
-			public boolean hasNext() {
-				if (next != null)
-					return true;
-				while (keys.hasNext()) {
-					key = keys.next();
-					if (key != null) {
-						next = convertIfOldPlayer(name + key, event, Variables.getVariable(name + key, event, local));
-						if (next != null && !(next instanceof TreeMap))
-							return true;
-					}
-				}
-				next = null;
-				return false;
-			}
-
-			@Override
-			public Pair<String, Object> next() {
-				if (!hasNext())
-					throw new NoSuchElementException();
-				Pair<String, Object> n = new Pair<>(key, next);
-				next = null;
-				return n;
-			}
-
-			@Override
-			public void remove() {
-				throw new UnsupportedOperationException();
-			}
-		};
+		return Variables.getVariableIterator(name.toString(event), local, event);
 	}
 
 	@Override
@@ -441,8 +400,9 @@ public class Variable<T> implements Expression<T> {
 					@Nullable String key = keys.next();
 					if (key != null) {
 						next = Converters.convert(Variables.getVariable(name + key, event, local), types);
+
 						//noinspection unchecked
-						next = (T) convertIfOldPlayer(name + key, event, next);
+						next = (T) convertIfOldPlayer(name + key, local, event, next);
 						if (next != null && !(next instanceof TreeMap))
 							return true;
 					}
