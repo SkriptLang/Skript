@@ -9,6 +9,6 @@ test "EffHealth item mutation fix":
 
 	set {_item1} to diamond sword with damage 100
 	set {_item2} to diamond with damage 10
-	repair {_item1}, {_item2}
+	repair {_item1} and {_item2}
 	assert {_item1} is diamond sword with damage 0 with "{_item1} was incorrectly repaired"
 	assert {_item2} is diamond with "{_item2} was no longer a diamond"

@@ -302,7 +302,7 @@ public class Config implements Comparable<Config> {
 				try {
 					if (OptionSection.class.isAssignableFrom(field.getType())) {
 						final OptionSection section = (OptionSection) field.get(object);
-						@NonNull final Class<?> pc = section.getClass();
+						@NotNull final Class<?> pc = section.getClass();
 						load(pc, section, path + section.key + ".");
 					} else if (Option.class.isAssignableFrom(field.getType())) {
 						((Option<?>) field.get(object)).set(this, path);
