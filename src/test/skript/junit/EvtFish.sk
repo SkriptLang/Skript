@@ -116,8 +116,7 @@ on fishing line cast:
 	if lure enchantment bonus is not applied:
 		complete objective "cast - remove lure enchantment bonus" for {_test}
 
-	if method "org.bukkit.entity.FishHook#getTimeUntilBite" exists:
-		parse:
+	parse if method "org.bukkit.entity.FishHook#getTimeUntilBite" exists:
 			set fishing bite time to 1 second
 			if fishing bite time is 1 second:
 				complete objective "cast - bite time" for {_test}
@@ -205,8 +204,7 @@ on fish catch:
 	if lure enchantment bonus is not applied:
 		complete objective "catch - remove lure enchantment bonus" for {_test}
 
-	if method "org.bukkit.entity.FishHook#getTimeUntilBite" exists:
-		parse:
+	parse if method "org.bukkit.entity.FishHook#getTimeUntilBite" exists:
 			set fishing bite time to 1 second
 			if fishing bite time is 1 second:
 				complete objective "catch - bite time" for {_test}
