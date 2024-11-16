@@ -1,0 +1,10 @@
+test "breedable":
+	set {_spawn} to spawn of world "world"
+	spawn baby chicken at {_spawn}
+	set {_chicken} to last spawned chicken
+	assert {_chicken} can't breed with "chicken could breed before growing up"
+	make {_chicken} breedable
+	assert {_chicken} can breed with "chicken can't breed after growing up"
+	make {_chicken} non-breedable
+	assert {_chicken} can't breed with "chicken can breed after growing up and preventing"
+	delete all chickens

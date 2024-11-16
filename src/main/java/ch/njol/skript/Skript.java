@@ -94,6 +94,7 @@ import org.junit.runner.JUnitCore;
 import org.junit.runner.Result;
 import org.junit.runner.notification.Failure;
 import org.skriptlang.skript.bukkit.SkriptMetrics;
+import org.skriptlang.skript.bukkit.breeding.BreedingModule;
 import org.skriptlang.skript.bukkit.displays.DisplayModule;
 import org.skriptlang.skript.lang.comparator.Comparator;
 import org.skriptlang.skript.lang.comparator.Comparators;
@@ -555,6 +556,7 @@ public final class Skript extends JavaPlugin implements Listener {
 			getAddonInstance().loadClasses("org.skriptlang.skript.bukkit", "misc");
 			// todo: become proper module once registry api is merged
 			DisplayModule.load();
+			BreedingModule.load();
 		} catch (final Exception e) {
 			exception(e, "Could not load required .class files: " + e.getLocalizedMessage());
 			setEnabled(false);
@@ -667,9 +669,10 @@ public final class Skript extends JavaPlugin implements Listener {
 				debug("Early init done");
 
 				if (TestMode.ENABLED) {
-					Bukkit.getScheduler().runTaskLater(Skript.this, () -> info("Skript testing environment enabled, starting soon..."), 1);
 					// Ignore late init (scripts, etc.) in test mode
 					Bukkit.getScheduler().runTaskLater(Skript.this, () -> {
+						info("Skript testing environment enabled, starting...");
+
 						// Delay is in Minecraft ticks.
 						AtomicLong shutdownDelay = new AtomicLong(0);
 						List<Class<?>> asyncTests = new ArrayList<>();
@@ -778,7 +781,7 @@ public final class Skript extends JavaPlugin implements Listener {
 								Bukkit.getServer().shutdown();
 							}, shutdownDelay.get());
 						});
-					}, 100);
+					}, 5);
 				}
 
 				Skript.metrics = new Metrics(Skript.getInstance(), 722); // 722 is our bStats plugin ID
@@ -838,32 +841,9 @@ public final class Skript extends JavaPlugin implements Listener {
 			}
 		});
 
-		Bukkit.getPluginManager().registerEvents(new Listener() {
-			@EventHandler
-			public void onJoin(final PlayerJoinEvent e) {
-				if (e.getPlayer().hasPermission("skript.admin")) {
-					new Task(Skript.this, 0) {
-						@Override
-						public void run() {
-							Player p = e.getPlayer();
-							SkriptUpdater updater = getUpdater();
-							if (updater == null)
-								return;
-
-							// Don't actually check for updates to avoid breaking Github rate limit
-							if (updater.getReleaseStatus() == ReleaseStatus.OUTDATED) {
-								// Last check indicated that an update is available
-								UpdateManifest update = updater.getUpdateManifest();
-								assert update != null; // Because we just checked that one is available
-								Skript.info(p, "" + SkriptUpdater.m_update_available.toString(update.id, Skript.getVersion()));
-								p.spigot().sendMessage(BungeeConverter.convert(ChatMessages.parseToArray(
-										"Download it at: <aqua><u><link:" + update.downloadUrl + ">" + update.downloadUrl)));
-							}
-						}
-					};
-				}
-			}
-		}, this);
+		if (!TestMode.ENABLED) {
+			Bukkit.getPluginManager().registerEvents(new JoinUpdateNotificationListener(), this);
+		}
 
 		// Send a warning to console when the plugin is reloaded
 		Bukkit.getPluginManager().registerEvents(new Listener() {
@@ -887,6 +867,36 @@ public final class Skript extends JavaPlugin implements Listener {
 		// Tell Timings that we are here!
 		SkriptTimings.setSkript(this);
 	}
+
+	private class JoinUpdateNotificationListener implements Listener {
+		@EventHandler
+		public void onJoin(PlayerJoinEvent event) {
+			if (!event.getPlayer().hasPermission("skript.admin"))
+				return;
+
+			new Task(Skript.this, 0) {
+				@Override
+				public void run() {
+					Player player = event.getPlayer();
+					SkriptUpdater updater = getUpdater();
+
+					// Don't actually check for updates to avoid breaking GitHub rate limit
+					if (updater == null || updater.getReleaseStatus() != ReleaseStatus.OUTDATED)
+						return;
+
+					// Last check indicated that an update is available
+					UpdateManifest update = updater.getUpdateManifest();
+
+					if (update == null)
+						return;
+
+					Skript.info(player, SkriptUpdater.m_update_available.toString(update.id, Skript.getVersion()));
+					player.spigot().sendMessage(BungeeConverter.convert(ChatMessages.parseToArray(
+						"Download it at: <aqua><u><link:" + update.downloadUrl + ">" + update.downloadUrl)));
+				}
+			};
+		}
+  }
 
 	private void runTest(Class<?> clazz, AtomicLong shutdownDelay, AtomicLong tests,
 						 AtomicLong milliseconds, AtomicLong ignored, AtomicLong fails)
