@@ -39,7 +39,7 @@ import java.util.regex.Pattern;
 	"# Very simple chat censor",
 	"on chat:",
 		"\treplace all \"idiot\" and \"noob\" with \"****\" in the message",
-		"\tregex replace \"\\b(idiot|noob)\\b\" with \"****\" in the message # Regex version for better results",
+		"\tregex replace \"\\b(idiot|noob)\\b\" with \"****\" in the message # Regex version using word boundaries for better results",
 	"",
 	"replace all stone and dirt in player's inventory and player's top inventory with diamond"
 })
@@ -108,18 +108,12 @@ public class EffReplace extends Effect {
 			if (replaceRegex) { // replace all/first - regex
 				List<Pattern> patterns = new ArrayList<>(needles.length);
 				for (Object needle : needles) {
-					if (needle == null)
-						continue;
-
 					try {
 						patterns.add(Pattern.compile((String) needle));
 					} catch (Exception ignored) { }
 				}
 				for (int i = 0; i < haystack.length; i++) {
 					for (Pattern pattern : patterns) {
-						if (pattern == null)
-							continue;
-
 						Matcher matcher = pattern.matcher((String) haystack[i]);
 						if (replaceFirst) // first
 							haystack[i] = matcher.replaceFirst(stringReplacement);
@@ -130,18 +124,12 @@ public class EffReplace extends Effect {
 			} else if (replaceFirst) { // replace first - string
 				for (int i = 0; i < haystack.length; i++) {
 					for (Object needle : needles) {
-						if (needle == null)
-							continue;
-
 						haystack[i] = StringUtils.replaceFirst((String) haystack[i], (String) needle, Matcher.quoteReplacement(stringReplacement), caseSensitive);
 					}
 				}
 			} else { // replace all - string
 				for (int i = 0; i < haystack.length; i++) {
 					for (Object needle : needles) {
-						if (needle == null)
-							continue;
-
 						haystack[i] = StringUtils.replace((String) haystack[i], (String) needle, stringReplacement, caseSensitive);
 					}
 				}
@@ -174,6 +162,8 @@ public class EffReplace extends Effect {
 		builder.append("replace");
 		if (replaceFirst)
 			builder.append("the first");
+		if (replaceRegex)
+			builder.append("regex");
 		builder.append(needles, "in", haystack, "with", replacement);
 		if (caseSensitive)
 			builder.append("with case sensitivity");
