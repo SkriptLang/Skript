@@ -10,25 +10,25 @@ import org.bukkit.event.Event;
 import org.bukkit.event.player.PlayerFishEvent;
 import org.jetbrains.annotations.Nullable;
 
-@Name("Pull Hooked Entity")
+@Name("Pull In Hooked Entity")
 @Description("Pull the hooked entity to the player.")
 @Examples({
 	"on fishing state of caught entity:",
-		"\tpull hooked entity"
+		"\tpull in hooked entity"
 })
 @Events("Fishing")
 @Since("INSERT VERSION")
 public class EffPullHookedEntity extends Effect {
 
 	static {
-		Skript.registerEffect(EffPullHookedEntity.class, "(reel|pull) [in] hook[ed] entity");
+		Skript.registerEffect(EffPullHookedEntity.class, "(reel|pull) in hook[ed] entity");
 	}
 
 	@Override
 	public boolean init(Expression<?>[] expressions, int matchedPattern,
 						Kleenean isDelayed, ParseResult parseResult) {
 		if (!getParser().isCurrentEvent(PlayerFishEvent.class)) {
-			Skript.error("The 'pull hooked entity' effect can only be used in the fishing event.");
+			Skript.error("The 'pull in hooked entity' effect can only be used in the fishing event.");
 			return false;
 		}
 		return true;
@@ -44,7 +44,7 @@ public class EffPullHookedEntity extends Effect {
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return "pull hooked entity";
+		return "pull in hooked entity";
 	}
 
 }

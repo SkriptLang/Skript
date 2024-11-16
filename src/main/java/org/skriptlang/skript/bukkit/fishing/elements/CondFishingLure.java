@@ -51,4 +51,5 @@ public class CondFishingLure extends Condition {
 	public String toString(@Nullable Event event, boolean debug) {
 		return "lure enchantment " + (isNegated() ? "is" : "isn't") + " applied";
 	}
+
 }
