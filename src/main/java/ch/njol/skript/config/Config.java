@@ -35,9 +35,9 @@ import java.nio.file.Path;
 import java.util.HashMap;
 
 import ch.njol.skript.log.SkriptLogger;
-import org.eclipse.jdt.annotation.NonNull;
-import org.eclipse.jdt.annotation.Nullable;
 import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Represents a config file.
