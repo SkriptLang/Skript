@@ -50,7 +50,7 @@ public class ExprAngle extends SimpleExpression<Number> {
 
 	@Override
 	protected Number @Nullable [] get(Event event) {
-		Number[] numbers = angle.getAll(event);
+		Number[] numbers = angle.getArray(event);
 
 		if (isRadians)
 			for (int i = 0; i < numbers.length; i++)
