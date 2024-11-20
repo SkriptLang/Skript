@@ -27,7 +27,7 @@ import java.util.List;
 @Description("Called when a player catches an entity in a bucket.")
 @Examples({
 	"on bucket catch of a puffer fish:",
-		"\tsend \"You caught a fish with your bucket!\" to player"
+		"\tsend \"You caught a fish with a %future event-item%!\" to player"
 })
 @Since("INSERT VERSION")
 public class EvtBucketEntity extends SkriptEvent {
@@ -42,6 +42,13 @@ public class EvtBucketEntity extends SkriptEvent {
 				return event.getOriginalBucket();
 			}
 		}, EventValues.TIME_NOW);
+
+		EventValues.registerEventValue(PlayerBucketEntityEvent.class, ItemStack.class, new Getter<>() {
+			@Override
+			public ItemStack get(PlayerBucketEntityEvent event) {
+				return event.getEntityBucket();
+			}
+		}, EventValues.TIME_FUTURE);
 
 		EventValues.registerEventValue(PlayerBucketEntityEvent.class, Player.class, new Getter<>() {
 			@Override
