@@ -117,21 +117,21 @@ on fishing line cast:
 		complete objective "cast - remove lure enchantment bonus" for {_test}
 
 	parse if method "org.bukkit.entity.FishHook#getTimeUntilBite" exists:
-			set fishing bite time to 1 second
-			if fishing bite time is 1 second:
-				complete objective "cast - bite time" for {_test}
+		set fishing bite time to 1 second
+		if fishing bite time is 1 second:
+			complete objective "cast - bite time" for {_test}
 
-			remove 0.5 seconds from fishing bite time
-			if fishing bite time is 0.5 seconds:
-				complete objective "cast - remove bite time" for {_test}
+		remove 0.5 seconds from fishing bite time
+		if fishing bite time is 0.5 seconds:
+			complete objective "cast - remove bite time" for {_test}
 
-			add 0.5 seconds to fishing bite time
-			if fishing bite time is 1 second:
-				complete objective "cast - add bite time" for {_test}
+		add 0.5 seconds to fishing bite time
+		if fishing bite time is 1 second:
+			complete objective "cast - add bite time" for {_test}
 
-			set fishing bite time to 0 second
-			if fishing bite time is 1 tick:
-				complete objective "catch - invalid bite time" for {_test}
+		set fishing bite time to 0 second
+		if fishing bite time is 1 tick:
+			complete objective "catch - invalid bite time" for {_test}
 
 on fish catch:
 	set {_test} to "org.skriptlang.skript.test.tests.syntaxes.events.EvtFishTest"
@@ -205,18 +205,18 @@ on fish catch:
 		complete objective "catch - remove lure enchantment bonus" for {_test}
 
 	parse if method "org.bukkit.entity.FishHook#getTimeUntilBite" exists:
-			set fishing bite time to 1 second
-			if fishing bite time is 1 second:
-				complete objective "catch - bite time" for {_test}
+		set fishing bite time to 1 second
+		if fishing bite time is 1 second:
+			complete objective "catch - bite time" for {_test}
 
-			remove 0.5 seconds from fishing bite time
-			if fishing bite time is 0.5 seconds:
-				complete objective "catch - remove bite time" for {_test}
+		remove 0.5 seconds from fishing bite time
+		if fishing bite time is 0.5 seconds:
+			complete objective "catch - remove bite time" for {_test}
 
-			add 0.5 seconds to fishing bite time
-			if fishing bite time is 1 second:
-				complete objective "catch - add bite time" for {_test}
+		add 0.5 seconds to fishing bite time
+		if fishing bite time is 1 second:
+			complete objective "catch - add bite time" for {_test}
 
-			set fishing bite time to 0 second
-			if fishing bite time is 1 tick:
-				complete objective "catch - invalid bite time" for {_test}
+		set fishing bite time to 0 second
+		if fishing bite time is 1 tick:
+			complete objective "catch - invalid bite time" for {_test}
