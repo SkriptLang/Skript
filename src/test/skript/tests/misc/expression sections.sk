@@ -13,6 +13,16 @@ test "expression sections":
 	run {_runnable}
 	assert {_var} is true with "expression section didn't run again!"
 
+	# section in a section!
+	set {_runnable} to a new runnable:
+		set {_runnable2} to a new runnable:
+			set {_var} to true
+		run {_runnable2}
+	set {_var} to false
+	run {_runnable}
+	assert {_var} is true with "expression section in expression section didn't run"
+
+
 test "expression sections that don't work":
 	# Section with no section expression!
 	set {_expected} to "The line 'set {_var} to true' is a valid statement but cannot function as a section (:) because there is no syntax in the line to manage it."
