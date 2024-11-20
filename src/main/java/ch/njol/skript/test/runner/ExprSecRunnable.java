@@ -50,22 +50,14 @@ public class ExprSecRunnable extends SectionExpression<Object> {
 			Skript.error("Runnable expression needs a section!");
 			return false;
 		}
-		this.trigger = this.loadCode(node, "runnable", null, RunnableEvent.class);
+		loadCode(node);
 		return true;
 	}
 
 	@Override
 	protected Object @Nullable [] get(Event event) {
 		return new Runnable[] {
-			() -> {
-				RunnableEvent local = new RunnableEvent();
-				Variables.setLocalVariables(local, Variables.copyLocalVariables(event));
-				TriggerItem.walk(trigger, local);
-				// And copy our (possibly modified) local variables back to the calling code
-				Variables.setLocalVariables(event, Variables.copyLocalVariables(local));
-				// Clear spawnEvent's local variables as it won't be done automatically
-				Variables.removeLocals(local);
-			}
+			() -> runSection(event)
 		};
 	}
 

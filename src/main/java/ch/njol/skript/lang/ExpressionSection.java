@@ -67,24 +67,13 @@ public class ExpressionSection extends Section {
 		super.loadOptionalCode(sectionNode);
 	}
 
+	public boolean runSection(Event event) {
+		return TriggerItem.walk(this.first, event);
+	}
+
 	@Override
 	public void setTriggerItems(List<TriggerItem> items) {
 		super.setTriggerItems(items);
-	}
-
-	@Override
-	public TriggerSection setNext(@Nullable TriggerItem next) {
-		return super.setNext(next);
-	}
-
-	@Override
-	public TriggerSection setParent(@Nullable TriggerSection parent) {
-		return super.setParent(parent);
-	}
-
-	@Override
-	public @Nullable TriggerItem getNext() {
-		return super.getNext();
 	}
 
 	public Trigger loadCodeTask(SectionNode sectionNode, String name, @Nullable Runnable afterLoading, Class<? extends Event>... events) {

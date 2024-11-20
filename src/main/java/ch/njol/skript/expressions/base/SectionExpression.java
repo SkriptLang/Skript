@@ -143,29 +143,24 @@ public abstract class SectionExpression<Value> extends SimpleExpression<Value> {
 	}
 
 	/**
-	 * Remember to add this section to {@link ParserInstance#getCurrentSections()} before parsing child elements!
-	 *
-	 * <pre>{@code
-	 * ScriptLoader.currentSections.add(this);
-	 * setTriggerItems(ScriptLoader.loadItems(node));
-	 * ScriptLoader.currentSections.remove(ScriptLoader.currentSections.size() - 1);
-	 * }</pre>
+	 * Establishes the {@link TriggerItem} tree of this section
+	 *  without modifying {@link ParserInstance#getCurrentSections()}.
 	 */
 	protected void setTriggerItems(List<TriggerItem> items) {
 		this.section.setTriggerItems(items);
 	}
 
-	protected TriggerSection setNext(@Nullable TriggerItem next) {
-		return this.section.setNext(next);
-	}
-
-	protected TriggerSection setParent(@Nullable TriggerSection parent) {
-		return this.section.setParent(parent);
-	}
-
-	protected @Nullable TriggerItem getNext() {
-		return this.section.getNext();
+	/**
+	 * Executes the code within the section associated with this expression.
+	 * Before calling this method, the section must have been loaded through:
+	 * {@link #loadCode(SectionNode)},
+	 * {@link #loadOptionalCode(SectionNode)},
+	 * or {@link #setTriggerItems(List)}.
+	 * @param event The event to pass as context.
+	 * @return False if an exception occurred while executing the section.
+	 */
+	protected boolean runSection(Event event) {
+		return this.section.runSection(event);
 	}
 
 }
-
