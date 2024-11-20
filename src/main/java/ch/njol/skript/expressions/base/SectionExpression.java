@@ -60,7 +60,7 @@ import java.util.List;
  * @see Section
  * @see SimpleExpression
  */
-public abstract class SectionExpression<Value> extends SimpleExpression<Value> implements Expression<Value> {
+public abstract class SectionExpression<Value> extends SimpleExpression<Value> {
 
 	protected final ExpressionSection section = new ExpressionSection(this);
 

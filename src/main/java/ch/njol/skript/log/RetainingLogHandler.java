@@ -44,7 +44,7 @@ public class RetainingLogHandler extends LogHandler {
 
 	/**
 	 * Internal method for creating a backup of this log.
-	 * @return A new ParseLogHandler containing the contents of this ParseLogHandler.
+	 * @return A new RetainingLogHandler containing the contents of this RetainingLogHandler.
 	 */
 	@ApiStatus.Internal
 	@Contract("-> new")
