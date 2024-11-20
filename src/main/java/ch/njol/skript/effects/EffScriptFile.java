@@ -88,7 +88,7 @@ public class EffScriptFile extends Effect {
 			String name = stringExpression.getSingle(event);
 			if (name == null)
 				return;
-			this.handle(SkriptCommand.getScriptFromName(name), name);
+			this.handle(ScriptLoader.getScriptFromName(name), name);
 		}
 	}
 

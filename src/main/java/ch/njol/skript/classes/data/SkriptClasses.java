@@ -697,15 +697,15 @@ public class SkriptClasses {
 					@Override
 					@Nullable
 					public Script parse(final String name, final ParseContext context) {
-						switch (context) {
-							case PARSE, COMMAND:
-								@Nullable File file = SkriptCommand.getScriptFromName(name);
+						return switch (context) {
+							case PARSE, COMMAND -> {
+								@Nullable File file = ScriptLoader.getScriptFromName(name);
 								if (file == null || !file.isFile())
-									return null;
-								return ScriptLoader.getScript(file);
-							default:
-								return null;
-						}
+									yield null;
+								yield ScriptLoader.getScript(file);
+							}
+							default -> null;
+						};
 					}
 
 					@Override
