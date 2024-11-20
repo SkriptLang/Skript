@@ -102,7 +102,11 @@ on fishing line cast:
 		complete objective "cast - reset approach angle" for {_test}
 
 	set min fish approach angle to 720
-	if min fish approach angle is 720:
+	set max fish approach angle to -3
+	if:
+		min fish approach angle is 360
+		max fish approach angle is 0
+	then:
 		complete objective "cast - invalid approach angle" for {_test}
 
 	if lure enchantment bonus isn't applied:
@@ -182,7 +186,11 @@ on fish catch:
 		complete objective "catch - remove approach angle" for {_test}
 
 	set min fish approach angle to 720
-	if min fish approach angle is 720:
+	set max fish approach angle to -3
+	if:
+		min fish approach angle is 360
+		max fish approach angle is 0
+	then:
 		complete objective "catch - invalid approach angle" for {_test}
 
 	reset min fish approach angle
