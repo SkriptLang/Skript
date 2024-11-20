@@ -167,8 +167,7 @@ public class ExprName extends SimplePropertyExpression<Object, String> {
 		if (object instanceof OfflinePlayer && ((OfflinePlayer) object).isOnline())
 			object = ((OfflinePlayer) object).getPlayer();
 
-		if (object instanceof Script) {
-			Script script = (Script) object;
+		if (object instanceof Script script) {
 			String name = script.getConfig().getFileName();
 			if (name.contains("."))
 				name = name.substring(0, name.lastIndexOf('.'));

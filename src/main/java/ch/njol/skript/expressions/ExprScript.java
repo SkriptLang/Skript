@@ -58,7 +58,7 @@ public class ExprScript extends SimpleExpression<Script> {
 		if (matchedPattern == 0) {
 			ParserInstance parser = this.getParser();
 			if (!parser.isActive()) {
-				Skript.error("You can't use the current script expression outside of scripts!");
+				Skript.error("'the current script' can only be used in a script.");
 				return false;
 			}
 			this.script = parser.getCurrentScript();

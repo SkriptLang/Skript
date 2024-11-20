@@ -79,8 +79,7 @@ public class EffScriptFile extends Effect {
 	@Override
 	protected void execute(Event event) {
 		if (scripts) {
-			Script[] array = scriptExpression.getArray(event);
-			for (Script script : array) {
+			for (Script script : scriptExpression.getArray(event)) {
 				@Nullable File file = script.getConfig().getFile();
 				this.handle(file, script.getConfig().getFileName());
 			}

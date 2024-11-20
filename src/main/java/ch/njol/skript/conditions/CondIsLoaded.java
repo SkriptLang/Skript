@@ -55,9 +55,9 @@ public class CondIsLoaded extends Condition {
 		Skript.registerCondition(CondIsLoaded.class,
 			"chunk[s] %directions% [%locations%] (is|are)[(1¦(n't| not))] loaded",
 			"chunk [at] %number%, %number% (in|of) [world] %world% is[(1¦(n't| not))] loaded",
-			"%scripts/worlds% (is|are)[(1¦(n't| not))] loaded",
-			"script[s] %scripts% (is|are)[(1¦(n't| not))] loaded",
-			"world[s] %worlds% (is|are)[(1¦(n't| not))] loaded");
+			"%scripts/worlds% (is|are)[1:(n't| not)] loaded",
+			"script[s] %scripts% (is|are)[1:(n't| not)] loaded",
+			"world[s] %worlds% (is|are)[1:(n't| not)] loaded");
 	}
 
 	private Expression<Location> locations;
