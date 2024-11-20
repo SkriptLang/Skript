@@ -84,26 +84,30 @@ public class ExprFishingApproachAngle extends SimpleExpression<Float> {
 		switch (mode) {
 			case SET, RESET -> {
 				if (isMin) {
-					hook.setMinLureAngle(angle);
+					hook.setMinLureAngle(clamp(angle));
 				} else {
-					hook.setMaxLureAngle(angle);
+					hook.setMaxLureAngle(clamp(angle));
 				}
 			}
 			case ADD -> {
 				if (isMin) {
-					hook.setMinLureAngle(hook.getMinLureAngle() + angle);
+					hook.setMinLureAngle(clamp(hook.getMinLureAngle() + angle));
 				} else {
-					hook.setMaxLureAngle(hook.getMaxLureAngle() + angle);
+					hook.setMaxLureAngle(clamp(hook.getMaxLureAngle() + angle));
 				}
 			}
 			case REMOVE -> {
 				if (isMin) {
-					hook.setMinLureAngle(hook.getMinLureAngle() - angle);
+					hook.setMinLureAngle(clamp(hook.getMinLureAngle() - angle));
 				} else {
-					hook.setMaxLureAngle(hook.getMaxLureAngle() - angle);
+					hook.setMaxLureAngle(clamp(hook.getMaxLureAngle() - angle));
 				}
 			}
 		}
+	}
+
+	private float clamp(float value) {
+		return Math.min(Math.max(value, 0f), 360f);
 	}
 
 	@Override

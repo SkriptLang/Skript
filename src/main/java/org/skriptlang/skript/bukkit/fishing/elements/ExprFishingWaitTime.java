@@ -88,23 +88,23 @@ public class ExprFishingWaitTime extends SimpleExpression<Timespan> {
 		switch (mode) {
 			case SET, RESET -> {
 				if (isMin) {
-					hook.setMinWaitTime(ticks);
+					hook.setMinWaitTime(Math.max(0, ticks));
 				} else {
-					hook.setMaxWaitTime(ticks);
+					hook.setMaxWaitTime(Math.max(0, ticks));
 				}
 			}
 			case ADD -> {
 				if (isMin) {
-					hook.setMinWaitTime(hook.getMinWaitTime() + ticks);
+					hook.setMinWaitTime(Math.max(0, hook.getMinWaitTime() + ticks));
 				} else {
-					hook.setMaxWaitTime(hook.getMaxWaitTime() + ticks);
+					hook.setMaxWaitTime(Math.max(0, hook.getMaxWaitTime() + ticks));
 				}
 			}
 			case REMOVE -> {
 				if (isMin) {
-					hook.setMinWaitTime(hook.getMinWaitTime() - ticks);
+					hook.setMinWaitTime(Math.max(0, hook.getMinWaitTime() - ticks));
 				} else {
-					hook.setMaxWaitTime(hook.getMaxWaitTime() - ticks);
+					hook.setMaxWaitTime(Math.max(0, hook.getMaxWaitTime() - ticks));
 				}
 			}
 		}
