@@ -91,9 +91,4 @@ public class ExpressionSection extends Section {
 		return super.loadCode(sectionNode, name, afterLoading, events);
 	}
 
-	@ApiStatus.Internal
-	protected boolean canInitSafely() {
-		return this.getParser().getData(SectionContext.class).claim(expression);
-	}
-
 }
