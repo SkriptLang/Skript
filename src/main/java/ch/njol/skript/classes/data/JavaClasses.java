@@ -18,10 +18,12 @@
  */
 package ch.njol.skript.classes.data;
 
+import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptConfig;
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.classes.Parser;
 import ch.njol.skript.classes.Serializer;
+import ch.njol.skript.expressions.base.EventValueExpression;
 import ch.njol.skript.lang.ParseContext;
 import ch.njol.skript.lang.VariableString;
 import ch.njol.skript.lang.util.SimpleLiteral;
@@ -32,14 +34,15 @@ import ch.njol.skript.util.Utils;
 import ch.njol.util.StringUtils;
 import ch.njol.yggdrasil.Fields;
 import org.jetbrains.annotations.Nullable;
+import org.joml.Quaternionf;
 
 import java.util.regex.Pattern;
 
 public class JavaClasses {
 
 	public static final int VARIABLENAME_NUMBERACCURACY = 8;
-	public static final Pattern INTEGER_PATTERN = Pattern.compile("-?[0-9]+");
-	public static final Pattern NUMBER_PATTERN = Pattern.compile("-?[0-9]+(?>\\.[0-9]+)?%?");
+	public static final Pattern INTEGER_PATTERN = Pattern.compile("-?\\d+(_\\d+)*");
+	public static final Pattern NUMBER_PATTERN = Pattern.compile("-?\\d+(_\\d+)*(?>\\.\\d+(_\\d+)*)?%?");
 
 	static {
 		Classes.registerClass(new ClassInfo<>(Object.class, "object")
@@ -69,10 +72,12 @@ public class JavaClasses {
 							return null;
 						if (INTEGER_PATTERN.matcher(s).matches()) {
 							try {
-								return Long.valueOf(s);
+								return Long.valueOf(s.replace("_", ""));
 							} catch (NumberFormatException ignored) { }
 						}
 						try {
+							s = s.replace("_", "");
+
 							Double d = s.endsWith("%") ? Double.parseDouble(s.substring(0, s.length() - 1)) / 100 : Double.parseDouble(s);
 							if (d.isNaN() || d.isInfinite())
 								return null;
@@ -138,7 +143,7 @@ public class JavaClasses {
 						if (!INTEGER_PATTERN.matcher(s).matches())
 							return null;
 						try {
-							return Long.valueOf(s);
+							return Long.valueOf(s.replace("_", ""));
 						} catch (NumberFormatException e) {
 							return null;
 						}
@@ -195,7 +200,7 @@ public class JavaClasses {
 						if (!INTEGER_PATTERN.matcher(s).matches())
 							return null;
 						try {
-							return Integer.valueOf(s);
+							return Integer.valueOf(s.replace("_", ""));
 						} catch (NumberFormatException e) {
 							return null;
 						}
@@ -254,6 +259,8 @@ public class JavaClasses {
 						if (!NUMBER_PATTERN.matcher(s).matches())
 							return null;
 						try {
+							s = s.replace("_", "");
+
 							Double d = s.endsWith("%") ? Double.parseDouble(s.substring(0, s.length() - 1)) / 100 : Double.parseDouble(s);
 							if (d.isNaN() || d.isInfinite())
 								return null;
@@ -314,6 +321,8 @@ public class JavaClasses {
 						if (!NUMBER_PATTERN.matcher(s).matches())
 							return null;
 						try {
+							s = s.replace("_", "");
+
 							Float f = s.endsWith("%") ? Float.parseFloat(s.substring(0, s.length() - 1)) / 100 : Float.parseFloat(s);
 							if (f.isNaN() || f.isInfinite()) {
 								return null;
@@ -440,7 +449,7 @@ public class JavaClasses {
 						if (!INTEGER_PATTERN.matcher(s).matches())
 							return null;
 						try {
-							return Short.valueOf(s);
+							return Short.valueOf(s.replace("_", ""));
 						} catch (NumberFormatException e) {
 							return null;
 						}
@@ -497,7 +506,7 @@ public class JavaClasses {
 						if (!INTEGER_PATTERN.matcher(s).matches())
 							return null;
 						try {
-							return Byte.valueOf(s);
+							return Byte.valueOf(s.replace("_", ""));
 						} catch (NumberFormatException e) {
 							return null;
 						}
@@ -627,5 +636,40 @@ public class JavaClasses {
 						return false;
 					}
 				}));
+
+		// joml type - for display entities
+		if (Skript.classExists("org.joml.Quaternionf"))
+			Classes.registerClass(new ClassInfo<>(Quaternionf.class, "quaternion")
+					.user("quaternionf?s?")
+					.name("Quaternion")
+					.description("Quaternions are four dimensional vectors, often used for representing rotations.")
+					.since("INSERT VERSION")
+					.parser(new Parser<>() {
+						public boolean canParse(ParseContext context) {
+							return false;
+						}
+
+						@Override
+						public String toString(Quaternionf quaternion, int flags) {
+							return "w:" + Skript.toString(quaternion.w()) + ", x:" + Skript.toString(quaternion.x()) + ", y:" + Skript.toString(quaternion.y()) + ", z:" + Skript.toString(quaternion.z());
+						}
+
+						@Override
+						public String toVariableNameString(Quaternionf quaternion) {
+							return quaternion.w() + "," + quaternion.x() + "," + quaternion.y() + "," + quaternion.z();
+						}
+					})
+					.defaultExpression(new EventValueExpression<>(Quaternionf.class))
+					.cloner(quaternion -> {
+						try {
+							// Implements cloneable, but doesn't return a Quaternionf.
+							// org.joml improper override. Returns Object.
+							return (Quaternionf) quaternion.clone();
+						} catch (CloneNotSupportedException e) {
+							return null;
+						}
+					}));
+
 	}
+
 }

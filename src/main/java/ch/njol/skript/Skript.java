@@ -29,6 +29,7 @@ import ch.njol.skript.lang.SyntaxElementInfo;
 import ch.njol.skript.lang.Trigger;
 import ch.njol.skript.lang.TriggerItem;
 import ch.njol.skript.lang.util.SimpleExpression;
+import ch.njol.skript.localization.ArgsMessage;
 import ch.njol.skript.localization.Language;
 import ch.njol.skript.localization.Message;
 import ch.njol.skript.localization.PluralizingArgsMessage;
@@ -43,11 +44,7 @@ import ch.njol.skript.log.Verbosity;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.registrations.EventValues;
 import ch.njol.skript.registrations.Feature;
-import ch.njol.skript.test.runner.EffObjectives;
-import ch.njol.skript.test.runner.SkriptJUnitTest;
-import ch.njol.skript.test.runner.SkriptTestEvent;
-import ch.njol.skript.test.runner.TestMode;
-import ch.njol.skript.test.runner.TestTracker;
+import ch.njol.skript.test.runner.*;
 import ch.njol.skript.timings.SkriptTimings;
 import ch.njol.skript.update.ReleaseManifest;
 import ch.njol.skript.update.ReleaseStatus;
@@ -74,10 +71,8 @@ import com.google.common.collect.Lists;
 import com.google.gson.Gson;
 
 import org.bstats.bukkit.Metrics;
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.Material;
-import org.bukkit.Server;
+import org.bstats.charts.SimplePie;
+import org.bukkit.*;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.entity.Player;
@@ -88,6 +83,7 @@ import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.server.PluginDisableEvent;
 import org.bukkit.event.server.ServerCommandEvent;
+import org.bukkit.event.server.ServerLoadEvent;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -96,7 +92,10 @@ import org.jetbrains.annotations.UnknownNullability;
 import org.junit.After;
 import org.junit.runner.JUnitCore;
 import org.junit.runner.Result;
+import org.junit.runner.notification.Failure;
 import org.skriptlang.skript.bukkit.SkriptMetrics;
+import org.skriptlang.skript.bukkit.breeding.BreedingModule;
+import org.skriptlang.skript.bukkit.displays.DisplayModule;
 import org.skriptlang.skript.lang.comparator.Comparator;
 import org.skriptlang.skript.lang.comparator.Comparators;
 import org.skriptlang.skript.lang.converter.Converter;
@@ -131,6 +130,8 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.logging.Filter;
@@ -233,6 +234,17 @@ public final class Skript extends JavaPlugin implements Listener {
 		m_no_errors = new Message("skript.no errors"),
 		m_no_scripts = new Message("skript.no scripts");
 	private static final PluralizingArgsMessage m_scripts_loaded = new PluralizingArgsMessage("skript.scripts loaded");
+
+	private static final Message WARNING_MESSAGE = new Message("skript.warning message");
+	private static final Message RESTART_MESSAGE = new Message("skript.restart message");
+
+	public static String getWarningMessage() {
+		return WARNING_MESSAGE.getValueOrDefault("It appears that /reload or another plugin reloaded Skript. This is not supported behaviour and may cause issues.");
+	}
+
+	public static String getRestartMessage() {
+		return RESTART_MESSAGE.getValueOrDefault("Please consider restarting the server instead.");
+	}
 
 	public static ServerPlatform getServerPlatform() {
 		if (classExists("net.glowstone.GlowServer")) {
@@ -541,6 +553,10 @@ public final class Skript extends JavaPlugin implements Listener {
 		try {
 			getAddonInstance().loadClasses("ch.njol.skript",
 				"conditions", "effects", "events", "expressions", "entity", "sections", "structures");
+			getAddonInstance().loadClasses("org.skriptlang.skript.bukkit", "misc");
+			// todo: become proper module once registry api is merged
+			DisplayModule.load();
+			BreedingModule.load();
 		} catch (final Exception e) {
 			exception(e, "Could not load required .class files: " + e.getLocalizedMessage());
 			setEnabled(false);
@@ -653,11 +669,15 @@ public final class Skript extends JavaPlugin implements Listener {
 				debug("Early init done");
 
 				if (TestMode.ENABLED) {
-					Bukkit.getScheduler().runTaskLater(Skript.this, () -> info("Skript testing environment enabled, starting soon..."), 1);
 					// Ignore late init (scripts, etc.) in test mode
 					Bukkit.getScheduler().runTaskLater(Skript.this, () -> {
+						info("Skript testing environment enabled, starting...");
+
 						// Delay is in Minecraft ticks.
-						long shutdownDelay = 0;
+						AtomicLong shutdownDelay = new AtomicLong(0);
+						List<Class<?>> asyncTests = new ArrayList<>();
+						CompletableFuture<Void> onAsyncComplete = CompletableFuture.completedFuture(null);
+
 						if (TestMode.GEN_DOCS) {
 							Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "skript gen-docs");
 						} else if (TestMode.DEV_MODE) { // Developer controlled environment.
@@ -687,8 +707,11 @@ public final class Skript extends JavaPlugin implements Listener {
 								TestTracker.testFailed("exception was thrown during execution");
 							}
 							if (TestMode.JUNIT) {
-								info("Running all JUnit tests...");
-								long milliseconds = 0, tests = 0, fails = 0, ignored = 0, size = 0;
+								AtomicLong milliseconds = new AtomicLong(0),
+									tests = new AtomicLong(0), fails = new AtomicLong(0),
+									ignored = new AtomicLong(0), size = new AtomicLong(0);
+
+								info("Running sync JUnit tests...");
 								try {
 									List<Class<?>> classes = Lists.newArrayList(Utils.getClasses(Skript.getInstance(), "org.skriptlang.skript.test", "tests"));
 									// Don't attempt to run inner/anonymous classes as tests
@@ -696,83 +719,69 @@ public final class Skript extends JavaPlugin implements Listener {
 									classes.removeIf(Class::isLocalClass);
 									// Test that requires package access. This is only present when compiling with src/test.
 									classes.add(Class.forName("ch.njol.skript.variables.FlatFileStorageTest"));
-									size = classes.size();
+									size.set(classes.size());
 									for (Class<?> clazz : classes) {
-										// Reset class SkriptJUnitTest which stores test requirements.
-										String test = clazz.getName();
-										SkriptJUnitTest.setCurrentJUnitTest(test);
-										SkriptJUnitTest.setShutdownDelay(0);
-
-										info("Running JUnit test '" + test + "'");
-										Result junit = JUnitCore.runClasses(clazz);
-										TestTracker.testStarted("JUnit: '" + test + "'");
-
-										/**
-										 * Usage of @After is pointless if the JUnit class requires delay. As the @After will happen instantly.
-										 * The JUnit must override the 'cleanup' method to avoid Skript automatically cleaning up the test data.
-										 */
-										boolean overrides = false;
-										for (Method method : clazz.getDeclaredMethods()) {
-											if (!method.isAnnotationPresent(After.class))
-												continue;
-											if (SkriptJUnitTest.getShutdownDelay() > 1)
-												warning("Using @After in JUnit classes, happens instantaneously, and JUnit class '" + test + "' requires a delay. Do your test cleanup in the script junit file or 'cleanup' method.");
-											if (method.getName().equals("cleanup"))
-												overrides = true;
+										if (SkriptAsyncJUnitTest.class.isAssignableFrom(clazz)) {
+											asyncTests.add(clazz); // do these later, all together
+											continue;
 										}
-										if (SkriptJUnitTest.getShutdownDelay() > 1 && !overrides)
-											error("The JUnit class '" + test + "' does not override the method 'cleanup' thus the test data will instantly be cleaned up. " +
-													"This JUnit test requires longer shutdown time: " + SkriptJUnitTest.getShutdownDelay());
 
-										// Collect all data from the current JUnit test.
-										shutdownDelay = Math.max(shutdownDelay, SkriptJUnitTest.getShutdownDelay());
-										tests += junit.getRunCount();
-										milliseconds += junit.getRunTime();
-										ignored += junit.getIgnoreCount();
-										fails += junit.getFailureCount();
-
-										// If JUnit failures are present, add them to the TestTracker.
-										junit.getFailures().forEach(failure -> {
-											String message = failure.getMessage() == null ? "" : " " + failure.getMessage();
-											TestTracker.JUnitTestFailed(test, message);
-											Skript.exception(failure.getException(), "JUnit test '" + failure.getTestHeader() + " failed.");
-										});
-										if (SkriptJUnitTest.class.isAssignableFrom(clazz))
-											((SkriptJUnitTest) clazz.getConstructor().newInstance()).cleanup();
-										SkriptJUnitTest.clearJUnitTest();
+										runTest(clazz, shutdownDelay, tests, milliseconds, ignored, fails);
 									}
 								} catch (IOException e) {
 									Skript.exception(e, "Failed to execute JUnit runtime tests.");
 								} catch (ClassNotFoundException e) {
 									// Should be the Skript test jar gradle task.
 									assert false : "Class 'ch.njol.skript.variables.FlatFileStorageTest' was not found.";
-								} catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
+								} catch (InstantiationException | IllegalAccessException | IllegalArgumentException |
+										 InvocationTargetException | NoSuchMethodException | SecurityException e) {
 									Skript.exception(e, "Failed to initalize test JUnit classes.");
 								}
-								if (ignored > 0)
+								if (ignored.get() > 0)
 									Skript.warning("There were " + ignored + " ignored test cases! This can mean they are not properly setup in order in that class!");
 
-								info("Completed " + tests + " JUnit tests in " + size + " classes with " + fails + " failures in " + milliseconds + " milliseconds.");
+								onAsyncComplete = CompletableFuture.runAsync(() -> {
+									info("Running async JUnit tests...");
+									try {
+										for (Class<?> clazz : asyncTests) {
+											runTest(clazz, shutdownDelay, tests, milliseconds, ignored, fails);
+										}
+									} catch (InstantiationException | IllegalAccessException | IllegalArgumentException |
+											 InvocationTargetException | NoSuchMethodException | SecurityException e) {
+										Skript.exception(e, "Failed to initalize test JUnit classes.");
+									}
+									if (ignored.get() > 0)
+										Skript.warning("There were " + ignored + " ignored test cases! " +
+											"This can mean they are not properly setup in order in that class!");
+
+									info("Completed " + tests + " JUnit tests in " + size + " classes with " + fails +
+										" failures in " + milliseconds + " milliseconds.");
+								});
 							}
 						}
-						double display = shutdownDelay / 20;
-						info("Testing done, shutting down the server in " + display + " second" + (display <= 1D ? "" : "s") + "...");
-						// Delay server shutdown to stop the server from crashing because the current tick takes a long time due to all the tests
-						Bukkit.getScheduler().runTaskLater(Skript.this, () -> {
-							if (TestMode.JUNIT && !EffObjectives.isJUnitComplete())
-								EffObjectives.fail();
 
-							info("Collecting results to " + TestMode.RESULTS_FILE);
-							String results = new Gson().toJson(TestTracker.collectResults());
-							try {
-								Files.write(TestMode.RESULTS_FILE, results.getBytes(StandardCharsets.UTF_8));
-							} catch (IOException e) {
-								Skript.exception(e, "Failed to write test results.");
-							}
+						onAsyncComplete.thenRun(() -> {
+							double display = shutdownDelay.get() / 20.0;
+							info("Testing done, shutting down the server in " + display + " second" + (display == 1 ? "" : "s") + "...");
 
-							Bukkit.getServer().shutdown();
-						}, shutdownDelay);
-					}, 100);
+							// Delay server shutdown to stop the server from crashing because the current tick takes a long time due to all the tests
+							Bukkit.getScheduler().runTaskLater(Skript.this, () -> {
+								info("Shutting down server.");
+								if (TestMode.JUNIT && !EffObjectives.isJUnitComplete())
+									EffObjectives.fail();
+
+								info("Collecting results to " + TestMode.RESULTS_FILE);
+								String results = new Gson().toJson(TestTracker.collectResults());
+								try {
+									Files.write(TestMode.RESULTS_FILE, results.getBytes(StandardCharsets.UTF_8));
+								} catch (IOException e) {
+									Skript.exception(e, "Failed to write test results.");
+								}
+
+								Bukkit.getServer().shutdown();
+							}, shutdownDelay.get());
+						});
+					}, 5);
 				}
 
 				Skript.metrics = new Metrics(Skript.getInstance(), 722); // 722 is our bStats plugin ID
@@ -832,35 +841,108 @@ public final class Skript extends JavaPlugin implements Listener {
 			}
 		});
 
+		if (!TestMode.ENABLED) {
+			Bukkit.getPluginManager().registerEvents(new JoinUpdateNotificationListener(), this);
+		}
+
+		// Send a warning to console when the plugin is reloaded
 		Bukkit.getPluginManager().registerEvents(new Listener() {
 			@EventHandler
-			public void onJoin(final PlayerJoinEvent e) {
-				if (e.getPlayer().hasPermission("skript.admin")) {
-					new Task(Skript.this, 0) {
-						@Override
-						public void run() {
-							Player p = e.getPlayer();
-							SkriptUpdater updater = getUpdater();
-							if (updater == null)
-								return;
+			public void onServerReload(ServerLoadEvent event) {
+				if ((event.getType() != ServerLoadEvent.LoadType.RELOAD))
+					return;
 
-							// Don't actually check for updates to avoid breaking Github rate limit
-							if (updater.getReleaseStatus() == ReleaseStatus.OUTDATED) {
-								// Last check indicated that an update is available
-								UpdateManifest update = updater.getUpdateManifest();
-								assert update != null; // Because we just checked that one is available
-								Skript.info(p, "" + SkriptUpdater.m_update_available.toString(update.id, Skript.getVersion()));
-								p.spigot().sendMessage(BungeeConverter.convert(ChatMessages.parseToArray(
-										"Download it at: <aqua><u><link:" + update.downloadUrl + ">" + update.downloadUrl)));
-							}
-						}
-					};
+				for (OfflinePlayer player : Bukkit.getOperators()) {
+					if (player.isOnline()) {
+						player.getPlayer().sendMessage(ChatColor.YELLOW + getWarningMessage());
+						player.getPlayer().sendMessage(ChatColor.YELLOW + getRestartMessage());
+					}
 				}
+
+				Skript.warning(getWarningMessage());
+				Skript.warning(getRestartMessage());
 			}
 		}, this);
 
 		// Tell Timings that we are here!
 		SkriptTimings.setSkript(this);
+	}
+
+	private class JoinUpdateNotificationListener implements Listener {
+		@EventHandler
+		public void onJoin(PlayerJoinEvent event) {
+			if (!event.getPlayer().hasPermission("skript.admin"))
+				return;
+
+			new Task(Skript.this, 0) {
+				@Override
+				public void run() {
+					Player player = event.getPlayer();
+					SkriptUpdater updater = getUpdater();
+
+					// Don't actually check for updates to avoid breaking GitHub rate limit
+					if (updater == null || updater.getReleaseStatus() != ReleaseStatus.OUTDATED)
+						return;
+
+					// Last check indicated that an update is available
+					UpdateManifest update = updater.getUpdateManifest();
+
+					if (update == null)
+						return;
+
+					Skript.info(player, SkriptUpdater.m_update_available.toString(update.id, Skript.getVersion()));
+					player.spigot().sendMessage(BungeeConverter.convert(ChatMessages.parseToArray(
+						"Download it at: <aqua><u><link:" + update.downloadUrl + ">" + update.downloadUrl)));
+				}
+			};
+		}
+  }
+
+	private void runTest(Class<?> clazz, AtomicLong shutdownDelay, AtomicLong tests,
+						 AtomicLong milliseconds, AtomicLong ignored, AtomicLong fails)
+		throws NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
+		String test = clazz.getName();
+		SkriptJUnitTest.setCurrentJUnitTest(test);
+		SkriptJUnitTest.setShutdownDelay(0);
+
+		info("Running JUnit test '" + test + "'");
+		Result result = JUnitCore.runClasses(clazz);
+		TestTracker.testStarted("JUnit: '" + test + "'");
+
+		/*
+		 * Usage of @After is pointless if the JUnit class requires delay. As the @After will happen instantly.
+		 * The JUnit must override the 'cleanup' method to avoid Skript automatically cleaning up the test data.
+		 */
+		boolean overrides = false;
+		for (Method method : clazz.getDeclaredMethods()) {
+			if (!method.isAnnotationPresent(After.class))
+				continue;
+			if (SkriptJUnitTest.getShutdownDelay() > 1)
+				warning("Methods annotated with @After in happen instantaneously, and '" + test + "' requires a delay. Do test cleanup in the junit script file or 'cleanup' method.");
+			if (method.getName().equals("cleanup"))
+				overrides = true;
+		}
+		if (SkriptJUnitTest.getShutdownDelay() > 1 && !overrides)
+			error("The JUnit class '" + test + "' does not override the method 'cleanup', thus the test data will instantly be cleaned up " +
+				"despite requiring a longer shutdown time: " + SkriptJUnitTest.getShutdownDelay());
+
+		shutdownDelay.set(Math.max(shutdownDelay.get(), SkriptJUnitTest.getShutdownDelay()));
+		tests.getAndAdd(result.getRunCount());
+		milliseconds.getAndAdd(result.getRunTime());
+		ignored.getAndAdd(result.getIgnoreCount());
+		fails.getAndAdd(result.getFailureCount());
+
+		// If JUnit failures are present, add them to the TestTracker.
+		for (Failure failure : result.getFailures()) {
+			String message = failure.getMessage() == null ? "" : " " + failure.getMessage();
+			TestTracker.JUnitTestFailed(test, message);
+			Skript.exception(failure.getException(), "JUnit test '" + failure.getTestHeader() + " failed.");
+		}
+
+		if (SkriptJUnitTest.class.isAssignableFrom(clazz) &&
+			!SkriptAsyncJUnitTest.class.isAssignableFrom(clazz)) // can't access blocks, entities async
+			((SkriptJUnitTest) clazz.getConstructor().newInstance()).cleanup();
+		SkriptJUnitTest.clearJUnitTest();
 	}
 
 	/**
