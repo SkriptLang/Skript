@@ -2,7 +2,6 @@ package ch.njol.skript.expressions;
 
 import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.Skript;
-import ch.njol.skript.SkriptCommand;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
@@ -18,6 +17,7 @@ import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 
 import java.io.File;
+import java.io.FileFilter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -96,10 +96,13 @@ public class ExprScript extends SimpleExpression<Script> {
 		File[] files = folder.listFiles();
 		if (files == null)
 			return;
+		FileFilter loaded = ScriptLoader.getLoadedScriptsFilter();
+		FileFilter disabled = ScriptLoader.getDisabledScriptsFilter();
+		FileFilter filter = f -> loaded.accept(f) || disabled.accept(f);
 		for (File file : files) {
 			if (file.isDirectory()) {
 				this.getScripts(file, scripts);
-			} else if (file.getName().endsWith(".sk")) {
+			} else if (filter.accept(file)) {
 				@Nullable Script handle = ExprScript.getHandle(file);
 				if (handle != null)
 					scripts.add(handle);

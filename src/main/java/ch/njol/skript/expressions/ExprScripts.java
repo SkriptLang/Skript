@@ -59,16 +59,12 @@ public class ExprScripts extends SimpleExpression<Script> {
 				"[all [[of] the]|the] (disabled|unloaded) scripts");
 	}
 
-	private boolean includeEnabled;
-	private boolean includeDisabled;
 	private int pattern;
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		if (!this.getParser().hasExperiment(Feature.SCRIPT_REFLECTION))
 			return false;
-		this.includeEnabled = matchedPattern <= 1;
-		this.includeDisabled = matchedPattern != 1;
 		this.pattern = matchedPattern;
 		return true;
 	}
@@ -76,9 +72,9 @@ public class ExprScripts extends SimpleExpression<Script> {
 	@Override
 	protected Script[] get(Event event) {
 		List<Script> scripts = new ArrayList<>();
-		if (includeEnabled)
+		if (pattern <= 1)
 			scripts.addAll(ScriptLoader.getLoadedScripts());
-		if (includeDisabled) {
+		if (pattern != 1) {
 			scripts.addAll(ScriptLoader.getDisabledScripts()
 					.stream()
 					.map(ExprScript::getHandle)
