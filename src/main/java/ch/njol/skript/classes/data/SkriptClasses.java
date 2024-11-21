@@ -2,6 +2,8 @@ package ch.njol.skript.classes.data;
 
 import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.Skript;
+import ch.njol.skript.ScriptLoader;
+import ch.njol.skript.SkriptCommand;
 import ch.njol.skript.aliases.Aliases;
 import ch.njol.skript.aliases.ItemData;
 import ch.njol.skript.aliases.ItemType;
@@ -37,6 +39,7 @@ import java.io.File;
 import java.io.StreamCorruptedException;
 import java.nio.file.Path;
 import java.util.Arrays;
+import java.io.File;
 import java.util.Iterator;
 import java.util.Locale;
 import java.util.regex.Pattern;

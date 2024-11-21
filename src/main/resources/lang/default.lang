@@ -1938,6 +1938,17 @@ visual effects:
 			name: shriek @-
 			pattern: shriek [with [a] delay [of] %-timespan%]
 
+		# 1.19.4 particles
+		dripping_cherry_leaves:
+			name: dripping cherry leaves @-
+			pattern: dripping cherry leaves
+		falling_cherry_leaves:
+			name: falling cherry leaves @-
+			pattern: falling cherry leaves
+		landing_cherry_leaves:
+			name: landing cherry leaves @-
+			pattern: landing cherry leaves
+
 		small_flame: # added in 1.17
 			name: small flame @a
 			pattern: small flame

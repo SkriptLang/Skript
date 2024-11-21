@@ -25,6 +25,7 @@ import ch.njol.util.NonNullPair;
 import ch.njol.util.OpenCloseable;
 import ch.njol.util.StringUtils;
 import org.bukkit.Bukkit;
+import org.bukkit.event.Event;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.script.Script;
@@ -1228,6 +1229,192 @@ public class ScriptLoader {
 			// Unless it's a test, check if the user is asking for a script in the scripts folder
 			// and not something outside Skript's domain.
 			if (TestMode.ENABLED || scriptFile.getCanonicalPath().startsWith(directory.getCanonicalPath() + File.separator))
+				return scriptFile.getCanonicalFile();
+			return null;
+		} catch (IOException e) {
+			throw Skript.exception(e, "An exception occurred while trying to get the script file from the string '" + script + "'");
+		}
+	}
+
+	/**
+	 * @deprecated Callers should not be using configs. Use {@link #loadScripts(Set, OpenCloseable)}.
+	 */
+	@Deprecated
+	public static ScriptInfo loadScripts(Config... configs) {
+		return loadScripts(Arrays.asList(configs), OpenCloseable.EMPTY).join();
+	}
+
+	/**
+	 * @deprecated Use {@link #reloadScript(Script, OpenCloseable)}.
+	 */
+	@Deprecated
+	public static ScriptInfo reloadScript(File script) {
+		return reloadScript(script, OpenCloseable.EMPTY).join();
+	}
+
+	/**
+	 * @deprecated Use {@link #reloadScripts(Set, OpenCloseable)}.
+	 */
+	@Deprecated
+	public static ScriptInfo reloadScripts(File folder) {
+		return reloadScripts(folder, OpenCloseable.EMPTY).join();
+	}
+
+	/**
+	 * @deprecated Use {@link ParserInstance#getHasDelayBefore()}.
+	 */
+	@Deprecated
+	public static Kleenean getHasDelayBefore() {
+		return getParser().getHasDelayBefore();
+	}
+
+	/**
+	 * @deprecated Use {@link ParserInstance#setHasDelayBefore(Kleenean)}.
+	 */
+	@Deprecated
+	public static void setHasDelayBefore(Kleenean hasDelayBefore) {
+		getParser().setHasDelayBefore(hasDelayBefore);
+	}
+
+	/**
+	 * @deprecated Use {@link ParserInstance#getCurrentScript()}.
+	 */
+	@Nullable
+	@Deprecated
+	public static Config getCurrentScript() {
+		ParserInstance parser = getParser();
+		return parser.isActive() ? parser.getCurrentScript().getConfig() : null;
+	}
+
+	/**
+	 * @deprecated Addons should no longer be modifying this.
+	 */
+	@Deprecated
+	public static void setCurrentScript(@Nullable Config currentScript) {
+		getParser().setCurrentScript(currentScript);
+	}
+
+	/**
+	 * @deprecated Use {@link ParserInstance#getCurrentSections()}.
+	 */
+	@Deprecated
+	public static List<TriggerSection> getCurrentSections() {
+		return getParser().getCurrentSections();
+	}
+
+	/**
+	 * @deprecated Use {@link ParserInstance#setCurrentSections(List)}.
+	 */
+	@Deprecated
+	public static void setCurrentSections(List<TriggerSection> currentSections) {
+		getParser().setCurrentSections(currentSections);
+	}
+
+	/**
+	 * @deprecated Use {@link ParserInstance#getCurrentSections(Class)}.
+	 */
+	@Deprecated
+	public static List<SecLoop> getCurrentLoops() {
+		return getParser().getCurrentSections(SecLoop.class);
+	}
+
+	/**
+	 * @deprecated Never use this method, it has no effect.
+	 */
+	@Deprecated
+	public static void setCurrentLoops(List<SecLoop> currentLoops) { }
+
+	/**
+	 * @deprecated Use {@link ParserInstance#getCurrentEventName()}.
+	 */
+	@Nullable
+	@Deprecated
+	public static String getCurrentEventName() {
+		return getParser().getCurrentEventName();
+	}
+
+	/**
+	 * @deprecated Use {@link ParserInstance#setCurrentEvent(String, Class[])}.
+	 */
+	@SafeVarargs
+	@Deprecated
+	public static void setCurrentEvent(String name, @Nullable Class<? extends Event>... events) {
+		getParser().setCurrentEvent(name, events);
+	}
+
+	/**
+	 * @deprecated Use {@link ParserInstance#deleteCurrentEvent()}.
+	 */
+	@Deprecated
+	public static void deleteCurrentEvent() {
+		getParser().deleteCurrentEvent();
+	}
+
+	/**
+	 * @deprecated Use {@link ParserInstance#isCurrentEvent(Class)}
+	 */
+	@Deprecated
+	public static boolean isCurrentEvent(@Nullable Class<? extends Event> event) {
+		return getParser().isCurrentEvent(event);
+	}
+
+	/**
+	 * @deprecated Use {@link ParserInstance#isCurrentEvent(Class[])}.
+	 */
+	@SafeVarargs
+	@Deprecated
+	public static boolean isCurrentEvent(Class<? extends Event>... events) {
+		return getParser().isCurrentEvent(events);
+	}
+
+	/**
+	 * @deprecated Use {@link ParserInstance#getCurrentEvents()}.
+	 */
+	@Nullable
+	@Deprecated
+	public static Class<? extends Event>[] getCurrentEvents() {
+		return getParser().getCurrentEvents();
+	}
+
+	/**
+	 * @deprecated This method has no functionality, it just returns its input.
+	 */
+	@Deprecated
+	public static Config loadStructure(Config config) {
+		return config;
+	}
+
+	/**
+	 * Gets a script's file from its name, if one exists.
+	 * @param script The script name/path
+	 * @return The script file, if one is found
+	 */
+	@Nullable
+	public static File getScriptFromName(String script) {
+		if (script.endsWith("/") || script.endsWith("\\")) { // Always allow '/' and '\' regardless of OS
+			script = script.replace('/', File.separatorChar).replace('\\', File.separatorChar);
+		} else if (!StringUtils.endsWithIgnoreCase(script, ".sk")) {
+			int dot = script.lastIndexOf('.');
+			if (dot > 0 && !script.substring(dot + 1).equals(""))
+				return null;
+			script = script + ".sk";
+		}
+
+		if (script.startsWith(ScriptLoader.DISABLED_SCRIPT_PREFIX))
+			script = script.substring(ScriptLoader.DISABLED_SCRIPT_PREFIX_LENGTH);
+
+		File scriptsFolder = Skript.getInstance().getScriptsFolder();
+		File scriptFile = new File(scriptsFolder, script);
+		if (!scriptFile.exists()) {
+			scriptFile = new File(scriptFile.getParentFile(), ScriptLoader.DISABLED_SCRIPT_PREFIX + scriptFile.getName());
+			if (!scriptFile.exists()) {
+				return null;
+			}
+		}
+		try {
+			// Unless it's a test, check if the user is asking for a script in the scripts folder
+			// and not something outside Skript's domain.
+			if (TestMode.ENABLED || scriptFile.getCanonicalPath().startsWith(scriptsFolder.getCanonicalPath() + File.separator))
 				return scriptFile.getCanonicalFile();
 			return null;
 		} catch (IOException e) {
