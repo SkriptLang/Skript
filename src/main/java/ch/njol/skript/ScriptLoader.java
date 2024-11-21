@@ -1450,6 +1450,11 @@ public class ScriptLoader {
 		return config;
 	}
 
+	/**
+	 * Gets a script's file from its name, if one exists.
+	 * @param script The script name/path
+	 * @return The script file, if one is found
+	 */
 	@Nullable
 	public static File getScriptFromName(String script) {
 		if (script.endsWith("/") || script.endsWith("\\")) { // Always allow '/' and '\' regardless of OS

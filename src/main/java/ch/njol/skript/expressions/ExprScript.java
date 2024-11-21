@@ -50,11 +50,11 @@ public class ExprScript extends SimpleExpression<Script> {
 
 	private @Nullable Script script;
 	private @Nullable Expression<String> name;
-	private int mode;
+	private boolean isDirectory;
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		this.mode = matchedPattern;
+		this.isDirectory = matchedPattern == 2;
 		if (matchedPattern == 0) {
 			ParserInstance parser = this.getParser();
 			if (!parser.isActive()) {
@@ -74,7 +74,7 @@ public class ExprScript extends SimpleExpression<Script> {
 		if (script != null)
 			return new Script[]{script};
 		assert name != null;
-		if (mode == 2) {
+		if (isDirectory) {
 			@Nullable String string = name.getSingle(event);
 			if (string == null)
 				return new Script[0];
@@ -112,7 +112,7 @@ public class ExprScript extends SimpleExpression<Script> {
 
 	@Override
 	public boolean isSingle() {
-		return script != null || name != null && name.isSingle() && mode != 2;
+		return script != null || name != null && name.isSingle() && !isDirectory;
 	}
 
 	@Override
@@ -125,7 +125,7 @@ public class ExprScript extends SimpleExpression<Script> {
 		if (script != null)
 			return "the current script";
 		assert name != null;
-		if (mode == 2)
+		if (isDirectory)
 			return "the scripts in directory " + name.toString(event, debug);
 		if (name.isSingle())
 			return "the script named " + name.toString(event, debug);

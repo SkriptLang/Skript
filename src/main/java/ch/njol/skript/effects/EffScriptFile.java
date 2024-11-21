@@ -2,7 +2,6 @@ package ch.njol.skript.effects;
 
 import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.Skript;
-import ch.njol.skript.SkriptCommand;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
@@ -56,7 +55,7 @@ public class EffScriptFile extends Effect {
 
 	private int mark;
 
-	private @UnknownNullability Expression<String> stringExpression;
+	private @UnknownNullability Expression<String> scriptNameExpression;
 	private @UnknownNullability Expression<Script> scriptExpression;
 	private boolean scripts, hasReflection;
 
@@ -66,7 +65,7 @@ public class EffScriptFile extends Effect {
 		this.mark = parseResult.mark;
 		switch (matchedPattern) {
 			case 0, 1:
-				this.stringExpression = (Expression<String>) exprs[0];
+				this.scriptNameExpression = (Expression<String>) exprs[0];
 				break;
 			case 2:
 				this.scriptExpression = (Expression<Script>) exprs[0];
@@ -84,7 +83,7 @@ public class EffScriptFile extends Effect {
 				this.handle(file, script.getConfig().getFileName());
 			}
 		} else {
-			String name = stringExpression.getSingle(event);
+			String name = scriptNameExpression.getSingle(event);
 			if (name == null)
 				return;
 			this.handle(ScriptLoader.getScriptFromName(name), name);
@@ -185,7 +184,7 @@ public class EffScriptFile extends Effect {
 		} + " ";
 		if (scripts)
 			return start + scriptExpression.toString(event, debug);
-		return start + "script file " + stringExpression.toString(event, debug);
+		return start + "script file " + scriptNameExpression.toString(event, debug);
 	}
 
 }
