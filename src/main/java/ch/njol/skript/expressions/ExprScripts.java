@@ -16,6 +16,7 @@ import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.script.Script;
 
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
