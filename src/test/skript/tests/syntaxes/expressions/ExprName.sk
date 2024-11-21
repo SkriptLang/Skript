@@ -24,3 +24,10 @@ test "name of item":
 	assert name of {_thing} does not exist with "name was set"
 	set the name of {_thing} to "blob"
 	assert name of {_thing} is "blob" with "item name didn't change"
+
+using script reflection
+
+test "script name (new)":
+	set {_name} to the script's name
+	assert the script's name is "ExprName" with "script name is wrong"
+	# New behaviour includes just the name, since path is available by string-ifying the script

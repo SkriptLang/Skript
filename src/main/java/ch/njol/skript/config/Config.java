@@ -23,6 +23,11 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
+import ch.njol.skript.log.SkriptLogger;
+import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
 /**
  * Represents a config file.
  */
@@ -101,6 +106,21 @@ public class Config implements Comparable<Config> {
 	}
 
 	/**
+	 * A dummy config with no (known) content.
+	 */
+	@ApiStatus.Internal
+	public Config(String fileName, @Nullable final File file) {
+		this.fileName = fileName;
+		if (file != null)
+			this.file = file.toPath();
+		this.simple = false;
+		this.allowEmptySections = false;
+		this.separator = defaultSeparator = "";
+		this.main = new SectionNode(this);
+		SkriptLogger.setNode(null); // clean-up after section node
+	}
+
+	/**
 	 * Sets all static {@link Option} fields of the given class to the values from this config
 	 */
 	public void load(Class<?> clazz) {
@@ -130,6 +150,22 @@ public class Config implements Comparable<Config> {
 		assert indent != null && !indent.isEmpty() : indent;
 		indentation = indent;
 		indentationName = indent.charAt(0) == ' ' ? "space" : "tab";
+	}
+
+	String getIndentation() {
+		return indentation;
+	}
+
+	String getIndentationName() {
+		return indentationName;
+	}
+
+	public SectionNode getMainNode() {
+		return main;
+	}
+
+	public String getFileName() {
+		return fileName;
 	}
 
 	/**

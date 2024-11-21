@@ -12,6 +12,7 @@ import org.skriptlang.skript.lang.experiment.LifeCycle;
  */
 public enum Feature implements Experiment {
 	FOR_EACH_LOOPS("for loop", LifeCycle.EXPERIMENTAL, "for [each] loop[s]")
+	SCRIPT_REFLECTION("reflection", LifeCycle.EXPERIMENTAL, "[script] reflection")
 	;
 
 	private final String codeName;

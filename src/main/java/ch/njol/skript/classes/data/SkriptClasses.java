@@ -10,6 +10,8 @@ import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.Skript;
+import ch.njol.skript.ScriptLoader;
+import ch.njol.skript.SkriptCommand;
 import ch.njol.skript.aliases.Aliases;
 import ch.njol.skript.aliases.ItemData;
 import ch.njol.skript.aliases.ItemType;
@@ -39,8 +41,13 @@ import ch.njol.skript.util.slot.Slot;
 import ch.njol.skript.util.visual.VisualEffect;
 import ch.njol.skript.util.visual.VisualEffects;
 import ch.njol.yggdrasil.Fields;
+import org.jetbrains.annotations.NotNull;
+import org.skriptlang.skript.lang.script.Script;
 
 import java.io.StreamCorruptedException;
+import java.io.File;
+import java.nio.file.Path;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Locale;
 import java.util.regex.Pattern;
@@ -667,6 +674,53 @@ public class SkriptClasses {
 				.since("2.5")
 				.serializer(new YggdrasilSerializer<GameruleValue>())
 		);
+
+		Classes.registerClass(new ClassInfo<>(Script.class, "script")
+				.user("scripts?")
+				.name("Script")
+				.description("A script loaded by Skript.",
+					"Disabled scripts will report as being empty since their content has not been loaded.")
+				.usage("")
+				.examples("the current script")
+				.since("INSERT VERSION")
+				.parser(new Parser<Script>() {
+					final Path path = Skript.getInstance().getScriptsFolder().getAbsoluteFile().toPath();
+
+					@Override
+					public boolean canParse(final ParseContext context) {
+						return switch (context) {
+							case PARSE, COMMAND -> true;
+							default -> false;
+						};
+					}
+
+					@Override
+					@Nullable
+					public Script parse(final String name, final ParseContext context) {
+						return switch (context) {
+							case PARSE, COMMAND -> {
+								@Nullable File file = ScriptLoader.getScriptFromName(name);
+								if (file == null || !file.isFile())
+									yield null;
+								yield ScriptLoader.getScript(file);
+							}
+							default -> null;
+						};
+					}
+
+					@Override
+					public String toString(final Script script, final int flags) {
+						return this.toVariableNameString(script);
+					}
+
+					@Override
+					public String toVariableNameString(final Script script) {
+						@Nullable File file = script.getConfig().getFile();
+						if (file == null)
+							return script.getConfig().getFileName();
+						return path.relativize(file.toPath().toAbsolutePath()).toString();
+					}
+				}));
 
 		Classes.registerClass(new AnyInfo<>(AnyNamed.class, "named")
 				.name("Any Named Thing")

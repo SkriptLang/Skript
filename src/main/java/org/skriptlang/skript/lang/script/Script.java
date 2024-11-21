@@ -6,7 +6,9 @@ import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Unmodifiable;
 import org.skriptlang.skript.util.event.EventRegistry;
 import org.skriptlang.skript.lang.structure.Structure;
+import org.skriptlang.skript.util.Validated;
 
+import java.io.File;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -21,11 +23,14 @@ import java.util.function.Supplier;
  * Every script also has its own internal information, such as
  *  custom data, suppressed warnings, and associated event handlers.
  */
-public final class Script {
+public final class Script implements Validated {
 
 	private final Config config;
 
 	private final List<Structure> structures;
+
+	// Note: this class will eventually become a record, so its members should be final.
+	private transient final Validated validator = Validated.validator();
 
 	/**
 	 * Creates a new Script to be used across the API.
@@ -155,6 +160,39 @@ public final class Script {
 	 */
 	public EventRegistry<Event> eventRegistry() {
 		return eventRegistry;
+	}
+
+	/**
+	 * Marks this script reference as invalid.
+	 * Typically invoked during unloading (when its data is discarded).
+	 */
+	@Override
+	public void invalidate() {
+		this.validator.invalidate();
+	}
+
+	/**
+	 * This is a reference to a script (having been loaded); if the script is reloaded,
+	 * disabled, moved or changed in some way then this object will no longer be a valid
+	 * reference to it.
+	 * <br/>
+	 * If a script reference is not valid, it is not safe to assume that the data in
+	 * this object is an accurate reflection of the program (e.g. the data could have cleared
+	 * during unloading, the user might have edited the file and reloaded it, etc.) and
+	 * it is recommended to obtain a new reference to the script from {@link ch.njol.skript.ScriptLoader}.
+	 *
+	 * @return Whether this script object is a valid reflection of a script
+	 */
+	@Override
+	public boolean valid() {
+		if (validator.valid()) {
+			@Nullable File file = config.getFile();
+			return file == null || file.exists();
+			// If this is file-linked and that file was moved/deleted (e.g. this was disabled)
+			// then we should not assume this is a safe reference to use, unless it was
+			// immediately obtained.
+		}
+		return false;
 	}
 
 }

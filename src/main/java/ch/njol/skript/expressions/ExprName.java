@@ -1,5 +1,10 @@
 package ch.njol.skript.expressions;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+
+import ch.njol.skript.registrations.Feature;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -44,6 +49,7 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.bungeecord.BungeeComponentSerializer;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.BaseComponent;
+import org.skriptlang.skript.lang.script.Script;
 
 @Name("Name / Display Name / Tab List Name")
 @Description({
@@ -86,6 +92,11 @@ import net.md_5.bungee.api.chat.BaseComponent;
 	"\t\t\t<li><strong>Name:</strong> The name of the world. Cannot be changed.</li>",
 	"\t\t</ul>",
 	"\t</li>",
+	"\t<li><strong>Scripts</strong>",
+	"\t\t<ul>",
+	"\t\t\t<li><strong>Name:</strong> The name of a script, excluding its file extension.</li>",
+	"\t\t</ul>",
+	"\t</li>",
 	"</ul>"
 })
 @Examples({
@@ -118,10 +129,11 @@ public class ExprName extends SimplePropertyExpression<Object, String> {
 	 * 3 = "tablist name"
 	 */
 	private int mark;
+	private boolean scriptResolvedName;
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		mark = parseResult.mark;
+		this.mark = parseResult.mark;
 		setExpr(exprs[0]);
 		return true;
 	}
