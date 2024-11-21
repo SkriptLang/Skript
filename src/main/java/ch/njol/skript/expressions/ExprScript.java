@@ -1,21 +1,3 @@
-/**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
 package ch.njol.skript.expressions;
 
 import ch.njol.skript.ScriptLoader;
@@ -36,6 +18,7 @@ import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 
 import java.io.File;
+import java.io.FileFilter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -68,15 +51,15 @@ public class ExprScript extends SimpleExpression<Script> {
 
 	private @Nullable Script script;
 	private @Nullable Expression<String> name;
-	private int mode;
+	private boolean isDirectory;
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		this.mode = matchedPattern;
+		this.isDirectory = matchedPattern == 2;
 		if (matchedPattern == 0) {
 			ParserInstance parser = this.getParser();
 			if (!parser.isActive()) {
-				Skript.error("You can't use the current script expression outside of scripts!");
+				Skript.error("'the current script' can only be used in a script.");
 				return false;
 			}
 			this.script = parser.getCurrentScript();
@@ -92,7 +75,7 @@ public class ExprScript extends SimpleExpression<Script> {
 		if (script != null)
 			return new Script[]{script};
 		assert name != null;
-		if (mode == 2) {
+		if (isDirectory) {
 			@Nullable String string = name.getSingle(event);
 			if (string == null)
 				return new Script[0];
@@ -104,7 +87,7 @@ public class ExprScript extends SimpleExpression<Script> {
 			return scripts.toArray(new Script[0]);
 		}
 		return name.stream(event)
-				.map(SkriptCommand::getScriptFromName)
+				.map(ScriptLoader::getScriptFromName)
 				.map(ExprScript::getHandle)
 				.filter(Objects::nonNull)
 				.toArray(Script[]::new);
@@ -114,10 +97,13 @@ public class ExprScript extends SimpleExpression<Script> {
 		File[] files = folder.listFiles();
 		if (files == null)
 			return;
+		FileFilter loaded = ScriptLoader.getLoadedScriptsFilter();
+		FileFilter disabled = ScriptLoader.getDisabledScriptsFilter();
+		FileFilter filter = f -> loaded.accept(f) || disabled.accept(f);
 		for (File file : files) {
-			if (file.isDirectory())
+			if (file.isDirectory()) {
 				this.getScripts(file, scripts);
-			else if (file.getName().endsWith(".sk")) {
+			} else if (filter.accept(file)) {
 				@Nullable Script handle = ExprScript.getHandle(file);
 				if (handle != null)
 					scripts.add(handle);
@@ -127,7 +113,7 @@ public class ExprScript extends SimpleExpression<Script> {
 
 	@Override
 	public boolean isSingle() {
-		return script != null || name != null && name.isSingle() && mode != 2;
+		return script != null || name != null && name.isSingle() && !isDirectory;
 	}
 
 	@Override
@@ -140,7 +126,7 @@ public class ExprScript extends SimpleExpression<Script> {
 		if (script != null)
 			return "the current script";
 		assert name != null;
-		if (mode == 2)
+		if (isDirectory)
 			return "the scripts in directory " + name.toString(event, debug);
 		if (name.isSingle())
 			return "the script named " + name.toString(event, debug);

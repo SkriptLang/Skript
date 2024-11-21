@@ -32,7 +32,7 @@ import org.skriptlang.skript.lang.script.Script;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 
@@ -44,19 +44,19 @@ import java.io.File;
 })
 @Since("2.2-dev31")
 public class CondScriptLoaded extends Condition {
-	
+
 	static {
 		Skript.registerCondition(CondScriptLoaded.class,
 				"script[s] [%-strings%] (is|are) loaded",
 				"script[s] [%-strings%] (isn't|is not|aren't|are not) loaded"
 		);
 	}
-	
+
 	@Nullable
 	private Expression<String> scripts;
 	@Nullable
 	private Script currentScript;
-	
+
 	@Override
 	@SuppressWarnings("unchecked")
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
@@ -81,11 +81,11 @@ public class CondScriptLoaded extends Condition {
 		if (scripts == null)
 			return ScriptLoader.getLoadedScripts().contains(currentScript) ^ isNegated();
 		return scripts.check(event, scriptName -> {
-			File scriptFile = SkriptCommand.getScriptFromName(scriptName);
+			File scriptFile = ScriptLoader.getScriptFromName(scriptName);
 			return scriptFile != null && ScriptLoader.getLoadedScripts().contains(ScriptLoader.getScript(scriptFile));
 		}, isNegated());
 	}
-	
+
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
 		String scriptName = scripts == null ?
@@ -94,5 +94,5 @@ public class CondScriptLoaded extends Condition {
 			return scriptName + (isNegated() ? " isn't" : " is") + " loaded";
 		return scriptName + (isNegated() ? " aren't" : " are") + " loaded";
 	}
-	
+
 }

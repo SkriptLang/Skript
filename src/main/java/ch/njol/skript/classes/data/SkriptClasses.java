@@ -1,39 +1,8 @@
-/**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
 package ch.njol.skript.classes.data;
 
-import java.io.File;
-import java.io.StreamCorruptedException;
-import java.util.Iterator;
-import java.util.Locale;
-import java.util.regex.Pattern;
-
+import ch.njol.skript.Skript;
 import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.SkriptCommand;
-import ch.njol.skript.expressions.ExprScripts;
-import ch.njol.skript.lang.function.DynamicFunctionReference;
-import org.bukkit.Material;
-import org.bukkit.enchantments.Enchantment;
-import org.bukkit.inventory.ItemStack;
-import org.eclipse.jdt.annotation.Nullable;
-
-import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.Aliases;
 import ch.njol.skript.aliases.ItemData;
 import ch.njol.skript.aliases.ItemType;
@@ -71,13 +40,22 @@ import ch.njol.skript.util.visual.VisualEffects;
 import ch.njol.yggdrasil.Fields;
 import org.jetbrains.annotations.NotNull;
 import org.skriptlang.skript.lang.script.Script;
+import org.bukkit.Material;
+import org.bukkit.enchantments.Enchantment;
+import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.NotNull;
+import org.skriptlang.skript.lang.script.Script;
 import org.skriptlang.skript.util.Executable;
 
+import java.io.StreamCorruptedException;
+import java.io.File;
+import java.nio.file.Path;
 import java.util.Arrays;
+import java.util.Iterator;
+import java.util.Locale;
+import java.util.regex.Pattern;
 
-/**
- * @author Peter Güttinger
- */
 @SuppressWarnings("rawtypes")
 public class SkriptClasses {
 	public SkriptClasses() {}
@@ -306,7 +284,7 @@ public class SkriptClasses {
 					@Nullable
 					public Timespan parse(final String s, final ParseContext context) {
 						try {
-							return Timespan.parse(s);
+							return Timespan.parse(s, context);
 						} catch (IllegalArgumentException e) {
 							Skript.error("'" + s + "' is not a valid timespan");
 							return null;
@@ -699,6 +677,53 @@ public class SkriptClasses {
 				.since("2.5")
 				.serializer(new YggdrasilSerializer<GameruleValue>())
 		);
+
+		Classes.registerClass(new ClassInfo<>(Script.class, "script")
+				.user("scripts?")
+				.name("Script")
+				.description("A script loaded by Skript.",
+					"Disabled scripts will report as being empty since their content has not been loaded.")
+				.usage("")
+				.examples("the current script")
+				.since("INSERT VERSION")
+				.parser(new Parser<Script>() {
+					final Path path = Skript.getInstance().getScriptsFolder().getAbsoluteFile().toPath();
+
+					@Override
+					public boolean canParse(final ParseContext context) {
+						return switch (context) {
+							case PARSE, COMMAND -> true;
+							default -> false;
+						};
+					}
+
+					@Override
+					@Nullable
+					public Script parse(final String name, final ParseContext context) {
+						return switch (context) {
+							case PARSE, COMMAND -> {
+								@Nullable File file = ScriptLoader.getScriptFromName(name);
+								if (file == null || !file.isFile())
+									yield null;
+								yield ScriptLoader.getScript(file);
+							}
+							default -> null;
+						};
+					}
+
+					@Override
+					public String toString(final Script script, final int flags) {
+						return this.toVariableNameString(script);
+					}
+
+					@Override
+					public String toVariableNameString(final Script script) {
+						@Nullable File file = script.getConfig().getFile();
+						if (file == null)
+							return script.getConfig().getFileName();
+						return path.relativize(file.toPath().toAbsolutePath()).toString();
+					}
+				}));
 
 		Classes.registerClass(new ClassInfo<>(Script.class, "script")
 				.user("scripts?")

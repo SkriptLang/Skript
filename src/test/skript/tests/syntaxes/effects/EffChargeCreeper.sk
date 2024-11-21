@@ -1,8 +1,0 @@
-test "charge creeper effect/condition":
-	spawn a creeper at spawn of world "world"
-	assert last spawned creeper is not charged with "spawning a normal creeper shouldn't spawn a charged one"
-	charge the last spawned creeper
-	assert last spawned creeper is charged with "a creeper should be charged after it is set as charged"
-	uncharge the last spawned creeper
-	assert last spawned creeper is not charged with "uncharging a charged creeper should uncharge it"
-	delete last spawned creeper

@@ -32,7 +32,7 @@ import ch.njol.util.Kleenean;
 import com.destroystokyo.paper.event.player.PlayerReadyArrowEvent;
 import org.bukkit.event.Event;
 import org.bukkit.inventory.ItemStack;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 @Name("Readied Arrow/Bow")
 @Description("The bow or arrow in a <a href='events.html#ready_arrow'>Ready Arrow event</a>.")

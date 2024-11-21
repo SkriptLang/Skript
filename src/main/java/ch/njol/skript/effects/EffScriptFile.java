@@ -1,26 +1,7 @@
-/**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
 package ch.njol.skript.effects;
 
 import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.Skript;
-import ch.njol.skript.SkriptCommand;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
@@ -38,11 +19,16 @@ import ch.njol.util.OpenCloseable;
 import org.bukkit.event.Event;
 
 import java.io.File;
+import java.io.FileFilter;
 import java.io.IOException;
 import java.util.Set;
 
-@Name("Enable/Disable/Reload Script")
-@Description("Enables, disables, or reloads a script.")
+@Name("Enable/Disable/Unload/Reload Script")
+@Description("""
+	Enables, disables, unloads, or reloads a script.
+	
+	Disabling a script unloads it and prepends - to its name so it will not be loaded the next time the server restarts.
+	If the script reflection experiment is enabled: unloading a script terminates it and removes it from memory, but does not alter the file.""")
 @Examples({
 	"reload script \"test\"",
 	"enable script file \"testing\"",
@@ -50,7 +36,7 @@ import java.util.Set;
 	"set {_script} to the script \"MyScript.sk\"",
 	"reload {_script}"
 })
-@Since("2.4")
+@Since("2.4, INSERT VERSION (unloading)")
 public class EffScriptFile extends Effect {
 
 	static {
@@ -69,7 +55,7 @@ public class EffScriptFile extends Effect {
 
 	private int mark;
 
-	private @UnknownNullability Expression<String> stringExpression;
+	private @UnknownNullability Expression<String> scriptNameExpression;
 	private @UnknownNullability Expression<Script> scriptExpression;
 	private boolean scripts, hasReflection;
 
@@ -78,9 +64,8 @@ public class EffScriptFile extends Effect {
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
 		this.mark = parseResult.mark;
 		switch (matchedPattern) {
-			case 0:
-			case 1:
-				this.stringExpression = (Expression<String>) exprs[0];
+			case 0, 1:
+				this.scriptNameExpression = (Expression<String>) exprs[0];
 				break;
 			case 2:
 				this.scriptExpression = (Expression<Script>) exprs[0];
@@ -93,16 +78,15 @@ public class EffScriptFile extends Effect {
 	@Override
 	protected void execute(Event event) {
 		if (scripts) {
-			Script[] array = scriptExpression.getArray(event);
-			for (Script script : array) {
+			for (Script script : scriptExpression.getArray(event)) {
 				@Nullable File file = script.getConfig().getFile();
 				this.handle(file, script.getConfig().getFileName());
 			}
 		} else {
-			String name = stringExpression.getSingle(event);
+			String name = scriptNameExpression.getSingle(event);
 			if (name == null)
 				return;
-			this.handle(SkriptCommand.getScriptFromName(name), name);
+			this.handle(ScriptLoader.getScriptFromName(name), name);
 		}
 	}
 
@@ -111,11 +95,12 @@ public class EffScriptFile extends Effect {
 			return;
 		if (name == null)
 			name = scriptFile.getName();
+		FileFilter filter = ScriptLoader.getDisabledScriptsFilter();
 		switch (mark) {
 			case ENABLE:
 				if (ScriptLoader.getLoadedScripts().contains(ScriptLoader.getScript(scriptFile)))
 					return;
-				if (scriptFile.getName().startsWith(ScriptLoader.DISABLED_SCRIPT_PREFIX)) {
+				if (filter.accept(scriptFile)) {
 					try {
 						// TODO Central methods to be used between here and SkriptCommand should be created for
 						//  enabling/disabling (renaming) files
@@ -135,7 +120,7 @@ public class EffScriptFile extends Effect {
 				ScriptLoader.loadScripts(scriptFile, OpenCloseable.EMPTY);
 				break;
 			case RELOAD:
-				if (ScriptLoader.getDisabledScriptsFilter().accept(scriptFile))
+				if (filter.accept(scriptFile))
 					return;
 
 				this.unloadScripts(scriptFile);
@@ -151,7 +136,7 @@ public class EffScriptFile extends Effect {
 					break;
 				}
 			case DISABLE:
-				if (ScriptLoader.getDisabledScriptsFilter().accept(scriptFile))
+				if (filter.accept(scriptFile))
 					return;
 
 				this.unloadScripts(scriptFile);
@@ -192,10 +177,15 @@ public class EffScriptFile extends Effect {
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		String start = mark == ENABLE ? "enable " : mark == RELOAD ? "disable " : mark == DISABLE ? "unload " : " ";
+		String start = switch (mark) {
+			case ENABLE -> "enable";
+			case DISABLE -> "disable";
+			case RELOAD -> "reload";
+			default -> "unload";
+		} + " ";
 		if (scripts)
 			return start + scriptExpression.toString(event, debug);
-		return start + "script file " + stringExpression.toString(event, debug);
+		return start + "script file " + scriptNameExpression.toString(event, debug);
 	}
 
 }

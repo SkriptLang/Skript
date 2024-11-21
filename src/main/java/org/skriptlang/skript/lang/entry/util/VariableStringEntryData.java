@@ -24,7 +24,7 @@ import org.skriptlang.skript.lang.entry.KeyValueEntryData;
 import ch.njol.skript.util.StringMode;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * A type of {@link KeyValueEntryData} designed to parse its value as a {@link VariableString}.

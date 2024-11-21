@@ -22,6 +22,12 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import ch.njol.skript.registrations.Feature;
+import java.util.ArrayList;
+import java.util.List;
+
+import ch.njol.skript.bukkitutil.InventoryUtils;
+import ch.njol.skript.bukkitutil.ItemUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.GameRule;
 import org.bukkit.Nameable;
@@ -39,7 +45,7 @@ import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.World;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.lang.function.DynamicFunctionReference;
 import ch.njol.skript.registrations.Feature;
@@ -145,7 +151,6 @@ public class ExprName extends SimplePropertyExpression<Object, String> {
 	 * 3 = "tablist name"
 	 */
 	private int mark;
-	private static final ItemType AIR = Aliases.javaItemType("air");
 	private boolean scriptResolvedName;
 
 	@Override
