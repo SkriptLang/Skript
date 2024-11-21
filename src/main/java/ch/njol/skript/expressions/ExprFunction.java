@@ -2,7 +2,6 @@ package ch.njol.skript.expressions;
 
 import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.Skript;
-import ch.njol.skript.SkriptCommand;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
@@ -31,7 +30,7 @@ import java.util.Objects;
 		"run {_function} with arguments 13 and true"
 })
 @Since("INSERT VERSION")
-@SuppressWarnings({"rawtypes", "NotNullFieldNotInitialized"})
+@SuppressWarnings("rawtypes")
 public class ExprFunction extends SimpleExpression<DynamicFunctionReference> {
 
 	static {
@@ -128,7 +127,7 @@ public class ExprFunction extends SimpleExpression<DynamicFunctionReference> {
 	private @Nullable Script getScript(@Nullable String source) {
 		if (source == null || source.isEmpty())
 			return null;
-		@Nullable File file = SkriptCommand.getScriptFromName(source);
+		@Nullable File file = ScriptLoader.getScriptFromName(source);
 		if (file == null || file.isDirectory())
 			return null;
 		return ScriptLoader.getScript(file);

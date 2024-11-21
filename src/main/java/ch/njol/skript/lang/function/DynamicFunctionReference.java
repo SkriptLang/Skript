@@ -1,7 +1,6 @@
 package ch.njol.skript.lang.function;
 
 import ch.njol.skript.ScriptLoader;
-import ch.njol.skript.SkriptCommand;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionList;
 import ch.njol.skript.registrations.Classes;
@@ -38,7 +37,7 @@ public class DynamicFunctionReference<Result>
 		this.function = new WeakReference<>(function);
 		this.name = function.getName();
 		this.signature = function.getSignature();
-		@Nullable File file = SkriptCommand.getScriptFromName(signature.script);
+		@Nullable File file = ScriptLoader.getScriptFromName(signature.script);
 		if (file == null)
 			this.source = null;
 		else
@@ -62,7 +61,7 @@ public class DynamicFunctionReference<Result>
 		this.function = new WeakReference<>(function);
 		if (resolved) {
 			this.signature = function.getSignature();
-			@Nullable File file = SkriptCommand.getScriptFromName(signature.script);
+			@Nullable File file = ScriptLoader.getScriptFromName(signature.script);
 			if (file == null)
 				this.source = null;
 			else

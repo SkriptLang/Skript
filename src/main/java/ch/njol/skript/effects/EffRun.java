@@ -25,7 +25,7 @@ import org.skriptlang.skript.util.Executable;
 })
 @Since("INSERT VERSION")
 @Keywords({"run", "execute", "reflection", "function"})
-@SuppressWarnings({"rawtypes", "unchecked", "NotNullFieldNotInitialized"})
+@SuppressWarnings({"rawtypes", "unchecked"})
 public class EffRun extends Effect {
 
 	static {
