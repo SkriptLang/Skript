@@ -23,6 +23,7 @@ import java.util.Map;
 import java.util.Set;
 
 import ch.njol.skript.log.SkriptLogger;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
