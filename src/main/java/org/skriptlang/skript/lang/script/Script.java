@@ -31,6 +31,9 @@ public final class Script implements Validated, AnyNamed {
 
 	private final List<Structure> structures;
 
+	// Note: this class will eventually become a record, so its members should be final.
+	private transient final Validated validator = Validated.validator();
+
 	/**
 	 * Creates a new Script to be used across the API.
 	 * Only one Script should be created per Config. A loaded Script may be obtained through {@link ch.njol.skript.ScriptLoader}.
