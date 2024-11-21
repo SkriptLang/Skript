@@ -16,6 +16,7 @@ import ch.njol.skript.classes.Serializer;
 import ch.njol.skript.classes.YggdrasilSerializer;
 import ch.njol.skript.expressions.base.EventValueExpression;
 import ch.njol.skript.lang.ParseContext;
+import ch.njol.skript.lang.function.DynamicFunctionReference;
 import ch.njol.skript.lang.util.SimpleLiteral;
 import ch.njol.skript.localization.Noun;
 import ch.njol.skript.localization.RegexMessage;
@@ -722,56 +723,6 @@ public class SkriptClasses {
 						if (file == null)
 							return script.getConfig().getFileName();
 						return path.relativize(file.toPath().toAbsolutePath()).toString();
-					}
-				}));
-
-		Classes.registerClass(new ClassInfo<>(Script.class, "script")
-				.user("scripts?")
-				.name("Script")
-				.description("A script loaded by Skript.",
-					"Disabled scripts will report as being empty since their content has not been loaded.")
-				.usage("")
-				.examples("the current script")
-				.since("INSERT VERSION")
-				.parser(new Parser<Script>() {
-
-					@Override
-					public boolean canParse(final ParseContext context) {
-						switch (context) {
-							case PARSE:
-							case COMMAND:
-								return true;
-							default:
-								return false;
-						}
-					}
-
-					@Override
-					@Nullable
-					public Script parse(final String name, final ParseContext context) {
-						switch (context) {
-							case PARSE:
-							case COMMAND:
-								@Nullable File file = SkriptCommand.getScriptFromName(name);
-								if (file == null || !file.isFile())
-									return null;
-								return ScriptLoader.getScript(file);
-							default:
-								return null;
-						}
-					}
-
-					@Override
-					public String toString(final Script script, final int flags) {
-						return this.toVariableNameString(script);
-					}
-
-					@Override
-					public String toVariableNameString(final Script script) {
-						@Nullable File file = script.getConfig().getFile();
-						if (file == null)
-							return script.getConfig().getFileName();
-						return ExprScripts.SCRIPTS_PATH.relativize(file.toPath().toAbsolutePath()).toString();
 					}
 				}));
 
