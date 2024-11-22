@@ -50,22 +50,26 @@ import org.joml.Vector3f;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
+import java.text.DecimalFormat;
 import java.util.Calendar;
 import java.util.List;
 import java.util.UUID;
 
 public class DefaultFunctions {
-	
+
 	private static String str(double n) {
 		return StringUtils.toString(n, 4);
 	}
-	
+
+	private static final DecimalFormat DEFAULT_INTEGER_FORMAT = new DecimalFormat("###,###");
+	private static final DecimalFormat DEFAULT_DECIMAL_FORMAT = new DecimalFormat("###,###.##");
+
 	static {
 		Parameter<?>[] numberParam = new Parameter[] {new Parameter<>("n", DefaultClasses.NUMBER, true, null)};
 		Parameter<?>[] numbersParam = new Parameter[] {new Parameter<>("ns", DefaultClasses.NUMBER, false, null)};
-		
+
 		// basic math functions
-		
+
 		Functions.registerFunction(new SimpleJavaFunction<Long>("floor", numberParam, DefaultClasses.LONG, true) {
 			@Override
 			public Long[] executeSimple(Object[][] params) {
@@ -76,7 +80,7 @@ public class DefaultFunctions {
 		}.description("Rounds a number down, i.e. returns the closest integer smaller than or equal to the argument.")
 			.examples("floor(2.34) = 2", "floor(2) = 2", "floor(2.99) = 2")
 			.since("2.2"));
-		
+
 		Functions.registerFunction(new SimpleJavaFunction<Number>("round", new Parameter[] {new Parameter<>("n", DefaultClasses.NUMBER, true, null), new Parameter<>("d", DefaultClasses.NUMBER, true, new SimpleLiteral<Number>(0, false))}, DefaultClasses.NUMBER, true) {
 			@Override
 			public Number[] executeSimple(Object[][] params) {
@@ -97,7 +101,7 @@ public class DefaultFunctions {
 		}.description("Rounds a number, i.e. returns the closest integer to the argument. Place a second argument to define the decimal placement.")
 			.examples("round(2.34) = 2", "round(2) = 2", "round(2.99) = 3", "round(2.5) = 3")
 			.since("2.2, 2.7 (decimal placement)"));
-		
+
 		Functions.registerFunction(new SimpleJavaFunction<Long>("ceil", numberParam, DefaultClasses.LONG, true) {
 			@Override
 			public Long[] executeSimple(Object[][] params) {
@@ -108,7 +112,7 @@ public class DefaultFunctions {
 		}.description("Rounds a number up, i.e. returns the closest integer larger than or equal to the argument.")
 			.examples("ceil(2.34) = 3", "ceil(2) = 2", "ceil(2.99) = 3")
 			.since("2.2"));
-		
+
 		Functions.registerFunction(new SimpleJavaFunction<Long>("ceiling", numberParam, DefaultClasses.LONG, true) {
 			@Override
 			public Long[] executeSimple(Object[][] params) {
@@ -119,7 +123,7 @@ public class DefaultFunctions {
 		}.description("Alias of <a href='#ceil'>ceil</a>.")
 			.examples("ceiling(2.34) = 3", "ceiling(2) = 2", "ceiling(2.99) = 3")
 			.since("2.2"));
-		
+
 		Functions.registerFunction(new SimpleJavaFunction<Number>("abs", numberParam, DefaultClasses.NUMBER, true) {
 			@Override
 			public Number[] executeSimple(Object[][] params) {
@@ -131,7 +135,7 @@ public class DefaultFunctions {
 		}.description("Returns the absolute value of the argument, i.e. makes the argument positive.")
 			.examples("abs(3) = 3", "abs(-2) = 2")
 			.since("2.2"));
-		
+
 		Functions.registerFunction(new SimpleJavaFunction<Number>("mod", new Parameter[] {new Parameter<>("d", DefaultClasses.NUMBER, true, null), new Parameter<>("m", DefaultClasses.NUMBER, true, null)}, DefaultClasses.NUMBER, true) {
 			@Override
 			public Number[] executeSimple(Object[][] params) {
@@ -146,7 +150,7 @@ public class DefaultFunctions {
 						"The returned value is always positive. Returns NaN (not a number) if the second argument is zero.")
 			.examples("mod(3, 2) = 1", "mod(256436, 100) = 36", "mod(-1, 10) = 9")
 			.since("2.2"));
-		
+
 		Functions.registerFunction(new SimpleJavaFunction<Number>("exp", numberParam, DefaultClasses.NUMBER, true) {
 			@Override
 			public Number[] executeSimple(Object[][] params) {
@@ -155,7 +159,7 @@ public class DefaultFunctions {
 		}.description("The exponential function. You probably don't need this if you don't know what this is.")
 			.examples("exp(0) = 1", "exp(1) = " + str(Math.exp(1)))
 			.since("2.2"));
-		
+
 		Functions.registerFunction(new SimpleJavaFunction<Number>("ln", numberParam, DefaultClasses.NUMBER, true) {
 			@Override
 			public Number[] executeSimple(Object[][] params) {
@@ -165,7 +169,7 @@ public class DefaultFunctions {
 						"Returns NaN (not a number) if the argument is negative.")
 			.examples("ln(1) = 0", "ln(exp(5)) = 5", "ln(2) = " + StringUtils.toString(Math.log(2), 4))
 			.since("2.2"));
-		
+
 		Functions.registerFunction(new SimpleJavaFunction<Number>("log", new Parameter[] {new Parameter<>("n", DefaultClasses.NUMBER, true, null), new Parameter<>("base", DefaultClasses.NUMBER, true, new SimpleLiteral<Number>(10, false))}, DefaultClasses.NUMBER, true) {
 			@Override
 			public Number[] executeSimple(Object[][] params) {
@@ -177,7 +181,7 @@ public class DefaultFunctions {
 						"Returns NaN (not a number) if any of the arguments are negative.")
 			.examples("log(100) = 2 # 10^2 = 100", "log(16, 2) = 4 # 2^4 = 16")
 			.since("2.2"));
-		
+
 		Functions.registerFunction(new SimpleJavaFunction<Number>("sqrt", numberParam, DefaultClasses.NUMBER, true) {
 			@Override
 			public Number[] executeSimple(Object[][] params) {
@@ -187,9 +191,9 @@ public class DefaultFunctions {
 						"Returns NaN (not a number) if the argument is negative.")
 			.examples("sqrt(4) = 2", "sqrt(2) = " + str(Math.sqrt(2)), "sqrt(-1) = " + str(Math.sqrt(-1)))
 			.since("2.2"));
-		
+
 		// trigonometry
-		
+
 		Functions.registerFunction(new SimpleJavaFunction<Number>("sin", numberParam, DefaultClasses.NUMBER, true) {
 			@Override
 			public Number[] executeSimple(Object[][] params) {
@@ -198,7 +202,7 @@ public class DefaultFunctions {
 		}.description("The sine function. It starts at 0° with a value of 0, goes to 1 at 90°, back to 0 at 180°, to -1 at 270° and then repeats every 360°. Uses degrees, not radians.")
 			.examples("sin(90) = 1", "sin(60) = " + str(Math.sin(Math.toRadians(60))))
 			.since("2.2"));
-		
+
 		Functions.registerFunction(new SimpleJavaFunction<Number>("cos", numberParam, DefaultClasses.NUMBER, true) {
 			@Override
 			public Number[] executeSimple(Object[][] params) {
@@ -207,7 +211,7 @@ public class DefaultFunctions {
 		}.description("The cosine function. This is basically the <a href='#sin'>sine</a> shifted by 90°, i.e. <code>cos(a) = sin(a + 90°)</code>, for any number a. Uses degrees, not radians.")
 			.examples("cos(0) = 1", "cos(90) = 0")
 			.since("2.2"));
-		
+
 		Functions.registerFunction(new SimpleJavaFunction<Number>("tan", numberParam, DefaultClasses.NUMBER, true) {
 			@Override
 			public Number[] executeSimple(Object[][] params) {
@@ -216,7 +220,7 @@ public class DefaultFunctions {
 		}.description("The tangent function. This is basically <code><a href='#sin'>sin</a>(arg)/<a href='#cos'>cos</a>(arg)</code>. Uses degrees, not radians.")
 			.examples("tan(0) = 0", "tan(45) = 1", "tan(89.99) = " + str(Math.tan(Math.toRadians(89.99))))
 			.since("2.2"));
-		
+
 		Functions.registerFunction(new SimpleJavaFunction<Number>("asin", numberParam, DefaultClasses.NUMBER, true) {
 			@Override
 			public Number[] executeSimple(Object[][] params) {
@@ -225,7 +229,7 @@ public class DefaultFunctions {
 		}.description("The inverse of the <a href='#sin'>sine</a>, also called arcsin. Returns result in degrees, not radians. Only returns values from -90 to 90.")
 			.examples("asin(0) = 0", "asin(1) = 90", "asin(0.5) = " + str(Math.toDegrees(Math.asin(0.5))))
 			.since("2.2"));
-		
+
 		Functions.registerFunction(new SimpleJavaFunction<Number>("acos", numberParam, DefaultClasses.NUMBER, true) {
 			@Override
 			public Number[] executeSimple(Object[][] params) {
@@ -234,7 +238,7 @@ public class DefaultFunctions {
 		}.description("The inverse of the <a href='#cos'>cosine</a>, also called arccos. Returns result in degrees, not radians. Only returns values from 0 to 180.")
 			.examples("acos(0) = 90", "acos(1) = 0", "acos(0.5) = " + str(Math.toDegrees(Math.asin(0.5))))
 			.since("2.2"));
-		
+
 		Functions.registerFunction(new SimpleJavaFunction<Number>("atan", numberParam, DefaultClasses.NUMBER, true) {
 			@Override
 			public Number[] executeSimple(Object[][] params) {
@@ -243,7 +247,7 @@ public class DefaultFunctions {
 		}.description("The inverse of the <a href='#tan'>tangent</a>, also called arctan. Returns result in degrees, not radians. Only returns values from -90 to 90.")
 			.examples("atan(0) = 0", "atan(1) = 45", "atan(10000) = " + str(Math.toDegrees(Math.atan(10000))))
 			.since("2.2"));
-		
+
 		Functions.registerFunction(new SimpleJavaFunction<Number>("atan2", new Parameter[] {
 			new Parameter<>("x", DefaultClasses.NUMBER, true, null),
 			new Parameter<>("y", DefaultClasses.NUMBER, true, null)
@@ -256,9 +260,9 @@ public class DefaultFunctions {
 			"The returned angle is measured counterclockwise in a standard mathematical coordinate system (x to the right, y to the top).")
 			.examples("atan2(0, 1) = 0", "atan2(10, 0) = 90", "atan2(-10, 5) = " + str(Math.toDegrees(Math.atan2(-10, 5))))
 			.since("2.2"));
-		
+
 		// more stuff
-		
+
 		Functions.registerFunction(new SimpleJavaFunction<Number>("sum", numbersParam, DefaultClasses.NUMBER, true) {
 			@Override
 			public Number[] executeSimple(Object[][] params) {
@@ -271,7 +275,7 @@ public class DefaultFunctions {
 		}.description("Sums a list of numbers.")
 			.examples("sum(1) = 1", "sum(2, 3, 4) = 9", "sum({some list variable::*})", "sum(2, {_v::*}, and the player's y-coordinate)")
 			.since("2.2"));
-		
+
 		Functions.registerFunction(new SimpleJavaFunction<Number>("product", numbersParam, DefaultClasses.NUMBER, true) {
 			@Override
 			public Number[] executeSimple(Object[][] params) {
@@ -284,7 +288,7 @@ public class DefaultFunctions {
 		}.description("Calculates the product of a list of numbers.")
 			.examples("product(1) = 1", "product(2, 3, 4) = 24", "product({some list variable::*})", "product(2, {_v::*}, and the player's y-coordinate)")
 			.since("2.2"));
-		
+
 		Functions.registerFunction(new SimpleJavaFunction<Number>("max", numbersParam, DefaultClasses.NUMBER, true) {
 			@Override
 			public Number[] executeSimple(Object[][] params) {
@@ -300,7 +304,7 @@ public class DefaultFunctions {
 		}.description("Returns the maximum number from a list of numbers.")
 			.examples("max(1) = 1", "max(1, 2, 3, 4) = 4", "max({some list variable::*})")
 			.since("2.2"));
-		
+
 		Functions.registerFunction(new SimpleJavaFunction<Number>("min", numbersParam, DefaultClasses.NUMBER, true) {
 			@Override
 			public Number[] executeSimple(Object[][] params) {
@@ -359,7 +363,7 @@ public class DefaultFunctions {
 			.since("2.8.0");
 
 		// misc
-		
+
 		Functions.registerFunction(new SimpleJavaFunction<World>("world", new Parameter[] {
 			new Parameter<>("name", DefaultClasses.STRING, true, null)
 		}, DefaultClasses.WORLD, true) {
@@ -419,7 +423,7 @@ public class DefaultFunctions {
 					"delete all entities in radius 25 around location(50,50,50, world \"world_nether\")",
 					"ignite all entities in radius 25 around location(1,1,1, world of player)")
 			.since("2.2"));
-		
+
 		Functions.registerFunction(new SimpleJavaFunction<Date>("date", new Parameter[] {
 			new Parameter<>("year", DefaultClasses.NUMBER, true, null),
 			new Parameter<>("month", DefaultClasses.NUMBER, true, null),
@@ -452,7 +456,7 @@ public class DefaultFunctions {
 				0, 0,
 				0
 			};
-			
+
 			{
 				int length = getSignature().getMaxParameters();
 				assert fields.length == length
@@ -460,7 +464,7 @@ public class DefaultFunctions {
 					&& scale.length == length
 					&& relations.length == length;
 			}
-			
+
 			@Override
 			public Date[] executeSimple(Object[][] params) {
 				Calendar c = Calendar.getInstance();
@@ -469,21 +473,21 @@ public class DefaultFunctions {
 				for (int i = 0; i < fields.length; i++) {
 					int field = fields[i];
 					Number n = (Number) params[i][0];
-					
+
 					double value = n.doubleValue() * scale[i] + offsets[i] + carry;
 					int v = (int) Math2.floor(value);
 					carry = (value - v) * relations[i];
 					//noinspection MagicConstant
 					c.set(field, v);
 				}
-				
+
 				return new Date[] {new Date(c.getTimeInMillis(), c.getTimeZone())};
 			}
 		}.description("Creates a date from a year, month, and day, and optionally also from hour, minute, second and millisecond.",
 						"A time zone and DST offset can be specified as well (in minutes), if they are left out the server's time zone and DST offset are used (the created date will not retain this information).")
 			.examples("date(2014, 10, 1) # 0:00, 1st October 2014", "date(1990, 3, 5, 14, 30) # 14:30, 5th May 1990", "date(1999, 12, 31, 23, 59, 59, 999, -3*60, 0) # almost year 2000 in parts of Brazil (-3 hours offset, no DST)")
 			.since("2.2"));
-		
+
 		Functions.registerFunction(new SimpleJavaFunction<Vector>("vector", new Parameter[] {
 			new Parameter<>("x", DefaultClasses.NUMBER, true, null),
 			new Parameter<>("y", DefaultClasses.NUMBER, true, null),
@@ -497,11 +501,11 @@ public class DefaultFunctions {
 					((Number)params[2][0]).doubleValue()
 				)};
 			}
-			
+
 		}.description("Creates a new vector, which can be used with various expressions, effects and functions.")
 			.examples("vector(0, 0, 0)")
 			.since("2.2-dev23"));
-		
+
 		Functions.registerFunction(new SimpleJavaFunction<Long>("calcExperience", new Parameter[] {
 			new Parameter<>("level", DefaultClasses.LONG, true, null)
 		}, DefaultClasses.LONG, true) {
@@ -518,13 +522,13 @@ public class DefaultFunctions {
 				} else { // Half experience points do not exist, anyway
 					exp = (int) (4.5 * level * level - 162.5 * level + 2220);
 				}
-				
+
 				return new Long[] {exp};
 			}
-			
+
 		}.description("Calculates the total amount of experience needed to achieve given level from scratch in Minecraft.")
 			.since("2.2-dev32"));
-		
+
 		Functions.registerFunction(new SimpleJavaFunction<Color>("rgb", new Parameter[] {
 			new Parameter<>("red", DefaultClasses.LONG, true, null),
 			new Parameter<>("green", DefaultClasses.LONG, true, null),
@@ -537,7 +541,7 @@ public class DefaultFunctions {
 				Long green = (Long) params[1][0];
 				Long blue = (Long) params[2][0];
 				Long alpha = (Long) params[3][0];
-				
+
 				return CollectionUtils.array(ColorRGB.fromRGBA(red.intValue(), green.intValue(), blue.intValue(), alpha.intValue()));
 			}
 		}).description("Returns a RGB color from the given red, green and blue parameters. Alpha values can be added optionally, " +
@@ -687,6 +691,44 @@ public class DefaultFunctions {
 			}
 		} // end joml functions
 
+		Functions.registerFunction(new SimpleJavaFunction<>("formatNumber", new Parameter[]{
+				new Parameter<>("number", DefaultClasses.NUMBER, true, null),
+				new Parameter<>("format", DefaultClasses.STRING, true, new SimpleLiteral<>("", true))
+			}, DefaultClasses.STRING, true) {
+				@Override
+				public String[] executeSimple(Object[][] params) {
+					Number number = (Number) params[0][0];
+					String format = (String) params[1][0];
+
+					if (format.isEmpty()) {
+						if (number instanceof Double || number instanceof Float) {
+							return new String[]{DEFAULT_DECIMAL_FORMAT.format(number)};
+						} else {
+							return new String[]{DEFAULT_INTEGER_FORMAT.format(number)};
+						}
+					}
+
+					try {
+						return new String[]{new DecimalFormat(format).format(number)};
+					} catch (IllegalArgumentException e) {
+						return null; // invalid format
+					}
+				}
+			})
+			.description(
+				"Converts numbers to human-readable format. By default, '###,###' (e.g. '123,456,789') " +
+				"will be used for whole numbers and '###,###.##' (e.g. '123,456,789.00) will be used for decimal numbers. " +
+				"A hashtag '#' represents a digit, a comma ',' is used to separate numbers, and a period '.' is used for decimals. ",
+				"Will return none if the format is invalid.",
+				"For further reference, see this <a href=\"https://docs.oracle.com/javase/7/docs/api/java/text/DecimalFormat.html\" target=\"_blank\">article</a>.")
+			.examples(
+				"command /balance:",
+					"\taliases: bal",
+					"\texecutable by: players",
+					"\ttrigger:",
+						"\t\tset {_money} to formatNumber({money::%sender's uuid%})",
+						"\t\tsend \"Your balance: %{_money}%\" to sender")
+			.since("INSERT VERSION");
 	}
 
 }
