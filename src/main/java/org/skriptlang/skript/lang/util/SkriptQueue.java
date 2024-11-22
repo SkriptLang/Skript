@@ -64,7 +64,7 @@ public class SkriptQueue extends LinkedList<@NotNull Object>
 	}
 
 	public Object removeSafely(int i) {
-		if (i < 0 || i >= this.size())
+		if (i >= 0 && i < this.size())
 			return this.remove(i);
 		return null;
 	}
