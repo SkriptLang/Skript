@@ -16,6 +16,7 @@ import ch.njol.skript.classes.Serializer;
 import ch.njol.skript.classes.YggdrasilSerializer;
 import ch.njol.skript.expressions.base.EventValueExpression;
 import ch.njol.skript.lang.ParseContext;
+import ch.njol.skript.lang.function.DynamicFunctionReference;
 import ch.njol.skript.lang.util.SimpleLiteral;
 import ch.njol.skript.localization.Noun;
 import ch.njol.skript.localization.RegexMessage;
@@ -44,6 +45,9 @@ import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.NotNull;
+import org.skriptlang.skript.lang.script.Script;
+import org.skriptlang.skript.util.Executable;
 
 import java.io.StreamCorruptedException;
 import java.io.File;
@@ -721,6 +725,25 @@ public class SkriptClasses {
 						return path.relativize(file.toPath().toAbsolutePath()).toString();
 					}
 				}));
+
+		Classes.registerClass(new ClassInfo<>(Executable.class, "executable")
+			.user("executables?")
+			.name("Executable")
+			.description("Something that can be executed (run) and may accept arguments, e.g. a function.",
+					"This may also return a result.")
+			.usage("")
+			.examples("run {_function} with arguments 1 and true")
+			.since("INSERT VERSION"));
+
+		Classes.registerClass(new ClassInfo<>(DynamicFunctionReference.class, "function")
+			.user("functions?")
+			.name("Function")
+			.description("A function loaded by Skript.",
+					"This can be executed (with arguments) and may return a result.")
+			.usage("")
+			.examples("run {_function} with arguments 1 and true",
+					"set {_result} to the result of {_function}")
+			.since("INSERT VERSION"));
 	}
 
 }

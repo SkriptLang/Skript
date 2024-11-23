@@ -164,6 +164,7 @@ public class EffScriptFile extends Effect {
 			Set<Script> scripts = ScriptLoader.getScripts(file);
 			if (scripts.isEmpty())
 				return;
+			scripts.retainAll(loaded); // skip any that are not loaded (avoid throwing error)
 			ScriptLoader.unloadScripts(scripts);
 		} else {
 			Script script = ScriptLoader.getScript(file);
