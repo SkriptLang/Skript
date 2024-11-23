@@ -19,7 +19,7 @@ import org.skriptlang.skript.util.Executable;
 @Name("Result (Experimental)")
 @Description({
 		"Runs something (like a function) and returns its result.",
-		"If the thing is expected to return multiple values, specify 'results'."
+		"If the thing is expected to return multiple values, use 'results' instead of 'result'."
 })
 @Examples({
 		"set {_function} to the function named \"myFunction\"",
@@ -29,7 +29,6 @@ import org.skriptlang.skript.util.Executable;
 })
 @Since("INSERT VERSION")
 @Keywords({"run", "result", "execute", "function", "reflection"})
-@SuppressWarnings("NotNullFieldNotInitialized")
 public class ExprResult extends PropertyExpression<Executable<Event, Object>, Object> {
 
 	static {
@@ -53,8 +52,8 @@ public class ExprResult extends PropertyExpression<Executable<Event, Object>, Ob
 		if (hasArguments) {
 			this.arguments = LiteralUtils.defendExpression(expressions[1]);
 			Expression<?>[] arguments;
-			if (this.arguments instanceof ExpressionList<?>)
-				arguments = ((ExpressionList<?>) this.arguments).getExpressions();
+			if (this.arguments instanceof ExpressionList<?> list)
+				arguments = list.getExpressions();
 			else
 				arguments = new Expression[]{this.arguments};
 			this.input = new DynamicFunctionReference.Input(arguments);
@@ -69,9 +68,8 @@ public class ExprResult extends PropertyExpression<Executable<Event, Object>, Ob
 	protected Object[] get(Event event, Executable<Event, Object>[] source) {
 		for (Executable<Event, Object> task : source) {
 			Object[] arguments;
-			if (task instanceof DynamicFunctionReference) {
-				//noinspection rawtypes
-				DynamicFunctionReference<?> reference = (DynamicFunctionReference) task;
+			//noinspection rawtypes
+			if (task instanceof DynamicFunctionReference reference) {
 				Expression<?> validated = reference.validate(input);
 				if (validated == null)
 					return new Object[0];
@@ -81,8 +79,8 @@ public class ExprResult extends PropertyExpression<Executable<Event, Object>, Ob
 			else
 				arguments = new Object[0];
 			Object execute = task.execute(event, arguments);
-			if (execute instanceof Object[])
-				return (Object[]) execute;
+			if (execute instanceof Object[] results)
+				return results;
 			return new Object[]{execute};
 		}
 		return new Object[0];
