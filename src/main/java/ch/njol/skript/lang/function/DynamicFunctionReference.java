@@ -21,6 +21,12 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
+/**
+ * A partial reference to a Skript function.
+ * This reference knows some of its information in advance (such as the function's name)
+ * but will not be resolved until it receives inputs for the first time.
+ * @param <Result> The return type of this function, if known.
+ */
 public class DynamicFunctionReference<Result>
 	implements Contract, Executable<Event, Result[]>, Validated {
 
