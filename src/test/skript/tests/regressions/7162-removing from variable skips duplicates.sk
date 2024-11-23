@@ -1,0 +1,6 @@
+test "removing from variables skips duplicates":
+	set {_list::*} to 1, 1, 2, 3, 4, 5, 6 and 6
+	remove 1 and 1 from {_list::*}
+	assert {_list::*} is 2, 3, 4, 5, 6 and 6 with "didn't remove all instances of 1 from the list"
+	remove first 6 elements out of {_list::*} from {_list::*}
+	assert {_list::*} is not set with "didn't remove all elements"
