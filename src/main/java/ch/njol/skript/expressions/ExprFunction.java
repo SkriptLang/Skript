@@ -56,15 +56,14 @@ public class ExprFunction extends SimpleExpression<DynamicFunctionReference> {
 		this.mode = matchedPattern;
 		this.local = result.hasTag("local") || mode == 2;
 		switch (mode) {
-			case 0:
-			case 1:
+			case 0, 1 -> {
 				//noinspection unchecked
 				this.name = (Expression<String>) expressions[0];
 				if (local)
 					//noinspection unchecked
 					this.script = (Expression<Script>) expressions[1];
-				break;
-			case 2:
+			}
+			case 2 ->
 				//noinspection unchecked
 				this.script = (Expression<Script>) expressions[0];
 		}
@@ -79,31 +78,31 @@ public class ExprFunction extends SimpleExpression<DynamicFunctionReference> {
 			script = this.script.getSingle(event);
 		else
 			script = here;
-		switch (mode) {
+		return switch (mode) {
 			case 0:
 				@Nullable String name = this.name.getSingle(event);
 				if (name == null)
-					return CollectionUtils.array();
+					yield CollectionUtils.array();
 				@Nullable DynamicFunctionReference reference = this.resolveFunction(name, script);
 				if (reference == null)
-					return CollectionUtils.array();
-				return CollectionUtils.array(reference);
+					yield CollectionUtils.array();
+				yield CollectionUtils.array(reference);
 			case 1:
-				return this.name.stream(event).map(string -> this.resolveFunction(string, script))
+				yield this.name.stream(event).map(string -> this.resolveFunction(string, script))
 						.filter(Objects::nonNull)
 						.toArray(DynamicFunctionReference[]::new);
 			case 2:
 				if (script == null)
-					return CollectionUtils.array();
+					yield CollectionUtils.array();
 				@Nullable Namespace namespace = Functions.getScriptNamespace(script.getConfig().getFileName());
 				if (namespace == null)
-					return CollectionUtils.array();
-				return namespace.getFunctions().stream()
+					yield CollectionUtils.array();
+				yield namespace.getFunctions().stream()
 						.map(DynamicFunctionReference::new)
 						.toArray(DynamicFunctionReference[]::new);
-		}
-		assert false;
-		return null;
+			default:
+				throw new IllegalStateException("Unexpected value: " + mode);
+		};
 	}
 
 	private @Nullable DynamicFunctionReference resolveFunction(String name, @Nullable Script script) {
@@ -145,18 +144,14 @@ public class ExprFunction extends SimpleExpression<DynamicFunctionReference> {
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		switch (mode) {
-			case 0:
-				return "the function named " + name.toString(event, debug)
+		return switch (mode) {
+			case 0 -> "the function named " + name.toString(event, debug)
 						+ (local ? " from " + script.toString(event, debug) : "");
-			case 1:
-				return "functions named " + name.toString(event, debug)
+			case 1 -> "functions named " + name.toString(event, debug)
 						+ (local ? " from " + script.toString(event, debug) : "");
-			case 2:
-				return "the functions from " + script.toString(event, debug);
-		}
-		assert false;
-		return null;
+			case 2 -> "the functions from " + script.toString(event, debug);
+			default -> throw new IllegalStateException("Unexpected value: " + mode);
+		};
 	}
 
 }

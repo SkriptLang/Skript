@@ -149,7 +149,7 @@ public class DynamicFunctionReference<Result>
 	 * Validates whether dynamic inputs are appropriate for the resolved function.
 	 * If the inputs are acceptable, this will collect them into an expression list
 	 * (the output of which can be passed directly to the task).
-	 * 
+	 *
 	 * @param parameters The input types to check
 	 * @return A combined expression list, if these inputs are appropriate for the function
 	 */
