@@ -18,8 +18,9 @@
  */
 package ch.njol.skript.expressions;
 
-import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.Skript;
+import ch.njol.skript.SkriptConfig;
+import ch.njol.skript.config.Config;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
@@ -32,76 +33,58 @@ import ch.njol.skript.registrations.Feature;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.lang.script.Script;
 
-import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-
-@Name("All Scripts (Experimental)")
-@Description("Returns all of the scripts, or just the enabled or disabled ones.")
-@Examples({
-	"command /scripts:",
-	"\ttrigger:",
-	"\t\tsend \"All Scripts: %scripts%\" to player",
-	"\t\tsend \"Loaded Scripts: %enabled scripts%\" to player",
-	"\t\tsend \"Unloaded Scripts: %disabled scripts%\" to player"
+@Name("Config")
+@Description({
+	"The Skript config.",
+	"This can be reloaded, or navigated to retrieve options."
 })
+@Examples({})
 @Since("INSERT VERSION")
-public class ExprScripts extends SimpleExpression<Script> {
+public class ExprConfig extends SimpleExpression<Config> {
 
 	static {
-		Skript.registerExpression(ExprScripts.class, Script.class, ExpressionType.SIMPLE,
-				"[all [[of] the]|the] scripts",
-				"[all [[of] the]|the] (enabled|loaded) scripts",
-				"[all [[of] the]|the] (disabled|unloaded) scripts");
+		Skript.registerExpression(ExprConfig.class, Config.class, ExpressionType.SIMPLE,
+			"[the] [skript] config"
+		);
 	}
 
-	public static final Path FOLDER_PATH = Skript.getInstance().getDataFolder().getAbsoluteFile().toPath(),
-		SCRIPTS_PATH = Skript.getInstance().getScriptsFolder().getAbsoluteFile().toPath();
-	private int pattern;
+	private @Nullable Config config;
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		if (!this.getParser().hasExperiment(Feature.SCRIPT_REFLECTION))
 			return false;
-		this.pattern = matchedPattern;
+		this.config = SkriptConfig.getConfig();
+		if (config == null) { // todo is this ok?
+			Skript.warning("The main config is unavailable here!");
+			return false;
+		}
 		return true;
 	}
 
 	@Override
-	protected Script[] get(Event event) {
-		List<Script> scripts = new ArrayList<>();
-		if (pattern <= 1)
-			scripts.addAll(ScriptLoader.getLoadedScripts());
-		if (pattern != 1) {
-			scripts.addAll(ScriptLoader.getDisabledScripts()
-					.stream()
-					.map(ExprScript::getHandle)
-					.filter(Objects::nonNull)
-					.toList());
-		}
-		return scripts.toArray(new Script[0]);
+	protected Config[] get(Event event) {
+		if (config == null || !config.valid())
+			this.config = SkriptConfig.getConfig();
+		if (config != null && config.valid())
+			return new Config[] {config};
+		return new Config[0];
 	}
 
 	@Override
 	public boolean isSingle() {
-		return false;
+		return true;
 	}
 
 	@Override
-	public Class<? extends Script> getReturnType() {
-		return Script.class;
+	public Class<? extends Config> getReturnType() {
+		return Config.class;
 	}
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		if (pattern == 1)
-		    return "all enabled scripts";
-		else if (pattern == 2)
-			return "all disabled scripts";
-		return "all scripts";
+		return "the skript config";
 	}
 
 }

@@ -1,0 +1,24 @@
+using script reflection
+
+test "node of":
+	set {_node} to the current script
+	set {_node} to the first element of nodes of {_node}
+	assert name of {_node} is "using script reflection" with "first node name was wrong"
+	assert "%{_node}%" is "using script reflection" with "first node name was wrong"
+	assert size of (nodes of {_node}) is 0 with "simple node wasn't empty: %nodes of {_node}%"
+
+	set {_node} to the current script
+	set {_node} to node "test ""node of""" of {_node} # this :)
+	assert size of (nodes of {_node}) is greater than 0 with "section node was empty"
+
+	# root node
+	set {_node} to the skript config
+	set {_node} to node "language" in {_node}
+	assert name of {_node} is "language" with "config node name was wrong"
+	assert text value of {_node} is "english" with "config is in wrong language"
+
+	# node in node
+	set {_node} to the skript config
+	set {_node} to node "disable hooks.vault" in {_node}
+	assert text value of {_node} is "false" with "wrong node text value"
+	assert boolean value of {_node} is false with "wrong node boolean value"

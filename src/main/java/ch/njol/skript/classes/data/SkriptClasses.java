@@ -3,6 +3,8 @@ package ch.njol.skript.classes.data;
 import ch.njol.skript.Skript;
 import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.SkriptCommand;
+import ch.njol.skript.config.Config;
+import ch.njol.skript.config.Node;
 import ch.njol.skript.aliases.Aliases;
 import ch.njol.skript.aliases.ItemData;
 import ch.njol.skript.aliases.ItemType;
@@ -14,6 +16,7 @@ import ch.njol.skript.classes.EnumSerializer;
 import ch.njol.skript.classes.Parser;
 import ch.njol.skript.classes.Serializer;
 import ch.njol.skript.classes.YggdrasilSerializer;
+import ch.njol.skript.expressions.ExprScripts;
 import ch.njol.skript.expressions.base.EventValueExpression;
 import ch.njol.skript.lang.ParseContext;
 import ch.njol.skript.lang.util.SimpleLiteral;
@@ -674,6 +677,72 @@ public class SkriptClasses {
 				.since("2.5")
 				.serializer(new YggdrasilSerializer<GameruleValue>())
 		);
+
+		Classes.registerClass(new ClassInfo<>(Config.class, "config")
+			.user("configs?")
+			.name("Config")
+			.description("A configuration (or code) loaded by Skript, such as the config.sk or aliases.",
+				"Configs can be reloaded or navigated to find options.")
+			.usage("")
+			.examples("the skript config")
+			.since("INSERT VERSION")
+			.parser(new Parser<Config>() {
+
+				@Override
+				public boolean canParse(ParseContext context) {
+					return false;
+				}
+
+				@Override
+				public @Nullable Config parse(String name, ParseContext context) {
+					return null;
+				}
+
+				@Override
+				public String toString(Config config, int flags) {
+					return this.toVariableNameString(config);
+				}
+
+				@Override
+				public String toVariableNameString(Config config) {
+					@Nullable File file = config.getFile();
+					if (file == null)
+						return config.getFileName();
+					return ExprScripts.FOLDER_PATH.relativize(file.toPath().toAbsolutePath()).toString();
+				}
+			}));
+
+		Classes.registerClass(new ClassInfo<>(Node.class, "node")
+			.user("nodes?")
+			.name("Node")
+			.description("A node (entry) from a script config file.",
+				"This may have navigable children.")
+			.usage("")
+			.examples("the current script")
+			.since("INSERT VERSION")
+			.parser(new Parser<Node>() {
+
+				@Override
+				public boolean canParse(ParseContext context) {
+					return false;
+				}
+
+				@Override
+				public @Nullable Node parse(String name, ParseContext context) {
+					return null;
+				}
+
+				@Override
+				public String toString(Node node, int flags) {
+					return this.toVariableNameString(node);
+				}
+
+				@Override
+				public String toVariableNameString(Node node) {
+					return node.getPath();
+				}
+
+			}));
 
 		Classes.registerClass(new ClassInfo<>(Script.class, "script")
 				.user("scripts?")

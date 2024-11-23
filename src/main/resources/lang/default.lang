@@ -2535,6 +2535,8 @@ types:
 	classinfo: type¦s @a
 	visualeffect: visual effect¦s @a
 	script: script¦s @a
+	config: config¦s @a
+	node: node¦s @a
 
 	# Hooks
 	money: money

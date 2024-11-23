@@ -22,6 +22,8 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import ch.njol.skript.config.Config;
+import ch.njol.skript.config.Node;
 import ch.njol.skript.registrations.Feature;
 import java.util.ArrayList;
 import java.util.List;
@@ -136,7 +138,7 @@ public class ExprName extends SimplePropertyExpression<Object, String> {
 				Skript.methodExists(Bukkit.class, "createInventory", InventoryHolder.class, int.class, Component.class))
 			serializer = BungeeComponentSerializer.get();
 		HAS_GAMERULES = Skript.classExists("org.bukkit.GameRule");
-		register(ExprName.class, String.class, "(1¦name[s]|2¦(display|nick|chat|custom)[ ]name[s])", "offlineplayers/entities/blocks/itemtypes/inventories/slots/worlds/scripts"
+		register(ExprName.class, String.class, "(1¦name[s]|2¦(display|nick|chat|custom)[ ]name[s])", "offlineplayers/entities/blocks/itemtypes/inventories/slots/worlds/scripts/configs/nodes"
 			+ (HAS_GAMERULES ? "/gamerules" : ""));
 		register(ExprName.class, String.class, "(3¦(player|tab)[ ]list name[s])", "players");
 	}
@@ -177,6 +179,12 @@ public class ExprName extends SimplePropertyExpression<Object, String> {
 					name = name.substring(name.lastIndexOf(File.separatorChar) + 1);
 			}
 			return name;
+		} else if (object instanceof Config) {
+			Config config = (Config) object;
+			return config.getFileName();
+		} else if (object instanceof Node) {
+			Node node = (Node) object;
+			return node.getKey();
 		} else if (object instanceof Player) {
 			switch (mark) {
 				case 1:

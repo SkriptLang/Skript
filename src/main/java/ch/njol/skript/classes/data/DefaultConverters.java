@@ -20,6 +20,8 @@ package ch.njol.skript.classes.data;
 
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.command.Commands;
+import ch.njol.skript.config.Config;
+import ch.njol.skript.config.Node;
 import ch.njol.skript.entity.EntityData;
 import ch.njol.skript.entity.EntityType;
 import ch.njol.skript.entity.XpOrbData;
@@ -51,11 +53,12 @@ import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.util.Vector;
 import org.skriptlang.skript.lang.converter.Converter;
 import org.skriptlang.skript.lang.converter.Converters;
+import org.skriptlang.skript.lang.script.Script;
 
 public class DefaultConverters {
-	
+
 	public DefaultConverters() {}
-	
+
 	static {
 		// Number to subtypes converters
 		Converters.registerConverter(Number.class, Byte.class, Number::byteValue);
@@ -100,27 +103,27 @@ public class DefaultConverters {
 				return (LivingEntity) e;
 			return null;
 		});
-		
+
 		// Block - Inventory
 		Converters.registerConverter(Block.class, Inventory.class, b -> {
 			if (b.getState() instanceof InventoryHolder)
 				return ((InventoryHolder) b.getState()).getInventory();
 			return null;
 		}, Commands.CONVERTER_NO_COMMAND_ARGUMENTS);
-		
+
 		// Entity - Inventory
 		Converters.registerConverter(Entity.class, Inventory.class, e -> {
 			if (e instanceof InventoryHolder)
 				return ((InventoryHolder) e).getInventory();
 			return null;
 		}, Commands.CONVERTER_NO_COMMAND_ARGUMENTS);
-		
+
 		// Block - ItemType
 		Converters.registerConverter(Block.class, ItemType.class, ItemType::new, Converter.NO_LEFT_CHAINING | Commands.CONVERTER_NO_COMMAND_ARGUMENTS);
 
 		// Block - Location
 		Converters.registerConverter(Block.class, Location.class, BlockUtils::getLocation, Commands.CONVERTER_NO_COMMAND_ARGUMENTS);
-		
+
 		// Entity - Location
 		Converters.registerConverter(Entity.class, Location.class, Entity::getLocation, Commands.CONVERTER_NO_COMMAND_ARGUMENTS);
 
@@ -129,21 +132,21 @@ public class DefaultConverters {
 
 		// EntityData - EntityType
 		Converters.registerConverter(EntityData.class, EntityType.class, data -> new EntityType(data, -1));
-		
+
 		// ItemType - ItemStack
 		Converters.registerConverter(ItemType.class, ItemStack.class, ItemType::getRandom);
 		Converters.registerConverter(ItemStack.class, ItemType.class, ItemType::new);
-		
+
 		// Experience - XpOrbData
 		Converters.registerConverter(Experience.class, XpOrbData.class, e -> new XpOrbData(e.getXP()));
 		Converters.registerConverter(XpOrbData.class, Experience.class, e -> new Experience(e.getExperience()));
-		
+
 		// Slot - ItemType
 		Converters.registerConverter(Slot.class, ItemType.class, s -> {
 			ItemStack i = s.getItem();
 			return new ItemType(i != null ? i : new ItemStack(Material.AIR, 1));
 		});
-		
+
 		// Block - InventoryHolder
 		Converters.registerConverter(Block.class, InventoryHolder.class, b -> {
 			BlockState s = b.getState();
@@ -197,6 +200,10 @@ public class DefaultConverters {
 		Converters.registerConverter(EnchantmentOffer.class, EnchantmentType.class, eo -> new EnchantmentType(eo.getEnchantment(), eo.getEnchantmentLevel()));
 
 		Converters.registerConverter(String.class, World.class, Bukkit::getWorld);
+
+		// Script -> Config & Node
+		Converters.registerConverter(Script.class, Config.class, Script::getConfig);
+		Converters.registerConverter(Config.class, Node.class, Config::getMainNode);
 
 //		// Entity - String (UUID) // Very slow, thus disabled for now
 //		Converters.registerConverter(String.class, Entity.class, new Converter<String, Entity>() {

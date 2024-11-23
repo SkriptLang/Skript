@@ -30,12 +30,16 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.nio.channels.Channels;
 import java.nio.channels.FileChannel;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
+import java.util.Iterator;
 
 import ch.njol.skript.log.SkriptLogger;
 import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.NotNull;
+import org.skriptlang.skript.util.Validated;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -44,7 +48,7 @@ import org.jetbrains.annotations.Nullable;
  *
  * @author Peter Güttinger
  */
-public class Config implements Comparable<Config> {
+public class Config implements Comparable<Config>, Validated, NodeNavigator {
 
 	boolean simple;
 
@@ -71,6 +75,7 @@ public class Config implements Comparable<Config> {
 	String fileName;
 	@Nullable
 	Path file = null;
+	private final Validated validator = Validated.validator();
 
 	public Config(final InputStream source, final String fileName, @Nullable final File file, final boolean simple, final boolean allowEmptySections, final String defaultSeparator) throws IOException {
 		try {
@@ -168,17 +173,14 @@ public class Config implements Comparable<Config> {
 	/**
 	 * Saves the config to a file.
 	 *
-	 * @param f The file to save to
+	 * @param file The file to save to
 	 * @throws IOException If the file could not be written to.
 	 */
-	public void save(final File f) throws IOException {
-		separator = defaultSeparator;
-		final PrintWriter w = new PrintWriter(f, "UTF-8");
-		try {
-			main.save(w);
-		} finally {
-			w.flush();
-			w.close();
+	public void save(File file) throws IOException {
+		this.separator = defaultSeparator;
+		try (final PrintWriter writer = new PrintWriter(file, StandardCharsets.UTF_8)) {
+			this.main.save(writer);
+			writer.flush();
 		}
 	}
 
@@ -333,6 +335,37 @@ public class Config implements Comparable<Config> {
 		if (other == null)
 			return 0;
 		return fileName.compareTo(other.fileName);
+	}
+
+	@Override
+	public void invalidate() throws UnsupportedOperationException {
+		this.validator.invalidate();
+	}
+
+	@Override
+	public boolean valid() {
+		return validator.valid();
+	}
+
+	@Override
+	public @NotNull Node getCurrentNode() {
+		return main;
+	}
+
+	@Override
+	public @Nullable Node getNodeAt(@NotNull String @NotNull ... steps) {
+		return main.getNodeAt(steps);
+	}
+
+	@NotNull
+	@Override
+	public Iterator<Node> iterator() {
+		return main.iterator();
+	}
+
+	@Override
+	public @Nullable Node get(String step) {
+		return main.get(step);
 	}
 
 }

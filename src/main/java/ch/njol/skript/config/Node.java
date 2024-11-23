@@ -25,37 +25,39 @@ import java.util.regex.Pattern;
 
 import ch.njol.skript.SkriptConfig;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.NotNull;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.log.SkriptLogger;
 import ch.njol.util.NonNullPair;
 import ch.njol.util.StringUtils;
+import org.skriptlang.skript.util.Validated;
 
 /**
  * @author Peter Güttinger
  */
-public abstract class Node {
-	
+public abstract class Node implements Validated, NodeNavigator {
+
 	@Nullable
 	protected String key;
-	
+
 	protected String comment = "";
-	
+
 	protected final int lineNum;
-	
+
 	private final boolean debug;
-	
+
 	@Nullable
 	protected SectionNode parent;
 	protected Config config;
-	
+
 //	protected Node() {
 //		key = null;
 //		debug = false;
 //		lineNum = -1;
 //		SkriptLogger.setNode(this);
 //	}
-	
+
 	protected Node(final Config c) {
 		key = null;
 		debug = false;
@@ -63,7 +65,7 @@ public abstract class Node {
 		config = c;
 		SkriptLogger.setNode(this);
 	}
-	
+
 	protected Node(final String key, final SectionNode parent) {
 		this.key = key;
 		debug = false;
@@ -72,7 +74,7 @@ public abstract class Node {
 		config = parent.getConfig();
 		SkriptLogger.setNode(this);
 	}
-	
+
 	protected Node(final String key, final String comment, final SectionNode parent, final int lineNum) {
 		this.key = key;
 		this.comment = comment;
@@ -82,7 +84,7 @@ public abstract class Node {
 		config = parent.getConfig();
 		SkriptLogger.setNode(this);
 	}
-	
+
 //	protected Node(final String key, final SectionNode parent, final ConfigReader r) {
 //		this(key, parent, r.getLine(), r.getLineNum());
 //	}
@@ -94,11 +96,11 @@ public abstract class Node {
 	public String getKey() {
 		return key;
 	}
-	
+
 	public final Config getConfig() {
 		return config;
 	}
-	
+
 	public void rename(final String newname) {
 		if (key == null)
 			throw new IllegalStateException("can't rename an anonymous node");
@@ -107,7 +109,7 @@ public abstract class Node {
 		if (parent != null)
 			parent.renamed(this, oldKey);
 	}
-	
+
 	public void move(final SectionNode newParent) {
 		final SectionNode p = parent;
 		if (p == null)
@@ -115,6 +117,9 @@ public abstract class Node {
 		p.remove(this);
 		newParent.add(this);
 	}
+
+	@SuppressWarnings("null")
+	private final static Pattern linePattern = Pattern.compile("^((?:[^#]|##)*)(\\s*#(?!#).*)$");
 
 	/**
 	 * Splits a line into value and comment.
@@ -238,39 +243,39 @@ public abstract class Node {
 			return state;
 		}
 	}
-	
+
 	static void handleNodeStackOverflow(StackOverflowError e, String line) {
 		Node n = SkriptLogger.getNode();
-		SkriptLogger.setNode(null); // Avoid duplicating the which node error occurred in parentheses on every error message
-		
+		SkriptLogger.setNode(null); // Avoid duplicating the which node error occurred in paranthesis on every error message
+
 		Skript.error("There was a StackOverFlowError occurred when loading a node. This maybe from your scripts, aliases or Skript configuration.");
 		Skript.error("Please make your script lines shorter! Do NOT report this to SkriptLang unless it occurs with a short script line or built-in aliases!");
-		
+
 		Skript.error("");
 		Skript.error("Updating your Java and/or using respective 64-bit versions for your operating system may also help and is always a good practice.");
 		Skript.error("If it is still not fixed, try moderately increasing the thread stack size (-Xss flag) in your startup script.");
 		Skript.error("");
 		Skript.error("Using a different Java Virtual Machine (JVM) like OpenJ9 or GraalVM may also help; though be aware that not all plugins may support them.");
 		Skript.error("");
-		
+
 		Skript.error("Line that caused the issue:");
-		
+
 		// Print the line caused the issue for diagnosing (will be very long most probably), in case of someone pasting this in an issue and not providing the code.
 		Skript.error(line);
-		
+
 		// If testing (assertions enabled) - print the whole stack trace.
 		if (Skript.testing()) {
 			Skript.exception(e);
 		}
-		
+
 		SkriptLogger.setNode(n); // Revert the node back
 	}
-	
+
 	@Nullable
 	protected String getComment() {
 		return comment;
 	}
-	
+
 	int getLevel() {
 		int l = 0;
 		Node n = this;
@@ -279,20 +284,20 @@ public abstract class Node {
 		}
 		return Math.max(0, l - 1);
 	}
-	
+
 	protected String getIndentation() {
 		return StringUtils.multiply(config.getIndentation(), getLevel());
 	}
-	
+
 	/**
 	 * @return String to save this node as. The correct indentation and the comment will be added automatically, as well as all '#'s will be escaped.
 	 */
 	abstract String save_i();
-	
+
 	public final String save() {
 		return getIndentation() + escapeUnquotedHashtags(save_i()) + comment;
 	}
-	
+
 	public void save(final PrintWriter w) {
 		w.println(save());
 	}
@@ -332,7 +337,7 @@ public abstract class Node {
 	public SectionNode getParent() {
 		return parent;
 	}
-	
+
 	/**
 	 * Removes this node from its parent. Does nothing if this node does not have a parent node.
 	 */
@@ -342,21 +347,21 @@ public abstract class Node {
 			return;
 		p.remove(this);
 	}
-	
+
 	/**
 	 * @return Original line of this node at the time it was loaded. <tt>-1</tt> if this node was created dynamically.
 	 */
 	public int getLine() {
 		return lineNum;
 	}
-	
+
 	/**
 	 * @return Whether this node does not hold information (i.e. is empty or invalid)
 	 */
 	public boolean isVoid() {
 		return this instanceof VoidNode;// || this instanceof ParseOptionNode;
 	}
-	
+
 //	/**
 //	 * get a node via path:to:the:node. relative paths are possible by starting with a ':'; a double colon '::' will go up a node.<br/>
 //	 * selecting the n-th node can be done with #n.
@@ -409,7 +414,7 @@ public abstract class Node {
 //		}
 //		return n;
 //	}
-	
+
 	/**
 	 * returns information about this node which looks like the following:<br/>
 	 * <code>node value #including comments (config.sk, line xyz)</code>
@@ -422,9 +427,36 @@ public abstract class Node {
 			+ (comment.isEmpty() ? "" : " " + comment)
 			+ " (" + config.getFileName() + ", " + (lineNum == -1 ? "unknown line" : "line " + lineNum) + ")";
 	}
-	
+
 	public boolean debug() {
 		return debug;
 	}
-	
+
+	@Override
+	public void invalidate() throws UnsupportedOperationException {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public boolean valid() {
+		//noinspection ConstantValue
+		return config != null && config.valid();
+	}
+
+	public @Nullable String getPath() {
+		if (key == null)
+			return null;
+		else if (parent == null)
+			return key;
+		@Nullable String path = parent.getPath();
+		if (path == null)
+			return key;
+		return path + '.' + key;
+	}
+
+	@Override
+	public @NotNull Node getCurrentNode() {
+		return this;
+	}
+
 }
