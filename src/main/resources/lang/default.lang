@@ -2418,6 +2418,16 @@ experience cooldown change reasons:
 	plugin: plugin
 	pickup_orb: orb pickup, pickup orb
 
+# -- Input Keys --
+input keys:
+	forward: forward movement key, forward key
+	backward: backward movement key, backward key
+	left: left movement key, left key
+	right: right movement key, right key
+	jump: jump key, jumping key
+	sneak: sneak key, sneaking key
+	sprint: sprint key, sprinting key
+
 # -- Boolean --
 boolean:
 	true:
@@ -2504,6 +2514,7 @@ types:
 	textalignment: text alignment¦s @a
 	itemdisplaytransform: item display transform¦s @an
 	experiencecooldownchangereason: experience cooldown change reason¦s @a
+	inputkey: input key¦s @an
 
 	# Skript
 	weathertype: weather type¦s @a
