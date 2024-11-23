@@ -29,6 +29,7 @@ import ch.njol.skript.lang.SkriptParser;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.UnknownNullability;
 import org.skriptlang.skript.lang.script.ScriptWarning;
 
 @Name("Locally Suppress Warning")
@@ -41,13 +42,17 @@ import org.skriptlang.skript.lang.script.ScriptWarning;
 public class EffSuppressWarnings extends Effect {
 
 	static {
-		Skript.registerEffect(EffSuppressWarnings.class,
-			"[local[ly]] suppress [the] (1:conflict|2:variable save|3:[missing] conjunction[s]|4:starting [with] expression[s]|5:deprecated syntax) warning[s]"
-		);
+		StringBuilder warnings = new StringBuilder();
+		ScriptWarning[] values = ScriptWarning.values();
+		for (int i = 0; i < values.length; i++) {
+			if (i != 0)
+				warnings.append('|');
+			warnings.append(values[i].ordinal()).append(':').append(values[i].getPattern());
+		}
+		Skript.registerEffect(EffSuppressWarnings.class, "[local[ly]] suppress [the] (" + warnings + ") warning[s]");
 	}
 
-	private static final int CONFLICT = 1, INSTANCE = 2, CONJUNCTION = 3, START_EXPR = 4, DEPRECATED = 5;
-	private int mark = 0;
+	private @UnknownNullability ScriptWarning warning;
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
@@ -56,11 +61,11 @@ public class EffSuppressWarnings extends Effect {
 			return false;
 		}
 
-		mark = parseResult.mark;
-		if (mark == 1) {
-			Skript.warning("Variable conflict warnings no longer need suppression, as they have been removed altogether");
+		warning = ScriptWarning.values()[parseResult.mark];
+		if (warning.isDeprecated()) {
+			Skript.warning(warning.getDeprecationMessage());
 		} else {
-			getParser().getCurrentScript().suppressWarning(ScriptWarning.values()[mark - 2]);
+			getParser().getCurrentScript().suppressWarning(warning);
 		}
 		return true;
 	}
@@ -70,27 +75,7 @@ public class EffSuppressWarnings extends Effect {
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		String word;
-		switch (mark) {
-			case CONFLICT:
-				word = "conflict";
-				break;
-			case INSTANCE:
-				word = "variable save";
-				break;
-			case CONJUNCTION:
-				word = "missing conjunction";
-				break;
-			case START_EXPR:
-				word = "starting expression";
-				break;
-			case DEPRECATED:
-				word = "deprecated syntax";
-				break;
-			default:
-				throw new IllegalStateException();
-		}
-		return "suppress " + word + " warnings";
+		return "suppress " + warning.getWarningName() + " warnings";
 	}
 
 }

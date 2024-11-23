@@ -1,7 +1,7 @@
 test "is tamed":
-	spawn a horse at (spawn of world "world"):
+	spawn a horse at test-location:
 		set {_e} to entity
-	spawn an adult zombie at (spawn of world "world"):
+	spawn an adult zombie at test-location:
 		set {_z} to entity
 
 	assert {_e} is not tamed with "a normally spawned horse should not be tamed"

@@ -1,21 +1,3 @@
-/**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
 package ch.njol.skript.effects;
 
 import ch.njol.skript.Skript;
@@ -48,10 +30,13 @@ import java.util.Map;
 import java.util.Set;
 
 @Name("Sort")
-@Description({
-	"Sorts a list variable using either the natural ordering of the contents or the results of the given expression.",
-	"Be warned, this will overwrite the indices of the list variable."
-})
+@Description("""
+	Sorts a list variable using either the natural ordering of the contents or the results of the given expression.
+	Be warned, this will overwrite the indices of the list variable.
+	
+	When using the full <code>sort %~objects% (by|based on) &lt;expression&gt;</code> pattern,
+	the input expression can be used to refer to the current item being sorted.
+	(See input expression for more information.)""")
 @Examples({
 	"set {_words::*} to \"pineapple\", \"banana\", \"yoghurt\", and \"apple\"",
 	"sort {_words::*} # alphabetical sort",

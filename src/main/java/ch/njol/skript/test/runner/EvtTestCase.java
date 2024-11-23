@@ -1,37 +1,16 @@
-/**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
 package ch.njol.skript.test.runner;
 
-import ch.njol.skript.doc.NoDoc;
-import org.bukkit.Location;
-import org.bukkit.block.Block;
-import org.bukkit.event.Event;
-import org.jetbrains.annotations.Nullable;
-
 import ch.njol.skript.Skript;
-import ch.njol.skript.lang.Condition;
-import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.Literal;
-import ch.njol.skript.lang.SkriptEvent;
-import ch.njol.skript.lang.SkriptParser;
+import ch.njol.skript.doc.NoDoc;
+import ch.njol.skript.lang.*;
 import ch.njol.skript.registrations.EventValues;
 import ch.njol.skript.util.Getter;
+import org.bukkit.Location;
+import org.bukkit.World;
+import org.bukkit.block.Block;
+import org.bukkit.event.Event;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 @NoDoc
 public class EvtTestCase extends SkriptEvent {
@@ -42,18 +21,23 @@ public class EvtTestCase extends SkriptEvent {
 					.description("Contents represent one test case.")
 					.examples("")
 					.since("2.5");
-			EventValues.registerEventValue(SkriptTestEvent.class, Block.class, new Getter<Block, SkriptTestEvent>() {
+
+			EventValues.registerEventValue(SkriptTestEvent.class, Block.class, new Getter<>() {
 				@Override
-				@Nullable
-				public Block get(SkriptTestEvent ignored) {
+				public @NotNull Block get(SkriptTestEvent ignored) {
 					return SkriptJUnitTest.getBlock();
 				}
 			}, EventValues.TIME_NOW);
-			EventValues.registerEventValue(SkriptTestEvent.class, Location.class, new Getter<Location, SkriptTestEvent>() {
+			EventValues.registerEventValue(SkriptTestEvent.class, Location.class, new Getter<>() {
 				@Override
-				@Nullable
-				public Location get(SkriptTestEvent ignored) {
+				public @NotNull Location get(SkriptTestEvent ignored) {
 					return SkriptJUnitTest.getTestLocation();
+				}
+			}, EventValues.TIME_NOW);
+			EventValues.registerEventValue(SkriptTestEvent.class, World.class, new Getter<>() {
+				@Override
+				public @NotNull World get(SkriptTestEvent ignored) {
+					return SkriptJUnitTest.getTestWorld();
 				}
 			}, EventValues.TIME_NOW);
 		}

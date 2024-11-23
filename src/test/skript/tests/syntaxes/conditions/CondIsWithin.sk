@@ -29,7 +29,7 @@ test "within condition" when running minecraft "1.17":
 	assert ({_loc1} ~ vector(0,0.3,0)) is not within block at {_loc1} with "failed within block"
 
 	# entities
-	set {_loc} to spawn of world "world"
+	set {_loc} to test-location
 	spawn a pig at {_loc}
 	set {_pig} to last spawned entity
 	assert {_loc} is within {_pig} with "failed within entity"
@@ -59,7 +59,7 @@ test "within condition" when running below minecraft "1.17":
 	assert location(30000500, 0, 0, "world") is not within {_border} with "failed not within worldborder"
 
 	# entities
-	set {_loc} to spawn of world "world"
+	set {_loc} to test-location
 	spawn a pig at {_loc}
 	set {_pig} to last spawned entity
 	assert {_loc} is within {_pig} with "failed within entity"

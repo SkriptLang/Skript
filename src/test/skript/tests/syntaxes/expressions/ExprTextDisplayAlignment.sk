@@ -1,0 +1,24 @@
+test "text alignment" when running minecraft "1.19.4":
+	
+	spawn item display at spawn of world "world":
+		set {_id} to entity
+
+	assert text alignment of {_id} is not set with "item display has text alignment"
+	set text alignment of {_id} to centered
+	assert text alignment of {_id} is not set with "item display has text alignment"
+	reset text alignment of {_id}
+	assert text alignment of {_id} is not set with "item display has text alignment"
+		
+	delete entity within {_id}
+	spawn text display at spawn of world "world":
+		set {_td} to entity
+
+	assert text alignment of {_td} is centered with "failed default text alignment"
+	set text alignment of {_td} to left aligned
+	assert text alignment of {_td} is left aligned with "failed to set text alignment"
+	set text alignment of {_td} to right aligned
+	assert text alignment of {_td} is right aligned with "failed to set text alignment"
+	reset text alignment of {_td}
+	assert text alignment of {_td} is centered with "failed to set text alignment"
+
+	delete entity within {_td}

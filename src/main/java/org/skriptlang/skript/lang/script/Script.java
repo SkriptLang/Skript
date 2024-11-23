@@ -1,27 +1,10 @@
-/**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
 package org.skriptlang.skript.lang.script;
 
 import ch.njol.skript.config.Config;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Unmodifiable;
+import org.skriptlang.skript.util.event.EventRegistry;
 import org.skriptlang.skript.lang.structure.Structure;
 
 import java.util.Collections;
@@ -31,7 +14,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
 
 /**
  * Scripts are the primary container of all code.
@@ -160,63 +142,19 @@ public final class Script {
 
 	// Script Events
 
-	private final Set<ScriptEvent> eventHandlers = new HashSet<>(5);
+	/**
+	 * Used for listening to events involving a Script.
+	 * @see #eventRegistry()
+	 */
+	public interface Event extends org.skriptlang.skript.util.event.Event { }
+
+	private final EventRegistry<Event> eventRegistry = new EventRegistry<>();
 
 	/**
-	 * <b>This API is experimental and subject to change.</b>
-	 * Adds the provided event to this Script.
-	 * @param event The event to add.
+	 * @return An EventRegistry for this Script's events.
 	 */
-	@ApiStatus.Experimental
-	public void registerEvent(ScriptEvent event) {
-		eventHandlers.add(event);
-	}
-
-	/**
-	 * <b>This API is experimental and subject to change.</b>
-	 * Adds the provided event to this Script.
-	 * @param eventType The type of event being added. This is useful for registering the event through lambdas.
-	 * @param event The event to add.
-	 */
-	@ApiStatus.Experimental
-	public <T extends ScriptEvent> void registerEvent(Class<T> eventType, T event) {
-		eventHandlers.add(event);
-	}
-
-	/**
-	 * <b>This API is experimental and subject to change.</b>
-	 * Removes the provided event from this Script.
-	 * @param event The event to remove.
-	 */
-	@ApiStatus.Experimental
-	public void unregisterEvent(ScriptEvent event) {
-		eventHandlers.remove(event);
-	}
-
-	/**
-	 * <b>This API is experimental and subject to change.</b>
-	 * @return An unmodifiable set of all events.
-	 */
-	@ApiStatus.Experimental
-	@Unmodifiable
-	public Set<ScriptEvent> getEvents() {
-		return Collections.unmodifiableSet(eventHandlers);
-	}
-
-	/**
-	 * <b>This API is experimental and subject to change.</b>
-	 * @param type The type of events to get.
-	 * @return An unmodifiable set of all events of the specified type.
-	 */
-	@ApiStatus.Experimental
-	@Unmodifiable
-	@SuppressWarnings("unchecked")
-	public <T extends ScriptEvent> Set<T> getEvents(Class<T> type) {
-		return Collections.unmodifiableSet(
-			(Set<T>) eventHandlers.stream()
-				.filter(event -> type.isAssignableFrom(event.getClass()))
-				.collect(Collectors.toSet())
-		);
+	public EventRegistry<Event> eventRegistry() {
+		return eventRegistry;
 	}
 
 }

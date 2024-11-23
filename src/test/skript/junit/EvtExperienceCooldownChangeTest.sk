@@ -1,0 +1,16 @@
+on load:
+	set {_test::1} to "got player"
+	set {_test::2} to "change reason is plugin"
+	set {_test::3} to "got new cooldown"
+
+	ensure junit test "org.skriptlang.skript.test.tests.syntaxes.events.EvtExperienceCooldownChangeTest" completes {_test::*}
+
+on player experience cooldown change:
+	set {_test} to "org.skriptlang.skript.test.tests.syntaxes.events.EvtExperienceCooldownChangeTest"
+	junit test is {_test}
+	if event-player is set:
+		complete objective "got player" for junit test {_test}
+	if xp cooldown change reason is plugin:
+		complete objective "change reason is plugin" for junit test {_test}
+	if event-timespan is set:
+		complete objective "got new cooldown" for junit test {_test}

@@ -1,5 +1,5 @@
 test "wrong parsing order for math in object expr":
-	spawn a zombie at spawn of world "world"
+	spawn a zombie at test-location
 	set {_e} to the last spawned zombie
 
 	set {_result} to health of {_e} + max health of {_e}

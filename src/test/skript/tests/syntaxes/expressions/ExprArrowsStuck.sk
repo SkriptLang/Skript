@@ -1,5 +1,5 @@
 test "arrows stuck":
-	spawn zombie at spawn of world "world":
+	spawn zombie at test-location:
 		assert arrows stuck in event-entity is 0 with "entity spawned with arrows stuck"
 		set arrows stuck in event-entity to 31
 		assert arrows stuck in event-entity is 31 with "arrows stuck set failed"

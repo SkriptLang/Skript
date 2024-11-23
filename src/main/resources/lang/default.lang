@@ -345,15 +345,33 @@ tree types:
 
 # -- Time --
 time:
-	millisecond: millisecond¦s
-	tick: tick¦s
-	second: second¦s
-	minute: minute¦s
-	hour: hour¦s
-	day: day¦s
-	week: week¦s
-	month: month¦s
-	year: year¦s
+	millisecond:
+		full: millisecond¦s
+		short: ms
+	tick:
+		full: tick¦s
+		short: t
+	second:
+		full: second¦s
+		short: s
+	minute:
+		full: minute¦s
+		short: m
+	hour:
+		full: hour¦s
+		short: h
+	day:
+		full: day¦s
+		short: d
+	week:
+		full: week¦s
+		short: w
+	month:
+		full: month¦s
+		short: mo
+	year:
+		full: year¦s
+		short: y
 	real: real, rl, irl
 	minecraft: mc, minecraft
 
@@ -484,39 +502,43 @@ entities:
 	bat:
 		name: bat¦s
 		pattern: <age> bat(|1¦s)
+	# boats!
 	boat:
 		name: boat¦s
-		pattern: boat(|1¦s)
+		pattern: boat[1:s]
 	any boat:
 		name: boat¦s
-		pattern: any boat(|1¦s)
+		pattern: any boat[1:s]
 	oak boat:
 		name: oak boat¦s
-		pattern: oak boat(|1¦s)
+		pattern: oak boat[1:s]
 	spruce boat:
 		name: spruce boat¦s
-		pattern: spruce boat(|1¦s)
+		pattern: spruce boat[1:s]
 	birch boat:
 		name: birch boat¦s
-		pattern: birch boat(|1¦s)
+		pattern: birch boat[1:s]
 	jungle boat:
 		name: jungle boat¦s
-		pattern: jungle boat(|1¦s)
+		pattern: jungle boat[1:s]
 	acacia boat:
 		name: acacia boat¦s
-		pattern: acacia boat(|1¦s)
+		pattern: acacia boat[1:s]
 	dark oak boat:
 		name: dark oak boat¦s
-		pattern: dark oak boat(|1¦s)
+		pattern: dark oak boat[1:s]
 	mangrove boat:
 		name: mangrove boat¦s
-		pattern: mangrove boat(|1¦s)
+		pattern: mangrove boat[1:s]
 	bamboo raft:
 		name: bamboo raft¦s
-		pattern: bamboo (boat|raft)(|1¦s)
+		pattern: bamboo (boat|raft)[1:s]
 	cherry boat:
 		name: cherry boat¦s
-		pattern: cherry [blossom] boat(|1¦s)
+		pattern: cherry [blossom] boat[1:s]
+	pale oak boat:
+		name: pale oak boat¦s
+		pattern: pale oak boat[1:s]
 	blaze:
 		name: blaze¦s
 		pattern: blaze(|1¦s)
@@ -797,19 +819,19 @@ entities:
 		pattern: wither skull((|1¦s)| projectile(|1¦s))
 	wolf:
 		name: wol¦f¦ves
-		pattern: <age> wol(f|1¦ves) [[with collar] colo[u]r[ed] %-color%]
+		pattern: <age> [%-wolfvariant%] wol(f|1¦ves) [[with collar] colo[u]r[ed] %-color%]
 	tamed wolf:
 		name: tamed wol¦f¦ves
-		pattern: (<age> dog(|1¦s)|tamed <age> wol(f|1¦ves)|(4¦)pupp(y|1¦ies)) [[with collar] colo[u]r[ed] %-color%]
+		pattern: (<age> [%-wolfvariant%] dog(|1¦s)|tamed <age> [%-wolfvariant%] wol(f|1¦ves)| [%-wolfvariant%] (4¦)pupp(y|1¦ies)) [[with collar] colo[u]r[ed] %-color%]
 	wild wolf:
 		name: wild wol¦f¦ves
-		pattern: (wild|untamed) <age> wol(f|1¦ves) [[with collar] colo[u]r[ed] %-color%]
+		pattern: (wild|untamed) <age> [%-wolfvariant%] wol(f|1¦ves) [[with collar] colo[u]r[ed] %-color%]
 	angry wolf:
 		name: angry wol¦f¦ves @an
-		pattern: (angry|aggressive) <age> wol(f|1¦ves) [[with collar] colo[u]r[ed] %-color%]
+		pattern: (angry|aggressive) <age> [%-wolfvariant%] wol(f|1¦ves) [[with collar] colo[u]r[ed] %-color%]
 	peaceful wolf:
 		name: peaceful wol¦f¦ves
-		pattern: (peaceful|neutral|unaggressive) <age> wol(f|1¦ves) [[with collar] colo[u]r[ed] %-color%]
+		pattern: (peaceful|neutral|unaggressive) <age> [%-wolfvariant%] wol(f|1¦ves) [[with collar] colo[u]r[ed] %-color%]
 	zombie:
 		name: zombie¦s
 		pattern: <age> zombie(|1¦s)|(4¦)zombie (kid(|1¦s)|child(|1¦ren))
@@ -1186,28 +1208,40 @@ entities:
 	# 1.19 Entities
 	chest boat:
 		name: chest boat¦s
-		pattern: chest boat(|1¦s)
+		pattern: chest boat[1:s]
 	any chest boat:
 		name: chest boat¦s
-		pattern: any chest boat(|1¦s)
+		pattern: any chest boat[1:s]
 	oak chest boat:
 		name: oak chest boat¦s
-		pattern: oak chest boat(|1¦s)
+		pattern: oak chest boat[1:s]
 	spruce chest boat:
 		name: spruce chest boat¦s
-		pattern: spruce chest boat(|1¦s)
+		pattern: spruce chest boat[1:s]
 	birch chest boat:
 		name: birch chest boat¦s
-		pattern: birch chest boat(|1¦s)
+		pattern: birch chest boat[1:s]
 	jungle chest boat:
 		name: jungle chest boat¦s
-		pattern: jungle chest boat(|1¦s)
+		pattern: jungle chest boat[1:s]
 	acacia chest boat:
 		name: acacia chest boat¦s
-		pattern: acacia chest boat(|1¦s)
+		pattern: acacia chest boat[1:s]
 	dark oak chest boat:
 		name: dark oak chest boat¦s
-		pattern: dark oak chest boat(|1¦s)
+		pattern: dark oak chest boat[1:s]
+	cherry chest boat:
+		name: cherry chest boat¦s
+		pattern: cherry chest boat[1:s]
+	mangrove chest boat:
+		name: mangrove chest boat¦s
+		pattern: mangrove chest boat[1:s]
+	bamboo chest raft:
+		name: bamboo chest raft¦s
+		pattern: bamboo chest (raft|boat)[1:s]
+	pale oak chest boat:
+		name: pale oak chest boat¦s
+		pattern: pale oak chest boat[1:s]
 	frog:
 		name: frog¦s
 		pattern: <age> frog(|1¦s)|(4¦)frog (kid(|1¦s)|child(|1¦ren))
@@ -1245,16 +1279,16 @@ entities:
 		pattern: interaction(|1¦s)
 	display:
 		name: display¦s
-		pattern: display(|1¦s)
+		pattern: display(1:s| [entit(y|1:ies)])
 	block display:
 		name: block display¦s
-		pattern: block display(|1¦s)
+		pattern: (block display(1:s| [entit(y|1:ies)]) [of %-blockdata/itemtype%]|alt:%-blockdata/itemtype% block display(1:s| [entit(y|1:ies)]))
 	item display:
 		name: item display¦s
-		pattern: item display(|1¦s)
+		pattern: (item display(1:s| [entit(y|1:ies)]) [of %-itemtype%]|alt:%-itemtype% item display(1:s| [entit(y|1:ies)]))
 	text display:
 		name: text display¦s
-		pattern: text display(|1¦s)
+		pattern: text display(1:s| [entit(y|1:ies)])
 	# 1.20.3 Entities
 	breeze:
 		name: breeze¦s
@@ -1299,6 +1333,18 @@ cat types:
 	white: white
 	jellie: jellie
 	all_black: all black
+
+# -- Wolf Variants --
+wolf variants:
+	ashen: ashen
+	black: black
+	chestnut: chestnut
+	pale: pale
+	rusty: rusty
+	snowy: snowy
+	spotted: spotted
+	striped: striped
+	woods: woods
 
 # -- Damage Causes --
 damage causes:
@@ -2342,6 +2388,46 @@ transform reasons:
 	unknown: unknown
 	infection: infection, villager infection
 
+# -- Display Billboards --
+billboards:
+	center: center, middle, center pivot
+	fixed: fixed
+	horizontal: horizontal, horizontal pivot
+	vertical: vertical, vertical pivot
+
+# -- Text Display Alignments --
+text alignments:
+	center: centered, center aligned, middle aligned
+	left: left aligned
+	right: right aligned
+
+# -- Item Display Transforms --
+item display transforms:
+	firstperson_lefthand: first person left handed, first person left hand, left handed in first person
+	firstperson_righthand: first person right handed, first person right hand, right handed in first person
+	fixed: fixed, fixed position
+	ground: ground, the ground
+	gui: gui, menu
+	head: head
+	none: no transform
+	thirdperson_lefthand: third person left handed, third person left hand, left handed in third person
+	thirdperson_righthand: third person right handed, third person right hand, right handed in third person
+
+# -- Change Reasons --
+experience cooldown change reasons:
+	plugin: plugin
+	pickup_orb: orb pickup, pickup orb
+
+# -- Input Keys --
+input keys:
+	forward: forward movement key, forward key
+	backward: backward movement key, backward key
+	left: left movement key, left key
+	right: right movement key, right key
+	jump: jump key, jumping key
+	sneak: sneak key, sneaking key
+	sprint: sprint key, sprinting key
+
 # -- Boolean --
 boolean:
 	true:
@@ -2411,6 +2497,7 @@ types:
 	blockdata: block data¦s @a
 	healreason: heal reason¦s @a
 	cattype: cat type¦s @a
+	wolfvariant: wolf variant¦s @a
 	gamerule: gamerule¦s @a
 	attributetype: attribute type¦s @a
 	enchantmentoffer: enchantment offer¦s @an
@@ -2422,6 +2509,12 @@ types:
 	quitreason: quit reason¦s @a
 	inventoryclosereason: inventory close reason¦s @an
 	transformreason: transform reason¦s @a
+	display: display¦s @a
+	billboard: billboard¦s @a
+	textalignment: text alignment¦s @a
+	itemdisplaytransform: item display transform¦s @an
+	experiencecooldownchangereason: experience cooldown change reason¦s @a
+	inputkey: input key¦s @an
 
 	# Skript
 	weathertype: weather type¦s @a
@@ -2445,3 +2538,6 @@ types:
 	# Hooks
 	money: money
 	region: region¦s
+
+	# Other
+	quaternion: quaternion¦s @a

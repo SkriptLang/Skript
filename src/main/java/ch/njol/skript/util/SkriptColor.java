@@ -18,6 +18,15 @@
  */
 package ch.njol.skript.util;
 
+import ch.njol.skript.localization.Adjective;
+import ch.njol.skript.localization.Language;
+import ch.njol.skript.variables.Variables;
+import ch.njol.yggdrasil.Fields;
+import org.bukkit.ChatColor;
+import org.bukkit.DyeColor;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
 import java.io.NotSerializableException;
 import java.io.StreamCorruptedException;
 import java.util.Arrays;
@@ -26,18 +35,6 @@ import java.util.HashSet;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
-import java.util.regex.Pattern;
-
-import org.bukkit.ChatColor;
-import org.bukkit.DyeColor;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-
-import ch.njol.skript.Skript;
-import ch.njol.skript.localization.Adjective;
-import ch.njol.skript.localization.Language;
-import ch.njol.skript.variables.Variables;
-import ch.njol.yggdrasil.Fields;
 
 @SuppressWarnings("null")
 public enum SkriptColor implements Color {
@@ -96,7 +93,27 @@ public enum SkriptColor implements Color {
 	public org.bukkit.Color asBukkitColor() {
 		return dye.getColor();
 	}
-	
+
+	@Override
+	public int getAlpha() {
+		return dye.getColor().getAlpha();
+	}
+
+	@Override
+	public int getRed() {
+		return dye.getColor().getRed();
+	}
+
+	@Override
+	public int getGreen() {
+		return dye.getColor().getGreen();
+	}
+
+	@Override
+	public int getBlue() {
+		return dye.getColor().getBlue();
+	}
+
 	@Override
 	public DyeColor asDyeColor() {
 		return dye;
