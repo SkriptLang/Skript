@@ -3,16 +3,17 @@ package org.skriptlang.skript.commands.api;
 import ch.njol.skript.localization.Message;
 import ch.njol.skript.util.chat.MessageComponent;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.UnknownNullability;
 
 import java.util.List;
 import java.util.UUID;
 
-public interface ScriptCommandSender {
+public interface ScriptCommandSender<Source> {
 
 	/**
 	 * @return The underlying sender object
 	 */
-	Object getOriginal();
+	Source getOriginal();
 
 	void sendMessage(String message);
 
@@ -22,7 +23,7 @@ public interface ScriptCommandSender {
 	 * @return The unique ID of the sender, if one exists. If the sender is of type {@link CommandSenderType#PLAYER},
 	 * 			this is expected to be non-null.
 	 */
-	@Nullable UUID getUniqueID();
+	@UnknownNullability UUID getUniqueID();
 
 	/**
 	 * Checks whether this sender has the given permission.

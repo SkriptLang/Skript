@@ -13,7 +13,7 @@ import org.skriptlang.skript.commands.api.ScriptCommandSender;
 import java.util.List;
 import java.util.UUID;
 
-public class BukkitCommandSender implements ScriptCommandSender {
+public class BukkitCommandSender implements ScriptCommandSender<CommandSender> {
 
 	private final CommandSender sender;
 	private final CommandSenderType type;

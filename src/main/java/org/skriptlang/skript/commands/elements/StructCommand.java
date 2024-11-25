@@ -25,6 +25,7 @@ import ch.njol.skript.util.Timespan;
 import ch.njol.skript.util.Utils;
 import ch.njol.util.NonNullPair;
 import ch.njol.util.StringUtils;
+import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import org.bukkit.Bukkit;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
@@ -33,7 +34,9 @@ import org.skriptlang.skript.commands.api.Argument;
 import org.skriptlang.skript.commands.api.CommandCooldown;
 import org.skriptlang.skript.commands.api.ScriptCommand;
 import org.skriptlang.skript.commands.api.ScriptCommandEvent;
+import org.skriptlang.skript.commands.api.ScriptCommandSender;
 import org.skriptlang.skript.commands.api.ScriptCommandSender.CommandSenderType;
+import org.skriptlang.skript.commands.api.brigadier.ArgumentParser;
 import org.skriptlang.skript.commands.bukkit.BukkitScriptCommand;
 import org.skriptlang.skript.commands.bukkit.CommandUtils;
 import org.skriptlang.skript.lang.entry.EntryContainer;
@@ -210,6 +213,8 @@ public class StructCommand extends Structure {
 		String rawArguments = matchResult.group(2);
 		if (rawArguments == null)
 			rawArguments = "";
+
+		LiteralArgumentBuilder<ScriptCommandSender<?>> parsedargs = new ArgumentParser<ScriptCommandSender<?>>(command, rawArguments).getRoot();
 
 		Matcher argumentMatcher = ARGUMENT_PATTERN.matcher(rawArguments);
 		arguments = new ArrayList<>();
