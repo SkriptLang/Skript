@@ -1,42 +1,7 @@
-/**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
 package ch.njol.skript.effects;
 
-import ch.njol.skript.aliases.ItemData;
-import org.bukkit.Material;
-import org.bukkit.Tag;
-import org.bukkit.entity.AbstractHorse;
-import org.bukkit.entity.ChestedHorse;
-import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Llama;
-import org.bukkit.entity.Pig;
-import org.bukkit.entity.Player;
-import org.bukkit.entity.Steerable;
-import org.bukkit.event.Event;
-import org.bukkit.inventory.EntityEquipment;
-import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.LlamaInventory;
-import org.jetbrains.annotations.Nullable;
-
 import ch.njol.skript.Skript;
-import ch.njol.skript.aliases.Aliases;
+import ch.njol.skript.aliases.ItemData;
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.bukkitutil.PlayerUtils;
 import ch.njol.skript.doc.Description;
@@ -47,26 +12,47 @@ import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
+import org.bukkit.Material;
+import org.bukkit.Tag;
+import org.bukkit.entity.*;
+import org.bukkit.event.Event;
+import org.bukkit.inventory.EntityEquipment;
+import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.LlamaInventory;
+import org.jetbrains.annotations.Nullable;
 
 @Name("Equip")
-@Description("Equips or unequips an entity with some given armor. This will replace any armor that the entity is wearing.")
+@Description(
+	"Equips or unequips an entity with some given armor. " +
+	"This will replace any armor that the entity is wearing."
+)
 @Examples({
-		"equip player with diamond helmet",
-		"equip player with all diamond armor",
-		"unequip diamond chestplate from player",
-		"unequip all armor from player",
-		"unequip player's armor"
+	"equip player with diamond helmet",
+	"equip player with all diamond armor",
+	"unequip diamond chestplate from player",
+	"unequip all armor from player",
+	"unequip player's armor"
 })
 @Since("1.0, 2.7 (multiple entities, unequip)")
 public class EffEquip extends Effect {
 
+	private static final ItemType HORSE_ARMOR;
+
 	static {
+		if (Skript.isRunningMinecraft(1, 14)) {
+			HORSE_ARMOR = new ItemType(Material.IRON_HORSE_ARMOR, Material.GOLDEN_HORSE_ARMOR,
+					Material.DIAMOND_HORSE_ARMOR, Material.LEATHER_HORSE_ARMOR);
+		} else {
+			HORSE_ARMOR = new ItemType(Material.IRON_HORSE_ARMOR, Material.GOLDEN_HORSE_ARMOR,
+					Material.DIAMOND_HORSE_ARMOR);
+		}
+
 		Skript.registerEffect(EffEquip.class,
 				"equip [%livingentities%] with %itemtypes%",
 				"make %livingentities% wear %itemtypes%",
 				"unequip %itemtypes% [from %livingentities%]",
-				"unequip %livingentities%'[s] (armor|equipment)"
-			);
+				"unequip %livingentities%'[s] (armo[u]r|equipment)");
 	}
 
 	@SuppressWarnings("NotNullFieldNotInitialized")
@@ -99,7 +85,6 @@ public class EffEquip extends Effect {
 	private static ItemType LEGGINGS;
 	private static ItemType BOOTS;
 	private static ItemType CARPET;
-	private static final ItemType HORSE_ARMOR = new ItemType(Material.IRON_HORSE_ARMOR, Material.GOLDEN_HORSE_ARMOR, Material.DIAMOND_HORSE_ARMOR);
 	private static final ItemType SADDLE = new ItemType(Material.SADDLE);
 	private static final ItemType CHEST = new ItemType(Material.CHEST);
 
