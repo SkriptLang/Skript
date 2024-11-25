@@ -489,9 +489,15 @@ public final class Skript extends JavaPlugin implements Listener {
 			classLoadError = e;
 		}
 
-		// Disable pausing
-		if (Skript.methodExists(Server.class, "allowPausing", Plugin.class, Boolean.class))
-			getServer().allowPausing(this, false);
+		// Warn about pausing
+		if (Skript.methodExists(Server.class, "getPauseWhenEmptyTime")) {
+			int pauseThreshold = getServer().getPauseWhenEmptyTime();
+			if (pauseThreshold > -1) {
+				Skript.warning("Server pausing is enabled!");
+				Skript.warning("Scripts may NOT execute correctly when the server is paused.");
+				Skript.warning("Set 'pause-when-empty-seconds' to -1 in server.properties to make sure you don't encounter any issues.");
+			}
+		}
 
 		// Config must be loaded after Java and Skript classes are parseable
 		// ... but also before platform check, because there is a config option to ignore some errors
