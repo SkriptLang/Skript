@@ -489,6 +489,10 @@ public final class Skript extends JavaPlugin implements Listener {
 			classLoadError = e;
 		}
 
+		// Disable pausing
+		if (Skript.methodExists(Server.class, "allowPausing", Plugin.class, Boolean.class))
+			getServer().allowPausing(this, false);
+
 		// Config must be loaded after Java and Skript classes are parseable
 		// ... but also before platform check, because there is a config option to ignore some errors
 		SkriptConfig.load();
