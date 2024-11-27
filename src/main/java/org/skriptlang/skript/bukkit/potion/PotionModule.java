@@ -1,21 +1,3 @@
-/**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
 package org.skriptlang.skript.bukkit.potion;
 
 import ch.njol.skript.classes.ClassInfo;
@@ -26,7 +8,7 @@ import ch.njol.skript.registrations.Classes;
 import ch.njol.util.StringUtils;
 import ch.njol.yggdrasil.Fields;
 import org.bukkit.potion.PotionEffectType;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.addon.AddonModule;
 import org.skriptlang.skript.addon.SkriptAddon;
 import org.skriptlang.skript.bukkit.potion.elements.*;
@@ -41,7 +23,7 @@ import java.io.StreamCorruptedException;
 
 public class PotionModule implements AddonModule {
 
-	public void load(SkriptAddon addon, SyntaxRegistry registry) {
+	public void load(SkriptAddon addon) {
 		// PotionEffectType -> SkriptPotionEffect
 		Converters.registerConverter(PotionEffectType.class, SkriptPotionEffect.class, SkriptPotionEffect::new);
 
@@ -55,7 +37,7 @@ public class PotionModule implements AddonModule {
 				.description("A potion effect, including the potion effect type, tier and duration.")
 				.usage("speed of tier 1 for 10 seconds")
 				.since("2.5.2")
-				.parser(new Parser<SkriptPotionEffect>() {
+				.parser(new Parser<>() {
 					@Override
 					public boolean canParse(ParseContext context) {
 						return false;
@@ -71,7 +53,7 @@ public class PotionModule implements AddonModule {
 						return "potioneffect:" + potionEffect.toPotionEffect().getType().getName();
 					}
 				})
-				.serializer(new Serializer<SkriptPotionEffect>() {
+				.serializer(new Serializer<>() {
 					@Override
 					public Fields serialize(SkriptPotionEffect potionEffect) {
 						Fields fields = new Fields();
@@ -130,7 +112,7 @@ public class PotionModule implements AddonModule {
 				)
 				.since("")
 				.supplier(PotionEffectType.values())
-				.parser(new Parser<PotionEffectType>() {
+				.parser(new Parser<>() {
 					@Override
 					@Nullable
 					public PotionEffectType parse(String s, ParseContext context) {
@@ -147,7 +129,7 @@ public class PotionModule implements AddonModule {
 						return "potioneffecttype:" + p.getName();
 					}
 				})
-				.serializer(new Serializer<PotionEffectType>() {
+				.serializer(new Serializer<>() {
 					@Override
 					public Fields serialize(final PotionEffectType o) {
 						final Fields f = new Fields();
@@ -183,6 +165,7 @@ public class PotionModule implements AddonModule {
 		);
 
 		// Load Syntax
+		SyntaxRegistry registry = addon.syntaxRegistry();
 		CondHasPotion.register(registry);
 		CondIsPoisoned.register(registry);
 		CondPotionProperties.register(registry);

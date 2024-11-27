@@ -1,39 +1,21 @@
-/**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
 package org.skriptlang.skript.bukkit.potion.elements;
 
-import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.skript.lang.SyntaxStringBuilder;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.util.Timespan;
+import ch.njol.skript.util.Timespan.TimePeriod;
 import ch.njol.util.Kleenean;
+import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.potion.util.PotionUtils;
 import org.skriptlang.skript.bukkit.potion.util.SkriptPotionEffect;
 import org.bukkit.event.Event;
 import org.bukkit.potion.PotionEffectType;
-import org.eclipse.jdt.annotation.Nullable;
 import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
@@ -54,8 +36,8 @@ public class ExprPotionEffect extends SimpleExpression<SkriptPotionEffect> {
 
 	public static void register(SyntaxRegistry registry) {
 		String postProperties = "[no particles:without [the|any] particles] [no icon:(whilst hiding the|without (the|a[n])) [potion] icon]";
-		registry.register(SyntaxRegistry.EXPRESSION, SyntaxInfo.Expression.builder(ExprPotionEffect.class, SkriptPotionEffect.class)
-				.expressionType(ExpressionType.COMBINED)
+		registry.register(SyntaxRegistry.EXPRESSION, SyntaxInfo.Expression.builder(ExprPotionEffect.class)
+				.returnType(SkriptPotionEffect.class)
 				.addPatterns(
 						"[a[n]] [:ambient] potion effect of %potioneffecttype% [[of tier] %-number%] " + postProperties + " [for %-timespan%]",
 						"[an] infinite [:ambient] potion effect of %potioneffecttype% [[of tier] %-number%] " + postProperties,
@@ -63,8 +45,9 @@ public class ExprPotionEffect extends SimpleExpression<SkriptPotionEffect> {
 				)
 				.build()
 		);
-		registry.register(SyntaxRegistry.EXPRESSION, SyntaxInfo.Expression.builder(ExprPotionEffect.class, SkriptPotionEffect.class)
-				.expressionType(ExpressionType.PATTERN_MATCHES_EVERYTHING)
+		registry.register(SyntaxRegistry.EXPRESSION, SyntaxInfo.Expression.builder(ExprPotionEffect.class)
+				.returnType(SkriptPotionEffect.class)
+				.priority(SyntaxInfo.PATTERN_MATCHES_EVERYTHING)
 				.addPatterns(
 						"%potioneffecttype% %number%"
 				)
@@ -72,12 +55,9 @@ public class ExprPotionEffect extends SimpleExpression<SkriptPotionEffect> {
 		);
 	}
 
-	@SuppressWarnings("NotNullFieldNotInitialized")
 	private Expression<PotionEffectType> potionEffectType;
-	@Nullable
-	private Expression<Number> amplifier;
-	@Nullable
-	private Expression<Timespan> duration;
+	private @Nullable Expression<Number> amplifier;
+	private @Nullable Expression<Timespan> duration;
 	private boolean ambient;
 	private boolean infinite;
 	private boolean particles;
@@ -115,7 +95,7 @@ public class ExprPotionEffect extends SimpleExpression<SkriptPotionEffect> {
 		if (this.duration != null) {
 			Timespan timespan = this.duration.getSingle(event);
 			if (timespan != null)
-				duration = (int) timespan.getTicks();
+				duration = (int) timespan.getAs(TimePeriod.TICK);
 		}
 
 		return new SkriptPotionEffect[]{
@@ -140,26 +120,20 @@ public class ExprPotionEffect extends SimpleExpression<SkriptPotionEffect> {
 	
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		StringBuilder builder = new StringBuilder();
+		SyntaxStringBuilder builder = new SyntaxStringBuilder(event, debug);
 		if (ambient)
-			builder.append("ambient ");
+			builder.append("ambient");
 		if (infinite)
-			builder.append("infinite ");
-		builder.append("potion effect of ").append(potionEffectType.toString(event, debug));
+			builder.append("infinite");
+		builder.append("potion effect of", potionEffectType);
 		if (amplifier != null)
-			builder.append(" of tier ").append(amplifier.toString(event, debug));
+			builder.append("of tier", amplifier);
 		if (!particles)
-			builder.append(" without particles");
+			builder.append("without particles");
 		if (!icon)
-			builder.append(" without an icon");
-		if (!infinite) {
-			builder.append(" for ");
-			if (duration != null) {
-				builder.append(duration.toString(event, debug));
-			} else {
-				builder.append(PotionUtils.DEFAULT_DURATION_STRING);
-			}
-		}
+			builder.append("without an icon");
+		if (!infinite)
+			builder.append("for", duration != null ? duration : PotionUtils.DEFAULT_DURATION_STRING);
 		return builder.toString();
 	}
 	

@@ -1,21 +1,3 @@
-/**
- * This file is part of Skript.
- *
- * Skript is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Skript is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
 package org.skriptlang.skript.bukkit.potion.elements;
 
 import ch.njol.skript.aliases.ItemType;
@@ -29,13 +11,13 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
+import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.potion.util.PotionUtils;
 import org.skriptlang.skript.bukkit.potion.util.SkriptPotionEffect;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.Event;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
-import org.eclipse.jdt.annotation.Nullable;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
 import java.util.ArrayList;
@@ -83,18 +65,12 @@ public class ExprPotionEffects extends PropertyExpression<Object, SkriptPotionEf
 	}
 
 	@Override
-	@Nullable
-	public Class<?>[] acceptChange(ChangeMode mode) {
-		switch (mode) {
-			case REMOVE:
-				return CollectionUtils.array(SkriptPotionEffect[].class, PotionEffectType[].class);
-			case ADD:
-			case DELETE:
-			case RESET:
-				return CollectionUtils.array(SkriptPotionEffect[].class);
-			default:
-				return null;
-		}
+	public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
+		return switch (mode) {
+			case REMOVE -> CollectionUtils.array(SkriptPotionEffect[].class, PotionEffectType[].class);
+			case ADD, DELETE, RESET -> CollectionUtils.array(SkriptPotionEffect[].class);
+			default -> null;
+		};
 	}
 	
 	@Override

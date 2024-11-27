@@ -1,33 +1,16 @@
-/**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
 package org.skriptlang.skript.bukkit.potion.util;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.localization.Language;
 import ch.njol.skript.util.Timespan;
+import ch.njol.skript.util.Timespan.TimePeriod;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.inventory.meta.SuspiciousStewMeta;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -38,6 +21,11 @@ import java.util.Map;
 public final class PotionUtils {
 
 	/**
+	 * Changes to the PotionEffectType enum occurred in 1.20.5 which resulted in renaming of several elements
+	 */
+	static final boolean HAS_OLD_POTION_FIELDS = Skript.fieldExists(PotionEffectType.class, "SLOW");
+
+	/**
 	 * 30 seconds is the default length for the /effect command
 	 * See <a href="https://minecraft.fandom.com/wiki/Commands/effect">https://minecraft.fandom.com/wiki/Commands/effect</a>
 	 */
@@ -45,7 +33,7 @@ public final class PotionUtils {
 	/**
 	 * A string representation of a {@link Timespan} of {@link #DEFAULT_DURATION_TICKS}.
 	 */
-	public static final String DEFAULT_DURATION_STRING = Timespan.fromTicks_i(DEFAULT_DURATION_TICKS).toString();
+	public static final String DEFAULT_DURATION_STRING = new Timespan(TimePeriod.TICK, DEFAULT_DURATION_TICKS).toString();
 
 	/**
 	 * Whether infinite potion durations are supported by the server version.
@@ -79,8 +67,7 @@ public final class PotionUtils {
 		return names.values().toArray(new String[0]);
 	}
 
-	@Nullable
-	public static PotionEffectType fromString(String s) {
+	public static @Nullable PotionEffectType fromString(String s) {
 		return types.get(s.toLowerCase());
 	}
 
@@ -102,7 +89,7 @@ public final class PotionUtils {
 		builder.append(" of tier ").append(potionEffect.getAmplifier() + 1);
 		if (!potionEffect.hasParticles())
 			builder.append(" without particles");
-		builder.append(" for ").append(Timespan.fromTicks_i(potionEffect.getDuration()));
+		builder.append(" for ").append(new Timespan(TimePeriod.TICK, potionEffect.getDuration()));
 		return builder.toString();
 	}
 
@@ -163,13 +150,12 @@ public final class PotionUtils {
 	public static List<PotionEffect> getPotionEffects(ItemType itemType) {
 		List<PotionEffect> effects = new ArrayList<>();
 		ItemMeta meta = itemType.getItemMeta();
-		if (meta instanceof PotionMeta) {
-			PotionMeta potionMeta = ((PotionMeta) meta);
+		if (meta instanceof PotionMeta potionMeta) {
 			if (potionMeta.hasCustomEffects())
 				effects.addAll(potionMeta.getCustomEffects());
 			effects.addAll(PotionDataUtils.getPotionEffects(potionMeta.getBasePotionData()));
-		} else if (HAS_SUSPICIOUS_META && meta instanceof SuspiciousStewMeta) {
-			effects.addAll(((SuspiciousStewMeta) meta).getCustomEffects());
+		} else if (HAS_SUSPICIOUS_META && meta instanceof SuspiciousStewMeta stewMeta) {
+			effects.addAll(stewMeta.getCustomEffects());
 		}
 		return effects;
 	}
@@ -182,10 +168,10 @@ public final class PotionUtils {
 	public static void addPotionEffects(ItemType itemType, PotionEffect... potionEffects) {
 		ItemMeta meta = itemType.getItemMeta();
 		for (PotionEffect potionEffect : potionEffects) {
-			if (meta instanceof PotionMeta) {
-				((PotionMeta) meta).addCustomEffect(potionEffect, false);
-			} else if (HAS_SUSPICIOUS_META && meta instanceof SuspiciousStewMeta) {
-				((SuspiciousStewMeta) meta).addCustomEffect(potionEffect, false);
+			if (meta instanceof PotionMeta potionMeta) {
+				potionMeta.addCustomEffect(potionEffect, false);
+			} else if (HAS_SUSPICIOUS_META && meta instanceof SuspiciousStewMeta stewMeta) {
+				stewMeta.addCustomEffect(potionEffect, false);
 			}
 		}
 		itemType.setItemMeta(meta);
@@ -199,10 +185,10 @@ public final class PotionUtils {
 	public static void removePotionEffects(ItemType itemType, PotionEffectType... potionEffectTypes) {
 		ItemMeta meta = itemType.getItemMeta();
 		for (PotionEffectType potionEffectType : potionEffectTypes) {
-			if (meta instanceof PotionMeta) {
-				((PotionMeta) meta).removeCustomEffect(potionEffectType);
-			} else if (HAS_SUSPICIOUS_META && meta instanceof SuspiciousStewMeta) {
-				((SuspiciousStewMeta) meta).removeCustomEffect(potionEffectType);
+			if (meta instanceof PotionMeta potionMeta) {
+				potionMeta.removeCustomEffect(potionEffectType);
+			} else if (HAS_SUSPICIOUS_META && meta instanceof SuspiciousStewMeta stewMeta) {
+				stewMeta.removeCustomEffect(potionEffectType);
 			}
 		}
 		itemType.setItemMeta(meta);
@@ -214,10 +200,10 @@ public final class PotionUtils {
 	 */
 	public static void clearPotionEffects(ItemType itemType) {
 		ItemMeta meta = itemType.getItemMeta();
-		if (meta instanceof PotionMeta) {
-			((PotionMeta) meta).clearCustomEffects();
-		} else if (HAS_SUSPICIOUS_META && meta instanceof SuspiciousStewMeta) {
-			((SuspiciousStewMeta) meta).clearCustomEffects();
+		if (meta instanceof PotionMeta potionMeta) {
+			potionMeta.clearCustomEffects();
+		} else if (HAS_SUSPICIOUS_META && meta instanceof SuspiciousStewMeta stewMeta) {
+			stewMeta.clearCustomEffects();
 		}
 		itemType.setItemMeta(meta);
 	}

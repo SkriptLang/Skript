@@ -1,21 +1,3 @@
-/**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
 package org.skriptlang.skript.bukkit.potion.elements;
 
 import ch.njol.skript.conditions.base.PropertyCondition;
@@ -44,7 +26,6 @@ public class CondPotionProperties extends PropertyCondition<SkriptPotionEffect> 
 		register(registry, CondPotionProperties.class, PropertyType.HAVE, "(ICON:(an icon|icons)|PARTICLES:particles)", "potioneffects");
 	}
 
-	@SuppressWarnings("NotNullFieldNotInitialized")
 	private Property property;
 
 	@Override
@@ -55,32 +36,22 @@ public class CondPotionProperties extends PropertyCondition<SkriptPotionEffect> 
 
 	@Override
 	public boolean check(SkriptPotionEffect potionEffect) {
-		switch (property) {
-			case AMBIENT:
-				return potionEffect.ambient();
-			case ICON:
-				return potionEffect.icon();
-			case INFINITE:
-				return potionEffect.infinite();
-			case PARTICLES:
-				return potionEffect.particles();
-			default:
-				throw new IllegalArgumentException("Unexpected Potion Property: " + property);
-		}
+		return switch (property) {
+			case AMBIENT -> potionEffect.ambient();
+			case ICON -> potionEffect.icon();
+			case INFINITE -> potionEffect.infinite();
+			case PARTICLES -> potionEffect.particles();
+			default -> throw new IllegalArgumentException("Unexpected Potion Property: " + property);
+		};
 	}
 
 	@Override
 	protected PropertyType getPropertyType() {
-		switch (property) {
-			case AMBIENT:
-			case INFINITE:
-				return PropertyType.BE;
-			case ICON:
-			case PARTICLES:
-				return PropertyType.HAVE;
-			default:
-				throw new IllegalArgumentException("Unexpected Potion Property: " + property);
-		}
+		return switch (property) {
+			case AMBIENT, INFINITE -> PropertyType.BE;
+			case ICON, PARTICLES -> PropertyType.HAVE;
+			default -> throw new IllegalArgumentException("Unexpected Potion Property: " + property);
+		};
 	}
 
 	@Override

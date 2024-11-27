@@ -1,41 +1,23 @@
-/**
- * This file is part of Skript.
- *
- * Skript is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Skript is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
 package org.skriptlang.skript.bukkit.potion.elements;
 
-import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
+import ch.njol.skript.expressions.base.PropertyExpression;
 import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.util.Timespan;
+import ch.njol.skript.util.Timespan.TimePeriod;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.Event;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.potion.util.PotionUtils;
 import org.skriptlang.skript.bukkit.potion.util.SkriptPotionEffect;
 import org.skriptlang.skript.bukkit.potion.util.SkriptPotionEffect.Property;
@@ -53,8 +35,9 @@ public class ExprPotionProperties extends SimpleExpression<Object> {
 
 	public static void register(SyntaxRegistry registry) {
 		String properties = "(AMPLIFIER:(tier|amplifier|level)|DURATION:(duration|length)|EFFECT:(type|effect [type]))";
-		registry.register(SyntaxRegistry.EXPRESSION, SyntaxInfo.Expression.builder(ExprPotionProperties.class, Object.class)
-				.expressionType(ExpressionType.COMBINED)
+		registry.register(SyntaxRegistry.EXPRESSION, SyntaxInfo.Expression.builder(ExprPotionProperties.class)
+				.returnType(Object.class)
+				.priority(PropertyExpression.DEFAULT_PRIORITY)
 				.addPatterns(
 						"[the] potion " + properties + " of %potioneffecttypes% (of|for|on) %livingentities%",
 						"[the] potion " + properties + " of %potioneffects%",
@@ -64,15 +47,10 @@ public class ExprPotionProperties extends SimpleExpression<Object> {
 		);
 	}
 
-	@SuppressWarnings("NotNullFieldNotInitialized")
 	private Property property;
-
-	@Nullable
-	private Expression<PotionEffectType> types;
-	@Nullable
-	private Expression<LivingEntity> entities;
-	@Nullable
-	private Expression<SkriptPotionEffect> potions;
+	private @Nullable Expression<PotionEffectType> types;
+	private @Nullable Expression<LivingEntity> entities;
+	private @Nullable Expression<SkriptPotionEffect> potions;
 
 	@Override
 	@SuppressWarnings("unchecked")
@@ -102,7 +80,7 @@ public class ExprPotionProperties extends SimpleExpression<Object> {
 					break;
 				case DURATION:
 					for (SkriptPotionEffect potionEffect : potionEffects)
-						values.add(Timespan.fromTicks(potionEffect.duration()));
+						values.add(new Timespan(TimePeriod.TICK, potionEffect.duration()));
 					break;
 				case EFFECT:
 					for (SkriptPotionEffect potionEffect : potionEffects)
@@ -132,7 +110,7 @@ public class ExprPotionProperties extends SimpleExpression<Object> {
 					break;
 				case DURATION:
 					for (PotionEffect potionEffect : potionEffects)
-						values.add(Timespan.fromTicks(potionEffect.getDuration()));
+						values.add(new Timespan(TimePeriod.TICK, potionEffect.getDuration()));
 					break;
 				case EFFECT:
 					for (PotionEffect potionEffect : potionEffects)
@@ -148,31 +126,18 @@ public class ExprPotionProperties extends SimpleExpression<Object> {
 	@Override
 	@Nullable
 	public Class<?>[] acceptChange(ChangeMode mode) {
-		switch (property) {
-			case AMPLIFIER:
-				switch (mode) {
-					case SET:
-					case ADD:
-					case REMOVE:
-						return CollectionUtils.array(Number.class);
-					default:
-						return null;
-				}
-			case DURATION:
-				switch (mode) {
-					case SET:
-					case ADD:
-					case REMOVE:
-					case RESET:
-						return CollectionUtils.array(Timespan.class);
-					default:
-						return null;
-				}
-			case EFFECT:
-				return mode == ChangeMode.SET ? CollectionUtils.array(PotionEffectType.class) : null;
-			default:
-				throw new IllegalArgumentException("Unexpected Potion Property: " + property);
-		}
+		return switch (property) {
+			case AMPLIFIER -> switch (mode) {
+				case SET, ADD, REMOVE -> CollectionUtils.array(Number.class);
+				default -> null;
+			};
+			case DURATION -> switch (mode) {
+				case SET, ADD, REMOVE, RESET -> CollectionUtils.array(Timespan.class);
+				default -> null;
+			};
+			case EFFECT -> mode == ChangeMode.SET ? CollectionUtils.array(PotionEffectType.class) : null;
+			default -> throw new IllegalArgumentException("Unexpected Potion Property: " + property);
+		};
 	}
 
 	@Override
@@ -198,7 +163,7 @@ public class ExprPotionProperties extends SimpleExpression<Object> {
 					}
 					break;
 				case DURATION:
-					int ticks = delta != null ? (int) ((Timespan) delta[0]).getTicks() : PotionUtils.DEFAULT_DURATION_TICKS;
+					int ticks = delta != null ? (int) ((Timespan) delta[0]).getAs(TimePeriod.TICK) : PotionUtils.DEFAULT_DURATION_TICKS;
 					switch (mode) {
 						case SET:
 						case RESET:
@@ -248,7 +213,7 @@ public class ExprPotionProperties extends SimpleExpression<Object> {
 					}
 					break;
 				case DURATION:
-					int ticks = delta != null ? (int) ((Timespan) delta[0]).getTicks() : PotionUtils.DEFAULT_DURATION_TICKS;
+					int ticks = delta != null ? (int) ((Timespan) delta[0]).getAs(TimePeriod.TICK) : PotionUtils.DEFAULT_DURATION_TICKS;
 					for (LivingEntity entity : entities) {
 						for (PotionEffectType type : types) {
 							PotionEffect potionEffect = entity.getPotionEffect(type);
@@ -293,16 +258,12 @@ public class ExprPotionProperties extends SimpleExpression<Object> {
 
 	@Override
 	public Class<?> getReturnType() {
-		switch (property) {
-			case AMPLIFIER:
-				return Integer.class;
-			case DURATION:
-				return Timespan.class;
-			case EFFECT:
-				return PotionEffectType.class;
-			default:
-				throw new IllegalArgumentException("Unexpected Potion Property: " + property);
-		}
+		return switch (property) {
+			case AMPLIFIER -> Integer.class;
+			case DURATION -> Timespan.class;
+			case EFFECT -> PotionEffectType.class;
+			default -> throw new IllegalArgumentException("Unexpected Potion Property: " + property);
+		};
 	}
 
 	@Override
