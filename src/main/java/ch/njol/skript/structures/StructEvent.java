@@ -22,11 +22,12 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.doc.NoDoc;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptEvent;
+import ch.njol.skript.lang.SkriptEvent.ListeningBehavior;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.parser.ParserInstance;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventPriority;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.entry.EntryContainer;
 import org.skriptlang.skript.lang.structure.Structure;
 
@@ -37,23 +38,34 @@ public class StructEvent extends Structure {
 
 	static {
 		Skript.registerStructure(StructEvent.class,
-				"[on] <.+> [with priority (:(lowest|low|normal|high|highest|monitor))]");
+				"[on] [:uncancelled|:cancelled|any:(any|all)] <.+> [priority:with priority (:(lowest|low|normal|high|highest|monitor))]");
 	}
 
 	private SkriptEvent event;
 
 	@Override
 	@SuppressWarnings("ConstantConditions")
-	public boolean init(Literal<?>[] args, int matchedPattern, ParseResult parseResult, EntryContainer entryContainer) {
+	public boolean init(Literal<?>[] args, int matchedPattern, ParseResult parseResult, @Nullable EntryContainer entryContainer) {
 		String expr = parseResult.regexes.get(0).group();
 
 		EventData data = getParser().getData(EventData.class);
 		// ensure there's no leftover data from previous parses
 		data.clear();
 
-		if (!parseResult.tags.isEmpty())
-			data.priority = EventPriority.valueOf(parseResult.tags.get(0).toUpperCase(Locale.ENGLISH));
+		if (parseResult.hasTag("uncancelled")) {
+			data.behavior = ListeningBehavior.UNCANCELLED;
+		} else if (parseResult.hasTag("cancelled")) {
+			data.behavior = ListeningBehavior.CANCELLED;
+		} else if (parseResult.hasTag("any")) {
+			data.behavior = ListeningBehavior.ANY;
+		}
 
+		if (parseResult.hasTag("priority")) {
+			String lastTag = parseResult.tags.get(parseResult.tags.size() - 1);
+			data.priority = EventPriority.valueOf(lastTag.toUpperCase(Locale.ENGLISH));
+		}
+
+		assert entryContainer != null;
 		event = SkriptEvent.parse(expr, entryContainer.getSource(), null);
 
 		// cleanup after ourselves
@@ -111,6 +123,8 @@ public class StructEvent extends Structure {
 
 		@Nullable
 		private EventPriority priority;
+		@Nullable
+		private ListeningBehavior behavior;
 
 		public EventData(ParserInstance parserInstance) {
 			super(parserInstance);
@@ -122,10 +136,19 @@ public class StructEvent extends Structure {
 		}
 
 		/**
+		 * @return the listening behavior that should be used for the event. Null indicates that the user did not specify a behavior.
+		 */
+		@Nullable
+		public ListeningBehavior getListenerBehavior() {
+			return behavior;
+		}
+      
+    	/**
 		 * Clears all event-specific data from this instance.
 		 */
 		public void clear() {
 			priority = null;
+      		behavior = null;
 		}
 
 	}

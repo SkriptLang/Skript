@@ -18,17 +18,12 @@
  */
 package ch.njol.skript;
 
-import java.lang.ref.WeakReference;
-import java.lang.reflect.Method;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-import java.util.stream.Collectors;
-
+import ch.njol.skript.lang.SkriptEvent;
+import ch.njol.skript.lang.Trigger;
+import ch.njol.skript.timings.SkriptTimings;
+import ch.njol.skript.util.Task;
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Multimap;
 import org.bukkit.Bukkit;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
@@ -40,15 +35,18 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.plugin.EventExecutor;
 import org.bukkit.plugin.RegisteredListener;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.Multimap;
-
-import ch.njol.skript.lang.SkriptEvent;
-import ch.njol.skript.lang.Trigger;
-import ch.njol.skript.timings.SkriptTimings;
-import ch.njol.skript.util.Task;
+import java.lang.ref.WeakReference;
+import java.lang.reflect.Method;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 public final class SkriptEventHandler {
 
@@ -112,65 +110,93 @@ public final class SkriptEventHandler {
 	 * @param priority The priority of the Event.
 	 */
 	private static void check(Event event, EventPriority priority) {
+		// get all triggers for this event, return if none
 		List<Trigger> triggers = getTriggers(event.getClass());
 		if (triggers.isEmpty())
 			return;
 
-		if (Skript.logVeryHigh()) {
-			boolean hasTrigger = false;
-			for (Trigger trigger : triggers) {
-				SkriptEvent triggerEvent = trigger.getEvent();
-				if (
-					triggerEvent.getEventPriority() == priority
-					&& triggerEvent.canExecuteAsynchronously() ? triggerEvent.check(event) : Boolean.TRUE.equals(Task.callSync(() -> triggerEvent.check(event)))
-				) {
-					hasTrigger = true;
-					break;
-				}
-			}
-			if (!hasTrigger)
-				return;
+		// Check if this event should be treated as cancelled
+		boolean isCancelled = isCancelled(event);
 
-			logEventStart(event);
-		}
-
-		boolean isCancelled = event instanceof Cancellable && ((Cancellable) event).isCancelled() && !listenCancelled.contains(event.getClass());
-		boolean isResultDeny = !(event instanceof PlayerInteractEvent && (((PlayerInteractEvent) event).getAction() == Action.LEFT_CLICK_AIR || ((PlayerInteractEvent) event).getAction() == Action.RIGHT_CLICK_AIR) && ((PlayerInteractEvent) event).useItemInHand() != Result.DENY);
-
-		if (isCancelled && isResultDeny) {
-			if (Skript.logVeryHigh())
-				Skript.info(" -x- was cancelled");
-			return;
-		}
+		// This logs events even if there isn't a trigger that's going to run at that priority.
+		// However, there should only be a priority listener IF there's a trigger at that priority.
+		// So the time will be logged even if no triggers pass check(), which is still useful information.
+		logEventStart(event, priority);
 
 		for (Trigger trigger : triggers) {
 			SkriptEvent triggerEvent = trigger.getEvent();
+
+			// check if the trigger is at the right priority
 			if (triggerEvent.getEventPriority() != priority)
 				continue;
 
-			// these methods need to be run on whatever thread the trigger is
-			Runnable execute = () -> {
-				logTriggerStart(trigger);
-				Object timing = SkriptTimings.start(trigger.getDebugLabel());
-				trigger.execute(event);
-				SkriptTimings.stop(timing);
-				logTriggerEnd(trigger);
-			};
+			// check if the cancel state of the event is correct
+			if (!triggerEvent.getListeningBehavior().matches(isCancelled))
+				continue;
 
-			if (trigger.getEvent().canExecuteAsynchronously()) {
-				if (triggerEvent.check(event))
-					execute.run();
-			} else { // Ensure main thread
-				Task.callSync(() -> {
-					if (triggerEvent.check(event))
-						execute.run();
-					return null; // we don't care about a return value
-				});
-			}
+			// execute the trigger
+			execute(trigger, event);
 		}
 
 		logEventEnd();
 	}
+
+	/**
+	 * Helper method to check if we should treat the provided Event as cancelled.
+	 *
+	 * @param event The event to check.
+	 * @return Whether the event should be treated as cancelled.
+	 */
+	private static boolean isCancelled(Event event) {
+		return event instanceof Cancellable &&
+			(((Cancellable) event).isCancelled() && isResultDeny(event)) &&
+			// TODO: listenCancelled is deprecated and should be removed in 2.10
+			!listenCancelled.contains(event.getClass());
+	}
+
+	/**
+	 * Helper method for when the provided Event is a {@link PlayerInteractEvent}.
+	 * These events are special in that they are called as cancelled when the player is left/right clicking on air.
+	 * We don't want to treat those as cancelled, so we need to check if the {@link PlayerInteractEvent#useItemInHand()} result is DENY.
+	 * That means the event was purposefully cancelled, and we should treat it as cancelled.
+	 *
+	 * @param event The event to check.
+	 * @return Whether the event was a PlayerInteractEvent with air and the result was DENY.
+	 */
+	private static boolean isResultDeny(Event event) {
+		return !(event instanceof PlayerInteractEvent &&
+			(((PlayerInteractEvent) event).getAction() == Action.LEFT_CLICK_AIR || ((PlayerInteractEvent) event).getAction() == Action.RIGHT_CLICK_AIR) &&
+			((PlayerInteractEvent) event).useItemInHand() != Result.DENY);
+	}
+
+	/**
+	 * Executes the provided Trigger with the provided Event as context.
+	 *
+	 * @param trigger The Trigger to execute.
+	 * @param event The Event to execute the Trigger with.
+	 */
+	private static void execute(Trigger trigger, Event event) {
+		// these methods need to be run on whatever thread the trigger is
+		Runnable execute = () -> {
+			logTriggerStart(trigger);
+			Object timing = SkriptTimings.start(trigger.getDebugLabel());
+			trigger.execute(event);
+			SkriptTimings.stop(timing);
+			logTriggerEnd(trigger);
+		};
+
+		if (trigger.getEvent().canExecuteAsynchronously()) {
+			if (trigger.getEvent().check(event))
+				execute.run();
+		} else { // Ensure main thread
+			Task.callSync(() -> {
+				if (trigger.getEvent().check(event))
+					execute.run();
+				return null; // we don't care about a return value
+			});
+		}
+	}
+
 
 	private static long startEvent;
 
@@ -180,11 +206,30 @@ public final class SkriptEventHandler {
 	 * @param event The Event that started.
 	 */
 	public static void logEventStart(Event event) {
+		logEventStart(event, null);
+	}
+
+	/**
+	 * Logs that the provided Event has started with a priority.
+	 * Requires {@link Skript#logVeryHigh()} to be true to log anything.
+	 * @param event The Event that started.
+	 * @param priority The priority of the Event.
+	 */
+	public static void logEventStart(Event event, @Nullable EventPriority priority) {
 		startEvent = System.nanoTime();
 		if (!Skript.logVeryHigh())
 			return;
 		Skript.info("");
-		Skript.info("== " + event.getClass().getName() + " ==");
+
+		String message = "== " + event.getClass().getName();
+
+		if (priority != null)
+			message += " with priority " + priority;
+
+		if (event instanceof Cancellable && ((Cancellable) event).isCancelled())
+			message += " (cancelled)";
+
+		Skript.info(message + " ==");
 	}
 
 	/**
@@ -307,8 +352,10 @@ public final class SkriptEventHandler {
 	}
 
 	/**
-	 * Events which are listened even if they are cancelled.
+	 * Events which are listened even if they are cancelled. This should no longer be used.
+	 * @deprecated Users should specify the listening behavior in the event declaration. "on any %event%:", "on cancelled %event%:".
 	 */
+	@Deprecated
 	public static final Set<Class<? extends Event>> listenCancelled = new HashSet<>();
 
 	/**

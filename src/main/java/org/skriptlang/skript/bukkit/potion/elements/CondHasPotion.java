@@ -1,24 +1,5 @@
-/**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
 package org.skriptlang.skript.bukkit.potion.elements;
 
-import ch.njol.skript.Skript;
 import ch.njol.skript.conditions.base.PropertyCondition;
 import ch.njol.skript.conditions.base.PropertyCondition.PropertyType;
 import ch.njol.skript.doc.Description;
@@ -32,9 +13,8 @@ import ch.njol.util.Kleenean;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.Event;
 import org.bukkit.potion.PotionEffectType;
-import org.eclipse.jdt.annotation.Nullable;
-import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.registration.SyntaxRegistry;
+import org.jetbrains.annotations.Nullable;
 
 @Name("Has Potion")
 @Description("Checks whether the given living entities have specific potion effects.")
@@ -48,18 +28,12 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 public class CondHasPotion extends Condition {
 
 	public static void register(SyntaxRegistry registry) {
-		registry.register(SyntaxRegistry.CONDITION, SyntaxInfo.builder(CondHasPotion.class)
-				.addPatterns(
-						"%livingentities% (has|have) potion[s] [effect[s]] %potioneffecttypes%",
-						"%livingentities% (doesn't|does not|do not|don't) have potion[s] [effect[s]] %potioneffecttypes%"
-				)
-				.build()
-		);
+		PropertyCondition.register(registry, CondHasPotion.class, PropertyType.HAVE,
+				"potion[s] [effect[s]] %potioneffecttypes%",
+				"livingentitities");
 	}
 
-	@SuppressWarnings("NotNullFieldNotInitialized")
 	private Expression<LivingEntity> livingEntities;
-	@SuppressWarnings("NotNullFieldNotInitialized")
 	private Expression<PotionEffectType> potionEffects;
 
 	@Override

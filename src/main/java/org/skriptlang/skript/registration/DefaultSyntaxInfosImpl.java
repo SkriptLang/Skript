@@ -1,29 +1,12 @@
-/**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
 package org.skriptlang.skript.registration;
 
-import ch.njol.skript.lang.ExpressionType;
 import com.google.common.base.MoreObjects;
-import org.jetbrains.annotations.Contract;
+import com.google.common.base.Preconditions;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.lang.Priority;
 import org.skriptlang.skript.lang.entry.EntryValidator;
+import org.skriptlang.skript.registration.SyntaxInfo.Builder;
+import org.skriptlang.skript.registration.SyntaxInfoImpl.BuilderImpl;
+import org.skriptlang.skript.util.Priority;
 
 import java.util.Collection;
 import java.util.Objects;
@@ -34,22 +17,26 @@ final class DefaultSyntaxInfosImpl {
 	/**
 	 * {@inheritDoc}
 	 */
-	public static class ExpressionImpl<E extends ch.njol.skript.lang.Expression<R>, R>
+	static class ExpressionImpl<E extends ch.njol.skript.lang.Expression<R>, R>
 		extends SyntaxInfoImpl<E> implements DefaultSyntaxInfos.Expression<E, R> {
 
 		private final Class<R> returnType;
-		private final ExpressionType expressionType;
 
 		ExpressionImpl(
 			SyntaxOrigin origin, Class<E> type, @Nullable Supplier<E> supplier,
-			Collection<String> patterns, Class<R> returnType, ExpressionType expressionType
+			Collection<String> patterns, Priority priority, @Nullable Class<R> returnType
 		) {
-			super(origin, type, supplier, patterns);
-			if (returnType.isAnnotation() || returnType.isArray() || returnType.isPrimitive()) {
-				throw new IllegalArgumentException("returnType must be a normal type");
-			}
+			super(origin, type, supplier, patterns, priority);
+			Preconditions.checkNotNull(returnType, "An expression syntax info must have a return type.");
 			this.returnType = returnType;
-			this.expressionType = expressionType;
+		}
+
+		@Override
+		public Expression.Builder<? extends Expression.Builder<?, E, R>, E, R> builder() {
+			var builder = new BuilderImpl<>(type());
+			super.builder().applyTo(builder);
+			builder.returnType(returnType);
+			return builder;
 		}
 
 		@Override
@@ -58,23 +45,15 @@ final class DefaultSyntaxInfosImpl {
 		}
 
 		@Override
-		public ExpressionType expressionType() {
-			return expressionType;
-		}
-
-		@Override
 		public boolean equals(Object other) {
-			if (!(other instanceof Expression) || !super.equals(other)) {
-				return false;
-			}
-			ExpressionImpl<?, ?> expression = (ExpressionImpl<?, ?>) other;
-			return returnType() == expression.returnType() &&
-					Objects.equals(expressionType(), expression.expressionType());
+			return other instanceof Expression<?, ?> expression &&
+					super.equals(other) &&
+					returnType() == expression.returnType();
 		}
 
 		@Override
 		public int hashCode() {
-			return Objects.hash(origin(), type(), patterns(), returnType(), expressionType());
+			return Objects.hash(super.hashCode(), returnType());
 		}
 
 		@Override
@@ -83,14 +62,9 @@ final class DefaultSyntaxInfosImpl {
 					.add("origin", origin())
 					.add("type", type())
 					.add("patterns", patterns())
+					.add("priority", priority())
 					.add("returnType", returnType())
-					.add("expressionType", expressionType())
 					.toString();
-		}
-
-		@Override
-		public Priority priority() {
-			return new Priority(super.priority().getPriority() | expressionType.ordinal() << 24);
 		}
 
 		/**
@@ -101,29 +75,32 @@ final class DefaultSyntaxInfosImpl {
 			extends SyntaxInfoImpl.BuilderImpl<B, E>
 			implements Expression.Builder<B, E, R> {
 
-			private final Class<R> returnType;
-			@Nullable
-			private ExpressionType expressionType;
+			private @Nullable Class<R> returnType;
 
-			BuilderImpl(Class<E> expressionClass, Class<R> returnType) {
+			BuilderImpl(Class<E> expressionClass) {
 				super(expressionClass);
-				this.returnType = returnType;
 			}
 
 			@Override
-			public B expressionType(ExpressionType expressionType) {
-				this.expressionType = expressionType;
+			public B returnType(Class<R> returnType) {
+				this.returnType = returnType;
 				return (B) this;
 			}
 
-			@Contract("-> new")
 			public Expression<E, R> build() {
-				if (expressionType == null) {
-					throw new NullPointerException("expressionType must be set");
-				}
-				return new ExpressionImpl<>(origin, type, supplier, patterns, returnType, expressionType);
+				return new ExpressionImpl<>(origin, type, supplier, patterns, priority, returnType);
 			}
 
+			@Override
+			public void applyTo(SyntaxInfo.Builder<?, ?> builder) {
+				super.applyTo(builder);
+				//noinspection rawtypes - Might be unsafe, hopefully the return types match
+				if (builder instanceof Expression.Builder expressionBuilder) {
+					if (returnType != null) {
+						expressionBuilder.returnType(returnType);
+					}
+				}
+			}
 		}
 
 	}
@@ -131,38 +108,56 @@ final class DefaultSyntaxInfosImpl {
 	/**
 	 * {@inheritDoc}
 	 */
-	public static class StructureImpl<E extends org.skriptlang.skript.lang.structure.Structure>
+	static class StructureImpl<E extends org.skriptlang.skript.lang.structure.Structure>
 		extends SyntaxInfoImpl<E> implements DefaultSyntaxInfos.Structure<E> {
 
-		@Nullable
-		private final EntryValidator entryValidator;
+		private final @Nullable EntryValidator entryValidator;
+		private final NodeType nodeType;
 
 		StructureImpl(
 			SyntaxOrigin origin, Class<E> type, @Nullable Supplier<E> supplier,
-			Collection<String> patterns, @Nullable EntryValidator entryValidator
+			Collection<String> patterns, Priority priority,
+			@Nullable EntryValidator entryValidator, NodeType nodeType
 		) {
-			super(origin, type, supplier, patterns);
+			super(origin, type, supplier, patterns, priority);
+			if (!nodeType.canBeSection() && entryValidator != null)
+				throw new IllegalArgumentException("Simple Structures cannot have an EntryValidator");
 			this.entryValidator = entryValidator;
+			this.nodeType = nodeType;
 		}
 
 		@Override
-		@Nullable
-		public EntryValidator entryValidator() {
+		public Structure.Builder<? extends Structure.Builder<?, E>, E> builder() {
+			var builder = new BuilderImpl<>(type());
+			super.builder().applyTo(builder);
+			if (entryValidator != null) {
+				builder.entryValidator(entryValidator);
+			}
+			builder.nodeType(nodeType);
+			return builder;
+		}
+
+		@Override
+		public @Nullable EntryValidator entryValidator() {
 			return entryValidator;
 		}
 
 		@Override
+		public NodeType nodeType() {
+			return nodeType;
+		}
+
+		@Override
 		public boolean equals(Object other) {
-			if (!(other instanceof Structure) || !super.equals(other)) {
-				return false;
-			}
-			Structure<?> structure = (Structure<?>) other;
-			return Objects.equals(entryValidator(), structure.entryValidator());
+			return other instanceof Structure<?> structure &&
+					super.equals(other) &&
+					Objects.equals(entryValidator(), structure.entryValidator()) &&
+					Objects.equals(nodeType(), structure.nodeType());
 		}
 
 		@Override
 		public int hashCode() {
-			return Objects.hash(origin(), type(), patterns(), entryValidator());
+			return Objects.hash(super.hashCode(), entryValidator(), nodeType());
 		}
 
 		@Override
@@ -171,6 +166,7 @@ final class DefaultSyntaxInfosImpl {
 					.add("origin", origin())
 					.add("type", type())
 					.add("patterns", patterns())
+					.add("priority", priority())
 					.add("entryValidator", entryValidator())
 					.toString();
 		}
@@ -183,8 +179,8 @@ final class DefaultSyntaxInfosImpl {
 			extends SyntaxInfoImpl.BuilderImpl<B, E>
 			implements Structure.Builder<B, E> {
 
-			@Nullable
-			private EntryValidator entryValidator;
+			private @Nullable EntryValidator entryValidator;
+			private NodeType nodeType = NodeType.SECTION;
 
 			BuilderImpl(Class<E> structureClass) {
 				super(structureClass);
@@ -196,10 +192,27 @@ final class DefaultSyntaxInfosImpl {
 				return (B) this;
 			}
 
-			public Structure<E> build() {
-				return new StructureImpl<>(origin, type, supplier, patterns, entryValidator);
+			@Override
+			public B nodeType(NodeType nodeType) {
+				this.nodeType = nodeType;
+				return (B) this;
 			}
 
+			public Structure<E> build() {
+				return new StructureImpl<>(origin, type, supplier, patterns, priority, entryValidator, nodeType);
+			}
+
+			@Override
+			public void applyTo(SyntaxInfo.Builder<?, ?> builder) {
+				super.applyTo(builder);
+				//noinspection rawtypes - Should be safe, generics will not influence this
+				if (builder instanceof Structure.Builder structureBuilder) {
+					if (entryValidator != null) {
+						structureBuilder.entryValidator(entryValidator);
+						structureBuilder.nodeType(nodeType);
+					}
+				}
+			}
 		}
 
 	}

@@ -25,8 +25,8 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.parser.ParserInstance;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.Nullable;
-import org.skriptlang.skript.lang.structure.Structure;
+import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -65,7 +65,8 @@ public abstract class Section extends TriggerSection implements SyntaxElement {
 	@Override
 	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		SectionContext sectionContext = getParser().getData(SectionContext.class);
-		return init(expressions, matchedPattern, isDelayed, parseResult, sectionContext.sectionNode, sectionContext.triggerItems);
+		return init(expressions, matchedPattern, isDelayed, parseResult, sectionContext.sectionNode, sectionContext.triggerItems)
+			&& sectionContext.claim(this);
 	}
 
 	public abstract boolean init(Expression<?>[] expressions,
@@ -83,12 +84,17 @@ public abstract class Section extends TriggerSection implements SyntaxElement {
 	 * (although the loaded code may change it), the calling code must deal with this.
 	 */
 	protected void loadCode(SectionNode sectionNode) {
-		List<TriggerSection> currentSections = getParser().getCurrentSections();
-		currentSections.add(this);
+		ParserInstance parser = getParser();
+		List<TriggerSection> previousSections = parser.getCurrentSections();
+
+		List<TriggerSection> sections = new ArrayList<>(previousSections);
+		sections.add(this);
+		parser.setCurrentSections(sections);
+
 		try {
 			setTriggerItems(ScriptLoader.loadItems(sectionNode));
 		} finally {
-			currentSections.remove(currentSections.size() - 1);
+			parser.setCurrentSections(previousSections);
 		}
 	}
 
@@ -115,7 +121,10 @@ public abstract class Section extends TriggerSection implements SyntaxElement {
 	 * appropriately modifying {@link ParserInstance#getCurrentSections()}.
 	 * <br>
 	 * This method differs from {@link #loadCode(SectionNode)} in that it
-	 * is meant for code that will be executed in a different event.
+	 * is meant for code that will be executed at another time and potentially with different context.
+	 * The section's contents are parsed with the understanding that they have no relation
+	 *  to the section itself, along with any other code that may come before and after the section.
+	 * The {@link ParserInstance} is modified to reflect that understanding.
 	 *
 	 * @param sectionNode The section node to load.
 	 * @param name The name of the event(s) being used.
@@ -129,27 +138,21 @@ public abstract class Section extends TriggerSection implements SyntaxElement {
 	protected final Trigger loadCode(SectionNode sectionNode, String name, @Nullable Runnable afterLoading, Class<? extends Event>... events) {
 		ParserInstance parser = getParser();
 
-		String previousName = parser.getCurrentEventName();
-		Class<? extends Event>[] previousEvents = parser.getCurrentEvents();
-		Structure previousStructure = parser.getCurrentStructure();
-		List<TriggerSection> previousSections = parser.getCurrentSections();
-		Kleenean previousDelay = parser.getHasDelayBefore();
+		// backup the existing data
+		ParserInstance.Backup parserBackup = parser.backup();
+		parser.reset();
 
+		// set our new data for parsing this section
 		parser.setCurrentEvent(name, events);
 		SkriptEvent skriptEvent = new SectionSkriptEvent(name, this);
 		parser.setCurrentStructure(skriptEvent);
-		parser.setCurrentSections(new ArrayList<>());
-		parser.setHasDelayBefore(Kleenean.FALSE);
 		List<TriggerItem> triggerItems = ScriptLoader.loadItems(sectionNode);
 
 		if (afterLoading != null)
 			afterLoading.run();
 
-		//noinspection ConstantConditions - We are resetting it to what it was
-		parser.setCurrentEvent(previousName, previousEvents);
-		parser.setCurrentStructure(previousStructure);
-		parser.setCurrentSections(previousSections);
-		parser.setHasDelayBefore(previousDelay);
+		// return the parser to its original state
+		parser.restoreBackup(parserBackup);
 
 		return new Trigger(parser.getCurrentScript(), name, skriptEvent, triggerItems);
 	}
@@ -171,9 +174,9 @@ public abstract class Section extends TriggerSection implements SyntaxElement {
 	}
 
 	@Nullable
-	@SuppressWarnings({"unchecked", "rawtypes"})
 	public static Section parse(String expr, @Nullable String defaultError, SectionNode sectionNode, List<TriggerItem> triggerItems) {
 		SectionContext sectionContext = ParserInstance.get().getData(SectionContext.class);
+		//noinspection unchecked,rawtypes
 		return sectionContext.modify(sectionNode, triggerItems,
 			() -> (Section) SkriptParser.parse(expr, (Iterator) Skript.getSections().iterator(), defaultError));
 	}
@@ -187,6 +190,7 @@ public abstract class Section extends TriggerSection implements SyntaxElement {
 
 		protected SectionNode sectionNode;
 		protected List<TriggerItem> triggerItems;
+		protected @Nullable Debuggable owner;
 
 		public SectionContext(ParserInstance parserInstance) {
 			super(parserInstance);
@@ -204,16 +208,57 @@ public abstract class Section extends TriggerSection implements SyntaxElement {
 		protected <T> T modify(SectionNode sectionNode, List<TriggerItem> triggerItems, Supplier<T> supplier) {
 			SectionNode prevSectionNode = this.sectionNode;
 			List<TriggerItem> prevTriggerItems = this.triggerItems;
+			Debuggable owner = this.owner;
 
 			this.sectionNode = sectionNode;
 			this.triggerItems = triggerItems;
+			this.owner = null;
 
 			T result = supplier.get();
 
 			this.sectionNode = prevSectionNode;
 			this.triggerItems = prevTriggerItems;
+			this.owner = owner;
 
 			return result;
+		}
+
+		/**
+		 * Marks the section this context represents as having been 'claimed' by the current syntax.
+		 * Once a syntax has claimed a section, another syntax may not claim it.
+		 *
+		 * @param syntax The syntax that wants to own this section
+		 * @return True if this was successfully claimed, false if it was already owned
+		 */
+		@ApiStatus.Internal
+		public <Syntax extends SyntaxElement & Debuggable> boolean claim(Syntax syntax) {
+			if (sectionNode == null)
+				return true;
+			if (this.claimed()) {
+				if (owner == syntax)
+					return true;
+				assert owner != null;
+				Skript.error("The syntax '" + syntax.toString(null, false)
+					+ "' tried to claim the current section, but it was already claimed by '"
+					+ this.owner.toString(null, false)
+					+ "'. You cannot have two section-starters in the same line.");
+				return false;
+			}
+			this.owner = syntax;
+			return true;
+		}
+
+		/**
+		 * Used to keep track of whether a syntax is managing the current section.
+		 * Every section needs exactly one manager. This is used to detect errors such as:
+		 * <ol>
+		 *     <li>Two syntax both want to manage the section (e.g. an effectsection and an expression or two expressions).</li>
+		 *     <li>No syntax wants to manage the section.</li>
+		 * </ol>
+		 * @return Whether a syntax is already managing this section context
+		 */
+		public boolean claimed() {
+			return owner != null;
 		}
 
 	}

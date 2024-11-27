@@ -1,97 +1,263 @@
-/**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
 package org.skriptlang.skript;
 
 import ch.njol.skript.SkriptAPIException;
-import ch.njol.skript.localization.Language;
 import com.google.common.collect.ImmutableSet;
-import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
 import org.skriptlang.skript.addon.AddonModule;
 import org.skriptlang.skript.addon.SkriptAddon;
 import org.skriptlang.skript.localization.Localizer;
 import org.skriptlang.skript.registration.SyntaxRegistry;
+import org.skriptlang.skript.util.Registry;
 
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Supplier;
 
 final class SkriptImpl implements Skript {
 
-	private final Localizer localizer;
+	/**
+	 * The addon instance backing this Skript.
+	 */
+	private final SkriptAddon addon;
 
-	private final SyntaxRegistry registry = SyntaxRegistry.createInstance();
-	private final SyntaxRegistry unmodifiableRegistry = SyntaxRegistry.unmodifiableView(registry);
+	SkriptImpl(Class<?> source, String name) {
+		addon = new SkriptAddonImpl(this, source, name, Localizer.of(this));
+		storeRegistry(SyntaxRegistry.class, SyntaxRegistry.empty());
+	}
 
-	SkriptImpl(Localizer localizer, AddonModule... modules) {
-		this.localizer = localizer;
-		this.registerAddon(this, modules);
+	/*
+	 * Registry Management
+	 */
+
+	private static final Map<Class<?>, Registry<?>> registries = new ConcurrentHashMap<>();
+
+	@Override
+	public <R extends Registry<?>> void storeRegistry(Class<R> registryClass, R registry) {
+		registries.put(registryClass, registry);
 	}
 
 	@Override
-	public SyntaxRegistry registry() {
-		return unmodifiableRegistry;
-	}
-
-	//
-	// SkriptAddon Management
-	//
-
-	private static final Set<SkriptAddon> addons = new HashSet<>();
-
-	@Override
-	public void registerAddon(SkriptAddon addon, AddonModule... modules) {
-		registerAddon(addon, Arrays.asList(modules));
+	public void removeRegistry(Class<? extends Registry<?>> registryClass) {
+		registries.remove(registryClass);
 	}
 
 	@Override
-	public void registerAddon(SkriptAddon addon, Collection<? extends AddonModule> modules) {
+	public boolean hasRegistry(Class<? extends Registry<?>> registryClass) {
+		return registries.containsKey(registryClass);
+	}
+
+	@Override
+	public <R extends Registry<?>> R registry(Class<R> registryClass) {
+		//noinspection unchecked
+		R registry = (R) registries.get(registryClass);
+		if (registry == null)
+			throw new NullPointerException("Registry not present for " + registryClass);
+		return registry;
+	}
+
+	@Override
+	public <R extends Registry<?>> R registry(Class<R> registryClass, Supplier<R> putIfAbsent) {
+		//noinspection unchecked
+		return (R) registries.computeIfAbsent(registryClass, key -> putIfAbsent.get());
+	}
+
+	/*
+	 * SkriptAddon Management
+	 */
+
+	private static final Map<String, SkriptAddon> addons = new HashMap<>();
+
+	@Override
+	public SkriptAddon registerAddon(Class<?> source, String name) {
 		// make sure an addon is not already registered with this name
-		if (addons.stream().anyMatch(otherAddon -> addon.name().equals(otherAddon.name()))) {
+		SkriptAddon existing = addons.get(name);
+		if (existing != null) {
 			throw new SkriptAPIException(
-				"An addon (provided by '" + addon.getClass().getName() + "') with the name '" + addon.name() + "' is already registered"
+				"An addon (provided by '" + existing.source().getName() + "') with the name '" + name + "' is already registered"
 			);
 		}
 
-		Language.loadDefault(addon); // Language will abort if no localizer is present
-		// load and register the addon
-		for (AddonModule module : modules) {
-			module.load(addon, registry);
-		}
-		addons.add(addon);
+		SkriptAddon addon = new SkriptAddonImpl(this, source, name, null);
+		addons.put(name, addon);
+		return addon;
 	}
 
 	@Override
-	@Unmodifiable
-	public Collection<SkriptAddon> addons() {
-		return ImmutableSet.copyOf(addons);
+	public @Unmodifiable Collection<SkriptAddon> addons() {
+		return ImmutableSet.copyOf(addons.values());
 	}
 
-	//
-	// SkriptAddon Implementation
-	//
+	/*
+	 * SkriptAddon Implementation
+	 */
 
 	@Override
-	@NotNull
+	public Class<?> source() {
+		return addon.source();
+	}
+
+	@Override
+	public String name() {
+		return addon.name();
+	}
+
+	@Override
+	public SyntaxRegistry syntaxRegistry() {
+		return registry(SyntaxRegistry.class);
+	}
+
+	@Override
 	public Localizer localizer() {
-		return localizer;
+		return addon.localizer();
+	}
+
+	@Override
+	public void loadModules(AddonModule... modules) {
+		addon.loadModules(modules);
+	}
+
+	private static final class SkriptAddonImpl implements SkriptAddon {
+
+		private final Skript skript;
+		private final Class<?> source;
+		private final String name;
+		private final Localizer localizer;
+
+		SkriptAddonImpl(Skript skript, Class<?> source, String name, @Nullable Localizer localizer) {
+			this.skript = skript;
+			this.source = source;
+			this.name = name;
+			this.localizer = localizer == null ? Localizer.of(this) : localizer;
+		}
+
+		@Override
+		public Class<?> source() {
+			return source;
+		}
+
+		@Override
+		public String name() {
+			return name;
+		}
+
+		@Override
+		public <R extends Registry<?>> void storeRegistry(Class<R> registryClass, R registry) {
+			skript.storeRegistry(registryClass, registry);
+		}
+
+		@Override
+		public void removeRegistry(Class<? extends Registry<?>> registryClass) {
+			skript.removeRegistry(registryClass);
+		}
+
+		@Override
+		public boolean hasRegistry(Class<? extends Registry<?>> registryClass) {
+			return skript.hasRegistry(registryClass);
+		}
+
+		@Override
+		public <R extends Registry<?>> R registry(Class<R> registryClass) {
+			return skript.registry(registryClass);
+		}
+
+		@Override
+		public <R extends Registry<?>> R registry(Class<R> registryClass, Supplier<R> putIfAbsent) {
+			return skript.registry(registryClass, putIfAbsent);
+		}
+
+		@Override
+		public SyntaxRegistry syntaxRegistry() {
+			return skript.syntaxRegistry();
+		}
+
+		@Override
+		public Localizer localizer() {
+			return localizer;
+		}
+
+	}
+
+	/*
+	 * ViewProvider Implementation
+	 */
+
+	static final class UnmodifiableSkript implements Skript {
+
+		private final Skript skript;
+		private final SkriptAddon unmodifiableAddon;
+
+		UnmodifiableSkript(Skript skript, SkriptAddon unmodifiableAddon) {
+			this.skript = skript;
+			this.unmodifiableAddon = unmodifiableAddon;
+		}
+
+		@Override
+		public SkriptAddon registerAddon(Class<?> source, String name) {
+			throw new UnsupportedOperationException("Cannot register addons using an unmodifiable Skript");
+		}
+
+		@Override
+		public @Unmodifiable Collection<SkriptAddon> addons() {
+			ImmutableSet.Builder<SkriptAddon> addons = ImmutableSet.builder();
+			skript.addons().stream()
+					.map(SkriptAddon::unmodifiableView)
+					.forEach(addons::add);
+			return addons.build();
+		}
+
+		@Override
+		public Class<?> source() {
+			return skript.source();
+		}
+
+		@Override
+		public String name() {
+			return skript.name();
+		}
+
+		@Override
+		public <R extends Registry<?>> void storeRegistry(Class<R> registryClass, R registry) {
+			unmodifiableAddon.storeRegistry(registryClass, registry);
+		}
+
+		@Override
+		public void removeRegistry(Class<? extends Registry<?>> registryClass) {
+			unmodifiableAddon.removeRegistry(registryClass);
+		}
+
+		@Override
+		public boolean hasRegistry(Class<? extends Registry<?>> registryClass) {
+			return unmodifiableAddon.hasRegistry(registryClass);
+		}
+
+		@Override
+		public <R extends Registry<?>> R registry(Class<R> registryClass) {
+			return unmodifiableAddon.registry(registryClass);
+		}
+
+		@Override
+		public <R extends Registry<?>> R registry(Class<R> registryClass, Supplier<R> putIfAbsent) {
+			return unmodifiableAddon.registry(registryClass, putIfAbsent);
+		}
+
+		@Override
+		public SyntaxRegistry syntaxRegistry() {
+			return unmodifiableAddon.syntaxRegistry();
+		}
+
+		@Override
+		public Localizer localizer() {
+			return unmodifiableAddon.localizer();
+		}
+
+		@Override
+		public void loadModules(AddonModule... modules) {
+			unmodifiableAddon.loadModules(modules);
+		}
+
 	}
 
 }

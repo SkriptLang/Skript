@@ -29,7 +29,7 @@ import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.lang.Variable;
 import org.skriptlang.skript.lang.script.ScriptWarning;
 import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptConfig;
@@ -248,7 +248,7 @@ public class EffChange extends Effect {
 			assert x != null;
 			changer = ch = v;
 			
-			if (!ch.isSingle() && single) {
+			if (!ch.canBeSingle() && single) {
 				if (mode == ChangeMode.SET)
 					Skript.error(changed + " can only be set to one " + Classes.getSuperClassInfo(x).getName() + ", not more", ErrorQuality.SEMANTIC_ERROR);
 				else

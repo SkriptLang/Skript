@@ -1,47 +1,74 @@
-/**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
 package org.skriptlang.skript.localization;
 
+import ch.njol.skript.SkriptAPIException;
+import ch.njol.skript.localization.Language;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.addon.SkriptAddon;
 
 final class LocalizerImpl implements Localizer {
 
-	@Nullable
-	private final String languageFileDirectory;
-	@Nullable
-	private final String dataFileDirectory;
+	private final SkriptAddon addon;
 
-	LocalizerImpl(@Nullable String languageFileDirectory, @Nullable String dataFileDirectory) {
+	LocalizerImpl(SkriptAddon addon) {
+		this.addon = addon;
+	}
+
+	private String languageFileDirectory;
+	private String dataFileDirectory;
+
+	@Override
+	public void setSourceDirectories(String languageFileDirectory, @Nullable String dataFileDirectory) {
+		if (this.languageFileDirectory != null) {
+			throw new SkriptAPIException("A localizer's source directories may only be set once.");
+		}
 		this.languageFileDirectory = languageFileDirectory;
 		this.dataFileDirectory = dataFileDirectory;
+		Language.loadDefault(addon);
 	}
 
 	@Override
-	@Nullable
-	public String languageFileDirectory() {
+	public @Nullable String languageFileDirectory() {
 		return languageFileDirectory;
 	}
 
 	@Override
-	@Nullable
-	public String dataFileDirectory() {
+	public @Nullable String dataFileDirectory() {
 		return dataFileDirectory;
+	}
+
+	@Override
+	public @Nullable String translate(String key) {
+		return Language.get_(key);
+	}
+
+	static final class UnmodifiableLocalizer implements Localizer {
+
+		private final Localizer localizer;
+
+		UnmodifiableLocalizer(Localizer localizer) {
+			this.localizer = localizer;
+		}
+
+		@Override
+		public void setSourceDirectories(String languageFileDirectory, @Nullable String dataFileDirectory) {
+			throw new UnsupportedOperationException("Cannot set the source directories of an unmodifiable Localizer.");
+		}
+
+		@Override
+		public @Nullable String languageFileDirectory() {
+			return localizer.languageFileDirectory();
+		}
+
+		@Override
+		public @Nullable String dataFileDirectory() {
+			return localizer.dataFileDirectory();
+		}
+
+		@Override
+		public @Nullable String translate(String key) {
+			return localizer.translate(key);
+		}
+
 	}
 
 }

@@ -21,6 +21,7 @@ package org.skriptlang.skript.lang.structure;
 import ch.njol.skript.Skript;
 import ch.njol.skript.config.Node;
 import ch.njol.skript.config.SectionNode;
+import ch.njol.skript.config.SimpleNode;
 import ch.njol.skript.lang.Debuggable;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.Literal;
@@ -32,8 +33,11 @@ import ch.njol.skript.lang.parser.ParserInstance;
 import ch.njol.skript.log.ParseLogHandler;
 import ch.njol.skript.log.SkriptLogger;
 import ch.njol.util.Kleenean;
+import ch.njol.util.coll.iterator.CheckedIterator;
 import ch.njol.util.coll.iterator.ConsumingIterator;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.entry.EntryContainer;
 import org.skriptlang.skript.lang.entry.EntryData;
 import org.skriptlang.skript.lang.entry.EntryValidator;
@@ -54,24 +58,31 @@ public abstract class Structure implements SyntaxElement, Debuggable {
 
 	/**
 	 * The default {@link Priority} of every registered Structure.
-	 *
-	 * @deprecated Use {@link org.skriptlang.skript.lang.Priority#DEFAULT_PRIORITY}
 	 */
-	@Deprecated
-	public static final org.skriptlang.skript.lang.Priority DEFAULT_PRIORITY = org.skriptlang.skript.lang.Priority.DEFAULT_PRIORITY;
+	public static final Priority DEFAULT_PRIORITY = new Priority(1000);
 
 	/**
 	 * Priorities are used to determine the order in which Structures should be loaded.
 	 * As the priority approaches 0, it becomes more important. Example:
 	 * priority of 1 (loads first), priority of 2 (loads second), priority of 3 (loads third)
-	 *
-	 * @deprecated Use {@link org.skriptlang.skript.lang.Priority}
 	 */
-	@Deprecated
-	public static class Priority extends org.skriptlang.skript.lang.Priority {
+	public static class Priority implements Comparable<Priority> {
+
+		private final int priority;
+
 		public Priority(int priority) {
-			super(priority);
+			this.priority = priority;
 		}
+
+		public int getPriority() {
+			return priority;
+		}
+
+		@Override
+		public int compareTo(@NotNull Structure.Priority o) {
+			return Integer.compare(this.priority, o.priority);
+		}
+
 	}
 
 	@Nullable
@@ -80,7 +91,13 @@ public abstract class Structure implements SyntaxElement, Debuggable {
 	/**
 	 * @return An EntryContainer containing this Structure's {@link EntryData} and {@link Node} parse results.
 	 * Please note that this Structure <b>MUST</b> have been initialized for this to work.
+	 * This method is not usable for simple structures.
+	 * @deprecated This method will be removed in a future version.
+	 * If the EntryContainer is needed outside of {@link #init(Literal[], int, ParseResult, EntryContainer)},
+	 * the Structure should keep a reference to it.
 	 */
+	@Deprecated
+	@ApiStatus.ScheduledForRemoval
 	public final EntryContainer getEntryContainer() {
 		if (entryContainer == null)
 			throw new IllegalStateException("This Structure hasn't been initialized!");
@@ -95,12 +112,17 @@ public abstract class Structure implements SyntaxElement, Debuggable {
 
 		StructureInfo<? extends Structure> structureInfo = structureData.structureInfo;
 		assert structureInfo != null;
-		EntryValidator entryValidator = structureInfo.entryValidator;
 
-		if (entryValidator == null) { // No validation necessary, the structure itself will handle it
-			entryContainer = EntryContainer.withoutValidator(structureData.sectionNode);
-		} else { // Okay, now it's time for validation
-			EntryContainer entryContainer = entryValidator.validate(structureData.sectionNode);
+		if (structureData.node instanceof SimpleNode) { // simple structures do not have validators
+			return init(literals, matchedPattern, parseResult, null);
+		}
+
+		EntryValidator entryValidator = structureInfo.entryValidator;
+		if (entryValidator == null) {
+			// No validation necessary, the structure itself will handle it
+			entryContainer = EntryContainer.withoutValidator((SectionNode) structureData.node);
+		} else { // Validation required
+			EntryContainer entryContainer = entryValidator.validate((SectionNode) structureData.node);
 			if (entryContainer == null)
 				return false;
 			this.entryContainer = entryContainer;
@@ -109,7 +131,16 @@ public abstract class Structure implements SyntaxElement, Debuggable {
 		return init(literals, matchedPattern, parseResult, entryContainer);
 	}
 
-	public abstract boolean init(Literal<?>[] args, int matchedPattern, ParseResult parseResult, EntryContainer entryContainer);
+	/**
+	 * The initialization phase of a Structure.
+	 * Typically, this should be used for preparing fields (e.g. handling arguments, parse tags)
+	 * Logic such as trigger loading should be saved for a loading phase (e.g. {@link #load()}).
+	 * @return Whether initialization was successful.
+	 */
+	public abstract boolean init(
+		Literal<?>[] args, int matchedPattern, ParseResult parseResult,
+		@Nullable EntryContainer entryContainer
+	);
 
 	/**
 	 * The first phase of Structure loading.
@@ -153,10 +184,10 @@ public abstract class Structure implements SyntaxElement, Debuggable {
 	/**
 	 * The priority of a Structure determines the order in which it should be loaded.
 	 * For more information, see the javadoc of {@link Priority}.
-	 * @return The priority of this Structure. By default, this is {@link Priority#DEFAULT_PRIORITY}.
+	 * @return The priority of this Structure. By default, this is {@link Structure#DEFAULT_PRIORITY}.
 	 */
-	public org.skriptlang.skript.lang.Priority getPriority() {
-		return org.skriptlang.skript.lang.Priority.DEFAULT_PRIORITY;
+	public Priority getPriority() {
+		return DEFAULT_PRIORITY;
 	}
 
 	@Override
@@ -165,14 +196,21 @@ public abstract class Structure implements SyntaxElement, Debuggable {
 	}
 
 	@Nullable
-	public static Structure parse(String expr, SectionNode sectionNode, @Nullable String defaultError) {
-		return parse(expr, sectionNode, defaultError, Skript.getStructures().iterator());
+	public static Structure parse(String expr, Node node, @Nullable String defaultError) {
+		return parse(expr, node, defaultError, Skript.getStructures().iterator());
 	}
 
 	@Nullable
-	public static Structure parse(String expr, SectionNode sectionNode, @Nullable String defaultError, Iterator<? extends StructureInfo<? extends Structure>> iterator) {
-		ParserInstance.get().getData(StructureData.class).sectionNode = sectionNode;
+	public static Structure parse(String expr, Node node, @Nullable String defaultError, Iterator<? extends StructureInfo<? extends Structure>> iterator) {
+		if (!(node instanceof SimpleNode) && !(node instanceof SectionNode))
+			throw new IllegalArgumentException("only simple or section nodes may be parsed as a structure");
+		ParserInstance.get().getData(StructureData.class).node = node;
 
+		if (node instanceof SimpleNode) { // filter out section only structures
+			iterator = new CheckedIterator<>(iterator, item -> item != null && item.nodeType.canBeSimple());
+		} else { // filter out simple only structures
+			iterator = new CheckedIterator<>(iterator, item -> item != null && item.nodeType.canBeSection());
+		}
 		iterator = new ConsumingIterator<>(iterator, elementInfo -> ParserInstance.get().getData(StructureData.class).structureInfo = elementInfo);
 
 		try (ParseLogHandler parseLogHandler = SkriptLogger.startParseLogHandler()) {
@@ -193,7 +231,7 @@ public abstract class Structure implements SyntaxElement, Debuggable {
 	@SuppressWarnings("NotNullFieldNotInitialized")
 	public static class StructureData extends ParserInstance.Data {
 
-		private SectionNode sectionNode;
+		private Node node;
 		@Nullable
 		private StructureInfo<? extends Structure> structureInfo;
 

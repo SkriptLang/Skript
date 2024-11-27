@@ -19,7 +19,7 @@
 package ch.njol.skript.conditions.base;
 
 import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptAPIException;
@@ -31,6 +31,7 @@ import ch.njol.util.Kleenean;
 import org.jetbrains.annotations.ApiStatus;
 import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.registration.SyntaxRegistry;
+import org.skriptlang.skript.util.Priority;
 
 /**
  * This class can be used for an easier writing of conditions that contain only one type in the pattern,
@@ -58,6 +59,14 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 public abstract class PropertyCondition<T> extends Condition implements Checker<T> {
 
 	/**
+	 * A priority for {@link PropertyCondition}s.
+	 * They will be registered before {@link SyntaxInfo#PATTERN_MATCHES_EVERYTHING} expressions
+	 *  but after {@link SyntaxInfo#COMBINED} expressions.
+	 */
+	@ApiStatus.Experimental
+	public static final Priority DEFAULT_PRIORITY = Priority.before(SyntaxInfo.PATTERN_MATCHES_EVERYTHING);
+
+	/**
 	 * See {@link PropertyCondition} for more info
 	 */
 	public enum PropertyType {
@@ -66,13 +75,13 @@ public abstract class PropertyCondition<T> extends Condition implements Checker<
 		 * also possibly in the negated form
 		 */
 		BE,
-		
+
 		/**
 		 * Indicates that the condition is in a form of <code>something can something</code>,
 		 * also possibly in the negated form
 		 */
 		CAN,
-		
+
 		/**
 		 * Indicates that the condition is in a form of <code>something has/have something</code>,
 		 * also possibly in the negated form
@@ -87,66 +96,52 @@ public abstract class PropertyCondition<T> extends Condition implements Checker<
 	}
 
 	/**
-	 * @param registry the SyntaxRegistry to register this PropertyCondition with.
-	 * @param condition the class to register
-	 * @param property the property name, for example <i>fly</i> in <i>players can fly</i>
-	 * @param type must be plural, for example <i>players</i> in <i>players can fly</i>
+	 * @param registry The SyntaxRegistry to register with.
+	 * @param condition The class to register
+	 * @param property The property name, for example <i>fly</i> in <i>players can fly</i>
+	 * @param type Must be plural, for example <i>players</i> in <i>players can fly</i>
+	 * @param <E> The Condition type.
+	 * @return The registered {@link SyntaxInfo}.
 	 */
 	@ApiStatus.Experimental
-	public static void register(SyntaxRegistry registry, Class<? extends Condition> condition, String property, String type) {
-		register(registry, condition, PropertyType.BE, property, type);
+	public static <E extends Condition> SyntaxInfo<E> register(SyntaxRegistry registry, Class<E> condition, String property, String type) {
+		return register(registry, condition, PropertyType.BE, property, type);
 	}
 
 	/**
-	 * @param registry the SyntaxRegistry to register this PropertyCondition with.
-	 * @param condition the class to register
-	 * @param propertyType the property type, see {@link PropertyType}
-	 * @param property the property name, for example <i>fly</i> in <i>players can fly</i>
-	 * @param type must be plural, for example <i>players</i> in <i>players can fly</i>
+	 * @param registry The SyntaxRegistry to register with.
+	 * @param condition The class to register
+	 * @param propertyType The property type, see {@link PropertyType}
+	 * @param property The property name, for example <i>fly</i> in <i>players can fly</i>
+	 * @param type Must be plural, for example <i>players</i> in <i>players can fly</i>
+	 * @param <E> The Condition type.
+	 * @return The registered {@link SyntaxInfo}.
 	 */
 	@ApiStatus.Experimental
-	public static void register(SyntaxRegistry registry, Class<? extends Condition> condition, PropertyType propertyType, String property, String type) {
+	public static <E extends Condition> SyntaxInfo<E> register(SyntaxRegistry registry, Class<E> condition, PropertyType propertyType, String property, String type) {
 		if (type.contains("%"))
 			throw new SkriptAPIException("The type argument must not contain any '%'s");
-		SyntaxInfo.Builder<?, ? extends Condition> builder = SyntaxInfo.builder(condition);
+		SyntaxInfo.Builder<?, E> builder = SyntaxInfo.builder(condition).priority(DEFAULT_PRIORITY);
 		switch (propertyType) {
-			case BE:
-				builder.addPatterns(
-					"%" + type + "% (is|are) " + property,
-					"%" + type + "% (isn't|is not|aren't|are not) " + property
-				);
-				break;
-			case CAN:
-				builder.addPatterns(
-					"%" + type + "% can " + property,
-					"%" + type + "% (can't|cannot|can not) " + property
-				);
-				break;
-			case HAVE:
-				builder.addPatterns(
-					"%" + type + "% (has|have) " + property,
-					"%" + type + "% (doesn't|does not|do not|don't) have " + property
-				);
-				break;
-			case WILL:
-				builder.addPatterns(
-					"%" + type + "% will " + property,
-					"%" + type + "% (will (not|neither)|won't) " + property
-				);
-				break;
-			default:
-				assert false;
+			case BE -> builder.addPatterns("%" + type + "% (is|are) " + property,
+					"%" + type + "% (isn't|is not|aren't|are not) " + property);
+			case CAN -> builder.addPatterns("%" + type + "% can " + property,
+					"%" + type + "% (can't|cannot|can not) " + property);
+			case HAVE -> builder.addPatterns("%" + type + "% (has|have) " + property,
+					"%" + type + "% (doesn't|does not|do not|don't) have " + property);
+			case WILL -> builder.addPatterns("%" + type + "% will " + property,
+					"%" + type + "% (will (not|neither)|won't) " + property);
 		}
-		registry.register(SyntaxRegistry.CONDITION, builder.build());
+		SyntaxInfo<E> info = builder.build();
+		registry.register(SyntaxRegistry.CONDITION, info);
+		return info;
 	}
 
 	/**
 	 * @param condition the class to register
 	 * @param property the property name, for example <i>fly</i> in <i>players can fly</i>
 	 * @param type must be plural, for example <i>players</i> in <i>players can fly</i>
-	 * @deprecated Use {@link #register(SyntaxRegistry, Class, String, String)}.
 	 */
-	@Deprecated
 	public static void register(Class<? extends Condition> condition, String property, String type) {
 		register(condition, PropertyType.BE, property, type);
 	}
@@ -156,26 +151,24 @@ public abstract class PropertyCondition<T> extends Condition implements Checker<
 	 * @param propertyType the property type, see {@link PropertyType}
 	 * @param property the property name, for example <i>fly</i> in <i>players can fly</i>
 	 * @param type must be plural, for example <i>players</i> in <i>players can fly</i>
-	 * @deprecated Use {@link #register(SyntaxRegistry, Class, PropertyType, String, String)}.
 	 */
-	@Deprecated
 	public static void register(Class<? extends Condition> condition, PropertyType propertyType, String property, String type) {
 		if (type.contains("%"))
 			throw new SkriptAPIException("The type argument must not contain any '%'s");
 
 		switch (propertyType) {
 			case BE:
-				Skript.registerCondition(condition,
+				Skript.registerCondition(condition, ConditionType.PROPERTY,
 						"%" + type + "% (is|are) " + property,
 						"%" + type + "% (isn't|is not|aren't|are not) " + property);
 				break;
 			case CAN:
-				Skript.registerCondition(condition,
+				Skript.registerCondition(condition, ConditionType.PROPERTY,
 						"%" + type + "% can " + property,
 						"%" + type + "% (can't|cannot|can not) " + property);
 				break;
 			case HAVE:
-				Skript.registerCondition(condition,
+				Skript.registerCondition(condition, ConditionType.PROPERTY,
 						"%" + type + "% (has|have) " + property,
 						"%" + type + "% (doesn't|does not|do not|don't) have " + property);
 				break;
@@ -192,9 +185,9 @@ public abstract class PropertyCondition<T> extends Condition implements Checker<
 	private Expression<? extends T> expr;
 
 	@Override
+	@SuppressWarnings("unchecked")
 	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		expr = (Expression<? extends T>) expressions[0];
-
 		setNegated(matchedPattern == 1);
 		return true;
 	}
@@ -206,7 +199,7 @@ public abstract class PropertyCondition<T> extends Condition implements Checker<
 
 	@Override
 	public abstract boolean check(T value);
-	
+
 	protected abstract String getPropertyName();
 
 	protected PropertyType getPropertyType() {
@@ -235,15 +228,17 @@ public abstract class PropertyCondition<T> extends Condition implements Checker<
 			case CAN:
 				return expr.toString(event, debug) + (condition.isNegated() ? " can't " : " can ") + property;
 			case HAVE:
-				if (expr.isSingle())
+				if (expr.isSingle()) {
 					return expr.toString(event, debug) + (condition.isNegated() ? " doesn't have " : " has ") + property;
-				else
+				} else {
 					return expr.toString(event, debug) + (condition.isNegated() ? " don't have " : " have ") + property;
+				}
 			case WILL:
 				return expr.toString(event, debug) + (condition.isNegated() ? " won't " : " will ") + "be " + property;
 			default:
 				assert false;
-				throw new AssertionError();
+				return null;
 		}
 	}
+
 }

@@ -35,8 +35,9 @@ import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.LiteralUtils;
 import ch.njol.skript.util.Patterns;
 import ch.njol.util.Kleenean;
+import com.google.common.collect.ImmutableSet;
 import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.arithmetic.Arithmetics;
 import org.skriptlang.skript.lang.arithmetic.OperationInfo;
 import org.skriptlang.skript.lang.arithmetic.Operator;
@@ -44,6 +45,7 @@ import org.skriptlang.skript.lang.arithmetic.Operator;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Collection;
 
 @Name("Arithmetic")
 @Description("Arithmetic expressions, e.g. 1 + 2, (health of player - 2) / 3, etc.")
@@ -108,6 +110,7 @@ public class ExprArithmetic<L, R, T> extends SimpleExpression<T> {
 	private Operator operator;
 
 	private Class<? extends T> returnType;
+	private Collection<Class<?>> knownReturnTypes;
 
 	// A chain of expressions and operators, alternating between the two. Always starts and ends with an expression.
 	private final List<Object> chain = new ArrayList<>();
@@ -250,10 +253,12 @@ public class ExprArithmetic<L, R, T> extends SimpleExpression<T> {
 			}
 			if (returnTypes == null) { // both are object; can't determine anything
 				returnType = (Class<? extends T>) Object.class;
+				knownReturnTypes = Arithmetics.getAllReturnTypes(operator);
 			} else if (returnTypes.length == 0) { // one of the classes is known but doesn't have any operations
 				return error(firstClass, secondClass);
 			} else {
 				returnType = (Class<? extends T>) Classes.getSuperClassInfo(returnTypes).getC();
+				knownReturnTypes = ImmutableSet.copyOf(returnTypes);
 			}
 		} else if (returnType == null) { // lookup
 			OperationInfo<L, R, T> operationInfo = (OperationInfo<L, R, T>) Arithmetics.lookupOperationInfo(operator, firstClass, secondClass);
@@ -326,6 +331,21 @@ public class ExprArithmetic<L, R, T> extends SimpleExpression<T> {
 	@Override
 	public Class<? extends T> getReturnType() {
 		return returnType;
+	}
+
+	@Override
+	public Class<? extends T>[] possibleReturnTypes() {
+		if (returnType == Object.class)
+			//noinspection unchecked
+			return knownReturnTypes.toArray(new Class[0]);
+		return super.possibleReturnTypes();
+	}
+
+	@Override
+	public boolean canReturn(Class<?> returnType) {
+		if (this.returnType == Object.class && knownReturnTypes.contains(returnType))
+			return true;
+		return super.canReturn(returnType);
 	}
 
 	@Override

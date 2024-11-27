@@ -30,7 +30,7 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
@@ -50,17 +50,17 @@ public class ExprRandomCharacter extends SimpleExpression<String> {
 
 	static {
 		Skript.registerExpression(ExprRandomCharacter.class, String.class, ExpressionType.COMBINED,
-				"[a|%-number%] random [:alphanumeric] character[s] (from|between) %string% (to|and) %string%");
+				"[a|%-integer%] random [:alphanumeric] character[s] (from|between) %string% (to|and) %string%");
 	}
 
 	@Nullable
-	private Expression<Number> amount;
+	private Expression<Integer> amount;
 	private Expression<String> from, to;
 	private boolean isAlphanumeric;
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		amount = (Expression<Number>) exprs[0];
+		amount = (Expression<Integer>) exprs[0];
 		from = (Expression<String>) exprs[1];
 		to = (Expression<String>) exprs[2];
 		isAlphanumeric = parseResult.hasTag("alphanumeric");
@@ -70,7 +70,10 @@ public class ExprRandomCharacter extends SimpleExpression<String> {
 	@Override
 	@Nullable
 	protected String[] get(Event event) {
-		int amount = this.amount == null ? 1 : this.amount.getOptionalSingle(event).orElse(1).intValue();
+		Integer amount = this.amount == null ? Integer.valueOf(1) : this.amount.getSingle(event);
+		if (amount == null || amount <= 0)
+			return new String[0];
+
 		String from = this.from.getSingle(event);
 		String to = this.to.getSingle(event);
 		if (from == null || to == null)
@@ -117,7 +120,7 @@ public class ExprRandomCharacter extends SimpleExpression<String> {
 	@Override
 	public boolean isSingle() {
 		if (amount instanceof Literal)
-			return ((Literal<Number>) amount).getSingle().intValue() == 1;
+			return ((Literal<Integer>) amount).getSingle() == 1;
 		return amount == null;
 	}
 

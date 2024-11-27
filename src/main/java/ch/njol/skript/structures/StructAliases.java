@@ -30,7 +30,6 @@ import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.lang.Priority;
 import org.skriptlang.skript.lang.entry.EntryContainer;
 import org.skriptlang.skript.lang.script.Script;
 import org.skriptlang.skript.lang.structure.Structure;
@@ -52,7 +51,8 @@ public class StructAliases extends Structure {
 	}
 
 	@Override
-	public boolean init(Literal<?>[] args, int matchedPattern, ParseResult parseResult, EntryContainer entryContainer) {
+	public boolean init(Literal<?>[] args, int matchedPattern, ParseResult parseResult, @Nullable EntryContainer entryContainer) {
+		// noinspection ConstantConditions - entry container cannot be null as this structure is not simple
 		SectionNode node = entryContainer.getSource();
 		node.convertToEntries(0, "=");
 

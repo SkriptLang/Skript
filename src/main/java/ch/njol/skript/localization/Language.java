@@ -23,10 +23,10 @@ import ch.njol.skript.config.Config;
 import ch.njol.skript.util.ExceptionUtils;
 import ch.njol.skript.util.FileUtils;
 import ch.njol.skript.util.Version;
-import org.bukkit.plugin.Plugin;
-import org.eclipse.jdt.annotation.Nullable;
 import org.skriptlang.skript.addon.SkriptAddon;
 import org.skriptlang.skript.localization.Localizer;
+import org.bukkit.plugin.Plugin;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -65,7 +65,7 @@ public class Language {
 	@Nullable
 	private static HashMap<String, String> localizedLanguage = null;
 	
-	private static final HashMap<SkriptAddon, Version> langVersion = new HashMap<>();
+	private static final HashMap<String, Version> langVersion = new HashMap<>();
 	
 	public static String getName() {
 		return name;
@@ -211,7 +211,8 @@ public class Language {
 			return;
 		}
 
-		Class<?> source = addon instanceof ch.njol.skript.SkriptAddon ? ((ch.njol.skript.SkriptAddon) addon).plugin.getClass() : addon.getClass();
+		Class<?> source = addon.source();
+		assert source != null; // getSanitizedLanguageDirectory call means source should not be null
 		try (
 			InputStream defaultIs = source.getResourceAsStream("/" + languageFileDirectory + "/default.lang");
 			InputStream englishIs = source.getResourceAsStream("/" + languageFileDirectory + "/english.lang")
@@ -235,7 +236,7 @@ public class Language {
 			if (v == null)
 				Skript.warning("Missing version in default.lang");
 
-			langVersion.put(addon, v == null ? Skript.getVersion() : new Version(v));
+			langVersion.put(addon.name(), v == null ? Skript.getVersion() : new Version(v));
 			def.remove("version");
 			defaultLanguage.putAll(def);
 
@@ -282,7 +283,8 @@ public class Language {
 			return false;
 		}
 
-		Class<?> source = addon instanceof ch.njol.skript.SkriptAddon ? ((ch.njol.skript.SkriptAddon) addon).plugin.getClass() : addon.getClass();
+		Class<?> source = addon.source();
+
 		// Backwards addon compatibility
 		if (name.equals("english")) {
 			try (InputStream is = source.getResourceAsStream("/" + languageFileDirectory + "/default.lang")) {
@@ -301,10 +303,9 @@ public class Language {
 			throw new RuntimeException(e);
 		}
 
-		//noinspection ConstantConditions - localizer should not be null because languageFileDirectory is not null
 		String dataFileDirectory = addon.localizer().dataFileDirectory();
 		if (dataFileDirectory != null) { // attempt to load language files from disk
-			File file = new File(dataFileDirectory, languageFileDirectory + File.separator + name + ".lang");
+			File file = new File(dataFileDirectory, File.separator + name + ".lang");
 			try {
 				if (file.exists())
 					l.putAll(load(new FileInputStream(file), name, tryUpdate));
@@ -320,7 +321,7 @@ public class Language {
 		} else {
 			try {
 				Version v = new Version("" + l.get("version"));
-				Version lv = langVersion.get(addon);
+				Version lv = langVersion.get(addon.name());
 				assert lv != null; // set in loadDefault()
 				if (v.isSmallerThan(lv))
 					Skript.warning(addon + "'s language file " + name + ".lang is outdated, some messages will be english.");

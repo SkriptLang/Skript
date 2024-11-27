@@ -33,7 +33,7 @@ import ch.njol.skript.log.SkriptLogger;
 import ch.njol.util.Kleenean;
 import com.google.common.collect.Iterables;
 import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
@@ -46,8 +46,6 @@ public class SecParse extends Section {
 		Skript.registerSection(SecParse.class, "parse");
 	}
 
-	@Nullable
-	public static String[] lastLogs;
 	private String[] logs;
 
 	@Override
@@ -74,7 +72,7 @@ public class SecParse extends Section {
 
 	@Override
 	protected @Nullable TriggerItem walk(Event event) {
-		lastLogs = logs;
+		ExprParseLogs.lastLogs = logs;
 		return walk(event, false);
 	}
 

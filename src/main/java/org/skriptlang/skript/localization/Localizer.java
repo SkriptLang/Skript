@@ -1,26 +1,10 @@
-/**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
 package org.skriptlang.skript.localization;
 
-import ch.njol.skript.localization.Language;
 import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.addon.SkriptAddon;
+import org.skriptlang.skript.util.ViewProvider;
 
 /**
  * A Localizer is used for the localization of translatable strings.
@@ -31,48 +15,52 @@ import org.jetbrains.annotations.Nullable;
  * @see ch.njol.skript.localization.Language
  */
 @ApiStatus.Experimental
-public interface Localizer {
+public interface Localizer extends ViewProvider<Localizer> {
 
 	/**
-	 * @return A Localizer with no default translations.
+	 * @param addon The addon this localizer is localizing for.
+	 * @return A localizer with no default translations.
 	 */
-	static Localizer empty() {
-		return new LocalizerImpl(null, null);
+	@Contract("_ -> new")
+	static Localizer of(SkriptAddon addon) {
+		return new LocalizerImpl(addon);
 	}
 
 	/**
-	 * An option for creating a Localizer that represents a set of language files.
-	 * @param languageFileDirectory {@link #languageFileDirectory()}.
-	 * @param dataFileDirectory {@link #dataFileDirectory()}
-	 * @return A Localizer populated from the provided directories.
+	 * Sets the language file directories for this localizer.
+	 * This method will initiate a loading of any language files in the provided directories.
+	 * @param languageFileDirectory The path to the directory on the jar containing language files.
+	 * @param dataFileDirectory The path to the directory on the disk containing language files.
+	 * For example, this may include language files that have been saved to enable user customization.
 	 */
-	static Localizer of(String languageFileDirectory, @Nullable String dataFileDirectory) {
-		return new LocalizerImpl(languageFileDirectory, dataFileDirectory);
-	}
-
-	default String localize(String key) {
-		return Language.get(key);
-	}
+	void setSourceDirectories(String languageFileDirectory, @Nullable String dataFileDirectory);
 
 	/**
-	 * The path to the directory containing language files for this Localizer.
-	 * When searching for language files on the jar, this will be used as the path.
-	 * When searching for language files on the disk, this will be used along with {@link #dataFileDirectory()}.
-	 * That is, it is expected that the path <code>dataFileDirectory() + languageFileDirectory()</code> would
-	 *  lead to this Localizer's language files on the disk.
-	 * @return A string representing the path to the directory.
-	 *  Null if this Localizer does not store any language files.
+	 * @return The path to the directory on the jar containing language files.
 	 */
-	@Nullable
-	String languageFileDirectory();
+	@Nullable String languageFileDirectory();
 
 	/**
-	 * The path to the directory on disk containing data files for this Localizer.
-	 *  For example, this may include language files that have been saved to enable user customization.
-	 * @return A string representing the path to the directory.
-	 *  Null if this Localizer does not store any data files.
+	 * @return The path to the directory on the disk containing language files.
 	 */
-	@Nullable
-	String dataFileDirectory();
+	@Nullable String dataFileDirectory();
+
+	/**
+	 * Used for obtaining the translation of a language key.
+	 * @param key The key of the translation to obtain.
+	 * @return The translation represented by the provided key, or null if no translation exists.
+	 */
+	@Nullable String translate(String key);
+
+	/**
+	 * Constructs an unmodifiable view of this localizer.
+	 * That is, no new translations may be added.
+	 * @return An unmodifiable view of this localizer.
+	 */
+	@Override
+	@Contract("-> new")
+	default Localizer unmodifiableView() {
+		return new LocalizerImpl.UnmodifiableLocalizer(this);
+	}
 
 }

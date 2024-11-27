@@ -1,50 +1,46 @@
-/**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
 package org.skriptlang.skript.registration;
 
-import ch.njol.skript.lang.ExpressionType;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.entry.EntryValidator;
 import org.skriptlang.skript.registration.DefaultSyntaxInfosImpl.ExpressionImpl;
 import org.skriptlang.skript.registration.DefaultSyntaxInfosImpl.StructureImpl;
 
-interface DefaultSyntaxInfos {
+/**
+ * This class is not safe to be directly referenced.
+ * Use {@link SyntaxInfo} instead.
+ */
+@ApiStatus.Internal
+@ApiStatus.Experimental
+public interface DefaultSyntaxInfos {
 
 	/**
 	 * A syntax info to be used for {@link ch.njol.skript.lang.Expression}s.
-	 * It contains additional details including the return type and {@link ExpressionType}.
+	 * It differs from a typical info in that it also has a return type.
 	 * @param <E> The class providing the implementation of the Expression this info represents.
 	 * @param <R> The type of the return type of the Expression.
 	 */
+	@ApiStatus.Experimental
 	interface Expression<E extends ch.njol.skript.lang.Expression<R>, R> extends SyntaxInfo<E> {
 
 		/**
+		 * Constructs a builder for an expression syntax info.
 		 * @param expressionClass The Expression class the info will represent.
-		 * @return An Expression-specific builder for creating a syntax info representing <code>type</code>.
+		 * @return An Expression-specific builder for creating a syntax info representing <code>expressionClass</code>.
 		 * @param <E> The class providing the implementation of the Expression this info represents.
-		 * @param <R> The type of the return type of the Expression.
 		 */
-		@Contract("_, _ -> new")
-		static <E extends ch.njol.skript.lang.Expression<R>, R> Builder<? extends Builder<?, E, R>, E, R> builder(Class<E> expressionClass, Class<R> returnType) {
-			return new ExpressionImpl.BuilderImpl<>(expressionClass, returnType);
+		@Contract("_ -> new")
+		static <E extends ch.njol.skript.lang.Expression<R>, R> Builder<? extends Builder<?, E, R>, E, R> builder(Class<E> expressionClass) {
+			return new ExpressionImpl.BuilderImpl<>(expressionClass);
 		}
+
+		/**
+		 * {@inheritDoc}
+		 */
+		@Override
+		@Contract("-> new")
+		Builder<? extends Builder<?, E, R>, E, R> builder();
 
 		/**
 		 * @return The class representing the supertype of all values the Expression may return.
@@ -52,16 +48,8 @@ interface DefaultSyntaxInfos {
 		Class<R> returnType();
 
 		/**
-		 * An Expression's type affects its priority. That is, the priority of an Expression syntax info
-		 *  only affects its ordering over other Expression syntax infos with the same type.
-		 * @return The type of Expression this info represents.
-		 * @see ExpressionType
-		 */
-		ExpressionType expressionType();
-
-		/**
 		 * An Expression-specific builder is used for constructing a new Expression syntax info.
-		 * @see #builder(Class, Class)
+		 * @see #builder(Class)
 		 * @param <B> The type of builder being used.
 		 * @param <E> The Expression class providing the implementation of the syntax info being built.
 		 * @param <R> The type of the return type of the Expression.
@@ -69,13 +57,13 @@ interface DefaultSyntaxInfos {
 		interface Builder<B extends Builder<B, E, R>, E extends ch.njol.skript.lang.Expression<R>, R> extends SyntaxInfo.Builder<B, E> {
 
 			/**
-			 * Sets the expression type the syntax info will use.
-			 * @param expressionType The expression type to use.
+			 * Sets the class representing the supertype of all values the Expression may return.
+			 * @param returnType The class to use as the return type.
 			 * @return This builder.
-			 * @see Expression#expressionType()
+			 * @see Expression#returnType()
 			 */
 			@Contract("_ -> this")
-			B expressionType(ExpressionType expressionType);
+			B returnType(Class<R> returnType);
 
 			/**
 			 * {@inheritDoc}
@@ -93,11 +81,50 @@ interface DefaultSyntaxInfos {
 	 * It contains additional details including the {@link EntryValidator} to use, if any.
 	 * @param <E> The class providing the implementation of the Structure this info represents.
 	 */
+	@ApiStatus.Experimental
 	interface Structure<E extends org.skriptlang.skript.lang.structure.Structure> extends SyntaxInfo<E> {
 
 		/**
+		 * Represents type of {@link ch.njol.skript.config.Node}s that can represent a Structure.
+		 */
+		enum NodeType {
+
+			/**
+			 * For Structures that can be represented using a {@link ch.njol.skript.config.SimpleNode}.
+			 */
+			SIMPLE,
+
+			/**
+			 * For Structures that can be represented using a {@link ch.njol.skript.config.SectionNode}.
+			 */
+			SECTION,
+
+			/**
+			 * For Structures that can be represented using a
+			 *  {@link ch.njol.skript.config.SimpleNode} or {@link ch.njol.skript.config.SectionNode}.
+			 */
+			BOTH;
+
+			/**
+			 * @return Whether a Structure of this type can be represented using a {@link ch.njol.skript.config.SimpleNode}.
+			 */
+			public boolean canBeSimple() {
+				return this != SECTION;
+			}
+
+			/**
+			 * @return Whether a Structure of this type can be represented using a {@link ch.njol.skript.config.SectionNode}.
+			 */
+			public boolean canBeSection() {
+				return this != SIMPLE;
+			}
+
+		}
+
+		/**
+		 * Constructs a builder for a structure syntax info.
 		 * @param structureClass The Structure class the info will represent.
-		 * @return A Structure-specific builder for creating a syntax info representing <code>type</code>.
+		 * @return A Structure-specific builder for creating a syntax info representing <code>structureClass</code>.
 		 * @param <E> The class providing the implementation of the Structure this info represents.
 		 */
 		@Contract("_ -> new")
@@ -106,11 +133,22 @@ interface DefaultSyntaxInfos {
 		}
 
 		/**
+		 * {@inheritDoc}
+		 */
+		@Override
+		@Contract("-> new")
+		Builder<? extends Builder<?, E>, E> builder();
+
+		/**
 		 * @return The entry validator to use for handling the Structure's entries.
 		 *  If null, the Structure is expected to manually handle any entries.
 		 */
-		@Nullable
-		EntryValidator entryValidator();
+		@Nullable EntryValidator entryValidator();
+
+		/**
+		 * @return The type of {@link ch.njol.skript.config.Node}s that can represent the Structure.
+		 */
+		NodeType nodeType();
 
 		/**
 		 * A Structure-specific builder is used for constructing a new Structure syntax info.
@@ -128,6 +166,14 @@ interface DefaultSyntaxInfos {
 			 */
 			@Contract("_ -> this")
 			B entryValidator(EntryValidator entryValidator);
+
+			/**
+			 * Sets the type of {@link ch.njol.skript.config.Node}s that can represent the Structure.
+			 * By default, this is typically {@link NodeType#SECTION}.
+			 * @return This builder.
+			 * @see Structure#type()
+			 */
+			B nodeType(NodeType type);
 
 			/**
 			 * {@inheritDoc}

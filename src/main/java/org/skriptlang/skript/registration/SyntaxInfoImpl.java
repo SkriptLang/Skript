@@ -1,30 +1,13 @@
-/**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
 package org.skriptlang.skript.registration;
 
 import ch.njol.skript.lang.SyntaxElement;
 import com.google.common.base.MoreObjects;
+import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
-import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
-import org.skriptlang.skript.lang.Priority;
+import org.skriptlang.skript.util.ClassUtils;
+import org.skriptlang.skript.util.Priority;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -37,16 +20,37 @@ class SyntaxInfoImpl<T extends SyntaxElement> implements SyntaxInfo<T> {
 
 	private final SyntaxOrigin origin;
 	private final Class<T> type;
-	@Nullable
-	private final Supplier<T> supplier;
+	private final @Nullable Supplier<T> supplier;
 	private final Collection<String> patterns;
-	private final Priority priority = new Priority();
+	private final Priority priority;
 
-	protected SyntaxInfoImpl(SyntaxOrigin origin, Class<T> type, @Nullable Supplier<T> supplier, Collection<String> patterns) {
+	protected SyntaxInfoImpl(
+		SyntaxOrigin origin, Class<T> type, @Nullable Supplier<T> supplier,
+		Collection<String> patterns, Priority priority
+	) {
+		Preconditions.checkArgument(supplier != null || ClassUtils.isNormalClass(type),
+				"Failed to register a syntax info for '" + type.getName() + "'."
+				+ " Element classes must be a normal type unless a supplier is provided.");
+		Preconditions.checkArgument(!patterns.isEmpty(),
+				"Failed to register a syntax info for '" + type.getName() + "'."
+				+ " There must be at least one pattern.");
 		this.origin = origin;
 		this.type = type;
 		this.supplier = supplier;
 		this.patterns = ImmutableList.copyOf(patterns);
+		this.priority = priority;
+	}
+
+	@Override
+	public Builder<? extends Builder<?, T>, T> builder() {
+		var builder = new BuilderImpl<>(type);
+		builder.origin(origin);
+		if (supplier != null) {
+			builder.supplier(supplier);
+		}
+		builder.addPatterns(patterns);
+		builder.priority(priority);
+		return builder;
 	}
 
 	@Override
@@ -69,8 +73,7 @@ class SyntaxInfoImpl<T extends SyntaxElement> implements SyntaxInfo<T> {
 	}
 
 	@Override
-	@Unmodifiable
-	public Collection<String> patterns() {
+	public @Unmodifiable Collection<String> patterns() {
 		return patterns;
 	}
 
@@ -84,18 +87,16 @@ class SyntaxInfoImpl<T extends SyntaxElement> implements SyntaxInfo<T> {
 		if (this == other) {
 			return true;
 		}
-		if (!(other instanceof SyntaxInfo)) {
-			return false;
-		}
-		SyntaxInfo<?> info = (SyntaxInfo<?>) other;
-		return Objects.equals(origin(), info.origin()) &&
+		return other instanceof SyntaxInfo<?> info &&
+				Objects.equals(origin(), info.origin()) &&
 				Objects.equals(type(), info.type()) &&
-				Objects.equals(patterns(), info.patterns());
+				Objects.equals(patterns(), info.patterns()) &&
+				Objects.equals(priority(), info.priority());
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(origin(), type(), patterns());
+		return Objects.hash(origin(), type(), patterns(), priority());
 	}
 
 	@Override
@@ -104,20 +105,40 @@ class SyntaxInfoImpl<T extends SyntaxElement> implements SyntaxInfo<T> {
 				.add("origin", origin())
 				.add("type", type())
 				.add("patterns", patterns())
+				.add("priority", priority())
 				.toString();
 	}
 
 	@SuppressWarnings("unchecked")
 	static class BuilderImpl<B extends Builder<B, E>, E extends SyntaxElement> implements Builder<B, E> {
 
+		/**
+		 * A default origin that describes the class of a syntax.
+		 */
+		private static final class ClassOrigin implements SyntaxOrigin {
+
+			private final String name;
+
+			ClassOrigin(Class<?> clazz) {
+				this.name = clazz.getName();
+			}
+
+			@Override
+			public String name() {
+				return name;
+			}
+
+		}
+
 		final Class<E> type;
+		SyntaxOrigin origin;
+		@Nullable Supplier<E> supplier;
 		final List<String> patterns = new ArrayList<>();
-		@Nullable
-		Supplier<E> supplier;
-		SyntaxOrigin origin = SyntaxOrigin.UNKNOWN;
+		Priority priority = SyntaxInfo.COMBINED;
 
 		BuilderImpl(Class<E> type) {
 			this.type = type;
+			origin = new ClassOrigin(type);
 		}
 
 		public B origin(SyntaxOrigin origin) {
@@ -145,8 +166,25 @@ class SyntaxInfoImpl<T extends SyntaxElement> implements SyntaxInfo<T> {
 			return (B) this;
 		}
 
+		@Override
+		public B priority(Priority priority) {
+			this.priority = priority;
+			return (B) this;
+		}
+
 		public SyntaxInfo<E> build() {
-			return new SyntaxInfoImpl<>(origin, type, supplier, patterns);
+			return new SyntaxInfoImpl<>(origin, type, supplier, patterns, priority);
+		}
+
+		@Override
+		public void applyTo(Builder<?, ?> builder) {
+			builder.origin(origin);
+			if (supplier != null) {
+				//noinspection rawtypes - Let's hope the user knows what they are doing...
+				builder.supplier((Supplier) supplier);
+			}
+			builder.addPatterns(patterns);
+			builder.priority(priority);
 		}
 
 	}

@@ -31,8 +31,8 @@ import ch.njol.skript.util.slot.Slot;
 import ch.njol.util.Checker;
 import org.bukkit.event.Event;
 import org.bukkit.inventory.ItemStack;
-import org.eclipse.jdt.annotation.NonNull;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.converter.Converter;
 
 import java.util.HashMap;
@@ -64,8 +64,7 @@ public interface Expression<T> extends SyntaxElement, Debuggable {
 	 * @return The value or null if this expression doesn't have any value for the event
 	 * @throws UnsupportedOperationException (optional) if this was called on a non-single expression
 	 */
-	@Nullable
-	T getSingle(Event event);
+	@Nullable T getSingle(Event event);
 
 	/**
 	 * Get an optional of the single value of this expression.
@@ -107,7 +106,7 @@ public interface Expression<T> extends SyntaxElement, Debuggable {
 	 * @param event The event
 	 * @return A non-null stream of this expression's non-null values
 	 */
-	default Stream<@NonNull ? extends  T> stream(Event event) {
+	default Stream<@NotNull ? extends  T> stream(Event event) {
 		Iterator<? extends T> iterator = iterator(event);
 		if (iterator == null) {
 			return Stream.empty();
@@ -119,6 +118,20 @@ public interface Expression<T> extends SyntaxElement, Debuggable {
 	 * @return true if this expression will ever only return one value at most, false if it can return multiple values.
 	 */
 	boolean isSingle();
+
+	/**
+	 * Whether there's a possibility this could return a single value.
+	 * Designed for expressions that may return more than one value, but are equally appropriate to use where
+	 * only singular values are accepted, in which case a single value (out of all available values) will be returned.
+	 * An example would be functions that return results based on their inputs.
+	 * Ideally, this will return {@link #isSingle()} based on its known inputs at initialisation, but for some syntax
+	 * this may not be known (or a syntax may be intentionally vague in its permissible returns).
+	 * @return Whether this can be used by single changers
+	 * @see #getSingle(Event)
+	 */
+	default boolean canBeSingle() {
+		return this.isSingle();
+	}
 
 	/**
 	 * Checks this expression against the given checker. This is the normal version of this method and the one which must be used for simple checks,
@@ -164,9 +177,8 @@ public interface Expression<T> extends SyntaxElement, Debuggable {
 	 * @see Converter
 	 * @see ConvertedExpression
 	 */
-	@Nullable
 	@SuppressWarnings("unchecked")
-	<R> Expression<? extends R> getConvertedExpression(Class<R>... to);
+	<R> @Nullable Expression<? extends R> getConvertedExpression(Class<R>... to);
 
 	/**
 	 * Gets the return type of this expression.
@@ -174,6 +186,31 @@ public interface Expression<T> extends SyntaxElement, Debuggable {
 	 * @return A supertype of any objects returned by {@link #getSingle(Event)} and the component type of any arrays returned by {@link #getArray(Event)}
 	 */
 	Class<? extends T> getReturnType();
+
+	/**
+	 * For expressions that might return multiple (incalculable at parse time) types,
+	 * this provides a list of all possible types.
+	 * Use cases include: expressions that depend on the return type of their input.
+	 *
+	 * @return A list of all possible types this might return
+	 */
+	default Class<? extends T>[] possibleReturnTypes() {
+		//noinspection unchecked
+		return new Class[] {this.getReturnType()};
+	}
+
+	/**
+	 * Whether this expression <b>might</b> return the following type.
+	 * @param returnType The type to test
+	 * @return true if the argument is within the bounds of the return types
+	 */
+	default boolean canReturn(Class<?> returnType) {
+		for (Class<?> type : this.possibleReturnTypes()) {
+			if (returnType.isAssignableFrom(type))
+				return true;
+		}
+		return false;
+	}
 
 	/**
 	 * Returns true if this expression returns all possible values, false if it only returns some of them.
@@ -226,8 +263,7 @@ public interface Expression<T> extends SyntaxElement, Debuggable {
 	 * @param event The event to be used for evaluation
 	 * @return An iterator to iterate over all values of this expression which may be empty and/or null, but must not return null elements.
 	 */
-	@Nullable
-	Iterator<? extends T> iterator(Event event);
+	@Nullable Iterator<? extends T> iterator(Event event);
 
 	/**
 	 * Checks whether the given 'loop-...' expression should match this loop, e.g. loop-block matches any loops that loop through blocks and loop-argument matches an
@@ -277,8 +313,7 @@ public interface Expression<T> extends SyntaxElement, Debuggable {
 	 *         that type are accepted), or null if the given mode is not supported. For {@link ChangeMode#DELETE} and {@link ChangeMode#RESET} this can return any non-null array to
 	 *         mark them as supported.
 	 */
-	@Nullable
-	Class<?>[] acceptChange(ChangeMode mode);
+	Class<?> @Nullable [] acceptChange(ChangeMode mode);
 
 	/**
 	 * Tests all accepted change modes, and if so what type it expects the <code>delta</code> to be.
@@ -304,7 +339,7 @@ public interface Expression<T> extends SyntaxElement, Debuggable {
 	 * @param mode The {@link ChangeMode} of the attempted change
 	 * @throws UnsupportedOperationException (optional) - If this method was called on an unsupported ChangeMode.
 	 */
-	void change(Event event, @Nullable Object[] delta, ChangeMode mode);
+	void change(Event event, Object @Nullable [] delta, ChangeMode mode);
 
 	/**
 	 * This method is called before this expression is set to another one.
@@ -317,8 +352,7 @@ public interface Expression<T> extends SyntaxElement, Debuggable {
 	 * @param delta Initial delta array.
 	 * @return Delta array to use for change.
 	 */
-	@Nullable
-	default Object[] beforeChange(Expression<?> changed, @Nullable Object[] delta) {
+	default Object @Nullable [] beforeChange(Expression<?> changed, Object @Nullable [] delta) {
 		if (delta == null || delta.length == 0) // Nothing to nothing
 			return null;
 

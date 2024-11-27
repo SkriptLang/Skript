@@ -18,8 +18,10 @@
  */
 package ch.njol.skript.conditions;
 
+import ch.njol.skript.lang.VerboseAssert;
+import ch.njol.skript.localization.Language;
 import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
@@ -42,7 +44,7 @@ import ch.njol.util.Kleenean;
 		"	projectile exists",
 		"	broadcast \"%attacker% used a %projectile% to attack %victim%!\""})
 @Since("1.2")
-public class CondIsSet extends Condition {
+public class CondIsSet extends Condition implements VerboseAssert {
 	static {
 		Skript.registerCondition(CondIsSet.class,
 				"%~objects% (exist[s]|(is|are) set)",
@@ -79,7 +81,18 @@ public class CondIsSet extends Condition {
 	public boolean check(final Event e) {
 		return check(expr, e);
 	}
-	
+
+	@Override
+	public String getExpectedMessage(Event event) {
+		return isNegated() ? Language.get("none") : "a value";
+	}
+
+	@Override
+	public String getReceivedMessage(Event event) {
+		// TODO: may need to make this enumerate each value: "a, b, <none>, and d"
+		return VerboseAssert.getExpressionValue(expr,event);
+	}
+
 	@Override
 	public String toString(final @Nullable Event e, final boolean debug) {
 		return expr.toString(e, debug) + (isNegated() ? " isn't" : " is") + " set";

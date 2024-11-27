@@ -22,7 +22,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Lists;
@@ -102,12 +102,13 @@ public class EffObjectives extends Effect  {
 	public static void fail() {
 		for (String test : requirements.keySet()) {
 			if (!completeness.containsKey(test)) {
-				TestTracker.JUnitTestFailed("JUnit test '" + test + "'", "didn't complete any objectives.");
+				TestTracker.JUnitTestFailed("JUnit: '" + test + "'", "didn't complete any objectives.");
 				continue;
 			}
 			List<String> failures = Lists.newArrayList(requirements.get(test));
 			failures.removeAll(completeness.get(test));
-			TestTracker.JUnitTestFailed("JUnit test '" + test + "'", "failed objectives: " + Arrays.toString(failures.toArray(new String[0])));
+			if (!failures.isEmpty())
+				TestTracker.JUnitTestFailed("JUnit: '" + test + "'", "failed objectives: " + Arrays.toString(failures.toArray(new String[0])));
 		}
 	}
 

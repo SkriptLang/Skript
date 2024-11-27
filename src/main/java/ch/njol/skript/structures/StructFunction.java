@@ -20,6 +20,7 @@ package ch.njol.skript.structures;
 
 import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.Skript;
+import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
@@ -32,7 +33,6 @@ import ch.njol.skript.lang.function.Signature;
 import ch.njol.skript.lang.parser.ParserInstance;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.lang.Priority;
 import org.skriptlang.skript.lang.entry.EntryContainer;
 import org.skriptlang.skript.lang.structure.Structure;
 
@@ -71,12 +71,16 @@ public class StructFunction extends Structure {
 		);
 	}
 
+	@SuppressWarnings("NotNullFieldNotInitialized")
+	private SectionNode source;
 	@Nullable
 	private Signature<?> signature;
 	private boolean local;
 
 	@Override
-	public boolean init(Literal<?>[] literals, int matchedPattern, ParseResult parseResult, EntryContainer entryContainer) {
+	public boolean init(Literal<?>[] literals, int matchedPattern, ParseResult parseResult, @Nullable EntryContainer entryContainer) {
+		assert entryContainer != null; // cannot be null for non-simple structures
+		this.source = entryContainer.getSource();
 		local = parseResult.hasTag("local");
 		return true;
 	}
@@ -84,7 +88,8 @@ public class StructFunction extends Structure {
 	@Override
 	public boolean preLoad() {
 		// match signature against pattern
-		String rawSignature = getEntryContainer().getSource().getKey();
+		// noinspection ConstantConditions - entry container cannot be null as this structure is not simple
+		String rawSignature = source.getKey();
 		assert rawSignature != null;
 		rawSignature = ScriptLoader.replaceOptions(rawSignature);
 		Matcher matcher = SIGNATURE_PATTERN.matcher(rawSignature);
@@ -111,7 +116,8 @@ public class StructFunction extends Structure {
 		parser.setCurrentEvent((local ? "local " : "") + "function", FunctionEvent.class);
 
 		assert signature != null;
-		Functions.loadFunction(parser.getCurrentScript(), getEntryContainer().getSource(), signature);
+		// noinspection ConstantConditions - entry container cannot be null as this structure is not simple
+		Functions.loadFunction(parser.getCurrentScript(), source, signature);
 
 		parser.deleteCurrentEvent();
 

@@ -35,7 +35,7 @@ import org.bukkit.event.player.PlayerItemConsumeEvent;
 import org.bukkit.event.player.PlayerPickupItemEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.Recipe;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.sections.EffSecSpawn;
 import ch.njol.skript.Skript;
@@ -130,7 +130,9 @@ public class EvtItem extends SkriptEvent {
 				.examples("on item merge of gold blocks:",
 					 	"	cancel event")
 				.since("2.2-dev35");
-		Skript.registerEvent("Inventory Item Move", SimpleEvent.class, InventoryMoveItemEvent.class, "inventory item (move|transport)")
+		Skript.registerEvent("Inventory Item Move", SimpleEvent.class, InventoryMoveItemEvent.class,	 
+                        "inventory item (move|transport)",
+		                "inventory (mov(e|ing)|transport[ing]) [an] item")
 				.description(
 						"Called when an entity or block (e.g. hopper) tries to move items directly from one inventory to another.",
 						"When this event is called, the initiator may have already removed the item from the source inventory and is ready to move it into the destination inventory.",

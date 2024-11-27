@@ -30,8 +30,8 @@ import org.skriptlang.skript.lang.converter.Converters;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.potion.PotionEffectType;
-import org.eclipse.jdt.annotation.Nullable;
 import org.skriptlang.skript.bukkit.potion.util.SkriptPotionEffect;
+import org.jetbrains.annotations.Nullable;
 
 @Name("Type of")
 @Description({

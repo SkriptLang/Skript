@@ -18,24 +18,36 @@
  */
 package ch.njol.skript.lang;
 
+import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptAPIException;
+import ch.njol.skript.SkriptConfig;
+import ch.njol.skript.lang.SkriptEvent.ListeningBehavior;
+import ch.njol.skript.lang.SkriptEventInfo.ModernSkriptEventInfo;
 import org.bukkit.event.Event;
 import org.bukkit.event.player.PlayerInteractAtEntityEvent;
-import org.eclipse.jdt.annotation.Nullable;
+import org.bukkit.plugin.java.JavaPlugin;
+import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.Unmodifiable;
+import org.skriptlang.skript.bukkit.registration.BukkitSyntaxInfos;
 import org.skriptlang.skript.lang.structure.StructureInfo;
+import org.skriptlang.skript.registration.SyntaxInfo;
+import org.skriptlang.skript.registration.SyntaxOrigin;
+import org.skriptlang.skript.util.Priority;
 
+import java.lang.reflect.InvocationTargetException;
+import java.util.Collection;
+import java.util.List;
 import java.util.Locale;
 
-public final class SkriptEventInfo<E extends SkriptEvent> extends StructureInfo<E> {
+public sealed class SkriptEventInfo<E extends SkriptEvent> extends StructureInfo<E> permits ModernSkriptEventInfo {
 
 	public Class<? extends Event>[] events;
 	public final String name;
-
-	@Nullable
-	private String[] description, examples, keywords, requiredPlugins;
-
-	@Nullable
-	private String since, documentationID;
+  
+	private ListeningBehavior listeningBehavior;
+	private String @Nullable [] description, examples, keywords, requiredPlugins;
+	private @Nullable String since, documentationID;
 
 	private final String id;
 
@@ -70,6 +82,20 @@ public final class SkriptEventInfo<E extends SkriptEvent> extends StructureInfo<
 
 		// uses the name without 'on ' or '*'
 		this.id = "" + name.toLowerCase(Locale.ENGLISH).replaceAll("[#'\"<>/&]", "").replaceAll("\\s+", "_");
+
+		// default listening behavior should be dependent on config setting
+		this.listeningBehavior = SkriptConfig.listenCancelledByDefault.value() ? ListeningBehavior.ANY : ListeningBehavior.UNCANCELLED;
+	}
+  
+	/**
+	 * Sets the default listening behavior for this SkriptEvent. If omitted, the default behavior is to listen to uncancelled events.
+	 *
+	 * @param listeningBehavior The listening behavior of this SkriptEvent.
+	 * @return This SkriptEventInfo object
+	 */
+	public SkriptEventInfo<E> listeningBehavior(ListeningBehavior listeningBehavior) {
+		this.listeningBehavior = listeningBehavior;
+		return this;
 	}
 
 	/**
@@ -158,34 +184,153 @@ public final class SkriptEventInfo<E extends SkriptEvent> extends StructureInfo<
 		return name;
 	}
 
-	@Nullable
-	public String[] getDescription() {
+	public ListeningBehavior getListeningBehavior() {
+		return listeningBehavior;
+	}
+  
+	public String @Nullable [] getDescription() {
 		return description;
 	}
 
-	@Nullable
-	public String[] getExamples() {
+	public String @Nullable [] getExamples() {
 		return examples;
 	}
 
-	@Nullable
-	public String[] getKeywords() {
+	public String @Nullable [] getKeywords() {
 		return keywords;
 	}
 
-	@Nullable
-	public String getSince() {
+	public @Nullable String getSince() {
 		return since;
 	}
 
-	@Nullable
-	public String[] getRequiredPlugins() {
+	public String @Nullable [] getRequiredPlugins() {
 		return requiredPlugins;
 	}
 
-	@Nullable
-	public String getDocumentationID() {
+	public @Nullable String getDocumentationID() {
 		return documentationID;
 	}
-	
+
+	/*
+	 * Registration API Compatibility
+	 */
+
+	/**
+	 * Internal wrapper class for providing compatibility with the new Registration API.
+	 */
+	@ApiStatus.Internal
+	@ApiStatus.Experimental
+	public static final class ModernSkriptEventInfo<E extends SkriptEvent>
+			extends SkriptEventInfo<E>
+			implements BukkitSyntaxInfos.Event<E> {
+
+		private final SyntaxOrigin origin;
+
+		public ModernSkriptEventInfo(String name, String[] patterns, Class<E> eventClass, String originClassPath, Class<? extends Event>[] events) {
+			super(name, patterns, eventClass, originClassPath, events);
+			origin = SyntaxOrigin.of(Skript.getAddon(JavaPlugin.getProvidingPlugin(eventClass)));
+		}
+
+		@Override
+		public Builder<? extends Builder<?, E>, E> builder() {
+			return BukkitSyntaxInfos.Event.builder(type(), name())
+				.origin(origin)
+				.addPatterns(patterns())
+				.priority(priority())
+				.listeningBehavior(listeningBehavior())
+				.since(since())
+				.documentationId(id())
+				.addDescription(description())
+				.addExamples(examples())
+				.addKeywords(keywords())
+				.addRequiredPlugins(requiredPlugins())
+				.addEvents(events());
+		}
+
+		@Override
+		public SyntaxOrigin origin() {
+			return origin;
+		}
+
+		@Override
+		public Class<E> type() {
+			return getElementClass();
+		}
+
+		@Override
+		public E instance() {
+			try {
+				return type().getDeclaredConstructor().newInstance();
+			} catch (InstantiationException | IllegalAccessException | InvocationTargetException |
+					 NoSuchMethodException e) {
+				throw new RuntimeException(e);
+			}
+		}
+
+		@Override
+		public @Unmodifiable Collection<String> patterns() {
+			return List.of(getPatterns());
+		}
+
+		@Override
+		public Priority priority() {
+			return SyntaxInfo.COMBINED;
+		}
+
+		@Override
+		public ListeningBehavior listeningBehavior() {
+			return getListeningBehavior();
+		}
+
+		@Override
+		public String name() {
+			return getName();
+		}
+
+		@Override
+		public String id() {
+			return getId();
+		}
+
+		@Override
+		public @Nullable String since() {
+			return getSince();
+		}
+
+		@Override
+		public @Nullable String documentationId() {
+			return getDocumentationID();
+		}
+
+		@Override
+		public Collection<String> description() {
+			String[] description = getDescription();
+			return description != null ? List.of(description) : List.of();
+		}
+
+		@Override
+		public Collection<String> examples() {
+			String[] examples = getExamples();
+			return examples != null ? List.of(examples) : List.of();
+		}
+
+		@Override
+		public Collection<String> keywords() {
+			String[] keywords = getKeywords();
+			return keywords != null ? List.of(keywords) : List.of();
+		}
+
+		@Override
+		public Collection<String> requiredPlugins() {
+			String[] requiredPlugins = getRequiredPlugins();
+			return requiredPlugins != null ? List.of(requiredPlugins) : List.of();
+		}
+
+		@Override
+		public Collection<Class<? extends Event>> events() {
+			return List.of(events);
+		}
+	}
+
 }

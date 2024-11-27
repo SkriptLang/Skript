@@ -22,21 +22,17 @@ import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.event.Event;
-import org.bukkit.event.block.BlockBreakEvent;
-import org.bukkit.event.block.BlockBurnEvent;
-import org.bukkit.event.block.BlockEvent;
-import org.bukkit.event.block.BlockFadeEvent;
-import org.bukkit.event.block.BlockFormEvent;
-import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.event.block.*;
 import org.bukkit.event.hanging.HangingBreakEvent;
 import org.bukkit.event.hanging.HangingEvent;
 import org.bukkit.event.hanging.HangingPlaceEvent;
 import org.bukkit.event.player.PlayerBucketEmptyEvent;
 import org.bukkit.event.player.PlayerBucketFillEvent;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.ItemType;
+import org.jetbrains.annotations.NotNull;
 import org.skriptlang.skript.lang.comparator.Relation;
 import ch.njol.skript.classes.data.DefaultComparators;
 import ch.njol.skript.entity.EntityData;
@@ -74,6 +70,30 @@ public class EvtBlock extends SkriptEvent {
 			.description("Called when a block is created, but not by a player, e.g. snow forms due to snowfall, water freezes in cold biomes. This isn't called when block spreads (mushroom growth, water physics etc.), as it has its own event (see <a href='#spread'>spread event</a>).")
 			.examples("on form of snow:", "on form of a mushroom:")
 			.since("1.0, 2.6 (BlockData support)");
+		Skript.registerEvent("Block Drop", EvtBlock.class, BlockDropItemEvent.class, "block drop[ping] [[of] %-itemtypes/blockdatas%]")
+			.description(
+				"Called when a block broken by a player drops something.",
+				"<ul>",
+				"<li>event-player: The player that broke the block</li>",
+				"<li>past event-block: The block that was broken</li>",
+				"<li>event-block: The block after being broken</li>",
+				"<li>event-items (or drops): The drops of the block</li>",
+				"<li>event-entities: The entities of the dropped items</li>",
+				"</ul>",
+				"",
+				"If the breaking of the block leads to others being broken, such as torches, they will appear" +
+				"in \"event-items\" and \"event-entities\"."
+			)
+			.examples(
+				"on block drop:",
+					"\tbroadcast event-player",
+					"\tbroadcast past event-block",
+					"\tbroadcast event-block",
+					"\tbroadcast event-items",
+					"\tbroadcast event-entities",
+				"on block drop of oak log:"
+			)
+			.since("INSERT VERSION");
 	}
 	
 	@Nullable
@@ -90,9 +110,9 @@ public class EvtBlock extends SkriptEvent {
 	
 	@SuppressWarnings("null")
 	@Override
-	public boolean check(final Event e) {
-		if (mine && e instanceof BlockBreakEvent) {
-			if (((BlockBreakEvent) e).getBlock().getDrops(((BlockBreakEvent) e).getPlayer().getItemInHand()).isEmpty())
+	public boolean check(final Event event) {
+		if (mine && event instanceof BlockBreakEvent) {
+			if (((BlockBreakEvent) event).getBlock().getDrops(((BlockBreakEvent) event).getPlayer().getItemInHand()).isEmpty())
 				return false;
 		}
 		if (types == null)
@@ -101,27 +121,27 @@ public class EvtBlock extends SkriptEvent {
 		ItemType item;
 		BlockData blockData = null;
 
-		if (e instanceof BlockFormEvent) {
-			BlockFormEvent blockFormEvent = (BlockFormEvent) e;
+		if (event instanceof BlockFormEvent blockFormEvent) {
 			BlockState newState = blockFormEvent.getNewState();
-			item = new ItemType(newState);
+			item = new ItemType(newState.getBlockData());
 			blockData = newState.getBlockData();
-		} else if (e instanceof BlockEvent) {
-			BlockEvent blockEvent = (BlockEvent) e;
+		} else if (event instanceof BlockDropItemEvent blockDropItemEvent) {
+			Block block = blockDropItemEvent.getBlock();
+			item = new ItemType(block);
+			blockData = block.getBlockData();
+		} else if (event instanceof BlockEvent blockEvent) {
 			Block block = blockEvent.getBlock();
 			item = new ItemType(block);
 			blockData = block.getBlockData();
-		} else if (e instanceof PlayerBucketFillEvent) {
-			PlayerBucketFillEvent playerBucketFillEvent = ((PlayerBucketFillEvent) e);
-			Block relative = playerBucketFillEvent.getBlockClicked().getRelative(playerBucketFillEvent.getBlockFace());
-			item = new ItemType(relative);
-			blockData = relative.getBlockData();
-		} else if (e instanceof PlayerBucketEmptyEvent) {
-			PlayerBucketEmptyEvent playerBucketEmptyEvent = ((PlayerBucketEmptyEvent) e);
+		} else if (event instanceof PlayerBucketFillEvent playerBucketFillEvent) {
+			Block block = playerBucketFillEvent.getBlockClicked();
+			item = new ItemType(block);
+			blockData = block.getBlockData();
+		} else if (event instanceof PlayerBucketEmptyEvent playerBucketEmptyEvent) {
 			item = new ItemType(playerBucketEmptyEvent.getItemStack());
-		} else if (e instanceof HangingEvent) {
-			final EntityData<?> d = EntityData.fromEntity(((HangingEvent) e).getEntity());
-			return types.check(e, o -> {
+		} else if (event instanceof HangingEvent hangingEvent) {
+			final EntityData<?> d = EntityData.fromEntity((hangingEvent.getEntity()));
+			return types.check(event, o -> {
 				if (o instanceof ItemType)
 					return Relation.EQUAL.isImpliedBy(DefaultComparators.entityItemComparator.compare(d, ((ItemType) o)));
 				return false;
@@ -134,7 +154,7 @@ public class EvtBlock extends SkriptEvent {
 		final ItemType itemF = item;
 		BlockData finalBlockData = blockData;
 
-		return types.check(e, o -> {
+		return types.check(event, o -> {
 			if (o instanceof ItemType)
 				return ((ItemType) o).isSupertypeOf(itemF);
 			else if (o instanceof BlockData && finalBlockData != null)
@@ -144,8 +164,8 @@ public class EvtBlock extends SkriptEvent {
 	}
 	
 	@Override
-	public String toString(final @Nullable Event e, final boolean debug) {
-		return "break/place/burn/fade/form of " + Classes.toString(types);
+	public String toString(@Nullable Event event, boolean debug) {
+		return "break/place/burn/fade/form/drop of " + Classes.toString(types);
 	}
 	
 }
