@@ -11,32 +11,32 @@ import java.io.PrintWriter;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+/**
+ * Represents a node in a config file.
+ */
 public abstract class Node {
 
 	protected @Nullable String key;
-
 	protected String comment = "";
-
 	protected final int lineNum;
-
 	private final boolean debug;
 
 	protected @Nullable SectionNode parent;
 	protected Config config;
 
-	protected Node(Config c) {
+	protected Node(Config config) {
+		this.config = config;
 		key = null;
 		debug = false;
 		lineNum = -1;
-		config = c;
 		SkriptLogger.setNode(this);
 	}
 
 	protected Node(@Nullable String key, SectionNode parent) {
 		this.key = key;
+		this.parent = parent;
 		debug = false;
 		lineNum = -1;
-		this.parent = parent;
 		config = parent.getConfig();
 		SkriptLogger.setNode(this);
 	}
@@ -49,35 +49,6 @@ public abstract class Node {
 		this.parent = parent;
 		config = parent.getConfig();
 		SkriptLogger.setNode(this);
-	}
-
-	/**
-	 * Key of this node. <tt>null</tt> for empty or invalid nodes, and the config's main node.
-	 */
-	@Nullable
-	public String getKey() {
-		return key;
-	}
-
-	public final Config getConfig() {
-		return config;
-	}
-
-	public void rename(String newname) {
-		if (key == null)
-			throw new IllegalStateException("can't rename an anonymous node");
-		String oldKey = key;
-		key = newname;
-		if (parent != null)
-			parent.renamed(this, oldKey);
-	}
-
-	public void move(SectionNode newParent) {
-		SectionNode p = parent;
-		if (p == null)
-			throw new IllegalStateException("can't move the main node");
-		p.remove(this);
-		newParent.add(this);
 	}
 
 	/**
@@ -173,34 +144,34 @@ public abstract class Node {
 			if (state == HALT)
 				return HALT;
 
-			switch (c) {
-				case '%':
+			return switch (c) {
+				case '%' -> {
 					if (state == CODE)
-						return previousState;
-					return CODE;
-				case '"':
-					switch (state) {
-						case CODE:
-							return STRING;
-						case STRING:
-							return CODE;
-						default:
-							return state;
-					}
-				case '{':
+						yield previousState;
+					yield CODE;
+				}
+				case '"' -> switch (state) {
+					case CODE -> STRING;
+					case STRING -> CODE;
+					default -> state;
+				};
+				case '{' -> {
 					if (state == STRING)
-						return STRING;
-					return VARIABLE;
-				case '}':
+						yield STRING;
+					yield VARIABLE;
+				}
+				case '}' -> {
 					if (state == STRING)
-						return STRING;
-					return CODE;
-				case '#':
+						yield STRING;
+					yield CODE;
+				}
+				case '#' -> {
 					if (state == STRING)
-						return STRING;
-					return HALT;
-			}
-			return state;
+						yield STRING;
+					yield HALT;
+				}
+				default -> state;
+			};
 		}
 	}
 
@@ -229,23 +200,6 @@ public abstract class Node {
 		}
 
 		SkriptLogger.setNode(n); // Revert the node back
-	}
-
-	protected @Nullable String getComment() {
-		return comment;
-	}
-
-	int getLevel() {
-		int l = 0;
-		Node n = this;
-		while ((n = n.parent) != null) {
-			l++;
-		}
-		return Math.max(0, l - 1);
-	}
-
-	protected String getIndentation() {
-		return StringUtils.multiply(config.getIndentation(), getLevel());
 	}
 
 	/**
@@ -291,18 +245,14 @@ public abstract class Node {
 		return output.toString();
 	}
 
-	public @Nullable SectionNode getParent() {
-		return parent;
-	}
-
 	/**
 	 * Removes this node from its parent. Does nothing if this node does not have a parent node.
 	 */
 	public void remove() {
-		final SectionNode p = parent;
-		if (p == null)
+		SectionNode parent = this.parent;
+		if (parent == null)
 			return;
-		p.remove(this);
+		parent.remove(this);
 	}
 
 	/**
@@ -316,7 +266,7 @@ public abstract class Node {
 	 * @return Whether this node does not hold information (i.e. is empty or invalid)
 	 */
 	public boolean isVoid() {
-		return this instanceof VoidNode;// || this instanceof ParseOptionNode;
+		return this instanceof VoidNode;
 	}
 
 	/**
@@ -342,7 +292,8 @@ public abstract class Node {
 	 * Returns the path to this node in the config file from the root.
 	 *
 	 * <p>
-	 * Getting the path of node {@code z} in the following example would return an array with {@code w.x, y, z}.
+	 * Getting the path of node {@code z} in the following example would
+	 * return an array with {@code w.x, y, z}.
 	 * <pre>
 	 *     w.x:
 	 *      y:
@@ -372,6 +323,48 @@ public abstract class Node {
 		return path.toArray(new String[0]);
 	}
 
+	protected @Nullable String getComment() {
+		return comment;
+	}
+
+	int getLevel() {
+		int level = 0;
+		Node node = this;
+		while ((node = node.parent) != null) {
+			level++;
+		}
+		return Math.max(0, level - 1);
+	}
+
+	protected String getIndentation() {
+		return StringUtils.multiply(config.getIndentation(), getLevel());
+	}
+
+	public boolean debug() {
+		return debug;
+	}
+
+	/**
+	 * Key of this node. <tt>null</tt> for empty or invalid nodes, and the config's main node.
+	 */
+	public @Nullable String getKey() {
+		return key;
+	}
+
+	/**
+	 * @return The config this node is a part of.
+	 */
+	public Config getConfig() {
+		return config;
+	}
+
+	/**
+	 * @return The parent node of this node, or <tt>null</tt> if this node does not have a parent.
+	 */
+	public @Nullable SectionNode getParent() {
+		return parent;
+	}
+
 	/**
 	 * returns information about this node which looks like the following:<br/>
 	 * <code>node value #including comments (config.sk, line xyz)</code>
@@ -380,9 +373,18 @@ public abstract class Node {
 	public String toString() {
 		if (parent == null)
 			return config.getFileName();
-		return save_i()
-			+ (comment.isEmpty() ? "" : " " + comment)
-			+ " (" + config.getFileName() + ", " + (lineNum == -1 ? "unknown line" : "line " + lineNum) + ")";
+
+		StringBuilder builder = new StringBuilder();
+		builder.append(save_i());
+		if (!comment.isEmpty())
+			builder.append(" ").append(comment);
+
+		builder.append(" (").append(config.getFileName())
+			.append(", ")
+			.append(lineNum == -1 ? "unknown line" : "line " + lineNum)
+			.append(")");
+
+		return builder.toString();
 	}
 
 	@Override
@@ -391,16 +393,12 @@ public abstract class Node {
 			return false;
 
 		return Arrays.equals(getPath(), other.getPath()) // for entry/section nodes
-			&& Objects.equals(getComment(), other.getComment()); // for void nodes
+			&& Objects.equals(comment, other.comment); // for void nodes
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(Arrays.hashCode(getPath()), getComment());
-	}
-
-	public boolean debug() {
-		return debug;
+		return Objects.hash(Arrays.hashCode(getPath()), comment);
 	}
 
 }

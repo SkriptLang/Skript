@@ -4,7 +4,6 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptAPIException;
 import ch.njol.skript.config.validate.EntryValidator;
 import ch.njol.skript.config.validate.SectionValidator;
-import ch.njol.skript.lang.Section;
 import ch.njol.skript.log.SkriptLogger;
 import ch.njol.util.NonNullPair;
 import ch.njol.util.coll.CollectionUtils;
@@ -36,10 +35,9 @@ public class SectionNode extends Node implements Iterable<Node> {
 	}
 
 	/**
-	 * Note to self: use getNodeMap()
+	 * Using {@link #getNodeMap()} is recommended over this field.
 	 */
-	@Nullable
-	private NodeMap nodeMap = null;
+	private @Nullable NodeMap nodeMap = null;
 
 	private NodeMap getNodeMap() {
 		NodeMap nodeMap = this.nodeMap;
@@ -63,7 +61,7 @@ public class SectionNode extends Node implements Iterable<Node> {
 	/**
 	 * Adds the given node at the end of this section.
 	 *
-	 * @param node
+	 * @param node The node to add
 	 */
 	public void add(@NotNull Node node) {
 		node.remove();
@@ -101,7 +99,7 @@ public class SectionNode extends Node implements Iterable<Node> {
 	 *
 	 * @param node The node to remove.
 	 */
-	public void remove(Node node) {
+	public void remove(@NotNull Node node) {
 		nodes.remove(node);
 		node.parent = null;
 		getNodeMap().remove(node);

@@ -1,6 +1,9 @@
 package ch.njol.skript;
 
-import ch.njol.skript.config.*;
+import ch.njol.skript.config.Config;
+import ch.njol.skript.config.EnumParser;
+import ch.njol.skript.config.Option;
+import ch.njol.skript.config.OptionSection;
 import ch.njol.skript.hooks.Hook;
 import ch.njol.skript.hooks.VaultHook;
 import ch.njol.skript.hooks.regions.GriefPreventionHook;
@@ -328,8 +331,7 @@ public class SkriptConfig {
 	/**
 	 * This should only be used in special cases
 	 */
-	@Nullable
-	public static Config getConfig() {
+	public static @Nullable Config getConfig() {
 		return mainConfig;
 	}
 

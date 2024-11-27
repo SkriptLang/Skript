@@ -18,33 +18,33 @@ import java.nio.channels.FileChannel;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.*;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Represents a config file.
  */
 public class Config implements Comparable<Config> {
 
-	boolean simple;
-
 	/**
 	 * One level of the indentation, e.g. a tab or 4 spaces.
 	 */
 	private String indentation = "\t";
+
 	/**
 	 * The indentation's name, i.e. 'tab' or 'space'.
 	 */
 	private String indentationName = "tab";
 
-	final String defaultSeparator;
-	String separator;
-
-	int level = 0;
-
 	private final SectionNode main;
 
+	final String defaultSeparator;
+	String separator;
+	boolean simple;
+	int level = 0;
 	int errors = 0;
-
 	final boolean allowEmptySections;
 
 	String fileName;
@@ -329,14 +329,14 @@ public class Config implements Comparable<Config> {
 	 * @return The file this config was loaded from, or null if it was loaded from an InputStream.
 	 */
 	public @Nullable File getFile() {
-		if (file != null) {
-			try {
-				return file.toFile();
-			} catch (Exception e) {
-				return null; // ZipPath, for example, throws undocumented exception
-			}
+		if (file == null)
+			return null;
+
+		try {
+			return file.toFile();
+		} catch (Exception e) {
+			return null; // ZipPath, for example, throws undocumented exception
 		}
-		return null;
 	}
 
 	/**
@@ -354,29 +354,27 @@ public class Config implements Comparable<Config> {
 	}
 
 	/**
-	 * @return A separator string useful for saving, e.g. ": " or " = ".
+	 * @return A separator string useful for saving, e.g. ": ".
 	 */
 	public String getSaveSeparator() {
 		if (separator.equals(":"))
 			return ": ";
-		if (separator.equals("="))
-			return " = ";
 		return " " + separator + " ";
 	}
 
-	String getIndentation() {
+	@NotNull String getIndentation() {
 		return indentation;
 	}
 
-	String getIndentationName() {
+	@NotNull String getIndentationName() {
 		return indentationName;
 	}
 
-	public SectionNode getMainNode() {
+	public @NotNull SectionNode getMainNode() {
 		return main;
 	}
 
-	public String getFileName() {
+	public @NotNull String getFileName() {
 		return fileName;
 	}
 
