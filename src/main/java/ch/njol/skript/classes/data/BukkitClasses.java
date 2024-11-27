@@ -40,7 +40,6 @@ import ch.njol.skript.lang.util.SimpleLiteral;
 import ch.njol.skript.localization.Language;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.BlockUtils;
-import ch.njol.skript.util.PotionEffectUtils;
 import ch.njol.skript.util.StringMode;
 import ch.njol.util.StringUtils;
 import ch.njol.yggdrasil.Fields;
