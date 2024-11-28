@@ -1,3 +1,21 @@
+/**
+ *   This file is part of Skript.
+ *
+ *  Skript is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  Skript is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * Copyright Peter Güttinger, SkriptLang team and contributors
+ */
 package ch.njol.skript.config;
 
 import ch.njol.skript.Skript;
@@ -19,25 +37,25 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Pattern;
 
 /**
- * Represents a node which specifies a section.
- * A section has children, which may be entries or other section nodes.
+ * @author Peter Güttinger
  */
 public class SectionNode extends Node implements Iterable<Node> {
 
-	private final List<Node> nodes = new ArrayList<>();
+	private final ArrayList<Node> nodes = new ArrayList<>();
 
-	public SectionNode(String key, String comment, SectionNode parent, int lineNum) {
+	public SectionNode(final String key, final String comment, final SectionNode parent, final int lineNum) {
 		super(key, comment, parent, lineNum);
 	}
 
-	SectionNode(Config config) {
-		super(config);
+	SectionNode(final Config c) {
+		super(c);
 	}
 
 	/**
-	 * Using {@link #getNodeMap()} is recommended over this field.
+	 * Note to self: use getNodeMap()
 	 */
-	private @Nullable NodeMap nodeMap = null;
+	@Nullable
+	private NodeMap nodeMap = null;
 
 	private NodeMap getNodeMap() {
 		NodeMap nodeMap = this.nodeMap;
@@ -61,14 +79,14 @@ public class SectionNode extends Node implements Iterable<Node> {
 	/**
 	 * Adds the given node at the end of this section.
 	 *
-	 * @param node The node to add
+	 * @param n
 	 */
-	public void add(@NotNull Node node) {
-		node.remove();
-		nodes.add(node);
-		node.parent = this;
-		node.config = config;
-		getNodeMap().put(node);
+	public void add(final Node n) {
+		n.remove();
+		nodes.add(n);
+		n.parent = this;
+		n.config = config;
+		getNodeMap().put(n);
 	}
 
 	/**
@@ -95,39 +113,30 @@ public class SectionNode extends Node implements Iterable<Node> {
 	}
 
 	/**
-	 * Removes the specified node from this section.
+	 * Removes the given node from this section.
 	 *
-	 * @param node The node to remove.
+	 * @param n
 	 */
-	public void remove(@NotNull Node node) {
-		nodes.remove(node);
-		node.parent = null;
-		getNodeMap().remove(node);
+	public void remove(final Node n) {
+		nodes.remove(n);
+		n.parent = null;
+		getNodeMap().remove(n);
 	}
 
 	/**
 	 * Removes an entry with the given key.
 	 *
-	 * @param key The key of the entry to remove.
+	 * @param key
 	 * @return The removed node, or null if the key didn't match any node.
 	 */
-	public @Nullable Node remove(@Nullable String key) {
-		Node node = getNodeMap().remove(key);
-		if (node == null)
+	@Nullable
+	public Node remove(final String key) {
+		final Node n = getNodeMap().remove(key);
+		if (n == null)
 			return null;
-		nodes.remove(node);
-		node.parent = null;
-		return node;
-	}
-
-	/**
-	 * Gets a subnode (EntryNode or SectionNode) with the specified name.
-	 *
-	 * @param key The name of the node
-	 * @return The node with the given name
-	 */
-	public @Nullable Node get(@Nullable String key) {
-		return getNodeMap().get(key);
+		nodes.remove(n);
+		n.parent = null;
+		return n;
 	}
 
 	/**
@@ -143,84 +152,116 @@ public class SectionNode extends Node implements Iterable<Node> {
 		return nodes.get(idx);
 	}
 
-	public @Nullable String getValue(@Nullable String key) {
-		Node node = get(key);
-		if (node instanceof EntryNode entryNode)
-			return entryNode.getValue();
+	/**
+	 * @return An iterator over all non-void nodes in this section.
+	 */
+	@Override
+	public @NotNull Iterator<Node> iterator() {
+		return new CheckedIterator<>(fullIterator(),
+			n -> Objects.nonNull(n) && !n.isVoid()); // double null check to avoid warning
+	}
+
+	/**
+	 * @return An iterator over all nodes in this section, including void nodes.
+	 */
+	@NotNull Iterator<Node> fullIterator() {
+		return new CheckedIterator<>(nodes.iterator(), Objects::nonNull) {
+			@Override
+			public boolean hasNext() {
+				boolean hasNext = super.hasNext();
+				if (!hasNext)
+					SkriptLogger.setNode(SectionNode.this);
+				return hasNext;
+			}
+
+			@Override
+			public @Nullable Node next() {
+				Node node = super.next();
+				SkriptLogger.setNode(node);
+				return node;
+			}
+
+			@Override
+			public void remove() {
+				throw new UnsupportedOperationException();
+			}
+		};
+	}
+
+	/**
+	 * Gets a subnode (EntryNode or SectionNode) with the specified name.
+	 *
+	 * @param key
+	 * @return The node with the given name
+	 */
+	@Nullable
+	public Node get(final @Nullable String key) {
+		return getNodeMap().get(key);
+	}
+
+	@Nullable
+	public String getValue(final String key) {
+		final Node n = get(key);
+		if (n instanceof EntryNode)
+			return ((EntryNode) n).getValue();
 		return null;
 	}
 
 	/**
 	 * Gets an entry's value or the default value if it doesn't exist or is not an EntryNode.
 	 *
-	 * @param name The name of the node (case-insensitive)
-	 * @param def  The default value
+	 * @param name The name of the node (case insensitive)
+	 * @param def The default value
 	 * @return The value of the entry node with the give node, or <tt>def</tt> if there's no entry with the given name.
 	 */
-	public String get(String name, String def) {
-		Node node = get(name);
-		if (!(node instanceof EntryNode entryNode))
+	public String get(final String name, final String def) {
+		final Node n = this.get(name);
+		if (n == null || !(n instanceof EntryNode))
 			return def;
-		return entryNode.getValue();
+		return ((EntryNode) n).getValue();
 	}
 
-	public void set(String key, String value) {
+	public void set(final String key, final String value) {
 		final Node n = get(key);
-		if (n instanceof EntryNode entryNode) {
-			entryNode.setValue(value);
+		if (n instanceof EntryNode) {
+			((EntryNode) n).setValue(value);
 		} else {
 			add(new EntryNode(key, value, this));
 		}
 	}
 
-	public void set(String key, @Nullable Node node) {
+	public void set(final String key, final @Nullable Node node) {
 		if (node == null) {
 			remove(key);
 			return;
 		}
-		Node n = get(key);
+		final Node n = get(key);
 		if (n != null) {
 			for (int i = 0; i < nodes.size(); i++) {
-				if (nodes.get(i) != n) {
-					continue;
+				if (nodes.get(i) == n) {
+					nodes.set(i, node);
+					remove(n);
+					getNodeMap().put(node);
+					node.parent = this;
+					node.config = config;
+					return;
 				}
-				nodes.set(i, node);
-				remove(n);
-				getNodeMap().put(node);
-				node.parent = this;
-				node.config = config;
-				return;
 			}
 			assert false;
 		}
 		add(node);
 	}
 
-	void renamed(Node node, @Nullable String oldKey) {
+	void renamed(final Node node, final @Nullable String oldKey) {
 		if (!nodes.contains(node))
 			throw new IllegalArgumentException();
 		getNodeMap().remove(oldKey);
 		getNodeMap().put(node);
 	}
 
-	/**
-	 * @return True if this section is empty, i.e. it contains only void nodes.
-	 */
 	public boolean isEmpty() {
-		for (Node node : nodes) {
+		for (final Node node : nodes) {
 			if (!node.isVoid())
-				return false;
-		}
-		return true;
-	}
-
-	/**
-	 * @return True if this section and all children are valid, i.e. they contain no invalid nodes.
-	 */
-	public boolean isValid() {
-		for (Node node : nodes) {
-			if ((node instanceof SectionNode sectionNode && !sectionNode.isValid())
-				|| node instanceof InvalidNode)
 				return false;
 		}
 		return true;
@@ -298,6 +339,30 @@ public class SectionNode extends Node implements Iterable<Node> {
 				continue;
 			}
 
+//			if (line.startsWith("!") && line.indexOf('[') != -1 && line.endsWith("]")) {
+//				final String option = line.substring(1, line.indexOf('['));
+//				final String value = line.substring(line.indexOf('[') + 1, line.length() - 1);
+//				if (value.isEmpty()) {
+//					nodes.add(new InvalidNode(this, r));
+//					Skript.error("parse options must not be empty");
+//					continue;
+//				} else if (option.equalsIgnoreCase("separator")) {
+//					if (config.simple) {
+//						Skript.warning("scripts don't have a separator");
+//						continue;
+//					}
+//					config.separator = value;
+//				} else {
+//					final Node n = new InvalidNode(this, r);
+//					SkriptLogger.setNode(n);
+//					nodes.add(n);
+//					Skript.error("unknown parse option '" + option + "'");
+//					continue;
+//				}
+//				nodes.add(new ParseOptionNode(line.substring(0, line.indexOf('[')), this, r));
+//				continue;
+//			}
+
 			if (value.endsWith(":") && (config.simple
 				|| value.indexOf(config.separator) == -1
 				|| config.separator.endsWith(":") && value.indexOf(config.separator) == value.length() - config.separator.length()
@@ -347,38 +412,38 @@ public class SectionNode extends Node implements Iterable<Node> {
 	 *
 	 * @param levels Amount of levels to go down, e.g. 0 to only convert direct subnodes of this section or -1 for all subnodes including subnodes of subnodes etc.
 	 */
-	public void convertToEntries(int levels) {
+	public void convertToEntries(final int levels) {
 		convertToEntries(levels, config.separator);
 	}
 
 	/**
 	 * REMIND breaks saving - separator argument can be different from config.sepator
 	 *
-	 * @param levels    Maximum depth of recursion, <tt>-1</tt> for no limit.
+	 * @param levels Maximum depth of recursion, <tt>-1</tt> for no limit.
 	 * @param separator Some separator, e.g. ":" or "=".
 	 */
-	public void convertToEntries(int levels, String separator) {
+	public void convertToEntries(final int levels, final String separator) {
 		if (levels < -1)
 			throw new IllegalArgumentException("levels must be >= -1");
 		if (!config.simple)
 			throw new SkriptAPIException("config is not simple: " + config);
 		for (int i = 0; i < nodes.size(); i++) {
-			Node n = nodes.get(i);
-			if (levels != 0 && n instanceof SectionNode sectionNode)
-				sectionNode.convertToEntries(levels == -1 ? -1 : levels - 1, separator);
+			final Node n = nodes.get(i);
+			if (levels != 0 && n instanceof SectionNode) {
+				((SectionNode) n).convertToEntries(levels == -1 ? -1 : levels - 1, separator);
+			}
 			if (!(n instanceof SimpleNode))
 				continue;
-			String key = n.key;
-			if (key != null) {
+			final String key = n.key;
+			if (key != null)
 				nodes.set(i, getEntry(key, n.comment, n.lineNum, separator));
-			} else {
+			else
 				assert false;
-			}
 		}
 	}
 
 	@Override
-	public void save(PrintWriter w) {
+	public void save(final PrintWriter w) {
 		if (parent != null)
 			super.save(w);
 		for (final Node node : nodes)
@@ -391,26 +456,37 @@ public class SectionNode extends Node implements Iterable<Node> {
 		return key + ":";
 	}
 
-	public boolean validate(SectionValidator validator) {
+	public boolean validate(final SectionValidator validator) {
 		return validator.validate(this);
 	}
 
-	Map<String, String> toMap(String prefix, String separator) {
-		Map<String, String> result = new HashMap<>();
-		for (Node node : this) {
-			if (node instanceof EntryNode entryNode) {
-				result.put(prefix + node.getKey(), entryNode.getValue());
+	Map<String, String> toMap(final String prefix, final String separator) {
+		final Map<String, String> r = new HashMap<>();
+		for (final Node n : this) {
+			if (n instanceof EntryNode) {
+				r.put(prefix + n.getKey(), ((EntryNode) n).getValue());
 			} else {
-				result.putAll(((SectionNode) node).toMap(prefix + node.getKey() + separator, separator));
+				r.putAll(((SectionNode) n).toMap(prefix + n.getKey() + separator, separator));
 			}
 		}
-		return result;
+		return r;
+	}
+
+	/**
+	 * @return True if this section and all children are valid, i.e. they contain no invalid nodes.
+	 */
+	public boolean isValid() {
+		for (Node node : nodes) {
+			if ((node instanceof SectionNode sectionNode && !sectionNode.isValid())
+				|| node instanceof InvalidNode)
+				return false;
+		}
+		return true;
 	}
 
 	/**
 	 * Updates the values of this SectionNode based on the values of another SectionNode.
-	 *
-	 * @param other    The other SectionNode.
+	 * @param other The other SectionNode.
 	 * @param excluded Keys to exclude from this update.
 	 * @return True if there are differences in the keys of this SectionNode and the other SectionNode.
 	 */
@@ -420,11 +496,10 @@ public class SectionNode extends Node implements Iterable<Node> {
 
 	/**
 	 * Compares the keys and values of this SectionNode and another.
-	 *
-	 * @param other    The other SectionNode.
+	 * @param other The other SectionNode.
 	 * @param excluded Keys to exclude from this comparison.
 	 * @return True if there are no differences in the keys and their values
-	 * of this SectionNode and the other SectionNode.
+	 *  of this SectionNode and the other SectionNode.
 	 */
 	public boolean compareValues(SectionNode other, String... excluded) {
 		return !modify(other, true, excluded); // invert as "modify" returns true if different
@@ -482,42 +557,6 @@ public class SectionNode extends Node implements Iterable<Node> {
 		}
 
 		return different;
-	}
-
-	/**
-	 * @return An iterator over all non-void nodes in this section.
-	 */
-	@Override
-	public @NotNull Iterator<Node> iterator() {
-		return new CheckedIterator<>(fullIterator(),
-			n -> Objects.nonNull(n) && !n.isVoid()); // double null check to avoid warning
-	}
-
-	/**
-	 * @return An iterator over all nodes in this section, including void nodes.
-	 */
-	@NotNull Iterator<Node> fullIterator() {
-		return new CheckedIterator<>(nodes.iterator(), Objects::nonNull) {
-			@Override
-			public boolean hasNext() {
-				boolean hasNext = super.hasNext();
-				if (!hasNext)
-					SkriptLogger.setNode(SectionNode.this);
-				return hasNext;
-			}
-
-			@Override
-			public @Nullable Node next() {
-				Node node = super.next();
-				SkriptLogger.setNode(node);
-				return node;
-			}
-
-			@Override
-			public void remove() {
-				throw new UnsupportedOperationException();
-			}
-		};
 	}
 
 }

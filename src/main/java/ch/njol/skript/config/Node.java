@@ -1,47 +1,79 @@
+/**
+ *   This file is part of Skript.
+ *
+ *  Skript is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  Skript is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * Copyright Peter Güttinger, SkriptLang team and contributors
+ */
 package ch.njol.skript.config;
+
+import java.io.PrintWriter;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import ch.njol.skript.SkriptConfig;
+import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.log.SkriptLogger;
 import ch.njol.util.NonNullPair;
 import ch.njol.util.StringUtils;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-
-import java.io.PrintWriter;
-import java.util.*;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
- * Represents a node in a config file.
+ * @author Peter Güttinger
  */
 public abstract class Node {
 
-	protected @Nullable String key;
+	@Nullable
+	protected String key;
+
 	protected String comment = "";
+
 	protected final int lineNum;
+
 	private final boolean debug;
 
-	protected @Nullable SectionNode parent;
+	@Nullable
+	protected SectionNode parent;
 	protected Config config;
 
-	protected Node(Config config) {
-		this.config = config;
+//	protected Node() {
+//		key = null;
+//		debug = false;
+//		lineNum = -1;
+//		SkriptLogger.setNode(this);
+//	}
+
+	protected Node(final Config c) {
 		key = null;
 		debug = false;
 		lineNum = -1;
+		config = c;
 		SkriptLogger.setNode(this);
 	}
 
-	protected Node(@Nullable String key, SectionNode parent) {
+	protected Node(final String key, final SectionNode parent) {
 		this.key = key;
-		this.parent = parent;
 		debug = false;
 		lineNum = -1;
+		this.parent = parent;
 		config = parent.getConfig();
 		SkriptLogger.setNode(this);
 	}
 
-	protected Node(@Nullable String key, String comment, SectionNode parent, int lineNum) {
+	protected Node(final String key, final String comment, final SectionNode parent, final int lineNum) {
 		this.key = key;
 		this.comment = comment;
 		debug = comment.equals("#DEBUG#");
@@ -49,6 +81,39 @@ public abstract class Node {
 		this.parent = parent;
 		config = parent.getConfig();
 		SkriptLogger.setNode(this);
+	}
+
+//	protected Node(final String key, final SectionNode parent, final ConfigReader r) {
+//		this(key, parent, r.getLine(), r.getLineNum());
+//	}
+//
+	/**
+	 * Key of this node. <tt>null</tt> for empty or invalid nodes, and the config's main node.
+	 */
+	@Nullable
+	public String getKey() {
+		return key;
+	}
+
+	public final Config getConfig() {
+		return config;
+	}
+
+	public void rename(final String newname) {
+		if (key == null)
+			throw new IllegalStateException("can't rename an anonymous node");
+		final String oldKey = key;
+		key = newname;
+		if (parent != null)
+			parent.renamed(this, oldKey);
+	}
+
+	public void move(final SectionNode newParent) {
+		final SectionNode p = parent;
+		if (p == null)
+			throw new IllegalStateException("can't move the main node");
+		p.remove(this);
+		newParent.add(this);
 	}
 
 	/**
@@ -70,7 +135,7 @@ public abstract class Node {
 	 * Whitespace is preserved (whitespace in front of the comment is added to the value), and any ## not in quoted strings in the value are replaced by a single #. The comment is returned with a
 	 * leading #, except if there is no comment in which case it will be the empty string.
 	 *
-	 * @param line           the line to split
+	 * @param line the line to split
 	 * @param inBlockComment Whether we are currently inside a block comment
 	 * @return A pair (value, comment).
 	 */
@@ -134,9 +199,8 @@ public abstract class Node {
 
 		/**
 		 * Updates the state given a character input.
-		 *
-		 * @param c             character input. '"', '%', '{', '}', and '#' are valid.
-		 * @param state         the current state of the machine
+		 * @param c character input. '"', '%', '{', '}', and '#' are valid.
+		 * @param state the current state of the machine
 		 * @param previousState the state of the machine when it last entered a % CODE % section
 		 * @return the new state of the machine
 		 */
@@ -144,34 +208,34 @@ public abstract class Node {
 			if (state == HALT)
 				return HALT;
 
-			return switch (c) {
-				case '%' -> {
+			switch (c) {
+				case '%':
 					if (state == CODE)
-						yield previousState;
-					yield CODE;
-				}
-				case '"' -> switch (state) {
-					case CODE -> STRING;
-					case STRING -> CODE;
-					default -> state;
-				};
-				case '{' -> {
+						return previousState;
+					return CODE;
+				case '"':
+					switch (state) {
+						case CODE:
+							return STRING;
+						case STRING:
+							return CODE;
+						default:
+							return state;
+					}
+				case '{':
 					if (state == STRING)
-						yield STRING;
-					yield VARIABLE;
-				}
-				case '}' -> {
+						return STRING;
+					return VARIABLE;
+				case '}':
 					if (state == STRING)
-						yield STRING;
-					yield CODE;
-				}
-				case '#' -> {
+						return STRING;
+					return CODE;
+				case '#':
 					if (state == STRING)
-						yield STRING;
-					yield HALT;
-				}
-				default -> state;
-			};
+						return STRING;
+					return HALT;
+			}
+			return state;
 		}
 	}
 
@@ -202,6 +266,24 @@ public abstract class Node {
 		SkriptLogger.setNode(n); // Revert the node back
 	}
 
+	@Nullable
+	protected String getComment() {
+		return comment;
+	}
+
+	int getLevel() {
+		int l = 0;
+		Node n = this;
+		while ((n = n.parent) != null) {
+			l++;
+		}
+		return Math.max(0, l - 1);
+	}
+
+	protected String getIndentation() {
+		return StringUtils.multiply(config.getIndentation(), getLevel());
+	}
+
 	/**
 	 * @return String to save this node as. The correct indentation and the comment will be added automatically, as well as all '#'s will be escaped.
 	 */
@@ -211,8 +293,8 @@ public abstract class Node {
 		return getIndentation() + escapeUnquotedHashtags(save_i()) + comment;
 	}
 
-	public void save(PrintWriter writer) {
-		writer.println(save());
+	public void save(final PrintWriter w) {
+		w.println(save());
 	}
 
 	private static String escapeUnquotedHashtags(String input) {
@@ -245,14 +327,20 @@ public abstract class Node {
 		return output.toString();
 	}
 
+
+	@Nullable
+	public SectionNode getParent() {
+		return parent;
+	}
+
 	/**
 	 * Removes this node from its parent. Does nothing if this node does not have a parent node.
 	 */
 	public void remove() {
-		SectionNode parent = this.parent;
-		if (parent == null)
+		final SectionNode p = parent;
+		if (p == null)
 			return;
-		parent.remove(this);
+		p.remove(this);
 	}
 
 	/**
@@ -266,104 +354,61 @@ public abstract class Node {
 	 * @return Whether this node does not hold information (i.e. is empty or invalid)
 	 */
 	public boolean isVoid() {
-		return this instanceof VoidNode;
+		return this instanceof VoidNode;// || this instanceof ParseOptionNode;
 	}
 
-	/**
-	 * @return The index of this node relative to the other children of this node's parent,
-	 * or -1 if this node does not have a parent. The index includes counted void nodes.
-	 */
-	int getIndex() {
-		if (parent == null)
-			return -1;
-
-		int index = 0;
-		for (Iterator<Node> iterator = parent.fullIterator(); iterator.hasNext(); ) {
-			Node node = iterator.next();
-			if (node == this)
-				return index;
-
-			index++;
-		}
-		return -1;
-	}
-
-	/**
-	 * Returns the path to this node in the config file from the root.
-	 *
-	 * <p>
-	 * Getting the path of node {@code z} in the following example would
-	 * return an array with {@code w.x, y, z}.
-	 * <pre>
-	 *     w.x:
-	 *      y:
-	 *       z: true # this node
-	 * </pre></p>
-	 *
-	 * @return The path to this node in the config file.
-	 */
-	public @NotNull String[] getPath() {
-		List<String> path = new ArrayList<>();
-		Node node = this;
-
-		while (node != null) {
-			if (node.getKey() == null || node.getKey().isEmpty())
-				break;
-
-			path.add(0, node.getKey() + ".");
-			node = node.getParent();
-		}
-
-		if (path.isEmpty())
-			return new String[0];
-
-		int lastIndex = path.size() - 1;
-		String lastValue = path.get(lastIndex);
-		path.set(lastIndex, lastValue.substring(0, lastValue.length() - 1)); // trim trailing dot
-		return path.toArray(new String[0]);
-	}
-
-	protected @Nullable String getComment() {
-		return comment;
-	}
-
-	int getLevel() {
-		int level = 0;
-		Node node = this;
-		while ((node = node.parent) != null) {
-			level++;
-		}
-		return Math.max(0, level - 1);
-	}
-
-	protected String getIndentation() {
-		return StringUtils.multiply(config.getIndentation(), getLevel());
-	}
-
-	public boolean debug() {
-		return debug;
-	}
-
-	/**
-	 * Key of this node. <tt>null</tt> for empty or invalid nodes, and the config's main node.
-	 */
-	public @Nullable String getKey() {
-		return key;
-	}
-
-	/**
-	 * @return The config this node is a part of.
-	 */
-	public Config getConfig() {
-		return config;
-	}
-
-	/**
-	 * @return The parent node of this node, or <tt>null</tt> if this node does not have a parent.
-	 */
-	public @Nullable SectionNode getParent() {
-		return parent;
-	}
+//	/**
+//	 * get a node via path:to:the:node. relative paths are possible by starting with a ':'; a double colon '::' will go up a node.<br/>
+//	 * selecting the n-th node can be done with #n.
+//	 *
+//	 * @param path
+//	 * @return the node at the given path or null if the path is invalid
+//	 */
+//	public Node getNode(final String path) {
+//		return getNode(path, false);
+//	}
+//
+//	public Node getNode(String path, final boolean create) {
+//		Node n;
+//		if (path.startsWith(":")) {
+//			path = path.substring(1);
+//			n = this;
+//		} else {
+//			n = config.getMainNode();
+//		}
+//		for (final String s : path.split(":")) {
+//			if (s.isEmpty()) {
+//				n = n.getParent();
+//				if (n == null) {
+//					n = config.getMainNode();
+//				}
+//				continue;
+//			}
+//			if (!(n instanceof SectionNode)) {
+//				return null;
+//			}
+//			if (s.startsWith("#")) {
+//				int i = -1;
+//				try {
+//					i = Integer.parseInt(s.substring(1));
+//				} catch (final NumberFormatException e) {
+//					return null;
+//				}
+//				if (i <= 0 || i > ((SectionNode) n).getNodeList().size())
+//					return null;
+//				n = ((SectionNode) n).getNodeList().get(i - 1);
+//			} else {
+//				final Node oldn = n;
+//				n = ((SectionNode) n).get(s);
+//				if (n == null) {
+//					if (!create)
+//						return null;
+//					((SectionNode) oldn).getNodeList().add(n = new SectionNode(s, (SectionNode) oldn, "", -1));
+//				}
+//			}
+//		}
+//		return n;
+//	}
 
 	/**
 	 * returns information about this node which looks like the following:<br/>
@@ -373,32 +418,13 @@ public abstract class Node {
 	public String toString() {
 		if (parent == null)
 			return config.getFileName();
-
-		StringBuilder builder = new StringBuilder();
-		builder.append(save_i());
-		if (!comment.isEmpty())
-			builder.append(" ").append(comment);
-
-		builder.append(" (").append(config.getFileName())
-			.append(", ")
-			.append(lineNum == -1 ? "unknown line" : "line " + lineNum)
-			.append(")");
-
-		return builder.toString();
+		return save_i()
+			+ (comment.isEmpty() ? "" : " " + comment)
+			+ " (" + config.getFileName() + ", " + (lineNum == -1 ? "unknown line" : "line " + lineNum) + ")";
 	}
 
-	@Override
-	public boolean equals(Object object) {
-		if (!(object instanceof Node other))
-			return false;
-
-		return Arrays.equals(getPath(), other.getPath()) // for entry/section nodes
-			&& Objects.equals(comment, other.comment); // for void nodes
-	}
-
-	@Override
-	public int hashCode() {
-		return Objects.hash(Arrays.hashCode(getPath()), comment);
+	public boolean debug() {
+		return debug;
 	}
 
 }
