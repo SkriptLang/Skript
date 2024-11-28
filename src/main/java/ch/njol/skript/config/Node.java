@@ -18,18 +18,16 @@
  */
 package ch.njol.skript.config;
 
-import java.io.PrintWriter;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import ch.njol.skript.SkriptConfig;
-import org.jetbrains.annotations.Nullable;
-
 import ch.njol.skript.Skript;
 import ch.njol.skript.log.SkriptLogger;
 import ch.njol.util.NonNullPair;
 import ch.njol.util.StringUtils;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+import java.io.PrintWriter;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * @author Peter Güttinger
@@ -425,6 +423,74 @@ public abstract class Node {
 
 	public boolean debug() {
 		return debug;
+	}
+
+	/**
+	 * @return The index of this node relative to the other children of this node's parent,
+	 * or -1 if this node does not have a parent. The index includes counted void nodes.
+	 */
+	int getIndex() {
+		if (parent == null)
+			return -1;
+
+		int index = 0;
+		for (Iterator<Node> iterator = parent.fullIterator(); iterator.hasNext(); ) {
+			Node node = iterator.next();
+			if (node == this)
+				return index;
+
+			index++;
+		}
+		return -1;
+	}
+
+	/**
+	 * Returns the path to this node in the config file from the root.
+	 *
+	 * <p>
+	 * Getting the path of node {@code z} in the following example would
+	 * return an array with {@code w.x, y, z}.
+	 * <pre>
+	 *     w.x:
+	 *      y:
+	 *       z: true # this node
+	 * </pre></p>
+	 *
+	 * @return The path to this node in the config file.
+	 */
+	public @NotNull String[] getPath() {
+		List<String> path = new ArrayList<>();
+		Node node = this;
+
+		while (node != null) {
+			if (node.getKey() == null || node.getKey().isEmpty())
+				break;
+
+			path.add(0, node.getKey() + ".");
+			node = node.getParent();
+		}
+
+		if (path.isEmpty())
+			return new String[0];
+
+		int lastIndex = path.size() - 1;
+		String lastValue = path.get(lastIndex);
+		path.set(lastIndex, lastValue.substring(0, lastValue.length() - 1)); // trim trailing dot
+		return path.toArray(new String[0]);
+	}
+
+	@Override
+	public boolean equals(Object object) {
+		if (!(object instanceof Node other))
+			return false;
+
+		return Arrays.equals(getPath(), other.getPath()) // for entry/section nodes
+			&& Objects.equals(comment, other.comment); // for void nodes
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(Arrays.hashCode(getPath()), comment);
 	}
 
 }
