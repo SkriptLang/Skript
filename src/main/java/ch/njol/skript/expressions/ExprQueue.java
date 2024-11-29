@@ -47,7 +47,7 @@ public class ExprQueue extends SimpleExpression<SkriptQueue> {
 
 	static {
 		Skript.registerExpression(ExprQueue.class, SkriptQueue.class, ExpressionType.SIMPLE,
-			"[a] new queue [contents:of %-objects%]");
+			"[a] new queue [contents:(of|with) %-objects%]");
 	}
 
 	private @Nullable Expression<?> initialContents;
