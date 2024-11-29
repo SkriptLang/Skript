@@ -26,11 +26,8 @@ import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
-import ch.njol.skript.lang.Condition;
-import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.Section;
+import ch.njol.skript.lang.*;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
-import ch.njol.skript.lang.TriggerItem;
 import ch.njol.skript.lang.parser.ParserInstance;
 import ch.njol.skript.lang.util.ContextlessEvent;
 import ch.njol.skript.patterns.PatternCompiler;
@@ -103,6 +100,7 @@ public class SecConditional extends Section {
 	private boolean multiline;
 
 	private Kleenean hasDelayAfter;
+	private @Nullable ExecutionIntent executionIntent;
 
 	@Override
 	public boolean init(Expression<?>[] exprs,
@@ -115,6 +113,7 @@ public class SecConditional extends Section {
 		ifAny = parseResult.hasTag("any");
 		parseIf = parseResult.hasTag("parse");
 		multiline = parseResult.regexes.size() == 0 && type != ConditionalType.ELSE;
+		ParserInstance parser = getParser();
 
 		// ensure this conditional is chained correctly (e.g. an else must have an if)
 		if (type != ConditionalType.IF) {
@@ -149,7 +148,7 @@ public class SecConditional extends Section {
 		} else {
 			// if this is a multiline if, we need to check if there is a "then" section after this
 			if (multiline) {
-				Node nextNode = getNextNode(sectionNode, getParser());
+				Node nextNode = getNextNode(sectionNode, parser);
 				String error = (ifAny ? "'if any'" : "'if all'") + " has to be placed just before a 'then' section";
 				if (nextNode instanceof SectionNode && nextNode.getKey() != null) {
 					String nextNodeKey = ScriptLoader.replaceOptions(nextNode.getKey());
@@ -166,7 +165,6 @@ public class SecConditional extends Section {
 
 		// if this an "if" or "else if", let's try to parse the conditions right away
 		if (type == ConditionalType.IF || type == ConditionalType.ELSE_IF) {
-			ParserInstance parser = getParser();
 			Class<? extends Event>[] currentEvents = parser.getCurrentEvents();
 			String currentEventName = parser.getCurrentEventName();
 
@@ -228,10 +226,37 @@ public class SecConditional extends Section {
 			parseIfPassed = true;
 		}
 
-		Kleenean hadDelayBefore = getParser().getHasDelayBefore();
+		Kleenean hadDelayBefore = parser.getHasDelayBefore();
 		if (!multiline || type == ConditionalType.THEN)
 			loadCode(sectionNode);
-		hasDelayAfter = getParser().getHasDelayBefore();
+
+		// Get the execution intent of the entire conditional chain.
+		if (type == ConditionalType.ELSE) {
+			List<SecConditional> conditionals = getPrecedingConditionals(triggerItems);
+			conditionals.add(0, this);
+			for (SecConditional conditional : conditionals) {
+				// Continue if the current conditional doesn't have executable code (the 'if' section of a multiline).
+				if (conditional.multiline && conditional.type != ConditionalType.THEN)
+					continue;
+
+				// If the current conditional doesn't have an execution intent,
+				//  then there is a possibility of the chain not stopping the execution.
+				// Therefore, we can't assume anything about the intention of the chain,
+				//  so we just set it to null and break out of the loop.
+				ExecutionIntent triggerIntent = conditional.triggerExecutionIntent();
+				if (triggerIntent == null) {
+					executionIntent = null;
+					break;
+				}
+
+				// If the current trigger's execution intent has a lower value than the chain's execution intent,
+				//  then set the chain's intent to the trigger's
+				if (executionIntent == null || triggerIntent.compareTo(executionIntent) < 0)
+					executionIntent = triggerIntent;
+			}
+		}
+
+		hasDelayAfter = parser.getHasDelayBefore();
 
 		// If the code definitely has a delay before this section, or if the section did not alter the delayed Kleenean,
 		//  there's no need to change the Kleenean.
@@ -247,16 +272,16 @@ public class SecConditional extends Section {
 					&& getElseIfs(triggerItems).stream().map(SecConditional::getHasDelayAfter).allMatch(Kleenean::isTrue)) {
 				// ... if the if section, all else-if sections and the else section have definite delays,
 				//  mark delayed as TRUE.
-				getParser().setHasDelayBefore(Kleenean.TRUE);
+				parser.setHasDelayBefore(Kleenean.TRUE);
 			} else {
 				// ... otherwise mark delayed as UNKNOWN.
-				getParser().setHasDelayBefore(Kleenean.UNKNOWN);
+				parser.setHasDelayBefore(Kleenean.UNKNOWN);
 			}
 		} else {
 			if (!hasDelayAfter.isFalse()) {
 				// If an if section or else-if section has some delay (definite or possible) in it,
 				//  set the delayed Kleenean to UNKNOWN.
-				getParser().setHasDelayBefore(Kleenean.UNKNOWN);
+				parser.setHasDelayBefore(Kleenean.UNKNOWN);
 			}
 		}
 
@@ -270,32 +295,40 @@ public class SecConditional extends Section {
 	}
 
 	@Nullable
-	public TriggerItem getNormalNext() {
-		return super.getNext();
-	}
-
-	@Nullable
 	@Override
 	protected TriggerItem walk(Event event) {
 		if (type == ConditionalType.THEN || (parseIf && !parseIfPassed)) {
-			return getNormalNext();
+			return getActualNext();
 		} else if (parseIf || checkConditions(event)) {
 			// if this is a multiline if, we need to run the "then" section instead
-			SecConditional sectionToRun = multiline ? (SecConditional) getNormalNext() : this;
+			SecConditional sectionToRun = multiline ? (SecConditional) getActualNext() : this;
 			TriggerItem skippedNext = getSkippedNext();
 			if (sectionToRun.last != null)
 				sectionToRun.last.setNext(skippedNext);
 			return sectionToRun.first != null ? sectionToRun.first : skippedNext;
 		} else {
-			return getNormalNext();
+			return getActualNext();
 		}
+	}
+
+	@Override
+	public @Nullable ExecutionIntent executionIntent() {
+		return executionIntent;
+	}
+
+	@Override
+	public ExecutionIntent triggerExecutionIntent() {
+		if (multiline && type != ConditionalType.THEN)
+			// Handled in the 'then' section
+			return null;
+		return super.triggerExecutionIntent();
 	}
 
 	@Nullable
 	private TriggerItem getSkippedNext() {
-		TriggerItem next = getNormalNext();
+		TriggerItem next = getActualNext();
 		while (next instanceof SecConditional && ((SecConditional) next).type != ConditionalType.IF)
-			next = ((SecConditional) next).getNormalNext();
+			next = next.getActualNext();
 		return next;
 	}
 
@@ -335,9 +368,7 @@ public class SecConditional extends Section {
 		// loop through the triggerItems in reverse order so that we find the most recent items first
 		for (int i = triggerItems.size() - 1; i >= 0; i--) {
 			TriggerItem triggerItem = triggerItems.get(i);
-			if (triggerItem instanceof SecConditional) {
-				SecConditional conditionalSection = (SecConditional) triggerItem;
-
+			if (triggerItem instanceof SecConditional conditionalSection) {
 				if (conditionalSection.type == ConditionalType.ELSE) {
 					// if the conditional is an else, return null because it belongs to a different condition and ends
 					// this one
@@ -353,17 +384,28 @@ public class SecConditional extends Section {
 		return null;
 	}
 
+	private static List<SecConditional> getPrecedingConditionals(List<TriggerItem> triggerItems) {
+		List<SecConditional> conditionals = new ArrayList<>();
+		// loop through the triggerItems in reverse order so that we find the most recent items first
+		for (int i = triggerItems.size() - 1; i >= 0; i--) {
+			TriggerItem triggerItem = triggerItems.get(i);
+			if (!(triggerItem instanceof SecConditional conditional))
+				break;
+			if (conditional.type == ConditionalType.ELSE)
+				// if the conditional is an else, break because it belongs to a different condition and ends
+				// this one
+				break;
+			conditionals.add(conditional);
+		}
+		return conditionals;
+	}
+
 	private static List<SecConditional> getElseIfs(List<TriggerItem> triggerItems) {
 		List<SecConditional> list = new ArrayList<>();
 		for (int i = triggerItems.size() - 1; i >= 0; i--) {
 			TriggerItem triggerItem = triggerItems.get(i);
-			if (triggerItem instanceof SecConditional) {
-				SecConditional secConditional = (SecConditional) triggerItem;
-
-				if (secConditional.type == ConditionalType.ELSE_IF)
-					list.add(secConditional);
-				else
-					break;
+			if (triggerItem instanceof SecConditional secConditional && secConditional.type == ConditionalType.ELSE_IF) {
+				list.add(secConditional);
 			} else {
 				break;
 			}
