@@ -25,12 +25,11 @@ public class ExprKeyValueSet extends SimpleExpression<Object> implements KeyProv
 
 	private static final Map<String, String> testSet = Map.of("hello", "there", "foo", "bar", "a", "b");
 
-	private Expression<?> expression;
 	private Variable<?> variable;
 	@Override
 	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
 		if (matchedPattern == 0) {
-			this.expression = expressions[0];
+			Expression<?>  expression = expressions[0];
 			if (!(expression instanceof Variable<?> variable) || !variable.isList()) {
 				Skript.error("The expression '" + expression + "' is not a list variable.");
 				return false;
@@ -61,8 +60,8 @@ public class ExprKeyValueSet extends SimpleExpression<Object> implements KeyProv
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		if (expression != null)
-			return "test key values of " + expression.toString(event, debug);
+		if (variable != null)
+			return "test key values of " + variable.toString(event, debug);
 		return "test key values";
 	}
 

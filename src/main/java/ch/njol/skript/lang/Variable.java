@@ -643,9 +643,9 @@ public class Variable<T> implements Expression<T>, KeyReceiverExpression<T>, Key
 	}
 
 	@Override
-	public @NotNull String @NotNull [] getArrayKeys(Event event) throws IllegalStateException {
+	public @NotNull String @NotNull [] getArrayKeys(Event event) throws SkriptAPIException {
 		if (!list)
-			return new String[] {UNARY_KEY};
+			throw new SkriptAPIException("Invalid call to getArrayKeys on non-list");
 		String name = StringUtils.substring(this.name.toString(event), 0, -1);
 		Object value = Variables.getVariable(name + "*", event, local);
 		if (value == null)

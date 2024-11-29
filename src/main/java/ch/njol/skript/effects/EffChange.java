@@ -78,40 +78,40 @@ public class EffChange extends Effect {
 			{"(add|give) %objects% to %~objects%", ChangeMode.ADD},
 			{"increase %~objects% by %objects%", ChangeMode.ADD},
 			{"give %~objects% %objects%", ChangeMode.ADD},
-			
+
 			{"set %~objects% to %objects%", ChangeMode.SET},
-			
+
 			{"remove (all|every) %objects% from %~objects%", ChangeMode.REMOVE_ALL},
-			
+
 			{"(remove|subtract) %objects% from %~objects%", ChangeMode.REMOVE},
 			{"(reduce|decrease) %~objects% by %objects%", ChangeMode.REMOVE},
-			
+
 			{"(delete|clear) %~objects%", ChangeMode.DELETE},
-			
+
 			{"reset %~objects%", ChangeMode.RESET}
 	});
-	
+
 	static {
 		Skript.registerEffect(EffChange.class, patterns.getPatterns());
 	}
-	
+
 	@SuppressWarnings("null")
 	private Expression<?> changed;
 	@Nullable
 	private Expression<?> changer = null;
-	
+
 	@SuppressWarnings("null")
 	private ChangeMode mode;
-	
+
 	private boolean single;
-	
+
 //	private Changer<?, ?> c = null;
-	
+
 	@SuppressWarnings({"unchecked", "null"})
 	@Override
 	public boolean init(final Expression<?>[] exprs, final int matchedPattern, final Kleenean isDelayed, final ParseResult parser) {
 		mode = patterns.getInfo(matchedPattern);
-		
+
 		switch (mode) {
 			case ADD:
 				if (matchedPattern == 0) {
@@ -145,7 +145,7 @@ public class EffChange extends Effect {
 			case RESET:
 				changed = exprs[0];
 		}
-		
+
 		CountingLogHandler h = new CountingLogHandler(Level.SEVERE).start();
 		Class<?>[] rs;
 		String what;
@@ -188,12 +188,12 @@ public class EffChange extends Effect {
 			}
 			return false;
 		}
-		
+
 		final Class<?>[] rs2 = new Class<?>[rs.length];
 		for (int i = 0; i < rs.length; i++)
 			rs2[i] = rs[i].isArray() ? rs[i].getComponentType() : rs[i];
 		final boolean allSingle = Arrays.equals(rs, rs2);
-		
+
 		Expression<?> ch = changer;
 		if (ch != null) {
 			Expression<?> v = null;
@@ -231,7 +231,7 @@ public class EffChange extends Effect {
 			} finally {
 				log.stop();
 			}
-			
+
 			Class<?> x = Utils.getSuperType(rs2);
 			single = allSingle;
 			for (int i = 0; i < rs.length; i++) {
@@ -243,7 +243,7 @@ public class EffChange extends Effect {
 			}
 			assert x != null;
 			changer = ch = v;
-			
+
 			if (!ch.canBeSingle() && single) {
 				if (mode == ChangeMode.SET)
 					Skript.error(changed + " can only be set to one " + Classes.getSuperClassInfo(x).getName() + ", not more", ErrorQuality.SEMANTIC_ERROR);
@@ -287,8 +287,9 @@ public class EffChange extends Effect {
 		}
 		if (mode.supportsKeyedChange() && changer != null && delta != null
 			&& changer instanceof KeyProviderExpression<?> provider
-			&& changed instanceof KeyReceiverExpression<?> receiver) {
-			receiver.change(event, delta, mode, provider.getArrayKeys(event), provider.areKeysRecommended());
+			&& changed instanceof KeyReceiverExpression<?> receiver
+			&& provider.areKeysRecommended()) {
+			receiver.change(event, delta, mode, provider.getArrayKeys(event));
 		} else {
 			changed.change(event, delta, mode);
 		}
@@ -318,5 +319,5 @@ public class EffChange extends Effect {
 		assert false;
 		return "";
 	}
-	
+
 }

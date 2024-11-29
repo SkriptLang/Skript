@@ -113,12 +113,6 @@ public interface KeyProviderExpression<T> extends Expression<T> {
 		return this.getArrayKeys(event);
 	}
 
-	@Override
-	T[] getArray(Event event);
-
-	@Override
-	T[] getAll(Event event);
-
 	/**
 	 * Keyed expressions should never be single.
 	 */
