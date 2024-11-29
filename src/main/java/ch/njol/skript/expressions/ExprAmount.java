@@ -127,15 +127,10 @@ public class ExprAmount extends SimpleExpression<Number> {
 	@Override
 	public @Nullable Class<?>[] acceptChange(Changer.ChangeMode mode) {
 		if (any != null) {
-			switch (mode) {
-				case SET:
-				case ADD:
-				case RESET:
-				case DELETE:
-				case REMOVE:
-					return CollectionUtils.array(Number.class);
-			}
-			return null;
+			return switch (mode) {
+				case SET, ADD, RESET, DELETE, REMOVE -> CollectionUtils.array(Number.class);
+				default -> null;
+			};
 		}
 		return super.acceptChange(mode);
 	}
@@ -159,10 +154,9 @@ public class ExprAmount extends SimpleExpression<Number> {
 						obj.setAmount(obj.amount().doubleValue() + amount);
 				}
 				break;
-			case RESET:
-			case DELETE:
+			case RESET, DELETE:
 				amount = 1;
-				// fall through
+				//$FALL-THROUGH$
 			case SET:
 				for (AnyAmount any : any.getArray(event)) {
 					if (any.supportsAmountChange())
