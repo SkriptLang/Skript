@@ -70,7 +70,7 @@ public class ExprAmount extends SimpleExpression<Number> {
 
 	static {
 		Skript.registerExpression(ExprAmount.class, Number.class, ExpressionType.PROPERTY,
-			"[the] (amount|number|size) of %numbered%",
+				"[the] (amount|number|size) of %numbered%",
 				"[the] (amount|number|size) of %objects%",
 				"[the] recursive (amount|number|size) of %objects%");
 	}
@@ -152,7 +152,7 @@ public class ExprAmount extends SimpleExpression<Number> {
 		switch (mode) {
 			case REMOVE:
 				amount = -amount;
-				// fall through
+				//$FALL-THROUGH$
 			case ADD:
 				for (AnyAmount obj : any.getArray(event)) {
 					if (obj.supportsAmountChange())

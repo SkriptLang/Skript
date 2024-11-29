@@ -125,14 +125,14 @@ public class CondContains extends Condition {
 				Inventory inventory = (Inventory) o;
 
 				return items.check(event, o1 -> {
-					if (o1 instanceof ItemType type)
+					if (o1 instanceof ItemType type) {
 						return type.isContainedIn(inventory);
-					else if (o1 instanceof ItemStack stack)
+					} else if (o1 instanceof ItemStack stack) {
 						return inventory.containsAtLeast(stack, stack.getAmount());
-					else if (o1 instanceof Inventory)
+					} else if (o1 instanceof Inventory) {
 						return Objects.equals(inventory, o1);
-					else
-						return false;
+					}
+					return false;
 				});
 			}, isNegated(), containers.getAnd());
 			case STRING -> {
@@ -152,10 +152,11 @@ public class CondContains extends Condition {
 			}
 			case CONTAINER -> SimpleExpression.check(containerValues, object -> {
 				AnyContains container;
-				if (object instanceof AnyContains<?>)
+				if (object instanceof AnyContains<?>) {
 					container = (AnyContains) object;
-				else
+				} else {
 					container = Converters.convert(object, AnyContains.class);
+				}
 				if (container == null)
 					return false;
 				return items.check(event, container::checkSafely);
