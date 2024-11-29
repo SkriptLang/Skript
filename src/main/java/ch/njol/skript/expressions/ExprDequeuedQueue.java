@@ -22,7 +22,7 @@ import org.skriptlang.skript.lang.util.SkriptQueue;
 	Unrolls a queue into a regular list of values, which can be stored in a list variable.
 	The order of the list will be the same as the order of the elements in the queue.
 	If a list variable is set to this, it will use numerical indices.
-	The original queue is not changed.""")
+	The original queue will not be changed.""")
 @Examples({
 	"""
 		set {queue} to a new queue
@@ -33,7 +33,7 @@ import org.skriptlang.skript.lang.util.SkriptQueue;
 public class ExprDequeuedQueue extends SimpleExpression<Object> {
 
 	static {
-		Skript.registerExpression(ExprDequeuedQueue.class, Object.class, ExpressionType.SIMPLE,
+		Skript.registerExpression(ExprDequeuedQueue.class, Object.class, ExpressionType.COMBINED,
 			"(de|un)queued %queue%");
 	}
 

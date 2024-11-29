@@ -7,7 +7,7 @@ import java.util.*;
 
 /**
  * A queue of elements.
- * This is designed not to support null elements, i.e. putting in nothing should do nothing.
+ * Elements will only be added to the queue if they are not null, with nothing happening if the elements are null.
  */
 public class SkriptQueue extends LinkedList<@NotNull Object>
 	implements Deque<Object>, Queue<Object>, YggdrasilSerializable {

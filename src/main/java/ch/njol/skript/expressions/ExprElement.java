@@ -86,10 +86,11 @@ public class ExprElement<T> extends SimpleExpression<T> {
 		this.queue = matchedPattern > 4;
 		if (queue && !this.getParser().hasExperiment(Feature.QUEUES))
 			return false;
-		if (queue)
+		if (queue) {
 			this.expr = (Expression<T>) exprs[exprs.length - 1];
-		else
+		} else {
 			this.expr = LiteralUtils.defendExpression(exprs[exprs.length - 1]);
+		}
 		switch (type = types[parseResult.mark]) {
 			case RANGE:
 				endIndex = (Expression<Integer>) exprs[1];
