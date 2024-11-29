@@ -13,7 +13,7 @@ import org.jetbrains.annotations.NotNull;
 public interface AnyAmount extends AnyProvider {
 
 	/**
-     * @return This thing's amount/size
+	 * @return This thing's amount/size
 	 */
 	@NotNull Number amount();
 
