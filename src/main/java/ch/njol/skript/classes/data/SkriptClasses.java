@@ -696,15 +696,18 @@ public class SkriptClasses {
 		Classes.registerClass(new ClassInfo<>(SkriptQueue.class, "queue")
 				.user("queues?")
 				.name("Queue")
-				.description("A queued list of values.")
-				.usage("")
-				.examples("")
+				.description("A queued list of values. Entries are removed from a queue when they are queried.")
+				.examples(
+					"set {queue} to a new queue",
+					"add \"hello\" to {queue}",
+					"broadcast the 1st element of {queue}"
+				)
 				.since("INSERT VERSION")
 				.changer(new Changer<>() {
 					@Override
 					public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
 						return switch (mode) {
-							case ADD, REMOVE -> new Class[] {Object.class};
+							case ADD, REMOVE, DELETE -> new Class[] {Object.class};
 							case RESET -> new Class[0];
 							default -> null;
 						};
@@ -714,7 +717,7 @@ public class SkriptClasses {
 					public void change(SkriptQueue[] what, Object @Nullable [] delta, ChangeMode mode) {
 						for (SkriptQueue queue : what) {
 							switch (mode) {
-								case RESET -> queue.clear();
+								case RESET, DELETE -> queue.clear();
 								case ADD -> {
 									assert delta != null;
 									queue.addAll(Arrays.asList(delta));
