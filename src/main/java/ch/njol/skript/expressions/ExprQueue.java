@@ -46,28 +46,28 @@ import java.util.Iterator;
 public class ExprQueue extends SimpleExpression<SkriptQueue> {
 
 	static {
-		Skript.registerExpression(ExprQueue.class, SkriptQueue.class, ExpressionType.SIMPLE,
+		Skript.registerExpression(ExprQueue.class, SkriptQueue.class, ExpressionType.COMBINED,
 			"[a] new queue [contents:(of|with) %-objects%]");
 	}
 
-	private @Nullable Expression<?> initialContents;
+	private @Nullable Expression<?> contents;
 
 	@Override
 	public boolean init(Expression<?>[] expressions, int pattern, Kleenean delayed, ParseResult result) {
 		if (!this.getParser().hasExperiment(Feature.QUEUES))
 			return false;
 		if (result.hasTag("contents"))
-			this.initialContents = LiteralUtils.defendExpression(expressions[0]);
-		return initialContents == null || LiteralUtils.canInitSafely(initialContents);
+			this.contents = LiteralUtils.defendExpression(expressions[0]);
+		return contents == null || LiteralUtils.canInitSafely(contents);
 	}
 
 	@Override
 	protected SkriptQueue @Nullable [] get(Event event) {
 		SkriptQueue queue = new SkriptQueue();
 		SkriptQueue[] result = new SkriptQueue[]{queue};
-		if (initialContents == null)
+		if (contents == null)
 			return result;
-		Iterator<?> iterator = initialContents.iterator(event);
+		Iterator<?> iterator = contents.iterator(event);
 		if (iterator == null)
 			return result;
 		while (iterator.hasNext())
@@ -87,9 +87,9 @@ public class ExprQueue extends SimpleExpression<SkriptQueue> {
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		if (initialContents == null)
+		if (contents == null)
 			return "a new queue";
-		return "a new queue of " + initialContents.toString(event, debug);
+		return "a new queue of " + contents.toString(event, debug);
 	}
 
 }
