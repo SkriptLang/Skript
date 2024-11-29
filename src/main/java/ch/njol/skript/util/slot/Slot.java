@@ -20,6 +20,7 @@ package ch.njol.skript.util.slot;
 
 import ch.njol.skript.aliases.Aliases;
 import ch.njol.skript.aliases.ItemType;
+import ch.njol.skript.bukkitutil.ItemUtils;
 import ch.njol.skript.lang.util.common.AnyAmount;
 import ch.njol.skript.lang.util.common.AnyNamed;
 import org.bukkit.Bukkit;
@@ -85,7 +86,7 @@ public abstract class Slot implements Debuggable, AnyNamed, AnyAmount {
 	@Override
 	public void setName(String name) {
 		ItemStack stack = this.getItem();
-		if (stack != null && !Aliases.javaItemType("air").isOfType(stack)) {
+		if (stack != null && !ItemUtils.isAir(stack.getType())) {
 			ItemMeta meta = stack.hasItemMeta() ? stack.getItemMeta() : Bukkit.getItemFactory().getItemMeta(stack.getType());
 			meta.setDisplayName(name);
 			stack.setItemMeta(meta);
