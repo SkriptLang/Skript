@@ -47,7 +47,7 @@ skript command:
 		test: Skript'in dahili testleri için kullanılır.
 
 	invalid script: <grey>'<gold>%s<grey>'<red> adlı script scripts klasöründe bulunamadı!
-  invalid folder: <grey>'<gold>%s<grey>'<red> adlı klasör scripts klasöründe bulunamadı!
+	invalid folder: <grey>'<gold>%s<grey>'<red> adlı klasör scripts klasöründe bulunamadı!
 	reload:
 		warning line info: <gold><bold>Satır %s:<gray> (%s)<reset>\n
 		error line info: <light red><bold>Satır %s:<gray> (%s)<reset>\n
@@ -66,7 +66,8 @@ skript command:
 		aliases: alias'lar
 		script: <gold>%s<reset>
 		scripts in folder: <gold>%s<reset> klasöründeki tüm script'ler
-		x scripts in folder: <gold>%1$s<reset> klasöründeki <gold>%2$s <lime>script
+		x scripts in folder success: <gold>%1$s<reset> klasöründeki <gold>%2$s <lime>script
+		x scripts in folder error: <gold>%1$s<reset> klasöründeki <gold>%2$s <light red>script
 		empty folder: <gold>%s<reset> aktif script içermiyor.
 	enable:
 		all:
@@ -164,7 +165,7 @@ aliases:
 	unknown variation: %s varyasyonu daha önce tanımlanmadı.
 	missing aliases: Bu Minecraft ID'lerinin herhangi bir alias'ı yoktur:
 	empty alias: Alias'ın tanımlı bir Minecraft ID'si veya tag'i yok.
-  invalid minecraft id: Minecraft ID %s geçerli değil
+	invalid minecraft id: Minecraft ID %s geçerli değil
 	useless variation: Varyasyonun Minecraft ID'si veya tag'i yok, bu yüzden gereksiz.
 	invalid tags: Belirtilen tagler geçerli JSON'da tanımlı değil.
 	unexpected section: Section'lara burada izin verilmiyor.

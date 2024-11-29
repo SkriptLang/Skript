@@ -19,25 +19,41 @@
 package ch.njol.skript.entity;
 
 import ch.njol.skript.Skript;
-import ch.njol.skript.aliases.Aliases;
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser;
 import org.bukkit.Material;
 import org.bukkit.TreeSpecies;
 import org.bukkit.entity.ChestBoat;
-import org.bukkit.inventory.ItemStack;
+import org.bukkit.entity.boat.AcaciaChestBoat;
+import org.bukkit.entity.boat.BirchChestBoat;
+import org.bukkit.entity.boat.DarkOakChestBoat;
+import org.bukkit.entity.boat.JungleChestBoat;
+import org.bukkit.entity.boat.OakChestBoat;
+import org.bukkit.entity.boat.SpruceChestBoat;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.EnumMap;
 import java.util.Random;
 
 public class BoatChestData extends EntityData<ChestBoat> {
+
+	private static final EnumMap<TreeSpecies, Class<? extends ChestBoat>> typeToClassMap = new EnumMap<>(TreeSpecies.class);
+	private static final boolean IS_RUNNING_1_21_3 = Skript.isRunningMinecraft(1, 21, 3);
 
 	static {
 		if (Skript.classExists("org.bukkit.entity.ChestBoat")) {
 			EntityData.register(BoatChestData.class, "chest boat", ChestBoat.class, 0,
 				"chest boat", "any chest boat", "oak chest boat", "spruce chest boat", "birch chest boat",
 				"jungle chest boat", "acacia chest boat", "dark oak chest boat");
+			if (IS_RUNNING_1_21_3) {
+				typeToClassMap.put(TreeSpecies.GENERIC, OakChestBoat.class);
+				typeToClassMap.put(TreeSpecies.REDWOOD, SpruceChestBoat.class);
+				typeToClassMap.put(TreeSpecies.BIRCH, BirchChestBoat.class);
+				typeToClassMap.put(TreeSpecies.JUNGLE, JungleChestBoat.class);
+				typeToClassMap.put(TreeSpecies.ACACIA, AcaciaChestBoat.class);
+				typeToClassMap.put(TreeSpecies.DARK_OAK, DarkOakChestBoat.class);
+			}
 		}
 	}
 
@@ -80,6 +96,8 @@ public class BoatChestData extends EntityData<ChestBoat> {
 
 	@Override
 	public Class<? extends ChestBoat> getType() {
+		if (IS_RUNNING_1_21_3)
+			return typeToClassMap.get(TreeSpecies.values()[matchedPattern - 2]);
 		return ChestBoat.class;
 	}
 
