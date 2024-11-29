@@ -39,4 +39,11 @@ public interface AnyAmount extends AnyProvider {
 		throw new UnsupportedOperationException();
 	}
 
+	/**
+	 * @return Whether the amount of this is zero, i.e. empty
+	 */
+	default boolean isEmpty() {
+		return this.amount().intValue() == 0;
+	}
+
 }
