@@ -22,7 +22,7 @@ import java.util.Arrays;
 	
 	The first or last element in a queue. Asking for this does <b>not</b> remove the element from the queue.
 	
-	This is designed for use with the <code>add</code> changer, in order to add elements to the front of a queue.
+	This is designed for use with the <code>add</code> changer: to add or remove elements from the start or the end of the queue.
 	""")
 @Examples({
 	"""

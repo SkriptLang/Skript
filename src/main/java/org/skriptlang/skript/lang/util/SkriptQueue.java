@@ -69,6 +69,15 @@ public class SkriptQueue extends LinkedList<@NotNull Object>
 		return null;
 	}
 
+	/**
+	 * Removes a range of elements from the queue.
+	 * This will adjust the start/end of the range to be within the bounds of the queue,
+	 * to avoid throwing an error.
+	 *
+	 * @param fromIndex The starting index
+	 * @param toIndex The ending index
+	 * @return The removed entries
+	 */
 	public Object[] removeRangeSafely(int fromIndex, int toIndex) {
 		int from, to;
 		from = Math.min(this.size(), Math.min(fromIndex, toIndex));
