@@ -34,30 +34,30 @@ public class ExprDequeuedQueue extends SimpleExpression<Object> {
 
 	static {
 		Skript.registerExpression(ExprDequeuedQueue.class, Object.class, ExpressionType.COMBINED,
-			"(de|un)queued %queue%");
+			"(de|un)queued %queue%", "unrolled %queue%");
 	}
 
-	private Expression<SkriptQueue> queueExpression;
+	private Expression<SkriptQueue> queue;
 
 	@Override
 	public boolean init(Expression<?>[] expressions, int pattern, Kleenean delayed, ParseResult result) {
 		if (!this.getParser().hasExperiment(Feature.QUEUES))
 			return false;
-		this.queueExpression = (Expression<SkriptQueue>) expressions[0];
+		this.queue = (Expression<SkriptQueue>) expressions[0];
 		return true;
 	}
 
 	@Override
 	protected Object @Nullable [] get(Event event) {
-		SkriptQueue queue = queueExpression.getSingle(event);
+		SkriptQueue queue = this.queue.getSingle(event);
 		if (queue == null)
 			return null;
 		return queue.toArray();
 	}
 
 	@Override
-	public Class<? extends SkriptQueue> getReturnType() {
-		return SkriptQueue.class;
+	public Class<Object> getReturnType() {
+		return Object.class;
 	}
 
 	@Override
@@ -67,7 +67,7 @@ public class ExprDequeuedQueue extends SimpleExpression<Object> {
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return "dequeued " + queueExpression.toString(event, debug);
+		return "dequeued " + queue.toString(event, debug);
 	}
 
 }
