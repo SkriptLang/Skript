@@ -221,7 +221,7 @@ public class DefaultConverters {
 				}
 
 				@Override
-				public void setName(String name) throws UnsupportedOperationException {
+				public void setName(String name) {
 					BlockState state = block.getState();
 					if (state instanceof Nameable)
 						//noinspection deprecation
@@ -248,7 +248,7 @@ public class DefaultConverters {
 				}
 
 				@Override
-				public void setAmount(Number amount) throws UnsupportedOperationException {
+				public void setAmount(Number amount) {
 					item.setAmount(amount != null ? amount.intValue() : 0);
 				}
 			},
