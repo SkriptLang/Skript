@@ -155,15 +155,7 @@ public class ExpressionList<T> implements Expression<T> {
 
 	@Override
 	public boolean check(Event event, Checker<? super T> checker, boolean negated) {
-		for (Expression<? extends T> expr : expressions) {
-			boolean result = expr.check(event, checker) ^ negated;
-			// exit early if we find a FALSE and we're ANDing, or a TRUE and we're ORing
-			if (and && !result)
-				return false;
-			if (!and && result)
-				return true;
-		}
-		return and;
+		return CollectionUtils.check(expressions, expr -> expr.check(event, checker) ^ negated, and);
 	}
 
 	@Override
