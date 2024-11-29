@@ -308,8 +308,7 @@ public final class Converters {
 			if (unknownInfo.getFrom().isAssignableFrom(fromType) && unknownInfo.getTo().isAssignableFrom(toType)) {
 				ConverterInfo<F, ParentType> info = (ConverterInfo<F, ParentType>) unknownInfo;
 				if ((flags & Converter.ALLOW_UNSAFE_CASTS) == 0) {
-					if ((flags & Converter.NO_RIGHT_CHAINING) == Converter.NO_RIGHT_CHAINING
-						&& !toType.isAssignableFrom(unknownInfo.getTo()))
+					if ((flags & Converter.NO_RIGHT_CHAINING) == Converter.NO_RIGHT_CHAINING)
 						continue;
 				}
 
