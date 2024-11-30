@@ -60,7 +60,7 @@ public class ExprDamageDelay extends SimplePropertyExpression<LivingEntity, Time
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		max = parseResult.hasTag("max");
 		if (parseResult.hasTag("ticks"))
-			Skript.warning("Usage of 'ticks' in 'invincibility ticks' will be removed in future versions of Skript." + 
+			Skript.warning("Usage of 'ticks' in 'invincibility ticks' will be removed in a future version of Skript." + 
 					"Please use 'invulnerability delay' as it reflects a timespan.");
 		return super.init(exprs, matchedPattern, isDelayed, parseResult);
 	}
@@ -74,17 +74,10 @@ public class ExprDamageDelay extends SimplePropertyExpression<LivingEntity, Time
 	@Override
 	@Nullable
 	public Class<?>[] acceptChange(ChangeMode mode) {
-		switch (mode) {
-			case ADD:
-			case DELETE:
-			case REMOVE:
-			case RESET:
-			case SET:
-				return CollectionUtils.array(Timespan.class);
-			case REMOVE_ALL:
-			default:
-				return null;
-		}
+		return switch (mode) {
+			case ADD, DELETE, REMOVE, RESET, SET -> CollectionUtils.array(Timespan.class);
+			default -> null;
+		};
 	}
 
 	@Override
@@ -114,7 +107,6 @@ public class ExprDamageDelay extends SimplePropertyExpression<LivingEntity, Time
 					}
 				}
 				break;
-			case REMOVE_ALL:
 			default:
 				break;
 		}
