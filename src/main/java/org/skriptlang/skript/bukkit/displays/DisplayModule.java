@@ -7,8 +7,11 @@ import ch.njol.skript.classes.data.DefaultChangers;
 import ch.njol.skript.expressions.base.EventValueExpression;
 import ch.njol.skript.registrations.Classes;
 import org.bukkit.entity.Display;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.ItemDisplay;
 import org.bukkit.entity.TextDisplay;
+import org.skriptlang.skript.lang.converter.Converter;
+import org.skriptlang.skript.lang.converter.Converters;
 
 import java.io.IOException;
 
@@ -49,6 +52,10 @@ public class DisplayModule {
 			.name("Item Display Transforms")
 			.description("Represents the transform setting of an item display.")
 			.since("INSERT VERSION"));
+
+		Converters.registerConverter(Entity.class, Display.class,
+				entity -> entity instanceof Display display ? display : null,
+				Converter.NO_RIGHT_CHAINING);
 	}
 
 }

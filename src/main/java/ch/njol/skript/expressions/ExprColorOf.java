@@ -85,7 +85,7 @@ public class ExprColorOf extends PropertyExpression<Object, Color> {
 			List<Color> colors = new ArrayList<>();
 			for (FireworkEffect effect : (FireworkEffect[]) source) {
 				effect.getColors().stream()
-					.map(SkriptColor::fromBukkitColor)
+					.map(ColorRGB::fromBukkitColor)
 					.forEach(colors::add);
 			}
 			return colors.toArray(new Color[0]);

@@ -73,10 +73,6 @@ public class EffContinue extends Effect {
 
 	@Override
     public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		level = matchedPattern == 0 ? 1 : Integer.parseInt(parseResult.regexes.get(0).group());
-		if (level < 1)
-			return false;
-
 		ParserInstance parser = getParser();
 		int loops = parser.getCurrentSections(LoopSection.class).size();
 		if (loops == 0) {
@@ -84,8 +80,12 @@ public class EffContinue extends Effect {
 			return false;
 		}
 
-		// Section.getSections counts from the innermost section, so we need to invert the level 
-		int levels = level == -1 ? 1 : loops - level + 1;
+		level = matchedPattern == 0 ? loops : Integer.parseInt(parseResult.regexes.get(0).group());
+		if (level < 1)
+			return false;
+
+		// ParserInstance#getSections counts from the innermost section, so we need to invert the level 
+		int levels = loops - level + 1;
 		if (levels <= 0) {
 			Skript.error("Can't continue the " + StringUtils.fancyOrderNumber(level) + " loop as there " +
 				(loops == 1 ? "is only 1 loop" : "are only " + loops + " loops") + " present");
