@@ -1,5 +1,5 @@
 test "yaw and pitch":
-	set {_test} to spawn location of world "world"
+	set {_test} to test-location
 	assert yaw of {_test} is 0 with "The yaw of the spawn location was not 0"
 	set yaw of {_test} to 90
 	assert yaw of {_test} is 90 with "The yaw of the spawn location was not set to 90"

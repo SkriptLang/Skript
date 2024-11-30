@@ -26,6 +26,15 @@ public class HealthUtils {
 		OLD_DAMAGE_EVENT_CONSTRUCTOR = constructor;
 	}
 
+	private static final Attribute MAX_HEALTH;
+	static {
+		if (Skript.isRunningMinecraft(1, 21, 3)) { // In 1.21.3, Attribute became an Interface
+			MAX_HEALTH = Attribute.valueOf("MAX_HEALTH");
+		} else {
+			MAX_HEALTH = (Attribute) Enum.valueOf((Class) Attribute.class, "GENERIC_MAX_HEALTH");
+		}
+	}
+
 	/**
 	 * Get the health of an entity
 	 *
@@ -55,7 +64,7 @@ public class HealthUtils {
 	 * @return How many hearts the entity can have at most
 	 */
 	public static double getMaxHealth(Damageable damageable) {
-		AttributeInstance attributeInstance = ((Attributable) damageable).getAttribute(Attribute.GENERIC_MAX_HEALTH);
+		AttributeInstance attributeInstance = ((Attributable) damageable).getAttribute(MAX_HEALTH);
 		assert attributeInstance != null;
 		return attributeInstance.getValue() / 2;
 	}
@@ -67,7 +76,7 @@ public class HealthUtils {
 	 * @param health How many hearts the entity can have at most
 	 */
 	public static void setMaxHealth(Damageable damageable, double health) {
-		AttributeInstance attributeInstance = ((Attributable) damageable).getAttribute(Attribute.GENERIC_MAX_HEALTH);
+		AttributeInstance attributeInstance = ((Attributable) e).getAttribute(MAX_HEALTH);
 		assert attributeInstance != null;
 		attributeInstance.setBaseValue(health * 2);
 	}
