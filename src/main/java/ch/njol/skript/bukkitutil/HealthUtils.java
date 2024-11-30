@@ -76,7 +76,7 @@ public class HealthUtils {
 	 * @param health How many hearts the entity can have at most
 	 */
 	public static void setMaxHealth(Damageable damageable, double health) {
-		AttributeInstance attributeInstance = ((Attributable) e).getAttribute(MAX_HEALTH);
+		AttributeInstance attributeInstance = ((Attributable) damageable).getAttribute(MAX_HEALTH);
 		assert attributeInstance != null;
 		attributeInstance.setBaseValue(health * 2);
 	}
