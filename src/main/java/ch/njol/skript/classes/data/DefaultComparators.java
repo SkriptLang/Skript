@@ -61,7 +61,6 @@ import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.potion.PotionEffectType;
 import org.skriptlang.skript.lang.comparator.Comparator;
 import org.skriptlang.skript.lang.comparator.Comparators;
 import org.skriptlang.skript.lang.comparator.Relation;
@@ -660,9 +659,6 @@ public class DefaultComparators {
 				return false;
 			}
 		});
-
-		// Potion Effect Type
-		Comparators.registerComparator(PotionEffectType.class, PotionEffectType.class, (one, two) -> Relation.get(one.equals(two)));
 
 		// Color - Color
 		Comparators.registerComparator(Color.class, Color.class, (one, two) -> Relation.get(one.asBukkitColor().equals(two.asBukkitColor())));

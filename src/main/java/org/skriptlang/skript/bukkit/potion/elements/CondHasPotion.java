@@ -30,7 +30,7 @@ public class CondHasPotion extends Condition {
 	public static void register(SyntaxRegistry registry) {
 		PropertyCondition.register(registry, CondHasPotion.class, PropertyType.HAVE,
 				"potion[s] [effect[s]] %potioneffecttypes%",
-				"livingentitities");
+				"livingentities");
 	}
 
 	private Expression<LivingEntity> livingEntities;

@@ -8,8 +8,10 @@ import ch.njol.skript.util.Timespan.TimePeriod;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.inventory.meta.SuspiciousStewMeta;
+import org.bukkit.potion.PotionData;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
+import org.bukkit.potion.PotionType;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -47,6 +49,7 @@ public final class PotionUtils {
 	public static final int INFINITE_DURATION = SUPPORTS_INFINITE_DURATION ? PotionEffect.INFINITE_DURATION : Integer.MAX_VALUE;
 
 	private static final boolean HAS_SUSPICIOUS_META = Skript.classExists("org.bukkit.inventory.meta.SuspiciousStewMeta");
+	private static final boolean HAS_POTION_TYPE = Skript.classExists("org.bukkit.potion.PotionType");
 
 	static final Map<String, PotionEffectType> types = new HashMap<>();
 	static final Map<PotionEffectType, String> names = new HashMap<>();
@@ -153,7 +156,16 @@ public final class PotionUtils {
 		if (meta instanceof PotionMeta potionMeta) {
 			if (potionMeta.hasCustomEffects())
 				effects.addAll(potionMeta.getCustomEffects());
-			effects.addAll(PotionDataUtils.getPotionEffects(potionMeta.getBasePotionData()));
+			if (HAS_POTION_TYPE) {
+				PotionType potionType = potionMeta.getBasePotionType();
+				if (potionType != null)
+					effects.addAll(potionType.getPotionEffects());
+			} else {
+				//noinspection deprecation - Compatibility measure
+				PotionData potionData = potionMeta.getBasePotionData();
+				if (potionData != null)
+					effects.addAll(PotionDataUtils.getPotionEffects(potionData));
+			}
 		} else if (HAS_SUSPICIOUS_META && meta instanceof SuspiciousStewMeta stewMeta) {
 			effects.addAll(stewMeta.getCustomEffects());
 		}
