@@ -1,5 +1,10 @@
 package ch.njol.skript.expressions;
 
+import org.bukkit.event.Event;
+import org.bukkit.event.entity.EntityUnleashEvent;
+import org.bukkit.event.entity.EntityUnleashEvent.UnleashReason;
+import org.jetbrains.annotations.Nullable;
+
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Events;
@@ -11,11 +16,6 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
-import ch.njol.util.coll.CollectionUtils;
-import org.bukkit.event.Event;
-import org.bukkit.event.entity.EntityUnleashEvent;
-import org.bukkit.event.entity.EntityUnleashEvent.UnleashReason;
-import org.eclipse.jdt.annotation.Nullable;
 
 @Name("Unleash Reason")
 @Description("The unleash reason in an unleash event.")
