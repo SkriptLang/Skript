@@ -1,5 +1,6 @@
 package org.skriptlang.skript.bukkit.spark;
 
+import com.google.common.base.Preconditions;
 import me.lucko.spark.api.statistic.misc.DoubleAverageInfo;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnknownNullability;
@@ -18,7 +19,7 @@ import java.util.regex.Pattern;
 public class MsptStatistic {
 
 	/**
-	 * The type of a MSPT statistic.
+	 * The type of MSPT statistic.
 	 */
 	private enum MsptStatisticType {
 		AVERAGE("(?:average|mean)", DoubleAverageInfo::mean),
@@ -79,8 +80,7 @@ public class MsptStatistic {
 	}
 
 	private MsptStatistic(MsptStatisticType type) {
-		if (type == MsptStatisticType.PERCENTILE)
-			throw new IllegalArgumentException("Must supply a value for the percentile type!");
+		Preconditions.checkArgument(type != MsptStatisticType.PERCENTILE, "Must supply a value for the percentile type!");
 		this.type = type;
 	}
 

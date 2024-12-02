@@ -6,7 +6,6 @@ test "mspt" when running minecraft "1.21":
 	assert {_mspt::5} >= {_mspt::*} with "max was not maximum value"
 	assert {_mspt::6} >= {_mspt::7} with "95th percentile was not greater than 1st percentile"
 
-
 	set {_mspt::*} to average, mean, median, min, max, 95th percentile, and 1st percentile mspt measurements from the last minute
 	assert size of {_mspt::*} is 7 with "wrong number of statistics!"
 	assert {_mspt::1} is {_mspt::2} with "average and mean returned different values"

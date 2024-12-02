@@ -26,7 +26,6 @@ public class SparkModule {
 			.description("A statistic used for getting millisecond per tick values from Spark.")
 			.since("INSERT VERSION")
 			.parser(new Parser<>() {
-
 				@Override
 				public @Nullable MsptStatistic parse(String input, ParseContext context) {
 					if (context != ParseContext.DEFAULT)
@@ -45,4 +44,5 @@ public class SparkModule {
 				}
 			}));
 	}
+
 }

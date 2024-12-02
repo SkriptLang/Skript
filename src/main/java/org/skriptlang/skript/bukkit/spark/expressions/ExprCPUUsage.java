@@ -63,7 +63,7 @@ public class ExprCPUUsage extends SimpleExpression<Double> {
 	}
 
 	@Override
-	protected Double @Nullable [] get(Event event) {
+	protected Double[] get(Event event) {
 		return useProcess ? SparkUtils.cpuProcess(windows) : SparkUtils.cpuSystem(windows);
 	}
 

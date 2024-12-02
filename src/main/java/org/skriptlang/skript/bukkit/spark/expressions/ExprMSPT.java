@@ -36,7 +36,7 @@ import java.util.Arrays;
 public class ExprMSPT extends SimpleExpression<Double> {
 
 	static {
-		Skript.registerExpression(ExprMSPT.class, Double.class, ExpressionType.SIMPLE,
+		Skript.registerExpression(ExprMSPT.class, Double.class, ExpressionType.COMBINED,
 			"[the] %*msptstatistics% (milliseconds per tick|mspt) [measurement[s]|value[s]] (over|from|of) the last 10 seconds",
 			"[the] %*msptstatistics% (milliseconds per tick|mspt) [measurement[s]|value[s]] (over|from|of) the last [1|one] minute",
 			"[the] %*msptstatistics% (milliseconds per tick|mspt) [measurement[s]|value[s]] (over|from|of) the last (5|five) minutes");
@@ -60,7 +60,7 @@ public class ExprMSPT extends SimpleExpression<Double> {
 	}
 
 	@Override
-	protected Double @Nullable [] get(Event event) {
+	protected Double[] get(Event event) {
 		DoubleAverageInfo info = SparkUtils.mspt(window);
 		return Arrays.stream(stats.getArray()).map(stat-> stat.get(info)).toArray(Double[]::new);
 	}
