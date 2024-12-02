@@ -49,7 +49,7 @@ public final class PotionUtils {
 	public static final int INFINITE_DURATION = SUPPORTS_INFINITE_DURATION ? PotionEffect.INFINITE_DURATION : Integer.MAX_VALUE;
 
 	private static final boolean HAS_SUSPICIOUS_META = Skript.classExists("org.bukkit.inventory.meta.SuspiciousStewMeta");
-	private static final boolean HAS_POTION_TYPE = Skript.classExists("org.bukkit.potion.PotionType");
+	private static final boolean HAS_POTION_TYPE_METHOD = Skript.methodExists(PotionMeta.class, "hasBasePotionType");
 
 	static final Map<String, PotionEffectType> types = new HashMap<>();
 	static final Map<PotionEffectType, String> names = new HashMap<>();
@@ -156,10 +156,10 @@ public final class PotionUtils {
 		if (meta instanceof PotionMeta potionMeta) {
 			if (potionMeta.hasCustomEffects())
 				effects.addAll(potionMeta.getCustomEffects());
-			if (HAS_POTION_TYPE) {
-				PotionType potionType = potionMeta.getBasePotionType();
-				if (potionType != null)
-					effects.addAll(potionType.getPotionEffects());
+			if (HAS_POTION_TYPE_METHOD) {
+				if (potionMeta.hasBasePotionType())
+					//noinspection ConstantConditions - checked via hasBasePotionType
+					effects.addAll(potionMeta.getBasePotionType().getPotionEffects());
 			} else {
 				//noinspection deprecation - Compatibility measure
 				PotionData potionData = potionMeta.getBasePotionData();
