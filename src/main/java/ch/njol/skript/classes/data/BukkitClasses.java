@@ -1533,7 +1533,7 @@ public class BukkitClasses {
 		Classes.registerClass(new EnumClassInfo<>(EntityUnleashEvent.UnleashReason.class, "unleashreason", "unleash reasons")
 			.user("unleash ?(reason|cause)s?")
 			.name("Unleash Reason")
-			.description("Represents an unleash reason of an unleash event.")
+			.description("Represents an unleash reason of an unleash event."));
 
 		Classes.registerClass(new EnumClassInfo<>(EntityPotionEffectEvent.Cause.class, "entitypotioncause", "entity potion causes")
 				.user("(entity )?potion ?effect ?cause")
