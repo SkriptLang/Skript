@@ -33,8 +33,8 @@ public class ExprBrushableItem extends SimpleExpression<ItemStack> {
 	static {
 		if (SUPPORTS_DUSTING)
 			Skript.registerExpression(ExprBrushableItem.class, ItemStack.class, ExpressionType.SIMPLE,
-				"[the] %blocks% brush[able] item",
-				"%blocks%'[s] brush[able] item");
+				"[the] (brushable|buried) item of %blocks%",
+				"%blocks%'[s] (brushable|buried) item");
 	}
 
 	private Expression<Block> blocks;
@@ -53,7 +53,7 @@ public class ExprBrushableItem extends SimpleExpression<ItemStack> {
 		for (int i = 0; i < blockArray.length; i++) {
 			Block block = blockArray[i];
 			BlockState state = block.getState();
-			if (state instanceof BrushableBlock) {
+			if (state instanceof BrushableBlock brushableBlock) {
 				BrushableBlock brushableBlock = (BrushableBlock) state;
 				items[i] = brushableBlock.getItem();
 			} else {
@@ -79,12 +79,12 @@ public class ExprBrushableItem extends SimpleExpression<ItemStack> {
 	}
 
 	@Override
-	public void change(Event event, @Nullable Object[] delta, Changer.ChangeMode mode) {
+	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
 		if (mode == Changer.ChangeMode.SET && delta.length > 0) {
 			ItemStack newItem = (ItemStack) delta[0];
 			for (Block block : blocks.getArray(event)) {
 				BlockState state = block.getState();
-				if (state instanceof BrushableBlock) {
+				if (state instanceof BrushableBlock brushableBlock) {
 					BrushableBlock brushableBlock = (BrushableBlock) state;
 					brushableBlock.setItem(newItem);
 					state.update(true);
@@ -94,7 +94,7 @@ public class ExprBrushableItem extends SimpleExpression<ItemStack> {
 	}
 
 	@Override
-	public Class<?>[] acceptChange(Changer.ChangeMode mode) {
+	public Class<?>[] acceptChange(ChangeMode mode) {
 		if (mode == Changer.ChangeMode.SET) {
 			return new Class[]{ItemStack.class};
 		}
