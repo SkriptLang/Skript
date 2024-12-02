@@ -31,7 +31,7 @@ public class EvtLeash extends SkriptEvent {
 						"\tbroadcast \"<%event-entity%> I'm free\"",
 					"",
 					"on player unleash:",
-						"\tsend \"<%event-entity%> Thanks for free-ing me!\" to player"
+						"\tsend \"<%event-entity%> Thanks for freeing me!\" to player"
 			)
 			.since("INSERT VERSION");
 	}
@@ -56,8 +56,7 @@ public class EvtLeash extends SkriptEvent {
 
 	}
 
-	@Nullable
-	private EntityData<?>[] types;
+	private @Nullable EntityData<?>[] types;
 	private EventType eventType;
 
 	@Override
@@ -77,23 +76,24 @@ public class EvtLeash extends SkriptEvent {
 	public boolean check(Event event) {
 		Entity leashedEntity;
 		switch (eventType) {
-            case LEASH:
-				if (!(event instanceof PlayerLeashEntityEvent))
+            case LEASH -> {
+				if (!(event instanceof PlayerLeashEntityEvent playerLeash))
 					return false;
-				leashedEntity = ((PlayerLeashEntityEvent) event).getEntity();
-				break;
-            case UNLEASH:
-				if (!(event instanceof EntityUnleashEvent))
+				leashedEntity = playerLeash.getEntity();
+			}
+            case UNLEASH -> {
+				if (!(event instanceof EntityUnleashEvent entityUnleash))
 					return false;
-				leashedEntity = ((EntityUnleashEvent) event).getEntity();
-                break;
-            case UNLEASH_BY_PLAYER:
-				if (!(event instanceof PlayerUnleashEntityEvent))
+				leashedEntity = entityUnleash.getEntity();
+			}
+            case UNLEASH_BY_PLAYER -> {
+				if (!(event instanceof PlayerUnleashEntityEvent playerUnleash))
 					return false;
-				leashedEntity = ((PlayerUnleashEntityEvent) event).getEntity();
-                break;
-			default:
-				return false;
+				leashedEntity = playerUnleash.getEntity();
+			}
+            default -> {
+                return false;
+            }
         }
 		if (types == null)
 			return true;

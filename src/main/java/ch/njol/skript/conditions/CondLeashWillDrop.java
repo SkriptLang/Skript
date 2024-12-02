@@ -17,7 +17,7 @@ import org.bukkit.event.entity.EntityUnleashEvent;
 import org.jetbrains.annotations.Nullable;
 
 @Name("Leash Will Drop")
-@Description("Checks whether the leash item will drop during the leash detached in an unleash event.")
+@Description("Checks whether the leash item will drop during the leash detaching in an unleash event.")
 @Examples({
 	"on unleash:",
 		"\tif the leash will drop:",
@@ -48,14 +48,14 @@ public class CondLeashWillDrop extends Condition {
 
 	@Override
 	public boolean check(Event event) {
-		if (!(event instanceof EntityUnleashEvent))
+		if (!(event instanceof EntityUnleashEvent unleashEvent))
 			return false;
-		return ((EntityUnleashEvent) event).isDropLeash() ^ isNegated();
+		return unleashEvent.isDropLeash() ^ isNegated();
 	}
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return "leash will" + (isNegated() ? " not" : "") + " be dropped";
+		return "the leash will" + (isNegated() ? " not" : "") + " be dropped";
 	}
 
 }

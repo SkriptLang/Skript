@@ -16,7 +16,7 @@ import org.bukkit.event.entity.EntityUnleashEvent;
 import org.jetbrains.annotations.Nullable;
 
 @Name("Allow / Prevent Leash Drop")
-@Description("Allows or prevents the leash to drop in an unleash event.")
+@Description("Allows or prevents the leash from being dropped in an unleash event.")
 @Examples({
 	"on unleash:",
 		"\tif player is not set:",
@@ -30,7 +30,6 @@ import org.jetbrains.annotations.Nullable;
 public class EffDropLeash extends Effect {
 
 	static {
-		if (Skript.methodExists(EntityUnleashEvent.class, "setDropLeash", boolean.class))
 			Skript.registerEffect(EffDropLeash.class,
 					"(force|allow) [the] (lead|leash) [item] to drop",
 					"(block|disallow|prevent) [the] (lead|leash) [item] from dropping"
@@ -51,9 +50,9 @@ public class EffDropLeash extends Effect {
 
 	@Override
 	protected void execute(Event event) {
-		if (!(event instanceof EntityUnleashEvent))
+		if (!(event instanceof EntityUnleashEvent unleashEvent))
 			return;
-		((EntityUnleashEvent) event).setDropLeash(allowLeashDrop);
+		unleashEvent.setDropLeash(allowLeashDrop);
 	}
 
 	@Override

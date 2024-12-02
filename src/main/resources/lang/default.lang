@@ -2404,7 +2404,7 @@ transform reasons:
 # -- Unleash Reasons --
 unleash reasons:
 	distance: distance
-	holder_gone: holder gone
+	holder_gone: holder (gone|disappeared)
 	player_unleash: player unleash, player unleashed, unleashed by player
 	unknown: unknown
 
