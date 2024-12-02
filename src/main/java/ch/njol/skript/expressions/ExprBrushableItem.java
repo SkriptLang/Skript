@@ -2,6 +2,7 @@ package ch.njol.skript.expressions;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer;
+import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.*;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
@@ -54,7 +55,6 @@ public class ExprBrushableItem extends SimpleExpression<ItemStack> {
 			Block block = blockArray[i];
 			BlockState state = block.getState();
 			if (state instanceof BrushableBlock brushableBlock) {
-				BrushableBlock brushableBlock = (BrushableBlock) state;
 				items[i] = brushableBlock.getItem();
 			} else {
 				items[i] = null;
@@ -74,8 +74,11 @@ public class ExprBrushableItem extends SimpleExpression<ItemStack> {
 	}
 
 	@Override
-	public String toString(@Nullable Event event, boolean debug) {
-		return blocks.toString(event, debug) + "'s brushable item";
+	public Class<?>[] acceptChange(ChangeMode mode) {
+		if (mode == Changer.ChangeMode.SET) {
+			return new Class[]{ItemStack.class};
+		}
+		return null;
 	}
 
 	@Override
@@ -85,7 +88,6 @@ public class ExprBrushableItem extends SimpleExpression<ItemStack> {
 			for (Block block : blocks.getArray(event)) {
 				BlockState state = block.getState();
 				if (state instanceof BrushableBlock brushableBlock) {
-					BrushableBlock brushableBlock = (BrushableBlock) state;
 					brushableBlock.setItem(newItem);
 					state.update(true);
 				}
@@ -94,11 +96,8 @@ public class ExprBrushableItem extends SimpleExpression<ItemStack> {
 	}
 
 	@Override
-	public Class<?>[] acceptChange(ChangeMode mode) {
-		if (mode == Changer.ChangeMode.SET) {
-			return new Class[]{ItemStack.class};
-		}
-		return null;
+	public String toString(@Nullable Event event, boolean debug) {
+		return blocks.toString(event, debug) + "'s brushable item";
 	}
 
 }
