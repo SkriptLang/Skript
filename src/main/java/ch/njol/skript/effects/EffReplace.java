@@ -36,9 +36,11 @@ import ch.njol.util.StringUtils;
 import org.bukkit.event.Event;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
+import java.util.function.Function;
 import java.util.regex.Matcher;
 
 @Name("Replace")
@@ -106,20 +108,9 @@ public class EffReplace extends Effect {
 		if (replacement == null || haystack == null || haystack.length == 0 || needles == null || needles.length == 0)
 			return;
 		if (replaceString) {
-			if (replaceFirst) {
-				for (int x = 0; x < haystack.length; x++)
-					for (Object n : needles) {
-						assert n != null;
-						haystack[x] = StringUtils.replaceFirst((String)haystack[x], (String)n, Matcher.quoteReplacement((String)replacement), caseSensitive);
-					}
-			} else {
-				for (int x = 0; x < haystack.length; x++)
-					for (Object n : needles) {
-						assert n != null;
-						haystack[x] = StringUtils.replace((String) haystack[x], (String) n, (String) replacement, caseSensitive);
-					}
-			}
-			haystackExpr.change(event, haystack, ChangeMode.SET);
+			Function<String, String> replaceFunction = getReplaceFunction(needles, (String) replacement);
+			//noinspection unchecked
+			((Expression<String>) haystackExpr).changeInPlace(event, replaceFunction);
 		} else {
 			for (Inventory inv : (Inventory[]) haystack)
 				for (ItemType needle : (ItemType[]) needles)
@@ -137,14 +128,36 @@ public class EffReplace extends Effect {
 					}
 		}
 	}
-	
+
+	private @NotNull Function<String, String> getReplaceFunction(Object[] needles, String replacement) {
+		Function<String, String> replaceFunction;
+		if (replaceFirst) {
+			replaceFunction = haystackString -> {
+				for (Object needle : needles) {
+					assert needle != null;
+					haystackString = StringUtils.replaceFirst(haystackString, (String) needle, Matcher.quoteReplacement(replacement), caseSensitive);
+				}
+				return haystackString;
+			};
+		} else {
+			replaceFunction = haystackString -> {
+				for (Object needle : needles) {
+					assert needle != null;
+					haystackString = StringUtils.replace(haystackString, (String) needle, replacement, caseSensitive);
+				}
+				return haystackString;
+			};
+		}
+		return replaceFunction;
+	}
+
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
 		if (replaceFirst)
-			return "replace first " + needles.toString(event, debug) + " in " + haystack.toString(event, debug) + " with " + replacement.toString(event, debug)
-					+ "(case sensitive: " + caseSensitive + ")";
-		return "replace " + needles.toString(event, debug) + " in " + haystack.toString(event, debug) + " with " + replacement.toString(event, debug)
-				+ "(case sensitive: " + caseSensitive + ")";
+			return "replace first " + needles.toString(event, debug) + " in " + haystack.toString(event, debug) +
+					" with " + replacement.toString(event, debug) + "(case sensitive: " + caseSensitive + ")";
+		return "replace " + needles.toString(event, debug) + " in " + haystack.toString(event, debug) +
+				" with " + replacement.toString(event, debug) + "(case sensitive: " + caseSensitive + ")";
 	}
 	
 }
