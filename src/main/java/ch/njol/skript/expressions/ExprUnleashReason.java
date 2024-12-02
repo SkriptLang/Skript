@@ -32,7 +32,7 @@ public class ExprUnleashReason extends EventValueExpression<UnleashReason> {
 	}
 
 	static {
-		Skript.registerExpression(ExprUnleashReason.class, EntityUnleashEvent.UnleashReason.class, ExpressionType.SIMPLE, "[the] unleash reason");
+		Skript.registerExpression(ExprUnleashReason.class, EntityUnleashEvent.UnleashReason.class, ExpressionType.SIMPLE, "[the] unleash[ing] reason");
 	}
 
 	@Override
@@ -46,9 +46,9 @@ public class ExprUnleashReason extends EventValueExpression<UnleashReason> {
 
 	@Override
 	protected UnleashReason[] get(Event event) {
-		if (!(event instanceof EntityUnleashEvent))
+		if (!(event instanceof EntityUnleashEvent unleashEvent))
 			return new UnleashReason[0];
-		return CollectionUtils.array(((EntityUnleashEvent) event).getReason());
+		return new UnleashReason[] {unleashEvent.getReason()};
 	}
 
 	@Override
