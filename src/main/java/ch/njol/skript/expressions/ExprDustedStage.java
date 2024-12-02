@@ -31,25 +31,24 @@ public class ExprDustedStage extends SimpleExpression<Integer> {
 	static {
 		if (SUPPORTS_DUSTING)
 			Skript.registerExpression(ExprDustedStage.class, Integer.class, ExpressionType.SIMPLE,
-				"[the] [:max[imum]] dusted (value|stage) of %blocks%",
-				"%blocks%'[s] [:max[imum]] dusted (value|stage)");
+				"[the] [:max[imum]] dust[ed|ing] (value|stage|progress[ion]) of %blocks%",
+				"%blocks%'[s] [:max[imum]] dust[ed|ing] (value|stage|progress[ion])");
 	}
 
 	private Expression<Block> blocks;
 	private boolean isMax;
 
 	@Override
-	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
+	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		blocks = (Expression<Block>) exprs[0];
 		isMax = parseResult.hasTag("max");
 		return true;
 	}
 
-	@Nullable
 	@Override
-	protected Integer[] get(Event event) {
+	protected Integer @Nullable [] get(Event event) {
 		for (Block block : blocks.getArray(event)) {
-			if (block != null && block.getBlockData() instanceof Brushable) {
+			if (block != null && block.getBlockData() instanceof Brushable brushable) {
 				Brushable brushableBlock = (Brushable) block.getBlockData();
 				return new Integer[]{isMax ? brushableBlock.getMaximumDusted() : brushableBlock.getDusted()};
 			}
@@ -69,14 +68,14 @@ public class ExprDustedStage extends SimpleExpression<Integer> {
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return (isMax ? "maximum " : "") + blocks.toString(event, debug) + " dusted";
+		return (isMax ? "maximum " : "") + blocks.toString(event, debug) + " dusting progression";
 	}
 
 	@Override
-	public void change(Event event, @Nullable Object[] delta, Changer.ChangeMode mode) {
+	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
 		if (mode == Changer.ChangeMode.SET && delta.length > 0) {
 			for (Block block : blocks.getArray(event)) {
-				if (block != null && block.getBlockData() instanceof Brushable) {
+				if (block != null && block.getBlockData() instanceof Brushable brushable) {
 					Brushable brushableBlock = (Brushable) block.getBlockData();
 					brushableBlock.setDusted(((Integer) delta[0]).intValue());
 					block.setBlockData(brushableBlock);
@@ -86,7 +85,7 @@ public class ExprDustedStage extends SimpleExpression<Integer> {
 	}
 
 	@Override
-	public Class<?>[] acceptChange(Changer.ChangeMode mode) {
+	public @Nullable Class<?>[] acceptChange(ChangeMode mode) {
 		if (mode == Changer.ChangeMode.SET) {
 			return new Class[]{Integer.class};
 		}
