@@ -19,7 +19,7 @@
 package ch.njol.skript.util.slot;
 
 import org.bukkit.inventory.ItemStack;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.lang.Debuggable;
 

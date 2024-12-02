@@ -23,7 +23,7 @@ import java.text.SimpleDateFormat;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.VariableString;
 import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;

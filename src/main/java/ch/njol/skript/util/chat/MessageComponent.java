@@ -21,7 +21,7 @@ package ch.njol.skript.util.chat;
 import java.lang.reflect.Type;
 import java.util.Locale;
 
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;

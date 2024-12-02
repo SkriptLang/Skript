@@ -20,7 +20,7 @@ package ch.njol.skript.update;
 
 import java.util.concurrent.CompletableFuture;
 
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.util.Task;

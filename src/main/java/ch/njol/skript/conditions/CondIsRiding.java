@@ -20,7 +20,7 @@ package ch.njol.skript.conditions;
 
 import org.bukkit.entity.Entity;
 import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.conditions.base.PropertyCondition;
 import ch.njol.skript.conditions.base.PropertyCondition.PropertyType;

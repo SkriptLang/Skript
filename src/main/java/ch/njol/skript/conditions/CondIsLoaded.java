@@ -33,7 +33,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 @Name("Is Loaded")
 @Description("Checks whether or not a chunk/world is loaded. 'chunk at 1, 1' uses chunk coords, which are location coords divided by 16.")

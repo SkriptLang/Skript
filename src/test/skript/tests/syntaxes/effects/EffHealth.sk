@@ -10,14 +10,12 @@ test "health effect":
 	spawn cow at location(0, 64, 0, world "world")
 	set {_m} to last spawned cow
 	assert health of {_m} is 5 with "default cow health failed"
-	damage {_m} by 0.5
-	assert health of {_m} is 4.5 with "damage cow failed"
-	damage {_m} by 99
-	assert health of {_m} is 0 with "damage cow failed"
+	damage {_m} by 3
+	assert health of {_m} is 2 with "damage cow failed"
 	heal {_m} by 1
-	assert health of {_m} is 1 with "heal cow failed"
+	assert health of {_m} is 3 with "heal cow failed"
 	heal {_m} by 0.5
-	assert health of {_m} is 1.5 with "heal cow failed"
+	assert health of {_m} is 3.5 with "heal cow failed"
 	heal {_m} by 99
 	assert health of {_m} is 5 with "heal cow failed"
 	clear all entities

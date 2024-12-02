@@ -28,7 +28,7 @@ import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import org.bukkit.event.Event;
 import org.bukkit.inventory.meta.BookMeta;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 @Name("Book Title")
 @Description("The title of a book.")

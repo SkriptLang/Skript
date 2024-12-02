@@ -18,7 +18,7 @@
  */
 package ch.njol.skript.util.chat;
 
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.util.chat.MessageComponent.ClickEvent;
 import ch.njol.skript.util.chat.MessageComponent.HoverEvent;

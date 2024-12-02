@@ -28,7 +28,7 @@ import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import ch.njol.skript.util.Timespan;
 import org.bukkit.block.Bell;
 import org.bukkit.block.Block;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 @Name("Resonating Time")
 @Description({

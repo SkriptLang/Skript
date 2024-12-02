@@ -39,7 +39,7 @@ import org.bukkit.entity.Entity;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -227,7 +227,7 @@ public class VisualEffects {
 			// TODO test how this works
 			registerDataSupplier("Particle.NOTE", (raw, location) -> {
 				int colorValue = (int) (((Number) raw).floatValue() * 255);
-				ColorRGB color = new ColorRGB(colorValue, 0, 0);
+				ColorRGB color = ColorRGB.fromRGB(colorValue, 0, 0);
 				return new ParticleOption(color, 1);
 			});
 

@@ -29,7 +29,7 @@ import ch.njol.skript.util.Task;
 import ch.njol.skript.util.Utils;
 import ch.njol.skript.util.Version;
 import ch.njol.util.NotifyingReference;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.BufferedReader;
 import java.io.File;

@@ -37,7 +37,7 @@ import ch.njol.skript.util.ClassInfoReference;
 import ch.njol.skript.util.Utils;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 @Name("Value Within")
 @Description(

@@ -33,7 +33,7 @@ import ch.njol.util.Kleenean;
 
 import org.bukkit.event.Event;
 import org.bukkit.inventory.ItemStack;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 @Name("Plain Item")
 @Description("A plain item is an item with no modifications. It can be used to convert items to their default state or to match with other default items.")

@@ -1,0 +1,19 @@
+test "quaternion axis angle" when running minecraft "1.19":
+	set {_v} to vector(1, 2, 3)
+	set {_q} to axisAngle(45, {_v})
+	assert rotation angle of {_q} is 45 with "angle of quaternion failed"
+	assert rotation axis of {_q} is {_v} with "axis of quaternion failed"
+
+	set rotation angle of {_q} to 135
+	assert rotation angle of {_q} is 135 with "changing angle of quaternion failed"
+	assert rotation axis of {_q} is {_v} with "changing angle of quaternion modified axis"
+
+	set rotation axis of {_q} to vector(0, 10, 0)
+	assert rotation angle of {_q} is 135 with "changing axis of quaternion failed modified angle"
+	assert rotation axis of {_q} is vector(0, 10, 0) with "changing axis of quaternion failed"
+
+
+	set {_q} to quaternion(1, 0, 0, 0)
+
+	assert rotation angle of {_q} is 0 with "angle of identity quaternion failed"
+	assert rotation axis of {_q} is vector(0,0,1) with "axis of identity quaternion failed"

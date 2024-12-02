@@ -20,7 +20,7 @@ package ch.njol.skript.config.validate;
 
 import java.util.Locale;
 
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.config.EntryNode;

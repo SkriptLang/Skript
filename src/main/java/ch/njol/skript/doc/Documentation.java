@@ -35,7 +35,7 @@ import ch.njol.util.StringUtils;
 import ch.njol.util.coll.CollectionUtils;
 import ch.njol.util.coll.iterator.IteratorIterable;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.io.FileNotFoundException;

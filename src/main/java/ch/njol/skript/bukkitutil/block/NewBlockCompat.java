@@ -41,8 +41,8 @@ import org.bukkit.block.data.type.Snow;
 import org.bukkit.entity.FallingBlock;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import org.eclipse.jdt.annotation.NonNull;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.StreamCorruptedException;
 import java.util.Map;
@@ -131,7 +131,7 @@ public class NewBlockCompat implements BlockCompat {
 		}
 
 		@Override
-		public void deserialize(@NonNull Fields fields) throws StreamCorruptedException {
+		public void deserialize(@NotNull Fields fields) throws StreamCorruptedException {
 			String data = fields.getObject("data", String.class);
 			boolean isDefault = fields.getPrimitive("isDefault", Boolean.class);
 			if (data == null)

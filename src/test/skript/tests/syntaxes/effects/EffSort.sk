@@ -3,6 +3,10 @@ test "sorting":
 	sort {_numbers::*}
 	assert {_numbers::*} is integers from 1 to 50 with "improper sorting of numbers"
 
+	set {_numbers::*} to shuffled integers from 1 to 50
+	sort {_numbers::*} in descending order
+	assert {_numbers::*} is integers from 50 to 1 with "improper sorting of numbers in descending order"
+
 	set {_numbers::*} to shuffled integers from 1 to 5
 	sort {_numbers::*} by input * 20 + 4 - 3 # linear transformations don't affect order
 	assert {_numbers::*} is integers from 1 to 5 with "improper custom sorting of numbers"

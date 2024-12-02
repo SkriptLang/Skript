@@ -302,6 +302,10 @@ public class SkriptParser {
 	}
 
 	private static @Nullable Expression<?> parseExpression(Class<?>[] types, String expr) {;
+		if (expr.startsWith("“") || expr.startsWith("”") || expr.endsWith("”") || expr.endsWith("“")) {
+			Skript.error("Pretty quotes are not allowed, change to regular quotes (\")");
+			return null;
+		}
 		if (expr.startsWith("\"") && expr.length() != 1 && nextQuote(expr, 1) == expr.length() - 1) {
 			return VariableString.newInstance("" + expr.substring(1, expr.length() - 1));
 		} else {
@@ -1145,7 +1149,15 @@ public class SkriptParser {
 				}
 				Class<?> c = types[i];
 				assert c != null;
-				message.append(Classes.getSuperClassInfo(c).getName().withIndefiniteArticle());
+				ClassInfo<?> classInfo = Classes.getSuperClassInfo(c);
+				// if there's a registered class info,
+				if (classInfo != null) {
+					// use the article,
+					message.append(classInfo.getName().withIndefiniteArticle());
+				} else {
+					// otherwise fallback to class name
+					message.append(c.getName());
+				}
 			}
 			return message.toString();
 		}

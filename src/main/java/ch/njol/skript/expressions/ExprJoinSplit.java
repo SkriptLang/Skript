@@ -1,5 +1,11 @@
 package ch.njol.skript.expressions;
 
+import java.util.regex.Pattern;
+
+import ch.njol.skript.SkriptConfig;
+import org.bukkit.event.Event;
+import org.jetbrains.annotations.Nullable;
+
 import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptConfig;
 import ch.njol.skript.doc.Description;

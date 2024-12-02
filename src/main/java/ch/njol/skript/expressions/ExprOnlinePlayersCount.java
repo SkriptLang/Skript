@@ -35,7 +35,7 @@ import com.destroystokyo.paper.event.server.PaperServerListPingEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.event.Event;
 import org.bukkit.event.server.ServerListPingEvent;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 @Name("Online Player Count")
 @Description({

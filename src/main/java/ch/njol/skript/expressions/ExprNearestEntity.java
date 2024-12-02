@@ -36,7 +36,7 @@ import org.bukkit.Location;
 import org.bukkit.entity.Entity;
 import ch.njol.skript.lang.util.SimpleExpression;
 import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Array;
 import java.util.Arrays;

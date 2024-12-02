@@ -22,11 +22,11 @@ import ch.njol.skript.lang.VerboseAssert;
 
 import ch.njol.skript.log.ParseLogHandler;
 import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.Nullable;
 import org.skriptlang.skript.lang.comparator.Comparator;
 import org.skriptlang.skript.lang.comparator.ComparatorInfo;
 import org.skriptlang.skript.lang.comparator.Comparators;
 import org.skriptlang.skript.lang.comparator.Relation;
+import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.ClassInfo;

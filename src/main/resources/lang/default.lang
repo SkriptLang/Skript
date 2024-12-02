@@ -274,6 +274,8 @@ biomes:
 	deep_dark: deep dark
 	# 1.19.4
 	cherry_grove: cherry grove
+	# 1.21.3
+	pale_garden: pale garden
 
 # -- Tree Types --
 tree types:
@@ -343,15 +345,33 @@ tree types:
 
 # -- Time --
 time:
-	millisecond: millisecond¦s
-	tick: tick¦s
-	second: second¦s
-	minute: minute¦s
-	hour: hour¦s
-	day: day¦s
-	week: week¦s
-	month: month¦s
-	year: year¦s
+	millisecond:
+		full: millisecond¦s
+		short: ms
+	tick:
+		full: tick¦s
+		short: t
+	second:
+		full: second¦s
+		short: s
+	minute:
+		full: minute¦s
+		short: m
+	hour:
+		full: hour¦s
+		short: h
+	day:
+		full: day¦s
+		short: d
+	week:
+		full: week¦s
+		short: w
+	month:
+		full: month¦s
+		short: mo
+	year:
+		full: year¦s
+		short: y
 	real: real, rl, irl
 	minecraft: mc, minecraft
 
@@ -482,39 +502,43 @@ entities:
 	bat:
 		name: bat¦s
 		pattern: <age> bat(|1¦s)
+	# boats!
 	boat:
 		name: boat¦s
-		pattern: boat(|1¦s)
+		pattern: boat[1:s]
 	any boat:
 		name: boat¦s
-		pattern: any boat(|1¦s)
+		pattern: any boat[1:s]
 	oak boat:
 		name: oak boat¦s
-		pattern: oak boat(|1¦s)
+		pattern: oak boat[1:s]
 	spruce boat:
 		name: spruce boat¦s
-		pattern: spruce boat(|1¦s)
+		pattern: spruce boat[1:s]
 	birch boat:
 		name: birch boat¦s
-		pattern: birch boat(|1¦s)
+		pattern: birch boat[1:s]
 	jungle boat:
 		name: jungle boat¦s
-		pattern: jungle boat(|1¦s)
+		pattern: jungle boat[1:s]
 	acacia boat:
 		name: acacia boat¦s
-		pattern: acacia boat(|1¦s)
+		pattern: acacia boat[1:s]
 	dark oak boat:
 		name: dark oak boat¦s
-		pattern: dark oak boat(|1¦s)
+		pattern: dark oak boat[1:s]
 	mangrove boat:
 		name: mangrove boat¦s
-		pattern: mangrove boat(|1¦s)
+		pattern: mangrove boat[1:s]
 	bamboo raft:
 		name: bamboo raft¦s
-		pattern: bamboo (boat|raft)(|1¦s)
+		pattern: bamboo (boat|raft)[1:s]
 	cherry boat:
 		name: cherry boat¦s
-		pattern: cherry [blossom] boat(|1¦s)
+		pattern: cherry [blossom] boat[1:s]
+	pale oak boat:
+		name: pale oak boat¦s
+		pattern: pale oak boat[1:s]
 	blaze:
 		name: blaze¦s
 		pattern: blaze(|1¦s)
@@ -720,7 +744,7 @@ entities:
 		pattern: spider(|1¦s)
 	squid:
 		name: squid¦s
-		pattern: squid(|1¦s)
+		pattern: <age> squid(|1¦s)
 	bottle of enchanting:
 		name: bottle¦ of enchanting¦s of enchanting
 		pattern: [thrown] bottle(|1¦s) o(f|') enchanting|[e]xp[erience] bottle(|1¦s)
@@ -795,19 +819,19 @@ entities:
 		pattern: wither skull((|1¦s)| projectile(|1¦s))
 	wolf:
 		name: wol¦f¦ves
-		pattern: <age> wol(f|1¦ves) [[with collar] colo[u]r[ed] %-color%]
+		pattern: <age> [%-wolfvariant%] wol(f|1¦ves) [[with collar] colo[u]r[ed] %-color%]
 	tamed wolf:
 		name: tamed wol¦f¦ves
-		pattern: (<age> dog(|1¦s)|tamed <age> wol(f|1¦ves)|(4¦)pupp(y|1¦ies)) [[with collar] colo[u]r[ed] %-color%]
+		pattern: (<age> [%-wolfvariant%] dog(|1¦s)|tamed <age> [%-wolfvariant%] wol(f|1¦ves)| [%-wolfvariant%] (4¦)pupp(y|1¦ies)) [[with collar] colo[u]r[ed] %-color%]
 	wild wolf:
 		name: wild wol¦f¦ves
-		pattern: (wild|untamed) <age> wol(f|1¦ves) [[with collar] colo[u]r[ed] %-color%]
+		pattern: (wild|untamed) <age> [%-wolfvariant%] wol(f|1¦ves) [[with collar] colo[u]r[ed] %-color%]
 	angry wolf:
 		name: angry wol¦f¦ves @an
-		pattern: (angry|aggressive) <age> wol(f|1¦ves) [[with collar] colo[u]r[ed] %-color%]
+		pattern: (angry|aggressive) <age> [%-wolfvariant%] wol(f|1¦ves) [[with collar] colo[u]r[ed] %-color%]
 	peaceful wolf:
 		name: peaceful wol¦f¦ves
-		pattern: (peaceful|neutral|unaggressive) <age> wol(f|1¦ves) [[with collar] colo[u]r[ed] %-color%]
+		pattern: (peaceful|neutral|unaggressive) <age> [%-wolfvariant%] wol(f|1¦ves) [[with collar] colo[u]r[ed] %-color%]
 	zombie:
 		name: zombie¦s
 		pattern: <age> zombie(|1¦s)|(4¦)zombie (kid(|1¦s)|child(|1¦ren))
@@ -1070,7 +1094,7 @@ entities:
 		pattern: <age> drowned(|1¦s)|(4¦)drowned (kid(|1¦s)|child(|1¦ren))
 	dolphin:
 		name: dolphin¦s
-		pattern: dolphin(|1¦s)
+		pattern: <age> dolphin(|1¦s)
 	phantom:
 		name: phantom¦s
 		pattern: phantom(|1¦s)
@@ -1156,7 +1180,7 @@ entities:
 		pattern: <age> quiet goat(|1¦s)|(4¦)quiet goat (kid(|1¦s)|child(|1¦ren))
 	glow squid:
 		name: glow squid¦s
-		pattern: glow squid(|1¦s)
+		pattern: <age> glow squid(|1¦s)
 	axolotl:
 		name: axolotl¦s @an
 		pattern: <age> axolotl(|1¦s)|(4¦)axolotl (kid(|1¦s)|child(|1¦ren))
@@ -1184,28 +1208,40 @@ entities:
 	# 1.19 Entities
 	chest boat:
 		name: chest boat¦s
-		pattern: chest boat(|1¦s)
+		pattern: chest boat[1:s]
 	any chest boat:
 		name: chest boat¦s
-		pattern: any chest boat(|1¦s)
+		pattern: any chest boat[1:s]
 	oak chest boat:
 		name: oak chest boat¦s
-		pattern: oak chest boat(|1¦s)
+		pattern: oak chest boat[1:s]
 	spruce chest boat:
 		name: spruce chest boat¦s
-		pattern: spruce chest boat(|1¦s)
+		pattern: spruce chest boat[1:s]
 	birch chest boat:
 		name: birch chest boat¦s
-		pattern: birch chest boat(|1¦s)
+		pattern: birch chest boat[1:s]
 	jungle chest boat:
 		name: jungle chest boat¦s
-		pattern: jungle chest boat(|1¦s)
+		pattern: jungle chest boat[1:s]
 	acacia chest boat:
 		name: acacia chest boat¦s
-		pattern: acacia chest boat(|1¦s)
+		pattern: acacia chest boat[1:s]
 	dark oak chest boat:
 		name: dark oak chest boat¦s
-		pattern: dark oak chest boat(|1¦s)
+		pattern: dark oak chest boat[1:s]
+	cherry chest boat:
+		name: cherry chest boat¦s
+		pattern: cherry chest boat[1:s]
+	mangrove chest boat:
+		name: mangrove chest boat¦s
+		pattern: mangrove chest boat[1:s]
+	bamboo chest raft:
+		name: bamboo chest raft¦s
+		pattern: bamboo chest (raft|boat)[1:s]
+	pale oak chest boat:
+		name: pale oak chest boat¦s
+		pattern: pale oak chest boat[1:s]
 	frog:
 		name: frog¦s
 		pattern: <age> frog(|1¦s)|(4¦)frog (kid(|1¦s)|child(|1¦ren))
@@ -1243,16 +1279,16 @@ entities:
 		pattern: interaction(|1¦s)
 	display:
 		name: display¦s
-		pattern: display(|1¦s)
+		pattern: display(1:s| [entit(y|1:ies)])
 	block display:
 		name: block display¦s
-		pattern: block display(|1¦s)
+		pattern: (block display(1:s| [entit(y|1:ies)]) [of %-blockdata/itemtype%]|alt:%-blockdata/itemtype% block display(1:s| [entit(y|1:ies)]))
 	item display:
 		name: item display¦s
-		pattern: item display(|1¦s)
+		pattern: (item display(1:s| [entit(y|1:ies)]) [of %-itemtype%]|alt:%-itemtype% item display(1:s| [entit(y|1:ies)]))
 	text display:
 		name: text display¦s
-		pattern: text display(|1¦s)
+		pattern: text display(1:s| [entit(y|1:ies)])
 	# 1.20.3 Entities
 	breeze:
 		name: breeze¦s
@@ -1265,8 +1301,12 @@ entities:
 		name: armadillo¦s @an
 		pattern: <age> armadillo(|1¦s)|(4¦)armadillo (kid(|1¦s)|child(|1¦ren))
 	bogged:
-		name: bogged
-		pattern: bogged
+		name: bogged¦s
+		pattern: bogged[1:s]
+	# 1.21.3 Entities
+	creaking:
+		name: creaking¦s
+		pattern: creaking[1:s]
 
 # -- Heal Reasons --
 heal reasons:
@@ -1293,6 +1333,18 @@ cat types:
 	white: white
 	jellie: jellie
 	all_black: all black
+
+# -- Wolf Variants --
+wolf variants:
+	ashen: ashen
+	black: black
+	chestnut: chestnut
+	pale: pale
+	rusty: rusty
+	snowy: snowy
+	spotted: spotted
+	striped: striped
+	woods: woods
 
 # -- Damage Causes --
 damage causes:
@@ -2227,7 +2279,7 @@ attribute types:
 	generic.scale: generic scale, scale
 	generic.step_height: generic step height, step height
 	generic.water_movement_efficiency: generic water movement efficiency, water movement efficiency
-	horse_jump_strength: horse jump strength
+	horse.jump_strength: horse jump strength
 	player.block_break_speed: player block break speed, block break speed
 	player.block_interaction_range: player block interaction range, block interaction range
 	player.entity_interaction_range: player entity interaction range, entity interaction range
@@ -2236,6 +2288,39 @@ attribute types:
 	player.submerged_mining_speed: player submerged mining speed, submerged mining speed
 	player.sweeping_damage_ratio: player sweeping damage ratio, sweeping damage ratio
 	zombie.spawn_reinforcements: zombie spawn reinforcements
+	# 1.21.3 removes prefixes, adds tempt range
+	armor: generic armor, armor
+	armor_toughness: generic armor toughness, armor toughness
+	attack_damage: generic attack damage, attack damage
+	attack_knockback: generic attack knockback, attack knockback
+	attack_speed: generic attack speed, attack speed
+	burning_time: generic burning time, burning time
+	explosion_knockback_resistance: generic explosion knockback resistance, explosion knockback resistance
+	flying_speed: generic flying speed, flying speed
+	follow_range: generic follow range, follow range
+	gravity: generic gravity, gravity
+	jump_strength: generic jump strength, jump strength, horse jump strength
+	knockback_resistance: generic knockback resistance, knockback resistance
+	luck: generic luck, luck
+	max_absorption: generic max absorption, max absorption
+	max_health: generic max health, max health
+	movement_efficiency: generic movement efficiency, movement efficiency
+	movement_speed: generic movement speed, movement speed
+	oxygen_bonus: generic oxygen bonus, oxygen bonus
+	safe_fall_distance: generic safe fall distance, safe fall distance
+	fall_damage_multiplier: generic fall damage multiplier, fall damage multiplier
+	scale: generic scale, scale
+	step_height: generic step height, step height
+	tempt_range: generic tempt range, tempt range
+	water_movement_efficiency: generic water movement efficiency, water movement efficiency
+	block_break_speed: player block break speed, block break speed
+	block_interaction_range: player block interaction range, block interaction range
+	entity_interaction_range: player entity interaction range, entity interaction range
+	mining_efficiency: player mining efficiency, mining efficiency
+	sneaking_speed: player sneaking speed, sneaking speed
+	submerged_mining_speed: player submerged mining speed, submerged mining speed
+	sweeping_damage_ratio: player sweeping damage ratio, sweeping damage ratio
+	spawn_reinforcements: zombie spawn reinforcements
 
 # -- Environments --
 environments:
@@ -2243,6 +2328,34 @@ environments:
 	nether: nether, the nether
 	the_end: end, the end
 	custom: custom
+
+# -- Entity Potion Causes --
+entity potion causes:
+	area_effect_cloud: enter area effect cloud
+	arrow: arrow infliction
+	attack: attack
+	axolotl: axolotl
+	warden: warden
+	beacon: beacon effect
+	command: command
+	conduit: conduit effect
+	conversion: conversion, converted
+	death: death
+	dolphin: dolphin boost
+	expiration: expiration, expired
+	food: food
+	illusion: illusion
+	milk: drinking milk
+	plugin: plugin
+	potion_drink: potion drunk, drinking potion
+	potion_splash: potion splash, splash potion
+	spider_spawn: spider spawn, spawned spider
+	totem: removal by resurrection
+	turtle_helmet: turtle helmet effect
+	unknown: unknown
+	villager_trade: villager trade
+	patrol_captain: pillager captain, patrol captain
+	wither_rose: wither rose infliction
 
 # -- Moon Phases --
 moon phases:
@@ -2281,6 +2394,45 @@ unleash reasons:
 	holder_gone: holder (gone|disappeared)
 	player_unleash: player unleash, player unleashed, unleashed by player
 	unknown: unknown
+# -- Display Billboards --
+billboards:
+	center: center, middle, center pivot
+	fixed: fixed
+	horizontal: horizontal, horizontal pivot
+	vertical: vertical, vertical pivot
+
+# -- Text Display Alignments --
+text alignments:
+	center: centered, center aligned, middle aligned
+	left: left aligned
+	right: right aligned
+
+# -- Item Display Transforms --
+item display transforms:
+	firstperson_lefthand: first person left handed, first person left hand, left handed in first person
+	firstperson_righthand: first person right handed, first person right hand, right handed in first person
+	fixed: fixed, fixed position
+	ground: ground, the ground
+	gui: gui, menu
+	head: head
+	none: no transform
+	thirdperson_lefthand: third person left handed, third person left hand, left handed in third person
+	thirdperson_righthand: third person right handed, third person right hand, right handed in third person
+
+# -- Change Reasons --
+experience cooldown change reasons:
+	plugin: plugin
+	pickup_orb: orb pickup, pickup orb
+
+# -- Input Keys --
+input keys:
+	forward: forward movement key, forward key
+	backward: backward movement key, backward key
+	left: left movement key, left key
+	right: right movement key, right key
+	jump: jump key, jumping key
+	sneak: sneak key, sneaking key
+	sprint: sprint key, sprinting key
 
 # -- Boolean --
 boolean:
@@ -2333,6 +2485,7 @@ types:
 	biome: biome¦s @a
 	potioneffecttype: potion effect type¦s @a
 	potioneffect: potion effect¦s @a
+	entitypotioncause: entity potion cause¦s @an
 	enchantment: enchantment¦s @an
 	damagecause: damage cause¦s @a
 	teleportcause: teleport cause¦s @a
@@ -2350,6 +2503,7 @@ types:
 	blockdata: block data¦s @a
 	healreason: heal reason¦s @a
 	cattype: cat type¦s @a
+	wolfvariant: wolf variant¦s @a
 	gamerule: gamerule¦s @a
 	attributetype: attribute type¦s @a
 	enchantmentoffer: enchantment offer¦s @an
@@ -2362,6 +2516,12 @@ types:
 	inventoryclosereason: inventory close reason¦s @an
 	transformreason: transform reason¦s @a
 	unleashreason: unleash reason¦s @an
+	display: display¦s @a
+	billboard: billboard¦s @a
+	textalignment: text alignment¦s @a
+	itemdisplaytransform: item display transform¦s @an
+	experiencecooldownchangereason: experience cooldown change reason¦s @a
+	inputkey: input key¦s @an
 
 	# Skript
 	weathertype: weather type¦s @a
@@ -2385,3 +2545,6 @@ types:
 	# Hooks
 	money: money
 	region: region¦s
+
+	# Other
+	quaternion: quaternion¦s @a
