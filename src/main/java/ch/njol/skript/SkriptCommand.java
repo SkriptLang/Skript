@@ -77,7 +77,6 @@ public class SkriptCommand implements CommandExecutor {
 		).add(new CommandHelp("update", SkriptColor.DARK_CYAN)
 			.add("check")
 			.add("changes")
-			.add("download")
 		).add("info"
 		).add("help");
 
