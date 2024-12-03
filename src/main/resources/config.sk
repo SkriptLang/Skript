@@ -365,3 +365,8 @@ version: @version@
 # DO NOT CHANGE THIS VALUE MANUALLY!
 # This saves for which version of Skript this configuration was written for.
 # If it does not match the version of the .jar file then the config will be updated automatically.
+
+# This is only added to help tests pass
+# Server crashes otherwise
+# Will remove before PR is merged (please remind me before merging)
+backups to keep: -1
