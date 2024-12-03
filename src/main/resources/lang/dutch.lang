@@ -43,7 +43,6 @@ skript command:
 			description: Controleert of er updates zijn, laat de lijst met wijzigingen zien of downloadt de nieuwste versie van Skript
 			check: Controleert of er een nieuwe versie is
 			changes: Toont alle wijzigingen sinds de huidige versie
-			download: Downloadt de nieuwste versie
 		info: Toont koppelingen naar de alliassen en documentatie van Skript
 		gen-docs: Genereert documentatie met behulp van docs/templates in de plugin folder
 		test: Gebruikt voor het uitvoeren van interne Skript-tests
