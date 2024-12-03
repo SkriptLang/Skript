@@ -46,7 +46,6 @@ public class SkriptCommandTabCompleter implements TabCompleter {
 		if (args[0].equalsIgnoreCase("update") && args.length == 2) {
 			options.add("check");
 			options.add("changes");
-			options.add("download");
 		} else if (args[0].matches("(?i)(reload|disable|enable)") && args.length >= 2) {
 			File scripts = Skript.getInstance().getScriptsFolder();
 			String scriptsPathString = scripts.toPath().toString();

@@ -351,8 +351,6 @@ public class SkriptCommand implements CommandExecutor {
 					updater.updateCheck(sender);
 				} else if (args[1].equalsIgnoreCase("changes")) {
 					updater.changesCheck(sender);
-				} else if (args[1].equalsIgnoreCase("download")) {
-					updater.updateCheck(sender);
 				}
 			}
 
