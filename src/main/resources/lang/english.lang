@@ -40,7 +40,7 @@ skript command:
 			all: Disables all scripts
 			<script>: Disables a specific script or a folder of scripts
 		update:
-			description: Check for updates, read the changelog, or download the latest version of Skript
+			description: Check for updates or read the changelog
 			check: Checks for a new version
 			changes: Lists all changes since the current version
 		info: Prints a message with links to Skript's aliases and documentation
