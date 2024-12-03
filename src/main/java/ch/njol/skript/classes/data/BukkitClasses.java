@@ -92,6 +92,10 @@ import org.bukkit.inventory.BlockInventoryHolder;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.loot.LootContext;
+import org.bukkit.loot.LootTable;
+import org.bukkit.loot.LootTables;
+import org.bukkit.loot.Lootable;
 import org.bukkit.metadata.Metadatable;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
@@ -1559,6 +1563,42 @@ public class BukkitClasses {
 			.name("Experience Cooldown Change Reason")
 			.description("Represents a change reason of an <a href='events.html#experience cooldown change event'>experience cooldown change event</a>.")
 			.since("INSERT VERSION"));
+
+		Classes.registerClass(new ClassInfo<>(LootTable.class, "loottable")
+				.user("loot ?tables?")
+				.name("Loot Table")
+				.description("Loot tables represent what items should be in naturally generated containers, what items should be dropped when killing a mob, or what items can be fished. ")
+				.since("INSERT VERSION"));
+
+		Classes.registerClass(new ClassInfo<>(LootContext.class, "lootcontext")
+				.user("loot ?contexts?")
+				.name("Loot Context")
+				.description("Represents additional information a loot table can use to modify its generated loot.")
+				.since("INSERT VERSION")
+				.parser(new Parser<LootContext>() {
+					@Override
+					public boolean canParse(ParseContext context) {
+						return false;
+					}
+
+					@Override
+					public @Nullable LootContext parse(String s, ParseContext context) {
+						return null;
+					}
+
+					@Override
+					public String toString(LootContext lootContext, int flags) {
+						return "loot context at " + Classes.toString(lootContext.getLocation()) +
+							((lootContext.getLootedEntity() != null) ? (" with looted entity " + Classes.toString(lootContext.getLootedEntity())) : "") +
+							((lootContext.getKiller() != null) ? " with killer " + Classes.toString(lootContext.getKiller()) : "") +
+							((lootContext.getLuck() != 0) ? " with luck " + lootContext.getLuck() : "");
+					}
+
+					@Override
+					public String toVariableNameString(LootContext lootContext) {
+						return "loot context:" + lootContext.hashCode();
+					}
+				}));
 	}
 
 }

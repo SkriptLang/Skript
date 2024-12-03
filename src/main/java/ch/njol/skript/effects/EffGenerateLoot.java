@@ -1,0 +1,97 @@
+/**
+ *   This file is part of Skript.
+ *
+ *  Skript is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  Skript is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * Copyright Peter Güttinger, SkriptLang team and contributors
+ */
+package ch.njol.skript.effects;
+
+import ch.njol.skript.Skript;
+import ch.njol.skript.doc.Description;
+import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Name;
+import ch.njol.skript.doc.Since;
+import ch.njol.skript.lang.Effect;
+import ch.njol.skript.lang.Expression;
+import ch.njol.skript.lang.SkriptParser;
+import ch.njol.skript.lang.SyntaxStringBuilder;
+import ch.njol.util.Kleenean;
+import org.bukkit.event.Event;
+import org.bukkit.inventory.Inventory;
+import org.bukkit.loot.LootContext;
+import org.bukkit.loot.LootTable;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
+
+@Name("Generate Loot")
+@Description({
+	"Generates the loot in the specified inventories from a loot table using a loot context.",
+	"Note that loot contexts require the killer and looted entity if the loot table is under the entities category.",
+	"The loot context only requires the location if the loot table is not in the entities category, eg. blocks, chests."
+})
+@Examples(
+	"the loot context at {_location}"
+)
+@Since("INSERT VERSION")
+public class EffGenerateLoot extends Effect {
+
+	static {
+		Skript.registerEffect(EffGenerateLoot.class,
+			"generate loot using [loot[ ]table] %loottable% (with|using) [[loot] context] %lootcontext% in [inventor(y|ies)] %inventories%"
+		);
+	}
+
+	private Expression<LootTable> lootTable;
+	private Expression<LootContext> lootContext;
+	private Expression<Inventory> inventories;
+
+	@Override
+	@SuppressWarnings("unchecked")
+	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
+		lootTable = (Expression<LootTable>) exprs[0];
+		lootContext = (Expression<LootContext>) exprs[1];
+		inventories = (Expression<Inventory>) exprs[2];
+		return true;
+	}
+
+	@Override
+	protected void execute(Event event) {
+		Random random = ThreadLocalRandom.current();
+		for (Inventory inventory : inventories.getArray(event)) {
+			LootContext context = lootContext.getSingle(event);
+			LootTable table = lootTable.getSingle(event);
+			if (context == null || table == null)
+				return;
+
+			try {
+				table.fillInventory(inventory, random, context);
+			}
+			catch (IllegalArgumentException ignore) {}
+		}
+	}
+
+	@Override
+	public String toString(@Nullable Event event, boolean debug) {
+		SyntaxStringBuilder builder = new SyntaxStringBuilder(event, debug);
+
+		builder.append("generate loot using loot table", lootTable);
+		builder.append("with context", lootContext);
+		builder.append("in inventories", inventories);
+
+		return builder.toString();
+	}
+}
