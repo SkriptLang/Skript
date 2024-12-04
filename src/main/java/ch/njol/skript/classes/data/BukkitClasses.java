@@ -1564,7 +1564,7 @@ public class BukkitClasses {
 			.since("INSERT VERSION"));
 
 		Classes.registerClass(new RegistryClassInfo<>(LootTables.class, Registry.LOOT_TABLES, "loottabletype", "loot table types")
-				.user("(loot )?table ?types?")
+				.user("(loot ?)?table ?types?")
 				.name("Loot Table Types")
 				.description("Represents the type of loot table.")
 				.since("INSERT VERSION"));

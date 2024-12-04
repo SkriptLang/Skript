@@ -1,24 +1,6 @@
-/**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
 package ch.njol.skript.expressions;
 
-import ch.njol.skript.classes.Changer;
+import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
@@ -63,15 +45,15 @@ public class ExprLootTable extends SimplePropertyExpression<Object, LootTable> {
 		return null;
 	}
 
-	public @Nullable Class<?>[] acceptChange(Changer.ChangeMode mode) {
+	public @Nullable Class<?>[] acceptChange(ChangeMode mode) {
         return switch (mode) {
-			case SET, DELETE -> CollectionUtils.array(LootTable.class);
+			case SET, DELETE, RESET -> CollectionUtils.array(LootTable.class);
 			default -> null;
         };
     }
 
 	@Override
-	public void change(Event event, @Nullable Object[] delta, Changer.ChangeMode mode) {
+	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
 		for (Object object : getExpr().getArray(event)) {
 			if (object instanceof Block block)
 				object = block.getState();
@@ -79,9 +61,9 @@ public class ExprLootTable extends SimplePropertyExpression<Object, LootTable> {
 				return;
 
 			LootTable lootTable = delta != null ? ((LootTable) delta[0]) : null;
-			if (mode == Changer.ChangeMode.SET && lootTable != null)
+			if (mode == ChangeMode.SET && lootTable != null)
 				lootable.setLootTable(lootTable);
-			else if (mode == Changer.ChangeMode.DELETE)
+			else if (mode == ChangeMode.DELETE || mode == ChangeMode.RESET)
 				lootable.clearLootTable();
 
 			if (lootable instanceof BlockState blockState)
