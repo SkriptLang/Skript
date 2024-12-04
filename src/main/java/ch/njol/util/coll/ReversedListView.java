@@ -29,8 +29,9 @@ import org.jetbrains.annotations.Nullable;
 import ch.njol.util.coll.iterator.ReversedListIterator;
 
 /**
- * @author Peter Güttinger
+ * @deprecated Unused in Skript.
  */
+@Deprecated(forRemoval = true)
 public class ReversedListView<T> implements List<T> {
 	
 	private final List<T> list;

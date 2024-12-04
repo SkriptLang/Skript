@@ -43,40 +43,22 @@ import ch.njol.skript.util.chat.BungeeConverter;
 import ch.njol.skript.util.chat.MessageComponent;
 import ch.njol.skript.variables.Variables;
 import ch.njol.util.StringUtils;
-import ch.njol.util.Validate;
+import com.google.common.base.Preconditions;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.OfflinePlayer;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandSender;
-import org.bukkit.command.PluginCommand;
-import org.bukkit.command.SimpleCommandMap;
-import org.bukkit.command.TabExecutor;
+import org.bukkit.command.*;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
-import org.bukkit.help.GenericCommandHelpTopic;
-import org.bukkit.help.HelpMap;
-import org.bukkit.help.HelpTopic;
-import org.bukkit.help.HelpTopicComparator;
-import org.bukkit.help.IndexHelpTopic;
+import org.bukkit.help.*;
 import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.script.Script;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Objects;
-import java.util.Set;
-import java.util.UUID;
 
 /**
  * This class is used for user-defined commands.
@@ -165,7 +147,14 @@ public class ScriptCommand implements TabExecutor {
 		@Nullable VariableString cooldownMessage, String cooldownBypass,
 		@Nullable VariableString cooldownStorage, int executableBy, SectionNode node
 	) {
-		Validate.notNull(name, pattern, arguments, description, usage, aliases, node);
+		Preconditions.checkNotNull(name, "name cannot be null");
+		Preconditions.checkNotNull(pattern, "pattern cannot be null");
+		Preconditions.checkNotNull(arguments, "arguments cannot be null");
+		Preconditions.checkNotNull(description, "description cannot be null");
+		Preconditions.checkNotNull(usage, "usage cannot be null");
+		Preconditions.checkNotNull(aliases, "aliases cannot be null");
+		Preconditions.checkNotNull(node, "node cannot be null");
+
 		this.name = name;
 		label = "" + name.toLowerCase(Locale.ENGLISH);
 		this.permission = permission;

@@ -21,9 +21,9 @@ package ch.njol.util;
 import javax.annotation.Nullable;
 
 /**
- * @author Peter G�ttinger
- *
+ * @deprecated Unused in Skript. Use {@link java.util.function.Predicate} instead.
  */
+@Deprecated(forRemoval = true)
 public abstract interface Predicate<T> {
   public abstract boolean test(@Nullable T paramT);
 }

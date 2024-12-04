@@ -18,17 +18,17 @@
  */
 package ch.njol.skript.config.validate;
 
-import java.util.HashMap;
-import java.util.Locale;
-import java.util.Map.Entry;
-
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Parser;
 import ch.njol.skript.config.EntryNode;
 import ch.njol.skript.config.Node;
 import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.log.SkriptLogger;
-import ch.njol.util.Setter;
+
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.Map.Entry;
+import java.util.function.Consumer;
 
 /**
  * @author Peter Güttinger
@@ -63,12 +63,12 @@ public class SectionValidator implements NodeValidator {
 		return this;
 	}
 	
-	public SectionValidator addEntry(final String name, final Setter<String> setter, final boolean optional) {
+	public SectionValidator addEntry(final String name, final Consumer<String> setter, final boolean optional) {
 		addNode(name, new EntryValidator(setter), optional);
 		return this;
 	}
 	
-	public <T> SectionValidator addEntry(final String name, final Parser<? extends T> parser, final Setter<T> setter, final boolean optional) {
+	public <T> SectionValidator addEntry(final String name, final Parser<? extends T> parser, final Consumer<T> setter, final boolean optional) {
 		addNode(name, new ParsedEntryValidator<>(parser, setter), optional);
 		return this;
 	}
