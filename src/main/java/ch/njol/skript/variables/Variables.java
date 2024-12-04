@@ -70,13 +70,19 @@ import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.regex.Pattern;
 
+import org.skriptlang.skript.variables.storage.H2Storage;
+import org.skriptlang.skript.variables.storage.MySQLStorage;
+import org.skriptlang.skript.variables.storage.SQLiteStorage;
+
+import ch.njol.skript.SkriptAddon;
+
 /**
  * Handles all things related to variables.
  *
  * @see #setVariable(String, Object, Event, boolean)
  * @see #getVariable(String, Event, boolean)
  */
-public class Variables {
+public final class Variables {
 
 	/**
 	 * The version of {@link Yggdrasil} this class is using.
@@ -99,13 +105,19 @@ public class Variables {
 	 */
 	private static final String CONFIGURATION_SERIALIZABLE_PREFIX = "ConfigurationSerializable_";
 
-	private final static Multimap<Class<? extends VariablesStorage>, String> TYPES = HashMultimap.create();
+	private final static List<UnloadedStorage> UNLOADED_STORAGES = new ArrayList<>();
 
 	// Register some things with Yggdrasil
 	static {
-		registerStorage(FlatFileStorage.class, "csv", "file", "flatfile");
-		registerStorage(SQLiteStorage.class, "sqlite");
-		registerStorage(MySQLStorage.class, "mysql");
+		SkriptAddon source = Skript.getAddonInstance();
+		registerStorage(source, FlatFileStorage.class, "csv", "file", "flatfile");
+		if (Skript.classExists("com.zaxxer.hikari.HikariConfig")) {
+			registerStorage(source, SQLiteStorage.class, "sqlite");
+			registerStorage(source, MySQLStorage.class, "mysql");
+			registerStorage(source, H2Storage.class, "h2");
+		} else {
+			Skript.warning("SpigotLibraryLoader failed to load HikariCP. No JDBC databases were enabled.");
+		}
 		yggdrasil.registerSingleClass(Kleenean.class, "Kleenean");
 		// Register ConfigurationSerializable, Bukkit's serialization system
 		yggdrasil.registerClassResolver(new ConfigurationSerializer<ConfigurationSerializable>() {
@@ -113,7 +125,7 @@ public class Variables {
 				//noinspection unchecked
 				info = (ClassInfo<? extends ConfigurationSerializable>) (ClassInfo<?>) Classes.getExactClassInfo(Object.class);
 				// Info field is mostly unused in superclass, due to methods overridden below,
-				//  so this illegal cast is fine
+				// so this illegal cast is fine
 			}
 
 			@Override
@@ -142,7 +154,7 @@ public class Variables {
 	/**
 	 * The variable storages configured.
 	 */
-	static final List<VariablesStorage> STORAGES = new ArrayList<>();
+	static final List<VariableStorage> STORAGES = new ArrayList<>();
 
 	/**
 	 * Register a VariableStorage class for Skript to create if the user config value matches.
@@ -150,17 +162,19 @@ public class Variables {
 	 * @param <T> A class to extend VariableStorage.
 	 * @param storage The class of the VariableStorage implementation.
 	 * @param names The names used in the config of Skript to select this VariableStorage.
-	 * @return if the operation was successful, or if it's already registered.
+	 * @return if the operation was successful, or false if the class is already registered.
+	 * @throws SkriptAPIException if the operation was not successful because the storage class is already registered.
 	 */
-	public static <T extends VariablesStorage> boolean registerStorage(Class<T> storage, String... names) {
-		if (TYPES.containsKey(storage))
-			return false;
-		for (String name : names) {
-			if (TYPES.containsValue(name.toLowerCase(Locale.ENGLISH)))
-				return false;
+	public static <T extends VariableStorage> boolean registerStorage(SkriptAddon source, Class<T> storage, String... names) {
+		for (UnloadedStorage registered : UNLOADED_STORAGES) {
+			if (registered.getStorageClass().isAssignableFrom(storage))
+				throw new SkriptAPIException("Storage class '" + storage.getName() + "' cannot be registered because '" + registered.getStorageClass().getName() + "' is a superclass or equal class");
+			for (String name : names) {
+				if (registered.matches(name))
+					return false;
+			}
 		}
-		for (String name : names)
-			TYPES.put(storage, name.toLowerCase(Locale.ENGLISH));
+		UNLOADED_STORAGES.add(new UnloadedStorage(source, storage, names));
 		return true;
 	}
 
@@ -196,7 +210,7 @@ public class Variables {
 				} catch (InterruptedException ignored) {}
 
 				synchronized (TEMP_VARIABLES) {
-					Map<String, NonNullPair<Object, VariablesStorage>> tvs = TEMP_VARIABLES.get();
+					Map<String, NonNullPair<Object, VariableStorage>> tvs = TEMP_VARIABLES.get();
 					if (tvs != null)
 						Skript.info("Loaded " + tvs.size() + " variables so far...");
 					else
@@ -210,9 +224,7 @@ public class Variables {
 			boolean successful = true;
 
 			for (Node node : (SectionNode) databases) {
-				if (node instanceof SectionNode) {
-					SectionNode sectionNode = (SectionNode) node;
-
+				if (node instanceof SectionNode sectionNode) {
 					String type = sectionNode.getValue("type");
 					if (type == null) {
 						Skript.error("Missing entry 'type' in database definition");
@@ -224,10 +236,9 @@ public class Variables {
 					assert name != null;
 
 					// Initiate the right VariablesStorage class
-					VariablesStorage variablesStorage;
-					Optional<?> optional = TYPES.entries().stream()
-							.filter(entry -> entry.getValue().equalsIgnoreCase(type))
-							.map(Entry::getKey)
+					VariableStorage variablesStorage;
+					Optional<UnloadedStorage> optional = UNLOADED_STORAGES.stream()
+							.filter(registered -> registered.matches(type))
 							.findFirst();
 					if (!optional.isPresent()) {
 						if (!type.equalsIgnoreCase("disabled") && !type.equalsIgnoreCase("none")) {
@@ -237,22 +248,29 @@ public class Variables {
 						continue;
 					}
 
+					UnloadedStorage unloadedStorage = optional.get();
 					try {
-						@SuppressWarnings("unchecked")
-						Class<? extends VariablesStorage> storageClass = (Class<? extends VariablesStorage>) optional.get();
-						Constructor<?> constructor = storageClass.getDeclaredConstructor(String.class);
+						Class<? extends VariableStorage> storageClass = unloadedStorage.getStorageClass();
+						Constructor<?> constructor = storageClass.getDeclaredConstructor(SkriptAddon.class, String.class);
 						constructor.setAccessible(true);
-						variablesStorage = (VariablesStorage) constructor.newInstance(type);
+						variablesStorage = (VariableStorage) constructor.newInstance(unloadedStorage.getSource(), type);
 					} catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
-						Skript.error("Failed to initalize database type '" + type + "'");
+						Skript.exception(e, "Failed to initalize database type '" + type + "' ensure constructors are properly created.");
 						successful = false;
 						continue;
+					}
+
+					if (variablesStorage instanceof SQLiteStorage) {
+						Skript.warning(
+								"Please be advised that SQL is single threaded and synchronous.\n" +
+								"Meaning you will be losing out on drastic performance.\n" +
+								"Due to this, Skript is deprecating SQLite. Please consider using H2.");
 					}
 
 					// Get the amount of variables currently loaded
 					int totalVariablesLoaded;
 					synchronized (TEMP_VARIABLES) {
-						Map<String, NonNullPair<Object, VariablesStorage>> tvs = TEMP_VARIABLES.get();
+						Map<String, NonNullPair<Object, VariableStorage>> tvs = TEMP_VARIABLES.get();
 						assert tvs != null;
 						totalVariablesLoaded = tvs.size();
 					}
@@ -262,15 +280,16 @@ public class Variables {
 						Skript.info("Loading database '" + node.getKey() + "'...");
 
 					// Load the variables
-					if (variablesStorage.load(sectionNode))
+					if (variablesStorage.load_i(sectionNode)) {
 						STORAGES.add(variablesStorage);
-					else
+					} else {
 						successful = false;
+					}
 
 					// Get the amount of variables loaded by this variables storage object
 					int newVariablesLoaded;
 					synchronized (TEMP_VARIABLES) {
-						Map<String, NonNullPair<Object, VariablesStorage>> tvs = TEMP_VARIABLES.get();
+						Map<String, NonNullPair<Object, VariableStorage>> tvs = TEMP_VARIABLES.get();
 						assert tvs != null;
 						newVariablesLoaded = tvs.size() - totalVariablesLoaded;
 					}
@@ -305,7 +324,6 @@ public class Variables {
 
 			// Interrupt the loading logger thread to make it exit earlier
 			loadingLoggerThread.interrupt();
-
 			saveThread.start();
 		}
 		return true;
@@ -538,7 +556,7 @@ public class Variables {
 			}
 		};
 	}
-	
+
 	/**
 	 * Deletes a variable.
 	 *
@@ -685,7 +703,7 @@ public class Variables {
 	 * <p>
 	 * Access must be synchronised.
 	 */
-	private static final SynchronizedReference<Map<String, NonNullPair<Object, VariablesStorage>>> TEMP_VARIABLES =
+	private static final SynchronizedReference<Map<String, NonNullPair<Object, VariableStorage>>> TEMP_VARIABLES =
 			new SynchronizedReference<>(new HashMap<>());
 
 	/**
@@ -710,7 +728,7 @@ public class Variables {
 	 * Must only be used while variables are loaded
 	 * when Skript is starting. Must be called on Bukkit's main thread.
 	 * This method directly invokes
-	 * {@link VariablesStorage#save(String, String, byte[])},
+	 * {@link VariableStorage#save(String, String, byte[])},
 	 * i.e. you should not be holding any database locks or such
 	 * when calling this!
 	 *
@@ -719,20 +737,20 @@ public class Variables {
 	 * @param source the storage the variable came from.
 	 * @return Whether the variable was stored somewhere. Not valid while storages are loading.
 	 */
-	static boolean variableLoaded(String name, @Nullable Object value, VariablesStorage source) {
+	static boolean variableLoaded(String name, @Nullable Object value, VariableStorage source) {
 		assert Bukkit.isPrimaryThread(); // required by serialisation
 
 		if (value == null)
 			return false;
 
 		synchronized (TEMP_VARIABLES) {
-			Map<String, NonNullPair<Object, VariablesStorage>> tvs = TEMP_VARIABLES.get();
+			Map<String, NonNullPair<Object, VariableStorage>> tvs = TEMP_VARIABLES.get();
 			if (tvs != null) {
-				NonNullPair<Object, VariablesStorage> existingVariable = tvs.get(name);
+				NonNullPair<Object, VariableStorage> existingVariable = tvs.get(name);
 
 				// Check for conflicts with other storages
 				conflict: if (existingVariable != null) {
-					VariablesStorage existingVariableStorage = existingVariable.getSecond();
+					VariableStorage existingVariableStorage = existingVariable.getSecond();
 
 					if (existingVariableStorage == source) {
 						// No conflict if from the same storage
@@ -773,7 +791,7 @@ public class Variables {
 
 		// Move the variable to the right storage
 		try {
-			for (VariablesStorage variablesStorage : STORAGES) {
+			for (VariableStorage variablesStorage : STORAGES) {
 				if (variablesStorage.accept(name)) {
 					if (variablesStorage != source) {
 						// Serialize and set value in new storage
@@ -806,7 +824,6 @@ public class Variables {
 	 * @return the amount of variables
 	 * that don't have a storage that accepts them.
 	 */
-	@SuppressWarnings("null")
 	private static int onStoragesLoaded() {
 		if (loadConflicts > MAX_CONFLICT_WARNINGS)
 			Skript.warning("A total of " + loadConflicts + " variables were loaded more than once from different databases");
@@ -814,7 +831,7 @@ public class Variables {
 		Skript.debug("Databases loaded, setting variables...");
 
 		synchronized (TEMP_VARIABLES) {
-			Map<String, NonNullPair<Object, VariablesStorage>> tvs = TEMP_VARIABLES.get();
+			Map<String, NonNullPair<Object, VariableStorage>> tvs = TEMP_VARIABLES.get();
 			TEMP_VARIABLES.set(null);
 			assert tvs != null;
 
@@ -822,12 +839,12 @@ public class Variables {
 			try {
 				// Calculate the amount of variables that don't have a storage
 				int unstoredVariables = 0;
-				for (Entry<String, NonNullPair<Object, VariablesStorage>> tv : tvs.entrySet()) {
+				for (Entry<String, NonNullPair<Object, VariableStorage>> tv : tvs.entrySet()) {
 					if (!variableLoaded(tv.getKey(), tv.getValue().getFirst(), tv.getValue().getSecond()))
 						unstoredVariables++;
 				}
 
-				for (VariablesStorage variablesStorage : STORAGES)
+				for (VariableStorage variablesStorage : STORAGES)
 					variablesStorage.allLoaded();
 
 				Skript.debug("Variables set. Queue size = " + saveQueue.size());
@@ -873,7 +890,6 @@ public class Variables {
 	 */
 	public static SerializedVariable.@Nullable Value serialize(@Nullable Object value) {
 		assert Bukkit.isPrimaryThread();
-
 		return Classes.serialize(value);
 	}
 
@@ -907,8 +923,8 @@ public class Variables {
 				// Save one variable change
 				SerializedVariable variable = saveQueue.take();
 
-				for (VariablesStorage variablesStorage : STORAGES) {
-					if (variablesStorage.accept(variable.name)) {
+				for (VariableStorage variablesStorage : STORAGES) {
+					if (variablesStorage.accept(variable.getName())) {
 						variablesStorage.save(variable);
 
 						break;

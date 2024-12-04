@@ -705,6 +705,8 @@ public final class Skript extends JavaPlugin implements Listener {
 									classes.removeIf(Class::isLocalClass);
 									// Test that requires package access. This is only present when compiling with src/test.
 									classes.add(Class.forName("ch.njol.skript.variables.FlatFileStorageTest"));
+									classes.add(Class.forName("org.skriptlang.skript.variables.storage.H2StorageTest"));
+									classes.add(Class.forName("org.skriptlang.skript.variables.storage.SQLiteStorageTest"));
 									size.set(classes.size());
 									for (Class<?> clazz : classes) {
 										if (SkriptAsyncJUnitTest.class.isAssignableFrom(clazz)) {
