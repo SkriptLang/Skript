@@ -46,6 +46,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.loot.LootContext;
 import org.bukkit.loot.LootTable;
+import org.bukkit.loot.LootTables;
 import org.bukkit.util.Vector;
 import org.skriptlang.skript.lang.converter.Converter;
 import org.skriptlang.skript.lang.converter.Converters;
@@ -198,6 +199,9 @@ public class DefaultConverters {
 
 		// LootContext - Location
 		Converters.registerConverter(LootContext.class, Location.class, LootContext::getLocation, Commands.CONVERTER_NO_COMMAND_ARGUMENTS);
+
+		// LootTables - LootTable
+		Converters.registerConverter(LootTables.class, LootTable.class, LootTables::getLootTable);
 
 //		// Entity - String (UUID) // Very slow, thus disabled for now
 //		Converters.registerConverter(String.class, Entity.class, new Converter<String, Entity>() {

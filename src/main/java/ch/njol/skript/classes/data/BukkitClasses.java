@@ -1587,12 +1587,12 @@ public class BukkitClasses {
 
 					@Override
 					public String toString(LootTable o, int flags) {
-						return "loot table of '" + o.getKey().value() + '\'';
+						return "loot table '" + o.getKey().value() + '\'';
 					}
 
 					@Override
 					public String toVariableNameString(LootTable o) {
-						return "loot table of '" + o.getKey().value() + '\'';
+						return "loot table '" + o.getKey().value() + '\'';
 					}
 				}));
 

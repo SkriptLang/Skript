@@ -31,13 +31,11 @@ import org.jetbrains.annotations.Nullable;
 public class ExprLootTable extends SimplePropertyExpression<Object, LootTable> {
 
 	static {
-		register(ExprLootTable.class, LootTable.class, "loot[ ]table[s]", "entities/blocks/loottabletype");
+		register(ExprLootTable.class, LootTable.class, "loot[ ]table[s]", "entities/blocks");
 	}
 
 	@Override
 	public @Nullable LootTable convert(Object object) {
-		if (object instanceof LootTables lootTables)
-			return lootTables.getLootTable();
 		if (object instanceof Lootable lootable)
 			return lootable.getLootTable();
 		if (object instanceof Block block)
