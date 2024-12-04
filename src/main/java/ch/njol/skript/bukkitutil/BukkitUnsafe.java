@@ -57,6 +57,9 @@ public class BukkitUnsafe {
 		return getMaterialFromNamespacedId(id);
 	}
 
+	@Nullable
+	public static Material getMaterialFromMinecraftId(String id) {
+		return Material.matchMaterial(id);
 	/**
 	 * Get a material from a namespaced ID.
 	 * For example, 'minecraft:iron_ingot' -> Material.IRON_INGOT; 'mod:an_item' -> Material.MOD_AN_ITEM

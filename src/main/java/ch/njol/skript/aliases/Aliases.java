@@ -428,6 +428,9 @@ public abstract class Aliases {
 		for (Material material : Material.values()) {
 			if (!material.isLegacy() && !provider.hasAliasForMaterial(material)) {
 				NamespacedKey key = material.getKey();
+				String name = key.getKey().replace("_", " ");
+				parser.loadAlias(name + "¦s", key.toString());
+				Skript.debug(ChatColor.YELLOW + "Creating temporary alias for: " + key);
 				// mod:an_item -> (mod's an item) | (an item from mod)
 				// minecraft:dirt -> dirt
 				if (NamespacedKey.MINECRAFT.equals(key.getNamespace())) {

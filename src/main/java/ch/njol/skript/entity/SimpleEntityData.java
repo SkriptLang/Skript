@@ -211,6 +211,8 @@ public class SimpleEntityData extends EntityData<Entity> {
 			addSimpleEntity("bogged", Bogged.class);
 		}
 
+		if (Skript.isRunningMinecraft(1,21,3)) {
+			addSimpleEntity("creaking", Creaking.class);
 		if (Skript.isRunningMinecraft(1,21,2)) {
 			addSimpleEntity("creaking", Creaking.class);
 			addSimpleEntity("creaking", Creaking.class);

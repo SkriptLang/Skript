@@ -6,6 +6,18 @@ import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import org.bukkit.Material;
+import org.bukkit.TreeSpecies;
+import org.bukkit.entity.Boat;
+import org.bukkit.entity.boat.AcaciaBoat;
+import org.bukkit.entity.boat.BirchBoat;
+import org.bukkit.entity.boat.DarkOakBoat;
+import org.bukkit.entity.boat.JungleBoat;
+import org.bukkit.entity.boat.OakBoat;
+import org.bukkit.entity.boat.SpruceBoat;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.EnumMap;
+import java.util.Random;
 import org.bukkit.entity.Boat;
 import org.jetbrains.annotations.Nullable;
 
@@ -17,6 +29,19 @@ import java.util.Random;
 // For <1.21.3 compatability only. 1.21.3+ boats are SimpleEntityDatas
 public class BoatData extends EntityData<Boat> {
 
+	private static final EnumMap<TreeSpecies, Class<? extends Boat>> typeToClassMap = new EnumMap<>(TreeSpecies.class);
+	private static final boolean IS_RUNNING_1_21_3 = Skript.isRunningMinecraft(1, 21, 3);
+
+	static {
+		EntityData.register(BoatData.class, "boat", Boat.class, 0,
+				"boat", "any boat", "oak boat", "spruce boat", "birch boat", "jungle boat", "acacia boat", "dark oak boat");
+		if (IS_RUNNING_1_21_3) {
+			typeToClassMap.put(TreeSpecies.GENERIC, OakBoat.class);
+			typeToClassMap.put(TreeSpecies.REDWOOD, SpruceBoat.class);
+			typeToClassMap.put(TreeSpecies.BIRCH, BirchBoat.class);
+			typeToClassMap.put(TreeSpecies.JUNGLE, JungleBoat.class);
+			typeToClassMap.put(TreeSpecies.ACACIA, AcaciaBoat.class);
+			typeToClassMap.put(TreeSpecies.DARK_OAK, DarkOakBoat.class);
 	private static final Boat.Type[] types = Boat.Type.values();
 
 	static {
@@ -38,6 +63,8 @@ public class BoatData extends EntityData<Boat> {
 			EntityData.register(BoatData.class, "boat", Boat.class, 0, patterns);
 		}
 	}
+
+
 	
 	public BoatData(){
 		this(0);
@@ -78,6 +105,8 @@ public class BoatData extends EntityData<Boat> {
 
 	@Override
 	public Class<? extends Boat> getType() {
+		if (IS_RUNNING_1_21_3)
+			return typeToClassMap.get(TreeSpecies.values()[matchedPattern - 2]);
 		return Boat.class;
 	}
 
@@ -142,5 +171,4 @@ public class BoatData extends EntityData<Boat> {
 		}
 		return false;
 	}
-
 }

@@ -4,6 +4,11 @@ test "entities in chunk":
 		add event-entity to {_sheep::*}
 		add 1 to {_count}
 	assert {_count} and size of entities within {_sheep::*} is 10 with "Did not count 10 on the entities within {_sheep::*}: %{_sheep::*}%"
+	assert size of all entities in chunk at spawn of world "world" >= 10 with "Size of all entities in spawn chunk is not > 10: %size of all entities in chunk at spawn of world "world"%"
+
+	loop all sheep in chunk at spawn of world "world":
+		add loop-entity to {_e::*}
+	assert size of {_e::*} >= 10 with "Size of all sheep in spawn chunk is not >= 10 (iterating): %size of {_e::*}%"
 
 	set {_radius center} to location(-24, -60, -24, world "world")
 	spawn 2 sheep at location(-26, -60, -24, world "world")
