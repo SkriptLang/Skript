@@ -26,6 +26,7 @@ import org.jetbrains.annotations.Nullable;
 /**
  * @author Peter Güttinger
  */
+@Deprecated
 public class CommandEvent extends Event {
 
 	private final CommandSender sender;

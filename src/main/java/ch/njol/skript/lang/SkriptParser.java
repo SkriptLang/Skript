@@ -974,7 +974,9 @@ public class SkriptParser {
 
 	/**
 	 * Prints parse errors (i.e. must start a ParseLog before calling this method)
+	 * @deprecated This method should not be used by developers.
 	 */
+	@Deprecated
 	public static boolean parseArguments(String args, ScriptCommand command, ScriptCommandEvent event) {
 		SkriptParser parser = new SkriptParser(args, PARSE_LITERALS, ParseContext.COMMAND);
 		ParseResult parseResult = parser.parse_i(command.getPattern());

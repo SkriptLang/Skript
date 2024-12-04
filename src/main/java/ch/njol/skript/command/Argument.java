@@ -40,7 +40,9 @@ import ch.njol.skript.variables.Variables;
  * Represents an argument of a command
  * 
  * @author Peter Güttinger
+ * @deprecated Use {@link org.skriptlang.skript.bukkit.command.api.Argument}
  */
+@Deprecated
 public class Argument<T> {
 	
 	@Nullable

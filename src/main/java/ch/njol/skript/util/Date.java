@@ -39,11 +39,11 @@ public class Date implements Comparable<Date>, YggdrasilSerializable {
 		this(System.currentTimeMillis());
 	}
 	
-	public Date(final long timestamp) {
+	public Date(long timestamp) {
 		this.timestamp = timestamp;
 	}
 	
-	public Date(final long timestamp, final TimeZone zone) {
+	public Date(long timestamp, TimeZone zone) {
 		final long offset = zone.getOffset(timestamp);
 		this.timestamp = timestamp - offset;
 	}
@@ -57,14 +57,36 @@ public class Date implements Comparable<Date>, YggdrasilSerializable {
 		return new Date(System.currentTimeMillis());
 	}
 	
-	public Timespan difference(final Date other) {
+	public Timespan difference(Date other) {
 		return new Timespan(Math.abs(timestamp - other.timestamp));
 	}
 	
 	@Override
-	public int compareTo(final @Nullable Date other) {
+	public int compareTo(@Nullable Date other) {
 		final long d = other == null ? timestamp : timestamp - other.timestamp;
 		return d < 0 ? -1 : d > 0 ? 1 : 0;
+	}
+
+	/**
+	 * Helper method to check if this date is before another date.
+	 * See {@link #compareTo(Date)}.
+	 *
+	 * @param other The date to compare against
+	 * @return {@code true} if this date is before the other date, {@code false} otherwise
+	 */
+	public boolean isBefore(Date other) {
+		return compareTo(other) < 0;
+	}
+
+	/**
+	 * Helper method to check if this date is after another date.
+	 * See {@link #compareTo(Date)}.
+	 *
+	 * @param other The date to compare against
+	 * @return {@code true} if this date is after the other date, {@code false} otherwise
+	 */
+	public boolean isAfter(Date other) {
+		return compareTo(other) > 0;
 	}
 	
 	@Override
@@ -86,7 +108,7 @@ public class Date implements Comparable<Date>, YggdrasilSerializable {
 	 *
 	 * @param span Timespan to add
 	 */
-	public void add(final Timespan span) {
+	public void add(Timespan span) {
 		timestamp += span.getMilliSeconds();
 	}
 	
@@ -95,7 +117,7 @@ public class Date implements Comparable<Date>, YggdrasilSerializable {
 	 *
 	 * @param span Timespan to subtract
 	 */
-	public void subtract(final Timespan span) {
+	public void subtract(Timespan span) {
 		timestamp -= span.getMilliSeconds();
 	}
 	
@@ -128,7 +150,7 @@ public class Date implements Comparable<Date>, YggdrasilSerializable {
 	}
 	
 	@Override
-	public boolean equals(final @Nullable Object obj) {
+	public boolean equals(@Nullable Object obj) {
 		if (this == obj)
 			return true;
 		if (obj == null)

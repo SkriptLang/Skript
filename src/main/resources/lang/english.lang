@@ -144,8 +144,11 @@ updater:
 commands:
 	no permission message: You don't have the required permission to use this command
 	cooldown message: You are using this command too often, please try again later
-	executable by players: This command can only be used by players
-	executable by console: This command can only be used by the console
+	not executable by players: This command can not be used by players
+	not executable by console: This command can not be used by the console
+	not executable by blocks: This command can not be used by blocks
+	not executable by entities: This command can not be used by entities
+	not executable by unknown: This command can not be used by unknown command senders
 	correct usage: Correct usage:
 	invalid argument: Invalid argument <gray>'%s<gray>'<reset>. Allowed are:
 	too many arguments: This command can only accept a single %2$s.
