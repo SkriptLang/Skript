@@ -40,12 +40,10 @@ import java.util.concurrent.ThreadLocalRandom;
 @Name("Generate Loot")
 @Description({
 	"Generates the loot in the specified inventories from a loot table using a loot context.",
-	"Note that loot contexts require the killer and looted entity if the loot table is under the entities category.",
-	"The loot context only requires the location if the loot table is not in the entities category, eg. blocks, chests."
+	"Note that loot contexts require the killer and looted entity if the loot table is under the entities category. It only requires the location if the loot table is not in the entities category, eg. blocks, chests.",
+	"Also note that if the inventory is full, it will cause warnings in the console due to over-filling the inventory."
 })
-@Examples(
-	"the loot context at {_location}"
-)
+@Examples("the loot context at {_location}")
 @Since("INSERT VERSION")
 public class EffGenerateLoot extends Effect {
 

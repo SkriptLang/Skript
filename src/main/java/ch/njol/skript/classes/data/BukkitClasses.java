@@ -94,6 +94,7 @@ import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.loot.LootContext;
 import org.bukkit.loot.LootTable;
+import org.bukkit.loot.LootTables;
 import org.bukkit.metadata.Metadatable;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
@@ -1562,11 +1563,38 @@ public class BukkitClasses {
 			.description("Represents a change reason of an <a href='events.html#experience cooldown change event'>experience cooldown change event</a>.")
 			.since("INSERT VERSION"));
 
+		Classes.registerClass(new RegistryClassInfo<>(LootTables.class, Registry.LOOT_TABLES, "loottabletype", "loot table types")
+				.user("(loot )?table ?types?")
+				.name("Loot Table Types")
+				.description("Represents the type of loot table.")
+				.since("INSERT VERSION"));
+
 		Classes.registerClass(new ClassInfo<>(LootTable.class, "loottable")
 				.user("loot ?tables?")
 				.name("Loot Table")
 				.description("Loot tables represent what items should be in naturally generated containers, what items should be dropped when killing a mob, or what items can be fished. ")
-				.since("INSERT VERSION"));
+				.since("INSERT VERSION")
+				.parser(new Parser<>() {
+					@Override
+					public boolean canParse(ParseContext context) {
+						return false;
+					}
+
+					@Override
+					public @Nullable LootTable parse(String s, ParseContext context) {
+						return null;
+					}
+
+					@Override
+					public String toString(LootTable o, int flags) {
+						return "loot table of '" + o.getKey().value() + '\'';
+					}
+
+					@Override
+					public String toVariableNameString(LootTable o) {
+						return "loot table of '" + o.getKey().value() + '\'';
+					}
+				}));
 
 		Classes.registerClass(new ClassInfo<>(LootContext.class, "lootcontext")
 				.user("loot ?contexts?")

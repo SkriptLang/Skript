@@ -29,11 +29,13 @@ import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.event.Event;
 import org.bukkit.loot.LootTable;
+import org.bukkit.loot.LootTables;
 import org.bukkit.loot.Lootable;
 import org.jetbrains.annotations.Nullable;
 
 @Name("Loot Table")
-@Description("Returns the loot table of an entity or block.")
+@Description({"Returns the loot table of an entity, block or loot table type.",
+"Setting the loot table of a block will update the block state, and once opened will generate loot of the specified loot table. Please note that doing so may cause warnings in the console due to over-filling the chest."})
 @Examples({
 	"set {_loot} to loot table of event-entity",
 	"set {_loot} to loot table of event-block",
@@ -41,17 +43,19 @@ import org.jetbrains.annotations.Nullable;
 	"set loot table of event-entity to \"entities/ghast\"",
 	"# this will set the loot table of the entity to a ghast's loot table, thus dropping ghast tears and gunpowder",
 	"",
-	"set loot table of event-block to loot table from \"minecraft:chests/simple_dungeon\""
+	"set loot table of event-block to loot table of minecraft:chests/simple_dungeon"
 })
 @Since("INSERT VERSION")
 public class ExprLootTable extends SimplePropertyExpression<Object, LootTable> {
 
 	static {
-		register(ExprLootTable.class, LootTable.class, "loot[ ]table[s]", "entities/blocks");
+		register(ExprLootTable.class, LootTable.class, "loot[ ]table[s]", "entities/blocks/loottabletype");
 	}
 
 	@Override
 	public @Nullable LootTable convert(Object object) {
+		if (object instanceof LootTables lootTables)
+			return lootTables.getLootTable();
 		if (object instanceof Lootable lootable)
 			return lootable.getLootTable();
 		if (object instanceof Block block)
