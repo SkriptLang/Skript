@@ -1,0 +1,4 @@
+test "loot table from string":
+
+	set {_loottable} to loot table from key "minecraft:chests/simple_dungeon"
+	assert {_loottable} is set with "loot table from string is not set"

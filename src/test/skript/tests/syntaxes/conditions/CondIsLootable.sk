@@ -1,0 +1,5 @@
+test "is lootable":
+	spawn pig at spawn of "world"
+	set {_pig} to last spawned pig
+
+	assert {_pig} is lootable with "pig is not lootable"

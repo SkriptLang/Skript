@@ -1,0 +1,9 @@
+test "loot table seed":
+	spawn a pig at spawn of "world"
+	set {_pig} to last spawned pig
+	
+	set {_loottable} to loot table of {_pig}
+	
+	set loot seed of {_loottable} to 123
+	set {_seed} to loot seed of {_loottable}
+	assert {_seed} is 123 with "loot seed is %{_seed}% instead of 123"

@@ -1,0 +1,7 @@
+test "loot context with entity":
+
+	spawn a pig at spawn of "world"
+	set {_pig} to last spawned pig
+
+	set {_context} to loot context at {_pig} with looted entity {_pig}
+	assert {_context}'s looted entity is a pig with "looted entity is not a pig"

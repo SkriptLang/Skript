@@ -1,0 +1,8 @@
+test "loot table condition":
+	spawn a pig at spawn of "world"
+	set {_pig} to last spawned pig
+
+	set loot table of {_pig} to loot table from key "minecraft:entities/cow"
+	set {_loottable} to loot table of {_pig}
+
+	assert {_loottable} has loot table with "pig doesn't have loot table"

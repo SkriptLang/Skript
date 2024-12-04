@@ -1,0 +1,3 @@
+test "loot context":
+	set {_context} to loot context at spawn of "world"
+	assert {_context} is set with "loot context is not set"
