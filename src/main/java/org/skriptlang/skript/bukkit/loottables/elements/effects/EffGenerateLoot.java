@@ -1,4 +1,4 @@
-package ch.njol.skript.effects;
+package org.skriptlang.skript.bukkit.loottables.elements.effects;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
@@ -15,6 +15,7 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.loot.LootContext;
 import org.bukkit.loot.LootTable;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.bukkit.loottables.LootContextWrapper;
 
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
@@ -36,14 +37,14 @@ public class EffGenerateLoot extends Effect {
 	}
 
 	private Expression<LootTable> lootTable;
-	private Expression<LootContext> lootContext;
+	private Expression<LootContextWrapper> lootContext;
 	private Expression<Inventory> inventories;
 
 	@Override
 	@SuppressWarnings("unchecked")
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
 		lootTable = (Expression<LootTable>) exprs[0];
-		lootContext = (Expression<LootContext>) exprs[1];
+		lootContext = (Expression<LootContextWrapper>) exprs[1];
 		inventories = (Expression<Inventory>) exprs[2];
 		return true;
 	}
@@ -52,9 +53,13 @@ public class EffGenerateLoot extends Effect {
 	protected void execute(Event event) {
 		Random random = ThreadLocalRandom.current();
 
-		LootContext context = lootContext.getSingle(event);
+		LootContextWrapper wrapper = lootContext.getSingle(event);
 		LootTable table = lootTable.getSingle(event);
-		if (context == null || table == null)
+		if (wrapper == null || table == null)
+			return;
+
+		LootContext context = wrapper.getContext();
+		if (context == null)
 			return;
 
 		for (Inventory inventory : inventories.getArray(event)) {
@@ -75,4 +80,5 @@ public class EffGenerateLoot extends Effect {
 
 		return builder.toString();
 	}
+
 }

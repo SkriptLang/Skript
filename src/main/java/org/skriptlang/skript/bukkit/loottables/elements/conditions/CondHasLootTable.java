@@ -1,4 +1,4 @@
-package ch.njol.skript.conditions;
+package org.skriptlang.skript.bukkit.loottables.elements.conditions;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
@@ -13,6 +13,7 @@ import org.bukkit.block.Block;
 import org.bukkit.event.Event;
 import org.bukkit.loot.Lootable;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.bukkit.loottables.LootTableUtils;
 
 @Name("Has Loot Table")
 @Description("Checks whether an entity or block has a loot table. The loot tables of chests will be deleted when the chest is opened or broken.")
@@ -22,9 +23,9 @@ public class CondHasLootTable extends Condition {
 
 	static {
 		Skript.registerCondition(CondHasLootTable.class,
-				"%entities/blocks% (has|have) [a] loot[ ]table",
-				"%entities/blocks% does(n't| not) have [a] loot[ ]table",
-				"%entities/blocks% (has|have) no loot[ ]table"
+			"%entities/blocks% (has|have) [a] loot[ ]table",
+			"%entities/blocks% does(n't| not) have [a] loot[ ]table",
+			"%entities/blocks% (has|have) no loot[ ]table"
 		);}
 
 	private Expression<?> lootables;
@@ -39,13 +40,9 @@ public class CondHasLootTable extends Condition {
 	@Override
 	public boolean check(Event event) {
 		return lootables.check(event, (lootable) -> {
-			if (lootable instanceof Lootable it) {
-				return it.hasLootTable();
-			} else if (lootable instanceof Block block) {
-				return block.getState() instanceof Lootable it && it.hasLootTable();
-			} else {
-				return false;
-			}
+			if (LootTableUtils.isLootable(lootable))
+				return LootTableUtils.getLootable(lootable).hasLootTable();
+			return false;
 		}, isNegated());
 	}
 
@@ -53,4 +50,6 @@ public class CondHasLootTable extends Condition {
 	public String toString(@Nullable Event event, boolean debug) {
 		return lootables.toString(event, debug) + " has" + (isNegated() ? " no" : "") + " loot table";
 	}
+
 }
+

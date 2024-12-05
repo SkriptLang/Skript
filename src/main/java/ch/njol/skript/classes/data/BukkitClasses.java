@@ -1562,69 +1562,6 @@ public class BukkitClasses {
 			.name("Experience Cooldown Change Reason")
 			.description("Represents a change reason of an <a href='events.html#experience cooldown change event'>experience cooldown change event</a>.")
 			.since("INSERT VERSION"));
-
-		Classes.registerClass(new RegistryClassInfo<>(LootTables.class, Registry.LOOT_TABLES, "loottabletype", "loot table types")
-				.user("(loot ?)?table ?types?")
-				.name("Loot Table Types")
-				.description("Represents the type of loot table.")
-				.since("INSERT VERSION"));
-
-		Classes.registerClass(new ClassInfo<>(LootTable.class, "loottable")
-				.user("loot ?tables?")
-				.name("Loot Table")
-				.description("Loot tables represent what items should be in naturally generated containers, what items should be dropped when killing a mob, or what items can be fished. ")
-				.since("INSERT VERSION")
-				.parser(new Parser<>() {
-					@Override
-					public boolean canParse(ParseContext context) {
-						return false;
-					}
-
-					@Override
-					public @Nullable LootTable parse(String s, ParseContext context) {
-						return null;
-					}
-
-					@Override
-					public String toString(LootTable o, int flags) {
-						return "loot table '" + o.getKey().value() + '\'';
-					}
-
-					@Override
-					public String toVariableNameString(LootTable o) {
-						return "loot table '" + o.getKey().value() + '\'';
-					}
-				}));
-
-		Classes.registerClass(new ClassInfo<>(LootContext.class, "lootcontext")
-				.user("loot ?contexts?")
-				.name("Loot Context")
-				.description("Represents additional information a loot table can use to modify its generated loot.")
-				.since("INSERT VERSION")
-				.parser(new Parser<LootContext>() {
-					@Override
-					public boolean canParse(ParseContext context) {
-						return false;
-					}
-
-					@Override
-					public @Nullable LootContext parse(String s, ParseContext context) {
-						return null;
-					}
-
-					@Override
-					public String toString(LootContext lootContext, int flags) {
-						return "loot context at " + Classes.toString(lootContext.getLocation()) +
-							((lootContext.getLootedEntity() != null) ? (" with looted entity " + Classes.toString(lootContext.getLootedEntity())) : "") +
-							((lootContext.getKiller() != null) ? " with killer " + Classes.toString(lootContext.getKiller()) : "") +
-							((lootContext.getLuck() != 0) ? " with luck " + lootContext.getLuck() : "");
-					}
-
-					@Override
-					public String toVariableNameString(LootContext lootContext) {
-						return "loot context:" + lootContext.hashCode();
-					}
-				}));
 	}
 
 }

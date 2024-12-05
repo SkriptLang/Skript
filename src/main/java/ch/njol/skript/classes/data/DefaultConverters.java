@@ -197,12 +197,6 @@ public class DefaultConverters {
 
 		Converters.registerConverter(String.class, World.class, Bukkit::getWorld);
 
-		// LootContext - Location
-		Converters.registerConverter(LootContext.class, Location.class, LootContext::getLocation, Commands.CONVERTER_NO_COMMAND_ARGUMENTS);
-
-		// LootTables - LootTable
-		Converters.registerConverter(LootTables.class, LootTable.class, LootTables::getLootTable);
-
 //		// Entity - String (UUID) // Very slow, thus disabled for now
 //		Converters.registerConverter(String.class, Entity.class, new Converter<String, Entity>() {
 //

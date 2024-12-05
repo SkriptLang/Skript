@@ -1,4 +1,4 @@
-package ch.njol.skript.expressions;
+package org.skriptlang.skript.bukkit.loottables.elements.expressions;
 
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
@@ -8,10 +8,10 @@ import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.block.Block;
-import org.bukkit.block.BlockState;
 import org.bukkit.event.Event;
 import org.bukkit.loot.Lootable;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.bukkit.loottables.LootTableUtils;
 
 @Name("Loot Table Seed")
 @Description("Returns the seed of a loot table.")
@@ -23,7 +23,7 @@ import org.jetbrains.annotations.Nullable;
 public class ExprLootTableSeed extends SimplePropertyExpression<Object, Long> {
 
 	static {
-		register(ExprLootTableSeed.class, Long.class, "loot[[ ]table] seed[s]", "entities/blocks");
+		register( ExprLootTableSeed.class, Long.class, "loot[[ ]table] seed[s]", "entities/blocks");
 	}
 
 	@Override
@@ -35,28 +35,24 @@ public class ExprLootTableSeed extends SimplePropertyExpression<Object, Long> {
 		return null;
 	}
 
-	public @Nullable Class<?>[] acceptChange(ChangeMode mode) {
+	public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
 		if (mode == ChangeMode.SET)
 			return CollectionUtils.array(Number.class);
 		return null;
 	}
 
 	@Override
-	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
+	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
+		Number seed = delta != null ? ((Number) delta[0]) : null;
+		if (seed == null)
+			return;
+		long seedValue = seed.longValue();
+
 		for (Object object : getExpr().getArray(event)) {
-			if (object instanceof Block block)
-				object = block.getState();
-			if (!(object instanceof Lootable lootable))
-				return;
+			if (!LootTableUtils.isLootable(object))
+				continue;
 
-			Number seed = delta != null ? ((Number) delta[0]) : null;
-			if (seed == null)
-				return;
-
-			lootable.setSeed(seed.longValue());
-
-			if (lootable instanceof BlockState blockState)
-				blockState.update();
+			LootTableUtils.setSeed(LootTableUtils.getLootable(object), seedValue);
 		}
 	}
 
@@ -69,4 +65,5 @@ public class ExprLootTableSeed extends SimplePropertyExpression<Object, Long> {
 	protected String getPropertyName() {
 		return "loot table seed";
 	}
+
 }

@@ -3,6 +3,7 @@ test "loot table seed":
 	set {_pig} to last spawned pig
 	
 	set {_loottable} to loot table of {_pig}
+	clear {_pig}
 	
 	set loot seed of {_loottable} to 123
 	set {_seed} to loot seed of {_loottable}

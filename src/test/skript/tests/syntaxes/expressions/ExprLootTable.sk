@@ -1,13 +1,14 @@
 test "loot table":
 
 	spawn a pig at spawn of "world"
-    set {_pig} to last spawned pig
+	set {_pig} to last spawned pig
 	set {_loottable} to loot table of {_pig}
+	clear {_pig}
 
 	set block at spawn of "world" to chest
 	set {_block} to block at spawn
 	set loot table of {_block} to "minecraft:chests/simple_dungeon"
 	set {_blockloottable} to loot table of {_block}
 
-    assert {_loottable} is set with "pig doesn't have a loot table"
+	assert {_loottable} is set with "pig doesn't have a loot table"
 	assert {_blockloottable} is set with "block doesn't have a loot table"
