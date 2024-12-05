@@ -1399,6 +1399,7 @@ public final class BukkitEventValues {
 				return null;
 			}
 		}, 0);
+
 		// CraftEvents - recipe namespaced key strings
 		EventValues.registerEventValue(CraftItemEvent.class, String.class, new Getter<String, CraftItemEvent>() {
 			@Nullable
@@ -1428,6 +1429,7 @@ public final class BukkitEventValues {
 				return e.getRecipe().getResult();
 			}
 		}, 0);
+
 		//InventoryOpenEvent
 		EventValues.registerEventValue(InventoryOpenEvent.class, Player.class, new Getter<Player, InventoryOpenEvent>() {
 			@Override

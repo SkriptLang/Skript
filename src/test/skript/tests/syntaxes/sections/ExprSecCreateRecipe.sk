@@ -1,0 +1,135 @@
+###
+	Combines:
+		ExprSecCreateRecipe
+		ExprRecipeType
+###
+
+test "register shaped recipe":
+	set {_recipe} to a new shaped recipe with the key "test_register_shaped_recipe":
+		set the recipe ingredients to diamond, air, diamond, air, emerald, air, diamond, air and diamond
+		set the recipe result to netherite sword named "test_register_shaped_recipe"
+	add {_recipe} to the server's recipes
+	set {_get} to the recipe with the key "test_register_shaped_recipe"
+	assert {_get} is set with "Shaped recipe was not added to the server"
+
+	assert the recipe type of {_recipe} is shaped recipe with "Created recipe is not a shaped recipe"
+	assert the recipe type of {_get} is shaped recipe with "Retrieved recipe is not a shaped recipe"
+
+test "register shapeless recipe":
+	set {_recipe} to a new shapeless recipe with the key "test_register_shapeless_recipe":
+		set the recipe ingredients to diamond, iron ingot and netherite ingot
+		set the recipe result to netherite sword named "test_register_shapeless_recipe"
+	add {_recipe} to the server's recipes
+	set {_get} to the recipe with the key "test_register_shapeless_recipe"
+	assert {_get} is set with "Shapeless recipe was not added to the server"
+
+	assert the recipe type of {_recipe} is shapeless recipe with "Created recipe is not a shapeless recipe"
+	assert the recipe type of {_get} is shapeless recipe with "Retrieved recipe is not a shapeless recipe"
+
+test "register shapeless recipe fail":
+	parse:
+		set {_recipe} to a new shapeless recipe with the key "test_register_shapeless_recipe_fail":
+			set the recipe ingredients of the 1st row to iron ingot, diamond and gold ingot #Fail
+			set the recipe result to netherite sword named "test_register_shapeless_recipe_fail"
+	assert last parse logs contains "This can only be used when registering a Shaped Recipe." with "Ingredients of a row did not fail for Shapeless recipe"
+
+test "register blasting recipe":
+	set {_recipe} to a new blasting recipe with the key "test_register_blasting_recipe":
+		set the recipe input item to raw iron named "test_register_blasting_recipe"
+		set the recipe result to iron ingot named "test_register_blasting_recipe"
+	add {_recipe} to the server's recipes
+	set {_get} to the recipe with the key "test_register_blasting_recipe"
+	assert {_get} is set with "Blasting recipe was not added to the server"
+
+	assert the recipe type of {_recipe} is blasting recipe with "Created recipe is not a blasting recipe"
+	assert the recipe type of {_get} is blasting recipe with "Retrieved recipe is not a blasting recipe"
+
+test "register furnace recipe":
+	set {_recipe} to a new furnace recipe with the key "test_register_furnace_recipe":
+		set the recipe input item to raw gold named "test_register_furnace_recipe"
+		set the recipe result to gold ingot named "test_register_furnace_recipe"
+	add {_recipe} to the server's recipes
+	set {_get} to the recipe with the key "test_register_furnace_recipe"
+	assert {_get} is set with "Furnace recipe was not added to the server"
+
+	assert the recipe type of {_recipe} is furnace recipe with "Created recipe is not a furnace recipe"
+	assert the recipe type of {_get} is furnace recipe with "Retrieved recipe is not a furnace recipe"
+
+test "register campfire recipe":
+	set {_recipe} to a new campfire recipe with the key "test_register_campfire_recipe":
+		set the recipe input item to raw copper named "test_register_campfire_recipe"
+		set the recipe result to copper ingot named "test_register_campfire_recipe"
+	add {_recipe} to the server's recipes
+	set {_get} to the recipe with the key "test_register_campfire_recipe"
+	assert {_get} is set with "Campfire recipe was not added to the server"
+
+	assert the recipe type of {_recipe} is campfire recipe with "Created recipe is not a campfire recipe"
+	assert the recipe type of {_get} is campfire recipe with "Retrieved recipe is not a campfire recipe"
+
+test "register smoking recipe":
+	set {_recipe} to a new smoking recipe with the key "test_register_smoking_recipe":
+		set the recipe input item to raw iron named "test_register_smoking_recipe"
+		set the recipe result to iron ingot named "test_register_smoking_recipe"
+	add {_recipe} to the server's recipes
+	set {_get} to the recipe with the key "test_register_smoking_recipe"
+	assert {_get} is set with "Smoking recipe was not added to the server"
+
+	assert the recipe type of {_recipe} is smoking recipe with "Created recipe is not a smoking recipe"
+	assert the recipe type of {_get} is smoking recipe with "Retrieved recipe is not a smoking recipe"
+
+test "register smithing recipe" when running below minecraft "1.20":
+	set {_recipe} to a new smithing recipe with the key "test_register_smithing_recipe":
+		set the recipe base item to iron ingot named "test_register_smithing_recipe"
+		set the recipe additional item to gold ingot named "test_register_smithing_recipe"
+		set the recipe result to netherite ingot named "test_register_smithing_recipe"
+	add {_recipe} to the server's recipes
+	set {_get} to the recipe with the key "test_register_smithing_recipe"
+	assert {_get} is set with "Smithing recipe was not added to the server"
+
+	assert the recipe type of {_recipe} is smithing recipe with "Created recipe is not a smithing recipe"
+	assert the recipe type of {_get} is smithing recipe with "Retrieved recipe is not a smithing recipe"
+
+test "register smithing transform recipe":
+	set {_recipe} to a new smithing transform recipe with the key "test_register_smithing_transform_recipe":
+		set the recipe base item to iron ingot named "test_register_smithing_transform_recipe"
+		set the recipe additional item to gold ingot named "test_register_smithing_transform_recipe"
+		set the recipe template item to diamond named "test_register_smithing_transform_recipe"
+		set the recipe result to netherite ingot named "test_register_smithing_transform_recipe"
+	add {_recipe} to the server's recipes
+	set {_get} to the recipe with the key "test_register_smithing_transform_recipe"
+	assert {_get} is set with "Smithing Transform recipe was not added to the server"
+
+	if running below minecraft "1.20":
+		assert the recipe type of {_recipe} is smithing recipe with "Created recipe is not a smithing recipe"
+		assert the recipe type of {_get} is smithing recipe with "Retrieved recipe is not a smithing recipe"
+	else:
+		assert the recipe type of {_recipe} is smithing transform recipe with "Created recipe is not a smithing transform recipe"
+		assert the recipe type of {_get} is smithing transform recipe with "Retrieved recipe is not a smithing transform recipe"
+
+test "register smithing trim recipe":
+	set {_recipe} to a new smithing trim recipe with the key "test_register_smithing_trim_recipe":
+		set the recipe base item to iron ingot named "test_register_smithing_trim_recipe"
+		set the recipe additional item to gold ingot named "test_register_smithing_trim_recipe"
+		set the recipe template item to diamond named "test_register_smithing_trim_recipe"
+		set the recipe result to netherite ingot named "test_register_smithing_trim_recipe"
+	add {_recipe} to the server's recipes
+	set {_get} to the recipe with the key "test_register_smithing_trim_recipe"
+	assert {_get} is set with "Smithing Trim recipe was not added to the server"
+
+	if running below minecraft "1.20":
+		assert the recipe type of {_recipe} is smithing recipe with "Created recipe is not a smithing recipe"
+		assert the recipe type of {_get} is smithing recipe with "Retrieved recipe is not a smithing recipe"
+	else:
+		assert the recipe type of {_recipe} is smithing trim recipe with "Created recipe is not a smithing trim recipe"
+		assert the recipe type of {_get} is smithing trim recipe with "Retrieved recipe is not a smithing trim recipe"
+
+test "register stonecutting recipe":
+	set {_recipe} to a new stonecutting recipe with the key "test_register_stonecutting_recipe":
+		set the recipe input item to stone named "test_register_stonecutting_recipe"
+		set the recipe result item to smooth stone named "test_register_stonecutting_recipe"
+	add {_recipe} to the server's recipes
+	set {_get} to the recipe with the key "test_register_stonecutting_recipe"
+	assert {_get} is set with "Stonecutting recipe was not added to the server"
+
+	assert the recipe type of {_recipe} is stonecutting recipe with "Created recipe is not a stonecutting recipe"
+	assert the recipe type of {_get} is stonecutting recipe with "Retrieved recipe is not a stonecutting recipe"
