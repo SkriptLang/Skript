@@ -7,6 +7,7 @@ import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
+import ch.njol.skript.registrations.Classes;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
@@ -32,8 +33,10 @@ public class ExprSkullOwner extends SimplePropertyExpression<Block, OfflinePlaye
 	@Override
 	public @Nullable OfflinePlayer convert(Block block) {
 		BlockState state = block.getState();
-		if (!(state instanceof Skull))
+		if (!(state instanceof Skull)) {
+			error("Block '" + Classes.toString(block) + "' is not a skull!");
 			return null;
+		}
 		return ((Skull) state).getOwningPlayer();
 	}
 

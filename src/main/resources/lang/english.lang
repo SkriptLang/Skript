@@ -65,6 +65,11 @@ skript command:
 		other details: <white>    %s<reset>\n
 		line details: <gold>    Line: <gray>%s<reset>\n <reset>
 
+		runtime:
+			error: <light red>The script '<gray>%s<light red>' encountered an error while executing the '<gray>%s<light red>' %s<light red>:\n
+			warning: <gold>The script '<gray>%s<gold>' encountered a warning while executing the '<gray>%s<gold>' %s<gold>:\n
+			line info: <gold>    Line %s<white>: <gray>%s\n \n
+
 		config, aliases and scripts: the config, aliases and all scripts
 		scripts: all scripts
 		main config: the main configuration
