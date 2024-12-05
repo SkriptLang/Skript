@@ -1,4 +1,4 @@
-test "text alignment" when running minecraft "1.19.4":
+test "text alignment":
 	
 	spawn item display at spawn of world "world":
 		set {_id} to entity
