@@ -1,0 +1,48 @@
+test "new equippable component" when running minecraft "1.21.2":
+	###
+		Combines:
+			ExprNewEquipComp
+			ExprEquipCompCameraOverlay
+			ExprEquipCompEntities
+			ExprEquipCompModel
+			ExprEquipCompSlot
+			ExprEquipCompSound
+			ExprEquippableComponent
+			EffEquipCompDamageable
+			EffEquipCompDispensable
+			EffEquipCompSwappable
+			CondEquipCompDamageable
+			CondEquipCompDispensable
+			CondEquipCompSwappable
+	###
+
+	set {_component} to a new equippable component
+	assert {_component} is an equippable component with "New equippable component is not an equippable component"
+	set the camera overlay of {_component} to "test_equippable_component_camera_overlay"
+	assert the camera overlay of {_component} is "skript:test_equippable_component_camera_overlay" with "Camera overlay of equippable component did not get set"
+	set the model key of {_component} to "test_equippable_component_model"
+	assert the model key of {_component} is "skript:test_equippable_component_model" with "Model key of equippable component did not get set"
+	set the allowed entities of {_component} to a zombie and a skeleton
+	assert the allowed entities of {_component} is a zombie and a skeleton with "Allowed entities of equippable component did not get set"
+	set the equipment slot of {_component} to helmet slot
+	assert the equipment slot of {_component} is helmet slot with "Equipment slot of equippable component did not get set"
+	set the equip sound of {_component} to "entity.experience_orb.pickup"
+	assert the equip sound of {_component} is "entity.experience_orb.pickup" with "Equip sound of equippable component did not get set"
+	set {_component} to be damageable
+	assert the {_component} is damageable with "Equippable component did not set damageable to true"
+	set the {_component} to be dispensable
+	assert the {_component} is dispensable with "Equippable component did not set dispensable to true"
+	set the {_component} to be swappable
+	assert the {_component} is swappable with "Equippable component did not set swappable to true"
+
+	set {_item} to diamond helmet
+	set the equippable component of {_item} to {_component}
+	assert the equippable component of {_item} is {_component} with "Item's equippable component does not match variable component"
+	assert the camera overlay of {_item} is "skript:test_equippable_component_camera_overlay" with "Camera overlay of item's equippable component is not ""skript:test_equippable_component_camera_overlay"""
+	assert the model key of {_item} is "skript:test_equippable_component_model" with "Model key of item's equippable component is not ""skript:test_equippable_component_model"""
+	assert the allowed entities of {_item} is a zombie and a skeleton with "Allowed entities of item's equippable component is not a zombie and a skeleton"
+	assert the equipment slot of {_item} is helmet slot with "Equipment slot of item's equippable component is not helmet slot"
+	assert the equip sound of {_item} is "entity.experience_orb.pickup" with "Equip sound of item's equippable component is not ""entity.experience_orb.pickup"""
+	assert the {_item} is damageable with "Item's equippable component damageable is not true"
+	assert the {_item} is dispensable with "Item's equippable component dispensable is not true"
+	assert the {_item} is swappable with "Item's equippable component swappable is not true"
