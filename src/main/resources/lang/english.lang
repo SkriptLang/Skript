@@ -46,6 +46,7 @@ skript command:
 			check: Checks for a new version
 			changes: Lists all changes since the current version
 			download: Download the newest version
+		list: Lists all enabled and disabled scripts
 		info: Prints a message with links to Skript's aliases and documentation
 		gen-docs: Generates documentation using docs/templates in plugin folder
 		test: Used for running internal Skript tests
@@ -113,6 +114,13 @@ skript command:
 			# invalid version: No changelog for the version <gold>%s<red> available
 			title: <bold><cyan>%s<reset> (%s)
 			next page: <grey>page %s of %s. Type <gold>/skript update changes %s<gray> for the next page (hint: use the up arrow key)
+	list:
+		enabled:
+			header: <white>Enabled scripts:
+			element: <lime green>  %s
+		disabled:
+			header: <white>Disabled scripts:
+			element: <light red>  %s
 	info:
 		aliases: Skript's aliases can be found here: <aqua>https://github.com/SkriptLang/skript-aliases
 		documentation: Skript's documentation can be found here: <aqua>https://docs.skriptlang.org/
