@@ -15,7 +15,6 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.loot.LootContext;
 import org.bukkit.loot.LootTable;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.bukkit.loottables.LootContextWrapper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -46,13 +45,13 @@ public class ExprLootItems extends SimpleExpression<ItemStack> {
 	}
 
 	private Expression<LootTable> lootTables;
-	private Expression<LootContext> contextExpression;
+	private Expression<LootContext> context;
 
 	@Override
 	@SuppressWarnings("unchecked")
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		lootTables = (Expression<LootTable>) exprs[0];
-		contextExpression = (Expression<LootContext>) exprs[1];
+		context = (Expression<LootContext>) exprs[1];
 		return true;
 	}
 
@@ -60,7 +59,7 @@ public class ExprLootItems extends SimpleExpression<ItemStack> {
 	protected ItemStack @Nullable [] get(Event event) {
 		List<ItemStack> items = new ArrayList<>();
 
-		LootContext context = this.contextExpression.getSingle(event);
+		LootContext context = this.context.getSingle(event);
 		if (context == null)
 			return new ItemStack[0];
 
@@ -71,6 +70,7 @@ public class ExprLootItems extends SimpleExpression<ItemStack> {
 			}
 			catch (IllegalArgumentException ignore) {}
 		}
+
 		return items.toArray(new ItemStack[0]);
 	}
 
@@ -86,7 +86,7 @@ public class ExprLootItems extends SimpleExpression<ItemStack> {
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return "the loot items of " + lootTables.toString(event, debug) + " with loot context " + contextExpression.toString(event, debug);
+		return "the loot items of " + lootTables.toString(event, debug) + " with loot context " + context.toString(event, debug);
 	}
 
 }

@@ -16,8 +16,8 @@ import org.skriptlang.skript.bukkit.loottables.LootTableUtils;
 @Name("Loot Table Seed")
 @Description("Returns the seed of a loot table.")
 @Examples({
-	"loot seed of loot table of block",
-	"set loot table seed of loot table of block to 123456789"
+	"loot seed of block",
+	"set loot table seed of entity to 123456789"
 })
 @Since("INSERT VERSION")
 public class ExprLootTableSeed extends SimplePropertyExpression<Object, Long> {

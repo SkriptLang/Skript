@@ -15,7 +15,6 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.loot.LootContext;
 import org.bukkit.loot.LootTable;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.bukkit.loottables.LootContextWrapper;
 
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
@@ -26,25 +25,25 @@ import java.util.concurrent.ThreadLocalRandom;
 	"Note that loot contexts require the killer and looted entity if the loot table is under the entities category. It only requires the location if the loot table is not in the entities category, eg. blocks, chests.",
 	"Also note that if the inventory is full, it will cause warnings in the console due to over-filling the inventory."
 })
-@Examples("the loot context at {_location}")
+@Examples("generate loot of loot table \"minecraft:chests/simple_dungeon\" using loot context at player in {_inventory}")
 @Since("INSERT VERSION")
 public class EffGenerateLoot extends Effect {
 
 	static {
 		Skript.registerEffect(EffGenerateLoot.class,
-			"generate loot (of|using) [loot[ ]table] %loottable% (with|using) [[loot] context] %lootcontext% in [inventor(y|ies)] %inventories%"
+			"generate loot (of|using) [the] [loot[ ]table] %loottable% (with|using) [the] [[loot] context] %lootcontext% in [inventor(y|ies)] %inventories%"
 		);
 	}
 
 	private Expression<LootTable> lootTable;
-	private Expression<LootContextWrapper> lootContext;
+	private Expression<LootContext> lootContext;
 	private Expression<Inventory> inventories;
 
 	@Override
 	@SuppressWarnings("unchecked")
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
 		lootTable = (Expression<LootTable>) exprs[0];
-		lootContext = (Expression<LootContextWrapper>) exprs[1];
+		lootContext = (Expression<LootContext>) exprs[1];
 		inventories = (Expression<Inventory>) exprs[2];
 		return true;
 	}
@@ -53,13 +52,9 @@ public class EffGenerateLoot extends Effect {
 	protected void execute(Event event) {
 		Random random = ThreadLocalRandom.current();
 
-		LootContextWrapper wrapper = lootContext.getSingle(event);
+		LootContext context = lootContext.getSingle(event);
 		LootTable table = lootTable.getSingle(event);
-		if (wrapper == null || table == null)
-			return;
-
-		LootContext context = wrapper.getContext();
-		if (context == null)
+		if (context == null || table == null)
 			return;
 
 		for (Inventory inventory : inventories.getArray(event)) {

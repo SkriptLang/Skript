@@ -26,12 +26,12 @@ import java.util.concurrent.atomic.AtomicBoolean;
 @Name("New Loot Context")
 @Description("Create a loot context.")
 @Examples({
+	"set {_player} to player",
 	"set {_context} to a new loot context at player:",
-		"\tset the loot location of loot context",
-	"# this will set {_items::*} to the items that would be dropped from the simple dungeon loot table with the given loot context",
-	"",
-	"give player loot items of entity's loot table with loot context {_context}",
-	"# this will give the player the items that the entity would drop with the given loot context"
+		"\tset loot context luck value to 10",
+		"\tset loot context killer to {_player}",
+		"\tset loot context entity to last spawned pig",
+	"give player loot items of loot table \"minecraft:entities/iron_golem\" with loot context {_context}"
 })
 @Since("INSERT VERSION")
 public class ExprSecCreateLootContext extends SectionExpression<LootContext> {
@@ -39,12 +39,12 @@ public class ExprSecCreateLootContext extends SectionExpression<LootContext> {
 	static {
 		Skript.registerExpression(ExprSecCreateLootContext.class, LootContext.class, ExpressionType.SIMPLE,
 			"[a] [new] loot context %direction% %location%");
-		EventValues.registerEventValue(LootContextCreateEvent.class, LootContextWrapper.class, new Getter<>() {
-            @Override
-            public @Nullable LootContextWrapper get(LootContextCreateEvent event) {
-                return event.getWrapper();
-            }
-        }, EventValues.TIME_NOW);
+		EventValues.registerEventValue(LootContextCreateEvent.class, LootContext.class, new Getter<>() {
+			@Override
+			public @Nullable LootContext get(LootContextCreateEvent event) {
+				return event.getContextWrapper().getContext();
+			}
+		}, EventValues.TIME_NOW);
 	}
 
 	private Trigger trigger;
@@ -84,7 +84,7 @@ public class ExprSecCreateLootContext extends SectionExpression<LootContext> {
 		Variables.setLocalVariables(event, Variables.copyLocalVariables(contextEvent));
 		Variables.removeLocals(contextEvent);
 
-		return new LootContext[]{contextEvent.getWrapper().getContext()};
+		return new LootContext[]{contextEvent.getContextWrapper().getContext()};
 	}
 
 	@Override

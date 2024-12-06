@@ -7,8 +7,6 @@ import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import ch.njol.util.coll.CollectionUtils;
-import org.bukkit.block.Block;
-import org.bukkit.block.BlockState;
 import org.bukkit.event.Event;
 import org.bukkit.loot.LootTable;
 import org.bukkit.loot.Lootable;
@@ -39,11 +37,7 @@ public class ExprLootTable extends SimplePropertyExpression<Object, LootTable> {
 
 	@Override
 	public @Nullable LootTable convert(Object object) {
-		if (object instanceof Lootable lootable)
-			return lootable.getLootTable();
-		if (object instanceof Block block)
-			return block.getState() instanceof Lootable lootable ? lootable.getLootTable() : null;
-		return null;
+		return LootTableUtils.getLootTable(object);
 	}
 
 	public Class<?> @Nullable [] acceptChange(ChangeMode mode) {

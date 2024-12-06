@@ -5,8 +5,6 @@ import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
-import org.bukkit.block.Block;
-import org.bukkit.loot.Lootable;
 import org.skriptlang.skript.bukkit.loottables.LootTableUtils;
 
 @Name("Is Lootable")
@@ -16,7 +14,7 @@ import org.skriptlang.skript.bukkit.loottables.LootTableUtils;
 public class CondIsLootable extends PropertyCondition<Object> {
 
 	static {
-		PropertyCondition.register(CondIsLootable.class, "lootable", "blocks/entities");
+		register(CondIsLootable.class, PropertyType.BE, "lootable", "blocks/entities");
 	}
 
 	@Override

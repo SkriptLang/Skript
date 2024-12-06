@@ -6,10 +6,9 @@ import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
-import ch.njol.skript.expressions.base.PropertyExpression;
+import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.ExpressionType;
-import ch.njol.skript.lang.SkriptParser;
+import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.entity.Player;
@@ -29,45 +28,31 @@ import org.skriptlang.skript.bukkit.loottables.LootContextWrapper;
 		"\tset loot context entity to last spawned pig"
 })
 @Since("INSERT VERSION")
-public class ExprLootContextKiller extends PropertyExpression<LootContext, Player> {
+public class ExprLootContextKiller extends SimplePropertyExpression<LootContext, Player> {
 
 	static {
-		Skript.registerExpression(ExprLootContextKiller.class, Player.class, ExpressionType.PROPERTY,
-			"[the] loot [context] killer [of %-lootcontext%]",
-			"%lootcontext%'[s] loot [context] killer");
+		registerDefault(ExprLootContextKiller.class, Player.class, "loot [context] killer", "lootcontexts");
 	}
 
 	private boolean isEvent = false;
 
 	@Override
-	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
-		if (exprs[0] == null) {
-			if (!getParser().isCurrentEvent(LootContextCreateEvent.class)) {
-				Skript.error("There is no loot context in a '" + getParser().getCurrentEventName() + "' event.");
-				return false;
-			}
-			isEvent = true;
-		}
-		//noinspection unchecked
-		setExpr((Expression<LootContext>) exprs[0]);
-		return true;
+	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
+		isEvent = getParser().isCurrentEvent(LootContextCreateEvent.class);
+		return super.init(expressions, matchedPattern, isDelayed, parseResult);
 	}
 
-
 	@Override
-	protected Player[] get(Event event, LootContext[] source) {
-		return get(source, context -> {
-			if (context.getKiller() instanceof Player player)
-				return player;
-			return null;
-		});
+	public @Nullable Player convert(LootContext context) {
+		if (context.getKiller() instanceof Player player)
+			return player;
+		return null;
 	}
 
 	public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
 		if (!isEvent)
 			Skript.error("You can not set the loot context killer of existing loot contexts.");
-		else
-		if (mode == ChangeMode.SET)
+		else if (mode == ChangeMode.SET)
 			return CollectionUtils.array(Player.class);
 		return null;
 	}
@@ -77,7 +62,7 @@ public class ExprLootContextKiller extends PropertyExpression<LootContext, Playe
 		if (!(event instanceof LootContextCreateEvent createEvent))
 			return;
 
-		LootContextWrapper wrapper = createEvent.getWrapper();
+		LootContextWrapper wrapper = createEvent.getContextWrapper();
 		wrapper.setKiller((Player) delta[0]);
 	}
 
@@ -87,10 +72,8 @@ public class ExprLootContextKiller extends PropertyExpression<LootContext, Playe
 	}
 
 	@Override
-	public String toString(@Nullable Event event, boolean debug) {
-		if (getExpr() == null)
-			return "the loot context killer";
-		return "the loot context killer of " + getExpr().toString(event, debug);
+	protected String getPropertyName() {
+		return "loot context killer";
 	}
 
 }

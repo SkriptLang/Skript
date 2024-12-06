@@ -4,17 +4,14 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.bukkitutil.NamespacedUtils;
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.classes.Parser;
-import ch.njol.skript.command.Commands;
+import ch.njol.skript.expressions.base.EventValueExpression;
 import ch.njol.skript.lang.ParseContext;
 import ch.njol.skript.registrations.Classes;
 import org.bukkit.Bukkit;
-import org.bukkit.Location;
 import org.bukkit.loot.LootContext;
 import org.bukkit.loot.LootTable;
+import org.bukkit.loot.LootTables;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.lang.comparator.Comparator;
-import org.skriptlang.skript.lang.comparator.Comparators;
-import org.skriptlang.skript.lang.comparator.Relation;
 import org.skriptlang.skript.lang.converter.Converters;
 
 import java.io.IOException;
@@ -34,22 +31,22 @@ public class LootTableModule {
 			.parser(new Parser<>() {
 				@Override
 				public boolean canParse(ParseContext context) {
-					return false;
+					return true;
 				}
 
 				@Override
 				public @Nullable LootTable parse(String s, ParseContext context) {
-					return null;
+					return Bukkit.getLootTable(NamespacedUtils.getNamespacedKey(s));
 				}
 
 				@Override
 				public String toString(LootTable o, int flags) {
-					return "loot table '" + o.getKey().asString() + '\'';
+					return "loot table '" + o.getKey() + '\'';
 				}
 
 				@Override
 				public String toVariableNameString(LootTable o) {
-					return "loot table '" + o.getKey().asString() + '\'';
+					return "loot table '" + o.getKey() + '\'';
 				}
 			})
 		);
@@ -59,6 +56,7 @@ public class LootTableModule {
 			.name("Loot Context")
 			.description("Represents additional information a loot table can use to modify its generated loot.")
 			.since("INSERT VERSION")
+			.defaultExpression(new EventValueExpression<>(LootContext.class))
 			.parser(new Parser<>() {
 				@Override
 				public boolean canParse(ParseContext context) {
@@ -85,16 +83,17 @@ public class LootTableModule {
 			})
 		);
 
-		// --- CONVERTERS --- //
+		Classes.registerClass(new ClassInfo<>(LootTables.class, "loottabletype")
+			.user("loot ?tables?")
+			.name("Loot Tables")
+			.description("Represents all the loot tables Mojang offers.")
+			.since("INSERT VERSION")
+		);
 
-		// LootContext - Location
-		Converters.registerConverter(LootContext.class, Location.class, LootContext::getLocation, Commands.CONVERTER_NO_COMMAND_ARGUMENTS);
+		// --- CONVERTERS --- //
 
 		// String - LootTable
 		Converters.registerConverter(String.class, LootTable.class, key -> Bukkit.getLootTable(NamespacedUtils.getNamespacedKey(key)));
-
-		// LootTable - String
-		Converters.registerConverter(LootTable.class, String.class, lootTable -> lootTable.getKey().toString());
 	}
 
 }

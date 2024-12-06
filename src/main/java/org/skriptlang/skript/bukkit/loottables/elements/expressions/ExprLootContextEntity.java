@@ -6,10 +6,9 @@ import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
-import ch.njol.skript.expressions.base.PropertyExpression;
+import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.ExpressionType;
-import ch.njol.skript.lang.SkriptParser;
+import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.entity.Entity;
@@ -29,40 +28,29 @@ import org.skriptlang.skript.bukkit.loottables.LootContextWrapper;
 		"\tset loot context entity to last spawned pig"
 })
 @Since("INSERT VERSION")
-public class ExprLootContextEntity extends PropertyExpression<LootContext, Entity> {
+public class ExprLootContextEntity extends SimplePropertyExpression<LootContext, Entity> {
 
 	static {
-		Skript.registerExpression(ExprLootContextEntity.class, Entity.class, ExpressionType.PROPERTY,
-			"[the] loot [context] entity [of %-lootcontext%]",
-			"%lootcontext%'[s] loot [context] entity");
+		registerDefault(ExprLootContextEntity.class, Entity.class, "loot [context] entity", "lootcontexts");
 	}
 
 	private boolean isEvent = false;
 
 	@Override
-	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
-		if (exprs[0] == null) {
-			if (!getParser().isCurrentEvent(LootContextCreateEvent.class)) {
-				Skript.error("There is no loot context in a '" + getParser().getCurrentEventName() + "' event.");
-				return false;
-			}
-			isEvent = true;
-		}
-		//noinspection unchecked
-		setExpr((Expression<LootContext>) exprs[0]);
-		return true;
+	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
+		isEvent = getParser().isCurrentEvent(LootContextCreateEvent.class);
+		return super.init(expressions, matchedPattern, isDelayed, parseResult);
 	}
 
 	@Override
-	protected Entity[] get(Event event, LootContext[] source) {
-		return get(source, LootContext::getLootedEntity);
+	public @Nullable Entity convert(LootContext context) {
+		return context.getLootedEntity();
 	}
 
 	public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
 		if (!isEvent)
 			Skript.error("You can not set the loot context entity of existing loot contexts.");
-		else
-		if (mode == ChangeMode.SET)
+		else if (mode == ChangeMode.SET)
 			return CollectionUtils.array(Entity.class);
 		return null;
 	}
@@ -72,7 +60,7 @@ public class ExprLootContextEntity extends PropertyExpression<LootContext, Entit
 		if (!(event instanceof LootContextCreateEvent createEvent))
 			return;
 
-		LootContextWrapper wrapper = createEvent.getWrapper();
+		LootContextWrapper wrapper = createEvent.getContextWrapper();
 		wrapper.setEntity((Entity) delta[0]);
 	}
 
@@ -82,10 +70,8 @@ public class ExprLootContextEntity extends PropertyExpression<LootContext, Entit
 	}
 
 	@Override
-	public String toString(@Nullable Event event, boolean debug) {
-		if (getExpr() == null)
-			return "the loot context entity";
-		return "the loot context entity of " + getExpr().toString(event, debug);
+	protected String getPropertyName() {
+		return "loot context entity";
 	}
 
 }

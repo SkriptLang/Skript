@@ -6,14 +6,14 @@ import org.jetbrains.annotations.NotNull;
 
 public class LootContextCreateEvent extends Event {
 
-	private final LootContextWrapper context;
+	private final LootContextWrapper contextWrapper;
 
 	public LootContextCreateEvent(LootContextWrapper context) {
-		this.context = context;
+		this.contextWrapper = context;
 	}
 
-	public LootContextWrapper getWrapper() {
-		return context;
+	public LootContextWrapper getContextWrapper() {
+		return contextWrapper;
 	}
 
 	@Override
