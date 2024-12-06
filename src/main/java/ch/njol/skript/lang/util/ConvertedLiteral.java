@@ -46,9 +46,8 @@ public class ConvertedLiteral<F, T> extends ConvertedExpression<F, T> implements
 	}
 
 	@Override
-	@Nullable
 	@SuppressWarnings("unchecked")
-	public <R> Literal<? extends R> getConvertedExpression(Class<R>... to) {
+	public <R> @Nullable Literal<? extends R> getConvertedExpression(Class<R>... to) {
 		if (CollectionUtils.containsSuperclass(to, this.to))
 			return (Literal<? extends R>) this;
 		return ((Literal<F>) source).getConvertedExpression(to);
@@ -87,8 +86,7 @@ public class ConvertedLiteral<F, T> extends ConvertedExpression<F, T> implements
 	}
 
 	@Override
-	@Nullable
-	public Iterator<T> iterator(Event event) {
+	public @Nullable Iterator<T> iterator(Event event) {
 		return new ArrayIterator<>(data);
 	}
 

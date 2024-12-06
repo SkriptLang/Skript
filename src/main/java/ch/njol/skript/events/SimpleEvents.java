@@ -69,6 +69,7 @@ import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.entity.ProjectileLaunchEvent;
 import org.bukkit.event.entity.SheepRegrowWoolEvent;
 import org.bukkit.event.entity.SlimeSplitEvent;
+import org.bukkit.event.entity.PiglinBarterEvent;
 import org.bukkit.event.inventory.FurnaceBurnEvent;
 import org.bukkit.event.inventory.FurnaceSmeltEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
@@ -103,6 +104,8 @@ import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.event.player.PlayerToggleFlightEvent;
 import org.bukkit.event.player.PlayerToggleSneakEvent;
 import org.bukkit.event.player.PlayerToggleSprintEvent;
+import org.bukkit.event.player.PlayerExpCooldownChangeEvent;
+import org.bukkit.event.server.BroadcastMessageEvent;
 import org.bukkit.event.server.ServerListPingEvent;
 import org.bukkit.event.vehicle.VehicleCreateEvent;
 import org.bukkit.event.vehicle.VehicleDamageEvent;
@@ -746,6 +749,20 @@ public class SimpleEvents {
 				)
 				.since("2.7");
 
+		if (Skript.classExists("org.bukkit.event.entity.PiglinBarterEvent")) {
+			Skript.registerEvent("Piglin Barter", SimpleEvent.class, PiglinBarterEvent.class, "piglin (barter[ing]|trad(e|ing))")
+				.requiredPlugins("Minecraft 1.16+")
+				.description(
+					"Called when a piglin finishes bartering. A piglin may start bartering after picking up an item on its bartering list.",
+					"Cancelling will prevent piglins from dropping items, but will still make them pick up the input.")
+				.examples(
+					"on piglin barter:",
+					"\tif barter drops contain diamond:",
+					"\t\tsend \"Diamonds belong in the money pit!\" to player",
+					"\t\tcancel event"
+				)
+				.since("INSERT VERSION");
+		}
 		{
 			final Class<? extends Event> eventClass;
 			if (Skript.classExists("org.bukkit.event.block.BellRingEvent")) {
@@ -784,6 +801,7 @@ public class SimpleEvents {
 					)
 					.since("2.9.0")
 					.requiredPlugins("Spigot 1.19.4+");
+
 		}
 
 		if (Skript.classExists("com.destroystokyo.paper.event.entity.EndermanAttackPlayerEvent")) {
@@ -801,6 +819,28 @@ public class SimpleEvents {
 					.since("2.9.0")
 					.requiredPlugins("Paper");
 		}
-	}
 
+		Skript.registerEvent("Broadcast", SimpleEvent.class, BroadcastMessageEvent.class, "broadcast")
+			.description("Called when a message is broadcasted.")
+			.examples(
+				"on broadcast:",
+					"\tset broadcast-message to \"&c[BROADCAST] %broadcasted message%\""
+			)
+			.since("INSERT VERSION");
+
+		Skript.registerEvent("Experience Cooldown Change", SimpleEvent.class, PlayerExpCooldownChangeEvent.class, "player (experience|[e]xp) cooldown change")
+			.description(
+				"Called when a player's experience cooldown changes.",
+				"Experience cooldown is how long until a player can pick up another orb of experience."
+			)
+			.examples(
+				"on player experience cooldown change:",
+					"\tbroadcast event-player",
+					"\tbroadcast event-timespan",
+					"\tbroadcast past event-timespan",
+					"\tbroadcast xp cooldown change reason"
+			)
+			.since("INSERT VERSION");
+
+	}
 }

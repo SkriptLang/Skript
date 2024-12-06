@@ -50,11 +50,8 @@ public abstract class Effect extends Statement {
 		return true;
 	}
 
-	@Nullable
-	@SuppressWarnings({"rawtypes", "unchecked"})
-	public static Effect parse(String input, @Nullable String defaultError) {
-		ParseLogHandler log = SkriptLogger.startParseLogHandler();
-		try {
+	public static @Nullable Effect parse(String input, @Nullable String defaultError) {
+		try (ParseLogHandler log = SkriptLogger.startParseLogHandler()) {
 			EffFunctionCall functionCall = EffFunctionCall.parse(input);
 			if (functionCall != null) {
 				log.printLog();
@@ -72,6 +69,7 @@ public abstract class Effect extends Statement {
 			}
 			log.clear();
 
+			//noinspection unchecked,rawtypes
 			Effect effect = (Effect) SkriptParser.parse(input, (Iterator) Skript.getEffects().iterator(), defaultError);
 			if (effect != null) {
 				log.printLog();
@@ -80,8 +78,6 @@ public abstract class Effect extends Statement {
 
 			log.printError();
 			return null;
-		} finally {
-			log.stop();
 		}
 	}
 

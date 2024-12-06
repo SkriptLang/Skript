@@ -184,7 +184,7 @@ public abstract class Commands {
 	};
 
 	static boolean handleEffectCommand(CommandSender sender, String command) {
-		if (!(sender instanceof ConsoleCommandSender || sender.hasPermission("skript.effectcommands") || SkriptConfig.allowOpsToUseEffectCommands.value() && sender.isOp()))
+		if (!(Skript.testing() || sender instanceof ConsoleCommandSender || sender.hasPermission("skript.effectcommands") || SkriptConfig.allowOpsToUseEffectCommands.value() && sender.isOp()))
 			return false;
 		try {
 			command = "" + command.substring(SkriptConfig.effectCommandToken.value().length()).trim();
@@ -300,7 +300,7 @@ public abstract class Commands {
 			Bukkit.getPluginManager().registerEvents(new Listener() {
 				@EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
 				public void onPlayerChat(AsyncPlayerChatEvent event) {
-					if (!SkriptConfig.enableEffectCommands.value() || !event.getMessage().startsWith(SkriptConfig.effectCommandToken.value()))
+					if ((!SkriptConfig.enableEffectCommands.value() && !Skript.testing()) || !event.getMessage().startsWith(SkriptConfig.effectCommandToken.value()))
 						return;
 					if (!event.isAsynchronous()) {
 						if (handleEffectCommand(event.getPlayer(), event.getMessage()))

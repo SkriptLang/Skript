@@ -32,9 +32,8 @@ public interface Literal<T> extends Expression<T> {
 	T getSingle();
 
 	@Override
-	@Nullable
 	@SuppressWarnings("unchecked")
-	<R> Literal<? extends R> getConvertedExpression(Class<R>... to);
+	<R> @Nullable Literal<? extends R> getConvertedExpression(Class<R>... to);
 
 	T[] getAll();
 

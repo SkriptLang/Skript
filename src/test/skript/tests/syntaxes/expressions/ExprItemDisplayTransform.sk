@@ -1,0 +1,40 @@
+test "item display transforms" when running minecraft "1.19.4":
+
+	spawn block display at spawn of world "world":
+		set {_bd} to entity
+
+	assert item transform of {_bd} is not set with "block display has item transform"
+	set item transform of {_bd} to fixed
+	assert item transform of {_bd} is not set with "block display has item transform"
+	reset item transform of {_bd}
+	assert item transform of {_bd} is not set with "block display has item transform"
+
+	delete entity within {_bd}
+	spawn item display of a diamond sword at spawn of world "world":
+		set {_id} to entity
+
+	assert item transform of {_id} is no transform with "item display has wrong default transform"
+
+	set item transform of {_id} to third person left hand
+	assert item transform of {_id} is third person left hand with "failed to set item transform"
+	set item transform of {_id} to third person right hand
+	assert item transform of {_id} is third person right hand with "failed to set item transform"
+	set item transform of {_id} to first person left hand
+	assert item transform of {_id} is first person left hand with "failed to set item transform"
+	set item transform of {_id} to first person right hand
+	assert item transform of {_id} is first person right hand with "failed to set item transform"
+	set item transform of {_id} to no transform
+	assert item transform of {_id} is no transform with "failed to set item transform"
+	set item transform of {_id} to fixed
+	assert item transform of {_id} is fixed with "failed to set item transform"
+	set item transform of {_id} to head
+	assert item transform of {_id} is head with "failed to set item transform"
+	set item transform of {_id} to gui
+	assert item transform of {_id} is gui with "failed to set item transform"
+	set item transform of {_id} to ground
+	assert item transform of {_id} is ground with "failed to set item transform"
+
+	reset item transform of {_id}
+	assert item transform of {_id} is no transform with "failed to reset item transform"
+
+	delete entity within {_id}
