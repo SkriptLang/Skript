@@ -1,37 +1,65 @@
-/**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
 package ch.njol.skript.util.visual;
 
 import ch.njol.skript.localization.Language;
 import ch.njol.skript.localization.Noun;
 import ch.njol.skript.log.BlockingLogHandler;
 import ch.njol.skript.log.SkriptLogger;
+import ch.njol.skript.variables.Variables;
+import ch.njol.yggdrasil.Fields;
+import ch.njol.yggdrasil.YggdrasilSerializable;
+import ch.njol.yggdrasil.YggdrasilSerializer;
 import org.bukkit.Effect;
 import org.bukkit.EntityEffect;
 import org.bukkit.Location;
 import org.bukkit.Particle;
 import org.jetbrains.annotations.Nullable;
 
+import java.io.NotSerializableException;
+import java.io.StreamCorruptedException;
 import java.util.Objects;
 import java.util.function.BiFunction;
 
-public class VisualEffectType {
+public class VisualEffectType implements YggdrasilSerializable {
+
+	static {
+		Variables.yggdrasil.registerClassResolver(new YggdrasilSerializer<VisualEffectType>() {
+			@Override
+			public @Nullable Class<? extends VisualEffectType> getClass(String id) {
+				return id.equals("VisualEffectType") ? VisualEffectType.class : null;
+			}
+
+			@Override
+			public Fields serialize(VisualEffectType visualEffectType) {
+				Fields fields = new Fields();
+				fields.putObject("id", visualEffectType.getId());
+				return fields;
+			}
+
+			@Override
+			public @Nullable <E extends VisualEffectType> E newInstance(Class<E> clazz) {
+				return null;
+			}
+
+			@Override
+			public boolean canBeInstantiated(Class<? extends VisualEffectType> clazz) {
+				return false;
+			}
+
+			@Override
+			public void deserialize(VisualEffectType visualEffectType, Fields fields) { }
+
+			@Override
+			@SuppressWarnings("unchecked")
+			public <E extends VisualEffectType> E deserialize(Class<E> clazz, Fields fields) throws StreamCorruptedException, NotSerializableException {
+				return (E) VisualEffects.get(fields.getObject("id", String.class));
+			}
+
+			@Override
+			public @Nullable String getID(Class<?> clazz) {
+				return clazz.equals(VisualEffectType.class) ? "VisualEffectType" : null;
+			}
+		});
+	}
 
 	private static final String LANGUAGE_NODE = "visual effects";
 
