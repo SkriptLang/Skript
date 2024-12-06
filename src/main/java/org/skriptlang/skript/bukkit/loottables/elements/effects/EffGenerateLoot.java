@@ -60,8 +60,7 @@ public class EffGenerateLoot extends Effect {
 		for (Inventory inventory : inventories.getArray(event)) {
 			try {
 				table.fillInventory(inventory, random, context);
-			}
-			catch (IllegalArgumentException ignore) {}
+			} catch (IllegalArgumentException ignore) {}
 		}
 	}
 
