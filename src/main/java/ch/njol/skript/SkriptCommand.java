@@ -23,6 +23,10 @@ import ch.njol.skript.command.CommandHelp;
 import ch.njol.skript.doc.Documentation;
 import ch.njol.skript.doc.HTMLGenerator;
 import ch.njol.skript.doc.JSONGenerator;
+import ch.njol.skript.lang.function.Functions;
+import ch.njol.skript.lang.function.Signature;
+import ch.njol.skript.lang.function.Function;
+import ch.njol.skript.lang.function.ScriptFunction;
 import ch.njol.skript.localization.ArgsMessage;
 import ch.njol.skript.localization.Language;
 import ch.njol.skript.localization.PluralizingArgsMessage;
@@ -83,8 +87,9 @@ public class SkriptCommand implements CommandExecutor {
 			.add("check")
 			.add("changes")
 			.add("download")
-		).add("info"
-		).add("help");
+		).add("info")
+		.add("help")
+		.add("locate");
 
 	static {
 		// Add command to generate documentation
@@ -109,6 +114,9 @@ public class SkriptCommand implements CommandExecutor {
 
 	private static final ArgsMessage m_reloaded = new ArgsMessage(CONFIG_NODE + ".reload.reloaded");
 	private static final ArgsMessage m_reload_error = new ArgsMessage(CONFIG_NODE + ".reload.error");
+	private static final PluralizingArgsMessage m_function_found = new PluralizingArgsMessage("skript command.locate.function found");
+	private static final PluralizingArgsMessage m_function_provided = new PluralizingArgsMessage("skript command.locate.function provided");
+	private static final PluralizingArgsMessage m_function_not_found = new PluralizingArgsMessage("skript command.locate.function not found");
 
 	private static void reloaded(CommandSender sender, RedirectingLogHandler logHandler, TimingLogHandler timingLogHandler, String what, Object... args) {
 		what = args.length == 0 ? Language.get(CONFIG_NODE + ".reload." + what) : PluralizingArgsMessage.format(Language.format(CONFIG_NODE + ".reload." + what, args));
@@ -451,6 +459,23 @@ public class SkriptCommand implements CommandExecutor {
 					);
 			} else if (args[0].equalsIgnoreCase("help")) {
 				SKRIPT_COMMAND_HELP.showHelp(sender);
+			} else if (args[0].equalsIgnoreCase("locate")) {
+				String name = args[1];
+				Signature<?> signature = Functions.getGlobalSignature(name);
+				if (signature != null) {
+					Function<?> function = Functions.getGlobalFunction(name);
+					if (!(function instanceof ScriptFunction<?> scriptFunction)) {
+						Skript.info(sender, m_function_provided.toString(name));
+						return true;
+					}
+					Skript.info(sender, m_function_found.toString(
+						name,
+						signature.getScript(),
+						scriptFunction.getTrigger().getLineNumber()
+					));
+					return true;
+				}
+				Skript.error(sender, m_function_not_found.toString(name));
 			}
 
 		} catch (Exception e) {

@@ -114,4 +114,8 @@ public class ScriptFunction<T> extends Function<T> implements ReturnHandler<T> {
 		return getReturnType() != null ? getReturnType().getC() : null;
 	}
 
+	public final Trigger getTrigger() {
+		return trigger;
+	}
+
 }
