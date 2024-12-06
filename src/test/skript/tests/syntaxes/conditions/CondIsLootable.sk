@@ -1,10 +1,14 @@
 test "is lootable":
-	spawn a pig at spawn of "world"
+	spawn a pig at test-location
 	set {_pig} to last spawned pig
 
 	assert {_pig} is lootable with "is lootable failed"
 
 	clear {_pig}
 
-	set block at spawn of "world" to wool block
-	assert block at spawn of "world" is not lootable with "is not lootable failed"
+	set {_pastBlock} to block data of test-block
+
+	set test-block to wool block
+	assert test-block is not lootable with "is not lootable failed"
+
+	set test-block to {_pastBlock}

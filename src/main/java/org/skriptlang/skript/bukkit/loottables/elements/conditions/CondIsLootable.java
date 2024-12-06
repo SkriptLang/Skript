@@ -8,7 +8,8 @@ import ch.njol.skript.doc.Since;
 import org.skriptlang.skript.bukkit.loottables.LootTableUtils;
 
 @Name("Is Lootable")
-@Description("Checks whether an entity or block is lootable. Lootables are entities or blocks that can have a loot table.")
+@Description("Checks whether an entity or block is lootable. +" +
+	" Lootables are entities or blocks that can have a loot table.")
 @Examples("if event-entity is lootable:")
 @Since("INSERT VERSION")
 public class CondIsLootable extends PropertyCondition<Object> {

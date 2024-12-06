@@ -20,7 +20,8 @@ import org.skriptlang.skript.bukkit.loottables.LootContextWrapper;
 
 @Name("Killer of Loot Context")
 @Description("Returns the loot context killer of a loot context.")
-@Examples({"set {_killer} to loot context killer of {_context}",
+@Examples({
+	"set {_killer} to loot context killer of {_context}",
 	"",
 	"set {_context} to a new loot context at player:",
 		"\tset loot context luck value to 10",
@@ -34,7 +35,7 @@ public class ExprLootContextKiller extends SimplePropertyExpression<LootContext,
 		registerDefault(ExprLootContextKiller.class, Player.class, "loot [context] killer", "lootcontexts");
 	}
 
-	private boolean isEvent = false;
+	private boolean isEvent;
 
 	@Override
 	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
@@ -49,6 +50,7 @@ public class ExprLootContextKiller extends SimplePropertyExpression<LootContext,
 		return null;
 	}
 
+	@Override
 	public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
 		if (!isEvent)
 			Skript.error("You can not set the loot context killer of existing loot contexts.");
@@ -73,7 +75,7 @@ public class ExprLootContextKiller extends SimplePropertyExpression<LootContext,
 
 	@Override
 	protected String getPropertyName() {
-		return "loot context killer";
+		return "killer of loot context";
 	}
 
 }

@@ -1,24 +1,23 @@
 test "loot table":
 
-	spawn a pig at spawn of "world"
+	spawn a pig at test-location
 	set {_pig} to last spawned pig
-	set {_loottable} to loot table of {_pig}
+
+	assert loot table of {_pig} is "minecraft:entities/pig" with "entity loot table is not 'minecraft:entities/pig'"
+
 	clear {_pig}
 
-	set block at spawn of "world" to chest
-	set {_block} to block at spawn of "world"
-	set loot table of {_block} to "minecraft:chests/simple_dungeon"
-	set {_blockloottable} to loot table of {_block}
+	set {_pastBlock} to block data of test-block
 
-	assert {_loottable} is "minecraft:entities/pig" with "entity loot table is not 'minecraft:entities/pig'"
-	assert {_blockloottable} is "minecraft:chests/simple_dungeon" with "block loot table is not 'minecraft:chests/simple_dungeon'"
+	set test-block to chest
 
-	set loot table of {_block} to "minecraft:entities/pig"
-	set {_blockloottable} to loot table of {_block}
+	set loot table of test-block to "minecraft:chests/simple_dungeon"
+	assert loot table of test-block is "minecraft:chests/simple_dungeon" with "block loot table is not 'minecraft:chests/simple_dungeon'"
 
-	assert {_blockloottable} is "minecraft:entities/pig" with "block loot table is not 'minecraft:entities/pig'"
+	set loot table of test-block to "minecraft:entities/pig"
+	assert loot table of test-block is "minecraft:entities/pig" with "block loot table is not 'minecraft:entities/pig'"
 
-	set loot table of {_block} to "invalidloottable" parsed as loot table
-	set {_blockloottable} to loot table of {_block}
+	set loot table of test-block to "invalidloottable" parsed as loot table
+	assert loot table of test-block is not set with "block loot table is set"
 
-	assert {_blockloottable} is not set with "block loot table is set"
+	set test-block to {_pastBlock}

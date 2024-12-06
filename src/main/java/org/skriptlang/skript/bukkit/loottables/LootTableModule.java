@@ -26,14 +26,10 @@ public class LootTableModule {
 		Classes.registerClass(new ClassInfo<>(LootTable.class, "loottable")
 			.user("loot ?tables?")
 			.name("Loot Table")
-			.description("Loot tables represent what items should be in naturally generated containers, what items should be dropped when killing a mob, or what items can be fished. ")
+			.description("Loot tables represent what items should be in naturally generated containers, + " +
+				"what items should be dropped when killing a mob, or what items can be fished. ")
 			.since("INSERT VERSION")
 			.parser(new Parser<>() {
-				@Override
-				public boolean canParse(ParseContext context) {
-					return true;
-				}
-
 				@Override
 				public @Nullable LootTable parse(String s, ParseContext context) {
 					return Bukkit.getLootTable(NamespacedUtils.getNamespacedKey(s));

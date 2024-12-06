@@ -4,6 +4,7 @@ import org.bukkit.Location;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.loot.LootContext;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -20,7 +21,7 @@ public class LootContextWrapper extends LootContext.Builder {
 	 * Creates a new LootContextWrapper at the given location.
 	 * @param location the location of the LootContext.
 	 */
-	public LootContextWrapper(Location location) {
+	public LootContextWrapper(@NotNull Location location) {
         super(location);
         this.location = location;
 	}

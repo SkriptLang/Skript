@@ -20,7 +20,8 @@ import org.skriptlang.skript.bukkit.loottables.LootContextWrapper;
 
 @Name("Loot Entity of Loot Context")
 @Description("Returns the loot context entity of a loot context.")
-@Examples({"set {_entity} to loot context entity of {_context}",
+@Examples({
+	"set {_entity} to loot context entity of {_context}",
 	"",
 	"set {_context} to a new loot context at player:",
 		"\tset loot context luck value to 10",
@@ -34,7 +35,7 @@ public class ExprLootContextEntity extends SimplePropertyExpression<LootContext,
 		registerDefault(ExprLootContextEntity.class, Entity.class, "loot [context] entity", "lootcontexts");
 	}
 
-	private boolean isEvent = false;
+	private boolean isEvent;
 
 	@Override
 	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
@@ -47,6 +48,7 @@ public class ExprLootContextEntity extends SimplePropertyExpression<LootContext,
 		return context.getLootedEntity();
 	}
 
+	@Override
 	public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
 		if (!isEvent)
 			Skript.error("You can not set the loot context entity of existing loot contexts.");
@@ -71,7 +73,7 @@ public class ExprLootContextEntity extends SimplePropertyExpression<LootContext,
 
 	@Override
 	protected String getPropertyName() {
-		return "loot context entity";
+		return "entity of loot context";
 	}
 
 }

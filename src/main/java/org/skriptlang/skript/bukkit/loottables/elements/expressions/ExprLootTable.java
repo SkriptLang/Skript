@@ -13,11 +13,15 @@ import org.bukkit.loot.Lootable;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.loottables.LootTableUtils;
 
-import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 @Name("Loot Table")
 @Description({"Returns the loot table of an entity, block or loot table type.",
-	"Setting the loot table of a block will update the block state, and once opened will generate loot of the specified loot table. Please note that doing so may cause warnings in the console due to over-filling the chest."})
+	"Setting the loot table of a block will update the block state, and once opened will " +
+		"generate loot of the specified loot table. Please note that doing so may cause " +
+		"warnings in the console due to over-filling the chest.",
+	"Please note that resetting/deleting the loot table of an ENTITY will do nothing."
+})
 @Examples({
 	"set {_loot} to loot table of event-entity",
 	"set {_loot} to loot table of event-block",
@@ -40,6 +44,7 @@ public class ExprLootTable extends SimplePropertyExpression<Object, LootTable> {
 		return LootTableUtils.getLootTable(object);
 	}
 
+	@Override
 	public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
 		return switch (mode) {
 			case SET, DELETE, RESET -> CollectionUtils.array(LootTable.class);
@@ -49,19 +54,19 @@ public class ExprLootTable extends SimplePropertyExpression<Object, LootTable> {
 
 	@Override
 	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
-		BiConsumer<Lootable, LootTable> consumer = (lootable, lootTable) -> {};
-		if (mode == ChangeMode.SET)
-			consumer = LootTableUtils::setLootTable;
-		else if (mode == ChangeMode.DELETE || mode == ChangeMode.RESET)
-			consumer = (lootable, lootTable) -> LootTableUtils.clearLootTable(lootable);
-
 		LootTable lootTable = delta != null ? ((LootTable) delta[0]) : null;
+
+		Consumer<Lootable> consumer = (lootable) -> {};
+		if (mode == ChangeMode.SET)
+			consumer = (lootable) -> LootTableUtils.setLootTable(lootable, lootTable);
+		else if (mode == ChangeMode.DELETE || mode == ChangeMode.RESET)
+			consumer = (lootable) -> LootTableUtils.setLootTable(lootable, null);
 
 		for (Object object : getExpr().getArray(event)) {
 			if (!LootTableUtils.isLootable(object))
 				continue;
 
-			consumer.accept(LootTableUtils.getLootable(object), lootTable);
+			consumer.accept(LootTableUtils.getLootable(object));
 		}
 	}
 

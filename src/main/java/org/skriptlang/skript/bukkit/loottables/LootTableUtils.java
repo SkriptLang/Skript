@@ -4,6 +4,8 @@ import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.loot.LootTable;
 import org.bukkit.loot.Lootable;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Utility class for loot tables.
@@ -26,7 +28,7 @@ public class LootTableUtils {
 	 * @param object the object to get the lootable instance of.
 	 * @return the lootable instance of the object.
 	 */
-	public static Lootable getLootable(Object object) {
+	public static @Nullable Lootable getLootable(Object object) {
 		if (object instanceof Block block)
 			object = block.getState();
 		if (object instanceof Lootable lootable)
@@ -39,7 +41,7 @@ public class LootTableUtils {
 	 * @param object the object to get the loot table of.
 	 * @return returns the LootTable of the object.
 	 */
-	public static LootTable getLootTable(Object object) {
+	public static @Nullable LootTable getLootTable(Object object) {
 		if (isLootable(object))
 			return getLootable(object).getLootTable();
 		return null;
@@ -80,7 +82,7 @@ public class LootTableUtils {
 	 */
 	private static void updateState(Lootable lootable) {
 		if (lootable instanceof BlockState blockState)
-			blockState.update();
+			blockState.update(true, false);
 	}
 
 }

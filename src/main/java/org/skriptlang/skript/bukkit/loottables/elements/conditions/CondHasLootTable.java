@@ -8,7 +8,8 @@ import ch.njol.skript.doc.Since;
 import org.skriptlang.skript.bukkit.loottables.LootTableUtils;
 
 @Name("Has Loot Table")
-@Description("Checks whether an entity or block has a loot table. The loot tables of chests will be deleted when the chest is opened or broken.")
+@Description("Checks whether an entity or block has a loot table. +" +
+	" The loot tables of chests will be deleted when the chest is opened or broken.")
 @Examples("if block has a loot table:")
 @Since("INSERT VERSION")
 public class CondHasLootTable extends PropertyCondition<Object> {
@@ -20,7 +21,7 @@ public class CondHasLootTable extends PropertyCondition<Object> {
 	@Override
 	public boolean check(Object object) {
 		if (LootTableUtils.isLootable(object))
-			return LootTableUtils.getLootable(object).hasLootTable();
+			return LootTableUtils.getLootTable(object) != null;
 		return false;
 	}
 

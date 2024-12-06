@@ -23,7 +23,7 @@ import org.skriptlang.skript.bukkit.loottables.LootTableUtils;
 public class ExprLootTableSeed extends SimplePropertyExpression<Object, Long> {
 
 	static {
-		register( ExprLootTableSeed.class, Long.class, "loot[[ ]table] seed[s]", "entities/blocks");
+		register(ExprLootTableSeed.class, Long.class, "loot[[ ]table] seed[s]", "entities/blocks");
 	}
 
 	@Override

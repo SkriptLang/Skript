@@ -18,8 +18,9 @@ import org.skriptlang.skript.bukkit.loottables.LootContextCreateEvent;
 import org.skriptlang.skript.bukkit.loottables.LootContextWrapper;
 
 @Name("Luck of Loot Context")
-@Description("Returns the number of luck of a loot context.")
-@Examples({"set {_luck} to loot context luck value of {_context}",
+@Description("Returns the luck of a loot context as a float.")
+@Examples({
+	"set {_luck} to loot context luck value of {_context}",
 	"",
 	"set {_context} to a new loot context at player:",
 		"\tset loot context luck value to 10",
@@ -33,7 +34,7 @@ public class ExprLootContextLuck extends SimplePropertyExpression<LootContext, F
 		registerDefault(ExprLootContextLuck.class, Float.class, "loot [context] luck [value|factor]", "lootcontexts");
 	}
 
-	private boolean isEvent = false;
+	private boolean isEvent;
 
 	@Override
 	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
@@ -46,6 +47,7 @@ public class ExprLootContextLuck extends SimplePropertyExpression<LootContext, F
 		return context.getLuck();
 	}
 
+	@Override
 	public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
 		if (!isEvent)
 			Skript.error("You can not set the loot context luck of existing loot contexts.");
@@ -71,7 +73,7 @@ public class ExprLootContextLuck extends SimplePropertyExpression<LootContext, F
 
 	@Override
 	protected String getPropertyName() {
-		return null;
+		return "luck of loot context";
 	}
 
 }
