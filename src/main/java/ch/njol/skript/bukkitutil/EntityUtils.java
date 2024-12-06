@@ -25,9 +25,13 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Piglin;
 import org.bukkit.entity.Zoglin;
 import org.bukkit.entity.Zombie;
+import org.jetbrains.annotations.ApiStatus.ScheduledForRemoval;
+import org.jetbrains.annotations.NotNull;
 
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
+
+import io.papermc.paper.entity.TeleportFlag;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.entity.EntityData;
@@ -156,7 +160,10 @@ public class EntityUtils {
 	/**
 	 * Teleports the given entity to the given location.
 	 * Teleports to the given location in the entity's world if the location's world is null.
+	 * @deprecated this method is only used by EffTeleport, and with the recent additions of TeleportFlag, this method should be moved within that effect.
 	 */
+	@Deprecated
+	@ScheduledForRemoval
 	public static void teleport(Entity entity, Location location) {
 		if (location.getWorld() == null) {
 			location = location.clone();
