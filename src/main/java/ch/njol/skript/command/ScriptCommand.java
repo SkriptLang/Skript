@@ -556,7 +556,7 @@ public class ScriptCommand implements TabExecutor {
 			return 0;
 		Timespan cooldown = this.cooldown;
 		assert cooldown != null;
-		long remaining = cooldown.getMilliSeconds() - getElapsedMilliseconds(uuid, event);
+		long remaining = cooldown.getAs(Timespan.TimePeriod.MILLISECOND) - getElapsedMilliseconds(uuid, event);
 		if (remaining < 0)
 			remaining = 0;
 		return remaining;
@@ -565,7 +565,7 @@ public class ScriptCommand implements TabExecutor {
 	public void setRemainingMilliseconds(UUID uuid, Event event, long milliseconds) {
 		Timespan cooldown = this.cooldown;
 		assert cooldown != null;
-		long cooldownMs = cooldown.getMilliSeconds();
+		long cooldownMs = cooldown.getAs(Timespan.TimePeriod.MILLISECOND);
 		if (milliseconds > cooldownMs)
 			milliseconds = cooldownMs;
 		setElapsedMilliSeconds(uuid, event, cooldownMs - milliseconds);

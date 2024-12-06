@@ -51,7 +51,7 @@ public class ExprResonatingTime extends SimplePropertyExpression<Block, Timespan
 	public Timespan convert(Block from) {
 		if (from.getState() instanceof Bell) {
 			int resonatingTicks = ((Bell) from.getState(false)).getResonatingTicks();
-			return resonatingTicks == 0 ? null : Timespan.fromTicks(resonatingTicks);
+			return resonatingTicks == 0 ? null : new Timespan(Timespan.TimePeriod.TICK, resonatingTicks);
 		}
 		return null;
 	}

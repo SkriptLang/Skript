@@ -118,7 +118,7 @@ public abstract class PotionEffectUtils {
 		builder.append(" of tier ").append(potionEffect.getAmplifier() + 1);
 		if (!potionEffect.hasParticles())
 			builder.append(" without particles");
-		builder.append(" for ").append(potionEffect.getDuration() == -1 ? "infinity" : Timespan.fromTicks(Math.abs(potionEffect.getDuration())));
+		builder.append(" for ").append(potionEffect.getDuration() == -1 ? "infinity" : new Timespan(Timespan.TimePeriod.TICK, Math.abs(potionEffect.getDuration())));
 		if (!potionEffect.hasIcon())
 			builder.append(" without icon");
 		return builder.toString();
