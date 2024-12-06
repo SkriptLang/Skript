@@ -74,7 +74,7 @@ public class ExprTime extends PropertyExpression<World, Time> {
 
 	@Override
 	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
-		if (getExpr() == null || delta == null)
+		if (delta == null)
 			return;
 
 		Object time = delta[0];
