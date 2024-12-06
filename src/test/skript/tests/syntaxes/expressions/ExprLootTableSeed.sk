@@ -1,10 +1,18 @@
 test "loot table seed":
+
 	spawn a pig at spawn of "world"
 	set {_pig} to last spawned pig
-	
-	set {_loottable} to loot table of {_pig}
+
+	assert the loot seed of {_pig} is 0 with "default loot seed failed"
+	set loot seed of {_pig} to 5
+	assert the loot seed of {_pig} is 5 with "simple loot seed set failed"
+	set loot seed of {_pig} to -1
+	assert the loot seed of {_pig} is -1 with "negative loot seed set failed"
+	set loot seed of {_pig} to 2
+	assert the loot seed of {_pig} is 2 with "existing loot seed set failed"
+	set loot seed of {_pig} to 3.3
+	assert the loot seed of {_pig} is 3 with "decimal loot seed set failed"
+	set loot seed of {_pig} to 3.999
+	assert the loot seed of {_pig} is 3 with "close decimal loot seed set failed"
+
 	clear {_pig}
-	
-	set loot seed of {_loottable} to 123
-	set {_seed} to loot seed of {_loottable}
-	assert {_seed} is 123 with "loot seed is %{_seed}% instead of 123"

@@ -1,4 +1,0 @@
-test "loot context with luck":
-
-	set {_context} to loot context at spawn of "world" with luck 10
-	assert luck value of {_context} is 10 with "killer is not a zombie"

@@ -6,9 +6,19 @@ test "loot table":
 	clear {_pig}
 
 	set block at spawn of "world" to chest
-	set {_block} to block at spawn
+	set {_block} to block at spawn of "world"
 	set loot table of {_block} to "minecraft:chests/simple_dungeon"
 	set {_blockloottable} to loot table of {_block}
 
-	assert {_loottable} is set with "pig doesn't have a loot table"
-	assert {_blockloottable} is set with "block doesn't have a loot table"
+	assert {_loottable} is "minecraft:entities/pig" with "entity loot table is not 'minecraft:entities/pig'"
+	assert {_blockloottable} is "minecraft:chests/simple_dungeon" with "block loot table is not 'minecraft:chests/simple_dungeon'"
+
+	set loot table of {_block} to "minecraft:entities/pig"
+	set {_blockloottable} to loot table of {_block}
+
+	assert {_blockloottable} is "minecraft:entities/pig" with "block loot table is not 'minecraft:entities/pig'"
+
+	set loot table of {_block} to "invalidloottable" parsed as loot table
+	set {_blockloottable} to loot table of {_block}
+
+	assert {_blockloottable} is not set with "block loot table is set"
