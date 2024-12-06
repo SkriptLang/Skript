@@ -22,11 +22,11 @@ import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionList;
 import ch.njol.skript.lang.Literal;
-import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.UnparsedLiteral;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.lang.util.SimpleLiteral;
+import ch.njol.skript.registrations.Classes;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.NotNull;
@@ -124,8 +124,23 @@ public final class ClassInfoReference {
 		};
 	}
 
+	private static ClassInfo<?> getMatchingClassInfo(Class<?> clazz) {
+		ClassInfo<?> matchingClassInfo = Classes.getExactClassInfo(clazz);
+		if (matchingClassInfo == null)
+			throw new IllegalArgumentException(clazz.getCanonicalName() + " is not a registered classinfo");
+		return matchingClassInfo;
+	}
+
 	private Kleenean plural;
 	private ClassInfo<?> classInfo;
+
+	public ClassInfoReference(Class<?> clazz) {
+		this(getMatchingClassInfo(clazz));
+	}
+
+	public ClassInfoReference(Class<?> clazz, Kleenean plural) {
+		this(getMatchingClassInfo(clazz), plural);
+	}
 
 	public ClassInfoReference(ClassInfo<?> classInfo) {
 		this(classInfo, Kleenean.UNKNOWN);
