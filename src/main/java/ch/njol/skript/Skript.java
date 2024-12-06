@@ -106,6 +106,7 @@ import org.skriptlang.skript.lang.experiment.ExperimentRegistry;
 import org.skriptlang.skript.lang.script.Script;
 import org.skriptlang.skript.lang.structure.Structure;
 import org.skriptlang.skript.lang.structure.StructureInfo;
+import org.skriptlang.skript.scheduler.TaskManager;
 
 import java.io.File;
 import java.io.IOException;
@@ -519,9 +520,14 @@ public final class Skript extends JavaPlugin implements Listener {
 		skriptCommand.setExecutor(new SkriptCommand());
 		skriptCommand.setTabCompleter(new SkriptCommandTabCompleter());
 
+		try {
+			new TaskManager(this);
+		} catch (IllegalAccessException e) {
+			Skript.exception(e, "Failed to initalize the Skript TaskManager, ensure you dont have two instances of Skript running.");
+		}
+
 		// Load Bukkit stuff. It is done after platform check, because something might be missing!
 		new BukkitEventValues();
-
 		new DefaultComparators();
 		new DefaultConverters();
 		new DefaultFunctions();
