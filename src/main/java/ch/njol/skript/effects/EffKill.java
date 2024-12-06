@@ -44,24 +44,26 @@ import org.jetbrains.annotations.Nullable;
 		"Note: This effect does not set the entity's health to 0 (which causes issues), but damages the entity by 100 times its maximum health."})
 @Examples({"kill the player",
 		"kill all creepers in the player's world",
-		"kill all endermen, witches and bats"})
+		"kill all endermen, witches and bats",
+		"kill the player ignoring totem of undying",
+		"kill target entity ignoring the totem",
+		"kill target player ignoring resurrection"})
 @Since("1.0")
 public class EffKill extends Effect {
 
 	static {
-		Skript.registerEffect(EffKill.class, "kill %entities%");
+		Skript.registerEffect(EffKill.class, "kill %entities%", "kill %entities% ignoring [the] (resurrection|revival|[undying] totem|totem [of undying])");
 	}
-	
-	// Absolutely make sure it dies
-	public static final int DAMAGE_AMOUNT = Integer.MAX_VALUE;
 	
 	@SuppressWarnings("null")
 	private Expression<Entity> entities;
+	private boolean IGNORE_TOTEM;
 	
 	@SuppressWarnings({"unchecked", "null"})
 	@Override
 	public boolean init(final Expression<?>[] exprs, final int matchedPattern, final Kleenean isDelayed, final ParseResult parser) {
 		entities = (Expression<Entity>) exprs[0];
+		IGNORE_TOTEM = matchedPattern == 1;
 		return true;
 	}
 
@@ -73,11 +75,14 @@ public class EffKill extends Effect {
 				entity = ((EnderDragonPart) entity).getParent();
 			}
 
+			if (IGNORE_TOTEM) {
+				HealthUtils.setHealth((Damageable) entity, 0);
+			}
+
 			if (entity instanceof Damageable) {
 				final boolean creative = entity instanceof Player && ((Player) entity).getGameMode() == GameMode.CREATIVE;
 				if (creative) // Set player to survival before applying damage
 					((Player) entity).setGameMode(GameMode.SURVIVAL);
-
 				HealthUtils.damage((Damageable) entity, HealthUtils.getMaxHealth((Damageable) entity) * 100); // just to make sure that it really dies >:)
 
 				if (creative) // Set creative player back to creative
