@@ -53,7 +53,7 @@ import java.util.stream.StreamSupport;
  * @see SimpleExpression
  * @see SyntaxElement
  */
-public interface Expression<T> extends SyntaxElement, Debuggable {
+public interface Expression<T> extends SyntaxElement, Debuggable, Loopable<T> {
 
 	/**
 	 * Get the single value of this expression.
@@ -259,25 +259,6 @@ public interface Expression<T> extends SyntaxElement, Debuggable {
 	 * @return Whether this is the return types' default expression
 	 */
 	boolean isDefault();
-
-	/**
-	 * Returns the same as {@link #getArray(Event)} but as an iterator. This method should be overriden by expressions intended to be looped to increase performance.
-	 * 
-	 * @param event The event to be used for evaluation
-	 * @return An iterator to iterate over all values of this expression which may be empty and/or null, but must not return null elements.
-	 */
-	@Nullable Iterator<? extends T> iterator(Event event);
-
-	/**
-	 * Checks whether the given 'loop-...' expression should match this loop, e.g. loop-block matches any loops that loop through blocks and loop-argument matches an
-	 * argument loop.
-	 * <p>
-	 * You should usually just return false as e.g. loop-block will automatically match the expression if its returnType is Block or a subtype of it.
-	 * 
-	 * @param input The entered input string (the blank in loop-___)
-	 * @return Whether this loop matches the given string
-	 */
-	boolean isLoopOf(String input);
 
 	/**
 	 * Returns the original expression that was parsed, i.e. without any conversions done.
