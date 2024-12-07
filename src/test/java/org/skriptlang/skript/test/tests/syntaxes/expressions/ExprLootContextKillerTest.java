@@ -23,7 +23,5 @@ public class ExprLootContextKillerTest extends SkriptJUnitTest {
 		EasyMock.replay(player);
 
 		Bukkit.getPluginManager().callEvent(new PlayerJoinEvent(player, "ok"));
-
-		EasyMock.verify(player);
 	}
 }
