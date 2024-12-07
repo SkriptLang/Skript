@@ -69,5 +69,5 @@ public class CondServerTickState extends Condition {
 		}
 		return stateStr + state.toString().toLowerCase(Locale.ENGLISH);
 	}
-}
 
+}

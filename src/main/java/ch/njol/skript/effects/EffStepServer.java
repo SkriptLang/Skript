@@ -51,7 +51,7 @@ public class EffStepServer extends Effect {
 		if (timespan != null) {
 			Timespan timespan = this.timespan.getSingle(event);
 			if (timespan != null)
-				ServerUtils.getServerTickManager().stepGameIfFrozen((int) timespan.getTicks());
+				ServerUtils.getServerTickManager().stepGameIfFrozen((int) timespan.getAs(Timespan.TimePeriod.TICKS));
 		} else {
 			ServerUtils.getServerTickManager().stopStepping();
 		}
