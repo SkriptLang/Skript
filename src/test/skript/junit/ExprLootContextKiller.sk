@@ -8,7 +8,7 @@ on join:
 	junit test is {_test}
 
 	set {_player} to player
-	set {_context} to new loot context at player's location:
+	set {_context} to a new loot context at player's location:
 		set loot context killer to {_player}
 
 		if loot context killer is {_player}:
