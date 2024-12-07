@@ -1,0 +1,14 @@
+test "is lootable":
+	spawn a pig at test-location
+	set {_pig} to last spawned pig
+
+	assert {_pig} is lootable with "is lootable failed"
+
+	delete entity within {_pig}
+
+	set {_pastBlock} to block data of test-block
+
+	set test-block to wool block
+	assert test-block is not lootable with "is not lootable failed"
+
+	set test-block to {_pastBlock}
