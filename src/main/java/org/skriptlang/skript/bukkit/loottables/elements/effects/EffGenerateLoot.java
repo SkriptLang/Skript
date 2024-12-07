@@ -21,10 +21,9 @@ import java.util.concurrent.ThreadLocalRandom;
 
 @Name("Generate Loot")
 @Description({
-	"Generates the loot in the specified inventories from a loot table using a loot context.",
-	"Note that loot contexts require the killer and looted entity if the loot table is under the entities category. " +
-		"It only requires the location if the loot table is not in the entities category, e.g. blocks, chests.",
-	"Also note that if the inventory is full, it will cause warnings in the console due to over-filling the inventory.",
+	"Generates the loot in the specified inventories from a loot table using a loot context. " +
+		"Some loot tables will require some of these values whereas others may not.",
+	"Note that if the inventory is full, it will cause warnings in the console due to over-filling the inventory.",
 })
 @Examples("generate loot of loot table \"minecraft:chests/simple_dungeon\" using loot context at player in {_inventory}")
 @Since("INSERT VERSION")

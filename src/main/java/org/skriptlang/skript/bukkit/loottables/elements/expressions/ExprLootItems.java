@@ -23,9 +23,8 @@ import java.util.concurrent.ThreadLocalRandom;
 
 @Name("Loot Table Items")
 @Description({
-	"Returns the items of a loot table using a loot context.",
-	"Note that loot contexts only require the killer and looted entity to be set if the loot table is under the entities category.",
-	"The loot context only requires the location if the loot table is not in the entities category, eg. blocks, chests."
+	"Returns the items of a loot table using a loot context. " +
+		"Some loot tables will require some of these values whereas others may not."
 })
 @Examples({
 	"set {_items::*} to loot items of the loot table \"minecraft:chests/simple_dungeon\" with loot context {_context}",
