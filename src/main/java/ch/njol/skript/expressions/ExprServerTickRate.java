@@ -51,8 +51,8 @@ public class ExprServerTickRate extends SimpleExpression<Float> {
 
 	public Class<?>[] acceptChange(ChangeMode mode) {
 		switch (mode) {
-			case SET, ADD, REMOVE, RESET -> { return CollectionUtils.array(Number.class); }
-			default -> { return null; }
+			case SET, ADD, REMOVE, RESET -> return CollectionUtils.array(Number.class);
+			default -> return null;
 		}
 	}
 

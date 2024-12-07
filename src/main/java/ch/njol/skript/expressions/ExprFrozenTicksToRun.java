@@ -36,10 +36,9 @@ public class ExprFrozenTicksToRun extends SimpleExpression<Integer> {
 	protected Integer @Nullable [] get(Event event) {
 		int frozenTicks = ServerUtils.getServerTickManager().getFrozenTicksToRun();
 		if (frozenTicks > 0) {
-			return new Integer[] {frozenTicks};
-		} else {
-			return null;
+			return new Integer[]{frozenTicks};
 		}
+		return new Integer[0];
 	}
 
 	@Override
