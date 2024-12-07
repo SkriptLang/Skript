@@ -5,7 +5,7 @@ test "loot table":
 
 	assert loot table of {_pig} is "minecraft:entities/pig" with "entity loot table is not 'minecraft:entities/pig'"
 
-	clear {_pig}
+	delete entity within {_pig}
 
 	set {_pastBlock} to block data of test-block
 

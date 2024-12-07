@@ -2,9 +2,9 @@ package org.skriptlang.skript.bukkit.loottables;
 
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
+import org.bukkit.entity.Mob;
 import org.bukkit.loot.LootTable;
 import org.bukkit.loot.Lootable;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -13,7 +13,7 @@ import org.jetbrains.annotations.Nullable;
 public class LootTableUtils {
 
 	/**
-	 * Checks whether a block or entity is an instance of Lootable. This is done because a block is not an instance of Lootable, but a block state is.
+	 * * Checks whether a block or entity is an instance of {@link Lootable}. This is done because a block is not an instance of Lootable, but a block state is.
 	 * @param object the object to check.
 	 * @return whether the object is lootable.
 	 */
@@ -24,11 +24,11 @@ public class LootTableUtils {
 	}
 
 	/**
-	 * Gets the lootable instance of an object.
-	 * @param object the object to get the lootable instance of.
-	 * @return the lootable instance of the object.
+	 * Gets the Lootable instance of an object.
+	 * @param object the object to get the Lootable instance of.
+	 * @return the Lootable instance of the object.
 	 */
-	public static @Nullable Lootable getLootable(Object object) {
+	public static @Nullable Lootable getAsLootable(Object object) {
 		if (object instanceof Block block)
 			object = block.getState();
 		if (object instanceof Lootable lootable)
@@ -43,7 +43,7 @@ public class LootTableUtils {
 	 */
 	public static @Nullable LootTable getLootTable(Object object) {
 		if (isLootable(object))
-			return getLootable(object).getLootTable();
+			return getAsLootable(object).getLootTable();
 		return null;
 	}
 
@@ -58,11 +58,11 @@ public class LootTableUtils {
 	}
 
 	/**
-	 * Clears the loot table of a Lootable.
+	 * Clears the loot table of a Lootable. Clearing the loot table of an entity will reset it back to its default loot table.
 	 * @param lootable the Lootable to clear the loot table of.
 	 */
 	public static void clearLootTable(Lootable lootable) {
-		lootable.clearLootTable();
+		lootable.setLootTable(null);
 		updateState(lootable);
 	}
 

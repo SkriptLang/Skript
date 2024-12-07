@@ -31,7 +31,7 @@ public class ExprLootContextLocation extends SimplePropertyExpression<LootContex
 
 	@Override
 	protected String getPropertyName() {
-		return "location of loot context";
+		return "loot location";
 	}
 
 }

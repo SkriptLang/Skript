@@ -16,11 +16,14 @@ import org.skriptlang.skript.bukkit.loottables.LootTableUtils;
 import java.util.function.Consumer;
 
 @Name("Loot Table")
-@Description({"Returns the loot table of an entity, block or loot table type.",
+@Description({
+	"Returns the loot table of an entity, block or loot table type.",
 	"Setting the loot table of a block will update the block state, and once opened will " +
 		"generate loot of the specified loot table. Please note that doing so may cause " +
 		"warnings in the console due to over-filling the chest.",
-	"Please note that resetting/deleting the loot table of an ENTITY will do nothing."
+	"Please note that resetting/deleting the loot table of an ENTITY will do nothing.",
+	"",
+	"You can find all of the vanilla loot tables at https://mcreator.net/wiki/minecraft-vanilla-loot-tables-list."
 })
 @Examples({
 	"set {_loot} to loot table of event-entity",
@@ -60,13 +63,13 @@ public class ExprLootTable extends SimplePropertyExpression<Object, LootTable> {
 		if (mode == ChangeMode.SET)
 			consumer = (lootable) -> LootTableUtils.setLootTable(lootable, lootTable);
 		else if (mode == ChangeMode.DELETE || mode == ChangeMode.RESET)
-			consumer = (lootable) -> LootTableUtils.setLootTable(lootable, null);
+			consumer = LootTableUtils::clearLootTable;
 
 		for (Object object : getExpr().getArray(event)) {
 			if (!LootTableUtils.isLootable(object))
 				continue;
 
-			consumer.accept(LootTableUtils.getLootable(object));
+			consumer.accept(LootTableUtils.getAsLootable(object));
 		}
 	}
 

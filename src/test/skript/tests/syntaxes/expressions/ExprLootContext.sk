@@ -14,7 +14,7 @@ test "loot context":
 	assert loot entity of {_context} is {_pig} with "loot context entity failed"
 	assert loot luck value of {_context} is 10 with "simple loot context luck value failed"
 
-	clear {_pig}
+	delete entity within {_pig}
 
 	set {_context} to a new loot context at test-location:
 		set loot luck value to -1

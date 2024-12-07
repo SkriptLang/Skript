@@ -39,8 +39,8 @@ public class ExprLootItems extends SimpleExpression<ItemStack> {
 
 	static {
 		Skript.registerExpression(ExprLootItems.class, ItemStack.class, ExpressionType.COMBINED,
-			"[the] (loot|item[s]) of [the] loot[ ]table %loottables% (with|using) [the] [[loot] context] %lootcontext%",
-			"[the] %loottables%'[s] (loot|item[s]) (with|using) [the] [[loot] context] %lootcontext%"
+			"[the] loot [item[s]] of [[the] loot[ ]table] %loottables% (with|using) [[the] [loot] context] %lootcontext%",
+			"[the] %loottables%'[s] loot [item[s]] (with|using) [[the] [loot] context] %lootcontext%"
 		);
 	}
 

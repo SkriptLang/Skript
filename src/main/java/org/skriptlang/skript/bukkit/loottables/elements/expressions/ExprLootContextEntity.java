@@ -35,14 +35,6 @@ public class ExprLootContextEntity extends SimplePropertyExpression<LootContext,
 		registerDefault(ExprLootContextEntity.class, Entity.class, "loot [context] entity", "lootcontexts");
 	}
 
-	private boolean isEvent;
-
-	@Override
-	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		isEvent = getParser().isCurrentEvent(LootContextCreateEvent.class);
-		return super.init(expressions, matchedPattern, isDelayed, parseResult);
-	}
-
 	@Override
 	public @Nullable Entity convert(LootContext context) {
 		return context.getLootedEntity();
@@ -50,9 +42,9 @@ public class ExprLootContextEntity extends SimplePropertyExpression<LootContext,
 
 	@Override
 	public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
-		if (!isEvent)
-			Skript.error("You can not set the loot context entity of existing loot contexts.");
-		else if (mode == ChangeMode.SET)
+		if (!getParser().isCurrentEvent(LootContextCreateEvent.class))
+			Skript.error("You cannot set the loot context entity of an existing loot context.");
+		else if (mode == ChangeMode.SET || mode == ChangeMode.DELETE || mode == ChangeMode.RESET)
 			return CollectionUtils.array(Entity.class);
 		return null;
 	}
@@ -63,7 +55,11 @@ public class ExprLootContextEntity extends SimplePropertyExpression<LootContext,
 			return;
 
 		LootContextWrapper wrapper = createEvent.getContextWrapper();
-		wrapper.setEntity((Entity) delta[0]);
+
+		if (mode == ChangeMode.SET)
+			wrapper.setEntity((Entity) delta[0]);
+		else
+			wrapper.setEntity(null);
 	}
 
 	@Override
@@ -73,7 +69,7 @@ public class ExprLootContextEntity extends SimplePropertyExpression<LootContext,
 
 	@Override
 	protected String getPropertyName() {
-		return "entity of loot context";
+		return "loot entity";
 	}
 
 }

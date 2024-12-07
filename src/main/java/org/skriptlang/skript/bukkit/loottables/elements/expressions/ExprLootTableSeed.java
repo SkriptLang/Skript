@@ -7,14 +7,13 @@ import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import ch.njol.util.coll.CollectionUtils;
-import org.bukkit.block.Block;
 import org.bukkit.event.Event;
 import org.bukkit.loot.Lootable;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.loottables.LootTableUtils;
 
 @Name("Loot Table Seed")
-@Description("Returns the seed of a loot table.")
+@Description("Returns the seed of a loot table. Setting the seed of a block or entity that does not have a loot table will not do anything.")
 @Examples({
 	"loot seed of block",
 	"set loot table seed of entity to 123456789"
@@ -28,11 +27,8 @@ public class ExprLootTableSeed extends SimplePropertyExpression<Object, Long> {
 
 	@Override
 	public @Nullable Long convert(Object object) {
-		if (object instanceof Lootable lootable)
-			return lootable.getSeed();
-		if (object instanceof Block block)
-			return block.getState() instanceof Lootable lootable ? lootable.getSeed() : null;
-		return null;
+		Lootable lootable = LootTableUtils.getAsLootable(object);
+		return lootable != null ? lootable.getSeed() : null;
 	}
 
 	public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
@@ -52,7 +48,7 @@ public class ExprLootTableSeed extends SimplePropertyExpression<Object, Long> {
 			if (!LootTableUtils.isLootable(object))
 				continue;
 
-			LootTableUtils.setSeed(LootTableUtils.getLootable(object), seedValue);
+			LootTableUtils.setSeed(LootTableUtils.getAsLootable(object), seedValue);
 		}
 	}
 

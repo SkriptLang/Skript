@@ -2,7 +2,6 @@ package ch.njol.skript.bukkitutil;
 
 import ch.njol.skript.Skript;
 import ch.njol.util.NonNullPair;
-import com.google.common.collect.Sets;
 import org.apache.commons.lang.ArrayUtils;
 import org.bukkit.NamespacedKey;
 import org.jetbrains.annotations.NotNull;
@@ -12,16 +11,15 @@ import java.util.Set;
 
 public class NamespacedUtils {
 
-	private static final Set<Character> LEGAL_NAMESPACE_CHARS = Sets.newHashSet(ArrayUtils.toObject("abcdefghijklmnopqrstuvwxyz0123456789._-/".toCharArray()));
+	private static final Set<Character> LEGAL_NAMESPACE_CHARS = Set.of(ArrayUtils.toObject("abcdefghijklmnopqrstuvwxyz0123456789._-/".toCharArray()));
 
 	/**
-	 * Gets a namespaced key. This method will try to get existing keys first, but if that fails
-	 * it will create the key in Skript's namespace.
+	 * Gets a namespaced key in Skript's namespace if the namespace was not defined.
 	 *
 	 * @param key the unparsed key
 	 * @return the resulting NamespacedKey
 	 */
-	public static NamespacedKey getNamespacedKey(@NotNull String key) {
+	public static NamespacedKey parseNamespacedKey(@NotNull String key) {
 		NamespacedKey namespacedKey = NamespacedKey.fromString(key, Skript.getInstance());
 		if (namespacedKey != null)
 			return namespacedKey;
@@ -36,7 +34,7 @@ public class NamespacedUtils {
 	 * @param key The key to use
 	 * @return a NamespacedKey with the encoded key in corresponding Namespace
 	 */
-	public static NamespacedKey createNamespacedKey(@NotNull String key) {
+	private static NamespacedKey createNamespacedKey(@NotNull String key) {
 		StringBuilder encodedKeyBuilder = new StringBuilder();
 		// keys must be all lowercase
 		key = key.toLowerCase(Locale.ENGLISH).replace(' ', '_');
@@ -47,7 +45,7 @@ public class NamespacedUtils {
 			if (LEGAL_NAMESPACE_CHARS.contains(currentChar)) {
 				// if the original string had a ".x" in it, we need to escape it
 				// so decoding doesn't think it's a hex sequence
-				if (currentChar == '.' && key.charAt(i + 1) == 'x') {
+				if (i != (keyLength - 1) && currentChar == '.' && key.charAt(i + 1) == 'x') {
 					i += 1; // skip the "x"
 					encodedKeyBuilder.append(".x");
 					encodedKeyBuilder.append(Integer.toHexString('.'));
@@ -74,7 +72,7 @@ public class NamespacedUtils {
 	}
 
 	/**
-	 * Decodes a NamespacedKey encoded by #getNamespacedKey
+	 * Decodes a {@link NamespacedKey} encoded by {@link #parseNamespacedKey(String key)}.
 	 *
 	 * @param namespacedKey the namespaced key to decode
 	 * @return a Pair with the first element as the namespace and the second as the decoded key

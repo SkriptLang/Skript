@@ -3,9 +3,10 @@ package org.skriptlang.skript.bukkit.loottables;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.NotNull;
+import org.skriptlang.skript.bukkit.loottables.elements.expressions.ExprSecCreateLootContext;
 
 /**
- * The event used in the ExprSecCreateLootContext section.
+ * The event used in the {@link ExprSecCreateLootContext} section.
  */
 public class LootContextCreateEvent extends Event {
 

@@ -7,6 +7,7 @@ import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SectionExpression;
+import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.*;
 import ch.njol.skript.registrations.EventValues;
 import ch.njol.skript.util.Direction;
@@ -38,7 +39,7 @@ public class ExprSecCreateLootContext extends SectionExpression<LootContext> {
 
 	static {
 		Skript.registerExpression(ExprSecCreateLootContext.class, LootContext.class, ExpressionType.SIMPLE,
-			"[a] [new] loot context %direction% %location%");
+			"[a [new]] loot context %direction% %location%");
 		EventValues.registerEventValue(LootContextCreateEvent.class, LootContext.class, new Getter<>() {
 			@Override
 			public @Nullable LootContext get(LootContextCreateEvent event) {
@@ -51,7 +52,7 @@ public class ExprSecCreateLootContext extends SectionExpression<LootContext> {
 	private Expression<Location> location;
 
 	@Override
-	public boolean init(Expression<?>[] exprs, int pattern, Kleenean isDelayed, SkriptParser.ParseResult result, @Nullable SectionNode node, @Nullable List<TriggerItem> triggerItems) {
+	public boolean init(Expression<?>[] exprs, int pattern, Kleenean isDelayed, ParseResult result, @Nullable SectionNode node, @Nullable List<TriggerItem> triggerItems) {
 		if (node != null) {
 			AtomicBoolean delayed = new AtomicBoolean(false);
 			Runnable afterLoading = () -> delayed.set(!getParser().getHasDelayBefore().isFalse());

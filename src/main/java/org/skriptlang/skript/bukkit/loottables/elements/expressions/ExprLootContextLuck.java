@@ -34,14 +34,6 @@ public class ExprLootContextLuck extends SimplePropertyExpression<LootContext, F
 		registerDefault(ExprLootContextLuck.class, Float.class, "loot [context] luck [value|factor]", "lootcontexts");
 	}
 
-	private boolean isEvent;
-
-	@Override
-	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		isEvent = getParser().isCurrentEvent(LootContextCreateEvent.class);
-		return super.init(expressions, matchedPattern, isDelayed, parseResult);
-	}
-
 	@Override
 	public @Nullable Float convert(LootContext context) {
 		return context.getLuck();
@@ -49,9 +41,9 @@ public class ExprLootContextLuck extends SimplePropertyExpression<LootContext, F
 
 	@Override
 	public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
-		if (!isEvent)
-			Skript.error("You can not set the loot context luck of existing loot contexts.");
-		else if (mode == ChangeMode.SET)
+		if (!getParser().isCurrentEvent(LootContextCreateEvent.class))
+			Skript.error("You cannot set the loot context luck of an existing loot context.");
+		else if (mode == ChangeMode.SET || mode == ChangeMode.DELETE || mode == ChangeMode.RESET)
 			return CollectionUtils.array(Float.class);
 		return null;
 	}
@@ -62,8 +54,11 @@ public class ExprLootContextLuck extends SimplePropertyExpression<LootContext, F
 			return;
 
 		LootContextWrapper wrapper = createEvent.getContextWrapper();
-		float luck = (float) delta[0];
-		wrapper.setLuck(luck);
+
+		if (mode == ChangeMode.SET)
+			wrapper.setLuck((float) delta[0]);
+		else
+			wrapper.setLuck(0f);
 	}
 
 	@Override
@@ -73,7 +68,7 @@ public class ExprLootContextLuck extends SimplePropertyExpression<LootContext, F
 
 	@Override
 	protected String getPropertyName() {
-		return "luck of loot context";
+		return "loot luck factor";
 	}
 
 }

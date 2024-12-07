@@ -31,8 +31,8 @@ public class LootTableModule {
 			.since("INSERT VERSION")
 			.parser(new Parser<>() {
 				@Override
-				public @Nullable LootTable parse(String s, ParseContext context) {
-					return Bukkit.getLootTable(NamespacedUtils.getNamespacedKey(s));
+				public @Nullable LootTable parse(String s, ParseContext context) {	
+					return Bukkit.getLootTable(NamespacedUtils.parseNamespacedKey(s));
 				}
 
 				@Override
@@ -42,7 +42,7 @@ public class LootTableModule {
 
 				@Override
 				public String toVariableNameString(LootTable o) {
-					return "loot table '" + o.getKey() + '\'';
+					return "loot table:" + o.getKey();
 				}
 			})
 		);
@@ -80,8 +80,8 @@ public class LootTableModule {
 		);
 
 		Classes.registerClass(new ClassInfo<>(LootTables.class, "loottabletype")
-			.user("loot ?tables?")
-			.name("Loot Tables")
+			.user("loot ?table ?types?")
+			.name("Loot Tables Types")
 			.description("Represents all the loot tables Mojang offers.")
 			.since("INSERT VERSION")
 		);
@@ -89,7 +89,7 @@ public class LootTableModule {
 		// --- CONVERTERS --- //
 
 		// String - LootTable
-		Converters.registerConverter(String.class, LootTable.class, key -> Bukkit.getLootTable(NamespacedUtils.getNamespacedKey(key)));
+		Converters.registerConverter(String.class, LootTable.class, key -> Bukkit.getLootTable(NamespacedUtils.parseNamespacedKey(key)));
 	}
 
 }

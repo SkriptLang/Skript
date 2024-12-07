@@ -13,6 +13,7 @@ import org.jetbrains.annotations.Nullable;
 public class LootContextWrapper extends LootContext.Builder {
 
 	private final Location location;
+	private @Nullable LootContext cachedLootContext;
 	private @Nullable HumanEntity killer;
 	private @Nullable Entity entity;
 	private float luck;
@@ -30,12 +31,14 @@ public class LootContextWrapper extends LootContext.Builder {
 	 * Gets the LootContext from the wrapper.
 	 * @return the LootContext.
 	 */
-	public @Nullable LootContext getContext() {
-		return super
-			.killer(killer)
-			.lootedEntity(entity)
-			.luck(luck)
-			.build();
+	public LootContext getContext() {
+		if (cachedLootContext == null)
+			cachedLootContext = super
+				.killer(killer)
+				.lootedEntity(entity)
+				.luck(luck)
+				.build();
+		return cachedLootContext;
 	}
 
 	/**
@@ -44,6 +47,7 @@ public class LootContextWrapper extends LootContext.Builder {
 	 */
 	public void setKiller(@Nullable HumanEntity killer) {
 		this.killer = killer;
+		cachedLootContext = null;
 	}
 
 	/**
@@ -52,6 +56,7 @@ public class LootContextWrapper extends LootContext.Builder {
 	 */
 	public void setEntity(@Nullable Entity entity) {
 		this.entity = entity;
+		cachedLootContext = null;
 	}
 
 	/**
@@ -60,6 +65,7 @@ public class LootContextWrapper extends LootContext.Builder {
 	 */
 	public void setLuck(float luck) {
 		this.luck = luck;
+		cachedLootContext = null;
 	}
 
 	/**

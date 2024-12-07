@@ -15,13 +15,17 @@ test "loot table seed":
 	set loot seed of {_pig} to 3.999
 	assert the loot seed of {_pig} is 3 with "close entity decimal loot seed set failed"
 
-	clear {_pig}
+	delete entity within {_pig}
 
 	set {_pastBlock} to block data of test-block
 
 	set test-block to chest
 
-	assert the loot seed of test-block is 0 with "default block loot seed failed"
+	assert the loot seed of test-block is 0 with "default block loot seed before setting loot table failed"
+
+	set loot table of test-block to "minecraft:chests/simple_dungeon"
+
+	assert the loot seed of test-block is 0 with "default block loot after setting loot table seed failed"
 	set loot seed of test-block to 5
 	assert the loot seed of test-block is 5 with "simple block loot seed set failed"
 	set loot seed of test-block to -1
