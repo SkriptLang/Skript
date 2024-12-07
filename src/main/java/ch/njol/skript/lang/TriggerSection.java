@@ -32,8 +32,7 @@ import java.util.List;
  */
 public abstract class TriggerSection extends TriggerItem {
 
-	@Nullable
-	protected TriggerItem first, last;
+	protected @Nullable TriggerItem first, last;
 
 	/**
 	 * Reserved for new Trigger(...)
@@ -103,17 +102,31 @@ public abstract class TriggerSection extends TriggerItem {
 	}
 
 	@Override
-	@Nullable
-	protected abstract TriggerItem walk(Event event);
+	protected abstract @Nullable TriggerItem walk(Event event);
 
-	@Nullable
-	protected final TriggerItem walk(Event event, boolean run) {
+	protected final @Nullable TriggerItem walk(Event event, boolean run) {
 		debug(event, run);
 		if (run && first != null) {
 			return first;
 		} else {
 			return getNext();
 		}
+	}
+
+	/**
+	 * @return The execution intent of the section's trigger.
+	 */
+	protected @Nullable ExecutionIntent triggerExecutionIntent() {
+		TriggerItem current = first;
+		while (current != null) {
+			ExecutionIntent executionIntent = current.executionIntent();
+			if (executionIntent != null)
+				return executionIntent.use();
+			if (current == last)
+				break;
+			current = current.getActualNext();
+		}
+		return null;
 	}
 
 }
