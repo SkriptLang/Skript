@@ -4,7 +4,7 @@ test "is lootable":
 
 	assert {_pig} is lootable with "is lootable failed"
 
-	clear {_pig}
+	delete entity within {_pig}
 
 	set {_pastBlock} to block data of test-block
 

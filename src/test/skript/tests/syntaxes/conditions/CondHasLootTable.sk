@@ -10,7 +10,7 @@ test "loot table condition":
 	set loot table of {_pig} to "bleh blah bluh" parsed as loot table
 	assert {_pig} has loot table with "pig doesn't have loot table after setting invalid loot table"
 
-	clear {_pig}
+	delete entity within {_pig}
 
 	set {_pastBlock} to block data of test-block
 
