@@ -49,11 +49,7 @@ public class ExprFishingBiteTime extends SimpleExpression<Timespan> {
 		if (!(event instanceof PlayerFishEvent fishEvent))
 			return null;
 
-		return toTimespan(fishEvent.getHook().getTimeUntilBite());
-	}
-
-	private Timespan[] toTimespan(int ticks) {
-		return new Timespan[]{new Timespan(Timespan.TimePeriod.TICK, ticks)};
+		return new Timespan[]{new Timespan(Timespan.TimePeriod.TICK, fishEvent.getHook().getTimeUntilBite())};
 	}
 
 	@Override

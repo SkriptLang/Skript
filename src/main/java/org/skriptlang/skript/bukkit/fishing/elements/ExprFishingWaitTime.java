@@ -56,14 +56,9 @@ public class ExprFishingWaitTime extends SimpleExpression<Timespan> {
 			return null;
 
 		if (isMin) {
-			return toTimespan(fishEvent.getHook().getMinWaitTime());
-		} else {
-			return toTimespan(fishEvent.getHook().getMaxWaitTime());
+			return new Timespan[]{new Timespan(Timespan.TimePeriod.TICK, fishEvent.getHook().getMinWaitTime())};
 		}
-	}
-
-	private Timespan[] toTimespan(int ticks) {
-		return new Timespan[]{new Timespan(Timespan.TimePeriod.TICK, ticks)};
+		return new Timespan[]{new Timespan(Timespan.TimePeriod.TICK, fishEvent.getHook().getMaxWaitTime())};
 	}
 
 	@Override
