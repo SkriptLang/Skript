@@ -1,0 +1,11 @@
+test "colour sepiatones":
+
+	set {_redSepiatone} to sepiatone(red)
+	set {_redAndBlueSepiatone} to sepiatone(red blended with blue)
+	set {_shadedRedSepiatone} to sepiatone(shade(red, 50, true))
+
+	assert hex code of {_redSepiatone} is "#6F634D" with "hex code of sepiatone of red was incorrect"
+	assert hex code of {_redAndBlueSepiatone} is "#6D614C" with "hex code of sepiatone of red was incorrect"
+	assert hex code of {_shadedRedSepiatone} is "#373126" with "hex code of sepiatone of red was incorrect"
+
+	assert sepiatone({_x}) is not set with "getting the sepiatone of an invalid type shouldn't return anything"
