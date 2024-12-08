@@ -36,10 +36,12 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.UUID;
+import java.util.function.Consumer;
 
 /**
  * Miscellaneous static utility methods related to items.
@@ -220,14 +222,13 @@ public class ItemUtils {
 	 * @param object Object to convert
 	 * @return ItemStack from slot/itemtype
 	 */
-	@Nullable
-	public static ItemStack asItemStack(Object object) {
-		if (object instanceof ItemType)
-			return ((ItemType) object).getRandom();
-		else if (object instanceof Slot)
-			return ((Slot) object).getItem();
-		else if (object instanceof ItemStack)
-			return ((ItemStack) object);
+	public static @Nullable ItemStack asItemStack(@Nullable Object object) {
+		if (object instanceof ItemType itemType)
+			return itemType.getRandom();
+		else if (object instanceof Slot slot)
+			return slot.getItem();
+		else if (object instanceof ItemStack itemStack)
+			return itemStack;
 		return null;
 	}
 	
@@ -379,4 +380,40 @@ public class ItemUtils {
 				return false;
 		}
 	}
+
+	/**
+	 * Applies a provided {@code Consumer} to the meta of the provided {@code ItemStack} and returns the updated {@code ItemStack} (with updated {@code ItemMeta}).
+	 *
+	 * @param itemStack the item whose meta is to be changed using the provided Consumer
+	 * @param metaChanger a consumer to update the meta of the provided ItemStack
+	 * @param <T>
+	 * @return the updated item
+	 */
+	public static <T extends ItemMeta> ItemStack changeItemMeta(@NotNull ItemStack itemStack, @NotNull Consumer<T> metaChanger) {
+		//noinspection unchecked
+		T itemMeta = (T) itemStack.getItemMeta();
+		metaChanger.accept(itemMeta);
+		itemStack.setItemMeta(itemMeta);
+		return itemStack;
+	}
+
+	/**
+	 * Updates the provided object ({@code Slot}, {@code ItemType}, {@code ItemStack}) by setting it to the provided {@code ItemStack}.
+	 *
+	 * @param object the object to update
+	 * @param itemStack the item to set the object to
+	 * @see #asItemStack(Object)
+	 */
+	public static void setItem(Object object, @NotNull ItemStack itemStack) {
+		ItemMeta itemMeta = itemStack.getItemMeta();
+		if (object instanceof Slot slot) {
+			slot.setItem(itemStack);
+		} else if (object instanceof ItemType itemType) {
+			itemType.setItemMeta(itemMeta);
+		} else if (object instanceof ItemStack itemStack1) {
+			itemStack1.setItemMeta(itemMeta);
+		}
+		throw new IllegalArgumentException("Object was not a Slot, ItemType or ItemStack.");
+	}
+
 }
