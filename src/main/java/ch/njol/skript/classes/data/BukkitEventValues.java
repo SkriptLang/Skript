@@ -186,6 +186,7 @@ import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.Recipe;
+import org.bukkit.loot.LootTable;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionData;
 import org.bukkit.potion.PotionEffectType;
@@ -1804,6 +1805,13 @@ public final class BukkitEventValues {
 				@Nullable
 				public Location get(LootGenerateEvent event) {
 					return event.getLootContext().getLocation();
+				}
+			}, EventValues.TIME_NOW);
+			EventValues.registerEventValue(LootGenerateEvent.class, LootTable.class, new Getter<LootTable, LootGenerateEvent>() {
+				@Override
+				@Nullable
+				public LootTable get(LootGenerateEvent event) {
+					return event.getLootTable();
 				}
 			}, EventValues.TIME_NOW);
 		}
