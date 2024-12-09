@@ -100,7 +100,7 @@ public class ExprSecCreateLootContext extends SectionExpression<LootContext> {
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return "a new loot context at " + location.toString(event, debug);
+		return "a loot context at " + location.toString(event, debug);
 	}
 
 }
