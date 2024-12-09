@@ -5,6 +5,7 @@ import org.bukkit.block.BlockState;
 import org.bukkit.loot.LootTable;
 import org.bukkit.loot.Lootable;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.UnknownNullability;
 
 /**
  * Utility class for loot tables.
@@ -27,7 +28,7 @@ public class LootTableUtils {
 	 * @param object the object to get the Lootable instance of.
 	 * @return the Lootable instance of the object.
 	 */
-	public static @Nullable Lootable getAsLootable(Object object) {
+	public static @UnknownNullability Lootable getAsLootable(Object object) {
 		if (object instanceof Block block)
 			object = block.getState();
 		if (object instanceof Lootable lootable)
@@ -47,39 +48,10 @@ public class LootTableUtils {
 	}
 
 	/**
-	 * Sets the loot table of a Lootable.
-	 * @param lootable the Lootable to set the loot table of.
-	 * @param lootTable the loot table.
-	 */
-	public static void setLootTable(Lootable lootable, LootTable lootTable) {
-		lootable.setLootTable(lootTable);
-		updateState(lootable);
-	}
-
-	/**
-	 * Clears the loot table of a Lootable. Clearing the loot table of an entity will reset it back to its default loot table.
-	 * @param lootable the Lootable to clear the loot table of.
-	 */
-	public static void clearLootTable(Lootable lootable) {
-		lootable.setLootTable(null);
-		updateState(lootable);
-	}
-
-	/**
-	 * Sets the seed of a Lootable.
-	 * @param lootable the Lootable to set the seed of.
-	 * @param seed the seed.
-	 */
-	public static void setSeed(Lootable lootable, long seed) {
-		lootable.setSeed(seed);
-		updateState(lootable);
-	}
-
-	/**
 	 * Updates the state of a Lootable. This is done because setting the LootTable or seed of a BlockState changes the NBT value, but is never updated.
 	 * @param lootable the Lootable to update the state of.
 	 */
-	private static void updateState(Lootable lootable) {
+	public static void updateState(Lootable lootable) {
 		if (lootable instanceof BlockState blockState)
 			blockState.update(true, false);
 	}

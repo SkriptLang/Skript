@@ -61,15 +61,18 @@ public class ExprLootTable extends SimplePropertyExpression<Object, LootTable> {
 
 		Consumer<Lootable> consumer = (lootable) -> {};
 		if (mode == ChangeMode.SET)
-			consumer = (lootable) -> LootTableUtils.setLootTable(lootable, lootTable);
+			consumer = (lootable) -> lootable.setLootTable(lootTable);
 		else if (mode == ChangeMode.DELETE || mode == ChangeMode.RESET)
-			consumer = LootTableUtils::clearLootTable;
+			consumer = (lootable) -> lootable.setLootTable(null);
 
 		for (Object object : getExpr().getArray(event)) {
 			if (!LootTableUtils.isLootable(object))
 				continue;
 
-			consumer.accept(LootTableUtils.getAsLootable(object));
+			Lootable lootable = LootTableUtils.getAsLootable(object);
+
+			consumer.accept(lootable);
+			LootTableUtils.updateState(lootable);
 		}
 	}
 

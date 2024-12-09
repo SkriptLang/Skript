@@ -48,7 +48,7 @@ public class ExprLootTableSeed extends SimplePropertyExpression<Object, Long> {
 			if (!LootTableUtils.isLootable(object))
 				continue;
 
-			LootTableUtils.setSeed(LootTableUtils.getAsLootable(object), seedValue);
+			LootTableUtils.getAsLootable(object).setSeed(seedValue);
 		}
 	}
 

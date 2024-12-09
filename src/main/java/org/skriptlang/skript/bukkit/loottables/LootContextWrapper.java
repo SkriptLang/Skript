@@ -2,7 +2,7 @@ package org.skriptlang.skript.bukkit.loottables;
 
 import org.bukkit.Location;
 import org.bukkit.entity.Entity;
-import org.bukkit.entity.HumanEntity;
+import org.bukkit.entity.Player;
 import org.bukkit.loot.LootContext;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -10,11 +10,11 @@ import org.jetbrains.annotations.Nullable;
 /**
  * Wrapper for a LootContext.Builder to allow easier creation of LootContexts.
  */
-public class LootContextWrapper extends LootContext.Builder {
+public class LootContextWrapper {
 
-	private final Location location;
+	private @NotNull Location location;
 	private @Nullable LootContext cachedLootContext;
-	private @Nullable HumanEntity killer;
+	private @Nullable Player killer;
 	private @Nullable Entity entity;
 	private float luck;
 
@@ -23,7 +23,6 @@ public class LootContextWrapper extends LootContext.Builder {
 	 * @param location the location of the LootContext.
 	 */
 	public LootContextWrapper(@NotNull Location location) {
-        super(location);
         this.location = location;
 	}
 
@@ -33,19 +32,29 @@ public class LootContextWrapper extends LootContext.Builder {
 	 */
 	public LootContext getContext() {
 		if (cachedLootContext == null)
-			cachedLootContext = super
+			cachedLootContext = new LootContext.Builder(location)
 				.killer(killer)
 				.lootedEntity(entity)
 				.luck(luck)
 				.build();
+
 		return cachedLootContext;
+	}
+
+	/**
+	 * Sets the location of the LootContext.
+	 * @param location the location.
+	 */
+	public void setLocation(@NotNull Location location) {
+		this.location = location;
+		cachedLootContext = null;
 	}
 
 	/**
 	 * Sets the killer of the LootContext.
 	 * @param killer the killer.
 	 */
-	public void setKiller(@Nullable HumanEntity killer) {
+	public void setKiller(@Nullable Player killer) {
 		this.killer = killer;
 		cachedLootContext = null;
 	}
@@ -80,7 +89,7 @@ public class LootContextWrapper extends LootContext.Builder {
 	 * Gets the killer of the LootContext.
 	 * @return the killer.
 	 */
-	public @Nullable HumanEntity getKiller() {
+	public @Nullable Player getKiller() {
 		return killer;
 	}
 

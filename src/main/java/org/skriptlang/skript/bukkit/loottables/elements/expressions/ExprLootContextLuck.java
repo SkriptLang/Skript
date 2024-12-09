@@ -19,7 +19,7 @@ import org.skriptlang.skript.bukkit.loottables.LootContextWrapper;
 @Examples({
 	"set {_luck} to loot context luck value of {_context}",
 	"",
-	"set {_context} to a new loot context at player:",
+	"set {_context} to a loot context at player:",
 		"\tset loot context luck value to 10",
 		"\tset loot context killer to player",
 		"\tset loot context entity to last spawned pig"

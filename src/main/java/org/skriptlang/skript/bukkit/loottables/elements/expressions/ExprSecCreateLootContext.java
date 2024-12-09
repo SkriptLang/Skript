@@ -28,7 +28,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 @Description("Create a loot context.")
 @Examples({
 	"set {_player} to player",
-	"set {_context} to a new loot context at player:",
+	"set {_context} to a loot context at player:",
 		"\tset loot context luck value to 10",
 		"\tset loot context killer to {_player}",
 		"\tset loot context entity to last spawned pig",
@@ -39,7 +39,7 @@ public class ExprSecCreateLootContext extends SectionExpression<LootContext> {
 
 	static {
 		Skript.registerExpression(ExprSecCreateLootContext.class, LootContext.class, ExpressionType.SIMPLE,
-			"[a [new]] loot context %direction% %location%");
+			"[a] loot context %direction% %location%");
 		EventValues.registerEventValue(LootContextCreateEvent.class, LootContext.class, new Getter<>() {
 			@Override
 			public @Nullable LootContext get(LootContextCreateEvent event) {
