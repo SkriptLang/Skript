@@ -10,7 +10,6 @@ import ch.njol.skript.registrations.Classes;
 import org.bukkit.Bukkit;
 import org.bukkit.loot.LootContext;
 import org.bukkit.loot.LootTable;
-import org.bukkit.loot.LootTables;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.converter.Converters;
 
