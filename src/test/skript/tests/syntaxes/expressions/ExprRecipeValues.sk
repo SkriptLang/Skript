@@ -1,0 +1,59 @@
+test "cooking recipe values":
+	###
+		Combines:
+			ExprRecipeCookingTime
+			ExprRecipeCategory
+			ExprRecipeExperience
+			ExprRecipeGroup
+			ExprGetRecipe
+			ExprRecipeKey
+	###
+
+	set {_recipe} to a new blasting recipe with the key "test_cooking_recipe_values":
+		set the recipe input item to raw copper named "test_cooking_recipe_values"
+		set the recipe cooking time to 20 seconds
+		set the recipe category to misc cooking category
+		set the recipe experience to 100
+		set the recipe group to "test_cooking_recipe_values"
+		set the recipe result to copper ingot named "test_cooking_recipe_values"
+	add {_recipe} to the server's recipes
+	set {_get} to the recipe with the key "test_cooking_recipe_values"
+	assert {_get} is set with "Blasting recipe was not added to the server"
+
+	assert the recipe cooking time of {_recipe} is 20 seconds with "Cooking time mismatch of created recipe"
+	assert the recipe category of {_recipe} is misc cooking category with "Cooking category mismatch of created recipe"
+	assert the recipe experience of {_recipe} is 100 with "Experience mismatch of created recipe"
+	assert the recipe group of {_recipe} is "test_cooking_recipe_values" with "Group mismatch of created recipe"
+	assert the recipe key of {_recipe} is "skript:test_cooking_recipe_values" with "Recipe key mismatch of created recipe"
+
+	assert the recipe cooking time of {_get} is 20 seconds with "Cooking time mismatch of retrieved recipe"
+	assert the recipe category of {_get} is misc cooking category with "Cooking category mismatch of retrieved recipe"
+	assert the recipe experience of {_get} is 100 with "Experience mismatch of retrieved recipe"
+	assert the recipe group of {_get} is "test_cooking_recipe_values" with "Group mismatch of retrieved recipe"
+	assert the recipe key of {_get} is "skript:test_cooking_recipe_values" with "Recipe key mismatch of retrieved recipe"
+
+test "crafting recipe values":
+	###
+		Combines:
+			ExprRecipeCategory
+			ExprRecipeGroup
+			ExprGetRecipe
+			ExprRecipeKey
+	###
+
+	set {_recipe} to a new shaped recipe with the key "test_crafting_recipe_values":
+		set the recipe ingredients to oak log, oak plank and oak wood
+		set the recipe category to misc crafting category
+		set the recipe group to "test_crafting_recipe_values"
+		set the recipe result to oak sapling
+	add {_recipe} to the server's recipes
+	set {_get} to the recipe with the key "test_crafting_recipe_values"
+	assert {_get} is set with "Shaped recipe was not added to the server"
+
+	assert the recipe category of {_recipe} is misc crafting category with "Crafting category mismatch of created recipe"
+	assert the recipe group of {_recipe} is "test_crafting_recipe_values" with "Group mismatch of created recipe"
+	assert the recipe key of {_recipe} is "skript:test_crafting_recipe_values" with "Recipe key mismatch of created recipe"
+
+	assert the recipe category of {_get} is misc crafting category with "Crafting category mismatch of retrieved recipe"
+	assert the recipe group of {_get} is "test_crafting_recipe_values" with "Group mismatch of retrieved recipe"
+	assert the recipe key of {_get} is "skript:test_crafting_recipe_values" with "Recipe key mismatch of retrieved recipe"

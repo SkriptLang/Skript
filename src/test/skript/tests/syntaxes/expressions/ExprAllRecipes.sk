@@ -1,0 +1,17 @@
+test "all recipes":
+	set {_all} to size of all of the server's recipes
+	assert {_all} > 0 with "All recipes did not return sufficient data"
+	set {_all_shaped} to size of all of the server's shaped recipes
+	assert {_all_shaped} > 0 with "All shaped recipes did not return sufficient data"
+	set {_custom} to size of all of the server's custom recipes
+	set {_custom_shaped} to size of all of the server's custom shaped recipes
+
+	set {_recipe} to a new shaped recipe with the key "test_all_recipes":
+		set the recipe ingredients to raw iron, raw gold and raw copper
+		set the recipe result to lightning rod
+	add {_recipe} to the server's recipes
+
+	assert (size of all of the server's recipes) = ({_all} + 1) with "Mismatching size of all comparison"
+	assert (size of all of the server's shaped recipes) = ({_all_shaped} + 1) with "Mismatching size of all shaped comparison"
+	assert (size of all of the server's custom recipes) = ({_custom} + 1) with "Mismatching size of all custom comparison"
+	assert (size of all of the server's custom shaped recipes) = ({_custom_shaped} + 1) with "Mismacthing size of all custom shaped comparison"

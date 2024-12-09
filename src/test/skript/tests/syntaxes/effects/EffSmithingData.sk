@@ -1,0 +1,19 @@
+test "smithing recipe data component copy" when running minecraft "1.20.5":
+	###
+		Combines:
+			EffSmithingData
+			CondSmithingData
+	###
+	set {_base} to diamond named "test_smithing_recipe_data_component_copy"
+	set {_template} to netherite ingot named "test_smithing_recipe_data_component_copy"
+	set {_addition} to emerald named "test_smithing_recipe_data_component_copy"
+	set {_recipe} to a new smithing transform recipe with the key "test_smithing_recipe_data_component_copy":
+		set the recipe base item to {_base}
+		set the recipe template item to {_template}
+		set the recipe addition item to {_addition}
+		set the recipe result to netherite sword named "test_smithing_recipe_data_component_copy"
+		disallow the data component copying from the base item to the result item
+	add {_recipe} to the server's recipes
+	set {_get} to recipe with the key "test_smithing_recipe_data_component_copy"
+	assert {_recipe} does not allow data component copying with "Created recipe should not allow data component copying"
+	assert {_get} does not allow data component copying with "Retrieved recipe should not allow data component copying"
