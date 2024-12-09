@@ -79,13 +79,6 @@ public class LootTableModule {
 			})
 		);
 
-		Classes.registerClass(new ClassInfo<>(LootTables.class, "loottabletype")
-			.user("loot ?table ?types?")
-			.name("Loot Tables Types")
-			.description("Represents all the loot tables Mojang offers.")
-			.since("INSERT VERSION")
-		);
-
 		// --- CONVERTERS --- //
 
 		// String - LootTable
