@@ -1640,6 +1640,17 @@ public final class Skript extends JavaPlugin implements Listener {
 	}
 
 	/**
+	 * Sends a debug message with formatted objects if {@link #debug()} returns true.
+	 *
+	 * @param message The message to send
+	 * @param objects The objects to format the message with
+	 * @see String#formatted(Object...)
+	 */
+	public static void debug(String message, Object... objects) {
+		debug(message.formatted(objects));
+	}
+
+	/**
 	 * @see SkriptLogger#log(Level, String)
 	 */
 	@SuppressWarnings("null")
