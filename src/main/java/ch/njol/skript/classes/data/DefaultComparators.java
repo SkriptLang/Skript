@@ -658,9 +658,6 @@ public class DefaultComparators {
 		// Villager Profession/Type
 		Comparators.registerComparator(Villager.Type.class, Villager.Type.class, (one, two) -> Relation.get(one.equals(two)));
 		Comparators.registerComparator(Villager.Profession.class, Villager.Profession.class, (one, two) -> Relation.get(one.equals(two)));
-
-		// Biome
-		Comparators.registerComparator(Biome.class, Biome.class, (one, two) -> Relation.get(one.equals(two)));
 	}
 	
 }
