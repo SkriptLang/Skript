@@ -16,7 +16,8 @@ import org.jetbrains.annotations.Nullable;
 
 @Name("Villager Level")
 @Description({"Represents the level of a villager.",
-	"Level must be between 1 and 5, with 1 being the default level."})
+	"Level must be between 1 and 5, with 1 being the default level.",
+	"Do note when a villager's level is 1, they may lose their profession."})
 @Examples({
 	"set {_level} to villager level of {_villager}",
 	"set villager level of last spawned villager to 2",
@@ -28,7 +29,7 @@ import org.jetbrains.annotations.Nullable;
 @Since("INSERT VERSION")
 public class ExprVillagerLevel extends SimplePropertyExpression<LivingEntity, Number> {
 
-	private static boolean HAS_INCREASE_METHOD = Skript.methodExists(Villager.class, "increaseLevel", int.class);
+	private static final boolean HAS_INCREASE_METHOD = Skript.methodExists(Villager.class, "increaseLevel", int.class);
 
 	static {
 		register(ExprVillagerLevel.class, Number.class, "villager level", "livingentities");
