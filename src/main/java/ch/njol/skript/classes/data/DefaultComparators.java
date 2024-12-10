@@ -74,7 +74,7 @@ public class DefaultComparators {
 	public DefaultComparators() {}
 	
 	static {
-
+		
 		// Number - Number
 		Comparators.registerComparator(Number.class, Number.class, new Comparator<>() {
 			@Override
