@@ -11,7 +11,6 @@ import ch.njol.skript.entity.BoatData;
 import ch.njol.skript.entity.EntityData;
 import ch.njol.skript.entity.RabbitData;
 import ch.njol.skript.util.BlockUtils;
-import ch.njol.skript.util.ClassUtils;
 import ch.njol.skript.util.Color;
 import ch.njol.skript.util.Date;
 import ch.njol.skript.util.EnchantmentType;
@@ -31,7 +30,6 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.World;
-import org.bukkit.block.Biome;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.command.CommandSender;
@@ -40,7 +38,6 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.FallingBlock;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Projectile;
-import org.bukkit.entity.Villager;
 import org.bukkit.entity.Wither;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.bukkit.event.inventory.InventoryType;
@@ -656,13 +653,6 @@ public class DefaultComparators {
 		Comparators.registerComparator(Color.class, org.bukkit.Color.class, (one, two) -> Relation.get(one.asBukkitColor().equals(two)));
 		Comparators.registerComparator(org.bukkit.Color.class, org.bukkit.Color.class, (one, two) -> Relation.get(one.equals(two)));
 
-		// Villager Profession/Type
-		// Getting the class at runtime fixes an issue with Bukkit changing from Enum -> Interface in 1.21
-		// This can be removed once Skript no longer supports lower versions
-		Class<?> villagerType = ClassUtils.getClass("org.bukkit.entity.Villager$Type");
-		Class<?> villagerProf = ClassUtils.getClass("org.bukkit.entity.Villager$Profession");
-		Comparators.registerComparator(villagerType, villagerType, (one, two) -> Relation.get(one.equals(two)));
-		Comparators.registerComparator(villagerProf, villagerProf, (one, two) -> Relation.get(one.equals(two)));
 	}
 	
 }
