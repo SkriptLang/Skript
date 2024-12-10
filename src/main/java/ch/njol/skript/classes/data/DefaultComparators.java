@@ -11,6 +11,7 @@ import ch.njol.skript.entity.BoatData;
 import ch.njol.skript.entity.EntityData;
 import ch.njol.skript.entity.RabbitData;
 import ch.njol.skript.util.BlockUtils;
+import ch.njol.skript.util.ClassUtils;
 import ch.njol.skript.util.Color;
 import ch.njol.skript.util.Date;
 import ch.njol.skript.util.EnchantmentType;
@@ -656,8 +657,12 @@ public class DefaultComparators {
 		Comparators.registerComparator(org.bukkit.Color.class, org.bukkit.Color.class, (one, two) -> Relation.get(one.equals(two)));
 
 		// Villager Profession/Type
-		Comparators.registerComparator(Villager.Type.class, Villager.Type.class, (one, two) -> Relation.get(one.equals(two)));
-		Comparators.registerComparator(Villager.Profession.class, Villager.Profession.class, (one, two) -> Relation.get(one.equals(two)));
+		// Getting the class at runtime fixes an issue with Bukkit changing from Enum -> Interface in 1.21
+		// This can be removed once Skript no longer supports lower versions
+		Class<?> villagerType = ClassUtils.getClass("org.bukkit.entity.Villager$Type");
+		Class<?> villagerProf = ClassUtils.getClass("org.bukkit.entity.Villager$Profession");
+		Comparators.registerComparator(villagerType, villagerType, (one, two) -> Relation.get(one.equals(two)));
+		Comparators.registerComparator(villagerProf, villagerProf, (one, two) -> Relation.get(one.equals(two)));
 	}
 	
 }

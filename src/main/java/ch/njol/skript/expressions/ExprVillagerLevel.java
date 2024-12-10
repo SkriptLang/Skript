@@ -7,6 +7,7 @@ import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
+import ch.njol.skript.util.MathUtils;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Villager;
@@ -64,9 +65,9 @@ public class ExprVillagerLevel extends SimplePropertyExpression<LivingEntity, Nu
 				case REMOVE -> previousLevel - changeValue;
 				default -> 1;
 			};
-			newLevel = Math.clamp(newLevel, 1, 5);
+			newLevel = MathUtils.clamp(newLevel, 1, 5);
 			if (newLevel > previousLevel && HAS_INCREASE_METHOD) {
-				int increase = Math.clamp(newLevel - previousLevel, 1, 5);
+				int increase = MathUtils.clamp(newLevel - previousLevel, 1, 5);
 				// According to the docs for this method:
 				// Increases the level of this villager.
 				// The villager will also unlock new recipes unlike the raw 'setVillagerLevel' method
