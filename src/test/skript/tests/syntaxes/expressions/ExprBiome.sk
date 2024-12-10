@@ -1,0 +1,15 @@
+test "biome expression":
+	set {_l} to location(50,1,50)
+	set {_biome} to biome of block at {_l}
+
+	set biome of block at {_l} to plains
+	assert biome of block at {_l} = plains with "Biome should have been set to plains"
+	set biome of block at {_l} to desert
+	assert biome of block at {_l} = desert with "Biome should have been set to desert"
+	set biome of block at {_l} to jungle
+	assert biome of block at {_l} = jungle with "Biome should have been set to jungle"
+	set biome of block at {_l} to basalt deltas
+	assert biome of block at {_l} = basalt deltas with "Biome should have been set to basalt deltas"
+
+	set biome of block at {_l} to {_biome}
+

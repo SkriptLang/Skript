@@ -1,21 +1,3 @@
-/**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
 package ch.njol.skript.classes.data;
 
 import ch.njol.skript.Skript;
@@ -48,6 +30,7 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.World;
+import org.bukkit.block.Biome;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.command.CommandSender;
@@ -56,6 +39,7 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.FallingBlock;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Projectile;
+import org.bukkit.entity.Villager;
 import org.bukkit.entity.Wither;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.bukkit.event.inventory.InventoryType;
@@ -74,7 +58,7 @@ public class DefaultComparators {
 	public DefaultComparators() {}
 	
 	static {
-		
+
 		// Number - Number
 		Comparators.registerComparator(Number.class, Number.class, new Comparator<>() {
 			@Override
@@ -670,6 +654,13 @@ public class DefaultComparators {
 		Comparators.registerComparator(Color.class, Color.class, (one, two) -> Relation.get(one.asBukkitColor().equals(two.asBukkitColor())));
 		Comparators.registerComparator(Color.class, org.bukkit.Color.class, (one, two) -> Relation.get(one.asBukkitColor().equals(two)));
 		Comparators.registerComparator(org.bukkit.Color.class, org.bukkit.Color.class, (one, two) -> Relation.get(one.equals(two)));
+
+		// Villager Profession/Type
+		Comparators.registerComparator(Villager.Type.class, Villager.Type.class, (one, two) -> Relation.get(one.equals(two)));
+		Comparators.registerComparator(Villager.Profession.class, Villager.Profession.class, (one, two) -> Relation.get(one.equals(two)));
+
+		// Biome
+		Comparators.registerComparator(Biome.class, Biome.class, (one, two) -> Relation.get(one.equals(two)));
 	}
 	
 }
