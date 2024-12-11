@@ -28,13 +28,10 @@ import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.Unmodifiable;
 
 import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.List;
-import java.util.NoSuchElementException;
+import java.util.*;
 
 /**
  * A list of expressions.
@@ -158,15 +155,7 @@ public class ExpressionList<T> implements Expression<T> {
 
 	@Override
 	public boolean check(Event event, Checker<? super T> checker, boolean negated) {
-		for (Expression<? extends T> expr : expressions) {
-			boolean result = expr.check(event, checker) ^ negated;
-			// exit early if we find a FALSE and we're ANDing, or a TRUE and we're ORing
-			if (and && !result)
-				return false;
-			if (!and && result)
-				return true;
-		}
-		return and;
+		return CollectionUtils.check(expressions, expr -> expr.check(event, checker) ^ negated, and);
 	}
 
 	@Override
@@ -299,6 +288,23 @@ public class ExpressionList<T> implements Expression<T> {
 	 * @return The internal list of expressions. Can be modified with care.
 	 */
 	public Expression<? extends T>[] getExpressions() {
+		return expressions;
+	}
+
+	/**
+	 * Retrieves all expressions, including those nested within any {@code ExpressionList}s.
+	 *
+	 * @return A list of all expressions.
+	 */
+	public List<Expression<? extends T>> getAllExpressions() {
+		List<Expression<? extends T>> expressions = new ArrayList<>();
+		for (Expression<? extends T> expression : this.expressions) {
+			if (expression instanceof ExpressionList<? extends T> innerList) {
+				expressions.addAll(innerList.getAllExpressions());
+				continue;
+			}
+			expressions.add(expression);
+		}
 		return expressions;
 	}
 
