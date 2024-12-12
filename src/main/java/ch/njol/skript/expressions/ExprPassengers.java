@@ -173,7 +173,6 @@ public class ExprPassengers extends PropertyExpression<Entity, Entity> {
 				}
 				break;
 			case REMOVE_ALL:
-			case REMOVE:
 				for (Object object : delta) {
 					for (Entity vehicle : vehicles) {
 						if (object instanceof Entity passenger) {
@@ -183,6 +182,20 @@ public class ExprPassengers extends PropertyExpression<Entity, Entity> {
 								if (passenger != null && ((EntityData<?>) object).isInstance((passenger)))
 									vehicle.removePassenger(passenger);
 							}
+						}
+					}
+				}
+				break;
+			case REMOVE:
+				for (Object object : delta) {
+					for (Entity vehicle : vehicles) {
+						if (object instanceof Entity passenger) {
+							vehicle.removePassenger(passenger);
+						} else {
+							Entity passenger = CollectionUtils.getRandom(vehicle.getPassengers().stream()
+								.filter(p -> ((EntityData<?>) object).isInstance(p))
+								.toList());
+							vehicle.removePassenger(passenger);
 						}
 					}
 				}

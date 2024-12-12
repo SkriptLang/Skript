@@ -158,7 +158,7 @@ public class ExprVehicle extends PropertyExpression<Entity, Entity> {
 			Skript.error("You may only set the vehicle of one entity at a time. " + 
 					"The same vehicle cannot be applied to multiple entities. " +
 					"Use the 'passengers of' expression if you wish to update multiple riders.");
-			// EffChanger/ChangerUtils handles ignoring when error is present. No need to return null here.
+			return null;
 		}
 		return super.acceptChange(mode);
 	}
@@ -179,7 +179,7 @@ public class ExprVehicle extends PropertyExpression<Entity, Entity> {
 				Entity vehicle = entityData.spawn(passenger.getLocation());
 				if (vehicle == null)
 					return;
-				vehicle.addPassenger(vehicle);
+				vehicle.addPassenger(passenger);
 			}
 			return;
 		}
