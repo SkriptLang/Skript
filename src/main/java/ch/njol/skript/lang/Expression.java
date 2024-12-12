@@ -35,11 +35,14 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.converter.Converter;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Spliterators;
+import java.util.function.Function;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
@@ -340,6 +343,54 @@ public interface Expression<T> extends SyntaxElement, Debuggable {
 	 * @throws UnsupportedOperationException (optional) - If this method was called on an unsupported ChangeMode.
 	 */
 	void change(Event event, Object @Nullable [] delta, ChangeMode mode);
+
+	/**
+	 * Changes the contents of an expression using the given {@link Function}.
+	 * Intended for changes that change properties of the values of the expression, rather than completely
+	 * changing the expression. For example, {@code set vector length of {_v} to 1}, rather than
+	 * {@code set {_v} to vector(0,1,0)}.
+	 * <br>
+	 * This is a 1 to 1 transformation and should not add or remove elements.
+	 * For {@link Variable}s, this will retain indices. For non-{@link Variable}s, it will
+	 * evaluate {@link #getArray(Event)}, apply the change function on each, and call
+	 * {@link #change(Event, Object[], ChangeMode)} with the modified values and {@link ChangeMode#SET}.
+	 *
+	 * @param event The event to use for local variables and evaluation
+	 * @param changeFunction A 1-to-1 function that transforms a single input to a single output.
+	 * @param <R> The output type of the change function. Must be a type returned
+	 *              by {{@link #acceptChange(ChangeMode)}} for {@link ChangeMode#SET}.
+	 */
+	default <R> void changeInPlace(Event event, Function<T, R> changeFunction) {
+		changeInPlace(event, changeFunction, false);
+	}
+
+	/**
+	 * Changes the contents of an expression using the given {@link Function}.
+	 * Intended for changes that change properties of the values of the expression, rather than completely
+	 * changing the expression. For example, {@code set vector length of {_v} to 1}, rather than
+	 * {@code set {_v} to vector(0,1,0)}.
+	 * <br>
+	 * This is a 1 to 1 transformation and should not add or remove elements.
+	 * For {@link Variable}s, this will retain indices. For non-{@link Variable}s, it will
+	 * evaluate the expression, apply the change function on each value, and call
+	 * {@link #change(Event, Object[], ChangeMode)} with the modified values and {@link ChangeMode#SET}.
+	 *
+	 * @param event The event to use for local variables and evaluation
+	 * @param changeFunction A 1-to-1 function that transforms a single input to a single output.
+	 * @param getAll Whether to evaluate with {@link #getAll(Event)} or {@link #getArray(Event)}.
+	 * @param <R> The output type of the change function. Must be a type returned
+	 *              by {{@link #acceptChange(ChangeMode)}} for {@link ChangeMode#SET}.
+	 */
+	default <R> void changeInPlace(Event event, Function<T, R> changeFunction, boolean getAll) {
+		T[] values = getAll ? getAll(event) : getArray(event);
+		if (values.length == 0)
+			return;
+		List<R> newValues = new ArrayList<>();
+		for (T value : values) {
+			newValues.add(changeFunction.apply(value));
+		}
+		change(event, newValues.toArray(), ChangeMode.SET);
+	}
 
 	/**
 	 * This method is called before this expression is set to another one.

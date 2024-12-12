@@ -1,0 +1,18 @@
+test "blocks void":
+	set {_loc} to location(0.5, 320.5, 0.5)
+	set {_blocks::*} to blocks between {_loc} and ({_loc} ~ vector(10,0,0))
+	assert size of {_blocks::*} is 11 with "Blocks between loc and (loc~vector(10,0,0)) is not 11"
+	assert blocks at {_blocks::*} is void air with "Blocks can be set in the void?"
+	set blocks at {_blocks::*} to stone
+	assert blocks at {_blocks::*} is void air with "Blocks can be set in the void?"
+
+test "blocks vector direction":
+	set {_loc} to location(0.5, 20.5, 0.5)
+	set {_blocks::*} to blocks vector(1,0,0) {_loc}
+	assert size of {_blocks::*} is 100 with "Blocks vector(1,0,0) loc is not 100"
+	set blocks at {_blocks::*} to stone
+	assert blocks at {_blocks::*} is stone with "1 or more blocks were not set to stone"
+	set blocks at {_blocks::*} to air
+	assert blocks at {_blocks::*} is air with "1 or more blocks were not set to air"
+	loop {_blocks::*}:
+		set block at loop-value to loop-value
