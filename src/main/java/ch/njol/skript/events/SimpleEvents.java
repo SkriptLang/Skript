@@ -104,6 +104,8 @@ import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.event.player.PlayerToggleFlightEvent;
 import org.bukkit.event.player.PlayerToggleSneakEvent;
 import org.bukkit.event.player.PlayerToggleSprintEvent;
+import org.bukkit.event.player.PlayerExpCooldownChangeEvent;
+import org.bukkit.event.server.BroadcastMessageEvent;
 import org.bukkit.event.server.ServerListPingEvent;
 import org.bukkit.event.vehicle.VehicleCreateEvent;
 import org.bukkit.event.vehicle.VehicleDamageEvent;
@@ -820,5 +822,28 @@ public class SimpleEvents {
 					.since("2.9.0")
 					.requiredPlugins("Paper");
 		}
+
+		Skript.registerEvent("Broadcast", SimpleEvent.class, BroadcastMessageEvent.class, "broadcast")
+			.description("Called when a message is broadcasted.")
+			.examples(
+				"on broadcast:",
+					"\tset broadcast-message to \"&c[BROADCAST] %broadcasted message%\""
+			)
+			.since("INSERT VERSION");
+
+		Skript.registerEvent("Experience Cooldown Change", SimpleEvent.class, PlayerExpCooldownChangeEvent.class, "player (experience|[e]xp) cooldown change")
+			.description(
+				"Called when a player's experience cooldown changes.",
+				"Experience cooldown is how long until a player can pick up another orb of experience."
+			)
+			.examples(
+				"on player experience cooldown change:",
+					"\tbroadcast event-player",
+					"\tbroadcast event-timespan",
+					"\tbroadcast past event-timespan",
+					"\tbroadcast xp cooldown change reason"
+			)
+			.since("INSERT VERSION");
+
 	}
 }
