@@ -65,12 +65,6 @@ public abstract class PropertyCondition<T> extends Condition implements Checker<
 		BE,
 
 		/**
-		 * Indicates that the condition is in a form of <code>something is/are something</code>,
-		 * also possibly in the negated form
-		 */
-		IS,
-
-		/**
 		 * Indicates that the condition is in a form of <code>something can something</code>,
 		 * also possibly in the negated form
 		 */
@@ -128,7 +122,6 @@ public abstract class PropertyCondition<T> extends Condition implements Checker<
 			throw new SkriptAPIException("The type argument must not contain any '%'s");
 
 		switch (propertyType) {
-			case IS:
 			case BE:
 				return new String[]{
 						"%" + type + "% (is|are) " + property,
@@ -194,7 +187,6 @@ public abstract class PropertyCondition<T> extends Condition implements Checker<
 	public static String toString(Condition condition, PropertyType propertyType, @Nullable Event event,
 								  boolean debug, Expression<?> expr, String property) {
 		switch (propertyType) {
-			case IS:
 			case BE:
 				return expr.toString(event, debug) + (expr.isSingle() ? " is " : " are ") + (condition.isNegated() ? "not " : "") + property;
 			case CAN:
