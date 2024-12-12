@@ -44,20 +44,19 @@ import ch.njol.skript.registrations.EventValues;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
 
-@Name("Passenger")
-@Description({"The passenger of a vehicle, or the rider of a mob.",
-		"For 1.11.2 and above, it returns a list of passengers and you can use all changers in it.",
-		"See also: <a href='#ExprVehicle'>vehicle</a>"})
-@Examples({"#for 1.11 and lower",
-		"passenger of the minecart is a creeper or a cow",
-		"the saddled pig's passenger is a player",
-		"#for 1.11.2+",
-		"passengers of the minecart contains a creeper or a cow",
-		"the boat's passenger contains a pig",
-		"add a cow and a zombie to passengers of last spawned boat",
-		"set passengers of player's vehicle to a pig and a horse",
-		"remove all pigs from player's vehicle",
-		"clear passengers of boat"})
+@Name("Passengers")
+@Description({
+	"The passengers of a vehicle, or the riders of a mob.",
+	"See also: <a href='#ExprVehicle'>vehicle</a>"
+})
+@Examples({
+	"passengers of the minecart contains a creeper or a cow",
+	"the boat's passenger contains a pig",
+	"add a cow and a zombie to passengers of last spawned boat",
+	"set passengers of player's vehicle to a pig and a horse",
+	"remove all pigs from player's vehicle",
+	"clear passengers of boat"
+})
 @Since("2.0, 2.2-dev26 (Multiple passengers for 1.11.2+)")
 public class ExprPassengers extends PropertyExpression<Entity, Entity> {
 
@@ -143,17 +142,10 @@ public class ExprPassengers extends PropertyExpression<Entity, Entity> {
 	@Override
 	@Nullable
 	public Class<?>[] acceptChange(ChangeMode mode) {
-		switch (mode) {
-			case ADD:
-			case DELETE:
-			case REMOVE:
-			case REMOVE_ALL:
-			case RESET:
-			case SET:
-				return CollectionUtils.array(Entity[].class, EntityData[].class);
-			default:
-				return null;
-		}
+		return switch (mode) {
+			case ADD, DELETE, REMOVE, REMOVE_ALL, RESET, SET -> CollectionUtils.array(Entity[].class, EntityData[].class);
+			default -> null;
+		};
 	}
 
 	@Override
