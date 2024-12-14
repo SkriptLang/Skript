@@ -1,27 +1,8 @@
-/**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
 package ch.njol.skript.lang;
 
 import java.lang.reflect.Array;
 import java.util.*;
 import java.util.Map.Entry;
-
 import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptAPIException;
 import ch.njol.skript.SkriptConfig;
@@ -29,9 +10,6 @@ import ch.njol.skript.classes.Changer;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.classes.Changer.ChangerUtils;
 import ch.njol.skript.classes.ClassInfo;
-import org.skriptlang.skript.lang.arithmetic.Arithmetics;
-import org.skriptlang.skript.lang.arithmetic.OperationInfo;
-import org.skriptlang.skript.lang.arithmetic.Operator;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.parser.ParserInstance;
 import ch.njol.skript.lang.util.SimpleExpression;
@@ -53,6 +31,9 @@ import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.arithmetic.Arithmetics;
+import org.skriptlang.skript.lang.arithmetic.OperationInfo;
+import org.skriptlang.skript.lang.arithmetic.Operator;
 import org.skriptlang.skript.lang.comparator.Comparators;
 import org.skriptlang.skript.lang.comparator.Relation;
 import org.skriptlang.skript.lang.converter.Converters;
@@ -659,6 +640,25 @@ public class Variable<T> implements Expression<T> {
 				}
 				break;
 		}
+	}
+
+	@Override
+	public <R> void changeInPlace(Event event, Function<T, R> changeFunction) {
+		if (!list) {
+			T value = getSingle(event);
+			if (value == null)
+				return;
+			set(event, changeFunction.apply(value));
+			return;
+		}
+		variablesIterator(event).forEachRemaining(pair -> {
+			String index = pair.getKey();
+			T value = Converters.convert(pair.getValue(), types);
+			if (value == null)
+				return;
+			Object newValue = changeFunction.apply(value);
+			setIndex(event, index, newValue);
+		});
 	}
 
 	@Override
