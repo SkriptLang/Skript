@@ -42,6 +42,9 @@ import ch.njol.skript.util.Direction;
 import ch.njol.skript.util.EnchantmentType;
 import ch.njol.skript.util.Getter;
 import ch.njol.skript.util.Timespan;
+import ch.njol.skript.util.Color;
+import ch.njol.skript.util.SkriptColor;
+import ch.njol.skript.util.ColorRGB;
 import ch.njol.skript.util.slot.InventorySlot;
 import ch.njol.skript.util.slot.Slot;
 import com.destroystokyo.paper.event.block.AnvilDamagedEvent;
@@ -1638,6 +1641,26 @@ public final class BukkitEventValues {
 				return effects.get(0);
 			}
 		}, 0);
+		EventValues.registerEventValue(FireworkExplodeEvent.class, Color[].class, new Getter<Color[], FireworkExplodeEvent>() {
+			@Override
+			public Color @Nullable [] get(FireworkExplodeEvent event) {
+				List<FireworkEffect> effects = event.getEntity().getFireworkMeta().getEffects();
+				if (effects.isEmpty())
+					return null;
+				List<Color> colors = new ArrayList<>();
+				for (FireworkEffect fireworkEffect : effects) {
+					for (org.bukkit.Color color : fireworkEffect.getColors()) {
+						if (SkriptColor.fromBukkitColor(color) != null)
+							colors.add(SkriptColor.fromBukkitColor(color));
+						else
+							colors.add(ColorRGB.fromBukkitColor(color));
+					}
+				}
+				if (colors.isEmpty())
+					return null;
+				return colors.toArray(Color[]::new);
+			}
+		}, EventValues.TIME_NOW);
 		//PlayerRiptideEvent
 		EventValues.registerEventValue(PlayerRiptideEvent.class, ItemStack.class, new Getter<ItemStack, PlayerRiptideEvent>() {
 			@Override
