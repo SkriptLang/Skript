@@ -8,7 +8,7 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.easymock.EasyMock;
 import org.junit.Test;
 
-public class ExprLootContextKillerTest extends SkriptJUnitTest {
+public class ExprLootContextLooterTest extends SkriptJUnitTest {
 
 	static {
 		setShutdownDelay(1);

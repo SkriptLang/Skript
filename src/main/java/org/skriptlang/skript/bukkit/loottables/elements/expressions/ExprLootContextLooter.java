@@ -15,22 +15,22 @@ import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.loottables.LootContextCreateEvent;
 import org.skriptlang.skript.bukkit.loottables.LootContextWrapper;
 
-@Name("Killer of Loot Context")
-@Description("Returns the loot context killer of a loot context " +
-	"Note that setting the killer of a loot context will read the player's tool enchantments (e.g. looting) when generating loot.")
+@Name("Looter of Loot Context")
+@Description("Returns the looter of a loot context " +
+	"Note that setting the looter will read the looter's tool enchantments (e.g. looting) when generating loot.")
 @Examples({
-	"set {_killer} to loot context killer of {_context}",
+	"set {_killer} to looter of {_context}",
 	"",
 	"set {_context} to a loot context at player:",
-		"\tset loot context luck value to 10",
-		"\tset loot context killer to player",
-		"\tset loot context entity to last spawned pig"
+		"\tset loot luck value to 10",
+		"\tset looter to player",
+		"\tset looted entity to last spawned pig"
 })
 @Since("INSERT VERSION")
-public class ExprLootContextKiller extends SimplePropertyExpression<LootContext, Player> {
+public class ExprLootContextLooter extends SimplePropertyExpression<LootContext, Player> {
 
 	static {
-		registerDefault(ExprLootContextKiller.class, Player.class, "loot [context] killer", "lootcontexts");
+		registerDefault(ExprLootContextLooter.class, Player.class, "(looter|looting player)", "lootcontexts");
 	}
 
 	@Override
@@ -72,7 +72,7 @@ public class ExprLootContextKiller extends SimplePropertyExpression<LootContext,
 
 	@Override
 	protected String getPropertyName() {
-		return "loot killer";
+		return "looting player";
 	}
 
 }

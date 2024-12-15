@@ -19,21 +19,15 @@ import java.util.function.Consumer;
 @Description({
 	"Returns the loot table of an entity, block or loot table type.",
 	"Setting the loot table of a block will update the block state, and once opened will " +
-		"generate loot of the specified loot table. Please note that doing so may cause " +
-		"warnings in the console due to over-filling the chest.",
-	"Please note that resetting/deleting the loot table of an ENTITY will do nothing.",
-	"",
-	"You can find all of the vanilla loot tables at https://mcreator.net/wiki/minecraft-vanilla-loot-tables-list."
+	"generate loot of the specified loot table. Please note that doing so may cause " +
+	"warnings in the console due to over-filling the chest.",
+	"Please note that resetting/deleting the loot table of an ENTITY will reset the entity's loot table to its default.",
 })
 @Examples({
-	"set {_loot} to loot table of event-entity",
-	"set {_loot} to loot table of event-block",
-	"",
 	"set loot table of event-entity to \"minecraft:entities/ghast\"",
 	"# this will set the loot table of the entity to a ghast's loot table, thus dropping ghast tears and gunpowder",
 	"",
-	"set loot table of event-block to minecraft:chests/simple_dungeon",
-	"set loot table of event-block to simple dungeon loot table"
+	"set loot table of event-block to \"minecraft:chests/simple_dungeon\""
 })
 @Since("INSERT VERSION")
 public class ExprLootTable extends SimplePropertyExpression<Object, LootTable> {
@@ -59,11 +53,7 @@ public class ExprLootTable extends SimplePropertyExpression<Object, LootTable> {
 	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
 		LootTable lootTable = delta != null ? ((LootTable) delta[0]) : null;
 
-		Consumer<Lootable> consumer = (lootable) -> {};
-		if (mode == ChangeMode.SET)
-			consumer = (lootable) -> lootable.setLootTable(lootTable);
-		else if (mode == ChangeMode.DELETE || mode == ChangeMode.RESET)
-			consumer = (lootable) -> lootable.setLootTable(null);
+		Consumer<Lootable> consumer = (lootable) -> lootable.setLootTable(lootTable);
 
 		for (Object object : getExpr().getArray(event)) {
 			if (!LootTableUtils.isLootable(object))

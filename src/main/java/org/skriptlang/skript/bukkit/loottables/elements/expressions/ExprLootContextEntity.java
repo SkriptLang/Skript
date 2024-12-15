@@ -15,21 +15,21 @@ import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.loottables.LootContextCreateEvent;
 import org.skriptlang.skript.bukkit.loottables.LootContextWrapper;
 
-@Name("Loot Entity of Loot Context")
-@Description("Returns the loot context entity of a loot context.")
+@Name("Looted Entity of Loot Context")
+@Description("Returns the looted entity of a loot context.")
 @Examples({
-	"set {_entity} to loot context entity of {_context}",
+	"set {_entity} to looted entity of {_context}",
 	"",
 	"set {_context} to a loot context at player:",
-		"\tset loot context luck value to 10",
-		"\tset loot context killer to player",
-		"\tset loot context entity to last spawned pig"
+		"\tset loot luck value to 10",
+		"\tset looter to player",
+		"\tset looted entity to last spawned pig"
 })
 @Since("INSERT VERSION")
 public class ExprLootContextEntity extends SimplePropertyExpression<LootContext, Entity> {
 
 	static {
-		registerDefault(ExprLootContextEntity.class, Entity.class, "loot [context] entity", "lootcontexts");
+		registerDefault(ExprLootContextEntity.class, Entity.class, "looted entity", "lootcontexts");
 	}
 
 	@Override
@@ -69,7 +69,7 @@ public class ExprLootContextEntity extends SimplePropertyExpression<LootContext,
 
 	@Override
 	protected String getPropertyName() {
-		return "loot entity";
+		return "looted entity";
 	}
 
 }

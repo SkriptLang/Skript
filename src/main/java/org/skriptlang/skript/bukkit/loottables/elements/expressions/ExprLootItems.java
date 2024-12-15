@@ -10,22 +10,22 @@ import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
+import org.bukkit.Bukkit;
 import org.bukkit.event.Event;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.loot.LootContext;
 import org.bukkit.loot.LootTable;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.bukkit.loottables.LootContextWrapper;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 
-@Name("Loot Table Items")
-@Description({
-	"Returns the items of a loot table using a loot context. " +
-		"Some loot tables will require some of these values whereas others may not."
-})
+@Name("Loot of Loot Table")
+@Description("Returns the items of a loot table using a loot context. " +
+	"Not specifying a loot context will use a loot context with a location at the world's origin.")
 @Examples({
 	"set {_items::*} to loot items of the loot table \"minecraft:chests/simple_dungeon\" with loot context {_context}",
 	"# this will set {_items::*} to the items that would be dropped from the simple dungeon loot table with the given loot context",
@@ -38,8 +38,8 @@ public class ExprLootItems extends SimpleExpression<ItemStack> {
 
 	static {
 		Skript.registerExpression(ExprLootItems.class, ItemStack.class, ExpressionType.COMBINED,
-			"[the] loot [item[s]] of [[the] loot[ ]table[s]] %loottables% (with|using) [[the] [loot] context] %lootcontext%",
-			"[the] %loottables%'[s] loot [item[s]] (with|using) [[the] [loot] context] %lootcontext%"
+			"[the] loot of [[the] loot[ ]table[s]] %loottables% [(with|using) [[the] [loot] context] %-lootcontext%]",
+			"[the] %loottables%'[s] loot (with|using) [[[the] [loot] context] %-lootcontext%]"
 		);
 	}
 
@@ -58,7 +58,11 @@ public class ExprLootItems extends SimpleExpression<ItemStack> {
 	protected ItemStack @Nullable [] get(Event event) {
 		List<ItemStack> items = new ArrayList<>();
 
-		LootContext context = this.context.getSingle(event);
+		LootContext context;
+		if (this.context != null)
+			context = this.context.getSingle(event);
+		else
+			context = new LootContextWrapper(Bukkit.getWorlds().getFirst().getSpawnLocation()).getContext();
 		if (context == null)
 			return new ItemStack[0];
 

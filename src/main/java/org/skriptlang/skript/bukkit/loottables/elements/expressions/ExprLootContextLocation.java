@@ -16,19 +16,19 @@ import org.skriptlang.skript.bukkit.loottables.LootContextCreateEvent;
 import org.skriptlang.skript.bukkit.loottables.LootContextWrapper;
 
 @Name("Loot Location of Loot Context")
-@Description("Returns the loot context location of a loot context.")
+@Description("Returns the loot location of a loot context.")
 @Examples({
 	"set {_player} to player",
 	"set {_context} to a loot context at player:",
 		"\tif {_player} is in \"world_nether\":",
-			"\t\tset loot context location to location of last spawned pig",
-	"send loot context location of {_context} to player"
+			"\t\tset loot location to location of last spawned pig",
+	"send loot location of {_context} to player"
 })
 @Since("INSERT VERSION")
 public class ExprLootContextLocation extends SimplePropertyExpression<LootContext, Location> {
 
 	static {
-		registerDefault(ExprLootContextLocation.class, Location.class, "loot [context] location", "lootcontexts");
+		registerDefault(ExprLootContextLocation.class, Location.class, "loot[ing] [context] location", "lootcontexts");
 	}
 
 	@Override

@@ -12,7 +12,7 @@ import org.bukkit.loot.Lootable;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.loottables.LootTableUtils;
 
-@Name("Loot Table Seed")
+@Name("Seed of Loot Table")
 @Description("Returns the seed of a loot table. Setting the seed of a block or entity that does not have a loot table will not do anything.")
 @Examples({
 	"set {_seed} loot table seed of block",

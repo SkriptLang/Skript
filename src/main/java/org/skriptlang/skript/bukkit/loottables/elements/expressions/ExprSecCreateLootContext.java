@@ -24,14 +24,14 @@ import org.skriptlang.skript.bukkit.loottables.LootContextWrapper;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-@Name("New Loot Context")
+@Name("Create Loot Context")
 @Description("Create a loot context.")
 @Examples({
 	"set {_player} to player",
 	"set {_context} to a loot context at player:",
-		"\tset loot context luck value to 10",
-		"\tset loot context killer to {_player}",
-		"\tset loot context entity to last spawned pig",
+		"\tset loot luck value to 10",
+		"\tset looter to {_player}",
+		"\tset looted entity to last spawned pig",
 	"give player loot items of loot table \"minecraft:entities/iron_golem\" with loot context {_context}"
 })
 @Since("INSERT VERSION")
@@ -80,10 +80,9 @@ public class ExprSecCreateLootContext extends SectionExpression<LootContext> {
 
 		LootContextCreateEvent contextEvent = new LootContextCreateEvent(wrapper);
 
-		Variables.setLocalVariables(contextEvent, Variables.copyLocalVariables(event));
-		TriggerItem.walk(trigger, contextEvent);
-		Variables.setLocalVariables(event, Variables.copyLocalVariables(contextEvent));
-		Variables.removeLocals(contextEvent);
+		Variables.withLocalVariables(event, contextEvent, () ->
+			TriggerItem.walk(trigger, contextEvent)
+		);
 
 		return new LootContext[]{contextEvent.getContextWrapper().getContext()};
 	}

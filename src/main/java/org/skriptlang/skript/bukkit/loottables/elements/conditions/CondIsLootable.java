@@ -25,7 +25,6 @@ import org.skriptlang.skript.bukkit.loottables.LootTableUtils;
 	"set block at event-location to wool block",
 	"if block at event-location is lootable:",
 		"\t# uh oh, nothing will happen because a wool is not a lootable block."
-
 })
 @Since("INSERT VERSION")
 public class CondIsLootable extends PropertyCondition<Object> {

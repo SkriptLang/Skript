@@ -17,18 +17,18 @@ import org.skriptlang.skript.bukkit.loottables.LootContextWrapper;
 @Name("Luck of Loot Context")
 @Description("Returns the luck of a loot context as a float. This represents the luck potion effect that an entity can have.")
 @Examples({
-	"set {_luck} to loot context luck value of {_context}",
+	"set {_luck} to loot luck value of {_context}",
 	"",
 	"set {_context} to a loot context at player:",
-		"\tset loot context luck value to 10",
-		"\tset loot context killer to player",
-		"\tset loot context entity to last spawned pig"
+		"\tset loot luck value to 10",
+		"\tset looter to player",
+		"\tset looted entity to last spawned pig"
 })
 @Since("INSERT VERSION")
 public class ExprLootContextLuck extends SimplePropertyExpression<LootContext, Float> {
 
 	static {
-		registerDefault(ExprLootContextLuck.class, Float.class, "loot [context] luck [value|factor]", "lootcontexts");
+		registerDefault(ExprLootContextLuck.class, Float.class, "loot[ing] [context] luck [value|factor]", "lootcontexts");
 	}
 
 	@Override

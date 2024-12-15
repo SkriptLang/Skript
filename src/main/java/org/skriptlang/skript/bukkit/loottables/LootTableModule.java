@@ -26,7 +26,8 @@ public class LootTableModule {
 			.user("loot ?tables?")
 			.name("Loot Table")
 			.description("Loot tables represent what items should be in naturally generated containers, " +
-				"what items should be dropped when killing a mob, or what items can be fished.")
+				"what items should be dropped when killing a mob, or what items can be fished.",
+				"You can find more information about this in https://minecraft.wiki/w/Loot_table")
 			.since("INSERT VERSION")
 			.parser(new Parser<>() {
 				@Override
@@ -49,7 +50,15 @@ public class LootTableModule {
 		Classes.registerClass(new ClassInfo<>(LootContext.class, "lootcontext")
 			.user("loot ?contexts?")
 			.name("Loot Context")
-			.description("Represents additional information a loot table can use to modify its generated loot.")
+			.description(
+				"Represents additional information a loot table can use to modify its generated loot.",
+				"",
+				"Some loot tables will require some values (i.e. looter, location, looted entity) " +
+				"in a loot context when generating loot whereas others may not.",
+				"For example, the loot table of a simple dungeon chest will only require a location, " +
+				"whereas the loot table of a cow will require a looting player, looted entity, and location.",
+				"You can find more information about this in https://minecraft.wiki/w/Loot_context"
+			)
 			.since("INSERT VERSION")
 			.defaultExpression(new EventValueExpression<>(LootContext.class))
 			.parser(new Parser<>() {
