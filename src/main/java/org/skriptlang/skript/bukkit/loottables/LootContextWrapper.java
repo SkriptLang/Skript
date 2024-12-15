@@ -13,7 +13,7 @@ import org.jetbrains.annotations.Nullable;
 public class LootContextWrapper {
 
 	private @NotNull Location location;
-	private @Nullable LootContext cachedLootContext;
+	private transient @Nullable LootContext cachedLootContext;
 	private @Nullable Player killer;
 	private @Nullable Entity entity;
 	private float luck;
