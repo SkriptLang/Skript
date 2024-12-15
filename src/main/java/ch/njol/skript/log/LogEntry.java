@@ -126,11 +126,6 @@ public class LogEntry {
 	}
 
 	@Override
-	protected void finalize() {
-		assert used : message + from;
-	}
-
-	@Override
 	public String toString() {
 		if (node == null || level.intValue() < Level.WARNING.intValue())
 			return message;
