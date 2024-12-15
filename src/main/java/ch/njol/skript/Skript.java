@@ -490,6 +490,16 @@ public final class Skript extends JavaPlugin implements Listener {
 			classLoadError = e;
 		}
 
+		// Warn about pausing
+		if (Skript.methodExists(Server.class, "getPauseWhenEmptyTime")) {
+			int pauseThreshold = getServer().getPauseWhenEmptyTime();
+			if (pauseThreshold > -1) {
+				Skript.warning("Minecraft server pausing is enabled!");
+				Skript.warning("Scripts that interact with the world or entities may not work as intended when the server is paused and may crash your server.");
+				Skript.warning("Consider setting 'pause-when-empty-seconds' to -1 in server.properties to make sure you don't encounter any issues.");
+			}
+		}
+
 		// Config must be loaded after Java and Skript classes are parseable
 		// ... but also before platform check, because there is a config option to ignore some errors
 		SkriptConfig.load();
