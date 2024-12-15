@@ -1,21 +1,3 @@
-/**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
 package ch.njol.skript.sections;
 
 import ch.njol.skript.ScriptLoader;
@@ -37,6 +19,9 @@ import ch.njol.util.Kleenean;
 import com.google.common.collect.Iterables;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.UnknownNullability;
+import org.skriptlang.skript.lang.condition.Conditional;
+import org.skriptlang.skript.lang.condition.Conditional.Operator;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -68,7 +53,6 @@ import java.util.List;
 	""
 })
 @Since("1.0")
-@SuppressWarnings("NotNullFieldNotInitialized")
 public class SecConditional extends Section {
 
 	private static final SkriptPattern THEN_PATTERN = PatternCompiler.compile("then [run]");
@@ -93,7 +77,7 @@ public class SecConditional extends Section {
 	}
 
 	private ConditionalType type;
-	private List<Condition> conditions = new ArrayList<>();
+	private @UnknownNullability Conditional<Event> conditional;
 	private boolean ifAny;
 	private boolean parseIf;
 	private boolean parseIfPassed;
@@ -112,7 +96,7 @@ public class SecConditional extends Section {
 		type = CONDITIONAL_PATTERNS.getInfo(matchedPattern);
 		ifAny = parseResult.hasTag("any");
 		parseIf = parseResult.hasTag("parse");
-		multiline = parseResult.regexes.size() == 0 && type != ConditionalType.ELSE;
+		multiline = parseResult.regexes.isEmpty() && type != ConditionalType.ELSE;
 		ParserInstance parser = getParser();
 
 		// ensure this conditional is chained correctly (e.g. an else must have an if)
@@ -168,6 +152,8 @@ public class SecConditional extends Section {
 			Class<? extends Event>[] currentEvents = parser.getCurrentEvents();
 			String currentEventName = parser.getCurrentEventName();
 
+			List<Conditional<Event>> conditionals = new ArrayList<>();
+
 			// Change event if using 'parse if'
 			if (parseIf) {
 				//noinspection unchecked
@@ -196,7 +182,7 @@ public class SecConditional extends Section {
 						// if this condition was invalid, don't bother parsing the rest
 						if (condition == null)
 							return false;
-						conditions.add(condition);
+						conditionals.add(condition);
 					}
 				}
 				parser.setNode(sectionNode);
@@ -206,7 +192,7 @@ public class SecConditional extends Section {
 				// Don't print a default error if 'if' keyword wasn't provided
 				Condition condition = Condition.parse(expr, parseResult.hasTag("implicit") ? null : "Can't understand this condition: '" + expr + "'");
 				if (condition != null)
-					conditions.add(condition);
+					conditionals.add(condition);
 			}
 
 			if (parseIf) {
@@ -214,8 +200,10 @@ public class SecConditional extends Section {
 				parser.setCurrentEventName(currentEventName);
 			}
 
-			if (conditions.isEmpty())
+			if (conditionals.isEmpty())
 				return false;
+
+			conditional = Conditional.compound(ifAny ? Operator.OR : Operator.AND, conditionals);
 		}
 
 		// ([else] parse if) If condition is valid and false, do not parse the section
@@ -289,14 +277,12 @@ public class SecConditional extends Section {
 	}
 
 	@Override
-	@Nullable
-	public TriggerItem getNext() {
+	public @Nullable TriggerItem getNext() {
 		return getSkippedNext();
 	}
 
-	@Nullable
 	@Override
-	protected TriggerItem walk(Event event) {
+	protected @Nullable TriggerItem walk(Event event) {
 		if (type == ConditionalType.THEN || (parseIf && !parseIfPassed)) {
 			return getActualNext();
 		} else if (parseIf || checkConditions(event)) {
@@ -327,7 +313,7 @@ public class SecConditional extends Section {
 	@Nullable
 	private TriggerItem getSkippedNext() {
 		TriggerItem next = getActualNext();
-		while (next instanceof SecConditional && ((SecConditional) next).type != ConditionalType.IF)
+		while (next instanceof SecConditional nextSecCond && nextSecCond.type != ConditionalType.IF)
 			next = next.getActualNext();
 		return next;
 	}
@@ -335,22 +321,20 @@ public class SecConditional extends Section {
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
 		String parseIf = this.parseIf ? "parse " : "";
-		switch (type) {
-			case IF:
+		return switch (type) {
+			case IF -> {
 				if (multiline)
-					return parseIf + "if " + (ifAny ? "any" : "all");
-				return parseIf + "if " + conditions.get(0).toString(event, debug);
-			case ELSE_IF:
+					yield parseIf + "if " + (ifAny ? "any" : "all");
+				yield parseIf + "if " + conditional.toString(event, debug);
+			}
+			case ELSE_IF -> {
 				if (multiline)
-					return "else " + parseIf + "if " + (ifAny ? "any" : "all");
-				return "else " + parseIf + "if " + conditions.get(0).toString(event, debug);
-			case ELSE:
-				return "else";
-			case THEN:
-				return "then";
-			default:
-				throw new IllegalStateException();
-		}
+					yield "else " + parseIf + "if " + (ifAny ? "any" : "all");
+				yield "else " + parseIf + "if " + conditional.toString(event, debug);
+			}
+			case ELSE -> "else";
+			case THEN -> "then";
+		};
 	}
 
 	private Kleenean getHasDelayAfter() {
@@ -363,19 +347,18 @@ public class SecConditional extends Section {
 	 * @param type the type of conditional section to find. if null is provided, any type is allowed.
 	 * @return the closest conditional section
 	 */
-	@Nullable
-	private static SecConditional getPrecedingConditional(List<TriggerItem> triggerItems, @Nullable ConditionalType type) {
+	private static @Nullable SecConditional getPrecedingConditional(List<TriggerItem> triggerItems, @Nullable ConditionalType type) {
 		// loop through the triggerItems in reverse order so that we find the most recent items first
 		for (int i = triggerItems.size() - 1; i >= 0; i--) {
 			TriggerItem triggerItem = triggerItems.get(i);
-			if (triggerItem instanceof SecConditional conditionalSection) {
-				if (conditionalSection.type == ConditionalType.ELSE) {
+			if (triggerItem instanceof SecConditional precedingSecConditional) {
+				if (precedingSecConditional.type == ConditionalType.ELSE) {
 					// if the conditional is an else, return null because it belongs to a different condition and ends
 					// this one
 					return null;
-				} else if (type == null || conditionalSection.type == type) {
+				} else if (type == null || precedingSecConditional.type == type) {
 					// if the conditional matches the type argument, we found our most recent preceding conditional section
-					return conditionalSection;
+					return precedingSecConditional;
 				}
 			} else {
 				return null;
@@ -404,8 +387,8 @@ public class SecConditional extends Section {
 		List<SecConditional> list = new ArrayList<>();
 		for (int i = triggerItems.size() - 1; i >= 0; i--) {
 			TriggerItem triggerItem = triggerItems.get(i);
-			if (triggerItem instanceof SecConditional secConditional && secConditional.type == ConditionalType.ELSE_IF) {
-				list.add(secConditional);
+			if (triggerItem instanceof SecConditional precedingSecConditional && precedingSecConditional.type == ConditionalType.ELSE_IF) {
+				list.add(precedingSecConditional);
 			} else {
 				break;
 			}
@@ -414,17 +397,10 @@ public class SecConditional extends Section {
 	}
 
 	private boolean checkConditions(Event event) {
-		if (conditions.isEmpty()) { // else and then
-			return true;
-		} else if (ifAny) {
-			return conditions.stream().anyMatch(c -> c.check(event));
-		} else {
-			return conditions.stream().allMatch(c -> c.check(event));
-		}
+		return conditional == null || conditional.evaluate(event).isTrue();
 	}
 
-	@Nullable
-	private Node getNextNode(Node precedingNode, ParserInstance parser) {
+	private @Nullable Node getNextNode(Node precedingNode, ParserInstance parser) {
 		// iterating over the parent node causes the current node to change, so we need to store it to reset it later
 		Node originalCurrentNode = parser.getNode();
 		SectionNode parentNode = precedingNode.getParent();
