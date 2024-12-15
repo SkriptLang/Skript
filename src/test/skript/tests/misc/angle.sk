@@ -1,0 +1,33 @@
+test "angle":
+	assert 90 degrees is 90 with "90 degrees is not 90"
+	assert -10.5 degrees is -10.5 with "-10.5 degrees is not -10.5"
+	assert 354698306983560 degrees is 354698306983560 with "354698306983560 degrees is not 354698306983560"
+
+	assert pi radians is 180.0 degrees with "pi radians is not 180 degrees"
+	assert 2 * pi in radians is 360.0 degrees with "2pi radians is not 360 degrees"
+
+	assert 180.0 degrees is pi radians with "180 degrees is not pi radians"
+	assert 360.0 in degrees is 2 * pi radians with "360 degrees is not 2pi radians"
+
+	assert infinity value degrees is infinity value with "infinity degrees is not infinity"
+	assert -infinity value degrees is -infinity value with "-infinity degrees is not -infinity"
+	assert infinity value radians is infinity value with "infinity radians is not infinity"
+	assert -infinity value radians is -infinity value with "-infinity radians is not -infinity"
+
+	assert ("90 degrees" parsed as number) is 90 with "90 degrees parsed as number is not 90"
+	assert ("3.141592653589793 radians" parsed as number) is 180.0 with "pi radians parsed as number is not 180 degrees"
+	assert ("90 degrees" parsed as number) is 90 degrees with "90 degrees parsed as number is not 90 degrees"
+	assert ("3.141592653589793 radians" parsed as number) is 180.0 degrees with "pi radians parsed as number is not 180 degrees"
+	assert ("90 degrees" parsed as number) is 0.5 * pi radians with "90 degrees parsed as number is not 0.5pi radians"
+	assert ("3.141592653589793 radians" parsed as number) is pi radians with "pi radians parsed as number is not pi radians"
+
+	assert 90, 180 and 270 in degrees is 90, 180 and 270 with "90, 180 and 270 degrees is not 90, 180 and 270"
+	assert 0.5 * pi, pi and 1.5 * pi in radians is 90.0, 180.0 and 270.0 with "0.5pi, pi and 1.5pi radians is not 90, 180 and 270"
+
+	assert ("n" parsed as number) degrees is not set with "'n' parsed as number degrees is set"
+	assert ("n" parsed as number) radians is not set with "'n' parsed as number radians is set"
+	assert ("n degrees" parsed as number) is not set with "'n' parsed as number degrees is set"
+	assert ("n radians" parsed as number) is not set with "'n' parsed as number radians is set"
+
+	assert isNaN(NaN value degrees) is true with "NaN degrees is not NaN"
+	assert isNaN(NaN value radians) is true with "NaN radians is not NaN"
