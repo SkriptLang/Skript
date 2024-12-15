@@ -55,10 +55,8 @@ public abstract class SkriptEvent extends Structure {
 
 	private String expr;
 	private SectionNode source;
-	@Nullable
-	protected EventPriority eventPriority;
-	@Nullable
-	protected ListeningBehavior listeningBehavior;
+	protected @Nullable EventPriority eventPriority;
+	protected @Nullable ListeningBehavior listeningBehavior;
 	protected boolean supportsListeningBehavior;
 	private SkriptEventInfo<?> skriptEventInfo;
 
@@ -137,7 +135,6 @@ public abstract class SkriptEvent extends Structure {
 		if (!shouldLoadEvent())
 			return false;
 
-		// noinspection ConstantConditions - entry container cannot be null as this structure is not simple
 		if (Skript.debug() || source.debug())
 			Skript.debug(expr + " (" + this + "):");
 

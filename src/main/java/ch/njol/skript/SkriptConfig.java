@@ -71,7 +71,7 @@ public class SkriptConfig {
 			.setter(t -> {
 				SkriptUpdater updater = Skript.getInstance().getUpdater();
 				if (updater != null)
-					updater.setCheckFrequency(t.getTicks());
+					updater.setCheckFrequency(t.getAs(Timespan.TimePeriod.TICK));
 			});
 	static final Option<Integer> updaterDownloadTries = new Option<>("updater download tries", 7)
 			.optional(true);
@@ -174,6 +174,7 @@ public class SkriptConfig {
 	public static final Option<Boolean> disableMissingAndOrWarnings = new Option<>("disable variable missing and/or warnings", false);
 	public static final Option<Boolean> disableVariableStartingWithExpressionWarnings =
 		new Option<>("disable starting a variable's name with an expression warnings", false);
+	public static final Option<Boolean> disableUnreachableCodeWarnings = new Option<>("disable unreachable code warnings", false);
 	
 	@Deprecated
 	public static final Option<Boolean> enableScriptCaching = new Option<>("enable script caching", false)

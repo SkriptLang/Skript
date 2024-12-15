@@ -78,7 +78,7 @@ public class EffIgnite extends Effect {
 			Timespan timespan = this.duration.getSingle(event);
 			if (timespan == null)
 				return;
-			duration = (int) timespan.getTicks();
+			duration = (int) timespan.getAs(Timespan.TimePeriod.TICK);
 		}
 		for (Entity entity : entities.getArray(event)) {
 			if (event instanceof EntityDamageEvent && ((EntityDamageEvent) event).getEntity() == entity && !Delay.isDelayed(event)) {
@@ -99,7 +99,7 @@ public class EffIgnite extends Effect {
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
 		if (ignite)
-			return "set " + entities.toString(event, debug) + " on fire for " + (duration != null ? duration.toString(event, debug) : Timespan.fromTicks(DEFAULT_DURATION).toString());
+			return "set " + entities.toString(event, debug) + " on fire for " + (duration != null ? duration.toString(event, debug) : new Timespan(Timespan.TimePeriod.TICK, DEFAULT_DURATION).toString());
 		else
 			return "extinguish " + entities.toString(event, debug);
 	}

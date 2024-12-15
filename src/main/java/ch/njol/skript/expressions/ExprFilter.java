@@ -51,7 +51,7 @@ import java.util.Spliterators;
 import java.util.regex.Pattern;
 import java.util.stream.StreamSupport;
 
-@Name("Filter")
+@Name("Filter (Expression)")
 @Description({
 	"Filters a list based on a condition. ",
 	"For example, if you ran 'broadcast \"something\" and \"something else\" where [string input is \"something\"]', ",
