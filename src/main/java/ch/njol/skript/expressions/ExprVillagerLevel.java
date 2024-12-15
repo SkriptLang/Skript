@@ -23,7 +23,6 @@ import org.jetbrains.annotations.Nullable;
 	"set villager level of last spawned villager to 2",
 	"add 1 to villager level of target entity",
 	"remove 1 from villager level of event-entity",
-	"delete villager level of all villagers",
 	"reset villager level of event-entity"
 })
 @Since("INSERT VERSION")
@@ -45,7 +44,7 @@ public class ExprVillagerLevel extends SimplePropertyExpression<LivingEntity, Nu
 	@Override
 	public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
 		return switch (mode) {
-			case SET, ADD, REMOVE, DELETE, RESET ->
+			case SET, ADD, REMOVE, RESET ->
 				CollectionUtils.array(Number.class);
 			default -> null;
 		};
