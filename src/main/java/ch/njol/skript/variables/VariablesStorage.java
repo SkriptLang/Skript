@@ -365,9 +365,9 @@ public abstract class VariablesStorage implements Closeable {
 	 */
 	public void startBackupTask(Timespan backupInterval, boolean removeBackups, int toKeep) {
 		// File is null or backup interval is invalid
-		if (file == null || backupInterval.getTicks() == 0)
+		if (file == null || backupInterval.getAs(Timespan.TimePeriod.TICK) == 0)
 			return;
-		backupTask = new Task(Skript.getInstance(), backupInterval.getTicks(), backupInterval.getTicks(), true) {
+		backupTask = new Task(Skript.getInstance(), backupInterval.getAs(Timespan.TimePeriod.TICK), backupInterval.getAs(Timespan.TimePeriod.TICK), true) {
 			@Override
 			public void run() {
 				synchronized (connectionLock) {

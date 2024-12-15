@@ -1802,7 +1802,7 @@ public final class BukkitEventValues {
 			EventValues.registerEventValue(PlayerStopUsingItemEvent.class, Timespan.class, new Getter<Timespan, PlayerStopUsingItemEvent>() {
 				@Override
 				public Timespan get(PlayerStopUsingItemEvent event) {
-					return Timespan.fromTicks(event.getTicksHeldFor());
+					return new Timespan(Timespan.TimePeriod.TICK, event.getTicksHeldFor());
 				}
 			}, EventValues.TIME_NOW);
 			EventValues.registerEventValue(PlayerStopUsingItemEvent.class, ItemType.class, new Getter<ItemType, PlayerStopUsingItemEvent>() {
