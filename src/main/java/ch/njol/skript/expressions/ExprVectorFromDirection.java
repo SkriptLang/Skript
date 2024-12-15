@@ -31,7 +31,7 @@ import ch.njol.skript.util.Direction;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.bukkit.util.Vector;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 @Name("Vectors - Create from Direction")
 @Description({
