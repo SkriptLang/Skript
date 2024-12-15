@@ -38,9 +38,12 @@ public class ExprLootContextLuck extends SimplePropertyExpression<LootContext, F
 
 	@Override
 	public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
-		if (!getParser().isCurrentEvent(LootContextCreateEvent.class))
+		if (!getParser().isCurrentEvent(LootContextCreateEvent.class)) {
 			Skript.error("You cannot set the loot context luck of an existing loot context.");
-		else if (mode == ChangeMode.SET || mode == ChangeMode.DELETE || mode == ChangeMode.RESET)
+			return null;
+		}
+
+		if (mode == ChangeMode.SET || mode == ChangeMode.DELETE || mode == ChangeMode.RESET)
 			return CollectionUtils.array(Float.class);
 		return null;
 	}

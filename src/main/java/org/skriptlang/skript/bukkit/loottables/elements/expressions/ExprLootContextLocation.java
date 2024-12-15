@@ -38,9 +38,12 @@ public class ExprLootContextLocation extends SimplePropertyExpression<LootContex
 
 	@Override
 	public Class<?> @Nullable [] acceptChange(Changer.ChangeMode mode) {
-		if (!getParser().isCurrentEvent(LootContextCreateEvent.class))
+		if (!getParser().isCurrentEvent(LootContextCreateEvent.class)) {
 			Skript.error("You cannot set the loot context location of an existing loot context.");
-		else if (mode == Changer.ChangeMode.SET)
+			return null;
+		}
+
+		if (mode == Changer.ChangeMode.SET)
 			return CollectionUtils.array(Location.class);
 		return null;
 	}

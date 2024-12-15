@@ -31,7 +31,7 @@ public class EffGenerateLoot extends Effect {
 
 	static {
 		Skript.registerEffect(EffGenerateLoot.class,
-			"generate loot (of|using) [[the] loot[ ]table] %loottable% (with|using) [[the] [loot] context] %lootcontext% in [inventor(y|ies)] %inventories%"
+			"generate loot (of|using) [[the] loot[ ]table] %loottable% (with|using) [[the] [loot] context] %lootcontext% in [[the] inventor(y|ies)] %inventories%"
 		);
 	}
 
@@ -53,8 +53,10 @@ public class EffGenerateLoot extends Effect {
 		Random random = ThreadLocalRandom.current();
 
 		LootContext context = lootContext.getSingle(event);
+		if (context == null)
+			return;
 		LootTable table = lootTable.getSingle(event);
-		if (context == null || table == null)
+		if (table == null)
 			return;
 
 		for (Inventory inventory : inventories.getArray(event)) {

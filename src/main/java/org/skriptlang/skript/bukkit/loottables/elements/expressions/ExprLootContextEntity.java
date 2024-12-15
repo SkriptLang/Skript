@@ -39,9 +39,12 @@ public class ExprLootContextEntity extends SimplePropertyExpression<LootContext,
 
 	@Override
 	public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
-		if (!getParser().isCurrentEvent(LootContextCreateEvent.class))
+		if (!getParser().isCurrentEvent(LootContextCreateEvent.class)) {
 			Skript.error("You cannot set the loot context entity of an existing loot context.");
-		else if (mode == ChangeMode.SET || mode == ChangeMode.DELETE || mode == ChangeMode.RESET)
+			return null;
+		}
+
+		if (mode == ChangeMode.SET || mode == ChangeMode.DELETE || mode == ChangeMode.RESET)
 			return CollectionUtils.array(Entity.class);
 		return null;
 	}

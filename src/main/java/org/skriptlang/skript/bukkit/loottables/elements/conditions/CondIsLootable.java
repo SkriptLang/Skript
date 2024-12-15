@@ -31,7 +31,7 @@ import org.skriptlang.skript.bukkit.loottables.LootTableUtils;
 public class CondIsLootable extends PropertyCondition<Object> {
 
 	static {
-		register(CondIsLootable.class, PropertyType.BE, "lootable", "blocks/entities");
+		register(CondIsLootable.class, "lootable", "blocks/entities");
 	}
 
 	@Override
