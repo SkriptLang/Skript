@@ -660,6 +660,15 @@ public class Variable<T> implements Expression<T> {
 		}
 	}
 
+	/**
+	 * {@inheritDoc}
+	 * @param getAll This has no effect for a Variable, as {@link #getArray(Event)} is the same as {@link #getAll(Event)}.
+	 */
+	@Override
+	public <R> void changeInPlace(Event event, Function<T, R> changeFunction, boolean getAll) {
+		changeInPlace(event, changeFunction);
+	}
+
 	@Override
 	@Nullable
 	public T getSingle(Event event) {
