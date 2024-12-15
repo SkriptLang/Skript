@@ -55,12 +55,7 @@ public final class EvtGameMode extends SkriptEvent {
 	@Override
 	public boolean check(final Event e) {
 		if (mode != null) {
-			return mode.check(e, new Predicate<GameMode>() {
-				@Override
-				public boolean test(final GameMode m) {
-					return ((PlayerGameModeChangeEvent) e).getNewGameMode().equals(m);
-				}
-			});
+			return mode.check(e, m -> ((PlayerGameModeChangeEvent) e).getNewGameMode().equals(m));
 		}
 		return true;
 	}

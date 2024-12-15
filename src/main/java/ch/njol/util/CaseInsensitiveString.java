@@ -18,22 +18,17 @@
  */
 package ch.njol.util;
 
-import org.jetbrains.annotations.ApiStatus;
-
 import java.io.Serializable;
 import java.util.Locale;
 
 import javax.annotation.Nullable;
-
-
 
 /**
  * A string which is compared ignoring it's case.
  *
  * @author Peter Güttinger
  */
-@Deprecated
-@ApiStatus.ScheduledForRemoval
+@Deprecated(forRemoval = true)
 public class CaseInsensitiveString implements Serializable, Comparable<CharSequence>, CharSequence {
 
 	private static final long serialVersionUID = 1205018864604639962L;

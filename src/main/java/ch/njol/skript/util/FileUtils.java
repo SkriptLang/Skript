@@ -67,10 +67,11 @@ public abstract class FileUtils {
 	public static File move(final File from, final File to, final boolean replace) throws IOException {
 		if (!replace && to.exists())
 			throw new IOException("Can't rename " + from.getName() + " to " + to.getName() + ": The target file already exists");
-		if (replace)
+		if (replace) {
 			Files.move(from.toPath(), to.toPath(), StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE);
-		else
+		} else {
 			Files.move(from.toPath(), to.toPath(), StandardCopyOption.ATOMIC_MOVE);
+		}
 		return to;
 	}
 

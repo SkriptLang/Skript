@@ -185,31 +185,25 @@ public class EvtClick extends SkriptEvent {
 			return false;
 		}
 
-		if (tools != null && !tools.check(event, new Predicate<ItemType>() {
-			@Override
-			public boolean test(final ItemType t) {
-				if (event instanceof PlayerInteractEvent) {
-					return t.isOfType(((PlayerInteractEvent) event).getItem());
-				} else { // PlayerInteractEntityEvent doesn't have item associated with it
-					PlayerInventory invi = ((PlayerInteractEntityEvent) event).getPlayer().getInventory();
-					ItemStack item = ((PlayerInteractEntityEvent) event).getHand() == EquipmentSlot.HAND
-							? invi.getItemInMainHand() : invi.getItemInOffHand();
-					return t.isOfType(item);
-				}
+		if (tools != null && !tools.check(event, t -> {
+			if (event instanceof PlayerInteractEvent) {
+				return t.isOfType(((PlayerInteractEvent) event).getItem());
+			} else { // PlayerInteractEntityEvent doesn't have item associated with it
+				PlayerInventory invi = ((PlayerInteractEntityEvent) event).getPlayer().getInventory();
+				ItemStack item = ((PlayerInteractEntityEvent) event).getHand() == EquipmentSlot.HAND
+						? invi.getItemInMainHand() : invi.getItemInOffHand();
+				return t.isOfType(item);
 			}
 		})) {
 			return false;
 		}
 
 		if (type != null) {
-			return type.check(event, new Predicate<Object>() {
-				@Override
-				public boolean test(final Object o) {
-					if (entity != null) {
-						return o instanceof EntityData ? ((EntityData<?>) o).isInstance(entity) : Relation.EQUAL.isImpliedBy(DefaultComparators.entityItemComparator.compare(EntityData.fromEntity(entity), (ItemType) o));
-					} else {
-						return o instanceof EntityData ? false : ((ItemType) o).isOfType(block);
-					}
+			return type.check(event, (Predicate<Object>) o -> {
+				if (entity != null) {
+					return o instanceof EntityData ? ((EntityData<?>) o).isInstance(entity) : Relation.EQUAL.isImpliedBy(DefaultComparators.entityItemComparator.compare(EntityData.fromEntity(entity), (ItemType) o));
+				} else {
+					return o instanceof EntityData ? false : ((ItemType) o).isOfType(block);
 				}
 			});
 		}

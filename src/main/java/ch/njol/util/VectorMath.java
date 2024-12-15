@@ -25,10 +25,8 @@ import ch.njol.skript.expressions.ExprVectorFromYawAndPitch;
 import ch.njol.skript.expressions.ExprVectorSpherical;
 import ch.njol.skript.expressions.ExprYawPitch;
 import org.bukkit.util.Vector;
-import org.jetbrains.annotations.ApiStatus;
 
-@Deprecated
-@ApiStatus.ScheduledForRemoval
+@Deprecated(forRemoval = true)
 public final class VectorMath {
 
 	public static final double PI = Math.PI;

@@ -18,13 +18,10 @@
  */
 package ch.njol.util;
 
-import org.jetbrains.annotations.ApiStatus;
-
 import java.util.function.Consumer;
 
-@Deprecated
+@Deprecated(forRemoval = true)
 @FunctionalInterface
-@ApiStatus.ScheduledForRemoval
 public interface Setter<T> extends Consumer<T> {
 
 	void set(T t);

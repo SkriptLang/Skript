@@ -18,14 +18,11 @@
  */
 package ch.njol.skript.classes;
 
-import org.jetbrains.annotations.ApiStatus;
-
 import java.util.function.Predicate;
 
 /**
  * @author Peter Güttinger
  */
-@Deprecated
+@Deprecated(forRemoval = true)
 @FunctionalInterface
-@ApiStatus.ScheduledForRemoval
 public interface SerializableChecker<T> extends ch.njol.util.Checker<T>, Predicate<T> {}

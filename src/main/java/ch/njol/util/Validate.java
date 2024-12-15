@@ -19,12 +19,10 @@
 package ch.njol.util;
 
 import org.eclipse.jdt.annotation.Nullable;
-import org.jetbrains.annotations.ApiStatus;
 
 import java.util.Collection;
 
-@Deprecated
-@ApiStatus.ScheduledForRemoval
+@Deprecated(forRemoval = true)
 public final class Validate {
 
 	private Validate() {}

@@ -1,32 +1,4 @@
-/**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
 package ch.njol.skript.entity;
-
-import java.util.Arrays;
-import java.util.function.Predicate;
-
-import org.bukkit.Bukkit;
-import org.bukkit.Material;
-import org.bukkit.block.data.BlockData;
-import org.bukkit.entity.Enderman;
-import org.bukkit.inventory.ItemStack;
-import org.eclipse.jdt.annotation.Nullable;
 
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.lang.Literal;
@@ -35,16 +7,22 @@ import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.localization.ArgsMessage;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.util.coll.CollectionUtils;
+import org.bukkit.Bukkit;
+import org.bukkit.Material;
+import org.bukkit.block.data.BlockData;
+import org.bukkit.entity.Enderman;
+import org.bukkit.inventory.ItemStack;
+import org.eclipse.jdt.annotation.Nullable;
 
-@SuppressWarnings("deprecation")
+import java.util.Arrays;
+
 public class EndermanData extends EntityData<Enderman> {
 
 	static {
 		EntityData.register(EndermanData.class, "enderman", Enderman.class, "enderman");
 	}
 
-	@Nullable
-	private ItemType[] hand = null;
+	private @Nullable ItemType[] hand = null;
 
 	public EndermanData() {}
 
@@ -89,13 +67,9 @@ public class EndermanData extends EntityData<Enderman> {
 
 	@Override
 	public boolean match(final Enderman entity) {
-		return hand == null || SimpleExpression.check(hand, new Predicate<ItemType>() {
-			@SuppressWarnings("null")
-			@Override
-			public boolean test(final @Nullable ItemType t) {
-				// TODO {Block/Material}Data -> Material conversion is not 100% accurate, needs a better solution
-				return t != null && t.isOfType(entity.getCarriedBlock().getMaterial());
-			}
+		return hand == null || SimpleExpression.check(hand, t -> {
+			// TODO {Block/Material}Data -> Material conversion is not 100% accurate, needs a better solution
+			return t != null && t.isOfType(entity.getCarriedBlock().getMaterial());
 		}, false, false);
 	}
 
@@ -127,20 +101,6 @@ public class EndermanData extends EntityData<Enderman> {
 		return Arrays.equals(hand, other.hand);
 	}
 
-//		if (hand == null)
-//			return "";
-//		final StringBuilder b = new StringBuilder();
-//		for (final ItemType h : hand) {
-//			final Pair<String, String> s = Classes.serialize(h);
-//			if (s == null)
-//				return null;
-//			if (b.length() != 0)
-//				b.append(",");
-//			b.append(s.first);
-//			b.append(":");
-//			b.append(s.second.replace(",", ",,").replace(":", "::"));
-//		}
-//		return b.toString();
 	@SuppressWarnings("null")
 	@Override
 	@Deprecated
@@ -163,7 +123,7 @@ public class EndermanData extends EntityData<Enderman> {
 
 	private boolean isSubhand(final @Nullable ItemType[] sub) {
 		if (hand != null)
-			return sub != null && ItemType.isSubset(hand, sub);
+			return ItemType.isSubset(hand, sub);
 		return true;
 	}
 

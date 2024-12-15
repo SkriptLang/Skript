@@ -64,7 +64,7 @@ public class ExprVectorAngleBetween extends SimpleExpression<Number> {
 		Vector second = this.second.getSingle(event);
 		if (first == null || second == null)
 			return null;
-		return CollectionUtils.array(first.angle(second) * (float) VectorMath.RAD_TO_DEG);
+		return CollectionUtils.array(first.angle(second) * (float) 180 / Math.PI); // rad to deg
 	}
 
 	@Override

@@ -264,40 +264,37 @@ public class Documentation {
 		assert cleanedPatterns != null;
 
 		final String s = StringUtils.replaceAll(cleanedPatterns, "(?<!\\\\)%(.+?)(?<!\\\\)%", // Convert %+?% (aka types) inside patterns to links
-			new Function<Matcher, String>() {
-				@Override
-				public String apply(final Matcher m) {
-					String s = m.group(1);
-					if (s.startsWith("-"))
-						s = s.substring(1);
-					String flag = "";
-					if (s.startsWith("*") || s.startsWith("~")) {
-						flag = s.substring(0, 1);
-						s = s.substring(1);
-					}
-					final int a = s.indexOf("@");
-					if (a != -1)
-						s = s.substring(0, a);
-					final StringBuilder b = new StringBuilder("%");
-					b.append(flag);
-					boolean first = true;
-					for (final String c : s.split("/")) {
-						assert c != null;
-						if (!first)
-							b.append("/");
-						first = false;
-						final NonNullPair<String, Boolean> p = Utils.getEnglishPlural(c);
-						final ClassInfo<?> ci = Classes.getClassInfoNoError(p.getFirst());
-						if (ci != null && ci.hasDocs()) { // equals method throws null error when doc name is null
-							b.append("<a href='./classes.html#").append(p.getFirst()).append("'>").append(ci.getName().toString(p.getSecond())).append("</a>");
-						} else {
-							b.append(c);
-							if (ci != null && ci.hasDocs())
-								Skript.warning("Used class " + p.getFirst() + " has no docName/name defined");
-						}
-					}
-					return "" + b.append("%").toString();
+			m -> {
+				String s1 = m.group(1);
+				if (s1.startsWith("-"))
+					s1 = s1.substring(1);
+				String flag = "";
+				if (s1.startsWith("*") || s1.startsWith("~")) {
+					flag = s1.substring(0, 1);
+					s1 = s1.substring(1);
 				}
+				final int a = s1.indexOf("@");
+				if (a != -1)
+					s1 = s1.substring(0, a);
+				final StringBuilder b = new StringBuilder("%");
+				b.append(flag);
+				boolean first = true;
+				for (final String c : s1.split("/")) {
+					assert c != null;
+					if (!first)
+						b.append("/");
+					first = false;
+					final NonNullPair<String, Boolean> p = Utils.getEnglishPlural(c);
+					final ClassInfo<?> ci = Classes.getClassInfoNoError(p.getFirst());
+					if (ci != null && ci.hasDocs()) { // equals method throws null error when doc name is null
+						b.append("<a href='./classes.html#").append(p.getFirst()).append("'>").append(ci.getName().toString(p.getSecond())).append("</a>");
+					} else {
+						b.append(c);
+						if (ci != null && ci.hasDocs())
+							Skript.warning("Used class " + p.getFirst() + " has no docName/name defined");
+					}
+				}
+				return b.append("%").toString();
 			});
 		assert s != null : patterns;
 		return s;

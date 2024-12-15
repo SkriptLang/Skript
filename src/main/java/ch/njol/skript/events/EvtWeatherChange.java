@@ -62,12 +62,7 @@ public class EvtWeatherChange extends SkriptEvent {
 			return false;
 		final boolean rain = e instanceof WeatherChangeEvent ? ((WeatherChangeEvent) e).toWeatherState() : ((ThunderChangeEvent) e).getWorld().hasStorm();
 		final boolean thunder = e instanceof ThunderChangeEvent ? ((ThunderChangeEvent) e).toThunderState() : ((WeatherChangeEvent) e).getWorld().isThundering();
-		return types.check(e, new Predicate<WeatherType>() {
-			@Override
-			public boolean test(final WeatherType t) {
-				return t.isWeather(rain, thunder);
-			}
-		});
+		return types.check(e, t -> t.isWeather(rain, thunder));
 	}
 
 	@Override

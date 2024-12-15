@@ -19,13 +19,11 @@
 package ch.njol.util;
 
 import org.eclipse.jdt.annotation.Nullable;
-import org.jetbrains.annotations.ApiStatus;
 
 import java.util.function.Function;
 
-@Deprecated
+@Deprecated(forRemoval = true)
 @FunctionalInterface
-@ApiStatus.ScheduledForRemoval
 public interface Callback<R, A> extends Function<A, R> {
 
 	@Nullable
