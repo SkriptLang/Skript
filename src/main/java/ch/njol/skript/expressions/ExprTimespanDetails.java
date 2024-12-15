@@ -57,7 +57,7 @@ public class ExprTimespanDetails extends SimplePropertyExpression<Timespan, Long
 	@Override
 	@Nullable
 	public Long convert(Timespan time) {
-		return time.getMilliSeconds() / type.getTime();
+		return time.getAs(Timespan.TimePeriod.MILLISECOND) / type.getTime();
 	}
 
 	@Override

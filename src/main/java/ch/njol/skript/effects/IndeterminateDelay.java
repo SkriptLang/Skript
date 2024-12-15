@@ -57,7 +57,7 @@ public class IndeterminateDelay extends Delay {
 					Variables.setLocalVariables(event, localVars);
 
 				TriggerItem.walk(next, event);
-			}, duration.getTicks());
+			}, duration.getAs(Timespan.TimePeriod.TICK));
 		}
 
 		return null;
