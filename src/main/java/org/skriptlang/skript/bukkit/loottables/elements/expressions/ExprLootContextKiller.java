@@ -16,7 +16,8 @@ import org.skriptlang.skript.bukkit.loottables.LootContextCreateEvent;
 import org.skriptlang.skript.bukkit.loottables.LootContextWrapper;
 
 @Name("Killer of Loot Context")
-@Description("Returns the loot context killer of a loot context.")
+@Description("Returns the loot context killer of a loot context " +
+	"Note that setting the killer of a loot context will read the player's tool enchantments (e.g. looting) when generating loot.")
 @Examples({
 	"set {_killer} to loot context killer of {_context}",
 	"",

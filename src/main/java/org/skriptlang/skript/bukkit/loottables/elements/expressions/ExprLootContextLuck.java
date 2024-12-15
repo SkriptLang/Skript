@@ -15,7 +15,7 @@ import org.skriptlang.skript.bukkit.loottables.LootContextCreateEvent;
 import org.skriptlang.skript.bukkit.loottables.LootContextWrapper;
 
 @Name("Luck of Loot Context")
-@Description("Returns the luck of a loot context as a float.")
+@Description("Returns the luck of a loot context as a float. This represents the luck potion effect that an entity can have.")
 @Examples({
 	"set {_luck} to loot context luck value of {_context}",
 	"",
