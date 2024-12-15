@@ -60,6 +60,12 @@ public class NamespacedUtils {
 					encodedKeyBuilder.append(currentChar);
 				}
 			} else {
+				// escape a colon, e.g. "foo+:bar" -> "skript:foo.x2b.x3a.bar", "foo+\:bar" -> "foo.x2b:bar"
+				if (currentChar == '\\' && i != (keyLength - 1) && key.charAt(i + 1) == ':') {
+					encodedKeyBuilder.append(':');
+					i++;
+					continue;
+				}
 				// add ".x(hex code)" to the encoded key
 				encodedKeyBuilder.append(".x");
 				encodedKeyBuilder.append(Integer.toHexString(currentChar));
