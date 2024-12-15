@@ -92,6 +92,7 @@ import org.bukkit.event.player.PlayerExpCooldownChangeEvent.ChangeReason;
 import org.bukkit.inventory.BlockInventoryHolder;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
+import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.metadata.Metadatable;
 import org.bukkit.potion.PotionEffect;
@@ -1530,6 +1531,11 @@ public class BukkitClasses {
 				.description("Represents a transform reason of an <a href='events.html#entity transform'>entity transform event</a>.")
 				.since("2.8.0"));
 
+		Classes.registerClass(new EnumClassInfo<>(ItemFlag.class, "itemflag", "item flags")
+				.user("item ?flags?")
+				.name("Item Flag")
+				.description("Represents flags that may be applied to hide certain attributes of an item.")
+				.since("INSERT VERSION"));
 
 		Classes.registerClass(new EnumClassInfo<>(EntityPotionEffectEvent.Cause.class, "entitypotioncause", "entity potion causes")
 				.user("(entity )?potion ?effect ?cause")

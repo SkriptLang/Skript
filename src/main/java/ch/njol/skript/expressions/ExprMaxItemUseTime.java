@@ -51,7 +51,7 @@ public class ExprMaxItemUseTime extends SimplePropertyExpression<ItemStack, Time
 	@Override
 	@Nullable 
 	public Timespan convert(ItemStack item) {
-		return Timespan.fromTicks(item.getMaxItemUseDuration());
+		return new Timespan(Timespan.TimePeriod.TICK, item.getMaxItemUseDuration());
 	}
 
 	@Override
