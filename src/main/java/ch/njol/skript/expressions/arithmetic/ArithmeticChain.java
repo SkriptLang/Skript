@@ -18,20 +18,19 @@
  */
 package ch.njol.skript.expressions.arithmetic;
 
-import java.util.List;
-import java.util.function.Function;
-import java.util.function.Predicate;
-
-import org.bukkit.event.Event;
-
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.util.Utils;
-import org.eclipse.jdt.annotation.Nullable;
+import org.bukkit.event.Event;
+import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.arithmetic.Arithmetics;
 import org.skriptlang.skript.lang.arithmetic.Operation;
 import org.skriptlang.skript.lang.arithmetic.OperationInfo;
 import org.skriptlang.skript.lang.arithmetic.Operator;
-import org.skriptlang.skript.lang.arithmetic.Arithmetics;
 import org.skriptlang.skript.lang.converter.Converters;
+
+import java.util.List;
+import java.util.function.Function;
+import java.util.function.Predicate;
 
 /**
  * Represents a chain of arithmetic operations between two operands.

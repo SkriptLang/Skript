@@ -132,7 +132,6 @@ public class EvtMove extends SkriptEvent {
 	}
 
 	@Override
-	@Nullable
 	@SuppressWarnings("unchecked")
 	public Class<? extends Event> [] getEventClasses() {
 		if (isPlayer) {
@@ -140,7 +139,7 @@ public class EvtMove extends SkriptEvent {
 		} else if (HAS_ENTITY_MOVE) {
 			return new Class[] {EntityMoveEvent.class};
 		}
-		return null;
+		throw new IllegalStateException("This event has not yet initialized!");
 	}
 
 	@Override

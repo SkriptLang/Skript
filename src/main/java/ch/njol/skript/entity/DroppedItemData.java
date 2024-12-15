@@ -18,11 +18,16 @@
  */
 package ch.njol.skript.entity;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.Arrays;
+import java.util.function.Consumer;
 
+import ch.njol.skript.Skript;
+import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.entity.Item;
 import org.bukkit.inventory.ItemStack;
-import org.eclipse.jdt.annotation.Nullable;
 
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.lang.Literal;
@@ -32,71 +37,84 @@ import ch.njol.skript.localization.Language;
 import ch.njol.skript.localization.Noun;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.util.coll.CollectionUtils;
+import org.jetbrains.annotations.Nullable;
 
-/**
- * @author Peter Güttinger
- */
 public class DroppedItemData extends EntityData<Item> {
+
+	private static final boolean HAS_JAVA_CONSUMER_DROP = Skript.methodExists(World.class, "dropItem", Location.class, ItemStack.class, Consumer.class);
+	private static @Nullable Method BUKKIT_CONSUMER_DROP;
+
 	static {
 		EntityData.register(DroppedItemData.class, "dropped item", Item.class, "dropped item");
+
+		try {
+			BUKKIT_CONSUMER_DROP = World.class.getDeclaredMethod("dropItem", Location.class, ItemStack.class, org.bukkit.util.Consumer.class);
+		} catch (NoSuchMethodException | SecurityException ignored) {}
 	}
 	
 	private final static Adjective m_adjective = new Adjective("entities.dropped item.adjective");
-	
-	@Nullable
-	private ItemType[] types;
+
+	private ItemType @Nullable [] types;
 	
 	public DroppedItemData() {}
 	
-	public DroppedItemData(@Nullable ItemType[] types) {
+	public DroppedItemData(ItemType @Nullable [] types) {
 		this.types = types;
 	}
 	
 	@Override
-	protected boolean init(final Literal<?>[] exprs, final int matchedPattern, final ParseResult parseResult) {
-		if (exprs.length > 0 && exprs[0] != null)
-			types = (ItemType[]) exprs[0].getAll();
+	protected boolean init(Literal<?>[] expressions, int matchedPattern, ParseResult parseResult) {
+		if (expressions.length > 0 && expressions[0] != null) {
+			types = (ItemType[]) expressions[0].getAll();
+			for (ItemType type : types) {
+				if (!type.getMaterial().isItem()) {
+					Skript.error("'" + type + "' cannot represent a dropped item");
+					return false;
+				}
+			}
+		}
 		return true;
 	}
 	
 	@Override
-	protected boolean init(final @Nullable Class<? extends Item> c, final @Nullable Item e) {
-		if (e != null) {
-			final ItemStack i = e.getItemStack();
+	protected boolean init(@Nullable Class<? extends Item> clazz, @Nullable Item itemEntity) {
+		if (itemEntity != null) {
+			final ItemStack i = itemEntity.getItemStack();
 			types = new ItemType[] {new ItemType(i)};
 		}
 		return true;
 	}
 	
 	@Override
-	protected boolean match(final Item entity) {
+	protected boolean match(Item entity) {
 		if (types != null) {
-			for (final ItemType t : types) {
+			for (ItemType t : types) {
 				if (t.isOfType(entity.getItemStack()))
 					return true;
 			}
 			return false;
-		} else {
-			return true;
 		}
+		return true;
 	}
 	
 	@Override
 	public void set(final Item entity) {
+		if (types == null)
+			return;
 		final ItemType t = CollectionUtils.getRandom(types);
 		assert t != null;
 		ItemStack stack = t.getItem().getRandom();
-		if (stack != null)
-			entity.setItemStack(stack);
+		assert stack != null; // should be true by init checks
+		entity.setItemStack(stack);
 	}
 	
 	@Override
-	public boolean isSupertypeOf(final EntityData<?> e) {
-		if (!(e instanceof DroppedItemData))
+	public boolean isSupertypeOf(EntityData<?> otherData) {
+		if (!(otherData instanceof DroppedItemData))
 			return false;
-		final DroppedItemData d = (DroppedItemData) e;
+		DroppedItemData otherItemData = (DroppedItemData) otherData;
 		if (types != null)
-			return d.types != null && ItemType.isSubset(types, d.types);
+			return otherItemData.types != null && ItemType.isSubset(types, otherItemData.types);
 		return true;
 	}
 	
@@ -111,36 +129,67 @@ public class DroppedItemData extends EntityData<Item> {
 	}
 	
 	@Override
-	public String toString(final int flags) {
-		final ItemType[] types = this.types;
+	public String toString(int flags) {
 		if (types == null)
 			return super.toString(flags);
-		final StringBuilder b = new StringBuilder();
-		b.append(Noun.getArticleWithSpace(types[0].getTypes().get(0).getGender(), flags));
-		b.append(m_adjective.toString(types[0].getTypes().get(0).getGender(), flags));
-		b.append(" ");
-		b.append(Classes.toString(types, flags & Language.NO_ARTICLE_MASK, false));
-		return "" + b.toString();
+		int gender = types[0].getTypes().get(0).getGender();
+		return Noun.getArticleWithSpace(gender, flags) +
+				m_adjective.toString(gender, flags) +
+				" " +
+				Classes.toString(types, flags & Language.NO_ARTICLE_MASK, false);
 	}
-	
-//		return ItemType.serialize(types);
+
 	@Override
 	@Deprecated
-	protected boolean deserialize(final String s) {
+	protected boolean deserialize(String s) {
 		throw new UnsupportedOperationException("old serialization is no longer supported");
-//		if (s.isEmpty())
-//			return true;
-//		types = ItemType.deserialize(s);
-//		return types != null;
 	}
 	
 	@Override
-	protected boolean equals_i(final EntityData<?> obj) {
-		if (!(obj instanceof DroppedItemData))
+	protected boolean equals_i(EntityData<?> otherData) {
+		if (!(otherData instanceof DroppedItemData))
 			return false;
-		return Arrays.equals(types, ((DroppedItemData) obj).types);
+		return Arrays.equals(types, ((DroppedItemData) otherData).types);
 	}
-	
+
+	@Override
+	public boolean canSpawn(@Nullable World world) {
+		return types != null && types.length > 0 && world != null;
+	}
+
+	@Override
+	public @Nullable Item spawn(Location location, @Nullable Consumer<Item> consumer) {
+		World world = location.getWorld();
+		if (!canSpawn(world))
+			return null;
+		assert types != null && types.length > 0;
+
+		final ItemType itemType = CollectionUtils.getRandom(types);
+		assert itemType != null;
+		ItemStack stack = itemType.getItem().getRandom();
+		assert stack != null; // should be true by init checks
+
+		Item item;
+		if (consumer == null) {
+			item = world.dropItem(location, stack);
+		} else if (HAS_JAVA_CONSUMER_DROP) {
+			item = world.dropItem(location, stack, consumer);
+		} else if (BUKKIT_CONSUMER_DROP != null) {
+			try {
+				// noinspection deprecation
+				item = (Item) BUKKIT_CONSUMER_DROP.invoke(world, location, stack, (org.bukkit.util.Consumer<Item>) consumer::accept);
+			} catch (InvocationTargetException | IllegalAccessException e) {
+				if (Skript.testing())
+					Skript.exception(e, "Can't spawn " + this.getName());
+				return null;
+			}
+		} else {
+			item = world.dropItem(location, stack);
+			consumer.accept(item);
+		}
+		return item;
+	}
+
 	@Override
 	protected int hashCode_i() {
 		return Arrays.hashCode(types);

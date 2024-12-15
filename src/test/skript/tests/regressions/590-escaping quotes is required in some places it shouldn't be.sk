@@ -8,8 +8,8 @@ test "double quote parsing":
 
 	assert "Testing """ is set with "simple string with escaped quote failed"
 
-	assert "Testing %length of "abc"%" is set with "string with expression with string ##1 failed"
-	assert "%myFunction_five_nine_zero("Hello")% world" is "Hello world" with "string with expression with string ##2 failed"
+	assert "Testing %length of "abc"%" is set with "string with expression with string failed"
+	assert "%myFunction_five_nine_zero("Hello")% world" is "Hello world" with "string with expression with string failed"
 
 
 	assert {_abc} is not set with "simple variable failed"

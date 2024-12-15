@@ -19,7 +19,7 @@
 package ch.njol.skript.lang.function;
 
 import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
@@ -48,14 +48,14 @@ public class EffFunctionCall extends Effect {
 	}
 	
 	@Override
-	protected void execute(final Event e) {
-		function.execute(e);
+	protected void execute(final Event event) {
+		function.execute(event);
 		function.resetReturnValue(); // Function might have return value that we're ignoring
 	}
 	
 	@Override
-	public String toString(@Nullable final Event e, final boolean debug) {
-		return function.toString(e, debug);
+	public String toString(@Nullable final Event event, final boolean debug) {
+		return function.toString(event, debug);
 	}
 	
 	@Override

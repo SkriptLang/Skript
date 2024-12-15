@@ -42,9 +42,8 @@ import ch.njol.skript.entity.EntityData;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptEvent;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.util.Checker;
 import ch.njol.util.coll.CollectionUtils;
-
-import java.util.function.Predicate;
 
 public class EvtClick extends SkriptEvent {
 
@@ -125,11 +124,10 @@ public class EvtClick extends SkriptEvent {
 	public boolean check(Event event) {
 		Block block;
 		Entity entity;
-
-		if (event instanceof PlayerInteractEntityEvent) {
-			PlayerInteractEntityEvent clickEvent = ((PlayerInteractEntityEvent) event);
-			Entity clicked = clickEvent.getRightClicked();
-
+		
+		if (event instanceof PlayerInteractEntityEvent interactEntityEvent) {
+			Entity clicked = interactEntityEvent.getRightClicked();
+			
 			// Usually, don't handle these events
 			if (clickEvent instanceof PlayerInteractAtEntityEvent) {
 				// But armor stands are an exception
@@ -137,22 +135,20 @@ public class EvtClick extends SkriptEvent {
 				if (!(clicked instanceof ArmorStand))
 					return false;
 			}
-
+			
 			if (click == LEFT) // Lefts clicks on entities don't work
 				return false;
-
+			
 			// PlayerInteractAtEntityEvent called only once for armor stands
 			if (!(event instanceof PlayerInteractAtEntityEvent)) {
 				if (!interactTracker.checkEvent(clickEvent.getPlayer(), clickEvent, clickEvent.getHand())) {
 					return false; // Not first event this tick
 				}
 			}
-
+			
 			entity = clicked;
 			block = null;
-		} else if (event instanceof PlayerInteractEvent) {
-			PlayerInteractEvent clickEvent = ((PlayerInteractEvent) event);
-
+		} else if (event instanceof PlayerInteractEvent interactEvent) {
 			// Figure out click type, filter non-click events
 			Action a = clickEvent.getAction();
 			int click;
@@ -171,39 +167,52 @@ public class EvtClick extends SkriptEvent {
 			}
 			if ((this.click & click) == 0)
 				return false; // We don't want to handle this kind of events
-
-			EquipmentSlot hand = clickEvent.getHand();
+			
+			EquipmentSlot hand = interactEvent.getHand();
 			assert hand != null; // Not PHYSICAL interaction
 			if (!interactTracker.checkEvent(clickEvent.getPlayer(), clickEvent, hand)) {
 				return false; // Not first event this tick
 			}
-
-			block = clickEvent.getClickedBlock();
+			
+			block = interactEvent.getClickedBlock();
 			entity = null;
 		} else {
 			assert false;
 			return false;
 		}
 
-		if (tools != null && !tools.check(event, t -> {
-			if (event instanceof PlayerInteractEvent) {
-				return t.isOfType(((PlayerInteractEvent) event).getItem());
-			} else { // PlayerInteractEntityEvent doesn't have item associated with it
+		Checker<ItemType> checker = itemType -> {
+			if (event instanceof PlayerInteractEvent interactEvent) {
+				return itemType.isOfType(interactEvent.getItem());
+			} else {
 				PlayerInventory invi = ((PlayerInteractEntityEvent) event).getPlayer().getInventory();
 				ItemStack item = ((PlayerInteractEntityEvent) event).getHand() == EquipmentSlot.HAND
-						? invi.getItemInMainHand() : invi.getItemInOffHand();
-				return t.isOfType(item);
+					? invi.getItemInMainHand() : invi.getItemInOffHand();
+				return itemType.isOfType(item);
 			}
-		})) {
+		};
+
+		if (tools != null && !tools.check(event, checker))
 			return false;
-		}
 
 		if (type != null) {
-			return type.check(event, (Predicate<Object>) o -> {
-				if (entity != null) {
-					return o instanceof EntityData ? ((EntityData<?>) o).isInstance(entity) : Relation.EQUAL.isImpliedBy(DefaultComparators.entityItemComparator.compare(EntityData.fromEntity(entity), (ItemType) o));
-				} else {
-					return o instanceof EntityData ? false : ((ItemType) o).isOfType(block);
+			BlockData blockDataCheck = block != null ? block.getBlockData() : null;
+			return type.check(event, new Checker<Object>() {
+				@Override
+				public boolean check(Object object) {
+					if (entity != null) {
+						if (object instanceof EntityData<?> entityData) {
+							return entityData.isInstance(entity);
+						} else {
+							Relation compare = DefaultComparators.entityItemComparator.compare(EntityData.fromEntity(entity), (ItemType) object);
+							return Relation.EQUAL.isImpliedBy(compare);
+						}
+					} else if (object instanceof ItemType itemType) {
+						return itemType.isOfType(block);
+					} else if (blockDataCheck != null && object instanceof BlockData blockData)  {
+						return blockDataCheck.matches(blockData);
+					}
+					return false;
 				}
 			});
 		}

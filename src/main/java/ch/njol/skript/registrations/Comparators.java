@@ -20,7 +20,7 @@ package ch.njol.skript.registrations;
 
 import ch.njol.skript.classes.Comparator;
 import ch.njol.skript.classes.Comparator.Relation;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * @deprecated Use {@link org.skriptlang.skript.lang.comparator.Comparators}

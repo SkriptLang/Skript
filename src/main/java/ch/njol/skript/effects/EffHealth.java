@@ -35,7 +35,7 @@ import ch.njol.util.Math2;
 import org.bukkit.entity.Damageable;
 import org.bukkit.event.Event;
 import org.bukkit.inventory.ItemStack;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 @Name("Damage/Heal/Repair")
 @Description("Damage/Heal/Repair an entity, or item.")
@@ -90,7 +90,7 @@ public class EffHealth extends Effect {
 				if (this.amount == null) {
 					ItemUtils.setDamage(itemType, 0);
 				} else {
-					ItemUtils.setDamage(itemType, (int) Math2.fit(0, (ItemUtils.getDamage(itemType) + (isHealing ? -amount : amount)), itemType.getMaterial().getMaxDurability()));
+					ItemUtils.setDamage(itemType, (int) Math2.fit(0, (ItemUtils.getDamage(itemType) + (isHealing ? -amount : amount)), ItemUtils.getMaxDamage(itemType)));
 				}
 
 			} else if (obj instanceof Slot) {
@@ -103,7 +103,7 @@ public class EffHealth extends Effect {
 				if (this.amount == null) {
 					ItemUtils.setDamage(itemStack, 0);
 				} else {
-					int damageAmt = (int) Math2.fit(0, (isHealing ? -amount : amount), itemStack.getType().getMaxDurability());
+					int damageAmt = (int) Math2.fit(0, (ItemUtils.getDamage(itemStack) + (isHealing ? -amount : amount)), ItemUtils.getMaxDamage(itemStack));
 					ItemUtils.setDamage(itemStack, damageAmt);
 				}
 

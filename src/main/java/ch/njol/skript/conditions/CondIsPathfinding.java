@@ -38,7 +38,7 @@ import org.bukkit.Location;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Mob;
 import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 @Name("Is Pathfinding")
 @Description({
@@ -54,7 +54,7 @@ import org.eclipse.jdt.annotation.Nullable;
 	"clear entity within {_entity}"
 })
 @RequiredPlugins("Paper")
-@Since("INSERT VERSION")
+@Since("2.9.0")
 public class CondIsPathfinding extends Condition {
 
 	static {

@@ -22,14 +22,8 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
-import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
@@ -55,6 +49,8 @@ import ch.njol.skript.effects.EffTeleport;
 import ch.njol.skript.localization.Language;
 import ch.njol.skript.localization.LanguageChangeListener;
 import ch.njol.skript.registrations.Classes;
+import ch.njol.util.Callback;
+import ch.njol.util.Checker;
 import ch.njol.util.NonNullPair;
 import ch.njol.util.Pair;
 import ch.njol.util.StringUtils;
@@ -70,9 +66,53 @@ import org.jetbrains.annotations.NotNull;
  */
 public abstract class Utils {
 
-	private Utils() {}
-
 	public final static Random random = new Random();
+	protected final static Deque<WordEnding> plurals = new LinkedList<>();
+
+	static {
+		plurals.add(new WordEnding("axe", "axes"));
+		plurals.add(new WordEnding("x", "xes"));
+
+		plurals.add(new WordEnding("ay", "ays"));
+		plurals.add(new WordEnding("ey", "eys"));
+		plurals.add(new WordEnding("iy", "iys"));
+		plurals.add(new WordEnding("oy", "oys"));
+		plurals.add(new WordEnding("uy", "uys"));
+		plurals.add(new WordEnding("kie", "kies"));
+		plurals.add(new WordEnding("zombie", "zombies"));
+		plurals.add(new WordEnding("y", "ies"));
+
+		plurals.add(new WordEnding("wife", "wives")); // we have to do the -ife -> ives first
+		plurals.add(new WordEnding("life", "lives"));
+		plurals.add(new WordEnding("knife", "knives"));
+		plurals.add(new WordEnding("ive", "ives"));
+		plurals.add(new WordEnding("elf", "elves")); // self shelf elf
+		plurals.add(new WordEnding("fe", "ves"));// most -f words' plurals can end in -fs as well as -ves
+
+		plurals.add(new WordEnding("h", "hes"));
+
+		plurals.add(new WordEnding("man", "men"));
+
+		plurals.add(new WordEnding("ui", "uis")); // gui fix
+		plurals.add(new WordEnding("api", "apis")); // api fix
+		plurals.add(new WordEnding("us", "i"));
+
+		plurals.add(new WordEnding("hoe", "hoes"));
+		plurals.add(new WordEnding("toe", "toes"));
+		plurals.add(new WordEnding("o", "oes"));
+
+		plurals.add(new WordEnding("alias", "aliases"));
+		plurals.add(new WordEnding("gas", "gases"));
+
+		plurals.add(new WordEnding("child", "children"));
+
+		plurals.add(new WordEnding("sheep", "sheep"));
+
+		// general ending
+		plurals.add(new WordEnding("", "s"));
+	}
+
+	private Utils() {}
 
 	public static String join(final Object[] objects) {
 		assert objects != null;
@@ -84,7 +124,7 @@ public abstract class Utils {
 		}
 		return "" + b.toString();
 	}
-
+	
 	public static String join(final Iterable<?> objects) {
 		assert objects != null;
 		final StringBuilder b = new StringBuilder();
@@ -98,12 +138,12 @@ public abstract class Utils {
 		}
 		return "" + b.toString();
 	}
-
+	
 	@SuppressWarnings("unchecked")
 	public static <T> boolean isEither(@Nullable T compared, @Nullable T... types) {
 		return CollectionUtils.contains(types, compared);
 	}
-
+	
 	public static Pair<String, Integer> getAmount(String s) {
 		if (s.matches("\\d+ of .+")) {
 			return new Pair<>(s.split(" ", 3)[2], Utils.parseInt("" + s.split(" ", 2)[0]));
@@ -114,7 +154,7 @@ public abstract class Utils {
 		}
 		return new Pair<>(s, Integer.valueOf(-1));
 	}
-
+	
 //	public final static class AmountResponse {
 //		public final String s;
 //		public final int amount;
@@ -162,7 +202,7 @@ public abstract class Utils {
 
 	/**
 	 * Loads classes of the plugin by package. Useful for registering many syntax elements like Skript does it.
-	 *
+	 * 
 	 * @param basePackage The base package to add to all sub packages, e.g. <tt>"ch.njol.skript"</tt>.
 	 * @param subPackages Which subpackages of the base package should be loaded, e.g. <tt>"expressions", "conditions", "effects"</tt>. Subpackages of these packages will be loaded
 	 *            as well. Use an empty array to load all subpackages of the base package.
@@ -215,7 +255,7 @@ public abstract class Utils {
 
 	/**
 	 * The first invocation of this method uses reflection to invoke the protected method {@link JavaPlugin#getFile()} to get the plugin's jar file.
-	 *
+	 * 
 	 * @return The jar file of the plugin.
 	 */
 	@Nullable
@@ -292,11 +332,11 @@ public abstract class Utils {
 		}
 		return new NonNullPair<>(s, Boolean.FALSE);
 	}
-
+	
 	/**
 	 * Gets the english plural of a word.
 	 *
-	 * @param s
+	 * @param word
 	 * @return The english plural of the given word
 	 */
 	public static String toEnglishPlural(final String s) {
@@ -308,10 +348,10 @@ public abstract class Utils {
 		assert false;
 		return s + "s";
 	}
-
+	
 	/**
 	 * Gets the plural of a word (or not if p is false)
-	 *
+	 * 
 	 * @param s
 	 * @param p
 	 * @return The english plural of the given word, or the word itself if p is false.
@@ -321,10 +361,10 @@ public abstract class Utils {
 			return toEnglishPlural(s);
 		return s;
 	}
-
+	
 	/**
 	 * Adds 'a' or 'an' to the given string, depending on the first character of the string.
-	 *
+	 * 
 	 * @param s The string to add the article to
 	 * @return The given string with an appended a/an and a space at the beginning
 	 * @see #A(String)
@@ -333,10 +373,10 @@ public abstract class Utils {
 	public static String a(final String s) {
 		return a(s, false);
 	}
-
+	
 	/**
 	 * Adds 'A' or 'An' to the given string, depending on the first character of the string.
-	 *
+	 * 
 	 * @param s The string to add the article to
 	 * @return The given string with an appended A/An and a space at the beginning
 	 * @see #a(String)
@@ -345,10 +385,10 @@ public abstract class Utils {
 	public static String A(final String s) {
 		return a(s, true);
 	}
-
+	
 	/**
 	 * Adds 'a' or 'an' to the given string, depending on the first character of the string.
-	 *
+	 * 
 	 * @param s The string to add the article to
 	 * @param capA Whether to use a capital a or not
 	 * @return The given string with an appended a/an (or A/An if capA is true) and a space at the beginning
@@ -366,14 +406,14 @@ public abstract class Utils {
 			return "a " + s;
 		}
 	}
-
+	
 	/**
 	 * Gets the collision height of solid or partially-solid blocks at the center of the block.
 	 * This is mostly for use in the {@link EffTeleport teleport effect}.
 	 * <p>
 	 * This version operates on numeric ids, thus only working on
 	 * Minecraft 1.12 or older.
-	 *
+	 * 
 	 * @param type
 	 * @return The block's height at the center
 	 */
@@ -529,14 +569,14 @@ public abstract class Utils {
 
 		return completableFuture;
 	}
-
+	
 	final static ChatColor[] styles = {ChatColor.BOLD, ChatColor.ITALIC, ChatColor.STRIKETHROUGH, ChatColor.UNDERLINE, ChatColor.MAGIC, ChatColor.RESET};
 	final static Map<String, String> chat = new HashMap<>();
 	final static Map<String, String> englishChat = new HashMap<>();
-
+	
 	public final static boolean HEX_SUPPORTED = Skript.isRunningMinecraft(1, 16);
 	public final static boolean COPY_SUPPORTED = Skript.isRunningMinecraft(1, 15);
-
+	
 	static {
 		Language.addListener(new LanguageChangeListener() {
 			@Override
@@ -553,30 +593,30 @@ public abstract class Utils {
 			}
 		});
 	}
-
+	
 	@Nullable
 	public static String getChatStyle(final String s) {
 		SkriptColor color = SkriptColor.fromName(s);
-
+		
 		if (color != null)
 			return color.getFormattedChat();
 		return chat.get(s);
 	}
-
+	
 	private final static Pattern stylePattern = Pattern.compile("<([^<>]+)>");
-
+	
 	/**
 	 * Replaces &lt;chat styles&gt; in the message
-	 *
+	 * 
 	 * @param message
 	 * @return message with localised chat styles converted to Minecraft's format
 	 */
 	public static String replaceChatStyles(final String message) {
 		if (message.isEmpty())
 			return message;
-		String m = StringUtils.replaceAll(Matcher.quoteReplacement("" + message.replace("<<none>>", "")), stylePattern, new Function<Matcher, String>() {
+		String m = StringUtils.replaceAll(Matcher.quoteReplacement("" + message.replace("<<none>>", "")), stylePattern, new Callback<String, Matcher>() {
 			@Override
-			public String apply(final Matcher m) {
+			public String run(final Matcher m) {
 				SkriptColor color = SkriptColor.fromName("" + m.group(1));
 				if (color != null)
 					return color.getFormattedChat();
@@ -601,20 +641,20 @@ public abstract class Utils {
 		m = ChatColor.translateAlternateColorCodes('&', "" + m);
 		return "" + m;
 	}
-
+	
 	/**
 	 * Replaces english &lt;chat styles&gt; in the message. This is used for messages in the language file as the language of colour codes is not well defined while the language is
 	 * changing, and for some hardcoded messages.
-	 *
+	 * 
 	 * @param message
 	 * @return message with english chat styles converted to Minecraft's format
 	 */
 	public static String replaceEnglishChatStyles(final String message) {
 		if (message.isEmpty())
 			return message;
-		String m = StringUtils.replaceAll(Matcher.quoteReplacement(message), stylePattern, new Function<Matcher, String>() {
+		String m = StringUtils.replaceAll(Matcher.quoteReplacement(message), stylePattern, new Callback<String, Matcher>() {
 			@Override
-			public String apply(final Matcher m) {
+			public String run(final Matcher m) {
 				SkriptColor color = SkriptColor.fromName("" + m.group(1));
 				if (color != null)
 					return color.getFormattedChat();
@@ -652,7 +692,7 @@ public abstract class Utils {
 	public static ChatColor parseHexColor(String hex) {
 		if (!HEX_SUPPORTED || !HEX_PATTERN.matcher(hex).matches()) // Proper hex code validation
 			return null;
-
+		
 		hex = hex.replace("#", "");
 		try {
 			return ChatColor.of('#' + hex.substring(0, 6));
@@ -660,10 +700,10 @@ public abstract class Utils {
 			return null;
 		}
 	}
-
+	
 	/**
 	 * Gets a random value between <tt>start</tt> (inclusive) and <tt>end</tt> (exclusive)
-	 *
+	 * 
 	 * @param start
 	 * @param end
 	 * @return <tt>start + random.nextInt(end - start)</tt>
@@ -732,12 +772,12 @@ public abstract class Utils {
 		// See #1747 to learn how it broke returning items from functions
 		return (Class<Found>) (chosen == Cloneable.class ? bestGuess : chosen == Object.class ? bestGuess : chosen);
 	}
-
+	
 	/**
 	 * Parses a number that was validated to be an integer but might still result in a {@link NumberFormatException} when parsed with {@link Integer#parseInt(String)} due to
 	 * overflow.
 	 * This method will return {@link Integer#MIN_VALUE} or {@link Integer#MAX_VALUE} respectively if that happens.
-	 *
+	 * 
 	 * @param s
 	 * @return The parsed integer, {@link Integer#MIN_VALUE} or {@link Integer#MAX_VALUE} respectively
 	 */
@@ -749,12 +789,12 @@ public abstract class Utils {
 			return s.startsWith("-") ? Integer.MIN_VALUE : Integer.MAX_VALUE;
 		}
 	}
-
+	
 	/**
 	 * Parses a number that was validated to be an integer but might still result in a {@link NumberFormatException} when parsed with {@link Long#parseLong(String)} due to
 	 * overflow.
 	 * This method will return {@link Long#MIN_VALUE} or {@link Long#MAX_VALUE} respectively if that happens.
-	 *
+	 * 
 	 * @param s
 	 * @return The parsed long, {@link Long#MIN_VALUE} or {@link Long#MAX_VALUE} respectively
 	 */
@@ -766,7 +806,7 @@ public abstract class Utils {
 			return s.startsWith("-") ? Long.MIN_VALUE : Long.MAX_VALUE;
 		}
 	}
-
+	
 	/**
 	 * Gets class for name. Throws RuntimeException instead of checked one.
 	 * Use this only when absolutely necessary.
@@ -782,18 +822,18 @@ public abstract class Utils {
 			throw new RuntimeException("Class not found!");
 		}
 	}
-
+	
 	/**
-	 * Finds the index of the last in a {@link List} that matches the given {@link Predicate}.
+	 * Finds the index of the last in a {@link List} that matches the given {@link Checker}.
 	 *
 	 * @param list the {@link List} to search.
-	 * @param checker the {@link Predicate} to match elements against.
+	 * @param checker the {@link Checker} to match elements against.
 	 * @return the index of the element found, or -1 if no matching element was found.
 	 */
-	public static <T> int findLastIndex(List<T> list, Predicate<T> checker) {
+	public static <T> int findLastIndex(List<T> list, Checker<T> checker) {
 		int lastIndex = -1;
 		for (int i = 0; i < list.size(); i++) {
-			if (checker.test(list.get(i)))
+			if (checker.check(list.get(i)))
 				lastIndex = i;
 		}
 		return lastIndex;
@@ -805,6 +845,38 @@ public abstract class Utils {
 				return false;
 		}
 		return true;
+	}
+
+	protected static class WordEnding { // To be a record in 2.10
+
+		private final String singular, plural;
+
+		private WordEnding(String singular, String plural) {
+			this.singular = singular;
+			this.plural = plural;
+		}
+
+		public String singular() {
+			return singular;
+		}
+
+		public String plural() {
+			return plural;
+		}
+
+		@Override
+		public boolean equals(Object object) {
+			if (this == object) return true;
+			if (!(object instanceof WordEnding)) return false;
+			WordEnding ending = (WordEnding) object;
+			return Objects.equals(singular, ending.singular) && Objects.equals(plural, ending.plural);
+		}
+
+		@Override
+		public int hashCode() {
+			return Objects.hash(singular, plural);
+		}
+
 	}
 
 }

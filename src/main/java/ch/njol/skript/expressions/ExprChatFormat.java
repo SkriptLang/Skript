@@ -21,7 +21,7 @@ package ch.njol.skript.expressions;
 import org.apache.commons.lang.StringUtils;
 import org.bukkit.event.Event;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer;
@@ -109,14 +109,14 @@ public class ExprChatFormat extends SimpleExpression<String>{
 		((AsyncPlayerChatEvent) e).setFormat(format);
 	}
 	
-	@SuppressWarnings({"null"}) //First parameter is marked as @NonNull and String#replaceAll won't return null
+	@SuppressWarnings({"null"}) //First parameter is marked as @NotNull and String#replaceAll won't return null
 	private static String convertToNormal(String format){
 		return format.replaceAll("%", "%%")
 				.replaceAll("(?i)\\[(player|sender)]", "%1\\$s")
 				.replaceAll("(?i)\\[(message|msg)]", "%2\\$s");
 	}
 	
-	@SuppressWarnings({"null"}) //First parameter is marked as @NonNull and String#replaceAll won't return null
+	@SuppressWarnings({"null"}) //First parameter is marked as @NotNull and String#replaceAll won't return null
 	private static String convertToFriendly(String format){
 		format = format.replaceAll("%%", "%")
 			.replaceAll("%1\\$s", "[player]")

@@ -39,7 +39,7 @@ import org.skriptlang.skript.lang.experiment.Experimented;
 		"on load:",
 		"\tif the script is using \"example feature\":",
 		"\t\tbroadcast \"You're using an experimental feature!\""})
-@Since("INSERT VERSION")
+@Since("2.9.0")
 public class CondIsUsingFeature extends Condition {
 
 	static {

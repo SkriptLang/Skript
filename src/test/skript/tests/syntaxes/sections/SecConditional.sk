@@ -18,18 +18,18 @@ test "SecConditional":
 		delete {_b}
 		1 = 2
 	else if 1 = 1:
-		assert 1 = 2 with "conditional failed ##1"
+		assert 1 = 2 with "conditional failed"
 	else:
-		assert 1 = 2 with "conditional failed ##2"
+		assert 1 = 2 with "conditional failed"
 	if {_b} is set:
-		assert 1 = 2 with "conditional failed ##3"
+		assert 1 = 2 with "conditional failed"
 
 	if 1 = 2:
-		assert 1 = 2 with "conditional failed ##4"
+		assert 1 = 2 with "conditional failed"
 	else if 1 = 1:
 		exit 1 section
 	else:
-		assert 1 = 2 with "conditional failed ##5"
+		assert 1 = 2 with "conditional failed"
 
 test "SecConditional - if all true":
 	if:

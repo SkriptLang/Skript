@@ -1,0 +1,59 @@
+test "display transformation rotations" when running minecraft "1.19.4":
+
+	spawn block display at spawn of world "world":
+		set {_e::1} to entity
+	spawn item display at spawn of world "world":
+		set {_e::2} to entity
+	spawn text display at spawn of world "world":
+		set {_e::3} to entity
+
+	assert left rotation of {_e::*} is quaternion(1, 0, 0, 0) with "default left rotation was wrong"
+	assert right rotation of {_e::*} is quaternion(1, 0, 0, 0) with "default right rotation was wrong"
+
+	set left rotation of {_e::*} to quaternion(1, 2, 3, 4)
+	assert left rotation of {_e::*} is quaternion(1, 2, 3, 4) with "failed to set left rotation"
+	assert right rotation of {_e::*} is quaternion(1, 0, 0, 0) with "setting left affected right rotation"
+	
+	set left rotation of {_e::*} to quaternion(1, infinity value, 3, 4)
+	assert left rotation of {_e::*} is quaternion(1, 2, 3, 4) with "set left rotation to invalid value"
+
+	set right rotation of {_e::*} to axisAngle(45, vector(0, 0, 1))
+	assert left rotation of {_e::*} is quaternion(1, 2, 3, 4) with "setting right affected left rotation"
+	assert right rotation of {_e::*} is quaternion(0.923879504, 0, 0, 0.382683455) with "failed to set right to an axisangle"
+
+	reset left rotation of {_e::*}
+	assert left rotation of {_e::*} is quaternion(1, 0, 0, 0) with "failed to reset left"
+
+	delete entities within {_e::*}
+
+
+test "display transformation translation / scales" when running minecraft "1.19.4":
+	spawn block display at spawn of world "world":
+		set {_e::1} to entity
+	spawn item display at spawn of world "world":
+		set {_e::2} to entity
+	spawn text display at spawn of world "world":
+		set {_e::3} to entity
+
+	assert display scale of {_e::*} is vector(1,1,1) with "default display scale was wrong"
+	assert display translation of {_e::*} is vector(0,0,0) with "default display translation was wrong"
+
+	set display scale of {_e::*} to vector(1,2,1)
+	assert display scale of {_e::*} is vector(1,2,1) with "failed to set display scale"
+	assert display translation of {_e::*} is vector(0,0,0) with "setting display scale affected display translation"
+
+	set display translation of {_e::*} to vector(1,-2,1)
+	assert display scale of {_e::*} is vector(1,2,1) with "setting display translation affected display scale"
+	assert display translation of {_e::*} is vector(1,-2,1) with "failed to set display translation"
+	
+	set display scale of {_e::*} to vector(NaN value, 0, 0)
+	assert display scale of {_e::*} is vector(1,2,1) with "set display scale to invalid value"
+	
+	reset display scale of {_e::*}
+	assert display scale of {_e::*} is vector(1,1,1) with "failed to reset display scale"
+	
+	reset display translation of {_e::*}
+	assert display translation of {_e::*} is vector(0,0,0) with "failed to reset display scale"
+	
+
+	delete entities within {_e::*}

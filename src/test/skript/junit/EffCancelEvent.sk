@@ -1,0 +1,21 @@
+test "EffCancelEventJUnit" when running JUnit:
+	set {_tests::1} to "event not cancelled by default"
+	set {_tests::2} to "cancel event"
+	set {_tests::3} to "uncancel event"
+
+	ensure junit test "org.skriptlang.skript.test.tests.syntaxes.effects.EffCancelEventTest" completes {_tests::*}
+
+on spawn of pig:
+	set {_test} to "org.skriptlang.skript.test.tests.syntaxes.effects.EffCancelEventTest"
+	junit test is {_test}
+
+	if event is not cancelled:
+		complete objective "event not cancelled by default" for {_test}
+
+	cancel event
+	if event is cancelled:
+		complete objective "cancel event" for {_test}
+
+	uncancel event
+	if event is not cancelled:
+		complete objective "uncancel event" for {_test}

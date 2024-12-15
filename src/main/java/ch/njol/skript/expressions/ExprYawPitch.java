@@ -61,11 +61,10 @@ public class ExprYawPitch extends SimplePropertyExpression<Object, Number> {
 		if (object instanceof Location) {
 			Location l = ((Location) object);
 			return usesYaw ? convertToPositive(l.getYaw()) : l.getPitch();
-		} else if (object instanceof Vector) {
-			Vector vector = ((Vector) object);
-			if (usesYaw)
-				return skriptYaw(getYaw(vector));
-			return skriptPitch(getPitch(vector));
+		} else if (object instanceof Vector vector) {
+			return usesYaw
+					? skriptYaw((getYaw(vector)))
+					: skriptPitch(getPitch(vector));
 		}
 		return null;
 	}
@@ -118,29 +117,29 @@ public class ExprYawPitch extends SimplePropertyExpression<Object, Number> {
 		}
 	}
 
-	private void changeVector(Vector vector, float n, ChangeMode mode) {
+	private void changeForVector(Vector vector, float value, ChangeMode mode) {
 		float yaw = getYaw(vector);
 		float pitch = getPitch(vector);
 		switch (mode) {
 			case REMOVE:
-				n = -n;
-				//$FALL-THROUGH$
+				value = -value;
+				// $FALL-THROUGH$
 			case ADD:
-				if (usesYaw)
-					yaw += n;
-				else
-					pitch -= n; // Negative because of Minecraft's / Skript's upside down pitch
-				Vector newVector = fromYawAndPitch(yaw, pitch).multiply(vector.length());
-				vector.copy(newVector);
+				if (usesYaw) {
+					yaw += value;
+				} else {
+					// Subtracting because of Minecraft's upside-down pitch.
+					pitch -= value;
+				}
 				break;
 			case SET:
 				if (usesYaw)
-					yaw = fromSkriptYaw(n);
+					yaw = fromSkriptYaw(value);
 				else
-					pitch = fromSkriptPitch(n);
-				newVector = fromYawAndPitch(yaw, pitch).multiply(vector.length());
-				vector.copy(newVector);
+					pitch = fromSkriptPitch(value);
 		}
+		Vector newVector = fromYawAndPitch(yaw, pitch).multiply(vector.length());
+		vector.copy(newVector);
 	}
 
 

@@ -1,5 +1,5 @@
 test "armour slot":
-	spawn zombie at spawn of world "world":
+	spawn zombie at test-location:
 		set boots of event-entity to gold boots
 		assert boots of event-entity are gold boots with "Gold boots were not applied"
 		set leggings of event-entity to iron leggings

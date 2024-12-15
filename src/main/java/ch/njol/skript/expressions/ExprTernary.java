@@ -34,7 +34,7 @@ import ch.njol.skript.util.Utils;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Array;
 
@@ -122,8 +122,10 @@ public class ExprTernary<T> extends SimpleExpression<T> {
 	}
 
 	@Override
-	public String toString(Event e, boolean debug) {
-		return ifTrue.toString(e, debug) + " if " + condition + " otherwise " + ifFalse.toString(e, debug);
+	public String toString(Event event, boolean debug) {
+		return ifTrue.toString(event, debug)
+			+ " if " + condition.toString(event, debug)
+			+ " otherwise " + ifFalse.toString(event, debug);
 	}
 
 }

@@ -33,7 +33,7 @@ import ch.njol.util.Kleenean;
 import org.bukkit.block.Block;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 @Name("Targeted Block")
 @Description({
@@ -50,7 +50,7 @@ import org.eclipse.jdt.annotation.Nullable;
 	"set {_block} to actual target block of player",
 	"break actual target block of player"
 })
-@Since("1.0, INSERT VERSION (actual/exact)")
+@Since("1.0, 2.9.0 (actual/exact)")
 public class ExprTargetedBlock extends PropertyExpression<LivingEntity, Block> {
 
 	static {

@@ -20,7 +20,7 @@ package ch.njol.skript.events;
 
 import org.bukkit.event.Event;
 import org.bukkit.event.block.BlockGrowEvent;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.ItemType;

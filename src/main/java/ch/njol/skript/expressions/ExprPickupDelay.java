@@ -29,7 +29,7 @@ import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Item;
 import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 @Name("Pickup Delay")
 @Description("The amount of time before a dropped item can be picked up by an entity.")

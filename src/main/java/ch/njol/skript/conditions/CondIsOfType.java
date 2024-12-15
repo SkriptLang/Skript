@@ -18,12 +18,7 @@
  */
 package ch.njol.skript.conditions;
 
-import org.bukkit.entity.Entity;
-import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.Nullable;
-
 import ch.njol.skript.aliases.ItemType;
-import org.skriptlang.skript.lang.comparator.Relation;
 import ch.njol.skript.classes.data.DefaultComparators;
 import ch.njol.skript.conditions.base.PropertyCondition;
 import ch.njol.skript.conditions.base.PropertyCondition.PropertyType;
@@ -36,12 +31,13 @@ import ch.njol.skript.lang.Condition;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
+import org.bukkit.entity.Entity;
+import org.bukkit.event.Event;
+import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.comparator.Relation;
 
 import java.util.function.Predicate;
 
-/**
- * @author Peter Güttinger
- */
 @Name("Is of Type")
 @Description("Checks whether an item of an entity is of the given type. This is mostly useful for variables," +
 		" as you can use the general 'is' condition otherwise (e.g. 'victim is a creeper').")
@@ -49,16 +45,16 @@ import java.util.function.Predicate;
 		"victim is of type {villager type}"})
 @Since("1.4")
 public class CondIsOfType extends Condition {
-
+	
 	static {
 		PropertyCondition.register(CondIsOfType.class, "of type[s] %entitytypes/entitydatas%", "itemstacks/entities");
 	}
-
-	@SuppressWarnings("null")
+	
+	@SuppressWarnings("NotNullFieldNotInitialized")
 	private Expression<?> what;
 	@SuppressWarnings("null")
 	private Expression<?> types;
-
+	
 	@SuppressWarnings("null")
 	@Override
 	public boolean init(final Expression<?>[] exprs, final int matchedPattern, final Kleenean isDelayed, final ParseResult parseResult) {
@@ -67,7 +63,7 @@ public class CondIsOfType extends Condition {
 		setNegated(matchedPattern == 1);
 		return true;
 	}
-
+	
 	@Override
 	public boolean check(final Event e) {
 		return what.check(e,
@@ -85,11 +81,11 @@ public class CondIsOfType extends Condition {
 						}),
 				isNegated());
 	}
-
+	
 	@Override
 	public String toString(final @Nullable Event e, final boolean debug) {
 		return PropertyCondition.toString(this, PropertyType.BE, e, debug, what,
 				"of " + (types.isSingle() ? "type " : "types") + types.toString(e, debug));
 	}
-
+	
 }

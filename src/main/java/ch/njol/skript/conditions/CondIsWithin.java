@@ -37,7 +37,7 @@ import org.bukkit.entity.Entity;
 import org.bukkit.event.Event;
 import org.bukkit.util.BoundingBox;
 import org.bukkit.util.Vector;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 @Name("Is Within")
 @Description({
@@ -103,7 +103,7 @@ public class CondIsWithin extends Condition {
 			Location one = loc1.getSingle(event);
 			Location two = loc2.getSingle(event);
 			if (one == null || two == null || one.getWorld() != two.getWorld())
-				return false;
+				return isNegated();
 			AABB box = new AABB(one, two);
 			return locsToCheck.check(event, box::contains, isNegated());
 		}
@@ -111,7 +111,7 @@ public class CondIsWithin extends Condition {
 		// else, within an entity/block/chunk/world
 		Object area = this.area.getSingle(event);
 		if (area == null)
-			return false;
+			return isNegated();
 
 		// Entities
 		if (area instanceof Entity) {

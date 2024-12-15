@@ -34,7 +34,7 @@ import org.bukkit.event.hanging.HangingBreakByEntityEvent;
 import org.bukkit.event.hanging.HangingBreakEvent;
 import org.bukkit.event.hanging.HangingEvent;
 import org.bukkit.event.hanging.HangingPlaceEvent;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 @Name("Hanging Entity/Remover")
 @Description("Returns the hanging entity or remover in hanging <a href='./events.html#break_mine'>break</a> and <a href='./events.html#place'>place</a> events.")

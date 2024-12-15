@@ -1,5 +1,5 @@
 test "explode creeper effect/condition" when running minecraft "1.15.2":
-	spawn a creeper at spawn of world "world"
+	spawn a creeper at test-location
 	assert last spawned creeper is not going to explode with "creepers should not explode when they are first spawned"
 	start ignition of the last spawned creeper
 	assert last spawned creeper is going to explode with "creepers should explode when the ignition process is started"

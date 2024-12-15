@@ -1,0 +1,14 @@
+test "whether":
+	set {_number} to 5
+	set {_okay} to whether {_number} is greater than 3
+	assert {_okay} is true with "Condition didn't evaluate correctly"
+	set {_okay} to whether {_number} is less than 6
+	assert {_okay} is true with "Condition didn't evaluate correctly"
+	set {_okay} to whether {_number} is 5
+	assert {_okay} is true with "Condition didn't evaluate correctly"
+	delete {_okay}
+	spawn a pig at spawn of "world":
+		set {_pig} to event-entity
+	assert (whether {_pig} is alive) is true with "Condition didn't evaluate correctly"
+	assert (whether health of {_pig} is greater than 0) is true with "Condition didn't evaluate correctly"
+	delete the last spawned pig
