@@ -182,8 +182,9 @@ public class Config implements Comparable<Config> {
 	 * @return True if any keys were added to this config, false otherwise.
 	 */
 	public boolean updateNodes(@NotNull Config newer) {
-		Set<Node> newNodes = findNodes(newer.getMainNode());
-		Set<Node> oldNodes = findNodes(getMainNode());
+		Skript.debug("Updating config %s", newer.getFileName());
+		Set<Node> newNodes = discoverNodes(newer.getMainNode());
+		Set<Node> oldNodes = discoverNodes(getMainNode());
 
 		newNodes.removeAll(oldNodes);
 		Set<Node> nodesToUpdate = new LinkedHashSet<>(newNodes);
@@ -199,17 +200,17 @@ public class Config implements Comparable<Config> {
 			SectionNode parent = getNode(newParent.getPath());
 			Preconditions.checkNotNull(parent);
 
-			int idx = node.getIndex();
-			if (idx >= parent.size()) {
+			int index = node.getIndex();
+			if (index >= parent.size()) {
 				Skript.debug("Adding node %s to %s (size mismatch)", node, parent);
 				parent.add(node);
 				continue;
 			}
 
-			Node existing = parent.getAt(idx);
+			Node existing = parent.getAt(index);
 			if (existing != null) { // insert between existing
-				Skript.debug("Adding node %s to %s at index %s", node, parent, idx);
-				parent.add(idx, node);
+				Skript.debug("Adding node %s to %s at index %s", node, parent, index);
+				parent.add(index, node);
 			} else {
 				Skript.debug("Adding node %s to %s", node, parent);
 				parent.add(node);
@@ -226,14 +227,14 @@ public class Config implements Comparable<Config> {
 	 * @return A set of the discovered nodes, guaranteed to be in the order of discovery.
 	 */
 	@Contract(pure = true)
-	private static @NotNull Set<Node> findNodes(@NotNull SectionNode node) {
+	private static @NotNull Set<Node> discoverNodes(@NotNull SectionNode node) {
 		Set<Node> nodes = new LinkedHashSet<>();
 
 		for (Iterator<Node> iterator = node.fullIterator(); iterator.hasNext(); ) {
 			Node child = iterator.next();
 			if (child instanceof SectionNode sectionChild) {
 				nodes.add(child);
-				nodes.addAll(findNodes(sectionChild));
+				nodes.addAll(discoverNodes(sectionChild));
 			} else if (child instanceof EntryNode || child instanceof VoidNode) {
 				nodes.add(child);
 			}

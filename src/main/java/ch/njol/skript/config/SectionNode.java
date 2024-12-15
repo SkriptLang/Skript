@@ -143,13 +143,13 @@ public class SectionNode extends Node implements Iterable<Node> {
 	 * Gets the node at the specified index. May be null.
 	 * The index includes all nodes, including void nodes.
 	 *
-	 * @param idx The index of the node to get
+	 * @param index The index of the node to get
 	 * @return The node at the specified index. May be null.
 	 * @throws IllegalArgumentException if the index is out of bounds
 	 */
-	@Nullable Node getAt(int idx) {
-		Preconditions.checkArgument(idx >= 0 && idx < size(), "idx out of bounds: %s", idx);
-		return nodes.get(idx);
+	@Nullable Node getAt(int index) {
+		Preconditions.checkArgument(index >= 0 && index < size(), "index out of bounds: %s", index);
+		return nodes.get(index);
 	}
 
 	/**
@@ -157,8 +157,8 @@ public class SectionNode extends Node implements Iterable<Node> {
 	 */
 	@Override
 	public @NotNull Iterator<Node> iterator() {
-		return new CheckedIterator<>(fullIterator(),
-			n -> Objects.nonNull(n) && !n.isVoid()); // double null check to avoid warning
+		//noinspection ConstantConditions
+		return new CheckedIterator<>(fullIterator(), n -> !n.isVoid());
 	}
 
 	/**
