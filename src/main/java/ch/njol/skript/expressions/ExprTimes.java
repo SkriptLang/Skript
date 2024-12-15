@@ -51,7 +51,7 @@ public class ExprTimes extends SimpleExpression<Long> {
 
 	static {
 		Skript.registerExpression(ExprTimes.class, Long.class, ExpressionType.SIMPLE,
-				"%number% time[s]", "once", "twice");
+				"%number% time[s]", "once", "twice", "thrice");
 	}
 
 	@SuppressWarnings("null")
