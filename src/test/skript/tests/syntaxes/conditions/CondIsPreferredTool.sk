@@ -1,4 +1,4 @@
-test "CondIsPreferredTool - BlockData" when running minecraft "1.19.2":
+test "CondIsPreferredTool - BlockData":
 	assert wooden pickaxe is preferred tool for minecraft:stone[] with "failed wooden pickaxe for stone blockdata"
 	assert wooden pickaxe is preferred tool for minecraft:dirt[] with "failed wooden pickaxe for dirt blockdata"
 	assert wooden pickaxe is not preferred tool for minecraft:obsidian[] with "failed wooden pickaxe for obsidian blockdata"
@@ -8,7 +8,7 @@ test "CondIsPreferredTool - BlockData" when running minecraft "1.19.2":
 	assert wooden axe is not preferred tool for minecraft:stone[] with "failed wooden axe for stone blockdata"
 	assert wooden axe is preferred tool for minecraft:dirt[] with "failed wooden axe for dirt blockdata"
 
-test "CondIsPreferredTool - Block" when running minecraft "1.16.5":
+test "CondIsPreferredTool - Block":
 	set {_block} to block at location(0,0,0, "world")
 	set {_temp} to {_block}'s type
 	set block at {_block} to grass

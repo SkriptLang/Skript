@@ -2,9 +2,12 @@ test "fire visual effect comparison":
 	assert a block is a block with "failed to compare block classinfo against block classinfo"
 	assert an itemtype is an itemtype with "failed to compare itemtype classinfo against itemtype classinfo"
 	assert a diamond is an itemtype with "failed to compare itemtype 'diamond' against itemtype classinfo"
+	set {_below} to type of block below block at spawn of world "world"
 	set {_block} to type of block at spawn of world "world"
-	set block at spawn of world "world" to fire
+	set block below block at spawn of world "world" to oak planks
+	set block at spawn of world "world" to fire[]
 	assert block at spawn of world "world" is fire with "failed to compare fire (itemtype) with a block"
+	set block below block at spawn of world "world" to {_below}
 	set block at spawn of world "world" to {_block}
 	play 5 fire at spawn of world "world"
 	assert "fire" parsed as visual effect is fire with "failed to compare visual effects"

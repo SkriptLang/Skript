@@ -1,4 +1,4 @@
-test "display interpolation" when running minecraft "1.19.4":
+test "display interpolation":
 
 	spawn block display at spawn of world "world":
 		set {_e::1} to entity
