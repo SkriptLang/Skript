@@ -118,7 +118,7 @@ public class SecLoop extends LoopSection {
 			return false;
 		}
 
-		guaranteedToLoop = guaranteedToLoop(expr);
+		guaranteedToLoop = guaranteedToLoop(expression);
 		loadOptionalCode(sectionNode);
 		super.setNext(this);
 
@@ -130,7 +130,7 @@ public class SecLoop extends LoopSection {
 	protected TriggerItem walk(Event event) {
 		Iterator<?> iter = iteratorMap.get(event);
 		if (iter == null) {
-			iter = expression instanceof Variable variable ? (variable.variablesIterator(event) : expression.iterator(event);
+			iter = expression instanceof Variable variable ? variable.variablesIterator(event) : expression.iterator(event);
 			if (iter != null) {
 				if (iter.hasNext())
 					iteratorMap.put(event, iter);
@@ -196,7 +196,7 @@ public class SecLoop extends LoopSection {
 		// If the expression is a literal, it's guaranteed to loop if it has at least one value
 		if (expression instanceof Literal<?> literal)
 			return literal.getAll().length > 0;
-		
+
 		// If the expression isn't a list, then we can't guarantee that it will loop
 		if (!(expression instanceof ExpressionList<?> list))
 			return false;

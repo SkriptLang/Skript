@@ -14,7 +14,7 @@ test "for section":
 	delete {_key}
 	delete {_value}
 
-	for {_key} = {_value} in {_list::*}:
+	for {_key}, {_value} in {_list::*}:
 		assert {_key} is greater than 0 with "Expected key > 0, found %{_key}%"
 		assert {_key} is less than 4 with "Expected key < 4, found %{_key}%"
 		assert {_value} is greater than 0 with "Expected value > 0, found %{_value}%"

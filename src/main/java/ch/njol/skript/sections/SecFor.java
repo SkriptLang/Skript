@@ -55,7 +55,7 @@ public class SecFor extends SecLoop {
 		Skript.registerSection(SecFor.class,
 			"(for [each]|loop) [value] %~object% in %objects%",
 			"(for [each]|loop) (key|index) %~object% in %objects%",
-			"(for [each]|loop) [key|index] %~object% (=|and) [value] %~object% in %objects%"
+			"(for [each]|loop) [key|index] %~object%(,| and) [value] %~object% in %objects%"
 		);
 	}
 
