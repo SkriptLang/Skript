@@ -21,12 +21,14 @@ package ch.njol.skript.registrations;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.Function;
 
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
 import com.google.common.collect.ImmutableList;
 import ch.njol.skript.Skript;
+import org.jetbrains.annotations.UnknownNullability;
 import org.skriptlang.skript.lang.converter.Converter;
 import org.skriptlang.skript.lang.converter.Converters;
 import ch.njol.skript.expressions.base.EventValueExpression;
@@ -135,6 +137,48 @@ public class EventValues {
 		if (time == 1)
 			return futureEventValues;
 		throw new IllegalArgumentException("time must be -1, 0, or 1");
+	}
+
+	/**
+	 * Registers an event value, specified by the provided {@link Function}.
+	 *
+	 * @param event The event class.
+	 * @param type The return type of the function for the event value.
+	 * @param function The function to get the value with the provided event.
+	 * @param time Value of TIME_PAST if this is the value before the event, TIME_FUTURE if after, and TIME_NOW if it's the default or this value doesn't have distinct states.
+	 *            <b>Always register a default state!</b> You can leave out one of the other states instead, e.g. only register a default and a past state. The future state will
+	 *            default to the default state in this case.
+	 */
+	public static <T, E extends Event> void registerEventValue(Class<E> event, Class<T> type, Function<E, T> function, int time) {
+		registerEventValue(event, type, new Getter<>() {
+			@Override
+			public T get(E arg) {
+				return function.apply(arg);
+			}
+		}, time);
+	}
+
+	/**
+	 * Registers an event value, specified by the provided {@link Function}, with excluded events.
+	 * Excluded events are events that this event value can't operate in.
+	 *
+	 * @param event The event type class.
+	 * @param type The return type of the getter for the event value.
+	 * @param function The function to get the value with the provided event.
+	 * @param time value of TIME_PAST if this is the value before the event, TIME_FUTURE if after, and TIME_NOW if it's the default or this value doesn't have distinct states.
+	 *            <b>Always register a default state!</b> You can leave out one of the other states instead, e.g. only register a default and a past state. The future state will
+	 *            default to the default state in this case.
+	 * @param excludeErrorMessage The error message to display when used in the excluded events.
+	 * @param excludes Subclasses of the event for which this event value should not be registered for
+	 */
+	@SafeVarargs
+	public static <T, E extends Event> void registerEventValue(Class<E> event, Class<T> type, Function<E, T> function, int time, @Nullable String excludeErrorMessage, @Nullable Class<? extends E>... excludes) {
+		registerEventValue(event, type, new Getter<>() {
+			@Override
+			public T get(E arg) {
+				return function.apply(arg);
+			}
+		}, time, excludeErrorMessage, excludes);
 	}
 
 	/**

@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Function;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.Aliases;
@@ -193,6 +194,7 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionData;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.potion.PotionType;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -209,66 +211,31 @@ public final class BukkitEventValues {
 	static {
 
 		// === WorldEvents ===
-		EventValues.registerEventValue(WorldEvent.class, World.class, new Getter<World, WorldEvent>() {
-			@Override
-			@Nullable
-			public World get(final WorldEvent e) {
-				return e.getWorld();
-			}
-		}, 0);
+		EventValues.registerEventValue(WorldEvent.class, World.class, WorldEvent::getWorld, EventValues.TIME_NOW);
 		// StructureGrowEvent - a WorldEvent
-		EventValues.registerEventValue(StructureGrowEvent.class, Block.class, new Getter<Block, StructureGrowEvent>() {
-			@Override
-			@Nullable
-			public Block get(final StructureGrowEvent e) {
-				return e.getLocation().getBlock();
-			}
-		}, 0);
-		EventValues.registerEventValue(StructureGrowEvent.class, Block[].class, new Getter<Block[], StructureGrowEvent>() {
-			@Override
-			@Nullable
-			public Block[] get(StructureGrowEvent event) {
-				return event.getBlocks().stream()
+		EventValues.registerEventValue(StructureGrowEvent.class, Block.class, e -> e.getLocation().getBlock(), 0);
+
+		EventValues.registerEventValue(StructureGrowEvent.class, Block[].class,
+			event -> event.getBlocks().stream()
 					.map(BlockState::getBlock)
-					.toArray(Block[]::new);
+					.toArray(Block[]::new),
+			EventValues.TIME_NOW);
+		EventValues.registerEventValue(StructureGrowEvent.class, Block.class, event -> {
+			for (BlockState bs : event.getBlocks()) {
+				if (bs.getLocation().equals(event.getLocation()))
+					return new BlockStateBlock(bs);
 			}
-		}, EventValues.TIME_NOW);
-		EventValues.registerEventValue(StructureGrowEvent.class, Block.class, new Getter<Block, StructureGrowEvent>() {
-			@Override
-			@Nullable
-			public Block get(StructureGrowEvent event) {
-				for (final BlockState bs : event.getBlocks()) {
-					if (bs.getLocation().equals(event.getLocation()))
-						return new BlockStateBlock(bs);
-				}
-				return event.getLocation().getBlock();
-			}
+			return event.getLocation().getBlock();
 		}, EventValues.TIME_FUTURE);
-		EventValues.registerEventValue(StructureGrowEvent.class, Block[].class, new Getter<Block[], StructureGrowEvent>() {
-			@Override
-			@Nullable
-			public Block[] get(StructureGrowEvent event) {
-				return event.getBlocks().stream()
-					.map(BlockStateBlock::new)
-					.toArray(Block[]::new);
-			}
-		}, EventValues.TIME_FUTURE);
+		EventValues.registerEventValue(StructureGrowEvent.class, Block[].class, event ->
+			event.getBlocks().stream()
+				.map(BlockStateBlock::new)
+				.toArray(Block[]::new),
+			EventValues.TIME_FUTURE);
 		// WeatherEvent - not a WorldEvent (wtf ô_Ô)
-		EventValues.registerEventValue(WeatherEvent.class, World.class, new Getter<World, WeatherEvent>() {
-			@Override
-			@Nullable
-			public World get(final WeatherEvent e) {
-				return e.getWorld();
-			}
-		}, 0);
+		EventValues.registerEventValue(WeatherEvent.class, World.class, WeatherEvent::getWorld, EventValues.TIME_NOW);
 		// ChunkEvents
-		EventValues.registerEventValue(ChunkEvent.class, Chunk.class, new Getter<Chunk, ChunkEvent>() {
-			@Override
-			@Nullable
-			public Chunk get(final ChunkEvent e) {
-				return e.getChunk();
-			}
-		}, 0);
+		EventValues.registerEventValue(ChunkEvent.class, Chunk.class, ChunkEvent::getChunk, EventValues.TIME_NOW);
 
 		// === BlockEvents ===
 		EventValues.registerEventValue(BlockEvent.class, Block.class, new Getter<Block, BlockEvent>() {
