@@ -38,13 +38,12 @@ public interface Expression<T> extends SyntaxElement, Debuggable {
 	 * that array is empty.
 	 * <p>
 	 * Do not use this in conditions, use {@link #check(Event, Predicate, boolean)} instead.
-	 * 
+	 *
 	 * @param event The event
 	 * @return The value or null if this expression doesn't have any value for the event
 	 * @throws UnsupportedOperationException (optional) if this was called on a non-single expression
 	 */
-	@Nullable
-	T getSingle(Event event);
+	@Nullable T getSingle(Event event);
 
 	/**
 	 * Get an optional of the single value of this expression.
@@ -293,7 +292,7 @@ public interface Expression<T> extends SyntaxElement, Debuggable {
 	 *         that type are accepted), or null if the given mode is not supported. For {@link ChangeMode#DELETE} and {@link ChangeMode#RESET} this can return any non-null array to
 	 *         mark them as supported.
 	 */
-	@Nullable Class<?>[] acceptChange(ChangeMode mode);
+	Class<?> @Nullable [] acceptChange(ChangeMode mode);
 
 	/**
 	 * Tests all accepted change modes, and if so what type it expects the <code>delta</code> to be.

@@ -34,7 +34,6 @@ import ch.njol.skript.util.StringMode;
 import ch.njol.skript.util.Utils;
 import ch.njol.skript.variables.TypeHints;
 import ch.njol.skript.variables.Variables;
-import ch.njol.util.Checker;
 import ch.njol.util.Kleenean;
 import ch.njol.util.Pair;
 import ch.njol.util.StringUtils;
@@ -58,6 +57,8 @@ import org.skriptlang.skript.lang.script.ScriptWarning;
 import java.lang.reflect.Array;
 import java.util.*;
 import java.util.Map.Entry;
+import java.util.function.Function;
+import java.util.function.Predicate;
 
 public class Variable<T> implements Expression<T> {
 
@@ -68,8 +69,7 @@ public class Variable<T> implements Expression<T> {
 	/**
 	 * Script this variable was created in.
 	 */
-	@Nullable
-	private final Script script;
+	private final @Nullable Script script;
 
 	/**
 	 * The name of this variable, excluding the local variable token, but including the list variable token '::*'.
@@ -82,8 +82,7 @@ public class Variable<T> implements Expression<T> {
 	private final boolean local;
 	private final boolean list;
 
-	@Nullable
-	private final Variable<?> source;
+	private final @Nullable Variable<?> source;
 
 	@SuppressWarnings("unchecked")
 	private Variable(VariableString name, Class<? extends T>[] types, boolean local, boolean list, @Nullable Variable<?> source) {
@@ -167,8 +166,7 @@ public class Variable<T> implements Expression<T> {
 	/**
 	 * Prints errors
 	 */
-	@Nullable
-	public static <T> Variable<T> newInstance(String name, Class<? extends T>[] types) {
+	public static <T> @Nullable Variable<T> newInstance(String name, Class<? extends T>[] types) {
 		name = "" + name.trim();
 		if (!isValidVariableName(name, true, true))
 			return null;
@@ -183,9 +181,9 @@ public class Variable<T> implements Expression<T> {
 		ParserInstance parser = ParserInstance.get();
 		Script currentScript = parser.isActive() ? parser.getCurrentScript() : null;
 		if (currentScript != null
-				&& !SkriptConfig.disableVariableStartingWithExpressionWarnings.value()
-				&& !currentScript.suppressesWarning(ScriptWarning.VARIABLE_STARTS_WITH_EXPRESSION)
-				&& (isLocal ? name.substring(LOCAL_VARIABLE_TOKEN.length()) : name).startsWith("%")) {
+			&& !SkriptConfig.disableVariableStartingWithExpressionWarnings.value()
+			&& !currentScript.suppressesWarning(ScriptWarning.VARIABLE_STARTS_WITH_EXPRESSION)
+			&& (isLocal ? name.substring(LOCAL_VARIABLE_TOKEN.length()) : name).startsWith("%")) {
 			Skript.warning("Starting a variable's name with an expression is discouraged ({" + name + "}). " +
 				"You could prefix it with the script's name: " +
 				"{" + StringUtils.substring(currentScript.getConfig().getFileName(), 0, -3) + SEPARATOR + name + "}");
@@ -295,8 +293,7 @@ public class Variable<T> implements Expression<T> {
 	 * Gets the value of this variable as stored in the variables map.
 	 * This method also checks against default variables.
 	 */
-	@Nullable
-	public Object getRaw(Event event) {
+	public @Nullable Object getRaw(Event event) {
 		DefaultVariables data = script == null ? null : script.getData(DefaultVariables.class);
 		if (data != null)
 			data.enterScope();
@@ -306,7 +303,7 @@ public class Variable<T> implements Expression<T> {
 			// prevents e.g. {%expr%} where "%expr%" ends with "::*" from returning a Map
 			if (name.endsWith(Variable.SEPARATOR + "*") != list)
 				return null;
-			Object value = !list ? convertIfOldPlayer(name, event, Variables.getVariable(name, event, local)) : Variables.getVariable(name, event, local);
+			Object value = !list ? convertIfOldPlayer(name, local, event, Variables.getVariable(name, event, local)) : Variables.getVariable(name, event, local);
 			if (value != null)
 				return value;
 
@@ -326,9 +323,7 @@ public class Variable<T> implements Expression<T> {
 		return null;
 	}
 
-	@Nullable
-	@SuppressWarnings("unchecked")
-	private Object get(Event event) {
+	private @Nullable Object get(Event event) {
 		Object rawValue = getRaw(event);
 		if (!list)
 			return rawValue;
@@ -336,15 +331,17 @@ public class Variable<T> implements Expression<T> {
 			return Array.newInstance(types[0], 0);
 		List<Object> convertedValues = new ArrayList<>();
 		String name = StringUtils.substring(this.name.toString(event), 0, -1);
+		//noinspection unchecked
 		for (Entry<String, ?> variable : ((Map<String, ?>) rawValue).entrySet()) {
 			if (variable.getKey() != null && variable.getValue() != null) {
 				Object value;
 				if (variable.getValue() instanceof Map)
+					//noinspection unchecked
 					value = ((Map<String, ?>) variable.getValue()).get(null);
 				else
 					value = variable.getValue();
 				if (value != null)
-					convertedValues.add(convertIfOldPlayer(name + variable.getKey(), event, value));
+					convertedValues.add(convertIfOldPlayer(name + variable.getKey(), local, event, value));
 			}
 		}
 		return convertedValues.toArray();
@@ -355,14 +352,13 @@ public class Variable<T> implements Expression<T> {
 	 * because the player object inside the variable will be a (kinda) dead variable
 	 * as a new player object has been created by the server.
 	 */
-	@Nullable
-	Object convertIfOldPlayer(String key, Event event, @Nullable Object object) {
-		if (SkriptConfig.enablePlayerVariableFix.value() && object instanceof Player) {
-			Player oldPlayer = (Player) object;
+	public static <T> @Nullable T convertIfOldPlayer(String key, boolean local, Event event, @Nullable T object) {
+		if (SkriptConfig.enablePlayerVariableFix.value() && object instanceof Player oldPlayer) {
 			if (!oldPlayer.isValid() && oldPlayer.isOnline()) {
 				Player newPlayer = Bukkit.getPlayer(oldPlayer.getUniqueId());
 				Variables.setVariable(key, newPlayer, event, local);
-				return newPlayer;
+				//noinspection unchecked
+				return (T) newPlayer;
 			}
 		}
 		return object;
@@ -371,56 +367,11 @@ public class Variable<T> implements Expression<T> {
 	public Iterator<Pair<String, Object>> variablesIterator(Event event) {
 		if (!list)
 			throw new SkriptAPIException("Looping a non-list variable");
-		String name = StringUtils.substring(this.name.toString(event), 0, -1);
-		Object val = Variables.getVariable(name + "*", event, local);
-		if (val == null)
-			return new EmptyIterator<>();
-		assert val instanceof TreeMap;
-		// temporary list to prevent CMEs
-		@SuppressWarnings("unchecked")
-		Iterator<String> keys = new ArrayList<>(((Map<String, Object>) val).keySet()).iterator();
-		return new Iterator<Pair<String, Object>>() {
-			@Nullable
-			private String key;
-			@Nullable
-			private Object next = null;
-
-			@Override
-			public boolean hasNext() {
-				if (next != null)
-					return true;
-				while (keys.hasNext()) {
-					key = keys.next();
-					if (key != null) {
-						next = convertIfOldPlayer(name + key, event, Variables.getVariable(name + key, event, local));
-						if (next != null && !(next instanceof TreeMap))
-							return true;
-					}
-				}
-				next = null;
-				return false;
-			}
-
-			@Override
-			public Pair<String, Object> next() {
-				if (!hasNext())
-					throw new NoSuchElementException();
-				Pair<String, Object> n = new Pair<>(key, next);
-				next = null;
-				return n;
-			}
-
-			@Override
-			public void remove() {
-				throw new UnsupportedOperationException();
-			}
-		};
+		return Variables.getVariableIterator(name.toString(event), local, event);
 	}
 
 	@Override
-	@Nullable
-	@SuppressWarnings("unchecked")
-	public Iterator<T> iterator(Event event) {
+	public @Nullable Iterator<T> iterator(Event event) {
 		if (!list) {
 			T value = getSingle(event);
 			return value != null ? new SingleItemIterator<>(value) : null;
@@ -431,23 +382,22 @@ public class Variable<T> implements Expression<T> {
 			return new EmptyIterator<>();
 		assert value instanceof TreeMap;
 		// temporary list to prevent CMEs
+		//noinspection unchecked
 		Iterator<String> keys = new ArrayList<>(((Map<String, Object>) value).keySet()).iterator();
-		return new Iterator<T>() {
-			@Nullable
-			private String key;
-			@Nullable
-			private T next = null;
+		return new Iterator<>() {
+			private @Nullable T next = null;
 
 			@Override
-			@SuppressWarnings({"unchecked"})
 			public boolean hasNext() {
 				if (next != null)
 					return true;
 				while (keys.hasNext()) {
-					key = keys.next();
+					@Nullable String key = keys.next();
 					if (key != null) {
 						next = Converters.convert(Variables.getVariable(name + key, event, local), types);
-						next = (T) convertIfOldPlayer(name + key, event, next);
+
+						//noinspection unchecked
+						next = (T) convertIfOldPlayer(name + key, local, event, next);
 						if (next != null && !(next instanceof TreeMap))
 							return true;
 					}
@@ -473,8 +423,7 @@ public class Variable<T> implements Expression<T> {
 		};
 	}
 
-	@Nullable
-	private T getConverted(Event event) {
+	private @Nullable T getConverted(Event event) {
 		assert !list;
 		return Converters.convert(get(event), types);
 	}
@@ -496,7 +445,7 @@ public class Variable<T> implements Expression<T> {
 	}
 
 	@Override
-	public Class<?>[] acceptChange(ChangeMode mode) {
+	public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
 		if (!list && mode == ChangeMode.SET)
 			return CollectionUtils.array(Object.class);
 		return CollectionUtils.array(Object[].class);
@@ -504,7 +453,7 @@ public class Variable<T> implements Expression<T> {
 
 	@Override
 	@SuppressWarnings({"unchecked", "rawtypes"})
-	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) throws UnsupportedOperationException {
+	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) throws UnsupportedOperationException {
 		switch (mode) {
 			case DELETE:
 				if (list) {
@@ -670,8 +619,26 @@ public class Variable<T> implements Expression<T> {
 	}
 
 	@Override
-	@Nullable
-	public T getSingle(Event event) {
+	public <R> void changeInPlace(Event event, Function<T, R> changeFunction) {
+		if (!list) {
+			T value = getSingle(event);
+			if (value == null)
+				return;
+			set(event, changeFunction.apply(value));
+			return;
+		}
+		variablesIterator(event).forEachRemaining(pair -> {
+			String index = pair.getKey();
+			T value = Converters.convert(pair.getValue(), types);
+			if (value == null)
+				return;
+			Object newValue = changeFunction.apply(value);
+			setIndex(event, index, newValue);
+		});
+	}
+
+	@Override
+	public @Nullable T getSingle(Event event) {
 		if (list)
 			throw new SkriptAPIException("Invalid call to getSingle");
 		return getConverted(event);
@@ -706,12 +673,12 @@ public class Variable<T> implements Expression<T> {
 	}
 
 	@Override
-	public boolean check(Event event, Checker<? super T> checker, boolean negated) {
+	public boolean check(Event event, Predicate<? super T> checker, boolean negated) {
 		return SimpleExpression.check(getAll(event), checker, negated, getAnd());
 	}
 
 	@Override
-	public boolean check(Event event, Checker<? super T> checker) {
+	public boolean check(Event event, Predicate<? super T> checker) {
 		return SimpleExpression.check(getAll(event), checker, false, getAnd());
 	}
 
