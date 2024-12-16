@@ -136,9 +136,7 @@ public class EffSecSpawn extends EffectSection {
 	}
 
 	@Override
-	@Nullable
-	@SuppressWarnings({"unchecked", "rawtypes"})
-	protected TriggerItem walk(Event event) {
+	protected @Nullable TriggerItem walk(Event event) {
 		lastSpawned = null;
 
 		Consumer<? extends Entity> consumer;
@@ -146,13 +144,7 @@ public class EffSecSpawn extends EffectSection {
 			consumer = entity -> {
 				lastSpawned = entity;
 				SpawnEvent spawnEvent = new SpawnEvent(entity);
-				// Copy the local variables from the calling code to this section
-				Variables.setLocalVariables(spawnEvent, Variables.copyLocalVariables(event));
-				TriggerItem.walk(trigger, spawnEvent);
-				// And copy our (possibly modified) local variables back to the calling code
-				Variables.setLocalVariables(event, Variables.copyLocalVariables(spawnEvent));
-				// Clear spawnEvent's local variables as it won't be done automatically
-				Variables.removeLocals(spawnEvent);
+				Variables.withLocalVariables(event, spawnEvent, () -> TriggerItem.walk(trigger, spawnEvent));
 			};
 		} else {
 			consumer = null;
@@ -167,6 +159,7 @@ public class EffSecSpawn extends EffectSection {
 					double typeAmount = amount * type.getAmount();
 					for (int i = 0; i < typeAmount; i++) {
 						if (consumer != null) {
+							//noinspection unchecked,rawtypes
 							type.data.spawn(location, (Consumer) consumer); // lastSpawned set within Consumer
 						} else {
 							lastSpawned = type.data.spawn(location);
