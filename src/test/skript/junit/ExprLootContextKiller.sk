@@ -9,12 +9,12 @@ on join:
 
 	set {_player} to player
 	set {_context} to a loot context at player's location:
-		set loot context killer to {_player}
+		set looter to {_player}
 
-		if loot context killer is {_player}:
+		if looter is {_player}:
 			complete objective "set killer" for {_test}
 
-		reset loot context killer
+		reset looter
 
-		if loot context killer is not set:
+		if looter is not set:
 			complete objective "clear killer" for {_test}

@@ -8,12 +8,12 @@ test "loot context":
 
 	set {_context} to a loot context at test-location:
 		assert loot context is set with "loot context not set"
-		set loot entity to {_pig}
+		set looted entity to {_pig}
 		set loot luck value to 10
 		set loot location to location(1,1,1, world "world")
 		assert loot location is location(1,1,1, world "world") with "loot context location set failed"
 
-	assert loot entity of {_context} is {_pig} with "loot context entity failed"
+	assert looted entity of {_context} is {_pig} with "loot context entity failed"
 	assert loot luck value of {_context} is 10 with "simple loot context luck value failed"
 
 	delete entity within {_pig}
