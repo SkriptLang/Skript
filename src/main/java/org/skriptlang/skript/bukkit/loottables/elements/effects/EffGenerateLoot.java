@@ -81,7 +81,8 @@ public class EffGenerateLoot extends Effect {
 		SyntaxStringBuilder builder = new SyntaxStringBuilder(event, debug);
 
 		builder.append("generate loot using loot table", lootTable);
-		builder.append("with context", context);
+		if (context != null)
+			builder.append("with context", context);
 		builder.append("in inventories", inventories);
 
 		return builder.toString();

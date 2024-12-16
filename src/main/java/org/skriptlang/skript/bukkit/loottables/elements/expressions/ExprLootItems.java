@@ -8,6 +8,7 @@ import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.skript.lang.SyntaxStringBuilder;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
 import org.bukkit.Bukkit;
@@ -88,7 +89,13 @@ public class ExprLootItems extends SimpleExpression<ItemStack> {
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return "the loot items of " + lootTables.toString(event, debug) + " with loot context " + context.toString(event, debug);
+		SyntaxStringBuilder builder = new SyntaxStringBuilder(event, debug);
+
+		builder.append("the loot of", lootTables);
+		if (context != null)
+			builder.append("with loot context", context);
+
+		return builder.toString();
 	}
 
 }
