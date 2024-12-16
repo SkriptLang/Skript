@@ -969,7 +969,7 @@ public class ScriptLoader {
 				item = Statement.parse(expr, items, "Can't understand this condition/effect: " + expr);
 				if (item == null)
 					continue;
-				long requiredTime = SkriptConfig.longParseTimeWarningThreshold.value().getMilliSeconds();
+				long requiredTime = SkriptConfig.longParseTimeWarningThreshold.value().getAs(Timespan.TimePeriod.MILLISECOND);
 				if (requiredTime > 0) {
 					long timeTaken = System.currentTimeMillis() - start;
 					if (timeTaken > requiredTime)

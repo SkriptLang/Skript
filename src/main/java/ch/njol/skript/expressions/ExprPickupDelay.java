@@ -49,7 +49,7 @@ public class ExprPickupDelay extends SimplePropertyExpression<Entity, Timespan> 
 	public Timespan convert(Entity entity) {
 		if (!(entity instanceof Item))
 			return null;
-		return Timespan.fromTicks(((Item) entity).getPickupDelay());
+		return new Timespan(Timespan.TimePeriod.TICK, ((Item) entity).getPickupDelay());
 	}
 
 
@@ -70,7 +70,7 @@ public class ExprPickupDelay extends SimplePropertyExpression<Entity, Timespan> 
 	@Override
 	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
 		Entity[] entities = getExpr().getArray(event);
-		int change = delta == null ? 0 : (int) ((Timespan) delta[0]).getTicks();
+		int change = delta == null ? 0 : (int) ((Timespan) delta[0]).getAs(Timespan.TimePeriod.TICK);
 		switch (mode) {
 			case REMOVE:
 				change = -change;

@@ -75,7 +75,7 @@ public class ExprTimePlayed extends SimplePropertyExpression<OfflinePlayer, Time
 		if (delta == null)
 			return;
 
-		long ticks = ((Timespan) delta[0]).getTicks();
+		long ticks = ((Timespan) delta[0]).getAs(Timespan.TimePeriod.TICK);
 		for (OfflinePlayer offlinePlayer : getExpr().getArray(event)) {
 			if (!IS_OFFLINE_SUPPORTED && !offlinePlayer.isOnline())
 				continue;
@@ -84,7 +84,7 @@ public class ExprTimePlayed extends SimplePropertyExpression<OfflinePlayer, Time
 			if (playerTimespan == null)
 				continue;
 
-			long playerTicks = playerTimespan.getTicks();
+			long playerTicks = playerTimespan.getAs(Timespan.TimePeriod.TICK);
 			switch (mode) {
 				case ADD:
 					ticks = playerTicks + ticks;
@@ -115,9 +115,9 @@ public class ExprTimePlayed extends SimplePropertyExpression<OfflinePlayer, Time
 	@Nullable
 	private Timespan getTimePlayed(OfflinePlayer offlinePlayer) {
 		if (IS_OFFLINE_SUPPORTED) {
-			return Timespan.fromTicks(offlinePlayer.getStatistic(Statistic.PLAY_ONE_MINUTE));
+			return new Timespan(Timespan.TimePeriod.TICK, offlinePlayer.getStatistic(Statistic.PLAY_ONE_MINUTE));
 		} else if (offlinePlayer.isOnline()) {
-			return Timespan.fromTicks(offlinePlayer.getPlayer().getStatistic(Statistic.PLAY_ONE_MINUTE));
+			return new Timespan(Timespan.TimePeriod.TICK, offlinePlayer.getPlayer().getStatistic(Statistic.PLAY_ONE_MINUTE));
 		}
 		return null;
 	}

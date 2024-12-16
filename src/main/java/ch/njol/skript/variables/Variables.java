@@ -244,7 +244,7 @@ public class Variables {
 						constructor.setAccessible(true);
 						variablesStorage = (VariablesStorage) constructor.newInstance(type);
 					} catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
-						Skript.error("Failed to initalize database type '" + type + "'");
+						Skript.error("Failed to initialize database `" + name + "`");
 						successful = false;
 						continue;
 					}
@@ -413,13 +413,26 @@ public class Variables {
 	 * @param event the event to copy local variables from.
 	 * @return the copy.
 	 */
-	@Nullable
-	public static Object copyLocalVariables(Event event) {
+	public static @Nullable Object copyLocalVariables(Event event) {
 		VariablesMap from = localVariables.get(event);
 		if (from == null)
 			return null;
 
 		return from.copy();
+	}
+
+	/**
+	 * Copies local variables from provider to user, runs action, then copies variables back to provider.
+	 * Removes local variables from user after action is finished.
+	 * @param provider The originator of the local variables.
+	 * @param user The event to copy the variables to and back from.
+	 * @param action The code to run while the variables are copied.
+	 */
+	public static void withLocalVariables(Event provider, Event user, @NotNull Runnable action) {
+		Variables.setLocalVariables(user, Variables.copyLocalVariables(provider));
+		action.run();
+		Variables.setLocalVariables(provider, Variables.copyLocalVariables(user));
+		Variables.removeLocals(user);
 	}
 
 	/**
@@ -745,8 +758,8 @@ public class Variables {
 					// Warn if needed
 					if (loadConflicts <= MAX_CONFLICT_WARNINGS) {
 						Skript.warning("The variable {" + name + "} was loaded twice from different databases (" +
-							existingVariableStorage.databaseName + " and " + source.databaseName +
-							"), only the one from " + source.databaseName + " will be kept.");
+							existingVariableStorage.getUserConfigurationName() + " and " + source.getUserConfigurationName() +
+							"), only the one from " + source.getUserConfigurationName() + " will be kept.");
 					} else if (loadConflicts == MAX_CONFLICT_WARNINGS + 1) {
 						Skript.warning("[!] More than " + MAX_CONFLICT_WARNINGS +
 							" variables were loaded more than once from different databases, " +
