@@ -64,6 +64,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.NoSuchElementException;
 import java.util.TreeMap;
+import java.util.function.Function;
 
 public class Variable<T> implements Expression<T> {
 
@@ -612,6 +613,34 @@ public class Variable<T> implements Expression<T> {
 				}
 				break;
 		}
+	}
+
+	/**
+	 * {@inheritDoc}
+	 * @param getAll This has no effect for a Variable, as {@link #getArray(Event)} is the same as {@link #getAll(Event)}.
+	 */
+	@Override
+	public <R> void changeInPlace(Event event, Function<T, R> changeFunction, boolean getAll) {
+		changeInPlace(event, changeFunction);
+	}
+
+	@Override
+	public <R> void changeInPlace(Event event, Function<T, R> changeFunction) {
+		if (!list) {
+			T value = getSingle(event);
+			if (value == null)
+				return;
+			set(event, changeFunction.apply(value));
+			return;
+		}
+		variablesIterator(event).forEachRemaining(pair -> {
+			String index = pair.getKey();
+			T value = Converters.convert(pair.getValue(), types);
+			if (value == null)
+				return;
+			Object newValue = changeFunction.apply(value);
+			setIndex(event, index, newValue);
+		});
 	}
 
 	@Override
