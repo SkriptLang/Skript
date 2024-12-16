@@ -68,12 +68,6 @@ import org.jetbrains.annotations.NotNull;
 public interface KeyProviderExpression<T> extends Expression<T> {
 
 	/**
-	 * A 'fallback' placeholder key when none are actually available
-	 * (e.g. if this is illegally used from a set of 1 un-keyed thing, e.g. a regular variable rather than a list)
-	 */
-	String UNARY_KEY = "1";
-
-	/**
 	 * A set of keys, matching the length and order of the immediately-previous
 	 * {@link #getArray(Event)} values array.
 	 * <br/>

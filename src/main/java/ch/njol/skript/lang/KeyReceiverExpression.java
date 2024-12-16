@@ -26,9 +26,6 @@ public interface KeyReceiverExpression<T> extends Expression<T> {
 	 * @param mode  The key-safe change mode {@link ChangeMode#SET}
 	 * @param keys  The keys, matching the length and order of the values array
 	 */
-	default void change(Event event, Object @NotNull [] delta, ChangeMode mode, @NotNull String @NotNull [] keys) {
-		assert delta.length == keys.length;
-		this.change(event, delta, mode);
-	}
+	void change(Event event, Object @NotNull [] delta, ChangeMode mode, @NotNull String @NotNull [] keys);
 
 }

@@ -452,8 +452,8 @@ public class Variable<T> implements Expression<T>, KeyReceiverExpression<T>, Key
 	}
 
 	@Override
-	public void change(Event event, Object @NotNull [] delta, ChangeMode mode, @NotNull String @NotNull [] keys, boolean recommended) {
-		if (!recommended || !list) {
+	public void change(Event event, Object @NotNull [] delta, ChangeMode mode, @NotNull String @NotNull [] keys) {
+		if (!list) {
 			this.change(event, delta, mode);
 			return;
 		}
@@ -474,7 +474,7 @@ public class Variable<T> implements Expression<T>, KeyReceiverExpression<T>, Key
 			return;
 		}
 		// no other modes are supported right now
-		KeyReceiverExpression.super.change(event, delta, mode, keys);
+		this.change(event, delta, mode);
 	}
 
 	@Override
