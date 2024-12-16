@@ -18,6 +18,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
@@ -38,9 +39,9 @@ public class ClassInfo<T> implements Debuggable {
 	
 	@Nullable
 	private Parser<? extends T> parser = null;
-	
+
 	@Nullable
-	private Cloner<T> cloner = null;
+	private Function<T, T> cloner = null;
 	
 	@Nullable
 	private Pattern[] userInputPatterns = null;
@@ -119,7 +120,7 @@ public class ClassInfo<T> implements Debuggable {
 	 * @param cloner A {@link Cloner} to clone values when setting variables
 	 *                  or passing function arguments.
 	 */
-	public ClassInfo<T> cloner(Cloner<T> cloner) {
+	public ClassInfo<T> cloner(Function<T, T> cloner) {
 		assert this.cloner == null;
 		this.cloner = cloner;
 		return this;
@@ -194,11 +195,6 @@ public class ClassInfo<T> implements Debuggable {
 			throw new IllegalStateException("Can't set this class to be serialized as another one if a serializer is already set");
 		this.serializeAs = serializeAs;
 		return this;
-	}
-	
-	@Deprecated
-	public ClassInfo<T> changer(final SerializableChanger<? super T> changer) {
-		return changer((Changer<? super T>) changer);
 	}
 	
 	public ClassInfo<T> changer(final Changer<? super T> changer) {
@@ -339,7 +335,7 @@ public class ClassInfo<T> implements Debuggable {
 	}
 	
 	@Nullable
-	public Cloner<? extends T> getCloner() {
+	public Function<? extends T, ? extends T> getCloner() {
 		return cloner;
 	}
 	
@@ -348,7 +344,7 @@ public class ClassInfo<T> implements Debuggable {
 	 * returning the given object if no {@link Cloner} is registered.
 	 */
 	public T clone(T t) {
-		return cloner == null ? t : cloner.clone(t);
+		return cloner == null ? t : cloner.apply(t);
 	}
 	
 	@Nullable

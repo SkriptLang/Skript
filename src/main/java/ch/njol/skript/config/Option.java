@@ -85,7 +85,7 @@ public class Option<T> {
 	
 	protected void onValueChange() {
 		if (setter != null)
-			setter.set(parsedValue);
+			setter.accept(parsedValue);
 	}
 	
 	public final T value() {
