@@ -1,4 +1,4 @@
-test "lowest/highest solid block (new height)":
+test "lowest/highest solid block":
 
 	# highest solid block
 	set {_oldBlock::1} to block data of block at location(0.5, 319.5, 0.5, "world")
