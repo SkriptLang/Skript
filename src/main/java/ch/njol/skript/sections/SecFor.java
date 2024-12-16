@@ -122,7 +122,8 @@ public class SecFor extends SecLoop {
 		super.store(event, next);
 		//<editor-fold desc="Store the loop index/value in the variables" defaultstate="collapsed">
 		if (next instanceof Map.Entry) {
-			@SuppressWarnings("unchecked") Map.Entry<String, Object> entry = (Map.Entry<String, Object>) next;
+			//noinspection unchecked
+			Map.Entry<String, Object> entry = (Map.Entry<String, Object>) next;
 			if (keyStore != null)
 				this.keyStore.change(event, new Object[] {entry.getKey()}, Changer.ChangeMode.SET);
 			if (valueStore != null)
