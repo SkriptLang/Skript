@@ -1,4 +1,4 @@
-test "display view range" when running minecraft "1.19":
+test "display view range":
 
 	spawn block display at spawn of world "world":
 		set {_e::1} to entity
