@@ -140,15 +140,12 @@ public class EffReplace extends Effect {
 				} catch (Exception ignored) { }
 			}
 			replaceFunction = haystackString -> {
-				for (Object needle : needles) {
-					assert needle != null;
-					for (Pattern pattern : patterns) {
-						Matcher matcher = pattern.matcher((String) needle);
-						if (replaceFirst) {
-							haystackString = matcher.replaceFirst(replacement);
-						} else {
-							haystackString = matcher.replaceAll(replacement);
-						}
+				for (Pattern pattern : patterns) {
+					Matcher matcher = pattern.matcher(haystackString);
+					if (replaceFirst) {
+						haystackString = matcher.replaceFirst(replacement);
+					} else {
+						haystackString = matcher.replaceAll(replacement);
 					}
 				}
 				return haystackString;
