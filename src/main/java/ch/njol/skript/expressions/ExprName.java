@@ -124,8 +124,8 @@ public class ExprName extends SimplePropertyExpression<Object, String> {
 		if (Skript.classExists("net.kyori.adventure.text.Component") &&
 				Skript.methodExists(Bukkit.class, "createInventory", InventoryHolder.class, int.class, Component.class))
 			serializer = BungeeComponentSerializer.get();
-		register(ExprName.class, String.class, "(1:name[s])", "players/entities/inventories/named");
-		register(ExprName.class, String.class, "(2:(display|nick|chat|custom)[ ]name[s])", "players/entities/inventories/named");
+		register(ExprName.class, String.class, "(1:name[s])", "offlineplayers/entities/inventories/named");
+		register(ExprName.class, String.class, "(2:(display|nick|chat|custom)[ ]name[s])", "offlineplayers/entities/inventories/named");
 		register(ExprName.class, String.class, "(3:(player|tab)[ ]list name[s])", "players");
 		// we keep the entity input because we want to do something special with entities
 	}
@@ -146,15 +146,21 @@ public class ExprName extends SimplePropertyExpression<Object, String> {
 
 	@Override
 	public @Nullable String convert(Object object) {
-		if (object instanceof OfflinePlayer && ((OfflinePlayer) object).isOnline())
-			object = ((OfflinePlayer) object).getPlayer();
+		if (object instanceof OfflinePlayer offlinePlayer) {
+			if (offlinePlayer.isOnline()) { // Defer to player check below
+				object = offlinePlayer.getPlayer();
+			} else { // We can only support "name"
+				return mark == 1 ? offlinePlayer.getName() : null;
+			}
+		}
 
 		if (object instanceof Player player) {
-			switch (mark) {
+			return switch (mark) {
 				case 1 -> player.getName();
 				case 2 -> player.getDisplayName();
 				case 3 -> player.getPlayerListName();
-			}
+				default -> throw new IllegalStateException("Unexpected value: " + mark);
+			};
 		} else if (object instanceof Nameable nameable) {
 			if (mark == 1 && nameable instanceof CommandSender sender)
 				return sender.getName();
