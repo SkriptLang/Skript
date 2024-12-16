@@ -19,6 +19,7 @@ import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.converter.Converters;
 
 import java.lang.reflect.Array;
+import java.util.Arrays;
 import java.util.function.Predicate;
 
 /**
@@ -33,8 +34,7 @@ public class SimpleLiteral<T> implements Literal<T>, DefaultExpression<T> {
 	private final boolean isDefault;
 	private final boolean and;
 
-	@Nullable
-	private UnparsedLiteral source = null;
+	private @Nullable UnparsedLiteral source = null;
 
 	protected transient T[] data;
 
@@ -77,24 +77,28 @@ public class SimpleLiteral<T> implements Literal<T>, DefaultExpression<T> {
 		return true;
 	}
 
+	private T[] data() {
+		return Arrays.copyOf(data, data.length);
+	}
+
 	@Override
 	public T[] getArray() {
-		return data;
+		return this.data();
 	}
 
 	@Override
 	public T[] getArray(Event event) {
-		return data;
+		return this.data();
 	}
 
 	@Override
 	public T[] getAll() {
-		return data;
+		return this.data();
 	}
 
 	@Override
 	public T[] getAll(Event event) {
-		return data;
+		return this.data();
 	}
 
 	@Override
@@ -113,12 +117,11 @@ public class SimpleLiteral<T> implements Literal<T>, DefaultExpression<T> {
 	}
 
 	@Override
-	@Nullable
 	@SuppressWarnings("unchecked")
-	public <R> Literal<? extends R> getConvertedExpression(Class<R>... to) {
+	public <R> @Nullable Literal<? extends R> getConvertedExpression(Class<R>... to) {
 		if (CollectionUtils.containsSuperclass(to, type))
 			return (Literal<? extends R>) this;
-		R[] parsedData = Converters.convert(data, to, (Class<R>) Utils.getSuperType(to));
+		R[] parsedData = Converters.convert(this.data(), to, (Class<R>) Utils.getSuperType(to));
 		if (parsedData.length != data.length)
 			return null;
 		return new ConvertedLiteral<>(this, parsedData, (Class<R>) Utils.getSuperType(to));
@@ -160,8 +163,7 @@ public class SimpleLiteral<T> implements Literal<T>, DefaultExpression<T> {
 	private ClassInfo<? super T> returnTypeInfo;
 
 	@Override
-	@Nullable
-	public Class<?>[] acceptChange(ChangeMode mode) {
+	public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
 		ClassInfo<? super T> returnTypeInfo = this.returnTypeInfo;
 		if (returnTypeInfo == null)
 			this.returnTypeInfo = returnTypeInfo = Classes.getSuperClassInfo(getReturnType());
@@ -170,7 +172,7 @@ public class SimpleLiteral<T> implements Literal<T>, DefaultExpression<T> {
 	}
 
 	@Override
-	public void change(final Event event, final @Nullable Object[] delta, final ChangeMode mode) throws UnsupportedOperationException {
+	public void change(final Event event, final Object @Nullable [] delta, final ChangeMode mode) throws UnsupportedOperationException {
 		final ClassInfo<? super T> returnTypeInfo = this.returnTypeInfo;
 		if (returnTypeInfo == null)
 			throw new UnsupportedOperationException();

@@ -1,21 +1,3 @@
-/**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
 package ch.njol.skript.lang.util;
 
 import ch.njol.skript.Skript;
@@ -27,19 +9,17 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.Utils;
-import ch.njol.util.Checker;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
 import ch.njol.util.coll.iterator.ArrayIterator;
 import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.NonNull;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.converter.Converter;
 
 import java.lang.reflect.Array;
 import java.util.Arrays;
 import java.util.Iterator;
-import java.util.List;
 import java.util.function.Predicate;
 
 /**
@@ -54,8 +34,7 @@ public abstract class SimpleExpression<T> implements Expression<T> {
 	protected SimpleExpression() {}
 
 	@Override
-	@Nullable
-	public final T getSingle(Event event) {
+	public final @Nullable T getSingle(Event event) {
 		T[] values = getArray(event);
 		if (values.length == 0)
 			return null;
@@ -65,10 +44,10 @@ public abstract class SimpleExpression<T> implements Expression<T> {
 	}
 
 	@Override
-	@SuppressWarnings("unchecked")
 	public T[] getAll(Event event) {
 		T[] values = get(event);
 		if (values == null) {
+			//noinspection unchecked
 			T[] emptyArray = (T[]) Array.newInstance(getReturnType(), 0);
 			assert emptyArray != null;
 			return emptyArray;
@@ -81,6 +60,7 @@ public abstract class SimpleExpression<T> implements Expression<T> {
 				numNonNull++;
 		if (numNonNull == values.length)
 			return Arrays.copyOf(values, values.length);
+		//noinspection unchecked
 		T[] valueArray = (T[]) Array.newInstance(getReturnType(), numNonNull);
 		assert valueArray != null;
 		int i = 0;
@@ -91,10 +71,10 @@ public abstract class SimpleExpression<T> implements Expression<T> {
 	}
 
 	@Override
-	@SuppressWarnings("unchecked")
 	public final T[] getArray(Event event) {
 		T[] values = get(event);
 		if (values == null) {
+			//noinspection unchecked
 			return (T[]) Array.newInstance(getReturnType(), 0);
 		}
 		if (values.length == 0)
@@ -109,6 +89,7 @@ public abstract class SimpleExpression<T> implements Expression<T> {
 			if (values.length == 1 && values[0] != null)
 				return Arrays.copyOf(values, 1);
 			int rand = Utils.random(0, numNonNull);
+			//noinspection unchecked
 			T[] valueArray = (T[]) Array.newInstance(getReturnType(), 1);
 			for (T value : values) {
 				if (value != null) {
@@ -124,6 +105,7 @@ public abstract class SimpleExpression<T> implements Expression<T> {
 
 		if (numNonNull == values.length)
 			return Arrays.copyOf(values, values.length);
+		//noinspection unchecked
 		T[] valueArray = (T[]) Array.newInstance(getReturnType(), numNonNull);
 		int i = 0;
 		for (T value : values)
@@ -139,16 +121,15 @@ public abstract class SimpleExpression<T> implements Expression<T> {
 	 * @param event The event with which this expression is evaluated.
 	 * @return An array of values for this event. May not contain nulls.
 	 */
-	@Nullable
-	protected abstract T[] get(Event event);
+	protected abstract T @Nullable [] get(Event event);
 
 	@Override
-	public final boolean check(Event event, Checker<? super T> checker) {
+	public final boolean check(Event event, Predicate<? super T> checker) {
 		return check(event, checker, false);
 	}
 
 	@Override
-	public final boolean check(Event event, Checker<? super T> checker, boolean negated) {
+	public final boolean check(Event event, Predicate<? super T> checker, boolean negated) {
 		return check(get(event), checker, negated, getAnd());
 	}
 
@@ -161,7 +142,7 @@ public abstract class SimpleExpression<T> implements Expression<T> {
 			if (value == null)
 				continue;
 			hasElement = true;
-			boolean b = checker.check(value);
+			boolean b = checker.test(value);
 			if (and && !b)
 				return invert;
 			if (!and && b)
@@ -275,7 +256,7 @@ public abstract class SimpleExpression<T> implements Expression<T> {
 		return true;
 	}
 
-	protected final boolean setTime(int time, Class<? extends Event> applicableEvent, @NonNull Expression<?>... mustbeDefaultVars) {
+	protected final boolean setTime(int time, Class<? extends Event> applicableEvent, @NotNull Expression<?>... mustbeDefaultVars) {
 		if (getParser().getHasDelayBefore() == Kleenean.TRUE && time != 0) {
 			Skript.error("Can't use time states after the event has already passed.");
 			return false;

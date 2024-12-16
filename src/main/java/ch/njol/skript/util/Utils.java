@@ -1,21 +1,3 @@
-/**
- * This file is part of Skript.
- * <p>
- * Skript is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- * <p>
- * Skript is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * <p>
- * You should have received a copy of the GNU General Public License
- * along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- * <p>
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
 package ch.njol.skript.util;
 
 import ch.njol.skript.Skript;
@@ -48,7 +30,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
-import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
@@ -109,8 +90,7 @@ public abstract class Utils {
 		plurals.add(new WordEnding("", "s"));
 	}
 
-	private Utils() {
-	}
+	private Utils() {}
 
 	public static String join(final Object[] objects) {
 		assert objects != null;
@@ -246,8 +226,7 @@ public abstract class Utils {
 		} finally {
 			try {
 				jar.close();
-			} catch (IOException e) {
-			}
+			} catch (IOException e) {}
 		}
 		return classes.toArray(new Class<?>[classes.size()]);
 	}
@@ -467,8 +446,10 @@ public abstract class Utils {
 	 * this completable future will complete exceptionally if the player is null.
 	 * @throws IllegalStateException when there are no players online
 	 */
-	public static CompletableFuture<ByteArrayDataInput> sendPluginMessage(String channel,
-																		  Predicate<ByteArrayDataInput> messageVerifier, String... data) throws IllegalStateException {
+	public static CompletableFuture<ByteArrayDataInput> sendPluginMessage(
+		String channel,
+		Predicate<ByteArrayDataInput> messageVerifier, String... data
+	) throws IllegalStateException {
 		Player firstPlayer = Iterables.getFirst(Bukkit.getOnlinePlayers(), null);
 		if (firstPlayer == null)
 			throw new IllegalStateException("There are no players online");
@@ -495,8 +476,10 @@ public abstract class Utils {
 	 * @return a completable future for the message of the responding plugin message, if there is one.
 	 * this completable future will complete exceptionally if the player is null.
 	 */
-	public static CompletableFuture<ByteArrayDataInput> sendPluginMessage(Player player, String channel,
-																		  Predicate<ByteArrayDataInput> messageVerifier, String... data) {
+	public static CompletableFuture<ByteArrayDataInput> sendPluginMessage(
+		Player player, String channel,
+		Predicate<ByteArrayDataInput> messageVerifier, String... data
+	) {
 		CompletableFuture<ByteArrayDataInput> completableFuture = new CompletableFuture<>();
 
 		Skript skript = Skript.getInstance();

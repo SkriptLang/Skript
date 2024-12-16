@@ -35,6 +35,7 @@ import org.skriptlang.skript.lang.converter.Converters;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 /**
  * Represents a expression converted to another type. This, and not Expression, is the required return type of {@link SimpleExpression#getConvertedExpr(Class...)} because this
@@ -90,7 +91,7 @@ public class ConvertedExpression<F, T> implements Expression<T> {
 	public String toString(@Nullable Event event, boolean debug) {
 		if (debug && event == null)
 			return "(" + source.toString(event, debug) + " >> " + converter + ": "
-				+ converterInfo + ")";
+				+ converterInfos.stream().map(Object::toString).collect(Collectors.joining(", ")) + ")";
 		return source.toString(event, debug);
 	}
 
@@ -110,20 +111,17 @@ public class ConvertedExpression<F, T> implements Expression<T> {
 	}
 
 	@Override
-	@Nullable
 	@SuppressWarnings("unchecked")
-	public <R> Expression<? extends R> getConvertedExpression(Class<R>... to) {
+	public <R> @Nullable Expression<? extends R> getConvertedExpression(Class<R>... to) {
 		if (CollectionUtils.containsSuperclass(to, this.to))
 			return (Expression<? extends R>) this;
 		return source.getConvertedExpression(to);
 	}
 
-	@Nullable
-	private ClassInfo<? super T> returnTypeInfo;
+	private @Nullable ClassInfo<? super T> returnTypeInfo;
 
 	@Override
-	@Nullable
-	public Class<?>[] acceptChange(ChangeMode mode) {
+	public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
 		Class<?>[] validClasses = source.acceptChange(mode);
 		if (validClasses == null) {
 			ClassInfo<? super T> returnTypeInfo;
@@ -135,7 +133,7 @@ public class ConvertedExpression<F, T> implements Expression<T> {
 	}
 
 	@Override
-	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
+	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
 		ClassInfo<? super T> returnTypeInfo = this.returnTypeInfo;
 		if (returnTypeInfo != null) {
 			Changer<? super T> changer = returnTypeInfo.getChanger();
@@ -147,8 +145,7 @@ public class ConvertedExpression<F, T> implements Expression<T> {
 	}
 
 	@Override
-	@Nullable
-	public T getSingle(Event event) {
+	public @Nullable T getSingle(Event event) {
 		F value = source.getSingle(event);
 		if (value == null)
 			return null;
@@ -207,14 +204,12 @@ public class ConvertedExpression<F, T> implements Expression<T> {
 	}
 
 	@Override
-	@Nullable
-	public Iterator<T> iterator(Event event) {
+	public @Nullable Iterator<T> iterator(Event event) {
 		Iterator<? extends F> iterator = source.iterator(event);
 		if (iterator == null)
 			return null;
 		return new Iterator<T>() {
-			@Nullable
-			T next = null;
+			@Nullable T next = null;
 
 			@Override
 			public boolean hasNext() {
@@ -259,8 +254,7 @@ public class ConvertedExpression<F, T> implements Expression<T> {
 	}
 
 	@Override
-	@Nullable
-	public Object[] beforeChange(Expression<?> changed, @Nullable Object[] delta) {
+	public Object @Nullable [] beforeChange(Expression<?> changed, Object @Nullable [] delta) {
 		return source.beforeChange(changed, delta); // Forward to source
 		// TODO this is not entirely safe, even though probably works well enough
 	}

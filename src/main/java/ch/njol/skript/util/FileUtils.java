@@ -20,9 +20,9 @@ import java.util.Comparator;
 public abstract class FileUtils {
 
 	private FileUtils() {}
-	
+
 	private final static SimpleDateFormat backupFormat = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss");
-	
+
 	/**
 	 * @return The current date and time
 	 */
@@ -36,8 +36,8 @@ public abstract class FileUtils {
 	 * Deletes files in backup directory to meet desired target, starting from oldest to newest
 	 *
 	 * @param varFile Variable file in order to get 'backups' directory
-	 * @param toKeep Integer of how many files are to be left remaining
-	 * @throws IOException If 'backups' directory is not found
+	 * @param toKeep  Integer of how many files are to be left remaining
+	 * @throws IOException              If 'backups' directory is not found
 	 * @throws IllegalArgumentException If 'toKeep' parameter is less than 0
 	 */
 	public static void backupPurge(File varFile, int toKeep) throws IOException, IllegalArgumentException {
@@ -72,7 +72,7 @@ public abstract class FileUtils {
 		copy(f, backup);
 		return backup;
 	}
-	
+
 	public static File move(final File from, final File to, final boolean replace) throws IOException {
 		if (!replace && to.exists())
 			throw new IOException("Can't rename " + from.getName() + " to " + to.getName() + ": The target file already exists");
@@ -84,14 +84,14 @@ public abstract class FileUtils {
 		}
 		return to;
 	}
-	
+
 	public static void copy(final File from, final File to) throws IOException {
 		Files.copy(from.toPath(), to.toPath(), StandardCopyOption.COPY_ATTRIBUTES);
 	}
-	
+
 	/**
 	 * @param directory
-	 * @param renamer Renames files. Return null to leave a file as-is.
+	 * @param renamer   Renames files. Return null to leave a file as-is.
 	 * @return A collection of all changed files (with their new names)
 	 * @throws IOException If renaming one of the files caused an IOException. Some files might have been renamed already.
 	 */
@@ -114,11 +114,11 @@ public abstract class FileUtils {
 		}
 		return changed;
 	}
-	
+
 	/**
 	 * Saves the contents of an InputStream in a file.
-	 * 
-	 * @param in The InputStream to read from. This stream will not be closed when this method returns.
+	 *
+	 * @param in   The InputStream to read from. This stream will not be closed when this method returns.
 	 * @param file The file to save to. Will be replaced if it exists, or created if it doesn't.
 	 * @throws IOException
 	 */
@@ -137,5 +137,5 @@ public abstract class FileUtils {
 				out.close();
 		}
 	}
-	
+
 }
