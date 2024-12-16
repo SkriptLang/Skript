@@ -19,18 +19,20 @@ import ch.njol.util.StringUtils;
 import org.bukkit.event.Event;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 @Name("Replace")
 @Description(
 	"Replaces all occurrences of a given text or regex with another text. Please note that you can only change " +
-	"variables and a few expressions, e.g. a <a href='/expressions.html#ExprMessage'>message</a> or a line of a sign."
+		"variables and a few expressions, e.g. a <a href='/expressions.html#ExprMessage'>message</a> or a line of a sign."
 )
 @Examples({
 	"replace \"<item>\" in {_msg} with \"[%name of player's tool%]\"",
@@ -38,8 +40,8 @@ import java.util.regex.Pattern;
 	"",
 	"# Very simple chat censor",
 	"on chat:",
-		"\treplace all \"idiot\" and \"noob\" with \"****\" in the message",
-		"\tregex replace \"\\b(idiot|noob)\\b\" with \"****\" in the message # Regex version using word boundaries for better results",
+	"\treplace all \"idiot\" and \"noob\" with \"****\" in the message",
+	"\tregex replace \"\\b(idiot|noob)\\b\" with \"****\" in the message # Regex version using word boundaries for better results",
 	"",
 	"replace all stone and dirt in player's inventory and player's top inventory with diamond"
 })
@@ -48,12 +50,12 @@ public class EffReplace extends Effect {
 
 	static {
 		Skript.registerEffect(EffReplace.class,
-				"replace [(all|every)|first:[the] first] %strings% in %strings% with %string% [case:with case sensitivity]",
-				"replace [(all|every)|first:[the] first] %strings% with %string% in %strings% [case:with case sensitivity]",
-				"(replace [with|using] regex|regex replace) %strings% in %strings% with %string%",
-				"(replace [with|using] regex|regex replace) %strings% with %string% in %strings%",
-				"replace [all|every] %itemtypes% in %inventories% with %itemtype%",
-				"replace [all|every] %itemtypes% with %itemtype% in %inventories%");
+			"replace [(all|every)|first:[the] first] %strings% in %strings% with %string% [case:with case sensitivity]",
+			"replace [(all|every)|first:[the] first] %strings% with %string% in %strings% [case:with case sensitivity]",
+			"(replace [with|using] regex|regex replace) %strings% in %strings% with %string%",
+			"(replace [with|using] regex|regex replace) %strings% with %string% in %strings%",
+			"replace [all|every] %itemtypes% in %inventories% with %itemtype%",
+			"replace [all|every] %itemtypes% with %itemtype% in %inventories%");
 	}
 
 	private Expression<?> haystack, needles, replacement;
@@ -104,37 +106,9 @@ public class EffReplace extends Effect {
 			return;
 
 		if (replaceString) {
-			String stringReplacement = (String) replacement;
-			if (replaceRegex) { // replace all/first - regex
-				List<Pattern> patterns = new ArrayList<>(needles.length);
-				for (Object needle : needles) {
-					try {
-						patterns.add(Pattern.compile((String) needle));
-					} catch (Exception ignored) { }
-				}
-				for (int i = 0; i < haystack.length; i++) {
-					for (Pattern pattern : patterns) {
-						Matcher matcher = pattern.matcher((String) haystack[i]);
-						if (replaceFirst) // first
-							haystack[i] = matcher.replaceFirst(stringReplacement);
-						else // all
-							haystack[i] = matcher.replaceAll(stringReplacement);
-					}
-				}
-			} else if (replaceFirst) { // replace first - string
-				for (int i = 0; i < haystack.length; i++) {
-					for (Object needle : needles) {
-						haystack[i] = StringUtils.replaceFirst((String) haystack[i], (String) needle, Matcher.quoteReplacement(stringReplacement), caseSensitive);
-					}
-				}
-			} else { // replace all - string
-				for (int i = 0; i < haystack.length; i++) {
-					for (Object needle : needles) {
-						haystack[i] = StringUtils.replace((String) haystack[i], (String) needle, stringReplacement, caseSensitive);
-					}
-				}
-			}
-			haystackExpr.change(event, haystack, ChangeMode.SET);
+			Function<String, String> replaceFunction = getReplaceFunction(needles, (String) replacement);
+			//noinspection unchecked
+			((Expression<String>) haystackExpr).changeInPlace(event, replaceFunction);
 		} else {
 			for (Inventory inventory : (Inventory[]) haystack) {
 				for (ItemType needle : (ItemType[]) needles) {
@@ -153,6 +127,50 @@ public class EffReplace extends Effect {
 				}
 			}
 		}
+	}
+
+	private @NotNull Function<String, String> getReplaceFunction(Object[] needles, String replacement) {
+		Function<String, String> replaceFunction;
+
+		if (replaceRegex) {
+			List<Pattern> patterns = new ArrayList<>(needles.length);
+			for (Object needle : needles) {
+				try {
+					patterns.add(Pattern.compile((String) needle));
+				} catch (Exception ignored) { }
+			}
+			replaceFunction = haystackString -> {
+				for (Object needle : needles) {
+					assert needle != null;
+					for (Pattern pattern : patterns) {
+						Matcher matcher = pattern.matcher((String) needle);
+						if (replaceFirst) {
+							haystackString = matcher.replaceFirst(replacement);
+						} else {
+							haystackString = matcher.replaceAll(replacement);
+						}
+					}
+				}
+				return haystackString;
+			};
+		} else if (replaceFirst) {
+			replaceFunction = haystackString -> {
+				for (Object needle : needles) {
+					assert needle != null;
+					haystackString = StringUtils.replaceFirst(haystackString, (String) needle, Matcher.quoteReplacement(replacement), caseSensitive);
+				}
+				return haystackString;
+			};
+		} else {
+			replaceFunction = haystackString -> {
+				for (Object needle : needles) {
+					assert needle != null;
+					haystackString = StringUtils.replace(haystackString, (String) needle, replacement, caseSensitive);
+				}
+				return haystackString;
+			};
+		}
+		return replaceFunction;
 	}
 
 	@Override
