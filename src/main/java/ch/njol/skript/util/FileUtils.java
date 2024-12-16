@@ -2,11 +2,15 @@ package ch.njol.skript.util;
 
 import org.skriptlang.skript.lang.converter.Converter;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
 
@@ -31,7 +35,7 @@ public abstract class FileUtils {
 	/**
 	 * Deletes files in backup directory to meet desired target, starting from oldest to newest
 	 *
-	 * @param csvFile Variable file in order to get 'backups' directory
+	 * @param varFile Variable file in order to get 'backups' directory
 	 * @param toKeep Integer of how many files are to be left remaining
 	 * @throws IOException If 'backups' directory is not found
 	 * @throws IllegalArgumentException If 'toKeep' parameter is less than 0
@@ -72,60 +76,17 @@ public abstract class FileUtils {
 	public static File move(final File from, final File to, final boolean replace) throws IOException {
 		if (!replace && to.exists())
 			throw new IOException("Can't rename " + from.getName() + " to " + to.getName() + ": The target file already exists");
-		if (!RUNNINGJAVA6) {
-			if (replace)
-				Files.move(from.toPath(), to.toPath(), StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE);
-			else
-				Files.move(from.toPath(), to.toPath(), StandardCopyOption.ATOMIC_MOVE);
+
+		if (replace) {
+			Files.move(from.toPath(), to.toPath(), StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE);
 		} else {
-			File moveTo = null;
-			if (replace && to.exists()) {
-				moveTo = new File(to.getAbsolutePath() + ".old0");
-				int i = 0;
-				while (moveTo.exists() && i < 1000)
-					moveTo = new File(to.getAbsolutePath() + ".old" + (++i));
-				if (i == 999 || !to.renameTo(moveTo))
-					throw new IOException("Can't rename " + from.getName() + " to " + to.getName() + ": Cannot temporarily rename the target file");
-			}
-			if (!from.renameTo(to)) {
-				if (moveTo != null)
-					moveTo.renameTo(to);
-				throw new IOException("Can't rename " + from.getName() + " to " + to.getName());
-			}
-			if (moveTo != null)
-				moveTo.delete();
+			Files.move(from.toPath(), to.toPath(), StandardCopyOption.ATOMIC_MOVE);
 		}
 		return to;
 	}
 	
 	public static void copy(final File from, final File to) throws IOException {
-		if (!RUNNINGJAVA6) {
-			Files.copy(from.toPath(), to.toPath(), StandardCopyOption.COPY_ATTRIBUTES);
-		} else {
-			FileInputStream in = null;
-			FileOutputStream out = null;
-			try {
-				in = new FileInputStream(from);
-				out = new FileOutputStream(to);
-				final byte[] buffer = new byte[4096];
-				int bytesRead;
-				while ((bytesRead = in.read(buffer)) != -1)
-					out.write(buffer, 0, bytesRead);
-			} catch (final Exception e) {
-				throw new IOException("Can't copy " + from.getName() + " to " + to.getName() + ": " + e.getLocalizedMessage(), e);
-			} finally {
-				if (in != null) {
-					try {
-						in.close();
-					} catch (final IOException e) {}
-				}
-				if (out != null) {
-					try {
-						out.close();
-					} catch (final IOException e) {}
-				}
-			}
-		}
+		Files.copy(from.toPath(), to.toPath(), StandardCopyOption.COPY_ATTRIBUTES);
 	}
 	
 	/**
