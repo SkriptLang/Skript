@@ -13,8 +13,6 @@ import org.bukkit.loot.Lootable;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.loottables.LootTableUtils;
 
-import java.util.function.Consumer;
-
 @Name("Loot Table")
 @Description({
 	"Returns the loot table of an entity, block or loot table type.",
