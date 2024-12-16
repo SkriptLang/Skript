@@ -1,21 +1,3 @@
-/**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
 package ch.njol.skript.lang;
 
 import ch.njol.skript.Skript;
@@ -35,6 +17,7 @@ import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.converter.Converter;
 
 import java.util.*;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
@@ -167,16 +150,15 @@ public interface Expression<T> extends SyntaxElement, Debuggable {
 	 * <p>
 	 * The returned expression should delegate this method to the original expression's method to prevent excessive converted expression chains (see also
 	 * {@link ConvertedExpression}).
-	 * 
+	 *
 	 * @param to The desired return type of the returned expression
 	 * @return Expression with the desired return type or null if the expression can't be converted to the given type. Returns the expression itself if it already returns the
 	 *         desired type.
 	 * @see Converter
 	 * @see ConvertedExpression
 	 */
-	@Nullable
 	@SuppressWarnings("unchecked")
-	<R> Expression<? extends R> getConvertedExpression(Class<R>... to);
+	<R> @Nullable Expression<? extends R> getConvertedExpression(Class<R>... to);
 
 	/**
 	 * Gets the return type of this expression.
@@ -184,6 +166,31 @@ public interface Expression<T> extends SyntaxElement, Debuggable {
 	 * @return A supertype of any objects returned by {@link #getSingle(Event)} and the component type of any arrays returned by {@link #getArray(Event)}
 	 */
 	Class<? extends T> getReturnType();
+
+	/**
+	 * For expressions that might return multiple (incalculable at parse time) types,
+	 * this provides a list of all possible types.
+	 * Use cases include: expressions that depend on the return type of their input.
+	 *
+	 * @return A list of all possible types this might return
+	 */
+	default Class<? extends T>[] possibleReturnTypes() {
+		//noinspection unchecked
+		return new Class[] {this.getReturnType()};
+	}
+
+	/**
+	 * Whether this expression <b>might</b> return the following type.
+	 * @param returnType The type to test
+	 * @return true if the argument is within the bounds of the return types
+	 */
+	default boolean canReturn(Class<?> returnType) {
+		for (Class<?> type : this.possibleReturnTypes()) {
+			if (returnType.isAssignableFrom(type))
+				return true;
+		}
+		return false;
+	}
 
 	/**
 	 * Returns true if this expression returns all possible values, false if it only returns some of them.
@@ -236,8 +243,7 @@ public interface Expression<T> extends SyntaxElement, Debuggable {
 	 * @param event The event to be used for evaluation
 	 * @return An iterator to iterate over all values of this expression which may be empty and/or null, but must not return null elements.
 	 */
-	@Nullable
-	Iterator<? extends T> iterator(Event event);
+	@Nullable Iterator<? extends T> iterator(Event event);
 
 	/**
 	 * Checks whether the given 'loop-...' expression should match this loop, e.g. loop-block matches any loops that loop through blocks and loop-argument matches an
@@ -287,8 +293,7 @@ public interface Expression<T> extends SyntaxElement, Debuggable {
 	 *         that type are accepted), or null if the given mode is not supported. For {@link ChangeMode#DELETE} and {@link ChangeMode#RESET} this can return any non-null array to
 	 *         mark them as supported.
 	 */
-	@Nullable
-	Class<?>[] acceptChange(ChangeMode mode);
+	@Nullable Class<?>[] acceptChange(ChangeMode mode);
 
 	/**
 	 * Tests all accepted change modes, and if so what type it expects the <code>delta</code> to be.
@@ -314,7 +319,55 @@ public interface Expression<T> extends SyntaxElement, Debuggable {
 	 * @param mode The {@link ChangeMode} of the attempted change
 	 * @throws UnsupportedOperationException (optional) - If this method was called on an unsupported ChangeMode.
 	 */
-	void change(Event event, @Nullable Object[] delta, ChangeMode mode);
+	void change(Event event, Object @Nullable [] delta, ChangeMode mode);
+
+	/**
+	 * Changes the contents of an expression using the given {@link Function}.
+	 * Intended for changes that change properties of the values of the expression, rather than completely
+	 * changing the expression. For example, {@code set vector length of {_v} to 1}, rather than
+	 * {@code set {_v} to vector(0,1,0)}.
+	 * <br>
+	 * This is a 1 to 1 transformation and should not add or remove elements.
+	 * For {@link Variable}s, this will retain indices. For non-{@link Variable}s, it will
+	 * evaluate {@link #getArray(Event)}, apply the change function on each, and call
+	 * {@link #change(Event, Object[], ChangeMode)} with the modified values and {@link ChangeMode#SET}.
+	 *
+	 * @param event The event to use for local variables and evaluation
+	 * @param changeFunction A 1-to-1 function that transforms a single input to a single output.
+	 * @param <R> The output type of the change function. Must be a type returned
+	 *              by {{@link #acceptChange(ChangeMode)}} for {@link ChangeMode#SET}.
+	 */
+	default <R> void changeInPlace(Event event, Function<T, R> changeFunction) {
+		changeInPlace(event, changeFunction, false);
+	}
+
+	/**
+	 * Changes the contents of an expression using the given {@link Function}.
+	 * Intended for changes that change properties of the values of the expression, rather than completely
+	 * changing the expression. For example, {@code set vector length of {_v} to 1}, rather than
+	 * {@code set {_v} to vector(0,1,0)}.
+	 * <br>
+	 * This is a 1 to 1 transformation and should not add or remove elements.
+	 * For {@link Variable}s, this will retain indices. For non-{@link Variable}s, it will
+	 * evaluate the expression, apply the change function on each value, and call
+	 * {@link #change(Event, Object[], ChangeMode)} with the modified values and {@link ChangeMode#SET}.
+	 *
+	 * @param event The event to use for local variables and evaluation
+	 * @param changeFunction A 1-to-1 function that transforms a single input to a single output.
+	 * @param getAll Whether to evaluate with {@link #getAll(Event)} or {@link #getArray(Event)}.
+	 * @param <R> The output type of the change function. Must be a type returned
+	 *              by {{@link #acceptChange(ChangeMode)}} for {@link ChangeMode#SET}.
+	 */
+	default <R> void changeInPlace(Event event, Function<T, R> changeFunction, boolean getAll) {
+		T[] values = getAll ? getAll(event) : getArray(event);
+		if (values.length == 0)
+			return;
+		List<R> newValues = new ArrayList<>();
+		for (T value : values) {
+			newValues.add(changeFunction.apply(value));
+		}
+		change(event, newValues.toArray(), ChangeMode.SET);
+	}
 
 	/**
 	 * This method is called before this expression is set to another one.
@@ -327,8 +380,7 @@ public interface Expression<T> extends SyntaxElement, Debuggable {
 	 * @param delta Initial delta array.
 	 * @return Delta array to use for change.
 	 */
-	@Nullable
-	default Object[] beforeChange(Expression<?> changed, @Nullable Object[] delta) {
+	default Object @Nullable [] beforeChange(Expression<?> changed, Object @Nullable [] delta) {
 		if (delta == null || delta.length == 0) // Nothing to nothing
 			return null;
 

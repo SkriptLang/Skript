@@ -134,7 +134,7 @@ public abstract class SimpleExpression<T> implements Expression<T> {
 	}
 
 	// TODO return a kleenean (UNKNOWN if 'values' is null or empty)
-	public static <T> boolean check(@Nullable T[] values, Predicate<? super T> checker, boolean invert, boolean and) {
+	public static <T> boolean check(T @Nullable [] values, Predicate<? super T> checker, boolean invert, boolean and) {
 		if (values == null)
 			return invert;
 		boolean hasElement = false;

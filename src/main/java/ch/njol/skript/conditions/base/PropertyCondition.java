@@ -45,13 +45,13 @@ public abstract class PropertyCondition<T> extends Condition implements Predicat
 		 * also possibly in the negated form
 		 */
 		BE,
-		
+
 		/**
 		 * Indicates that the condition is in a form of <code>something can something</code>,
 		 * also possibly in the negated form
 		 */
 		CAN,
-		
+
 		/**
 		 * Indicates that the condition is in a form of <code>something has/have something</code>,
 		 * also possibly in the negated form
@@ -117,7 +117,6 @@ public abstract class PropertyCondition<T> extends Condition implements Predicat
 	@Override
 	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		expr = (Expression<? extends T>) expressions[0];
-
 		setNegated(matchedPattern == 1);
 		return true;
 	}

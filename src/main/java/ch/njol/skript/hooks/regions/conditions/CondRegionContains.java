@@ -1,21 +1,3 @@
-/**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
 package ch.njol.skript.hooks.regions.conditions;
 
 import ch.njol.skript.Skript;
@@ -36,9 +18,6 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Predicate;
 
-/**
- * @author Peter Güttinger
- */
 @Name("Region Contains")
 @Description({
 	"Checks whether a location is contained in a particular <a href='./classes.html#region'>region</a>.",
@@ -48,12 +27,13 @@ import java.util.function.Predicate;
 	"player is in the region {regions::3}",
 	"",
 	"on region enter:",
-	"\tregion contains {flags.%world%.red}",
-	"\tmessage \"The red flag is near!\""
+		"\tregion contains {flags.%world%.red}",
+		"\tmessage \"The red flag is near!\""
 })
 @Since("2.1")
 @RequiredPlugins("Supported regions plugin")
 public class CondRegionContains extends Condition {
+
 	static {
 		Skript.registerCondition(CondRegionContains.class,
 				"[[the] region] %regions% contain[s] %directions% %locations%", "%locations% (is|are) ([contained] in|part of) [[the] region] %regions%",
@@ -81,17 +61,8 @@ public class CondRegionContains extends Condition {
 
 	@Override
 	public boolean check(final Event e) {
-		return regions.check(e, new Predicate<Region>() {
-			@Override
-			public boolean test(final Region r) {
-				return locs.check(e, new Predicate<Location>() {
-					@Override
-					public boolean test(final Location l) {
-						return r.contains(l);
-					}
-				}, isNegated());
-			}
-		});
+		return regions.check(e,
+			r -> locs.check(e, r::contains, isNegated()));
 	}
 
 	@Override

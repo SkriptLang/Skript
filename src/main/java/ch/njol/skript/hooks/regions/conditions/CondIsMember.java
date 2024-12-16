@@ -75,17 +75,9 @@ public class CondIsMember extends Condition {
 
 	@Override
 	public boolean check(final Event e) {
-		return players.check(e, new Predicate<OfflinePlayer>() {
-			@Override
-			public boolean test(final OfflinePlayer p) {
-				return regions.check(e, new Predicate<Region>() {
-					@Override
-					public boolean test(final Region r) {
-						return owner ? r.isOwner(p) : r.isMember(p);
-					}
-				}, isNegated());
-			}
-		});
+		return players.check(e,
+			p -> regions.check(e,
+				r -> owner ? r.isOwner(p) : r.isMember(p), isNegated()));
 	}
 
 	@Override

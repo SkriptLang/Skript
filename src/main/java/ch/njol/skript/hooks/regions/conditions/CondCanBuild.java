@@ -1,29 +1,7 @@
-/**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
 package ch.njol.skript.hooks.regions.conditions;
 
 import ch.njol.skript.Skript;
-import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
-import ch.njol.skript.doc.Name;
-import ch.njol.skript.doc.RequiredPlugins;
-import ch.njol.skript.doc.Since;
+import ch.njol.skript.doc.*;
 import ch.njol.skript.hooks.regions.RegionsPlugin;
 import ch.njol.skript.lang.Condition;
 import ch.njol.skript.lang.Expression;
@@ -37,9 +15,6 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Predicate;
 
-/**
- * @author Peter Güttinger
- */
 @Name("Can Build")
 @Description({
 	"Tests whether a player is allowed to build at a certain location.",
@@ -47,12 +22,12 @@ import java.util.function.Predicate;
 })
 @Examples({
 	"command /setblock &lt;material&gt;:",
-	"\tdescription: set the block at your crosshair to a different type",
-	"\ttrigger:",
-	"\t\tplayer cannot build at the targeted block:",
-	"\t\t\tmessage \"You do not have permission to change blocks there!\"",
-	"\t\t\tstop",
-	"\t\tset the targeted block to argument"
+		"\tdescription: set the block at your crosshair to a different type",
+		"\ttrigger:",
+			"\t\tplayer cannot build at the targeted block:",
+				"\t\t\tmessage \"You do not have permission to change blocks there!\"",
+				"\t\t\tstop",
+			"\t\tset the targeted block to argument"
 })
 @Since("2.0")
 @RequiredPlugins("Supported regions plugin")
@@ -79,17 +54,9 @@ public class CondCanBuild extends Condition {
 
 	@Override
 	public boolean check(final Event e) {
-		return players.check(e, new Predicate<Player>() {
-			@Override
-			public boolean test(final Player p) {
-				return locations.check(e, new Predicate<Location>() {
-					@Override
-					public boolean test(final Location l) {
-						return RegionsPlugin.canBuild(p, l);
-					}
-				}, isNegated());
-			}
-		});
+		return players.check(e,
+			p -> locations.check(e,
+				l -> RegionsPlugin.canBuild(p, l), isNegated()));
 	}
 
 	@Override
