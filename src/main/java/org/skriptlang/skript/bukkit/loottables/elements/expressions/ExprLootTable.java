@@ -53,15 +53,13 @@ public class ExprLootTable extends SimplePropertyExpression<Object, LootTable> {
 	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
 		LootTable lootTable = delta != null ? ((LootTable) delta[0]) : null;
 
-		Consumer<Lootable> consumer = (lootable) -> lootable.setLootTable(lootTable);
-
 		for (Object object : getExpr().getArray(event)) {
 			if (!LootTableUtils.isLootable(object))
 				continue;
 
 			Lootable lootable = LootTableUtils.getAsLootable(object);
 
-			consumer.accept(lootable);
+			lootable.setLootTable(lootTable);
 			LootTableUtils.updateState(lootable);
 		}
 	}
