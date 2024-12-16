@@ -81,7 +81,7 @@ public class EffPoison extends Effect {
 			if (!cure) {
 				Timespan dur;
 				int d = (int) (duration != null && (dur = duration.getSingle(e)) != null ? 
-						(dur.getTicks() >= Integer.MAX_VALUE ? Integer.MAX_VALUE : dur.getTicks()) : DEFAULT_DURATION);
+						(dur.getAs(Timespan.TimePeriod.TICK) >= Integer.MAX_VALUE ? Integer.MAX_VALUE : dur.getAs(Timespan.TimePeriod.TICK)) : DEFAULT_DURATION);
 				if (le.hasPotionEffect(PotionEffectType.POISON)) {
 					for (final PotionEffect pe : le.getActivePotionEffects()) {
 						if (pe.getType() != PotionEffectType.POISON)

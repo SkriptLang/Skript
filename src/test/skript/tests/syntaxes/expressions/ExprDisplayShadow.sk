@@ -1,4 +1,4 @@
-test "display radius/strength" when running minecraft "1.19":
+test "display radius/strength":
 
 	spawn block display at spawn of world "world":
 		set {_e::1} to entity
