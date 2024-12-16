@@ -456,7 +456,7 @@ public class DefaultComparators {
 		Comparators.registerComparator(Timespan.class, Timespan.class, new Comparator<Timespan, Timespan>() {
 			@Override
 			public Relation compare(Timespan t1, Timespan t2) {
-				return Relation.get(t1.getMilliSeconds() - t2.getMilliSeconds());
+				return Relation.get(t1.getAs(Timespan.TimePeriod.MILLISECOND) - t2.getAs(Timespan.TimePeriod.MILLISECOND));
 			}
 
 			@Override
