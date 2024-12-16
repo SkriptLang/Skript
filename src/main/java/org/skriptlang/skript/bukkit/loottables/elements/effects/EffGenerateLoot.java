@@ -61,7 +61,7 @@ public class EffGenerateLoot extends Effect {
 		if (this.context != null)
 			context = this.context.getSingle(event);
 		else
-			context = new LootContextWrapper(Bukkit.getWorlds().getFirst().getSpawnLocation()).getContext();
+			context = new LootContextWrapper(Bukkit.getWorlds().get(0).getSpawnLocation()).getContext();
 		if (context == null)
 			return;
 
