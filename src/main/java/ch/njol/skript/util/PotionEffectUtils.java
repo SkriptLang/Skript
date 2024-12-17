@@ -34,7 +34,7 @@ import org.bukkit.potion.PotionData;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.potion.PotionType;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.ItemType;
@@ -118,7 +118,7 @@ public abstract class PotionEffectUtils {
 		builder.append(" of tier ").append(potionEffect.getAmplifier() + 1);
 		if (!potionEffect.hasParticles())
 			builder.append(" without particles");
-		builder.append(" for ").append(potionEffect.getDuration() == -1 ? "infinity" : Timespan.fromTicks(Math.abs(potionEffect.getDuration())));
+		builder.append(" for ").append(potionEffect.getDuration() == -1 ? "infinity" : new Timespan(Timespan.TimePeriod.TICK, Math.abs(potionEffect.getDuration())));
 		if (!potionEffect.hasIcon())
 			builder.append(" without icon");
 		return builder.toString();

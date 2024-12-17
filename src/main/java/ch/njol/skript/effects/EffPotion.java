@@ -22,7 +22,7 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.Event;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
@@ -125,7 +125,7 @@ public class EffPotion extends Effect {
 				Timespan timespan = this.duration.getSingle(event);
 				if (timespan == null)
 					return;
-				duration = (int) Math.min(timespan.getTicks(), Integer.MAX_VALUE);
+				duration = (int) Math.min(timespan.getAs(Timespan.TimePeriod.TICK), Integer.MAX_VALUE);
 			}
 			for (LivingEntity entity : entities.getArray(event)) {
 				for (PotionEffectType potionEffectType : potionEffectTypes) {

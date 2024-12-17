@@ -27,15 +27,18 @@ import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Comparator;
 
 import org.skriptlang.skript.lang.converter.Converter;
+
 
 /**
  * @author Peter Güttinger
  */
 public abstract class FileUtils {
-	
+
 	private static boolean RUNNINGJAVA6 = true;// = System.getProperty("java.version").startsWith("1.6"); // doesn't work reliably?
 	static {
 		try {
@@ -47,11 +50,11 @@ public abstract class FileUtils {
 			RUNNINGJAVA6 = false;
 		}
 	}
-	
+
 	private FileUtils() {}
-	
+
 	private final static SimpleDateFormat backupFormat = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss");
-	
+
 	/**
 	 * @return The current date and time
 	 */
@@ -60,7 +63,32 @@ public abstract class FileUtils {
 			return "" + backupFormat.format(System.currentTimeMillis());
 		}
 	}
-	
+
+	/**
+	 * Deletes files in backup directory to meet desired target, starting from oldest to newest
+	 *
+	 * @param csvFile Variable file in order to get 'backups' directory
+	 * @param toKeep Integer of how many files are to be left remaining
+	 * @throws IOException If 'backups' directory is not found
+	 * @throws IllegalArgumentException If 'toKeep' parameter is less than 0
+	 */
+	public static void backupPurge(File varFile, int toKeep) throws IOException, IllegalArgumentException {
+		if (toKeep < 0)
+			throw new IllegalArgumentException("Called with invalid input, 'toKeep' can not be less than 0");
+		File backupDir = new File(varFile.getParentFile(), "backups" + File.separator);
+		if (!backupDir.exists() || !backupDir.isDirectory())
+			throw new IOException("Backup directory not found");
+		ArrayList<File> files = new ArrayList<File>(Arrays.asList(backupDir.listFiles()));
+		if (files == null || files.size() <= toKeep)
+			return;
+		if (toKeep > 0)
+			files.sort(Comparator.comparingLong(File::lastModified));
+		int numberToRemove = files.size() - toKeep;
+		for (int i = 0; i < numberToRemove; i++) {
+			files.get(i).delete();
+		}
+	}
+
 	public static File backup(final File f) throws IOException {
 		String name = f.getName();
 		final int c = name.lastIndexOf('.');
@@ -76,7 +104,7 @@ public abstract class FileUtils {
 		copy(f, backup);
 		return backup;
 	}
-	
+
 	public static File move(final File from, final File to, final boolean replace) throws IOException {
 		if (!replace && to.exists())
 			throw new IOException("Can't rename " + from.getName() + " to " + to.getName() + ": The target file already exists");
@@ -105,7 +133,7 @@ public abstract class FileUtils {
 		}
 		return to;
 	}
-	
+
 	public static void copy(final File from, final File to) throws IOException {
 		if (!RUNNINGJAVA6) {
 			Files.copy(from.toPath(), to.toPath(), StandardCopyOption.COPY_ATTRIBUTES);
@@ -135,7 +163,7 @@ public abstract class FileUtils {
 			}
 		}
 	}
-	
+
 	/**
 	 * @param directory
 	 * @param renamer Renames files. Return null to leave a file as-is.
@@ -161,10 +189,10 @@ public abstract class FileUtils {
 		}
 		return changed;
 	}
-	
+
 	/**
 	 * Saves the contents of an InputStream in a file.
-	 * 
+	 *
 	 * @param in The InputStream to read from. This stream will not be closed when this method returns.
 	 * @param file The file to save to. Will be replaced if it exists, or created if it doesn't.
 	 * @throws IOException
@@ -184,5 +212,5 @@ public abstract class FileUtils {
 				out.close();
 		}
 	}
-	
+
 }

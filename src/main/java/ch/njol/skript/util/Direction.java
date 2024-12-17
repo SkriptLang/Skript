@@ -36,8 +36,8 @@ import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.Entity;
 import org.bukkit.event.Event;
 import org.bukkit.util.Vector;
-import org.eclipse.jdt.annotation.NonNull;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.StreamCorruptedException;
 import java.lang.reflect.Field;
@@ -445,7 +445,7 @@ public class Direction implements YggdrasilRobustSerializable {
 	}
 	
 	@Override
-	public boolean incompatibleField(@NonNull final Field f, @NonNull final FieldContext value) throws StreamCorruptedException {
+	public boolean incompatibleField(@NotNull final Field f, @NotNull final FieldContext value) throws StreamCorruptedException {
 		return false;
 	}
 	
@@ -466,7 +466,7 @@ public class Direction implements YggdrasilRobustSerializable {
 	}
 	
 	@Override
-	public boolean excessiveField(@NonNull final FieldContext field) throws StreamCorruptedException {
+	public boolean excessiveField(@NotNull final FieldContext field) throws StreamCorruptedException {
 		if (field.getID().equals("mod")) {
 			final double[] mod = field.getObject(double[].class);
 			if (mod == null)
@@ -492,7 +492,7 @@ public class Direction implements YggdrasilRobustSerializable {
 	}
 	
 	@Override
-	public boolean missingField(@NonNull final Field field) throws StreamCorruptedException {
+	public boolean missingField(@NotNull final Field field) throws StreamCorruptedException {
 		if (!field.getName().equals("relative"))
 			return true;
 		return false;
