@@ -18,6 +18,9 @@
  */
 package ch.njol.skript.classes.data;
 
+import java.time.Duration;
+import java.time.temporal.TemporalAmount;
+import java.time.temporal.TemporalUnit;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -39,6 +42,9 @@ import ch.njol.skript.util.Direction;
 import ch.njol.skript.util.EnchantmentType;
 import ch.njol.skript.util.Getter;
 import ch.njol.skript.util.Timespan;
+import ch.njol.skript.util.Color;
+import ch.njol.skript.util.SkriptColor;
+import ch.njol.skript.util.ColorRGB;
 import ch.njol.skript.util.slot.InventorySlot;
 import ch.njol.skript.util.slot.Slot;
 import com.destroystokyo.paper.event.block.AnvilDamagedEvent;
@@ -62,6 +68,7 @@ import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.data.BlockData;
+import org.bukkit.event.block.BlockDropItemEvent;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.AbstractVillager;
 import org.bukkit.entity.AreaEffectCloud;
@@ -75,6 +82,7 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
 import org.bukkit.entity.Vehicle;
+import org.bukkit.event.Event;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockCanBuildEvent;
 import org.bukkit.event.block.BlockDamageEvent;
@@ -109,6 +117,7 @@ import org.bukkit.event.entity.EntityTameEvent;
 import org.bukkit.event.entity.EntityTeleportEvent;
 import org.bukkit.event.entity.EntityTransformEvent;
 import org.bukkit.event.entity.EntityTransformEvent.TransformReason;
+import org.bukkit.event.entity.EntityPotionEffectEvent;
 import org.bukkit.event.entity.FireworkExplodeEvent;
 import org.bukkit.event.entity.HorseJumpEvent;
 import org.bukkit.event.entity.ItemDespawnEvent;
@@ -152,6 +161,8 @@ import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerPickupArrowEvent;
 import org.bukkit.event.player.PlayerPickupItemEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.event.player.PlayerExpCooldownChangeEvent;
+import org.bukkit.event.player.PlayerExpCooldownChangeEvent.ChangeReason;
 import org.bukkit.event.player.PlayerQuitEvent.QuitReason;
 import org.bukkit.event.player.PlayerRiptideEvent;
 import org.bukkit.event.player.PlayerShearEntityEvent;
@@ -178,10 +189,11 @@ import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.Recipe;
+import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionData;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.potion.PotionType;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * @author Peter Güttinger
@@ -548,6 +560,33 @@ public final class BukkitEventValues {
 				return ldc == null ? null : ldc.getCause();
 			}
 		}, 0);
+
+		// Entity Potion Effect
+		EventValues.registerEventValue(EntityPotionEffectEvent.class, PotionEffect.class, new Getter<PotionEffect, EntityPotionEffectEvent>() {
+			@Override
+			public PotionEffect get(EntityPotionEffectEvent event) {
+				return event.getOldEffect();
+			}
+		}, EventValues.TIME_PAST);
+		EventValues.registerEventValue(EntityPotionEffectEvent.class, PotionEffect.class, new Getter<PotionEffect, EntityPotionEffectEvent>() {
+			@Override
+			public PotionEffect get(EntityPotionEffectEvent event) {
+				return event.getNewEffect();
+			}
+		}, EventValues.TIME_NOW);
+		EventValues.registerEventValue(EntityPotionEffectEvent.class, PotionEffectType.class, new Getter<PotionEffectType, EntityPotionEffectEvent>() {
+			@Override
+			public PotionEffectType get(EntityPotionEffectEvent event) {
+				return event.getModifiedType();
+			}
+		}, EventValues.TIME_NOW);
+		EventValues.registerEventValue(EntityPotionEffectEvent.class, EntityPotionEffectEvent.Cause.class, new Getter<EntityPotionEffectEvent.Cause, EntityPotionEffectEvent>() {
+			@Override
+			public EntityPotionEffectEvent.Cause get(EntityPotionEffectEvent event) {
+				return event.getCause();
+			}
+		}, EventValues.TIME_NOW);
+
 		// ProjectileHitEvent
 		// ProjectileHitEvent#getHitBlock was added in 1.11
 		if (Skript.methodExists(ProjectileHitEvent.class, "getHitBlock"))
@@ -1602,6 +1641,26 @@ public final class BukkitEventValues {
 				return effects.get(0);
 			}
 		}, 0);
+		EventValues.registerEventValue(FireworkExplodeEvent.class, Color[].class, new Getter<Color[], FireworkExplodeEvent>() {
+			@Override
+			public Color @Nullable [] get(FireworkExplodeEvent event) {
+				List<FireworkEffect> effects = event.getEntity().getFireworkMeta().getEffects();
+				if (effects.isEmpty())
+					return null;
+				List<Color> colors = new ArrayList<>();
+				for (FireworkEffect fireworkEffect : effects) {
+					for (org.bukkit.Color color : fireworkEffect.getColors()) {
+						if (SkriptColor.fromBukkitColor(color) != null)
+							colors.add(SkriptColor.fromBukkitColor(color));
+						else
+							colors.add(ColorRGB.fromBukkitColor(color));
+					}
+				}
+				if (colors.isEmpty())
+					return null;
+				return colors.toArray(Color[]::new);
+			}
+		}, EventValues.TIME_NOW);
 		//PlayerRiptideEvent
 		EventValues.registerEventValue(PlayerRiptideEvent.class, ItemStack.class, new Getter<ItemStack, PlayerRiptideEvent>() {
 			@Override
@@ -1743,7 +1802,7 @@ public final class BukkitEventValues {
 			EventValues.registerEventValue(PlayerStopUsingItemEvent.class, Timespan.class, new Getter<Timespan, PlayerStopUsingItemEvent>() {
 				@Override
 				public Timespan get(PlayerStopUsingItemEvent event) {
-					return Timespan.fromTicks(event.getTicksHeldFor());
+					return new Timespan(Timespan.TimePeriod.TICK, event.getTicksHeldFor());
 				}
 			}, EventValues.TIME_NOW);
 			EventValues.registerEventValue(PlayerStopUsingItemEvent.class, ItemType.class, new Getter<ItemType, PlayerStopUsingItemEvent>() {
@@ -1935,5 +1994,52 @@ public final class BukkitEventValues {
 				return event.getRegainReason();
 			}
 		}, EventValues.TIME_NOW);
+
+		// BlockDropItemEvent
+		EventValues.registerEventValue(BlockDropItemEvent.class, Block.class, new Getter<Block, BlockDropItemEvent>() {
+			@Override
+			public Block get(BlockDropItemEvent event) {
+				return new BlockStateBlock(event.getBlockState());
+			}
+		}, EventValues.TIME_PAST);
+		EventValues.registerEventValue(BlockDropItemEvent.class, Player.class, new Getter<Player, BlockDropItemEvent>() {
+			@Override
+			public Player get(BlockDropItemEvent event) {
+				return event.getPlayer();
+			}
+		}, EventValues.TIME_NOW);
+		EventValues.registerEventValue(BlockDropItemEvent.class, ItemStack[].class, new Getter<ItemStack[], BlockDropItemEvent>() {
+			@Override
+			public ItemStack[] get(BlockDropItemEvent event) {
+				return event.getItems().stream().map(Item::getItemStack).toArray(ItemStack[]::new);
+			}
+		}, EventValues.TIME_NOW);
+		EventValues.registerEventValue(BlockDropItemEvent.class, Entity[].class, new Getter<Entity[], BlockDropItemEvent>() {
+			@Override
+			public Entity[] get(BlockDropItemEvent event) {
+				return event.getItems().toArray(Entity[]::new);
+			}
+		}, EventValues.TIME_NOW);
+
+		// PlayerExpCooldownChangeEvent
+		EventValues.registerEventValue(PlayerExpCooldownChangeEvent.class, ChangeReason.class, new Getter<ChangeReason, PlayerExpCooldownChangeEvent>() {
+			@Override
+			public ChangeReason get(PlayerExpCooldownChangeEvent event) {
+				return event.getReason();
+			}
+		}, EventValues.TIME_NOW);
+		EventValues.registerEventValue(PlayerExpCooldownChangeEvent.class, Timespan.class, new Getter<Timespan, PlayerExpCooldownChangeEvent>() {
+			@Override
+			public Timespan get(PlayerExpCooldownChangeEvent event) {
+				return new Timespan(Timespan.TimePeriod.TICK, event.getNewCooldown());
+			}
+		}, EventValues.TIME_NOW);
+		EventValues.registerEventValue(PlayerExpCooldownChangeEvent.class, Timespan.class, new Getter<Timespan, PlayerExpCooldownChangeEvent>() {
+			@Override
+			public Timespan get(PlayerExpCooldownChangeEvent event) {
+				return new Timespan(Timespan.TimePeriod.TICK, event.getPlayer().getExpCooldown());
+			}
+		}, EventValues.TIME_PAST);
+
 	}
 }

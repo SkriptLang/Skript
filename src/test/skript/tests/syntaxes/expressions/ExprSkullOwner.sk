@@ -1,0 +1,16 @@
+test "skull owner - block":
+	set {_loc} to test-location
+	set {_old} to block at {_loc}
+	set block at {_loc} to player head
+	assert skull owner of (block at {_loc}) is not set with "Block Skull Owner should not be set"
+	set {_player} to "Sovde" parsed as offline player
+	set skull owner of (block at {_loc}) to {_player}
+	assert skull owner of (block at {_loc}) is {_player} with "Block Skull Owner did not change"
+	set block at {_loc} to {_old}
+
+test "skull owner - item":
+	set {_skull} to a player head
+	assert skull owner of {_skull} is not set with "Item Skull Owner should not be set"
+	set {_player} to "Sovde" parsed as offline player
+	set skull owner of {_skull} to {_player}
+	assert skull owner of {_skull} is {_player} with "Item Skull Owner did not change"

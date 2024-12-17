@@ -25,7 +25,7 @@ import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.event.Event;
 import org.bukkit.util.Vector;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 import com.google.common.collect.Lists;
 
@@ -56,9 +56,11 @@ import ch.njol.util.coll.iterator.ArrayIterator;
 @Since("1.0, 2.5.1 (within/cuboid/chunk)")
 public class ExprBlocks extends SimpleExpression<Block> {
 
+	private static final boolean SUPPORTS_WORLD_LOADED = Skript.methodExists(Location.class, "isWorldLoaded");
+
 	static {
 		Skript.registerExpression(ExprBlocks.class, Block.class, ExpressionType.COMBINED,
-				"[(all [[of] the]|the)] blocks %direction% [%locations%]", // TODO doesn't loop all blocks?
+				"[(all [[of] the]|the)] blocks %direction% [%locations%]",
 				"[(all [[of] the]|the)] blocks from %location% [on] %direction%",
 				"[(all [[of] the]|the)] blocks from %location% to %location%",
 				"[(all [[of] the]|the)] blocks between %location% and %location%",
@@ -116,7 +118,11 @@ public class ExprBlocks extends SimpleExpression<Block> {
 			return from.stream(event)
 					.filter(Location.class::isInstance)
 					.map(Location.class::cast)
-				    .filter(Location::isWorldLoaded)
+				    .filter(location -> {
+						if (SUPPORTS_WORLD_LOADED)
+							return location.isWorldLoaded();
+						return location.getChunk().isLoaded();
+					})
 					.map(direction::getRelative)
 					.map(Location::getBlock)
 					.toArray(Block[]::new);
