@@ -29,6 +29,7 @@ import org.skriptlang.skript.lang.experiment.LifeCycle;
  * Experimental feature toggles as provided by Skript itself.
  */
 public enum Feature implements Experiment {
+	QUEUES("queues", LifeCycle.EXPERIMENTAL, "queues")
 	;
 
 	private final String codeName;

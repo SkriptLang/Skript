@@ -2548,6 +2548,7 @@ types:
 	experience.pattern: (e?xp|experience( points?)?)
 	classinfo: type¦s @a
 	visualeffect: visual effect¦s @a
+	queue: queue¦s @a
 
 	# Hooks
 	money: money
