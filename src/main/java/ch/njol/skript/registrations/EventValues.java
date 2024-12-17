@@ -2,7 +2,6 @@ package ch.njol.skript.registrations;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.expressions.base.EventValueExpression;
-import ch.njol.skript.util.Getter;
 import ch.njol.util.Kleenean;
 import com.google.common.collect.ImmutableList;
 import org.bukkit.event.Event;
@@ -244,16 +243,11 @@ public class EventValues {
 			}
 			if (!event.isAssignableFrom(eventValueInfo.event))
 				continue;
-			list.add(new Getter<>() {
-				@Override
-				@Nullable
-				public T get(E event) {
-					if (!eventValueInfo.event.isInstance(event))
-						return null;
-					return ((Converter<? super E, ? extends T>) eventValueInfo.converter).convert(event);
-				}
+			list.add(e -> {
+				if (!eventValueInfo.event.isInstance(e))
+					return null;
+				return ((Converter<? super E, ? extends T>) eventValueInfo.converter).convert(e);
 			});
-			continue;
 		}
 		if (!list.isEmpty())
 			return list;
@@ -267,21 +261,18 @@ public class EventValues {
 			boolean checkInstanceOf = !eventValueInfo.event.isAssignableFrom(event);
 			if (checkInstanceOf && !event.isAssignableFrom(eventValueInfo.event))
 				continue;
+
 			if (!checkExcludes(eventValueInfo, event))
 				return null;
-			list.add(new Getter<>() {
-				@Override
-				@Nullable
-				public T get(E event) {
-					if (checkInstanceOf && !eventValueInfo.event.isInstance(event))
-						return null;
-					T object = ((Converter<? super E, ? extends T>) eventValueInfo.converter).convert(event);
-					if (type.isInstance(object))
-						return object;
+
+			list.add(e -> {
+				if (checkInstanceOf && !eventValueInfo.event.isInstance(e))
 					return null;
-				}
+				T object = ((Converter<? super E, ? extends T>) eventValueInfo.converter).convert(e);
+				if (type.isInstance(object))
+					return object;
+				return null;
 			});
-			continue;
 		}
 		if (!list.isEmpty())
 			return list;
