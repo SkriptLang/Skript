@@ -1,21 +1,3 @@
-/**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
 package ch.njol.skript.sections;
 
 import ch.njol.skript.ScriptLoader;
@@ -26,11 +8,8 @@ import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
-import ch.njol.skript.lang.Condition;
-import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.Section;
+import ch.njol.skript.lang.*;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
-import ch.njol.skript.lang.TriggerItem;
 import ch.njol.skript.lang.parser.ParserInstance;
 import ch.njol.skript.lang.util.ContextlessEvent;
 import ch.njol.skript.patterns.PatternCompiler;
@@ -40,6 +19,9 @@ import ch.njol.util.Kleenean;
 import com.google.common.collect.Iterables;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.UnknownNullability;
+import org.skriptlang.skript.lang.condition.Conditional;
+import org.skriptlang.skript.lang.condition.Conditional.Operator;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -71,7 +53,6 @@ import java.util.List;
 	""
 })
 @Since("1.0")
-@SuppressWarnings("NotNullFieldNotInitialized")
 public class SecConditional extends Section {
 
 	private static final SkriptPattern THEN_PATTERN = PatternCompiler.compile("then [run]");
@@ -96,13 +77,14 @@ public class SecConditional extends Section {
 	}
 
 	private ConditionalType type;
-	private List<Condition> conditions = new ArrayList<>();
+	private @UnknownNullability Conditional<Event> conditional;
 	private boolean ifAny;
 	private boolean parseIf;
 	private boolean parseIfPassed;
 	private boolean multiline;
 
 	private Kleenean hasDelayAfter;
+	private @Nullable ExecutionIntent executionIntent;
 
 	@Override
 	public boolean init(Expression<?>[] exprs,
@@ -114,7 +96,8 @@ public class SecConditional extends Section {
 		type = CONDITIONAL_PATTERNS.getInfo(matchedPattern);
 		ifAny = parseResult.hasTag("any");
 		parseIf = parseResult.hasTag("parse");
-		multiline = parseResult.regexes.size() == 0 && type != ConditionalType.ELSE;
+		multiline = parseResult.regexes.isEmpty() && type != ConditionalType.ELSE;
+		ParserInstance parser = getParser();
 
 		// ensure this conditional is chained correctly (e.g. an else must have an if)
 		if (type != ConditionalType.IF) {
@@ -149,7 +132,7 @@ public class SecConditional extends Section {
 		} else {
 			// if this is a multiline if, we need to check if there is a "then" section after this
 			if (multiline) {
-				Node nextNode = getNextNode(sectionNode, getParser());
+				Node nextNode = getNextNode(sectionNode, parser);
 				String error = (ifAny ? "'if any'" : "'if all'") + " has to be placed just before a 'then' section";
 				if (nextNode instanceof SectionNode && nextNode.getKey() != null) {
 					String nextNodeKey = ScriptLoader.replaceOptions(nextNode.getKey());
@@ -166,9 +149,10 @@ public class SecConditional extends Section {
 
 		// if this an "if" or "else if", let's try to parse the conditions right away
 		if (type == ConditionalType.IF || type == ConditionalType.ELSE_IF) {
-			ParserInstance parser = getParser();
 			Class<? extends Event>[] currentEvents = parser.getCurrentEvents();
 			String currentEventName = parser.getCurrentEventName();
+
+			List<Conditional<Event>> conditionals = new ArrayList<>();
 
 			// Change event if using 'parse if'
 			if (parseIf) {
@@ -198,7 +182,7 @@ public class SecConditional extends Section {
 						// if this condition was invalid, don't bother parsing the rest
 						if (condition == null)
 							return false;
-						conditions.add(condition);
+						conditionals.add(condition);
 					}
 				}
 				parser.setNode(sectionNode);
@@ -208,7 +192,7 @@ public class SecConditional extends Section {
 				// Don't print a default error if 'if' keyword wasn't provided
 				Condition condition = Condition.parse(expr, parseResult.hasTag("implicit") ? null : "Can't understand this condition: '" + expr + "'");
 				if (condition != null)
-					conditions.add(condition);
+					conditionals.add(condition);
 			}
 
 			if (parseIf) {
@@ -216,8 +200,10 @@ public class SecConditional extends Section {
 				parser.setCurrentEventName(currentEventName);
 			}
 
-			if (conditions.isEmpty())
+			if (conditionals.isEmpty())
 				return false;
+
+			conditional = Conditional.compound(ifAny ? Operator.OR : Operator.AND, conditionals);
 		}
 
 		// ([else] parse if) If condition is valid and false, do not parse the section
@@ -228,10 +214,37 @@ public class SecConditional extends Section {
 			parseIfPassed = true;
 		}
 
-		Kleenean hadDelayBefore = getParser().getHasDelayBefore();
+		Kleenean hadDelayBefore = parser.getHasDelayBefore();
 		if (!multiline || type == ConditionalType.THEN)
 			loadCode(sectionNode);
-		hasDelayAfter = getParser().getHasDelayBefore();
+
+		// Get the execution intent of the entire conditional chain.
+		if (type == ConditionalType.ELSE) {
+			List<SecConditional> conditionals = getPrecedingConditionals(triggerItems);
+			conditionals.add(0, this);
+			for (SecConditional conditional : conditionals) {
+				// Continue if the current conditional doesn't have executable code (the 'if' section of a multiline).
+				if (conditional.multiline && conditional.type != ConditionalType.THEN)
+					continue;
+
+				// If the current conditional doesn't have an execution intent,
+				//  then there is a possibility of the chain not stopping the execution.
+				// Therefore, we can't assume anything about the intention of the chain,
+				//  so we just set it to null and break out of the loop.
+				ExecutionIntent triggerIntent = conditional.triggerExecutionIntent();
+				if (triggerIntent == null) {
+					executionIntent = null;
+					break;
+				}
+
+				// If the current trigger's execution intent has a lower value than the chain's execution intent,
+				//  then set the chain's intent to the trigger's
+				if (executionIntent == null || triggerIntent.compareTo(executionIntent) < 0)
+					executionIntent = triggerIntent;
+			}
+		}
+
+		hasDelayAfter = parser.getHasDelayBefore();
 
 		// If the code definitely has a delay before this section, or if the section did not alter the delayed Kleenean,
 		//  there's no need to change the Kleenean.
@@ -247,16 +260,16 @@ public class SecConditional extends Section {
 					&& getElseIfs(triggerItems).stream().map(SecConditional::getHasDelayAfter).allMatch(Kleenean::isTrue)) {
 				// ... if the if section, all else-if sections and the else section have definite delays,
 				//  mark delayed as TRUE.
-				getParser().setHasDelayBefore(Kleenean.TRUE);
+				parser.setHasDelayBefore(Kleenean.TRUE);
 			} else {
 				// ... otherwise mark delayed as UNKNOWN.
-				getParser().setHasDelayBefore(Kleenean.UNKNOWN);
+				parser.setHasDelayBefore(Kleenean.UNKNOWN);
 			}
 		} else {
 			if (!hasDelayAfter.isFalse()) {
 				// If an if section or else-if section has some delay (definite or possible) in it,
 				//  set the delayed Kleenean to UNKNOWN.
-				getParser().setHasDelayBefore(Kleenean.UNKNOWN);
+				parser.setHasDelayBefore(Kleenean.UNKNOWN);
 			}
 		}
 
@@ -264,60 +277,64 @@ public class SecConditional extends Section {
 	}
 
 	@Override
-	@Nullable
-	public TriggerItem getNext() {
+	public @Nullable TriggerItem getNext() {
 		return getSkippedNext();
 	}
 
-	@Nullable
-	public TriggerItem getNormalNext() {
-		return super.getNext();
-	}
-
-	@Nullable
 	@Override
-	protected TriggerItem walk(Event event) {
+	protected @Nullable TriggerItem walk(Event event) {
 		if (type == ConditionalType.THEN || (parseIf && !parseIfPassed)) {
-			return getNormalNext();
+			return getActualNext();
 		} else if (parseIf || checkConditions(event)) {
 			// if this is a multiline if, we need to run the "then" section instead
-			SecConditional sectionToRun = multiline ? (SecConditional) getNormalNext() : this;
+			SecConditional sectionToRun = multiline ? (SecConditional) getActualNext() : this;
 			TriggerItem skippedNext = getSkippedNext();
 			if (sectionToRun.last != null)
 				sectionToRun.last.setNext(skippedNext);
 			return sectionToRun.first != null ? sectionToRun.first : skippedNext;
 		} else {
-			return getNormalNext();
+			return getActualNext();
 		}
+	}
+
+	@Override
+	public @Nullable ExecutionIntent executionIntent() {
+		return executionIntent;
+	}
+
+	@Override
+	public ExecutionIntent triggerExecutionIntent() {
+		if (multiline && type != ConditionalType.THEN)
+			// Handled in the 'then' section
+			return null;
+		return super.triggerExecutionIntent();
 	}
 
 	@Nullable
 	private TriggerItem getSkippedNext() {
-		TriggerItem next = getNormalNext();
-		while (next instanceof SecConditional && ((SecConditional) next).type != ConditionalType.IF)
-			next = ((SecConditional) next).getNormalNext();
+		TriggerItem next = getActualNext();
+		while (next instanceof SecConditional nextSecCond && nextSecCond.type != ConditionalType.IF)
+			next = next.getActualNext();
 		return next;
 	}
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
 		String parseIf = this.parseIf ? "parse " : "";
-		switch (type) {
-			case IF:
+		return switch (type) {
+			case IF -> {
 				if (multiline)
-					return parseIf + "if " + (ifAny ? "any" : "all");
-				return parseIf + "if " + conditions.get(0).toString(event, debug);
-			case ELSE_IF:
+					yield parseIf + "if " + (ifAny ? "any" : "all");
+				yield parseIf + "if " + conditional.toString(event, debug);
+			}
+			case ELSE_IF -> {
 				if (multiline)
-					return "else " + parseIf + "if " + (ifAny ? "any" : "all");
-				return "else " + parseIf + "if " + conditions.get(0).toString(event, debug);
-			case ELSE:
-				return "else";
-			case THEN:
-				return "then";
-			default:
-				throw new IllegalStateException();
-		}
+					yield "else " + parseIf + "if " + (ifAny ? "any" : "all");
+				yield "else " + parseIf + "if " + conditional.toString(event, debug);
+			}
+			case ELSE -> "else";
+			case THEN -> "then";
+		};
 	}
 
 	private Kleenean getHasDelayAfter() {
@@ -330,21 +347,18 @@ public class SecConditional extends Section {
 	 * @param type the type of conditional section to find. if null is provided, any type is allowed.
 	 * @return the closest conditional section
 	 */
-	@Nullable
-	private static SecConditional getPrecedingConditional(List<TriggerItem> triggerItems, @Nullable ConditionalType type) {
+	private static @Nullable SecConditional getPrecedingConditional(List<TriggerItem> triggerItems, @Nullable ConditionalType type) {
 		// loop through the triggerItems in reverse order so that we find the most recent items first
 		for (int i = triggerItems.size() - 1; i >= 0; i--) {
 			TriggerItem triggerItem = triggerItems.get(i);
-			if (triggerItem instanceof SecConditional) {
-				SecConditional conditionalSection = (SecConditional) triggerItem;
-
-				if (conditionalSection.type == ConditionalType.ELSE) {
+			if (triggerItem instanceof SecConditional precedingSecConditional) {
+				if (precedingSecConditional.type == ConditionalType.ELSE) {
 					// if the conditional is an else, return null because it belongs to a different condition and ends
 					// this one
 					return null;
-				} else if (type == null || conditionalSection.type == type) {
+				} else if (type == null || precedingSecConditional.type == type) {
 					// if the conditional matches the type argument, we found our most recent preceding conditional section
-					return conditionalSection;
+					return precedingSecConditional;
 				}
 			} else {
 				return null;
@@ -353,17 +367,28 @@ public class SecConditional extends Section {
 		return null;
 	}
 
+	private static List<SecConditional> getPrecedingConditionals(List<TriggerItem> triggerItems) {
+		List<SecConditional> conditionals = new ArrayList<>();
+		// loop through the triggerItems in reverse order so that we find the most recent items first
+		for (int i = triggerItems.size() - 1; i >= 0; i--) {
+			TriggerItem triggerItem = triggerItems.get(i);
+			if (!(triggerItem instanceof SecConditional conditional))
+				break;
+			if (conditional.type == ConditionalType.ELSE)
+				// if the conditional is an else, break because it belongs to a different condition and ends
+				// this one
+				break;
+			conditionals.add(conditional);
+		}
+		return conditionals;
+	}
+
 	private static List<SecConditional> getElseIfs(List<TriggerItem> triggerItems) {
 		List<SecConditional> list = new ArrayList<>();
 		for (int i = triggerItems.size() - 1; i >= 0; i--) {
 			TriggerItem triggerItem = triggerItems.get(i);
-			if (triggerItem instanceof SecConditional) {
-				SecConditional secConditional = (SecConditional) triggerItem;
-
-				if (secConditional.type == ConditionalType.ELSE_IF)
-					list.add(secConditional);
-				else
-					break;
+			if (triggerItem instanceof SecConditional precedingSecConditional && precedingSecConditional.type == ConditionalType.ELSE_IF) {
+				list.add(precedingSecConditional);
 			} else {
 				break;
 			}
@@ -372,17 +397,10 @@ public class SecConditional extends Section {
 	}
 
 	private boolean checkConditions(Event event) {
-		if (conditions.isEmpty()) { // else and then
-			return true;
-		} else if (ifAny) {
-			return conditions.stream().anyMatch(c -> c.check(event));
-		} else {
-			return conditions.stream().allMatch(c -> c.check(event));
-		}
+		return conditional == null || conditional.evaluate(event).isTrue();
 	}
 
-	@Nullable
-	private Node getNextNode(Node precedingNode, ParserInstance parser) {
+	private @Nullable Node getNextNode(Node precedingNode, ParserInstance parser) {
 		// iterating over the parent node causes the current node to change, so we need to store it to reset it later
 		Node originalCurrentNode = parser.getNode();
 		SectionNode parentNode = precedingNode.getParent();
