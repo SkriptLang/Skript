@@ -28,11 +28,11 @@ import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.Variable;
 import ch.njol.skript.lang.util.SimpleExpression;
-import org.skriptlang.skript.lang.comparator.Comparators;
 import ch.njol.skript.util.LiteralUtils;
 import ch.njol.util.Kleenean;
+import ch.njol.util.Pair;
 import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
 import java.util.Map.Entry;
@@ -102,8 +102,14 @@ public class ExprIndices extends SimpleExpression<String> {
 		if (sort) {
 			int direction = descending ? -1 : 1;
 			return variable.entrySet().stream()
-				.sorted((a, b) -> compare(a, b, direction))
-				.map(Entry::getKey)
+				.map((entry) -> new Pair<>(
+					entry.getKey(),
+					entry.getValue() instanceof Map<?,?>
+						? ((Map<?,?>) entry.getValue()).get(null)
+						: entry.getValue()
+				))
+				.sorted((a, b) -> ExprSortedList.compare(a.getValue(), b.getValue()) * direction)
+				.map(Pair::getKey)
 				.toArray(String[]::new);
 		}
 
@@ -130,8 +136,4 @@ public class ExprIndices extends SimpleExpression<String> {
 		return text;
 	}
 
-	// Extracted method for better readability
-	private int compare(Entry<String, Object> a, Entry<String, Object> b, int direction) {
-		return Comparators.compare(a.getValue(), b.getValue()).getRelation() * direction;
-	}
 }

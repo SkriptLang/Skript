@@ -18,17 +18,6 @@
  */
 package ch.njol.skript.config;
 
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.util.regex.Pattern;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-
-import org.eclipse.jdt.annotation.NonNull;
-import org.eclipse.jdt.annotation.Nullable;
-
 import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptAPIException;
 import ch.njol.skript.config.validate.EntryValidator;
@@ -38,6 +27,16 @@ import ch.njol.util.NonNullPair;
 import ch.njol.util.NullableChecker;
 import ch.njol.util.coll.CollectionUtils;
 import ch.njol.util.coll.iterator.CheckedIterator;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.regex.Pattern;
 
 /**
  * @author Peter Güttinger
@@ -138,7 +137,7 @@ public class SectionNode extends Node implements Iterable<Node> {
 	@Override
 	public Iterator<Node> iterator() {
 		@SuppressWarnings("null")
-		@NonNull
+		@NotNull
 		final Iterator<Node> iter = nodes.iterator();
 		return new CheckedIterator<Node>(iter, new NullableChecker<Node>() {
 			@Override
@@ -270,13 +269,17 @@ public class SectionNode extends Node implements Iterable<Node> {
 	
 	private static final Pattern fullLinePattern = Pattern.compile("([^#]|##)*#-#(\\s.*)?");
 	
-	private final SectionNode load_i(final ConfigReader r) throws IOException {
+	private SectionNode load_i(final ConfigReader r) throws IOException {
 		boolean indentationSet = false;
 		String fullLine;
+		AtomicBoolean inBlockComment = new AtomicBoolean(false);
+		int blockCommentStartLine = -1;
 		while ((fullLine = r.readLine()) != null) {
 			SkriptLogger.setNode(this);
-			
-			final NonNullPair<String, String> line = Node.splitLine(fullLine);
+
+			if (!inBlockComment.get()) // this will be updated for the last time at the start of the comment
+				blockCommentStartLine = this.getLine();
+			final NonNullPair<String, String> line = Node.splitLine(fullLine, inBlockComment);
 			String value = line.getFirst();
 			final String comment = line.getSecond();
 			
@@ -363,7 +366,9 @@ public class SectionNode extends Node implements Iterable<Node> {
 			}
 			
 		}
-		
+		if (inBlockComment.get()) {
+			Skript.error("A block comment (###) was opened on line " + blockCommentStartLine + " but never closed.");
+		}
 		SkriptLogger.setNode(parent);
 		
 		return this;

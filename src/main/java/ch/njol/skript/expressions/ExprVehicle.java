@@ -20,15 +20,15 @@ package ch.njol.skript.expressions;
 
 import org.bukkit.entity.Entity;
 import org.bukkit.event.Event;
+import org.bukkit.event.entity.EntityDismountEvent;
+import org.bukkit.event.entity.EntityEvent;
+import org.bukkit.event.entity.EntityMountEvent;
 import org.bukkit.event.vehicle.VehicleEnterEvent;
 import org.bukkit.event.vehicle.VehicleExitEvent;
-import org.eclipse.jdt.annotation.Nullable;
-import org.spigotmc.event.entity.EntityDismountEvent;
-import org.spigotmc.event.entity.EntityMountEvent;
+import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer.ChangeMode;
-import org.skriptlang.skript.lang.converter.Converter;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
@@ -37,6 +37,10 @@ import ch.njol.skript.effects.Delay;
 import ch.njol.skript.entity.EntityData;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import ch.njol.util.coll.CollectionUtils;
+
+import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.MethodType;
 
 /**
  * @author Peter Güttinger
@@ -47,11 +51,53 @@ import ch.njol.util.coll.CollectionUtils;
 @Examples({"vehicle of the player is a minecart"})
 @Since("2.0")
 public class ExprVehicle extends SimplePropertyExpression<Entity, Entity> {
-	
-	static final boolean hasMountEvents = Skript.classExists("org.spigotmc.event.entity.EntityMountEvent");
-	
+
+	private static final boolean HAS_NEW_MOUNT_EVENTS = Skript.classExists("org.bukkit.event.entity.EntityMountEvent");
+
+	private static final boolean HAS_OLD_MOUNT_EVENTS;
+	@Nullable
+	private static final Class<?> OLD_MOUNT_EVENT_CLASS;
+	@Nullable
+	private static final MethodHandle OLD_GETMOUNT_HANDLE;
+	@Nullable
+	private static final Class<?> OLD_DISMOUNT_EVENT_CLASS;
+	@Nullable
+	private static final MethodHandle OLD_GETDISMOUNTED_HANDLE;
+
 	static {
 		register(ExprVehicle.class, Entity.class, "vehicle[s]", "entities");
+
+		// legacy support
+		boolean hasOldMountEvents = !HAS_NEW_MOUNT_EVENTS &&
+				Skript.classExists("org.spigotmc.event.entity.EntityMountEvent");
+		Class<?> oldMountEventClass = null;
+		MethodHandle oldGetMountHandle = null;
+		Class<?> oldDismountEventClass = null;
+		MethodHandle oldGetDismountedHandle = null;
+		if (hasOldMountEvents) {
+			try {
+				MethodHandles.Lookup lookup = MethodHandles.lookup();
+				MethodType entityReturnType = MethodType.methodType(Entity.class);
+				// mount event
+				oldMountEventClass = Class.forName("org.spigotmc.event.entity.EntityMountEvent");
+				oldGetMountHandle = lookup.findVirtual(oldMountEventClass, "getMount", entityReturnType);
+				// dismount event
+				oldDismountEventClass = Class.forName("org.spigotmc.event.entity.EntityDismountEvent");
+				oldGetDismountedHandle = lookup.findVirtual(oldDismountEventClass, "getDismounted", entityReturnType);
+			} catch (ClassNotFoundException | IllegalAccessException | NoSuchMethodException e) {
+				hasOldMountEvents = false;
+				oldMountEventClass = null;
+				oldGetMountHandle = null;
+				oldDismountEventClass = null;
+				oldGetDismountedHandle = null;
+				Skript.exception(e, "Failed to load old mount event support.");
+			}
+		}
+		HAS_OLD_MOUNT_EVENTS = hasOldMountEvents;
+		OLD_MOUNT_EVENT_CLASS = oldMountEventClass;
+		OLD_GETMOUNT_HANDLE = oldGetMountHandle;
+		OLD_DISMOUNT_EVENT_CLASS = oldDismountEventClass;
+		OLD_GETDISMOUNTED_HANDLE = oldGetDismountedHandle;
 	}
 	
 	@Override
@@ -63,12 +109,31 @@ public class ExprVehicle extends SimplePropertyExpression<Entity, Entity> {
 			if (getTime() >= 0 && e instanceof VehicleExitEvent && entity.equals(((VehicleExitEvent) e).getExited()) && !Delay.isDelayed(e)) {
 				return ((VehicleExitEvent) e).getVehicle();
 			}
-			if (hasMountEvents) {
-				if (getTime() >= 0 && e instanceof EntityMountEvent && entity.equals(((EntityMountEvent) e).getEntity()) && !Delay.isDelayed(e)) {
-					return ((EntityMountEvent) e).getMount();
-				}
-				if (getTime() >= 0 && e instanceof EntityDismountEvent && entity.equals(((EntityDismountEvent) e).getEntity()) && !Delay.isDelayed(e)) {
-					return ((EntityDismountEvent) e).getDismounted();
+			if (
+				(HAS_OLD_MOUNT_EVENTS || HAS_NEW_MOUNT_EVENTS)
+				&& getTime() >= 0 && !Delay.isDelayed(e)
+				&& e instanceof EntityEvent && entity.equals(((EntityEvent) e).getEntity())
+			) {
+				if (HAS_NEW_MOUNT_EVENTS) {
+					if (e instanceof EntityMountEvent)
+						return ((EntityMountEvent) e).getMount();
+					if (e instanceof EntityDismountEvent)
+						return ((EntityDismountEvent) e).getDismounted();
+				} else { // legacy mount event support
+					try {
+						assert OLD_MOUNT_EVENT_CLASS != null;
+						if (OLD_MOUNT_EVENT_CLASS.isInstance(e)) {
+							assert OLD_GETMOUNT_HANDLE != null;
+							return (Entity) OLD_GETMOUNT_HANDLE.invoke(e);
+						}
+						assert OLD_DISMOUNT_EVENT_CLASS != null;
+						if (OLD_DISMOUNT_EVENT_CLASS.isInstance(e)) {
+							assert OLD_GETDISMOUNTED_HANDLE != null;
+							return (Entity) OLD_GETDISMOUNTED_HANDLE.invoke(e);
+						}
+					} catch (Throwable ex) {
+						Skript.exception(ex, "An error occurred while trying to invoke legacy mount event support.");
+					}
 				}
 			}
 			return entity.getVehicle();

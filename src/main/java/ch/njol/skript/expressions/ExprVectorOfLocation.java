@@ -21,7 +21,7 @@ package ch.njol.skript.expressions;
 import org.bukkit.Location;
 import org.bukkit.event.Event;
 import org.bukkit.util.Vector;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
@@ -42,7 +42,7 @@ import ch.njol.util.coll.CollectionUtils;
 public class ExprVectorOfLocation extends SimpleExpression<Vector> {
 
 	static {
-		Skript.registerExpression(ExprVectorOfLocation.class, Vector.class, ExpressionType.SIMPLE,
+		Skript.registerExpression(ExprVectorOfLocation.class, Vector.class, ExpressionType.PROPERTY,
 				"[the] vector (of|from|to) %location%",
 				"%location%'s vector");
 	}

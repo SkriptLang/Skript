@@ -32,7 +32,7 @@ import ch.njol.skript.lang.TriggerSection;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 @Name("Loop Iteration")
 @Description("Returns the loop's current iteration count (for both normal and while loops).")
@@ -45,7 +45,7 @@ import org.eclipse.jdt.annotation.Nullable;
 	"",
 	"loop {top-balances::*}:",
 	"\tif loop-iteration <= 10:",
-	"\t\tbroadcast \"##%loop-iteration% %loop-index% has $%loop-value%\"",
+	"\t\tbroadcast \"#%loop-iteration% %loop-index% has $%loop-value%\"",
 })
 @Since("2.8.0")
 public class ExprLoopIteration extends SimpleExpression<Long> {

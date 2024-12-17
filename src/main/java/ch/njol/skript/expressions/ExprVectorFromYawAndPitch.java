@@ -20,7 +20,7 @@ package ch.njol.skript.expressions;
 
 import org.bukkit.event.Event;
 import org.bukkit.util.Vector;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
@@ -42,7 +42,7 @@ import ch.njol.util.coll.CollectionUtils;
 public class ExprVectorFromYawAndPitch extends SimpleExpression<Vector> {
 
 	static {
-		Skript.registerExpression(ExprVectorFromYawAndPitch.class, Vector.class, ExpressionType.SIMPLE,
+		Skript.registerExpression(ExprVectorFromYawAndPitch.class, Vector.class, ExpressionType.COMBINED,
 				"[a] [new] vector (from|with) yaw %number% and pitch %number%");
 	}
 

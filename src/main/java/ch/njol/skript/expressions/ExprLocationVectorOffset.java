@@ -21,7 +21,7 @@ package ch.njol.skript.expressions;
 import org.bukkit.Location;
 import org.bukkit.event.Event;
 import org.bukkit.util.Vector;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
@@ -46,7 +46,7 @@ import ch.njol.util.coll.CollectionUtils;
 public class ExprLocationVectorOffset extends SimpleExpression<Location> {
 
 	static {
-		Skript.registerExpression(ExprLocationVectorOffset.class, Location.class, ExpressionType.SIMPLE,
+		Skript.registerExpression(ExprLocationVectorOffset.class, Location.class, ExpressionType.COMBINED,
 				"%location% offset by [[the] vectors] %vectors%",
 				"%location%[ ]~[~][ ]%vectors%");
 	}

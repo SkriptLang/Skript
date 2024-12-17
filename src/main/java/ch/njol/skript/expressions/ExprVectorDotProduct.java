@@ -20,7 +20,7 @@ package ch.njol.skript.expressions;
 
 import org.bukkit.event.Event;
 import org.bukkit.util.Vector;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
@@ -41,7 +41,7 @@ import ch.njol.util.coll.CollectionUtils;
 public class ExprVectorDotProduct extends SimpleExpression<Number> {
 
 	static {
-		Skript.registerExpression(ExprVectorDotProduct.class, Number.class, ExpressionType.SIMPLE, "%vector% dot %vector%");
+		Skript.registerExpression(ExprVectorDotProduct.class, Number.class, ExpressionType.COMBINED, "%vector% dot %vector%");
 	}
 
 	@SuppressWarnings("null")

@@ -19,7 +19,6 @@
 package ch.njol.skript.lang;
 
 import ch.njol.skript.Skript;
-import ch.njol.skript.SkriptConfig;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.expressions.ExprColoured;
@@ -43,9 +42,8 @@ import ch.njol.util.coll.CollectionUtils;
 import ch.njol.util.coll.iterator.SingleItemIterator;
 import com.google.common.collect.Lists;
 import org.bukkit.ChatColor;
-import org.bukkit.OfflinePlayer;
 import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.NotNull;
 import org.skriptlang.skript.lang.script.Script;
 
@@ -60,19 +58,17 @@ import java.util.stream.Collectors;
  */
 public class VariableString implements Expression<String> {
 
-	@Nullable
-	private final Script script;
-	private final String orig;
+	private final @Nullable Script script;
+	protected final String original;
 
-	@Nullable
-	private final Object[] strings;
 
-	@Nullable
-	private Object[] stringsUnformatted;
+	private final Object @Nullable [] strings;
+
+
+	private Object @Nullable [] stringsUnformatted;
 	private final boolean isSimple;
 
-	@Nullable
-	private final String simple, simpleUnformatted;
+	private final @Nullable String simple, simpleUnformatted;
 	private final StringMode mode;
 
 	/**
@@ -83,15 +79,15 @@ public class VariableString implements Expression<String> {
 
 	/**
 	 * Creates a new VariableString which does not contain variables.
-	 * 
+	 *
 	 * @param input Content for string.
 	 */
-	private VariableString(String input) {
+	protected VariableString(String input) {
 		this.isSimple = true;
 		this.simpleUnformatted = input.replace("%%", "%"); // This doesn't contain variables, so this wasn't done in newInstance!
 		this.simple = Utils.replaceChatStyles(simpleUnformatted);
 
-		this.orig = simple;
+		this.original = simple;
 		this.strings = null;
 		this.mode = StringMode.MESSAGE;
 
@@ -103,13 +99,13 @@ public class VariableString implements Expression<String> {
 
 	/**
 	 * Creates a new VariableString which contains variables.
-	 * 
+	 *
 	 * @param original Original string (unparsed).
 	 * @param strings Objects, some of them are variables.
 	 * @param mode String mode.
 	 */
 	private VariableString(String original, Object[] strings, StringMode mode) {
-		this.orig = original;
+		this.original = original;
 		this.strings = new Object[strings.length];
 		this.stringsUnformatted = new Object[strings.length];
 
@@ -143,20 +139,18 @@ public class VariableString implements Expression<String> {
 	/**
 	 * Prints errors
 	 */
-	@Nullable
-	public static VariableString newInstance(String input) {
+	public static @Nullable VariableString newInstance(String input) {
 		return newInstance(input, StringMode.MESSAGE);
 	}
 
 	/**
 	 * Creates an instance of VariableString by parsing given string.
 	 * Prints errors and returns null if it is somehow invalid.
-	 * 
+	 *
 	 * @param original Unquoted string to parse.
 	 * @return A new VariableString instance.
 	 */
-	@Nullable
-	public static VariableString newInstance(String original, StringMode mode) {
+	public static @Nullable VariableString newInstance(String original, StringMode mode) {
 		if (mode != StringMode.VARIABLE_NAME && !isQuotedCorrectly(original, false))
 			return null;
 
@@ -224,16 +218,6 @@ public class VariableString implements Expression<String> {
 							log.printErrors("Can't understand this expression: " + original.substring(exprStart + 1, exprEnd));
 							return null;
 						} else {
-							if (
-								mode == StringMode.VARIABLE_NAME &&
-								!SkriptConfig.usePlayerUUIDsInVariableNames.value() &&
-								OfflinePlayer.class.isAssignableFrom(expr.getReturnType())
-							) {
-								Skript.warning(
-										"In the future, players in variable names will use the player's UUID instead of their name. " +
-										"For information on how to make sure your scripts won't be impacted by this change, see https://github.com/SkriptLang/Skript/discussions/6270."
-								);
-							}
 							strings.add(expr);
 						}
 						log.printLog();
@@ -261,7 +245,7 @@ public class VariableString implements Expression<String> {
 
 		// Check if this isn't actually variable string, and return
 		if (strings.size() == 1 && strings.get(0) instanceof String)
-			return new VariableString(original);
+			return new LiteralString(original);
 
 		if (strings.size() == 1 && strings.get(0) instanceof Expression &&
 				((Expression<?>) strings.get(0)).getReturnType() == String.class &&
@@ -295,7 +279,7 @@ public class VariableString implements Expression<String> {
 	/**
 	 * Tests whether a string is correctly quoted, i.e. only has doubled double quotes in it.
 	 * Singular double quotes are only allowed between percentage signs.
-	 * 
+	 *
 	 * @param string The string to test
 	 * @param withQuotes Whether the string must be surrounded by double quotes or not
 	 * @return Whether the string is quoted correctly
@@ -326,7 +310,7 @@ public class VariableString implements Expression<String> {
 
 	/**
 	 * Removes quoted quotes from a string.
-	 * 
+	 *
 	 * @param string The string to remove quotes from
 	 * @param surroundingQuotes Whether the string has quotes at the start & end that should be removed
 	 * @return The string with double quotes replaced with single ones and optionally with removed surrounding quotes.
@@ -340,7 +324,7 @@ public class VariableString implements Expression<String> {
 
 	/**
 	 * Copied from {@code SkriptParser#nextBracket(String, char, char, int, boolean)}, but removed escaping & returns -1 on error.
-	 * 
+	 *
 	 * @param string The string to search in
 	 * @param start Index after the opening bracket
 	 * @return The next closing curly bracket
@@ -376,8 +360,7 @@ public class VariableString implements Expression<String> {
 	 * @param args Quoted strings - This is not checked!
 	 * @return a new array containing all newly created VariableStrings, or null if one is invalid
 	 */
-	@Nullable
-	public static VariableString[] makeStringsFromQuoted(List<String> args) {
+	public static VariableString @Nullable [] makeStringsFromQuoted(List<String> args) {
 		VariableString[] strings = new VariableString[args.size()];
 		for (int i = 0; i < args.size(); i++) {
 			assert args.get(i).startsWith("\"") && args.get(i).endsWith("\"");
@@ -495,7 +478,7 @@ public class VariableString implements Expression<String> {
 
 	/**
 	 * Parses all expressions in the string and returns it in chat JSON format.
-	 * 
+	 *
 	 * @param event Event to pass to the expressions.
 	 * @return The input string with all expressions replaced.
 	 */
@@ -503,8 +486,7 @@ public class VariableString implements Expression<String> {
 		return ChatMessages.toJson(getMessageComponents(event));
 	}
 
-	@Nullable
-	private static ChatColor getLastColor(CharSequence sequence) {
+	private static @Nullable ChatColor getLastColor(CharSequence sequence) {
 		for (int i = sequence.length() - 2; i >= 0; i--) {
 			if (sequence.charAt(i) == ChatColor.COLOR_CHAR) {
 				ChatColor color = ChatColor.getByChar(sequence.charAt(i + 1));
@@ -523,7 +505,7 @@ public class VariableString implements Expression<String> {
 	/**
 	 * Parses all expressions in the string and returns it.
 	 * If this is a simple string, the event may be null.
-	 * 
+	 *
 	 * @param event Event to pass to the expressions.
 	 * @return The input string with all expressions replaced.
 	 */
@@ -583,11 +565,10 @@ public class VariableString implements Expression<String> {
 
 	/**
 	 * Builds all possible default variable type hints based on the super type of the expression.
-	 * 
+	 *
 	 * @return List<String> of all possible super class code names.
 	 */
-	@NotNull
-	public List<String> getDefaultVariableNames(String variableName, Event event) {
+	public @NotNull List<String> getDefaultVariableNames(String variableName, Event event) {
 		if (script == null || mode != StringMode.VARIABLE_NAME)
 			return Lists.newArrayList();
 
@@ -639,7 +620,7 @@ public class VariableString implements Expression<String> {
 		if (this.mode == mode || isSimple)
 			return this;
 		try (BlockingLogHandler ignored = new BlockingLogHandler().start()) {
-			VariableString variableString = newInstance(orig, mode);
+			VariableString variableString = newInstance(original, mode);
 			if (variableString == null) {
 				assert false : this + "; " + mode;
 				return this;
@@ -684,9 +665,8 @@ public class VariableString implements Expression<String> {
 	}
 
 	@Override
-	@Nullable
 	@SuppressWarnings("unchecked")
-	public <R> Expression<? extends R> getConvertedExpression(Class<R>... to) {
+	public <R> @Nullable Expression<? extends R> getConvertedExpression(Class<R>... to) {
 		if (CollectionUtils.containsSuperclass(to, String.class))
 			return (Expression<? extends R>) this;
 		return ConvertedExpression.newInstance(this, to);
@@ -698,13 +678,12 @@ public class VariableString implements Expression<String> {
 	}
 
 	@Override
-	@Nullable
-	public Class<?>[] acceptChange(ChangeMode mode) {
+	public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
 		return null;
 	}
 
 	@Override
-	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) throws UnsupportedOperationException {
+	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) throws UnsupportedOperationException {
 		throw new UnsupportedOperationException();
 	}
 
@@ -743,7 +722,6 @@ public class VariableString implements Expression<String> {
 		return this;
 	}
 
-	@SuppressWarnings("unchecked")
 	public static <T> Expression<T> setStringMode(Expression<T> expression, StringMode mode) {
 		if (expression instanceof ExpressionList) {
 			Expression<?>[] expressions = ((ExpressionList<?>) expression).getExpressions();
@@ -753,6 +731,7 @@ public class VariableString implements Expression<String> {
 				expressions[i] = setStringMode(expr, mode);
 			}
 		} else if (expression instanceof VariableString) {
+			//noinspection unchecked
 			return (Expression<T>) ((VariableString) expression).setMode(mode);
 		}
 		return expression;

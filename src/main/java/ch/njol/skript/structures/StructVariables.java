@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+import com.google.common.collect.Queues;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
@@ -85,7 +86,16 @@ public class StructVariables extends Structure {
 
 	public static class DefaultVariables implements ScriptData {
 
-		private final Deque<Map<String, Class<?>[]>> hints = new ArrayDeque<>();
+		/*
+		 * Performance/Risk Notice:
+		 * In the event that an element is pushed to the deque on one thread, causing it to grow, a second thread
+		 *  waiting to access the dequeue may not see the correct deque or pointers (the backing array is not volatile),
+		 *  causing issues such as a loss of data or attempting to write beyond the array's capacity.
+		 * It is unlikely for the array to ever grow from its default capacity (16), as this would require extreme
+		 *  nesting of variables (e.g. {a::%{b::%{c::<and so on>}%}%} (given the current usage of enter/exit scope)
+		 * While thread-safe deque implementations are available, this setup has been chosen for performance.
+		 */
+		private final Deque<Map<String, Class<?>[]>> hints = Queues.synchronizedDeque(new ArrayDeque<>());
 		private final List<NonNullPair<String, Object>> variables;
 		private boolean loaded;
 
@@ -99,9 +109,10 @@ public class StructVariables extends Structure {
 			if (CollectionUtils.containsAll(hints, Object.class)) // Ignore useless type hint.
 				return;
 			// This important empty check ensures that the variable type hint came from a defined DefaultVariable.
-			if (this.hints.isEmpty())
+			Map<String, Class<?>[]> map = this.hints.peekFirst();
+			if (map == null)
 				return;
-			this.hints.getFirst().put(variable, hints);
+			map.put(variable, hints);
 		}
 
 		public void enterScope() {
@@ -119,12 +130,13 @@ public class StructVariables extends Structure {
 		 * @param variable The variable string of a variable.
 		 * @return type hints of a variable if found otherwise null.
 		 */
-		@Nullable
-		public Class<?>[] get(String variable) {
-			for (Map<String, Class<?>[]> map : hints) {
-				Class<?>[] hints = map.get(variable);
-				if (hints != null && hints.length > 0)
-					return hints;
+		public Class<?> @Nullable [] get(String variable) {
+			synchronized (hints) { // must manually synchronize for iterators
+				for (Map<String, Class<?>[]> map : hints) {
+					Class<?>[] hints = map.get(variable);
+					if (hints != null && hints.length > 0)
+						return hints;
+				}
 			}
 			return null;
 		}
@@ -147,7 +159,8 @@ public class StructVariables extends Structure {
 	}
 
 	@Override
-	public boolean init(Literal<?>[] args, int matchedPattern, ParseResult parseResult, EntryContainer entryContainer) {
+	public boolean init(Literal<?>[] args, int matchedPattern, ParseResult parseResult, @Nullable EntryContainer entryContainer) {
+		// noinspection ConstantConditions - entry container cannot be null as this structure is not simple
 		SectionNode node = entryContainer.getSource();
 		node.convertToEntries(0, "=");
 		List<NonNullPair<String, Object>> variables;

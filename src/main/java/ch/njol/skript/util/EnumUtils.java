@@ -23,7 +23,7 @@ import ch.njol.skript.localization.Language;
 import ch.njol.skript.localization.Noun;
 import ch.njol.util.NonNullPair;
 import ch.njol.util.StringUtils;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.Locale;
@@ -34,7 +34,7 @@ import java.util.Locale;
  * @see ch.njol.skript.classes.EnumClassInfo
  */
 public final class EnumUtils<E extends Enum<E>> {
-	
+
 	private final Class<E> enumClass;
 	private final String languageNode;
 
@@ -53,7 +53,7 @@ public final class EnumUtils<E extends Enum<E>> {
 		
 		Language.addListener(this::refresh);
 	}
-	
+
 	/**
 	 * Refreshes the representation of this Enum based on the currently stored language entries.
 	 */
@@ -69,7 +69,10 @@ public final class EnumUtils<E extends Enum<E>> {
 			for (String option : options) {
 				option = option.toLowerCase(Locale.ENGLISH);
 				if (options.length == 1 && option.equals(key.toLowerCase(Locale.ENGLISH))) {
-					Skript.debug("Missing lang enum constant for '" + key + "'");
+					String[] splitKey = key.split("\\.");
+					String newKey = splitKey[1].replace('_', ' ').toLowerCase(Locale.ENGLISH) + " " + splitKey[0];
+					parseMap.put(newKey, constant);
+					Skript.debug("Missing lang enum constant for '" + key + "'. Using '" + newKey + "' for now.");
 					continue;
 				}
 
@@ -107,7 +110,18 @@ public final class EnumUtils<E extends Enum<E>> {
 	 * @return A string representation of the enumerator.
 	 */
 	public String toString(E enumerator, int flags) {
-		return names[enumerator.ordinal()];
+		String s = names[enumerator.ordinal()];
+		return s != null ? s : enumerator.name();
+	}
+
+	/**
+	 * This method returns the string representation of an enumerator
+	 * @param enumerator The enumerator to represent as a string
+	 * @param flag not currently used
+	 * @return A string representation of the enumerator
+	 */
+	public String toString(E enumerator, StringMode flag) {
+		return toString(enumerator, flag.ordinal());
 	}
 
 	/**
@@ -117,5 +131,5 @@ public final class EnumUtils<E extends Enum<E>> {
 	public String getAllNames() {
 		return StringUtils.join(parseMap.keySet(), ", ");
 	}
-	
+
 }

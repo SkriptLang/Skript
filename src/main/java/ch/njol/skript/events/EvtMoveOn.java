@@ -33,12 +33,13 @@ import ch.njol.skript.registrations.Classes;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.Tag;
 import org.bukkit.block.Block;
 import org.bukkit.event.Event;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.plugin.EventExecutor;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -66,9 +67,6 @@ public class EvtMoveOn extends SkriptEvent {
 			).since("2.0");
 	}
 	
-	// Fence blocks and fence gates
-	private static final ItemType FENCE_PART = Aliases.javaItemType("fence part");
-	
 	private static final Map<Material, List<Trigger>> ITEM_TYPE_TRIGGERS = new ConcurrentHashMap<>();
 	
 	private static final AtomicBoolean REGISTERED_EXECUTOR = new AtomicBoolean();
@@ -87,10 +85,10 @@ public class EvtMoveOn extends SkriptEvent {
 			if (triggers == null)
 				return;
 
-			int y = getBlockY(to.getY(), id);
+			int y = getBlockY(to.getY(), block);
 			if (to.getWorld().equals(from.getWorld()) && to.getBlockX() == from.getBlockX() && to.getBlockZ() == from.getBlockZ()) {
 				Block fromOnBlock = getOnBlock(from);
-				if (fromOnBlock != null && y == getBlockY(from.getY(), fromOnBlock.getType()) && fromOnBlock.getType() == id)
+				if (fromOnBlock != null && y == getBlockY(from.getY(), fromOnBlock) && fromOnBlock.getType() == id)
 					return;
 			}
 
@@ -114,14 +112,14 @@ public class EvtMoveOn extends SkriptEvent {
 		Block block = location.getWorld().getBlockAt(location.getBlockX(), (int) (Math.ceil(location.getY()) - 1), location.getBlockZ());
 		if (block.getType() == Material.AIR && Math.abs((location.getY() - location.getBlockY()) - 0.5) < Skript.EPSILON) { // Fences
 			block = location.getWorld().getBlockAt(location.getBlockX(), location.getBlockY() - 1, location.getBlockZ());
-			if (!FENCE_PART.isOfType(block))
+			if (!ItemUtils.isFence(block))
 				return null;
 		}
 		return block;
 	}
 	
-	private static int getBlockY(double y, Material id) {
-		if (FENCE_PART.isOfType(id) && Math.abs((y - Math.floor(y)) - 0.5) < Skript.EPSILON)
+	private static int getBlockY(double y, Block block) {
+		if (ItemUtils.isFence(block) && Math.abs((y - Math.floor(y)) - 0.5) < Skript.EPSILON)
 			return (int) Math.floor(y) - 1;
 		return (int) Math.ceil(y) - 1;
 	}
