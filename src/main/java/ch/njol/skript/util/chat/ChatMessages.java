@@ -21,7 +21,6 @@ package ch.njol.skript.util.chat;
 import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptAddon;
 import ch.njol.skript.localization.Language;
-import ch.njol.skript.localization.LanguageChangeListener;
 import ch.njol.skript.util.Utils;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -86,34 +85,30 @@ public class ChatMessages {
 	 */
 	public static void registerListeners() {
 		// When language changes or server is loaded loop through all chatcodes
-		Language.addListener(new LanguageChangeListener() {
-			
-			@Override
-			public void onLanguageChange() {
-				codes.clear();
-				
-				Skript.debug("Parsing message style lang files");
-				for (SkriptChatCode code : SkriptChatCode.values()) {
-					assert code != null;
-					if (code == SkriptChatCode.copy_to_clipboard && !Utils.COPY_SUPPORTED)
-						continue;
-					registerChatCode(code);
-				}
-				
-				// Re-register any missing addon chat codes
-				for (ChatCode code : addonCodes) {
-					assert code != null;
-					registerChatCode(code);
-				}
-				
-				// Add formatting chars
-				addColorChar('k', SkriptChatCode.obfuscated);
-				addColorChar('l', SkriptChatCode.bold);
-				addColorChar('m', SkriptChatCode.strikethrough);
-				addColorChar('n', SkriptChatCode.underlined);
-				addColorChar('o', SkriptChatCode.italic);
-				addColorChar('r', SkriptChatCode.reset);
+		Language.addListener(() -> {
+			codes.clear();
+
+			Skript.debug("Parsing message style lang files");
+			for (SkriptChatCode code : SkriptChatCode.values()) {
+				assert code != null;
+				if (code == SkriptChatCode.copy_to_clipboard && !Utils.COPY_SUPPORTED)
+					continue;
+				registerChatCode(code);
 			}
+
+			// Re-register any missing addon chat codes
+			for (ChatCode code : addonCodes) {
+				assert code != null;
+				registerChatCode(code);
+			}
+
+			// Add formatting chars
+			addColorChar('k', SkriptChatCode.obfuscated);
+			addColorChar('l', SkriptChatCode.bold);
+			addColorChar('m', SkriptChatCode.strikethrough);
+			addColorChar('n', SkriptChatCode.underlined);
+			addColorChar('o', SkriptChatCode.italic);
+			addColorChar('r', SkriptChatCode.reset);
 		});
 	}
 	

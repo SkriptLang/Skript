@@ -3,7 +3,6 @@ package ch.njol.skript.util;
 import ch.njol.skript.Skript;
 import ch.njol.skript.effects.EffTeleport;
 import ch.njol.skript.localization.Language;
-import ch.njol.skript.localization.LanguageChangeListener;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.util.NonNullPair;
 import ch.njol.util.Pair;
@@ -522,17 +521,14 @@ public abstract class Utils {
 	public final static boolean COPY_SUPPORTED = Skript.isRunningMinecraft(1, 15);
 
 	static {
-		Language.addListener(new LanguageChangeListener() {
-			@Override
-			public void onLanguageChange() {
-				final boolean english = englishChat.isEmpty();
-				chat.clear();
-				for (final ChatColor style : styles) {
-					for (final String s : Language.getList("chat styles." + style.name())) {
-						chat.put(s.toLowerCase(Locale.ENGLISH), style.toString());
-						if (english)
-							englishChat.put(s.toLowerCase(Locale.ENGLISH), style.toString());
-					}
+		Language.addListener(() -> {
+			final boolean english = englishChat.isEmpty();
+			chat.clear();
+			for (final ChatColor style : styles) {
+				for (final String s : Language.getList("chat styles." + style.name())) {
+					chat.put(s.toLowerCase(Locale.ENGLISH), style.toString());
+					if (english)
+						englishChat.put(s.toLowerCase(Locale.ENGLISH), style.toString());
 				}
 			}
 		});
