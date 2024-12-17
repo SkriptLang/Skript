@@ -197,10 +197,6 @@ import org.bukkit.potion.PotionType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-/**
- * @author Peter Güttinger
- */
-@SuppressWarnings("deprecation")
 public final class BukkitEventValues {
 
 	public BukkitEventValues() {
@@ -211,15 +207,14 @@ public final class BukkitEventValues {
 	static {
 
 		// === WorldEvents ===
-		EventValues.registerEventValue(WorldEvent.class, World.class, WorldEvent::getWorld, EventValues.TIME_NOW);
+		EventValues.registerEventValue(WorldEvent.class, World.class, WorldEvent::getWorld);
 		// StructureGrowEvent - a WorldEvent
-		EventValues.registerEventValue(StructureGrowEvent.class, Block.class, e -> e.getLocation().getBlock(), 0);
+		EventValues.registerEventValue(StructureGrowEvent.class, Block.class, e -> e.getLocation().getBlock());
 
 		EventValues.registerEventValue(StructureGrowEvent.class, Block[].class,
 			event -> event.getBlocks().stream()
 					.map(BlockState::getBlock)
-					.toArray(Block[]::new),
-			EventValues.TIME_NOW);
+					.toArray(Block[]::new));
 		EventValues.registerEventValue(StructureGrowEvent.class, Block.class, event -> {
 			for (BlockState bs : event.getBlocks()) {
 				if (bs.getLocation().equals(event.getLocation()))
@@ -233,33 +228,15 @@ public final class BukkitEventValues {
 				.toArray(Block[]::new),
 			EventValues.TIME_FUTURE);
 		// WeatherEvent - not a WorldEvent (wtf ô_Ô)
-		EventValues.registerEventValue(WeatherEvent.class, World.class, WeatherEvent::getWorld, EventValues.TIME_NOW);
+		EventValues.registerEventValue(WeatherEvent.class, World.class, WeatherEvent::getWorld);
 		// ChunkEvents
-		EventValues.registerEventValue(ChunkEvent.class, Chunk.class, ChunkEvent::getChunk, EventValues.TIME_NOW);
+		EventValues.registerEventValue(ChunkEvent.class, Chunk.class, ChunkEvent::getChunk);
 
 		// === BlockEvents ===
-		EventValues.registerEventValue(BlockEvent.class, Block.class, new Getter<Block, BlockEvent>() {
-			@Override
-			@Nullable
-			public Block get(final BlockEvent e) {
-				return e.getBlock();
-			}
-		}, 0);
-		EventValues.registerEventValue(BlockEvent.class, World.class, new Getter<World, BlockEvent>() {
-			@Override
-			@Nullable
-			public World get(final BlockEvent e) {
-				return e.getBlock().getWorld();
-			}
-		}, 0);
+		EventValues.registerEventValue(BlockEvent.class, Block.class, BlockEvent::getBlock);
+		EventValues.registerEventValue(BlockEvent.class, World.class, e -> e.getBlock().getWorld());
 		// REMIND workaround of the event's location being at the entity in block events that have an entity event value
-		EventValues.registerEventValue(BlockEvent.class, Location.class, new Getter<Location, BlockEvent>() {
-			@Override
-			@Nullable
-			public Location get(final BlockEvent e) {
-				return BlockUtils.getLocation(e.getBlock());
-			}
-		}, 0);
+		EventValues.registerEventValue(BlockEvent.class, Location.class, e -> BlockUtils.getLocation(e.getBlock()));
 		// BlockPlaceEvent
 		EventValues.registerEventValue(BlockPlaceEvent.class, Player.class, new Getter<Player, BlockPlaceEvent>() {
 			@Override
