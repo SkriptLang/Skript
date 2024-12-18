@@ -43,7 +43,6 @@ skript command:
 			description: Sprawdź aktualizację, przeczytaj listę zmian lub pobierz najnowszą wersję Skripta
 			check: Sprawdza dostępność nowszej wersji
 			changes: Wypisuje nowe zmiany od obecnej wersji
-			download: Pobiera najnowszą stabilną wersję
 		info: Wyświetla linki do aliasów i oficjalnej dokumentacji Skripta
 		gen-docs: Generuje dokumentację używając szablonów w folderze Skripta
 		test: Służy do uruchamiania wewnętrznych testów Skripta

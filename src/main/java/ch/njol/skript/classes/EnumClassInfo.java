@@ -8,6 +8,8 @@ import ch.njol.skript.util.StringMode;
 import ch.njol.util.coll.iterator.ArrayIterator;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.comparator.Comparators;
+import org.skriptlang.skript.lang.comparator.Relation;
 
 /**
  * This class can be used for an easier writing of ClassInfos that are enums,
@@ -55,6 +57,8 @@ public class EnumClassInfo<T extends Enum<T>> extends ClassInfo<T> {
 					return enumUtils.toString(constant, StringMode.VARIABLE_NAME);
 				}
 			});
+
+		Comparators.registerComparator(enumClass, enumClass, (o1, o2) -> Relation.get(o1.ordinal() - o2.ordinal()));
 	}
 
 }
