@@ -34,20 +34,19 @@ import ch.njol.skript.doc.Since;
 @RequiredPlugins("1.13 or newer")
 @Since("2.3")
 public class CondIsSwimming extends PropertyCondition<LivingEntity> {
-	
+
 	static {
-		if (Skript.methodExists(LivingEntity.class, "isSwimming"))
-			register(CondIsSwimming.class, "swimming", "livingentities");
+		register(CondIsSwimming.class, "swimming", "livingentities");
 	}
-	
+
 	@Override
-	public boolean check(final LivingEntity e) {
-		return e.isSwimming();
+	public boolean check(final LivingEntity entity) {
+		return entity.isSwimming();
 	}
-	
+
 	@Override
 	protected String getPropertyName() {
 		return "swimming";
 	}
-	
+
 }

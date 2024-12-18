@@ -38,21 +38,19 @@ import ch.njol.skript.doc.Since;
 @Since("2.5.1")
 @RequiredPlugins("Minecraft 1.13.2+")
 public class CondIsPassable extends PropertyCondition<Block> {
-	
+
 	static {
-		if (Skript.methodExists(Block.class, "isPassable")) {
-			register(CondIsPassable.class, "passable", "blocks");
-		}
+		register(CondIsPassable.class, "passable", "blocks");
 	}
-	
+
 	@Override
 	public boolean check(Block block) {
 		return block.isPassable();
 	}
-	
+
 	@Override
 	protected String getPropertyName() {
 		return "passable";
 	}
-	
+
 }

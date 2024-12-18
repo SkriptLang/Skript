@@ -18,7 +18,6 @@
  */
 package ch.njol.skript.expressions;
 
-import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
@@ -38,8 +37,7 @@ import org.jetbrains.annotations.Nullable;
 public class ExprBlockHardness extends SimplePropertyExpression<ItemType, Number> {
 
 	static {
-		if (Skript.methodExists(Material.class, "getHardness"))
-			register(ExprBlockHardness.class, Number.class, "[block] hardness", "itemtypes");
+		register(ExprBlockHardness.class, Number.class, "[block] hardness", "itemtypes");
 	}
 
 	@Nullable

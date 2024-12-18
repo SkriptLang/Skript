@@ -39,18 +39,16 @@ import ch.njol.skript.doc.Since;
 @Since("2.5.2")
 @RequiredPlugins("Minecraft 1.13+")
 public class CondIsInteractable extends PropertyCondition<ItemType> {
-	
+
 	static {
-		if (Skript.methodExists(Material.class, "isInteractable")) {
-			register(CondIsInteractable.class, "interactable", "itemtypes");
-		}
+		register(CondIsInteractable.class, "interactable", "itemtypes");
 	}
-	
+
 	@Override
 	public boolean check(ItemType item) {
 		return item.getMaterial().isInteractable();
 	}
-	
+
 	@Override
 	protected String getPropertyName() {
 		return "interactable";
