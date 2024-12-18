@@ -432,4 +432,9 @@ public interface Expression<T> extends SyntaxElement, Debuggable {
 		return newDelta == null ? delta : newDelta;
 	}
 
+	@Override
+	default @NotNull String getSyntaxTypeName() {
+		return "expression";
+	}
+
 }
