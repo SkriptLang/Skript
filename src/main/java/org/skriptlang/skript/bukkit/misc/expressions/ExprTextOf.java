@@ -33,7 +33,8 @@ public class ExprTextOf extends SimplePropertyExpression<Object, String> {
 	static {
 		String types = "";
 		if (Skript.classExists("org.bukkit.entity.Display")) {
-			serializer = BungeeComponentSerializer.get();
+			if (IS_RUNNING_PAPER)
+				serializer = BungeeComponentSerializer.get();
 			types += "displays";
 		}
 		// This is because this expression is setup to support future types.

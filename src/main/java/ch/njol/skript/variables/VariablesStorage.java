@@ -410,6 +410,14 @@ public abstract class VariablesStorage implements Closeable {
 	}
 
 	/**
+	 * Returns the name pattern accepted by this variable storage
+	 * @return the name pattern, or null if accepting all
+	 */
+	public @Nullable Pattern getNamePattern() {
+		return variableNamePattern;
+	}
+
+	/**
 	 * The interval between warnings that many variables are being written
 	 * at once, in seconds.
 	 */

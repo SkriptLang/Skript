@@ -159,7 +159,6 @@ public class SimpleEntityData extends EntityData<Entity> {
 		addSimpleEntity("turtle", Turtle.class);
 		addSimpleEntity("cod", Cod.class);
 		addSimpleEntity("puffer fish", PufferFish.class);
-		addSimpleEntity("salmon", Salmon.class);
 		addSimpleEntity("tropical fish", TropicalFish.class);
 		addSimpleEntity("trident", Trident.class);
 

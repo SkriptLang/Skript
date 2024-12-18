@@ -50,6 +50,7 @@ import org.skriptlang.skript.lang.script.Script;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
@@ -64,27 +65,28 @@ public class SkriptCommand implements CommandExecutor {
 	private static final String CONFIG_NODE = "skript command";
 	private static final ArgsMessage m_reloading = new ArgsMessage(CONFIG_NODE + ".reload.reloading");
 
-	// TODO /skript scripts show/list - lists all enabled and/or disabled scripts in the scripts folder and/or subfolders (maybe add a pattern [using * and **])
 	// TODO document this command on the website
 	private static final CommandHelp SKRIPT_COMMAND_HELP = new CommandHelp("<gray>/<gold>skript", SkriptColor.LIGHT_CYAN, CONFIG_NODE + ".help")
-		.add(new CommandHelp("reload", SkriptColor.DARK_CYAN)
-			.add("all")
-			.add("config")
-			.add("aliases")
-			.add("scripts")
-			.add("<script>")
-		).add(new CommandHelp("enable", SkriptColor.DARK_CYAN)
-			.add("all")
-			.add("<script>")
-		).add(new CommandHelp("disable", SkriptColor.DARK_CYAN)
-			.add("all")
-			.add("<script>")
-		).add(new CommandHelp("update", SkriptColor.DARK_CYAN)
-			.add("check")
-			.add("changes")
-			.add("download")
-		).add("info"
-		).add("help");
+			.add(new CommandHelp("reload", SkriptColor.DARK_RED)
+				.add("all")
+				.add("config")
+				.add("aliases")
+				.add("scripts")
+				.add("<script>")
+			).add(new CommandHelp("enable", SkriptColor.DARK_RED)
+				.add("all")
+				.add("<script>")
+			).add(new CommandHelp("disable", SkriptColor.DARK_RED)
+				.add("all")
+				.add("<script>")
+			).add(new CommandHelp("update", SkriptColor.DARK_RED)
+				.add("check")
+				.add("changes")
+			)
+			.add("list")
+			.add("show")
+			.add("info")
+			.add("help");
 
 	static {
 		// Add command to generate documentation
@@ -360,8 +362,6 @@ public class SkriptCommand implements CommandExecutor {
 					updater.updateCheck(sender);
 				} else if (args[1].equalsIgnoreCase("changes")) {
 					updater.changesCheck(sender);
-				} else if (args[1].equalsIgnoreCase("download")) {
-					updater.updateCheck(sender);
 				}
 			} else if (args[0].equalsIgnoreCase("info")) {
 				info(sender, "info.aliases");
@@ -449,6 +449,22 @@ public class SkriptCommand implements CommandExecutor {
 							}
 						})
 					);
+			} else if (args[0].equalsIgnoreCase("list") || args[0].equalsIgnoreCase("show")) {
+				info(sender, "list.enabled.header");
+				ScriptLoader.getLoadedScripts().stream()
+						.map(script -> script.getConfig().getFileName())
+						.forEach(name -> info(sender, "list.enabled.element", name));
+				info(sender, "list.disabled.header");
+				ScriptLoader.getDisabledScripts().stream()
+						.flatMap(file -> {
+							if (file.isDirectory()) {
+								return Arrays.stream(file.listFiles());
+							}
+							return Arrays.stream(new File[]{file});
+						})
+						.map(File::getPath)
+						.map(path -> path.substring(Skript.getInstance().getScriptsFolder().getPath().length() + 1))
+						.forEach(path -> info(sender, "list.disabled.element", path));
 			} else if (args[0].equalsIgnoreCase("help")) {
 				SKRIPT_COMMAND_HELP.showHelp(sender);
 			}

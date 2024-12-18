@@ -1,0 +1,43 @@
+options:
+	test: "org.skriptlang.skript.test.tests.syntaxes.events.EvtVehicleCollisionTest"
+
+test "EvtVehicleCollisionJUnit" when running JUnit:
+	set {_tests::*} to "any collision", "any collision - obsidian" and "any collision - sheep"
+	add "any block collision", "block collision - obsidian" and "obsidian collision" to {_tests::*}
+	add "any entity collision", "entity collision - sheep" and "sheep collision" to {_tests::*}
+	ensure junit test {@test} completes {_tests::*}
+
+on vehicle collision:
+	junit test is {@test}
+	complete objective "any collision" for junit test {@test}
+	if event-block is obsidian:
+		complete objective "any collision - obsidian" for junit test {@test}
+
+	if event-entity is a sheep:
+		complete objective "any collision - sheep" for junit test {@test}
+
+on vehicle collision with obsidian:
+	junit test is {@test}
+	complete objective "obsidian collision" for junit test {@test}
+
+on vehicle block collision:
+	junit test is {@test}
+	complete objective "any block collision" for junit test {@test}
+
+on vehicle block collision of obsidian:
+	junit test is {@test}
+	if event-block is obsidian:
+		complete objective "block collision - obsidian" for junit test {@test}
+
+on vehicle collision with a sheep:
+	junit test is {@test}
+	complete objective "sheep collision" for junit test {@test}
+
+on vehicle entity collision:
+	junit test is {@test}
+	complete objective "any entity collision" for junit test {@test}
+
+on vehicle entity collision with a sheep:
+	junit test is {@test}
+	if event-entity is a sheep:
+		complete objective "entity collision - sheep" for junit test {@test}
