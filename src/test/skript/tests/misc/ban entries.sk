@@ -1,0 +1,25 @@
+test "ban entries" when running minecraft "1.20.1":
+	ban offlineplayer("Njol", false) due to "creating skript" for 5 seconds
+	assert the date offlineplayer("Njol", false) was banned is now with "getting ban creation date for offline player doesn't work"
+	assert the reason offlineplayer("Njol", false) was banned is "creating skript" with "getting ban reason doesn't work"
+
+	ban "3.3.3.3" for 3 seconds
+	assert the date "3.3.3.3" was banned is now with "getting ban creation date for ip doesn't work"
+	assert the source of "3.3.3.3"'s ban is "Skript ban effect" with "getting ban source doesn't work"
+	assert the expiration date of "3.3.3.3"'s ban is 3 seconds later with "getting ban expiration date doesn't work"
+
+	# test changers
+	add 2 seconds to the expiration date of "3.3.3.3"'s ban
+	assert the expiration date of "3.3.3.3"'s ban is 5 seconds later with "adding to ban expiration date doesn't work"
+
+	remove 1 second from the expiration date of "3.3.3.3"'s ban
+	assert the expiration date of "3.3.3.3"'s ban is 4 seconds later with "removing from ban expiration date doesn't work"
+
+	set expiration date of "3.3.3.3"'s ban to 1 second later
+	assert the expiration date of "3.3.3.3"'s ban is 1 second later with "setting ban expiration date doesn't work"
+
+	set the source of "3.3.3.3"'s ban to "skript test"
+	assert the source of "3.3.3.3"'s ban is "skript test" with "setting ban source doesn't work"
+
+	set the reason "3.3.3.3" was banned to "hello"
+	assert the reason "3.3.3.3" was banned is "hello" with "setting ban reason doesn't work"
