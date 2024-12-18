@@ -45,6 +45,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.arithmetic.Arithmetics;
 import org.skriptlang.skript.lang.arithmetic.OperationInfo;
@@ -56,17 +57,11 @@ import org.skriptlang.skript.lang.script.Script;
 import org.skriptlang.skript.lang.script.ScriptWarning;
 
 import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.NoSuchElementException;
-import java.util.TreeMap;
 import java.util.function.Function;
 
-public class Variable<T> implements Expression<T> {
+public class Variable<T> implements Expression<T>, KeyReceiverExpression<T>, KeyProviderExpression<T> {
 
 	private final static String SINGLE_SEPARATOR_CHAR = ":";
 	public final static String SEPARATOR = SINGLE_SEPARATOR_CHAR + SINGLE_SEPARATOR_CHAR;
@@ -458,6 +453,32 @@ public class Variable<T> implements Expression<T> {
 	}
 
 	@Override
+	public void change(Event event, Object @NotNull [] delta, ChangeMode mode, @NotNull String @NotNull [] keys) {
+		if (!list) {
+			this.change(event, delta, mode);
+			return;
+		}
+		if (mode == ChangeMode.SET) {
+			assert delta.length == keys.length;
+			this.set(event, null);
+			int length = Math.min(delta.length, keys.length);
+			for (int index = 0; index < length; index++) {
+				Object value = delta[index];
+				String key = keys[index];
+				if (value instanceof Object[] array) {
+					for (int j = 0; j < array.length; j++)
+						this.setIndex(event, key + SEPARATOR + (j + 1), array[j]);
+				} else {
+					this.setIndex(event, key, value);
+				}
+			}
+			return;
+		}
+		// no other modes are supported right now
+		this.change(event, delta, mode);
+	}
+
+	@Override
 	@SuppressWarnings({"unchecked", "rawtypes"})
 	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) throws UnsupportedOperationException {
 		switch (mode) {
@@ -648,6 +669,28 @@ public class Variable<T> implements Expression<T> {
 		if (list)
 			throw new SkriptAPIException("Invalid call to getSingle");
 		return getConverted(event);
+	}
+
+	@Override
+	public @NotNull String @NotNull [] getArrayKeys(Event event) throws SkriptAPIException {
+		if (!list)
+			throw new SkriptAPIException("Invalid call to getArrayKeys on non-list");
+		String name = StringUtils.substring(this.name.toString(event), 0, -1);
+		Object value = Variables.getVariable(name + "*", event, local);
+		if (value == null)
+			return new String[0];
+		assert value instanceof Map<?,?>;
+		return ((Map<String, ?>) value).keySet().toArray(new String[0]);
+	}
+
+	@Override
+	public @NotNull String @NotNull [] getAllKeys(Event event) {
+		return this.getArrayKeys(event);
+	}
+
+	@Override
+	public boolean areKeysRecommended() {
+		return false; // We want `set {list::*} to {other::*}` reset numbering!
 	}
 
 	@Override
