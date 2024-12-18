@@ -39,6 +39,8 @@ import org.jetbrains.annotations.Nullable;
 @Since("2.2-dev28")
 public class ExprVectorAngleBetween extends SimpleExpression<Number> {
 
+	private static final float RAD_TO_DEG = (float) (180 / Math.PI);
+
 	static {
 		Skript.registerExpression(ExprVectorAngleBetween.class, Number.class, ExpressionType.COMBINED,
 				"[the] angle between [[the] vectors] %vector% and %vector%");
@@ -62,7 +64,7 @@ public class ExprVectorAngleBetween extends SimpleExpression<Number> {
 		Vector second = this.second.getSingle(event);
 		if (first == null || second == null)
 			return null;
-		return CollectionUtils.array(first.angle(second) * (180.0 / Math.PI)); // rad to deg
+		return CollectionUtils.array(first.angle(second) * RAD_TO_DEG);
 	}
 
 	@Override

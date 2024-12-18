@@ -12,7 +12,7 @@ public final class VectorMath {
 	public static final double PI = Math.PI;
 	public static final double HALF_PI = PI / 2;
 	public static final double DEG_TO_RAD = Math.PI / 180;
-	public static final double RAD_TO_DEG =  180 / Math.PI;
+	public static final double RAD_TO_DEG = 180 / Math.PI;
 
 	private VectorMath() {}
 
