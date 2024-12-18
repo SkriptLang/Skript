@@ -1,0 +1,8 @@
+test "custom default values":
+	run with custom default value 7 for number:
+		assert default number is 7 with "default value was not 7"
+		run with custom default value 3 for number:
+			assert default number is 3 with "default value was not 3"
+		assert default number is 7 with "default value was not 7"
+	assert default number is 1 with "default value was not 1"
+
