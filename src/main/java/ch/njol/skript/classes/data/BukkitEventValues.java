@@ -51,8 +51,6 @@ import org.bukkit.event.weather.LightningStrikeEvent;
 import org.bukkit.event.weather.WeatherEvent;
 import org.bukkit.event.world.*;
 import org.bukkit.inventory.*;
-import org.bukkit.loot.LootContext;
-import org.bukkit.loot.LootTable;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.potion.PotionType;
@@ -1677,36 +1675,6 @@ public final class BukkitEventValues {
 				@Override
 				public ItemType get(PlayerStopUsingItemEvent event) {
 					return new ItemType(event.getItem());
-				}
-			}, EventValues.TIME_NOW);
-		}
-
-		// LootGenerateEvent
-		if (Skript.classExists("org.bukkit.event.world.LootGenerateEvent")) {
-			EventValues.registerEventValue(LootGenerateEvent.class, Entity.class, new Getter<Entity, LootGenerateEvent>() {
-				@Override
-				@Nullable
-				public Entity get(LootGenerateEvent event) {
-					return event.getEntity();
-				}
-			}, EventValues.TIME_NOW);
-			EventValues.registerEventValue(LootGenerateEvent.class, Location.class, new Getter<Location, LootGenerateEvent>() {
-				@Override
-				@Nullable
-				public Location get(LootGenerateEvent event) {
-					return event.getLootContext().getLocation();
-				}
-			}, EventValues.TIME_NOW);
-			EventValues.registerEventValue(LootGenerateEvent.class, LootTable.class, new Getter<LootTable, LootGenerateEvent>() {
-				@Override
-				public @Nullable LootTable get(LootGenerateEvent event) {
-					return event.getLootTable();
-				}
-			}, EventValues.TIME_NOW);
-			EventValues.registerEventValue(LootGenerateEvent.class, LootContext.class, new Getter<LootContext, LootGenerateEvent>() {
-				@Override
-				public @Nullable LootContext get(LootGenerateEvent event) {
-					return event.getLootContext();
 				}
 			}, EventValues.TIME_NOW);
 		}

@@ -6,10 +6,17 @@ import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.classes.Parser;
 import ch.njol.skript.expressions.base.EventValueExpression;
 import ch.njol.skript.lang.ParseContext;
+import ch.njol.skript.lang.util.SimpleEvent;
 import ch.njol.skript.registrations.Classes;
+import ch.njol.skript.registrations.EventValues;
+import ch.njol.skript.util.Getter;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
+import org.bukkit.entity.Entity;
+import org.bukkit.event.world.LootGenerateEvent;
 import org.bukkit.loot.LootContext;
 import org.bukkit.loot.LootTable;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.converter.Converters;
 
@@ -91,6 +98,51 @@ public class LootTableModule {
 
 		// String - LootTable
 		Converters.registerConverter(String.class, LootTable.class, key -> Bukkit.getLootTable(NamespacedUtils.parseNamespacedKey(key)));
+
+		// --- SIMPLE EVENTS --- //
+
+		Skript.registerEvent("Loot Generate", SimpleEvent.class, LootGenerateEvent.class, "loot generat(e|ing)")
+			.description(
+				"Called when a loot table of an inventory is generated in the world.",
+				"For example, when opening a shipwreck chest."
+			)
+			.examples(
+				"on loot generate:",
+				"\tchance of 10%",
+				"\tadd 64 diamonds to the loot",
+				"\tsend \"You hit the jackpot at %event-location%!\""
+			)
+			.since("2.7")
+			.requiredPlugins("MC 1.16+");
+
+		// --- EVENT VALUES --- //
+
+		// LootGenerateEvent
+		EventValues.registerEventValue(LootGenerateEvent.class, Entity.class, new Getter<Entity, LootGenerateEvent>() {
+			@Override
+			@Nullable
+			public Entity get(LootGenerateEvent event) {
+				return event.getEntity();
+			}
+		}, EventValues.TIME_NOW);
+		EventValues.registerEventValue(LootGenerateEvent.class, Location.class, new Getter<>() {
+			@Override
+			public @NotNull Location get(LootGenerateEvent event) {
+				return event.getLootContext().getLocation();
+			}
+		}, EventValues.TIME_NOW);
+		EventValues.registerEventValue(LootGenerateEvent.class, LootTable.class, new Getter<>() {
+			@Override
+			public @NotNull LootTable get(LootGenerateEvent event) {
+				return event.getLootTable();
+			}
+		}, EventValues.TIME_NOW);
+		EventValues.registerEventValue(LootGenerateEvent.class, LootContext.class, new Getter<>() {
+			@Override
+			public @NotNull LootContext get(LootGenerateEvent event) {
+				return event.getLootContext();
+			}
+		}, EventValues.TIME_NOW);
 	}
 
 }
