@@ -227,7 +227,7 @@ public class VisualEffects {
 			// TODO test how this works
 			registerDataSupplier("Particle.NOTE", (raw, location) -> {
 				int colorValue = (int) (((Number) raw).floatValue() * 255);
-				ColorRGB color = new ColorRGB(colorValue, 0, 0);
+				ColorRGB color = ColorRGB.fromRGB(colorValue, 0, 0);
 				return new ParticleOption(color, 1);
 			});
 
@@ -238,7 +238,7 @@ public class VisualEffects {
 			registerDataSupplier("Particle.SHRIEK", (raw, location) -> {
 				int delay = 0;
 				if (raw instanceof Timespan)
-					delay = (int) Math.min(Math.max(((Timespan) raw).getTicks(), 0), Integer.MAX_VALUE);
+					delay = (int) Math.min(Math.max(((Timespan) raw).getAs(Timespan.TimePeriod.TICK), 0), Integer.MAX_VALUE);
 				return delay;
 			});
 
@@ -253,7 +253,7 @@ public class VisualEffects {
 		private static Vibration buildVibration(Object[] data, Location location) {
 			int arrivalTime = -1;
 			if (data[1] != null)
-				arrivalTime = (int) Math.min(Math.max(((Timespan) data[1]).getTicks(), 0), Integer.MAX_VALUE);
+				arrivalTime = (int) Math.min(Math.max(((Timespan) data[1]).getAs(Timespan.TimePeriod.TICK), 0), Integer.MAX_VALUE);
 			if (data[0] instanceof Entity) {
 				Entity entity = (Entity) data[0];
 				if (arrivalTime == -1)

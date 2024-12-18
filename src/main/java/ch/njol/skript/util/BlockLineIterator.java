@@ -1,31 +1,13 @@
-/**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
 package ch.njol.skript.util;
 
+import ch.njol.skript.bukkitutil.WorldUtils;
+import ch.njol.util.Math2;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.util.BlockIterator;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.Nullable;
 
-import ch.njol.skript.bukkitutil.WorldUtils;
-import ch.njol.util.Math2;
 import ch.njol.util.NullableChecker;
 import ch.njol.util.coll.iterator.StoppableIterator;
 
@@ -37,8 +19,10 @@ public class BlockLineIterator extends StoppableIterator<Block> {
 	 * @throws IllegalStateException randomly (Bukkit bug)
 	 */
 	public BlockLineIterator(Block start, Block end) throws IllegalStateException {
-		super(new BlockIterator(start.getWorld(), fitInWorld(start.getLocation().add(0.5, 0.5, 0.5), end.getLocation().subtract(start.getLocation()).toVector()),
-				end.equals(start) ? new Vector(1, 0, 0) : end.getLocation().subtract(start.getLocation()).toVector(), 0, 0), // should prevent an error if start = end
+		super(new BlockIterator(start.getWorld(), start.getLocation().toVector(),
+				end.equals(start) ? new Vector(1, 0, 0) : end.getLocation().subtract(start.getLocation()).toVector(), // should prevent an error if start = end
+				0, 0
+			),
 		new NullableChecker<Block>() {
 			private final double overshotSq = Math.pow(start.getLocation().distance(end.getLocation()) + 2, 2);
 			
@@ -59,7 +43,7 @@ public class BlockLineIterator extends StoppableIterator<Block> {
 	 * @throws IllegalStateException randomly (Bukkit bug)
 	 */
 	public BlockLineIterator(Location start, Vector direction, double distance) throws IllegalStateException {
-		super(new BlockIterator(start.getWorld(), fitInWorld(start, direction), direction, 0, 0), new NullableChecker<Block>() {
+		super(new BlockIterator(start.getWorld(), start.toVector(), direction, 0, 0), new NullableChecker<Block>() {
 			private final double distSq = distance * distance;
 			
 			@Override

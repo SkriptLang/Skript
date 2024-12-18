@@ -1,5 +1,5 @@
 test "inventory holder location":
-	set {_b} to the block at spawn of world "world"
+	set {_b} to the test-block
 	set {_prev} to type of block at {_b}
 	broadcast {_prev}
 
