@@ -76,8 +76,11 @@ public class ExprNamed extends PropertyExpression<Object, Object> {
 			@Override
 			@Nullable
 			public Object get(Object obj) {
-				if (obj instanceof InventoryType)
-					return Bukkit.createInventory(null, (InventoryType) obj, name);
+				if (obj instanceof InventoryType inventoryType) {
+					if (!inventoryType.isCreatable())
+						return null;
+					return Bukkit.createInventory(null, inventoryType, name);
+				}
 				if (obj instanceof ItemStack) {
 					ItemStack stack = (ItemStack) obj;
 					stack = stack.clone();
