@@ -43,7 +43,6 @@ skript command:
 			description: Sprawdź aktualizację, przeczytaj listę zmian lub pobierz najnowszą wersję Skripta
 			check: Sprawdza dostępność nowszej wersji
 			changes: Wypisuje nowe zmiany od obecnej wersji
-			download: Pobiera najnowszą stabilną wersję
 		info: Wyświetla linki do aliasów i oficjalnej dokumentacji Skripta
 		gen-docs: Generuje dokumentację używając szablonów w folderze Skripta
 		test: Służy do uruchamiania wewnętrznych testów Skripta
@@ -68,7 +67,8 @@ skript command:
 		aliases: aliasy
 		script: <gold>%s<reset>
 		scripts in folder: wszystkie skrypty w <gold>%s<reset>
-		x scripts in folder: <gold>%2$s <lime>skrypt¦¦ów¦ w <gold>%1$s<reset>
+		x scripts in folder success: <gold>%2$s <lime>skrypt¦¦ów¦ w <gold>%1$s<reset>
+		x scripts in folder error: <gold>%2$s <light red>skrypt¦¦ów¦ w <gold>%1$s<reset>
 		empty folder: <gold>%s<reset> nie ma w sobie żadnych włączonych skryptów.
 	enable:
 		all:

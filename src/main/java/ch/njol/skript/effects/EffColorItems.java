@@ -23,7 +23,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.LeatherArmorMeta;
 import org.bukkit.inventory.meta.MapMeta;
 import org.bukkit.inventory.meta.PotionMeta;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.ItemType;
@@ -94,7 +94,7 @@ public class EffColorItems extends Effect {
 					if (r == null || g == null || b == null)
 						return null;
 					
-					return CollectionUtils.array(new ColorRGB(r.intValue(), g.intValue(), b.intValue()));
+					return CollectionUtils.array(ColorRGB.fromRGB(r.intValue(), g.intValue(), b.intValue()));
 				}
 				
 				@Override

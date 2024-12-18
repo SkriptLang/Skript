@@ -33,7 +33,7 @@ import ch.njol.util.Kleenean;
 import org.bukkit.block.Block;
 import org.bukkit.event.Event;
 import org.bukkit.event.block.BlockSpreadEvent;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 @Name("Source Block")
 @Description("The source block in a spread event.")

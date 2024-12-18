@@ -22,7 +22,7 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.Event;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
@@ -81,7 +81,7 @@ public class EffPoison extends Effect {
 			if (!cure) {
 				Timespan dur;
 				int d = (int) (duration != null && (dur = duration.getSingle(e)) != null ? 
-						(dur.getTicks() >= Integer.MAX_VALUE ? Integer.MAX_VALUE : dur.getTicks()) : DEFAULT_DURATION);
+						(dur.getAs(Timespan.TimePeriod.TICK) >= Integer.MAX_VALUE ? Integer.MAX_VALUE : dur.getAs(Timespan.TimePeriod.TICK)) : DEFAULT_DURATION);
 				if (le.hasPotionEffect(PotionEffectType.POISON)) {
 					for (final PotionEffect pe : le.getActivePotionEffects()) {
 						if (pe.getType() != PotionEffectType.POISON)

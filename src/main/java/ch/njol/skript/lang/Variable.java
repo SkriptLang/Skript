@@ -1,22 +1,10 @@
-/**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
 package ch.njol.skript.lang;
+
+import java.lang.reflect.Array;
+import java.util.*;
+import java.util.Map.Entry;
+import java.util.regex.Pattern;
+import java.util.function.Function;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptAPIException;
@@ -25,6 +13,10 @@ import ch.njol.skript.classes.Changer;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.classes.Changer.ChangerUtils;
 import ch.njol.skript.classes.ClassInfo;
+import ch.njol.skript.variables.VariablesStorage;
+import org.skriptlang.skript.lang.arithmetic.Arithmetics;
+import org.skriptlang.skript.lang.arithmetic.OperationInfo;
+import org.skriptlang.skript.lang.arithmetic.Operator;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.parser.ParserInstance;
 import ch.njol.skript.lang.util.SimpleExpression;
@@ -45,6 +37,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.arithmetic.Arithmetics;
 import org.skriptlang.skript.lang.arithmetic.OperationInfo;
@@ -55,21 +48,12 @@ import org.skriptlang.skript.lang.converter.Converters;
 import org.skriptlang.skript.lang.script.Script;
 import org.skriptlang.skript.lang.script.ScriptWarning;
 
-import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.NoSuchElementException;
-import java.util.TreeMap;
-
-public class Variable<T> implements Expression<T> {
+public class Variable<T> implements Expression<T>, KeyReceiverExpression<T>, KeyProviderExpression<T> {
 
 	private final static String SINGLE_SEPARATOR_CHAR = ":";
 	public final static String SEPARATOR = SINGLE_SEPARATOR_CHAR + SINGLE_SEPARATOR_CHAR;
 	public final static String LOCAL_VARIABLE_TOKEN = "_";
+	private static final char[] reservedTokens = {'~', '.', '+', '$', '!', '&', '^', '*', '-'};
 
 	/**
 	 * Script this variable was created in.
@@ -119,7 +103,26 @@ public class Variable<T> implements Expression<T> {
 	 * @return true if the name is valid, false otherwise.
 	 */
 	public static boolean isValidVariableName(String name, boolean allowListVariable, boolean printErrors) {
-		name = name.startsWith(LOCAL_VARIABLE_TOKEN) ? "" + name.substring(LOCAL_VARIABLE_TOKEN.length()).trim() : "" + name.trim();
+		assert !name.isEmpty(): "Variable name should not be empty";
+		char first = name.charAt(0);
+		check_reserved_tokens:
+		for (char token : reservedTokens) {
+			if (first == token && printErrors) {
+				/*
+				A lot of people already use '-' so we want to skip this warning iff they're using it here
+				*/
+				if (first == '-') {
+					for (VariablesStorage store : Variables.getStores()) {
+						@Nullable Pattern pattern = store.getNamePattern();
+						if (pattern != null && pattern.pattern().equals("(?!-).*"))
+							continue check_reserved_tokens;
+					}
+				}
+				Skript.warning("The character '" + token + "' is reserved at the start of variable names, " +
+					"and may be restricted in future versions");
+			}
+		}
+		name = name.startsWith(LOCAL_VARIABLE_TOKEN) ? name.substring(LOCAL_VARIABLE_TOKEN.length()).trim() : name.trim();
 		if (!allowListVariable && name.contains(SEPARATOR)) {
 			if (printErrors)
 				Skript.error("List variables are not allowed here (error in variable {" + name + "})");
@@ -308,7 +311,7 @@ public class Variable<T> implements Expression<T> {
 			// prevents e.g. {%expr%} where "%expr%" ends with "::*" from returning a Map
 			if (name.endsWith(Variable.SEPARATOR + "*") != list)
 				return null;
-			Object value = !list ? convertIfOldPlayer(name, event, Variables.getVariable(name, event, local)) : Variables.getVariable(name, event, local);
+			Object value = !list ? convertIfOldPlayer(name, local, event, Variables.getVariable(name, event, local)) : Variables.getVariable(name, event, local);
 			if (value != null)
 				return value;
 
@@ -346,7 +349,7 @@ public class Variable<T> implements Expression<T> {
 				else
 					value = variable.getValue();
 				if (value != null)
-					convertedValues.add(convertIfOldPlayer(name + variable.getKey(), event, value));
+					convertedValues.add(convertIfOldPlayer(name + variable.getKey(), local, event, value));
 			}
 		}
 		return convertedValues.toArray();
@@ -357,13 +360,13 @@ public class Variable<T> implements Expression<T> {
 	 * because the player object inside the variable will be a (kinda) dead variable
 	 * as a new player object has been created by the server.
 	 */
-	@Nullable Object convertIfOldPlayer(String key, Event event, @Nullable Object object) {
-		if (SkriptConfig.enablePlayerVariableFix.value() && object instanceof Player) {
-			Player oldPlayer = (Player) object;
+	public static <T> @Nullable T convertIfOldPlayer(String key, boolean local, Event event, @Nullable T object) {
+		if (SkriptConfig.enablePlayerVariableFix.value() && object instanceof Player oldPlayer) {
 			if (!oldPlayer.isValid() && oldPlayer.isOnline()) {
 				Player newPlayer = Bukkit.getPlayer(oldPlayer.getUniqueId());
 				Variables.setVariable(key, newPlayer, event, local);
-				return newPlayer;
+				//noinspection unchecked
+				return (T) newPlayer;
 			}
 		}
 		return object;
@@ -372,48 +375,7 @@ public class Variable<T> implements Expression<T> {
 	public Iterator<Pair<String, Object>> variablesIterator(Event event) {
 		if (!list)
 			throw new SkriptAPIException("Looping a non-list variable");
-		String name = StringUtils.substring(this.name.toString(event), 0, -1);
-		Object val = Variables.getVariable(name + "*", event, local);
-		if (val == null)
-			return new EmptyIterator<>();
-		assert val instanceof TreeMap;
-		// temporary list to prevent CMEs
-		@SuppressWarnings("unchecked")
-		Iterator<String> keys = new ArrayList<>(((Map<String, Object>) val).keySet()).iterator();
-		return new Iterator<>() {
-			private @Nullable String key;
-			private @Nullable Object next = null;
-
-			@Override
-			public boolean hasNext() {
-				if (next != null)
-					return true;
-				while (keys.hasNext()) {
-					key = keys.next();
-					if (key != null) {
-						next = convertIfOldPlayer(name + key, event, Variables.getVariable(name + key, event, local));
-						if (next != null && !(next instanceof TreeMap))
-							return true;
-					}
-				}
-				next = null;
-				return false;
-			}
-
-			@Override
-			public Pair<String, Object> next() {
-				if (!hasNext())
-					throw new NoSuchElementException();
-				Pair<String, Object> n = new Pair<>(key, next);
-				next = null;
-				return n;
-			}
-
-			@Override
-			public void remove() {
-				throw new UnsupportedOperationException();
-			}
-		};
+		return Variables.getVariableIterator(name.toString(event), local, event);
 	}
 
 	@Override
@@ -441,8 +403,9 @@ public class Variable<T> implements Expression<T> {
 					@Nullable String key = keys.next();
 					if (key != null) {
 						next = Converters.convert(Variables.getVariable(name + key, event, local), types);
+
 						//noinspection unchecked
-						next = (T) convertIfOldPlayer(name + key, event, next);
+						next = (T) convertIfOldPlayer(name + key, local, event, next);
 						if (next != null && !(next instanceof TreeMap))
 							return true;
 					}
@@ -494,6 +457,32 @@ public class Variable<T> implements Expression<T> {
 		if (!list && mode == ChangeMode.SET)
 			return CollectionUtils.array(Object.class);
 		return CollectionUtils.array(Object[].class);
+	}
+
+	@Override
+	public void change(Event event, Object @NotNull [] delta, ChangeMode mode, @NotNull String @NotNull [] keys) {
+		if (!list) {
+			this.change(event, delta, mode);
+			return;
+		}
+		if (mode == ChangeMode.SET) {
+			assert delta.length == keys.length;
+			this.set(event, null);
+			int length = Math.min(delta.length, keys.length);
+			for (int index = 0; index < length; index++) {
+				Object value = delta[index];
+				String key = keys[index];
+				if (value instanceof Object[] array) {
+					for (int j = 0; j < array.length; j++)
+						this.setIndex(event, key + SEPARATOR + (j + 1), array[j]);
+				} else {
+					this.setIndex(event, key, value);
+				}
+			}
+			return;
+		}
+		// no other modes are supported right now
+		this.change(event, delta, mode);
 	}
 
 	@Override
@@ -654,11 +643,61 @@ public class Variable<T> implements Expression<T> {
 		}
 	}
 
+	/**
+	 * {@inheritDoc}
+	 * @param getAll This has no effect for a Variable, as {@link #getArray(Event)} is the same as {@link #getAll(Event)}.
+	 */
+	@Override
+	public <R> void changeInPlace(Event event, Function<T, R> changeFunction, boolean getAll) {
+		changeInPlace(event, changeFunction);
+	}
+
+	@Override
+	public <R> void changeInPlace(Event event, Function<T, R> changeFunction) {
+		if (!list) {
+			T value = getSingle(event);
+			if (value == null)
+				return;
+			set(event, changeFunction.apply(value));
+			return;
+		}
+		variablesIterator(event).forEachRemaining(pair -> {
+			String index = pair.getKey();
+			T value = Converters.convert(pair.getValue(), types);
+			if (value == null)
+				return;
+			Object newValue = changeFunction.apply(value);
+			setIndex(event, index, newValue);
+		});
+	}
+
 	@Override
 	public @Nullable T getSingle(Event event) {
 		if (list)
 			throw new SkriptAPIException("Invalid call to getSingle");
 		return getConverted(event);
+	}
+
+	@Override
+	public @NotNull String @NotNull [] getArrayKeys(Event event) throws SkriptAPIException {
+		if (!list)
+			throw new SkriptAPIException("Invalid call to getArrayKeys on non-list");
+		String name = StringUtils.substring(this.name.toString(event), 0, -1);
+		Object value = Variables.getVariable(name + "*", event, local);
+		if (value == null)
+			return new String[0];
+		assert value instanceof Map<?,?>;
+		return ((Map<String, ?>) value).keySet().toArray(new String[0]);
+	}
+
+	@Override
+	public @NotNull String @NotNull [] getAllKeys(Event event) {
+		return this.getArrayKeys(event);
+	}
+
+	@Override
+	public boolean areKeysRecommended() {
+		return false; // We want `set {list::*} to {other::*}` reset numbering!
 	}
 
 	@Override

@@ -2,11 +2,3 @@ test "item durability":
 	set {_i} to a diamond sword
 	set durability of {_i} to 500
 	assert durability of {_i} != damage value of {_i} with "Durability of item should not equal damage value"
-
-test "block data value" when running below minecraft "1.13.2":
-	set block at spawn of world "world" to farmland
-	set {_b} to block above block at spawn of world "world"
-	set block at {_b} to fully grown wheat plant
-	assert data value of block at {_b} = 7 with "Data value of block should have been 7"
-	set data value of block at {_b} to 1
-	assert data value of block at {_b} = 1 with "Data value of block should have been 1"
