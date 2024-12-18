@@ -72,17 +72,17 @@ public class EventValues {
 	 * Registers an event value.
 	 *
 	 * @param event the event type class.
-	 * @param type the return type of the getter for the event value.
-	 * @param getter the getter to get the value with the provided event.
+	 * @param type the return type of the converter for the event value.
+	 * @param converter the converter to get the value with the provided event.
 	 * @param time value of TIME_PAST if this is the value before the event, TIME_FUTURE if after, and TIME_NOW if it's the default or this value doesn't have distinct states.
 	 *            <b>Always register a default state!</b> You can leave out one of the other states instead, e.g. only register a default and a past state. The future state will
 	 *            default to the default state in this case.
 	 */
 	public static <T, E extends Event> void registerEventValue(
 		Class<E> event, Class<T> type,
-		Converter<E, T> getter, int time
+		Converter<E, T> converter, int time
 	) {
-		registerEventValue(event, type, getter, time, null, (Class<? extends E>[]) null);
+		registerEventValue(event, type, converter, time, null, (Class<? extends E>[]) null);
 	}
 
 	/**
@@ -90,8 +90,8 @@ public class EventValues {
 	 * Excluded events are events that this event value can't operate in.
 	 *
 	 * @param event the event type class.
-	 * @param type the return type of the getter for the event value.
-	 * @param getter the getter to get the value with the provided event.
+	 * @param type the return type of the converter for the event value.
+	 * @param converter the converter to get the value with the provided event.
 	 * @param time value of TIME_PAST if this is the value before the event, TIME_FUTURE if after, and TIME_NOW if it's the default or this value doesn't have distinct states.
 	 *            <b>Always register a default state!</b> You can leave out one of the other states instead, e.g. only register a default and a past state. The future state will
 	 *            default to the default state in this case.
@@ -101,12 +101,14 @@ public class EventValues {
 	@SafeVarargs
 	public static <T, E extends Event> void registerEventValue(
 		Class<E> event, Class<T> type,
-		Converter<E, T> getter, int time,
+		Converter<E, T> converter, int time,
 		@Nullable String excludeErrorMessage,
 		@Nullable Class<? extends E>... excludes
 	) {
 		Skript.checkAcceptRegistrations();
 		List<EventValueInfo<?, ?>> eventValues = getEventValuesList(time);
+		EventValueInfo<E, T> element = new EventValueInfo<>(event, type, converter, excludeErrorMessage, excludes);
+
 		for (int i = 0; i < eventValues.size(); i++) {
 			EventValueInfo<?, ?> info = eventValues.get(i);
 			// We don't care for exact duplicates. Prefer Skript's over any addon.
@@ -115,11 +117,11 @@ public class EventValues {
 			// If the events don't match, we prefer the highest subclass event.
 			// If the events match, we prefer the highest subclass type.
 			if (!info.event.equals(event) ? info.event.isAssignableFrom(event) : info.c.isAssignableFrom(type)) {
-				eventValues.add(i, new EventValueInfo<>(event, type, getter, excludeErrorMessage, excludes));
+				eventValues.add(i, element);
 				return;
 			}
 		}
-		eventValues.add(new EventValueInfo<>(event, type, getter, excludeErrorMessage, excludes));
+		eventValues.add(element);
 	}
 
 	/**
