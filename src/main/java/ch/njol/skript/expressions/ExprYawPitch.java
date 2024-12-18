@@ -252,13 +252,13 @@ public class ExprYawPitch extends SimplePropertyExpression<Object, Float> {
 		return -pitch;
 	}
 
-	private static float fromSkriptYaw(float yaw) {
+	public static float fromSkriptYaw(float yaw) {
 		return yaw > 270
 			? yaw - 270
 			: yaw + 90;
 	}
 
-	private static float fromSkriptPitch(float pitch) {
+	public static float fromSkriptPitch(float pitch) {
 		return -pitch;
 	}
 }
