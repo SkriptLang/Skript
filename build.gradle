@@ -30,7 +30,7 @@ dependencies {
 	shadow group: 'org.bstats', name: 'bstats-bukkit', version: '3.0.2'
 	shadow group: 'net.kyori', name: 'adventure-text-serializer-bungeecord', version: '4.3.2'
 
-	implementation group: 'io.papermc.paper', name: 'paper-api', version: '1.21.3-R0.1-SNAPSHOT'
+	implementation group: 'io.papermc.paper', name: 'paper-api', version: '1.21.4-R0.1-SNAPSHOT'
 	implementation group: 'com.google.code.findbugs', name: 'findbugs', version: '3.0.1'
 
 	// bundled with Minecraft 1.19.4+ for display entity transforms
@@ -244,7 +244,7 @@ void createTestTask(String name, String desc, String environments, int javaVersi
 def java21 = 21
 def java17 = 17
 
-def latestEnv = 'java21/paper-1.21.3.json'
+def latestEnv = 'java21/paper-1.21.4.json'
 def latestJava = java21
 def oldestJava = java17
 
