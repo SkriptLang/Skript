@@ -42,10 +42,9 @@ skript command:
 			all: Disables all scripts
 			<script>: Disables a specific script or a folder of scripts
 		update:
-			description: Check for updates, read the changelog, or download the latest version of Skript
+			description: Check for updates or read the changelog
 			check: Checks for a new version
 			changes: Lists all changes since the current version
-			download: Download the newest version
 		list: Lists all enabled and disabled scripts
 		info: Prints a message with links to Skript's aliases and documentation
 		gen-docs: Generates documentation using docs/templates in plugin folder

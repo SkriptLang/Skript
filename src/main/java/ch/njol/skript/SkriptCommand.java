@@ -82,7 +82,6 @@ public class SkriptCommand implements CommandExecutor {
 			).add(new CommandHelp("update", SkriptColor.DARK_RED)
 				.add("check")
 				.add("changes")
-				.add("download")
 			)
 			.add("list")
 			.add("show")
@@ -363,8 +362,6 @@ public class SkriptCommand implements CommandExecutor {
 					updater.updateCheck(sender);
 				} else if (args[1].equalsIgnoreCase("changes")) {
 					updater.changesCheck(sender);
-				} else if (args[1].equalsIgnoreCase("download")) {
-					updater.updateCheck(sender);
 				}
 			} else if (args[0].equalsIgnoreCase("info")) {
 				info(sender, "info.aliases");
