@@ -1,4 +1,4 @@
-test "quaternions" when running minecraft "1.19":
+test "quaternions":
 	set {_a} to quaternion(1, 2, 3, 4)
 	assert w of {_a} is 1 with error "failed to get w component of quaternion"
 	assert x of {_a} is 2 with error "failed to get x component of quaternion"
@@ -12,7 +12,7 @@ test "quaternions" when running minecraft "1.19":
 	assert y of {_a} is -infinity value with error "failed to get y component of quaternion"
 	assert isNaN(z of {_a}) is true with error "failed to get z component of quaternion"
 
-test "axis angle" when running minecraft "1.19":
+test "axis angle":
 	set {_a} to axisAngle(100, vector(2, 3, 4))
 	assert w of {_a} is 0.642787516117096 with error "failed to get w component of axis angle"
 	assert x of {_a} is 1.5320889949798584 with error "failed to get x component of axis angle"

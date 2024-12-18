@@ -21,7 +21,7 @@ test "spawn section":
 	assert {_before} is 10 with "value of {_before} should be 10 (got '%{_before}%')"
 	assert {_new var} is 5 with "value of {_new var} should be 5 (got '%{_new var}%')"
 
-test "spawn cats by type" when running minecraft "1.15.2":
+test "spawn cats by type":
 	delete all cats
 	set {_l} to location of spawn of world "world"
 	spawn 5 all black cats at {_l}

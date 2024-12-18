@@ -1,4 +1,4 @@
-test "entity invisibility" when running minecraft "1.16.3":
+test "entity invisibility":
 	spawn pig at test-location:
 		make entity invisible
 		assert entity is invisible with "failed to make pig invisible"
