@@ -106,7 +106,10 @@ public class ExprResult extends PropertyExpression<Executable<Event, Object>, Ob
 
 	@Override
 	public String toString(@Nullable Event event, final boolean debug) {
-		return "the result" + (isPlural ? "s" : "") + " of " + getExpr().toString(event, debug);
+		String text = "the result" + (isPlural ? "s" : "") + " of " + getExpr().toString(event, debug);
+		if (hasArguments)
+			text += " with arguments " + arguments.toString(event, debug);
+		return text;
 	}
 
 }

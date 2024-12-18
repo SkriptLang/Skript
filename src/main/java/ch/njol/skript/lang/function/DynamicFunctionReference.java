@@ -92,14 +92,12 @@ public class DynamicFunctionReference<Result>
 
 	@Override
 	public @Nullable Class<?> getReturnType(Expression<?>... arguments) {
-		if (!this.valid())
+		if (!resolved)
 			return Object.class;
 		if (signature.contract != null)
 			return signature.contract.getReturnType(arguments);
 		Function<? extends Result> function = this.function.get();
-		if (function == null)
-			return null;
-		if (function.getReturnType() != null)
+		if (function != null && function.getReturnType() != null)
 			return function.getReturnType().getC();
 		return null;
 	}
