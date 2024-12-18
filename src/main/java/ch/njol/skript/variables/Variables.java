@@ -45,6 +45,7 @@ import org.bukkit.configuration.serialization.ConfigurationSerialization;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.UnmodifiableView;
 import org.skriptlang.skript.lang.converter.Converters;
 
 import java.lang.reflect.Constructor;
@@ -145,8 +146,15 @@ public class Variables {
 	static final List<VariablesStorage> STORAGES = new ArrayList<>();
 
 	/**
+	 * @return a copy of the list of variable storage handlers
+	 */
+	public static @UnmodifiableView List<VariablesStorage> getStores() {
+		return Collections.unmodifiableList(STORAGES);
+	}
+
+	/**
 	 * Register a VariableStorage class for Skript to create if the user config value matches.
-	 * 
+	 *
 	 * @param <T> A class to extend VariableStorage.
 	 * @param storage The class of the VariableStorage implementation.
 	 * @param names The names used in the config of Skript to select this VariableStorage.
@@ -413,13 +421,26 @@ public class Variables {
 	 * @param event the event to copy local variables from.
 	 * @return the copy.
 	 */
-	@Nullable
-	public static Object copyLocalVariables(Event event) {
+	public static @Nullable Object copyLocalVariables(Event event) {
 		VariablesMap from = localVariables.get(event);
 		if (from == null)
 			return null;
 
 		return from.copy();
+	}
+
+	/**
+	 * Copies local variables from provider to user, runs action, then copies variables back to provider.
+	 * Removes local variables from user after action is finished.
+	 * @param provider The originator of the local variables.
+	 * @param user The event to copy the variables to and back from.
+	 * @param action The code to run while the variables are copied.
+	 */
+	public static void withLocalVariables(Event provider, Event user, @NotNull Runnable action) {
+		Variables.setLocalVariables(user, Variables.copyLocalVariables(provider));
+		action.run();
+		Variables.setLocalVariables(provider, Variables.copyLocalVariables(user));
+		Variables.removeLocals(user);
 	}
 
 	/**
@@ -538,7 +559,7 @@ public class Variables {
 			}
 		};
 	}
-	
+
 	/**
 	 * Deletes a variable.
 	 *
