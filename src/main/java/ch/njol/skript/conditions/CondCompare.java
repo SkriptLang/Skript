@@ -235,7 +235,6 @@ public class CondCompare extends Condition implements VerboseAssert {
 					comparator = Comparators.getComparator(first.getReturnType(), secondReturnType);
 				}
 			}
-
 		}
 
 		return comparator != null;
