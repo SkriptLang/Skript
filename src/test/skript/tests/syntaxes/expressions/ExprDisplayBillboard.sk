@@ -1,4 +1,4 @@
-test "display billboard" when running minecraft "1.19.4":
+test "display billboard":
 
 	spawn a text display at spawn of world "world":
 		set {_e} to entity

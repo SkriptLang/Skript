@@ -5,6 +5,8 @@ import ch.njol.skript.expressions.base.EventValueExpression;
 import ch.njol.skript.lang.DefaultExpression;
 import org.bukkit.Keyed;
 import org.bukkit.Registry;
+import org.skriptlang.skript.lang.comparator.Comparators;
+import org.skriptlang.skript.lang.comparator.Relation;
 
 /**
  * This class can be used for easily creating ClassInfos for {@link Registry}s.
@@ -30,6 +32,8 @@ public class RegistryClassInfo<R extends Keyed> extends ClassInfo<R> {
 			.serializer(new RegistrySerializer<R>(registry))
 			.defaultExpression(defaultExpression)
 			.parser(registryParser);
+
+		Comparators.registerComparator(registryClass, registryClass, (o1, o2) -> Relation.get(o1.getKey() == o2.getKey()));
 	}
 
 }

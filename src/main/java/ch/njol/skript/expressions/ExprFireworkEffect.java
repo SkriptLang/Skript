@@ -1,5 +1,6 @@
 package ch.njol.skript.expressions;
 
+import ch.njol.skript.util.ColorRGB;
 import org.bukkit.FireworkEffect;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
@@ -68,11 +69,19 @@ public class ExprFireworkEffect extends SimpleExpression<FireworkEffect> {
 			return null;
 		FireworkEffect.Builder builder = FireworkEffect.builder().with(type);
 		
-		for (Color colour : color.getArray(e))
-			builder.withColor(colour.asBukkitColor());
+		for (Color colour : color.getArray(e)) {
+			if (colour instanceof ColorRGB)
+				builder.withColor(colour.asBukkitColor());
+			else
+				builder.withColor(colour.asDyeColor().getFireworkColor());
+		}
 		if (hasFade)
-			for (Color colour : fade.getArray(e))
-				builder.withFade(colour.asBukkitColor());
+			for (Color colour : fade.getArray(e)) {
+				if (colour instanceof ColorRGB)
+					builder.withFade(colour.asBukkitColor());
+				else
+					builder.withFade(colour.asDyeColor().getFireworkColor());
+			}
 		
 		builder.flicker(flicker);
 		builder.trail(trail);

@@ -1,13 +1,15 @@
 package ch.njol.skript.expressions;
 
 import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
 import ch.njol.skript.SkriptConfig;
+import ch.njol.skript.lang.Literal;
+import ch.njol.skript.lang.SyntaxStringBuilder;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.Skript;
-import ch.njol.skript.SkriptConfig;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
@@ -18,11 +20,6 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
 import ch.njol.util.StringUtils;
-import org.bukkit.event.Event;
-import org.jetbrains.annotations.Nullable;
-import org.jetbrains.annotations.UnknownNullability;
-
-import java.util.regex.Pattern;
 
 @Name("Join & Split")
 @Description("Joins several texts with a common delimiter (e.g. \", \"), or splits a text into multiple texts at a given delimiter.")
@@ -47,41 +44,51 @@ public class ExprJoinSplit extends SimpleExpression<String> {
 	private boolean caseSensitivity;
 	private boolean removeTrailing;
 
-	@UnknownNullability
 	private Expression<String> strings;
-	@UnknownNullability
-	private Expression<String> delimiter;
+	private @Nullable Expression<String> delimiter;
+
+	private @Nullable Pattern pattern;
 
 	@Override
-	@SuppressWarnings("unchecked")
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		join = matchedPattern == 0;
 		regex = matchedPattern >= 3;
 		caseSensitivity = SkriptConfig.caseSensitive.value() || parseResult.hasTag("case");
 		removeTrailing = parseResult.hasTag("trailing");
-
+		//noinspection unchecked
 		strings = (Expression<String>) exprs[0];
+		//noinspection unchecked
 		delimiter = (Expression<String>) exprs[1];
+		if (!join && delimiter instanceof Literal<String> literal) {
+			String stringPattern = literal.getSingle();
+			try {
+				this.pattern = compilePattern(stringPattern);
+			} catch (PatternSyntaxException e) {
+				Skript.error("'" + stringPattern + "' is not a valid regular expression");
+				return false;
+			}
+		}
 		return true;
 	}
 
 	@Override
-	@Nullable
-	protected String[] get(Event event) {
+	protected String @Nullable [] get(Event event) {
 		String[] strings = this.strings.getArray(event);
 		String delimiter = this.delimiter != null ? this.delimiter.getSingle(event) : "";
 
 		if (strings.length == 0 || delimiter == null)
 			return new String[0];
 
-		if (join) {
-			return new String[]{StringUtils.join(strings, delimiter)};
-		} else {
-			if (!regex) {
-				delimiter = (caseSensitivity ? "" : "(?i)") + Pattern.quote(delimiter);
-			}
+		if (join)
+			return new String[] {StringUtils.join(strings, delimiter)};
 
-			return strings[0].split(delimiter, removeTrailing ? 0 : -1);
+		try {
+			Pattern pattern = this.pattern;
+			if (pattern == null)
+				pattern = compilePattern(delimiter);
+			return pattern.split(strings[0], removeTrailing ? 0 : -1);
+		} catch (PatternSyntaxException e) {
+			return new String[0];
 		}
 	}
 
@@ -97,14 +104,27 @@ public class ExprJoinSplit extends SimpleExpression<String> {
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		if (join)
-			return "join " + strings.toString(event, debug) +
-				(delimiter != null ? " with " + delimiter.toString(event, debug) : "");
-		return (regex ? "regex " : "") +
-			"split " + strings.toString(event, debug) +
-			(delimiter != null ? " at " + delimiter.toString(event, debug) : "") +
-			(regex ? "" : "(case sensitive: " + caseSensitivity + ")") +
-			(removeTrailing ? " without trailing string" : "");
+		SyntaxStringBuilder builder = new SyntaxStringBuilder(event, debug);
+		if (join) {
+			builder.append("join", strings);
+			if (delimiter != null)
+				builder.append("with", delimiter);
+			return builder.toString();
+		}
+
+        assert delimiter != null;
+		if (regex)
+			builder.append("regex");
+        builder.append("split", strings, "at", delimiter);
+		if (removeTrailing)
+			builder.append("without trailing text");
+		if (!regex)
+			builder.append("(case sensitive:", caseSensitivity + ")");
+		return builder.toString();
+	}
+
+	private Pattern compilePattern(String delimiter) {
+		return Pattern.compile(regex ? delimiter : (caseSensitivity ? "" : "(?i)") + Pattern.quote(delimiter));
 	}
 
 }

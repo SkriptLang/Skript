@@ -120,7 +120,7 @@ public class ExprCmdCooldownInfo extends SimpleExpression<Object> {
 		CommandSender sender = commandEvent.getSender();
 		if (cooldown == null || !(sender instanceof Player))
 			return;
-		long cooldownMs = cooldown.getMilliSeconds();
+		long cooldownMs = cooldown.getAs(Timespan.TimePeriod.MILLISECOND);
 		UUID uuid = ((Player) sender).getUniqueId();
 		
 		if (pattern <= 1) {
@@ -128,7 +128,7 @@ public class ExprCmdCooldownInfo extends SimpleExpression<Object> {
 			switch (mode) {
 				case ADD:
 				case REMOVE:
-					long change = (mode == Changer.ChangeMode.ADD ? 1 : -1) * timespan.getMilliSeconds();
+					long change = (mode == Changer.ChangeMode.ADD ? 1 : -1) * timespan.getAs(Timespan.TimePeriod.MILLISECOND);
 					if (pattern == 0) {
 						long remaining = command.getRemainingMilliseconds(uuid, commandEvent);
 						long changed = remaining + change;
@@ -151,9 +151,9 @@ public class ExprCmdCooldownInfo extends SimpleExpression<Object> {
 					break;
 				case SET:
 					if (pattern == 0)
-						command.setRemainingMilliseconds(uuid, commandEvent, timespan.getMilliSeconds());
+						command.setRemainingMilliseconds(uuid, commandEvent, timespan.getAs(Timespan.TimePeriod.MILLISECOND));
 					else
-						command.setElapsedMilliSeconds(uuid, commandEvent, timespan.getMilliSeconds());
+						command.setElapsedMilliSeconds(uuid, commandEvent, timespan.getAs(Timespan.TimePeriod.MILLISECOND));
 					break;
 			}
 		} else if (pattern == 3) {
