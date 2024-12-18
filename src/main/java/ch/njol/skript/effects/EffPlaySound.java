@@ -67,9 +67,8 @@ public class EffPlaySound extends Effect {
 	// 		World - Location/Entity - Sound/String
 	// 1.20 - spigot adds sound seeds
 
-	private static final boolean ADVENTURE_API = Skript.classExists("net.kyori.adventure.sound.Sound$Builder");
 	private static final boolean SPIGOT_SOUND_SEED = Skript.methodExists(Player.class, "playSound", Entity.class, Sound.class, SoundCategory.class, float.class, float.class, long.class);
-	private static final boolean HAS_SEED = ADVENTURE_API || SPIGOT_SOUND_SEED;
+	private static final boolean HAS_SEED = SoundReceiver.ADVENTURE_API || SPIGOT_SOUND_SEED;
 	private static final boolean ENTITY_EMITTER_SOUND = Skript.methodExists(Player.class, "playSound", Entity.class, Sound.class, SoundCategory.class, float.class, float.class);
 	private static final boolean ENTITY_EMITTER_STRING = Skript.methodExists(Player.class, "playSound", Entity.class, String.class, SoundCategory.class, float.class, float.class);
 	private static final boolean ENTITY_EMITTER = ENTITY_EMITTER_SOUND || ENTITY_EMITTER_STRING;

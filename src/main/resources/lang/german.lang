@@ -40,10 +40,9 @@ skript command:
 			all: Deaktiviert alle Skripte
 			<script>: Deaktiviert ein bestimmtes Skript oder einen Ordner
 		update:
-			description: Überprüft auf eine neue Version, listet Änderungen dieser auf, und kann sie auch gleich herunterladen
+			description: Überprüft auf eine neue Version oder listet Änderungen dieser auf
 			check: Überprüft, ob eine neue Version von Skript verfügbar ist
 			changes: Listet alle Änderungen seit der aktuellen Version auf (auf englisch)
-			download: Lädt die neueste Version herunter
 		info: Druckt eine Nachricht mit Links zu den Aliases und der Dokumentation von Skript.
 		gen-docs: Generiert Dokumentation mithilfe von docs/templates im Plugin-Ordner
 		test: Wird zum Ausführen von Skript-Tests verwendet
