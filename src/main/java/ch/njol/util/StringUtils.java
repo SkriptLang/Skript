@@ -324,21 +324,40 @@ public abstract class StringUtils {
 		return join(strings.iterator(), "");
 	}
 
-	public static String join(final @Nullable Iterable<?> strings, final String delimiter) {
+	public static String join(@Nullable Iterable<?> strings, String delimiter) {
 		if (strings == null)
 			return "";
 		return join(strings.iterator(), delimiter);
 	}
 
-	public static String join(final @Nullable Iterator<?> strings, final String delimiter) {
+	public static String join(@Nullable Iterator<?> strings, String delimiter) {
+		return join(strings, delimiter, delimiter);
+	}
+
+	/**
+	 * Join elements with delimiter except last one will be joined with lastDelimiter.
+	 *
+	 * @param strings The strings to join
+	 * @param delimiter The delimiter to use between all elements except the last one
+	 * @param lastDelimiter The delimiter to use between the last two elements
+	 * @return The joined string
+	 */
+	public static String join(@Nullable Iterator<?> strings, String delimiter, String lastDelimiter) {
 		if (strings == null || !strings.hasNext())
 			return "";
-		final StringBuilder b = new StringBuilder("" + strings.next());
+		StringBuilder builder = new StringBuilder(String.valueOf(strings.next()));
 		while (strings.hasNext()) {
-			b.append(delimiter);
-			b.append(strings.next());
+			Object next = strings.next();
+			builder.append(!strings.hasNext() ? lastDelimiter : delimiter); // If this is last element
+			builder.append(next);
 		}
-		return "" + b;
+		return builder.toString();
+	}
+
+	public static String join(@Nullable Iterable<?> strings, String delimiter, String lastDelimiter) {
+		if (strings == null)
+			return "";
+		return join(strings.iterator(), delimiter, lastDelimiter);
 	}
 
 	/**
