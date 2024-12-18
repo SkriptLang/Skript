@@ -192,12 +192,6 @@ public class SimpleEvents {
 				)
 				.examples("on throw of an egg:")
 				.since("1.0");
-		// TODO improve - on fish [of %entitydata%] (and/or itemtype), on reel, etc.
-		// Maybe something like RandomSK "[on] fishing state of %fishingstate%"
-		Skript.registerEvent("Fishing", SimpleEvent.class, PlayerFishEvent.class, "[player] fish[ing]")
-				.description("Called when a player fishes something. This is not of much use yet.")
-				.examples("on fish:")
-				.since("1.0");
 		if (Skript.classExists("org.bukkit.event.player.PlayerItemBreakEvent")) {
 			Skript.registerEvent("Item Break", SimpleEvent.class, PlayerItemBreakEvent.class, "[player] tool break[ing]", "[player] break[ing] (a|the|) tool")
 					.description("Called when a player breaks their tool because its damage reached the maximum value.",

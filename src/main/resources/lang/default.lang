@@ -1303,6 +1303,19 @@ entities:
 	bogged:
 		name: bogged¦s
 		pattern: bogged[1:s]
+	# 1.21.2 Entities
+	any salmon:
+		name: salmon¦s
+		pattern: any salmon[1:s]
+	large salmon:
+		name: large salmon¦s
+		pattern: large salmon[1:s]
+	medium salmon:
+		name: medium salmon¦s
+		pattern: medium salmon[1:s]
+	small salmon:
+		name: small salmon¦s
+		pattern: small salmon[1:s]
 	# 1.21.3 Entities
 	creaking:
 		name: creaking¦s
