@@ -25,8 +25,8 @@ import lib.PatPeter.SQLibrary.MySQL;
 
 public class MySQLStorage extends SQLStorage {
 
-	MySQLStorage(String name) {
-		super(name, "CREATE TABLE IF NOT EXISTS %s (" +
+	MySQLStorage(String type) {
+		super(type, "CREATE TABLE IF NOT EXISTS %s (" +
 				"rowid        BIGINT  NOT NULL  AUTO_INCREMENT  PRIMARY KEY," +
 				"name         VARCHAR(" + MAX_VARIABLE_NAME_LENGTH + ")  NOT NULL  UNIQUE," +
 				"type         VARCHAR(" + MAX_CLASS_CODENAME_LENGTH + ")," +
