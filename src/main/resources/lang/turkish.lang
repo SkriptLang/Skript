@@ -41,7 +41,6 @@ skript command:
 			description: Skript eklentisinin güncelliğini yönetmenizi sağlar. 
 			check: Yeni bir sürüm olup olmadığını kontrol eder.
 			changes: Son sürümdeki tüm değişiklikleri listeler.
-			download: En yeni sürümü indirir.
 		info: Skript'in alias ve dökümantasyon bağlantılarını gösterir.
 		gen-docs: Eklenti klasöründeki şablonları kullanarak bir dokümantasyon oluşturur.
 		test: Skript'in dahili testleri için kullanılır.
