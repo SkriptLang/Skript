@@ -2528,6 +2528,8 @@ types:
 	textalignment: text alignment¦s @a
 	itemdisplaytransform: item display transform¦s @an
 	experiencecooldownchangereason: experience cooldown change reason¦s @a
+	toolcomponent: tool component¦s @a
+	toolrule: tool rule¦s @a
 	inputkey: input key¦s @an
 
 	# Skript
