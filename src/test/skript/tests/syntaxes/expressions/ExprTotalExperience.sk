@@ -13,3 +13,10 @@ test "total experience":
 		assert experience of entity is 0 with "remove too much experience from entity did not work"
 	assert experience of last spawned entity is 0 with "entity should have 0 experience after section"
 	delete last spawned entity
+
+	set {_xp} to 10 xp
+	assert experience of {_xp} is 10 with "getting experience of an experience object didn't work"
+	add 5 to experience of {_xp}
+	assert experience of {_xp} is 15 with "adding to experience of experience object didn't work"
+	remove 3 from experience of {_xp}
+	assert experience of {_xp} is 12 with "removing from experience of experience object didn't work"
