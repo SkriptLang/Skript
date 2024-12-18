@@ -1570,7 +1570,7 @@ public class BukkitClasses {
 		Classes.registerClass(new RegistryClassInfo<>(Villager.Type.class, Registry.VILLAGER_TYPE, "villagertype", "villager types")
 			.user("villager ?types?")
 			.name("Villager Type")
-			.description("Represents the different types of villagers.")
+			.description("Represents the different types of villagers. These are usually the biomes a villager can be from.")
 			.after("biome")
 			.since("INSERT VERSION"));
 
