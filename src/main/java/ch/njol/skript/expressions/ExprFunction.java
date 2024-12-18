@@ -34,10 +34,10 @@ import java.util.Objects;
 public class ExprFunction extends SimpleExpression<DynamicFunctionReference> {
 
 	static {
-		Skript.registerExpression(ExprFunction.class, DynamicFunctionReference.class, ExpressionType.SIMPLE,
+		Skript.registerExpression(ExprFunction.class, DynamicFunctionReference.class, ExpressionType.COMBINED,
 				"[the|a] function [named] %string% [local:(in|from) %-script%]",
 				"[the] functions [named] %strings% [local:(in|from) %-script%]",
-				"[all] [the] functions (in|from) %script%"
+				"[all [[of] the]|the] functions (in|from) %script%"
 		);
 	}
 
@@ -74,10 +74,11 @@ public class ExprFunction extends SimpleExpression<DynamicFunctionReference> {
 	@Override
 	protected DynamicFunctionReference<?>[] get(Event event) {
 		@Nullable Script script;
-		if (local)
+		if (local) {
 			script = this.script.getSingle(event);
-		else
+		} else {
 			script = here;
+		}
 		return switch (mode) {
 			case 0:
 				@Nullable String name = this.name.getSingle(event);
@@ -134,7 +135,7 @@ public class ExprFunction extends SimpleExpression<DynamicFunctionReference> {
 
 	@Override
 	public boolean isSingle() {
-		return mode == 0 || mode == 1 && name.isSingle();
+		return mode != 2 && name.isSingle();
 	}
 
 	@Override

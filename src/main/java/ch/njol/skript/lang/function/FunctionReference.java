@@ -384,10 +384,11 @@ public class FunctionReference<T> implements Contract, Executable<Event, T[]> {
 	static Object[][] consign(Object... arguments) {
 		Object[][] consigned = new Object[arguments.length][];
 		for (int i = 0; i < consigned.length; i++) {
-			if (arguments[i] instanceof Object[] || arguments[i] == null)
+			if (arguments[i] instanceof Object[] || arguments[i] == null) {
 				consigned[i] = (Object[]) arguments[i];
-			else
+			} else {
 				consigned[i] = new Object[]{arguments[i]};
+			}
 		}
 		return consigned;
 

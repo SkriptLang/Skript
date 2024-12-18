@@ -32,8 +32,8 @@ import org.skriptlang.skript.util.Executable;
 public class ExprResult extends PropertyExpression<Executable<Event, Object>, Object> {
 
 	static {
-		Skript.registerExpression(ExprResult.class, Object.class, ExpressionType.SIMPLE,
-			"[the] result[plural:s] of [running] %executable% [arguments:with arg[ument]s %-objects%]");
+		Skript.registerExpression(ExprResult.class, Object.class, ExpressionType.COMBINED,
+			"[the] result[plural:s] of [running|executing] %executable% [arguments:with arg[ument]s %-objects%]");
 	}
 
 	private Expression<?> arguments;
@@ -52,10 +52,11 @@ public class ExprResult extends PropertyExpression<Executable<Event, Object>, Ob
 		if (hasArguments) {
 			this.arguments = LiteralUtils.defendExpression(expressions[1]);
 			Expression<?>[] arguments;
-			if (this.arguments instanceof ExpressionList<?> list)
+			if (this.arguments instanceof ExpressionList<?> list) {
 				arguments = list.getExpressions();
-			else
+			} else {
 				arguments = new Expression[]{this.arguments};
+			}
 			this.input = new DynamicFunctionReference.Input(arguments);
 			return LiteralUtils.canInitSafely(this.arguments);
 		} else {
@@ -74,10 +75,11 @@ public class ExprResult extends PropertyExpression<Executable<Event, Object>, Ob
 				if (validated == null)
 					return new Object[0];
 				arguments = validated.getArray(event);
-			} else if (hasArguments)
+			} else if (hasArguments) {
 				arguments = this.arguments.getArray(event);
-			else
+			} else {
 				arguments = new Object[0];
+			}
 			Object execute = task.execute(event, arguments);
 			if (execute instanceof Object[] results)
 				return results;

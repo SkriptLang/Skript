@@ -44,10 +44,7 @@ public class DynamicFunctionReference<Result>
 		this.name = function.getName();
 		this.signature = function.getSignature();
 		@Nullable File file = ScriptLoader.getScriptFromName(signature.script);
-		if (file == null)
-			this.source = null;
-		else
-			this.source = ScriptLoader.getScript(file);
+		this.source = file != null ? ScriptLoader.getScript(file) : null;
 	}
 
 	public DynamicFunctionReference(@NotNull String name) {
@@ -57,21 +54,19 @@ public class DynamicFunctionReference<Result>
 	public DynamicFunctionReference(@NotNull String name, @Nullable Script source) {
 		this.name = name;
 		Function<? extends Result> function;
-		if (source != null)
+		if (source != null) {
 			//noinspection unchecked
 			function = (Function<? extends Result>) Functions.getFunction(name, source.getConfig().getFileName());
-		else
+		} else {
 			//noinspection unchecked
 			function = (Function<? extends Result>) Functions.getFunction(name, null);
+		}
 		this.resolved = function != null;
 		this.function = new WeakReference<>(function);
 		if (resolved) {
 			this.signature = function.getSignature();
 			@Nullable File file = ScriptLoader.getScriptFromName(signature.script);
-			if (file == null)
-				this.source = null;
-			else
-				this.source = ScriptLoader.getScript(file);
+			this.source = file != null ? ScriptLoader.getScript(file) : null;
 		} else {
 			this.signature = null;
 			this.source = null;
@@ -126,7 +121,7 @@ public class DynamicFunctionReference<Result>
 	}
 
 	@Override
-	public void invalidate() throws UnsupportedOperationException {
+	public void invalidate() {
 		this.validator.invalidate();
 	}
 
@@ -217,9 +212,10 @@ public class DynamicFunctionReference<Result>
 
 		@Override
 		public boolean equals(Object object) {
-			if (this == object) return true;
-			if (!(object instanceof Input)) return false;
-			Input input = (Input) object;
+			if (this == object)
+				return true;
+			if (!(object instanceof Input input))
+				return false;
 			return Arrays.equals(parameters, input.parameters) && Objects.deepEquals(types, input.types);
 		}
 

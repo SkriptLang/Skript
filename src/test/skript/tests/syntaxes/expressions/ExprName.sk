@@ -16,4 +16,5 @@ test "function name (new)":
 	assert {_name} is "testExprName" with "function name is wrong"
 
 local function testExprName():
-	#
+	# do nothing
+	stop

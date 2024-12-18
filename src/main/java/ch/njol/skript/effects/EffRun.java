@@ -50,10 +50,11 @@ public class EffRun extends Effect {
 		if (hasArguments) {
 			this.arguments = LiteralUtils.defendExpression(expressions[1]);
 			Expression<?>[] arguments;
-			if (this.arguments instanceof ExpressionList<?>)
+			if (this.arguments instanceof ExpressionList<?>) {
 				arguments = ((ExpressionList<?>) this.arguments).getExpressions();
-			else
+			} else {
 				arguments = new Expression[]{this.arguments};
+			}
 			this.input = new DynamicFunctionReference.Input(arguments);
 			return LiteralUtils.canInitSafely(this.arguments);
 		} else {
@@ -64,12 +65,11 @@ public class EffRun extends Effect {
 
 	@Override
 	protected void execute(Event event) {
-		@Nullable Executable task = executable.getSingle(event);
+		Executable task = executable.getSingle(event);
 		if (task == null)
 			return;
 		Object[] arguments;
-		if (task instanceof DynamicFunctionReference) {
-			DynamicFunctionReference<?> reference = (DynamicFunctionReference) task;
+		if (task instanceof DynamicFunctionReference<?> reference) {
 			Expression<?> validated = reference.validate(input);
 			if (validated == null)
 				return;
