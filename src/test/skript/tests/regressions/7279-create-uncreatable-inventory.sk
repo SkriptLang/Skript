@@ -10,7 +10,7 @@ test "create un-creatable inventory":
 	# Test opening an inventory type which cannot be created
 	parse:
 		open merchant inventory to {_null}
-	assert last parse logs is set with "Opening a merchant inventory should fail"
+	assert last parse logs is "Cannot create an inventory of type merchant inventory" with "Opening a merchant inventory should fail"
 
 	# Test opening an inventory type which can be created
 	parse:
