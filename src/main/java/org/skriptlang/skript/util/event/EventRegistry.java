@@ -3,8 +3,8 @@ package org.skriptlang.skript.util.event;
 import com.google.common.collect.ImmutableSet;
 import org.jetbrains.annotations.Unmodifiable;
 
-import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * An EventRegistry is a generic container for events.
@@ -13,7 +13,7 @@ import java.util.Set;
  */
 public class EventRegistry<E extends Event> {
 
-	private final Set<E> events = new HashSet<>();
+	private final Set<E> events = ConcurrentHashMap.newKeySet();
 
 	/**
 	 * Registers the provided event with this register.

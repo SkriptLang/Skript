@@ -40,10 +40,9 @@ skript command:
 			all: Schakelt alle scripts uit
 			<script>: Schakelt een specifiek script of een folder met scripts uit
 		update:
-			description: Controleert of er updates zijn, laat de lijst met wijzigingen zien of downloadt de nieuwste versie van Skript
+			description: Controleert of er updates zijn, of laat de lijst met wijzigingen zien
 			check: Controleert of er een nieuwe versie is
 			changes: Toont alle wijzigingen sinds de huidige versie
-			download: Downloadt de nieuwste versie
 		info: Toont koppelingen naar de alliassen en documentatie van Skript
 		gen-docs: Genereert documentatie met behulp van docs/templates in de plugin folder
 		test: Gebruikt voor het uitvoeren van interne Skript-tests

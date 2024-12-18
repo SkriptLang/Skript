@@ -140,7 +140,7 @@ public class Money {
 
 	@Nullable
 	private static Double parseDouble(String s) {
-		if (!JavaClasses.NUMBER_PATTERN.matcher(s).matches())
+		if (!JavaClasses.DECIMAL_PATTERN.matcher(s).matches())
 			return null;
 		try {
 			return Double.parseDouble(s);

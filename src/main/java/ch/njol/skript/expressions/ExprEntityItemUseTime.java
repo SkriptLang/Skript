@@ -45,8 +45,8 @@ public class ExprEntityItemUseTime extends SimplePropertyExpression<LivingEntity
 	@Override
 	public Timespan convert(LivingEntity livingEntity) {
 		if (remaining)
-			return Timespan.fromTicks(livingEntity.getItemUseRemainingTime());
-		return Timespan.fromTicks(livingEntity.getHandRaisedTime());
+			return new Timespan(Timespan.TimePeriod.TICK, livingEntity.getItemUseRemainingTime());
+		return new Timespan(Timespan.TimePeriod.TICK, livingEntity.getHandRaisedTime());
 	}
 
 	@Override

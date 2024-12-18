@@ -69,7 +69,7 @@ public class Date implements Comparable<Date>, YggdrasilSerializable {
 	 * @param span Timespan to add
 	 */
 	public void add(final Timespan span) {
-		timestamp += span.getMilliSeconds();
+		timestamp += span.getAs(Timespan.TimePeriod.MILLISECOND);
 	}
 	
 	/**
@@ -78,7 +78,7 @@ public class Date implements Comparable<Date>, YggdrasilSerializable {
 	 * @param span Timespan to subtract
 	 */
 	public void subtract(final Timespan span) {
-		timestamp -= span.getMilliSeconds();
+		timestamp -= span.getAs(Timespan.TimePeriod.MILLISECOND);
 	}
 	
 	/**
@@ -88,7 +88,7 @@ public class Date implements Comparable<Date>, YggdrasilSerializable {
 	 * @return New Date with the added timespan
 	 */
 	public Date plus(Timespan span) {
-		return new Date(timestamp + span.getMilliSeconds());
+		return new Date(timestamp + span.getAs(Timespan.TimePeriod.MILLISECOND));
 	}
 	
 	/**
@@ -98,7 +98,7 @@ public class Date implements Comparable<Date>, YggdrasilSerializable {
 	 * @return New Date with the subtracted timespan
 	 */
 	public Date minus(Timespan span) {
-		return new Date(timestamp - span.getMilliSeconds());
+		return new Date(timestamp - span.getAs(Timespan.TimePeriod.MILLISECOND));
 	}
 	
 	@Override
