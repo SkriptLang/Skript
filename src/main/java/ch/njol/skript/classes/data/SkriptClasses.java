@@ -743,7 +743,36 @@ public class SkriptClasses {
 			.usage("")
 			.examples("run {_function} with arguments 1 and true",
 					"set {_result} to the result of {_function}")
-			.since("INSERT VERSION"));
+			.since("INSERT VERSION")
+			.parser(new Parser<DynamicFunctionReference<?>>() {
+
+				@Override
+				public boolean canParse(final ParseContext context) {
+					return switch (context) {
+						case PARSE, COMMAND -> true;
+						default -> false;
+					};
+				}
+
+				@Override
+				@Nullable
+				public DynamicFunctionReference<?> parse(final String name, final ParseContext context) {
+					return switch (context) {
+						case PARSE, COMMAND -> DynamicFunctionReference.parseFunction(name);
+						default -> null;
+					};
+				}
+
+				@Override
+				public String toString(DynamicFunctionReference<?> function, final int flags) {
+					return this.toVariableNameString(function);
+				}
+
+				@Override
+				public String toVariableNameString(DynamicFunctionReference<?> function) {
+					return function.toString();
+				}
+			}));
 	}
 
 }

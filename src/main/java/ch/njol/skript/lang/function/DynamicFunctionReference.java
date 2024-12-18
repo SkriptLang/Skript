@@ -187,6 +187,50 @@ public class DynamicFunctionReference<Result>
 	}
 
 	/**
+	 * Attempts to parse a function reference from the format it would be stringified in.
+	 * The name can include the source script name for the case of parsing local functions.
+	 * @param name The function name, possibly including its script name
+	 * @return A reference, if one is available
+	 */
+	public static @Nullable DynamicFunctionReference<?> parseFunction(String name) {
+		// Function reference string-ifying appends a () and potentially its source,
+		// e.g. `myFunction() from MyScript.sk` and we should turn that into a valid function.
+		if (name.contains(") from ")) {
+			// The user might be trying to resolve a local function by name only
+			String source = name.substring(name.lastIndexOf(" from ") + 6).trim();
+			Script script = getScript(source);
+			return resolveFunction(name.substring(0, name.lastIndexOf(" from ")).trim(), script);
+		}
+		return resolveFunction(name, null);
+	}
+
+	/**
+	 * Used to resolve a function from its name.
+	 * @param name The function name
+	 * @param script Potentially, the script it is from, if one is known
+	 * @return A function reference, if one is available.
+	 */
+	public static @Nullable DynamicFunctionReference<?> resolveFunction(String name, @Nullable Script script) {
+		if (name.contains("(") && name.contains(")"))
+			name = name.replaceAll("\\(.*\\).*", "").trim();
+		// In the future, if function overloading is supported, we could even use the header
+		// to specify parameter types (e.g. "myFunction(text, player)"
+		DynamicFunctionReference<Object> reference = new DynamicFunctionReference<>(name, script);
+		if (!reference.valid())
+			return null;
+		return reference;
+	}
+
+	private static @Nullable Script getScript(@Nullable String source) {
+		if (source == null || source.isEmpty())
+			return null;
+		@Nullable File file = ScriptLoader.getScriptFromName(source);
+		if (file == null || file.isDirectory())
+			return null;
+		return ScriptLoader.getScript(file);
+	}
+
+	/**
 	 * An index-linking key for a particular set of input expressions.
 	 * Validation only needs to be done once for a set of parameter types,
 	 * so this is used to prevent re-validation.

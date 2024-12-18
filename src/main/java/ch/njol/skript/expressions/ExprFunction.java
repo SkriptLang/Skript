@@ -47,8 +47,8 @@ public class ExprFunction extends SimpleExpression<DynamicFunctionReference> {
 	private boolean local;
 	private Script here;
 
-	@SuppressWarnings("null")
 	@Override
+	@SuppressWarnings("null")
 	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed,
                         ParseResult result) {
 		if (!this.getParser().hasExperiment(Feature.SCRIPT_REFLECTION))
@@ -84,12 +84,12 @@ public class ExprFunction extends SimpleExpression<DynamicFunctionReference> {
 				@Nullable String name = this.name.getSingle(event);
 				if (name == null)
 					yield CollectionUtils.array();
-				@Nullable DynamicFunctionReference reference = this.resolveFunction(name, script);
+				@Nullable DynamicFunctionReference reference = DynamicFunctionReference.resolveFunction(name, script);
 				if (reference == null)
 					yield CollectionUtils.array();
 				yield CollectionUtils.array(reference);
 			case 1:
-				yield this.name.stream(event).map(string -> this.resolveFunction(string, script))
+				yield this.name.stream(event).map(string -> DynamicFunctionReference.resolveFunction(string, script))
 						.filter(Objects::nonNull)
 						.toArray(DynamicFunctionReference[]::new);
 			case 2:
@@ -104,33 +104,6 @@ public class ExprFunction extends SimpleExpression<DynamicFunctionReference> {
 			default:
 				throw new IllegalStateException("Unexpected value: " + mode);
 		};
-	}
-
-	private @Nullable DynamicFunctionReference resolveFunction(String name, @Nullable Script script) {
-		// Function reference string-ifying appends a () and potentially its source,
-		// e.g. `myFunction() from MyScript.sk` and we should turn that into a valid function.
-		if (script == null && !local && name.contains(") from ")) {
-			// The user might be trying to resolve a local function by name only
-			String source = name.substring(name.lastIndexOf(" from ") + 6).trim();
-			script = getScript(source);
-		}
-		if (name.contains("(") && name.contains(")"))
-			name = name.replaceAll("\\(.*\\).*", "").trim();
-		// In the future, if function overloading is supported, we could even use the header
-		// to specify parameter types (e.g. "myFunction(text, player)"
-		DynamicFunctionReference<Object> reference = new DynamicFunctionReference<>(name, script);
-		if (!reference.valid())
-			return null;
-		return reference;
-	}
-
-	private @Nullable Script getScript(@Nullable String source) {
-		if (source == null || source.isEmpty())
-			return null;
-		@Nullable File file = ScriptLoader.getScriptFromName(source);
-		if (file == null || file.isDirectory())
-			return null;
-		return ScriptLoader.getScript(file);
 	}
 
 	@Override
