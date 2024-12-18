@@ -15,7 +15,8 @@ import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
 @Name("Villager Level")
-@Description({"Represents the level of a villager.",
+@Description({
+	"Represents the level of a villager.",
 	"Level must be between 1 and 5, with 1 being the default level.",
 	"Do note when a villager's level is 1, they may lose their profession."})
 @Examples({
