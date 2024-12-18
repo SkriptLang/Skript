@@ -14,7 +14,7 @@ import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
 @Name("Villager Type")
-@Description("Represents the Type of a villager.")
+@Description("Represents the type of a villager. This usually represents the biome the villager is from.")
 @Examples({
 	"set {_type} to villager type of {_villager}",
 	"villager type of {_villager} = plains",
