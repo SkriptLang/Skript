@@ -18,6 +18,10 @@
  */
 package ch.njol.skript.localization;
 
+/**
+ * @deprecated use {@link Runnable}
+ */
+@Deprecated(forRemoval = true)
 public interface LanguageChangeListener {
 
 	void onLanguageChange();
