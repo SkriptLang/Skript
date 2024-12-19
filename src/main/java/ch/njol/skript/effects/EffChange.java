@@ -26,6 +26,7 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionList;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.lang.Variable;
+import ch.njol.skript.lang.parser.ParserInstance;
 import org.skriptlang.skript.lang.script.ScriptWarning;
 import org.bukkit.event.Event;
 import org.eclipse.jdt.annotation.Nullable;
@@ -111,7 +112,7 @@ public class EffChange extends Effect {
 	
 	@SuppressWarnings({"unchecked", "null"})
 	@Override
-	public boolean init(final Expression<?>[] exprs, final int matchedPattern, final Kleenean isDelayed, final ParseResult parser) {
+	public boolean init(final Expression<?>[] exprs, final int matchedPattern, final Kleenean isDelayed, final ParseResult parseResult) {
 		changeMode = patterns.getInfo(matchedPattern);
 		
 		switch (changeMode) {
@@ -269,10 +270,11 @@ public class EffChange extends Effect {
 
 			if (expressionToChange instanceof Variable && !((Variable<?>) expressionToChange).isLocal() && (changeMode == ChangeMode.SET || ((Variable<?>) expressionToChange).isList() && changeMode == ChangeMode.ADD)) {
 				final ClassInfo<?> deltaReturnTypeClassInfo = Classes.getSuperClassInfo(deltaValuesExpression.getReturnType());
-				if (deltaReturnTypeClassInfo.getC() != Object.class && deltaReturnTypeClassInfo.getSerializer() == null && deltaReturnTypeClassInfo.getSerializeAs() == null && !SkriptConfig.disableObjectCannotBeSavedWarnings.value()) {
-					if (getParser().isActive() && !getParser().getCurrentScript().suppressesWarning(ScriptWarning.VARIABLE_SAVE)) {
-						Skript.warning(deltaReturnTypeClassInfo.getName().withIndefiniteArticle() + " cannot be saved, i.e. the contents of the variable " + expressionToChange + " will be lost when the server stops.");
-					}
+				boolean contentsWillBeLostOnStop = deltaReturnTypeClassInfo.getC() != Object.class && deltaReturnTypeClassInfo.getSerializer() == null && deltaReturnTypeClassInfo.getSerializeAs() == null;
+				ParserInstance parser = getParser();
+				boolean contentsWillBeLostWarningDisabled = SkriptConfig.disableObjectCannotBeSavedWarnings.value() || (parser.isActive() && parser.getCurrentScript().suppressesWarning(ScriptWarning.VARIABLE_SAVE));
+				if (contentsWillBeLostOnStop && !contentsWillBeLostWarningDisabled) {
+					Skript.warning(deltaReturnTypeClassInfo.getName().withIndefiniteArticle() + " cannot be saved, i.e. the contents of the variable " + expressionToChange + " will be lost when the server stops.");
 				}
 			}
 		}
@@ -300,23 +302,27 @@ public class EffChange extends Effect {
 	
 	@Override
 	public String toString(final @Nullable Event event, final boolean debug) {
-		assert deltaValuesExpression != null;
-		switch (changeMode) {
-			case ADD:
-				return "add " + deltaValuesExpression.toString(event, debug) + " to " + expressionToChange.toString(event, debug);
-			case SET:
-				return "set " + expressionToChange.toString(event, debug) + " to " + deltaValuesExpression.toString(event, debug);
-			case REMOVE:
-				return "remove " + deltaValuesExpression.toString(event, debug) + " from " + expressionToChange.toString(event, debug);
-			case REMOVE_ALL:
-				return "remove all " + deltaValuesExpression.toString(event, debug) + " from " + expressionToChange.toString(event, debug);
-			case DELETE:
-				return "delete/clear " + expressionToChange.toString(event, debug);
-			case RESET:
-				return "reset " + expressionToChange.toString(event, debug);
-		}
-		assert false;
-		return "";
+		return switch (changeMode) {
+			case ADD -> {
+				assert deltaValuesExpression != null;
+				yield "add " + deltaValuesExpression.toString(event, debug) + " to " + expressionToChange.toString(event, debug);
+			}
+			case SET -> {
+				assert deltaValuesExpression != null;
+				yield "set " + expressionToChange.toString(event, debug) + " to " + deltaValuesExpression.toString(event, debug);
+			}
+			case REMOVE -> {
+				assert deltaValuesExpression != null;
+				yield "remove " + deltaValuesExpression.toString(event, debug) + " from " + expressionToChange.toString(event, debug);
+			}
+			case REMOVE_ALL -> {
+				assert deltaValuesExpression != null;
+				yield "remove all " + deltaValuesExpression.toString(event, debug) + " from " + expressionToChange.toString(event, debug);
+			}
+			case DELETE -> "delete/clear " + expressionToChange.toString(event, debug);
+			case RESET -> "reset " + expressionToChange.toString(event, debug);
+			default -> throw new IllegalStateException("Unexpected change mode: " + changeMode);
+		};
 	}
 	
 }
