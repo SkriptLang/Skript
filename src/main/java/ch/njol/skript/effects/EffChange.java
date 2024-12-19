@@ -21,12 +21,7 @@ package ch.njol.skript.effects;
 import java.util.Arrays;
 
 import ch.njol.skript.expressions.ExprParse;
-import ch.njol.skript.lang.Effect;
-import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.ExpressionList;
-import ch.njol.skript.lang.SkriptParser;
-import ch.njol.skript.lang.Variable;
-import ch.njol.skript.lang.parser.ParserInstance;
+import ch.njol.skript.lang.*;
 import org.skriptlang.skript.lang.script.ScriptWarning;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
@@ -82,19 +77,19 @@ public class EffChange extends Effect {
 			{"(add|give) %objects% to %~objects%", ChangeMode.ADD},
 			{"increase %~objects% by %objects%", ChangeMode.ADD},
 			{"give %~objects% %objects%", ChangeMode.ADD},
-			
+
 			{"set %~objects% to %objects%", ChangeMode.SET},
-			
+
 			{"remove (all|every) %objects% from %~objects%", ChangeMode.REMOVE_ALL},
-			
+
 			{"(remove|subtract) %objects% from %~objects%", ChangeMode.REMOVE},
 			{"(reduce|decrease) %~objects% by %objects%", ChangeMode.REMOVE},
-			
+
 			{"(delete|clear) %~objects%", ChangeMode.DELETE},
-			
+
 			{"reset %~objects%", ChangeMode.RESET}
 	});
-	
+
 	static {
 		Skript.registerEffect(EffChange.class, patterns.getPatterns());
 	}
@@ -104,17 +99,17 @@ public class EffChange extends Effect {
 
 	@Nullable
 	private Expression<?> deltaValuesExpression = null;
-	
+
 	@SuppressWarnings("null")
 	private ChangeMode changeMode;
-	
+
 	private boolean allowMultipleChangeValues;
-	
+
 	@SuppressWarnings({"unchecked", "null"})
 	@Override
 	public boolean init(final Expression<?>[] exprs, final int matchedPattern, final Kleenean isDelayed, final ParseResult parseResult) {
 		changeMode = patterns.getInfo(matchedPattern);
-		
+
 		switch (changeMode) {
 			case ADD:
 				if (matchedPattern == 0) {
@@ -164,6 +159,7 @@ public class EffChange extends Effect {
 		} finally {
 			acceptChangeLogs.stop();
 		}
+
 		if (acceptableChangeTypes == null) {
 			if (acceptChangeLogs.getCount() > 0)
 				return false;
@@ -195,7 +191,7 @@ public class EffChange extends Effect {
 			}
 			return false;
 		}
-		
+
 		final Class<?>[] acceptableChangeComponentTypes = new Class<?>[acceptableChangeTypes.length];
 		for (int i = 0; i < acceptableChangeTypes.length; i++)
 			acceptableChangeComponentTypes[i] = acceptableChangeTypes[i].isArray() ? acceptableChangeTypes[i].getComponentType() : acceptableChangeTypes[i];
@@ -249,7 +245,7 @@ public class EffChange extends Effect {
 			assert superTypeOfAcceptableChangeTypes != null;
 			deltaValuesExpression = convertedChangeDeltaExpression;
 
-			if (!deltaValuesExpression.isSingle() && !allowMultipleChangeValues) {
+			if (!deltaValuesExpression.canBeSingle() && !allowMultipleChangeValues) {
 				if (changeMode == ChangeMode.SET)
 					Skript.error(expressionToChange + " can only be set to one " + Classes.getSuperClassInfo(superTypeOfAcceptableChangeTypes).getName() + ", not more");
 				else
@@ -280,7 +276,7 @@ public class EffChange extends Effect {
 		}
 		return true;
 	}
-	
+
 	@Override
 	protected void execute(Event event) {
 		Object[] deltaValues = null;
@@ -297,9 +293,17 @@ public class EffChange extends Effect {
 				expressionToChange.change(event, null, ChangeMode.DELETE);
 			return;
 		}
-		expressionToChange.change(event, deltaValues, changeMode);
+		if (changeMode.supportsKeyedChange() && deltaValuesExpression != null && deltaValues != null
+			&& deltaValuesExpression instanceof KeyProviderExpression<?> provider
+			&& expressionToChange instanceof KeyReceiverExpression<?> receiver
+			&& provider.areKeysRecommended()) {
+			receiver.change(event, deltaValues, changeMode, provider.getArrayKeys(event));
+		} else {
+			expressionToChange.change(event, deltaValues, changeMode);
+		}
+
 	}
-	
+
 	@Override
 	public String toString(final @Nullable Event event, final boolean debug) {
 		return switch (changeMode) {
@@ -324,5 +328,5 @@ public class EffChange extends Effect {
 			default -> throw new IllegalStateException("Unexpected change mode: " + changeMode);
 		};
 	}
-	
+
 }
