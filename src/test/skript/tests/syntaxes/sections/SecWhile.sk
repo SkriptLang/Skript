@@ -35,3 +35,39 @@ test "while section":
 			if {_x} is 5:
 				exit loop # Exit the while loop to prevent infinite repetition
 	assert {_x} is 5 with "do while loop in a loop with exit did not run 5 times (ran %{_x}% times)"
+
+test "while all":
+	set {_count1} to 0
+	set {_count2} to 5
+	while all:
+		{_count1} < 4
+		{_count2} > 0
+	do:
+		add 1 to {_count1}
+		remove 1 from {_count2}
+	assert {_count1} is 4 with "Count 1 should be 4"
+	assert {_count2} is 1 with "Count 2 should be 1"
+
+	set {_count1} to 0
+	set {_count2} to 5
+	while all:
+		{_count1} < 6
+		{_count2} > 0
+	do:
+		add 1 to {_count1}
+		remove 1 from {_count2}
+
+	assert {_count1} is 5 with "Count 1 should be 5"
+	assert {_count2} is 0 with "Count 2 should be 0"
+
+test "while any":
+	set {_count1} to 0
+	set {_count2} to 5
+	while any:
+		{_count1} < 6
+		{_count2} > 0
+	do:
+		add 1 to {_count1}
+		remove 1 from {_count2}
+	assert {_count1} is 6 with "Count 1 should be 6"
+	assert {_count2} is -1 with "Count 2 should be -1"
