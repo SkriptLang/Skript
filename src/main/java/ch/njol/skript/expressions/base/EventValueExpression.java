@@ -92,8 +92,7 @@ public class EventValueExpression<T> extends SimpleExpression<T> implements Defa
 	 */
 	@ApiStatus.Experimental
 	public static <E extends EventValueExpression<T>, T> SyntaxInfo.Expression<E, T> register(SyntaxRegistry registry, Class<E> expressionClass, Class<T> returnType, String pattern) {
-		SyntaxInfo.Expression<E, T> info = SyntaxInfo.Expression.builder(expressionClass)
-				.returnType(returnType)
+		SyntaxInfo.Expression<E, T> info = SyntaxInfo.Expression.builder(expressionClass, returnType)
 				.priority(DEFAULT_PRIORITY)
 				.addPattern("[the] " + pattern)
 				.build();

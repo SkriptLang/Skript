@@ -12,7 +12,7 @@ import org.skriptlang.skript.Skript;
  *  such as class infos (think numeric types that are used everywhere).
  * <br>
  * The <code>load</code> phase should be used for loading components more specific to the module, such as syntax.
- * @see SkriptAddon#loadModules(AddonModule...) 
+ * @see SkriptAddon#loadModules(AddonModule...)
  */
 @FunctionalInterface
 @ApiStatus.Experimental

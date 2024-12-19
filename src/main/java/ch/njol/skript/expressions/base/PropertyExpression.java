@@ -94,8 +94,7 @@ public abstract class PropertyExpression<F, T> extends SimpleExpression<T> {
 	 */
 	@ApiStatus.Experimental
 	public static <E extends Expression<T>, T> SyntaxInfo.Expression<E, T> register(SyntaxRegistry registry, Class<E> expressionClass, Class<T> returnType, String property, String fromType) {
-		SyntaxInfo.Expression<E, T> info = SyntaxInfo.Expression.builder(expressionClass)
-				.returnType(returnType)
+		SyntaxInfo.Expression<E, T> info = SyntaxInfo.Expression.builder(expressionClass, returnType)
 				.priority(DEFAULT_PRIORITY)
 				.addPatterns(getPatterns(property, fromType))
 				.build();
@@ -130,8 +129,7 @@ public abstract class PropertyExpression<F, T> extends SimpleExpression<T> {
 	 */
 	@ApiStatus.Experimental
 	public static <E extends Expression<T>, T> SyntaxInfo.Expression<E, T> registerDefault(SyntaxRegistry registry, Class<E> expressionClass, Class<T> returnType, String property, String fromType) {
-		SyntaxInfo.Expression<E, T> info = SyntaxInfo.Expression.builder(expressionClass)
-				.returnType(returnType)
+		SyntaxInfo.Expression<E, T> info = SyntaxInfo.Expression.builder(expressionClass, returnType)
 				.priority(DEFAULT_PRIORITY)
 				.addPatterns(getDefaultPatterns(property, fromType))
 				.build();
