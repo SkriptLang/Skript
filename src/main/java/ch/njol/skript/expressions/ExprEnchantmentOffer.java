@@ -51,16 +51,14 @@ import ch.njol.util.coll.CollectionUtils;
 			"\tsend \"Your enchantment offers are: %the enchantment offers%\" to player"})
 @Since("2.5")
 @Events("enchant prepare")
-@RequiredPlugins("1.11 or newer")
+@RequiredPlugins("1.11+")
 public class ExprEnchantmentOffer extends SimpleExpression<EnchantmentOffer> {
 
 	static {
-		if (Skript.classExists("org.bukkit.enchantments.EnchantmentOffer")) {
-			Skript.registerExpression(ExprEnchantmentOffer.class, EnchantmentOffer.class, ExpressionType.SIMPLE, 
-					"[all [of]] [the] enchant[ment] offers",
-					"enchant[ment] offer[s] %numbers%",
-					"[the] %number%(st|nd|rd|th) enchant[ment] offer");
-		}
+		Skript.registerExpression(ExprEnchantmentOffer.class, EnchantmentOffer.class, ExpressionType.SIMPLE,
+				"[all [of]] [the] enchant[ment] offers",
+				"enchant[ment] offer[s] %numbers%",
+				"[the] %number%(st|nd|rd|th) enchant[ment] offer");
 	}
 
 	@SuppressWarnings("null")

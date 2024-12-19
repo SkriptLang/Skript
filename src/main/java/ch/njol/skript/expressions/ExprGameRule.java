@@ -46,17 +46,16 @@ import ch.njol.util.coll.CollectionUtils;
 public class ExprGameRule extends SimpleExpression<GameruleValue> {
 	
 	static {
-		if (Skript.classExists("org.bukkit.GameRule")) {
-			Skript.registerExpression(ExprGameRule.class, GameruleValue.class, ExpressionType.COMBINED,
-				"[the] gamerule %gamerule% of %worlds%");
-		}
+		Skript.registerExpression(ExprGameRule.class, GameruleValue.class, ExpressionType.COMBINED,
+			"[the] gamerule %gamerule% of %worlds%");
 	}
 	
 	@SuppressWarnings("null")
 	private Expression<GameRule> gamerule;
 	@SuppressWarnings("null")
 	private Expression<World> world;
-	
+
+	@SuppressWarnings("unchecked")
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		gamerule = (Expression<GameRule>) exprs[0];
