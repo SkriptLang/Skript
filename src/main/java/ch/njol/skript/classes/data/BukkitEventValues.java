@@ -24,6 +24,7 @@ import ch.njol.skript.util.slot.Slot;
 import com.destroystokyo.paper.event.block.AnvilDamagedEvent;
 import com.destroystokyo.paper.event.block.BeaconEffectEvent;
 import com.destroystokyo.paper.event.entity.EndermanAttackPlayerEvent;
+import com.destroystokyo.paper.event.entity.PreSpawnerSpawnEvent;
 import com.destroystokyo.paper.event.entity.ProjectileCollideEvent;
 import com.destroystokyo.paper.event.player.PlayerArmorChangeEvent;
 import io.papermc.paper.event.entity.EntityMoveEvent;
@@ -1810,6 +1811,23 @@ public final class BukkitEventValues {
 			}
 		}, EventValues.TIME_NOW);
 
+    // SpawnerSpawnEvent
+    EventValues.registerEventValue(PreSpawnerSpawnEvent.class, Block.class, new Getter<>() {
+			@Override
+			public Block get(PreSpawnerSpawnEvent event) {
+				return event.getSpawnerLocation().getBlock();
+			}
+		}, EventValues.TIME_NOW);
+
+		if (Skript.classExists("com.destroystokyo.paper.event.entity.PreSpawnerSpawnEvent")) {
+			EventValues.registerEventValue(SpawnerSpawnEvent.class, Block.class, new Getter<>() {
+				@Override
+				public Block get(SpawnerSpawnEvent event) {
+					return event.getSpawner().getBlock();
+				}
+			}, EventValues.TIME_NOW);
+		}
+    
 		// BlockDropItemEvent
 		EventValues.registerEventValue(BlockDropItemEvent.class, Block.class, new Getter<Block, BlockDropItemEvent>() {
 			@Override
