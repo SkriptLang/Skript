@@ -1,0 +1,16 @@
+test "brewing slots":
+	set {_old} to test-block
+	set test-block to brewing stand
+
+	set the brewing first bottle slot of test-block to potion of water
+	assert the brewing first bottle slot of test-block is potion of water with "First Bottle Slot was not set"
+	set the brewing second bottle slot of test-block to empty bottle
+	assert the brewing second bottle slot of test-block is empty bottle with "Second Bottle Slot was not set"
+	set the brewing third bottle slot of test-block to speed potion
+	assert the brewing third bottle slot of test-block is speed potion with "Third Bottle Slot was not set"
+	set the brewing fuel slot of test-block to blaze powder
+	assert the brewing fuel slot of test-block is blaze powder with "Fuel Slot was not set"
+	set the brewing ingredient slot of test-block to nether wart
+	assert the brewing ingredient slot of test-block is nether wart with "Ingredient slot was not set"
+
+	set test-block to {_old}

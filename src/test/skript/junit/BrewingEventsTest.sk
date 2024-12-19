@@ -1,0 +1,26 @@
+options:
+	test: "org.skriptlang.skript.test.tests.syntaxes.events.BrewingEventsTest"
+
+test "BrewingEventsTest" when running JUnit:
+	set {_tests::*} to "brew event", "brew event - glass bottle", "brewing fuel event", "brewing fuel event - blaze powder" and "brew start event"
+	ensure junit test {@test} completes {_tests::*}
+
+on brew:
+	junit test is {@test}
+	complete objective "brew event" for {@test}
+
+on brew of glass bottle:
+	junit test is {@test}
+	complete objective "brew event - glass bottle" for {@test}
+
+on brewing fuel:
+	junit test is {@test}
+	complete objective "brewing fuel event" for {@test}
+
+on brewing fuel of blaze powder:
+	junit test is {@test}
+	complete objective "brewing fuel event - blaze powder" for {@test}
+
+on brew start:
+	junit test is {@test}
+	complete objective "brew start event" for {@test}

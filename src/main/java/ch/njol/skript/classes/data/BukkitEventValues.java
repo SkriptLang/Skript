@@ -1,14 +1,5 @@
 package ch.njol.skript.classes.data;
 
-import java.time.Duration;
-import java.time.temporal.TemporalAmount;
-import java.time.temporal.TemporalUnit;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.function.Function;
-
 import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.bukkitutil.InventoryUtils;
@@ -27,11 +18,6 @@ import com.destroystokyo.paper.event.entity.EndermanAttackPlayerEvent;
 import com.destroystokyo.paper.event.entity.ProjectileCollideEvent;
 import com.destroystokyo.paper.event.player.PlayerArmorChangeEvent;
 import io.papermc.paper.event.entity.EntityMoveEvent;
-import io.papermc.paper.event.player.PlayerInventorySlotChangeEvent;
-import io.papermc.paper.event.player.PlayerStonecutterRecipeSelectEvent;
-import io.papermc.paper.event.player.PlayerStopUsingItemEvent;
-import io.papermc.paper.event.player.PlayerTradeEvent;
-import org.bukkit.*;
 import io.papermc.paper.event.player.*;
 import org.bukkit.*;
 import org.bukkit.block.Block;
@@ -66,8 +52,12 @@ import org.bukkit.inventory.*;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.potion.PotionType;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 public final class BukkitEventValues {
 
@@ -1894,6 +1884,15 @@ public final class BukkitEventValues {
 				}
 			}, EventValues.TIME_NOW);
 		}
+
+		// BrewEvent
+		EventValues.registerEventValue(BrewEvent.class, ItemStack[].class,
+			event -> event.getResults().toArray(new ItemStack[0])
+		);
+
+		// BrewingStandFuelEvent
+		EventValues.registerEventValue(BrewingStandFuelEvent.class, ItemStack.class, BrewingStandFuelEvent::getFuel);
+
 	}
 
 }
