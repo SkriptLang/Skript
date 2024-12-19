@@ -2542,6 +2542,8 @@ types:
 	itemdisplaytransform: item display transform¦s @an
 	experiencecooldownchangereason: experience cooldown change reason¦s @a
 	inputkey: input key¦s @an
+	loottable: loot table¦s @a
+	lootcontext: loot context¦s @a
 
 	# Skript
 	weathertype: weather type¦s @a
