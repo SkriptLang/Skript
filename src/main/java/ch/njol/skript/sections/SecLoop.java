@@ -1,21 +1,3 @@
-/**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
 package ch.njol.skript.sections;
 
 import ch.njol.skript.Skript;
@@ -32,6 +14,7 @@ import ch.njol.skript.util.Container;
 import ch.njol.skript.util.Container.ContainerType;
 import ch.njol.skript.util.LiteralUtils;
 import ch.njol.util.Kleenean;
+import com.google.common.collect.PeekingIterator;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnknownNullability;
@@ -63,19 +46,27 @@ import java.util.WeakHashMap;
 })
 @Examples({
 	"loop all players:",
-	"\tsend \"Hello %loop-player%!\" to loop-player",
+		"\tsend \"Hello %loop-player%!\" to loop-player",
 	"",
 	"loop items in player's inventory:",
-	"\tif loop-item is dirt:",
-	"\t\tset loop-item to air",
+		"\tif loop-item is dirt:",
+			"\t\tset loop-item to air",
 	"",
 	"loop 10 times:",
-	"\tsend title \"%11 - loop-value%\" and subtitle \"seconds left until the game begins\" to player for 1 second # 10, 9, 8 etc.",
-	"\twait 1 second",
+		"\tsend title \"%11 - loop-value%\" and subtitle \"seconds left until the game begins\" to player for 1 second # 10, 9, 8 etc.",
+		"\twait 1 second",
 	"",
 	"loop {Coins::*}:",
-	"\tset {Coins::%loop-index%} to loop-value + 5 # Same as \"add 5 to {Coins::%loop-index%}\" where loop-index is the uuid of " +
-		"the player and loop-value is the actually coins value such as 200"
+		"\tset {Coins::%loop-index%} to loop-value + 5 # Same as \"add 5 to {Coins::%loop-index%}\" where loop-index is the uuid of " +
+		"the player and loop-value is the number of coins for the player",
+	"",
+	"loop shuffled (integers between 0 and 8):",
+		"\tif all:",
+			"\t\tprevious loop-value = 1",
+			"\t\tloop-value = 4",
+			"\t\tnext loop-value = 8",
+		"\tthen:",
+			"\t\t kill all players"
 })
 @Since("1.0")
 public class SecLoop extends LoopSection {
@@ -88,9 +79,12 @@ public class SecLoop extends LoopSection {
 
 	private final transient Map<Event, Object> current = new WeakHashMap<>();
 	private final transient Map<Event, Iterator<?>> iteratorMap = new WeakHashMap<>();
+	private final transient Map<Event, Object> previous = new WeakHashMap<>();
 
 	protected @Nullable TriggerItem actualNext;
 	private boolean guaranteedToLoop;
+	private Object nextValue = null;
+	private boolean loopPeeking;
 
 	@Override
 	@SuppressWarnings("unchecked")
@@ -117,6 +111,7 @@ public class SecLoop extends LoopSection {
 			Skript.error("Can't loop '" + expression + "' because it's only a single value");
 			return false;
 		}
+		loopPeeking = exprs[0].supportsLoopPeeking();
 
 		guaranteedToLoop = guaranteedToLoop(expression);
 		loadOptionalCode(sectionNode);
@@ -126,25 +121,29 @@ public class SecLoop extends LoopSection {
 	}
 
 	@Override
-	@Nullable
-	protected TriggerItem walk(Event event) {
+	protected @Nullable TriggerItem walk(Event event) {
 		Iterator<?> iter = iteratorMap.get(event);
 		if (iter == null) {
 			iter = expression instanceof Variable variable ? variable.variablesIterator(event) : expression.iterator(event);
-			if (iter != null) {
-				if (iter.hasNext())
-					iteratorMap.put(event, iter);
-				else
-					iter = null;
+			if (iter != null && iter.hasNext()) {
+				iteratorMap.put(event, iter);
+			} else {
+				iter = null;
 			}
 		}
-		if (iter == null || !iter.hasNext()) {
+
+		if (iter == null || (!iter.hasNext() && nextValue == null)) {
 			exit(event);
 			debug(event, false);
 			return actualNext;
 		} else {
-			Object next = iter.next();
-			this.store(event, next);
+			previous.put(event, current.get(event));
+			if (nextValue != null) {
+				this.store(event, nextValue);
+				nextValue = null;
+			} else if (iter.hasNext()) {
+				this.store(event, iter.next());
+			}
 			return walk(event, true);
 		}
 	}
@@ -164,9 +163,24 @@ public class SecLoop extends LoopSection {
 		return "loop " + expression.toString(event, debug);
 	}
 
-	@Nullable
-	public Object getCurrent(Event event) {
+	public @Nullable Object getCurrent(Event event) {
 		return current.get(event);
+	}
+
+	public @Nullable Object getNext(Event event) {
+		if (!loopPeeking)
+			return null;
+		Iterator<?> iter = iteratorMap.get(event);
+		if (iter == null || !iter.hasNext())
+			return null;
+		if (iter instanceof PeekingIterator<?> peekingIterator)
+			return peekingIterator.peek();
+		nextValue = iter.next();
+		return nextValue;
+	}
+
+	public @Nullable Object getPrevious(Event event) {
+		return previous.get(event);
 	}
 
 	public Expression<?> getLoopedExpression() {
@@ -189,6 +203,7 @@ public class SecLoop extends LoopSection {
 	public void exit(Event event) {
 		current.remove(event);
 		iteratorMap.remove(event);
+		previous.remove(event);
 		super.exit(event);
 	}
 
@@ -218,6 +233,14 @@ public class SecLoop extends LoopSection {
 
 		// Otherwise, we can't guarantee that it will loop
 		return false;
+	}
+
+	public boolean supportsPeeking() {
+		return loopPeeking;
+	}
+
+	public Expression<?> getExpression() {
+		return expression;
 	}
 
 }
