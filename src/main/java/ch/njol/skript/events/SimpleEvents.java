@@ -25,6 +25,7 @@ import com.destroystokyo.paper.event.block.AnvilDamagedEvent;
 import com.destroystokyo.paper.event.entity.EntityJumpEvent;
 import com.destroystokyo.paper.event.entity.ProjectileCollideEvent;
 import com.destroystokyo.paper.event.player.PlayerArmorChangeEvent;
+import com.destroystokyo.paper.event.player.PlayerElytraBoostEvent;
 import com.destroystokyo.paper.event.player.PlayerJumpEvent;
 import com.destroystokyo.paper.event.player.PlayerReadyArrowEvent;
 import com.destroystokyo.paper.event.server.PaperServerListPingEvent;
@@ -789,6 +790,16 @@ public class SimpleEvents {
 					"\tbroadcast event-location"
 			)
 			.since("INSERT VERSION");
+
+		if (Skript.classExists("com.destroystokyo.paper.event.player.PlayerElytraBoostEvent")) {
+			Skript.registerEvent("Elytra Boost", SimpleEvent.class, PlayerElytraBoostEvent.class, "elytra boost")
+				.description("Called when aa player uses a firework to boost their fly speed when flying with an elytra.")
+				.examples(
+					"on elytra boost:"
+				)
+				.requiredPlugins("Paper")
+				.since("INSERT VERSION");
+		}
 
 	}
 
