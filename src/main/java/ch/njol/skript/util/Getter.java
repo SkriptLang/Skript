@@ -1,18 +1,18 @@
 package ch.njol.skript.util;
 
-import ch.njol.skript.classes.Converter;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.converter.Converter;
 
 /**
  * Used to get a specific value from instances of some type.
- * 
+ *
+ * @deprecated use {@link Converter} instead
  * @param <R> the returned value type
  * @param <A> the type which holds the value
- * @author Peter Güttinger
  */
-@SuppressWarnings("deprecation") // for backwards compatibility
-public abstract class Getter<R, A> implements Converter<A, R> {
-	
+@Deprecated(forRemoval = true)
+public abstract class Getter<R, A> implements ch.njol.skript.classes.Converter<A, R>, Converter<A, R> {
+
 	/**
 	 * Gets a value from the given object.
 	 * 
