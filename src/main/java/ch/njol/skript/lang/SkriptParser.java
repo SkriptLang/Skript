@@ -240,12 +240,14 @@ public class SkriptParser {
 							T element = info.getElementClass().newInstance();
 
 							Class<? extends Event>[] supportedEvents = element.supportedEvents();
-                            if (supportedEvents.length > 0 && !getParser().isCurrentEvent(supportedEvents)) {
-								Object[] names = Arrays.stream(supportedEvents)
-									.map(it -> it.getSimpleName().replaceAll("([A-Z])", " $1").toLowerCase().trim())
-									.toArray();
+							if (supportedEvents.length > 0 && !getParser().isCurrentEvent(supportedEvents)) {
+								StringJoiner joiner = new StringJoiner(", ", "the ", "");
 
-								Skript.error("'" + parseResult.expr + "' can only be used in the " + StringUtils.join(names, ", "));
+								Arrays.stream(supportedEvents)
+									.map(it -> it.getSimpleName().replaceAll("([A-Z])", " $1").toLowerCase().trim())
+									.forEachOrdered(joiner::add);
+
+								Skript.error("'" + parseResult.expr + "' can only be used in " + joiner);
                                 continue;
                             }
 
