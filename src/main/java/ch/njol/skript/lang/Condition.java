@@ -23,6 +23,7 @@ import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Checker;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.condition.Conditional;
 
@@ -91,6 +92,11 @@ public abstract class Condition extends Statement implements Conditional<Event> 
 	 */
 	public final boolean isNegated() {
 		return negated;
+	}
+
+	@Override
+	public @NotNull String getSyntaxTypeName() {
+		return "condition";
 	}
 
 	/**

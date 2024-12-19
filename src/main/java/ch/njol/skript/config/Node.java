@@ -18,18 +18,14 @@
  */
 package ch.njol.skript.config;
 
-import java.io.PrintWriter;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import ch.njol.skript.SkriptConfig;
-import org.jetbrains.annotations.Nullable;
-
 import ch.njol.skript.Skript;
 import ch.njol.skript.log.SkriptLogger;
 import ch.njol.util.NonNullPair;
 import ch.njol.util.StringUtils;
+import org.jetbrains.annotations.Nullable;
+
+import java.io.PrintWriter;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * @author Peter Güttinger
@@ -94,7 +90,7 @@ public abstract class Node {
 	public String getKey() {
 		return key;
 	}
-	
+
 	public final Config getConfig() {
 		return config;
 	}
