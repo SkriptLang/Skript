@@ -18,17 +18,17 @@
  */
 package ch.njol.util.coll.iterator;
 
-import java.util.Iterator;
-import java.util.NoSuchElementException;
-
+import com.google.common.collect.PeekingIterator;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.NoSuchElementException;
 
 /**
  * A simple iterator to iterate over an array.
  * 
  * @author Peter Güttinger
  */
-public class ArrayIterator<T> implements Iterator<T> {
+public class ArrayIterator<T> implements PeekingIterator<T> {
 	
 	@Nullable
 	private final T[] array;
@@ -51,7 +51,15 @@ public class ArrayIterator<T> implements Iterator<T> {
 			return false;
 		return index < array.length;
 	}
-	
+
+	@Override
+	public T peek() {
+		int peekIndex = index + 1;
+		if (array == null || peekIndex >= array.length)
+			return null;
+		return array[peekIndex];
+	}
+
 	@Override
 	@Nullable
 	public T next() {

@@ -778,4 +778,9 @@ public class Variable<T> implements Expression<T>, KeyReceiverExpression<T>, Key
 		return this;
 	}
 
+	@Override
+	public boolean supportsLoopPeeking() {
+		return true;
+	}
+
 }
