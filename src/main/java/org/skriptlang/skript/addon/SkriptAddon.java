@@ -84,9 +84,13 @@ public interface SkriptAddon extends ViewProvider<SkriptAddon> {
 
 	/**
 	 * A helper method for loading addon modules.
+	 * Modules will be loaded as described by {@link AddonModule}.
 	 * @param modules The modules to load.
 	 */
 	default void loadModules(AddonModule... modules) {
+		for (AddonModule module : modules) {
+			module.init(this);
+		}
 		for (AddonModule module : modules) {
 			module.load(this);
 		}
