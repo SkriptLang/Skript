@@ -1,21 +1,3 @@
-/**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
 package ch.njol.skript.effects;
 
 import ch.njol.skript.Skript;
@@ -33,19 +15,18 @@ import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnknownNullability;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Name("Exit")
 @Description("Exits a given amount of loops and conditionals, or the entire trigger.")
 @Examples({
 	"if player has any ore:",
-	"\tstop",
+		"\tstop",
 	"message \"%player% has no ores!\"",
 	"loop blocks above the player:",
-	"\tloop-block is not air:",
-	"\t\texit 2 sections",
-	"\tset loop-block to water"
+		"\tloop-block is not air:",
+			"\t\texit 2 sections",
+		"\tset loop-block to water"
 })
 @Since("<i>unknown</i> (before 2.1)")
 public class EffExit extends Effect {
@@ -54,7 +35,7 @@ public class EffExit extends Effect {
 		Skript.registerEffect(EffExit.class,
 			"(exit|stop) [trigger]",
 			"(exit|stop) [1|a|the|this] (section|1:loop|2:conditional)",
-			"(exit|stop) <" + JavaClasses.INTEGER_PATTERN + "> (section|1:loop|2:conditional)s",
+			"(exit|stop) <" + JavaClasses.INTEGER_NUMBER_PATTERN + "> (section|1:loop|2:conditional)s",
 			"(exit|stop) all (section|1:loop|2:conditional)s");
 	}
 

@@ -19,7 +19,7 @@ import java.util.OptionalLong;
  */
 public interface SoundReceiver {
 
-	boolean ADVENTURE_API = Skript.classExists("net.kyori.adventure.sound.Sound$Builder");
+	boolean ADVENTURE_API = Skript.classExists("net.kyori.adventure.sound.Sound$Builder") && Skript.methodExists(SoundCategory.class, "soundSource");
 	boolean SPIGOT_SOUND_SEED = Skript.methodExists(Player.class, "playSound", Entity.class, Sound.class, SoundCategory.class, float.class, float.class, long.class);
 	boolean ENTITY_EMITTER_SOUND = Skript.methodExists(Player.class, "playSound", Entity.class, Sound.class, SoundCategory.class, float.class, float.class);
 	boolean ENTITY_EMITTER_STRING = Skript.methodExists(Player.class, "playSound", Entity.class, String.class, SoundCategory.class, float.class, float.class);

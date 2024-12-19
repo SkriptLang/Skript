@@ -73,7 +73,7 @@ public class CondDate extends Condition {
 		final long now = System.currentTimeMillis();
 		return date.check(e,
 				date -> delta.check(e,
-						timespan -> now - date.getTimestamp() >= timespan.getMilliSeconds()
+						timespan -> now - date.getTimestamp() >= timespan.getAs(Timespan.TimePeriod.MILLISECOND)
 				), isNegated());
 	}
 	

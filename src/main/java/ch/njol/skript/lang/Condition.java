@@ -21,8 +21,10 @@ package ch.njol.skript.lang;
 import ch.njol.skript.Skript;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Checker;
+import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.condition.Conditional;
 
 import java.util.Iterator;
 
@@ -31,7 +33,7 @@ import java.util.Iterator;
  *
  * @see Skript#registerCondition(Class, String...)
  */
-public abstract class Condition extends Statement {
+public abstract class Condition extends Statement implements Conditional<Event> {
 
 	public enum ConditionType {
 		/**
@@ -66,6 +68,11 @@ public abstract class Condition extends Statement {
 	 * @return <code>true</code> if the condition is satisfied, <code>false</code> otherwise or if the condition doesn't apply to this event.
 	 */
 	public abstract boolean check(Event event);
+
+	@Override
+	public Kleenean evaluate(Event event) {
+		return Kleenean.get(check(event));
+	}
 
 	@Override
 	public final boolean run(Event event) {

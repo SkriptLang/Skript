@@ -21,6 +21,7 @@ package ch.njol.skript.bukkitutil;
 import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.util.slot.Slot;
+import com.destroystokyo.paper.profile.PlayerProfile;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
@@ -49,6 +50,8 @@ public class ItemUtils {
 	// Introduced in Paper 1.21
 	public static final boolean HAS_RESET = Skript.methodExists(Damageable.class, "resetDamage");
 	public static final boolean CAN_CREATE_PLAYER_PROFILE = Skript.methodExists(Bukkit.class, "createPlayerProfile", UUID.class, String.class);
+	// paper does not do texture lookups by default
+	public static final boolean REQUIRES_TEXTURE_LOOKUP = Skript.classExists("com.destroystokyo.paper.profile.PlayerProfile") && Skript.isRunningMinecraft(1, 19, 4);
 
 	/**
 	 * Gets damage/durability of an item, or 0 if it does not have damage.
@@ -165,7 +168,12 @@ public class ItemUtils {
 
 		SkullMeta skullMeta = (SkullMeta) meta;
 
-		if (player.getName() != null) {
+		if (REQUIRES_TEXTURE_LOOKUP) {
+			PlayerProfile profile = player.getPlayerProfile();
+			if (!profile.hasTextures())
+				profile.complete(true); // BLOCKING MOJANG API CALL
+			skullMeta.setPlayerProfile(profile);
+		} else if (player.getName() != null) {
 			skullMeta.setOwningPlayer(player);
 		} else if (CAN_CREATE_PLAYER_PROFILE) {
 			//noinspection deprecation
@@ -304,6 +312,16 @@ public class ItemUtils {
 		// cherry
 		if (Skript.isRunningMinecraft(1, 19, 4))
 			TREE_TO_SAPLING_MAP.put(TreeType.CHERRY, Material.CHERRY_SAPLING);
+
+		// mega pine (2x2 spruce tree with minimal leaves at top)
+		if (Skript.isRunningMinecraft(1, 20, 5))
+			TREE_TO_SAPLING_MAP.put(TreeType.MEGA_PINE, Material.SPRUCE_SAPLING);
+
+		// pale oak
+		if (Skript.isRunningMinecraft(1, 21, 3)) {
+			TREE_TO_SAPLING_MAP.put(TreeType.PALE_OAK, Material.PALE_OAK_SAPLING);
+			TREE_TO_SAPLING_MAP.put(TreeType.PALE_OAK_CREAKING, Material.PALE_OAK_SAPLING);
+		}
 	}
 
 	public static Material getTreeSapling(TreeType treeType) {

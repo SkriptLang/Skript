@@ -2,6 +2,6 @@ test "offline player function":
 	set {_lookup} to offlineplayer("Notch")
 	assert {_lookup} is set with "Failed to look up offline player"
 
-test "offline player function no lookup" when running minecraft "1.16":
+test "offline player function no lookup":
 	set {_non-lookup} to offlineplayer("Dinnerbone", false)
 	assert {_non-lookup} is not set with "Looked up offline player when told not to"

@@ -48,7 +48,7 @@ public class ExprMaxFreezeTicks extends SimplePropertyExpression<Entity, Timespa
 	@Override
 	@Nullable
 	public Timespan convert(Entity entity) {
-		return Timespan.fromTicks(entity.getMaxFreezeTicks());
+		return new Timespan(Timespan.TimePeriod.TICK, entity.getMaxFreezeTicks());
 	}
 
 	@Override

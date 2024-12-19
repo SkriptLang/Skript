@@ -49,7 +49,7 @@ public class ExprRingingTime extends SimplePropertyExpression<Block, Timespan> {
 	public @Nullable Timespan convert(Block from) {
 		if (from.getState() instanceof Bell) {
 			int shakingTicks = ((Bell) from.getState(false)).getShakingTicks();
-			return shakingTicks == 0 ? null : Timespan.fromTicks(shakingTicks);
+			return shakingTicks == 0 ? null : new Timespan(Timespan.TimePeriod.TICK, shakingTicks);
 		}
 		return null;
 	}

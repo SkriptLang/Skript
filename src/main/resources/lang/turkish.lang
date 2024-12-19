@@ -41,13 +41,12 @@ skript command:
 			description: Skript eklentisinin güncelliğini yönetmenizi sağlar. 
 			check: Yeni bir sürüm olup olmadığını kontrol eder.
 			changes: Son sürümdeki tüm değişiklikleri listeler.
-			download: En yeni sürümü indirir.
 		info: Skript'in alias ve dökümantasyon bağlantılarını gösterir.
 		gen-docs: Eklenti klasöründeki şablonları kullanarak bir dokümantasyon oluşturur.
 		test: Skript'in dahili testleri için kullanılır.
 
 	invalid script: <grey>'<gold>%s<grey>'<red> adlı script scripts klasöründe bulunamadı!
-  invalid folder: <grey>'<gold>%s<grey>'<red> adlı klasör scripts klasöründe bulunamadı!
+	invalid folder: <grey>'<gold>%s<grey>'<red> adlı klasör scripts klasöründe bulunamadı!
 	reload:
 		warning line info: <gold><bold>Satır %s:<gray> (%s)<reset>\n
 		error line info: <light red><bold>Satır %s:<gray> (%s)<reset>\n
@@ -165,7 +164,7 @@ aliases:
 	unknown variation: %s varyasyonu daha önce tanımlanmadı.
 	missing aliases: Bu Minecraft ID'lerinin herhangi bir alias'ı yoktur:
 	empty alias: Alias'ın tanımlı bir Minecraft ID'si veya tag'i yok.
-  invalid minecraft id: Minecraft ID %s geçerli değil
+	invalid minecraft id: Minecraft ID %s geçerli değil
 	useless variation: Varyasyonun Minecraft ID'si veya tag'i yok, bu yüzden gereksiz.
 	invalid tags: Belirtilen tagler geçerli JSON'da tanımlı değil.
 	unexpected section: Section'lara burada izin verilmiyor.

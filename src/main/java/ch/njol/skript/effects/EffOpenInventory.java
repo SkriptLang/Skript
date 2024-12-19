@@ -20,6 +20,8 @@ package ch.njol.skript.effects;
 
 import java.util.Locale;
 
+import ch.njol.skript.lang.Literal;
+import ch.njol.skript.registrations.Classes;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
@@ -94,6 +96,10 @@ public class EffOpenInventory extends Effect {
 		if (openFlag == 1 && invi != null) {
 			Skript.warning("Using 'show' inventory instead of 'open' is not recommended as it will eventually show an unmodifiable view of the inventory in the future.");
 		}
+		if (exprs[0] instanceof Literal<?> lit && lit.getSingle() instanceof InventoryType inventoryType && !inventoryType.isCreatable()) {
+			Skript.error("Cannot create an inventory of type " + Classes.toString(inventoryType));
+			return false;
+		}
 		return true;
 	}
 	
@@ -106,8 +112,8 @@ public class EffOpenInventory extends Effect {
 			Object o = invi.getSingle(e);
 			if (o instanceof Inventory) {
 				i = (Inventory) o;
-			} else if (o instanceof InventoryType) {
-				i = Bukkit.createInventory(null, (InventoryType) o);
+			} else if (o instanceof InventoryType inventoryType && inventoryType.isCreatable()) {
+				i = Bukkit.createInventory(null, inventoryType);
 			} else {
 				return;
 			}
