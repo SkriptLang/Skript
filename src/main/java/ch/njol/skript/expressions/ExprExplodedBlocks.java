@@ -66,16 +66,17 @@ public class ExprExplodedBlocks extends SimpleExpression<Block> {
 	static {
 		Skript.registerExpression(ExprExplodedBlocks.class, Block.class, ExpressionType.COMBINED, "[the] exploded blocks");
 	}
-	
+
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
-		if (!getParser().isCurrentEvent(EntityExplodeEvent.class)) {
-			Skript.error("Exploded blocks can only be retrieved from an explode event.");
-			return false;
-		}
 		return true;
 	}
-	
+
+	@Override
+	public Class<? extends Event>[] supportedEvents() {
+		return CollectionUtils.array(EntityExplodeEvent.class);
+	}
+
 	@Nullable
 	@Override
 	protected Block[] get(Event e) {

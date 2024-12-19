@@ -49,19 +49,14 @@ import ch.njol.util.NonNullPair;
 import ch.njol.util.StringUtils;
 import ch.njol.util.coll.CollectionUtils;
 import com.google.common.primitives.Booleans;
+import org.bukkit.event.Event;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.script.Script;
 import org.skriptlang.skript.lang.script.ScriptWarning;
 
-import java.util.ArrayList;
-import java.util.Deque;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Supplier;
@@ -243,7 +238,19 @@ public class SkriptParser {
 								}
 							}
 							T element = info.getElementClass().newInstance();
-							if (element.init(parseResult.exprs, patternIndex, getParser().getHasDelayBefore(), parseResult)) {
+
+							Class<? extends Event>[] supportedEvents = element.supportedEvents();
+                            if (supportedEvents.length > 0 && !getParser().isCurrentEvent(supportedEvents)) {
+								Object[] names = Arrays.stream(supportedEvents)
+									.map(it -> it.getSimpleName().replaceAll("([A-Z])", " $1").toLowerCase().trim())
+									.toArray();
+
+								Skript.error("'" + parseResult.expr + "' can only be used in the " + StringUtils.join(names, ", "));
+                                continue;
+                            }
+
+							boolean success = element.init(parseResult.exprs, patternIndex, getParser().getHasDelayBefore(), parseResult);
+							if (success) {
 								log.printLog();
 								return element;
 							}
