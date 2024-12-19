@@ -4,8 +4,6 @@ import com.google.common.base.MoreObjects;
 import com.google.common.base.Preconditions;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.entry.EntryValidator;
-import org.skriptlang.skript.registration.SyntaxInfo.Builder;
-import org.skriptlang.skript.registration.SyntaxInfoImpl.BuilderImpl;
 import org.skriptlang.skript.util.Priority;
 
 import java.util.Collection;
@@ -33,9 +31,8 @@ final class DefaultSyntaxInfosImpl {
 
 		@Override
 		public Expression.Builder<? extends Expression.Builder<?, E, R>, E, R> builder() {
-			var builder = new BuilderImpl<>(type());
+			var builder = new BuilderImpl<>(type(), returnType);
 			super.builder().applyTo(builder);
-			builder.returnType(returnType);
 			return builder;
 		}
 
@@ -70,36 +67,19 @@ final class DefaultSyntaxInfosImpl {
 		/**
 		 * {@inheritDoc}
 		 */
-		@SuppressWarnings("unchecked")
 		static final class BuilderImpl<B extends Expression.Builder<B, E, R>, E extends ch.njol.skript.lang.Expression<R>, R>
 			extends SyntaxInfoImpl.BuilderImpl<B, E>
 			implements Expression.Builder<B, E, R> {
 
-			private @Nullable Class<R> returnType;
+			private final Class<R> returnType;
 
-			BuilderImpl(Class<E> expressionClass) {
+			BuilderImpl(Class<E> expressionClass, Class<R> returnType) {
 				super(expressionClass);
-			}
-
-			@Override
-			public B returnType(Class<R> returnType) {
 				this.returnType = returnType;
-				return (B) this;
 			}
 
 			public Expression<E, R> build() {
 				return new ExpressionImpl<>(origin, type, supplier, patterns, priority, returnType);
-			}
-
-			@Override
-			public void applyTo(SyntaxInfo.Builder<?, ?> builder) {
-				super.applyTo(builder);
-				//noinspection rawtypes - Might be unsafe, hopefully the return types match
-				if (builder instanceof Expression.Builder expressionBuilder) {
-					if (returnType != null) {
-						expressionBuilder.returnType(returnType);
-					}
-				}
 			}
 		}
 
