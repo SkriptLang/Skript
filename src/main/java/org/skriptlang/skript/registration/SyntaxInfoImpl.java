@@ -167,6 +167,12 @@ class SyntaxInfoImpl<T extends SyntaxElement> implements SyntaxInfo<T> {
 		}
 
 		@Override
+		public B clearPatterns() {
+			this.patterns.clear();
+			return (B) this;
+		}
+
+		@Override
 		public B priority(Priority priority) {
 			this.priority = priority;
 			return (B) this;

@@ -108,7 +108,7 @@ public interface SyntaxInfo<E extends SyntaxElement> extends Buildable<SyntaxInf
 		B supplier(Supplier<E> supplier);
 
 		/**
-		 * Adds a new pattern for the syntax info.
+		 * Adds a new pattern to the syntax info.
 		 * @param pattern The pattern to add.
 		 * @return This builder.
 		 * @see SyntaxInfo#patterns()
@@ -117,7 +117,7 @@ public interface SyntaxInfo<E extends SyntaxElement> extends Buildable<SyntaxInf
 		B addPattern(String pattern);
 
 		/**
-		 * Adds new patterns for the syntax info.
+		 * Adds new patterns to the syntax info.
 		 * @param patterns The patterns to add.
 		 * @return This builder.
 		 * @see SyntaxInfo#patterns()
@@ -126,13 +126,21 @@ public interface SyntaxInfo<E extends SyntaxElement> extends Buildable<SyntaxInf
 		B addPatterns(String... patterns);
 
 		/**
-		 * Adds new patterns for the syntax info.
+		 * Adds new patterns to the syntax info.
 		 * @param patterns The patterns to add.
 		 * @return This builder.
 		 * @see SyntaxInfo#patterns()
 		 */
 		@Contract("_ -> this")
 		B addPatterns(Collection<String> patterns);
+
+		/**
+		 * Removes all patterns from the syntax info.
+		 * @return This builder.
+		 * @see SyntaxInfo#patterns()
+		 */
+		@Contract("-> this")
+		B clearPatterns();
 
 		/**
 		 * Sets the priority the syntax info will use, which dictates its position for matching during parsing.

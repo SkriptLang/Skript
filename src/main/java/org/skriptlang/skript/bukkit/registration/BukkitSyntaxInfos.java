@@ -7,7 +7,6 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.registration.BukkitSyntaxInfosImpl.EventImpl;
 import org.skriptlang.skript.registration.SyntaxInfo;
-import org.skriptlang.skript.registration.SyntaxInfo.Builder;
 
 import java.util.Collection;
 
@@ -165,6 +164,14 @@ public final class BukkitSyntaxInfos {
 			B addDescription(Collection<String> description);
 
 			/**
+			 * Removes all description lines from the event's documentation.
+			 * @return This builder.
+			 * @see Event#description()
+			 */
+			@Contract("-> this")
+			B clearDescription();
+
+			/**
 			 * Adds an example to the event's documentation.
 			 * @param example The example to add.
 			 * @return This builder.
@@ -190,6 +197,14 @@ public final class BukkitSyntaxInfos {
 			 */
 			@Contract("_ -> this")
 			B addExamples(Collection<String> examples);
+
+			/**
+			 * Removes all examples from the event's documentation.
+			 * @return This builder.
+			 * @see Event#examples()
+			 */
+			@Contract("-> this")
+			B clearExamples();
 
 			/**
 			 * Adds a keyword to the event's documentation.
@@ -219,6 +234,14 @@ public final class BukkitSyntaxInfos {
 			B addKeywords(Collection<String> keywords);
 
 			/**
+			 * Removes all keywords from the event's documentation.
+			 * @return This builder.
+			 * @see Event#keywords()
+			 */
+			@Contract("-> this")
+			B clearKeywords();
+
+			/**
 			 * Adds a required plugin to event's documentation.
 			 * @param plugin The required plugin to add.
 			 * @return This builder.
@@ -246,6 +269,13 @@ public final class BukkitSyntaxInfos {
 			B addRequiredPlugins(Collection<String> plugins);
 
 			/**
+			 * Removes all required plugins from the event's documentation.
+			 * @return This builder.
+			 * @see Event#requiredPlugins()
+			 */
+			B clearRequiredPlugins();
+
+			/**
 			 * Adds an event to the event's documentation.
 			 * @param event The event to add.
 			 * @return This builder.
@@ -271,6 +301,14 @@ public final class BukkitSyntaxInfos {
 			 */
 			@Contract("_ -> this")
 			B addEvents(Collection<Class<? extends org.bukkit.event.Event>> events);
+
+			/**
+			 * Removes all events from the event's documentation.
+			 * @return This builder.
+			 * @see Event#events()
+			 */
+			@Contract("-> this")
+			B clearEvents();
 
 			/**
 			 * {@inheritDoc}

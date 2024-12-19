@@ -119,6 +119,7 @@ public interface DefaultSyntaxInfos {
 		 * Constructs a builder for a structure syntax info.
 		 * @param structureClass The Structure class the info will represent.
 		 * @return A Structure-specific builder for creating a syntax info representing <code>structureClass</code>.
+		 * By default, the {@link #nodeType()} of the builder is {@link NodeType#SECTION}.
 		 * @param <E> The class providing the implementation of the Structure this info represents.
 		 */
 		@Contract("_ -> new")
@@ -163,7 +164,6 @@ public interface DefaultSyntaxInfos {
 
 			/**
 			 * Sets the type of {@link ch.njol.skript.config.Node}s that can represent the Structure.
-			 * By default, this is typically {@link NodeType#SECTION}.
 			 * @return This builder.
 			 * @see Structure#type()
 			 */
