@@ -1,0 +1,9 @@
+test "string colors":
+	set {_colors::*} to "&a", "&b", "&c", "<#ff0000>", "<#03d7fc>" and "<#48ff05>"
+	set {_string} to join {_colors::*}
+
+	loop the string colors of {_string}:
+		assert {_colors::*} contains loop-value with "Unexpected Color"
+
+	assert the first string color of {_string} is {_colors::1} with "First string color does not match"
+	assert the last string color of {_string} is {_colors::6} with "Last string color does not match"
