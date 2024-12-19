@@ -24,31 +24,18 @@ import ch.njol.skript.bukkitutil.EntityUtils;
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.classes.Parser;
 import ch.njol.skript.classes.Serializer;
-import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.Literal;
-import ch.njol.skript.lang.ParseContext;
-import ch.njol.skript.lang.SkriptParser;
+import ch.njol.skript.lang.*;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
-import ch.njol.skript.lang.SyntaxElement;
-import ch.njol.skript.lang.SyntaxElementInfo;
 import ch.njol.skript.lang.util.SimpleLiteral;
-import ch.njol.skript.localization.Adjective;
-import ch.njol.skript.localization.Language;
+import ch.njol.skript.localization.*;
 import ch.njol.skript.localization.Language.LanguageListenerPriority;
-import ch.njol.skript.localization.LanguageChangeListener;
-import ch.njol.skript.localization.Message;
-import ch.njol.skript.localization.Noun;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
 import ch.njol.util.coll.iterator.SingleItemIterator;
 import ch.njol.yggdrasil.Fields;
 import ch.njol.yggdrasil.YggdrasilSerializable.YggdrasilExtendedSerializable;
-import org.bukkit.Bukkit;
-import org.bukkit.Chunk;
-import org.bukkit.Location;
-import org.bukkit.RegionAccessor;
-import org.bukkit.World;
+import org.bukkit.*;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
@@ -685,6 +672,35 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 			return null;
         }
         return world.spawn(location, type, consumer);
+	}
+
+	/**
+	 * Creates an entity in the server but does not spawn it
+	 *
+	 * @return The created entity
+	 */
+	public @Nullable E create() {
+		Location location = Bukkit.getWorlds().get(0).getSpawnLocation();
+		return create(location);
+	}
+
+	/**
+	 * Creates an entity at the provided location, but does not spawn it
+	 * NOTE: If {@link RegionAccessor#createEntity(Location, Class)} does not exist, will return {@link #spawn(Location)}
+	 * @param location The {@link Location} to create the entity at
+	 * @return The created entity
+	 */
+	public @Nullable E create(Location location) {
+		if (!Skript.methodExists(RegionAccessor.class, "createEntity"))
+			return spawn(location);
+		return create(location, getType());
+	}
+
+	protected static <E extends Entity> @Nullable E create(Location location, Class<E> type) {
+		World world = location.getWorld();
+		if (world == null)
+			return null;
+		return world.createEntity(location, type);
 	}
 
 }

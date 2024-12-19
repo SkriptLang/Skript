@@ -2542,6 +2542,7 @@ types:
 	itemdisplaytransform: item display transform¦s @an
 	experiencecooldownchangereason: experience cooldown change reason¦s @a
 	inputkey: input key¦s @an
+	entitysnapshot: entity snapshot¦s @an
 
 	# Skript
 	weathertype: weather type¦s @a
