@@ -11,7 +11,6 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.*;
 import ch.njol.skript.registrations.EventValues;
 import ch.njol.skript.util.Direction;
-import ch.njol.skript.util.Getter;
 import ch.njol.skript.variables.Variables;
 import ch.njol.util.Kleenean;
 import org.bukkit.Location;
@@ -40,12 +39,7 @@ public class ExprSecCreateLootContext extends SectionExpression<LootContext> {
 	static {
 		Skript.registerExpression(ExprSecCreateLootContext.class, LootContext.class, ExpressionType.SIMPLE,
 			"[a] loot context %direction% %location%");
-		EventValues.registerEventValue(LootContextCreateEvent.class, LootContext.class, new Getter<>() {
-			@Override
-			public @Nullable LootContext get(LootContextCreateEvent event) {
-				return event.getContextWrapper().getContext();
-			}
-		}, EventValues.TIME_NOW);
+		EventValues.registerEventValue(LootContextCreateEvent.class, LootContext.class, event -> event.getContextWrapper().getContext());
 	}
 
 	private Trigger trigger;
