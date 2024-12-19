@@ -18,16 +18,6 @@
  */
 package ch.njol.skript.expressions;
 
-import ch.njol.skript.lang.Literal;
-import ch.njol.skript.registrations.Classes;
-import org.bukkit.Bukkit;
-import org.bukkit.event.Event;
-import org.bukkit.event.inventory.InventoryType;
-import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
-import org.jetbrains.annotations.Nullable;
-
 import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.doc.Description;
@@ -37,9 +27,18 @@ import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.PropertyExpression;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
+import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
-import ch.njol.skript.util.Getter;
+import ch.njol.skript.registrations.Classes;
 import ch.njol.util.Kleenean;
+import org.bukkit.Bukkit;
+import org.bukkit.event.Event;
+import org.bukkit.event.inventory.InventoryType;
+import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
+import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.converter.Converter;
 
 /**
  * @author Peter Güttinger
@@ -77,11 +76,11 @@ public class ExprNamed extends PropertyExpression<Object, Object> {
 	protected Object[] get(final Event e, final Object[] source) {
 		String name = this.name.getSingle(e);
 		if (name == null)
-			return get(source, obj -> obj); // No name provided, do nothing
-		return get(source, new Getter<Object, Object>() {
+			return get(source, (Converter<Object, Object>) obj -> obj); // No name provided, do nothing
+		return get(source, new Converter<>() {
 			@Override
 			@Nullable
-			public Object get(Object obj) {
+			public Object convert(Object obj) {
 				if (obj instanceof InventoryType inventoryType) {
 					if (!inventoryType.isCreatable())
 						return null;
@@ -108,7 +107,7 @@ public class ExprNamed extends PropertyExpression<Object, Object> {
 	}
 	
 	@Override
-	public Class<? extends Object> getReturnType() {
+	public Class<?> getReturnType() {
 		return getExpr().getReturnType() == InventoryType.class ? Inventory.class : ItemType.class;
 	}
 	

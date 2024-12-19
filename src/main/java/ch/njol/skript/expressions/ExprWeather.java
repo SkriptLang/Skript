@@ -18,29 +18,24 @@
  */
 package ch.njol.skript.expressions;
 
+import ch.njol.skript.Skript;
+import ch.njol.skript.classes.Changer.ChangeMode;
+import ch.njol.skript.doc.*;
+import ch.njol.skript.effects.Delay;
+import ch.njol.skript.expressions.base.PropertyExpression;
+import ch.njol.skript.lang.Expression;
+import ch.njol.skript.lang.ExpressionType;
+import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.skript.util.WeatherType;
+import ch.njol.util.Kleenean;
+import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.World;
 import org.bukkit.event.Event;
 import org.bukkit.event.weather.ThunderChangeEvent;
 import org.bukkit.event.weather.WeatherChangeEvent;
 import org.bukkit.event.weather.WeatherEvent;
 import org.jetbrains.annotations.Nullable;
-
-import ch.njol.skript.Skript;
-import ch.njol.skript.classes.Changer.ChangeMode;
-import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Events;
-import ch.njol.skript.doc.Examples;
-import ch.njol.skript.doc.Name;
-import ch.njol.skript.doc.Since;
-import ch.njol.skript.effects.Delay;
-import ch.njol.skript.expressions.base.PropertyExpression;
-import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.ExpressionType;
-import ch.njol.skript.lang.SkriptParser.ParseResult;
-import ch.njol.skript.util.Getter;
-import ch.njol.skript.util.WeatherType;
-import ch.njol.util.Kleenean;
-import ch.njol.util.coll.CollectionUtils;
+import org.skriptlang.skript.lang.converter.Converter;
 
 /**
  * @author Peter Güttinger
@@ -65,14 +60,11 @@ public class ExprWeather extends PropertyExpression<World, WeatherType> {
 
 	@Override
 	protected WeatherType[] get(final Event e, final World[] source) {
-		return get(source, new Getter<WeatherType, World>() {
-			@Override
-			public WeatherType get(final World w) {
-				if (getTime() >= 0 && e instanceof WeatherEvent && w.equals(((WeatherEvent) e).getWorld()) && !Delay.isDelayed(e))
-					return WeatherType.fromEvent((WeatherEvent) e);
-				else
-					return WeatherType.fromWorld(w);
-			}
+		return get(source, (Converter<? super World, ? extends WeatherType>) w -> {
+			if (getTime() >= 0 && e instanceof WeatherEvent && w.equals(((WeatherEvent) e).getWorld()) && !Delay.isDelayed(e))
+				return WeatherType.fromEvent((WeatherEvent) e);
+			else
+				return WeatherType.fromWorld(w);
 		});
 	}
 	

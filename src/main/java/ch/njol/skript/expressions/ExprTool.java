@@ -18,18 +18,6 @@
  */
 package ch.njol.skript.expressions;
 
-import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Player;
-import org.bukkit.event.Event;
-import org.bukkit.event.player.PlayerBucketEmptyEvent;
-import org.bukkit.event.player.PlayerBucketEvent;
-import org.bukkit.event.player.PlayerBucketFillEvent;
-import org.bukkit.event.player.PlayerItemHeldEvent;
-import org.bukkit.inventory.EntityEquipment;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.PlayerInventory;
-import org.jetbrains.annotations.Nullable;
-
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
@@ -41,11 +29,21 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.registrations.Classes;
-import ch.njol.skript.util.Getter;
 import ch.njol.skript.util.slot.EquipmentSlot;
 import ch.njol.skript.util.slot.InventorySlot;
 import ch.njol.skript.util.slot.Slot;
 import ch.njol.util.Kleenean;
+import org.bukkit.entity.LivingEntity;
+import org.bukkit.event.Event;
+import org.bukkit.event.player.PlayerBucketEmptyEvent;
+import org.bukkit.event.player.PlayerBucketEvent;
+import org.bukkit.event.player.PlayerBucketFillEvent;
+import org.bukkit.event.player.PlayerItemHeldEvent;
+import org.bukkit.inventory.EntityEquipment;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.PlayerInventory;
+import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.converter.Converter;
 
 /**
  * @author Peter Güttinger
@@ -77,10 +75,9 @@ public class ExprTool extends PropertyExpression<LivingEntity, Slot> {
 	@Override
 	protected Slot[] get(final Event e, final LivingEntity[] source) {
 		final boolean delayed = Delay.isDelayed(e);
-		return get(source, new Getter<Slot, LivingEntity>() {
+		return get(source, new Converter<>() {
 			@Override
-			@Nullable
-			public Slot get(final LivingEntity ent) {
+			public Slot convert(final LivingEntity ent) {
 				if (!delayed) {
 					if (!offHand && e instanceof PlayerItemHeldEvent && ((PlayerItemHeldEvent) e).getPlayer() == ent) {
 						final PlayerInventory i = ((PlayerItemHeldEvent) e).getPlayer().getInventory();

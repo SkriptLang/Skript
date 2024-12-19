@@ -18,11 +18,6 @@
  */
 package ch.njol.skript.expressions;
 
-import org.bukkit.entity.Player;
-import org.bukkit.event.Event;
-import org.bukkit.event.entity.FoodLevelChangeEvent;
-import org.jetbrains.annotations.Nullable;
-
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
@@ -34,10 +29,14 @@ import ch.njol.skript.expressions.base.PropertyExpression;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
-import ch.njol.skript.util.Getter;
 import ch.njol.util.Kleenean;
 import ch.njol.util.Math2;
 import ch.njol.util.coll.CollectionUtils;
+import org.bukkit.entity.Player;
+import org.bukkit.event.Event;
+import org.bukkit.event.entity.FoodLevelChangeEvent;
+import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.converter.Converter;
 
 /**
  * @author Peter Güttinger
@@ -61,14 +60,11 @@ public class ExprFoodLevel extends PropertyExpression<Player, Number> {
 	
 	@Override
 	protected Number[] get(final Event e, final Player[] source) {
-		return get(source, new Getter<Number, Player>() {
-			@Override
-			public Number get(final Player p) {
-				if (getTime() >= 0 && e instanceof FoodLevelChangeEvent && p.equals(((FoodLevelChangeEvent) e).getEntity()) && !Delay.isDelayed(e)) {
-					return 0.5f * ((FoodLevelChangeEvent) e).getFoodLevel();
-				}
-				return 0.5f * p.getFoodLevel();
+		return get(source, (Converter<Player, Number>) p -> {
+			if (getTime() >= 0 && e instanceof FoodLevelChangeEvent && p.equals(((FoodLevelChangeEvent) e).getEntity()) && !Delay.isDelayed(e)) {
+				return 0.5f * ((FoodLevelChangeEvent) e).getFoodLevel();
 			}
+			return 0.5f * p.getFoodLevel();
 		});
 	}
 	

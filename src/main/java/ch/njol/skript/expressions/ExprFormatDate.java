@@ -18,13 +18,6 @@
  */
 package ch.njol.skript.expressions;
 
-import java.text.SimpleDateFormat;
-
-import ch.njol.skript.lang.Literal;
-import ch.njol.skript.lang.VariableString;
-import org.bukkit.event.Event;
-import org.jetbrains.annotations.Nullable;
-
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
@@ -33,10 +26,16 @@ import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.PropertyExpression;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
+import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.skript.lang.VariableString;
 import ch.njol.skript.util.Date;
-import ch.njol.skript.util.Getter;
 import ch.njol.util.Kleenean;
+import org.bukkit.event.Event;
+import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.converter.Converter;
+
+import java.text.SimpleDateFormat;
 
 @Name("Formatted Date")
 @Description({
@@ -115,12 +114,7 @@ public class ExprFormatDate extends PropertyExpression<Date, String> {
 			format = this.format;
 		}
 
-		return get(source, new Getter<String, Date>() {
-			@Override
-			public String get(Date date) {
-				return format.format(new java.util.Date(date.getTimestamp()));
-			}
-		});
+		return get(source, (Converter<Date, String>) date -> format.format(new java.util.Date(date.getTimestamp())));
 	}
 
 	@Override

@@ -27,7 +27,6 @@ import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.PropertyExpression;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
-import ch.njol.skript.util.Getter;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.entity.LivingEntity;
@@ -35,6 +34,7 @@ import org.bukkit.event.Event;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.converter.Converter;
 
 /**
  * @author bensku
@@ -59,13 +59,10 @@ public class ExprLastDamageCause extends PropertyExpression<LivingEntity, Damage
 	
 	@Override
 	protected DamageCause[] get(Event e, LivingEntity[] source) {
-		return get(source, new Getter<DamageCause, LivingEntity>() {
-			@Override
-			public DamageCause get(LivingEntity entity) {
-				EntityDamageEvent dmgEvt = entity.getLastDamageCause();
-				if (dmgEvt == null) return DamageCause.CUSTOM;
-				return dmgEvt.getCause();
-			}
+		return get(source, (Converter<LivingEntity, DamageCause>) entity -> {
+			EntityDamageEvent dmgEvt = entity.getLastDamageCause();
+			if (dmgEvt == null) return DamageCause.CUSTOM;
+			return dmgEvt.getCause();
 		});
 	}
 	
