@@ -169,29 +169,29 @@ public class EffChange extends Effect {
 				return false;
 			switch (changeMode) {
 				case SET:
-					Skript.error(what + " can't be set to anything", ErrorQuality.SEMANTIC_ERROR);
+					Skript.error(what + " can't be set to anything");
 					break;
 				case DELETE:
 					if (expressionToChange.acceptChange(ChangeMode.RESET) != null)
-						Skript.error(what + " can't be deleted/cleared. It can however be reset which might result in the desired effect.", ErrorQuality.SEMANTIC_ERROR);
+						Skript.error(what + " can't be deleted/cleared. It can however be reset which might result in the desired effect.");
 					else
-						Skript.error(what + " can't be deleted/cleared", ErrorQuality.SEMANTIC_ERROR);
+						Skript.error(what + " can't be deleted/cleared");
 					break;
 				case REMOVE_ALL:
 					if (expressionToChange.acceptChange(ChangeMode.REMOVE) != null) {
-						Skript.error(what + " can't have 'all of something' removed from it. Use 'remove' instead of 'remove all' to fix this.", ErrorQuality.SEMANTIC_ERROR);
+						Skript.error(what + " can't have 'all of something' removed from it. Use 'remove' instead of 'remove all' to fix this.");
 						break;
 					}
 					//$FALL-THROUGH$
 				case ADD:
 				case REMOVE:
-					Skript.error(what + " can't have anything " + (changeMode == ChangeMode.ADD ? "added to" : "removed from") + " it", ErrorQuality.SEMANTIC_ERROR);
+					Skript.error(what + " can't have anything " + (changeMode == ChangeMode.ADD ? "added to" : "removed from") + " it");
 					break;
 				case RESET:
 					if (expressionToChange.acceptChange(ChangeMode.DELETE) != null)
-						Skript.error(what + " can't be reset. It can however be deleted which might result in the desired effect.", ErrorQuality.SEMANTIC_ERROR);
+						Skript.error(what + " can't be reset. It can however be deleted which might result in the desired effect.");
 					else
-						Skript.error(what + " can't be reset", ErrorQuality.SEMANTIC_ERROR);
+						Skript.error(what + " can't be reset");
 			}
 			return false;
 		}
@@ -227,9 +227,9 @@ public class EffChange extends Effect {
 					if (acceptableChangeComponentTypes.length == 1 && acceptableChangeComponentTypes[0] == Object.class)
 						Skript.error("Can't understand this expression: " + this.deltaValuesExpression, ErrorQuality.NOT_AN_EXPRESSION);
 					else if (changeMode == ChangeMode.SET)
-						Skript.error(what + " can't be set to " + this.deltaValuesExpression + " because the latter is " + SkriptParser.notOfType(acceptableChangeComponentTypes), ErrorQuality.SEMANTIC_ERROR);
+						Skript.error(what + " can't be set to " + this.deltaValuesExpression + " because the latter is " + SkriptParser.notOfType(acceptableChangeComponentTypes));
 					else
-						Skript.error(this.deltaValuesExpression + " can't be " + (changeMode == ChangeMode.ADD ? "added to" : "removed from") + " " + what + " because the former is " + SkriptParser.notOfType(acceptableChangeComponentTypes), ErrorQuality.SEMANTIC_ERROR);
+						Skript.error(this.deltaValuesExpression + " can't be " + (changeMode == ChangeMode.ADD ? "added to" : "removed from") + " " + what + " because the former is " + SkriptParser.notOfType(acceptableChangeComponentTypes));
 					parseLogs.printError();
 					return false;
 				}
@@ -251,9 +251,9 @@ public class EffChange extends Effect {
 
 			if (!deltaValuesExpression.isSingle() && !allowMultipleChangeValues) {
 				if (changeMode == ChangeMode.SET)
-					Skript.error(expressionToChange + " can only be set to one " + Classes.getSuperClassInfo(superTypeOfAcceptableChangeTypes).getName() + ", not more", ErrorQuality.SEMANTIC_ERROR);
+					Skript.error(expressionToChange + " can only be set to one " + Classes.getSuperClassInfo(superTypeOfAcceptableChangeTypes).getName() + ", not more");
 				else
-					Skript.error("Only one " + Classes.getSuperClassInfo(superTypeOfAcceptableChangeTypes).getName() + " can be " + (changeMode == ChangeMode.ADD ? "added to" : "removed from") + " " + expressionToChange + ", not more", ErrorQuality.SEMANTIC_ERROR);
+					Skript.error("Only one " + Classes.getSuperClassInfo(superTypeOfAcceptableChangeTypes).getName() + " can be " + (changeMode == ChangeMode.ADD ? "added to" : "removed from") + " " + expressionToChange + ", not more");
 				return false;
 			}
 
