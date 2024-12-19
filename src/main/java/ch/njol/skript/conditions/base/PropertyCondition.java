@@ -7,6 +7,7 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Predicate;
@@ -173,4 +174,20 @@ public abstract class PropertyCondition<T> extends Condition implements Predicat
 				return null;
 		}
 	}
+
+	@Override
+	public @NotNull Predicate<T> and(@NotNull Predicate<? super T> other) {
+		throw new UnsupportedOperationException("Combining property conditions is undefined behaviour");
+	}
+
+	@Override
+	public @NotNull Predicate<T> negate() {
+		throw new UnsupportedOperationException("Negating property conditions without setNegated is undefined behaviour");
+	}
+
+	@Override
+	public @NotNull Predicate<T> or(@NotNull Predicate<? super T> other) {
+		throw new UnsupportedOperationException("Combining property conditions is undefined behaviour");
+	}
+
 }
