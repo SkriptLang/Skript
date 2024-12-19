@@ -1,0 +1,11 @@
+test "villager type expression":
+	spawn a villager at event-location:
+		set {_e} to event-entity
+
+	set villager type of {_e} to plains
+	assert villager type of {_e} = plains with "The villager should now have the type plains"
+	set villager type of {_e} to desert
+	assert villager type of {_e} = desert with "The villager should now have the type desert"
+
+	# Thank you for your service
+	delete entity within {_e}

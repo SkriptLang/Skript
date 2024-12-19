@@ -68,6 +68,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.enchantments.EnchantmentOffer;
 import org.bukkit.entity.Cat;
+import org.bukkit.entity.Villager;
 import org.bukkit.entity.Wolf;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Item;
@@ -1564,6 +1565,19 @@ public class BukkitClasses {
 			.user("(experience|[e]xp) cooldown change (reason|cause)s?")
 			.name("Experience Cooldown Change Reason")
 			.description("Represents a change reason of an <a href='events.html#experience cooldown change event'>experience cooldown change event</a>.")
+			.since("INSERT VERSION"));
+
+		Classes.registerClass(new RegistryClassInfo<>(Villager.Type.class, Registry.VILLAGER_TYPE, "villagertype", "villager types")
+			.user("villager ?types?")
+			.name("Villager Type")
+			.description("Represents the different types of villagers. These are usually the biomes a villager can be from.")
+			.after("biome")
+			.since("INSERT VERSION"));
+
+		Classes.registerClass(new RegistryClassInfo<>(Villager.Profession.class, Registry.VILLAGER_PROFESSION, "villagerprofession", "villager professions")
+			.user("villager ?professions?")
+			.name("Villager Profession")
+			.description("Represents the different professions of villagers.")
 			.since("INSERT VERSION"));
 	}
 
