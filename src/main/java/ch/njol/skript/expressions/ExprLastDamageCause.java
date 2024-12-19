@@ -34,7 +34,6 @@ import org.bukkit.event.Event;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.lang.converter.Converter;
 
 /**
  * @author bensku
@@ -59,7 +58,7 @@ public class ExprLastDamageCause extends PropertyExpression<LivingEntity, Damage
 	
 	@Override
 	protected DamageCause[] get(Event e, LivingEntity[] source) {
-		return get(source, (Converter<LivingEntity, DamageCause>) entity -> {
+		return get(source, entity -> {
 			EntityDamageEvent dmgEvt = entity.getLastDamageCause();
 			if (dmgEvt == null) return DamageCause.CUSTOM;
 			return dmgEvt.getCause();

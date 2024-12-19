@@ -33,7 +33,6 @@ import org.bukkit.World;
 import org.bukkit.event.Event;
 import org.bukkit.generator.WorldInfo;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.lang.converter.Converter;
 
 @Name("World Seed")
 @Description("The seed of given world. Note that it will be returned as Minecraft internally treats seeds, not as you specified it in world configuration.")
@@ -54,7 +53,7 @@ public class ExprSeed extends PropertyExpression<World, Long> {
 	
 	@Override
 	protected Long[] get(final Event event, final World[] source) {
-		return get(source, (Converter<World, Long>) WorldInfo::getSeed);
+		return get(source, WorldInfo::getSeed);
 	}
 	
 	@Override

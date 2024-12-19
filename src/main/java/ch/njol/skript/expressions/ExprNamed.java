@@ -20,6 +20,7 @@ package ch.njol.skript.expressions;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.ItemType;
+import ch.njol.skript.classes.Converter;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
@@ -38,7 +39,6 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.lang.converter.Converter;
 
 /**
  * @author Peter Güttinger
@@ -76,7 +76,7 @@ public class ExprNamed extends PropertyExpression<Object, Object> {
 	protected Object[] get(final Event e, final Object[] source) {
 		String name = this.name.getSingle(e);
 		if (name == null)
-			return get(source, (Converter<Object, Object>) obj -> obj); // No name provided, do nothing
+			return get(source, obj -> obj); // No name provided, do nothing
 		return get(source, new Converter<>() {
 			@Override
 			@Nullable

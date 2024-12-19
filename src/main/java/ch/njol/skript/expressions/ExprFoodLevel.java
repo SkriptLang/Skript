@@ -36,7 +36,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.entity.FoodLevelChangeEvent;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.lang.converter.Converter;
 
 /**
  * @author Peter Güttinger
@@ -60,7 +59,7 @@ public class ExprFoodLevel extends PropertyExpression<Player, Number> {
 	
 	@Override
 	protected Number[] get(final Event e, final Player[] source) {
-		return get(source, (Converter<Player, Number>) p -> {
+		return get(source, p -> {
 			if (getTime() >= 0 && e instanceof FoodLevelChangeEvent && p.equals(((FoodLevelChangeEvent) e).getEntity()) && !Delay.isDelayed(e)) {
 				return 0.5f * ((FoodLevelChangeEvent) e).getFoodLevel();
 			}

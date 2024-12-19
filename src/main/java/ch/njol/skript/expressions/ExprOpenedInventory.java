@@ -33,7 +33,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.inventory.Inventory;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.lang.converter.Converter;
 
 @Name("Opened Inventory")
 @Description({"Return the currently opened inventory of a player.",
@@ -60,7 +59,7 @@ public class ExprOpenedInventory extends PropertyExpression<Player, Inventory> {
 
 	@Override
 	protected Inventory[] get(Event event, Player[] source) {
-		return get(source, (Converter<Player, Inventory>) player -> InventoryUtils.getTopInventory(player.getOpenInventory()));
+		return get(source, player -> InventoryUtils.getTopInventory(player.getOpenInventory()));
 	}
 
 	@Override

@@ -148,15 +148,6 @@ public abstract class PropertyExpression<F, T> extends SimpleExpression<T> {
 		return ch.njol.skript.registrations.Converters.convertUnsafe(source, getReturnType(), converter);
 	}
 
-	/**
-	 * @see #get(Object[], ch.njol.skript.classes.Converter)
-	 */
-	protected T[] get(final F[] source, Converter<? super F, ? extends T> converter) {
-		assert source != null;
-		assert converter != null;
-		return Converters.convertUnsafe(source, getReturnType(), converter);
-	}
-
 	@Override
 	public boolean isSingle() {
 		return expr.isSingle();

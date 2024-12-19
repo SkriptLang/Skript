@@ -35,7 +35,6 @@ import org.bukkit.event.Event;
 import org.bukkit.event.player.PlayerItemHeldEvent;
 import org.bukkit.inventory.PlayerInventory;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.lang.converter.Converter;
 
 @Name("Hotbar Slot")
 @Description({
@@ -73,7 +72,7 @@ public class ExprHotbarSlot extends PropertyExpression<Player, Slot> {
 
 	@Override
 	protected Slot[] get(Event event, Player[] source) {
-		return get(source, (Converter<Player, Slot>) player -> {
+		return get(source, player -> {
 			int time = getTime();
 			PlayerInventory inventory = player.getInventory();
 			if (event instanceof PlayerItemHeldEvent switchEvent && time != EventValues.TIME_NOW) {

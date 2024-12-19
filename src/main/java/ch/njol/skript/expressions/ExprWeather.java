@@ -35,7 +35,6 @@ import org.bukkit.event.weather.ThunderChangeEvent;
 import org.bukkit.event.weather.WeatherChangeEvent;
 import org.bukkit.event.weather.WeatherEvent;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.lang.converter.Converter;
 
 /**
  * @author Peter Güttinger
@@ -60,7 +59,7 @@ public class ExprWeather extends PropertyExpression<World, WeatherType> {
 
 	@Override
 	protected WeatherType[] get(final Event e, final World[] source) {
-		return get(source, (Converter<? super World, ? extends WeatherType>) w -> {
+		return get(source, w -> {
 			if (getTime() >= 0 && e instanceof WeatherEvent && w.equals(((WeatherEvent) e).getWorld()) && !Delay.isDelayed(e))
 				return WeatherType.fromEvent((WeatherEvent) e);
 			else

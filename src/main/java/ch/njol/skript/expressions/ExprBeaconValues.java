@@ -20,7 +20,6 @@ import org.bukkit.block.Block;
 import org.bukkit.event.Event;
 import org.bukkit.potion.PotionEffectType;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.lang.converter.Converter;
 
 import java.util.function.Consumer;
 
@@ -100,7 +99,7 @@ public class ExprBeaconValues extends PropertyExpression<Block, Object> {
 
 	@Override
 	protected Object @Nullable [] get(Event event, Block[] source) {
-		return get(source, (Converter<Block, Object>) block -> {
+		return get(source, block -> {
 			Beacon beacon  = (Beacon) block.getState();
 			return switch (valueType) {
 				case PRIMARY -> {

@@ -29,7 +29,6 @@ import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.lang.converter.Converter;
 
 /**
  * @author Peter Güttinger
@@ -62,7 +61,7 @@ public class ExprHealth extends PropertyExpression<LivingEntity, Number> {
 //				}
 //			});
 //		}
-		return get(source, (Converter<LivingEntity, Number>) HealthUtils::getHealth);
+		return get(source, HealthUtils::getHealth);
 	}
 	
 	@Override

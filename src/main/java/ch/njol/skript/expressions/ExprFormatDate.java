@@ -33,7 +33,6 @@ import ch.njol.skript.util.Date;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.lang.converter.Converter;
 
 import java.text.SimpleDateFormat;
 
@@ -114,7 +113,7 @@ public class ExprFormatDate extends PropertyExpression<Date, String> {
 			format = this.format;
 		}
 
-		return get(source, (Converter<Date, String>) date -> format.format(new java.util.Date(date.getTimestamp())));
+		return get(source, date -> format.format(new java.util.Date(date.getTimestamp())));
 	}
 
 	@Override
