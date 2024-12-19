@@ -18,13 +18,15 @@
  */
 package ch.njol.skript.expressions;
 
+import ch.njol.skript.lang.Literal;
+import ch.njol.skript.registrations.Classes;
 import org.bukkit.Bukkit;
 import org.bukkit.event.Event;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.ItemType;
@@ -63,6 +65,10 @@ public class ExprNamed extends PropertyExpression<Object, Object> {
 	@Override
 	public boolean init(final Expression<?>[] exprs, final int matchedPattern, final Kleenean isDelayed, final ParseResult parseResult) {
 		setExpr(exprs[0]);
+		if (exprs[0] instanceof Literal<?> lit && lit.getSingle() instanceof InventoryType inventoryType && !inventoryType.isCreatable()) {
+			Skript.error("Cannot create an inventory of type " + Classes.toString(inventoryType));
+			return false;
+		}
 		name = (Expression<String>) exprs[1];
 		return true;
 	}
@@ -76,8 +82,11 @@ public class ExprNamed extends PropertyExpression<Object, Object> {
 			@Override
 			@Nullable
 			public Object get(Object obj) {
-				if (obj instanceof InventoryType)
-					return Bukkit.createInventory(null, (InventoryType) obj, name);
+				if (obj instanceof InventoryType inventoryType) {
+					if (!inventoryType.isCreatable())
+						return null;
+					return Bukkit.createInventory(null, inventoryType, name);
+				}
 				if (obj instanceof ItemStack) {
 					ItemStack stack = (ItemStack) obj;
 					stack = stack.clone();

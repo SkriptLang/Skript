@@ -28,7 +28,7 @@ import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import ch.njol.skript.util.Timespan;
 import org.bukkit.block.Bell;
 import org.bukkit.block.Block;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 @Name("Resonating Time")
 @Description({
@@ -37,7 +37,7 @@ import org.eclipse.jdt.annotation.Nullable;
 })
 @Examples("broadcast \"The bell has been resonating for %resonating time of target block%\"")
 @RequiredPlugins("Spigot 1.19.4+")
-@Since("INSERT VERSION")
+@Since("2.9.0")
 public class ExprResonatingTime extends SimplePropertyExpression<Block, Timespan> {
 
 	static {
@@ -51,7 +51,7 @@ public class ExprResonatingTime extends SimplePropertyExpression<Block, Timespan
 	public Timespan convert(Block from) {
 		if (from.getState() instanceof Bell) {
 			int resonatingTicks = ((Bell) from.getState(false)).getResonatingTicks();
-			return resonatingTicks == 0 ? null : Timespan.fromTicks(resonatingTicks);
+			return resonatingTicks == 0 ? null : new Timespan(Timespan.TimePeriod.TICK, resonatingTicks);
 		}
 		return null;
 	}

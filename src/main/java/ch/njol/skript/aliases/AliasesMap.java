@@ -22,7 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.bukkit.Material;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.entity.EntityData;
 

@@ -26,97 +26,25 @@ import com.destroystokyo.paper.event.entity.EntityJumpEvent;
 import com.destroystokyo.paper.event.entity.ProjectileCollideEvent;
 import com.destroystokyo.paper.event.player.PlayerArmorChangeEvent;
 import com.destroystokyo.paper.event.player.PlayerJumpEvent;
-import com.destroystokyo.paper.event.server.PaperServerListPingEvent;
 import com.destroystokyo.paper.event.player.PlayerReadyArrowEvent;
-import io.papermc.paper.event.player.PlayerStopUsingItemEvent;
+import com.destroystokyo.paper.event.server.PaperServerListPingEvent;
 import io.papermc.paper.event.player.PlayerDeepSleepEvent;
 import io.papermc.paper.event.player.PlayerInventorySlotChangeEvent;
+import io.papermc.paper.event.player.PlayerStopUsingItemEvent;
 import io.papermc.paper.event.player.PlayerTradeEvent;
 import org.bukkit.event.Event;
-import org.bukkit.event.block.BlockCanBuildEvent;
-import org.bukkit.event.block.BlockDamageEvent;
-import org.bukkit.event.block.BlockFertilizeEvent;
-import org.bukkit.event.block.BlockFromToEvent;
-import org.bukkit.event.block.BlockIgniteEvent;
-import org.bukkit.event.block.BlockPhysicsEvent;
-import org.bukkit.event.block.BlockPistonExtendEvent;
-import org.bukkit.event.block.BlockPistonRetractEvent;
-import org.bukkit.event.block.BlockRedstoneEvent;
-import org.bukkit.event.block.BlockSpreadEvent;
-import org.bukkit.event.block.LeavesDecayEvent;
-import org.bukkit.event.block.SignChangeEvent;
-import org.bukkit.event.block.SpongeAbsorbEvent;
+import org.bukkit.event.block.*;
 import org.bukkit.event.enchantment.EnchantItemEvent;
 import org.bukkit.event.enchantment.PrepareItemEnchantEvent;
-import org.bukkit.event.entity.AreaEffectCloudApplyEvent;
-import org.bukkit.event.entity.CreeperPowerEvent;
-import org.bukkit.event.entity.EntityBreakDoorEvent;
-import org.bukkit.event.entity.EntityCombustEvent;
-import org.bukkit.event.entity.EntityDismountEvent;
-import org.bukkit.event.entity.EntityExplodeEvent;
-import org.bukkit.event.entity.EntityMountEvent;
-import org.bukkit.event.entity.EntityPortalEnterEvent;
-import org.bukkit.event.entity.EntityPortalEvent;
-import org.bukkit.event.entity.EntityRegainHealthEvent;
-import org.bukkit.event.entity.EntityResurrectEvent;
-import org.bukkit.event.entity.EntityTameEvent;
-import org.bukkit.event.entity.EntityToggleGlideEvent;
-import org.bukkit.event.entity.EntityToggleSwimEvent;
-import org.bukkit.event.entity.ExplosionPrimeEvent;
-import org.bukkit.event.entity.FoodLevelChangeEvent;
-import org.bukkit.event.entity.HorseJumpEvent;
-import org.bukkit.event.entity.PigZapEvent;
-import org.bukkit.event.entity.ProjectileHitEvent;
-import org.bukkit.event.entity.ProjectileLaunchEvent;
-import org.bukkit.event.entity.SheepRegrowWoolEvent;
-import org.bukkit.event.entity.SlimeSplitEvent;
-import org.bukkit.event.inventory.FurnaceBurnEvent;
-import org.bukkit.event.inventory.FurnaceSmeltEvent;
-import org.bukkit.event.inventory.InventoryCloseEvent;
-import org.bukkit.event.inventory.InventoryDragEvent;
-import org.bukkit.event.inventory.InventoryOpenEvent;
-import org.bukkit.event.inventory.InventoryPickupItemEvent;
-import org.bukkit.event.inventory.PrepareAnvilEvent;
-import org.bukkit.event.player.AsyncPlayerChatEvent;
-import org.bukkit.event.player.PlayerAnimationEvent;
-import org.bukkit.event.player.PlayerBedEnterEvent;
-import org.bukkit.event.player.PlayerBedLeaveEvent;
-import org.bukkit.event.player.PlayerBucketEmptyEvent;
-import org.bukkit.event.player.PlayerBucketFillEvent;
-import org.bukkit.event.player.PlayerChangedWorldEvent;
-import org.bukkit.event.player.PlayerEggThrowEvent;
-import org.bukkit.event.player.PlayerFishEvent;
-import org.bukkit.event.player.PlayerItemBreakEvent;
-import org.bukkit.event.player.PlayerItemDamageEvent;
-import org.bukkit.event.player.PlayerItemHeldEvent;
-import org.bukkit.event.player.PlayerItemMendEvent;
-import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.event.player.PlayerKickEvent;
-import org.bukkit.event.player.PlayerLocaleChangeEvent;
-import org.bukkit.event.player.PlayerLoginEvent;
-import org.bukkit.event.player.PlayerPickupArrowEvent;
-import org.bukkit.event.player.PlayerPortalEvent;
-import org.bukkit.event.player.PlayerQuitEvent;
-import org.bukkit.event.player.PlayerRespawnEvent;
-import org.bukkit.event.player.PlayerRiptideEvent;
-import org.bukkit.event.player.PlayerSwapHandItemsEvent;
-import org.bukkit.event.player.PlayerTeleportEvent;
-import org.bukkit.event.player.PlayerToggleFlightEvent;
-import org.bukkit.event.player.PlayerToggleSneakEvent;
-import org.bukkit.event.player.PlayerToggleSprintEvent;
+import org.bukkit.event.entity.*;
+import org.bukkit.event.inventory.*;
+import org.bukkit.event.player.*;
+import org.bukkit.event.server.BroadcastMessageEvent;
 import org.bukkit.event.server.ServerListPingEvent;
-import org.bukkit.event.vehicle.VehicleCreateEvent;
-import org.bukkit.event.vehicle.VehicleDamageEvent;
-import org.bukkit.event.vehicle.VehicleDestroyEvent;
-import org.bukkit.event.vehicle.VehicleEnterEvent;
-import org.bukkit.event.vehicle.VehicleExitEvent;
+import org.bukkit.event.vehicle.*;
 import org.bukkit.event.weather.LightningStrikeEvent;
-import org.bukkit.event.world.ChunkLoadEvent;
-import org.bukkit.event.world.ChunkPopulateEvent;
-import org.bukkit.event.world.ChunkUnloadEvent;
-import org.bukkit.event.world.LootGenerateEvent;
-import org.bukkit.event.world.PortalCreateEvent;
-import org.bukkit.event.world.SpawnChangeEvent;
+import org.bukkit.event.world.*;
+import io.papermc.paper.event.player.PlayerChangeBeaconEffectEvent;
 
 /**
  * @author Peter Güttinger
@@ -209,10 +137,6 @@ public class SimpleEvents {
 				.description("Called when an entity enters a nether portal or an end portal. Please note that this event will be fired many times for a nether portal.")
 				.examples("on portal enter:")
 				.since("1.0");
-		Skript.registerEvent("Heal", SimpleEvent.class, EntityRegainHealthEvent.class, "heal[ing]")
-				.description("Called when an entity is healed, e.g. by eating (players), being fed (pets), or by the effect of a potion of healing (overworld mobs) or harm (nether mobs).")
-				.examples("on heal:")
-				.since("1.0");
 		Skript.registerEvent("Tame", SimpleEvent.class, EntityTameEvent.class, "[entity] tam(e|ing)")
 				.description("Called when a player tames a wolf or ocelot. Can be cancelled to prevent the entity from being tamed.")
 				.examples("on tame:")
@@ -269,12 +193,6 @@ public class SimpleEvents {
 				)
 				.examples("on throw of an egg:")
 				.since("1.0");
-		// TODO improve - on fish [of %entitydata%] (and/or itemtype), on reel, etc.
-		// Maybe something like RandomSK "[on] fishing state of %fishingstate%"
-		Skript.registerEvent("Fishing", SimpleEvent.class, PlayerFishEvent.class, "[player] fish[ing]")
-				.description("Called when a player fishes something. This is not of much use yet.")
-				.examples("on fish:")
-				.since("1.0");
 		if (Skript.classExists("org.bukkit.event.player.PlayerItemBreakEvent")) {
 			Skript.registerEvent("Item Break", SimpleEvent.class, PlayerItemBreakEvent.class, "[player] tool break[ing]", "[player] break[ing] (a|the|) tool")
 					.description("Called when a player breaks their tool because its damage reached the maximum value.",
@@ -325,10 +243,6 @@ public class SimpleEvents {
 				.description("Called when a player respawns. You should prefer this event over the <a href='#death'>death event</a> as the player is technically alive when this event is called.")
 				.examples("on respawn:")
 				.since("1.0");
-		Skript.registerEvent("Teleport", SimpleEvent.class, PlayerTeleportEvent.class, "[player] teleport[ing]")
-				.description("Called whenever a player is teleported, either by a nether/end portal or other means (e.g. by plugins).")
-				.examples("on teleport:")
-				.since("1.0");
 		Skript.registerEvent("Sneak Toggle", SimpleEvent.class, PlayerToggleSneakEvent.class, "[player] toggl(e|ing) sneak", "[player] sneak toggl(e|ing)")
 				.description("Called when a player starts or stops sneaking. Use <a href='conditions.html#CondIsSneaking'>is sneaking</a> to get whether the player was sneaking before the event was called.")
 				.examples("# make players that stop sneaking jump",
@@ -349,13 +263,10 @@ public class SimpleEvents {
 				.requiredPlugins("Minecraft 1.14+ (event-entity support)")
 				.since("1.0, 2.5.3 (event-entity support)");
 		Skript.registerEvent("Projectile Hit", SimpleEvent.class, ProjectileHitEvent.class, "projectile hit")
-				.description("Called when a projectile hits an entity or a block.",
-						"Use the <a href='#damage'>damage event</a> with a <a href='conditions.html#CondIsSet'>check</a> for a <a href='expressions.html#ExprEntity'>projectile</a> " +
-								"to be able to use the <a href='expressions.html#ExprAttacked'>entity that got hit</a> in the case when the projectile hit a living entity.",
-						"A damage event will even be fired if the damage is 0, e.g. when throwing snowballs at non-nether mobs.")
+				.description("Called when a projectile hits an entity or a block.")
 				.examples("on projectile hit:",
-						"\tevent-projectile is arrow",
-						"\tdelete event-projectile")
+						"\tif victim's health <= 3:",
+						"\t\tdelete event-projectile")
 				.since("1.0");
 		
 		if(Skript.classExists("com.destroystokyo.paper.event.entity.ProjectileCollideEvent"))
@@ -481,7 +392,7 @@ public class SimpleEvents {
 				.description("Called when a player enters a world. Does not work with other entities!")
 				.examples("on player world change:",
 						"	world is \"city\"",
-					 	"	send \"Welcome to the City!\"")
+						"	send \"Welcome to the City!\"")
 				.since("2.2-dev28");
 		Skript.registerEvent("Flight Toggle", SimpleEvent.class, PlayerToggleFlightEvent.class, "[player] flight toggl(e|ing)", "[player] toggl(e|ing) flight")
 				.description("Called when a players stops/starts flying.")
@@ -510,11 +421,11 @@ public class SimpleEvents {
 		if (Skript.classExists("org.bukkit.event.player.PlayerSwapHandItemsEvent")) {
 			Skript.registerEvent("Hand Item Swap", SimpleEvent.class, PlayerSwapHandItemsEvent.class, "swap[ping of] [(hand|held)] item[s]")
 					.description("Called whenever a player swaps the items in their main- and offhand slots.",
-						     "Works also when one or both of the slots are empty.",
-						     "The event is called before the items are actually swapped,",
-						     "so when you use the player's tool or player's offtool expressions,",
-						     "they will return the values before the swap -",
-						     "this enables you to cancel the event before anything happens.")
+							 "Works also when one or both of the slots are empty.",
+							 "The event is called before the items are actually swapped,",
+							 "so when you use the player's tool or player's offtool expressions,",
+							 "they will return the values before the swap -",
+							 "this enables you to cancel the event before anything happens.")
 					.examples("on swap hand items:",
 							"	event-player's tool is a diamond sword",
 							"	cancel event")
@@ -645,7 +556,7 @@ public class SimpleEvents {
 		if (Skript.classExists("com.destroystokyo.paper.event.block.AnvilDamagedEvent")) {
 			Skript.registerEvent("Anvil Damage", SimpleEvent.class, AnvilDamagedEvent.class, "anvil damag(e|ing)")
 				.description("Called when an anvil is damaged/broken from being used to repair/rename items.",
-					 		 "Note: this does not include anvil damage from falling.")
+							 "Note: this does not include anvil damage from falling.")
 				.requiredPlugins("Paper")
 				.examples("on anvil damage:",
 					"\tcancel the event")
@@ -691,7 +602,7 @@ public class SimpleEvents {
 					)
 					.since("2.7");
 		}
-    
+
 		//noinspection deprecation
 		Skript.registerEvent("Chat", SimpleEvent.class, AsyncPlayerChatEvent.class, "chat")
 			.description(
@@ -758,6 +669,20 @@ public class SimpleEvents {
 				)
 				.since("2.7");
 
+		if (Skript.classExists("org.bukkit.event.entity.PiglinBarterEvent")) {
+			Skript.registerEvent("Piglin Barter", SimpleEvent.class, PiglinBarterEvent.class, "piglin (barter[ing]|trad(e|ing))")
+				.requiredPlugins("Minecraft 1.16+")
+				.description(
+					"Called when a piglin finishes bartering. A piglin may start bartering after picking up an item on its bartering list.",
+					"Cancelling will prevent piglins from dropping items, but will still make them pick up the input.")
+				.examples(
+					"on piglin barter:",
+					"\tif barter drops contain diamond:",
+					"\t\tsend \"Diamonds belong in the money pit!\" to player",
+					"\t\tcancel event"
+				)
+				.since("INSERT VERSION");
+		}
 		{
 			final Class<? extends Event> eventClass;
 			if (Skript.classExists("org.bukkit.event.block.BellRingEvent")) {
@@ -776,7 +701,7 @@ public class SimpleEvents {
 							"on bell ring:",
 								"\tsend \"<gold>Ding-dong!<reset>\" to all players in radius 10 of event-block"
 						)
-						.since("INSERT VERSION")
+						.since("2.9.0")
 						.requiredPlugins("Spigot 1.19.4+ or Paper 1.16.5+ (no event-direction)");
 			}
 		}
@@ -794,9 +719,77 @@ public class SimpleEvents {
 						"on bell resonate:",
 							"\tsend \"<red>Raiders are nearby!\" to all players in radius 32 around event-block"
 					)
-					.since("INSERT VERSION")
+					.since("2.9.0")
 					.requiredPlugins("Spigot 1.19.4+");
+
 		}
+
+		if (Skript.classExists("com.destroystokyo.paper.event.entity.EndermanAttackPlayerEvent")) {
+			Skript.registerEvent("Enderman Enrage", SimpleEvent.class, com.destroystokyo.paper.event.entity.EndermanAttackPlayerEvent.class, "enderman (enrage|anger)")
+					.description(
+						"Called when an enderman gets mad because a player looked at them.",
+						"Note: This does not stop enderman from targeting the player as a result of getting damaged."
+					)
+					.examples(
+						"# Stops endermen from getting angry players with the permission \"safeFrom.enderman\"",
+						"on enderman enrage:",
+							"\tif player has permission \"safeFrom.enderman\":",
+								"\t\tcancel event"
+					)
+					.since("2.9.0")
+					.requiredPlugins("Paper");
+		}
+
+		if (Skript.classExists("io.papermc.paper.event.player.PlayerChangeBeaconEffectEvent")) {
+			Skript.registerEvent("Beacon Change Effect", SimpleEvent.class, PlayerChangeBeaconEffectEvent.class,
+					"beacon change effect", "beacon effect change", "player chang(e[s]|ing) [of] beacon effect")
+				.description("Called when a player changes the effects of a beacon.")
+				.examples(
+					"on beacon effect change:",
+						"\tbroadcast event-player",
+						"\tbroadcast event-block",
+						"\tbroadcast primary beacon effect",
+						"\tbroadcast secondary beacon effect",
+					"on beacon change effect:",
+					"on player change beacon effect:"
+				)
+				.since("INSERT VERSION")
+				.requiredPlugins("Paper");
+		}
+
+		Skript.registerEvent("Broadcast", SimpleEvent.class, BroadcastMessageEvent.class, "broadcast")
+			.description("Called when a message is broadcasted.")
+			.examples(
+				"on broadcast:",
+					"\tset broadcast-message to \"&c[BROADCAST] %broadcasted message%\""
+			)
+			.since("INSERT VERSION");
+
+		Skript.registerEvent("Experience Cooldown Change", SimpleEvent.class, PlayerExpCooldownChangeEvent.class, "player (experience|[e]xp) cooldown change")
+			.description(
+				"Called when a player's experience cooldown changes.",
+				"Experience cooldown is how long until a player can pick up another orb of experience."
+			)
+			.examples(
+				"on player experience cooldown change:",
+					"\tbroadcast event-player",
+					"\tbroadcast event-timespan",
+					"\tbroadcast past event-timespan",
+					"\tbroadcast xp cooldown change reason"
+			)
+			.since("INSERT VERSION");
+
+		Skript.registerEvent("Vehicle Move", SimpleEvent.class, VehicleMoveEvent.class, "vehicle move")
+			.description(
+				"Called when a vehicle moves.",
+				"Please note that using this event can cause lag if there are multiple vehicle entities, i.e. Horse, Pig, Boat, Minecart")
+			.examples(
+				"on vehicle move:",
+					"\tbroadcast past event-location",
+					"\tbroadcast event-location"
+			)
+			.since("INSERT VERSION");
+
 	}
 
 }

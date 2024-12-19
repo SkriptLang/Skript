@@ -20,7 +20,7 @@ package ch.njol.skript.effects;
 
 import org.bukkit.Bukkit;
 import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.lang.TriggerItem;
@@ -57,7 +57,7 @@ public class IndeterminateDelay extends Delay {
 					Variables.setLocalVariables(event, localVars);
 
 				TriggerItem.walk(next, event);
-			}, duration.getTicks());
+			}, duration.getAs(Timespan.TimePeriod.TICK));
 		}
 
 		return null;

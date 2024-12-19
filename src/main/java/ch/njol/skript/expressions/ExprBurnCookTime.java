@@ -23,10 +23,11 @@ import java.util.function.Function;
 
 import ch.njol.skript.classes.Changer.ChangeMode;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockState;
 import org.bukkit.block.Furnace;
 import org.bukkit.event.Event;
 import org.bukkit.event.inventory.FurnaceBurnEvent;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.Aliases;
@@ -65,8 +66,6 @@ public class ExprBurnCookTime extends PropertyExpression<Block, Timespan> {
 				"[the] (burn|1:cook)[ing] time of %blocks%",
 				"%blocks%'[s] (burn|1:cook)[ing] time");
 	}
-	
-	static final ItemType anyFurnace = Aliases.javaItemType("any furnace");
 
 	private boolean cookTime;
 	private boolean isEvent;
@@ -89,13 +88,14 @@ public class ExprBurnCookTime extends PropertyExpression<Block, Timespan> {
 		if (isEvent) {
 			if (!(event instanceof FurnaceBurnEvent))
 				return new Timespan[0];
-			return CollectionUtils.array(Timespan.fromTicks(((FurnaceBurnEvent) event).getBurnTime()));
+			return CollectionUtils.array(new Timespan(Timespan.TimePeriod.TICK, ((FurnaceBurnEvent) event).getBurnTime()));
 		} else {
 			return Arrays.stream(source)
-					.filter(anyFurnace::isOfType)
-					.map(furnace -> {
-						Furnace state = (Furnace) furnace.getState();
-						return Timespan.fromTicks(cookTime ? state.getCookTime() : state.getBurnTime());
+					.map(Block::getState)
+					.filter(blockState -> blockState instanceof Furnace)
+					.map(state -> {
+						Furnace furnace = (Furnace) state;
+						return new Timespan(Timespan.TimePeriod.TICK, cookTime ? furnace.getCookTime() : furnace.getBurnTime());
 					})
 					.toArray(Timespan[]::new);
 		}
@@ -136,15 +136,16 @@ public class ExprBurnCookTime extends PropertyExpression<Block, Timespan> {
 				return;
 
 			FurnaceBurnEvent burnEvent = (FurnaceBurnEvent) event;
-			burnEvent.setBurnTime((int) value.apply(Timespan.fromTicks(burnEvent.getBurnTime())).getTicks());
+			burnEvent.setBurnTime((int) value.apply(new Timespan(Timespan.TimePeriod.TICK, burnEvent.getBurnTime())).getAs(Timespan.TimePeriod.TICK));
 			return;
 		}
 
 		for (Block block : getExpr().getArray(event)) {
-			if (!anyFurnace.isOfType(block))
+			BlockState state = block.getState();
+			if (!(state instanceof Furnace))
 				continue;
 			Furnace furnace = (Furnace) block.getState();
-			long time = value.apply(Timespan.fromTicks(cookTime ? furnace.getCookTime() : furnace.getBurnTime())).getTicks();
+			long time = value.apply(new Timespan(Timespan.TimePeriod.TICK, cookTime ? furnace.getCookTime() : furnace.getBurnTime())).getAs(Timespan.TimePeriod.TICK);
 
 			if (cookTime) {
 				furnace.setCookTime((short) time);

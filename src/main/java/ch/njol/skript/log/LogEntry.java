@@ -18,17 +18,15 @@
  */
 package ch.njol.skript.log;
 
-import java.util.logging.Level;
-
-import ch.njol.skript.localization.ArgsMessage;
-import ch.njol.skript.util.Utils;
-
-import org.bukkit.ChatColor;
-import org.eclipse.jdt.annotation.Nullable;
-
 import ch.njol.skript.Skript;
 import ch.njol.skript.config.Config;
 import ch.njol.skript.config.Node;
+import ch.njol.skript.localization.ArgsMessage;
+import ch.njol.skript.util.Utils;
+import org.bukkit.ChatColor;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.logging.Level;
 
 public class LogEntry {
 
@@ -128,11 +126,6 @@ public class LogEntry {
 	}
 
 	@Override
-	protected void finalize() {
-		assert used : message + from;
-	}
-
-	@Override
 	public String toString() {
 		if (node == null || level.intValue() < Level.WARNING.intValue())
 			return message;
@@ -171,7 +164,7 @@ public class LogEntry {
 			from = ChatColor.GRAY + "   " + from + "\n";
 
 		return
-			String.format(lineInfoMsg, String.valueOf(node.getLine()), c.getFileName()) + // String.valueOf is to convert the line number (int) to a String
+			String.format(lineInfoMsg, node.getLine(), c.getFileName()) +
 			String.format(detailsMsg, message.replaceAll("§", "&")) + from +
 			String.format(lineDetailsMsg, node.save().trim().replaceAll("§", "&"));
 	}
