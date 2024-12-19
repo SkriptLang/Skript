@@ -35,7 +35,6 @@ import ch.njol.skript.lang.util.SimpleLiteral;
 import ch.njol.skript.localization.Adjective;
 import ch.njol.skript.localization.Language;
 import ch.njol.skript.localization.Language.LanguageListenerPriority;
-import ch.njol.skript.localization.LanguageChangeListener;
 import ch.njol.skript.localization.Message;
 import ch.njol.skript.localization.Noun;
 import ch.njol.skript.registrations.Classes;
@@ -217,7 +216,7 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 		});
 	}
 
-	private final static class EntityDataInfo<T extends EntityData<?>> extends SyntaxElementInfo<T> implements LanguageChangeListener {
+	private final static class EntityDataInfo<T extends EntityData<?>> extends SyntaxElementInfo<T> implements Runnable {
 		final String codeName;
 		final String[] codeNames;
 		final int defaultName;
@@ -241,7 +240,7 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 		}
 		
 		@Override
-		public void onLanguageChange() {
+		public void run() {
 			for (int i = 0; i < codeNames.length; i++)
 				patterns[i] = Language.get(LANGUAGE_NODE + "." + codeNames[i] + ".pattern").replace("<age>", m_age_pattern.toString());
 		}

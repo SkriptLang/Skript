@@ -21,7 +21,9 @@ package ch.njol.skript.classes;
 /**
  * An interface for optionally cloning an object,
  * should return the given object if no cloning is required.
+ * @deprecated Use a {@code Function<T, T>}.
  */
+@Deprecated(forRemoval = true)
 public interface Cloner<T> {
 	
 	T clone(T t);

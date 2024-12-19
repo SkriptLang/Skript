@@ -18,11 +18,6 @@
  */
 package ch.njol.skript.expressions;
 
-import ch.njol.util.VectorMath;
-import org.bukkit.event.Event;
-import org.bukkit.util.Vector;
-import org.jetbrains.annotations.Nullable;
-
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
@@ -34,6 +29,9 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
+import org.bukkit.event.Event;
+import org.bukkit.util.Vector;
+import org.jetbrains.annotations.Nullable;
 
 @Name("Vectors - Normalized")
 @Description("Returns the same vector but with length 1.")
@@ -64,7 +62,7 @@ public class ExprVectorNormalize extends SimpleExpression<Vector> {
 		if (vector == null)
 			return null;
 		vector = vector.clone();
-		if (!VectorMath.isZero(vector) && !vector.isNormalized())
+		if (!vector.isZero() && !vector.isNormalized())
 			vector.normalize();
 		return CollectionUtils.array(vector);
 	}

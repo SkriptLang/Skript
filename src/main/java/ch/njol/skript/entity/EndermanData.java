@@ -1,42 +1,21 @@
-/**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
 package ch.njol.skript.entity;
 
-import java.util.Arrays;
-
-import org.bukkit.Bukkit;
-import org.bukkit.Material;
-import org.bukkit.block.data.BlockData;
-import org.bukkit.entity.Enderman;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.material.MaterialData;
-import org.jetbrains.annotations.Nullable;
-
-import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.localization.ArgsMessage;
 import ch.njol.skript.registrations.Classes;
-import ch.njol.util.Checker;
 import ch.njol.util.coll.CollectionUtils;
+import org.bukkit.Bukkit;
+import org.bukkit.Material;
+import org.bukkit.block.data.BlockData;
+import org.bukkit.entity.Enderman;
+import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.Arrays;
+import java.util.function.Predicate;
 
 @SuppressWarnings("deprecation")
 public class EndermanData extends EntityData<Enderman> {
@@ -91,13 +70,9 @@ public class EndermanData extends EntityData<Enderman> {
 	
 	@Override
 	public boolean match(final Enderman entity) {
-		return hand == null || SimpleExpression.check(hand, new Checker<ItemType>() {
-			@SuppressWarnings("null")
-			@Override
-			public boolean check(final @Nullable ItemType t) {
-				// TODO {Block/Material}Data -> Material conversion is not 100% accurate, needs a better solution
-				return t != null && t.isOfType(entity.getCarriedBlock().getMaterial());
-			}
+		return hand == null || SimpleExpression.check(hand, type -> {
+			// TODO {Block/Material}Data -> Material conversion is not 100% accurate, needs a better solution
+			return type != null && type.isOfType(entity.getCarriedBlock().getMaterial());
 		}, false, false);
 	}
 	
