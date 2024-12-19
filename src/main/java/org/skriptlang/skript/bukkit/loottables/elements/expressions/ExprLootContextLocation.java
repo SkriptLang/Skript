@@ -32,7 +32,7 @@ public class ExprLootContextLocation extends SimplePropertyExpression<LootContex
 	}
 
 	@Override
-	public @Nullable Location convert(LootContext context) {
+	public Location convert(LootContext context) {
 		return context.getLocation();
 	}
 
@@ -53,8 +53,7 @@ public class ExprLootContextLocation extends SimplePropertyExpression<LootContex
 		if (!(event instanceof LootContextCreateEvent createEvent))
 			return;
 
-		LootContextWrapper wrapper = createEvent.getContextWrapper();
-		wrapper.setLocation((Location) delta[0]);
+		createEvent.getContextWrapper().setLocation((Location) delta[0]);
 	}
 
 	@Override

@@ -39,8 +39,8 @@ public class ExprLootItems extends SimpleExpression<ItemStack> {
 
 	static {
 		Skript.registerExpression(ExprLootItems.class, ItemStack.class, ExpressionType.COMBINED,
-			"[the] loot of [[the] loot[ ]table[s]] %loottables% [(with|using) [[the] [loot] context] %-lootcontext%]",
-			"[the] %loottables%'[s] loot (with|using) [[[the] [loot] context] %-lootcontext%]"
+			"[the] loot of [[the] loot[ ]table[s]] %loottables% [(with|using) %-lootcontext%]",
+			"%loottables%'[s] loot [(with|using) %-lootcontext%]"
 		);
 	}
 
@@ -57,19 +57,21 @@ public class ExprLootItems extends SimpleExpression<ItemStack> {
 
 	@Override
 	protected ItemStack @Nullable [] get(Event event) {
-		List<ItemStack> items = new ArrayList<>();
-
 		LootContext context;
-		if (this.context != null)
+		if (this.context != null) {
 			context = this.context.getSingle(event);
-		else
+			if (context == null)
+				return new ItemStack[0];
+		} else {
 			context = new LootContextWrapper(Bukkit.getWorlds().get(0).getSpawnLocation()).getContext();
-		if (context == null)
-			return new ItemStack[0];
+		}
+
+		List<ItemStack> items = new ArrayList<>();
 
 		Random random = ThreadLocalRandom.current();
 		for (LootTable lootTable : lootTables.getArray(event)) {
 			try {
+				// todo: perhaps runtime error in the future
 				items.addAll(lootTable.populateLoot(random, context));
 			} catch (IllegalArgumentException ignore) {}
 		}

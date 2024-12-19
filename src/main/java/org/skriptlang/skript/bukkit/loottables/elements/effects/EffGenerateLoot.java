@@ -36,7 +36,7 @@ public class EffGenerateLoot extends Effect {
 
 	static {
 		Skript.registerEffect(EffGenerateLoot.class,
-			"generate [the] loot (of|using) [[the] loot[ ]table] %loottable% [(with|using) [[the] [loot] context] %-lootcontext%] in [[the] inventor(y|ies)] %inventories%"
+			"generate [the] loot (of|using) [[the] loot[ ]table] %loottable% [(with|using) [%-lootcontext%]] in %inventories%"
 		);
 	}
 
@@ -58,12 +58,13 @@ public class EffGenerateLoot extends Effect {
 		Random random = ThreadLocalRandom.current();
 
 		LootContext context;
-		if (this.context != null)
+		if (this.context != null) {
 			context = this.context.getSingle(event);
-		else
+			if (context == null)
+				return;
+		} else {
 			context = new LootContextWrapper(Bukkit.getWorlds().get(0).getSpawnLocation()).getContext();
-		if (context == null)
-			return;
+		}
 
 		LootTable table = lootTable.getSingle(event);
 		if (table == null)
@@ -71,6 +72,7 @@ public class EffGenerateLoot extends Effect {
 
 		for (Inventory inventory : inventories.getArray(event)) {
 			try {
+				// todo: perhaps runtime error in the future
 				table.fillInventory(inventory, random, context);
 			} catch (IllegalArgumentException ignore) {}
 		}

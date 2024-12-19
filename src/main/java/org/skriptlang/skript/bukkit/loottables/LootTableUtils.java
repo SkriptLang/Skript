@@ -24,11 +24,11 @@ public class LootTableUtils {
 	}
 
 	/**
-	 * Gets the Lootable instance of an object.
+	 * Gets the Lootable instance of an object. You should call {@link #isLootable(Object)} before calling this method.
 	 * @param object the object to get the Lootable instance of.
 	 * @return the Lootable instance of the object.
 	 */
-	public static @UnknownNullability Lootable getAsLootable(Object object) {
+	public static @Nullable Lootable getAsLootable(Object object) {
 		if (object instanceof Block block)
 			object = block.getState();
 		if (object instanceof Lootable lootable)

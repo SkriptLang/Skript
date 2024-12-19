@@ -43,9 +43,10 @@ public class ExprLootContextLuck extends SimplePropertyExpression<LootContext, F
 			return null;
 		}
 
-		if (mode == ChangeMode.SET || mode == ChangeMode.DELETE || mode == ChangeMode.RESET)
-			return CollectionUtils.array(Float.class);
-		return null;
+		return switch (mode) {
+			case SET, DELETE, RESET, ADD, REMOVE -> CollectionUtils.array(Float.class);
+			default -> null;
+		};
 	}
 
 	@Override
@@ -54,11 +55,14 @@ public class ExprLootContextLuck extends SimplePropertyExpression<LootContext, F
 			return;
 
 		LootContextWrapper wrapper = createEvent.getContextWrapper();
+		float luck = delta != null ? (float) delta[0] : 0f;
 
-		if (mode == ChangeMode.SET)
-			wrapper.setLuck((float) delta[0]);
-		else
-			wrapper.setLuck(0f);
+		switch (mode) {
+			case SET -> wrapper.setLuck(luck);
+			case ADD -> wrapper.setLuck(wrapper.getLuck() + luck);
+			case REMOVE -> wrapper.setLuck(wrapper.getLuck() - luck);
+			case DELETE, RESET -> wrapper.setLuck(0f);
+		}
 	}
 
 	@Override

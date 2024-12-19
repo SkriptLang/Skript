@@ -21,8 +21,8 @@ public class LootContextCreateEvent extends Event {
 	}
 
 	@Override
-	public @NotNull HandlerList getHandlers() {
-		throw new IllegalStateException();
+	public HandlerList getHandlers() {
+		throw new UnsupportedOperationException();
 	}
 
 }

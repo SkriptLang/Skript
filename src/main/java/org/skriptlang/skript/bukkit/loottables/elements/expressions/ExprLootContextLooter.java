@@ -43,13 +43,14 @@ public class ExprLootContextLooter extends SimplePropertyExpression<LootContext,
 	@Override
 	public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
 		if (!getParser().isCurrentEvent(LootContextCreateEvent.class)) {
-			Skript.error("You cannot set the loot context killer of an existing loot context.");
+			Skript.error("You cannot set the looting player of an existing loot context.");
 			return null;
 		}
 
-		if (mode == ChangeMode.SET || mode == ChangeMode.DELETE || mode == ChangeMode.RESET)
-			return CollectionUtils.array(Player.class);
-		return null;
+		return switch (mode) {
+			case SET, DELETE, RESET -> CollectionUtils.array(Player.class);
+			default -> null;
+		};
 	}
 
 	@Override
@@ -59,10 +60,8 @@ public class ExprLootContextLooter extends SimplePropertyExpression<LootContext,
 
 		LootContextWrapper wrapper = createEvent.getContextWrapper();
 
-		if (mode == ChangeMode.SET)
-			wrapper.setKiller((Player) delta[0]);
-		else
-			wrapper.setKiller(null);
+		Player player = delta != null ? (Player) delta[0] : null;
+		createEvent.getContextWrapper().setKiller(player);
 	}
 
 	@Override

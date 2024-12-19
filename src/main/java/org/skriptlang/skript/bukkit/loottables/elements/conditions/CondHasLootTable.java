@@ -34,7 +34,7 @@ public class CondHasLootTable extends PropertyCondition<Object> {
 
 	@Override
 	protected String getPropertyName() {
-		return "loot table";
+		return "a loot table";
 	}
 
 }

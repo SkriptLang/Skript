@@ -23,7 +23,6 @@ import java.io.IOException;
 public class LootTableModule {
 
 	public static void load() throws IOException {
-		Skript.getAddonInstance().loadClasses("org.skriptlang.skript.bukkit.loottables", "elements");
 
 		// --- CLASSES --- //
 
@@ -42,7 +41,7 @@ public class LootTableModule {
 
 				@Override
 				public String toString(LootTable o, int flags) {
-					return "loot table '" + o.getKey() + '\'';
+					return "loot table \"" + o.getKey() + '\"';
 				}
 
 				@Override
@@ -73,16 +72,18 @@ public class LootTableModule {
 				}
 
 				@Override
-				public @Nullable LootContext parse(String s, ParseContext context) {
-					return null;
-				}
-
-				@Override
 				public String toString(LootContext context, int flags) {
-					return "loot context at " + Classes.toString(context.getLocation()) +
-						((context.getLootedEntity() != null) ? (" with entity " + Classes.toString(context.getLootedEntity())) : "") +
-						((context.getKiller() != null) ? " with killer " + Classes.toString(context.getKiller()) : "") +
-						((context.getLuck() != 0) ? " with luck " + context.getLuck() : "");
+					StringBuilder builder = new StringBuilder("loot context at ")
+						.append(Classes.toString(context.getLocation()));
+
+					if (context.getLootedEntity() != null)
+						builder.append(" with entity ").append(Classes.toString(context.getLootedEntity()));
+					if (context.getKiller() != null)
+						builder.append(" with killer ").append(Classes.toString(context.getKiller()));
+					if (context.getLuck() != 0)
+						builder.append(" with luck ").append(context.getLuck());
+
+					return builder.toString();
 				}
 
 				@Override
@@ -96,6 +97,8 @@ public class LootTableModule {
 
 		// String - LootTable
 		Converters.registerConverter(String.class, LootTable.class, key -> Bukkit.getLootTable(NamespacedUtils.parseNamespacedKey(key)));
+
+		Skript.getAddonInstance().loadClasses("org.skriptlang.skript.bukkit.loottables", "elements");
 
 		// --- SIMPLE EVENTS --- //
 

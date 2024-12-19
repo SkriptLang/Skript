@@ -39,10 +39,8 @@ public class ExprLootTableSeed extends SimplePropertyExpression<Object, Long> {
 
 	@Override
 	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
-		Number seed = delta != null ? ((Number) delta[0]) : null;
-		if (seed == null)
-			return;
-		long seedValue = seed.longValue();
+		assert delta != null;
+		long seedValue = ((Number) delta[0]).longValue();
 
 		for (Object object : getExpr().getArray(event)) {
 			if (!LootTableUtils.isLootable(object))

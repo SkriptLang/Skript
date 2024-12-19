@@ -37,7 +37,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class ExprSecCreateLootContext extends SectionExpression<LootContext> {
 
 	static {
-		Skript.registerExpression(ExprSecCreateLootContext.class, LootContext.class, ExpressionType.SIMPLE,
+		Skript.registerExpression(ExprSecCreateLootContext.class, LootContext.class, ExpressionType.COMBINED,
 			"[a] loot context %direction% %location%");
 		EventValues.registerEventValue(LootContextCreateEvent.class, LootContext.class, event -> event.getContextWrapper().getContext());
 	}
@@ -69,16 +69,13 @@ public class ExprSecCreateLootContext extends SectionExpression<LootContext> {
 			return new LootContext[0];
 
 		LootContextWrapper wrapper = new LootContextWrapper(loc);
-		if (trigger == null)
-			return new LootContext[]{wrapper.getContext()};
-
-		LootContextCreateEvent contextEvent = new LootContextCreateEvent(wrapper);
-
-		Variables.withLocalVariables(event, contextEvent, () ->
-			TriggerItem.walk(trigger, contextEvent)
-		);
-
-		return new LootContext[]{contextEvent.getContextWrapper().getContext()};
+		if (trigger != null) {
+			LootContextCreateEvent contextEvent = new LootContextCreateEvent(wrapper);
+			Variables.withLocalVariables(event, contextEvent, () ->
+				TriggerItem.walk(trigger, contextEvent)
+			);
+		}
+		return new LootContext[]{wrapper.getContext()};
 	}
 
 	@Override
@@ -93,7 +90,7 @@ public class ExprSecCreateLootContext extends SectionExpression<LootContext> {
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return "a loot context at " + location.toString(event, debug);
+		return "a loot context " + location.toString(event, debug);
 	}
 
 }
