@@ -97,6 +97,7 @@ import org.skriptlang.skript.bukkit.SkriptMetrics;
 import org.skriptlang.skript.bukkit.spark.SparkModule;
 import org.skriptlang.skript.bukkit.breeding.BreedingModule;
 import org.skriptlang.skript.bukkit.displays.DisplayModule;
+import org.skriptlang.skript.bukkit.fishing.FishingModule;
 import org.skriptlang.skript.bukkit.input.InputModule;
 import org.skriptlang.skript.lang.comparator.Comparator;
 import org.skriptlang.skript.lang.comparator.Comparators;
@@ -546,6 +547,7 @@ public final class Skript extends JavaPlugin implements Listener {
 			SparkModule.load();
 			getAddonInstance().loadClasses("org.skriptlang.skript.bukkit", "misc");
 			// todo: become proper module once registry api is merged
+			FishingModule.load();
 			BreedingModule.load();
 			DisplayModule.load();
 			InputModule.load();
