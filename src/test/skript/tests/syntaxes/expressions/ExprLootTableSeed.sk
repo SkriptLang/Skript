@@ -27,7 +27,7 @@ test "loot table seed":
 
 	assert the loot seed of test-block is 0 with "default block loot seed before setting loot table failed"
 
-	set loot table of test-block to "minecraft:chests/simple_dungeon"
+	set loot table of test-block to loot table "minecraft:chests/simple_dungeon"
 
 	assert the loot seed of test-block is 0 with "default block loot after setting loot table seed failed"
 	set loot seed of test-block to 5
