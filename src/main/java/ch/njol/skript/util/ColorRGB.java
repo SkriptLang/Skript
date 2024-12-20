@@ -1,8 +1,6 @@
 package ch.njol.skript.util;
 
-import ch.njol.skript.variables.Variables;
 import ch.njol.util.Math2;
-import ch.njol.yggdrasil.Fields;
 import org.apache.commons.lang.math.NumberUtils;
 import org.bukkit.DyeColor;
 import org.jetbrains.annotations.ApiStatus;
@@ -10,8 +8,6 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.NotSerializableException;
-import java.io.StreamCorruptedException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -20,8 +16,9 @@ public class ColorRGB implements Color {
 	private static final Pattern RGB_PATTERN = Pattern.compile("(?>rgb|RGB) (\\d+), (\\d+), (\\d+)");
 
 	private org.bukkit.Color bukkit;
-
 	private @Nullable DyeColor dye;
+
+	private final int alpha, red, green, blue;
 
 	/**
 	 * Subject to being private in the future. Use {@link #fromRGB(int, int, int)}
@@ -45,6 +42,10 @@ public class ColorRGB implements Color {
 	public ColorRGB(org.bukkit.Color bukkit) {
 		this.dye = DyeColor.getByColor(bukkit);
 		this.bukkit = bukkit;
+		this.alpha = bukkit.getAlpha();
+		this.red = bukkit.getRed();
+		this.green = bukkit.getGreen();
+		this.blue = bukkit.getBlue();
 	}
 
 	/**
@@ -87,22 +88,22 @@ public class ColorRGB implements Color {
 
 	@Override
 	public int getAlpha() {
-		return bukkit.getAlpha();
+		return alpha;
 	}
 
 	@Override
 	public int getRed() {
-		return bukkit.getRed();
+		return red;
 	}
 
 	@Override
 	public int getGreen() {
-		return bukkit.getGreen();
+		return green;
 	}
 
 	@Override
 	public int getBlue() {
-		return bukkit.getBlue();
+		return blue;
 	}
 
 	@Override
@@ -132,24 +133,6 @@ public class ColorRGB implements Color {
 			NumberUtils.toInt(matcher.group(2)),
 			NumberUtils.toInt(matcher.group(3))
 		);
-	}
-
-	@Override
-	public Fields serialize() throws NotSerializableException {
-		return new Fields(this, Variables.yggdrasil);
-	}
-
-	@Override
-	public void deserialize(Fields fields) throws StreamCorruptedException, NotSerializableException {
-		org.bukkit.Color b = fields.getObject("bukkit", org.bukkit.Color.class);
-		DyeColor d = fields.getObject("dye", DyeColor.class);
-		if (b == null)
-			return;
-		if (d == null)
-			dye = DyeColor.getByColor(b);
-		else
-			dye = d;
-		bukkit = b;
 	}
 
 }
