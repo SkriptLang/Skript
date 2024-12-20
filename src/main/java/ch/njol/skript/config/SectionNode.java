@@ -164,7 +164,7 @@ public class SectionNode extends Node implements Iterable<Node> {
 	/**
 	 * @return An iterator over all nodes in this section, including void nodes.
 	 */
-	@NotNull Iterator<Node> fullIterator() {
+	public @NotNull Iterator<Node> fullIterator() {
 		return new CheckedIterator<>(nodes.iterator(), Objects::nonNull) {
 			@Override
 			public boolean hasNext() {
