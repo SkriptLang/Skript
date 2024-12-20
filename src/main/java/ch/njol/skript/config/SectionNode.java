@@ -157,7 +157,7 @@ public class SectionNode extends Node implements Iterable<Node> {
 	 */
 	@Override
 	public @NotNull Iterator<Node> iterator() {
-		//noinspection ConstantConditions
+		//noinspection ConstantConditions - Null check is present in fullIterator()
 		return new CheckedIterator<>(fullIterator(), n -> !n.isVoid());
 	}
 
