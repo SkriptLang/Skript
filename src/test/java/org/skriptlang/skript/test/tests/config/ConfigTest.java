@@ -1,7 +1,8 @@
 package org.skriptlang.skript.test.tests.config;
 
-import ch.njol.skript.Skript;
-import ch.njol.skript.config.*;
+import ch.njol.skript.config.Config;
+import ch.njol.skript.config.ConfigHelper;
+import ch.njol.skript.config.Node;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -26,10 +27,6 @@ public class ConfigTest {
 		Config old = getConfig("old-config");
 		Config newer = getConfig("new-config");
 
-		for (Node node : ConfigHelper.discoverNodes(old.getMainNode())) {
-			System.out.println(node);
-		}
-
 		boolean updated = old.updateNodes(newer);
 
 		assertTrue("updateNodes did not update any nodes", updated);
@@ -39,11 +36,6 @@ public class ConfigTest {
 
 		for (Node node : newNodes) {
 			assertTrue("Node " + node + " was not updated", updatedNodes.contains(node));
-		}
-
-		System.out.println();
-		for (Node node : updatedNodes) {
-			System.out.println(node);
 		}
 
 		// maintains old values
