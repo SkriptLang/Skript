@@ -29,8 +29,8 @@ import ch.njol.skript.lang.util.ConvertedExpression;
 import org.skriptlang.skript.lang.converter.Converters;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.inventory.Inventory;
-import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
+import org.skriptlang.skript.bukkit.potion.util.SkriptPotionEffect;
 import org.jetbrains.annotations.Nullable;
 
 @Name("Type of")
@@ -64,8 +64,8 @@ public class ExprTypeOf extends SimplePropertyExpression<Object, Object> {
 			return ((ItemType) o).getBaseType();
 		} else if (o instanceof Inventory) {
 			return ((Inventory) o).getType();
-		} else if (o instanceof PotionEffect) {
-			return ((PotionEffect) o).getType();
+		} else if (o instanceof SkriptPotionEffect) {
+			return ((SkriptPotionEffect) o).potionEffectType();
 		} else if (o instanceof BlockData) {
 			return new ItemType(((BlockData) o).getMaterial());
 		}

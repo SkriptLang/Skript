@@ -196,6 +196,7 @@ public class DefaultConverters {
 		// EnchantmentOffer - EnchantmentType
 		Converters.registerConverter(EnchantmentOffer.class, EnchantmentType.class, eo -> new EnchantmentType(eo.getEnchantment(), eo.getEnchantmentLevel()));
 
+		// String - World
 		Converters.registerConverter(String.class, World.class, Bukkit::getWorld);
 
 //		// Entity - String (UUID) // Very slow, thus disabled for now
