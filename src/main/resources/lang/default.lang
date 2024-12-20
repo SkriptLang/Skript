@@ -2540,6 +2540,7 @@ types:
 	billboard: billboard¦s @a
 	textalignment: text alignment¦s @a
 	itemdisplaytransform: item display transform¦s @an
+	minecrafttag: minecraft tag¦s @a
 	experiencecooldownchangereason: experience cooldown change reason¦s @a
 	inputkey: input key¦s @an
 

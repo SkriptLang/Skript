@@ -1,0 +1,7 @@
+test "tags contents":
+	assert tag contents of tag "dirt" contains dirt with "dirt isn't dirt"
+
+	assert tag contents of block tag "slabs" contains oak slab with "oak slab is not a slab"
+	assert tag contents of item tag "slabs" contains oak slab with "oak slab is not a slab"
+
+	assert tag contents of entity tag "minecraft:skeletons" contains a skeleton with "skeleton is not a skeleton"
