@@ -58,12 +58,13 @@ public class ExprWeather extends PropertyExpression<World, WeatherType> {
 	}
 
 	@Override
-	protected WeatherType[] get(final Event e, final World[] source) {
-		return get(source, w -> {
-			if (getTime() >= 0 && e instanceof WeatherEvent && w.equals(((WeatherEvent) e).getWorld()) && !Delay.isDelayed(e))
-				return WeatherType.fromEvent((WeatherEvent) e);
+	protected WeatherType[] get(Event event, World[] source) {
+		return get(source, world -> {
+			if (getTime() >= 0 && event instanceof WeatherEvent weatherEvent
+				&& world.equals(weatherEvent.getWorld()) && !Delay.isDelayed(event))
+				return WeatherType.fromEvent(weatherEvent);
 			else
-				return WeatherType.fromWorld(w);
+				return WeatherType.fromWorld(world);
 		});
 	}
 	

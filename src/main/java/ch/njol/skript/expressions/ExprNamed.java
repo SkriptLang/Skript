@@ -73,36 +73,31 @@ public class ExprNamed extends PropertyExpression<Object, Object> {
 	}
 	
 	@Override
-	protected Object[] get(final Event e, final Object[] source) {
-		String name = this.name.getSingle(e);
+	protected Object[] get(Event event, Object[] source) {
+		String name = this.name.getSingle(event);
 		if (name == null)
 			return get(source, obj -> obj); // No name provided, do nothing
-		return get(source, new Converter<>() {
-			@Override
-			@Nullable
-			public Object convert(Object obj) {
-				if (obj instanceof InventoryType inventoryType) {
-					if (!inventoryType.isCreatable())
-						return null;
-					return Bukkit.createInventory(null, inventoryType, name);
-				}
-				if (obj instanceof ItemStack) {
-					ItemStack stack = (ItemStack) obj;
-					stack = stack.clone();
-					ItemMeta meta = stack.getItemMeta();
-					if (meta != null) {
-						meta.setDisplayName(name);
-						stack.setItemMeta(meta);
-					}
-					return new ItemType(stack);
-				}
-				ItemType item = (ItemType) obj;
-				item = item.clone();
-				ItemMeta meta = item.getItemMeta();
-				meta.setDisplayName(name);
-				item.setItemMeta(meta);
-				return item;
+		return get(source, object -> {
+			if (object instanceof InventoryType inventoryType) {
+				if (!inventoryType.isCreatable())
+					return null;
+				return Bukkit.createInventory(null, inventoryType, name);
 			}
+			if (object instanceof ItemStack stack) {
+				stack = stack.clone();
+				ItemMeta meta = stack.getItemMeta();
+				if (meta != null) {
+					meta.setDisplayName(name);
+					stack.setItemMeta(meta);
+				}
+				return new ItemType(stack);
+			}
+			ItemType item = (ItemType) object;
+			item = item.clone();
+			ItemMeta meta = item.getItemMeta();
+			meta.setDisplayName(name);
+			item.setItemMeta(meta);
+			return item;
 		});
 	}
 	
