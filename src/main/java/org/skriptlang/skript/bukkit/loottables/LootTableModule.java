@@ -1,7 +1,6 @@
 package org.skriptlang.skript.bukkit.loottables;
 
 import ch.njol.skript.Skript;
-import ch.njol.skript.bukkitutil.NamespacedUtils;
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.classes.Parser;
 import ch.njol.skript.expressions.base.EventValueExpression;
@@ -11,11 +10,13 @@ import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.registrations.EventValues;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Entity;
 import org.bukkit.event.world.LootGenerateEvent;
 import org.bukkit.loot.LootContext;
 import org.bukkit.loot.LootTable;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.converter.Converters;
 
 import java.io.IOException;
 
@@ -34,8 +35,11 @@ public class LootTableModule {
 			.since("INSERT VERSION")
 			.parser(new Parser<>() {
 				@Override
-				public @Nullable LootTable parse(String s, ParseContext context) {	
-					return Bukkit.getLootTable(NamespacedUtils.parseNamespacedKey(s));
+				public @Nullable LootTable parse(String key, ParseContext context) {
+					NamespacedKey namespacedKey = NamespacedKey.fromString(key);
+					if (namespacedKey == null)
+						return null;
+					return Bukkit.getLootTable(namespacedKey);
 				}
 
 				@Override
@@ -91,6 +95,15 @@ public class LootTableModule {
 				}
 			})
 		);
+
+		// --- CONVERTERS ---
+
+		Converters.registerConverter(String.class, LootTable.class, key -> {
+			NamespacedKey namespacedKey = NamespacedKey.fromString(key);
+			if (namespacedKey == null)
+				return null;
+			return Bukkit.getLootTable(namespacedKey);
+		});
 
 		Skript.getAddonInstance().loadClasses("org.skriptlang.skript.bukkit.loottables", "elements");
 
