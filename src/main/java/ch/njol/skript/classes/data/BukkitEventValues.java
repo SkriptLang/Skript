@@ -64,9 +64,6 @@ import static ch.njol.skript.registrations.EventValues.*;
 
 public final class BukkitEventValues {
 
-	public BukkitEventValues() {
-	}
-
 	private static final ItemStack AIR_IS = new ItemStack(Material.AIR);
 
 	static {
@@ -182,14 +179,14 @@ public final class BukkitEventValues {
 		// EntityDeathEvent
 		EventValues.registerEventValue(EntityDeathEvent.class, ItemStack[].class, event -> event.getDrops().toArray(new ItemStack[0]));
 		EventValues.registerEventValue(EntityDeathEvent.class, Projectile.class, event -> {
-			final EntityDamageEvent ldc = event.getEntity().getLastDamageCause();
-			if (ldc instanceof EntityDamageByEntityEvent entityEvent && entityEvent.getDamager() instanceof Projectile projectile)
+			EntityDamageEvent damageEvent = event.getEntity().getLastDamageCause();
+			if (damageEvent instanceof EntityDamageByEntityEvent entityEvent && entityEvent.getDamager() instanceof Projectile projectile)
 				return projectile;
 			return null;
 		});
 		EventValues.registerEventValue(EntityDeathEvent.class, DamageCause.class, event -> {
-			final EntityDamageEvent ldc = event.getEntity().getLastDamageCause();
-			return ldc == null ? null : ldc.getCause();
+			EntityDamageEvent damageEvent = event.getEntity().getLastDamageCause();
+			return damageEvent == null ? null : damageEvent.getCause();
 		});
 
 		// Entity Potion Effect
