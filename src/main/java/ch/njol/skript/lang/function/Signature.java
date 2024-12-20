@@ -173,7 +173,7 @@ public class Signature<T> {
 	public int hashCode() {
 		return name.hashCode();
 	}
-
+  
 	@Override
 	public String toString() {
 		return toString(true, Skript.debug());
@@ -202,5 +202,9 @@ public class Signature<T> {
 
 		return signatureBuilder.toString();
 	}
-
+  
+	public String getScript() {
+		return this.script;
+	}
+  
 }
