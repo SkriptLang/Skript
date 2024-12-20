@@ -4,7 +4,7 @@ test "loot table condition":
 
 	assert {_pig} has loot table with "default has loot table failed"
 
-	set loot table of {_pig} to "minecraft:entities/cow"
+	set loot table of {_pig} to loot table "minecraft:entities/cow"
 	assert {_pig} has loot table with "simple has loot table failed"
 
 	set loot table of {_pig} to "bleh blah bluh" parsed as loot table
@@ -18,7 +18,7 @@ test "loot table condition":
 
 	assert test-block doesn't have loot table with "has loot table without setting it"
 
-	set loot table of test-block to "minecraft:chests/simple_dungeon"
+	set loot table of test-block to loot table "minecraft:chests/simple_dungeon"
 	assert test-block has loot table with "simple has loot table failed"
 
 	clear loot table of test-block

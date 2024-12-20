@@ -96,15 +96,6 @@ public class LootTableModule {
 			})
 		);
 
-		// --- CONVERTERS ---
-
-		Converters.registerConverter(String.class, LootTable.class, key -> {
-			NamespacedKey namespacedKey = NamespacedKey.fromString(key);
-			if (namespacedKey == null)
-				return null;
-			return Bukkit.getLootTable(namespacedKey);
-		});
-
 		Skript.getAddonInstance().loadClasses("org.skriptlang.skript.bukkit.loottables", "elements");
 
 		// --- SIMPLE EVENTS --- //
