@@ -2,6 +2,7 @@ package ch.njol.skript.bukkitutil;
 
 import org.bukkit.Keyed;
 import org.bukkit.NamespacedKey;
+import org.bukkit.Registry;
 import org.bukkit.Sound;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -18,17 +19,15 @@ public final class SoundUtils {
 
 	/**
 	 * Gets the key of a sound, given its enum-name-style name.
+	 * If no sound is found, will create a new namespaced key from the given soundString.
 	 * @param soundString The enum name to use to find the sound.
 	 * @return The key of the sound.
 	 */
 	public static @Nullable NamespacedKey getKey(String soundString) {
 		soundString = soundString.toUpperCase(Locale.ENGLISH);
 		if (SOUND_IS_INTERFACE) {
-			try {
-				//noinspection deprecation
-				return Sound.valueOf(soundString).getKey();
-			} catch (IllegalArgumentException ignore) {
-			}
+			//noinspection deprecation
+			return Sound.valueOf(soundString).getKey();
 		} else {
 			try {
 				//noinspection unchecked,rawtypes
@@ -37,7 +36,7 @@ public final class SoundUtils {
 			} catch (IllegalArgumentException ignore) {
 			}
 		}
-		return null;
+		return NamespacedKey.fromString(soundString.toLowerCase(Locale.ENGLISH));
 	}
 
 	/**
@@ -52,6 +51,18 @@ public final class SoundUtils {
 		} else {
 			return ((Keyed) sound).getKey();
 		}
+	}
+
+	/**
+	 * returns the sound of a given string.
+	 * @param soundString The sound string to get the sound
+	 * @return The sound if found
+	 */
+	public static Sound getSound(String soundString) {
+		NamespacedKey key = getKey(soundString);
+		if (key == null)
+			return null;
+		return Registry.SOUNDS.get(key);
 	}
 
 }
