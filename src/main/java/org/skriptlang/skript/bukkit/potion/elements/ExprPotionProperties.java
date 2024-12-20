@@ -35,8 +35,7 @@ public class ExprPotionProperties extends SimpleExpression<Object> {
 
 	public static void register(SyntaxRegistry registry) {
 		String properties = "(AMPLIFIER:(tier|amplifier|level)|DURATION:(duration|length)|EFFECT:(type|effect [type]))";
-		registry.register(SyntaxRegistry.EXPRESSION, SyntaxInfo.Expression.builder(ExprPotionProperties.class)
-				.returnType(Object.class)
+		registry.register(SyntaxRegistry.EXPRESSION, SyntaxInfo.Expression.builder(ExprPotionProperties.class, Object.class)
 				.priority(PropertyExpression.DEFAULT_PRIORITY)
 				.addPatterns(
 						"[the] potion " + properties + " of %potioneffecttypes% (of|for|on) %livingentities%",
