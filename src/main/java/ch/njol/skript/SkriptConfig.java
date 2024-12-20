@@ -408,7 +408,7 @@ public class SkriptConfig {
 
 					File backup = FileUtils.backup(configFile);
 					boolean updated = mainConfig.updateNodes(newConfig);
-//					mainConfig.getMainNode().set(version.key, Skript.getVersion().toString()); TODO FOR TESTING!
+					mainConfig.getMainNode().set(version.key, Skript.getVersion().toString());
 					mainConfig.save(configFile);
 					SkriptConfig.mainConfig = mainConfig;
 
