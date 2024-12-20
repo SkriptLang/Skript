@@ -25,7 +25,17 @@ public class EnumClassInfo<T extends Enum<T>> extends ClassInfo<T> {
 	 * @param languageNode The language node of the type
 	 */
 	public EnumClassInfo(Class<T> enumClass, String codeName, String languageNode) {
-		this(enumClass, codeName, languageNode, new EventValueExpression<>(enumClass));
+		this(enumClass, codeName, languageNode, new EventValueExpression<>(enumClass), true);
+	}
+
+	/**
+	 * @param enumClass The class
+	 * @param codeName The name used in patterns
+	 * @param languageNode The language node of the type
+	 * @param registerComparator Whether a default comparator should be registered for this enum's classinfo
+	 */
+	public EnumClassInfo(Class<T> enumClass, String codeName, String languageNode, boolean registerComparator) {
+		this(enumClass, codeName, languageNode, new EventValueExpression<>(enumClass), registerComparator);
 	}
 
 	/**
@@ -35,6 +45,17 @@ public class EnumClassInfo<T extends Enum<T>> extends ClassInfo<T> {
 	 * @param defaultExpression The default expression of the type
 	 */
 	public EnumClassInfo(Class<T> enumClass, String codeName, String languageNode, DefaultExpression<T> defaultExpression) {
+		this(enumClass, codeName, languageNode, defaultExpression, true);
+	}
+
+	/**
+	 * @param enumClass The class
+	 * @param codeName The name used in patterns
+	 * @param languageNode The language node of the type
+	 * @param defaultExpression The default expression of the type
+	 * @param registerComparator Whether a default comparator should be registered for this enum's classinfo
+	 */
+	public EnumClassInfo(Class<T> enumClass, String codeName, String languageNode, DefaultExpression<T> defaultExpression, boolean registerComparator) {
 		super(enumClass, codeName);
 		EnumUtils<T> enumUtils = new EnumUtils<>(enumClass, languageNode);
 		usage(enumUtils.getAllNames())
@@ -57,8 +78,8 @@ public class EnumClassInfo<T extends Enum<T>> extends ClassInfo<T> {
 					return enumUtils.toString(constant, StringMode.VARIABLE_NAME);
 				}
 			});
-
-		Comparators.registerComparator(enumClass, enumClass, (o1, o2) -> Relation.get(o1.ordinal() - o2.ordinal()));
+		if (registerComparator)
+			Comparators.registerComparator(enumClass, enumClass, (o1, o2) -> Relation.get(o1.ordinal() - o2.ordinal()));
 	}
 
 }
