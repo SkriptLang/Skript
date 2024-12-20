@@ -15,6 +15,7 @@ import org.bukkit.NamespacedKey;
 import org.bukkit.event.Event;
 import org.bukkit.loot.LootTable;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.bukkit.loottables.LootTableUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,27 +32,26 @@ public class ExprLootTableFromString extends SimpleExpression<LootTable> {
 		);
 	}
 
-	private Expression<String> key;
+	private Expression<String> keys;
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
 		//noinspection unchecked
-		key = (Expression<String>) exprs[0];
+		keys = (Expression<String>) exprs[0];
 		return true;
 	}
 
 	@Override
 	protected LootTable @Nullable [] get(Event event) {
 		List<LootTable> lootTables = new ArrayList<>();
-		for (String key : this.key.getArray(event)) {
-			if (key == null)
-				continue;
-
+		for (String key : keys.getArray(event)) {
 			NamespacedKey namespacedKey = NamespacedKey.fromString(key);
 			if (namespacedKey == null)
 				continue;
 
-			lootTables.add(Bukkit.getLootTable(namespacedKey));
+			LootTable lootTable = Bukkit.getLootTable(namespacedKey);
+			if (lootTable != null)
+				lootTables.add(lootTable);
 		}
 
 		return lootTables.toArray(new LootTable[0]);
@@ -59,7 +59,7 @@ public class ExprLootTableFromString extends SimpleExpression<LootTable> {
 
 	@Override
 	public boolean isSingle() {
-		return key.isSingle();
+		return keys.isSingle();
 	}
 
 	@Override
@@ -69,7 +69,7 @@ public class ExprLootTableFromString extends SimpleExpression<LootTable> {
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return "the loot table of " + key.toString(event, debug);
+		return "the loot table of " + keys.toString(event, debug);
 	}
 
 }
