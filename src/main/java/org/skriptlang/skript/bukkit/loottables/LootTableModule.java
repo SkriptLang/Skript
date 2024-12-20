@@ -29,8 +29,8 @@ public class LootTableModule {
 		Classes.registerClass(new ClassInfo<>(LootTable.class, "loottable")
 			.user("loot ?tables?")
 			.name("Loot Table")
-			.description("Loot tables represent what items should be in naturally generated containers, " +
-				"what items should be dropped when killing a mob, or what items can be fished.",
+			.description("Loot tables represent what items should be in naturally generated containers, "
+					+ "what items should be dropped when killing a mob, or what items can be fished.",
 				"You can find more information about this in https://minecraft.wiki/w/Loot_table")
 			.since("INSERT VERSION")
 			.parser(new Parser<>() {
@@ -60,10 +60,10 @@ public class LootTableModule {
 			.description(
 				"Represents additional information a loot table can use to modify its generated loot.",
 				"",
-				"Some loot tables will require some values (i.e. looter, location, looted entity) " +
-				"in a loot context when generating loot whereas others may not.",
-				"For example, the loot table of a simple dungeon chest will only require a location, " +
-				"whereas the loot table of a cow will require a looting player, looted entity, and location.",
+				"Some loot tables will require some values (i.e. looter, location, looted entity) "
+					+ "in a loot context when generating loot whereas others may not.",
+				"For example, the loot table of a simple dungeon chest will only require a location, "
+					+ "whereas the loot table of a cow will require a looting player, looted entity, and location.",
 				"You can find more information about this in https://minecraft.wiki/w/Loot_context"
 			)
 			.since("INSERT VERSION")
@@ -107,9 +107,9 @@ public class LootTableModule {
 			)
 			.examples(
 				"on loot generate:",
-				"\tchance of 10%",
-				"\tadd 64 diamonds to the loot",
-				"\tsend \"You hit the jackpot at %event-location%!\""
+					"\tchance of 10%",
+					"\tadd 64 diamonds to the loot",
+					"\tsend \"You hit the jackpot at %event-location%!\""
 			)
 			.since("2.7")
 			.requiredPlugins("MC 1.16+");
