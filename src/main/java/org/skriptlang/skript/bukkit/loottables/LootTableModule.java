@@ -16,7 +16,6 @@ import org.bukkit.event.world.LootGenerateEvent;
 import org.bukkit.loot.LootContext;
 import org.bukkit.loot.LootTable;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.lang.converter.Converters;
 
 import java.io.IOException;
 

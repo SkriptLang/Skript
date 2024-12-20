@@ -2,7 +2,6 @@ package org.skriptlang.skript.bukkit.loottables;
 
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
-import org.jetbrains.annotations.NotNull;
 import org.skriptlang.skript.bukkit.loottables.elements.expressions.ExprSecCreateLootContext;
 
 /**
