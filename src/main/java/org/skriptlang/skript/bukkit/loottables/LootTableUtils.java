@@ -40,9 +40,7 @@ public class LootTableUtils {
 	 * @return returns the LootTable of the object.
 	 */
 	public static LootTable getLootTable(Object object) {
-		if (isLootable(object))
-			return getAsLootable(object).getLootTable();
-		return null;
+		return getAsLootable(object).getLootTable();
 	}
 
 	/**

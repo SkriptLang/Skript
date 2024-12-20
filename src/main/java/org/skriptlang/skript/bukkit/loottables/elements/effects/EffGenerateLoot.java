@@ -36,7 +36,7 @@ public class EffGenerateLoot extends Effect {
 
 	static {
 		Skript.registerEffect(EffGenerateLoot.class,
-			"generate [the] loot (of|using) %loottable% [(with|using) [%-lootcontext%]] in %inventories%"
+			"generate [the] loot (of|using) %loottable% [(with|using) %-lootcontext%] in %inventories%"
 		);
 	}
 

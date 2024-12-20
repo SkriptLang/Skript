@@ -30,7 +30,9 @@ public class CondHasLootTable extends PropertyCondition<Object> {
 
 	@Override
 	public boolean check(Object object) {
-		return LootTableUtils.getLootTable(object) != null;
+		if (LootTableUtils.isLootable(object))
+			return LootTableUtils.getLootTable(object) != null;
+		return false;
 	}
 
 	@Override

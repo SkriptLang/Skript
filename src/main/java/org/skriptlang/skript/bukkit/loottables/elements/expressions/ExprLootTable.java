@@ -36,7 +36,9 @@ public class ExprLootTable extends SimplePropertyExpression<Object, LootTable> {
 
 	@Override
 	public @Nullable LootTable convert(Object object) {
-		return LootTableUtils.getLootTable(object);
+		if (LootTableUtils.isLootable(object))
+			return LootTableUtils.getLootTable(object);
+		return null;
 	}
 
 	@Override

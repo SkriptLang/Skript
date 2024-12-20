@@ -16,6 +16,9 @@ import org.bukkit.event.Event;
 import org.bukkit.loot.LootTable;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Name("Loot Table from Key")
 @Description("Returns the loot table from a namespaced key.")
 @Examples("set {_table} to loot table \"minecraft:chests/simple_dungeon\"")
@@ -23,9 +26,8 @@ import org.jetbrains.annotations.Nullable;
 public class ExprLootTableFromString extends SimpleExpression<LootTable> {
 
 	static {
-		Skript.registerExpression(ExprLootTableFromString.class, LootTable.class, ExpressionType.PROPERTY,
-			"[the] loot[ ]table[s] %strings%",
-			"%strings%'[s] loot[ ]table[s]"
+		Skript.registerExpression(ExprLootTableFromString.class, LootTable.class, ExpressionType.COMBINED,
+			"[the] loot[ ]table[s] %strings%"
 		);
 	}
 
@@ -40,20 +42,24 @@ public class ExprLootTableFromString extends SimpleExpression<LootTable> {
 
 	@Override
 	protected LootTable @Nullable [] get(Event event) {
-		String key = this.key.getSingle(event);
-		if (key == null)
-			return new LootTable[0];
+		List<LootTable> lootTables = new ArrayList<>();
+		for (String key : this.key.getArray(event)) {
+			if (key == null)
+				continue;
 
-		NamespacedKey namespacedKey = NamespacedKey.fromString(key);
-		if (namespacedKey == null)
-			return new LootTable[0];
+			NamespacedKey namespacedKey = NamespacedKey.fromString(key);
+			if (namespacedKey == null)
+				continue;
 
-		return new LootTable[]{Bukkit.getLootTable(namespacedKey)};
+			lootTables.add(Bukkit.getLootTable(namespacedKey));
+		}
+
+		return lootTables.toArray(new LootTable[0]);
 	}
 
 	@Override
 	public boolean isSingle() {
-		return true;
+		return key.isSingle();
 	}
 
 	@Override
@@ -63,7 +69,7 @@ public class ExprLootTableFromString extends SimpleExpression<LootTable> {
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return "loot table of "  + key.toString(event, debug);
+		return "the loot table of " + key.toString(event, debug);
 	}
 
 }
