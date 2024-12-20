@@ -79,7 +79,7 @@ public class ExprCPUUsage extends SimpleExpression<Double> {
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return "the " + (useProcess ? "process" : "system") + " over the last" +
+		return "the " + (useProcess ? "process" : "system") + " usage over the last" +
 				switch (matchedPattern) {
 					case 0 -> "10 seconds";
 					case 1 -> "1 minute";
