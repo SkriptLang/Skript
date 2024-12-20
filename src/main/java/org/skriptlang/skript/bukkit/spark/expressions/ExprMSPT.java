@@ -5,6 +5,7 @@ import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.RequiredPlugins;
+import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.Literal;
@@ -33,6 +34,7 @@ import java.util.Arrays;
 	"broadcast the minimum and maximum mspt measurements from the last minute",
 	"broadcast the 66.6th percentile and 95th percentile milliseconds per tick values from the last 5 minutes"
 })
+@Since("INSERT VERSION")
 public class ExprMSPT extends SimpleExpression<Double> {
 
 	static {
