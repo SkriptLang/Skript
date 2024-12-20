@@ -78,7 +78,6 @@ public class EnumClassInfo<T extends Enum<T>> extends ClassInfo<T> {
 					return enumUtils.toString(constant, StringMode.VARIABLE_NAME);
 				}
 			});
-
 		if (registerComparator)
 			Comparators.registerComparator(enumClass, enumClass, (o1, o2) -> Relation.get(o1.ordinal() - o2.ordinal()));
 	}
