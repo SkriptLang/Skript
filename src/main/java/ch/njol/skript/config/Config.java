@@ -227,7 +227,7 @@ public class Config implements Comparable<Config> {
 	 * @return A set of the discovered nodes, guaranteed to be in the order of discovery.
 	 */
 	@Contract(pure = true)
-	private static @NotNull Set<Node> discoverNodes(@NotNull SectionNode node) {
+	static @NotNull Set<Node> discoverNodes(@NotNull SectionNode node) {
 		Set<Node> nodes = new LinkedHashSet<>();
 
 		for (Iterator<Node> iterator = node.fullIterator(); iterator.hasNext(); ) {

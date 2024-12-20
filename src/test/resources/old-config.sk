@@ -7,9 +7,13 @@ a:
 	# Comment f
 	# Comment f'
 
+	outdated value: true
+
 # Comment a'
 h: false
 i: true # Comment i
+
+outdated value: true
 
 x.z:
 	y: true
