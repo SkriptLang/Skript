@@ -50,9 +50,9 @@ public class EffRotate extends Effect {
 
 	static {
 		Skript.registerEffect(EffRotate.class,
-			"rotate %vectors/quaternions/displays% around [the] [global] (:x|:y|:z)(-| )axis by %number% [degrees]",
-			"rotate %quaternions/displays% around [the|its|their] local (:x|:y|:z)(-| )ax(i|e)s by %number% [degrees]",
-			"rotate %vectors/quaternions/displays% around [the] %vector% by %number% [degrees]",
+			"rotate %vectors/quaternions/displays% around [the] [global] (:x|:y|:z)(-| )axis by %number%",
+			"rotate %quaternions/displays% around [the|its|their] local (:x|:y|:z)(-| )ax(i|e)s by %number%",
+			"rotate %vectors/quaternions/displays% around [the] %vector% by %number%",
 			"rotate %quaternions/displays% by x %number%, y %number%(, [and]| and) z %number%"
 		);
 	}
