@@ -23,19 +23,17 @@ import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
-import ch.njol.skript.lang.Effect;
-import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.Literal;
+import ch.njol.skript.lang.*;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
-import ch.njol.skript.lang.Trigger;
-import ch.njol.skript.lang.TriggerItem;
 import ch.njol.skript.timings.SkriptTimings;
 import ch.njol.skript.util.Timespan;
+import ch.njol.skript.util.Timespan.TimePeriod;
 import ch.njol.skript.variables.Variables;
 import ch.njol.util.Kleenean;
 import org.bukkit.Bukkit;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.UnknownNullability;
 
 import java.util.Collections;
 import java.util.Set;
@@ -46,26 +44,43 @@ import java.util.WeakHashMap;
 @Examples({
 	"wait 2 minutes",
 	"halt for 5 minecraft hours",
-	"wait a tick"
+	"wait a tick",
+	"",
+	"wait until {count} >= 5",
+	"wait until {count} >= 10 using interval of 3 seconds"
 })
-@Since("1.4")
+@Since("1.4, INSERT VERSION (until)")
 public class Delay extends Effect {
 
 	static {
-		Skript.registerEffect(Delay.class, "(wait|halt) [for] %timespan%");
+		Skript.registerEffect(Delay.class,
+			"(wait|halt) [for] %timespan%",
+			"(wait|halt) until <.+> [(with|using) [interval [of]] %-timespan%]");
 	}
 
-	@SuppressWarnings("NotNullFieldNotInitialized")
-	protected Expression<Timespan> duration;
+	protected @UnknownNullability Expression<Timespan> duration;
+	private @UnknownNullability Condition condition;
+	private boolean waitUntil = false;
 
-	@SuppressWarnings({"unchecked", "null"})
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		getParser().setHasDelayBefore(Kleenean.TRUE);
-
-		duration = (Expression<Timespan>) exprs[0];
-		if (duration instanceof Literal) { // If we can, do sanity check for delays
-			long millis = ((Literal<Timespan>) duration).getSingle().getAs(Timespan.TimePeriod.MILLISECOND);
+		if (matchedPattern == 0) {
+			//noinspection unchecked
+			duration = (Expression<Timespan>) exprs[0];
+		} else if (matchedPattern == 1) {
+			waitUntil = true;
+			if (exprs[0] != null)
+				//noinspection unchecked
+				duration = (Expression<Timespan>) exprs[0];
+			String expr = parseResult.regexes.get(0).group();
+			Condition check = Condition.parse(expr, "Can't understand this condition: '" + expr + "'");
+			if (check == null)
+				return false;
+			condition = check;
+		}
+		if (duration != null && duration instanceof Literal<Timespan> literal) {
+			long millis = literal.getSingle().getAs(TimePeriod.MILLISECOND);
 			if (millis < 50) {
 				Skript.warning("Delays less than one tick are not possible, defaulting to one tick.");
 			}
@@ -75,15 +90,14 @@ public class Delay extends Effect {
 	}
 
 	@Override
-	@Nullable
-	protected TriggerItem walk(Event event) {
+	protected @Nullable TriggerItem walk(Event event) {
 		debug(event, true);
 		long start = Skript.debug() ? System.nanoTime() : 0;
 		TriggerItem next = getNext();
 		if (next != null && Skript.getInstance().isEnabled()) { // See https://github.com/SkriptLang/Skript/issues/3702
 			addDelayedEvent(event);
 
-			Timespan duration = this.duration.getSingle(event);
+			Timespan duration = this.duration != null ? this.duration.getSingle(event) : (waitUntil ? new Timespan(TimePeriod.TICK, 1) : null);
 			if (duration == null)
 				return null;
 			
@@ -104,7 +118,11 @@ public class Delay extends Effect {
 						timing = SkriptTimings.start(trigger.getDebugLabel());
 				}
 
-				TriggerItem.walk(next, event);
+				if (waitUntil && !checkCondition(event)) {
+					walk(event);
+				} else {
+					TriggerItem.walk(next, event);
+				}
 				Variables.removeLocals(event); // Clean up local vars, we may be exiting now
 
 				SkriptTimings.stop(timing); // Stop timing if it was even started
@@ -120,6 +138,9 @@ public class Delay extends Effect {
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
+		if (waitUntil) {
+			return "wait until " + condition.toString(event, debug) + (duration != null ? " " + duration.toString(event, debug) : "");
+		}
 		return "wait for " + duration.toString(event, debug) + (event == null ? "" : "...");
 	}
 
@@ -141,6 +162,10 @@ public class Delay extends Effect {
 	 */
 	public static void addDelayedEvent(Event event) {
 		DELAYED.add(event);
+	}
+
+	private boolean checkCondition(Event event) {
+		return condition == null || condition.check(event);
 	}
 
 }
