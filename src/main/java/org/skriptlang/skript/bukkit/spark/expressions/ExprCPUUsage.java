@@ -79,13 +79,14 @@ public class ExprCPUUsage extends SimpleExpression<Double> {
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return switch (matchedPattern) {
-			case 0 -> (useProcess ? "process" : "system") + " CPU usage over the last 10 seconds";
-			case 1 -> (useProcess ? "process" : "system") + " CPU usage over the last 1 minute";
-			case 2 -> (useProcess ? "process" : "system") + " CPU usage over the last 15 minutes";
-			case 3 -> (useProcess ? "process" : "system") + " CPU usage for all available periods";
-			default -> throw new IllegalStateException("Invalid CPU usage expression");
-		};
+		return "the " + (useProcess ? "process" : "system") + " over the last" +
+				switch (matchedPattern) {
+					case 0 -> "10 seconds";
+					case 1 -> "1 minute";
+					case 2 -> "15 minutes";
+					case 3 -> "all available periods";
+					default -> throw new IllegalStateException("Invalid CPU usage expression");
+				};
 	}
 
 }
