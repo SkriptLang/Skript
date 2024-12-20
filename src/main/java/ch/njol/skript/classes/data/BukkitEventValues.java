@@ -1,5 +1,14 @@
 package ch.njol.skript.classes.data;
 
+import java.time.Duration;
+import java.time.temporal.TemporalAmount;
+import java.time.temporal.TemporalUnit;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.function.Function;
+
 import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.bukkitutil.InventoryUtils;
@@ -13,6 +22,7 @@ import ch.njol.skript.util.*;
 import ch.njol.skript.util.slot.InventorySlot;
 import ch.njol.skript.util.slot.Slot;
 import com.destroystokyo.paper.event.block.AnvilDamagedEvent;
+import com.destroystokyo.paper.event.block.BeaconEffectEvent;
 import com.destroystokyo.paper.event.entity.EndermanAttackPlayerEvent;
 import com.destroystokyo.paper.event.entity.ProjectileCollideEvent;
 import com.destroystokyo.paper.event.player.PlayerArmorChangeEvent;
@@ -21,6 +31,8 @@ import io.papermc.paper.event.player.PlayerInventorySlotChangeEvent;
 import io.papermc.paper.event.player.PlayerStonecutterRecipeSelectEvent;
 import io.papermc.paper.event.player.PlayerStopUsingItemEvent;
 import io.papermc.paper.event.player.PlayerTradeEvent;
+import org.bukkit.*;
+import io.papermc.paper.event.player.*;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
@@ -54,17 +66,9 @@ import org.bukkit.inventory.*;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.potion.PotionType;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
-/**
- * @author Peter Güttinger
- */
-@SuppressWarnings("deprecation")
 public final class BukkitEventValues {
 
 	public BukkitEventValues() {
@@ -75,90 +79,36 @@ public final class BukkitEventValues {
 	static {
 
 		// === WorldEvents ===
-		EventValues.registerEventValue(WorldEvent.class, World.class, new Getter<World, WorldEvent>() {
-			@Override
-			@Nullable
-			public World get(final WorldEvent e) {
-				return e.getWorld();
-			}
-		}, 0);
+		EventValues.registerEventValue(WorldEvent.class, World.class, WorldEvent::getWorld);
 		// StructureGrowEvent - a WorldEvent
-		EventValues.registerEventValue(StructureGrowEvent.class, Block.class, new Getter<Block, StructureGrowEvent>() {
-			@Override
-			@Nullable
-			public Block get(final StructureGrowEvent e) {
-				return e.getLocation().getBlock();
-			}
-		}, 0);
-		EventValues.registerEventValue(StructureGrowEvent.class, Block[].class, new Getter<Block[], StructureGrowEvent>() {
-			@Override
-			@Nullable
-			public Block[] get(StructureGrowEvent event) {
-				return event.getBlocks().stream()
+		EventValues.registerEventValue(StructureGrowEvent.class, Block.class, e -> e.getLocation().getBlock());
+
+		EventValues.registerEventValue(StructureGrowEvent.class, Block[].class,
+			event -> event.getBlocks().stream()
 					.map(BlockState::getBlock)
-					.toArray(Block[]::new);
+					.toArray(Block[]::new));
+		EventValues.registerEventValue(StructureGrowEvent.class, Block.class, event -> {
+			for (BlockState bs : event.getBlocks()) {
+				if (bs.getLocation().equals(event.getLocation()))
+					return new BlockStateBlock(bs);
 			}
-		}, EventValues.TIME_NOW);
-		EventValues.registerEventValue(StructureGrowEvent.class, Block.class, new Getter<Block, StructureGrowEvent>() {
-			@Override
-			@Nullable
-			public Block get(StructureGrowEvent event) {
-				for (final BlockState bs : event.getBlocks()) {
-					if (bs.getLocation().equals(event.getLocation()))
-						return new BlockStateBlock(bs);
-				}
-				return event.getLocation().getBlock();
-			}
+			return event.getLocation().getBlock();
 		}, EventValues.TIME_FUTURE);
-		EventValues.registerEventValue(StructureGrowEvent.class, Block[].class, new Getter<Block[], StructureGrowEvent>() {
-			@Override
-			@Nullable
-			public Block[] get(StructureGrowEvent event) {
-				return event.getBlocks().stream()
-					.map(BlockStateBlock::new)
-					.toArray(Block[]::new);
-			}
-		}, EventValues.TIME_FUTURE);
+		EventValues.registerEventValue(StructureGrowEvent.class, Block[].class, event ->
+			event.getBlocks().stream()
+				.map(BlockStateBlock::new)
+				.toArray(Block[]::new),
+			EventValues.TIME_FUTURE);
 		// WeatherEvent - not a WorldEvent (wtf ô_Ô)
-		EventValues.registerEventValue(WeatherEvent.class, World.class, new Getter<World, WeatherEvent>() {
-			@Override
-			@Nullable
-			public World get(final WeatherEvent e) {
-				return e.getWorld();
-			}
-		}, 0);
+		EventValues.registerEventValue(WeatherEvent.class, World.class, WeatherEvent::getWorld);
 		// ChunkEvents
-		EventValues.registerEventValue(ChunkEvent.class, Chunk.class, new Getter<Chunk, ChunkEvent>() {
-			@Override
-			@Nullable
-			public Chunk get(final ChunkEvent e) {
-				return e.getChunk();
-			}
-		}, 0);
+		EventValues.registerEventValue(ChunkEvent.class, Chunk.class, ChunkEvent::getChunk);
 
 		// === BlockEvents ===
-		EventValues.registerEventValue(BlockEvent.class, Block.class, new Getter<Block, BlockEvent>() {
-			@Override
-			@Nullable
-			public Block get(final BlockEvent e) {
-				return e.getBlock();
-			}
-		}, 0);
-		EventValues.registerEventValue(BlockEvent.class, World.class, new Getter<World, BlockEvent>() {
-			@Override
-			@Nullable
-			public World get(final BlockEvent e) {
-				return e.getBlock().getWorld();
-			}
-		}, 0);
+		EventValues.registerEventValue(BlockEvent.class, Block.class, BlockEvent::getBlock);
+		EventValues.registerEventValue(BlockEvent.class, World.class, e -> e.getBlock().getWorld());
 		// REMIND workaround of the event's location being at the entity in block events that have an entity event value
-		EventValues.registerEventValue(BlockEvent.class, Location.class, new Getter<Location, BlockEvent>() {
-			@Override
-			@Nullable
-			public Location get(final BlockEvent e) {
-				return BlockUtils.getLocation(e.getBlock());
-			}
-		}, 0);
+		EventValues.registerEventValue(BlockEvent.class, Location.class, e -> BlockUtils.getLocation(e.getBlock()));
 		// BlockPlaceEvent
 		EventValues.registerEventValue(BlockPlaceEvent.class, Player.class, new Getter<Player, BlockPlaceEvent>() {
 			@Override
@@ -1786,8 +1736,7 @@ public final class BukkitEventValues {
 		if (Skript.classExists("org.bukkit.event.block.BellRingEvent")) {
 			EventValues.registerEventValue(BellRingEvent.class, Entity.class, new Getter<Entity, BellRingEvent>() {
 				@Override
-				@Nullable
-				public Entity get(BellRingEvent event) {
+				public @Nullable Entity get(BellRingEvent event) {
 					return event.getEntity();
 				}
 			}, EventValues.TIME_NOW);
@@ -1921,6 +1870,30 @@ public final class BukkitEventValues {
 			}
 		}, EventValues.TIME_PAST);
 
+		// BeaconEffectEvent
+		if (Skript.classExists("com.destroystokyo.paper.event.block.BeaconEffectEvent")) {
+			EventValues.registerEventValue(BeaconEffectEvent.class, PotionEffectType.class, new Getter<PotionEffectType, BeaconEffectEvent>() {
+				@Override
+				public PotionEffectType get(BeaconEffectEvent event) {
+					return event.getEffect().getType();
+				}
+			}, EventValues.TIME_NOW, "Use 'applied effect' in beacon effect events.", BeaconEffectEvent.class);
+			EventValues.registerEventValue(BeaconEffectEvent.class, Player.class, new Getter<Player, BeaconEffectEvent>() {
+				@Override
+				public Player get(BeaconEffectEvent event) {
+					return event.getPlayer();
+				}
+			}, EventValues.TIME_NOW);
+		}
+		// PlayerChangeBeaconEffectEvent
+		if (Skript.classExists("io.papermc.paper.event.player.PlayerChangeBeaconEffectEvent")) {
+			EventValues.registerEventValue(PlayerChangeBeaconEffectEvent.class, Block.class, new Getter<Block, PlayerChangeBeaconEffectEvent>() {
+				@Override
+				public Block get(PlayerChangeBeaconEffectEvent event) {
+					return event.getBeacon();
+				}
+			}, EventValues.TIME_NOW);
+		}
 	}
 
 }

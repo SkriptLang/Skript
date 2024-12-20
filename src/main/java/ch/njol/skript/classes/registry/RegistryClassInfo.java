@@ -16,15 +16,47 @@ import org.skriptlang.skript.lang.comparator.Relation;
  */
 public class RegistryClassInfo<R extends Keyed> extends ClassInfo<R> {
 
+	/**
+	 * @param registryClass The registry class
+	 * @param registry The registry
+	 * @param codeName The name used in patterns
+	 * @param languageNode The language node of the type
+	 */
 	public RegistryClassInfo(Class<R> registryClass, Registry<R> registry, String codeName, String languageNode) {
-		this(registryClass, registry, codeName, languageNode, new EventValueExpression<>(registryClass));
+		this(registryClass, registry, codeName, languageNode, new EventValueExpression<>(registryClass), true);
 	}
 
 	/**
+	 * @param registryClass The registry class
 	 * @param registry The registry
 	 * @param codeName The name used in patterns
+	 * @param languageNode The language node of the type
+	 * @param registerComparator Whether a default comparator should be registered for this registry's classinfo
+	 */
+	public RegistryClassInfo(Class<R> registryClass, Registry<R> registry, String codeName, String languageNode, boolean registerComparator) {
+		this(registryClass, registry, codeName, languageNode, new EventValueExpression<>(registryClass), registerComparator);
+	}
+
+	/**
+	 * @param registryClass The registry class
+	 * @param registry The registry
+	 * @param codeName The name used in patterns
+	 * @param languageNode The language node of the type
+	 * @param defaultExpression The default expression of the type
 	 */
 	public RegistryClassInfo(Class<R> registryClass, Registry<R> registry, String codeName, String languageNode, DefaultExpression<R> defaultExpression) {
+		this(registryClass, registry, codeName, languageNode,  defaultExpression, true);
+	}
+
+	/**
+	 * @param registryClass The registry class
+	 * @param registry The registry
+	 * @param codeName The name used in patterns
+	 * @param languageNode The language node of the type
+	 * @param defaultExpression The default expression of the type
+	 * @param registerComparator Whether a default comparator should be registered for this registry's classinfo
+	 */
+	public RegistryClassInfo(Class<R> registryClass, Registry<R> registry, String codeName, String languageNode, DefaultExpression<R> defaultExpression, boolean registerComparator) {
 		super(registryClass, codeName);
 		RegistryParser<R> registryParser = new RegistryParser<>(registry, languageNode);
 		usage(registryParser.getAllNames())
@@ -33,7 +65,8 @@ public class RegistryClassInfo<R extends Keyed> extends ClassInfo<R> {
 			.defaultExpression(defaultExpression)
 			.parser(registryParser);
 
-		Comparators.registerComparator(registryClass, registryClass, (o1, o2) -> Relation.get(o1.getKey() == o2.getKey()));
+		if (registerComparator)
+			Comparators.registerComparator(registryClass, registryClass, (o1, o2) -> Relation.get(o1.getKey() == o2.getKey()));
 	}
 
 }
