@@ -25,6 +25,7 @@ import ch.njol.skript.variables.Variables;
 import co.aikar.timings.Timings;
 import org.bukkit.event.EventPriority;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.util.event.EventRegistry;
 
 import java.io.File;
 import java.io.IOException;
@@ -44,6 +45,37 @@ import java.util.regex.PatternSyntaxException;
  */
 @SuppressWarnings("unused")
 public class SkriptConfig {
+
+	//<editor-fold desc="SkriptConfig events">
+	/**
+	 * Used for listening to events involving Skript's configuration.
+	 * @see #eventRegistry()
+	 */
+	public interface Event extends org.skriptlang.skript.util.event.Event { }
+
+	/**
+	 * Called when Skript's configuration is successfully reloaded.
+	 * This occurs when the reload process has finished, meaning the config is safe to reference.
+	 */
+	@FunctionalInterface
+	public interface ReloadEvent extends Event {
+
+		/**
+		 * The method that is called when this event triggers.
+		 */
+		void onReload();
+
+	}
+
+	private static final EventRegistry<Event> eventRegistry = new EventRegistry<>();
+
+	/**
+	 * @return An event registry for the configuration's events.
+	 */
+	public static EventRegistry<Event> eventRegistry() {
+		return eventRegistry;
+	}
+	//</editor-fold>
 
 	@Nullable
 	static Config mainConfig;
@@ -70,7 +102,7 @@ public class SkriptConfig {
 			.setter(t -> {
 				SkriptUpdater updater = Skript.getInstance().getUpdater();
 				if (updater != null)
-					updater.setCheckFrequency(t.getTicks());
+					updater.setCheckFrequency(t.getAs(Timespan.TimePeriod.TICK));
 			});
 	static final Option<Integer> updaterDownloadTries = new Option<>("updater download tries", 7)
 			.optional(true);
@@ -397,6 +429,9 @@ public class SkriptConfig {
 		} catch (RuntimeException ex) {
 			Skript.exception(ex, "An error occurred while loading the config");
 		}
+
+		// trigger reload event handlers
+		eventRegistry().events(ReloadEvent.class).forEach(ReloadEvent::onReload);
 	}
 
 }
