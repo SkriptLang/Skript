@@ -90,15 +90,7 @@ public class ClassInfo<T> implements Debuggable {
 		this.codeName = codeName;
 		name = new Noun("types." + codeName);
 	}
-	
-	/**
-	 * Incorrect spelling in method name. This will be removed in the future.
-	 */
-	@Deprecated
-	public static boolean isVaildCodeName(final String name) {
-		return isValidCodeName(name);
-	}
-	
+
 	public static boolean isValidCodeName(final String name) {
 		return name.matches("[a-z0-9]+");
 	}
@@ -355,12 +347,6 @@ public class ClassInfo<T> implements Debuggable {
 	@Nullable
 	public Class<?> getSerializeAs() {
 		return serializeAs;
-	}
-
-	@Nullable
-	@Deprecated
-	public Class<?> getMathRelativeType() {
-		return mathRelativeType;
 	}
 	
 	@Nullable

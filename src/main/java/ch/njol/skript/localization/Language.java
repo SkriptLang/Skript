@@ -213,12 +213,12 @@ public class Language {
 			localizedLanguage = new HashMap<>();
 		localizedLanguage.putAll(en);
 
-		for (Runnable l : listeners)
-			l.run();
+		for (LanguageChangeListener l : listeners)
+			l.onLanguageChange();
 	}
 	
 	public static boolean load(String name) {
-		name = "" + name.toLowerCase(Locale.ENGLISH);
+		name = name.toLowerCase(Locale.ENGLISH);
 
 		localizedLanguage = new HashMap<>();
 		boolean exists = load(Skript.getAddonInstance(), name, true);
@@ -236,8 +236,8 @@ public class Language {
 
 		Language.name = name;
 
-		for (Runnable l : listeners)
-			l.run();
+		for (LanguageChangeListener l : listeners)
+			l.onLanguageChange();
 
 		return true;
 	}
@@ -334,7 +334,7 @@ public class Language {
 		}
 	}
 
-	private static final List<Runnable> listeners = new ArrayList<>();
+	private static final List<LanguageChangeListener> listeners = new ArrayList<>();
 	
 	public enum LanguageListenerPriority {
 		EARLIEST, NORMAL, LATEST
@@ -347,17 +347,17 @@ public class Language {
 	 * 
 	 * @param listener the listener to register
 	 */
-	public static void addListener(Runnable listener) {
+	public static void addListener(LanguageChangeListener listener) {
 		addListener(listener, LanguageListenerPriority.NORMAL);
 	}
 	
-	public static void addListener(Runnable listener, LanguageListenerPriority priority) {
+	public static void addListener(LanguageChangeListener listener, LanguageListenerPriority priority) {
 		listeners.add(priorityStartIndices[priority.ordinal()], listener);
 		for (int i = priority.ordinal() + 1; i < LanguageListenerPriority.values().length; i++)
 			priorityStartIndices[i]++;
 
 		if (isInitialized()) {
-			listener.run();
+			listener.onLanguageChange();
 		}
 	}
 
