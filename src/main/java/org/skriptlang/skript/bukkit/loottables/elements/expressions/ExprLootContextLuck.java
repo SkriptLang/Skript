@@ -58,10 +58,9 @@ public class ExprLootContextLuck extends SimplePropertyExpression<LootContext, F
 		float luck = delta != null ? (float) delta[0] : 0f;
 
 		switch (mode) {
-			case SET -> wrapper.setLuck(luck);
+			case SET, DELETE, RESET -> wrapper.setLuck(luck);
 			case ADD -> wrapper.setLuck(wrapper.getLuck() + luck);
 			case REMOVE -> wrapper.setLuck(wrapper.getLuck() - luck);
-			case DELETE, RESET -> wrapper.setLuck(0f);
 		}
 	}
 

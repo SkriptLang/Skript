@@ -4,8 +4,6 @@ import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.loot.LootTable;
 import org.bukkit.loot.Lootable;
-import org.jetbrains.annotations.Nullable;
-import org.jetbrains.annotations.UnknownNullability;
 
 /**
  * Utility class for loot tables.
@@ -28,7 +26,7 @@ public class LootTableUtils {
 	 * @param object the object to get the Lootable instance of.
 	 * @return the Lootable instance of the object.
 	 */
-	public static @Nullable Lootable getAsLootable(Object object) {
+	public static Lootable getAsLootable(Object object) {
 		if (object instanceof Block block)
 			object = block.getState();
 		if (object instanceof Lootable lootable)
@@ -37,11 +35,11 @@ public class LootTableUtils {
 	}
 
 	/**
-	 * Gets the loot table of an object. If the object is not a Lootable, null is returned.
+	 * Gets the loot table of an object. You should call {@link #isLootable(Object)} before calling this method.
 	 * @param object the object to get the loot table of.
 	 * @return returns the LootTable of the object.
 	 */
-	public static @Nullable LootTable getLootTable(Object object) {
+	public static LootTable getLootTable(Object object) {
 		if (isLootable(object))
 			return getAsLootable(object).getLootTable();
 		return null;

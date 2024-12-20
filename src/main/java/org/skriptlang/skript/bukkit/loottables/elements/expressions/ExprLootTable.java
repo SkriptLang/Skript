@@ -15,7 +15,7 @@ import org.skriptlang.skript.bukkit.loottables.LootTableUtils;
 
 @Name("Loot Table")
 @Description({
-	"Returns the loot table of an entity, block or loot table type.",
+	"Returns the loot table of an entity or block.",
 	"Setting the loot table of a block will update the block state, and once opened will " +
 	"generate loot of the specified loot table. Please note that doing so may cause " +
 	"warnings in the console due to over-filling the chest.",
@@ -25,7 +25,7 @@ import org.skriptlang.skript.bukkit.loottables.LootTableUtils;
 	"set loot table of event-entity to \"minecraft:entities/ghast\"",
 	"# this will set the loot table of the entity to a ghast's loot table, thus dropping ghast tears and gunpowder",
 	"",
-	"set loot table of event-block to \"minecraft:chests/simple_dungeon\""
+	"set loot table of event-block to \"minecraft:chests/simple_dungeon\"",
 })
 @Since("INSERT VERSION")
 public class ExprLootTable extends SimplePropertyExpression<Object, LootTable> {

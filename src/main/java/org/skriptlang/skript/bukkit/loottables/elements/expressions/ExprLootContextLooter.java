@@ -13,7 +13,6 @@ import org.bukkit.event.Event;
 import org.bukkit.loot.LootContext;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.loottables.LootContextCreateEvent;
-import org.skriptlang.skript.bukkit.loottables.LootContextWrapper;
 
 @Name("Looter of Loot Context")
 @Description("Returns the looter of a loot context " +
@@ -57,8 +56,6 @@ public class ExprLootContextLooter extends SimplePropertyExpression<LootContext,
 	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
 		if (!(event instanceof LootContextCreateEvent createEvent))
 			return;
-
-		LootContextWrapper wrapper = createEvent.getContextWrapper();
 
 		Player player = delta != null ? (Player) delta[0] : null;
 		createEvent.getContextWrapper().setKiller(player);

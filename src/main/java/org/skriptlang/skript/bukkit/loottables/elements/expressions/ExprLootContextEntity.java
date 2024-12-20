@@ -13,7 +13,6 @@ import org.bukkit.event.Event;
 import org.bukkit.loot.LootContext;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.loottables.LootContextCreateEvent;
-import org.skriptlang.skript.bukkit.loottables.LootContextWrapper;
 
 @Name("Looted Entity of Loot Context")
 @Description("Returns the looted entity of a loot context.")
@@ -54,8 +53,6 @@ public class ExprLootContextEntity extends SimplePropertyExpression<LootContext,
 	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
 		if (!(event instanceof LootContextCreateEvent createEvent))
 			return;
-
-		LootContextWrapper wrapper = createEvent.getContextWrapper();
 
 		Entity entity = delta != null ? (Entity) delta[0] : null;
 		createEvent.getContextWrapper().setEntity(entity);

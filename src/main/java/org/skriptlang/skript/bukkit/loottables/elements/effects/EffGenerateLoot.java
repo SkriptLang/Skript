@@ -36,7 +36,7 @@ public class EffGenerateLoot extends Effect {
 
 	static {
 		Skript.registerEffect(EffGenerateLoot.class,
-			"generate [the] loot (of|using) [[the] loot[ ]table] %loottable% [(with|using) [%-lootcontext%]] in %inventories%"
+			"generate [the] loot (of|using) %loottable% [(with|using) [%-lootcontext%]] in %inventories%"
 		);
 	}
 
@@ -82,10 +82,10 @@ public class EffGenerateLoot extends Effect {
 	public String toString(@Nullable Event event, boolean debug) {
 		SyntaxStringBuilder builder = new SyntaxStringBuilder(event, debug);
 
-		builder.append("generate loot using loot table", lootTable);
+		builder.append("generate loot using", lootTable);
 		if (context != null)
-			builder.append("with context", context);
-		builder.append("in inventories", inventories);
+			builder.append("with", context);
+		builder.append("in", inventories);
 
 		return builder.toString();
 	}

@@ -39,7 +39,7 @@ public class ExprLootItems extends SimpleExpression<ItemStack> {
 
 	static {
 		Skript.registerExpression(ExprLootItems.class, ItemStack.class, ExpressionType.COMBINED,
-			"[the] loot of [[the] loot[ ]table[s]] %loottables% [(with|using) %-lootcontext%]",
+			"[the] loot of %loottables% [(with|using) %-lootcontext%]",
 			"%loottables%'[s] loot [(with|using) %-lootcontext%]"
 		);
 	}
@@ -95,7 +95,7 @@ public class ExprLootItems extends SimpleExpression<ItemStack> {
 
 		builder.append("the loot of", lootTables);
 		if (context != null)
-			builder.append("with loot context", context);
+			builder.append("with", context);
 
 		return builder.toString();
 	}

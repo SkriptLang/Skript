@@ -1,7 +1,7 @@
 package org.skriptlang.skript.bukkit.loottables.elements.expressions;
 
 import ch.njol.skript.Skript;
-import ch.njol.skript.classes.Changer;
+import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
@@ -13,7 +13,6 @@ import org.bukkit.event.Event;
 import org.bukkit.loot.LootContext;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.loottables.LootContextCreateEvent;
-import org.skriptlang.skript.bukkit.loottables.LootContextWrapper;
 
 @Name("Loot Location of Loot Context")
 @Description("Returns the loot location of a loot context.")
@@ -37,22 +36,23 @@ public class ExprLootContextLocation extends SimplePropertyExpression<LootContex
 	}
 
 	@Override
-	public Class<?> @Nullable [] acceptChange(Changer.ChangeMode mode) {
+	public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
 		if (!getParser().isCurrentEvent(LootContextCreateEvent.class)) {
 			Skript.error("You cannot set the loot context location of an existing loot context.");
 			return null;
 		}
 
-		if (mode == Changer.ChangeMode.SET)
+		if (mode == ChangeMode.SET)
 			return CollectionUtils.array(Location.class);
 		return null;
 	}
 
 	@Override
-	public void change(Event event, Object @Nullable [] delta, Changer.ChangeMode mode) {
+	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
 		if (!(event instanceof LootContextCreateEvent createEvent))
 			return;
 
+		assert delta != null;
 		createEvent.getContextWrapper().setLocation((Location) delta[0]);
 	}
 
