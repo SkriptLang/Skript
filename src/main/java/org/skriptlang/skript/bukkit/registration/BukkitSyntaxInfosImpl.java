@@ -241,6 +241,12 @@ final class BukkitSyntaxInfosImpl {
 			}
 
 			@Override
+			public B clearDescription() {
+				this.description.clear();
+				return (B) this;
+			}
+
+			@Override
 			public B addExample(String example) {
 				this.examples.add(example);
 				return (B) this;
@@ -255,6 +261,12 @@ final class BukkitSyntaxInfosImpl {
 			@Override
 			public B addExamples(Collection<String> examples) {
 				this.examples.addAll(examples);
+				return (B) this;
+			}
+
+			@Override
+			public B clearExamples() {
+				this.examples.clear();
 				return (B) this;
 			}
 
@@ -277,6 +289,12 @@ final class BukkitSyntaxInfosImpl {
 			}
 
 			@Override
+			public B clearKeywords() {
+				this.keywords.clear();
+				return (B) this;
+			}
+
+			@Override
 			public B addRequiredPlugin(String plugin) {
 				this.requiredPlugins.add(plugin);
 				return (B) this;
@@ -295,6 +313,12 @@ final class BukkitSyntaxInfosImpl {
 			}
 
 			@Override
+			public B clearRequiredPlugins() {
+				this.requiredPlugins.clear();
+				return (B) this;
+			}
+
+			@Override
 			public B addEvent(Class<? extends org.bukkit.event.Event> event) {
 				this.events.add(event);
 				return (B) this;
@@ -309,6 +333,12 @@ final class BukkitSyntaxInfosImpl {
 			@Override
 			public B addEvents(Collection<Class<? extends org.bukkit.event.Event>> events) {
 				this.events.addAll(events);
+				return (B) this;
+			}
+
+			@Override
+			public B clearEvents() {
+				this.events.clear();
 				return (B) this;
 			}
 
@@ -339,6 +369,12 @@ final class BukkitSyntaxInfosImpl {
 			@Override
 			public B addPatterns(Collection<String> patterns) {
 				defaultBuilder.addPatterns(patterns);
+				return (B) this;
+			}
+
+			@Override
+			public B clearPatterns() {
+				defaultBuilder.clearPatterns();
 				return (B) this;
 			}
 

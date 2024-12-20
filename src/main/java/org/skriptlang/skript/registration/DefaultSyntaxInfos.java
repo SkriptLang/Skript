@@ -27,12 +27,15 @@ public interface DefaultSyntaxInfos {
 		/**
 		 * Constructs a builder for an expression syntax info.
 		 * @param expressionClass The Expression class the info will represent.
+		 * @param returnType The class representing the supertype of all values the Expression may return.
 		 * @return An Expression-specific builder for creating a syntax info representing <code>expressionClass</code>.
 		 * @param <E> The class providing the implementation of the Expression this info represents.
+		 * @param <R> The supertype of all values the Expression may return.
 		 */
-		@Contract("_ -> new")
-		static <E extends ch.njol.skript.lang.Expression<R>, R> Builder<? extends Builder<?, E, R>, E, R> builder(Class<E> expressionClass) {
-			return new ExpressionImpl.BuilderImpl<>(expressionClass);
+		@Contract("_, _ -> new")
+		static <E extends ch.njol.skript.lang.Expression<R>, R> Builder<? extends Builder<?, E, R>, E, R> builder(
+			Class<E> expressionClass, Class<R> returnType) {
+			return new ExpressionImpl.BuilderImpl<>(expressionClass, returnType);
 		}
 
 		/**
@@ -55,15 +58,6 @@ public interface DefaultSyntaxInfos {
 		 * @param <R> The type of the return type of the Expression.
 		 */
 		interface Builder<B extends Builder<B, E, R>, E extends ch.njol.skript.lang.Expression<R>, R> extends SyntaxInfo.Builder<B, E> {
-
-			/**
-			 * Sets the class representing the supertype of all values the Expression may return.
-			 * @param returnType The class to use as the return type.
-			 * @return This builder.
-			 * @see Expression#returnType()
-			 */
-			@Contract("_ -> this")
-			B returnType(Class<R> returnType);
 
 			/**
 			 * {@inheritDoc}
@@ -125,6 +119,7 @@ public interface DefaultSyntaxInfos {
 		 * Constructs a builder for a structure syntax info.
 		 * @param structureClass The Structure class the info will represent.
 		 * @return A Structure-specific builder for creating a syntax info representing <code>structureClass</code>.
+		 * By default, the {@link #nodeType()} of the builder is {@link NodeType#SECTION}.
 		 * @param <E> The class providing the implementation of the Structure this info represents.
 		 */
 		@Contract("_ -> new")
@@ -169,7 +164,6 @@ public interface DefaultSyntaxInfos {
 
 			/**
 			 * Sets the type of {@link ch.njol.skript.config.Node}s that can represent the Structure.
-			 * By default, this is typically {@link NodeType#SECTION}.
 			 * @return This builder.
 			 * @see Structure#type()
 			 */

@@ -1,24 +1,24 @@
 package ch.njol.skript.expressions.base;
 
-
 import ch.njol.skript.Skript;
-import com.google.common.base.Preconditions;
-import org.jetbrains.annotations.ApiStatus;
-import org.skriptlang.skript.lang.converter.Converter;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.SyntaxElement;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
+import com.google.common.base.Preconditions;
+import java.util.Arrays;
+import org.bukkit.event.Event;
+import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.UnknownNullability;
+import org.skriptlang.skript.lang.converter.Converter;
+import org.skriptlang.skript.lang.converter.Converters;
 import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 import org.skriptlang.skript.util.Priority;
-import org.bukkit.event.Event;
-import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.lang.converter.Converters;
-
-import java.util.Arrays;
 
 /**
  * Represents an expression which represents a property of another one. Remember to set the expression with {@link #setExpr(Expression)} in
@@ -94,8 +94,7 @@ public abstract class PropertyExpression<F, T> extends SimpleExpression<T> {
 	 */
 	@ApiStatus.Experimental
 	public static <E extends Expression<T>, T> SyntaxInfo.Expression<E, T> register(SyntaxRegistry registry, Class<E> expressionClass, Class<T> returnType, String property, String fromType) {
-		SyntaxInfo.Expression<E, T> info = SyntaxInfo.Expression.builder(expressionClass)
-				.returnType(returnType)
+		SyntaxInfo.Expression<E, T> info = SyntaxInfo.Expression.builder(expressionClass, returnType)
 				.priority(DEFAULT_PRIORITY)
 				.addPatterns(getPatterns(property, fromType))
 				.build();
@@ -130,8 +129,7 @@ public abstract class PropertyExpression<F, T> extends SimpleExpression<T> {
 	 */
 	@ApiStatus.Experimental
 	public static <E extends Expression<T>, T> SyntaxInfo.Expression<E, T> registerDefault(SyntaxRegistry registry, Class<E> expressionClass, Class<T> returnType, String property, String fromType) {
-		SyntaxInfo.Expression<E, T> info = SyntaxInfo.Expression.builder(expressionClass)
-				.returnType(returnType)
+		SyntaxInfo.Expression<E, T> info = SyntaxInfo.Expression.builder(expressionClass, returnType)
 				.priority(DEFAULT_PRIORITY)
 				.addPatterns(getDefaultPatterns(property, fromType))
 				.build();
@@ -152,15 +150,15 @@ public abstract class PropertyExpression<F, T> extends SimpleExpression<T> {
 		Skript.registerExpression(expressionClass, type, ExpressionType.PROPERTY, getDefaultPatterns(property, fromType));
 	}
 
-	@Nullable
-	private Expression<? extends F> expr;
+	private @UnknownNullability Expression<? extends F> expr;
 
 	/**
 	 * Sets the expression this expression represents a property of. No reference to the expression should be kept.
 	 *
-	 * @param expr
+	 * @param expr The expression this expression represents a property of.
 	 */
-	protected final void setExpr(Expression<? extends F> expr) {
+	protected final void setExpr(@NotNull Expression<? extends F> expr) {
+		Preconditions.checkNotNull(expr, "The expr param cannot be null");
 		this.expr = expr;
 	}
 
