@@ -204,8 +204,7 @@ public abstract class Commands {
 					log.printLog();
 					if (!effectCommand.isCancelled()) {
 						sender.sendMessage(ChatColor.GRAY + "executing '" + SkriptColor.replaceColorChar(command) + "'");
-						// TODO: remove logPlayerCommands for 2.8.0
-						if ((SkriptConfig.logEffectCommands.value() || SkriptConfig.logPlayerCommands.value()) && !(sender instanceof ConsoleCommandSender))
+						if (SkriptConfig.logEffectCommands.value() && !(sender instanceof ConsoleCommandSender))
 							Skript.info(sender.getName() + " issued effect command: " + SkriptColor.replaceColorChar(command));
 						TriggerItem.walk(effect, effectCommand);
 						Variables.removeLocals(effectCommand);
