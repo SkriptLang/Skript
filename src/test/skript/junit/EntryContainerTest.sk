@@ -1,0 +1,9 @@
+options:
+	test: "org.skriptlang.skript.test.tests.syntaxes.events.EntryContainerTest"
+
+test "EntryContainerTest" when running JUnit:
+	ensure junit test {@test} completes "has entry"
+
+test entry container:
+	has entry:
+		complete objective "has entry" for {@test}
