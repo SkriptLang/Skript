@@ -31,6 +31,7 @@ import ch.njol.skript.util.slot.Slot;
 import ch.njol.util.Checker;
 import org.bukkit.event.Event;
 import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.converter.Converter;
@@ -341,6 +342,7 @@ public interface Expression<T> extends SyntaxElement, Debuggable, Loopable<T> {
 	 * @param <R> The output type of the change function. Must be a type returned
 	 *              by {{@link #acceptChange(ChangeMode)}} for {@link ChangeMode#SET}.
 	 */
+	@ApiStatus.Internal
 	default <R> void changeInPlace(Event event, Function<T, R> changeFunction) {
 		changeInPlace(event, changeFunction, false);
 	}
@@ -362,6 +364,7 @@ public interface Expression<T> extends SyntaxElement, Debuggable, Loopable<T> {
 	 * @param <R> The output type of the change function. Must be a type returned
 	 *              by {{@link #acceptChange(ChangeMode)}} for {@link ChangeMode#SET}.
 	 */
+	@ApiStatus.Internal
 	default <R> void changeInPlace(Event event, Function<T, R> changeFunction, boolean getAll) {
 		T[] values = getAll ? getAll(event) : getArray(event);
 		if (values.length == 0)
