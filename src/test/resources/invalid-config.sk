@@ -1,0 +1,20 @@
+# Comment a
+a:
+	b: # Comment b
+		c: true # Comment c
+	d: false # <<< Invalid
+		e: true
+	f: true
+	# Comment f
+	# Comment f'
+
+	g: true
+
+	# Comment g
+
+# Comment a'
+h: false
+i: true # Comment i
+
+x.z:
+	y: true
