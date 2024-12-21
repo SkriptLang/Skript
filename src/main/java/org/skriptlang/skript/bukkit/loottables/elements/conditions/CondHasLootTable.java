@@ -10,7 +10,8 @@ import org.skriptlang.skript.bukkit.loottables.LootTableUtils;
 @Name("Has Loot Table")
 @Description(
 	"Checks whether an entity or block has a loot table. "
-	+ "The loot tables of chests will be deleted when the chest is opened or broken.")
+	+ "The loot tables of chests will be deleted when the chest is opened or broken."
+)
 @Examples({
 	"set event-block to chest",
 	"if event-block has a loot table:",

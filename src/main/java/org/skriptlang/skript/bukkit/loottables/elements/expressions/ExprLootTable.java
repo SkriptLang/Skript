@@ -16,9 +16,9 @@ import org.skriptlang.skript.bukkit.loottables.LootTableUtils;
 @Name("Loot Table")
 @Description({
 	"Returns the loot table of an entity or block.",
-	"Setting the loot table of a block will update the block state, and once opened will " +
-	"generate loot of the specified loot table. Please note that doing so may cause " +
-	"warnings in the console due to over-filling the chest.",
+	"Setting the loot table of a block will update the block state, and once opened will "
+		+ "generate loot of the specified loot table. Please note that doing so may cause "
+		+ "warnings in the console due to over-filling the chest.",
 	"Please note that resetting/deleting the loot table of an ENTITY will reset the entity's loot table to its default.",
 })
 @Examples({

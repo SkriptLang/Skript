@@ -27,7 +27,8 @@ import java.util.concurrent.ThreadLocalRandom;
 @Name("Loot of Loot Table")
 @Description(
 	"Returns the items of a loot table using a loot context. "
-	+ "Not specifying a loot context will use a loot context with a location at the world's origin.")
+		+ "Not specifying a loot context will use a loot context with a location at the world's origin."
+)
 @Examples({
 	"set {_items::*} to loot items of the loot table \"minecraft:chests/simple_dungeon\" with loot context {_context}",
 	"# this will set {_items::*} to the items that would be dropped from the simple dungeon loot table with the given loot context",

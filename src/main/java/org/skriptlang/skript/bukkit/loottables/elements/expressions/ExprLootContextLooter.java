@@ -16,8 +16,9 @@ import org.skriptlang.skript.bukkit.loottables.LootContextCreateEvent;
 
 @Name("Looter of Loot Context")
 @Description(
-	"Returns the looter of a loot context "
-	+ "Note that setting the looter will read the looter's tool enchantments (e.g. looting) when generating loot.")
+	"Returns the looter of a loot context. "
+		+ "Note that setting the looter will read the looter's tool enchantments (e.g. looting) when generating loot."
+)
 @Examples({
 	"set {_killer} to looter of {_context}",
 	"",

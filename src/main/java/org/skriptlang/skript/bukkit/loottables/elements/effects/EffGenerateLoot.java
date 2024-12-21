@@ -23,8 +23,8 @@ import java.util.concurrent.ThreadLocalRandom;
 
 @Name("Generate Loot")
 @Description({
-	"Generates the loot in the specified inventories from a loot table using a loot context. " +
-	"Not specifying a loot context will use a loot context with a location at the world's origin.",
+	"Generates the loot in the specified inventories from a loot table using a loot context. "
+		+ "Not specifying a loot context will use a loot context with a location at the world's origin.",
 	"Note that if the inventory is full, it will cause warnings in the console due to over-filling the inventory."
 })
 @Examples({

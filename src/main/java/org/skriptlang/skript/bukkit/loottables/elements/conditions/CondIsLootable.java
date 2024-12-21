@@ -10,7 +10,8 @@ import org.skriptlang.skript.bukkit.loottables.LootTableUtils;
 @Name("Is Lootable")
 @Description(
 	"Checks whether an entity or block is lootable. "
-	+ "Lootables are entities or blocks that can have a loot table.")
+	+ "Lootables are entities or blocks that can have a loot table."
+)
 @Examples({
 	"spawn a pig at event-location",
 	"set {_pig} to last spawned entity",

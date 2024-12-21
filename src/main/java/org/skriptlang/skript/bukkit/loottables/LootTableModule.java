@@ -28,9 +28,11 @@ public class LootTableModule {
 		Classes.registerClass(new ClassInfo<>(LootTable.class, "loottable")
 			.user("loot ?tables?")
 			.name("Loot Table")
-			.description("Loot tables represent what items should be in naturally generated containers, "
+			.description(
+				"Loot tables represent what items should be in naturally generated containers, "
 					+ "what items should be dropped when killing a mob, or what items can be fished.",
-				"You can find more information about this in https://minecraft.wiki/w/Loot_table")
+				"You can find more information about this in https://minecraft.wiki/w/Loot_table"
+			)
 			.since("INSERT VERSION")
 			.parser(new Parser<>() {
 				@Override

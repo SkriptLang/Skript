@@ -48,7 +48,7 @@ public class ExprLoot extends SimpleExpression<ItemStack> {
 
 	@Override
 	@Nullable
-	protected ItemStack[] get(Event event) {
+	protected ItemStack @Nullable [] get(Event event) {
 		if (!(event instanceof LootGenerateEvent lootEvent))
 			return new ItemStack[0];
 		return lootEvent.getLoot().toArray(new ItemStack[0]);
@@ -56,7 +56,7 @@ public class ExprLoot extends SimpleExpression<ItemStack> {
 
 	@Override
 	@Nullable
-	public Class<?>[] acceptChange(ChangeMode mode) {
+	public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
 		return switch (mode) {
 			case DELETE, ADD, REMOVE, SET -> CollectionUtils.array(ItemStack[].class);
 			default -> null;
@@ -64,7 +64,7 @@ public class ExprLoot extends SimpleExpression<ItemStack> {
 	}
 
 	@Override
-	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
+	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
 		if (!(event instanceof LootGenerateEvent lootEvent))
 			return;
 
