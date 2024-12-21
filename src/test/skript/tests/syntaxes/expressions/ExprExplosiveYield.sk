@@ -1,12 +1,12 @@
 test "explosive yield":
-	spawn a primed tnt at spawn of world "world"
+	spawn a primed tnt at test-location
 	assert explosive yield of last spawned tnt is 4 with "explosive yield of tnt is 4 by default"
 	set explosive yield of last spawned tnt to 10
 	assert explosive yield of last spawned tnt is 10 with "an explosive's explosive yield should be 10 if it is set to 10"
 	delete last spawned primed tnt
 
-test "creeper explosive yield" when running minecraft "1.12.2":
-	spawn a creeper at spawn of world "world"
+test "creeper explosive yield":
+	spawn a creeper at test-location
 	assert explosive yield of last spawned creeper is 3 with "explosive yield of a creeper is 3 by default"
 	set explosive yield of last spawned creeper to 10
 	assert explosive yield of last spawned creeper is 10 with "a creeper's explosive yield should be 10 if it is set to 10"

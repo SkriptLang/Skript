@@ -27,8 +27,8 @@ import lib.PatPeter.SQLibrary.SQLite;
 
 public class SQLiteStorage extends SQLStorage {
 
-	SQLiteStorage(String name) {
-		super(name, "CREATE TABLE IF NOT EXISTS %s (" +
+	SQLiteStorage(String type) {
+		super(type, "CREATE TABLE IF NOT EXISTS %s (" +
 				"name         VARCHAR(" + MAX_VARIABLE_NAME_LENGTH + ")  NOT NULL  PRIMARY KEY," +
 				"type         VARCHAR(" + MAX_CLASS_CODENAME_LENGTH + ")," +
 				"value        BLOB(" + MAX_VALUE_SIZE + ")," +

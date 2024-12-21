@@ -1,0 +1,100 @@
+<?xml version="1.0"?>
+<!DOCTYPE module PUBLIC
+	"-//Checkstyle//DTD Checkstyle Configuration 1.3//EN"
+	"https://checkstyle.org/dtds/configuration_1_3.dtd">
+
+<module name="Checker">
+
+	<!--Basic Settings-->
+	<!--Warning severity so the builds do not fail because of checkstyle, this is mainly for the GitHub workflow-->
+	<property name="severity" value="warning"/>
+	<property name="fileExtensions" value="java"/>
+	<module name="BeforeExecutionExclusionFileFilter">
+		<property name="fileNamePattern" value="module\-info\.java$"/>
+	</module>
+
+	<!--At most 120 characters per line-->
+	<module name="LineLength">
+		<property name="max" value="120"/>
+	</module>
+
+	<!--New line at the end of the file-->
+	<module name="NewlineAtEndOfFile"/>
+
+	<module name="TreeWalker">
+
+		<!--Tabs, no spaces-->
+		<module name="RegexpSinglelineJava">
+			<property name="format" value="^\t* "/>
+			<property name="message" value="Indent must use tab characters"/>
+			<property name="ignoreComments" value="true"/>
+		</module>
+
+		<!--No trailing whitespace-->
+		<module name="NoWhitespaceAfter" />
+
+		<!--When statements consume multiple lines, all lines but the first have two tabs of additional indentation-->
+		<module name="Indentation">
+			<property name="arrayInitIndent" value="8" />
+			<property name="basicOffset" value="8" />
+			<property name="caseIndent" value="8" />
+			<property name="lineWrappingIndentation" value="8" />
+			<property name="throwsIndent" value="8" />
+		</module>
+
+		<!--Each class begins with an empty line-->
+		<module name="EmptyLineSeparator">
+			<property name="allowNoEmptyLineBetweenFields" value="true" />
+			<property name="tokens"
+					  value="IMPORT, STATIC_IMPORT, CLASS_DEF, INTERFACE_DEF,
+					  		ENUM_DEF, STATIC_INIT, INSTANCE_INIT, METHOD_DEF,
+					  		CTOR_DEF, VARIABLE_DEF, RECORD_DEF, COMPACT_CTOR_DEF" />
+		</module>
+
+		<module name="OneStatementPerLine"/>
+
+		<!--Annotations for a structure go on the line before that structure-->
+		<module name="AnnotationLocation"/>
+
+		<!--When splitting Strings into multiple lines the last part of the string must be (space character included) " " +-->
+		<module name="OperatorWrap">
+			<property name="option" value="eol" />
+			<property name="tokens" value="PLUS" />
+		</module>
+
+		<!--Class names are written in UpperCamelCase-->
+		<module name="TypeName"/>
+
+		<!--Methods named in camelCase-->
+		<module name="MethodName"/>
+
+		<!--Static constant fields should be named in UPPER_SNAKE_CASE-->
+		<module name="ConstantName"/>
+
+		<!--We use JetBrains Annotations for specifying null-ness-->
+		<module name="IllegalImport">
+			<property name="illegalClasses"
+					  value="javax.annotation.Nonnull,
+							javax.annotation.Nullable,
+							org.eclipse.jdt.annotation.NonNull,
+							org.eclipse.jdt.annotation.Nullable,
+							org.eclipse.sisu.Nullable,
+							org.checkerframework.checker.nullness.qual.NonNull,
+							org.checkerframework.checker.nullness.qual.Nullable" />
+			<property name="illegalPkgs" value="" />
+		</module>
+
+		<!--Modules for code improvements-->
+		<module name="MissingOverride"/>
+		<module name="EmptyBlock"/>
+		<module name="HideUtilityClassConstructor"/>
+		<module name="EmptyStatement"/>
+		<module name="EqualsHashCode"/>
+		<module name="SimplifyBooleanExpression"/>
+		<module name="SimplifyBooleanReturn"/>
+		<module name="StringLiteralEquality"/>
+		<module name="UnusedLocalVariable"/>
+
+	</module>
+
+</module>

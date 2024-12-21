@@ -1,7 +1,7 @@
 test "furnace slot":
 	# init
-	set block at location(0, 0, 0, world) to furnace
-	set {_furnace} to block at location(0, 0, 0, world)
+	set test-block to furnace
+	set {_furnace} to test-block
 
 	# ore slot test
 	set ore slot of {_furnace} to 32 iron ores
@@ -28,4 +28,4 @@ test "furnace slot":
 	assert result slot of {_furnace} is air with "expected result slot to have nothing, but it had '%result slot of {_furnace}%'"
 
 	# cleanup
-	set block at location(0, 0, 0, world) to air
+	set test-block to air

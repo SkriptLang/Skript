@@ -29,7 +29,7 @@ import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Item;
 import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 @Name("Pickup Delay")
 @Description("The amount of time before a dropped item can be picked up by an entity.")
@@ -49,7 +49,7 @@ public class ExprPickupDelay extends SimplePropertyExpression<Entity, Timespan> 
 	public Timespan convert(Entity entity) {
 		if (!(entity instanceof Item))
 			return null;
-		return Timespan.fromTicks(((Item) entity).getPickupDelay());
+		return new Timespan(Timespan.TimePeriod.TICK, ((Item) entity).getPickupDelay());
 	}
 
 
@@ -70,7 +70,7 @@ public class ExprPickupDelay extends SimplePropertyExpression<Entity, Timespan> 
 	@Override
 	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
 		Entity[] entities = getExpr().getArray(event);
-		int change = delta == null ? 0 : (int) ((Timespan) delta[0]).getTicks();
+		int change = delta == null ? 0 : (int) ((Timespan) delta[0]).getAs(Timespan.TimePeriod.TICK);
 		switch (mode) {
 			case REMOVE:
 				change = -change;

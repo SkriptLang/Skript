@@ -1,5 +1,5 @@
 test "location vector offset":
-	set {_location} to the spawn of world "world"
+	set {_location} to the test-location
 	set {_offset} to {_location} offset by vector(0, 0, 0)
 	assert {_offset} is {_location} with "no offset equality check failed"
 	assert the distance between {_offset} and {_location} is 0 with "0 offset check failed"

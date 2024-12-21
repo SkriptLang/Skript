@@ -40,10 +40,9 @@ skript command:
 			all: Deaktiviert alle Skripte
 			<script>: Deaktiviert ein bestimmtes Skript oder einen Ordner
 		update:
-			description: Überprüft auf eine neue Version, listet Änderungen dieser auf, und kann sie auch gleich herunterladen
+			description: Überprüft auf eine neue Version oder listet Änderungen dieser auf
 			check: Überprüft, ob eine neue Version von Skript verfügbar ist
 			changes: Listet alle Änderungen seit der aktuellen Version auf (auf englisch)
-			download: Lädt die neueste Version herunter
 		info: Druckt eine Nachricht mit Links zu den Aliases und der Dokumentation von Skript.
 		gen-docs: Generiert Dokumentation mithilfe von docs/templates im Plugin-Ordner
 		test: Wird zum Ausführen von Skript-Tests verwendet
@@ -68,7 +67,8 @@ skript command:
 		aliases: die Itemnamen
 		script: <gold>%s<reset>
 		scripts in folder: alle Skripte in <gold>%s<reset>
-		x scripts in folder: <gold>%2$s <lime>Skript¦¦e¦ in <gold>%1$s<reset>
+		x scripts in folder success: <gold>%2$s <lime>Skript¦¦e¦ in <gold>%1$s<reset>
+		x scripts in folder error: <gold>%2$s <light red>Skript¦¦e¦ in <gold>%1$s<reset>
 		empty folder: <gold>%s<reset> enthält keine aktivierten Skripte.
 	enable:
 		all:
@@ -134,7 +134,7 @@ updater:
 	downloaded: Die neueste Version von Skript wurde heruntergeladen! Starte den Server neu oder benutze /reload um die Änderungen zu übernehmen.
 	internal error: Während der Überprüfung auf eine neue Version ist ein interner Fehler aufgetreten. Im Server-Log finden sich weitere Informationen.
 	custom version: Du besitzt eine inoffizielle Version von Skript. Demnach konnte nach keinem Update gesucht werden.
-	nightly build: You're currently running a development build of Skript. No updates will be automatically installed.
+	nightly build: Sie verwenden derzeit eine Entwicklungsversion von Skript. Es werden keine Updates automatisch installiert.
 
 # -- Commands --
 commands:

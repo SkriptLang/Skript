@@ -27,7 +27,7 @@ import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import ch.njol.skript.util.Timespan;
 import org.bukkit.inventory.ItemStack;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 @Name("Max Item Use Time")
 @Description({
@@ -51,7 +51,7 @@ public class ExprMaxItemUseTime extends SimplePropertyExpression<ItemStack, Time
 	@Override
 	@Nullable 
 	public Timespan convert(ItemStack item) {
-		return Timespan.fromTicks(item.getMaxItemUseDuration());
+		return new Timespan(Timespan.TimePeriod.TICK, item.getMaxItemUseDuration());
 	}
 
 	@Override

@@ -20,7 +20,7 @@ package ch.njol.skript.hooks.economy.classes;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.data.JavaClasses;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.classes.ClassInfo;
 import org.skriptlang.skript.lang.arithmetic.Arithmetics;
@@ -158,7 +158,7 @@ public class Money {
 
 	@Nullable
 	private static Double parseDouble(String s) {
-		if (!JavaClasses.NUMBER_PATTERN.matcher(s).matches())
+		if (!JavaClasses.DECIMAL_PATTERN.matcher(s).matches())
 			return null;
 		try {
 			return Double.parseDouble(s);

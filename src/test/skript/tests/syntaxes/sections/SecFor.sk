@@ -1,0 +1,61 @@
+using for each loops
+
+test "for section":
+
+	set {_list::*} to 1, 5, and 10
+	set {_expect} to 0
+	for {_value} in {_list::*}:
+		assert {_value} is greater than 0 with "Expected value > 0, found %{_value}%"
+		set {_expect} to {_value}
+
+	assert {_value} is 10 with "Expected value = 10, found %{_value}%"
+	assert {_expect} is 10 with "Expected expect = 10, found %{_expect}%"
+
+	delete {_key}
+	delete {_value}
+
+	for {_key}, {_value} in {_list::*}:
+		assert {_key} is greater than 0 with "Expected key > 0, found %{_key}%"
+		assert {_key} is less than 4 with "Expected key < 4, found %{_key}%"
+		assert {_value} is greater than 0 with "Expected value > 0, found %{_value}%"
+
+	assert {_key} is 3 with "Expected key = 3, found %{_key}%"
+	assert {_value} is 10 with "Expected value = 10, found %{_value}%"
+
+	delete {_key}
+	delete {_value}
+
+
+	for key {_key} and value {_value} in {_list::*}:
+		assert {_key} is greater than 0 with "Expected key > 0, found %{_key}%"
+		assert {_key} is less than 4 with "Expected key < 4, found %{_key}%"
+		assert {_value} is greater than 0 with "Expected value > 0, found %{_value}%"
+
+	assert {_key} is 3 with "Expected key = 3, found %{_key}%"
+	assert {_value} is 10 with "Expected value = 10, found %{_value}%"
+
+	delete {_key}
+	delete {_value}
+
+	for {_key} and {_value} in {_list::*}:
+		assert {_key} is greater than 0 with "Expected key > 0, found %{_key}%"
+		assert {_key} is less than 4 with "Expected key < 4, found %{_key}%"
+		assert {_value} is greater than 0 with "Expected value > 0, found %{_value}%"
+
+	assert {_key} is 3 with "Expected key = 3, found %{_key}%"
+	assert {_value} is 10 with "Expected value = 10, found %{_value}%"
+
+	delete {_key}
+	delete {_value}
+
+	# 'loop' syntax alternative
+	loop {_key} and {_value} in {_list::*}:
+		assert {_key} is greater than 0 with "Expected key > 0, found %{_key}%"
+		assert {_key} is less than 4 with "Expected key < 4, found %{_key}%"
+		assert {_value} is greater than 0 with "Expected value > 0, found %{_value}%"
+
+	assert {_key} is 3 with "Expected key = 3, found %{_key}%"
+	assert {_value} is 10 with "Expected value = 10, found %{_value}%"
+
+	delete {_key}
+	delete {_value}

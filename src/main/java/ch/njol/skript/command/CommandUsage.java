@@ -46,6 +46,10 @@ public class CommandUsage {
 	 */
 	public CommandUsage(@Nullable VariableString usage, String defaultUsage) {
 		if (usage == null) {
+			// Manually escape quotes. This is not a good solution, as it doesn't handle many other issues, like % in
+			// commands, but in lieu of re-writing the argument parser and command logic completely, I believe this is
+			// a decent stop-gap measure for using " in commands.
+			defaultUsage = VariableString.quote(defaultUsage);
 			usage = VariableString.newInstance(defaultUsage);
 			assert usage != null;
 		}

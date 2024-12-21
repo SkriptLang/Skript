@@ -1,12 +1,74 @@
 test "equip effect":
-	spawn a zombie at spawn of "world":
-		set {_entity} to event-entity
 
-	equip {_entity} with a diamond chestplate
-	assert chestplate of {_entity} is a diamond chestplate with "entity was not wearing a diamond chestplate"
-	set chestplate of {_entity} to air
+	# === ARMOUR ===
 
-	equip {_entity} with a diamond chestplate named "Test"
-	assert chestplate of {_entity} is a diamond chestplate named "Test" with "entity was not wearing a named diamond chestplate"
+	spawn a zombie at (spawn of world "world"):
+		set {_zombie} to entity
 
-	delete the entity within {_entity}
+	clear helmet of {_zombie}
+	clear chestplate of {_zombie}
+	clear leggings of {_zombie}
+	clear boots of {_zombie}
+
+	assert helmet of {_zombie} is air with "the modified zombie shouldn't be wearing a helmet"
+	assert chestplate of {_zombie} is air with "the modified zombie shouldn't be wearing a chestplate"
+	assert leggings of {_zombie} is air with "the modified zombie shouldn't be wearing leggings"
+	assert boots of {_zombie} is air with "the modified zombie shouldn't be wearing boots"
+
+	equip {_zombie} with iron helmet
+	equip {_zombie} with diamond chestplate
+	equip {_zombie} with diamond leggings
+	equip {_zombie} with any boots
+	assert helmet of {_zombie} is iron helmet with "equipping a zombie with a helmet should do exactly that"
+	assert chestplate of {_zombie} is diamond chestplate with "equipping a zombie with a chestplate should do exactly that"
+	assert leggings of {_zombie} is diamond leggings with "equipping a zombie with leggings should do exactly that"
+	assert boots of {_zombie} is any boots with "equipping a zombie with boots should do exactly that"
+
+	unequip {_zombie}'s armour
+	assert helmet of {_zombie} is air with "unequipping an entity should remove its armour"
+	assert chestplate of {_zombie} is air with "unequipping an entity should remove its armour"
+	assert leggings of {_zombie} is air with "unequipping an entity should remove its armour"
+	assert boots of {_zombie} is air with "unequipping an entity should remove its armour"
+
+	# === HORSE ARMOUR ===
+
+	spawn a horse at (spawn of world "world"):
+		set {_horse} to entity
+
+	equip {_horse} with diamond horse armour
+	assert {_horse} is wearing diamond horse armour with "equipping a horse with horse armour should do exactly that"
+
+	unequip diamond horse armour from {_horse}
+	assert {_horse} is not wearing diamond horse armour with "unequipping horse armour from a horse should do exactly that"
+
+	# === SADDLES ===
+
+	spawn a pig at (spawn of world "world"):
+		set {_pig} to entity
+
+	assert {_horse} and {_pig} don't have saddles with "normally spawned horses and pigs should not have saddles"
+
+	equip {_horse} and {_pig} with saddle
+	assert {_horse} and {_pig} have saddles with "equipping a horse or pig with a saddle should do exactly that"
+
+	unequip saddle from {_horse} and {_pig}
+	assert {_horse} and {_pig} don't have saddles with "unequipping a saddle from a horse or pig should do exactly that"
+
+	# === CLEANUP ===
+
+	delete entity within {_zombie}
+	delete entity within {_horse}
+	delete entity within {_pig}
+
+test "equip - wolf armor" when running minecraft "1.20.5":
+
+	spawn a wolf at (spawn of world "world"):
+		set {_wolf} to entity
+
+	equip {_wolf} with wolf armor
+	assert {_wolf} is wearing wolf armor with "equipping a wolf with wolf armor should do exactly that"
+
+	unequip wolf armor from {_wolf}
+	assert {_wolf} is not wearing wolf armor with "unequipping wolf armor from a wolf should do exactly that"
+
+	delete entity within {_wolf}

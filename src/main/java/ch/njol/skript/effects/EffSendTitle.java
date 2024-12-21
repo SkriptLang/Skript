@@ -20,7 +20,7 @@ package ch.njol.skript.effects;
 
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
@@ -101,17 +101,17 @@ public class EffSendTitle extends Effect {
 
 			if (this.fadeIn != null) {
 				Timespan t = this.fadeIn.getSingle(e);
-				fadeIn = t != null ? (int) t.getTicks() : -1;
+				fadeIn = t != null ? (int) t.getAs(Timespan.TimePeriod.TICK) : -1;
 			}
 
 			if (this.stay != null) {
 				Timespan t = this.stay.getSingle(e);
-				stay = t != null ? (int) t.getTicks() : -1;
+				stay = t != null ? (int) t.getAs(Timespan.TimePeriod.TICK) : -1;
 			}
 
 			if (this.fadeOut != null) {
 				Timespan t = this.fadeOut.getSingle(e);
-				fadeOut = t != null ? (int) t.getTicks() : -1;
+				fadeOut = t != null ? (int) t.getAs(Timespan.TimePeriod.TICK) : -1;
 			}
 			
 			for (Player p : recipients.getArray(e))

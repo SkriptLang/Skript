@@ -34,7 +34,7 @@ import ch.njol.skript.log.SkriptLogger;
 import ch.njol.util.Kleenean;
 import com.google.common.collect.Iterators;
 import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Iterator;
 import java.util.stream.LongStream;
@@ -51,7 +51,7 @@ public class ExprTimes extends SimpleExpression<Long> {
 
 	static {
 		Skript.registerExpression(ExprTimes.class, Long.class, ExpressionType.SIMPLE,
-				"%number% time[s]", "once", "twice");
+				"%number% time[s]", "once", "twice", "thrice");
 	}
 
 	@SuppressWarnings("null")

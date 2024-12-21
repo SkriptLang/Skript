@@ -29,7 +29,7 @@ import ch.njol.skript.util.Timespan;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 public class EvtPeriodical extends SkriptEvent {
 
@@ -72,7 +72,7 @@ public class EvtPeriodical extends SkriptEvent {
 
 	@Override
 	public boolean postLoad() {
-		long ticks = period.getTicks();
+		long ticks = period.getAs(Timespan.TimePeriod.TICK);
 
 		if (worlds == null) {
 			taskIDs = new int[]{

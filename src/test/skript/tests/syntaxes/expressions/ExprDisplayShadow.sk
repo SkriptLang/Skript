@@ -1,0 +1,39 @@
+test "display radius/strength":
+
+	spawn block display at spawn of world "world":
+		set {_e::1} to entity
+	spawn item display at spawn of world "world":
+		set {_e::2} to entity
+	spawn text display at spawn of world "world":
+		set {_e::3} to entity
+
+	assert shadow strength of {_e::*} is 1 with "default strength was not 0"
+	assert shadow radius of {_e::*} is 0 with "default radius was not 0"
+
+	set shadow radius of {_e::*} to 5
+	assert shadow radius of {_e::*} is 5 with "failed to set to radius"
+	assert shadow strength of {_e::*} is 1 with "setting radius modified strength"
+
+	set shadow strength of {_e::*} to 0.1
+	assert shadow radius of {_e::*} is 5 with "setting strength modified radius"
+	assert shadow strength of {_e::*} is 0.1 with "failed to set to strength"
+
+	set shadow radius of {_e::*} to infinity value
+	assert shadow radius of {_e::*} is 5 with "set to radius to infinity"
+
+	set shadow radius of {_e::*} to -10
+	assert shadow radius of {_e::*} is 0 with "set to radius to negative value"
+
+	add 20 to shadow radius of {_e::*}
+	assert shadow radius of {_e::*} is 20 with "add 20 to radius"
+
+	subtract 25 from shadow radius of {_e::*}
+	assert shadow radius of {_e::*} is 0 with "subtract 25 from radius"
+
+	subtract -2.5 from shadow radius of {_e::*}
+	assert shadow radius of {_e::*} is 2.5 with "subtract -2.5 from radius"
+
+	reset shadow radius of {_e::*}
+	assert shadow radius of {_e::*} is 0 with "reset radius"
+
+	delete entities within {_e::*}

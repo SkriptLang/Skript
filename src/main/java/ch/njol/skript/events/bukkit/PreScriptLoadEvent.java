@@ -26,12 +26,14 @@ import org.bukkit.event.HandlerList;
 
 import ch.njol.skript.config.Config;
 import ch.njol.util.Validate;
+import ch.njol.skript.ScriptLoader;
 
 /**
  * This event has no guarantee of being on the main thread.
  * Please do not use bukkit api before checking {@link Bukkit#isPrimaryThread()}
+ * @deprecated Use {@link ScriptLoader.ScriptPreInitEvent}.
  */
-
+@Deprecated
 public class PreScriptLoadEvent extends Event {
 
     private final List<Config> scripts;

@@ -1,0 +1,46 @@
+test "expression sections":
+	set {_var} to false
+	set {_runnable} to a new runnable:
+		set {_var} to true
+
+	assert {_var} is false with "expression section ran too early!"
+
+	run {_runnable}
+	assert {_var} is true with "expression section didn't run!"
+
+	# try it again in case it stops working for some reason
+	set {_var} to false
+	run {_runnable}
+	assert {_var} is true with "expression section didn't run again!"
+
+	# section in a section!
+	set {_runnable} to a new runnable:
+		set {_runnable2} to a new runnable:
+			set {_var} to true
+		run {_runnable2}
+	set {_var} to false
+	run {_runnable}
+	assert {_var} is true with "expression section in expression section didn't run"
+
+
+test "expression sections that don't work":
+	# Section with no section expression!
+	set {_expected} to "The line 'set {_var} to true' is a valid statement but cannot function as a section (:) because there is no syntax in the line to manage it."
+	parse:
+		set {_var} to true:
+			broadcast "NO BAD"
+	assert last parse logs contain {_expected} with "section was allowed with no header syntax"
+
+	# Multiple section expressions in one line!
+	set {_expected} to "The syntax 'a new runnable' tried to claim the current section, but it was already claimed by 'a new runnable'. You cannot have two section-starters in the same line."
+	parse:
+		set {_list::*} to a new runnable, a new runnable and a new runnable:
+			broadcast "NO BAD"
+	assert last parse logs contain {_expected} with "section was allowed with multiple headers"
+
+	# Regular section and a section expression in one line!
+	set {_expected} to "The syntax 'if {_var} is equal to a new runnable' tried to claim the current section, but it was already claimed by 'a new runnable'. You cannot have two section-starters in the same line."
+	parse:
+		if {_var} is a new runnable:
+			broadcast "NO BAD"
+	assert last parse logs contain {_expected} with "section was allowed with multiple headers"

@@ -19,7 +19,7 @@
 package org.skriptlang.skript.lang.structure;
 
 import ch.njol.skript.lang.SyntaxElementInfo;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.entry.EntryValidator;
 
 /**

@@ -30,7 +30,7 @@ import org.bukkit.GameMode;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 @Name("Portal Cooldown")
 @Description({
@@ -59,7 +59,7 @@ public class ExprPortalCooldown extends SimplePropertyExpression<Entity, Timespa
 	@Override
 	@Nullable
 	public Timespan convert(Entity entity) {
-		return Timespan.fromTicks(entity.getPortalCooldown());
+		return new Timespan(Timespan.TimePeriod.TICK, entity.getPortalCooldown());
 	}
 
 	@Override
@@ -80,7 +80,7 @@ public class ExprPortalCooldown extends SimplePropertyExpression<Entity, Timespa
 	@Override
 	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
 		Entity[] entities = getExpr().getArray(event);
-		int change = delta == null ? 0 : (int) ((Timespan) delta[0]).getTicks_i();
+		int change = delta == null ? 0 : (int) ((Timespan) delta[0]).getAs(Timespan.TimePeriod.TICK);
 		switch (mode) {
 			case REMOVE:
 				change = -change; // allow fall-through to avoid duplicate code

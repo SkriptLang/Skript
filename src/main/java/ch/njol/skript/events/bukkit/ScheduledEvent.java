@@ -21,7 +21,7 @@ package ch.njol.skript.events.bukkit;
 import org.bukkit.World;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.registrations.EventValues;
 import ch.njol.skript.util.Getter;

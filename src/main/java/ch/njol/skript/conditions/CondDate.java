@@ -19,7 +19,7 @@
 package ch.njol.skript.conditions;
 
 import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
@@ -73,7 +73,7 @@ public class CondDate extends Condition {
 		final long now = System.currentTimeMillis();
 		return date.check(e,
 				date -> delta.check(e,
-						timespan -> now - date.getTimestamp() >= timespan.getMilliSeconds()
+						timespan -> now - date.getTimestamp() >= timespan.getAs(Timespan.TimePeriod.MILLISECOND)
 				), isNegated());
 	}
 	

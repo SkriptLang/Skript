@@ -1,5 +1,5 @@
 test "potion effect":
-	spawn a pig at spawn of world "world"
+	spawn a pig at test-location
 	set {_pig} to last spawned pig
 	set {_potion} to potion effect of slowness of tier 5 for 10 seconds
 	apply {_potion} to {_pig}

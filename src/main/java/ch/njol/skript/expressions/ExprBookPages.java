@@ -27,7 +27,7 @@ import java.util.stream.Collectors;
 import org.bukkit.event.Event;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BookMeta;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.ServerPlatform;
 import ch.njol.skript.Skript;

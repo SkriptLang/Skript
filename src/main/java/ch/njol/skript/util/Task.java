@@ -25,7 +25,7 @@ import java.util.concurrent.Future;
 
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.Skript;
 import ch.njol.util.Closeable;

@@ -1,0 +1,30 @@
+# TODO: write tests for non-display colors
+
+# test "color of blocks":
+
+# test "color of items":
+
+# test "color of entities":
+
+# test "color of fireworks":
+
+test "color of displays":
+	spawn a text display at spawn of world "world":
+		set {_e} to entity
+
+	assert color of {_e} is rgb(0,0,0, 64) with "default background colour failed"
+
+	set colour of {_e} to red
+	assert color of {_e} is red with "failed to set background colour"
+
+	set colour of {_e} to rgb(1, 50, 200)
+	assert color of {_e} is rgb(1, 50, 200) with "failed to set background colour to rgb"
+
+	reset colour of {_e}
+	assert color of {_e} is rgb(0, 0, 0, 64) with "delete background colour failed"
+
+	set color of all text displays to rgb(0, 10, 0)
+	assert color of all text displays is rgb(0, 10, 0) with "set all background colour failed"
+
+	delete entity within {_e}
+

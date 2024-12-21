@@ -18,7 +18,9 @@
  */
 package ch.njol.skript.lang.function;
 
+import ch.njol.skript.Skript;
 import ch.njol.skript.classes.ClassInfo;
+import ch.njol.skript.util.Utils;
 import ch.njol.skript.util.Contract;
 import org.jetbrains.annotations.Nullable;
 
@@ -171,5 +173,34 @@ public class Signature<T> {
 	public int hashCode() {
 		return name.hashCode();
 	}
-	
+
+	@Override
+	public String toString() {
+		return toString(true, Skript.debug());
+	}
+
+	public String toString(boolean includeReturnType, boolean debug) {
+		StringBuilder signatureBuilder = new StringBuilder();
+
+		if (local)
+			signatureBuilder.append("local ");
+		signatureBuilder.append(name);
+
+		signatureBuilder.append('(');
+		int lastParameterIndex = parameters.length - 1;
+		for (int i = 0; i < parameters.length; i++) {
+			signatureBuilder.append(parameters[i].toString(debug));
+			if (i != lastParameterIndex)
+				signatureBuilder.append(", ");
+		}
+		signatureBuilder.append(')');
+
+		if (includeReturnType && returnType != null) {
+			signatureBuilder.append(" :: ");
+			signatureBuilder.append(Utils.toEnglishPlural(returnType.getCodeName(), !single));
+		}
+
+		return signatureBuilder.toString();
+	}
+
 }

@@ -21,7 +21,7 @@ package ch.njol.skript.expressions;
 import org.bukkit.event.Event;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
@@ -85,7 +85,7 @@ public class ExprPotionEffect extends SimpleExpression<PotionEffect> {
 		if (this.timespan != null) {
 			Timespan timespan = this.timespan.getSingle(e);
 			if (timespan != null)
-				ticks = (int) timespan.getTicks();
+				ticks = (int) timespan.getAs(Timespan.TimePeriod.TICK);
 		}
 		return new PotionEffect[]{new PotionEffect(potionEffectType, ticks, tier, ambient, particles)};
 	}

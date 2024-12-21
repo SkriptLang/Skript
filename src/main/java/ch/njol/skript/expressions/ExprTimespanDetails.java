@@ -28,7 +28,7 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.util.Timespan;
 import ch.njol.skript.util.Timespan.TimePeriod;
 import ch.njol.util.Kleenean;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Locale;
 
@@ -57,7 +57,7 @@ public class ExprTimespanDetails extends SimplePropertyExpression<Timespan, Long
 	@Override
 	@Nullable
 	public Long convert(Timespan time) {
-		return time.getMilliSeconds() / type.getTime();
+		return time.getAs(Timespan.TimePeriod.MILLISECOND) / type.getTime();
 	}
 
 	@Override

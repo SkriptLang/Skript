@@ -1,0 +1,74 @@
+test "rotate around global axis":
+	set {_v::1} to vector(1, 1, 1)
+	set {_v::2} to quaternion(1, 0, 0, 0)
+
+	spawn block display at spawn of world "world":
+		set {_v::3} to entity
+
+	rotate {_v::*} around y axis by 90 degrees
+	assert {_v::1} is vector(1, 1, -1) with "rotate vector around y axis failed"
+	assert {_v::2} is quaternion(0.7071067690849304, 0, 0.7071067690849304, 0) with "rotate quaternion around y axis failed"
+	assert left rotation of {_v::3} is quaternion(0.7071067690849304, 0, 0.7071067690849304, 0) with "rotate display around y axis failed"
+
+	rotate {_v::*} around x axis by -90 degrees
+	assert {_v::1} is vector(1, -1, -1) with "rotate vector around x axis failed"
+	assert {_v::2} is quaternion(0.4999999701976776, -0.4999999701976776, 0.4999999701976776, -0.4999999701976776) with "rotate quaternion around x axis failed"
+	assert left rotation of {_v::3} is quaternion(0.4999999701976776, -0.4999999701976776, 0.4999999701976776, -0.4999999701976776) with "rotate display around x axis failed"
+
+	rotate {_v::*} around z axis by -90 degrees
+	assert {_v::1} is vector(-1, -1, -1) with "rotate vector around z axis failed"
+	assert {_v::2} is quaternion(0, 0, 0.7071067094802856, -0.7071067094802856) with "rotate quaternion around z axis failed"
+	assert left rotation of {_v::3} is quaternion(0, 0, 0.7071067094802856, -0.7071067094802856) with "rotate display around z axis failed"
+
+	delete entity within {_v::3}
+
+test "rotate around local axis":
+	set {_v::1} to vector(1, 1, 1)
+	set {_v::2} to quaternion(1, 0, 0, 0)
+	spawn block display at spawn of world "world":
+		set {_v::3} to entity
+
+	rotate {_v::*} around local y axis by 90 degrees
+	assert {_v::1} is vector(1,1,1) with "rotate vector around local y axis unexpectedly modified vector"
+	assert {_v::2} is quaternion(0.7071067690849304, 0, 0.7071067690849304, 0) with "rotate quaternion around local y axis failed"
+	assert left rotation of {_v::3} is quaternion(0.7071067690849304, 0, 0.7071067690849304, 0) with "rotate display around local y axis failed"
+
+	rotate {_v::*} around local x axis by 90 degrees
+	assert {_v::1} is vector(1,1,1) with "rotate vector around local x axis unexpectedly modified vector"
+	assert {_v::2} is quaternion(0.4999999701976776, 0.4999999701976776, 0.4999999701976776, -0.4999999701976776) with "rotate quaternion around local x axis failed"
+	assert left rotation of {_v::3} is quaternion(0.4999999701976776, 0.4999999701976776, 0.4999999701976776, -0.4999999701976776) with "rotate display around local x axis failed"
+
+	rotate {_v::*} around local z axis by 90 degrees
+	assert {_v::1} is vector(1,1,1) with "rotate vector around local z axis unexpectedly modified vector"
+	assert {_v::2} is quaternion(0.7071067094802856, 0.7071067094802856, 0, 0) with "rotate quaternion around local z axis failed"
+	assert left rotation of {_v::3} is quaternion(0.7071067094802856, 0.7071067094802856, 0, 0) with "rotate display around local z axis failed"
+
+	delete entity within {_v::3}
+
+test "vector rotate around vector":
+	set {_x} to vector(1, 0, 0)
+	set {_y} to vector(0, 1, 0)
+	set {_z} to vector(0, 0, 1)
+
+	set {_v} to {_x}
+	rotate {_v} around {_y} by -90 degrees
+	assert {_v} is {_z} with "rotate around y vector failed"
+
+	rotate {_v} around {_x} by -90 degrees
+	assert {_v} is {_y} with "rotate around x vector failed"
+
+	rotate {_v} around {_z} by -90 degrees
+	assert {_v} is {_x} with "rotate around z vector failed"
+
+	rotate {_v} around vector(1, 1, 1) by 180 degrees
+	assert {_v} is vector(-1/3, 2/3, 2/3) with "rotate around non-orthogonal vector failed"
+
+	set {_v} to vector(2, 0, 0)
+	rotate {_v} around vector(0, 10, 0) by 90 degrees
+	assert {_v} is vector(0, 0, -2) with "rotate around non-unit vector failed"
+
+
+test "quaternion rotate by ZYX rotation":
+	set {_q} to quaternion(1,0,0,0)
+	rotate {_q} by x 90, y 90, z 90
+	assert {_q} is quaternion(0.7071067094802856, 0, 0.7071067094802856, 0) with "failed to rotate quaternion by ZYX"

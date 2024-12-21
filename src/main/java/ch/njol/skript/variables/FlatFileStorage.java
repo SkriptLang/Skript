@@ -29,7 +29,7 @@ import ch.njol.skript.util.Task;
 import ch.njol.skript.util.Utils;
 import ch.njol.skript.util.Version;
 import ch.njol.util.NotifyingReference;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -126,10 +126,10 @@ public class FlatFileStorage extends VariablesStorage {
 	/**
 	 * Create a new CSV storage of the given name.
 	 *
-	 * @param name the name.
+	 * @param type the databse type i.e. CSV.
 	 */
-	FlatFileStorage(String name) {
-		super(name);
+	FlatFileStorage(String type) {
+		super(type);
 	}
 
 	/**
@@ -439,7 +439,7 @@ public class FlatFileStorage extends VariablesStorage {
 						pw.close();
 						FileUtils.move(tempFile, file, true);
 					} catch (IOException e) {
-						Skript.error("Unable to make a final save of the database '" + databaseName +
+						Skript.error("Unable to make a final save of the database '" + getUserConfigurationName() +
 								"' (no variables are lost): " + ExceptionUtils.toString(e));
 						// FIXME happens at random - check locks/threads
 					}

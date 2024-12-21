@@ -1,0 +1,7 @@
+test "display entities conversion":
+	parse:
+		spawn block display of minecraft:stone at test-location
+		set transformation translation of last spawned block display to vector(-0.5,-0.5,-0.5)
+		assert transformation translation of last spawned block display is vector(-0.5,-0.5,-0.5) with "failed to convert block display"
+		delete last spawned block display
+	assert parse logs is not set with "failed to convert block display"

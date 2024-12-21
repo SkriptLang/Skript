@@ -27,7 +27,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.function.Function;
 
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.AliasesProvider.Variation;

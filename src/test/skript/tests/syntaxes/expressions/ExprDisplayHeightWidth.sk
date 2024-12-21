@@ -1,0 +1,39 @@
+test "display height/width":
+
+	spawn block display at spawn of world "world":
+		set {_e::1} to entity
+	spawn item display at spawn of world "world":
+		set {_e::2} to entity
+	spawn text display at spawn of world "world":
+		set {_e::3} to entity
+
+	assert display width of {_e::*} is 0 with "default width was not 0"
+	assert display height of {_e::*} is 0 with "default height was not 0"
+
+	set display height of {_e::*} to 5
+	assert display height of {_e::*} is 5 with "failed to set to height"
+	assert display width of {_e::*} is 0 with "setting height modified width"
+
+	set display width of {_e::*} to 0.1
+	assert display height of {_e::*} is 5 with "setting width modified height"
+	assert display width of {_e::*} is 0.1 with "failed to set to width"
+
+	set display height of {_e::*} to infinity value
+	assert display height of {_e::*} is 5 with "set to height to infinity"
+
+	set display height of {_e::*} to -10
+	assert display height of {_e::*} is 0 with "set to height to negative value"
+
+	add 20 to display height of {_e::*}
+	assert display height of {_e::*} is 20 with "add 20 to height"
+
+	subtract 25 from display height of {_e::*}
+	assert display height of {_e::*} is 0 with "subtract 25 from height"
+
+	subtract -2.5 from display height of {_e::*}
+	assert display height of {_e::*} is 2.5 with "subtract -2.5 from height"
+
+	reset display height of {_e::*}
+	assert display height of {_e::*} is 0 with "reset height"
+
+	delete entities within {_e::*}

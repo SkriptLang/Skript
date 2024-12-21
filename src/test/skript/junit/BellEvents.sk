@@ -1,5 +1,7 @@
 test "BellEventsTest" when running JUnit:
     set {_slashIndex} to last index of "/" in "%script%.sk"
+    if {_slashIndex} is -1: # try \ separator (Windows)
+        set {_slashIndex} to last index of "\" in "%script%.sk"
     set {_parent} to substring of "%script%.sk" from 0 to {_slashIndex}
 
     if running below minecraft "1.19.4":
@@ -16,6 +18,8 @@ test "BellEventsTest" when running JUnit:
 
 on script unload:
     set {_slashIndex} to last index of "/" in "%script%.sk"
+    if {_slashIndex} is -1: # try \ separator (Windows)
+        set {_slashIndex} to last index of "\" in "%script%.sk"
     set {_parent} to substring of "%script%.sk" from 0 to {_slashIndex}
     disable script "%{_parent}%BellEventsSpigot.sk"
     disable script "%{_parent}%BellEventsPaper.sk"
