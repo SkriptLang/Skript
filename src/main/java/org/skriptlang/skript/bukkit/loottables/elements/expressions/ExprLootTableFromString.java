@@ -15,7 +15,6 @@ import org.bukkit.NamespacedKey;
 import org.bukkit.event.Event;
 import org.bukkit.loot.LootTable;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.bukkit.loottables.LootTableUtils;
 
 import java.util.ArrayList;
 import java.util.List;
