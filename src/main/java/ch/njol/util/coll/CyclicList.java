@@ -29,8 +29,9 @@ import ch.njol.util.Math2;
 /**
  * A list with fixed size that overrides the oldest elements when new elements are added and no more space is available.
  * 
- * @author Peter Güttinger
+ * @deprecated unused
  */
+@Deprecated(forRemoval = true)
 public final class CyclicList<E> extends AbstractList<E> {
 	
 	private final Object[] items;

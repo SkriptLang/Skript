@@ -4,6 +4,9 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Function;
 
+/**
+ * @deprecated use {@link Function}
+ */
 @Deprecated(forRemoval = true)
 @FunctionalInterface
 public interface Callback<R, A> extends Function<A, R> {

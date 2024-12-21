@@ -6,7 +6,7 @@ import java.util.Locale;
 import javax.annotation.Nullable;
 
 /**
- * A string which is compared ignoring it's case.
+ * @deprecated use {@link java.lang.String#equalsIgnoreCase(String)}
  */
 @Deprecated(forRemoval = true)
 public class CaseInsensitiveString implements Serializable, Comparable<CharSequence>, CharSequence {

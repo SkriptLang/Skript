@@ -4,6 +4,9 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 
+/**
+ * use {@link com.google.common.base.Preconditions}
+ */
 @Deprecated(forRemoval = true)
 public final class Validate {
 
