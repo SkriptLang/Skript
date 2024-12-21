@@ -49,6 +49,8 @@ public class CondItemEnchantmentGlint extends PropertyCondition<ItemType> {
 		if (matchedPattern == 0)
 			return meta.hasEnchantmentGlintOverride();
 		// forced to glint
+		if (!meta.hasEnchantmentGlintOverride())
+			return false;
 		return meta.getEnchantmentGlintOverride();
 	}
 
