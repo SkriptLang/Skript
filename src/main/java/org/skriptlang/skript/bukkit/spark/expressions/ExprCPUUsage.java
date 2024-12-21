@@ -9,6 +9,7 @@ import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.skript.lang.SyntaxStringBuilder;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
 import me.lucko.spark.api.statistic.StatisticWindow.CpuUsage;
@@ -34,7 +35,6 @@ import org.skriptlang.skript.bukkit.spark.SparkUtils;
 @Since("INSERT VERSION")
 public class ExprCPUUsage extends SimpleExpression<Double> {
 
-	private String expr;
 	private CpuUsage[] windows;
 	private boolean useProcess;
 	private int matchedPattern;
@@ -49,7 +49,6 @@ public class ExprCPUUsage extends SimpleExpression<Double> {
 
 	@Override
 	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		expr = parseResult.expr;
 		useProcess = !parseResult.hasTag("system");
 		this.matchedPattern = matchedPattern;
 		windows = switch (matchedPattern) {
@@ -79,14 +78,21 @@ public class ExprCPUUsage extends SimpleExpression<Double> {
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return "the " + (useProcess ? "process" : "system") + " usage over the last" +
-				switch (matchedPattern) {
-					case 0 -> "10 seconds";
-					case 1 -> "1 minute";
-					case 2 -> "15 minutes";
-					case 3 -> "all available periods";
-					default -> throw new IllegalStateException("Invalid CPU usage expression");
-				};
+		SyntaxStringBuilder builder = new SyntaxStringBuilder(event, debug);
+		builder.append("the");
+		if (useProcess)
+			builder.append("process");
+		else
+			builder.append("system");
+		builder.append("usage over the last");
+		builder.append(switch (matchedPattern) {
+			case 0 -> "10 seconds";
+			case 1 -> "1 minute";
+			case 2 -> "15 minutes";
+			case 3 -> "all available periods";
+			default -> throw new IllegalStateException("Invalid CPU usage expression");
+		});
+		return builder.toString();
 	}
 
 }
