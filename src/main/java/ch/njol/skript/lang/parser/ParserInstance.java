@@ -550,12 +550,6 @@ public final class ParserInstance implements Experimented {
 			return parserInstance;
 		}
 
-		/**
-		 * @deprecated See {@link ScriptLoader.LoaderEvent}.
-		 */
-		@Deprecated
-		public void onCurrentScriptChange(@Nullable Config currentScript) { }
-
 		public void onCurrentEventsChange(Class<? extends Event> @Nullable [] currentEvents) { }
 
 	}

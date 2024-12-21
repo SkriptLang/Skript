@@ -35,7 +35,6 @@ import ch.njol.skript.log.SkriptLogger;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.iterator.CheckedIterator;
 import ch.njol.util.coll.iterator.ConsumingIterator;
-import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.entry.EntryContainer;
@@ -96,8 +95,7 @@ public abstract class Structure implements SyntaxElement, Debuggable {
 	 * If the EntryContainer is needed outside of {@link #init(Literal[], int, ParseResult, EntryContainer)},
 	 * the Structure should keep a reference to it.
 	 */
-	@Deprecated
-	@ApiStatus.ScheduledForRemoval
+	@Deprecated(forRemoval = true)
 	public final EntryContainer getEntryContainer() {
 		if (entryContainer == null)
 			throw new IllegalStateException("This Structure hasn't been initialized!");

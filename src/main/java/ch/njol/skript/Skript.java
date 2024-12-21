@@ -167,7 +167,7 @@ import java.util.zip.ZipFile;
  * @see #registerEffect(Class, String...)
  * @see #registerExpression(Class, Class, ExpressionType, String...)
  * @see #registerEvent(String, Class, Class, String...)
- * @see EventValues#registerEventValue(Class, Class, Getter, int)
+ * @see EventValues#registerEventValue(Class, Class, Converter, int)
  * @see Classes#registerClass(ClassInfo)
  * @see Comparators#registerComparator(Class, Class, Comparator)
  * @see Converters#registerConverter(Class, Class, Converter)
