@@ -1,17 +1,11 @@
 package ch.njol.skript.conditions;
 
-import org.bukkit.event.Event;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.ItemType;
-import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
-import ch.njol.skript.doc.Name;
-import ch.njol.skript.doc.RequiredPlugins;
-import ch.njol.skript.doc.Since;
-import ch.njol.skript.lang.Condition;
+import ch.njol.skript.conditions.base.PropertyCondition;
+import ch.njol.skript.doc.*;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
@@ -20,64 +14,49 @@ import ch.njol.util.Kleenean;
 @Description("Checks whether an item has the enchantment glint overridden, or is forced to glint or not.")
 @Examples({
 	"if the player's tool has the enchantment glint override",
-		"\tsend \"Your tool has the enchantment glint override.\" to player",
+	"\tsend \"Your tool has the enchantment glint override.\" to player",
 	"",
 	"if {_item} is forced to glint:",
-		"\tsend \"This item is forced to glint.\" to player",
+	"\tsend \"This item is forced to glint.\" to player",
 	"else if {_item} is forced to not glint:",
-		"\tsend \"This item is forced to not glint.\" to player",
+	"\tsend \"This item is forced to not glint.\" to player",
 	"else:",
-		"\tsend \"This item does not have any glint override.\" to player"
+	"\tsend \"This item does not have any glint override.\" to player"
 })
 @RequiredPlugins("Spigot 1.20.5+")
 @Since("INSERT VERSION")
-public class CondItemEnchantmentGlint extends Condition {
+public class CondItemEnchantmentGlint extends PropertyCondition<ItemType> {
 
 	static {
-		if (Skript.isRunningMinecraft(1, 20, 5))
-			Skript.registerCondition(CondItemEnchantmentGlint.class,
-				"%itemtypes% (has|have) [the] enchantment glint overrid(den|e)",
-				"%itemtypes% (doesn't|does not|do not|don't) have [the] enchantment glint overrid(den|e)",
-				"%itemtypes% (is|are) forced (to [:not]|[:not] to) glint");
-	}
-
-	private Expression<ItemType> itemtypes;
-	private int pattern;
-
-	@Override
-	@SuppressWarnings("unchecked")
-	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		itemtypes = (Expression<ItemType>) expressions[0];
-		pattern = matchedPattern;
-		if (matchedPattern == 2) {
-			// Pattern 'is forced to glint'
-			setNegated(parseResult.hasTag("not"));
-		} else {
-			// Pattern 'has enchantment glint override'
-			setNegated(matchedPattern == 1);
+		if (Skript.methodExists(ItemMeta.class, "getEnchantmentGlintOverride")) {
+			register(CondItemEnchantmentGlint.class, PropertyType.HAVE, "enchantment glint overrid(den|e)", "itemtypes");
+			register(CondItemEnchantmentGlint.class, PropertyType.BE, "forced to [:not] glint", "itemtypes");
 		}
-		return true;
+	}
+
+	private int matchedPattern;
+
+	@Override
+	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
+		this.matchedPattern = matchedPattern;
+		return super.init(expressions, matchedPattern, isDelayed, parseResult);
 	}
 
 	@Override
-	public boolean check(Event event) {
-		return itemtypes.check(event, itemType -> {
-			ItemMeta meta = itemType.getItemMeta();
-			// Pattern 'is forced to glint'
-			if (pattern == 2) {
-				if (!meta.hasEnchantmentGlintOverride())
-					return isNegated();
-				return meta.getEnchantmentGlintOverride();
-			// Pattern 'has enchantment glint override'
-			} else {
-				return meta.hasEnchantmentGlintOverride();
-			}
-		}, isNegated());
+	public boolean check(ItemType itemType) {
+		ItemMeta meta = itemType.getItemMeta();
+		// enchantment glint override
+		if (matchedPattern == 0)
+			return meta.hasEnchantmentGlintOverride();
+		// forced to glint
+		return meta.getEnchantmentGlintOverride();
 	}
 
 	@Override
-	public String toString(@Nullable Event event, boolean debug) {
-		return null;
+	protected String getPropertyName() {
+		if (matchedPattern == 0)
+			return "enchantment glint overridden";
+		return "forced to " + (isNegated() ? "not " : "") + "glint";
 	}
 
 }
