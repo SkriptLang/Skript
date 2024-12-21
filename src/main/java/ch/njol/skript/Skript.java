@@ -29,7 +29,6 @@ import ch.njol.skript.lang.SyntaxElementInfo;
 import ch.njol.skript.lang.Trigger;
 import ch.njol.skript.lang.TriggerItem;
 import ch.njol.skript.lang.util.SimpleExpression;
-import ch.njol.skript.localization.ArgsMessage;
 import ch.njol.skript.localization.Language;
 import ch.njol.skript.localization.Message;
 import ch.njol.skript.localization.PluralizingArgsMessage;
@@ -44,7 +43,12 @@ import ch.njol.skript.log.Verbosity;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.registrations.EventValues;
 import ch.njol.skript.registrations.Feature;
-import ch.njol.skript.test.runner.*;
+import ch.njol.skript.test.runner.EffObjectives;
+import ch.njol.skript.test.runner.SkriptAsyncJUnitTest;
+import ch.njol.skript.test.runner.SkriptJUnitTest;
+import ch.njol.skript.test.runner.SkriptTestEvent;
+import ch.njol.skript.test.runner.TestMode;
+import ch.njol.skript.test.runner.TestTracker;
 import ch.njol.skript.timings.SkriptTimings;
 import ch.njol.skript.update.ReleaseManifest;
 import ch.njol.skript.update.ReleaseStatus;
@@ -66,13 +70,14 @@ import ch.njol.util.NullableChecker;
 import ch.njol.util.StringUtils;
 import ch.njol.util.coll.iterator.CheckedIterator;
 import ch.njol.util.coll.iterator.EnumerationIterable;
-
 import com.google.common.collect.Lists;
 import com.google.gson.Gson;
-
 import org.bstats.bukkit.Metrics;
-import org.bstats.charts.SimplePie;
-import org.bukkit.*;
+import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
+import org.bukkit.Material;
+import org.bukkit.OfflinePlayer;
+import org.bukkit.Server;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.entity.Player;
@@ -98,11 +103,13 @@ import org.skriptlang.skript.bukkit.breeding.BreedingModule;
 import org.skriptlang.skript.bukkit.displays.DisplayModule;
 import org.skriptlang.skript.bukkit.fishing.FishingModule;
 import org.skriptlang.skript.bukkit.input.InputModule;
+import org.skriptlang.skript.bukkit.log.runtime.BukkitRuntimeErrorConsumer;
 import org.skriptlang.skript.lang.comparator.Comparator;
 import org.skriptlang.skript.lang.comparator.Comparators;
 import org.skriptlang.skript.lang.converter.Converter;
 import org.skriptlang.skript.lang.converter.Converters;
 import org.skriptlang.skript.lang.entry.EntryValidator;
+import org.skriptlang.skript.log.runtime.RuntimeErrorManager;
 import org.skriptlang.skript.lang.experiment.ExperimentRegistry;
 import org.skriptlang.skript.lang.script.Script;
 import org.skriptlang.skript.lang.structure.Structure;
@@ -372,6 +379,13 @@ public final class Skript extends JavaPlugin implements Listener {
 		return scriptsFolder;
 	}
 
+
+	// ================ RUNTIME ERRORS ================
+	public static RuntimeErrorManager getRuntimeErrorManager() {
+		return RuntimeErrorManager.getInstance();
+	}
+	// =================================================
+
 	@Override
 	public void onEnable() {
 		Bukkit.getPluginManager().registerEvents(this, this);
@@ -500,9 +514,17 @@ public final class Skript extends JavaPlugin implements Listener {
 			}
 		}
 
+
 		// Config must be loaded after Java and Skript classes are parseable
 		// ... but also before platform check, because there is a config option to ignore some errors
 		SkriptConfig.load();
+
+		// Register the runtime error refresh after loading, so we can do the first instantiation manually.
+		SkriptConfig.eventRegistry().register(SkriptConfig.ReloadEvent.class, RuntimeErrorManager::refresh);
+
+		// init runtime error manager and add bukkit consumer.
+		RuntimeErrorManager.refresh();
+		RuntimeErrorManager.getInstance().addConsumer(new BukkitRuntimeErrorConsumer());
 
 		CompletableFuture<Boolean> aliases = Aliases.loadAsync();
 
