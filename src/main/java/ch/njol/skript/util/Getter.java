@@ -11,7 +11,7 @@ import org.skriptlang.skript.lang.converter.Converter;
  * @param <A> the type which holds the value
  */
 @Deprecated(forRemoval = true)
-public abstract class Getter<R, A> implements ch.njol.skript.classes.Converter<A, R>, Converter<A, R> {
+public abstract class Getter<R, A> implements Converter<A, R> {
 
 	/**
 	 * Gets a value from the given object.

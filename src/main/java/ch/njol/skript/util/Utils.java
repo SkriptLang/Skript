@@ -1,22 +1,27 @@
-/**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
 package ch.njol.skript.util;
+
+import ch.njol.skript.Skript;
+import ch.njol.skript.effects.EffTeleport;
+import ch.njol.skript.localization.Language;
+import ch.njol.skript.registrations.Classes;
+import ch.njol.util.NonNullPair;
+import ch.njol.util.Pair;
+import ch.njol.util.StringUtils;
+import ch.njol.util.coll.CollectionUtils;
+import ch.njol.util.coll.iterator.EnumerationIterable;
+import com.google.common.collect.Iterables;
+import com.google.common.io.ByteArrayDataInput;
+import com.google.common.io.ByteArrayDataOutput;
+import com.google.common.io.ByteStreams;
+import net.md_5.bungee.api.ChatColor;
+import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
+import org.bukkit.plugin.Plugin;
+import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.plugin.messaging.Messenger;
+import org.bukkit.plugin.messaging.PluginMessageListener;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.io.IOException;
@@ -30,34 +35,6 @@ import java.util.jar.JarFile;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
-
-import org.bukkit.Bukkit;
-import org.bukkit.entity.Player;
-import org.bukkit.plugin.Plugin;
-import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.plugin.messaging.Messenger;
-import org.bukkit.plugin.messaging.PluginMessageListener;
-
-import com.google.common.collect.Iterables;
-import com.google.common.io.ByteArrayDataInput;
-import com.google.common.io.ByteArrayDataOutput;
-import com.google.common.io.ByteStreams;
-
-import ch.njol.skript.Skript;
-import ch.njol.skript.effects.EffTeleport;
-import ch.njol.skript.localization.Language;
-import ch.njol.skript.localization.LanguageChangeListener;
-import ch.njol.skript.registrations.Classes;
-import ch.njol.util.Callback;
-import ch.njol.util.Checker;
-import ch.njol.util.NonNullPair;
-import ch.njol.util.Pair;
-import ch.njol.util.StringUtils;
-import ch.njol.util.coll.CollectionUtils;
-import ch.njol.util.coll.iterator.EnumerationIterable;
-import net.md_5.bungee.api.ChatColor;
-import org.jetbrains.annotations.Nullable;
-import org.jetbrains.annotations.NotNull;
 
 /**
  * Utility class.
@@ -468,8 +445,10 @@ public abstract class Utils {
 	 * this completable future will complete exceptionally if the player is null.
 	 * @throws IllegalStateException when there are no players online
 	 */
-	public static CompletableFuture<ByteArrayDataInput> sendPluginMessage(String channel,
-			Predicate<ByteArrayDataInput> messageVerifier, String... data) throws IllegalStateException {
+	public static CompletableFuture<ByteArrayDataInput> sendPluginMessage(
+		String channel,
+		Predicate<ByteArrayDataInput> messageVerifier, String... data
+	) throws IllegalStateException {
 		Player firstPlayer = Iterables.getFirst(Bukkit.getOnlinePlayers(), null);
 		if (firstPlayer == null)
 			throw new IllegalStateException("There are no players online");
@@ -486,7 +465,7 @@ public abstract class Utils {
 	 *     			.exceptionally(ex -> {
 	 *     			 	Skript.warning("Failed to get servers because there are no players online");
 	 *     			 	return null;
-	 *     			});
+	 *                });
 	 * </code>
 	 *
 	 * @param player the player to send the plugin message through
@@ -496,8 +475,10 @@ public abstract class Utils {
 	 * @return a completable future for the message of the responding plugin message, if there is one.
 	 * this completable future will complete exceptionally if the player is null.
 	 */
-	public static CompletableFuture<ByteArrayDataInput> sendPluginMessage(Player player, String channel,
-			Predicate<ByteArrayDataInput> messageVerifier, String... data) {
+	public static CompletableFuture<ByteArrayDataInput> sendPluginMessage(
+		Player player, String channel,
+		Predicate<ByteArrayDataInput> messageVerifier, String... data
+	) {
 		CompletableFuture<ByteArrayDataInput> completableFuture = new CompletableFuture<>();
 
 		Skript skript = Skript.getInstance();
@@ -508,7 +489,7 @@ public abstract class Utils {
 		PluginMessageListener listener = (sendingChannel, sendingPlayer, message) -> {
 			ByteArrayDataInput input = ByteStreams.newDataInput(message);
 			if (channel.equals(sendingChannel) && sendingPlayer == player && !completableFuture.isDone()
-					&& !completableFuture.isCancelled() && messageVerifier.test(input)) {
+				&& !completableFuture.isCancelled() && messageVerifier.test(input)) {
 				completableFuture.complete(input);
 			}
 		};
@@ -540,17 +521,14 @@ public abstract class Utils {
 	public final static boolean COPY_SUPPORTED = Skript.isRunningMinecraft(1, 15);
 
 	static {
-		Language.addListener(new LanguageChangeListener() {
-			@Override
-			public void onLanguageChange() {
-				final boolean english = englishChat.isEmpty();
-				chat.clear();
-				for (final ChatColor style : styles) {
-					for (final String s : Language.getList("chat styles." + style.name())) {
-						chat.put(s.toLowerCase(Locale.ENGLISH), style.toString());
-						if (english)
-							englishChat.put(s.toLowerCase(Locale.ENGLISH), style.toString());
-					}
+		Language.addListener(() -> {
+			final boolean english = englishChat.isEmpty();
+			chat.clear();
+			for (final ChatColor style : styles) {
+				for (final String s : Language.getList("chat styles." + style.name())) {
+					chat.put(s.toLowerCase(Locale.ENGLISH), style.toString());
+					if (english)
+						englishChat.put(s.toLowerCase(Locale.ENGLISH), style.toString());
 				}
 			}
 		});
@@ -576,23 +554,20 @@ public abstract class Utils {
 	public static String replaceChatStyles(final String message) {
 		if (message.isEmpty())
 			return message;
-		String m = StringUtils.replaceAll(Matcher.quoteReplacement("" + message.replace("<<none>>", "")), stylePattern, new Callback<String, Matcher>() {
-			@Override
-			public String run(final Matcher m) {
-				SkriptColor color = SkriptColor.fromName("" + m.group(1));
-				if (color != null)
-					return color.getFormattedChat();
-				final String tag = m.group(1).toLowerCase(Locale.ENGLISH);
-				final String f = chat.get(tag);
-				if (f != null)
-					return f;
-				if (HEX_SUPPORTED && tag.startsWith("#")) { // Check for parsing hex colors
-					ChatColor chatColor = parseHexColor(tag);
-					if (chatColor != null)
-						return chatColor.toString();
-				}
-				return "" + m.group();
+		String m = StringUtils.replaceAll(Matcher.quoteReplacement("" + message.replace("<<none>>", "")), stylePattern, m1 -> {
+			SkriptColor color = SkriptColor.fromName("" + m1.group(1));
+			if (color != null)
+				return color.getFormattedChat();
+			final String tag = m1.group(1).toLowerCase(Locale.ENGLISH);
+			final String f = chat.get(tag);
+			if (f != null)
+				return f;
+			if (HEX_SUPPORTED && tag.startsWith("#")) { // Check for parsing hex colors
+				ChatColor chatColor = parseHexColor(tag);
+				if (chatColor != null)
+					return chatColor.toString();
 			}
+			return "" + m1.group();
 		});
 		assert m != null;
 		// Restore user input post-sanitization
@@ -614,23 +589,20 @@ public abstract class Utils {
 	public static String replaceEnglishChatStyles(final String message) {
 		if (message.isEmpty())
 			return message;
-		String m = StringUtils.replaceAll(Matcher.quoteReplacement(message), stylePattern, new Callback<String, Matcher>() {
-			@Override
-			public String run(final Matcher m) {
-				SkriptColor color = SkriptColor.fromName("" + m.group(1));
-				if (color != null)
-					return color.getFormattedChat();
-				final String tag = m.group(1).toLowerCase(Locale.ENGLISH);
-				final String f = englishChat.get(tag);
-				if (f != null)
-					return f;
-				if (HEX_SUPPORTED && tag.startsWith("#")) { // Check for parsing hex colors
-					ChatColor chatColor = parseHexColor(tag);
-					if (chatColor != null)
-						return chatColor.toString();
-				}
-				return "" + m.group();
+		String m = StringUtils.replaceAll(Matcher.quoteReplacement(message), stylePattern, m1 -> {
+			SkriptColor color = SkriptColor.fromName("" + m1.group(1));
+			if (color != null)
+				return color.getFormattedChat();
+			final String tag = m1.group(1).toLowerCase(Locale.ENGLISH);
+			final String f = englishChat.get(tag);
+			if (f != null)
+				return f;
+			if (HEX_SUPPORTED && tag.startsWith("#")) { // Check for parsing hex colors
+				ChatColor chatColor = parseHexColor(tag);
+				if (chatColor != null)
+					return chatColor.toString();
 			}
+			return "" + m1.group();
 		});
 		assert m != null;
 		// Restore user input post-sanitization
@@ -792,10 +764,10 @@ public abstract class Utils {
 	 * @param checker the {@link Checker} to match elements against.
 	 * @return the index of the element found, or -1 if no matching element was found.
 	 */
-	public static <T> int findLastIndex(List<T> list, Checker<T> checker) {
+	public static <T> int findLastIndex(List<T> list, Predicate<T> checker) {
 		int lastIndex = -1;
 		for (int i = 0; i < list.size(); i++) {
-			if (checker.check(list.get(i)))
+			if (checker.test(list.get(i)))
 				lastIndex = i;
 		}
 		return lastIndex;

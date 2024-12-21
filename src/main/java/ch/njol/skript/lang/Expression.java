@@ -1,21 +1,3 @@
-/**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
 package ch.njol.skript.lang;
 
 import ch.njol.skript.Skript;
@@ -28,21 +10,15 @@ import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.log.ErrorQuality;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.slot.Slot;
-import ch.njol.util.Checker;
 import org.bukkit.event.Event;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.converter.Converter;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Spliterators;
+import java.util.*;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
@@ -61,8 +37,8 @@ public interface Expression<T> extends SyntaxElement, Debuggable, Loopable<T> {
 	 * This method may only return null if it always returns null for the given event, i.e. it is equivalent to getting a random element out of {@link #getAll(Event)} or null iff
 	 * that array is empty.
 	 * <p>
-	 * Do not use this in conditions, use {@link #check(Event, Checker, boolean)} instead.
-	 * 
+	 * Do not use this in conditions, use {@link #check(Event, Predicate, boolean)} instead.
+	 *
 	 * @param event The event
 	 * @return The value or null if this expression doesn't have any value for the event
 	 * @throws UnsupportedOperationException (optional) if this was called on a non-single expression
@@ -72,7 +48,7 @@ public interface Expression<T> extends SyntaxElement, Debuggable, Loopable<T> {
 	/**
 	 * Get an optional of the single value of this expression.
 	 * <p>
-	 * Do not use this in conditions, use {@link #check(Event, Checker, boolean)} instead.
+	 * Do not use this in conditions, use {@link #check(Event, Predicate, boolean)} instead.
 	 *
 	 * @param event the event
 	 * @return an {@link Optional} containing the {@link #getSingle(Event) single value} of this expression for this event.
@@ -87,7 +63,7 @@ public interface Expression<T> extends SyntaxElement, Debuggable, Loopable<T> {
 	 * <p>
 	 * The returned array must not contain any null values.
 	 * <p>
-	 * Do not use this in conditions, use {@link #check(Event, Checker, boolean)} instead.
+	 * Do not use this in conditions, use {@link #check(Event, Predicate, boolean)} instead.
 	 * 
 	 * @param event The event
 	 * @return An array of values of this expression which must neither be null nor contain nulls, and which must not be an internal array.
@@ -109,7 +85,7 @@ public interface Expression<T> extends SyntaxElement, Debuggable, Loopable<T> {
 	 * @param event The event
 	 * @return A non-null stream of this expression's non-null values
 	 */
-	default Stream<@NotNull ? extends  T> stream(Event event) {
+	default Stream<? extends @NotNull T> stream(Event event) {
 		Iterator<? extends T> iterator = iterator(event);
 		if (iterator == null) {
 			return Stream.empty();
@@ -143,27 +119,27 @@ public interface Expression<T> extends SyntaxElement, Debuggable, Loopable<T> {
 	 * Usual implementation (may differ, e.g. may return false for nonexistent values independent of <tt>negated</tt>):
 	 * 
 	 * <pre>
-	 * return negated ^ {@link #check(Event, Checker)};
+	 * return negated ^ {@link #check(Event, Predicate)};
 	 * </pre>
 	 * 
 	 * @param event The event to be used for evaluation
 	 * @param checker The checker that determines whether this expression matches
 	 * @param negated The checking condition's negated state. This is used to invert the output of the checker if set to true (i.e. <tt>negated ^ checker.check(...)</tt>)
 	 * @return Whether this expression matches or doesn't match the given checker depending on the condition's negated state.
-	 * @see SimpleExpression#check(Object[], Checker, boolean, boolean)
+	 * @see SimpleExpression#check(Object[], Predicate, boolean, boolean)
 	 */
-	boolean check(Event event, Checker<? super T> checker, boolean negated);
+	boolean check(Event event, Predicate<? super T> checker, boolean negated);
 
 	/**
-	 * Checks this expression against the given checker. This method must only be used around other checks, use {@link #check(Event, Checker, boolean)} for a simple check or the
+	 * Checks this expression against the given checker. This method must only be used around other checks, use {@link #check(Event, Predicate, boolean)} for a simple check or the
 	 * innermost check of a nested check.
 	 * 
 	 * @param event The event to be used for evaluation
 	 * @param checker A checker that determines whether this expression matches
 	 * @return Whether this expression matches the given checker
-	 * @see SimpleExpression#check(Object[], Checker, boolean, boolean)
+	 * @see SimpleExpression#check(Object[], Predicate, boolean, boolean)
 	 */
-	boolean check(Event event, Checker<? super T> checker);
+	boolean check(Event event, Predicate<? super T> checker);
 
 	/**
 	 * Tries to convert this expression to the given type. This method can print an error prior to returning null to specify the cause.
@@ -173,7 +149,7 @@ public interface Expression<T> extends SyntaxElement, Debuggable, Loopable<T> {
 	 * <p>
 	 * The returned expression should delegate this method to the original expression's method to prevent excessive converted expression chains (see also
 	 * {@link ConvertedExpression}).
-	 * 
+	 *
 	 * @param to The desired return type of the returned expression
 	 * @return Expression with the desired return type or null if the expression can't be converted to the given type. Returns the expression itself if it already returns the
 	 *         desired type.
@@ -218,7 +194,7 @@ public interface Expression<T> extends SyntaxElement, Debuggable, Loopable<T> {
 	/**
 	 * Returns true if this expression returns all possible values, false if it only returns some of them.
 	 * <p>
-	 * This method significantly influences {@link #check(Event, Checker)}, {@link #check(Event, Checker, boolean)} and {@link CondIsSet} and thus breaks conditions that use this
+	 * This method significantly influences {@link #check(Event, Predicate)}, {@link #check(Event, Predicate, boolean)} and {@link CondIsSet} and thus breaks conditions that use this
 	 * expression if it returns a wrong value.
 	 * <p>
 	 * This method must return true if this is a {@link #isSingle() single} expression. // TODO make this method irrelevant for single expressions

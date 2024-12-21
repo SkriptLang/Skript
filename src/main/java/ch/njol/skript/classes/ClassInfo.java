@@ -18,6 +18,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
@@ -38,9 +39,9 @@ public class ClassInfo<T> implements Debuggable {
 	
 	@Nullable
 	private Parser<? extends T> parser = null;
-	
+
 	@Nullable
-	private Cloner<T> cloner = null;
+	private Function<T, T> cloner = null;
 	
 	@Nullable
 	private Pattern[] userInputPatterns = null;
@@ -55,9 +56,7 @@ public class ClassInfo<T> implements Debuggable {
 	private Serializer<? super T> serializer = null;
 	@Nullable
 	private Class<?> serializeAs = null;
-	
-	@Nullable
-	private Arithmetic<? super T, ?> math = null;
+
 	@Nullable
 	private Class<?> mathRelativeType = null;
 	
@@ -91,15 +90,7 @@ public class ClassInfo<T> implements Debuggable {
 		this.codeName = codeName;
 		name = new Noun("types." + codeName);
 	}
-	
-	/**
-	 * Incorrect spelling in method name. This will be removed in the future.
-	 */
-	@Deprecated
-	public static boolean isVaildCodeName(final String name) {
-		return isValidCodeName(name);
-	}
-	
+
 	public static boolean isValidCodeName(final String name) {
 		return name.matches("[a-z0-9]+");
 	}
@@ -116,10 +107,10 @@ public class ClassInfo<T> implements Debuggable {
 	}
 	
 	/**
-	 * @param cloner A {@link Cloner} to clone values when setting variables
+	 * @param cloner A {@link Function} to clone values when setting variables
 	 *                  or passing function arguments.
 	 */
-	public ClassInfo<T> cloner(Cloner<T> cloner) {
+	public ClassInfo<T> cloner(Function<T, T> cloner) {
 		assert this.cloner == null;
 		this.cloner = cloner;
 		return this;
@@ -196,32 +187,12 @@ public class ClassInfo<T> implements Debuggable {
 		return this;
 	}
 	
-	@Deprecated
-	public ClassInfo<T> changer(final SerializableChanger<? super T> changer) {
-		return changer((Changer<? super T>) changer);
-	}
-	
 	public ClassInfo<T> changer(final Changer<? super T> changer) {
 		assert this.changer == null;
 		this.changer = changer;
 		return this;
 	}
 
-	@Deprecated
-	@SuppressWarnings("unchecked")
-	public <R> ClassInfo<T> math(final Class<R> relativeType, final Arithmetic<? super T, R> math) {
-		assert this.math == null;
-		this.math = math;
-		mathRelativeType = relativeType;
-		Arithmetics.registerOperation(Operator.ADDITION, c, relativeType, (left, right) -> (T) math.add(left, right));
-		Arithmetics.registerOperation(Operator.SUBTRACTION, c, relativeType, (left, right) -> (T) math.subtract(left, right));
-		Arithmetics.registerOperation(Operator.MULTIPLICATION, c, relativeType, (left, right) -> (T) math.multiply(left, right));
-		Arithmetics.registerOperation(Operator.DIVISION, c, relativeType, (left, right) -> (T) math.divide(left, right));
-		Arithmetics.registerOperation(Operator.EXPONENTIATION, c, relativeType, (left, right) -> (T) math.power(left, right));
-		Arithmetics.registerDifference(c, relativeType, math::difference);
-		return this;
-	}
-	
 	/**
 	 * Use this as {@link #name(String)} to suppress warnings about missing documentation.
 	 */
@@ -339,16 +310,16 @@ public class ClassInfo<T> implements Debuggable {
 	}
 	
 	@Nullable
-	public Cloner<? extends T> getCloner() {
+	public Function<? extends T, ? extends T> getCloner() {
 		return cloner;
 	}
 	
 	/**
 	 * Clones the given object using {@link ClassInfo#cloner},
-	 * returning the given object if no {@link Cloner} is registered.
+	 * returning the given object if no {@link Function} is registered.
 	 */
 	public T clone(T t) {
-		return cloner == null ? t : cloner.clone(t);
+		return cloner == null ? t : cloner.apply(t);
 	}
 	
 	@Nullable
@@ -376,24 +347,6 @@ public class ClassInfo<T> implements Debuggable {
 	@Nullable
 	public Class<?> getSerializeAs() {
 		return serializeAs;
-	}
-	
-	@Nullable
-	@Deprecated
-	public Arithmetic<? super T, ?> getMath() {
-		return math;
-	}
-
-	@Nullable
-	@Deprecated
-	public <R> Arithmetic<T, R> getRelativeMath() {
-		return (Arithmetic<T, R>) math;
-	}
-	
-	@Nullable
-	@Deprecated
-	public Class<?> getMathRelativeType() {
-		return mathRelativeType;
 	}
 	
 	@Nullable
