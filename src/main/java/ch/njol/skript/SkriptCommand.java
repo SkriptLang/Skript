@@ -124,6 +124,7 @@ public class SkriptCommand implements CommandExecutor {
 			message = StringUtils.fixCapitalization(PluralizingArgsMessage.format(m_reload_error.toString(what, logHandler.numErrors(), timeTaken)));
 			logHandler.log(new LogEntry(Level.SEVERE, Utils.replaceEnglishChatStyles(message)));
 		}
+		Skript.info(sender, message);
 	}
 
 	private static void info(CommandSender sender, String what, Object... args) {
@@ -142,11 +143,10 @@ public class SkriptCommand implements CommandExecutor {
 			return true;
 
 		Set<CommandSender> recipients = new HashSet<>();
-		recipients.add(sender);
 
 		if (args[0].equalsIgnoreCase("reload")) {
 			recipients.addAll(Bukkit.getOnlinePlayers().stream()
-				.filter(player -> player.hasPermission("skript.reloadnotify"))
+				.filter(player -> player != sender && player.hasPermission("skript.reloadnotify"))
 				.collect(Collectors.toSet()));
 		}
 
