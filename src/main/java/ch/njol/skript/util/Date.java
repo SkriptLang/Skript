@@ -39,6 +39,7 @@ public class Date extends java.util.Date implements YggdrasilSerializable {
 	 */
 	public Date() {
 		super(System.currentTimeMillis());
+		timestamp = getTime();
 	}
 
 	/**
@@ -48,6 +49,7 @@ public class Date extends java.util.Date implements YggdrasilSerializable {
 	 */
 	public Date(long timestamp) {
 		super(timestamp);
+		this.timestamp = getTime();
 	}
 
 	/**
@@ -58,6 +60,7 @@ public class Date extends java.util.Date implements YggdrasilSerializable {
 	 */
 	public Date(long timestamp, TimeZone zone) {
 		super(timestamp - zone.getOffset(timestamp));
+		this.timestamp = getTime();
 	}
 
 	/**
