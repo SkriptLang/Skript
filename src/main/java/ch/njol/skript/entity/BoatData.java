@@ -55,22 +55,22 @@ public class BoatData extends EntityData<Boat> {
 	}
 
 
-	
+
 	public BoatData(){
 		this(0);
 	}
-	
+
 	public BoatData(@Nullable TreeSpecies type){
 		this(type != null ? type.ordinal() + 2 : 1);
 	}
-	
+
 	private BoatData(int type){
 		matchedPattern = type;
 	}
-	
+
 	@Override
 	protected boolean init(Literal<?>[] exprs, int matchedPattern, ParseResult parseResult) {
-		
+
 		return true;
 	}
 
@@ -96,7 +96,7 @@ public class BoatData extends EntityData<Boat> {
 
 	@Override
 	public Class<? extends Boat> getType() {
-		if (IS_RUNNING_1_21_3)
+		if (IS_RUNNING_1_21_3 && matchedPattern > 1)
 			return typeToClassMap.get(TreeSpecies.values()[matchedPattern - 2]);
 		return Boat.class;
 	}
@@ -124,7 +124,7 @@ public class BoatData extends EntityData<Boat> {
 			return matchedPattern <= 1 || matchedPattern == ((BoatData)e).matchedPattern;
 		return false;
 	}
-	
+
 	public boolean isOfItemType(ItemType i){
 		int ordinal = -1;
 
@@ -142,7 +142,7 @@ public class BoatData extends EntityData<Boat> {
 		else if (type == Material.DARK_OAK_BOAT)
 			ordinal = TreeSpecies.DARK_OAK.ordinal();
 		return hashCode_i() == ordinal + 2 || (matchedPattern + ordinal == 0) || ordinal == 0;
-		
+
 	}
 
 }
