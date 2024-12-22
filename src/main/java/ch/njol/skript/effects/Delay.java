@@ -65,7 +65,7 @@ public class Delay extends Effect {
 
 		duration = (Expression<Timespan>) exprs[0];
 		if (duration instanceof Literal) { // If we can, do sanity check for delays
-			long millis = ((Literal<Timespan>) duration).getSingle().getMilliSeconds();
+			long millis = ((Literal<Timespan>) duration).getSingle().getAs(Timespan.TimePeriod.MILLISECOND);
 			if (millis < 50) {
 				Skript.warning("Delays less than one tick are not possible, defaulting to one tick.");
 			}
@@ -108,7 +108,7 @@ public class Delay extends Effect {
 				Variables.removeLocals(event); // Clean up local vars, we may be exiting now
 
 				SkriptTimings.stop(timing); // Stop timing if it was even started
-			}, Math.max(duration.getTicks(), 1)); // Minimum delay is one tick, less than it is useless!
+			}, Math.max(duration.getAs(Timespan.TimePeriod.TICK), 1)); // Minimum delay is one tick, less than it is useless!
 		}
 		return null;
 	}

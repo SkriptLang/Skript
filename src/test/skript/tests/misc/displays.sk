@@ -1,4 +1,4 @@
-test "spawn displays" when running minecraft "1.19.4":
+test "spawn displays":
 	spawn a text display at spawn of world "world":
 		set {_display} to event-display
 	assert billboard of display within {_display} is "fixed" parsed as billboard with "default billboard was not fixed"
