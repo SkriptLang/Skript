@@ -128,12 +128,12 @@ public class Date extends java.util.Date implements YggdrasilSerializable {
 
 	@Override
 	public boolean equals(@Nullable Object obj) {
-		if (this == obj)
-			return true;
 		if (obj == null)
 			return false;
 		if (!(obj instanceof java.util.Date other))
 			return false;
+		if (this == obj)
+			return true;
 		return getTime() == other.getTime();
 	}
 
