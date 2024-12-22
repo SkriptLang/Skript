@@ -73,23 +73,7 @@ public interface Annotation extends CharSequence {
 		return this.value().equals(value);
 	}
 
-	class Match implements Annotation {
-
-		private final Annotation annotation;
-		private final MatchResult result;
-
-		public Match(Annotation annotation, MatchResult result) {
-			this.annotation = annotation;
-			this.result = result;
-		}
-
-		public MatchResult result() {
-			return result;
-		}
-
-		public Annotation annotation() {
-			return annotation;
-		}
+	record Match(Annotation annotation, MatchResult result) implements Annotation {
 
 		@Override
 		public @NotNull String value() {
@@ -106,9 +90,8 @@ public interface Annotation extends CharSequence {
 			return annotation.charAt(index);
 		}
 
-		@NotNull
 		@Override
-		public CharSequence subSequence(int start, int end) {
+		public @NotNull CharSequence subSequence(int start, int end) {
 			return annotation.subSequence(start, end);
 		}
 
@@ -129,9 +112,7 @@ public interface Annotation extends CharSequence {
 
 }
 
-final class SimpleAnnotation implements Annotation {
-
-	private final String value;
+record SimpleAnnotation(String value) implements Annotation {
 
 	SimpleAnnotation(@NotNull String value) {
 		this.value = value;
@@ -155,11 +136,6 @@ final class SimpleAnnotation implements Annotation {
 	}
 
 	@Override
-	public int hashCode() {
-		return value.hashCode();
-	}
-
-	@Override
 	public int length() {
 		return 1 + value.length();
 	}
@@ -174,8 +150,8 @@ final class SimpleAnnotation implements Annotation {
 	@Override
 	public String subSequence(int start, int end) {
 		if (start == 0)
-			return '@' + value.substring(0, end + 1);
-		return value.substring(start + 1, end + 1);
+			return '@' + value.substring(0, end - 1);
+		return value.substring(start - 1, end - 1);
 	}
 
 }
