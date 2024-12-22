@@ -12,15 +12,14 @@ import ch.njol.skript.expressions.base.PropertyExpression;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.registrations.Feature;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Iterator;
-import java.util.LinkedHashSet;
-import java.util.Set;
+import java.util.*;
 
 @Name("Node (Experimental)")
 @Description({
@@ -77,14 +76,11 @@ public class ExprNode extends PropertyExpression<Node, Node> {
 
 	@Override
 	public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
-		switch (mode) {
-			case SET:
-				return CollectionUtils.array(String.class);
-			case REMOVE:
-			case DELETE:
-				return CollectionUtils.array();
-		}
-		return null;
+		return switch (mode) {
+			case SET -> CollectionUtils.array(String.class);
+			case REMOVE, DELETE -> CollectionUtils.array();
+			default -> null;
+		};
 	}
 
 	@Override
@@ -94,11 +90,10 @@ public class ExprNode extends PropertyExpression<Node, Node> {
 				for (Node node : this.getArray(event)) {
 					if (node instanceof Map.Entry<?, ?>)
 						//noinspection unchecked,rawtypes
-						((Map.Entry) node).setValue(Objects.toString(delta[0]));
+						((Map.Entry) node).setValue(Classes.toString(delta[0]));
 				}
 				break;
-			case DELETE:
-			case RESET:
+			case DELETE, RESET:
 				for (Node node : this.getArray(event))
 					node.remove();
 		}

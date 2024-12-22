@@ -23,21 +23,23 @@ import org.skriptlang.skript.lang.script.Script;
 	"The Skript config, or a user-provided custom config file.",
 	"This can be reloaded, or navigated to retrieve options."
 })
-@Examples({"""
-	set {_node} to node "language" in the skript config
-	if text value of {_node} is "french":
-		broadcast "Bonjour!"
-	"""})
 @Examples({
-	"set {_config} to the skript config",
-	"set {_node} to the node \"number accuracy\" of {_config}",
-	"set {_value} to the number value of {_node}",
-
-	"register config \"my cool config\"",
-	"on load:",
-	"\tset {_config} to the config named \"my cool config\"",
-	"\tset {_node} to node \"welcome message\" of {_config}",
-	"\tbroadcast the text value of {_node}"
+	"""
+		set {_node} to node "language" in the skript config
+		if text value of {_node} is "french":
+			broadcast "Bonjour!"
+		""",
+	"""
+		set {_config} to the skript config
+		set {_node} to the node "number accuracy" of {_config}
+		set {_value} to the number value of {_node}""",
+	"""
+		register config "my cool config"
+		
+		on load:
+			set {_config} to the config named "my cool config"
+			set {_node} to node "welcome message" of {_config}
+			broadcast the text value of {_node}"""
 })
 @Since("2.10")
 public class ExprConfig extends SimpleExpression<Config> {
@@ -58,7 +60,7 @@ public class ExprConfig extends SimpleExpression<Config> {
 			return false;
 		if (matchedPattern == 0) {
 			this.config = SkriptConfig.getConfig();
-			if (config == null) { // todo is this ok?
+			if (config == null) {
 				Skript.warning("The main config is unavailable here!");
 				return false;
 			}
@@ -68,7 +70,7 @@ public class ExprConfig extends SimpleExpression<Config> {
 			String string = name.getSingle();
 			Script script = this.getParser().getCurrentScript();
 			if (!Skript.userConfigs().isRegistered(script, string)) {
-				Skript.warning("You register a config '" + string + "' in order to access it.");
+				Skript.warning("You must register a config '" + string + "' in order to access it.");
 				return false;
 			}
 			this.config = Skript.userConfigs().getConfig(script, string);

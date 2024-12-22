@@ -745,7 +745,6 @@ public class SkriptClasses {
 			.name("Config")
 			.description("A configuration (or code) loaded by Skript, such as the config.sk or aliases.",
 				"Configs can be reloaded or navigated to find options.")
-			.usage("")
 			.examples("the skript config")
 			.since("2.10")
 			.parser(new Parser<Config>() {
@@ -775,46 +774,15 @@ public class SkriptClasses {
 			.name("Node")
 			.description("A node (entry) from a script config file.",
 				"This may have navigable children.")
-			.usage("")
 			.examples("the current script")
 			.since("2.10")
-			.parser(new Parser<Node>() {
-
-				@Override
-				public boolean canParse(ParseContext context) {
-					return false;
-				}
-
-				@Override
-				public String toString(Node node, int flags) {
-					return node.getPath();
-				}
-
-				@Override
-				public String toVariableNameString(Node node) {
-					return this.toString(node, 0);
-				}
-
-			}));
-
-		Classes.registerClass(new ClassInfo<>(Node.class, "node")
-			.user("nodes?")
-			.name("Node")
-			.description("A node (entry) from a script config file.",
-				"This may have navigable children.")
-			.usage("")
-			.examples("the current script")
-			.since("INSERT VERSION")
 			.changer(new Changer<Node>() {
 				@Override
 				public @Nullable Class<?> @Nullable [] acceptChange(ChangeMode mode) {
-					switch (mode) {
-						case RESET:
-						case DELETE:
-							return new Class[0];
-						default:
-							return null;
-					}
+					return switch (mode) {
+						case RESET, DELETE -> new Class[0];
+						default -> null;
+					};
 				}
 
 				@Override
@@ -843,44 +811,11 @@ public class SkriptClasses {
 
 			}));
 
-		Classes.registerClass(new ClassInfo<>(Node.class, "node")
-			.user("nodes?")
-			.name("Node")
-			.description("A node (entry) from a script config file.",
-				"This may have navigable children.")
-			.usage("")
-			.examples("the current script")
-			.since("INSERT VERSION")
-			.parser(new Parser<Node>() {
-
-				@Override
-				public boolean canParse(ParseContext context) {
-					return false;
-				}
-
-				@Override
-				public @Nullable Node parse(String name, ParseContext context) {
-					return null;
-				}
-
-				@Override
-				public String toString(Node node, int flags) {
-					return this.toVariableNameString(node);
-				}
-
-				@Override
-				public String toVariableNameString(Node node) {
-					return node.getPath();
-				}
-
-			}));
-
 		Classes.registerClass(new ClassInfo<>(Script.class, "script")
 				.user("scripts?")
 				.name("Script")
 				.description("A script loaded by Skript.",
 					"Disabled scripts will report as being empty since their content has not been loaded.")
-				.usage("")
 				.examples("the current script")
 				.since("2.10")
 				.parser(new Parser<Script>() {

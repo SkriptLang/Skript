@@ -214,37 +214,4 @@ public final class Script implements Validated, AnyNamed {
 		return false;
 	}
 
-	/**
-	 * Marks this script reference as invalid.
-	 * Typically invoked during unloading (when its data is discarded).
-	 */
-	@Override
-	public void invalidate() {
-		this.config.invalidate();
-	}
-
-	/**
-	 * This is a reference to a script (having been loaded); if the script is reloaded,
-	 * disabled, moved or changed in some way then this object will no longer be a valid
-	 * reference to it.
-	 * <br/>
-	 * If a script reference is not valid, it is not safe to assume that the data in
-	 * this object is an accurate reflection of the program (e.g. the data could have cleared
-	 * during unloading, the user might have edited the file and reloaded it, etc.) and
-	 * it is recommended to obtain a new reference to the script from {@link ch.njol.skript.ScriptLoader}.
-	 *
-	 * @return Whether this script object is a valid reflection of a script
-	 */
-	@Override
-	public boolean valid() {
-		if (config.valid()) {
-			@Nullable File file = config.getFile();
-			return file == null || file.exists();
-			// If this is file-linked and that file was moved/deleted (e.g. this was disabled)
-			// then we should not assume this is a safe reference to use, unless it was
-			// immediately obtained.
-		}
-		return false;
-	}
-
 }

@@ -22,13 +22,12 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.config.validate.SectionValidator;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.jetbrains.annotations.UnknownNullability;
 import org.skriptlang.skript.util.Validated;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -158,11 +157,13 @@ public class SharedConfig extends Config implements Validated, NodeNavigator {
 	}
 
 	@Override
+	@Deprecated(forRemoval = true)
 	public boolean setValues(Config other) {
 		return config.setValues(other);
 	}
 
 	@Override
+	@Deprecated(forRemoval = true)
 	public boolean setValues(Config other, String... excluded) {
 		return config.setValues(other, excluded);
 	}
@@ -200,7 +201,7 @@ public class SharedConfig extends Config implements Validated, NodeNavigator {
 	}
 
 	@Override
-	public HashMap<String, String> toMap(String separator) {
+	public Map<String, String> toMap(String separator) {
 		return config.toMap(separator);
 	}
 
