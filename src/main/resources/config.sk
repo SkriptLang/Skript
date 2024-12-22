@@ -181,6 +181,12 @@ soft api exceptions: false
 # However, if Skript or addons of it are not working correctly, this might help.
 # You may also get told to enable this by Skript or addon developers - then do so.
 
+simplified exceptions: false
+# Whether Skript exceptions should be simplified.
+# If you have 0 knowledge of reading a stacktrace and debugging, feel free to ignore this option.
+# When set to true, Skript exceptions will only logs more crucial information for you to copy paste.
+# This saves up a few amount of lines in an exception, useful for when server hosting restricts large logging.
+
 enable timings: false
 # When enabled, triggers in scripts will be present in timings reports.
 # Note that this requires Paper (https://papermc.io/downloads/paper) to work; on Bukkit/Spigot this option has no effect.

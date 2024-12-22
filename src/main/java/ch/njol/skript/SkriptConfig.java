@@ -187,6 +187,8 @@ public class SkriptConfig {
 			.optional(true);
 	
 	public static final Option<Boolean> apiSoftExceptions = new Option<>("soft api exceptions", false);
+
+	public static final Option<Boolean> simplifiedExceptions = new Option<>("simplified exceptions", false);
 	
 	public static final Option<Boolean> enableTimings = new Option<>("enable timings", false)
 			.setter(t -> {

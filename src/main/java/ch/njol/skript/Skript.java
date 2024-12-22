@@ -1794,12 +1794,6 @@ public final class Skript extends JavaPlugin implements Listener {
 			logEx("");
 			logEx("Just testing things? Good. Please report this bug, so that we can fix it before a stable release.");
 			logEx("Issue tracker: " + issuesUrl);
-		} else if (!isRunningMinecraft(1, 9)) {
-			logEx("You are running an outdated Minecraft version not supported by Skript.");
-			logEx("Please update to Minecraft 1.9.4 or later or fix this yourself and send us a pull request.");
-			logEx("Alternatively, use an older Skript version; do note that those are also unsupported by us.");
-			logEx("");
-			logEx("Again, we do not support Minecraft versions this old.");
 		} else if (!serverPlatform.supported){
 			logEx("Your server platform appears to be unsupported by Skript. It might not work reliably.");
 			logEx("You can report this at " + issuesUrl + ". However, we may be unable to fix the issue.");
@@ -1809,45 +1803,52 @@ public final class Skript extends JavaPlugin implements Listener {
 			logEx("Run /sk update check to get a download link to latest Skript!");
 			logEx("You will be given instructions how to report this error if it persists after update.");
 		} else {
-			logEx("Something went horribly wrong with Skript.");
-			logEx("This issue is NOT your fault! You probably can't fix it yourself, either.");
-			if (pluginPackages.isEmpty()) {
-				logEx("You should report it at " + issuesUrl + ". Please copy paste this report there (or use paste service).");
-				logEx("This ensures that your issue is noticed and will be fixed as soon as possible.");
-			} else {
-				logEx("It looks like you are using some plugin(s) that alter how Skript works (addons).");
-				if (stackPlugins.isEmpty()) {
-					logEx("Here is full list of them:");
-					StringBuilder pluginsMessage = new StringBuilder();
-					for (PluginDescriptionFile desc : pluginPackages.values()) {
-						pluginsMessage.append(desc.getFullName());
-						String website = desc.getWebsite();
-						if (website != null && !website.isEmpty()) // Add website if found
-							pluginsMessage.append(" (").append(desc.getWebsite()).append(")");
+			StringBuilder pluginsMessage = new StringBuilder();
+			for (PluginDescriptionFile desc : !stackPlugins.isEmpty() ? stackPlugins : pluginPackages.values()) {
+				pluginsMessage.append(desc.getFullName());
+				String website = desc.getWebsite();
+				if (website != null && !website.isEmpty()) // Add website if found
+					pluginsMessage.append(" (").append(desc.getWebsite()).append(")");
+				pluginsMessage.append(" ");
+			}
 
-						pluginsMessage.append(" ");
-					}
-					logEx(pluginsMessage.toString());
-					logEx("We could not identify which of those are specially related, so this might also be Skript issue.");
+			if (SkriptConfig.simplifiedExceptions.value()) {
+				logEx("Skript has encountered an unhandled error.");
+				if (pluginPackages.isEmpty()) {
+					logEx("You should report this to Skript's issue tracker to ensure that your issue is noticed and will be fixed as soon as possible.");
 				} else {
-					logEx("Following plugins are probably related to this error in some way:");
-					StringBuilder pluginsMessage = new StringBuilder();
-					for (PluginDescriptionFile desc : stackPlugins) {
-						pluginsMessage.append(desc.getName());
-						String website = desc.getWebsite();
-						if (website != null && !website.isEmpty()) // Add website if found
-							pluginsMessage.append(" (").append(desc.getWebsite()).append(")");
-
-						pluginsMessage.append(" ");
+					if (stackPlugins.isEmpty()) {
+						logEx("You have the following plugins that may have altered how Skript works:");
+						logEx("  " + pluginsMessage);
+					} else {
+						logEx("The list of probable plugins may be related to this error:");
+						logEx("  " + pluginsMessage);
 					}
-					logEx(pluginsMessage.toString());
+					logEx("You should report to the probable affected plugin's (otherwise Skript's) issue tracker to ensure that your issue is noticed and will be fixed as soon as possible.");
 				}
+			} else {
+				logEx("Something went horribly wrong with Skript.");
+				logEx("This issue is NOT your fault! You probably can't fix it yourself, either.");
+				if (pluginPackages.isEmpty()) {
+					logEx("You should report it at " + issuesUrl + ". Please copy paste this report there (or use paste service).");
+					logEx("This ensures that your issue is noticed and will be fixed as soon as possible.");
+				} else {
+					logEx("It looks like you are using some plugins that alter how Skript works (addons).");
+					if (stackPlugins.isEmpty()) {
+						logEx("Here is the full list of them:");
+						logEx("  " + pluginsMessage);
+						logEx("We could not identify which of those are specially related, so this might also be Skript issue.");
+					} else {
+						logEx("Following plugins are probably related to this error in some way:");
+						logEx("  " + pluginsMessage);
+					}
 
-				logEx("You should try disabling those plugins one by one, trying to find which one causes it.");
-				logEx("If the error doesn't disappear even after disabling all listed plugins, it is probably Skript issue.");
-				logEx("In that case, you will be given instruction on how should you report it.");
-				logEx("On the other hand, if the error disappears when disabling some plugin, report it to author of that plugin.");
-				logEx("Only if the author tells you to do so, report it to Skript's issue tracker.");
+					logEx("You should try disabling those plugins one by one, trying to find which one causes it.");
+					logEx("If the error doesn't disappear even after disabling all listed plugins, it is probably Skript issue.");
+					logEx("In that case, you will be given instruction on how should you report it.");
+					logEx("On the other hand, if the error disappears when disabling some plugin, report it to author of that plugin.");
+					logEx("Only if the author tells you to do so, report it to Skript's issue tracker at " + issuesUrl + ".");
+				}
 			}
 		}
 
@@ -1859,7 +1860,7 @@ public final class Skript extends JavaPlugin implements Listener {
 		}
 		boolean first = true;
 		while (cause != null) {
-			logEx((first ? "" : "Caused by: ") + cause.toString());
+			logEx((first ? "" : "Caused by: ") + cause);
 			for (final StackTraceElement e : cause.getStackTrace())
 				logEx("    at " + e.toString());
 			cause = cause.getCause();
@@ -1879,12 +1880,10 @@ public final class Skript extends JavaPlugin implements Listener {
 		} else {
 			logEx("  Skript: " + getVersion() + " (unknown; likely custom)");
 		}
-		logEx("  Bukkit: " + Bukkit.getBukkitVersion());
+		logEx("  Server platform: " + serverPlatform.name + (serverPlatform.supported ? "(" : "(unsupported, ") + "implements " + Bukkit.getBukkitVersion() + ")");
 		logEx("  Minecraft: " + getMinecraftVersion());
 		logEx("  Java: " + System.getProperty("java.version") + " (" + System.getProperty("java.vm.name") + " " + System.getProperty("java.vm.version") + ")");
 		logEx("  OS: " + System.getProperty("os.name") + " " + System.getProperty("os.arch") + " " + System.getProperty("os.version"));
-		logEx();
-		logEx("Server platform: " + serverPlatform.name + (serverPlatform.supported ? "" : " (unsupported)"));
 		logEx();
 		logEx("Current node: " + SkriptLogger.getNode());
 		logEx("Current item: " + (item == null ? "null" : item.toString(null, true)));
