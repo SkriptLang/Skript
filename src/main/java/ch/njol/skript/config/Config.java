@@ -408,7 +408,7 @@ public class Config implements Comparable<Config>, Validated, NodeNavigator {
 	}
 
 	@Override
-	public void invalidate() throws UnsupportedOperationException {
+	public void invalidate() {
 		this.validator.invalidate();
 	}
 

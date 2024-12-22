@@ -550,8 +550,9 @@ public class SectionNode extends Node implements Iterable<Node>, NodeNavigator {
 	public @Nullable Node getNodeAt(@NotNull String @NotNull ... keys) {
 		Node node = this;
 		for (String s : keys) {
-			if (!(node instanceof SectionNode)) return null;
-			node = ((SectionNode) node).get(s);
+			if (!(node instanceof SectionNode sectionNode))
+				return null;
+			node = sectionNode.get(s);
 		}
 		return node;
 	}

@@ -434,7 +434,7 @@ public abstract class Node implements Validated, NodeNavigator {
 	public @Nullable String getPath() {
 		if (key == null)
 			return null;
-		else if (parent == null)
+		if (parent == null)
 			return key;
 		@Nullable String path = parent.getPath();
 		if (path == null)

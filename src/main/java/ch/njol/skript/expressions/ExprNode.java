@@ -101,7 +101,7 @@ public class ExprNode extends PropertyExpression<Node, Node> {
 			Node node = source[0];
 			if (node != null && (path == null || path.isBlank()))
 				return CollectionUtils.array(node);
-			else if (path == null || node == null)
+			if (path == null || node == null)
 				return CollectionUtils.array();
 			node = node.getNodeAt(path);
 			if (node == null)
@@ -122,8 +122,8 @@ public class ExprNode extends PropertyExpression<Node, Node> {
 		if (isPath)
 			return super.iterator(event);
 		Node single = this.getExpr().getSingle(event);
-		if (single instanceof SectionNode)
-			return ((SectionNode) single).iterator();
+		if (single instanceof SectionNode sectionNode)
+			return sectionNode.iterator();
 		return null;
 	}
 

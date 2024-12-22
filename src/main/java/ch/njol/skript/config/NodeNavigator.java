@@ -84,7 +84,8 @@ public interface NodeNavigator extends Iterable<Node> {
 	default @Nullable Node getNodeAt(@NotNull String @NotNull... steps) {
 		Node node = this.getCurrentNode();
 		for (String step : steps) {
-			if (node == null) return null;
+			if (node == null)
+				return null;
 			node = node.get(step);
 		}
 		return node;
@@ -114,7 +115,7 @@ public interface NodeNavigator extends Iterable<Node> {
 	default @Nullable Node getNodeAt(@Nullable String path) {
 		if (path == null || path.isEmpty())
 			return this.getCurrentNode();
-		else if (!path.contains("."))
+		if (!path.contains("."))
 			return this.getNodeAt(new String[]{path});
 		return this.getNodeAt(path.split("\\."));
 	}
@@ -128,8 +129,8 @@ public interface NodeNavigator extends Iterable<Node> {
 	 */
 	default @Nullable String getValue(String path) {
 		@Nullable Node node = this.getNodeAt(path);
-		if (node instanceof EntryNode)
-			return ((EntryNode) node).getValue();
+		if (node instanceof EntryNode entryNode)
+			return entryNode.getValue();
 		return null;
 	}
 

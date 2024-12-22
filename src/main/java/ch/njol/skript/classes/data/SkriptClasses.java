@@ -695,11 +695,6 @@ public class SkriptClasses {
 				}
 
 				@Override
-				public @Nullable Config parse(String name, ParseContext context) {
-					return null;
-				}
-
-				@Override
 				public String toString(Config config, int flags) {
 					return this.toVariableNameString(config);
 				}

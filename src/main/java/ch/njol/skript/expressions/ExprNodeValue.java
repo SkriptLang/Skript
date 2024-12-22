@@ -92,24 +92,20 @@ public class ExprNodeValue extends SimplePropertyExpression<Node, Object> {
 		this.classInfo = format.getSingle();
 		if (classInfo.getC() == String.class) // don't bother with parser
 			return true;
-		if (classInfo.getParser() == null) {
-			Skript.error("The type '" + classInfo.getName() + "' has no parser.");
-			return false;
-		}
-		if (!classInfo.getParser().canParse(ParseContext.CONFIG)) {
+		this.parser = classInfo.getParser();
+		if (this.parser == null || !this.parser.canParse(ParseContext.CONFIG)) {
 			Skript.error("The type '" + classInfo.getName() + "' cannot be used to parse config values.");
 			return false;
 		}
-		this.parser = classInfo.getParser();
 		return true;
 	}
 
 	@Override
 
 	public @Nullable Object convert(@Nullable Node node) {
-		if (!(node instanceof EntryNode))
+		if (!(node instanceof EntryNode entryNode))
 			return null;
-		String string = ((EntryNode) node).getValue();
+		String string = entryNode.getValue();
 		if (classInfo.getC() == String.class)
 			return string;
 		return parser.parse(string, ParseContext.CONFIG);
