@@ -129,7 +129,7 @@ public interface Annotation extends CharSequence {
 
 }
 
-final class SimpleAnnotation implements Annotation, CharSequence {
+final class SimpleAnnotation implements Annotation {
 
 	private final String value;
 
