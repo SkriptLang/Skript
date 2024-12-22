@@ -299,7 +299,7 @@ public class SkriptClasses {
 
 					@Override
 					public String toVariableNameString(final Timespan o) {
-						return "timespan:" + o.getMilliSeconds();
+						return "timespan:" + o.getAs(Timespan.TimePeriod.MILLISECOND);
 					}
 				}).serializer(new YggdrasilSerializer<>()));
 
