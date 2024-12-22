@@ -1,7 +1,7 @@
 package ch.njol.skript.expressions;
 
 import ch.njol.skript.Skript;
-import ch.njol.skript.classes.Changer;
+import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.*;
 import ch.njol.skript.expressions.base.PropertyExpression;
 import ch.njol.skript.lang.Expression;
@@ -18,14 +18,14 @@ import org.skriptlang.skript.util.Executable;
 
 @Name("Result (Experimental)")
 @Description({
-		"Runs something (like a function) and returns its result.",
-		"If the thing is expected to return multiple values, use 'results' instead of 'result'."
+	"Runs something (like a function) and returns its result.",
+	"If the thing is expected to return multiple values, use 'results' instead of 'result'."
 })
 @Examples({
-		"set {_function} to the function named \"myFunction\"",
-		"set {_result} to the result of {_function}",
-		"set {_list::*} to the results of {_function}",
-		"set {_result} to the result of {_function} with arguments 13 and true"
+	"set {_function} to the function named \"myFunction\"",
+	"set {_result} to the result of {_function}",
+	"set {_list::*} to the results of {_function}",
+	"set {_result} to the result of {_function} with arguments 13 and true"
 })
 @Since("INSERT VERSION")
 @Keywords({"run", "result", "execute", "function", "reflection"})
@@ -55,7 +55,7 @@ public class ExprResult extends PropertyExpression<Executable<Event, Object>, Ob
 			if (this.arguments instanceof ExpressionList<?> list) {
 				arguments = list.getExpressions();
 			} else {
-				arguments = new Expression[]{this.arguments};
+				arguments = new Expression[] {this.arguments};
 			}
 			this.input = new DynamicFunctionReference.Input(arguments);
 			return LiteralUtils.canInitSafely(this.arguments);
@@ -83,14 +83,13 @@ public class ExprResult extends PropertyExpression<Executable<Event, Object>, Ob
 			Object execute = task.execute(event, arguments);
 			if (execute instanceof Object[] results)
 				return results;
-			return new Object[]{execute};
+			return new Object[] {execute};
 		}
 		return new Object[0];
 	}
 
 	@Override
-
-	public Class<?> @Nullable [] acceptChange(Changer.ChangeMode mode) {
+	public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
 		return null;
 	}
 
@@ -111,5 +110,7 @@ public class ExprResult extends PropertyExpression<Executable<Event, Object>, Ob
 			text += " with arguments " + arguments.toString(event, debug);
 		return text;
 	}
+
+
 
 }

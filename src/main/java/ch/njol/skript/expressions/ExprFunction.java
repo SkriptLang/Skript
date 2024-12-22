@@ -1,6 +1,5 @@
 package ch.njol.skript.expressions;
 
-import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
@@ -20,7 +19,6 @@ import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.script.Script;
 
-import java.io.File;
 import java.util.Objects;
 
 @Name("Function (Experimental)")
@@ -35,8 +33,8 @@ public class ExprFunction extends SimpleExpression<DynamicFunctionReference> {
 
 	static {
 		Skript.registerExpression(ExprFunction.class, DynamicFunctionReference.class, ExpressionType.COMBINED,
-				"[the|a] function [named] %string% [local:(in|from) %-script%]",
-				"[the] functions [named] %strings% [local:(in|from) %-script%]",
+				"[the|a] function [named] %string% [(in|from) %-script%]",
+				"[the] functions [named] %strings% [(in|from) %-script%]",
 				"[all [[of] the]|the] functions (in|from) %script%"
 		);
 	}
@@ -54,7 +52,7 @@ public class ExprFunction extends SimpleExpression<DynamicFunctionReference> {
 		if (!this.getParser().hasExperiment(Feature.SCRIPT_REFLECTION))
 			return false;
 		this.mode = matchedPattern;
-		this.local = result.hasTag("local") || mode == 2;
+		this.local = mode == 2 || expressions[1] != null;
 		switch (mode) {
 			case 0, 1 -> {
 				//noinspection unchecked
@@ -80,7 +78,7 @@ public class ExprFunction extends SimpleExpression<DynamicFunctionReference> {
 			script = here;
 		}
 		return switch (mode) {
-			case 0:
+			case 0 -> {
 				@Nullable String name = this.name.getSingle(event);
 				if (name == null)
 					yield CollectionUtils.array();
@@ -88,21 +86,21 @@ public class ExprFunction extends SimpleExpression<DynamicFunctionReference> {
 				if (reference == null)
 					yield CollectionUtils.array();
 				yield CollectionUtils.array(reference);
-			case 1:
-				yield this.name.stream(event).map(string -> DynamicFunctionReference.resolveFunction(string, script))
-						.filter(Objects::nonNull)
-						.toArray(DynamicFunctionReference[]::new);
-			case 2:
+			}
+			case 1 -> this.name.stream(event).map(string -> DynamicFunctionReference.resolveFunction(string, script))
+					.filter(Objects::nonNull)
+					.toArray(DynamicFunctionReference[]::new);
+			case 2 -> {
 				if (script == null)
 					yield CollectionUtils.array();
 				@Nullable Namespace namespace = Functions.getScriptNamespace(script.getConfig().getFileName());
 				if (namespace == null)
 					yield CollectionUtils.array();
 				yield namespace.getFunctions().stream()
-						.map(DynamicFunctionReference::new)
-						.toArray(DynamicFunctionReference[]::new);
-			default:
-				throw new IllegalStateException("Unexpected value: " + mode);
+					.map(DynamicFunctionReference::new)
+					.toArray(DynamicFunctionReference[]::new);
+			}
+			default -> throw new IllegalStateException("Unexpected value: " + mode);
 		};
 	}
 

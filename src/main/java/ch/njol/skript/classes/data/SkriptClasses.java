@@ -731,7 +731,6 @@ public class SkriptClasses {
 			.name("Executable")
 			.description("Something that can be executed (run) and may accept arguments, e.g. a function.",
 					"This may also return a result.")
-			.usage("")
 			.examples("run {_function} with arguments 1 and true")
 			.since("INSERT VERSION"));
 
@@ -740,7 +739,6 @@ public class SkriptClasses {
 			.name("Function")
 			.description("A function loaded by Skript.",
 					"This can be executed (with arguments) and may return a result.")
-			.usage("")
 			.examples("run {_function} with arguments 1 and true",
 					"set {_result} to the result of {_function}")
 			.since("INSERT VERSION")
@@ -765,12 +763,12 @@ public class SkriptClasses {
 
 				@Override
 				public String toString(DynamicFunctionReference<?> function, final int flags) {
-					return this.toVariableNameString(function);
+					return function.toString();
 				}
 
 				@Override
 				public String toVariableNameString(DynamicFunctionReference<?> function) {
-					return function.toString();
+					return this.toString(function, 0);
 				}
 			}));
 	}
