@@ -696,15 +696,16 @@ public class SkriptClasses {
 
 				@Override
 				public String toString(Config config, int flags) {
-					return this.toVariableNameString(config);
+					@Nullable File file = config.getFile();
+					if (file == null)
+						return config.getFileName();
+					return Skript.getInstance().getDataFolder().getAbsoluteFile().toPath()
+						.relativize(file.toPath().toAbsolutePath()).toString();
 				}
 
 				@Override
 				public String toVariableNameString(Config config) {
-					@Nullable File file = config.getFile();
-					if (file == null)
-						return config.getFileName();
-					return ExprScripts.FOLDER_PATH.relativize(file.toPath().toAbsolutePath()).toString();
+					return this.toString(config, 0);
 				}
 			}));
 

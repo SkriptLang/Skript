@@ -1,21 +1,3 @@
-/**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
 package ch.njol.skript.expressions;
 
 import ch.njol.skript.Skript;
@@ -34,6 +16,7 @@ import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.ParseContext;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.skript.registrations.Feature;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.event.Event;
@@ -42,11 +25,23 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
-@Name("Node")
+@Name("Node (Experimental)")
 @Description({
 	"Returns a node inside a config (or another section-node).",
+	"Nodes in Skript configs are written in the format `key: value`.",
+	"Section nodes can contain other nodes."
 })
-@Examples({})
+@Examples({
+	"""
+		set {_node} to node "language" in the skript config
+		if text value of {_node} is "french":
+			broadcast "Bonjour!"
+		""",
+	"""
+		set {_script} to the current script
+		loop nodes of the current script:
+			broadcast name of loop-value"""
+})
 @Since("INSERT VERSION")
 public class ExprNode extends PropertyExpression<Node, Node> {
 
@@ -65,6 +60,8 @@ public class ExprNode extends PropertyExpression<Node, Node> {
 	@Override
 	@SuppressWarnings("unchecked")
 	public boolean init(Expression<?>[] expressions, int pattern, Kleenean isDelayed, ParseResult parseResult) {
+		if (!this.getParser().hasExperiment(Feature.SCRIPT_REFLECTION))
+			return false;
 		this.isPath = pattern < 2;
 		switch (pattern) {
 			case 0:
@@ -82,14 +79,8 @@ public class ExprNode extends PropertyExpression<Node, Node> {
 	}
 
 	@Override
-	@SuppressWarnings("NullableProblems")
 	public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
-		return null; // todo editable configs in future?
-	}
-
-	@Override
-	public Class<? extends Node> getReturnType() {
-		return Node.class;
+		return null; // todo editable configs in follow-up PR
 	}
 
 	@Override
@@ -130,6 +121,11 @@ public class ExprNode extends PropertyExpression<Node, Node> {
 	@Override
 	public boolean isSingle() {
 		return isPath;
+	}
+
+	@Override
+	public Class<? extends Node> getReturnType() {
+		return Node.class;
 	}
 
 	@Override

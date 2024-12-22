@@ -1,21 +1,3 @@
-/**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
 package ch.njol.skript.expressions;
 
 import ch.njol.skript.Skript;
@@ -41,11 +23,25 @@ import org.bukkit.event.Event;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-@Name("Value")
+@Name("Value (Experimental)")
 @Description({
 	"Returns the value of a node in a loaded config.",
+	"The value is automatically converted to the specified type (e.g. text, number) where possible."
 })
-@Examples({})
+@Examples({
+	"""
+		set {_node} to node "language" in the skript config
+		broadcast the text value of {_node}""",
+	"""
+		set {_node} to node "update check interval" in the skript config
+		
+		broadcast text value of {_node}
+		# text value of {_node} = "12 hours" (text)
+		
+		wait for {_node}'s timespan value
+		# timespan value of {_node} = 12 hours (duration)""",
+
+})
 @Since("INSERT VERSION")
 public class ExprNodeValue extends SimplePropertyExpression<Node, Object> {
 
@@ -122,9 +118,8 @@ public class ExprNodeValue extends SimplePropertyExpression<Node, Object> {
 	}
 
 	@Override
-	@SuppressWarnings("NullableProblems")
 	public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
-		return null; // todo editable configs in future?
+		return null; // todo editable configs in future
 	}
 
 	@Override
@@ -140,6 +135,16 @@ public class ExprNodeValue extends SimplePropertyExpression<Node, Object> {
 	@Override
 	protected String getPropertyName() {
 		return classInfo.getCodeName() + " value" + (isSingle ? "" : "s");
+	}
+
+	@Override
+	public String toString(@Nullable Event event, boolean debug) {
+		if (pathExpression != null) {
+			return "the " + this.getPropertyName()
+				+ " at " + pathExpression.toString(event, debug)
+				+ " in " + this.getExpr().toString(event, debug);
+		}
+		return super.toString(event, debug);
 	}
 
 }

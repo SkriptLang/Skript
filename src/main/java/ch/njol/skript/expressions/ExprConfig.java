@@ -1,21 +1,3 @@
-/**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
 package ch.njol.skript.expressions;
 
 import ch.njol.skript.Skript;
@@ -34,12 +16,16 @@ import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
-@Name("Config")
+@Name("Config (Experimental)")
 @Description({
 	"The Skript config.",
 	"This can be reloaded, or navigated to retrieve options."
 })
-@Examples({})
+@Examples({"""
+	set {_node} to node "language" in the skript config
+	if text value of {_node} is "french":
+		broadcast "Bonjour!"
+	"""})
 @Since("INSERT VERSION")
 public class ExprConfig extends SimpleExpression<Config> {
 
@@ -56,7 +42,7 @@ public class ExprConfig extends SimpleExpression<Config> {
 		if (!this.getParser().hasExperiment(Feature.SCRIPT_REFLECTION))
 			return false;
 		this.config = SkriptConfig.getConfig();
-		if (config == null) { // todo is this ok?
+		if (config == null) {
 			Skript.warning("The main config is unavailable here!");
 			return false;
 		}
