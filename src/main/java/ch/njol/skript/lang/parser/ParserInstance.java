@@ -90,7 +90,8 @@ public final class ParserInstance implements Experimented {
 		this.currentSections = new ArrayList<>();
 		this.hasDelayBefore = Kleenean.FALSE;
 		this.node = null;
-		dataMap.clear();
+		this.dataMap.clear();
+		this.annotations.clear();
 	}
 
 	// Script API

@@ -1784,9 +1784,8 @@ public final class Skript extends JavaPlugin implements Listener {
 	 */
 	@SuppressWarnings("null")
 	public static void error(final @Nullable String error) {
-		if (error == null)
-			return;
-		SkriptLogger.log(Level.SEVERE, error);
+		if (error != null)
+			SkriptLogger.log(Level.SEVERE, error);
 	}
 
 	/**
