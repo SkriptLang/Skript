@@ -24,7 +24,10 @@ import org.skriptlang.skript.lang.entry.EntryData;
 import org.skriptlang.skript.lang.entry.EntryValidator;
 import org.skriptlang.skript.lang.script.Annotation;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Iterator;
 
 /**
  * Structures are the root elements in every script. They are essentially the "headers".
@@ -47,14 +50,14 @@ public abstract class Structure implements SyntaxElement, Debuggable {
 	 * As the priority approaches 0, it becomes more important. Example:
 	 * priority of 1 (loads first), priority of 2 (loads second), priority of 3 (loads third)
 	 */
-	public static class Priority implements Comparable<Priority> {
+	public record Priority(int priority) implements Comparable<Priority> {
 
-		private final int priority;
-
-		public Priority(int priority) {
-			this.priority = priority;
-		}
-
+		/**
+		* Deprecated in favour of {@link #priority()}.
+		*
+		* @return The priority
+		*/
+		@Deprecated(forRemoval = true)
 		public int getPriority() {
 			return priority;
 		}

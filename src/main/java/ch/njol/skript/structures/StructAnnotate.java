@@ -35,8 +35,7 @@ import org.skriptlang.skript.lang.structure.Structure;
 public class StructAnnotate extends Structure implements MetaSyntaxElement {
 
 	static {
-		if (TestMode.ENABLED)
-			Skript.registerSimpleStructure(StructAnnotate.class, "@<.+>");
+		Skript.registerSimpleStructure(StructAnnotate.class, "@<.+>");
 	}
 
 	private @UnknownNullability Annotation annotation;
@@ -58,11 +57,6 @@ public class StructAnnotate extends Structure implements MetaSyntaxElement {
 	@Override
 	public boolean load() {
 		return true;
-	}
-
-	@Override
-	public Priority getPriority() {
-		return super.getPriority();
 	}
 
 	@Override

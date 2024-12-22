@@ -761,6 +761,7 @@ public final class ParserInstance implements Experimented {
 		private final List<TriggerSection> currentSections;
 		private final Kleenean hasDelayBefore;
 		private final Map<Class<? extends Data>, Data> dataMap;
+		private final Set<Annotation> annotations;
 
 		private Backup(ParserInstance parser) {
 			//noinspection ConstantConditions - parser will be active, meaning there is a current script
@@ -773,6 +774,7 @@ public final class ParserInstance implements Experimented {
 			this.currentSections = new ArrayList<>(parser.currentSections);
 			this.hasDelayBefore = parser.hasDelayBefore;
 			this.dataMap = new HashMap<>(parser.dataMap);
+			this.annotations = new HashSet<>(parser.annotations);
 		}
 
 		private void apply(ParserInstance parser) {
@@ -784,6 +786,8 @@ public final class ParserInstance implements Experimented {
 			parser.hasDelayBefore = this.hasDelayBefore;
 			parser.dataMap.clear();
 			parser.dataMap.putAll(this.dataMap);
+			parser.annotations.clear();
+			parser.annotations.addAll(this.annotations);
 		}
 
 	}
