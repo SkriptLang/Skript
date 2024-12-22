@@ -1,19 +1,15 @@
 package ch.njol.skript.effects;
 
+import org.bukkit.event.Event;
+import org.bukkit.event.entity.EntityUnleashEvent;
+import org.jetbrains.annotations.Nullable;
+
 import ch.njol.skript.Skript;
-import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Events;
-import ch.njol.skript.doc.Examples;
-import ch.njol.skript.doc.Keywords;
-import ch.njol.skript.doc.Name;
-import ch.njol.skript.doc.Since;
+import ch.njol.skript.doc.*;
 import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.util.Kleenean;
-import org.bukkit.event.Event;
-import org.bukkit.event.entity.EntityUnleashEvent;
-import org.jetbrains.annotations.Nullable;
 
 @Name("Allow / Prevent Leash Drop")
 @Description("Allows or prevents the leash from being dropped in an unleash event.")

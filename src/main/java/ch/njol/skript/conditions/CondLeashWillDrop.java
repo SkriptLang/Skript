@@ -1,20 +1,15 @@
 package ch.njol.skript.conditions;
 
+import org.bukkit.event.Event;
+import org.bukkit.event.entity.EntityUnleashEvent;
+import org.jetbrains.annotations.Nullable;
+
 import ch.njol.skript.Skript;
-import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Events;
-import ch.njol.skript.doc.Examples;
-import ch.njol.skript.doc.Keywords;
-import ch.njol.skript.doc.Name;
-import ch.njol.skript.doc.RequiredPlugins;
-import ch.njol.skript.doc.Since;
+import ch.njol.skript.doc.*;
 import ch.njol.skript.lang.Condition;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
-import org.bukkit.event.Event;
-import org.bukkit.event.entity.EntityUnleashEvent;
-import org.jetbrains.annotations.Nullable;
 
 @Name("Leash Will Drop")
 @Description("Checks whether the leash item will drop during the leash detaching in an unleash event.")

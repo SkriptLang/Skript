@@ -1,14 +1,5 @@
 package ch.njol.skript.events;
 
-import ch.njol.skript.Skript;
-import ch.njol.skript.entity.EntityData;
-import ch.njol.skript.lang.Literal;
-import ch.njol.skript.lang.SkriptEvent;
-import ch.njol.skript.lang.SkriptParser.ParseResult;
-import ch.njol.skript.registrations.Classes;
-import ch.njol.skript.registrations.EventValues;
-import ch.njol.skript.util.Getter;
-import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
@@ -16,6 +7,15 @@ import org.bukkit.event.entity.EntityUnleashEvent;
 import org.bukkit.event.entity.PlayerLeashEntityEvent;
 import org.bukkit.event.player.PlayerUnleashEntityEvent;
 import org.jetbrains.annotations.Nullable;
+
+import ch.njol.skript.Skript;
+import ch.njol.skript.entity.EntityData;
+import ch.njol.skript.lang.Literal;
+import ch.njol.skript.lang.SkriptEvent;
+import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.skript.registrations.Classes;
+import ch.njol.skript.registrations.EventValues;
+import ch.njol.util.coll.CollectionUtils;
 
 public class EvtLeash extends SkriptEvent {
 
@@ -39,34 +39,14 @@ public class EvtLeash extends SkriptEvent {
 
 		// PlayerLeashEntityEvent
 		// event-player is explicitly registered due to event does not extend PlayerEvent
-		EventValues.registerEventValue(PlayerLeashEntityEvent.class, Player.class, new Getter<>() {
-            @Override
-            public Player get(PlayerLeashEntityEvent event) {
-                return event.getPlayer();
-            }
-        }, EventValues.TIME_NOW);
-		EventValues.registerEventValue(PlayerLeashEntityEvent.class, Entity.class, new Getter<>() {
-            @Override
-            public Entity get(PlayerLeashEntityEvent event) {
-                return event.getEntity();
-            }
-        }, EventValues.TIME_NOW);
+		EventValues.registerEventValue(PlayerLeashEntityEvent.class, Player.class, PlayerLeashEntityEvent::getPlayer);
+		EventValues.registerEventValue(PlayerLeashEntityEvent.class, Entity.class, PlayerLeashEntityEvent::getEntity);
 
 		// EntityUnleashEvent
-		EventValues.registerEventValue(EntityUnleashEvent.class, EntityUnleashEvent.UnleashReason.class, new Getter<>() {
-            @Override
-            public EntityUnleashEvent.UnleashReason get(EntityUnleashEvent event) {
-                return event.getReason();
-            }
-        }, EventValues.TIME_NOW);
+		EventValues.registerEventValue(EntityUnleashEvent.class, EntityUnleashEvent.UnleashReason.class, EntityUnleashEvent::getReason);
 
 		// PlayerUnleashEntityEvent
-		EventValues.registerEventValue(PlayerUnleashEntityEvent.class, Player.class, new Getter<>() {
-            @Override
-            public Player get(PlayerUnleashEntityEvent event) {
-                return event.getPlayer();
-            }
-        }, EventValues.TIME_NOW);
+		EventValues.registerEventValue(PlayerUnleashEntityEvent.class, Player.class, PlayerUnleashEntityEvent::getPlayer);
 	}
 
 	private enum EventType {

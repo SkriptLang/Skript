@@ -742,34 +742,14 @@ public final class BukkitEventValues {
 
 		// PlayerLeashEntityEvent
 		// event-player is explicitly registered due to event does not extend PlayerEvent
-		EventValues.registerEventValue(PlayerLeashEntityEvent.class, Player.class, new Getter<Player, PlayerLeashEntityEvent>() {
-			@Override
-			public Player get(PlayerLeashEntityEvent event) {
-				return event.getPlayer();
-			}
-		}, EventValues.TIME_NOW);
-		EventValues.registerEventValue(PlayerLeashEntityEvent.class, Entity.class, new Getter<Entity, PlayerLeashEntityEvent>() {
-			@Override
-			public Entity get(PlayerLeashEntityEvent event) {
-				return event.getEntity();
-			}
-		}, EventValues.TIME_NOW);
+		EventValues.registerEventValue(PlayerLeashEntityEvent.class, Player.class, PlayerLeashEntityEvent::getPlayer, EventValues.TIME_NOW);
+		EventValues.registerEventValue(PlayerLeashEntityEvent.class, Entity.class, PlayerLeashEntityEvent::getEntity, EventValues.TIME_NOW);
 
 		// EntityUnleashEvent
-		EventValues.registerEventValue(EntityUnleashEvent.class, EntityUnleashEvent.UnleashReason.class, new Getter<EntityUnleashEvent.UnleashReason, EntityUnleashEvent>() {
-			@Override
-			public EntityUnleashEvent.UnleashReason get(EntityUnleashEvent event) {
-				return event.getReason();
-			}
-		}, EventValues.TIME_NOW);
+		EventValues.registerEventValue(EntityUnleashEvent.class, EntityUnleashEvent.UnleashReason.class, EntityUnleashEvent::getReason, EventValues.TIME_NOW);
 
 		// PlayerUnleashEntityEvent
-		EventValues.registerEventValue(PlayerUnleashEntityEvent.class, Player.class, new Getter<Player, PlayerUnleashEntityEvent>() {
-			@Override
-			public Player get(PlayerUnleashEntityEvent event) {
-				return event.getPlayer();
-			}
-		}, EventValues.TIME_NOW);
+		EventValues.registerEventValue(PlayerUnleashEntityEvent.class, Player.class, PlayerUnleashEntityEvent::getPlayer, EventValues.TIME_NOW);
 
 	}
 
