@@ -63,7 +63,7 @@ public class ExprUnleashReason extends EventValueExpression<UnleashReason> {
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return "unleash reason";
+		return "the unleash reason";
 	}
 
 }

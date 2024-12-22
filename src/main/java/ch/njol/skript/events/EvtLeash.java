@@ -6,19 +6,21 @@ import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptEvent;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.registrations.Classes;
+import ch.njol.skript.registrations.EventValues;
+import ch.njol.skript.util.Getter;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.entity.EntityUnleashEvent;
 import org.bukkit.event.entity.PlayerLeashEntityEvent;
 import org.bukkit.event.player.PlayerUnleashEntityEvent;
 import org.jetbrains.annotations.Nullable;
 
-@SuppressWarnings({"unchecked", "NotNullFieldNotInitialized"})
 public class EvtLeash extends SkriptEvent {
 
 	static {
-		Skript.registerEvent("Leash / Unleash", EvtLeash.class, CollectionUtils.array(PlayerLeashEntityEvent.class, EntityUnleashEvent.class), "[:player] [:un]leash[ing] [[of] %-entitydatas%]")
+		Skript.registerEvent("Leash / Unleash", EvtLeash.class, CollectionUtils.array(PlayerLeashEntityEvent.class, EntityUnleashEvent.class), "[:player] [:un]leash[ing] [of %-entitydatas%]")
 			.description("Called when an entity is leashed or unleashed. Cancelling these events will prevent the leashing or unleashing from occurring.")
 			.examples(
 					"on player leash of a sheep:",
@@ -34,6 +36,37 @@ public class EvtLeash extends SkriptEvent {
 						"\tsend \"<%event-entity%> Thanks for freeing me!\" to player"
 			)
 			.since("INSERT VERSION");
+
+		// PlayerLeashEntityEvent
+		// event-player is explicitly registered due to event does not extend PlayerEvent
+		EventValues.registerEventValue(PlayerLeashEntityEvent.class, Player.class, new Getter<>() {
+            @Override
+            public Player get(PlayerLeashEntityEvent event) {
+                return event.getPlayer();
+            }
+        }, EventValues.TIME_NOW);
+		EventValues.registerEventValue(PlayerLeashEntityEvent.class, Entity.class, new Getter<>() {
+            @Override
+            public Entity get(PlayerLeashEntityEvent event) {
+                return event.getEntity();
+            }
+        }, EventValues.TIME_NOW);
+
+		// EntityUnleashEvent
+		EventValues.registerEventValue(EntityUnleashEvent.class, EntityUnleashEvent.UnleashReason.class, new Getter<>() {
+            @Override
+            public EntityUnleashEvent.UnleashReason get(EntityUnleashEvent event) {
+                return event.getReason();
+            }
+        }, EventValues.TIME_NOW);
+
+		// PlayerUnleashEntityEvent
+		EventValues.registerEventValue(PlayerUnleashEntityEvent.class, Player.class, new Getter<>() {
+            @Override
+            public Player get(PlayerUnleashEntityEvent event) {
+                return event.getPlayer();
+            }
+        }, EventValues.TIME_NOW);
 	}
 
 	private enum EventType {
@@ -61,6 +94,7 @@ public class EvtLeash extends SkriptEvent {
 
 	@Override
 	public boolean init(Literal<?>[] args, int matchedPattern, ParseResult parseResult) {
+		//noinspection unchecked
 		types = args[0] == null ? null : ((Literal<EntityData<?>>) args[0]).getAll();
 		eventType = EventType.LEASH;
 		if (parseResult.hasTag("un")) {
@@ -106,7 +140,7 @@ public class EvtLeash extends SkriptEvent {
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return eventType + (types != null ? " " + Classes.toString(types, false) : "");
+		return eventType + (types != null ? " of " + Classes.toString(types, false) : "");
 	}
 
 }
