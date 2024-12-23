@@ -56,13 +56,13 @@ public class ExprDequeuedQueue extends SimpleExpression<Object> {
 	}
 
 	@Override
-	public Class<Object> getReturnType() {
-		return Object.class;
+	public boolean isSingle() {
+		return false;
 	}
 
 	@Override
-	public boolean isSingle() {
-		return false;
+	public Class<Object> getReturnType() {
+		return Object.class;
 	}
 
 	@Override

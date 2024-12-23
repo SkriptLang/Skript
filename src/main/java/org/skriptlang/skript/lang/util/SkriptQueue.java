@@ -74,8 +74,8 @@ public class SkriptQueue extends LinkedList<@NotNull Object>
 	 * This will adjust the start/end of the range to be within the bounds of the queue,
 	 * to avoid throwing an error.
 	 *
-	 * @param fromIndex The starting index
-	 * @param toIndex The ending index
+	 * @param fromIndex The starting index (inclusive)
+	 * @param toIndex The ending index (exclusive)
 	 * @return The removed entries
 	 */
 	public Object[] removeRangeSafely(int fromIndex, int toIndex) {

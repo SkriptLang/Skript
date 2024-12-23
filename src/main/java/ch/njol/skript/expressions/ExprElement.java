@@ -29,7 +29,7 @@ import java.util.concurrent.ThreadLocalRandom;
 @Name("Elements")
 @Description({
 		"The first, last, range or a random element of a set, e.g. a list variable, or a queue.",
-	    "Asking for elements from a queue will also remove them from the queue, see the new queue expression for more information.",
+		"Asking for elements from a queue will also remove them from the queue, see the new queue expression for more information.",
 		"See also: <a href='#ExprRandom'>random expression</a>"
 })
 @Examples({
@@ -179,14 +179,16 @@ public class ExprElement<T> extends SimpleExpression<T> {
 		SkriptQueue queue = (SkriptQueue) expr.getSingle(event);
 		if (queue == null)
 			return null;
-		int startIndex = 0, endIndex = 0;
+		Integer startIndex = 0, endIndex = 0;
 		if (this.startIndex != null) {
-			startIndex = this.startIndex.getOptionalSingle(event).orElse(1);
-			if (startIndex <= 0 && type != ElementType.RANGE)
+			startIndex = this.startIndex.getSingle(event);
+			if (startIndex == null || startIndex <= 0 && type != ElementType.RANGE)
 				return null;
 		}
 		if (this.endIndex != null) {
-			endIndex = this.endIndex.getOptionalSingle(event).orElse(1);;
+			endIndex = this.endIndex.getSingle(event);
+			if (endIndex == null)
+				return null;
 		}
 		return switch (type) {
 			case FIRST_ELEMENT -> CollectionUtils.array((T) queue.pollFirst());

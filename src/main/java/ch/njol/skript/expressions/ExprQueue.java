@@ -39,7 +39,7 @@ import java.util.Iterator;
 	"""
 		set {queue} to a new queue of "hello" and "there"
 		broadcast the last element of {queue} # removes 'there'
-		add "world" to queue
+		add "world" to {queue}
 		broadcast the first 2 elements of {queue} # removes 'hello', 'world'"""
 })
 @Since("INSERT VERSION (experimental)")
