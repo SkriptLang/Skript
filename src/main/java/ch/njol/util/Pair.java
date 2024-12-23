@@ -25,8 +25,9 @@ import java.util.Objects;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * @author Peter Güttinger
+ * @deprecated use {@link org.skriptlang.skript.util.Pair} instead
  */
+@Deprecated
 public class Pair<T1, T2> implements Entry<T1, T2>, Cloneable, Serializable {
 	private static final long serialVersionUID = 8296563685697678334L;
 	

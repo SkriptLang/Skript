@@ -19,8 +19,9 @@
 package ch.njol.util;
 
 /**
- * @author Peter Güttinger
+ * @deprecated use {@link org.skriptlang.skript.util.NotNullPair} instead
  */
+@Deprecated
 public class NonNullPair<T1, T2> extends Pair<T1, T2> {
 	private static final long serialVersionUID = 820250942098905541L;
 	
