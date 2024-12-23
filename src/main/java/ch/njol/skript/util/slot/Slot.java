@@ -105,7 +105,7 @@ public abstract class Slot implements Debuggable, AnyNamed, AnyAmount {
 	}
 
 	@Override
-	public void setAmount(@Nullable Number amount) throws UnsupportedOperationException {
+	public void setAmount(@Nullable Number amount) {
 		this.setAmount(amount != null ? amount.intValue() : 0);
 	}
 

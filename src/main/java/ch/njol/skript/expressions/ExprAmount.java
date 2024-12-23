@@ -136,7 +136,7 @@ public class ExprAmount extends SimpleExpression<Number> {
 	}
 
 	@Override
-	public void change(Event event,  Object@Nullable[] delta, Changer.ChangeMode mode) {
+	public void change(Event event,  Object @Nullable [] delta, Changer.ChangeMode mode) {
 		if (any == null) {
 			super.change(event, delta, mode);
 			return;
