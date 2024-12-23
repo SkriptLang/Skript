@@ -446,7 +446,10 @@ public class SkriptCommand implements CommandExecutor {
 
 							// Log results to file
 							Skript.info(sender, "Collecting results to " + TestMode.RESULTS_FILE);
-							String results = new GsonBuilder().setPrettyPrinting().create().toJson(testResults);
+							String results = new GsonBuilder()
+								.setPrettyPrinting() // Easier to read lines
+								.disableHtmlEscaping() // Fixes issue with "'" character in test strings going unicode
+								.create().toJson(testResults);
 							try {
 								Files.writeString(TestMode.RESULTS_FILE, results);
 							} catch (IOException e) {
