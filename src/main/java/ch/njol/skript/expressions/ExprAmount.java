@@ -40,6 +40,7 @@ import org.bukkit.event.Event;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Arrays;
 import java.util.Map;
 
 /**
@@ -141,7 +142,7 @@ public class ExprAmount extends SimpleExpression<Number> {
 			super.change(event, delta, mode);
 			return;
 		}
-		double amount = delta != null ? ((Number) delta[0]).doubleValue() : 0;
+		double amount = delta != null ? ((Number) delta[0]).doubleValue() : 1;
 		// It's okay to treat it as a double even if it's a whole number because there's no case in
 		// the set of real numbers where (x->double + y->double)->long != (x+y)
 		switch (mode) {
@@ -154,10 +155,7 @@ public class ExprAmount extends SimpleExpression<Number> {
 						obj.setAmount(obj.amount().doubleValue() + amount);
 				}
 				break;
-			case RESET, DELETE:
-				amount = 1;
-				//$FALL-THROUGH$
-			case SET:
+			case RESET, DELETE, SET:
 				for (AnyAmount any : any.getArray(event)) {
 					if (any.supportsAmountChange())
 						any.setAmount(amount);
