@@ -34,7 +34,6 @@ import org.skriptlang.skript.lang.script.Script;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.Collection;
@@ -449,7 +448,7 @@ public class SkriptCommand implements CommandExecutor {
 							Skript.info(sender, "Collecting results to " + TestMode.RESULTS_FILE);
 							String results = new GsonBuilder().setPrettyPrinting().create().toJson(testResults);
 							try {
-								Files.write(TestMode.RESULTS_FILE, results.getBytes(StandardCharsets.UTF_8));
+								Files.writeString(TestMode.RESULTS_FILE, results);
 							} catch (IOException e) {
 								Skript.exception(e, "Failed to write test results.");
 							}
