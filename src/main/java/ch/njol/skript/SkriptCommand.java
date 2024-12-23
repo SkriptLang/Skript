@@ -105,7 +105,7 @@ public class SkriptCommand implements CommandExecutor {
 
 		// Log reloading message
 		String text = Language.format(CONFIG_NODE + ".reload." + "player reload", sender.getName(), what);
-		logHandler.log(new LogEntry(Level.INFO, Utils.replaceEnglishChatStyles(text)));
+		logHandler.log(new LogEntry(Level.INFO, Utils.replaceEnglishChatStyles(text)), sender);
 	}
 
 
