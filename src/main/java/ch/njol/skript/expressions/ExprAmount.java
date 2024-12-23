@@ -19,8 +19,7 @@
 package ch.njol.skript.expressions;
 
 import ch.njol.skript.Skript;
-import ch.njol.skript.aliases.ItemType;
-import ch.njol.skript.classes.Changer;
+import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
@@ -33,14 +32,11 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.Variable;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.lang.util.common.AnyAmount;
-import ch.njol.skript.util.slot.Slot;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.event.Event;
-import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Arrays;
 import java.util.Map;
 
 /**
@@ -126,7 +122,7 @@ public class ExprAmount extends SimpleExpression<Number> {
 	}
 
 	@Override
-	public @Nullable Class<?>[] acceptChange(Changer.ChangeMode mode) {
+	public @Nullable Class<?>[] acceptChange(ChangeMode mode) {
 		if (any != null) {
 			return switch (mode) {
 				case SET, ADD, RESET, DELETE, REMOVE -> CollectionUtils.array(Number.class);
@@ -137,7 +133,7 @@ public class ExprAmount extends SimpleExpression<Number> {
 	}
 
 	@Override
-	public void change(Event event,  Object @Nullable [] delta, Changer.ChangeMode mode) {
+	public void change(Event event,  Object @Nullable [] delta, ChangeMode mode) {
 		if (any == null) {
 			super.change(event, delta, mode);
 			return;

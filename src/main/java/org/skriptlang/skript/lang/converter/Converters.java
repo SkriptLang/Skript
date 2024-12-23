@@ -325,8 +325,7 @@ public final class Converters {
 			} else if (fromType.isAssignableFrom(unknownInfo.getFrom()) && toType.isAssignableFrom(unknownInfo.getTo())) {
 				ConverterInfo<SubType, T> info = (ConverterInfo<SubType, T>) unknownInfo;
 				if ((flags & Converter.ALLOW_UNSAFE_CASTS) == 0) {
-					if ((flags & Converter.NO_LEFT_CHAINING) == Converter.NO_LEFT_CHAINING
-						&& !unknownInfo.getFrom().isAssignableFrom(fromType))
+					if ((flags & Converter.NO_LEFT_CHAINING) == Converter.NO_LEFT_CHAINING)
 						continue;
 				}
 
@@ -348,11 +347,9 @@ public final class Converters {
 				ConverterInfo<SubType, ParentType> info = (ConverterInfo<SubType, ParentType>) unknownInfo;
 				int flags = unknownInfo.getFlags();
 				if ((flags & Converter.ALLOW_UNSAFE_CASTS) == 0) {
-					if ((flags & Converter.NO_LEFT_CHAINING) == Converter.NO_LEFT_CHAINING
-						&& !unknownInfo.getFrom().isAssignableFrom(fromType))
+					if ((flags & Converter.NO_LEFT_CHAINING) == Converter.NO_LEFT_CHAINING)
 						continue;
-					if ((flags & Converter.NO_RIGHT_CHAINING) == Converter.NO_RIGHT_CHAINING
-						&& !toType.isAssignableFrom(unknownInfo.getTo()))
+					if ((flags & Converter.NO_RIGHT_CHAINING) == Converter.NO_RIGHT_CHAINING)
 						continue;
 				}
 
