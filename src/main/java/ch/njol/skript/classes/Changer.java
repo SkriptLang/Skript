@@ -37,8 +37,14 @@ public interface Changer<T> {
 	
 	enum ChangeMode {
 		ADD, SET, REMOVE, REMOVE_ALL, DELETE, RESET;
+
+		public boolean supportsKeyedChange() {
+			return this == SET;
+			// ADD could be supported in future
+		}
+
 	}
-	
+
 	/**
 	 * Tests whether this changer supports the given mode, and if yes what type(s) it expects the elements of <code>delta</code> to be.
 	 * <p>
