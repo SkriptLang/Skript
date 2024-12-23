@@ -32,7 +32,6 @@ import org.skriptlang.skript.lang.script.Script;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
-import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
@@ -398,27 +397,33 @@ public class SkriptCommand implements CommandExecutor {
 				jsonGenerator.generate();
 				Skript.info(sender, "Documentation generated!");
 			} else if (args[0].equalsIgnoreCase("test") && TestMode.DEV_MODE) {
-				File scriptFile;
+				Set<File> scriptFiles;
 				if (args.length == 1) {
-					scriptFile = TestMode.lastTestFile;
+					File scriptFile = TestMode.lastTestFile;
 					if (scriptFile == null) {
 						Skript.error(sender, "No test script has been run yet!");
 						return true;
 					}
+					scriptFiles = Set.of(scriptFile);
 				} else {
-					String collect = Arrays.stream(args).skip(1).collect(Collectors.joining(" "));
-					if (!collect.endsWith(".sk"))
-						collect += ".sk";
-					scriptFile = TestMode.TEST_DIR.resolve(collect).toFile();
-					TestMode.lastTestFile = scriptFile;
+					if (args[1].equalsIgnoreCase("all")) {
+						scriptFiles = Set.of(TestMode.TEST_DIR.toFile().listFiles(file -> file.getName().endsWith(".sk")));
+					} else {
+						String collect = Arrays.stream(args).skip(1).collect(Collectors.joining(" "));
+						if (!collect.endsWith(".sk"))
+							collect += ".sk";
+						File scriptFile = TestMode.TEST_DIR.resolve(collect).toFile();
+						TestMode.lastTestFile = scriptFile;
+						scriptFiles = Set.of(scriptFile);
+					}
 				}
 
-				if (!scriptFile.exists()) {
+				if (scriptFiles.isEmpty()) {
 					Skript.error(sender, "Test script doesn't exist!");
 					return true;
 				}
 
-				ScriptLoader.loadScripts(scriptFile, logHandler)
+				ScriptLoader.loadScripts(scriptFiles, logHandler)
 					.thenAccept(scriptInfo ->
 						// Code should run on server thread
 						Bukkit.getScheduler().scheduleSyncDelayedTask(Skript.getInstance(), () -> {

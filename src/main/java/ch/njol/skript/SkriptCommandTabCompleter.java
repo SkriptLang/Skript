@@ -82,7 +82,7 @@ public class SkriptCommandTabCompleter implements TabCompleter {
 			}
 			
 			// These will be added even if there are incomplete script arg
-			if (args.length == 2 && !TestMode.DEV_MODE) {
+			if (args.length == 2) {
 				options.add("all");
 				if (args[0].equalsIgnoreCase("reload")) {
 					options.add("config");
