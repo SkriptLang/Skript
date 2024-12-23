@@ -406,9 +406,10 @@ public class SkriptCommand implements CommandExecutor {
 						return true;
 					}
 				} else {
-					scriptFile = TestMode.TEST_DIR.resolve(
-						Arrays.stream(args).skip(1).collect(Collectors.joining(" ")) + ".sk"
-					).toFile();
+					String collect = Arrays.stream(args).skip(1).collect(Collectors.joining(" "));
+					if (!collect.endsWith(".sk"))
+						collect += ".sk";
+					scriptFile = TestMode.TEST_DIR.resolve(collect).toFile();
 					TestMode.lastTestFile = scriptFile;
 				}
 

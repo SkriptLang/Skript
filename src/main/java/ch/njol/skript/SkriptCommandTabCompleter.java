@@ -28,8 +28,8 @@ public class SkriptCommandTabCompleter implements TabCompleter {
 		if (args[0].equalsIgnoreCase("update") && args.length == 2) {
 			options.add("check");
 			options.add("changes");
-		} else if (args[0].matches("(?i)(reload|disable|enable)") && args.length >= 2) {
-			File scripts = Skript.getInstance().getScriptsFolder();
+		} else if (args[0].matches("(?i)(reload|disable|enable|test)") && args.length >= 2) {
+			File scripts = TestMode.DEV_MODE ? TestMode.TEST_DIR.toFile() : Skript.getInstance().getScriptsFolder();
 			String scriptsPathString = scripts.toPath().toString();
 			int scriptsPathLength = scriptsPathString.length();
 
@@ -82,7 +82,7 @@ public class SkriptCommandTabCompleter implements TabCompleter {
 			}
 			
 			// These will be added even if there are incomplete script arg
-			if (args.length == 2) {
+			if (args.length == 2 && !TestMode.DEV_MODE) {
 				options.add("all");
 				if (args[0].equalsIgnoreCase("reload")) {
 					options.add("config");
