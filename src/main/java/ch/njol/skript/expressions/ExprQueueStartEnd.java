@@ -24,15 +24,13 @@ import java.util.Arrays;
 	
 	This is designed for use with the <code>add</code> changer: to add or remove elements from the start or the end of the queue.
 	""")
-@Examples({
-	"""
-		set {queue} to a new queue
-		add "hello" to {queue}
-		add "foo" to the start of {queue}
-		broadcast the first element of {queue} # foo
-		broadcast the first element of {queue} # hello
-		# queue is now empty"""
-})
+@Examples("""
+	set {queue} to a new queue
+	add "hello" to {queue}
+	add "foo" to the start of {queue}
+	broadcast the first element of {queue} # foo
+	broadcast the first element of {queue} # hello
+	# queue is now empty""")
 @Since("INSERT VERSION (experimental)")
 public class ExprQueueStartEnd extends SimplePropertyExpression<SkriptQueue, Object> {
 
@@ -101,11 +99,6 @@ public class ExprQueueStartEnd extends SimplePropertyExpression<SkriptQueue, Obj
 	}
 
 	@Override
-	protected String getPropertyName() {
-		return start ? "start" : "end";
-	}
-
-	@Override
 	public boolean isSingle() {
 		return true;
 	}
@@ -113,6 +106,11 @@ public class ExprQueueStartEnd extends SimplePropertyExpression<SkriptQueue, Obj
 	@Override
 	public Class<?> getReturnType() {
 		return Object.class;
+	}
+
+	@Override
+	protected String getPropertyName() {
+		return start ? "start" : "end";
 	}
 
 }

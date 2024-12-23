@@ -76,13 +76,13 @@ public class ExprQueue extends SimpleExpression<SkriptQueue> {
 	}
 
 	@Override
-	public Class<? extends SkriptQueue> getReturnType() {
-		return SkriptQueue.class;
+	public boolean isSingle() {
+		return true;
 	}
 
 	@Override
-	public boolean isSingle() {
-		return true;
+	public Class<? extends SkriptQueue> getReturnType() {
+		return SkriptQueue.class;
 	}
 
 	@Override
