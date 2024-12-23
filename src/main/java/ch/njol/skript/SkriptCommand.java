@@ -26,6 +26,7 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginDescriptionFile;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.script.Script;
 
@@ -407,11 +408,13 @@ public class SkriptCommand implements CommandExecutor {
 					scriptFiles = Set.of(scriptFile);
 				} else {
 					if (args[1].equalsIgnoreCase("all")) {
-						scriptFiles = Set.of(TestMode.TEST_DIR.toFile().listFiles(file -> file.getName().endsWith(".sk")));
+						scriptFiles = getAllScriptsInDirectory(TestMode.TEST_DIR.toFile());
 					} else {
 						String collect = Arrays.stream(args).skip(1).collect(Collectors.joining(" "));
 						if (!collect.endsWith(".sk"))
 							collect += ".sk";
+						if (collect.startsWith("/")) // this happens from tab complete
+							collect = collect.substring(1);
 						File scriptFile = TestMode.TEST_DIR.resolve(collect).toFile();
 						TestMode.lastTestFile = scriptFile;
 						scriptFiles = Set.of(scriptFile);
@@ -543,6 +546,21 @@ public class SkriptCommand implements CommandExecutor {
 		}
 
 		return changed;
+	}
+
+	private static Set<File> getAllScriptsInDirectory(@NotNull File file) {
+		Set<File> fileSet = new HashSet<>();
+		File[] files = file.listFiles();
+		if (files != null) {
+			for (File listFile : files) {
+				if (listFile.isDirectory()) {
+					fileSet.addAll(getAllScriptsInDirectory(listFile));
+				} else if (listFile.getName().endsWith(".sk")) {
+					fileSet.add(listFile);
+				}
+			}
+		}
+		return fileSet;
 	}
 
 }
