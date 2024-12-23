@@ -410,16 +410,16 @@ public class SkriptCommand implements CommandExecutor {
 					if (args[1].equalsIgnoreCase("all")) {
 						scriptFiles = getAllScriptsInDirectory(TestMode.TEST_DIR.toFile());
 					} else {
-						String collect = Arrays.stream(args).skip(1).collect(Collectors.joining(" "));
+						String fileName = Arrays.stream(args).skip(1).collect(Collectors.joining(" "));
 
 						// Add .sk if the file is not a directory and doesn't currently have .sk
-						if (!collect.endsWith(".sk") && !collect.endsWith("/"))
-							collect += ".sk";
+						if (!fileName.endsWith(".sk") && !fileName.endsWith("/"))
+							fileName += ".sk";
 
 						// Tab complete starts with a slash, let's get rid of it
-						if (collect.startsWith("/"))
-							collect = collect.substring(1);
-						File scriptFile = TestMode.TEST_DIR.resolve(collect).toFile();
+						if (fileName.startsWith("/"))
+							fileName = fileName.substring(1);
+						File scriptFile = TestMode.TEST_DIR.resolve(fileName).toFile();
 						TestMode.lastTestFile = scriptFile;
 						scriptFiles = Set.of(scriptFile);
 					}
