@@ -14,25 +14,28 @@ import ch.njol.skript.log.TimingLogHandler;
 import ch.njol.skript.test.runner.SkriptTestEvent;
 import ch.njol.skript.test.runner.TestMode;
 import ch.njol.skript.test.runner.TestTracker;
+import ch.njol.skript.test.utils.TestResults;
 import ch.njol.skript.util.ExceptionUtils;
 import ch.njol.skript.util.FileUtils;
 import ch.njol.skript.util.SkriptColor;
 import ch.njol.skript.util.Utils;
 import ch.njol.util.OpenCloseable;
 import ch.njol.util.StringUtils;
+import com.google.gson.GsonBuilder;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginDescriptionFile;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.script.Script;
 
 import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
@@ -436,9 +439,19 @@ public class SkriptCommand implements CommandExecutor {
 							ScriptLoader.unloadScripts(ScriptLoader.getLoadedScripts());
 
 							// Get results and show them
-							String[] lines = TestTracker.collectResults().createReport().split("\n");
+							TestResults testResults = TestTracker.collectResults();
+							String[] lines = testResults.createReport().split("\n");
 							for (String line : lines) {
 								Skript.info(sender, line);
+							}
+
+							// Log results to file
+							Skript.info(sender, "Collecting results to " + TestMode.RESULTS_FILE);
+							String results = new GsonBuilder().setPrettyPrinting().create().toJson(testResults);
+							try {
+								Files.write(TestMode.RESULTS_FILE, results.getBytes(StandardCharsets.UTF_8));
+							} catch (IOException e) {
+								Skript.exception(e, "Failed to write test results.");
 							}
 						})
 					);
