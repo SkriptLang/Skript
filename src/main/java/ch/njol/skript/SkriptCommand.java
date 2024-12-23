@@ -398,17 +398,16 @@ public class SkriptCommand implements CommandExecutor {
 				jsonGenerator.generate();
 				Skript.info(sender, "Documentation generated!");
 			} else if (args[0].equalsIgnoreCase("test") && TestMode.DEV_MODE) {
-				Set<File> scriptFiles;
+				File scriptFile;
 				if (args.length == 1) {
-					File scriptFile = TestMode.lastTestFile;
+					scriptFile = TestMode.lastTestFile;
 					if (scriptFile == null) {
 						Skript.error(sender, "No test script has been run yet!");
 						return true;
 					}
-					scriptFiles = Set.of(scriptFile);
 				} else {
 					if (args[1].equalsIgnoreCase("all")) {
-						scriptFiles = getAllScriptsInDirectory(TestMode.TEST_DIR.toFile());
+						scriptFile = TestMode.TEST_DIR.toFile();
 					} else {
 						String fileName = Arrays.stream(args).skip(1).collect(Collectors.joining(" "));
 
@@ -419,18 +418,17 @@ public class SkriptCommand implements CommandExecutor {
 						// Tab complete starts with a slash, let's get rid of it
 						if (fileName.startsWith("/"))
 							fileName = fileName.substring(1);
-						File scriptFile = TestMode.TEST_DIR.resolve(fileName).toFile();
+						scriptFile = TestMode.TEST_DIR.resolve(fileName).toFile();
 						TestMode.lastTestFile = scriptFile;
-						scriptFiles = Set.of(scriptFile);
 					}
 				}
 
-				if (scriptFiles.isEmpty()) {
+				if (!scriptFile.exists()) {
 					Skript.error(sender, "Test script doesn't exist!");
 					return true;
 				}
 
-				ScriptLoader.loadScripts(scriptFiles, logHandler)
+				ScriptLoader.loadScripts(scriptFile, logHandler)
 					.thenAccept(scriptInfo ->
 						// Code should run on server thread
 						Bukkit.getScheduler().scheduleSyncDelayedTask(Skript.getInstance(), () -> {
@@ -550,21 +548,6 @@ public class SkriptCommand implements CommandExecutor {
 		}
 
 		return changed;
-	}
-
-	private static Set<File> getAllScriptsInDirectory(@NotNull File file) {
-		Set<File> fileSet = new HashSet<>();
-		File[] files = file.listFiles();
-		if (files != null) {
-			for (File listFile : files) {
-				if (listFile.isDirectory()) {
-					fileSet.addAll(getAllScriptsInDirectory(listFile));
-				} else if (listFile.getName().endsWith(".sk")) {
-					fileSet.add(listFile);
-				}
-			}
-		}
-		return fileSet;
 	}
 
 }
