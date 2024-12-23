@@ -317,7 +317,7 @@ public abstract class Utils {
 		return new NonNullPair<>(word, false);
 	}
 
-	private static boolean couldBeSingular(String word) {//todo
+	private static boolean couldBeSingular(String word) {
 		for (final WordEnding ending : plurals) {
 			if (ending.singular().isBlank())
 				continue;
