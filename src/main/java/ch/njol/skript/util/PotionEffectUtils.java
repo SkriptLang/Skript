@@ -29,7 +29,6 @@ import org.bukkit.entity.ThrownPotion;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.inventory.meta.SuspiciousStewMeta;
-import org.bukkit.potion.Potion;
 import org.bukkit.potion.PotionData;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
@@ -127,18 +126,7 @@ public abstract class PotionEffectUtils {
 	public static String[] getNames() {
 		return names;
 	}
-	
-	public static short guessData(final ThrownPotion p) {
-		if (p.getEffects().size() == 1) {
-			final PotionEffect e = p.getEffects().iterator().next();
-			PotionType type = PotionType.getByEffect(e.getType());
-			assert type != null;
-			final Potion d = new Potion(type).splash();
-			return d.toDamageValue();
-		}
-		return 0;
-	}
-	
+
 	/**
 	 * Checks if given string represents a known potion type and returns that type.
 	 * Unused currently, will be used soon (TM).
