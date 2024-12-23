@@ -46,8 +46,14 @@ public class RedirectingLogHandler extends LogHandler {
 
 	@Override
 	public LogResult log(LogEntry entry) {
+		return log(entry, null);
+	}
+
+	public LogResult log(LogEntry entry, @Nullable CommandSender ignore) {
 		String formattedMessage = prefix + entry.toFormattedString();
 		for (CommandSender recipient : recipients) {
+			if (recipient == ignore)
+				continue;
 			SkriptLogger.sendFormatted(recipient, formattedMessage);
 		}
 		if (entry.level == Level.SEVERE) {
