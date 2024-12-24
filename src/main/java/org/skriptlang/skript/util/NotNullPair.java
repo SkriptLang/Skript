@@ -3,8 +3,6 @@ package org.skriptlang.skript.util;
 import com.google.common.base.Preconditions;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.Serializable;
-
 /**
  * Represents a read-only pair of two values, which may not be null.
  * Throws a {@link NullPointerException} if the first or second value is null.

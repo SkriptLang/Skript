@@ -31,8 +31,6 @@ import ch.njol.skript.log.SkriptLogger;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.variables.SerializedVariable.Value;
 import ch.njol.util.Kleenean;
-import ch.njol.util.NonNullPair;
-import ch.njol.util.Pair;
 import ch.njol.util.StringUtils;
 import ch.njol.util.SynchronizedReference;
 import ch.njol.util.coll.iterator.EmptyIterator;
@@ -47,21 +45,13 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnmodifiableView;
 import org.skriptlang.skript.lang.converter.Converters;
+import org.skriptlang.skript.util.NotNullPair;
+import org.skriptlang.skript.util.Pair;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.NoSuchElementException;
-import java.util.Optional;
-import java.util.Queue;
-import java.util.TreeMap;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -204,7 +194,7 @@ public class Variables {
 				} catch (InterruptedException ignored) {}
 
 				synchronized (TEMP_VARIABLES) {
-					Map<String, NonNullPair<Object, VariablesStorage>> tvs = TEMP_VARIABLES.get();
+					Map<String, NotNullPair<Object, VariablesStorage>> tvs = TEMP_VARIABLES.get();
 					if (tvs != null)
 						Skript.info("Loaded " + tvs.size() + " variables so far...");
 					else
@@ -260,7 +250,7 @@ public class Variables {
 					// Get the amount of variables currently loaded
 					int totalVariablesLoaded;
 					synchronized (TEMP_VARIABLES) {
-						Map<String, NonNullPair<Object, VariablesStorage>> tvs = TEMP_VARIABLES.get();
+						Map<String, NotNullPair<Object, VariablesStorage>> tvs = TEMP_VARIABLES.get();
 						assert tvs != null;
 						totalVariablesLoaded = tvs.size();
 					}
@@ -278,7 +268,7 @@ public class Variables {
 					// Get the amount of variables loaded by this variables storage object
 					int newVariablesLoaded;
 					synchronized (TEMP_VARIABLES) {
-						Map<String, NonNullPair<Object, VariablesStorage>> tvs = TEMP_VARIABLES.get();
+						Map<String, NotNullPair<Object, VariablesStorage>> tvs = TEMP_VARIABLES.get();
 						assert tvs != null;
 						newVariablesLoaded = tvs.size() - totalVariablesLoaded;
 					}
@@ -706,7 +696,7 @@ public class Variables {
 	 * <p>
 	 * Access must be synchronised.
 	 */
-	private static final SynchronizedReference<Map<String, NonNullPair<Object, VariablesStorage>>> TEMP_VARIABLES =
+	private static final SynchronizedReference<Map<String, NotNullPair<Object, VariablesStorage>>> TEMP_VARIABLES =
 			new SynchronizedReference<>(new HashMap<>());
 
 	/**
@@ -747,13 +737,13 @@ public class Variables {
 			return false;
 
 		synchronized (TEMP_VARIABLES) {
-			Map<String, NonNullPair<Object, VariablesStorage>> tvs = TEMP_VARIABLES.get();
+			Map<String, NotNullPair<Object, VariablesStorage>> tvs = TEMP_VARIABLES.get();
 			if (tvs != null) {
-				NonNullPair<Object, VariablesStorage> existingVariable = tvs.get(name);
+				NotNullPair<Object, VariablesStorage> existingVariable = tvs.get(name);
 
 				// Check for conflicts with other storages
 				conflict: if (existingVariable != null) {
-					VariablesStorage existingVariableStorage = existingVariable.getSecond();
+					VariablesStorage existingVariableStorage = existingVariable.second();
 
 					if (existingVariableStorage == source) {
 						// No conflict if from the same storage
@@ -779,7 +769,7 @@ public class Variables {
 				}
 
 				// Add to the loaded variables
-				tvs.put(name, new NonNullPair<>(value, source));
+				tvs.put(name, new NotNullPair<>(value, source));
 
 				return false;
 			}
@@ -835,7 +825,7 @@ public class Variables {
 		Skript.debug("Databases loaded, setting variables...");
 
 		synchronized (TEMP_VARIABLES) {
-			Map<String, NonNullPair<Object, VariablesStorage>> tvs = TEMP_VARIABLES.get();
+			Map<String, NotNullPair<Object, VariablesStorage>> tvs = TEMP_VARIABLES.get();
 			TEMP_VARIABLES.set(null);
 			assert tvs != null;
 
@@ -843,8 +833,8 @@ public class Variables {
 			try {
 				// Calculate the amount of variables that don't have a storage
 				int unstoredVariables = 0;
-				for (Entry<String, NonNullPair<Object, VariablesStorage>> tv : tvs.entrySet()) {
-					if (!variableLoaded(tv.getKey(), tv.getValue().getFirst(), tv.getValue().getSecond()))
+				for (Entry<String, NotNullPair<Object, VariablesStorage>> tv : tvs.entrySet()) {
+					if (!variableLoaded(tv.getKey(), tv.getValue().first(), tv.getValue().second()))
 						unstoredVariables++;
 				}
 

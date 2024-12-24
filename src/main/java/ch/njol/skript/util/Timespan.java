@@ -5,11 +5,11 @@ import ch.njol.skript.lang.ParseContext;
 import ch.njol.skript.localization.GeneralWords;
 import ch.njol.skript.localization.Language;
 import ch.njol.skript.localization.Noun;
-import ch.njol.util.NonNullPair;
 import ch.njol.util.coll.CollectionUtils;
 import ch.njol.yggdrasil.YggdrasilSerializable;
 import com.google.common.base.Preconditions;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.util.NotNullPair;
 
 import java.time.Duration;
 import java.time.temporal.*;
@@ -29,14 +29,14 @@ public class Timespan implements YggdrasilSerializable, Comparable<Timespan>, Te
 	private static final Pattern TIMESPAN_SPLIT_PATTERN = Pattern.compile("[:.]");
 	private static final Pattern SHORT_FORM_PATTERN = Pattern.compile("^(\\d+(?:\\.\\d+)?)([a-zA-Z]+)$");
 
-	private static final List<NonNullPair<Noun, Long>> SIMPLE_VALUES = Arrays.asList(
-		new NonNullPair<>(TimePeriod.YEAR.name, TimePeriod.YEAR.time),
-		new NonNullPair<>(TimePeriod.MONTH.name, TimePeriod.MONTH.time),
-		new NonNullPair<>(TimePeriod.WEEK.name, TimePeriod.WEEK.time),
-		new NonNullPair<>(TimePeriod.DAY.name, TimePeriod.DAY.time),
-		new NonNullPair<>(TimePeriod.HOUR.name, TimePeriod.HOUR.time),
-		new NonNullPair<>(TimePeriod.MINUTE.name, TimePeriod.MINUTE.time),
-		new NonNullPair<>(TimePeriod.SECOND.name, TimePeriod.SECOND.time)
+	private static final List<NotNullPair<Noun, Long>> SIMPLE_VALUES = Arrays.asList(
+		new NotNullPair<>(TimePeriod.YEAR.name, TimePeriod.YEAR.time),
+		new NotNullPair<>(TimePeriod.MONTH.name, TimePeriod.MONTH.time),
+		new NotNullPair<>(TimePeriod.WEEK.name, TimePeriod.WEEK.time),
+		new NotNullPair<>(TimePeriod.DAY.name, TimePeriod.DAY.time),
+		new NotNullPair<>(TimePeriod.HOUR.name, TimePeriod.HOUR.time),
+		new NotNullPair<>(TimePeriod.MINUTE.name, TimePeriod.MINUTE.time),
+		new NotNullPair<>(TimePeriod.SECOND.name, TimePeriod.SECOND.time)
 	);
 
 	private static final Map<String, Long> PARSE_VALUES = new HashMap<>();
@@ -154,11 +154,11 @@ public class Timespan implements YggdrasilSerializable, Comparable<Timespan>, Te
 
 	public static String toString(long millis, int flags) {
 		for (int i = 0; i < SIMPLE_VALUES.size() - 1; i++) {
-			NonNullPair<Noun, Long> pair = SIMPLE_VALUES.get(i);
-			long second1 = pair.getSecond();
+			NotNullPair<Noun, Long> pair = SIMPLE_VALUES.get(i);
+			long second1 = pair.second();
 			if (millis >= second1) {
 				long remainder = millis % second1;
-				double second = 1. * remainder / SIMPLE_VALUES.get(i + 1).getSecond();
+				double second = 1. * remainder / SIMPLE_VALUES.get(i + 1).second();
 				if (!"0".equals(Skript.toString(second))) { // bad style but who cares...
 					return toString(Math.floor(1. * millis / second1), pair, flags) + " " + GeneralWords.and + " " + toString(remainder, flags);
 				} else {
@@ -166,11 +166,11 @@ public class Timespan implements YggdrasilSerializable, Comparable<Timespan>, Te
 				}
 			}
 		}
-		return toString(1. * millis / SIMPLE_VALUES.get(SIMPLE_VALUES.size() - 1).getSecond(), SIMPLE_VALUES.get(SIMPLE_VALUES.size() - 1), flags);
+		return toString(1. * millis / SIMPLE_VALUES.get(SIMPLE_VALUES.size() - 1).second(), SIMPLE_VALUES.get(SIMPLE_VALUES.size() - 1), flags);
 	}
 
-	private static String toString(double amount, NonNullPair<Noun, Long> pair, int flags) {
-		return pair.getFirst().withAmount(amount, flags);
+	private static String toString(double amount, NotNullPair<Noun, Long> pair, int flags) {
+		return pair.first().withAmount(amount, flags);
 	}
 
 	private final long millis;

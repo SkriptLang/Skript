@@ -5,14 +5,12 @@ import ch.njol.skript.config.Node;
 import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.config.SimpleNode;
 import ch.njol.skript.events.bukkit.PreScriptLoadEvent;
-import ch.njol.skript.lang.Section;
-import ch.njol.skript.lang.SkriptParser;
-import ch.njol.skript.lang.Statement;
-import ch.njol.skript.lang.TriggerItem;
-import ch.njol.skript.lang.TriggerSection;
-import ch.njol.skript.lang.function.EffFunctionCall;
+import ch.njol.skript.lang.*;
 import ch.njol.skript.lang.parser.ParserInstance;
-import ch.njol.skript.log.*;
+import ch.njol.skript.log.CountingLogHandler;
+import ch.njol.skript.log.LogEntry;
+import ch.njol.skript.log.RetainingLogHandler;
+import ch.njol.skript.log.SkriptLogger;
 import ch.njol.skript.sections.SecLoop;
 import ch.njol.skript.structures.StructOptions.OptionsData;
 import ch.njol.skript.util.ExceptionUtils;
@@ -21,16 +19,16 @@ import ch.njol.skript.util.Task;
 import ch.njol.skript.util.Timespan;
 import ch.njol.skript.variables.TypeHints;
 import ch.njol.util.Kleenean;
-import ch.njol.util.NonNullPair;
 import ch.njol.util.OpenCloseable;
 import ch.njol.util.StringUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.util.event.EventRegistry;
 import org.skriptlang.skript.lang.script.Script;
 import org.skriptlang.skript.lang.script.ScriptWarning;
 import org.skriptlang.skript.lang.structure.Structure;
+import org.skriptlang.skript.util.NotNullPair;
+import org.skriptlang.skript.util.event.EventRegistry;
 
 import java.io.File;
 import java.io.FileFilter;
@@ -39,11 +37,7 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.Callable;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -496,18 +490,18 @@ public class ScriptLoader {
 
 					// build sorted list
 					// this nest of pairs is terrible, but we need to keep the reference to the modifiable structures list
-					List<NonNullPair<LoadingScriptInfo, Structure>> pairs = scripts.stream()
+					List<NotNullPair<LoadingScriptInfo, Structure>> pairs = scripts.stream()
 							.flatMap(info -> { // Flatten each entry down to a stream of Script-Structure pairs
 								return info.structures.stream()
-										.map(structure -> new NonNullPair<>(info, structure));
+										.map(structure -> new NotNullPair<>(info, structure));
 							})
-							.sorted(Comparator.comparing(pair -> pair.getSecond().getPriority()))
+							.sorted(Comparator.comparing(pair -> pair.second().getPriority()))
 							.collect(Collectors.toCollection(ArrayList::new));
 
 					// pre-loading
 					pairs.removeIf(pair -> {
-						LoadingScriptInfo loadingInfo = pair.getFirst();
-						Structure structure = pair.getSecond();
+						LoadingScriptInfo loadingInfo = pair.first();
+						Structure structure = pair.second();
 
 						parser.setActive(loadingInfo.script);
 						parser.setCurrentStructure(structure);
@@ -535,8 +529,8 @@ public class ScriptLoader {
 
 					// loading
 					pairs.removeIf(pair -> {
-						LoadingScriptInfo loadingInfo = pair.getFirst();
-						Structure structure = pair.getSecond();
+						LoadingScriptInfo loadingInfo = pair.first();
+						Structure structure = pair.second();
 
 						parser.setActive(loadingInfo.script);
 						parser.setCurrentStructure(structure);
@@ -559,8 +553,8 @@ public class ScriptLoader {
 
 					// post-loading
 					pairs.removeIf(pair -> {
-						LoadingScriptInfo loadingInfo = pair.getFirst();
-						Structure structure = pair.getSecond();
+						LoadingScriptInfo loadingInfo = pair.first();
+						Structure structure = pair.second();
 
 						parser.setActive(loadingInfo.script);
 						parser.setCurrentStructure(structure);

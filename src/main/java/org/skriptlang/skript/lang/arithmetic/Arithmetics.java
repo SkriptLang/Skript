@@ -20,18 +20,11 @@ package org.skriptlang.skript.lang.arithmetic;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptAPIException;
-import ch.njol.util.Pair;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnmodifiableView;
+import org.skriptlang.skript.util.Pair;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Collection;
-import java.util.Set;
-import java.util.HashSet;
+import java.util.*;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 

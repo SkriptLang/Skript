@@ -30,12 +30,11 @@ import ch.njol.skript.lang.Variable;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.util.LiteralUtils;
 import ch.njol.util.Kleenean;
-import ch.njol.util.Pair;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.util.Pair;
 
 import java.util.Map;
-import java.util.Map.Entry;
 
 @Name("Indices of List")
 @Description({
@@ -108,8 +107,8 @@ public class ExprIndices extends SimpleExpression<String> {
 						? ((Map<?,?>) entry.getValue()).get(null)
 						: entry.getValue()
 				))
-				.sorted((a, b) -> ExprSortedList.compare(a.getValue(), b.getValue()) * direction)
-				.map(Pair::getKey)
+				.sorted((a, b) -> ExprSortedList.compare(a.second(), b.second()) * direction)
+				.map(Pair::first)
 				.toArray(String[]::new);
 		}
 

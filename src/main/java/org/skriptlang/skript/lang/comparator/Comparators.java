@@ -21,18 +21,14 @@ package org.skriptlang.skript.lang.comparator;
 import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptAPIException;
 import ch.njol.skript.util.Utils;
-import ch.njol.util.Pair;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
 import org.skriptlang.skript.lang.converter.Converter;
 import org.skriptlang.skript.lang.converter.ConverterInfo;
 import org.skriptlang.skript.lang.converter.Converters;
+import org.skriptlang.skript.util.Pair;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Comparators are used to provide Skript with specific instructions for comparing two objects.

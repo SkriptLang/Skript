@@ -19,28 +19,19 @@
 package ch.njol.skript.test.platform;
 
 import ch.njol.skript.test.utils.TestResults;
-import ch.njol.util.NonNullPair;
 import com.google.common.collect.Sets;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
 import org.apache.commons.lang.StringUtils;
+import org.skriptlang.skript.util.NotNullPair;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -92,7 +83,7 @@ public class PlatformMain {
 				envs.stream().map(Environment::getName).collect(Collectors.toList())));
 		
 		Set<String> allTests = new HashSet<>();
-		Map<String, List<NonNullPair<Environment, String>>> failures = new HashMap<>();
+		Map<String, List<NotNullPair<Environment, String>>> failures = new HashMap<>();
 		
 		boolean docsFailed = false;
 		// Run tests and collect the results
@@ -120,7 +111,7 @@ public class PlatformMain {
 				String error = fail.getValue();
 				assert error != null;
 				failures.computeIfAbsent(fail.getKey(), (k) -> new ArrayList<>())
-						.add(new NonNullPair<>(env, error));
+						.add(new NotNullPair<>(env, error));
 			}
 		}
 
@@ -151,10 +142,10 @@ public class PlatformMain {
 		if (!failNames.isEmpty()) { // More space for failed tests, they're important
 			output.append("\nFailed:");
 			for (String failed : failNames) {
-				List<NonNullPair<Environment, String>> errors = failures.get(failed);
+				List<NotNullPair<Environment, String>> errors = failures.get(failed);
 				output.append("\n  " + failed + " (on " + errors.size() + " environment" + (errors.size() == 1 ? "" : "s") + ")");
-				for (NonNullPair<Environment, String> error : errors) {
-					output.append("\n    " + error.getSecond() + " (on " + error.getFirst().getName() + ")");
+				for (NotNullPair<Environment, String> error : errors) {
+					output.append("\n    " + error.second() + " (on " + error.first().getName() + ")");
 				}
 			}
 			output.append(String.format("%n%n%s", StringUtils.repeat("-", 60)));

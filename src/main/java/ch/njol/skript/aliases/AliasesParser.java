@@ -18,17 +18,6 @@
  */
 package ch.njol.skript.aliases;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.function.Function;
-
-import org.jetbrains.annotations.Nullable;
-
 import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.AliasesProvider.Variation;
 import ch.njol.skript.aliases.AliasesProvider.VariationGroup;
@@ -38,8 +27,12 @@ import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.localization.ArgsMessage;
 import ch.njol.skript.localization.Message;
 import ch.njol.skript.localization.Noun;
-import ch.njol.util.NonNullPair;
 import ch.njol.util.StringUtils;
+import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.util.NotNullPair;
+
+import java.util.*;
+import java.util.function.Function;
 
 /**
  * Parses aliases.
@@ -635,12 +628,12 @@ public class AliasesParser {
 	 * @param name Name to get forms from.
 	 * @return Singular form, plural form.
 	 */
-	protected NonNullPair<String, String> getAliasPlural(String name) {
+	protected NotNullPair<String, String> getAliasPlural(String name) {
 		int marker = name.indexOf('¦');
 		if (marker == -1) { // No singular/plural forms
 			String trimmed = name.trim();
 			assert trimmed != null;
-			return new NonNullPair<>(trimmed, trimmed);
+			return new NotNullPair<>(trimmed, trimmed);
 		}
 		int pluralEnd = -1;
 		for (int i = marker; i < name.length(); i++) {
@@ -662,7 +655,7 @@ public class AliasesParser {
 			plural = plural.trim();
 			assert singular != null;
 			assert plural != null;
-			return new NonNullPair<>(singular, plural);
+			return new NotNullPair<>(singular, plural);
 		}
 		
 		// Need to stitch both singular and plural together
@@ -674,7 +667,7 @@ public class AliasesParser {
 		plural = plural.trim();
 		assert singular != null;
 		assert plural != null;
-		return new NonNullPair<>(singular, plural);
+		return new NotNullPair<>(singular, plural);
 	}
 	
 	protected void loadSingleAlias(Map<String, Variation> variations, String item) {
@@ -698,11 +691,11 @@ public class AliasesParser {
 				assert id != null;
 				try {
 					// Create singular and plural forms of the alias
-					NonNullPair<String, Integer> plain = Noun.stripGender(name, name); // Name without gender and its gender token
-					NonNullPair<String, String> forms = getAliasPlural(plain.getFirst()); // Singular and plural forms
+					NotNullPair<String, Integer> plain = Noun.stripGender(name, name); // Name without gender and its gender token
+					NotNullPair<String, String> forms = getAliasPlural(plain.first()); // Singular and plural forms
 					
 					// Add alias to provider
-					provider.addAlias(new AliasesProvider.AliasName(forms.getFirst(), forms.getSecond(), plain.getSecond()),
+					provider.addAlias(new AliasesProvider.AliasName(forms.first(), forms.second(), plain.second()),
 							id, merged.getTags(), merged.getBlockStates());
 				} catch (InvalidMinecraftIdException e) { // Spit out a more useful error message
 					Skript.error(m_invalid_minecraft_id.toString(e.getId()));

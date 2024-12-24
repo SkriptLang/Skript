@@ -18,9 +18,7 @@
  */
 package ch.njol.util.coll;
 
-import ch.njol.util.Pair;
 import org.jetbrains.annotations.Nullable;
-import org.jetbrains.annotations.UnknownNullability;
 
 import java.lang.reflect.Array;
 import java.util.*;
@@ -216,7 +214,10 @@ public abstract class CollectionUtils {
 		if (map == null)
 			return null;
 		if (map.containsKey(key))
-			return new Pair<>(key, map.get(key));
+			return map.entrySet().stream()
+				.filter(e -> Objects.equals(e.getKey(), key))
+				.findFirst()
+				.orElse(null);
 		return null;
 	}
 	
