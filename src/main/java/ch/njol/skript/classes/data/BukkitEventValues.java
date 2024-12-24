@@ -54,6 +54,7 @@ import org.bukkit.inventory.*;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.potion.PotionType;
+import org.skriptlang.skript.lang.converter.Converter;
 
 import java.util.ArrayList;
 import java.util.HashSet;
