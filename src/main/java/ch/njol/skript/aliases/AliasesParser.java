@@ -27,6 +27,7 @@ import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.localization.ArgsMessage;
 import ch.njol.skript.localization.Message;
 import ch.njol.skript.localization.Noun;
+import ch.njol.util.NonNullPair;
 import ch.njol.util.StringUtils;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.util.NotNullPair;
@@ -691,11 +692,11 @@ public class AliasesParser {
 				assert id != null;
 				try {
 					// Create singular and plural forms of the alias
-					NotNullPair<String, Integer> plain = Noun.stripGender(name, name); // Name without gender and its gender token
-					NotNullPair<String, String> forms = getAliasPlural(plain.first()); // Singular and plural forms
-					
+					NonNullPair<String, Integer> plain = Noun.stripGender(name, name); // Name without gender and its gender token
+					NotNullPair<String, String> forms = getAliasPlural(plain.getFirst()); // Singular and plural forms
+
 					// Add alias to provider
-					provider.addAlias(new AliasesProvider.AliasName(forms.first(), forms.second(), plain.second()),
+					provider.addAlias(new AliasesProvider.AliasName(forms.first(), forms.second(), plain.getSecond()),
 							id, merged.getTags(), merged.getBlockStates());
 				} catch (InvalidMinecraftIdException e) { // Spit out a more useful error message
 					Skript.error(m_invalid_minecraft_id.toString(e.getId()));
