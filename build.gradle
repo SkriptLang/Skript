@@ -37,9 +37,12 @@ dependencies {
 	implementation group: 'org.joml', name: 'joml', version: '1.10.5'
 
 	// Plugin hook libraries
-	implementation group: 'com.sk89q.worldguard', name: 'worldguard-legacy', version: '7.0.0-SNAPSHOT'
+	implementation group: 'com.sk89q.worldguard', name: 'worldguard-legacy', version: '7.0.0-SNAPSHOT', {
+		exclude group: 'org.bukkit', module: 'bukkit'
+	}
 	implementation group: 'net.milkbowl.vault', name: 'Vault', version: '1.7.3', {
 		exclude group: 'org.bstats', module: 'bstats-bukkit'
+		exclude group: 'org.bukkit', module: 'bukkit'
 	}
 
 	implementation fileTree(dir: 'lib', include: '*.jar')
