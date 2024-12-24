@@ -1,6 +1,5 @@
 test "item enchantment glint" when running minecraft "1.20.5":
-
-    # Glint
+	# Glint
 	set {_item} to diamond with enchantment glint
 	assert {_item} has enchantment glint override with "Item expected to have enchantment glint override #1"
 	assert {_item} is forced to glint with "Item expected to be forced to glint #1"
@@ -10,21 +9,21 @@ test "item enchantment glint" when running minecraft "1.20.5":
 	make {_item} glint
 	assert {_item} has enchantment glint override with "Item expected to have enchantment glint override #2"
 	assert {_item} is forced to glint with "Item expected to be forced to glint #2"
-    delete {_item}
+	delete {_item}
 
 	set {_item} to diamond without enchantment glint
 	assert {_item} has enchantment glint override with "Item expected to have enchantment glint override #3"
 	assert {_item} is forced to not glint with "Item expected to be forced to not glint #1"
 	delete {_item}
 
-    # Not Glint
+	# Not Glint
 	set {_item} to diamond
 	make {_item} not glint
 	assert {_item} has enchantment glint override with "Item expected to have enchantment glint override #4"
 	assert {_item} is forced to not glint with "Item expected to be forced to not glint #2"
-    delete {_item}
+	delete {_item}
 
-    # Without Glint Enforcement
+	# Without Glint Enforcement
 	set {_item} to diamond
 	assert {_item} does not have enchantment glint override with "Item expected to not have enchantment glint override #1
 
