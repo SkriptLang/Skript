@@ -2,10 +2,7 @@ package ch.njol.skript.sections;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.config.SectionNode;
-import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
-import ch.njol.skript.doc.Name;
-import ch.njol.skript.doc.Since;
+import ch.njol.skript.doc.*;
 import ch.njol.skript.entity.EntityType;
 import ch.njol.skript.lang.EffectSection;
 import ch.njol.skript.lang.Expression;
@@ -19,6 +16,7 @@ import ch.njol.skript.variables.Variables;
 import ch.njol.util.Kleenean;
 import org.bukkit.Location;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntitySnapshot;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.NotNull;
@@ -37,7 +35,9 @@ import java.util.function.Consumer;
 	"Do note that other event values, such as 'player', won't work in this section.",
 	"",
 	"If you're spawning a display and want it to be empty on initialization, like not having a block display be stone, " + 
-	"set hidden config node 'spawn empty displays' to true."
+	"set hidden config node 'spawn empty displays' to true.",
+	"",
+	"Note that when spawning an entity via entity snapshots, the code within the section will not run instantaneously as compared to spawning normally (via 'a zombie')."
 })
 @Examples({
 	"spawn 3 creepers at the targeted block",
@@ -48,7 +48,8 @@ import java.util.function.Consumer;
 	"spawn a block display of a ladder[waterlogged=true] at location above player:",
 		"\tset billboard of event-display to center # allows the display to rotate around the center axis"
 })
-@Since("1.0, 2.6.1 (with section), 2.8.6 (dropped items)")
+@RequiredPlugins("Minecraft 1.20.2+ (entity snapshots)")
+@Since("1.0, 2.6.1 (with section), 2.8.6 (dropped items), INSERT VERSION (entity snapshots)")
 public class EffSecSpawn extends EffectSection {
 
 	public static class SpawnEvent extends Event {
@@ -71,9 +72,12 @@ public class EffSecSpawn extends EffectSection {
 	}
 
 	static {
+		String acceptedTypes = "%entitytypes%";
+		if (Skript.classExists("org.bukkit.entity.EntitySnapshot"))
+			acceptedTypes = "%entitytypes/entitysnapshots%";
 		Skript.registerSection(EffSecSpawn.class,
-				"(spawn|summon) %entitytypes% [%directions% %locations%]",
-				"(spawn|summon) %number% of %entitytypes% [%directions% %locations%]"
+				"(spawn|summon) " + acceptedTypes + " [%directions% %locations%]",
+				"(spawn|summon) %number% of " + acceptedTypes + " [%directions% %locations%]"
 		);
 		EventValues.registerEventValue(SpawnEvent.class, Entity.class, new Getter<Entity, SpawnEvent>() {
 			@Override
@@ -85,7 +89,7 @@ public class EffSecSpawn extends EffectSection {
 
 	private Expression<Location> locations;
 
-	private Expression<EntityType> types;
+	private Expression<?> types;
 
 	@Nullable
 	private Expression<Number> amount;
@@ -102,7 +106,7 @@ public class EffSecSpawn extends EffectSection {
 			@Nullable SectionNode sectionNode, @Nullable List<TriggerItem> triggerItems) {
 
 		amount = matchedPattern == 0 ? null : (Expression<Number>) (exprs[0]);
-		types = (Expression<EntityType>) exprs[matchedPattern];
+		types = exprs[matchedPattern];
 		locations = Direction.combine((Expression<? extends Direction>) exprs[1 + matchedPattern], (Expression<? extends Location>) exprs[2 + matchedPattern]);
 
 		if (sectionNode != null) {
@@ -135,16 +139,28 @@ public class EffSecSpawn extends EffectSection {
 		Number numberAmount = amount != null ? amount.getSingle(event) : 1;
 		if (numberAmount != null) {
 			double amount = numberAmount.doubleValue();
-			EntityType[] types = this.types.getArray(event);
+			Object[] types = this.types.getArray(event);
 			for (Location location : locations.getArray(event)) {
-				for (EntityType type : types) {
-					double typeAmount = amount * type.getAmount();
-					for (int i = 0; i < typeAmount; i++) {
-						if (consumer != null) {
-							//noinspection unchecked,rawtypes
-							type.data.spawn(location, (Consumer) consumer); // lastSpawned set within Consumer
-						} else {
-							lastSpawned = type.data.spawn(location);
+				for (Object type : types) {
+					if (type instanceof EntityType entityType) {
+						double typeAmount = amount * entityType.getAmount();
+						for (int i = 0; i < typeAmount; i++) {
+							if (consumer != null) {
+								//noinspection unchecked,rawtypes
+								entityType.data.spawn(location, (Consumer) consumer); // lastSpawned set within Consumer
+							} else {
+								lastSpawned = entityType.data.spawn(location);
+							}
+						}
+					} else if (type instanceof EntitySnapshot snapshot) {
+						for (int i = 0; i < amount; i++) {
+							Entity entity = snapshot.createEntity(location);
+							if (consumer != null) {
+								//noinspection unchecked
+								((Consumer<Entity>) consumer).accept(entity);
+							} else {
+								lastSpawned = entity;
+							}
 						}
 					}
 				}

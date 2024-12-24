@@ -180,8 +180,8 @@ public class Language {
 				englishIs = null;
 			}
 		}
-		HashMap<String, String> def = load(defaultIs, "default", false);
-		HashMap<String, String> en = load(englishIs, "english", addon == Skript.getAddonInstance());
+		Map<String, String> def = load(defaultIs, "default", false);
+		Map<String, String> en = load(englishIs, "english", addon == Skript.getAddonInstance());
 
 		String v = def.get("version");
 		if (v == null)
@@ -231,7 +231,7 @@ public class Language {
 		if (name.equals("english") && addon.plugin.getResource(addon.getLanguageFileDirectory() + "/default.lang") == null)
 			return true;
 
-		HashMap<String, String> l = load(addon.plugin.getResource(addon.getLanguageFileDirectory() + "/" + name + ".lang"), name, tryUpdate);
+		Map<String, String> l = load(addon.plugin.getResource(addon.getLanguageFileDirectory() + "/" + name + ".lang"), name, tryUpdate);
 		File file = new File(addon.plugin.getDataFolder(), addon.getLanguageFileDirectory() + File.separator + name + ".lang");
 		try {
 			if (file.exists())
@@ -272,7 +272,7 @@ public class Language {
 		return true;
 	}
 	
-	private static HashMap<String, String> load(@Nullable InputStream in, String name, boolean tryUpdate) {
+	private static Map<String, String> load(@Nullable InputStream in, String name, boolean tryUpdate) {
 		if (in == null)
 			return new HashMap<>();
 
