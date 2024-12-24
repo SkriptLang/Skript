@@ -2572,6 +2572,9 @@ types:
 	inputkey: input key¦s @an
 	villagertype: villager type¦s @a
 	villagerprofession: villager profession¦s @a
+	entitysnapshot: entity snapshot¦s @an
+	loottable: loot table¦s @a
+	lootcontext: loot context¦s @a
 
 	# Skript
 	weathertype: weather type¦s @a
