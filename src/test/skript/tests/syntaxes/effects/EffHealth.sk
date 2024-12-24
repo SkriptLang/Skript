@@ -1,26 +1,31 @@
 test "health effect":
-    clear all entities
-    set {_i} to diamond sword
-    assert {_i}'s damage value is 0 with "new item durability failed"
-    damage {_i} by 50
-    assert {_i}'s damage value is 50 with "damage item failed"
-    repair {_i} by 49
-    assert {_i}'s damage value is 1 with "repair item failed"
+	clear all entities
+	set {_i} to diamond sword
+	assert {_i}'s damage value is 0 with "new item durability failed"
+	damage {_i} by 50
+	assert {_i}'s damage value is 50 with "damage item failed"
+	repair {_i} by 49
+	assert {_i}'s damage value is 1 with "repair item failed"
 
-    spawn cow at test-location
-    set {_m} to last spawned cow
-    assert health of {_m} is 5 with "default cow health failed"
-    damage {_m} by 3
-    assert health of {_m} is 2 with "damage cow failed"
-    heal {_m} by 1
-    assert health of {_m} is 3 with "heal cow failed"
-    heal {_m} by 0.5
-    assert health of {_m} is 3.5 with "heal cow failed"
-    heal {_m} by 99
-    assert health of {_m} is 5 with "heal cow failed"
+	spawn cow at test-location
+	set {_m} to last spawned cow
+	assert health of {_m} is 5 with "default cow health failed"
 
-    parse if running minecraft "1.20.4":
-        damage {_m} by 2 hearts with damage cause fall
-        assert health of {_m} is 3 with "damage cow failed"
+	damage {_m} by 3
+	assert health of {_m} is 2 with "damage cow failed"
+	heal {_m} by 1
+	assert health of {_m} is 3 with "heal cow failed"
+	heal {_m} by 0.5
+	assert health of {_m} is 3.5 with "heal cow failed"
+	heal {_m} by 99
+	assert health of {_m} is 5 with "heal cow failed"
+	delete the entity in {_m}
 
-    clear all entities
+	parse if running minecraft "1.20.4":
+		spawn cow at test-location
+		set {_m} to last spawned cow
+		assert health of {_m} is 5 with "default cow (with cause) health failed"
+		damage {_m} by 2 hearts with damage cause fall
+		assert health of {_m} is 3 with "damage cow (with cause) failed"
+
+	clear all entities
