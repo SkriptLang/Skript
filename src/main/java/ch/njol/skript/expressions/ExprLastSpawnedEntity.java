@@ -3,8 +3,8 @@ package ch.njol.skript.expressions;
 import java.lang.reflect.Array;
 
 import ch.njol.skript.effects.EffFireworkLaunch;
+import ch.njol.skript.sections.EffSecShoot;
 import ch.njol.skript.sections.EffSecSpawn;
-import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Firework;
 import org.bukkit.entity.Item;
@@ -19,7 +19,6 @@ import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.effects.EffDrop;
 import ch.njol.skript.effects.EffLightning;
-import ch.njol.skript.effects.EffShoot;
 import ch.njol.skript.entity.EntityData;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
@@ -82,7 +81,7 @@ public class ExprLastSpawnedEntity extends SimpleExpression<Entity> {
 				en = EffSecSpawn.lastSpawned;
 				break;
 			case 1:
-				en = EffShoot.lastSpawned;
+				en = EffSecShoot.lastSpawned;
 				break;
 			case 2:
 				en = EffDrop.lastSpawned;
