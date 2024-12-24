@@ -1,21 +1,3 @@
-/**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
 package ch.njol.skript.util.visual;
 
 import ch.njol.skript.Skript;
@@ -238,7 +220,7 @@ public class VisualEffects {
 			registerDataSupplier("Particle.SHRIEK", (raw, location) -> {
 				int delay = 0;
 				if (raw instanceof Timespan)
-					delay = (int) Math.min(Math.max(((Timespan) raw).getTicks(), 0), Integer.MAX_VALUE);
+					delay = (int) Math.min(Math.max(((Timespan) raw).getAs(Timespan.TimePeriod.TICK), 0), Integer.MAX_VALUE);
 				return delay;
 			});
 
@@ -253,7 +235,7 @@ public class VisualEffects {
 		private static Vibration buildVibration(Object[] data, Location location) {
 			int arrivalTime = -1;
 			if (data[1] != null)
-				arrivalTime = (int) Math.min(Math.max(((Timespan) data[1]).getTicks(), 0), Integer.MAX_VALUE);
+				arrivalTime = (int) Math.min(Math.max(((Timespan) data[1]).getAs(Timespan.TimePeriod.TICK), 0), Integer.MAX_VALUE);
 			if (data[0] instanceof Entity) {
 				Entity entity = (Entity) data[0];
 				if (arrivalTime == -1)
