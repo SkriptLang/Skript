@@ -1,0 +1,18 @@
+test "villager level expression":
+	spawn a villager at event-location:
+		set {_e} to entity
+
+	assert villager level of {_e} = 1 with "Villager should start out with a level of 1"
+	set villager level of {_e} to 2
+	assert villager level of {_e} = 2 with "Villager level should now be 2"
+	add 2 to villager level of {_e}
+	assert villager level of {_e} = 4 with "Villager level should now be 4"
+	add 5 to villager level of {_e}
+	assert villager level of {_e} = 5 with "Villager level is capped at 5, and should now be 5"
+	remove 2 from villager level of {_e}
+	assert villager level of {_e} = 3 with "Villager level should be 3 now"
+	reset villager level of {_e}
+	assert villager level of {_e} = 1 with "Villager level should reset back to 1"
+
+	# Thank you for your service
+	delete entity within {_e}

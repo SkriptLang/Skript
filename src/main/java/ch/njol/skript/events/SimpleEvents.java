@@ -1,21 +1,3 @@
-/**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
 package ch.njol.skript.events;
 
 import ch.njol.skript.Skript;
@@ -620,21 +602,7 @@ public class SimpleEvents {
 				"\t\tset chat format to \"&lt;orange&gt;[player]&lt;light gray&gt;: &lt;white&gt;[message]\""
 			)
 			.since("1.4.1");
-		if (Skript.classExists("org.bukkit.event.world.LootGenerateEvent")) {
-			Skript.registerEvent("Loot Generate", SimpleEvent.class, LootGenerateEvent.class, "loot generat(e|ing)")
-					.description(
-						"Called when a loot table of an inventory is generated in the world.",
-						"For example, when opening a shipwreck chest."
-					)
-					.examples(
-						"on loot generate:",
-						"\tchance of 10%",
-						"\tadd 64 diamonds to the loot",
-						"\tsend \"You hit the jackpot at %event-location%!\""
-					)
-					.since("2.7")
-					.requiredPlugins("MC 1.16+");
-		}
+
 		if (Skript.classExists("io.papermc.paper.event.player.PlayerDeepSleepEvent")) {
 			Skript.registerEvent("Player Deep Sleep", SimpleEvent.class, PlayerDeepSleepEvent.class, "[player] deep sleep[ing]")
 					.description(
