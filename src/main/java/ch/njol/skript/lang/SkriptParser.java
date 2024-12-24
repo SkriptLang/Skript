@@ -221,17 +221,19 @@ public class SkriptParser {
 							}
 							T element = info.getElementClass().newInstance();
 
-							Class<? extends Event>[] supportedEvents = element.supportedEvents();
-							if (supportedEvents.length > 0 && !getParser().isCurrentEvent(supportedEvents)) {
-								StringJoiner joiner = new StringJoiner(", ", "the ", "");
+							if (element instanceof EventRestrictedSyntax eventRestrictedSyntax) {
+								Class<? extends Event>[] supportedEvents = eventRestrictedSyntax.supportedEvents();
+								if (supportedEvents.length > 0 && !getParser().isCurrentEvent(supportedEvents)) {
+									StringJoiner joiner = new StringJoiner(", ", "the ", "");
 
-								Arrays.stream(supportedEvents)
-									.map(it -> it.getSimpleName().replaceAll("([A-Z])", " $1").toLowerCase().trim())
-									.forEachOrdered(joiner::add);
+									Arrays.stream(supportedEvents)
+										.map(it -> it.getSimpleName().replaceAll("([A-Z])", " $1").toLowerCase().trim())
+										.forEachOrdered(joiner::add);
 
-								Skript.error("'" + parseResult.expr + "' can only be used in " + joiner);
-                                continue;
-                            }
+									Skript.error("'" + parseResult.expr + "' can only be used in " + joiner);
+									continue;
+								}
+							}
 
 							boolean success = element.init(parseResult.exprs, patternIndex, getParser().getHasDelayBefore(), parseResult);
 							if (success) {

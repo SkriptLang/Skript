@@ -3,6 +3,7 @@ package ch.njol.skript.expressions;
 import java.util.List;
 
 import ch.njol.skript.classes.Changer.ChangeMode;
+import ch.njol.skript.lang.EventRestrictedSyntax;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.block.Block;
 import org.bukkit.event.Event;
@@ -43,7 +44,7 @@ import ch.njol.util.Kleenean;
 		"\tadd blocks above event-entity to exploded blocks"})
 @Events("explode")
 @Since("2.5, 2.8.6 (modify blocks)")
-public class ExprExplodedBlocks extends SimpleExpression<Block> {
+public class ExprExplodedBlocks extends SimpleExpression<Block> implements EventRestrictedSyntax {
 
 	static {
 		Skript.registerExpression(ExprExplodedBlocks.class, Block.class, ExpressionType.COMBINED, "[the] exploded blocks");
