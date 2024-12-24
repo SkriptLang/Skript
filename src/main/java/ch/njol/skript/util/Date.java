@@ -30,16 +30,10 @@ public class Date extends java.util.Date implements YggdrasilSerializable {
 	}
 
 	/**
-	 * Timestamp. Should always be in computer time/UTC/GMT+0.
-	 */
-	private long timestamp;
-
-	/**
 	 * Creates a new Date with the current time.
 	 */
 	public Date() {
 		super(System.currentTimeMillis());
-		timestamp = getTime();
 	}
 
 	/**
@@ -49,7 +43,6 @@ public class Date extends java.util.Date implements YggdrasilSerializable {
 	 */
 	public Date(long timestamp) {
 		super(timestamp);
-		this.timestamp = getTime();
 	}
 
 	/**
@@ -60,7 +53,6 @@ public class Date extends java.util.Date implements YggdrasilSerializable {
 	 */
 	public Date(long timestamp, TimeZone zone) {
 		super(timestamp - zone.getOffset(timestamp));
-		this.timestamp = getTime();
 	}
 
 	/**
@@ -69,8 +61,7 @@ public class Date extends java.util.Date implements YggdrasilSerializable {
 	 * @param other Timespan to add
 	 */
 	public void add(Timespan other) {
-		timestamp += other.getAs(Timespan.TimePeriod.MILLISECOND);
-		setTime(timestamp);
+		setTime(getTime() + other.getAs(Timespan.TimePeriod.MILLISECOND));
 	}
 
 	/**
@@ -79,8 +70,7 @@ public class Date extends java.util.Date implements YggdrasilSerializable {
 	 * @param other Timespan to subtract
 	 */
 	public void subtract(Timespan other) {
-		timestamp -= other.getAs(Timespan.TimePeriod.MILLISECOND);
-		setTime(timestamp);
+		setTime(getTime() - other.getAs(Timespan.TimePeriod.MILLISECOND));
 	}
 
 	/**
@@ -90,7 +80,7 @@ public class Date extends java.util.Date implements YggdrasilSerializable {
 	 * @return The difference between the provided dates as a {@link Timespan}.
 	 */
 	public Timespan difference(Date other) {
-		return new Timespan(Math.abs(timestamp - other.timestamp));
+		return new Timespan(Math.abs(getTime() - other.getTime()));
 	}
 
 	/**
@@ -100,7 +90,7 @@ public class Date extends java.util.Date implements YggdrasilSerializable {
 	 * @return New Date with the added timespan
 	 */
 	public Date plus(Timespan other) {
-		return new Date(timestamp + other.getAs(Timespan.TimePeriod.MILLISECOND));
+		return new Date(getTime() + other.getAs(Timespan.TimePeriod.MILLISECOND));
 	}
 	
 	/**
@@ -110,7 +100,7 @@ public class Date extends java.util.Date implements YggdrasilSerializable {
 	 * @return New Date with the subtracted timespan
 	 */
 	public Date minus(Timespan other) {
-		return new Date(timestamp - other.getAs(Timespan.TimePeriod.MILLISECOND));
+		return new Date(getTime() - other.getAs(Timespan.TimePeriod.MILLISECOND));
 	}
 
 	/**
@@ -118,12 +108,12 @@ public class Date extends java.util.Date implements YggdrasilSerializable {
 	 */
 	@Deprecated(forRemoval = true)
 	public long getTimestamp() {
-		return timestamp;
+		return getTime();
 	}
 
 	@Override
 	public int hashCode() {
-		return 31 + Long.hashCode(timestamp);
+		return 31 + Long.hashCode(getTime());
 	}
 
 	@Override
@@ -139,7 +129,7 @@ public class Date extends java.util.Date implements YggdrasilSerializable {
 
 	@Override
 	public String toString() {
-		return SkriptConfig.formatDate(timestamp);
+		return SkriptConfig.formatDate(getTime());
 	}
 
 }
