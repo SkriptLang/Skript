@@ -25,7 +25,7 @@ test "item enchantment glint" when running minecraft "1.20.5":
 
 	# Without Glint Enforcement
 	set {_item} to diamond
-	assert {_item} does not have enchantment glint override with "Item expected to not have enchantment glint override #1
+	assert {_item} does not have enchantment glint override with "Item expected to not have enchantment glint override #1"
 
 	set {_item} to {_item} with enchantment glint
 	clear enchantment glint override of {_item}
