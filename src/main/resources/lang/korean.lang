@@ -43,7 +43,6 @@ skript command:
 			description: 업데이트를 확인하거나, 변경 로그를 읽거나, 최신 버전의 Skript를 다운로드합니다.
 			check: 새 버전을 확인합니다.
 			changes: 현재 버전의 모든 변경 사항을 나열합니다.
-			download: 최신 버전을 다운로드합니다.
 		info: Skript의 별명 및 문서에 대한 링크가있는 메시지를 표시합니다
 		gen-docs: 플러그인 폴더의 문서 템플릿을 사용하여 문서를 생성합니다.
 		test: Skript 테스트를 실행할 때 사용됩니다.
