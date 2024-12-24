@@ -69,7 +69,7 @@ public abstract class PropertyCondition<T> extends Condition implements Checker<
 
 	/**
 	 * Registers a new property condition. The property type is set to {@link PropertyType#BE}.
-	 * 
+	 *
 	 * @param condition the class to register
 	 * @param property the property name, for example <i>fly</i> in <i>players can fly</i>
 	 * @param type must be plural, for example <i>players</i> in <i>players can fly</i>
@@ -80,7 +80,7 @@ public abstract class PropertyCondition<T> extends Condition implements Checker<
 
 	/**
 	 * Registers a new property condition.
-	 * 
+	 *
 	 * @param condition the class to register
 	 * @param propertyType the property type, see {@link PropertyType}
 	 * @param property the property name, for example <i>fly</i> in <i>players can fly</i>
@@ -93,7 +93,7 @@ public abstract class PropertyCondition<T> extends Condition implements Checker<
 
 	/**
 	 * Returns the patterns for the given property type, property and type.
-	 * 
+	 *
 	 * @param propertyType the property type, see {@link PropertyType}
 	 * @param property the property name, for example <i>fly</i> in <i>players can fly</i>
 	 * @param type must be plural, for example <i>players</i> in <i>players can fly</i>
@@ -103,31 +103,24 @@ public abstract class PropertyCondition<T> extends Condition implements Checker<
 		if (type.contains("%"))
 			throw new SkriptAPIException("The type argument must not contain any '%'s");
 
-		switch (propertyType) {
-			case BE:
-				return new String[]{
-						"%" + type + "% (is|are) " + property,
-						"%" + type + "% (isn't|is not|aren't|are not) " + property
-				};
-			case CAN:
-				return new String[]{
-						"%" + type + "% can " + property,
-						"%" + type + "% (can't|cannot|can not) " + property
-				};
-			case HAVE:
-				return new String[]{
-						"%" + type + "% (has|have) " + property,
-						"%" + type + "% (doesn't|does not|do not|don't) have " + property
-				};
-			case WILL:
-				return new String[]{
-						"%" + type + "% will " + property,
-						"%" + type + "% (will (not|neither)|won't) " + property
-				};
-			default:
-				assert false;
-				return null;
-		}
+		return switch (propertyType) {
+			case BE -> new String[] {
+				"%" + type + "% (is|are) " + property,
+				"%" + type + "% (isn't|is not|aren't|are not) " + property
+			};
+			case CAN -> new String[] {
+				"%" + type + "% can " + property,
+				"%" + type + "% (can't|cannot|can not) " + property
+			};
+			case HAVE -> new String[] {
+				"%" + type + "% (has|have) " + property,
+				"%" + type + "% (doesn't|does not|do not|don't) have " + property
+			};
+			case WILL -> new String[] {
+				"%" + type + "% will " + property,
+				"%" + type + "% (will (not|neither)|won't) " + property
+			};
+		};
 	}
 
 	@Override
