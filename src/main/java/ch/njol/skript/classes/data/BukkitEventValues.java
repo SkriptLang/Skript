@@ -18,6 +18,7 @@ import com.destroystokyo.paper.event.entity.EndermanAttackPlayerEvent;
 import com.destroystokyo.paper.event.entity.ProjectileCollideEvent;
 import com.destroystokyo.paper.event.inventory.PrepareResultEvent;
 import com.destroystokyo.paper.event.player.PlayerArmorChangeEvent;
+import com.destroystokyo.paper.event.player.PlayerElytraBoostEvent;
 import io.papermc.paper.event.entity.EntityMoveEvent;
 import io.papermc.paper.event.player.*;
 import org.bukkit.*;
@@ -53,7 +54,6 @@ import org.bukkit.inventory.*;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.potion.PotionType;
-import org.skriptlang.skript.lang.converter.Converter;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -692,6 +692,12 @@ public final class BukkitEventValues {
 		// EntityRegainHealthEvent
 		EventValues.registerEventValue(EntityRegainHealthEvent.class, RegainReason.class, EntityRegainHealthEvent::getRegainReason);
 
+		// FurnaceExtractEvent
+		EventValues.registerEventValue(FurnaceExtractEvent.class, Player.class, FurnaceExtractEvent::getPlayer);
+		EventValues.registerEventValue(FurnaceExtractEvent.class, ItemStack[].class,
+			event -> new ItemStack[]{ItemStack.of(event.getItemType(), event.getItemAmount())
+		});
+
 		// BlockDropItemEvent
 		EventValues.registerEventValue(BlockDropItemEvent.class, Block.class,
 			event -> new BlockStateBlock(event.getBlockState()), TIME_PAST);
@@ -723,6 +729,13 @@ public final class BukkitEventValues {
 		if (Skript.classExists("io.papermc.paper.event.player.PlayerChangeBeaconEffectEvent")) {
 			EventValues.registerEventValue(PlayerChangeBeaconEffectEvent.class, Block.class, PlayerChangeBeaconEffectEvent::getBeacon);
 		}
+
+		// PlayerElytraBoostEvent
+		if (Skript.classExists("com.destroystokyo.paper.event.player.PlayerElytraBoostEvent")) {
+			EventValues.registerEventValue(PlayerElytraBoostEvent.class, ItemStack.class, PlayerElytraBoostEvent::getItemStack);
+			EventValues.registerEventValue(PlayerElytraBoostEvent.class, Entity.class, PlayerElytraBoostEvent::getFirework);
+		}
+
 	}
 
 }

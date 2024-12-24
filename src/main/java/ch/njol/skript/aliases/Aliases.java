@@ -447,12 +447,7 @@ public abstract class Aliases {
 			Skript.warning("An item that has the id 'mod:item' can be used as 'mod's item' or 'item from mod'.");
 			Skript.warning("WARNING: Skript does not officially support any modded servers.");
 			Skript.warning("Any issues you encounter related to modded items will be your responsibility to fix.");
-			Skript.warning("The server will keep loading after 5 seconds.");
 			Skript.warning("==============================================================");
-			try {
-				Thread.sleep(5000L);
-			} catch (InterruptedException ignored) {
-			}
 		}
 	}
 
