@@ -1,22 +1,9 @@
-/**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
 package ch.njol.skript.lang;
+
+import java.lang.reflect.Array;
+import java.util.*;
+import java.util.Map.Entry;
+import java.util.function.Function;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptAPIException;
@@ -54,17 +41,6 @@ import org.skriptlang.skript.lang.comparator.Relation;
 import org.skriptlang.skript.lang.converter.Converters;
 import org.skriptlang.skript.lang.script.Script;
 import org.skriptlang.skript.lang.script.ScriptWarning;
-
-import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.NoSuchElementException;
-import java.util.TreeMap;
-import java.util.function.Function;
 
 public class Variable<T> implements Expression<T> {
 
@@ -579,14 +555,15 @@ public class Variable<T> implements Expression<T> {
 					if (mode == ChangeMode.REMOVE) {
 						if (map == null)
 							return;
-						ArrayList<String> toRemove = new ArrayList<>(); // prevents CMEs
+						Set<String> toRemove = new HashSet<>(); // prevents CMEs
 						for (Object value : delta) {
 							for (Entry<String, Object> entry : map.entrySet()) {
+								String key = entry.getKey();
+								if (key == null)
+									continue; // This is NOT a part of list variable
+								if (toRemove.contains(key))
+									continue; // Skip if we've already marked this key to be removed
 								if (Relation.EQUAL.isImpliedBy(Comparators.compare(entry.getValue(), value))) {
-									String key = entry.getKey();
-									if (key == null)
-										continue; // This is NOT a part of list variable
-
 									// Otherwise, we'll mark that key to be set to null
 									toRemove.add(key);
 									break;
@@ -600,7 +577,7 @@ public class Variable<T> implements Expression<T> {
 					} else if (mode == ChangeMode.REMOVE_ALL) {
 						if (map == null)
 							return;
-						ArrayList<String> toRemove = new ArrayList<>(); // prevents CMEs
+						Set<String> toRemove = new HashSet<>(); // prevents CMEs
 						for (Entry<String, Object> i : map.entrySet()) {
 							for (Object value : delta) {
 								if (Relation.EQUAL.isImpliedBy(Comparators.compare(i.getValue(), value)))
