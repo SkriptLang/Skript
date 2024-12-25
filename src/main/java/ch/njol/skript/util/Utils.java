@@ -512,9 +512,6 @@ public abstract class Utils {
 	final static Map<String, String> chat = new HashMap<>();
 	final static Map<String, String> englishChat = new HashMap<>();
 
-	public final static boolean HEX_SUPPORTED = true;
-	public final static boolean COPY_SUPPORTED = true;
-
 	static {
 		Language.addListener(new LanguageChangeListener() {
 			@Override
@@ -547,7 +544,7 @@ public abstract class Utils {
 	 * @param message
 	 * @return message with localised chat styles converted to Minecraft's format
 	 */
-	public static String replaceChatStyles(String message) {
+	public static @NotNull String replaceChatStyles(String message) {
 		if (message.isEmpty())
 			return message;
 
@@ -561,7 +558,7 @@ public abstract class Utils {
 	 * @param message
 	 * @return message with english chat styles converted to Minecraft's format
 	 */
-	public static String replaceEnglishChatStyles(String message) {
+	public static @NotNull String replaceEnglishChatStyles(String message) {
 		if (message.isEmpty())
 			return message;
 
@@ -628,7 +625,7 @@ public abstract class Utils {
 	 * @param string The string code to parse.
 	 * @return The ChatColor, or null if it couldn't be parsed.
 	 */
-	public static ChatColor parseHexColor(String string) {
+	public static @Nullable ChatColor parseHexColor(String string) {
 		Matcher matcher = HEX_PATTERN.matcher(string);
 		if (!matcher.matches())
 			return null;
