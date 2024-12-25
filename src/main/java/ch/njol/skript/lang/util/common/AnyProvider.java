@@ -16,6 +16,7 @@ package ch.njol.skript.lang.util.common;
  *     <li>the presence of the supertype might confuse the class's design</li>
  * </ul>
  * In these cases, a converter from the class to the AnyX type can be registered.
+ * The converter should not permit right-chaining or unsafe casts.
  * <br/>
  * <br/>
  * The root provider supertype cannot include its own common methods, since these

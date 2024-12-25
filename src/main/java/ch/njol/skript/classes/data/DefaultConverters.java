@@ -191,9 +191,9 @@ public class DefaultConverters {
 				@Override
 				public @UnknownNullability String name() {
 					BlockState state = block.getState();
-					if (state instanceof Nameable)
+					if (state instanceof Nameable nameable)
 						//noinspection deprecation
-						return ((Nameable) state).getCustomName();
+						return nameable.getCustomName();
 					return null;
 				}
 
@@ -205,9 +205,9 @@ public class DefaultConverters {
 				@Override
 				public void setName(String name) {
 					BlockState state = block.getState();
-					if (state instanceof Nameable)
+					if (state instanceof Nameable nameable)
 						//noinspection deprecation
-						((Nameable) state).setCustomName(name);
+						nameable.setCustomName(name);
 				}
 			},
 			//</editor-fold>

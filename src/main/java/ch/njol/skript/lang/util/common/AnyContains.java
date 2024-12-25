@@ -20,7 +20,7 @@ public interface AnyContains<Type> extends AnyProvider {
 	 * The null-ness of the parameter depends on whether {@link #isSafeToCheck(Object)} permits null values.
 	 *
 	 * @param value The value to test
-	 * @return Whether this contains {@param value}
+	 * @return Whether this contains {@code value}
 	 */
 	boolean contains(@UnknownNullability Type value);
 
@@ -30,7 +30,7 @@ public interface AnyContains<Type> extends AnyProvider {
 	 * then it can exclude unwanted types (or null values) here.
 	 *
 	 * @param value The value to check
-	 * @return Whether this is safe to call {@link #contains(Object)} with
+	 * @return Whether the value is safe to call {@link #contains(Object)} with
 	 */
 	default boolean isSafeToCheck(Object value) {
 		return true;
