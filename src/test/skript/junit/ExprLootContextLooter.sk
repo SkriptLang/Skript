@@ -1,0 +1,22 @@
+options:
+	test: "org.skriptlang.skript.test.tests.syntaxes.expressions.ExprLootContextLooterTest"
+
+test "ExprLootContextKillerJUnit" when running JUnit:
+	set {_tests::1} to "set killer"
+	set {_tests::2} to "clear killer"
+	ensure junit test {@test} completes {_tests::*}
+
+on join:
+	junit test is {@test}
+
+	set {_player} to player
+	set {_context} to a loot context at player's location:
+		set looter to {_player}
+
+		if looter is {_player}:
+			complete objective "set killer" for {@test}
+
+		reset looter
+
+		if looter is not set:
+			complete objective "clear killer" for {@test}
