@@ -27,7 +27,6 @@ test "worldborder expand":
 	shrink {_border}'s radius by 0
 	assert worldborder radius of {_border} is 100 with "Shrinking the radius by 0 changed the radius"
 
-
 	grow {_border} by {_None}
 	assert worldborder radius of {_border} is 100 with "Growing border by None changed the radius"
 

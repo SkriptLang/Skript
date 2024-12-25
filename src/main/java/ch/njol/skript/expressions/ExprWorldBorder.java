@@ -17,7 +17,7 @@ import org.jetbrains.annotations.Nullable;
 @Name("World Border")
 @Description({
 	"Get the border of a world or a player.",
-	"Note: The player's world border is not persistent (ie: restarts, quitting, death, world change will reset the border)."
+	"A player's world border is not persistent. Restarts, quitting, death or world change will reset the border."
 })
 @Examples("set {_border} to world border of player's world")
 @Since("INSERT VERSION")
@@ -28,8 +28,7 @@ public class ExprWorldBorder extends SimplePropertyExpression<Object, WorldBorde
 	}
 
 	@Override
-	@Nullable
-	public WorldBorder convert(Object object) {
+	public @Nullable WorldBorder convert(Object object) {
 		if (object instanceof World world) {
 			return world.getWorldBorder();
 		} else if (object instanceof Player player) {
@@ -46,7 +45,7 @@ public class ExprWorldBorder extends SimplePropertyExpression<Object, WorldBorde
 	}
 
 	@Override
-	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
+	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
 		Object[] objects = getExpr().getArray(event);
 		if (mode == ChangeMode.RESET) {
 			for (Object object : objects) {
@@ -84,4 +83,5 @@ public class ExprWorldBorder extends SimplePropertyExpression<Object, WorldBorde
 	public Class<? extends WorldBorder> getReturnType() {
 		return WorldBorder.class;
 	}
+
 }

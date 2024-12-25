@@ -25,8 +25,7 @@ public class ExprWorldBorderWarningDistance extends SimplePropertyExpression<Wor
 	}
 
 	@Override
-	@Nullable
-	public Integer convert(WorldBorder worldBorder) {
+	public @Nullable Integer convert(WorldBorder worldBorder) {
 		return worldBorder.getWarningDistance();
 	}
 
@@ -39,7 +38,7 @@ public class ExprWorldBorderWarningDistance extends SimplePropertyExpression<Wor
 	}
 
 	@Override
-	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
+	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
 		int input = mode == ChangeMode.RESET ? 5 : ((Number) delta[0]).intValue();
 		for (WorldBorder worldBorder : getExpr().getArray(event)) {
 			switch (mode) {
@@ -53,7 +52,7 @@ public class ExprWorldBorderWarningDistance extends SimplePropertyExpression<Wor
 
 	@Override
 	protected String getPropertyName() {
-		return "border warning distance";
+		return "world border warning distance";
 	}
 
 	@Override

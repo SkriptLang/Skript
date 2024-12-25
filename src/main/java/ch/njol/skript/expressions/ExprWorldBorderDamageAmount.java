@@ -14,8 +14,7 @@ import org.jetbrains.annotations.Nullable;
 @Name("Damage Amount of World Border")
 @Description({
 	"The amount of damage a player takes per second for each block they are outside the border plus the border buffer.",
-	"Note: Players only take damage when outside of the world's world border",
-	"Note: Damage can not be less than 0"
+	"Players only take damage when outside of the world's world border, and the damage value cannot be less than 0.",
 })
 @Examples("set world border damage amount of {_worldborder} to 1")
 @Since("INSERT VERSION")
@@ -26,8 +25,7 @@ public class ExprWorldBorderDamageAmount extends SimplePropertyExpression<WorldB
 	}
 
 	@Override
-	@Nullable
-	public Double convert(WorldBorder worldBorder) {
+	public @Nullable Double convert(WorldBorder worldBorder) {
 		return worldBorder.getDamageAmount();
 	}
 
@@ -40,7 +38,7 @@ public class ExprWorldBorderDamageAmount extends SimplePropertyExpression<WorldB
 	}
 
 	@Override
-	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
+	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
 		double input = mode == ChangeMode.RESET ? 0.2 : ((Number) delta[0]).doubleValue();
 		for (WorldBorder worldBorder : getExpr().getArray(event)) {
 			switch (mode) {
@@ -54,7 +52,7 @@ public class ExprWorldBorderDamageAmount extends SimplePropertyExpression<WorldB
 
 	@Override
 	protected String getPropertyName() {
-		return "border damage amount";
+		return "world border damage amount";
 	}
 
 	@Override

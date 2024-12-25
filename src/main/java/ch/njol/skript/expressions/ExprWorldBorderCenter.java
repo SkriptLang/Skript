@@ -23,8 +23,7 @@ public class ExprWorldBorderCenter extends SimplePropertyExpression<WorldBorder,
 	}
 
 	@Override
-	@Nullable
-	public Location convert(WorldBorder worldBorder) {
+	public @Nullable Location convert(WorldBorder worldBorder) {
 		return worldBorder.getCenter();
 	}
 
@@ -37,7 +36,7 @@ public class ExprWorldBorderCenter extends SimplePropertyExpression<WorldBorder,
 	}
 
 	@Override
-	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
+	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
 		Location location = mode == ChangeMode.SET ? (Location) delta[0] : null;
 		for (WorldBorder worldBorder : getExpr().getArray(event)) {
 			switch (mode) {
@@ -58,11 +57,12 @@ public class ExprWorldBorderCenter extends SimplePropertyExpression<WorldBorder,
 
 	@Override
 	protected String getPropertyName() {
-		return "border center";
+		return "world border center";
 	}
 
 	@Override
 	public Class<? extends Location> getReturnType() {
 		return Location.class;
 	}
+
 }

@@ -18,8 +18,8 @@ import org.jetbrains.annotations.Nullable;
 @Name("Expand/Shrink World Border")
 @Description({
 	"Expand or shrink the size of a world border.",
-	"Note: Using <code>by</code> adds/subtracts from the current size of the world border.",
-	"Using <code>to</code> sets to the specified size."
+	"Note: Using `by` adds/subtracts from the current size of the world border.",
+	"Using `to` sets to the specified size."
 })
 @Examples({
 	"expand world border of player by 100 in 5 seconds",
@@ -30,10 +30,10 @@ public class EffWorldBorderExpand extends Effect {
 
 	static {
 		Skript.registerEffect(EffWorldBorderExpand.class,
-			"(expand|grow) [(diameter|:radius) of] %worldborders% (by|:to) %number% [over [[a ](time|period) of] %-timespan%]",
-			"(expand|grow) %worldborders%['s (diameter|:radius)] (by|:to) %number% [over [[a ](time|period) of] %-timespan%]",
-			"(contract|shrink) [(diameter|:radius) of] %worldborders% (by|:to) %number% [over [[a ](time|period) of] %-timespan%]",
-			"(contract|shrink) %worldborders%['s (diameter|:radius)] (by|:to) %number% [over [[a ](time|period) of] %-timespan%]"
+			"(expand|grow) [(diameter|:radius) of] %worldborders% (by|:to) %number% [over [a period of] %-timespan%]",
+			"(expand|grow) %worldborders%['s (diameter|:radius)] (by|:to) %number% [over [a period of] %-timespan%]",
+			"(contract|shrink) [(diameter|:radius) of] %worldborders% (by|:to) %number% [over [a period of] %-timespan%]",
+			"(contract|shrink) %worldborders%['s (diameter|:radius)] (by|:to) %number% [over [a period of] %-timespan%]"
 
 		);
 	}

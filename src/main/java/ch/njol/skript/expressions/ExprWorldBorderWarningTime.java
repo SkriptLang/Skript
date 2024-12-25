@@ -24,8 +24,7 @@ public class ExprWorldBorderWarningTime extends SimplePropertyExpression<WorldBo
 	}
 
 	@Override
-	@Nullable
-	public Timespan convert(WorldBorder worldBorder) {
+	public @Nullable Timespan convert(WorldBorder worldBorder) {
 		return new Timespan(TimePeriod.SECOND, worldBorder.getWarningTime());
 	}
 
@@ -38,7 +37,7 @@ public class ExprWorldBorderWarningTime extends SimplePropertyExpression<WorldBo
 	}
 
 	@Override
-	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
+	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
 		int input = mode == ChangeMode.RESET ? 15 : (int) (((Timespan) delta[0]).getAs(TimePeriod.SECOND));
 		for (WorldBorder worldBorder : getExpr().getArray(event)) {
 			switch (mode) {
@@ -52,7 +51,7 @@ public class ExprWorldBorderWarningTime extends SimplePropertyExpression<WorldBo
 
 	@Override
 	protected String getPropertyName() {
-		return "border warning time";
+		return "world border warning time";
 	}
 
 	@Override

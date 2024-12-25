@@ -34,8 +34,7 @@ public class ExprWorldBorderSize extends SimplePropertyExpression<WorldBorder, D
     }
 
 	@Override
-	@Nullable
-	public Double convert(WorldBorder worldBorder) {
+	public @Nullable Double convert(WorldBorder worldBorder) {
 		return worldBorder.getSize() * (radius ? 0.5 : 1);
 	}
 
@@ -48,7 +47,7 @@ public class ExprWorldBorderSize extends SimplePropertyExpression<WorldBorder, D
 	}
 
 	@Override
-	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
+	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
 		double input = mode == ChangeMode.RESET ? 6.0E7 : Math.max(1, Math.min(((Number) delta[0]).doubleValue() * (radius ? 2 : 1), 6.0E7));
 		for (WorldBorder worldBorder : getExpr().getArray(event)) {
 			switch (mode) {
@@ -61,7 +60,7 @@ public class ExprWorldBorderSize extends SimplePropertyExpression<WorldBorder, D
 
 	@Override
 	protected String getPropertyName() {
-		return "border size";
+		return "world border size";
 	}
 
 	@Override
@@ -73,4 +72,5 @@ public class ExprWorldBorderSize extends SimplePropertyExpression<WorldBorder, D
 	public String toString(@Nullable Event event, boolean debug) {
 		return "border " + (radius ? "radius" : "diameter") + " of " + getExpr().toString(event, debug);
 	}
+
 }

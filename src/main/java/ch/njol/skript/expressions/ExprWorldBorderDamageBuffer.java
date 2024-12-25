@@ -14,8 +14,7 @@ import org.jetbrains.annotations.Nullable;
 @Name("Damage Buffer of World Border")
 @Description({
 	"The amount of blocks a player may safely be outside the border before taking damage.",
-	"Note: Players only take damage when outside of the world's world border",
-	"Note: Damage buffer distance can not be less than 0"
+	"Players only take damage when outside of the world's world border, and the damage buffer distance cannot be less than 0."
 })
 @Examples("set world border damage buffer of {_worldborder} to 10")
 @Since("INSERT VERSION")
@@ -26,8 +25,7 @@ public class ExprWorldBorderDamageBuffer extends SimplePropertyExpression<WorldB
 	}
 
 	@Override
-	@Nullable
-	public Double convert(WorldBorder worldBorder) {
+	public @Nullable Double convert(WorldBorder worldBorder) {
 		return worldBorder.getDamageBuffer();
 	}
 
@@ -40,7 +38,7 @@ public class ExprWorldBorderDamageBuffer extends SimplePropertyExpression<WorldB
 	}
 
 	@Override
-	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
+	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
 		double input = mode == ChangeMode.RESET ? 5 : ((Number) delta[0]).doubleValue();
 		for (WorldBorder worldBorder : getExpr().getArray(event)) {
 			switch (mode) {
@@ -54,7 +52,7 @@ public class ExprWorldBorderDamageBuffer extends SimplePropertyExpression<WorldB
 
 	@Override
 	protected String getPropertyName() {
-		return "border damage buffer";
+		return "world border damage buffer";
 	}
 
 	@Override
