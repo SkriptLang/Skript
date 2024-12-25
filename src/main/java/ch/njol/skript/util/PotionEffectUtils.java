@@ -1,21 +1,3 @@
-/**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
 package ch.njol.skript.util;
 
 import java.util.ArrayList;
@@ -29,7 +11,6 @@ import org.bukkit.entity.ThrownPotion;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.inventory.meta.SuspiciousStewMeta;
-import org.bukkit.potion.Potion;
 import org.bukkit.potion.PotionData;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
@@ -118,7 +99,7 @@ public abstract class PotionEffectUtils {
 		builder.append(" of tier ").append(potionEffect.getAmplifier() + 1);
 		if (!potionEffect.hasParticles())
 			builder.append(" without particles");
-		builder.append(" for ").append(potionEffect.getDuration() == -1 ? "infinity" : Timespan.fromTicks(Math.abs(potionEffect.getDuration())));
+		builder.append(" for ").append(potionEffect.getDuration() == -1 ? "infinity" : new Timespan(Timespan.TimePeriod.TICK, Math.abs(potionEffect.getDuration())));
 		if (!potionEffect.hasIcon())
 			builder.append(" without icon");
 		return builder.toString();
@@ -127,18 +108,7 @@ public abstract class PotionEffectUtils {
 	public static String[] getNames() {
 		return names;
 	}
-	
-	public static short guessData(final ThrownPotion p) {
-		if (p.getEffects().size() == 1) {
-			final PotionEffect e = p.getEffects().iterator().next();
-			PotionType type = PotionType.getByEffect(e.getType());
-			assert type != null;
-			final Potion d = new Potion(type).splash();
-			return d.toDamageValue();
-		}
-		return 0;
-	}
-	
+
 	/**
 	 * Checks if given string represents a known potion type and returns that type.
 	 * Unused currently, will be used soon (TM).
