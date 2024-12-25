@@ -223,7 +223,7 @@ public class SkriptParser {
 
 							if (element instanceof EventRestrictedSyntax eventRestrictedSyntax) {
 								Class<? extends Event>[] supportedEvents = eventRestrictedSyntax.supportedEvents();
-								if (supportedEvents.length > 0 && !getParser().isCurrentEvent(supportedEvents)) {
+								if (!getParser().isCurrentEvent(supportedEvents)) {
 									StringJoiner joiner = new StringJoiner(", ", "the ", "");
 
 									Arrays.stream(supportedEvents)
