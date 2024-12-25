@@ -44,7 +44,7 @@ skript command:
 		info: Skript'in alias ve dökümantasyon bağlantılarını gösterir.
 		gen-docs: Eklenti klasöründeki şablonları kullanarak bir dokümantasyon oluşturur.
 		test: Skript'in dahili testleri için kullanılır.
-		locate: Bir işlevi bulmak için kullanılır
+		locate: Bir fonksiyonu bulmak için kullanılır.
 
 	invalid script: <grey>'<gold>%s<grey>'<red> adlı script scripts klasöründe bulunamadı!
 	invalid folder: <grey>'<gold>%s<grey>'<red> adlı klasör scripts klasöründe bulunamadı!
@@ -118,8 +118,8 @@ skript command:
 		dependencies: Bağımlılıklar: <aqua>%s
 	locate:
 		function found: Fonksiyon '&e%s&f' şurada bulunur: &6%s&f, Satır: &6%s
-		function provided: İşlev '&e%s&f' tarafından sağlanır Skript
-		function not found: İşlev '%s' bulunamıyor
+		function provided: Fonksiyon '&e%s&f' Skript tarafından eklendi.
+		function not found: '%s' isimli fonksiyon bulunamadı.
 
 # -- Updater --
 updater:
