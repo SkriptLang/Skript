@@ -1,21 +1,3 @@
-/**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
 package ch.njol.skript.localization;
 
 import ch.njol.skript.Skript;
@@ -198,8 +180,8 @@ public class Language {
 				englishIs = null;
 			}
 		}
-		HashMap<String, String> def = load(defaultIs, "default", false);
-		HashMap<String, String> en = load(englishIs, "english", addon == Skript.getAddonInstance());
+		Map<String, String> def = load(defaultIs, "default", false);
+		Map<String, String> en = load(englishIs, "english", addon == Skript.getAddonInstance());
 
 		String v = def.get("version");
 		if (v == null)
@@ -249,7 +231,7 @@ public class Language {
 		if (name.equals("english") && addon.plugin.getResource(addon.getLanguageFileDirectory() + "/default.lang") == null)
 			return true;
 
-		HashMap<String, String> l = load(addon.plugin.getResource(addon.getLanguageFileDirectory() + "/" + name + ".lang"), name, tryUpdate);
+		Map<String, String> l = load(addon.plugin.getResource(addon.getLanguageFileDirectory() + "/" + name + ".lang"), name, tryUpdate);
 		File file = new File(addon.plugin.getDataFolder(), addon.getLanguageFileDirectory() + File.separator + name + ".lang");
 		try {
 			if (file.exists())
@@ -290,7 +272,7 @@ public class Language {
 		return true;
 	}
 	
-	private static HashMap<String, String> load(@Nullable InputStream in, String name, boolean tryUpdate) {
+	private static Map<String, String> load(@Nullable InputStream in, String name, boolean tryUpdate) {
 		if (in == null)
 			return new HashMap<>();
 
