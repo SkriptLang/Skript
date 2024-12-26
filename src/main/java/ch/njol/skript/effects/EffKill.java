@@ -28,7 +28,8 @@ import org.jetbrains.annotations.Nullable;
 		"kill all creepers in the player's world",
 		"kill all endermen, witches and bats",
 		"kill the player ignoring totem of undying",
-		"kill target entity ignoring totem of undying",})
+		"kill target entity ignoring totem of undying",
+})
 @Since("1.0, INSERT VERSION (ignoring totem of undying)")
 public class EffKill extends Effect {
 
