@@ -224,13 +224,16 @@ public class SkriptParser {
 							if (element instanceof EventRestrictedSyntax eventRestrictedSyntax) {
 								Class<? extends Event>[] supportedEvents = eventRestrictedSyntax.supportedEvents();
 								if (!getParser().isCurrentEvent(supportedEvents)) {
-									StringJoiner joiner = new StringJoiner(", ", "the ", "");
+									Iterator<String> iterator = Arrays.stream(supportedEvents)
+										.map(it -> "the " + it.getSimpleName()
+											.replaceAll("([A-Z])", " $1")
+											.toLowerCase()
+											.trim())
+										.iterator();
 
-									Arrays.stream(supportedEvents)
-										.map(it -> it.getSimpleName().replaceAll("([A-Z])", " $1").toLowerCase().trim())
-										.forEachOrdered(joiner::add);
+									String events = StringUtils.join(iterator, ",", " or ");
 
-									Skript.error("'" + parseResult.expr + "' can only be used in " + joiner);
+									Skript.error("'" + parseResult.expr + "' can only be used in " + events);
 									continue;
 								}
 							}
