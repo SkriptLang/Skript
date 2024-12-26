@@ -411,21 +411,12 @@ public class SkriptCommand implements CommandExecutor {
 					if (args[1].equalsIgnoreCase("all")) {
 						scriptFile = TestMode.TEST_DIR.toFile();
 					} else {
-						String fileName = Arrays.stream(args).skip(1).collect(Collectors.joining(" "));
-
-						// Add .sk if the file is not a directory and doesn't currently have .sk
-						if (!fileName.endsWith(".sk") && !fileName.endsWith("/"))
-							fileName += ".sk";
-
-						// Tab complete starts with a slash, let's get rid of it
-						if (fileName.startsWith("/"))
-							fileName = fileName.substring(1);
-						scriptFile = TestMode.TEST_DIR.resolve(fileName).toFile();
+						scriptFile = getScriptFromArgs(sender, args, TestMode.TEST_DIR.toFile());
 						TestMode.lastTestFile = scriptFile;
 					}
 				}
 
-				if (!scriptFile.exists()) {
+				if (scriptFile == null || !scriptFile.exists()) {
 					Skript.error(sender, "Test script doesn't exist!");
 					return true;
 				}
@@ -490,8 +481,13 @@ public class SkriptCommand implements CommandExecutor {
 
 	@Nullable
 	private static File getScriptFromArgs(CommandSender sender, String[] args) {
+		return getScriptFromArgs(sender, args, Skript.getInstance().getScriptsFolder());
+	}
+
+	@Nullable
+	private static File getScriptFromArgs(CommandSender sender, String[] args, File directoryFile) {
 		String script = StringUtils.join(args, " ", 1, args.length);
-		File f = getScriptFromName(script);
+		File f = getScriptFromName(script, directoryFile);
 		if (f == null) {
 			// Always allow '/' and '\' regardless of OS
 			boolean directory = script.endsWith("/") || script.endsWith("\\") || script.endsWith(File.separator);
@@ -503,6 +499,11 @@ public class SkriptCommand implements CommandExecutor {
 
 	@Nullable
 	public static File getScriptFromName(String script) {
+		return getScriptFromName(script, Skript.getInstance().getScriptsFolder());
+	}
+
+	@Nullable
+	public static File getScriptFromName(String script, File directoryFile) {
 		if (script.endsWith("/") || script.endsWith("\\")) { // Always allow '/' and '\' regardless of OS
 			script = script.replace('/', File.separatorChar).replace('\\', File.separatorChar);
 		} else if (!StringUtils.endsWithIgnoreCase(script, ".sk")) {
@@ -515,7 +516,7 @@ public class SkriptCommand implements CommandExecutor {
 		if (script.startsWith(ScriptLoader.DISABLED_SCRIPT_PREFIX))
 			script = script.substring(ScriptLoader.DISABLED_SCRIPT_PREFIX_LENGTH);
 
-		File scriptFile = new File(Skript.getInstance().getScriptsFolder(), script);
+		File scriptFile = new File(directoryFile, script);
 		if (!scriptFile.exists()) {
 			scriptFile = new File(scriptFile.getParentFile(), ScriptLoader.DISABLED_SCRIPT_PREFIX + scriptFile.getName());
 			if (!scriptFile.exists()) {
