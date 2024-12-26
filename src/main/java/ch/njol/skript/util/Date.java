@@ -33,7 +33,7 @@ public class Date extends java.util.Date implements YggdrasilSerializable {
 	 * Creates a new Date with the current time.
 	 */
 	public Date() {
-		super(System.currentTimeMillis());
+		super();
 	}
 
 	/**
