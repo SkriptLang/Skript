@@ -34,7 +34,7 @@ import org.jetbrains.annotations.Nullable;
 public class EffKill extends Effect {
 
 	static {
-		Skript.registerEffect(EffKill.class, "kill %entities%", "kill %entities% ignoring [the|any] totem[s] [of undying]");
+		Skript.registerEffect(EffKill.class, "kill %entities%", "kill %entities% ignoring [the|any] totem[s] of undying");
 	}
 	
 	@SuppressWarnings("null")
