@@ -42,15 +42,11 @@ public class ExprSecCreateWorldBorder extends SectionExpression<WorldBorder> {
 		return true;
 	}
 
-	@Nullable
 	@Override
-	protected WorldBorder[] get(Event event) {
+	protected WorldBorder @Nullable [] get(Event event) {
 		if (trigger == null) return new WorldBorder[] {worldBorder};
 		CreateWorldborderEvent worldborderEvent = new CreateWorldborderEvent(worldBorder);
-		Variables.setLocalVariables(worldborderEvent, Variables.copyLocalVariables(event));
-		TriggerItem.walk(trigger, worldborderEvent);
-		Variables.setLocalVariables(event, Variables.copyLocalVariables(worldborderEvent));
-		Variables.removeLocals(worldborderEvent);
+		Variables.withLocalVariables(event, worldborderEvent, () -> TriggerItem.walk(trigger, worldborderEvent));
 		if (worldborderEvent.getErrorInSection())
 			return null;
 		return new WorldBorder[] {worldborderEvent.getWorldBorder()};
