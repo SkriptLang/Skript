@@ -46,7 +46,7 @@ public class TestResults {
 		StringBuilder sb = new StringBuilder("Succeeded:\n");
 		for (String test : succeeded)
 			sb.append("<light green>").append(test).append('\n');
-		sb.append("<reset>").append("Failed:\n");
+		sb.append("<reset>Failed:\n");
 		for (Map.Entry<String, String> entry : failed.entrySet())
 			sb.append("<light red>").append(entry.getKey()).append("<reset>: <gray>").append(entry.getValue()).append('\n');
 		return sb.toString();
