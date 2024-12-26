@@ -23,7 +23,7 @@ import org.jetbrains.annotations.Nullable;
 public class ExprWorldBorderSize extends SimplePropertyExpression<WorldBorder, Double> {
 
 	static {
-		register(ExprWorldBorderSize.class, Double.class, "world[ ]border (size|diameter|:radius)", "worldborders");
+		registerDefault(ExprWorldBorderSize.class, Double.class, "world[ ]border (size|diameter|:radius)", "worldborders");
 	}
 
 	private boolean radius;

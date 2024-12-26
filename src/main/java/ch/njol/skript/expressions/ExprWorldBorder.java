@@ -23,7 +23,7 @@ import org.jetbrains.annotations.Nullable;
 public class ExprWorldBorder extends SimplePropertyExpression<Object, WorldBorder> {
 
 	static {
-		register(ExprWorldBorder.class, WorldBorder.class, "world[ ]border", "worlds/players");
+		registerDefault(ExprWorldBorder.class, WorldBorder.class, "world[ ]border", "worlds/players");
 	}
 
 	@Override

@@ -20,7 +20,7 @@ import org.jetbrains.annotations.Nullable;
 public class ExprWorldBorderWarningTime extends SimplePropertyExpression<WorldBorder, Timespan> {
 
 	static {
-		register(ExprWorldBorderWarningTime.class, Timespan.class, "world[ ]border warning time", "worldborders");
+		registerDefault(ExprWorldBorderWarningTime.class, Timespan.class, "world[ ]border warning time", "worldborders");
 	}
 
 	@Override

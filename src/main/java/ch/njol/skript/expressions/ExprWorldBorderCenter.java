@@ -19,7 +19,7 @@ import org.jetbrains.annotations.Nullable;
 public class ExprWorldBorderCenter extends SimplePropertyExpression<WorldBorder, Location> {
 
 	static {
-		register(ExprWorldBorderCenter.class, Location.class, "world[ ]border (center|middle)", "worldborders");
+		registerDefault(ExprWorldBorderCenter.class, Location.class, "world[ ]border (center|middle)", "worldborders");
 	}
 
 	@Override

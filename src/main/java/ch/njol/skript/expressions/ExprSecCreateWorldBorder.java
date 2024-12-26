@@ -20,7 +20,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class ExprSecCreateWorldBorder extends SectionExpression<WorldBorder> {
 
 	static {
-		Skript.registerExpression(ExprSecCreateWorldBorder.class, WorldBorder.class, ExpressionType.SIMPLE, "a new world[ ]border");
+		Skript.registerExpression(ExprSecCreateWorldBorder.class, WorldBorder.class, ExpressionType.SIMPLE, "a [virtual] world[ ]border");
 		EventValues.registerEventValue(CreateWorldborderEvent.class, WorldBorder.class, CreateWorldborderEvent::getWorldBorder, EventValues.TIME_NOW);
 	}
 
@@ -47,8 +47,6 @@ public class ExprSecCreateWorldBorder extends SectionExpression<WorldBorder> {
 		if (trigger == null) return new WorldBorder[] {worldBorder};
 		CreateWorldborderEvent worldborderEvent = new CreateWorldborderEvent(worldBorder);
 		Variables.withLocalVariables(event, worldborderEvent, () -> TriggerItem.walk(trigger, worldborderEvent));
-		if (worldborderEvent.getErrorInSection())
-			return null;
 		return new WorldBorder[] {worldborderEvent.getWorldBorder()};
 	}
 
@@ -68,7 +66,6 @@ public class ExprSecCreateWorldBorder extends SectionExpression<WorldBorder> {
 	}
 
 	public static class CreateWorldborderEvent extends Event {
-		private boolean errorInSection = false;
 		private final WorldBorder worldborder;
 
 		public CreateWorldborderEvent(WorldBorder worldborder) {
@@ -77,15 +74,6 @@ public class ExprSecCreateWorldBorder extends SectionExpression<WorldBorder> {
 
 		public WorldBorder getWorldBorder() {
 			return worldborder;
-		}
-
-		public void setErrorInSection() {
-			this.errorInSection = true;
-		}
-
-
-		public boolean getErrorInSection() {
-			return errorInSection;
 		}
 
 		@Override

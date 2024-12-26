@@ -21,7 +21,7 @@ import org.jetbrains.annotations.Nullable;
 public class ExprWorldBorderDamageBuffer extends SimplePropertyExpression<WorldBorder, Double> {
 
 	static {
-		register(ExprWorldBorderDamageBuffer.class, Double.class, "world[ ]border damage buffer", "worldborders");
+		registerDefault(ExprWorldBorderDamageBuffer.class, Double.class, "world[ ]border damage buffer", "worldborders");
 	}
 
 	@Override

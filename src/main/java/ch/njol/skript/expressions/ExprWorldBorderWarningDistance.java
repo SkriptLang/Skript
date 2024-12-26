@@ -21,7 +21,7 @@ import org.jetbrains.annotations.Nullable;
 public class ExprWorldBorderWarningDistance extends SimplePropertyExpression<WorldBorder, Integer> {
 
 	static {
-		register(ExprWorldBorderWarningDistance.class, Integer.class, "world[ ]border warning distance", "worldborders");
+		registerDefault(ExprWorldBorderWarningDistance.class, Integer.class, "world[ ]border warning distance", "worldborders");
 	}
 
 	@Override

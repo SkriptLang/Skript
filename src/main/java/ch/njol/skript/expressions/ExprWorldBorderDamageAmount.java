@@ -21,7 +21,7 @@ import org.jetbrains.annotations.Nullable;
 public class ExprWorldBorderDamageAmount extends SimplePropertyExpression<WorldBorder, Double> {
 
 	static {
-		register(ExprWorldBorderDamageAmount.class, Double.class, "world[ ]border damage amount", "worldborders");
+		registerDefault(ExprWorldBorderDamageAmount.class, Double.class, "world[ ]border damage amount", "worldborders");
 	}
 
 	@Override
