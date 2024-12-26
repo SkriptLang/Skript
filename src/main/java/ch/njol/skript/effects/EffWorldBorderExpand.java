@@ -8,9 +8,11 @@ import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.skript.lang.SyntaxStringBuilder;
 import ch.njol.skript.util.Timespan;
 import ch.njol.skript.util.Timespan.TimePeriod;
 import ch.njol.util.Kleenean;
+import ch.njol.util.Math2;
 import org.bukkit.WorldBorder;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
@@ -44,6 +46,7 @@ public class EffWorldBorderExpand extends Effect {
 	private Expression<WorldBorder> worldBorders;
 	private Expression<Number> number;
 	private @Nullable Expression<Timespan> timespan;
+	private static final double MAX_WORLDBORDER_SIZE = 6.0E7;
 
 	@Override
 	@SuppressWarnings("unchecked")
@@ -71,13 +74,13 @@ public class EffWorldBorderExpand extends Effect {
 		WorldBorder[] worldBorders = this.worldBorders.getAll(event);
 		if (to) {
 			for (WorldBorder worldBorder : worldBorders)
-				worldBorder.setSize(Math.max(1, Math.min(input, 6.0E7)), speed);
+				worldBorder.setSize(Math2.fit(1, input, MAX_WORLDBORDER_SIZE), speed);
 		} else {
 			if (shrink)
 				input = -input;
 			for (WorldBorder worldBorder : worldBorders) {
 				double size = worldBorder.getSize();
-				size = Math.max(1, Math.min(size + input, 6.0E7));
+				size = Math2.fit(1, size + input, MAX_WORLDBORDER_SIZE);
 				worldBorder.setSize(size, speed);
 			}
 		}
@@ -85,10 +88,15 @@ public class EffWorldBorderExpand extends Effect {
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return (shrink ? "shrink " : "expand ")
-			+ (radius ? "radius " : "diameter ") + "of " + worldBorders.toString(event, debug)
-			+ (to ? " to " : " by ") + number.toString(event, debug)
-			+ (timespan == null ? "" : " over " + timespan.toString(event, debug));
+		SyntaxStringBuilder builder = new SyntaxStringBuilder(event, debug);
+		builder.append(shrink ? "shrink" : "expand");
+		builder.append(radius ? "radius" : "diameter");
+		builder.append("of", worldBorders);
+		builder.append(to ? "to" : "by");
+		builder.append(number);
+		if (timespan != null)
+			builder.append("over", timespan);
+		return builder.toString();
 	}
 
 }

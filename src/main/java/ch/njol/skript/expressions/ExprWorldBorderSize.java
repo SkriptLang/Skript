@@ -10,6 +10,7 @@ import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
+import ch.njol.util.Math2;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.WorldBorder;
 import org.bukkit.event.Event;
@@ -20,18 +21,20 @@ import org.jetbrains.annotations.Nullable;
 @Examples("set world border radius of {_worldborder} to 10")
 @Since("INSERT VERSION")
 public class ExprWorldBorderSize extends SimplePropertyExpression<WorldBorder, Double> {
+
 	static {
 		register(ExprWorldBorderSize.class, Double.class, "world[ ]border (size|diameter|:radius)", "worldborders");
 	}
 
 	private boolean radius;
+	private static final double MAX_WORLDBORDER_SIZE = 6.0E7;
 
 	@Override
-    public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-        radius = parseResult.hasTag("radius");
-        setExpr((Expression<? extends WorldBorder>) exprs[0]);
-        return true;
-    }
+	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
+		radius = parseResult.hasTag("radius");
+		setExpr((Expression<? extends WorldBorder>) exprs[0]);
+		return true;
+	}
 
 	@Override
 	public @Nullable Double convert(WorldBorder worldBorder) {
@@ -48,7 +51,7 @@ public class ExprWorldBorderSize extends SimplePropertyExpression<WorldBorder, D
 
 	@Override
 	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
-		double input = mode == ChangeMode.RESET ? 6.0E7 : Math.max(1, Math.min(((Number) delta[0]).doubleValue() * (radius ? 2 : 1), 6.0E7));
+		double input = mode == ChangeMode.RESET ? MAX_WORLDBORDER_SIZE : Math2.fit(1, ((Number) delta[0]).doubleValue() * (radius ? 2 : 1), MAX_WORLDBORDER_SIZE);
 		for (WorldBorder worldBorder : getExpr().getArray(event)) {
 			switch (mode) {
 				case SET, RESET -> worldBorder.setSize(input);
@@ -59,18 +62,18 @@ public class ExprWorldBorderSize extends SimplePropertyExpression<WorldBorder, D
 	}
 
 	@Override
-	protected String getPropertyName() {
-		return "world border size";
-	}
-
-	@Override
 	public Class<? extends Double> getReturnType() {
 		return Double.class;
 	}
 
 	@Override
+	protected String getPropertyName() {
+		return "world border size";
+	}
+
+	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return "border " + (radius ? "radius" : "diameter") + " of " + getExpr().toString(event, debug);
+		return "world border " + (radius ? "radius" : "diameter") + " of " + getExpr().toString(event, debug);
 	}
 
 }

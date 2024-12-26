@@ -7,7 +7,6 @@ import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import ch.njol.util.coll.CollectionUtils;
-import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.WorldBorder;
 import org.bukkit.entity.Player;
@@ -17,7 +16,7 @@ import org.jetbrains.annotations.Nullable;
 @Name("World Border")
 @Description({
 	"Get the border of a world or a player.",
-	"A player's world border is not persistent. Restarts, quitting, death or world change will reset the border."
+	"A player's world border is not persistent. Restarts, quitting, death or changing worlds will reset the border."
 })
 @Examples("set {_border} to world border of player's world")
 @Since("INSERT VERSION")
@@ -32,8 +31,6 @@ public class ExprWorldBorder extends SimplePropertyExpression<Object, WorldBorde
 		if (object instanceof World world) {
 			return world.getWorldBorder();
 		} else if (object instanceof Player player) {
-			if (player.getWorldBorder() == null)
-				player.setWorldBorder(Bukkit.createWorldBorder());
 			return player.getWorldBorder();
 		}
 		return null;
@@ -75,13 +72,13 @@ public class ExprWorldBorder extends SimplePropertyExpression<Object, WorldBorde
 	}
 
 	@Override
-	protected String getPropertyName() {
-		return "world border";
+	public Class<? extends WorldBorder> getReturnType() {
+		return WorldBorder.class;
 	}
 
 	@Override
-	public Class<? extends WorldBorder> getReturnType() {
-		return WorldBorder.class;
+	protected String getPropertyName() {
+		return "world border";
 	}
 
 }

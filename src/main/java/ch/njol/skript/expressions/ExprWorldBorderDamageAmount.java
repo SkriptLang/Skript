@@ -51,13 +51,13 @@ public class ExprWorldBorderDamageAmount extends SimplePropertyExpression<WorldB
 	}
 
 	@Override
-	protected String getPropertyName() {
-		return "world border damage amount";
+	public Class<? extends Double> getReturnType() {
+		return Double.class;
 	}
 
 	@Override
-	public Class<? extends Double> getReturnType() {
-		return Double.class;
+	protected String getPropertyName() {
+		return "world border damage amount";
 	}
 
 }

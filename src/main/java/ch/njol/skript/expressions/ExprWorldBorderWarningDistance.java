@@ -51,13 +51,13 @@ public class ExprWorldBorderWarningDistance extends SimplePropertyExpression<Wor
 	}
 
 	@Override
-	protected String getPropertyName() {
-		return "world border warning distance";
+	public Class<? extends Integer> getReturnType() {
+		return Integer.class;
 	}
 
 	@Override
-	public Class<? extends Integer> getReturnType() {
-		return Integer.class;
+	protected String getPropertyName() {
+		return "world border warning distance";
 	}
 
 }

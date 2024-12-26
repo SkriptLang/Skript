@@ -50,13 +50,13 @@ public class ExprWorldBorderWarningTime extends SimplePropertyExpression<WorldBo
 	}
 
 	@Override
-	protected String getPropertyName() {
-		return "world border warning time";
+	public Class<? extends Timespan> getReturnType() {
+		return Timespan.class;
 	}
 
 	@Override
-	public Class<? extends Timespan> getReturnType() {
-		return Timespan.class;
+	protected String getPropertyName() {
+		return "world border warning time";
 	}
 
 }

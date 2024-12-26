@@ -56,13 +56,13 @@ public class ExprWorldBorderCenter extends SimplePropertyExpression<WorldBorder,
 	}
 
 	@Override
-	protected String getPropertyName() {
-		return "world border center";
+	public Class<? extends Location> getReturnType() {
+		return Location.class;
 	}
 
 	@Override
-	public Class<? extends Location> getReturnType() {
-		return Location.class;
+	protected String getPropertyName() {
+		return "world border center";
 	}
 
 }
