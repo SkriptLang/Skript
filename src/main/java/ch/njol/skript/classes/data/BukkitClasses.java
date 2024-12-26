@@ -49,14 +49,8 @@ import org.bukkit.block.data.BlockData;
 import org.bukkit.command.CommandSender;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.enchantments.EnchantmentOffer;
-import org.bukkit.entity.Cat;
-import org.bukkit.entity.Wolf;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.Item;
-import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.*;
 import org.bukkit.entity.Panda.Gene;
-import org.bukkit.entity.Player;
-import org.bukkit.entity.Projectile;
 import org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.bukkit.event.entity.EntityPotionEffectEvent;
@@ -1547,6 +1541,33 @@ public class BukkitClasses {
 			.name("Experience Cooldown Change Reason")
 			.description("Represents a change reason of an <a href='events.html#experience cooldown change event'>experience cooldown change event</a>.")
 			.since("INSERT VERSION"));
+
+		Classes.registerClass(new RegistryClassInfo<>(Villager.Type.class, Registry.VILLAGER_TYPE, "villagertype", "villager types")
+			.user("villager ?types?")
+			.name("Villager Type")
+			.description("Represents the different types of villagers. These are usually the biomes a villager can be from.")
+			.after("biome")
+			.since("INSERT VERSION"));
+
+		Classes.registerClass(new RegistryClassInfo<>(Villager.Profession.class, Registry.VILLAGER_PROFESSION, "villagerprofession", "villager professions")
+			.user("villager ?professions?")
+			.name("Villager Profession")
+			.description("Represents the different professions of villagers.")
+			.since("INSERT VERSION"));
+
+		if (Skript.classExists("org.bukkit.entity.EntitySnapshot")) {
+			Classes.registerClass(new ClassInfo<>(EntitySnapshot.class, "entitysnapshot")
+				.user("entity ?snapshots?")
+				.name("Entity Snapshot")
+				.description("Represents a snapshot of an entity's data.",
+					"This includes all of the data associated with an entity (its name, health, attributes, etc.), at the time this expression is used. "
+						+ "Essentially, these are a way to create templates for entities.",
+					"Individual attributes of a snapshot cannot be modified or retrieved.")
+				.requiredPlugins("Minecraft 1.20.2+")
+				.since("INSERT VERSION")
+			);
+		}
+
 	}
 
 }

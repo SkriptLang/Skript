@@ -68,50 +68,59 @@ public abstract class PropertyCondition<T> extends Condition implements Checker<
 	private Expression<? extends T> expr;
 
 	/**
+	 * Registers a new property condition. The property type is set to {@link PropertyType#BE}.
+	 *
 	 * @param condition the class to register
 	 * @param property the property name, for example <i>fly</i> in <i>players can fly</i>
 	 * @param type must be plural, for example <i>players</i> in <i>players can fly</i>
 	 */
-
 	public static void register(Class<? extends Condition> condition, String property, String type) {
 		register(condition, PropertyType.BE, property, type);
 	}
 
 	/**
+	 * Registers a new property condition.
+	 *
 	 * @param condition the class to register
 	 * @param propertyType the property type, see {@link PropertyType}
 	 * @param property the property name, for example <i>fly</i> in <i>players can fly</i>
 	 * @param type must be plural, for example <i>players</i> in <i>players can fly</i>
 	 */
-
 	public static void register(Class<? extends Condition> condition, PropertyType propertyType, String property, String type) {
+		Skript.registerCondition(condition, ConditionType.PROPERTY,
+				getPatterns(propertyType, property, type));
+	}
+
+	/**
+	 * Returns the patterns for the given property type, property and type.
+	 *
+	 * @param propertyType the property type, see {@link PropertyType}
+	 * @param property the property name, for example <i>fly</i> in <i>players can fly</i>
+	 * @param type must be plural, for example <i>players</i> in <i>players can fly</i>
+	 * @return patterns formmated for {@link Skript#registerCondition(Class, String...)}
+	 */
+	public static String[] getPatterns(PropertyType propertyType, String property, String type) {
 		if (type.contains("%"))
 			throw new SkriptAPIException("The type argument must not contain any '%'s");
 
-		switch (propertyType) {
-			case BE:
-				Skript.registerCondition(condition, ConditionType.PROPERTY,
-						"%" + type + "% (is|are) " + property,
-						"%" + type + "% (isn't|is not|aren't|are not) " + property);
-				break;
-			case CAN:
-				Skript.registerCondition(condition, ConditionType.PROPERTY,
-						"%" + type + "% can " + property,
-						"%" + type + "% (can't|cannot|can not) " + property);
-				break;
-			case HAVE:
-				Skript.registerCondition(condition, ConditionType.PROPERTY,
-						"%" + type + "% (has|have) " + property,
-						"%" + type + "% (doesn't|does not|do not|don't) have " + property);
-				break;
-			case WILL:
-				Skript.registerCondition(condition,
-						"%" + type + "% will " + property,
-						"%" + type + "% (will (not|neither)|won't) " + property);
-				break;
-			default:
-				assert false;
-		}
+		return switch (propertyType) {
+			case BE -> new String[] {
+				"%" + type + "% (is|are) " + property,
+				"%" + type + "% (isn't|is not|aren't|are not) " + property
+			};
+			case CAN -> new String[] {
+				"%" + type + "% can " + property,
+				"%" + type + "% (can't|cannot|can not) " + property
+			};
+			case HAVE -> new String[] {
+				"%" + type + "% (has|have) " + property,
+				"%" + type + "% (doesn't|does not|do not|don't) have " + property
+			};
+			case WILL -> new String[] {
+				"%" + type + "% will " + property,
+				"%" + type + "% (will (not|neither)|won't) " + property
+			};
+		};
 	}
 
 	@Override

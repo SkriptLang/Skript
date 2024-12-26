@@ -3,6 +3,7 @@ package org.skriptlang.skript.lang.entry;
 import ch.njol.skript.config.Node;
 import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.lang.parser.ParserInstance;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -150,6 +151,15 @@ public class EntryContainer {
 		parser.setNode(oldNode);
 
 		return value;
+	}
+
+	/**
+	 * Check to see if an entry data with the key matching {@code key} was used.
+	 * @param key The key to check
+	 * @return true if an entry data with the matching key was used.
+	 */
+	public boolean hasEntry(@NotNull String key) {
+		return handledNodes.containsKey(key);
 	}
 
 }

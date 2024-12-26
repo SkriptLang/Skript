@@ -34,11 +34,7 @@ import org.bukkit.block.Block;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.command.CommandSender;
 import org.bukkit.enchantments.EnchantmentOffer;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.FallingBlock;
-import org.bukkit.entity.Item;
-import org.bukkit.entity.Projectile;
-import org.bukkit.entity.Wither;
+import org.bukkit.entity.*;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.Inventory;
@@ -652,6 +648,23 @@ public class DefaultComparators {
 		Comparators.registerComparator(Color.class, Color.class, (one, two) -> Relation.get(one.asBukkitColor().equals(two.asBukkitColor())));
 		Comparators.registerComparator(Color.class, org.bukkit.Color.class, (one, two) -> Relation.get(one.asBukkitColor().equals(two)));
 		Comparators.registerComparator(org.bukkit.Color.class, org.bukkit.Color.class, (one, two) -> Relation.get(one.equals(two)));
+
+		if (Skript.classExists("org.bukkit.entity.EntitySnapshot")) {
+			boolean SNAPSHOT_AS_STRING_EXISTS = Skript.methodExists(EntitySnapshot.class, "getAsString");
+			Comparators.registerComparator(EntitySnapshot.class, EntitySnapshot.class, new Comparator<EntitySnapshot, EntitySnapshot>() {
+				@Override
+				public Relation compare(EntitySnapshot snap1, EntitySnapshot snap2) {
+					if (!snap1.getEntityType().equals(snap1.getEntityType()))
+						return Relation.NOT_EQUAL;
+					boolean isEqual;
+					if (!SNAPSHOT_AS_STRING_EXISTS)
+						isEqual = snap1.equals(snap2) || snap1.hashCode() == snap2.hashCode();
+					else
+						isEqual = snap1.getAsString().equalsIgnoreCase(snap2.getAsString());
+					return Relation.get(isEqual);
+				}
+			});
+		}
 	}
 	
 }
