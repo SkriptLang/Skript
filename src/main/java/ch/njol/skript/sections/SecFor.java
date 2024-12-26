@@ -45,7 +45,7 @@ import java.util.Map;
 	"loop key {_index} and value {_value} in {list of items::*}:",
 	"\tbroadcast \"%{_index}% = %{_value}%\"",
 	"",
-	"for each {_index} = {_value} in {my list::*}:",
+	"for each {_index}, {_value} in {my list::*}:",
 	"\tbroadcast \"%{_index}% = %{_value}%\"",
 })
 @Since("INSERT VERSION")
