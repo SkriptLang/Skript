@@ -4,6 +4,9 @@ import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.event.Event;
 
+/**
+ * A syntax element that restricts the events it can be used in.
+ */
 public interface EventRestrictedSyntax {
 
 	/**
