@@ -96,7 +96,10 @@ import org.junit.runner.notification.Failure;
 import org.skriptlang.skript.bukkit.SkriptMetrics;
 import org.skriptlang.skript.bukkit.breeding.BreedingModule;
 import org.skriptlang.skript.bukkit.displays.DisplayModule;
+import org.skriptlang.skript.bukkit.furnace.FurnaceModule;
+import org.skriptlang.skript.bukkit.fishing.FishingModule;
 import org.skriptlang.skript.bukkit.input.InputModule;
+import org.skriptlang.skript.bukkit.loottables.LootTableModule;
 import org.skriptlang.skript.lang.comparator.Comparator;
 import org.skriptlang.skript.lang.comparator.Comparators;
 import org.skriptlang.skript.lang.converter.Converter;
@@ -489,6 +492,16 @@ public final class Skript extends JavaPlugin implements Listener {
 			classLoadError = e;
 		}
 
+		// Warn about pausing
+		if (Skript.methodExists(Server.class, "getPauseWhenEmptyTime")) {
+			int pauseThreshold = getServer().getPauseWhenEmptyTime();
+			if (pauseThreshold > -1) {
+				Skript.warning("Minecraft server pausing is enabled!");
+				Skript.warning("Scripts that interact with the world or entities may not work as intended when the server is paused and may crash your server.");
+				Skript.warning("Consider setting 'pause-when-empty-seconds' to -1 in server.properties to make sure you don't encounter any issues.");
+			}
+		}
+
 		// Config must be loaded after Java and Skript classes are parseable
 		// ... but also before platform check, because there is a config option to ignore some errors
 		SkriptConfig.load();
@@ -534,9 +547,12 @@ public final class Skript extends JavaPlugin implements Listener {
 				"conditions", "effects", "events", "expressions", "entity", "sections", "structures");
 			getAddonInstance().loadClasses("org.skriptlang.skript.bukkit", "misc");
 			// todo: become proper module once registry api is merged
+			FishingModule.load();
 			BreedingModule.load();
 			DisplayModule.load();
 			InputModule.load();
+			FurnaceModule.load();
+			LootTableModule.load();
 		} catch (final Exception e) {
 			exception(e, "Could not load required .class files: " + e.getLocalizedMessage());
 			setEnabled(false);
@@ -1637,6 +1653,17 @@ public final class Skript extends JavaPlugin implements Listener {
 		if (!debug())
 			return;
 		SkriptLogger.log(SkriptLogger.DEBUG, info);
+	}
+
+	/**
+	 * Sends a debug message with formatted objects if {@link #debug()} returns true.
+	 *
+	 * @param message The message to send
+	 * @param objects The objects to format the message with
+	 * @see String#formatted(Object...)
+	 */
+	public static void debug(String message, Object... objects) {
+		debug(message.formatted(objects));
 	}
 
 	/**

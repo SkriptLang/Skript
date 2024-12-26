@@ -1,21 +1,3 @@
-/**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
 package ch.njol.skript.command;
 
 import ch.njol.skript.ScriptLoader;
@@ -556,7 +538,7 @@ public class ScriptCommand implements TabExecutor {
 			return 0;
 		Timespan cooldown = this.cooldown;
 		assert cooldown != null;
-		long remaining = cooldown.getMilliSeconds() - getElapsedMilliseconds(uuid, event);
+		long remaining = cooldown.getAs(Timespan.TimePeriod.MILLISECOND) - getElapsedMilliseconds(uuid, event);
 		if (remaining < 0)
 			remaining = 0;
 		return remaining;
@@ -565,7 +547,7 @@ public class ScriptCommand implements TabExecutor {
 	public void setRemainingMilliseconds(UUID uuid, Event event, long milliseconds) {
 		Timespan cooldown = this.cooldown;
 		assert cooldown != null;
-		long cooldownMs = cooldown.getMilliSeconds();
+		long cooldownMs = cooldown.getAs(Timespan.TimePeriod.MILLISECOND);
 		if (milliseconds > cooldownMs)
 			milliseconds = cooldownMs;
 		setElapsedMilliSeconds(uuid, event, cooldownMs - milliseconds);

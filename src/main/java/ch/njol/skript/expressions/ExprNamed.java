@@ -1,23 +1,7 @@
-/**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
 package ch.njol.skript.expressions;
 
+import ch.njol.skript.lang.Literal;
+import ch.njol.skript.registrations.Classes;
 import org.bukkit.Bukkit;
 import org.bukkit.event.Event;
 import org.bukkit.event.inventory.InventoryType;
@@ -63,6 +47,10 @@ public class ExprNamed extends PropertyExpression<Object, Object> {
 	@Override
 	public boolean init(final Expression<?>[] exprs, final int matchedPattern, final Kleenean isDelayed, final ParseResult parseResult) {
 		setExpr(exprs[0]);
+		if (exprs[0] instanceof Literal<?> lit && lit.getSingle() instanceof InventoryType inventoryType && !inventoryType.isCreatable()) {
+			Skript.error("Cannot create an inventory of type " + Classes.toString(inventoryType));
+			return false;
+		}
 		name = (Expression<String>) exprs[1];
 		return true;
 	}
@@ -76,8 +64,11 @@ public class ExprNamed extends PropertyExpression<Object, Object> {
 			@Override
 			@Nullable
 			public Object get(Object obj) {
-				if (obj instanceof InventoryType)
-					return Bukkit.createInventory(null, (InventoryType) obj, name);
+				if (obj instanceof InventoryType inventoryType) {
+					if (!inventoryType.isCreatable())
+						return null;
+					return Bukkit.createInventory(null, inventoryType, name);
+				}
 				if (obj instanceof ItemStack) {
 					ItemStack stack = (ItemStack) obj;
 					stack = stack.clone();

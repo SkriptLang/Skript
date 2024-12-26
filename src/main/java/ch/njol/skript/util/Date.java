@@ -1,21 +1,3 @@
-/**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
 package ch.njol.skript.util;
 
 import java.util.TimeZone;
@@ -87,7 +69,7 @@ public class Date implements Comparable<Date>, YggdrasilSerializable {
 	 * @param span Timespan to add
 	 */
 	public void add(final Timespan span) {
-		timestamp += span.getMilliSeconds();
+		timestamp += span.getAs(Timespan.TimePeriod.MILLISECOND);
 	}
 	
 	/**
@@ -96,7 +78,7 @@ public class Date implements Comparable<Date>, YggdrasilSerializable {
 	 * @param span Timespan to subtract
 	 */
 	public void subtract(final Timespan span) {
-		timestamp -= span.getMilliSeconds();
+		timestamp -= span.getAs(Timespan.TimePeriod.MILLISECOND);
 	}
 	
 	/**
@@ -106,7 +88,7 @@ public class Date implements Comparable<Date>, YggdrasilSerializable {
 	 * @return New Date with the added timespan
 	 */
 	public Date plus(Timespan span) {
-		return new Date(timestamp + span.getMilliSeconds());
+		return new Date(timestamp + span.getAs(Timespan.TimePeriod.MILLISECOND));
 	}
 	
 	/**
@@ -116,7 +98,7 @@ public class Date implements Comparable<Date>, YggdrasilSerializable {
 	 * @return New Date with the subtracted timespan
 	 */
 	public Date minus(Timespan span) {
-		return new Date(timestamp - span.getMilliSeconds());
+		return new Date(timestamp - span.getAs(Timespan.TimePeriod.MILLISECOND));
 	}
 	
 	@Override

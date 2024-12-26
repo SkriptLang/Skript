@@ -3,6 +3,7 @@ package ch.njol.skript.expressions;
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer;
 import ch.njol.skript.classes.Changer.ChangeMode;
+import ch.njol.skript.classes.Changer.ChangerUtils;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
@@ -89,9 +90,9 @@ public class ExprXYZComponent extends SimplePropertyExpression<Object, Number> {
 		if ((mode == ChangeMode.ADD || mode == ChangeMode.REMOVE || mode == ChangeMode.SET)) {
 			boolean acceptsChange;
 			if (IS_RUNNING_1194) {
-				acceptsChange = Changer.ChangerUtils.acceptsChange(getExpr(), ChangeMode.SET, Vector.class, Quaternionf.class);
+				acceptsChange = ChangerUtils.acceptsChange(getExpr(), ChangeMode.SET, Vector.class, Quaternionf.class);
 			} else {
-				acceptsChange = Changer.ChangerUtils.acceptsChange(getExpr(), ChangeMode.SET, Vector.class);
+				acceptsChange = ChangerUtils.acceptsChange(getExpr(), ChangeMode.SET, Vector.class);
 			}
 			if (acceptsChange)
 				return CollectionUtils.array(Number.class);
@@ -102,35 +103,20 @@ public class ExprXYZComponent extends SimplePropertyExpression<Object, Number> {
 	@Override
 	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
 		assert delta != null; // reset/delete not supported
-		Object[] objects = getExpr().getArray(event);
-		double value = ((Number) delta[0]).doubleValue();
+		final double value = ((Number) delta[0]).doubleValue();
 
-		boolean hasVectors = false;
-		boolean hasQuaternions = false;
-		boolean hasInvalidInput = false;
+		// for covering the edge cases such as an expression that returns a Vector but can only be set to a Quaternions
+		boolean acceptsVectors = ChangerUtils.acceptsChange(getExpr(), ChangeMode.SET, Vector.class);
+		boolean acceptsQuaternions = ChangerUtils.acceptsChange(getExpr(), ChangeMode.SET, Quaternionf.class);
 
-		for (Object object : objects) {
-			if (object instanceof Vector vector) {
+		getExpr().changeInPlace(event, object -> {
+			if (acceptsVectors && object instanceof Vector vector) {
 				changeVector(vector, axis, value, mode);
-				hasVectors = true;
-			} else if (object instanceof Quaternionf quaternion) {
+			} else if (acceptsQuaternions && object instanceof Quaternionf quaternion) {
 				changeQuaternion(quaternion, axis, (float) value, mode);
-				hasQuaternions = true;
-			} else {
-				hasInvalidInput = true;
 			}
-		}
-
-		// don't SET the expression if there were invalid inputs
-		if (hasInvalidInput)
-			return;
-
-		// covers the edge case where an expression can be set to Vector but returns Quaternions, or similar.
-		if (hasVectors && !Changer.ChangerUtils.acceptsChange(getExpr(), ChangeMode.SET, Vector.class))
-			return;
-		if (hasQuaternions && !Changer.ChangerUtils.acceptsChange(getExpr(), ChangeMode.SET, Quaternionf.class))
-			return;
-		getExpr().change(event, objects, ChangeMode.SET);
+			return object;
+		});
 	}
 
 	/**

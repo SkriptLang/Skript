@@ -1,25 +1,9 @@
-/**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
 package ch.njol.skript.effects;
 
 import java.util.Locale;
 
+import ch.njol.skript.lang.Literal;
+import ch.njol.skript.registrations.Classes;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
@@ -94,6 +78,10 @@ public class EffOpenInventory extends Effect {
 		if (openFlag == 1 && invi != null) {
 			Skript.warning("Using 'show' inventory instead of 'open' is not recommended as it will eventually show an unmodifiable view of the inventory in the future.");
 		}
+		if (exprs[0] instanceof Literal<?> lit && lit.getSingle() instanceof InventoryType inventoryType && !inventoryType.isCreatable()) {
+			Skript.error("Cannot create an inventory of type " + Classes.toString(inventoryType));
+			return false;
+		}
 		return true;
 	}
 	
@@ -106,8 +94,8 @@ public class EffOpenInventory extends Effect {
 			Object o = invi.getSingle(e);
 			if (o instanceof Inventory) {
 				i = (Inventory) o;
-			} else if (o instanceof InventoryType) {
-				i = Bukkit.createInventory(null, (InventoryType) o);
+			} else if (o instanceof InventoryType inventoryType && inventoryType.isCreatable()) {
+				i = Bukkit.createInventory(null, inventoryType);
 			} else {
 				return;
 			}

@@ -1,0 +1,16 @@
+test "entity snapshots" when running minecraft "1.20.2":
+	spawn a pig at test-location:
+		set the max health of entity to 20
+		set the health of entity to 20
+		set {_snapshot} to entity snapshot of entity
+		clear entity
+	assert {_snapshot} is an entity snapshot with "Get entity snapshot is not an entity snapshot"
+	spawn {_snapshot} at test-location:
+		assert the max health of entity is 20 with "Max health did not stick to the spawned entity"
+		assert the health of entity is 20 with "Health did not stick to the spawned entity"
+		clear entity
+
+	set {_item} to a zombie spawn egg
+	set the spawn egg entity of {_item} to {_snapshot}
+	if running minecraft "1.20.5":
+		assert the spawn egg entity of {_item} is {_snapshot} with "Spawn egg entity is not stored snapshot"
