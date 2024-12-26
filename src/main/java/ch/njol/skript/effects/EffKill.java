@@ -28,13 +28,12 @@ import org.jetbrains.annotations.Nullable;
 		"kill all creepers in the player's world",
 		"kill all endermen, witches and bats",
 		"kill the player ignoring totem of undying",
-		"kill target entity ignoring the totem",
-		"kill target player ignoring resurrection"})
+		"kill target entity ignoring totem of undying",})
 @Since("1.0, INSERT VERSION (ignoring totem of undying)")
 public class EffKill extends Effect {
 
 	static {
-		Skript.registerEffect(EffKill.class, "kill %entities%", "kill %entities% ignoring [the|any] totem[s] of undying");
+		Skript.registerEffect(EffKill.class, "kill %entities%", "kill %entities% ignoring [a|any] totem[s] of undying");
 	}
 	
 	@SuppressWarnings("null")
@@ -50,8 +49,8 @@ public class EffKill extends Effect {
 	}
 
 	@Override
-	protected void execute(Event e) {
-		for (Entity entity : entities.getArray(e)) {
+	protected void execute(Event event) {
+		for (Entity entity : entities.getArray(event)) {
 
 			if (entity instanceof EnderDragonPart) {
 				entity = ((EnderDragonPart) entity).getParent();
@@ -59,6 +58,7 @@ public class EffKill extends Effect {
 
 			if (ignoreTotem) {
 				HealthUtils.setHealth((Damageable) entity, 0);
+				return;
 			}
 
 			if (entity instanceof Damageable) {
@@ -80,8 +80,8 @@ public class EffKill extends Effect {
 	}
 	
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
-		return "kill" + entities.toString(e, debug);
+	public String toString(@Nullable Event event, boolean debug) {
+		return "kill" + entities.toString(event, debug);
 	}
 
 }
