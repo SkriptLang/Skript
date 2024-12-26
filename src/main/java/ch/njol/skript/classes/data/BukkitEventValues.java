@@ -1883,66 +1883,24 @@ public final class BukkitEventValues {
 		// === WorldBorderEvents ===
 		if (Skript.classExists("io.papermc.paper.event.world.border.WorldBorderEvent")) {
 			// WorldBorderEvent
-			EventValues.registerEventValue(WorldBorderEvent.class, WorldBorder.class, new Getter<>() {
-				@Override
-				public WorldBorder get(WorldBorderEvent event) {
-					return event.getWorldBorder();
-				}
-			}, EventValues.TIME_NOW);
+			EventValues.registerEventValue(WorldBorderEvent.class, WorldBorder.class, WorldBorderEvent::getWorldBorder);
 
 			// WorldBorderBoundsChangeEvent
-			EventValues.registerEventValue(WorldBorderBoundsChangeEvent.class, Number.class, new Getter<>() {
-				@Override
-				public Number get(WorldBorderBoundsChangeEvent event) {
-					return event.getNewSize();
-				}
-			}, EventValues.TIME_NOW);
-			EventValues.registerEventValue(WorldBorderBoundsChangeEvent.class, Number.class, new Getter<>() {
-				@Override
-				public Number get(WorldBorderBoundsChangeEvent event) {
-					return event.getOldSize();
-				}
-			}, EventValues.TIME_PAST);
-			EventValues.registerEventValue(WorldBorderBoundsChangeEvent.class, Timespan.class, new Getter<>() {
-				@Override
-				public Timespan get(WorldBorderBoundsChangeEvent event) {
-					return new Timespan(event.getDuration());
-				}
-			}, EventValues.TIME_NOW);
+			EventValues.registerEventValue(WorldBorderBoundsChangeEvent.class, Number.class, WorldBorderBoundsChangeEvent::getNewSize, EventValues.TIME_NOW);
+			EventValues.registerEventValue(WorldBorderBoundsChangeEvent.class, Number.class, WorldBorderBoundsChangeEvent::getOldSize, EventValues.TIME_PAST);
+			EventValues.registerEventValue(WorldBorderBoundsChangeEvent.class, Timespan.class, (event) -> new Timespan(event.getDuration()));
+			EventValues.registerEventValue(WorldBorderBoundsChangeEvent.class, WorldBorder.class, WorldBorderBoundsChangeEvent::getWorldBorder);
 
 			// WorldBorderBoundsChangeFinishEvent
-			EventValues.registerEventValue(WorldBorderBoundsChangeFinishEvent.class, Number.class, new Getter<>() {
-				@Override
-				public Number get(WorldBorderBoundsChangeFinishEvent event) {
-					return event.getNewSize();
-				}
-			}, EventValues.TIME_NOW);
-			EventValues.registerEventValue(WorldBorderBoundsChangeFinishEvent.class, Number.class, new Getter<>() {
-				@Override
-				public Number get(WorldBorderBoundsChangeFinishEvent event) {
-					return event.getOldSize();
-				}
-			}, EventValues.TIME_PAST);
-			EventValues.registerEventValue(WorldBorderBoundsChangeFinishEvent.class, Timespan.class, new Getter<>() {
-				@Override
-				public Timespan get(WorldBorderBoundsChangeFinishEvent event) {
-					return new Timespan((long) event.getDuration());
-				}
-			}, EventValues.TIME_NOW);
+			EventValues.registerEventValue(WorldBorderBoundsChangeFinishEvent.class, Number.class, WorldBorderBoundsChangeFinishEvent::getNewSize, EventValues.TIME_NOW);
+			EventValues.registerEventValue(WorldBorderBoundsChangeFinishEvent.class, Number.class, WorldBorderBoundsChangeFinishEvent::getOldSize, EventValues.TIME_PAST);
+			EventValues.registerEventValue(WorldBorderBoundsChangeFinishEvent.class, Timespan.class, (event) -> new Timespan((long) event.getDuration()));
+			EventValues.registerEventValue(WorldBorderBoundsChangeFinishEvent.class, WorldBorder.class, WorldBorderBoundsChangeFinishEvent::getWorldBorder);
 
 			// WorldBorderCenterChangeEvent
-			EventValues.registerEventValue(WorldBorderCenterChangeEvent.class, Location.class, new Getter<>() {
-				@Override
-				public Location get(WorldBorderCenterChangeEvent event) {
-					return event.getNewCenter();
-				}
-			}, EventValues.TIME_NOW);
-			EventValues.registerEventValue(WorldBorderCenterChangeEvent.class, Location.class, new Getter<>() {
-				@Override
-				public Location get(WorldBorderCenterChangeEvent event) {
-					return event.getOldCenter();
-				}
-			}, EventValues.TIME_PAST);
+			EventValues.registerEventValue(WorldBorderCenterChangeEvent.class, Location.class, WorldBorderCenterChangeEvent::getNewCenter, EventValues.TIME_NOW);
+			EventValues.registerEventValue(WorldBorderCenterChangeEvent.class, Location.class, WorldBorderCenterChangeEvent::getOldCenter, EventValues.TIME_PAST);
+			EventValues.registerEventValue(WorldBorderCenterChangeEvent.class, WorldBorder.class, WorldBorderCenterChangeEvent::getWorldBorder);
 		}
 	}
 

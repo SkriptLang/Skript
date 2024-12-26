@@ -801,6 +801,40 @@ public class SimpleEvents {
 				.since("INSERT VERSION");
 		}
 
+		// WorldBorder Events
+		if (Skript.classExists("io.papermc.paper.event.world.border.WorldBorderEvent")) {
+			Skript.registerEvent("World Border Bounds Change", SimpleEvent.class, WorldBorderBoundsChangeEvent.class, "world[ ]border [bounds] chang(e|ing)")
+				.description(
+					"Called when a world border changes its bounds, either over time, or instantly."
+				)
+				.requiredPlugins("Paper 1.16+")
+				.examples(
+					"on worldborder bounds change:",
+						"\tbroadcast \"The border is changing from a diameter of %past event-number% to %event-number% over %event-timespan%\""
+				)
+				.since("INSERT VERSION");
+
+			Skript.registerEvent("World Border Bounds Finish Change", SimpleEvent.class, WorldBorderBoundsChangeFinishEvent.class, "world[ ]border [bounds] finish chang(e|ing)")
+				.description(
+					"Called when a moving world border has finished its move.",
+					"Note: event-number will be the diameter of the world border."
+				)
+				.requiredPlugins("Paper 1.16+")
+				.examples(
+					"on worldborder bounds finish change:",
+						"\tbroadcast \"Over the past %event-timespan%, the diameter of %event-worldborder% went from %past event-number% to %event-number%\""
+				)
+				.since("INSERT VERSION");
+
+			Skript.registerEvent("World Border Center Change", SimpleEvent.class, WorldBorderCenterChangeEvent.class, "world[ ]border center chang(e|ing)")
+				.description("Called when a world border's center has changed.")
+				.requiredPlugins("Paper 1.16+")
+				.examples(
+					"on worldborder center change:",
+						"\tbroadcast \"The center of %event-worldborder% has moved from %past event-location% to %event-location%\""
+				)
+				.since("INSERT VERSION");
+		}
 	}
 
 }
