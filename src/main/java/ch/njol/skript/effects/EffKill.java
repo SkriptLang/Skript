@@ -30,39 +30,39 @@ import org.jetbrains.annotations.Nullable;
 		"kill the player ignoring totem of undying",
 		"kill target entity ignoring the totem",
 		"kill target player ignoring resurrection"})
-@Since("1.0")
+@Since("1.0, INSERT VERSION (ignoring totem of undying)")
 public class EffKill extends Effect {
 
 	static {
-		Skript.registerEffect(EffKill.class, "kill %entities%", "kill %entities% ignoring [the] (resurrection|revival|[undying] totem|totem [of undying])");
+		Skript.registerEffect(EffKill.class, "kill %entities%", "kill %entities% ignoring [the|any] totem[s] [of undying]");
 	}
 	
 	@SuppressWarnings("null")
 	private Expression<Entity> entities;
-	private boolean IGNORE_TOTEM;
+	private boolean ignoreTotem;
 	
 	@SuppressWarnings({"unchecked", "null"})
 	@Override
-	public boolean init(final Expression<?>[] exprs, final int matchedPattern, final Kleenean isDelayed, final ParseResult parser) {
+	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parser) {
 		entities = (Expression<Entity>) exprs[0];
-		IGNORE_TOTEM = matchedPattern == 1;
+		ignoreTotem = matchedPattern == 1;
 		return true;
 	}
 
 	@Override
-	protected void execute(final Event e) {
+	protected void execute(Event e) {
 		for (Entity entity : entities.getArray(e)) {
 
 			if (entity instanceof EnderDragonPart) {
 				entity = ((EnderDragonPart) entity).getParent();
 			}
 
-			if (IGNORE_TOTEM) {
+			if (ignoreTotem) {
 				HealthUtils.setHealth((Damageable) entity, 0);
 			}
 
 			if (entity instanceof Damageable) {
-				final boolean creative = entity instanceof Player && ((Player) entity).getGameMode() == GameMode.CREATIVE;
+				boolean creative = entity instanceof Player player && player.getGameMode() == GameMode.CREATIVE;
 				if (creative) // Set player to survival before applying damage
 					((Player) entity).setGameMode(GameMode.SURVIVAL);
 				HealthUtils.damage((Damageable) entity, HealthUtils.getMaxHealth((Damageable) entity) * 100); // just to make sure that it really dies >:)
@@ -80,7 +80,7 @@ public class EffKill extends Effect {
 	}
 	
 	@Override
-	public String toString(final @Nullable Event e, final boolean debug) {
+	public String toString(@Nullable Event e, boolean debug) {
 		return "kill" + entities.toString(e, debug);
 	}
 
