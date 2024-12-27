@@ -19,7 +19,13 @@ test "villager level expression":
 	set villager experience of {_e} to 0
 	assert villager experience of {_e} = 0 with "Villager experience should be 0"
 	set villager experience of {_e} to 100
-	assert villager experience of {_e} = 100 with "Villager experience should be 100"
+	assert villager experience of {_e} = 100 with "Villager experience should be 100 after setting"
+	remove 1000 from villager experience of {_e}
+	assert villager experience of {_e} = 0 with "Villager experience should be 0 after removing"
+	add 100 to villager experience of {_e}
+	assert villager experience of {_e} = 100 with "Villager experience should be 100 after adding"
+	remove 20 from villager experience of {_e}
+	assert villager experience of {_e} = 80 with "Villager experience should be 80 after removing"
 	reset villager experience of {_e}
 	assert villager experience of {_e} = 0 with "Villager experience should have been reset to 0"
 
