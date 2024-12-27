@@ -52,7 +52,7 @@ public abstract class Utils {
 	protected final static Deque<WordEnding> plurals = new LinkedList<>();
 
 	static {
-		plurals.add(new WordEnding("axe", "axes"));
+		plurals.add(new WordEnding("axe", "axes")); // not complete since we have battleaxe, etc.
 		plurals.add(new WordEnding("x", "xes"));
 
 		plurals.add(new WordEnding("ay", "ays"));
@@ -61,14 +61,20 @@ public abstract class Utils {
 		plurals.add(new WordEnding("oy", "oys"));
 		plurals.add(new WordEnding("uy", "uys"));
 		plurals.add(new WordEnding("kie", "kies"));
-		plurals.add(new WordEnding("zombie", "zombies"));
+		plurals.add(new WordEnding("zombie", "zombies", true));
 		plurals.add(new WordEnding("y", "ies"));
 
-		plurals.add(new WordEnding("wife", "wives")); // we have to do the -ife -> ives first
+		plurals.add(new WordEnding("wife", "wives", true)); // we have to do the -ife -> ives first
 		plurals.add(new WordEnding("life", "lives"));
-		plurals.add(new WordEnding("knife", "knives"));
+		plurals.add(new WordEnding("knife", "knives", true));
 		plurals.add(new WordEnding("ive", "ives"));
-		plurals.add(new WordEnding("elf", "elves")); // self shelf elf
+
+		plurals.add(new WordEnding("lf", "lves")); // self shelf elf wolf half etc.
+		plurals.add(new WordEnding("thief", "thieves", true));
+		plurals.add(new WordEnding("ief", "iefs")); // chiefs, fiefs, briefs
+
+		plurals.add(new WordEnding("hoof", "hooves"));
+
 		plurals.add(new WordEnding("fe", "ves"));// most -f words' plurals can end in -fs as well as -ves
 
 		plurals.add(new WordEnding("h", "hes"));
@@ -79,16 +85,18 @@ public abstract class Utils {
 		plurals.add(new WordEnding("api", "apis")); // api fix
 		plurals.add(new WordEnding("us", "i"));
 
-		plurals.add(new WordEnding("hoe", "hoes"));
-		plurals.add(new WordEnding("toe", "toes"));
+		plurals.add(new WordEnding("hoe", "hoes", true));
+		plurals.add(new WordEnding("toe", "toes", true));
+		plurals.add(new WordEnding("foe", "foes", true));
+		plurals.add(new WordEnding("woe", "woes", true));
 		plurals.add(new WordEnding("o", "oes"));
 
-		plurals.add(new WordEnding("alias", "aliases"));
-		plurals.add(new WordEnding("gas", "gases"));
+		plurals.add(new WordEnding("alias", "aliases", true));
+		plurals.add(new WordEnding("gas", "gases", true));
 
-		plurals.add(new WordEnding("child", "children"));
+		plurals.add(new WordEnding("child", "children")); // grandchild, etc.
 
-		plurals.add(new WordEnding("sheep", "sheep"));
+		plurals.add(new WordEnding("sheep", "sheep", true));
 
 		// general ending
 		plurals.add(new WordEnding("", "s"));
@@ -104,7 +112,7 @@ public abstract class Utils {
 				b.append(", ");
 			b.append(Classes.toString(objects[i]));
 		}
-		return "" + b.toString();
+		return b.toString();
 	}
 
 	public static String join(final Iterable<?> objects) {
@@ -118,7 +126,7 @@ public abstract class Utils {
 				first = false;
 			b.append(Classes.toString(o));
 		}
-		return "" + b.toString();
+		return b.toString();
 	}
 
 	@SuppressWarnings("unchecked")
@@ -134,7 +142,7 @@ public abstract class Utils {
 		} else if (s.matches("an? .+")) {
 			return new Pair<>(s.split(" ", 2)[1], 1);
 		}
-		return new Pair<>(s, Integer.valueOf(-1));
+		return new Pair<>(s, -1);
 	}
 
 //	public final static class AmountResponse {
@@ -267,14 +275,55 @@ public abstract class Utils {
 	public static NonNullPair<String, Boolean> getEnglishPlural(String word) {
 		assert word != null;
 		if (word.isEmpty())
-			return new NonNullPair<>("", Boolean.FALSE);
-		for (final WordEnding ending : plurals) {
-			if (word.endsWith(ending.plural()))
-				return new NonNullPair<>(word.substring(0, word.length() - ending.plural().length()) + ending.singular(), Boolean.TRUE);
-			if (word.endsWith(ending.plural().toUpperCase(Locale.ENGLISH)))
-				return new NonNullPair<>(word.substring(0, word.length() - ending.plural().length()) + ending.singular().toUpperCase(Locale.ENGLISH), Boolean.TRUE);
+			return new NonNullPair<>("", false);
+		if (!couldBeSingular(word)) {
+			for (final WordEnding ending : plurals) {
+				if (ending.isCompleteWord()) {
+					// Complete words shouldn't be used as partial pieces
+					if (word.length() != ending.plural().length())
+						continue;
+				}
+				if (word.endsWith(ending.plural()))
+					return new NonNullPair<>(
+						word.substring(0, word.length() - ending.plural().length()) + ending.singular(),
+						true
+					);
+				if (word.endsWith(ending.plural().toUpperCase(Locale.ENGLISH)))
+					return new NonNullPair<>(
+						word.substring(0, word.length() - ending.plural().length())
+							+ ending.singular().toUpperCase(Locale.ENGLISH),
+						true
+					);
+			}
 		}
-		return new NonNullPair<>(word, Boolean.FALSE);
+		return new NonNullPair<>(word, false);
+	}
+
+	private static boolean couldBeSingular(String word) {
+		for (final WordEnding ending : plurals) {
+			if (ending.singular().isBlank())
+				continue;
+			if (ending.isCompleteWord() && ending.singular().length() != word.length())
+				continue; // Skip complete words
+
+			if (word.endsWith(ending.singular()) || word.toLowerCase().endsWith(ending.singular())) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * Adds a singular/plural word override for the given words.
+	 * This is inserted first in the list of words to be checked: it will always be matched
+	 * and will override all other plurality rules.
+	 * This will only match the word <s>exactly</s>, and will not apply to derivations of the word.
+	 *
+	 * @param singular The singular form of the word
+	 * @param plural The plural form of the word
+	 */
+	public static void addPluralOverride(String singular, String plural) {
+		Utils.plurals.addFirst(new WordEnding(singular, plural, true));
 	}
 
 	/**
@@ -286,6 +335,11 @@ public abstract class Utils {
 	public static String toEnglishPlural(String word) {
 		assert word != null && word.length() != 0;
 		for (WordEnding ending : plurals) {
+			if (ending.isCompleteWord()) {
+				// Complete words shouldn't be used as partial pieces
+				if (word.length() != ending.singular().length())
+					continue;
+			}
 			if (word.endsWith(ending.singular()))
 				return word.substring(0, word.length() - ending.singular().length()) + ending.plural();
 		}
@@ -791,13 +845,10 @@ public abstract class Utils {
 		return true;
 	}
 
-	protected static class WordEnding { // To be a record in 2.10
+	protected record WordEnding(String singular, String plural, boolean isCompleteWord) {
 
-		private final String singular, plural;
-
-		private WordEnding(String singular, String plural) {
-			this.singular = singular;
-			this.plural = plural;
+		public WordEnding(String singular, String plural) {
+			this(singular, plural, false);
 		}
 
 		public String singular() {
@@ -811,8 +862,7 @@ public abstract class Utils {
 		@Override
 		public boolean equals(Object object) {
 			if (this == object) return true;
-			if (!(object instanceof WordEnding)) return false;
-			WordEnding ending = (WordEnding) object;
+			if (!(object instanceof WordEnding ending)) return false;
 			return Objects.equals(singular, ending.singular) && Objects.equals(plural, ending.plural);
 		}
 
