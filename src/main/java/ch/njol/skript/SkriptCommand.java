@@ -479,13 +479,11 @@ public class SkriptCommand implements CommandExecutor {
 	private static final ArgsMessage m_invalid_script = new ArgsMessage(CONFIG_NODE + ".invalid script");
 	private static final ArgsMessage m_invalid_folder = new ArgsMessage(CONFIG_NODE + ".invalid folder");
 
-	@Nullable
-	private static File getScriptFromArgs(CommandSender sender, String[] args) {
+	private static @Nullable File getScriptFromArgs(CommandSender sender, String[] args) {
 		return getScriptFromArgs(sender, args, Skript.getInstance().getScriptsFolder());
 	}
 
-	@Nullable
-	private static File getScriptFromArgs(CommandSender sender, String[] args, File directoryFile) {
+	private static @Nullable File getScriptFromArgs(CommandSender sender, String[] args, File directoryFile) {
 		String script = StringUtils.join(args, " ", 1, args.length);
 		File f = getScriptFromName(script, directoryFile);
 		if (f == null) {
@@ -497,13 +495,11 @@ public class SkriptCommand implements CommandExecutor {
 		return f;
 	}
 
-	@Nullable
-	public static File getScriptFromName(String script) {
+	public static @Nullable File getScriptFromName(String script) {
 		return getScriptFromName(script, Skript.getInstance().getScriptsFolder());
 	}
 
-	@Nullable
-	public static File getScriptFromName(String script, File directoryFile) {
+	public static @Nullable File getScriptFromName(String script, File directoryFile) {
 		if (script.endsWith("/") || script.endsWith("\\")) { // Always allow '/' and '\' regardless of OS
 			script = script.replace('/', File.separatorChar).replace('\\', File.separatorChar);
 		} else if (!StringUtils.endsWithIgnoreCase(script, ".sk")) {
