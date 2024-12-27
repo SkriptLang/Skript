@@ -32,7 +32,7 @@ import org.skriptlang.skript.lang.script.Script;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
-import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
@@ -440,7 +440,7 @@ public class SkriptCommand implements CommandExecutor {
 				ScriptLoader.getDisabledScripts().stream()
 						.flatMap(file -> {
 							if (file.isDirectory()) {
-								return Arrays.stream(file.listFiles(f -> !f.isHidden()));
+								return getSubFiles(file).stream();
 							}
 							return Arrays.stream(new File[]{file});
 						})
@@ -461,6 +461,20 @@ public class SkriptCommand implements CommandExecutor {
 
 	private static final ArgsMessage m_invalid_script = new ArgsMessage(CONFIG_NODE + ".invalid script");
 	private static final ArgsMessage m_invalid_folder = new ArgsMessage(CONFIG_NODE + ".invalid folder");
+
+	private static List<File> getSubFiles(File file) {
+		List<File> files = new ArrayList<>();
+		if (file.isDirectory()) {
+			for (File listFile : file.listFiles(f -> !f.isHidden())) {
+				if (listFile.isDirectory()) {
+					files.addAll(getSubFiles(listFile));
+				} else {
+					files.add(listFile);
+				}
+			}
+		}
+		return files;
+	}
 
 	@Nullable
 	private static File getScriptFromArgs(CommandSender sender, String[] args) {
