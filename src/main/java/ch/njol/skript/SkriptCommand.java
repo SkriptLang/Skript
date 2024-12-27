@@ -468,7 +468,7 @@ public class SkriptCommand implements CommandExecutor {
 			for (File listFile : file.listFiles(f -> !f.isHidden())) {
 				if (listFile.isDirectory()) {
 					files.addAll(getSubFiles(listFile));
-				} else if (listFile.getName().endsWith(".sk")){
+				} else if (listFile.getName().endsWith(".sk")) {
 					files.add(listFile);
 				}
 			}
