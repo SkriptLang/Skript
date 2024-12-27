@@ -1,6 +1,5 @@
 package org.skriptlang.skript.test.tests.syntaxes.events;
 
-import ch.njol.skript.Skript;
 import ch.njol.skript.test.runner.SkriptJUnitTest;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -13,7 +12,6 @@ import org.junit.Test;
 public class EvtGrowTest extends SkriptJUnitTest {
 
 	private Block plant, birch;
-	private static final boolean canRun = Skript.methodExists(Block.class, "applyBoneMeal", BlockFace.class);
 
 	static {
 		setShutdownDelay(1);
@@ -21,8 +19,9 @@ public class EvtGrowTest extends SkriptJUnitTest {
 
 	@Before
 	public void setBlocks() {
-		plant = setBlock(Material.WHEAT);
-		plant.getRelative(0,-1,0).setType(Material.FARMLAND);
+		Block farmland = setBlock(Material.FARMLAND);
+		farmland.getRelative(0, 1, 0).setType(Material.WHEAT);
+		plant = farmland.getRelative(0, 1, 0);
 		birch = plant.getRelative(10,0,0);
 		birch.getRelative(0,-1,0).setType(Material.DIRT);
 		birch.setType(Material.BIRCH_SAPLING);
@@ -30,20 +29,18 @@ public class EvtGrowTest extends SkriptJUnitTest {
 
 	@Test
 	public void testGrow() {
-		if (canRun) {
-			int maxIterations = 100;
-			int iterations = 0;
-			while (((Ageable) plant.getBlockData()).getAge() != ((Ageable) plant.getBlockData()).getMaximumAge()) {
-				plant.applyBoneMeal(BlockFace.UP);
-				if (iterations++ > maxIterations)
-					return;
-			}
-			iterations = 0;
-			while (birch.getType() == Material.BIRCH_SAPLING) {
-				birch.applyBoneMeal(BlockFace.UP);
-				if (iterations++ > maxIterations)
-					return;
-			}
+		int maxIterations = 100;
+		int iterations = 0;
+		while (plant.getBlockData() instanceof Ageable ageable && ageable.getAge() != ageable.getMaximumAge()) {
+			plant.applyBoneMeal(BlockFace.UP);
+			if (iterations++ > maxIterations)
+				break;
+		}
+		iterations = 0;
+		while (birch.getType() == Material.BIRCH_SAPLING) {
+			birch.applyBoneMeal(BlockFace.UP);
+			if (iterations++ > maxIterations)
+				break;
 		}
 	}
 
