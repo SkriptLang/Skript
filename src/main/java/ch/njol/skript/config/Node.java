@@ -1,14 +1,5 @@
 package ch.njol.skript.config;
 
-import java.io.PrintWriter;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import ch.njol.skript.SkriptConfig;
-import org.jetbrains.annotations.Nullable;
-import org.jetbrains.annotations.NotNull;
-
 import ch.njol.skript.Skript;
 import ch.njol.skript.lang.util.common.AnyNamed;
 import ch.njol.skript.log.SkriptLogger;
@@ -21,6 +12,7 @@ import org.skriptlang.skript.util.Validated;
 import java.io.PrintWriter;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.regex.Pattern;
 
 public abstract class Node implements AnyNamed, Validated, NodeNavigator {
 

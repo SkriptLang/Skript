@@ -23,6 +23,8 @@ import org.bukkit.event.Event;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.lang.reflect.Array;
+
 @Name("Value (Experimental)")
 @Description({
 	"Returns the value of a node in a loaded config.",
@@ -112,7 +114,9 @@ public class ExprNodeValue extends SimplePropertyExpression<Node, Object> {
 		if (pathExpression != null) {
 			String path = pathExpression.getSingle(event);
 			Node node = source[0].getNodeAt(path);
-			return CollectionUtils.array(this.convert(node));
+			Object[] array = (Object[]) Array.newInstance(this.getReturnType(), 1);
+			array[0] = this.convert(node);
+			return array;
 		}
 		return super.get(source, this);
 	}
@@ -124,7 +128,7 @@ public class ExprNodeValue extends SimplePropertyExpression<Node, Object> {
 
 	@Override
 	public Class<?> getReturnType() {
-		return Object.class;
+		return classInfo.getC();
 	}
 
 	@Override
