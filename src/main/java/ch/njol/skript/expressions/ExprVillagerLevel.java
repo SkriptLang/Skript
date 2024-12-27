@@ -23,8 +23,9 @@ import org.jetbrains.annotations.Nullable;
 	"The level will determine which trades are available to players.",
 	"Experience works along with the leveling system, determining which level the villager will move to.",
 	"Level must be between 1 and 5, with 1 being the default level.",
-	"Do note when a villager's level is 1, they may lose their profession.",
-	"Experience must be greater than or equal to 0."})
+	"When a villager's level is 1, they may lose their profession.",
+	"Experience must be greater than or equal to 0."
+})
 @Examples({
 	"set {_level} to villager level of {_villager}",
 	"set villager level of last spawned villager to 2",
