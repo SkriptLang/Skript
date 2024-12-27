@@ -362,7 +362,8 @@ public class BukkitClasses {
 				.description("A location in a <a href='#world'>world</a>. Locations are world-specific and even store a <a href='#direction'>direction</a>, " +
 						"e.g. if you save a location and later teleport to it you will face the exact same direction you did when you saved the location.")
 				.usage("")
-				.examples("")
+				.examples("teleport player to location at 0, 69, 0",
+						  "teleport player to location at 0, 69, 0 in world 'world'")
 				.since("1.0")
 				.defaultExpression(new EventValueExpression<>(Location.class))
 				.parser(new Parser<Location>() {
