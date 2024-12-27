@@ -32,9 +32,7 @@ import org.jetbrains.annotations.Nullable;
 /**
  * Represents a config file.
  */
-public class Config implements Comparable<Config>, Validated {
-public class Config implements Comparable<Config>, AnyNamed {
-public class Config implements Comparable<Config>, Validated, NodeNavigator {
+public class Config implements Comparable<Config>, Validated, NodeNavigator, AnyNamed {
 
 	/**
 	 * One level of the indentation, e.g. a tab or 4 spaces.
@@ -234,7 +232,7 @@ public class Config implements Comparable<Config>, Validated, NodeNavigator {
 			SectionNode newParent = node.getParent();
 			Preconditions.checkNotNull(newParent);
 
-			SectionNode parent = getNode(newParent.getPath());
+			SectionNode parent = getNode(newParent.getPathSteps());
 			Preconditions.checkNotNull(parent);
 
 			int index = node.getIndex();

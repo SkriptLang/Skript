@@ -41,7 +41,11 @@ test "config name (new)":
 test "node name (new)":
 	set {_node} to the current script
 	set {_node} to the first element of nodes of {_node}
-	assert name of {_node} is "using script reflection" with "first node name was wrong"
+	assert name of {_node} is "test ""name of world""" with "first node name was wrong"
+
+	set {_node} to the current script
+	set {_node} to the 4th element of nodes of {_node} # Obviously, this changes if this file changes
+	assert name of {_node} is "using script reflection" with "4th node name was wrong"
 
 	# root node
 	set {_node} to the skript config

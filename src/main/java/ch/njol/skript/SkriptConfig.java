@@ -91,7 +91,7 @@ public class SkriptConfig {
 					Skript.error("No language file found for '" + s + "'!");
 				}
 			});
-	
+
 	public static final Option<Boolean> checkForNewVersion = new Option<>("check for new version", false)
 			.setter(t -> {
 				SkriptUpdater updater = Skript.getInstance().getUpdater();
@@ -170,7 +170,7 @@ public class SkriptConfig {
 			return "" + f.format(timestamp);
 		}
 	}
-	
+
 	public static final Option<Verbosity> verbosity = new Option<>("verbosity", Verbosity.NORMAL, new EnumParser<>(Verbosity.class, "verbosity"))
 			.setter(SkriptLogger::setVerbosity);
 
@@ -189,7 +189,7 @@ public class SkriptConfig {
 	public static final Option<Boolean> listenCancelledByDefault = new Option<>("listen to cancelled events by default", false)
 			.optional(true);
 
-	
+
 	/**
 	 * Maximum number of digits to display after the period for floats and doubles
 	 */
@@ -206,7 +206,7 @@ public class SkriptConfig {
 	public static final Option<Boolean> disableVariableStartingWithExpressionWarnings =
 		new Option<>("disable starting a variable's name with an expression warnings", false);
 	public static final Option<Boolean> disableUnreachableCodeWarnings = new Option<>("disable unreachable code warnings", false);
-	
+
 	@Deprecated
 	public static final Option<Boolean> enableScriptCaching = new Option<>("enable script caching", false)
 			.optional(true);
@@ -368,7 +368,7 @@ public class SkriptConfig {
 	}
 
 	// also used for reloading
-	static boolean load() {
+	static void load() {
 		if (mainConfig != null)
 			mainConfig.invalidate(); // todo
 		try {
@@ -392,7 +392,7 @@ public class SkriptConfig {
 			}
 			SkriptConfig.mainConfig = mainConfig;
 
-			String configVersion = mainConfig.get(version.key);
+			String configVersion = mainConfig.getValue(version.key);
 			if (configVersion == null || Skript.getVersion().compareTo(new Version(configVersion)) != 0) {
 				if (!mainConfig.getMainNode().isValid()) {
 					Skript.error("Your config is outdated, but cannot be updated because it contains errors.");
