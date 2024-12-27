@@ -231,7 +231,7 @@ public class SkriptParser {
 											.trim())
 										.iterator();
 
-									String events = StringUtils.join(iterator, ",", " or ");
+									String events = StringUtils.join(iterator, ", ", " or ");
 
 									Skript.error("'" + parseResult.expr + "' can only be used in " + events);
 									continue;
