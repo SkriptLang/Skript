@@ -440,7 +440,7 @@ public class SkriptCommand implements CommandExecutor {
 				ScriptLoader.getDisabledScripts().stream()
 						.flatMap(file -> {
 							if (file.isDirectory()) {
-								return Arrays.stream(file.listFiles());
+								return Arrays.stream(file.listFiles(f -> !f.isHidden()));
 							}
 							return Arrays.stream(new File[]{file});
 						})
