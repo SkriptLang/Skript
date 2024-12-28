@@ -16,7 +16,7 @@ import java.util.regex.Pattern;
  * An instance of a statistic to use with the {@link org.skriptlang.skript.bukkit.spark.expressions.ExprMSPT} expression.
  * Can be an average, median, min, max, or specific percentile.
  */
-public class MsptStatistic {
+public class MSPTStatistic {
 
 	/**
 	 * The type of MSPT statistic.
@@ -65,26 +65,26 @@ public class MsptStatistic {
 	/**
 	 * Attempts to parse a string into a MSPT statistic.
 	 * @param input the string to parse
-	 * @return a new MsptStatistic, or null if parsing failed.
+	 * @return a new MSPTStatistic, or null if parsing failed.
 	 */
-	public static @Nullable MsptStatistic parse(String input) {
+	public static @Nullable MSPTStatistic parse(String input) {
 		for (MsptStatisticType type : MsptStatisticType.values()) {
 			Matcher matcher = type.pattern.matcher(input);
 			if (matcher.matches()) {
 				if (type != MsptStatisticType.PERCENTILE)
-					return new MsptStatistic(type);
-				return new MsptStatistic(type, Double.parseDouble(matcher.group(1)) / 100);
+					return new MSPTStatistic(type);
+				return new MSPTStatistic(type, Double.parseDouble(matcher.group(1)) / 100);
 			}
 		}
 		return null;
 	}
 
-	private MsptStatistic(MsptStatisticType type) {
+	private MSPTStatistic(MsptStatisticType type) {
 		Preconditions.checkArgument(type != MsptStatisticType.PERCENTILE, "Must supply a value for the percentile type!");
 		this.type = type;
 	}
 
-	private MsptStatistic(MsptStatisticType type, double value) {
+	private MSPTStatistic(MsptStatisticType type, double value) {
 		this.type = type;
 		this.value = value;
 	}

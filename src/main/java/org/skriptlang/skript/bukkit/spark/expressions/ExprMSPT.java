@@ -10,13 +10,14 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.skript.lang.SyntaxStringBuilder;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
 import me.lucko.spark.api.statistic.StatisticWindow.MillisPerTick;
 import me.lucko.spark.api.statistic.misc.DoubleAverageInfo;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.bukkit.spark.MsptStatistic;
+import org.skriptlang.skript.bukkit.spark.MSPTStatistic;
 import org.skriptlang.skript.bukkit.spark.SparkUtils;
 
 import java.util.Arrays;
@@ -46,7 +47,7 @@ public class ExprMSPT extends SimpleExpression<Double> {
 
 	private int matchedPattern;
 	private MillisPerTick window;
-	private Literal<MsptStatistic> stats;
+	private Literal<MSPTStatistic> stats;
 
 	@Override
 	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
@@ -56,14 +57,14 @@ public class ExprMSPT extends SimpleExpression<Double> {
 		}
 		this.matchedPattern = matchedPattern;
 		//noinspection unchecked
-		this.stats = ((Literal<MsptStatistic>) expressions[0]);
+		this.stats = ((Literal<MSPTStatistic>) expressions[0]);
 		this.window = MillisPerTick.values()[matchedPattern];
 		return true;
 	}
 
 	@Override
 	protected Double[] get(Event event) {
-		DoubleAverageInfo info = SparkUtils.mspt(window);
+		DoubleAverageInfo info = SparkUtils.pollMSPT(window);
 		return Arrays.stream(stats.getArray()).map(stat-> stat.get(info)).toArray(Double[]::new);
 	}
 
@@ -79,13 +80,16 @@ public class ExprMSPT extends SimpleExpression<Double> {
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return "the " + stats.toString(event, debug) + " milliseconds per tick measurements from the last " +
-				switch (matchedPattern) {
-					case 0 -> "10 seconds";
-					case 1 -> "minute";
-					case 2 -> "5 minutes";
-					default -> throw new IllegalStateException("invalid matched pattern");
-				};
+		SyntaxStringBuilder builder = new SyntaxStringBuilder(event, debug);
+		builder.append("the ", stats.toString(event, debug));
+		builder.append("milliseconds per tick from the last");
+		builder.append(switch (matchedPattern) {
+			case 0 -> "10 seconds";
+			case 1 -> "minute";
+			case 2 -> "5 minutes";
+			default -> throw new IllegalStateException("invalid matched pattern");
+		});
+		return builder.toString();
 	}
 
 }

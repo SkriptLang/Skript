@@ -55,7 +55,7 @@ public class SparkUtils {
 	 * @param window the window for which to gather statistics from.
 	 * @return the MSPT info block.
 	 */
-	public static @Nullable DoubleAverageInfo mspt(MillisPerTick window) {
+	public static @Nullable DoubleAverageInfo pollMSPT(MillisPerTick window) {
 		GenericStatistic<DoubleAverageInfo, MillisPerTick> mspt = mspt();
 		return mspt.poll(window);
 	}
@@ -116,7 +116,7 @@ public class SparkUtils {
 	 * @param window the window for which to gather statistics from.
 	 * @return the system cpu usage.
 	 */
-	public static double pollSystemCpuUsage(CpuUsage window) {
+	public static double pollSystemCPUUsage(CpuUsage window) {
 		return cpuSystem().poll(window);
 	}
 

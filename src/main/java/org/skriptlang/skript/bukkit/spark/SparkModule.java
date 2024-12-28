@@ -20,26 +20,26 @@ public class SparkModule {
 		Skript.getAddonInstance().loadClasses("org.skriptlang.skript.bukkit", "spark");
 
 		// Classes
-		Classes.registerClass(new ClassInfo<>(MsptStatistic.class, "msptstatistic")
+		Classes.registerClass(new ClassInfo<>(MSPTStatistic.class, "msptstatistic")
 			.user("mspt ?statistics?")
 			.name("MSPT Statistic")
 			.description("A statistic used for getting millisecond per tick values from Spark.")
 			.since("INSERT VERSION")
 			.parser(new Parser<>() {
 				@Override
-				public @Nullable MsptStatistic parse(String input, ParseContext context) {
+				public @Nullable MSPTStatistic parse(String input, ParseContext context) {
 					if (context != ParseContext.DEFAULT)
 						return null;
-					return MsptStatistic.parse(input);
+					return MSPTStatistic.parse(input);
 				}
 
 				@Override
-				public String toString(MsptStatistic stat, int flags) {
+				public String toString(MSPTStatistic stat, int flags) {
 					return stat.toString();
 				}
 
 				@Override
-				public String toVariableNameString(MsptStatistic stat) {
+				public String toVariableNameString(MSPTStatistic stat) {
 					return stat.toString();
 				}
 			}));
