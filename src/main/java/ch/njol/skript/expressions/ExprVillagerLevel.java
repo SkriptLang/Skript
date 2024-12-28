@@ -20,11 +20,11 @@ import org.jetbrains.annotations.Nullable;
 @Name("Villager Level/Experience")
 @Description({
 	"Represents the level/experience of a villager.",
-	"The level will determine which trades are available to players.",
+	"The level will determine which trades are available to players (value between 1 and 5, defaults to 1).",
+	"When a villager's level is 1, they may lose their profession if they don't have a workstation.",
 	"Experience works along with the leveling system, determining which level the villager will move to.",
-	"Level must be between 1 and 5, with 1 being the default level.",
-	"When a villager's level is 1, they may lose their profession.",
-	"Experience must be greater than or equal to 0."
+	"Experience must be greater than or equal to 0.",
+	"Learn more about villager levels on <a href='https://minecraft.wiki/w/Villager#Trading'>Minecraft Wiki</a>",
 })
 @Examples({
 	"set {_level} to villager level of {_villager}",
@@ -61,8 +61,7 @@ public class ExprVillagerLevel extends SimplePropertyExpression<LivingEntity, Nu
 	@Override
 	public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
 		return switch (mode) {
-			case SET, ADD, REMOVE, RESET ->
-				CollectionUtils.array(Number.class);
+			case SET, ADD, REMOVE, RESET -> CollectionUtils.array(Number.class);
 			default -> null;
 		};
 	}
@@ -75,20 +74,29 @@ public class ExprVillagerLevel extends SimplePropertyExpression<LivingEntity, Nu
 		for (LivingEntity livingEntity : getExpr().getArray(event)) {
 			if (!(livingEntity instanceof Villager villager)) continue;
 
-			int minLevel = experience ? 0 : 1;
-			int maxLevel = experience ? Integer.MAX_VALUE : 5;
-			int previousLevel = experience ? villager.getVillagerExperience() : villager.getVillagerLevel();
+			int minLevel;
+			int maxLevel;
+			int previousAmount;
+			if (experience) {
+				minLevel = 0;
+				maxLevel = Integer.MAX_VALUE;
+				previousAmount = villager.getVillagerExperience();
+			} else {
+				minLevel = 1;
+				maxLevel = 5;
+				previousAmount = villager.getVillagerLevel();
+			}
 			int newLevel = switch (mode) {
 				case SET -> changeValue;
-				case ADD -> previousLevel + changeValue;
-				case REMOVE -> previousLevel - changeValue;
+				case ADD -> previousAmount + changeValue;
+				case REMOVE -> previousAmount - changeValue;
 				default -> minLevel;
 			};
-			newLevel = Math2.fit(minLevel, newLevel,  maxLevel);
-			if (experience)
+			newLevel = Math2.fit(minLevel, newLevel, maxLevel);
+			if (experience) {
 				villager.setVillagerExperience(newLevel);
-			else if (newLevel > previousLevel && HAS_INCREASE_METHOD) {
-				int increase = Math2.fit(minLevel, newLevel - previousLevel,  maxLevel);
+			} else if (newLevel > previousAmount && HAS_INCREASE_METHOD) {
+				int increase = Math2.fit(minLevel, newLevel - previousAmount, maxLevel);
 				// According to the docs for this method:
 				// Increases the level of this villager.
 				// The villager will also unlock new recipes unlike the raw 'setVillagerLevel' method
