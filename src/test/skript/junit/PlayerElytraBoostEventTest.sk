@@ -1,0 +1,16 @@
+options:
+	test: "org.skriptlang.skript.test.tests.syntaxes.events.PlayerElytraBoostEventTest"
+
+test "PlayerElytraBoosEventTest" when running JUnit:
+	set {_tests::*} to "boost event called", "boost event - firework item", "boost event - player" and "boost event - firework entity"
+	ensure junit test {@test} completes {_tests::*}
+
+on elytra boost:
+	junit test is {@test}
+	complete objective "boost event called" for {@test}
+	if event-item is a firework rocket:
+		complete objective "boost event - firework item" for {@test}
+	if event-entity is a firework:
+		complete objective "boost event - firework entity" for {@test}
+	if event-player is set:
+		complete objective "boost event - player" for {@test}

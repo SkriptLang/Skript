@@ -29,3 +29,26 @@ test "furnace slot":
 
 	# cleanup
 	set test-block to air
+
+test "furnace expressions":
+	set {_loc} to location(0, 0, 0, world)
+	set block at {_loc} to furnace
+	set block at location(0, 0, 0, world) to furnace
+	set {_furnace} to block at location(0, 0, 0, world)
+
+	set the cook time of {_furnace} to 10 seconds
+	assert the cook time of {_furnace} is 10 seconds with "Set furnace cook time to 10"
+	clear the cook time of {_furnace}
+	assert the cook time of {_furnace} is 0 seconds with "Clear furnace cook time"
+
+	set the total cook time of {_furnace} to 20 seconds
+	assert the total cook time of {_furnace} is 20 seconds with "Set furnace total cook time to 20"
+	clear the total cook time of {_furnace}
+	assert the total cook time of {_furnace} is 0 seconds with "Clear furnace total cook time"
+
+	set the fuel burn time of {_furnace} to 50 seconds
+	assert the fuel burn time of {_furnace} is 50 seconds with "Set furnace fuel burn time to 50"
+	clear the fuel burn time of {_furnace}
+	assert the fuel burn time of {_furnace} is 0 seconds with "Clear furnace fuel burn time"
+
+	set block at location(0, 0, 0, world) to air

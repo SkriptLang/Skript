@@ -1,22 +1,4 @@
-/**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
-package ch.njol.skript.expressions;
+package org.skriptlang.skript.bukkit.loottables.elements.expressions;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer.ChangeMode;
@@ -43,17 +25,16 @@ import java.util.List;
 @Description("The loot that will be generated in a 'loot generate' event.")
 @Examples({
 	"on loot generate:",
-	"\tchance of %10",
-	"\tadd 64 diamonds",
-	"\tsend \"You hit the jackpot!!\""
+		"\tchance of %10",
+		"\tadd 64 diamonds to loot",
+		"\tsend \"You hit the jackpot!!\""
 })
 @Since("2.7")
 @RequiredPlugins("MC 1.16+")
 public class ExprLoot extends SimpleExpression<ItemStack> {
 
 	static {
-		if (Skript.classExists("org.bukkit.event.world.LootGenerateEvent"))
-			Skript.registerExpression(ExprLoot.class, ItemStack.class, ExpressionType.SIMPLE, "[the] loot");
+		Skript.registerExpression(ExprLoot.class, ItemStack.class, ExpressionType.SIMPLE, "[the] loot");
 	}
 
 	@Override
@@ -67,31 +48,25 @@ public class ExprLoot extends SimpleExpression<ItemStack> {
 
 	@Override
 	@Nullable
-	protected ItemStack[] get(Event event) {
-		if (!(event instanceof LootGenerateEvent))
+	protected ItemStack @Nullable [] get(Event event) {
+		if (!(event instanceof LootGenerateEvent lootEvent))
 			return new ItemStack[0];
-		return ((LootGenerateEvent) event).getLoot().toArray(new ItemStack[0]);
+		return lootEvent.getLoot().toArray(new ItemStack[0]);
 	}
 
 	@Override
 	@Nullable
-	public Class<?>[] acceptChange(ChangeMode mode) {
-		switch (mode) {
-			case ADD:
-			case REMOVE:
-			case SET:
-			case DELETE:
-				return CollectionUtils.array(ItemStack[].class);
-			default:
-				return null;
-		}
+	public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
+		return switch (mode) {
+			case DELETE, ADD, REMOVE, SET -> CollectionUtils.array(ItemStack[].class);
+			default -> null;
+		};
 	}
 
 	@Override
-	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
-		if (!(event instanceof LootGenerateEvent))
+	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
+		if (!(event instanceof LootGenerateEvent lootEvent))
 			return;
-		LootGenerateEvent lootEvent = (LootGenerateEvent) event;
 
 		List<ItemStack> items = null;
 		if (delta != null) {
@@ -101,18 +76,10 @@ public class ExprLoot extends SimpleExpression<ItemStack> {
 		}
 
 		switch (mode) {
-			case ADD:
-				lootEvent.getLoot().addAll(items);
-				break;
-			case REMOVE:
-				lootEvent.getLoot().removeAll(items);
-				break;
-			case SET:
-				lootEvent.setLoot(items);
-				break;
-			case DELETE:
-				lootEvent.getLoot().clear();
-				break;
+			case ADD -> lootEvent.getLoot().addAll(items);
+			case REMOVE -> lootEvent.getLoot().removeAll(items);
+			case SET -> lootEvent.setLoot(items);
+			case DELETE -> lootEvent.getLoot().clear();
 		}
 	}
 

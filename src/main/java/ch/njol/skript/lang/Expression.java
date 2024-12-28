@@ -1,21 +1,3 @@
-/**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
 package ch.njol.skript.lang;
 
 import ch.njol.skript.Skript;
@@ -31,6 +13,7 @@ import ch.njol.skript.util.slot.Slot;
 import ch.njol.util.Checker;
 import org.bukkit.event.Event;
 import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.converter.Converter;
@@ -53,7 +36,7 @@ import java.util.stream.StreamSupport;
  * @see SimpleExpression
  * @see SyntaxElement
  */
-public interface Expression<T> extends SyntaxElement, Debuggable {
+public interface Expression<T> extends SyntaxElement, Debuggable, Loopable<T> {
 
 	/**
 	 * Get the single value of this expression.
@@ -261,25 +244,6 @@ public interface Expression<T> extends SyntaxElement, Debuggable {
 	boolean isDefault();
 
 	/**
-	 * Returns the same as {@link #getArray(Event)} but as an iterator. This method should be overriden by expressions intended to be looped to increase performance.
-	 * 
-	 * @param event The event to be used for evaluation
-	 * @return An iterator to iterate over all values of this expression which may be empty and/or null, but must not return null elements.
-	 */
-	@Nullable Iterator<? extends T> iterator(Event event);
-
-	/**
-	 * Checks whether the given 'loop-...' expression should match this loop, e.g. loop-block matches any loops that loop through blocks and loop-argument matches an
-	 * argument loop.
-	 * <p>
-	 * You should usually just return false as e.g. loop-block will automatically match the expression if its returnType is Block or a subtype of it.
-	 * 
-	 * @param input The entered input string (the blank in loop-___)
-	 * @return Whether this loop matches the given string
-	 */
-	boolean isLoopOf(String input);
-
-	/**
 	 * Returns the original expression that was parsed, i.e. without any conversions done.
 	 * <p>
 	 * This method is undefined for simplified expressions.
@@ -360,6 +324,7 @@ public interface Expression<T> extends SyntaxElement, Debuggable {
 	 * @param <R> The output type of the change function. Must be a type returned
 	 *              by {{@link #acceptChange(ChangeMode)}} for {@link ChangeMode#SET}.
 	 */
+	@ApiStatus.Internal
 	default <R> void changeInPlace(Event event, Function<T, R> changeFunction) {
 		changeInPlace(event, changeFunction, false);
 	}
@@ -381,6 +346,7 @@ public interface Expression<T> extends SyntaxElement, Debuggable {
 	 * @param <R> The output type of the change function. Must be a type returned
 	 *              by {{@link #acceptChange(ChangeMode)}} for {@link ChangeMode#SET}.
 	 */
+	@ApiStatus.Internal
 	default <R> void changeInPlace(Event event, Function<T, R> changeFunction, boolean getAll) {
 		T[] values = getAll ? getAll(event) : getArray(event);
 		if (values.length == 0)
