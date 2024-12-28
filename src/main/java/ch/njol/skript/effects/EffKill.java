@@ -27,25 +27,21 @@ import org.jetbrains.annotations.Nullable;
 @Examples({"kill the player",
 		"kill all creepers in the player's world",
 		"kill all endermen, witches and bats",
-		"kill the player ignoring totem of undying",
-		"kill target entity ignoring totem of undying",
 })
-@Since("1.0, INSERT VERSION (ignoring totem of undying)")
+@Since("1.0")
 public class EffKill extends Effect {
 
 	static {
-		Skript.registerEffect(EffKill.class, "kill %entities%", "kill %entities% ignoring [a|any] totem[s] of undying");
+		Skript.registerEffect(EffKill.class, "kill %entities%");
 	}
 	
 	@SuppressWarnings("null")
 	private Expression<Entity> entities;
-	private boolean ignoreTotem;
 	
 	@SuppressWarnings({"unchecked", "null"})
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parser) {
 		entities = (Expression<Entity>) exprs[0];
-		ignoreTotem = matchedPattern == 1;
 		return true;
 	}
 
@@ -57,19 +53,8 @@ public class EffKill extends Effect {
 				entity = part.getParent();
 			}
 
-			if (ignoreTotem) {
-				HealthUtils.setHealth((Damageable) entity, 0);
-				return;
-			}
-
 			if (entity instanceof Damageable damageable) {
-				boolean creative = entity instanceof Player player && player.getGameMode() == GameMode.CREATIVE;
-				if (creative) // Set player to survival before applying damage
-					((Player) entity).setGameMode(GameMode.SURVIVAL);
-				HealthUtils.damage(damageable, HealthUtils.getMaxHealth(damageable) * 100); // just to make sure that it really dies >:)
-
-				if (creative) // Set creative player back to creative
-					((Player) entity).setGameMode(GameMode.CREATIVE);
+				HealthUtils.setHealth(damageable, 0);
 			}
 
 			// if everything done so far has failed to kill this thing
