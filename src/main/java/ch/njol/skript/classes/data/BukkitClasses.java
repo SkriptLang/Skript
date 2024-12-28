@@ -1568,7 +1568,7 @@ public class BukkitClasses {
 				public String toString(WorldBorder border, int flags) {
 					if (border.getWorld() == null)
 						return "virtual world border";
-					return "world border of world named \"" + border.getWorld().getName() + "\"";
+					return "world border of world named '" + border.getWorld().getName() + "'";
 				}
 
 				@Override
