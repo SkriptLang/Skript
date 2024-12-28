@@ -704,41 +704,6 @@ public class SimpleEvents {
 					.requiredPlugins("Paper");
 		}
 
-		if (Skript.classExists("io.papermc.paper.event.world.border.WorldBorderEvent")) {
-			Skript.registerEvent("World Border Bounds Change", SimpleEvent.class, WorldBorderBoundsChangeEvent.class, "[world[ ]]border [bounds] chang(e|ing)")
-				.description(
-					"Called when a world border changes its bounds, either over time, or instantly.",
-					"Using `event-number` will give the diameter of the world border."
-				)
-				.requiredPlugins("Paper 1.16+")
-				.examples(
-					"on border bounds change:",
-						"\tbroadcast \"You better get moving!\""
-				)
-				.since("INSERT VERSION");
-
-			Skript.registerEvent("World Border Bounds Finish Change", SimpleEvent.class, WorldBorderBoundsChangeFinishEvent.class, "[world[ ]]border [bounds] finish chang(e|ing)")
-				.description(
-					"Called when a moving world border has finished its move.",
-					"Using `event-number` will give the diameter of the world border."
-				)
-				.requiredPlugins("Paper 1.16+")
-				.examples(
-					"on border bounds finish change:",
-						"\tbroadcast \"Get inside the borders!\""
-				)
-				.since("INSERT VERSION");
-
-			Skript.registerEvent("World Border Center Change", SimpleEvent.class, WorldBorderCenterChangeEvent.class, "[world[ ]]border center chang(e|ing)")
-				.description("Called when a world border's center has changed.")
-				.requiredPlugins("Paper 1.16+")
-				.examples(
-					"on border center change:",
-						"\tbroadcast \"The center has moved\""
-				)
-				.since("INSERT VERSION");
-		}
-
 		if (Skript.classExists("io.papermc.paper.event.player.PlayerChangeBeaconEffectEvent")) {
 			Skript.registerEvent("Beacon Change Effect", SimpleEvent.class, PlayerChangeBeaconEffectEvent.class,
 					"beacon change effect", "beacon effect change", "player chang(e[s]|ing) [of] beacon effect")
@@ -828,7 +793,8 @@ public class SimpleEvents {
 				.since("INSERT VERSION");
 
 			Skript.registerEvent("World Border Center Change", SimpleEvent.class, WorldBorderCenterChangeEvent.class, "world[ ]border center chang(e|ing)")
-				.description("Called when a world border's center has changed.",
+				.description(
+					"Called when a world border's center has changed.",
 					"This event does not get called for virtual borders."
 				)
 				.requiredPlugins("Paper 1.16+")
