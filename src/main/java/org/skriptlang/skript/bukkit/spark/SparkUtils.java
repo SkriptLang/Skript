@@ -116,7 +116,7 @@ public class SparkUtils {
 	 * @param window the window for which to gather statistics from.
 	 * @return the system cpu usage.
 	 */
-	public static double cpuSystem(CpuUsage window) {
+	public static double pollSystemCpuUsage(CpuUsage window) {
 		return cpuSystem().poll(window);
 	}
 
