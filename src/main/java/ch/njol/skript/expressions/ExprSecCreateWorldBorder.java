@@ -37,14 +37,14 @@ public class ExprSecCreateWorldBorder extends SectionExpression<WorldBorder> {
 
 	static {
 		Skript.registerExpression(ExprSecCreateWorldBorder.class, WorldBorder.class, ExpressionType.SIMPLE, "a [virtual] world[ ]border");
-		EventValues.registerEventValue(CreateWorldborderEvent.class, WorldBorder.class, CreateWorldborderEvent::getWorldBorder, EventValues.TIME_NOW);
+		EventValues.registerEventValue(CreateWorldborderEvent.class, WorldBorder.class, CreateWorldborderEvent::getWorldBorder);
 	}
 
 	private WorldBorder worldBorder;
 	private Trigger trigger = null;
 
 	@Override
-	public boolean init(Expression[] expressions, int pattern, Kleenean delayed, SkriptParser.ParseResult result, @Nullable SectionNode node, @Nullable List list) {
+	public boolean init(Expression[] expressions, int pattern, Kleenean delayed, ParseResult result, @Nullable SectionNode node, @Nullable List list) {
 		worldBorder = Bukkit.createWorldBorder();
 		if (node != null) {
 			AtomicBoolean isDelayed = new AtomicBoolean(false);

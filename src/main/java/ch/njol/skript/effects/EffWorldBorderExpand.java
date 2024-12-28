@@ -20,7 +20,7 @@ import org.jetbrains.annotations.Nullable;
 @Name("Expand/Shrink World Border")
 @Description({
 	"Expand or shrink the size of a world border.",
-	"Note: Using `by` adds/subtracts from the current size of the world border.",
+	"Using `by` adds/subtracts from the current size of the world border.",
 	"Using `to` sets to the specified size."
 })
 @Examples({
@@ -36,7 +36,6 @@ public class EffWorldBorderExpand extends Effect {
 			"(expand|grow) %worldborders%['s (diameter|:radius)] (by|:to) %number% [over [a period of] %-timespan%]",
 			"(contract|shrink) [(diameter|:radius) of] %worldborders% (by|:to) %number% [over [a period of] %-timespan%]",
 			"(contract|shrink) %worldborders%['s (diameter|:radius)] (by|:to) %number% [over [a period of] %-timespan%]"
-
 		);
 	}
 

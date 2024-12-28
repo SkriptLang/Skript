@@ -708,7 +708,7 @@ public class SimpleEvents {
 			Skript.registerEvent("World Border Bounds Change", SimpleEvent.class, WorldBorderBoundsChangeEvent.class, "[world[ ]]border [bounds] chang(e|ing)")
 				.description(
 					"Called when a world border changes its bounds, either over time, or instantly.",
-					"Note: event-number will be the diameter of the world border."
+					"Using `event-number` will give the diameter of the world border."
 				)
 				.requiredPlugins("Paper 1.16+")
 				.examples(
@@ -720,7 +720,7 @@ public class SimpleEvents {
 			Skript.registerEvent("World Border Bounds Finish Change", SimpleEvent.class, WorldBorderBoundsChangeFinishEvent.class, "[world[ ]]border [bounds] finish chang(e|ing)")
 				.description(
 					"Called when a moving world border has finished its move.",
-					"Note: event-number will be the diameter of the world border."
+					"Using `event-number` will give the diameter of the world border."
 				)
 				.requiredPlugins("Paper 1.16+")
 				.examples(
@@ -806,7 +806,7 @@ public class SimpleEvents {
 			Skript.registerEvent("World Border Bounds Change", SimpleEvent.class, WorldBorderBoundsChangeEvent.class, "world[ ]border [bounds] chang(e|ing)")
 				.description(
 					"Called when a world border changes its bounds, either over time, or instantly.",
-					"Note: Does not get called for virtual borders"
+					"This event does not get called for virtual borders."
 				)
 				.requiredPlugins("Paper 1.16+")
 				.examples(
@@ -818,7 +818,7 @@ public class SimpleEvents {
 			Skript.registerEvent("World Border Bounds Finish Change", SimpleEvent.class, WorldBorderBoundsChangeFinishEvent.class, "world[ ]border [bounds] finish chang(e|ing)")
 				.description(
 					"Called when a moving world border has finished its move.",
-					"Note: Does not get called for virtual borders"
+					"This event does not get called for virtual borders."
 				)
 				.requiredPlugins("Paper 1.16+")
 				.examples(
@@ -829,7 +829,7 @@ public class SimpleEvents {
 
 			Skript.registerEvent("World Border Center Change", SimpleEvent.class, WorldBorderCenterChangeEvent.class, "world[ ]border center chang(e|ing)")
 				.description("Called when a world border's center has changed.",
-					"Note: Does not get called for virtual borders"
+					"This event does not get called for virtual borders."
 				)
 				.requiredPlugins("Paper 1.16+")
 				.examples(
