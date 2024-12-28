@@ -2,6 +2,10 @@ package ch.njol.skript.expressions;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.config.SectionNode;
+import ch.njol.skript.doc.Description;
+import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Name;
+import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SectionExpression;
 import ch.njol.skript.lang.*;
 import ch.njol.skript.registrations.EventValues;
@@ -17,6 +21,18 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+@Name("Create WorldBorder")
+@Description("Create a virtual worldborder. You can make this a real border by setting a world's worldborder to a virtual border.")
+@Examples({
+	"set player's worldborder to a virtual worldborder",
+	"",
+	"on join:",
+		"\tset {_border} to a worldborder:",
+			"\t\tset worldborder radius to 25",
+			"\t\tset worldborder warning distance of event-worldborder to 5",
+		"\tset worldborder of player to {_border}"
+})
+@Since("INSERT VERSION")
 public class ExprSecCreateWorldBorder extends SectionExpression<WorldBorder> {
 
 	static {
