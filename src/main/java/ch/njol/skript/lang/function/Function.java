@@ -1,31 +1,12 @@
-/**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
 package ch.njol.skript.lang.function;
-
-import java.util.Arrays;
-
-import org.bukkit.Bukkit;
-import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.SkriptConfig;
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.util.coll.CollectionUtils;
+import org.bukkit.Bukkit;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.Arrays;
 
 /**
  * Functions can be called using arguments.
@@ -68,9 +49,8 @@ public abstract class Function<T> {
 	public boolean isSingle() {
 		return sign.isSingle();
 	}
-	
-	@Nullable
-	public ClassInfo<T> getReturnType() {
+
+	public @Nullable ClassInfo<T> getReturnType() {
 		return sign.getReturnType();
 	}
 	
@@ -83,9 +63,7 @@ public abstract class Function<T> {
 	 * {@link Signature#getMaxParameters()} elements.
 	 * @return The result(s) of this function
 	 */
-	@SuppressWarnings("null")
-	@Nullable
-	public final T[] execute(Object[][] params) {
+	public final T @Nullable [] execute(Object[][] params) {
 		FunctionEvent<? extends T> e = new FunctionEvent<>(this);
 		
 		// Call function event only if requested by addon
@@ -142,14 +120,13 @@ public abstract class Function<T> {
 	 * Executes this function with given parameters. Usually, using
 	 * {@link #execute(Object[][])} is better; it handles optional arguments
 	 * and function event creation automatically.
-	 * @param e Associated function event. This is usually created by Skript.
+	 * @param event Associated function event. This is usually created by Skript.
 	 * @param params Function parameters.
 	 * There must be {@link Signature#getMaxParameters()} amount of them, and
 	 * you need to manually handle default values.
 	 * @return Function return value(s).
 	 */
-	@Nullable
-	public abstract T[] execute(FunctionEvent<?> e, Object[][] params);
+	public abstract T @Nullable [] execute(FunctionEvent<?> event, Object[][] params);
 
 	/**
 	 * Resets the return value of the {@code Function}.

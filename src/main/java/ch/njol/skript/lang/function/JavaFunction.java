@@ -1,27 +1,8 @@
-/**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
 package ch.njol.skript.lang.function;
-
-import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.util.Contract;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * @author Peter Güttinger
@@ -41,17 +22,12 @@ public abstract class JavaFunction<T> extends Function<T> {
 	}
 	
 	@Override
-	@Nullable
-	public abstract T[] execute(FunctionEvent<?> e, Object[][] params);
-	
-	@Nullable
-	private String[] description = null;
-	@Nullable
-	private String[] examples = null;
-	@Nullable
-	private String[] keywords;
-	@Nullable
-	private String since = null;
+	public abstract T @Nullable [] execute(FunctionEvent<?> event, Object[][] params);
+
+	private String @Nullable [] description = null;
+	private String @Nullable [] examples = null;
+	private String @Nullable [] keywords;
+	private @Nullable String since = null;
 	
 	/**
 	 * Only used for Skript's documentation.
@@ -97,24 +73,20 @@ public abstract class JavaFunction<T> extends Function<T> {
 		this.since = since;
 		return this;
 	}
-	
-	@Nullable
-	public String[] getDescription() {
+
+	public String @Nullable [] getDescription() {
 		return description;
 	}
-	
-	@Nullable
-	public String[] getExamples() {
+
+	public String @Nullable [] getExamples() {
 		return examples;
 	}
 
-	@Nullable
-	public String[] getKeywords() {
+	public String @Nullable [] getKeywords() {
 		return keywords;
 	}
-	
-	@Nullable
-	public String getSince() {
+
+	public @Nullable String getSince() {
 		return since;
 	}
 

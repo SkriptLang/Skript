@@ -1,109 +1,24 @@
-/**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
 package ch.njol.skript.registrations;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
-import org.bukkit.event.Event;
-import org.jetbrains.annotations.Nullable;
-
-import com.google.common.collect.ImmutableList;
 import ch.njol.skript.Skript;
-import org.skriptlang.skript.lang.converter.Converter;
-import org.skriptlang.skript.lang.converter.Converters;
 import ch.njol.skript.expressions.base.EventValueExpression;
 import ch.njol.skript.util.Getter;
 import ch.njol.util.Kleenean;
+import com.google.common.collect.ImmutableList;
+import org.bukkit.event.Event;
+import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.converter.Converter;
+import org.skriptlang.skript.lang.converter.Converters;
 
-/**
- * @author Peter Güttinger
- */
+import java.util.ArrayList;
+import java.util.List;
+
 public class EventValues {
-	
-	private EventValues() {}
-	
-	private final static class EventValueInfo<E extends Event, T> {
-		
-		public final Class<E> event;
-		public final Class<T> c;
-		public final Getter<T, E> getter;
-		@Nullable
-		public final Class<? extends E>[] excludes;
-		@Nullable
-		public final String excludeErrorMessage;
-		
-		public EventValueInfo(Class<E> event, Class<T> c, Getter<T, E> getter, @Nullable String excludeErrorMessage, @Nullable Class<? extends E>[] excludes) {
-			assert event != null;
-			assert c != null;
-			assert getter != null;
-			this.event = event;
-			this.c = c;
-			this.getter = getter;
-			this.excludes = excludes;
-			this.excludeErrorMessage = excludeErrorMessage;
-		}
-		
-		/**
-		 * Get the class that represents the Event.
-		 * @return The class of the Event associated with this event value
-		 */
-		public Class<E> getEventClass() {
-			return event;
-		}
-		
-		/**
-		 * Get the class that represents Value.
-		 * @return The class of the Value associated with this event value
-		 */
-		public Class<T> getValueClass() {
-			return c;
-		}
-		
-		/**
-		 * Get the classes that represent the excluded for this Event value.
-		 * @return The classes of the Excludes associated with this event value
-		 */
-		@Nullable
-		public Class<? extends E>[] getExcludes() {
-			if (excludes != null)
-				return Arrays.copyOf(excludes, excludes.length);
-			return new Class[0];
-		}
-		
-		/**
-		 * Get the error message used when encountering an exclude value.
-		 * @return The error message to use when encountering an exclude
-		 */
-		@Nullable
-		public String getExcludeErrorMessage() {
-			return excludeErrorMessage;
-		}
-	}
 
-	private final static List<EventValueInfo<?, ?>> defaultEventValues = new ArrayList<>(30);
-	private final static List<EventValueInfo<?, ?>> futureEventValues = new ArrayList<>();
-	private final static List<EventValueInfo<?, ?>> pastEventValues = new ArrayList<>();
+	private EventValues() {}
 
 	/**
-	 * The past time of an event value. Represented by "past" or "former".
+	 * The past value of an event value. Represented by "past" or "former".
 	 */
 	public static final int TIME_PAST = -1;
 
@@ -116,6 +31,10 @@ public class EventValues {
 	 * The future time of an event value.
 	 */
 	public static final int TIME_FUTURE = 1;
+
+	private final static List<EventValueInfo<?, ?>> defaultEventValues = new ArrayList<>(30);
+	private final static List<EventValueInfo<?, ?>> futureEventValues = new ArrayList<>();
+	private final static List<EventValueInfo<?, ?>> pastEventValues = new ArrayList<>();
 
 	/**
 	 * Get Event Values list for the specified time
@@ -138,26 +57,42 @@ public class EventValues {
 	}
 
 	/**
+	 * Registers an event value, specified by the provided {@link Converter}, with excluded events.
+	 * Uses the default time, {@link #TIME_NOW}.
+	 *
+	 * @see #registerEventValue(Class, Class, Converter, int)
+	 */
+	public static <T, E extends Event> void registerEventValue(
+		Class<E> event, Class<T> type,
+		Converter<E, T> converter
+	) {
+		registerEventValue(event, type, converter, TIME_NOW);
+	}
+
+	/**
 	 * Registers an event value.
-	 * 
+	 *
 	 * @param event the event type class.
-	 * @param type the return type of the getter for the event value.
-	 * @param getter the getter to get the value with the provided event.
+	 * @param type the return type of the converter for the event value.
+	 * @param converter the converter to get the value with the provided event.
 	 * @param time value of TIME_PAST if this is the value before the event, TIME_FUTURE if after, and TIME_NOW if it's the default or this value doesn't have distinct states.
 	 *            <b>Always register a default state!</b> You can leave out one of the other states instead, e.g. only register a default and a past state. The future state will
 	 *            default to the default state in this case.
 	 */
-	public static <T, E extends Event> void registerEventValue(Class<E> event, Class<T> type, Getter<T, E> getter, int time) {
-		registerEventValue(event, type, getter, time, null, (Class<? extends E>[]) null);
+	public static <T, E extends Event> void registerEventValue(
+		Class<E> event, Class<T> type,
+		Converter<E, T> converter, int time
+	) {
+		registerEventValue(event, type, converter, time, null, (Class<? extends E>[]) null);
 	}
 
 	/**
 	 * Registers an event value and with excluded events.
 	 * Excluded events are events that this event value can't operate in.
-	 * 
+	 *
 	 * @param event the event type class.
-	 * @param type the return type of the getter for the event value.
-	 * @param getter the getter to get the value with the provided event.
+	 * @param type the return type of the converter for the event value.
+	 * @param converter the converter to get the value with the provided event.
 	 * @param time value of TIME_PAST if this is the value before the event, TIME_FUTURE if after, and TIME_NOW if it's the default or this value doesn't have distinct states.
 	 *            <b>Always register a default state!</b> You can leave out one of the other states instead, e.g. only register a default and a past state. The future state will
 	 *            default to the default state in this case.
@@ -165,9 +100,16 @@ public class EventValues {
 	 * @param excludes subclasses of the event for which this event value should not be registered for
 	 */
 	@SafeVarargs
-	public static <T, E extends Event> void registerEventValue(Class<E> event, Class<T> type, Getter<T, E> getter, int time, @Nullable String excludeErrorMessage, @Nullable Class<? extends E>... excludes) {
+	public static <T, E extends Event> void registerEventValue(
+		Class<E> event, Class<T> type,
+		Converter<E, T> converter, int time,
+		@Nullable String excludeErrorMessage,
+		@Nullable Class<? extends E>... excludes
+	) {
 		Skript.checkAcceptRegistrations();
 		List<EventValueInfo<?, ?>> eventValues = getEventValuesList(time);
+		EventValueInfo<E, T> element = new EventValueInfo<>(event, type, converter, excludeErrorMessage, excludes);
+
 		for (int i = 0; i < eventValues.size(); i++) {
 			EventValueInfo<?, ?> info = eventValues.get(i);
 			// We don't care for exact duplicates. Prefer Skript's over any addon.
@@ -176,11 +118,36 @@ public class EventValues {
 			// If the events don't match, we prefer the highest subclass event.
 			// If the events match, we prefer the highest subclass type.
 			if (!info.event.equals(event) ? info.event.isAssignableFrom(event) : info.c.isAssignableFrom(type)) {
-				eventValues.add(i, new EventValueInfo<>(event, type, getter, excludeErrorMessage, excludes));
+				eventValues.add(i, element);
 				return;
 			}
 		}
-		eventValues.add(new EventValueInfo<>(event, type, getter, excludeErrorMessage, excludes));
+		eventValues.add(element);
+	}
+
+	/**
+	 * @deprecated Use {@link #registerEventValue(Class, Class, Converter, int, String, Class[])} instead.
+	 */
+	@Deprecated(forRemoval = true)
+	@SafeVarargs
+	public static <T, E extends Event> void registerEventValue(
+		Class<E> event, Class<T> type,
+		Getter<T, E> getter, int time,
+		@Nullable String excludeErrorMessage,
+		@Nullable Class<? extends E>... excludes
+	) {
+		registerEventValue(event, type, (Converter<E, T>) getter, time, excludeErrorMessage, excludes);
+	}
+
+	/**
+	 * @deprecated Use {@link #registerEventValue(Class, Class, Converter, int)} instead.
+	 */
+	@Deprecated(forRemoval = true)
+	public static <T, E extends Event> void registerEventValue(
+		Class<E> event, Class<T> type,
+		Getter<T, E> getter, int time
+	) {
+		registerEventValue(event, type, (Converter<E, T>) getter, time);
 	}
 
 	/**
@@ -188,37 +155,37 @@ public class EventValues {
 	 * <p>
 	 * It is recommended to use {@link EventValues#getEventValueGetter(Class, Class, int)} or {@link EventValueExpression#EventValueExpression(Class)} instead of invoking this
 	 * method repeatedly.
-	 * 
+	 *
 	 * @param e event
 	 * @param c return type of getter
 	 * @param time -1 if this is the value before the event, 1 if after, and 0 if it's the default or this value doesn't have distinct states.
 	 *            <b>Always register a default state!</b> You can leave out one of the other states instead, e.g. only register a default and a past state. The future state will
 	 *            default to the default state in this case.
 	 * @return The event's value
-	 * @see #registerEventValue(Class, Class, Getter, int)
+	 * @see #registerEventValue(Class, Class, Converter, int)
 	 */
 	@Nullable
 	public static <T, E extends Event> T getEventValue(E e, Class<T> c, int time) {
 		@SuppressWarnings("unchecked")
-		Getter<? extends T, ? super E> getter = getEventValueGetter((Class<E>) e.getClass(), c, time);
+		Converter<? super E, ? extends T> getter = getEventValueGetter((Class<E>) e.getClass(), c, time);
 		if (getter == null)
 			return null;
-		return getter.get(e);
+		return getter.convert(e);
 	}
 
 	/**
 	 * Checks that a getter exists for the exact type. No converting or subclass checking.
-	 * 
+	 *
 	 * @param event the event class the getter will be getting from
 	 * @param c type of getter
 	 * @param time the event-value's time
 	 * @return A getter to get values for a given type of events
-	 * @see #registerEventValue(Class, Class, Getter, int)
+	 * @see #registerEventValue(Class, Class, Converter, int)
 	 * @see EventValueExpression#EventValueExpression(Class)
 	 */
 	@Nullable
 	@SuppressWarnings("unchecked")
-	public static <T, E extends Event> Getter<? extends T, ? super E> getExactEventValueGetter(Class<E> event, Class<T> c, int time) {
+	public static <T, E extends Event> Converter<? super E, ? extends T> getExactEventValueGetter(Class<E> event, Class<T> c, int time) {
 		List<EventValueInfo<?, ?>> eventValues = getEventValuesList(time);
 		// First check for exact classes matching the parameters.
 		for (EventValueInfo<?, ?> eventValueInfo : eventValues) {
@@ -227,21 +194,21 @@ public class EventValues {
 			if (!checkExcludes(eventValueInfo, event))
 				return null;
 			if (eventValueInfo.event.isAssignableFrom(event))
-				return (Getter<? extends T, ? super E>) eventValueInfo.getter;
+				return (Converter<? super E, ? extends T>) eventValueInfo.converter;
 		}
 		return null;
 	}
 
 	/**
 	 * Checks if an event has multiple getters, including default ones.
-	 * 
+	 *
 	 * @param event the event class the getter will be getting from.
 	 * @param type type of getter.
 	 * @param time the event-value's time.
 	 * @return true or false if the event and type have multiple getters.
 	 */
 	public static <T, E extends Event> Kleenean hasMultipleGetters(Class<E> event, Class<T> type, int time) {
-		List<Getter<? extends T, ? super E>> getters = getEventValueGetters(event, type, time, true, false);
+		List<Converter<? super E, ? extends T>> getters = getEventValueGetters(event, type, time, true, false);
 		if (getters == null)
 			return Kleenean.UNKNOWN;
 		return Kleenean.get(getters.size() > 1);
@@ -251,29 +218,29 @@ public class EventValues {
 	 * Returns a getter to get a value from in an event.
 	 * <p>
 	 * Can print an error if the event value is blocked for the given event.
-	 * 
+	 *
 	 * @param event the event class the getter will be getting from.
 	 * @param type type of getter.
 	 * @param time the event-value's time.
 	 * @return A getter to get values for a given type of events.
-	 * @see #registerEventValue(Class, Class, Getter, int)
+	 * @see #registerEventValue(Class, Class, Converter, int)
 	 * @see EventValueExpression#EventValueExpression(Class)
 	 */
 	@Nullable
-	public static <T, E extends Event> Getter<? extends T, ? super E> getEventValueGetter(Class<E> event, Class<T> type, int time) {
+	public static <T, E extends Event> Converter<? super E, ? extends T> getEventValueGetter(Class<E> event, Class<T> type, int time) {
 		return getEventValueGetter(event, type, time, true);
 	}
 
 	@Nullable
-	private static <T, E extends Event> Getter<? extends T, ? super E> getEventValueGetter(Class<E> event, Class<T> type, int time, boolean allowDefault) {
-		List<Getter<? extends T, ? super E>> list = getEventValueGetters(event, type, time, allowDefault);
+	private static <T, E extends Event> Converter<? super E, ? extends T> getEventValueGetter(Class<E> event, Class<T> type, int time, boolean allowDefault) {
+		List<Converter<? super E, ? extends T>> list = getEventValueGetters(event, type, time, allowDefault);
 		if (list == null || list.isEmpty())
 			return null;
 		return list.get(0);
 	}
 
 	@Nullable
-	private static <T, E extends Event> List<Getter<? extends T, ? super E>> getEventValueGetters(Class<E> event, Class<T> type, int time, boolean allowDefault) {
+	private static <T, E extends Event> List<Converter<? super E, ? extends T>> getEventValueGetters(Class<E> event, Class<T> type, int time, boolean allowDefault) {
 		return getEventValueGetters(event, type, time, allowDefault, true);
 	}
 
@@ -283,11 +250,11 @@ public class EventValues {
 	 */
 	@Nullable
 	@SuppressWarnings("unchecked")
-	private static <T, E extends Event> List<Getter<? extends T, ? super E>> getEventValueGetters(Class<E> event, Class<T> type, int time, boolean allowDefault, boolean allowConverting) {
+	private static <T, E extends Event> List<Converter<? super E, ? extends T>> getEventValueGetters(Class<E> event, Class<T> type, int time, boolean allowDefault, boolean allowConverting) {
 		List<EventValueInfo<?, ?>> eventValues = getEventValuesList(time);
-		List<Getter<? extends T, ? super E>> list = new ArrayList<>();
+		List<Converter<? super E, ? extends T>> list = new ArrayList<>();
 		// First check for exact classes matching the parameters.
-		Getter<? extends T, ? super E> exact = (Getter<? extends T, ? super E>) getExactEventValueGetter(event, type, time);
+		Converter<? super E, ? extends T> exact = getExactEventValueGetter(event, type, time);
 		if (exact != null) {
 			list.add(exact);
 			return list;
@@ -299,21 +266,16 @@ public class EventValues {
 			if (!checkExcludes(eventValueInfo, event))
 				return null;
 			if (eventValueInfo.event.isAssignableFrom(event)) {
-				list.add((Getter<? extends T, ? super E>) eventValueInfo.getter);
+				list.add((Converter<? super E, ? extends T>) eventValueInfo.converter);
 				continue;
 			}
 			if (!event.isAssignableFrom(eventValueInfo.event))
 				continue;
-			list.add(new Getter<T, E>() {
-				@Override
-				@Nullable
-				public T get(E event) {
-					if (!eventValueInfo.event.isInstance(event))
-						return null;
-					return ((Getter<? extends T, E>) eventValueInfo.getter).get(event);
-				}
+			list.add(e -> {
+				if (!eventValueInfo.event.isInstance(e))
+					return null;
+				return ((Converter<? super E, ? extends T>) eventValueInfo.converter).convert(e);
 			});
-			continue;
 		}
 		if (!list.isEmpty())
 			return list;
@@ -327,21 +289,18 @@ public class EventValues {
 			boolean checkInstanceOf = !eventValueInfo.event.isAssignableFrom(event);
 			if (checkInstanceOf && !event.isAssignableFrom(eventValueInfo.event))
 				continue;
+
 			if (!checkExcludes(eventValueInfo, event))
 				return null;
-			list.add(new Getter<T, E>() {
-				@Override
-				@Nullable
-				public T get(E event) {
-					if (checkInstanceOf && !eventValueInfo.event.isInstance(event))
-						return null;
-					Object object = ((Getter<? super T, ? super E>) eventValueInfo.getter).get(event);
-					if (type.isInstance(object))
-						return (T) object;
+
+			list.add(e -> {
+				if (checkInstanceOf && !eventValueInfo.event.isInstance(e))
 					return null;
-				}
+				T object = ((Converter<? super E, ? extends T>) eventValueInfo.converter).convert(e);
+				if (type.isInstance(object))
+					return object;
+				return null;
 			});
-			continue;
 		}
 		if (!list.isEmpty())
 			return list;
@@ -350,11 +309,11 @@ public class EventValues {
 		for (EventValueInfo<?, ?> eventValueInfo : eventValues) {
 			if (!event.equals(eventValueInfo.event))
 				continue;
-			
-			Getter<? extends T, ? super E> getter = (Getter<? extends T, ? super E>) getConvertedGetter(eventValueInfo, type, false);
+
+			Converter<? super E, ? extends T> getter = (Converter<? super E, ? extends T>) getConvertedGetter(eventValueInfo, type, false);
 			if (getter == null)
 				continue;
-			
+
 			if (!checkExcludes(eventValueInfo, event))
 				return null;
 			list.add(getter);
@@ -368,7 +327,7 @@ public class EventValues {
 			if (!event.isAssignableFrom(eventValueInfo.event))
 				continue;
 
-			Getter<? extends T, ? super E> getter = (Getter<? extends T, ? super E>) getConvertedGetter(eventValueInfo, type, true);
+			Converter<? super E, ? extends T> getter = (Converter<? super E, ? extends T>) getConvertedGetter(eventValueInfo, type, true);
 			if (getter == null)
 				continue;
 
@@ -388,7 +347,7 @@ public class EventValues {
 	/**
 	 * Check if the event value states to exclude events.
 	 * False if the current EventValueInfo cannot operate in the provided event.
-	 * 
+	 *
 	 * @param info The event value info that will be used to grab the value from
 	 * @param event The event class to check the excludes against.
 	 * @return boolean if true the event value passes for the events.
@@ -407,28 +366,26 @@ public class EventValues {
 
 	/**
 	 * Return a converter wrapped in a getter that will grab the requested value by converting from the given event value info.
-	 * 
+	 *
 	 * @param info The event value info that will be used to grab the value from
 	 * @param to The class that the converter will look for to convert the type from the event value to
 	 * @param checkInstanceOf If the event must be an exact instance of the event value info's event or not.
 	 * @return The found Converter wrapped in a Getter object, or null if no Converter was found.
 	 */
 	@Nullable
-	private static <E extends Event, F, T> Getter<? extends T, ? super E> getConvertedGetter(EventValueInfo<E, F> info, Class<T> to, boolean checkInstanceOf) {
+	private static <E extends Event, F, T> Converter<? super E, ? extends T> getConvertedGetter(EventValueInfo<E, F> info, Class<T> to, boolean checkInstanceOf) {
 		Converter<? super F, ? extends T> converter = Converters.getConverter(info.c, to);
+
 		if (converter == null)
 			return null;
-		return new Getter<T, E>() {
-			@Override
-			@Nullable
-			public T get(E e) {
-				if (checkInstanceOf && !info.event.isInstance(e))
-					return null;
-				F f = info.getter.get(e);
-				if (f == null)
-					return null;
-				return converter.convert(f);
-			}
+
+		return event -> {
+			if (checkInstanceOf && !info.event.isInstance(event))
+				return null;
+			F f = info.converter.convert(event);
+			if (f == null)
+				return null;
+			return converter.convert(f);
 		};
 	}
 
@@ -439,5 +396,18 @@ public class EventValues {
 	public static boolean doesEventValueHaveTimeStates(Class<? extends Event> event, Class<?> c) {
 		return getEventValueGetter(event, c, TIME_PAST, false) != null || getEventValueGetter(event, c, TIME_FUTURE, false) != null;
 	}
-	
+
+	private record EventValueInfo<E extends Event, T>(
+		Class<E> event, Class<T> c, Converter<E, T> converter,
+		@Nullable String excludeErrorMessage,
+		@Nullable Class<? extends E>[] excludes
+	) {
+		private EventValueInfo {
+			assert event != null;
+			assert c != null;
+			assert converter != null;
+		}
+
+	}
+
 }

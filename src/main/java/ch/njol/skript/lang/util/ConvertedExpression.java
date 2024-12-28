@@ -1,21 +1,3 @@
-/**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
 package ch.njol.skript.lang.util;
 
 import ch.njol.skript.classes.Changer;
@@ -93,8 +75,7 @@ public class ConvertedExpression<F, T> implements Expression<T> {
 	}
 
 	@SafeVarargs
-	@Nullable
-	public static <F, T> ConvertedExpression<F, T> newInstance(Expression<F> from, Class<T>... to) {
+	public static <F, T> @Nullable ConvertedExpression<F, T> newInstance(Expression<F> from, Class<T>... to) {
 		assert !CollectionUtils.containsSuperclass(to, from.getReturnType());
 		// we track a list of converters that may work
 		List<ConverterInfo<? super F, ? extends T>> converters = new ArrayList<>();
@@ -146,20 +127,17 @@ public class ConvertedExpression<F, T> implements Expression<T> {
 	}
 
 	@Override
-	@Nullable
 	@SuppressWarnings("unchecked")
-	public <R> Expression<? extends R> getConvertedExpression(Class<R>... to) {
+	public <R> @Nullable Expression<? extends R> getConvertedExpression(Class<R>... to) {
 		if (CollectionUtils.containsSuperclass(to, this.to))
 			return (Expression<? extends R>) this;
 		return source.getConvertedExpression(to);
 	}
 
-	@Nullable
-	private ClassInfo<? super T> returnTypeInfo;
+	private @Nullable ClassInfo<? super T> returnTypeInfo;
 
 	@Override
-	@Nullable
-	public Class<?>[] acceptChange(ChangeMode mode) {
+	public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
 		Class<?>[] validClasses = source.acceptChange(mode);
 		if (validClasses == null) {
 			ClassInfo<? super T> returnTypeInfo;
@@ -171,7 +149,7 @@ public class ConvertedExpression<F, T> implements Expression<T> {
 	}
 
 	@Override
-	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
+	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
 		ClassInfo<? super T> returnTypeInfo = this.returnTypeInfo;
 		if (returnTypeInfo != null) {
 			Changer<? super T> changer = returnTypeInfo.getChanger();
@@ -183,8 +161,7 @@ public class ConvertedExpression<F, T> implements Expression<T> {
 	}
 
 	@Override
-	@Nullable
-	public T getSingle(Event event) {
+	public @Nullable T getSingle(Event event) {
 		F value = source.getSingle(event);
 		if (value == null)
 			return null;
@@ -243,14 +220,12 @@ public class ConvertedExpression<F, T> implements Expression<T> {
 	}
 
 	@Override
-	@Nullable
-	public Iterator<T> iterator(Event event) {
+	public @Nullable Iterator<T> iterator(Event event) {
 		Iterator<? extends F> iterator = source.iterator(event);
 		if (iterator == null)
 			return null;
-		return new Iterator<T>() {
-			@Nullable
-			T next = null;
+		return new Iterator<>() {
+			@Nullable T next = null;
 
 			@Override
 			public boolean hasNext() {
@@ -295,8 +270,7 @@ public class ConvertedExpression<F, T> implements Expression<T> {
 	}
 
 	@Override
-	@Nullable
-	public Object[] beforeChange(Expression<?> changed, @Nullable Object[] delta) {
+	public Object @Nullable [] beforeChange(Expression<?> changed, Object @Nullable [] delta) {
 		return source.beforeChange(changed, delta); // Forward to source
 		// TODO this is not entirely safe, even though probably works well enough
 	}

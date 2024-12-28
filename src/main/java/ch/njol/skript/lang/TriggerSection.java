@@ -1,21 +1,3 @@
-/**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
 package ch.njol.skript.lang;
 
 import ch.njol.skript.ScriptLoader;
@@ -32,8 +14,7 @@ import java.util.List;
  */
 public abstract class TriggerSection extends TriggerItem {
 
-	@Nullable
-	protected TriggerItem first, last;
+	protected @Nullable TriggerItem first, last;
 
 	/**
 	 * Reserved for new Trigger(...)
@@ -103,17 +84,31 @@ public abstract class TriggerSection extends TriggerItem {
 	}
 
 	@Override
-	@Nullable
-	protected abstract TriggerItem walk(Event event);
+	protected abstract @Nullable TriggerItem walk(Event event);
 
-	@Nullable
-	protected final TriggerItem walk(Event event, boolean run) {
+	protected final @Nullable TriggerItem walk(Event event, boolean run) {
 		debug(event, run);
 		if (run && first != null) {
 			return first;
 		} else {
 			return getNext();
 		}
+	}
+
+	/**
+	 * @return The execution intent of the section's trigger.
+	 */
+	protected @Nullable ExecutionIntent triggerExecutionIntent() {
+		TriggerItem current = first;
+		while (current != null) {
+			ExecutionIntent executionIntent = current.executionIntent();
+			if (executionIntent != null)
+				return executionIntent.use();
+			if (current == last)
+				break;
+			current = current.getActualNext();
+		}
+		return null;
 	}
 
 }

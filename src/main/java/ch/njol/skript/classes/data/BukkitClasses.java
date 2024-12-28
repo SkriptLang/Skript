@@ -1,21 +1,3 @@
-/**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
 package ch.njol.skript.classes.data;
 
 import ch.njol.skript.Skript;
@@ -32,6 +14,7 @@ import ch.njol.skript.classes.Parser;
 import ch.njol.skript.classes.Serializer;
 import ch.njol.skript.classes.registry.RegistryClassInfo;
 import ch.njol.skript.entity.EntityData;
+import ch.njol.skript.entity.WolfData;
 import ch.njol.skript.expressions.ExprDamageCause;
 import ch.njol.skript.expressions.base.EventValueExpression;
 import ch.njol.skript.lang.ParseContext;
@@ -66,15 +49,11 @@ import org.bukkit.block.data.BlockData;
 import org.bukkit.command.CommandSender;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.enchantments.EnchantmentOffer;
-import org.bukkit.entity.Cat;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.Item;
-import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.*;
 import org.bukkit.entity.Panda.Gene;
-import org.bukkit.entity.Player;
-import org.bukkit.entity.Projectile;
 import org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
+import org.bukkit.event.entity.EntityPotionEffectEvent;
 import org.bukkit.event.entity.EntityRegainHealthEvent.RegainReason;
 import org.bukkit.event.entity.EntityTransformEvent.TransformReason;
 import org.bukkit.event.inventory.ClickType;
@@ -84,9 +63,11 @@ import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.PlayerQuitEvent.QuitReason;
 import org.bukkit.event.player.PlayerResourcePackStatusEvent.Status;
 import org.bukkit.event.player.PlayerTeleportEvent.TeleportCause;
+import org.bukkit.event.player.PlayerExpCooldownChangeEvent.ChangeReason;
 import org.bukkit.inventory.BlockInventoryHolder;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
+import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.metadata.Metadatable;
 import org.bukkit.potion.PotionEffect;
@@ -106,9 +87,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-/**
- * @author Peter Güttinger
- */
 public class BukkitClasses {
 
 	public BukkitClasses() {}
@@ -1528,6 +1506,69 @@ public class BukkitClasses {
 				.name("Transform Reason")
 				.description("Represents a transform reason of an <a href='events.html#entity transform'>entity transform event</a>.")
 				.since("2.8.0"));
+
+		Classes.registerClass(new EnumClassInfo<>(ItemFlag.class, "itemflag", "item flags")
+				.user("item ?flags?")
+				.name("Item Flag")
+				.description("Represents flags that may be applied to hide certain attributes of an item.")
+				.since("INSERT VERSION"));
+
+		Classes.registerClass(new EnumClassInfo<>(EntityPotionEffectEvent.Cause.class, "entitypotioncause", "entity potion causes")
+				.user("(entity )?potion ?effect ?cause")
+				.name("Entity Potion Cause")
+				.description("Represents the cause of the action of a potion effect on an entity, e.g. arrow, command")
+				.since("INSERT VERSION"));
+
+		ClassInfo<?> wolfVariantClassInfo;
+		if (Skript.classExists("org.bukkit.entity.Wolf$Variant") && BukkitUtils.registryExists("WOLF_VARIANT")) {
+			wolfVariantClassInfo = new RegistryClassInfo<>(Wolf.Variant.class, Registry.WOLF_VARIANT, "wolfvariant", "wolf variants");
+		} else {
+			/*
+			 * Registers a dummy/placeholder class to ensure working operation on MC versions that do not have `Wolf.Variant`
+			 */
+			wolfVariantClassInfo = new ClassInfo<>(WolfData.VariantDummy.class, "wolfvariant");
+		}
+		Classes.registerClass(wolfVariantClassInfo
+			.user("wolf ?variants?")
+			.name("Wolf Variant")
+			.description("Represents the variant of a wolf entity.",
+				"NOTE: Minecraft namespaces are supported, ex: 'minecraft:ashen'.")
+			.since("@VERSION")
+			.requiredPlugins("Minecraft 1.21+")
+			.documentationId("WolfVariant"));
+
+		Classes.registerClass(new EnumClassInfo<>(ChangeReason.class,  "experiencecooldownchangereason", "experience cooldown change reasons")
+			.user("(experience|[e]xp) cooldown change (reason|cause)s?")
+			.name("Experience Cooldown Change Reason")
+			.description("Represents a change reason of an <a href='events.html#experience cooldown change event'>experience cooldown change event</a>.")
+			.since("INSERT VERSION"));
+
+		Classes.registerClass(new RegistryClassInfo<>(Villager.Type.class, Registry.VILLAGER_TYPE, "villagertype", "villager types")
+			.user("villager ?types?")
+			.name("Villager Type")
+			.description("Represents the different types of villagers. These are usually the biomes a villager can be from.")
+			.after("biome")
+			.since("INSERT VERSION"));
+
+		Classes.registerClass(new RegistryClassInfo<>(Villager.Profession.class, Registry.VILLAGER_PROFESSION, "villagerprofession", "villager professions")
+			.user("villager ?professions?")
+			.name("Villager Profession")
+			.description("Represents the different professions of villagers.")
+			.since("INSERT VERSION"));
+
+		if (Skript.classExists("org.bukkit.entity.EntitySnapshot")) {
+			Classes.registerClass(new ClassInfo<>(EntitySnapshot.class, "entitysnapshot")
+				.user("entity ?snapshots?")
+				.name("Entity Snapshot")
+				.description("Represents a snapshot of an entity's data.",
+					"This includes all of the data associated with an entity (its name, health, attributes, etc.), at the time this expression is used. "
+						+ "Essentially, these are a way to create templates for entities.",
+					"Individual attributes of a snapshot cannot be modified or retrieved.")
+				.requiredPlugins("Minecraft 1.20.2+")
+				.since("INSERT VERSION")
+			);
+		}
+
 	}
 
 }

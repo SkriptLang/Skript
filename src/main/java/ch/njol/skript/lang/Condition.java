@@ -1,28 +1,12 @@
-/**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
 package ch.njol.skript.lang;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Checker;
+import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.condition.Conditional;
 
 import java.util.Iterator;
 
@@ -31,7 +15,26 @@ import java.util.Iterator;
  *
  * @see Skript#registerCondition(Class, String...)
  */
-public abstract class Condition extends Statement {
+public abstract class Condition extends Statement implements Conditional<Event> {
+
+	public enum ConditionType {
+		/**
+		 * Conditions that contain other expressions, e.g. "%properties% is/are within %expressions%"
+		 * 
+		 * @see #PROPERTY
+		 */
+		COMBINED,
+
+		/**
+		 * Property conditions, e.g. "%properties% is/are data value[s]"
+		 */
+		PROPERTY,
+
+		/**
+		 * Conditions whose pattern matches (almost) everything or should be last checked.
+		 */
+		PATTERN_MATCHES_EVERYTHING;
+	}
 
 	private boolean negated;
 
@@ -47,6 +50,11 @@ public abstract class Condition extends Statement {
 	 * @return <code>true</code> if the condition is satisfied, <code>false</code> otherwise or if the condition doesn't apply to this event.
 	 */
 	public abstract boolean check(Event event);
+
+	@Override
+	public Kleenean evaluate(Event event) {
+		return Kleenean.get(check(event));
+	}
 
 	@Override
 	public final boolean run(Event event) {
@@ -67,12 +75,18 @@ public abstract class Condition extends Statement {
 		return negated;
 	}
 
-	@Nullable
-	@SuppressWarnings({"rawtypes", "unchecked"})
-	public static Condition parse(String input, @Nullable String defaultError) {
+	/**
+	 * Parse a raw string input as a condition.
+	 * 
+	 * @param input The string input to parse as a condition.
+	 * @param defaultError The error if the condition fails.
+	 * @return Condition if parsed correctly, otherwise null.
+	 */
+	public static @Nullable Condition parse(String input, @Nullable String defaultError) {
 		input = input.trim();
 		while (input.startsWith("(") && SkriptParser.next(input, 0, ParseContext.DEFAULT) == input.length())
 			input = input.substring(1, input.length() - 1);
+		//noinspection unchecked,rawtypes
 		return (Condition) SkriptParser.parse(input, (Iterator) Skript.getConditions().iterator(), defaultError);
 	}
 

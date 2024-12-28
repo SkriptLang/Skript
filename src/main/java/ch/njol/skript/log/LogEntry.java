@@ -1,34 +1,14 @@
-/**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
 package ch.njol.skript.log;
-
-import java.util.logging.Level;
-
-import ch.njol.skript.localization.ArgsMessage;
-import ch.njol.skript.util.Utils;
-
-import org.bukkit.ChatColor;
-import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.config.Config;
 import ch.njol.skript.config.Node;
+import ch.njol.skript.localization.ArgsMessage;
+import ch.njol.skript.util.Utils;
+import org.bukkit.ChatColor;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.logging.Level;
 
 public class LogEntry {
 
@@ -128,11 +108,6 @@ public class LogEntry {
 	}
 
 	@Override
-	protected void finalize() {
-		assert used : message + from;
-	}
-
-	@Override
 	public String toString() {
 		if (node == null || level.intValue() < Level.WARNING.intValue())
 			return message;
@@ -171,7 +146,7 @@ public class LogEntry {
 			from = ChatColor.GRAY + "   " + from + "\n";
 
 		return
-			String.format(lineInfoMsg, String.valueOf(node.getLine()), c.getFileName()) + // String.valueOf is to convert the line number (int) to a String
+			String.format(lineInfoMsg, node.getLine(), c.getFileName()) +
 			String.format(detailsMsg, message.replaceAll("§", "&")) + from +
 			String.format(lineDetailsMsg, node.save().trim().replaceAll("§", "&"));
 	}

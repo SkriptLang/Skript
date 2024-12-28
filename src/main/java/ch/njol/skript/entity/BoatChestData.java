@@ -1,59 +1,43 @@
-/**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
 package ch.njol.skript.entity;
 
 import ch.njol.skript.Skript;
+import ch.njol.skript.aliases.ItemData;
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser;
 import org.bukkit.Material;
-import org.bukkit.TreeSpecies;
+import org.bukkit.entity.Boat;
 import org.bukkit.entity.ChestBoat;
-import org.bukkit.entity.boat.AcaciaChestBoat;
-import org.bukkit.entity.boat.BirchChestBoat;
-import org.bukkit.entity.boat.DarkOakChestBoat;
-import org.bukkit.entity.boat.JungleChestBoat;
-import org.bukkit.entity.boat.OakChestBoat;
-import org.bukkit.entity.boat.SpruceChestBoat;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.EnumMap;
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.Map;
 import java.util.Random;
 
+// For <1.21.3 compatability only. 1.21.3+ boats are SimpleEntityDatas
 public class BoatChestData extends EntityData<ChestBoat> {
 
-	private static final EnumMap<TreeSpecies, Class<? extends ChestBoat>> typeToClassMap = new EnumMap<>(TreeSpecies.class);
-	private static final boolean IS_RUNNING_1_21_3 = Skript.isRunningMinecraft(1, 21, 3);
+	private static final Boat.Type[] types = Boat.Type.values();
 
 	static {
-		if (Skript.classExists("org.bukkit.entity.ChestBoat")) {
-			EntityData.register(BoatChestData.class, "chest boat", ChestBoat.class, 0,
-				"chest boat", "any chest boat", "oak chest boat", "spruce chest boat", "birch chest boat",
-				"jungle chest boat", "acacia chest boat", "dark oak chest boat");
-			if (IS_RUNNING_1_21_3) {
-				typeToClassMap.put(TreeSpecies.GENERIC, OakChestBoat.class);
-				typeToClassMap.put(TreeSpecies.REDWOOD, SpruceChestBoat.class);
-				typeToClassMap.put(TreeSpecies.BIRCH, BirchChestBoat.class);
-				typeToClassMap.put(TreeSpecies.JUNGLE, JungleChestBoat.class);
-				typeToClassMap.put(TreeSpecies.ACACIA, AcaciaChestBoat.class);
-				typeToClassMap.put(TreeSpecies.DARK_OAK, DarkOakChestBoat.class);
+		if (!Skript.isRunningMinecraft(1, 21, 2)) {
+			// This ensures all boats are registered
+			// As well as in the correct order via 'ordinal'
+			String[] patterns = new String[types.length + 2];
+			patterns[0] = "chest boat";
+			patterns[1] = "any chest boat";
+			for (Boat.Type boat : types) {
+				String boatName;
+				if (boat == Boat.Type.BAMBOO) {
+					boatName = "bamboo chest raft";
+				} else {
+					boatName = boat.toString().replace("_", " ").toLowerCase(Locale.ENGLISH) + " chest boat";
+				}
+				patterns[boat.ordinal() + 2] = boatName;
 			}
+
+			EntityData.register(BoatChestData.class, "chest boat", ChestBoat.class, 0, patterns);
 		}
 	}
 
@@ -61,7 +45,7 @@ public class BoatChestData extends EntityData<ChestBoat> {
 		this(0);
 	}
 
-	public BoatChestData(@Nullable TreeSpecies type) {
+	public BoatChestData(@Nullable Boat.Type type) {
 		this(type != null ? type.ordinal() + 2 : 1);
 	}
 
@@ -75,29 +59,27 @@ public class BoatChestData extends EntityData<ChestBoat> {
 	}
 
 	@Override
-	protected boolean init(@Nullable Class<? extends ChestBoat> c, @Nullable ChestBoat e) {
-		if (e != null)
-			matchedPattern = 2 + e.getWoodType().ordinal();
+	protected boolean init(@Nullable Class<? extends ChestBoat> clazz, @Nullable ChestBoat entity) {
+		if (entity != null)
+			matchedPattern = 2 + entity.getBoatType().ordinal();
 		return true;
 	}
 
 	@Override
 	public void set(ChestBoat entity) {
 		if (matchedPattern == 1) // If the type is 'any boat'.
-			matchedPattern += new Random().nextInt(TreeSpecies.values().length); // It will spawn a random boat type in case is 'any boat'.
+			matchedPattern += new Random().nextInt(Boat.Type.values().length); // It will spawn a random boat type in case is 'any boat'.
 		if (matchedPattern > 1) // 0 and 1 are excluded
-			entity.setWoodType(TreeSpecies.values()[matchedPattern - 2]); // Removes 2 to fix the index.
+			entity.setBoatType(types[matchedPattern - 2]); // Removes 2 to fix the index.
 	}
 
 	@Override
 	protected boolean match(ChestBoat entity) {
-		return matchedPattern <= 1 || entity.getWoodType().ordinal() == matchedPattern - 2;
+		return matchedPattern <= 1 || entity.getBoatType().ordinal() == matchedPattern - 2;
 	}
 
 	@Override
 	public Class<? extends ChestBoat> getType() {
-		if (IS_RUNNING_1_21_3)
-			return typeToClassMap.get(TreeSpecies.values()[matchedPattern - 2]);
 		return ChestBoat.class;
 	}
 
@@ -113,35 +95,45 @@ public class BoatChestData extends EntityData<ChestBoat> {
 
 	@Override
 	protected boolean equals_i(EntityData<?> obj) {
-		if (obj instanceof BoatData)
-			return matchedPattern == ((BoatData) obj).matchedPattern;
+		if (obj instanceof BoatChestData boatChestData)
+			return matchedPattern == boatChestData.matchedPattern;
 		return false;
 	}
 
 	@Override
-	public boolean isSupertypeOf(EntityData<?> e) {
-		if (e instanceof BoatData)
-			return matchedPattern <= 1 || matchedPattern == ((BoatData) e).matchedPattern;
+	public boolean isSupertypeOf(EntityData<?> entity) {
+		if (entity instanceof BoatChestData boatChestData)
+			return matchedPattern <= 1 || matchedPattern == boatChestData.matchedPattern;
 		return false;
 	}
 
-	public boolean isOfItemType(ItemType itemType) {
-		int ordinal = -1;
 
-		Material type = itemType.getMaterial();
-		if (type == Material.OAK_CHEST_BOAT)
-			ordinal = 0;
-		else if (type == Material.SPRUCE_CHEST_BOAT)
-			ordinal = TreeSpecies.REDWOOD.ordinal();
-		else if (type == Material.BIRCH_CHEST_BOAT)
-			ordinal = TreeSpecies.BIRCH.ordinal();
-		else if (type == Material.JUNGLE_CHEST_BOAT)
-			ordinal = TreeSpecies.JUNGLE.ordinal();
-		else if (type == Material.ACACIA_CHEST_BOAT)
-			ordinal = TreeSpecies.ACACIA.ordinal();
-		else if (type == Material.DARK_OAK_CHEST_BOAT)
-			ordinal = TreeSpecies.DARK_OAK.ordinal();
-		return hashCode_i() == ordinal + 2 || (matchedPattern + ordinal == 0) || ordinal == 0;
+	private static final Map<Material, Boat.Type> materialToType = new HashMap<>();
+	static {
+		materialToType.put(Material.OAK_CHEST_BOAT, Boat.Type.OAK);
+		materialToType.put(Material.BIRCH_CHEST_BOAT, Boat.Type.BIRCH);
+		materialToType.put(Material.SPRUCE_CHEST_BOAT, Boat.Type.SPRUCE);
+		materialToType.put(Material.JUNGLE_CHEST_BOAT, Boat.Type.JUNGLE);
+		materialToType.put(Material.DARK_OAK_CHEST_BOAT, Boat.Type.DARK_OAK);
+		materialToType.put(Material.ACACIA_CHEST_BOAT, Boat.Type.ACACIA);
+		materialToType.put(Material.MANGROVE_CHEST_BOAT, Boat.Type.MANGROVE);
+		materialToType.put(Material.CHERRY_CHEST_BOAT, Boat.Type.CHERRY);
+		materialToType.put(Material.BAMBOO_CHEST_RAFT, Boat.Type.BAMBOO);
+	}
+
+	public boolean isOfItemType(ItemType itemType) {
+		for (ItemData itemData : itemType.getTypes()) {
+			int ordinal;
+			Material material = itemData.getType();
+			Boat.Type type = materialToType.get(material);
+			// material is a boat AND (data matches any boat OR material and data are same)
+			if (type != null) {
+				ordinal = type.ordinal();
+				if (matchedPattern <= 1 || matchedPattern == ordinal + 2)
+					return true;
+			}
+		}
+		return false;
 	}
 
 }

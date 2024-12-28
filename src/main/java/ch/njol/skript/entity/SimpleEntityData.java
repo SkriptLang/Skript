@@ -1,21 +1,3 @@
-/**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
 package ch.njol.skript.entity;
 
 import ch.njol.skript.Skript;
@@ -25,6 +7,7 @@ import ch.njol.util.Kleenean;
 import ch.njol.yggdrasil.Fields;
 import org.bukkit.World;
 import org.bukkit.entity.*;
+import org.bukkit.entity.boat.*;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.NotSerializableException;
@@ -158,7 +141,6 @@ public class SimpleEntityData extends EntityData<Entity> {
 		addSimpleEntity("turtle", Turtle.class);
 		addSimpleEntity("cod", Cod.class);
 		addSimpleEntity("puffer fish", PufferFish.class);
-		addSimpleEntity("salmon", Salmon.class);
 		addSimpleEntity("tropical fish", TropicalFish.class);
 		addSimpleEntity("trident", Trident.class);
 
@@ -192,16 +174,12 @@ public class SimpleEntityData extends EntityData<Entity> {
 			addSimpleEntity("warden", Warden.class);
 		}
 
-		if (Skript.isRunningMinecraft(1,19,3))
+		if (Skript.isRunningMinecraft(1, 19, 3))
 			addSimpleEntity("camel", Camel.class);
 
-		if (Skript.isRunningMinecraft(1,19,4)) {
+		if (Skript.isRunningMinecraft(1, 19, 4)) {
 			addSimpleEntity("sniffer", Sniffer.class);
-			addSimpleEntity("text display", TextDisplay.class);
-			addSimpleEntity("item display", ItemDisplay.class);
-			addSimpleEntity("block display", BlockDisplay.class);
 			addSimpleEntity("interaction", Interaction.class);
-			addSuperEntity("display", Display.class);
 		}
 
 		if (Skript.isRunningMinecraft(1, 20, 3)) {
@@ -214,15 +192,43 @@ public class SimpleEntityData extends EntityData<Entity> {
 			addSimpleEntity("bogged", Bogged.class);
 		}
 
-		if (Skript.isRunningMinecraft(1,21,3)) {
+		if (Skript.isRunningMinecraft(1,21,2)) {
 			addSimpleEntity("creaking", Creaking.class);
+			addSimpleEntity("creaking", Creaking.class);
+			// boats
+			addSimpleEntity("oak boat", OakBoat.class);
+			addSimpleEntity("dark oak boat", DarkOakBoat.class);
+			addSimpleEntity("pale oak boat", PaleOakBoat.class);
+			addSimpleEntity("acacia boat", AcaciaBoat.class);
+			addSimpleEntity("birch boat", BirchBoat.class);
+			addSimpleEntity("spruce boat", SpruceBoat.class);
+			addSimpleEntity("jungle boat", JungleBoat.class);
+			addSimpleEntity("bamboo raft", BambooRaft.class);
+			addSimpleEntity("mangrove boat", MangroveBoat.class);
+			addSimpleEntity("cherry boat", CherryBoat.class);
+			// chest boats
+			addSimpleEntity("oak chest boat", OakChestBoat.class);
+			addSimpleEntity("dark oak chest boat", DarkOakChestBoat.class);
+			addSimpleEntity("pale oak chest boat", PaleOakChestBoat.class);
+			addSimpleEntity("acacia chest boat", AcaciaChestBoat.class);
+			addSimpleEntity("birch chest boat", BirchChestBoat.class);
+			addSimpleEntity("spruce chest boat", SpruceChestBoat.class);
+			addSimpleEntity("jungle chest boat", JungleChestBoat.class);
+			addSimpleEntity("bamboo chest raft", BambooChestRaft.class);
+			addSimpleEntity("mangrove chest boat", MangroveChestBoat.class);
+			addSimpleEntity("cherry chest boat", CherryChestBoat.class);
+			// supers
+			addSuperEntity("boat", Boat.class);
+			addSuperEntity("any boat", Boat.class);
+			addSuperEntity("chest boat", ChestBoat.class);
+			addSuperEntity("any chest boat", ChestBoat.class);
 		}
 
 		// Register zombie after Husk and Drowned to make sure both work
 		addSimpleEntity("zombie", Zombie.class);
 		// Register squid after glow squid to make sure both work
 		addSimpleEntity("squid", Squid.class);
-		
+
 		// SuperTypes
 		addSuperEntity("human", HumanEntity.class);
 		addSuperEntity("damageable", Damageable.class);
@@ -243,12 +249,14 @@ public class SimpleEntityData extends EntityData<Entity> {
 		addSuperEntity("any fireball", Fireball.class);
 		addSuperEntity("illager", Illager.class);
 		addSuperEntity("spellcaster", Spellcaster.class);
-		if (Skript.classExists("org.bukkit.entity.Raider")) // Introduced in Spigot 1.14
+		if (Skript.classExists("org.bukkit.entity.Raider")) // 1.14
 			addSuperEntity("raider", Raider.class);
-		if (Skript.classExists("org.bukkit.entity.Enemy")) // Introduced in Spigot 1.19.3
+		if (Skript.classExists("org.bukkit.entity.Enemy")) // 1.19.3
 			addSuperEntity("enemy", Enemy.class);
+		if (Skript.classExists("org.bukkit.entity.Display")) // 1.19.4
+			addSuperEntity("display", Display.class);
 	}
-	
+
 	static {
 		final String[] codeNames = new String[types.size()];
 		int i = 0;

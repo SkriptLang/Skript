@@ -1,17 +1,13 @@
 package ch.njol.skript.effects;
 
 import ch.njol.skript.Skript;
+import ch.njol.skript.bukkitutil.SoundUtils;
 import ch.njol.skript.bukkitutil.sounds.SoundReceiver;
-import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
-import ch.njol.skript.doc.Name;
-import ch.njol.skript.doc.RequiredPlugins;
-import ch.njol.skript.doc.Since;
+import ch.njol.skript.doc.*;
 import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
-import org.bukkit.Keyed;
 import org.bukkit.Location;
 import org.bukkit.NamespacedKey;
 import org.bukkit.Sound;
@@ -23,10 +19,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 import java.util.OptionalLong;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 @Name("Play Sound")
 @Description({
@@ -67,15 +60,11 @@ public class EffPlaySound extends Effect {
 	// 		World - Location/Entity - Sound/String
 	// 1.20 - spigot adds sound seeds
 
-	private static final boolean ADVENTURE_API = Skript.classExists("net.kyori.adventure.sound.Sound$Builder");
 	private static final boolean SPIGOT_SOUND_SEED = Skript.methodExists(Player.class, "playSound", Entity.class, Sound.class, SoundCategory.class, float.class, float.class, long.class);
-	private static final boolean HAS_SEED = ADVENTURE_API || SPIGOT_SOUND_SEED;
+	private static final boolean HAS_SEED = SoundReceiver.ADVENTURE_API || SPIGOT_SOUND_SEED;
 	private static final boolean ENTITY_EMITTER_SOUND = Skript.methodExists(Player.class, "playSound", Entity.class, Sound.class, SoundCategory.class, float.class, float.class);
 	private static final boolean ENTITY_EMITTER_STRING = Skript.methodExists(Player.class, "playSound", Entity.class, String.class, SoundCategory.class, float.class, float.class);
 	private static final boolean ENTITY_EMITTER = ENTITY_EMITTER_SOUND || ENTITY_EMITTER_STRING;
-	private static final boolean SOUND_IS_INTERFACE = Sound.class.isInterface();
-  
-	public static final Pattern KEY_PATTERN = Pattern.compile("([a-z0-9._-]+:)?([a-z0-9/._-]+)");
 
 	static {
 		String seedOption = HAS_SEED ? "[[with] seed %-number%] " : "";
@@ -90,26 +79,20 @@ public class EffPlaySound extends Effect {
 		);
 	}
 
-	@SuppressWarnings("NotNullFieldNotInitialized")
 	private Expression<String> sounds;
 
-	@Nullable
-	private Expression<SoundCategory> category;
 
-	@Nullable
-	private Expression<Player> players;
+	private @Nullable Expression<SoundCategory> category;
 
-	@Nullable
-	private Expression<Number> volume;
+	private @Nullable Expression<Player> players;
 
-	@Nullable
-	private Expression<Number> pitch;
+	private @Nullable Expression<Number> volume;
 
-	@Nullable
-	private Expression<Number> seed;
+	private @Nullable Expression<Number> pitch;
 
-	@Nullable
-	private Expression<?> emitters;
+	private @Nullable Expression<Number> seed;
+
+	private @Nullable Expression<?> emitters;
 
 	@Override
 	@SuppressWarnings("unchecked")
@@ -151,26 +134,7 @@ public class EffPlaySound extends Effect {
 		// validate strings
 		List<NamespacedKey> validSounds = new ArrayList<>();
 		for (String sound : sounds.getArray(event)) {
-			NamespacedKey key = getSoundKeyFromEnum(sound);
-			if (key == null) {
-				sound = sound.toLowerCase(Locale.ENGLISH);
-				Matcher keyMatcher = KEY_PATTERN.matcher(sound);
-				if (!keyMatcher.matches())
-					continue;
-				try {
-					String namespace = keyMatcher.group(1);
-					String keyValue = keyMatcher.group(2);
-					if (namespace == null) {
-						key = NamespacedKey.minecraft(keyValue);
-					} else {
-						namespace = namespace.substring(0, namespace.length() - 1);
-						key = new NamespacedKey(namespace, keyValue);
-					}
-				} catch (IllegalArgumentException argument) {
-					// The user input invalid characters
-				}
-			}
-
+			NamespacedKey key = SoundUtils.getKey(sound);
 			if (key == null)
 				continue;
 			validSounds.add(key);
@@ -204,12 +168,12 @@ public class EffPlaySound extends Effect {
 			}
 		} else if (emitters != null) {
 			for (Object emitter : emitters.getArray(event)) {
-				if (ENTITY_EMITTER && emitter instanceof Entity) {
-					SoundReceiver receiver = SoundReceiver.of(((Entity) emitter).getWorld());
+				if (ENTITY_EMITTER && emitter instanceof Entity entity) {
+					SoundReceiver receiver = SoundReceiver.of(entity.getWorld());
 					for (NamespacedKey sound : validSounds)
 						receiver.playSound(((Entity) emitter), sound, category, volume, pitch, seed);
-				} else if (emitter instanceof Location) {
-					SoundReceiver receiver = SoundReceiver.of(((Location) emitter).getWorld());
+				} else if (emitter instanceof Location location) {
+					SoundReceiver receiver = SoundReceiver.of(location.getWorld());
 					for (NamespacedKey sound : validSounds)
 						receiver.playSound(((Location) emitter), sound, category, volume, pitch, seed);
 				}
@@ -237,28 +201,6 @@ public class EffPlaySound extends Effect {
 			builder.append(" to ").append(players.toString(event, debug));
 		
 		return builder.toString();
-	}
-
-	@SuppressWarnings({"deprecation", "unchecked", "rawtypes"})
-	private static @Nullable NamespacedKey getSoundKeyFromEnum(String soundString) {
-		soundString = soundString.toUpperCase(Locale.ENGLISH);
-		// Sound.class is an Interface (rather than an enum) as of MC 1.21.3
-		if (SOUND_IS_INTERFACE) {
-			try {
-				Sound sound = Sound.valueOf(soundString);
-				return sound.getKey();
-			} catch (IllegalArgumentException ignore) {
-			}
-		} else {
-			try {
-				Enum soundEnum = Enum.valueOf((Class) Sound.class, soundString);
-				if (soundEnum instanceof Keyed) {
-					return ((Keyed) soundEnum).getKey();
-				}
-			} catch (IllegalArgumentException ignore) {
-			}
-		}
-		return null;
 	}
 
 }

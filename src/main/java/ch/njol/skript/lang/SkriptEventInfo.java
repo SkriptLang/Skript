@@ -1,30 +1,12 @@
-/**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
 package ch.njol.skript.lang;
 
 import ch.njol.skript.SkriptAPIException;
 import ch.njol.skript.SkriptConfig;
+import ch.njol.skript.lang.SkriptEvent.ListeningBehavior;
 import org.bukkit.event.Event;
 import org.bukkit.event.player.PlayerInteractAtEntityEvent;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.structure.StructureInfo;
-import ch.njol.skript.lang.SkriptEvent.ListeningBehavior;
 
 import java.util.Locale;
 
@@ -34,12 +16,8 @@ public final class SkriptEventInfo<E extends SkriptEvent> extends StructureInfo<
 	public final String name;
   
 	private ListeningBehavior listeningBehavior;
-  
-	@Nullable
-	private String[] description, examples, keywords, requiredPlugins;
-
-	@Nullable
-	private String since, documentationID;
+	private String @Nullable [] description, examples, keywords, requiredPlugins;
+	private @Nullable String since, documentationID;
 
 	private final String id;
 
@@ -180,33 +158,28 @@ public final class SkriptEventInfo<E extends SkriptEvent> extends StructureInfo<
 		return listeningBehavior;
 	}
   
-	@Nullable
-	public String[] getDescription() {
+	public String @Nullable [] getDescription() {
 		return description;
 	}
 
-	@Nullable
-	public String[] getExamples() {
+	public String @Nullable [] getExamples() {
 		return examples;
 	}
 
-	@Nullable
-	public String[] getKeywords() {
+	public String @Nullable [] getKeywords() {
 		return keywords;
 	}
 
-	@Nullable
-	public String getSince() {
+	public @Nullable String getSince() {
 		return since;
 	}
 
-	@Nullable
-	public String[] getRequiredPlugins() {
+	public String @Nullable [] getRequiredPlugins() {
 		return requiredPlugins;
 	}
 
-	@Nullable
-	public String getDocumentationID() {
+	public @Nullable String getDocumentationID() {
 		return documentationID;
 	}
+
 }

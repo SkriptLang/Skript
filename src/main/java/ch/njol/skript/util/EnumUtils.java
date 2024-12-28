@@ -1,21 +1,3 @@
-/**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
 package ch.njol.skript.util;
 
 import ch.njol.skript.Skript;
@@ -34,7 +16,7 @@ import java.util.Locale;
  * @see ch.njol.skript.classes.EnumClassInfo
  */
 public final class EnumUtils<E extends Enum<E>> {
-	
+
 	private final Class<E> enumClass;
 	private final String languageNode;
 
@@ -53,7 +35,7 @@ public final class EnumUtils<E extends Enum<E>> {
 		
 		Language.addListener(this::refresh);
 	}
-	
+
 	/**
 	 * Refreshes the representation of this Enum based on the currently stored language entries.
 	 */
@@ -69,7 +51,10 @@ public final class EnumUtils<E extends Enum<E>> {
 			for (String option : options) {
 				option = option.toLowerCase(Locale.ENGLISH);
 				if (options.length == 1 && option.equals(key.toLowerCase(Locale.ENGLISH))) {
-					Skript.debug("Missing lang enum constant for '" + key + "'");
+					String[] splitKey = key.split("\\.");
+					String newKey = splitKey[1].replace('_', ' ').toLowerCase(Locale.ENGLISH) + " " + splitKey[0];
+					parseMap.put(newKey, constant);
+					Skript.debug("Missing lang enum constant for '" + key + "'. Using '" + newKey + "' for now.");
 					continue;
 				}
 
@@ -112,11 +97,21 @@ public final class EnumUtils<E extends Enum<E>> {
 	}
 
 	/**
+	 * This method returns the string representation of an enumerator
+	 * @param enumerator The enumerator to represent as a string
+	 * @param flag not currently used
+	 * @return A string representation of the enumerator
+	 */
+	public String toString(E enumerator, StringMode flag) {
+		return toString(enumerator, flag.ordinal());
+	}
+
+	/**
 	 * @return A comma-separated string containing a list of all names representing the enumerators.
 	 * Note that some entries may represent the same enumerator.
 	 */
 	public String getAllNames() {
 		return StringUtils.join(parseMap.keySet(), ", ");
 	}
-	
+
 }

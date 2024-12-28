@@ -1,32 +1,14 @@
-/**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
 package ch.njol.skript.lang.function;
 
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
-import org.skriptlang.skript.lang.converter.Converters;
 import ch.njol.skript.util.Utils;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.converter.Converters;
 
 public class ExprFunctionCall<T> extends SimpleExpression<T> {
 
@@ -55,17 +37,15 @@ public class ExprFunctionCall<T> extends SimpleExpression<T> {
 	}
 
 	@Override
-	@Nullable
-	protected T[] get(Event e) {
-		Object[] returnValue = function.execute(e);
+	protected T @Nullable [] get(Event event) {
+		Object[] returnValue = function.execute(event);
 		function.resetReturnValue();
 		return Converters.convert(returnValue, returnTypes, returnType);
 	}
 
 	@Override
-	@Nullable
 	@SuppressWarnings("unchecked")
-	public <R> Expression<? extends R> getConvertedExpression(Class<R>... to) {
+	public <R> @Nullable Expression<? extends R> getConvertedExpression(Class<R>... to) {
 		if (CollectionUtils.containsSuperclass(to, getReturnType()))
 			return (Expression<? extends R>) this;
 		assert function.getReturnType() != null;
@@ -86,8 +66,8 @@ public class ExprFunctionCall<T> extends SimpleExpression<T> {
 	}
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
-		return function.toString(e, debug);
+	public String toString(@Nullable Event event, boolean debug) {
+		return function.toString(event, debug);
 	}
 
 	@Override

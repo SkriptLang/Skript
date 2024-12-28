@@ -1,21 +1,3 @@
-/**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
 package ch.njol.skript.lang.util;
 
 import ch.njol.skript.SkriptAPIException;
@@ -46,9 +28,8 @@ public class ConvertedLiteral<F, T> extends ConvertedExpression<F, T> implements
 	}
 
 	@Override
-	@Nullable
 	@SuppressWarnings("unchecked")
-	public <R> Literal<? extends R> getConvertedExpression(Class<R>... to) {
+	public <R> @Nullable Literal<? extends R> getConvertedExpression(Class<R>... to) {
 		if (CollectionUtils.containsSuperclass(to, this.to))
 			return (Literal<? extends R>) this;
 		return ((Literal<F>) source).getConvertedExpression(to);
@@ -87,8 +68,7 @@ public class ConvertedLiteral<F, T> extends ConvertedExpression<F, T> implements
 	}
 
 	@Override
-	@Nullable
-	public Iterator<T> iterator(Event event) {
+	public @Nullable Iterator<T> iterator(Event event) {
 		return new ArrayIterator<>(data);
 	}
 

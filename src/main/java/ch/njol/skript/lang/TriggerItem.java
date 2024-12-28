@@ -1,21 +1,3 @@
-/**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
 package ch.njol.skript.lang;
 
 import ch.njol.skript.Skript;
@@ -37,10 +19,8 @@ import java.io.File;
  */
 public abstract class TriggerItem implements Debuggable {
 
-	@Nullable
-	protected TriggerSection parent = null;
-	@Nullable
-	private TriggerItem next = null;
+	protected @Nullable TriggerSection parent = null;
+	private @Nullable TriggerItem next = null;
 
 	protected TriggerItem() {}
 
@@ -56,8 +36,7 @@ public abstract class TriggerItem implements Debuggable {
 	 * @param event The event
 	 * @return The next item to run or null to stop execution
 	 */
-	@Nullable
-	protected TriggerItem walk(Event event) {
+	protected @Nullable TriggerItem walk(Event event) {
 		if (run(event)) {
 			debug(event, true);
 			return next;
@@ -114,12 +93,25 @@ public abstract class TriggerItem implements Debuggable {
 	}
 
 	/**
+	 * Returns whether this item stops the execution of the current trigger or section(s).
+	 * <br>
+	 * If present, and there are statement(s) after this one, the parser will print a warning
+	 * to the user.
+	 * <p>
+	 * <b>Note: This method is used purely to print warnings and doesn't affect parsing, execution or anything else.</b>
+	 *
+	 * @return whether this item stops the execution of the current trigger or section.
+	 */
+	public @Nullable ExecutionIntent executionIntent() {
+		return null;
+	}
+
+	/**
 	 * how much to indent each level
 	 */
 	private final static String INDENT = "  ";
 
-	@Nullable
-	private String indentation = null;
+	private @Nullable String indentation = null;
 
 	public String getIndentation() {
 		if (indentation == null) {
@@ -148,16 +140,14 @@ public abstract class TriggerItem implements Debuggable {
 		return this;
 	}
 
-	@Nullable
-	public final TriggerSection getParent() {
+	public final @Nullable TriggerSection getParent() {
 		return parent;
 	}
 
 	/**
 	 * @return The trigger this item belongs to, or null if this is a stand-alone item (e.g. the effect of an effect command)
 	 */
-	@Nullable
-	public final Trigger getTrigger() {
+	public final @Nullable Trigger getTrigger() {
 		TriggerItem triggerItem = this;
 		while (triggerItem != null && !(triggerItem instanceof Trigger))
 			triggerItem = triggerItem.getParent();
@@ -169,8 +159,18 @@ public abstract class TriggerItem implements Debuggable {
 		return this;
 	}
 
-	@Nullable
-	public TriggerItem getNext() {
+	public @Nullable TriggerItem getNext() {
+		return next;
+	}
+
+	/**
+	 * This method guarantees to return next {@link TriggerItem} after this item.
+	 * This is not always the case for {@link #getNext()}, for example, {@code getNext()}
+	 * of a {@link ch.njol.skript.sections.SecLoop loop section} usually returns itself.
+	 * 
+	 * @return The next {@link TriggerItem}.
+	 */
+	public @Nullable TriggerItem getActualNext() {
 		return next;
 	}
 

@@ -1,21 +1,3 @@
-/**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
 package ch.njol.skript.variables;
 
 import ch.njol.skript.Skript;
@@ -32,28 +14,33 @@ import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.variables.SerializedVariable.Value;
 import ch.njol.util.Kleenean;
 import ch.njol.util.NonNullPair;
+import ch.njol.util.Pair;
+import ch.njol.util.StringUtils;
 import ch.njol.util.SynchronizedReference;
+import ch.njol.util.coll.iterator.EmptyIterator;
 import ch.njol.yggdrasil.Yggdrasil;
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Multimap;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.configuration.serialization.ConfigurationSerialization;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.UnmodifiableView;
 import org.skriptlang.skript.lang.converter.Converters;
-
-import com.google.common.collect.HashMultimap;
-import com.google.common.collect.Multimap;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.Queue;
 import java.util.TreeMap;
@@ -141,8 +128,15 @@ public class Variables {
 	static final List<VariablesStorage> STORAGES = new ArrayList<>();
 
 	/**
+	 * @return a copy of the list of variable storage handlers
+	 */
+	public static @UnmodifiableView List<VariablesStorage> getStores() {
+		return Collections.unmodifiableList(STORAGES);
+	}
+
+	/**
 	 * Register a VariableStorage class for Skript to create if the user config value matches.
-	 * 
+	 *
 	 * @param <T> A class to extend VariableStorage.
 	 * @param storage The class of the VariableStorage implementation.
 	 * @param names The names used in the config of Skript to select this VariableStorage.
@@ -240,7 +234,7 @@ public class Variables {
 						constructor.setAccessible(true);
 						variablesStorage = (VariablesStorage) constructor.newInstance(type);
 					} catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
-						Skript.error("Failed to initalize database type '" + type + "'");
+						Skript.error("Failed to initialize database `" + name + "`");
 						successful = false;
 						continue;
 					}
@@ -409,13 +403,26 @@ public class Variables {
 	 * @param event the event to copy local variables from.
 	 * @return the copy.
 	 */
-	@Nullable
-	public static Object copyLocalVariables(Event event) {
+	public static @Nullable Object copyLocalVariables(Event event) {
 		VariablesMap from = localVariables.get(event);
 		if (from == null)
 			return null;
 
 		return from.copy();
+	}
+
+	/**
+	 * Copies local variables from provider to user, runs action, then copies variables back to provider.
+	 * Removes local variables from user after action is finished.
+	 * @param provider The originator of the local variables.
+	 * @param user The event to copy the variables to and back from.
+	 * @param action The code to run while the variables are copied.
+	 */
+	public static void withLocalVariables(Event provider, Event user, @NotNull Runnable action) {
+		Variables.setLocalVariables(user, Variables.copyLocalVariables(provider));
+		action.run();
+		Variables.setLocalVariables(provider, Variables.copyLocalVariables(user));
+		Variables.removeLocals(user);
 	}
 
 	/**
@@ -472,6 +479,67 @@ public class Variables {
 				variablesLock.readLock().unlock();
 			}
 		}
+	}
+
+	/**
+	 * Returns an iterator over the values of this list variable.
+	 *
+	 * @param name the variable's name. This must be the name of a list variable, ie. it must end in *.
+	 * @param event if {@code local} is {@code true}, this is the event
+	 *                 the local variable resides in.
+	 * @param local if this variable is a local or global variable.
+	 * @return an {@link Iterator} of {@link Pair}s, containing the {@link String} index and {@link Object} value of the
+	 * 			elements of the list. An empty iterator is returned if the variable does not exist.
+	 */
+	public static Iterator<Pair<String, Object>> getVariableIterator(String name, boolean local, @Nullable Event event) {
+		assert name.endsWith("*");
+		Object val = getVariable(name, event, local);
+		String subName = StringUtils.substring(name, 0, -1);
+
+		if (val == null)
+			return new EmptyIterator<>();
+		assert val instanceof TreeMap;
+		// temporary list to prevent CMEs
+		@SuppressWarnings("unchecked")
+		Iterator<String> keys = new ArrayList<>(((Map<String, Object>) val).keySet()).iterator();
+		return new Iterator<>() {
+			@Nullable
+			private String key;
+			@Nullable
+			private Object next = null;
+
+			@Override
+			public boolean hasNext() {
+				if (next != null)
+					return true;
+				while (keys.hasNext()) {
+					key = keys.next();
+					if (key != null) {
+						next = Variable.convertIfOldPlayer(subName + key, local, event, Variables.getVariable(subName + key, event, local));
+						if (next != null && !(next instanceof TreeMap))
+							return true;
+					}
+				}
+				next = null;
+				return false;
+			}
+
+			@Override
+			public Pair<String, Object> next() {
+				if (!hasNext())
+					throw new NoSuchElementException();
+				Pair<String, Object> n = new Pair<>(key, next);
+				next = null;
+				return n;
+			}
+
+			@Override
+			public void remove() {
+				if (key == null)
+					throw new IllegalStateException();
+				Variables.deleteVariable(key, event, local);
+			}
+		};
 	}
 
 	/**
@@ -680,8 +748,8 @@ public class Variables {
 					// Warn if needed
 					if (loadConflicts <= MAX_CONFLICT_WARNINGS) {
 						Skript.warning("The variable {" + name + "} was loaded twice from different databases (" +
-							existingVariableStorage.databaseName + " and " + source.databaseName +
-							"), only the one from " + source.databaseName + " will be kept.");
+							existingVariableStorage.getUserConfigurationName() + " and " + source.getUserConfigurationName() +
+							"), only the one from " + source.getUserConfigurationName() + " will be kept.");
 					} else if (loadConflicts == MAX_CONFLICT_WARNINGS + 1) {
 						Skript.warning("[!] More than " + MAX_CONFLICT_WARNINGS +
 							" variables were loaded more than once from different databases, " +

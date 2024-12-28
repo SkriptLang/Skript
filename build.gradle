@@ -30,11 +30,19 @@ dependencies {
 	shadow group: 'org.bstats', name: 'bstats-bukkit', version: '3.0.2'
 	shadow group: 'net.kyori', name: 'adventure-text-serializer-bungeecord', version: '4.3.2'
 
-	implementation group: 'io.papermc.paper', name: 'paper-api', version: '1.21.3-R0.1-SNAPSHOT'
+	implementation group: 'io.papermc.paper', name: 'paper-api', version: '1.21.4-R0.1-SNAPSHOT'
 	implementation group: 'com.google.code.findbugs', name: 'findbugs', version: '3.0.1'
-	implementation group: 'com.sk89q.worldguard', name: 'worldguard-legacy', version: '7.0.0-SNAPSHOT'
+
+	// bundled with Minecraft 1.19.4+ for display entity transforms
+	implementation group: 'org.joml', name: 'joml', version: '1.10.5'
+
+	// Plugin hook libraries
+	implementation group: 'com.sk89q.worldguard', name: 'worldguard-legacy', version: '7.0.0-SNAPSHOT', {
+		exclude group: 'org.bukkit', module: 'bukkit'
+	}
 	implementation group: 'net.milkbowl.vault', name: 'Vault', version: '1.7.3', {
 		exclude group: 'org.bstats', module: 'bstats-bukkit'
+		exclude group: 'org.bukkit', module: 'bukkit'
 	}
 
 	implementation fileTree(dir: 'lib', include: '*.jar')
@@ -75,7 +83,7 @@ task build(overwrite: true, type: ShadowJar) {
 	from sourceSets.main.output
 }
 
-// Excludes the tests for the build task. Should be using JUnitQuick, JUnitJava21, JUnitJava17, JUnitJava11, skriptTest, quickTest.
+// Excludes the tests for the build task. Should be using JUnitQuick, JUnitJava21, JUnitJava17, skriptTest, quickTest.
 // We do not want tests to run for building. That's time consuming and annoying. Especially in development.
 test {
 	exclude '**/*'
@@ -238,11 +246,10 @@ void createTestTask(String name, String desc, String environments, int javaVersi
 
 def java21 = 21
 def java17 = 17
-def java11 = 11
 
-def latestEnv = 'java21/paper-1.21.3.json'
+def latestEnv = 'java21/paper-1.21.4.json'
 def latestJava = java21
-def oldestJava = java11
+def oldestJava = java17
 
 def latestJUnitEnv = latestEnv
 def latestJUnitJava = latestJava
@@ -265,23 +272,21 @@ int envJava = project.property('testEnvJavaVersion') == null ? latestJava : Inte
 createTestTask('quickTest', 'Runs tests on one environment being the latest supported Java and Minecraft.', environments + latestEnv, latestJava, 0)
 createTestTask('skriptTestJava21', 'Runs tests on all Java 21 environments.', environments + 'java21', java21, 0)
 createTestTask('skriptTestJava17', 'Runs tests on all Java 17 environments.', environments + 'java17', java17, 0)
-createTestTask('skriptTestJava11', 'Runs tests on all Java 11 environments.', environments + 'java11', java11, 0)
 createTestTask('skriptTestDev', 'Runs testing server and uses \'system.in\' for command input, stop server to finish.', environments + env, envJava, 0, Modifiers.DEV_MODE, Modifiers.DEBUG)
 createTestTask('skriptProfile', 'Starts the testing server with JProfiler support.', environments + latestEnv, latestJava, -1, Modifiers.PROFILE)
 createTestTask('genNightlyDocs', 'Generates the Skript documentation website html files.', environments + env, envJava, 0, Modifiers.GEN_NIGHTLY_DOCS)
 createTestTask('genReleaseDocs', 'Generates the Skript documentation website html files for a release.', environments + env, envJava, 0, Modifiers.GEN_RELEASE_DOCS)
 tasks.register('skriptTest') {
 	description = 'Runs tests on all environments.'
-	dependsOn skriptTestJava11, skriptTestJava17, skriptTestJava21
+	dependsOn skriptTestJava17, skriptTestJava21
 }
 
 createTestTask('JUnitQuick', 'Runs JUnit tests on one environment being the latest supported Java and Minecraft.', environments + latestJUnitEnv, latestJUnitJava, 0, Modifiers.JUNIT)
 createTestTask('JUnitJava21', 'Runs JUnit tests on all Java 21 environments.', environments + 'java21', java21, 0, Modifiers.JUNIT)
 createTestTask('JUnitJava17', 'Runs JUnit tests on all Java 17 environments.', environments + 'java17', java17, 0, Modifiers.JUNIT)
-createTestTask('JUnitJava11', 'Runs JUnit tests on all Java 11 environments.', environments + 'java11', java11, 0, Modifiers.JUNIT)
 tasks.register('JUnit') {
 	description = 'Runs JUnit tests on all environments.'
-	dependsOn JUnitJava11, JUnitJava17, JUnitJava21
+	dependsOn JUnitJava17, JUnitJava21
 }
 
 // Build flavor configurations

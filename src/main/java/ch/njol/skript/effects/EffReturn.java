@@ -1,21 +1,3 @@
-/**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
 package ch.njol.skript.effects;
 
 import ch.njol.skript.Skript;
@@ -23,14 +5,9 @@ import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
-import ch.njol.skript.lang.Effect;
-import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.ReturnHandler;
+import ch.njol.skript.lang.*;
 import ch.njol.skript.lang.ReturnHandler.ReturnHandlerStack;
-import ch.njol.skript.lang.SectionExitHandler;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
-import ch.njol.skript.lang.TriggerItem;
-import ch.njol.skript.lang.TriggerSection;
 import ch.njol.skript.lang.parser.ParserInstance;
 import ch.njol.skript.log.RetainingLogHandler;
 import ch.njol.skript.log.SkriptLogger;
@@ -38,9 +15,12 @@ import ch.njol.skript.registrations.Classes;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.UnknownNullability;
+
+import java.util.List;
 
 @Name("Return")
-@Description("Makes a trigger (e.g. a function) return a value")
+@Description("Makes a trigger or a section (e.g. a function) return a value")
 @Examples({
 	"function double(i: number) :: number:",
 		"\treturn 2 * {_i}",
@@ -56,15 +36,16 @@ public class EffReturn extends Effect {
 		ParserInstance.registerData(ReturnHandlerStack.class, ReturnHandlerStack::new);
 	}
 
-	@SuppressWarnings("NotNullFieldNotInitialized")
-	private ReturnHandler<?> handler;
-	@SuppressWarnings("NotNullFieldNotInitialized")
-	private Expression<?> value;
+	private @UnknownNullability ReturnHandler<?> handler;
+	private @UnknownNullability Expression<?> value;
+	private @UnknownNullability List<SectionExitHandler> sectionsToExit;
+	private int breakLevels;
 
 	@Override
 	@SuppressWarnings("unchecked")
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		handler = getParser().getData(ReturnHandlerStack.class).getCurrentHandler();
+		ParserInstance parser = getParser();
+		handler = parser.getData(ReturnHandlerStack.class).getCurrentHandler();
 		if (handler == null) {
 			Skript.error("The return statement cannot be used here");
 			return false;
@@ -102,33 +83,36 @@ public class EffReturn extends Effect {
 		}
 		value = convertedExpr;
 
+		List<TriggerSection> innerSections = parser.getSectionsUntil((TriggerSection) handler);
+		innerSections.add(0, (TriggerSection) handler);
+		breakLevels = innerSections.size();
+		sectionsToExit = innerSections.stream()
+			.filter(SectionExitHandler.class::isInstance)
+			.map(SectionExitHandler.class::cast)
+			.toList();
 		return true;
 	}
 
 	@Override
-	@Nullable
-	protected TriggerItem walk(Event event) {
+	protected @Nullable TriggerItem walk(Event event) {
 		debug(event, false);
 		//noinspection rawtypes,unchecked
 		((ReturnHandler) handler).returnValues(event, value);
 
-		TriggerSection parent = getParent();
-		while (parent != null && parent != handler) {
-			if (parent instanceof SectionExitHandler)
-				((SectionExitHandler) parent).exit(event);
+		for (SectionExitHandler section : sectionsToExit)
+			section.exit(event);
 
-			parent = parent.getParent();
-		}
-
-		if (handler instanceof SectionExitHandler)
-			((SectionExitHandler) handler).exit(event);
-
-		return null;
+		return ((TriggerSection) handler).getNext();
 	}
 
 	@Override
 	protected void execute(Event event) {
 		assert false;
+	}
+
+	@Override
+	public ExecutionIntent executionIntent() {
+		return ExecutionIntent.stopSections(breakLevels);
 	}
 
 	@Override
