@@ -1,4 +1,4 @@
-package ch.njol.skript.conditions;
+package org.skriptlang.skript.bukkit.ticking.elements.conditions;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.bukkitutil.ServerUtils;

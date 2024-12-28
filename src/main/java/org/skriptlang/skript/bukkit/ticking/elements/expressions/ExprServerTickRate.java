@@ -1,4 +1,4 @@
-package ch.njol.skript.expressions;
+package org.skriptlang.skript.bukkit.ticking.elements.expressions;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.bukkitutil.ServerUtils;
@@ -51,8 +51,8 @@ public class ExprServerTickRate extends SimpleExpression<Float> {
 
 	public Class<?>[] acceptChange(ChangeMode mode) {
 		switch (mode) {
-			case SET, ADD, REMOVE, RESET -> return CollectionUtils.array(Number.class);
-			default -> return null;
+			case SET, ADD, REMOVE, RESET -> { return CollectionUtils.array(Number.class); }
+			default -> { return null; }
 		}
 	}
 

@@ -1,4 +1,4 @@
-package ch.njol.skript.effects;
+package org.skriptlang.skript.bukkit.ticking.elements.effects;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.bukkitutil.ServerUtils;
@@ -51,7 +51,7 @@ public class EffStepServer extends Effect {
 		if (timespan != null) {
 			Timespan timespan = this.timespan.getSingle(event);
 			if (timespan != null)
-				ServerUtils.getServerTickManager().stepGameIfFrozen((int) timespan.getAs(Timespan.TimePeriod.TICKS));
+				ServerUtils.getServerTickManager().stepGameIfFrozen((int) timespan.getAs(Timespan.TimePeriod.TICK));
 		} else {
 			ServerUtils.getServerTickManager().stopStepping();
 		}

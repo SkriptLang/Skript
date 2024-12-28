@@ -1,4 +1,4 @@
-package ch.njol.skript.expressions;
+package org.skriptlang.skript.bukkit.ticking.elements.expressions;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.bukkitutil.ServerUtils;

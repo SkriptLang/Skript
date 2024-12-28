@@ -1,4 +1,4 @@
-package ch.njol.skript.effects;
+package org.skriptlang.skript.bukkit.ticking.elements.effects;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.bukkitutil.ServerUtils;
