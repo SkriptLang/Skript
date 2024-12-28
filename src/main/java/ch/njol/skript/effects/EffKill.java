@@ -53,8 +53,8 @@ public class EffKill extends Effect {
 	protected void execute(Event event) {
 		for (Entity entity : entities.getArray(event)) {
 
-			if (entity instanceof EnderDragonPart) {
-				entity = ((EnderDragonPart) entity).getParent();
+			if (entity instanceof EnderDragonPart part) {
+				entity = part.getParent();
 			}
 
 			if (ignoreTotem) {
@@ -62,11 +62,11 @@ public class EffKill extends Effect {
 				return;
 			}
 
-			if (entity instanceof Damageable) {
+			if (entity instanceof Damageable damageable) {
 				boolean creative = entity instanceof Player player && player.getGameMode() == GameMode.CREATIVE;
 				if (creative) // Set player to survival before applying damage
 					((Player) entity).setGameMode(GameMode.SURVIVAL);
-				HealthUtils.damage((Damageable) entity, HealthUtils.getMaxHealth((Damageable) entity) * 100); // just to make sure that it really dies >:)
+				HealthUtils.damage(damageable, HealthUtils.getMaxHealth(damageable) * 100); // just to make sure that it really dies >:)
 
 				if (creative) // Set creative player back to creative
 					((Player) entity).setGameMode(GameMode.CREATIVE);
@@ -82,7 +82,7 @@ public class EffKill extends Effect {
 	
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return "kill" + entities.toString(event, debug);
+		return "kill " + entities.toString(event, debug);
 	}
 
 }
