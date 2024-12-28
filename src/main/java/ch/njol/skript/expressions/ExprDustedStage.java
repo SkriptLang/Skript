@@ -4,6 +4,7 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.*;
+import ch.njol.skript.expressions.base.PropertyExpression;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
@@ -25,41 +26,56 @@ import org.jetbrains.annotations.Nullable;
 })
 @Since("INSERT VERSION")
 @RequiredPlugins("Minecraft 1.20+")
-public class ExprDustedStage extends SimpleExpression<Integer> {
+public class ExprDustedStage extends PropertyExpression<Block, Integer> {
 
 	private static final boolean SUPPORTS_DUSTING = Skript.classExists("org.bukkit.block.data.Brushable");
 
 	static {
 		if (SUPPORTS_DUSTING)
-			Skript.registerExpression(ExprDustedStage.class, Integer.class, ExpressionType.SIMPLE,
-				"[the] [:max[imum]] dust[ed|ing] (value|stage|progress[ion]) of %blocks%",
-				"%blocks%'[s] [:max[imum]] dust[ed|ing] (value|stage|progress[ion])");
+			register(ExprDustedStage.class, Integer.class,
+				"[:max[imum]] dust[ed|ing] (value|stage|progress[ion])",
+				"blocks");
 	}
 
-	private Expression<Block> blocks;
 	private boolean isMax;
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		blocks = (Expression<Block>) exprs[0];
+		setExpr((Expression<Block>) exprs[0]);
 		isMax = parseResult.hasTag("max");
 		return true;
 	}
 
 	@Override
-	protected Integer @Nullable [] get(Event event) {
-		for (Block block : blocks.getArray(event)) {
+	protected Integer[] get(Event event, Block[] source) {
+		return get(source, block -> {
 			if (block != null && block.getBlockData() instanceof Brushable brushable) {
-				Brushable brushableBlock = (Brushable) block.getBlockData();
-				return new Integer[]{isMax ? brushableBlock.getMaximumDusted() : brushableBlock.getDusted()};
+				return isMax ? brushable.getMaximumDusted() : brushable.getDusted();
 			}
-		}
-		return new Integer[0];
+			return null;
+		});
 	}
 
 	@Override
-	public boolean isSingle() {
-		return blocks.isSingle();
+	public @Nullable Class<?>[] acceptChange(ChangeMode mode) {
+		if (!isMax && mode == Changer.ChangeMode.SET) {
+			return new Class[]{Integer.class};
+		}
+		return null;
+	}
+
+	@Override
+	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
+		if (isMax || mode != Changer.ChangeMode.SET || delta == null || delta.length == 0)
+			return;
+
+		int value = (Integer) delta[0];
+		for (Block block : getExpr().getArray(event)) {
+			if (block != null && block.getBlockData() instanceof Brushable brushable) {
+				brushable.setDusted(value);
+				block.setBlockData(brushable);
+			}
+		}
 	}
 
 	@Override
@@ -69,27 +85,7 @@ public class ExprDustedStage extends SimpleExpression<Integer> {
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return (isMax ? "maximum " : "") + blocks.toString(event, debug) + " dusting progression";
+		return (isMax ? "maximum " : "") + getExpr().toString(event, debug) + "'s dusted stage";
 	}
 
-	@Override
-	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
-		if (mode == Changer.ChangeMode.SET && delta.length > 0) {
-			for (Block block : blocks.getArray(event)) {
-				if (block != null && block.getBlockData() instanceof Brushable brushable) {
-					Brushable brushableBlock = (Brushable) block.getBlockData();
-					brushableBlock.setDusted(((Integer) delta[0]).intValue());
-					block.setBlockData(brushableBlock);
-				}
-			}
-		}
-	}
-
-	@Override
-	public @Nullable Class<?>[] acceptChange(ChangeMode mode) {
-		if (mode == Changer.ChangeMode.SET) {
-			return new Class[]{Integer.class};
-		}
-		return null;
-	}
 }

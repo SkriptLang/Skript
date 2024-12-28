@@ -4,11 +4,7 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.*;
-import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.ExpressionType;
-import ch.njol.skript.lang.SkriptParser;
-import ch.njol.skript.lang.util.SimpleExpression;
-import ch.njol.util.Kleenean;
+import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import org.bukkit.block.Block;
 import org.bukkit.block.BrushableBlock;
 import org.bukkit.block.BlockState;
@@ -27,50 +23,24 @@ import org.jetbrains.annotations.Nullable;
 })
 @Since("INSERT VERSION")
 @RequiredPlugins("Minecraft 1.20+")
-public class ExprBrushableItem extends SimpleExpression<ItemStack> {
+public class ExprBrushableItem extends SimplePropertyExpression<Block, ItemStack> {
 
 	private static final boolean SUPPORTS_DUSTING = Skript.classExists("org.bukkit.block.BrushableBlock");
 
 	static {
 		if (SUPPORTS_DUSTING)
-			Skript.registerExpression(ExprBrushableItem.class, ItemStack.class, ExpressionType.SIMPLE,
-				"[the] (brushable|buried) item of %blocks%",
-				"%blocks%'[s] (brushable|buried) item");
+			register(ExprBrushableItem.class, ItemStack.class,
+				"(brushable|buried) item",
+				"blocks");
 	}
 
-	private Expression<Block> blocks;
-
 	@Override
-	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
-		blocks = (Expression<Block>) exprs[0];
-		return true;
-	}
-
-	@Nullable
-	@Override
-	protected ItemStack[] get(Event event) {
-		Block[] blockArray = blocks.getArray(event);
-		ItemStack[] items = new ItemStack[blockArray.length];
-		for (int i = 0; i < blockArray.length; i++) {
-			Block block = blockArray[i];
-			BlockState state = block.getState();
-			if (state instanceof BrushableBlock brushableBlock) {
-				items[i] = brushableBlock.getItem();
-			} else {
-				items[i] = null;
-			}
+	public @Nullable ItemStack convert(Block block) {
+		BlockState state = block.getState();
+		if (state instanceof BrushableBlock brushableBlock) {
+			return brushableBlock.getItem();
 		}
-		return items;
-	}
-
-	@Override
-	public boolean isSingle() {
-		return blocks.isSingle();
-	}
-
-	@Override
-	public Class<? extends ItemStack> getReturnType() {
-		return ItemStack.class;
+		return null;
 	}
 
 	@Override
@@ -83,9 +53,9 @@ public class ExprBrushableItem extends SimpleExpression<ItemStack> {
 
 	@Override
 	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
-		if (mode == Changer.ChangeMode.SET && delta.length > 0) {
+		if (mode == Changer.ChangeMode.SET && delta != null && delta.length > 0) {
 			ItemStack newItem = (ItemStack) delta[0];
-			for (Block block : blocks.getArray(event)) {
+			for (Block block : getExpr().getArray(event)) {
 				BlockState state = block.getState();
 				if (state instanceof BrushableBlock brushableBlock) {
 					brushableBlock.setItem(newItem);
@@ -96,8 +66,13 @@ public class ExprBrushableItem extends SimpleExpression<ItemStack> {
 	}
 
 	@Override
-	public String toString(@Nullable Event event, boolean debug) {
-		return blocks.toString(event, debug) + "'s brushable item";
+	public Class<? extends ItemStack> getReturnType() {
+		return ItemStack.class;
+	}
+
+	@Override
+	protected String getPropertyName() {
+		return "brushable item";
 	}
 
 }
