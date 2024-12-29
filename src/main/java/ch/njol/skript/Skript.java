@@ -102,6 +102,7 @@ import org.skriptlang.skript.bukkit.displays.DisplayModule;
 import org.skriptlang.skript.bukkit.furnace.FurnaceModule;
 import org.skriptlang.skript.bukkit.fishing.FishingModule;
 import org.skriptlang.skript.bukkit.input.InputModule;
+import org.skriptlang.skript.bukkit.equippablecomponents.EquippableComponentModule;
 import org.skriptlang.skript.bukkit.loottables.LootTableModule;
 import org.skriptlang.skript.lang.comparator.Comparator;
 import org.skriptlang.skript.lang.comparator.Comparators;
@@ -576,6 +577,8 @@ public final class Skript extends JavaPlugin implements Listener {
 			InputModule.load();
 			FurnaceModule.load();
 			LootTableModule.load();
+			BreedingModule.load();
+			EquippableComponentModule.load();
 		} catch (final Exception e) {
 			exception(e, "Could not load required .class files: " + e.getLocalizedMessage());
 			setEnabled(false);

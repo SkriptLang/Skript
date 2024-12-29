@@ -2472,6 +2472,16 @@ experience cooldown change reasons:
 	plugin: plugin
 	pickup_orb: orb pickup, pickup orb
 
+# -- Equipment Slots --
+equipment slot:
+	helmet: helmet slot, head slot
+	chestplate: chestplate slot, chest slot
+	leggings: leggings slot, legs slot
+	boots: feet slot, boots slot
+	tool: tool slot, hand slot, main hand slot
+	off_hand: off hand slot
+	body: body slot, body armor slot
+
 # -- Input Keys --
 input keys:
 	forward: forward movement key, forward key
@@ -2575,6 +2585,7 @@ types:
 	entitysnapshot: entity snapshot¦s @an
 	loottable: loot table¦s @a
 	lootcontext: loot context¦s @a
+	equippablecomponent: equippable component¦s @an
 
 	# Skript
 	weathertype: weather type¦s @a
@@ -2594,6 +2605,7 @@ types:
 	experience.pattern: (e?xp|experience( points?)?)
 	classinfo: type¦s @a
 	visualeffect: visual effect¦s @a
+	equipmentslot: equipment slot¦s @a
 
 	# Hooks
 	money: money
