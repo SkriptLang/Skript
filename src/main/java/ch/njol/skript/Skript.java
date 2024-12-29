@@ -1685,7 +1685,7 @@ public final class Skript extends JavaPlugin implements Listener {
 
 	private static void logErrorDetails(@Nullable Throwable cause, String[] info, @Nullable Thread thread, @Nullable TriggerItem item) {
 		String issuesUrl = "https://github.com/SkriptLang/Skript/issues";
-		String downloadUrl = "https://github.com/SkriptLang/Skript/releases/latest";
+		String downloadUrl = "https://github.com/SkriptLang/Skript/releases/latest"; //TODO grab this from the update checker
 
 		logEx();
 		logEx("[Skript] Severe Error:");
@@ -1711,12 +1711,16 @@ public final class Skript extends JavaPlugin implements Listener {
 	private static Set<PluginDescriptionFile> identifyPluginsInStackTrace(StackTraceElement[] stackTrace) {
 		Set<PluginDescriptionFile> stackPlugins = new HashSet<>();
 		for (StackTraceElement element : stackTrace) {
-			pluginPackages.entrySet().stream()
-				.filter(entry -> element.getClassName().startsWith(entry.getKey()))
-				.forEach(entry -> stackPlugins.add(entry.getValue()));
+			try {
+				Class<?> clazz = Class.forName(element.getClassName());
+				Plugin plugin = JavaPlugin.getProvidingPlugin(clazz);
+				stackPlugins.add(plugin.getDescription());
+			} catch (ClassNotFoundException ignored) {
+			}
 		}
 		return stackPlugins;
 	}
+
 
 	private static void logPlatformSupportInfo(String issuesUrl, String downloadUrl, Set<PluginDescriptionFile> stackPlugins) {
 		SkriptUpdater updater = Skript.getInstance().getUpdater();
@@ -1777,7 +1781,7 @@ public final class Skript extends JavaPlugin implements Listener {
 		SkriptUpdater updater = Skript.getInstance().getUpdater();
 		if (updater != null) {
 			ReleaseStatus status = updater.getReleaseStatus();
-			logEx("Skript: " + getVersion() + " (" + getStatusDescription(status) + ")");
+			logEx("Skript: " + getVersion() + " (" + status.toString() + ")");
 			ReleaseManifest current = updater.getCurrentRelease();
 			logEx("    Flavor: " + current.flavor);
 			logEx("    Date: " + current.date);
@@ -1790,15 +1794,6 @@ public final class Skript extends JavaPlugin implements Listener {
 		logEx("OS: " + System.getProperty("os.name") + " " + System.getProperty("os.arch") + " " + System.getProperty("os.version"));
 		logEx();
 		logEx("Server platform: " + serverPlatform.name + (serverPlatform.supported ? "" : " (unsupported)"));
-	}
-
-	private static String getStatusDescription(ReleaseStatus status) {
-		switch (status) {
-			case LATEST: return "latest";
-			case OUTDATED: return "outdated";
-			case CUSTOM: return "custom version";
-			default: return "";
-		}
 	}
 
 	private static void logCurrentState(@Nullable Thread thread, @Nullable TriggerItem item) {
