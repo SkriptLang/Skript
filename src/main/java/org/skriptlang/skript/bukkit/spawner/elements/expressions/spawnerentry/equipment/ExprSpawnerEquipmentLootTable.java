@@ -1,0 +1,51 @@
+package org.skriptlang.skript.bukkit.spawner.elements.expressions.spawnerentry.equipment;
+
+import ch.njol.skript.classes.Changer.ChangeMode;
+import ch.njol.skript.expressions.base.SimplePropertyExpression;
+import ch.njol.util.coll.CollectionUtils;
+import org.bukkit.event.Event;
+import org.bukkit.loot.LootTable;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.bukkit.spawner.util.SpawnerEquipmentWrapper;
+
+public class ExprSpawnerEquipmentLootTable extends SimplePropertyExpression<SpawnerEquipmentWrapper, LootTable> {
+
+	static {
+		register(ExprSpawnerEquipmentLootTable.class, LootTable.class, "spawner equipment loot[ ]table", "spawnerentryequipments");
+	}
+
+	@Override
+	public @NotNull LootTable convert(SpawnerEquipmentWrapper equipment) {
+		return equipment.getEquipmentLootTable();
+	}
+
+	@Override
+	public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
+		return switch (mode) {
+			case SET -> CollectionUtils.array(LootTable.class);
+			default -> null;
+		};
+	}
+
+	@Override
+	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
+		assert delta != null;
+		LootTable lootTable = (LootTable) delta[0];
+
+		for (SpawnerEquipmentWrapper equipment : getExpr().getArray(event)) {
+			equipment.setEquipmentLootTable(lootTable);
+		}
+	}
+
+	@Override
+	public Class<? extends LootTable> getReturnType() {
+		return LootTable.class;
+	}
+
+	@Override
+	protected String getPropertyName() {
+		return "spawner equipment loot table";
+	}
+
+}
