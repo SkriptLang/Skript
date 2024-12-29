@@ -24,7 +24,7 @@ import org.jetbrains.annotations.Nullable;
 	"When a villager's level is 1, they may lose their profession if they don't have a workstation.",
 	"Experience works along with the leveling system, determining which level the villager will move to.",
 	"Experience must be greater than or equal to 0.",
-	"Learn more about villager levels on <a href='https://minecraft.wiki/w/Villager#Trading'>Minecraft Wiki</a>"
+	"Learn more about villager levels on <a href='https://minecraft.wiki/w/Trading#Level'>Minecraft Wiki</a>"
 })
 @Examples({
 	"set {_level} to villager level of {_villager}",
