@@ -116,7 +116,7 @@ public class ExprIndicesOfX extends SimpleExpression<String> {
 		SyntaxStringBuilder builder = new SyntaxStringBuilder(event, debug);
 
 		builder.append(type.name().toLowerCase());
-		if (type != IndexType.ALL)
+		if (type == IndexType.ALL)
 			builder.append("indices");
 		else
 			builder.append("index");
