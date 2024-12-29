@@ -68,7 +68,7 @@ public class ExprIndicesOfX extends SimpleExpression<Object> {
 			return false;
 		}
 
-		if (exprs[1] instanceof Variable<?> && matchedPattern == 0) {
+		if (!(exprs[1] instanceof Variable<?>) && matchedPattern == 0) {
 			Skript.error("'" + exprs[1].toString(null, false) +
 					"' is not a list variable. You can only get the indices of a list variable.");
 			return false;
