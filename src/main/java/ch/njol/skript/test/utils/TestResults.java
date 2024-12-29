@@ -45,10 +45,10 @@ public class TestResults {
 	public String createReport() {
 		StringBuilder sb = new StringBuilder("Succeeded:\n");
 		for (String test : succeeded)
-			sb.append(test).append('\n');
-		sb.append("Failed:\n");
+			sb.append("<light green>").append(test).append('\n');
+		sb.append("<reset>Failed:\n");
 		for (Map.Entry<String, String> entry : failed.entrySet())
-			sb.append(entry.getKey()).append(": ").append(entry.getValue()).append('\n');
+			sb.append("<light red>").append(entry.getKey()).append("<reset>: <gray>").append(entry.getValue()).append('\n');
 		return sb.toString();
 	}
 

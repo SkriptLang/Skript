@@ -69,6 +69,7 @@ import ch.njol.util.coll.iterator.EnumerationIterable;
 import com.google.common.collect.Lists;
 import com.google.gson.Gson;
 
+import com.google.gson.GsonBuilder;
 import org.bstats.bukkit.Metrics;
 import org.bstats.charts.SimplePie;
 import org.bukkit.*;
@@ -795,7 +796,10 @@ public final class Skript extends JavaPlugin implements Listener {
 									EffObjectives.fail();
 
 								info("Collecting results to " + TestMode.RESULTS_FILE);
-								String results = new Gson().toJson(TestTracker.collectResults());
+								String results = new GsonBuilder()
+									.setPrettyPrinting() // Easier to read lines
+									.disableHtmlEscaping() // Fixes issue with "'" character in test strings going unicode
+									.create().toJson(TestTracker.collectResults());
 								try {
 									Files.write(TestMode.RESULTS_FILE, results.getBytes(StandardCharsets.UTF_8));
 								} catch (IOException e) {
