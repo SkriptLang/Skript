@@ -26,7 +26,7 @@ public class EvtExplode extends SkriptEvent {
 				CollectionUtils.array(EffExplosion.ScriptExplodeEvent.class, FireworkExplodeEvent.class, EntityExplodeEvent.class),
 				"[a] script[ed] explo(d(e|ing)|sion)",
 				"[a] firework explo(d(e|ing)|sion) [colo[u]red %-colors%]",
-				"[a] [%entitytypes%] explo(d(e|ing)|sion)"
+				"[a] [%-entitytypes%] explo(d(e|ing)|sion)"
 			)
 			.description(
 				"Called when an entity explodes, or when an explosion is created by a script.",
@@ -46,132 +46,78 @@ public class EvtExplode extends SkriptEvent {
 			.since("1.0, INSERT VERSION (script)");
 	}
 
-	private State state;
+	private int pattern;
+	private @Nullable Literal<Color> colors;
+	private @Nullable Literal<? extends EntityType> typesLiteral;
+	private EntityType @Nullable [] types;
 
 	@Override
 	public boolean init(Literal<?>[] args, int matchedPattern, ParseResult parseResult) {
+		pattern = matchedPattern;
+
 		switch (matchedPattern) {
-			case 0 -> state = State.SCRIPT;
-			case 1 -> state = State.FIREWORK;
-			default -> state = State.ENTITY;
+			case 1 -> {
+				if (args[0] != null)
+					//noinspection unchecked
+					colors = (Literal<Color>) args[0];
+			}
+			case 2 -> {
+				//noinspection unchecked
+				Literal<? extends EntityType> arg = (Literal<? extends EntityType>) args[0];
+				if (arg != null) {
+					typesLiteral = arg;
+					types = arg.getAll();
+				}
+			}
 		}
 
-		return state.init(args, matchedPattern, parseResult);
+		return true;
 	}
 
 	@Override
 	public boolean check(Event event) {
-		return state.check(event);
+		if (pattern == 0 && event instanceof EffExplosion.ScriptExplodeEvent) {
+			return true;
+		} else if (pattern == 1 && event instanceof FireworkExplodeEvent fireworkExplodeEvent) {
+			if (colors == null)
+				return true;
+
+			Set<org.bukkit.Color> colours = colors.stream(event)
+				.map(color -> {
+					if (color instanceof ColorRGB)
+						return color.asBukkitColor();
+					return color.asDyeColor().getFireworkColor();
+				})
+				.collect(Collectors.toSet());
+
+			FireworkMeta meta = fireworkExplodeEvent.getEntity().getFireworkMeta();
+			for (FireworkEffect effect : meta.getEffects()) {
+				if (colours.containsAll(effect.getColors()))
+					return true;
+			}
+			return false;
+		} else if (pattern == 2 && event instanceof EntityExplodeEvent explodeEvent) {
+			if (types == null)
+				return true;
+
+			for (EntityType type : types) {
+				if (type.isInstance(explodeEvent.getEntity()))
+					return true;
+			}
+			return false;
+		}
+
+		return false;
 	}
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return state.toString(event, debug);
-	}
-
-	private enum State {
-
-		SCRIPT {
-			@Override
-			boolean init(Literal<?>[] args, int matchedPattern, ParseResult parseResult) {
-				return true;
-			}
-
-			@Override
-			boolean check(Event event) {
-				return event instanceof EffExplosion.ScriptExplodeEvent;
-			}
-
-			@Override
-			String toString(@Nullable Event event, boolean debug) {
-				return "script explosion";
-			}
-		},
-		FIREWORK {
-			private @Nullable Literal<Color> colors;
-
-			@Override
-			boolean init(Literal<?>[] args, int matchedPattern, ParseResult parseResult) {
-				if (args[0] != null)
-					//noinspection unchecked
-					colors = (Literal<Color>) args[0];
-				return true;
-			}
-
-			@Override
-			boolean check(Event event) {
-				if (!(event instanceof FireworkExplodeEvent fireworkExplodeEvent))
-					return false;
-
-				if (colors == null)
-					return true;
-
-				Set<org.bukkit.Color> colours = colors.stream(event)
-					.map(color -> {
-						if (color instanceof ColorRGB)
-							return color.asBukkitColor();
-						return color.asDyeColor().getFireworkColor();
-					})
-					.collect(Collectors.toSet());
-
-				FireworkMeta meta = fireworkExplodeEvent.getEntity().getFireworkMeta();
-				for (FireworkEffect effect : meta.getEffects()) {
-					if (colours.containsAll(effect.getColors()))
-						return true;
-				}
-				return false;
-			}
-
-			@Override
-			String toString(@Nullable Event event, boolean debug) {
-				return "firework explode " + (colors != null ? " with colors " + colors.toString(event, debug) : "");
-			}
-		},
-		ENTITY {
-			private @Nullable Literal<? extends EntityType> typesLiteral;
-			private EntityType @Nullable [] types;
-
-			@Override
-			boolean init(Literal<?>[] args, int matchedPattern, ParseResult parseResult) {
-				//noinspection unchecked
-				Literal<? extends EntityType> arg = (Literal<? extends EntityType>) args[0];
-				if (arg == null)
-					return false;
-
-				typesLiteral = arg;
-				types = arg.getAll();
-				return true;
-			}
-
-			@Override
-			boolean check(Event event) {
-				if (!(event instanceof EntityExplodeEvent explodeEvent))
-					return false;
-				if (types == null)
-					return true;
-
-				for (EntityType type : types) {
-					if (type.isInstance(explodeEvent.getEntity()))
-						return true;
-				}
-				return false;
-			}
-
-			@Override
-			String toString(@Nullable Event event, boolean debug) {
-				if (typesLiteral != null)
-					return typesLiteral.toString(event, debug) + " explosion";
-
-				return "explosion";
-			}
+		return switch (pattern) {
+			case 0 -> "script explosion";
+			case 1 -> "firework explode" + (colors != null ? " with colors " + colors.toString(event, debug) : "");
+			case 2 -> typesLiteral != null ? typesLiteral.toString(event, debug) + " explosion" : "explosion";
+			default -> "unknown explosion";
 		};
-
-		abstract boolean init(Literal<?>[] args, int matchedPattern, ParseResult parseResult);
-
-		abstract boolean check(Event event);
-
-		abstract String toString(@Nullable Event event, boolean debug);
-
 	}
 
 }

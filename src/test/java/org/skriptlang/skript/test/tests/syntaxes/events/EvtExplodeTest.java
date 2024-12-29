@@ -18,6 +18,8 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,17 +32,17 @@ public class EvtExplodeTest extends SkriptJUnitTest {
 
 	@Before
 	public void before() {
+		pig = spawnTestPig();
+
 		if (Skript.isRunningMinecraft(1, 20, 5)) {
 			entityType = EntityType.FIREWORK_ROCKET;
 		} else {
 			entityType = EntityType.valueOf("FIREWORK");
 		}
-
-		pig = spawnTestPig();
 	}
 
 	@Test
-	public void test() {
+	public void test() throws InvocationTargetException, InstantiationException, IllegalAccessException {
 		List<Event> events = new ArrayList<>();
 		for (SkriptColor color : SkriptColor.values()) {
 			Firework firework = (Firework) getTestWorld().spawnEntity(getTestLocation(), entityType);
@@ -53,8 +55,14 @@ public class EvtExplodeTest extends SkriptJUnitTest {
 		}
 
 		events.add(new EffExplosion.ScriptExplodeEvent(getTestLocation(), 10));
-		events.add(new EntityExplodeEvent(pig, getTestLocation(), List.of(), 10,
-			ExplosionResult.DESTROY_WITH_DECAY));
+		if (Skript.classExists("org.bukkit.ExplosionResult")) {
+			events.add(new EntityExplodeEvent(pig, getTestLocation(), List.of(), 10,
+				ExplosionResult.DESTROY_WITH_DECAY));
+		} else {
+			Constructor<?> constructor = EntityExplodeEvent.class.getDeclaredConstructors()[0];
+			Event event = (Event) constructor.newInstance(pig, getTestLocation(), List.of(), 10);
+			events.add(event);
+		}
 
 		for (Event event : events) {
 			Bukkit.getPluginManager().callEvent(event);
