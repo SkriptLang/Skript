@@ -48,7 +48,7 @@ public class ExprDustedStage extends PropertyExpression<Block, Integer> {
 	}
 
 	@Override
-	protected Integer[] get(Event event, Block[] source) {
+	protected Integer @Nullable [] get(Event event, Block[] source) {
 		return get(source, block -> {
 			if (block.getBlockData() instanceof Brushable brushable) {
 				return isMax ? brushable.getMaximumDusted() : brushable.getDusted();
@@ -66,7 +66,7 @@ public class ExprDustedStage extends PropertyExpression<Block, Integer> {
 	}
 
 	@Override
-	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
+	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
 		if (isMax || mode != ChangeMode.SET || delta.length == 0)
 			return;
 
