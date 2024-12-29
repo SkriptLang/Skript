@@ -21,7 +21,7 @@ import java.util.List;
 import java.util.Map;
 
 @Name("Indices of X in List")
-@Description("Returns all the indices of a list where their value is X.")
+@Description("Returns all the indices of a list where the value at that index is the provided value.")
 @Examples({
 	"set {_list::*} to 1, 2, 3, 1, 2, 3",
 	"set {_indices::*} to the indices of the value 1 in {_list::*}",
@@ -59,7 +59,7 @@ public class ExprIndicesOfX extends SimpleExpression<String> {
 		}
 
 		list = var;
-		type = IndexType.get(parseResult.mark);
+		type = IndexType.values()[parseResult.mark];
 		value = LiteralUtils.defendExpression(exprs[0]);
 
 		return LiteralUtils.canInitSafely(value);
@@ -111,7 +111,7 @@ public class ExprIndicesOfX extends SimpleExpression<String> {
 	public String toString(@Nullable Event event, boolean debug) {
 		SyntaxStringBuilder builder = new SyntaxStringBuilder(event, debug);
 
-		builder.append(type.toString());
+		builder.append(type.name().toLowerCase());
 		if (type != IndexType.ALL)
 			builder.append("indices");
 		else
@@ -122,20 +122,7 @@ public class ExprIndicesOfX extends SimpleExpression<String> {
 	}
 
 	private enum IndexType {
-		FIRST, LAST, ALL;
-
-		public static IndexType get(int mark) {
-			return switch (mark) {
-				case 1 -> FIRST;
-				case 2 -> LAST;
-				default -> ALL;
-			};
-		}
-
-		@Override
-		public String toString() {
-			return name().toLowerCase();
-		}
+		ALL, FIRST, LAST;
 	}
 
 }
