@@ -1,18 +1,10 @@
 package ch.njol.skript.classes.data;
 
-import java.time.Duration;
-import java.time.temporal.TemporalAmount;
-import java.time.temporal.TemporalUnit;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.function.Function;
-
 import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.bukkitutil.InventoryUtils;
 import ch.njol.skript.command.CommandEvent;
+import ch.njol.skript.command.ScriptCommandEvent;
 import ch.njol.skript.events.bukkit.ScriptEvent;
 import ch.njol.skript.events.bukkit.SkriptStartEvent;
 import ch.njol.skript.events.bukkit.SkriptStopEvent;
@@ -26,18 +18,15 @@ import com.destroystokyo.paper.event.block.BeaconEffectEvent;
 import com.destroystokyo.paper.event.entity.EndermanAttackPlayerEvent;
 import com.destroystokyo.paper.event.entity.ProjectileCollideEvent;
 import com.destroystokyo.paper.event.player.PlayerArmorChangeEvent;
+import com.destroystokyo.paper.event.player.PlayerElytraBoostEvent;
 import io.papermc.paper.event.entity.EntityMoveEvent;
-import io.papermc.paper.event.player.PlayerInventorySlotChangeEvent;
-import io.papermc.paper.event.player.PlayerStonecutterRecipeSelectEvent;
-import io.papermc.paper.event.player.PlayerStopUsingItemEvent;
-import io.papermc.paper.event.player.PlayerTradeEvent;
-import org.bukkit.*;
 import io.papermc.paper.event.player.*;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.data.BlockData;
+import org.bukkit.command.BlockCommandSender;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.*;
 import org.bukkit.event.block.*;
@@ -66,8 +55,12 @@ import org.bukkit.inventory.*;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.potion.PotionType;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 public final class BukkitEventValues {
 
@@ -974,6 +967,8 @@ public final class BukkitEventValues {
 				return e.getSender() instanceof Player ? ((Player) e.getSender()).getWorld() : null;
 			}
 		}, 0);
+		EventValues.registerEventValue(CommandEvent.class, Block.class,
+			event -> event.getSender() instanceof BlockCommandSender sender ? sender.getBlock() : null);
 
 		// === ServerEvents ===
 		// Script load/unload event
@@ -1629,24 +1624,6 @@ public final class BukkitEventValues {
 			}, EventValues.TIME_NOW);
 		}
 
-		// LootGenerateEvent
-		if (Skript.classExists("org.bukkit.event.world.LootGenerateEvent")) {
-			EventValues.registerEventValue(LootGenerateEvent.class, Entity.class, new Getter<Entity, LootGenerateEvent>() {
-				@Override
-				@Nullable
-				public Entity get(LootGenerateEvent event) {
-					return event.getEntity();
-				}
-			}, EventValues.TIME_NOW);
-			EventValues.registerEventValue(LootGenerateEvent.class, Location.class, new Getter<Location, LootGenerateEvent>() {
-				@Override
-				@Nullable
-				public Location get(LootGenerateEvent event) {
-					return event.getLootContext().getLocation();
-				}
-			}, EventValues.TIME_NOW);
-		}
-
 		// EntityResurrectEvent
 		EventValues.registerEventValue(EntityResurrectEvent.class, Slot.class, new Getter<Slot, EntityResurrectEvent>() {
 			@Override
@@ -1810,6 +1787,12 @@ public final class BukkitEventValues {
 			}
 		}, EventValues.TIME_NOW);
 
+		// FurnaceExtractEvent
+		EventValues.registerEventValue(FurnaceExtractEvent.class, Player.class, FurnaceExtractEvent::getPlayer);
+		EventValues.registerEventValue(FurnaceExtractEvent.class, ItemStack[].class,
+			event -> new ItemStack[]{ItemStack.of(event.getItemType(), event.getItemAmount())
+		});
+
 		// BlockDropItemEvent
 		EventValues.registerEventValue(BlockDropItemEvent.class, Block.class, new Getter<Block, BlockDropItemEvent>() {
 			@Override
@@ -1894,6 +1877,13 @@ public final class BukkitEventValues {
 				}
 			}, EventValues.TIME_NOW);
 		}
+
+		// PlayerElytraBoostEvent
+		if (Skript.classExists("com.destroystokyo.paper.event.player.PlayerElytraBoostEvent")) {
+			EventValues.registerEventValue(PlayerElytraBoostEvent.class, ItemStack.class, PlayerElytraBoostEvent::getItemStack);
+			EventValues.registerEventValue(PlayerElytraBoostEvent.class, Entity.class, PlayerElytraBoostEvent::getFirework);
+		}
+
 	}
 
 }

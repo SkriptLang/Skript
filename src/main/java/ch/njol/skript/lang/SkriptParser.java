@@ -1,21 +1,3 @@
-/**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
 package ch.njol.skript.lang;
 
 import ch.njol.skript.Skript;
@@ -49,19 +31,14 @@ import ch.njol.util.NonNullPair;
 import ch.njol.util.StringUtils;
 import ch.njol.util.coll.CollectionUtils;
 import com.google.common.primitives.Booleans;
+import org.bukkit.event.Event;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.script.Script;
 import org.skriptlang.skript.lang.script.ScriptWarning;
 
-import java.util.ArrayList;
-import java.util.Deque;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Supplier;
@@ -243,7 +220,26 @@ public class SkriptParser {
 								}
 							}
 							T element = info.getElementClass().newInstance();
-							if (element.init(parseResult.exprs, patternIndex, getParser().getHasDelayBefore(), parseResult)) {
+
+							if (element instanceof EventRestrictedSyntax eventRestrictedSyntax) {
+								Class<? extends Event>[] supportedEvents = eventRestrictedSyntax.supportedEvents();
+								if (!getParser().isCurrentEvent(supportedEvents)) {
+									Iterator<String> iterator = Arrays.stream(supportedEvents)
+										.map(it -> "the " + it.getSimpleName()
+											.replaceAll("([A-Z])", " $1")
+											.toLowerCase()
+											.trim())
+										.iterator();
+
+									String events = StringUtils.join(iterator, ", ", " or ");
+
+									Skript.error("'" + parseResult.expr + "' can only be used in " + events);
+									continue;
+								}
+							}
+
+							boolean success = element.init(parseResult.exprs, patternIndex, getParser().getHasDelayBefore(), parseResult);
+							if (success) {
 								log.printLog();
 								return element;
 							}
