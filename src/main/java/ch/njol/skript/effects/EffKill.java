@@ -10,7 +10,6 @@ import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
-import org.bukkit.GameMode;
 import org.bukkit.entity.Damageable;
 import org.bukkit.entity.EnderDragonPart;
 import org.bukkit.entity.Entity;
