@@ -20,7 +20,8 @@ import java.util.Map;
 @Name("Indices of X in List")
 @Description(
 		"Returns the indices or positions of a list where the value at that index is the provided value. " +
-		"Getting the indices of a list will return strings, whereas the positions will return a number."
+			"Indices are only supported for variable lists and will return the string indices of the given value. " +
+			"Positions can be used with any list and will return the numerical position of the value in the list, counting up from 1."
 )
 @Examples({
 		"set {_list::*} to 1, 2, 3, 1, 2, 3",
@@ -49,7 +50,8 @@ public class ExprIndicesOfX extends SimpleExpression<Object> {
 
 	static {
 		Skript.registerExpression(ExprIndicesOfX.class, Object.class, ExpressionType.COMBINED,
-			"[the] [1:first|2:last] (indices|index[es]|:position[s]) of [[the] value] %object% in %objects%"
+			"[the] [1:first|2:last] (indices|index[es]) of [[the] value] %object% in %objects%",
+			"[the] [1:first|2:last] position[s] of [[the] value] %object% in %objects%"
 		);
 	}
 
@@ -60,13 +62,19 @@ public class ExprIndicesOfX extends SimpleExpression<Object> {
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		if (exprs[1].isSingle() || (exprs[1] instanceof Variable<?> var && !var.isList())) {
+		if (exprs[1].isSingle()) {
 			Skript.error("'" + exprs[1].toString(null, false) +
 					"' can only ever have one value at most, thus the 'indices of x in list' expression has no effect.");
 			return false;
 		}
 
-		position = parseResult.hasTag("position");
+		if (exprs[1] instanceof Variable<?> && matchedPattern == 0) {
+			Skript.error("'" + exprs[1].toString(null, false) +
+					"' is not a list variable. You can only get the indices of a list variable.");
+			return false;
+		}
+
+		position = matchedPattern == 1;
 		objects = LiteralUtils.defendExpression(exprs[1]);
 		type = IndexType.values()[parseResult.mark];
 		value = LiteralUtils.defendExpression(exprs[0]);
@@ -104,12 +112,8 @@ public class ExprIndicesOfX extends SimpleExpression<Object> {
 			}
 		} else {
 			for (Object object : objects.getArray(event)) {
-				if (object.equals(value)) {
-					if (position)
-						indices.add(count);
-					else
-						indices.add(String.valueOf(count));
-				}
+				if (object.equals(value))
+					indices.add(count);
 				count++;
 			}
 		}
@@ -131,7 +135,7 @@ public class ExprIndicesOfX extends SimpleExpression<Object> {
 
 	@Override
 	public Class<?> getReturnType() {
-		if (position)
+		if (position || !(objects instanceof Variable<?>))
 			return Integer.class;
 		return String.class;
 	}
