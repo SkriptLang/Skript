@@ -30,11 +30,12 @@ import java.util.Map;
 	"set {_indices::*} to the indices of the value 2 in {_list::*}",
 	"# {_indices::*} is now 2, 5",
 	"",
-	"set {_indices::*} to the first index of the value 3 in {_list::*}",
-	"# {_indices::*} is now 3",
-	"",
-	"set {_indices::*} to the last index of the value 3 in {_list::*}",
-	"# {_indices::*} is now 6"
+	"set {_otherlist::burb} to 100",
+	"set {_otherlist::burp} to 100",
+	"set {_indices::*} to the first index of the value 100 in {_otherlist::*}",
+	"# {_indices::*} is now burb",
+	"set {_indices::*} to the last index of the value 100 in {_otherlist::*}",
+	"# {_indices::*} is now burp"
 })
 @Since("INSERT VERSION")
 public class ExprIndicesOfX extends SimpleExpression<String> {
