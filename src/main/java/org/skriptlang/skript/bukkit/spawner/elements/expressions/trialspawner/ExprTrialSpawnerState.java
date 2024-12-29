@@ -3,6 +3,7 @@ package org.skriptlang.skript.bukkit.spawner.elements.expressions.trialspawner;
 import ch.njol.skript.classes.Changer;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import ch.njol.util.coll.CollectionUtils;
+import org.bukkit.GameMode;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.type.TrialSpawner;
 import org.bukkit.block.data.type.TrialSpawner.State;
@@ -44,13 +45,18 @@ public class ExprTrialSpawnerState extends SimplePropertyExpression<Block, State
 				switch (mode) {
 					case SET -> {
 						// if no players nearby and the spawner is set to active, console gets spammed
-						if (state == State.ACTIVE && spawner.getLocation().getNearbyEntitiesByType(Player.class, spawner.getRequiredPlayerRange()).isEmpty())
-							return;
+						if (state == State.ACTIVE) {
+							long count = spawner.getLocation().getNearbyEntitiesByType(Player.class, spawner.getRequiredPlayerRange()).stream()
+								.filter(player -> player.getGameMode() == GameMode.SURVIVAL || player.getGameMode() == GameMode.ADVENTURE)
+								.count();
+							if (count == 0)
+								return;
+						}
 						trialSpawner.setTrialSpawnerState(state);
 					}
 					case DELETE, RESET -> trialSpawner.setTrialSpawnerState(State.INACTIVE);
 				}
-				block.setBlockData(trialSpawner);
+				spawner.setBlockData(trialSpawner);
 			}
 		}
 	}

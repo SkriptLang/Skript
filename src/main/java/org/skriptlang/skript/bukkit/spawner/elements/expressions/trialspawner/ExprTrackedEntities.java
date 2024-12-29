@@ -17,10 +17,10 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ExprTrackedEntities extends PropertyExpression<Block, Object> {
+public class ExprTrackedEntities extends PropertyExpression<Block, Entity> {
 
 	static {
-		Skript.registerExpression(ExprTrackedEntities.class, Object.class, ExpressionType.PROPERTY,
+		Skript.registerExpression(ExprTrackedEntities.class, Entity.class, ExpressionType.PROPERTY,
 			"[the] tracked (1:player[s]|entit(y|ies)) (from|of) %blocks%",
 			"%blocks%'[s] tracked (1:player[s]|entit(y|ies))"
 		);
@@ -37,26 +37,24 @@ public class ExprTrackedEntities extends PropertyExpression<Block, Object> {
 	}
 
 	@Override
-	protected Object[] get(Event event, Block[] source) {
-		List<Object> values = new ArrayList<>();
+	protected Entity[] get(Event event, Block[] source) {
+		List<Entity> values = new ArrayList<>();
 
 		for (Block block : source) {
 			if (!(block.getState() instanceof TrialSpawner spawner))
 				continue;
 
 			if (players)
-				values.add(spawner.getTrackedPlayers());
+				values.addAll(spawner.getTrackedPlayers());
 			else
-				values.add(spawner.getTrackedEntities());
+				values.addAll(spawner.getTrackedEntities());
 		}
 
-		return values.toArray();
+		return values.toArray(new Entity[0]);
 	}
 
 	@Override
-	public Class<?> getReturnType() {
-		if (players)
-			return Player.class;
+	public Class<? extends Entity> getReturnType() {
 		return Entity.class;
 	}
 

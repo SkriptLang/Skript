@@ -18,7 +18,7 @@ public class ExprCooldownLength extends SimplePropertyExpression<Block, Timespan
 	@Override
 	public @Nullable Timespan convert(Block block) {
 		if (block.getState() instanceof TrialSpawner spawner)
-			return new Timespan(spawner.getCooldownLength());
+			return new Timespan(TimePeriod.TICK, spawner.getCooldownLength());
 		return null;
 	}
 
