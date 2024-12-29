@@ -1,21 +1,3 @@
-/**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
 package ch.njol.skript.events;
 
 import ch.njol.skript.Skript;
@@ -25,100 +7,27 @@ import com.destroystokyo.paper.event.block.AnvilDamagedEvent;
 import com.destroystokyo.paper.event.entity.EntityJumpEvent;
 import com.destroystokyo.paper.event.entity.ProjectileCollideEvent;
 import com.destroystokyo.paper.event.player.PlayerArmorChangeEvent;
+import com.destroystokyo.paper.event.player.PlayerElytraBoostEvent;
 import com.destroystokyo.paper.event.player.PlayerJumpEvent;
-import com.destroystokyo.paper.event.server.PaperServerListPingEvent;
 import com.destroystokyo.paper.event.player.PlayerReadyArrowEvent;
-import io.papermc.paper.event.player.PlayerStopUsingItemEvent;
+import com.destroystokyo.paper.event.server.PaperServerListPingEvent;
 import io.papermc.paper.event.player.PlayerDeepSleepEvent;
 import io.papermc.paper.event.player.PlayerInventorySlotChangeEvent;
+import io.papermc.paper.event.player.PlayerStopUsingItemEvent;
 import io.papermc.paper.event.player.PlayerTradeEvent;
 import org.bukkit.event.Event;
-import org.bukkit.event.block.BlockCanBuildEvent;
-import org.bukkit.event.block.BlockDamageEvent;
-import org.bukkit.event.block.BlockFertilizeEvent;
-import org.bukkit.event.block.BlockFromToEvent;
-import org.bukkit.event.block.BlockIgniteEvent;
-import org.bukkit.event.block.BlockPhysicsEvent;
-import org.bukkit.event.block.BlockPistonExtendEvent;
-import org.bukkit.event.block.BlockPistonRetractEvent;
-import org.bukkit.event.block.BlockRedstoneEvent;
-import org.bukkit.event.block.BlockSpreadEvent;
-import org.bukkit.event.block.LeavesDecayEvent;
-import org.bukkit.event.block.SignChangeEvent;
-import org.bukkit.event.block.SpongeAbsorbEvent;
+import org.bukkit.event.block.*;
 import org.bukkit.event.enchantment.EnchantItemEvent;
 import org.bukkit.event.enchantment.PrepareItemEnchantEvent;
-import org.bukkit.event.entity.AreaEffectCloudApplyEvent;
-import org.bukkit.event.entity.CreeperPowerEvent;
-import org.bukkit.event.entity.EntityBreakDoorEvent;
-import org.bukkit.event.entity.EntityCombustEvent;
-import org.bukkit.event.entity.EntityDismountEvent;
-import org.bukkit.event.entity.EntityExplodeEvent;
-import org.bukkit.event.entity.EntityMountEvent;
-import org.bukkit.event.entity.EntityPortalEnterEvent;
-import org.bukkit.event.entity.EntityPortalEvent;
-import org.bukkit.event.entity.EntityResurrectEvent;
-import org.bukkit.event.entity.EntityTameEvent;
-import org.bukkit.event.entity.EntityToggleGlideEvent;
-import org.bukkit.event.entity.EntityToggleSwimEvent;
-import org.bukkit.event.entity.ExplosionPrimeEvent;
-import org.bukkit.event.entity.FoodLevelChangeEvent;
-import org.bukkit.event.entity.HorseJumpEvent;
-import org.bukkit.event.entity.PigZapEvent;
-import org.bukkit.event.entity.ProjectileHitEvent;
-import org.bukkit.event.entity.ProjectileLaunchEvent;
-import org.bukkit.event.entity.SheepRegrowWoolEvent;
-import org.bukkit.event.entity.SlimeSplitEvent;
-import org.bukkit.event.entity.PiglinBarterEvent;
-import org.bukkit.event.inventory.FurnaceBurnEvent;
-import org.bukkit.event.inventory.FurnaceSmeltEvent;
-import org.bukkit.event.inventory.InventoryCloseEvent;
-import org.bukkit.event.inventory.InventoryDragEvent;
-import org.bukkit.event.inventory.InventoryOpenEvent;
-import org.bukkit.event.inventory.InventoryPickupItemEvent;
-import org.bukkit.event.inventory.PrepareAnvilEvent;
-import org.bukkit.event.player.AsyncPlayerChatEvent;
-import org.bukkit.event.player.PlayerAnimationEvent;
-import org.bukkit.event.player.PlayerBedEnterEvent;
-import org.bukkit.event.player.PlayerBedLeaveEvent;
-import org.bukkit.event.player.PlayerBucketEmptyEvent;
-import org.bukkit.event.player.PlayerBucketFillEvent;
-import org.bukkit.event.player.PlayerChangedWorldEvent;
-import org.bukkit.event.player.PlayerEggThrowEvent;
-import org.bukkit.event.player.PlayerFishEvent;
-import org.bukkit.event.player.PlayerItemBreakEvent;
-import org.bukkit.event.player.PlayerItemDamageEvent;
-import org.bukkit.event.player.PlayerItemHeldEvent;
-import org.bukkit.event.player.PlayerItemMendEvent;
-import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.event.player.PlayerKickEvent;
-import org.bukkit.event.player.PlayerLocaleChangeEvent;
-import org.bukkit.event.player.PlayerLoginEvent;
-import org.bukkit.event.player.PlayerPickupArrowEvent;
-import org.bukkit.event.player.PlayerPortalEvent;
-import org.bukkit.event.player.PlayerQuitEvent;
-import org.bukkit.event.player.PlayerRespawnEvent;
-import org.bukkit.event.player.PlayerRiptideEvent;
-import org.bukkit.event.player.PlayerSwapHandItemsEvent;
-import org.bukkit.event.player.PlayerTeleportEvent;
-import org.bukkit.event.player.PlayerToggleFlightEvent;
-import org.bukkit.event.player.PlayerToggleSneakEvent;
-import org.bukkit.event.player.PlayerToggleSprintEvent;
-import org.bukkit.event.player.PlayerExpCooldownChangeEvent;
+import org.bukkit.event.entity.*;
+import org.bukkit.event.inventory.*;
+import org.bukkit.event.player.*;
 import org.bukkit.event.server.BroadcastMessageEvent;
 import org.bukkit.event.server.ServerListPingEvent;
-import org.bukkit.event.vehicle.VehicleCreateEvent;
-import org.bukkit.event.vehicle.VehicleDamageEvent;
-import org.bukkit.event.vehicle.VehicleDestroyEvent;
-import org.bukkit.event.vehicle.VehicleEnterEvent;
-import org.bukkit.event.vehicle.VehicleExitEvent;
+import org.bukkit.event.vehicle.*;
 import org.bukkit.event.weather.LightningStrikeEvent;
-import org.bukkit.event.world.ChunkLoadEvent;
-import org.bukkit.event.world.ChunkPopulateEvent;
-import org.bukkit.event.world.ChunkUnloadEvent;
-import org.bukkit.event.world.LootGenerateEvent;
-import org.bukkit.event.world.PortalCreateEvent;
-import org.bukkit.event.world.SpawnChangeEvent;
+import org.bukkit.event.world.*;
+import io.papermc.paper.event.player.PlayerChangeBeaconEffectEvent;
 
 /**
  * @author Peter Güttinger
@@ -224,14 +133,6 @@ public class SimpleEvents {
 				.description("Called when the hunger bar of a player changes, i.e. either increases by eating or decreases over time.")
 				.examples("on food bar change:")
 				.since("1.4.4");
-		Skript.registerEvent("Fuel Burn", SimpleEvent.class, FurnaceBurnEvent.class, "fuel burn[ing]")
-				.description("Called when a furnace burns an item from its <a href='expressions.html#ExprFurnaceSlot'>fuel slot</a>.")
-				.examples("on fuel burning:")
-				.since("1.0");
-		Skript.registerEvent("Smelt", SimpleEvent.class, FurnaceSmeltEvent.class, "[ore] smelt[ing]", "smelt[ing] of ore") //TODO SkriptEvent for "smelt[ing] of %itemtype%"
-		.description("Called when a furnace smelts an item in its <a href='expressions.html#ExprFurnaceSlot'>ore slot</a>.")
-				.examples("on smelt:")
-				.since("1.0");
 		Skript.registerEvent("Leaves Decay", SimpleEvent.class, LeavesDecayEvent.class, "leaves decay[ing]")
 				.description("Called when a leaf block decays due to not being connected to a tree.")
 				.examples("on leaves decay:")
@@ -266,12 +167,6 @@ public class SimpleEvents {
 						" However, this event allows modification of properties like the hatched entity type and the number of entities to hatch."
 				)
 				.examples("on throw of an egg:")
-				.since("1.0");
-		// TODO improve - on fish [of %entitydata%] (and/or itemtype), on reel, etc.
-		// Maybe something like RandomSK "[on] fishing state of %fishingstate%"
-		Skript.registerEvent("Fishing", SimpleEvent.class, PlayerFishEvent.class, "[player] fish[ing]")
-				.description("Called when a player fishes something. This is not of much use yet.")
-				.examples("on fish:")
 				.since("1.0");
 		if (Skript.classExists("org.bukkit.event.player.PlayerItemBreakEvent")) {
 			Skript.registerEvent("Item Break", SimpleEvent.class, PlayerItemBreakEvent.class, "[player] tool break[ing]", "[player] break[ing] (a|the|) tool")
@@ -343,13 +238,10 @@ public class SimpleEvents {
 				.requiredPlugins("Minecraft 1.14+ (event-entity support)")
 				.since("1.0, 2.5.3 (event-entity support)");
 		Skript.registerEvent("Projectile Hit", SimpleEvent.class, ProjectileHitEvent.class, "projectile hit")
-				.description("Called when a projectile hits an entity or a block.",
-						"Use the <a href='#damage'>damage event</a> with a <a href='conditions.html#CondIsSet'>check</a> for a <a href='expressions.html#ExprEntity'>projectile</a> " +
-								"to be able to use the <a href='expressions.html#ExprAttacked'>entity that got hit</a> in the case when the projectile hit a living entity.",
-						"A damage event will even be fired if the damage is 0, e.g. when throwing snowballs at non-nether mobs.")
+				.description("Called when a projectile hits an entity or a block.")
 				.examples("on projectile hit:",
-						"\tevent-projectile is arrow",
-						"\tdelete event-projectile")
+						"\tif victim's health <= 3:",
+						"\t\tdelete event-projectile")
 				.since("1.0");
 		
 		if(Skript.classExists("com.destroystokyo.paper.event.entity.ProjectileCollideEvent"))
@@ -475,7 +367,7 @@ public class SimpleEvents {
 				.description("Called when a player enters a world. Does not work with other entities!")
 				.examples("on player world change:",
 						"	world is \"city\"",
-					 	"	send \"Welcome to the City!\"")
+						"	send \"Welcome to the City!\"")
 				.since("2.2-dev28");
 		Skript.registerEvent("Flight Toggle", SimpleEvent.class, PlayerToggleFlightEvent.class, "[player] flight toggl(e|ing)", "[player] toggl(e|ing) flight")
 				.description("Called when a players stops/starts flying.")
@@ -504,11 +396,11 @@ public class SimpleEvents {
 		if (Skript.classExists("org.bukkit.event.player.PlayerSwapHandItemsEvent")) {
 			Skript.registerEvent("Hand Item Swap", SimpleEvent.class, PlayerSwapHandItemsEvent.class, "swap[ping of] [(hand|held)] item[s]")
 					.description("Called whenever a player swaps the items in their main- and offhand slots.",
-						     "Works also when one or both of the slots are empty.",
-						     "The event is called before the items are actually swapped,",
-						     "so when you use the player's tool or player's offtool expressions,",
-						     "they will return the values before the swap -",
-						     "this enables you to cancel the event before anything happens.")
+							 "Works also when one or both of the slots are empty.",
+							 "The event is called before the items are actually swapped,",
+							 "so when you use the player's tool or player's offtool expressions,",
+							 "they will return the values before the swap -",
+							 "this enables you to cancel the event before anything happens.")
 					.examples("on swap hand items:",
 							"	event-player's tool is a diamond sword",
 							"	cancel event")
@@ -639,7 +531,7 @@ public class SimpleEvents {
 		if (Skript.classExists("com.destroystokyo.paper.event.block.AnvilDamagedEvent")) {
 			Skript.registerEvent("Anvil Damage", SimpleEvent.class, AnvilDamagedEvent.class, "anvil damag(e|ing)")
 				.description("Called when an anvil is damaged/broken from being used to repair/rename items.",
-					 		 "Note: this does not include anvil damage from falling.")
+							 "Note: this does not include anvil damage from falling.")
 				.requiredPlugins("Paper")
 				.examples("on anvil damage:",
 					"\tcancel the event")
@@ -685,7 +577,7 @@ public class SimpleEvents {
 					)
 					.since("2.7");
 		}
-    
+
 		//noinspection deprecation
 		Skript.registerEvent("Chat", SimpleEvent.class, AsyncPlayerChatEvent.class, "chat")
 			.description(
@@ -703,21 +595,7 @@ public class SimpleEvents {
 				"\t\tset chat format to \"&lt;orange&gt;[player]&lt;light gray&gt;: &lt;white&gt;[message]\""
 			)
 			.since("1.4.1");
-		if (Skript.classExists("org.bukkit.event.world.LootGenerateEvent")) {
-			Skript.registerEvent("Loot Generate", SimpleEvent.class, LootGenerateEvent.class, "loot generat(e|ing)")
-					.description(
-						"Called when a loot table of an inventory is generated in the world.",
-						"For example, when opening a shipwreck chest."
-					)
-					.examples(
-						"on loot generate:",
-						"\tchance of 10%",
-						"\tadd 64 diamonds to the loot",
-						"\tsend \"You hit the jackpot at %event-location%!\""
-					)
-					.since("2.7")
-					.requiredPlugins("MC 1.16+");
-		}
+
 		if (Skript.classExists("io.papermc.paper.event.player.PlayerDeepSleepEvent")) {
 			Skript.registerEvent("Player Deep Sleep", SimpleEvent.class, PlayerDeepSleepEvent.class, "[player] deep sleep[ing]")
 					.description(
@@ -823,6 +701,23 @@ public class SimpleEvents {
 					.requiredPlugins("Paper");
 		}
 
+		if (Skript.classExists("io.papermc.paper.event.player.PlayerChangeBeaconEffectEvent")) {
+			Skript.registerEvent("Beacon Change Effect", SimpleEvent.class, PlayerChangeBeaconEffectEvent.class,
+					"beacon change effect", "beacon effect change", "player chang(e[s]|ing) [of] beacon effect")
+				.description("Called when a player changes the effects of a beacon.")
+				.examples(
+					"on beacon effect change:",
+						"\tbroadcast event-player",
+						"\tbroadcast event-block",
+						"\tbroadcast primary beacon effect",
+						"\tbroadcast secondary beacon effect",
+					"on beacon change effect:",
+					"on player change beacon effect:"
+				)
+				.since("INSERT VERSION")
+				.requiredPlugins("Paper");
+		}
+
 		Skript.registerEvent("Broadcast", SimpleEvent.class, BroadcastMessageEvent.class, "broadcast")
 			.description("Called when a message is broadcasted.")
 			.examples(
@@ -845,5 +740,29 @@ public class SimpleEvents {
 			)
 			.since("INSERT VERSION");
 
+		Skript.registerEvent("Vehicle Move", SimpleEvent.class, VehicleMoveEvent.class, "vehicle move")
+			.description(
+				"Called when a vehicle moves.",
+				"Please note that using this event can cause lag if there are multiple vehicle entities, i.e. Horse, Pig, Boat, Minecart")
+			.examples(
+				"on vehicle move:",
+					"\tbroadcast past event-location",
+					"\tbroadcast event-location"
+			)
+			.since("INSERT VERSION");
+
+		if (Skript.classExists("com.destroystokyo.paper.event.player.PlayerElytraBoostEvent")) {
+			Skript.registerEvent("Elytra Boost", SimpleEvent.class, PlayerElytraBoostEvent.class, "elytra boost")
+				.description("Called when a player uses a firework to boost their fly speed when flying with an elytra.")
+				.examples(
+					"on elytra boost:",
+						"\tif the used firework will be consumed:",
+							"\t\tprevent the used firework from being consume"
+				)
+				.requiredPlugins("Paper")
+				.since("INSERT VERSION");
+		}
+
 	}
+
 }

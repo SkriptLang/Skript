@@ -1,27 +1,4 @@
-/**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
 package ch.njol.skript.expressions.base;
-
-import java.lang.reflect.Array;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Map.Entry;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptAPIException;
@@ -39,11 +16,16 @@ import ch.njol.skript.log.ParseLogHandler;
 import ch.njol.skript.log.SkriptLogger;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.registrations.EventValues;
-import ch.njol.skript.util.Getter;
 import ch.njol.skript.util.Utils;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.converter.Converter;
+
+import java.lang.reflect.Array;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
 
 /**
  * A useful class for creating default expressions. It simply returns the event value of the given type.
@@ -78,7 +60,7 @@ public class EventValueExpression<T> extends SimpleExpression<T> implements Defa
 		Skript.registerExpression(expression, type, ExpressionType.EVENT, "[the] " + pattern);
 	}
 
-	private final Map<Class<? extends Event>, Getter<? extends T, ?>> getters = new HashMap<>();
+	private final Map<Class<? extends Event>, Converter<?, ? extends T>> converters = new HashMap<>();
 
 	private final Class<?> componentType;
 	private final Class<? extends T> type;
@@ -133,8 +115,8 @@ public class EventValueExpression<T> extends SimpleExpression<T> implements Defa
 				return false;
 			}
 			for (Class<? extends Event> event : events) {
-				if (getters.containsKey(event)) {
-					hasValue = getters.get(event) != null;
+				if (converters.containsKey(event)) {
+					hasValue = converters.get(event) != null;
 					continue;
 				}
 				if (EventValues.hasMultipleGetters(event, type, getTime()) == Kleenean.TRUE) {
@@ -143,14 +125,14 @@ public class EventValueExpression<T> extends SimpleExpression<T> implements Defa
 							"You must define which " + typeName + " to use.");
 					return false;
 				}
-				Getter<? extends T, ?> getter;
+				Converter<?, ? extends T> converter;
 				if (exact) {
-					getter = EventValues.getExactEventValueGetter(event, type, getTime());
+					converter = EventValues.getExactEventValueGetter(event, type, getTime());
 				} else {
-					getter = EventValues.getEventValueGetter(event, type, getTime());
+					converter = EventValues.getEventValueGetter(event, type, getTime());
 				}
-				if (getter != null) {
-					getters.put(event, getter);
+				if (converter != null) {
+					converters.put(event, converter);
 					hasValue = true;
 				}
 			}
@@ -186,19 +168,19 @@ public class EventValueExpression<T> extends SimpleExpression<T> implements Defa
 	@Nullable
 	@SuppressWarnings("unchecked")
 	private <E extends Event> T getValue(E event) {
-		if (getters.containsKey(event.getClass())) {
-			final Getter<? extends T, ? super E> g = (Getter<? extends T, ? super E>) getters.get(event.getClass());
-			return g == null ? null : g.get(event);
+		if (converters.containsKey(event.getClass())) {
+			final Converter<? super E, ? extends T> g = (Converter<? super E, ? extends T>) converters.get(event.getClass());
+			return g == null ? null : g.convert(event);
 		}
 
-		for (final Entry<Class<? extends Event>, Getter<? extends T, ?>> p : getters.entrySet()) {
+		for (final Entry<Class<? extends Event>, Converter<?, ? extends T>> p : converters.entrySet()) {
 			if (p.getKey().isAssignableFrom(event.getClass())) {
-				getters.put(event.getClass(), p.getValue());
-				return p.getValue() == null ? null : ((Getter<? extends T, ? super E>) p.getValue()).get(event);
+				converters.put(event.getClass(), p.getValue());
+				return p.getValue() == null ? null : ((Converter<? super E, ? extends T>) p.getValue()).convert(event);
 			}
 		}
 
-		getters.put(event.getClass(), null);
+		converters.put(event.getClass(), null);
 
 		return null;
 	}
@@ -237,7 +219,7 @@ public class EventValueExpression<T> extends SimpleExpression<T> implements Defa
 			if (has) {
 				super.setTime(time);
 				// Since the time was changed, we now need to re-initialize the getters we already got. START
-				getters.clear();
+				converters.clear();
 				init();
 				// END
 				return true;

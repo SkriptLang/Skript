@@ -8,34 +8,29 @@ import ch.njol.skript.config.Node;
 import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.entity.EntityData;
 import ch.njol.skript.lang.parser.ParserInstance;
-import ch.njol.skript.localization.ArgsMessage;
-import ch.njol.skript.localization.Language;
-import ch.njol.skript.localization.Message;
-import ch.njol.skript.localization.Noun;
-import ch.njol.skript.localization.RegexMessage;
+import ch.njol.skript.localization.*;
 import ch.njol.skript.log.BlockingLogHandler;
 import ch.njol.skript.util.EnchantmentType;
 import ch.njol.skript.util.Utils;
 import ch.njol.skript.util.Version;
-import java.io.IOException;
-import java.io.UncheckedIOException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.nio.file.FileSystem;
-import java.nio.file.FileSystems;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.HashMap;
-import java.util.Locale;
-import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.script.Script;
+
+import java.io.IOException;
+import java.io.UncheckedIOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.nio.file.*;
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.Map;
+import java.util.concurrent.CompletableFuture;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public abstract class Aliases {
 	static final boolean USING_ITEM_COMPONENTS = Skript.isRunningMinecraft(1, 20, 5);
@@ -371,7 +366,10 @@ public abstract class Aliases {
 	/**
 	 * Loads aliases from Skript's standard locations.
 	 * Exceptions will be logged, but not thrown.
+	 *
+	 * @deprecated Freezes server on call. Use {@link #loadAsync()} instead.
 	 */
+	@Deprecated
 	public static void load() {
 		try {
 			long start = System.currentTimeMillis();
@@ -380,6 +378,44 @@ public abstract class Aliases {
 		} catch (IOException e) {
 			Skript.exception(e);
 		}
+	}
+
+	/**
+	 * Loads aliases from Skript's standard locations asynchronously.
+	 * Exceptions will be logged, but not thrown.
+	 *
+	 * @return A future that completes when the aliases are loaded.
+	 * The returned value is true if the loading was successful, false otherwise.
+	 */
+	public static CompletableFuture<Boolean> loadAsync() {
+		return CompletableFuture.supplyAsync(() -> {
+			try {
+				long start = System.currentTimeMillis();
+				loadInternal();
+				Skript.info("Loaded " + provider.getAliasCount() + " aliases in " + (System.currentTimeMillis() - start) + "ms");
+				return true;
+			} catch (StackOverflowError e) {
+				/*
+				 * Returns true if the underlying installed Java/JVM is 32-bit, false otherwise.
+				 * Note that this depends on a internal system property and these can always be overridden by user using -D JVM options,
+				 * more specifically, this method will return false on non OracleJDK/OpenJDK based JVMs, that don't include bit information in java.vm.name system property
+				 */
+				if (System.getProperty("java.vm.name").contains("32")) {
+					Skript.error("");
+					Skript.error("There was a StackOverflowError that occurred while loading aliases.");
+					Skript.error("As you are currently using 32-bit Java, please update to 64-bit Java to resolve the error.");
+					Skript.error("Please report this issue to our GitHub only if updating to 64-bit Java does not fix the issue.");
+					Skript.error("");
+				} else {
+					Skript.exception(e);
+					Bukkit.getPluginManager().disablePlugin(Skript.getInstance());
+				}
+				return false;
+			} catch (IOException e) {
+				Skript.exception(e);
+				return false;
+			}
+		});
 	}
 
 	/**
@@ -411,12 +447,7 @@ public abstract class Aliases {
 			Skript.warning("An item that has the id 'mod:item' can be used as 'mod's item' or 'item from mod'.");
 			Skript.warning("WARNING: Skript does not officially support any modded servers.");
 			Skript.warning("Any issues you encounter related to modded items will be your responsibility to fix.");
-			Skript.warning("The server will keep loading after 5 seconds.");
 			Skript.warning("==============================================================");
-			try {
-				Thread.sleep(5000L);
-			} catch (InterruptedException ignored) {
-			}
 		}
 	}
 

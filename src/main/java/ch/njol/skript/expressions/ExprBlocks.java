@@ -1,21 +1,3 @@
-/**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
 package ch.njol.skript.expressions;
 
 import java.util.Iterator;
@@ -56,9 +38,11 @@ import ch.njol.util.coll.iterator.ArrayIterator;
 @Since("1.0, 2.5.1 (within/cuboid/chunk)")
 public class ExprBlocks extends SimpleExpression<Block> {
 
+	private static final boolean SUPPORTS_WORLD_LOADED = Skript.methodExists(Location.class, "isWorldLoaded");
+
 	static {
 		Skript.registerExpression(ExprBlocks.class, Block.class, ExpressionType.COMBINED,
-				"[(all [[of] the]|the)] blocks %direction% [%locations%]", // TODO doesn't loop all blocks?
+				"[(all [[of] the]|the)] blocks %direction% [%locations%]",
 				"[(all [[of] the]|the)] blocks from %location% [on] %direction%",
 				"[(all [[of] the]|the)] blocks from %location% to %location%",
 				"[(all [[of] the]|the)] blocks between %location% and %location%",
@@ -116,7 +100,11 @@ public class ExprBlocks extends SimpleExpression<Block> {
 			return from.stream(event)
 					.filter(Location.class::isInstance)
 					.map(Location.class::cast)
-				    .filter(Location::isWorldLoaded)
+				    .filter(location -> {
+						if (SUPPORTS_WORLD_LOADED)
+							return location.isWorldLoaded();
+						return location.getChunk().isLoaded();
+					})
 					.map(direction::getRelative)
 					.map(Location::getBlock)
 					.toArray(Block[]::new);
