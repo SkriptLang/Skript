@@ -11,8 +11,8 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.event.Event;
 import org.bukkit.spawner.BaseSpawner;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.bukkit.spawner.util.TrialSpawnerConfig;
 import org.skriptlang.skript.bukkit.spawner.util.SpawnerUtils;
+import org.skriptlang.skript.bukkit.spawner.util.TrialSpawnerConfig;
 
 @Name("Spawner Type")
 @Description("Retrieves, sets, or resets the spawner's entity type")

@@ -18,10 +18,10 @@ import org.bukkit.entity.Entity;
 import org.bukkit.event.entity.SpawnerSpawnEvent;
 import org.bukkit.event.entity.TrialSpawnerSpawnEvent;
 import org.bukkit.inventory.EquipmentSlot;
-import org.skriptlang.skript.bukkit.spawner.util.TrialSpawnerConfig;
-import org.skriptlang.skript.bukkit.spawner.util.TrialSpawnerReward;
 import org.skriptlang.skript.bukkit.spawner.util.SpawnerEquipmentWrapper;
 import org.skriptlang.skript.bukkit.spawner.util.SpawnerEquipmentWrapper.DropChance;
+import org.skriptlang.skript.bukkit.spawner.util.TrialSpawnerConfig;
+import org.skriptlang.skript.bukkit.spawner.util.TrialSpawnerReward;
 
 import java.io.IOException;
 import java.util.StringJoiner;

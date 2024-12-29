@@ -9,6 +9,8 @@ import ch.njol.skript.lang.SyntaxStringBuilder;
 import ch.njol.util.Kleenean;
 import org.bukkit.block.Block;
 import org.bukkit.block.TrialSpawner;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
@@ -52,8 +54,10 @@ public class ExprTrackedEntities extends PropertyExpression<Block, Object> {
 	}
 
 	@Override
-	public Class<? extends Object[]> getReturnType() {
-		return Object[].class;
+	public Class<?> getReturnType() {
+		if (players)
+			return Player.class;
+		return Entity.class;
 	}
 
 	@Override

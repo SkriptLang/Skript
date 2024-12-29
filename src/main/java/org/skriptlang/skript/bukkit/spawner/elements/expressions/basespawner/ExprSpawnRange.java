@@ -6,8 +6,8 @@ import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.event.Event;
 import org.bukkit.spawner.BaseSpawner;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.bukkit.spawner.util.TrialSpawnerConfig;
 import org.skriptlang.skript.bukkit.spawner.util.SpawnerUtils;
+import org.skriptlang.skript.bukkit.spawner.util.TrialSpawnerConfig;
 
 public class ExprSpawnRange extends SimplePropertyExpression<Object, Integer> {
 

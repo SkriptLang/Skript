@@ -10,8 +10,8 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.spawner.BaseSpawner;
 import org.bukkit.spawner.Spawner;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.bukkit.spawner.util.TrialSpawnerConfig;
 import org.skriptlang.skript.bukkit.spawner.util.SpawnerUtils;
+import org.skriptlang.skript.bukkit.spawner.util.TrialSpawnerConfig;
 
 public class ExprSpawnedEntity extends SimplePropertyExpression<Object, EntitySnapshot> {
 
