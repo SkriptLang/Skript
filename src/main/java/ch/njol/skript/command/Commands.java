@@ -59,7 +59,7 @@ public abstract class Commands {
 	/**
 	 * A Converter flag declaring that a Converter cannot be used for parsing command arguments.
 	 */
-	public static final int CONVERTER_NO_COMMAND_ARGUMENTS = 4;
+	public static final int CONVERTER_NO_COMMAND_ARGUMENTS = 8;
 
 	private final static Map<String, ScriptCommand> commands = new HashMap<>();
 

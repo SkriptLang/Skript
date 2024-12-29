@@ -4,6 +4,7 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.bukkitutil.InventoryUtils;
 import ch.njol.skript.command.CommandEvent;
+import ch.njol.skript.command.ScriptCommandEvent;
 import ch.njol.skript.events.bukkit.ScriptEvent;
 import ch.njol.skript.events.bukkit.SkriptStartEvent;
 import ch.njol.skript.events.bukkit.SkriptStopEvent;
@@ -26,6 +27,7 @@ import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.data.BlockData;
+import org.bukkit.command.BlockCommandSender;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.*;
 import org.bukkit.event.block.*;
@@ -371,11 +373,34 @@ public final class BukkitEventValues {
 
 		// === CommandEvents ===
 		// PlayerCommandPreprocessEvent is a PlayerEvent
-		EventValues.registerEventValue(ServerCommandEvent.class, CommandSender.class, ServerCommandEvent::getSender);
-		EventValues.registerEventValue(CommandEvent.class, String[].class, CommandEvent::getArgs);
-		EventValues.registerEventValue(CommandEvent.class, CommandSender.class, CommandEvent::getSender);
-		EventValues.registerEventValue(CommandEvent.class, World.class,
-			event -> event.getSender() instanceof Player player ? player.getWorld() : null);
+		EventValues.registerEventValue(ServerCommandEvent.class, CommandSender.class, new Getter<CommandSender, ServerCommandEvent>() {
+			@Override
+			@Nullable
+			public CommandSender get(final ServerCommandEvent e) {
+				return e.getSender();
+			}
+		});
+		EventValues.registerEventValue(CommandEvent.class, String[].class, new Getter<String[], CommandEvent>() {
+			@Override
+			public String[] get(CommandEvent event) {
+				return event.getArgs();
+			}
+		});
+		EventValues.registerEventValue(CommandEvent.class, CommandSender.class, new Getter<CommandSender, CommandEvent>() {
+			@Override
+			public CommandSender get(final CommandEvent e) {
+				return e.getSender();
+			}
+		});
+		EventValues.registerEventValue(CommandEvent.class, World.class, new Getter<World, CommandEvent>() {
+			@Override
+			@Nullable
+			public World get(final CommandEvent e) {
+				return e.getSender() instanceof Player ? ((Player) e.getSender()).getWorld() : null;
+			}
+		});
+		EventValues.registerEventValue(CommandEvent.class, Block.class,
+			event -> event.getSender() instanceof BlockCommandSender sender ? sender.getBlock() : null);
 
 		// === ServerEvents ===
 		// Script load/unload event
