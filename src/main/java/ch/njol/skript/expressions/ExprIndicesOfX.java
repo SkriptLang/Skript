@@ -52,7 +52,11 @@ public class ExprIndicesOfX extends SimpleExpression<String> {
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		if (!(exprs[1] instanceof Variable<?> var) || !var.isList()) {
+		if (!(exprs[1] instanceof Variable<?> var)) {
+			Skript.error("'" + exprs[1].toString(null, false) + "' is not a list variable.");
+			return false;
+		}
+		if (!var.isList()) {
 			Skript.error("'" + exprs[1].toString(null, false) +
 					"' can only ever have one value at most, thus the 'indices of x in list' expression has no effect.");
 			return false;
