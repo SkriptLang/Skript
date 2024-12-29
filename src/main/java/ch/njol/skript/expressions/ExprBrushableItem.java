@@ -44,7 +44,7 @@ public class ExprBrushableItem extends SimplePropertyExpression<Block, ItemStack
 	}
 
 	@Override
-	public Class<?>[] acceptChange(ChangeMode mode) {
+	public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
 		if (mode == ChangeMode.SET || mode == ChangeMode.DELETE) {
 			return CollectionUtils.array(ItemStack.class);
 		}
@@ -52,7 +52,7 @@ public class ExprBrushableItem extends SimplePropertyExpression<Block, ItemStack
 	}
 
 	@Override
-	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
+	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
 		if (mode == ChangeMode.SET || mode == ChangeMode.DELETE) {
 			ItemStack newItem = (mode == ChangeMode.SET) ? (ItemStack) delta[0] : null;
 			for (Block block : getExpr().getArray(event)) {
