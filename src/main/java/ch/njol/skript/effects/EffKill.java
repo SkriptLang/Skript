@@ -26,8 +26,7 @@ import org.jetbrains.annotations.Nullable;
 		"Note: This effect does not set the entity's health to 0 (which causes issues), but damages the entity by 100 times its maximum health."})
 @Examples({"kill the player",
 		"kill all creepers in the player's world",
-		"kill all endermen, witches and bats",
-})
+		"kill all endermen, witches and bats"})
 @Since("1.0")
 public class EffKill extends Effect {
 
