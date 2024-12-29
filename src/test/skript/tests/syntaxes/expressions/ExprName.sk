@@ -29,5 +29,19 @@ using script reflection
 
 test "script name (new)":
 	set {_name} to the script's name
-	assert the script's name is "ExprName" with "script name is wrong"
+	assert {_name} is "ExprName" with "script name is wrong"
 	# New behaviour includes just the name, since path is available by string-ifying the script
+
+test "function name (new)":
+	set {_function} to the function named "testExprName"
+	set {_name} to {_function}'s name
+	assert {_name} is "testExprName" with "function name is wrong"
+
+	# we want to make sure any brackets don't somehow get included
+	set {_function} to the function named "testExprName()"
+	set {_name} to {_function}'s name
+	assert {_name} is "testExprName" with "function name is wrong"
+
+local function testExprName():
+	# do nothing
+	stop

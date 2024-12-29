@@ -19,8 +19,6 @@ import org.skriptlang.skript.lang.script.Script;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 @Name("All Scripts (Experimental)")
 @Description("Returns all of the scripts, or just the enabled or disabled ones.")

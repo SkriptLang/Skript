@@ -1,11 +1,13 @@
 package ch.njol.skript.config;
 
 import ch.njol.skript.Skript;
+import ch.njol.skript.lang.util.common.AnyNamed;
 import ch.njol.skript.log.SkriptLogger;
 import ch.njol.util.NonNullPair;
 import ch.njol.util.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.UnknownNullability;
 
 import java.io.PrintWriter;
 import java.util.*;
@@ -14,7 +16,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 /**
  * @author Peter Güttinger
  */
-public abstract class Node {
+public abstract class Node implements AnyNamed {
 
 	@Nullable
 	protected String key;
@@ -459,6 +461,11 @@ public abstract class Node {
 		String lastValue = path.get(lastIndex);
 		path.set(lastIndex, lastValue.substring(0, lastValue.length() - 1)); // trim trailing dot
 		return path.toArray(new String[0]);
+	}
+
+	@Override
+	public @UnknownNullability String name() {
+		return this.getKey();
 	}
 
 	@Override

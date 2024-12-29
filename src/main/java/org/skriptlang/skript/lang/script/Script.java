@@ -1,8 +1,10 @@
 package org.skriptlang.skript.lang.script;
 
 import ch.njol.skript.config.Config;
+import ch.njol.skript.lang.util.common.AnyNamed;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.UnknownNullability;
 import org.jetbrains.annotations.Unmodifiable;
 import org.skriptlang.skript.util.event.EventRegistry;
 import org.skriptlang.skript.lang.structure.Structure;
@@ -23,7 +25,7 @@ import java.util.function.Supplier;
  * Every script also has its own internal information, such as
  *  custom data, suppressed warnings, and associated event handlers.
  */
-public final class Script implements Validated {
+public final class Script implements Validated, AnyNamed {
 
 	private final Config config;
 
@@ -143,6 +145,26 @@ public final class Script implements Validated {
 	@SuppressWarnings("unchecked")
 	public <Value extends ScriptData> Value getData(Class<? extends Value> dataType, Supplier<Value> mapper) {
 		return (Value) scriptData.computeIfAbsent(dataType, clazz -> mapper.get());
+	}
+
+	@Override
+	public String name() {
+		return config.name();
+	}
+
+	/**
+	 * This is added to support the legacy script name syntax.
+	 * Script names used to be printed including their directory but excluding their file extension.
+	 *
+	 * @return The script's name, including its path from the script directory, e.g. `games/murder mystery`
+	 */
+	public String nameAndPath() {
+		String name = config.getFileName();
+		if (name == null)
+			return null;
+		if (name.contains("."))
+			return name.substring(0, name.lastIndexOf('.'));
+		return name;
 	}
 
 	// Script Events

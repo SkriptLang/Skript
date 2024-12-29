@@ -2,10 +2,9 @@ package ch.njol.skript.config;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.config.validate.SectionValidator;
+import ch.njol.skript.lang.util.common.AnyNamed;
 import com.google.common.base.Preconditions;
-import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -24,14 +23,13 @@ import java.util.Map;
 import java.util.Set;
 
 import ch.njol.skript.log.SkriptLogger;
-import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
  * Represents a config file.
  */
-public class Config implements Comparable<Config> {
+public class Config implements Comparable<Config>, AnyNamed {
 
 	/**
 	 * One level of the indentation, e.g. a tab or 4 spaces.
@@ -399,27 +397,26 @@ public class Config implements Comparable<Config> {
 		return " " + separator + " ";
 	}
 
-	@NotNull String getIndentation() {
-		return indentation;
-	}
-
-	@NotNull String getIndentationName() {
-		return indentationName;
-	}
-
-	public @NotNull SectionNode getMainNode() {
-		return main;
-	}
-
-	public @NotNull String getFileName() {
-		return fileName;
-	}
-
 	@Override
 	public int compareTo(@Nullable Config other) {
 		if (other == null)
 			return 0;
 		return fileName.compareTo(other.fileName);
+	}
+
+	/**
+	 * @return The name of this config (excluding path and file extensions)
+	 */
+	@Override
+	public String name() {
+		String name = this.getFileName();
+		if (name == null)
+			return null;
+		if (name.contains(File.separator))
+			name = name.substring(name.lastIndexOf(File.separator) + 1);
+		if (name.contains("."))
+			return name.substring(0, name.lastIndexOf('.'));
+		return name;
 	}
 
 }
