@@ -1,13 +1,17 @@
 package org.skriptlang.skript.test.tests.syntaxes.events;
 
 import ch.njol.skript.Skript;
+import ch.njol.skript.effects.EffExplosion;
 import ch.njol.skript.test.runner.SkriptJUnitTest;
 import ch.njol.skript.util.SkriptColor;
 import org.bukkit.Bukkit;
+import org.bukkit.ExplosionResult;
 import org.bukkit.FireworkEffect;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Firework;
+import org.bukkit.entity.Pig;
 import org.bukkit.event.Event;
+import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.entity.FireworkExplodeEvent;
 import org.bukkit.inventory.meta.FireworkMeta;
 import org.junit.After;
@@ -17,22 +21,26 @@ import org.junit.Test;
 import java.util.ArrayList;
 import java.util.List;
 
-public class EvtFireworkTest extends SkriptJUnitTest {
+public class EvtExplodeTest extends SkriptJUnitTest {
+
+	private Pig pig;
 
 	private EntityType entityType;
-	private List<Firework> fireworkList = new ArrayList<>();
+	private final List<Firework> fireworkList = new ArrayList<>();
 
 	@Before
-	public void getEntity() {
+	public void before() {
 		if (Skript.isRunningMinecraft(1, 20, 5)) {
 			entityType = EntityType.FIREWORK_ROCKET;
 		} else {
 			entityType = EntityType.valueOf("FIREWORK");
 		}
+
+		pig = spawnTestPig();
 	}
 
 	@Test
-	public void callEvents() {
+	public void test() {
 		List<Event> events = new ArrayList<>();
 		for (SkriptColor color : SkriptColor.values()) {
 			Firework firework = (Firework) getTestWorld().spawnEntity(getTestLocation(), entityType);
@@ -44,13 +52,19 @@ public class EvtFireworkTest extends SkriptJUnitTest {
 			events.add(new FireworkExplodeEvent(firework));
 		}
 
+		events.add(new EffExplosion.ScriptExplodeEvent(getTestLocation(), 10));
+		events.add(new EntityExplodeEvent(pig, getTestLocation(), List.of(), 10,
+			ExplosionResult.DESTROY_WITH_DECAY));
+
 		for (Event event : events) {
 			Bukkit.getPluginManager().callEvent(event);
 		}
 	}
 
 	@After
-	public void cleanUp() {
+	public void after() {
+		pig.remove();
+
 		for (Firework firework : fireworkList) {
 			firework.remove();
 		}
