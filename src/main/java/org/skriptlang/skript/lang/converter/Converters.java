@@ -286,8 +286,13 @@ public final class Converters {
 
 		// Attempt to find converters that have either 'from' OR 'to' not exactly matching
 		for (ConverterInfo<?, ?> unknownInfo : CONVERTERS) {
+			int flags = unknownInfo.getFlags();
 			if (unknownInfo.getFrom().isAssignableFrom(fromType) && unknownInfo.getTo().isAssignableFrom(toType)) {
 				ConverterInfo<F, ParentType> info = (ConverterInfo<F, ParentType>) unknownInfo;
+				if ((flags & Converter.ALLOW_UNSAFE_CASTS) == 0) {
+					if ((flags & Converter.NO_RIGHT_CHAINING) == Converter.NO_RIGHT_CHAINING)
+						continue;
+				}
 
 				// 'to' doesn't exactly match and needs to be filtered
 				// Basically, this converter might convert 'F' into something that's shares a parent with 'T'
@@ -301,6 +306,10 @@ public final class Converters {
 
 			} else if (fromType.isAssignableFrom(unknownInfo.getFrom()) && toType.isAssignableFrom(unknownInfo.getTo())) {
 				ConverterInfo<SubType, T> info = (ConverterInfo<SubType, T>) unknownInfo;
+				if ((flags & Converter.ALLOW_UNSAFE_CASTS) == 0) {
+					if ((flags & Converter.NO_LEFT_CHAINING) == Converter.NO_LEFT_CHAINING)
+						continue;
+				}
 
 				// 'from' doesn't exactly match and needs to be filtered
 				// Basically, this converter will only convert certain 'F' objects
@@ -318,6 +327,13 @@ public final class Converters {
 		for (ConverterInfo<?, ?> unknownInfo : CONVERTERS) {
 			if (fromType.isAssignableFrom(unknownInfo.getFrom()) && unknownInfo.getTo().isAssignableFrom(toType)) {
 				ConverterInfo<SubType, ParentType> info = (ConverterInfo<SubType, ParentType>) unknownInfo;
+				int flags = unknownInfo.getFlags();
+				if ((flags & Converter.ALLOW_UNSAFE_CASTS) == 0) {
+					if ((flags & Converter.NO_LEFT_CHAINING) == Converter.NO_LEFT_CHAINING)
+						continue;
+					if ((flags & Converter.NO_RIGHT_CHAINING) == Converter.NO_RIGHT_CHAINING)
+						continue;
+				}
 
 				// 'from' and 'to' both don't exactly match and need to be filtered
 				// Basically, this converter will only convert certain 'F' objects
