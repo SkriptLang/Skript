@@ -79,7 +79,7 @@ public class ExprSecCreateWorldBorder extends SectionExpression<WorldBorder> {
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return "a new worldborder";
+		return "a worldborder";
 	}
 
 	public static class CreateWorldborderEvent extends Event {
