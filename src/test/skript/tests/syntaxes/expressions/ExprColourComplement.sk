@@ -1,0 +1,21 @@
+test "colour complements":
+
+	set {_bluesComplement} to complementary colour of blue
+	set {_bluesHslComplement} to hsl complementary colour of blue
+	set {_bluesComplementsComplement} to complementary colour of {_bluesComplement}
+	set {_bluesHslComplementsHslComplement} to hsl complementary colour of {_bluesHslComplement}
+	set {_trueBlacksComplement} to complementary colour of rgb(0, 0, 0)
+	set {_trueBlacksHslComplement} to hsl complementary colour of rgb(0, 0, 0)
+	set {_trueWhitesComplement} to complementary colour of rgb(255, 255, 255)
+	set {_trueWhitesHslComplement} to hsl complementary colour of rgb(255, 255, 255)
+
+	assert hex code of {_bluesComplement} is "#C3BB55" with "complement of blue was incorrect"
+	assert hex code of {_bluesHslComplement} is "#AAA23C" with "hsl complement of blue was incorrect"
+	assert hex code of {_bluesComplementsComplement} is hex code of blue with "complement of blue's complement was incorrect"
+	assert hex code of {_bluesHslComplementsHslComplement} is hex code of blue with "hsl complement of blue's hsl complement was incorrect"
+	assert hex code of {_trueBlacksComplement} is "#FFFFFF" with "complement of true black was incorrect"
+	assert hex code of {_trueBlacksHslComplement} is "#000000" with "hsl complement of true black was incorrect"
+	assert hex code of {_trueWhitesComplement} is "#000000" with "complement of true white was incorrect"
+	assert hex code of {_trueWhitesHslComplement} is "#FFFFFF" with "hsl complement of true white was incorrect"
+
+	assert complementary colour of {_x} is not set with "complement of an invalid type should return null"

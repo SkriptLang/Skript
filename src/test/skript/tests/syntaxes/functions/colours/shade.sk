@@ -1,0 +1,19 @@
+test "colour shades":
+
+	set {_redShade} to shade(red)
+	set {_redShade10} to shade(red, 10)
+	set {_redShade100} to shade(red, 100)
+	set {_redShadeHsl} to shade(red, 1, true)
+	set {_redShadeNegative} to shade(red, -4)
+	set {_redShadeInfinity} to shade(red, infinity value)
+	set {_redShadeNan} to shade(red, nan value)
+
+	assert hex code of {_redShade} is "#AE2D25" with "hex code of red shaded by 1 was incorrect"
+	assert hex code of {_redShade10} is "#9E2922" with "hex code of red shaded by 10 was incorrect"
+	assert hex code of {_redShade100} is "#000000" with "hex code of red shaded by 100 was incorrect"
+	assert hex code of {_redShadeHsl} is "#AE2E26" with "hex code of red shaded by 1 using hsl methods was incorrect"
+	assert hex code of {_redShadeNegative} is "#AE2D25" with "shading a colour by a negative amount should clamp between 1 and 100"
+	assert hex code of {_redShadeInfinity} is "#AE2D25" with "shading a colour by infinity should clamp between 1 and 100"
+	assert hex code of {_redShadeNan} is "#AE2D25" with "shading a colour by nan should clamp between 1 and 100"
+
+	assert shade({_x}) is not set with "shading an invalid type shouldn't return anything"

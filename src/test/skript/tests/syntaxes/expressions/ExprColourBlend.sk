@@ -1,0 +1,11 @@
+test "colour blends":
+
+	set {_redAndBlue} to red blended with blue
+	set {_blackAndYellow} to black blended with yellow
+	set {_pinkAndPurple} to pink blended with purple by an amount of 20
+
+	assert hex of {_redAndBlue} is "#763968" with "hex of red and blue blended together was incorrect"
+	assert hex of {_blackAndYellow} is "#8D7A2F" with "hex of black and yellow blended together was incorrect"
+	assert hex of {_pinkAndPurple} is "#DD79AC" with "hex of pink and purple blended together by an amount of 20%% was incorrect"
+
+	assert {_x} blended with {_y} is not set with "blending invalid types should return null"

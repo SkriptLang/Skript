@@ -29,7 +29,6 @@ import ch.njol.skript.lang.SyntaxElementInfo;
 import ch.njol.skript.lang.Trigger;
 import ch.njol.skript.lang.TriggerItem;
 import ch.njol.skript.lang.util.SimpleExpression;
-import ch.njol.skript.localization.ArgsMessage;
 import ch.njol.skript.localization.Language;
 import ch.njol.skript.localization.Message;
 import ch.njol.skript.localization.PluralizingArgsMessage;
@@ -71,7 +70,6 @@ import com.google.common.collect.Lists;
 import com.google.gson.Gson;
 
 import org.bstats.bukkit.Metrics;
-import org.bstats.charts.SimplePie;
 import org.bukkit.*;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.PluginCommand;
@@ -109,6 +107,7 @@ import org.skriptlang.skript.lang.experiment.ExperimentRegistry;
 import org.skriptlang.skript.lang.script.Script;
 import org.skriptlang.skript.lang.structure.Structure;
 import org.skriptlang.skript.lang.structure.StructureInfo;
+import org.skriptlang.skript.common.colors.ColorModule;
 
 import java.io.File;
 import java.io.IOException;
@@ -551,6 +550,7 @@ public final class Skript extends JavaPlugin implements Listener {
 			BreedingModule.load();
 			DisplayModule.load();
 			InputModule.load();
+			ColorModule.load();
 			FurnaceModule.load();
 			LootTableModule.load();
 		} catch (final Exception e) {

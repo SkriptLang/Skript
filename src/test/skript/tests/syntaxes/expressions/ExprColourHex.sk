@@ -1,0 +1,20 @@
+test "hex codes":
+
+	assert hex code of black is raw "#1D1D21" with "black hex code was not correct"
+	assert hex code of dark grey is raw "#474F52" with "black hex code was not correct"
+	assert hex code of grey is raw "#9D9D97" with "black hex code was not correct"
+	assert hex code of white is raw "#F9FFFE" with "black hex code was not correct"
+	assert hex code of blue is raw "#3C44AA" with "black hex code was not correct"
+	assert hex code of brown is raw "#835432" with "black hex code was not correct"
+	assert hex code of cyan is raw "#169C9C" with "black hex code was not correct"
+	assert hex code of light cyan is raw "#3AB3DA" with "black hex code was not correct"
+	assert hex code of green is raw "#5E7C16" with "black hex code was not correct"
+	assert hex code of light green is raw "#80C71F" with "black hex code was not correct"
+	assert hex code of yellow is raw "#FED83D" with "black hex code was not correct"
+	assert hex code of orange is raw "#F9801D" with "black hex code was not correct"
+	assert hex code of red is raw "#B02E26" with "black hex code was not correct"
+	assert hex code of pink is raw "#F38BAA" with "black hex code was not correct"
+	assert hex code of purple is raw "#8932B8" with "black hex code was not correct"
+	assert hex code of magenta is raw "#C74EBD" with "black hex code was not correct"
+
+	assert hex code of {_x} is not set with "hex code of an invalid type shouldn't return anything"
