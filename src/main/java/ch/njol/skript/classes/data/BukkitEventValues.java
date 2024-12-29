@@ -373,32 +373,10 @@ public final class BukkitEventValues {
 
 		// === CommandEvents ===
 		// PlayerCommandPreprocessEvent is a PlayerEvent
-		EventValues.registerEventValue(ServerCommandEvent.class, CommandSender.class, new Getter<CommandSender, ServerCommandEvent>() {
-			@Override
-			@Nullable
-			public CommandSender get(final ServerCommandEvent e) {
-				return e.getSender();
-			}
-		});
-		EventValues.registerEventValue(CommandEvent.class, String[].class, new Getter<String[], CommandEvent>() {
-			@Override
-			public String[] get(CommandEvent event) {
-				return event.getArgs();
-			}
-		});
-		EventValues.registerEventValue(CommandEvent.class, CommandSender.class, new Getter<CommandSender, CommandEvent>() {
-			@Override
-			public CommandSender get(final CommandEvent e) {
-				return e.getSender();
-			}
-		});
-		EventValues.registerEventValue(CommandEvent.class, World.class, new Getter<World, CommandEvent>() {
-			@Override
-			@Nullable
-			public World get(final CommandEvent e) {
-				return e.getSender() instanceof Player ? ((Player) e.getSender()).getWorld() : null;
-			}
-		});
+		EventValues.registerEventValue(ServerCommandEvent.class, CommandSender.class, ServerCommandEvent::getSender);
+		EventValues.registerEventValue(CommandEvent.class, String[].class, CommandEvent::getArgs);
+		EventValues.registerEventValue(CommandEvent.class, CommandSender.class, CommandEvent::getSender);
+		EventValues.registerEventValue(CommandEvent.class, World.class, e -> e.getSender() instanceof Player ? ((Player) e.getSender()).getWorld() : null);
 		EventValues.registerEventValue(CommandEvent.class, Block.class,
 			event -> event.getSender() instanceof BlockCommandSender sender ? sender.getBlock() : null);
 
