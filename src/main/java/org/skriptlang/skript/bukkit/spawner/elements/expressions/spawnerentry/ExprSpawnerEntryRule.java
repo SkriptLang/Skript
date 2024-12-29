@@ -11,7 +11,7 @@ import org.jetbrains.annotations.Nullable;
 public class ExprSpawnerEntryRule extends SimplePropertyExpression<SpawnerEntry, SpawnRule> {
 
 	static {
-		register(ExprSpawnerEntryRule.class, SpawnRule.class, "spawner entry [spawn] rule", "spawnerentries");
+		registerDefault(ExprSpawnerEntryRule.class, SpawnRule.class, "spawner entry [spawn] rule", "spawnerentries");
 	}
 
 	@Override

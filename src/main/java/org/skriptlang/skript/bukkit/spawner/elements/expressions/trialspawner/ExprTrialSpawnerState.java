@@ -44,7 +44,7 @@ public class ExprTrialSpawnerState extends SimplePropertyExpression<Block, State
 				switch (mode) {
 					case SET -> {
 						// if no players nearby and the spawner is set to active, console gets spammed
-						if (spawner.getLocation().getNearbyEntitiesByType(Player.class, spawner.getRequiredPlayerRange()).isEmpty())
+						if (state == State.ACTIVE && spawner.getLocation().getNearbyEntitiesByType(Player.class, spawner.getRequiredPlayerRange()).isEmpty())
 							return;
 						trialSpawner.setTrialSpawnerState(state);
 					}

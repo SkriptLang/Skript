@@ -12,7 +12,7 @@ import org.jetbrains.annotations.Nullable;
 public class ExprSpawnerEntrySnapshot extends SimplePropertyExpression<SpawnerEntry, EntitySnapshot> {
 
 	static {
-		register(ExprSpawnerEntrySnapshot.class, EntitySnapshot.class, "spawner entry snapshot", "spawnerentries");
+		registerDefault(ExprSpawnerEntrySnapshot.class, EntitySnapshot.class, "spawner entry snapshot", "spawnerentries");
 	}
 
 	@Override

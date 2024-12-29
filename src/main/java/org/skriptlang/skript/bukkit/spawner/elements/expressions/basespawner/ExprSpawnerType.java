@@ -11,7 +11,7 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.event.Event;
 import org.bukkit.spawner.BaseSpawner;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.bukkit.spawner.trial.TrialSpawnerConfig;
+import org.skriptlang.skript.bukkit.spawner.util.TrialSpawnerConfig;
 import org.skriptlang.skript.bukkit.spawner.util.SpawnerUtils;
 
 @Name("Spawner Type")
@@ -30,7 +30,7 @@ public class ExprSpawnerType extends SimplePropertyExpression<Object, EntityData
 	}
 
 	@Nullable
-	public EntityData convert(Object object) {
+	public EntityData<?> convert(Object object) {
 		if (SpawnerUtils.isBaseSpawner(object))
 			return EntityUtils.toSkriptEntityData(SpawnerUtils.getAsBaseSpawner(object).getSpawnedType());
 		return null;
@@ -40,7 +40,7 @@ public class ExprSpawnerType extends SimplePropertyExpression<Object, EntityData
 	@Override
 	public Class<?>[] acceptChange(Changer.ChangeMode mode) {
 		return switch (mode) {
-			case SET, DELETE, RESET -> CollectionUtils.array(EntityData.class);
+			case SET, DELETE -> CollectionUtils.array(EntityData.class);
 			default -> null;
 		};
 	}
@@ -59,7 +59,6 @@ public class ExprSpawnerType extends SimplePropertyExpression<Object, EntityData
 			switch (mode) {
 				case SET -> spawner.setSpawnedType(type);
 				case DELETE -> spawner.setSpawnedType(null);
-				case RESET -> spawner.setSpawnedType(EntityType.PIG); // default value
 			}
 
 			if (object instanceof TrialSpawnerConfig config)

@@ -1,4 +1,4 @@
-package org.skriptlang.skript.bukkit.spawner.elements.expressions.spawnerentry.equipment;
+package org.skriptlang.skript.bukkit.spawner.elements.expressions.spawnerentry;
 
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
@@ -12,10 +12,10 @@ import org.skriptlang.skript.bukkit.spawner.util.SpawnerEquipmentWrapper.DropCha
 import java.util.ArrayList;
 import java.util.List;
 
-public class ExprSpawnerEntryEquipment extends SimplePropertyExpression<SpawnerEntry, SpawnerEquipmentWrapper> {
+public class ExprSpawnerEntryWithEquipment extends SimplePropertyExpression<SpawnerEntry, SpawnerEquipmentWrapper> {
 
 	static {
-		register(ExprSpawnerEntryEquipment.class, SpawnerEquipmentWrapper.class, "spawner entry equipment", "spawnerentries");
+		registerDefault(ExprSpawnerEntryWithEquipment.class, SpawnerEquipmentWrapper.class, "spawner entry equipment", "spawnerentries");
 	}
 
 	@Override

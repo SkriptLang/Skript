@@ -20,7 +20,7 @@ public class ExprSpawnerEquipment extends SimpleExpression<SpawnerEquipmentWrapp
 
 	static {
 		Skript.registerExpression(ExprSpawnerEquipment.class, SpawnerEquipmentWrapper.class, ExpressionType.COMBINED,
-			"[the] spawner [entry] equipment with %loottable%[,] and %spawnerentrydropchances%"
+			"[a] spawner [entry] equipment with %loottable%[,] and %spawnerentrydropchances%"
 		);
 	}
 
@@ -59,13 +59,7 @@ public class ExprSpawnerEquipment extends SimpleExpression<SpawnerEquipmentWrapp
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
 		SyntaxStringBuilder builder = new SyntaxStringBuilder(event, debug);
-
-		builder.append("spawner equipment with")
-			.append(lootTable.toString(event, debug))
-			.append("and")
-			.append(chances.toString(event, debug));
-
-		return builder.toString();
+		return builder.append("spawner equipment with", lootTable, "and", chances).toString();
 	}
 
 }

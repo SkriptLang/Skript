@@ -12,7 +12,7 @@ import org.skriptlang.skript.bukkit.spawner.util.SpawnerEquipmentWrapper.DropCha
 public class ExprSpawnerEntryEquipmentSlot extends SimplePropertyExpression<DropChance, EquipmentSlot> {
 
 	static {
-		register(ExprSpawnerEntryEquipmentSlot.class, EquipmentSlot.class, "spawner entry equipment [slot]", "spawnerentryequipments");
+		register(ExprSpawnerEntryEquipmentSlot.class, EquipmentSlot.class, "spawner [entry] equipment slot", "spawnerentryequipments");
 	}
 
 	@Override
@@ -45,7 +45,7 @@ public class ExprSpawnerEntryEquipmentSlot extends SimplePropertyExpression<Drop
 
 	@Override
 	protected String getPropertyName() {
-		return "spawner entry equipment";
+		return "spawner entry equipment slot";
 	}
 
 }

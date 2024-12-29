@@ -65,8 +65,7 @@ public class ExprTrackedEntities extends PropertyExpression<Block, Object> {
 			builder.append("entities");
 		else
 			builder.append("players");
-		builder.append("of")
-			.append(getExpr());
+		builder.append("of", getExpr());
 
 		return builder.toString();
 	}

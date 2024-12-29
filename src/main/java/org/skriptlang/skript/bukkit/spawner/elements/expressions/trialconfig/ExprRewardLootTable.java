@@ -7,7 +7,7 @@ import org.bukkit.event.Event;
 import org.bukkit.loot.LootTable;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.bukkit.spawner.trial.TrialSpawnerReward;
+import org.skriptlang.skript.bukkit.spawner.util.TrialSpawnerReward;
 
 public class ExprRewardLootTable extends SimplePropertyExpression<TrialSpawnerReward, LootTable> {
 

@@ -10,7 +10,7 @@ import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.bukkit.loot.LootTable;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.bukkit.spawner.trial.TrialSpawnerReward;
+import org.skriptlang.skript.bukkit.spawner.util.TrialSpawnerReward;
 
 public class ExprTrialSpawnerReward extends SimpleExpression<TrialSpawnerReward> {
 
@@ -67,11 +67,9 @@ public class ExprTrialSpawnerReward extends SimpleExpression<TrialSpawnerReward>
 	public String toString(@Nullable Event event, boolean debug) {
 		SyntaxStringBuilder builder = new SyntaxStringBuilder(event, debug);
 
-		builder.append("trial spawner reward with")
-			.append(lootTable);
+		builder.append("trial spawner reward with", lootTable);
 		if (weight != null)
-			builder.append("and weight")
-				.append(weight);
+			builder.append("and weight", weight);
 
 		return builder.toString();
 	}

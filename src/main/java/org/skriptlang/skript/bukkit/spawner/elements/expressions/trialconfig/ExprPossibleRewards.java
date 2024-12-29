@@ -13,8 +13,8 @@ import org.bukkit.event.Event;
 import org.bukkit.loot.LootTable;
 import org.bukkit.spawner.TrialSpawnerConfiguration;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.bukkit.spawner.trial.TrialSpawnerConfig;
-import org.skriptlang.skript.bukkit.spawner.trial.TrialSpawnerReward;
+import org.skriptlang.skript.bukkit.spawner.util.TrialSpawnerConfig;
+import org.skriptlang.skript.bukkit.spawner.util.TrialSpawnerReward;
 import org.skriptlang.skript.bukkit.spawner.util.SpawnerUtils;
 
 import java.util.ArrayList;
@@ -92,10 +92,7 @@ public class ExprPossibleRewards extends PropertyExpression<TrialSpawnerConfig, 
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		SyntaxStringBuilder builder = new SyntaxStringBuilder(event, debug);
-		builder.append("possible trial spawner rewards of")
-			.append(getExpr());
-		return builder.toString();
+		return "possible trial spawner rewards of" + getExpr().toString(event, debug);
 	}
 
 }

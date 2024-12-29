@@ -100,6 +100,7 @@ import org.skriptlang.skript.bukkit.furnace.FurnaceModule;
 import org.skriptlang.skript.bukkit.fishing.FishingModule;
 import org.skriptlang.skript.bukkit.input.InputModule;
 import org.skriptlang.skript.bukkit.loottables.LootTableModule;
+import org.skriptlang.skript.bukkit.spawner.SpawnerModule;
 import org.skriptlang.skript.lang.comparator.Comparator;
 import org.skriptlang.skript.lang.comparator.Comparators;
 import org.skriptlang.skript.lang.converter.Converter;
@@ -553,6 +554,7 @@ public final class Skript extends JavaPlugin implements Listener {
 			InputModule.load();
 			FurnaceModule.load();
 			LootTableModule.load();
+			SpawnerModule.load();
 		} catch (final Exception e) {
 			exception(e, "Could not load required .class files: " + e.getLocalizedMessage());
 			setEnabled(false);

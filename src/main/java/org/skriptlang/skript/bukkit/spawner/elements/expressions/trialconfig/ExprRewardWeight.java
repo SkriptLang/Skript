@@ -5,7 +5,7 @@ import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.bukkit.spawner.trial.TrialSpawnerReward;
+import org.skriptlang.skript.bukkit.spawner.util.TrialSpawnerReward;
 
 public class ExprRewardWeight extends SimplePropertyExpression<TrialSpawnerReward, Integer> {
 

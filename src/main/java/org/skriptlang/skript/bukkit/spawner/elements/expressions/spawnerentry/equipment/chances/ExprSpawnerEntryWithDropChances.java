@@ -16,10 +16,10 @@ import org.skriptlang.skript.bukkit.spawner.util.SpawnerEquipmentWrapper.DropCha
 import java.util.ArrayList;
 import java.util.List;
 
-public class ExprSpawnerEntryDropChances extends PropertyExpression<SpawnerEquipmentWrapper, DropChance> {
+public class ExprSpawnerEntryWithDropChances extends PropertyExpression<SpawnerEquipmentWrapper, DropChance> {
 
 	static {
-		Skript.registerExpression(ExprSpawnerEntryDropChances.class, DropChance.class, ExpressionType.PROPERTY,
+		Skript.registerExpression(ExprSpawnerEntryWithDropChances.class, DropChance.class, ExpressionType.PROPERTY,
 			"[the] spawner [entry] drop chance[s] (from|of) %spawnerentryequipments%",
 			"%spawnerentryequipments%'[s] spawner [entry] drop chance[s]"
 		);

@@ -10,7 +10,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.spawner.BaseSpawner;
 import org.bukkit.spawner.Spawner;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.bukkit.spawner.trial.TrialSpawnerConfig;
+import org.skriptlang.skript.bukkit.spawner.util.TrialSpawnerConfig;
 import org.skriptlang.skript.bukkit.spawner.util.SpawnerUtils;
 
 public class ExprSpawnedEntity extends SimplePropertyExpression<Object, EntitySnapshot> {
@@ -29,20 +29,23 @@ public class ExprSpawnedEntity extends SimplePropertyExpression<Object, EntitySn
 	@Override
 	public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
 		return switch (mode) {
-			case SET, RESET, DELETE -> CollectionUtils.array(SpawnerEntry.class, ItemStack.class);
+			case SET, RESET, DELETE -> CollectionUtils.array(EntitySnapshot.class, SpawnerEntry.class, ItemStack.class);
 			default -> null;
 		};
 	}
 
 	@Override
 	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
+		EntitySnapshot snapshot = null;
 		SpawnerEntry entry = null;
 		ItemStack item = null;
 		if (delta != null) {
-			if (delta[0] instanceof SpawnerEntry)
-				entry = (SpawnerEntry) delta[0];
-			else if (delta[0] instanceof ItemStack)
-				item = (ItemStack) delta[0];
+			if (delta[0] instanceof EntitySnapshot entity)
+				snapshot = entity;
+			else if (delta[0] instanceof SpawnerEntry spawner)
+				entry = spawner;
+			else if (delta[0] instanceof ItemStack stack)
+				item = stack;
 		}
 
 		for (Object object : getExpr().getArray(event)) {
@@ -53,11 +56,15 @@ public class ExprSpawnedEntity extends SimplePropertyExpression<Object, EntitySn
 
 			switch (mode) {
 				case SET -> {
-					if (entry != null)
+					if (snapshot != null)
+						spawner.setSpawnedEntity(snapshot);
+					else if (entry != null)
 						spawner.setSpawnedEntity(entry);
 					else if (item != null && spawner instanceof Spawner spawner1)
 						spawner1.setSpawnedItem(item);
-				} case RESET, DELETE -> spawner.setSpawnedEntity((EntitySnapshot) null);
+				} case RESET, DELETE -> {
+					spawner.setSpawnedEntity((EntitySnapshot) null);
+				}
 			}
 
 			if (object instanceof TrialSpawnerConfig config)

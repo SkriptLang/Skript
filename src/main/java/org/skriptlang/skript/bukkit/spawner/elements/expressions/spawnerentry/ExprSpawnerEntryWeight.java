@@ -11,7 +11,7 @@ import org.jetbrains.annotations.Nullable;
 public class ExprSpawnerEntryWeight extends SimplePropertyExpression<SpawnerEntry, Integer> {
 
 	static {
-		register(ExprSpawnerEntryWeight.class, Integer.class, "spawner entry weight", "spawnerentries");
+		registerDefault(ExprSpawnerEntryWeight.class, Integer.class, "spawner entry weight", "spawnerentries");
 	}
 
 	@Override

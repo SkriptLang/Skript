@@ -16,7 +16,7 @@ public class ExprSpawnerEntryEquipmentChance extends SimpleExpression<DropChance
 
 	static {
 		Skript.registerExpression(ExprSpawnerEntryEquipmentChance.class, DropChance.class, ExpressionType.COMBINED,
-			"[a] spawner entry [drop|equipment] chance (for|of) %equipmentslot% [with drop chance %-number%]"
+			"[a] spawner [entry] [drop|equipment] chance (for|of) %equipmentslot% [with drop chance %-number%]"
 		);
 	}
 

@@ -18,8 +18,8 @@ import org.bukkit.entity.Entity;
 import org.bukkit.event.entity.SpawnerSpawnEvent;
 import org.bukkit.event.entity.TrialSpawnerSpawnEvent;
 import org.bukkit.inventory.EquipmentSlot;
-import org.skriptlang.skript.bukkit.spawner.trial.TrialSpawnerConfig;
-import org.skriptlang.skript.bukkit.spawner.trial.TrialSpawnerReward;
+import org.skriptlang.skript.bukkit.spawner.util.TrialSpawnerConfig;
+import org.skriptlang.skript.bukkit.spawner.util.TrialSpawnerReward;
 import org.skriptlang.skript.bukkit.spawner.util.SpawnerEquipmentWrapper;
 import org.skriptlang.skript.bukkit.spawner.util.SpawnerEquipmentWrapper.DropChance;
 
@@ -92,6 +92,7 @@ public class SpawnerModule {
 			.name("Spawner Entry")
 			.description("Represents a spawner entry.")
 			.since("INSERT VERSION")
+			.defaultExpression(new EventValueExpression<>(SpawnerEntry.class))
 			.parser(new Parser<>() {
 				@Override
 				public boolean canParse(ParseContext context) {

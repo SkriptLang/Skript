@@ -1,4 +1,4 @@
-package org.skriptlang.skript.bukkit.spawner.trial;
+package org.skriptlang.skript.bukkit.spawner.util;
 
 import org.bukkit.loot.LootTable;
 import org.jetbrains.annotations.NotNull;

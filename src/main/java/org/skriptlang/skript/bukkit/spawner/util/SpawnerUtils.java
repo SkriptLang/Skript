@@ -7,7 +7,6 @@ import org.bukkit.entity.minecart.SpawnerMinecart;
 import org.bukkit.spawner.BaseSpawner;
 import org.bukkit.spawner.Spawner;
 import org.jetbrains.annotations.UnknownNullability;
-import org.skriptlang.skript.bukkit.spawner.trial.TrialSpawnerConfig;
 
 public class SpawnerUtils {
 

@@ -12,7 +12,7 @@ import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.event.Event;
 import org.bukkit.spawner.TrialSpawnerConfiguration;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.bukkit.spawner.trial.TrialSpawnerConfig;
+import org.skriptlang.skript.bukkit.spawner.util.TrialSpawnerConfig;
 import org.skriptlang.skript.bukkit.spawner.util.SpawnerUtils;
 
 import java.util.ArrayList;
@@ -98,8 +98,7 @@ public class ExprTrackedEntityAmount extends PropertyExpression<TrialSpawnerConf
 			builder.append("additional");
 		else
 			builder.append("base");
-		builder.append("simultaneous tracked entity amount of")
-			.append(getExpr());
+		builder.append("simultaneous tracked entity amount of", getExpr());
 
 		return builder.toString();
 	}

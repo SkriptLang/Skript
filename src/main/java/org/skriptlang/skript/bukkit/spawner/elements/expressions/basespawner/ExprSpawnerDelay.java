@@ -9,7 +9,7 @@ import org.bukkit.event.Event;
 import org.bukkit.spawner.BaseSpawner;
 import org.bukkit.spawner.Spawner;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.bukkit.spawner.trial.TrialSpawnerConfig;
+import org.skriptlang.skript.bukkit.spawner.util.TrialSpawnerConfig;
 import org.skriptlang.skript.bukkit.spawner.util.SpawnerUtils;
 
 public class ExprSpawnerDelay extends SimplePropertyExpression<Object, Timespan> {

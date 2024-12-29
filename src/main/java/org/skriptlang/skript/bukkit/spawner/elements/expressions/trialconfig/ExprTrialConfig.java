@@ -7,7 +7,7 @@ import ch.njol.util.Kleenean;
 import org.bukkit.block.Block;
 import org.bukkit.block.TrialSpawner;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.bukkit.spawner.trial.TrialSpawnerConfig;
+import org.skriptlang.skript.bukkit.spawner.util.TrialSpawnerConfig;
 
 public class ExprTrialConfig extends SimplePropertyExpression<Block, TrialSpawnerConfig> {
 
@@ -19,7 +19,7 @@ public class ExprTrialConfig extends SimplePropertyExpression<Block, TrialSpawne
 
 	@Override
 	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		type = ConfigType.get(parseResult.mark);
+		type = ConfigType.values()[parseResult.mark];
 		return super.init(expressions, matchedPattern, isDelayed, parseResult);
 	}
 
@@ -44,29 +44,11 @@ public class ExprTrialConfig extends SimplePropertyExpression<Block, TrialSpawne
 
 	@Override
 	protected String getPropertyName() {
-		return type.toString() + " trial spawner config";
+		return type.name().toLowerCase() + " trial spawner config";
 	}
 
 	private enum ConfigType {
-		OMINOUS, NORMAL, CURRENT;
-
-		static ConfigType get(int mark) {
-			return switch (mark) {
-				case 1 -> OMINOUS;
-				case 2 -> NORMAL;
-				default -> CURRENT;
-			};
-		}
-
-		@Override
-		public String toString() {
-			return switch (this) {
-				case OMINOUS -> "ominous";
-				case NORMAL -> "normal";
-				default -> "current";
-			};
-		}
-
+		CURRENT, OMINOUS, NORMAL;
 	}
 
 }

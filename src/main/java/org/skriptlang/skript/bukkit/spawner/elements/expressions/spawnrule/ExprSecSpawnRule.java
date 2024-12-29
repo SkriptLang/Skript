@@ -8,12 +8,14 @@
 	import ch.njol.skript.lang.SkriptParser.ParseResult;
 	import ch.njol.skript.lang.Trigger;
 	import ch.njol.skript.lang.TriggerItem;
+	import ch.njol.skript.registrations.EventValues;
 	import ch.njol.skript.variables.Variables;
 	import ch.njol.util.Kleenean;
 	import org.bukkit.block.spawner.SpawnRule;
 	import org.bukkit.event.Event;
 	import org.jetbrains.annotations.Nullable;
 	import org.skriptlang.skript.bukkit.spawner.events.SpawnRuleCreateEvent;
+	import org.skriptlang.skript.bukkit.spawner.util.SpawnRuleWrapper;
 
 	import java.util.List;
 	
@@ -23,6 +25,7 @@
 			Skript.registerExpression(ExprSecSpawnRule.class, SpawnRule.class, ExpressionType.SIMPLE,
 				"[a] spawn rule"
 			);
+			EventValues.registerEventValue(SpawnRuleCreateEvent.class, SpawnRule.class, SpawnRuleCreateEvent::getSpawnRule);
 		}
 	
 		private Trigger trigger;
@@ -37,7 +40,7 @@
 	
 		@Override
 		protected SpawnRule @Nullable [] get(Event event) {
-			SpawnRule rule = new SpawnRule(0, 0, 0, 0);
+			SpawnRule rule = new SpawnRuleWrapper(0, 0, 0, 0);
 			if (trigger != null) {
 				SpawnRuleCreateEvent createEvent = new SpawnRuleCreateEvent(rule);
 				Variables.withLocalVariables(event, createEvent, () ->
