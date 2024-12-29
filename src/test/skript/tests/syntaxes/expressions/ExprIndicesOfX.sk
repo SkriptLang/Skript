@@ -27,5 +27,5 @@ test "indices of x":
     set {_indices::*} to the positions of the value test-location in {_otherList::*}
     assert {_indices::*} is 1, 2 and 4 with "positions of test-location failed"
 
-    set {_indices::*} to the indices of the value 2 in 1, 2, 2, 4 and 2
-    assert {_indices::*} is 2, 3, 5 with "indices of 2 failed"
+    set {_indices::*} to the positions of the value 2 in 1, 2, 2, 4 and 2
+    assert {_indices::*} is 2, 3 and 5 with "indices of 2 failed"
