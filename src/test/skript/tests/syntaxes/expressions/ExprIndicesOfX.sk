@@ -1,13 +1,13 @@
 test "indices of x":
-	set {_list::*} to 1, 2, 3, 1, 2 and 3
-	set {_indices::*} to the indices of the value 1 in {_list::*}
-	assert {_indices::*} is "1", "4" with "indices of 1 failed"
+    set {_list::*} to 1, 2, 3, 1, 2 and 3
+    set {_indices::*} to the indices of the value 1 in {_list::*}
+    assert {_indices::*} is "1", "4" with "indices of 1 failed"
 
-	set {_indices::*} to the first index of the value 3 in {_list::*}
-	assert {_indices::*} is "3" with "first index of 3 failed"
+    set {_indices::*} to the first index of the value 3 in {_list::*}
+    assert {_indices::*} is "3" with "first index of 3 failed"
 
-	set {_indices::*} to the last index of the value 3 in {_list::*}
-	assert {_indices::*} is "6" with "last index of 3 failed"
+    set {_indices::*} to the last index of the value 3 in {_list::*}
+    assert {_indices::*} is "6" with "last index of 3 failed"
 
     set {_indices::*} to the first position of the value 3 in {_list::*}
     assert {_indices::*} is 3 with "first index of 3 failed"
@@ -15,14 +15,14 @@ test "indices of x":
     set {_indices::*} to the last position of the value 3 in {_list::*}
     assert {_indices::*} is 6 with "last index of 3 failed"
 
-	set {_otherlist::burb} to test-location
-	set {_otherlist::_DJ8U3f;} to test-location
-	set {_otherlist::;'w20} to test-location
-	set {_otherList::breh} to 2
-	set {_otherList::quatro} to 4
+    set {_otherlist::burb} to test-location
+    set {_otherlist::_DJ8U3f;} to test-location
+    set {_otherlist::;'w20} to test-location
+    set {_otherList::breh} to 2
+    set {_otherList::quatro} to 4
 
-	set {_indices::*} to the indices of the value test-location in {_otherlist::*}
-	assert {_indices::*} is ";'w20", "_dj8u3f;" and "burb" with "indices of test-location with symbols failed"
+    set {_indices::*} to the indices of the value test-location in {_otherlist::*}
+    assert {_indices::*} is ";'w20", "_dj8u3f;" and "burb" with "indices of test-location with symbols failed"
 
-	set {_indices::*} to the positions of the value test-location in {_otherList::*}
-	assert {_indices::*} is 1, 2 and 4 with "positions of test-location failed"
+    set {_indices::*} to the positions of the value test-location in {_otherList::*}
+    assert {_indices::*} is 1, 2 and 4 with "positions of test-location failed"
