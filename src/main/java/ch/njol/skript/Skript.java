@@ -209,7 +209,6 @@ public final class Skript extends JavaPlugin implements Listener {
 	/**
 	 * Check minecraft version and assign it to minecraftVersion field
 	 * This method is created to update MC version before onEnable method
-	 * To fix {@link Utils#HEX_SUPPORTED} being assigned before minecraftVersion is properly assigned
 	 */
 	public static void updateMinecraftVersion() {
 		String bukkitV = Bukkit.getBukkitVersion();
