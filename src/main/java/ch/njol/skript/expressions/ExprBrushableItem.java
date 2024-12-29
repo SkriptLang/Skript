@@ -5,6 +5,7 @@ import ch.njol.skript.classes.Changer;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.*;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
+import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.block.Block;
 import org.bukkit.block.BrushableBlock;
 import org.bukkit.block.BlockState;
@@ -44,16 +45,16 @@ public class ExprBrushableItem extends SimplePropertyExpression<Block, ItemStack
 
 	@Override
 	public Class<?>[] acceptChange(ChangeMode mode) {
-		if (mode == Changer.ChangeMode.SET) {
-			return new Class[]{ItemStack.class};
+		if (mode == ChangeMode.SET || mode == ChangeMode.DELETE) {
+			return CollectionUtils.array(ItemStack.class);
 		}
 		return null;
 	}
 
 	@Override
 	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
-		if (mode == ChangeMode.SET && delta != null && delta.length > 0) {
-			ItemStack newItem = (ItemStack) delta[0];
+		if ((mode == ChangeMode.SET && delta != null && delta.length > 0) || mode == ChangeMode.DELETE) {
+			ItemStack newItem = (mode == ChangeMode.SET) ? (ItemStack) delta[0] : null;
 			for (Block block : getExpr().getArray(event)) {
 				BlockState state = block.getState();
 				if (state instanceof BrushableBlock brushableBlock) {

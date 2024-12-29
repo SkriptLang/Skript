@@ -10,6 +10,7 @@ import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
+import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.Brushable;
 import org.bukkit.event.Event;
@@ -49,7 +50,7 @@ public class ExprDustedStage extends PropertyExpression<Block, Integer> {
 	@Override
 	protected Integer[] get(Event event, Block[] source) {
 		return get(source, block -> {
-			if (block != null && block.getBlockData() instanceof Brushable brushable) {
+			if (block.getBlockData() instanceof Brushable brushable) {
 				return isMax ? brushable.getMaximumDusted() : brushable.getDusted();
 			}
 			return null;
@@ -57,21 +58,21 @@ public class ExprDustedStage extends PropertyExpression<Block, Integer> {
 	}
 
 	@Override
-	public @Nullable Class<?>[] acceptChange(ChangeMode mode) {
+	public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
 		if (!isMax && mode == ChangeMode.SET) {
-			return new CollectionUtils.array(Integer.class);
+			return CollectionUtils.array(Integer.class);
 		}
 		return null;
 	}
 
 	@Override
 	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
-		if (isMax || mode != ChangeMode.SET || delta == null || delta.length == 0)
+		if (isMax || mode != ChangeMode.SET || delta.length == 0)
 			return;
 
 		int value = (Integer) delta[0];
 		for (Block block : getExpr().getArray(event)) {
-			if (block != null && block.getBlockData() instanceof Brushable brushable) {
+			if (block.getBlockData() instanceof Brushable brushable) {
 				brushable.setDusted(value);
 				block.setBlockData(brushable);
 			}
