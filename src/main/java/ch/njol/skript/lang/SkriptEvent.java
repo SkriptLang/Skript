@@ -8,10 +8,11 @@ import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.events.EvtClick;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.structures.StructEvent.EventData;
-import ch.njol.skript.util.Utils;
-import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventPriority;
+import org.skriptlang.skript.bukkit.registration.BukkitSyntaxInfos;
+import ch.njol.skript.util.Utils;
+import org.bukkit.event.Cancellable;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.entry.EntryContainer;
 import org.skriptlang.skript.lang.script.Script;
@@ -238,29 +239,7 @@ public abstract class SkriptEvent extends Structure {
 	 * to be nullable.
 	 */
 	public static String fixPattern(String pattern) {
-		char[] chars = pattern.toCharArray();
-		StringBuilder stringBuilder = new StringBuilder();
-
-		boolean inType = false;
-		for (int i = 0; i < chars.length; i++) {
-			char character = chars[i];
-			stringBuilder.append(character);
-
-			if (character == '%') {
-				// toggle inType
-				inType = !inType;
-
-				// add the dash character if it's not already present
-				// a type specification can have two prefix characters for modification
-				if (inType && i + 2 < chars.length && chars[i + 1] != '-' && chars[i + 2] != '-')
-					stringBuilder.append('-');
-			} else if (character == '\\' && i + 1 < chars.length) {
-				// Make sure we don't toggle inType for escape percentage signs
-				stringBuilder.append(chars[i + 1]);
-				i++;
-			}
-		}
-		return stringBuilder.toString();
+		return BukkitSyntaxInfos.fixPattern(pattern);
 	}
 
 	@Nullable
