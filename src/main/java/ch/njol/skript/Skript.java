@@ -96,6 +96,10 @@ import org.junit.runner.notification.Failure;
 import org.skriptlang.skript.bukkit.SkriptMetrics;
 import org.skriptlang.skript.bukkit.breeding.BreedingModule;
 import org.skriptlang.skript.bukkit.displays.DisplayModule;
+import org.skriptlang.skript.bukkit.furnace.FurnaceModule;
+import org.skriptlang.skript.bukkit.fishing.FishingModule;
+import org.skriptlang.skript.bukkit.input.InputModule;
+import org.skriptlang.skript.bukkit.loottables.LootTableModule;
 import org.skriptlang.skript.lang.comparator.Comparator;
 import org.skriptlang.skript.lang.comparator.Comparators;
 import org.skriptlang.skript.lang.converter.Converter;
@@ -131,6 +135,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
@@ -259,17 +264,6 @@ public final class Skript extends JavaPlugin implements Listener {
 		} else { // Probably some ancient Bukkit implementation
 			return ServerPlatform.BUKKIT_UNKNOWN;
 		}
-	}
-
-	/**
-	 * Returns true if the underlying installed Java/JVM is 32-bit, false otherwise.
-	 * Note that this depends on a internal system property and these can always be overridden by user using -D JVM options,
-	 * more specifically, this method will return false on non OracleJDK/OpenJDK based JVMs, that don't include bit information in java.vm.name system property.
-	 * @return Whether the installed Java/JVM is 32-bit or not.
-	 */
-	private static boolean using32BitJava() {
-		// Property returned should either be "Java HotSpot(TM) 32-Bit Server VM" or "OpenJDK 32-Bit Server VM" if 32-bit and using OracleJDK/OpenJDK
-		return System.getProperty("java.vm.name").contains("32");
 	}
 
 	/**
@@ -498,9 +492,21 @@ public final class Skript extends JavaPlugin implements Listener {
 			classLoadError = e;
 		}
 
+		// Warn about pausing
+		if (Skript.methodExists(Server.class, "getPauseWhenEmptyTime")) {
+			int pauseThreshold = getServer().getPauseWhenEmptyTime();
+			if (pauseThreshold > -1) {
+				Skript.warning("Minecraft server pausing is enabled!");
+				Skript.warning("Scripts that interact with the world or entities may not work as intended when the server is paused and may crash your server.");
+				Skript.warning("Consider setting 'pause-when-empty-seconds' to -1 in server.properties to make sure you don't encounter any issues.");
+			}
+		}
+
 		// Config must be loaded after Java and Skript classes are parseable
 		// ... but also before platform check, because there is a config option to ignore some errors
 		SkriptConfig.load();
+
+		CompletableFuture<Boolean> aliases = Aliases.loadAsync();
 
 		// Now override the verbosity if test mode is enabled
 		if (TestMode.VERBOSITY != null)
@@ -512,20 +518,6 @@ public final class Skript extends JavaPlugin implements Listener {
 			assert console != null;
 			assert updater != null;
 			updater.updateCheck(console);
-		}
-
-		try {
-			Aliases.load(); // Loaded before anything that might use them
-		} catch (StackOverflowError e) {
-			if (using32BitJava()) {
-				Skript.error("");
-				Skript.error("There was a StackOverflowError that occured while loading aliases.");
-				Skript.error("As you are currently using 32-bit Java, please update to 64-bit Java to resolve the error.");
-				Skript.error("Please report this issue to our GitHub only if updating to 64-bit Java does not fix the issue.");
-				Skript.error("");
-			} else {
-				throw e; // Uh oh, this shouldn't happen. Re-throw the error.
-			}
 		}
 
 		// If loading can continue (platform ok), check for potentially thrown error
@@ -555,8 +547,12 @@ public final class Skript extends JavaPlugin implements Listener {
 				"conditions", "effects", "events", "expressions", "entity", "sections", "structures");
 			getAddonInstance().loadClasses("org.skriptlang.skript.bukkit", "misc");
 			// todo: become proper module once registry api is merged
-			DisplayModule.load();
+			FishingModule.load();
 			BreedingModule.load();
+			DisplayModule.load();
+			InputModule.load();
+			FurnaceModule.load();
+			LootTableModule.load();
 		} catch (final Exception e) {
 			exception(e, "Could not load required .class files: " + e.getLocalizedMessage());
 			setEnabled(false);
@@ -602,6 +598,12 @@ public final class Skript extends JavaPlugin implements Listener {
 					Skript.exception(e);
 				}
 				finishedLoadingHooks = true;
+
+				try {
+					aliases.get(); // wait for aliases to load
+				} catch (InterruptedException | ExecutionException e) {
+					exception(e, "Could not load aliases concurrently");
+				}
 
 				if (TestMode.ENABLED) {
 					info("Preparing Skript for testing...");
@@ -1651,6 +1653,17 @@ public final class Skript extends JavaPlugin implements Listener {
 		if (!debug())
 			return;
 		SkriptLogger.log(SkriptLogger.DEBUG, info);
+	}
+
+	/**
+	 * Sends a debug message with formatted objects if {@link #debug()} returns true.
+	 *
+	 * @param message The message to send
+	 * @param objects The objects to format the message with
+	 * @see String#formatted(Object...)
+	 */
+	public static void debug(String message, Object... objects) {
+		debug(message.formatted(objects));
 	}
 
 	/**

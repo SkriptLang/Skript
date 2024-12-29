@@ -1,21 +1,3 @@
-/**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
 package ch.njol.skript.lang.util;
 
 import ch.njol.skript.Skript;
@@ -25,12 +7,14 @@ import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
+import ch.njol.skript.lang.Loopable;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.Utils;
 import ch.njol.util.Checker;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
 import ch.njol.util.coll.iterator.ArrayIterator;
+import com.google.common.collect.PeekingIterator;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -352,6 +336,14 @@ public abstract class SimpleExpression<T> implements Expression<T> {
 		return false;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 * Overriding this method, returning an {@link Iterator}, ensure to override {@link Loopable#supportsLoopPeeking()}
+	 * Or returning an {@link PeekingIterator}, ensure to set up {@link PeekingIterator#peek()}
+	 *
+	 * @param event The event to be used for evaluation
+	 * @return {@link ArrayIterator}
+	 */
 	@Override
 	public @Nullable Iterator<? extends T> iterator(Event event) {
 		return new ArrayIterator<>(getArray(event));
@@ -374,6 +366,11 @@ public abstract class SimpleExpression<T> implements Expression<T> {
 
 	@Override
 	public boolean getAnd() {
+		return true;
+	}
+
+	@Override
+	public boolean supportsLoopPeeking() {
 		return true;
 	}
 }

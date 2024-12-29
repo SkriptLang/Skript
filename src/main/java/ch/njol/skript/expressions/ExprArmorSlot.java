@@ -1,23 +1,6 @@
-/**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
 package ch.njol.skript.expressions;
 
+import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Keywords;
@@ -30,39 +13,53 @@ import ch.njol.skript.util.slot.EquipmentSlot;
 import ch.njol.skript.util.slot.EquipmentSlot.EquipSlot;
 import ch.njol.skript.util.slot.Slot;
 import ch.njol.util.Kleenean;
-import org.bukkit.entity.LivingEntity;
+import org.bukkit.Material;
+import org.bukkit.entity.*;
 import org.bukkit.event.Event;
 import org.bukkit.inventory.EntityEquipment;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Arrays;
-import java.util.Locale;
+import java.util.*;
 import java.util.stream.Stream;
 
-@Name("Armour Slot")
-@Description("Equipment of living entities, i.e. the boots, leggings, chestplate or helmet.")
+@Name("Armor Slot")
+@Description({
+	"Equipment of living entities, i.e. the boots, leggings, chestplate or helmet.",
+	"Body armor is a special slot that can only be used for:",
+	"<ul>",
+	"<li>Horses: Horse armour (doesn't work on zombie or skeleton horses)</li>",
+	"<li>Wolves: Wolf Armor</li>",
+	"<li>Llamas (regular or trader): Carpet</li>",
+	"</ul>"
+})
 @Examples({
 	"set chestplate of the player to a diamond chestplate",
 	"helmet of player is neither a helmet nor air # player is wearing a block, e.g. from another plugin"
 })
 @Keywords("armor")
-@Since("1.0, 2.8.0 (Armour)")
+@Since("1.0, 2.8.0 (armor), INSERT VERSION (body armor)")
 public class ExprArmorSlot extends PropertyExpression<LivingEntity, Slot> {
 
+	private static final Set<Class<?>> bodyEntities = new HashSet<>(Arrays.asList(Horse.class, Llama.class, TraderLlama.class));
+
 	static {
-		register(ExprArmorSlot.class, Slot.class, "((boots:(boots|shoes)|leggings:leg[ging]s|chestplate:chestplate[s]|helmet:helmet[s]) [(item|:slot)]|armour:armo[u]r[s])", "livingentities");
+		if (Material.getMaterial("WOLF_ARMOR") != null)
+			bodyEntities.add(Wolf.class);
+
+		register(ExprArmorSlot.class, Slot.class, "((boots:(boots|shoes)|leggings:leg[ging]s|chestplate:chestplate[s]|helmet:helmet[s]) [(item|:slot)]|armour:armo[u]r[s]|bodyarmor:body armo[u]r)", "livingentities");
 	}
 
-	@Nullable
-	private EquipSlot slot;
+	private @Nullable EquipSlot slot;
 	private boolean explicitSlot;
 	private boolean isArmor;
+	private boolean isBody;
 
 	@Override
 	@SuppressWarnings("unchecked")
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
+		isBody = parseResult.hasTag("bodyarmor");
 		isArmor = parseResult.hasTag("armour");
-		slot = isArmor ? null : EquipSlot.valueOf(parseResult.tags.get(0).toUpperCase(Locale.ENGLISH));
+		slot = (isArmor || isBody) ? null : EquipSlot.valueOf(parseResult.tags.get(0).toUpperCase(Locale.ENGLISH));
 		explicitSlot = parseResult.hasTag("slot"); // User explicitly asked for SLOT, not item
 		setExpr((Expression<? extends LivingEntity>) exprs[0]);
 		return true;
@@ -76,6 +73,11 @@ public class ExprArmorSlot extends PropertyExpression<LivingEntity, Slot> {
 					.flatMap(equipment -> {
 						if (equipment == null)
 							return null;
+						if (isBody) {
+							if (!bodyEntities.contains(equipment.getHolder().getType().getEntityClass()))
+								return null;
+							return Stream.of(new EquipmentSlot(equipment, EquipSlot.BODY, explicitSlot));
+						}
 						return Stream.of(
 								new EquipmentSlot(equipment, EquipSlot.HELMET, explicitSlot),
 								new EquipmentSlot(equipment, EquipSlot.CHESTPLATE, explicitSlot),
@@ -96,7 +98,7 @@ public class ExprArmorSlot extends PropertyExpression<LivingEntity, Slot> {
 
 	@Override
 	public boolean isSingle() {
-		return !isArmor && super.isSingle();
+		return isBody || (!isArmor && super.isSingle());
 	}
 
 	@Override

@@ -1,21 +1,3 @@
-/**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
 package ch.njol.skript;
 
 import ch.njol.skript.aliases.Aliases;
@@ -50,6 +32,7 @@ import org.skriptlang.skript.lang.script.Script;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
@@ -64,27 +47,28 @@ public class SkriptCommand implements CommandExecutor {
 	private static final String CONFIG_NODE = "skript command";
 	private static final ArgsMessage m_reloading = new ArgsMessage(CONFIG_NODE + ".reload.reloading");
 
-	// TODO /skript scripts show/list - lists all enabled and/or disabled scripts in the scripts folder and/or subfolders (maybe add a pattern [using * and **])
 	// TODO document this command on the website
 	private static final CommandHelp SKRIPT_COMMAND_HELP = new CommandHelp("<gray>/<gold>skript", SkriptColor.LIGHT_CYAN, CONFIG_NODE + ".help")
-		.add(new CommandHelp("reload", SkriptColor.DARK_CYAN)
-			.add("all")
-			.add("config")
-			.add("aliases")
-			.add("scripts")
-			.add("<script>")
-		).add(new CommandHelp("enable", SkriptColor.DARK_CYAN)
-			.add("all")
-			.add("<script>")
-		).add(new CommandHelp("disable", SkriptColor.DARK_CYAN)
-			.add("all")
-			.add("<script>")
-		).add(new CommandHelp("update", SkriptColor.DARK_CYAN)
-			.add("check")
-			.add("changes")
-			.add("download")
-		).add("info"
-		).add("help");
+			.add(new CommandHelp("reload", SkriptColor.DARK_RED)
+				.add("all")
+				.add("config")
+				.add("aliases")
+				.add("scripts")
+				.add("<script>")
+			).add(new CommandHelp("enable", SkriptColor.DARK_RED)
+				.add("all")
+				.add("<script>")
+			).add(new CommandHelp("disable", SkriptColor.DARK_RED)
+				.add("all")
+				.add("<script>")
+			).add(new CommandHelp("update", SkriptColor.DARK_RED)
+				.add("check")
+				.add("changes")
+			)
+			.add("list")
+			.add("show")
+			.add("info")
+			.add("help");
 
 	static {
 		// Add command to generate documentation
@@ -103,7 +87,7 @@ public class SkriptCommand implements CommandExecutor {
 
 		// Log reloading message
 		String text = Language.format(CONFIG_NODE + ".reload." + "player reload", sender.getName(), what);
-		logHandler.log(new LogEntry(Level.INFO, Utils.replaceEnglishChatStyles(text)));
+		logHandler.log(new LogEntry(Level.INFO, Utils.replaceEnglishChatStyles(text)), sender);
 	}
 
 
@@ -159,15 +143,15 @@ public class SkriptCommand implements CommandExecutor {
 					reloading(sender, "config, aliases and scripts", logHandler);
 					SkriptConfig.load();
 					Aliases.clear();
-					Aliases.load();
-
-					ScriptLoader.unloadScripts(ScriptLoader.getLoadedScripts());
-					ScriptLoader.loadScripts(Skript.getInstance().getScriptsFolder(), OpenCloseable.combine(logHandler, timingLogHandler))
-						.thenAccept(info -> {
-							if (info.files == 0)
-								Skript.warning(Skript.m_no_scripts.toString());
-							reloaded(sender, logHandler, timingLogHandler, "config, aliases and scripts");
-						});
+					Aliases.loadAsync().thenRun(() -> {
+						ScriptLoader.unloadScripts(ScriptLoader.getLoadedScripts());
+						ScriptLoader.loadScripts(Skript.getInstance().getScriptsFolder(), OpenCloseable.combine(logHandler, timingLogHandler))
+							.thenAccept(info -> {
+								if (info.files == 0)
+									Skript.warning(Skript.m_no_scripts.toString());
+								reloaded(sender, logHandler, timingLogHandler, "config, aliases and scripts");
+							});
+					});
 				} else if (args[1].equalsIgnoreCase("scripts")) {
 					reloading(sender, "scripts", logHandler);
 
@@ -185,8 +169,7 @@ public class SkriptCommand implements CommandExecutor {
 				} else if (args[1].equalsIgnoreCase("aliases")) {
 					reloading(sender, "aliases", logHandler);
 					Aliases.clear();
-					Aliases.load();
-					reloaded(sender, logHandler, timingLogHandler, "aliases");
+					Aliases.loadAsync().thenRun(() -> reloaded(sender, logHandler, timingLogHandler, "aliases"));
 				} else { // Reloading an individual Script or folder
 					File scriptFile = getScriptFromArgs(sender, args);
 					if (scriptFile == null)
@@ -361,8 +344,6 @@ public class SkriptCommand implements CommandExecutor {
 					updater.updateCheck(sender);
 				} else if (args[1].equalsIgnoreCase("changes")) {
 					updater.changesCheck(sender);
-				} else if (args[1].equalsIgnoreCase("download")) {
-					updater.updateCheck(sender);
 				}
 			} else if (args[0].equalsIgnoreCase("info")) {
 				info(sender, "info.aliases");
@@ -450,6 +431,22 @@ public class SkriptCommand implements CommandExecutor {
 							}
 						})
 					);
+			} else if (args[0].equalsIgnoreCase("list") || args[0].equalsIgnoreCase("show")) {
+				info(sender, "list.enabled.header");
+				ScriptLoader.getLoadedScripts().stream()
+						.map(script -> script.getConfig().getFileName())
+						.forEach(name -> info(sender, "list.enabled.element", name));
+				info(sender, "list.disabled.header");
+				ScriptLoader.getDisabledScripts().stream()
+						.flatMap(file -> {
+							if (file.isDirectory()) {
+								return Arrays.stream(file.listFiles());
+							}
+							return Arrays.stream(new File[]{file});
+						})
+						.map(File::getPath)
+						.map(path -> path.substring(Skript.getInstance().getScriptsFolder().getPath().length() + 1))
+						.forEach(path -> info(sender, "list.disabled.element", path));
 			} else if (args[0].equalsIgnoreCase("help")) {
 				SKRIPT_COMMAND_HELP.showHelp(sender);
 			}

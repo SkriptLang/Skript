@@ -1,0 +1,42 @@
+options:
+	EvtFurnaceTest: "org.skriptlang.skript.test.tests.syntaxes.events.EvtFurnaceTest"
+
+on load:
+	set {_tests::1} to "smelt event"
+	set {_tests::2} to "smelt - got smelted item"
+	set {_tests::3} to "start smelt event"
+	set {_tests::4} to "start smelt - got smelting item"
+	set {_tests::5} to "fuel burn event"
+	set {_tests::6} to "fuel burn - got burned fuel item"
+	set {_tests::7} to "extract event"
+	set {_tests::8} to "extract - got extracted item"
+	set {_tests::9} to "extract - got player"
+
+	ensure junit test {@EvtFurnaceTest} completes {_tests::*}
+
+on smelt:
+	junit test is {@EvtFurnaceTest}
+	complete objective "smelt event" for junit test {@EvtFurnaceTest}
+	broadcast "%smelted item%"
+	if smelted item is an iron ingot:
+		complete objective "smelt - got smelted item" for junit test {@EvtFurnaceTest}
+
+on start smelt:
+	junit test is {@EvtFurnaceTest}
+	complete objective "start smelt event" for junit test {@EvtFurnaceTest}
+	if smelting item is a raw gold:
+		complete objective "start smelt - got smelting item" for junit test {@EvtFurnaceTest}
+
+on fuel burn:
+	junit test is {@EvtFurnaceTest}
+	complete objective "fuel burn event" for junit test {@EvtFurnaceTest}
+	if burned fuel is a lava bucket:
+		complete objective "fuel burn - got burned fuel item" for junit test {@EvtFurnaceTest}
+
+on furnace extract:
+	junit test is {@EvtFurnaceTest}
+	complete objective "extract event" for junit test {@EvtFurnaceTest}
+	if extracted item is a copper ingot:
+		complete objective "extract - got extracted item" for junit test {@EvtFurnaceTest}
+	if event-player is set:
+		complete objective "extract - got player" for junit test {@EvtFurnaceTest}
