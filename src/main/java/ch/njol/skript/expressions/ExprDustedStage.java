@@ -58,15 +58,15 @@ public class ExprDustedStage extends PropertyExpression<Block, Integer> {
 
 	@Override
 	public @Nullable Class<?>[] acceptChange(ChangeMode mode) {
-		if (!isMax && mode == Changer.ChangeMode.SET) {
-			return new Class[]{Integer.class};
+		if (!isMax && mode == ChangeMode.SET) {
+			return new CollectionUtils.array(Integer.class);
 		}
 		return null;
 	}
 
 	@Override
 	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
-		if (isMax || mode != Changer.ChangeMode.SET || delta == null || delta.length == 0)
+		if (isMax || mode != ChangeMode.SET || delta == null || delta.length == 0)
 			return;
 
 		int value = (Integer) delta[0];

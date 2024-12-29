@@ -30,3 +30,4 @@ test "Brushable Item" when running minecraft "1.20":
 	assert {_block}'s brushable item is air with "Failed to clear brushable item"
 	set block at {_block} to air
 	set block 1 block under {_block} to air
+	
