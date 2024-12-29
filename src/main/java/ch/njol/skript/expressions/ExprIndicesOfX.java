@@ -73,12 +73,12 @@ public class ExprIndicesOfX extends SimpleExpression<String> {
 	protected String @Nullable [] get(Event event) {
 		Object value = this.value.getSingle(event);
 		if (value == null)
-			return null;
+			return new String[0];
 
 		//noinspection unchecked
 		Map<String, Object> variable = (Map<String, Object>) list.getRaw(event);
 		if (variable == null)
-			return null;
+			return new String[0];
 
 		List<String> indices = new ArrayList<>();
 
@@ -92,7 +92,7 @@ public class ExprIndicesOfX extends SimpleExpression<String> {
 		}
 
 		if (indices.isEmpty())
-			return null;
+			return new String[0];
 
 		if (type == IndexType.FIRST)
 			return new String[]{indices.get(0)};
