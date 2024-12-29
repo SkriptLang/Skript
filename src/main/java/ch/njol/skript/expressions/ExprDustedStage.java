@@ -86,7 +86,7 @@ public class ExprDustedStage extends PropertyExpression<Block, Integer> {
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return (isMax ? "maximum " : "") + getExpr().toString(event, debug) + "'s dusted stage";
+		return getExpr().toString(event, debug) + "'s " + (isMax ? "maximum " : "") + " dusted stage";
 	}
 
 }

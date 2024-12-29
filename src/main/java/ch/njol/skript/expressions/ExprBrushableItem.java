@@ -53,7 +53,7 @@ public class ExprBrushableItem extends SimplePropertyExpression<Block, ItemStack
 
 	@Override
 	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
-		if ((mode == ChangeMode.SET && delta != null && delta.length > 0) || mode == ChangeMode.DELETE) {
+		if (mode == ChangeMode.SET || mode == ChangeMode.DELETE) {
 			ItemStack newItem = (mode == ChangeMode.SET) ? (ItemStack) delta[0] : null;
 			for (Block block : getExpr().getArray(event)) {
 				BlockState state = block.getState();
