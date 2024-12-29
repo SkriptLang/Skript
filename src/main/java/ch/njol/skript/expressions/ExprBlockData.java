@@ -1,12 +1,17 @@
 package ch.njol.skript.expressions;
 
+import ch.njol.skript.aliases.ItemType;
+import ch.njol.skript.bukkitutil.BlockDataUtils;
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
-import ch.njol.skript.expressions.base.SimplePropertyExpression;
+import ch.njol.skript.expressions.base.PropertyExpression;
+import ch.njol.skript.lang.Expression;
+import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.BlockData;
@@ -62,15 +67,19 @@ public class ExprBlockData extends SimplePropertyExpression<Object, BlockData> {
 			}
 		}
 	}
-
+  
 	@Override
 	public Class<? extends BlockData> getReturnType() {
 		return BlockData.class;
 	}
-
-	@Override
+  
 	protected String getPropertyName() {
 		return "block data";
 	}
+
+	@Override
+	public String toString(@Nullable Event event, boolean debug) {
+		return "block data of " + getExpr().toString(event, debug);
+  }
 
 }
