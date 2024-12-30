@@ -42,4 +42,5 @@ public enum ReleaseStatus {
 	public String toString() {
 		return name;
 	}
+
 }
