@@ -15,27 +15,27 @@ import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.registration.SyntaxOrigin;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
-public class ExprSpawnerEntryEquipmentChance extends SimpleExpression<DropChance> {
+public class ExprSpawnerEntryEquipmentDropChance extends SimpleExpression<DropChance> {
 
 	static {
-		var info = SyntaxInfo.Expression.builder(ExprSpawnerEntryEquipmentChance.class, DropChance.class)
+		var info = SyntaxInfo.Expression.builder(ExprSpawnerEntryEquipmentDropChance.class, DropChance.class)
 			.origin(SyntaxOrigin.of(Skript.instance()))
-			.supplier(ExprSpawnerEntryEquipmentChance::new)
+			.supplier(ExprSpawnerEntryEquipmentDropChance::new)
 			.priority(SyntaxInfo.COMBINED)
-			.addPattern("[a] spawner [entry] [drop|equipment] chance (for|of) %equipmentslot% [with drop chance %-number%]")
+			.addPattern("[a] spawner [entry] equipment drop chance [of %-number%] (for|of) %equipmentslot%")
 			.build();
 
 		SpawnerModule.SYNTAX_REGISTRY.register(SyntaxRegistry.EXPRESSION, info);
 	}
 
-	private Expression<EquipmentSlot> slot;
 	private Expression<Number> chance;
+	private Expression<EquipmentSlot> slot;
 
 	@Override
 	@SuppressWarnings("unchecked")
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		slot = (Expression<EquipmentSlot>) exprs[0];
-		chance = (Expression<Number>) exprs[1];
+		chance = (Expression<Number>) exprs[0];
+		slot = (Expression<EquipmentSlot>) exprs[1];
 		return true;
 	}
 

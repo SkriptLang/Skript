@@ -10,11 +10,11 @@ import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.spawner.SpawnerModule;
 import org.skriptlang.skript.bukkit.spawner.util.SpawnerEquipmentWrapper.DropChance;
 
-public class ExprSpawnerEntryEquipmentSlot extends SimplePropertyExpression<DropChance, EquipmentSlot> {
+public class ExprSpawnerEntryEquipmentWithSlot extends SimplePropertyExpression<DropChance, EquipmentSlot> {
 
 	static {
-		register(SpawnerModule.SYNTAX_REGISTRY, ExprSpawnerEntryEquipmentSlot.class, EquipmentSlot.class,
-			"spawner [entry] equipment slot", "spawnerentryequipments");
+		register(SpawnerModule.SYNTAX_REGISTRY, ExprSpawnerEntryEquipmentWithSlot.class, EquipmentSlot.class,
+			"spawner [entry] equipment slot", "spawnerentrydropchances");
 	}
 
 	@Override

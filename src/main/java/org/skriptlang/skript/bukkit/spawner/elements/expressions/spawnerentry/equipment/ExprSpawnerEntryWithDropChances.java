@@ -1,4 +1,4 @@
-package org.skriptlang.skript.bukkit.spawner.elements.expressions.spawnerentry.equipment.chances;
+package org.skriptlang.skript.bukkit.spawner.elements.expressions.spawnerentry.equipment;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer.ChangeMode;
@@ -27,8 +27,8 @@ public class ExprSpawnerEntryWithDropChances extends PropertyExpression<SpawnerE
 			.supplier(ExprSpawnerEntryWithDropChances::new)
 			.priority(PropertyExpression.DEFAULT_PRIORITY)
 			.addPatterns(
-				"[the] spawner [entry] drop chance[s] (from|of) %spawnerentryequipments%",
-				"%spawnerentryequipments%'[s] spawner [entry] drop chance[s]")
+				"[the] spawner [entry] equipment drop chance[s] (from|of) %spawnerentryequipments%",
+				"%spawnerentryequipments%'[s] spawner [entry] equipment drop chance[s]")
 			.build();
 
 		SpawnerModule.SYNTAX_REGISTRY.register(SyntaxRegistry.EXPRESSION, info);

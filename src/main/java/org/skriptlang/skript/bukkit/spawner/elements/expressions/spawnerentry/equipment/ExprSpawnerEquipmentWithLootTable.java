@@ -10,10 +10,10 @@ import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.spawner.SpawnerModule;
 import org.skriptlang.skript.bukkit.spawner.util.SpawnerEquipmentWrapper;
 
-public class ExprSpawnerEquipmentLootTable extends SimplePropertyExpression<SpawnerEquipmentWrapper, LootTable> {
+public class ExprSpawnerEquipmentWithLootTable extends SimplePropertyExpression<SpawnerEquipmentWrapper, LootTable> {
 
 	static {
-		register(SpawnerModule.SYNTAX_REGISTRY, ExprSpawnerEquipmentLootTable.class, LootTable.class,
+		register(SpawnerModule.SYNTAX_REGISTRY, ExprSpawnerEquipmentWithLootTable.class, LootTable.class,
 			"spawner equipment loot[ ]table", "spawnerentryequipments");
 	}
 
