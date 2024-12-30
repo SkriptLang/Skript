@@ -1,6 +1,6 @@
 package org.skriptlang.skript.bukkit.spawner.elements.expressions.trialspawner;
 
-import ch.njol.skript.classes.Changer;
+import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.GameMode;
@@ -26,7 +26,7 @@ public class ExprTrialSpawnerState extends SimplePropertyExpression<Block, State
 	}
 
 	@Override
-	public Class<?> @Nullable [] acceptChange(Changer.ChangeMode mode) {
+	public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
 		return switch (mode) {
 			case SET, DELETE, RESET -> CollectionUtils.array(State.class);
 			default -> null;
@@ -34,7 +34,7 @@ public class ExprTrialSpawnerState extends SimplePropertyExpression<Block, State
 	}
 
 	@Override
-	public void change(Event event, Object @Nullable [] delta, Changer.ChangeMode mode) {
+	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
 		State state = delta != null ? (State) delta[0] : null;
 
 		for (Block block : getExpr().getArray(event)) {

@@ -63,10 +63,11 @@ public class ExprTrackedEntities extends PropertyExpression<Block, Entity> {
 		SyntaxStringBuilder builder = new SyntaxStringBuilder(event, debug);
 
 		builder.append("tracked ");
-		if (players)
-			builder.append("entities");
-		else
+		if (players) {
 			builder.append("players");
+		} else {
+			builder.append("entities");
+		}
 		builder.append("of", getExpr());
 
 		return builder.toString();

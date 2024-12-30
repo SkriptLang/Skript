@@ -41,10 +41,11 @@ public class ExprTrackedEntityAmount extends PropertyExpression<TrialSpawnerConf
 	protected Float[] get(Event event, TrialSpawnerConfig[] source) {
 		List<Float> values = new ArrayList<>();
 		for (TrialSpawnerConfig config : source) {
-			if (additional)
+			if (additional) {
 				values.add(config.getConfig().getAdditionalSimultaneousEntities());
-			else
+			} else {
 				values.add(config.getConfig().getBaseSimultaneousEntities());
+			}
 		}
 
 		return values.toArray(new Float[0]);
@@ -94,10 +95,11 @@ public class ExprTrackedEntityAmount extends PropertyExpression<TrialSpawnerConf
 	public String toString(@Nullable Event event, boolean debug) {
 		SyntaxStringBuilder builder = new SyntaxStringBuilder(event, debug);
 
-		if (additional)
+		if (additional) {
 			builder.append("additional");
-		else
+		} else {
 			builder.append("base");
+		}
 		builder.append("simultaneous tracked entity amount of", getExpr());
 
 		return builder.toString();
