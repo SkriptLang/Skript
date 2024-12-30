@@ -19,9 +19,9 @@ import java.util.Map;
 
 @Name("Indices of X in List")
 @Description(
-	"Returns the indices or positions of a list where the value at that index is the provided value. " +
-		"Indices are only supported for variable lists and will return the string indices of the given value. " +
-		"Positions can be used with any list and will return the numerical position of the value in the list, counting up from 1."
+	"Returns the indices or positions of a list where the value at that index is the provided value. "
+		+ "Indices are only supported for variable lists and will return the string indices of the given value. "
+		+ "Positions can be used with any list and will return the numerical position of the value in the list, counting up from 1."
 )
 @Examples({
 	"set {_list::*} to 1, 2, 3, 1, 2, 3",
@@ -71,14 +71,14 @@ public class ExprIndicesOfX extends SimpleExpression<Object> {
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		if (exprs[1].isSingle()) {
-			Skript.error("'" + exprs[1].toString(null, false) +
-					"' can only ever have one value at most, thus the 'indices of x in list' expression has no effect.");
+			Skript.error("'" + exprs[1].toString(null, false)
+					+ "' can only ever have one value at most, thus the 'indices of x in list' expression has no effect.");
 			return false;
 		}
 
 		if (!(exprs[1] instanceof Variable<?>) && matchedPattern == 0) {
-			Skript.error("'" + exprs[1].toString(null, false) +
-					"' is not a list variable. You can only get the indices of a list variable.");
+			Skript.error("'" + exprs[1].toString(null, false)
+					+ "' is not a list variable. You can only get the indices of a list variable.");
 			return false;
 		}
 
@@ -114,8 +114,11 @@ public class ExprIndicesOfX extends SimpleExpression<Object> {
 				if (entryValue.equals(value)) {
 					Object index = getPositionOrIndex(entry.getKey(), position, this.position);
 
-					if (type == IndexType.FIRST)
-						return new Object[]{index};
+					if (type == IndexType.FIRST) {
+						if (this.position)
+							return new Integer[]{(Integer) index};
+						return new String[]{(String) index};
+					}
 
 					indices.add(index);
 				}
@@ -125,7 +128,7 @@ public class ExprIndicesOfX extends SimpleExpression<Object> {
 			for (Object object : objects.getArray(event)) {
 				if (object.equals(value)) {
 					if (type == IndexType.FIRST)
-						return new Object[]{position};
+						return new Integer[]{position};
 
 					indices.add(position);
 				}
@@ -133,13 +136,21 @@ public class ExprIndicesOfX extends SimpleExpression<Object> {
 			}
 		}
 
-		if (indices.isEmpty())
-			return new Object[0];
+		if (indices.isEmpty()) {
+			if (this.position)
+				return new Integer[0];
+			return new String[0];
+		}
 
-		if (type == IndexType.LAST)
-			return new Object[]{indices.get(indices.size() - 1)};
+		if (type == IndexType.LAST) {
+			if (this.position)
+				return new Integer[]{(Integer) indices.get(indices.size() - 1)};
+			return new String[]{(String) indices.get(indices.size() - 1)};
+		}
 
-		return indices.toArray();
+		if (this.position)
+			return indices.toArray(new Integer[0]);
+		return indices.toArray(new String[0]);
 	}
 
 	private Object getPositionOrIndex(String key, int position, boolean count) {
