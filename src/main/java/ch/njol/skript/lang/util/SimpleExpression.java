@@ -35,14 +35,10 @@ import org.bukkit.event.Event;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.converter.Converter;
-import org.skriptlang.skript.lang.converter.ConverterInfo;
-import org.skriptlang.skript.lang.converter.Converters;
 
 import java.lang.reflect.Array;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
-import java.util.List;
 
 /**
  * An implementation of the {@link Expression} interface. You should usually extend this class to make a new expression.
@@ -207,30 +203,6 @@ public abstract class SimpleExpression<T> implements Expression<T> {
 		// check whether this expression is already of type R
 		if (CollectionUtils.containsSuperclass(to, getReturnType()))
 			return (Expression<? extends R>) this;
-
-		// we might be able to cast some (or all) of the possible return types to R
-		// for possible return types that can't be directly cast, regular converters will be used
-		List<ConverterInfo<? extends T, R>> infos = new ArrayList<>();
-		for (Class<? extends T> type : this.possibleReturnTypes()) {
-			if (CollectionUtils.containsSuperclass(to, type)) { // this type is of R
-				// build a converter for casting to R
-				// safety check is present in the event that we do not get this type at runtime
-				infos.add(new ConverterInfo<>(type, (Class<R>) type, fromObject -> (R) fromObject, 0));
-			} else { // this possible return type is not included in 'to'
-				// build all converters for converting the possible return type into any of the types of 'to'
-				for (Class<R> toType : to) {
-					ConverterInfo<? extends T, R> converter = Converters.getConverterInfo(type, toType);
-					if (converter != null)
-						infos.add(converter);
-				}
-			}
-		}
-		if (!infos.isEmpty()) { // there are converters for (at least some of) the return types
-			//noinspection rawtypes
-			return new ConvertedExpression(this, Utils.getSuperType(infos.stream().map(ConverterInfo::getTo).toArray(Class[]::new)), infos, true);
-		}
-
-		// attempt traditional conversion with proper converters
 		return this.getConvertedExpr(to);
 	}
 
