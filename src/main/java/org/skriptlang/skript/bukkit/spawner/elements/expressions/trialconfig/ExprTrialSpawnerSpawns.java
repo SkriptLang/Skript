@@ -9,11 +9,13 @@ import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.event.Event;
 import org.bukkit.spawner.TrialSpawnerConfiguration;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.bukkit.spawner.SpawnerModule;
 
 public class ExprTrialSpawnerSpawns extends SimplePropertyExpression<TrialSpawnerConfiguration, Float> {
 
 	static {
-		register(ExprTrialSpawnerSpawns.class, Float.class, "(:additional|base) [spawner] spawn (amount|value)[s]", "trialspawnerconfigs");
+		register(SpawnerModule.SYNTAX_REGISTRY, ExprTrialSpawnerSpawns.class, Float.class,
+			"(:additional|base) [spawner] spawn (amount|value)[s]", "trialspawnerconfigs");
 	}
 
 	private boolean additional;

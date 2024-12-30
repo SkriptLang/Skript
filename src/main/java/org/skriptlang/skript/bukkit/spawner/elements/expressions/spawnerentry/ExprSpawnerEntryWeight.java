@@ -7,11 +7,13 @@ import org.bukkit.block.spawner.SpawnerEntry;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.bukkit.spawner.SpawnerModule;
 
 public class ExprSpawnerEntryWeight extends SimplePropertyExpression<SpawnerEntry, Integer> {
 
 	static {
-		registerDefault(ExprSpawnerEntryWeight.class, Integer.class, "spawner entry weight", "spawnerentries");
+		registerDefault(SpawnerModule.SYNTAX_REGISTRY, ExprSpawnerEntryWeight.class, Integer.class,
+			"spawner entry weight", "spawnerentries");
 	}
 
 	@Override

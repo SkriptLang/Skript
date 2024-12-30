@@ -4,7 +4,6 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.expressions.base.SectionExpression;
 import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.Trigger;
 import ch.njol.skript.lang.TriggerItem;
@@ -15,16 +14,26 @@ import org.bukkit.block.spawner.SpawnerEntry;
 import org.bukkit.entity.EntitySnapshot;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.bukkit.spawner.SpawnerModule;
 import org.skriptlang.skript.bukkit.spawner.events.SpawnerEntryCreateEvent;
+import org.skriptlang.skript.registration.SyntaxInfo;
+import org.skriptlang.skript.registration.SyntaxOrigin;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 import java.util.List;
 
 public class ExprSecSpawnerEntry extends SectionExpression<SpawnerEntry> {
 
 	static {
-		Skript.registerExpression(ExprSecSpawnerEntry.class, SpawnerEntry.class, ExpressionType.COMBINED,
-			"[a] spawner entry (using|with) %entitysnapshot%"
-		);
+		var info = SyntaxInfo.Expression.builder(ExprSecSpawnerEntry.class, SpawnerEntry.class)
+			.origin(SyntaxOrigin.of(Skript.instance()))
+			.supplier(ExprSecSpawnerEntry::new)
+			.priority(SyntaxInfo.COMBINED)
+			.addPattern("[a] spawner entry (using|with) %entitysnapshot%")
+			.build();
+
+		SpawnerModule.SYNTAX_REGISTRY.register(SyntaxRegistry.EXPRESSION, info);
+
 		EventValues.registerEventValue(SpawnerEntryCreateEvent.class, SpawnerEntry.class, SpawnerEntryCreateEvent::getSpawnerEntry);
 	}
 

@@ -4,14 +4,17 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.expressions.base.PropertyExpression;
 import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.bukkit.spawner.SpawnerModule;
 import org.skriptlang.skript.bukkit.spawner.util.SpawnerEquipmentWrapper;
 import org.skriptlang.skript.bukkit.spawner.util.SpawnerEquipmentWrapper.DropChance;
+import org.skriptlang.skript.registration.SyntaxInfo;
+import org.skriptlang.skript.registration.SyntaxOrigin;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,10 +22,16 @@ import java.util.List;
 public class ExprSpawnerEntryWithDropChances extends PropertyExpression<SpawnerEquipmentWrapper, DropChance> {
 
 	static {
-		Skript.registerExpression(ExprSpawnerEntryWithDropChances.class, DropChance.class, ExpressionType.PROPERTY,
-			"[the] spawner [entry] drop chance[s] (from|of) %spawnerentryequipments%",
-			"%spawnerentryequipments%'[s] spawner [entry] drop chance[s]"
-		);
+		var info = SyntaxInfo.Expression.builder(ExprSpawnerEntryWithDropChances.class, DropChance.class)
+			.origin(SyntaxOrigin.of(Skript.instance()))
+			.supplier(ExprSpawnerEntryWithDropChances::new)
+			.priority(PropertyExpression.DEFAULT_PRIORITY)
+			.addPatterns(
+				"[the] spawner [entry] drop chance[s] (from|of) %spawnerentryequipments%",
+				"%spawnerentryequipments%'[s] spawner [entry] drop chance[s]")
+			.build();
+
+		SpawnerModule.SYNTAX_REGISTRY.register(SyntaxRegistry.EXPRESSION, info);
 	}
 
 	@Override

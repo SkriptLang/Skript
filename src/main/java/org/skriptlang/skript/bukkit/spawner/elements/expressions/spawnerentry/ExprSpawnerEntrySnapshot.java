@@ -8,11 +8,13 @@ import org.bukkit.entity.EntitySnapshot;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.bukkit.spawner.SpawnerModule;
 
 public class ExprSpawnerEntrySnapshot extends SimplePropertyExpression<SpawnerEntry, EntitySnapshot> {
 
 	static {
-		registerDefault(ExprSpawnerEntrySnapshot.class, EntitySnapshot.class, "spawner entry snapshot", "spawnerentries");
+		registerDefault(SpawnerModule.SYNTAX_REGISTRY, ExprSpawnerEntrySnapshot.class, EntitySnapshot.class,
+			"spawner entry snapshot", "spawnerentries");
 	}
 
 	@Override

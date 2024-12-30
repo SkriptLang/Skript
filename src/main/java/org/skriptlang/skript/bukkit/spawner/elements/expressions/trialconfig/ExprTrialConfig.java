@@ -7,12 +7,14 @@ import ch.njol.util.Kleenean;
 import org.bukkit.block.Block;
 import org.bukkit.block.TrialSpawner;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.bukkit.spawner.SpawnerModule;
 import org.skriptlang.skript.bukkit.spawner.util.TrialSpawnerConfig;
 
 public class ExprTrialConfig extends SimplePropertyExpression<Block, TrialSpawnerConfig> {
 
 	static {
-		register(ExprTrialConfig.class, TrialSpawnerConfig.class, "[1:ominous|2:normal] [trial] spawner config[uration]", "blocks");
+		register(SpawnerModule.SYNTAX_REGISTRY, ExprTrialConfig.class, TrialSpawnerConfig.class,
+			"[1:ominous|2:normal] [trial] spawner config[uration]", "blocks");
 	}
 
 	private ConfigType type;

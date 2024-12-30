@@ -2,7 +2,6 @@ package org.skriptlang.skript.bukkit.spawner.elements.expressions.spawnerentry.e
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.SyntaxStringBuilder;
 import ch.njol.skript.lang.util.SimpleExpression;
@@ -10,14 +9,23 @@ import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.bukkit.inventory.EquipmentSlot;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.bukkit.spawner.SpawnerModule;
 import org.skriptlang.skript.bukkit.spawner.util.SpawnerEquipmentWrapper.DropChance;
+import org.skriptlang.skript.registration.SyntaxInfo;
+import org.skriptlang.skript.registration.SyntaxOrigin;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 public class ExprSpawnerEntryEquipmentChance extends SimpleExpression<DropChance> {
 
 	static {
-		Skript.registerExpression(ExprSpawnerEntryEquipmentChance.class, DropChance.class, ExpressionType.COMBINED,
-			"[a] spawner [entry] [drop|equipment] chance (for|of) %equipmentslot% [with drop chance %-number%]"
-		);
+		var info = SyntaxInfo.Expression.builder(ExprSpawnerEntryEquipmentChance.class, DropChance.class)
+			.origin(SyntaxOrigin.of(Skript.instance()))
+			.supplier(ExprSpawnerEntryEquipmentChance::new)
+			.priority(SyntaxInfo.COMBINED)
+			.addPattern("[a] spawner [entry] [drop|equipment] chance (for|of) %equipmentslot% [with drop chance %-number%]")
+			.build();
+
+		SpawnerModule.SYNTAX_REGISTRY.register(SyntaxRegistry.EXPRESSION, info);
 	}
 
 	private Expression<EquipmentSlot> slot;

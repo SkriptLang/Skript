@@ -7,12 +7,14 @@ import org.bukkit.event.Event;
 import org.bukkit.loot.LootTable;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.bukkit.spawner.SpawnerModule;
 import org.skriptlang.skript.bukkit.spawner.util.TrialSpawnerReward;
 
 public class ExprRewardLootTable extends SimplePropertyExpression<TrialSpawnerReward, LootTable> {
 
 	static {
-		register(ExprRewardLootTable.class, LootTable.class, "spawner reward loot[ ]table", "trialspawnerrewards");
+		register(SpawnerModule.SYNTAX_REGISTRY, ExprRewardLootTable.class, LootTable.class,
+			"spawner reward loot[ ]table", "trialspawnerrewards");
 	}
 
 	@Override
@@ -22,10 +24,9 @@ public class ExprRewardLootTable extends SimplePropertyExpression<TrialSpawnerRe
 
 	@Override
 	public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
-		return switch (mode) {
-			case SET -> CollectionUtils.array(LootTable.class);
-			default -> null;
-		};
+		if (mode == ChangeMode.SET)
+			return CollectionUtils.array(LootTable.class);
+		return null;
 	}
 
 	@Override

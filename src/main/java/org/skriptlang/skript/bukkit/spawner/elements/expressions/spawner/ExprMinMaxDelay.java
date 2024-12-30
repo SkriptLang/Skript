@@ -15,6 +15,7 @@ import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.event.Event;
 import org.bukkit.spawner.Spawner;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.bukkit.spawner.SpawnerModule;
 import org.skriptlang.skript.bukkit.spawner.util.SpawnerUtils;
 
 @Name("Spawner Spawn Delay")
@@ -31,7 +32,8 @@ import org.skriptlang.skript.bukkit.spawner.util.SpawnerUtils;
 public class ExprMinMaxDelay extends SimplePropertyExpression<Object, Timespan> {
 
 	static {
-		register(ExprMinMaxDelay.class, Timespan.class, "(1:max[imum]|min[imum]) spawn[er|ing] delay", "entities/blocks");
+		register(SpawnerModule.SYNTAX_REGISTRY, ExprMinMaxDelay.class, Timespan.class,
+			"(1:max[imum]|min[imum]) spawn[er|ing] delay", "entities/blocks");
 	}
 
 	private boolean isMax;

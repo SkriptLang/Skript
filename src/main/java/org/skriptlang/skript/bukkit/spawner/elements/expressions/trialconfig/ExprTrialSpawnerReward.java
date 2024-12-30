@@ -2,7 +2,6 @@ package org.skriptlang.skript.bukkit.spawner.elements.expressions.trialconfig;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.SyntaxStringBuilder;
 import ch.njol.skript.lang.util.SimpleExpression;
@@ -10,15 +9,25 @@ import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.bukkit.loot.LootTable;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.bukkit.spawner.SpawnerModule;
 import org.skriptlang.skript.bukkit.spawner.util.TrialSpawnerReward;
+import org.skriptlang.skript.registration.SyntaxInfo;
+import org.skriptlang.skript.registration.SyntaxOrigin;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 public class ExprTrialSpawnerReward extends SimpleExpression<TrialSpawnerReward> {
 
 	static {
-		Skript.registerExpression(ExprTrialSpawnerReward.class, TrialSpawnerReward.class, ExpressionType.COMBINED,
-			"[trial] spawner reward [with weight %-number% [and]] with [loot[ ]table] %loottable%",
-			"[trial] spawner reward with [loot[ ]table] %loottable% [[and] weight %-number%]"
-		);
+		var info = SyntaxInfo.Expression.builder(ExprTrialSpawnerReward.class, TrialSpawnerReward.class)
+			.origin(SyntaxOrigin.of(Skript.instance()))
+			.supplier(ExprTrialSpawnerReward::new)
+			.priority(SyntaxInfo.COMBINED)
+			.addPatterns(
+				"[trial] spawner reward [with weight %-number% [and]] with [loot[ ]table] %loottable%",
+				"[trial] spawner reward with [loot[ ]table] %loottable% [[and] weight %-number%]")
+			.build();
+
+		SpawnerModule.SYNTAX_REGISTRY.register(SyntaxRegistry.EXPRESSION, info);
 	}
 
 	private Expression<Number> weight;

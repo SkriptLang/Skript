@@ -18,17 +18,24 @@ import org.bukkit.entity.Entity;
 import org.bukkit.event.entity.SpawnerSpawnEvent;
 import org.bukkit.event.entity.TrialSpawnerSpawnEvent;
 import org.bukkit.inventory.EquipmentSlot;
+import org.skriptlang.skript.addon.AddonModule;
+import org.skriptlang.skript.addon.SkriptAddon;
+import org.skriptlang.skript.bukkit.spawner.util.SpawnRuleWrapper;
 import org.skriptlang.skript.bukkit.spawner.util.SpawnerEquipmentWrapper;
 import org.skriptlang.skript.bukkit.spawner.util.SpawnerEquipmentWrapper.DropChance;
 import org.skriptlang.skript.bukkit.spawner.util.TrialSpawnerConfig;
 import org.skriptlang.skript.bukkit.spawner.util.TrialSpawnerReward;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 import java.io.IOException;
 import java.util.StringJoiner;
 
-public class SpawnerModule {
+public class SpawnerModule implements AddonModule {
 
-	public static void load() throws IOException {
+	public static SyntaxRegistry SYNTAX_REGISTRY;
+
+	@Override
+	public void load(SkriptAddon addon) {
 		if (!Skript.classExists("org.bukkit.spawner.BaseSpawner"))
 			return;
 
@@ -103,8 +110,8 @@ public class SpawnerModule {
 				public String toString(SpawnerEntry entry, int flags) {
 					return "spawner entry with " +
 						Classes.toString(entry.getSnapshot()) +
-						" spawn rule " +
-						entry.getSpawnRule() +
+						" and " +
+						Classes.toString(entry.getSpawnRule()) +
 						" and weight " +
 						entry.getSpawnWeight();
 				}
@@ -173,7 +180,7 @@ public class SpawnerModule {
 			.name("Spawn Rule")
 			.description("Represents a spawn rule.")
 			.since("INSERT VERSION")
-			.defaultExpression(new EventValueExpression<>(SpawnRule.class))
+			.defaultExpression(new EventValueExpression<>(SpawnRuleWrapper.class))
 			.parser(new Parser<>() {
 				@Override
 				public boolean canParse(ParseContext context) {
@@ -217,7 +224,12 @@ public class SpawnerModule {
 			.since("INSERT VERSION")
 		);
 
-		Skript.getAddonInstance().loadClasses("org.skriptlang.skript.bukkit.spawner", "elements");
+		SYNTAX_REGISTRY = addon.syntaxRegistry();
+		try {
+			Skript.getAddonInstance().loadClasses("org.skriptlang.skript.bukkit.spawner", "elements");
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
 
 		EventValues.registerEventValue(SpawnerSpawnEvent.class, Block.class, event -> {
 			if (event.getSpawner() != null)

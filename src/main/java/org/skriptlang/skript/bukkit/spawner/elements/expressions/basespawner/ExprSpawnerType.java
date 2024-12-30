@@ -11,6 +11,7 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.event.Event;
 import org.bukkit.spawner.BaseSpawner;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.bukkit.spawner.SpawnerModule;
 import org.skriptlang.skript.bukkit.spawner.util.SpawnerUtils;
 import org.skriptlang.skript.bukkit.spawner.util.TrialSpawnerConfig;
 
@@ -26,7 +27,8 @@ import org.skriptlang.skript.bukkit.spawner.util.TrialSpawnerConfig;
 public class ExprSpawnerType extends SimplePropertyExpression<Object, EntityData> {
 
 	static {
-		register(ExprSpawnerType.class, EntityData.class, "spawner [entity|spawned] type[s]", "entities/blocks/trialspawnerconfigs");
+		register(SpawnerModule.SYNTAX_REGISTRY, ExprSpawnerType.class, EntityData.class,
+			"spawner [entity|spawned] type[s]", "entities/blocks/trialspawnerconfigs");
 	}
 
 	@Nullable

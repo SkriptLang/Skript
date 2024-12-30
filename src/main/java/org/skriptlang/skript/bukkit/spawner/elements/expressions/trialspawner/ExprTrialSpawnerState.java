@@ -10,11 +10,13 @@ import org.bukkit.block.data.type.TrialSpawner.State;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.bukkit.spawner.SpawnerModule;
 
 public class ExprTrialSpawnerState extends SimplePropertyExpression<Block, State> {
 
 	static {
-		register(ExprTrialSpawnerState.class, State.class, "[trial] spawner state", "blocks");
+		register(SpawnerModule.SYNTAX_REGISTRY, ExprTrialSpawnerState.class, State.class,
+			"[trial] spawner state", "blocks");
 	}
 
 	@Override

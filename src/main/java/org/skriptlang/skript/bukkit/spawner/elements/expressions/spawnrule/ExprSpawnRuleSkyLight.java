@@ -9,11 +9,12 @@ import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.block.spawner.SpawnRule;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.bukkit.spawner.SpawnerModule;
 
 public class ExprSpawnRuleSkyLight extends SimplePropertyExpression<SpawnRule, Integer> {
 
 	static {
-		registerDefault(ExprSpawnRuleSkyLight.class, Integer.class,
+		registerDefault(SpawnerModule.SYNTAX_REGISTRY, ExprSpawnRuleSkyLight.class, Integer.class,
 			"(1:max[imum]|min[imum]) spawn [rule] sky[ ]light (level|value)", "spawnrules"
 		);
 	}

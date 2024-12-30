@@ -6,6 +6,7 @@ import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.block.spawner.SpawnerEntry;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.bukkit.spawner.SpawnerModule;
 import org.skriptlang.skript.bukkit.spawner.util.SpawnerEquipmentWrapper;
 import org.skriptlang.skript.bukkit.spawner.util.SpawnerEquipmentWrapper.DropChance;
 
@@ -15,7 +16,8 @@ import java.util.List;
 public class ExprSpawnerEntryWithEquipment extends SimplePropertyExpression<SpawnerEntry, SpawnerEquipmentWrapper> {
 
 	static {
-		registerDefault(ExprSpawnerEntryWithEquipment.class, SpawnerEquipmentWrapper.class, "spawner entry equipment", "spawnerentries");
+		registerDefault(SpawnerModule.SYNTAX_REGISTRY, ExprSpawnerEntryWithEquipment.class, SpawnerEquipmentWrapper.class,
+			"spawner entry equipment", "spawnerentries");
 	}
 
 	@Override

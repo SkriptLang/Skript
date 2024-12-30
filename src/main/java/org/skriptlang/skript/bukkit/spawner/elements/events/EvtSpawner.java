@@ -13,6 +13,11 @@ import org.bukkit.event.Event;
 import org.bukkit.event.entity.SpawnerSpawnEvent;
 import org.bukkit.event.entity.TrialSpawnerSpawnEvent;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.bukkit.registration.BukkitSyntaxInfos;
+import org.skriptlang.skript.bukkit.spawner.SpawnerModule;
+import org.skriptlang.skript.registration.SyntaxInfo;
+import org.skriptlang.skript.registration.SyntaxOrigin;
+import org.skriptlang.skript.registration.SyntaxRegistry.Key;
 
 import java.util.List;
 
@@ -26,13 +31,16 @@ public class EvtSpawner extends SkriptEvent {
 		if (HAS_PRE)
 			events.add(PreSpawnerSpawnEvent.class);
 
-		//noinspection unchecked
-		Skript.registerEvent("Spawner Spawn", EvtSpawner.class, events.toArray(new Class[0]),"[1:pre|2:trial] spawner spawn[ing] [of %-entitydatas%]")
-			.description(
+		var info = BukkitSyntaxInfos.Event.builder(EvtSpawner.class, "Spawner Spawn")
+			.origin(SyntaxOrigin.of(Skript.instance()))
+			.supplier(EvtSpawner::new)
+			.priority(SyntaxInfo.COMBINED)
+			.addEvents(events)
+			.addDescription(
 				"Called when a spawner spawns an entity.",
 				"Use 'trial' to listen for trial spawner spawns.",
 				"Use 'pre' to listen for a spawner spawn before it happens.")
-			.examples(
+			.addExamples(
 				"on spawner spawn of pig:",
 					"\tbroadcast \"A little piggy spawned!\"",
 				"",
@@ -42,10 +50,12 @@ public class EvtSpawner extends SkriptEvent {
 				"on pre spawner spawn of zombie:",
 					"\tbroadcast \"A zombie is about to spawn from a spawner!\"")
 			.since("INSERT VERSION")
-			.requiredPlugins(
+			.addRequiredPlugins(
 				"MC 1.21+",
-				"Paper (for 'pre' option)"
-			);
+				"Paper (for 'pre' option)")
+			.build();
+
+		SpawnerModule.SYNTAX_REGISTRY.register(Key.of("structure"), info);
 	}
 
 	private Literal<EntityData<?>> entityTypes;

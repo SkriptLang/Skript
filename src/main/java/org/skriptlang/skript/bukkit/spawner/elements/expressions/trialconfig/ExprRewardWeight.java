@@ -5,12 +5,14 @@ import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.bukkit.spawner.SpawnerModule;
 import org.skriptlang.skript.bukkit.spawner.util.TrialSpawnerReward;
 
 public class ExprRewardWeight extends SimplePropertyExpression<TrialSpawnerReward, Integer> {
 
 	static {
-		register(ExprRewardWeight.class, Integer.class, "spawner reward weight", "trialspawnerrewards");
+		register(SpawnerModule.SYNTAX_REGISTRY, ExprRewardWeight.class, Integer.class,
+			"spawner reward weight", "trialspawnerrewards");
 	}
 
 	@Override

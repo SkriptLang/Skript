@@ -8,11 +8,13 @@ import org.bukkit.block.Block;
 import org.bukkit.block.TrialSpawner;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.bukkit.spawner.SpawnerModule;
 
 public class ExprCooldownLength extends SimplePropertyExpression<Block, Timespan> {
 
 	static {
-		register(ExprCooldownLength.class, Timespan.class, "[trial] spawner cooldown [length]", "blocks");
+		register(SpawnerModule.SYNTAX_REGISTRY, ExprCooldownLength.class, Timespan.class,
+			"[trial] spawner cooldown [length]", "blocks");
 	}
 
 	@Override

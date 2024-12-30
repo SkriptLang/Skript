@@ -6,12 +6,14 @@ import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.event.Event;
 import org.bukkit.spawner.Spawner;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.bukkit.spawner.SpawnerModule;
 import org.skriptlang.skript.bukkit.spawner.util.SpawnerUtils;
 
 public class ExprMaxNearbyEntities extends SimplePropertyExpression<Object, Integer> {
 
 	static {
-		register(ExprMaxNearbyEntities.class, Integer.class, "max[imum] [amount of] nearby [similar] entities", "entities/blocks");
+		register(SpawnerModule.SYNTAX_REGISTRY, ExprMaxNearbyEntities.class, Integer.class,
+			"max[imum] [amount of] nearby [similar] entities", "entities/blocks");
 	}
 
 	@Override

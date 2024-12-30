@@ -3,16 +3,18 @@ package org.skriptlang.skript.bukkit.spawner.elements.expressions.trialspawner;
 import ch.njol.skript.Skript;
 import ch.njol.skript.expressions.base.PropertyExpression;
 import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.SyntaxStringBuilder;
 import ch.njol.util.Kleenean;
 import org.bukkit.block.Block;
 import org.bukkit.block.TrialSpawner;
 import org.bukkit.entity.Entity;
-import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.bukkit.spawner.SpawnerModule;
+import org.skriptlang.skript.registration.SyntaxInfo;
+import org.skriptlang.skript.registration.SyntaxOrigin;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,10 +22,16 @@ import java.util.List;
 public class ExprTrackedEntities extends PropertyExpression<Block, Entity> {
 
 	static {
-		Skript.registerExpression(ExprTrackedEntities.class, Entity.class, ExpressionType.PROPERTY,
-			"[the] tracked (1:player[s]|entit(y|ies)) (from|of) %blocks%",
-			"%blocks%'[s] tracked (1:player[s]|entit(y|ies))"
-		);
+		var info = SyntaxInfo.Expression.builder(ExprTrackedEntities.class, Entity.class)
+			.origin(SyntaxOrigin.of(Skript.instance()))
+			.supplier(ExprTrackedEntities::new)
+			.priority(PropertyExpression.DEFAULT_PRIORITY)
+			.addPatterns(
+				"[the] tracked (1:player[s]|entit(y|ies)) (from|of) %blocks%",
+				"%blocks%'[s] tracked (1:player[s]|entit(y|ies))")
+			.build();
+
+		SpawnerModule.SYNTAX_REGISTRY.register(SyntaxRegistry.EXPRESSION, info);
 	}
 
 	private boolean players;

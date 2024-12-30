@@ -578,7 +578,7 @@ public final class Skript extends JavaPlugin implements Listener {
 			InputModule.load();
 			FurnaceModule.load();
 			LootTableModule.load();
-			SpawnerModule.load();
+			skript.loadModules(new SpawnerModule());
 		} catch (final Exception e) {
 			exception(e, "Could not load required .class files: " + e.getLocalizedMessage());
 			setEnabled(false);

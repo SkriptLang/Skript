@@ -7,12 +7,14 @@ import org.bukkit.event.Event;
 import org.bukkit.inventory.EquipmentSlot;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.bukkit.spawner.SpawnerModule;
 import org.skriptlang.skript.bukkit.spawner.util.SpawnerEquipmentWrapper.DropChance;
 
 public class ExprSpawnerEntryEquipmentSlot extends SimplePropertyExpression<DropChance, EquipmentSlot> {
 
 	static {
-		register(ExprSpawnerEntryEquipmentSlot.class, EquipmentSlot.class, "spawner [entry] equipment slot", "spawnerentryequipments");
+		register(SpawnerModule.SYNTAX_REGISTRY, ExprSpawnerEntryEquipmentSlot.class, EquipmentSlot.class,
+			"spawner [entry] equipment slot", "spawnerentryequipments");
 	}
 
 	@Override

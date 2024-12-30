@@ -6,12 +6,13 @@ import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.event.Event;
 import org.bukkit.spawner.Spawner;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.bukkit.spawner.SpawnerModule;
 import org.skriptlang.skript.bukkit.spawner.util.SpawnerUtils;
 
 public class ExprSpawnCount extends SimplePropertyExpression<Object, Integer> {
 
 	static {
-		register(ExprSpawnCount.class, Integer.class, "spawn count", "entities/blocks");
+		register(SpawnerModule.SYNTAX_REGISTRY, ExprSpawnCount.class, Integer.class, "spawn count", "entities/blocks");
 	}
 
 	@Override

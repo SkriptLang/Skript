@@ -7,12 +7,14 @@ import org.bukkit.event.Event;
 import org.bukkit.loot.LootTable;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.bukkit.spawner.SpawnerModule;
 import org.skriptlang.skript.bukkit.spawner.util.SpawnerEquipmentWrapper;
 
 public class ExprSpawnerEquipmentLootTable extends SimplePropertyExpression<SpawnerEquipmentWrapper, LootTable> {
 
 	static {
-		register(ExprSpawnerEquipmentLootTable.class, LootTable.class, "spawner equipment loot[ ]table", "spawnerentryequipments");
+		register(SpawnerModule.SYNTAX_REGISTRY, ExprSpawnerEquipmentLootTable.class, LootTable.class,
+			"spawner equipment loot[ ]table", "spawnerentryequipments");
 	}
 
 	@Override

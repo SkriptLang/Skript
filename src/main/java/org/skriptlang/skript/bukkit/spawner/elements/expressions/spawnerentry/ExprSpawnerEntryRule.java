@@ -7,11 +7,13 @@ import org.bukkit.block.spawner.SpawnRule;
 import org.bukkit.block.spawner.SpawnerEntry;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.bukkit.spawner.SpawnerModule;
 
 public class ExprSpawnerEntryRule extends SimplePropertyExpression<SpawnerEntry, SpawnRule> {
 
 	static {
-		registerDefault(ExprSpawnerEntryRule.class, SpawnRule.class, "spawner entry [spawn] rule", "spawnerentries");
+		registerDefault(SpawnerModule.SYNTAX_REGISTRY, ExprSpawnerEntryRule.class, SpawnRule.class,
+			"spawner entry [spawn] rule", "spawnerentries");
 	}
 
 	@Override

@@ -6,13 +6,15 @@ import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.event.Event;
 import org.bukkit.spawner.BaseSpawner;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.bukkit.spawner.SpawnerModule;
 import org.skriptlang.skript.bukkit.spawner.util.SpawnerUtils;
 import org.skriptlang.skript.bukkit.spawner.util.TrialSpawnerConfig;
 
 public class ExprActivationRange extends SimplePropertyExpression<Object, Integer> {
 
 	static {
-		register(ExprActivationRange.class, Integer.class, "spawner activation range", "entities/blocks/trialspawnerconfigs");
+		register(SpawnerModule.SYNTAX_REGISTRY, ExprActivationRange.class, Integer.class,
+			"spawner activation range", "entities/blocks/trialspawnerconfigs");
 	}
 
 	@Override
