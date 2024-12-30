@@ -19,31 +19,39 @@ import java.util.Map;
 
 @Name("Indices of X in List")
 @Description(
-		"Returns the indices or positions of a list where the value at that index is the provided value. " +
-			"Indices are only supported for variable lists and will return the string indices of the given value. " +
-			"Positions can be used with any list and will return the numerical position of the value in the list, counting up from 1."
+	"Returns the indices or positions of a list where the value at that index is the provided value. " +
+		"Indices are only supported for variable lists and will return the string indices of the given value. " +
+		"Positions can be used with any list and will return the numerical position of the value in the list, counting up from 1."
 )
 @Examples({
-		"set {_list::*} to 1, 2, 3, 1, 2, 3",
-		"set {_indices::*} to the indices of the value 1 in {_list::*}",
-		"# {_indices::*} is now \"1\", \"4\"",
-		"",
-		"set {_indices::*} to the indices of the value 2 in {_list::*}",
-		"# {_indices::*} is now \"2\", \"5\"",
-		"",
-		"set {_positions::*} to the positions of the value 3 in {_list::*}",
-		"# {_positions::*} is now 3, 6",
-		"",
-		"set {_otherlist::burb} to 100",
-		"set {_otherlist::burp} to 100",
-		"set {_otherlist::brup} to 100",
-		"set {_indices::*} to the first index of the value 100 in {_otherlist::*}",
-		"# {_indices::*} is now \"burb\"",
-		"set {_indices::*} to the last index of the value 100 in {_otherlist::*}",
-		"# {_indices::*} is now \"burp\"",
-		"",
-		"set {_positions::*} to the positions of the value 100 in {_otherlist::*}",
-		"# {_positions::*} is now 1, 2, 3",
+	"set {_list::*} to 1, 2, 3, 1, 2, 3",
+	"set {_indices::*} to the indices of the value 1 in {_list::*}",
+	"# {_indices::*} is now \"1\" and \"4\"",
+	"",
+	"set {_indices::*} to the indices of the value 2 in {_list::*}",
+	"# {_indices::*} is now \"2\" and \"5\"",
+	"",
+	"set {_positions::*} to the positions of the value 3 in {_list::*}",
+	"# {_positions::*} is now 3 and 6",
+	"",
+	"set {_otherlist::bar} to 100",
+	"set {_otherlist::hello} to \"hi\"",
+	"set {_otherlist::burb} to 100",
+	"set {_otherlist::tud} to \"hi\"",
+	"set {_otherlist::foo} to 100",
+	"",
+	"set {_indices::*} to the first index of the value 100 in {_otherlist::*}",
+	"# {_indices::*} is now \"bar\"",
+	"set {_indices::*} to the last index of the value 100 in {_otherlist::*}",
+	"# {_indices::*} is now \"foo\"",
+	"",
+	"set {_positions::*} to the positions of the value 100 in {_otherlist::*}",
+	"# {_positions::*} is now 1, 3 and 5",
+	"set {_positions::*} to the positions of the value \"hi\" in {_otherlist::*}",
+	"# {_positions::*} is now 2 and 4",
+	"",
+	"set {_positions::*} to positions of \"mega\" in \"small\", \"mega\", \"mega\", \"medium\", \"small\" and \"mega\"",
+	"# {_positions::*} is now 2, 3 and 6"
 })
 @Since("INSERT VERSION")
 public class ExprIndicesOfX extends SimpleExpression<Object> {
@@ -90,7 +98,7 @@ public class ExprIndicesOfX extends SimpleExpression<Object> {
 
 		List<Object> indices = new ArrayList<>();
 
-		int count = 1;
+		int position = 1;
 		if (objects instanceof Variable<?> list) {
 			//noinspection unchecked
 			Map<String, Object> variable = (Map<String, Object>) list.getRaw(event);
@@ -99,33 +107,45 @@ public class ExprIndicesOfX extends SimpleExpression<Object> {
 
 			for (Map.Entry<String, Object> entry : variable.entrySet()) {
 				Object entryValue = entry.getValue();
+				// the value of {foo::1} when {foo::1::bar} is set is a map with a null key of the value {foo::1}
 				if (entryValue instanceof Map<?, ?> map)
 					entryValue = map.get(null);
 
 				if (entryValue.equals(value)) {
-					if (position)
-						indices.add(count);
-					else
-						indices.add(entry.getKey());
+					Object index = getPositionOrIndex(entry.getKey(), position, this.position);
+
+					if (type == IndexType.FIRST)
+						return new Object[]{index};
+
+					indices.add(index);
 				}
-				count++;
+				position++;
 			}
 		} else {
 			for (Object object : objects.getArray(event)) {
-				if (object.equals(value))
-					indices.add(count);
-				count++;
+				if (object.equals(value)) {
+					if (type == IndexType.FIRST)
+						return new Object[]{position};
+
+					indices.add(position);
+				}
+				position++;
 			}
 		}
 
 		if (indices.isEmpty())
-			return new String[0];
+			return new Object[0];
 
-		if (type == IndexType.FIRST)
-			return new Object[]{indices.get(0)};
-		else if (type == IndexType.LAST)
+		if (type == IndexType.LAST)
 			return new Object[]{indices.get(indices.size() - 1)};
+
 		return indices.toArray();
+	}
+
+	private Object getPositionOrIndex(String key, int position, boolean count) {
+		if (count)
+			return position;
+		return key;
 	}
 
 	@Override
@@ -135,7 +155,7 @@ public class ExprIndicesOfX extends SimpleExpression<Object> {
 
 	@Override
 	public Class<?> getReturnType() {
-		if (position || !(objects instanceof Variable<?>))
+		if (!(objects instanceof Variable<?>) || position)
 			return Integer.class;
 		return String.class;
 	}
@@ -145,12 +165,13 @@ public class ExprIndicesOfX extends SimpleExpression<Object> {
 		SyntaxStringBuilder builder = new SyntaxStringBuilder(event, debug);
 
 		builder.append(type.name().toLowerCase());
-		if (type == IndexType.ALL)
+		if (type == IndexType.ALL) {
 			builder.append("indices");
-		else if (position)
+		} else if (position) {
 			builder.append("positions");
-		else
+		} else {
 			builder.append("index");
+		}
 		builder.append("of value", value, "in", objects);
 
 		return builder.toString();
