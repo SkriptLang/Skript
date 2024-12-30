@@ -102,8 +102,11 @@ public class ExprIndicesOfX extends SimpleExpression<Object> {
 		if (objects instanceof Variable<?> list) {
 			//noinspection unchecked
 			Map<String, Object> variable = (Map<String, Object>) list.getRaw(event);
-			if (variable == null)
+			if (variable == null) {
+				if (this.position)
+					return new Integer[0];
 				return new String[0];
+			}
 
 			for (Map.Entry<String, Object> entry : variable.entrySet()) {
 				Object entryValue = entry.getValue();
