@@ -10,6 +10,10 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Checker;
 import ch.njol.util.Kleenean;
+import org.jetbrains.annotations.ApiStatus;
+import org.skriptlang.skript.registration.SyntaxInfo;
+import org.skriptlang.skript.registration.SyntaxRegistry;
+import org.skriptlang.skript.util.Priority;
 
 /**
  * This class can be used for an easier writing of conditions that contain only one type in the pattern,
@@ -35,6 +39,14 @@ import ch.njol.util.Kleenean;
  * the first one needs to be a non-negated one and a negated one.
  */
 public abstract class PropertyCondition<T> extends Condition implements Checker<T> {
+
+	/**
+	 * A priority for {@link PropertyCondition}s.
+	 * They will be registered before {@link SyntaxInfo#PATTERN_MATCHES_EVERYTHING} expressions
+	 *  but after {@link SyntaxInfo#COMBINED} expressions.
+	 */
+	@ApiStatus.Experimental
+	public static final Priority DEFAULT_PRIORITY = Priority.before(SyntaxInfo.PATTERN_MATCHES_EVERYTHING);
 
 	/**
 	 * See {@link PropertyCondition} for more info
@@ -65,7 +77,47 @@ public abstract class PropertyCondition<T> extends Condition implements Checker<
 		WILL
 	}
 
-	private Expression<? extends T> expr;
+	/**
+	 * @param registry The SyntaxRegistry to register with.
+	 * @param condition The class to register
+	 * @param property The property name, for example <i>fly</i> in <i>players can fly</i>
+	 * @param type Must be plural, for example <i>players</i> in <i>players can fly</i>
+	 * @param <E> The Condition type.
+	 * @return The registered {@link SyntaxInfo}.
+	 */
+	@ApiStatus.Experimental
+	public static <E extends Condition> SyntaxInfo<E> register(SyntaxRegistry registry, Class<E> condition, String property, String type) {
+		return register(registry, condition, PropertyType.BE, property, type);
+	}
+
+	/**
+	 * @param registry The SyntaxRegistry to register with.
+	 * @param condition The class to register
+	 * @param propertyType The property type, see {@link PropertyType}
+	 * @param property The property name, for example <i>fly</i> in <i>players can fly</i>
+	 * @param type Must be plural, for example <i>players</i> in <i>players can fly</i>
+	 * @param <E> The Condition type.
+	 * @return The registered {@link SyntaxInfo}.
+	 */
+	@ApiStatus.Experimental
+	public static <E extends Condition> SyntaxInfo<E> register(SyntaxRegistry registry, Class<E> condition, PropertyType propertyType, String property, String type) {
+		if (type.contains("%"))
+			throw new SkriptAPIException("The type argument must not contain any '%'s");
+		SyntaxInfo.Builder<?, E> builder = SyntaxInfo.builder(condition).priority(DEFAULT_PRIORITY);
+		switch (propertyType) {
+			case BE -> builder.addPatterns("%" + type + "% (is|are) " + property,
+					"%" + type + "% (isn't|is not|aren't|are not) " + property);
+			case CAN -> builder.addPatterns("%" + type + "% can " + property,
+					"%" + type + "% (can't|cannot|can not) " + property);
+			case HAVE -> builder.addPatterns("%" + type + "% (has|have) " + property,
+					"%" + type + "% (doesn't|does not|do not|don't) have " + property);
+			case WILL -> builder.addPatterns("%" + type + "% will " + property,
+					"%" + type + "% (will (not|neither)|won't) " + property);
+		}
+		SyntaxInfo<E> info = builder.build();
+		registry.register(SyntaxRegistry.CONDITION, info);
+		return info;
+	}
 
 	/**
 	 * Registers a new property condition. The property type is set to {@link PropertyType#BE}.
@@ -122,6 +174,8 @@ public abstract class PropertyCondition<T> extends Condition implements Checker<
 			};
 		};
 	}
+
+	private Expression<? extends T> expr;
 
 	@Override
 	@SuppressWarnings("unchecked")

@@ -4,7 +4,7 @@ test "create un-creatable inventory":
 	assert composter inventory named "BOB" is set to fail with "This should fail, cannot create a player inventory"
 
 	# Test creating inventory types which can be created
-	assert chest inventory named "BOB"  is set with "Should be able to create a named chest inventory"
+	assert chest inventory named "BOB" is set with "Should be able to create a named chest inventory"
 	assert hopper inventory named "Mr Hopper" is set with "Should be able to create a named hopper inventory"
 
 	# Test opening an inventory type which cannot be created

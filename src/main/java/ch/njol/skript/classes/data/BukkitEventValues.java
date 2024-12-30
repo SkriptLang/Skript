@@ -4,6 +4,7 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.bukkitutil.InventoryUtils;
 import ch.njol.skript.command.CommandEvent;
+import ch.njol.skript.command.ScriptCommandEvent;
 import ch.njol.skript.events.bukkit.ScriptEvent;
 import ch.njol.skript.events.bukkit.SkriptStartEvent;
 import ch.njol.skript.events.bukkit.SkriptStopEvent;
@@ -25,6 +26,7 @@ import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.data.BlockData;
+import org.bukkit.command.BlockCommandSender;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.*;
 import org.bukkit.event.block.*;
@@ -242,7 +244,7 @@ public final class BukkitEventValues {
 			@Override
 			@Nullable
 			public Block get(final BlockIgniteEvent e) {
-				return e.getIgnitingBlock();
+				return e.getBlock();
 			}
 		}, 0);
 		// BlockDispenseEvent
@@ -965,6 +967,8 @@ public final class BukkitEventValues {
 				return e.getSender() instanceof Player ? ((Player) e.getSender()).getWorld() : null;
 			}
 		}, 0);
+		EventValues.registerEventValue(CommandEvent.class, Block.class,
+			event -> event.getSender() instanceof BlockCommandSender sender ? sender.getBlock() : null);
 
 		// === ServerEvents ===
 		// Script load/unload event
