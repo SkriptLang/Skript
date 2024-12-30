@@ -24,10 +24,9 @@ public class ExprSpawnerEquipmentWithLootTable extends SimplePropertyExpression<
 
 	@Override
 	public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
-		return switch (mode) {
-			case SET -> CollectionUtils.array(LootTable.class);
-			default -> null;
-		};
+		if (mode == ChangeMode.SET)
+			return CollectionUtils.array(LootTable.class);
+		return null;
 	}
 
 	@Override
