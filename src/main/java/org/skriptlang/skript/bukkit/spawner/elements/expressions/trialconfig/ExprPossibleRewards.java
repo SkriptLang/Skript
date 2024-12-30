@@ -50,7 +50,7 @@ public class ExprPossibleRewards extends PropertyExpression<TrialSpawnerConfig, 
 	protected TrialSpawnerReward[] get(Event event, TrialSpawnerConfig[] source) {
 		List<TrialSpawnerReward> rewards = new ArrayList<>();
 		for (TrialSpawnerConfig config : source) {
-			for (Map.Entry<LootTable, Integer> entrySet : config.getConfig().getPossibleRewards().entrySet()) {
+			for (Map.Entry<LootTable, Integer> entrySet : config.config().getPossibleRewards().entrySet()) {
 				rewards.add(new TrialSpawnerReward(entrySet.getKey(), entrySet.getValue()));
 			}
 		}
@@ -75,7 +75,7 @@ public class ExprPossibleRewards extends PropertyExpression<TrialSpawnerConfig, 
 			if (mode == ChangeMode.SET)
 				possibleRewards = new HashMap<>();
 
-			TrialSpawnerConfiguration config = trialConfig.getConfig();
+			TrialSpawnerConfiguration config = trialConfig.config();
 
 			for (Object object : delta) {
 				TrialSpawnerReward reward = (TrialSpawnerReward) object;
@@ -89,7 +89,7 @@ public class ExprPossibleRewards extends PropertyExpression<TrialSpawnerConfig, 
 			if (mode == ChangeMode.SET)
 				config.setPossibleRewards(possibleRewards);
 
-			SpawnerUtils.updateState(trialConfig.getState());
+			SpawnerUtils.updateState(trialConfig.state());
 		}
 	}
 

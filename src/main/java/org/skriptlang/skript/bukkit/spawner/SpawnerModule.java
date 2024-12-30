@@ -53,12 +53,12 @@ public class SpawnerModule implements AddonModule {
 				@Override
 				public String toString(TrialSpawnerConfig config, int flags) {
 					StringBuilder builder = new StringBuilder();
-					if (config.isOminous())
+					if (config.ominous())
 						builder.append("ominous ");
 					else
 						builder.append("normal ");
 					builder.append("trial spawner configuration of trial spawner at ")
-						.append(Classes.toString(config.getState().getLocation()));
+						.append(Classes.toString(config.state().getLocation()));
 					return builder.toString();
 				}
 

@@ -24,10 +24,9 @@ public class ExprSpawnerEntrySnapshot extends SimplePropertyExpression<SpawnerEn
 
 	@Override
 	public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
-		return switch (mode) {
-			case SET -> CollectionUtils.array(EntitySnapshot.class);
-			default -> null;
-		};
+		if (mode == ChangeMode.SET)
+			return CollectionUtils.array(EntitySnapshot.class);
+		return null;
 	}
 
 	@Override

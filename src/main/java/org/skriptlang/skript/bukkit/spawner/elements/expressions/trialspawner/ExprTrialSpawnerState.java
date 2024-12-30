@@ -54,6 +54,7 @@ public class ExprTrialSpawnerState extends SimplePropertyExpression<Block, State
 							if (count == 0)
 								return;
 						}
+						//noinspection ConstantConditions
 						trialSpawner.setTrialSpawnerState(state);
 					}
 					case DELETE, RESET -> trialSpawner.setTrialSpawnerState(State.INACTIVE);

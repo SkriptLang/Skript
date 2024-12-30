@@ -64,7 +64,7 @@ public class ExprSpawnerType extends SimplePropertyExpression<Object, EntityData
 			}
 
 			if (object instanceof TrialSpawnerConfig config)
-				SpawnerUtils.updateState(config.getState());
+				SpawnerUtils.updateState(config.state());
 			else
 				SpawnerUtils.updateState(spawner);
 		}

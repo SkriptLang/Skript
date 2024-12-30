@@ -24,10 +24,9 @@ public class ExprSpawnerEntryEquipmentSlot extends SimplePropertyExpression<Drop
 
 	@Override
 	public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
-		return switch (mode) {
-			case SET -> CollectionUtils.array(EquipmentSlot.class);
-			default -> null;
-		};
+		if (mode == ChangeMode.SET)
+			return CollectionUtils.array(EquipmentSlot.class);
+		return null;
 	}
 
 	@Override

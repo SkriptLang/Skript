@@ -64,7 +64,7 @@ public class ExprSpawnerDelay extends SimplePropertyExpression<Object, Timespan>
 			}
 
 			if (object instanceof TrialSpawnerConfig config)
-				SpawnerUtils.updateState(config.getState());
+				SpawnerUtils.updateState(config.state());
 			else
 				SpawnerUtils.updateState(base);
 		}

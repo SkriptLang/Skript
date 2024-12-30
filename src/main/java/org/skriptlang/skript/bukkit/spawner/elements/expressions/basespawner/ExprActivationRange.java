@@ -50,7 +50,7 @@ public class ExprActivationRange extends SimplePropertyExpression<Object, Intege
 			}
 
 			if (object instanceof TrialSpawnerConfig config)
-				SpawnerUtils.updateState(config.getState());
+				SpawnerUtils.updateState(config.state());
 			else
 				SpawnerUtils.updateState(spawner);
 		}

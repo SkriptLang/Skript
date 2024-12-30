@@ -51,9 +51,9 @@ public class ExprTrackedEntityAmount extends PropertyExpression<TrialSpawnerConf
 		List<Float> values = new ArrayList<>();
 		for (TrialSpawnerConfig config : source) {
 			if (additional) {
-				values.add(config.getConfig().getAdditionalSimultaneousEntities());
+				values.add(config.config().getAdditionalSimultaneousEntities());
 			} else {
-				values.add(config.getConfig().getBaseSimultaneousEntities());
+				values.add(config.config().getBaseSimultaneousEntities());
 			}
 		}
 
@@ -74,7 +74,7 @@ public class ExprTrackedEntityAmount extends PropertyExpression<TrialSpawnerConf
 		float amount = (float) delta[0];
 
 		for (TrialSpawnerConfig trialConfig : getExpr().getArray(event)) {
-			TrialSpawnerConfiguration config = trialConfig.getConfig();
+			TrialSpawnerConfiguration config = trialConfig.config();
 			if (additional) {
 				switch (mode) {
 					case SET -> config.setAdditionalSimultaneousEntities(amount);
@@ -91,7 +91,7 @@ public class ExprTrackedEntityAmount extends PropertyExpression<TrialSpawnerConf
 				}
 			}
 
-			SpawnerUtils.updateState(trialConfig.getState());
+			SpawnerUtils.updateState(trialConfig.state());
 		}
 	}
 

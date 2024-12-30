@@ -24,9 +24,7 @@ public class ExprSpawnerEntryWithEquipment extends SimplePropertyExpression<Spaw
 	public @Nullable SpawnerEquipmentWrapper convert(SpawnerEntry entry) {
 		if (entry.getEquipment() != null) {
 			List<DropChance> equipment = new ArrayList<>();
-			entry.getEquipment().getDropChances().forEach((key, value) -> {
-				equipment.add(new DropChance(key, value));
-			});
+			entry.getEquipment().getDropChances().forEach((slot, chance) -> equipment.add(new DropChance(slot, chance)));
 			return new SpawnerEquipmentWrapper(entry.getEquipment().getEquipmentLootTable(), equipment);
 		}
 		return null;
@@ -34,10 +32,9 @@ public class ExprSpawnerEntryWithEquipment extends SimplePropertyExpression<Spaw
 
 	@Override
 	public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
-		return switch (mode) {
-			case SET -> CollectionUtils.array(SpawnerEquipmentWrapper.class);
-			default -> null;
-		};
+		if (mode == ChangeMode.SET)
+			return CollectionUtils.array(SpawnerEquipmentWrapper.class);
+		return null;
 	}
 
 	@Override

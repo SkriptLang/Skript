@@ -50,7 +50,7 @@ public class ExprTrialConfig extends SimplePropertyExpression<Block, TrialSpawne
 	}
 
 	private enum ConfigType {
-		CURRENT, OMINOUS, NORMAL;
+		CURRENT, OMINOUS, NORMAL
 	}
 
 }

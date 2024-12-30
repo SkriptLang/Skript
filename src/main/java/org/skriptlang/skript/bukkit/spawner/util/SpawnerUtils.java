@@ -30,7 +30,7 @@ public class SpawnerUtils {
 		else if (object instanceof SpawnerMinecart spawner)
 			return spawner;
 		else if (object instanceof TrialSpawnerConfig config)
-			return config.getConfig();
+			return config.config();
 		return null;
 	}
 

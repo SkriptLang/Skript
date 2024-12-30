@@ -13,11 +13,11 @@ import org.bukkit.event.Event;
 import org.bukkit.event.entity.SpawnerSpawnEvent;
 import org.bukkit.event.entity.TrialSpawnerSpawnEvent;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.bukkit.registration.BukkitRegistryKeys;
 import org.skriptlang.skript.bukkit.registration.BukkitSyntaxInfos;
 import org.skriptlang.skript.bukkit.spawner.SpawnerModule;
 import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.registration.SyntaxOrigin;
-import org.skriptlang.skript.registration.SyntaxRegistry.Key;
 
 import java.util.List;
 
@@ -55,7 +55,7 @@ public class EvtSpawner extends SkriptEvent {
 				"Paper (for 'pre' option)")
 			.build();
 
-		SpawnerModule.SYNTAX_REGISTRY.register(Key.of("structure"), info);
+		SpawnerModule.SYNTAX_REGISTRY.register(BukkitRegistryKeys.EVENT, info);
 	}
 
 	private Literal<EntityData<?>> entityTypes;
