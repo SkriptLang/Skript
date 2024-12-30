@@ -59,7 +59,7 @@ public class ExprSpawnerDelay extends SimplePropertyExpression<Object, Timespan>
 				case REMOVE -> base.setDelay(base.getDelay() - ticksAsInt);
 				case RESET -> {
 					if (base instanceof Spawner spawner)
-						spawner.resetTimer();
+						spawner.setDelay(-1);
 				}
 			}
 
