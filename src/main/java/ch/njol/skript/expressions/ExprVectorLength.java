@@ -18,18 +18,20 @@
  */
 package ch.njol.skript.expressions;
 
-import ch.njol.util.VectorMath;
-import org.bukkit.event.Event;
-import org.bukkit.util.Vector;
-import org.jetbrains.annotations.Nullable;
-
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
+import ch.njol.skript.lang.Expression;
+import ch.njol.util.VectorMath;
 import ch.njol.util.coll.CollectionUtils;
+import org.bukkit.event.Event;
+import org.bukkit.util.Vector;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.function.Function;
 
 @Name("Vectors - Length")
 @Description("Gets or sets the length of a vector.")
@@ -61,39 +63,49 @@ public class ExprVectorLength extends SimplePropertyExpression<Vector, Number> {
 	}
 
 	@Override
-	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
+	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
 		assert delta != null;
-		final Vector[] vectors = getExpr().getArray(event);
 		double deltaLength = ((Number) delta[0]).doubleValue();
+
+		Function<Vector, Vector> changeFunction;
 		switch (mode) {
 			case REMOVE:
 				deltaLength = -deltaLength;
 				//$FALL-THROUGH$
 			case ADD:
-				for (Vector vector : vectors) {
-					if (VectorMath.isZero(vector) || (deltaLength < 0 && vector.lengthSquared() < deltaLength * deltaLength)) {
+				final double finalDeltaLength = deltaLength;
+				final double finalDeltaLengthSquared = deltaLength * deltaLength;
+				changeFunction = vector -> {
+					if (VectorMath.isZero(vector) || (finalDeltaLength < 0 && vector.lengthSquared() < finalDeltaLengthSquared)) {
 						vector.zero();
 					} else {
-						double newLength = deltaLength + vector.length();
+						double newLength = finalDeltaLength + vector.length();
 						if (!vector.isNormalized())
 							vector.normalize();
 						vector.multiply(newLength);
 					}
-				}
+					return vector;
+				};
 				break;
 			case SET:
-				for (Vector vector : vectors) {
-					if (deltaLength < 0 || VectorMath.isZero(vector)) {
+				final double finalDeltaLength1 = deltaLength;
+				changeFunction = vector -> {
+					if (finalDeltaLength1 < 0 || VectorMath.isZero(vector)) {
 						vector.zero();
 					} else {
 						if (!vector.isNormalized())
 							vector.normalize();
-						vector.multiply(deltaLength);
+						vector.multiply(finalDeltaLength1);
 					}
-				}
+					return vector;
+				};
 				break;
+			default:
+				return;
 		}
-		getExpr().change(event, vectors, ChangeMode.SET);
+
+		//noinspection unchecked,DataFlowIssue
+		((Expression<Vector>) getExpr()).changeInPlace(event, changeFunction);
 	}
 
 	@Override

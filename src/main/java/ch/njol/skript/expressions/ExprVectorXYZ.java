@@ -18,10 +18,6 @@
  */
 package ch.njol.skript.expressions;
 
-import org.bukkit.event.Event;
-import org.bukkit.util.Vector;
-import org.jetbrains.annotations.Nullable;
-
 import ch.njol.skript.classes.Changer;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
@@ -33,6 +29,11 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
+import org.bukkit.event.Event;
+import org.bukkit.util.Vector;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.function.Function;
 
 @Name("Vectors - XYZ Component")
 @Description("Gets or changes the x, y or z component of a vector.")
@@ -84,39 +85,45 @@ public class ExprVectorXYZ extends SimplePropertyExpression<Vector, Number> {
 	@Override
 	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
 		assert delta != null;
-		Vector[] vectors = getExpr().getArray(event);
-		if (vectors.length == 0)
-			return;
 		double deltaValue = ((Number) delta[0]).doubleValue();
+		Function<Vector, Vector> changeFunction;
 		switch (mode) {
 			case REMOVE:
 				deltaValue = -deltaValue;
 				//$FALL-THROUGH$
 			case ADD:
-				for (Vector vector : vectors) {
-					if (axis == 0)
-						vector.setX(vector.getX() + deltaValue);
-					else if (axis == 1)
-						vector.setY(vector.getY() + deltaValue);
-					else
-						vector.setZ(vector.getZ() + deltaValue);
-				}
+				final double finalDeltaValue1 = deltaValue;
+				changeFunction = vector -> {
+					if (axis == 0) {
+						vector.setX(vector.getX() + finalDeltaValue1);
+					} else if (axis == 1) {
+						vector.setY(vector.getY() + finalDeltaValue1);
+					} else {
+						vector.setZ(vector.getZ() + finalDeltaValue1);
+					}
+					return vector;
+				};
 				break;
 			case SET:
-				for (Vector vector : vectors) {
-					if (axis == 0)
-						vector.setX(deltaValue);
-					else if (axis == 1)
-						vector.setY(deltaValue);
-					else
-						vector.setZ(deltaValue);
-				}
+				final double finalDeltaValue = deltaValue;
+				changeFunction = vector -> {
+					if (axis == 0) {
+						vector.setX(finalDeltaValue);
+					} else if (axis == 1) {
+						vector.setY(finalDeltaValue);
+					} else {
+						vector.setZ(finalDeltaValue);
+					}
+					return vector;
+				};
 				break;
 			default:
 				assert false;
 				return;
 		}
-		getExpr().change(event, vectors, ChangeMode.SET);
+
+		//noinspection unchecked,DataFlowIssue
+		((Expression<Vector>) getExpr()).changeInPlace(event, changeFunction);
 	}
 
 	@Override
