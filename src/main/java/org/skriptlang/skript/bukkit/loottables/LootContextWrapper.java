@@ -23,7 +23,7 @@ public class LootContextWrapper {
 	 * @param location the location of the LootContext.
 	 */
 	public LootContextWrapper(@NotNull Location location) {
-        this.location = location;
+		this.location = location;
 	}
 
 	/**
