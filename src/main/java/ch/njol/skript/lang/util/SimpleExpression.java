@@ -225,19 +225,7 @@ public abstract class SimpleExpression<T> implements Expression<T> {
 				}
 			}
 		}
-		int size = infos.size();
-		if (size == 1) { // if there is only one info, there is no need to wrap it in a list
-			ConverterInfo<? extends T, R> info = infos.get(0);
-			// we need to remake this converter info with a runtime safety check
-			// this is handled by ConvertedExpression
-			//noinspection rawtypes
-			return new ConvertedExpression(this, info.getTo(), new ConverterInfo<>(info.getFrom(), info.getTo(), fromObject -> {
-				if (info.getFrom().isInstance(fromObject))
-					return (R) fromObject;
-				return null;
-			}, info.getFlags()));
-		}
-		if (size > 1) {
+		if (!infos.isEmpty()) { // there are converters for (at least some of) the return types
 			//noinspection rawtypes
 			return new ConvertedExpression(this, Utils.getSuperType(infos.stream().map(ConverterInfo::getTo).toArray(Class[]::new)), infos, true);
 		}
