@@ -2,7 +2,7 @@
 # The exact function from the issue
 local function test(uuid: string, s: string) :: boolean:
 	if {_uuid} is set:
-		if  {_s} is set:
+		if {_s} is set:
 			return true
 	return false
 

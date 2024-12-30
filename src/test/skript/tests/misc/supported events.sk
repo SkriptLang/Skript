@@ -1,0 +1,5 @@
+test "supported events":
+	parse:
+		set {_x} to the exploded blocks
+
+	assert last parse logs contain "'the exploded blocks' can only be used in the entity explode event" with "supported events message did not get sent correctly"
