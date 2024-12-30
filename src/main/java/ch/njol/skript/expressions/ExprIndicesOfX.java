@@ -93,8 +93,11 @@ public class ExprIndicesOfX extends SimpleExpression<Object> {
 	@Override
 	protected Object @Nullable [] get(Event event) {
 		Object value = this.value.getSingle(event);
-		if (value == null)
+		if (value == null) {
+			if (this.position)
+				return new Integer[0];
 			return new String[0];
+		}
 
 		List<Object> indices = new ArrayList<>();
 
@@ -132,7 +135,6 @@ public class ExprIndicesOfX extends SimpleExpression<Object> {
 				if (object.equals(value)) {
 					if (type == IndexType.FIRST)
 						return new Integer[]{position};
-
 					indices.add(position);
 				}
 				position++;
