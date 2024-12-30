@@ -1713,9 +1713,11 @@ public final class Skript extends JavaPlugin implements Listener {
 		for (StackTraceElement element : stackTrace) {
 			try {
 				Class<?> clazz = Class.forName(element.getClassName());
-				Plugin plugin = JavaPlugin.getProvidingPlugin(clazz);
-				stackPlugins.add(plugin.getDescription());
-			} catch (ClassNotFoundException ignored) {
+				if (Plugin.class.isAssignableFrom(clazz)) {
+					Plugin plugin = JavaPlugin.getProvidingPlugin(clazz);
+					stackPlugins.add(plugin.getDescription());
+				}
+			} catch (ClassNotFoundException | NoClassDefFoundError | IllegalStateException ignored) {
 			}
 		}
 		return stackPlugins;
