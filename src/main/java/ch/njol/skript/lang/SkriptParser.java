@@ -351,9 +351,9 @@ public class SkriptParser {
 			if ((flags & PARSE_EXPRESSIONS) != 0) {
 				Expression<?> parsedExpression = parseExpression(types, expr);
 				if (parsedExpression != null) { // Expression/VariableString parsing success
+					Class<?> parsedReturnType = parsedExpression.getReturnType();
 					for (Class<? extends T> type : types) {
-						// Check return type against everything that expression accepts
-						if (parsedExpression.canReturn(type)) {
+						if (type.isAssignableFrom(parsedReturnType)) {
 							log.printLog();
 							return (Expression<? extends T>) parsedExpression;
 						}
@@ -519,13 +519,14 @@ public class SkriptParser {
 			if ((flags & PARSE_EXPRESSIONS) != 0) {
 				Expression<?> parsedExpression = parseExpression(types, expr);
 				if (parsedExpression != null) { // Expression/VariableString parsing success
+					Class<?> parsedReturnType = parsedExpression.getReturnType();
 					for (int i = 0; i < types.length; i++) {
 						Class<?> type = types[i];
 						if (type == null) // Ignore invalid (null) types
 							continue;
 
-						// Check return type against everything that expression accepts
-						if (parsedExpression.canReturn(type)) {
+						// Check return type against the expression's return type
+						if (type.isAssignableFrom(parsedReturnType)) {
 							if (!exprInfo.isPlural[i] && !parsedExpression.isSingle()) { // Wrong number of arguments
 								if (context == ParseContext.COMMAND) {
 									Skript.error(Commands.m_too_many_arguments.toString(exprInfo.classes[i].getName().getIndefiniteArticle(), exprInfo.classes[i].getName().toString()), ErrorQuality.SEMANTIC_ERROR);

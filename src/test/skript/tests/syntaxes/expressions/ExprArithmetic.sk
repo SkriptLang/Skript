@@ -1,247 +1,247 @@
 test "number - number operations":
 
-    # --Addition/Subtraction--
+	# --Addition/Subtraction--
 
-    assert (1 + 1) is (2) with "1 + 1 is not 2"
-    assert (2 + 2) is (4) with "2 + 2 is not 4"
-    assert (3 - 3) is (0) with "3 - 3 is not 0"
-    assert (4 - 2) is (2) with "4 - 2 is not 2"
-    assert (5 + 1) is (6) with "5 + 1 is not 6"
-    assert (6 - -2) is (8) with "6 - -2 is not 8"
-    assert (4-(40)) is (-36) with "4 - 40 is not -36"
+	assert (1 + 1) is (2) with "1 + 1 is not 2"
+	assert (2 + 2) is (4) with "2 + 2 is not 4"
+	assert (3 - 3) is (0) with "3 - 3 is not 0"
+	assert (4 - 2) is (2) with "4 - 2 is not 2"
+	assert (5 + 1) is (6) with "5 + 1 is not 6"
+	assert (6 - -2) is (8) with "6 - -2 is not 8"
+	assert (4-(40)) is (-36) with "4 - 40 is not -36"
 
-    # --Multiplication--
-    
-    assert (1*5) is (5) with "1 * 5 is not 5"
-    assert (2*5) is (10) with "2 * 5 is not 10"
-    assert (3*-5) is (-15) with "3 * -5 is not 15"
-    assert (4*0) is (0) with "4 * 0 is not 0"
-    assert (5*infinity value) is (infinity value) with "5 * infinity is not infinity"
+	# --Multiplication--
 
-    # --Division--
+	assert (1*5) is (5) with "1 * 5 is not 5"
+	assert (2*5) is (10) with "2 * 5 is not 10"
+	assert (3*-5) is (-15) with "3 * -5 is not 15"
+	assert (4*0) is (0) with "4 * 0 is not 0"
+	assert (5*infinity value) is (infinity value) with "5 * infinity is not infinity"
 
-    assert (1/5) is (0.2) with "1 / 5 is not 0.2"
-    assert (2/5) is (0.4) with "2 / 5 is not 0.4"
-    assert (3/-5) is (-0.6) with "3 / -5 is not -0.6"
-    assert (4/0) is (infinity value) with "4 / 0 is not infinity"
-    assert (5/0) is (infinity value) with "5 / 0 is not infinity"
-    assert isNaN(0/0) is true with "0 / 0 is not NaN"
-    assert (5/2.5) is (2) with "5 / 2.5 is not 2"
+	# --Division--
 
-    # --Exponents--
+	assert (1/5) is (0.2) with "1 / 5 is not 0.2"
+	assert (2/5) is (0.4) with "2 / 5 is not 0.4"
+	assert (3/-5) is (-0.6) with "3 / -5 is not -0.6"
+	assert (4/0) is (infinity value) with "4 / 0 is not infinity"
+	assert (5/0) is (infinity value) with "5 / 0 is not infinity"
+	assert isNaN(0/0) is true with "0 / 0 is not NaN"
+	assert (5/2.5) is (2) with "5 / 2.5 is not 2"
 
-    assert (1^5) is (1) with "1 ^ 5 is not 1"
-    assert (2^5) is (32) with "2 ^ 5 is not 32"
-    assert (3^-5) is (0.00411522633) with "3 ^ -5 is not 0.00411522633"
-    assert (4^0) is (1) with "4 ^ 0 is not 1"
-    assert (5^0) is (1) with "5 ^ 0 is not 1"
-    assert (0^0) is (1) with "0 ^ 0 is not 1"
-    assert (5^2.5) - 55.901 < 0.001 with "5 ^ 2.5 is not 55.9"
+	# --Exponents--
 
-    # --Order of Operations--
+	assert (1^5) is (1) with "1 ^ 5 is not 1"
+	assert (2^5) is (32) with "2 ^ 5 is not 32"
+	assert (3^-5) is (0.00411522633) with "3 ^ -5 is not 0.00411522633"
+	assert (4^0) is (1) with "4 ^ 0 is not 1"
+	assert (5^0) is (1) with "5 ^ 0 is not 1"
+	assert (0^0) is (1) with "0 ^ 0 is not 1"
+	assert (5^2.5) - 55.901 < 0.001 with "5 ^ 2.5 is not 55.9"
 
-    assert (1 + 2 - 1 * 3) is (0) with "1 + 2 - 1 * 3 is not 0"
-    assert (1 + 2 - 1 / 2 * 3 ) is (1.5) with "1 + 2 - 1 / 2 * 3  is not 1.5"
-    assert (1 + (2) - 1 / (2) * 3) is (1.5) with "1 + (2) - 1 / (2) * 3 is not 1.5"
-    assert (1 + (2 - 1 / 2) * 3) is (5.5) with "1 + (2 - 1 / 2) * 3 is not 5.5"
-    assert (1 + 2 - 1 / 2 * 3 + 4 - 5 * 6 / 2 ) is (-9.5) with "1 + 2 - 1 / 2 * 3 + 4 - 5 * 6 / 2  is not -9.5"
-    assert (1 + (1 - 2) * 3) is (-2) with "1 + (1 - 2) * 3 is not -2"
+	# --Order of Operations--
 
-    # --Edge Cases--
+	assert (1 + 2 - 1 * 3) is (0) with "1 + 2 - 1 * 3 is not 0"
+	assert (1 + 2 - 1 / 2 * 3 ) is (1.5) with "1 + 2 - 1 / 2 * 3 is not 1.5"
+	assert (1 + (2) - 1 / (2) * 3) is (1.5) with "1 + (2) - 1 / (2) * 3 is not 1.5"
+	assert (1 + (2 - 1 / 2) * 3) is (5.5) with "1 + (2 - 1 / 2) * 3 is not 5.5"
+	assert (1 + 2 - 1 / 2 * 3 + 4 - 5 * 6 / 2 ) is (-9.5) with "1 + 2 - 1 / 2 * 3 + 4 - 5 * 6 / 2 is not -9.5"
+	assert (1 + (1 - 2) * 3) is (-2) with "1 + (1 - 2) * 3 is not -2"
 
-    assert (0^99999) is (0) with "0^99999 is not 0"
-    assert (1 + 2.3 + 3.01) is (6.31) with "1 + 2.3 + 3.01 is not 6.31"
-    assert (0.1 + 0.1 + 0.1) is (0.30000000000000004) with "0.1 + 0.1 + 0.1 is not 0.30000000000000004"
-    assert (1/-infinity value) is (-0) with "1/-infinity value is not -0"
+	# --Edge Cases--
+
+	assert (0^99999) is (0) with "0^99999 is not 0"
+	assert (1 + 2.3 + 3.01) is (6.31) with "1 + 2.3 + 3.01 is not 6.31"
+	assert (0.1 + 0.1 + 0.1) is (0.30000000000000004) with "0.1 + 0.1 + 0.1 is not 0.30000000000000004"
+	assert (1/-infinity value) is (-0) with "1/-infinity value is not -0"
 
 
-    # --Standard Operations--
+	# --Standard Operations--
 
-    set {_x} to 1
-    set {_y} to 2
-    set {_z} to 3
-    assert ({_x}) is (1) with "{_x} is not 1"
-    assert ({_y}) is (2) with "{_y} is not 2"
-    assert ({_z}) is (3) with "{_z} is not 3"
-    assert ({_x} + {_y} + {_z}) is (6) with "1 + 2 + 3 is not 6"
-    assert ({_x} + {_y} - {_z}) is (0) with "1 + 2 - 3 is not 0"
-    assert ({_x} + {_y} * {_z}) is (7) with "1 + 2 * 3 is not 7"
-    assert ({_x} + {_y} / {_z}) is (1.6666666666666667) with "1 + 2 / 3 is not 1.6666666666666667"
-    assert ({_x} + {_y} ^ {_z}) is (9) with "1 + 2 ^ 3 is not 9"
-    assert ({_x} - {_y} + {_z}) is (2) with "1 - 2 + 3 is not 2"
-    assert ({_x} - {_y} - {_z}) is (-4) with "1 - 2 - 3 is not -4"
-    assert ({_x} - {_y} * {_z}) is (-5) with "1 - 2 * 3 is not -5"
-    assert ({_x} - {_y} / {_z}) is (0.3333333333333333) with "1 - 2 / 3 is not 0.3333333333333333"
-    assert ({_x} - {_y} ^ {_z}) is (-7) with "1 - 2 ^ 3 is not -7"
-    assert ({_x} * {_y} + {_z}) is (5) with "1 * 2 + 3 is not 5"
-    assert ({_x} * {_y} - {_z}) is (-1) with "1 * 2 - 3 is not -1"
-    assert ({_x} * {_y} * {_z}) is (6) with "1 * 2 * 3 is not 6"
-    assert ({_x} * {_y} / {_z}) is (0.6666666666666666) with "1 * 2 / 3 is not 0.6666666666666666"
-    assert ({_x} * {_y} ^ {_z}) is (8) with "1 * 2 ^ 3 is not 8"
-    assert ({_x} / {_y} + {_z}) is (3.5) with "1 / 2 + 3 is not 3.5"
-    assert ({_x} / {_y} - {_z}) is (-2.5) with "1 / 2 - 3 is not -2.5"
-    assert ({_x} / {_y} * {_z}) is (1.5) with "1 / 2 * 3 is not 1.5"
-    assert ({_x} / {_y} / {_z}) is (0.16666666666666666) with "1 / 2 / 3 is not 0.16666666666666666"
-    assert ({_x} / {_y} ^ {_z}) is (0.125) with "1 / 2 ^ 3 is not 0.125"
-    assert ({_x} ^ {_y} + {_z}) is (4) with "1 ^ 2 + 3 is not 4"
-    assert ({_x} ^ {_y} - {_z}) is (-2) with "1 ^ 2 - 3 is not -2"
-    assert ({_x} ^ {_y} * {_z}) is (3) with "1 ^ 2 * 3 is not 3"
-    assert ({_x} ^ {_y} / {_z}) is (0.3333333333333333) with "1 ^ 2 / 3 is not 0.3333333333333333"
-    assert ({_x} ^ {_y} ^ {_z}) is (1) with "1 ^ 2 ^ 3 is not 1"
+	set {_x} to 1
+	set {_y} to 2
+	set {_z} to 3
+	assert ({_x}) is (1) with "{_x} is not 1"
+	assert ({_y}) is (2) with "{_y} is not 2"
+	assert ({_z}) is (3) with "{_z} is not 3"
+	assert ({_x} + {_y} + {_z}) is (6) with "1 + 2 + 3 is not 6"
+	assert ({_x} + {_y} - {_z}) is (0) with "1 + 2 - 3 is not 0"
+	assert ({_x} + {_y} * {_z}) is (7) with "1 + 2 * 3 is not 7"
+	assert ({_x} + {_y} / {_z}) is (1.6666666666666667) with "1 + 2 / 3 is not 1.6666666666666667"
+	assert ({_x} + {_y} ^ {_z}) is (9) with "1 + 2 ^ 3 is not 9"
+	assert ({_x} - {_y} + {_z}) is (2) with "1 - 2 + 3 is not 2"
+	assert ({_x} - {_y} - {_z}) is (-4) with "1 - 2 - 3 is not -4"
+	assert ({_x} - {_y} * {_z}) is (-5) with "1 - 2 * 3 is not -5"
+	assert ({_x} - {_y} / {_z}) is (0.3333333333333333) with "1 - 2 / 3 is not 0.3333333333333333"
+	assert ({_x} - {_y} ^ {_z}) is (-7) with "1 - 2 ^ 3 is not -7"
+	assert ({_x} * {_y} + {_z}) is (5) with "1 * 2 + 3 is not 5"
+	assert ({_x} * {_y} - {_z}) is (-1) with "1 * 2 - 3 is not -1"
+	assert ({_x} * {_y} * {_z}) is (6) with "1 * 2 * 3 is not 6"
+	assert ({_x} * {_y} / {_z}) is (0.6666666666666666) with "1 * 2 / 3 is not 0.6666666666666666"
+	assert ({_x} * {_y} ^ {_z}) is (8) with "1 * 2 ^ 3 is not 8"
+	assert ({_x} / {_y} + {_z}) is (3.5) with "1 / 2 + 3 is not 3.5"
+	assert ({_x} / {_y} - {_z}) is (-2.5) with "1 / 2 - 3 is not -2.5"
+	assert ({_x} / {_y} * {_z}) is (1.5) with "1 / 2 * 3 is not 1.5"
+	assert ({_x} / {_y} / {_z}) is (0.16666666666666666) with "1 / 2 / 3 is not 0.16666666666666666"
+	assert ({_x} / {_y} ^ {_z}) is (0.125) with "1 / 2 ^ 3 is not 0.125"
+	assert ({_x} ^ {_y} + {_z}) is (4) with "1 ^ 2 + 3 is not 4"
+	assert ({_x} ^ {_y} - {_z}) is (-2) with "1 ^ 2 - 3 is not -2"
+	assert ({_x} ^ {_y} * {_z}) is (3) with "1 ^ 2 * 3 is not 3"
+	assert ({_x} ^ {_y} / {_z}) is (0.3333333333333333) with "1 ^ 2 / 3 is not 0.3333333333333333"
+	assert ({_x} ^ {_y} ^ {_z}) is (1) with "1 ^ 2 ^ 3 is not 1"
 
-    # --Non-Numbers--
+	# --Non-Numbers--
 
-    set {_x} to 1
-    set {_y} to {_}
-    set {_z} to 3
+	set {_x} to 1
+	set {_y} to {_}
+	set {_z} to 3
 
-    assert ({_y} / 3) is (0) with "<none> / 3 is not 0"
-    assert ({_x}) is (1) with "{_x} is not 1"
-    assert ({_y} + 1 + 1) is (2) with "<none> + 1 + 1 is not 2"
-    assert (1 + {_y} + 1) is (2) with "1 + <none> + 1 is not 2"
-    assert ({_z}) is (3) with "{_z} is not 3"
-    assert ({_x} + {_y} + {_z}) is (4) with "1 + <none> + 3 is not 4"
-    assert ({_x} + {_y} - {_z}) is (-2) with "1 + <none> - 3 is not -2"
-    assert ({_x} + {_y} * {_z}) is (1) with "1 + <none> * 3 is not 1"
-    assert ({_x} + {_y} / {_z}) is (1) with "1 + <none> / 3 is not 1"
-    assert ({_x} + {_y} ^ {_z}) is (1) with "1 + <none> ^ 3 is not 1"
-    assert ({_x} - {_y} + {_z}) is (4) with "1 - <none> + 3 is not 4"
-    assert ({_x} - {_y} - {_z}) is (-2) with "1 - <none> - 3 is not -2"
-    assert ({_x} - {_y} * {_z}) is (1) with "1 - <none> * 3 is not 1"
-    assert ({_x} - {_y} / {_z}) is (1) with "1 - <none> / 3 is not 1"
-    assert ({_x} - {_y} ^ {_z}) is (1) with "1 - <none> ^ 3 is not 1"
-    assert ({_x} * {_y} + {_z}) is (3) with "1 * <none> + 3 is not 3"
-    assert ({_x} * {_y} - {_z}) is (-3) with "1 * <none> - 3 is not -3"
-    assert ({_x} * {_y} * {_z}) is (0) with "1 * <none> * 3 is not 0"
-    assert ({_x} * {_y} / {_z}) is (0) with "1 * <none> / 3 is not 0"
-    assert ({_x} * {_y} ^ {_z}) is (0) with "1 * <none> ^ 3 is not 0"
-    assert ({_x} / {_y} + {_z}) is (infinity value) with "1 / <none> + 3 is not infinity"
-    assert ({_x} / {_y} - {_z}) is (infinity value) with "1 / <none> - 3 is not infinity"
-    assert ({_x} / {_y} * {_z}) is (infinity value) with "1 / <none> * 3 is not infinity"
-    assert ({_x} / {_y} / {_z}) is (infinity value) with "1 / <none> / 3 is not infinity"
-    assert ({_x} / {_y} ^ {_z}) is (infinity value) with "1 / <none> ^ 3 is not infinity"
-    assert ({_x} ^ {_y} + {_z}) is (4) with "1 ^ <none> + 3 is not 4"
-    assert ({_x} ^ {_y} - {_z}) is (-2) with "1 ^ <none> - 3 is not -2"
-    assert ({_x} ^ {_y} * {_z}) is (3) with "1 ^ <none> * 3 is not 3"
-    assert ({_x} ^ {_y} / {_z}) is (0.333333333333) with "1 ^ <none> / 3 is not 0.333333333333"
-    assert ({_x} ^ {_y} ^ {_z}) is (1) with "1 ^ <none> ^ 3 is not 1"
+	assert ({_y} / 3) is (0) with "<none> / 3 is not 0"
+	assert ({_x}) is (1) with "{_x} is not 1"
+	assert ({_y} + 1 + 1) is (2) with "<none> + 1 + 1 is not 2"
+	assert (1 + {_y} + 1) is (2) with "1 + <none> + 1 is not 2"
+	assert ({_z}) is (3) with "{_z} is not 3"
+	assert ({_x} + {_y} + {_z}) is (4) with "1 + <none> + 3 is not 4"
+	assert ({_x} + {_y} - {_z}) is (-2) with "1 + <none> - 3 is not -2"
+	assert ({_x} + {_y} * {_z}) is (1) with "1 + <none> * 3 is not 1"
+	assert ({_x} + {_y} / {_z}) is (1) with "1 + <none> / 3 is not 1"
+	assert ({_x} + {_y} ^ {_z}) is (1) with "1 + <none> ^ 3 is not 1"
+	assert ({_x} - {_y} + {_z}) is (4) with "1 - <none> + 3 is not 4"
+	assert ({_x} - {_y} - {_z}) is (-2) with "1 - <none> - 3 is not -2"
+	assert ({_x} - {_y} * {_z}) is (1) with "1 - <none> * 3 is not 1"
+	assert ({_x} - {_y} / {_z}) is (1) with "1 - <none> / 3 is not 1"
+	assert ({_x} - {_y} ^ {_z}) is (1) with "1 - <none> ^ 3 is not 1"
+	assert ({_x} * {_y} + {_z}) is (3) with "1 * <none> + 3 is not 3"
+	assert ({_x} * {_y} - {_z}) is (-3) with "1 * <none> - 3 is not -3"
+	assert ({_x} * {_y} * {_z}) is (0) with "1 * <none> * 3 is not 0"
+	assert ({_x} * {_y} / {_z}) is (0) with "1 * <none> / 3 is not 0"
+	assert ({_x} * {_y} ^ {_z}) is (0) with "1 * <none> ^ 3 is not 0"
+	assert ({_x} / {_y} + {_z}) is (infinity value) with "1 / <none> + 3 is not infinity"
+	assert ({_x} / {_y} - {_z}) is (infinity value) with "1 / <none> - 3 is not infinity"
+	assert ({_x} / {_y} * {_z}) is (infinity value) with "1 / <none> * 3 is not infinity"
+	assert ({_x} / {_y} / {_z}) is (infinity value) with "1 / <none> / 3 is not infinity"
+	assert ({_x} / {_y} ^ {_z}) is (infinity value) with "1 / <none> ^ 3 is not infinity"
+	assert ({_x} ^ {_y} + {_z}) is (4) with "1 ^ <none> + 3 is not 4"
+	assert ({_x} ^ {_y} - {_z}) is (-2) with "1 ^ <none> - 3 is not -2"
+	assert ({_x} ^ {_y} * {_z}) is (3) with "1 ^ <none> * 3 is not 3"
+	assert ({_x} ^ {_y} / {_z}) is (0.333333333333) with "1 ^ <none> / 3 is not 0.333333333333"
+	assert ({_x} ^ {_y} ^ {_z}) is (1) with "1 ^ <none> ^ 3 is not 1"
 
-    # --Difference--
-    assert (difference between 1 and 2) is (1) with "difference between 1 and 2 is not 1"
-    assert (difference between 2 and 1) is (1) with "difference between 2 and 1 is not 1"
-    assert (difference between 1 and 1) is (0) with "difference between 1 and 1 is not 0"
-    assert (difference between 1 and 0) is (1) with "difference between 1 and 0 is not 1"
-    assert (difference between 0 and 1) is (1) with "difference between 0 and 1 is not 1"
-    assert (difference between 0 and 0) is (0) with "difference between 0 and 0 is not 0"
-    assert (difference between 1 and infinity value) is (infinity value) with "difference between 1 and infinity is not infinity"
-    assert (difference between infinity value and 1) is (infinity value) with "difference between infinity and 1 is not infinity"
-    assert isNaN(difference between infinity value and infinity value) is true with "difference between infinity and infinity is not NaN"
-    assert isNaN(difference between 1 and NaN value) is true with "difference between 1 and NaN is not NaN"
-    assert isNaN(difference between NaN value and 1) is true with "difference between NaN and 1 is not NaN"
-    assert isNaN(difference between NaN value and NaN value) is true with "difference between NaN and NaN is not NaN"
+	# --Difference--
+	assert (difference between 1 and 2) is (1) with "difference between 1 and 2 is not 1"
+	assert (difference between 2 and 1) is (1) with "difference between 2 and 1 is not 1"
+	assert (difference between 1 and 1) is (0) with "difference between 1 and 1 is not 0"
+	assert (difference between 1 and 0) is (1) with "difference between 1 and 0 is not 1"
+	assert (difference between 0 and 1) is (1) with "difference between 0 and 1 is not 1"
+	assert (difference between 0 and 0) is (0) with "difference between 0 and 0 is not 0"
+	assert (difference between 1 and infinity value) is (infinity value) with "difference between 1 and infinity is not infinity"
+	assert (difference between infinity value and 1) is (infinity value) with "difference between infinity and 1 is not infinity"
+	assert isNaN(difference between infinity value and infinity value) is true with "difference between infinity and infinity is not NaN"
+	assert isNaN(difference between 1 and NaN value) is true with "difference between 1 and NaN is not NaN"
+	assert isNaN(difference between NaN value and 1) is true with "difference between NaN and 1 is not NaN"
+	assert isNaN(difference between NaN value and NaN value) is true with "difference between NaN and NaN is not NaN"
 
 test "vector - vector operations":
-    # --Addition/Subtraction--
-    set {_v1} to vector(1, 2, 3)
-    set {_v2} to vector(4, 5, 6)
+	# --Addition/Subtraction--
+	set {_v1} to vector(1, 2, 3)
+	set {_v2} to vector(4, 5, 6)
 
-    assert ({_v1} + {_v2}) is (vector(5, 7, 9)) with "{_v1} + {_v2} is not vector(5, 7, 9)"
-    assert ({_v1} - {_v2}) is (vector(-3, -3, -3)) with "{_v1} - {_v2} is not vector(-3, -3, -3)"
-    assert ({_v1} * {_v2}) is (vector(4, 10, 18)) with "{_v1} * {_v2} is not vector(4, 10, 18)"
-    assert ({_v1} / {_v2}) is (vector(0.25, 0.4, 0.5)) with "{_v1} / {_v2} is not vector(0.25, 0.4, 0.5)"
+	assert ({_v1} + {_v2}) is (vector(5, 7, 9)) with "{_v1} + {_v2} is not vector(5, 7, 9)"
+	assert ({_v1} - {_v2}) is (vector(-3, -3, -3)) with "{_v1} - {_v2} is not vector(-3, -3, -3)"
+	assert ({_v1} * {_v2}) is (vector(4, 10, 18)) with "{_v1} * {_v2} is not vector(4, 10, 18)"
+	assert ({_v1} / {_v2}) is (vector(0.25, 0.4, 0.5)) with "{_v1} / {_v2} is not vector(0.25, 0.4, 0.5)"
 
-    # --Zero Vectors--
+	# --Zero Vectors--
 
-    set {_v1} to vector(0,0,0)
-    set {_v2} to vector(1,2,3)
-    assert ({_v1} + {_v2}) is (vector(1, 2, 3)) with "vector(0,0,0) + vector(1,2,3) is not vector(1, 2, 3)"
-    assert ({_v1} - {_v2}) is (vector(-1, -2, -3)) with "vector(0,0,0) - vector(1,2,3) is not vector(-1, -2, -3)"
-    assert ({_v1} * {_v2}) is (vector(0, 0, 0)) with "vector(0,0,0) * vector(1,2,3) is not vector(0, 0, 0)"
-    assert ({_v1} / {_v2}) is (vector(0, 0, 0)) with "vector(0,0,0) / vector(1,2,3) is not vector(0, 0, 0)"
-    assert ({_v2} + {_v1}) is (vector(1, 2, 3)) with "vector(1,2,3) + vector(0,0,0) is not vector(1, 2, 3)"
-    assert ({_v2} - {_v1}) is (vector(1, 2, 3)) with "vector(1,2,3) - vector(0,0,0) is not vector(1, 2, 3)"
-    assert ({_v2} * {_v1}) is (vector(0, 0, 0)) with "vector(1,2,3) * vector(0,0,0) is not vector(0, 0, 0)"
-    assert vector_equals(({_v2} / {_v1}), infinity value, infinity value, infinity value) is true with "vector(1,2,3) / vector(0,0,0) is not vector(infinity, infinity, infinity)"
+	set {_v1} to vector(0,0,0)
+	set {_v2} to vector(1,2,3)
+	assert ({_v1} + {_v2}) is (vector(1, 2, 3)) with "vector(0,0,0) + vector(1,2,3) is not vector(1, 2, 3)"
+	assert ({_v1} - {_v2}) is (vector(-1, -2, -3)) with "vector(0,0,0) - vector(1,2,3) is not vector(-1, -2, -3)"
+	assert ({_v1} * {_v2}) is (vector(0, 0, 0)) with "vector(0,0,0) * vector(1,2,3) is not vector(0, 0, 0)"
+	assert ({_v1} / {_v2}) is (vector(0, 0, 0)) with "vector(0,0,0) / vector(1,2,3) is not vector(0, 0, 0)"
+	assert ({_v2} + {_v1}) is (vector(1, 2, 3)) with "vector(1,2,3) + vector(0,0,0) is not vector(1, 2, 3)"
+	assert ({_v2} - {_v1}) is (vector(1, 2, 3)) with "vector(1,2,3) - vector(0,0,0) is not vector(1, 2, 3)"
+	assert ({_v2} * {_v1}) is (vector(0, 0, 0)) with "vector(1,2,3) * vector(0,0,0) is not vector(0, 0, 0)"
+	assert vector_equals(({_v2} / {_v1}), infinity value, infinity value, infinity value) is true with "vector(1,2,3) / vector(0,0,0) is not vector(infinity, infinity, infinity)"
 
-    # --Non-Vectors--
-    set {_v1} to vector(1, 2, 3)
-    set {_v2} to "test"
-    assert ({_v1} + {_v2}) is not set with "vector plus string is set"
-    assert ({_v1} - {_v2}) is not set with "vector minus string is set"
-    assert ({_v1} * {_v2}) is not set with "vector multiplied by string is set"
-    assert ({_v1} / {_v2}) is not set with "vector divided by string is set"
-    assert ({_v2} + {_v1}) is not set with "string plus vector is set"
-    assert ({_v2} - {_v1}) is not set with "string minus vector is set"
-    assert ({_v2} * {_v1}) is not set with "string multiplied by vector is set"
-    assert ({_v2} / {_v1}) is not set with "string divided by vector is set"
+	# --Non-Vectors--
+	set {_v1} to vector(1, 2, 3)
+	set {_v2} to "test"
+	assert ({_v1} + {_v2}) is not set with "vector plus string is set"
+	assert ({_v1} - {_v2}) is not set with "vector minus string is set"
+	assert ({_v1} * {_v2}) is not set with "vector multiplied by string is set"
+	assert ({_v1} / {_v2}) is not set with "vector divided by string is set"
+	assert ({_v2} + {_v1}) is not set with "string plus vector is set"
+	assert ({_v2} - {_v1}) is not set with "string minus vector is set"
+	assert ({_v2} * {_v1}) is not set with "string multiplied by vector is set"
+	assert ({_v2} / {_v1}) is not set with "string divided by vector is set"
 
-    # --Edge Cases--
-    set {_v1} to vector(1, infinity value, 3)
-    set {_v2} to vector(4, 5, NaN value)
-    assert vector_equals(({_v1} + {_v2}), 5, infinity value, NaN value) is true with "vector(1, infinity, 3) + vector(4, 5, NaN) is not vector(5, infinity, NaN)"
-    assert vector_equals(({_v1} - {_v2}), -3, infinity value, NaN value) is true with "vector(1, infinity, 3) - vector(4, 5, NaN) is not vector(-3, infinity, NaN)"
-    assert vector_equals(({_v1} * {_v2}), 4, infinity value, NaN value) is true with "vector(1, infinity, 3) * vector(4, 5, NaN) is not vector(4, infinity, NaN)"
-    assert vector_equals(({_v1} / {_v2}), 0.25, infinity value, NaN value) is true with "vector(1, infinity, 3) / vector(4, 5, NaN) is not vector(0.25, infinity, NaN)"
-    assert vector_equals(({_v2} + {_v1}), 5, infinity value, NaN value) is true with "vector(4, 5, NaN) + vector(1, infinity, 3) is not vector(5, infinity, NaN)"
-    assert vector_equals(({_v2} - {_v1}), 3, -infinity value, NaN value) is true with "vector(4, 5, NaN) - vector(1, infinity, 3) is not vector(3, -infinity, NaN)"
-    assert vector_equals(({_v2} * {_v1}), 4, infinity value, NaN value) is true with "vector(4, 5, NaN) * vector(1, infinity, 3) is not vector(4, infinity, NaN)"
-    assert vector_equals(({_v2} / {_v1}), 4, 0, NaN value) is true with "vector(4, 5, NaN) / vector(1, infinity, 3) is not vector(4, 0, NaN)"
+	# --Edge Cases--
+	set {_v1} to vector(1, infinity value, 3)
+	set {_v2} to vector(4, 5, NaN value)
+	assert vector_equals(({_v1} + {_v2}), 5, infinity value, NaN value) is true with "vector(1, infinity, 3) + vector(4, 5, NaN) is not vector(5, infinity, NaN)"
+	assert vector_equals(({_v1} - {_v2}), -3, infinity value, NaN value) is true with "vector(1, infinity, 3) - vector(4, 5, NaN) is not vector(-3, infinity, NaN)"
+	assert vector_equals(({_v1} * {_v2}), 4, infinity value, NaN value) is true with "vector(1, infinity, 3) * vector(4, 5, NaN) is not vector(4, infinity, NaN)"
+	assert vector_equals(({_v1} / {_v2}), 0.25, infinity value, NaN value) is true with "vector(1, infinity, 3) / vector(4, 5, NaN) is not vector(0.25, infinity, NaN)"
+	assert vector_equals(({_v2} + {_v1}), 5, infinity value, NaN value) is true with "vector(4, 5, NaN) + vector(1, infinity, 3) is not vector(5, infinity, NaN)"
+	assert vector_equals(({_v2} - {_v1}), 3, -infinity value, NaN value) is true with "vector(4, 5, NaN) - vector(1, infinity, 3) is not vector(3, -infinity, NaN)"
+	assert vector_equals(({_v2} * {_v1}), 4, infinity value, NaN value) is true with "vector(4, 5, NaN) * vector(1, infinity, 3) is not vector(4, infinity, NaN)"
+	assert vector_equals(({_v2} / {_v1}), 4, 0, NaN value) is true with "vector(4, 5, NaN) / vector(1, infinity, 3) is not vector(4, 0, NaN)"
 
-    # --Difference--
+	# --Difference--
 
-    set {_v1} to vector(1, 2, 3)
-    set {_v2} to vector(4, 5, 6)
-    assert (difference between {_v1} and {_v2}) is (vector(3, 3, 3)) with "difference between vector(1,2,3) and vector(4,5,6) is not vector(3, 3, 3)"
-    assert (difference between {_v2} and {_v1}) is (vector(3, 3, 3)) with "difference between vector(4,5,6) and vector(1,2,3) is not vector(3, 3, 3)"
-    assert (difference between {_v1} and {_v1}) is (vector(0, 0, 0)) with "difference between vector(1,2,3) and vector(1,2,3) is not vector(0, 0, 0)"
-    assert (difference between {_v1} and vector(0,0,0)) is (vector(1, 2, 3)) with "difference between vector(1,2,3) and vector(0,0,0) is not vector(1, 2, 3)"
-    assert (difference between vector(0,0,0) and {_v1}) is (vector(1, 2, 3)) with "difference between vector(0,0,0) and {_v1} is not vector(1, 2, 3)"
-    assert vector_equals(difference between {_v1} and vector(infinity value, -infinity value, NaN value), infinity value, infinity value, NaN value) is true with "difference between vector(1,2,3) and vector(infinity, -infinity, NaN) is not vector(infinity, infinity, NaN)"
+	set {_v1} to vector(1, 2, 3)
+	set {_v2} to vector(4, 5, 6)
+	assert (difference between {_v1} and {_v2}) is (vector(3, 3, 3)) with "difference between vector(1,2,3) and vector(4,5,6) is not vector(3, 3, 3)"
+	assert (difference between {_v2} and {_v1}) is (vector(3, 3, 3)) with "difference between vector(4,5,6) and vector(1,2,3) is not vector(3, 3, 3)"
+	assert (difference between {_v1} and {_v1}) is (vector(0, 0, 0)) with "difference between vector(1,2,3) and vector(1,2,3) is not vector(0, 0, 0)"
+	assert (difference between {_v1} and vector(0,0,0)) is (vector(1, 2, 3)) with "difference between vector(1,2,3) and vector(0,0,0) is not vector(1, 2, 3)"
+	assert (difference between vector(0,0,0) and {_v1}) is (vector(1, 2, 3)) with "difference between vector(0,0,0) and {_v1} is not vector(1, 2, 3)"
+	assert vector_equals(difference between {_v1} and vector(infinity value, -infinity value, NaN value), infinity value, infinity value, NaN value) is true with "difference between vector(1,2,3) and vector(infinity, -infinity, NaN) is not vector(infinity, infinity, NaN)"
 
 test "number - vector operations":
-    set {_v1} to vector(1, 2, 3)
-    set {_v2} to 2
-    assert ({_v1} + 2) is not set with "vector plus number is set"
-    assert ({_v1} - 2) is not set with "vector minus number is set"
-    assert ({_v1} * 2) is (vector(2, 4, 6)) with "vector(1,2,3) * 2 is not vector(2, 4, 6)"
-    assert ({_v1} / 2) is (vector(0.5, 1, 1.5)) with "vector(1,2,3) / 2 is not vector(0.5, 1, 1.5)"
-    assert ({_v1} ^ 2) is not set with "vector to the power of a number is set"
-    assert ({_v1} * 0) is (vector(0, 0, 0)) with "vector(1,2,3) * 0 is not vector(0, 0, 0)"
-    assert vector_equals(({_v1} / 0), infinity value, infinity value, infinity value) is true with "vector(1,2,3) / 0 is not vector(infinity, infinity, infinity)"
-    assert vector_equals(({_v1} * -infinity value), -infinity value, -infinity value, -infinity value) is true with "vector(1,2,3) * -infinity is not vector(-infinity, -infinity, -infinity)"
-    assert vector_equals(({_v1} / -infinity value), -0, -0, -0) is true with "vector(1,2,3) / -infinity value is not vector(-0, -0, -0)"
-    assert vector_equals(({_v1} * NaN value), NaN value, NaN value, NaN value) is true with "vector(1,2,3) * NaN is not vector(NaN, NaN, NaN)"
-    assert vector_equals(({_v1} / NaN value), NaN value, NaN value, NaN value) is true with "vector(1,2,3) / NaN is not vector(NaN, NaN, NaN)"
+	set {_v1} to vector(1, 2, 3)
+	set {_v2} to 2
+	assert ({_v1} + 2) is not set with "vector plus number is set"
+	assert ({_v1} - 2) is not set with "vector minus number is set"
+	assert ({_v1} * 2) is (vector(2, 4, 6)) with "vector(1,2,3) * 2 is not vector(2, 4, 6)"
+	assert ({_v1} / 2) is (vector(0.5, 1, 1.5)) with "vector(1,2,3) / 2 is not vector(0.5, 1, 1.5)"
+	assert ({_v1} ^ 2) is not set with "vector to the power of a number is set"
+	assert ({_v1} * 0) is (vector(0, 0, 0)) with "vector(1,2,3) * 0 is not vector(0, 0, 0)"
+	assert vector_equals(({_v1} / 0), infinity value, infinity value, infinity value) is true with "vector(1,2,3) / 0 is not vector(infinity, infinity, infinity)"
+	assert vector_equals(({_v1} * -infinity value), -infinity value, -infinity value, -infinity value) is true with "vector(1,2,3) * -infinity is not vector(-infinity, -infinity, -infinity)"
+	assert vector_equals(({_v1} / -infinity value), -0, -0, -0) is true with "vector(1,2,3) / -infinity value is not vector(-0, -0, -0)"
+	assert vector_equals(({_v1} * NaN value), NaN value, NaN value, NaN value) is true with "vector(1,2,3) * NaN is not vector(NaN, NaN, NaN)"
+	assert vector_equals(({_v1} / NaN value), NaN value, NaN value, NaN value) is true with "vector(1,2,3) / NaN is not vector(NaN, NaN, NaN)"
 
 test "timespan arithmetic":
-    set {_t1} to 1 second
-    set {_t2} to 2 seconds
-    assert ({_t1} + {_t2}) is (3 seconds) with "1 second + 2 seconds is not 3 seconds"
-    assert ({_t1} - {_t2}) is (0 seconds) with "1 second - 2 seconds is not 0 seconds"
-    assert ({_t1} * 2) is (2 seconds) with "1 second * 2 is not 2 seconds"
-    assert ({_t1} / 2) is (0.5 seconds) with "1 second / 2 is not 0.5 seconds"
+	set {_t1} to 1 second
+	set {_t2} to 2 seconds
+	assert ({_t1} + {_t2}) is (3 seconds) with "1 second + 2 seconds is not 3 seconds"
+	assert ({_t1} - {_t2}) is (0 seconds) with "1 second - 2 seconds is not 0 seconds"
+	assert ({_t1} * 2) is (2 seconds) with "1 second * 2 is not 2 seconds"
+	assert ({_t1} / 2) is (0.5 seconds) with "1 second / 2 is not 0.5 seconds"
 
-    assert (2 * {_t1}) is (2 seconds) with "2 * 1 second is not 2 seconds"
-    assert (2 / {_t1}) is not set with "number divided by timespan is set" 
+	assert (2 * {_t1}) is (2 seconds) with "2 * 1 second is not 2 seconds"
+	assert (2 / {_t1}) is not set with "number divided by timespan is set"
 
-    assert ({_t1} + 2) is not set with "timespan plus number is set"
+	assert ({_t1} + 2) is not set with "timespan plus number is set"
 
-    assert {_t1} / {_t2} is 0.5 with "timespan / timespan failed"
-    assert {_t1} / 1 tick is 20 with "timespan / timespan of different units failed"
-    assert 0 seconds / {_t2} is 0 with "0 timespan / timespan failed"
-    assert {_t1} / 0 seconds is infinity value with "timespan / 0 timespan failed"
-    assert isNaN(0 seconds / 0 ticks) is true with "0 timespan / 0 timespan failed", expected NaN value, got (0 seconds / 0 ticks)
+	assert {_t1} / {_t2} is 0.5 with "timespan / timespan failed"
+	assert {_t1} / 1 tick is 20 with "timespan / timespan of different units failed"
+	assert 0 seconds / {_t2} is 0 with "0 timespan / timespan failed"
+	assert {_t1} / 0 seconds is infinity value with "timespan / 0 timespan failed"
+	assert isNaN(0 seconds / 0 ticks) is true with "0 timespan / 0 timespan failed", expected NaN value, got (0 seconds / 0 ticks)
 
 test "date arithmetic":
-    set {_d1} to now
-    set {_d2} to 1 day before {_d1}
-    assert ({_d1} + {_d2}) is not set with ""
+	set {_d1} to now
+	set {_d2} to 1 day before {_d1}
+	assert ({_d1} + {_d2}) is not set with ""
 
-    assert ({_d1} + 1 day) is (1 day after {_d1}) with "now + 1 day is not 1 day from now"
-    assert ({_d1} - 1 day) is (1 day before {_d1}) with "now - 1 day is not 1 day ago"
-    assert ({_d1} + 1 week) is (1 week after {_d1}) with "now + 1 week is not 1 week from now"
-    assert ({_d1} - 1 week) is (1 week before {_d1}) with "now - 1 week is not 1 week ago"
-    assert ({_d1} + 1) is not set with ""
+	assert ({_d1} + 1 day) is (1 day after {_d1}) with "now + 1 day is not 1 day from now"
+	assert ({_d1} - 1 day) is (1 day before {_d1}) with "now - 1 day is not 1 day ago"
+	assert ({_d1} + 1 week) is (1 week after {_d1}) with "now + 1 week is not 1 week from now"
+	assert ({_d1} - 1 week) is (1 week before {_d1}) with "now - 1 week is not 1 week ago"
+	assert ({_d1} + 1) is not set with ""
 
 local function vector_equals(vec: vector, x: number, y: number, z: number) :: boolean:
 	return false if component_equals((x of {_vec}), {_x}) is false
