@@ -88,7 +88,7 @@ test "spawn entities":
 	add "falling powder snow" to {_entities::*}
 
 	if running minecraft "1.20.0":
-		add "camel" and "sniffer"  to {_entities::*}
+		add "camel" and "sniffer" to {_entities::*}
 	if running minecraft "1.20.6":
 		add "armadillo" to {_entities::*}
 	if running minecraft "1.21":

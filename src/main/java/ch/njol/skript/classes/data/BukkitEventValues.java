@@ -244,7 +244,7 @@ public final class BukkitEventValues {
 			@Override
 			@Nullable
 			public Block get(final BlockIgniteEvent e) {
-				return e.getIgnitingBlock();
+				return e.getBlock();
 			}
 		}, 0);
 		// BlockDispenseEvent
