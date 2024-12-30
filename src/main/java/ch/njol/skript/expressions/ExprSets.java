@@ -1,8 +1,8 @@
 package ch.njol.skript.expressions;
 
 import java.lang.reflect.Array;
-import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.function.Supplier;
 
 import org.bukkit.event.Event;
@@ -63,8 +63,7 @@ public class ExprSets extends SimpleExpression<Object> {
 
 	@Override
 	protected Object[] get(Event event) {
-		Iterator<?> iterator = supplier.get();
-		ArrayList<?> objects = Lists.newArrayList(iterator);
+		List<?> objects = Lists.newArrayList(supplier.get());
 		return objects.toArray((Object[]) Array.newInstance(classInfo.getC(), objects.size()));
 	}
 
