@@ -23,8 +23,8 @@ public class ExprTrialSpawnerReward extends SimpleExpression<TrialSpawnerReward>
 			.supplier(ExprTrialSpawnerReward::new)
 			.priority(SyntaxInfo.COMBINED)
 			.addPatterns(
-				"[trial] spawner reward [with weight %-number% [and]] with [loot[ ]table] %loottable%",
-				"[trial] spawner reward with [loot[ ]table] %loottable% [[and] weight %-number%]")
+				"[trial] spawner reward [with weight %-number% [and]] with %loottable%",
+				"[trial] spawner reward with %loottable% [[and] weight %-number%]")
 			.build();
 
 		SpawnerModule.SYNTAX_REGISTRY.register(SyntaxRegistry.EXPRESSION, info);

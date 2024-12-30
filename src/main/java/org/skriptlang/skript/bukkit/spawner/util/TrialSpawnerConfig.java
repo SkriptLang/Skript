@@ -5,6 +5,4 @@ import org.bukkit.spawner.TrialSpawnerConfiguration;
 import org.jetbrains.annotations.NotNull;
 
 public record TrialSpawnerConfig(@NotNull TrialSpawnerConfiguration config, @NotNull BlockState state,
-                                 boolean ominous) {
-
-}
+                                 boolean ominous) {}

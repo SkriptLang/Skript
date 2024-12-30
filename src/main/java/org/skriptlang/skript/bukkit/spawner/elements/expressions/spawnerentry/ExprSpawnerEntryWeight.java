@@ -13,7 +13,7 @@ public class ExprSpawnerEntryWeight extends SimplePropertyExpression<SpawnerEntr
 
 	static {
 		registerDefault(SpawnerModule.SYNTAX_REGISTRY, ExprSpawnerEntryWeight.class, Integer.class,
-			"spawner entry weight", "spawnerentries");
+			"spawner entry [[entity] spawn] weight", "spawnerentries");
 	}
 
 	@Override

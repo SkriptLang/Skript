@@ -14,7 +14,7 @@ public class ExprCooldownLength extends SimplePropertyExpression<Block, Timespan
 
 	static {
 		register(SpawnerModule.SYNTAX_REGISTRY, ExprCooldownLength.class, Timespan.class,
-			"[trial] spawner cooldown [length]", "blocks");
+			"[trial] spawner cooldown length", "blocks");
 	}
 
 	@Override

@@ -12,7 +12,7 @@ public class ExprRewardWeight extends SimplePropertyExpression<TrialSpawnerRewar
 
 	static {
 		register(SpawnerModule.SYNTAX_REGISTRY, ExprRewardWeight.class, Integer.class,
-			"spawner reward weight", "trialspawnerrewards");
+			"[trial] spawner reward weight", "trialspawnerrewards");
 	}
 
 	@Override

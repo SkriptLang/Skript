@@ -15,7 +15,7 @@ public class ExprTrialSpawnerSpawns extends SimplePropertyExpression<TrialSpawne
 
 	static {
 		register(SpawnerModule.SYNTAX_REGISTRY, ExprTrialSpawnerSpawns.class, Float.class,
-			"(:additional|base) [spawner] spawn (amount|value)[s]", "trialspawnerconfigs");
+			"(:additional|base) [trial] spawner spawn (amount|value)[s]", "trialspawnerconfigs");
 	}
 
 	private boolean additional;

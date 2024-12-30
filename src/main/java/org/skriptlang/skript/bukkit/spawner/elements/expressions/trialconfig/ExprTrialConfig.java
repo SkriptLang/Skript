@@ -14,7 +14,7 @@ public class ExprTrialConfig extends SimplePropertyExpression<Block, TrialSpawne
 
 	static {
 		register(SpawnerModule.SYNTAX_REGISTRY, ExprTrialConfig.class, TrialSpawnerConfig.class,
-			"[1:ominous|2:normal] [trial] spawner config[uration]", "blocks");
+			"[1:ominous|2:normal] trial spawner config[uration]", "blocks");
 	}
 
 	private ConfigType type;

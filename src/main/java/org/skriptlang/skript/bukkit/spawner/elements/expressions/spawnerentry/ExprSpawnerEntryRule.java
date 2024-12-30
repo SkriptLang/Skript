@@ -13,7 +13,7 @@ public class ExprSpawnerEntryRule extends SimplePropertyExpression<SpawnerEntry,
 
 	static {
 		registerDefault(SpawnerModule.SYNTAX_REGISTRY, ExprSpawnerEntryRule.class, SpawnRule.class,
-			"spawner entry [spawn] rule", "spawnerentries");
+			"spawner [entry] [entity] spawn rule", "spawnerentries");
 	}
 
 	@Override

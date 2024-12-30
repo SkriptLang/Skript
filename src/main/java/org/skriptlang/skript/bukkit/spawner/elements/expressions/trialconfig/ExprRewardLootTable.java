@@ -14,7 +14,7 @@ public class ExprRewardLootTable extends SimplePropertyExpression<TrialSpawnerRe
 
 	static {
 		register(SpawnerModule.SYNTAX_REGISTRY, ExprRewardLootTable.class, LootTable.class,
-			"spawner reward loot[ ]table", "trialspawnerrewards");
+			"[trial] spawner reward loot[ ]table", "trialspawnerrewards");
 	}
 
 	@Override

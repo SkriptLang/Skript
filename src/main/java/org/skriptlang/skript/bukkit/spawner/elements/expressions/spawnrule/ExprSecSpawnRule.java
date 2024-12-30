@@ -29,7 +29,7 @@
 				.origin(SyntaxOrigin.of(Skript.instance()))
 				.supplier(ExprSecSpawnRule::new)
 				.priority(SyntaxInfo.SIMPLE)
-				.addPattern("[a] spawn rule")
+				.addPattern("[a] spawner spawn rule")
 				.build();
 
 			SpawnerModule.SYNTAX_REGISTRY.register(SyntaxRegistry.EXPRESSION, info);

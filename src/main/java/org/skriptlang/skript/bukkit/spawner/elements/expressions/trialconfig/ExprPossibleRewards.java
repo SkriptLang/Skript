@@ -32,8 +32,8 @@ public class ExprPossibleRewards extends PropertyExpression<TrialSpawnerConfig, 
 			.supplier(ExprPossibleRewards::new)
 			.priority(PropertyExpression.DEFAULT_PRIORITY)
 			.addPatterns(
-				"[the] possible [trial] spawner rewards (from|of) %trialspawnerconfigs%",
-				"%trialspawnerconfigs%'[s] possible [trial] spawner rewards")
+				"[the] possible [trial] spawner reward[s] (from|of) %trialspawnerconfigs%",
+				"%trialspawnerconfigs%'[s] possible [trial] spawner reward[s]")
 			.build();
 
 		SpawnerModule.SYNTAX_REGISTRY.register(SyntaxRegistry.EXPRESSION, info);
