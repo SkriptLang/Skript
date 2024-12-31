@@ -2401,18 +2401,25 @@ transform reasons:
 	unknown: unknown
 	infection: infection, villager infection
 
+# -- Unleash Reasons --
+unleash reasons:
+	distance: distance
+	holder_gone: holder (gone|disappeared)
+	player_unleash: player unleash, player unleashed, unleashed by player
+	unknown: unknown
+
 # -- Item Flags --
 item flags:
-    hide_additional_tooltip: hide additional tooltip, additional tooltip hidden, hidden additional tooltip
-    hide_armor_trim: hide armor trim, armor trim hidden, hidden armor trim
-    hide_attributes: hide attributes, attributes hidden, hidden attributes
-    hide_destroys: hide destroys, hide destroyable blocks, hide breakable blocks, destroys hidden, hidden destroys
-    hide_dye: hide dye, hide dye color, dye hidden, dye color hidden, hidden dye, hidden dye color
-    hide_enchants: hide enchants, hide enchantments, enchants hidden, enchantments hidden, hidden enchants
-    hide_placed_on: hide placed on, placed on hidden, hidden placed on
-    hide_stored_enchants: hide stored enchants, hide stored enchantments, stored enchants hidden, stored enchantments hidden, hidden stored enchants, hidden stored enchantments
-    hide_unbreakable: hide unbreakable, hide unbreakable status, unbreakable hidden, unbreakable status hidden, hidden unbreakable, hidden unbreakable status
-    hide_potion_effects: hide potion effects, hide potions, potion effects hidden, potions hidden, hidden potion effects, hidden potions
+	hide_additional_tooltip: hide additional tooltip, additional tooltip hidden, hidden additional tooltip
+	hide_armor_trim: hide armor trim, armor trim hidden, hidden armor trim
+	hide_attributes: hide attributes, attributes hidden, hidden attributes
+	hide_destroys: hide destroys, hide destroyable blocks, hide breakable blocks, destroys hidden, hidden destroys
+	hide_dye: hide dye, hide dye color, dye hidden, dye color hidden, hidden dye, hidden dye color
+	hide_enchants: hide enchants, hide enchantments, enchants hidden, enchantments hidden, hidden enchants
+	hide_placed_on: hide placed on, placed on hidden, hidden placed on
+	hide_stored_enchants: hide stored enchants, hide stored enchantments, stored enchants hidden, stored enchantments hidden, hidden stored enchants, hidden stored enchantments
+	hide_unbreakable: hide unbreakable, hide unbreakable status, unbreakable hidden, unbreakable status hidden, hidden unbreakable, hidden unbreakable status
+	hide_potion_effects: hide potion effects, hide potions, potion effects hidden, potions hidden, hidden potion effects, hidden potions
 
 # -- Display Billboards --
 billboards:
@@ -2617,6 +2624,7 @@ types:
 	quitreason: quit reason¦s @a
 	inventoryclosereason: inventory close reason¦s @an
 	transformreason: transform reason¦s @a
+	unleashreason: unleash reason¦s @an
 	display: display¦s @a
 	billboard: billboard¦s @a
 	textalignment: text alignment¦s @a

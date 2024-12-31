@@ -6,7 +6,6 @@ import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptEvent;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.registrations.EventValues;
-import ch.njol.skript.util.Getter;
 import org.bukkit.entity.Entity;
 import org.bukkit.event.Event;
 import org.bukkit.event.player.PlayerFishEvent;
@@ -74,12 +73,7 @@ public class EvtFish extends SkriptEvent {
 
 		Skript.registerEvent("Fishing", EvtFish.class, PlayerFishEvent.class, patterns.toArray(new String[0]));
 
-		EventValues.registerEventValue(PlayerFishEvent.class, Entity.class, new Getter<>() {
-			@Override
-			public @Nullable Entity get(PlayerFishEvent event) {
-				return event.getCaught();
-			}
-		}, EventValues.TIME_NOW);
+		EventValues.registerEventValue(PlayerFishEvent.class, Entity.class, PlayerFishEvent::getCaught);
 	}
 
 	private State state;
