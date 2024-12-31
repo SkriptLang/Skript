@@ -113,9 +113,8 @@ public class ExprNode extends PropertyExpression<Node, Node> {
 		if (isPath)
 			return super.iterator(event);
 		Node single = this.getExpr().getSingle(event);
-		if (single instanceof SectionNode sectionNode)
-			return sectionNode.iterator();
-		return null;
+		Iterator<Node> iterator = node.iterator();
+		return iterator.hasNext() ? iterator : null;
 	}
 
 	@Override
@@ -131,7 +130,7 @@ public class ExprNode extends PropertyExpression<Node, Node> {
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
 		if (isPath)
-			return "node " + pathExpression.toString(event, debug) + " of " + this.getExpr().toString(event, debug);
+			return "the node " + pathExpression.toString(event, debug) + " of " + this.getExpr().toString(event, debug);
 		return "the nodes of " + this.getExpr().toString(event, debug);
 	}
 
