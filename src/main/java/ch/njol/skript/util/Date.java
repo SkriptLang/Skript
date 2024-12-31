@@ -92,7 +92,7 @@ public class Date extends java.util.Date implements YggdrasilSerializable {
 	public Date plus(Timespan other) {
 		return new Date(getTime() + other.getAs(Timespan.TimePeriod.MILLISECOND));
 	}
-	
+
 	/**
 	 * Get a new instance of this Date with the subtracted timespan
 	 *
