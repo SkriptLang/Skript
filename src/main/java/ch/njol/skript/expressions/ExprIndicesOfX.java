@@ -13,6 +13,7 @@ import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -48,18 +49,15 @@ import java.util.Map;
 	"set {_positions::*} to the positions of the value 100 in {_otherlist::*}",
 	"# {_positions::*} is now 1, 3 and 5",
 	"set {_positions::*} to the positions of the value \"hi\" in {_otherlist::*}",
-	"# {_positions::*} is now 2 and 4",
-	"",
-	"set {_positions::*} to positions of \"mega\" in \"small\", \"mega\", \"mega\", \"medium\", \"small\" and \"mega\"",
-	"# {_positions::*} is now 2, 3 and 6"
+	"# {_positions::*} is now 2 and 4"
 })
 @Since("INSERT VERSION")
 public class ExprIndicesOfX extends SimpleExpression<Object> {
 
 	static {
 		Skript.registerExpression(ExprIndicesOfX.class, Object.class, ExpressionType.COMBINED,
-			"[the] [1:first|2:last] (indices|index[es]) of [[the] value] %object% in %objects%",
-			"[the] [1:first|2:last] position[s] of [[the] value] %object% in %objects%"
+			"[the] [1:first|2:last] (indices|index[es]) of [[the] value] %object% in %~objects%",
+			"[the] [1:first|2:last] position[s] of [[the] value] %object% in %~objects%"
 		);
 	}
 
@@ -71,97 +69,74 @@ public class ExprIndicesOfX extends SimpleExpression<Object> {
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		if (exprs[1].isSingle()) {
-			Skript.error("'" + exprs[1].toString(null, false)
-					+ "' can only ever have one value at most, thus the 'indices of x in list' expression has no effect.");
+			Skript.error("'" + exprs[1] + "' can only ever have one value at most, thus the 'indices of x in list' expression has no effect.");
 			return false;
 		}
 
 		if (!(exprs[1] instanceof Variable<?>) && matchedPattern == 0) {
-			Skript.error("'" + exprs[1].toString(null, false)
-					+ "' is not a list variable. You can only get the indices of a list variable.");
+			Skript.error("'" + exprs[1] + "' is not a list variable. You can only get the indices of a list variable.");
 			return false;
 		}
 
-		position = matchedPattern == 1;
-		objects = LiteralUtils.defendExpression(exprs[1]);
 		type = IndexType.values()[parseResult.mark];
+		position = matchedPattern == 1;
 		value = LiteralUtils.defendExpression(exprs[0]);
+		objects = exprs[1];
 
-		return LiteralUtils.canInitSafely(objects, value);
+		return LiteralUtils.canInitSafely(value);
 	}
 
 	@Override
 	protected Object @Nullable [] get(Event event) {
 		Object value = this.value.getSingle(event);
-		if (value == null) {
-			if (this.position)
-				return new Integer[0];
-			return new String[0];
-		}
+		if (value == null)
+			return (Object[]) Array.newInstance(getReturnType(), 0);
 
-		List<Object> indices = new ArrayList<>();
+		if (this.position) {
+			List<Integer> positions = new ArrayList<>();
 
-		int position = 1;
-		if (objects instanceof Variable<?> list) {
-			//noinspection unchecked
-			Map<String, Object> variable = (Map<String, Object>) list.getRaw(event);
-			if (variable == null) {
-				if (this.position)
-					return new Integer[0];
-				return new String[0];
-			}
-
-			for (Map.Entry<String, Object> entry : variable.entrySet()) {
-				Object entryValue = entry.getValue();
-				// the value of {foo::1} when {foo::1::bar} is set is a map with a null key of the value {foo::1}
-				if (entryValue instanceof Map<?, ?> map)
-					entryValue = map.get(null);
-
-				if (entryValue.equals(value)) {
-					Object index = getPositionOrIndex(entry.getKey(), position, this.position);
-
-					if (type == IndexType.FIRST) {
-						if (this.position)
-							return new Integer[]{(Integer) index};
-						return new String[]{(String) index};
-					}
-
-					indices.add(index);
-				}
-				position++;
-			}
-		} else {
+			int position = 1;
 			for (Object object : objects.getArray(event)) {
 				if (object.equals(value)) {
 					if (type == IndexType.FIRST)
 						return new Integer[]{position};
-					indices.add(position);
+					positions.add(position);
 				}
 				position++;
 			}
+
+			if (type == IndexType.LAST)
+				return new Integer[]{positions.get(positions.size() - 1)};
+			return positions.toArray();
 		}
 
-		if (indices.isEmpty()) {
-			if (this.position)
-				return new Integer[0];
+		Variable<?> list = (Variable<?>) objects;
+		//noinspection unchecked
+		Map<String, Object> variable = (Map<String, Object>) list.getRaw(event);
+		if (variable == null)
 			return new String[0];
+
+		List<String> indices = new ArrayList<>();
+
+		for (Map.Entry<String, Object> entry : variable.entrySet()) {
+			Object entryValue = entry.getValue();
+			// the value of {foo::1} when {foo::1::bar} is set is a map with a null key of the value {foo::1}
+			if (entryValue instanceof Map<?, ?> map)
+				entryValue = map.get(null);
+
+			if (entryValue.equals(value)) {
+				if (type == IndexType.FIRST)
+					return new String[]{entry.getKey()};
+				indices.add(entry.getKey());
+			}
 		}
 
-		if (type == IndexType.LAST) {
-			if (this.position)
-				return new Integer[]{(Integer) indices.get(indices.size() - 1)};
-			return new String[]{(String) indices.get(indices.size() - 1)};
-		}
+		if (indices.isEmpty())
+			return new String[0];
 
-		if (this.position)
-			return indices.toArray(new Integer[0]);
-		return indices.toArray(new String[0]);
-	}
-
-	private Object getPositionOrIndex(String key, int position, boolean count) {
-		if (count)
-			return position;
-		return key;
+		if (type == IndexType.LAST)
+			return new String[]{indices.get(indices.size() - 1)};
+		return indices.toArray();
 	}
 
 	@Override
@@ -181,9 +156,7 @@ public class ExprIndicesOfX extends SimpleExpression<Object> {
 		SyntaxStringBuilder builder = new SyntaxStringBuilder(event, debug);
 
 		builder.append(type.name().toLowerCase());
-		if (type == IndexType.ALL) {
-			builder.append("indices");
-		} else if (position) {
+		if (position) {
 			builder.append("positions");
 		} else {
 			builder.append("index");
