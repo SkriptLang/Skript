@@ -215,15 +215,6 @@ public final class BukkitEventValues {
 				return new DelayedChangeBlock(e.getBlock());
 			}
 		}, 0);
-		EventValues.registerEventValue(BlockBreakEvent.class, Block.class, new Getter<Block, BlockBreakEvent>() {
-			@Override
-			public Block get(final BlockBreakEvent e) {
-				final BlockState s = e.getBlock().getState();
-				s.setType(s.getType() == Material.ICE ? Material.WATER : Material.AIR);
-				s.setRawData((byte) 0);
-				return new BlockStateBlock(s, true);
-			}
-		}, 1);
 		// BlockFromToEvent
 		EventValues.registerEventValue(BlockFromToEvent.class, Block.class, new Getter<Block, BlockFromToEvent>() {
 			@Override
