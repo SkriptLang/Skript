@@ -14,6 +14,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.TreeSet;
 import java.util.function.Consumer;
+import java.util.function.Predicate;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.stream.Collectors;
@@ -51,19 +52,21 @@ public class ClassLoader {
 
 	private final String basePackage;
 	private final Collection<String> subPackages;
+	private final @Nullable Predicate<String> filter;
 	private final boolean initialize;
 	private final boolean deep;
 	private final @Nullable Consumer<Class<?>> forEachClass;
 
-	private ClassLoader(String basePackage, Collection<String> subPackages, boolean initialize,
-						boolean deep, @Nullable Consumer<Class<?>> forEachClass) {
-		if (basePackage.isEmpty()) {
-			throw new IllegalArgumentException("The base package must be set");
+	private ClassLoader(String basePackage, Collection<String> subPackages, @Nullable Predicate<String> filter,
+						boolean initialize, boolean deep, @Nullable Consumer<Class<?>> forEachClass) {
+		if (!basePackage.isEmpty()) { // allow empty base package
+			basePackage = basePackage.replace('.', '/') + "/";
 		}
-		this.basePackage = basePackage.replace('.', '/') + "/";
+		this.basePackage = basePackage;
 		this.subPackages = subPackages.stream()
 				.map(subPackage -> subPackage.replace('.', '/') + "/")
 				.collect(Collectors.toSet());
+		this.filter = filter;
 		this.initialize = initialize;
 		this.deep = deep;
 		this.forEachClass = forEachClass;
@@ -147,7 +150,10 @@ public class ClassLoader {
 
 			if (load) {
 				// replace separators and .class extension
-				classNames.add(name.replace('/', '.').substring(0, name.length() - 6));
+				name = name.replace('/', '.').substring(0, name.length() - 6);
+				if (filter == null || filter.test(name)) { // final check for loading
+					classNames.add(name);
+				}
 			}
 		}
 
@@ -174,6 +180,7 @@ public class ClassLoader {
 		private final Collection<String> subPackages = new HashSet<>();
 		private boolean initialize;
 		private boolean deep;
+		private Predicate<String> filter = null;
 		private @Nullable Consumer<Class<?>> forEachClass;
 
 		private Builder() { }
@@ -233,6 +240,18 @@ public class ClassLoader {
 		}
 
 		/**
+		 * A predicate for whether a fully qualified class name should be loaded as a {@link Class}.
+		 * @param filter A predicate for filtering class names.
+		 *  It should return true for class names to load.
+		 * @return This builder.
+		 */
+		@Contract("_ -> this")
+		public Builder filter(Predicate<String> filter) {
+			this.filter = filter;
+			return this;
+		}
+
+		/**
 		 * Sets whether the loader will initialize found classes.
 		 * @param initialize Whether classes should be initialized when found.
 		 * @return This builder.
@@ -271,7 +290,7 @@ public class ClassLoader {
 		 */
 		@Contract("-> new")
 		public ClassLoader build() {
-			return new ClassLoader(basePackage, subPackages, initialize, deep, forEachClass);
+			return new ClassLoader(basePackage, subPackages, filter, initialize, deep, forEachClass);
 		}
 
 	}

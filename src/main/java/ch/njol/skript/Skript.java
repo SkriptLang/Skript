@@ -25,6 +25,7 @@ import ch.njol.skript.lang.Section;
 import ch.njol.skript.lang.SkriptEvent;
 import ch.njol.skript.lang.SkriptEventInfo;
 import ch.njol.skript.lang.Statement;
+import ch.njol.skript.lang.SyntaxElement;
 import ch.njol.skript.lang.SyntaxElementInfo;
 import ch.njol.skript.lang.Trigger;
 import ch.njol.skript.lang.TriggerItem;
@@ -116,6 +117,7 @@ import org.skriptlang.skript.lang.structure.StructureInfo;
 import org.skriptlang.skript.registration.SyntaxOrigin;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 import org.skriptlang.skript.registration.SyntaxInfo;
+import org.skriptlang.skript.util.ClassLoader;
 
 import java.io.File;
 import java.io.IOException;
@@ -738,12 +740,24 @@ public final class Skript extends JavaPlugin implements Listener {
 
 								info("Running sync JUnit tests...");
 								try {
-									List<Class<?>> classes = Lists.newArrayList(Utils.getClasses(Skript.getInstance(), "org.skriptlang.skript.test", "tests"));
-									// Don't attempt to run inner/anonymous classes as tests
-									classes.removeIf(Class::isAnonymousClass);
-									classes.removeIf(Class::isLocalClass);
-									// Test that requires package access. This is only present when compiling with src/test.
-									classes.add(Class.forName("ch.njol.skript.variables.FlatFileStorageTest"));
+									// Search for all test classes
+									Set<Class<?>> classes = new HashSet<>();
+									ClassLoader.builder()
+										.addSubPackages("org.skriptlang.skript", "ch.njol.skript")
+										.filter(fqn -> fqn.endsWith("Test"))
+										.initialize(true)
+										.deep(true)
+										.forEachClass(clazz -> {
+											if (clazz.isAnonymousClass() || clazz.isLocalClass())
+												return;
+											classes.add(clazz);
+										})
+										.build()
+										.loadClasses(Skript.class, getFile());
+									// remove some known non-tests that get picked up
+									classes.remove(SkriptJUnitTest.class);
+									classes.remove(SkriptAsyncJUnitTest.class);
+
 									size.set(classes.size());
 									for (Class<?> clazz : classes) {
 										if (SkriptAsyncJUnitTest.class.isAssignableFrom(clazz)) {
@@ -753,11 +767,6 @@ public final class Skript extends JavaPlugin implements Listener {
 
 										runTest(clazz, shutdownDelay, tests, milliseconds, ignored, fails);
 									}
-								} catch (IOException e) {
-									Skript.exception(e, "Failed to execute JUnit runtime tests.");
-								} catch (ClassNotFoundException e) {
-									// Should be the Skript test jar gradle task.
-									assert false : "Class 'ch.njol.skript.variables.FlatFileStorageTest' was not found.";
 								} catch (InstantiationException | IllegalAccessException | IllegalArgumentException |
 										 InvocationTargetException | NoSuchMethodException | SecurityException e) {
 									Skript.exception(e, "Failed to initalize test JUnit classes.");

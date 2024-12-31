@@ -12,7 +12,7 @@ import org.junit.Test;
 
 import java.util.Objects;
 
-public class BlockDataNotCloned6829 extends SkriptJUnitTest {
+public class BlockDataNotCloned6829Test extends SkriptJUnitTest {
 
 	public void run(String unparsedEffect, Event event) {
 		Effect effect = Effect.parse(unparsedEffect, "Can't understand this effect: " + unparsedEffect);

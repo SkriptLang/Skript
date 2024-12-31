@@ -18,7 +18,7 @@ import org.skriptlang.skript.lang.structure.Structure;
 
 import java.util.List;
 
-public class StructEntryContainerTest extends Structure {
+public class StructTestEntryContainer extends Structure {
 
 	public static class TestEvent extends Event {
 		@Override
@@ -29,7 +29,7 @@ public class StructEntryContainerTest extends Structure {
 
 	static {
 		if (TestMode.ENABLED)
-			Skript.registerStructure(StructEntryContainerTest.class,
+			Skript.registerStructure(StructTestEntryContainer.class,
 				EntryValidator.builder()
 					.addSection("has entry", true)
 					.build(),

@@ -13,7 +13,7 @@ import ch.njol.skript.SkriptConfig;
 /**
  * Ensures that the default files from Skript are generated.
  */
-public class FilesGenerate {
+public class FilesGenerateTest {
 
 	@Test
 	public void checkFiles() {
