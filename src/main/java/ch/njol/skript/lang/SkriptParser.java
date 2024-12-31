@@ -31,19 +31,14 @@ import ch.njol.util.NonNullPair;
 import ch.njol.util.StringUtils;
 import ch.njol.util.coll.CollectionUtils;
 import com.google.common.primitives.Booleans;
+import org.bukkit.event.Event;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.script.Script;
 import org.skriptlang.skript.lang.script.ScriptWarning;
 
-import java.util.ArrayList;
-import java.util.Deque;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Supplier;
@@ -225,7 +220,26 @@ public class SkriptParser {
 								}
 							}
 							T element = info.getElementClass().newInstance();
-							if (element.init(parseResult.exprs, patternIndex, getParser().getHasDelayBefore(), parseResult)) {
+
+							if (element instanceof EventRestrictedSyntax eventRestrictedSyntax) {
+								Class<? extends Event>[] supportedEvents = eventRestrictedSyntax.supportedEvents();
+								if (!getParser().isCurrentEvent(supportedEvents)) {
+									Iterator<String> iterator = Arrays.stream(supportedEvents)
+										.map(it -> "the " + it.getSimpleName()
+											.replaceAll("([A-Z])", " $1")
+											.toLowerCase()
+											.trim())
+										.iterator();
+
+									String events = StringUtils.join(iterator, ", ", " or ");
+
+									Skript.error("'" + parseResult.expr + "' can only be used in " + events);
+									continue;
+								}
+							}
+
+							boolean success = element.init(parseResult.exprs, patternIndex, getParser().getHasDelayBefore(), parseResult);
+							if (success) {
 								log.printLog();
 								return element;
 							}
@@ -337,9 +351,9 @@ public class SkriptParser {
 			if ((flags & PARSE_EXPRESSIONS) != 0) {
 				Expression<?> parsedExpression = parseExpression(types, expr);
 				if (parsedExpression != null) { // Expression/VariableString parsing success
+					Class<?> parsedReturnType = parsedExpression.getReturnType();
 					for (Class<? extends T> type : types) {
-						// Check return type against everything that expression accepts
-						if (parsedExpression.canReturn(type)) {
+						if (type.isAssignableFrom(parsedReturnType)) {
 							log.printLog();
 							return (Expression<? extends T>) parsedExpression;
 						}
@@ -505,13 +519,14 @@ public class SkriptParser {
 			if ((flags & PARSE_EXPRESSIONS) != 0) {
 				Expression<?> parsedExpression = parseExpression(types, expr);
 				if (parsedExpression != null) { // Expression/VariableString parsing success
+					Class<?> parsedReturnType = parsedExpression.getReturnType();
 					for (int i = 0; i < types.length; i++) {
 						Class<?> type = types[i];
 						if (type == null) // Ignore invalid (null) types
 							continue;
 
-						// Check return type against everything that expression accepts
-						if (parsedExpression.canReturn(type)) {
+						// Check return type against the expression's return type
+						if (type.isAssignableFrom(parsedReturnType)) {
 							if (!exprInfo.isPlural[i] && !parsedExpression.isSingle()) { // Wrong number of arguments
 								if (context == ParseContext.COMMAND) {
 									Skript.error(Commands.m_too_many_arguments.toString(exprInfo.classes[i].getName().getIndefiniteArticle(), exprInfo.classes[i].getName().toString()), ErrorQuality.SEMANTIC_ERROR);
