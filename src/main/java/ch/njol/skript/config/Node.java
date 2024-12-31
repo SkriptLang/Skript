@@ -12,7 +12,6 @@ import org.skriptlang.skript.util.Validated;
 import java.io.PrintWriter;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.regex.Pattern;
 
 public abstract class Node implements AnyNamed, Validated, NodeNavigator {
 
@@ -95,9 +94,6 @@ public abstract class Node implements AnyNamed, Validated, NodeNavigator {
 		p.remove(this);
 		newParent.add(this);
 	}
-
-	@SuppressWarnings("null")
-	private final static Pattern linePattern = Pattern.compile("^((?:[^#]|##)*)(\\s*#(?!#).*)$");
 
 	/**
 	 * Splits a line into value and comment.
