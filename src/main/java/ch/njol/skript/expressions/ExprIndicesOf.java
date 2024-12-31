@@ -72,7 +72,7 @@ public class ExprIndicesOf extends SimpleExpression<Object> {
 		Skript.registerExpression(ExprIndicesOf.class, Object.class, ExpressionType.COMBINED,
 			"[the] [first|1:last|2:all] (indices|index[es]) of [[the] value] %object% in %~objects%",
 			"[the] [first|1:last|2:all] position[s] of [[the] value] %object% in %~objects%",
-			"[the] [first|1:last|2:all] (position|index) of [[the] value] %string% in %string%"
+			"[the] [first|1:last|2:all] (position[s]|indices|index[es]) of [[the] value] %string% in %string%"
 		);
 	}
 	
