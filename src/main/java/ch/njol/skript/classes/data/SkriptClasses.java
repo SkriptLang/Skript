@@ -813,18 +813,13 @@ public class SkriptClasses {
 				}
 
 				@Override
-				public @Nullable Node parse(String name, ParseContext context) {
-					return null;
-				}
-
-				@Override
 				public String toString(Node node, int flags) {
-					return this.toVariableNameString(node);
+					return node.getPath();
 				}
 
 				@Override
 				public String toVariableNameString(Node node) {
-					return node.getPath();
+					return this.toString(node, 0);
 				}
 
 			}));
