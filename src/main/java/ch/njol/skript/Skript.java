@@ -118,6 +118,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -134,6 +135,7 @@ import java.util.logging.Filter;
 import java.util.logging.Level;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
@@ -1711,14 +1713,9 @@ public final class Skript extends JavaPlugin implements Listener {
 	private static Set<PluginDescriptionFile> identifyPluginsInStackTrace(StackTraceElement[] stackTrace) {
 		Set<PluginDescriptionFile> stackPlugins = new HashSet<>();
 		for (StackTraceElement element : stackTrace) {
-			try {
-				Class<?> clazz = Class.forName(element.getClassName());
-				if (Plugin.class.isAssignableFrom(clazz)) {
-					Plugin plugin = JavaPlugin.getProvidingPlugin(clazz);
-					stackPlugins.add(plugin.getDescription());
-				}
-			} catch (ClassNotFoundException | NoClassDefFoundError | IllegalStateException ignored) {
-			}
+			pluginPackages.entrySet().stream()
+				.filter(entry -> element.getClassName().startsWith(entry.getKey()))
+				.forEach(entry -> stackPlugins.add(entry.getValue()));
 		}
 		return stackPlugins;
 	}
@@ -1733,13 +1730,21 @@ public final class Skript extends JavaPlugin implements Listener {
 			logEx("You're running a (buggy) nightly version of Skript. If this is not a test server, switch to a stable release.");
 			logEx("Please report this bug to: " + issuesUrl);
 		} else if (!serverPlatform.supported) {
-			logEx("Your server platform appears to be unsupported by Skript. Consider switching to Paper or Spigot for better compatibility.");
+			String supportedPlatforms = getSupportedPlatforms();
+			logEx("Your server platform appears to be unsupported by Skript. Consider switching to one of the supported platforms: " + supportedPlatforms + " for better compatibility.");
 		} else if (updater != null && updater.getReleaseStatus() == ReleaseStatus.OUTDATED) {
 			logEx("You're running an outdated version of Skript! Update to the latest version here: " + downloadUrl);
 		} else {
 			logEx("An unexpected error occurred with Skript. This issue is likely not your fault.");
 			logExAddonInfo(issuesUrl, stackPlugins);
 		}
+	}
+
+	private static String getSupportedPlatforms() {
+		return Arrays.stream(ServerPlatform.values())
+			.filter(platform -> platform.supported)
+			.map(ServerPlatform::name)
+			.collect(Collectors.joining(","));
 	}
 
 	private static void logExAddonInfo(String issuesUrl, Set<PluginDescriptionFile> stackPlugins) {
