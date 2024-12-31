@@ -5,7 +5,6 @@ import ch.njol.skript.SkriptConfig;
 import ch.njol.skript.aliases.Aliases;
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.bukkitutil.BukkitUtils;
-import ch.njol.skript.bukkitutil.EnchantmentUtils;
 import ch.njol.skript.bukkitutil.EntityUtils;
 import ch.njol.skript.bukkitutil.ItemUtils;
 import ch.njol.skript.classes.ClassInfo;
@@ -949,7 +948,7 @@ public class BukkitClasses {
 						b.append("*" + i.getAmount());
 						
 						for (Entry<Enchantment, Integer> entry : i.getEnchantments().entrySet())
-							b.append("#" + EnchantmentUtils.getKey(entry.getKey()))
+							b.append("#" + entry.getKey().getKey())
 									.append(":" + entry.getValue());
 
 						return b.toString();
@@ -963,14 +962,7 @@ public class BukkitClasses {
 				.since("2.0")
 				.changer(DefaultChangers.itemChanger));
 
-		ClassInfo<?> biomeClassInfo;
-		if (BukkitUtils.registryExists("BIOME")) {
-			biomeClassInfo = new RegistryClassInfo<>(Biome.class, Registry.BIOME, "biome", "biomes");
-		} else {
-			//noinspection rawtypes,unchecked
-			biomeClassInfo = new EnumClassInfo<>((Class) Biome.class, "biome", "biomes");
-		}
-		Classes.registerClass(biomeClassInfo
+		Classes.registerClass(new RegistryClassInfo<>(Biome.class, Registry.BIOME, "biome", "biomes")
 				.user("biomes?")
 				.name("Biome")
 				.description("All possible biomes Minecraft uses to generate a world.",
@@ -1207,13 +1199,7 @@ public class BukkitClasses {
 					}
 				}));
 
-		ClassInfo<Enchantment> enchantmentClassInfo;
-		if (BukkitUtils.registryExists("ENCHANTMENT")) {
-			enchantmentClassInfo = new RegistryClassInfo<>(Enchantment.class, Registry.ENCHANTMENT, "enchantment", "enchantments");
-		} else {
-			enchantmentClassInfo = EnchantmentUtils.createClassInfo();
-		}
-		Classes.registerClass(enchantmentClassInfo
+		Classes.registerClass(new RegistryClassInfo<>(Enchantment.class, Registry.ENCHANTMENT, "enchantment", "enchantments")
 				.user("enchantments?")
 				.name("Enchantment")
 				.description("An enchantment, e.g. 'sharpness' or 'fortune'. Unlike <a href='#enchantmenttype'>enchantment type</a> " +
@@ -1449,23 +1435,16 @@ public class BukkitClasses {
 	
 					@Override
 					public String toString(EnchantmentOffer eo, int flags) {
-						return EnchantmentUtils.toString(eo.getEnchantment(), flags) + " " + eo.getEnchantmentLevel();
+						return Classes.toString(eo.getEnchantment()) + " " + eo.getEnchantmentLevel();
 					}
 	
 					@Override
 					public String toVariableNameString(EnchantmentOffer eo) {
-						return "offer:" + EnchantmentUtils.toString(eo.getEnchantment()) + "=" + eo.getEnchantmentLevel();
+						return "offer:" + Classes.toString(eo.getEnchantment()) + "=" + eo.getEnchantmentLevel();
 					}
 				}));
 
-		ClassInfo<Attribute> attributeClassInfo;
-		if (BukkitUtils.registryExists("ATTRIBUTE")) {
-			attributeClassInfo = new RegistryClassInfo<>(Attribute.class, Registry.ATTRIBUTE, "attributetype", "attribute types");
-		} else {
-			//noinspection rawtypes,unchecked
-			attributeClassInfo = new EnumClassInfo<>((Class) Attribute.class, "attributetype", "attribute types");
-		}
-		Classes.registerClass(attributeClassInfo
+		Classes.registerClass(new RegistryClassInfo<>(Attribute.class, Registry.ATTRIBUTE, "attributetype", "attribute types")
 				.user("attribute ?types?")
 				.name("Attribute Type")
 				.description("Represents the type of an attribute. Note that this type does not contain any numerical values."

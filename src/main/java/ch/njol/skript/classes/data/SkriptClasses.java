@@ -5,7 +5,6 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.Aliases;
 import ch.njol.skript.aliases.ItemData;
 import ch.njol.skript.aliases.ItemType;
-import ch.njol.skript.bukkitutil.EnchantmentUtils;
 import ch.njol.skript.bukkitutil.ItemUtils;
 import ch.njol.skript.classes.*;
 import ch.njol.skript.config.Config;
@@ -208,7 +207,7 @@ public class SkriptClasses {
 								Enchantment e = ench.getType();
 								if (e == null)
 									continue;
-								b.append("#" + EnchantmentUtils.getKey(e));
+								b.append("#" + e.getKey().toString());
 								b.append(":" + ench.getLevel());
 							}
 						}
