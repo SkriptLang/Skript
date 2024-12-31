@@ -740,17 +740,6 @@ public final class BukkitEventValues {
 			EventValues.registerEventValue(PlayerElytraBoostEvent.class, Entity.class, PlayerElytraBoostEvent::getFirework);
 		}
 
-		// PlayerLeashEntityEvent
-		// event-player is explicitly registered due to event does not extend PlayerEvent
-		EventValues.registerEventValue(PlayerLeashEntityEvent.class, Player.class, PlayerLeashEntityEvent::getPlayer, EventValues.TIME_NOW);
-		EventValues.registerEventValue(PlayerLeashEntityEvent.class, Entity.class, PlayerLeashEntityEvent::getEntity, EventValues.TIME_NOW);
-
-		// EntityUnleashEvent
-		EventValues.registerEventValue(EntityUnleashEvent.class, EntityUnleashEvent.UnleashReason.class, EntityUnleashEvent::getReason, EventValues.TIME_NOW);
-
-		// PlayerUnleashEntityEvent
-		EventValues.registerEventValue(PlayerUnleashEntityEvent.class, Player.class, PlayerUnleashEntityEvent::getPlayer, EventValues.TIME_NOW);
-
 	}
 
 }
