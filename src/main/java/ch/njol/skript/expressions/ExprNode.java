@@ -112,9 +112,9 @@ public class ExprNode extends PropertyExpression<Node, Node> {
 	public @Nullable Iterator<? extends Node> iterator(Event event) {
 		if (isPath)
 			return super.iterator(event);
-		Node single = this.getExpr().getSingle(event);
-		Iterator<Node> iterator = node.iterator();
-		return iterator.hasNext() ? iterator : null;
+		if (this.getExpr().getSingle(event) instanceof SectionNode node)
+			return node.iterator();
+		return null;
 	}
 
 	@Override
