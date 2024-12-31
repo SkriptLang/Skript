@@ -47,7 +47,7 @@ public class ExprQueue extends SimpleExpression<SkriptQueue> {
 
 	static {
 		Skript.registerExpression(ExprQueue.class, SkriptQueue.class, ExpressionType.COMBINED,
-			"[a] new queue [contents:(of|with) %-objects%]");
+			"[a] new queue [(of|with) %-objects%]");
 	}
 
 	private @Nullable Expression<?> contents;
@@ -56,7 +56,7 @@ public class ExprQueue extends SimpleExpression<SkriptQueue> {
 	public boolean init(Expression<?>[] expressions, int pattern, Kleenean delayed, ParseResult result) {
 		if (!this.getParser().hasExperiment(Feature.QUEUES))
 			return false;
-		if (result.hasTag("contents"))
+		if (expressions[0] != null)
 			this.contents = LiteralUtils.defendExpression(expressions[0]);
 		return contents == null || LiteralUtils.canInitSafely(contents);
 	}

@@ -19,18 +19,17 @@ import org.skriptlang.skript.lang.util.SkriptQueue;
 public class CondIsEmpty extends PropertyCondition<Object> {
 
 	static {
-		register(CondIsEmpty.class, "empty", "queues/inventories/slots/strings");
 		register(CondIsEmpty.class, "empty", "inventories/slots/strings/numbered");
 	}
 
 	@Override
-	public boolean check(final Object o) {
-		if (o instanceof String)
-			return ((String) o).isEmpty();
-		if (o instanceof SkriptQueue queue)
+	public boolean check(final Object object) {
+		if (object instanceof String string)
+			return string.isEmpty();
+		if (object instanceof SkriptQueue queue)
 			return queue.isEmpty();
-		if (o instanceof Inventory) {
-			for (ItemStack s : ((Inventory) o).getContents()) {
+		if (object instanceof Inventory) {
+			for (ItemStack s : ((Inventory) object).getContents()) {
 				if (s != null && s.getType() != Material.AIR)
 					return false; // There is an item here!
 			}

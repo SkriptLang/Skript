@@ -1,5 +1,6 @@
 package org.skriptlang.skript.lang.util;
 
+import ch.njol.skript.lang.util.common.AnyAmount;
 import ch.njol.yggdrasil.YggdrasilSerializable;
 import org.jetbrains.annotations.NotNull;
 
@@ -10,7 +11,7 @@ import java.util.*;
  * Elements will only be added to the queue if they are not null, with nothing happening if the elements are null.
  */
 public class SkriptQueue extends LinkedList<@NotNull Object>
-	implements Deque<Object>, Queue<Object>, YggdrasilSerializable {
+	implements Deque<Object>, Queue<Object>, YggdrasilSerializable, AnyAmount {
 
 	@Override
 	public boolean add(Object element) {
@@ -89,6 +90,11 @@ public class SkriptQueue extends LinkedList<@NotNull Object>
 			it.remove();
 		}
 		return elements;
+	}
+
+	@Override
+	public @NotNull Number amount() {
+		return this.size();
 	}
 
 }
