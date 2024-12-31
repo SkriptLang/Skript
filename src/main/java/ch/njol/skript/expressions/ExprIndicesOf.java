@@ -82,7 +82,7 @@ public class ExprIndicesOf extends SimpleExpression<Object> {
 	private Expression<?> value, objects;
 
 	@Override
-	public boolean init(final Expression<?>[] exprs, final int matchedPattern, final Kleenean isDelayed, final ParseResult parseResult) {
+	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		if (exprs[1].isSingle() && (matchedPattern == 0 || matchedPattern == 1)) {
 			Skript.error("'" + exprs[1] + "' can only ever have one value at most, thus the 'indices of x in list' expression has no effect.");
 			return false;
@@ -103,8 +103,7 @@ public class ExprIndicesOf extends SimpleExpression<Object> {
 	}
 	
 	@Override
-	@Nullable
-	protected Object[] get(Event event) {
+	protected Object @Nullable [] get(Event event) {
 		Object value = this.value.getSingle(event);
 		if (value == null)
 			return (Object[]) Array.newInstance(getReturnType(), 0);
