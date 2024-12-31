@@ -147,7 +147,7 @@ public final class BukkitEventValues {
 		EventValues.registerEventValue(BlockFromToEvent.class, Block.class, BlockFromToEvent::getToBlock, TIME_FUTURE);
 		// BlockIgniteEvent
 		EventValues.registerEventValue(BlockIgniteEvent.class, Player.class, BlockIgniteEvent::getPlayer);
-		EventValues.registerEventValue(BlockIgniteEvent.class, Block.class, BlockIgniteEvent::getIgnitingBlock);
+		EventValues.registerEventValue(BlockIgniteEvent.class, Block.class, BlockIgniteEvent::getBlock);
 		// BlockDispenseEvent
 		EventValues.registerEventValue(BlockDispenseEvent.class, ItemStack.class, BlockDispenseEvent::getItem);
 		// BlockCanBuildEvent

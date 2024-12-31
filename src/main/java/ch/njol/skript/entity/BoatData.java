@@ -50,7 +50,7 @@ public class BoatData extends EntityData<Boat> {
 	private BoatData(int type) {
 		matchedPattern = type;
 	}
-	
+
 	@Override
 	protected boolean init(Literal<?>[] exprs, int matchedPattern, ParseResult parseResult) {
 		return true;
