@@ -95,7 +95,7 @@ public class ExprFormatDate extends PropertyExpression<Date, String> {
 			format = this.format;
 		}
 
-		return get(source, date -> format.format(new java.util.Date(date.getTimestamp())));
+		return get(source, date -> format.format(date));
 	}
 
 	@Override
