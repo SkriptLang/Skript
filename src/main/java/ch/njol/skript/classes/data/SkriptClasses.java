@@ -40,6 +40,7 @@ import ch.njol.skript.util.visual.VisualEffect;
 import ch.njol.skript.util.visual.VisualEffects;
 import ch.njol.yggdrasil.Fields;
 
+import java.io.NotSerializableException;
 import java.io.StreamCorruptedException;
 import java.util.Iterator;
 import java.util.Locale;
@@ -352,7 +353,38 @@ public class SkriptClasses {
 						"subtract a day from {_yesterday}",
 						"# now {_yesterday} represents the date 24 hours before now")
 				.since("1.4")
-				.serializer(new YggdrasilSerializer<>()));
+				.serializer(new Serializer<Date>() {
+
+					@Override
+					public Fields serialize(Date date) {
+						Fields fields = new Fields();
+						fields.putPrimitive("time", date.getTime());
+						return fields;
+					}
+
+
+					@Override
+					protected Date deserialize(Fields fields)
+						throws StreamCorruptedException {
+						long time = fields.getPrimitive("time", long.class);
+						return new Date(time);
+					}
+
+					@Override
+					public void deserialize(Date date, Fields fields) {
+						throw new IllegalStateException("Cannot deserialize to an existing date object.");
+					}
+
+					@Override
+					public boolean mustSyncDeserialization() {
+						return false;
+					}
+
+					@Override
+					protected boolean canBeInstantiated() {
+						return false;
+					}
+				}));
 
 		Classes.registerClass(new ClassInfo<>(Direction.class, "direction")
 				.user("directions?")

@@ -6,10 +6,10 @@ import ch.njol.skript.lang.SkriptEvent;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.registrations.EventValues;
 import ch.njol.skript.util.Experience;
-import ch.njol.skript.util.Getter;
 import org.bukkit.event.Event;
 import org.bukkit.event.player.PlayerExpChangeEvent;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.converter.Converter;
 
 public class EvtExperienceChange extends SkriptEvent {
 
@@ -22,13 +22,7 @@ public class EvtExperienceChange extends SkriptEvent {
 						"\tbroadcast \"%{_xp}%\""
 				)
 				.since("2.7");
-		EventValues.registerEventValue(PlayerExpChangeEvent.class, Experience.class, new Getter<Experience, PlayerExpChangeEvent>() {
-			@Override
-			@Nullable
-			public Experience get(PlayerExpChangeEvent event) {
-				return new Experience(event.getAmount());
-			}
-		}, EventValues.TIME_NOW);
+		EventValues.registerEventValue(PlayerExpChangeEvent.class, Experience.class, event -> new Experience(event.getAmount()));
 	}
 
 	private static final int ANY = 0, UP = 1, DOWN = 2;
