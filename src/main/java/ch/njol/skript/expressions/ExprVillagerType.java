@@ -53,7 +53,7 @@ public class ExprVillagerType extends SimplePropertyExpression<LivingEntity, Typ
 		for (LivingEntity livingEntity : getExpr().getArray(event)) {
 			if (livingEntity instanceof Villager villager)
 				villager.setVillagerType(type);
-			if (livingEntity instanceof ZombieVillager zombie)
+			else if (livingEntity instanceof ZombieVillager zombie)
 				zombie.setVillagerType(type);
 		}
 	}
