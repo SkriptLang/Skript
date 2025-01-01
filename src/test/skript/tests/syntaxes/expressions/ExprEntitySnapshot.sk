@@ -5,6 +5,7 @@ test "entity snapshots" when running minecraft "1.20.2":
 		set {_snapshot} to entity snapshot of entity
 		clear entity
 	assert {_snapshot} is an entity snapshot with "Get entity snapshot is not an entity snapshot"
+	assert type of {_snapshot} is a pig with "Entity type of entity snapshot should be a pig"
 	spawn {_snapshot} at test-location:
 		assert the max health of entity is 20 with "Max health did not stick to the spawned entity"
 		assert the health of entity is 20 with "Health did not stick to the spawned entity"

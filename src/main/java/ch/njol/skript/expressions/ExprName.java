@@ -1,31 +1,7 @@
 package ch.njol.skript.expressions;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import ch.njol.skript.bukkitutil.InventoryUtils;
-import ch.njol.skript.bukkitutil.ItemUtils;
-import org.bukkit.Bukkit;
-import org.bukkit.GameRule;
-import org.bukkit.Nameable;
-import org.bukkit.OfflinePlayer;
-import org.bukkit.block.Block;
-import org.bukkit.block.BlockState;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.HumanEntity;
-import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Player;
-import org.bukkit.event.Event;
-import org.bukkit.event.inventory.InventoryType;
-import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.InventoryHolder;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.World;
-import org.jetbrains.annotations.Nullable;
-
 import ch.njol.skript.Skript;
-import ch.njol.skript.aliases.ItemType;
+import ch.njol.skript.bukkitutil.InventoryUtils;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
@@ -34,19 +10,40 @@ import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.skript.lang.function.DynamicFunctionReference;
+import ch.njol.skript.lang.util.common.AnyNamed;
+import ch.njol.skript.registrations.Feature;
 import ch.njol.skript.util.chat.BungeeConverter;
 import ch.njol.skript.util.chat.ChatMessages;
-import ch.njol.skript.util.slot.Slot;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.bungeecord.BungeeComponentSerializer;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.BaseComponent;
+import org.bukkit.Bukkit;
+import org.bukkit.Nameable;
+import org.bukkit.OfflinePlayer;
+import org.bukkit.World;
+import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.HumanEntity;
+import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Player;
+import org.bukkit.event.Event;
+import org.bukkit.event.inventory.InventoryType;
+import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.InventoryHolder;
+import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.script.Script;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Name("Name / Display Name / Tab List Name")
 @Description({
-	"Represents the Minecraft account, display or tab list name of a player, or the custom name of an item, entity, block, inventory, gamerule or world.",
+	"Represents the Minecraft account, display or tab list name of a player, or the custom name of an item, entity, "
+        + "block, inventory, gamerule, world, script or function.",
 	"",
 	"<ul>",
 	"\t<li><strong>Players</strong>",
@@ -85,6 +82,11 @@ import net.md_5.bungee.api.chat.BaseComponent;
 	"\t\t\t<li><strong>Name:</strong> The name of the world. Cannot be changed.</li>",
 	"\t\t</ul>",
 	"\t</li>",
+	"\t<li><strong>Scripts</strong>",
+	"\t\t<ul>",
+	"\t\t\t<li><strong>Name:</strong> The name of a script, excluding its file extension.</li>",
+	"\t\t</ul>",
+	"\t</li>",
 	"</ul>"
 })
 @Examples({
@@ -99,17 +101,16 @@ public class ExprName extends SimplePropertyExpression<Object, String> {
 
 	@Nullable
 	private static BungeeComponentSerializer serializer;
-	static final boolean HAS_GAMERULES;
 
 	static {
 		// Check for Adventure API
 		if (Skript.classExists("net.kyori.adventure.text.Component") &&
-				Skript.methodExists(Bukkit.class, "createInventory", InventoryHolder.class, int.class, Component.class))
+			Skript.methodExists(Bukkit.class, "createInventory", InventoryHolder.class, int.class, Component.class))
 			serializer = BungeeComponentSerializer.get();
-		HAS_GAMERULES = Skript.classExists("org.bukkit.GameRule");
-		register(ExprName.class, String.class, "(1¦name[s]|2¦(display|nick|chat|custom)[ ]name[s])", "offlineplayers/entities/blocks/itemtypes/inventories/slots/worlds"
-			+ (HAS_GAMERULES ? "/gamerules" : ""));
-		register(ExprName.class, String.class, "(3¦(player|tab)[ ]list name[s])", "players");
+		register(ExprName.class, String.class, "(1:name[s])", "offlineplayers/entities/inventories/nameds");
+		register(ExprName.class, String.class, "(2:(display|nick|chat|custom)[ ]name[s])", "offlineplayers/entities/inventories/nameds");
+		register(ExprName.class, String.class, "(3:(player|tab)[ ]list name[s])", "players");
+		// we keep the entity input because we want to do something special with entities
 	}
 
 	/*
@@ -118,59 +119,47 @@ public class ExprName extends SimplePropertyExpression<Object, String> {
 	 * 3 = "tablist name"
 	 */
 	private int mark;
+	private boolean scriptResolvedName;
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		mark = parseResult.mark;
-		setExpr(exprs[0]);
-		if (mark != 1 && World.class.isAssignableFrom(getExpr().getReturnType())) {
-			Skript.error("Can't use 'display name' with worlds. Use 'name' instead.");
-			return false;
-		}
+		this.mark = parseResult.mark;
+		this.setExpr(exprs[0]);
+		this.scriptResolvedName = this.getParser().hasExperiment(Feature.SCRIPT_REFLECTION);
 		return true;
 	}
 
 	@Override
-	@Nullable
-	public String convert(Object object) {
-		if (object instanceof OfflinePlayer && ((OfflinePlayer) object).isOnline())
-			object = ((OfflinePlayer) object).getPlayer();
-
-		if (object instanceof Player) {
-			switch (mark) {
-				case 1:
-					return ((Player) object).getName();
-				case 2:
-					return ((Player) object).getDisplayName();
-				case 3:
-					return ((Player) object).getPlayerListName();
+	public @Nullable String convert(Object object) {
+		if (object instanceof OfflinePlayer offlinePlayer) {
+			if (offlinePlayer.isOnline()) { // Defer to player check below
+				object = offlinePlayer.getPlayer();
+			} else { // We can only support "name"
+				return mark == 1 ? offlinePlayer.getName() : null;
 			}
-		} else if (object instanceof OfflinePlayer) {
-			return mark == 1 ? ((OfflinePlayer) object).getName() : null;
-		} else if (object instanceof Entity) {
-			return ((Entity) object).getCustomName();
-		} else if (object instanceof Block) {
-			BlockState state = ((Block) object).getState();
-			if (state instanceof Nameable)
-				return ((Nameable) state).getCustomName();
-		} else if (object instanceof ItemType) {
-			ItemMeta m = ((ItemType) object).getItemMeta();
-			return m.hasDisplayName() ? m.getDisplayName() : null;
-		} else if (object instanceof Inventory) {
-			Inventory inventory = (Inventory) object;
+		}
+
+		if (!scriptResolvedName && object instanceof Script script) {
+			return script.nameAndPath();
+		}
+
+		if (object instanceof Player player) {
+			return switch (mark) {
+				case 1 -> player.getName();
+				case 2 -> player.getDisplayName();
+				case 3 -> player.getPlayerListName();
+				default -> throw new IllegalStateException("Unexpected value: " + mark);
+			};
+		} else if (object instanceof Nameable nameable) {
+			if (mark == 1 && nameable instanceof CommandSender sender)
+				return sender.getName();
+			return nameable.getCustomName();
+		} else if (object instanceof Inventory inventory) {
 			if (inventory.getViewers().isEmpty())
 				return null;
 			return InventoryUtils.getTitle(inventory.getViewers().get(0).getOpenInventory());
-		} else if (object instanceof Slot) {
-			ItemStack is = ((Slot) object).getItem();
-			if (is != null && is.hasItemMeta()) {
-				ItemMeta m = is.getItemMeta();
-				return m.hasDisplayName() ? m.getDisplayName() : null;
-			}
-		} else if (object instanceof World) {
-			return ((World) object).getName();
-		} else if (HAS_GAMERULES && object instanceof GameRule) {
-			return ((GameRule) object).getName();
+		} else if (object instanceof AnyNamed named) {
+			return named.name();
 		}
 		return null;
 	}
@@ -181,9 +170,14 @@ public class ExprName extends SimplePropertyExpression<Object, String> {
 		if (mode == ChangeMode.SET || mode == ChangeMode.RESET) {
 			if (mark == 1) {
 				if (Player.class.isAssignableFrom(getExpr().getReturnType())) {
-					Skript.error("Can't change the Minecraft name of a player. Change the 'display name' or 'tab list name' instead.");
+					Skript.error("Can't change the Minecraft name of a player. Change the 'display name' or 'tab list "
+						+ "name' instead.");
 					return null;
 				} else if (World.class.isAssignableFrom(getExpr().getReturnType())) {
+					return null;
+				} else if (Script.class.isAssignableFrom(getExpr().getReturnType())) {
+					return null;
+				} else if (DynamicFunctionReference.class.isAssignableFrom(getExpr().getReturnType())) {
 					return null;
 				}
 			}
@@ -196,41 +190,32 @@ public class ExprName extends SimplePropertyExpression<Object, String> {
 	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
 		String name = delta != null ? (String) delta[0] : null;
 		for (Object object : getExpr().getArray(event)) {
-			if (object instanceof Player) {
+			if (object instanceof Player player) {
 				switch (mark) {
 					case 2:
-						((Player) object).setDisplayName(name != null ? name + ChatColor.RESET : ((Player) object).getName());
+						player.setDisplayName(name != null ? name + ChatColor.RESET : ((Player) object).getName());
 						break;
 					case 3: // Null check not necessary. This method will use the player's name if 'name' is null.
-						((Player) object).setPlayerListName(name);
+						player.setPlayerListName(name);
 						break;
 				}
-			} else if (object instanceof Entity) {
-				((Entity) object).setCustomName(name);
+			} else if (object instanceof Entity entity) {
+				entity.setCustomName(name);
 				if (mark == 2 || mode == ChangeMode.RESET) // Using "display name"
-					((Entity) object).setCustomNameVisible(name != null);
-				if (object instanceof LivingEntity)
-					((LivingEntity) object).setRemoveWhenFarAway(name == null);
-			} else if (object instanceof Block) {
-				BlockState state = ((Block) object).getState();
-				if (state instanceof Nameable) {
-					((Nameable) state).setCustomName(name);
-					state.update();
-				}
-			} else if (object instanceof ItemType) {
-				ItemType i = (ItemType) object;
-				ItemMeta m = i.getItemMeta();
-				m.setDisplayName(name);
-				i.setItemMeta(m);
-			} else if (object instanceof Inventory) {
-				Inventory inv = (Inventory) object;
+					entity.setCustomNameVisible(name != null);
+				if (object instanceof LivingEntity living)
+					living.setRemoveWhenFarAway(name == null);
+			} else if (object instanceof AnyNamed named) {
+				if (named.supportsNameChange())
+					named.setName(name);
+			} else if (object instanceof Inventory inventory) {
 
-				if (inv.getViewers().isEmpty())
+				if (inventory.getViewers().isEmpty())
 					return;
 				// Create a clone to avoid a ConcurrentModificationException
-				List<HumanEntity> viewers = new ArrayList<>(inv.getViewers());
+				List<HumanEntity> viewers = new ArrayList<>(inventory.getViewers());
 
-				InventoryType type = inv.getType();
+				InventoryType type = inventory.getType();
 				if (!type.isCreatable())
 					return;
 
@@ -239,9 +224,9 @@ public class ExprName extends SimplePropertyExpression<Object, String> {
 					if (name == null)
 						name = type.getDefaultTitle();
 					if (type == InventoryType.CHEST) {
-						copy = Bukkit.createInventory(inv.getHolder(), inv.getSize(), name);
+						copy = Bukkit.createInventory(inventory.getHolder(), inventory.getSize(), name);
 					} else {
-						copy = Bukkit.createInventory(inv.getHolder(), type, name);
+						copy = Bukkit.createInventory(inventory.getHolder(), type, name);
 					}
 				} else {
 					Component component = type.defaultTitle();
@@ -250,22 +235,13 @@ public class ExprName extends SimplePropertyExpression<Object, String> {
 						component = serializer.deserialize(components);
 					}
 					if (type == InventoryType.CHEST) {
-						copy = Bukkit.createInventory(inv.getHolder(), inv.getSize(), component);
+						copy = Bukkit.createInventory(inventory.getHolder(), inventory.getSize(), component);
 					} else {
-						copy = Bukkit.createInventory(inv.getHolder(), type, component);
+						copy = Bukkit.createInventory(inventory.getHolder(), type, component);
 					}
 				}
-				copy.setContents(inv.getContents());
+				copy.setContents(inventory.getContents());
 				viewers.forEach(viewer -> viewer.openInventory(copy));
-			} else if (object instanceof Slot) {
-				Slot s = (Slot) object;
-				ItemStack is = s.getItem();
-				if (is != null && !ItemUtils.isAir(is.getType())) {
-					ItemMeta m = is.hasItemMeta() ? is.getItemMeta() : Bukkit.getItemFactory().getItemMeta(is.getType());
-					m.setDisplayName(name);
-					is.setItemMeta(m);
-					s.setItem(is);
-				}
 			}
 		}
 	}
@@ -277,12 +253,11 @@ public class ExprName extends SimplePropertyExpression<Object, String> {
 
 	@Override
 	protected String getPropertyName() {
-		switch (mark) {
-			case 1: return "name";
-			case 2: return "display name";
-			case 3: return "tablist name";
-			default: return "name";
-		}
+		return switch (mark) {
+			case 2 -> "display name";
+			case 3 -> "tablist name";
+			default -> "name";
+		};
 	}
 
 }
