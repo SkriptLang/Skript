@@ -4,6 +4,7 @@ import ch.njol.skript.classes.*;
 import ch.njol.skript.lang.util.common.AnyAmount;
 import ch.njol.skript.lang.util.common.AnyContains;
 import ch.njol.skript.lang.util.common.AnyNamed;
+import ch.njol.skript.lang.util.common.AnyWeight;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
@@ -690,6 +691,14 @@ public class SkriptClasses {
 				.description("Something that contains other things.")
 				.usage("")
 				.examples("{a} contains {b}")
+				.since("INSERT VERSION")
+		);
+
+		Classes.registerClass(new AnyInfo<>(AnyWeight.class, "weighted")
+				.name("Any Weighted Thing")
+				.description("Something that has a weight.")
+				.usage("")
+				.examples("the weight of {thing}")
 				.since("INSERT VERSION")
 		);
 	}

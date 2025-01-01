@@ -8,18 +8,18 @@ import org.bukkit.loot.LootTable;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.spawner.SpawnerModule;
-import org.skriptlang.skript.bukkit.spawner.util.TrialSpawnerReward;
+import org.skriptlang.skript.bukkit.spawner.util.WeightedLootTable;
 
-public class ExprRewardLootTable extends SimplePropertyExpression<TrialSpawnerReward, LootTable> {
+public class ExprLootTableOfWeightedLootTable extends SimplePropertyExpression<WeightedLootTable, LootTable> {
 
 	static {
-		register(SpawnerModule.SYNTAX_REGISTRY, ExprRewardLootTable.class, LootTable.class,
-			"[trial] spawner reward loot[ ]table", "trialspawnerrewards");
+		register(SpawnerModule.SYNTAX_REGISTRY, ExprLootTableOfWeightedLootTable.class, LootTable.class,
+			"loot[ ]table", "weightedloottables");
 	}
 
 	@Override
-	public @NotNull LootTable convert(TrialSpawnerReward reward) {
-		return reward.getLootTable();
+	public @NotNull LootTable convert(WeightedLootTable lootTable) {
+		return lootTable.getLootTable();
 	}
 
 	@Override
@@ -34,8 +34,8 @@ public class ExprRewardLootTable extends SimplePropertyExpression<TrialSpawnerRe
 		assert delta != null;
 		LootTable lootTable = (LootTable) delta[0];
 
-		for (TrialSpawnerReward reward : getExpr().getArray(event)) {
-			reward.setLootTable(lootTable);
+		for (WeightedLootTable weightedLootTable : getExpr().getArray(event)) {
+			weightedLootTable.setLootTable(lootTable);
 		}
 	}
 
@@ -46,7 +46,7 @@ public class ExprRewardLootTable extends SimplePropertyExpression<TrialSpawnerRe
 
 	@Override
 	protected String getPropertyName() {
-		return "spawner reward loot table";
+		return "weighted loot table";
 	}
 
 }

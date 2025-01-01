@@ -36,6 +36,7 @@ public class EvtSpawner extends SkriptEvent {
 			.supplier(EvtSpawner::new)
 			.priority(SyntaxInfo.COMBINED)
 			.addEvents(events)
+			.addPattern("[1:pre|2:trial] spawner spawn[ing] [of %-entitydatas%]")
 			.addDescription(
 				"Called when a spawner spawns an entity.",
 				"Use 'trial' to listen for trial spawner spawns.",

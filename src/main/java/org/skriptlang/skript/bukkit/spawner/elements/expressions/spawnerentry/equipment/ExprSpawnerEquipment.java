@@ -26,7 +26,7 @@ public class ExprSpawnerEquipment extends SimpleExpression<SpawnerEquipmentWrapp
 			.origin(SyntaxOrigin.of(Skript.instance()))
 			.supplier(ExprSpawnerEquipment::new)
 			.priority(SyntaxInfo.COMBINED)
-			.addPattern("[a] spawner [entry] equipment with %loottable%[,] and %spawnerentrydropchances%")
+			.addPattern("%loottable% with drop chance[s] %spawnerentrydropchances%")
 			.build();
 
 		SpawnerModule.SYNTAX_REGISTRY.register(SyntaxRegistry.EXPRESSION, info);

@@ -6,6 +6,8 @@ import ch.njol.skript.classes.EnumClassInfo;
 import ch.njol.skript.classes.Parser;
 import ch.njol.skript.expressions.base.EventValueExpression;
 import ch.njol.skript.lang.ParseContext;
+import ch.njol.skript.lang.util.common.AnyProvider;
+import ch.njol.skript.lang.util.common.AnyWeight;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.registrations.EventValues;
 import com.destroystokyo.paper.event.entity.PreSpawnerSpawnEvent;
@@ -18,13 +20,16 @@ import org.bukkit.entity.Entity;
 import org.bukkit.event.entity.SpawnerSpawnEvent;
 import org.bukkit.event.entity.TrialSpawnerSpawnEvent;
 import org.bukkit.inventory.EquipmentSlot;
+import org.jetbrains.annotations.UnknownNullability;
 import org.skriptlang.skript.addon.AddonModule;
 import org.skriptlang.skript.addon.SkriptAddon;
 import org.skriptlang.skript.bukkit.spawner.util.SpawnRuleWrapper;
 import org.skriptlang.skript.bukkit.spawner.util.SpawnerEquipmentWrapper;
 import org.skriptlang.skript.bukkit.spawner.util.SpawnerEquipmentWrapper.DropChance;
 import org.skriptlang.skript.bukkit.spawner.util.TrialSpawnerConfig;
-import org.skriptlang.skript.bukkit.spawner.util.TrialSpawnerReward;
+import org.skriptlang.skript.bukkit.spawner.util.WeightedLootTable;
+import org.skriptlang.skript.lang.converter.Converter;
+import org.skriptlang.skript.lang.converter.Converters;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
 import java.io.IOException;
@@ -69,10 +74,10 @@ public class SpawnerModule implements AddonModule {
 			})
 		);
 
-		Classes.registerClass(new ClassInfo<>(TrialSpawnerReward.class, "trialspawnerreward")
-			.user("trial ?spawner ?rewards?")
-			.name("Trial Spawner Reward")
-			.description("Represents a trial spawner reward.")
+		Classes.registerClass(new ClassInfo<>(WeightedLootTable.class, "weightedloottable")
+			.user("weighted ?loot ?tables?")
+			.name("Weighted Loot Table")
+			.description("Represents a weighted loot table. Trial spawners pick a weighted loot table to use as its reward.")
 			.since("INSERT VERSION")
 			.parser(new Parser<>() {
 				@Override
@@ -81,15 +86,15 @@ public class SpawnerModule implements AddonModule {
 				}
 
 				public
-				@Override String toString(TrialSpawnerReward reward, int flags) {
+				@Override String toString(WeightedLootTable reward, int flags) {
 					return "trial spawner reward with "
 						+ Classes.toString(reward.getLootTable())
-						+ " and weight " + reward.getWeight();
+						+ " and weight " + reward.weight();
 				}
 
 				@Override
-				public String toVariableNameString(TrialSpawnerReward reward) {
-					return "trial spawner reward:" + reward.getLootTable().getKey() + ',' + reward.getWeight();
+				public String toVariableNameString(WeightedLootTable reward) {
+					return "trial spawner reward:" + reward.getLootTable().getKey() + ',' + reward.weight();
 				}
 			})
 		);
@@ -231,6 +236,24 @@ public class SpawnerModule implements AddonModule {
 			throw new RuntimeException(e);
 		}
 
+		Converters.registerConverter(SpawnerEntry.class, AnyWeight.class,
+			entry -> new AnyWeight() {
+				@Override
+				public @UnknownNullability Integer weight() {
+					return entry.getSpawnWeight();
+				}
+
+				@Override
+				public boolean supportsWeightChange() {
+					return true;
+				}
+
+				@Override
+				public void setWeight(Integer weight) throws UnsupportedOperationException {
+					entry.setSpawnWeight(weight);
+				}
+		}, Converter.NO_RIGHT_CHAINING);
+
 		EventValues.registerEventValue(SpawnerSpawnEvent.class, Block.class, event -> {
 			if (event.getSpawner() != null)
 				return event.getSpawner().getBlock();
@@ -242,11 +265,6 @@ public class SpawnerModule implements AddonModule {
 		EventValues.registerEventValue(TrialSpawnerSpawnEvent.class, Block.class, event -> event.getTrialSpawner().getBlock());
 		EventValues.registerEventValue(TrialSpawnerSpawnEvent.class, Location.class, TrialSpawnerSpawnEvent::getLocation);
 		EventValues.registerEventValue(TrialSpawnerSpawnEvent.class, Entity.class, TrialSpawnerSpawnEvent::getEntity);
-
-		if (Skript.classExists("com.destroystokyo.paper.event.entity.PreSpawnerSpawnEvent")) {
-			EventValues.registerEventValue(PreSpawnerSpawnEvent.class, Location.class, PreSpawnerSpawnEvent::getSpawnerLocation);
-			EventValues.registerEventValue(PreSpawnerSpawnEvent.class, Location.class, PreSpawnerSpawnEvent::getSpawnLocation);
-		}
 	}
 
 }

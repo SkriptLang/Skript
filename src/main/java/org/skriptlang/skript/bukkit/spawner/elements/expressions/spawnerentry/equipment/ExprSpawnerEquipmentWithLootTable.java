@@ -14,7 +14,7 @@ public class ExprSpawnerEquipmentWithLootTable extends SimplePropertyExpression<
 
 	static {
 		register(SpawnerModule.SYNTAX_REGISTRY, ExprSpawnerEquipmentWithLootTable.class, LootTable.class,
-			"spawner equipment loot[ ]table", "spawnerentryequipments");
+			"equipment loot[ ]table", "spawnerentryequipments");
 	}
 
 	@Override
