@@ -107,8 +107,8 @@ public class ExprName extends SimplePropertyExpression<Object, String> {
 		if (Skript.classExists("net.kyori.adventure.text.Component") &&
 			Skript.methodExists(Bukkit.class, "createInventory", InventoryHolder.class, int.class, Component.class))
 			serializer = BungeeComponentSerializer.get();
-		register(ExprName.class, String.class, "(1:name[s])", "offlineplayers/entities/inventories/named");
-		register(ExprName.class, String.class, "(2:(display|nick|chat|custom)[ ]name[s])", "offlineplayers/entities/inventories/named");
+		register(ExprName.class, String.class, "(1:name[s])", "offlineplayers/entities/inventories/nameds");
+		register(ExprName.class, String.class, "(2:(display|nick|chat|custom)[ ]name[s])", "offlineplayers/entities/inventories/nameds");
 		register(ExprName.class, String.class, "(3:(player|tab)[ ]list name[s])", "players");
 		// we keep the entity input because we want to do something special with entities
 	}
