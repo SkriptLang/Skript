@@ -219,6 +219,7 @@ public class SkriptConfig {
 
 	public static final Option<Boolean> apiSoftExceptions = new Option<>("soft api exceptions", false);
 
+	@SuppressWarnings("removal")
 	public static final Option<Boolean> enableTimings = new Option<>("enable timings", false)
 			.setter(t -> {
 				if (!Skript.classExists("co.aikar.timings.Timings")) { // Check for Timings

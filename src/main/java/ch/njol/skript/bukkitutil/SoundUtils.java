@@ -22,11 +22,11 @@ public final class SoundUtils {
 	 * @param soundString The enum name to use to find the sound.
 	 * @return The key of the sound.
 	 */
+	@SuppressWarnings("removal")
 	public static @Nullable NamespacedKey getKey(String soundString) {
 		soundString = soundString.toUpperCase(Locale.ENGLISH);
 		if (SOUND_IS_INTERFACE) {
 			try {
-				//noinspection deprecation,removal
 				return Sound.valueOf(soundString).getKey();
 			} catch (Exception ignored) {}
 		} else {
@@ -44,9 +44,9 @@ public final class SoundUtils {
 	 * @param sound The sound to get the key string of.
 	 * @return The key string of the {@link NamespacedKey} of the sound.
 	 */
+	@SuppressWarnings("removal")
 	public static @NotNull NamespacedKey getKey(Sound sound) {
 		if (SOUND_IS_INTERFACE) {
-			//noinspection deprecation,removal
 			return sound.getKey();
 		} else {
 			return ((Keyed) sound).getKey();

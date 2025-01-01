@@ -116,6 +116,7 @@ public class ExprColorOf extends PropertyExpression<Object, Color> {
 	}
 
 	@Override
+	@SuppressWarnings("removal")
 	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
 		Color[] colors = delta != null ? (Color[]) delta : null;
 		Consumer<TextDisplay> displayChanger = getDisplayChanger(mode, colors);
@@ -148,12 +149,10 @@ public class ExprColorOf extends PropertyExpression<Object, Color> {
 				ItemStack stack = object instanceof Item ? ((Item) object).getItemStack() : ((ItemType) object).getRandom();
 				if (stack == null)
 					continue;
-				//noinspection removal
 				MaterialData data = stack.getData();
 				if (!(data instanceof Colorable colorable))
 					continue;
 				colorable.setColor(colors[0].asDyeColor());
-				//noinspection removal
 				stack.setData(data);
 				if (object instanceof Item item) {
 					item.setItemStack(stack);
@@ -211,6 +210,7 @@ public class ExprColorOf extends PropertyExpression<Object, Color> {
 		};
 	}
 
+	@SuppressWarnings({"removal"})
 	private @Nullable Colorable getColorable(Object colorable) {
 		if (colorable instanceof Item || colorable instanceof ItemType) {
 			ItemStack item = colorable instanceof Item ?
@@ -218,7 +218,6 @@ public class ExprColorOf extends PropertyExpression<Object, Color> {
 
 			if (item == null)
 				return null;
-			//noinspection removal
 			MaterialData data = item.getData();
 			if (data instanceof Colorable)
 				return (Colorable) data;
