@@ -1,16 +1,30 @@
 package ch.njol.skript.expressions;
 
-import java.util.ArrayList;
-import java.util.List;
-
+import ch.njol.skript.Skript;
 import ch.njol.skript.bukkitutil.InventoryUtils;
+import ch.njol.skript.classes.Changer.ChangeMode;
+import ch.njol.skript.doc.Description;
+import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Name;
+import ch.njol.skript.doc.Since;
+import ch.njol.skript.expressions.base.SimplePropertyExpression;
+import ch.njol.skript.lang.Expression;
+import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.skript.lang.function.DynamicFunctionReference;
 import ch.njol.skript.lang.util.common.AnyNamed;
+import ch.njol.skript.registrations.Feature;
+import ch.njol.skript.util.chat.BungeeConverter;
+import ch.njol.skript.util.chat.ChatMessages;
+import ch.njol.util.Kleenean;
+import ch.njol.util.coll.CollectionUtils;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.serializer.bungeecord.BungeeComponentSerializer;
+import net.md_5.bungee.api.ChatColor;
+import net.md_5.bungee.api.chat.BaseComponent;
 import org.bukkit.Bukkit;
-import org.bukkit.GameRule;
 import org.bukkit.Nameable;
 import org.bukkit.OfflinePlayer;
-import org.bukkit.block.Block;
-import org.bukkit.block.BlockState;
+import org.bukkit.World;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.HumanEntity;
@@ -20,34 +34,16 @@ import org.bukkit.event.Event;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.World;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.script.Script;
 
-import ch.njol.skript.Skript;
-import ch.njol.skript.aliases.ItemType;
-import ch.njol.skript.classes.Changer.ChangeMode;
-import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
-import ch.njol.skript.doc.Name;
-import ch.njol.skript.doc.Since;
-import ch.njol.skript.expressions.base.SimplePropertyExpression;
-import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.SkriptParser.ParseResult;
-import ch.njol.skript.util.chat.BungeeConverter;
-import ch.njol.skript.util.chat.ChatMessages;
-import ch.njol.skript.util.slot.Slot;
-import ch.njol.util.Kleenean;
-import ch.njol.util.coll.CollectionUtils;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.serializer.bungeecord.BungeeComponentSerializer;
-import net.md_5.bungee.api.ChatColor;
-import net.md_5.bungee.api.chat.BaseComponent;
+import java.util.ArrayList;
+import java.util.List;
 
 @Name("Name / Display Name / Tab List Name")
 @Description({
-	"Represents the Minecraft account, display or tab list name of a player, or the custom name of an item, entity, block, inventory, gamerule or world.",
+	"Represents the Minecraft account, display or tab list name of a player, or the custom name of an item, entity, "
+        + "block, inventory, gamerule, world, script or function.",
 	"",
 	"<ul>",
 	"\t<li><strong>Players</strong>",
@@ -86,6 +82,11 @@ import net.md_5.bungee.api.chat.BaseComponent;
 	"\t\t\t<li><strong>Name:</strong> The name of the world. Cannot be changed.</li>",
 	"\t\t</ul>",
 	"\t</li>",
+	"\t<li><strong>Scripts</strong>",
+	"\t\t<ul>",
+	"\t\t\t<li><strong>Name:</strong> The name of a script, excluding its file extension.</li>",
+	"\t\t</ul>",
+	"\t</li>",
 	"</ul>"
 })
 @Examples({
@@ -104,10 +105,10 @@ public class ExprName extends SimplePropertyExpression<Object, String> {
 	static {
 		// Check for Adventure API
 		if (Skript.classExists("net.kyori.adventure.text.Component") &&
-				Skript.methodExists(Bukkit.class, "createInventory", InventoryHolder.class, int.class, Component.class))
+			Skript.methodExists(Bukkit.class, "createInventory", InventoryHolder.class, int.class, Component.class))
 			serializer = BungeeComponentSerializer.get();
-		register(ExprName.class, String.class, "(1:name[s])", "offlineplayers/entities/inventories/named");
-		register(ExprName.class, String.class, "(2:(display|nick|chat|custom)[ ]name[s])", "offlineplayers/entities/inventories/named");
+		register(ExprName.class, String.class, "(1:name[s])", "offlineplayers/entities/inventories/nameds");
+		register(ExprName.class, String.class, "(2:(display|nick|chat|custom)[ ]name[s])", "offlineplayers/entities/inventories/nameds");
 		register(ExprName.class, String.class, "(3:(player|tab)[ ]list name[s])", "players");
 		// we keep the entity input because we want to do something special with entities
 	}
@@ -118,11 +119,13 @@ public class ExprName extends SimplePropertyExpression<Object, String> {
 	 * 3 = "tablist name"
 	 */
 	private int mark;
+	private boolean scriptResolvedName;
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		mark = parseResult.mark;
-		setExpr(exprs[0]);
+		this.mark = parseResult.mark;
+		this.setExpr(exprs[0]);
+		this.scriptResolvedName = this.getParser().hasExperiment(Feature.SCRIPT_REFLECTION);
 		return true;
 	}
 
@@ -134,6 +137,10 @@ public class ExprName extends SimplePropertyExpression<Object, String> {
 			} else { // We can only support "name"
 				return mark == 1 ? offlinePlayer.getName() : null;
 			}
+		}
+
+		if (!scriptResolvedName && object instanceof Script script) {
+			return script.nameAndPath();
 		}
 
 		if (object instanceof Player player) {
@@ -163,9 +170,14 @@ public class ExprName extends SimplePropertyExpression<Object, String> {
 		if (mode == ChangeMode.SET || mode == ChangeMode.RESET) {
 			if (mark == 1) {
 				if (Player.class.isAssignableFrom(getExpr().getReturnType())) {
-					Skript.error("Can't change the Minecraft name of a player. Change the 'display name' or 'tab list name' instead.");
+					Skript.error("Can't change the Minecraft name of a player. Change the 'display name' or 'tab list "
+						+ "name' instead.");
 					return null;
 				} else if (World.class.isAssignableFrom(getExpr().getReturnType())) {
+					return null;
+				} else if (Script.class.isAssignableFrom(getExpr().getReturnType())) {
+					return null;
+				} else if (DynamicFunctionReference.class.isAssignableFrom(getExpr().getReturnType())) {
 					return null;
 				}
 			}

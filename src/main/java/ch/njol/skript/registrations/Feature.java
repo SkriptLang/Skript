@@ -11,7 +11,9 @@ import org.skriptlang.skript.lang.experiment.LifeCycle;
  * Experimental feature toggles as provided by Skript itself.
  */
 public enum Feature implements Experiment {
-	FOR_EACH_LOOPS("for loop", LifeCycle.EXPERIMENTAL, "for [each] loop[s]")
+	QUEUES("queues", LifeCycle.EXPERIMENTAL),
+	FOR_EACH_LOOPS("for loop", LifeCycle.EXPERIMENTAL, "for [each] loop[s]"),
+	SCRIPT_REFLECTION("reflection", LifeCycle.EXPERIMENTAL, "[script] reflection"),
 	;
 
 	private final String codeName;
@@ -21,21 +23,11 @@ public enum Feature implements Experiment {
 	Feature(String codeName, LifeCycle phase, String... patterns) {
 		this.codeName = codeName;
 		this.phase = phase;
-		switch (patterns.length) {
-			case 0:
-				this.compiledPattern = PatternCompiler.compile(codeName);
-				break;
-			case 1:
-				this.compiledPattern = PatternCompiler.compile(patterns[0]);
-				break;
-			default:
-				this.compiledPattern = PatternCompiler.compile('(' + String.join("|", patterns) + ')');
-				break;
-		}
-	}
-
-	Feature(String codeName, LifeCycle phase) {
-		this(codeName, phase, codeName);
+		this.compiledPattern = switch (patterns.length) {
+			case 0 -> PatternCompiler.compile(codeName);
+			case 1 -> PatternCompiler.compile(patterns[0]);
+			default -> PatternCompiler.compile('(' + String.join("|", patterns) + ')');
+		};
 	}
 
 	public static void registerAll(SkriptAddon addon, ExperimentRegistry manager) {

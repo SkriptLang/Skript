@@ -1,5 +1,7 @@
 package ch.njol.skript.config;
 
+import org.jetbrains.annotations.Nullable;
+
 /**
  * An empty line or a comment.
  * <p>
@@ -48,6 +50,11 @@ public class VoidNode extends Node {
 	@Override
 	String save_i() {
 		return "" + key;
+	}
+
+	@Override
+	public @Nullable Node get(String key) {
+		return null;
 	}
 
 }

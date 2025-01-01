@@ -1,2 +1,6 @@
 test "redundant":
 	assert "true" is "true" with "logic failed"
+
+local function testDummy() :: boolean:
+	return true
+	# this is used by another test
