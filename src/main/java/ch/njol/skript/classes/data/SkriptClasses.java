@@ -5,7 +5,6 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.Aliases;
 import ch.njol.skript.aliases.ItemData;
 import ch.njol.skript.aliases.ItemType;
-import ch.njol.skript.bukkitutil.EnchantmentUtils;
 import ch.njol.skript.bukkitutil.ItemUtils;
 import ch.njol.skript.classes.*;
 import ch.njol.skript.config.Config;
@@ -25,6 +24,7 @@ import ch.njol.skript.util.slot.Slot;
 import ch.njol.skript.util.visual.VisualEffect;
 import ch.njol.skript.util.visual.VisualEffects;
 import ch.njol.yggdrasil.Fields;
+import org.skriptlang.skript.lang.util.SkriptQueue;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
@@ -208,7 +208,7 @@ public class SkriptClasses {
 								Enchantment e = ench.getType();
 								if (e == null)
 									continue;
-								b.append("#" + EnchantmentUtils.getKey(e));
+								b.append("#" + e.getKey().toString());
 								b.append(":" + ench.getLevel());
 							}
 						}
@@ -692,6 +692,47 @@ public class SkriptClasses {
 				.since("2.5")
 				.serializer(new YggdrasilSerializer<GameruleValue>())
 		);
+
+		Classes.registerClass(new ClassInfo<>(SkriptQueue.class, "queue")
+				.user("queues?")
+				.name("Queue")
+				.description("A queued list of values. Entries are removed from a queue when they are queried.")
+				.examples(
+					"set {queue} to a new queue",
+					"add \"hello\" to {queue}",
+					"broadcast the 1st element of {queue}"
+				)
+				.since("INSERT VERSION")
+				.changer(new Changer<>() {
+					@Override
+					public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
+						return switch (mode) {
+							case ADD, REMOVE, DELETE -> new Class[] {Object.class};
+							case RESET -> new Class[0];
+							default -> null;
+						};
+					}
+
+					@Override
+					public void change(SkriptQueue[] what, Object @Nullable [] delta, ChangeMode mode) {
+						for (SkriptQueue queue : what) {
+							switch (mode) {
+								case RESET, DELETE -> queue.clear();
+								case ADD -> {
+									assert delta != null;
+									queue.addAll(Arrays.asList(delta));
+								}
+								case REMOVE -> {
+									assert delta != null;
+									queue.removeAll(Arrays.asList(delta));
+								}
+							}
+						}
+					}
+				})
+				.serializer(new YggdrasilSerializer<>())
+		);
+
 
 		Classes.registerClass(new ClassInfo<>(Config.class, "config")
 			.user("configs?")
