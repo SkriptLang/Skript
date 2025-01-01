@@ -1,5 +1,7 @@
 package ch.njol.skript.classes;
 
+import ch.njol.skript.util.ClassInfoReference;
+import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
@@ -56,7 +58,7 @@ public interface Changer<T> {
 		}
 		
 		/**
-		 * Tests whether an expression accepts changes of a certain type. If multiple types are given it test for whether any of the types is accepted.
+		 * Tests whether an expression accepts changes of a certain type. If multiple types are given, it tests for whether any of the types are accepted.
 		 * 
 		 * @param expression The expression to test
 		 * @param mode The ChangeMode to use in the test
@@ -75,7 +77,36 @@ public interface Changer<T> {
 			}
 			return false;
 		}
-		
+
+		/**
+		 * Tests whether an expression accepts changes of a certain type. If multiple types are given, it tests for whether any of the types are accepted.
+		 *
+		 * @param expression The expression to test
+		 * @param mode The ChangeMode to use in the test
+		 * @param classInfoReferences The types to test for
+		 * @return Whether <tt>expression.{@link Expression#change(Event, Object[], ChangeMode) change}(event, type[], mode)</tt> can be used or not.
+		 */
+		public static boolean acceptsChange(final Expression<?> expression, final ChangeMode mode, final ClassInfoReference... classInfoReferences) {
+			final Class<?>[] validTypes = expression.acceptChange(mode);
+			if (validTypes == null)
+				return false;
+			for (ClassInfoReference reference : classInfoReferences) {
+				Class<?> referenceType = reference.getClassInfo().getC();
+				boolean referenceIsPlural = reference.isPlural().isTrue();
+				for (final Class<?> validType : validTypes) {
+					if (validType.isAssignableFrom(referenceType)
+							|| (validType.isArray() && validType.getComponentType().isAssignableFrom(referenceType))) {
+						if (referenceIsPlural && validType.isArray()) {
+							return true;
+						} else if (!referenceIsPlural) {
+							return true;
+						}
+					}
+				}
+			}
+			return false;
+		}
+
 	}
 	
 }
