@@ -2,16 +2,9 @@ package ch.njol.skript.effects;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.bukkitutil.SkriptTeleportFlag;
-import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
-import ch.njol.skript.doc.Name;
-import ch.njol.skript.doc.RequiredPlugins;
-import ch.njol.skript.doc.Since;
-import ch.njol.skript.lang.Effect;
-import ch.njol.skript.lang.Expression;
+import ch.njol.skript.doc.*;
+import ch.njol.skript.lang.*;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
-import ch.njol.skript.lang.Trigger;
-import ch.njol.skript.lang.TriggerItem;
 import ch.njol.skript.sections.EffSecSpawn.SpawnEvent;
 import ch.njol.skript.timings.SkriptTimings;
 import ch.njol.skript.util.Direction;
@@ -49,7 +42,7 @@ import java.util.stream.Stream;
 		"\tteleport the player to {server::spawn} retaining vehicle and passengers"
 })
 @RequiredPlugins("Paper 1.19+ (teleport flags)")
-@Since("1.0, INSERT VERSION")
+@Since("1.0, INSERT VERSION (flags)")
 public class EffTeleport extends Effect {
 
 	private static final boolean TELEPORT_FLAGS_SUPPORTED = Skript.classExists("io.papermc.paper.entity.TeleportFlag");
@@ -62,13 +55,8 @@ public class EffTeleport extends Effect {
 		Skript.registerEffect(EffTeleport.class, "[:force] teleport %entities% (to|%direction%) %location%" + extra);
 	}
 
-	@Nullable
-	private Expression<SkriptTeleportFlag> teleportFlags;
-
-	@SuppressWarnings("NotNullFieldNotInitialized")
+	private @Nullable Expression<SkriptTeleportFlag> teleportFlags;
 	private Expression<Entity> entities;
-
-	@SuppressWarnings("NotNullFieldNotInitialized")
 	private Expression<Location> location;
 	private boolean async;
 
@@ -82,7 +70,7 @@ public class EffTeleport extends Effect {
 			teleportFlags = (Expression<SkriptTeleportFlag>) exprs[3];
 
 		if (getParser().isCurrentEvent(SpawnEvent.class)) {
-			Skript.error("You cannot be teleporting an entity that hasn't spawned yet. Ensure you're using the location expression from the spawn section pattern.");
+			Skript.error("You cannot teleport an entity that hasn't spawned yet. Ensure you're using the location expression from the spawn section pattern.");
 			return false;
 		}
 
@@ -91,9 +79,8 @@ public class EffTeleport extends Effect {
 		return true;
 	}
 
-	@Nullable
 	@Override
-	protected TriggerItem walk(Event event) {
+	protected @Nullable TriggerItem walk(Event event) {
 		debug(event, true);
 		TriggerItem next = getNext();
 
@@ -186,8 +173,11 @@ public class EffTeleport extends Effect {
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return "teleport " + entities.toString(event, debug) + " to " + location.toString(event, debug) +
-			(teleportFlags == null ? "" : " retaining " + teleportFlags.toString(event, debug));
+		SyntaxStringBuilder builder = new SyntaxStringBuilder(event, debug)
+				.append("teleport", entities, "to", location);
+		if (teleportFlags != null)
+			builder.append("retaining", teleportFlags);
+		return builder.toString();
 	}
 
 	private void teleport(@NotNull Entity entity, @NotNull Location location, SkriptTeleportFlag... skriptTeleportFlags) {

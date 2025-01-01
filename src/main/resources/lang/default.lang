@@ -2399,7 +2399,7 @@ transform reasons:
 	sheared: mooshroom shear, mooshroom shearing
 	split: slime split, slime splitting, split, magma slime split, magma slime splitting
 	unknown: unknown
-	infection: infection, villager infect
+	infection: infection, villager infection
 
 # -- Teleport Flags --
 teleport flags:
