@@ -6,6 +6,7 @@ import ch.njol.skript.aliases.Aliases;
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.bukkitutil.BukkitUtils;
 import ch.njol.skript.bukkitutil.EntityUtils;
+import ch.njol.skript.bukkitutil.SkriptTeleportFlag;
 import ch.njol.skript.bukkitutil.ItemUtils;
 import ch.njol.skript.classes.*;
 import ch.njol.skript.classes.registry.RegistryClassInfo;
@@ -1582,6 +1583,13 @@ public class BukkitClasses {
 			.since("INSERT VERSION")
 		);
 
+		if (Skript.classExists("io.papermc.paper.entity.TeleportFlag"))
+			Classes.registerClass(new EnumClassInfo<>(SkriptTeleportFlag.class, "teleportflag", "teleport flags")
+					.user("teleport ?flags?")
+					.name("Teleport Flag")
+					.description("Teleport Flags are settings to retain during a teleport.")
+					.requiredPlugins("Paper 1.19+")
+					.since("INSERT VERSION"));
 	}
 
 }
