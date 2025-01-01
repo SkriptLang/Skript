@@ -3,7 +3,6 @@ package org.skriptlang.skript.bukkit.spawner.util;
 import ch.njol.skript.lang.util.common.AnyWeight;
 import org.bukkit.loot.LootTable;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.UnknownNullability;
 
 public final class WeightedLootTable implements AnyWeight {
 
