@@ -70,9 +70,9 @@ public class ExprIndicesOf extends SimpleExpression<Object> {
 
 	static {
 		Skript.registerExpression(ExprIndicesOf.class, Object.class, ExpressionType.COMBINED,
+			"[the] [first|1:last|2:all] (position[s]|indices|index[es]) of [[the] value] %string% in %string%",
 			"[the] [first|1:last|2:all] (indices|index[es]) of [[the] value] %object% in %~objects%",
-			"[the] [first|1:last|2:all] position[s] of [[the] value] %object% in %~objects%",
-			"[the] [first|1:last|2:all] (position[s]|indices|index[es]) of [[the] value] %string% in %string%"
+			"[the] [first|1:last|2:all] position[s] of [[the] value] %object% in %~objects%"
 		);
 	}
 	
@@ -83,19 +83,19 @@ public class ExprIndicesOf extends SimpleExpression<Object> {
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		if (exprs[1].isSingle() && (matchedPattern == 0 || matchedPattern == 1)) {
+		if (exprs[1].isSingle() && (matchedPattern == 1 || matchedPattern == 2)) {
 			Skript.error("'" + exprs[1] + "' can only ever have one value at most, thus the 'indices of x in list' expression has no effect.");
 			return false;
 		}
 
-		if (!(exprs[1] instanceof Variable<?>) && matchedPattern == 0) {
+		if (!(exprs[1] instanceof Variable<?>) && matchedPattern == 1) {
 			Skript.error("'" + exprs[1] + "' is not a list variable. You can only get the indices of a list variable.");
 			return false;
 		}
 
 		type = IndexType.values()[parseResult.mark];
-		position = matchedPattern == 1 || matchedPattern == 2;
-		string = matchedPattern == 2;
+		position = matchedPattern == 0 || matchedPattern == 2;
+		string = matchedPattern == 0;
 		value = LiteralUtils.defendExpression(exprs[0]);
 		objects = exprs[1];
 

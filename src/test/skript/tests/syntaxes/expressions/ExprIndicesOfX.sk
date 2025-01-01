@@ -26,3 +26,15 @@ test "index of":
 
     set {_indices::*} to all positions of the value test-location in {_otherList::*}
     assert {_indices::*} is 1, 2 and 4 with "positions of test-location failed"
+
+    set {_indices::*} to all positions of "b" in "abcabcabcabc"
+    assert {_indices::*} is 2, 5, 8 and 11 with "positions of char failed"
+
+    set {_indices::*} to all positions of "abc" in "abcabcabcabc"
+    assert {_indices::*} is 1, 4, 7 and 10 with "positions of string failed"
+
+    set {_index} to first position of "c" in "abraham lincoln"
+    assert {_index} is 12 with "first position of char failed"
+
+    set {_index} to the position of "ham" in "abraham lincoln"
+    assert {_index} is 5 with "first position of string failed"
