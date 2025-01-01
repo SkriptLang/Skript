@@ -17,7 +17,6 @@ import ch.njol.skript.util.StringMode;
 import ch.njol.skript.util.Utils;
 import ch.njol.skript.util.chat.ChatMessages;
 import ch.njol.skript.util.chat.MessageComponent;
-import ch.njol.util.Checker;
 import ch.njol.util.Kleenean;
 import ch.njol.util.StringUtils;
 import ch.njol.util.coll.CollectionUtils;
@@ -33,6 +32,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 /**
@@ -637,12 +637,12 @@ public class VariableString implements Expression<String> {
 	}
 
 	@Override
-	public boolean check(Event event, Checker<? super String> checker, boolean negated) {
+	public boolean check(Event event, Predicate<? super String> checker, boolean negated) {
 		return SimpleExpression.check(getAll(event), checker, negated, false);
 	}
 
 	@Override
-	public boolean check(Event event, Checker<? super String> checker) {
+	public boolean check(Event event, Predicate<? super String> checker) {
 		return SimpleExpression.check(getAll(event), checker, false, false);
 	}
 

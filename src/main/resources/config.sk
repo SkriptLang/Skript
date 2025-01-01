@@ -234,6 +234,44 @@ long parse time warning threshold: 0 seconds
 #   stating that the statement has taken a long time to parse.
 # A value of 0 seconds means that this warning should be disabled.
 
+
+# ==== Runtime Errors ====
+
+runtime errors:
+	frame duration: 1 second
+	# Frames are the duration over which runtime errors will be collected before being sent off to console.
+	# If you find runtime errors to be annoying or clogging your console, you should first fix them!
+	# You can also lengthen this duration to reduce the amount of individual errors printed to console.
+
+	# -- Errors --
+	total errors per frame: 8
+	# This controls the maximum number of individual errors that will be printed per frame.
+	# If more errors occur, they will be hidden and the frame will simply display that x number of
+	# errors occurred but were hidden this frame.
+
+	errors from one line per frame: 2
+	# This controls the maximum number of errors a single line can print per frame. This is used to prevent
+	# line from clogging up the frame, like if a syntax was in a 10 iteration loop and errored every time.
+	# It's best to keep this rather low.
+
+	error spam timeout limit: 4
+	# If a line prints more than this many errors in a single frame, it will be put in timeout. This means
+	# any additional errors it creates during the timeout duration will be hidden, rather than printed.
+	# This is also a defense against a syntax in a loop spamming console with errors.
+
+	error timeout length: 10
+	# This is the number of frames before a line in timeout can print errors again.
+	# If you lengthen the frame duration, you may want to lower this proportionally.
+
+	# -- Warnings --
+	# All the above descriptions for errors apply the same here, but for warnings instead.
+
+	total warnings per frame: 8
+	warnings from one line per frame: 2
+	warning spam timeout limit: 4
+	warning timeout length: 10
+
+
 # ==== Variables ====
 
 databases:

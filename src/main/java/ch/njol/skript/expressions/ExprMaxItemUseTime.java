@@ -1,11 +1,7 @@
 package ch.njol.skript.expressions;
 
 import ch.njol.skript.Skript;
-import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
-import ch.njol.skript.doc.Name;
-import ch.njol.skript.doc.RequiredPlugins;
-import ch.njol.skript.doc.Since;
+import ch.njol.skript.doc.*;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import ch.njol.skript.util.Timespan;
 import org.bukkit.inventory.ItemStack;
@@ -31,8 +27,8 @@ public class ExprMaxItemUseTime extends SimplePropertyExpression<ItemStack, Time
 	}
 
 	@Override
-	@Nullable 
-	public Timespan convert(ItemStack item) {
+	@SuppressWarnings("removal")
+	public @Nullable Timespan convert(ItemStack item) {
 		return new Timespan(Timespan.TimePeriod.TICK, item.getMaxItemUseDuration());
 	}
 

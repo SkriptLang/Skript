@@ -7,7 +7,6 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.Utils;
-import ch.njol.util.Checker;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.event.Event;
@@ -16,13 +15,10 @@ import org.skriptlang.skript.lang.converter.Converter;
 import org.skriptlang.skript.lang.converter.ConverterInfo;
 import org.skriptlang.skript.lang.converter.Converters;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
-import java.util.NoSuchElementException;
+import java.util.*;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import java.util.function.Predicate;
 
 /**
  * Represents a expression converted to another type. This, and not Expression, is the required return type of {@link SimpleExpression#getConvertedExpr(Class...)} because this
@@ -187,18 +183,18 @@ public class ConvertedExpression<F, T> implements Expression<T> {
 	}
 
 	@Override
-	public boolean check(Event event, Checker<? super T> checker, boolean negated) {
+	public boolean check(Event event, Predicate<? super T> checker, boolean negated) {
 		return negated ^ check(event, checker);
 	}
 
 	@Override
-	public boolean check(Event event, Checker<? super T> checker) {
-		return source.check(event, (Checker<F>) value -> {
+	public boolean check(Event event, Predicate<? super T> checker) {
+		return source.check(event, (Predicate<F>) value -> {
 			T convertedValue = converter.convert(value);
 			if (convertedValue == null) {
 				return false;
 			}
-			return checker.check(convertedValue);
+			return checker.test(convertedValue);
 		});
 	}
 

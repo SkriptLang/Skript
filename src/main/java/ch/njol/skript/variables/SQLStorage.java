@@ -4,7 +4,6 @@ import java.io.File;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Map.Entry;
 import java.util.UUID;
 import java.util.concurrent.Callable;
 
@@ -138,7 +137,7 @@ public abstract class SQLStorage extends VariablesStorage {
 				return false;
 
 			try {
-				final boolean hasOldTable = db.isTable(OLD_TABLE_NAME);
+				final boolean hasOldTable = false;
 				final boolean hadNewTable = db.isTable(getTableName());
 
 				if (getFormattedCreateQuery() == null){
@@ -160,15 +159,6 @@ public abstract class SQLStorage extends VariablesStorage {
 				
 				// old
 				// Table name support was added after the verison that used the legacy database format
-				if (hasOldTable && !tableName.equals("variables")) {
-					final ResultSet r1 = db.query("SELECT " + SELECT_ORDER + " FROM " + OLD_TABLE_NAME);
-					assert r1 != null;
-					try {
-						oldLoadVariables(r1, hadNewTable);
-					} finally {
-						r1.close();
-					}
-				}
 
 				// new
 				final ResultSet r2 = db.query("SELECT " + SELECT_ORDER + " FROM " + getTableName());
@@ -180,51 +170,6 @@ public abstract class SQLStorage extends VariablesStorage {
 				}
 
 				// store old variables in new table and delete the old table
-				if (hasOldTable) {
-					if (!hadNewTable) {
-						Skript.info("[2.1] Updating the database '" + getUserConfigurationName() + "' to the new format...");
-						try {
-							Variables.getReadLock().lock();
-							for (final Entry<String, Object> v : Variables.getVariablesHashMap().entrySet()) {
-								if (accept(v.getKey())) {// only one database was possible, so only checking this database is correct
-									@SuppressWarnings("null")
-									final SerializedVariable var = Variables.serialize(v.getKey(), v.getValue());
-									final SerializedVariable.Value d = var.value;
-									save(var.name, d == null ? null : d.type, d == null ? null : d.data);
-								}
-							}
-							Skript.info("Updated and transferred " + Variables.getVariablesHashMap().size() + " variables to the new table.");
-						} finally {
-							Variables.getReadLock().unlock();
-						}
-					}
-					db.query("DELETE FROM " + OLD_TABLE_NAME + " WHERE value IS NULL");
-					db.query("DELETE FROM old USING " + OLD_TABLE_NAME + " AS old, " + getTableName() + " AS new WHERE old.name = new.name");
-					final ResultSet r = db.query("SELECT * FROM " + OLD_TABLE_NAME + " LIMIT 1");
-					try {
-						if (r.next()) {// i.e. the old table is not empty
-							Skript.error("Could not successfully convert & transfer all variables to the new table in the database '" + getUserConfigurationName() + "'. "
-									+ "Variables that could not be transferred are left in the old table and Skript will reattempt to transfer them whenever it starts until the old table is empty or is manually deleted. "
-									+ "Please note that variables recreated by scripts will count as converted and will be removed from the old table on the next restart.");
-						} else {
-							boolean error = false;
-							try {
-								disconnect(); // prevents SQLITE_LOCKED error
-								connect();
-								db.query("DROP TABLE " + OLD_TABLE_NAME);
-							} catch (final SQLException e) {
-								Skript.error("There was an error deleting the old variables table from the database '" + getUserConfigurationName() + "', please delete it yourself: " + e.getLocalizedMessage());
-								error = true;
-							}
-							if (!error)
-								Skript.info("Successfully deleted the old variables table from the database '" + getUserConfigurationName() + "'.");
-							if (!hadNewTable)
-								Skript.info("Database '" + getUserConfigurationName() + "' successfully updated.");
-						}
-					} finally {
-						r.close();
-					}
-				}
 			} catch (final SQLException e) {
 				sqlException(e);
 				return false;
@@ -632,132 +577,6 @@ public abstract class SQLStorage extends VariablesStorage {
 //	}
 
 //	final static LinkedList<OldVariableInfo> oldSyncDeserializing = new LinkedList<OldVariableInfo>();
-
-	@Deprecated
-	private void oldLoadVariables(final ResultSet r, final boolean hadNewTable) throws SQLException {
-//		synchronized (oldSyncDeserializing) {
-
-		final VariablesStorage temp = new VariablesStorage(getUserConfigurationName() + " old variables table") {
-			@Override
-			protected boolean save(final String name, @Nullable final String type, @Nullable final byte[] value) {
-				assert type == null : name + "; " + type;
-				return true;
-			}
-
-			@Override
-			boolean accept(@Nullable final String var) {
-				assert false;
-				return false;
-			}
-
-			@Override
-			protected boolean requiresFile() {
-				assert false;
-				return false;
-			}
-
-			@Override
-			protected boolean load_i(final SectionNode n) {
-				assert false;
-				return false;
-			}
-
-			@Override
-			protected File getFile(final String file) {
-				assert false;
-				return new File(file);
-			}
-
-			@Override
-			protected void disconnect() {
-				assert false;
-			}
-
-			@Override
-			protected boolean connect() {
-				assert false;
-				return false;
-			}
-
-			@Override
-			protected void allLoaded() {
-				assert false;
-			}
-		};
-
-		final SQLException e = Task.callSync(new Callable<SQLException>() {
-			@SuppressWarnings("null")
-			@Override
-			@Nullable
-			public SQLException call() throws Exception {
-				try {
-					while (r.next()) {
-						int i = 1;
-						final String name = r.getString(i++);
-						if (name == null) {
-							Skript.error("Variable with NULL name found in the database, ignoring it");
-							continue;
-						}
-						final String type = r.getString(i++);
-						final String value = r.getString(i++);
-						lastRowID = r.getLong(i++);
-						if (type == null || value == null) {
-							Variables.variableLoaded(name, null, hadNewTable ? temp : SQLStorage.this);
-						} else {
-							final ClassInfo<?> c = Classes.getClassInfoNoError(type);
-							Serializer<?> s;
-							if (c == null || (s = c.getSerializer()) == null) {
-								Skript.error("Cannot load the variable {" + name + "} from the database, because the type '" + type + "' cannot be recognised or not stored in variables");
-								continue;
-							}
-//					if (s.mustSyncDeserialization()) {
-//						oldSyncDeserializing.add(new OldVariableInfo(name, value, c));
-//					} else {
-							final Object d = s.deserialize(value);
-							if (d == null) {
-								Skript.error("Cannot load the variable {" + name + "} from the database, because '" + value + "' cannot be parsed as a " + type);
-								continue;
-							}
-							Variables.variableLoaded(name, d, SQLStorage.this);
-//					}
-						}
-					}
-				} catch (final SQLException e) {
-					return e;
-				}
-				return null;
-			}
-		});
-		if (e != null)
-			throw e;
-
-//			if (!oldSyncDeserializing.isEmpty()) {
-//				Task.callSync(new Callable<Void>() {
-//					@Override
-//					@Nullable
-//					public Void call() throws Exception {
-//						synchronized (oldSyncDeserializing) {
-//							for (final OldVariableInfo o : oldSyncDeserializing) {
-//								final Serializer<?> s = o.ci.getSerializer();
-//								if (s == null) {
-//									assert false : o.ci;
-//									continue;
-//								}
-//								final Object d = s.deserialize(o.value);
-//								if (d == null) {
-//									Skript.error("Cannot load the variable {" + o.name + "} from the database, because '" + o.value + "' cannot be parsed as a " + o.ci.getCodeName());
-//									continue;
-//								}
-//								Variables.variableLoaded(o.name, d, DatabaseStorage.this);
-//							}
-//							oldSyncDeserializing.clear();
-//							return null;
-//						}
-//					}
-//				});
-//			}
-//		}
-	}
 
 	void sqlException(final SQLException e) {
 		Skript.error("database error: " + e.getLocalizedMessage());

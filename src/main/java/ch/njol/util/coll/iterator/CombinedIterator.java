@@ -10,8 +10,9 @@ import org.jetbrains.annotations.Nullable;
  * <p>
  * Elements are removable from this iterator if the source iterables support element removal, unless removal is blocked on creation.
  * 
- * @author Peter Güttinger
+ * @deprecated use {@link com.google.common.collect.Iterators#concat(Iterator[])}
  */
+@Deprecated
 public class CombinedIterator<T> implements Iterator<T> {
 	
 	private final Iterator<? extends Iterable<T>> iterators;
