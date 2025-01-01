@@ -15,6 +15,7 @@ import ch.njol.skript.lang.parser.ParserInstance;
 import ch.njol.skript.log.*;
 import ch.njol.skript.sections.SecLoop;
 import ch.njol.skript.structures.StructOptions.OptionsData;
+import ch.njol.skript.test.runner.TestMode;
 import ch.njol.skript.util.ExceptionUtils;
 import ch.njol.skript.util.SkriptColor;
 import ch.njol.skript.util.Task;
@@ -26,6 +27,7 @@ import ch.njol.util.OpenCloseable;
 import ch.njol.util.StringUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.event.Event;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.util.event.EventRegistry;
 import org.skriptlang.skript.lang.script.Script;
@@ -696,7 +698,6 @@ public class ScriptLoader {
 
 			ScriptLoader.eventRegistry().events(ScriptInitEvent.class)
 					.forEach(event -> event.onInit(script));
-
 			return null;
 		};
 		if (isAsync()) { // Need to delegate to main thread
@@ -868,6 +869,7 @@ public class ScriptLoader {
 			parser.setInactive();
 
 			script.clearData();
+			script.invalidate();
 			loadedScripts.remove(script); // We just unloaded it, so...
 			File scriptFile = script.getConfig().getFile();
 			assert scriptFile != null;
@@ -1047,6 +1049,20 @@ public class ScriptLoader {
 			parser.setIndentation(parser.getIndentation().substring(0, parser.getIndentation().length() - 4));
 
 		return items;
+	}
+
+	/**
+	 * Creates a Script object for a file (or resource) that may (or may not) exist.
+	 * This is used for providing handles for disabled scripts.
+	 * <br/>
+	 * This does <em>not</em> load (or parse or open or do anything to) the given file.
+	 *
+	 * @return An unlinked, empty script object with an empty backing config
+	 */
+	@ApiStatus.Internal
+	public static Script createDummyScript(String name, @Nullable File file) {
+		Config config = new Config(name, file);
+		return new Script(config, Collections.emptyList());
 	}
 
 	/*
@@ -1430,6 +1446,44 @@ public class ScriptLoader {
 	@Deprecated
 	public static Config loadStructure(Config config) {
 		return config;
+	}
+
+	/**
+	 * Gets a script's file from its name, if one exists.
+	 * @param script The script name/path
+	 * @return The script file, if one is found
+	 */
+	@Nullable
+	public static File getScriptFromName(String script) {
+		if (script.endsWith("/") || script.endsWith("\\")) { // Always allow '/' and '\' regardless of OS
+			script = script.replace('/', File.separatorChar).replace('\\', File.separatorChar);
+		} else if (!StringUtils.endsWithIgnoreCase(script, ".sk")) {
+			int dot = script.lastIndexOf('.');
+			if (dot > 0 && !script.substring(dot + 1).equals(""))
+				return null;
+			script = script + ".sk";
+		}
+
+		if (script.startsWith(ScriptLoader.DISABLED_SCRIPT_PREFIX))
+			script = script.substring(ScriptLoader.DISABLED_SCRIPT_PREFIX_LENGTH);
+
+		File scriptsFolder = Skript.getInstance().getScriptsFolder();
+		File scriptFile = new File(scriptsFolder, script);
+		if (!scriptFile.exists()) {
+			scriptFile = new File(scriptFile.getParentFile(), ScriptLoader.DISABLED_SCRIPT_PREFIX + scriptFile.getName());
+			if (!scriptFile.exists()) {
+				return null;
+			}
+		}
+		try {
+			// Unless it's a test, check if the user is asking for a script in the scripts folder
+			// and not something outside Skript's domain.
+			if (TestMode.ENABLED || scriptFile.getCanonicalPath().startsWith(scriptsFolder.getCanonicalPath() + File.separator))
+				return scriptFile.getCanonicalFile();
+			return null;
+		} catch (IOException e) {
+			throw Skript.exception(e, "An exception occurred while trying to get the script file from the string '" + script + "'");
+		}
 	}
 
 }

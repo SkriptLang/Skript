@@ -1,11 +1,5 @@
 package ch.njol.skript.expressions;
 
-import org.bukkit.entity.Player;
-import org.bukkit.event.Event;
-import org.bukkit.event.player.PlayerItemHeldEvent;
-import org.bukkit.inventory.PlayerInventory;
-import org.jetbrains.annotations.Nullable;
-
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
@@ -15,10 +9,14 @@ import ch.njol.skript.expressions.base.PropertyExpression;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.registrations.EventValues;
-import ch.njol.skript.util.Getter;
 import ch.njol.skript.util.slot.InventorySlot;
 import ch.njol.skript.util.slot.Slot;
 import ch.njol.util.Kleenean;
+import org.bukkit.entity.Player;
+import org.bukkit.event.Event;
+import org.bukkit.event.player.PlayerItemHeldEvent;
+import org.bukkit.inventory.PlayerInventory;
+import org.jetbrains.annotations.Nullable;
 
 @Name("Hotbar Slot")
 @Description({
@@ -56,21 +54,16 @@ public class ExprHotbarSlot extends PropertyExpression<Player, Slot> {
 
 	@Override
 	protected Slot[] get(Event event, Player[] source) {
-		return get(source, new Getter<Slot, Player>() {
-			@Override
-			@Nullable
-			public Slot get(Player player) {
-				int time = getTime();
-				PlayerInventory inventory = player.getInventory();
-				if (event instanceof PlayerItemHeldEvent && time != EventValues.TIME_NOW) {
-					PlayerItemHeldEvent switchEvent = (PlayerItemHeldEvent) event;
-					if (time == EventValues.TIME_FUTURE)
-						return new InventorySlot(inventory, switchEvent.getNewSlot());
-					if (time == EventValues.TIME_PAST)
-						return new InventorySlot(inventory, switchEvent.getPreviousSlot());
-				}
-				return new InventorySlot(inventory, inventory.getHeldItemSlot());
+		return get(source, player -> {
+			int time = getTime();
+			PlayerInventory inventory = player.getInventory();
+			if (event instanceof PlayerItemHeldEvent switchEvent && time != EventValues.TIME_NOW) {
+				if (time == EventValues.TIME_FUTURE)
+					return new InventorySlot(inventory, switchEvent.getNewSlot());
+				if (time == EventValues.TIME_PAST)
+					return new InventorySlot(inventory, switchEvent.getPreviousSlot());
 			}
+			return new InventorySlot(inventory, inventory.getHeldItemSlot());
 		});
 	}
 

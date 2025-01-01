@@ -1,0 +1,53 @@
+options:
+	path: "../../../../../../src/test/skript/tests/"
+
+	# Princess test script is in another castle, Mario!
+	# paths are relativised to the /scripts/ directory
+	# but we are loading these scripts from the test folder :(
+
+using script reflection
+
+test "enable script":
+	set {_path} to {@path} + "misc/-disabled.sk"
+	set {EffScriptFile} to false
+	load script named {_path}
+	assert {EffScriptFile} is true with "load event didn't run"
+	delete {EffScriptFile}
+
+test "reload script":
+	set {_path} to {@path} + "misc/disabled.sk"
+	set {EffScriptFile} to false
+	reload (script named {_path})
+	assert {EffScriptFile} is true with "load event didn't run"
+	delete {EffScriptFile}
+
+test "unload + load script":
+	set {_path} to {@path} + "misc/disabled.sk"
+
+	set {_script} to script named {_path}
+	assert {_script} exists with "script wasn't found"
+	unload {_script}
+
+	# Unloading no longer disables the script
+	# so the script should be in the same place
+
+	set {EffScriptFile} to false
+	set {_script} to script named {_path}
+	assert {_script} exists with "script moved when unloaded"
+	load {_script}
+	# we make sure the script loaded even though it wasn't disabled
+	assert {EffScriptFile} is true with "load event didn't run"
+
+	set {EffScriptFile} to false
+	load {_script}
+	# we attempt to load a loaded script
+	# this used to throw an exception, now it should be skipped
+	assert {EffScriptFile} is false with "load ran when already loaded"
+
+	delete {EffScriptFile}
+
+test "disable script":
+	set {_path} to {@path} + "misc/disabled.sk"
+	disable script named {_path}
+	delete {EffScriptFile}
+

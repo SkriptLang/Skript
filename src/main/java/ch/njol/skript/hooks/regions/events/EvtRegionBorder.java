@@ -9,7 +9,6 @@ import ch.njol.skript.lang.SkriptEvent;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.Trigger;
 import ch.njol.skript.registrations.EventValues;
-import ch.njol.skript.util.Getter;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
@@ -42,18 +41,8 @@ public class EvtRegionBorder extends SkriptEvent {
 					"\tmessage \"Leaving %region%.\""
 				).since("2.1")
 				.requiredPlugins("Supported regions plugin");
-		EventValues.registerEventValue(RegionBorderEvent.class, Region.class, new Getter<Region, RegionBorderEvent>() {
-			@Override
-			public Region get(RegionBorderEvent e) {
-				return e.getRegion();
-			}
-		}, EventValues.TIME_NOW);
-		EventValues.registerEventValue(RegionBorderEvent.class, Player.class, new Getter<Player, RegionBorderEvent>() {
-			@Override
-			public Player get(RegionBorderEvent e) {
-				return e.getPlayer();
-			}
-		}, EventValues.TIME_NOW);
+		EventValues.registerEventValue(RegionBorderEvent.class, Region.class, RegionBorderEvent::getRegion);
+		EventValues.registerEventValue(RegionBorderEvent.class, Player.class, RegionBorderEvent::getPlayer);
 	}
 
 	// Even WorldGuard doesn't have events, and this way all region plugins are supported for sure.

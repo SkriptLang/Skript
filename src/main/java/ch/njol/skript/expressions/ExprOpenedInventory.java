@@ -1,13 +1,7 @@
 package ch.njol.skript.expressions;
 
-import ch.njol.skript.bukkitutil.InventoryUtils;
-import org.bukkit.entity.Player;
-import org.bukkit.event.Event;
-import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.InventoryView;
-import org.jetbrains.annotations.Nullable;
-
 import ch.njol.skript.Skript;
+import ch.njol.skript.bukkitutil.InventoryUtils;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
@@ -16,8 +10,11 @@ import ch.njol.skript.expressions.base.PropertyExpression;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
-import ch.njol.skript.util.Getter;
 import ch.njol.util.Kleenean;
+import org.bukkit.entity.Player;
+import org.bukkit.event.Event;
+import org.bukkit.inventory.Inventory;
+import org.jetbrains.annotations.Nullable;
 
 @Name("Opened Inventory")
 @Description({"Return the currently opened inventory of a player.",
@@ -44,15 +41,7 @@ public class ExprOpenedInventory extends PropertyExpression<Player, Inventory> {
 
 	@Override
 	protected Inventory[] get(Event event, Player[] source) {
-		return get(source, new Getter<Inventory, Player>() {
-			@Override
-			public @Nullable Inventory get(final Player player) {
-				InventoryView openInventory = player.getOpenInventory();
-				if (openInventory == null)
-					return null;
-				return InventoryUtils.getTopInventory(openInventory);
-			}
-		});
+		return get(source, player -> InventoryUtils.getTopInventory(player.getOpenInventory()));
 	}
 
 	@Override
