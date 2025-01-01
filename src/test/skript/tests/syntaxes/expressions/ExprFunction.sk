@@ -1,0 +1,42 @@
+options:
+	misc: "../../../../../../src/test/skript/tests/misc/"
+
+	# Princess test script is in another castle, Mario!
+	# paths are relativised to the /scripts/ directory
+	# but we are loading these scripts from the test folder :(
+
+using script reflection
+
+function testExprFunction0():
+	set {ExprFunction} to true
+
+function testExprFunction1() :: boolean:
+	set {ExprFunction} to true
+	return true
+
+function testExprFunction2(first: text, second: number) :: boolean:
+	set {ExprFunction} to true
+	if {_first} does not exist:
+		return false
+	if {_second} is greater than 3:
+		return true
+	else:
+		return false
+
+local function testExprFunction3():
+	set {ExprFunction} to true
+
+test "get functions":
+	assert (function "testExprFunction0") exists with "function wasn't found"
+	assert (function "testExprFunction1") exists with "function wasn't found"
+	assert (function "testExprFunction2") exists with "function wasn't found"
+	assert (function "testExprFunction3") exists with "local function wasn't found"
+	set {_script} to the current script
+	assert (function "testExprFunction3" from {_script}) exists with "local function wasn't found"
+	set {_script} to the script named {@misc} + "dummy.sk"
+	assert (function "testExprFunction3" from {_script}) doesn't exist with "our function was found somewhere else"
+	assert (function "testDummy" from {_script}) exists with "couldn't see local function from another script"
+
+test "get all functions":
+	set {_functions::*} to all functions from the current script
+	assert size of {_functions::*} is 4 with "found wrong number of functions"

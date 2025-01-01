@@ -11,7 +11,6 @@ import ch.njol.skript.lang.Trigger;
 import ch.njol.skript.lang.TriggerItem;
 import ch.njol.skript.registrations.EventValues;
 import ch.njol.skript.util.Direction;
-import ch.njol.skript.util.Getter;
 import ch.njol.skript.variables.Variables;
 import ch.njol.util.Kleenean;
 import org.bukkit.Location;
@@ -79,12 +78,7 @@ public class EffSecSpawn extends EffectSection {
 				"(spawn|summon) " + acceptedTypes + " [%directions% %locations%]",
 				"(spawn|summon) %number% of " + acceptedTypes + " [%directions% %locations%]"
 		);
-		EventValues.registerEventValue(SpawnEvent.class, Entity.class, new Getter<Entity, SpawnEvent>() {
-			@Override
-			public Entity get(SpawnEvent event) {
-				return event.getEntity();
-			}
-		}, EventValues.TIME_NOW);
+		EventValues.registerEventValue(SpawnEvent.class, Entity.class, SpawnEvent::getEntity);
 	}
 
 	private Expression<Location> locations;

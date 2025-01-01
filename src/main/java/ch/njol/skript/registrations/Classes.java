@@ -21,6 +21,7 @@ import java.util.regex.Pattern;
 
 import ch.njol.skript.command.Commands;
 import ch.njol.skript.entity.EntityData;
+import ch.njol.skript.util.Date;
 import ch.njol.skript.util.Utils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -749,9 +750,15 @@ public abstract class Classes {
 				assert r[i] == start[i] : o + " (" + ci.getC().getName() + "); " + Arrays.toString(start) + ", " + Arrays.toString(r);
 			final byte[] r2 = new byte[r.length - start.length];
 			System.arraycopy(r, start.length, r2, 0, r2.length);
-			
-			Object d;
-			assert equals(o, d = deserialize(ci, new ByteArrayInputStream(r2))) : o + " (" + o.getClass() + ") != " + d + " (" + (d == null ? null : d.getClass()) + "): " + Arrays.toString(r);
+
+			if (o instanceof Date date)
+				System.out.println(date.getTime());
+
+			Object d = deserialize(ci, new ByteArrayInputStream(r2));
+			if (d instanceof Date date)
+				System.out.println(date.getTime());
+
+			assert equals(o, d) : o + " (" + o.getClass() + ") != " + d + " (" + (d == null ? null : d.getClass()) + "): " + Arrays.toString(r);
 			
 			return new SerializedVariable.Value(ci.getCodeName(), r2);
 		} catch (final IOException e) { // shouldn't happen

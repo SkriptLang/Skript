@@ -31,7 +31,7 @@ public class FilesGenerate {
 	@Test
 	@SuppressWarnings("deprecation")
 	public void checkConfigurationVersion() {
-		assertEquals(SkriptConfig.getConfig().get("version"), Skript.getInstance().getDescription().getVersion());
+		assertEquals(SkriptConfig.getConfig().getValue("version"), Skript.getInstance().getDescription().getVersion());
 	}
 
 }
