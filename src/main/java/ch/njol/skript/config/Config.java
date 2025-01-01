@@ -3,8 +3,13 @@ package ch.njol.skript.config;
 import ch.njol.skript.Skript;
 import ch.njol.skript.config.validate.SectionValidator;
 import ch.njol.skript.lang.util.common.AnyNamed;
+import ch.njol.skript.log.SkriptLogger;
 import com.google.common.base.Preconditions;
-import org.jetbrains.annotations.*;
+import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.util.Validated;
 
 import java.io.File;
 import java.io.IOException;
@@ -21,13 +26,6 @@ import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
-
-import ch.njol.skript.log.SkriptLogger;
-import org.jetbrains.annotations.ApiStatus;
-import org.jetbrains.annotations.NotNull;
-import org.skriptlang.skript.util.Validated;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 /**
  * Represents a config file.
