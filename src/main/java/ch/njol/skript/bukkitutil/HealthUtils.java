@@ -32,7 +32,7 @@ public class HealthUtils {
 	private static final Attribute MAX_HEALTH;
 	static {
 		if (Skript.isRunningMinecraft(1, 21, 3)) { // In 1.21.3, Attribute became an Interface
-			MAX_HEALTH = Registry.ATTRIBUTE.get(NamespacedKey.minecraft("MAX_HEALTH"));
+			MAX_HEALTH = Registry.ATTRIBUTE.get(NamespacedKey.minecraft("max_health"));
 		} else {
 			MAX_HEALTH = (Attribute) Enum.valueOf((Class) Attribute.class, "GENERIC_MAX_HEALTH");
 		}
