@@ -175,6 +175,11 @@ public abstract class Structure implements SyntaxElement, Debuggable {
 		return toString(null, false);
 	}
 
+	@Override
+	public @NotNull String getSyntaxTypeName() {
+		return "structure";
+	}
+
 	@Nullable
 	public static Structure parse(String expr, Node node, @Nullable String defaultError) {
 		return parse(expr, node, defaultError, Skript.getStructures().iterator());

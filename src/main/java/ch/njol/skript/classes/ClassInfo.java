@@ -40,8 +40,8 @@ public class ClassInfo<T> implements Debuggable {
 	@Nullable
 	private Cloner<T> cloner = null;
 
-	@Nullable Pattern[] userInputPatterns = null;
-
+	Pattern @Nullable [] userInputPatterns = null;
+  
 	@Nullable
 	private Changer<? super T> changer = null;
 
@@ -58,17 +58,13 @@ public class ClassInfo<T> implements Debuggable {
 
 	@Nullable
 	private String docName = null;
-	@Nullable
-	private String[] description = null;
-	@Nullable
-	private String[] usage = null;
-	@Nullable
-	private String[] examples = null;
+	private String @Nullable [] description = null;
+	private String @Nullable [] usage = null;
+	private String @Nullable [] examples = null;
 	@Nullable
 	private String since = null;
-	@Nullable
-	private String[] requiredPlugins = null;
-
+	private String @Nullable [] requiredPlugins = null;
+	
 	/**
 	 * Overrides documentation id assigned from class name.
 	 */
@@ -318,9 +314,25 @@ public class ClassInfo<T> implements Debuggable {
 		return cloner == null ? t : cloner.clone(t);
 	}
 
-	@Nullable
-	public Pattern[] getUserInputPatterns() {
+	public Pattern @Nullable [] getUserInputPatterns() {
 		return userInputPatterns;
+	}
+
+	/**
+	 * Checks whether the given input matches any of the user input patterns.
+	 *
+	 * @param input The user input string to be checked against the patterns.
+	 * @return true if the input matches any of the patterns, false otherwise.
+	 */
+	public boolean matchesUserInput(String input) {
+		if (userInputPatterns == null)
+			return false;
+		for (Pattern typePattern : userInputPatterns) {
+			if (typePattern.matcher(input).matches()) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	@Nullable

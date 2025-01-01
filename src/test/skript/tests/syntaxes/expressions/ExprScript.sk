@@ -1,9 +1,10 @@
 options:
-	path: "../../../../../../src/test/skript/tests/syntaxes/expressions/"
-	misc: "../../../../../../src/test/skript/tests/misc/"
+	path: (join ("..", "..", "..", "..", "..", "..", "src", "test", "skript", "tests", "syntaxes", "expressions" and "") by file_separator())
+	misc: (join ("..", "..", "..", "..", "..", "..", "src", "test", "skript", "tests", "misc" and "") by file_separator())
+	test: (join ("..", "..", "..", "..", "..", "..", "src", "test", "skript", "tests" and "") by file_separator())
 
 	# Princess test script is in another castle, Mario!
-	# paths are relativised to the /scripts/ directory
+	# paths are relativised to the ", "scripts", " directory
 	# but we are loading these scripts from the test folder :(
 
 using script reflection
@@ -22,7 +23,7 @@ test "script by name":
 test "all scripts":
 	set {_count} to 0
 	loop all loaded scripts:
-		assert "%loop-value%" starts with "../../../../../../src/test/skript/tests/" with "script from another place"
+		assert "%loop-value%" starts with {@test} with "script from another place"
 		add 1 to {_count}
 	assert {_count} is greater than 1 with "not enough tests scripts found"
 	# This depends pretty heavily on the current test layout but it's just a parse trial more than anything

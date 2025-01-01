@@ -137,12 +137,6 @@ public final class BukkitEventValues {
 		EventValues.registerEventValue(BlockBreakEvent.class, Player.class, BlockBreakEvent::getPlayer);
 		EventValues.registerEventValue(BlockBreakEvent.class, Block.class, BlockEvent::getBlock, TIME_PAST);
 		EventValues.registerEventValue(BlockBreakEvent.class, Block.class, event -> new DelayedChangeBlock(event.getBlock()));
-		EventValues.registerEventValue(BlockBreakEvent.class, Block.class, event -> {
-			BlockState state = event.getBlock().getState();
-			state.setType(state.getType() == Material.ICE ? Material.WATER : Material.AIR);
-			state.setRawData((byte) 0);
-			return new BlockStateBlock(state, true);
-		}, TIME_FUTURE);
 		// BlockFromToEvent
 		EventValues.registerEventValue(BlockFromToEvent.class, Block.class, BlockFromToEvent::getToBlock, TIME_FUTURE);
 		// BlockIgniteEvent
