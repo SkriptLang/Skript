@@ -11,8 +11,6 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.lang.arithmetic.Arithmetics;
-import org.skriptlang.skript.lang.arithmetic.Operator;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -56,8 +54,6 @@ public class ClassInfo<T> implements Debuggable {
 	private Class<?> serializeAs = null;
 
 	@Nullable
-	private Arithmetic<? super T, ?> math = null;
-	@Nullable
 	private Class<?> mathRelativeType = null;
 
 	@Nullable
@@ -89,14 +85,6 @@ public class ClassInfo<T> implements Debuggable {
 			throw new IllegalArgumentException("Code names for classes must be lowercase and only consist of latin letters and arabic numbers");
 		this.codeName = codeName;
 		name = new Noun("types." + codeName);
-	}
-
-	/**
-	 * Incorrect spelling in method name. This will be removed in the future.
-	 */
-	@Deprecated
-	public static boolean isVaildCodeName(final String name) {
-		return isValidCodeName(name);
 	}
 
 	public static boolean isValidCodeName(final String name) {
@@ -195,29 +183,9 @@ public class ClassInfo<T> implements Debuggable {
 		return this;
 	}
 
-	@Deprecated
-	public ClassInfo<T> changer(final SerializableChanger<? super T> changer) {
-		return changer((Changer<? super T>) changer);
-	}
-
 	public ClassInfo<T> changer(final Changer<? super T> changer) {
 		assert this.changer == null;
 		this.changer = changer;
-		return this;
-	}
-
-	@Deprecated
-	@SuppressWarnings("unchecked")
-	public <R> ClassInfo<T> math(final Class<R> relativeType, final Arithmetic<? super T, R> math) {
-		assert this.math == null;
-		this.math = math;
-		mathRelativeType = relativeType;
-		Arithmetics.registerOperation(Operator.ADDITION, c, relativeType, (left, right) -> (T) math.add(left, right));
-		Arithmetics.registerOperation(Operator.SUBTRACTION, c, relativeType, (left, right) -> (T) math.subtract(left, right));
-		Arithmetics.registerOperation(Operator.MULTIPLICATION, c, relativeType, (left, right) -> (T) math.multiply(left, right));
-		Arithmetics.registerOperation(Operator.DIVISION, c, relativeType, (left, right) -> (T) math.divide(left, right));
-		Arithmetics.registerOperation(Operator.EXPONENTIATION, c, relativeType, (left, right) -> (T) math.power(left, right));
-		Arithmetics.registerDifference(c, relativeType, math::difference);
 		return this;
 	}
 
@@ -375,24 +343,6 @@ public class ClassInfo<T> implements Debuggable {
 	@Nullable
 	public Class<?> getSerializeAs() {
 		return serializeAs;
-	}
-
-	@Nullable
-	@Deprecated
-	public Arithmetic<? super T, ?> getMath() {
-		return math;
-	}
-
-	@Nullable
-	@Deprecated
-	public <R> Arithmetic<T, R> getRelativeMath() {
-		return (Arithmetic<T, R>) math;
-	}
-
-	@Nullable
-	@Deprecated
-	public Class<?> getMathRelativeType() {
-		return mathRelativeType;
 	}
 
 	@Nullable

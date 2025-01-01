@@ -186,7 +186,9 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 		});
 	}
 
-	private final static class EntityDataInfo<T extends EntityData<?>> extends SyntaxElementInfo<T> implements LanguageChangeListener {
+	private final static class EntityDataInfo<T extends EntityData<?>> extends SyntaxElementInfo<T>
+		implements LanguageChangeListener {
+
 		final String codeName;
 		final String[] codeNames;
 		final int defaultName;

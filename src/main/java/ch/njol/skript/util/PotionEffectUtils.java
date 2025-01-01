@@ -19,7 +19,6 @@ import org.jetbrains.annotations.Nullable;
 import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.localization.Language;
-import ch.njol.skript.localization.LanguageChangeListener;
 
 @SuppressWarnings({"deprecation", "removal"})
 public abstract class PotionEffectUtils {
@@ -44,21 +43,18 @@ public abstract class PotionEffectUtils {
 	}
 
 	static {
-		Language.addListener(new LanguageChangeListener() {
-			@Override
-			public void onLanguageChange() {
-				types.clear();
-				for (final PotionEffectType t : PotionEffectType.values()) {
-					if (t == null)
-						continue;
-					String name = t.getName();
-					if (name.startsWith("minecraft:")) // seems to be the case for experimental entries...
-						name = name.substring(10); // trim off namespace
-					final String[] ls = Language.getList("potions." + name);
-					names[t.getId()] = ls[0];
-					for (final String l : ls) {
-						types.put(l.toLowerCase(Locale.ENGLISH), t);
-					}
+		Language.addListener(() -> {
+			types.clear();
+			for (final PotionEffectType t : PotionEffectType.values()) {
+				if (t == null)
+					continue;
+				String name = t.getName();
+				if (name.startsWith("minecraft:")) // seems to be the case for experimental entries...
+					name = name.substring(10); // trim off namespace
+				final String[] ls = Language.getList("potions." + name);
+				names[t.getId()] = ls[0];
+				for (final String l : ls) {
+					types.put(l.toLowerCase(Locale.ENGLISH), t);
 				}
 			}
 		});

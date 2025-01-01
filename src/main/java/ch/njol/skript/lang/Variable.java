@@ -4,6 +4,9 @@ import java.lang.reflect.Array;
 import java.util.*;
 import java.util.Map.Entry;
 import java.util.regex.Pattern;
+import java.util.NoSuchElementException;
+import java.util.TreeMap;
+import java.util.function.Predicate;
 import java.util.function.Function;
 
 import ch.njol.skript.Skript;
@@ -26,7 +29,6 @@ import ch.njol.skript.util.StringMode;
 import ch.njol.skript.util.Utils;
 import ch.njol.skript.variables.TypeHints;
 import ch.njol.skript.variables.Variables;
-import ch.njol.util.Checker;
 import ch.njol.util.Kleenean;
 import ch.njol.util.Pair;
 import ch.njol.util.StringUtils;
@@ -47,6 +49,12 @@ import org.skriptlang.skript.lang.comparator.Relation;
 import org.skriptlang.skript.lang.converter.Converters;
 import org.skriptlang.skript.lang.script.Script;
 import org.skriptlang.skript.lang.script.ScriptWarning;
+
+import java.lang.reflect.Array;
+import java.util.*;
+import java.util.Map.Entry;
+import java.util.function.Function;
+import java.util.function.Predicate;
 
 public class Variable<T> implements Expression<T>, KeyReceiverExpression<T>, KeyProviderExpression<T> {
 
@@ -189,9 +197,9 @@ public class Variable<T> implements Expression<T>, KeyReceiverExpression<T>, Key
 		ParserInstance parser = ParserInstance.get();
 		Script currentScript = parser.isActive() ? parser.getCurrentScript() : null;
 		if (currentScript != null
-				&& !SkriptConfig.disableVariableStartingWithExpressionWarnings.value()
-				&& !currentScript.suppressesWarning(ScriptWarning.VARIABLE_STARTS_WITH_EXPRESSION)
-				&& (isLocal ? name.substring(LOCAL_VARIABLE_TOKEN.length()) : name).startsWith("%")) {
+			&& !SkriptConfig.disableVariableStartingWithExpressionWarnings.value()
+			&& !currentScript.suppressesWarning(ScriptWarning.VARIABLE_STARTS_WITH_EXPRESSION)
+			&& (isLocal ? name.substring(LOCAL_VARIABLE_TOKEN.length()) : name).startsWith("%")) {
 			Skript.warning("Starting a variable's name with an expression is discouraged ({" + name + "}). " +
 				"You could prefix it with the script's name: " +
 				"{" + StringUtils.substring(currentScript.getConfig().getFileName(), 0, -3) + SEPARATOR + name + "}");
@@ -730,12 +738,12 @@ public class Variable<T> implements Expression<T>, KeyReceiverExpression<T>, Key
 	}
 
 	@Override
-	public boolean check(Event event, Checker<? super T> checker, boolean negated) {
+	public boolean check(Event event, Predicate<? super T> checker, boolean negated) {
 		return SimpleExpression.check(getAll(event), checker, negated, getAnd());
 	}
 
 	@Override
-	public boolean check(Event event, Checker<? super T> checker) {
+	public boolean check(Event event, Predicate<? super T> checker) {
 		return SimpleExpression.check(getAll(event), checker, false, getAnd());
 	}
 

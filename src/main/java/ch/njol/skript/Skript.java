@@ -65,6 +65,7 @@ import org.skriptlang.skript.bukkit.registration.BukkitRegistryKeys;
 import org.skriptlang.skript.bukkit.registration.BukkitSyntaxInfos;
 import org.junit.runner.notification.Failure;
 import org.skriptlang.skript.bukkit.SkriptMetrics;
+import org.skriptlang.skript.bukkit.tags.TagModule;
 import org.skriptlang.skript.bukkit.breeding.BreedingModule;
 import org.skriptlang.skript.bukkit.displays.DisplayModule;
 import org.skriptlang.skript.bukkit.furnace.FurnaceModule;
@@ -533,6 +534,7 @@ public final class Skript extends JavaPlugin implements Listener {
 			BreedingModule.load();
 			DisplayModule.load();
 			InputModule.load();
+			TagModule.load();
 			FurnaceModule.load();
 			LootTableModule.load();
 		} catch (final Exception e) {
@@ -1122,7 +1124,7 @@ public final class Skript extends JavaPlugin implements Listener {
 		return metrics;
 	}
 
-	@SuppressWarnings("null")
+	@SuppressWarnings({"null", "removal"})
 	private final static Collection<Closeable> closeOnDisable = Collections.synchronizedCollection(new ArrayList<Closeable>());
 
 	/**
@@ -1132,6 +1134,7 @@ public final class Skript extends JavaPlugin implements Listener {
 	 *
 	 * @param closeable
 	 */
+	@SuppressWarnings("removal")
 	public static void closeOnDisable(final Closeable closeable) {
 		closeOnDisable.add(closeable);
 	}
@@ -1215,6 +1218,7 @@ public final class Skript extends JavaPlugin implements Listener {
 	}
 
 	@Override
+	@SuppressWarnings("removal")
 	public void onDisable() {
 		if (disabled)
 			return;
@@ -1334,7 +1338,7 @@ public final class Skript extends JavaPlugin implements Listener {
 	/**
 	 * Registers an addon to Skript. This is currently not required for addons to work, but the returned {@link SkriptAddon} provides useful methods for registering syntax elements
 	 * and adding new strings to Skript's localization system (e.g. the required "types.[type]" strings for registered classes).
-	 * 
+	 *
 	 * @param plugin The plugin
 	 */
 	public static SkriptAddon registerAddon(JavaPlugin plugin) {
@@ -1418,7 +1422,7 @@ public final class Skript extends JavaPlugin implements Listener {
 
 	/**
 	 * Registers a {@link Condition}.
-	 * 
+	 *
 	 * @param conditionClass The condition's class
 	 * @param patterns Skript patterns to match this condition
 	 */
@@ -1445,7 +1449,7 @@ public final class Skript extends JavaPlugin implements Listener {
 
 	/**
 	 * Registers an {@link Effect}.
-	 * 
+	 *
 	 * @param effectClass The effect's class
 	 * @param patterns Skript patterns to match this effect
 	 */
@@ -1506,7 +1510,7 @@ public final class Skript extends JavaPlugin implements Listener {
 
 	/**
 	 * Registers an expression.
-	 * 
+	 *
 	 * @param expressionType The expression's class
 	 * @param returnType The superclass of all values returned by the expression
 	 * @param type The expression's {@link ExpressionType type}. This is used to determine in which order to try to parse expressions.

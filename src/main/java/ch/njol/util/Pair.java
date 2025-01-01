@@ -1,5 +1,10 @@
 package ch.njol.util;
 
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.UnknownNullability;
+
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.Map.Entry;
 import java.util.Objects;
@@ -7,46 +12,44 @@ import java.util.Objects;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * @author Peter Güttinger
+ * @deprecated Use a use-case specific record.
  */
+@Deprecated
 public class Pair<T1, T2> implements Entry<T1, T2>, Cloneable, Serializable {
+	@Serial
 	private static final long serialVersionUID = 8296563685697678334L;
-	
-	@Nullable
-	protected T1 first;
-	@Nullable
-	protected T2 second;
+
+	protected @UnknownNullability T1 first;
+	protected @UnknownNullability T2 second;
 	
 	public Pair() {
 		first = null;
 		second = null;
 	}
 	
-	public Pair(final @Nullable T1 first, final @Nullable T2 second) {
+	public Pair(@Nullable T1 first, @Nullable T2 second) {
 		this.first = first;
 		this.second = second;
 	}
 	
-	public Pair(final Entry<T1, T2> e) {
-		this.first = e.getKey();
-		this.second = e.getValue();
+	public Pair(@NotNull Entry<T1, T2> entry) {
+		this.first = entry.getKey();
+		this.second = entry.getValue();
 	}
-	
-	@Nullable
-	public T1 getFirst() {
+
+	public @UnknownNullability T1 getFirst() {
 		return first;
 	}
 	
-	public void setFirst(final @Nullable T1 first) {
+	public void setFirst(@Nullable T1 first) {
 		this.first = first;
 	}
-	
-	@Nullable
-	public T2 getSecond() {
+
+	public @UnknownNullability T2 getSecond() {
 		return second;
 	}
 	
-	public void setSecond(final @Nullable T2 second) {
+	public void setSecond(@Nullable T2 second) {
 		this.second = second;
 	}
 	
@@ -55,23 +58,22 @@ public class Pair<T1, T2> implements Entry<T1, T2>, Cloneable, Serializable {
 	 */
 	@Override
 	public String toString() {
-		return "" + first + "," + second;
+		return first + "," + second;
 	}
 	
 	/**
 	 * Checks for equality with Entries to match {@link #hashCode()}
 	 */
 	@Override
-	public final boolean equals(final @Nullable Object obj) {
+	public final boolean equals(@Nullable Object obj) {
 		if (obj == this)
 			return true;
-		if (!(obj instanceof Entry))
+		if (!(obj instanceof Entry<?, ?> entry))
 			return false;
-		final Entry<?, ?> other = (Entry<?, ?>) obj;
-		final T1 first = this.first;
-		final T2 second = this.second;
-		return (first == null ? other.getKey() == null : first.equals(other.getKey())) &&
-				(second == null ? other.getValue() == null : second.equals(other.getValue()));
+		T1 first = this.first;
+		T2 second = this.second;
+		return (first == null ? entry.getKey() == null : first.equals(entry.getKey())) &&
+				(second == null ? entry.getValue() == null : second.equals(entry.getValue()));
 	}
 	
 	/**
@@ -83,21 +85,18 @@ public class Pair<T1, T2> implements Entry<T1, T2>, Cloneable, Serializable {
 	}
 	
 	@Override
-	@Nullable
-	public T1 getKey() {
+	public @UnknownNullability T1 getKey() {
 		return first;
 	}
 	
 	@Override
-	@Nullable
-	public T2 getValue() {
+	public @UnknownNullability T2 getValue() {
 		return second;
 	}
 	
 	@Override
-	@Nullable
-	public T2 setValue(final @Nullable T2 value) {
-		final T2 old = second;
+	public @UnknownNullability T2 setValue(@Nullable T2 value) {
+		T2 old = second;
 		second = value;
 		return old;
 	}
