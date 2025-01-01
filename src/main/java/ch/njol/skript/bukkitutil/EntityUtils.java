@@ -1,22 +1,12 @@
 package ch.njol.skript.bukkitutil;
 
-import org.bukkit.Location;
-import org.bukkit.entity.Ageable;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.EntityType;
-import org.bukkit.entity.Piglin;
-import org.bukkit.entity.Zoglin;
-import org.bukkit.entity.Zombie;
-import org.jetbrains.annotations.ApiStatus.ScheduledForRemoval;
-import org.jetbrains.annotations.NotNull;
-
-import com.google.common.collect.BiMap;
-import com.google.common.collect.HashBiMap;
-
-import io.papermc.paper.entity.TeleportFlag;
-
 import ch.njol.skript.Skript;
 import ch.njol.skript.entity.EntityData;
+import com.google.common.collect.BiMap;
+import com.google.common.collect.HashBiMap;
+import org.bukkit.Location;
+import org.bukkit.entity.*;
+import org.jetbrains.annotations.ApiStatus.ScheduledForRemoval;
 
 /**
  * Utility class for quick {@link Entity} methods
