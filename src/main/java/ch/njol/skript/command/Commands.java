@@ -82,7 +82,7 @@ public abstract class Commands {
 		return commandMap;
 	}
 
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({"unchecked", "removal"})
 	private static void init() {
 		try {
 			if (Bukkit.getPluginManager() instanceof SimplePluginManager) {
