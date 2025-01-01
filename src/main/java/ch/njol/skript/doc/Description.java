@@ -7,8 +7,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Provides a description for annotated element in documentation.
- * 
+ * Provides a description for the annotated element in documentation.
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
@@ -16,4 +15,5 @@ import java.lang.annotation.Target;
 public @interface Description {
 	
 	public String[] value();
+
 }

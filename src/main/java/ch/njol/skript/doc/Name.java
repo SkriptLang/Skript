@@ -7,8 +7,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Provides the name of annotated element to be used in documentation.
- * 
+ * Provides the name of the annotated element to be used in documentation.
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
@@ -16,4 +15,5 @@ import java.lang.annotation.Target;
 public @interface Name {
 	
 	public String value();
+
 }

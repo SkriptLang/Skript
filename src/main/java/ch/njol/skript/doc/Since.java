@@ -7,8 +7,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Provides the version of plugin when was the annotated element added.
- * 
+ * Provides the version of the plugin in which the annotated element was added.
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
@@ -16,4 +15,5 @@ import java.lang.annotation.Target;
 public @interface Since {
 	
 	public String value();
+
 }

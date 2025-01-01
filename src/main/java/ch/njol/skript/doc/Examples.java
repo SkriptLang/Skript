@@ -7,8 +7,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Provides a list of examples to be used in documentation for annotated
- * element.
+ * Provides a list of examples to be used in documentation for the annotated element.
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
@@ -16,4 +15,5 @@ import java.lang.annotation.Target;
 public @interface Examples {
 	
 	public String[] value();
+
 }

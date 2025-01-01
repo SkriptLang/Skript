@@ -10,6 +10,7 @@ import org.bukkit.event.player.PlayerInteractAtEntityEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.experiment.LifeCycle;
 import org.jetbrains.annotations.Unmodifiable;
 import org.skriptlang.skript.bukkit.registration.BukkitSyntaxInfos;
 import org.skriptlang.skript.lang.structure.StructureInfo;
@@ -29,7 +30,8 @@ public sealed class SkriptEventInfo<E extends SkriptEvent> extends StructureInfo
   
 	private ListeningBehavior listeningBehavior;
 	private String @Nullable [] description, examples, keywords, requiredPlugins;
-	private @Nullable String since, documentationID;
+	private @Nullable String since, documentationID, experimentName, feedbackLink;
+	private @Nullable LifeCycle phase;
 
 	private final String id;
 
@@ -57,13 +59,13 @@ public sealed class SkriptEventInfo<E extends SkriptEvent> extends StructureInfo
 		this.events = events;
 
 		if (name.startsWith("*")) {
-			this.name = name = "" + name.substring(1);
+			this.name = name = name.substring(1);
 		} else {
 			this.name = "On " + name;
 		}
 
 		// uses the name without 'on ' or '*'
-		this.id = "" + name.toLowerCase(Locale.ENGLISH).replaceAll("[#'\"<>/&]", "").replaceAll("\\s+", "_");
+		this.id = name.toLowerCase(Locale.ENGLISH).replaceAll("[#'\"<>/&]", "").replaceAll("\\s+", "_");
 
 		// default listening behavior should be dependent on config setting
 		this.listeningBehavior = SkriptConfig.listenCancelledByDefault.value() ? ListeningBehavior.ANY : ListeningBehavior.UNCANCELLED;
@@ -131,6 +133,21 @@ public sealed class SkriptEventInfo<E extends SkriptEvent> extends StructureInfo
 	}
 
 	/**
+	 * Only used for Skript's documentation.
+	 *
+	 * @param experimentName The name of the experiment which this event requires
+	 * @param phase The phase of the associated experiment
+	 * @param feedbackLink The feedback link for the associated experiment
+	 * @return This SkriptEventInfo object
+	 */
+	public SkriptEventInfo<E> experimental(String experimentName, LifeCycle phase, String feedbackLink) {
+		this.experimentName = experimentName;
+		this.phase = phase;
+		this.feedbackLink = feedbackLink;
+		return this;
+	}
+
+	/**
 	 * A non-critical ID remapping for syntax elements register using the same class multiple times.
 	 * <br>
 	 * Only used for Skript's documentation.
@@ -188,6 +205,18 @@ public sealed class SkriptEventInfo<E extends SkriptEvent> extends StructureInfo
 
 	public String @Nullable [] getRequiredPlugins() {
 		return requiredPlugins;
+	}
+
+	public @Nullable String getExperiment() {
+		return experimentName;
+	}
+
+	public @Nullable String getFeedbackLink() {
+		return feedbackLink;
+	}
+
+	public @Nullable LifeCycle getPhase() {
+		return phase;
 	}
 
 	public @Nullable String getDocumentationID() {
