@@ -49,7 +49,7 @@ public class TestFunctions {
 				Returns the real (platform-dependent) line separator:
 				typically line feed for UN*X or carriage return line feed for Windows.""")
 			.examples("broadcast \"hello\" + line_separator() + \"world\"")
-			.since("INSERT_VERSION"));
+			.since("INSERT VERSION"));
 
 		Functions.registerFunction(new SimpleJavaFunction<>("file_separator", new Parameter[0],
 			DefaultClasses.STRING, true) {
@@ -59,7 +59,7 @@ public class TestFunctions {
 			}
 		}.description("Returns the real (platform-dependent) file separator: typically / for UN*X or \\ for Windows.")
 			.examples("file_separator() = \"/\"")
-			.since("INSERT_VERSION"));
+			.since("INSERT VERSION"));
 
 	}
 
