@@ -1,21 +1,3 @@
-/**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
 package ch.njol.skript.variables;
 
 import java.io.File;
@@ -79,11 +61,11 @@ public abstract class SQLStorage extends VariablesStorage {
 	/**
 	 * Creates a SQLStorage with a create table query.
 	 * 
-	 * @param name The name to be sent through this constructor when newInstance creates this class.
+	 * @param type The database type i.e. CSV.
 	 * @param createTableQuery The create table query to send to the SQL engine.
 	 */
-	public SQLStorage(String name, String createTableQuery) {
-		super(name);
+	public SQLStorage(String type, String createTableQuery) {
+		super(type);
 		this.createTableQuery = createTableQuery;
 		this.tableName = "variables21";
 	}
@@ -134,7 +116,7 @@ public abstract class SQLStorage extends VariablesStorage {
 			if (monitor_changes == null || monitor_interval == null)
 				return false;
 			monitor = monitor_changes;
-			this.monitor_interval = monitor_interval.getMilliSeconds();
+			this.monitor_interval = monitor_interval.getAs(Timespan.TimePeriod.MILLISECOND);
 
 			final Database db;
 			try {
@@ -160,14 +142,14 @@ public abstract class SQLStorage extends VariablesStorage {
 				final boolean hadNewTable = db.isTable(getTableName());
 
 				if (getFormattedCreateQuery() == null){
-					Skript.error("Could not create the variables table in the database. The query to create the variables table '" + tableName + "' in the database '" + databaseName + "' is null.");
+					Skript.error("Could not create the variables table in the database. The query to create the variables table '" + tableName + "' in the database '" + getUserConfigurationName() + "' is null.");
 					return false;
 				}
 
 				try {
 					db.query(getFormattedCreateQuery());
 				} catch (final SQLException e) {
-					Skript.error("Could not create the variables table '" + tableName + "' in the database '" + databaseName + "': " + e.getLocalizedMessage() + ". "
+					Skript.error("Could not create the variables table '" + tableName + "' in the database '" + getUserConfigurationName() + "': " + e.getLocalizedMessage() + ". "
 							+ "Please create the table yourself using the following query: " + String.format(createTableQuery, tableName).replace(",", ", ").replaceAll("\\s+", " "));
 					return false;
 				}
@@ -200,7 +182,7 @@ public abstract class SQLStorage extends VariablesStorage {
 				// store old variables in new table and delete the old table
 				if (hasOldTable) {
 					if (!hadNewTable) {
-						Skript.info("[2.1] Updating the database '" + databaseName + "' to the new format...");
+						Skript.info("[2.1] Updating the database '" + getUserConfigurationName() + "' to the new format...");
 						try {
 							Variables.getReadLock().lock();
 							for (final Entry<String, Object> v : Variables.getVariablesHashMap().entrySet()) {
@@ -221,7 +203,7 @@ public abstract class SQLStorage extends VariablesStorage {
 					final ResultSet r = db.query("SELECT * FROM " + OLD_TABLE_NAME + " LIMIT 1");
 					try {
 						if (r.next()) {// i.e. the old table is not empty
-							Skript.error("Could not successfully convert & transfer all variables to the new table in the database '" + databaseName + "'. "
+							Skript.error("Could not successfully convert & transfer all variables to the new table in the database '" + getUserConfigurationName() + "'. "
 									+ "Variables that could not be transferred are left in the old table and Skript will reattempt to transfer them whenever it starts until the old table is empty or is manually deleted. "
 									+ "Please note that variables recreated by scripts will count as converted and will be removed from the old table on the next restart.");
 						} else {
@@ -231,13 +213,13 @@ public abstract class SQLStorage extends VariablesStorage {
 								connect();
 								db.query("DROP TABLE " + OLD_TABLE_NAME);
 							} catch (final SQLException e) {
-								Skript.error("There was an error deleting the old variables table from the database '" + databaseName + "', please delete it yourself: " + e.getLocalizedMessage());
+								Skript.error("There was an error deleting the old variables table from the database '" + getUserConfigurationName() + "', please delete it yourself: " + e.getLocalizedMessage());
 								error = true;
 							}
 							if (!error)
-								Skript.info("Successfully deleted the old variables table from the database '" + databaseName + "'.");
+								Skript.info("Successfully deleted the old variables table from the database '" + getUserConfigurationName() + "'.");
 							if (!hadNewTable)
-								Skript.info("Database '" + databaseName + "' successfully updated.");
+								Skript.info("Database '" + getUserConfigurationName() + "' successfully updated.");
 						}
 					} finally {
 						r.close();
@@ -265,7 +247,7 @@ public abstract class SQLStorage extends VariablesStorage {
 						} catch (final InterruptedException e) {}
 					}
 				}
-			}, "Skript database '" + databaseName + "' connection keep-alive thread").start();
+			}, "Skript database '" + getUserConfigurationName() + "' connection keep-alive thread").start();
 
 			return true;
 		}
@@ -273,7 +255,7 @@ public abstract class SQLStorage extends VariablesStorage {
 
 	@Override
 	protected void allLoaded() {
-		Skript.debug("Database " + databaseName + " loaded. Queue size = " + changesQueue.size());
+		Skript.debug("Database " + getUserConfigurationName() + " loaded. Queue size = " + changesQueue.size());
 
 		// start committing thread. Its first execution will also commit the first batch of changed variables.
 		Skript.newThread(new Runnable() {
@@ -296,7 +278,7 @@ public abstract class SQLStorage extends VariablesStorage {
 					} catch (final InterruptedException e) {}
 				}
 			}
-		}, "Skript database '" + databaseName + "' transaction committing thread").start();
+		}, "Skript database '" + getUserConfigurationName() + "' transaction committing thread").start();
 
 		if (monitor) {
 			Skript.newThread(new Runnable() {
@@ -327,7 +309,7 @@ public abstract class SQLStorage extends VariablesStorage {
 						}
 					}
 				}
-			}, "Skript database '" + databaseName + "' monitor thread").start();
+			}, "Skript database '" + getUserConfigurationName() + "' monitor thread").start();
 		}
 
 	}
@@ -352,9 +334,9 @@ public abstract class SQLStorage extends VariablesStorage {
 			final Database db = this.db.get();
 			if (db == null || !db.open()) {
 				if (first)
-					Skript.error("Cannot connect to the database '" + databaseName + "'! Please make sure that all settings are correct");// + (type == Type.MYSQL ? " and that the database software is running" : "") + ".");
+					Skript.error("Cannot connect to the database '" + getUserConfigurationName() + "'! Please make sure that all settings are correct");// + (type == Type.MYSQL ? " and that the database software is running" : "") + ".");
 				else
-					Skript.exception("Cannot reconnect to the database '" + databaseName + "'!");
+					Skript.exception("Cannot reconnect to the database '" + getUserConfigurationName() + "'!");
 				return false;
 			}
 			try {
@@ -400,7 +382,7 @@ public abstract class SQLStorage extends VariablesStorage {
 				} catch (final SQLException e) {}
 				monitorCleanUpQuery = db.prepare("DELETE FROM " + getTableName() + " WHERE value IS NULL AND rowid < ?");
 			} catch (final SQLException e) {
-				Skript.exception(e, "Could not prepare queries for the database '" + databaseName + "': " + e.getLocalizedMessage());
+				Skript.exception(e, "Could not prepare queries for the database '" + getUserConfigurationName() + "': " + e.getLocalizedMessage());
 				return false;
 			}
 		}
@@ -577,7 +559,7 @@ public abstract class SQLStorage extends VariablesStorage {
 						int i = 1;
 						final String name = r.getString(i++);
 						if (name == null) {
-							Skript.error("Variable with NULL name found in the database '" + databaseName + "', ignoring it");
+							Skript.error("Variable with NULL name found in the database '" + getUserConfigurationName() + "', ignoring it");
 							continue;
 						}
 						final String type = r.getString(i++);
@@ -590,7 +572,7 @@ public abstract class SQLStorage extends VariablesStorage {
 							@SuppressWarnings("unused")
 							Serializer<?> s;
 							if (c == null || (s = c.getSerializer()) == null) {
-								Skript.error("Cannot load the variable {" + name + "} from the database '" + databaseName + "', because the type '" + type + "' cannot be recognised or cannot be stored in variables");
+								Skript.error("Cannot load the variable {" + name + "} from the database '" + getUserConfigurationName() + "', because the type '" + type + "' cannot be recognised or cannot be stored in variables");
 								continue;
 							}
 //					if (s.mustSyncDeserialization()) {
@@ -598,7 +580,7 @@ public abstract class SQLStorage extends VariablesStorage {
 //					} else {
 							final Object d = Classes.deserialize(c, value);
 							if (d == null) {
-								Skript.error("Cannot load the variable {" + name + "} from the database '" + databaseName + "', because it cannot be loaded as " + c.getName().withIndefiniteArticle());
+								Skript.error("Cannot load the variable {" + name + "} from the database '" + getUserConfigurationName() + "', because it cannot be loaded as " + c.getName().withIndefiniteArticle());
 								continue;
 							}
 							Variables.variableLoaded(name, d, SQLStorage.this);
@@ -623,7 +605,7 @@ public abstract class SQLStorage extends VariablesStorage {
 //							for (final VariableInfo o : syncDeserializing) {
 //								final Object d = Classes.deserialize(o.ci, o.value);
 //								if (d == null) {
-//									Skript.error("Cannot load the variable {" + o.name + "} from the database " + databaseName + ", because it cannot be loaded as a " + o.ci.getName());
+//									Skript.error("Cannot load the variable {" + o.name + "} from the database " + getUserConfigurationName() + ", because it cannot be loaded as a " + o.ci.getName());
 //									continue;
 //								}
 //								Variables.variableLoaded(o.name, d, DatabaseStorage.this);
@@ -655,7 +637,7 @@ public abstract class SQLStorage extends VariablesStorage {
 	private void oldLoadVariables(final ResultSet r, final boolean hadNewTable) throws SQLException {
 //		synchronized (oldSyncDeserializing) {
 
-		final VariablesStorage temp = new VariablesStorage(databaseName + " old variables table") {
+		final VariablesStorage temp = new VariablesStorage(getUserConfigurationName() + " old variables table") {
 			@Override
 			protected boolean save(final String name, @Nullable final String type, @Nullable final byte[] value) {
 				assert type == null : name + "; " + type;

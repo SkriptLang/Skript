@@ -1,4 +1,4 @@
-test "display transformation rotations" when running minecraft "1.19.4":
+test "display transformation rotations":
 
 	spawn block display at spawn of world "world":
 		set {_e::1} to entity
@@ -27,7 +27,7 @@ test "display transformation rotations" when running minecraft "1.19.4":
 	delete entities within {_e::*}
 
 
-test "display transformation translation / scales" when running minecraft "1.19.4":
+test "display transformation translation / scales":
 	spawn block display at spawn of world "world":
 		set {_e::1} to entity
 	spawn item display at spawn of world "world":

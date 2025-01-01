@@ -1,5 +1,5 @@
 # This file contains events we can run on Paper 1.16.5+
 
 on bell ringing:
-    junit test is "org.skriptlang.skript.test.tests.syntaxes.events.BellEventsTest"
-    complete objective "bell rings" for junit test "org.skriptlang.skript.test.tests.syntaxes.events.BellEventsTest"
+	junit test is "org.skriptlang.skript.test.tests.syntaxes.events.BellEventsTest"
+	complete objective "bell rings" for junit test "org.skriptlang.skript.test.tests.syntaxes.events.BellEventsTest"

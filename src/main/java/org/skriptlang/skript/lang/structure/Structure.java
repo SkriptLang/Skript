@@ -1,21 +1,3 @@
-/**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
 package org.skriptlang.skript.lang.structure;
 
 import ch.njol.skript.Skript;
@@ -113,7 +95,7 @@ public abstract class Structure implements SyntaxElement, Debuggable {
 		StructureInfo<? extends Structure> structureInfo = structureData.structureInfo;
 		assert structureInfo != null;
 
-		if (structureInfo.simple) { // simple structures do not have validators
+		if (structureData.node instanceof SimpleNode) { // simple structures do not have validators
 			return init(literals, matchedPattern, parseResult, null);
 		}
 
@@ -206,10 +188,10 @@ public abstract class Structure implements SyntaxElement, Debuggable {
 			throw new IllegalArgumentException("only simple or section nodes may be parsed as a structure");
 		ParserInstance.get().getData(StructureData.class).node = node;
 
-		if (node instanceof SimpleNode) { // only allow simple structures for simple nodes
-			iterator = new CheckedIterator<>(iterator, item -> item != null && item.simple);
-		} else { // only allow non-simple structures for section nodes
-			iterator = new CheckedIterator<>(iterator, item -> item != null && !item.simple);
+		if (node instanceof SimpleNode) { // filter out section only structures
+			iterator = new CheckedIterator<>(iterator, item -> item != null && item.nodeType.canBeSimple());
+		} else { // filter out simple only structures
+			iterator = new CheckedIterator<>(iterator, item -> item != null && item.nodeType.canBeSection());
 		}
 		iterator = new ConsumingIterator<>(iterator, elementInfo -> ParserInstance.get().getData(StructureData.class).structureInfo = elementInfo);
 

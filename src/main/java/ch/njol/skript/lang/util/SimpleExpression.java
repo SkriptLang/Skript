@@ -1,21 +1,3 @@
-/**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
 package ch.njol.skript.lang.util;
 
 import ch.njol.skript.Skript;
@@ -25,23 +7,22 @@ import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
+import ch.njol.skript.lang.Loopable;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.Utils;
 import ch.njol.util.Checker;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
 import ch.njol.util.coll.iterator.ArrayIterator;
+import com.google.common.collect.PeekingIterator;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.converter.Converter;
-import org.skriptlang.skript.lang.converter.ConverterInfo;
 
 import java.lang.reflect.Array;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
-import java.util.List;
 
 /**
  * An implementation of the {@link Expression} interface. You should usually extend this class to make a new expression.
@@ -205,33 +186,6 @@ public abstract class SimpleExpression<T> implements Expression<T> {
 		// check whether this expression is already of type R
 		if (CollectionUtils.containsSuperclass(to, getReturnType()))
 			return (Expression<? extends R>) this;
-
-		// we might be to cast some of the possible return types to R
-		List<ConverterInfo<? extends T, R>> infos = new ArrayList<>();
-		for (Class<? extends T> type : this.possibleReturnTypes()) {
-			if (CollectionUtils.containsSuperclass(to, type)) { // this type is of R
-				// build a converter that for casting to R
-				// safety check is present in the event that we do not get this type at runtime
-				final Class<R> toType = (Class<R>) type;
-				infos.add(new ConverterInfo<>(getReturnType(), toType, fromObject -> {
-					if (toType.isInstance(fromObject))
-						return (R) fromObject;
-					return null;
-				}, 0));
-			}
-		}
-		int size = infos.size();
-		if (size == 1) { // if there is only one info, there is no need to wrap it in a list
-			ConverterInfo<? extends T, R> info = infos.get(0);
-			//noinspection rawtypes
-			return new ConvertedExpression(this, info.getTo(), info);
-		}
-		if (size > 1) {
-			//noinspection rawtypes
-			return new ConvertedExpression(this, Utils.getSuperType(infos.stream().map(ConverterInfo::getTo).toArray(Class[]::new)), infos, false);
-		}
-
-		// attempt traditional conversion with proper converters
 		return this.getConvertedExpr(to);
 	}
 
@@ -352,6 +306,14 @@ public abstract class SimpleExpression<T> implements Expression<T> {
 		return false;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 * Overriding this method, returning an {@link Iterator}, ensure to override {@link Loopable#supportsLoopPeeking()}
+	 * Or returning an {@link PeekingIterator}, ensure to set up {@link PeekingIterator#peek()}
+	 *
+	 * @param event The event to be used for evaluation
+	 * @return {@link ArrayIterator}
+	 */
 	@Override
 	public @Nullable Iterator<? extends T> iterator(Event event) {
 		return new ArrayIterator<>(getArray(event));
@@ -374,6 +336,11 @@ public abstract class SimpleExpression<T> implements Expression<T> {
 
 	@Override
 	public boolean getAnd() {
+		return true;
+	}
+
+	@Override
+	public boolean supportsLoopPeeking() {
 		return true;
 	}
 }

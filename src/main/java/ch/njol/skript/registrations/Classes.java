@@ -1,21 +1,3 @@
-/**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
 package ch.njol.skript.registrations;
 
 import java.io.ByteArrayInputStream;
@@ -39,6 +21,7 @@ import java.util.regex.Pattern;
 
 import ch.njol.skript.command.Commands;
 import ch.njol.skript.entity.EntityData;
+import ch.njol.skript.util.Date;
 import ch.njol.skript.util.Utils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -767,9 +750,15 @@ public abstract class Classes {
 				assert r[i] == start[i] : o + " (" + ci.getC().getName() + "); " + Arrays.toString(start) + ", " + Arrays.toString(r);
 			final byte[] r2 = new byte[r.length - start.length];
 			System.arraycopy(r, start.length, r2, 0, r2.length);
-			
-			Object d;
-			assert equals(o, d = deserialize(ci, new ByteArrayInputStream(r2))) : o + " (" + o.getClass() + ") != " + d + " (" + (d == null ? null : d.getClass()) + "): " + Arrays.toString(r);
+
+			if (o instanceof Date date)
+				System.out.println(date.getTime());
+
+			Object d = deserialize(ci, new ByteArrayInputStream(r2));
+			if (d instanceof Date date)
+				System.out.println(date.getTime());
+
+			assert equals(o, d) : o + " (" + o.getClass() + ") != " + d + " (" + (d == null ? null : d.getClass()) + "): " + Arrays.toString(r);
 			
 			return new SerializedVariable.Value(ci.getCodeName(), r2);
 		} catch (final IOException e) { // shouldn't happen

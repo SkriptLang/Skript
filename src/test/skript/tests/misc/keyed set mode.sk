@@ -1,0 +1,29 @@
+test "keyed set mode":
+	# we have a `test key values [of %list%]` syntax for testing key preservation
+
+	set {_list::*} to test key values
+
+	# expecting hello -> there, foo -> bar, a -> b
+	assert size of {_list::*} is 3 with "something wasn't set properly"
+	assert {_list::hello} is "there" with "key/value set not matched: %indices of {_list::*}% -> %{_list::*}%"
+	assert {_list::foo} is "bar" with "key/value set not matched: %indices of {_list::*}% -> %{_list::*}%"
+	assert {_list::a} is "b" with "key/value set not matched: %indices of {_list::*}% -> %{_list::*}%"
+
+	# expecting reversion to numeric indices
+	set {_list 2::*} to {_list::*}
+	assert size of {_list 2::*} is 3 with "something wasn't carried properly"
+	assert {_list 2::hello} is not "there" with "keys were preserved in list -> list set"
+	assert {_list 2::foo} is not "bar" with "keys were preserved in list -> list set"
+	assert {_list 2::a} is not "b" with "keys were preserved in list -> list set"
+
+	delete {_list::*}
+	delete {_list 2::*}
+
+	set {_list::alice} to "bob"
+	set {_list::hello} to "world"
+	set {_list 2::*} to test key values of {_list::*}
+
+	# expecting preservation of keys
+	assert size of {_list 2::*} is 2 with "something wasn't carried properly"
+	assert {_list 2::alice} is "bob" with "keys were not preserved, %indices of {_list 2::*}% -> %{_list 2::*}%"
+	assert {_list 2::hello} is "world" with "keys were not preserved, %indices of {_list 2::*}% -> %{_list 2::*}%"

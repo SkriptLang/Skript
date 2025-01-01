@@ -4,12 +4,10 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.doc.NoDoc;
 import ch.njol.skript.lang.*;
 import ch.njol.skript.registrations.EventValues;
-import ch.njol.skript.util.Getter;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.event.Event;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 @NoDoc
@@ -22,24 +20,9 @@ public class EvtTestCase extends SkriptEvent {
 					.examples("")
 					.since("2.5");
 
-			EventValues.registerEventValue(SkriptTestEvent.class, Block.class, new Getter<>() {
-				@Override
-				public @NotNull Block get(SkriptTestEvent ignored) {
-					return SkriptJUnitTest.getBlock();
-				}
-			}, EventValues.TIME_NOW);
-			EventValues.registerEventValue(SkriptTestEvent.class, Location.class, new Getter<>() {
-				@Override
-				public @NotNull Location get(SkriptTestEvent ignored) {
-					return SkriptJUnitTest.getTestLocation();
-				}
-			}, EventValues.TIME_NOW);
-			EventValues.registerEventValue(SkriptTestEvent.class, World.class, new Getter<>() {
-				@Override
-				public @NotNull World get(SkriptTestEvent ignored) {
-					return SkriptJUnitTest.getTestWorld();
-				}
-			}, EventValues.TIME_NOW);
+			EventValues.registerEventValue(SkriptTestEvent.class, Block.class, ignored -> SkriptJUnitTest.getBlock());
+			EventValues.registerEventValue(SkriptTestEvent.class, Location.class, ignored -> SkriptJUnitTest.getTestLocation());
+			EventValues.registerEventValue(SkriptTestEvent.class, World.class, ignored -> SkriptJUnitTest.getTestWorld());
 		}
 	}
 

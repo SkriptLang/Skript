@@ -1,21 +1,3 @@
-/**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
 package ch.njol.skript.lang;
 
 import ch.njol.skript.classes.Changer.ChangeMode;
@@ -155,15 +137,7 @@ public class ExpressionList<T> implements Expression<T> {
 
 	@Override
 	public boolean check(Event event, Checker<? super T> checker, boolean negated) {
-		for (Expression<? extends T> expr : expressions) {
-			boolean result = expr.check(event, checker) ^ negated;
-			// exit early if we find a FALSE and we're ANDing, or a TRUE and we're ORing
-			if (and && !result)
-				return false;
-			if (!and && result)
-				return true;
-		}
-		return and;
+		return CollectionUtils.check(expressions, expr -> expr.check(event, checker) ^ negated, and);
 	}
 
 	@Override

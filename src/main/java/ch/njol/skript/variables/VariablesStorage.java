@@ -1,25 +1,10 @@
-/**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
 package ch.njol.skript.variables;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
@@ -68,9 +53,14 @@ public abstract class VariablesStorage implements Closeable {
 	protected volatile boolean closed = false;
 
 	/**
-	 * The name of the database, i.e. this storage.
+	 * The name of the database
 	 */
-	protected final String databaseName;
+	private String databaseName;
+
+	/**
+	 * The type of the database, i.e. CSV.
+	 */
+	private final String databaseType;
 
 	/**
 	 * The file associated with this variable storage.
@@ -98,11 +88,11 @@ public abstract class VariablesStorage implements Closeable {
 	 * This will also create the {@link #writeThread}, but it must be started
 	 * with {@link #load(SectionNode)}.
 	 *
-	 * @param name the name.
+	 * @param type the database type i.e. CSV.
 	 */
-	protected VariablesStorage(String name) {
-		assert name != null;
-		databaseName = name;
+	protected VariablesStorage(String type) {
+		assert type != null;
+		databaseType = type;
 
 		writeThread = Skript.newThread(() -> {
 			while (!closed) {
@@ -120,7 +110,29 @@ public abstract class VariablesStorage implements Closeable {
 					// Ignored as the `closed` field will indicate whether the thread actually needs to stop
 				}
 			}
-		}, "Skript variable save thread for database '" + name + "'");
+		}, "Skript variable save thread for database '" + type + "'");
+	}
+
+	/**
+	 * Get the config name of a database
+	 * <p>
+	 * Note: Returns the user set name for the database, ex:
+	 * <pre>{@code
+	 * default: <- Config Name
+	 *    type: CSV
+	 * }</pre>
+	 * @return name of database
+	 */
+	protected final String getUserConfigurationName() {
+		return databaseName;
+	}
+
+	/**
+	 * Get the config type of a database
+	 * @return type of databse
+	 */
+	protected final String getDatabaseType() {
+		return databaseType;
 	}
 
 	/**
@@ -170,6 +182,8 @@ public abstract class VariablesStorage implements Closeable {
 		}
 	}
 
+	private static final Set<File> registeredFiles = new HashSet<>();
+
 	/**
 	 * Loads the configuration for this variable storage
 	 * from the given section node.
@@ -178,6 +192,8 @@ public abstract class VariablesStorage implements Closeable {
 	 * @return whether the loading succeeded.
 	 */
 	public final boolean load(SectionNode sectionNode) {
+		databaseName = sectionNode.getKey();
+
 		String pattern = getValue(sectionNode, "pattern");
 		if (pattern == null)
 			return false;
@@ -221,6 +237,12 @@ public abstract class VariablesStorage implements Closeable {
 				Skript.error("Cannot read from the database file '" + file.getName() + "'!");
 				return false;
 			}
+
+			if (registeredFiles.contains(file)) {
+				Skript.error("Database `" + databaseName + "` failed to load. The file `" + fileName + "` is already registered to another database.");
+				return false;
+			}
+			registeredFiles.add(file);
 
 			// Set the backup interval, if present & enabled
 			if (!"0".equals(getValue(sectionNode, "backup interval"))) {
@@ -325,9 +347,9 @@ public abstract class VariablesStorage implements Closeable {
 	 */
 	public void startBackupTask(Timespan backupInterval, boolean removeBackups, int toKeep) {
 		// File is null or backup interval is invalid
-		if (file == null || backupInterval.getTicks() == 0)
+		if (file == null || backupInterval.getAs(Timespan.TimePeriod.TICK) == 0)
 			return;
-		backupTask = new Task(Skript.getInstance(), backupInterval.getTicks(), backupInterval.getTicks(), true) {
+		backupTask = new Task(Skript.getInstance(), backupInterval.getAs(Timespan.TimePeriod.TICK), backupInterval.getAs(Timespan.TimePeriod.TICK), true) {
 			@Override
 			public void run() {
 				synchronized (connectionLock) {
@@ -367,6 +389,14 @@ public abstract class VariablesStorage implements Closeable {
 			return false;
 
 		return variableNamePattern == null || variableNamePattern.matcher(var).matches();
+	}
+
+	/**
+	 * Returns the name pattern accepted by this variable storage
+	 * @return the name pattern, or null if accepting all
+	 */
+	public @Nullable Pattern getNamePattern() {
+		return variableNamePattern;
 	}
 
 	/**

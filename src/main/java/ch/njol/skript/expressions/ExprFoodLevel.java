@@ -1,27 +1,4 @@
-/**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
 package ch.njol.skript.expressions;
-
-import org.bukkit.entity.Player;
-import org.bukkit.event.Event;
-import org.bukkit.event.entity.FoodLevelChangeEvent;
-import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer.ChangeMode;
@@ -34,10 +11,13 @@ import ch.njol.skript.expressions.base.PropertyExpression;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
-import ch.njol.skript.util.Getter;
 import ch.njol.util.Kleenean;
 import ch.njol.util.Math2;
 import ch.njol.util.coll.CollectionUtils;
+import org.bukkit.entity.Player;
+import org.bukkit.event.Event;
+import org.bukkit.event.entity.FoodLevelChangeEvent;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * @author Peter Güttinger
@@ -60,15 +40,13 @@ public class ExprFoodLevel extends PropertyExpression<Player, Number> {
 	}
 	
 	@Override
-	protected Number[] get(final Event e, final Player[] source) {
-		return get(source, new Getter<Number, Player>() {
-			@Override
-			public Number get(final Player p) {
-				if (getTime() >= 0 && e instanceof FoodLevelChangeEvent && p.equals(((FoodLevelChangeEvent) e).getEntity()) && !Delay.isDelayed(e)) {
-					return 0.5f * ((FoodLevelChangeEvent) e).getFoodLevel();
-				}
-				return 0.5f * p.getFoodLevel();
+	protected Number[] get(Event event, Player[] source) {
+		return get(source, player -> {
+			if (getTime() >= 0 && event instanceof FoodLevelChangeEvent foodLevelChangeEvent
+				&& player.equals(foodLevelChangeEvent.getEntity()) && !Delay.isDelayed(event)) {
+				return 0.5f * foodLevelChangeEvent.getFoodLevel();
 			}
+			return 0.5f * player.getFoodLevel();
 		});
 	}
 	

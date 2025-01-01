@@ -1,46 +1,22 @@
-/**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
 package ch.njol.skript.expressions;
 
+import ch.njol.skript.Skript;
+import ch.njol.skript.classes.Changer.ChangeMode;
+import ch.njol.skript.doc.*;
+import ch.njol.skript.effects.Delay;
+import ch.njol.skript.expressions.base.PropertyExpression;
+import ch.njol.skript.lang.Expression;
+import ch.njol.skript.lang.ExpressionType;
+import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.skript.util.WeatherType;
+import ch.njol.util.Kleenean;
+import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.World;
 import org.bukkit.event.Event;
 import org.bukkit.event.weather.ThunderChangeEvent;
 import org.bukkit.event.weather.WeatherChangeEvent;
 import org.bukkit.event.weather.WeatherEvent;
 import org.jetbrains.annotations.Nullable;
-
-import ch.njol.skript.Skript;
-import ch.njol.skript.classes.Changer.ChangeMode;
-import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Events;
-import ch.njol.skript.doc.Examples;
-import ch.njol.skript.doc.Name;
-import ch.njol.skript.doc.Since;
-import ch.njol.skript.effects.Delay;
-import ch.njol.skript.expressions.base.PropertyExpression;
-import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.ExpressionType;
-import ch.njol.skript.lang.SkriptParser.ParseResult;
-import ch.njol.skript.util.Getter;
-import ch.njol.skript.util.WeatherType;
-import ch.njol.util.Kleenean;
-import ch.njol.util.coll.CollectionUtils;
 
 /**
  * @author Peter Güttinger
@@ -64,15 +40,13 @@ public class ExprWeather extends PropertyExpression<World, WeatherType> {
 	}
 
 	@Override
-	protected WeatherType[] get(final Event e, final World[] source) {
-		return get(source, new Getter<WeatherType, World>() {
-			@Override
-			public WeatherType get(final World w) {
-				if (getTime() >= 0 && e instanceof WeatherEvent && w.equals(((WeatherEvent) e).getWorld()) && !Delay.isDelayed(e))
-					return WeatherType.fromEvent((WeatherEvent) e);
-				else
-					return WeatherType.fromWorld(w);
-			}
+	protected WeatherType[] get(Event event, World[] source) {
+		return get(source, world -> {
+			if (getTime() >= 0 && event instanceof WeatherEvent weatherEvent
+				&& world.equals(weatherEvent.getWorld()) && !Delay.isDelayed(event))
+				return WeatherType.fromEvent(weatherEvent);
+			else
+				return WeatherType.fromWorld(world);
 		});
 	}
 	

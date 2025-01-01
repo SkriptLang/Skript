@@ -1,4 +1,4 @@
-test "freeze time" when running minecraft "1.18":
+test "freeze time":
 	spawn cow at test-location:
 		assert freeze time of entity is set with "freeze time get failed"
 		set freeze time of entity to 3 seconds
