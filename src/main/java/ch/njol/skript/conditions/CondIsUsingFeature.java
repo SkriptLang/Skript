@@ -12,9 +12,9 @@ import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.lang.experiment.Experimented;
+import org.skriptlang.skript.lang.experiment.ExperimentSet;
+import org.skriptlang.skript.lang.script.Script;
 
-@SuppressWarnings("NotNullFieldNotInitialized")
 @Name("Is Using Experimental Feature")
 @Description("Checks whether a script is using an experimental feature by name.")
 @Examples({"the script is using \"example feature\"",
@@ -26,20 +26,23 @@ public class CondIsUsingFeature extends Condition {
 
 	static {
 		Skript.registerCondition(CondIsUsingFeature.class,
-				"[the] [current] script is using %strings%",
-				"[the] [current] script is(n't| not) using %strings%");
+				"%script% is using %strings%",
+				"%scripts% are using %strings%",
+				"%script% is(n't| not) using %strings%",
+				"%scripts% are(n't| not) using %strings%");
 	}
 
 	private Expression<String> names;
-	private Experimented snapshot;
+	private Expression<Script> scripts;
 
 	@SuppressWarnings("null")
 	@Override
 	public boolean init(Expression<?>[] expressions, int pattern, Kleenean delayed, ParseResult result) {
 		//noinspection unchecked
-		this.names = (Expression<String>) expressions[0];
-		this.setNegated(pattern == 1);
-		this.snapshot = this.getParser().experimentSnapshot();
+		this.names = (Expression<String>) expressions[1];
+		//noinspection unchecked
+		this.scripts = (Expression<Script>) expressions[0];
+		this.setNegated(pattern > 1);
 		return true;
 	}
 
@@ -49,15 +52,26 @@ public class CondIsUsingFeature extends Condition {
 		if (array.length == 0)
 			return true;
 		boolean isUsing = true;
-		for (@NotNull String object : array) {
-			isUsing &= snapshot.hasExperiment(object);
+		for (Script script : this.scripts.getArray(event)) {
+			ExperimentSet data = script.getData(ExperimentSet.class);
+			if (data == null) {
+				isUsing = false;
+			} else {
+				for (@NotNull String object : array) {
+					isUsing &= data.hasExperiment(object);
+				}
+			}
 		}
 		return isUsing ^ this.isNegated();
 	}
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return "the current script " + (isNegated() ? "isn't" : "is") + " using " + names.toString(event, debug);
+		String whether = scripts.isSingle()
+				? (isNegated() ? "isn't" : "is")
+				: (isNegated() ? "aren't" : "are");
+		return scripts.toString(event, debug) + " "
+				+ whether + " using " + names.toString(event, debug);
 	}
 
 }

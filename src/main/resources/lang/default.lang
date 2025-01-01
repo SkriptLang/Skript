@@ -2657,6 +2657,12 @@ types:
 	experience.pattern: (e?xp|experience( points?)?)
 	classinfo: type¦s @a
 	visualeffect: visual effect¦s @a
+	queue: queue¦s @a
+	script: script¦s @a
+	config: config¦s @a
+	node: node¦s @a
+	executable: executable¦s @an
+	function: function¦s @a
 	named: named thing¦s @a
 	numbered: numbered thing¦s @a
 	containing: container¦s @a
