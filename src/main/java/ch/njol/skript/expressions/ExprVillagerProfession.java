@@ -10,11 +10,12 @@ import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Villager;
 import org.bukkit.entity.Villager.Profession;
+import org.bukkit.entity.ZombieVillager;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
 @Name("Villager Profession")
-@Description("Represents the profession of a villager.")
+@Description("Represents the profession of a villager/zombie villager.")
 @Examples({
 	"set {_p} to villager profession of event-entity",
 	"villager profession of event-entity = nitwit profession",
@@ -32,6 +33,8 @@ public class ExprVillagerProfession extends SimplePropertyExpression<LivingEntit
 	public @Nullable Profession convert(LivingEntity from) {
 		if (from instanceof Villager villager)
 			return villager.getProfession();
+		else if (from instanceof ZombieVillager zombie)
+			return zombie.getVillagerProfession();
 		return null;
 	}
 
@@ -50,6 +53,8 @@ public class ExprVillagerProfession extends SimplePropertyExpression<LivingEntit
 		for (LivingEntity livingEntity : getExpr().getArray(event)) {
 			if (livingEntity instanceof Villager villager)
 				villager.setProfession(profession);
+			else if (livingEntity instanceof ZombieVillager zombie)
+				zombie.setVillagerProfession(profession);
 		}
 	}
 
