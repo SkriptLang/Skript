@@ -40,13 +40,13 @@ import java.util.Map.Entry;
 		"\tset {_s} to the first (index of \"abc\" in {_s} + 3) characters of {_s} # removes everything after the first \"abc\" from {_s}",
 	"",
 	"set {_list::*} to 1, 2, 3, 1, 2, 3",
-	"set {_indices::*} to the indices of the value 1 in {_list::*}",
+	"set {_indices::*} to all indices of the value 1 in {_list::*}",
 	"# {_indices::*} is now \"1\" and \"4\"",
 	"",
-	"set {_indices::*} to the indices of the value 2 in {_list::*}",
+	"set {_indices::*} to all indices of the value 2 in {_list::*}",
 	"# {_indices::*} is now \"2\" and \"5\"",
 	"",
-	"set {_positions::*} to the positions of the value 3 in {_list::*}",
+	"set {_positions::*} to all positions of the value 3 in {_list::*}",
 	"# {_positions::*} is now 3 and 6",
 	"",
 	"set {_otherlist::bar} to 100",
@@ -60,9 +60,9 @@ import java.util.Map.Entry;
 	"set {_indices::*} to the last index of the value 100 in {_otherlist::*}",
 	"# {_indices::*} is now \"foo\"",
 	"",
-	"set {_positions::*} to the positions of the value 100 in {_otherlist::*}",
+	"set {_positions::*} to all positions of the value 100 in {_otherlist::*}",
 	"# {_positions::*} is now 1, 3 and 5",
-	"set {_positions::*} to the positions of the value \"hi\" in {_otherlist::*}",
+	"set {_positions::*} to all positions of the value \"hi\" in {_otherlist::*}",
 	"# {_positions::*} is now 2 and 4"
 })
 @Since("2.1, INSERT VERSION (indices, positions of list)")
