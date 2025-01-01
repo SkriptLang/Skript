@@ -2637,6 +2637,7 @@ types:
 	quitreason: quit reason¦s @a
 	inventoryclosereason: inventory close reason¦s @an
 	transformreason: transform reason¦s @a
+	unleashreason: unleash reason¦s @an
 	teleportflag: teleport flag¦s @a
 	display: display¦s @a
 	billboard: billboard¦s @a
@@ -2678,7 +2679,7 @@ types:
 	function: function¦s @a
 	named: named thing¦s @a
 	numbered: numbered thing¦s @a
-	containing: container¦s @a-
+	containing: container¦s @a
 
 	# Hooks
 	money: money
