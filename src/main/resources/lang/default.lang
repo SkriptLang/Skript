@@ -2401,6 +2401,19 @@ transform reasons:
 	unknown: unknown
 	infection: infection, villager infection
 
+# -- Teleport Flags --
+teleport flags:
+	retain_open_inventory: opened inventory, open inventory, inventory
+	retain_passengers: passengers, passenger
+	retain_vehicle: vehicle
+	retain_direction: directional velocity, pitch and yaw velocity, yaw and pitch velocity
+	retain_pitch: pitch velocity
+	retain_yaw: yaw velocity
+	retain_movement: xyz velocity
+	retain_x: x velocity
+	retain_y: y velocity
+	retain_z: z velocity
+
 # -- Unleash Reasons --
 unleash reasons:
 	distance: distance
@@ -2625,6 +2638,7 @@ types:
 	inventoryclosereason: inventory close reason¦s @an
 	transformreason: transform reason¦s @a
 	unleashreason: unleash reason¦s @an
+	teleportflag: teleport flag¦s @a
 	display: display¦s @a
 	billboard: billboard¦s @a
 	textalignment: text alignment¦s @a
