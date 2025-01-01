@@ -1731,7 +1731,7 @@ public final class Skript extends JavaPlugin implements Listener {
 			logEx("Please report this bug to: " + issuesUrl);
 		} else if (!serverPlatform.supported) {
 			String supportedPlatforms = getSupportedPlatforms();
-			logEx("Your server platform appears to be unsupported by Skript. Consider switching to one of the supported platforms: " + supportedPlatforms + " for better compatibility.");
+			logEx("Your server platform appears to be unsupported by Skript. Consider switching to one of the supported platforms (" + supportedPlatforms + ") for better compatibility.");
 		} else if (updater != null && updater.getReleaseStatus() == ReleaseStatus.OUTDATED) {
 			logEx("You're running an outdated version of Skript! Update to the latest version here: " + downloadUrl);
 		} else {
@@ -1744,7 +1744,7 @@ public final class Skript extends JavaPlugin implements Listener {
 		return Arrays.stream(ServerPlatform.values())
 			.filter(platform -> platform.supported)
 			.map(ServerPlatform::name)
-			.collect(Collectors.joining(","));
+			.collect(Collectors.joining(", "));
 	}
 
 	private static void logExAddonInfo(String issuesUrl, Set<PluginDescriptionFile> stackPlugins) {
