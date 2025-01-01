@@ -14,7 +14,6 @@ import ch.njol.skript.lang.Trigger;
 import ch.njol.skript.lang.TriggerItem;
 import ch.njol.skript.registrations.EventValues;
 import ch.njol.skript.util.Direction;
-import ch.njol.skript.util.Getter;
 import ch.njol.skript.variables.Variables;
 import ch.njol.util.Kleenean;
 import org.bukkit.Location;
@@ -145,18 +144,10 @@ public class EffSecShoot extends EffectSection {
 			"shoot %entitydatas% [from %livingentities/locations%] [(at|with) (speed|velocity) %-number%] [%-direction%]",
 			"(make|let) %livingentities/locations% shoot %entitydatas% [(at|with) (speed|velocity) %-number%] [%-direction%]"
 		);
-		EventValues.registerEventValue(ShootEvent.class, Entity.class, new Getter<Entity, ShootEvent>() {
-			@Override
-			public @Nullable Entity get(ShootEvent shootEvent) {
-				return shootEvent.getProjectile();
-			}
-		}, EventValues.TIME_NOW);
-		EventValues.registerEventValue(ShootEvent.class, Projectile.class, new Getter<Projectile, ShootEvent>() {
-			@Override
-			public @Nullable Projectile get(ShootEvent shootEvent) {
-				return shootEvent.getProjectile() instanceof Projectile projectile ? projectile : null;
-			}
-		}, EventValues.TIME_NOW);
+		EventValues.registerEventValue(ShootEvent.class, Entity.class, ShootEvent::getProjectile, EventValues.TIME_NOW);
+		EventValues.registerEventValue(ShootEvent.class, Projectile.class, shootEvent -> shootEvent.getProjectile()
+			instanceof Projectile projectile ? projectile : null,
+			EventValues.TIME_NOW);
 
 		if (!Skript.isRunningMinecraft(1, 20, 3)) {
 			try {

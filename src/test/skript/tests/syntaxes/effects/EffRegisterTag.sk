@@ -1,0 +1,7 @@
+test "register tags":
+	register a custom item tag named "oak" containing oak log, oak planks, and oak wood
+	assert custom tag "oak" is set with "tag was not registered"
+	assert tag contents of tag "skript:oak" contains oak wood, oak log, and oak planks with "tag doesn't contain the right items"
+
+	register an entity type tag named "skript:little_guy" using a baby zombie
+	assert a baby zombie is tagged as custom tag "little_guy" with "failed to classify baby zombie as a little guy"

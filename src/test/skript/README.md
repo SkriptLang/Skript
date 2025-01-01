@@ -71,10 +71,10 @@ some syntaxes for test development are available.
   * If the tag `to fail` is defined, it will assume the condition is to fail. If it's successful the string is printed.
 * Take a look at existing tests for examples https://github.com/SkriptLang/Skript/tree/master/src/test/skript/tests
   <code>misc/dummy.sk</code> is useful for beginners
-* caseEquals Function. Returns boolean. Useful to check that all string values equal the same. Examples:
-	* <code>caseEquals("hi", "Hi") = false</code>
-	* <code>caseEquals("text", "text", "text") = true</code>
-	* <code>caseEquals({some list variable::*})</code>
+* case_equals Function. Returns boolean. Useful to check that all string values equal the same. Examples:
+	* <code>case_equals("hi", "Hi") = false</code>
+	* <code>case_equals("text", "text", "text") = true</code>
+	* <code>case_equals({some list variable::*})</code>
 
 ## Test Development
 Use Gradle to launch a test development server:

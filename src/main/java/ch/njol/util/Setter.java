@@ -1,10 +1,18 @@
 package ch.njol.util;
 
+import java.util.function.Consumer;
+
 /**
- * @author Peter Güttinger
+ * @deprecated use {@link Consumer}
  */
-public interface Setter<T> {
-	
-	public void set(T t);
-	
+@Deprecated(forRemoval = true)
+@FunctionalInterface
+public interface Setter<T> extends Consumer<T> {
+
+	void set(T t);
+
+	@Override
+	default void accept(T t) {
+		this.set(t);
+	}
 }

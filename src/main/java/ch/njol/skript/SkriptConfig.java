@@ -138,11 +138,6 @@ public class SkriptConfig {
 	public static final Option<String> effectCommandToken = new Option<>("effect command token", "!");
 	public static final Option<Boolean> allowOpsToUseEffectCommands = new Option<>("allow ops to use effect commands", false);
 
-	/*
-	 * @deprecated Will be removed in 2.8.0. Use {@link #logEffectCommands} instead.
-	 */
-	@Deprecated
-	public static final Option<Boolean> logPlayerCommands = new Option<>("log player commands", false).optional(true);
 	public static final Option<Boolean> logEffectCommands = new Option<>("log effect commands", false);
 
 	// everything handled by Variables
@@ -219,6 +214,7 @@ public class SkriptConfig {
 
 	public static final Option<Boolean> apiSoftExceptions = new Option<>("soft api exceptions", false);
 
+	@SuppressWarnings("removal")
 	public static final Option<Boolean> enableTimings = new Option<>("enable timings", false)
 			.setter(t -> {
 				if (!Skript.classExists("co.aikar.timings.Timings")) { // Check for Timings
@@ -359,6 +355,21 @@ public class SkriptConfig {
 	}).optional(true);
 
 	public static final Option<Timespan> longParseTimeWarningThreshold = new Option<>("long parse time warning threshold", new Timespan(0));
+
+
+	public static final Option<Timespan> runtimeErrorFrameDuration = new Option<>("runtime errors.frame duration", new Timespan(Timespan.TimePeriod.SECOND, 1));
+
+	public static final Option<Integer> runtimeErrorLimitTotal = new Option<>("runtime errors.total errors per frame", 8);
+	public static final Option<Integer> runtimeWarningLimitTotal = new Option<>("runtime errors.total warnings per frame", 8);
+
+	public static final Option<Integer> runtimeErrorLimitLine = new Option<>("runtime errors.errors from one line per frame", 2);
+	public static final Option<Integer> runtimeWarningLimitLine = new Option<>("runtime errors.warnings from one line per frame", 2);
+
+	public static final Option<Integer> runtimeErrorLimitLineTimeout = new Option<>("runtime errors.error spam timeout limit", 4);
+	public static final Option<Integer> runtimeWarningLimitLineTimeout = new Option<>("runtime errors.warning spam timeout limit", 4);
+
+	public static final Option<Integer> runtimeErrorTimeoutDuration = new Option<>("runtime errors.error timeout length", 10);
+	public static final Option<Integer> runtimeWarningTimeoutDuration = new Option<>("runtime errors.warning timeout length", 10);
 
 	/**
 	 * This should only be used in special cases
