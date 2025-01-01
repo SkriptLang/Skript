@@ -56,11 +56,12 @@ public class EffHidePlayerFromServerList extends Effect {
 	}
 
 	@Override
+	@SuppressWarnings("removal")
 	protected void execute(Event e) {
 		if (!(e instanceof ServerListPingEvent))
 			return;
 
-		Iterator<Player> it = ((ServerListPingEvent) e).iterator();		
+		Iterator<Player> it = ((ServerListPingEvent) e).iterator();
 		Iterators.removeAll(it, Arrays.asList(players.getArray(e)));
 	}
 
