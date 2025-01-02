@@ -1,21 +1,3 @@
-/**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
 package ch.njol.skript.registrations;
 
 import ch.njol.skript.SkriptAddon;
@@ -29,6 +11,9 @@ import org.skriptlang.skript.lang.experiment.LifeCycle;
  * Experimental feature toggles as provided by Skript itself.
  */
 public enum Feature implements Experiment {
+	QUEUES("queues", LifeCycle.EXPERIMENTAL),
+	FOR_EACH_LOOPS("for loop", LifeCycle.EXPERIMENTAL, "for [each] loop[s]"),
+	SCRIPT_REFLECTION("reflection", LifeCycle.EXPERIMENTAL, "[script] reflection"),
 	;
 
 	private final String codeName;
@@ -38,21 +23,11 @@ public enum Feature implements Experiment {
 	Feature(String codeName, LifeCycle phase, String... patterns) {
 		this.codeName = codeName;
 		this.phase = phase;
-		switch (patterns.length) {
-			case 0:
-				this.compiledPattern = PatternCompiler.compile(codeName);
-				break;
-			case 1:
-				this.compiledPattern = PatternCompiler.compile(patterns[0]);
-				break;
-			default:
-				this.compiledPattern = PatternCompiler.compile('(' + String.join("|", patterns) + ')');
-				break;
-		}
-	}
-
-	Feature(String codeName, LifeCycle phase) {
-		this(codeName, phase, codeName);
+		this.compiledPattern = switch (patterns.length) {
+			case 0 -> PatternCompiler.compile(codeName);
+			case 1 -> PatternCompiler.compile(patterns[0]);
+			default -> PatternCompiler.compile('(' + String.join("|", patterns) + ')');
+		};
 	}
 
 	public static void registerAll(SkriptAddon addon, ExperimentRegistry manager) {

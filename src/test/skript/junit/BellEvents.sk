@@ -1,25 +1,25 @@
 test "BellEventsTest" when running JUnit:
-    set {_slashIndex} to last index of "/" in "%script%.sk"
-    if {_slashIndex} is -1: # try \ separator (Windows)
-        set {_slashIndex} to last index of "\" in "%script%.sk"
-    set {_parent} to substring of "%script%.sk" from 0 to {_slashIndex}
+	set {_slashIndex} to last index of "/" in "%script%.sk"
+	if {_slashIndex} is -1: # try \ separator (Windows)
+		set {_slashIndex} to last index of "\" in "%script%.sk"
+	set {_parent} to substring of "%script%.sk" from 0 to {_slashIndex}
 
-    if running below minecraft "1.19.4":
-        complete objective "bell resonates" for junit test "org.skriptlang.skript.test.tests.syntaxes.events.BellEventsTest"
-        if running below minecraft "1.16.5":
-            complete objective "bell rings" for junit test "org.skriptlang.skript.test.tests.syntaxes.events.BellEventsTest"
-        else:
-            load script "%{_parent}%-BellEventsPaper.sk"
-    else:
-        load script "%{_parent}%-BellEventsSpigot.sk"
+	if running below minecraft "1.19.4":
+		complete objective "bell resonates" for junit test "org.skriptlang.skript.test.tests.syntaxes.events.BellEventsTest"
+		if running below minecraft "1.16.5":
+			complete objective "bell rings" for junit test "org.skriptlang.skript.test.tests.syntaxes.events.BellEventsTest"
+		else:
+			load script "%{_parent}%-BellEventsPaper.sk"
+	else:
+		load script "%{_parent}%-BellEventsSpigot.sk"
 
-    ensure junit test "org.skriptlang.skript.test.tests.syntaxes.events.BellEventsTest" completes "bell resonates"
-    ensure junit test "org.skriptlang.skript.test.tests.syntaxes.events.BellEventsTest" completes "bell rings"
+	ensure junit test "org.skriptlang.skript.test.tests.syntaxes.events.BellEventsTest" completes "bell resonates"
+	ensure junit test "org.skriptlang.skript.test.tests.syntaxes.events.BellEventsTest" completes "bell rings"
 
 on script unload:
-    set {_slashIndex} to last index of "/" in "%script%.sk"
-    if {_slashIndex} is -1: # try \ separator (Windows)
-        set {_slashIndex} to last index of "\" in "%script%.sk"
-    set {_parent} to substring of "%script%.sk" from 0 to {_slashIndex}
-    disable script "%{_parent}%BellEventsSpigot.sk"
-    disable script "%{_parent}%BellEventsPaper.sk"
+	set {_slashIndex} to last index of "/" in "%script%.sk"
+	if {_slashIndex} is -1: # try \ separator (Windows)
+		set {_slashIndex} to last index of "\" in "%script%.sk"
+	set {_parent} to substring of "%script%.sk" from 0 to {_slashIndex}
+	disable script "%{_parent}%BellEventsSpigot.sk"
+	disable script "%{_parent}%BellEventsPaper.sk"

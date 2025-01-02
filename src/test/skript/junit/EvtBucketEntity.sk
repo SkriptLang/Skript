@@ -1,0 +1,47 @@
+test "EvtBucketEntityJUnit" when running JUnit:
+	set {_tests::1} to "any - correct fish"
+	set {_tests::2} to "any - correct player"
+	set {_tests::3} to "any - correct item"
+	set {_tests::4} to "any - correct entity bucket"
+	set {_tests::5} to "specific - correct fish"
+	set {_tests::6} to "specific - correct player"
+	set {_tests::7} to "specific - correct item"
+	set {_tests::8} to "specific - correct entity bucket"
+
+	ensure junit test "org.skriptlang.skript.test.tests.syntaxes.events.EvtBucketEntityTest" completes {_tests::*}
+
+on bucket catch:
+	set {_test} to "org.skriptlang.skript.test.tests.syntaxes.events.EvtBucketEntityTest"
+	junit test is {_test}
+
+	if event-entity is a salmon:
+		complete objective "any - correct fish" for {_test}
+	else:
+		stop
+
+	if player's name is "Efnilite":
+		complete objective "any - correct player" for {_test}
+
+	if event-item is a water bucket:
+		complete objective "any - correct item" for {_test}
+
+	if future event-item is a salmon bucket:
+		complete objective "any - correct entity bucket" for {_test}
+
+on bucket catch of cod:
+	set {_test} to "org.skriptlang.skript.test.tests.syntaxes.events.EvtBucketEntityTest"
+	junit test is {_test}
+
+	if event-entity is a cod:
+		complete objective "specific - correct fish" for {_test}
+	else:
+		stop
+
+	if player's name is "Efnilite":
+		complete objective "specific - correct player" for {_test}
+
+	if event-item is a water bucket:
+		complete objective "specific - correct item" for {_test}
+
+	if future event-item is a cod bucket:
+		complete objective "specific - correct entity bucket" for {_test}

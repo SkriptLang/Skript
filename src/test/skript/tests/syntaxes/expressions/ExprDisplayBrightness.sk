@@ -1,4 +1,4 @@
-test "display brightness" when running minecraft "1.19.4":
+test "display brightness":
 	spawn block display at spawn of world "world":
 		set {_e::1} to entity
 	spawn item display at spawn of world "world":

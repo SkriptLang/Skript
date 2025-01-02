@@ -23,7 +23,6 @@ test "entity data fixes":
 	assert last spawned entity is an adult sheep with "last spawned entity should have been an adult sheep"
 	assert last spawned entity is an adult entity with "last spawned entity should have been an adult entity"
 
-test "entity data fixes - 1.16.5" when running minecraft "1.16.5":
 	spawn a baby piglin at test-location
 	assert last spawned entity is a baby piglin with "last spawned entity should have been a baby piglin"
 	assert last spawned entity is a baby entity with "last spawned entity should have been a baby entity"

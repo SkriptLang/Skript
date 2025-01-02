@@ -27,7 +27,7 @@ import org.jetbrains.annotations.Nullable;
 	"transfer player to server \"my.server.com\"",
 	"transfer player to server \"localhost\" on port 25566"
 })
-@Since("2.3, INSERT VERSION (transfer)")
+@Since("2.3, 2.10 (transfer)")
 public class EffConnect extends Effect {
 
 	public static final String BUNGEE_CHANNEL = "BungeeCord";

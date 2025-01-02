@@ -11,7 +11,7 @@ import org.jetbrains.annotations.Nullable;
 
 @Name("Experience Cooldown Change Reason")
 @Description({
-	"The <a href='classes.html#experiencechangereason'>experience change reason</a> within in an" +
+	"The <a href='classes.html#experiencechangereason'>experience change reason</a> within an " +
 	"<a href='events.html#experience%20cooldown%20change%20event'>experience cooldown change event</a>."
 })
 @Examples({
@@ -21,7 +21,7 @@ import org.jetbrains.annotations.Nullable;
 		"\telse if xp cooldown change reason is orb pickup:",
 			"\t\t#Changed by picking up xp orb"
 })
-@Since("INSERT VERSION")
+@Since("2.10")
 public class ExprExperienceCooldownChangeReason extends EventValueExpression<ChangeReason> {
 
 	static {

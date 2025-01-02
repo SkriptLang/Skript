@@ -8,7 +8,7 @@
 
 # test "color of fireworks":
 
-test "color of displays" when running minecraft "1.19.4":
+test "color of displays":
 	spawn a text display at spawn of world "world":
 		set {_e} to entity
 

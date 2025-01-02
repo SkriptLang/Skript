@@ -1,34 +1,28 @@
-/**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
 package ch.njol.skript.lang;
 
+import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptAPIException;
 import ch.njol.skript.SkriptConfig;
 import ch.njol.skript.lang.SkriptEvent.ListeningBehavior;
+import ch.njol.skript.lang.SkriptEventInfo.ModernSkriptEventInfo;
 import org.bukkit.event.Event;
 import org.bukkit.event.player.PlayerInteractAtEntityEvent;
+import org.bukkit.plugin.java.JavaPlugin;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.Unmodifiable;
+import org.skriptlang.skript.bukkit.registration.BukkitSyntaxInfos;
 import org.skriptlang.skript.lang.structure.StructureInfo;
+import org.skriptlang.skript.registration.SyntaxInfo;
+import org.skriptlang.skript.registration.SyntaxOrigin;
+import org.skriptlang.skript.util.Priority;
 
+import java.lang.reflect.InvocationTargetException;
+import java.util.Collection;
+import java.util.List;
 import java.util.Locale;
 
-public final class SkriptEventInfo<E extends SkriptEvent> extends StructureInfo<E> {
+public sealed class SkriptEventInfo<E extends SkriptEvent> extends StructureInfo<E> permits ModernSkriptEventInfo {
 
 	public Class<? extends Event>[] events;
 	public final String name;
@@ -198,6 +192,127 @@ public final class SkriptEventInfo<E extends SkriptEvent> extends StructureInfo<
 
 	public @Nullable String getDocumentationID() {
 		return documentationID;
+	}
+
+	/*
+	 * Registration API Compatibility
+	 */
+
+	/**
+	 * Internal wrapper class for providing compatibility with the new Registration API.
+	 */
+	@ApiStatus.Internal
+	@ApiStatus.Experimental
+	public static final class ModernSkriptEventInfo<E extends SkriptEvent>
+			extends SkriptEventInfo<E>
+			implements BukkitSyntaxInfos.Event<E> {
+
+		private final SyntaxOrigin origin;
+
+		public ModernSkriptEventInfo(String name, String[] patterns, Class<E> eventClass, String originClassPath, Class<? extends Event>[] events) {
+			super(name, patterns, eventClass, originClassPath, events);
+			origin = SyntaxOrigin.of(Skript.getAddon(JavaPlugin.getProvidingPlugin(eventClass)));
+		}
+
+		@Override
+		public Builder<? extends Builder<?, E>, E> builder() {
+			return BukkitSyntaxInfos.Event.builder(type(), name())
+				.origin(origin)
+				.addPatterns(patterns())
+				.priority(priority())
+				.listeningBehavior(listeningBehavior())
+				.since(since())
+				.documentationId(id())
+				.addDescription(description())
+				.addExamples(examples())
+				.addKeywords(keywords())
+				.addRequiredPlugins(requiredPlugins())
+				.addEvents(events());
+		}
+
+		@Override
+		public SyntaxOrigin origin() {
+			return origin;
+		}
+
+		@Override
+		public Class<E> type() {
+			return getElementClass();
+		}
+
+		@Override
+		public E instance() {
+			try {
+				return type().getDeclaredConstructor().newInstance();
+			} catch (InstantiationException | IllegalAccessException | InvocationTargetException |
+					 NoSuchMethodException e) {
+				throw new RuntimeException(e);
+			}
+		}
+
+		@Override
+		public @Unmodifiable Collection<String> patterns() {
+			return List.of(getPatterns());
+		}
+
+		@Override
+		public Priority priority() {
+			return SyntaxInfo.COMBINED;
+		}
+
+		@Override
+		public ListeningBehavior listeningBehavior() {
+			return getListeningBehavior();
+		}
+
+		@Override
+		public String name() {
+			return getName();
+		}
+
+		@Override
+		public String id() {
+			return getId();
+		}
+
+		@Override
+		public @Nullable String since() {
+			return getSince();
+		}
+
+		@Override
+		public @Nullable String documentationId() {
+			return getDocumentationID();
+		}
+
+		@Override
+		public Collection<String> description() {
+			String[] description = getDescription();
+			return description != null ? List.of(description) : List.of();
+		}
+
+		@Override
+		public Collection<String> examples() {
+			String[] examples = getExamples();
+			return examples != null ? List.of(examples) : List.of();
+		}
+
+		@Override
+		public Collection<String> keywords() {
+			String[] keywords = getKeywords();
+			return keywords != null ? List.of(keywords) : List.of();
+		}
+
+		@Override
+		public Collection<String> requiredPlugins() {
+			String[] requiredPlugins = getRequiredPlugins();
+			return requiredPlugins != null ? List.of(requiredPlugins) : List.of();
+		}
+
+		@Override
+		public Collection<Class<? extends Event>> events() {
+			return List.of(events);
+		}
 	}
 
 }

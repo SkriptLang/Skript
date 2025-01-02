@@ -1,4 +1,68 @@
-test "max stack":
+aliases:
+	test any log = oak log, spruce log, dark oak log
+	test any wool = white wool, red wool, black wool
+
+test "max stack - itemtype":
 	assert max stack size of diamond sword is 1 with "diamond sword max stack size failed"
 	assert max stack size of bucket is 16 with "bucket max stack size failed"
 	assert max stack size of dirt is 64 with "dirt max stack size failed"
+
+	# edge case
+	assert max stack size of {_null} is not set with "max stack size of non itemtype expected to fail ##1"
+	assert max stack size of {_null} is 0 to fail with "max stack size of non itemtype expected to fail ##2"
+	assert max stack size of diamond and diamond sword is 64 and 1 with "max stack size of itemtypes 'and' case failed"
+	assert max stack size of diamond or diamond sword is 64 or 1 with "max stack size of itemtypes 'or' case failed"
+	loop (test any log) and (test any wool):
+		assert max stack size of loop-value is 64 with "max stack size of category itemtypes (%loop-value%) failed"
+
+test "max stack override - itemtype" when running minecraft "1.20.5":
+	set {_item} to diamond
+	set max stack size of {_item} to 32
+	assert max stack size of {_item} is 32 with "diamond should have max stack size of 32"
+	add 2 to max stack size of {_item}
+	assert max stack size of {_item} is 34 with "diamond should have max stack size of 34"
+	remove 4 from max stack size of {_item}
+	assert max stack size of {_item} is 30 with "diamond should have max stack size of 30"
+	reset max stack size of {_item}
+	assert max stack size of {_item} is 64 with "diamond should have max stack size of 64"
+
+	set {_item} to bucket
+	set max stack size of {_item} to 24
+	assert max stack size of {_item} is 24 with "bucket should have max stack size of 24"
+	add 2 to max stack size of {_item}
+	assert max stack size of {_item} is 26 with "bucket should have max stack size of 26"
+	remove 4 from max stack size of {_item}
+	assert max stack size of {_item} is 22 with "bucket should have max stack size of 22"
+	reset max stack size of {_item}
+	assert max stack size of {_item} is 16 with "bucket should have max stack size of 16"
+
+	set {_item} to diamond sword
+	set max stack size of {_item} to 16
+	assert max stack size of {_item} is 16 with "diamond sword should have max stack size of 16"
+	add 2 to max stack size of {_item}
+	assert max stack size of {_item} is 18 with "diamond sword should have max stack size of 18"
+	remove 4 from max stack size of {_item}
+	assert max stack size of {_item} is 14 with "diamond sword should have max stack size of 14"
+	reset max stack size of {_item}
+	assert max stack size of {_item} is 1 with "diamond sword should have max stack size of 1"
+
+	# edge case
+	loop (test any log) and (test any wool):
+		set {_edge} to loop-value
+		set max stack size of {_edge} to 1
+		assert max stack size of {_edge} is 1 with "max stack size override of category itemtypes (%{_edge}%) failed"
+
+test "max stack override - inventory":
+	set {_default} to 99 # 1.20.5 and newer
+	if running below minecraft "1.20.5":
+		set {_default} to 64
+	set {_inv} to a new chest inventory with 1 rows
+	assert max stack size of {_inv} is {_default} with "inventory should have max stack size of %{_default}%"
+	set max stack size of {_inv} to 32
+	assert max stack size of {_inv} is 32 with "inventory should have max stack size of 32"
+	add 2 to max stack size of {_inv}
+	assert max stack size of {_inv} is 34 with "inventory should have max stack size of 34"
+	remove 4 from max stack size of {_inv}
+	assert max stack size of {_inv} is 30 with "inventory should have max stack size of 30"
+	reset max stack size of {_inv}
+	assert max stack size of {_inv} is {_default} with "inventory should have factory max stack size of %{_default}%"
