@@ -30,12 +30,7 @@ public class BukkitUtils {
 		if (registryExists("MOB_EFFECT")) { // Paper (1.21.4)
 			return Registry.MOB_EFFECT;
 		} else if (registryExists("EFFECT")) { // Bukkit (1.21.x)
-			try {
-				//noinspection unchecked
-				return (Registry<PotionEffectType>) Registry.class.getDeclaredField("EFFECT").get(null);
-			} catch (IllegalAccessException | NoSuchFieldException e) {
-				throw new RuntimeException(e);
-			}
+			return Registry.EFFECT;
 		}
 		return null;
 	}
