@@ -14,7 +14,7 @@ import org.bukkit.entity.TextDisplay;
 	"if last spawned text display is visible through walls:",
 		"\tprevent last spawned text display from being visible through walls"
 })
-@Since("INSERT VERSION")
+@Since("2.10")
 public class CondTextDisplaySeeThroughBlocks extends PropertyCondition<Display> {
 
 	static {

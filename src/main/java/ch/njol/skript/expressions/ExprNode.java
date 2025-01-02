@@ -39,7 +39,7 @@ import java.util.Set;
 		loop nodes of the current script:
 			broadcast name of loop-value"""
 })
-@Since("INSERT VERSION")
+@Since("2.10")
 public class ExprNode extends PropertyExpression<Node, Node> {
 
 	static {

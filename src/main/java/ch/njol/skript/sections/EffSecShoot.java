@@ -39,7 +39,7 @@ import java.util.function.Consumer;
 	"shoot a pig from all players:",
 		"\tadd event-entity to {_projectiles::*}"
 })
-@Since("INSERT VERSION")
+@Since("2.10")
 public class EffSecShoot extends EffectSection {
 
 	//TODO: Remove reflect method once 1.19 is no longer supported
@@ -61,7 +61,7 @@ public class EffSecShoot extends EffectSection {
 		},
 		PROJECTILE_NO_WORLD_NO_TRIGGER {
 			@Override
-			public @Nullable Entity shootHandler(EntityData<?> entityData, LivingEntity shooter, Location location, Class<? extends Entity> type, Vector vector, Consumer<?> consumer) {
+			public @NotNull Entity shootHandler(EntityData<?> entityData, LivingEntity shooter, Location location, Class<? extends Entity> type, Vector vector, Consumer<?> consumer) {
 				//noinspection unchecked
 				Projectile projectile = shooter.launchProjectile((Class<? extends Projectile>) type);
 				set(projectile, entityData);
@@ -84,7 +84,7 @@ public class EffSecShoot extends EffectSection {
 		},
 		PROJECTILE_WORLD_NO_TRIGGER {
 			@Override
-			public @Nullable Entity shootHandler(EntityData<?> entityData, LivingEntity shooter, Location location, Class<? extends Entity> type, Vector vector, Consumer<?> consumer) {
+			public @NotNull Entity shootHandler(EntityData<?> entityData, LivingEntity shooter, Location location, Class<? extends Entity> type, Vector vector, Consumer<?> consumer) {
 				Projectile projectile = (Projectile) shooter.getWorld().spawn(location, type);
 				projectile.setShooter(shooter);
 				return projectile;
@@ -152,9 +152,7 @@ public class EffSecShoot extends EffectSection {
 		if (!Skript.isRunningMinecraft(1, 20, 3)) {
 			try {
 				launchWithBukkitConsumer = LivingEntity.class.getMethod("launchProjectile", Class.class, Vector.class, org.bukkit.util.Consumer.class);
-			} catch (NoSuchMethodException e) {
-				throw new RuntimeException(e);
-			}
+			} catch (NoSuchMethodException ignored) {}
 		}
 		boolean launchHasJavaConsumer = Skript.methodExists(LivingEntity.class, "launchProjectile", Class.class, Vector.class, Consumer.class);
 		RUNNING_PAPER = launchWithBukkitConsumer != null || launchHasJavaConsumer;

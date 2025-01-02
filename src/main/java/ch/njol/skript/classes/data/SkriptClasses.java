@@ -702,7 +702,7 @@ public class SkriptClasses {
 					"add \"hello\" to {queue}",
 					"broadcast the 1st element of {queue}"
 				)
-				.since("INSERT VERSION")
+				.since("2.10")
 				.changer(new Changer<>() {
 					@Override
 					public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
@@ -741,7 +741,7 @@ public class SkriptClasses {
 				"Configs can be reloaded or navigated to find options.")
 			.usage("")
 			.examples("the skript config")
-			.since("INSERT VERSION")
+			.since("2.10")
 			.parser(new Parser<Config>() {
 
 				@Override
@@ -771,7 +771,7 @@ public class SkriptClasses {
 				"This may have navigable children.")
 			.usage("")
 			.examples("the current script")
-			.since("INSERT VERSION")
+			.since("2.10")
 			.parser(new Parser<Node>() {
 
 				@Override
@@ -798,7 +798,7 @@ public class SkriptClasses {
 					"Disabled scripts will report as being empty since their content has not been loaded.")
 				.usage("")
 				.examples("the current script")
-				.since("INSERT VERSION")
+				.since("2.10")
 				.parser(new Parser<Script>() {
 					final Path path = Skript.getInstance().getScriptsFolder().getAbsoluteFile().toPath();
 
@@ -843,7 +843,7 @@ public class SkriptClasses {
 			.description("Something that can be executed (run) and may accept arguments, e.g. a function.",
 					"This may also return a result.")
 			.examples("run {_function} with arguments 1 and true")
-			.since("INSERT VERSION"));
+			.since("2.10"));
 
 		Classes.registerClass(new ClassInfo<>(DynamicFunctionReference.class, "function")
 			.user("functions?")
@@ -852,7 +852,7 @@ public class SkriptClasses {
 					"This can be executed (with arguments) and may return a result.")
 			.examples("run {_function} with arguments 1 and true",
 					"set {_result} to the result of {_function}")
-			.since("INSERT VERSION")
+			.since("2.10")
 			.parser(new Parser<DynamicFunctionReference<?>>() {
 
 				@Override
@@ -888,7 +888,7 @@ public class SkriptClasses {
 				.description("Something that has a name (e.g. an item).")
 				.usage("")
 				.examples("{thing}'s name")
-				.since("INSERT VERSION")
+				.since("2.10")
 		);
 
 		Classes.registerClass(new AnyInfo<>(AnyAmount.class, "numbered")
@@ -896,7 +896,7 @@ public class SkriptClasses {
 				.description("Something that has an amount or size.")
 				.usage("")
 				.examples("the size of {thing}", "the amount of {thing}")
-				.since("INSERT VERSION")
+				.since("2.10")
 		);
 
 		Classes.registerClass(new AnyInfo<>(AnyContains.class, "containing")
@@ -905,7 +905,7 @@ public class SkriptClasses {
 				.description("Something that contains other things.")
 				.usage("")
 				.examples("{a} contains {b}")
-				.since("INSERT VERSION")
+				.since("2.10")
 		);
 	}
 

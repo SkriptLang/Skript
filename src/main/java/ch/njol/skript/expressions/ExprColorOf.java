@@ -47,7 +47,7 @@ import java.util.function.Consumer;
 		"\tmessage \"This wool block is <%color of block%>%color of block%<reset>!\"",
 		"\tset the color of the block to black"
 })
-@Since("1.2, INSERT VERSION (displays)")
+@Since("1.2, 2.10 (displays)")
 public class ExprColorOf extends PropertyExpression<Object, Color> {
 
 	static {

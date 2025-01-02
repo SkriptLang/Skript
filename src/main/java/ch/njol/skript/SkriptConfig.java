@@ -356,6 +356,21 @@ public class SkriptConfig {
 
 	public static final Option<Timespan> longParseTimeWarningThreshold = new Option<>("long parse time warning threshold", new Timespan(0));
 
+
+	public static final Option<Timespan> runtimeErrorFrameDuration = new Option<>("runtime errors.frame duration", new Timespan(Timespan.TimePeriod.SECOND, 1));
+
+	public static final Option<Integer> runtimeErrorLimitTotal = new Option<>("runtime errors.total errors per frame", 8);
+	public static final Option<Integer> runtimeWarningLimitTotal = new Option<>("runtime errors.total warnings per frame", 8);
+
+	public static final Option<Integer> runtimeErrorLimitLine = new Option<>("runtime errors.errors from one line per frame", 2);
+	public static final Option<Integer> runtimeWarningLimitLine = new Option<>("runtime errors.warnings from one line per frame", 2);
+
+	public static final Option<Integer> runtimeErrorLimitLineTimeout = new Option<>("runtime errors.error spam timeout limit", 4);
+	public static final Option<Integer> runtimeWarningLimitLineTimeout = new Option<>("runtime errors.warning spam timeout limit", 4);
+
+	public static final Option<Integer> runtimeErrorTimeoutDuration = new Option<>("runtime errors.error timeout length", 10);
+	public static final Option<Integer> runtimeWarningTimeoutDuration = new Option<>("runtime errors.warning timeout length", 10);
+
 	/**
 	 * This should only be used in special cases
 	 */

@@ -43,7 +43,7 @@ import java.util.concurrent.ThreadLocalRandom;
 	"send true if paper item tags of target block contains paper tag \"doors\"",
 	"broadcast the block tags of player's tool"
 })
-@Since("INSERT VERSION")
+@Since("2.10")
 @RequiredPlugins("Paper (paper tags)")
 @Keywords({"blocks", "minecraft tag", "type", "category"})
 public class ExprTagsOf extends PropertyExpression<Object, Tag> {

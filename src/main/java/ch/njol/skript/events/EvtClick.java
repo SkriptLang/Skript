@@ -57,7 +57,7 @@ public class EvtClick extends SkriptEvent {
 				"on click with a sword:",
 				"on click on chest[facing=north]:",
 				"on click on campfire[lit=true]:")
-			.since("1.0, INSERT VERSION (blockdata)");
+			.since("1.0, 2.10 (blockdata)");
 	}
 
 	/**

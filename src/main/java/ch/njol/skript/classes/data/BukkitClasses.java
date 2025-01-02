@@ -6,6 +6,7 @@ import ch.njol.skript.aliases.Aliases;
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.bukkitutil.BukkitUtils;
 import ch.njol.skript.bukkitutil.EntityUtils;
+import ch.njol.skript.bukkitutil.SkriptTeleportFlag;
 import ch.njol.skript.bukkitutil.ItemUtils;
 import ch.njol.skript.classes.*;
 import ch.njol.skript.classes.registry.RegistryClassInfo;
@@ -1469,19 +1470,19 @@ public class BukkitClasses {
 			.user("unleash ?(reason|cause)s?")
 			.name("Unleash Reason")
 			.description("Represents an unleash reason of an unleash event.")
-			.since("INSERT VERSION"));
+			.since("2.10"));
 
 		Classes.registerClass(new EnumClassInfo<>(ItemFlag.class, "itemflag", "item flags")
 				.user("item ?flags?")
 				.name("Item Flag")
 				.description("Represents flags that may be applied to hide certain attributes of an item.")
-				.since("INSERT VERSION"));
+				.since("2.10"));
 
 		Classes.registerClass(new EnumClassInfo<>(EntityPotionEffectEvent.Cause.class, "entitypotioncause", "entity potion causes")
 				.user("(entity )?potion ?effect ?cause")
 				.name("Entity Potion Cause")
 				.description("Represents the cause of the action of a potion effect on an entity, e.g. arrow, command")
-				.since("INSERT VERSION"));
+				.since("2.10"));
 
 		ClassInfo<?> wolfVariantClassInfo;
 		if (Skript.classExists("org.bukkit.entity.Wolf$Variant") && BukkitUtils.registryExists("WOLF_VARIANT")) {
@@ -1505,20 +1506,20 @@ public class BukkitClasses {
 			.user("(experience|[e]xp) cooldown change (reason|cause)s?")
 			.name("Experience Cooldown Change Reason")
 			.description("Represents a change reason of an <a href='events.html#experience cooldown change event'>experience cooldown change event</a>.")
-			.since("INSERT VERSION"));
+			.since("2.10"));
 
 		Classes.registerClass(new RegistryClassInfo<>(Villager.Type.class, Registry.VILLAGER_TYPE, "villagertype", "villager types")
 			.user("villager ?types?")
 			.name("Villager Type")
 			.description("Represents the different types of villagers. These are usually the biomes a villager can be from.")
 			.after("biome")
-			.since("INSERT VERSION"));
+			.since("2.10"));
 
 		Classes.registerClass(new RegistryClassInfo<>(Villager.Profession.class, Registry.VILLAGER_PROFESSION, "villagerprofession", "villager professions")
 			.user("villager ?professions?")
 			.name("Villager Profession")
 			.description("Represents the different professions of villagers.")
-			.since("INSERT VERSION"));
+			.since("2.10"));
 
 		if (Skript.classExists("org.bukkit.entity.EntitySnapshot")) {
 			Classes.registerClass(new ClassInfo<>(EntitySnapshot.class, "entitysnapshot")
@@ -1529,7 +1530,7 @@ public class BukkitClasses {
 						+ "Essentially, these are a way to create templates for entities.",
 					"Individual attributes of a snapshot cannot be modified or retrieved.")
 				.requiredPlugins("Minecraft 1.20.2+")
-				.since("INSERT VERSION")
+				.since("2.10")
 				.parser(new Parser<>() {
 					@Override
 					public boolean canParse(ParseContext context) {
@@ -1553,7 +1554,7 @@ public class BukkitClasses {
 			.user("banner ?patterns?")
 			.name("Banner Pattern")
 			.description("Represents a banner pattern.")
-			.since("INSERT VERSION")
+			.since("2.10")
 		);
 
 		ClassInfo<?> patternTypeInfo;
@@ -1579,9 +1580,16 @@ public class BukkitClasses {
 			.user("banner ?pattern ?types?")
 			.name("Banner Pattern Type")
 			.description("Represents the various banner patterns that can be applied to a banner.")
-			.since("INSERT VERSION")
+			.since("2.10")
 		);
 
+		if (Skript.classExists("io.papermc.paper.entity.TeleportFlag"))
+			Classes.registerClass(new EnumClassInfo<>(SkriptTeleportFlag.class, "teleportflag", "teleport flags")
+					.user("teleport ?flags?")
+					.name("Teleport Flag")
+					.description("Teleport Flags are settings to retain during a teleport.")
+					.requiredPlugins("Paper 1.19+")
+					.since("2.10"));
 	}
 
 }

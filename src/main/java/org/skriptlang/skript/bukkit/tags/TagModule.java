@@ -40,7 +40,7 @@ public class TagModule {
 			.user("minecraft ?tags?")
 			.name("Minecraft Tag")
 			.description("A tag that classifies a material, or entity.")
-			.since("INSERT VERSION")
+			.since("2.10")
 			.parser(new Parser<Tag<?>>() {
 				@Override
 				public boolean canParse(ParseContext context) {

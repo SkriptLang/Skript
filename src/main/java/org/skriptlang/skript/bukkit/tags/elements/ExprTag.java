@@ -47,7 +47,7 @@ import java.util.List;
 		"tag \"minecraft:mineable/pickaxe\" # minecraft:mineable/pickaxe",
 		"custom item tag \"blood_magic_sk/can_sacrifice_with\" # skript:blood_magic_sk/can_sacrifice_with"
 })
-@Since("INSERT VERSION")
+@Since("2.10")
 @RequiredPlugins("Paper (paper tags)")
 @Keywords({"blocks", "minecraft tag", "type", "category"})
 public class ExprTag extends SimpleExpression<Tag> {

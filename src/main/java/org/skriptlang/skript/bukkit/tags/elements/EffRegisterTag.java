@@ -54,7 +54,7 @@ import java.util.regex.Pattern;
 		"\tblock at player is tagged as tag \"skript:pokey\"",
 		"\tdamage the player by 1 heart"
 })
-@Since("INSERT VERSION")
+@Since("2.10")
 @Keywords({"blocks", "minecraft tag", "type", "category"})
 public class EffRegisterTag extends Effect {
 

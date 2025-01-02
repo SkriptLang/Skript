@@ -9,7 +9,7 @@ import org.bukkit.entity.Entity;
 @Description("Checks if an entity is ticking.")
 @Examples("send true if target is ticking")
 @RequiredPlugins("PaperMC")
-@Since("INSERT VERSION")
+@Since("2.10")
 public class CondIsTicking extends PropertyCondition<Entity> {
 
 	static {

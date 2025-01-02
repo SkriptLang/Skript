@@ -15,7 +15,7 @@ import org.skriptlang.skript.util.Validated;
 	"An invalid script reference may have been reloaded, moved or disabled since."
 })
 @Examples("if event-entity is valid")
-@Since("2.7, INSERT VERSION (Scripts & Configs)")
+@Since("2.7, 2.10 (Scripts & Configs)")
 public class CondIsValid extends PropertyCondition<Object> {
 
 	static {

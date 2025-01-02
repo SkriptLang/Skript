@@ -38,7 +38,7 @@ import java.util.TreeSet;
 	"send paper entity tags",
 	"broadcast all block tags"
 })
-@Since("INSERT VERSION")
+@Since("2.10")
 @RequiredPlugins("Paper (paper tags)")
 @Keywords({"blocks", "minecraft tag", "type", "category"})
 public class ExprTagsOfType extends SimpleExpression<Tag> {

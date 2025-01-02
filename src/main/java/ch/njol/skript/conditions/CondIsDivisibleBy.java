@@ -18,7 +18,7 @@ import org.jetbrains.annotations.Nullable;
 	"if 5 is evenly divisible by 5:",
 	"if 11 cannot be evenly divided by 10:",
 })
-@Since("INSERT VERSION")
+@Since("2.10")
 public class CondIsDivisibleBy extends Condition {
 
 	static {

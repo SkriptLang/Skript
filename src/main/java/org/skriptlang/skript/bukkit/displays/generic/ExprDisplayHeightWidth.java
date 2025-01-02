@@ -23,7 +23,7 @@ import org.jetbrains.annotations.Nullable;
 	"If set to 0, no culling will occur on both the vertical and horizontal directions. Default is 0.0."
 })
 @Examples("set display height of the last spawned text display to 2.5")
-@Since("INSERT VERSION")
+@Since("2.10")
 public class ExprDisplayHeightWidth extends SimplePropertyExpression<Display, Float> {
 
 	static {

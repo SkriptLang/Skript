@@ -22,7 +22,7 @@ import org.jetbrains.annotations.Nullable;
 	"send \"You will stop burning in %fire time of player%\"",
 	"send the max burn time of target"
 })
-@Since("2.7, INSERT VERSION (maximum)")
+@Since("2.7, 2.10 (maximum)")
 public class ExprFireTicks extends SimplePropertyExpression<Entity, Timespan> {
 
 	static {

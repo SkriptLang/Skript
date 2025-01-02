@@ -34,7 +34,7 @@ import java.util.Objects;
 		"broadcast tag values of minecraft tag \"dirt\"",
 		"broadcast (first element of player's tool's block tags)'s tag contents"
 })
-@Since("INSERT VERSION")
+@Since("2.10")
 @Keywords({"blocks", "minecraft tag", "type", "category"})
 public class ExprTagContents extends SimpleExpression<Object> {
 

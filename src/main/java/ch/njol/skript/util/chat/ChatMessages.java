@@ -76,6 +76,20 @@ public class ChatMessages {
 				assert code != null;
 				registerChatCode(code);
 			}
+
+			// Re-register any missing addon chat codes
+			for (ChatCode code : addonCodes) {
+				assert code != null;
+				registerChatCode(code);
+			}
+
+			// Add formatting chars
+			addColorChar('k', SkriptChatCode.obfuscated);
+			addColorChar('l', SkriptChatCode.bold);
+			addColorChar('m', SkriptChatCode.strikethrough);
+			addColorChar('n', SkriptChatCode.underlined);
+			addColorChar('o', SkriptChatCode.italic);
+			addColorChar('r', SkriptChatCode.reset);
 		});
 	}
 	

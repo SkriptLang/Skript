@@ -26,7 +26,7 @@ import org.jetbrains.annotations.Nullable;
 	if text value of {_node} is "french":
 		broadcast "Bonjour!"
 	"""})
-@Since("INSERT VERSION")
+@Since("2.10")
 public class ExprConfig extends SimpleExpression<Config> {
 
 	static {

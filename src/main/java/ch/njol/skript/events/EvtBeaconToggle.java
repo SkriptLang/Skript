@@ -18,7 +18,7 @@ import org.jetbrains.annotations.Nullable;
 	"on beacon deactivate:"
 })
 @RequiredPlugins("Paper")
-@Since("INSERT VERSION")
+@Since("2.10")
 public class EvtBeaconToggle extends SkriptEvent {
 
 	static {

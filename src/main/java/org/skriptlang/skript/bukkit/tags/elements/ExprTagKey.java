@@ -19,7 +19,7 @@ import org.jetbrains.annotations.Nullable;
 	"if the key of {_my-tag} is \"minecraft:stone\":",
 		"\treturn true"
 })
-@Since("INSERT VERSION")
+@Since("2.10")
 @Keywords({"minecraft tag", "type", "key", "namespace"})
 public class ExprTagKey extends SimplePropertyExpression<Tag<?>, String> {
 

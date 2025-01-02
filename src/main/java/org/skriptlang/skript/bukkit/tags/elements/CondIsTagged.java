@@ -29,7 +29,7 @@ import org.skriptlang.skript.bukkit.tags.TagModule;
 	"",
 	"if all logs are tagged with tag \"minecraft:logs\""
 })
-@Since("INSERT VERSION")
+@Since("2.10")
 @Keywords({"blocks", "minecraft tag", "type", "category"})
 public class CondIsTagged extends Condition {
 
