@@ -26,13 +26,16 @@ import java.util.Map.Entry;
 /**
  * @author Peter Güttinger
  */
-@Name("Index Of")
+@Name("Indices Of")
 @Description({
-	"The first, last or all indices of a character (or text) in a text, or -1 if it doesn't occur in the text."
-		+ "Indices range from 1 to the <a href='#ExprIndicesOf'>length</a> of the text.",
-	"You can also get the indices or positions of a list where the value at that index is the provided value. "
+	"Get the first, last or all positions of a character (or text) in another text using "
+		+ "'positions of %text% in %text%'. -1 is returned when the value does not occur in the text."
+		+ "Positions range from 1 to the <a href='#ExprIndicesOf'>length</a> of the text.",
+	"",
+	"Using 'indices/positions of %objects%', you can get the indices or positions of a list where the value at that index is the provided value. "
 		+ "Indices are only supported for variable lists and will return the string indices of the given value. "
 		+ "Positions can be used with any list and will return the numerical position of the value in the list, counting up from 1."
+		+ "Note that nothing is returned if the value is not found in the list."
 })
 @Examples({
 	"set {_first} to the first index of \"@\" in the text argument",
