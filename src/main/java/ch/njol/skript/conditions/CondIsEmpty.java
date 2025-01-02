@@ -1,13 +1,9 @@
 package ch.njol.skript.conditions;
 
-<<<<<<< HEAD
 import org.bukkit.entity.Entity;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
-import ch.njol.skript.bukkitutil.ItemUtils;
-=======
->>>>>>> 5a4fb7ed02618575e7b19af507ae2047ebb2892e
 import ch.njol.skript.conditions.base.PropertyCondition;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
