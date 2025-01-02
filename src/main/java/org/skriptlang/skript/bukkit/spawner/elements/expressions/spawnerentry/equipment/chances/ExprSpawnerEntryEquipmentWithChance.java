@@ -30,14 +30,14 @@ public class ExprSpawnerEntryEquipmentWithChance extends SimplePropertyExpressio
 
 	@Override
 	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
-		float chance = delta != null ? ((float) delta[0]) : 0;
+		float value = delta != null ? ((float) delta[0]) : 0;
 
-		for (DropChance dropChance : getExpr().getArray(event)) {
+		for (DropChance chance : getExpr().getArray(event)) {
 			switch (mode) {
-				case SET -> dropChance.setDropChance(chance);
-				case ADD -> dropChance.setDropChance(dropChance.getDropChance() + chance);
-				case REMOVE -> dropChance.setDropChance(dropChance.getDropChance() - chance);
-				case RESET -> dropChance.setDropChance(1); // default value
+				case SET -> chance.setDropChance(value);
+				case ADD -> chance.setDropChance(chance.getDropChance() + value);
+				case REMOVE -> chance.setDropChance(chance.getDropChance() - value);
+				case RESET -> chance.setDropChance(1); // default value
 			}
 		}
 	}

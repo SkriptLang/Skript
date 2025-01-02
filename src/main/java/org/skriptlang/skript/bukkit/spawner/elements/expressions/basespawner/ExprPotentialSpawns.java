@@ -71,7 +71,7 @@ public class ExprPotentialSpawns extends PropertyExpression<Object, SpawnerEntry
 			}
 		}
 
-		for (Object object : getExpr().getArray(event)) {
+		for (var object : getExpr().getArray(event)) {
 			if (!SpawnerUtils.isBaseSpawner(object))
 				continue;
 

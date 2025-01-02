@@ -34,8 +34,8 @@ public class ExprSpawnerEntryEquipmentWithSlot extends SimplePropertyExpression<
 		assert delta != null;
 		EquipmentSlot slot = (EquipmentSlot) delta[0];
 
-		for (DropChance equipment : getExpr().getArray(event)) {
-			equipment.setEquipmentSlot(slot);
+		for (DropChance chance : getExpr().getArray(event)) {
+			chance.setEquipmentSlot(slot);
 		}
 	}
 
