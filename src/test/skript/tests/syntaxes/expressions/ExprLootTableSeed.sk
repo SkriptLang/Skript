@@ -1,0 +1,48 @@
+test "loot table seed":
+
+	spawn a pig at test-location
+	set {_pig} to last spawned pig
+
+	assert the loot seed of {_pig} is 0 with "default entity loot seed failed"
+	set loot seed of {_pig} to 5
+	assert the loot seed of {_pig} is 5 with "simple entity loot seed set failed"
+	set loot seed of {_pig} to -1
+	assert the loot seed of {_pig} is -1 with "negative entity loot seed set failed"
+	set loot seed of {_pig} to 2
+	assert the loot seed of {_pig} is 2 with "existing entity loot seed set failed"
+	set loot seed of {_pig} to 3.3
+	assert the loot seed of {_pig} is 3 with "decimal entity loot seed set failed"
+	set loot seed of {_pig} to 3.999
+	assert the loot seed of {_pig} is 3 with "close entity decimal loot seed set failed"
+	set loot seed of {_pig} to NaN value
+	assert the loot seed of {_pig} is 0 with "NaN value entity loot seed set failed"
+	set loot seed of {_pig} to infinity value
+	assert the loot seed of {_pig} is 9223372036854775807 with "infinity value entity loot seed set failed"
+
+	delete entity within {_pig}
+
+	set {_pastBlock} to block data of test-block
+
+	set test-block to chest
+
+	assert the loot seed of test-block is 0 with "default block loot seed before setting loot table failed"
+
+	set loot table of test-block to loot table "minecraft:chests/simple_dungeon"
+
+	assert the loot seed of test-block is 0 with "default block loot after setting loot table seed failed"
+	set loot seed of test-block to 5
+	assert the loot seed of test-block is 5 with "simple block loot seed set failed"
+	set loot seed of test-block to -1
+	assert the loot seed of test-block is -1 with "negative block loot seed set failed"
+	set loot seed of test-block to 2
+	assert the loot seed of test-block is 2 with "existing block loot seed set failed"
+	set loot seed of test-block to 3.3
+	assert the loot seed of test-block is 3 with "decimal block loot seed set failed"
+	set loot seed of test-block to 3.999
+	assert the loot seed of test-block is 3 with "close block decimal loot seed set failed"
+	set loot seed of test-block to NaN value
+	assert the loot seed of test-block is 0 with "NaN value block loot seed set failed"
+	set loot seed of test-block to infinity value
+	assert the loot seed of test-block is 9223372036854775807 with "infinity value block loot seed set failed"
+
+	set test-block to {_pastBlock}

@@ -4,12 +4,49 @@ test "entities in chunk":
 		add event-entity to {_sheep::*}
 		add 1 to {_count}
 	assert {_count} and size of entities within {_sheep::*} is 10 with "Did not count 10 on the entities within {_sheep::*}: %{_sheep::*}%"
-	assert size of all entities in chunk at spawn of world "world" >= 10 with "Size of all entities in spawn chunk is not > 10: %size of all entities in chunk at spawn of world "world"%"
 
-	loop all sheep in chunk at spawn of world "world":
-		add loop-entity to {_e::*}
-	assert size of {_e::*} >= 10 with "Size of all sheep in spawn chunk is not >= 10 (iterating): %size of {_e::*}%"
+	set {_radius center} to location(-24, -60, -24, world "world")
+	spawn 2 sheep at location(-26, -60, -24, world "world")
+	spawn 2 sheep at location(-25, -58, -25, world "world")
+	spawn 2 sheep at location(-24, -60, -23, world "world")
+	spawn 2 sheep at location(-23, -60, -22, world "world")
+	spawn 2 sheep at location(-22, -60, -25, world "world")
 
+	set {_corner::1} to location(20, -62, 20, world "world")
+	set {_corner::2} to location(28, -58, 28, world "world")
+	spawn 2 sheep at location(21, -60, 21, world "world")
+	spawn 2 sheep at location(22, -59, 25, world "world")
+	spawn 2 sheep at location(24, -60, 23, world "world")
+	spawn 2 sheep at location(26, -60, 28, world "world")
+	spawn 2 sheep at location(28, -60, 20, world "world")
+
+	assert size of all entities in chunk at spawn of world "world" >= 10 with "Size of all entities in spawn chunk is not >= 10"
+	assert size of all entities in radius 3 of {_radius center} >= 10 with "Size of all entities in radius 3 of -24, -60, -24 is not >= 10"
+	assert size of all entities within {_corner::1} and {_corner::2} >= 10 with "Size of all entities within cuboid is not >= 10"
+
+
+	loop all entities in chunk at spawn of world "world":
+		add loop-entity to {_chunk::*}
+	assert size of {_chunk::*} >= 10 with "Size of all entities in spawn chunk is not >= 10 (iterating)"
+
+	loop all sheep in radius 3 of {_radius center}:
+		add loop-entity to {_radius::*}
+	assert size of {_radius::*} >= 10 with "Size of all sheep in radius 3 of spawn is not >= 10 (iterating)"
+
+	loop all sheep within {_corner::1} and {_corner::2}:
+		add loop-entity to {_cuboid::*}
+	assert size of {_cuboid::*} >= 10 with "Size of all sheep within cuboid is not >= 10 (iterating)"
+
+
+	delete all entities in chunk at spawn of world "world"
+	assert size of all entities in chunk at spawn of world "world" = 0 with "Size of all entities in spawn chunk != 0"
+
+	delete all entities in radius 3 of {_radius center}
+	assert size of all entities in radius 3 of {_radius center} = 0 with "Size of all entities in radius 3 of spawn != 0"
+
+	delete all entities within {_corner::1} and {_corner::2}
+	assert size of all entities within {_corner::1} and {_corner::2} = 0 with "Size of all entities in cuboid != 0"
+  
 	clear entities within {_e::*}
 	assert entities within {_e::*} where [entity input is valid] is not set with "Not all the sheep were cleared"
 	clear all entities

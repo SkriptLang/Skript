@@ -1,31 +1,7 @@
-/**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
 package ch.njol.skript.expressions;
 
-import ch.njol.skript.bukkitutil.InventoryUtils;
-import org.bukkit.entity.Player;
-import org.bukkit.event.Event;
-import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.InventoryView;
-import org.jetbrains.annotations.Nullable;
-
 import ch.njol.skript.Skript;
+import ch.njol.skript.bukkitutil.InventoryUtils;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
@@ -34,8 +10,11 @@ import ch.njol.skript.expressions.base.PropertyExpression;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
-import ch.njol.skript.util.Getter;
 import ch.njol.util.Kleenean;
+import org.bukkit.entity.Player;
+import org.bukkit.event.Event;
+import org.bukkit.inventory.Inventory;
+import org.jetbrains.annotations.Nullable;
 
 @Name("Opened Inventory")
 @Description({"Return the currently opened inventory of a player.",
@@ -62,15 +41,7 @@ public class ExprOpenedInventory extends PropertyExpression<Player, Inventory> {
 
 	@Override
 	protected Inventory[] get(Event event, Player[] source) {
-		return get(source, new Getter<Inventory, Player>() {
-			@Override
-			public @Nullable Inventory get(final Player player) {
-				InventoryView openInventory = player.getOpenInventory();
-				if (openInventory == null)
-					return null;
-				return InventoryUtils.getTopInventory(openInventory);
-			}
-		});
+		return get(source, player -> InventoryUtils.getTopInventory(player.getOpenInventory()));
 	}
 
 	@Override

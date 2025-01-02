@@ -1,36 +1,12 @@
-/**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
 package ch.njol.skript.bukkitutil;
-
-import org.bukkit.Location;
-import org.bukkit.entity.Ageable;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.EntityType;
-import org.bukkit.entity.Piglin;
-import org.bukkit.entity.Zoglin;
-import org.bukkit.entity.Zombie;
-
-import com.google.common.collect.BiMap;
-import com.google.common.collect.HashBiMap;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.entity.EntityData;
+import com.google.common.collect.BiMap;
+import com.google.common.collect.HashBiMap;
+import org.bukkit.Location;
+import org.bukkit.entity.*;
+import org.jetbrains.annotations.ApiStatus.ScheduledForRemoval;
 
 /**
  * Utility class for quick {@link Entity} methods
@@ -156,7 +132,10 @@ public class EntityUtils {
 	/**
 	 * Teleports the given entity to the given location.
 	 * Teleports to the given location in the entity's world if the location's world is null.
+	 * @deprecated this method is only used by EffTeleport, and with the recent additions of TeleportFlag, this method should be moved within that effect.
 	 */
+	@Deprecated
+	@ScheduledForRemoval
 	public static void teleport(Entity entity, Location location) {
 		if (location.getWorld() == null) {
 			location = location.clone();

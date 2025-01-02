@@ -1,0 +1,40 @@
+test "command block command":
+
+	set {_l} to location(0,1,0,world)
+	set {_original} to blockdata of block at {_l}
+	set block at {_l} to command block
+	spawn a minecart with command block at (spawn of world "world"):
+		set {_e} to entity
+	spawn a zombie at (spawn of world "world"):
+		set {_z} to entity
+	set {_b} to block at {_l}
+
+	assert command block command of {_b} is not set with "a new command block shouldn't have an associated command"
+	assert command block command of {_e} is not set with "a new minecart with command block shouldn't have an associated command"
+
+	set command block command of {_b} to "say asdf"
+	set command block command of {_e} to "say asdf"
+	assert command block command of {_b} is "say asdf" with "setting the command of a command block should do exactly that"
+	assert command block command of {_e} is "say asdf" with "setting the command of a minecart with command block should do exactly that"
+	assert command of {_b} is "say asdf" with "testing for possible future conflicts (block)"
+	assert command of {_e} is "say asdf" with "testing for possible future conflicts (entity)"
+
+	clear command block command of {_b}
+	clear command block command of {_e}
+	assert command block command of {_b} is not set with "clearing/deleting/resetting the command of a command block should return null"
+	assert command block command of {_e} is not set with "clearing/deleting/resetting the command of a minecart with command block should return null"
+	assert command of {_b} is not set with "testing for possible future conflicts (block)"
+	assert command of {_e} is not set with "testing for possible future conflicts (entity)"
+
+	set block at {_b} to stone
+	assert command block command of {_b} is not set with "the command of a non-command block should return null"
+	assert command block command of {_z} is not set with "the command of a non-minecart with command block should return null"
+
+	set command block command of {_b} to "say asdf"
+	set command block command of {_z} to "say asdf"
+	assert command block command of {_b} is not set with "setting the command of a non-command block shouldn't do anything"
+	assert command block command of {_z} is not set with "setting the command of a non-minecart with command block shouldn't do anything"
+
+	delete entity within {_e}
+	delete entity within {_z}
+	set block at {_l} to {_original}

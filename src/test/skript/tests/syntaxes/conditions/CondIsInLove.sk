@@ -1,0 +1,26 @@
+test "valid entity is in love":
+	set {_spawn} to spawn of world "world"
+	spawn adult cow at {_spawn}
+	set {_cow} to last spawned cow
+	assert love time of {_cow} is 0 seconds with "cow love time was not 0 seconds after spawning"
+	assert {_cow} is not in love with "cow is in love after spawning"
+	set love time of {_cow} to 10 seconds
+	assert {_cow} is in love with "cow is not in love after setting love time"
+	add 10 seconds to love time of {_cow}
+	assert love time of {_cow} > 10 seconds with "cow love time didn't go up after adding"
+	remove 1 minute from love time of {_cow}
+	assert {_cow} is not in love with "cow is in love after removing more love than possible"
+	add 10 minutes to love time of {_cow}
+	assert {_cow} is in love with "cow didn't enter love mode after adding love time"
+	reset love time of {_cow}
+	assert {_cow} is not in love with "cow was still in love even after resetting love time"
+	delete all cows
+
+test "invalid entity is in love":
+	set {_spawn} to spawn of world "world"
+	spawn adult zombie at {_spawn}
+	set {_zombie} to last spawned zombie
+	assert love time of {_zombie} is 0 seconds with "zombie was in love on spawn"
+	set love time of {_zombie} to 10 minutes
+	assert love time of {_zombie} is 0 seconds with "zombie was in love after set"
+	delete all zombies

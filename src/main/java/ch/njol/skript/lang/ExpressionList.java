@@ -1,21 +1,3 @@
-/**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
 package ch.njol.skript.lang;
 
 import ch.njol.skript.classes.Changer.ChangeMode;
@@ -23,18 +5,14 @@ import ch.njol.skript.conditions.CondCompare;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleLiteral;
 import ch.njol.skript.registrations.Classes;
-import ch.njol.util.Checker;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.List;
-import java.util.NoSuchElementException;
+import java.util.*;
+import java.util.function.Predicate;
 
 /**
  * A list of expressions.
@@ -157,20 +135,12 @@ public class ExpressionList<T> implements Expression<T> {
 	}
 
 	@Override
-	public boolean check(Event event, Checker<? super T> checker, boolean negated) {
-		for (Expression<? extends T> expr : expressions) {
-			boolean result = expr.check(event, checker) ^ negated;
-			// exit early if we find a FALSE and we're ANDing, or a TRUE and we're ORing
-			if (and && !result)
-				return false;
-			if (!and && result)
-				return true;
-		}
-		return and;
+	public boolean check(Event event, Predicate<? super T> checker, boolean negated) {
+		return CollectionUtils.check(expressions, expr -> expr.check(event, checker) ^ negated, and);
 	}
 
 	@Override
-	public boolean check(Event event, Checker<? super T> checker) {
+	public boolean check(Event event, Predicate<? super T> checker) {
 		return check(event, checker, false);
 	}
 
@@ -299,6 +269,23 @@ public class ExpressionList<T> implements Expression<T> {
 	 * @return The internal list of expressions. Can be modified with care.
 	 */
 	public Expression<? extends T>[] getExpressions() {
+		return expressions;
+	}
+
+	/**
+	 * Retrieves all expressions, including those nested within any {@code ExpressionList}s.
+	 *
+	 * @return A list of all expressions.
+	 */
+	public List<Expression<? extends T>> getAllExpressions() {
+		List<Expression<? extends T>> expressions = new ArrayList<>();
+		for (Expression<? extends T> expression : this.expressions) {
+			if (expression instanceof ExpressionList<? extends T> innerList) {
+				expressions.addAll(innerList.getAllExpressions());
+				continue;
+			}
+			expressions.add(expression);
+		}
 		return expressions;
 	}
 

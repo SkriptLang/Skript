@@ -1,21 +1,3 @@
-/**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
 package ch.njol.skript.effects;
 
 import ch.njol.skript.Skript;
@@ -29,6 +11,7 @@ import ch.njol.skript.lang.SkriptParser;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.UnknownNullability;
 import org.skriptlang.skript.lang.script.ScriptWarning;
 
 @Name("Locally Suppress Warning")
@@ -41,9 +24,14 @@ import org.skriptlang.skript.lang.script.ScriptWarning;
 public class EffSuppressWarnings extends Effect {
 
 	static {
-		Skript.registerEffect(EffSuppressWarnings.class,
-			"[local[ly]] suppress [the] (1:variable save|2:[missing] conjunction[s]|3:starting [with] expression[s]|4:deprecated syntax|5:local variable type[s]) warning[s]"
-		);
+		StringBuilder warnings = new StringBuilder();
+		ScriptWarning[] values = ScriptWarning.values();
+		for (int i = 0; i < values.length; i++) {
+			if (i != 0)
+				warnings.append('|');
+			warnings.append(values[i].ordinal()).append(':').append(values[i].getPattern());
+		}
+		Skript.registerEffect(EffSuppressWarnings.class, "[local[ly]] suppress [the] (" + warnings + ") warning[s]");
 	}
 
 	private enum Pattern {
@@ -51,6 +39,7 @@ public class EffSuppressWarnings extends Effect {
 		CONJUNCTION(ScriptWarning.MISSING_CONJUNCTION),
 		START_EXPR(ScriptWarning.VARIABLE_STARTS_WITH_EXPRESSION),
 		DEPRECATED(ScriptWarning.DEPRECATED_SYNTAX),
+		UNREACHABLE(ScriptWarning.UNREACHABLE_CODE),
 		LOCAL_TYPES(ScriptWarning.LOCAL_VARIABLE_TYPE);
 
 		private final ScriptWarning warning;
@@ -74,8 +63,13 @@ public class EffSuppressWarnings extends Effect {
 			return false;
 		}
 
-		pattern = Pattern.values()[parseResult.mark - 1];
-		getParser().getCurrentScript().suppressWarning(pattern.getWarning());
+		pattern = Pattern.values()[matchedPattern];
+		ScriptWarning warning = pattern.getWarning();
+		if (warning.isDeprecated()) {
+			Skript.warning(warning.getDeprecationMessage());
+		} else {
+			getParser().getCurrentScript().suppressWarning(warning);
+		}
 		return true;
 	}
 
@@ -84,6 +78,7 @@ public class EffSuppressWarnings extends Effect {
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
+<<<<<<< HEAD
 		String word;
 		switch (pattern) {
 			case INSTANCE:
@@ -105,6 +100,9 @@ public class EffSuppressWarnings extends Effect {
 				throw new IllegalStateException();
 		}
 		return "suppress " + word + " warnings";
+=======
+		return "suppress " + warning.getWarningName() + " warnings";
+>>>>>>> 5a4fb7ed02618575e7b19af507ae2047ebb2892e
 	}
 
 }

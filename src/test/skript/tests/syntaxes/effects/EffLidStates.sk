@@ -1,0 +1,18 @@
+test "lid states":
+	set {_loc} to spawn of world "world" ~ vector(3,0,0)
+	set block at {_loc} to chest
+	set {_locs::*} to {_loc}
+	loop 2 times:
+		add {_loc} ~ vector(loop-number,0,0) to {_locs::*}
+	set block at {_locs::2} to ender chest
+	set block at {_locs::3} to barrel
+
+	open the lids for (blocks at {_locs::*})
+	assert the lids of (blocks at {_locs::*}) are opened with "1 or more lidded blocks are not open"
+	assert the lids of (blocks at {_locs::*}) are not closed with "1 or more lidded block are closed"
+
+	close the lids for (blocks at {_locs::*})
+	assert the lids of (blocks at {_locs::*}) are closed with "1 or more lidded block are not closed"
+	assert the lids of (blocks at {_locs::*}) are not opened with "1 or more lidded blocks are open"
+
+	set blocks at {_locs::*} to air

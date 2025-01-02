@@ -172,6 +172,9 @@ disable variable missing and/or warnings: false
 disable starting a variable's name with an expression warnings: false
 # Disables the "Starting a variable's name with an expression is discouraged..." warnings
 
+disable unreachable code warnings: false
+# Disables the "Unreachable code. The previous statement stops further execution." warnings.
+
 soft api exceptions: false
 # Allows Skript to ignore certain actions which would normally result in thrown exceptions.
 # If everything works correctly, you should keep this option disabled. It might cause problems in some cases.
@@ -231,6 +234,44 @@ long parse time warning threshold: 0 seconds
 #   stating that the statement has taken a long time to parse.
 # A value of 0 seconds means that this warning should be disabled.
 
+
+# ==== Runtime Errors ====
+
+runtime errors:
+	frame duration: 1 second
+	# Frames are the duration over which runtime errors will be collected before being sent off to console.
+	# If you find runtime errors to be annoying or clogging your console, you should first fix them!
+	# You can also lengthen this duration to reduce the amount of individual errors printed to console.
+
+	# -- Errors --
+	total errors per frame: 8
+	# This controls the maximum number of individual errors that will be printed per frame.
+	# If more errors occur, they will be hidden and the frame will simply display that x number of
+	# errors occurred but were hidden this frame.
+
+	errors from one line per frame: 2
+	# This controls the maximum number of errors a single line can print per frame. This is used to prevent
+	# line from clogging up the frame, like if a syntax was in a 10 iteration loop and errored every time.
+	# It's best to keep this rather low.
+
+	error spam timeout limit: 4
+	# If a line prints more than this many errors in a single frame, it will be put in timeout. This means
+	# any additional errors it creates during the timeout duration will be hidden, rather than printed.
+	# This is also a defense against a syntax in a loop spamming console with errors.
+
+	error timeout length: 10
+	# This is the number of frames before a line in timeout can print errors again.
+	# If you lengthen the frame duration, you may want to lower this proportionally.
+
+	# -- Warnings --
+	# All the above descriptions for errors apply the same here, but for warnings instead.
+
+	total warnings per frame: 8
+	warnings from one line per frame: 2
+	warning spam timeout limit: 4
+	warning timeout length: 10
+
+
 # ==== Variables ====
 
 databases:
@@ -289,6 +330,12 @@ databases:
 		# Variables are saved constantly no matter what is set here, thus a server crash will never make you loose any variables.
 		# Set this to 0 to disable this feature.
 
+		backups to keep: -1
+		# if set to a value greater than -1, Skript will ensure only that many backups are kept.
+		# Backups are removed from oldest to newest.
+		# If disabled (set to -1), no backup files will be deleted.
+		# WARNING: Setting to 0 will delete all files located in the backup directory upon plugin start/reload
+
 
 	MySQL example:
 		# A MySQL database example, with options unrelated to MySQL removed.
@@ -325,6 +372,8 @@ databases:
 		monitor changes: false
 		monitor interval: 20 seconds
 
+		backups to keep: -1
+
 	default:
 		# The default "database" is a simple text file, with each variable on a separate line and the variable's name, type, and value separated by commas.
 		# This is the last database in this list to catch all variables that have not been saved anywhere else.
@@ -337,6 +386,9 @@ databases:
 		file: ./plugins/Skript/variables.csv
 
 		backup interval: 2 hours
+
+		backups to keep: -1
+
 
 	# PS: If you don't want some variables to be saved in any database (e.g. variables that contain an %entity% which usually despawn when the server is shut down)
 	# you can modify the last database's pattern to not match all variables, e.g. use '(?!x_).*' to match all variables that don't start with 'x_'.

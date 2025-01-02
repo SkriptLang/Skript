@@ -1,0 +1,7 @@
+test "all tags":
+	assert all tags contains tag "dirt" with "dirt isn't a tag"
+
+	assert block tags contain block tag "slabs" with "slabs is not a block tag"
+	assert paper item tags contain item tag "paper:doors" with "paper:doors is not an paper item tag"
+
+	assert minecraft entity tags contain entity tag "minecraft:skeletons" with "skeletons is not a tag"
