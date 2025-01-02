@@ -11,7 +11,6 @@ import ch.njol.skript.lang.SkriptParser;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
-import org.jetbrains.annotations.UnknownNullability;
 import org.skriptlang.skript.lang.script.ScriptWarning;
 
 @Name("Locally Suppress Warning")
@@ -78,31 +77,7 @@ public class EffSuppressWarnings extends Effect {
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-<<<<<<< HEAD
-		String word;
-		switch (pattern) {
-			case INSTANCE:
-				word = "variable save";
-				break;
-			case CONJUNCTION:
-				word = "missing conjunction";
-				break;
-			case START_EXPR:
-				word = "starting expression";
-				break;
-			case DEPRECATED:
-				word = "deprecated syntax";
-				break;
-			case LOCAL_TYPES:
-				word = "local variable types";
-				break;
-			default:
-				throw new IllegalStateException();
-		}
-		return "suppress " + word + " warnings";
-=======
-		return "suppress " + warning.getWarningName() + " warnings";
->>>>>>> 5a4fb7ed02618575e7b19af507ae2047ebb2892e
+		return "suppress " + pattern.getWarning().getWarningName() + " warnings";
 	}
 
 }

@@ -206,12 +206,7 @@ public class ScriptLoader {
 	private static final FileFilter disabledScriptFilter =
 		f -> f != null
 			&& (f.isDirectory() && !f.getName().startsWith(".") || !f.isDirectory() && StringUtils.endsWithIgnoreCase(f.getName(), ".sk"))
-<<<<<<< HEAD
-			&& f.getName().startsWith(DISABLED_SCRIPT_PREFIX)
-			&& !f.isHidden();
-=======
 			&& f.getName().startsWith(DISABLED_SCRIPT_PREFIX) && !f.isHidden();
->>>>>>> 5a4fb7ed02618575e7b19af507ae2047ebb2892e
 
 	/**
 	 * Reevaluates {@link #disabledScripts}.
