@@ -3,6 +3,7 @@ package ch.njol.skript.expressions;
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.classes.ClassInfo;
+import ch.njol.skript.config.EntryNode;
 import ch.njol.skript.config.Node;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
@@ -21,6 +22,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Array;
+import java.util.Arrays;
 
 @Name("Value")
 @Description({
@@ -93,17 +95,20 @@ public class ExprValue extends SimplePropertyExpression<Object, Object> {
 			return null;
 		if (object instanceof AnyValued<?> valued)
 			return valued.convertedValue(classInfo);
-		assert false;
 		return null;
 	}
 
 	@Override
 	protected Object[] get(Event event, Object[] source) {
-		if (pathExpression != null && source[0] instanceof Node main) {
+		if (pathExpression != null) {
+			if (!(source[0] instanceof Node main))
+				return (Object[]) Array.newInstance(this.getReturnType(), 0);
 			String path = pathExpression.getSingle(event);
 			Node node = main.getNodeAt(path);
 			Object[] array = (Object[]) Array.newInstance(this.getReturnType(), 1);
-			array[0] = this.convert(node);
+			if (!(node instanceof AnyValued<?> valued))
+				return (Object[]) Array.newInstance(this.getReturnType(), 0);
+			array[0] = this.convert(valued);
 			return array;
 		}
 		return super.get(source, this);
