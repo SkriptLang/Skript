@@ -30,17 +30,7 @@ public abstract class PotionEffectUtils {
 
 	final static Map<String, PotionEffectType> types = new HashMap<>();
 
-	final static String[] names = new String[getMaxPotionId() + 1];
-
-	// MCPC+ workaround
-	private static int getMaxPotionId() {
-		int i = 0;
-		for (final PotionEffectType t : PotionEffectType.values()) {
-			if (t != null && t.getId() > i)
-				i = t.getId();
-		}
-		return i;
-	}
+	final static String[] names = new String[PotionEffectType.values().length];
 
 	static {
 		Language.addListener(() -> {
@@ -52,7 +42,7 @@ public abstract class PotionEffectUtils {
 				if (name.startsWith("minecraft:")) // seems to be the case for experimental entries...
 					name = name.substring(10); // trim off namespace
 				final String[] ls = Language.getList("potions." + name);
-				names[t.getId()] = ls[0];
+				names[t.getId() - 1] = ls[0];
 				for (final String l : ls) {
 					types.put(l.toLowerCase(Locale.ENGLISH), t);
 				}
@@ -77,12 +67,12 @@ public abstract class PotionEffectUtils {
 	}
 
 	public static String toString(PotionEffectType t) {
-		return names[t.getId()];
+		return names[t.getId() - 1];
 	}
 
 	// REMIND flags?
 	public static String toString(PotionEffectType t, int flags) {
-		return names[t.getId()];
+		return names[t.getId() - 1];
 	}
 
 	public static String toString(PotionEffect potionEffect) {
