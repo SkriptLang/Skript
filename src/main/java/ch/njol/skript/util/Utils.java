@@ -891,7 +891,9 @@ public abstract class Utils {
 						An addon attempted to load a deprecated/outdated/removed '%s' class.
 						
 						The plugin '%s' tried to use a class that has been deprecated/removed in this version of Skript.
-						Please contact the author(s): %s, and ask them to update it.
+						Please make sure you are using the latest supported version of the addon.
+						
+						If there are no supported versions, you should contact the author(s): %s, and ask them to update it.
 						
 						(This addon may not work correctly on this version of Skript.)
 						
