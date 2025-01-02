@@ -18,7 +18,6 @@ import org.skriptlang.skript.registration.SyntaxOrigin;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
 import java.util.ArrayList;
-import java.util.List;
 
 public class ExprSpawnerEntryWithDropChances extends PropertyExpression<SpawnerEntryEquipmentWrapper, DropChance> {
 
