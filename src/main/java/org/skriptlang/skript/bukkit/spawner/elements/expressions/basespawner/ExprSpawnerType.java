@@ -51,7 +51,7 @@ public class ExprSpawnerType extends SimplePropertyExpression<Object, EntityData
 	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
 		EntityType type = delta != null ? EntityUtils.toBukkitEntityType((EntityData<?>) delta[0]) : null;
 
-		for (var object : getExpr().getArray(event)) {
+		for (Object object : getExpr().getArray(event)) {
 			if (!SpawnerUtils.isBaseSpawner(object))
 				continue;
 

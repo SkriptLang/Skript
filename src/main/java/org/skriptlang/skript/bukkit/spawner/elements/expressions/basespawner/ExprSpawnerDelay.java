@@ -46,7 +46,7 @@ public class ExprSpawnerDelay extends SimplePropertyExpression<Object, Timespan>
 		}
 		int ticksAsInt = (int) ticks;
 
-		for (var object : getExpr().getArray(event)) {
+		for (Object object : getExpr().getArray(event)) {
 			if (!SpawnerUtils.isBaseSpawner(object))
 				continue;
 

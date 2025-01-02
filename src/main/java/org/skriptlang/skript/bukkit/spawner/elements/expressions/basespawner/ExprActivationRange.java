@@ -39,7 +39,7 @@ public class ExprActivationRange extends SimplePropertyExpression<Object, Intege
 	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
 		int count = delta != null ? ((int) delta[0]) : 0;
 
-		for (var object : getExpr().getArray(event)) {
+		for (Object object : getExpr().getArray(event)) {
 			if (SpawnerUtils.isBaseSpawner(object)) {
 				BaseSpawner spawner = SpawnerUtils.getAsBaseSpawner(object);
 				switch (mode) {

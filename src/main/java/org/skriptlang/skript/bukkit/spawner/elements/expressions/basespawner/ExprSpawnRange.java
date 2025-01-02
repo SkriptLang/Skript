@@ -35,7 +35,7 @@ public class ExprSpawnRange extends SimplePropertyExpression<Object, Integer> {
 	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
 		int range = delta != null ? ((Number) delta[0]).intValue() : 0;
 
-		for (var object : getExpr().getArray(event)) {
+		for (Object object : getExpr().getArray(event)) {
 			if (!SpawnerUtils.isBaseSpawner(object))
 				continue;
 

@@ -52,7 +52,7 @@ public class EffTrialSpawnerTrack extends Effect {
 			if (!(block.getState() instanceof TrialSpawner spawner))
 				continue;
 
-			for (var object : objects.getArray(event)) {
+			for (Object object : objects.getArray(event)) {
 				if (start) {
 					if (object instanceof Player player) {
 						spawner.startTrackingPlayer(player);

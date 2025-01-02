@@ -34,7 +34,7 @@ public class ExprSpawnerEquipmentWithLootTable extends SimplePropertyExpression<
 		assert delta != null;
 		LootTable lootTable = (LootTable) delta[0];
 
-		for (var equipment : getExpr().getArray(event)) {
+		for (SpawnerEntryEquipmentWrapper equipment : getExpr().getArray(event)) {
 			equipment.setEquipmentLootTable(lootTable);
 		}
 	}

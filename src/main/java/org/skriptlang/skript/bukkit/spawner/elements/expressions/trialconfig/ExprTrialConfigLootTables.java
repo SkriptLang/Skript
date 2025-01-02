@@ -77,7 +77,7 @@ public class ExprTrialConfigLootTables extends PropertyExpression<TrialSpawnerCo
 
 			TrialSpawnerConfiguration config = trialConfig.config();
 
-			for (var object : delta) {
+			for (Object object : delta) {
 				if (object instanceof LootTable lootTable) {
 					switch (mode) {
 						case SET -> possibleRewards.put(lootTable, 1);

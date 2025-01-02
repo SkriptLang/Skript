@@ -62,7 +62,7 @@ public class ExprSpawnerEntryWithDropChances extends PropertyExpression<SpawnerE
 			if (mode == ChangeMode.SET)
 				entry.setDropChances(new ArrayList<>());
 
-			for (var object : delta) {
+			for (Object object : delta) {
 				if (object instanceof DropChance chance) {
 					switch (mode) {
 						case SET, ADD -> entry.addDropChance(chance);
