@@ -1,6 +1,7 @@
 package ch.njol.skript.classes;
 
 import ch.njol.skript.command.Commands;
+import ch.njol.skript.util.Utils;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -12,6 +13,9 @@ import org.jetbrains.annotations.Nullable;
  */
 @Deprecated(forRemoval = true)
 public interface Converter<F, T> extends org.skriptlang.skript.lang.converter.Converter<F, T> {
+
+	// Interfaces don't have a <clinit> so we trigger the warning notice with this
+	int $_WARNING = Utils.loadedRemovedClassWarning(Converter.class);
 
 	@Deprecated(forRemoval = true)
 	int NO_LEFT_CHAINING = org.skriptlang.skript.lang.converter.Converter.NO_LEFT_CHAINING;
