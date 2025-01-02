@@ -13,10 +13,10 @@ import org.skriptlang.skript.bukkit.spawner.SpawnerModule;
 import org.skriptlang.skript.bukkit.spawner.util.SpawnerUtils;
 import org.skriptlang.skript.bukkit.spawner.util.TrialSpawnerConfig;
 
-public class ExprTrialSpawnerSpawns extends SimplePropertyExpression<TrialSpawnerConfig, Float> {
+public class ExprTrialSpawnerSpawnAmount extends SimplePropertyExpression<TrialSpawnerConfig, Float> {
 
 	static {
-		register(SpawnerModule.SYNTAX_REGISTRY, ExprTrialSpawnerSpawns.class, Float.class,
+		register(SpawnerModule.SYNTAX_REGISTRY, ExprTrialSpawnerSpawnAmount.class, Float.class,
 			"(:additional|base) [trial] spawner spawn (amount|value)[s]", "trialspawnerconfigs");
 	}
 

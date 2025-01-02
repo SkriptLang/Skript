@@ -17,6 +17,9 @@ import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.registration.SyntaxOrigin;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class ExprSpawnerEntryWithDropChances extends PropertyExpression<SpawnerEntryEquipmentWrapper, DropChance> {
 
 	static {
@@ -58,8 +61,7 @@ public class ExprSpawnerEntryWithDropChances extends PropertyExpression<SpawnerE
 
 		for (var entry : getExpr().getArray(event)) {
 			if (mode == ChangeMode.SET)
-				//noinspection ConstantConditions
-				entry.setDropChances(null);
+				entry.setDropChances(new ArrayList<>());
 
 			for (var object : delta) {
 				if (object instanceof DropChance chance) {
