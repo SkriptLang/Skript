@@ -35,7 +35,10 @@ import ch.njol.skript.sections.EffSecSpawn;
 import ch.njol.util.Kleenean;
 
 @Name("Vehicle")
-@Description("Makes an entity ride another entity, e.g. a minecart, a saddled pig, an arrow, etc.")
+@Description({
+	"Makes an entity ride another entity, e.g. a minecart, a saddled pig, an arrow, etc.",
+	"Will also call the last spawned entity expression if the syntax is required to spawn an entity."
+})
 @Examples({
 	"make the player ride a saddled pig",
 	"make the attacker ride the victim"

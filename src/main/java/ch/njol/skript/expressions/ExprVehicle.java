@@ -64,7 +64,7 @@ public class ExprVehicle extends PropertyExpression<Entity, Entity> {
 	private static final MethodHandle OLD_GETDISMOUNTED_HANDLE;
 
 	static {
-		registerDefault(ExprVehicle.class, Entity.class, "vehicle[s]", "entities");
+		registerDefault(ExprVehicle.class, Entity.class, "vehicle[:s]", "entities");
 
 		// legacy support. In 1.20 spigot moved this event from the package org.spigotmc.event to org.bukkit.event
 		boolean hasOldMountEvents = !HAS_NEW_MOUNT_EVENTS &&

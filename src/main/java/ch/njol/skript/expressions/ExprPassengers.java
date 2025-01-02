@@ -57,7 +57,7 @@ import ch.njol.util.coll.CollectionUtils;
 	"remove all pigs from player's vehicle",
 	"clear passengers of boat"
 })
-@Since("2.0, 2.2-dev26 (Multiple passengers for 1.11.2+)")
+@Since("2.0, 2.2-dev26")
 public class ExprPassengers extends PropertyExpression<Entity, Entity> {
 
 	private static final boolean HAS_NEW_MOUNT_EVENTS = Skript.classExists("org.bukkit.event.entity.EntityMountEvent");
@@ -130,6 +130,21 @@ public class ExprPassengers extends PropertyExpression<Entity, Entity> {
 					return new Entity[] {entityMountEvent.getEntity()};
 				if (getTime() != EventValues.TIME_FUTURE && event instanceof org.bukkit.event.entity.EntityDismountEvent entityDismountEvent && entity.equals(entityDismountEvent.getEntity()))
 					return new Entity[] {entityDismountEvent.getEntity()};
+			} else if (HAS_OLD_MOUNT_EVENTS) {
+				try {
+					if (getTime() != EventValues.TIME_PAST && event.getClass().equals(OLD_MOUNT_EVENT_CLASS)) {
+						Entity mount = (Entity) OLD_GETMOUNT_HANDLE.invoke(event);
+						if (entity.equals(mount))
+							return new Entity[] {mount};
+					}
+					if (getTime() != EventValues.TIME_FUTURE && event.getClass().equals(OLD_DISMOUNT_EVENT_CLASS)) {
+						Entity mount = (Entity) OLD_GETDISMOUNTED_HANDLE.invoke(event);
+						if (entity.equals(mount))
+							return new Entity[] {mount};
+					}
+				} catch (Throwable e) {
+					Skript.exception(e, "Failed to get passengers from old mount events.");
+				}
 			}
 			return entity.getPassengers().toArray(new Entity[0]);
 		};
