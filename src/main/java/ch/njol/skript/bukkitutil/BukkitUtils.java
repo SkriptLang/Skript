@@ -2,6 +2,7 @@ package ch.njol.skript.bukkitutil;
 
 import ch.njol.skript.Skript;
 import org.bukkit.Registry;
+import org.bukkit.potion.PotionEffectType;
 
 /**
  * Utility class with methods pertaining to Bukkit API
@@ -16,6 +17,28 @@ public class BukkitUtils {
 	 */
 	public static boolean registryExists(String registry) {
 		return Skript.classExists("org.bukkit.Registry") && Skript.fieldExists(Registry.class, registry);
+	}
+
+	/**
+	 * Get an instance of the {@link PotionEffectType} {@link Registry}
+	 * <p>Paper/Bukkit have 2 different names for the same registry.</p>
+	 *
+	 * @return PotionEffectType Registry
+	 */
+	@SuppressWarnings("NullableProblems")
+	public static Registry<PotionEffectType> getPotionEffectTypeRegistry() {
+		if (registryExists("MOB_EFFECT")) { // Paper (1.21.4)
+			return Registry.MOB_EFFECT;
+		} else if (registryExists("EFFECT")) { // Bukkit (1.21.x)
+			try {
+				//noinspection unchecked
+				return (Registry<PotionEffectType>) Registry.class.getDeclaredField("EFFECT").get(null);
+			} catch (IllegalAccessException | NoSuchFieldException e) {
+				throw new RuntimeException(e);
+			}
+		}
+
+		return null;
 	}
 
 }
