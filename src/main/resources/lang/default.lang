@@ -2535,14 +2535,7 @@ input keys:
 	sneak: sneak key, sneaking key
 	sprint: sprint key, sprinting key
 
-trial spawner states:
-	active: active trial spawner state, enabled trial spawner state
-	cooldown: cooldown trial spawner state
-	ejecting_reward: ejecting reward trial spawner state
-	inactive: inactive trial spawner state, disabled trial spawner state
-	waiting_for_players: waiting for players trial spawner state
-	waiting_for_reward_ejection: waiting for reward ejection trial spawner state
-
+//todo: remove after merge of equippable pr
 equipment slots:
 	body: body equipment slot
 	chest: chest equipment slot, chestplate equipment slot

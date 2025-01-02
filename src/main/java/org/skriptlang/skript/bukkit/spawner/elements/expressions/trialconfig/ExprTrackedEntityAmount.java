@@ -91,7 +91,7 @@ public class ExprTrackedEntityAmount extends PropertyExpression<TrialSpawnerConf
 				}
 			}
 
-			SpawnerUtils.updateState(trialConfig.state());
+			SpawnerUtils.updateState(trialConfig);
 		}
 	}
 

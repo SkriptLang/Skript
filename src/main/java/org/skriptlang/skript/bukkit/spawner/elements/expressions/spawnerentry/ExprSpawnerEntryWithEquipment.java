@@ -7,25 +7,25 @@ import org.bukkit.block.spawner.SpawnerEntry;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.spawner.SpawnerModule;
-import org.skriptlang.skript.bukkit.spawner.util.SpawnerEquipmentWrapper;
-import org.skriptlang.skript.bukkit.spawner.util.SpawnerEquipmentWrapper.DropChance;
+import org.skriptlang.skript.bukkit.spawner.util.SpawnerEntryEquipmentWrapper;
+import org.skriptlang.skript.bukkit.spawner.util.SpawnerEntryEquipmentWrapper.DropChance;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class ExprSpawnerEntryWithEquipment extends SimplePropertyExpression<SpawnerEntry, SpawnerEquipmentWrapper> {
+public class ExprSpawnerEntryWithEquipment extends SimplePropertyExpression<SpawnerEntry, SpawnerEntryEquipmentWrapper> {
 
 	static {
-		registerDefault(SpawnerModule.SYNTAX_REGISTRY, ExprSpawnerEntryWithEquipment.class, SpawnerEquipmentWrapper.class,
+		registerDefault(SpawnerModule.SYNTAX_REGISTRY, ExprSpawnerEntryWithEquipment.class, SpawnerEntryEquipmentWrapper.class,
 			"equipment loot[ ]table", "spawnerentries");
 	}
 
 	@Override
-	public @Nullable SpawnerEquipmentWrapper convert(SpawnerEntry entry) {
+	public @Nullable SpawnerEntryEquipmentWrapper convert(SpawnerEntry entry) {
 		if (entry.getEquipment() != null) {
 			List<DropChance> equipment = new ArrayList<>();
 			entry.getEquipment().getDropChances().forEach((slot, chance) -> equipment.add(new DropChance(slot, chance)));
-			return new SpawnerEquipmentWrapper(entry.getEquipment().getEquipmentLootTable(), equipment);
+			return new SpawnerEntryEquipmentWrapper(entry.getEquipment().getEquipmentLootTable(), equipment);
 		}
 		return null;
 	}
@@ -33,14 +33,14 @@ public class ExprSpawnerEntryWithEquipment extends SimplePropertyExpression<Spaw
 	@Override
 	public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
 		if (mode == ChangeMode.SET)
-			return CollectionUtils.array(SpawnerEquipmentWrapper.class);
+			return CollectionUtils.array(SpawnerEntryEquipmentWrapper.class);
 		return null;
 	}
 
 	@Override
 	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
 		assert delta != null;
-		SpawnerEquipmentWrapper equipment = (SpawnerEquipmentWrapper) delta[0];
+		SpawnerEntryEquipmentWrapper equipment = (SpawnerEntryEquipmentWrapper) delta[0];
 
 		for (SpawnerEntry entry : getExpr().getArray(event)) {
 			entry.setEquipment(equipment.getEquipment());
@@ -48,8 +48,8 @@ public class ExprSpawnerEntryWithEquipment extends SimplePropertyExpression<Spaw
 	}
 
 	@Override
-	public Class<? extends SpawnerEquipmentWrapper> getReturnType() {
-		return SpawnerEquipmentWrapper.class;
+	public Class<? extends SpawnerEntryEquipmentWrapper> getReturnType() {
+		return SpawnerEntryEquipmentWrapper.class;
 	}
 
 	@Override

@@ -10,8 +10,8 @@ import org.bukkit.event.Event;
 import org.bukkit.loot.LootTable;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.spawner.SpawnerModule;
-import org.skriptlang.skript.bukkit.spawner.util.SpawnerEquipmentWrapper;
-import org.skriptlang.skript.bukkit.spawner.util.SpawnerEquipmentWrapper.DropChance;
+import org.skriptlang.skript.bukkit.spawner.util.SpawnerEntryEquipmentWrapper;
+import org.skriptlang.skript.bukkit.spawner.util.SpawnerEntryEquipmentWrapper.DropChance;
 import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.registration.SyntaxOrigin;
 import org.skriptlang.skript.registration.SyntaxRegistry;
@@ -19,14 +19,14 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 import java.util.Arrays;
 import java.util.List;
 
-public class ExprSpawnerEquipment extends SimpleExpression<SpawnerEquipmentWrapper> {
+public class ExprSpawnerEquipment extends SimpleExpression<SpawnerEntryEquipmentWrapper> {
 
 	static {
-		var info = SyntaxInfo.Expression.builder(ExprSpawnerEquipment.class, SpawnerEquipmentWrapper.class)
+		var info = SyntaxInfo.Expression.builder(ExprSpawnerEquipment.class, SpawnerEntryEquipmentWrapper.class)
 			.origin(SyntaxOrigin.of(Skript.instance()))
 			.supplier(ExprSpawnerEquipment::new)
 			.priority(SyntaxInfo.COMBINED)
-			.addPattern("%loottable% with drop chance[s] %spawnerentrydropchances%")
+			.addPattern("%loottable% with drop chance[s] %equipmentdropchances%")
 			.build();
 
 		SpawnerModule.SYNTAX_REGISTRY.register(SyntaxRegistry.EXPRESSION, info);
@@ -44,14 +44,14 @@ public class ExprSpawnerEquipment extends SimpleExpression<SpawnerEquipmentWrapp
 	}
 
 	@Override
-	protected SpawnerEquipmentWrapper @Nullable [] get(Event event) {
+	protected SpawnerEntryEquipmentWrapper @Nullable [] get(Event event) {
 		LootTable lootTable = this.lootTable.getSingle(event);
 		if (lootTable == null)
-			return new SpawnerEquipmentWrapper[0];
+			return new SpawnerEntryEquipmentWrapper[0];
 
 		List<DropChance> chances = Arrays.asList(this.chances.getArray(event));
 
-		return new SpawnerEquipmentWrapper[]{new SpawnerEquipmentWrapper(lootTable, chances)};
+		return new SpawnerEntryEquipmentWrapper[]{new SpawnerEntryEquipmentWrapper(lootTable, chances)};
 	}
 
 	@Override
@@ -60,8 +60,8 @@ public class ExprSpawnerEquipment extends SimpleExpression<SpawnerEquipmentWrapp
 	}
 
 	@Override
-	public Class<? extends SpawnerEquipmentWrapper> getReturnType() {
-		return SpawnerEquipmentWrapper.class;
+	public Class<? extends SpawnerEntryEquipmentWrapper> getReturnType() {
+		return SpawnerEntryEquipmentWrapper.class;
 	}
 
 	@Override

@@ -4,7 +4,7 @@ import ch.njol.skript.lang.util.common.AnyWeight;
 import org.bukkit.loot.LootTable;
 import org.jetbrains.annotations.NotNull;
 
-public final class WeightedLootTable implements AnyWeight {
+public class WeightedLootTable implements AnyWeight {
 
 	private @NotNull LootTable lootTable;
 	private int weight;

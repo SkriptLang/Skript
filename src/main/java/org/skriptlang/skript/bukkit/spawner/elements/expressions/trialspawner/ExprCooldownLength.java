@@ -54,6 +54,8 @@ public class ExprCooldownLength extends SimplePropertyExpression<Block, Timespan
 				case REMOVE -> spawner.setCooldownLength(spawner.getCooldownLength() - ticksAsInt);
 				case RESET -> spawner.setCooldownLength(36000); // 30 mins in ticks, default value stated in wiki
 			}
+
+			block.getState().update(true, false);
 		}
 	}
 

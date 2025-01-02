@@ -10,19 +10,20 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class SpawnerEquipmentWrapper {
+public class SpawnerEntryEquipmentWrapper {
 
 	private @NotNull LootTable equipmentLootTable;
 	private @NotNull List<DropChance> dropChances;
 	private transient @Nullable Equipment cachedEquipment;
 
-	public SpawnerEquipmentWrapper(@NotNull LootTable equipmentLootTable, @NotNull List<DropChance> dropChances) {
+	public SpawnerEntryEquipmentWrapper(@NotNull LootTable equipmentLootTable, @NotNull List<DropChance> dropChances) {
 		this.equipmentLootTable = equipmentLootTable;
 		this.dropChances = dropChances;
 	}
 
 	public Equipment getEquipment() {
 		if (cachedEquipment == null) {
+			// conversion to map for Equipment constructor
 			Map<EquipmentSlot, Float> dropChances = new HashMap<>();
 			for (DropChance chance : this.dropChances) {
 				dropChances.put(chance.getEquipmentSlot(), chance.getDropChance());

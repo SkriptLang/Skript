@@ -10,7 +10,7 @@ import org.bukkit.event.Event;
 import org.bukkit.inventory.EquipmentSlot;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.spawner.SpawnerModule;
-import org.skriptlang.skript.bukkit.spawner.util.SpawnerEquipmentWrapper.DropChance;
+import org.skriptlang.skript.bukkit.spawner.util.SpawnerEntryEquipmentWrapper.DropChance;
 import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.registration.SyntaxOrigin;
 import org.skriptlang.skript.registration.SyntaxRegistry;
@@ -22,20 +22,20 @@ public class ExprSpawnerEntryEquipmentDropChance extends SimpleExpression<DropCh
 			.origin(SyntaxOrigin.of(Skript.instance()))
 			.supplier(ExprSpawnerEntryEquipmentDropChance::new)
 			.priority(SyntaxInfo.COMBINED)
-			.addPattern("[a] spawner [entry] equipment drop chance [of %-number%] (for|of) %equipmentslot%")
+			.addPattern("%equipmentslot% with drop chance %number%")
 			.build();
 
 		SpawnerModule.SYNTAX_REGISTRY.register(SyntaxRegistry.EXPRESSION, info);
 	}
 
-	private Expression<Number> chance;
 	private Expression<EquipmentSlot> slot;
+	private Expression<Number> chance;
 
 	@Override
 	@SuppressWarnings("unchecked")
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		chance = (Expression<Number>) exprs[0];
-		slot = (Expression<EquipmentSlot>) exprs[1];
+		slot = (Expression<EquipmentSlot>) exprs[0];
+		chance = (Expression<Number>) exprs[1];
 		return true;
 	}
 
@@ -45,14 +45,11 @@ public class ExprSpawnerEntryEquipmentDropChance extends SimpleExpression<DropCh
 		if (slot == null)
 			return new DropChance[0];
 
-		float chance = 1f;
-		if (this.chance != null) {
-			Number number = this.chance.getSingle(event);
-			if (number != null)
-				chance = number.floatValue();
-		}
+		Number chance = this.chance.getSingle(event);
+		if (chance == null)
+			return new DropChance[0];
 
-		return new DropChance[]{new DropChance(slot, chance)};
+		return new DropChance[]{new DropChance(slot, chance.floatValue())};
 	}
 
 	@Override

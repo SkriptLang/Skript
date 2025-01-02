@@ -13,7 +13,6 @@ import org.bukkit.spawner.BaseSpawner;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.spawner.SpawnerModule;
 import org.skriptlang.skript.bukkit.spawner.util.SpawnerUtils;
-import org.skriptlang.skript.bukkit.spawner.util.TrialSpawnerConfig;
 
 @Name("Spawner Type")
 @Description("Retrieves, sets, or resets the spawner's entity type")
@@ -63,10 +62,7 @@ public class ExprSpawnerType extends SimplePropertyExpression<Object, EntityData
 				case DELETE -> spawner.setSpawnedType(null);
 			}
 
-			if (object instanceof TrialSpawnerConfig config)
-				SpawnerUtils.updateState(config.state());
-			else
-				SpawnerUtils.updateState(spawner);
+			SpawnerUtils.updateState(object);
 		}
 	}
 

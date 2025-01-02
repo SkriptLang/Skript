@@ -11,7 +11,6 @@ import org.bukkit.spawner.Spawner;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.spawner.SpawnerModule;
 import org.skriptlang.skript.bukkit.spawner.util.SpawnerUtils;
-import org.skriptlang.skript.bukkit.spawner.util.TrialSpawnerConfig;
 
 public class ExprSpawnerDelay extends SimplePropertyExpression<Object, Timespan> {
 
@@ -63,10 +62,7 @@ public class ExprSpawnerDelay extends SimplePropertyExpression<Object, Timespan>
 				}
 			}
 
-			if (object instanceof TrialSpawnerConfig config)
-				SpawnerUtils.updateState(config.state());
-			else
-				SpawnerUtils.updateState(base);
+			SpawnerUtils.updateState(object);
 		}
 	}
 

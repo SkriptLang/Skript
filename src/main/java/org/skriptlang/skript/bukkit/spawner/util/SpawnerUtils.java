@@ -24,6 +24,12 @@ public class SpawnerUtils {
 		return object instanceof SpawnerMinecart;
 	}
 
+	public static boolean isTrialSpawner(Object object) {
+		if (object instanceof Block block)
+			return block.getState() instanceof TrialSpawner;
+		return object instanceof TrialSpawner;
+	}
+
 	public static @UnknownNullability BaseSpawner getAsBaseSpawner(Object object) {
 		if (object instanceof Block block)
 			return (BaseSpawner) block.getState();
@@ -42,11 +48,19 @@ public class SpawnerUtils {
 		return null;
 	}
 
-	public static void updateState(Object object) {
-		if (object instanceof CreatureSpawner spawner)
-			spawner.update(true, false);
+	public static @UnknownNullability TrialSpawner getAsTrialSpawner(Object object) {
+		if (object instanceof Block block)
+			return (TrialSpawner) block.getState();
 		else if (object instanceof TrialSpawner spawner)
+			return spawner;
+		return null;
+	}
+
+	public static void updateState(Object state) {
+		if (state instanceof CreatureSpawner spawner)
 			spawner.update(true, false);
+		else if (state instanceof TrialSpawnerConfig config)
+			config.state().update(true, false);
 	}
 
 }

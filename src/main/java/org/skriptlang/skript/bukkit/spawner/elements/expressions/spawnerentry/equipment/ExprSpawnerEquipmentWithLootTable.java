@@ -8,17 +8,17 @@ import org.bukkit.loot.LootTable;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.spawner.SpawnerModule;
-import org.skriptlang.skript.bukkit.spawner.util.SpawnerEquipmentWrapper;
+import org.skriptlang.skript.bukkit.spawner.util.SpawnerEntryEquipmentWrapper;
 
-public class ExprSpawnerEquipmentWithLootTable extends SimplePropertyExpression<SpawnerEquipmentWrapper, LootTable> {
+public class ExprSpawnerEquipmentWithLootTable extends SimplePropertyExpression<SpawnerEntryEquipmentWrapper, LootTable> {
 
 	static {
 		register(SpawnerModule.SYNTAX_REGISTRY, ExprSpawnerEquipmentWithLootTable.class, LootTable.class,
-			"equipment loot[ ]table", "spawnerentryequipments");
+			"loot[ ]table", "spawnerentryequipments");
 	}
 
 	@Override
-	public @NotNull LootTable convert(SpawnerEquipmentWrapper equipment) {
+	public @NotNull LootTable convert(SpawnerEntryEquipmentWrapper equipment) {
 		return equipment.getEquipmentLootTable();
 	}
 
@@ -34,7 +34,7 @@ public class ExprSpawnerEquipmentWithLootTable extends SimplePropertyExpression<
 		assert delta != null;
 		LootTable lootTable = (LootTable) delta[0];
 
-		for (SpawnerEquipmentWrapper equipment : getExpr().getArray(event)) {
+		for (SpawnerEntryEquipmentWrapper equipment : getExpr().getArray(event)) {
 			equipment.setEquipmentLootTable(lootTable);
 		}
 	}

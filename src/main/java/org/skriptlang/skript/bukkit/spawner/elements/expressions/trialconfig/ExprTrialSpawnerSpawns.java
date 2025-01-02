@@ -10,8 +10,10 @@ import org.bukkit.event.Event;
 import org.bukkit.spawner.TrialSpawnerConfiguration;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.spawner.SpawnerModule;
+import org.skriptlang.skript.bukkit.spawner.util.SpawnerUtils;
+import org.skriptlang.skript.bukkit.spawner.util.TrialSpawnerConfig;
 
-public class ExprTrialSpawnerSpawns extends SimplePropertyExpression<TrialSpawnerConfiguration, Float> {
+public class ExprTrialSpawnerSpawns extends SimplePropertyExpression<TrialSpawnerConfig, Float> {
 
 	static {
 		register(SpawnerModule.SYNTAX_REGISTRY, ExprTrialSpawnerSpawns.class, Float.class,
@@ -27,10 +29,10 @@ public class ExprTrialSpawnerSpawns extends SimplePropertyExpression<TrialSpawne
 	}
 
 	@Override
-	public @Nullable Float convert(TrialSpawnerConfiguration config) {
+	public @Nullable Float convert(TrialSpawnerConfig config) {
 		if (additional)
-			return config.getAdditionalSpawnsBeforeCooldown();
-		return config.getBaseSpawnsBeforeCooldown();
+			return config.config().getAdditionalSpawnsBeforeCooldown();
+		return config.config().getBaseSpawnsBeforeCooldown();
 	}
 
 	@Override
@@ -46,7 +48,8 @@ public class ExprTrialSpawnerSpawns extends SimplePropertyExpression<TrialSpawne
 		assert delta != null;
 		float amount = (float) delta[0];
 
-		for (TrialSpawnerConfiguration config : getExpr().getArray(event)) {
+		for (TrialSpawnerConfig trialConfig : getExpr().getArray(event)) {
+			TrialSpawnerConfiguration config = trialConfig.config();
 			if (additional) {
 				switch (mode) {
 					case SET -> config.setAdditionalSpawnsBeforeCooldown(amount);
@@ -60,6 +63,8 @@ public class ExprTrialSpawnerSpawns extends SimplePropertyExpression<TrialSpawne
 					case REMOVE -> config.setBaseSpawnsBeforeCooldown(config.getBaseSpawnsBeforeCooldown() - amount);
 				}
 			}
+
+			SpawnerUtils.updateState(trialConfig);
 		}
 	}
 

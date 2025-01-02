@@ -6,13 +6,13 @@ import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.spawner.SpawnerModule;
-import org.skriptlang.skript.bukkit.spawner.util.SpawnerEquipmentWrapper.DropChance;
+import org.skriptlang.skript.bukkit.spawner.util.SpawnerEntryEquipmentWrapper.DropChance;
 
 public class ExprSpawnerEntryEquipmentWithChance extends SimplePropertyExpression<DropChance, Float> {
 
 	static {
 		registerDefault(SpawnerModule.SYNTAX_REGISTRY, ExprSpawnerEntryEquipmentWithChance.class, Float.class,
-			"spawner [entry] drop chance", "spawnerentrydropchances");
+			"equipment drop chance", "equipmentdropchances");
 	}
 
 	@Override

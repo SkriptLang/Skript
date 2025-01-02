@@ -8,7 +8,6 @@ import org.bukkit.spawner.BaseSpawner;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.spawner.SpawnerModule;
 import org.skriptlang.skript.bukkit.spawner.util.SpawnerUtils;
-import org.skriptlang.skript.bukkit.spawner.util.TrialSpawnerConfig;
 
 public class ExprSpawnRange extends SimplePropertyExpression<Object, Integer> {
 
@@ -49,10 +48,7 @@ public class ExprSpawnRange extends SimplePropertyExpression<Object, Integer> {
 				case RESET -> spawner.setSpawnRange(4); // default value
 			}
 
-			if (object instanceof TrialSpawnerConfig config)
-				SpawnerUtils.updateState(config.state());
-			else
-				SpawnerUtils.updateState(spawner);
+			SpawnerUtils.updateState(spawner);
 		}
 	}
 

@@ -1,4 +1,4 @@
-package org.skriptlang.skript.bukkit.spawner.elements.expressions.trialconfig;
+package org.skriptlang.skript.bukkit.spawner.elements.expressions.trialconfig.weightedloottable;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.lang.Expression;

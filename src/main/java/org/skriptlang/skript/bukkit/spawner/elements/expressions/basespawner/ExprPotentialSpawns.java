@@ -13,7 +13,6 @@ import org.bukkit.spawner.BaseSpawner;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.spawner.SpawnerModule;
 import org.skriptlang.skript.bukkit.spawner.util.SpawnerUtils;
-import org.skriptlang.skript.bukkit.spawner.util.TrialSpawnerConfig;
 import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.registration.SyntaxOrigin;
 import org.skriptlang.skript.registration.SyntaxRegistry;
@@ -29,8 +28,8 @@ public class ExprPotentialSpawns extends PropertyExpression<Object, SpawnerEntry
 			.supplier(ExprPotentialSpawns::new)
 			.priority(PropertyExpression.DEFAULT_PRIORITY)
 			.addPatterns(
-				"[the] spawner potential spawns (of|from) %entities/blocks/trialspawnerconfigs%",
-				"%entities/blocks/trialspawnerconfigs%'[s] spawner potential spawns")
+				"[the] potential spawns (of|from) %entities/blocks/trialspawnerconfigs%",
+				"%entities/blocks/trialspawnerconfigs%'[s] potential spawns")
 			.build();
 
 		SpawnerModule.SYNTAX_REGISTRY.register(SyntaxRegistry.EXPRESSION, info);
@@ -93,10 +92,7 @@ public class ExprPotentialSpawns extends PropertyExpression<Object, SpawnerEntry
 				case RESET, DELETE -> spawner.setPotentialSpawns(new ArrayList<>());
 			}
 
-			if (object instanceof TrialSpawnerConfig config)
-				SpawnerUtils.updateState(config.state());
-			else
-				SpawnerUtils.updateState(spawner);
+			SpawnerUtils.updateState(object);
 		}
 	}
 
@@ -107,7 +103,7 @@ public class ExprPotentialSpawns extends PropertyExpression<Object, SpawnerEntry
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return "";
+		return "the potential spawns of " + getExpr().toString(event, debug);
 	}
 
 }

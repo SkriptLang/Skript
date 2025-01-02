@@ -11,19 +11,18 @@ import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.registrations.EventValues;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
-import org.bukkit.block.data.type.TrialSpawner;
 import org.bukkit.block.spawner.SpawnRule;
 import org.bukkit.block.spawner.SpawnerEntry;
 import org.bukkit.entity.Entity;
 import org.bukkit.event.entity.SpawnerSpawnEvent;
 import org.bukkit.event.entity.TrialSpawnerSpawnEvent;
 import org.bukkit.inventory.EquipmentSlot;
-import org.jetbrains.annotations.UnknownNullability;
+import org.jetbrains.annotations.NotNull;
 import org.skriptlang.skript.addon.AddonModule;
 import org.skriptlang.skript.addon.SkriptAddon;
 import org.skriptlang.skript.bukkit.spawner.util.SpawnRuleWrapper;
-import org.skriptlang.skript.bukkit.spawner.util.SpawnerEquipmentWrapper;
-import org.skriptlang.skript.bukkit.spawner.util.SpawnerEquipmentWrapper.DropChance;
+import org.skriptlang.skript.bukkit.spawner.util.SpawnerEntryEquipmentWrapper;
+import org.skriptlang.skript.bukkit.spawner.util.SpawnerEntryEquipmentWrapper.DropChance;
 import org.skriptlang.skript.bukkit.spawner.util.TrialSpawnerConfig;
 import org.skriptlang.skript.bukkit.spawner.util.WeightedLootTable;
 import org.skriptlang.skript.lang.converter.Converter;
@@ -111,12 +110,12 @@ public class SpawnerModule implements AddonModule {
 
 				@Override
 				public String toString(SpawnerEntry entry, int flags) {
-					return "spawner entry with " +
-						Classes.toString(entry.getSnapshot()) +
-						" and " +
-						Classes.toString(entry.getSpawnRule()) +
-						" and weight " +
-						entry.getSpawnWeight();
+					return "spawner entry with "
+						+ Classes.toString(entry.getSnapshot())
+						+ ", "
+						+ Classes.toString(entry.getSpawnRule())
+						+ " and weight "
+						+ entry.getSpawnWeight();
 				}
 
 				@Override
@@ -126,7 +125,7 @@ public class SpawnerModule implements AddonModule {
 			})
 		);
 
-		Classes.registerClass(new ClassInfo<>(SpawnerEquipmentWrapper.class, "spawnerentryequipment")
+		Classes.registerClass(new ClassInfo<>(SpawnerEntryEquipmentWrapper.class, "spawnerentryequipment")
 			.user("spawner ?entry ?equipments?")
 			.name("Spawner Entry Equipment")
 			.description("Represents a spawner entry equipment.")
@@ -138,24 +137,24 @@ public class SpawnerModule implements AddonModule {
 				}
 
 				@Override
-				public String toString(SpawnerEquipmentWrapper equipment, int flags) {
-					return "spawner entry equipment with " +
-						Classes.toString(equipment.getEquipmentLootTable()) +
-						" and chance "
+				public String toString(SpawnerEntryEquipmentWrapper equipment, int flags) {
+					return "spawner entry equipment with "
+						+ Classes.toString(equipment.getEquipmentLootTable())
+						+ " and "
 						+ Classes.toString(equipment.getDropChances());
 				}
 
 				@Override
-				public String toVariableNameString(SpawnerEquipmentWrapper equipment) {
+				public String toVariableNameString(SpawnerEntryEquipmentWrapper equipment) {
 					return "spawner entry equipment:" + equipment.hashCode();
 				}
 			})
 		);
 
-		Classes.registerClass(new ClassInfo<>(DropChance.class, "spawnerentrydropchance")
-			.user("spawner ?entry ?drop ?chance")
-			.name("Spawner Entry Drop Chance")
-			.description("Represents a spawner entry drop chance.")
+		Classes.registerClass(new ClassInfo<>(DropChance.class, "equipmentdropchance")
+			.user("(spawner entry ?)?equipment ?drop ?chances?")
+			.name("Spawner Entry Equipment Drop Chance")
+			.description("Represents a spawner entry's equipment drop chance.")
 			.since("INSERT VERSION")
 			.parser(new Parser<>() {
 				@Override
@@ -165,15 +164,15 @@ public class SpawnerModule implements AddonModule {
 
 				@Override
 				public String toString(DropChance equipment, int flags) {
-					return "spawner entry drop chance with " +
-						Classes.toString(equipment.getEquipmentSlot()) +
-						" and chance " +
-						equipment.getDropChance();
+					return "equipment drop chance of "
+						+ equipment.getDropChance()
+						+ " for "
+						+ Classes.toString(equipment.getEquipmentSlot());
 				}
 
 				@Override
 				public String toVariableNameString(DropChance equipment) {
-					return "spawner entry drop chance:" + equipment.getEquipmentSlot() + ',' + equipment.getDropChance();
+					return "equipment drop chance:" + equipment.getEquipmentSlot() + ',' + equipment.getDropChance();
 				}
 			})
 		);
@@ -204,19 +203,12 @@ public class SpawnerModule implements AddonModule {
 				@Override
 				public String toVariableNameString(SpawnRule rule) {
 					return "spawn rule:"
-						+ rule.getMinBlockLight() + ','
-						+ rule.getMaxBlockLight() + ','
-						+ rule.getMinSkyLight() + ','
-						+ rule.getMaxSkyLight();
+							+ rule.getMinBlockLight() + ','
+							+ rule.getMaxBlockLight() + ','
+							+ rule.getMinSkyLight() + ','
+							+ rule.getMaxSkyLight();
 				}
 			})
-		);
-
-		Classes.registerClass(new EnumClassInfo<>(TrialSpawner.State.class, "trialspawnerstate", "trial spawner states")
-			.user("trial ?spawner ?state")
-			.name("Trial Spawner State")
-			.description("Represents a trial spawner state.")
-			.since("INSERT VERSION")
 		);
 
 		//todo: remove after merge of equippable pr
@@ -237,7 +229,7 @@ public class SpawnerModule implements AddonModule {
 		Converters.registerConverter(SpawnerEntry.class, AnyWeight.class,
 			entry -> new AnyWeight() {
 				@Override
-				public @UnknownNullability Integer weight() {
+				public @NotNull Integer weight() {
 					return entry.getSpawnWeight();
 				}
 
