@@ -37,7 +37,6 @@ public class BukkitUtils {
 				throw new RuntimeException(e);
 			}
 		}
-
 		return null;
 	}
 
