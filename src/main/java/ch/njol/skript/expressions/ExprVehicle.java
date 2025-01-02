@@ -106,8 +106,10 @@ public class ExprVehicle extends PropertyExpression<Entity, Entity> {
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		setExpr((Expression<Entity>) exprs[0]);
 		plural = parseResult.hasTag("s");
-		if (plural && getExpr().isDefault())
+		if (plural && getExpr().isDefault()) {
 			Skript.error("An event cannot contain multiple vehicles. Use 'vehicle' with no plurality in vehicle events.");
+			return false;
+		}
 		return true;
 	}
 
