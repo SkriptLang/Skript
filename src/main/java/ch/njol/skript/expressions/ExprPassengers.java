@@ -158,7 +158,8 @@ public class ExprPassengers extends PropertyExpression<Entity, Entity> {
 	@Nullable
 	public Class<?>[] acceptChange(ChangeMode mode) {
 		return switch (mode) {
-			case ADD, DELETE, REMOVE, REMOVE_ALL, RESET, SET -> CollectionUtils.array(Entity[].class, EntityData[].class);
+			case ADD, DELETE, REMOVE, RESET, SET -> CollectionUtils.array(Entity[].class, EntityData[].class);
+			case REMOVE_ALL -> CollectionUtils.array(EntityData[].class);
 			default -> null;
 		};
 	}
