@@ -99,7 +99,7 @@ enchantments:
 	breach: Breach
 	wind_burst: Wind Burst
 
-# -- Potion Effects Types --
+# -- Potion Effect Types --
 potion effect types:
 	speed: speed, swiftness
 	slowness: slowness, slow
