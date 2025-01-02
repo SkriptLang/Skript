@@ -215,7 +215,7 @@ public sealed class SkriptEventInfo<E extends SkriptEvent> extends StructureInfo
 		}
 
 		@Override
-		public Builder<? extends Builder<?, E>, E> builder() {
+		public Builder<? extends Builder<?, E>, E> toBuilder() {
 			return BukkitSyntaxInfos.Event.builder(type(), name())
 				.origin(origin)
 				.addPatterns(patterns())

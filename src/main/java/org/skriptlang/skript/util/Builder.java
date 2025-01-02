@@ -23,7 +23,7 @@ public interface Builder<B extends Builder<B, T>, T> {
 		 * @return A builder representing this object.
 		 */
 		@Contract("-> new")
-		B builder();
+		B toBuilder();
 
 	}
 

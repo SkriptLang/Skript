@@ -53,7 +53,7 @@ public interface SyntaxInfo<E extends SyntaxElement> extends Buildable<SyntaxInf
 	 */
 	@Override
 	@Contract("-> new")
-	Builder<? extends Builder<?, E>, E> builder();
+	Builder<? extends Builder<?, E>, E> toBuilder();
 
 	/**
 	 * @return The origin of this syntax.

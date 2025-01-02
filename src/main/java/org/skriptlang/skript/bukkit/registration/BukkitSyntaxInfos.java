@@ -41,7 +41,7 @@ public final class BukkitSyntaxInfos {
 		 */
 		@Override
 		@Contract("-> new")
-		Builder<? extends Builder<?, E>, E> builder();
+		Builder<? extends Builder<?, E>, E> toBuilder();
 
 		/**
 		 * @return The listening behavior for the SkriptEvent. Determines when the event should trigger.
