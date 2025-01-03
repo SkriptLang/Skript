@@ -1,4 +1,4 @@
-test "Dusted Stage" when running minecraft "1.20":
+test "dusted stage" when running minecraft "1.20":
     set block 1 block under event-location to stone
     set block at event-location to suspicious gravel
     set {_block} to block at event-location
