@@ -496,8 +496,6 @@ public class HTMLGenerator extends DocumentationGenerator {
 			desc = handleIf(desc, "${if new-element}", NEW_TAG_PATTERN.matcher("").find());
 		}
 
-
-
 		// Structure - EntryData
 		if (info instanceof StructureInfo) {
 			EntryValidator entryValidator = ((StructureInfo<?>) info).entryValidator;
