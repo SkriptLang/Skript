@@ -21,6 +21,7 @@ import org.bukkit.potion.PotionData;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.potion.PotionType;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.Skript;
@@ -334,6 +335,11 @@ public abstract class PotionEffectUtils {
 		return effects;
 	}
 
+	/** Legacy class info for PotionEffectType (pre-registry)
+	 *
+	 * @return ClassInfo for PotionEffeectType
+	 */
+	@ApiStatus.Internal
 	public static ClassInfo<PotionEffectType> getLegacyClassInfo() {
 		return new ClassInfo<>(PotionEffectType.class, "potioneffecttype")
 			.user("potion( ?effect)? ?types?") // "type" had to be made non-optional to prevent clashing with potion effects
