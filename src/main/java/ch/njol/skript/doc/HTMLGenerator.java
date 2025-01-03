@@ -493,7 +493,7 @@ public class HTMLGenerator extends DocumentationGenerator {
 				desc = handleIf(desc, "${if new-element}", NEW_TAG_PATTERN.matcher(s).find());
 			}
 		} else {
-			desc = handleIf(desc, "${if new-element}", NEW_TAG_PATTERN.matcher("").find());
+			desc = handleIf(desc, "${if new-element}", false);
 		}
 
 		// Structure - EntryData
