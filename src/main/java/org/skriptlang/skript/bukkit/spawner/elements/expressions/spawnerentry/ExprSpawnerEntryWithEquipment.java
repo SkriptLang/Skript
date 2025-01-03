@@ -17,7 +17,7 @@ public class ExprSpawnerEntryWithEquipment extends SimplePropertyExpression<Spaw
 
 	static {
 		registerDefault(SpawnerModule.SYNTAX_REGISTRY, ExprSpawnerEntryWithEquipment.class, SpawnerEntryEquipmentWrapper.class,
-			"equipment loot[ ]table", "spawnerentries");
+				"equipment loot[ ]table", "spawnerentries");
 	}
 
 	@Override

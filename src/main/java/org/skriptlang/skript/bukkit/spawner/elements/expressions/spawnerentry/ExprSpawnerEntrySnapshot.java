@@ -14,7 +14,7 @@ public class ExprSpawnerEntrySnapshot extends SimplePropertyExpression<SpawnerEn
 
 	static {
 		registerDefault(SpawnerModule.SYNTAX_REGISTRY, ExprSpawnerEntrySnapshot.class, EntitySnapshot.class,
-			"entity snapshot", "spawnerentries");
+				"entity snapshot", "spawnerentries");
 	}
 
 	@Override

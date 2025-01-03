@@ -15,7 +15,7 @@ public class ExprSpawnRuleBlockLight extends SimplePropertyExpression<SpawnRule,
 
 	static {
 		registerDefault(SpawnerModule.SYNTAX_REGISTRY, ExprSpawnRuleBlockLight.class, Integer.class,
-			"(1:max[imum]|min[imum]) block light [entity] spawn [rule] (level|value)", "spawnrules"
+				"(1:max[imum]|min[imum]) block light [entity] spawn [rule] (level|value)", "spawnrules"
 		);
 	}
 

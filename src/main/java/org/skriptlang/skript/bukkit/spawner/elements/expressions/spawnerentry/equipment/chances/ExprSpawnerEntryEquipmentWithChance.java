@@ -12,7 +12,7 @@ public class ExprSpawnerEntryEquipmentWithChance extends SimplePropertyExpressio
 
 	static {
 		registerDefault(SpawnerModule.SYNTAX_REGISTRY, ExprSpawnerEntryEquipmentWithChance.class, Float.class,
-			"equipment drop chance", "equipmentdropchances");
+				"equipment drop chance", "equipmentdropchances");
 	}
 
 	@Override

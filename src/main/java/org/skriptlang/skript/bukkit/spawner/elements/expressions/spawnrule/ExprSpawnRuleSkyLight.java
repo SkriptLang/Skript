@@ -15,7 +15,7 @@ public class ExprSpawnRuleSkyLight extends SimplePropertyExpression<SpawnRule, I
 
 	static {
 		registerDefault(SpawnerModule.SYNTAX_REGISTRY, ExprSpawnRuleSkyLight.class, Integer.class,
-			"(1:max[imum]|min[imum]) sky[ ]light [entity] spawn [rule] (level|value)", "spawnrules"
+				"(1:max[imum]|min[imum]) sky[ ]light [entity] spawn [rule] (level|value)", "spawnrules"
 		);
 	}
 
