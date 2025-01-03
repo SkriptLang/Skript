@@ -700,6 +700,7 @@ public class SkriptClasses {
 				.usage("")
 				.examples("the weight of {thing}")
 				.since("INSERT VERSION")
+				.defaultExpression(new EventValueExpression<>(AnyWeight.class))
 		);
 	}
 

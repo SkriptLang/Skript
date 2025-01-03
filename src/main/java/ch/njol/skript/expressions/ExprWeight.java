@@ -10,7 +10,7 @@ import org.jetbrains.annotations.Nullable;
 public class ExprWeight extends SimplePropertyExpression<Object, Integer> {
 
 	static {
-		register(ExprWeight.class, Integer.class, "weight", "weighteds");
+		registerDefault(ExprWeight.class, Integer.class, "weight", "weighteds");
 	}
 
 	@Override
