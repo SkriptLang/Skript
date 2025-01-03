@@ -1,3 +1,4 @@
 test "x component of block":
-	set {a} to block at location(0, 0, 0)
-	add 1 to x of {a} # should not throw exception
+	set event-block to air
+	set {_a} to vector of event-block
+	add 1 to x of {_a} # should not throw exception
