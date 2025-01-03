@@ -434,7 +434,7 @@ public class HTMLGenerator extends DocumentationGenerator {
 
 		// Since
 		Since since = c.getAnnotation(Since.class);
-		desc = desc.replace("${element.since}", Joiner.on("<br>").join(getDefaultIfNullOrEmpty((since != null ? since.value() : null), "Unknown")));
+		desc = desc.replace("${element.since}", Joiner.on("<br/>").join(getDefaultIfNullOrEmpty((since != null ? since.value() : null), "Unknown")));
 
 		Keywords keywords = c.getAnnotation(Keywords.class);
 		desc = desc.replace("${element.keywords}", keywords == null ? "" : Joiner.on(", ").join(keywords.value()));
