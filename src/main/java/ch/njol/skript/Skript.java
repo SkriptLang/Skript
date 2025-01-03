@@ -19,12 +19,7 @@ import ch.njol.skript.log.*;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.registrations.EventValues;
 import ch.njol.skript.registrations.Feature;
-import ch.njol.skript.test.runner.EffObjectives;
-import ch.njol.skript.test.runner.SkriptAsyncJUnitTest;
-import ch.njol.skript.test.runner.SkriptJUnitTest;
-import ch.njol.skript.test.runner.SkriptTestEvent;
-import ch.njol.skript.test.runner.TestMode;
-import ch.njol.skript.test.runner.TestTracker;
+import ch.njol.skript.test.runner.*;
 import ch.njol.skript.timings.SkriptTimings;
 import ch.njol.skript.update.ReleaseManifest;
 import ch.njol.skript.update.ReleaseStatus;
@@ -55,7 +50,6 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.server.PluginDisableEvent;
 import org.bukkit.event.server.ServerCommandEvent;
 import org.bukkit.event.server.ServerLoadEvent;
-import org.bukkit.event.world.WorldLoadEvent;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -68,7 +62,6 @@ import org.junit.runner.JUnitCore;
 import org.junit.runner.Result;
 import org.junit.runner.notification.Failure;
 import org.skriptlang.skript.bukkit.SkriptMetrics;
-import org.skriptlang.skript.bukkit.tags.TagModule;
 import org.skriptlang.skript.bukkit.breeding.BreedingModule;
 import org.skriptlang.skript.bukkit.displays.DisplayModule;
 import org.skriptlang.skript.bukkit.fishing.FishingModule;
@@ -78,16 +71,17 @@ import org.skriptlang.skript.bukkit.log.runtime.BukkitRuntimeErrorConsumer;
 import org.skriptlang.skript.bukkit.loottables.LootTableModule;
 import org.skriptlang.skript.bukkit.registration.BukkitRegistryKeys;
 import org.skriptlang.skript.bukkit.registration.BukkitSyntaxInfos;
+import org.skriptlang.skript.bukkit.tags.TagModule;
 import org.skriptlang.skript.lang.comparator.Comparator;
 import org.skriptlang.skript.lang.comparator.Comparators;
 import org.skriptlang.skript.lang.converter.Converter;
 import org.skriptlang.skript.lang.converter.Converters;
 import org.skriptlang.skript.lang.entry.EntryValidator;
-import org.skriptlang.skript.log.runtime.RuntimeErrorManager;
 import org.skriptlang.skript.lang.experiment.ExperimentRegistry;
 import org.skriptlang.skript.lang.script.Script;
 import org.skriptlang.skript.lang.structure.Structure;
 import org.skriptlang.skript.lang.structure.StructureInfo;
+import org.skriptlang.skript.log.runtime.RuntimeErrorManager;
 import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.registration.SyntaxOrigin;
 import org.skriptlang.skript.registration.SyntaxRegistry;
@@ -106,7 +100,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.*;
-import java.util.Map.Entry;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicLong;
@@ -676,7 +669,6 @@ public final class Skript extends JavaPlugin implements Listener {
 				debug("Early init done");
 
 				if (TestMode.ENABLED) {
-					// Ignore late init (scripts, etc.) in test mode
 					Bukkit.getWorlds().get(0).getChunkAtAsync(0, 0).thenRun(() -> runTests());
 				}
 
