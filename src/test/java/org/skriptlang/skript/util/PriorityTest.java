@@ -11,8 +11,9 @@ public class PriorityTest {
 
 		Assert.assertTrue(base.before().isEmpty());
 		Assert.assertTrue(base.after().isEmpty());
-		//noinspection EqualsWithItself - ensuring basic correctness
-		Assert.assertEquals(0, base.compareTo(base));
+
+		// Different instances, but functionally equal
+		Assert.assertEquals(base, Priority.base());
 	}
 
 	@Test
@@ -26,7 +27,7 @@ public class PriorityTest {
 		Assert.assertTrue(base.compareTo(before) > 0);
 
 		// Different instances, but functionally equal
-		Assert.assertEquals(0, before.compareTo(Priority.before(base)));
+		Assert.assertEquals(before, Priority.before(base));
 	}
 
 	@Test
@@ -40,7 +41,7 @@ public class PriorityTest {
 		Assert.assertTrue(base.compareTo(after) < 0);
 
 		// Different instances, but functionally equal
-		Assert.assertEquals(0, after.compareTo(Priority.after(base)));
+		Assert.assertEquals(after, Priority.after(base));
 	}
 
 	@Test

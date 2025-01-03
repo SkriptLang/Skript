@@ -15,7 +15,7 @@ import org.skriptlang.skript.util.ViewProvider;
 import java.util.Collection;
 
 /**
- * A syntax registry manages all {@link SyntaxRegister}s for syntax registration.
+ * A syntax registry is a central container for all {@link SyntaxInfo}s.
  */
 @ApiStatus.Experimental
 public interface SyntaxRegistry extends ViewProvider<SyntaxRegistry>, Registry<SyntaxInfo<?>> {
