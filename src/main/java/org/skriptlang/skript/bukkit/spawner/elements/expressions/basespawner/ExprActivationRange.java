@@ -48,6 +48,7 @@ public class ExprActivationRange extends SimplePropertyExpression<Object, Intege
 					case REMOVE -> spawner.setRequiredPlayerRange(spawner.getRequiredPlayerRange() - count);
 					case RESET -> spawner.setRequiredPlayerRange(16); // default value
 				}
+				SpawnerUtils.updateState(spawner);
 			} else if (SpawnerUtils.isTrialSpawner(object)) {
 				TrialSpawner spawner = SpawnerUtils.getAsTrialSpawner(object);
 				switch (mode) {
@@ -56,9 +57,8 @@ public class ExprActivationRange extends SimplePropertyExpression<Object, Intege
 					case REMOVE -> spawner.setRequiredPlayerRange(spawner.getRequiredPlayerRange() - count);
 					case RESET -> spawner.setRequiredPlayerRange(16); // default value
 				}
+				SpawnerUtils.updateState(spawner);
 			}
-
-			SpawnerUtils.updateState(object);
 		}
 	}
 

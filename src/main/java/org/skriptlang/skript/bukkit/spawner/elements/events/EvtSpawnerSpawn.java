@@ -1,12 +1,12 @@
 package org.skriptlang.skript.bukkit.spawner.elements.events;
 
 import ch.njol.skript.Skript;
-import ch.njol.skript.bukkitutil.EntityUtils;
 import ch.njol.skript.entity.EntityData;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptEvent;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.SyntaxStringBuilder;
+import org.bukkit.entity.Entity;
 import org.bukkit.event.Event;
 import org.bukkit.event.entity.SpawnerSpawnEvent;
 import org.bukkit.event.entity.TrialSpawnerSpawnEvent;
@@ -47,7 +47,7 @@ public class EvtSpawnerSpawn extends SkriptEvent {
 	@Override
 	public boolean init(Literal<?>[] args, int matchedPattern, ParseResult parseResult) {
 		//noinspection unchecked
-		this.entityDatas =  (Literal<EntityData<?>>) args[0];
+		entityDatas =  (Literal<EntityData<?>>) args[0];
 		trial = parseResult.hasTag("trial");
 		return true;
 	}
@@ -56,17 +56,17 @@ public class EvtSpawnerSpawn extends SkriptEvent {
 	public boolean check(Event event) {
 		boolean pass = true;
 		if (entityDatas != null) {
-			EntityData<?> type = null;
+			Entity entity = null;
 			if (event instanceof SpawnerSpawnEvent spawnerEvent) {
-				type = EntityUtils.toSkriptEntityData(spawnerEvent.getEntityType());
+				entity = spawnerEvent.getEntity();
 			} else if (event instanceof TrialSpawnerSpawnEvent trialEvent) {
-				type = EntityUtils.toSkriptEntityData(trialEvent.getEntityType());
+				entity = trialEvent.getEntity();
 			}
 
-			assert type != null;
+			assert entity != null;
 
 			for (EntityData<?> entityType : entityDatas.getArray()) {
-				if (type.equals(entityType)) {
+				if (entityType.isInstance(entity)) {
 					pass = true;
 					break;
 				}

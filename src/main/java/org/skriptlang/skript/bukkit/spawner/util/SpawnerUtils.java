@@ -49,18 +49,19 @@ public class SpawnerUtils {
 	}
 
 	public static @UnknownNullability TrialSpawner getAsTrialSpawner(Object object) {
-		if (object instanceof Block block)
-			return (TrialSpawner) block.getState();
-		else if (object instanceof TrialSpawner spawner)
+		if (object instanceof Block block) {
+			object = block.getState();
+		} else if (object instanceof TrialSpawner spawner) {
 			return spawner;
+		}
 		return null;
 	}
 
 	public static void updateState(Object state) {
 		if (state instanceof CreatureSpawner spawner)
 			spawner.update(true, false);
-		else if (state instanceof TrialSpawnerConfig config)
-			config.state().update(true, false);
+		else if (state instanceof TrialSpawner spawner)
+			spawner.update(true, false);
 	}
 
 }

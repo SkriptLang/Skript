@@ -64,7 +64,7 @@ public class ExprTrialSpawnerSpawnAmount extends SimplePropertyExpression<TrialS
 				}
 			}
 
-			SpawnerUtils.updateState(trialConfig);
+			SpawnerUtils.updateState(trialConfig.state());
 		}
 	}
 

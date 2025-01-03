@@ -96,7 +96,7 @@ public class ExprTrialConfigLootTables extends PropertyExpression<TrialSpawnerCo
 			if (mode == ChangeMode.SET)
 				config.setPossibleRewards(possibleRewards);
 
-			SpawnerUtils.updateState(trialConfig);
+			SpawnerUtils.updateState(trialConfig.state());
 		}
 	}
 

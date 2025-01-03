@@ -110,12 +110,14 @@ public class SpawnerModule implements AddonModule {
 
 				@Override
 				public String toString(SpawnerEntry entry, int flags) {
-					return "spawner entry with "
-						+ Classes.toString(entry.getSnapshot())
-						+ ", "
-						+ Classes.toString(entry.getSpawnRule())
-						+ " and weight "
-						+ entry.getSpawnWeight();
+					StringBuilder builder = new StringBuilder();
+
+					builder.append("spawner entry with ").append(Classes.toString(entry.getSnapshot()));
+					if (entry.getSpawnRule() != null)
+						builder.append(", ").append(Classes.toString(entry.getSpawnRule()));
+					builder.append(" and weight ").append(entry.getSpawnWeight());
+
+					return builder.toString();
 				}
 
 				@Override

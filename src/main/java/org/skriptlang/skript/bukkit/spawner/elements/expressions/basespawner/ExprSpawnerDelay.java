@@ -62,7 +62,7 @@ public class ExprSpawnerDelay extends SimplePropertyExpression<Object, Timespan>
 				}
 			}
 
-			SpawnerUtils.updateState(object);
+			SpawnerUtils.updateState(base);
 		}
 	}
 

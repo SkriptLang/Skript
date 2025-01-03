@@ -92,7 +92,7 @@ public class ExprPotentialSpawns extends PropertyExpression<Object, SpawnerEntry
 				case RESET, DELETE -> spawner.setPotentialSpawns(new ArrayList<>());
 			}
 
-			SpawnerUtils.updateState(object);
+			SpawnerUtils.updateState(spawner);
 		}
 	}
 

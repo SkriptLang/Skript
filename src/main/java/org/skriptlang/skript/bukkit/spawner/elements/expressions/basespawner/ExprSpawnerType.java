@@ -62,7 +62,7 @@ public class ExprSpawnerType extends SimplePropertyExpression<Object, EntityData
 				case DELETE -> spawner.setSpawnedType(null);
 			}
 
-			SpawnerUtils.updateState(object);
+			SpawnerUtils.updateState(spawner);
 		}
 	}
 
