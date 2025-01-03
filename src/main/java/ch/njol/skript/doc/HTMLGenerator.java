@@ -434,7 +434,7 @@ public class HTMLGenerator extends DocumentationGenerator {
 
 		// Since
 		Since since = c.getAnnotation(Since.class);
-		desc = desc.replace("${element.since}", getDefaultIfNullOrEmpty((since != null ? since.value() : null), "Unknown"));
+		desc = desc.replace("${element.since}", Joiner.on("<br>").join(getDefaultIfNullOrEmpty((since != null ? since.value() : null), "Unknown")));
 
 		Keywords keywords = c.getAnnotation(Keywords.class);
 		desc = desc.replace("${element.keywords}", keywords == null ? "" : Joiner.on(", ").join(keywords.value()));
@@ -488,7 +488,11 @@ public class HTMLGenerator extends DocumentationGenerator {
 		desc = handleIf(desc, "${if by-addon}", false);
 
 		// New Elements
-		desc = handleIf(desc, "${if new-element}", NEW_TAG_PATTERN.matcher((since != null ? since.value() : "")).find());
+		if (since != null)
+			for (String s : since.value()) {
+				desc = handleIf(desc, "${if new-element}", NEW_TAG_PATTERN.matcher(s).find());
+			}
+
 
 		// Structure - EntryData
 		if (info instanceof StructureInfo) {
