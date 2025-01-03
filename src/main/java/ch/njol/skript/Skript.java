@@ -3,60 +3,34 @@ package ch.njol.skript;
 import ch.njol.skript.aliases.Aliases;
 import ch.njol.skript.bukkitutil.BurgerHelper;
 import ch.njol.skript.classes.ClassInfo;
-import ch.njol.skript.classes.data.BukkitClasses;
-import ch.njol.skript.classes.data.BukkitEventValues;
-import ch.njol.skript.classes.data.DefaultComparators;
-import ch.njol.skript.classes.data.DefaultConverters;
-import ch.njol.skript.classes.data.DefaultFunctions;
-import ch.njol.skript.classes.data.DefaultOperations;
-import ch.njol.skript.classes.data.JavaClasses;
-import ch.njol.skript.classes.data.SkriptClasses;
+import ch.njol.skript.classes.data.*;
 import ch.njol.skript.command.Commands;
 import ch.njol.skript.doc.Documentation;
 import ch.njol.skript.events.EvtSkript;
 import ch.njol.skript.hooks.Hook;
-import ch.njol.skript.lang.Condition;
-import ch.njol.skript.lang.Condition.ConditionType;
+import ch.njol.skript.lang.*;
 import ch.njol.skript.lang.Effect;
-import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.ExpressionInfo;
-import ch.njol.skript.lang.ExpressionType;
-import ch.njol.skript.lang.Section;
-import ch.njol.skript.lang.SkriptEvent;
-import ch.njol.skript.lang.SkriptEventInfo;
-import ch.njol.skript.lang.Statement;
-import ch.njol.skript.lang.SyntaxElementInfo;
-import ch.njol.skript.lang.Trigger;
-import ch.njol.skript.lang.TriggerItem;
+import ch.njol.skript.lang.Condition.ConditionType;
 import ch.njol.skript.lang.util.SimpleExpression;
-import ch.njol.skript.localization.ArgsMessage;
 import ch.njol.skript.localization.Language;
 import ch.njol.skript.localization.Message;
 import ch.njol.skript.localization.PluralizingArgsMessage;
-import ch.njol.skript.log.BukkitLoggerFilter;
-import ch.njol.skript.log.CountingLogHandler;
-import ch.njol.skript.log.ErrorDescLogHandler;
-import ch.njol.skript.log.ErrorQuality;
-import ch.njol.skript.log.LogEntry;
-import ch.njol.skript.log.LogHandler;
-import ch.njol.skript.log.SkriptLogger;
-import ch.njol.skript.log.Verbosity;
+import ch.njol.skript.log.*;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.registrations.EventValues;
 import ch.njol.skript.registrations.Feature;
-import ch.njol.skript.test.runner.*;
+import ch.njol.skript.test.runner.EffObjectives;
+import ch.njol.skript.test.runner.SkriptAsyncJUnitTest;
+import ch.njol.skript.test.runner.SkriptJUnitTest;
+import ch.njol.skript.test.runner.SkriptTestEvent;
+import ch.njol.skript.test.runner.TestMode;
+import ch.njol.skript.test.runner.TestTracker;
 import ch.njol.skript.timings.SkriptTimings;
 import ch.njol.skript.update.ReleaseManifest;
 import ch.njol.skript.update.ReleaseStatus;
 import ch.njol.skript.update.UpdateManifest;
 import ch.njol.skript.util.Date;
-import ch.njol.skript.util.EmptyStacktraceException;
-import ch.njol.skript.util.ExceptionUtils;
-import ch.njol.skript.util.FileUtils;
-import ch.njol.skript.util.Getter;
-import ch.njol.skript.util.Task;
-import ch.njol.skript.util.Utils;
-import ch.njol.skript.util.Version;
+import ch.njol.skript.util.*;
 import ch.njol.skript.util.chat.BungeeConverter;
 import ch.njol.skript.util.chat.ChatMessages;
 import ch.njol.skript.variables.Variables;
@@ -65,13 +39,10 @@ import ch.njol.util.Kleenean;
 import ch.njol.util.StringUtils;
 import ch.njol.util.coll.iterator.CheckedIterator;
 import ch.njol.util.coll.iterator.EnumerationIterable;
-
 import com.google.common.collect.Lists;
 import com.google.gson.Gson;
-
 import com.google.gson.GsonBuilder;
 import org.bstats.bukkit.Metrics;
-import org.bstats.charts.SimplePie;
 import org.bukkit.*;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.PluginCommand;
@@ -88,35 +59,37 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.ApiStatus;
-import org.jetbrains.annotations.Unmodifiable;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnknownNullability;
+import org.jetbrains.annotations.Unmodifiable;
 import org.junit.After;
 import org.junit.runner.JUnitCore;
 import org.junit.runner.Result;
-import org.skriptlang.skript.bukkit.registration.BukkitRegistryKeys;
-import org.skriptlang.skript.bukkit.registration.BukkitSyntaxInfos;
 import org.junit.runner.notification.Failure;
 import org.skriptlang.skript.bukkit.SkriptMetrics;
+import org.skriptlang.skript.bukkit.tags.TagModule;
 import org.skriptlang.skript.bukkit.breeding.BreedingModule;
 import org.skriptlang.skript.bukkit.displays.DisplayModule;
-import org.skriptlang.skript.bukkit.furnace.FurnaceModule;
 import org.skriptlang.skript.bukkit.fishing.FishingModule;
+import org.skriptlang.skript.bukkit.furnace.FurnaceModule;
 import org.skriptlang.skript.bukkit.input.InputModule;
+import org.skriptlang.skript.bukkit.log.runtime.BukkitRuntimeErrorConsumer;
 import org.skriptlang.skript.bukkit.loottables.LootTableModule;
-import org.skriptlang.skript.bukkit.spawner.SpawnerModule;
+import org.skriptlang.skript.bukkit.registration.BukkitRegistryKeys;
+import org.skriptlang.skript.bukkit.registration.BukkitSyntaxInfos;
 import org.skriptlang.skript.lang.comparator.Comparator;
 import org.skriptlang.skript.lang.comparator.Comparators;
 import org.skriptlang.skript.lang.converter.Converter;
 import org.skriptlang.skript.lang.converter.Converters;
 import org.skriptlang.skript.lang.entry.EntryValidator;
+import org.skriptlang.skript.log.runtime.RuntimeErrorManager;
 import org.skriptlang.skript.lang.experiment.ExperimentRegistry;
 import org.skriptlang.skript.lang.script.Script;
 import org.skriptlang.skript.lang.structure.Structure;
 import org.skriptlang.skript.lang.structure.StructureInfo;
+import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.registration.SyntaxOrigin;
 import org.skriptlang.skript.registration.SyntaxRegistry;
-import org.skriptlang.skript.registration.SyntaxInfo;
 
 import java.io.File;
 import java.io.IOException;
@@ -131,17 +104,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicLong;
@@ -152,7 +116,6 @@ import java.util.logging.Level;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
@@ -179,7 +142,7 @@ import java.util.zip.ZipFile;
  * @see #registerEffect(Class, String...)
  * @see #registerExpression(Class, Class, ExpressionType, String...)
  * @see #registerEvent(String, Class, Class, String...)
- * @see EventValues#registerEventValue(Class, Class, Getter, int)
+ * @see EventValues#registerEventValue(Class, Class, Converter, int)
  * @see Classes#registerClass(ClassInfo)
  * @see Comparators#registerComparator(Class, Class, Comparator)
  * @see Converters#registerConverter(Class, Class, Converter)
@@ -393,6 +356,13 @@ public final class Skript extends JavaPlugin implements Listener {
 		return scriptsFolder;
 	}
 
+
+	// ================ RUNTIME ERRORS ================
+	public static RuntimeErrorManager getRuntimeErrorManager() {
+		return RuntimeErrorManager.getInstance();
+	}
+	// =================================================
+
 	@Override
 	public void onEnable() {
 		Bukkit.getPluginManager().registerEvents(this, this);
@@ -527,11 +497,17 @@ public final class Skript extends JavaPlugin implements Listener {
 			}
 		}
 
+
 		// Config must be loaded after Java and Skript classes are parseable
 		// ... but also before platform check, because there is a config option to ignore some errors
 		SkriptConfig.load();
 
-		CompletableFuture<Boolean> aliases = Aliases.loadAsync();
+		// Register the runtime error refresh after loading, so we can do the first instantiation manually.
+		SkriptConfig.eventRegistry().register(SkriptConfig.ReloadEvent.class, RuntimeErrorManager::refresh);
+
+		// init runtime error manager and add bukkit consumer.
+		RuntimeErrorManager.refresh();
+		getRuntimeErrorManager().addConsumer(new BukkitRuntimeErrorConsumer());
 
 		// Now override the verbosity if test mode is enabled
 		if (TestMode.VERBOSITY != null)
@@ -576,14 +552,17 @@ public final class Skript extends JavaPlugin implements Listener {
 			BreedingModule.load();
 			DisplayModule.load();
 			InputModule.load();
+			TagModule.load();
 			FurnaceModule.load();
 			LootTableModule.load();
-			skript.loadModules(new SpawnerModule());
 		} catch (final Exception e) {
 			exception(e, "Could not load required .class files: " + e.getLocalizedMessage());
 			setEnabled(false);
 			return;
 		}
+
+		// todo: remove completely 2.11 or 2.12
+		CompletableFuture<Boolean> aliases = Aliases.loadAsync();
 
 		Commands.registerListeners();
 
@@ -811,7 +790,7 @@ public final class Skript extends JavaPlugin implements Listener {
 								Bukkit.getServer().shutdown();
 							}, shutdownDelay.get());
 						});
-					}, 5);
+					}, 20); // 20 ticks is necessary on 1.19.4 to allow the server time to properly load/start ticking, for some reason
 				}
 
 				Skript.metrics = new Metrics(Skript.getInstance(), 722); // 722 is our bStats plugin ID
@@ -1166,7 +1145,7 @@ public final class Skript extends JavaPlugin implements Listener {
 		return metrics;
 	}
 
-	@SuppressWarnings("null")
+	@SuppressWarnings({"null", "removal"})
 	private final static Collection<Closeable> closeOnDisable = Collections.synchronizedCollection(new ArrayList<Closeable>());
 
 	/**
@@ -1176,6 +1155,7 @@ public final class Skript extends JavaPlugin implements Listener {
 	 *
 	 * @param closeable
 	 */
+	@SuppressWarnings("removal")
 	public static void closeOnDisable(final Closeable closeable) {
 		closeOnDisable.add(closeable);
 	}
@@ -1259,6 +1239,7 @@ public final class Skript extends JavaPlugin implements Listener {
 	}
 
 	@Override
+	@SuppressWarnings("removal")
 	public void onDisable() {
 		if (disabled)
 			return;
@@ -1378,7 +1359,7 @@ public final class Skript extends JavaPlugin implements Listener {
 	/**
 	 * Registers an addon to Skript. This is currently not required for addons to work, but the returned {@link SkriptAddon} provides useful methods for registering syntax elements
 	 * and adding new strings to Skript's localization system (e.g. the required "types.[type]" strings for registered classes).
-	 * 
+	 *
 	 * @param plugin The plugin
 	 */
 	public static SkriptAddon registerAddon(JavaPlugin plugin) {
@@ -1462,7 +1443,7 @@ public final class Skript extends JavaPlugin implements Listener {
 
 	/**
 	 * Registers a {@link Condition}.
-	 * 
+	 *
 	 * @param conditionClass The condition's class
 	 * @param patterns Skript patterns to match this condition
 	 */
@@ -1489,7 +1470,7 @@ public final class Skript extends JavaPlugin implements Listener {
 
 	/**
 	 * Registers an {@link Effect}.
-	 * 
+	 *
 	 * @param effectClass The effect's class
 	 * @param patterns Skript patterns to match this effect
 	 */
@@ -1550,7 +1531,7 @@ public final class Skript extends JavaPlugin implements Listener {
 
 	/**
 	 * Registers an expression.
-	 * 
+	 *
 	 * @param expressionType The expression's class
 	 * @param returnType The superclass of all values returned by the expression
 	 * @param type The expression's {@link ExpressionType type}. This is used to determine in which order to try to parse expressions.
@@ -1837,161 +1818,164 @@ public final class Skript extends JavaPlugin implements Listener {
 	 * @param info Description of the error and additional information
 	 * @return an EmptyStacktraceException to throw if code execution should terminate.
 	 */
-	public static EmptyStacktraceException exception(@Nullable Throwable cause, final @Nullable Thread thread, final @Nullable TriggerItem item, final String... info) {
+	public static EmptyStacktraceException exception(@Nullable Throwable cause, @Nullable Thread thread, @Nullable TriggerItem item, String... info) {
 		errored = true;
 
-		// Don't send full exception message again, when caught exception (likely) comes from this method
+		// Avoid re-throwing the same exception
 		if (cause instanceof EmptyStacktraceException) {
 			return new EmptyStacktraceException();
 		}
 
 		// First error: gather plugin package information
 		if (!checkedPlugins) {
-			for (Plugin plugin : Bukkit.getPluginManager().getPlugins()) {
-				if (plugin.getName().equals("Skript")) // Don't track myself!
-					continue;
-
-				PluginDescriptionFile desc = plugin.getDescription();
-				if (desc.getDepend().contains("Skript") || desc.getSoftDepend().contains("Skript")) {
-					// Take actual main class out from the qualified name
-					String[] parts = desc.getMain().split("\\."); // . is special in regexes...
-					StringBuilder name = new StringBuilder(desc.getMain().length());
-					for (int i = 0; i < parts.length - 1; i++) {
-						name.append(parts[i]).append('.');
-					}
-
-					// Put this to map
-					pluginPackages.put(name.toString(), desc);
-					if (Skript.debug())
-						Skript.info("Identified potential addon: " + desc.getFullName() + " (" + name.toString() + ")");
-				}
-			}
-
+			initializePluginPackages();
 			checkedPlugins = true; // No need to do this next time
 		}
 
+		logErrorDetails(cause, info, thread, item);
+		return new EmptyStacktraceException();
+	}
+
+	private static void initializePluginPackages() {
+		for (Plugin plugin : Bukkit.getPluginManager().getPlugins()) {
+			if (plugin.getName().equals("Skript")) // Skip self
+				continue;
+
+			PluginDescriptionFile desc = plugin.getDescription();
+			if (desc.getDepend().contains("Skript") || desc.getSoftDepend().contains("Skript")) {
+				String mainClassPackage = getPackageName(desc.getMain());
+				pluginPackages.put(mainClassPackage, desc);
+				if (Skript.debug()) {
+					Skript.info("Identified potential addon: " + desc.getFullName() + " (" + mainClassPackage + ")");
+				}
+			}
+		}
+	}
+
+	private static String getPackageName(String qualifiedClassName) {
+		int lastDotIndex = qualifiedClassName.lastIndexOf('.');
+		return (lastDotIndex == -1) ? "" : qualifiedClassName.substring(0, lastDotIndex);
+	}
+
+	private static void logErrorDetails(@Nullable Throwable cause, String[] info, @Nullable Thread thread, @Nullable TriggerItem item) {
 		String issuesUrl = "https://github.com/SkriptLang/Skript/issues";
+		String downloadUrl = "https://github.com/SkriptLang/Skript/releases/latest"; //TODO grab this from the update checker
 
 		logEx();
 		logEx("[Skript] Severe Error:");
 		logEx(info);
 		logEx();
 
-		// Parse something useful out of the stack trace
-		StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
-		Set<PluginDescriptionFile> stackPlugins = new HashSet<>();
-		for (StackTraceElement s : stackTrace) { // Look through stack trace
-			for (Entry<String,PluginDescriptionFile> e : pluginPackages.entrySet()) { // Look through plugins
-				if (s.getClassName().contains(e.getKey())) // Hey, is this plugin in that stack trace?
-					stackPlugins.add(e.getValue()); // Yes? Add it to list
-			}
-		}
+		Set<PluginDescriptionFile> stackPlugins = identifyPluginsInStackTrace(Thread.currentThread().getStackTrace());
 
-		SkriptUpdater updater = Skript.getInstance().getUpdater();
-
-		// Check if server platform is supported
-		if (tainted) {
-			logEx("Skript is running with developer command-line options.");
-			logEx("If you are not a developer, consider disabling them.");
-		} else if (getInstance().getDescription().getVersion().contains("nightly")) {
-			logEx("You're running a (buggy) nightly version of Skript.");
-			logEx("If this is not a test server, switch to a more stable release NOW!");
-			logEx("Your players are unlikely to appreciate crashes and/or data loss due to Skript bugs.");
-			logEx("");
-			logEx("Just testing things? Good. Please report this bug, so that we can fix it before a stable release.");
-			logEx("Issue tracker: " + issuesUrl);
-		} else if (!isRunningMinecraft(1, 9)) {
-			logEx("You are running an outdated Minecraft version not supported by Skript.");
-			logEx("Please update to Minecraft 1.9.4 or later or fix this yourself and send us a pull request.");
-			logEx("Alternatively, use an older Skript version; do note that those are also unsupported by us.");
-			logEx("");
-			logEx("Again, we do not support Minecraft versions this old.");
-		} else if (!serverPlatform.supported){
-			logEx("Your server platform appears to be unsupported by Skript. It might not work reliably.");
-			logEx("You can report this at " + issuesUrl + ". However, we may be unable to fix the issue.");
-			logEx("It is recommended that you switch to Paper or Spigot, should you encounter more problems.");
-		} else if (updater != null && updater.getReleaseStatus() == ReleaseStatus.OUTDATED) {
-			logEx("You're running outdated version of Skript! Please try updating it NOW; it might fix this.");
-			logEx("Run /sk update check to get a download link to latest Skript!");
-			logEx("You will be given instructions how to report this error if it persists after update.");
-		} else {
-			logEx("Something went horribly wrong with Skript.");
-			logEx("This issue is NOT your fault! You probably can't fix it yourself, either.");
-			if (pluginPackages.isEmpty()) {
-				logEx("You should report it at " + issuesUrl + ". Please copy paste this report there (or use paste service).");
-				logEx("This ensures that your issue is noticed and will be fixed as soon as possible.");
-			} else {
-				logEx("It looks like you are using some plugin(s) that alter how Skript works (addons).");
-				if (stackPlugins.isEmpty()) {
-					logEx("Here is full list of them:");
-					StringBuilder pluginsMessage = new StringBuilder();
-					for (PluginDescriptionFile desc : pluginPackages.values()) {
-						pluginsMessage.append(desc.getFullName());
-						String website = desc.getWebsite();
-						if (website != null && !website.isEmpty()) // Add website if found
-							pluginsMessage.append(" (").append(desc.getWebsite()).append(")");
-
-						pluginsMessage.append(" ");
-					}
-					logEx(pluginsMessage.toString());
-					logEx("We could not identify which of those are specially related, so this might also be Skript issue.");
-				} else {
-					logEx("Following plugins are probably related to this error in some way:");
-					StringBuilder pluginsMessage = new StringBuilder();
-					for (PluginDescriptionFile desc : stackPlugins) {
-						pluginsMessage.append(desc.getName());
-						String website = desc.getWebsite();
-						if (website != null && !website.isEmpty()) // Add website if found
-							pluginsMessage.append(" (").append(desc.getWebsite()).append(")");
-
-						pluginsMessage.append(" ");
-					}
-					logEx(pluginsMessage.toString());
-				}
-
-				logEx("You should try disabling those plugins one by one, trying to find which one causes it.");
-				logEx("If the error doesn't disappear even after disabling all listed plugins, it is probably Skript issue.");
-				logEx("In that case, you will be given instruction on how should you report it.");
-				logEx("On the other hand, if the error disappears when disabling some plugin, report it to author of that plugin.");
-				logEx("Only if the author tells you to do so, report it to Skript's issue tracker.");
-			}
-		}
+		logPlatformSupportInfo(issuesUrl, downloadUrl, stackPlugins);
 
 		logEx();
 		logEx("Stack trace:");
-		if (cause == null || cause.getStackTrace().length == 0) {
-			logEx("  warning: no/empty exception given, dumping current stack trace instead");
-			cause = new Exception(cause);
-		}
-		boolean first = true;
-		while (cause != null) {
-			logEx((first ? "" : "Caused by: ") + cause.toString());
-			for (final StackTraceElement e : cause.getStackTrace())
-				logEx("    at " + e.toString());
-			cause = cause.getCause();
-			first = false;
-		}
+		logStackTrace(cause);
 
 		logEx();
-		logEx("Version Information:");
+		logVersionInfo();
+		logEx();
+		logCurrentState(thread, item);
+		logEx("End of Error.");
+		logEx();
+	}
+
+	private static Set<PluginDescriptionFile> identifyPluginsInStackTrace(StackTraceElement[] stackTrace) {
+		Set<PluginDescriptionFile> stackPlugins = new HashSet<>();
+		for (StackTraceElement element : stackTrace) {
+			pluginPackages.entrySet().stream()
+				.filter(entry -> element.getClassName().startsWith(entry.getKey()))
+				.forEach(entry -> stackPlugins.add(entry.getValue()));
+		}
+		return stackPlugins;
+	}
+
+
+	private static void logPlatformSupportInfo(String issuesUrl, String downloadUrl, Set<PluginDescriptionFile> stackPlugins) {
+		SkriptUpdater updater = Skript.getInstance().getUpdater();
+
+		if (tainted) {
+			logEx("Skript is running with developer command-line options. Consider disabling them if not a developer.");
+		} else if (getInstance().getDescription().getVersion().contains("nightly")) {
+			logEx("You're running a (buggy) nightly version of Skript. If this is not a test server, switch to a stable release.");
+			logEx("Please report this bug to: " + issuesUrl);
+		} else if (!serverPlatform.supported) {
+			String supportedPlatforms = getSupportedPlatforms();
+			logEx("Your server platform appears to be unsupported by Skript. Consider switching to one of the supported platforms (" + supportedPlatforms + ") for better compatibility.");
+		} else if (updater != null && updater.getReleaseStatus() == ReleaseStatus.OUTDATED) {
+			logEx("You're running an outdated version of Skript! Update to the latest version here: " + downloadUrl);
+		} else {
+			logEx("An unexpected error occurred with Skript. This issue is likely not your fault.");
+			logExAddonInfo(issuesUrl, stackPlugins);
+		}
+	}
+
+	private static String getSupportedPlatforms() {
+		return Arrays.stream(ServerPlatform.values())
+			.filter(platform -> platform.supported)
+			.map(ServerPlatform::name)
+			.collect(Collectors.joining(", "));
+	}
+
+	private static void logExAddonInfo(String issuesUrl, Set<PluginDescriptionFile> stackPlugins) {
+		if (pluginPackages.isEmpty()) {
+			logEx("Report the issue: " + issuesUrl);
+		} else {
+			logEx("You are using some plugins that alter how Skript works (addons).");
+			if (stackPlugins.isEmpty()) {
+				logEx("Full list of addons:");
+				pluginPackages.values().forEach(desc -> logEx(getPluginDescription(desc)));
+				logEx("We could not identify related addons, it might also be a Skript issue.");
+			} else {
+				logEx("The following plugins are likely related to this error:");
+				stackPlugins.forEach(desc -> logEx(getPluginDescription(desc)));
+			}
+			logEx("Try temporarily removing the listed plugins one by one to identify the cause.");
+			logEx("If removing a plugin resolves the issue, please report the problem to the plugin developer.");
+		}
+	}
+
+	private static String getPluginDescription(PluginDescriptionFile desc) {
+		String website = desc.getWebsite();
+		return desc.getFullName() + (website != null && !website.isEmpty() ? " (" + website + ")" : "");
+	}
+
+	private static void logStackTrace(@Nullable Throwable cause) {
+		if (cause == null || cause.getStackTrace().length == 0) {
+			logEx("Warning: no/empty exception given, dumping current stack trace instead");
+			cause = new Exception("EmptyStacktraceException cause");
+		}
+		while (cause != null) {
+			logEx((cause == null ? "" : "Caused by: ") + cause.toString());
+			for (StackTraceElement element : cause.getStackTrace()) {
+				logEx("    at " + element.toString());
+			}
+			cause = cause.getCause();
+		}
+	}
+
+	private static void logVersionInfo() {
+		SkriptUpdater updater = Skript.getInstance().getUpdater();
 		if (updater != null) {
 			ReleaseStatus status = updater.getReleaseStatus();
-			logEx("  Skript: " + getVersion() + (status == ReleaseStatus.LATEST ? " (latest)"
-					: status == ReleaseStatus.OUTDATED ? " (OUTDATED)"
-					: status == ReleaseStatus.CUSTOM ? " (custom version)" : ""));
+			logEx("Skript: " + getVersion() + " (" + status.toString() + ")");
 			ReleaseManifest current = updater.getCurrentRelease();
 			logEx("    Flavor: " + current.flavor);
 			logEx("    Date: " + current.date);
 		} else {
-			logEx("  Skript: " + getVersion() + " (unknown; likely custom)");
+			logEx("Skript: " + getVersion() + " (unknown; likely custom)");
 		}
-		logEx("  Bukkit: " + Bukkit.getBukkitVersion());
-		logEx("  Minecraft: " + getMinecraftVersion());
-		logEx("  Java: " + System.getProperty("java.version") + " (" + System.getProperty("java.vm.name") + " " + System.getProperty("java.vm.version") + ")");
-		logEx("  OS: " + System.getProperty("os.name") + " " + System.getProperty("os.arch") + " " + System.getProperty("os.version"));
+		logEx("Bukkit: " + Bukkit.getBukkitVersion());
+		logEx("Minecraft: " + getMinecraftVersion());
+		logEx("Java: " + System.getProperty("java.version") + " (" + System.getProperty("java.vm.name") + " " + System.getProperty("java.vm.version") + ")");
+		logEx("OS: " + System.getProperty("os.name") + " " + System.getProperty("os.arch") + " " + System.getProperty("os.version"));
 		logEx();
 		logEx("Server platform: " + serverPlatform.name + (serverPlatform.supported ? "" : " (unsupported)"));
-		logEx();
+	}
+
+	private static void logCurrentState(@Nullable Thread thread, @Nullable TriggerItem item) {
 		logEx("Current node: " + SkriptLogger.getNode());
 		logEx("Current item: " + (item == null ? "null" : item.toString(null, true)));
 		if (item != null && item.getTrigger() != null) {
@@ -1999,16 +1983,9 @@ public final class Skript extends JavaPlugin implements Listener {
 			Script script = trigger.getScript();
 			logEx("Current trigger: " + trigger.toString(null, true) + " (" + (script == null ? "null" : script.getConfig().getFileName()) + ", line " + trigger.getLineNumber() + ")");
 		}
-		logEx();
 		logEx("Thread: " + (thread == null ? Thread.currentThread() : thread).getName());
-		logEx();
 		logEx("Language: " + Language.getName());
 		logEx("Link parse mode: " + ChatMessages.linkParseMode);
-		logEx();
-		logEx("End of Error.");
-		logEx();
-
-		return new EmptyStacktraceException();
 	}
 
 	static void logEx() {

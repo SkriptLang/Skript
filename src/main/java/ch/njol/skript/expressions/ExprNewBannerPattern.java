@@ -27,7 +27,7 @@ import org.jetbrains.annotations.Nullable;
 	"",
 	"set {_pattern} to a red mojang banner pattern"
 })
-@Since("INSERT VERSION")
+@Since("2.10")
 public class ExprNewBannerPattern extends SimpleExpression<Pattern> {
 
 	static {

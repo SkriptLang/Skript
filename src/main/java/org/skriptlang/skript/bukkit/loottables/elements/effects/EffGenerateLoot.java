@@ -31,7 +31,7 @@ import java.util.concurrent.ThreadLocalRandom;
 	"generate loot of loot table \"minecraft:chests/simple_dungeon\" using loot context at player in {_inventory}",
 	"generate loot using \"minecraft:chests/shipwreck_supply\" in {_inventory}"
 })
-@Since("INSERT VERSION")
+@Since("2.10")
 public class EffGenerateLoot extends Effect {
 
 	static {

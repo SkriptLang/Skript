@@ -541,4 +541,15 @@ public class SectionNode extends Node implements Iterable<Node> {
 		return different;
 	}
 
+	@Override
+	public @Nullable Node getNodeAt(@NotNull String @NotNull ... keys) {
+		Node node = this;
+		for (String s : keys) {
+			if (!(node instanceof SectionNode sectionNode))
+				return null;
+			node = sectionNode.get(s);
+		}
+		return node;
+	}
+
 }

@@ -22,7 +22,7 @@ import org.skriptlang.skript.bukkit.input.InputKey;
 	"\tif player is pressing forward movement key:",
 		"\t\tsend \"You are moving forward!\""
 })
-@Since("INSERT VERSION")
+@Since("2.10")
 @Keywords({"press", "input"})
 @RequiredPlugins("Minecraft 1.21.2+")
 public class CondIsPressingKey extends Condition {

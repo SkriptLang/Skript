@@ -11,10 +11,10 @@ test "CondIsPreferredTool - BlockData":
 test "CondIsPreferredTool - Block":
 	set {_block} to block at location(0,0,0, "world")
 	set {_temp} to {_block}'s type
-	set block at {_block} to grass
-	assert wooden axe is preferred tool for {_block} with "failed wooden axe for grass"
-	assert wooden pickaxe is preferred tool for {_block} with "failed wooden pickaxe for grass"
-	assert diamond pickaxe is preferred tool for {_block} with "failed diamond pickaxe for grass"
+	set block at {_block} to grass block
+	assert wooden axe is preferred tool for {_block} with "failed wooden axe for grass block"
+	assert wooden pickaxe is preferred tool for {_block} with "failed wooden pickaxe for grass block"
+	assert diamond pickaxe is preferred tool for {_block} with "failed diamond pickaxe for grass block"
 
 	set block at {_block} to obsidian
 	assert wooden axe is not preferred tool for {_block} with "failed wooden axe for obsidian"

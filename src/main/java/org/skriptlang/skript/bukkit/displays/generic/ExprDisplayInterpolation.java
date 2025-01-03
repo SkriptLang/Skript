@@ -26,7 +26,7 @@ import org.jetbrains.annotations.Nullable;
 	"Resetting either value will return that value to 0."
 })
 @Examples("set interpolation delay of the last spawned text display to 2 ticks")
-@Since("INSERT VERSION")
+@Since("2.10")
 public class ExprDisplayInterpolation extends SimplePropertyExpression<Display, Timespan> {
 
 	static {

@@ -2,10 +2,14 @@ package ch.njol.skript.config;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.config.validate.SectionValidator;
+import ch.njol.skript.lang.util.common.AnyNamed;
+import ch.njol.skript.log.SkriptLogger;
 import com.google.common.base.Preconditions;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.util.Validated;
 
 import java.io.File;
 import java.io.IOException;
@@ -26,7 +30,7 @@ import java.util.Set;
 /**
  * Represents a config file.
  */
-public class Config implements Comparable<Config> {
+public class Config implements Comparable<Config>, Validated, NodeNavigator, AnyNamed {
 
 	/**
 	 * One level of the indentation, e.g. a tab or 4 spaces.
@@ -49,6 +53,7 @@ public class Config implements Comparable<Config> {
 
 	String fileName;
 	@Nullable Path file = null;
+	private final Validated validator = Validated.validator();
 
 	public Config(InputStream source, String fileName, @Nullable File file,
 				  boolean simple, boolean allowEmptySections, String defaultSeparator) throws IOException {
@@ -101,6 +106,21 @@ public class Config implements Comparable<Config> {
 	}
 
 	/**
+	 * A dummy config with no (known) content.
+	 */
+	@ApiStatus.Internal
+	public Config(String fileName, @Nullable final File file) {
+		this.fileName = fileName;
+		if (file != null)
+			this.file = file.toPath();
+		this.simple = false;
+		this.allowEmptySections = false;
+		this.separator = defaultSeparator = "";
+		this.main = new SectionNode(this);
+		SkriptLogger.setNode(null); // clean-up after section node
+	}
+
+	/**
 	 * Sets all static {@link Option} fields of the given class to the values from this config
 	 */
 	public void load(Class<?> clazz) {
@@ -132,6 +152,22 @@ public class Config implements Comparable<Config> {
 		indentationName = indent.charAt(0) == ' ' ? "space" : "tab";
 	}
 
+	String getIndentation() {
+		return indentation;
+	}
+
+	String getIndentationName() {
+		return indentationName;
+	}
+
+	public SectionNode getMainNode() {
+		return main;
+	}
+
+	public String getFileName() {
+		return fileName;
+	}
+
 	/**
 	 * Saves the config to a file.
 	 *
@@ -139,13 +175,10 @@ public class Config implements Comparable<Config> {
 	 * @throws IOException If the file could not be written to.
 	 */
 	public void save(File file) throws IOException {
-		separator = defaultSeparator;
-		PrintWriter writer = new PrintWriter(file, StandardCharsets.UTF_8);
-		try {
-			main.save(writer);
-		} finally {
+		this.separator = defaultSeparator;
+		try (final PrintWriter writer = new PrintWriter(file, StandardCharsets.UTF_8)) {
+			this.main.save(writer);
 			writer.flush();
-			writer.close();
 		}
 	}
 
@@ -197,7 +230,7 @@ public class Config implements Comparable<Config> {
 			SectionNode newParent = node.getParent();
 			Preconditions.checkNotNull(newParent);
 
-			SectionNode parent = getNode(newParent.getPath());
+			SectionNode parent = getNode(newParent.getPathSteps());
 			Preconditions.checkNotNull(parent);
 
 			int index = node.getIndex();
@@ -363,27 +396,57 @@ public class Config implements Comparable<Config> {
 		return " " + separator + " ";
 	}
 
-	@NotNull String getIndentation() {
-		return indentation;
-	}
-
-	@NotNull String getIndentationName() {
-		return indentationName;
-	}
-
-	public @NotNull SectionNode getMainNode() {
-		return main;
-	}
-
-	public @NotNull String getFileName() {
-		return fileName;
-	}
-
 	@Override
 	public int compareTo(@Nullable Config other) {
 		if (other == null)
 			return 0;
 		return fileName.compareTo(other.fileName);
+	}
+
+	@Override
+	public void invalidate() {
+		this.validator.invalidate();
+	}
+
+	@Override
+	public boolean valid() {
+		return validator.valid();
+	}
+
+	@Override
+	public @NotNull Node getCurrentNode() {
+		return main;
+	}
+
+	@Override
+	public @Nullable Node getNodeAt(@NotNull String @NotNull ... steps) {
+		return main.getNodeAt(steps);
+	}
+
+	@NotNull
+	@Override
+	public Iterator<Node> iterator() {
+		return main.iterator();
+	}
+
+	@Override
+	public @Nullable Node get(String step) {
+		return main.get(step);
+	}
+
+	/**
+	 * @return The name of this config (excluding path and file extensions)
+	 */
+	@Override
+	public String name() {
+		String name = this.getFileName();
+		if (name == null)
+			return null;
+		if (name.contains(File.separator))
+			name = name.substring(name.lastIndexOf(File.separator) + 1);
+		if (name.contains("."))
+			return name.substring(0, name.lastIndexOf('.'));
+		return name;
 	}
 
 }

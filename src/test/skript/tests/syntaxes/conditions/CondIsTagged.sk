@@ -1,0 +1,16 @@
+test "CondIsTagged":
+	assert oak slab is tagged as item tag "slabs" with "oak slab is not a slab"
+	assert oak slab is not tagged as item tag "stairs" with "oak slab is somehow a stair"
+	assert a skeleton is tagged as entity tag "minecraft:skeletons" with "skeleton is not a skeleton"
+	assert a cow is not tagged as tag "unknown" with "a cow is somehow tagged as unknown"
+
+	assert a skeleton and a stray are tagged as tag "skeletons" with "skeleton and stray are not skeletons"
+	assert a skeleton or a zombie is tagged as tag "skeletons" with "skeleton or zombie are not skeletons"
+
+	set block at location(0,20,0) to oak slab
+	assert block at location(0,20,0) is tagged as block tag "slabs" with "oak slab is not a slab"
+	set block at location(0,20,0) to air
+
+	spawn a skeleton at spawn of world "world":
+		assert entity is tagged as entity tag "minecraft:skeletons" with "skeleton is not a skeleton"
+		delete entity
