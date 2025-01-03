@@ -669,7 +669,7 @@ public final class Skript extends JavaPlugin implements Listener {
 				debug("Early init done");
 
 				if (TestMode.ENABLED) {
-					Bukkit.getWorlds().get(0).getChunkAtAsync(0, 0).thenRun(() -> runTests());
+					Bukkit.getWorlds().get(0).getChunkAtAsync(100, 100).thenRun(() -> runTests());
 				}
 
 				Skript.metrics = new Metrics(Skript.getInstance(), 722); // 722 is our bStats plugin ID
