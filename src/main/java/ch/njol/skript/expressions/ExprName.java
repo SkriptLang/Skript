@@ -9,6 +9,7 @@ import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import ch.njol.skript.lang.Expression;
+import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.function.DynamicFunctionReference;
 import ch.njol.skript.lang.util.common.AnyNamed;
@@ -107,9 +108,14 @@ public class ExprName extends SimplePropertyExpression<Object, String> {
 		if (Skript.classExists("net.kyori.adventure.text.Component") &&
 			Skript.methodExists(Bukkit.class, "createInventory", InventoryHolder.class, int.class, Component.class))
 			serializer = BungeeComponentSerializer.get();
-		register(ExprName.class, String.class, "(1:name[s])", "offlineplayers/entities/inventories/nameds");
-		register(ExprName.class, String.class, "(2:(display|nick|chat|custom)[ ]name[s])", "offlineplayers/entities/inventories/nameds");
-		register(ExprName.class, String.class, "(3:(player|tab)[ ]list name[s])", "players");
+
+		Skript.registerExpression(ExprName.class, String.class, ExpressionType.COMBINED,
+			"[the] name[s] of %offlineplayers/entities/inventories/nameds%",
+			"%offlineplayers/entities/inventories/nameds%'[s] name[s]",
+			"[the] (display|nick|chat|custom)[ ]name[s] of %offlineplayers/entities/inventories/nameds%",
+			"%offlineplayers/entities/inventories/nameds%'[s] (display|nick|chat|custom)[ ]name[s]",
+			"[the] (player|tab)[ ]list name[s] of %players%",
+			"%players%'[s] (player|tab)[ ]list name[s]");
 		// we keep the entity input because we want to do something special with entities
 	}
 
@@ -123,7 +129,7 @@ public class ExprName extends SimplePropertyExpression<Object, String> {
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		this.mark = parseResult.mark;
+		this.mark = (matchedPattern / 2) + 1;
 		this.setExpr(exprs[0]);
 		this.scriptResolvedName = this.getParser().hasExperiment(Feature.SCRIPT_REFLECTION);
 		return true;
