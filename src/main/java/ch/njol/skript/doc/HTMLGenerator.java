@@ -488,10 +488,14 @@ public class HTMLGenerator extends DocumentationGenerator {
 		desc = handleIf(desc, "${if by-addon}", false);
 
 		// New Elements
-		if (since != null)
+		if (since != null) {
 			for (String s : since.value()) {
 				desc = handleIf(desc, "${if new-element}", NEW_TAG_PATTERN.matcher(s).find());
 			}
+		} else {
+			desc = handleIf(desc, "${if new-element}", NEW_TAG_PATTERN.matcher("").find());
+		}
+
 
 
 		// Structure - EntryData
