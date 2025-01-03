@@ -34,7 +34,7 @@ public class ExprFireTicks extends SimplePropertyExpression<Entity, Timespan> {
 	@Override
 	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		max = (parseResult.hasTag("max"));
-		return true;
+		return super.init(expressions, matchedPattern, isDelayed, parseResult);
 	}
 
 	@Override
