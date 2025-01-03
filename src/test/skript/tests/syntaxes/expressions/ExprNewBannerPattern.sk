@@ -12,8 +12,8 @@ test "new banner pattern":
 	clear the 1st banner pattern of {_item}
 	assert the 1st banner pattern of {_item} is not set with "1st banner pattern of item was not cleared"
 
-	set {_old} to block at test-location
-	set block at test-location to a red banner
+	set {_old} to block at event-location
+	set block at event-location to a red banner
 	assert the block at test-location is a red banner with "Banner block was not set"
 	add {_pattern} to the banner patterns of (block at test-location)
 	assert the banner patterns of (block at test-location) contains {_pattern} with "Banner pattern not applied to block"
