@@ -22,15 +22,7 @@ public class BackupPurgeTest {
 	@Before
 	public void setup() throws IOException {
 		if (Files.exists(FOLDER)) {
-			try (Stream<Path> list = Files.list(FOLDER)) {
-				list.forEach(path -> {
-					try {
-						Files.delete(path);
-					} catch (IOException ignored) {
-
-					}
-				});
-			}
+			clearFolder();
 		} else {
 			Files.createDirectory(FOLDER);
 		}
@@ -58,11 +50,19 @@ public class BackupPurgeTest {
 	}
 
 	@After
-	public void cleanUp() {
-		try {
-			Files.delete(FOLDER);
-		} catch (IOException ignored) {
+	public void cleanUp() throws IOException {
+		clearFolder();
+	}
 
+	private static void clearFolder() throws IOException {
+		try (Stream<Path> list = Files.list(FOLDER)) {
+			list.forEach(path -> {
+				try {
+					Files.delete(path);
+				} catch (IOException ignored) {
+
+				}
+			});
 		}
 	}
 
