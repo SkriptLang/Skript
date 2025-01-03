@@ -1459,7 +1459,18 @@ public final class Skript extends JavaPlugin implements Listener {
 
 	}
 
-	private static SyntaxOrigin getSyntaxOrigin(JavaPlugin plugin) {
+	/**
+	 * Attempts to create a SyntaxOrigin from a provided class.
+	 */
+	@ApiStatus.Internal
+	@ApiStatus.Experimental
+	public static SyntaxOrigin getSyntaxOrigin(Class<?> source) {
+		JavaPlugin plugin;
+		try {
+			plugin = JavaPlugin.getProvidingPlugin(source);
+		} catch (IllegalArgumentException e) { // Occurs when the method fails to determine the providing plugin
+			return () -> source.getName();
+		}
 		SkriptAddon addon = getAddon(plugin);
 		if (addon != null) {
 			return SyntaxOrigin.of(addon);
@@ -1488,7 +1499,7 @@ public final class Skript extends JavaPlugin implements Listener {
 		checkAcceptRegistrations();
 		skript.syntaxRegistry().register(SyntaxRegistry.CONDITION, SyntaxInfo.builder(conditionClass)
 				.priority(type.priority())
-				.origin(getSyntaxOrigin(JavaPlugin.getProvidingPlugin(conditionClass)))
+				.origin(getSyntaxOrigin(conditionClass))
 				.addPatterns(patterns)
 				.build()
 		);
@@ -1503,7 +1514,7 @@ public final class Skript extends JavaPlugin implements Listener {
 	public static <E extends Effect> void registerEffect(Class<E> effectClass, String... patterns) throws IllegalArgumentException {
 		checkAcceptRegistrations();
 		skript.syntaxRegistry().register(SyntaxRegistry.EFFECT, SyntaxInfo.builder(effectClass)
-				.origin(getSyntaxOrigin(JavaPlugin.getProvidingPlugin(effectClass)))
+				.origin(getSyntaxOrigin(effectClass))
 				.addPatterns(patterns)
 				.build()
 		);
@@ -1519,7 +1530,7 @@ public final class Skript extends JavaPlugin implements Listener {
 	public static <E extends Section> void registerSection(Class<E> sectionClass, String... patterns) throws IllegalArgumentException {
 		checkAcceptRegistrations();
 		skript.syntaxRegistry().register(SyntaxRegistry.SECTION, SyntaxInfo.builder(sectionClass)
-				.origin(getSyntaxOrigin(JavaPlugin.getProvidingPlugin(sectionClass)))
+				.origin(getSyntaxOrigin(sectionClass))
 				.addPatterns(patterns)
 				.build()
 		);
@@ -1570,7 +1581,7 @@ public final class Skript extends JavaPlugin implements Listener {
 		checkAcceptRegistrations();
 		skript.syntaxRegistry().register(SyntaxRegistry.EXPRESSION, SyntaxInfo.Expression.builder(expressionType, returnType)
 				.priority(type.priority())
-				.origin(getSyntaxOrigin(JavaPlugin.getProvidingPlugin(expressionType)))
+				.origin(getSyntaxOrigin(expressionType))
 				.addPatterns(patterns)
 				.build()
 		);
@@ -1637,7 +1648,7 @@ public final class Skript extends JavaPlugin implements Listener {
 	public static <E extends Structure> void registerStructure(Class<E> structureClass, String... patterns) {
 		checkAcceptRegistrations();
 		skript.syntaxRegistry().register(SyntaxRegistry.STRUCTURE, SyntaxInfo.Structure.builder(structureClass)
-				.origin(getSyntaxOrigin(JavaPlugin.getProvidingPlugin(structureClass)))
+				.origin(getSyntaxOrigin(structureClass))
 				.addPatterns(patterns)
 				.build()
 		);
@@ -1646,7 +1657,7 @@ public final class Skript extends JavaPlugin implements Listener {
 	public static <E extends Structure> void registerSimpleStructure(Class<E> structureClass, String... patterns) {
 		checkAcceptRegistrations();
 		skript.syntaxRegistry().register(SyntaxRegistry.STRUCTURE, SyntaxInfo.Structure.builder(structureClass)
-			.origin(getSyntaxOrigin(JavaPlugin.getProvidingPlugin(structureClass)))
+			.origin(getSyntaxOrigin(structureClass))
 			.addPatterns(patterns)
 			.nodeType(SyntaxInfo.Structure.NodeType.SIMPLE)
 			.build()
@@ -1658,7 +1669,7 @@ public final class Skript extends JavaPlugin implements Listener {
 	) {
 		checkAcceptRegistrations();
 		skript.syntaxRegistry().register(SyntaxRegistry.STRUCTURE, SyntaxInfo.Structure.builder(structureClass)
-				.origin(getSyntaxOrigin(JavaPlugin.getProvidingPlugin(structureClass)))
+				.origin(getSyntaxOrigin(structureClass))
 				.addPatterns(patterns)
 				.entryValidator(entryValidator)
 				.build()
