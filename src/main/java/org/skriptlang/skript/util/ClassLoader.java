@@ -6,6 +6,7 @@ import com.google.common.reflect.ClassPath;
 import com.google.common.reflect.ClassPath.ResourceInfo;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.util.Builder.Buildable;
 
 import java.io.File;
 import java.io.IOException;
@@ -22,7 +23,7 @@ import java.util.stream.Collectors;
 /**
  * A utility class for loading classes contained in specific packages.
  */
-public class ClassLoader {
+public class ClassLoader implements Buildable<ClassLoader.Builder, ClassLoader> {
 
 	/**
 	 * @return A builder for creating a loader.
@@ -130,8 +131,9 @@ public class ClassLoader {
 		// classes will be loaded in alphabetical order
 		Collection<String> classNames = new TreeSet<>(String::compareToIgnoreCase);
 		for (String name : classPaths) {
-			if (!name.startsWith(this.basePackage) || !name.endsWith(".class") || name.endsWith("package-info.class"))
+			if (!name.startsWith(this.basePackage) || !name.endsWith(".class") || name.endsWith("package-info.class")) {
 				continue;
+			}
 			boolean load;
 			if (this.subPackages.isEmpty()) {
 				// loaded only if within base package when deep searches are forbidden
@@ -161,8 +163,9 @@ public class ClassLoader {
 		for (String className : classNames) {
 			try {
 				Class<?> clazz = Class.forName(className, this.initialize, loader);
-				if (this.forEachClass != null)
+				if (this.forEachClass != null) {
 					this.forEachClass.accept(clazz);
+				}
 			} catch (ClassNotFoundException ex) {
 				throw new RuntimeException("Failed to load class: " + className, ex);
 			} catch (ExceptionInInitializerError err) {
@@ -171,16 +174,32 @@ public class ClassLoader {
 		}
 	}
 
+	@Override
+	public Builder toBuilder() {
+		Builder builder = builder()
+			.basePackage(this.basePackage)
+			.addSubPackages(this.subPackages)
+			.initialize(this.initialize)
+			.deep(this.deep);
+		if (filter != null) {
+			builder.filter(this.filter);
+		}
+		if (forEachClass != null) {
+			builder.forEachClass(this.forEachClass);
+		}
+		return builder;
+	}
+
 	/**
 	 * A builder for constructing a {@link ClassLoader}.
 	 */
-	public static final class Builder {
+	public static final class Builder implements org.skriptlang.skript.util.Builder<Builder, ClassLoader> {
 
 		private String basePackage = "";
 		private final Collection<String> subPackages = new HashSet<>();
+		private @Nullable Predicate<String> filter = null;
 		private boolean initialize;
 		private boolean deep;
-		private Predicate<String> filter = null;
 		private @Nullable Consumer<Class<?>> forEachClass;
 
 		private Builder() { }
@@ -291,6 +310,20 @@ public class ClassLoader {
 		@Contract("-> new")
 		public ClassLoader build() {
 			return new ClassLoader(basePackage, subPackages, filter, initialize, deep, forEachClass);
+		}
+
+		@Override
+		public void applyTo(Builder builder) {
+			builder.basePackage(basePackage)
+				.addSubPackages(subPackages)
+				.initialize(initialize)
+				.deep(deep);
+			if (filter != null) {
+				builder.filter(filter);
+			}
+			if (forEachClass != null) {
+				builder.forEachClass(forEachClass);
+			}
 		}
 
 	}

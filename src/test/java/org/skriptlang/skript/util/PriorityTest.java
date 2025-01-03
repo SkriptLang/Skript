@@ -11,6 +11,7 @@ public class PriorityTest {
 
 		Assert.assertTrue(base.before().isEmpty());
 		Assert.assertTrue(base.after().isEmpty());
+		//noinspection EqualsWithItself - ensuring basic correctness
 		Assert.assertEquals(0, base.compareTo(base));
 	}
 
