@@ -13,6 +13,7 @@ import ch.njol.skript.lang.function.Functions;
 import ch.njol.skript.registrations.Classes;
 import org.skriptlang.skript.lang.structure.Structure;
 
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Objects;
 import java.util.function.Predicate;
@@ -42,7 +43,7 @@ public class DocumentationIdProvider {
 	 */
 	private static <T> int calculateCollisionCount(Iterator<? extends T> potentialCollisions, Predicate<T> collisionCriteria,
 											Predicate<T> equalsCriteria) {
-		int collisionCount = -1; // Start at -1 since the first match will always be in the potentials
+		int collisionCount = 0;
 		while (potentialCollisions.hasNext()) {
 			T potentialCollision = potentialCollisions.next();
 			if (collisionCriteria.test(potentialCollision)) {
@@ -78,7 +79,7 @@ public class DocumentationIdProvider {
 		}
 		int collisionCount = calculateCollisionCount(syntaxElementIterator,
 			elementInfo -> elementInfo.getElementClass() == syntaxClass,
-			elementInfo -> elementInfo == syntaxInfo);
+			elementInfo -> Arrays.equals(elementInfo.getPatterns(), syntaxInfo.getPatterns()));
 		DocumentationId documentationIdAnnotation = syntaxClass.getAnnotation(DocumentationId.class);
 		if (documentationIdAnnotation == null) {
 			return addCollisionSuffix(syntaxClass.getSimpleName(), collisionCount);
