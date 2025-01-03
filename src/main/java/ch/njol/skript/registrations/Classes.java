@@ -751,14 +751,8 @@ public abstract class Classes {
 			final byte[] r2 = new byte[r.length - start.length];
 			System.arraycopy(r, start.length, r2, 0, r2.length);
 
-			if (o instanceof Date date)
-				System.out.println(date.getTime());
-
-			Object d = deserialize(ci, new ByteArrayInputStream(r2));
-			if (d instanceof Date date)
-				System.out.println(date.getTime());
-
-			assert equals(o, d) : o + " (" + o.getClass() + ") != " + d + " (" + (d == null ? null : d.getClass()) + "): " + Arrays.toString(r);
+			Object d;
+			assert equals(o, d = deserialize(ci, new ByteArrayInputStream(r2))) : o + " (" + o.getClass() + ") != " + d + " (" + (d == null ? null : d.getClass()) + "): " + Arrays.toString(r);
 			
 			return new SerializedVariable.Value(ci.getCodeName(), r2);
 		} catch (final IOException e) { // shouldn't happen
