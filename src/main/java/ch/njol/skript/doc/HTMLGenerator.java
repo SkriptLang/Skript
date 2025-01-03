@@ -489,9 +489,9 @@ public class HTMLGenerator extends DocumentationGenerator {
 
 		// New Elements
 		if (since != null) {
-			for (String s : since.value()) {
-				desc = handleIf(desc, "${if new-element}", NEW_TAG_PATTERN.matcher(s).find());
-			}
+			String[] value = since.value();
+			String s = value[value.length - 1];
+			desc = handleIf(desc, "${if new-element}", NEW_TAG_PATTERN.matcher(s).find());
 		} else {
 			desc = handleIf(desc, "${if new-element}", false);
 		}
