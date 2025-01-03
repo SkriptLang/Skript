@@ -139,7 +139,7 @@ public class DocumentationIdProvider {
 		String eventId = getEventId(eventInfo);
 		int collisionCount = calculateCollisionCount(Skript.getEvents().iterator(),
 			otherEventInfo -> eventId.equals(getEventId(otherEventInfo)),
-			otherEventInfo -> otherEventInfo == eventInfo);
+			otherEventInfo -> Arrays.equals(otherEventInfo.getPatterns(), eventInfo.getPatterns()));
 		return addCollisionSuffix(eventId, collisionCount);
 	}
 
