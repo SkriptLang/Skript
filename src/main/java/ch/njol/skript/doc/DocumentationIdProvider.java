@@ -42,7 +42,7 @@ public class DocumentationIdProvider {
 	 */
 	private static <T> int calculateCollisionCount(Iterator<? extends T> potentialCollisions, Predicate<T> collisionCriteria,
 											Predicate<T> equalsCriteria) {
-		int collisionCount = 0;
+		int collisionCount = -1; // Start at -1 since the first match will always be in the potientials
 		while (potentialCollisions.hasNext()) {
 			T potentialCollision = potentialCollisions.next();
 			if (collisionCriteria.test(potentialCollision)) {
