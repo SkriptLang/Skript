@@ -2,6 +2,7 @@ package org.skriptlang.skript.util;
 
 import ch.njol.skript.Skript;
 import ch.njol.util.StringUtils;
+import com.google.common.base.MoreObjects;
 import com.google.common.reflect.ClassPath;
 import com.google.common.reflect.ClassPath.ResourceInfo;
 import org.jetbrains.annotations.Contract;
@@ -188,6 +189,18 @@ public class ClassLoader implements Buildable<ClassLoader.Builder, ClassLoader> 
 			builder.forEachClass(this.forEachClass);
 		}
 		return builder;
+	}
+
+	@Override
+	public String toString() {
+		return MoreObjects.toStringHelper(this)
+				.add("basePackage", basePackage)
+				.add("subPackages", subPackages)
+				.add("filter", filter)
+				.add("initialize", initialize)
+				.add("deep", deep)
+				.add("forEachClass", forEachClass)
+				.toString();
 	}
 
 	/**

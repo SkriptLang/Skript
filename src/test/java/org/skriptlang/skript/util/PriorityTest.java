@@ -1,7 +1,8 @@
 package org.skriptlang.skript.util;
 
-import org.junit.Assert;
 import org.junit.Test;
+
+import static org.junit.Assert.*;
 
 public class PriorityTest {
 
@@ -9,11 +10,11 @@ public class PriorityTest {
 	public void testBase() {
 		Priority base = Priority.base();
 
-		Assert.assertTrue(base.before().isEmpty());
-		Assert.assertTrue(base.after().isEmpty());
+		assertTrue(base.before().isEmpty());
+		assertTrue(base.after().isEmpty());
 
 		// Different instances, but functionally equal
-		Assert.assertEquals(base, Priority.base());
+		assertEquals(base, Priority.base());
 	}
 
 	@Test
@@ -21,13 +22,13 @@ public class PriorityTest {
 		Priority base = Priority.base();
 		Priority before = Priority.before(base);
 
-		Assert.assertTrue(before.before().contains(base));
-		Assert.assertTrue(before.after().isEmpty());
-		Assert.assertTrue(before.compareTo(base) < 0);
-		Assert.assertTrue(base.compareTo(before) > 0);
+		assertTrue(before.before().contains(base));
+		assertTrue(before.after().isEmpty());
+		assertTrue(before.compareTo(base) < 0);
+		assertTrue(base.compareTo(before) > 0);
 
 		// Different instances, but functionally equal
-		Assert.assertEquals(before, Priority.before(base));
+		assertEquals(before, Priority.before(base));
 	}
 
 	@Test
@@ -35,13 +36,13 @@ public class PriorityTest {
 		Priority base = Priority.base();
 		Priority after = Priority.after(base);
 
-		Assert.assertTrue(after.before().isEmpty());
-		Assert.assertTrue(after.after().contains(base));
-		Assert.assertTrue(after.compareTo(base) > 0);
-		Assert.assertTrue(base.compareTo(after) < 0);
+		assertTrue(after.before().isEmpty());
+		assertTrue(after.after().contains(base));
+		assertTrue(after.compareTo(base) > 0);
+		assertTrue(base.compareTo(after) < 0);
 
 		// Different instances, but functionally equal
-		Assert.assertEquals(after, Priority.after(base));
+		assertEquals(after, Priority.after(base));
 	}
 
 	@Test
@@ -51,9 +52,9 @@ public class PriorityTest {
 		Priority after = Priority.after(base);
 
 		// 'before' should be before 'after'
-		Assert.assertTrue(before.compareTo(after) < 0);
+		assertTrue(before.compareTo(after) < 0);
 		// 'after' should be after 'before'
-		Assert.assertTrue(after.compareTo(before) > 0);
+		assertTrue(after.compareTo(before) > 0);
 	}
 
 	@Test
@@ -63,16 +64,16 @@ public class PriorityTest {
 		Priority before = Priority.before(base);
 		Priority afterBefore = Priority.after(before);
 		// 'afterBefore' should be before 'base'
-		Assert.assertTrue(afterBefore.compareTo(base) < 0);
+		assertTrue(afterBefore.compareTo(base) < 0);
 		// 'base' should be after 'afterBefore'
-		Assert.assertTrue(base.compareTo(afterBefore) > 0);
+		assertTrue(base.compareTo(afterBefore) > 0);
 
 		Priority after = Priority.after(base);
 		Priority beforeAfter = Priority.before(after);
 		// 'beforeAfter' should be after 'base'
-		Assert.assertTrue(beforeAfter.compareTo(base) > 0);
+		assertTrue(beforeAfter.compareTo(base) > 0);
 		// 'base' should be before 'beforeAfter'
-		Assert.assertTrue(base.compareTo(beforeAfter) < 0);
+		assertTrue(base.compareTo(beforeAfter) < 0);
 	}
 
 }

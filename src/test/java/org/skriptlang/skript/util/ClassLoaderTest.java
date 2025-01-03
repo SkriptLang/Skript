@@ -1,11 +1,12 @@
 package org.skriptlang.skript.util;
 
-import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
+import static org.junit.Assert.*;
 
 public class ClassLoaderTest {
 
@@ -20,8 +21,8 @@ public class ClassLoaderTest {
 				.basePackage("org.skriptlang.skript.util")
 				.forEachClass(classes::add)
 				.build());
-		Assert.assertTrue(classes.contains(ClassLoader.class));
-		Assert.assertTrue(classes.contains(ClassLoaderTest.class));
+		assertTrue(classes.contains(ClassLoader.class));
+		assertTrue(classes.contains(ClassLoaderTest.class));
 	}
 
 	@Test
@@ -35,14 +36,14 @@ public class ClassLoaderTest {
 
 		// test without this subpackage
 		load(builder.build());
-		Assert.assertFalse(classes.contains(ClassLoader.class));
-		Assert.assertFalse(classes.contains(ClassLoaderTest.class));
+		assertFalse(classes.contains(ClassLoader.class));
+		assertFalse(classes.contains(ClassLoaderTest.class));
 
 		// test with this subpackage
 		classes.clear();
 		load(builder.addSubPackage("util").build());
-		Assert.assertTrue(classes.contains(ClassLoader.class));
-		Assert.assertTrue(classes.contains(ClassLoaderTest.class));
+		assertTrue(classes.contains(ClassLoader.class));
+		assertTrue(classes.contains(ClassLoaderTest.class));
 	}
 
 	@Test
@@ -53,8 +54,8 @@ public class ClassLoaderTest {
 				.filter(fqn -> !fqn.endsWith("Test")) // filter out class names ending with "Test"
 				.forEachClass(classes::add)
 				.build());
-		Assert.assertTrue(classes.contains(ClassLoader.class));
-		Assert.assertFalse(classes.contains(ClassLoaderTest.class));
+		assertTrue(classes.contains(ClassLoader.class));
+		assertFalse(classes.contains(ClassLoaderTest.class));
 	}
 
 	@Test
@@ -66,14 +67,14 @@ public class ClassLoaderTest {
 
 		// test without deep
 		load(builder.deep(false).build());
-		Assert.assertFalse(classes.contains(ClassLoader.class));
-		Assert.assertFalse(classes.contains(ClassLoaderTest.class));
+		assertFalse(classes.contains(ClassLoader.class));
+		assertFalse(classes.contains(ClassLoaderTest.class));
 
 		// test with deep
 		classes.clear();
 		load(builder.deep(true).build());
-		Assert.assertTrue(classes.contains(ClassLoader.class));
-		Assert.assertTrue(classes.contains(ClassLoaderTest.class));
+		assertTrue(classes.contains(ClassLoader.class));
+		assertTrue(classes.contains(ClassLoaderTest.class));
 	}
 
 }
