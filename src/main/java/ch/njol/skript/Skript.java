@@ -55,6 +55,7 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.server.PluginDisableEvent;
 import org.bukkit.event.server.ServerCommandEvent;
 import org.bukkit.event.server.ServerLoadEvent;
+import org.bukkit.event.world.WorldLoadEvent;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -676,121 +677,7 @@ public final class Skript extends JavaPlugin implements Listener {
 
 				if (TestMode.ENABLED) {
 					// Ignore late init (scripts, etc.) in test mode
-					Bukkit.getScheduler().runTaskLater(Skript.this, () -> {
-						info("Skript testing environment enabled, starting...");
-
-						// Delay is in Minecraft ticks.
-						AtomicLong shutdownDelay = new AtomicLong(0);
-						List<Class<?>> asyncTests = new ArrayList<>();
-						CompletableFuture<Void> onAsyncComplete = CompletableFuture.completedFuture(null);
-
-						if (TestMode.GEN_DOCS) {
-							Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "skript gen-docs");
-						} else if (TestMode.DEV_MODE) { // Developer controlled environment.
-							info("Test development mode enabled. Test scripts are at " + TestMode.TEST_DIR);
-							return;
-						} else {
-							info("Loading all tests from " + TestMode.TEST_DIR);
-
-							// Treat parse errors as fatal testing failure
-							CountingLogHandler errorCounter = new CountingLogHandler(Level.SEVERE);
-							try {
-								errorCounter.start();
-								File testDir = TestMode.TEST_DIR.toFile();
-								assert testDir != null;
-								ScriptLoader.loadScripts(testDir, errorCounter);
-							} finally {
-								errorCounter.stop();
-							}
-
-							Bukkit.getPluginManager().callEvent(new SkriptTestEvent());
-							if (errorCounter.getCount() > 0) {
-								TestTracker.testStarted("parse scripts");
-								TestTracker.testFailed(errorCounter.getCount() + " error(s) found");
-							}
-							if (errored) { // Check for exceptions thrown while script was executing
-								TestTracker.testStarted("run scripts");
-								TestTracker.testFailed("exception was thrown during execution");
-							}
-							if (TestMode.JUNIT) {
-								AtomicLong milliseconds = new AtomicLong(0),
-									tests = new AtomicLong(0), fails = new AtomicLong(0),
-									ignored = new AtomicLong(0), size = new AtomicLong(0);
-
-								info("Running sync JUnit tests...");
-								try {
-									List<Class<?>> classes = Lists.newArrayList(Utils.getClasses(Skript.getInstance(), "org.skriptlang.skript.test", "tests"));
-									// Don't attempt to run inner/anonymous classes as tests
-									classes.removeIf(Class::isAnonymousClass);
-									classes.removeIf(Class::isLocalClass);
-									// Test that requires package access. This is only present when compiling with src/test.
-									classes.add(Class.forName("ch.njol.skript.variables.FlatFileStorageTest"));
-									size.set(classes.size());
-									for (Class<?> clazz : classes) {
-										if (SkriptAsyncJUnitTest.class.isAssignableFrom(clazz)) {
-											asyncTests.add(clazz); // do these later, all together
-											continue;
-										}
-
-										runTest(clazz, shutdownDelay, tests, milliseconds, ignored, fails);
-									}
-								} catch (IOException e) {
-									Skript.exception(e, "Failed to execute JUnit runtime tests.");
-								} catch (ClassNotFoundException e) {
-									// Should be the Skript test jar gradle task.
-									assert false : "Class 'ch.njol.skript.variables.FlatFileStorageTest' was not found.";
-								} catch (InstantiationException | IllegalAccessException | IllegalArgumentException |
-										 InvocationTargetException | NoSuchMethodException | SecurityException e) {
-									Skript.exception(e, "Failed to initalize test JUnit classes.");
-								}
-								if (ignored.get() > 0)
-									Skript.warning("There were " + ignored + " ignored test cases! This can mean they are not properly setup in order in that class!");
-
-								onAsyncComplete = CompletableFuture.runAsync(() -> {
-									info("Running async JUnit tests...");
-									try {
-										for (Class<?> clazz : asyncTests) {
-											runTest(clazz, shutdownDelay, tests, milliseconds, ignored, fails);
-										}
-									} catch (InstantiationException | IllegalAccessException | IllegalArgumentException |
-											 InvocationTargetException | NoSuchMethodException | SecurityException e) {
-										Skript.exception(e, "Failed to initalize test JUnit classes.");
-									}
-									if (ignored.get() > 0)
-										Skript.warning("There were " + ignored + " ignored test cases! " +
-											"This can mean they are not properly setup in order in that class!");
-
-									info("Completed " + tests + " JUnit tests in " + size + " classes with " + fails +
-										" failures in " + milliseconds + " milliseconds.");
-								});
-							}
-						}
-
-						onAsyncComplete.thenRun(() -> {
-							double display = shutdownDelay.get() / 20.0;
-							info("Testing done, shutting down the server in " + display + " second" + (display == 1 ? "" : "s") + "...");
-
-							// Delay server shutdown to stop the server from crashing because the current tick takes a long time due to all the tests
-							Bukkit.getScheduler().runTaskLater(Skript.this, () -> {
-								info("Shutting down server.");
-								if (TestMode.JUNIT && !EffObjectives.isJUnitComplete())
-									EffObjectives.fail();
-
-								info("Collecting results to " + TestMode.RESULTS_FILE);
-								String results = new GsonBuilder()
-									.setPrettyPrinting() // Easier to read lines
-									.disableHtmlEscaping() // Fixes issue with "'" character in test strings going unicode
-									.create().toJson(TestTracker.collectResults());
-								try {
-									Files.write(TestMode.RESULTS_FILE, results.getBytes(StandardCharsets.UTF_8));
-								} catch (IOException e) {
-									Skript.exception(e, "Failed to write test results.");
-								}
-
-								Bukkit.getServer().shutdown();
-							}, shutdownDelay.get());
-						});
-					}, 50); // 50 ticks is necessary on 1.19.4/1.20.4 to allow the server time to properly load/start ticking, for some reason
+					Bukkit.getWorlds().get(0).getChunkAtAsync(0, 0).thenRun(() -> runTests());
 				}
 
 				Skript.metrics = new Metrics(Skript.getInstance(), 722); // 722 is our bStats plugin ID
@@ -855,29 +742,33 @@ public final class Skript extends JavaPlugin implements Listener {
 		}
 
 		// Send a warning to console when the plugin is reloaded
-		Bukkit.getPluginManager().registerEvents(new Listener() {
-			@EventHandler
-			public void onServerReload(ServerLoadEvent event) {
-				if ((event.getType() != ServerLoadEvent.LoadType.RELOAD))
-					return;
-
-				for (OfflinePlayer player : Bukkit.getOperators()) {
-					if (player.isOnline()) {
-						player.getPlayer().sendMessage(ChatColor.YELLOW + getWarningMessage());
-						player.getPlayer().sendMessage(ChatColor.YELLOW + getRestartMessage());
-					}
-				}
-
-				Skript.warning(getWarningMessage());
-				Skript.warning(getRestartMessage());
-			}
-		}, this);
+		Bukkit.getPluginManager().registerEvents(new ServerReloadListener(), this);
 
 		// Tell Timings that we are here!
 		SkriptTimings.setSkript(this);
 	}
 
+	private static class ServerReloadListener implements Listener {
+
+		@EventHandler
+		public void onServerReload(ServerLoadEvent event) {
+			if ((event.getType() != ServerLoadEvent.LoadType.RELOAD))
+				return;
+
+			for (OfflinePlayer player : Bukkit.getOperators()) {
+				if (player.isOnline()) {
+					player.getPlayer().sendMessage(ChatColor.YELLOW + getWarningMessage());
+					player.getPlayer().sendMessage(ChatColor.YELLOW + getRestartMessage());
+				}
+			}
+
+			Skript.warning(getWarningMessage());
+			Skript.warning(getRestartMessage());
+		}
+	}
+
 	private class JoinUpdateNotificationListener implements Listener {
+
 		@EventHandler
 		public void onJoin(PlayerJoinEvent event) {
 			if (!event.getPlayer().hasPermission("skript.admin"))
@@ -905,7 +796,123 @@ public final class Skript extends JavaPlugin implements Listener {
 				}
 			};
 		}
-  }
+  	}
+
+	private void runTests() {
+		System.err.println("Skript testing environment enabled, starting...");
+
+		// Delay is in Minecraft ticks.
+		AtomicLong shutdownDelay = new AtomicLong(0);
+		List<Class<?>> asyncTests = new ArrayList<>();
+		CompletableFuture<Void> onAsyncComplete = CompletableFuture.completedFuture(null);
+
+		if (TestMode.GEN_DOCS) {
+			Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "skript gen-docs");
+		} else if (TestMode.DEV_MODE) { // Developer controlled environment.
+			info("Test development mode enabled. Test scripts are at " + TestMode.TEST_DIR);
+			return;
+		} else {
+			info("Loading all tests from " + TestMode.TEST_DIR);
+
+			// Treat parse errors as fatal testing failure
+			CountingLogHandler errorCounter = new CountingLogHandler(Level.SEVERE);
+			try {
+				errorCounter.start();
+				File testDir = TestMode.TEST_DIR.toFile();
+				assert testDir != null;
+				ScriptLoader.loadScripts(testDir, errorCounter);
+			} finally {
+				errorCounter.stop();
+			}
+
+			Bukkit.getPluginManager().callEvent(new SkriptTestEvent());
+			if (errorCounter.getCount() > 0) {
+				TestTracker.testStarted("parse scripts");
+				TestTracker.testFailed(errorCounter.getCount() + " error(s) found");
+			}
+			if (errored) { // Check for exceptions thrown while script was executing
+				TestTracker.testStarted("run scripts");
+				TestTracker.testFailed("exception was thrown during execution");
+			}
+			if (TestMode.JUNIT) {
+				AtomicLong milliseconds = new AtomicLong(0),
+					tests = new AtomicLong(0), fails = new AtomicLong(0),
+					ignored = new AtomicLong(0), size = new AtomicLong(0);
+
+				info("Running sync JUnit tests...");
+				try {
+					List<Class<?>> classes = Lists.newArrayList(Utils.getClasses(Skript.getInstance(), "org.skriptlang.skript.test", "tests"));
+					// Don't attempt to run inner/anonymous classes as tests
+					classes.removeIf(Class::isAnonymousClass);
+					classes.removeIf(Class::isLocalClass);
+					// Test that requires package access. This is only present when compiling with src/test.
+					classes.add(Class.forName("ch.njol.skript.variables.FlatFileStorageTest"));
+					size.set(classes.size());
+					for (Class<?> clazz : classes) {
+						if (SkriptAsyncJUnitTest.class.isAssignableFrom(clazz)) {
+							asyncTests.add(clazz); // do these later, all together
+							continue;
+						}
+
+						runTest(clazz, shutdownDelay, tests, milliseconds, ignored, fails);
+					}
+				} catch (IOException e) {
+					Skript.exception(e, "Failed to execute JUnit runtime tests.");
+				} catch (ClassNotFoundException e) {
+					// Should be the Skript test jar gradle task.
+					assert false : "Class 'ch.njol.skript.variables.FlatFileStorageTest' was not found.";
+				} catch (InstantiationException | IllegalAccessException | IllegalArgumentException |
+						 InvocationTargetException | NoSuchMethodException | SecurityException e) {
+					Skript.exception(e, "Failed to initalize test JUnit classes.");
+				}
+				if (ignored.get() > 0)
+					Skript.warning("There were " + ignored + " ignored test cases! This can mean they are not properly setup in order in that class!");
+
+				onAsyncComplete = CompletableFuture.runAsync(() -> {
+					info("Running async JUnit tests...");
+					try {
+						for (Class<?> clazz : asyncTests) {
+							runTest(clazz, shutdownDelay, tests, milliseconds, ignored, fails);
+						}
+					} catch (InstantiationException | IllegalAccessException | IllegalArgumentException |
+							 InvocationTargetException | NoSuchMethodException | SecurityException e) {
+						Skript.exception(e, "Failed to initalize test JUnit classes.");
+					}
+					if (ignored.get() > 0)
+						Skript.warning("There were " + ignored + " ignored test cases! " +
+							"This can mean they are not properly setup in order in that class!");
+
+					info("Completed " + tests + " JUnit tests in " + size + " classes with " + fails +
+						" failures in " + milliseconds + " milliseconds.");
+				});
+			}
+		}
+
+		onAsyncComplete.thenRun(() -> {
+			double display = shutdownDelay.get() / 20.0;
+			info("Testing done, shutting down the server in " + display + " second" + (display == 1 ? "" : "s") + "...");
+
+			// Delay server shutdown to stop the server from crashing because the current tick takes a long time due to all the tests
+			Bukkit.getScheduler().runTaskLater(Skript.this, () -> {
+				info("Shutting down server.");
+				if (TestMode.JUNIT && !EffObjectives.isJUnitComplete())
+					EffObjectives.fail();
+
+				info("Collecting results to " + TestMode.RESULTS_FILE);
+				String results = new GsonBuilder()
+					.setPrettyPrinting() // Easier to read lines
+					.disableHtmlEscaping() // Fixes issue with "'" character in test strings going unicode
+					.create().toJson(TestTracker.collectResults());
+				try {
+					Files.write(TestMode.RESULTS_FILE, results.getBytes(StandardCharsets.UTF_8));
+				} catch (IOException e) {
+					Skript.exception(e, "Failed to write test results.");
+				}
+
+				Bukkit.getServer().shutdown();
+			}, shutdownDelay.get());
+		});
+	}
 
 	private void runTest(Class<?> clazz, AtomicLong shutdownDelay, AtomicLong tests,
 						 AtomicLong milliseconds, AtomicLong ignored, AtomicLong fails)
