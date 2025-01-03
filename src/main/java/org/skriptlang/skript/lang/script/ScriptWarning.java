@@ -43,9 +43,9 @@ public enum ScriptWarning {
 	 */
 	UNREACHABLE_CODE("unreachable code");
 
-	private final @Nullable String deprecationMessage;
 	private final String warningName;
 	private final String pattern;
+	private final @Nullable String deprecationMessage;
 
 	ScriptWarning(String warningName) {
 		this(warningName, warningName);
@@ -56,9 +56,9 @@ public enum ScriptWarning {
 	}
 
 	ScriptWarning(String warningName, String pattern, @Nullable String deprecationMessage) {
-		this.deprecationMessage = deprecationMessage;
 		this.warningName = warningName;
 		this.pattern = pattern;
+		this.deprecationMessage = deprecationMessage;
 	}
 
 	public String getWarningName() {
