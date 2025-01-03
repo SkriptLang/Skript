@@ -180,7 +180,7 @@ public class EventValues {
 	@Nullable
 	@Deprecated(forRemoval = true)
 	@SuppressWarnings({"removal"})
-	public static <T, E extends Event> Getter<? super E, ? extends T> getExactEventValueGetter(Class<E> event, Class<T> c, int time) {
+	public static <T, E extends Event> Getter<? extends T, ? super E> getExactEventValueGetter(Class<E> event, Class<T> c, int time) {
 		return toGetter(getExactEventValueConverter(event, c, time));
 	}
 
@@ -195,7 +195,7 @@ public class EventValues {
 	 * @see EventValueExpression#EventValueExpression(Class)
 	 */
 	@Nullable
-	public static <T, E extends Event> Converter<? super E, ? extends T> getExactEventValueConverter(
+	public static <E extends Event, T> Converter<? super E, ? extends T> getExactEventValueConverter(
 		Class<E> event, Class<T> c, int time
 	) {
 		List<EventValueInfo<?, ?>> eventValues = getEventValuesList(time);
@@ -244,7 +244,7 @@ public class EventValues {
 	@Nullable
 	@Deprecated(forRemoval = true)
 	@SuppressWarnings({"removal"})
-	public static <T, E extends Event> Getter<? super E, ? extends T> getEventValueGetter(Class<E> event, Class<T> type, int time) {
+	public static <T, E extends Event> Getter<? extends T, ? super E> getEventValueGetter(Class<E> event, Class<T> type, int time) {
 		return toGetter(getEventValueConverter(event, type, time, true));
 	}
 
