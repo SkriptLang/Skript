@@ -1,7 +1,6 @@
 package org.skriptlang.skript.bukkit.fishing.elements;
 
 import ch.njol.skript.Skript;
-import ch.njol.skript.doc.*;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptEvent;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
@@ -15,21 +14,6 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
-@Name("Fishing")
-@Description({
-	"Called when a player triggers a fishing event.",
-	"An entity hooked event is triggered when an entity gets caught by a fishing rod.",
-	"A fish escape event is called when the player fails to click on time, and the fish escapes.",
-	"A fish approaching event is when the bobber is waiting to be hooked, and a fish is approaching."
-})
-@Examples({
-	"on fishing line cast:",
-		"\tsend \"You caught a fish!\" to player",
-	"on fishing state of caught entity:",
-		"\tpush event-entity vector from entity to player"
-})
-@RequiredPlugins("Paper (bobber lured)")
-@Since("2.10")
 public class EvtFish extends SkriptEvent {
 
 	private enum State {
@@ -71,7 +55,21 @@ public class EvtFish extends SkriptEvent {
 			patterns.add(state.pattern);
 		}
 
-		Skript.registerEvent("Fishing", EvtFish.class, PlayerFishEvent.class, patterns.toArray(new String[0]));
+		Skript.registerEvent("Fishing", EvtFish.class, PlayerFishEvent.class, patterns.toArray(new String[0]))
+			.description(
+				"Called when a player triggers a fishing event.",
+				"An entity hooked event is triggered when an entity gets caught by a fishing rod.",
+				"A fish escape event is called when the player fails to click on time, and the fish escapes.",
+				"A fish approaching event is when the bobber is waiting to be hooked, and a fish is approaching."
+			)
+			.examples(
+				"on fishing line cast:",
+					"\tsend \"You caught a fish!\" to player",
+				"on fishing state of caught entity:",
+					"\tpush event-entity vector from entity to player"
+			)
+			.requiredPlugins("Paper (bobber lured)")
+			.since("2.10");
 
 		EventValues.registerEventValue(PlayerFishEvent.class, Entity.class, PlayerFishEvent::getCaught);
 	}
