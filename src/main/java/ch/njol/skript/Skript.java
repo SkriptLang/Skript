@@ -791,7 +791,7 @@ public final class Skript extends JavaPlugin implements Listener {
   	}
 
 	private void runTests() {
-		System.err.println("Skript testing environment enabled, starting...");
+		info("Skript testing environment enabled, starting...");
 
 		// Delay is in Minecraft ticks.
 		AtomicLong shutdownDelay = new AtomicLong(0);
