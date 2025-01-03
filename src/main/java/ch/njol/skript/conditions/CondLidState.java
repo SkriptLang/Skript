@@ -20,7 +20,7 @@ import org.jetbrains.annotations.Nullable;
 	"if the lid of {_chest} is closed:",
 		"\topen the lid of {_block}"
 })
-@Since("INSERT VERSION")
+@Since("2.10")
 public class CondLidState extends PropertyCondition<Block> {
 
 	static {

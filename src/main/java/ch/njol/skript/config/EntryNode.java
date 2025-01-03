@@ -2,6 +2,7 @@ package ch.njol.skript.config;
 
 import java.util.Map.Entry;
 
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -44,6 +45,11 @@ public class EntryNode extends Node implements Entry<String, String> {
 	@Override
 	String save_i() {
 		return key + config.getSaveSeparator() + value;
+	}
+
+	@Override
+	public @Nullable Node get(String step) {
+		return null;
 	}
 
 }

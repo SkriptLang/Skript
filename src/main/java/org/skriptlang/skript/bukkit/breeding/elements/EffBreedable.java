@@ -20,7 +20,7 @@ import org.jetbrains.annotations.Nullable;
 	"on spawn of animal:",
 		"\tmake entity unbreedable"
 })
-@Since("INSERT VERSION")
+@Since("2.10")
 public class EffBreedable extends Effect {
 
 	static {

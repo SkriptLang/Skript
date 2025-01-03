@@ -130,6 +130,7 @@ public class EventValues {
 	 */
 	@Deprecated(forRemoval = true)
 	@SafeVarargs
+	@SuppressWarnings({"removal"})
 	public static <T, E extends Event> void registerEventValue(
 		Class<E> event, Class<T> type,
 		Getter<T, E> getter, int time,
@@ -143,6 +144,7 @@ public class EventValues {
 	 * @deprecated Use {@link #registerEventValue(Class, Class, Converter, int)} instead.
 	 */
 	@Deprecated(forRemoval = true)
+	@SuppressWarnings({"removal"})
 	public static <T, E extends Event> void registerEventValue(
 		Class<E> event, Class<T> type,
 		Getter<T, E> getter, int time

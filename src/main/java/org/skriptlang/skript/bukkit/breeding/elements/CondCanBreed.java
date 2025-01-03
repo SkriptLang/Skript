@@ -16,7 +16,7 @@ import org.bukkit.entity.LivingEntity;
 		"\tevent-entity can't breed",
 		"\tsend \"Turns out %event-entity% is not breedable. Must be a Skript user!\" to player"
 })
-@Since("INSERT VERSION")
+@Since("2.10")
 public class CondCanBreed extends PropertyCondition<LivingEntity> {
 
 	static {

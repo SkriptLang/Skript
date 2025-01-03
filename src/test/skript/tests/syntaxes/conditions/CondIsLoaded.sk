@@ -1,0 +1,20 @@
+options:
+	path: "../../../../../../src/test/skript/tests/"
+
+	# Princess test script is in another castle, Mario!
+	# paths are relativised to the /scripts/ directory
+	# but we are loading these scripts from the test folder :(
+
+using script reflection
+
+test "this script is loaded":
+	assert the current script is loaded with "this script was not loaded"
+
+test "other script is loaded":
+	set {_path} to {@path} + "misc/-disabled.sk"
+	set {_script} to script named {_path}
+	assert {_script} is not loaded with "disabled script was loaded"
+
+	set {_path} to {@path} + "misc/dummy.sk"
+	set {_script} to script named {_path}
+	assert {_script} is loaded with "enabled script was not loaded"

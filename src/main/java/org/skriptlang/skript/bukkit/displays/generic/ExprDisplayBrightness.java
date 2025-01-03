@@ -37,7 +37,7 @@ import java.util.List;
 	"if sky light level override of {_display} is 5:",
 		"\tclear brightness override of {_display}"
 })
-@Since("INSERT VERSION")
+@Since("2.10")
 public class ExprDisplayBrightness extends SimpleExpression<Integer> {
 
 	static {
