@@ -82,7 +82,7 @@ public enum ScriptWarning {
 	}
 
 	/**
-	 * Prints the given message using {@link Skript#warning(String)} if the current script does not suppress deprecation warnings.
+	 * Prints the given message using {@link Skript#warning(String)} if and only if the current script does not suppress deprecation warnings.
 	 * Intended for use in {@link ch.njol.skript.lang.SyntaxElement#init(Expression[], int, Kleenean, SkriptParser.ParseResult)}.
 	 * The given message is prefixed with {@code "[Deprecated] "} to provide a common link between deprecation warnings.
 	 *
