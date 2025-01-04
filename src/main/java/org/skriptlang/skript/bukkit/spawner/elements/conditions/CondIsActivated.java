@@ -10,7 +10,8 @@ import org.skriptlang.skript.bukkit.spawner.util.SpawnerUtils;
 public class CondIsActivated extends PropertyCondition<Object> {
 
 	static {
-		register(SpawnerModule.SYNTAX_REGISTRY, CondIsActivated.class, "[an] (activated|active) spawner", "blocks/entities");
+		register(SpawnerModule.SYNTAX_REGISTRY, CondIsActivated.class,
+			"[an] (activated|active) spawner", "blocks/entities");
 	}
 
 	@Override

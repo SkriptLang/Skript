@@ -41,7 +41,8 @@ public class ExprSecSpawnerEntry extends SectionExpression<SpawnerEntry> {
 	private Expression<EntitySnapshot> snapshot;
 
 	@Override
-	public boolean init(Expression<?>[] exprs, int pattern, Kleenean delayed, ParseResult result, @Nullable SectionNode node, @Nullable List<TriggerItem> triggerItems) {
+	public boolean init(Expression<?>[] exprs, int pattern, Kleenean delayed, ParseResult result, @Nullable SectionNode node,
+	                    @Nullable List<TriggerItem> triggerItems) {
 		if (node != null)
 			//noinspection unchecked
 			trigger = loadCode(node, "create spawner entry", null, SpawnerEntryCreateEvent.class);

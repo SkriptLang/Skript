@@ -7,7 +7,8 @@ import org.skriptlang.skript.bukkit.spawner.SpawnerModule;
 public class ExprSpawnerEntry extends EventValueExpression<SpawnerEntry> {
 
     static {
-        register(SpawnerModule.SYNTAX_REGISTRY, ExprSpawnerEntry.class, SpawnerEntry.class, "[the] spawner entry");
+        register(SpawnerModule.SYNTAX_REGISTRY, ExprSpawnerEntry.class, SpawnerEntry.class,
+	        "[the] spawner entry");
     }
 
     public ExprSpawnerEntry() {

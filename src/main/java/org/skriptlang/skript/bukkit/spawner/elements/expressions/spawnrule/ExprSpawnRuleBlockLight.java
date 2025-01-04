@@ -48,10 +48,10 @@ public class ExprSpawnRuleBlockLight extends SimplePropertyExpression<SpawnRule,
 		int light = ((int) delta[0]);
 
 		if (light > 15) {
-			warning("The block light level cannot be greater than 15, thus setting it to a value larger than 15 will do nothing.");
+			warning("The block light spawn level cannot be greater than 15, thus setting it to a value larger than 15 will do nothing.");
 			return;
 		} else if (light < 0) {
-			warning("The block light level cannot be less than 0, thus setting it to a value less than 0 will do nothing.");
+			warning("The block light spawn level cannot be less than 0, thus setting it to a value less than 0 will do nothing.");
 			return;
 		}
 
@@ -68,7 +68,7 @@ public class ExprSpawnRuleBlockLight extends SimplePropertyExpression<SpawnRule,
 				case SET -> light;
 				case ADD -> minMax + light;
 				case REMOVE -> minMax - light;
-				default -> 0;
+				default -> 0; // should never happen
 			};
 
 			if (max) {
@@ -85,9 +85,9 @@ public class ExprSpawnRuleBlockLight extends SimplePropertyExpression<SpawnRule,
 
 	private String getWarningMessage(int value, int compare) {
 		if (value > 15) {
-			return "The block light level cannot be greater than 15, thus setting it to a value larger than 15 will do nothing.";
+			return "The block light spawn level cannot be greater than 15, thus setting it to a value larger than 15 will do nothing.";
 		} else if (value < 0) {
-			return "The block light level cannot be less than 0, thus setting it to a value less than 0 will do nothing.";
+			return "The block light spawn level cannot be less than 0, thus setting it to a value less than 0 will do nothing.";
 		}
 
 		if (max && value < compare) {

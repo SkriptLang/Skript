@@ -9,7 +9,8 @@ import org.skriptlang.skript.bukkit.spawner.util.TrialSpawnerConfig;
 public class CondIsOminous extends PropertyCondition<Object> {
 
 	static {
-		register(SpawnerModule.SYNTAX_REGISTRY, CondIsOminous.class, "ominous", "trialspawnerconfigs/blocks");
+		register(SpawnerModule.SYNTAX_REGISTRY, CondIsOminous.class,
+			"ominous", "trialspawnerconfigs/blocks");
 	}
 
 	@Override

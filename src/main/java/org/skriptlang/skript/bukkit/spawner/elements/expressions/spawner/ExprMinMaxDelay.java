@@ -21,7 +21,8 @@ import org.skriptlang.skript.bukkit.spawner.util.SpawnerUtils;
 @Name("Spawner Spawn Delay")
 @Description({
 	"Get, set the maximum or minimum spawn delay of a spawner.",
-	"Each reset of a spawner, the spawner chooses a new delay between its minimum and maximum delays to use for the delay.",
+	"Each reset of a spawner, the spawner chooses a new delay between its "
+		+ "minimum and maximum delays to use for the delay.",
 	"Setting the minimum delay higher than the maximum delay and so on does nothing."
 })
 @Examples({

@@ -17,14 +17,16 @@ public class ExprSpawnerEntryWithEquipment extends SimplePropertyExpression<Spaw
 
 	static {
 		registerDefault(SpawnerModule.SYNTAX_REGISTRY, ExprSpawnerEntryWithEquipment.class, SpawnerEntryEquipmentWrapper.class,
-				"equipment loot[ ]table", "spawnerentries");
+			"equipment loot[ ]table", "spawnerentries");
 	}
 
 	@Override
 	public @Nullable SpawnerEntryEquipmentWrapper convert(SpawnerEntry entry) {
 		if (entry.getEquipment() != null) {
 			List<DropChance> equipment = new ArrayList<>();
-			entry.getEquipment().getDropChances().forEach((slot, chance) -> equipment.add(new DropChance(slot, chance)));
+			entry.getEquipment().getDropChances().forEach(
+				(slot, chance) -> equipment.add(new DropChance(slot, chance))
+			);
 			return new SpawnerEntryEquipmentWrapper(entry.getEquipment().getEquipmentLootTable(), equipment);
 		}
 		return null;
