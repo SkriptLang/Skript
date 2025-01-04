@@ -1,6 +1,6 @@
 package ch.njol.skript.effects;
 
-import java.util.ArrayList;
+import java.util.function.Function;
 
 import org.bukkit.block.Block;
 import org.bukkit.block.data.BlockData;
@@ -10,8 +10,6 @@ import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.Skript;
-import ch.njol.skript.classes.Changer.ChangeMode;
-import ch.njol.skript.classes.Changer.ChangerUtils;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
@@ -53,19 +51,12 @@ public class EffToggle extends Effect {
 	public boolean init(Expression<?>[] vars, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		togglables = (Expression<?>) vars[0];
 		state = State.values()[matchedPattern];
-		boolean acceptsBoolean = togglables.getReturnType() == Boolean.class && ChangerUtils.acceptsChange(togglables, ChangeMode.SET, Boolean.class);
-		boolean acceptsBooleanArray = !togglables.isSingle() && ChangerUtils.acceptsChange(togglables, ChangeMode.SET, Boolean[].class);
-		if (!acceptsBoolean || !acceptsBooleanArray) {
-			Skript.error(togglables.toString(null, false) + " cannot be toggled");
-			return false;
-		}
 		return true;
 	}
 
 	@Override
 	protected void execute(Event event) {
-		ArrayList<Object> toggledValues = new ArrayList<>();
-		for (Object obj : togglables.getArray(event)) {
+		Function<Object, Object> changeFunction = obj -> {
 			if (obj instanceof Block) {
 				Block block = (Block) obj;
 				BlockData data = block.getBlockData();
@@ -85,20 +76,17 @@ public class EffToggle extends Effect {
 				}
 
 				block.setBlockData(data);
-				toggledValues.add(block);
+				return block;
 
-			} else if (obj instanceof Boolean) {
-				toggledValues.add(!(Boolean) obj);
+			} else if (obj instanceof Boolean && state == State.TOGGLE) {
+				Boolean bool = (Boolean) obj;
+				return !bool;
 			}
-		}
 
-		Object[] filteredValues = toggledValues.stream().filter(
-			obj -> ChangerUtils.acceptsChange(togglables, ChangeMode.SET, obj.getClass())
-		).toArray(Object[]::new);
+			return obj;
+		};
 
-		if (filteredValues.length != 0 && toggledValues.size() == filteredValues.length) {
-			togglables.change(event, filteredValues, ChangeMode.SET);
-		}
+		togglables.changeInPlace(event, (Function) changeFunction);
 		
 	}
 	

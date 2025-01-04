@@ -32,4 +32,4 @@ test "toggle effect":
   toggle {_list::*}
   assert {_list::myFirstIndex::myFirstValue} is "hello" with "{_list::myFirstIndex::myFirstValue} should be 'hello'"
   assert {_list::mySecondIndex::mySecondValue} is "world" with "{_list::mySecondIndex::mySecondValue} should be 'world'"
-  assert {_list::myThirdIndex::myThirdValue} is true with "{_list::myThirdIndex::myThirdValue} should be toggled to true"
+  assert {_list::myThirdIndex::myThirdValue} is false with "{_list::myThirdIndex::myThirdValue} should be toggled to true"
