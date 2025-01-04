@@ -2,6 +2,7 @@ package org.skriptlang.skript.bukkit.spawner.elements.expressions.basespawner;
 
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
+import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.Timespan;
 import ch.njol.skript.util.Timespan.TimePeriod;
 import ch.njol.util.coll.CollectionUtils;
@@ -57,8 +58,12 @@ public class ExprSpawnerDelay extends SimplePropertyExpression<Object, Timespan>
 				case ADD -> base.setDelay(base.getDelay() + ticksAsInt);
 				case REMOVE -> base.setDelay(base.getDelay() - ticksAsInt);
 				case RESET -> {
-					if (base instanceof Spawner spawner)
+					if (base instanceof Spawner spawner) {
 						spawner.setDelay(-1);
+					} else {
+						warning("'" + Classes.toString(base) + "' does not support resetting the delay. "
+							+ "Only spawners (i.e. creature spawners, spawner minecarts) support resetting the delay.");
+					}
 				}
 			}
 

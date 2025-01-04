@@ -83,23 +83,36 @@ public class ExprMinMaxDelay extends SimplePropertyExpression<Object, Timespan> 
 
 			Spawner spawner = SpawnerUtils.getAsSpawner(object);
 
+			int minMax;
 			if (isMax) {
-				switch (mode) {
-					case SET -> spawner.setMaxSpawnDelay(ticksAsInt);
-					case ADD -> spawner.setMaxSpawnDelay(spawner.getMaxSpawnDelay() + ticksAsInt);
-					case REMOVE -> spawner.setMaxSpawnDelay(spawner.getMaxSpawnDelay() - ticksAsInt);
-					case RESET -> spawner.setMaxSpawnDelay(800); // Default max spawn delay
-				}
+				minMax = spawner.getMaxSpawnDelay();
 			} else {
-				switch (mode) {
-					case SET -> spawner.setMinSpawnDelay(ticksAsInt);
-					case ADD -> spawner.setMinSpawnDelay(spawner.getMinSpawnDelay() + ticksAsInt);
-					case REMOVE -> spawner.setMinSpawnDelay(spawner.getMinSpawnDelay() - ticksAsInt);
-					case RESET -> spawner.setMinSpawnDelay(200); // Default min spawn delay
-				}
+				minMax = spawner.getMinSpawnDelay();
+			}
+
+			int value = switch (mode) {
+				case SET -> ticksAsInt;
+				case ADD -> minMax + ticksAsInt;
+				case REMOVE -> minMax - ticksAsInt;
+				case RESET -> isMax ? 800 : 200;
+				default -> 0; // should never happen
+			};
+
+			if (isMax) {
+				spawner.setMaxSpawnDelay(value);
+			} else {
+				spawner.setMinSpawnDelay(value);
 			}
 
 			SpawnerUtils.updateState(spawner);
+
+			if (isMax && value < spawner.getMinSpawnDelay()) {
+				warning("The maximum spawn delay cannot be lower than the minimum spawn delay, "
+					+ "thus setting it to a value lower than the minimum spawn delay will do nothing.");
+			} else if (!isMax && value > spawner.getMaxSpawnDelay()) {
+				warning("The minimum spawn delay cannot be lower than the maximum spawn delay, "
+					+ "thus setting it to a value lower than the maximum spawn delay will do nothing.");
+			}
 		}
 	}
 

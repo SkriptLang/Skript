@@ -35,8 +35,13 @@ public class ExprWeight extends SimplePropertyExpression<Object, Integer> {
 		int weight = (int) delta[0];
 
 		for (Object object : getExpr().getArray(event)) {
-			if (!(object instanceof AnyWeight weighted) || !weighted.supportsWeightChange())
+			if (!(object instanceof AnyWeight weighted))
 				continue;
+
+			if (!weighted.supportsWeightChange()) {
+				error("The weight of this object cannot be changed.");
+				continue;
+			}
 
 			switch (mode) {
 				case SET -> weighted.setWeight(weight);
