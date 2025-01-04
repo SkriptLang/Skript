@@ -100,10 +100,10 @@ public class SpawnerUtils {
 	}
 
 	/**
-	 * Updates the state of a block. This is used for {@link CreatureSpawner} and {@link TrialSpawner}.
+	 * Updates the state of the spawner. This is used for {@link CreatureSpawner} and {@link TrialSpawner}.
 	 * @param state the state
 	 */
-	public static void updateState(BlockState state) {
+	public static void updateState(Object state) {
 		if (state instanceof CreatureSpawner spawner)
 			spawner.update(true, false);
 		else if (state instanceof TrialSpawner spawner)
