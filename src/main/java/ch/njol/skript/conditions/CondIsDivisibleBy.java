@@ -8,7 +8,6 @@ import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Condition;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
-import ch.njol.util.Checker;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
@@ -19,7 +18,7 @@ import org.jetbrains.annotations.Nullable;
 	"if 5 is evenly divisible by 5:",
 	"if 11 cannot be evenly divided by 10:",
 })
-@Since("INSERT VERSION")
+@Since("2.10")
 public class CondIsDivisibleBy extends Condition {
 
 	static {

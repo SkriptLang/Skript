@@ -33,7 +33,7 @@ public class LootTableModule {
 					+ "what items should be dropped when killing a mob, or what items can be fished.",
 				"You can find more information about this in https://minecraft.wiki/w/Loot_table"
 			)
-			.since("INSERT VERSION")
+			.since("2.10")
 			.parser(new Parser<>() {
 				@Override
 				public @Nullable LootTable parse(String key, ParseContext context) {
@@ -67,7 +67,7 @@ public class LootTableModule {
 					+ "whereas the loot table of a cow will require a looting player, looted entity, and location.",
 				"You can find more information about this in https://minecraft.wiki/w/Loot_context"
 			)
-			.since("INSERT VERSION")
+			.since("2.10")
 			.defaultExpression(new EventValueExpression<>(LootContext.class))
 			.parser(new Parser<>() {
 				@Override

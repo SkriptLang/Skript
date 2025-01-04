@@ -20,7 +20,7 @@ import org.jetbrains.annotations.Nullable;
 	"on spawn of animal:",
 		"\tallow aging of entity"
 })
-@Since("INSERT VERSION")
+@Since("2.10")
 public class EffAllowAging extends Effect {
 
 	static {

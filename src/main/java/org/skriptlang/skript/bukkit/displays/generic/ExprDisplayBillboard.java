@@ -19,7 +19,7 @@ import org.jetbrains.annotations.Nullable;
 	"Displays spawn with the 'fixed' billboard by default. Resetting this expression will also set it to 'fixed'."
 })
 @Examples("set billboard of the last spawned text display to center")
-@Since("INSERT VERSION")
+@Since("2.10")
 public class ExprDisplayBillboard extends SimplePropertyExpression<Display, Billboard> {
 
 	static {

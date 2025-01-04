@@ -1,67 +1,39 @@
 package ch.njol.util;
 
+import ch.njol.skript.expressions.ExprVectorCylindrical;
+import ch.njol.skript.expressions.ExprVectorFromYawAndPitch;
+import ch.njol.skript.expressions.ExprVectorSpherical;
+import ch.njol.skript.expressions.ExprYawPitch;
 import org.bukkit.util.Vector;
 
-/**
- * @author bi0qaw
- */
-public class VectorMath {
+@Deprecated(forRemoval = true)
+public final class VectorMath {
 
 	public static final double PI = Math.PI;
 	public static final double HALF_PI = PI / 2;
-	public static final double DEG_TO_RAD = PI / 180;
-	public static final double RAD_TO_DEG =  180 / PI;
+	public static final double DEG_TO_RAD = Math.PI / 180;
+	public static final double RAD_TO_DEG = 180 / Math.PI;
+
+	private VectorMath() {}
 
 	public static Vector fromSphericalCoordinates(double radius, double theta, double phi) {
-		double r = Math.abs(radius);
-		double t = theta * DEG_TO_RAD;
-		double p = phi * DEG_TO_RAD;
-		double sinp = Math.sin(p);
-		double x = r * sinp * Math.cos(t);
-		double y = r * Math.cos(p);
-		double z = r * sinp * Math.sin(t);
-		return new Vector(x, y, z);
+		return ExprVectorSpherical.fromSphericalCoordinates(radius, theta, phi);
 	}
 
 	public static Vector fromCylindricalCoordinates(double radius, double phi, double height) {
-		double r = Math.abs(radius);
-		double p = phi * DEG_TO_RAD;
-		double x = r * Math.cos(p);
-		double z = r * Math.sin(p);
-		return new Vector(x, height, z);
-
+		return ExprVectorCylindrical.fromCylindricalCoordinates(radius, phi, height);
 	}
 
 	public static Vector fromYawAndPitch(float yaw, float pitch) {
-		double y = Math.sin(pitch * DEG_TO_RAD);
-		double div = Math.cos(pitch * DEG_TO_RAD);
-		double x = Math.cos(yaw * DEG_TO_RAD);
-		double z = Math.sin(yaw * DEG_TO_RAD);
-		x *= div;
-		z *= div;
-		return new Vector(x,y,z);
+		return ExprYawPitch.fromYawAndPitch(yaw, pitch);
 	}
 
 	public static float getYaw(Vector vector) {
-		if (((Double) vector.getX()).equals((double) 0) && ((Double) vector.getZ()).equals((double) 0)){
-			return 0;
-		}
-		return (float) (Math.atan2(vector.getZ(), vector.getX()) * RAD_TO_DEG);
+		return ExprYawPitch.getYaw(vector);
 	}
 
 	public static float getPitch(Vector vector) {
-		double xy = Math.sqrt(vector.getX() * vector.getX() + vector.getZ() * vector.getZ());
-		return (float) (Math.atan(vector.getY() / xy) * RAD_TO_DEG);
-	}
-
-	public static Vector setYaw(Vector vector, float yaw) {
-		vector = fromYawAndPitch(yaw, getPitch(vector));
-		return vector;
-	}
-
-	public static Vector setPitch(Vector vector, float pitch) {
-		vector = fromYawAndPitch(getYaw(vector), pitch);
-		return vector;
+		return ExprYawPitch.getPitch(vector);
 	}
 
 	public static Vector rotX(Vector vector, double angle) {
@@ -114,70 +86,28 @@ public class VectorMath {
 		return vector;
 	}
 
-	public static float notchYaw(float yaw){
-		float y = yaw - 90;
-		if (y < -180){
-			y += 360;
-		}
-		return y;
+	public static float skriptYaw(float yaw) {
+		return ExprYawPitch.skriptYaw(yaw);
 	}
 
-	public static float notchPitch(float pitch){
-		return -pitch;
+	public static float skriptPitch(float pitch) {
+		return ExprYawPitch.skriptPitch(pitch);
 	}
 
-	public static float fromNotchYaw(float notchYaw){
-		float y = notchYaw + 90;
-		if (y > 180){
-			y -= 360;
-		}
-		return y;
+	public static float fromSkriptYaw(float yaw) {
+		return ExprYawPitch.fromSkriptYaw(yaw);
 	}
 
-	public static float fromNotchPitch(float notchPitch){
-		return -notchPitch;
-	}
-
-	public static float skriptYaw(float yaw){
-		float y = yaw - 90;
-		if (y < 0){
-			y += 360;
-		}
-		return y;
-	}
-
-	public static float skriptPitch(float pitch){
-		return -pitch;
-	}
-
-	public static float fromSkriptYaw(float yaw){
-		float y = yaw + 90;
-		if (y > 360){
-			y -= 360;
-		}
-		return y;
-	}
-
-	public static float fromSkriptPitch(float pitch){
-		return -pitch;
+	public static float fromSkriptPitch(float pitch) {
+		return ExprYawPitch.fromSkriptPitch(pitch);
 	}
 
 	public static float wrapAngleDeg(float angle) {
-		angle %= 360f;
-		if (angle <= -180) {
-			return angle + 360;
-		} else if (angle > 180) {
-			return angle - 360;
-		} else {
-			return angle;
-		}
+		return ExprVectorFromYawAndPitch.wrapAngleDeg(angle);
 	}
 
-	/**
-	 * Copies vector components of {@code vector2} into {@code vector1}.
-	 */
 	public static void copyVector(Vector vector1, Vector vector2) {
-		vector1.setX(vector2.getX()).setY(vector2.getY()).setZ(vector2.getZ());
+		vector1.copy(vector2);
 	}
 
 	/**

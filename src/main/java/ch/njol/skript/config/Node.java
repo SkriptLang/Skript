@@ -1,20 +1,19 @@
 package ch.njol.skript.config;
 
 import ch.njol.skript.Skript;
+import ch.njol.skript.lang.util.common.AnyNamed;
 import ch.njol.skript.log.SkriptLogger;
 import ch.njol.util.NonNullPair;
 import ch.njol.util.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.util.Validated;
 
 import java.io.PrintWriter;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-/**
- * @author Peter Güttinger
- */
-public abstract class Node {
+public abstract class Node implements AnyNamed, Validated, NodeNavigator {
 
 	@Nullable
 	protected String key;
@@ -407,6 +406,34 @@ public abstract class Node {
 		return debug;
 	}
 
+	@Override
+	public void invalidate() throws UnsupportedOperationException {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public boolean valid() {
+		//noinspection ConstantValue
+		return config != null && config.valid();
+	}
+
+	public @Nullable String getPath() {
+		if (key == null)
+			return null;
+		if (parent == null)
+			return key;
+		@Nullable String path = parent.getPath();
+		if (path == null)
+			return key;
+		return path + '.' + key;
+	}
+
+	@Override
+	public @NotNull Node getCurrentNode() {
+		return this;
+	}
+
+
 	/**
 	 * @return The index of this node relative to the other children of this node's parent,
 	 * or -1 if this node does not have a parent. The index includes counted void nodes.
@@ -427,7 +454,8 @@ public abstract class Node {
 	}
 
 	/**
-	 * Returns the path to this node in the config file from the root.
+	 * Returns the node names in the path to this node from the config root.
+	 * If this is not a section node, returns the path to its parent node.
 	 *
 	 * <p>
 	 * Getting the path of node {@code z} in the following example would
@@ -440,7 +468,7 @@ public abstract class Node {
 	 *
 	 * @return The path to this node in the config file.
 	 */
-	public @NotNull String[] getPath() {
+	public @NotNull String[] getPathSteps() {
 		List<String> path = new ArrayList<>();
 		Node node = this;
 
@@ -462,17 +490,22 @@ public abstract class Node {
 	}
 
 	@Override
+	public @Nullable String name() {
+		return this.getKey();
+	}
+
+	@Override
 	public boolean equals(Object object) {
 		if (!(object instanceof Node other))
 			return false;
 
-		return Arrays.equals(getPath(), other.getPath()) // for entry/section nodes
+		return Arrays.equals(this.getPathSteps(), other.getPathSteps()) // for entry/section nodes
 			&& Objects.equals(comment, other.comment); // for void nodes
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(Arrays.hashCode(getPath()), comment);
+		return Objects.hash(Arrays.hashCode(this.getPathSteps()), comment);
 	}
 
 }
