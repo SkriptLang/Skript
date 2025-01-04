@@ -57,14 +57,7 @@ public class ExprSpawnerDelay extends SimplePropertyExpression<Object, Timespan>
 				case SET -> base.setDelay(ticksAsInt);
 				case ADD -> base.setDelay(base.getDelay() + ticksAsInt);
 				case REMOVE -> base.setDelay(base.getDelay() - ticksAsInt);
-				case RESET -> {
-					if (base instanceof Spawner spawner) {
-						spawner.setDelay(-1);
-					} else {
-						warning("'" + Classes.toString(base) + "' does not support resetting the delay. "
-							+ "Only spawners (i.e. creature spawners, spawner minecarts) support resetting the delay.");
-					}
-				}
+				case RESET -> base.setDelay(-1);
 			}
 
 			SpawnerUtils.updateState(base);
