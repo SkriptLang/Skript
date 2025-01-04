@@ -62,13 +62,14 @@ public class ExprSpawnRuleSkyLight extends SimplePropertyExpression<SpawnRule, I
 			} else {
 				minMax = rule.getMinSkyLight();
 			}
-			int value = 0;
+			int value;
 
-			switch (mode) {
-				case SET -> value = light;
-				case ADD -> value = minMax + light;
-				case REMOVE -> value = minMax - light;
-			}
+			value = switch (mode) {
+				case SET -> light;
+				case ADD -> minMax + light;
+				case REMOVE -> minMax - light;
+				default -> 0;
+			};
 
 			if (max) {
 				rule.setMaxSkyLight(value);
@@ -76,7 +77,7 @@ public class ExprSpawnRuleSkyLight extends SimplePropertyExpression<SpawnRule, I
 				rule.setMinSkyLight(value);
 			}
 
-			String warning = getWarningMessage(value, minMax);
+			String warning = getWarningMessage(value, max ? rule.getMinSkyLight() : rule.getMaxSkyLight());
 			if (!warning.isEmpty())
 				warning(warning);
 		}
@@ -89,16 +90,12 @@ public class ExprSpawnRuleSkyLight extends SimplePropertyExpression<SpawnRule, I
 			return "The sky light level cannot be less than 0, thus setting it to a value less than 0 will do nothing.";
 		}
 
-		if (max) {
-			if (value < compare) {
-				return "The maximum sky light spawn level cannot be less than the minimum sky light spawn level, "
-					+ " thus setting it to a value less than the minimum sky light spawn level will do nothing.";
-			}
-		} else {
-			if (value > compare) {
-				return "The minimum sky light spawn level cannot be greater than the maximum sky light spawn level, "
-					+ "thus setting it to a value greater than the maximum sky light spawn level will do nothing.";
-			}
+		if (max && value < compare) {
+			return "The maximum sky light spawn level cannot be less than the minimum sky light spawn level, "
+				+ " thus setting it to a value less than the minimum sky light spawn level will do nothing.";
+		} else if (!max && value > compare) {
+			return "The minimum sky light spawn level cannot be greater than the maximum sky light spawn level, "
+				+ "thus setting it to a value greater than the maximum sky light spawn level will do nothing.";
 		}
 
 		return "";

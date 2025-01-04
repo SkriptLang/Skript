@@ -10,28 +10,28 @@ public class SpawnRuleWrapper extends SpawnRule {
 
 	@Override
 	public void setMinBlockLight(int minBlockLight) {
-		if (minBlockLight >= 0 && getMaxBlockLight() >= minBlockLight) {
+		if (getMaxBlockLight() >= minBlockLight) {
 			super.setMinBlockLight(minBlockLight);
 		}
 	}
 
 	@Override
 	public void setMaxBlockLight(int maxBlockLight) {
-		if (maxBlockLight >= 0 && getMinBlockLight() <= maxBlockLight && maxBlockLight <= 15) {
+		if (getMinBlockLight() <= maxBlockLight) {
 			super.setMaxBlockLight(maxBlockLight);
 		}
 	}
 
 	@Override
 	public void setMinSkyLight(int minSkyLight) {
-		if (minSkyLight >= 0 && getMaxSkyLight() >= minSkyLight) {
+		if (getMaxSkyLight() >= minSkyLight) {
 			super.setMinSkyLight(minSkyLight);
 		}
 	}
 
 	@Override
 	public void setMaxSkyLight(int maxSkyLight) {
-		if (maxSkyLight >= 0 && getMinSkyLight() <= maxSkyLight && maxSkyLight <= 15) {
+		if (getMinSkyLight() <= maxSkyLight) {
 			super.setMaxSkyLight(maxSkyLight);
 		}
 	}

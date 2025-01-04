@@ -62,13 +62,14 @@ public class ExprSpawnRuleBlockLight extends SimplePropertyExpression<SpawnRule,
 			} else {
 				minMax = rule.getMinBlockLight();
 			}
-			int value = 0;
+			int value;
 
-			switch (mode) {
-				case SET -> value = light;
-				case ADD -> value = minMax + light;
-				case REMOVE -> value = minMax - light;
-			}
+			value = switch (mode) {
+				case SET -> light;
+				case ADD -> minMax + light;
+				case REMOVE -> minMax - light;
+				default -> 0;
+			};
 
 			if (max) {
 				rule.setMaxBlockLight(value);
@@ -76,7 +77,7 @@ public class ExprSpawnRuleBlockLight extends SimplePropertyExpression<SpawnRule,
 				rule.setMinBlockLight(value);
 			}
 
-			String warning = getWarningMessage(value, minMax);
+			String warning = getWarningMessage(value, max ? rule.getMinBlockLight() : rule.getMaxBlockLight());
 			if (!warning.isEmpty())
 				warning(warning);
 		}
@@ -89,16 +90,12 @@ public class ExprSpawnRuleBlockLight extends SimplePropertyExpression<SpawnRule,
 			return "The block light level cannot be less than 0, thus setting it to a value less than 0 will do nothing.";
 		}
 
-		if (max) {
-			if (value < compare) {
-				return "The maximum block light level cannot be less than the minimum block light level, "
-					+ " thus setting it to a value less than the minimum block light level will do nothing.";
-			}
-		} else {
-			if (value > compare) {
-				return "The minimum block light spawn level cannot be greater than the maximum block light spawn level, "
-					+ "thus setting it to a value greater than the maximum block light spawn level will do nothing.";
-			}
+		if (max && value < compare) {
+			return "The maximum block light level cannot be less than the minimum block light level, "
+				+ " thus setting it to a value less than the minimum block light level will do nothing.";
+		} else if (!max && value > compare) {
+			return "The minimum block light spawn level cannot be greater than the maximum block light spawn level, "
+				+ "thus setting it to a value greater than the maximum block light spawn level will do nothing.";
 		}
 
 		return "";
