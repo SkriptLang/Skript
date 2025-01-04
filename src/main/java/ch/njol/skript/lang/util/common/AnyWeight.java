@@ -13,7 +13,7 @@ import org.jetbrains.annotations.UnknownNullability;
 public interface AnyWeight extends AnyProvider {
 
 	/**
-	 * @return This thing's name
+	 * @return This thing's weight
 	 */
 	@UnknownNullability Integer weight();
 

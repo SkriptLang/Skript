@@ -2,6 +2,9 @@ package org.skriptlang.skript.bukkit.spawner.util;
 
 import org.bukkit.block.spawner.SpawnRule;
 
+/**
+ * Used for wrapping {@link SpawnRule} to prevent invalid values from being set.
+ */
 public class SpawnRuleWrapper extends SpawnRule {
 
 	public SpawnRuleWrapper(int minBlockLight, int maxBlockLight, int minSkyLight, int maxSkyLight) {

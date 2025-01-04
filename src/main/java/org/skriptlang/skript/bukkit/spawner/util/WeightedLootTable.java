@@ -4,6 +4,10 @@ import ch.njol.skript.lang.util.common.AnyWeight;
 import org.bukkit.loot.LootTable;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * Represents a loot table with a weight. Weighted loot tables are used by trial spawners to pick a random loot table
+ * from a list of loot tables for the reward.
+ */
 public class WeightedLootTable implements AnyWeight {
 
 	private @NotNull LootTable lootTable;

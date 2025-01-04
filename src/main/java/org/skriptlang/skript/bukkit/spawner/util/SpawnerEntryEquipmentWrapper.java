@@ -10,6 +10,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * A wrapper for {@link Equipment} to allow the usage of {@link DropChance}.
+ */
 public class SpawnerEntryEquipmentWrapper {
 
 	private @NotNull LootTable equipmentLootTable;
@@ -61,6 +64,9 @@ public class SpawnerEntryEquipmentWrapper {
 		this.dropChances.remove(dropChance);
 	}
 
+	/**
+	 * A helper class to represent the drop chance for a specific equipment slot.
+	 */
 	public static class DropChance {
 
 		private @NotNull EquipmentSlot slot;
