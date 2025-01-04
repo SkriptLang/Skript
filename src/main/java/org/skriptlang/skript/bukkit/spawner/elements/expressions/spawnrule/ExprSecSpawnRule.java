@@ -44,7 +44,7 @@ public class ExprSecSpawnRule extends SectionExpression<SpawnRule> {
 	                    @Nullable SectionNode node, @Nullable List<TriggerItem> triggerItems) {
 		if (node != null)
 			//noinspection unchecked
-			trigger = loadCode(node, "create loot context", null, SpawnRuleCreateEvent.class);
+			trigger = loadCode(node, "create spawn rule", null, SpawnRuleCreateEvent.class);
 		return true;
 	}
 
