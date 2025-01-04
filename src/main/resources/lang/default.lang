@@ -2663,6 +2663,9 @@ types:
 	lootcontext: loot context¦s @a
 	bannerpatterntype: banner pattern type¦s @a
 	bannerpattern: banner pattern¦s @a
+	spawnerentry: spawner entr¦y¦ies @a
+	spawnerentryequipment: spawner entry equipment¦s @a
+	spawnrule: spawn rule¦s @a
 
 	# Skript
 	weathertype: weather type¦s @a
@@ -2691,6 +2694,10 @@ types:
 	named: named thing¦s @a
 	numbered: numbered thing¦s @a
 	containing: container¦s @a
+	weighted: weighted thing¦s @a
+	trialspawnerconfig: trial spawner config¦urations¦s @a
+	weightedloottable: weighted loot table¦s @a
+	equipmentdropchance: equipment drop chance¦s @an
 
 	# Hooks
 	money: money
