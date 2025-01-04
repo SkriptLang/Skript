@@ -62,9 +62,8 @@ public class ExprSpawnRuleBlockLight extends SimplePropertyExpression<SpawnRule,
 			} else {
 				minMax = rule.getMinBlockLight();
 			}
-			int value;
 
-			value = switch (mode) {
+			int value = switch (mode) {
 				case SET -> light;
 				case ADD -> minMax + light;
 				case REMOVE -> minMax - light;

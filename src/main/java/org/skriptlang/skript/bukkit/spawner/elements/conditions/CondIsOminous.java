@@ -10,7 +10,7 @@ public class CondIsOminous extends PropertyCondition<Object> {
 
 	static {
 		register(SpawnerModule.SYNTAX_REGISTRY, CondIsOminous.class,
-			"ominous", "trialspawnerconfigs/blocks");
+			"ominous", "trialspawnerconfigs/blocks/blockdatas");
 	}
 
 	@Override
@@ -19,13 +19,15 @@ public class CondIsOminous extends PropertyCondition<Object> {
 			return config.ominous();
 		} else if (object instanceof Block block && block.getState() instanceof TrialSpawner spawner) {
 			return spawner.isOminous();
+		} else if (object instanceof org.bukkit.block.data.type.TrialSpawner spawner) {
+			return spawner.isOminous();
 		}
 		return false;
 	}
 
 	@Override
 	protected String getPropertyName() {
-		return "trial spawner" + (isNegated() ? " is not " : " is ") + "ominous";
+		return "trial spawner is " + (isNegated() ? "not " : "") + "ominous";
 	}
 
 }

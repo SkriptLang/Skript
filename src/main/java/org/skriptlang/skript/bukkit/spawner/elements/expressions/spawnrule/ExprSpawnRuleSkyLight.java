@@ -62,9 +62,8 @@ public class ExprSpawnRuleSkyLight extends SimplePropertyExpression<SpawnRule, I
 			} else {
 				minMax = rule.getMinSkyLight();
 			}
-			int value;
 
-			value = switch (mode) {
+			int value = switch (mode) {
 				case SET -> light;
 				case ADD -> minMax + light;
 				case REMOVE -> minMax - light;
