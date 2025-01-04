@@ -1,24 +1,15 @@
 package org.skriptlang.skript.bukkit.spawner.elements.expressions.spawnrule;
 
-import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
-import ch.njol.skript.lang.parser.ParserInstance;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.block.spawner.SpawnRule;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.bukkit.log.runtime.BukkitRuntimeErrorConsumer;
 import org.skriptlang.skript.bukkit.spawner.SpawnerModule;
-import org.skriptlang.skript.log.runtime.ErrorSource;
-import org.skriptlang.skript.log.runtime.RuntimeError;
-
-import java.util.function.Consumer;
-import java.util.logging.Level;
 
 public class ExprSpawnRuleBlockLight extends SimplePropertyExpression<SpawnRule, Integer> {
 
