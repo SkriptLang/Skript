@@ -46,21 +46,61 @@ public class ExprSpawnRuleSkyLight extends SimplePropertyExpression<SpawnRule, I
 	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
 		int light = delta != null ? ((int) delta[0]) : 0;
 
+		if (light > 15) {
+			warning("The sky light level cannot be greater than 15, thus setting it to a value larger than 15 will do nothing.");
+			return;
+		} else if (light < 0) {
+			warning("The sky light level cannot be less than 0, thus setting it to a value less than 0 will do nothing.");
+			return;
+		}
+
 		for (SpawnRule rule : getExpr().getArray(event)) {
+			int minMax;
 			if (max) {
-				switch (mode) {
-					case SET -> rule.setMaxSkyLight(light);
-					case ADD -> rule.setMaxSkyLight(rule.getMaxSkyLight() + light);
-					case REMOVE -> rule.setMaxSkyLight(rule.getMaxSkyLight() - light);
-				}
+				minMax = rule.getMaxSkyLight();
 			} else {
-				switch (mode) {
-					case SET -> rule.setMinSkyLight(light);
-					case ADD -> rule.setMinSkyLight(rule.getMinSkyLight() + light);
-					case REMOVE -> rule.setMinSkyLight(rule.getMinSkyLight() - light);
-				}
+				minMax = rule.getMinSkyLight();
+			}
+			int value = 0;
+
+			switch (mode) {
+				case SET -> value = light;
+				case ADD -> value = minMax + light;
+				case REMOVE -> value = minMax - light;
+			}
+
+			if (max) {
+				rule.setMaxSkyLight(value);
+			} else {
+				rule.setMinSkyLight(value);
+			}
+
+			String warning = getWarningMessage(value, minMax);
+			if (!warning.isEmpty())
+				warning(warning);
+		}
+	}
+
+	private String getWarningMessage(int value, int compare) {
+		if (value > 15) {
+			return "The sky light level cannot be greater than 15, thus setting it to a value larger than 15 will do nothing.";
+		} else if (value < 0) {
+			return "The sky light level cannot be less than 0, thus setting it to a value less than 0 will do nothing.";
+		}
+
+		if (max) {
+			if (value < compare) {
+				return "The maximum sky light spawn level cannot be less than the minimum sky light spawn level, "
+					+ " thus setting it to a value less than the minimum sky light spawn level will do nothing.";
+			}
+		} else {
+			if (value > compare) {
+				return "The minimum sky light spawn level cannot be greater than the maximum sky light spawn level, "
+					+ "thus setting it to a value greater than the maximum sky light spawn level will do nothing.";
 			}
 		}
+
+		return "";
 	}
 
 	@Override
