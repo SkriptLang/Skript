@@ -44,7 +44,8 @@ public class ExprSpawnRuleSkyLight extends SimplePropertyExpression<SpawnRule, I
 
 	@Override
 	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
-		int light = delta != null ? ((int) delta[0]) : 0;
+		assert delta != null;
+		int light = ((int) delta[0]);
 
 		if (light > 15) {
 			warning("The sky light level cannot be greater than 15, thus setting it to a value larger than 15 will do nothing.");
