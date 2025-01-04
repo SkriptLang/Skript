@@ -217,10 +217,7 @@ public class EventValues {
 	 */
 	@Deprecated(forRemoval = true)
 	public static <T, E extends Event> Kleenean hasMultipleGetters(Class<E> event, Class<T> type, int time) {
-		List<Converter<? super E, ? extends T>> getters = getEventValueConverters(event, type, time, true, false);
-		if (getters == null)
-			return Kleenean.UNKNOWN;
-		return Kleenean.get(getters.size() > 1);
+		return hasMultipleConverters(event, type, time);
 	}
 
 	/**
