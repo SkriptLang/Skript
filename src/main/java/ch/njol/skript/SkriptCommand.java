@@ -494,7 +494,7 @@ public class SkriptCommand implements CommandExecutor {
 
 	private static @Nullable File getScriptFromArgs(CommandSender sender, String[] args, File directoryFile) {
 		String script = StringUtils.join(args, " ", 1, args.length);
-		File f = ScriptLoader.getScriptFromName(script);
+		File f = ScriptLoader.getScriptFromName(script, directoryFile);
 		if (f == null) {
 			// Always allow '/' and '\' regardless of OS
 			boolean directory = script.endsWith("/") || script.endsWith("\\") || script.endsWith(File.separator);

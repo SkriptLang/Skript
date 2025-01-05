@@ -1192,11 +1192,24 @@ public class ScriptLoader {
 
 	/**
 	 * Gets a script's file from its name, if one exists.
+	 *
 	 * @param script The script name/path
 	 * @return The script file, if one is found
 	 */
 	@Nullable
 	public static File getScriptFromName(String script) {
+		return getScriptFromName(script, Skript.getInstance().getScriptsFolder());
+	}
+
+	/**
+	 * Gets a script's file from its name and directory, if one exists.
+	 *
+	 * @param script The script name/path
+	 * @param directory The scripts (or testing scripts) directory
+	 * @return The script file, if one is found
+	 */
+	@Nullable
+	public static File getScriptFromName(String script, File directory) {
 		if (script.endsWith("/") || script.endsWith("\\")) { // Always allow '/' and '\' regardless of OS
 			script = script.replace('/', File.separatorChar).replace('\\', File.separatorChar);
 		} else if (!StringUtils.endsWithIgnoreCase(script, ".sk")) {
@@ -1209,8 +1222,7 @@ public class ScriptLoader {
 		if (script.startsWith(ScriptLoader.DISABLED_SCRIPT_PREFIX))
 			script = script.substring(ScriptLoader.DISABLED_SCRIPT_PREFIX_LENGTH);
 
-		File scriptsFolder = Skript.getInstance().getScriptsFolder();
-		File scriptFile = new File(scriptsFolder, script);
+		File scriptFile = new File(directory, script);
 		if (!scriptFile.exists()) {
 			scriptFile = new File(scriptFile.getParentFile(), ScriptLoader.DISABLED_SCRIPT_PREFIX + scriptFile.getName());
 			if (!scriptFile.exists()) {
@@ -1220,7 +1232,7 @@ public class ScriptLoader {
 		try {
 			// Unless it's a test, check if the user is asking for a script in the scripts folder
 			// and not something outside Skript's domain.
-			if (TestMode.ENABLED || scriptFile.getCanonicalPath().startsWith(scriptsFolder.getCanonicalPath() + File.separator))
+			if (TestMode.ENABLED || scriptFile.getCanonicalPath().startsWith(directory.getCanonicalPath() + File.separator))
 				return scriptFile.getCanonicalFile();
 			return null;
 		} catch (IOException e) {
