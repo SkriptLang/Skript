@@ -8,6 +8,7 @@ import ch.njol.skript.doc.JSONGenerator;
 import ch.njol.skript.localization.ArgsMessage;
 import ch.njol.skript.localization.Language;
 import ch.njol.skript.localization.PluralizingArgsMessage;
+import ch.njol.skript.log.CountingLogHandler;
 import ch.njol.skript.log.LogEntry;
 import ch.njol.skript.log.RedirectingLogHandler;
 import ch.njol.skript.log.TimingLogHandler;
@@ -416,7 +417,10 @@ public class SkriptCommand implements CommandExecutor {
 					return true;
 				}
 
-				ScriptLoader.loadScripts(scriptFile, logHandler)
+				CountingLogHandler errorCounter = new CountingLogHandler(Level.SEVERE);
+				errorCounter.start();
+
+				ScriptLoader.loadScripts(scriptFile, errorCounter)
 					.thenAccept(scriptInfo ->
 						// Code should run on server thread
 						Bukkit.getScheduler().scheduleSyncDelayedTask(Skript.getInstance(), () -> {
