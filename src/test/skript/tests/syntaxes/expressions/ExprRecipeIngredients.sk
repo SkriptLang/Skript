@@ -1,0 +1,79 @@
+test "recipe ingredients":
+	set {_ingredients::*} to raw iron, raw gold, raw copper, iron ingot, gold ingot, copper ingot, diamond, emerald and netherite ingot
+	set {_recipe} to a new shaped recipe with the key "test_recipe_ingredients":
+		set the recipe ingredients to {_ingredients::*}
+		set the recipe result to nether star named "test_recipe_ingredients"
+	add {_recipe} to the server's recipes
+	set {_get} to recipe with the key "test_recipe_ingredients"
+	assert the recipe ingredients of {_recipe} contains {_ingredients::*} with "Mismatch of recipe ingredients from created recipe"
+	assert the recipe ingredients of {_get} contains {_ingredients::*} with "Mismatch of recipe ingredients from retrieved recipe"
+
+test "recipe ingredients of rows":
+	set {_first::*} to diamond, emerald and netherite ingot
+	set {_second::*} to copper ingot, gold ingot and iron ingot
+	set {_third::*} to raw copper, raw gold and raw iron
+	set {_recipe} to a new shaped recipe with the key "test_recipe_ingredients_rows":
+		set the recipe ingredients of first row to {_first::*}
+		set the recipe ingredients of second row to {_second::*}
+		set the recipe ingredients of third row to {_third::*}
+		set the recipe result to nether star named "test_recipe_ingredients_rows"
+	add {_recipe} to the server's recipes
+	set {_get} to recipe with the key "test_recipe_ingredients_rows"
+	assert the recipe ingredients of first row of {_recipe} contains {_first::*} with "Mismatch of recipe ingredients first row from created recipe"
+	assert the recipe ingredients of second row of {_recipe} contains {_second::*} with "Mismatch of recipe ingredients second row from created recipe"
+	assert the recipe ingredients of third row of {_recipe} contains {_third::*} with "Mismatch of recipe ingredients third row from created recipe"
+	assert the recipe ingredients of first row of {_get} contains {_first::*} with "Mismatch of recipe ingredients first row from retrieved recipe"
+	assert the recipe ingredients of second row of {_get} contains {_second::*} with "Mismatch of recipe ingredients second row from retrieved recipe"
+	assert the recipe ingredients of third row of {_get} contains {_third::*} with "Mismatch of recipe ingredients third row from retrieved recipe"
+
+test "recipe cooking input":
+	set {_input} to grass block named "test_recipe_cooking_input"
+	set {_recipe} to a new blasting recipe with the key "test_recipe_cooking_input":
+		set the recipe input item to {_input}
+		set the recipe result to nether star named "test_recipe_cooking_input"
+	add {_recipe} to the server's recipes
+	set {_get} to recipe with the key "test_recipe_cooking_input"
+	assert the recipe input item of {_recipe} = {_input} with "Mismatch of recipe input item from created recipe"
+	assert the recipe input item of {_get} = {_input} with "Mismatch of recipe input item from retrieved recipe"
+
+test "recipe stonecutting input":
+	set {_input} to stone named "test_recipe_stonecutting_input"
+	set {_recipe} to a new stonecutting recipe with the key "test_recipe_stonecutting_input":
+		set the recipe input item to {_input}
+		set the recipe result to smooth stone named "test_recipe_stonecutting_input"
+	add {_recipe} to the server's recipes
+	set {_get} to recipe with the key "test_recipe_stonecutting_input"
+	assert the recipe input item of {_recipe} = {_input} with "Mismatch of recipe input item from created recipe"
+	assert the recipe input item of {_get} = {_input} with "Mismatch of recipe input item from retrieved recipe"
+
+test "recipe base, template and addition item" when running minecraft "1.20":
+	set {_base} to diamond named "test_recipe_base_template_addition"
+	set {_template} to netherite ingot named "test_recipe_base_template_addition"
+	set {_addition} to emerald named "test_recipe_base_template_addition"
+	set {_recipe} to a new smithing transform recipe with the key "test_recipe_base_template_addition":
+		set the recipe base item to {_base}
+		set the recipe template item to {_template}
+		set the recipe addition item to {_addition}
+		set the recipe result to netherite sword named "test_recipe_base_template_addition"
+	add {_recipe} to the server's recipes
+	set {_get} to recipe with the key "test_recipe_base_template_addition"
+	assert the recipe base item of {_recipe} = {_base} with "Mismatch of recipe base item from created recipe"
+	assert the recipe template item of {_recipe} = {_template} with "Mismatch of recipe template item from created recipe"
+	assert the recipe addition item of {_recipe} = {_addition} with "Mismatch of recipe addition item from created recipe"
+	assert the recipe base item of {_get} = {_base} with "Mismatch of recipe base item from retrieved recipe"
+	assert the recipe template item of {_get} = {_template} with "Mismatch of recipe template item from retrieved recipe"
+	assert the recipe addition item of {_get} = {_addition} with "Mismatch of recipe addition item from retrieved recipe"
+
+test "recipe transmute item" when running minecraft "1.21.2":
+	set {_recipe} to a new transmute recipe with the key "test_recipe_transmute":
+		set the recipe input item to a leather helmet
+		set the recipe transmute item to a nether star
+		set the recipe result item to a netherite helmet
+	add {_recipe} to the server's recipes
+	set {_get} to recipe with the key "test_recipe_transmute"
+	assert the recipe input item of {_recipe} is a leather helmet with "Mismatch of recipe input item from created recipe"
+	assert the recipe transmute item of {_recipe} is a nether star with "Mismatch of recipe transmute item from created recipe"
+	assert the recipe result item of {_recipe} is a netherite helmet with "Mismatch of recipe result item from created recipe"
+	assert the recipe input item of {_get} is a leather helmet with "Mismatch of recipe input item from retrieved recipe"
+	assert the recipe transmute item of {_get} is a nether star with "Mismatch of recipe transmute item from retrieved recipe"
+	assert the recipe result item of {_get} is a netherite helmet with "Mismatch of recipe result item from retrieved recipe"

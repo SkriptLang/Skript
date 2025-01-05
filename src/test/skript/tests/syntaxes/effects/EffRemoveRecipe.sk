@@ -1,0 +1,10 @@
+test "remove recipe":
+	set {_recipe} to a new blasting recipe with the key "test_remove_recipe":
+		set the recipe input item to diamond named "test_remove_recipe"
+		set the recipe result item to nether star named "test_remove_recipe"
+	add {_recipe} to the server's recipes
+	set {_get} to recipe with the key "test_remove_recipe"
+	assert {_get} is set with "Blasting recipe was not added to the server"
+	remove recipe with the key "test_remove_recipe" from the server
+	set {_get} to recipe with the key "test_remove_recipe"
+	assert {_get} is not set with "Recipe was not removed from the server"

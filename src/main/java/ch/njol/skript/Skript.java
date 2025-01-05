@@ -77,6 +77,7 @@ import org.skriptlang.skript.bukkit.log.runtime.BukkitRuntimeErrorConsumer;
 import org.skriptlang.skript.bukkit.loottables.LootTableModule;
 import org.skriptlang.skript.bukkit.registration.BukkitRegistryKeys;
 import org.skriptlang.skript.bukkit.registration.BukkitSyntaxInfos;
+import org.skriptlang.skript.bukkit.recipes.RecipeModule;
 import org.skriptlang.skript.lang.comparator.Comparator;
 import org.skriptlang.skript.lang.comparator.Comparators;
 import org.skriptlang.skript.lang.converter.Converter;
@@ -555,6 +556,7 @@ public final class Skript extends JavaPlugin implements Listener {
 			TagModule.load();
 			FurnaceModule.load();
 			LootTableModule.load();
+			RecipeModule.load();
 		} catch (final Exception e) {
 			exception(e, "Could not load required .class files: " + e.getLocalizedMessage());
 			setEnabled(false);

@@ -2555,6 +2555,33 @@ input keys:
 	sneak: sneak key, sneaking key
 	sprint: sprint key, sprinting key
 
+# -- Recipe Categories --
+recipe categories:
+	crafting_building: building crafting category
+	crafting_equipment: equipment crafting category
+	crafting_misc: misc crafting category, miscellaneous crafting category
+	crafting_redstone: redstone crafting category
+	cooking_blocks: blocks cooking category
+	cooking_food: food cooking category
+	cooking_misc: misc cooking category, miscellaneous cooking category
+
+# -- Recipe Types --
+recipe types:
+	crafting: crafting recipe, crafting recipes
+	shaped: shaped recipe, shaped crafting recipe, shaped recipes, shaped crafting recipes
+	shapeless: shapeless recipe, shapeless crafting recipe, shapeless recipes, shapeless crafting recipes
+	cooking: cooking recipe, cooking recipes
+	blasting: blasting recipe, blasting recipes
+	furnace: furnace recipe, furnace recipes
+	campfire: campfire recipe, campfire recipes
+	smoking: smoking recipe, smoking recipes
+	smithing: smithing recipe, smithing recipes
+	smithing_transform: smithing transform recipe, smithing transform recipes
+	smithing_trim: smithing trim recipe, smithing trim recipes
+	stonecutting: stonecutting recipe, stonecutting recipes
+	complex: complex recipe, complex recipes
+	transmute: transmute recipe, transmute recipes
+
 # -- Boolean --
 boolean:
 	true:
@@ -2653,6 +2680,7 @@ types:
 	lootcontext: loot context¦s @a
 	bannerpatterntype: banner pattern type¦s @a
 	bannerpattern: banner pattern¦s @a
+	recipe: recipe¦s @a
 
 	# Skript
 	weathertype: weather type¦s @a
@@ -2681,6 +2709,8 @@ types:
 	named: named thing¦s @a
 	numbered: numbered thing¦s @a
 	containing: container¦s @a
+	recipetype: recipe type¦s @a
+	recipecategory: recipe categor¦y¦ies @a
 
 	# Hooks
 	money: money
