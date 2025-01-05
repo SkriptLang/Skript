@@ -384,15 +384,7 @@ public class HTMLGenerator extends DocumentationGenerator {
 
 			i += Character.charCount(c);
 		}
-		return replaceBr(sb.toString());
-	}
-
-	/**
-	 * Replaces specifically `<br/>` with `\n` - This is useful in code blocks where you can't use newlines due to the
-	 * minifyHtml method (execute after minifyHtml)
-	 */
-	private static String replaceBr(String page) {
-		return page.replaceAll("<br/>", "\n");
+		return sb.toString();
 	}
 
 	private static String handleIf(String desc, String start, boolean value) {
@@ -434,7 +426,7 @@ public class HTMLGenerator extends DocumentationGenerator {
 
 		// Since
 		Since since = c.getAnnotation(Since.class);
-		desc = desc.replace("${element.since}", Joiner.on("<br>").join(getDefaultIfNullOrEmpty((since != null ? since.value() : null), "Unknown")));
+		desc = desc.replace("${element.since}", Joiner.on("<br/>").join(getDefaultIfNullOrEmpty((since != null ? since.value() : null), "Unknown")));
 
 		Keywords keywords = c.getAnnotation(Keywords.class);
 		desc = desc.replace("${element.keywords}", keywords == null ? "" : Joiner.on(", ").join(keywords.value()));
