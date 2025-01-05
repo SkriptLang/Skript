@@ -81,9 +81,9 @@ public abstract class TriggerItem implements Debuggable {
 			Skript.adminBroadcast("<red>The script '<gold>" + scriptName + "<red>' infinitely (or excessively) repeated itself!");
 			if (Skript.debug())
 				err.printStackTrace();
-		} catch (Exception ex) {
-			if (ex.getStackTrace().length != 0) // empty exceptions have already been printed
-				Skript.exception(ex, triggerItem);
+		} catch (Exception exception) {
+			if (exception.getStackTrace().length != 0) // empty exceptions have already been printed
+				Skript.exception(exception, triggerItem);
 		} catch (Throwable throwable) {
 			// not all Throwables are Exceptions, but we usually don't want to catch them (without rethrowing)
 			Skript.markErrored();
