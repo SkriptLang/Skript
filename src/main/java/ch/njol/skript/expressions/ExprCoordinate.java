@@ -5,10 +5,8 @@ import org.bukkit.entity.Entity;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
-import ch.njol.skript.classes.Changer;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.classes.Changer.ChangerUtils;
-import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
@@ -16,7 +14,6 @@ import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
-import ch.njol.skript.registrations.Classes;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
 
@@ -27,14 +24,13 @@ import ch.njol.util.coll.CollectionUtils;
 		"	message \"Watch out for lava!\""
 })
 @Since("1.4.3")
-public class ExprCoordinate extends SimplePropertyExpression<Object, Number> {
+public class ExprCoordinate extends SimplePropertyExpression<Location, Double> {
 
 	static {
-		registerDefault(ExprCoordinate.class, Number.class, "(0¦x|1¦y|2¦z)(-| )(coord[inate]|pos[ition]|loc[ation])[s]", "entities/locations");
+		registerDefault(ExprCoordinate.class, Double.class, "(0¦x|1¦y|2¦z)(-| )(coord[inate]|pos[ition]|loc[ation])[s]", "locations");
 	}
 
 	private final static char[] axes = {'x', 'y', 'z'};
-	private Changer<?> changer;
 	private int axis;
 	
 	@Override
@@ -45,14 +41,8 @@ public class ExprCoordinate extends SimplePropertyExpression<Object, Number> {
 	}
 
 	@Override
-	public Number convert(Object object) {
-		if (object instanceof Entity entity) {
-			return axis == 0 ? entity.getX() : axis == 1 ? entity.getY() : entity.getZ();
-		} else if (object instanceof Location location) {
-			return axis == 0 ? location.getX() : axis == 1 ? location.getY() : location.getZ();
-		}
-		assert false;
-		return null;
+	public Double convert(Location location) {
+		return axis == 0 ? location.getX() : axis == 1 ? location.getY() : location.getZ();
 	}
 
 	@Override
@@ -61,13 +51,12 @@ public class ExprCoordinate extends SimplePropertyExpression<Object, Number> {
 	}
 
 	@Override
-	public Class<? extends Number> getReturnType() {
-		return Number.class;
+	public Class<? extends Double> getReturnType() {
+		return Double.class;
 	}
 
 	@Override
 	public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
-		changer = Classes.getSuperClassInfo(getExpr().getReturnType()).getChanger();
 		return switch (mode) {
 			case SET, ADD, REMOVE -> {
 				if (getExpr().isSingle() && ChangerUtils.acceptsChange(getExpr(), CollectionUtils.array(ChangeMode.INTERNAL, ChangeMode.SET), Location.class)) {
@@ -80,7 +69,7 @@ public class ExprCoordinate extends SimplePropertyExpression<Object, Number> {
 	}
 
 	@Override
-	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) throws UnsupportedOperationException {
+	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
 		assert delta != null;
 		Object object = getExpr().getSingle(event);
 		Location location = object instanceof Entity entity ? entity.getLocation() : (Location) object;
