@@ -35,7 +35,7 @@ public class TestTracker {
 	}
 
 	public static void parsingStarted(String name) {
-		currentTest = name + " (parsing)";
+		currentTest = name;
 	}
 
 	public static void JUnitTestFailed(String currentTest, String msg) {
