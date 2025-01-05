@@ -1,6 +1,7 @@
 package org.skriptlang.skript.bukkit.spawner.elements.expressions.spawnerentry.equipment.chances;
 
 import ch.njol.skript.Skript;
+import ch.njol.skript.doc.*;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.SyntaxStringBuilder;
@@ -10,17 +11,22 @@ import org.bukkit.event.Event;
 import org.bukkit.inventory.EquipmentSlot;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.spawner.SpawnerModule;
-import org.skriptlang.skript.bukkit.spawner.util.SpawnerEntryEquipmentWrapper.DropChance;
+import org.skriptlang.skript.bukkit.spawner.util.SpawnerEntryEquipmentWrapper.Drops;
 import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.registration.SyntaxOrigin;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
-public class ExprSpawnerEntryEquipmentDropChance extends SimpleExpression<DropChance> {
+@Name("Spawner Entry - Equipment Drops")
+@Description("Returns equipment drops of the specified equipment slot with the given chance.")
+@Examples("set {_chance} to helmet slot with drop chance 50%")
+@Since("INSERT VERSION")
+@RequiredPlugins("Minecraft 1.21+")
+public class ExprEquipmentDrops extends SimpleExpression<Drops> {
 
 	static {
-		var info = SyntaxInfo.Expression.builder(ExprSpawnerEntryEquipmentDropChance.class, DropChance.class)
+		var info = SyntaxInfo.Expression.builder(ExprEquipmentDrops.class, Drops.class)
 			.origin(SyntaxOrigin.of(Skript.instance()))
-			.supplier(ExprSpawnerEntryEquipmentDropChance::new)
+			.supplier(ExprEquipmentDrops::new)
 			.priority(SyntaxInfo.COMBINED)
 			.addPattern("%equipmentslot% with drop chance %number%")
 			.build();
@@ -40,16 +46,16 @@ public class ExprSpawnerEntryEquipmentDropChance extends SimpleExpression<DropCh
 	}
 
 	@Override
-	protected DropChance @Nullable [] get(Event event) {
+	protected Drops @Nullable [] get(Event event) {
 		EquipmentSlot slot = this.slot.getSingle(event);
 		if (slot == null)
-			return new DropChance[0];
+			return new Drops[0];
 
 		Number chance = this.chance.getSingle(event);
 		if (chance == null)
-			return new DropChance[0];
+			return new Drops[0];
 
-		return new DropChance[]{new DropChance(slot, chance.floatValue())};
+		return new Drops[]{new Drops(slot, chance.floatValue())};
 	}
 
 	@Override
@@ -58,8 +64,8 @@ public class ExprSpawnerEntryEquipmentDropChance extends SimpleExpression<DropCh
 	}
 
 	@Override
-	public Class<? extends DropChance> getReturnType() {
-		return DropChance.class;
+	public Class<? extends Drops> getReturnType() {
+		return Drops.class;
 	}
 
 	@Override

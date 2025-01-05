@@ -1,6 +1,10 @@
 package org.skriptlang.skript.bukkit.spawner.elements.expressions.spawnerentry;
 
 import ch.njol.skript.classes.Changer.ChangeMode;
+import ch.njol.skript.doc.Description;
+import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Name;
+import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.block.spawner.SpawnerEntry;
@@ -10,6 +14,14 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.spawner.SpawnerModule;
 
+@Name("Spawner Entry - Entity Snapshot")
+@Description("The entity snapshot of the spawner entry. Entity snapshots determines what entity the spawner will spawn.")
+@Examples({
+	"set {_entry} to a spawner entry using entity snapshot of a pig",
+	"add {_entry} to potential spawns of target block",
+	"# the spawner will now spawn pigs"
+})
+@Since("INSERT VERSION")
 public class ExprSpawnerEntrySnapshot extends SimplePropertyExpression<SpawnerEntry, EntitySnapshot> {
 
 	static {

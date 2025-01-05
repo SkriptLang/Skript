@@ -1,6 +1,7 @@
 package org.skriptlang.skript.bukkit.spawner.elements.expressions.spawner;
 
 import ch.njol.skript.classes.Changer.ChangeMode;
+import ch.njol.skript.doc.*;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.event.Event;
@@ -9,11 +10,26 @@ import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.spawner.SpawnerModule;
 import org.skriptlang.skript.bukkit.spawner.util.SpawnerUtils;
 
+@Name("Spawner - Maximum Nearby Entity Amount")
+@Description({
+	"Get the maximum amount of similar entities within the spawn range, by default 16. "
+		+ "The spawner will no longer spawn entities if the value was surpassed.",
+	"",
+	"Spawners are creature spawners and spawner minecarts."
+})
+@Examples({
+	"set {_max} to maximum nearby entity amount of target block",
+	"add 5 to maximum nearby entity amount of target block",
+	"remove 2 from maximum nearby entity amount of target block",
+	"reset maximum nearby entity amount of target block"
+})
+@Since("INSERT VERSION")
+@RequiredPlugins("Minecraft 1.21+")
 public class ExprMaxNearbyEntities extends SimplePropertyExpression<Object, Integer> {
 
 	static {
 		register(SpawnerModule.SYNTAX_REGISTRY, ExprMaxNearbyEntities.class, Integer.class,
-			"max[imum] [amount of] nearby [similar] entities", "entities/blocks");
+			"max[imum] [similar] nearby entity (value|amount)", "entities/blocks");
 	}
 
 	@Override

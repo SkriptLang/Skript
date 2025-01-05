@@ -1,22 +1,28 @@
 package org.skriptlang.skript.bukkit.spawner.elements.expressions.spawnerentry.equipment.chances;
 
 import ch.njol.skript.classes.Changer.ChangeMode;
+import ch.njol.skript.doc.*;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.spawner.SpawnerModule;
-import org.skriptlang.skript.bukkit.spawner.util.SpawnerEntryEquipmentWrapper.DropChance;
+import org.skriptlang.skript.bukkit.spawner.util.SpawnerEntryEquipmentWrapper.Drops;
 
-public class ExprSpawnerEntryEquipmentWithChance extends SimplePropertyExpression<DropChance, Float> {
+@Name("Spawner Entry - Equipment Drop with Chance")
+@Description("Returns the drop chance of an already existing equipment drop.")
+@Examples("set {_chance} to drop chance of {_equipment drop chance}")
+@Since("INSERT VERSION")
+@RequiredPlugins("Minecraft 1.21+")
+public class ExprEquipmentDropsWithChance extends SimplePropertyExpression<Drops, Float> {
 
 	static {
-		registerDefault(SpawnerModule.SYNTAX_REGISTRY, ExprSpawnerEntryEquipmentWithChance.class, Float.class,
-				"equipment drop chance", "equipmentdropchances");
+		registerDefault(SpawnerModule.SYNTAX_REGISTRY, ExprEquipmentDropsWithChance.class, Float.class,
+				"drop chance", "equipmentdropchances");
 	}
 
 	@Override
-	public @Nullable Float convert(DropChance chance) {
+	public @Nullable Float convert(Drops chance) {
 		return chance.getDropChance();
 	}
 
@@ -32,7 +38,7 @@ public class ExprSpawnerEntryEquipmentWithChance extends SimplePropertyExpressio
 	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
 		float value = delta != null ? ((float) delta[0]) : 0;
 
-		for (DropChance chance : getExpr().getArray(event)) {
+		for (Drops chance : getExpr().getArray(event)) {
 			switch (mode) {
 				case SET -> chance.setDropChance(value);
 				case ADD -> chance.setDropChance(chance.getDropChance() + value);

@@ -1,6 +1,7 @@
 package org.skriptlang.skript.bukkit.spawner.elements.expressions.trialconfig.weightedloottable;
 
 import ch.njol.skript.Skript;
+import ch.njol.skript.doc.*;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.SyntaxStringBuilder;
@@ -15,6 +16,19 @@ import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.registration.SyntaxOrigin;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
+@Name("Trial Spawner Config - Weighted Loot Table")
+@Description({
+	"Returns a weighted loot table with the specified weight",
+	"Used for trial spawners to pick out a reward loot table from a list of loot tables, "
+		+ "where the bigger the weight, the higher the chance of the loot table being picked."
+})
+@Examples({
+	"set {_loot} to loot table \"minecraft:chests/simple_dungeon\"",
+	"set {_weighted} to {_loot} with weight 5",
+	"set {_weighted} to {_loot} with weight 10"
+})
+@Since("INSERT VERSION")
+@RequiredPlugins("Minecraft 1.21+")
 public class ExprWeightedLootTable extends SimpleExpression<WeightedLootTable> {
 
 	static {

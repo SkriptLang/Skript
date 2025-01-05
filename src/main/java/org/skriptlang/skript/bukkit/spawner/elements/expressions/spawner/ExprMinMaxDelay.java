@@ -18,12 +18,15 @@ import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.spawner.SpawnerModule;
 import org.skriptlang.skript.bukkit.spawner.util.SpawnerUtils;
 
-@Name("Spawner Spawn Delay")
+@Name("Spawner - Min/Max Spawn Delay")
 @Description({
 	"Get, set the maximum or minimum spawn delay of a spawner.",
-	"Each reset of a spawner, the spawner chooses a new delay between its "
+	"Each reset of a spawner, the spawner chooses a new delay between its' "
 		+ "minimum and maximum delays to use for the delay.",
-	"Setting the minimum delay higher than the maximum delay and so on does nothing."
+	"By default, he maximum value is 40 seconds (800 ticks) and the minimum value is 10 seconds (200 ticks).",
+	"Setting the minimum delay higher than the maximum delay and so on does nothing.",
+	"",
+	"Spawners are creature spawners and spawner minecarts."
 })
 @Examples({
 	"set {_timespan} to minimum spawn delay of target block",

@@ -1,6 +1,7 @@
 package org.skriptlang.skript.bukkit.spawner.elements.effects;
 
 import ch.njol.skript.Skript;
+import ch.njol.skript.doc.*;
 import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
@@ -16,6 +17,16 @@ import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.registration.SyntaxOrigin;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
+@Name("Trial Spawner - Make Ominous")
+@Description("Make a trial spawner or its block data ominous or normal.")
+@Examples({
+	"if event-block is ominous:",
+		"\tmake the trial spawner state of event-block normal",
+	"else:",
+		"\tmake the trial spawner state of event-block ominous"
+})
+@Since("INSERT VERSION")
+@RequiredPlugins("MC 1.21+")
 public class EffMakeOminous extends Effect {
 
 	static {
@@ -23,7 +34,7 @@ public class EffMakeOminous extends Effect {
 			.origin(SyntaxOrigin.of(Skript.instance()))
 			.supplier(EffMakeOminous::new)
 			.priority(SyntaxInfo.COMBINED)
-			.addPatterns("make [the] [trial] spawner state of %blocks/blockdatas% (1:ominous|regular)")
+			.addPatterns("make [the] trial spawner state of %blocks/blockdatas% (1:ominous|normal)")
 			.build();
 
 		SpawnerModule.SYNTAX_REGISTRY.register(SyntaxRegistry.EFFECT, info);

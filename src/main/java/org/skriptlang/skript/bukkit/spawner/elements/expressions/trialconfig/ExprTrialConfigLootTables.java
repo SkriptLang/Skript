@@ -2,6 +2,7 @@ package org.skriptlang.skript.bukkit.spawner.elements.expressions.trialconfig;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer.ChangeMode;
+import ch.njol.skript.doc.*;
 import ch.njol.skript.expressions.base.PropertyExpression;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
@@ -24,6 +25,21 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@Name("Trial Spawner Configuration with Weighted Loot Table")
+@Description({
+	"Returns the weighted loot tables of a trial spawner configuration.",
+	"Weighted loot tables are loot tables with a weight, which determines the chance of the loot table "
+		+ "being selected during the spawner's reward ejection state.",
+	"Adding just a regular loot table to this list will default the weight to 1."
+})
+@Examples({
+	"set {_loot tables::*} to weighted loot tables of {_trial config}",
+	"add loot table \"minecraft:equipment/trial_chamber\" with weight 1 to weighted loot tables of {_trial config}",
+	"add loot table \"minecraft:chests/simple_dungeon\" to weighted loot tables of {_trial config}",
+	"# loot table with weight 1 ^"
+})
+@Since("INSERT VERSION")
+@RequiredPlugins("Minecraft 1.21+")
 public class ExprTrialConfigLootTables extends PropertyExpression<TrialSpawnerConfig, WeightedLootTable> {
 
 	static {

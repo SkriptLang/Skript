@@ -1,5 +1,7 @@
 package org.skriptlang.skript.bukkit.spawner.util;
 
+import ch.njol.skript.Skript;
+import ch.njol.skript.registrations.Classes;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.CreatureSpawner;
@@ -7,7 +9,12 @@ import org.bukkit.block.TrialSpawner;
 import org.bukkit.entity.minecart.SpawnerMinecart;
 import org.bukkit.spawner.BaseSpawner;
 import org.bukkit.spawner.Spawner;
+import org.bukkit.spawner.TrialSpawnerConfiguration;
 import org.jetbrains.annotations.UnknownNullability;
+import org.skriptlang.skript.log.runtime.ErrorSource;
+import org.skriptlang.skript.log.runtime.RuntimeError;
+
+import java.util.logging.Level;
 
 /**
  * Utility class for spawners.
@@ -41,13 +48,16 @@ public class SpawnerUtils {
 	}
 
 	/**
-	 * Returns whether the object is an instance of {@link TrialSpawner}.
+	 * Returns whether the object is an instance of {@link TrialSpawner}. This also returns true for {@link TrialSpawnerConfig}.
 	 * @param object
 	 * @return whether the object is a TrialSpawner
 	 */
 	public static boolean isTrialSpawner(Object object) {
-		if (object instanceof Block block)
+		if (object instanceof TrialSpawnerConfig) {
+			return true;
+		} else if (object instanceof Block block) {
 			return block.getState() instanceof TrialSpawner;
+		}
 		return object instanceof TrialSpawner;
 	}
 
@@ -57,7 +67,7 @@ public class SpawnerUtils {
 	 * @return the object as a base spawner
 	 * @see #isBaseSpawner(Object)
 	 */
-	public static BaseSpawner getAsBaseSpawner(Object object) {
+	public static @UnknownNullability BaseSpawner getAsBaseSpawner(Object object) {
 		if (object instanceof Block block) {
 			return (BaseSpawner) block.getState();
 		} else if (object instanceof SpawnerMinecart spawner) {
@@ -74,7 +84,7 @@ public class SpawnerUtils {
 	 * @return the object as a spawner
 	 * @see #isSpawner(Object)
 	 */
-	public static Spawner getAsSpawner(Object object) {
+	public static @UnknownNullability Spawner getAsSpawner(Object object) {
 		if (object instanceof Block block) {
 			return (Spawner) block.getState();
 		} else if (object instanceof SpawnerMinecart spawner) {
@@ -84,19 +94,33 @@ public class SpawnerUtils {
 	}
 
 	/**
-	 * Returns the object as a {@link TrialSpawner}.
+	 * Returns the object as a {@link TrialSpawner}. This also gets the state of a {@link TrialSpawnerConfig}.
 	 * @param object the object
 	 * @return the object as a trial spawner
 	 * @see #isTrialSpawner(Object)
 	 */
-	public static TrialSpawner getAsTrialSpawner(Object object) {
+	public static @UnknownNullability TrialSpawner getAsTrialSpawner(Object object) {
 		if (object instanceof Block block)
 			object = block.getState();
 
 		if (object instanceof TrialSpawner spawner)
 			return spawner;
 
+		if (object instanceof TrialSpawnerConfig config)
+			return config.state();
+
 		return null;
+	}
+
+	/**
+	 * Returns the current trial spawner configuration of the spawner. I.e. ominous or regular.
+	 * @param spawner the spawner
+	 * @return the current trial spawner configuration
+	 */
+	public static TrialSpawnerConfig getCurrentTrialConfig(TrialSpawner spawner) {
+		if (spawner.isOminous())
+			return new TrialSpawnerConfig(spawner.getOminousConfiguration(), spawner, true);
+		return new TrialSpawnerConfig(spawner.getNormalConfiguration(), spawner, false);
 	}
 
 	/**
@@ -104,10 +128,13 @@ public class SpawnerUtils {
 	 * @param state the state
 	 */
 	public static void updateState(Object state) {
-		if (state instanceof CreatureSpawner spawner)
+		if (state instanceof CreatureSpawner spawner) {
 			spawner.update(true, false);
-		else if (state instanceof TrialSpawner spawner)
+		} else if (state instanceof TrialSpawnerConfig config) {
+			config.state().update(true, false);
+		} else if (state instanceof TrialSpawner spawner) {
 			spawner.update(true, false);
+		}
 	}
 
 }

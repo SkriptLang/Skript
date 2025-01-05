@@ -1,5 +1,6 @@
 package org.skriptlang.skript.bukkit.spawner.elements.expressions.trialconfig;
 
+import ch.njol.skript.doc.*;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
@@ -10,6 +11,23 @@ import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.spawner.SpawnerModule;
 import org.skriptlang.skript.bukkit.spawner.util.TrialSpawnerConfig;
 
+@Name("Trial Spawner Configuration")
+@Description({
+	"Returns the ominous or normal configuration of the trial spawner. "
+		+ "If neither ominous or normal is specified, the current configuration "
+		+ "of the trial spawner will be returned."
+})
+@Examples({
+	"set {_normal config} to normal trial spawner config of event-block",
+	"",
+	"set {_config} to trial spawner config of event-block",
+	"if event-block is ominous:",
+		"\tsend \"{_config} is ominous!\"",
+	"else:",
+		"\tsend \"{_config} is normal!\""
+})
+@Since("INSERT VERSION")
+@RequiredPlugins("Minecraft 1.21+")
 public class ExprTrialConfig extends SimplePropertyExpression<Block, TrialSpawnerConfig> {
 
 	static {

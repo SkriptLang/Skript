@@ -1,19 +1,23 @@
 package org.skriptlang.skript.bukkit.spawner;
 
 import ch.njol.skript.Skript;
+import ch.njol.skript.bukkitutil.EntityUtils;
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.classes.EnumClassInfo;
 import ch.njol.skript.classes.Parser;
+import ch.njol.skript.entity.EntityData;
 import ch.njol.skript.expressions.base.EventValueExpression;
 import ch.njol.skript.lang.ParseContext;
 import ch.njol.skript.lang.util.common.AnyWeight;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.registrations.EventValues;
+import com.destroystokyo.paper.event.entity.PreSpawnerSpawnEvent;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.block.spawner.SpawnRule;
 import org.bukkit.block.spawner.SpawnerEntry;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
 import org.bukkit.event.entity.SpawnerSpawnEvent;
 import org.bukkit.event.entity.TrialSpawnerSpawnEvent;
 import org.bukkit.inventory.EquipmentSlot;
@@ -22,7 +26,7 @@ import org.skriptlang.skript.addon.AddonModule;
 import org.skriptlang.skript.addon.SkriptAddon;
 import org.skriptlang.skript.bukkit.spawner.util.SpawnRuleWrapper;
 import org.skriptlang.skript.bukkit.spawner.util.SpawnerEntryEquipmentWrapper;
-import org.skriptlang.skript.bukkit.spawner.util.SpawnerEntryEquipmentWrapper.DropChance;
+import org.skriptlang.skript.bukkit.spawner.util.SpawnerEntryEquipmentWrapper.Drops;
 import org.skriptlang.skript.bukkit.spawner.util.TrialSpawnerConfig;
 import org.skriptlang.skript.bukkit.spawner.util.WeightedLootTable;
 import org.skriptlang.skript.lang.converter.Converter;
@@ -143,7 +147,7 @@ public class SpawnerModule implements AddonModule {
 					return "spawner entry equipment with "
 						+ Classes.toString(equipment.getEquipmentLootTable())
 						+ " and "
-						+ Classes.toString(equipment.getDropChances());
+						+ Classes.toString(equipment.getDropChances().toArray(), true);
 				}
 
 				@Override
@@ -153,7 +157,7 @@ public class SpawnerModule implements AddonModule {
 			})
 		);
 
-		Classes.registerClass(new ClassInfo<>(DropChance.class, "equipmentdropchance")
+		Classes.registerClass(new ClassInfo<>(Drops.class, "equipmentdropchance")
 			.user("(spawner entry ?)?equipment ?drop ?chances?")
 			.name("Spawner Entry Equipment Drop Chance")
 			.description("Represents a spawner entry's equipment drop chance.")
@@ -165,7 +169,7 @@ public class SpawnerModule implements AddonModule {
 				}
 
 				@Override
-				public String toString(DropChance equipment, int flags) {
+				public String toString(Drops equipment, int flags) {
 					return "equipment drop chance of "
 						+ equipment.getDropChance()
 						+ " for "
@@ -173,7 +177,7 @@ public class SpawnerModule implements AddonModule {
 				}
 
 				@Override
-				public String toVariableNameString(DropChance equipment) {
+				public String toVariableNameString(Drops equipment) {
 					return "equipment drop chance:" + equipment.getEquipmentSlot() + ',' + equipment.getDropChance();
 				}
 			})
@@ -242,7 +246,8 @@ public class SpawnerModule implements AddonModule {
 
 				@Override
 				public void setWeight(Integer weight) throws UnsupportedOperationException {
-					entry.setSpawnWeight(weight);
+					if (weight > 0)
+						entry.setSpawnWeight(weight);
 				}
 		}, Converter.NO_RIGHT_CHAINING);
 
@@ -257,6 +262,10 @@ public class SpawnerModule implements AddonModule {
 		EventValues.registerEventValue(TrialSpawnerSpawnEvent.class, Block.class, event -> event.getTrialSpawner().getBlock());
 		EventValues.registerEventValue(TrialSpawnerSpawnEvent.class, Location.class, TrialSpawnerSpawnEvent::getLocation);
 		EventValues.registerEventValue(TrialSpawnerSpawnEvent.class, Entity.class, TrialSpawnerSpawnEvent::getEntity);
+
+		if (Skript.classExists("com.destroystokyo.paper.event.entity.PreSpawnerSpawnEvent"))
+			EventValues.registerEventValue(PreSpawnerSpawnEvent.class, EntityData.class,
+				event -> EntityUtils.toSkriptEntityData(event.getType()));
 	}
 
 }

@@ -1,6 +1,7 @@
 package org.skriptlang.skript.bukkit.spawner.elements.expressions.spawnerentry.equipment;
 
 import ch.njol.skript.classes.Changer.ChangeMode;
+import ch.njol.skript.doc.*;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.event.Event;
@@ -10,10 +11,15 @@ import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.spawner.SpawnerModule;
 import org.skriptlang.skript.bukkit.spawner.util.SpawnerEntryEquipmentWrapper;
 
-public class ExprSpawnerEquipmentWithLootTable extends SimplePropertyExpression<SpawnerEntryEquipmentWrapper, LootTable> {
+@Name("Spawner Entry - Equipment with Loot Table")
+@Description("Returns the equipment loot table of a spawner entry equipment.")
+@Examples("set {_loot table} to loot table of {_equipment}")
+@Since("INSERT VERSION")
+@RequiredPlugins("Minecraft 1.21+")
+public class ExprEquipmentWithLootTable extends SimplePropertyExpression<SpawnerEntryEquipmentWrapper, LootTable> {
 
 	static {
-		register(SpawnerModule.SYNTAX_REGISTRY, ExprSpawnerEquipmentWithLootTable.class, LootTable.class,
+		register(SpawnerModule.SYNTAX_REGISTRY, ExprEquipmentWithLootTable.class, LootTable.class,
 			"loot[ ]table", "spawnerentryequipments");
 	}
 

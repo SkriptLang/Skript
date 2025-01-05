@@ -1,6 +1,6 @@
 package org.skriptlang.skript.bukkit.spawner.util;
 
-import org.bukkit.block.BlockState;
+import org.bukkit.block.TrialSpawner;
 import org.bukkit.spawner.TrialSpawnerConfiguration;
 import org.jetbrains.annotations.NotNull;
 
@@ -11,5 +11,5 @@ import org.jetbrains.annotations.NotNull;
  * @param state the block state of the trial spawner
  * @param ominous whether the config is ominous
  */
-public record TrialSpawnerConfig(@NotNull TrialSpawnerConfiguration config, @NotNull BlockState state,
+public record TrialSpawnerConfig(@NotNull TrialSpawnerConfiguration config, @NotNull TrialSpawner state,
                                  boolean ominous) {}

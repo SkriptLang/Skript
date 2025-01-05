@@ -2,6 +2,7 @@ package org.skriptlang.skript.bukkit.spawner.elements.effects;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.ItemType;
+import ch.njol.skript.doc.*;
 import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
@@ -16,6 +17,11 @@ import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.registration.SyntaxOrigin;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
+@Name("Spawner - Set Spawned Item")
+@Description("Set the spawned item of a spawner. The spawner will no longer spawn mobs, but the item instead.")
+@Examples("set the spawned item of target block to diamond")
+@Since("INSERT VERSION")
+@RequiredPlugins("MC 1.21+")
 public class EffSpawnedItem extends Effect {
 
 	static {

@@ -2,6 +2,7 @@ package org.skriptlang.skript.bukkit.spawner.elements.expressions.spawnerentry.e
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer.ChangeMode;
+import ch.njol.skript.doc.*;
 import ch.njol.skript.expressions.base.PropertyExpression;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
@@ -12,19 +13,24 @@ import org.bukkit.inventory.EquipmentSlot;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.spawner.SpawnerModule;
 import org.skriptlang.skript.bukkit.spawner.util.SpawnerEntryEquipmentWrapper;
-import org.skriptlang.skript.bukkit.spawner.util.SpawnerEntryEquipmentWrapper.DropChance;
+import org.skriptlang.skript.bukkit.spawner.util.SpawnerEntryEquipmentWrapper.Drops;
 import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.registration.SyntaxOrigin;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
 import java.util.ArrayList;
 
-public class ExprSpawnerEntryWithDropChances extends PropertyExpression<SpawnerEntryEquipmentWrapper, DropChance> {
+@Name("Spawner Entry - Equipment with Drops")
+@Description("Returns the drops of a spawner entry equipment.")
+@Examples("set {_chances::*} to drop chances of {_equipment}")
+@Since("INSERT VERSION")
+@RequiredPlugins("Minecraft 1.21+")
+public class ExprEquipmentWithDropChances extends PropertyExpression<SpawnerEntryEquipmentWrapper, Drops> {
 
 	static {
-		var info = SyntaxInfo.Expression.builder(ExprSpawnerEntryWithDropChances.class, DropChance.class)
+		var info = SyntaxInfo.Expression.builder(ExprEquipmentWithDropChances.class, Drops.class)
 			.origin(SyntaxOrigin.of(Skript.instance()))
-			.supplier(ExprSpawnerEntryWithDropChances::new)
+			.supplier(ExprEquipmentWithDropChances::new)
 			.priority(PropertyExpression.DEFAULT_PRIORITY)
 			.addPatterns(
 				"[the] drop chance[s] (from|of) %spawnerentryequipments%",
@@ -42,14 +48,14 @@ public class ExprSpawnerEntryWithDropChances extends PropertyExpression<SpawnerE
 	}
 
 	@Override
-	protected DropChance[] get(Event event, SpawnerEntryEquipmentWrapper[] source) {
-		return new DropChance[0];
+	protected Drops[] get(Event event, SpawnerEntryEquipmentWrapper[] source) {
+		return new Drops[0];
 	}
 
 	@Override
 	public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
 		return switch (mode) {
-			case SET, REMOVE, ADD -> CollectionUtils.array(DropChance[].class, EquipmentSlot[].class);
+			case SET, REMOVE, ADD -> CollectionUtils.array(Drops[].class, EquipmentSlot[].class);
 			default -> null;
 		};
 	}
@@ -63,15 +69,15 @@ public class ExprSpawnerEntryWithDropChances extends PropertyExpression<SpawnerE
 				entry.setDropChances(new ArrayList<>());
 
 			for (Object object : delta) {
-				if (object instanceof DropChance chance) {
+				if (object instanceof Drops chance) {
 					switch (mode) {
 						case SET, ADD -> entry.addDropChance(chance);
 						case REMOVE -> entry.removeDropChance(chance);
 					}
 				} else if (object instanceof EquipmentSlot slot) {
 					switch (mode) {
-						case SET, ADD -> entry.addDropChance(new DropChance(slot, 1));
-						case REMOVE -> entry.removeDropChance(new DropChance(slot, 1));
+						case SET, ADD -> entry.addDropChance(new Drops(slot, 1));
+						case REMOVE -> entry.removeDropChance(new Drops(slot, 1));
 					}
 				}
 			}
@@ -79,8 +85,8 @@ public class ExprSpawnerEntryWithDropChances extends PropertyExpression<SpawnerE
 	}
 
 	@Override
-	public Class<? extends DropChance> getReturnType() {
-		return DropChance.class;
+	public Class<? extends Drops> getReturnType() {
+		return Drops.class;
 	}
 
 	@Override

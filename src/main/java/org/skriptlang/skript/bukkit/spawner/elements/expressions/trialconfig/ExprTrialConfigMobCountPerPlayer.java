@@ -2,6 +2,7 @@ package org.skriptlang.skript.bukkit.spawner.elements.expressions.trialconfig;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer.ChangeMode;
+import ch.njol.skript.doc.*;
 import ch.njol.skript.expressions.base.PropertyExpression;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
@@ -21,16 +22,35 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ExprTrackedEntityAmount extends PropertyExpression<TrialSpawnerConfig, Float> {
+@Name("Trial Spawner Configuration - Mob Count per Player")
+@Description({
+	"Returns the total or simultaneous amount of mobs added per player within the spawner's range.",
+	"For example, setting the total mob count per player to 5, "
+		+ "will make the spawner spawn 5 mobs per player, "
+		+ "and setting the simultaneous mob count per player to 2, "
+		+ "will make the spawner spawn 2 mobs at once per player.",
+	"The default value for the total mob count added per player is 2 and"
+		+ " for the simultaneous mob count added per player is 1."
+})
+@Examples({
+	"send \"The trial spawner is spawning %the total trial spawner mob count per player of {_spawner}% mobs in total per player.\"",
+	"send \"The trial spawner is spawning %the simultaneous trial spawner mob count per player of {_spawner}% mobs per player.\"",
+	"",
+	"set the total trial spawner mob count per player of {_spawner} to 10",
+	"set the simultaneous trial spawner mob count per player of {_spawner} to 4",
+})
+@Since("INSERT VERSION")
+@RequiredPlugins("Minecraft 1.21+")
+public class ExprTrialConfigMobCountPerPlayer extends PropertyExpression<TrialSpawnerConfig, Float> {
 
 	static {
-		var info = SyntaxInfo.Expression.builder(ExprTrackedEntityAmount.class, Float.class)
+		var info = SyntaxInfo.Expression.builder(ExprTrialConfigMobCountPerPlayer.class, Float.class)
 			.origin(SyntaxOrigin.of(Skript.instance()))
-			.supplier(ExprTrackedEntityAmount::new)
+			.supplier(ExprTrialConfigMobCountPerPlayer::new)
 			.priority(SyntaxInfo.COMBINED)
 			.addPatterns(
-				"[the] (:additional|base) [simultaneous] tracked entity (amount|value)[s] (from|of) %trialspawnerconfigs%",
-				"%trialspawnerconfigs%'[s] (:additional|base) [simultaneous] tracked entity (amount|value)[s]")
+				"[the] (:simultaneous|total) trial [spawner] mob (amount|count)[s] per player of %trialspawnerconfigs%",
+				"%trialspawnerconfigs%'[s] (:simultaneous|total) trial [spawner] mob (amount|count)[s] per player")
 			.build();
 
 		SpawnerModule.SYNTAX_REGISTRY.register(SyntaxRegistry.EXPRESSION, info);
@@ -42,7 +62,7 @@ public class ExprTrackedEntityAmount extends PropertyExpression<TrialSpawnerConf
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		//noinspection unchecked
 		setExpr((Expression<? extends TrialSpawnerConfig>) exprs[0]);
-		additional = parseResult.hasTag("additional");
+		additional = parseResult.hasTag("simultaneous");
 		return true;
 	}
 
@@ -80,7 +100,7 @@ public class ExprTrackedEntityAmount extends PropertyExpression<TrialSpawnerConf
 					case SET -> config.setAdditionalSimultaneousEntities(amount);
 					case ADD -> config.setAdditionalSimultaneousEntities(config.getAdditionalSimultaneousEntities() + amount);
 					case REMOVE -> config.setAdditionalSimultaneousEntities(config.getAdditionalSimultaneousEntities() - amount);
-					case RESET -> config.setAdditionalSimultaneousEntities(3); // default value
+					case RESET -> config.setAdditionalSimultaneousEntities(1); // default value
 				}
 			} else {
 				switch (mode) {

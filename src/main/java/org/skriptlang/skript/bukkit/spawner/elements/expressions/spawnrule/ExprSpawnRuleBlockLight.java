@@ -1,6 +1,7 @@
 package org.skriptlang.skript.bukkit.spawner.elements.expressions.spawnrule;
 
 import ch.njol.skript.classes.Changer.ChangeMode;
+import ch.njol.skript.doc.*;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
@@ -11,6 +12,27 @@ import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.spawner.SpawnerModule;
 
+@Name("Spawn Rule - Block Light Spawn Level")
+@Description({
+	"Returns the minimum/maximum block light spawn levels of a spawn rule. "
+		+ "The block light spawn levels determine the light level of the block "
+		+ "that the spawner entry will spawn entities.",
+	"Note that the block light spawn levels must be between 0 and 15 "
+		+ ", the minimum block light spawn level must be less than or equal to "
+		+ "the maximum block light spawn level and vice versa."
+})
+@Examples({
+	"set {_entry} to a spawner entry using entity snapshot of a zombie:",
+		"\tset the weight to 5",
+		"\tset the spawn rule to a spawn rule:",
+			"\t\tset the minimum block light spawn level to 10",
+			"\t\tset the maximum block light spawn level to 15",
+			"\t\tset the minimum sky light spawn level to 5",
+			"\t\tset the maximum sky light spawn level to 15",
+	"set spawner entity of event-block to {_entry}"
+})
+@Since("INSERT VERSION")
+@RequiredPlugins("Minecraft 1.21+")
 public class ExprSpawnRuleBlockLight extends SimplePropertyExpression<SpawnRule, Integer> {
 
 	static {

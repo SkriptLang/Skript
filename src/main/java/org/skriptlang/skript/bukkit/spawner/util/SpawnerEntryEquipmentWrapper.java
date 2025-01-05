@@ -11,24 +11,24 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * A wrapper for {@link Equipment} to allow the usage of {@link DropChance}.
+ * A wrapper for {@link Equipment} to allow the usage of {@link Drops}.
  */
 public class SpawnerEntryEquipmentWrapper {
 
 	private @NotNull LootTable equipmentLootTable;
-	private @NotNull List<DropChance> dropChances;
+	private @NotNull List<Drops> drops;
 	private transient @Nullable Equipment cachedEquipment;
 
-	public SpawnerEntryEquipmentWrapper(@NotNull LootTable equipmentLootTable, @NotNull List<DropChance> dropChances) {
+	public SpawnerEntryEquipmentWrapper(@NotNull LootTable equipmentLootTable, @NotNull List<Drops> drops) {
 		this.equipmentLootTable = equipmentLootTable;
-		this.dropChances = dropChances;
+		this.drops = drops;
 	}
 
 	public Equipment getEquipment() {
 		if (cachedEquipment == null) {
 			// conversion to map for Equipment constructor
 			Map<EquipmentSlot, Float> dropChances = new HashMap<>();
-			for (DropChance chance : this.dropChances) {
+			for (Drops chance : this.drops) {
 				dropChances.put(chance.getEquipmentSlot(), chance.getDropChance());
 			}
 			cachedEquipment = new Equipment(equipmentLootTable, dropChances);
@@ -40,8 +40,8 @@ public class SpawnerEntryEquipmentWrapper {
 		return equipmentLootTable;
 	}
 
-	public @NotNull List<DropChance> getDropChances() {
-		return dropChances;
+	public @NotNull List<Drops> getDropChances() {
+		return drops;
 	}
 
 	public void setEquipmentLootTable(@NotNull LootTable equipmentLootTable) {
@@ -49,30 +49,30 @@ public class SpawnerEntryEquipmentWrapper {
 		this.equipmentLootTable = equipmentLootTable;
 	}
 
-	public void setDropChances(@NotNull List<DropChance> dropChances) {
+	public void setDropChances(@NotNull List<Drops> drops) {
 		cachedEquipment = null;
-		this.dropChances = dropChances;
+		this.drops = drops;
 	}
 
-	public void addDropChance(@NotNull DropChance dropChance) {
+	public void addDropChance(@NotNull Drops drops) {
 		cachedEquipment = null;
-		this.dropChances.add(dropChance);
+		this.drops.add(drops);
 	}
 
-	public void removeDropChance(@NotNull DropChance dropChance) {
+	public void removeDropChance(@NotNull Drops drops) {
 		cachedEquipment = null;
-		this.dropChances.remove(dropChance);
+		this.drops.remove(drops);
 	}
 
 	/**
 	 * A helper class to represent the drop chance for a specific equipment slot.
 	 */
-	public static class DropChance {
+	public static class Drops {
 
 		private @NotNull EquipmentSlot slot;
 		private float dropChance;
 
-		public DropChance(@NotNull EquipmentSlot slot, float dropChance) {
+		public Drops(@NotNull EquipmentSlot slot, float dropChance) {
 			this.slot = slot;
 			this.dropChance = dropChance;
 		}

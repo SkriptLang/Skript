@@ -1,6 +1,7 @@
 package org.skriptlang.skript.bukkit.spawner.elements.expressions.trialspawner;
 
 import ch.njol.skript.classes.Changer.ChangeMode;
+import ch.njol.skript.doc.*;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import ch.njol.skript.util.Timespan;
 import ch.njol.skript.util.Timespan.TimePeriod;
@@ -9,18 +10,31 @@ import org.bukkit.block.TrialSpawner;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.spawner.SpawnerModule;
+import org.skriptlang.skript.bukkit.spawner.util.SpawnerUtils;
 
-public class ExprCooldownLength extends SimplePropertyExpression<Block, Timespan> {
+@Name("Trial Spawner - Cooldown Length")
+@Description({
+	"Returns the cooldown length of a trial spawner.",
+	"Once all the mobs have been killed, the trial spawner will wait for this amount of time before spawning more mobs.",
+	"Default value is 30 minutes (36000 ticks)."
+})
+@Examples({
+	"set {_cooldown} to trial spawner cooldown length of event-block",
+	"broadcast \"The trial spawner will wait for %{_cooldown}% before spawning more mobs.\""
+})
+@Since("INSERT VERSION")
+@RequiredPlugins("Minecraft 1.21+")
+public class ExprCooldownLength extends SimplePropertyExpression<Object, Timespan> {
 
 	static {
 		register(SpawnerModule.SYNTAX_REGISTRY, ExprCooldownLength.class, Timespan.class,
-			"[trial] spawner cooldown length", "blocks");
+			"[trial] spawner cool[ ]down [length]", "blocks/trialspawnerconfigs");
 	}
 
 	@Override
-	public @Nullable Timespan convert(Block block) {
-		if (block.getState() instanceof TrialSpawner spawner)
-			return new Timespan(TimePeriod.TICK, spawner.getCooldownLength());
+	public @Nullable Timespan convert(Object object) {
+		if (SpawnerUtils.isTrialSpawner(object))
+			return new Timespan(TimePeriod.TICK, SpawnerUtils.getAsTrialSpawner(object).getCooldownLength());
 		return null;
 	}
 
@@ -44,9 +58,11 @@ public class ExprCooldownLength extends SimplePropertyExpression<Block, Timespan
 		}
 		int ticksAsInt = (int) ticks;
 
-		for (Block block : getExpr().getArray(event)) {
-			if (!(block instanceof TrialSpawner spawner))
+		for (Object object : getExpr().getArray(event)) {
+			if (!SpawnerUtils.isTrialSpawner(object))
 				continue;
+
+			TrialSpawner spawner = SpawnerUtils.getAsTrialSpawner(object);
 
 			switch (mode) {
 				case SET -> spawner.setCooldownLength(ticksAsInt);
@@ -55,7 +71,7 @@ public class ExprCooldownLength extends SimplePropertyExpression<Block, Timespan
 				case RESET -> spawner.setCooldownLength(36000); // 30 mins in ticks, default value stated in wiki
 			}
 
-			block.getState().update(true, false);
+			SpawnerUtils.updateState(object);
 		}
 	}
 

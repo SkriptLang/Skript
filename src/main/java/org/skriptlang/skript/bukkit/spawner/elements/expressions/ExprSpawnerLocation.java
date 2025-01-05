@@ -1,6 +1,7 @@
 package org.skriptlang.skript.bukkit.spawner.elements.expressions;
 
 import ch.njol.skript.Skript;
+import ch.njol.skript.doc.*;
 import ch.njol.skript.lang.EventRestrictedSyntax;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
@@ -16,6 +17,14 @@ import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.registration.SyntaxOrigin;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
+@Name("Spawner Location")
+@Description("The location of the spawner in the pre spawner spawn event.")
+@Examples({
+	"on pre spawner spawn:",
+		"\tset {_location} to the location of the spawner"
+})
+@Since("INSERT VERSION")
+@RequiredPlugins("Paper 1.21+")
 public class ExprSpawnerLocation extends SimpleExpression<Location> implements EventRestrictedSyntax {
 
 	static {

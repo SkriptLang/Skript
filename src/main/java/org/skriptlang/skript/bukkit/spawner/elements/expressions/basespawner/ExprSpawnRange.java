@@ -1,14 +1,32 @@
 package org.skriptlang.skript.bukkit.spawner.elements.expressions.basespawner;
 
 import ch.njol.skript.classes.Changer.ChangeMode;
+import ch.njol.skript.doc.*;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import ch.njol.util.coll.CollectionUtils;
+import org.bukkit.block.TrialSpawner;
 import org.bukkit.event.Event;
 import org.bukkit.spawner.BaseSpawner;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.spawner.SpawnerModule;
 import org.skriptlang.skript.bukkit.spawner.util.SpawnerUtils;
 
+@Name("Base Spawner - Spawn Range")
+@Description({
+	"Get the radius of the area in which the spawner can spawn entities, by default 4.",
+	"Please note that this expression gets the trial spawner configuration "
+		+ "with the current state (i.e. ominous, normal) of the trial spawner block, if such is provided.",
+	"",
+	"Base spawners are trial spawner configurations, spawner minecarts and creature spawners."
+})
+@Examples({
+	"set the spawn radius of the target block to 5",
+	"add 2 to the spawn radius of the target block",
+	"remove 1 from the spawn radius of the target block",
+	"reset the spawn radius of the target block"
+})
+@Since("INSERT VERSION")
+@RequiredPlugins("Minecraft 1.21+")
 public class ExprSpawnRange extends SimplePropertyExpression<Object, Integer> {
 
 	static {
@@ -18,8 +36,12 @@ public class ExprSpawnRange extends SimplePropertyExpression<Object, Integer> {
 
 	@Override
 	public @Nullable Integer convert(Object object) {
-		if (SpawnerUtils.isBaseSpawner(object))
+		if (SpawnerUtils.isBaseSpawner(object)) {
 			return SpawnerUtils.getAsBaseSpawner(object).getSpawnRange();
+		} else if (SpawnerUtils.isTrialSpawner(object)) {
+			TrialSpawner trialSpawner = SpawnerUtils.getAsTrialSpawner(object);
+			return SpawnerUtils.getCurrentTrialConfig(trialSpawner).config().getSpawnRange();
+		}
 		return null;
 	}
 
@@ -36,6 +58,11 @@ public class ExprSpawnRange extends SimplePropertyExpression<Object, Integer> {
 		int range = delta != null ? ((Number) delta[0]).intValue() : 0;
 
 		for (Object object : getExpr().getArray(event)) {
+			if (SpawnerUtils.isTrialSpawner(object)) {
+				TrialSpawner trialSpawner = SpawnerUtils.getAsTrialSpawner(object);
+				object = SpawnerUtils.getCurrentTrialConfig(trialSpawner);
+			}
+
 			if (!SpawnerUtils.isBaseSpawner(object))
 				continue;
 

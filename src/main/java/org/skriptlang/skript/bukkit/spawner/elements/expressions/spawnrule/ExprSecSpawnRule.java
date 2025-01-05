@@ -2,6 +2,7 @@ package org.skriptlang.skript.bukkit.spawner.elements.expressions.spawnrule;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.config.SectionNode;
+import ch.njol.skript.doc.*;
 import ch.njol.skript.expressions.base.SectionExpression;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
@@ -22,6 +23,24 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 
 import java.util.List;
 
+@Name("Create Spawn Rule")
+@Description({
+	"Create a spawn rule. Spawn rules are used to determine the conditions under "
+		+ "which the spawner entry will spawn entities. That is, the min/max block light spawn level, "
+		+ "min/max sky light spawn level."
+})
+@Examples({
+	"set {_entry} to a spawner entry using entity snapshot of a zombie:",
+		"\tset the weight to 5",
+		"\tset the spawn rule to a spawn rule:",
+			"\t\tset the minimum block light spawn level to 10",
+			"\t\tset the maximum block light spawn level to 15",
+			"\t\tset the minimum sky light spawn level to 5",
+			"\t\tset the maximum sky light spawn level to 15",
+	"add {_entry} to potential spawns of target block"
+})
+@Since("INSERT VERSION")
+@RequiredPlugins("Minecraft 1.21+")
 public class ExprSecSpawnRule extends SectionExpression<SpawnRule> {
 
 	static {
