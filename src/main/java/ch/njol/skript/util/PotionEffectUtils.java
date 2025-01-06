@@ -7,7 +7,6 @@ import java.util.Locale;
 import java.util.Map;
 
 import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.ThrownPotion;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.inventory.meta.SuspiciousStewMeta;
@@ -20,9 +19,8 @@ import org.jetbrains.annotations.Nullable;
 import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.localization.Language;
-import ch.njol.skript.localization.LanguageChangeListener;
 
-@SuppressWarnings("deprecation")
+@SuppressWarnings({"deprecation", "removal"})
 public abstract class PotionEffectUtils {
 
 	private static final boolean HAS_SUSPICIOUS_META = Skript.classExists("org.bukkit.inventory.meta.SuspiciousStewMeta");
@@ -43,33 +41,30 @@ public abstract class PotionEffectUtils {
 		}
 		return i;
 	}
-	
+
 	static {
-		Language.addListener(new LanguageChangeListener() {
-			@Override
-			public void onLanguageChange() {
-				types.clear();
-				for (final PotionEffectType t : PotionEffectType.values()) {
-					if (t == null)
-						continue;
-					String name = t.getName();
-					if (name.startsWith("minecraft:")) // seems to be the case for experimental entries...
-						name = name.substring(10); // trim off namespace
-					final String[] ls = Language.getList("potions." + name);
-					names[t.getId()] = ls[0];
-					for (final String l : ls) {
-						types.put(l.toLowerCase(Locale.ENGLISH), t);
-					}
+		Language.addListener(() -> {
+			types.clear();
+			for (final PotionEffectType t : PotionEffectType.values()) {
+				if (t == null)
+					continue;
+				String name = t.getName();
+				if (name.startsWith("minecraft:")) // seems to be the case for experimental entries...
+					name = name.substring(10); // trim off namespace
+				final String[] ls = Language.getList("potions." + name);
+				names[t.getId()] = ls[0];
+				for (final String l : ls) {
+					types.put(l.toLowerCase(Locale.ENGLISH), t);
 				}
 			}
 		});
 	}
-	
+
 	@Nullable
 	public static PotionEffectType parseType(final String s) {
 		return types.get(s.toLowerCase(Locale.ENGLISH));
 	}
-	
+
 	// This is a stupid bandaid to fix comparison issues when converting potion datas
 	@Nullable
 	public static PotionEffectType parseByEffectType(PotionEffectType t) {
@@ -80,11 +75,11 @@ public abstract class PotionEffectUtils {
 		}
 		return null;
 	}
-	
+
 	public static String toString(PotionEffectType t) {
 		return names[t.getId()];
 	}
-	
+
 	// REMIND flags?
 	public static String toString(PotionEffectType t, int flags) {
 		return names[t.getId()];
@@ -165,10 +160,10 @@ public abstract class PotionEffectUtils {
 			case "luck":
 				return PotionType.LUCK;
 		}
-		
+
 		return null;
 	}
-	
+
 	/**
 	 * Wrapper around deprecated API function, in case it gets removed.
 	 * Changing one method is easier that changing loads of them from different expressions.
@@ -179,7 +174,7 @@ public abstract class PotionEffectUtils {
 	public static PotionType effectToType(PotionEffectType effect) {
 		return PotionType.getByEffect(effect);
 	}
-	
+
 	/**
 	 * Get potion string representation.
 	 * @param effect
@@ -188,17 +183,17 @@ public abstract class PotionEffectUtils {
 	 * @return
 	 */
 	public static String getPotionName(@Nullable PotionEffectType effect, boolean extended, boolean strong) {
-		if (effect == null) return "bottle of water"; 
-		
+		if (effect == null) return "bottle of water";
+
 		String s = "";
 		if (extended) s += "extended";
 		else if (strong) s += "strong";
 		s += " potion of ";
 		s += toString(effect);
-		
+
 		return s;
 	}
-	
+
 	/**
 	 * Clear all the active {@link PotionEffect PotionEffects} from an Entity
 	 *
@@ -207,7 +202,7 @@ public abstract class PotionEffectUtils {
 	public static void clearAllEffects(LivingEntity entity) {
 		entity.getActivePotionEffects().forEach(potionEffect -> entity.removePotionEffect(potionEffect.getType()));
 	}
-	
+
 	/**
 	 * Add PotionEffects to an entity
 	 *
@@ -223,11 +218,11 @@ public abstract class PotionEffectUtils {
 				effect = new PotionEffect((PotionEffectType) object, 15 * 20, 0, false);
 			else
 				continue;
-			
+
 			entity.addPotionEffect(effect);
 		}
 	}
-	
+
 	/**
 	 * Remove a PotionEffect from an entity
 	 *
@@ -243,11 +238,11 @@ public abstract class PotionEffectUtils {
 				effectType = (PotionEffectType) object;
 			else
 				continue;
-			
+
 			entity.removePotionEffect(effectType);
 		}
 	}
-	
+
 	/**
 	 * Clear all {@link PotionEffect PotionEffects} from an ItemType
 	 *
@@ -261,7 +256,7 @@ public abstract class PotionEffectUtils {
 			((SuspiciousStewMeta) meta).clearCustomEffects();
 		itemType.setItemMeta(meta);
 	}
-	
+
 	/**
 	 * Add PotionEffects to an ItemTye
 	 *
@@ -278,7 +273,7 @@ public abstract class PotionEffectUtils {
 				effect = new PotionEffect((PotionEffectType) object, 15 * 20, 0, false);
 			else
 				continue;
-			
+
 			if (meta instanceof PotionMeta)
 				((PotionMeta) meta).addCustomEffect(effect, false);
 			else if (HAS_SUSPICIOUS_META && meta instanceof SuspiciousStewMeta)
@@ -286,7 +281,7 @@ public abstract class PotionEffectUtils {
 		}
 		itemType.setItemMeta(meta);
 	}
-	
+
 	/**
 	 * Remove a PotionEffect from an ItemType
 	 *
@@ -295,7 +290,7 @@ public abstract class PotionEffectUtils {
 	 */
 	public static void removeEffects(ItemType itemType, Object[] effects) {
 		ItemMeta meta = itemType.getItemMeta();
-		
+
 		for (Object object : effects) {
 			PotionEffectType effectType;
 			if (object instanceof PotionEffect)
@@ -304,7 +299,7 @@ public abstract class PotionEffectUtils {
 				effectType = (PotionEffectType) object;
 			else
 				continue;
-			
+
 			if (meta instanceof PotionMeta)
 				((PotionMeta) meta).removeCustomEffect(effectType);
 			else if (HAS_SUSPICIOUS_META && meta instanceof SuspiciousStewMeta)

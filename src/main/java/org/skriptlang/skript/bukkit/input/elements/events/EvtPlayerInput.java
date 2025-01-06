@@ -23,7 +23,7 @@ public class EvtPlayerInput extends SkriptEvent {
 					"Note: The input keys event value is the set of keys the player is currently pressing, not the keys that were pressed or released.")
 				.examples("on any input key press:",
 					"\tsend \"You are pressing: %event-inputkeys%\" to player")
-				.since("INSERT VERSION")
+				.since("2.10")
 				.requiredPlugins("Minecraft 1.21.3+");
 		}
 	}

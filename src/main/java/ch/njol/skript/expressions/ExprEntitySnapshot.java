@@ -28,7 +28,7 @@ import org.jetbrains.annotations.Nullable;
 	"spawn {_snapshot} at location(0, 0, 0)"
 })
 @RequiredPlugins("Minecraft 1.20.2+")
-@Since("INSERT VERSION")
+@Since("2.10")
 public class ExprEntitySnapshot extends SimplePropertyExpression<Object, EntitySnapshot> {
 
 	static {

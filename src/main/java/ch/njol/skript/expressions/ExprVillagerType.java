@@ -10,17 +10,18 @@ import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Villager;
 import org.bukkit.entity.Villager.Type;
+import org.bukkit.entity.ZombieVillager;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
 @Name("Villager Type")
-@Description("Represents the type of a villager. This usually represents the biome the villager is from.")
+@Description("Represents the type of a villager/zombie villager. This usually represents the biome the villager is from.")
 @Examples({
 	"set {_type} to villager type of {_villager}",
 	"villager type of {_villager} = plains",
 	"set villager type of event-entity to plains"
 })
-@Since("INSERT VERSION")
+@Since("2.10")
 public class ExprVillagerType extends SimplePropertyExpression<LivingEntity, Type> {
 
 	static {
@@ -31,6 +32,8 @@ public class ExprVillagerType extends SimplePropertyExpression<LivingEntity, Typ
 	public @Nullable Type convert(LivingEntity from) {
 		if (from instanceof Villager villager)
 			return villager.getVillagerType();
+		else if (from instanceof ZombieVillager zombie)
+			return zombie.getVillagerType();
 		return null;
 	}
 
@@ -50,6 +53,8 @@ public class ExprVillagerType extends SimplePropertyExpression<LivingEntity, Typ
 		for (LivingEntity livingEntity : getExpr().getArray(event)) {
 			if (livingEntity instanceof Villager villager)
 				villager.setVillagerType(type);
+			else if (livingEntity instanceof ZombieVillager zombie)
+				zombie.setVillagerType(type);
 		}
 	}
 

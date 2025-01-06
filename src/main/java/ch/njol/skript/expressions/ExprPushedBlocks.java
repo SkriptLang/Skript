@@ -1,5 +1,6 @@
 package ch.njol.skript.expressions;
 
+import ch.njol.skript.lang.EventRestrictedSyntax;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.block.Block;
 import org.bukkit.event.Event;
@@ -23,7 +24,7 @@ import ch.njol.util.Kleenean;
 @Description("Blocks which are moved in a piston event. Cannot be used outside of piston events.")
 @Examples("the moved blocks")
 @Since("2.2-dev27")
-public class ExprPushedBlocks extends SimpleExpression<Block> {
+public class ExprPushedBlocks extends SimpleExpression<Block> implements EventRestrictedSyntax {
 	
 	static {
 		Skript.registerExpression(ExprPushedBlocks.class, Block.class, ExpressionType.SIMPLE, "[the] moved blocks");
@@ -31,14 +32,14 @@ public class ExprPushedBlocks extends SimpleExpression<Block> {
 	
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		if (!getParser().isCurrentEvent(BlockPistonExtendEvent.class, BlockPistonRetractEvent.class)) {
-			Skript.error("The moved blocks are only usable in piston extend and retract events", ErrorQuality.SEMANTIC_ERROR);
-			return false;
-		}
-		
 		return true;
 	}
-	
+
+	@Override
+	public Class<? extends Event>[] supportedEvents() {
+		return CollectionUtils.array(BlockPistonExtendEvent.class, BlockPistonRetractEvent.class);
+	}
+
 	@Override
 	@Nullable
 	protected Block[] get(Event e) {

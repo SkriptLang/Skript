@@ -39,7 +39,7 @@ public class ConfigTest {
 		}
 
 		// maintains old values
-		assertEquals("true", old.get("outdated value"));
+		assertEquals("true", old.getValue("outdated value"));
 		assertEquals("true", old.get("a", "outdated value"));
 	}
 

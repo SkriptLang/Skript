@@ -16,7 +16,7 @@ import ch.njol.skript.conditions.base.PropertyCondition;
 		"\tif loop-value is not invulnerable:",
 			"\t\tbroadcast \"the gamemode %loop-value% is vulnerable!\""
 })
-@Since("2.5, INSERT VERSION (gamemode)")
+@Since("2.5, 2.10 (gamemode)")
 @RequiredPlugins("Paper 1.20.6+ (gamemodes)")
 public class CondIsInvulnerable extends PropertyCondition<Object> {
 	private static final boolean SUPPORTS_GAMEMODE = Skript.methodExists(GameMode.class, "isInvulnerable");

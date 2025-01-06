@@ -19,7 +19,7 @@ import java.util.List;
 @Name("Player Input Keys")
 @Description("Get the current input keys of a player.")
 @Examples("broadcast \"%player% is pressing %current input keys of player%\"")
-@Since("INSERT VERSION")
+@Since("2.10")
 @RequiredPlugins("Minecraft 1.21.2+")
 public class ExprCurrentInputKeys extends PropertyExpression<Player, InputKey> {
 

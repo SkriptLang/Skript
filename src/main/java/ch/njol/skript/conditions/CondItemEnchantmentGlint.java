@@ -24,7 +24,7 @@ import ch.njol.util.Kleenean;
 	"\tsend \"This item does not have any glint override.\" to player"
 })
 @RequiredPlugins("Spigot 1.20.5+")
-@Since("INSERT VERSION")
+@Since("2.10")
 public class CondItemEnchantmentGlint extends PropertyCondition<ItemType> {
 
 	static {

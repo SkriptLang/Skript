@@ -54,13 +54,13 @@ test "spawn salmon by variant" when running minecraft "1.21.2":
 	set {_l} to test-location
 	spawn 5 small salmon at {_l}
 	assert size of all small salmons = 5 with "Size of all small salmons is not 5"
-	assert size of all salmons = 5 with "Size of all salmons is not 5"
+	assert size of all entities of type salmon = 5 with "Size of all salmons is not 5"
 	spawn 3 medium salmon at {_l}
 	assert size of all medium salmons = 3 with "Size of all medium salmons is not 3"
-	assert size of all salmons = 8 with "Size of all salmons is not 8"
+	assert size of all entities of type salmon = 8 with "Size of all salmons is not 8"
 	spawn 2 large salmon at {_l}
 	assert size of all large salmons = 2 with "Size of all large salmon is not 2"
-	assert size of all salmons = 10 with "Size of all salmon is not 10"
+	assert size of all entities of type salmon = 10 with "Size of all salmon is not 10"
 	delete all large salmons
 	assert size of all large salmons = 0 with "Large salmons did not get cleared"
 	delete all medium salmons
@@ -68,9 +68,9 @@ test "spawn salmon by variant" when running minecraft "1.21.2":
 	delete all small salmons
 	assert size of all small salmons = 0 with "Small salmons did not get cleared"
 	spawn 15 of any salmon at {_l}
-	assert size of all salmons = 15 with "Size of all salmons is not 15"
+	assert size of all entities of type salmon = 15 with "Size of all salmons is not 15"
 	clear all salmons
-	assert size of all salmons = 0 with "All salmons did not get cleared"
+	assert size of all entities of type salmon = 0 with "All salmons did not get cleared"
 
 test "spawn entities":
 	set {_entities::*} to "allay", "axolotl", "bat", "bee", "blaze", "cat", "cave spider", "chicken" and "cod"
@@ -81,14 +81,14 @@ test "spawn entities":
 	add "salmon", "sheep", "shulker", "silverfish", "skeleton", "skeleton horse" and "slime" to {_entities::*}
 	add "snow golem", "spider", "squid", "stray", "strider", "tadpole", "trader llama" and "tropical fish" to {_entities::*}
 	add "turtle", "vex", "villager", "vindicator", "wandering trader", "warden", "witch" and "wither skeleton" to {_entities::*}
-	add "wolf", "zoglin", "zombie", "zombie horse", "zombie villager", "zombified piglin" to {_entities::*}
+	add "wolf", "zoglin", "zombie", "zombie horse", "zombie villager", and "zombified piglin" to {_entities::*}
 	add "ender dragon" and "wither" to {_entities::*}
 	add "oak boat", "oak chest boat", "armor stand", "primed tnt", "firework", "arrow", "trident" and "egg" to {_entities::*}
 	add "snowball", "end crystal", "eye of ender", "regular minecart", "falling sand" and "falling gravel" to {_entities::*}
 	add "falling powder snow" to {_entities::*}
 
 	if running minecraft "1.20.0":
-		add "camel" and "sniffer"  to {_entities::*}
+		add "camel" and "sniffer" to {_entities::*}
 	if running minecraft "1.20.6":
 		add "armadillo" to {_entities::*}
 	if running minecraft "1.21":

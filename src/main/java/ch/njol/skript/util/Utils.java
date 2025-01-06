@@ -1,5 +1,27 @@
 package ch.njol.skript.util;
 
+import ch.njol.skript.Skript;
+import ch.njol.skript.effects.EffTeleport;
+import ch.njol.skript.localization.Language;
+import ch.njol.skript.registrations.Classes;
+import ch.njol.util.NonNullPair;
+import ch.njol.util.Pair;
+import ch.njol.util.StringUtils;
+import ch.njol.util.coll.CollectionUtils;
+import com.google.common.collect.Iterables;
+import com.google.common.io.ByteArrayDataInput;
+import com.google.common.io.ByteArrayDataOutput;
+import com.google.common.io.ByteStreams;
+import net.md_5.bungee.api.ChatColor;
+import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
+import org.bukkit.plugin.Plugin;
+import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.plugin.messaging.Messenger;
+import org.bukkit.plugin.messaging.PluginMessageListener;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
@@ -7,39 +29,9 @@ import java.lang.reflect.Method;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Predicate;
-import java.util.jar.JarEntry;
-import java.util.jar.JarFile;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
-
-import org.bukkit.Bukkit;
-import org.bukkit.entity.Player;
-import org.bukkit.plugin.Plugin;
-import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.plugin.messaging.Messenger;
-import org.bukkit.plugin.messaging.PluginMessageListener;
-
-import com.google.common.collect.Iterables;
-import com.google.common.io.ByteArrayDataInput;
-import com.google.common.io.ByteArrayDataOutput;
-import com.google.common.io.ByteStreams;
-
-import ch.njol.skript.Skript;
-import ch.njol.skript.effects.EffTeleport;
-import ch.njol.skript.localization.Language;
-import ch.njol.skript.localization.LanguageChangeListener;
-import ch.njol.skript.registrations.Classes;
-import ch.njol.util.Callback;
-import ch.njol.util.Checker;
-import ch.njol.util.NonNullPair;
-import ch.njol.util.Pair;
-import ch.njol.util.StringUtils;
-import ch.njol.util.coll.CollectionUtils;
-import ch.njol.util.coll.iterator.EnumerationIterable;
-import net.md_5.bungee.api.ChatColor;
-import org.jetbrains.annotations.Nullable;
-import org.jetbrains.annotations.NotNull;
 
 /**
  * Utility class.
@@ -198,49 +190,25 @@ public abstract class Utils {
 	 *            as well. Use an empty array to load all subpackages of the base package.
 	 * @throws IOException If some error occurred attempting to read the plugin's jar file.
 	 * @return This SkriptAddon
+	 * @deprecated Use {@link org.skriptlang.skript.util.ClassLoader}.
 	 */
+	@Deprecated
 	public static Class<?>[] getClasses(Plugin plugin, String basePackage, String... subPackages) throws IOException {
-		assert subPackages != null;
-		JarFile jar = new JarFile(getFile(plugin));
-		for (int i = 0; i < subPackages.length; i++)
-			subPackages[i] = subPackages[i].replace('.', '/') + "/";
-		basePackage = basePackage.replace('.', '/') + "/";
 		List<Class<?>> classes = new ArrayList<>();
-		try {
-			List<String> classNames = new ArrayList<>();
-
-			for (JarEntry e : new EnumerationIterable<>(jar.entries())) {
-				if (e.getName().startsWith(basePackage) && e.getName().endsWith(".class") && !e.getName().endsWith("package-info.class")) {
-					boolean load = subPackages.length == 0;
-					for (String sub : subPackages) {
-						if (e.getName().startsWith(sub, basePackage.length())) {
-							load = true;
-							break;
-						}
-					}
-
-					if (load)
-						classNames.add(e.getName().replace('/', '.').substring(0, e.getName().length() - ".class".length()));
-				}
-			}
-
-			classNames.sort(String::compareToIgnoreCase);
-
-			for (String c : classNames) {
-				try {
-					classes.add(Class.forName(c, true, plugin.getClass().getClassLoader()));
-				} catch (ClassNotFoundException | NoClassDefFoundError ex) {
-					Skript.exception(ex, "Cannot load class " + c);
-				} catch (ExceptionInInitializerError err) {
-					Skript.exception(err.getCause(), "class " + c + " generated an exception while loading");
-				}
-			}
-		} finally {
-			try {
-				jar.close();
-			} catch (IOException e) {}
+		org.skriptlang.skript.util.ClassLoader loader = org.skriptlang.skript.util.ClassLoader.builder()
+			.basePackage(basePackage)
+			.addSubPackages(subPackages)
+			.deep(true)
+			.initialize(true)
+			.forEachClass(classes::add)
+			.build();
+		File jarFile = getFile(plugin);
+		if (jarFile != null) {
+			loader.loadClasses(plugin.getClass(), jarFile);
+		} else {
+			loader.loadClasses(plugin.getClass());
 		}
-		return classes.toArray(new Class<?>[classes.size()]);
+		return classes.toArray(new Class[0]);
 	}
 
 	/**
@@ -504,8 +472,10 @@ public abstract class Utils {
 	 * this completable future will complete exceptionally if the player is null.
 	 * @throws IllegalStateException when there are no players online
 	 */
-	public static CompletableFuture<ByteArrayDataInput> sendPluginMessage(String channel,
-			Predicate<ByteArrayDataInput> messageVerifier, String... data) throws IllegalStateException {
+	public static CompletableFuture<ByteArrayDataInput> sendPluginMessage(
+		String channel,
+		Predicate<ByteArrayDataInput> messageVerifier, String... data
+	) throws IllegalStateException {
 		Player firstPlayer = Iterables.getFirst(Bukkit.getOnlinePlayers(), null);
 		if (firstPlayer == null)
 			throw new IllegalStateException("There are no players online");
@@ -522,7 +492,7 @@ public abstract class Utils {
 	 *     			.exceptionally(ex -> {
 	 *     			 	Skript.warning("Failed to get servers because there are no players online");
 	 *     			 	return null;
-	 *     			});
+	 *                });
 	 * </code>
 	 *
 	 * @param player the player to send the plugin message through
@@ -532,8 +502,10 @@ public abstract class Utils {
 	 * @return a completable future for the message of the responding plugin message, if there is one.
 	 * this completable future will complete exceptionally if the player is null.
 	 */
-	public static CompletableFuture<ByteArrayDataInput> sendPluginMessage(Player player, String channel,
-			Predicate<ByteArrayDataInput> messageVerifier, String... data) {
+	public static CompletableFuture<ByteArrayDataInput> sendPluginMessage(
+		Player player, String channel,
+		Predicate<ByteArrayDataInput> messageVerifier, String... data
+	) {
 		CompletableFuture<ByteArrayDataInput> completableFuture = new CompletableFuture<>();
 
 		Skript skript = Skript.getInstance();
@@ -544,7 +516,7 @@ public abstract class Utils {
 		PluginMessageListener listener = (sendingChannel, sendingPlayer, message) -> {
 			ByteArrayDataInput input = ByteStreams.newDataInput(message);
 			if (channel.equals(sendingChannel) && sendingPlayer == player && !completableFuture.isDone()
-					&& !completableFuture.isCancelled() && messageVerifier.test(input)) {
+				&& !completableFuture.isCancelled() && messageVerifier.test(input)) {
 				completableFuture.complete(input);
 			}
 		};
@@ -572,21 +544,15 @@ public abstract class Utils {
 	final static Map<String, String> chat = new HashMap<>();
 	final static Map<String, String> englishChat = new HashMap<>();
 
-	public final static boolean HEX_SUPPORTED = Skript.isRunningMinecraft(1, 16);
-	public final static boolean COPY_SUPPORTED = Skript.isRunningMinecraft(1, 15);
-
 	static {
-		Language.addListener(new LanguageChangeListener() {
-			@Override
-			public void onLanguageChange() {
-				final boolean english = englishChat.isEmpty();
-				chat.clear();
-				for (final ChatColor style : styles) {
-					for (final String s : Language.getList("chat styles." + style.name())) {
-						chat.put(s.toLowerCase(Locale.ENGLISH), style.toString());
-						if (english)
-							englishChat.put(s.toLowerCase(Locale.ENGLISH), style.toString());
-					}
+		Language.addListener(() -> {
+			final boolean english = englishChat.isEmpty();
+			chat.clear();
+			for (final ChatColor style : styles) {
+				for (final String s : Language.getList("chat styles." + style.name())) {
+					chat.put(s.toLowerCase(Locale.ENGLISH), style.toString());
+					if (english)
+						englishChat.put(s.toLowerCase(Locale.ENGLISH), style.toString());
 				}
 			}
 		});
@@ -601,43 +567,17 @@ public abstract class Utils {
 		return chat.get(s);
 	}
 
-	private final static Pattern stylePattern = Pattern.compile("<([^<>]+)>");
-
 	/**
 	 * Replaces &lt;chat styles&gt; in the message
 	 *
 	 * @param message
 	 * @return message with localised chat styles converted to Minecraft's format
 	 */
-	public static String replaceChatStyles(final String message) {
+	public static @NotNull String replaceChatStyles(String message) {
 		if (message.isEmpty())
 			return message;
-		String m = StringUtils.replaceAll(Matcher.quoteReplacement("" + message.replace("<<none>>", "")), stylePattern, new Callback<String, Matcher>() {
-			@Override
-			public String run(final Matcher m) {
-				SkriptColor color = SkriptColor.fromName("" + m.group(1));
-				if (color != null)
-					return color.getFormattedChat();
-				final String tag = m.group(1).toLowerCase(Locale.ENGLISH);
-				final String f = chat.get(tag);
-				if (f != null)
-					return f;
-				if (HEX_SUPPORTED && tag.startsWith("#")) { // Check for parsing hex colors
-					ChatColor chatColor = parseHexColor(tag);
-					if (chatColor != null)
-						return chatColor.toString();
-				}
-				return "" + m.group();
-			}
-		});
-		assert m != null;
-		// Restore user input post-sanitization
-		// Sometimes, the message has already been restored
-		if (!message.equals(m)) {
-			m = m.replace("\\$", "$").replace("\\\\", "\\");
-		}
-		m = ChatColor.translateAlternateColorCodes('&', "" + m);
-		return "" + m;
+
+		return replaceChatStyle(message.replace("<<none>>", ""));
 	}
 
 	/**
@@ -647,54 +587,81 @@ public abstract class Utils {
 	 * @param message
 	 * @return message with english chat styles converted to Minecraft's format
 	 */
-	public static String replaceEnglishChatStyles(final String message) {
+	public static @NotNull String replaceEnglishChatStyles(String message) {
 		if (message.isEmpty())
 			return message;
-		String m = StringUtils.replaceAll(Matcher.quoteReplacement(message), stylePattern, new Callback<String, Matcher>() {
-			@Override
-			public String run(final Matcher m) {
-				SkriptColor color = SkriptColor.fromName("" + m.group(1));
-				if (color != null)
-					return color.getFormattedChat();
-				final String tag = m.group(1).toLowerCase(Locale.ENGLISH);
-				final String f = englishChat.get(tag);
-				if (f != null)
-					return f;
-				if (HEX_SUPPORTED && tag.startsWith("#")) { // Check for parsing hex colors
-					ChatColor chatColor = parseHexColor(tag);
-					if (chatColor != null)
-						return chatColor.toString();
-				}
-				return "" + m.group();
+
+		return replaceChatStyle(message);
+	}
+
+	private final static Pattern STYLE_PATTERN = Pattern.compile("<([^<>]+)>");
+
+	private static @NotNull String replaceChatStyle(String message) {
+		String m = StringUtils.replaceAll(Matcher.quoteReplacement(message), STYLE_PATTERN, matcher -> {
+			SkriptColor color = SkriptColor.fromName(matcher.group(1));
+			if (color != null)
+				return color.getFormattedChat();
+
+			String tag = matcher.group(1).toLowerCase(Locale.ENGLISH);
+			String f = englishChat.get(tag);
+			if (f != null)
+				return f;
+
+			if (tag.startsWith("#")) {
+				ChatColor chatColor = parseHexColor(tag);
+				if (chatColor != null)
+					return chatColor.toString();
+			} else if (tag.startsWith("u:") || tag.startsWith("unicode:")) {
+				String character = parseUnicode(tag);
+				if (character != null)
+					return character;
 			}
+			return matcher.group();
 		});
-		assert m != null;
+
 		// Restore user input post-sanitization
 		// Sometimes, the message has already been restored
 		if (!message.equals(m)) {
 			m = m.replace("\\$", "$").replace("\\\\", "\\");
 		}
-		m = ChatColor.translateAlternateColorCodes('&', "" + m);
-		return "" + m;
+
+		return ChatColor.translateAlternateColorCodes('&', m);
 	}
 
-	private static final Pattern HEX_PATTERN = Pattern.compile("(?i)#{0,2}[0-9a-f]{6}");
+	private static final Pattern UNICODE_PATTERN = Pattern.compile("(?i)u(?:nicode)?:(?<code>[0-9a-f]{4,})");
+
+	/**
+	 * Tries to extract a Unicode character from the given string.
+	 * @param string The string.
+	 * @return The Unicode character, or null if it could not be parsed.
+	 */
+	public static @Nullable String parseUnicode(String string) {
+		Matcher matcher = UNICODE_PATTERN.matcher(string);
+		if (!matcher.matches())
+			return null;
+
+		try {
+			return Character.toString(Integer.parseInt(matcher.group("code"), 16));
+		} catch (IllegalArgumentException ex) {
+			return null;
+		}
+	}
+
+	private static final Pattern HEX_PATTERN = Pattern.compile("(?i)#{0,2}(?<code>[0-9a-f]{6})");
 
 	/**
 	 * Tries to get a {@link ChatColor} from the given string.
-	 * @param hex The hex code to parse.
+	 * @param string The string code to parse.
 	 * @return The ChatColor, or null if it couldn't be parsed.
 	 */
-	@SuppressWarnings("null")
-	@Nullable
-	public static ChatColor parseHexColor(String hex) {
-		if (!HEX_SUPPORTED || !HEX_PATTERN.matcher(hex).matches()) // Proper hex code validation
+	public static @Nullable ChatColor parseHexColor(String string) {
+		Matcher matcher = HEX_PATTERN.matcher(string);
+		if (!matcher.matches())
 			return null;
 
-		hex = hex.replace("#", "");
 		try {
-			return ChatColor.of('#' + hex.substring(0, 6));
-		} catch (IllegalArgumentException e) {
+			return ChatColor.of('#' + matcher.group("code"));
+		} catch (IllegalArgumentException ex) {
 			return null;
 		}
 	}
@@ -822,16 +789,16 @@ public abstract class Utils {
 	}
 
 	/**
-	 * Finds the index of the last in a {@link List} that matches the given {@link Checker}.
+	 * Finds the index of the last in a {@link List} that matches the given {@link Predicate}.
 	 *
 	 * @param list the {@link List} to search.
-	 * @param checker the {@link Checker} to match elements against.
+	 * @param checker the {@link Predicate} to match elements against.
 	 * @return the index of the element found, or -1 if no matching element was found.
 	 */
-	public static <T> int findLastIndex(List<T> list, Checker<T> checker) {
+	public static <T> int findLastIndex(List<T> list, Predicate<T> checker) {
 		int lastIndex = -1;
 		for (int i = 0; i < list.size(); i++) {
-			if (checker.check(list.get(i)))
+			if (checker.test(list.get(i)))
 				lastIndex = i;
 		}
 		return lastIndex;

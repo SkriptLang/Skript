@@ -1,3 +1,4 @@
 [submodule "skript-aliases"]
 	path = skript-aliases
 	url = https://github.com/SkriptLang/skript-aliases
+	branch = minimized-aliases

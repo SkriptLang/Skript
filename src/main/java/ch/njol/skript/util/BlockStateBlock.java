@@ -457,6 +457,7 @@ public class BlockStateBlock implements Block {
 	}
 
 	@Override
+	@SuppressWarnings("removal")
 	public BlockSoundGroup getSoundGroup() {
 		return state.getBlock().getSoundGroup();
 	}
@@ -467,6 +468,7 @@ public class BlockStateBlock implements Block {
 	}
 
 	@Override
+	@SuppressWarnings("removal")
 	public String getTranslationKey() {
 		return state.getBlock().getTranslationKey();
 	}
@@ -482,6 +484,7 @@ public class BlockStateBlock implements Block {
 	}
 
 	@Override
+	@SuppressWarnings("removal")
 	public boolean isValidTool(@NotNull ItemStack itemStack) {
 		return state.getBlock().isValidTool(itemStack);
 	}
@@ -507,6 +510,7 @@ public class BlockStateBlock implements Block {
 	}
 
 	@Override
+	@SuppressWarnings("removal")
 	public @NotNull String translationKey() {
 		return state.getBlock().getTranslationKey();
 	}
