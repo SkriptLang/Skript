@@ -1000,7 +1000,7 @@ public class ScriptLoader {
 					RetainingLogHandler backup = handler.backup();
 					handler.clear();
 
-					item = Statement.parse(expr, "Can't understand this effect: " + expr, (SectionNode) subNode, items);
+					item = Statement.parse(expr, "Can't understand this condition/effect: " + expr, (SectionNode) subNode, items);
 
 					if (item != null)
 						break find_section;
@@ -1018,7 +1018,6 @@ public class ScriptLoader {
 					continue;
 				} finally {
 					handler.printLog();
-					handler.close();
 				}
 
 				if (Skript.debug() || subNode.debug())
