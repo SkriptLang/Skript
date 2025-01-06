@@ -35,7 +35,7 @@ public class EffAssert extends Effect {
 	private Script script;
 	private int line;
 
-	private Expression<String> errorMsg;
+	private @Nullable Expression<String> errorMsg;
 	private @Nullable Expression<?> expected;
 	private @Nullable Expression<?> got;
 	private boolean shouldFail;
