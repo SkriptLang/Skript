@@ -607,6 +607,8 @@ public class ScriptLoader {
 
 					openCloseable.close();
 				}
+			}).exceptionally(t -> {
+				throw Skript.exception(t);
 			});
 	}
 
