@@ -60,7 +60,7 @@ test "replace strings":
 	regex replace "(?i)[bAc]" in {_x} with "z"
 	assert {_x} is "yxxxzzzz" with "regex replace failed"
 
-	set {_x} to "a" parsed as number
+	clear {_x}
 	regex replace "a" in {_x} with "b"
 	assert {_x} is not set with "regex replace with invalid value succeeded"
 

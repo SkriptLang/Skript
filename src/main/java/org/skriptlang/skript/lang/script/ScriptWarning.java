@@ -41,7 +41,12 @@ public enum ScriptWarning {
 	/**
 	 * The code cannot be reached due to a previous statement stopping further execution
 	 */
-	UNREACHABLE_CODE("unreachable code");
+	UNREACHABLE_CODE("unreachable code"),
+
+		/**
+	 * Variable '{_example}' is of type 'string', not a 'player, entity type or entity data'
+	 */
+	LOCAL_VARIABLE_TYPE("local variable type", "local [variable] type[s]");
 
 	private final String warningName;
 	private final String pattern;

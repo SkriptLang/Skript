@@ -947,107 +947,106 @@ public class ScriptLoader {
 	/**
 	 * Loads a section by converting it to {@link TriggerItem}s.
 	 */
-	public static ArrayList<TriggerItem> loadItems(SectionNode node) {
+	public static List<TriggerItem> loadItems(SectionNode node) {
 		ParserInstance parser = getParser();
-
 		if (Skript.debug())
 			parser.setIndentation(parser.getIndentation() + "    ");
 
-		ArrayList<TriggerItem> items = new ArrayList<>();
+		List<TriggerItem> items = new ArrayList<>();
 
 		boolean executionStops = false;
-		for (Node subNode : node) {
-			parser.setNode(subNode);
-
-			String subNodeKey = subNode.getKey();
-			if (subNodeKey == null)
-				throw new IllegalArgumentException("Encountered node with null key: '" + subNode + "'");
-			String expr = replaceOptions(subNodeKey);
-			if (!SkriptParser.validateLine(expr))
-				continue;
-
-			TriggerItem item;
-			if (subNode instanceof SimpleNode) {
-				long start = System.currentTimeMillis();
-				item = Statement.parse(expr, items, "Can't understand this condition/effect: " + expr);
-				if (item == null)
+		try {
+			TypeHints.enterScope();
+			for (Node subNode : node) {
+				parser.setNode(subNode);
+	
+				String subNodeKey = subNode.getKey();
+				if (subNodeKey == null)
+					throw new IllegalArgumentException("Encountered node with null key: '" + subNode + "'");
+				String expr = replaceOptions(subNodeKey);
+				if (!SkriptParser.validateLine(expr))
 					continue;
-				long requiredTime = SkriptConfig.longParseTimeWarningThreshold.value().getAs(Timespan.TimePeriod.MILLISECOND);
-				if (requiredTime > 0) {
-					long timeTaken = System.currentTimeMillis() - start;
-					if (timeTaken > requiredTime)
-						Skript.warning(
-							"The current line took a long time to parse (" + new Timespan(timeTaken) + ")."
-								+ " Avoid using long lines and use parentheses to create clearer instructions."
-						);
-				}
-
-				if (Skript.debug() || subNode.debug())
-					Skript.debug(SkriptColor.replaceColorChar(parser.getIndentation() + item.toString(null, true)));
-
-				items.add(item);
-			} else if (subNode instanceof SectionNode) {
-				TypeHints.enterScope(); // Begin conditional type hints
-
-				RetainingLogHandler handler = SkriptLogger.startRetainingLog();
-				find_section:
-				try {
-					item = Section.parse(expr, "Can't understand this section: " + expr, (SectionNode) subNode, items);
-					if (item != null)
-						break find_section;
-
-					// back up the failure log
-					RetainingLogHandler backup = handler.backup();
-					handler.clear();
-
-					item = Statement.parse(expr, "Can't understand this effect: " + expr, (SectionNode) subNode, items);
-
-					if (item != null)
-						break find_section;
-					Collection<LogEntry> errors = handler.getErrors();
-
-					// restore the failure log
-					if (errors.isEmpty()) {
-						handler.restore(backup);
-					} else { // We specifically want these two errors in preference to the section error!
-						String firstError = errors.iterator().next().getMessage();
-						if (!firstError.contains("is a valid statement but cannot function as a section (:)")
-							&& !firstError.contains("You cannot have two section-starters in the same line"))
-							handler.restore(backup);
+	
+				TriggerItem item;
+				if (subNode instanceof SimpleNode) {
+					long start = System.currentTimeMillis();
+					item = Statement.parse(expr, items, "Can't understand this condition/effect: " + expr);
+					if (item == null)
+						continue;
+					long requiredTime = SkriptConfig.longParseTimeWarningThreshold.value().getAs(Timespan.TimePeriod.MILLISECOND);
+					if (requiredTime > 0) {
+						long timeTaken = System.currentTimeMillis() - start;
+						if (timeTaken > requiredTime)
+							Skript.warning(
+								"The current line took a long time to parse (" + new Timespan(timeTaken) + ")."
+									+ " Avoid using long lines and use parentheses to create clearer instructions."
+							);
 					}
+	
+					if (Skript.debug() || subNode.debug())
+						Skript.debug(SkriptColor.replaceColorChar(parser.getIndentation() + item.toString(null, true)));
+	
+					items.add(item);
+				} else if (subNode instanceof SectionNode) {	
+					RetainingLogHandler handler = SkriptLogger.startRetainingLog();
+					find_section:
+					try {
+						item = Section.parse(expr, "Can't understand this section: " + expr, (SectionNode) subNode, items);
+						if (item != null)
+							break find_section;
+	
+						// back up the failure log
+						RetainingLogHandler backup = handler.backup();
+						handler.clear();
+	
+						item = Statement.parse(expr, "Can't understand this effect: " + expr, (SectionNode) subNode, items);
+	
+						if (item != null)
+							break find_section;
+						Collection<LogEntry> errors = handler.getErrors();
+	
+						// restore the failure log
+						if (errors.isEmpty()) {
+							handler.restore(backup);
+						} else { // We specifically want these two errors in preference to the section error!
+							String firstError = errors.iterator().next().getMessage();
+							if (!firstError.contains("is a valid statement but cannot function as a section (:)")
+								&& !firstError.contains("You cannot have two section-starters in the same line"))
+								handler.restore(backup);
+						}
+						continue;
+					} finally {
+						handler.printLog();
+						handler.close();
+					}
+	
+					if (Skript.debug() || subNode.debug())
+						Skript.debug(SkriptColor.replaceColorChar(parser.getIndentation() + item.toString(null, true)));
+	
+					items.add(item);
+				} else {
 					continue;
-				} finally {
-					handler.printLog();
-					handler.close();
 				}
-
-				if (Skript.debug() || subNode.debug())
-					Skript.debug(SkriptColor.replaceColorChar(parser.getIndentation() + item.toString(null, true)));
-
-				items.add(item);
-
-				// Destroy these conditional type hints
-				TypeHints.exitScope();
-			} else {
-				continue;
+	
+				if (executionStops
+						&& !SkriptConfig.disableUnreachableCodeWarnings.value()
+						&& parser.isActive()
+						&& !parser.getCurrentScript().suppressesWarning(ScriptWarning.UNREACHABLE_CODE)) {
+					Skript.warning("Unreachable code. The previous statement stops further execution.");
+				}
+				executionStops = item.executionIntent() != null;
 			}
-
-			if (executionStops
-					&& !SkriptConfig.disableUnreachableCodeWarnings.value()
-					&& parser.isActive()
-					&& !parser.getCurrentScript().suppressesWarning(ScriptWarning.UNREACHABLE_CODE)) {
-				Skript.warning("Unreachable code. The previous statement stops further execution.");
-			}
-			executionStops = item.executionIntent() != null;
+	
+			for (int i = 0; i < items.size() - 1; i++)
+				items.get(i).setNext(items.get(i + 1));
+	
+			parser.setNode(node);
+	
+			if (Skript.debug())
+				parser.setIndentation(parser.getIndentation().substring(0, parser.getIndentation().length() - 4));
+		} finally {
+			TypeHints.exitScope();
 		}
-
-		for (int i = 0; i < items.size() - 1; i++)
-			items.get(i).setNext(items.get(i + 1));
-
-		parser.setNode(node);
-
-		if (Skript.debug())
-			parser.setIndentation(parser.getIndentation().substring(0, parser.getIndentation().length() - 4));
 
 		return items;
 	}

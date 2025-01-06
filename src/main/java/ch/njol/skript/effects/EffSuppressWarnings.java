@@ -11,7 +11,6 @@ import ch.njol.skript.lang.SkriptParser;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
-import org.jetbrains.annotations.UnknownNullability;
 import org.skriptlang.skript.lang.script.ScriptWarning;
 
 @Name("Locally Suppress Warning")
@@ -34,7 +33,27 @@ public class EffSuppressWarnings extends Effect {
 		Skript.registerEffect(EffSuppressWarnings.class, "[local[ly]] suppress [the] (" + warnings + ") warning[s]");
 	}
 
-	private @UnknownNullability ScriptWarning warning;
+	private enum Pattern {
+		INSTANCE(ScriptWarning.VARIABLE_SAVE),
+		CONJUNCTION(ScriptWarning.MISSING_CONJUNCTION),
+		START_EXPR(ScriptWarning.VARIABLE_STARTS_WITH_EXPRESSION),
+		DEPRECATED(ScriptWarning.DEPRECATED_SYNTAX),
+		UNREACHABLE(ScriptWarning.UNREACHABLE_CODE),
+		LOCAL_TYPES(ScriptWarning.LOCAL_VARIABLE_TYPE);
+
+		private final ScriptWarning warning;
+
+		Pattern(ScriptWarning warning) {
+			this.warning = warning;
+		}
+
+		public ScriptWarning getWarning() {
+			return warning;
+		}
+
+	}
+
+	private Pattern pattern;
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
@@ -43,7 +62,8 @@ public class EffSuppressWarnings extends Effect {
 			return false;
 		}
 
-		warning = ScriptWarning.values()[parseResult.mark];
+		pattern = Pattern.values()[matchedPattern];
+		ScriptWarning warning = pattern.getWarning();
 		if (warning.isDeprecated()) {
 			Skript.warning(warning.getDeprecationMessage());
 		} else {
@@ -57,7 +77,7 @@ public class EffSuppressWarnings extends Effect {
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return "suppress " + warning.getWarningName() + " warnings";
+		return "suppress " + pattern.getWarning().getWarningName() + " warnings";
 	}
 
 }

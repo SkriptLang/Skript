@@ -1,0 +1,14 @@
+test "type hints":
+	set {_entity} to a zombie
+	spawn {_entity} at event-location:
+		parse:
+			set {_string} to "empty"
+			set helmet of event-entity to 1 of {_string}
+		assert last parse logs is set with "Variable '{_string}' is of type text, and is neither an item stack, an item type nor an entity type"
+
+		parse:
+			set {_timespan} to a second
+			set helmet of last spawned {_entity} to 1 of {_timespan}
+		assert last parse logs is set with "Variable '{_timespan}' is of type time span, and is neither an item stack, an item type nor an entity type"
+
+		clear event-entity

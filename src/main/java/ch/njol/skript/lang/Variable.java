@@ -240,8 +240,9 @@ public class Variable<T> implements Expression<T>, KeyReceiverExpression<T>, Key
 				for (int i = 0; i < types.length; i++) {
 					infos[i] = Classes.getExactClassInfo(types[i]);
 				}
-				Skript.warning("Variable '{_" + name + "}' is " + Classes.toString(Classes.getExactClassInfo(hint))
-					+ ", not " + Classes.toString(infos, false));
+				if (parser.isActive() && !currentScript.suppressesWarning(ScriptWarning.LOCAL_VARIABLE_TYPE)) {
+					Skript.warning("Variable '{" + name + "}' is of type " + Classes.toString(Classes.getExactClassInfo(hint)) + ", and is " + SkriptParser.notOfType(infos));
+				}
 				// Fall back to not having any type hints
 			}
 		}
@@ -449,15 +450,21 @@ public class Variable<T> implements Expression<T>, KeyReceiverExpression<T>, Key
 		return Converters.convert((Object[]) get(event), types, superType);
 	}
 
+	private void set(String string, @Nullable Object value, Event event, boolean local) {
+		if (local && value != null && name.isSimple())
+			TypeHints.add(name.toString(), value.getClass());
+		Variables.setVariable(string, value, event, local);
+	}
+
 	private void set(Event event, @Nullable Object value) {
-		Variables.setVariable("" + name.toString(event), value, event, local);
+		set("" + name.toString(event), value, event, local);
 	}
 
 	private void setIndex(Event event, String index, @Nullable Object value) {
 		assert list;
 		String name = this.name.toString(event);
 		assert name.endsWith(SEPARATOR + "*") : name + "; " + this.name;
-		Variables.setVariable(name.substring(0, name.length() - 1) + index, value, event, local);
+		set(name.substring(0, name.length() - 1) + index, value, event, local);
 	}
 
 	@Override
