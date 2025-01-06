@@ -417,9 +417,12 @@ public class SkriptCommand implements CommandExecutor {
 					return true;
 				}
 
-				CountingLogHandler errorCounter = new CountingLogHandler(Level.SEVERE);
-				errorCounter.start();
+				// Close previous loggers before we create a new one
+				// This prevents closing logger errors
+				timingLogHandler.close();
+				logHandler.close();
 
+				CountingLogHandler errorCounter = new CountingLogHandler(Level.SEVERE).start();
 				ScriptLoader.loadScripts(scriptFile, errorCounter)
 					.thenAccept(scriptInfo ->
 						// Code should run on server thread
