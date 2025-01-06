@@ -33,7 +33,7 @@ import java.util.Objects;
 	"play sound (break sound of dirt) at all players",
 	"set {_sounds::*} to place sounds of dirt, grass block, blue wool and stone"
 })
-@Since("INSERT VERSION")
+@Since("2.10")
 public class ExprBlockSound extends SimpleExpression<String> {
 
 	public enum SoundType {

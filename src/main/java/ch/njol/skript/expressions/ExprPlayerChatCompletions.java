@@ -31,7 +31,7 @@ import ch.njol.util.coll.CollectionUtils;
 	"clear player's chat completions"
 })
 @RequiredPlugins("Spigot 1.19+")
-@Since("INSERT VERSION")
+@Since("2.10")
 public class ExprPlayerChatCompletions extends SimplePropertyExpression<Player, String> {
 
 	static {

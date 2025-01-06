@@ -19,7 +19,7 @@ import org.bukkit.block.data.type.CommandBlock;
 	"if {_block} is conditional:",
 		"\tmake {_block} unconditional"
 })
-@Since("INSERT VERSION")
+@Since("2.10")
 public class CondIsCommandBlockConditional extends PropertyCondition<Block> {
 
 	static {

@@ -22,7 +22,7 @@ import org.jetbrains.annotations.Nullable;
 	"on beacon effect of speed:"
 })
 @RequiredPlugins("Paper")
-@Since("INSERT VERSION")
+@Since("2.10")
 public class EvtBeaconEffect extends SkriptEvent {
 
 	static {

@@ -1,16 +1,16 @@
 test "armour slot":
 	spawn zombie at test-location:
-		set boots of event-entity to gold boots
-		assert boots of event-entity are gold boots with "Gold boots were not applied"
+		set boots of event-entity to golden boots
+		assert boots of event-entity are golden boots with "Gold boots were not applied"
 		set leggings of event-entity to iron leggings
 		assert leggings of event-entity are iron leggings with "Iron leggings were not applied"
 		set chestplate of event-entity to diamond chestplate
 		assert chestplate of event-entity is diamond chestplate with "Diamond chestplate was not applied"
-		set helmet of event-entity to dirt block
-		assert helmet of event-entity is dirt block with "Dirt helmet was not applied"
-		assert armour of event-entity contains dirt block, diamond chestplate, iron leggings and gold boots with "Armour contents were not correct"
+		set helmet of event-entity to dirt
+		assert helmet of event-entity is dirt with "Dirt helmet was not applied"
+		assert armour of event-entity contains dirt, diamond chestplate, iron leggings and golden boots with "Armour contents were not correct"
 		clear armour of event-entity
-		assert armour of event-entity does not contain dirt block, diamond chestplate, iron leggings and gold boots with "Failed to clear EquipmentSlots"
+		assert armour of event-entity does not contain dirt, diamond chestplate, iron leggings and golden boots with "Failed to clear EquipmentSlots"
 		delete event-entity
 
 test "body armor wolf" when running minecraft "1.20.5":
@@ -27,6 +27,6 @@ test "invalid body armor":
 	loop a zombie, a skeleton, a zombie horse and a skeleton horse:
 		spawn loop-value at spawn of world "world":
 			assert (body armor of event-entity) is not set with "Entity body armor is accessible"
-			set body armor of event-entity to diamond armor
+			set body armor of event-entity to diamond chestplate
 			assert (body armor of event-entity) is not set with "Entity body armor is accessible"
 			clear event-entity

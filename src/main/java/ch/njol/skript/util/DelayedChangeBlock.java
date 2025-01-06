@@ -438,6 +438,7 @@ public class DelayedChangeBlock implements Block {
 	}
 
 	@Override
+	@SuppressWarnings("removal")
 	public BlockSoundGroup getSoundGroup() {
 		return block.getSoundGroup();
 	}
@@ -448,6 +449,7 @@ public class DelayedChangeBlock implements Block {
 	}
 
 	@Override
+	@SuppressWarnings("removal")
 	public String getTranslationKey() {
 		return block.getTranslationKey();
 	}
@@ -463,6 +465,7 @@ public class DelayedChangeBlock implements Block {
 	}
 
 	@Override
+	@SuppressWarnings("removal")
 	public boolean isValidTool(@NotNull ItemStack itemStack) {
 		return block.isValidTool(itemStack);
 	}
@@ -489,6 +492,7 @@ public class DelayedChangeBlock implements Block {
 	}
 
 	@Override
+	@SuppressWarnings("removal")
 	public @NotNull String translationKey() {
 		return block.getTranslationKey();
 	}
