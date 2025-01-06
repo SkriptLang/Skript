@@ -25,10 +25,9 @@ public class EffAssert extends Effect {
 	static {
 		if (TestMode.ENABLED)
 			Skript.registerEffect(EffAssert.class,
-				"assert <.+> [(1:to fail)]",
 				"assert <.+> [(1:to fail)] with [error] %string%",
-				"assert <.+> [(1:to fail)] with [error] %string%, expected [value] %object%, [and] (received|got) " +
-					"[value] %object%");
+				"assert <.+> [(1:to fail)] with [error] %string%, expected [value] %object%, [and] (received|got) [value] %object%",
+				"assert <.+> [(1:to fail)]");
 	}
 
 	private @Nullable Condition condition;
@@ -49,7 +48,7 @@ public class EffAssert extends Effect {
 		}
 
 		String conditionString = parseResult.regexes.get(0).group();
-		if (matchedPattern > 0)
+		if (matchedPattern < 2)
 			this.errorMsg = (Expression<String>) exprs[0];
 		boolean canInit = true;
 		if (exprs.length > 1) {
