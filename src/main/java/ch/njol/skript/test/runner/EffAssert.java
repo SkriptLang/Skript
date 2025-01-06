@@ -35,7 +35,7 @@ public class EffAssert extends Effect {
 	private Script script;
 	private int line;
 
-	private Expression<String> errorMsg;
+	private @Nullable Expression<String> errorMsg;
 	private @Nullable Expression<?> expected;
 	private @Nullable Expression<?> got;
 	private boolean shouldFail;
@@ -89,7 +89,7 @@ public class EffAssert extends Effect {
 			return this.getNext();
 
 		if (condition.check(event) == shouldFail) {
-			String message = errorMsg.getOptionalSingle(event).orElse(DEFAULT_ERROR);
+			String message = errorMsg != null ? errorMsg.getOptionalSingle(event).orElse(DEFAULT_ERROR) : DEFAULT_ERROR;
 
 			// generate expected/got message if possible
 			String expectedMessage = "";
