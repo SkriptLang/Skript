@@ -8,9 +8,9 @@ import ch.njol.skript.doc.JSONGenerator;
 import ch.njol.skript.localization.ArgsMessage;
 import ch.njol.skript.localization.Language;
 import ch.njol.skript.localization.PluralizingArgsMessage;
-import ch.njol.skript.log.CountingLogHandler;
 import ch.njol.skript.log.LogEntry;
 import ch.njol.skript.log.RedirectingLogHandler;
+import ch.njol.skript.log.TestingLogHandler;
 import ch.njol.skript.log.TimingLogHandler;
 import ch.njol.skript.test.runner.SkriptTestEvent;
 import ch.njol.skript.test.runner.TestMode;
@@ -422,7 +422,7 @@ public class SkriptCommand implements CommandExecutor {
 				timingLogHandler.close();
 				logHandler.close();
 
-				CountingLogHandler errorCounter = new CountingLogHandler(Level.SEVERE).start();
+				TestingLogHandler errorCounter = new TestingLogHandler(Level.SEVERE).start();
 				ScriptLoader.loadScripts(scriptFile, errorCounter)
 					.thenAccept(scriptInfo ->
 						// Code should run on server thread
