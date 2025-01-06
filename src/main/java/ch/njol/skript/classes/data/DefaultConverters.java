@@ -9,10 +9,19 @@ import ch.njol.skript.config.Node;
 import ch.njol.skript.entity.EntityData;
 import ch.njol.skript.entity.EntityType;
 import ch.njol.skript.entity.XpOrbData;
+import ch.njol.skript.expressions.ExprColoured;
+import ch.njol.skript.lang.VariableString;
 import ch.njol.skript.lang.util.common.AnyAmount;
 import ch.njol.skript.lang.util.common.AnyNamed;
+import ch.njol.skript.lang.util.common.AnyReceiver;
+import ch.njol.skript.lang.util.common.AnySender;
+import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.*;
+import ch.njol.skript.util.chat.BungeeConverter;
+import ch.njol.skript.util.chat.ChatMessages;
+import ch.njol.skript.util.chat.MessageComponent;
 import ch.njol.skript.util.slot.Slot;
+import net.md_5.bungee.api.chat.BaseComponent;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
@@ -34,10 +43,14 @@ import org.bukkit.scoreboard.Objective;
 import org.bukkit.scoreboard.Team;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnknownNullability;
 import org.skriptlang.skript.lang.converter.Converter;
 import org.skriptlang.skript.lang.converter.Converters;
 import org.skriptlang.skript.lang.script.Script;
+
+import java.util.List;
+import java.util.UUID;
 
 public class DefaultConverters {
 
@@ -239,6 +252,68 @@ public class DefaultConverters {
 			},
 			//</editor-fold>
 			Converter.NO_RIGHT_CHAINING);
+
+		// Any message receiver -> AnyReceiver
+		Converters.registerConverter(Player.class, AnyReceiver.class, //<editor-fold desc="Converter" defaultstate="collapsed">
+			player -> new AnyReceiver<BaseComponent[], OfflinePlayer>() {
+
+				@Override
+				@SuppressWarnings("deprecation")
+				public void send(BaseComponent[] message) throws IllegalArgumentException {
+					player.spigot().sendMessage(message);
+				}
+
+				@Override
+				@SuppressWarnings("deprecation")
+				public void send(BaseComponent[] message, @Nullable OfflinePlayer sender) throws IllegalArgumentException {
+					if (sender == null) {
+						this.send(message);
+					} else {
+						player.spigot().sendMessage(sender.getUniqueId(), message);
+					}
+				}
+
+				@Override
+				public void sendSafely(@Nullable Object message, @Nullable AnySender<?> sender) {
+					if (sender != null && !(sender.get() instanceof OfflinePlayer))
+						sender = null; // Don't allow other kinds of senders for this one
+					BaseComponent[] converted;
+					if (message instanceof BaseComponent[] components) {
+						converted = components;
+					} else {
+						List<MessageComponent> components = ChatMessages.fromParsedString(toString(message));
+						converted = BungeeConverter.convert(components);
+					}
+					AnyReceiver.super.sendSafely(converted, sender);
+				}
+
+				private String toString(Object object) {
+					return object instanceof String string ? string : Classes.toString(object);
+				}
+
+			},
+			//</editor-fold>
+			Converter.NO_RIGHT_CHAINING);
+		Converters.registerConverter(CommandSender.class, AnyReceiver.class, //<editor-fold desc="Converter" defaultstate="collapsed">
+			receiver -> new AnyReceiver<String, Object>() {
+
+				@Override
+				public void send(String message) throws IllegalArgumentException {
+					receiver.sendMessage(message);
+				}
+
+				@Override
+				public void sendSafely(@Nullable Object message, @Nullable AnySender<?> sender) {
+					if (message == null)
+						return;
+					AnyReceiver.super.sendSafely(message instanceof String string ? string : Classes.toString(message),
+						sender);
+				}
+
+			},
+			//</editor-fold>
+			Converter.NO_RIGHT_CHAINING);
+		Converters.registerConverter(Player.class, AnySender.class, player -> () -> player);
 
 		// InventoryHolder - Location
 		// since the individual ones can't be trusted to chain.
