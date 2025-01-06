@@ -12,11 +12,11 @@ test "create worldborder":
 	set {_center2::x} to x coordinate of worldborder center of {_border2}
 	set {_center2::z} to z coordinate of worldborder center of {_border2}
 	assert {_center2::*} is 1 and 2 with "Worldborder center did not set properly in section"
-	assert worlborder damage amount of {_border2} is 23 with "Worldborder damage amount did not set properly in section"
-	assert worlborder damage buffer of {_border2} is 10 with "Worldborder damage buffer did not set properly in section"
-	assert worlborder size of {_border2} is 30 with "Worldborder size did not set properly in section"
-	assert worlborder warning distance of {_border2} is 54 with "Worldborder warning distance did not set properly in section"
-	assert worlborder warning time of {_border2} is 10 seconds with "Worldborder warning time did not set properly in section"
+	assert worldborder damage amount of {_border2} is 23 with "Worldborder damage amount did not set properly in section"
+	assert worldborder damage buffer of {_border2} is 10 with "Worldborder damage buffer did not set properly in section"
+	assert worldborder size of {_border2} is 30 with "Worldborder size did not set properly in section"
+	assert worldborder warning distance of {_border2} is 54 with "Worldborder warning distance did not set properly in section"
+	assert worldborder warning time of {_border2} is 10 seconds with "Worldborder warning time did not set properly in section"
 
 	set {_border3} to a worldborder:
 		set worldborder center to location(-1, 0, 5)
@@ -28,8 +28,8 @@ test "create worldborder":
 	set {_center3::x} to x coordinate of worldborder center of {_border3}
 	set {_center3::z} to z coordinate of worldborder center of {_border3}
 	assert {_center3::*} is -1 and 5 with "Worldborder center did not set properly in section (with worldborder omitted)"
-	assert worlborder damage amount of {_border3} is 5 with "Worldborder damage amount did not set properly in section (with worldborder omitted)"
-	assert worlborder damage buffer of {_border3} is 20 with "Worldborder damage buffer did not set properly in section (with worldborder omitted)"
-	assert worlborder size of {_border3} is 15 with "Worldborder size did not set properly in section (with worldborder omitted)"
-	assert worlborder warning distance of {_border3} is 25 with "Worldborder warning distance did not set properly in section (with worldborder omitted)"
-	assert worlborder warning time of {_border3} is 15 seconds with "Worldborder warning time did not set properly in section (with worldborder omitted)"
+	assert worldborder damage amount of {_border3} is 5 with "Worldborder damage amount did not set properly in section (with worldborder omitted)"
+	assert worldborder damage buffer of {_border3} is 20 with "Worldborder damage buffer did not set properly in section (with worldborder omitted)"
+	assert worldborder size of {_border3} is 15 with "Worldborder size did not set properly in section (with worldborder omitted)"
+	assert worldborder warning distance of {_border3} is 25 with "Worldborder warning distance did not set properly in section (with worldborder omitted)"
+	assert worldborder warning time of {_border3} is 15 seconds with "Worldborder warning time did not set properly in section (with worldborder omitted)"
