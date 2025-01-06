@@ -7,7 +7,6 @@ import com.google.common.reflect.ClassPath;
 import com.google.common.reflect.ClassPath.ResourceInfo;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.util.Builder.Buildable;
 
 import java.io.File;
 import java.io.IOException;
@@ -24,7 +23,7 @@ import java.util.stream.Collectors;
 /**
  * A utility class for loading classes contained in specific packages.
  */
-public class ClassLoader implements Buildable<ClassLoader.Builder, ClassLoader> {
+public class ClassLoader {
 
 	/**
 	 * @return A builder for creating a loader.
@@ -175,7 +174,10 @@ public class ClassLoader implements Buildable<ClassLoader.Builder, ClassLoader> 
 		}
 	}
 
-	@Override
+	/**
+	 * @return A builder representing this ClassLoader.
+	 */
+	@Contract("-> new")
 	public Builder toBuilder() {
 		Builder builder = builder()
 			.basePackage(this.basePackage)
@@ -206,7 +208,7 @@ public class ClassLoader implements Buildable<ClassLoader.Builder, ClassLoader> 
 	/**
 	 * A builder for constructing a {@link ClassLoader}.
 	 */
-	public static final class Builder implements org.skriptlang.skript.util.Builder<Builder, ClassLoader> {
+	public static final class Builder {
 
 		private String basePackage = "";
 		private final Collection<String> subPackages = new HashSet<>();
@@ -323,20 +325,6 @@ public class ClassLoader implements Buildable<ClassLoader.Builder, ClassLoader> 
 		@Contract("-> new")
 		public ClassLoader build() {
 			return new ClassLoader(basePackage, subPackages, filter, initialize, deep, forEachClass);
-		}
-
-		@Override
-		public void applyTo(Builder builder) {
-			builder.basePackage(basePackage)
-				.addSubPackages(subPackages)
-				.initialize(initialize)
-				.deep(deep);
-			if (filter != null) {
-				builder.filter(filter);
-			}
-			if (forEachClass != null) {
-				builder.forEachClass(forEachClass);
-			}
 		}
 
 	}
