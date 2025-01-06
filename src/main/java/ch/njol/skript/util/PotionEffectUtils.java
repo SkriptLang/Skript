@@ -335,7 +335,8 @@ public abstract class PotionEffectUtils {
 		return effects;
 	}
 
-	/** Legacy class info for PotionEffectType (pre-registry)
+	/**
+	 * Legacy class info for PotionEffectType (pre-registry)
 	 *
 	 * @return ClassInfo for PotionEffeectType
 	 */
