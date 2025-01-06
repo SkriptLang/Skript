@@ -3,6 +3,7 @@ package ch.njol.skript.bukkitutil;
 import ch.njol.skript.Skript;
 import org.bukkit.Registry;
 import org.bukkit.potion.PotionEffectType;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Utility class with methods pertaining to Bukkit API
@@ -26,7 +27,7 @@ public class BukkitUtils {
 	 * @return PotionEffectType Registry
 	 */
 	@SuppressWarnings("NullableProblems")
-	public static Registry<PotionEffectType> getPotionEffectTypeRegistry() {
+	public static @Nullable Registry<PotionEffectType> getPotionEffectTypeRegistry() {
 		if (registryExists("MOB_EFFECT")) { // Paper (1.21.4)
 			return Registry.MOB_EFFECT;
 		} else if (registryExists("EFFECT")) { // Bukkit (1.21.x)
