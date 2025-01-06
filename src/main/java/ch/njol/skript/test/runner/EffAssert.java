@@ -89,7 +89,7 @@ public class EffAssert extends Effect {
 			return this.getNext();
 
 		if (condition.check(event) == shouldFail) {
-			String message = errorMsg.getOptionalSingle(event).orElse(DEFAULT_ERROR);
+			String message = errorMsg != null ? errorMsg.getOptionalSingle(event).orElse(DEFAULT_ERROR) : DEFAULT_ERROR;
 
 			// generate expected/got message if possible
 			String expectedMessage = "";
