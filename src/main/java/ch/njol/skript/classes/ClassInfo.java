@@ -4,10 +4,10 @@ import ch.njol.skript.SkriptAPIException;
 import ch.njol.skript.expressions.base.EventValueExpression;
 import ch.njol.skript.lang.Debuggable;
 import ch.njol.skript.lang.DefaultExpression;
+import ch.njol.skript.lang.util.DefaultConvertedExpression;
 import ch.njol.skript.lang.util.SimpleLiteral;
 import ch.njol.skript.localization.Noun;
 import ch.njol.util.coll.iterator.ArrayIterator;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -21,55 +21,43 @@ import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
 /**
- * @author Peter Güttinger
  * @param <T> The class this info is for
  */
-@SuppressFBWarnings("DM_STRING_VOID_CTOR")
 public class ClassInfo<T> implements Debuggable {
 
 	private final Class<T> c;
 	private final String codeName;
 	private final Noun name;
 
-	@Nullable
-	private DefaultExpression<T> defaultExpression = null;
+	private @Nullable Supplier<DefaultExpression<T>> defaultExpressionProvider;
+	private transient @Nullable DefaultExpression<T> defaultExpression;
 
-	@Nullable
-	private Parser<? extends T> parser = null;
+	private @Nullable Parser<? extends T> parser;
 
-	@Nullable
-	private Cloner<T> cloner = null;
+	private @Nullable Cloner<T> cloner;
 
-	Pattern @Nullable [] userInputPatterns = null;
-  
-	@Nullable
-	private Changer<? super T> changer = null;
+	Pattern @Nullable [] userInputPatterns;
 
-	@Nullable
-	private Supplier<Iterator<T>> supplier = null;
+	private @Nullable Changer<? super T> changer;
 
-	@Nullable
-	private Serializer<? super T> serializer = null;
-	@Nullable
-	private Class<?> serializeAs = null;
+	private @Nullable Supplier<Iterator<T>> supplier;
 
-	@Nullable
-	private Class<?> mathRelativeType = null;
+	private @Nullable Serializer<? super T> serializer;
+	private @Nullable Class<?> serializeAs;
 
-	@Nullable
-	private String docName = null;
-	private String @Nullable [] description = null;
-	private String @Nullable [] usage = null;
-	private String @Nullable [] examples = null;
-	@Nullable
-	private String since = null;
-	private String @Nullable [] requiredPlugins = null;
-	
+	private @Nullable Class<?> mathRelativeType;
+
+	private @Nullable String docName;
+	private String @Nullable [] description;
+	private String @Nullable [] usage;
+	private String @Nullable [] examples;
+	private @Nullable String since;
+	private String @Nullable [] requiredPlugins;
+
 	/**
 	 * Overrides documentation id assigned from class name.
 	 */
-	@Nullable
-	private String documentationId = null;
+	private @Nullable String documentationId;
 
 	/**
 	 * @param c The class
@@ -124,16 +112,35 @@ public class ClassInfo<T> implements Debuggable {
 	}
 
 	/**
+	 * @param defaultExpressionProvider A supplier for the default expression
+	 * @see EventValueExpression
+	 * @see SimpleLiteral
+	 */
+	protected ClassInfo<T> defaultExpression(Supplier<DefaultExpression<T>> defaultExpressionProvider) {
+		assert this.defaultExpressionProvider == null;
+		this.defaultExpressionProvider = defaultExpressionProvider;
+		return this;
+	}
+
+	/**
 	 * @param defaultExpression The default (event) value of this class or null if not applicable
 	 * @see EventValueExpression
 	 * @see SimpleLiteral
 	 */
 	public ClassInfo<T> defaultExpression(final DefaultExpression<T> defaultExpression) {
-		assert this.defaultExpression == null;
 		if (!defaultExpression.isDefault())
 			throw new IllegalArgumentException("defaultExpression.isDefault() must return true for the default expression of a class");
-		this.defaultExpression = defaultExpression;
-		return this;
+		return this.defaultExpression(() -> defaultExpression);
+	}
+
+	/**
+	 * @param defaultExpression The default expression
+	 * @param convertedType The type to convert this expression to, when it is used
+	 * @see EventValueExpression
+	 * @see SimpleLiteral
+	 */
+	public <F> ClassInfo<T> defaultExpression(DefaultExpression<F> defaultExpression, Class<T> convertedType) {
+		return this.defaultExpression(() -> new DefaultConvertedExpression<>(defaultExpression, convertedType));
 	}
 
 
@@ -291,18 +298,18 @@ public class ClassInfo<T> implements Debuggable {
 		return codeName;
 	}
 
-	@Nullable
-	public DefaultExpression<T> getDefaultExpression() {
+	public @Nullable DefaultExpression<T> getDefaultExpression() {
+		if (defaultExpression == null && defaultExpressionProvider != null) {
+			defaultExpression = defaultExpressionProvider.get();
+		}
 		return defaultExpression;
 	}
 
-	@Nullable
-	public Parser<? extends T> getParser() {
+	public @Nullable Parser<? extends T> getParser() {
 		return parser;
 	}
 
-	@Nullable
-	public Cloner<? extends T> getCloner() {
+	public @Nullable Cloner<? extends T> getCloner() {
 		return cloner;
 	}
 
@@ -335,55 +342,45 @@ public class ClassInfo<T> implements Debuggable {
 		return false;
 	}
 
-	@Nullable
-	public Changer<? super T> getChanger() {
+	public @Nullable Changer<? super T> getChanger() {
 		return changer;
 	}
 
-	@Nullable
-	public Supplier<Iterator<T>> getSupplier() {
+	public @Nullable Supplier<Iterator<T>> getSupplier() {
 		if (supplier == null && c.isEnum())
 			supplier = () -> new ArrayIterator<>(c.getEnumConstants());
 		return supplier;
 	}
 
-	@Nullable
-	public Serializer<? super T> getSerializer() {
+	public @Nullable Serializer<? super T> getSerializer() {
 		return serializer;
 	}
 
-	@Nullable
-	public Class<?> getSerializeAs() {
+	public @Nullable Class<?> getSerializeAs() {
 		return serializeAs;
 	}
 
-	@Nullable
-	public String[] getDescription() {
+	public String @Nullable [] getDescription() {
 		return description;
 	}
 
-	@Nullable
-	public String[] getUsage() {
+	public String @Nullable [] getUsage() {
 		return usage;
 	}
 
-	@Nullable
-	public String[] getExamples() {
+	public String @Nullable [] getExamples() {
 		return examples;
 	}
 
-	@Nullable
-	public String getSince() {
+	public @Nullable String getSince() {
 		return since;
 	}
 
-	@Nullable
-	public String getDocName() {
+	public @Nullable String getDocName() {
 		return docName;
 	}
 
-	@Nullable
-	public String[] getRequiredPlugins() {
+	public String @Nullable [] getRequiredPlugins() {
 		return requiredPlugins;
 	}
 
@@ -393,8 +390,7 @@ public class ClassInfo<T> implements Debuggable {
 	 * name of {@code #getC()}.
 	 * @return Documentation id override, or null.
 	 */
-	@Nullable
-	public String getDocumentationID() {
+	public @Nullable String getDocumentationID() {
 		return documentationId;
 	}
 
@@ -404,8 +400,7 @@ public class ClassInfo<T> implements Debuggable {
 
 	// === ORDERING ===
 
-	@Nullable
-	private Set<String> before;
+	private @Nullable Set<String> before;
 	private final Set<String> after = new HashSet<>();
 
 	/**
@@ -444,8 +439,7 @@ public class ClassInfo<T> implements Debuggable {
 	/**
 	 * @return Set of classes that should be after this one. May return null.
 	 */
-	@Nullable
-	public Set<String> before() {
+	public @Nullable Set<String> before() {
 		return before;
 	}
 

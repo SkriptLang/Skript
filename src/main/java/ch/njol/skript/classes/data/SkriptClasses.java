@@ -12,12 +12,9 @@ import ch.njol.skript.config.Node;
 import ch.njol.skript.expressions.base.EventValueExpression;
 import ch.njol.skript.lang.ParseContext;
 import ch.njol.skript.lang.function.DynamicFunctionReference;
+import ch.njol.skript.lang.util.DefaultConvertedExpression;
 import ch.njol.skript.lang.util.SimpleLiteral;
-import ch.njol.skript.lang.util.common.AnyAmount;
-import ch.njol.skript.lang.util.common.AnyContains;
-import ch.njol.skript.lang.util.common.AnyNamed;
-import ch.njol.skript.lang.util.common.AnyValued;
-import ch.njol.skript.lang.util.common.AnyReceiver;
+import ch.njol.skript.lang.util.common.*;
 import ch.njol.skript.localization.Noun;
 import ch.njol.skript.localization.RegexMessage;
 import ch.njol.skript.registrations.Classes;
@@ -899,11 +896,11 @@ public class SkriptClasses {
 			.description("Something that can receive messages, e.g. a player, the console.")
 			.usage("")
 			.examples("send \"hello\" to player")
-			.defaultExpression(new EventValueExpression<>(CommandSender.class).getConvertedExpression(AnyReceiver.class))
+			.defaultExpression(new EventValueExpression<>(CommandSender.class), AnyReceiver.class)
 			.since("INSERT VERSION")
 		);
 
-		Classes.registerClass(new AnyInfo<>(AnyReceiver.class, "sender")
+		Classes.registerClass(new AnyInfo<>(AnySender.class, "sender")
 			.name("Any Sender")
 			.description("Something that can send messages, e.g. a player.")
 			.usage("")
