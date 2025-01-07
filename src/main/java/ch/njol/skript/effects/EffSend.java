@@ -46,7 +46,7 @@ import java.util.UUID;
 @Since("1.0, 2.2-dev26 (advanced features), 2.5.2 (optional sender), 2.6 (sending objects)")
 public class EffSend extends Effect {
 
-	static { // todo defaultexpressions
+	static {
 		Skript.registerEffect(EffSend.class,
 			"(message|send [message[s]]) %objects% [to %receivers%] [from %-senders%]"
 		);
