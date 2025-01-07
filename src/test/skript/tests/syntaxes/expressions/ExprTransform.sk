@@ -1,0 +1,14 @@
+test "transform expression":
+	set {_a::*} to integers between -10 and 10
+	assert {_a::*} transformed using (input + 2) is integers between -8 and 12 with "failed to transform with +2"
+
+	assert integers between -10 and 10 transformed using (input + 2) is integers between -8 and 12 with "failed to transform with +2"
+
+	set {_a::*} to integers between -10 and 10
+	loop {_a::*} transformed using ("%input index%"):
+		assert loop-string is "%loop-counter%" with "failed to transform to loop-index"
+
+	set {_a::*} to "a", "b", and "c"
+	assert {_a::*} transformed using [1 and 2] is 1, 2, 1, 2, 1 and 2 with "failed to transform with constant plural value"
+
+	assert 2, 7, 4, 2, and 1 transformed using (length of input) is not set with "length of integers caused issues"

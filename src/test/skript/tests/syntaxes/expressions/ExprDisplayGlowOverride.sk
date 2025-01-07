@@ -1,0 +1,21 @@
+test "display glow color override":
+
+	spawn block display at spawn of world "world":
+		set {_e::1} to entity
+	spawn item display at spawn of world "world":
+		set {_e::2} to entity
+	spawn text display at spawn of world "world":
+		set {_e::3} to entity
+
+	assert glow colour override of {_e::*} is not set with "default override was set"
+
+	set glow colour override of {_e::*} to blue
+	assert glow colour override of {_e::*} is blue with "failed to set to colour"
+
+	set glow colour override of {_e::*} to rgb(1, 2, 3)
+	assert glow colour override of {_e::*} is rgb(1, 2, 3) with "failed to set to rgb colour"
+
+	reset glow colour override of {_e::*}
+	assert glow colour override of {_e::*} is not set with "failed to reset override"
+
+	delete entities within {_e::*}

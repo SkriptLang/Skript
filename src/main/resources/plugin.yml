@@ -29,7 +29,7 @@ website: https://skriptlang.org
 main: ch.njol.skript.Skript
 
 version: @version@
-api-version: 1.13
+api-version: 1.19
 
 commands:
     skript:
@@ -45,14 +45,19 @@ permissions:
         default: false
         children:
             skript.effectcommands: true
+            skript.reloadnotify: true
             skript.admin: true
+            skript.see_runtime_errors: true
             #skript.config: true
     skript.effectcommands:
         default: false
         description: Allows to use effects as commands, e.g. '!set health to 10'
+    skript.reloadnotify:
+        default: false
+        description: Notifies when others are reloading script files.
     skript.admin:
         default: op
-        description: Allows to use administrative commands and to recieve notifications of new versions.
-#    skript.config:
-#        description: allows to modify the configuration files via commands
-#        default: false
+        description: Allows use of administrative commands and receiving notifications of new versions.
+    skript.see_runtime_errors:
+        default: op
+        description: Shows notifications in chat when runtime errors occur.
