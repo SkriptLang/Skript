@@ -25,17 +25,16 @@ public class EffAssert extends Effect {
 	static {
 		if (TestMode.ENABLED)
 			Skript.registerEffect(EffAssert.class,
-				"assert <.+> [(1:to fail)]",
 				"assert <.+> [(1:to fail)] with [error] %string%",
-				"assert <.+> [(1:to fail)] with [error] %string%, expected [value] %object%, [and] (received|got) " +
-					"[value] %object%");
+				"assert <.+> [(1:to fail)] with [error] %string%, expected [value] %object%, [and] (received|got) [value] %object%",
+				"assert <.+> [(1:to fail)]");
 	}
 
 	private @Nullable Condition condition;
 	private Script script;
 	private int line;
 
-	private Expression<String> errorMsg;
+	private @Nullable Expression<String> errorMsg;
 	private @Nullable Expression<?> expected;
 	private @Nullable Expression<?> got;
 	private boolean shouldFail;
@@ -49,7 +48,7 @@ public class EffAssert extends Effect {
 		}
 
 		String conditionString = parseResult.regexes.get(0).group();
-		if (matchedPattern > 0)
+		if (matchedPattern < 2)
 			this.errorMsg = (Expression<String>) exprs[0];
 		boolean canInit = true;
 		if (exprs.length > 1) {
@@ -89,7 +88,7 @@ public class EffAssert extends Effect {
 			return this.getNext();
 
 		if (condition.check(event) == shouldFail) {
-			String message = errorMsg.getOptionalSingle(event).orElse(DEFAULT_ERROR);
+			String message = errorMsg != null ? errorMsg.getOptionalSingle(event).orElse(DEFAULT_ERROR) : DEFAULT_ERROR;
 
 			// generate expected/got message if possible
 			String expectedMessage = "";
