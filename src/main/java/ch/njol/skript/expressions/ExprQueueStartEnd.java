@@ -31,7 +31,7 @@ import java.util.Arrays;
 	broadcast the first element of {queue} # foo
 	broadcast the first element of {queue} # hello
 	# queue is now empty""")
-@Since("INSERT VERSION (experimental)")
+@Since("2.10 (experimental)")
 public class ExprQueueStartEnd extends SimplePropertyExpression<SkriptQueue, Object> {
 
 	static {

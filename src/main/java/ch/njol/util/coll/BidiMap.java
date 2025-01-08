@@ -4,8 +4,9 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * @author Peter Güttinger
+ * @deprecated Use {@link com.google.common.collect.BiMap}
  */
+@Deprecated(forRemoval = true)
 public interface BidiMap<T1, T2> extends Map<T1, T2> {
 	
 	public BidiMap<T2, T1> getReverseView();

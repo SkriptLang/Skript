@@ -23,7 +23,7 @@ import org.jetbrains.annotations.Nullable;
 	"on right click:",
 		"\tsend \"%event-entity% has been in love for %love time of event-entity% more than you!\" to player"
 })
-@Since("INSERT VERSION")
+@Since("2.10")
 public class ExprLoveTime extends SimplePropertyExpression<LivingEntity, Timespan> {
 
 	static {

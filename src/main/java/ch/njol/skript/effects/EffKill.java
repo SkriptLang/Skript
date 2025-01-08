@@ -25,7 +25,7 @@ import org.jetbrains.annotations.Nullable;
 @Examples({"kill the player",
 		"kill all creepers in the player's world",
 		"kill all endermen, witches and bats"})
-@Since("1.0, INSERT VERSION (ignoring totem of undying)")
+@Since("1.0, 2.10 (ignoring totem of undying)")
 public class EffKill extends Effect {
 
 	private static final boolean SUPPORTS_DAMAGE_SOURCE = Skript.classExists("org.bukkit.damage.DamageSource");

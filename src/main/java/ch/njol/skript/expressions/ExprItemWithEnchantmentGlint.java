@@ -20,7 +20,7 @@ import ch.njol.util.Kleenean;
 	"set {_item without glint} to diamond without enchantment glint"
 })
 @RequiredPlugins("Spigot 1.20.5+")
-@Since("INSERT VERSION")
+@Since("2.10")
 public class ExprItemWithEnchantmentGlint extends PropertyExpression<ItemType, ItemType> {
 
 	static {

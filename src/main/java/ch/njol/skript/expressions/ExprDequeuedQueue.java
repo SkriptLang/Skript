@@ -29,7 +29,7 @@ import org.skriptlang.skript.lang.util.SkriptQueue;
 		add "hello" and "there" to {queue}
 		set {list::*} to dequeued {queue}"""
 })
-@Since("INSERT VERSION (experimental)")
+@Since("2.10 (experimental)")
 public class ExprDequeuedQueue extends SimpleExpression<Object> {
 
 	static {

@@ -48,7 +48,7 @@ import java.util.function.Consumer;
 		"\tset billboard of event-display to center # allows the display to rotate around the center axis"
 })
 @RequiredPlugins("Minecraft 1.20.2+ (entity snapshots)")
-@Since("1.0, 2.6.1 (with section), 2.8.6 (dropped items), INSERT VERSION (entity snapshots)")
+@Since("1.0, 2.6.1 (with section), 2.8.6 (dropped items), 2.10 (entity snapshots)")
 public class EffSecSpawn extends EffectSection {
 
 	public static class SpawnEvent extends Event {

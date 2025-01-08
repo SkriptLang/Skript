@@ -22,7 +22,7 @@ import org.jetbrains.annotations.Nullable;
 	"make command block {_block} conditional",
 	"make command block {_block} unconditional if {_block} is conditional"
 })
-@Since("INSERT VERSION")
+@Since("2.10")
 public class EffCommandBlockConditional extends Effect {
 
 	static {

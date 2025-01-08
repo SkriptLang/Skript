@@ -42,7 +42,7 @@ import java.util.Iterator;
 		add "world" to {queue}
 		broadcast the first 2 elements of {queue} # removes 'hello', 'world'"""
 })
-@Since("INSERT VERSION (experimental)")
+@Since("2.10 (experimental)")
 public class ExprQueue extends SimpleExpression<SkriptQueue> {
 
 	static {

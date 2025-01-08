@@ -21,7 +21,7 @@ import org.skriptlang.skript.lang.structure.Structure;
 @Examples({
 	"aliases:",
 	"\tblacklisted items = TNT, bedrock, obsidian, mob spawner, lava, lava bucket",
-	"\tshiny swords = gold sword, iron sword, diamond sword"
+	"\tshiny swords = golden sword, iron sword, diamond sword"
 })
 @Since("1.0")
 public class StructAliases extends Structure {

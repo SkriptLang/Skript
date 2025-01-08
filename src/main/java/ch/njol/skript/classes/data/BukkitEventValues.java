@@ -4,7 +4,6 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.bukkitutil.InventoryUtils;
 import ch.njol.skript.command.CommandEvent;
-import ch.njol.skript.command.ScriptCommandEvent;
 import ch.njol.skript.events.bukkit.ScriptEvent;
 import ch.njol.skript.events.bukkit.SkriptStartEvent;
 import ch.njol.skript.events.bukkit.SkriptStopEvent;
@@ -137,12 +136,6 @@ public final class BukkitEventValues {
 		EventValues.registerEventValue(BlockBreakEvent.class, Player.class, BlockBreakEvent::getPlayer);
 		EventValues.registerEventValue(BlockBreakEvent.class, Block.class, BlockEvent::getBlock, TIME_PAST);
 		EventValues.registerEventValue(BlockBreakEvent.class, Block.class, event -> new DelayedChangeBlock(event.getBlock()));
-		EventValues.registerEventValue(BlockBreakEvent.class, Block.class, event -> {
-			BlockState state = event.getBlock().getState();
-			state.setType(state.getType() == Material.ICE ? Material.WATER : Material.AIR);
-			state.setRawData((byte) 0);
-			return new BlockStateBlock(state, true);
-		}, TIME_FUTURE);
 		// BlockFromToEvent
 		EventValues.registerEventValue(BlockFromToEvent.class, Block.class, BlockFromToEvent::getToBlock, TIME_FUTURE);
 		// BlockIgniteEvent
@@ -451,7 +444,8 @@ public final class BukkitEventValues {
 			return inventories.toArray(new Inventory[0]);
 		});
 		// PrepareAnvilEvent
-		EventValues.registerEventValue(PrepareAnvilEvent.class, ItemStack.class, PrepareResultEvent::getResult);
+		if (Skript.classExists("com.destroystokyo.paper.event.inventory.PrepareResultEvent"))
+			EventValues.registerEventValue(PrepareAnvilEvent.class, ItemStack.class, PrepareResultEvent::getResult);
 		EventValues.registerEventValue(PrepareAnvilEvent.class, Inventory.class, PrepareAnvilEvent::getInventory);
 		// AnvilDamagedEvent
 		if (Skript.classExists("com.destroystokyo.paper.event.block.AnvilDamagedEvent")) {

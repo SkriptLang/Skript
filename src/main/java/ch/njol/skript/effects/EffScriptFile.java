@@ -36,7 +36,7 @@ import java.util.Set;
 	"set {_script} to the script \"MyScript.sk\"",
 	"reload {_script}"
 })
-@Since("2.4, INSERT VERSION (unloading)")
+@Since("2.4, 2.10 (unloading)")
 public class EffScriptFile extends Effect {
 
 	static {

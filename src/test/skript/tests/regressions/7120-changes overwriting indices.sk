@@ -1,9 +1,9 @@
 test "EffEnchant overwriting var indices":
 	set {_test::1} to diamond sword
-	set {_test::a} to gold sword
+	set {_test::a} to golden sword
 	set {_test::hello world} to block at spawn of world "world"
 	enchant {_test::*} with sharpness 1
-	assert {_test::*} is diamond sword of sharpness 1, gold sword of sharpness 1, and block at spawn of world "world" with "failed to enchant items"
+	assert {_test::*} is diamond sword of sharpness 1, golden sword of sharpness 1, and block at spawn of world "world" with "failed to enchant items"
 	assert indices of {_test::*} is "1", "a", and "hello world" with "enchanting modified indices"
 
 test "EffReplace overwriting var indices":
