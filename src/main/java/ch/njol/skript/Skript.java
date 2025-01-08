@@ -790,7 +790,7 @@ public final class Skript extends JavaPlugin implements Listener {
 								Bukkit.getServer().shutdown();
 							}, shutdownDelay.get());
 						});
-					}, 20); // 20 ticks is necessary on 1.19.4 to allow the server time to properly load/start ticking, for some reason
+					}, 50); // 50 ticks is necessary on 1.19.4/1.20.4 to allow the server time to properly load/start ticking, for some reason
 				}
 
 				Skript.metrics = new Metrics(Skript.getInstance(), 722); // 722 is our bStats plugin ID

@@ -64,7 +64,7 @@ public class JSONGenerator extends DocumentationGenerator {
 		syntaxJsonObject.addProperty("name", nameAnnotation.value());
 
 		Since sinceAnnotation = syntaxClass.getAnnotation(Since.class);
-		syntaxJsonObject.addProperty("since", sinceAnnotation == null ? null : sinceAnnotation.value());
+		syntaxJsonObject.add("since", sinceAnnotation == null ? null : convertToJsonArray(sinceAnnotation.value()));
 
 		Description descriptionAnnotation = syntaxClass.getAnnotation(Description.class);
 		if (descriptionAnnotation != null) {
