@@ -18,15 +18,17 @@ import org.jetbrains.annotations.UnknownNullability;
 import java.util.List;
 
 @Name("Continue")
-@Description("Moves the loop to the next iteration. You may also continue an outer loop from an inner one." +
-	" The loops are labelled from 1 until the current loop, starting with the outermost one.")
+@Description({
+	"Moves the loop to the next iteration. You may also continue an outer loop from an inner one.",
+	"The loops are labelled from 1 until the current loop, starting with the outermost one."
+})
 @Examples({
 	"# Broadcast online moderators",
 	"loop all players:",
 		"\tif loop-value does not have permission \"moderator\":",
 			"\t\tcontinue # filter out non moderators",
 		"\tbroadcast \"%loop-player% is a moderator!\" # Only moderators get broadcast",
-	" ",
+	"",
 	"# Game starting counter",
 	"set {_counter} to 11",
 	"while {_counter} > 0:",
@@ -46,12 +48,9 @@ public class EffContinue extends Effect {
 		);
 	}
 
-	// Used for toString
-	private int level;
-
 	private @UnknownNullability LoopSection loop;
 	private @UnknownNullability List<SectionExitHandler> sectionsToExit;
-	private int breakLevels;
+	private int level, breakLevels; // level used for toString
 
 	@Override
     public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {

@@ -1,12 +1,5 @@
 package ch.njol.skript.effects;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.regex.Pattern;
-
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
@@ -35,6 +28,13 @@ import org.bukkit.event.Event;
 import org.bukkit.event.server.BroadcastMessageEvent;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.regex.Pattern;
+
 @Name("Broadcast")
 @Description("Broadcasts a message to the server.")
 @Examples({
@@ -50,12 +50,9 @@ public class EffBroadcast extends Effect {
 		Skript.registerEffect(EffBroadcast.class, "broadcast %objects% [(to|in) %-worlds%]");
 	}
 
-	@SuppressWarnings("NotNullFieldNotInitialized")
 	private Expression<?> messageExpr;
-	@SuppressWarnings("NotNullFieldNotInitialized")
 	private Expression<?>[] messages;
-	@Nullable
-	private Expression<World> worlds;
+	private @Nullable Expression<World> worlds;
 
 	@Override
 	@SuppressWarnings("unchecked")

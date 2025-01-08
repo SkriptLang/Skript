@@ -1,13 +1,5 @@
 package ch.njol.skript.effects;
 
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.WindCharge;
-import org.bukkit.entity.minecart.ExplosiveMinecart;
-import org.bukkit.entity.Firework;
-import org.bukkit.entity.Creeper;
-import org.bukkit.entity.TNTPrimed;
-import org.bukkit.event.Event;
-import org.jetbrains.annotations.Nullable;
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
@@ -17,9 +9,20 @@ import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
+import org.bukkit.entity.Creeper;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.Firework;
+import org.bukkit.entity.TNTPrimed;
+import org.bukkit.entity.WindCharge;
+import org.bukkit.entity.minecart.ExplosiveMinecart;
+import org.bukkit.event.Event;
+import org.jetbrains.annotations.Nullable;
 
 @Name("Detonate Entities")
-@Description("Immediately detonates an entity. Accepted entities are fireworks, TNT minecarts, primed TNT, wind charges and creepers.")
+@Description({
+	"Immediately detonates an entity.",
+	"Accepted entities are fireworks, TNT minecarts, primed TNT, wind charges and creepers."
+})
 @Examples("detonate last launched firework")
 @Since("2.10")
 public class EffDetonate extends Effect {

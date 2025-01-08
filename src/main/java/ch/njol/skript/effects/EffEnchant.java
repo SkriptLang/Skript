@@ -19,25 +19,22 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Function;
 
-/**
- * @author Peter Güttinger
- */
 @Name("Enchant/Disenchant")
 @Description("Enchant or disenchant an existing item.")
-@Examples({"enchant the player's tool with sharpness 5",
-		"disenchant the player's tool"})
+@Examples({
+	"enchant the player's tool with sharpness 5",
+	"disenchant the player's tool"
+})
 @Since("2.0")
 public class EffEnchant extends Effect {
 	static {
 		Skript.registerEffect(EffEnchant.class,
-				"enchant %~itemtypes% with %enchantmenttypes%",
-				"disenchant %~itemtypes%");
+			"enchant %~itemtypes% with %enchantmenttypes%",
+			"disenchant %~itemtypes%");
 	}
-	
-	@SuppressWarnings("null")
+
 	private Expression<ItemType> items;
-	@Nullable
-	private Expression<EnchantmentType> enchantments;
+	private @Nullable Expression<EnchantmentType> enchantments;
 	
 	@Override
 	@SuppressWarnings("unchecked")

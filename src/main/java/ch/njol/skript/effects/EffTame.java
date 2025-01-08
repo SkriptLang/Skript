@@ -41,8 +41,8 @@ public class EffTame extends Effect {
 	@Override
 	protected void execute(Event event) {
 		for (Entity entity : entities.getArray(event)) {
-			if (entity instanceof Tameable)
-				((Tameable) entity).setTamed(tame);
+			if (entity instanceof Tameable tameable)
+				tameable.setTamed(tame);
 		}
 	}
 

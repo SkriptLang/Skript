@@ -1,9 +1,5 @@
 package ch.njol.skript.effects;
 
-import org.bukkit.entity.Player;
-import org.bukkit.event.Event;
-import org.jetbrains.annotations.Nullable;
-
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
@@ -17,6 +13,9 @@ import ch.njol.skript.util.chat.ChatMessages;
 import ch.njol.util.Kleenean;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.BaseComponent;
+import org.bukkit.entity.Player;
+import org.bukkit.event.Event;
+import org.jetbrains.annotations.Nullable;
 
 @Name("Action Bar")
 @Description("Sends an action bar message to the given player(s).")
@@ -29,7 +28,6 @@ public class EffActionBar extends Effect {
 	}
 
 	private Expression<String> message;
-
 	private Expression<Player> recipients;
 
 	@Override

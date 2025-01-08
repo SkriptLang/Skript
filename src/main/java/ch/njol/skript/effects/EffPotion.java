@@ -1,11 +1,5 @@
 package ch.njol.skript.effects;
 
-import org.bukkit.entity.LivingEntity;
-import org.bukkit.event.Event;
-import org.bukkit.potion.PotionEffect;
-import org.bukkit.potion.PotionEffectType;
-import org.jetbrains.annotations.Nullable;
-
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
@@ -17,6 +11,11 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.util.PotionEffectUtils;
 import ch.njol.skript.util.Timespan;
 import ch.njol.util.Kleenean;
+import org.bukkit.entity.LivingEntity;
+import org.bukkit.event.Event;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
+import org.jetbrains.annotations.Nullable;
 
 @Name("Potion Effects")
 @Description("Apply or remove potion effects to/from entities.")
@@ -31,18 +30,19 @@ import ch.njol.util.Kleenean;
 	"apply potion effects of player's tool to player",
 	"apply haste potion of tier 3 without any particles whilst hiding the potion icon to the player # Hide potions"
 })
-@Since(
-	"2.0, 2.2-dev27 (ambient and particle-less potion effects), " + 
-	"2.5 (replacing existing effect), 2.5.2 (potion effects), " +
+@Since({
+	"2.0",
+	"2.2-dev27 (ambient and particle-less potion effects)",
+	"2.5 (replacing existing effect), 2.5.2 (potion effects)",
 	"2.7 (icon and infinite)"
-)
+})
 public class EffPotion extends Effect {
 
 	static {
 		Skript.registerEffect(EffPotion.class,
-				"apply %potioneffects% to %livingentities%",
-				"apply infinite [:ambient] [potion of] %potioneffecttypes% [potion] [[[of] tier] %-number%] [noparticles:without [any] particles] [icon:(whilst hiding [the]|without (the|a)) [potion] icon] to %livingentities% [replacing:replacing [the] existing effect]",
-				"apply [:ambient] [potion of] %potioneffecttypes% [potion] [[[of] tier] %-number%] [noparticles:without [any] particles] [icon:(whilst hiding [the]|without (the|a)) [potion] icon] to %livingentities% [for %-timespan%] [replacing:replacing [the] existing effect]"
+			"apply %potioneffects% to %livingentities%",
+			"apply infinite [:ambient] [potion of] %potioneffecttypes% [potion] [[[of] tier] %-number%] [noparticles:without [any] particles] [icon:(whilst hiding [the]|without (the|a)) [potion] icon] to %livingentities% [replacing:replacing [the] existing effect]",
+			"apply [:ambient] [potion of] %potioneffecttypes% [potion] [[[of] tier] %-number%] [noparticles:without [any] particles] [icon:(whilst hiding [the]|without (the|a)) [potion] icon] to %livingentities% [for %-timespan%] [replacing:replacing [the] existing effect]"
 		);
 	}
 
@@ -54,11 +54,8 @@ public class EffPotion extends Effect {
 	private Expression<LivingEntity> entities;
 	private Expression<PotionEffect> effects;
 
-	@Nullable
-	private Expression<Timespan> duration;
-
-	@Nullable
-	private Expression<Number> tier;
+	private @Nullable Expression<Timespan> duration;
+	private @Nullable Expression<Number> tier;
 
 	private boolean replaceExisting; // Replace the existing potion if present.
 	private boolean potionEffect; // PotionEffects rather than PotionEffectTypes.

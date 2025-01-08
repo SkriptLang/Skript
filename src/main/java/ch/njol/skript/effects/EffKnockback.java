@@ -1,11 +1,7 @@
 package ch.njol.skript.effects;
 
 import ch.njol.skript.Skript;
-import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
-import ch.njol.skript.doc.Name;
-import ch.njol.skript.doc.RequiredPlugins;
-import ch.njol.skript.doc.Since;
+import ch.njol.skript.doc.*;
 import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
@@ -17,7 +13,10 @@ import org.bukkit.util.Vector;
 import org.jetbrains.annotations.Nullable;
 
 @Name("Knockback")
-@Description("Apply the same velocity as a knockback to living entities in a direction. Mechanics such as knockback resistance will be factored in.")
+@Description({
+	"Apply the same velocity as a knockback to living entities in a direction.",
+	"Mechanics such as knockback resistance will be factored in."
+})
 @Examples({
 	"knockback player north",
 	"knock victim (vector from attacker to victim) with strength 10"
@@ -33,10 +32,10 @@ public class EffKnockback extends Effect {
 
 	private Expression<LivingEntity> entities;
 	private Expression<Direction> direction;
-	@Nullable
-	private Expression<Number> strength;
+	private @Nullable Expression<Number> strength;
 
 	@Override
+	@SuppressWarnings("unchecked")
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		entities = (Expression<LivingEntity>) exprs[0];
 		direction = (Expression<Direction>) exprs[1];

@@ -23,12 +23,11 @@ public class EffFeed extends Effect {
         Skript.registerEffect(EffFeed.class, "feed [the] %players% [by %-number% [beef[s]]]");
     }
 
-    @SuppressWarnings("null")
     private Expression<Player> players;
-    @Nullable
-    private Expression<Number> beefs;
+    private @Nullable Expression<Number> beefs;
 
     @Override
+	@SuppressWarnings("unchecked")
     public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
         players = (Expression<Player>) exprs[0];
         beefs = (Expression<Number>) exprs[1];
@@ -36,23 +35,23 @@ public class EffFeed extends Effect {
     }
 
     @Override
-    protected void execute(Event e) {
+    protected void execute(Event event) {
         int level = 20;
 
         if (beefs != null) {
-            Number n = beefs.getSingle(e);
+            Number n = beefs.getSingle(event);
             if (n == null)
                 return;
             level = n.intValue();
         }
-        for (Player player : players.getArray(e)) {
+        for (Player player : players.getArray(event)) {
             player.setFoodLevel(player.getFoodLevel() + level);
         }
     }
 
     @Override
-    public String toString(@Nullable Event e, boolean debug) {
-        return "feed " + players.toString(e, debug) + (beefs != null ? " by " + beefs.toString(e, debug) : "");
+    public String toString(@Nullable Event event, boolean debug) {
+        return "feed " + players.toString(event, debug) + (beefs != null ? " by " + beefs.toString(event, debug) : "");
     }
 
 

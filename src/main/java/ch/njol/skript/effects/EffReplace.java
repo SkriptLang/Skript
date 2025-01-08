@@ -30,10 +30,10 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 @Name("Replace")
-@Description(
-	"Replaces all occurrences of a given text or regex with another text. Please note that you can only change " +
-		"variables and a few expressions, e.g. a <a href='/expressions.html#ExprMessage'>message</a> or a line of a sign."
-)
+@Description({
+	"Replaces all occurrences of a given text or regex with another text.",
+	"Please note that you can only change variables and a few expressions, e.g. a <a href='/expressions.html#ExprMessage'>message</a> or a line of a sign."
+})
 @Examples({
 	"replace \"<item>\" in {_msg} with \"[%name of player's tool%]\"",
 	"replace every \"&\" with \"§\" in line 1 of targeted block",
@@ -45,7 +45,12 @@ import java.util.regex.Pattern;
 	"",
 	"replace all stone and dirt in player's inventory and player's top inventory with diamond"
 })
-@Since("2.0, 2.2-dev24 (multiple strings, items in inventory), 2.5 (replace first, case sensitivity), 2.10 (regex)")
+@Since({
+	"2.0",
+	"2.2-dev24 (multiple strings, items in inventory)",
+	"2.5 (replace first, case sensitivity)",
+	"2.10 (regex)"
+})
 public class EffReplace extends Effect {
 
 	static {
@@ -65,8 +70,7 @@ public class EffReplace extends Effect {
 	private boolean caseSensitive = false;
 
 	@Override
-	public boolean init(Expression<?>[] expressions, int matchedPattern,
-						Kleenean isDelayed, ParseResult parseResult) {
+	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		haystack = expressions[1 + matchedPattern % 2];
 		replaceString = matchedPattern < 4;
 		replaceFirst = parseResult.hasTag("first");

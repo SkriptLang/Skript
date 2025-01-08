@@ -1,34 +1,32 @@
 package ch.njol.skript.effects;
 
+import ch.njol.skript.Skript;
+import ch.njol.skript.doc.*;
+import ch.njol.skript.lang.Effect;
+import ch.njol.skript.lang.Expression;
+import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.jetbrains.annotations.Nullable;
 
-import ch.njol.skript.Skript;
-import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Events;
-import ch.njol.skript.doc.Examples;
-import ch.njol.skript.doc.Name;
-import ch.njol.skript.doc.RequiredPlugins;
-import ch.njol.skript.doc.Since;
-import ch.njol.skript.lang.Effect;
-import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.SkriptParser.ParseResult;
-import ch.njol.util.Kleenean;
-
 @Name("Cancel Drops")
-@Description("Cancels drops of items or experiences in a death or block break event. " +
-		"Please note that this doesn't keep items or experiences of a dead player. If you want to do that, " +
-		"use the <a href='effects.html#EffKeepInventory'>Keep Inventory / Experience</a> effect.")
-@Examples({"on death of a zombie:",
+@Description({
+	"Cancels drops of items or experiences in a death or block break event.",
+	"Please note that this doesn't keep items or experiences of a dead player. If you want to do that, " +
+	"use the <a href='effects.html#EffKeepInventory'>Keep Inventory / Experience</a> effect."
+})
+@Examples({
+	"on death of a zombie:",
 		"\tif name of the entity is \"&cSpecial\":",
-		"\t\tcancel drops of items",
-		"",
-		"on break of a coal ore:",
-		"\tcancel the experience drops"})
+			"\t\tcancel drops of items",
+	"",
+	"on break of a coal ore:",
+		"\tcancel the experience drops"
+})
 @Since("2.4")
-@RequiredPlugins("1.12.2 or newer (cancelling item drops of blocks)")
+@RequiredPlugins("1.12.2+ (cancelling item drops of blocks)")
 @Events({"death", "break / mine"})
 public class EffCancelDrops extends Effect {
 
@@ -64,24 +62,22 @@ public class EffCancelDrops extends Effect {
 	}
 
 	@Override
-	protected void execute(Event e) {
-		if (e instanceof EntityDeathEvent) {
-			EntityDeathEvent event = (EntityDeathEvent) e;
+	protected void execute(Event event) {
+		if (event instanceof EntityDeathEvent deathEvent) {
 			if (cancelItems)
-				event.getDrops().clear();
+				deathEvent.getDrops().clear();
 			if (cancelExps)
-				event.setDroppedExp(0);
-		} else if (e instanceof BlockBreakEvent) {
-			BlockBreakEvent event = (BlockBreakEvent) e;
+				deathEvent.setDroppedExp(0);
+		} else if (event instanceof BlockBreakEvent blockBreakEvent) {
 			if (cancelItems)
-				event.setDropItems(false);
+				blockBreakEvent.setDropItems(false);
 			if (cancelExps)
-				event.setExpToDrop(0);
+				blockBreakEvent.setExpToDrop(0);
 		}
 	}
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
+	public String toString(@Nullable Event event, boolean debug) {
 		if (cancelItems && !cancelExps)
 			return "cancel the drops of items";
 		else if (cancelExps && !cancelItems)

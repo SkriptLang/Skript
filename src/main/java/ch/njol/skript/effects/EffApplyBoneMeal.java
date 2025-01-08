@@ -1,16 +1,11 @@
 package ch.njol.skript.effects;
 
 import ch.njol.skript.Skript;
-import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
-import ch.njol.skript.doc.Name;
-import ch.njol.skript.doc.RequiredPlugins;
-import ch.njol.skript.doc.Since;
+import ch.njol.skript.doc.*;
 import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
-import org.bukkit.Bukkit;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.event.Event;
@@ -24,15 +19,14 @@ import org.jetbrains.annotations.Nullable;
 public class EffApplyBoneMeal extends Effect {
 
 	static {
-		if (Skript.isRunningMinecraft(1, 16, 2))
-			Skript.registerEffect(EffApplyBoneMeal.class, "apply [%-number%] bone[ ]meal[s] [to %blocks%]");
+		Skript.registerEffect(EffApplyBoneMeal.class, "apply [%-number%] bone[ ]meal[s] [to %blocks%]");
 	}
 
-	@Nullable
-	private Expression<Number> amount;
+	private @Nullable Expression<Number> amount;
 	private Expression<Block> blocks;
 
 	@Override
+	@SuppressWarnings("unchecked")
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		amount = (Expression<Number>) exprs[0];
 		blocks = (Expression<Block>) exprs[1];

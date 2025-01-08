@@ -11,7 +11,7 @@ import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
 @Name("Consume Boosting Firework")
-@Description("Prevent the firework used in an 'elytra boost' event to be consumed.")
+@Description("Prevent the firework used in an 'elytra boost' event from being consumed.")
 @Examples({
 	"on elytra boost:",
 		"\tif the used firework will be consumed:",
@@ -43,9 +43,8 @@ public class EffElytraBoostConsume extends Effect {
 
 	@Override
 	protected void execute(Event event) {
-		if (!(event instanceof PlayerElytraBoostEvent boostEvent))
-			return;
-		boostEvent.setShouldConsume(consume);
+		if (event instanceof PlayerElytraBoostEvent boostEvent)
+			boostEvent.setShouldConsume(consume);
 	}
 
 	@Override

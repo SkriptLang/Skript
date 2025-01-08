@@ -1,11 +1,7 @@
 package ch.njol.skript.effects;
 
 import ch.njol.skript.Skript;
-import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
-import ch.njol.skript.doc.Name;
-import ch.njol.skript.doc.RequiredPlugins;
-import ch.njol.skript.doc.Since;
+import ch.njol.skript.doc.*;
 import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
@@ -26,7 +22,7 @@ import org.jetbrains.annotations.Nullable;
 	"A bell can only ring in two directions, and the direction is determined by which way the bell is facing.",
 	"By default, the bell will ring in the direction it is facing.",
 })
-@Examples({"make player ring target-block"})
+@Examples("make player ring target-block")
 @RequiredPlugins("Spigot 1.19.4+")
 @Since("2.9.0")
 public class EffRing extends Effect {
@@ -34,19 +30,14 @@ public class EffRing extends Effect {
 	static {
 		if (Skript.classExists("org.bukkit.block.Bell") && Skript.methodExists(Bell.class, "ring", Entity.class, BlockFace.class))
 			Skript.registerEffect(EffRing.class,
-					"ring %blocks% [from [the]] [%-direction%]",
-					"(make|let) %entity% ring %blocks% [from [the]] [%-direction%]"
+				"ring %blocks% [from [the]] [%-direction%]",
+				"(make|let) %entity% ring %blocks% [from [the]] [%-direction%]"
 			);
 	}
 
-	@Nullable
-	private Expression<Entity> entity;
-
-	@SuppressWarnings("NotNullFieldNotInitialized")
+	private @Nullable Expression<Entity> entity;
 	private Expression<Block> blocks;
-
-	@Nullable
-	private Expression<Direction> direction;
+	private @Nullable Expression<Direction> direction;
 
 	@Override
 	@SuppressWarnings("unchecked")
@@ -57,8 +48,7 @@ public class EffRing extends Effect {
 		return true;
 	}
 
-	@Nullable
-	private BlockFace getBlockFace(Event event) {
+	private @Nullable BlockFace getBlockFace(Event event) {
 		if (this.direction == null)
 			return null;
 
@@ -76,10 +66,8 @@ public class EffRing extends Effect {
 
 		for (Block block : blocks.getArray(event)) {
 			BlockState state = block.getState(false);
-			if (state instanceof Bell) {
-				Bell bell = (Bell) state;
+			if (state instanceof Bell bell)
 				bell.ring(actualEntity, blockFace);
-			}
 		}
 	}
 

@@ -1,15 +1,14 @@
 package ch.njol.skript.effects;
 
-import org.bukkit.event.Event;
-import org.bukkit.event.entity.EntityUnleashEvent;
-import org.jetbrains.annotations.Nullable;
-
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.*;
 import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.util.Kleenean;
+import org.bukkit.event.Event;
+import org.bukkit.event.entity.EntityUnleashEvent;
+import org.jetbrains.annotations.Nullable;
 
 @Name("Allow / Prevent Leash Drop")
 @Description("Allows or prevents the leash from being dropped in an unleash event.")
@@ -26,10 +25,9 @@ import ch.njol.util.Kleenean;
 public class EffDropLeash extends Effect {
 
 	static {
-			Skript.registerEffect(EffDropLeash.class,
-					"(force|allow) [the] (lead|leash) [item] to drop",
-					"(block|disallow|prevent) [the] (lead|leash) [item] from dropping"
-		);
+		Skript.registerEffect(EffDropLeash.class,
+			"(force|allow) [the] (lead|leash) [item] to drop",
+			"(block|disallow|prevent) [the] (lead|leash) [item] from dropping");
 	}
 
 	private boolean allowLeashDrop;
@@ -46,9 +44,8 @@ public class EffDropLeash extends Effect {
 
 	@Override
 	protected void execute(Event event) {
-		if (!(event instanceof EntityUnleashEvent unleashEvent))
-			return;
-		unleashEvent.setDropLeash(allowLeashDrop);
+		if (event instanceof EntityUnleashEvent unleashEvent)
+			unleashEvent.setDropLeash(allowLeashDrop);
 	}
 
 	@Override

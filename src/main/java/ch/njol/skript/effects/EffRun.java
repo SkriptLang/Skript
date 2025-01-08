@@ -17,19 +17,19 @@ import org.skriptlang.skript.util.Executable;
 @Name("Run (Experimental)")
 @Description("Executes a task (a function). Any returned result is discarded.")
 @Examples({
-		"set {_function} to the function named \"myFunction\"",
-		"run {_function}",
-		"run {_function} with arguments {_things::*}",
+	"set {_function} to the function named \"myFunction\"",
+	"run {_function}",
+	"run {_function} with arguments {_things::*}",
 })
 @Since("2.10")
 @Keywords({"run", "execute", "reflection", "function"})
-@SuppressWarnings({"rawtypes", "unchecked"})
+@SuppressWarnings("rawtypes")
 public class EffRun extends Effect {
 
 	static {
 		Skript.registerEffect(EffRun.class,
-				"run %executable% [arguments:with arg[ument]s %-objects%]",
-				"execute %executable% [arguments:with arg[ument]s %-objects%]");
+			"run %executable% [arguments:with arg[ument]s %-objects%]",
+			"execute %executable% [arguments:with arg[ument]s %-objects%]");
 	}
 
 	// We don't bother with the generic type here because we have no way to verify it
@@ -40,6 +40,7 @@ public class EffRun extends Effect {
 	private boolean hasArguments;
 
 	@Override
+	@SuppressWarnings("unchecked")
 	public boolean init(Expression<?>[] expressions, int pattern, Kleenean isDelayed, ParseResult result) {
 		if (!this.getParser().hasExperiment(Feature.SCRIPT_REFLECTION))
 			return false;
@@ -77,6 +78,7 @@ public class EffRun extends Effect {
 		} else {
 			arguments = new Object[0];
 		}
+		//noinspection unchecked
 		task.execute(event, arguments);
 	}
 

@@ -42,8 +42,7 @@ public class EffCancelEvent extends Effect {
 	private boolean cancel;
 
 	@Override
-	public boolean init(Expression<?>[] expressions, int matchedPattern,
-						Kleenean isDelayed, ParseResult parseResult) {
+	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		if (isDelayed == Kleenean.TRUE) {
 			Skript.error("An event cannot be cancelled after it has already passed", ErrorQuality.SEMANTIC_ERROR);
 			return false;
@@ -74,18 +73,18 @@ public class EffCancelEvent extends Effect {
 	
 	@Override
 	public void execute(Event event) {
-		if (event instanceof Cancellable)
-			((Cancellable) event).setCancelled(cancel);
-		if (event instanceof PlayerInteractEvent) {
+		if (event instanceof Cancellable cancellable)
+			cancellable.setCancelled(cancel);
+		if (event instanceof PlayerInteractEvent playerInteractEvent) {
 			EvtClick.interactTracker.eventModified((Cancellable) event);
-			((PlayerInteractEvent) event).setUseItemInHand(cancel ? Event.Result.DENY : Event.Result.DEFAULT);
-			((PlayerInteractEvent) event).setUseInteractedBlock(cancel ? Event.Result.DENY : Event.Result.DEFAULT);
-		} else if (event instanceof BlockCanBuildEvent) {
-			((BlockCanBuildEvent) event).setBuildable(!cancel);
-		} else if (event instanceof PlayerDropItemEvent) {
-			PlayerUtils.updateInventory(((PlayerDropItemEvent) event).getPlayer());
-		} else if (event instanceof InventoryInteractEvent) {
-			PlayerUtils.updateInventory(((Player) ((InventoryInteractEvent) event).getWhoClicked()));
+			playerInteractEvent.setUseItemInHand(cancel ? Event.Result.DENY : Event.Result.DEFAULT);
+			playerInteractEvent.setUseInteractedBlock(cancel ? Event.Result.DENY : Event.Result.DEFAULT);
+		} else if (event instanceof BlockCanBuildEvent canBuildEvent) {
+			canBuildEvent.setBuildable(!cancel);
+		} else if (event instanceof PlayerDropItemEvent dropItemEvent) {
+			PlayerUtils.updateInventory(dropItemEvent.getPlayer());
+		} else if (event instanceof InventoryInteractEvent inventoryInteractEvent) {
+			PlayerUtils.updateInventory(((Player) inventoryInteractEvent.getWhoClicked()));
 		}
 	}
 	

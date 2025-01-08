@@ -16,7 +16,10 @@ import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
 @Name("Charge Entity")
-@Description("Charges or uncharges a creeper or wither skull. A creeper is charged when it has been struck by lightning.")
+@Description({
+	"Charges or uncharges a creeper or wither skull.",
+	"A creeper is charged when it has been struck by lightning."
+})
 @Examples({
 	"on spawn of creeper:",
 		"\tcharge the event-entity"
@@ -26,16 +29,15 @@ public class EffCharge extends Effect {
 
 	static {
 		Skript.registerEffect(EffCharge.class,
-				"make %entities% [un:(un|not |non[-| ])](charged|powered)",
-				"[:un](charge|power) %entities%");
+			"make %entities% [un:(un|not |non[-| ])](charged|powered)",
+			"[:un](charge|power) %entities%");
 	}
 
-	@SuppressWarnings("NotNullFieldNotInitialized")
 	private Expression<Entity> entities;
 	private boolean charge;
 
-	@SuppressWarnings({"unchecked", "null"})
 	@Override
+	@SuppressWarnings("unchecked")
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		entities = (Expression<Entity>) exprs[0];
 		charge = !parseResult.hasTag("un");

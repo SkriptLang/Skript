@@ -1,5 +1,16 @@
 package ch.njol.skript.effects;
 
+import ch.njol.skript.Skript;
+import ch.njol.skript.doc.Description;
+import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Name;
+import ch.njol.skript.doc.Since;
+import ch.njol.skript.lang.Effect;
+import ch.njol.skript.lang.Expression;
+import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.skript.lang.SyntaxStringBuilder;
+import ch.njol.util.Kleenean;
+import ch.njol.util.Math2;
 import org.bukkit.FireworkEffect;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -9,16 +20,6 @@ import org.bukkit.event.Event;
 import org.bukkit.inventory.meta.FireworkMeta;
 import org.jetbrains.annotations.Nullable;
 
-import ch.njol.skript.Skript;
-import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
-import ch.njol.skript.doc.Name;
-import ch.njol.skript.doc.Since;
-import ch.njol.skript.lang.Effect;
-import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.SkriptParser.ParseResult;
-import ch.njol.util.Kleenean;
-
 @Name("Launch firework")
 @Description("Launch firework effects at the given location(s).")
 @Examples("launch ball large colored red, purple and white fading to light green and black at player's location with duration 1")
@@ -26,17 +27,14 @@ import ch.njol.util.Kleenean;
 public class EffFireworkLaunch extends Effect {
 	
 	static {
-		Skript.registerEffect(EffFireworkLaunch.class, "(launch|deploy) [[a] firework [with effect[s]]] %fireworkeffects% at %locations% [([with] (duration|power)|timed) %number%]");
+		Skript.registerEffect(EffFireworkLaunch.class,
+			"(launch|deploy) [[a] firework [with effect[s]]] %fireworkeffects% at %locations% [([with] (duration|power)|timed) %number%]");
 	}
 
-	@Nullable
-	public static Entity lastSpawned = null;
+	public static @Nullable Entity lastSpawned = null;
 
-	@SuppressWarnings("NotNullFieldNotInitialized")
 	private Expression<FireworkEffect> effects;
-	@SuppressWarnings("NotNullFieldNotInitialized")
 	private Expression<Location> locations;
-	@SuppressWarnings("NotNullFieldNotInitialized")
 	private Expression<Number> lifetime;
 	
 	@Override
@@ -52,7 +50,7 @@ public class EffFireworkLaunch extends Effect {
 	protected void execute(Event event) {
 		FireworkEffect[] effects = this.effects.getArray(event);
 		int power = lifetime.getOptionalSingle(event).orElse(1).intValue();
-		power = Math.min(127, Math.max(0, power));
+		power = Math2.fit(0, power, 127);
 		for (Location location : locations.getArray(event)) {
 			World world = location.getWorld();
 			if (world == null)
@@ -68,9 +66,9 @@ public class EffFireworkLaunch extends Effect {
 	
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return "Launch firework(s) " + effects.toString(event, debug) +
-				" at location(s) " + locations.toString(event, debug) +
-				" timed " + lifetime.toString(event, debug);
+		return new SyntaxStringBuilder(event, debug)
+			.append("launch firework(s)", effects, "at location(s)", locations, "timed", lifetime)
+			.toString();
 	}
 
 }

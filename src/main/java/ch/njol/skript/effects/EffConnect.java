@@ -1,8 +1,5 @@
 package ch.njol.skript.effects;
 
-import org.bukkit.entity.Player;
-import org.bukkit.event.Event;
-
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
@@ -13,6 +10,8 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.util.Utils;
 import ch.njol.util.Kleenean;
+import org.bukkit.entity.Player;
+import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
 @Name("Connect")
@@ -37,8 +36,8 @@ public class EffConnect extends Effect {
 
 	static {
 		Skript.registerEffect(EffConnect.class,
-				"(send|connect) %players% to [proxy|bungeecord] [server] %string%",
-				"transfer %players% to server %string% [on port %-number%]"
+			"(send|connect) %players% to [proxy|bungeecord] [server] %string%",
+			"transfer %players% to server %string% [on port %-number%]"
 		);
 	}
 
@@ -48,6 +47,7 @@ public class EffConnect extends Effect {
 	private boolean transfer;
 
 	@Override
+	@SuppressWarnings("unchecked")
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		players = (Expression<Player>) exprs[0];
 		server = (Expression<String>) exprs[1];

@@ -1,26 +1,24 @@
 package ch.njol.skript.effects;
 
+import ch.njol.skript.Skript;
+import ch.njol.skript.bukkitutil.PaperEntityUtils;
+import ch.njol.skript.doc.*;
+import ch.njol.skript.lang.Effect;
+import ch.njol.skript.lang.Expression;
+import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.util.Kleenean;
+import io.papermc.paper.entity.LookAnchor;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Mob;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
-import ch.njol.skript.Skript;
-import ch.njol.skript.bukkitutil.PaperEntityUtils;
-import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
-import ch.njol.skript.doc.Name;
-import ch.njol.skript.doc.RequiredPlugins;
-import ch.njol.skript.doc.Since;
-import ch.njol.skript.lang.Effect;
-import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.SkriptParser.ParseResult;
-import ch.njol.util.Kleenean;
-import io.papermc.paper.entity.LookAnchor;
-
 @Name("Look At")
-@Description("Forces the mob(s) or player(s) to look at an entity, vector or location. Vanilla max head pitches range from 10 to 50.")
+@Description({
+	"Forces the mob(s) or player(s) to look at an entity, vector or location.",
+	"Vanilla max head pitches range from 10 to 50."
+})
 @Examples({
 	"force the player to look towards event-entity's feet",
 	"",
@@ -56,17 +54,11 @@ public class EffLook extends Effect {
 
 	private LookAnchor anchor = LookAnchor.EYES;
 	private Expression<LivingEntity> entities;
+	private Expression<?> target; // can be a vector, location, or entity
+	private @Nullable Expression<Number> speed, maxPitch;
 
-	@Nullable
-	private Expression<Number> speed, maxPitch;
-
-	/**
-	 * Can be Vector, Location or an Entity.
-	 */
-	private Expression<?> target;
-
-	@SuppressWarnings("unchecked")
 	@Override
+	@SuppressWarnings("unchecked")
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		entities = (Expression<LivingEntity>) exprs[0];
 		if (LOOK_ANCHORS && matchedPattern == 0) {

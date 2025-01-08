@@ -10,7 +10,6 @@ import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
-
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.Sign;
@@ -28,15 +27,13 @@ public class EffGlowingText extends Effect {
 	static {
 		if (Skript.methodExists(Sign.class, "setGlowingText", boolean.class)) {
 			Skript.registerEffect(EffGlowingText.class,
-					"make %blocks/itemtypes% have glowing text",
-					"make %blocks/itemtypes% have (normal|non[-| ]glowing) text"
+				"make %blocks/itemtypes% have glowing text",
+				"make %blocks/itemtypes% have (normal|non[-| ]glowing) text"
 			);
 		}
 	}
 
-	@SuppressWarnings("NotNullFieldNotInitialized")
 	private Expression<?> objects;
-
 	private boolean glowing;
 
 	@Override
@@ -49,25 +46,23 @@ public class EffGlowingText extends Effect {
 	@Override
 	protected void execute(Event event) {
 		for (Object obj : objects.getArray(event)) {
-			if (obj instanceof Block) {
-				BlockState state = ((Block) obj).getState();
-				if (state instanceof Sign) {
-					((Sign) state).setGlowingText(glowing);
+			if (obj instanceof Block block) {
+				BlockState state = block.getState();
+				if (state instanceof Sign sign) {
+					sign.setGlowingText(glowing);
 					state.update();
 				}
-			} else if (obj instanceof ItemType) {
-				ItemType item = (ItemType) obj;
-				ItemMeta meta = item.getItemMeta();
-				if (!(meta instanceof BlockStateMeta))
+			} else if (obj instanceof ItemType itemType) {
+				ItemMeta meta = itemType.getItemMeta();
+				if (!(meta instanceof BlockStateMeta blockMeta))
 					return;
-				BlockStateMeta blockMeta = (BlockStateMeta) meta;
 				BlockState state = blockMeta.getBlockState();
-				if (!(state instanceof Sign))
+				if (!(state instanceof Sign sign))
 					return;
-				((Sign) state).setGlowingText(glowing);
+				sign.setGlowingText(glowing);
 				state.update();
 				blockMeta.setBlockState(state);
-				item.setItemMeta(meta);
+				itemType.setItemMeta(meta);
 			}
 		}
 	}

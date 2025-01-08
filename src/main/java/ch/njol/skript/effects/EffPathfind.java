@@ -1,25 +1,22 @@
 package ch.njol.skript.effects;
 
+import ch.njol.skript.Skript;
+import ch.njol.skript.doc.*;
+import ch.njol.skript.lang.Effect;
+import ch.njol.skript.lang.Expression;
+import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.util.Kleenean;
 import org.bukkit.Location;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Mob;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
-import ch.njol.skript.Skript;
-import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
-import ch.njol.skript.doc.Name;
-import ch.njol.skript.doc.RequiredPlugins;
-import ch.njol.skript.doc.Since;
-import ch.njol.skript.lang.Effect;
-import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.SkriptParser.ParseResult;
-import ch.njol.util.Kleenean;
-
 @Name("Pathfind")
-@Description({"Make an entity pathfind towards a location or another entity. Not all entities can pathfind. " +
-	"If the pathfinding target is another entity, the entities may or may not continuously follow the target."})
+@Description({
+	"Make an entity pathfind towards a location or another entity. Not all entities can pathfind.",
+	"If the pathfinding target is another entity, the entities may or may not continuously follow the target."
+})
 @Examples({
 	"make all creepers pathfind towards player",
 	"make all cows stop pathfinding",
@@ -37,12 +34,8 @@ public class EffPathfind extends Effect {
 	}
 
 	private Expression<LivingEntity> entities;
-
-	@Nullable
-	private Expression<Number> speed;
-
-	@Nullable
-	private Expression<?> target;
+	private @Nullable Expression<Number> speed;
+	private @Nullable Expression<?> target;
 
 	@Override
 	@SuppressWarnings("unchecked")
@@ -58,14 +51,14 @@ public class EffPathfind extends Effect {
 		Object target = this.target != null ? this.target.getSingle(event) : null;
 		double speed = this.speed != null ? this.speed.getOptionalSingle(event).orElse(1).doubleValue() : 1;
 		for (LivingEntity entity : entities.getArray(event)) {
-			if (!(entity instanceof Mob))
-				continue;
-			if (target instanceof LivingEntity) {
-				((Mob) entity).getPathfinder().moveTo((LivingEntity) target, speed);
-			} else if (target instanceof Location) {
-				((Mob) entity).getPathfinder().moveTo((Location) target, speed);
-			} else if (this.target == null) {
-				((Mob) entity).getPathfinder().stopPathfinding();
+			if (entity instanceof Mob mob) {
+				if (target instanceof LivingEntity livingEntity) {
+					mob.getPathfinder().moveTo(livingEntity, speed);
+				} else if (target instanceof Location location) {
+					mob.getPathfinder().moveTo(location, speed);
+				} else if (this.target == null) {
+					mob.getPathfinder().stopPathfinding();
+				}
 			}
 		}
 	}

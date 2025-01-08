@@ -18,31 +18,30 @@ import org.jetbrains.annotations.Nullable;
 
 @Name("Load World")
 @Description({
-		"Load your worlds or unload your worlds",
-		"The load effect will create a new world if world doesn't already exist.",
-		"When attempting to load a normal vanilla world you must define it's environment i.e \"world_nether\" must be loaded with nether environment"
+	"Load your worlds or unload your worlds",
+	"The load effect will create a new world if world doesn't already exist.",
+	"When attempting to load a normal vanilla world you must define it's environment i.e \"world_nether\" must be loaded with nether environment"
 })
 @Examples({
-		"load world \"world_nether\" with environment nether",
-		"load the world \"myCustomWorld\"",
-		"unload \"world_nether\"",
-		"unload \"world_the_end\" without saving",
-		"unload all worlds"
+	"load world \"world_nether\" with environment nether",
+	"load the world \"myCustomWorld\"",
+	"unload \"world_nether\"",
+	"unload \"world_the_end\" without saving",
+	"unload all worlds"
 })
 @Since("2.8.0")
 public class EffWorldLoad extends Effect {
 
 	static {
 		Skript.registerEffect(EffWorldLoad.class,
-				"load [[the] world[s]] %strings% [with environment %-environment%]",
-				"unload [[the] world[s]] %worlds% [:without saving]"
+			"load [[the] world[s]] %strings% [with environment %-environment%]",
+			"unload [[the] world[s]] %worlds% [:without saving]"
 		);
 	}
 
 	private boolean save, load;
 	private Expression<?> worlds;
-	@Nullable
-	private Expression<Environment> environment;
+	private @Nullable Expression<Environment> environment;
 
 	@Override
 	@SuppressWarnings("unchecked")
@@ -61,13 +60,13 @@ public class EffWorldLoad extends Effect {
 	protected void execute(Event event) {
 		Environment environment = this.environment != null ? this.environment.getSingle(event) : null;
 		for (Object world : worlds.getArray(event)) {
-			if (load && world instanceof String) {
-				WorldCreator worldCreator = new WorldCreator((String) world);
+			if (load && world instanceof String string) {
+				WorldCreator worldCreator = new WorldCreator(string);
 				if (environment != null)
 					worldCreator.environment(environment);
 				worldCreator.createWorld();
-			} else if (!load && world instanceof World) {
-				Bukkit.unloadWorld((World) world, save);
+			} else if (!load && world instanceof World worldI) {
+				Bukkit.unloadWorld(worldI, save);
 			}
 		}
 	}

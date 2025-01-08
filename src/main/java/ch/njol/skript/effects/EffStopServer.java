@@ -1,9 +1,5 @@
 package ch.njol.skript.effects;
 
-import org.bukkit.Bukkit;
-import org.bukkit.event.Event;
-import org.jetbrains.annotations.Nullable;
-
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
@@ -13,11 +9,19 @@ import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
-
+import org.bukkit.Bukkit;
+import org.bukkit.event.Event;
+import org.jetbrains.annotations.Nullable;
 
 @Name("Stop Server")
-@Description("Stops or restarts the server. If restart is used when the restart-script spigot.yml option isn't defined, the server will stop instead.")
-@Examples({"stop the server", "restart server"})
+@Description({
+	"Stops or restarts the server.",
+	"If used when the 'restart-script' spigot.yml option isn't defined, the server will stop instead."
+})
+@Examples({
+	"stop the server",
+	"restart server"
+})
 @Since("2.5")
 public class EffStopServer extends Effect {
 	
@@ -36,16 +40,15 @@ public class EffStopServer extends Effect {
 	}
 	
 	@Override
-	protected void execute(Event e) {
+	protected void execute(Event event) {
 		if (restart)
 			Bukkit.spigot().restart();
 		else
 			Bukkit.shutdown();
 	}
 	
-	
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
+	public String toString(@Nullable Event event, boolean debug) {
 		return (restart ? "restart" : "stop") + " the server";
 	}
 	

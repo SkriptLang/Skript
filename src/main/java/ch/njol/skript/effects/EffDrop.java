@@ -25,23 +25,21 @@ import org.jetbrains.annotations.Nullable;
 
 @Name("Drop")
 @Description("Drops one or more items.")
-@Examples({"on death of creeper:",
-		"	drop 1 TNT"})
+@Examples({
+	"on death of creeper:",
+		"\tdrop 1 TNT"
+})
 @Since("1.0")
 public class EffDrop extends Effect {
 
 	static {
-		Skript.registerEffect(EffDrop.class, "drop %itemtypes/experiences% [%directions% %locations%] [(1¦without velocity)]");
+		Skript.registerEffect(EffDrop.class, "drop %itemtypes/experiences% [%directions% %locations%] [(1:without velocity)]");
 	}
 
-	@Nullable
-	public static Entity lastSpawned = null;
+	public static @Nullable Entity lastSpawned = null;
 
-	@SuppressWarnings("NotNullFieldNotInitialized")
 	private Expression<?> drops;
-	@SuppressWarnings("NotNullFieldNotInitialized")
 	private Expression<Location> locations;
-
 	private boolean useVelocity;
 
 	@Override
@@ -54,25 +52,25 @@ public class EffDrop extends Effect {
 	}
 
 	@Override
-	public void execute(Event e) {
-		Object[] os = drops.getArray(e);
-		for (Location l : locations.getArray(e)) {
-			Location itemDropLoc = l.clone().subtract(0.5, 0.5, 0.5); // dropItemNaturally adds 0.15 to 0.85 randomly to all coordinates
-			for (Object o : os) {
-				if (o instanceof Experience) {
-					ExperienceOrb orb = l.getWorld().spawn(l, ExperienceOrb.class);
-					orb.setExperience(((Experience) o).getXP() + orb.getExperience()); // ensure we maintain previous experience, due to spigot xp merging behavior
+	public void execute(Event event) {
+		Object[] drops = this.drops.getArray(event);
+		for (Location loc : locations.getArray(event)) {
+			Location itemDropLoc = loc.clone().subtract(0.5, 0.5, 0.5); // dropItemNaturally adds 0.15 to 0.85 randomly to all coordinates
+			for (Object drop : drops) {
+				if (drop instanceof Experience experience) {
+					ExperienceOrb orb = loc.getWorld().spawn(loc, ExperienceOrb.class);
+					orb.setExperience(experience.getXP() + orb.getExperience()); // ensure we maintain previous experience, due to spigot xp merging behavior
 					EffSecSpawn.lastSpawned = orb;
 				} else {
-					if (o instanceof ItemStack)
-						o = new ItemType((ItemStack) o);
-					for (ItemStack is : ((ItemType) o).getItem().getAll()) {
-						if (!ItemUtils.isAir(is.getType()) && is.getAmount() > 0) {
+					if (drop instanceof ItemStack iS)
+						drop = new ItemType(iS);
+					for (ItemStack itemStack : ((ItemType) drop).getItem().getAll()) {
+						if (!ItemUtils.isAir(itemStack.getType()) && itemStack.getAmount() > 0) {
 							if (useVelocity) {
-								lastSpawned = l.getWorld().dropItemNaturally(itemDropLoc, is);
+								lastSpawned = loc.getWorld().dropItemNaturally(itemDropLoc, itemStack);
 							} else {
-								Item item = l.getWorld().dropItem(l, is);
-								item.teleport(l);
+								Item item = loc.getWorld().dropItem(loc, itemStack);
+								item.teleport(loc);
 								item.setVelocity(new Vector(0, 0, 0));
 								lastSpawned = item;
 							}
@@ -84,8 +82,8 @@ public class EffDrop extends Effect {
 	}
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
-		return "drop " + drops.toString(e, debug) + " " + locations.toString(e, debug);
+	public String toString(@Nullable Event event, boolean debug) {
+		return "drop " + drops.toString(event, debug) + " " + locations.toString(event, debug);
 	}
 
 }
