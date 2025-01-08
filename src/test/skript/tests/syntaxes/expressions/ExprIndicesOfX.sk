@@ -10,10 +10,13 @@ test "index of":
     assert {_indices::*} is "6" with "last index of 3 failed"
 
     set {_indices::*} to the first position of the value 3 in {_list::*}
-    assert {_indices::*} is 3 with "first index of 3 failed"
+    assert {_indices::*} is 3 with "first position of 3 failed"
 
     set {_indices::*} to the last position of the value 3 in {_list::*}
-    assert {_indices::*} is 6 with "last index of 3 failed"
+    assert {_indices::*} is 6 with "last position of 3 failed"
+
+    set {_indices::*} to all positions of the value 3 in {_list::*} from 4
+    assert {_indices::*} is 6 with "positions of 3 from 4 failed"
 
     set {_otherlist::burb} to test-location
     set {_otherlist::_DJ8U3f;} to test-location
@@ -38,3 +41,6 @@ test "index of":
 
     set {_index} to the position of "ham" in "abraham lincoln"
     assert {_index} is 5 with "first position of string failed"
+
+    set {_indices::*} to all positions of "a" in "banana" from 3
+    assert {_indices::*} is 4 and 6 with "positions of char from 2 failed"
