@@ -31,9 +31,6 @@ import java.util.Map.Entry;
 	"Get the first, last or all positions of a character (or text) in another text using "
 		+ "'positions of %text% in %text%'. -1 is returned when the value does not occur in the text."
 		+ "Positions range from 1 to the <a href='#ExprIndicesOf'>length</a> of the text.",
-	"You can get the positions in a string after a position counting up from 1. That is done by using "
-		+ "'positions of %text% in %text% from position %number%'. "
-		+ "If the position is bigger than the text's length range, -1 will be returned.",
 	"",
 	"Using 'indices/positions of %objects%', you can get the indices or positions of a list where the value at that index is the provided value. "
 		+ "Indices are only supported for variable lists and will return the string indices of the given value. "
@@ -46,9 +43,6 @@ import java.util.Map.Entry;
 		"\tset {_s} to the first (position of \"abc\" in {_s} + 3) characters of {_s}",
 		"\t# removes everything after the first \"abc\" from {_s}",
 	"",
-	"set {_positions::*} to positions of \"a\" in \"banana\" from 3",
-	"# {_positions::*} is now 4 and 6",
-	"",
 	"set {_list::*} to 1, 2, 3, 1, 2, 3",
 	"set {_indices::*} to all indices of the value 1 in {_list::*}",
 	"# {_indices::*} is now \"1\" and \"4\"",
@@ -58,9 +52,6 @@ import java.util.Map.Entry;
 	"",
 	"set {_positions::*} to all positions of the value 3 in {_list::*}",
 	"# {_positions::*} is now 3 and 6",
-	"",
-	"set {_positions::*} to all positions of the value 3 in {_list::*} from 4",
-	"# {_positions::*} is now 6",
 	"",
 	"set {_otherlist::bar} to 100",
 	"set {_otherlist::hello} to \"hi\"",
@@ -84,15 +75,7 @@ public class ExprIndicesOf extends SimpleExpression<Object> {
 	static {
 		Skript.registerExpression(ExprIndicesOf.class, Object.class, ExpressionType.COMBINED,
 			"[the] [first|1:last|2:all] (position[s]|indices|index[es]) of [[the] value] %string% in %string%",
-
-			"[the] [first|1:last|2:all] (position[s]|indices|index[es]) of [[the] value] %string%"
-				+ "in %string% from [[the] position] %integer%",
-
 			"[the] [first|1:last|2:all] position[s] of [[the] value] %object% in %~objects%",
-
-			"[the] [first|1:last|2:all] position[s] of [[the] value] %object% "
-				+ "in %~objects% from [[the] position] %integer%",
-
 			"[the] [first|1:last|2:all] (indices|index[es]) of [[the] value] %object% in %~objects%"
 		);
 	}
@@ -101,30 +84,24 @@ public class ExprIndicesOf extends SimpleExpression<Object> {
 	private boolean position;
 	private boolean string;
 	private Expression<?> value, objects;
-	private Expression<Integer> fromIndex;
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		if (exprs[1].isSingle() && (matchedPattern > 1)) {
+		if (exprs[1].isSingle() && (matchedPattern > 0)) {
 			Skript.error("'" + exprs[1] + "' can only ever have one value at most, thus the 'indices of x in list' expression has no effect.");
 			return false;
 		}
 
-		if (!(exprs[1] instanceof Variable<?>) && matchedPattern == 4) {
+		if (!(exprs[1] instanceof Variable<?>) && matchedPattern == 2) {
 			Skript.error("'" + exprs[1] + "' is not a list variable. You can only get the indices of a list variable.");
 			return false;
 		}
 
 		type = IndexType.values()[parseResult.mark];
-		position = matchedPattern <= 3;
-		string = matchedPattern <= 1;
+		position = matchedPattern <= 1;
+		string = matchedPattern == 0;
 		value = LiteralUtils.defendExpression(exprs[0]);
 		objects = exprs[1];
-
-		if (exprs.length == 3) {
-			//noinspection unchecked
-			fromIndex = (Expression<Integer>) exprs[2];
-		}
 
 		return LiteralUtils.canInitSafely(value);
 	}
@@ -137,24 +114,21 @@ public class ExprIndicesOf extends SimpleExpression<Object> {
 		}
 
 		if (this.position) {
-			Integer fromIndex = 1;
-			if (this.fromIndex != null) {
-				fromIndex = this.fromIndex.getSingle(event);
-				if (fromIndex == null) {
-					fromIndex = 1;
-				}
-			}
-
 			if (string) {
 				String haystack = (String) objects.getSingle(event);
 				if (haystack == null) {
 					return new Long[0];
 				}
 
-				return getStringPositions(haystack, (String) value, fromIndex);
+				return getStringPositions(haystack, (String) value);
 			}
 
-			return getListPositions(objects.getArray(event), value, fromIndex);
+			Object[] list = objects.getArray(event);
+			if (list == null) {
+				return new Long[0];
+			}
+
+			return getListPositions(list, value);
 		}
 
 		assert objects instanceof Variable<?>;
@@ -169,9 +143,9 @@ public class ExprIndicesOf extends SimpleExpression<Object> {
 		return getVariableIndices(variable, value);
 	}
 
-	private Long[] getStringPositions(String haystack, String needle, int fromIndex) {
+	private Long[] getStringPositions(String haystack, String needle) {
 		List<Long> positions = new ArrayList<>();
-		long position = haystack.indexOf(needle, fromIndex - 1);
+		long position = haystack.indexOf(needle);
 
 		if (type == IndexType.ALL) {
 			while (position != -1) {
@@ -188,16 +162,12 @@ public class ExprIndicesOf extends SimpleExpression<Object> {
 		return new Long[]{(position == -1 ? -1 : position + 1)};
 	}
 
-	private Long[] getListPositions(Object[] list, Object value, int fromIndex) {
-		if (list == null) {
-			return new Long[0];
-		}
-
+	private Long[] getListPositions(Object[] list, Object value) {
 		List<Long> positions = new ArrayList<>();
 
 		long position = 1;
 		for (Object object : list) {
-			if (!object.equals(value) || position < fromIndex) {
+			if (!object.equals(value)) {
 				position++;
 				continue;
 			}
@@ -265,10 +235,6 @@ public class ExprIndicesOf extends SimpleExpression<Object> {
 			builder.append("index");
 		}
 		builder.append("of value", value, "in", objects);
-
-		if (fromIndex != null) {
-			builder.append("from position", fromIndex);
-		}
 
 		return builder.toString();
 	}
