@@ -711,52 +711,57 @@ public abstract class Classes {
 	/**
 	 * Must be called on the appropriate thread for the given value (i.e. the main thread currently)
 	 */
-	public static SerializedVariable.@Nullable Value serialize(@Nullable Object o) {
-		if (o == null)
+	public static SerializedVariable.@Nullable Value serialize(@Nullable Object object) {
+		if (object == null)
 			return null;
 		
 		// temporary
 		assert Bukkit.isPrimaryThread();
 		
-		ClassInfo<?> ci = getSuperClassInfo(o.getClass());
-		if (ci.getSerializeAs() != null) {
-			ci = getExactClassInfo(ci.getSerializeAs());
-			if (ci == null) {
-				assert false : o.getClass();
+		ClassInfo<?> classInfo = getSuperClassInfo(object.getClass());
+		if (classInfo.getSerializeAs() != null) {
+			classInfo = getExactClassInfo(classInfo.getSerializeAs());
+			if (classInfo == null) {
+				assert false : object.getClass();
 				return null;
 			}
-			o = Converters.convert(o, ci.getC());
-			if (o == null) {
-				assert false : ci.getCodeName();
+			object = Converters.convert(object, classInfo.getC());
+			if (object == null) {
+				assert false : classInfo.getCodeName();
 				return null;
 			}
 		}
 		
-		final Serializer<?> s = ci.getSerializer();
-		if (s == null) // value cannot be saved
+		Serializer<?> serializer = classInfo.getSerializer();
+		if (serializer == null) // value cannot be saved
 			return null;
 		
-		assert s.mustSyncDeserialization() ? Bukkit.isPrimaryThread() : true;
+		assert !serializer.mustSyncDeserialization() || Bukkit.isPrimaryThread();
 		
 		try {
-			final ByteArrayOutputStream bout = new ByteArrayOutputStream();
-			final YggdrasilOutputStream yout = Variables.yggdrasil.newOutputStream(bout);
-			yout.writeObject(o);
-			yout.flush();
-			yout.close();
-			final byte[] r = bout.toByteArray();
-			final byte[] start = getYggdrasilStart(ci);
-			for (int i = 0; i < start.length; i++)
-				assert r[i] == start[i] : o + " (" + ci.getC().getName() + "); " + Arrays.toString(start) + ", " + Arrays.toString(r);
-			final byte[] r2 = new byte[r.length - start.length];
-			System.arraycopy(r, start.length, r2, 0, r2.length);
+			ByteArrayOutputStream byteOutputStream = new ByteArrayOutputStream();
+			YggdrasilOutputStream yggdrasilOutputStream = Variables.yggdrasil.newOutputStream(byteOutputStream);
 
-			Object d;
-			assert equals(o, d = deserialize(ci, new ByteArrayInputStream(r2))) : o + " (" + o.getClass() + ") != " + d + " (" + (d == null ? null : d.getClass()) + "): " + Arrays.toString(r);
+			yggdrasilOutputStream.writeObject(object);
+			yggdrasilOutputStream.flush();
+			yggdrasilOutputStream.close();
+
+			byte[] byteArray = byteOutputStream.toByteArray();
+			byte[] start = getYggdrasilStart(classInfo);
+			for (int i = 0; i < start.length; i++)
+				assert byteArray[i] == start[i] : object + " (" + classInfo.getC().getName() + "); " + Arrays.toString(start) + ", " + Arrays.toString(byteArray);
+			byte[] byteArrayCopy = new byte[byteArray.length - start.length];
+			System.arraycopy(byteArray, start.length, byteArrayCopy, 0, byteArrayCopy.length);
+
+			Object deserialized;
+			assert equals(object,
+				deserialized = deserialize(classInfo, new ByteArrayInputStream(byteArrayCopy)))
+				: object + " (" + object.getClass() + ") != " + deserialized + " ("
+				+ (deserialized == null ? null : deserialized.getClass()) + "): " + Arrays.toString(byteArray);
 			
-			return new SerializedVariable.Value(ci.getCodeName(), r2);
-		} catch (final IOException e) { // shouldn't happen
-			Skript.exception(e);
+			return new SerializedVariable.Value(classInfo.getCodeName(), byteArrayCopy);
+		} catch (IOException ex) { // shouldn't happen
+			Skript.exception(ex);
 			return null;
 		}
 	}
