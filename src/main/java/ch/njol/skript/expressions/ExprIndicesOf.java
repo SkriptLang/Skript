@@ -105,18 +105,18 @@ public class ExprIndicesOf extends SimpleExpression<Object> {
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		if (exprs[1].isSingle() && (matchedPattern == 2 || matchedPattern == 3)) {
+		if (exprs[1].isSingle() && (matchedPattern > 1)) {
 			Skript.error("'" + exprs[1] + "' can only ever have one value at most, thus the 'indices of x in list' expression has no effect.");
 			return false;
 		}
 
-		if (!(exprs[1] instanceof Variable<?>) && matchedPattern == 3) {
+		if (!(exprs[1] instanceof Variable<?>) && matchedPattern == 4) {
 			Skript.error("'" + exprs[1] + "' is not a list variable. You can only get the indices of a list variable.");
 			return false;
 		}
 
 		type = IndexType.values()[parseResult.mark];
-		position = matchedPattern <= 2;
+		position = matchedPattern <= 3;
 		string = matchedPattern <= 1;
 		value = LiteralUtils.defendExpression(exprs[0]);
 		objects = exprs[1];
@@ -132,28 +132,29 @@ public class ExprIndicesOf extends SimpleExpression<Object> {
 	@Override
 	protected Object @Nullable [] get(Event event) {
 		Object value = this.value.getSingle(event);
-		if (value == null)
+		if (value == null) {
 			return (Object[]) Array.newInstance(getReturnType(), 0);
+		}
 
 		if (this.position) {
+			Integer fromIndex = 1;
+			if (this.fromIndex != null) {
+				fromIndex = this.fromIndex.getSingle(event);
+				if (fromIndex == null) {
+					fromIndex = 1;
+				}
+			}
+
 			if (string) {
 				String haystack = (String) objects.getSingle(event);
 				if (haystack == null) {
 					return new Long[0];
 				}
 
-				Integer fromIndex = 1;
-				if (this.fromIndex != null) {
-					fromIndex = this.fromIndex.getSingle(event);
-					if (fromIndex == null) {
-						fromIndex = 1;
-					}
-				}
-
-				return getStringPositions(haystack, (String) value, fromIndex - 1);
+				return getStringPositions(haystack, (String) value, fromIndex);
 			}
 
-			return getListPositions(objects.getArray(event), value);
+			return getListPositions(objects.getArray(event), value, fromIndex);
 		}
 
 		assert objects instanceof Variable<?>;
@@ -168,9 +169,9 @@ public class ExprIndicesOf extends SimpleExpression<Object> {
 		return getVariableIndices(variable, value);
 	}
 
-	private Long[] getStringPositions(String haystack, String needle, Integer fromIndex) {
+	private Long[] getStringPositions(String haystack, String needle, int fromIndex) {
 		List<Long> positions = new ArrayList<>();
-		long position = haystack.indexOf(needle, fromIndex);
+		long position = haystack.indexOf(needle, fromIndex - 1);
 
 		if (type == IndexType.ALL) {
 			while (position != -1) {
@@ -187,7 +188,7 @@ public class ExprIndicesOf extends SimpleExpression<Object> {
 		return new Long[]{(position == -1 ? -1 : position + 1)};
 	}
 
-	private Long[] getListPositions(Object[] list, Object value) {
+	private Long[] getListPositions(Object[] list, Object value, int fromIndex) {
 		if (list == null) {
 			return new Long[0];
 		}
@@ -196,7 +197,7 @@ public class ExprIndicesOf extends SimpleExpression<Object> {
 
 		long position = 1;
 		for (Object object : list) {
-			if (!object.equals(value)) {
+			if (!object.equals(value) || position < fromIndex) {
 				position++;
 				continue;
 			}
