@@ -81,7 +81,7 @@ test "spawn entities":
 	add "salmon", "sheep", "shulker", "silverfish", "skeleton", "skeleton horse" and "slime" to {_entities::*}
 	add "snow golem", "spider", "squid", "stray", "strider", "tadpole", "trader llama" and "tropical fish" to {_entities::*}
 	add "turtle", "vex", "villager", "vindicator", "wandering trader", "warden", "witch" and "wither skeleton" to {_entities::*}
-	add "wolf", "zoglin", "zombie", "zombie horse", "zombie villager", "zombified piglin" to {_entities::*}
+	add "wolf", "zoglin", "zombie", "zombie horse", "zombie villager", and "zombified piglin" to {_entities::*}
 	add "ender dragon" and "wither" to {_entities::*}
 	add "oak boat", "oak chest boat", "armor stand", "primed tnt", "firework", "arrow", "trident" and "egg" to {_entities::*}
 	add "snowball", "end crystal", "eye of ender", "regular minecart", "falling sand" and "falling gravel" to {_entities::*}

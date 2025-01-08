@@ -29,7 +29,7 @@ import java.util.List;
 		"\tpush event-entity vector from entity to player"
 })
 @RequiredPlugins("Paper (bobber lured)")
-@Since("INSERT VERSION")
+@Since("2.10")
 public class EvtFish extends SkriptEvent {
 
 	private enum State {

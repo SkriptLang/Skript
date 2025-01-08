@@ -21,7 +21,7 @@ import org.jetbrains.annotations.Nullable;
 		"\telse if xp cooldown change reason is orb pickup:",
 			"\t\t#Changed by picking up xp orb"
 })
-@Since("INSERT VERSION")
+@Since("2.10")
 public class ExprExperienceCooldownChangeReason extends EventValueExpression<ChangeReason> {
 
 	static {

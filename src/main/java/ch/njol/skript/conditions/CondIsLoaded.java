@@ -29,7 +29,7 @@ import org.skriptlang.skript.lang.script.Script;
 		"if world(\"lobby\") is loaded:",
 		"if script named \"MyScript.sk\" is loaded:"
 })
-@Since("2.3, 2.5 (revamp with chunk at location/coords), INSERT VERSION (Scripts)")
+@Since("2.3, 2.5 (revamp with chunk at location/coords), 2.10 (Scripts)")
 @SuppressWarnings("unchecked")
 public class CondIsLoaded extends Condition {
 

@@ -20,7 +20,7 @@ import ch.njol.util.Kleenean;
 		"\tbroadcast \"The leash was snapped in half.\""
 })
 @Events("Unleash")
-@Since("INSERT VERSION")
+@Since("2.10")
 public class ExprUnleashReason extends EventValueExpression<UnleashReason> {
 
 	public ExprUnleashReason() {

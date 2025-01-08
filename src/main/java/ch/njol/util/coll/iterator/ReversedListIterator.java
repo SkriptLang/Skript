@@ -6,8 +6,9 @@ import java.util.ListIterator;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * @author Peter Güttinger
+ * @deprecated unused
  */
+@Deprecated
 public class ReversedListIterator<T> implements ListIterator<T> {
 	
 	private final ListIterator<T> iter;

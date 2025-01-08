@@ -13,9 +13,6 @@ import java.io.PrintWriter;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-/**
- * @author Peter Güttinger
- */
 public abstract class Node implements AnyNamed, Validated, NodeNavigator {
 
 	@Nullable

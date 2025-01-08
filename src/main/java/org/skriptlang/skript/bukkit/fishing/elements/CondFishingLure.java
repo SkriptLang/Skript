@@ -18,7 +18,7 @@ import org.jetbrains.annotations.Nullable;
 			"\t\tcancel event"
 })
 @Events("Fishing")
-@Since("INSERT VERSION")
+@Since("2.10")
 public class CondFishingLure extends Condition {
 
 	static  {

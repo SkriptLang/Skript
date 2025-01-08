@@ -10,7 +10,6 @@ import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.log.ErrorQuality;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.slot.Slot;
-import ch.njol.util.Checker;
 import org.bukkit.event.Event;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.ApiStatus;
@@ -18,14 +17,9 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.converter.Converter;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Spliterators;
+import java.util.*;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
@@ -44,8 +38,8 @@ public interface Expression<T> extends SyntaxElement, Debuggable, Loopable<T> {
 	 * This method may only return null if it always returns null for the given event, i.e. it is equivalent to getting a random element out of {@link #getAll(Event)} or null iff
 	 * that array is empty.
 	 * <p>
-	 * Do not use this in conditions, use {@link #check(Event, Checker, boolean)} instead.
-	 * 
+	 * Do not use this in conditions, use {@link #check(Event, Predicate, boolean)} instead.
+	 *
 	 * @param event The event
 	 * @return The value or null if this expression doesn't have any value for the event
 	 * @throws UnsupportedOperationException (optional) if this was called on a non-single expression
@@ -55,7 +49,7 @@ public interface Expression<T> extends SyntaxElement, Debuggable, Loopable<T> {
 	/**
 	 * Get an optional of the single value of this expression.
 	 * <p>
-	 * Do not use this in conditions, use {@link #check(Event, Checker, boolean)} instead.
+	 * Do not use this in conditions, use {@link #check(Event, Predicate, boolean)} instead.
 	 *
 	 * @param event the event
 	 * @return an {@link Optional} containing the {@link #getSingle(Event) single value} of this expression for this event.
@@ -70,7 +64,7 @@ public interface Expression<T> extends SyntaxElement, Debuggable, Loopable<T> {
 	 * <p>
 	 * The returned array must not contain any null values.
 	 * <p>
-	 * Do not use this in conditions, use {@link #check(Event, Checker, boolean)} instead.
+	 * Do not use this in conditions, use {@link #check(Event, Predicate, boolean)} instead.
 	 * 
 	 * @param event The event
 	 * @return An array of values of this expression which must neither be null nor contain nulls, and which must not be an internal array.
@@ -80,7 +74,7 @@ public interface Expression<T> extends SyntaxElement, Debuggable, Loopable<T> {
 	/**
 	 * Gets all possible return values of this expression, i.e. it returns the same as {@link #getArray(Event)} if {@link #getAnd()} is true, otherwise all possible values for
 	 * {@link #getSingle(Event)}.
-	 * 
+	 *
 	 * @param event The event
 	 * @return An array of all possible values of this expression for the given event which must neither be null nor contain nulls, and which must not be an internal array.
 	 */
@@ -92,7 +86,7 @@ public interface Expression<T> extends SyntaxElement, Debuggable, Loopable<T> {
 	 * @param event The event
 	 * @return A non-null stream of this expression's non-null values
 	 */
-	default Stream<@NotNull ? extends  T> stream(Event event) {
+	default Stream<? extends @NotNull T> stream(Event event) {
 		Iterator<? extends T> iterator = iterator(event);
 		if (iterator == null) {
 			return Stream.empty();
@@ -124,29 +118,29 @@ public interface Expression<T> extends SyntaxElement, Debuggable, Loopable<T> {
 	 * or as the innermost check of nested checks.
 	 * <p>
 	 * Usual implementation (may differ, e.g. may return false for nonexistent values independent of <tt>negated</tt>):
-	 * 
+	 *
 	 * <pre>
-	 * return negated ^ {@link #check(Event, Checker)};
+	 * return negated ^ {@link #check(Event, Predicate)};
 	 * </pre>
-	 * 
+	 *
 	 * @param event The event to be used for evaluation
 	 * @param checker The checker that determines whether this expression matches
 	 * @param negated The checking condition's negated state. This is used to invert the output of the checker if set to true (i.e. <tt>negated ^ checker.check(...)</tt>)
 	 * @return Whether this expression matches or doesn't match the given checker depending on the condition's negated state.
-	 * @see SimpleExpression#check(Object[], Checker, boolean, boolean)
+	 * @see SimpleExpression#check(Object[], Predicate, boolean, boolean)
 	 */
-	boolean check(Event event, Checker<? super T> checker, boolean negated);
+	boolean check(Event event, Predicate<? super T> checker, boolean negated);
 
 	/**
-	 * Checks this expression against the given checker. This method must only be used around other checks, use {@link #check(Event, Checker, boolean)} for a simple check or the
+	 * Checks this expression against the given checker. This method must only be used around other checks, use {@link #check(Event, Predicate, boolean)} for a simple check or the
 	 * innermost check of a nested check.
-	 * 
+	 *
 	 * @param event The event to be used for evaluation
 	 * @param checker A checker that determines whether this expression matches
 	 * @return Whether this expression matches the given checker
-	 * @see SimpleExpression#check(Object[], Checker, boolean, boolean)
+	 * @see SimpleExpression#check(Object[], Predicate, boolean, boolean)
 	 */
-	boolean check(Event event, Checker<? super T> checker);
+	boolean check(Event event, Predicate<? super T> checker);
 
 	/**
 	 * Tries to convert this expression to the given type. This method can print an error prior to returning null to specify the cause.
@@ -156,7 +150,7 @@ public interface Expression<T> extends SyntaxElement, Debuggable, Loopable<T> {
 	 * <p>
 	 * The returned expression should delegate this method to the original expression's method to prevent excessive converted expression chains (see also
 	 * {@link ConvertedExpression}).
-	 * 
+	 *
 	 * @param to The desired return type of the returned expression
 	 * @return Expression with the desired return type or null if the expression can't be converted to the given type. Returns the expression itself if it already returns the
 	 *         desired type.
@@ -168,7 +162,7 @@ public interface Expression<T> extends SyntaxElement, Debuggable, Loopable<T> {
 
 	/**
 	 * Gets the return type of this expression.
-	 * 
+	 *
 	 * @return A supertype of any objects returned by {@link #getSingle(Event)} and the component type of any arrays returned by {@link #getArray(Event)}
 	 */
 	Class<? extends T> getReturnType();
@@ -201,11 +195,11 @@ public interface Expression<T> extends SyntaxElement, Debuggable, Loopable<T> {
 	/**
 	 * Returns true if this expression returns all possible values, false if it only returns some of them.
 	 * <p>
-	 * This method significantly influences {@link #check(Event, Checker)}, {@link #check(Event, Checker, boolean)} and {@link CondIsSet} and thus breaks conditions that use this
+	 * This method significantly influences {@link #check(Event, Predicate)}, {@link #check(Event, Predicate, boolean)} and {@link CondIsSet} and thus breaks conditions that use this
 	 * expression if it returns a wrong value.
 	 * <p>
 	 * This method must return true if this is a {@link #isSingle() single} expression. // TODO make this method irrelevant for single expressions
-	 * 
+	 *
 	 * @return Whether this expression returns all values at once or only part of them.
 	 */
 	boolean getAnd();
@@ -218,7 +212,7 @@ public interface Expression<T> extends SyntaxElement, Debuggable, Loopable<T> {
 	 * <p>
 	 * If this method returns false the expression will be discarded and an error message is printed. Custom error messages must be of {@link ErrorQuality#SEMANTIC_ERROR} to be
 	 * printed (NB: {@link Skript#error(String)} always creates semantic errors).
-	 * 
+	 *
 	 * @param time -1 for past or 1 for future. 0 is never passed to this method as it represents the default state.
 	 * @return Whether this expression has distinct time states, e.g. a player never changes but a block can. This should be sensitive for the event (using
 	 *         {@link ch.njol.skript.lang.parser.ParserInstance#isCurrentEvent(Class)}).
@@ -238,7 +232,7 @@ public interface Expression<T> extends SyntaxElement, Debuggable, Loopable<T> {
 	 * Returns whether this value represents the default value of its type for the event, i.e. it can be replaced with a call to event.getXyz() if one knows the event & value type.
 	 * <p>
 	 * This method might be removed in the future as it's better to check whether value == event.getXyz() for every value an expression returns.
-	 * 
+	 *
 	 * @return Whether this is the return types' default expression
 	 */
 	boolean isDefault();
@@ -247,7 +241,7 @@ public interface Expression<T> extends SyntaxElement, Debuggable, Loopable<T> {
 	 * Returns the original expression that was parsed, i.e. without any conversions done.
 	 * <p>
 	 * This method is undefined for simplified expressions.
-	 * 
+	 *
 	 * @return The unconverted source expression of this expression or this expression itself if it was never converted.
 	 */
 	Expression<?> getSource();
@@ -258,7 +252,7 @@ public interface Expression<T> extends SyntaxElement, Debuggable, Loopable<T> {
 	 * After this method was used the toString methods are likely not useful anymore.
 	 * <p>
 	 * This method is not yet used but will be used to improve efficiency in the future.
-	 * 
+	 *
 	 * @return A reference to a simpler version of this expression. Can change this expression directly and return itself if applicable, i.e. no references to the expression before
 	 *         this method call should be kept!
 	 */
@@ -274,7 +268,7 @@ public interface Expression<T> extends SyntaxElement, Debuggable, Loopable<T> {
 	 * <tt>super.change(...)</tt>.
 	 * <p>
 	 * Unlike {@link Changer#acceptChange(ChangeMode)} this method may print errors.
-	 * 
+	 *
 	 * @param mode The mode to check
 	 * @return An array of types that {@link #change(Event, Object[], ChangeMode)} accepts as its <code>delta</code> parameter (which can be arrays to denote that multiple of
 	 *         that type are accepted), or null if the given mode is not supported. For {@link ChangeMode#DELETE} and {@link ChangeMode#RESET} this can return any non-null array to
@@ -299,7 +293,7 @@ public interface Expression<T> extends SyntaxElement, Debuggable, Loopable<T> {
 	/**
 	 * Changes the expression's value by the given amount. This will only be called on supported modes and with the desired <code>delta</code> type as returned by
 	 * {@link #acceptChange(ChangeMode)}
-	 * 
+	 *
 	 * @param event The event
 	 * @param delta An array with one or more instances of one or more of the classes returned by {@link #acceptChange(ChangeMode)} for the given change mode (null for
 	 *            {@link ChangeMode#DELETE} and {@link ChangeMode#RESET}). <b>This can be a Object[], thus casting is not allowed.</b>
@@ -396,6 +390,11 @@ public interface Expression<T> extends SyntaxElement, Debuggable, Loopable<T> {
 
 		// Return the given delta or an Object[] copy of it, with some values transformed
 		return newDelta == null ? delta : newDelta;
+	}
+
+	@Override
+	default @NotNull String getSyntaxTypeName() {
+		return "expression";
 	}
 
 }

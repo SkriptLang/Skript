@@ -44,7 +44,7 @@ import java.lang.reflect.Array;
 		# timespan value of {_node} = 12 hours (duration)""",
 
 })
-@Since("INSERT VERSION")
+@Since("2.10")
 public class ExprNodeValue extends SimplePropertyExpression<Node, Object> {
 
 	static {
