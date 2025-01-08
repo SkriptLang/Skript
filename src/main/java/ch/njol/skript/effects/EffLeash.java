@@ -1,6 +1,7 @@
 package ch.njol.skript.effects;
 
 import ch.njol.skript.Skript;
+import ch.njol.skript.config.Node;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
@@ -13,6 +14,7 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.log.runtime.SyntaxRuntimeErrorProducer;
 
 @Name("Leash entities")
 @Description({
@@ -25,7 +27,7 @@ import org.jetbrains.annotations.Nullable;
 		"\tsend \"&aYou leashed &2%event-entity%!\" to player"
 })
 @Since("2.3")
-public class EffLeash extends Effect {
+public class EffLeash extends Effect implements SyntaxRuntimeErrorProducer {
 
 	static {
 		Skript.registerEffect(EffLeash.class,
@@ -34,6 +36,7 @@ public class EffLeash extends Effect {
 			"un(leash|lead) [holder of] %livingentities%");
 	}
 
+	private Node node;
 	private Expression<Entity> holder;
 	private Expression<LivingEntity> targets;
 	private boolean leash;
@@ -41,6 +44,7 @@ public class EffLeash extends Effect {
 	@Override
 	@SuppressWarnings("unchecked")
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
+		node = getParser().getNode();
 		leash = matchedPattern != 2;
 		if (leash) {
 			holder = (Expression<Entity>) exprs[1 - matchedPattern];
@@ -55,14 +59,21 @@ public class EffLeash extends Effect {
 	protected void execute(Event event) {
 		if (leash) {
 			Entity holder = this.holder.getSingle(event);
-			if (holder == null)
+			if (holder == null) {
+				error("The provided leash holder was null.", this.holder.toString(null, false));
 				return;
+			}
 			for (LivingEntity target : targets.getArray(event))
 				target.setLeashHolder(holder);
 		} else {
 			for (LivingEntity target : targets.getArray(event))
 				target.setLeashHolder(null);
 		}
+	}
+
+	@Override
+	public Node getNode() {
+		return node;
 	}
 
 	@Override

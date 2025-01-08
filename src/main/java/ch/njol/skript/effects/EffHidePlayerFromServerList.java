@@ -1,6 +1,7 @@
 package ch.njol.skript.effects;
 
 import ch.njol.skript.Skript;
+import ch.njol.skript.config.Node;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
@@ -15,6 +16,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.server.ServerListPingEvent;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.log.runtime.SyntaxRuntimeErrorProducer;
 
 import java.util.Arrays;
 import java.util.Iterator;
@@ -30,7 +32,7 @@ import java.util.Iterator;
 		"\thide {vanished::*} from the server list"
 })
 @Since("2.3")
-public class EffHidePlayerFromServerList extends Effect {
+public class EffHidePlayerFromServerList extends Effect implements SyntaxRuntimeErrorProducer {
 
 	static {
 		Skript.registerEffect(EffHidePlayerFromServerList.class,
@@ -40,6 +42,7 @@ public class EffHidePlayerFromServerList extends Effect {
 
 	private static final boolean PAPER_EVENT_EXISTS = Skript.classExists("com.destroystokyo.paper.event.server.PaperServerListPingEvent");
 
+	private Node node;
 	private Expression<Player> players;
 
 	@Override
@@ -54,6 +57,7 @@ public class EffHidePlayerFromServerList extends Effect {
 			Skript.error("Can't hide players from the server list anymore after the server list ping event has already passed");
 			return false;
 		}
+		node = getParser().getNode();
 		players = (Expression<Player>) exprs[0];
 		return true;
 	}
@@ -61,11 +65,18 @@ public class EffHidePlayerFromServerList extends Effect {
 	@Override
 	@SuppressWarnings("removal")
 	protected void execute(Event event) {
-		if (!(event instanceof ServerListPingEvent serverListPingEvent))
+		if (!(event instanceof ServerListPingEvent serverListPingEvent)) {
+			error("The 'hide player from server list' effect can only be used in a 'server list ping' event.");
 			return;
+		}
 
-		Iterator<Player> it = serverListPingEvent.iterator();
-		Iterators.removeAll(it, Arrays.asList(players.getArray(event)));
+		Iterator<Player> iterator = serverListPingEvent.iterator();
+		Iterators.removeAll(iterator, Arrays.asList(players.getArray(event)));
+	}
+
+	@Override
+	public Node getNode() {
+		return node;
 	}
 
 	@Override

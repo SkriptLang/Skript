@@ -1,6 +1,7 @@
 package ch.njol.skript.effects;
 
 import ch.njol.skript.Skript;
+import ch.njol.skript.config.Node;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
@@ -15,6 +16,7 @@ import org.bukkit.entity.Explosive;
 import org.bukkit.event.Event;
 import org.bukkit.event.entity.ExplosionPrimeEvent;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.log.runtime.SyntaxRuntimeErrorProducer;
 
 @Name("Make Incendiary")
 @Description("Sets if an entity's explosion will leave behind fire. This effect is also usable in an explosion prime event.")
@@ -23,7 +25,7 @@ import org.jetbrains.annotations.Nullable;
 		"\tmake the explosion fiery"
 })
 @Since("2.5")
-public class EffIncendiary extends Effect {
+public class EffIncendiary extends Effect implements SyntaxRuntimeErrorProducer {
 
 	static {
 		Skript.registerEffect(EffIncendiary.class,
@@ -33,6 +35,7 @@ public class EffIncendiary extends Effect {
 		);
 	}
 
+	private Node node;
 	private Expression<Entity> entities;
 	private boolean causeFire, isEvent;
 
@@ -44,6 +47,7 @@ public class EffIncendiary extends Effect {
 			Skript.error("Making 'the explosion' fiery is only usable in an explosion prime event", ErrorQuality.SEMANTIC_ERROR);
 			return false;
 		}
+		node = getParser().getNode();
 		if (!isEvent)
 			entities = (Expression<Entity>) exprs[0];
 		causeFire = parseResult.mark != 1;
@@ -53,8 +57,10 @@ public class EffIncendiary extends Effect {
 	@Override
 	protected void execute(Event event) {
 		if (isEvent) {
-			if (!(event instanceof ExplosionPrimeEvent explosionPrimeEvent))
+			if (!(event instanceof ExplosionPrimeEvent explosionPrimeEvent)) {
+				error("The 'incendiary' effect can only be used in an 'explosion prime' event.");
 				return;
+			}
 			explosionPrimeEvent.setFire(causeFire);
 		} else {
 			for (Entity entity : entities.getArray(event)) {
@@ -62,6 +68,11 @@ public class EffIncendiary extends Effect {
 					explosive.setIsIncendiary(causeFire);
 			}
 		}
+	}
+
+	@Override
+	public Node getNode() {
+		return node;
 	}
 
 	@Override

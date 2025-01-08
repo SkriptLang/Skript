@@ -2,6 +2,7 @@ package ch.njol.skript.effects;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.bukkitutil.PaperEntityUtils;
+import ch.njol.skript.config.Node;
 import ch.njol.skript.doc.*;
 import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
@@ -13,6 +14,7 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Mob;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.log.runtime.SyntaxRuntimeErrorProducer;
 
 @Name("Look At")
 @Description({
@@ -32,7 +34,7 @@ import org.jetbrains.annotations.Nullable;
 })
 @Since("2.7")
 @RequiredPlugins("Paper 1.17+, Paper 1.19.1+ (Players & Look Anchors)")
-public class EffLook extends Effect {
+public class EffLook extends Effect implements SyntaxRuntimeErrorProducer {
 
 	private static final boolean LOOK_ANCHORS = Skript.classExists("io.papermc.paper.entity.LookAnchor");
 
@@ -52,6 +54,7 @@ public class EffLook extends Effect {
 		}
 	}
 
+	private Node node;
 	private LookAnchor anchor = LookAnchor.EYES;
 	private Expression<LivingEntity> entities;
 	private Expression<?> target; // can be a vector, location, or entity
@@ -60,6 +63,7 @@ public class EffLook extends Effect {
 	@Override
 	@SuppressWarnings("unchecked")
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
+		node = getParser().getNode();
 		entities = (Expression<LivingEntity>) exprs[0];
 		if (LOOK_ANCHORS && matchedPattern == 0) {
 			target = exprs[parseResult.hasTag("of") ? 2 : 1];
@@ -78,8 +82,10 @@ public class EffLook extends Effect {
 	@Override
 	protected void execute(Event event) {
 		Object object = target.getSingle(event);
-		if (object == null)
+		if (object == null) {
+			error("The provided target was null.", target.toString(null, false));
 			return;
+		}
 
 		Float speed = this.speed == null ? null : this.speed.getOptionalSingle(event).map(Number::floatValue).orElse(null);
 		Float maxPitch = this.maxPitch == null ? null : this.maxPitch.getOptionalSingle(event).map(Number::floatValue).orElse(null);
@@ -89,6 +95,11 @@ public class EffLook extends Effect {
 		} else {
 			PaperEntityUtils.lookAt(object, speed, maxPitch, entities.getArray(event));
 		}
+	}
+
+	@Override
+	public Node getNode() {
+		return node;
 	}
 
 	@Override

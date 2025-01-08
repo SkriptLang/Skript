@@ -1,6 +1,7 @@
 package ch.njol.skript.effects;
 
 import ch.njol.skript.Skript;
+import ch.njol.skript.config.Node;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
@@ -15,6 +16,7 @@ import org.bukkit.event.player.PlayerKickEvent;
 import org.bukkit.event.player.PlayerLoginEvent;
 import org.bukkit.event.player.PlayerLoginEvent.Result;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.log.runtime.SyntaxRuntimeErrorProducer;
 
 @Name("Kick")
 @Description("Kicks a player from the server.")
@@ -24,18 +26,20 @@ import org.jetbrains.annotations.Nullable;
 		"\tcancel the event"
 })
 @Since("1.0")
-public class EffKick extends Effect {
+public class EffKick extends Effect implements SyntaxRuntimeErrorProducer {
 
 	static {
 		Skript.registerEffect(EffKick.class, "kick %players% [(by reason of|because [of]|on account of|due to) %-string%]");
 	}
-	
+
+	private Node node;
 	private Expression<Player> players;
 	private @Nullable Expression<String> reason;
 
 	@Override
 	@SuppressWarnings("unchecked")
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
+		node = getParser().getNode();
 		players = (Expression<Player>) exprs[0];
 		reason = (Expression<String>) exprs[1];
 		return true;
@@ -44,8 +48,10 @@ public class EffKick extends Effect {
 	@Override
 	protected void execute(Event event) {
 		String reason = this.reason != null ? this.reason.getSingle(event) : "";
-		if (reason == null)
+		if (reason == null) {
+			error("The provided reason was null.", this.reason.toString(null, false));
 			return;
+		}
 		for (Player player : players.getArray(event)) {
 			if (event instanceof PlayerLoginEvent playerLoginEvent && player.equals(playerLoginEvent.getPlayer()) && !Delay.isDelayed(event)) {
 				playerLoginEvent.disallow(Result.KICK_OTHER, reason);
@@ -56,10 +62,15 @@ public class EffKick extends Effect {
 			}
 		}
 	}
+
+	@Override
+	public Node getNode() {
+		return node;
+	}
 	
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
 		return "kick " + players.toString(event, debug) + (reason != null ? " on account of " + reason.toString(event, debug) : "");
 	}
-	
+
 }
