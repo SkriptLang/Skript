@@ -1,6 +1,7 @@
 package ch.njol.skript.effects;
 
 import ch.njol.skript.Skript;
+import ch.njol.skript.config.Node;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
@@ -13,10 +14,8 @@ import ch.njol.util.Kleenean;
 import org.bukkit.Location;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.log.runtime.SyntaxRuntimeErrorProducer;
 
-/**
- * @author Peter Güttinger
- */
 @Name("Explosion")
 @Description({
 	"Creates an explosion of a given force. The Minecraft Wiki has an <a href='https://www.minecraft.wiki/w/Explosion'>article on explosions</a> " +
@@ -29,7 +28,7 @@ import org.jetbrains.annotations.Nullable;
 	"create an explosion of force 0 at the victim"
 })
 @Since("1.0")
-public class EffExplosion extends Effect {
+public class EffExplosion extends Effect implements SyntaxRuntimeErrorProducer {
 
 	static {
 		Skript.registerEffect(EffExplosion.class,
@@ -39,6 +38,7 @@ public class EffExplosion extends Effect {
 			"[(create|make)] [an] explosion[ ]effect [%directions% %locations%]");
 	}
 
+	private Node node;
 	private @Nullable Expression<Number> force;
 	private Expression<Location> locations;
 	private boolean blockDamage, setFire;
@@ -46,6 +46,7 @@ public class EffExplosion extends Effect {
 	@Override
 	@SuppressWarnings("unchecked")
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parser) {
+		node = getParser().getNode();
 		force = matchedPattern <= 1 ? (Expression<Number>) exprs[0] : null;
 		blockDamage = matchedPattern != 1;
 		setFire = parser.mark == 1;
@@ -55,17 +56,30 @@ public class EffExplosion extends Effect {
 
 	@Override
 	public void execute(Event event) {
-		Number power = force != null ? force.getSingle(event) : 0;
-		if (power == null)
-			return;
-		for (Location location : locations.getArray(event)) {
-			if (location.getWorld() == null)
-				continue;
-			if (!blockDamage)
-				location.getWorld().createExplosion(location.getX(), location.getY(), location.getZ(), power.floatValue(), false, false);
-			else
-				location.getWorld().createExplosion(location, power.floatValue(), setFire);
+		float power = 0;
+		if (force != null) {
+			Number force = this.force.getSingle(event);
+			if (force == null) {
+				error("The force of the explosion was null.", this.force.toString(null, false));
+				return;
+			}
+			power = force.floatValue();
 		}
+		for (Location location : locations.getArray(event)) {
+			if (location.getWorld() == null) {
+				warning("One of the locations didn't have a world, and was skipped.", locations.toString(null, false));
+				continue;
+			}
+			if (!blockDamage)
+				location.getWorld().createExplosion(location.getX(), location.getY(), location.getZ(), power, false, false);
+			else
+				location.getWorld().createExplosion(location, power, setFire);
+		}
+	}
+
+	@Override
+	public Node getNode() {
+		return node;
 	}
 
 	@Override

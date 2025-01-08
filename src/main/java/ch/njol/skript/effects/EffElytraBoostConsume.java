@@ -1,6 +1,7 @@
 package ch.njol.skript.effects;
 
 import ch.njol.skript.Skript;
+import ch.njol.skript.config.Node;
 import ch.njol.skript.doc.*;
 import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
@@ -9,6 +10,7 @@ import ch.njol.util.Kleenean;
 import com.destroystokyo.paper.event.player.PlayerElytraBoostEvent;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.log.runtime.SyntaxRuntimeErrorProducer;
 
 @Name("Consume Boosting Firework")
 @Description("Prevent the firework used in an 'elytra boost' event from being consumed.")
@@ -19,7 +21,7 @@ import org.jetbrains.annotations.Nullable;
 })
 @RequiredPlugins("Paper")
 @Since("2.10")
-public class EffElytraBoostConsume extends Effect {
+public class EffElytraBoostConsume extends Effect implements SyntaxRuntimeErrorProducer {
 
 	static {
 		if (Skript.classExists("com.destroystokyo.paper.event.player.PlayerElytraBoostEvent")) {
@@ -29,6 +31,7 @@ public class EffElytraBoostConsume extends Effect {
 		}
 	}
 
+	private Node node;
 	private boolean consume;
 
 	@Override
@@ -37,14 +40,24 @@ public class EffElytraBoostConsume extends Effect {
 			Skript.error("This effect can only be used in an 'elytra boost' event.");
 			return false;
 		}
+		node = getParser().getNode();
 		consume = matchedPattern == 1;
 		return true;
 	}
 
 	@Override
 	protected void execute(Event event) {
-		if (event instanceof PlayerElytraBoostEvent boostEvent)
-			boostEvent.setShouldConsume(consume);
+		if (!(event instanceof PlayerElytraBoostEvent boostEvent)){
+			error("The 'elytra boost consume' effect can only be used in an 'elytra boost' event.");
+			return;
+		}
+
+		boostEvent.setShouldConsume(consume);
+	}
+
+	@Override
+	public Node getNode() {
+		return node;
 	}
 
 	@Override

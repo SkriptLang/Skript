@@ -5,6 +5,7 @@ import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.bukkitutil.DamageUtils;
 import ch.njol.skript.bukkitutil.HealthUtils;
 import ch.njol.skript.bukkitutil.ItemUtils;
+import ch.njol.skript.config.Node;
 import ch.njol.skript.doc.*;
 import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
@@ -18,6 +19,7 @@ import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnknownNullability;
+import org.skriptlang.skript.log.runtime.SyntaxRuntimeErrorProducer;
 
 @Name("Damage/Heal/Repair")
 @Description({
@@ -32,7 +34,8 @@ import org.jetbrains.annotations.UnknownNullability;
 })
 @Since("1.0, 2.10 (damage cause)")
 @RequiredPlugins("Spigot 1.20.4+ (for damage cause)")
-public class EffHealth extends Effect {
+public class EffHealth extends Effect implements SyntaxRuntimeErrorProducer {
+
 	private static final boolean SUPPORTS_DAMAGE_SOURCE = Skript.classExists("org.bukkit.damage.DamageSource");
 
 	static {
@@ -42,6 +45,7 @@ public class EffHealth extends Effect {
 			"repair %itemtypes/slots% [by %-number%]");
 	}
 
+	private Node node;
 	private Expression<?> damageables;
 	private @UnknownNullability Expression<Number> amount;
 	private boolean isHealing, isRepairing;
@@ -54,7 +58,7 @@ public class EffHealth extends Effect {
 			Skript.error("Using the fake cause extension in effect 'damage' requires Spigot 1.20.4+");
 			return false;
 		}
-
+		this.node = getParser().getNode();
 		this.damageables = exprs[0];
 		this.isHealing = matchedPattern >= 1;
 		this.isRepairing = matchedPattern == 2;
@@ -69,8 +73,10 @@ public class EffHealth extends Effect {
 		double amount = 0;
 		if (this.amount != null) {
 			Number amountPostCheck = this.amount.getSingle(event);
-			if (amountPostCheck == null)
+			if (amountPostCheck == null) {
+				error("The " + getSyntaxType() + " amount was null.", this.amount.toString(null, false));
 				return;
+			}
 			amount = amountPostCheck.doubleValue();
 		}
 
@@ -119,16 +125,19 @@ public class EffHealth extends Effect {
 	}
 
 	@Override
+	public Node getNode() {
+		return node;
+	}
+
+	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		String prefix = "damage ";
-		if (isRepairing) {
-			prefix = "repair ";
-		} else if (isHealing) {
-			prefix = "heal ";
-		}
-		return prefix + damageables.toString(event, debug)
+		return getSyntaxType() + damageables.toString(event, debug)
 				   + (amount != null ? " by " + amount.toString(event, debug) : "")
 				   + (exprCause != null && event != null ? " with damage cause " + exprCause.getSingle(event) : "");
+	}
+
+	private String getSyntaxType() {
+		return isRepairing ? "repair" : isHealing ? "heal" : "damage";
 	}
 
 }

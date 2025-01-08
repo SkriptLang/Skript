@@ -2,6 +2,7 @@ package ch.njol.skript.effects;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.ItemType;
+import ch.njol.skript.config.Node;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
@@ -20,6 +21,7 @@ import org.bukkit.inventory.meta.LeatherArmorMeta;
 import org.bukkit.inventory.meta.MapMeta;
 import org.bukkit.inventory.meta.PotionMeta;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.log.runtime.SyntaxRuntimeErrorProducer;
 
 @Name("Color Items")
 @Description({
@@ -32,9 +34,7 @@ import org.jetbrains.annotations.Nullable;
 	"color the player's tool red"
 })
 @Since("2.0, 2.2-dev26 (maps and potions)")
-public class EffColorItems extends Effect {
-	
-	private static final boolean MAPS_AND_POTIONS_COLORS = Skript.methodExists(PotionMeta.class, "setColor", org.bukkit.Color.class);
+public class EffColorItems extends Effect implements SyntaxRuntimeErrorProducer {
 	
 	static {
 		Skript.registerEffect(EffColorItems.class,
@@ -42,12 +42,14 @@ public class EffColorItems extends Effect {
 			"(dye|colo[u]r|paint) %itemtypes% \\(%number%, %number%, %number%\\)");
 	}
 
+	private Node node;
 	private Expression<ItemType> items;
 	private Expression<Color> color;
 
 	@Override
 	@SuppressWarnings("unchecked")
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parser) {
+		node = getParser().getNode();
 		items = (Expression<ItemType>) exprs[0];
 		if (matchedPattern == 0) {
 			color = (Expression<Color>) exprs[1];
@@ -103,6 +105,7 @@ public class EffColorItems extends Effect {
 	protected void execute(Event event) {
 		Color color = this.color.getSingle(event);
 		if (color == null) {
+			error("The color to dye the items was null", this.color.toString(null, false));
 			return;
 		}
 		org.bukkit.Color bukkitColor = color.asBukkitColor();
@@ -113,21 +116,26 @@ public class EffColorItems extends Effect {
 			if (meta instanceof LeatherArmorMeta leatherArmorMeta) {
 				leatherArmorMeta.setColor(bukkitColor);
 				item.setItemMeta(leatherArmorMeta);
-			} else if (MAPS_AND_POTIONS_COLORS) {
-				
-				if (meta instanceof MapMeta mapMeta) {
-					mapMeta.setColor(bukkitColor);
-					item.setItemMeta(mapMeta);
-				} else if (meta instanceof PotionMeta potionMeta) {
-					potionMeta.setColor(bukkitColor);
-					item.setItemMeta(potionMeta);
-				}
+			} else if (meta instanceof MapMeta mapMeta) {
+				mapMeta.setColor(bukkitColor);
+				item.setItemMeta(mapMeta);
+			} else if (meta instanceof PotionMeta potionMeta) {
+				potionMeta.setColor(bukkitColor);
+				item.setItemMeta(potionMeta);
+			} else {
+				warning("An item passed to the 'color items' effect wasn't colorable, and is thus unaffected.");
 			}
 		}
+	}
+
+	@Override
+	public Node getNode() {
+		return node;
 	}
 	
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
 		return "dye " + items.toString(event, debug) + " " + color.toString(event, debug);
 	}
+
 }

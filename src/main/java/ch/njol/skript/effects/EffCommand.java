@@ -47,13 +47,8 @@ public class EffCommand extends Effect {
 	@Override
 	@SuppressWarnings("unchecked")
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		if (matchedPattern == 0) {
-			commands = (Expression<String>) exprs[0];
-			senders = (Expression<CommandSender>) exprs[1];
-		} else {
-			senders = (Expression<CommandSender>) exprs[0];
-			commands = (Expression<String>) exprs[1];
-		}
+		commands = (Expression<String>) exprs[matchedPattern];
+		senders = (Expression<CommandSender>) exprs[matchedPattern ^ 1];
 		bungeecord = parseResult.hasTag("bungee");
 		if (bungeecord && senders == null) {
 			Skript.error("The commandsenders expression cannot be omitted when using the bungeecord option");

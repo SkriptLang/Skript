@@ -55,10 +55,10 @@ public class EffGlowingText extends Effect {
 			} else if (obj instanceof ItemType itemType) {
 				ItemMeta meta = itemType.getItemMeta();
 				if (!(meta instanceof BlockStateMeta blockMeta))
-					return;
+					return; // this looks like it should continue instead of return
 				BlockState state = blockMeta.getBlockState();
 				if (!(state instanceof Sign sign))
-					return;
+					return; // same here
 				sign.setGlowingText(glowing);
 				state.update();
 				blockMeta.setBlockState(state);

@@ -1,6 +1,7 @@
 package ch.njol.skript.effects;
 
 import ch.njol.skript.Skript;
+import ch.njol.skript.config.Node;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
@@ -17,6 +18,7 @@ import org.bukkit.entity.WindCharge;
 import org.bukkit.entity.minecart.ExplosiveMinecart;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.log.runtime.SyntaxRuntimeErrorProducer;
 
 @Name("Detonate Entities")
 @Description({
@@ -25,7 +27,7 @@ import org.jetbrains.annotations.Nullable;
 })
 @Examples("detonate last launched firework")
 @Since("2.10")
-public class EffDetonate extends Effect {
+public class EffDetonate extends Effect implements SyntaxRuntimeErrorProducer {
 
 	private static final boolean HAS_WINDCHARGE = Skript.classExists("org.bukkit.entity.WindCharge");
 
@@ -33,11 +35,13 @@ public class EffDetonate extends Effect {
 		Skript.registerEffect(EffDetonate.class, "detonate %entities%");
 	}
 
+	private Node node;
 	private Expression<Entity> entities;
 
 	@Override
 	@SuppressWarnings("unchecked")
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
+		node = getParser().getNode();
 		entities = (Expression<Entity>) exprs[0];
  		return true;
 	}
@@ -55,8 +59,15 @@ public class EffDetonate extends Effect {
 				creeper.explode();
 			} else if (entity instanceof TNTPrimed tntPrimed) {
 				tntPrimed.setFuseTicks(0);
+			} else {
+				warning("An entity passed in wasn't detonate-able, and is thus unaffected.", entities.toString(null, false));
 			}
 		}
+	}
+
+	@Override
+	public Node getNode() {
+		return node;
 	}
 
 	public String toString(@Nullable Event event, boolean debug) {

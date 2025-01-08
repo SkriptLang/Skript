@@ -2,6 +2,7 @@ package ch.njol.skript.effects;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.command.ScriptCommandEvent;
+import ch.njol.skript.config.Node;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
@@ -13,6 +14,7 @@ import ch.njol.skript.log.ErrorQuality;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.log.runtime.SyntaxRuntimeErrorProducer;
 
 @Name("Cancel Command Cooldown")
 @Description("Only usable in commands. Makes it so the current command usage isn't counted towards the cooldown.")
@@ -28,14 +30,15 @@ import org.jetbrains.annotations.Nullable;
 				"\t\t\tstop",
 			"\t\tset the player's display name to arg-1"})
 @Since("2.2-dev34")
-public class EffCancelCooldown extends Effect {
+public class EffCancelCooldown extends Effect implements SyntaxRuntimeErrorProducer {
 
 	static {
 		Skript.registerEffect(EffCancelCooldown.class,
-				"(cancel|ignore) [the] [current] [command] cooldown",
-				"un(cancel|ignore) [the] [current] [command] cooldown");
+			"(cancel|ignore) [the] [current] [command] cooldown",
+			"un(cancel|ignore) [the] [current] [command] cooldown");
 	}
 
+	private Node node;
 	private boolean cancel;
 
 	@Override
@@ -44,16 +47,24 @@ public class EffCancelCooldown extends Effect {
 			Skript.error("The cancel cooldown effect may only be used in a command", ErrorQuality.SEMANTIC_ERROR);
 			return false;
 		}
+		node = getParser().getNode();
 		cancel = matchedPattern == 0;
 		return true;
 	}
 
 	@Override
 	protected void execute(Event event) {
-		if (!(event instanceof ScriptCommandEvent scriptCommandEvent))
+		if (!(event instanceof ScriptCommandEvent scriptCommandEvent)) {
+			error("The 'cancel cooldown' effect can only be used in a command.");
 			return;
+		}
 
 		scriptCommandEvent.setCooldownCancelled(cancel);
+	}
+
+	@Override
+	public Node getNode() {
+		return node;
 	}
 
 	@Override
