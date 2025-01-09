@@ -49,7 +49,7 @@ public class EffDropLeash extends Effect implements SyntaxRuntimeErrorProducer {
 	@Override
 	protected void execute(Event event) {
 		if (!(event instanceof EntityUnleashEvent unleashEvent)) {
-			error("The 'drop leash' effect can only be used in an unleash event.");
+			error("The 'drop leash' effect can only be used in an 'unleash' event.");
 			return;
 		}
 

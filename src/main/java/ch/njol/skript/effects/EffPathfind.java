@@ -53,17 +53,17 @@ public class EffPathfind extends Effect implements SyntaxRuntimeErrorProducer {
 	@Override
 	protected void execute(Event event) {
 		Object target = null;
-		if (this.target != null){
+		if (this.target != null) {
 			target = this.target.getSingle(event);
 			if (target == null)
-				warning("The provided target was null, so defaulted to stop pathfinding.", this.target.toString(null, false));
+				warning("The provided target was not set, so defaulted to stop pathfinding.", this.target.toString());
 		}
 
 		double speed = 1;
 		if (this.speed != null) {
 			Number postSpeed = this.speed.getSingle(event);
 			if (postSpeed == null)
-				warning("The provided speed was null, so defaulted to 1.");
+				warning("The provided speed was not set, so defaulted to 1.", this.speed.toString());
 		}
 
 		for (LivingEntity entity : entities.getArray(event)) {

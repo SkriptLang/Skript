@@ -83,12 +83,29 @@ public class EffLook extends Effect implements SyntaxRuntimeErrorProducer {
 	protected void execute(Event event) {
 		Object object = target.getSingle(event);
 		if (object == null) {
-			error("The provided target was null.", target.toString(null, false));
+			error("The provided target was not set.", target.toString());
 			return;
 		}
 
-		Float speed = this.speed == null ? null : this.speed.getOptionalSingle(event).map(Number::floatValue).orElse(null);
-		Float maxPitch = this.maxPitch == null ? null : this.maxPitch.getOptionalSingle(event).map(Number::floatValue).orElse(null);
+		Float speed = null;
+		if (this.speed != null) {
+			Number provided = this.speed.getSingle(event);
+			if (provided == null) {
+				warning("The provided speed was not set.", this.speed.toString());
+			} else {
+				speed = provided.floatValue();
+			}
+		}
+
+		Float maxPitch = null;
+		if (this.maxPitch != null) {
+			Number provided = this.maxPitch.getSingle(event);
+			if (provided == null) {
+				warning("The provided max pitch was not set.", this.maxPitch.toString());
+			} else {
+				maxPitch = provided.floatValue();
+			}
+		}
 
 		if (LOOK_ANCHORS) {
 			PaperEntityUtils.lookAt(anchor, object, speed, maxPitch, entities.getArray(event));

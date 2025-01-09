@@ -59,7 +59,7 @@ public class EffPoison extends Effect implements SyntaxRuntimeErrorProducer {
 		if (this.duration != null) {
 			Timespan timespan = this.duration.getSingle(event);
 			if (timespan == null) {
-				warning("The provided duration was null, so defaulted to 15 seconds.", this.duration.toString(null, false));
+				warning("The provided duration was not set, so defaulted to 15 seconds.", this.duration.toString());
 			} else {
 				duration = (int) timespan.getAs(TimePeriod.TICK); // this will truncate anything greater than Integer.MAX_VALUE
 			}

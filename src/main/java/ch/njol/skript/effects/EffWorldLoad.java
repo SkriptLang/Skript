@@ -66,8 +66,9 @@ public class EffWorldLoad extends Effect implements SyntaxRuntimeErrorProducer {
 		if (this.environment != null) {
 			environment = this.environment.getSingle(event);
 			if (environment == null)
-				warning("The provided environment was null, so defaulted to none.", this.environment.toString(null, false));
+				warning("The provided environment was not set, so defaulted to none.", this.environment.toString());
 		}
+
 		for (Object world : worlds.getArray(event)) {
 			if (load && world instanceof String string) {
 				WorldCreator worldCreator = new WorldCreator(string);

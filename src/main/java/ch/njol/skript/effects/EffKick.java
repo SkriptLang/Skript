@@ -49,7 +49,7 @@ public class EffKick extends Effect implements SyntaxRuntimeErrorProducer {
 	protected void execute(Event event) {
 		String reason = this.reason != null ? this.reason.getSingle(event) : "";
 		if (reason == null) {
-			error("The provided reason was null.", this.reason.toString(null, false));
+			error("The provided reason was not set.", this.reason.toString());
 			return;
 		}
 		for (Player player : players.getArray(event)) {

@@ -60,7 +60,7 @@ public class EffLeash extends Effect implements SyntaxRuntimeErrorProducer {
 		if (leash) {
 			Entity holder = this.holder.getSingle(event);
 			if (holder == null) {
-				error("The provided leash holder was null.", this.holder.toString(null, false));
+				error("The provided leash holder was not set.", this.holder.toString());
 				return;
 			}
 			for (LivingEntity target : targets.getArray(event))

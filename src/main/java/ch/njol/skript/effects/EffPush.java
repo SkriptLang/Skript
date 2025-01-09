@@ -49,13 +49,13 @@ public class EffPush extends Effect implements SyntaxRuntimeErrorProducer {
 	protected void execute(Event event) {
 		Direction direction = this.direction.getSingle(event);
 		if (direction == null) {
-			error("The provided direction was null.", this.direction.toString(null, false));
+			error("The provided direction was not set.", this.direction.toString());
 			return;
 		}
 
 		Number velocity = speed != null ? speed.getSingle(event) : null;
 		if (speed != null && velocity == null) {
-			error("The provided velocity was null.", this.speed.toString(null, false));
+			error("The provided velocity was not set.", this.speed.toString());
 			return;
 		}
 
@@ -65,7 +65,7 @@ public class EffPush extends Effect implements SyntaxRuntimeErrorProducer {
 				mod.normalize().multiply(velocity.doubleValue());
 			if (!(Double.isFinite(mod.getX()) && Double.isFinite(mod.getY()) && Double.isFinite(mod.getZ()))) {
 				// Some component of the mod vector is not finite, so just stop{
-				error("Either the X, Y, or Z component of the direction vector was not finite.", this.direction.toString(null, false));
+				error("Either the X, Y, or Z component of the direction vector was not finite.", this.direction.toString());
 				return;
 			}
 			entity.setVelocity(entity.getVelocity().add(mod)); // REMIND add NoCheatPlus exception to players

@@ -60,7 +60,7 @@ public class EffDetonate extends Effect implements SyntaxRuntimeErrorProducer {
 			} else if (entity instanceof TNTPrimed tntPrimed) {
 				tntPrimed.setFuseTicks(0);
 			} else {
-				warning("An entity passed in wasn't detonate-able, and is thus unaffected.", entities.toString(null, false));
+				warning("An entity passed in wasn't detonate-able, and was thus unaffected.", entities.toString());
 			}
 		}
 	}

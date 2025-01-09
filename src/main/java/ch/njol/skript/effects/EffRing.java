@@ -59,7 +59,7 @@ public class EffRing extends Effect implements SyntaxRuntimeErrorProducer {
 
 		Direction direction = this.direction.getSingle(event);
 		if (direction == null) {
-			warning("The provided direction was null, so defaulted to none.", this.direction.toString(null, false));
+			warning("The provided direction was not set, so defaulted to none.", this.direction.toString());
 			return null;
 		}
 
@@ -73,7 +73,7 @@ public class EffRing extends Effect implements SyntaxRuntimeErrorProducer {
 		if (entity != null) {
 			actualEntity = entity.getSingle(event);
 			if (actualEntity == null)
-				warning("The provided entity was null, so defaulted to none.", entity.toString(null, false));
+				warning("The provided entity was not set, so defaulted to none.", entity.toString());
 		}
 
 		for (Block block : blocks.getArray(event)) {

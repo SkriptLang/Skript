@@ -43,7 +43,7 @@ public class EffApplyBoneMeal extends Effect implements SyntaxRuntimeErrorProduc
 		if (amount != null) {
 			Number amount = this.amount.getSingle(event);
 			if (amount == null) {
-				warning("The amount of bone meal to apply was null, so defaulted to 1.", this.amount.toString(null, false));
+				warning("The provided amount of bone meal was not set, so defaulted to 1.", this.amount.toString());
 			} else {
 				times = amount.intValue();
 			}

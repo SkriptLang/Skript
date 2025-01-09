@@ -89,7 +89,7 @@ public class EffScriptFile extends Effect implements SyntaxRuntimeErrorProducer 
 		} else {
 			String name = scriptNameExpression.getSingle(event);
 			if (name == null) {
-				error("The provided script name was null.", scriptNameExpression.toString(null, false));
+				error("The provided script name was not set.", scriptNameExpression.toString());
 				return;
 			}
 			this.handle(ScriptLoader.getScriptFromName(name), name);

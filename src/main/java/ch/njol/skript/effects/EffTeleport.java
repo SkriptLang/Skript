@@ -92,14 +92,14 @@ public class EffTeleport extends Effect implements SyntaxRuntimeErrorProducer {
 		boolean delayed = Delay.isDelayed(event);
 		Location location = this.location.getSingle(event);
 		if (location == null) {
-			error("The provided location was null.", this.location.toString(null, false));
+			error("The provided location was not set.", this.location.toString());
 			return next;
 		}
 		boolean unknownWorld = !location.isWorldLoaded();
 
 		Entity[] entityArray = entities.getArray(event); // We have to fetch this before possible async execution to avoid async local variable access.
 		if (entityArray.length == 0) {
-			error("No entities were passed to the 'teleport' effect.", entities.toString(null, false));
+			error("There were no entities passed through.", entities.toString());
 			return next;
 		}
 

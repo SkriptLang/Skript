@@ -60,14 +60,14 @@ public class EffExplosion extends Effect implements SyntaxRuntimeErrorProducer {
 		if (force != null) {
 			Number force = this.force.getSingle(event);
 			if (force == null) {
-				error("The force of the explosion was null.", this.force.toString(null, false));
+				error("The provided force was not set.", this.force.toString());
 				return;
 			}
 			power = force.floatValue();
 		}
 		for (Location location : locations.getArray(event)) {
 			if (location.getWorld() == null) {
-				warning("One of the locations didn't have a world, and was skipped.", locations.toString(null, false));
+				warning("One of the locations didn't have a world, and was skipped.", locations.toString());
 				continue;
 			}
 			if (!blockDamage)

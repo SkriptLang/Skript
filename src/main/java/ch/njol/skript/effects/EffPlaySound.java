@@ -125,7 +125,7 @@ public class EffPlaySound extends Effect implements SyntaxRuntimeErrorProducer {
 		if (this.seed != null) {
 			Number number = this.seed.getSingle(event);
 			if (number == null) {
-				warning("The provided seed was null, so defaulted to no seed.", this.seed.toString(null, false));
+				warning("The provided seed was not set, so defaulted to no seed.", this.seed.toString());
 			} else {
 				seed = OptionalLong.of(number.longValue());
 			}
@@ -135,7 +135,7 @@ public class EffPlaySound extends Effect implements SyntaxRuntimeErrorProducer {
 		if (this.category != null) {
 			SoundCategory provided = this.category.getSingle(event);
 			if (provided == null) {
-				warning("The provided sound category was null, so defaulted to master.", this.category.toString(null, false));
+				warning("The provided sound category was not set, so defaulted to master.", this.category.toString());
 			} else {
 				category = provided;
 			}
@@ -145,7 +145,7 @@ public class EffPlaySound extends Effect implements SyntaxRuntimeErrorProducer {
 		if (this.volume != null) {
 			Number provided = this.volume.getSingle(event);
 			if (provided == null) {
-				warning("The provided volume was null, so defaulted to 1.", this.volume.toString(null, false));
+				warning("The provided volume was not set, so defaulted to 1.", this.volume.toString());
 			} else {
 				volume = provided.floatValue();
 			}
@@ -155,7 +155,7 @@ public class EffPlaySound extends Effect implements SyntaxRuntimeErrorProducer {
 		if (this.pitch != null) {
 			Number provided = this.pitch.getSingle(event);
 			if (provided == null) {
-				warning("The provided pitch was null, so defaulted to 1.", this.pitch.toString(null, false));
+				warning("The provided pitch was not set, so defaulted to 1.", this.pitch.toString());
 			} else {
 				pitch = provided.floatValue();
 			}
@@ -171,7 +171,7 @@ public class EffPlaySound extends Effect implements SyntaxRuntimeErrorProducer {
 		}
 
 		if (validSounds.isEmpty()) {
-			error("No provided sounds were valid.", sounds.toString(null, false));
+			error("No provided sounds were valid.", sounds.toString());
 			return;
 		}
 

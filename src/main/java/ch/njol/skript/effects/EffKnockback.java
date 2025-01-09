@@ -51,7 +51,7 @@ public class EffKnockback extends Effect implements SyntaxRuntimeErrorProducer {
 	protected void execute(Event event) {
 		Direction direction = this.direction.getSingle(event);
 		if (direction == null) {
-			error("The provided direction was null.", this.direction.toString(null, false));
+			error("The provided direction was not set.", this.direction.toString());
 			return;
 		}
 
@@ -59,7 +59,7 @@ public class EffKnockback extends Effect implements SyntaxRuntimeErrorProducer {
 		if (this.strength != null) {
 			Number number = this.strength.getSingle(event);
 			if (number == null) {
-				warning("The provided strength was null, so defaulted to 1.");
+				warning("The provided strength was not set, so defaulted to 1.", this.strength.toString());
 			} else {
 				strength = number.doubleValue();
 			}

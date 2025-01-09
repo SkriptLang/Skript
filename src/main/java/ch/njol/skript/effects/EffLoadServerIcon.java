@@ -53,7 +53,7 @@ public class EffLoadServerIcon extends AsyncEffect implements SyntaxRuntimeError
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		getParser().setHasDelayBefore(Kleenean.TRUE);
 		if (!PAPER_EVENT_EXISTS) {
-			Skript.error("The load server icon effect requires Paper 1.12.2 or newer");
+			Skript.error("The load server icon effect requires Paper 1.12.2+");
 			return false;
 		}
 		node = getParser().getNode();
@@ -65,7 +65,7 @@ public class EffLoadServerIcon extends AsyncEffect implements SyntaxRuntimeError
     protected void execute(Event event) {
 		String pathString = path.getSingle(event);
 		if (pathString == null) {
-			error("The path string was null.", path.toString(null, false));
+			error("The path string was not set.", path.toString());
 			return;
 		}
 		

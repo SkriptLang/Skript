@@ -60,7 +60,7 @@ public class EffEnchant extends Effect implements SyntaxRuntimeErrorProducer {
 		if (enchantments != null) {
 			EnchantmentType[] types = enchantments.getArray(event);
 			if (types.length == 0) {
-				error("There were no enchantments passed through.", enchantments.toString(null, false));
+				error("There were no enchantments passed through.", enchantments.toString());
 				return;
 			}
 			changeFunction = item -> {

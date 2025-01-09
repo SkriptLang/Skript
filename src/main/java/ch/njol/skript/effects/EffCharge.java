@@ -56,7 +56,7 @@ public class EffCharge extends Effect implements SyntaxRuntimeErrorProducer {
 			} else if (entity instanceof WitherSkull witherSkull) {
 				witherSkull.setCharged(charge);
             } else {
-				warning("An entity passed to the 'charge' effect wasn't a creeper nor wither skull, and is thus unaffected.", entities.toString(null, false));
+				warning("An entity passed to the 'charge' effect was not a creeper, nor a wither skull, and was thus unaffected.", entities.toString());
 			}
 		}
 	}

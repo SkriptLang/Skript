@@ -57,7 +57,7 @@ public class EffFireworkLaunch extends Effect implements SyntaxRuntimeErrorProdu
 		if (lifetime != null) {
 			Number lifetime = this.lifetime.getSingle(event);
 			if (lifetime == null) {
-				warning("The duration of the firework was null, so defaulted to 1.", this.lifetime.toString(null, false));
+				warning("The provided duration was not set, so defaulted to 1.", this.lifetime.toString());
 			} else {
 				power = lifetime.intValue();
 			}
@@ -67,7 +67,7 @@ public class EffFireworkLaunch extends Effect implements SyntaxRuntimeErrorProdu
 		for (Location location : locations.getArray(event)) {
 			World world = location.getWorld();
 			if (world == null) {
-				warning("One of the locations didn't have a world, and was skipped.", locations.toString(null, false));
+				warning("One of the locations didn't have a world, and was skipped.", locations.toString());
 				continue;
 			}
 			Firework firework = world.spawn(location, Firework.class);

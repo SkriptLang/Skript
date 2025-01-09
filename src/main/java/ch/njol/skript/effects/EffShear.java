@@ -59,11 +59,11 @@ public class EffShear extends Effect implements SyntaxRuntimeErrorProducer {
 		for (LivingEntity entity : entity.getArray(event)) {
 			if (shear && INTERFACE_METHOD) {
 				if (!(entity instanceof Shearable shearable)) {
-					warning("Entity type " + entity.getType() + " is not shearable.", this.entity.toString(null, false));
+					warning("Entity type " + entity.getType() + " was not shearable.", this.entity.toString());
 					continue;
 				}
 				if (!force && !shearable.readyToBeSheared()) {
-					warning("An entity couldn't be sheared as it wasn't ready, and the 'force' option wasn't specified.", "shear" + this.entity.toString(null, false));
+					warning("An entity couldn't be sheared as it wasn't ready, and the 'force' option wasn't specified.", "shear" + this.entity.toString());
 					continue;
 				}
 				shearable.shear();

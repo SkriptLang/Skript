@@ -99,7 +99,7 @@ public class EffPotion extends Effect implements SyntaxRuntimeErrorProducer {
 		} else {
 			PotionEffectType[] potionEffectTypes = potions.getArray(event);
 			if (potionEffectTypes.length == 0) {
-				error("No provided potion effect types were valid.", potions.toString(null, false));
+				error("No provided potion effect types were valid.", potions.toString());
 				return;
 			}
 
@@ -107,7 +107,7 @@ public class EffPotion extends Effect implements SyntaxRuntimeErrorProducer {
 			if (this.tier != null) {
 				Number provided = this.tier.getSingle(event);
 				if (provided == null) {
-					warning("The provided potion effect tier was null, so defaulted to 0.", this.tier.toString(null, false));
+					warning("The provided potion effect tier was not set, so defaulted to 0.", this.tier.toString());
 				} else {
 					tier = provided.intValue() - 1;
 				}
@@ -117,7 +117,7 @@ public class EffPotion extends Effect implements SyntaxRuntimeErrorProducer {
 			if (this.duration != null && !infinite) {
 				Timespan timespan = this.duration.getSingle(event);
 				if (timespan == null) {
-					error("The provided duration was null.", this.duration.toString(null, false));
+					error("The provided duration was not set.", this.duration.toString());
 					return;
 				}
 				duration = (int) timespan.getAs(Timespan.TimePeriod.TICK); // truncates to Integer.MAX_VALUE

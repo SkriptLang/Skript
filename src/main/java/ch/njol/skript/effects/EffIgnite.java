@@ -61,7 +61,7 @@ public class EffIgnite extends Effect implements SyntaxRuntimeErrorProducer {
 		} else if (this.duration != null) {
 			Timespan timespan = this.duration.getSingle(event);
 			if (timespan == null) {
-				error("The provided timespan was null.", this.duration.toString(null, false));
+				error("The provided timespan was not set.", this.duration.toString());
 				return;
 			}
 			duration = (int) timespan.getAs(Timespan.TimePeriod.TICK);

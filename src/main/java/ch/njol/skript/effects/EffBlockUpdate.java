@@ -57,7 +57,7 @@ public class EffBlockUpdate extends Effect implements SyntaxRuntimeErrorProducer
 	protected void execute(Event event) {
 		BlockData data = this.blockData.getSingle(event);
 		if (data == null) {
-			error("The blockdata to update the block(s) to was null.", this.blockData.toString(null, false));
+			error("The provided blockdata was null.", this.blockData.toString());
 			return;
 		}
 

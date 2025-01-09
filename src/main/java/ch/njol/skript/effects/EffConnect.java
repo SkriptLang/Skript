@@ -71,7 +71,7 @@ public class EffConnect extends Effect implements SyntaxRuntimeErrorProducer {
 	protected void execute(Event event) {
 		String server = this.server.getSingle(event);
 		if (server == null) {
-			error("The server to send players to was null.", this.server.toString(null, false));
+			error("The provided server string was not set.", this.server.toString());
 			return;
 		}
 
@@ -79,7 +79,7 @@ public class EffConnect extends Effect implements SyntaxRuntimeErrorProducer {
 			.filter(Player::isOnline)
 			.toArray(Player[]::new);
 		if (players.length == 0) {
-			error("There were no valid players passed to the 'connect' effect.", this.players.toString(null, false));
+			error("There were no valid players passed through.", this.players.toString());
 			return;
 		}
 
@@ -88,7 +88,7 @@ public class EffConnect extends Effect implements SyntaxRuntimeErrorProducer {
 			if (this.port != null) {
 				Number portNum = this.port.getSingle(event);
 				if (portNum == null) {
-					error("The port number was null.", this.port.toString(null, false));
+					error("The provided port number was not set.", this.port.toString());
 					return;
 				}
 				port = portNum.intValue();

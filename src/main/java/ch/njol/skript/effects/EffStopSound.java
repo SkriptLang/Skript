@@ -74,7 +74,7 @@ public class EffStopSound extends Effect implements SyntaxRuntimeErrorProducer {
 			category = this.category.getSingle(event);
 			if (category == null) {
 				category = allSounds ? null : SoundCategory.MASTER;
-				warning("The provided sound category was null, so defaulted to " + (category == null ? "none." : "master."), this.category.toString(null ,false));
+				warning("The provided sound category was not set, so defaulted to " + (category == null ? "none." : "master."), this.category.toString());
 			}
 		}
 

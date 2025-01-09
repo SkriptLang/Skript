@@ -50,7 +50,7 @@ public class EffTree extends Effect implements SyntaxRuntimeErrorProducer {
 	public void execute(Event event) {
 		StructureType type = this.type.getSingle(event);
 		if (type == null) {
-			error("The provided tree type was null.", this.type.toString(null, false));
+			error("The provided tree type was not set.", this.type.toString());
 			return;
 		}
 

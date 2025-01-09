@@ -47,7 +47,7 @@ public class EffActionBar extends Effect implements SyntaxRuntimeErrorProducer {
 	protected void execute(Event event) {
 		String msg = message.getSingle(event);
 		if (msg == null) {
-			error("The message to send as an action bar was null.", message.toString(null, false));
+			error("The provided message was not set.", message.toString());
 			return;
 		}
 		BaseComponent[] components = BungeeConverter.convert(ChatMessages.parseToArray(msg));

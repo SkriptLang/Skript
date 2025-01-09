@@ -67,17 +67,17 @@ public class EffSendResourcePack extends Effect implements SyntaxRuntimeErrorPro
 	@Override
 	@SuppressWarnings({"deprecation"}) // Player#setResourcePack(String) is deprecated on Paper
 	protected void execute(Event event) {
+		String address = url.getSingle(event);
+		if (address == null) {
+			error("The provided URL was not set.", url.toString());
+			return;
+		}
+
 		String hash = null;
 		if (this.hash != null) {
 			hash = this.hash.getSingle(event);
 			if (hash == null)
-				warning("The provided hash was null, so defaulting to none.", this.hash.toString(null, false));
-		}
-
-		String address = url.getSingle(event);
-		if (address == null) {
-			error("The provided URL was null.", url.toString(null, false));
-			return;
+				warning("The provided hash was not set, so defaulted to none.", this.hash.toString());
 		}
 
 		for (Player recipient : recipients.getArray(event)) {

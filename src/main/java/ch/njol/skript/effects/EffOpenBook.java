@@ -45,13 +45,13 @@ public class EffOpenBook extends Effect implements SyntaxRuntimeErrorProducer {
 	protected void execute(Event event) {
 		ItemType itemType = book.getSingle(event);
 		if (itemType == null) {
-			error("The provided book item was null.", book.toString(null, false));
+			error("The provided book item was not set.", book.toString());
 			return;
 		}
 
 		ItemStack itemStack = itemType.getRandom();
 		if (itemStack == null || !(itemStack.getType() == Material.WRITTEN_BOOK)) {
-			error("The provided book item was either invalid or not a written book.", book.toString(null, false));
+			error("The provided book item was either invalid or not a written book.", book.toString());
 			return;
 		}
 

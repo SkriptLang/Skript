@@ -39,7 +39,7 @@ public class EffForceAttack extends Effect implements SyntaxRuntimeErrorProducer
 	@SuppressWarnings("unchecked")
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		if (!ATTACK_IS_SUPPORTED) {
-			Skript.error("The force attack effect requires Minecraft 1.15.2 or newer");
+			Skript.error("The force attack effect requires Minecraft 1.15.2+");
 			return false;
 		}
 		node = getParser().getNode();
@@ -52,7 +52,7 @@ public class EffForceAttack extends Effect implements SyntaxRuntimeErrorProducer
 	protected void execute(Event event) {
 		Entity target = this.target.getSingle(event);
 		if (target == null) {
-			error("The target entity was null.", this.target.toString(null, false));
+			error("The provided target entity was not set.", this.target.toString());
 			return;
 		}
 

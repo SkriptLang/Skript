@@ -78,14 +78,14 @@ public class EffSendTitle extends Effect implements SyntaxRuntimeErrorProducer {
 		if (this.title != null) {
 			title = this.title.getSingle(event);
 			if (title == null)
-				warning("The provided title text was null, so defaulted to none.", this.title.toString(null, false));
+				warning("The provided title text was not set, so defaulted to none.", this.title.toString());
 		}
 
 		String subtitle = null;
 		if (this.subtitle != null) {
 			subtitle = this.subtitle.getSingle(event);
 			if (subtitle == null)
-				warning("The provided subtitle text was null, so defaulted to none.", this.subtitle.toString(null, false));
+				warning("The provided subtitle text was not set, so defaulted to none.", this.subtitle.toString());
 		}
 		
 		if (TIME_SUPPORTED) {
@@ -95,7 +95,7 @@ public class EffSendTitle extends Effect implements SyntaxRuntimeErrorProducer {
 			if (this.fadeIn != null) {
 				Timespan provided = this.fadeIn.getSingle(event);
 				if (provided == null) {
-					warning("The provided fade in timespan was null, so defaulted to -1 ticks.", this.fadeIn.toString(null, false));
+					warning("The provided fade in timespan was not set, so defaulted to -1 ticks.", this.fadeIn.toString());
 				} else {
 					fadeIn = (int) provided.getAs(TimePeriod.TICK);
 				}
@@ -104,7 +104,7 @@ public class EffSendTitle extends Effect implements SyntaxRuntimeErrorProducer {
 			if (this.stay != null) {
 				Timespan provided = this.stay.getSingle(event);
 				if (provided == null) {
-					warning("The provided stay timespan was null, so defaulted to -1 ticks.", this.stay.toString(null, false));
+					warning("The provided stay timespan was not set, so defaulted to -1 ticks.", this.stay.toString());
 				} else {
 					stay = (int) provided.getAs(TimePeriod.TICK);
 				}
@@ -113,7 +113,7 @@ public class EffSendTitle extends Effect implements SyntaxRuntimeErrorProducer {
 			if (this.fadeOut != null) {
 				Timespan provided = this.fadeOut.getSingle(event);
 				if (provided == null) {
-					warning("The provided fade out timespan was null, so defaulted to -1 ticks.", this.fadeOut.toString(null, false));
+					warning("The provided fade out timespan was not set, so defaulted to -1 ticks.", this.fadeOut.toString());
 				} else {
 					fadeOut = (int) provided.getAs(TimePeriod.TICK);
 				}

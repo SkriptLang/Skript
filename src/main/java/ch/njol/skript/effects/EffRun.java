@@ -70,7 +70,7 @@ public class EffRun extends Effect implements SyntaxRuntimeErrorProducer {
 	protected void execute(Event event) {
 		Executable task = executable.getSingle(event);
 		if (task == null) {
-			error("The provided executable was null.", executable.toString(null, false));
+			error("The provided executable was not set.", executable.toString());
 			return;
 		}
 
@@ -78,7 +78,7 @@ public class EffRun extends Effect implements SyntaxRuntimeErrorProducer {
 		if (task instanceof DynamicFunctionReference<?> reference) {
 			Expression<?> validated = reference.validate(input);
 			if (validated == null) {
-				error("Couldn't validate the function reference.", executable.toString(null, false));
+				error("Couldn't validate the function reference.", executable.toString());
 				return;
 			}
 			arguments = validated.getArray(event);

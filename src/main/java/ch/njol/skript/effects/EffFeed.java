@@ -44,7 +44,7 @@ public class EffFeed extends Effect implements SyntaxRuntimeErrorProducer {
         if (beefs != null) {
             Number beefs = this.beefs.getSingle(event);
             if (beefs == null) {
-				error("The amount to feed by was null.", this.beefs.toString(null, false));
+				error("The provided amount was not set.", this.beefs.toString());
 				return;
 			}
             level = beefs.intValue();

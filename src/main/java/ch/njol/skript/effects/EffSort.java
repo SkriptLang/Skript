@@ -96,7 +96,7 @@ public class EffSort extends Effect implements InputSource, SyntaxRuntimeErrorPr
 					.sorted((o1, o2) -> ExprSortedList.compare(o1, o2) * sortingMultiplier)
 					.toArray();
 			} catch (IllegalArgumentException | ClassCastException e) {
-				error("Ran into an exception sorting " + unsortedObjects.toString(null, false) + ": " + e.getMessage());
+				error("Ran into an exception sorting " + unsortedObjects.toString() + ": " + e.getMessage());
 				return;
 			}
 		} else {
@@ -107,7 +107,7 @@ public class EffSort extends Effect implements InputSource, SyntaxRuntimeErrorPr
 				currentValue = pair.getValue();
 				Object mappedValue = mappingExpr.getSingle(event);
 				if (mappedValue == null) {
-					error("The mapping expression was null.", mappingExpr.toString(null, false));
+					error("The provided mapping expression was not set.", mappingExpr.toString());
 					return;
 				}
 				valueToMappedValue.put(currentValue, mappedValue);
@@ -118,7 +118,7 @@ public class EffSort extends Effect implements InputSource, SyntaxRuntimeErrorPr
 					.map(Map.Entry::getKey)
 					.toArray();
 			} catch (IllegalArgumentException | ClassCastException e) {
-				error("Ran into an exception sorting " + unsortedObjects.toString(null, false) + ": " + e.getMessage());
+				error("Ran into an exception sorting " + unsortedObjects.toString() + ": " + e.getMessage());
 				return;
 			}
 		}

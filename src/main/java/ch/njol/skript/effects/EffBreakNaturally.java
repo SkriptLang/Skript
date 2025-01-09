@@ -57,7 +57,7 @@ public class EffBreakNaturally extends Effect implements SyntaxRuntimeErrorProdu
 		if (this.tool != null) {
 			ItemType tool = this.tool.getSingle(event);
 			if (tool == null) {
-				warning("The tool to be used to break the block(s) was null, so defaulted to nothing.");
+				warning("The provided tool was not set, so defaulted to nothing.");
 			} else {
 				itemType = tool;
 			}
