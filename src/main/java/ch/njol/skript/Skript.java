@@ -669,7 +669,10 @@ public final class Skript extends JavaPlugin implements Listener {
 				debug("Early init done");
 
 				if (TestMode.ENABLED) {
-					Bukkit.getWorlds().get(0).getChunkAtAsync(100, 100).thenRun(() -> runTests());
+					if (TestMode.DEV_MODE)
+						runTests(); // Dev mode doesn't need a delay
+					else
+						Bukkit.getWorlds().get(0).getChunkAtAsync(100, 100).thenRun(() -> runTests());
 				}
 
 				Skript.metrics = new Metrics(Skript.getInstance(), 722); // 722 is our bStats plugin ID
@@ -807,7 +810,7 @@ public final class Skript extends JavaPlugin implements Listener {
 			info("Loading all tests from " + TestMode.TEST_DIR);
 
 			// Treat parse errors as fatal testing failure
-			CountingLogHandler errorCounter = new CountingLogHandler(Level.SEVERE);
+			TestingLogHandler errorCounter = new TestingLogHandler(Level.SEVERE);
 			try {
 				errorCounter.start();
 				File testDir = TestMode.TEST_DIR.toFile();
