@@ -487,6 +487,19 @@ public class ItemType implements Unit, Iterable<ItemData>, YggdrasilExtendedSeri
 	}
 
 	/**
+	 * Return an Iterator of ItemStacks this ItemType contains
+	 * <p>Do note that some ItemTypes will not contain an ItemStack
+	 * if they're a block only Material, such as water.</p>
+	 *
+	 * @return Iterator of ItemStacks this ItemType contains
+	 * @deprecated Use {@link #getAll()} instead
+	 */
+	@Deprecated
+	public Iterator<ItemStack> containerIterator() {
+		return getAll().iterator();
+	}
+
+	/**
 	 * Gets all ItemStacks this ItemType represents. Only use this if you know what you're doing, as it returns only one element if this is not an 'every' alias.
 	 *
 	 * @return An Iterable whose iterator will always return the same item(s)
