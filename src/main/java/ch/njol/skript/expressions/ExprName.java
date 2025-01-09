@@ -81,7 +81,12 @@ import java.util.List;
 	"\tset the player's tab list name to \"&lt;green&gt;%player's name%\"",
 	"set the name of the player's tool to \"Legendary Sword of Awesomeness\""
 })
-@Since("before 2.1, 2.2-dev20 (inventory name), 2.4 (non-living entity support, changeable inventory name), 2.7 (worlds)")
+@Since({
+	"before 2.1",
+	"2.2-dev20 (inventory name)",
+	"2.4 (non-living entity support, changeable inventory name)",
+	"2.7 (worlds)"
+})
 public class ExprName extends SimplePropertyExpression<Object, String> {
 
 	@Nullable

@@ -10,6 +10,7 @@ import ch.njol.skript.localization.Language;
 import ch.njol.skript.localization.PluralizingArgsMessage;
 import ch.njol.skript.log.LogEntry;
 import ch.njol.skript.log.RedirectingLogHandler;
+import ch.njol.skript.log.TestingLogHandler;
 import ch.njol.skript.log.TimingLogHandler;
 import ch.njol.skript.test.runner.SkriptTestEvent;
 import ch.njol.skript.test.runner.TestMode;
@@ -416,7 +417,13 @@ public class SkriptCommand implements CommandExecutor {
 					return true;
 				}
 
-				ScriptLoader.loadScripts(scriptFile, logHandler)
+				// Close previous loggers before we create a new one
+				// This prevents closing logger errors
+				timingLogHandler.close();
+				logHandler.close();
+
+				TestingLogHandler errorCounter = new TestingLogHandler(Level.SEVERE).start();
+				ScriptLoader.loadScripts(scriptFile, errorCounter)
 					.thenAccept(scriptInfo ->
 						// Code should run on server thread
 						Bukkit.getScheduler().scheduleSyncDelayedTask(Skript.getInstance(), () -> {
@@ -494,7 +501,7 @@ public class SkriptCommand implements CommandExecutor {
 
 	private static @Nullable File getScriptFromArgs(CommandSender sender, String[] args, File directoryFile) {
 		String script = StringUtils.join(args, " ", 1, args.length);
-		File f = ScriptLoader.getScriptFromName(script);
+		File f = ScriptLoader.getScriptFromName(script, directoryFile);
 		if (f == null) {
 			// Always allow '/' and '\' regardless of OS
 			boolean directory = script.endsWith("/") || script.endsWith("\\") || script.endsWith(File.separator);
