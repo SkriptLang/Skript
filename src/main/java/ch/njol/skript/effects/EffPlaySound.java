@@ -3,6 +3,7 @@ package ch.njol.skript.effects;
 import ch.njol.skript.Skript;
 import ch.njol.skript.bukkitutil.SoundUtils;
 import ch.njol.skript.bukkitutil.sounds.SoundReceiver;
+import ch.njol.skript.config.Node;
 import ch.njol.skript.doc.*;
 import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
@@ -16,6 +17,7 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.log.runtime.SyntaxRuntimeErrorProducer;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -45,7 +47,7 @@ import java.util.OptionalLong;
 })
 @RequiredPlugins("Minecraft 1.18.1+ (entity emitters), Paper 1.19.4+ or Adventure API 4.12.0+ (sound seed)")
 @Since("2.2-dev28, 2.4 (sound categories), 2.9 (sound seed & entity emitter)")
-public class EffPlaySound extends Effect {
+public class EffPlaySound extends Effect implements SyntaxRuntimeErrorProducer {
 
 	// <=1.17:
 	// 		Player - Location - Sound/String
@@ -79,6 +81,8 @@ public class EffPlaySound extends Effect {
 		);
 	}
 
+	private Node node;
+
 	private Expression<String> sounds;
 
 
@@ -97,6 +101,7 @@ public class EffPlaySound extends Effect {
 	@Override
 	@SuppressWarnings("unchecked")
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
+		node = getParser().getNode();
 		sounds = (Expression<String>) exprs[0];
 		int index = 1;
 		if (HAS_SEED)
@@ -119,17 +124,42 @@ public class EffPlaySound extends Effect {
 		OptionalLong seed = OptionalLong.empty();
 		if (this.seed != null) {
 			Number number = this.seed.getSingle(event);
-			if (number != null)
+			if (number == null) {
+				warning("The provided seed was null, so defaulted to no seed.", this.seed.toString(null, false));
+			} else {
 				seed = OptionalLong.of(number.longValue());
+			}
 		}
-		SoundCategory category = this.category == null ? SoundCategory.MASTER : this.category.getOptionalSingle(event)
-				.orElse(SoundCategory.MASTER);
-		float volume = this.volume == null ? 1 : this.volume.getOptionalSingle(event)
-				.orElse(1)
-				.floatValue();
-		float pitch = this.pitch == null ? 1 : this.pitch.getOptionalSingle(event)
-				.orElse(1)
-				.floatValue();
+
+		SoundCategory category = SoundCategory.MASTER;
+		if (this.category != null) {
+			SoundCategory provided = this.category.getSingle(event);
+			if (provided == null) {
+				warning("The provided sound category was null, so defaulted to master.", this.category.toString(null, false));
+			} else {
+				category = provided;
+			}
+		}
+
+		float volume = 1;
+		if (this.volume != null) {
+			Number provided = this.volume.getSingle(event);
+			if (provided == null) {
+				warning("The provided volume was null, so defaulted to 1.", this.volume.toString(null, false));
+			} else {
+				volume = provided.floatValue();
+			}
+		}
+
+		float pitch = 1;
+		if (this.pitch != null) {
+			Number provided = this.pitch.getSingle(event);
+			if (provided == null) {
+				warning("The provided pitch was null, so defaulted to 1.", this.pitch.toString(null, false));
+			} else {
+				pitch = provided.floatValue();
+			}
+		}
 
 		// validate strings
 		List<NamespacedKey> validSounds = new ArrayList<>();
@@ -140,8 +170,10 @@ public class EffPlaySound extends Effect {
 			validSounds.add(key);
 		}
 
-		if (validSounds.isEmpty())
+		if (validSounds.isEmpty()) {
+			error("No provided sounds were valid.", sounds.toString(null, false));
 			return;
+		}
 
 		// play sounds
 		if (players != null) {
@@ -179,6 +211,11 @@ public class EffPlaySound extends Effect {
 				}
 			}
 		}
+	}
+
+	@Override
+	public Node getNode() {
+		return node;
 	}
 
 	@Override

@@ -1,6 +1,7 @@
 package ch.njol.skript.effects;
 
 import ch.njol.skript.Skript;
+import ch.njol.skript.config.Node;
 import ch.njol.skript.doc.*;
 import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
@@ -9,6 +10,7 @@ import ch.njol.util.Kleenean;
 import com.destroystokyo.paper.event.server.PaperServerListPingEvent;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.log.runtime.SyntaxRuntimeErrorProducer;
 
 @Name("Player Info Visibility")
 @Description({
@@ -27,7 +29,7 @@ import org.jetbrains.annotations.Nullable;
 @Since("2.3")
 @RequiredPlugins("Paper 1.12.2+")
 @Events("server list ping")
-public class EffPlayerInfoVisibility extends Effect {
+public class EffPlayerInfoVisibility extends Effect implements SyntaxRuntimeErrorProducer {
 
 	static {
 		Skript.registerEffect(EffPlayerInfoVisibility.class,
@@ -37,6 +39,7 @@ public class EffPlayerInfoVisibility extends Effect {
 
 	private static final boolean PAPER_EVENT_EXISTS = Skript.classExists("com.destroystokyo.paper.event.server.PaperServerListPingEvent");
 
+	private Node node;
 	private boolean shouldHide;
 
 	@Override
@@ -51,16 +54,24 @@ public class EffPlayerInfoVisibility extends Effect {
 			Skript.error("Can't change the player info visibility anymore after the server list ping event has already passed");
 			return false;
 		}
+		node = getParser().getNode();
 		shouldHide = matchedPattern == 0;
 		return true;
 	}
 
 	@Override
 	protected void execute(Event event) {
-		if (!(event instanceof PaperServerListPingEvent serverListPingEvent))
+		if (!(event instanceof PaperServerListPingEvent serverListPingEvent)) {
+			error("The 'player info visibility' effect can only be used in a 'server list ping' event.");
 			return;
+		}
 
 		serverListPingEvent.setHidePlayers(shouldHide);
+	}
+
+	@Override
+	public Node getNode() {
+		return node;
 	}
 
 	@Override

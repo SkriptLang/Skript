@@ -1,6 +1,7 @@
 package ch.njol.skript.effects;
 
 import ch.njol.skript.Skript;
+import ch.njol.skript.config.Node;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
@@ -8,11 +9,13 @@ import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.skript.lang.SyntaxStringBuilder;
 import ch.njol.util.Kleenean;
 import ch.njol.util.StringUtils;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.log.runtime.SyntaxRuntimeErrorProducer;
 
 @Name("Send Resource Pack")
 @Description({
@@ -32,7 +35,7 @@ import org.jetbrains.annotations.Nullable;
 		"\tsend the resource pack from \"URL\" with hash \"hash\" to the player"
 })
 @Since("2.4")
-public class EffSendResourcePack extends Effect {
+public class EffSendResourcePack extends Effect implements SyntaxRuntimeErrorProducer {
 
 	static {
 		Skript.registerEffect(EffSendResourcePack.class,
@@ -42,6 +45,7 @@ public class EffSendResourcePack extends Effect {
 
 	private static final boolean PAPER_METHOD_EXISTS = Skript.methodExists(Player.class, "setResourcePack", String.class, String.class);
 
+	private Node node;
 	private Expression<String> url;
 	private @Nullable Expression<String> hash;
 	private Expression<Player> recipients;
@@ -49,6 +53,7 @@ public class EffSendResourcePack extends Effect {
 	@Override
 	@SuppressWarnings("unchecked")
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
+		node = getParser().getNode();
 		url = (Expression<String>) exprs[0];
 		if (matchedPattern == 0) {
 			recipients = (Expression<Player>) exprs[1];
@@ -63,12 +68,18 @@ public class EffSendResourcePack extends Effect {
 	@SuppressWarnings({"deprecation"}) // Player#setResourcePack(String) is deprecated on Paper
 	protected void execute(Event event) {
 		String hash = null;
-		if (this.hash != null)
+		if (this.hash != null) {
 			hash = this.hash.getSingle(event);
+			if (hash == null)
+				warning("The provided hash was null, so defaulting to none.", this.hash.toString(null, false));
+		}
+
 		String address = url.getSingle(event);
 		if (address == null) {
-			return; // Can't send, URL not valid
+			error("The provided URL was null.", url.toString(null, false));
+			return;
 		}
+
 		for (Player recipient : recipients.getArray(event)) {
 			try {
 				if (hash == null) {
@@ -84,10 +95,17 @@ public class EffSendResourcePack extends Effect {
 	}
 
 	@Override
+	public Node getNode() {
+		return node;
+	}
+
+	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return "send the resource pack from " + url.toString(event, debug) +
-				(hash != null ? " with hash " + hash.toString(event, debug) : "") +
-				" to " + recipients.toString(event, debug);
+		SyntaxStringBuilder builder = new SyntaxStringBuilder(event, debug)
+			.append("send the resource pack from", url);
+		if (hash != null)
+			builder.append("with hash", hash);
+		return builder.append("to", recipients).toString();
 	}
 
 }

@@ -1,6 +1,7 @@
 package ch.njol.skript.effects;
 
 import ch.njol.skript.Skript;
+import ch.njol.skript.config.Node;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
@@ -16,6 +17,7 @@ import org.bukkit.event.Event;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.log.runtime.SyntaxRuntimeErrorProducer;
 
 @Name("Potion Effects")
 @Description("Apply or remove potion effects to/from entities.")
@@ -36,7 +38,7 @@ import org.jetbrains.annotations.Nullable;
 	"2.5 (replacing existing effect), 2.5.2 (potion effects)",
 	"2.7 (icon and infinite)"
 })
-public class EffPotion extends Effect {
+public class EffPotion extends Effect implements SyntaxRuntimeErrorProducer {
 
 	static {
 		Skript.registerEffect(EffPotion.class,
@@ -49,6 +51,8 @@ public class EffPotion extends Effect {
 	private final static boolean COMPATIBLE = Skript.isRunningMinecraft(1, 19, 4);
 
 	private final static int DEFAULT_DURATION = 15 * 20; // 15 seconds, same as EffPoison
+
+	private Node node;
 
 	private Expression<PotionEffectType> potions;
 	private Expression<LivingEntity> entities;
@@ -67,6 +71,7 @@ public class EffPotion extends Effect {
 	@Override
 	@SuppressWarnings("unchecked")
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
+		node = getParser().getNode();
 		potionEffect = matchedPattern == 0;
 		replaceExisting = parseResult.hasTag("replacing");
 		noParticles = parseResult.hasTag("noparticles");
@@ -93,19 +98,31 @@ public class EffPotion extends Effect {
 				PotionEffectUtils.addEffects(livingEntity, effects.getArray(event));
 		} else {
 			PotionEffectType[] potionEffectTypes = potions.getArray(event);
-			if (potionEffectTypes.length == 0)
+			if (potionEffectTypes.length == 0) {
+				error("No provided potion effect types were valid.", potions.toString(null, false));
 				return;
+			}
+
 			int tier = 0;
-			if (this.tier != null)
-				tier = this.tier.getOptionalSingle(event).orElse(1).intValue() - 1;
+			if (this.tier != null) {
+				Number provided = this.tier.getSingle(event);
+				if (provided == null) {
+					warning("The provided potion effect tier was null, so defaulted to 0.", this.tier.toString(null, false));
+				} else {
+					tier = provided.intValue() - 1;
+				}
+			}
 
 			int duration = infinite ? (COMPATIBLE ? -1 : Integer.MAX_VALUE) : DEFAULT_DURATION;
 			if (this.duration != null && !infinite) {
 				Timespan timespan = this.duration.getSingle(event);
-				if (timespan == null)
+				if (timespan == null) {
+					error("The provided duration was null.", this.duration.toString(null, false));
 					return;
-				duration = (int) Math.min(timespan.getAs(Timespan.TimePeriod.TICK), Integer.MAX_VALUE);
+				}
+				duration = (int) timespan.getAs(Timespan.TimePeriod.TICK); // truncates to Integer.MAX_VALUE
 			}
+
 			for (LivingEntity entity : entities.getArray(event)) {
 				for (PotionEffectType potionEffectType : potionEffectTypes) {
 					int finalDuration = duration;
@@ -123,6 +140,11 @@ public class EffPotion extends Effect {
 				}
 			}
 		}
+	}
+
+	@Override
+	public Node getNode() {
+		return node;
 	}
 
 	@Override

@@ -2,6 +2,7 @@ package ch.njol.skript.effects;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer.ChangeMode;
+import ch.njol.skript.config.Node;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Keywords;
@@ -21,6 +22,7 @@ import ch.njol.util.Pair;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnknownNullability;
+import org.skriptlang.skript.log.runtime.SyntaxRuntimeErrorProducer;
 
 import java.util.HashSet;
 import java.util.Iterator;
@@ -45,7 +47,7 @@ import java.util.Set;
 })
 @Since("2.9.0, 2.10 (sort order)")
 @Keywords("input")
-public class EffSort extends Effect implements InputSource {
+public class EffSort extends Effect implements InputSource, SyntaxRuntimeErrorProducer {
 
 	static {
 		Skript.registerEffect(EffSort.class, "sort %~objects% [in (:descending|ascending) order] [(by|based on) <.+>]");
@@ -53,6 +55,7 @@ public class EffSort extends Effect implements InputSource {
 			ParserInstance.registerData(InputData.class, InputData::new);
 	}
 
+	private Node node;
 
 	private @Nullable Expression<?> mappingExpr;
 	private @UnknownNullability Variable<?> unsortedObjects;
@@ -79,6 +82,7 @@ public class EffSort extends Effect implements InputSource {
 			mappingExpr = parseExpression(unparsedExpression, getParser(), SkriptParser.PARSE_EXPRESSIONS);
 			return mappingExpr != null;
 		}
+		node = getParser().getNode();
 		return true;
 	}
 
@@ -92,6 +96,7 @@ public class EffSort extends Effect implements InputSource {
 					.sorted((o1, o2) -> ExprSortedList.compare(o1, o2) * sortingMultiplier)
 					.toArray();
 			} catch (IllegalArgumentException | ClassCastException e) {
+				error("Ran into an exception sorting " + unsortedObjects.toString(null, false) + ": " + e.getMessage());
 				return;
 			}
 		} else {
@@ -101,8 +106,10 @@ public class EffSort extends Effect implements InputSource {
 				currentIndex = pair.getKey();
 				currentValue = pair.getValue();
 				Object mappedValue = mappingExpr.getSingle(event);
-				if (mappedValue == null)
+				if (mappedValue == null) {
+					error("The mapping expression was null.", mappingExpr.toString(null, false));
 					return;
+				}
 				valueToMappedValue.put(currentValue, mappedValue);
 			}
 			try {
@@ -111,6 +118,7 @@ public class EffSort extends Effect implements InputSource {
 					.map(Map.Entry::getKey)
 					.toArray();
 			} catch (IllegalArgumentException | ClassCastException e) {
+				error("Ran into an exception sorting " + unsortedObjects.toString(null, false) + ": " + e.getMessage());
 				return;
 			}
 		}
@@ -136,6 +144,11 @@ public class EffSort extends Effect implements InputSource {
 	@Override
 	public @UnknownNullability String getCurrentIndex() {
 		return currentIndex;
+	}
+
+	@Override
+	public Node getNode() {
+		return node;
 	}
 
 	@Override

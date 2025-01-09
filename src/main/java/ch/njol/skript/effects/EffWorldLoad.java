@@ -1,6 +1,7 @@
 package ch.njol.skript.effects;
 
 import ch.njol.skript.Skript;
+import ch.njol.skript.config.Node;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
@@ -15,6 +16,7 @@ import org.bukkit.World.Environment;
 import org.bukkit.WorldCreator;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.log.runtime.SyntaxRuntimeErrorProducer;
 
 @Name("Load World")
 @Description({
@@ -30,7 +32,7 @@ import org.jetbrains.annotations.Nullable;
 	"unload all worlds"
 })
 @Since("2.8.0")
-public class EffWorldLoad extends Effect {
+public class EffWorldLoad extends Effect implements SyntaxRuntimeErrorProducer {
 
 	static {
 		Skript.registerEffect(EffWorldLoad.class,
@@ -39,6 +41,7 @@ public class EffWorldLoad extends Effect {
 		);
 	}
 
+	private Node node;
 	private boolean save, load;
 	private Expression<?> worlds;
 	private @Nullable Expression<Environment> environment;
@@ -46,6 +49,7 @@ public class EffWorldLoad extends Effect {
 	@Override
 	@SuppressWarnings("unchecked")
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
+		node = getParser().getNode();
 		worlds = exprs[0];
 		load = matchedPattern == 0;
 		if (load) {
@@ -58,7 +62,12 @@ public class EffWorldLoad extends Effect {
 
 	@Override
 	protected void execute(Event event) {
-		Environment environment = this.environment != null ? this.environment.getSingle(event) : null;
+		Environment environment = null;
+		if (this.environment != null) {
+			environment = this.environment.getSingle(event);
+			if (environment == null)
+				warning("The provided environment was null, so defaulted to none.", this.environment.toString(null, false));
+		}
 		for (Object world : worlds.getArray(event)) {
 			if (load && world instanceof String string) {
 				WorldCreator worldCreator = new WorldCreator(string);
@@ -69,6 +78,11 @@ public class EffWorldLoad extends Effect {
 				Bukkit.unloadWorld(worldI, save);
 			}
 		}
+	}
+
+	@Override
+	public Node getNode() {
+		return node;
 	}
 
 	@Override

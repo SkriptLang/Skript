@@ -1,6 +1,7 @@
 package ch.njol.skript.effects;
 
 import ch.njol.skript.Skript;
+import ch.njol.skript.config.Node;
 import ch.njol.skript.doc.*;
 import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
@@ -12,6 +13,7 @@ import org.bukkit.entity.Sheep;
 import org.bukkit.entity.Snowman;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.log.runtime.SyntaxRuntimeErrorProducer;
 
 @Name("Shear")
 @Description({
@@ -28,7 +30,7 @@ import org.jetbrains.annotations.Nullable;
 })
 @Since("2.0 (cows, sheep & snowmen), 2.8.0 (all shearable entities)")
 @RequiredPlugins("Paper 1.19.4+ (all shearable entities)")
-public class EffShear extends Effect {
+public class EffShear extends Effect implements SyntaxRuntimeErrorProducer {
 
 	private static final boolean INTERFACE_METHOD = Skript.classExists("io.papermc.paper.entity.Shearable");
 
@@ -38,12 +40,14 @@ public class EffShear extends Effect {
 			"un[-]shear %livingentities%");
 	}
 
+	private Node node;
 	private Expression<LivingEntity> entity;
 	private boolean force, shear;
 
 	@Override
 	@SuppressWarnings("unchecked")
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
+		node = getParser().getNode();
 		entity = (Expression<LivingEntity>) exprs[0];
 		force = parseResult.hasTag("force");
 		shear = matchedPattern == 0;
@@ -54,10 +58,14 @@ public class EffShear extends Effect {
 	protected void execute(Event event) {
 		for (LivingEntity entity : entity.getArray(event)) {
 			if (shear && INTERFACE_METHOD) {
-				if (!(entity instanceof Shearable shearable))
+				if (!(entity instanceof Shearable shearable)) {
+					warning("Entity type " + entity.getType() + " is not shearable.", this.entity.toString(null, false));
 					continue;
-				if (!force && !shearable.readyToBeSheared())
+				}
+				if (!force && !shearable.readyToBeSheared()) {
+					warning("An entity couldn't be sheared as it wasn't ready, and the 'force' option wasn't specified.", "shear" + this.entity.toString(null, false));
 					continue;
+				}
 				shearable.shear();
 				continue;
 			}
@@ -68,10 +76,15 @@ public class EffShear extends Effect {
 			}
 		}
 	}
+
+	@Override
+	public Node getNode() {
+		return node;
+	}
 	
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
 		return (shear ? "" : "un") + "shear " + entity.toString(event, debug);
 	}
-	
+
 }

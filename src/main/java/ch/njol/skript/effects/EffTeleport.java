@@ -2,6 +2,7 @@ package ch.njol.skript.effects;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.bukkitutil.SkriptTeleportFlag;
+import ch.njol.skript.config.Node;
 import ch.njol.skript.doc.*;
 import ch.njol.skript.lang.*;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
@@ -20,6 +21,7 @@ import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.log.runtime.SyntaxRuntimeErrorProducer;
 
 import java.util.Arrays;
 import java.util.Objects;
@@ -43,7 +45,7 @@ import java.util.stream.Stream;
 })
 @RequiredPlugins("Paper 1.19+ (teleport flags)")
 @Since("1.0, 2.10 (flags)")
-public class EffTeleport extends Effect {
+public class EffTeleport extends Effect implements SyntaxRuntimeErrorProducer {
 
 	private static final boolean TELEPORT_FLAGS_SUPPORTED = Skript.classExists("io.papermc.paper.entity.TeleportFlag");
 	private static final boolean CAN_RUN_ASYNC = PaperLib.getEnvironment() instanceof PaperEnvironment;
@@ -55,6 +57,7 @@ public class EffTeleport extends Effect {
 		Skript.registerEffect(EffTeleport.class, "[:force] teleport %entities% (to|%direction%) %location%" + extra);
 	}
 
+	private Node node;
 	private @Nullable Expression<SkriptTeleportFlag> teleportFlags;
 	private Expression<Entity> entities;
 	private Expression<Location> location;
@@ -74,6 +77,8 @@ public class EffTeleport extends Effect {
 			return false;
 		}
 
+		node = getParser().getNode();
+
 		if (async)
 			getParser().setHasDelayBefore(Kleenean.UNKNOWN); // UNKNOWN because it isn't async if the chunk is already loaded.
 		return true;
@@ -86,13 +91,17 @@ public class EffTeleport extends Effect {
 
 		boolean delayed = Delay.isDelayed(event);
 		Location location = this.location.getSingle(event);
-		if (location == null)
+		if (location == null) {
+			error("The provided location was null.", this.location.toString(null, false));
 			return next;
+		}
 		boolean unknownWorld = !location.isWorldLoaded();
 
 		Entity[] entityArray = entities.getArray(event); // We have to fetch this before possible async execution to avoid async local variable access.
-		if (entityArray.length == 0)
+		if (entityArray.length == 0) {
+			error("No entities were passed to the 'teleport' effect.", entities.toString(null, false));
 			return next;
+		}
 
 		if (!delayed) {
 			if (event instanceof PlayerRespawnEvent playerRespawnEvent && entityArray.length == 1 && entityArray[0].equals(playerRespawnEvent.getPlayer())) {
@@ -169,6 +178,11 @@ public class EffTeleport extends Effect {
 	@Override
 	protected void execute(Event event) {
 		assert false;
+	}
+
+	@Override
+	public Node getNode() {
+		return node;
 	}
 
 	@Override

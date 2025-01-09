@@ -1,6 +1,7 @@
 package ch.njol.skript.effects;
 
 import ch.njol.skript.Skript;
+import ch.njol.skript.config.Node;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
@@ -10,10 +11,12 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.SyntaxStringBuilder;
 import ch.njol.skript.util.Timespan;
+import ch.njol.skript.util.Timespan.TimePeriod;
 import ch.njol.util.Kleenean;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.log.runtime.SyntaxRuntimeErrorProducer;
 
 @Name("Title - Send")
 @Description({
@@ -33,7 +36,7 @@ import org.jetbrains.annotations.Nullable;
 	"send subtitle \"Party!\" to all players"
 })
 @Since("2.3")
-public class EffSendTitle extends Effect {
+public class EffSendTitle extends Effect implements SyntaxRuntimeErrorProducer {
 	
 	private final static boolean TIME_SUPPORTED = Skript.methodExists(Player.class,"sendTitle", String.class, String.class, int.class, int.class, int.class);
 	
@@ -48,6 +51,7 @@ public class EffSendTitle extends Effect {
 					"send subtitle %string% [to %players%]");
 	}
 
+	private Node node;
 	private @Nullable Expression<String> title;
 	private @Nullable Expression<String> subtitle;
 	private Expression<Player> recipients;
@@ -56,6 +60,7 @@ public class EffSendTitle extends Effect {
 	@Override
 	@SuppressWarnings("unchecked")
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parser) {
+		node = getParser().getNode();
 		title = matchedPattern == 0 ? (Expression<String>) exprs[0] : null;
 		subtitle = (Expression<String>) exprs[1 - matchedPattern];
 		recipients = (Expression<Player>) exprs[2 - matchedPattern];
@@ -69,34 +74,62 @@ public class EffSendTitle extends Effect {
 
 	@Override
 	protected void execute(Event event) {
-		String title = this.title != null ? this.title.getSingle(event) : null;
-		String subtitle = this.subtitle != null ? this.subtitle.getSingle(event) : null;
+		String title = null;
+		if (this.title != null) {
+			title = this.title.getSingle(event);
+			if (title == null)
+				warning("The provided title text was null, so defaulted to none.", this.title.toString(null, false));
+		}
+
+		String subtitle = null;
+		if (this.subtitle != null) {
+			subtitle = this.subtitle.getSingle(event);
+			if (subtitle == null)
+				warning("The provided subtitle text was null, so defaulted to none.", this.subtitle.toString(null, false));
+		}
 		
 		if (TIME_SUPPORTED) {
 			int fadeIn, stay, fadeOut;
 			fadeIn = stay = fadeOut = -1;
 
 			if (this.fadeIn != null) {
-				Timespan t = this.fadeIn.getSingle(event);
-				fadeIn = t != null ? (int) t.getAs(Timespan.TimePeriod.TICK) : -1;
+				Timespan provided = this.fadeIn.getSingle(event);
+				if (provided == null) {
+					warning("The provided fade in timespan was null, so defaulted to -1 ticks.", this.fadeIn.toString(null, false));
+				} else {
+					fadeIn = (int) provided.getAs(TimePeriod.TICK);
+				}
 			}
 
 			if (this.stay != null) {
-				Timespan t = this.stay.getSingle(event);
-				stay = t != null ? (int) t.getAs(Timespan.TimePeriod.TICK) : -1;
+				Timespan provided = this.stay.getSingle(event);
+				if (provided == null) {
+					warning("The provided stay timespan was null, so defaulted to -1 ticks.", this.stay.toString(null, false));
+				} else {
+					stay = (int) provided.getAs(TimePeriod.TICK);
+				}
 			}
 
 			if (this.fadeOut != null) {
-				Timespan t = this.fadeOut.getSingle(event);
-				fadeOut = t != null ? (int) t.getAs(Timespan.TimePeriod.TICK) : -1;
+				Timespan provided = this.fadeOut.getSingle(event);
+				if (provided == null) {
+					warning("The provided fade out timespan was null, so defaulted to -1 ticks.", this.fadeOut.toString(null, false));
+				} else {
+					fadeOut = (int) provided.getAs(TimePeriod.TICK);
+				}
 			}
-			
+
 			for (Player recipient : recipients.getArray(event))
 				recipient.sendTitle(title, subtitle, fadeIn, stay, fadeOut);
 		} else {
 			for (Player recipient : recipients.getArray(event))
 				recipient.sendTitle(title, subtitle);
 		}
+	}
+
+	@Override
+	public Node getNode() {
+		return node;
 	}
 
 	@Override
@@ -117,5 +150,5 @@ public class EffSendTitle extends Effect {
 		}
 		return builder.toString();
 	}
-	
+
 }

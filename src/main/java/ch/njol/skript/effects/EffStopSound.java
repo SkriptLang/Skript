@@ -2,6 +2,7 @@ package ch.njol.skript.effects;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.bukkitutil.SoundUtils;
+import ch.njol.skript.config.Node;
 import ch.njol.skript.doc.*;
 import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
@@ -12,6 +13,7 @@ import org.bukkit.SoundCategory;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.log.runtime.SyntaxRuntimeErrorProducer;
 
 import java.util.regex.Pattern;
 
@@ -32,7 +34,7 @@ import java.util.regex.Pattern;
 })
 @Since("2.4, 2.7 (stop all sounds)")
 @RequiredPlugins("MC 1.17.1 (stop all sounds)")
-public class EffStopSound extends Effect {
+public class EffStopSound extends Effect implements SyntaxRuntimeErrorProducer {
 
 	private static final boolean STOP_ALL_SUPPORTED = Skript.methodExists(Player.class, "stopAllSounds");
 	private static final Pattern KEY_PATTERN = Pattern.compile("([a-z0-9._-]+:)?[a-z0-9/._-]+");
@@ -49,12 +51,14 @@ public class EffStopSound extends Effect {
 
 	private @Nullable Expression<String> sounds;
 
+	private Node node;
 	private Expression<Player> players;
 	private boolean allSounds;
 
 	@Override
 	@SuppressWarnings("unchecked")
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
+		node = getParser().getNode();
 		allSounds = parseResult.hasTag("all");
 		sounds = (Expression<String>) exprs[0];
 		category = (Expression<SoundCategory>) exprs[1];
@@ -65,8 +69,14 @@ public class EffStopSound extends Effect {
 	@Override
 	protected void execute(Event event) {
 		// All sounds pattern wants explicitly defined master category
-		SoundCategory category = this.category == null ? null : this.category.getOptionalSingle(event)
-				.orElse(allSounds ? null : SoundCategory.MASTER);
+		SoundCategory category = null;
+		if (this.category != null) {
+			category = this.category.getSingle(event);
+			if (category == null) {
+				category = allSounds ? null : SoundCategory.MASTER;
+				warning("The provided sound category was null, so defaulted to " + (category == null ? "none." : "master."), this.category.toString(null ,false));
+			}
+		}
 
 		Player[] targets = players.getArray(event);
 		if (allSounds) {
@@ -89,6 +99,11 @@ public class EffStopSound extends Effect {
 				}
 			}
 		}
+	}
+
+	@Override
+	public Node getNode() {
+		return node;
 	}
 
 	@Override

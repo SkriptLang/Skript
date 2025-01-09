@@ -1,6 +1,7 @@
 package ch.njol.skript.effects;
 
 import ch.njol.skript.Skript;
+import ch.njol.skript.config.Node;
 import ch.njol.skript.doc.*;
 import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
@@ -12,6 +13,7 @@ import ch.njol.skript.util.LiteralUtils;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.log.runtime.SyntaxRuntimeErrorProducer;
 import org.skriptlang.skript.util.Executable;
 
 @Name("Run (Experimental)")
@@ -24,7 +26,7 @@ import org.skriptlang.skript.util.Executable;
 @Since("2.10")
 @Keywords({"run", "execute", "reflection", "function"})
 @SuppressWarnings("rawtypes")
-public class EffRun extends Effect {
+public class EffRun extends Effect implements SyntaxRuntimeErrorProducer {
 
 	static {
 		Skript.registerEffect(EffRun.class,
@@ -32,6 +34,7 @@ public class EffRun extends Effect {
 			"execute %executable% [arguments:with arg[ument]s %-objects%]");
 	}
 
+	private Node node;
 	// We don't bother with the generic type here because we have no way to verify it
 	// from the expression, and it makes casting more difficult to no benefit.
 	private Expression<Executable> executable;
@@ -44,6 +47,7 @@ public class EffRun extends Effect {
 	public boolean init(Expression<?>[] expressions, int pattern, Kleenean isDelayed, ParseResult result) {
 		if (!this.getParser().hasExperiment(Feature.SCRIPT_REFLECTION))
 			return false;
+		this.node = this.getParser().getNode();
 		this.executable = ((Expression<Executable>) expressions[0]);
 		this.hasArguments = result.hasTag("arguments");
 		if (hasArguments) {
@@ -65,13 +69,18 @@ public class EffRun extends Effect {
 	@Override
 	protected void execute(Event event) {
 		Executable task = executable.getSingle(event);
-		if (task == null)
+		if (task == null) {
+			error("The provided executable was null.", executable.toString(null, false));
 			return;
+		}
+
 		Object[] arguments;
 		if (task instanceof DynamicFunctionReference<?> reference) {
 			Expression<?> validated = reference.validate(input);
-			if (validated == null)
+			if (validated == null) {
+				error("Couldn't validate the function reference.", executable.toString(null, false));
 				return;
+			}
 			arguments = validated.getArray(event);
 		} else if (hasArguments) {
 			arguments = this.arguments.getArray(event);
@@ -80,6 +89,11 @@ public class EffRun extends Effect {
 		}
 		//noinspection unchecked
 		task.execute(event, arguments);
+	}
+
+	@Override
+	public Node getNode() {
+		return node;
 	}
 
 	@Override

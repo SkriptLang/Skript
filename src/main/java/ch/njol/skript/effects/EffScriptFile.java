@@ -2,13 +2,14 @@ package ch.njol.skript.effects;
 
 import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.Skript;
+import ch.njol.skript.config.Node;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.SkriptParser;
+import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.registrations.Feature;
 import ch.njol.skript.util.FileUtils;
 import ch.njol.util.Kleenean;
@@ -17,6 +18,7 @@ import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnknownNullability;
 import org.skriptlang.skript.lang.script.Script;
+import org.skriptlang.skript.log.runtime.SyntaxRuntimeErrorProducer;
 
 import java.io.File;
 import java.io.FileFilter;
@@ -37,7 +39,7 @@ import java.util.Set;
 	"reload {_script}"
 })
 @Since("2.4, 2.10 (unloading)")
-public class EffScriptFile extends Effect {
+public class EffScriptFile extends Effect implements SyntaxRuntimeErrorProducer {
 
 	static {
 		Skript.registerEffect(EffScriptFile.class,
@@ -55,13 +57,15 @@ public class EffScriptFile extends Effect {
 
 	private int mark;
 
+	private Node node;
 	private @UnknownNullability Expression<String> scriptNameExpression;
 	private @UnknownNullability Expression<Script> scriptExpression;
 	private boolean scripts, hasReflection;
 
 	@Override
 	@SuppressWarnings("unchecked")
-	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
+	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
+		this.node = getParser().getNode();
 		this.mark = parseResult.mark;
 		switch (matchedPattern) {
 			case 0, 1:
@@ -84,8 +88,10 @@ public class EffScriptFile extends Effect {
 			}
 		} else {
 			String name = scriptNameExpression.getSingle(event);
-			if (name == null)
+			if (name == null) {
+				error("The provided script name was null.", scriptNameExpression.toString(null, false));
 				return;
+			}
 			this.handle(ScriptLoader.getScriptFromName(name), name);
 		}
 	}
@@ -173,6 +179,11 @@ public class EffScriptFile extends Effect {
 			if (script != null)
 				ScriptLoader.unloadScript(script);
 		}
+	}
+
+	@Override
+	public Node getNode() {
+		return node;
 	}
 
 	@Override
