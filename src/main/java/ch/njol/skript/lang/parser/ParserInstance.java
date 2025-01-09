@@ -463,13 +463,13 @@ public final class ParserInstance implements Experimented {
 
 	@Override
 	public boolean hasExperiment(String featureName) {
-		return Skript.experiments().isUsing(this.getCurrentScript(), featureName);
+		return this.isActive() && Skript.experiments().isUsing(this.getCurrentScript(), featureName);
 	}
 
 
 	@Override
 	public boolean hasExperiment(Experiment experiment) {
-		return Skript.experiments().isUsing(this.getCurrentScript(), experiment);
+		return this.isActive() && Skript.experiments().isUsing(this.getCurrentScript(), experiment);
 	}
 
 	/**
