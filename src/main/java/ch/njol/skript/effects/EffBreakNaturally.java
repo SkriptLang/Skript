@@ -84,8 +84,8 @@ public class EffBreakNaturally extends Effect implements SyntaxRuntimeErrorProdu
 	
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		SyntaxStringBuilder builder = new SyntaxStringBuilder(event, debug)
-			.append("break", blocks, "naturally");
+		SyntaxStringBuilder builder = new SyntaxStringBuilder(event, debug);
+		builder.append("break", blocks, "naturally");
 		if (tool != null)
 			builder.append("using", tool);
 		return builder.toString();

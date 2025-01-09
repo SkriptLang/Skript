@@ -73,8 +73,8 @@ public class EffBlockUpdate extends Effect implements SyntaxRuntimeErrorProducer
 
 	@Override
 	public @NotNull String toString(@Nullable Event event, boolean debug) {
-		SyntaxStringBuilder builder = new SyntaxStringBuilder(event, debug)
-			.append("update", blocks, "as", blockData);
+		SyntaxStringBuilder builder = new SyntaxStringBuilder(event, debug);
+		builder.append("update", blocks, "as", blockData);
 		if (physics)
 			builder.append("without adjacent updates");
 		return builder.toString();

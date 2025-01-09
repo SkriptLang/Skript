@@ -73,7 +73,7 @@ public class EffCancelDrops extends Effect {
 				blockBreakEvent.setDropItems(false);
 			if (cancelExps)
 				blockBreakEvent.setExpToDrop(0);
-		} // TODO loud: add else branch and error
+		}
 	}
 
 	@Override
