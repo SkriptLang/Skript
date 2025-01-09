@@ -74,7 +74,7 @@ public class EffHealth extends Effect implements SyntaxRuntimeErrorProducer {
 		if (this.amount != null) {
 			Number amountPostCheck = this.amount.getSingle(event);
 			if (amountPostCheck == null) {
-				error("The provided " + getSyntaxType() + " amount was null.", this.amount.toString());
+				error("The provided " + getSyntaxType() + " amount was not set.", this.amount.toString());
 				return;
 			}
 			amount = amountPostCheck.doubleValue();

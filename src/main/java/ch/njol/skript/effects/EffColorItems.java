@@ -105,7 +105,7 @@ public class EffColorItems extends Effect implements SyntaxRuntimeErrorProducer 
 	protected void execute(Event event) {
 		Color color = this.color.getSingle(event);
 		if (color == null) {
-			error("The provided color was null.", this.color.toString());
+			error("The provided color was not set.", this.color.toString());
 			return;
 		}
 		org.bukkit.Color bukkitColor = color.asBukkitColor();
