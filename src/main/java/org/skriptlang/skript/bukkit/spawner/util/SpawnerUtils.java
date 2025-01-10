@@ -1,20 +1,12 @@
 package org.skriptlang.skript.bukkit.spawner.util;
 
-import ch.njol.skript.Skript;
-import ch.njol.skript.registrations.Classes;
 import org.bukkit.block.Block;
-import org.bukkit.block.BlockState;
 import org.bukkit.block.CreatureSpawner;
 import org.bukkit.block.TrialSpawner;
 import org.bukkit.entity.minecart.SpawnerMinecart;
 import org.bukkit.spawner.BaseSpawner;
 import org.bukkit.spawner.Spawner;
-import org.bukkit.spawner.TrialSpawnerConfiguration;
 import org.jetbrains.annotations.UnknownNullability;
-import org.skriptlang.skript.log.runtime.ErrorSource;
-import org.skriptlang.skript.log.runtime.RuntimeError;
-
-import java.util.logging.Level;
 
 /**
  * Utility class for spawners.

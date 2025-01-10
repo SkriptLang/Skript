@@ -2,7 +2,6 @@ package org.skriptlang.skript.bukkit.spawner.elements.conditions;
 
 import ch.njol.skript.conditions.base.PropertyCondition;
 import ch.njol.skript.doc.*;
-import org.bukkit.block.Block;
 import org.bukkit.block.data.type.TrialSpawner;
 import org.bukkit.block.data.type.TrialSpawner.State;
 import org.skriptlang.skript.bukkit.spawner.SpawnerModule;
