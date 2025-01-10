@@ -99,19 +99,19 @@ enchantments:
 	breach: Breach
 	wind_burst: Wind Burst
 
-# -- Potion Effects --
-potions:
+# -- Potion Effect Types --
+potion effect types:
 	speed: speed, swiftness
-	slow: slowness, slow
-	fast_digging: haste, fast digging, fast mining
-	slow_digging: mining fatigue, slow digging, slow mining
-	increase_damage: strength, increase damage, increased damage
-	heal: instant health, health
-	harm: instant damage, damage
-	jump: jump boost, jump
-	confusion: nausea, confusion
+	slowness: slowness, slow
+	haste: haste, fast digging, fast mining
+	mining_fatigue: mining fatigue, slow digging, slow mining
+	strength: strength, increase damage, increased damage
+	instant_health: instant health, health
+	instant_damage: instant damage, damage
+	jump_boost: jump boost, jump
+	nausea: nausea, confusion
 	regeneration: regeneration
-	damage_resistance: resistance, damage resistance
+	resistance: resistance, damage resistance
 	fire_resistance: fire resistance, fire immunity
 	water_breathing: water breathing
 	invisibility: invisibility
