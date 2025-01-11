@@ -20,7 +20,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.TreeMap;
 
 /**
@@ -48,6 +47,8 @@ public class SkriptTimings extends Timings {
 	@Override
 	public void setEnabled(boolean enabled) {
 		this.enabled = enabled;
+		if (!enabled)
+			this.scriptTimings.clear();
 	}
 
 	@Override
@@ -147,23 +148,37 @@ public class SkriptTimings extends Timings {
 
 	@Override
 	public boolean handleCommand(CommandSender sender, String[] args) {
-		if (args.length > 1) {
+		if (args.length > 0) {
 			if (args[0].equalsIgnoreCase("enable")) {
-				setEnabled(true);
+				if (this.isEnabled()) {
+					Skript.info(sender, "<light red>Timings are already enabled.");
+				} else {
+					setEnabled(true);
+					Skript.info(sender, "Timings enabled.");
+				}
 			} else if (args[0].equalsIgnoreCase("disable")) {
-				setEnabled(false);
-			} else if (args[0].equalsIgnoreCase("print") && this.isEnabled()) {
+				if (!this.isEnabled()) {
+					Skript.info(sender, "<light red>Timings are already disabled.");
+				} else {
+					setEnabled(false);
+					Skript.info(sender, "Timings have been disabled.");
+				}
+			} else if (args[0].equalsIgnoreCase("reset")) {
+				this.scriptTimings.clear();
+				Skript.info(sender, "Timings have been reset.");
+			} else if (args.length > 1 && args[0].equalsIgnoreCase("print") && this.isEnabled()) {
 				File file = ScriptLoader.getScriptFromName(args[1]);
 				if (file != null) {
 					if (file.isDirectory()) {
-						Set<Script> scripts = ScriptLoader.getScripts(file);
-						for (Script script : scripts) {
+						for (Script script : ScriptLoader.getScripts(file)) {
 							printTimings(sender, script.getConfig().getFileName());
 						}
 					} else {
 						Script script = ScriptLoader.getScript(file);
 						printTimings(sender, script.getConfig().getFileName());
 					}
+				} else {
+					Skript.info(sender, "<light red>No script found for '" + args[1] + "'.");
 				}
 			}
 		}
@@ -173,7 +188,7 @@ public class SkriptTimings extends Timings {
 	@Override
 	public @NotNull List<String> handleTabComplete(CommandSender sender, String[] args) {
 		if (args.length == 1) {
-			List<String> subs = List.of("print", "enable", "disable");
+			List<String> subs = List.of("print", "enable", "disable", "reset");
 			return StringUtil.copyPartialMatches(args[0], subs, new ArrayList<>());
 		} else if (args.length > 1 && args[0].equalsIgnoreCase("print") && this.isEnabled()) {
 			List<String> list = new ArrayList<>();
