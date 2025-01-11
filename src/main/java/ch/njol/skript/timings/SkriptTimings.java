@@ -170,6 +170,7 @@ public class SkriptTimings extends Timings {
 							Skript.info(sender, "Timings have been reset for <reset>'<light aqua>" + file.getName() + "/<reset>'");
 						} else {
 							Script script = ScriptLoader.getScript(file);
+							assert script != null;
 							String fileName = script.getConfig().getFileName();
 							reset(fileName);
 							Skript.info(sender, "Timings have been reset for <reset>'<light aqua>" + fileName + "<reset>'");
@@ -190,6 +191,7 @@ public class SkriptTimings extends Timings {
 						}
 					} else {
 						Script script = ScriptLoader.getScript(file);
+						assert script != null;
 						printTimings(sender, script.getConfig().getFileName());
 					}
 				} else {
@@ -216,7 +218,10 @@ public class SkriptTimings extends Timings {
 		return List.of();
 	}
 
-	// TODO javadocs
+	/**
+	 * Represents an instance of {@link Timing}
+	 * <p>This is used when starting a timing and holding information.</p>
+	 */
 	private static class TimingInstance implements Timing {
 		private final Timeable timeable;
 		private final long startTime;
@@ -227,7 +232,9 @@ public class SkriptTimings extends Timings {
 		}
 	}
 
-	// TODO javadocs
+	/**
+	 * Represents the timings of a Script.
+	 */
 	private static class ScriptTiming {
 
 		private final Map<Integer, LineTiming> lineTimings = new TreeMap<>();
@@ -253,7 +260,9 @@ public class SkriptTimings extends Timings {
 		}
 	}
 
-	// TODO javadocs
+	/**
+	 * Represents the timings of a line
+	 */
 	private static class LineTiming {
 		private final boolean async;
 		private long count = 0;
@@ -281,6 +290,12 @@ public class SkriptTimings extends Timings {
 		}
 	}
 
+	/**
+	 * Represents the returned timings from a {@link LineTiming}
+	 *
+	 * @param count       How many times the element was timed
+	 * @param averageTime The average time it took the element to execute
+	 */
 	public record TimingResult(long count, long averageTime) {
 	}
 
