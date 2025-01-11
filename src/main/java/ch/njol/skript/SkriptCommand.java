@@ -16,6 +16,8 @@ import ch.njol.skript.test.runner.SkriptTestEvent;
 import ch.njol.skript.test.runner.TestMode;
 import ch.njol.skript.test.runner.TestTracker;
 import ch.njol.skript.test.utils.TestResults;
+import ch.njol.skript.timings.SkriptTimings;
+import ch.njol.skript.timings.Timings;
 import ch.njol.skript.util.ExceptionUtils;
 import ch.njol.skript.util.FileUtils;
 import ch.njol.skript.util.SkriptColor;
@@ -45,6 +47,7 @@ public class SkriptCommand implements CommandExecutor {
 
 	private static final String CONFIG_NODE = "skript command";
 	private static final ArgsMessage m_reloading = new ArgsMessage(CONFIG_NODE + ".reload.reloading");
+	private static final Timings TIMINGS = Skript.getTimings();
 
 	// TODO document this command on the website
 	private static final CommandHelp SKRIPT_COMMAND_HELP = new CommandHelp("<gray>/<gold>skript", SkriptColor.LIGHT_CYAN, CONFIG_NODE + ".help")
@@ -67,7 +70,6 @@ public class SkriptCommand implements CommandExecutor {
 			.add("list")
 			.add("show")
 			.add("info")
-			.add("timings")
 			.add("help");
 
 	static {
@@ -78,6 +80,9 @@ public class SkriptCommand implements CommandExecutor {
 		// Add command to run individual tests
 		if (TestMode.DEV_MODE)
 			SKRIPT_COMMAND_HELP.add("test");
+
+		if (TIMINGS.hasCommand())
+			SKRIPT_COMMAND_HELP.add("timings");
 	}
 
 	private static void reloading(CommandSender sender, String what, RedirectingLogHandler logHandler, Object... args) {
@@ -467,9 +472,9 @@ public class SkriptCommand implements CommandExecutor {
 						.map(File::getPath)
 						.map(path -> path.substring(Skript.getInstance().getScriptsFolder().getPath().length() + 1))
 						.forEach(path -> info(sender, "list.disabled.element", path));
-			} else if (args[0].equalsIgnoreCase("timings")) {
+			} else if (args[0].equalsIgnoreCase("timings") && TIMINGS.hasCommand()) {
 				String[] subArgs = Arrays.copyOfRange(args, 1, args.length);
-				return Skript.getTimings().handleCommand(sender, subArgs);
+				return TIMINGS.handleCommand(sender, subArgs);
 			} else if (args[0].equalsIgnoreCase("help")) {
 				SKRIPT_COMMAND_HELP.showHelp(sender);
 			}

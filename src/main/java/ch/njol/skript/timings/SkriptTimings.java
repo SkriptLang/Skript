@@ -140,6 +140,11 @@ public class SkriptTimings extends Timings {
 	}
 
 	@Override
+	public boolean hasCommand() {
+		return true;
+	}
+
+	@Override
 	public boolean handleCommand(CommandSender sender, String[] args) {
 		if (args.length > 1) {
 			if (args[0].equalsIgnoreCase("enable")) {

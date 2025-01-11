@@ -61,13 +61,26 @@ public abstract class Timings {
 	public abstract void stop(@Nullable Timing timing, boolean async);
 
 	/**
+	 * Whether or not these timings have a sub command for `/sk timings`
+	 * <p>Overriding classes can decide if they want to have a command
+	 * to handle timings, or if they want to handle it some other way.</p>
+	 *
+	 * @return Whether timings has command
+	 */
+	public boolean hasCommand() {
+		return false;
+	}
+
+	/**
 	 * Handle `/sk timings` commmand
 	 *
 	 * @param sender Sender of the command
 	 * @param args   Sub args of the command
 	 * @return Whether the command should pass
 	 */
-	public abstract boolean handleCommand(CommandSender sender, String[] args);
+	public boolean handleCommand(CommandSender sender, String[] args) {
+		return true;
+	}
 
 	/**
 	 * Handle tab completion for the `/sk timings` command
@@ -76,6 +89,8 @@ public abstract class Timings {
 	 * @param args   Sub args of the command
 	 * @return List of options to show for completion
 	 */
-	public abstract @NotNull List<String> handleTabComplete(CommandSender sender, String[] args);
+	public @NotNull List<String> handleTabComplete(CommandSender sender, String[] args) {
+		return List.of();
+	}
 
 }
