@@ -3,7 +3,6 @@ package ch.njol.skript.timings;
 import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.Skript;
 import ch.njol.skript.config.Node;
-import ch.njol.skript.util.Utils;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -90,7 +89,7 @@ public class SkriptTimings extends Timings {
 			while (iterator.hasNext()) {
 				line++;
 				builder
-					.append(Utils.replaceChatStyles("<reset>"));
+					.append("<reset>");
 				String lineString = iterator.next()
 					.replace("\t", "    ") // Tabs are huge in console, let's use spaces
 					.replaceAll("<\\w+>|&[a-z]", ""); // Strip out color codes
@@ -112,20 +111,20 @@ public class SkriptTimings extends Timings {
 					String format = String.format(" <grey>(%s%s<reset>ms [<light aqua>x%s<reset>]<grey>)",
 						timingColor, averageTime, results.count());
 					builder
-						.append(Utils.replaceChatStyles("<light grey>"))
-						.append("[").append(line).append("] ")
+						.append("<grey>[").append(line).append("] ")
 						.append(lineString)
-						.append(Utils.replaceChatStyles(format))
+						.append(format)
 						.append(System.lineSeparator());
 				} else {
 					if (lineString.trim().startsWith("#")) {
-						builder.append(Utils.replaceChatStyles("<black>"));
+						builder.append("<black>");
 					} else {
-						builder.append(Utils.replaceChatStyles("<dark grey>"));
+						builder.append("<dark grey>");
 					}
 					builder
 						.append("[").append(line).append("] ")
-						.append(lineString).append(System.lineSeparator());
+						.append(lineString)
+						.append(System.lineSeparator());
 				}
 			}
 
