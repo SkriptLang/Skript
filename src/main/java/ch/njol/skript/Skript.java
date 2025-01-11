@@ -21,6 +21,7 @@ import ch.njol.skript.registrations.EventValues;
 import ch.njol.skript.registrations.Feature;
 import ch.njol.skript.test.runner.*;
 import ch.njol.skript.timings.SkriptTimings;
+import ch.njol.skript.timings.Timings;
 import ch.njol.skript.update.ReleaseManifest;
 import ch.njol.skript.update.ReleaseStatus;
 import ch.njol.skript.update.UpdateManifest;
@@ -54,6 +55,7 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnknownNullability;
 import org.jetbrains.annotations.Unmodifiable;
@@ -147,6 +149,7 @@ public final class Skript extends JavaPlugin implements Listener {
 
 	@Nullable
 	private static Skript instance = null;
+	private static Timings timings;
 
 	static org.skriptlang.skript.@UnknownNullability Skript skript = null;
 	private static org.skriptlang.skript.@UnknownNullability Skript unmodifiableSkript = null;
@@ -158,6 +161,24 @@ public final class Skript extends JavaPlugin implements Listener {
 		if (instance == null)
 			throw new IllegalStateException();
 		return instance;
+	}
+
+	/**
+	 * Get the {@link Timings} currently setup with Skript
+	 * @return Timings used by Skript
+	 */
+	public static Timings getTimings() {
+		if (timings == null)
+			throw new IllegalStateException("Timings has not been initialized");
+		return timings;
+	}
+
+	/**
+	 * Set the {@link Timings} for Skript to use
+	 * @param timings Timings for Skript to use
+	 */
+	public static void setTimings(@NotNull Timings timings) {
+		Skript.timings = timings;
 	}
 
 	@ApiStatus.Experimental
@@ -451,6 +472,8 @@ public final class Skript extends JavaPlugin implements Listener {
 			}
 		}
 
+		timings = new SkriptTimings(false);
+
 		// initialize the modern Skript instance
 		skript = org.skriptlang.skript.Skript.of(getClass(), getName());
 		unmodifiableSkript = skript.unmodifiableView();
@@ -738,9 +761,6 @@ public final class Skript extends JavaPlugin implements Listener {
 
 		// Send a warning to console when the plugin is reloaded
 		Bukkit.getPluginManager().registerEvents(new ServerReloadListener(), this);
-
-		// Tell Timings that we are here!
-		SkriptTimings.setSkript(this);
 	}
 
 	private static class ServerReloadListener implements Listener {

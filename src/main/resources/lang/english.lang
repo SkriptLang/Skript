@@ -49,6 +49,7 @@ skript command:
 		info: Prints a message with links to Skript's aliases and documentation
 		gen-docs: Generates documentation using docs/templates in plugin folder
 		test: Used for running internal Skript tests
+		timings: Used to enable/disable and print out timings
 
 	invalid script: Can't find the script <grey>'<gold>%s<grey>'<red> in the scripts folder!
 	invalid folder: Can't find the folder <grey>'<gold>%s<grey>'<red> in the scripts folder!

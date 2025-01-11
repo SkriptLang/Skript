@@ -638,6 +638,7 @@ public class ScriptLoader {
 		if (config.getFile() == null)
 			throw new IllegalArgumentException("A config must have a file to be loaded.");
 
+		Skript.getTimings().reset(config.getFileName());
 		ParserInstance parser = getParser();
 		Map<Structure, Node> nodeMap = new HashMap<>();
 		List<Structure> structures = new ArrayList<>();

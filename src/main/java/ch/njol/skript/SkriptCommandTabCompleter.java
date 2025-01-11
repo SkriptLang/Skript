@@ -12,6 +12,7 @@ import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -92,6 +93,9 @@ public class SkriptCommandTabCompleter implements TabCompleter {
 				}
 			}
 
+		} else if (args[0].equalsIgnoreCase("timings") && args.length > 1) {
+			String[] subArgs = Arrays.copyOfRange(args, 1, args.length);
+			return Skript.getTimings().handleTabComplete(sender, subArgs);
 		} else if (args.length == 1) {
 			options.add("help");
 			options.add("reload");
@@ -101,6 +105,7 @@ public class SkriptCommandTabCompleter implements TabCompleter {
 			options.add("list");
 			options.add("show");
 			options.add("info");
+			options.add("timings");
 			if (Documentation.getDocsTemplateDirectory().exists())
 				options.add("gen-docs");
 			if (TestMode.DEV_MODE)

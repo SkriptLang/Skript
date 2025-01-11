@@ -1,5 +1,7 @@
 package ch.njol.skript.lang;
 
+import ch.njol.skript.Skript;
+import ch.njol.skript.timings.Timing;
 import ch.njol.skript.variables.Variables;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
@@ -30,7 +32,9 @@ public class Trigger extends TriggerSection {
 	 * @return false if an exception occurred.
 	 */
 	public boolean execute(Event event) {
+		Timing timing = Skript.getTimings().start(this);
 		boolean success = TriggerItem.walk(this, event);
+		Skript.getTimings().stop(timing);
 
 		// Clear local variables
 		Variables.removeLocals(event);

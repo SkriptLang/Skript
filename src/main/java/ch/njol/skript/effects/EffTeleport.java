@@ -6,7 +6,7 @@ import ch.njol.skript.doc.*;
 import ch.njol.skript.lang.*;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.sections.EffSecSpawn.SpawnEvent;
-import ch.njol.skript.timings.SkriptTimings;
+import ch.njol.skript.timings.Timing;
 import ch.njol.skript.util.Direction;
 import ch.njol.skript.variables.Variables;
 import ch.njol.util.Kleenean;
@@ -81,6 +81,7 @@ public class EffTeleport extends Effect {
 
 	@Override
 	protected @Nullable TriggerItem walk(Event event) {
+		Timing timing = Skript.getTimings().start(this);
 		debug(event, true);
 		TriggerItem next = getNext();
 
@@ -99,6 +100,7 @@ public class EffTeleport extends Effect {
 				if (unknownWorld)
 					return next;
 				playerRespawnEvent.setRespawnLocation(location);
+				Skript.getTimings().stop(timing);
 				return next;
 			}
 
@@ -108,6 +110,7 @@ public class EffTeleport extends Effect {
 					location.setWorld(playerMoveEvent.getFrom().getWorld());
 				}
 				playerMoveEvent.setTo(location);
+				Skript.getTimings().stop(timing);
 				return next;
 			}
 		}
@@ -129,6 +132,7 @@ public class EffTeleport extends Effect {
 			for (Entity entity : entityArray) {
 				teleport(entity, location, teleportFlags);
 			}
+			Skript.getTimings().stop(timing);
 			return next;
 		}
 
@@ -143,25 +147,18 @@ public class EffTeleport extends Effect {
 			for (Entity entity : entityArray) {
 				teleport(entity, fixed, teleportFlags);
 			}
+			Skript.getTimings().stop(timing, true); // TODO (what if we are on spigot?)
 
 			// Re-set local variables
 			if (localVars != null)
 				Variables.setLocalVariables(event, localVars);
-			
-			// Continue the rest of the trigger if there is one
-			Object timing = null;
-			if (next != null) {
-				if (SkriptTimings.enabled()) {
-					Trigger trigger = getTrigger();
-					if (trigger != null) {
-						timing = SkriptTimings.start(trigger.getDebugLabel());
-					}
-				}
 
+			// Continue the rest of the trigger if there is one
+			if (next != null) {
 				TriggerItem.walk(next, event);
 			}
 			Variables.removeLocals(event); // Clean up local vars, we may be exiting now
-			SkriptTimings.stop(timing);
+
 		});
 		return null;
 	}

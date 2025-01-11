@@ -10,6 +10,7 @@ import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.*;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.ContainerExpression;
+import ch.njol.skript.timings.Timing;
 import ch.njol.skript.util.Container;
 import ch.njol.skript.util.Container.ContainerType;
 import ch.njol.skript.util.LiteralUtils;
@@ -85,6 +86,7 @@ public class SecLoop extends LoopSection {
 	private boolean guaranteedToLoop;
 	private Object nextValue = null;
 	private boolean loopPeeking;
+	private Timing timing;
 
 	@Override
 	@SuppressWarnings("unchecked")
@@ -122,6 +124,8 @@ public class SecLoop extends LoopSection {
 
 	@Override
 	protected @Nullable TriggerItem walk(Event event) {
+		if (timing == null)
+			timing = Skript.getTimings().start(this);
 		Iterator<?> iter = iteratorMap.get(event);
 		if (iter == null) {
 			iter = expression instanceof Variable variable ? variable.variablesIterator(event) : expression.iterator(event);
@@ -135,6 +139,8 @@ public class SecLoop extends LoopSection {
 		if (iter == null || (!iter.hasNext() && nextValue == null)) {
 			exit(event);
 			debug(event, false);
+			Skript.getTimings().stop(timing);
+			this.timing = null;
 			return actualNext;
 		} else {
 			previous.put(event, current.get(event));

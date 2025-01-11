@@ -1,6 +1,7 @@
 package org.skriptlang.skript.lang.condition;
 
 import ch.njol.skript.lang.Debuggable;
+import ch.njol.skript.timings.Timeable;
 import ch.njol.util.Kleenean;
 import com.google.common.base.Preconditions;
 import org.jetbrains.annotations.Contract;
@@ -18,7 +19,7 @@ import java.util.Map;
  * the condition in ill-defined by the user and would result in ambiguous or undefined behavior.
  * @param <T> The context class to use for evaluation.
  */
-public interface Conditional<T> extends Debuggable {
+public interface Conditional<T> extends Debuggable, Timeable {
 
 	/**
 	 * Evaluates this object as `true`, `false`, or `unknown`.

@@ -67,6 +67,7 @@ public class SkriptCommand implements CommandExecutor {
 			.add("list")
 			.add("show")
 			.add("info")
+			.add("timings")
 			.add("help");
 
 	static {
@@ -466,6 +467,9 @@ public class SkriptCommand implements CommandExecutor {
 						.map(File::getPath)
 						.map(path -> path.substring(Skript.getInstance().getScriptsFolder().getPath().length() + 1))
 						.forEach(path -> info(sender, "list.disabled.element", path));
+			} else if (args[0].equalsIgnoreCase("timings")) {
+				String[] subArgs = Arrays.copyOfRange(args, 1, args.length);
+				return Skript.getTimings().handleCommand(sender, subArgs);
 			} else if (args[0].equalsIgnoreCase("help")) {
 				SKRIPT_COMMAND_HELP.showHelp(sender);
 			}

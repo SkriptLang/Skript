@@ -2,7 +2,6 @@ package ch.njol.skript;
 
 import ch.njol.skript.lang.SkriptEvent;
 import ch.njol.skript.lang.Trigger;
-import ch.njol.skript.timings.SkriptTimings;
 import ch.njol.skript.util.Task;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
@@ -161,9 +160,7 @@ public final class SkriptEventHandler {
 		// these methods need to be run on whatever thread the trigger is
 		Runnable execute = () -> {
 			logTriggerStart(trigger);
-			Object timing = SkriptTimings.start(trigger.getDebugLabel());
 			trigger.execute(event);
-			SkriptTimings.stop(timing);
 			logTriggerEnd(trigger);
 		};
 

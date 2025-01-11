@@ -1,5 +1,6 @@
 package ch.njol.skript.util;
 
+import ch.njol.skript.timings.Timing;
 import org.bukkit.Bukkit;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
@@ -9,7 +10,6 @@ import ch.njol.skript.effects.Delay;
 import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Trigger;
 import ch.njol.skript.lang.TriggerItem;
-import ch.njol.skript.timings.SkriptTimings;
 import ch.njol.skript.variables.Variables;
 
 /**
@@ -43,19 +43,19 @@ public abstract class AsyncEffect extends Effect {
 			
 			if (getNext() != null) {
 				Bukkit.getScheduler().runTask(Skript.getInstance(), () -> { // Walk to next item synchronously
-					Object timing = null;
-					if (SkriptTimings.enabled()) { // getTrigger call is not free, do it only if we must
+					Timing timing = null;
+					if (Skript.getTimings().isEnabled()) { // getTrigger call is not free, do it only if we must
 						Trigger trigger = getTrigger();
 						if (trigger != null) {
-							timing = SkriptTimings.start(trigger.getDebugLabel());
+							timing = Skript.getTimings().start(trigger);
 						}
 					}
 					
 					TriggerItem.walk(getNext(), e);
 					
 					Variables.removeLocals(e); // Clean up local vars, we may be exiting now
-					
-					SkriptTimings.stop(timing); // Stop timing if it was even started
+
+					Skript.getTimings().stop(timing); // Stop timing if it was even started
 				});
 			} else {
 				Variables.removeLocals(e);
