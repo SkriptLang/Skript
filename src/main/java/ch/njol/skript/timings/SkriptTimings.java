@@ -137,17 +137,6 @@ public class SkriptTimings extends Timings {
 		Skript.info(Bukkit.getConsoleSender(), "Timings for '" + name + "':" + System.lineSeparator() + builder);
 	}
 
-	// TODO javadocs
-	private static class TimingInstance implements Timing {
-		private final Timeable timeable;
-		private final long startTime;
-
-		public TimingInstance(Timeable timeable) {
-			this.timeable = timeable;
-			this.startTime = System.currentTimeMillis();
-		}
-	}
-
 	@Override
 	public boolean hasCommand() {
 		return true;
@@ -171,8 +160,27 @@ public class SkriptTimings extends Timings {
 					Skript.info(sender, "Timings have been disabled.");
 				}
 			} else if (args[0].equalsIgnoreCase("reset")) {
-				this.scriptTimings.clear();
-				Skript.info(sender, "Timings have been reset.");
+				if (args.length > 1) {
+					File file = ScriptLoader.getScriptFromName(args[1]);
+					if (file != null) {
+						if (file.isDirectory()) {
+							for (Script script : ScriptLoader.getScripts(file)) {
+								reset(script.getConfig().getFileName());
+							}
+							Skript.info(sender, "Timings have been reset for <reset>'<light aqua>" + file.getName() + "/<reset>'");
+						} else {
+							Script script = ScriptLoader.getScript(file);
+							String fileName = script.getConfig().getFileName();
+							reset(fileName);
+							Skript.info(sender, "Timings have been reset for <reset>'<light aqua>" + fileName + "<reset>'");
+						}
+					} else {
+						Skript.info(sender, "<light red>No script found for '" + args[1] + "'.");
+					}
+				} else {
+					this.scriptTimings.clear();
+					Skript.info(sender, "Timings for all scripts have been reset.");
+				}
 			} else if (args.length > 1 && args[0].equalsIgnoreCase("print") && this.isEnabled()) {
 				File file = ScriptLoader.getScriptFromName(args[1]);
 				if (file != null) {
@@ -192,12 +200,13 @@ public class SkriptTimings extends Timings {
 		return true;
 	}
 
+	private static final List<String> SUBS = List.of("print", "enable", "disable", "reset");
+
 	@Override
 	public @NotNull List<String> handleTabComplete(CommandSender sender, String[] args) {
 		if (args.length == 1) {
-			List<String> subs = List.of("print", "enable", "disable", "reset");
-			return StringUtil.copyPartialMatches(args[0], subs, new ArrayList<>());
-		} else if (args.length > 1 && args[0].equalsIgnoreCase("print") && this.isEnabled()) {
+			return StringUtil.copyPartialMatches(args[0], SUBS, new ArrayList<>());
+		} else if (args.length > 1 && (args[0].equalsIgnoreCase("print") || args[0].equalsIgnoreCase("reset")) && this.isEnabled()) {
 			List<String> list = new ArrayList<>();
 			for (Script loadedScript : ScriptLoader.getLoadedScripts()) {
 				list.add(loadedScript.getConfig().getFileName());
@@ -205,6 +214,17 @@ public class SkriptTimings extends Timings {
 			return StringUtil.copyPartialMatches(args[1], list, new ArrayList<>());
 		}
 		return List.of();
+	}
+
+	// TODO javadocs
+	private static class TimingInstance implements Timing {
+		private final Timeable timeable;
+		private final long startTime;
+
+		public TimingInstance(Timeable timeable) {
+			this.timeable = timeable;
+			this.startTime = System.currentTimeMillis();
+		}
 	}
 
 	// TODO javadocs
