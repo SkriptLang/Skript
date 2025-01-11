@@ -2,6 +2,7 @@ package ch.njol.skript;
 
 import ch.njol.skript.doc.Documentation;
 import ch.njol.skript.test.runner.TestMode;
+import ch.njol.skript.timings.Timings;
 import ch.njol.util.StringUtils;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -17,6 +18,8 @@ import java.util.List;
 import java.util.stream.Stream;
 
 public class SkriptCommandTabCompleter implements TabCompleter {
+
+	private static final Timings TIMINGS = Skript.getTimings();
 
 	@Override
 	@Nullable
@@ -95,7 +98,7 @@ public class SkriptCommandTabCompleter implements TabCompleter {
 
 		} else if (args[0].equalsIgnoreCase("timings") && args.length > 1) {
 			String[] subArgs = Arrays.copyOfRange(args, 1, args.length);
-			return Skript.getTimings().handleTabComplete(sender, subArgs);
+			return TIMINGS.handleTabComplete(sender, subArgs);
 		} else if (args.length == 1) {
 			options.add("help");
 			options.add("reload");
@@ -105,7 +108,8 @@ public class SkriptCommandTabCompleter implements TabCompleter {
 			options.add("list");
 			options.add("show");
 			options.add("info");
-			options.add("timings");
+			if (TIMINGS.hasCommand())
+				options.add("timings");
 			if (Documentation.getDocsTemplateDirectory().exists())
 				options.add("gen-docs");
 			if (TestMode.DEV_MODE)
