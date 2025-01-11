@@ -89,6 +89,8 @@ public class SkriptTimings extends Timings {
 			Iterator<String> iterator = Files.lines(scriptFile.toPath()).iterator();
 			while (iterator.hasNext()) {
 				line++;
+				builder
+					.append(Utils.replaceChatStyles("<reset>"));
 				String lineString = iterator.next()
 					.replace("\t", "    ") // Tabs are huge in console, let's use spaces
 					.replaceAll("<\\w+>|&[a-z]", ""); // Strip out color codes
@@ -110,17 +112,20 @@ public class SkriptTimings extends Timings {
 					String format = String.format(" <grey>(%s%s<reset>ms [<light aqua>x%s<reset>]<grey>)",
 						timingColor, averageTime, results.count());
 					builder
-						.append(Utils.replaceChatStyles("<reset>"))
+						.append(Utils.replaceChatStyles("<light grey>"))
+						.append("[").append(line).append("] ")
 						.append(lineString)
 						.append(Utils.replaceChatStyles(format))
 						.append(System.lineSeparator());
 				} else {
 					if (lineString.trim().startsWith("#")) {
-						builder.append(Utils.replaceChatStyles("<dark grey>"));
+						builder.append(Utils.replaceChatStyles("<black>"));
 					} else {
-						builder.append(Utils.replaceChatStyles("<light grey>"));
+						builder.append(Utils.replaceChatStyles("<dark grey>"));
 					}
-					builder.append(lineString).append(System.lineSeparator());
+					builder
+						.append("[").append(line).append("] ")
+						.append(lineString).append(System.lineSeparator());
 				}
 			}
 
