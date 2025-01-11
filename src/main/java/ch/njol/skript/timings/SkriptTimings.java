@@ -12,7 +12,9 @@ import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.script.Script;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -32,6 +34,8 @@ public class SkriptTimings extends Timings {
 	public SkriptTimings(boolean enabled) {
 		this.enabled = enabled;
 	}
+
+	// == TIMINGS ==
 
 	@Override
 	public void reset(String script) {
@@ -75,66 +79,7 @@ public class SkriptTimings extends Timings {
 		this.scriptTimings.get(name).stop(timingInstance, async);
 	}
 
-	// TODO Please ignore, this is just for my testing
-	@SuppressWarnings({"resource", "DataFlowIssue"})
-	public void printTimings(CommandSender sender, String name) {
-		File scriptFile = ScriptLoader.getScriptFromName(name);
-
-		StringBuilder builder = new StringBuilder();
-		try {
-			ScriptTiming scriptTiming = scriptTimings.get(name);
-
-			int line = 0;
-			Iterator<String> iterator = Files.lines(scriptFile.toPath()).iterator();
-			while (iterator.hasNext()) {
-				line++;
-				builder
-					.append("<reset>");
-				String lineString = iterator.next()
-					.replace("\t", "    ") // Tabs are huge in console, let's use spaces
-					.replaceAll("<\\w+>|&[a-z]", ""); // Strip out color codes
-				LineTiming lineTiming = scriptTiming != null ? scriptTiming.lineTimings.get(line) : null;
-				if (lineTiming != null) {
-					TimingResult results = lineTiming.getResults();
-					long averageTime = results.averageTime();
-					String timingColor = "<light green>";
-					if (lineTiming.isAsync())
-						timingColor = "<light aqua>";
-					else if (averageTime > 100)
-						timingColor = "<red>";
-					else if (averageTime > 50)
-						timingColor = "<light red>";
-					else if (averageTime > 35)
-						timingColor = "<orange>";
-					else if (averageTime > 20)
-						timingColor = "<yellow>";
-					String format = String.format(" <grey>(%s%s<reset>ms [<light aqua>x%s<reset>]<grey>)",
-						timingColor, averageTime, results.count());
-					builder
-						.append("<grey>[").append(line).append("] ")
-						.append(lineString)
-						.append(format)
-						.append(System.lineSeparator());
-				} else {
-					if (lineString.trim().startsWith("#")) {
-						builder.append("<black>");
-					} else {
-						builder.append("<dark grey>");
-					}
-					builder
-						.append("[").append(line).append("] ")
-						.append(lineString)
-						.append(System.lineSeparator());
-				}
-			}
-
-		} catch (IOException e) {
-			throw new RuntimeException(e);
-		}
-		if (sender instanceof Player)
-			Skript.info(sender, "Timings for '" + name + "' have been sent to console.");
-		Skript.info(Bukkit.getConsoleSender(), "Timings for '" + name + "':" + System.lineSeparator() + builder);
-	}
+	// == COMMAND ==
 
 	@Override
 	public boolean hasCommand() {
@@ -181,17 +126,18 @@ public class SkriptTimings extends Timings {
 					this.scriptTimings.clear();
 					Skript.info(sender, "Timings for all scripts have been reset.");
 				}
-			} else if (args.length > 1 && args[0].equalsIgnoreCase("print") && this.isEnabled()) {
+			} else if (args.length > 1 && (args[0].equalsIgnoreCase("print") || args[0].equalsIgnoreCase("file")) && this.isEnabled()) {
+				boolean print = !args[0].equalsIgnoreCase("file");
 				File file = ScriptLoader.getScriptFromName(args[1]);
 				if (file != null) {
 					if (file.isDirectory()) {
 						for (Script script : ScriptLoader.getScripts(file)) {
-							printTimings(sender, script.getConfig().getFileName());
+							outputTimings(sender, script.getConfig().getFileName(), print);
 						}
 					} else {
 						Script script = ScriptLoader.getScript(file);
 						assert script != null;
-						printTimings(sender, script.getConfig().getFileName());
+						outputTimings(sender, script.getConfig().getFileName(), print);
 					}
 				} else {
 					Skript.info(sender, "<light red>No script found for '" + args[1] + "'.");
@@ -201,13 +147,14 @@ public class SkriptTimings extends Timings {
 		return true;
 	}
 
-	private static final List<String> SUBS = List.of("print", "enable", "disable", "reset");
+	private static final List<String> SUBS = List.of("print", "file", "enable", "disable", "reset");
 
 	@Override
 	public @NotNull List<String> handleTabComplete(CommandSender sender, String[] args) {
 		if (args.length == 1) {
 			return StringUtil.copyPartialMatches(args[0], SUBS, new ArrayList<>());
-		} else if (args.length > 1 && (args[0].equalsIgnoreCase("print") || args[0].equalsIgnoreCase("reset")) && this.isEnabled()) {
+		} else if (args.length > 1 && (args[0].equalsIgnoreCase("print") ||
+			args[0].equalsIgnoreCase("reset") || args[0].equalsIgnoreCase("file")) && this.isEnabled()) {
 			List<String> list = new ArrayList<>();
 			for (Script loadedScript : ScriptLoader.getLoadedScripts()) {
 				list.add(loadedScript.getConfig().getFileName());
@@ -230,6 +177,8 @@ public class SkriptTimings extends Timings {
 			this.startTime = System.currentTimeMillis();
 		}
 	}
+
+	// == SUPPLEMENTAL CLASSES ==
 
 	/**
 	 * Represents the timings of a Script.
@@ -296,6 +245,85 @@ public class SkriptTimings extends Timings {
 	 * @param averageTime The average time it took the element to execute
 	 */
 	public record TimingResult(long count, long averageTime) {
+	}
+
+	// == TIMINGS PRINTER ==
+	// TODO Please ignore, this is just for my testing
+	@SuppressWarnings({"resource", "DataFlowIssue"})
+	public void outputTimings(CommandSender sender, String name, boolean print) {
+		File scriptFile = ScriptLoader.getScriptFromName(name);
+
+		StringBuilder builder = new StringBuilder();
+		try {
+			ScriptTiming scriptTiming = scriptTimings.get(name);
+
+			int line = 0;
+			Iterator<String> iterator = Files.lines(scriptFile.toPath()).iterator();
+			while (iterator.hasNext()) {
+				line++;
+				builder.append("<reset>");
+				String lineString = iterator.next();
+				if (print) {
+					lineString = lineString.replace("\t", "    "); // Tabs are huge in console, let's use spaces
+					lineString = lineString.replaceAll("<\\w+>|&[a-z0-9]", ""); // Strip out color codes
+				}
+				LineTiming lineTiming = scriptTiming != null ? scriptTiming.lineTimings.get(line) : null;
+				if (lineTiming != null) {
+					TimingResult results = lineTiming.getResults();
+					long averageTime = results.averageTime();
+					String timingColor = "<light green>";
+					if (lineTiming.isAsync())
+						timingColor = "<light aqua>";
+					else if (averageTime > 100)
+						timingColor = "<red>";
+					else if (averageTime > 50)
+						timingColor = "<light red>";
+					else if (averageTime > 35)
+						timingColor = "<orange>";
+					else if (averageTime > 20)
+						timingColor = "<yellow>";
+					String format = String.format(" <grey>#(%s%s<reset>ms [<light aqua>x%s<reset>]<grey>)",
+						timingColor, averageTime, results.count());
+
+					if (print)
+						builder.append("<grey>[").append(line).append("] ");
+
+					builder.append(lineString);
+					builder.append(format);
+					builder.append(System.lineSeparator());
+				} else {
+					if (lineString.trim().startsWith("#")) {
+						builder.append("<black>");
+					} else {
+						builder.append("<dark grey>");
+					}
+					if (print)
+						builder.append("[").append(line).append("] ");
+					builder.append(lineString);
+					builder.append(System.lineSeparator());
+				}
+			}
+
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+
+		if (print) {
+			if (sender instanceof Player)
+				Skript.info(sender, "Timings for '" + name + "' have been sent to console.");
+			Skript.info(Bukkit.getConsoleSender(), "Timings for '" + name + "':" + System.lineSeparator() + builder);
+		} else {
+			String path = scriptFile.getAbsolutePath().replace("Skript/scripts", "Skript/timings");
+			File file = new File(path);
+			file.getParentFile().mkdirs();
+			String toPrint = builder.toString().replaceAll("<[\\w ]+>", "");
+			try (PrintWriter out = new PrintWriter(file)) {
+				out.println(toPrint);
+			} catch (FileNotFoundException e) {
+				throw new RuntimeException(e);
+			}
+			Skript.info(sender, "Timing results saved to: " + scriptFile.getPath());
+		}
 	}
 
 }
