@@ -139,8 +139,6 @@ public class SecLoop extends LoopSection {
 		if (iter == null || (!iter.hasNext() && nextValue == null)) {
 			exit(event);
 			debug(event, false);
-			Skript.getTimings().stop(timing);
-			this.timing = null;
 			return actualNext;
 		} else {
 			previous.put(event, current.get(event));
@@ -210,6 +208,8 @@ public class SecLoop extends LoopSection {
 		current.remove(event);
 		iteratorMap.remove(event);
 		previous.remove(event);
+		Skript.getTimings().stop(timing);
+		this.timing = null;
 		super.exit(event);
 	}
 
