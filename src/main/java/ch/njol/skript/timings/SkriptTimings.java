@@ -107,6 +107,7 @@ public class SkriptTimings extends Timings {
 					String format = String.format(" <grey>(%s%s<reset>ms [<light aqua>x%s<reset>]<grey>)",
 						timingColor, averageTime, results.count());
 					builder
+						.append(Utils.replaceEnglishChatStyles("<reset>"))
 						.append(lineString)
 						.append(Utils.replaceEnglishChatStyles(format))
 						.append(System.lineSeparator());
