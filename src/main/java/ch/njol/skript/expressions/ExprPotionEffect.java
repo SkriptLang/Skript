@@ -33,8 +33,8 @@ import ch.njol.util.Kleenean;
 public class ExprPotionEffect extends SimpleExpression<PotionEffect> {
 	static {
 		Skript.registerExpression(ExprPotionEffect.class, PotionEffect.class, ExpressionType.COMBINED,
-			"[new] [:ambient] potion effect of %potioneffecttype% [potion] [[[of] tier] %-number%] [noparticles:without [any] particles] [icon:(whilst hiding [the]|without (the|a)) [potion] icon] [for %-timespan%]",
-			"[new] infinite [:ambient] potion effect of %potioneffecttype% [potion] [[[of] tier] %-number%] [noparticles:without [any] particles] [icon:(whilst hiding [the]|without (the|a)) [potion] icon]");
+			"[new] [:ambient] potion effect of %potioneffecttype% [potion] [[[of] tier] %-number%] [noparticles:without [any] particles] [icon:without (the|a) [potion] icon] [for %-timespan%]",
+			"[new] infinite [:ambient] potion effect of %potioneffecttype% [potion] [[[of] tier] %-number%] [noparticles:without [any] particles] [icon:without (the|a) [potion] icon]");
 	}
 	
 	@SuppressWarnings("null")
