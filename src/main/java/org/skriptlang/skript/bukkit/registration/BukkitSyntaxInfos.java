@@ -291,7 +291,7 @@ public final class BukkitSyntaxInfos {
 			 * @see Event#events()
 			 */
 			@Contract("_ -> this")
-			B addEvents(Class<? extends org.bukkit.event.Event>... events);
+			B addEvents(Class<? extends org.bukkit.event.Event>[] events);
 
 			/**
 			 * Adds events to the event's documentation.

@@ -189,8 +189,8 @@ final class DefaultSyntaxInfosImpl {
 				if (builder instanceof Structure.Builder structureBuilder) {
 					if (entryValidator != null) {
 						structureBuilder.entryValidator(entryValidator);
-						structureBuilder.nodeType(nodeType);
 					}
+					structureBuilder.nodeType(nodeType);
 				}
 			}
 		}
