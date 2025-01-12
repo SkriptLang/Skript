@@ -19,6 +19,11 @@ test "potion effects":
 	set {_pe::4} to ambient potion effect of slowness without particles without the icon for 2 minutes
 
 	assert size of {_pe::*} = 4 with "There should have been 4 potion effects created"
+	assert "%{_pe::1}%" contains "without particles for infinity without icon" with "The potion effect should be infinite without particles or an icon"
+	assert "%{_pe::2}%" contains "ambient" and "without particles for infinity" with "The potion effect should be ambient, without particles and for infinity"
+	assert "%{_pe::3}%" contains "for 10 seconds" with "The potion effect should be for 10 seconds"
+	assert "%{_pe::4}%" contains "without particles for 2 minutes without icon" with "The potion effect should have no icon/particles for 2 minutes"
+
 	apply {_pe::*} to {_e} # Poor guy
 	assert type of potion effects of {_e} contains darkness, night vision, nausea and slowness with "The poor sheep should have had these 4 effects added"
 
