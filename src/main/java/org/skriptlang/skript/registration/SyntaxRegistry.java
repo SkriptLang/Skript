@@ -144,7 +144,7 @@ public interface SyntaxRegistry extends ViewProvider<SyntaxRegistry>, Registry<S
 		 * @param <P> The parent key's syntax type.
 		 */
 		@Contract("_, _ -> new")
-		static <I extends P, P extends SyntaxInfo<?>> Key<I> of(Key<P> parent, String name) {
+		static <I extends P, P extends SyntaxInfo<?>> ChildKey<I, P> of(Key<P> parent, String name) {
 			return new SyntaxRegistryImpl.ChildKeyImpl<>(parent, name);
 		}
 
