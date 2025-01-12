@@ -1,11 +1,5 @@
 package ch.njol.skript.effects;
 
-import org.bukkit.Bukkit;
-import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
-import org.bukkit.event.Event;
-import org.jetbrains.annotations.Nullable;
-
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
@@ -18,12 +12,16 @@ import ch.njol.skript.lang.VariableString;
 import ch.njol.skript.util.StringMode;
 import ch.njol.skript.util.Utils;
 import ch.njol.util.Kleenean;
+import org.bukkit.Bukkit;
+import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
+import org.bukkit.event.Event;
+import org.jetbrains.annotations.Nullable;
 
 @Name("Command")
 @Description({
 	"Executes a command. This can be useful to use other plugins in triggers.",
-	"If the command is a bungeecord side command, " +
-	"you can use the [bungeecord] option to execute command on the proxy."
+	"If the command is a bungeecord side command, you can use the [bungeecord] option to execute command on the proxy."
 })
 @Examples({
 	"make player execute command \"/home\"",
@@ -37,26 +35,20 @@ public class EffCommand extends Effect {
 
 	static {
 		Skript.registerEffect(EffCommand.class,
-				"[execute] [the] [bungee:bungee[cord]] command[s] %strings% [by %-commandsenders%]",
-				"[execute] [the] %commandsenders% [bungee:bungee[cord]] command[s] %strings%",
-				"(let|make) %commandsenders% execute [[the] [bungee:bungee[cord]] command[s]] %strings%");
+			"[execute] [the] [bungee:bungee[cord]] command[s] %strings% [by %-commandsenders%]",
+			"[execute] [the] %commandsenders% [bungee:bungee[cord]] command[s] %strings%",
+			"(let|make) %commandsenders% execute [[the] [bungee:bungee[cord]] command[s]] %strings%");
 	}
 
-	@Nullable
-	private Expression<CommandSender> senders;
+	private @Nullable Expression<CommandSender> senders;
 	private Expression<String> commands;
 	private boolean bungeecord;
 
 	@Override
 	@SuppressWarnings("unchecked")
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		if (matchedPattern == 0) {
-			commands = (Expression<String>) exprs[0];
-			senders = (Expression<CommandSender>) exprs[1];
-		} else {
-			senders = (Expression<CommandSender>) exprs[0];
-			commands = (Expression<String>) exprs[1];
-		}
+		commands = (Expression<String>) exprs[matchedPattern];
+		senders = (Expression<CommandSender>) exprs[matchedPattern ^ 1];
 		bungeecord = parseResult.hasTag("bungee");
 		if (bungeecord && senders == null) {
 			Skript.error("The commandsenders expression cannot be omitted when using the bungeecord option");
@@ -71,13 +63,12 @@ public class EffCommand extends Effect {
 		for (String command : commands.getArray(event)) {
 			assert command != null;
 			if (command.startsWith("/"))
-				command = "" + command.substring(1);
+				command = command.substring(1);
 			if (senders != null) {
 				for (CommandSender sender : senders.getArray(event)) {
 					if (bungeecord) {
-						if (!(sender instanceof Player))
+						if (!(sender instanceof Player player))
 							continue;
-						Player player = (Player) sender;
 						Utils.sendPluginMessage(player, EffConnect.BUNGEE_CHANNEL, MESSAGE_CHANNEL, player.getName(), "/" + command);
 						continue;
 					}

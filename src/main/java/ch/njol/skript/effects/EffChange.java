@@ -1,14 +1,5 @@
 package ch.njol.skript.effects;
 
-import java.util.Arrays;
-import java.util.logging.Level;
-
-import ch.njol.skript.expressions.ExprParse;
-import ch.njol.skript.lang.*;
-import org.skriptlang.skript.lang.script.ScriptWarning;
-import org.bukkit.event.Event;
-import org.jetbrains.annotations.Nullable;
-
 import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptConfig;
 import ch.njol.skript.classes.Changer;
@@ -18,6 +9,8 @@ import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
+import ch.njol.skript.expressions.ExprParse;
+import ch.njol.skript.lang.*;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.log.CountingLogHandler;
 import ch.njol.skript.log.ErrorQuality;
@@ -27,71 +20,77 @@ import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.Patterns;
 import ch.njol.skript.util.Utils;
 import ch.njol.util.Kleenean;
+import org.bukkit.event.Event;
+import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.script.ScriptWarning;
 
-/**
- * @author Peter Güttinger
- */
+import java.util.Arrays;
+import java.util.logging.Level;
+
 @Name("Change: Set/Add/Remove/Delete/Reset")
-@Description("A very general effect that can change many <a href='./expressions'>expressions</a>. Many expressions can only be set and/or deleted, while some can have things added to or removed from them.")
-@Examples({"# set:",
-		"Set the player's display name to \"&lt;red&gt;%name of player%\"",
-		"set the block above the victim to lava",
-		"# add:",
-		"add 2 to the player's health # preferably use '<a href='#EffHealth'>heal</a>' for this",
-		"add argument to {blacklist::*}",
-		"give a diamond pickaxe of efficiency 5 to the player",
-		"increase the data value of the clicked block by 1",
-		"# remove:",
-		"remove 2 pickaxes from the victim",
-		"subtract 2.5 from {points::%uuid of player%}",
-		"# remove all:",
-		"remove every iron tool from the player",
-		"remove all minecarts from {entitylist::*}",
-		"# delete:",
-		"delete the block below the player",
-		"clear drops",
-		"delete {variable}",
-		"# reset:",
-		"reset walk speed of player",
-		"reset chunk at the targeted block"})
-@Since("1.0 (set, add, remove, delete), 2.0 (remove all)")
+@Description({
+	"A very general effect that can change many <a href='./expressions'>expressions</a>.",
+	"Many expressions can only be set and/or deleted, while some can have things added to or removed from them."
+})
+@Examples({
+	"# set:",
+	"Set the player's display name to \"&lt;red&gt;%name of player%\"",
+	"set the block above the victim to lava",
+	"# add:",
+	"add 2 to the player's health # preferably use '<a href='#EffHealth'>heal</a>' for this",
+	"add argument to {blacklist::*}",
+	"give a diamond pickaxe of efficiency 5 to the player",
+	"increase the data value of the clicked block by 1",
+	"# remove:",
+	"remove 2 pickaxes from the victim",
+	"subtract 2.5 from {points::%uuid of player%}",
+	"# remove all:",
+	"remove every iron tool from the player",
+	"remove all minecarts from {entitylist::*}",
+	"# delete:",
+	"delete the block below the player",
+	"clear drops",
+	"delete {variable}",
+	"# reset:",
+	"reset walk speed of player",
+	"reset chunk at the targeted block"
+})
+@Since({
+	"1.0 (set, add, remove, delete)",
+	"2.0 (remove all)"
+})
 public class EffChange extends Effect {
-	private static Patterns<ChangeMode> patterns = new Patterns<>(new Object[][] {
-			{"(add|give) %objects% to %~objects%", ChangeMode.ADD},
-			{"increase %~objects% by %objects%", ChangeMode.ADD},
-			{"give %~objects% %objects%", ChangeMode.ADD},
+	private static final Patterns<ChangeMode> patterns = new Patterns<>(new Object[][] {
+		{"(add|give) %objects% to %~objects%", ChangeMode.ADD},
+		{"increase %~objects% by %objects%", ChangeMode.ADD},
+		{"give %~objects% %objects%", ChangeMode.ADD},
 
-			{"set %~objects% to %objects%", ChangeMode.SET},
+		{"set %~objects% to %objects%", ChangeMode.SET},
 
-			{"remove (all|every) %objects% from %~objects%", ChangeMode.REMOVE_ALL},
+		{"remove (all|every) %objects% from %~objects%", ChangeMode.REMOVE_ALL},
 
-			{"(remove|subtract) %objects% from %~objects%", ChangeMode.REMOVE},
-			{"(reduce|decrease) %~objects% by %objects%", ChangeMode.REMOVE},
+		{"(remove|subtract) %objects% from %~objects%", ChangeMode.REMOVE},
+		{"(reduce|decrease) %~objects% by %objects%", ChangeMode.REMOVE},
 
-			{"(delete|clear) %~objects%", ChangeMode.DELETE},
+		{"(delete|clear) %~objects%", ChangeMode.DELETE},
 
-			{"reset %~objects%", ChangeMode.RESET}
+		{"reset %~objects%", ChangeMode.RESET}
 	});
 
 	static {
 		Skript.registerEffect(EffChange.class, patterns.getPatterns());
 	}
 
-	@SuppressWarnings("null")
 	private Expression<?> changed;
-	@Nullable
-	private Expression<?> changer = null;
-
-	@SuppressWarnings("null")
+	private @Nullable Expression<?> changer = null;
 	private ChangeMode mode;
-
 	private boolean single;
 
 //	private Changer<?, ?> c = null;
 
-	@SuppressWarnings({"unchecked", "null"})
 	@Override
-	public boolean init(final Expression<?>[] exprs, final int matchedPattern, final Kleenean isDelayed, final ParseResult parser) {
+	@SuppressWarnings("unchecked")
+	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parser) {
 		mode = patterns.getInfo(matchedPattern);
 
 		switch (mode) {
@@ -121,14 +120,12 @@ public class EffChange extends Effect {
 					changed = exprs[0];
 				}
 				break;
-			case DELETE:
+			case DELETE, RESET:
 				changed = exprs[0];
 				break;
-			case RESET:
-				changed = exprs[0];
 		}
 
-		CountingLogHandler h = new CountingLogHandler(Level.SEVERE).start();
+		CountingLogHandler handler = new CountingLogHandler(Level.SEVERE).start();
 		Class<?>[] rs;
 		String what;
 		try {
@@ -137,10 +134,10 @@ public class EffChange extends Effect {
 			Changer<?> changer = c.getChanger();
 			what = changer == null || !Arrays.equals(changer.acceptChange(mode), rs) ? changed.toString(null, false) : c.getName().withIndefiniteArticle();
 		} finally {
-			h.stop();
+			handler.stop();
 		}
 		if (rs == null) {
-			if (h.getCount() > 0)
+			if (handler.getCount() > 0)
 				return false;
 			switch (mode) {
 				case SET:
@@ -171,17 +168,17 @@ public class EffChange extends Effect {
 			return false;
 		}
 
-		final Class<?>[] rs2 = new Class<?>[rs.length];
+		Class<?>[] rs2 = new Class<?>[rs.length];
 		for (int i = 0; i < rs.length; i++)
 			rs2[i] = rs[i].isArray() ? rs[i].getComponentType() : rs[i];
-		final boolean allSingle = Arrays.equals(rs, rs2);
+		boolean allSingle = Arrays.equals(rs, rs2);
 
 		Expression<?> ch = changer;
 		if (ch != null) {
 			Expression<?> v = null;
-			final ParseLogHandler log = SkriptLogger.startParseLogHandler();
+			ParseLogHandler log = SkriptLogger.startParseLogHandler();
 			try {
-				for (final Class<?> r : rs) {
+				for (Class<?> r : rs) {
 					log.clear();
 					if ((r.isArray() ? r.getComponentType() : r).isAssignableFrom(ch.getReturnType())) {
 						v = ch.getConvertedExpression(Object.class);
@@ -197,7 +194,7 @@ public class EffChange extends Effect {
 					}
 					log.clear();
 					log.stop();
-					final Class<?>[] r = new Class[rs.length];
+					Class<?>[] r = new Class[rs.length];
 					for (int i = 0; i < rs.length; i++)
 						r[i] = rs[i].isArray() ? rs[i].getComponentType() : rs[i];
 					if (r.length == 1 && r[0] == Object.class)
@@ -246,7 +243,7 @@ public class EffChange extends Effect {
 			}
 
 			if (changed instanceof Variable && !((Variable<?>) changed).isLocal() && (mode == ChangeMode.SET || ((Variable<?>) changed).isList() && mode == ChangeMode.ADD)) {
-				final ClassInfo<?> ci = Classes.getSuperClassInfo(ch.getReturnType());
+				ClassInfo<?> ci = Classes.getSuperClassInfo(ch.getReturnType());
 				if (ci.getC() != Object.class && ci.getSerializer() == null && ci.getSerializeAs() == null && !SkriptConfig.disableObjectCannotBeSavedWarnings.value()) {
 					if (getParser().isActive() && !getParser().getCurrentScript().suppressesWarning(ScriptWarning.VARIABLE_SAVE)) {
 						Skript.warning(ci.getName().withIndefiniteArticle() + " cannot be saved, i.e. the contents of the variable " + changed + " will be lost when the server stops.");
@@ -278,28 +275,28 @@ public class EffChange extends Effect {
 	}
 
 	@Override
-	public String toString(final @Nullable Event e, final boolean debug) {
-		final Expression<?> changer = this.changer;
-		switch (mode) {
-			case ADD:
+	public String toString(@Nullable Event event, boolean debug) {
+		Expression<?> changer = this.changer;
+		return switch (mode) {
+			case ADD -> {
 				assert changer != null;
-				return "add " + changer.toString(e, debug) + " to " + changed.toString(e, debug);
-			case SET:
+				yield "add " + changer.toString(event, debug) + " to " + changed.toString(event, debug);
+			}
+			case SET -> {
 				assert changer != null;
-				return "set " + changed.toString(e, debug) + " to " + changer.toString(e, debug);
-			case REMOVE:
+				yield "set " + changed.toString(event, debug) + " to " + changer.toString(event, debug);
+			}
+			case REMOVE -> {
 				assert changer != null;
-				return "remove " + changer.toString(e, debug) + " from " + changed.toString(e, debug);
-			case REMOVE_ALL:
+				yield "remove " + changer.toString(event, debug) + " from " + changed.toString(event, debug);
+			}
+			case REMOVE_ALL -> {
 				assert changer != null;
-				return "remove all " + changer.toString(e, debug) + " from " + changed.toString(e, debug);
-			case DELETE:
-				return "delete/clear " + changed.toString(e, debug);
-			case RESET:
-				return "reset " + changed.toString(e, debug);
-		}
-		assert false;
-		return "";
+				yield "remove all " + changer.toString(event, debug) + " from " + changed.toString(event, debug);
+			}
+			case DELETE -> "delete/clear " + changed.toString(event, debug);
+			case RESET -> "reset " + changed.toString(event, debug);
+		};
 	}
 
 }

@@ -20,7 +20,7 @@ import org.jetbrains.annotations.UnknownNullability;
 import java.util.List;
 
 @Name("Return")
-@Description("Makes a trigger or a section (e.g. a function) return a value")
+@Description("Makes a trigger or a section (e.g. a function) return a value.")
 @Examples({
 	"function double(i: number) :: number:",
 		"\treturn 2 * {_i}",

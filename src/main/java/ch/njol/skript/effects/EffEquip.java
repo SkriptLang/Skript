@@ -1,7 +1,6 @@
 package ch.njol.skript.effects;
 
 import ch.njol.skript.Skript;
-import ch.njol.skript.aliases.ItemData;
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.bukkitutil.PlayerUtils;
 import ch.njol.skript.doc.Description;
@@ -14,21 +13,9 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
 import org.bukkit.Material;
 import org.bukkit.Tag;
-import org.bukkit.entity.AbstractHorse;
-import org.bukkit.entity.ChestedHorse;
-import org.bukkit.entity.Horse;
-import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Llama;
-import org.bukkit.entity.Player;
-import org.bukkit.entity.Steerable;
-import org.bukkit.entity.Wolf;
+import org.bukkit.entity.*;
 import org.bukkit.event.Event;
-import org.bukkit.inventory.AbstractHorseInventory;
-import org.bukkit.inventory.EntityEquipment;
-import org.bukkit.inventory.EquipmentSlot;
-import org.bukkit.inventory.HorseInventory;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.LlamaInventory;
+import org.bukkit.inventory.*;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnknownNullability;
 
@@ -72,7 +59,7 @@ public class EffEquip extends Effect {
 				Material.GOLDEN_CHESTPLATE,
 				Material.IRON_CHESTPLATE,
 				Material.DIAMOND_CHESTPLATE,
-        Material.NETHERITE_CHESTPLATE,
+        		Material.NETHERITE_CHESTPLATE,
 				Material.ELYTRA
 			);
 
@@ -82,7 +69,7 @@ public class EffEquip extends Effect {
 				Material.GOLDEN_LEGGINGS,
 				Material.IRON_LEGGINGS,
 				Material.DIAMOND_LEGGINGS,
-        Material.NETHERITE_LEGGINGS
+        		Material.NETHERITE_LEGGINGS
 			);
 
 			BOOTS = new ItemType(
@@ -91,7 +78,7 @@ public class EffEquip extends Effect {
 				Material.GOLDEN_BOOTS,
 				Material.IRON_BOOTS,
 				Material.DIAMOND_BOOTS,
-        Material.NETHERITE_BOOTS
+        		Material.NETHERITE_BOOTS
 			);
 		}
 	}
@@ -100,16 +87,14 @@ public class EffEquip extends Effect {
 
 	static {
 		Skript.registerEffect(EffEquip.class,
-				"equip [%livingentities%] with %itemtypes%",
-				"make %livingentities% wear %itemtypes%",
-				"unequip %itemtypes% [from %livingentities%]",
-				"unequip %livingentities%'[s] (armo[u]r|equipment)");
+			"equip [%livingentities%] with %itemtypes%",
+			"make %livingentities% wear %itemtypes%",
+			"unequip %itemtypes% [from %livingentities%]",
+			"unequip %livingentities%'[s] (armo[u]r|equipment)");
 	}
 
-	@SuppressWarnings("NotNullFieldNotInitialized")
 	private Expression<LivingEntity> entities;
 	private @UnknownNullability Expression<ItemType> itemTypes;
-
 	private boolean equip = true;
 
 	@Override

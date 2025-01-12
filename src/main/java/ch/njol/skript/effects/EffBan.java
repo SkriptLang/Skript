@@ -22,19 +22,28 @@ import java.net.InetSocketAddress;
 import java.util.Date;
 
 @Name("Ban")
-@Description({"Bans or unbans a player or an IP address.",
+@Description({
+	"Bans or unbans a player or an IP address.",
 	"If a reason is given, it will be shown to the player when they try to join the server while banned.",
 	"A length of ban may also be given to apply a temporary ban. If it is absent for any reason, a permanent ban will be used instead.",
 	"We recommend that you test your scripts so that no accidental permanent bans are applied.",
 	"",
 	"Note that banning people does not kick them from the server.",
-	"You can optionally use 'and kick' or consider using the <a href='effects.html#EffKick'>kick effect</a> after applying a ban."})
-@Examples({"unban player",
+	"You can optionally use 'and kick' or consider using the <a href='effects.html#EffKick'>kick effect</a> after applying a ban."
+})
+@Examples({
+	"unban player",
 	"ban \"127.0.0.1\"",
 	"IP-ban the player because \"he is an idiot\"",
 	"ban player due to \"inappropriate language\" for 2 days",
-	"ban and kick player due to \"inappropriate language\" for 2 days"})
-@Since("1.4, 2.1.1 (ban reason), 2.5 (timespan), 2.9.0 (kick)")
+	"ban and kick player due to \"inappropriate language\" for 2 days"
+})
+@Since({
+	"1.4",
+	"2.1.1 (ban reason)",
+	"2.5 (timespan)",
+	"2.9.0 (kick)"
+})
 public class EffBan extends Effect {
 
 	static {
@@ -47,20 +56,14 @@ public class EffBan extends Effect {
 			"(IP(-| )unban|un[-]IP[-]ban) %players%");
 	}
 
-	@SuppressWarnings("null")
 	private Expression<?> players;
-	@Nullable
-	private Expression<String> reason;
-	@Nullable
-	private Expression<Timespan> expires;
+	private @Nullable Expression<String> reason;
+	private @Nullable Expression<Timespan> expires;
+	private boolean ban, ipBan, kick;
 
-	private boolean ban;
-	private boolean ipBan;
-	private boolean kick;
-
-	@SuppressWarnings({"null", "unchecked"})
 	@Override
-	public boolean init(final Expression<?>[] exprs, final int matchedPattern, final Kleenean isDelayed, final ParseResult parseResult) {
+	@SuppressWarnings("unchecked")
+	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		players = exprs[0];
 		reason = exprs.length > 1 ? (Expression<String>) exprs[1] : null;
 		expires = exprs.length > 1 ? (Expression<Timespan>) exprs[2] : null;
@@ -70,21 +73,19 @@ public class EffBan extends Effect {
 		return true;
 	}
 
-	@SuppressWarnings("null")
 	@Override
-	protected void execute(final Event e) {
-		final String reason = this.reason != null ? this.reason.getSingle(e) : null; // don't check for null, just ignore an invalid reason
-		Timespan ts = this.expires != null ? this.expires.getSingle(e) : null;
-		final Date expires = ts != null ? new Date(System.currentTimeMillis() + ts.getAs(Timespan.TimePeriod.MILLISECOND)) : null;
-		final String source = "Skript ban effect";
-		for (final Object o : players.getArray(e)) {
-			if (o instanceof Player) {
-				Player player = (Player) o;
+	protected void execute(Event event) {
+		String reason = this.reason != null ? this.reason.getSingle(event) : null; // don't check for null, just ignore an invalid reason
+		Timespan timespan = this.expires != null ? this.expires.getSingle(event) : null;
+		Date expires = timespan != null ? new Date(System.currentTimeMillis() + timespan.getAs(Timespan.TimePeriod.MILLISECOND)) : null;
+		String source = "Skript ban effect";
+		for (Object object : players.getArray(event)) {
+			if (object instanceof Player player) {
 				if (ipBan) {
 					InetSocketAddress addr = player.getAddress();
 					if (addr == null)
 						return; // Can't ban unknown IP
-					final String ip = addr.getAddress().getHostAddress();
+					String ip = addr.getAddress().getHostAddress();
 					if (ban)
 						Bukkit.getBanList(BanList.Type.IP).addBan(ip, reason, expires, source);
 					else
@@ -97,22 +98,21 @@ public class EffBan extends Effect {
 				}
 				if (kick)
 					player.kickPlayer(reason);
-			} else if (o instanceof OfflinePlayer) {
-				String name = ((OfflinePlayer) o).getName();
+			} else if (object instanceof OfflinePlayer offlinePlayer) {
+				String name = offlinePlayer.getName();
 				if (name == null)
 					return; // Can't ban, name unknown
 				if (ban)
 					Bukkit.getBanList(BanList.Type.NAME).addBan(name, reason, expires, source);
 				else
 					Bukkit.getBanList(BanList.Type.NAME).pardon(name);
-			} else if (o instanceof String) {
-				final String s = (String) o;
+			} else if (object instanceof String string) {
 				if (ban) {
-					Bukkit.getBanList(BanList.Type.IP).addBan(s, reason, expires, source);
-					Bukkit.getBanList(BanList.Type.NAME).addBan(s, reason, expires, source);
+					Bukkit.getBanList(BanList.Type.IP).addBan(string, reason, expires, source);
+					Bukkit.getBanList(BanList.Type.NAME).addBan(string, reason, expires, source);
 				} else {
-					Bukkit.getBanList(BanList.Type.IP).pardon(s);
-					Bukkit.getBanList(BanList.Type.NAME).pardon(s);
+					Bukkit.getBanList(BanList.Type.IP).pardon(string);
+					Bukkit.getBanList(BanList.Type.NAME).pardon(string);
 				}
 			} else {
 				assert false;

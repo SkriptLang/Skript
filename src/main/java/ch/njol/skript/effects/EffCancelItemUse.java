@@ -1,11 +1,7 @@
 package ch.njol.skript.effects;
 
 import ch.njol.skript.Skript;
-import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
-import ch.njol.skript.doc.Name;
-import ch.njol.skript.doc.RequiredPlugins;
-import ch.njol.skript.doc.Since;
+import ch.njol.skript.doc.*;
 import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
@@ -31,8 +27,7 @@ public class EffCancelItemUse extends Effect {
 	static {
 		if (Skript.methodExists(LivingEntity.class, "clearActiveItem"))
 			Skript.registerEffect(EffCancelItemUse.class,
-					"(cancel|interrupt) [the] us[ag]e of %livingentities%'[s] [active|current] item"
-			);
+				"(cancel|interrupt) [the] us[ag]e of %livingentities%'[s] [active|current] item");
 	}
 
 	private Expression<LivingEntity> entities;

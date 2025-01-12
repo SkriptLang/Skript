@@ -32,6 +32,7 @@ public class EffCustomName extends Effect {
 	private Expression<Entity> entities;
 
 	@Override
+	@SuppressWarnings("unchecked")
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		showCustomName = parseResult.hasTag("show");
 		entities = (Expression<Entity>) exprs[0];

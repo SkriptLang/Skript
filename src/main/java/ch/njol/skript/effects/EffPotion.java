@@ -1,12 +1,7 @@
 package ch.njol.skript.effects;
 
-import org.bukkit.entity.LivingEntity;
-import org.bukkit.event.Event;
-import org.bukkit.potion.PotionEffect;
-import org.bukkit.potion.PotionEffectType;
-import org.jetbrains.annotations.Nullable;
-
 import ch.njol.skript.Skript;
+import ch.njol.skript.config.Node;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
@@ -17,6 +12,12 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.util.PotionEffectUtils;
 import ch.njol.skript.util.Timespan;
 import ch.njol.util.Kleenean;
+import org.bukkit.entity.LivingEntity;
+import org.bukkit.event.Event;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
+import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.log.runtime.SyntaxRuntimeErrorProducer;
 
 @Name("Potion Effects")
 @Description("Apply or remove potion effects to/from entities.")
@@ -31,18 +32,19 @@ import ch.njol.util.Kleenean;
 	"apply potion effects of player's tool to player",
 	"apply haste potion of tier 3 without any particles whilst hiding the potion icon to the player # Hide potions"
 })
-@Since(
-	"2.0, 2.2-dev27 (ambient and particle-less potion effects), " + 
-	"2.5 (replacing existing effect), 2.5.2 (potion effects), " +
+@Since({
+	"2.0",
+	"2.2-dev27 (ambient and particle-less potion effects)",
+	"2.5 (replacing existing effect), 2.5.2 (potion effects)",
 	"2.7 (icon and infinite)"
-)
-public class EffPotion extends Effect {
+})
+public class EffPotion extends Effect implements SyntaxRuntimeErrorProducer {
 
 	static {
 		Skript.registerEffect(EffPotion.class,
-				"apply %potioneffects% to %livingentities%",
-				"apply infinite [:ambient] [potion of] %potioneffecttypes% [potion] [[[of] tier] %-number%] [noparticles:without [any] particles] [icon:(whilst hiding [the]|without (the|a)) [potion] icon] to %livingentities% [replacing:replacing [the] existing effect]",
-				"apply [:ambient] [potion of] %potioneffecttypes% [potion] [[[of] tier] %-number%] [noparticles:without [any] particles] [icon:(whilst hiding [the]|without (the|a)) [potion] icon] to %livingentities% [for %-timespan%] [replacing:replacing [the] existing effect]"
+			"apply %potioneffects% to %livingentities%",
+			"apply infinite [:ambient] [potion of] %potioneffecttypes% [potion] [[[of] tier] %-number%] [noparticles:without [any] particles] [icon:(whilst hiding [the]|without (the|a)) [potion] icon] to %livingentities% [replacing:replacing [the] existing effect]",
+			"apply [:ambient] [potion of] %potioneffecttypes% [potion] [[[of] tier] %-number%] [noparticles:without [any] particles] [icon:(whilst hiding [the]|without (the|a)) [potion] icon] to %livingentities% [for %-timespan%] [replacing:replacing [the] existing effect]"
 		);
 	}
 
@@ -50,15 +52,14 @@ public class EffPotion extends Effect {
 
 	private final static int DEFAULT_DURATION = 15 * 20; // 15 seconds, same as EffPoison
 
+	private Node node;
+
 	private Expression<PotionEffectType> potions;
 	private Expression<LivingEntity> entities;
 	private Expression<PotionEffect> effects;
 
-	@Nullable
-	private Expression<Timespan> duration;
-
-	@Nullable
-	private Expression<Number> tier;
+	private @Nullable Expression<Timespan> duration;
+	private @Nullable Expression<Number> tier;
 
 	private boolean replaceExisting; // Replace the existing potion if present.
 	private boolean potionEffect; // PotionEffects rather than PotionEffectTypes.
@@ -70,6 +71,7 @@ public class EffPotion extends Effect {
 	@Override
 	@SuppressWarnings("unchecked")
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
+		node = getParser().getNode();
 		potionEffect = matchedPattern == 0;
 		replaceExisting = parseResult.hasTag("replacing");
 		noParticles = parseResult.hasTag("noparticles");
@@ -96,19 +98,31 @@ public class EffPotion extends Effect {
 				PotionEffectUtils.addEffects(livingEntity, effects.getArray(event));
 		} else {
 			PotionEffectType[] potionEffectTypes = potions.getArray(event);
-			if (potionEffectTypes.length == 0)
+			if (potionEffectTypes.length == 0) {
+				error("No provided potion effect types were valid.", potions.toString());
 				return;
+			}
+
 			int tier = 0;
-			if (this.tier != null)
-				tier = this.tier.getOptionalSingle(event).orElse(1).intValue() - 1;
+			if (this.tier != null) {
+				Number provided = this.tier.getSingle(event);
+				if (provided == null) {
+					warning("The provided potion effect tier was not set, so defaulted to 0.", this.tier.toString());
+				} else {
+					tier = provided.intValue() - 1;
+				}
+			}
 
 			int duration = infinite ? (COMPATIBLE ? -1 : Integer.MAX_VALUE) : DEFAULT_DURATION;
 			if (this.duration != null && !infinite) {
 				Timespan timespan = this.duration.getSingle(event);
-				if (timespan == null)
+				if (timespan == null) {
+					error("The provided duration was not set.", this.duration.toString());
 					return;
-				duration = (int) Math.min(timespan.getAs(Timespan.TimePeriod.TICK), Integer.MAX_VALUE);
+				}
+				duration = (int) timespan.getAs(Timespan.TimePeriod.TICK); // truncates to Integer.MAX_VALUE
 			}
+
 			for (LivingEntity entity : entities.getArray(event)) {
 				for (PotionEffectType potionEffectType : potionEffectTypes) {
 					int finalDuration = duration;
@@ -126,6 +140,11 @@ public class EffPotion extends Effect {
 				}
 			}
 		}
+	}
+
+	@Override
+	public Node getNode() {
+		return node;
 	}
 
 	@Override

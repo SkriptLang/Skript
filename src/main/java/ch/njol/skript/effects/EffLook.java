@@ -1,26 +1,26 @@
 package ch.njol.skript.effects;
 
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Mob;
-import org.bukkit.event.Event;
-import org.jetbrains.annotations.Nullable;
-
 import ch.njol.skript.Skript;
 import ch.njol.skript.bukkitutil.PaperEntityUtils;
-import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
-import ch.njol.skript.doc.Name;
-import ch.njol.skript.doc.RequiredPlugins;
-import ch.njol.skript.doc.Since;
+import ch.njol.skript.config.Node;
+import ch.njol.skript.doc.*;
 import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
 import io.papermc.paper.entity.LookAnchor;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Mob;
+import org.bukkit.event.Event;
+import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.log.runtime.SyntaxRuntimeErrorProducer;
 
 @Name("Look At")
-@Description("Forces the mob(s) or player(s) to look at an entity, vector or location. Vanilla max head pitches range from 10 to 50.")
+@Description({
+	"Forces the mob(s) or player(s) to look at an entity, vector or location.",
+	"Vanilla max head pitches range from 10 to 50."
+})
 @Examples({
 	"force the player to look towards event-entity's feet",
 	"",
@@ -34,7 +34,7 @@ import io.papermc.paper.entity.LookAnchor;
 })
 @Since("2.7")
 @RequiredPlugins("Paper 1.17+, Paper 1.19.1+ (Players & Look Anchors)")
-public class EffLook extends Effect {
+public class EffLook extends Effect implements SyntaxRuntimeErrorProducer {
 
 	private static final boolean LOOK_ANCHORS = Skript.classExists("io.papermc.paper.entity.LookAnchor");
 
@@ -54,20 +54,16 @@ public class EffLook extends Effect {
 		}
 	}
 
+	private Node node;
 	private LookAnchor anchor = LookAnchor.EYES;
 	private Expression<LivingEntity> entities;
+	private Expression<?> target; // can be a vector, location, or entity
+	private @Nullable Expression<Number> speed, maxPitch;
 
-	@Nullable
-	private Expression<Number> speed, maxPitch;
-
-	/**
-	 * Can be Vector, Location or an Entity.
-	 */
-	private Expression<?> target;
-
-	@SuppressWarnings("unchecked")
 	@Override
+	@SuppressWarnings("unchecked")
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
+		node = getParser().getNode();
 		entities = (Expression<LivingEntity>) exprs[0];
 		if (LOOK_ANCHORS && matchedPattern == 0) {
 			target = exprs[parseResult.hasTag("of") ? 2 : 1];
@@ -86,17 +82,41 @@ public class EffLook extends Effect {
 	@Override
 	protected void execute(Event event) {
 		Object object = target.getSingle(event);
-		if (object == null)
+		if (object == null) {
+			error("The provided target was not set.", target.toString());
 			return;
+		}
 
-		Float speed = this.speed == null ? null : this.speed.getOptionalSingle(event).map(Number::floatValue).orElse(null);
-		Float maxPitch = this.maxPitch == null ? null : this.maxPitch.getOptionalSingle(event).map(Number::floatValue).orElse(null);
+		Float speed = null;
+		if (this.speed != null) {
+			Number provided = this.speed.getSingle(event);
+			if (provided == null) {
+				warning("The provided speed was not set.", this.speed.toString());
+			} else {
+				speed = provided.floatValue();
+			}
+		}
+
+		Float maxPitch = null;
+		if (this.maxPitch != null) {
+			Number provided = this.maxPitch.getSingle(event);
+			if (provided == null) {
+				warning("The provided max pitch was not set.", this.maxPitch.toString());
+			} else {
+				maxPitch = provided.floatValue();
+			}
+		}
 
 		if (LOOK_ANCHORS) {
 			PaperEntityUtils.lookAt(anchor, object, speed, maxPitch, entities.getArray(event));
 		} else {
 			PaperEntityUtils.lookAt(object, speed, maxPitch, entities.getArray(event));
 		}
+	}
+
+	@Override
+	public Node getNode() {
+		return node;
 	}
 
 	@Override

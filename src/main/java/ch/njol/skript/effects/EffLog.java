@@ -1,18 +1,5 @@
 package ch.njol.skript.effects;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.util.HashMap;
-import java.util.Locale;
-import java.util.logging.Level;
-
-import org.skriptlang.skript.lang.script.Script;
-import org.bukkit.event.Event;
-import org.jetbrains.annotations.Nullable;
-
 import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptConfig;
 import ch.njol.skript.doc.Description;
@@ -25,12 +12,26 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.Trigger;
 import ch.njol.skript.log.SkriptLogger;
 import ch.njol.skript.util.ExceptionUtils;
-import ch.njol.util.Closeable;
 import ch.njol.util.Kleenean;
+import org.bukkit.event.Event;
+import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.script.Script;
+
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.logging.Level;
 
 @Name("Log")
-@Description({"Writes text into a .log file. Skript will write these files to /plugins/Skript/logs.",
-		"NB: Using 'server.log' as the log file will write to the default server log. Omitting the log file altogether will log the message as '[Skript] [&lt;script&gt;.sk] &lt;message&gt;' in the server log."})
+@Description({
+	"Writes text into a .log file. Skript will write these files to /plugins/Skript/logs.",
+	"NB: Using 'server.log' as the log file will write to the default server log.",
+	"Omitting the log file altogether will log the message as '[Skript] [&lt;script&gt;.sk] &lt;message&gt;' in the server log."
+})
 @Examples({
 	"on join:",
 		"\tlog \"%player% has just joined the server!\"",
@@ -41,6 +42,7 @@ import ch.njol.util.Kleenean;
 })
 @Since("2.0, 2.9.0 (severities)")
 public class EffLog extends Effect {
+
 	static {
 		Skript.registerEffect(EffLog.class, "log %strings% [(to|in) [file[s]] %-strings%] [with [the|a] severity [of] (1:warning|2:severe)]");
 	}
@@ -48,6 +50,7 @@ public class EffLog extends Effect {
 	private static final File logsFolder = new File(Skript.getInstance().getDataFolder(), "logs");
 
 	final static HashMap<String, PrintWriter> writers = new HashMap<>();
+
 	static {
 		Skript.closeOnDisable(() -> {
 			for (PrintWriter pw : writers.values())
@@ -55,12 +58,11 @@ public class EffLog extends Effect {
 		});
 	}
 
-	@SuppressWarnings("null")
 	private Expression<String> messages;
-	@Nullable
-	private Expression<String> files;
+	private @Nullable Expression<String> files;
 
 	private Level logLevel = Level.INFO;
+
 	private static String getLogPrefix(Level logLevel) {
 		String timestamp = SkriptConfig.formatDate(System.currentTimeMillis());
 		if (logLevel == Level.INFO)
@@ -68,8 +70,8 @@ public class EffLog extends Effect {
 		return "[" + timestamp + " " + logLevel + "]";
 	}
 
-	@SuppressWarnings({"unchecked", "null"})
 	@Override
+	@SuppressWarnings("unchecked")
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parser) {
 		messages = (Expression<String>) exprs[0];
 		files = (Expression<String>) exprs[1];
@@ -81,7 +83,6 @@ public class EffLog extends Effect {
 		return true;
 	}
 
-	@SuppressWarnings("resource")
 	@Override
 	protected void execute(Event event) {
 		for (String message : messages.getArray(event)) {

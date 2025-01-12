@@ -38,16 +38,14 @@ public class EffEntityVisibility extends Effect {
 
 	static {
 		Skript.registerEffect(EffEntityVisibility.class,
-				"hide %entities% [(from|for) %-players%]",
-				"reveal %entities% [(to|for|from) %-players%]");
+			"hide %entities% [(from|for) %-players%]",
+			"reveal %entities% [(to|for|from) %-players%]");
 	}
 
 	private boolean reveal;
 
-	@UnknownNullability
-	private Expression<Entity> hidden;
-	@UnknownNullability
-	private Expression<Player> viewers;
+	private @UnknownNullability Expression<Entity> hidden;
+	private @UnknownNullability Expression<Player> viewers;
 
 	@Override
 	@SuppressWarnings("unchecked")

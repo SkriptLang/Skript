@@ -1,9 +1,5 @@
 package ch.njol.skript.effects;
 
-import org.bukkit.event.Event;
-import org.bukkit.inventory.meta.ItemMeta;
-import org.jetbrains.annotations.Nullable;
-
 import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.doc.*;
@@ -11,6 +7,9 @@ import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
+import org.bukkit.event.Event;
+import org.bukkit.inventory.meta.ItemMeta;
+import org.jetbrains.annotations.Nullable;
 
 @Name("Force Enchantment Glint")
 @Description("Forces the items to glint or not, or removes its existing enchantment glint enforcement.")
@@ -25,10 +24,10 @@ public class EffForceEnchantmentGlint extends Effect {
 	static {
 		if (Skript.methodExists(ItemMeta.class, "setEnchantmentGlintOverride", Boolean.class))
 			Skript.registerEffect(EffForceEnchantmentGlint.class,
-					"(force|make) %itemtypes% [to] [start] glint[ing]",
-					"(force|make) %itemtypes% [to] (not|stop) glint[ing]",
-					"(clear|delete|reset) [the] enchantment glint override of %itemtypes%",
-					"(clear|delete|reset) %itemtypes%'s enchantment glint override");
+				"(force|make) %itemtypes% [to] [start] glint[ing]",
+				"(force|make) %itemtypes% [to] (not|stop) glint[ing]",
+				"(clear|delete|reset) [the] enchantment glint override of %itemtypes%",
+				"(clear|delete|reset) %itemtypes%'s enchantment glint override");
 	}
 
 	private Expression<ItemType> itemTypes;
@@ -46,17 +45,11 @@ public class EffForceEnchantmentGlint extends Effect {
 	protected void execute(Event event) {
 		for (ItemType itemType : itemTypes.getArray(event)) {
 			ItemMeta meta = itemType.getItemMeta();
-			Boolean glint;
-			if (pattern == 0) {
-				// Pattern: forced to glint
-				glint = true;
-			} else if (pattern == 1) {
-				// Pattern: forced to not glint
-				glint = false;
-			} else {
-				// Pattern: Clear glint override
-				glint = null;
-			}
+			Boolean glint = switch (pattern) {
+				case 0 -> true;
+				case 1 -> false;
+				default -> null;
+			};
 			meta.setEnchantmentGlintOverride(glint);
 			itemType.setItemMeta(meta);
 		}

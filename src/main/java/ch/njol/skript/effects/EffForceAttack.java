@@ -1,28 +1,27 @@
 package ch.njol.skript.effects;
 
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.LivingEntity;
-import org.bukkit.event.Event;
-import org.jetbrains.annotations.Nullable;
-
 import ch.njol.skript.Skript;
-import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
-import ch.njol.skript.doc.Name;
-import ch.njol.skript.doc.RequiredPlugins;
-import ch.njol.skript.doc.Since;
+import ch.njol.skript.config.Node;
+import ch.njol.skript.doc.*;
 import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.LivingEntity;
+import org.bukkit.event.Event;
+import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.log.runtime.SyntaxRuntimeErrorProducer;
 
 @Name("Force Attack")
 @Description("Makes a living entity attack an entity with a melee attack.")
-@Examples({"spawn a wolf at player's location",
-	"make last spawned wolf attack player"})
+@Examples({
+	"spawn a wolf at player's location",
+	"make last spawned wolf attack player"
+})
 @Since("2.5.1")
 @RequiredPlugins("Minecraft 1.15.2+")
-public class EffForceAttack extends Effect {
+public class EffForceAttack extends Effect implements SyntaxRuntimeErrorProducer {
 	
 	static {
 		Skript.registerEffect(EffForceAttack.class,
@@ -31,37 +30,45 @@ public class EffForceAttack extends Effect {
 	}
 	
 	private static final boolean ATTACK_IS_SUPPORTED = Skript.methodExists(LivingEntity.class, "attack", Entity.class);
-	
-	@SuppressWarnings("null")
+
+	private Node node;
 	private Expression<LivingEntity> entities;
-	@SuppressWarnings("null")
 	private Expression<Entity> target;
-	
-	@SuppressWarnings("unchecked")
+
 	@Override
+	@SuppressWarnings("unchecked")
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		if (!ATTACK_IS_SUPPORTED) {
-			Skript.error("The force attack effect requires Minecraft 1.15.2 or newer");
+			Skript.error("The force attack effect requires Minecraft 1.15.2+");
 			return false;
 		}
+		node = getParser().getNode();
 		entities = (Expression<LivingEntity>) exprs[0];
 		target = (Expression<Entity>) exprs[1];
 		return true;
 	}
 	
 	@Override
-	protected void execute(Event e) {
-		Entity target = this.target.getSingle(e);
-		if (target != null) {
-			for (LivingEntity entity : entities.getArray(e)) {
-				entity.attack(target);
-			}
+	protected void execute(Event event) {
+		Entity target = this.target.getSingle(event);
+		if (target == null) {
+			error("The provided target entity was not set.", this.target.toString());
+			return;
 		}
+
+		for (LivingEntity entity : entities.getArray(event)) {
+			entity.attack(target);
+		}
+	}
+
+	@Override
+	public Node getNode() {
+		return node;
 	}
 	
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
-		return "make " + entities.toString(e, debug) + " attack " + target.toString(e, debug);
+	public String toString(@Nullable Event event, boolean debug) {
+		return "make " + entities.toString(event, debug) + " attack " + target.toString(event, debug);
 	}
-	
+
 }

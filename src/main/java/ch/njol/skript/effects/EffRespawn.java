@@ -1,12 +1,5 @@
 package ch.njol.skript.effects;
 
-import org.bukkit.entity.Player;
-import org.bukkit.event.Event;
-import org.bukkit.event.entity.EntityDeathEvent;
-import org.bukkit.event.player.PlayerRespawnEvent;
-import org.bukkit.scheduler.BukkitRunnable;
-import org.jetbrains.annotations.Nullable;
-
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
@@ -17,11 +10,22 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.log.ErrorQuality;
 import ch.njol.util.Kleenean;
+import org.bukkit.entity.Player;
+import org.bukkit.event.Event;
+import org.bukkit.event.entity.EntityDeathEvent;
+import org.bukkit.event.player.PlayerRespawnEvent;
+import org.bukkit.scheduler.BukkitRunnable;
+import org.jetbrains.annotations.Nullable;
 
 @Name("Force Respawn")
-@Description("Forces player(s) to respawn if they are dead. If this is called without delay from death event, one tick is waited before respawn attempt.")
-@Examples({"on death of player:",
-		"\tforce event-player to respawn",})
+@Description({
+	"Forces player(s) to respawn if they are dead.",
+	"If this is called without delay from death event, one tick is waited before respawn attempt."
+})
+@Examples({
+	"on death of player:",
+		"\tforce event-player to respawn"
+})
 @Since("2.2-dev21")
 public class EffRespawn extends Effect {
 
@@ -29,14 +33,12 @@ public class EffRespawn extends Effect {
 		Skript.registerEffect(EffRespawn.class, "force %players% to respawn");
 	}
 
-	@SuppressWarnings("null")
 	private Expression<Player> players;
-
 	private boolean forceDelay;
 
 	@Override
 	@SuppressWarnings("unchecked")
-	public boolean init(final Expression<?>[] exprs, final int matchedPattern, final Kleenean isDelayed, final ParseResult parseResult) {
+	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		if (getParser().isCurrentEvent(PlayerRespawnEvent.class)) { // Just in case someone tries to do this
 			Skript.error("Respawning the player in a respawn event is not possible", ErrorQuality.SEMANTIC_ERROR);
 			return false;
@@ -49,26 +51,26 @@ public class EffRespawn extends Effect {
 	}
 
 	@Override
-	protected void execute(final Event e) {
-		for (final Player p : players.getArray(e)) {
+	protected void execute(Event event) {
+		for (Player player : players.getArray(event)) {
 			if (forceDelay) { // Use Bukkit runnable
 				new BukkitRunnable() {
 
 					@Override
 					public void run() {
-						p.spigot().respawn();
+						player.spigot().respawn();
 					}
 
 				}.runTaskLater(Skript.getInstance(), 1);
 			} else { // Just respawn
-				p.spigot().respawn();
+				player.spigot().respawn();
 			}
 		}
 	}
 
 	@Override
-	public String toString(final @Nullable Event e, final boolean debug) {
-		return "force " + players.toString(e, debug) + " to respawn";
+	public String toString(@Nullable Event event, boolean debug) {
+		return "force " + players.toString(event, debug) + " to respawn";
 	}
 
 }

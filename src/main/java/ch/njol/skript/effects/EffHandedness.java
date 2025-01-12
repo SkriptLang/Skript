@@ -1,11 +1,7 @@
 package ch.njol.skript.effects;
 
 import ch.njol.skript.Skript;
-import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
-import ch.njol.skript.doc.Name;
-import ch.njol.skript.doc.RequiredPlugins;
-import ch.njol.skript.doc.Since;
+import ch.njol.skript.doc.*;
 import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
@@ -36,6 +32,7 @@ public class EffHandedness extends Effect {
 	private Expression<LivingEntity> livingEntities;
 
 	@Override
+	@SuppressWarnings("unchecked")
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		leftHanded = parseResult.hasTag("left");
 		livingEntities = (Expression<LivingEntity>) exprs[0];
@@ -45,9 +42,8 @@ public class EffHandedness extends Effect {
 	@Override
 	protected void execute(Event event) {
 		for (LivingEntity livingEntity : livingEntities.getArray(event)) {
-			if (livingEntity instanceof Mob) {
-				((Mob) livingEntity).setLeftHanded(leftHanded);
-			}
+			if (livingEntity instanceof Mob mob)
+				mob.setLeftHanded(leftHanded);
 		}
 	}
 

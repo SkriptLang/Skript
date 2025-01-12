@@ -1,10 +1,7 @@
 package ch.njol.skript.effects;
 
-import org.bukkit.entity.Player;
-import org.bukkit.event.Event;
-import org.jetbrains.annotations.Nullable;
-
 import ch.njol.skript.Skript;
+import ch.njol.skript.config.Node;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
@@ -12,8 +9,14 @@ import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.skript.lang.SyntaxStringBuilder;
 import ch.njol.skript.util.Timespan;
+import ch.njol.skript.util.Timespan.TimePeriod;
 import ch.njol.util.Kleenean;
+import org.bukkit.entity.Player;
+import org.bukkit.event.Event;
+import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.log.runtime.SyntaxRuntimeErrorProducer;
 
 @Name("Title - Send")
 @Description({
@@ -33,7 +36,7 @@ import ch.njol.util.Kleenean;
 	"send subtitle \"Party!\" to all players"
 })
 @Since("2.3")
-public class EffSendTitle extends Effect {
+public class EffSendTitle extends Effect implements SyntaxRuntimeErrorProducer {
 	
 	private final static boolean TIME_SUPPORTED = Skript.methodExists(Player.class,"sendTitle", String.class, String.class, int.class, int.class, int.class);
 	
@@ -47,19 +50,17 @@ public class EffSendTitle extends Effect {
 					"send title %string% [with subtitle %-string%] [to %players%]",
 					"send subtitle %string% [to %players%]");
 	}
-	
-	@Nullable
-	private Expression<String> title;
-	@Nullable
-	private Expression<String> subtitle;
-	@SuppressWarnings("null")
+
+	private Node node;
+	private @Nullable Expression<String> title;
+	private @Nullable Expression<String> subtitle;
 	private Expression<Player> recipients;
-	@Nullable
-	private Expression<Timespan> fadeIn, stay, fadeOut;
-	
-	@SuppressWarnings({"unchecked", "null"})
+	private @Nullable Expression<Timespan> fadeIn, stay, fadeOut;
+
 	@Override
-	public boolean init(final Expression<?>[] exprs, final int matchedPattern, final Kleenean isDelayed, final ParseResult parser) {
+	@SuppressWarnings("unchecked")
+	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parser) {
+		node = getParser().getNode();
 		title = matchedPattern == 0 ? (Expression<String>) exprs[0] : null;
 		subtitle = (Expression<String>) exprs[1 - matchedPattern];
 		recipients = (Expression<Player>) exprs[2 - matchedPattern];
@@ -70,52 +71,84 @@ public class EffSendTitle extends Effect {
 		}
 		return true;
 	}
-	
-	@SuppressWarnings("null")
+
 	@Override
-	protected void execute(final Event e) {
-		String title = this.title != null ? this.title.getSingle(e) : null;
-		String subtitle = this.subtitle != null ? this.subtitle.getSingle(e) : null;
+	protected void execute(Event event) {
+		String title = null;
+		if (this.title != null) {
+			title = this.title.getSingle(event);
+			if (title == null)
+				warning("The provided title text was not set, so defaulted to none.", this.title.toString());
+		}
+
+		String subtitle = null;
+		if (this.subtitle != null) {
+			subtitle = this.subtitle.getSingle(event);
+			if (subtitle == null)
+				warning("The provided subtitle text was not set, so defaulted to none.", this.subtitle.toString());
+		}
 		
 		if (TIME_SUPPORTED) {
 			int fadeIn, stay, fadeOut;
 			fadeIn = stay = fadeOut = -1;
 
 			if (this.fadeIn != null) {
-				Timespan t = this.fadeIn.getSingle(e);
-				fadeIn = t != null ? (int) t.getAs(Timespan.TimePeriod.TICK) : -1;
+				Timespan provided = this.fadeIn.getSingle(event);
+				if (provided == null) {
+					warning("The provided fade in timespan was not set, so defaulted to -1 ticks.", this.fadeIn.toString());
+				} else {
+					fadeIn = (int) provided.getAs(TimePeriod.TICK);
+				}
 			}
 
 			if (this.stay != null) {
-				Timespan t = this.stay.getSingle(e);
-				stay = t != null ? (int) t.getAs(Timespan.TimePeriod.TICK) : -1;
+				Timespan provided = this.stay.getSingle(event);
+				if (provided == null) {
+					warning("The provided stay timespan was not set, so defaulted to -1 ticks.", this.stay.toString());
+				} else {
+					stay = (int) provided.getAs(TimePeriod.TICK);
+				}
 			}
 
 			if (this.fadeOut != null) {
-				Timespan t = this.fadeOut.getSingle(e);
-				fadeOut = t != null ? (int) t.getAs(Timespan.TimePeriod.TICK) : -1;
+				Timespan provided = this.fadeOut.getSingle(event);
+				if (provided == null) {
+					warning("The provided fade out timespan was not set, so defaulted to -1 ticks.", this.fadeOut.toString());
+				} else {
+					fadeOut = (int) provided.getAs(TimePeriod.TICK);
+				}
 			}
-			
-			for (Player p : recipients.getArray(e))
-				p.sendTitle(title, subtitle, fadeIn, stay, fadeOut);
+
+			for (Player recipient : recipients.getArray(event))
+				recipient.sendTitle(title, subtitle, fadeIn, stay, fadeOut);
 		} else {
-			for (Player p : recipients.getArray(e))
-				p.sendTitle(title, subtitle);
+			for (Player recipient : recipients.getArray(event))
+				recipient.sendTitle(title, subtitle);
 		}
 	}
-	
-	// TODO: util method to simplify this
+
 	@Override
-	public String toString(final @Nullable Event e, final boolean debug) {
-		String title = this.title != null ? this.title.toString(e, debug) : "",
-		sub = subtitle != null ? subtitle.toString(e, debug) : "",
-		in = fadeIn != null ? fadeIn.toString(e, debug) : "",
-		stay = this.stay != null ? this.stay.toString(e, debug) : "",
-		out = fadeOut != null ? this.fadeOut.toString(e, debug) : "";
-		return ("send title " + title +
-				sub == "" ? "" : " with subtitle " + sub) + " to " +
-				recipients.toString(e, debug) + (TIME_SUPPORTED ?
-				" for " + stay + " with fade in " + in + " and fade out" + out : "");
+	public Node getNode() {
+		return node;
 	}
-	
+
+	@Override
+	public String toString(@Nullable Event event, boolean debug) {
+		SyntaxStringBuilder builder = new SyntaxStringBuilder(event, debug).append("send title");
+		if (title != null)
+			builder.append(title);
+		if (subtitle != null)
+			builder.append("with subtitle", subtitle);
+		builder.append("to", recipients);
+		if (TIME_SUPPORTED) {
+			if (stay != null)
+				builder.append("for", stay);
+			if (fadeIn != null)
+				builder.append("with fade in", fadeIn);
+			if (fadeOut != null)
+				builder.append("and fade out", fadeOut);
+		}
+		return builder.toString();
+	}
+
 }

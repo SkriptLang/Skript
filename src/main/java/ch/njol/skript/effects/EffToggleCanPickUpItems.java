@@ -28,14 +28,15 @@ public class EffToggleCanPickUpItems extends Effect {
 
 	static {
 		Skript.registerEffect(EffToggleCanPickUpItems.class,
-				"allow %livingentities% to pick([ ]up items| items up)",
-				"(forbid|disallow) %livingentities% (from|to) pick([ing | ]up items|[ing] items up)");
+			"allow %livingentities% to pick([ ]up items| items up)",
+			"(forbid|disallow) %livingentities% (from|to) pick([ing | ]up items|[ing] items up)");
 	}
 
 	private Expression<LivingEntity> entities;
 	private boolean allowPickUp;
 
 	@Override
+	@SuppressWarnings("unchecked")
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		entities = (Expression<LivingEntity>) exprs[0];
 		allowPickUp = matchedPattern == 0;

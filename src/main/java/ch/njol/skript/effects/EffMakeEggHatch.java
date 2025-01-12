@@ -1,11 +1,7 @@
 package ch.njol.skript.effects;
 
 import ch.njol.skript.Skript;
-import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Events;
-import ch.njol.skript.doc.Examples;
-import ch.njol.skript.doc.Name;
-import ch.njol.skript.doc.Since;
+import ch.njol.skript.doc.*;
 import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
@@ -27,7 +23,7 @@ public class EffMakeEggHatch extends Effect {
 
 	static {
 		Skript.registerEffect(EffMakeEggHatch.class,
-				"make [the] egg [:not] hatch"
+			"make [the] egg [:not] hatch"
 		);
 	}
 
@@ -44,12 +40,11 @@ public class EffMakeEggHatch extends Effect {
 	}
 
 	@Override
-	protected void execute(Event e) {
-		if (e instanceof PlayerEggThrowEvent) {
-			PlayerEggThrowEvent event = (PlayerEggThrowEvent) e;
-			event.setHatching(!not);
-			if (!not && event.getNumHatches() == 0) // Make it hatch something!
-				event.setNumHatches((byte) 1);
+	protected void execute(Event event) {
+		if (event instanceof PlayerEggThrowEvent playerEggThrowEvent) {
+			playerEggThrowEvent.setHatching(!not);
+			if (!not && playerEggThrowEvent.getNumHatches() == 0) // Make it hatch something!
+				playerEggThrowEvent.setNumHatches((byte) 1);
 		}
 	}
 
