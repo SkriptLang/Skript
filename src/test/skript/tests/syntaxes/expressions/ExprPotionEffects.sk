@@ -1,7 +1,6 @@
 test "potion effects":
-	set {_l} to test-location
-	spawn a sheep at {_l}
-	set {_e} to last spawned sheep
+	spawn a sheep at test-location:
+		set {_e} to entity
 
 	set {_p} to potion effect of speed 1 without particles for 10 minutes
 	add {_p} to potion effects of {_e}
@@ -14,5 +13,14 @@ test "potion effects":
 	set {_i} to potion of slowness
 	assert type of potion effects of {_i} contains slowness with "the item should have had the slowness potion type"
 
-	kill {_e}
-	kill all dropped items in radius 10 around {_e}
+	set {_pe::1} to infinite potion effect of darkness without particles without the icon
+	set {_pe::2} to infinite ambient potion effect of night vision of tier 2 without particles
+	set {_pe::3} to potion effect of nausea for 10 seconds
+	set {_pe::4} to ambient potion effect of slowness without particles without the icon for 2 minutes
+
+	assert size of {_pe::*} = 4 with "There should have been 4 potion effects created"
+	apply {_pe::*} to {_e} # Poor guy
+	assert type of potion effects of {_e} contains darkness, night vision, nausea and slowness with "The poor sheep should have had these 4 effects added"
+
+	# We'll miss ya lil buddy
+	delete entity within {_e}

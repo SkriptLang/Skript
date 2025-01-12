@@ -1,5 +1,6 @@
 package ch.njol.skript.expressions;
 
+import ch.njol.skript.lang.SyntaxStringBuilder;
 import org.bukkit.event.Event;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
@@ -20,16 +21,20 @@ import ch.njol.util.Kleenean;
 @Name("Potion Effect")
 @Description({"Create a new potion effect to apply to an entity or item type. Do note that when applying potion effects ",
 	"to tipped arrows/lingering potions, Minecraft reduces the timespan."})
-@Examples({"set {_p} to potion effect of speed of tier 1 without particles for 10 minutes",
+@Examples({
+	"set {_p} to potion effect of speed of tier 1 without particles for 10 minutes",
+	"set {_p} to infinite potion effect of darkness of tier 1 without particles",
+	"set {_p} to ambient potion effect of darkness of tier 1 without particles without the icon for 3 minutes",
 	"add {_p} to potion effects of player's tool",
 	"add {_p} to potion effects of target entity",
-	"add potion effect of speed 1 to potion effects of player"})
-@Since("2.5.2")
+	"add potion effect of speed 1 to potion effects of player"
+})
+@Since({"2.5.2", "INSERT VERSION (infinite/no icon)"})
 public class ExprPotionEffect extends SimpleExpression<PotionEffect> {
 	static {
 		Skript.registerExpression(ExprPotionEffect.class, PotionEffect.class, ExpressionType.COMBINED,
-			"[new] potion effect of %potioneffecttype% [potion] [[[of] tier] %-number%] [(1¦without particles)] [for %-timespan%]",
-			"[new] ambient potion effect of %potioneffecttype% [potion] [[[of] tier] %-number%] [(1¦without particles)] [for %-timespan%]");
+			"[new] [:ambient] potion effect of %potioneffecttype% [potion] [[[of] tier] %-number%] [noparticles:without [any] particles] [icon:(whilst hiding [the]|without (the|a)) [potion] icon] [for %-timespan%]",
+			"[new] infinite [:ambient] potion effect of %potioneffecttype% [potion] [[[of] tier] %-number%] [noparticles:without [any] particles] [icon:(whilst hiding [the]|without (the|a)) [potion] icon]");
 	}
 	
 	@SuppressWarnings("null")
@@ -40,14 +45,19 @@ public class ExprPotionEffect extends SimpleExpression<PotionEffect> {
 	private Expression<Timespan> timespan;
 	private boolean particles;
 	private boolean ambient;
-	
+	private boolean infinite;
+	private boolean icon;
+
 	@Override
+	@SuppressWarnings("unchecked")
 	public boolean init(final Expression<?>[] exprs, final int matchedPattern, final Kleenean isDelayed, final ParseResult parseResult) {
 		potionEffectType = (Expression<PotionEffectType>) exprs[0];
 		tier = (Expression<Number>) exprs[1];
-		timespan = (Expression<Timespan>) exprs[2];
-		particles = parseResult.mark == 0;
-		ambient = matchedPattern == 1;
+		timespan = matchedPattern == 0 ? (Expression<Timespan>) exprs[2] : null;
+		particles = !parseResult.hasTag("noparticles");
+		ambient = parseResult.hasTag("ambient");
+		infinite = matchedPattern == 1;
+		icon = !parseResult.hasTag("icon");
 		return true;
 	}
 	
@@ -64,12 +74,14 @@ public class ExprPotionEffect extends SimpleExpression<PotionEffect> {
 				tier = n.intValue() - 1;
 		}
 		int ticks = 15 * 20; // 15 second default potion length
-		if (this.timespan != null) {
+		if (infinite) {
+			ticks = PotionEffect.INFINITE_DURATION;
+		} else if (this.timespan != null) {
 			Timespan timespan = this.timespan.getSingle(e);
 			if (timespan != null)
 				ticks = (int) timespan.getAs(Timespan.TimePeriod.TICK);
 		}
-		return new PotionEffect[]{new PotionEffect(potionEffectType, ticks, tier, ambient, particles)};
+		return new PotionEffect[]{new PotionEffect(potionEffectType, ticks, tier, ambient, particles, icon)};
 	}
 	
 	@Override
@@ -83,22 +95,21 @@ public class ExprPotionEffect extends SimpleExpression<PotionEffect> {
 	}
 	
 	@Override
-	public String toString(final @Nullable Event e, final boolean debug) {
-		StringBuilder builder = new StringBuilder();
+	public String toString(final @Nullable Event event, final boolean debug) {
+		SyntaxStringBuilder builder = new SyntaxStringBuilder(event, debug);
+		if (infinite)
+			builder.append("infinite");
 		if (ambient)
-			builder.append("ambient ");
-		builder.append("potion of ").append(potionEffectType.toString(e, debug));
-		if (tier != null) {
-			String t = tier.toString(e, debug);
-			builder.append(" of tier/amp ").append(t);
-		}
+			builder.append("ambient");
+		builder.append("potion effect of", potionEffectType);
+		if (tier != null)
+			builder.append("of tier", tier);
 		if (!particles)
-			builder.append(" without particles");
-		builder.append(" for ");
-		if (timespan != null)
-			builder.append(timespan.toString(e, debug));
-		else
-			builder.append("15 seconds");
+			builder.append("without particles");
+		if (!icon)
+			builder.append("without the icon");
+		if (!infinite)
+			builder.append("for", timespan != null ? timespan : "15 seconds");
 		return builder.toString();
 	}
 	
