@@ -15,6 +15,7 @@ import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.entity.Display;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Display Teleport Delay/Duration")
 @Description({
@@ -33,14 +34,13 @@ import org.jetbrains.annotations.Nullable;
 @Since("2.10")
 public class ExprDisplayTeleportDuration extends SimplePropertyExpression<Display, Timespan> {
 
-	static {
+	public static void register(SyntaxRegistry registry) {
 		if (Skript.isRunningMinecraft(1, 20, 4))
-			registerDefault(ExprDisplayTeleportDuration.class, Timespan.class, "teleport[ation] duration[s]", "displays");
+			registerDefault(registry, ExprDisplayTeleportDuration.class, Timespan.class, "teleport[ation] duration[s]", "displays");
 	}
 
 	@Override
-	@Nullable
-	public Timespan convert(Display display) {
+	public @Nullable Timespan convert(Display display) {
 		return new Timespan(TimePeriod.TICK, display.getTeleportDuration());
 	}
 

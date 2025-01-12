@@ -13,6 +13,7 @@ import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.entity.Display;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Display Height/Width")
 @Description({
@@ -26,8 +27,8 @@ import org.jetbrains.annotations.Nullable;
 @Since("2.10")
 public class ExprDisplayHeightWidth extends SimplePropertyExpression<Display, Float> {
 
-	static {
-		registerDefault(ExprDisplayHeightWidth.class, Float.class, "display (:height|width)", "displays");
+	public static void register(SyntaxRegistry registry) {
+		registerDefault(registry, ExprDisplayHeightWidth.class, Float.class, "display (:height|width)", "displays");
 	}
 
 	private boolean height;
@@ -39,8 +40,7 @@ public class ExprDisplayHeightWidth extends SimplePropertyExpression<Display, Fl
 	}
 
 	@Override
-	@Nullable
-	public Float convert(Display display) {
+	public @Nullable Float convert(Display display) {
 		return height ? display.getDisplayHeight() : display.getDisplayWidth();
 	}
 
@@ -56,8 +56,10 @@ public class ExprDisplayHeightWidth extends SimplePropertyExpression<Display, Fl
 		Display[] displays = getExpr().getArray(event);
 
 		float change = delta == null ? 0F : ((Number) delta[0]).floatValue();
-		if (Float.isInfinite(change) || Float.isNaN(change))
+		if (delta != null && (Float.isInfinite(change) || Float.isNaN(change))) {
+			error("Cannot change the " + (height ? "height" : "width") + " to an infinite or NaN value.", delta[0].toString());
 			return;
+		}
 
 		switch (mode) {
 			case REMOVE:

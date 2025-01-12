@@ -13,6 +13,7 @@ import org.bukkit.event.Event;
 import org.bukkit.loot.LootContext;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.loottables.LootContextCreateEvent;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Looted Entity of Loot Context")
 @Description("Returns the looted entity of a loot context.")
@@ -27,8 +28,8 @@ import org.skriptlang.skript.bukkit.loottables.LootContextCreateEvent;
 @Since("2.10")
 public class ExprLootContextEntity extends SimplePropertyExpression<LootContext, Entity> {
 
-	static {
-		registerDefault(ExprLootContextEntity.class, Entity.class, "looted entity", "lootcontexts");
+	public static void register(SyntaxRegistry registry) {
+		registerDefault(registry, ExprLootContextEntity.class, Entity.class, "looted entity", "lootcontexts");
 	}
 
 	@Override
@@ -51,8 +52,10 @@ public class ExprLootContextEntity extends SimplePropertyExpression<LootContext,
 
 	@Override
 	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
-		if (!(event instanceof LootContextCreateEvent createEvent))
+		if (!(event instanceof LootContextCreateEvent createEvent)) {
+			error("The looted entity cannot be set outside of a LootContextCreateEvent.");
 			return;
+		}
 
 		Entity entity = delta != null ? (Entity) delta[0] : null;
 		createEvent.getContextWrapper().setEntity(entity);

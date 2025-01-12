@@ -13,6 +13,7 @@ import org.bukkit.loot.LootContext;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.loottables.LootContextCreateEvent;
 import org.skriptlang.skript.bukkit.loottables.LootContextWrapper;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Luck of Loot Context")
 @Description("Returns the luck of a loot context as a float. This represents the luck potion effect that an entity can have.")
@@ -27,8 +28,8 @@ import org.skriptlang.skript.bukkit.loottables.LootContextWrapper;
 @Since("2.10")
 public class ExprLootContextLuck extends SimplePropertyExpression<LootContext, Float> {
 
-	static {
-		registerDefault(ExprLootContextLuck.class, Float.class, "loot[ing] [context] luck [value|factor]", "lootcontexts");
+	public static void register(SyntaxRegistry registry) {
+		registerDefault(registry, ExprLootContextLuck.class, Float.class, "loot[ing] [context] luck [value|factor]", "lootcontexts");
 	}
 
 	@Override
@@ -51,8 +52,10 @@ public class ExprLootContextLuck extends SimplePropertyExpression<LootContext, F
 
 	@Override
 	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
-		if (!(event instanceof LootContextCreateEvent createEvent))
+		if (!(event instanceof LootContextCreateEvent createEvent)) {
+			error("The loot context luck cannot be set outside of a LootContextCreateEvent.");
 			return;
+		}
 
 		LootContextWrapper wrapper = createEvent.getContextWrapper();
 		float luck = delta != null ? (float) delta[0] : 0f;

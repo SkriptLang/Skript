@@ -1,6 +1,5 @@
 package org.skriptlang.skript.bukkit.displays.text;
 
-import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
@@ -13,6 +12,8 @@ import org.bukkit.entity.Display;
 import org.bukkit.entity.TextDisplay;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.registration.SyntaxInfo;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Text Display Drop Shadow")
 @Description("Applies or removes drop shadow from the displayed text on a text display.")
@@ -24,13 +25,16 @@ import org.jetbrains.annotations.Nullable;
 @Since("2.10")
 public class EffTextDisplayDropShadow extends Effect {
 
-	static {
-		Skript.registerEffect(EffTextDisplayDropShadow.class,
+	public static void register(SyntaxRegistry registry) {
+		registry.register(SyntaxRegistry.EFFECT, SyntaxInfo.builder(EffTextDisplayDropShadow.class)
+			.addPatterns(
 				"(apply|add) (drop|text) shadow to [[the] text of] %displays%",
 				"(apply|add) (drop|text) shadow to %displays%'[s] text",
 				"(remove|clear) (drop|text) shadow from [[the] text of] %displays%",
 				"(remove|clear) (drop|text) shadow from %displays%'[s] text"
-			);
+			)
+			.build()
+		);
 	}
 
 	private Expression<Display> displays;

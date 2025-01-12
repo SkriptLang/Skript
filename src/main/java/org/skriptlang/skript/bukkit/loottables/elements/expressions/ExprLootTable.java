@@ -12,6 +12,7 @@ import org.bukkit.loot.LootTable;
 import org.bukkit.loot.Lootable;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.loottables.LootTableUtils;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Loot Table")
 @Description({
@@ -30,8 +31,8 @@ import org.skriptlang.skript.bukkit.loottables.LootTableUtils;
 @Since("2.10")
 public class ExprLootTable extends SimplePropertyExpression<Object, LootTable> {
 
-	static {
-		register(ExprLootTable.class, LootTable.class, "loot[ ]table[s]", "entities/blocks");
+	public static void register(SyntaxRegistry registry) {
+		register(registry, ExprLootTable.class, LootTable.class, "loot[ ]table[s]", "entities/blocks");
 	}
 
 	@Override

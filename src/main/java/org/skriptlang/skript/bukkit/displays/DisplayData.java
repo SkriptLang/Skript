@@ -25,7 +25,7 @@ public class DisplayData extends EntityData<Display> {
 
 	public static final Color DEFAULT_BACKGROUND_COLOR = ColorRGB.fromRGBA(0, 0, 0, 64).asBukkitColor();
 
-	static {
+	public static void register() {
 		EntityData.register(DisplayData.class, "display", Display.class, 0, DisplayType.codeNames);
 		Variables.yggdrasil.registerSingleClass(DisplayType.class, "DisplayType");
 	}

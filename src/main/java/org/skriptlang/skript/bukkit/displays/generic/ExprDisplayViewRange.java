@@ -10,6 +10,7 @@ import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.entity.Display;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Display View Range")
 @Description({
@@ -21,8 +22,8 @@ import org.jetbrains.annotations.Nullable;
 @Since("2.10")
 public class ExprDisplayViewRange extends SimplePropertyExpression<Display, Float> {
 
-	static {
-		registerDefault(ExprDisplayViewRange.class, Float.class, "[display] view (range|radius)", "displays");
+	public static void register(SyntaxRegistry registry) {
+		registerDefault(registry, ExprDisplayViewRange.class, Float.class, "[display] view (range|radius)", "displays");
 	}
 
 	@Override
@@ -42,8 +43,11 @@ public class ExprDisplayViewRange extends SimplePropertyExpression<Display, Floa
 	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
 		Display[] displays = getExpr().getArray(event);
 		float change = delta == null ? 1F : ((Number) delta[0]).floatValue();
-		if (Float.isNaN(change) || Float.isInfinite(change))
+		if (Float.isNaN(change) || Float.isInfinite(change)) {
+			error("Cannot change the view range to an infinite or NaN value.");
 			return;
+		}
+
 		switch (mode) {
 			case REMOVE:
 				change = -change;

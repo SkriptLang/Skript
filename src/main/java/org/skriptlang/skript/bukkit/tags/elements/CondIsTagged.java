@@ -18,6 +18,7 @@ import org.bukkit.event.Event;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.tags.TagModule;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Is Tagged")
 @Description({
@@ -33,8 +34,8 @@ import org.skriptlang.skript.bukkit.tags.TagModule;
 @Keywords({"blocks", "minecraft tag", "type", "category"})
 public class CondIsTagged extends Condition {
 
-	static {
-		PropertyCondition.register(CondIsTagged.class, PropertyCondition.PropertyType.BE,
+	public static void register(SyntaxRegistry registry) {
+		PropertyCondition.register(registry, CondIsTagged.class, PropertyCondition.PropertyType.BE,
 				"tagged (as|with) %minecrafttags%",
 				"itemtypes/entities/entitydatas");
 	}

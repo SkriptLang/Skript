@@ -1,6 +1,5 @@
 package org.skriptlang.skript.bukkit.breeding.elements;
 
-import ch.njol.skript.Skript;
 import ch.njol.skript.entity.EntityType;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptEvent;
@@ -9,19 +8,26 @@ import org.bukkit.entity.Entity;
 import org.bukkit.event.Event;
 import org.bukkit.event.entity.EntityBreedEvent;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.bukkit.registration.BukkitRegistryKeys;
+import org.skriptlang.skript.bukkit.registration.BukkitSyntaxInfos;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 public class EvtBreed extends SkriptEvent {
 
-	static {
-		Skript.registerEvent("Entity Breed", EvtBreed.class, EntityBreedEvent.class,
-				"[entity] breed[ing] [of %-entitytypes%]")
-			.description("Called whenever two animals begin to conceive a child. The type can be specified.")
-			.examples(
+	public static void register(SyntaxRegistry registry) {
+		registry.register(BukkitRegistryKeys.EVENT, BukkitSyntaxInfos.Event
+			.builder(EvtBreed.class, "Entity Breed")
+			.addEvent(EntityBreedEvent.class)
+			.addPattern("[entity] breed[ing] [of %-entitytypes%]")
+			.addDescription("Called whenever two animals begin to conceive a child. The type can be specified.")
+			.addExamples(
 				"on breeding of llamas:",
 					"\tsend \"When a %breeding mother% and %breeding father% love each " +
 						"other very much they make %offspring%\" to breeder"
 			)
-			.since("2.10");
+			.since("2.10")
+			.build()
+		);
 	}
 
 	private @Nullable Literal<EntityType> entitiesLiteral;

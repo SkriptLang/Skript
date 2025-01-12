@@ -12,6 +12,7 @@ import org.bukkit.event.Event;
 import org.bukkit.event.player.PlayerInputEvent;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.input.InputKey;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,12 +26,13 @@ public class ExprCurrentInputKeys extends PropertyExpression<Player, InputKey> {
 
 	private static final boolean SUPPORTS_TIME_STATES = Skript.classExists("org.bukkit.event.player.PlayerInputEvent");
 
-	static {
-		register(ExprCurrentInputKeys.class, InputKey.class, "[current] (inputs|input keys)", "players");
+	public static void register(SyntaxRegistry registry) {
+		register(registry, ExprCurrentInputKeys.class, InputKey.class, "[current] (inputs|input keys)", "players");
 	}
 
 	@Override
 	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
+		//noinspection unchecked
 		setExpr((Expression<? extends Player>) expressions[0]);
 		return true;
 	}

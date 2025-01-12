@@ -12,6 +12,7 @@ import org.bukkit.entity.Animals;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Love Time")
 @Description({
@@ -26,16 +27,18 @@ import org.jetbrains.annotations.Nullable;
 @Since("2.10")
 public class ExprLoveTime extends SimplePropertyExpression<LivingEntity, Timespan> {
 
-	static {
-		register(ExprLoveTime.class, Timespan.class, "love[d] time", "livingentities");
+	public static void register(SyntaxRegistry registry) {
+		register(registry, ExprLoveTime.class, Timespan.class, "love[d] time", "livingentities");
 	}
 
 	@Override
 	public @Nullable Timespan convert(LivingEntity entity) {
-		if (entity instanceof Animals animal)
+		if (entity instanceof Animals animal) {
 			return new Timespan(Timespan.TimePeriod.TICK, animal.getLoveModeTicks());
-		
-		return new Timespan(0);
+		} else {
+			warning("An entity passed through wasn't an animal, and thus returned 0 ticks by default.", getExpr().toString());
+			return new Timespan(0);
+		}
 	}
 
 	@Override
@@ -59,8 +62,10 @@ public class ExprLoveTime extends SimplePropertyExpression<LivingEntity, Timespa
 		}
 
 		for (LivingEntity livingEntity : getExpr().getArray(event)) {
-			if (!(livingEntity instanceof Animals animal))
+			if (!(livingEntity instanceof Animals animal)) {
+				warning("An entity passed through wasn't an animal, and was thus skipped.", getExpr().toString());
 				continue;
+			}
 
 			int loveTicks = animal.getLoveModeTicks();
 			switch (mode) {

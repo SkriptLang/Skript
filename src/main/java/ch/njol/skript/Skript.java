@@ -541,14 +541,15 @@ public final class Skript extends JavaPlugin implements Listener {
 			getAddonInstance().loadClasses("ch.njol.skript",
 				"conditions", "effects", "events", "expressions", "entity", "sections", "structures");
 			getAddonInstance().loadClasses("org.skriptlang.skript.bukkit", "misc");
-			// todo: become proper module once registry api is merged
-			FishingModule.load();
-			BreedingModule.load();
-			DisplayModule.load();
-			InputModule.load();
-			TagModule.load();
-			FurnaceModule.load();
-			LootTableModule.load();
+			skript.loadModules(
+				new BreedingModule(),
+				new DisplayModule(),
+				new FishingModule(),
+				new FurnaceModule(),
+				new InputModule(),
+				new LootTableModule(),
+				new TagModule()
+			);
 		} catch (final Exception e) {
 			exception(e, "Could not load required .class files: " + e.getLocalizedMessage());
 			setEnabled(false);

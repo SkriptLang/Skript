@@ -7,6 +7,7 @@ import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import org.bukkit.entity.Display;
 import org.bukkit.entity.TextDisplay;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Text Display Visible Through Blocks")
 @Description("Returns whether text displays can be seen through blocks or not.")
@@ -17,8 +18,8 @@ import org.bukkit.entity.TextDisplay;
 @Since("2.10")
 public class CondTextDisplaySeeThroughBlocks extends PropertyCondition<Display> {
 
-	static {
-		register(CondTextDisplaySeeThroughBlocks.class, "visible through (blocks|walls)", "displays");
+	public static void register(SyntaxRegistry registry) {
+		register(registry, CondTextDisplaySeeThroughBlocks.class, "visible through (blocks|walls)", "displays");
 	}
 
 	@Override

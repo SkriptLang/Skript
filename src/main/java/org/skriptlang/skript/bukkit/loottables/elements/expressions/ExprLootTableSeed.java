@@ -11,6 +11,7 @@ import org.bukkit.event.Event;
 import org.bukkit.loot.Lootable;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.loottables.LootTableUtils;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Seed of Loot Table")
 @Description("Returns the seed of a loot table. Setting the seed of a block or entity that does not have a loot table will not do anything.")
@@ -21,8 +22,8 @@ import org.skriptlang.skript.bukkit.loottables.LootTableUtils;
 @Since("2.10")
 public class ExprLootTableSeed extends SimplePropertyExpression<Object, Long> {
 
-	static {
-		register(ExprLootTableSeed.class, Long.class, "loot[[ ]table] seed[s]", "entities/blocks");
+	public static void register(SyntaxRegistry registry) {
+		register(registry, ExprLootTableSeed.class, Long.class, "loot[[ ]table] seed[s]", "entities/blocks");
 	}
 
 	@Override

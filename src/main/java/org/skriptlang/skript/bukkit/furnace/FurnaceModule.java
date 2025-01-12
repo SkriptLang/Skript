@@ -1,12 +1,19 @@
 package org.skriptlang.skript.bukkit.furnace;
 
-import ch.njol.skript.Skript;
-import java.io.IOException;
+import org.skriptlang.skript.addon.AddonModule;
+import org.skriptlang.skript.addon.SkriptAddon;
+import org.skriptlang.skript.bukkit.furnace.elements.*;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
-public class FurnaceModule {
+public class FurnaceModule implements AddonModule {
 
-	public static void load() throws IOException{
-		Skript.getAddonInstance().loadClasses("org.skriptlang.skript.bukkit.furnace", "elements");
+	@Override
+	public void load(SkriptAddon addon) {
+		SyntaxRegistry registry = addon.syntaxRegistry();
+
+		EvtFurnace.register(registry);
+		ExprFurnaceEventItems.register(registry);
+		ExprFurnaceSlot.register(registry);
+		ExprFurnaceTime.register(registry);
 	}
-
 }

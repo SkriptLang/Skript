@@ -17,12 +17,16 @@ import org.bukkit.entity.Entity;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.addon.AddonModule;
+import org.skriptlang.skript.addon.SkriptAddon;
+import org.skriptlang.skript.bukkit.tags.elements.*;
 import org.skriptlang.skript.lang.comparator.Comparators;
 import org.skriptlang.skript.lang.comparator.Relation;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
-import java.io.IOException;
+public class TagModule implements AddonModule {
 
-public class TagModule {
+	public static final boolean TAGS_EXIST = Skript.classExists("org.bukkit.Tag");
 
 	// paper tags
 	public static final boolean PAPER_TAGS_EXIST = Skript.classExists("com.destroystokyo.paper.MaterialTags");
@@ -30,42 +34,52 @@ public class TagModule {
 	// tag object
 	public static TagRegistry tagRegistry;
 
-	public static void load() throws IOException {
-		// abort if no class exists
-		if (!Skript.classExists("org.bukkit.Tag"))
-			return;
+	@Override
+	public void init(SkriptAddon addon) {
+		if (TAGS_EXIST) {
+			Classes.registerClass(new ClassInfo<>(Tag.class, "minecrafttag")
+				.user("minecraft ?tags?")
+				.name("Minecraft Tag")
+				.description("A tag that classifies a material, or entity.")
+				.since("2.10")
+				.parser(new Parser<Tag<?>>() {
+					@Override
+					public boolean canParse(ParseContext context) {
+						return false;
+					}
 
-		// Classes
-		Classes.registerClass(new ClassInfo<>(Tag.class, "minecrafttag")
-			.user("minecraft ?tags?")
-			.name("Minecraft Tag")
-			.description("A tag that classifies a material, or entity.")
-			.since("2.10")
-			.parser(new Parser<Tag<?>>() {
-				@Override
-				public boolean canParse(ParseContext context) {
-					return false;
-				}
+					@Override
+					public String toString(Tag<?> tag, int flags) {
+						return "tag " + tag.getKey();
+					}
 
-				@Override
-				public String toString(Tag<?> tag, int flags) {
-					return "tag " + tag.getKey();
-				}
+					@Override
+					public String toVariableNameString(Tag<?> tag) {
+						return toString(tag, 0);
+					}
+				}));
 
-				@Override
-				public String toVariableNameString(Tag<?> tag) {
-					return toString(tag, 0);
-				}
-			}));
+			// compare tags by keys, not by object instance.
+			Comparators.registerComparator(Tag.class, Tag.class, (a, b) -> Relation.get(a.getKey().equals(b.getKey())));
 
-		// load classes (todo: replace with registering methods after registration api
-		Skript.getAddonInstance().loadClasses("org.skriptlang.skript.bukkit", "tags");
+			// init tags
+			tagRegistry = new TagRegistry();
+		}
+	}
 
-		// compare tags by keys, not by object instance.
-		Comparators.registerComparator(Tag.class, Tag.class, (a, b) -> Relation.get(a.getKey().equals(b.getKey())));
+	@Override
+	public void load(SkriptAddon addon) {
+		if (TAGS_EXIST) {
+			SyntaxRegistry registry = addon.syntaxRegistry();
 
-		// init tags
-		tagRegistry = new TagRegistry();
+			CondIsTagged.register(registry);
+			EffRegisterTag.register(registry);
+			ExprTag.register(registry);
+			ExprTagContents.register(registry);
+			ExprTagKey.register(registry);
+			ExprTagsOf.register(registry);
+			ExprTagsOfType.register(registry);
+		}
 	}
 
 	/**

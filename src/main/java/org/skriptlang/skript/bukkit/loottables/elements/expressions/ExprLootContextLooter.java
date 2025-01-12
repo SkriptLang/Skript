@@ -13,6 +13,7 @@ import org.bukkit.event.Event;
 import org.bukkit.loot.LootContext;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.loottables.LootContextCreateEvent;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Looter of Loot Context")
 @Description(
@@ -30,8 +31,8 @@ import org.skriptlang.skript.bukkit.loottables.LootContextCreateEvent;
 @Since("2.10")
 public class ExprLootContextLooter extends SimplePropertyExpression<LootContext, Player> {
 
-	static {
-		registerDefault(ExprLootContextLooter.class, Player.class, "(looter|looting player)", "lootcontexts");
+	public static void register(SyntaxRegistry registry) {
+		registerDefault(registry, ExprLootContextLooter.class, Player.class, "(looter|looting player)", "lootcontexts");
 	}
 
 	@Override
@@ -56,8 +57,10 @@ public class ExprLootContextLooter extends SimplePropertyExpression<LootContext,
 
 	@Override
 	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
-		if (!(event instanceof LootContextCreateEvent createEvent))
+		if (!(event instanceof LootContextCreateEvent createEvent)) {
+			error("The loot context looter cannot be set outside of a LootContextCreateEvent.");
 			return;
+		}
 
 		Player player = delta != null ? (Player) delta[0] : null;
 		createEvent.getContextWrapper().setKiller(player);

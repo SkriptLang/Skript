@@ -7,6 +7,7 @@ import io.papermc.paper.entity.TeleportFlag.Relative;
 /**
  * A utility enum for accessing Paper's teleport flags (1.19.4+)
  */
+@SuppressWarnings("removal")
 public enum SkriptTeleportFlag {
 
 	RETAIN_OPEN_INVENTORY(EntityState.RETAIN_OPEN_INVENTORY),

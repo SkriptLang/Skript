@@ -15,18 +15,19 @@ import org.bukkit.event.Event;
 import org.bukkit.util.Transformation;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Quaternionf;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Display Transformation Rotation")
 @Description({
-        "Returns or changes the transformation rotation of <a href='classes.html#display'>displays</a>.",
-        "The left rotation is applied first, with the right rotation then being applied based on the rotated axis."
+	"Returns or changes the transformation rotation of <a href='classes.html#display'>displays</a>.",
+	"The left rotation is applied first, with the right rotation then being applied based on the rotated axis."
 })
 @Examples("set left transformation rotation of last spawned block display to quaternion(1, 0, 0, 0) # reset block display")
 @Since("2.10")
 public class ExprDisplayTransformationRotation extends SimplePropertyExpression<Display, Quaternionf> {
 
-	static {
-		registerDefault(ExprDisplayTransformationRotation.class, Quaternionf.class, "(:left|right) [transformation] rotation", "displays");
+	public static void register(SyntaxRegistry registry) {
+		registerDefault(registry, ExprDisplayTransformationRotation.class, Quaternionf.class, "(:left|right) [transformation] rotation", "displays");
 	}
 
 	private boolean left;
@@ -58,8 +59,11 @@ public class ExprDisplayTransformationRotation extends SimplePropertyExpression<
 		if (delta != null) {
 			quaternion = (Quaternionf) delta[0];
 		}
-		if (quaternion == null || !quaternion.isFinite())
+		if (quaternion == null || !quaternion.isFinite()) {
+			error("The quaternion either null or not finite.");
 			return;
+		}
+
 		for (Display display : getExpr().getArray(event)) {
 			Transformation transformation = display.getTransformation();
 			Transformation change;

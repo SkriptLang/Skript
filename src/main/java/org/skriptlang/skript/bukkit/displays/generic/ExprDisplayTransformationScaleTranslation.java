@@ -16,6 +16,7 @@ import org.bukkit.util.Transformation;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3f;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Display Transformation Scale/Translation")
 @Description("Returns or changes the transformation scale or translation of <a href='classes.html#display'>displays</a>.")
@@ -23,8 +24,8 @@ import org.joml.Vector3f;
 @Since("2.10")
 public class ExprDisplayTransformationScaleTranslation extends SimplePropertyExpression<Display, Vector> {
 
-	static {
-		register(ExprDisplayTransformationScaleTranslation.class, Vector.class, "(display|[display] transformation) (:scale|translation)", "displays");
+	public static void register(SyntaxRegistry registry) {
+		register(registry, ExprDisplayTransformationScaleTranslation.class, Vector.class, "(display|[display] transformation) (:scale|translation)", "displays");
 	}
 
 	private boolean scale;
@@ -55,8 +56,11 @@ public class ExprDisplayTransformationScaleTranslation extends SimplePropertyExp
 			vector = scale ? new Vector3f(1F, 1F, 1F) : new Vector3f(0F, 0F, 0F);
 		if (delta != null)
 			vector = ((Vector) delta[0]).toVector3f();
-		if (vector == null || !vector.isFinite())
+		if (vector == null || !vector.isFinite()) {
+			error("The vector was either null or not finite.");
 			return;
+		}
+
 		for (Display display : getExpr().getArray(event)) {
 			Transformation transformation = display.getTransformation();
 			Transformation change;

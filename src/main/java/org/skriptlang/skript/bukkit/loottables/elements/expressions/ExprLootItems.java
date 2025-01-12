@@ -1,12 +1,11 @@
 package org.skriptlang.skript.bukkit.loottables.elements.expressions;
 
-import ch.njol.skript.Skript;
+import ch.njol.skript.config.Node;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.SyntaxStringBuilder;
 import ch.njol.skript.lang.util.SimpleExpression;
@@ -18,6 +17,9 @@ import org.bukkit.loot.LootContext;
 import org.bukkit.loot.LootTable;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.loottables.LootContextWrapper;
+import org.skriptlang.skript.log.runtime.SyntaxRuntimeErrorProducer;
+import org.skriptlang.skript.registration.SyntaxInfo;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,21 +39,28 @@ import java.util.concurrent.ThreadLocalRandom;
 	"# this will give the player the items that the entity would drop with the given loot context"
 })
 @Since("2.10")
-public class ExprLootItems extends SimpleExpression<ItemStack> {
+public class ExprLootItems extends SimpleExpression<ItemStack> implements SyntaxRuntimeErrorProducer {
 
-	static {
-		Skript.registerExpression(ExprLootItems.class, ItemStack.class, ExpressionType.COMBINED,
-			"[the] loot of %loottables% [(with|using) %-lootcontext%]",
-			"%loottables%'[s] loot [(with|using) %-lootcontext%]"
+	public static void register(SyntaxRegistry registry) {
+		registry.register(SyntaxRegistry.EXPRESSION, SyntaxInfo.Expression
+			.builder(ExprLootItems.class, ItemStack.class)
+			.priority(SyntaxInfo.COMBINED)
+			.addPatterns(
+				"[the] loot of %loottables% [(with|using) %-lootcontext%]",
+				"%loottables%'[s] loot [(with|using) %-lootcontext%]"
+			)
+			.build()
 		);
 	}
 
+	private Node node;
 	private Expression<LootTable> lootTables;
 	private Expression<LootContext> context;
 
 	@Override
 	@SuppressWarnings("unchecked")
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
+		node = getParser().getNode();
 		lootTables = (Expression<LootTable>) exprs[0];
 		context = (Expression<LootContext>) exprs[1];
 		return true;
@@ -62,8 +71,10 @@ public class ExprLootItems extends SimpleExpression<ItemStack> {
 		LootContext context;
 		if (this.context != null) {
 			context = this.context.getSingle(event);
-			if (context == null)
+			if (context == null) {
+				error("The provided loot context was not set.", this.context.toString());
 				return new ItemStack[0];
+			}
 		} else {
 			context = new LootContextWrapper(Bukkit.getWorlds().get(0).getSpawnLocation()).getContext();
 		}
@@ -75,7 +86,9 @@ public class ExprLootItems extends SimpleExpression<ItemStack> {
 			try {
 				// todo: perhaps runtime error in the future
 				items.addAll(lootTable.populateLoot(random, context));
-			} catch (IllegalArgumentException ignore) {}
+			} catch (IllegalArgumentException ignored) {
+				error("Failed to add a loot table's loot items to list.", lootTables.toString());
+			}
 		}
 
 		return items.toArray(new ItemStack[0]);
@@ -89,6 +102,11 @@ public class ExprLootItems extends SimpleExpression<ItemStack> {
 	@Override
 	public Class<? extends ItemStack> getReturnType() {
 		return ItemStack.class;
+	}
+
+	@Override
+	public Node getNode() {
+		return node;
 	}
 
 	@Override

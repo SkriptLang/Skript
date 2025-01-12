@@ -1,6 +1,5 @@
 package org.skriptlang.skript.bukkit.tags.elements;
 
-import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Keywords;
@@ -8,7 +7,6 @@ import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.RequiredPlugins;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
@@ -21,40 +19,46 @@ import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.tags.TagModule;
 import org.skriptlang.skript.bukkit.tags.TagType;
 import org.skriptlang.skript.bukkit.tags.sources.TagOrigin;
+import org.skriptlang.skript.registration.SyntaxInfo;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @Name("Tag")
 @Description({
-		"Represents a tag which can be used to classify items, blocks, or entities.",
-		"Tags are composed of a value and an optional namespace: \"minecraft:oak_logs\".",
-		"If you omit the namespace, one will be provided for you, depending on what kind of tag you're using. " +
-		"For example, `tag \"doors\"` will be the tag \"minecraft:doors\", " +
-		"while `paper tag \"doors\"` will be \"paper:doors\".",
-		"`minecraft tag` will search through the vanilla tags, `datapack tag` will search for datapack-provided tags " +
-		"(a namespace is required here!), `paper tag` will search for Paper's custom tags if you are running Paper, " +
-		"and `custom tag` will look in the \"skript\" namespace for custom tags you've registered.",
-		"You can also filter by tag types using \"item\", \"block\", or \"entity\"."
+	"Represents a tag which can be used to classify items, blocks, or entities.",
+	"Tags are composed of a value and an optional namespace: \"minecraft:oak_logs\".",
+	"If you omit the namespace, one will be provided for you, depending on what kind of tag you're using. " +
+	"For example, `tag \"doors\"` will be the tag \"minecraft:doors\", " +
+	"while `paper tag \"doors\"` will be \"paper:doors\".",
+	"`minecraft tag` will search through the vanilla tags, `datapack tag` will search for datapack-provided tags " +
+	"(a namespace is required here!), `paper tag` will search for Paper's custom tags if you are running Paper, " +
+	"and `custom tag` will look in the \"skript\" namespace for custom tags you've registered.",
+	"You can also filter by tag types using \"item\", \"block\", or \"entity\"."
 })
 @Examples({
-		"minecraft tag \"dirt\" # minecraft:dirt",
-		"paper tag \"doors\" # paper:doors",
-		"tag \"skript:custom_dirt\" # skript:custom_dirt",
-		"custom tag \"dirt\" # skript:dirt",
-		"datapack block tag \"dirt\" # minecraft:dirt",
-		"datapack tag \"my_pack:custom_dirt\" # my_pack:custom_dirt",
-		"tag \"minecraft:mineable/pickaxe\" # minecraft:mineable/pickaxe",
-		"custom item tag \"blood_magic_sk/can_sacrifice_with\" # skript:blood_magic_sk/can_sacrifice_with"
+	"minecraft tag \"dirt\" # minecraft:dirt",
+	"paper tag \"doors\" # paper:doors",
+	"tag \"skript:custom_dirt\" # skript:custom_dirt",
+	"custom tag \"dirt\" # skript:dirt",
+	"datapack block tag \"dirt\" # minecraft:dirt",
+	"datapack tag \"my_pack:custom_dirt\" # my_pack:custom_dirt",
+	"tag \"minecraft:mineable/pickaxe\" # minecraft:mineable/pickaxe",
+	"custom item tag \"blood_magic_sk/can_sacrifice_with\" # skript:blood_magic_sk/can_sacrifice_with"
 })
 @Since("2.10")
 @RequiredPlugins("Paper (paper tags)")
 @Keywords({"blocks", "minecraft tag", "type", "category"})
 public class ExprTag extends SimpleExpression<Tag> {
 
-	static {
-		Skript.registerExpression(ExprTag.class, Tag.class, ExpressionType.COMBINED,
-				TagOrigin.getFullPattern() + " " + TagType.getFullPattern() + " tag %strings%");
+	public static void register(SyntaxRegistry registry) {
+		registry.register(SyntaxRegistry.EXPRESSION, SyntaxInfo.Expression
+			.builder(ExprTag.class, Tag.class)
+			.priority(SyntaxInfo.COMBINED)
+			.addPattern(TagOrigin.getFullPattern() + " " + TagType.getFullPattern() + " tag %strings%")
+			.build()
+		);
 	}
 
 	private Expression<String> names;

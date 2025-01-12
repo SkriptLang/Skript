@@ -2,9 +2,10 @@ package org.skriptlang.skript.bukkit.fishing.elements;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer.ChangeMode;
+import ch.njol.skript.config.Node;
 import ch.njol.skript.doc.*;
+import ch.njol.skript.expressions.base.EventValueExpression;
 import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.util.Timespan;
@@ -13,6 +14,9 @@ import org.bukkit.entity.FishHook;
 import org.bukkit.event.Event;
 import org.bukkit.event.player.PlayerFishEvent;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.log.runtime.SyntaxRuntimeErrorProducer;
+import org.skriptlang.skript.registration.SyntaxInfo;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Fishing Bite Time")
 @Description({
@@ -21,35 +25,45 @@ import org.jetbrains.annotations.Nullable;
 })
 @Examples({
 	"on fish approach:",
-	"\tset fishing bite time to 5 seconds",
+		"\tset fishing bite time to 5 seconds",
 })
 @RequiredPlugins("Paper 1.20.6")
 @Events("Fishing")
 @Since("2.10")
-public class ExprFishingBiteTime extends SimpleExpression<Timespan> {
+public class ExprFishingBiteTime extends SimpleExpression<Timespan> implements SyntaxRuntimeErrorProducer {
 
-	static {
+	public static void register(SyntaxRegistry registry) {
 		if (Skript.methodExists(FishHook.class, "getTimeUntilBite"))
-			Skript.registerExpression(ExprFishingBiteTime.class, Timespan.class, ExpressionType.EVENT,
-				"fish[ing] bit(e|ing) [wait] time");
+			registry.register(SyntaxRegistry.EXPRESSION, SyntaxInfo.Expression
+				.builder(ExprFishingBiteTime.class, Timespan.class)
+				.addPattern("fish[ing] bit(e|ing) [wait] time")
+				.priority(EventValueExpression.DEFAULT_PRIORITY)
+				.build()
+			);
 	}
 
+	private Node node;
+	private String expr;
+
 	@Override
-	public boolean init(Expression<?>[] expressions, int matchedPattern,
-						Kleenean isDelayed, ParseResult parseResult) {
+	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		if (!getParser().isCurrentEvent(PlayerFishEvent.class)) {
 			Skript.error("The 'fishing bite time' expression can only be used in a fishing event.");
 			return false;
 		}
+		node = getParser().getNode();
+		expr = parseResult.expr;
 		return true;
 	}
 
 	@Override
 	protected Timespan @Nullable [] get(Event event) {
-		if (!(event instanceof PlayerFishEvent fishEvent))
+		if (event instanceof PlayerFishEvent fishEvent) {
+			return new Timespan[]{new Timespan(Timespan.TimePeriod.TICK, fishEvent.getHook().getTimeUntilBite())};
+		} else {
+			error("The 'fishing bite time' expression can only be used in a fishing event.", expr);
 			return null;
-
-		return new Timespan[]{new Timespan(Timespan.TimePeriod.TICK, fishEvent.getHook().getTimeUntilBite())};
+		}
 	}
 
 	@Override
@@ -62,8 +76,10 @@ public class ExprFishingBiteTime extends SimpleExpression<Timespan> {
 
 	@Override
 	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
-		if (!(event instanceof PlayerFishEvent fishEvent))
+		if (!(event instanceof PlayerFishEvent fishEvent)) {
+			error("The 'fishing bite time' expression can only be used in a fishing event.", expr);
 			return;
+		}
 
 		FishHook hook = fishEvent.getHook();
 
@@ -84,6 +100,11 @@ public class ExprFishingBiteTime extends SimpleExpression<Timespan> {
 	@Override
 	public Class<? extends Timespan> getReturnType() {
 		return Timespan.class;
+	}
+
+	@Override
+	public Node getNode() {
+		return node;
 	}
 
 	@Override

@@ -1,6 +1,7 @@
 package org.skriptlang.skript.bukkit.loottables.elements.expressions;
 
 import ch.njol.skript.Skript;
+import ch.njol.skript.config.Node;
 import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
@@ -19,6 +20,9 @@ import org.bukkit.loot.LootContext;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.loottables.LootContextCreateEvent;
 import org.skriptlang.skript.bukkit.loottables.LootContextWrapper;
+import org.skriptlang.skript.log.runtime.SyntaxRuntimeErrorProducer;
+import org.skriptlang.skript.registration.SyntaxInfo;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -34,14 +38,20 @@ import java.util.concurrent.atomic.AtomicBoolean;
 	"give player loot items of loot table \"minecraft:entities/iron_golem\" with loot context {_context}"
 })
 @Since("2.10")
-public class ExprSecCreateLootContext extends SectionExpression<LootContext> {
+public class ExprSecCreateLootContext extends SectionExpression<LootContext> implements SyntaxRuntimeErrorProducer {
 
-	static {
-		Skript.registerExpression(ExprSecCreateLootContext.class, LootContext.class, ExpressionType.COMBINED,
-			"[a] loot context %direction% %location%");
+	public static void register(SyntaxRegistry registry) {
+		registry.register(SyntaxRegistry.EXPRESSION, SyntaxInfo.Expression
+			.builder(ExprSecCreateLootContext.class, LootContext.class)
+			.priority(SyntaxInfo.COMBINED)
+			.addPattern("[a] loot context %direction% %location%")
+			.build()
+		);
+
 		EventValues.registerEventValue(LootContextCreateEvent.class, LootContext.class, event -> event.getContextWrapper().getContext());
 	}
 
+	private Node srepNode;
 	private Trigger trigger;
 	private Expression<Location> location;
 
@@ -59,14 +69,17 @@ public class ExprSecCreateLootContext extends SectionExpression<LootContext> {
 		}
 		//noinspection unchecked
 		location = Direction.combine((Expression<Direction>) exprs[0], (Expression<Location>) exprs[1]);
+		srepNode = getParser().getNode();
 		return true;
 	}
 
 	@Override
 	protected LootContext @Nullable [] get(Event event) {
 		Location loc = location.getSingle(event);
-		if (loc == null)
+		if (loc == null) {
+			error("The provided location was not set.", location.toString());
 			return new LootContext[0];
+		}
 
 		LootContextWrapper wrapper = new LootContextWrapper(loc);
 		if (trigger != null) {
@@ -86,6 +99,11 @@ public class ExprSecCreateLootContext extends SectionExpression<LootContext> {
 	@Override
 	public Class<? extends LootContext> getReturnType() {
 		return LootContext.class;
+	}
+
+	@Override
+	public Node getNode() {
+		return srepNode;
 	}
 
 	@Override

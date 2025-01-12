@@ -6,6 +6,7 @@ import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import org.skriptlang.skript.bukkit.loottables.LootTableUtils;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Has Loot Table")
 @Description(
@@ -25,8 +26,8 @@ import org.skriptlang.skript.bukkit.loottables.LootTableUtils;
 @Since("2.10")
 public class CondHasLootTable extends PropertyCondition<Object> {
 
-	static {
-		register(CondHasLootTable.class, PropertyType.HAVE, "[a] loot[ ]table", "blocks/entities");
+	public static void register(SyntaxRegistry registry) {
+		register(registry, CondHasLootTable.class, PropertyType.HAVE, "[a] loot[ ]table", "blocks/entities");
 	}
 
 	@Override

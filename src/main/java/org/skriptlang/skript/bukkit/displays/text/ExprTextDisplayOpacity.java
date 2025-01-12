@@ -12,6 +12,7 @@ import org.bukkit.entity.Display;
 import org.bukkit.entity.TextDisplay;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Text Display Opacity")
 @Description({
@@ -22,8 +23,8 @@ import org.jetbrains.annotations.Nullable;
 @Since("2.10")
 public class ExprTextDisplayOpacity extends SimplePropertyExpression<Display, Byte> {
 
-	static {
-		registerDefault(ExprTextDisplayOpacity.class, Byte.class, "[display] opacity", "displays");
+	public static void register(SyntaxRegistry registry) {
+		registerDefault(registry, ExprTextDisplayOpacity.class, Byte.class, "[display] opacity", "displays");
 	}
 
 	@Override

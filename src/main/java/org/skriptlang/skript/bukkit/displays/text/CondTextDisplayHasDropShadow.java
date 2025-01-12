@@ -1,6 +1,5 @@
 package org.skriptlang.skript.bukkit.displays.text;
 
-import ch.njol.skript.Skript;
 import ch.njol.skript.conditions.base.PropertyCondition;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
@@ -11,6 +10,8 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
 import org.bukkit.entity.Display;
 import org.bukkit.entity.TextDisplay;
+import org.skriptlang.skript.registration.SyntaxInfo;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Text Display Has Drop Shadow")
 @Description("Returns whether the text of a display has drop shadow applied.")
@@ -21,13 +22,17 @@ import org.bukkit.entity.TextDisplay;
 @Since("2.10")
 public class CondTextDisplayHasDropShadow extends PropertyCondition<Display> {
 
-	static {
-		Skript.registerCondition(CondTextDisplayHasDropShadow.class,
+	public static void register(SyntaxRegistry registry) {
+		registry.register(SyntaxRegistry.CONDITION, SyntaxInfo.builder(CondTextDisplayHasDropShadow.class)
+			.priority(DEFAULT_PRIORITY)
+			.addPatterns(
 				"[[the] text of] %displays% (has|have) [a] (drop|text) shadow",
 				"%displays%'[s] text (has|have) [a] (drop|text) shadow",
 				"[[the] text of] %displays% (doesn't|does not|do not|don't) have [a] (drop|text) shadow",
 				"%displays%'[s] text (doesn't|does not|do not|don't) have [a] (drop|text) shadow"
-			);
+			)
+			.build()
+		);
 	}
 
 	@Override

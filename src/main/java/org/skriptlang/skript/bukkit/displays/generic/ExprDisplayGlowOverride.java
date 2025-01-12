@@ -12,6 +12,7 @@ import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.entity.Display;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Display Glow Color Override")
 @Description({
@@ -22,13 +23,12 @@ import org.jetbrains.annotations.Nullable;
 @Since("2.10")
 public class ExprDisplayGlowOverride extends SimplePropertyExpression<Display, Color> {
 
-	static {
-		registerDefault(ExprDisplayGlowOverride.class, Color.class, "glow[ing] colo[u]r[s] override[s]", "displays");
+	public static void register(SyntaxRegistry registry) {
+		registerDefault(registry, ExprDisplayGlowOverride.class, Color.class, "glow[ing] colo[u]r[s] override[s]", "displays");
 	}
 
 	@Override
-	@Nullable
-	public Color convert(Display display) {
+	public @Nullable Color convert(Display display) {
 		org.bukkit.Color color = display.getGlowColorOverride();
 		return color != null ? ColorRGB.fromBukkitColor(color) : null;
 	}

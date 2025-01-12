@@ -13,6 +13,7 @@ import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.entity.Display;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Display Shadow Radius/Strength")
 @Description("Returns or changes the shadow radius/strength of <a href='classes.html#display'>displays</a>.")
@@ -20,8 +21,8 @@ import org.jetbrains.annotations.Nullable;
 @Since("2.10")
 public class ExprDisplayShadow extends SimplePropertyExpression<Display, Float> {
 
-	static {
-		registerDefault(ExprDisplayShadow.class, Float.class, "shadow (:radius|strength)", "displays");
+	public static void register(SyntaxRegistry registry) {
+		registerDefault(registry, ExprDisplayShadow.class, Float.class, "shadow (:radius|strength)", "displays");
 	}
 
 	private boolean radius;
@@ -33,8 +34,7 @@ public class ExprDisplayShadow extends SimplePropertyExpression<Display, Float> 
 	}
 
 	@Override
-	@Nullable
-	public Float convert(Display display) {
+	public @Nullable Float convert(Display display) {
 		return radius ? display.getShadowRadius() : display.getShadowStrength();
 	}
 
@@ -50,8 +50,11 @@ public class ExprDisplayShadow extends SimplePropertyExpression<Display, Float> 
 	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
 		Display[] displays = getExpr().getArray(event);
 		float change = delta == null ? 0F : ((Number) delta[0]).floatValue();
-		if (Float.isInfinite(change) || Float.isNaN(change))
+		if (delta != null && (Float.isInfinite(change) || Float.isNaN(change))) {
+			error("Cannot change the shadow " + (radius ? "radius" : "strength") + " to an infinite or NaN value.", delta[0].toString());
 			return;
+		}
+
 		switch (mode) {
 			case REMOVE:
 				change = -change;

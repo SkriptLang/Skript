@@ -1,15 +1,15 @@
 package org.skriptlang.skript.bukkit.tags.elements;
 
-import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.bukkitutil.EntityUtils;
+import ch.njol.skript.config.Node;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Keywords;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
+import ch.njol.skript.expressions.base.PropertyExpression;
 import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.util.Utils;
@@ -21,29 +21,36 @@ import org.bukkit.event.Event;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.tags.TagType;
+import org.skriptlang.skript.log.runtime.SyntaxRuntimeErrorProducer;
+import org.skriptlang.skript.registration.SyntaxInfo;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 import java.util.Objects;
 
 @Name("Tags Contents")
 @Description({
-		"Returns all the values that a tag contains.",
-		"For item and block tags, this will return items. For entity tags, " +
-		"it will return entity datas (a creeper, a zombie)."
+	"Returns all the values that a tag contains.",
+	"For item and block tags, this will return items. For entity tags, " +
+	"it will return entity datas (a creeper, a zombie)."
 })
 @Examples({
-		"broadcast tag values of minecraft tag \"dirt\"",
-		"broadcast (first element of player's tool's block tags)'s tag contents"
+	"broadcast tag values of minecraft tag \"dirt\"",
+	"broadcast (first element of player's tool's block tags)'s tag contents"
 })
 @Since("2.10")
 @Keywords({"blocks", "minecraft tag", "type", "category"})
-public class ExprTagContents extends SimpleExpression<Object> {
+public class ExprTagContents extends SimpleExpression<Object> implements SyntaxRuntimeErrorProducer {
 
-	static {
-		Skript.registerExpression(ExprTagContents.class, Object.class, ExpressionType.PROPERTY,
-				"[the] tag (contents|values) of %minecrafttag%",
-				"%minecrafttag%'[s] tag (contents|values)");
+	public static void register(SyntaxRegistry registry) {
+		registry.register(SyntaxRegistry.EXPRESSION, SyntaxInfo.Expression
+			.builder(ExprTagContents.class, Object.class)
+			.priority(PropertyExpression.DEFAULT_PRIORITY)
+			.addPatterns(PropertyExpression.getPatterns("tag (contents|values)", "minecrafttag"))
+			.build()
+		);
 	}
 
+	private Node node;
 	private Expression<Tag<?>> tag;
 	private TagType<?> @Nullable [] tagTypes;
 
@@ -58,14 +65,18 @@ public class ExprTagContents extends SimpleExpression<Object> {
 		} else if (expressions[0] instanceof ExprTagsOfType exprTagsOfType) {
 			tagTypes = exprTagsOfType.types;
 		}
+		node = getParser().getNode();
 		return true;
 	}
 
 	@Override
 	protected Object @Nullable [] get(Event event) {
 		Tag<?> tag = this.tag.getSingle(event);
-		if (tag == null)
+		if (tag == null) {
+			error("The provided tag was not set.", this.tag.toString());
 			return null;
+		}
+
 		return tag.getValues().stream()
 			.map(value -> {
 				if (value instanceof Material material) {
@@ -94,6 +105,11 @@ public class ExprTagContents extends SimpleExpression<Object> {
 			return Utils.getSuperType(possibleTypes);
 		}
 		return Object.class;
+	}
+
+	@Override
+	public Node getNode() {
+		return node;
 	}
 
 	@Override

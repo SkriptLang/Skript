@@ -2,11 +2,11 @@ package org.skriptlang.skript.bukkit.furnace.elements;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer.ChangeMode;
+import ch.njol.skript.config.Node;
 import ch.njol.skript.doc.*;
 import ch.njol.skript.expressions.base.EventValueExpression;
 import ch.njol.skript.expressions.base.PropertyExpression;
 import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
@@ -19,6 +19,9 @@ import org.bukkit.event.inventory.FurnaceSmeltEvent;
 import org.bukkit.event.inventory.FurnaceStartSmeltEvent;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.log.runtime.SyntaxRuntimeErrorProducer;
+import org.skriptlang.skript.registration.SyntaxInfo;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Furnace Event Items")
 @Description({
@@ -39,7 +42,7 @@ import org.jetbrains.annotations.Nullable;
 })
 @Events({"smelt", "fuel burn", "smelting start", "furnace extract"})
 @Since("2.10")
-public class ExprFurnaceEventItems extends PropertyExpression<Block, ItemStack> {
+public class ExprFurnaceEventItems extends PropertyExpression<Block, ItemStack> implements SyntaxRuntimeErrorProducer {
 
 	enum FurnaceValues {
 		SMELTED("(smelted item|result[ item])", "smelted item", FurnaceSmeltEvent.class, "'smelted item' can only be used in a smelting event."),
@@ -60,17 +63,24 @@ public class ExprFurnaceEventItems extends PropertyExpression<Block, ItemStack> 
 	}
 
 	private static final FurnaceValues[] FURNACE_VALUES = FurnaceValues.values();
+	private static final String[] patterns = new String[FURNACE_VALUES.length];
 
 	static {
-		int size = FURNACE_VALUES.length;
-		String[] patterns  = new String[size];
 		for (FurnaceValues value : FURNACE_VALUES) {
 			patterns[value.ordinal()] = value.pattern;
 		}
-
-		Skript.registerExpression(ExprFurnaceEventItems.class, ItemStack.class, ExpressionType.PROPERTY, patterns);
 	}
 
+	public static void register(SyntaxRegistry registry) {
+		registry.register(SyntaxRegistry.EXPRESSION, SyntaxInfo.Expression
+			.builder(ExprFurnaceEventItems.class, ItemStack.class)
+			.priority(PropertyExpression.DEFAULT_PRIORITY)
+			.addPatterns(patterns)
+			.build()
+		);
+	}
+
+	private Node node;
 	private FurnaceValues type;
 
 	@Override
@@ -80,6 +90,7 @@ public class ExprFurnaceEventItems extends PropertyExpression<Block, ItemStack> 
 			Skript.error(type.error);
 			return false;
 		}
+		node = getParser().getNode();
 		setExpr(new EventValueExpression<>(Block.class));
 		return true;
 	}
@@ -108,8 +119,10 @@ public class ExprFurnaceEventItems extends PropertyExpression<Block, ItemStack> 
 
 	@Override
 	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
-		if (!(event instanceof FurnaceSmeltEvent smeltEvent))
+		if (!(event instanceof FurnaceSmeltEvent smeltEvent)) {
+			error("The 'furnace event items' expression is only changeable in a FurnaceSmeltEvent.");
 			return;
+		}
 
 		if (mode == ChangeMode.SET) {
 			smeltEvent.setResult((ItemStack) delta[0]);
@@ -127,6 +140,11 @@ public class ExprFurnaceEventItems extends PropertyExpression<Block, ItemStack> 
 	@Override
 	public Class<ItemStack> getReturnType() {
 		return ItemStack.class;
+	}
+
+	@Override
+	public Node getNode() {
+		return node;
 	}
 
 	@Override

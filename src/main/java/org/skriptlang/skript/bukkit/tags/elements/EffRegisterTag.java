@@ -2,6 +2,7 @@ package org.skriptlang.skript.bukkit.tags.elements;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.ItemType;
+import ch.njol.skript.config.Node;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Keywords;
@@ -26,6 +27,9 @@ import org.skriptlang.skript.bukkit.tags.SkriptTag;
 import org.skriptlang.skript.bukkit.tags.TagModule;
 import org.skriptlang.skript.bukkit.tags.TagType;
 import org.skriptlang.skript.bukkit.tags.sources.SkriptTagSource;
+import org.skriptlang.skript.log.runtime.SyntaxRuntimeErrorProducer;
+import org.skriptlang.skript.registration.SyntaxInfo;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -56,16 +60,21 @@ import java.util.regex.Pattern;
 })
 @Since("2.10")
 @Keywords({"blocks", "minecraft tag", "type", "category"})
-public class EffRegisterTag extends Effect {
+public class EffRegisterTag extends Effect implements SyntaxRuntimeErrorProducer {
 
 	private static final Pattern KEY_PATTERN = Pattern.compile("[a-zA-Z0-9/._-]+");
 
-	static {
-		Skript.registerEffect(EffRegisterTag.class,
+	public static void register(SyntaxRegistry registry) {
+		registry.register(SyntaxRegistry.EFFECT, SyntaxInfo.builder(EffRegisterTag.class)
+			.addPattern(
 				"register [a[n]] [custom] " + TagType.getFullPattern(true) +
-					" tag named %string% (containing|using) %entitydatas/itemtypes%");
+					" tag named %string% (containing|using) %entitydatas/itemtypes%"
+			)
+			.build()
+		);
 	}
 
+	private Node node;
 	private Expression<String> name;
 	private Expression<?> contents;
 	private TagType<?> type;
@@ -83,6 +92,7 @@ public class EffRegisterTag extends Effect {
 			}
 		}
 
+		node = getParser().getNode();
 		contents = expressions[1];
 		type = TagType.getType(parseResult.mark - 1)[0];
 		return true;
@@ -91,20 +101,26 @@ public class EffRegisterTag extends Effect {
 	@Override
 	protected void execute(Event event) {
 		String name = this.name.getSingle(event);
-		if (name == null)
+		if (name == null) {
+			error("The provided name was not set.", this.name.toString());
 			return;
+		}
 
 		name = removeSkriptNamespace(name);
 
-		if (!KEY_PATTERN.matcher(name).matches())
+		if (!KEY_PATTERN.matcher(name).matches()) {
+			error("Tag names can only contain the following characters: letters, numbers, and some symbols: " +
+				"'/', '.', '_', and '-'", this.name.toString());
 			return;
+		}
 
 		NamespacedKey key = new NamespacedKey(Skript.getInstance(), name);
 
 		Object[] contents = this.contents.getArray(event);
-		if (contents.length == 0)
+		if (contents.length == 0) {
+			error("Cannot create a tag with no contents.", this.contents.toString());
 			return;
-
+		}
 
 		if (this.type.type() == Material.class) {
 			Tag<Material> tag = getMaterialTag(key, contents);
@@ -155,6 +171,11 @@ public class EffRegisterTag extends Effect {
 			}
 		}
 		return new SkriptTag<>(key, tagContents);
+	}
+
+	@Override
+	public Node getNode() {
+		return node;
 	}
 
 	@Override

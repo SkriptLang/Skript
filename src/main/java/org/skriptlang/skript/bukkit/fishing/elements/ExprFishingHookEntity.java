@@ -2,9 +2,10 @@ package org.skriptlang.skript.bukkit.fishing.elements;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer.ChangeMode;
+import ch.njol.skript.config.Node;
 import ch.njol.skript.doc.*;
+import ch.njol.skript.expressions.base.EventValueExpression;
 import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
@@ -15,6 +16,9 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.player.PlayerFishEvent;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.log.runtime.SyntaxRuntimeErrorProducer;
+import org.skriptlang.skript.registration.SyntaxInfo;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Fishing Hooked Entity")
 @Description("Returns the hooked entity in the hooked event.")
@@ -25,30 +29,39 @@ import org.jetbrains.annotations.Nullable;
 })
 @Events("Fishing")
 @Since("2.10")
-public class ExprFishingHookEntity extends SimpleExpression<Entity> {
+public class ExprFishingHookEntity extends SimpleExpression<Entity> implements SyntaxRuntimeErrorProducer {
 
-	static {
-		Skript.registerExpression(ExprFishingHookEntity.class, Entity.class, ExpressionType.EVENT,
-			"hook[ed] entity");
+	public static void register(SyntaxRegistry registry) {
+		registry.register(SyntaxRegistry.EXPRESSION, SyntaxInfo.Expression
+			.builder(ExprFishingHookEntity.class, Entity.class)
+			.priority(EventValueExpression.DEFAULT_PRIORITY)
+			.addPattern("hook[ed] entity")
+			.build()
+		);
 	}
 
+	private Node node;
+	private String expr;
+
 	@Override
-	public boolean init(Expression<?>[] expressions, int matchedPattern,
-						Kleenean isDelayed, ParseResult parseResult) {
+	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		if (!getParser().isCurrentEvent(PlayerFishEvent.class)) {
 			Skript.error("The 'hooked entity' expression can only be used in the fishing event.");
 			return false;
 		}
-
+		node = getParser().getNode();
+		expr = parseResult.expr;
 		return true;
 	}
 
 	@Override
 	protected Entity @Nullable [] get(Event event) {
-		if (!(event instanceof PlayerFishEvent fishEvent))
+		if (event instanceof PlayerFishEvent fishEvent) {
+			return new Entity[]{fishEvent.getHook().getHookedEntity()};
+		} else {
+			error("The 'hooked entity' expression can only be used in a fishing event.", expr);
 			return null;
-
-		return new Entity[] {fishEvent.getHook().getHookedEntity()};
+		}
 	}
 
 	@Override
@@ -61,8 +74,10 @@ public class ExprFishingHookEntity extends SimpleExpression<Entity> {
 
 	@Override
 	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
-		if (!(event instanceof PlayerFishEvent fishEvent))
+		if (!(event instanceof PlayerFishEvent fishEvent)) {
+			error("The 'hooked entity' expression can only be used in a fishing event.", expr);
 			return;
+		}
 
 		FishHook hook = fishEvent.getHook();
 
@@ -84,6 +99,11 @@ public class ExprFishingHookEntity extends SimpleExpression<Entity> {
 	@Override
 	public Class<? extends Entity> getReturnType() {
 		return Entity.class;
+	}
+
+	@Override
+	public Node getNode() {
+		return node;
 	}
 
 	@Override

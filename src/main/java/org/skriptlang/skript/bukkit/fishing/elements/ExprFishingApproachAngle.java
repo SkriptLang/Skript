@@ -2,9 +2,10 @@ package org.skriptlang.skript.bukkit.fishing.elements;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer.ChangeMode;
+import ch.njol.skript.config.Node;
 import ch.njol.skript.doc.*;
+import ch.njol.skript.expressions.base.EventValueExpression;
 import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
@@ -12,6 +13,9 @@ import org.bukkit.entity.FishHook;
 import org.bukkit.event.Event;
 import org.bukkit.event.player.PlayerFishEvent;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.log.runtime.SyntaxRuntimeErrorProducer;
+import org.skriptlang.skript.registration.SyntaxInfo;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Fishing Approach Angle")
 @Description({
@@ -26,39 +30,47 @@ import org.jetbrains.annotations.Nullable;
 })
 @Events("Fishing")
 @Since("2.10")
-public class ExprFishingApproachAngle extends SimpleExpression<Float> {
+public class ExprFishingApproachAngle extends SimpleExpression<Float> implements SyntaxRuntimeErrorProducer {
 
 	private static final float DEFAULT_MINIMUM_DEGREES = 0;
 	private static final float DEFAULT_MAXIMUM_DEGREES = 360;
 
-	static {
-		Skript.registerExpression(ExprFishingApproachAngle.class, Float.class, ExpressionType.EVENT,
-			"(min:min[imum]|max[imum]) fish[ing] approach[ing] angle");
+	public static void register(SyntaxRegistry registry) {
+		registry.register(SyntaxRegistry.EXPRESSION, SyntaxInfo.Expression
+			.builder(ExprFishingApproachAngle.class, Float.class)
+			.addPattern("(min:min[imum]|max[imum]) fish[ing] approach[ing] angle")
+			.priority(EventValueExpression.DEFAULT_PRIORITY)
+			.build()
+		);
 	}
 
+	private Node node;
+	private String expr;
 	private boolean isMin;
 
 	@Override
-	public boolean init(Expression<?>[] expressions, int matchedPattern,
-						Kleenean isDelayed, ParseResult parseResult) {
+	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		if (!getParser().isCurrentEvent(PlayerFishEvent.class)) {
 			Skript.error("The 'fishing approach angle' expression can only be used in a fishing event.");
 			return false;
 		}
-
+		node = getParser().getNode();
+		expr = parseResult.expr;
 		isMin = parseResult.hasTag("min");
 		return true;
 	}
 
 	@Override
 	protected Float @Nullable [] get(Event event) {
-		if (!(event instanceof PlayerFishEvent fishEvent))
-			return null;
-
-		if (isMin) {
-			return new Float[]{fishEvent.getHook().getMinLureAngle()};
+		if (event instanceof PlayerFishEvent fishEvent) {
+			if (isMin) {
+				return new Float[]{fishEvent.getHook().getMinLureAngle()};
+			} else {
+				return new Float[]{fishEvent.getHook().getMaxLureAngle()};
+			}
 		} else {
-			return new Float[]{fishEvent.getHook().getMaxLureAngle()};
+			error("The 'fishing approach angle' expression can only be used in a fishing event.", expr);
+			return null;
 		}
 	}
 
@@ -72,8 +84,10 @@ public class ExprFishingApproachAngle extends SimpleExpression<Float> {
 
 	@Override
 	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
-		if (!(event instanceof PlayerFishEvent fishEvent))
+		if (!(event instanceof PlayerFishEvent fishEvent)) {
+			error("The 'fishing approach angle' expression can only be used in a fishing event.", expr);
 			return;
+		}
 
 		FishHook hook = fishEvent.getHook();
 
@@ -121,8 +135,12 @@ public class ExprFishingApproachAngle extends SimpleExpression<Float> {
 	}
 
 	@Override
+	public Node getNode() {
+		return node;
+	}
+
+	@Override
 	public String toString(@Nullable Event event, boolean debug) {
 		return (isMin ? "minimum" : "maximum") + " fishing approach angle";
 	}
-
 }

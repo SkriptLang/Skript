@@ -1,6 +1,5 @@
 package org.skriptlang.skript.bukkit.tags.elements;
 
-import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
@@ -10,7 +9,6 @@ import ch.njol.skript.doc.RequiredPlugins;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.PropertyExpression;
 import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
 import org.bukkit.Keyed;
@@ -21,6 +19,8 @@ import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.tags.TagModule;
 import org.skriptlang.skript.bukkit.tags.TagType;
 import org.skriptlang.skript.bukkit.tags.sources.TagOrigin;
+import org.skriptlang.skript.registration.SyntaxInfo;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -48,10 +48,16 @@ import java.util.concurrent.ThreadLocalRandom;
 @Keywords({"blocks", "minecraft tag", "type", "category"})
 public class ExprTagsOf extends PropertyExpression<Object, Tag> {
 
-	static {
-		Skript.registerExpression(ExprTagsOf.class, Tag.class, ExpressionType.PROPERTY,
+	public static void register(SyntaxRegistry registry) {
+		registry.register(SyntaxRegistry.EXPRESSION, SyntaxInfo.Expression
+			.builder(ExprTagsOf.class, Tag.class)
+			.priority(DEFAULT_PRIORITY)
+			.addPatterns(
 				"[all [[of] the]|the] " + TagOrigin.getFullPattern() + " " + TagType.getFullPattern() + " tags of %itemtype/entity/entitydata%",
-				"%itemtype/entity/entitydata%'[s] " + TagOrigin.getFullPattern() + " " + TagType.getFullPattern() + " tags");
+				"%itemtype/entity/entitydata%'[s] " + TagOrigin.getFullPattern() + " " + TagType.getFullPattern() + " tags"
+			)
+			.build()
+		);
 	}
 
 	TagType<?>[] types;
@@ -123,7 +129,7 @@ public class ExprTagsOf extends PropertyExpression<Object, Tag> {
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
 		String registry = types.length > 1 ? "" : " " + types[0].toString();
-		return  origin.toString(datapackOnly) + registry + " tags of " + getExpr().toString(event, debug);
+		return origin.toString(datapackOnly) + registry + " tags of " + getExpr().toString(event, debug);
 	}
 
 }

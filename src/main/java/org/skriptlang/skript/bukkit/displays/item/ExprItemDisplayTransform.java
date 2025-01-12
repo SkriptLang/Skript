@@ -12,6 +12,7 @@ import org.bukkit.entity.ItemDisplay;
 import org.bukkit.entity.ItemDisplay.ItemDisplayTransform;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Item Display Transform")
 @Description("Returns or changes the <a href='classes.html#itemdisplaytransform'>item display transform</a> of <a href='classes.html#display'>item displays</a>.")
@@ -22,8 +23,8 @@ import org.jetbrains.annotations.Nullable;
 @Since("2.10")
 public class ExprItemDisplayTransform extends SimplePropertyExpression<Display, ItemDisplayTransform> {
 
-	static {
-		registerDefault(ExprItemDisplayTransform.class, ItemDisplayTransform.class, "item [display] transform", "displays");
+	public static void register(SyntaxRegistry registry) {
+		registerDefault(registry, ExprItemDisplayTransform.class, ItemDisplayTransform.class, "item [display] transform", "displays");
 	}
 
 	@Override

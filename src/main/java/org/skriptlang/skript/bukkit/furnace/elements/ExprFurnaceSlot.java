@@ -1,14 +1,15 @@
 package org.skriptlang.skript.bukkit.furnace.elements;
 
 import ch.njol.skript.Skript;
+import ch.njol.skript.config.Node;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Events;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.effects.Delay;
+import ch.njol.skript.expressions.base.PropertyExpression;
 import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.registrations.EventValues;
@@ -30,6 +31,9 @@ import org.bukkit.event.inventory.FurnaceStartSmeltEvent;
 import org.bukkit.inventory.FurnaceInventory;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.log.runtime.SyntaxRuntimeErrorProducer;
+import org.skriptlang.skript.registration.SyntaxInfo;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -48,7 +52,7 @@ import java.util.List;
 })
 @Events({"smelt", "fuel burn"})
 @Since("1.0, 2.8.0 (syntax rework)")
-public class ExprFurnaceSlot extends SimpleExpression<Slot> {
+public class ExprFurnaceSlot extends SimpleExpression<Slot> implements SyntaxRuntimeErrorProducer {
 
 	private enum FurnaceSlot {
 		INPUT("(ore|input)", "input"),
@@ -64,24 +68,32 @@ public class ExprFurnaceSlot extends SimpleExpression<Slot> {
 	}
 
 	private static final FurnaceSlot[] furnaceSlots = FurnaceSlot.values();
+	private static final String[] patterns = new String[furnaceSlots.length * 2];
 
 	static {
-		String[] patterns = new String[furnaceSlots.length * 2];
 		for (FurnaceSlot slot : furnaceSlots) {
 			patterns[2 * slot.ordinal()] = "[the] " + slot.pattern + " slot[s] [of %blocks%]";
 			patterns[2 * slot.ordinal() + 1] = "%blocks%'[s] " + slot.pattern + " slot[s]";
 		}
-		Skript.registerExpression(ExprFurnaceSlot.class, Slot.class, ExpressionType.PROPERTY, patterns);
 	}
 
+	public static void register(SyntaxRegistry registry) {
+		registry.register(SyntaxRegistry.EXPRESSION, SyntaxInfo.Expression
+			.builder(ExprFurnaceSlot.class, Slot.class)
+			.priority(PropertyExpression.DEFAULT_PRIORITY)
+			.addPatterns(patterns)
+			.build()
+		);
+	}
 
+	private Node node;
 	private @Nullable Expression<Block> blocks;
 	private FurnaceSlot selectedSlot;
 	private boolean isEvent;
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		selectedSlot = furnaceSlots[(int) Math2.floor(matchedPattern / 2)];
+		selectedSlot = furnaceSlots[(int) Math2.floor((double) matchedPattern / 2)];
 		if (exprs[0] != null) {
 			//noinspection unchecked
 			blocks = (Expression<Block>) exprs[0];
@@ -92,6 +104,7 @@ public class ExprFurnaceSlot extends SimpleExpression<Slot> {
 			}
 			isEvent = true;
 		}
+		node = getParser().getNode();
 		return true;
 	}
 
@@ -113,9 +126,11 @@ public class ExprFurnaceSlot extends SimpleExpression<Slot> {
 		List<Slot> slots = new ArrayList<>();
 		for (Block block : blocks) {
 			BlockState state = block.getState();
-			if (!(state instanceof Furnace))
+			if (!(state instanceof Furnace furnace)) {
+				warning("A block passed through wasn't a furnace, and was thus unaffected.");
 				continue;
-			FurnaceInventory furnaceInventory = ((Furnace) state).getInventory();
+			}
+			FurnaceInventory furnaceInventory = furnace.getInventory();
 			if (isEvent && !Delay.isDelayed(event)) {
 				slots.add(new FurnaceEventSlot(event, furnaceInventory));
 			} else {
@@ -139,7 +154,13 @@ public class ExprFurnaceSlot extends SimpleExpression<Slot> {
 	}
 
 	@Override
+	public Node getNode() {
+		return node;
+	}
+
+	@Override
 	public String toString(@Nullable Event event, boolean debug) {
+		//noinspection DataFlowIssue
 		return selectedSlot.toString + " slot of " + (isEvent ? event.getEventName() : blocks.toString(event, debug));
 	}
 

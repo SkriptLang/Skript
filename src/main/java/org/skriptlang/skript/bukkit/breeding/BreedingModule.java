@@ -8,13 +8,28 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.entity.EntityBreedEvent;
 import org.bukkit.event.entity.EntityEnterLoveModeEvent;
 import org.bukkit.inventory.ItemStack;
+import org.skriptlang.skript.addon.AddonModule;
+import org.skriptlang.skript.addon.SkriptAddon;
+import org.skriptlang.skript.bukkit.breeding.elements.*;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
-import java.io.IOException;
+public class BreedingModule implements AddonModule {
 
-public class BreedingModule {
+	@Override
+	public void load(SkriptAddon addon) {
+		SyntaxRegistry registry = addon.syntaxRegistry();
 
-	public static void load() throws IOException {
-		Skript.getAddonInstance().loadClasses("org.skriptlang.skript.bukkit.breeding", "elements");
+		CondCanAge.register(registry);
+		CondCanBreed.register(registry);
+		CondIsAdult.register(registry);
+		CondIsBaby.register(registry);
+		CondIsInLove.register(registry);
+		EffAllowAging.register(registry);
+		EffBreedable.register(registry);
+		EffMakeAdultOrBaby.register(registry);
+		EvtBreed.register(registry);
+		ExprBreedingFamily.register(registry);
+		ExprLoveTime.register(registry);
 
 		Skript.registerEvent("Love Mode Enter", SimpleEvent.class, EntityEnterLoveModeEvent.class,
 				"[entity] enter[s] love mode", "[entity] love mode [enter]")

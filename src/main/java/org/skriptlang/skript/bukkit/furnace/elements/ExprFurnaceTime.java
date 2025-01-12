@@ -2,11 +2,11 @@ package org.skriptlang.skript.bukkit.furnace.elements;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer.ChangeMode;
+import ch.njol.skript.config.Node;
 import ch.njol.skript.doc.*;
 import ch.njol.skript.expressions.base.EventValueExpression;
 import ch.njol.skript.expressions.base.PropertyExpression;
 import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.util.Timespan;
 import ch.njol.util.Kleenean;
@@ -21,6 +21,9 @@ import org.bukkit.event.inventory.FurnaceSmeltEvent;
 import org.bukkit.event.inventory.FurnaceStartSmeltEvent;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.log.runtime.SyntaxRuntimeErrorProducer;
+import org.skriptlang.skript.registration.SyntaxInfo;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -44,7 +47,7 @@ import java.util.function.Supplier;
 			"\t\tadd 5 seconds to the fuel burn time"
 })
 @Since("2.10")
-public class ExprFurnaceTime extends PropertyExpression<Block, Timespan> {
+public class ExprFurnaceTime extends PropertyExpression<Block, Timespan> implements SyntaxRuntimeErrorProducer {
 
 	enum FurnaceExpressions {
 		COOKTIME("cook[ing] time", "cook time"),
@@ -61,25 +64,32 @@ public class ExprFurnaceTime extends PropertyExpression<Block, Timespan> {
 	}
 
 	private static final FurnaceExpressions[] furnaceExprs = FurnaceExpressions.values();
+	private static final String[] patterns = new String[furnaceExprs.length * 2];
 	
 	static {
-
-		int size = furnaceExprs.length;
-		String[] patterns = new String[size * 2];
 		for (FurnaceExpressions value : furnaceExprs) {
 			patterns[2 * value.ordinal()] = "[the] [furnace] " + value.pattern + " [of %blocks%]";
 			patterns[2 * value.ordinal() + 1] = "%blocks%'[s]" + value.pattern;
 		}
-
-		Skript.registerExpression(ExprFurnaceTime.class, Timespan.class, ExpressionType.PROPERTY, patterns);
 	}
 
+	public static void register(SyntaxRegistry registry) {
+		registry.register(SyntaxRegistry.EXPRESSION, SyntaxInfo.Expression
+			.builder(ExprFurnaceTime.class, Timespan.class)
+			.priority(PropertyExpression.DEFAULT_PRIORITY)
+			.addPatterns(patterns)
+			.build()
+		);
+	}
+
+	private Node node;
 	private FurnaceExpressions type;
 	private boolean explicitlyBlock = false;
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		type = furnaceExprs[matchedPattern / 2];
+		node = getParser().getNode();
 		if (exprs[0] != null) {
 			explicitlyBlock = true;
 			//noinspection unchecked
@@ -98,8 +108,16 @@ public class ExprFurnaceTime extends PropertyExpression<Block, Timespan> {
 	@Override
 	protected Timespan @Nullable [] get(Event event, Block[] source) {
 		return get(source, block -> {
-			if (block == null || !(block.getState() instanceof Furnace furnace))
+			if (block == null) {
+				error("A block passed through was not set.", getExpr().toString());
 				return null;
+			}
+
+			if (!(block.getState() instanceof Furnace furnace)){
+				error("A block passed through wasn't a furnace.", getExpr().toString());
+				return null;
+			}
+
 			switch (type) {
 				case COOKTIME -> {
 					return new Timespan(Timespan.TimePeriod.TICK, (int) furnace.getCookTime());
@@ -127,7 +145,6 @@ public class ExprFurnaceTime extends PropertyExpression<Block, Timespan> {
 	public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
 		if (mode == ChangeMode.REMOVE_ALL || mode == ChangeMode.RESET)
 			return null;
-
 		return CollectionUtils.array(Timespan.class);
 	}
 
@@ -197,6 +214,11 @@ public class ExprFurnaceTime extends PropertyExpression<Block, Timespan> {
 	@Override
 	public Class<Timespan> getReturnType() {
 		return Timespan.class;
+	}
+
+	@Override
+	public Node getNode() {
+		return node;
 	}
 
 	@Override

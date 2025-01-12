@@ -13,6 +13,7 @@ import org.bukkit.event.Event;
 import org.bukkit.loot.LootContext;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.loottables.LootContextCreateEvent;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 @Name("Loot Location of Loot Context")
 @Description("Returns the loot location of a loot context.")
@@ -26,8 +27,8 @@ import org.skriptlang.skript.bukkit.loottables.LootContextCreateEvent;
 @Since("2.10")
 public class ExprLootContextLocation extends SimplePropertyExpression<LootContext, Location> {
 
-	static {
-		registerDefault(ExprLootContextLocation.class, Location.class, "loot[ing] [context] location", "lootcontexts");
+	public static void register(SyntaxRegistry registry) {
+		registerDefault(registry, ExprLootContextLocation.class, Location.class, "loot[ing] [context] location", "lootcontexts");
 	}
 
 	@Override
@@ -49,8 +50,10 @@ public class ExprLootContextLocation extends SimplePropertyExpression<LootContex
 
 	@Override
 	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
-		if (!(event instanceof LootContextCreateEvent createEvent))
+		if (!(event instanceof LootContextCreateEvent createEvent)) {
+			error("The loot context location cannot be set outside of a LootContextCreateEvent.");
 			return;
+		}
 
 		assert delta != null;
 		createEvent.getContextWrapper().setLocation((Location) delta[0]);

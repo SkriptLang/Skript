@@ -1,6 +1,5 @@
 package org.skriptlang.skript.bukkit.loottables;
 
-import ch.njol.skript.Skript;
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.classes.Parser;
 import ch.njol.skript.expressions.base.EventValueExpression;
@@ -16,14 +15,21 @@ import org.bukkit.event.world.LootGenerateEvent;
 import org.bukkit.loot.LootContext;
 import org.bukkit.loot.LootTable;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.addon.AddonModule;
+import org.skriptlang.skript.addon.SkriptAddon;
+import org.skriptlang.skript.bukkit.loottables.elements.conditions.CondHasLootTable;
+import org.skriptlang.skript.bukkit.loottables.elements.conditions.CondIsLootable;
+import org.skriptlang.skript.bukkit.loottables.elements.effects.EffGenerateLoot;
+import org.skriptlang.skript.bukkit.loottables.elements.expressions.*;
+import org.skriptlang.skript.bukkit.registration.BukkitRegistryKeys;
+import org.skriptlang.skript.bukkit.registration.BukkitSyntaxInfos;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
-import java.io.IOException;
+public class LootTableModule implements AddonModule {
 
-public class LootTableModule {
-
-	public static void load() throws IOException {
-
-		// --- CLASSES --- //
+	@Override
+	public void init(SkriptAddon addon) {
+		SyntaxRegistry registry = addon.syntaxRegistry();
 
 		Classes.registerClass(new ClassInfo<>(LootTable.class, "loottable")
 			.user("loot ?tables?")
@@ -97,31 +103,49 @@ public class LootTableModule {
 			})
 		);
 
-		Skript.getAddonInstance().loadClasses("org.skriptlang.skript.bukkit.loottables", "elements");
-
-		// --- SIMPLE EVENTS --- //
-
-		Skript.registerEvent("Loot Generate", SimpleEvent.class, LootGenerateEvent.class, "loot generat(e|ing)")
-			.description(
+		registry.register(BukkitRegistryKeys.EVENT, BukkitSyntaxInfos.Event
+			.builder(SimpleEvent.class, "Loot Generate")
+			.addEvent(LootGenerateEvent.class)
+			.addPattern("loot generat(e|ing)")
+			.addDescription(
 				"Called when a loot table of an inventory is generated in the world.",
 				"For example, when opening a shipwreck chest."
 			)
-			.examples(
+			.addExamples(
 				"on loot generate:",
-					"\tchance of 10%",
-					"\tadd 64 diamonds to the loot",
-					"\tsend \"You hit the jackpot at %event-location%!\""
+				"\tchance of 10%",
+				"\tadd 64 diamonds to the loot",
+				"\tsend \"You hit the jackpot at %event-location%!\""
 			)
+			.addRequiredPlugin("Minecraft 1.16+")
 			.since("2.7")
-			.requiredPlugins("MC 1.16+");
+			.build()
+		);
 
-		// --- EVENT VALUES --- //
-
-		// LootGenerateEvent
 		EventValues.registerEventValue(LootGenerateEvent.class, Entity.class, LootGenerateEvent::getEntity);
 		EventValues.registerEventValue(LootGenerateEvent.class, Location.class, event -> event.getLootContext().getLocation());
 		EventValues.registerEventValue(LootGenerateEvent.class, LootTable.class, LootGenerateEvent::getLootTable);
 		EventValues.registerEventValue(LootGenerateEvent.class, LootContext.class, LootGenerateEvent::getLootContext);
+	}
+
+	@Override
+	public void load(SkriptAddon addon) {
+		SyntaxRegistry registry = addon.syntaxRegistry();
+
+		CondHasLootTable.register(registry);
+		CondIsLootable.register(registry);
+		EffGenerateLoot.register(registry);
+		ExprLoot.register(registry);
+		ExprLootContext.register(registry);
+		ExprLootContextEntity.register(registry);
+		ExprLootContextLocation.register(registry);
+		ExprLootContextLooter.register(registry);
+		ExprLootContextLuck.register(registry);
+		ExprLootItems.register(registry);
+		ExprLootTable.register(registry);
+		ExprLootTableFromString.register(registry);
+		ExprLootTableSeed.register(registry);
+		ExprSecCreateLootContext.register(registry);
 	}
 
 }

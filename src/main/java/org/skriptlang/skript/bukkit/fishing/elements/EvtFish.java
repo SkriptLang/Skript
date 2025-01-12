@@ -1,6 +1,6 @@
 package org.skriptlang.skript.bukkit.fishing.elements;
 
-import ch.njol.skript.Skript;
+import ch.njol.skript.config.Node;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptEvent;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
@@ -10,11 +10,15 @@ import org.bukkit.event.Event;
 import org.bukkit.event.player.PlayerFishEvent;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.bukkit.registration.BukkitRegistryKeys;
+import org.skriptlang.skript.bukkit.registration.BukkitSyntaxInfos;
+import org.skriptlang.skript.log.runtime.SyntaxRuntimeErrorProducer;
+import org.skriptlang.skript.registration.SyntaxRegistry;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class EvtFish extends SkriptEvent {
+public class EvtFish extends SkriptEvent implements SyntaxRuntimeErrorProducer {
 
 	private enum State {
 
@@ -46,48 +50,65 @@ public class EvtFish extends SkriptEvent {
 		}
 	}
 
+	private static final List<String> patterns = new ArrayList<>();
+
 	static {
-		List<String> patterns = new ArrayList<>();
 		for (State state : State.values()) {
 			if (state.state == null)
 				continue;
-
 			patterns.add(state.pattern);
 		}
+	}
 
-		Skript.registerEvent("Fishing", EvtFish.class, PlayerFishEvent.class, patterns.toArray(new String[0]))
-			.description(
+	public static void register(SyntaxRegistry registry) {
+		registry.register(BukkitRegistryKeys.EVENT, BukkitSyntaxInfos.Event
+			.builder(EvtFish.class, "Fishing")
+			.addEvent(PlayerFishEvent.class)
+			.addPatterns(patterns)
+			.addDescription(
 				"Called when a player triggers a fishing event.",
 				"An entity hooked event is triggered when an entity gets caught by a fishing rod.",
 				"A fish escape event is called when the player fails to click on time, and the fish escapes.",
 				"A fish approaching event is when the bobber is waiting to be hooked, and a fish is approaching."
 			)
-			.examples(
+			.addExamples(
 				"on fishing line cast:",
 					"\tsend \"You caught a fish!\" to player",
+				"",
 				"on fishing state of caught entity:",
 					"\tpush event-entity vector from entity to player"
 			)
-			.requiredPlugins("Paper (bobber lured)")
-			.since("2.10");
+			.addRequiredPlugin("Paper (bobber lured)")
+			.since("2.10")
+			.build()
+		);
 
 		EventValues.registerEventValue(PlayerFishEvent.class, Entity.class, PlayerFishEvent::getCaught);
 	}
 
+	private Node node;
 	private State state;
 
 	@Override
 	public boolean init(Literal<?>[] args, int matchedPattern, ParseResult parseResult) {
+		node = getParser().getNode();
 		state = State.values()[matchedPattern];
 		return true;
 	}
 
 	@Override
 	public boolean check(Event event) {
-		if (!(event instanceof PlayerFishEvent fishEvent))
+		if (!(event instanceof PlayerFishEvent fishEvent)) {
+			error("The 'fishing' event does not apply outside of a PlayerFishEvent.");
 			return false;
+		}
 
 		return state.state == fishEvent.getState();
+	}
+
+	@Override
+	public Node getNode() {
+		return node;
 	}
 
 	@Override
