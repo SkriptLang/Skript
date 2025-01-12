@@ -69,8 +69,6 @@ public class SectionNode extends Node implements Iterable<Node> {
 		n.parent = this;
 		n.config = config;
 		getNodeMap().put(n);
-
-		System.out.println("Added node: " + nodes);
 	}
 
 	/**
