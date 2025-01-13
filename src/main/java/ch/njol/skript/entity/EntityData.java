@@ -37,7 +37,7 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 @SuppressWarnings("rawtypes")
-public abstract class EntityData<E extends Entity> implements SyntaxElement, YggdrasilExtendedSerializable {// TODO extended horse support, zombie villagers // REMIND unit
+public abstract class EntityData<E extends Entity> implements SyntaxElement, YggdrasilExtendedSerializable, Keyed {// TODO extended horse support, zombie villagers // REMIND unit
 
 	/*
 	 * In 1.20.2 Spigot deprecated org.bukkit.util.Consumer.
@@ -691,6 +691,11 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 		if (world == null)
 			return null;
 		return world.createEntity(location, type);
+	}
+
+	@Override
+	public @NotNull NamespacedKey getKey() {
+		return EntityUtils.toBukkitEntityType(this).getKey();
 	}
 
 }

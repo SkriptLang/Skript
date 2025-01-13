@@ -1,0 +1,17 @@
+test "namespaced keys":
+	assert namespaced key of a sheep = "minecraft:sheep" with "The key of the entity type should be 'minecraft:sheep'"
+	assert namespaced key of sharpness = "minecraft:sharpness" with "The key of the enchantment should be 'minecraft:sharpness'"
+	assert namespaced key of a diamond sword = "minecraft:diamond_sword" with "The key of the item should be 'minecraft:diamond_sword'"
+	assert namespaced key of nether wastes = "minecraft:nether_wastes" with "The key of the biome should be 'minecraft:nether_wastes'"
+	assert namespaced key of night vision = "minecraft:night_vision" with "The key of the potion effect type should be 'minecraft:night_vision'"
+	assert namespaced key of world "world" = "minecraft:overworld" with "The key of the world should be 'minecraft:overworld'"
+
+	set {_loc} to location(1,1,1)
+	assert namespaced key of {_loc} is not set with "The location shouldn't have a key"
+
+	spawn a sheep at event-location:
+		set {_e} to entity
+	assert namespaced key of type of {_e} = "minecraft:sheep" with "Sir Sheep should have the key 'minecraft:sheep'"
+
+	# Thank you for your service
+	delete entity within {_e}

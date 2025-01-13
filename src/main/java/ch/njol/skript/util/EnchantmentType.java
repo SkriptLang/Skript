@@ -6,7 +6,10 @@ import ch.njol.skript.classes.Parser;
 import ch.njol.skript.lang.ParseContext;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.yggdrasil.YggdrasilSerializable;
+import org.bukkit.Keyed;
+import org.bukkit.NamespacedKey;
 import org.bukkit.enchantments.Enchantment;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.regex.Pattern;
@@ -14,7 +17,7 @@ import java.util.regex.Pattern;
 /**
  * @author Peter Güttinger
  */
-public class EnchantmentType implements YggdrasilSerializable {
+public class EnchantmentType implements YggdrasilSerializable, Keyed {
 
 	private static @Nullable Parser<Enchantment> ENCHANTMENT_PARSER = null;
 	private final Enchantment type;
@@ -143,4 +146,12 @@ public class EnchantmentType implements YggdrasilSerializable {
 		return ENCHANTMENT_PARSER;
 	}
 
+	@Override
+	public @NotNull NamespacedKey getKey() {
+		if (type != null)
+			return type.getKey();
+		// We have to return SOMETHING, but this should never happen
+		//noinspection DataFlowIssue
+		return NamespacedKey.fromString("skript:none");
+	}
 }

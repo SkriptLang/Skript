@@ -23,6 +23,7 @@ import ch.njol.skript.util.PotionEffectUtils;
 import ch.njol.skript.util.StringMode;
 import ch.njol.util.StringUtils;
 import ch.njol.yggdrasil.Fields;
+import com.google.common.base.Joiner;
 import io.papermc.paper.world.MoonPhase;
 import org.bukkit.*;
 import org.bukkit.World.Environment;
@@ -1536,6 +1537,15 @@ public class BukkitClasses {
 					.description("Teleport Flags are settings to retain during a teleport.")
 					.requiredPlugins("Paper 1.19+")
 					.since("2.10"));
+
+		ClassInfo<Keyed> keyedClassInfo = new ClassInfo<>(Keyed.class, "keyed")
+			.user("keyeds?")
+			.name("Keyed")
+			.description("Represents objects in Minecraft that have a NamespacedKey.",
+				"The patterns above represent the Skript types that are keyed.")
+			.since("INSERT VERSION");
+		BukkitUtils.generateUsageForKeyedClassInfo(keyedClassInfo);
+		Classes.registerClass(keyedClassInfo);
 	}
 
 }

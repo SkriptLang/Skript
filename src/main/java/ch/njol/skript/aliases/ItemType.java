@@ -21,8 +21,10 @@ import ch.njol.yggdrasil.FieldHandler;
 import ch.njol.yggdrasil.Fields;
 import ch.njol.yggdrasil.Fields.FieldContext;
 import ch.njol.yggdrasil.YggdrasilSerializable.YggdrasilExtendedSerializable;
+import org.bukkit.Keyed;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.Tag;
 import org.bukkit.Bukkit;
@@ -60,7 +62,7 @@ import java.util.stream.Collectors;
 
 @ContainerType(ItemStack.class)
 public class ItemType implements Unit, Iterable<ItemData>, Container<ItemStack>, YggdrasilExtendedSerializable,
-	AnyNamed, AnyAmount {
+	AnyNamed, AnyAmount, Keyed {
 
 	static {
 		// This handles updating ItemType and ItemData variable records
@@ -1491,6 +1493,11 @@ public class ItemType implements Unit, Iterable<ItemData>, Container<ItemStack>,
 	@Override
 	public void setAmount(@Nullable Number amount) throws UnsupportedOperationException {
 		this.setAmount(amount != null ? amount.intValue() : 0);
+	}
+
+	@Override
+	public @NotNull NamespacedKey getKey() {
+		return getMaterial().getKey();
 	}
 
 }
