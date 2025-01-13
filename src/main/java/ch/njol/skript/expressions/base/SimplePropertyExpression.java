@@ -19,7 +19,7 @@ import org.skriptlang.skript.lang.converter.Converter;
 public abstract class SimplePropertyExpression<F, T> extends PropertyExpression<F, T> implements Converter<F, T>, SyntaxRuntimeErrorProducer {
 
 	private Node node;
-	private String rawExpr;
+	protected String rawExpr;
   
 	@Override
 	@SuppressWarnings("unchecked")
@@ -46,11 +46,6 @@ public abstract class SimplePropertyExpression<F, T> extends PropertyExpression<
 	@Override
 	public Node getNode() {
 		return node;
-	}
-
-	@Override
-	public String toHighlight() {
-		return rawExpr;
 	}
 
 	/**

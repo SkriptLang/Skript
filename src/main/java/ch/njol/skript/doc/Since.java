@@ -15,5 +15,5 @@ import java.lang.annotation.Target;
 @Documented
 public @interface Since {
 	
-	public String value();
+	public String[] value();
 }

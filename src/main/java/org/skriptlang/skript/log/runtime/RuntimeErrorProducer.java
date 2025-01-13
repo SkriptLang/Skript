@@ -1,13 +1,8 @@
 package org.skriptlang.skript.log.runtime;
 
 import ch.njol.skript.Skript;
-import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.SkriptParser;
-import ch.njol.skript.lang.SyntaxElement;
-import ch.njol.util.Kleenean;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.logging.Level;
 
@@ -26,22 +21,6 @@ public interface RuntimeErrorProducer {
 	@NotNull ErrorSource getErrorSource();
 
 	/**
-	 * Gets the text that should be underlined within the line contents. This should match the text the user wrote that
-	 * was parsed as the syntax that threw the runtime issue. For example, if the skull expression in
-	 * {@code give skull of player to all players} throws a runtime error, this method should return
-	 * {@code "skull of player"}
-	 * <br>
-	 * An example implementation for {@link Expression}s is to store {@link SkriptParser.ParseResult#expr} during
-	 * {@link SyntaxElement#init(Expression[], int, Kleenean, SkriptParser.ParseResult)} and return that.
-	 * <br>
-	 * For other syntax types, this may vary. Effects, for example, may underline the whole line.
-	 *
-	 * @return The text to underline in the line that produced a runtime error. This may be null if no highlighting
-	 * 			is desired or possible.
-	 */
-	@Nullable String toHighlight();
-
-	/**
 	 * Dispatches a runtime error with the given text.
 	 * Metadata will be provided along with the message, including line number, the docs name of the producer,
 	 * and the line content.
@@ -52,7 +31,23 @@ public interface RuntimeErrorProducer {
 	 */
 	default void error(String message) {
 		getRuntimeErrorManager().error(
-			new RuntimeError(Level.SEVERE, getErrorSource(), message, toHighlight())
+			new RuntimeError(Level.SEVERE, getErrorSource(), message, null)
+		);
+	}
+
+	/**
+	 * Dispatches a runtime error with the given text and syntax highlighting.
+	 * Metadata will be provided along with the message, including line number, the docs name of the producer,
+	 * and the line content.
+	 * <br>
+	 * Implementations should ensure they call super() to print the error.
+	 *
+	 * @param message The text to display as the error message.
+	 * @param highlight The text to highlight in the parsed syntax.
+	 */
+	default void error(String message, String highlight) {
+		getRuntimeErrorManager().error(
+			new RuntimeError(Level.SEVERE, getErrorSource(), message, highlight)
 		);
 	}
 
@@ -67,7 +62,23 @@ public interface RuntimeErrorProducer {
 	 */
 	default void warning(String message) {
 		getRuntimeErrorManager().error(
-			new RuntimeError(Level.WARNING, getErrorSource(), message, toHighlight())
+			new RuntimeError(Level.WARNING, getErrorSource(), message, null)
+		);
+	}
+
+	/**
+	 * Dispatches a runtime warning with the given text and syntax highlighting.
+	 * Metadata will be provided along with the message, including line number, the docs name of the producer,
+	 * and the line content.
+	 * <br>
+	 * Implementations should ensure they call super() to print the warning.
+	 *
+	 * @param message The text to display as the error message.
+	 * @param highlight The text to highlight in the parsed syntax.
+	 */
+	default void warning(String message, String highlight) {
+		getRuntimeErrorManager().error(
+			new RuntimeError(Level.WARNING, getErrorSource(), message, highlight)
 		);
 	}
 
