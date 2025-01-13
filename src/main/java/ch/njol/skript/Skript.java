@@ -813,9 +813,14 @@ public final class Skript extends JavaPlugin implements Listener {
 			TestingLogHandler errorCounter = new TestingLogHandler(Level.SEVERE);
 			try {
 				errorCounter.start();
-				File testDir = TestMode.TEST_DIR.toFile();
-				assert testDir != null;
-				ScriptLoader.loadScripts(testDir, errorCounter);
+
+				// load example scripts (cleanup after)
+				ScriptLoader.unloadScripts(ScriptLoader.getLoadedScripts());
+				ScriptLoader.loadScripts(new File(getScriptsFolder(), "-examples" + File.separator), errorCounter);
+				ScriptLoader.unloadScripts(ScriptLoader.getLoadedScripts());
+
+				// load test directory scripts
+				ScriptLoader.loadScripts(TestMode.TEST_DIR.toFile(), errorCounter);
 			} finally {
 				errorCounter.stop();
 			}
