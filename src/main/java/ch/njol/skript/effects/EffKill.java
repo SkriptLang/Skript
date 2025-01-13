@@ -20,8 +20,7 @@ import org.bukkit.event.entity.EntityDamageEvent;
 import org.jetbrains.annotations.Nullable;
 
 @Name("Kill")
-@Description({"Kills an entity.",
-		"Note: This effect does not set the entity's health to 0 (which causes issues), but damages the entity by 100 times its maximum health."})
+@Description("Kills an entity.")
 @Examples({"kill the player",
 		"kill all creepers in the player's world",
 		"kill all endermen, witches and bats"})
