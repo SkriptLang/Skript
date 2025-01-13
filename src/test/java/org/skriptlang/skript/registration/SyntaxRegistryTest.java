@@ -61,7 +61,8 @@ public class SyntaxRegistryTest {
 
 		registry.register(key(), info);
 		registry.register(key("OtherKey"), info);
-		assertArrayEquals(new SyntaxInfo[]{info, info}, registry.elements().toArray());
+		// should not contain duplicates
+		assertArrayEquals(new SyntaxInfo[]{info}, registry.elements().toArray());
 
 		registry.unregister(info);
 		assertThrows(UnsupportedOperationException.class, () -> unmodifiable.unregister(info));

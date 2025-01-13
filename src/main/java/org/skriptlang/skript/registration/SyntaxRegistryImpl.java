@@ -1,7 +1,7 @@
 package org.skriptlang.skript.registration;
 
 import com.google.common.base.MoreObjects;
-import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import org.jetbrains.annotations.Unmodifiable;
 
 import java.util.Collection;
@@ -50,7 +50,7 @@ final class SyntaxRegistryImpl implements SyntaxRegistry {
 
 	@Override
 	public Collection<SyntaxInfo<?>> elements() {
-		ImmutableList.Builder<SyntaxInfo<?>> builder = ImmutableList.builder();
+		ImmutableSet.Builder<SyntaxInfo<?>> builder = ImmutableSet.builder();
 		registers.values().forEach(register -> {
 			synchronized (register.syntaxes) {
 				builder.addAll(register.syntaxes);
