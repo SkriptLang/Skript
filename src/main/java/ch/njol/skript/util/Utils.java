@@ -874,10 +874,8 @@ public abstract class Utils {
 		try {
 			Class<?> callingClass = Class.forName(caller.getClassName());
 			JavaPlugin plugin = JavaPlugin.getProvidingPlugin(callingClass);
-			//noinspection UnstableApiUsage
-			name = plugin.getPluginMeta().getDisplayName();
-			//noinspection UnstableApiUsage
-			authors = String.valueOf(plugin.getPluginMeta().getAuthors());
+			name = plugin.getDescription().getFullName();
+			authors = String.valueOf(plugin.getDescription().getAuthors());
 		} catch (ClassNotFoundException | IllegalArgumentException | ClassCastException error) {
 			name = caller.getClassLoaderName();
 			authors = "(unknown)";
