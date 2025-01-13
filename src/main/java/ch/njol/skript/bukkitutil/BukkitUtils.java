@@ -64,7 +64,6 @@ public class BukkitUtils {
 				if (Keyed.class.isAssignableFrom(c) && c != Keyed.class && docName != null && !docName.isEmpty()) {
 					String line = String.format("<a href='#%s'>%s</a>", classInfo.getCodeName(), docName);
 					infos.add(line);
-					Skript.info("Keyed -" + classInfo);
 				}
 			}
 			Collections.sort(infos);
