@@ -69,4 +69,5 @@ public class EntryNode extends Node implements Entry<String, String> {
 	public int hashCode() {
 		return Arrays.hashCode(this.getPathSteps());
 	}
+
 }
