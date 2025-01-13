@@ -1,6 +1,8 @@
 package ch.njol.skript.config;
 
+import java.util.Arrays;
 import java.util.Map.Entry;
+import java.util.Objects;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -50,6 +52,22 @@ public class EntryNode extends Node implements Entry<String, String> {
 	@Override
 	public @Nullable Node get(String step) {
 		return null;
+	}
+
+	@Override
+	public boolean equals(Object object) {
+		if (!(object instanceof EntryNode other))
+			return false;
+
+		// ignores comment as changing the comment would create
+		// a new node which may change the value, leading to
+		// unexpected config changes for the user
+		return Arrays.equals(this.getPathSteps(), other.getPathSteps());
+	}
+
+	@Override
+	public int hashCode() {
+		return Arrays.hashCode(this.getPathSteps());
 	}
 
 }

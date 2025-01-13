@@ -12,6 +12,7 @@ a:
 # Comment a'
 i: false
 j: false # Comment j
+k: false # Comment k
 
 outdated value: true
 

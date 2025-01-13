@@ -16,7 +16,7 @@ public class NodeTest {
 	public void testGetPathSteps() {
 		Config newer = getConfig("new-config");
 
-		Node node = newer.get("a.b.c");
+		Node node = newer.getNodeAt("a", "b", "c");
 
 		assertNotNull(node);
 		assertArrayEquals(new String[] {"a", "b", "c"}, node.getPathSteps());
