@@ -46,11 +46,6 @@ public abstract class Converters {
 	}
 
 	@Deprecated(forRemoval = true)
-	public static void createMissingConverters() {
-		org.skriptlang.skript.lang.converter.Converters.createChainedConverters();
-	}
-
-	@Deprecated(forRemoval = true)
 	public static <F, T> T convert(@Nullable F o, Class<T> to) {
 		return org.skriptlang.skript.lang.converter.Converters.convert(o, to);
 	}
