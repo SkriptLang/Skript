@@ -24,27 +24,30 @@ public class ConfigTest {
 
 		for (Node node : newNodes) {
 			assertTrue("Node " + node + " was not updated", updatedNodes.contains(node));
-
-			if (node instanceof EntryNode entry) {
-				assertEquals(entry.getValue(), old.get(entry.getPathSteps()));
-			}
 		}
 
 		// keeps removed/user-added nodes
-		assertEquals("true", old.getValue("outdated value"));
+		assertEquals("true", old.get(new String[] {"outdated value"}));
 		assertEquals("true", old.get("a", "outdated value"));
 
 		// adds new nodes
-		assertEquals("h.c", old.getValue("true"));
-		assertEquals("k", old.getValue("true"));
+		assertEquals("true", old.get("h", "c"));
+		assertEquals("true", old.get(new String[] {"l"}));
 
 		// keeps values of nodes
-		assertEquals("false", old.getValue("j"));
+		assertEquals("false", old.get(new String[] {"j"}));
+		assertEquals("false", old.get(new String[] {"k"}));
 
 		// doesnt duplicate nested
 		SectionNode node = (SectionNode) old.get("h");
 		assertNotNull(node);
-		assertEquals(2, node.size());
+
+		int size = 0;
+		for (Node ignored : node) { // count non-void nodes
+			size++;
+		}
+
+		assertEquals(2, size);
 	}
 
 	private Config getConfig(String name) {

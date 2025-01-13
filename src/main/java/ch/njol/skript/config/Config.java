@@ -223,6 +223,9 @@ public class Config implements Comparable<Config>, Validated, NodeNavigator, Any
 			return false;
 
 		for (Node node : nodesToUpdate) {
+			if (get(node.getPathSteps()) != null)
+				continue;
+
 			Skript.debug("Updating node %s", node);
 			SectionNode newParent = node.getParent();
 			Preconditions.checkNotNull(newParent);
