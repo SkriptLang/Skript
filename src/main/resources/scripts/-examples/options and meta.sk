@@ -33,8 +33,8 @@ on join:
 #
 
 variables:
-    score::%player% = 100
-    some variable = "Hello"
+    {score::%player%} = 100
+    {some variable} = "Hello"
 
 command /variabletest:
     permission: skript.example.variables
