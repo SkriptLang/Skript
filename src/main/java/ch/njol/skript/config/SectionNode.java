@@ -80,6 +80,7 @@ public class SectionNode extends Node implements Iterable<Node> {
 	public void add(int index, @NotNull Node node) {
 		Preconditions.checkArgument(index >= 0 && index <= size(), "index out of bounds: %s", index);
 
+		node.remove();
 		nodes.add(index, node);
 		node.parent = this;
 		node.config = config;
