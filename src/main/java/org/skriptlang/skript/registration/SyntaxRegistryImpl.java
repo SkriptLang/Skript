@@ -1,7 +1,7 @@
 package org.skriptlang.skript.registration;
 
 import com.google.common.base.MoreObjects;
-import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.ImmutableList;
 import org.jetbrains.annotations.Unmodifiable;
 
 import java.util.Collection;
@@ -28,6 +28,14 @@ final class SyntaxRegistryImpl implements SyntaxRegistry {
 	}
 
 	@Override
+	@SuppressWarnings({"unchecked", "rawtypes"})
+	public void unregister(SyntaxInfo info) {
+		for (Key key : registers.keySet()) {
+			unregister(key, info);
+		}
+	}
+
+	@Override
 	public <I extends SyntaxInfo<?>> void unregister(Key<I> key, I info) {
 		register(key).remove(info);
 		if (key instanceof ChildKey) {
@@ -42,7 +50,7 @@ final class SyntaxRegistryImpl implements SyntaxRegistry {
 
 	@Override
 	public Collection<SyntaxInfo<?>> elements() {
-		ImmutableSet.Builder<SyntaxInfo<?>> builder = ImmutableSet.builder();
+		ImmutableList.Builder<SyntaxInfo<?>> builder = ImmutableList.builder();
 		registers.values().forEach(register -> {
 			synchronized (register.syntaxes) {
 				builder.addAll(register.syntaxes);
@@ -72,6 +80,11 @@ final class SyntaxRegistryImpl implements SyntaxRegistry {
 		@Override
 		public <I extends SyntaxInfo<?>> void register(Key<I> key, I info) {
 			throw new UnsupportedOperationException("Cannot register syntax infos with an unmodifiable syntax registry.");
+		}
+
+		@Override
+		public void unregister(SyntaxInfo<?> info) {
+			throw new UnsupportedOperationException("Cannot unregister syntax infos from an unmodifiable syntax registry.");
 		}
 
 		@Override

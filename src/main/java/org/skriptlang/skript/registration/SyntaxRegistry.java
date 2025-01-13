@@ -78,10 +78,18 @@ public interface SyntaxRegistry extends ViewProvider<SyntaxRegistry>, Registry<S
 	<I extends SyntaxInfo<?>> void register(Key<I> key, I info);
 
 	/**
+	 * Unregisters all registrations of a syntax, regardless of the {@link Key}.
+	 * @param info The syntax info to unregister.
+	 * @see #unregister(Key, SyntaxInfo)
+	 */
+	void unregister(SyntaxInfo<?> info);
+
+	/**
 	 * Unregisters a syntax registered under a provided key.
 	 * @param key The key the <code>info</code> is registered under.
 	 * @param info The syntax info to unregister.
 	 * @param <I> The syntax type.
+	 * @see #unregister(SyntaxInfo)
 	 */
 	<I extends SyntaxInfo<?>> void unregister(Key<I> key, I info);
 

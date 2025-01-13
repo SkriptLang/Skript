@@ -23,7 +23,11 @@ public class SyntaxRegistryTest {
 	}
 
 	private static Key<SyntaxInfo<?>> key() {
-		return Key.of("TestKey");
+		return key("TestKey");
+	}
+
+	private static Key<SyntaxInfo<?>> key(String name) {
+		return Key.of(name);
 	}
 
 	@Test
@@ -45,6 +49,22 @@ public class SyntaxRegistryTest {
 		assertThrows(UnsupportedOperationException.class, () -> unmodifiable.unregister(key(), info));
 		assertTrue(registry.syntaxes(key()).isEmpty());
 		assertTrue(unmodifiable.syntaxes(key()).isEmpty());
+		assertTrue(registry.elements().isEmpty());
+		assertTrue(unmodifiable.elements().isEmpty());
+	}
+
+	@Test
+	public void testKeylessUnregistration() {
+		final SyntaxRegistry registry = syntaxRegistry();
+		final SyntaxRegistry unmodifiable = registry.unmodifiableView();
+		final var info = info();
+
+		registry.register(key(), info);
+		registry.register(key("OtherKey"), info);
+		assertArrayEquals(new SyntaxInfo[]{info, info}, registry.elements().toArray());
+
+		registry.unregister(info);
+		assertThrows(UnsupportedOperationException.class, () -> unmodifiable.unregister(info));
 		assertTrue(registry.elements().isEmpty());
 		assertTrue(unmodifiable.elements().isEmpty());
 	}
