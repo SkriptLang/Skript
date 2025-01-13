@@ -1541,7 +1541,7 @@ public class BukkitClasses {
 		ClassInfo<Keyed> keyedClassInfo = new ClassInfo<>(Keyed.class, "keyed")
 			.user("keyeds?")
 			.name("Keyed")
-			.description("Represents objects in Minecraft that have a NamespacedKey.",
+			.description("Represents objects in Minecraft that have a namespaced key.",
 				"The patterns above represent the Skript types that are keyed.")
 			.since("INSERT VERSION");
 		BukkitUtils.generateUsageForKeyedClassInfo(keyedClassInfo);
