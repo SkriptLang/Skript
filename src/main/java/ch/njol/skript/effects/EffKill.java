@@ -21,9 +21,11 @@ import org.jetbrains.annotations.Nullable;
 
 @Name("Kill")
 @Description("Kills an entity.")
-@Examples({"kill the player",
-		"kill all creepers in the player's world",
-		"kill all endermen, witches and bats"})
+@Examples({
+	"kill the player",
+	"kill all creepers in the player's world",
+	"kill all endermen, witches and bats"
+})
 @Since("1.0, 2.10 (ignoring totem of undying)")
 public class EffKill extends Effect {
 
