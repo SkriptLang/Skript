@@ -5,6 +5,7 @@ import ch.njol.skript.lang.function.EffFunctionCall;
 import ch.njol.skript.log.ParseLogHandler;
 import ch.njol.skript.log.SkriptLogger;
 import org.bukkit.event.Event;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Iterator;
@@ -61,6 +62,11 @@ public abstract class Effect extends Statement {
 			log.printError();
 			return null;
 		}
+	}
+
+	@Override
+	public @NotNull String getSyntaxTypeName() {
+		return "effect";
 	}
 
 }

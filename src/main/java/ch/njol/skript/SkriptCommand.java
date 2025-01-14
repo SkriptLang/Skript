@@ -10,6 +10,7 @@ import ch.njol.skript.localization.Language;
 import ch.njol.skript.localization.PluralizingArgsMessage;
 import ch.njol.skript.log.LogEntry;
 import ch.njol.skript.log.RedirectingLogHandler;
+import ch.njol.skript.log.TestingLogHandler;
 import ch.njol.skript.log.TimingLogHandler;
 import ch.njol.skript.test.runner.SkriptTestEvent;
 import ch.njol.skript.test.runner.TestMode;
@@ -35,12 +36,7 @@ import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 
@@ -92,7 +88,6 @@ public class SkriptCommand implements CommandExecutor {
 		String text = Language.format(CONFIG_NODE + ".reload." + "player reload", sender.getName(), what);
 		logHandler.log(new LogEntry(Level.INFO, Utils.replaceEnglishChatStyles(text)), sender);
 	}
-
 
 	private static final ArgsMessage m_reloaded = new ArgsMessage(CONFIG_NODE + ".reload.reloaded");
 	private static final ArgsMessage m_reload_error = new ArgsMessage(CONFIG_NODE + ".reload.error");
@@ -422,7 +417,13 @@ public class SkriptCommand implements CommandExecutor {
 					return true;
 				}
 
-				ScriptLoader.loadScripts(scriptFile, logHandler)
+				// Close previous loggers before we create a new one
+				// This prevents closing logger errors
+				timingLogHandler.close();
+				logHandler.close();
+
+				TestingLogHandler errorCounter = new TestingLogHandler(Level.SEVERE).start();
+				ScriptLoader.loadScripts(scriptFile, errorCounter)
 					.thenAccept(scriptInfo ->
 						// Code should run on server thread
 						Bukkit.getScheduler().scheduleSyncDelayedTask(Skript.getInstance(), () -> {
@@ -500,7 +501,7 @@ public class SkriptCommand implements CommandExecutor {
 
 	private static @Nullable File getScriptFromArgs(CommandSender sender, String[] args, File directoryFile) {
 		String script = StringUtils.join(args, " ", 1, args.length);
-		File f = getScriptFromName(script, directoryFile);
+		File f = ScriptLoader.getScriptFromName(script, directoryFile);
 		if (f == null) {
 			// Always allow '/' and '\' regardless of OS
 			boolean directory = script.endsWith("/") || script.endsWith("\\") || script.endsWith(File.separator);
@@ -510,35 +511,13 @@ public class SkriptCommand implements CommandExecutor {
 		return f;
 	}
 
-	public static @Nullable File getScriptFromName(String script) {
-		return getScriptFromName(script, Skript.getInstance().getScriptsFolder());
-	}
-
-	public static @Nullable File getScriptFromName(String script, File directoryFile) {
-		if (script.endsWith("/") || script.endsWith("\\")) { // Always allow '/' and '\' regardless of OS
-			script = script.replace('/', File.separatorChar).replace('\\', File.separatorChar);
-		} else if (!StringUtils.endsWithIgnoreCase(script, ".sk")) {
-			int dot = script.lastIndexOf('.');
-			if (dot > 0 && !script.substring(dot + 1).equals(""))
-				return null;
-			script = script + ".sk";
-		}
-
-		if (script.startsWith(ScriptLoader.DISABLED_SCRIPT_PREFIX))
-			script = script.substring(ScriptLoader.DISABLED_SCRIPT_PREFIX_LENGTH);
-
-		File scriptFile = new File(directoryFile, script);
-		if (!scriptFile.exists()) {
-			scriptFile = new File(scriptFile.getParentFile(), ScriptLoader.DISABLED_SCRIPT_PREFIX + scriptFile.getName());
-			if (!scriptFile.exists()) {
-				return null;
-			}
-		}
-		try {
-			return scriptFile.getCanonicalFile();
-		} catch (IOException e) {
-			throw Skript.exception(e, "An exception occurred while trying to get the script file from the string '" + script + "'");
-		}
+	/**
+	 * Moved to {@link ScriptLoader#getScriptFromName(String)}
+	 */
+	@Nullable
+	@Deprecated(forRemoval = true)
+	public static File getScriptFromName(String script) {
+		return ScriptLoader.getScriptFromName(script);
 	}
 
 	private static File toggleFile(File file, boolean enable) throws IOException {

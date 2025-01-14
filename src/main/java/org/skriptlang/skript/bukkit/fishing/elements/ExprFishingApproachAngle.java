@@ -25,7 +25,7 @@ import org.jetbrains.annotations.Nullable;
 			"\t\tcancel event"
 })
 @Events("Fishing")
-@Since("INSERT VERSION")
+@Since("2.10")
 public class ExprFishingApproachAngle extends SimpleExpression<Float> {
 
 	private static final float DEFAULT_MINIMUM_DEGREES = 0;

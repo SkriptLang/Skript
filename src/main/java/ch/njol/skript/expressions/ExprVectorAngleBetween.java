@@ -1,9 +1,5 @@
 package ch.njol.skript.expressions;
 
-import org.bukkit.event.Event;
-import org.bukkit.util.Vector;
-import org.jetbrains.annotations.Nullable;
-
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
@@ -14,14 +10,18 @@ import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
-import ch.njol.util.VectorMath;
 import ch.njol.util.coll.CollectionUtils;
+import org.bukkit.event.Event;
+import org.bukkit.util.Vector;
+import org.jetbrains.annotations.Nullable;
 
 @Name("Vectors - Angle Between")
 @Description("Gets the angle between two vectors.")
 @Examples("send \"%the angle between vector 1, 0, 0 and vector 0, 1, 1%\"")
 @Since("2.2-dev28")
 public class ExprVectorAngleBetween extends SimpleExpression<Number> {
+
+	private static final float RAD_TO_DEG = (float) (180 / Math.PI);
 
 	static {
 		Skript.registerExpression(ExprVectorAngleBetween.class, Number.class, ExpressionType.COMBINED,
@@ -46,7 +46,7 @@ public class ExprVectorAngleBetween extends SimpleExpression<Number> {
 		Vector second = this.second.getSingle(event);
 		if (first == null || second == null)
 			return null;
-		return CollectionUtils.array(first.angle(second) * (float) VectorMath.RAD_TO_DEG);
+		return CollectionUtils.array(first.angle(second) * RAD_TO_DEG);
 	}
 
 	@Override

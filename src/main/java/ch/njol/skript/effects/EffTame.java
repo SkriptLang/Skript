@@ -20,7 +20,7 @@ import org.jetbrains.annotations.Nullable;
     "tame {_horse}",
     "untame {_horse}"
 })
-@Since("INSERT VERSION")
+@Since("2.10")
 public class EffTame extends Effect {
 
 	static {

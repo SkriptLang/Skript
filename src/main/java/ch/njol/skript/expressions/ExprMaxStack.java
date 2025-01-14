@@ -31,7 +31,7 @@ import ch.njol.util.coll.CollectionUtils;
 	"add 8 to the maximum stack size of player's tool",
 	"reset the maximum stack size of {_gui}"
 })
-@Since("2.1, INSERT VERSION (changeable, inventories)")
+@Since("2.1, 2.10 (changeable, inventories)")
 @RequiredPlugins("Spigot 1.20.5+ (changeable)")
 public class ExprMaxStack extends SimplePropertyExpression<Object, Integer> {
 

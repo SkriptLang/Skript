@@ -27,7 +27,7 @@ import org.skriptlang.skript.bukkit.loottables.LootTableUtils;
 	"",
 	"set loot table of event-block to \"minecraft:chests/simple_dungeon\"",
 })
-@Since("INSERT VERSION")
+@Since("2.10")
 public class ExprLootTable extends SimplePropertyExpression<Object, LootTable> {
 
 	static {

@@ -48,7 +48,7 @@ import java.util.Map;
 	"for each {_index}, {_value} in {my list::*}:",
 	"\tbroadcast \"%{_index}% = %{_value}%\"",
 })
-@Since("INSERT VERSION")
+@Since("2.10")
 public class SecFor extends SecLoop {
 
 	static {

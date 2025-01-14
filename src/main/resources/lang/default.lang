@@ -99,19 +99,19 @@ enchantments:
 	breach: Breach
 	wind_burst: Wind Burst
 
-# -- Potion Effects --
-potions:
+# -- Potion Effect Types --
+potion effect types:
 	speed: speed, swiftness
-	slow: slowness, slow
-	fast_digging: haste, fast digging, fast mining
-	slow_digging: mining fatigue, slow digging, slow mining
-	increase_damage: strength, increase damage, increased damage
-	heal: instant health, health
-	harm: instant damage, damage
-	jump: jump boost, jump
-	confusion: nausea, confusion
+	slowness: slowness, slow
+	haste: haste, fast digging, fast mining
+	mining_fatigue: mining fatigue, slow digging, slow mining
+	strength: strength, increase damage, increased damage
+	instant_health: instant health, health
+	instant_damage: instant damage, damage
+	jump_boost: jump boost, jump
+	nausea: nausea, confusion
 	regeneration: regeneration
-	damage_resistance: resistance, damage resistance
+	resistance: resistance, damage resistance
 	fire_resistance: fire resistance, fire immunity
 	water_breathing: water breathing
 	invisibility: invisibility
@@ -2401,18 +2401,38 @@ transform reasons:
 	unknown: unknown
 	infection: infection, villager infection
 
+# -- Teleport Flags --
+teleport flags:
+	retain_open_inventory: opened inventory, open inventory, inventory
+	retain_passengers: passengers, passenger
+	retain_vehicle: vehicle
+	retain_direction: directional velocity, pitch and yaw velocity, yaw and pitch velocity
+	retain_pitch: pitch velocity
+	retain_yaw: yaw velocity
+	retain_movement: xyz velocity
+	retain_x: x velocity
+	retain_y: y velocity
+	retain_z: z velocity
+
+# -- Unleash Reasons --
+unleash reasons:
+	distance: distance
+	holder_gone: holder (gone|disappeared)
+	player_unleash: player unleash, player unleashed, unleashed by player
+	unknown: unknown
+
 # -- Item Flags --
 item flags:
-    hide_additional_tooltip: hide additional tooltip, additional tooltip hidden, hidden additional tooltip
-    hide_armor_trim: hide armor trim, armor trim hidden, hidden armor trim
-    hide_attributes: hide attributes, attributes hidden, hidden attributes
-    hide_destroys: hide destroys, hide destroyable blocks, hide breakable blocks, destroys hidden, hidden destroys
-    hide_dye: hide dye, hide dye color, dye hidden, dye color hidden, hidden dye, hidden dye color
-    hide_enchants: hide enchants, hide enchantments, enchants hidden, enchantments hidden, hidden enchants
-    hide_placed_on: hide placed on, placed on hidden, hidden placed on
-    hide_stored_enchants: hide stored enchants, hide stored enchantments, stored enchants hidden, stored enchantments hidden, hidden stored enchants, hidden stored enchantments
-    hide_unbreakable: hide unbreakable, hide unbreakable status, unbreakable hidden, unbreakable status hidden, hidden unbreakable, hidden unbreakable status
-    hide_potion_effects: hide potion effects, hide potions, potion effects hidden, potions hidden, hidden potion effects, hidden potions
+	hide_additional_tooltip: hide additional tooltip, additional tooltip hidden, hidden additional tooltip
+	hide_armor_trim: hide armor trim, armor trim hidden, hidden armor trim
+	hide_attributes: hide attributes, attributes hidden, hidden attributes
+	hide_destroys: hide destroys, hide destroyable blocks, hide breakable blocks, destroys hidden, hidden destroys
+	hide_dye: hide dye, hide dye color, dye hidden, dye color hidden, hidden dye, hidden dye color
+	hide_enchants: hide enchants, hide enchantments, enchants hidden, enchantments hidden, hidden enchants
+	hide_placed_on: hide placed on, placed on hidden, hidden placed on
+	hide_stored_enchants: hide stored enchants, hide stored enchantments, stored enchants hidden, stored enchantments hidden, hidden stored enchants, hidden stored enchantments
+	hide_unbreakable: hide unbreakable, hide unbreakable status, unbreakable hidden, unbreakable status hidden, hidden unbreakable, hidden unbreakable status
+	hide_potion_effects: hide potion effects, hide potions, potion effects hidden, potions hidden, hidden potion effects, hidden potions
 
 # -- Display Billboards --
 billboards:
@@ -2617,10 +2637,13 @@ types:
 	quitreason: quit reason¦s @a
 	inventoryclosereason: inventory close reason¦s @an
 	transformreason: transform reason¦s @a
+	unleashreason: unleash reason¦s @an
+	teleportflag: teleport flag¦s @a
 	display: display¦s @a
 	billboard: billboard¦s @a
 	textalignment: text alignment¦s @a
 	itemdisplaytransform: item display transform¦s @an
+	minecrafttag: minecraft tag¦s @a
 	experiencecooldownchangereason: experience cooldown change reason¦s @a
 	inputkey: input key¦s @an
 	villagertype: villager type¦s @a
@@ -2649,6 +2672,12 @@ types:
 	experience.pattern: (e?xp|experience( points?)?)
 	classinfo: type¦s @a
 	visualeffect: visual effect¦s @a
+	queue: queue¦s @a
+	script: script¦s @a
+	config: config¦s @a
+	node: node¦s @a
+	executable: executable¦s @an
+	function: function¦s @a
 	named: named thing¦s @a
 	numbered: numbered thing¦s @a
 	containing: container¦s @a

@@ -17,7 +17,7 @@ import org.bukkit.entity.FishHook;
 			"\t\tsend \"You will catch a shark soon!\""
 })
 @Events("Fishing")
-@Since("INSERT VERSION")
+@Since("2.10")
 public class CondIsInOpenWater extends PropertyCondition<Entity> {
 	
 	static {

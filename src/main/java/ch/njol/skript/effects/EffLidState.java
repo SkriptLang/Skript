@@ -20,7 +20,7 @@ import org.jetbrains.annotations.Nullable;
 	"open the lid of {_chest}",
 	"close the lid of {_blocks::*}"
 })
-@Since("INSERT VERSION")
+@Since("2.10")
 public class EffLidState extends Effect {
 
 	static {

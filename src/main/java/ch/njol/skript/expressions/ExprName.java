@@ -1,16 +1,31 @@
 package ch.njol.skript.expressions;
 
-import java.util.ArrayList;
-import java.util.List;
-
+import ch.njol.skript.Skript;
 import ch.njol.skript.bukkitutil.InventoryUtils;
+import ch.njol.skript.classes.Changer.ChangeMode;
+import ch.njol.skript.doc.Description;
+import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Name;
+import ch.njol.skript.doc.Since;
+import ch.njol.skript.expressions.base.SimplePropertyExpression;
+import ch.njol.skript.lang.Expression;
+import ch.njol.skript.lang.ExpressionType;
+import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.skript.lang.function.DynamicFunctionReference;
 import ch.njol.skript.lang.util.common.AnyNamed;
+import ch.njol.skript.registrations.Feature;
+import ch.njol.skript.util.chat.BungeeConverter;
+import ch.njol.skript.util.chat.ChatMessages;
+import ch.njol.util.Kleenean;
+import ch.njol.util.coll.CollectionUtils;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.serializer.bungeecord.BungeeComponentSerializer;
+import net.md_5.bungee.api.ChatColor;
+import net.md_5.bungee.api.chat.BaseComponent;
 import org.bukkit.Bukkit;
-import org.bukkit.GameRule;
 import org.bukkit.Nameable;
 import org.bukkit.OfflinePlayer;
-import org.bukkit.block.Block;
-import org.bukkit.block.BlockState;
+import org.bukkit.World;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.HumanEntity;
@@ -20,73 +35,44 @@ import org.bukkit.event.Event;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.World;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.script.Script;
 
-import ch.njol.skript.Skript;
-import ch.njol.skript.aliases.ItemType;
-import ch.njol.skript.classes.Changer.ChangeMode;
-import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
-import ch.njol.skript.doc.Name;
-import ch.njol.skript.doc.Since;
-import ch.njol.skript.expressions.base.SimplePropertyExpression;
-import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.SkriptParser.ParseResult;
-import ch.njol.skript.util.chat.BungeeConverter;
-import ch.njol.skript.util.chat.ChatMessages;
-import ch.njol.skript.util.slot.Slot;
-import ch.njol.util.Kleenean;
-import ch.njol.util.coll.CollectionUtils;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.serializer.bungeecord.BungeeComponentSerializer;
-import net.md_5.bungee.api.ChatColor;
-import net.md_5.bungee.api.chat.BaseComponent;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 @Name("Name / Display Name / Tab List Name")
 @Description({
-	"Represents the Minecraft account, display or tab list name of a player, or the custom name of an item, entity, block, inventory, gamerule or world.",
+	"Represents the Minecraft account, display or tab list name of a player, or the custom name of an item, entity, "
+        + "block, inventory, gamerule, world, script or function.",
 	"",
-	"<ul>",
-	"\t<li><strong>Players</strong>",
-	"\t\t<ul>",
-	"\t\t\t<li><strong>Name:</strong> The Minecraft account name of the player. Can't be changed, but 'display name' can be changed.</li>",
-	"\t\t\t<li><strong>Display Name:</strong> The name of the player that is displayed in messages. " +
-		"This name can be changed freely and can include color codes, and is shared among all plugins (e.g. chat plugins will use the display name).</li>",
-	"\t\t</ul>",
-	"\t</li>",
-	"\t<li><strong>Entities</strong>",
-	"\t\t<ul>",
-	"\t\t\t<li><strong>Name:</strong> The custom name of the entity. Can be changed. But for living entities, " +
-		"the players will have to target the entity to see its name tag. For non-living entities, the name will not be visible at all. To prevent this, use 'display name'.</li>",
-	"\t\t\t<li><strong>Display Name:</strong> The custom name of the entity. Can be changed, " +
-		"which will also enable <em>custom name visibility</em> of the entity so name tag of the entity will be visible always.</li>",
-	"\t\t</ul>",
-	"\t</li>",
-	"\t<li><strong>Items</strong>",
-	"\t\t<ul>",
-	"\t\t\t<li><strong>Name and Display Name:</strong> The <em>custom</em> name of the item (not the Minecraft locale name). Can be changed.</li>",
-	"\t\t</ul>",
-	"\t</li>",
-	"\t<li><strong>Inventories</strong>",
-	"\t\t<ul>",
-	"\t\t\t<li><strong>Name and Display Name:</strong> The name/title of the inventory. " +
-		"Changing name of an inventory means opening the same inventory with the same contents but with a different name to its current viewers.</li>",
-	"\t\t</ul>",
-	"\t</li>",
-	"\t<li><strong>Gamerules (1.13+)</strong>",
-	"\t\t<ul>",
-	"\t\t\t<li><strong>Name:</strong> The name of the gamerule. Cannot be changed.</li>",
-	"\t\t</ul>",
-	"\t</li>",
-	"\t<li><strong>Worlds</strong>",
-	"\t\t<ul>",
-	"\t\t\t<li><strong>Name:</strong> The name of the world. Cannot be changed.</li>",
-	"\t\t</ul>",
-	"\t</li>",
-	"</ul>"
+	"<strong>Players:</strong>",
+	"\t<strong>Name:</strong> The Minecraft account name of the player. Can't be changed, but 'display name' can be changed.",
+	"\t<strong>Display Name:</strong> The name of the player that is displayed in messages. " +
+		"This name can be changed freely and can include color codes, and is shared among all plugins (e.g. chat plugins will use the display name).",
+	"",
+	"<strong>Entities:</strong>",
+	"\t<strong>Name:</strong> The custom name of the entity. Can be changed. But for living entities, " +
+		"the players will have to target the entity to see its name tag. For non-living entities, the name will not be visible at all. To prevent this, use 'display name'.",
+	"\t<strong>Display Name:</strong> The custom name of the entity. Can be changed, " +
+		"which will also enable <em>custom name visibility</em> of the entity so name tag of the entity will be visible always.",
+	"",
+	"<strong>Items:</strong>",
+	"\t<strong>Name and Display Name:</strong> The <em>custom</em> name of the item (not the Minecraft locale name). Can be changed.",
+	"",
+	"<strong>Inventories:</strong>",
+	"\t<strong>Name and Display Name:</strong> The name/title of the inventory. " +
+		"Changing name of an inventory means opening the same inventory with the same contents but with a different name to its current viewers.",
+	"",
+	"<strong>Gamerules:</strong>",
+	"\t<strong>Name:</strong> The name of the gamerule. Cannot be changed.",
+	"",
+	"<strong>Worlds:</strong>",
+	"\t<strong>Name:</strong> The name of the world. Cannot be changed.",
+	"",
+	"<strong>Scripts:</strong>",
+	"\t<strong>Name:</strong> The name of a script, excluding its file extension."
 })
 @Examples({
 	"on join:",
@@ -95,7 +81,12 @@ import net.md_5.bungee.api.chat.BaseComponent;
 	"\tset the player's tab list name to \"&lt;green&gt;%player's name%\"",
 	"set the name of the player's tool to \"Legendary Sword of Awesomeness\""
 })
-@Since("before 2.1, 2.2-dev20 (inventory name), 2.4 (non-living entity support, changeable inventory name), 2.7 (worlds)")
+@Since({
+	"before 2.1",
+	"2.2-dev20 (inventory name)",
+	"2.4 (non-living entity support, changeable inventory name)",
+	"2.7 (worlds)"
+})
 public class ExprName extends SimplePropertyExpression<Object, String> {
 
 	@Nullable
@@ -104,11 +95,15 @@ public class ExprName extends SimplePropertyExpression<Object, String> {
 	static {
 		// Check for Adventure API
 		if (Skript.classExists("net.kyori.adventure.text.Component") &&
-				Skript.methodExists(Bukkit.class, "createInventory", InventoryHolder.class, int.class, Component.class))
+			Skript.methodExists(Bukkit.class, "createInventory", InventoryHolder.class, int.class, Component.class))
 			serializer = BungeeComponentSerializer.get();
-		register(ExprName.class, String.class, "(1:name[s])", "offlineplayers/entities/inventories/named");
-		register(ExprName.class, String.class, "(2:(display|nick|chat|custom)[ ]name[s])", "offlineplayers/entities/inventories/named");
-		register(ExprName.class, String.class, "(3:(player|tab)[ ]list name[s])", "players");
+
+		List<String> patterns = new ArrayList<>();
+		patterns.addAll(Arrays.asList(getPatterns("name[s]", "offlineplayers/entities/inventories/nameds")));
+		patterns.addAll(Arrays.asList(getPatterns("(display|nick|chat|custom)[ ]name[s]", "offlineplayers/entities/inventories/nameds")));
+		patterns.addAll(Arrays.asList(getPatterns("(player|tab)[ ]list name[s]", "players")));
+
+		Skript.registerExpression(ExprName.class, String.class, ExpressionType.COMBINED, patterns.toArray(new String[0]));
 		// we keep the entity input because we want to do something special with entities
 	}
 
@@ -118,11 +113,13 @@ public class ExprName extends SimplePropertyExpression<Object, String> {
 	 * 3 = "tablist name"
 	 */
 	private int mark;
+	private boolean scriptResolvedName;
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		mark = parseResult.mark;
-		setExpr(exprs[0]);
+		this.mark = (matchedPattern / 2) + 1;
+		this.setExpr(exprs[0]);
+		this.scriptResolvedName = this.getParser().hasExperiment(Feature.SCRIPT_REFLECTION);
 		return true;
 	}
 
@@ -134,6 +131,10 @@ public class ExprName extends SimplePropertyExpression<Object, String> {
 			} else { // We can only support "name"
 				return mark == 1 ? offlinePlayer.getName() : null;
 			}
+		}
+
+		if (!scriptResolvedName && object instanceof Script script) {
+			return script.nameAndPath();
 		}
 
 		if (object instanceof Player player) {
@@ -163,9 +164,14 @@ public class ExprName extends SimplePropertyExpression<Object, String> {
 		if (mode == ChangeMode.SET || mode == ChangeMode.RESET) {
 			if (mark == 1) {
 				if (Player.class.isAssignableFrom(getExpr().getReturnType())) {
-					Skript.error("Can't change the Minecraft name of a player. Change the 'display name' or 'tab list name' instead.");
+					Skript.error("Can't change the Minecraft name of a player. Change the 'display name' or 'tab list "
+						+ "name' instead.");
 					return null;
 				} else if (World.class.isAssignableFrom(getExpr().getReturnType())) {
+					return null;
+				} else if (Script.class.isAssignableFrom(getExpr().getReturnType())) {
+					return null;
+				} else if (DynamicFunctionReference.class.isAssignableFrom(getExpr().getReturnType())) {
 					return null;
 				}
 			}

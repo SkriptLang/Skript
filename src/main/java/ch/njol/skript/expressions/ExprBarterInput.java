@@ -22,7 +22,7 @@ import org.jetbrains.annotations.Nullable;
 		"\tif the bartering input is a gold ingot:",
 			"\t\tbroadcast \"my precious...\""
 })
-@Since("INSERT VERSION")
+@Since("2.10")
 public class ExprBarterInput extends SimpleExpression<ItemType> {
 
 	static {
