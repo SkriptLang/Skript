@@ -228,6 +228,8 @@ public final class ParserInstance implements Experimented {
 	 * See also {@link #isCurrentEvent(Class[])} for checking with multiple argument classes
 	 */
 	public boolean isCurrentEvent(Class<? extends Event> event) {
+		if (currentEvents == null)
+			return false;
 		for (Class<? extends Event> currentEvent : currentEvents) {
 			// check that current event is same or child of event we want
 			if (event.isAssignableFrom(currentEvent))
@@ -622,7 +624,7 @@ public final class ParserInstance implements Experimented {
 	 *  That is, the contents of any collections will remain the same, but there is no guarantee that
 	 *  the contents themselves will remain unchanged.
 	 * @see #backup()
-	 * @see #restoreBackup(Backup) 
+	 * @see #restoreBackup(Backup)
 	 */
 	public static class Backup {
 
