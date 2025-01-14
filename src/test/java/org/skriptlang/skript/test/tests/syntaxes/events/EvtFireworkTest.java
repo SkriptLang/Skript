@@ -14,7 +14,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -33,7 +32,7 @@ public class EvtFireworkTest extends SkriptJUnitTest {
 	}
 
 	@Test
-	public void test() throws InvocationTargetException, InstantiationException, IllegalAccessException {
+	public void test() {
 		List<Event> events = new ArrayList<>();
 		for (SkriptColor color : SkriptColor.values()) {
 			Firework firework = (Firework) getTestWorld().spawnEntity(getTestLocation(), entityType);
