@@ -68,8 +68,7 @@ command /anotherloopexample:
 
         loop blocks in radius 2 of player:
             loop-block is a chest
-            loop the tag contents of minecraft item tag "logs": # Loop-block comes from the first loop, loop-item from the second.
-                inventory of loop-block contains loop-item
-                remove loop-item from the inventory of loop-block
-                send "Destroyed a %loop-item%!"
+            loop items in loop-block: # Loop-block comes from the first loop, loop-item from the second.
+                loop-item is a dirt block # Matches any dirt block item
+                send "%loop-block% contains %loop-item%!"
                 exit loop # Exits the item loop.

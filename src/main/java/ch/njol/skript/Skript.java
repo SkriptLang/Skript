@@ -815,8 +815,8 @@ public final class Skript extends JavaPlugin implements Listener {
 				errorCounter.start();
 
 				// load example scripts (cleanup after)
-				ScriptLoader.unloadScripts(ScriptLoader.getLoadedScripts());
 				ScriptLoader.loadScripts(new File(getScriptsFolder(), "-examples" + File.separator), errorCounter);
+				// unload these as to not interfere with the tests
 				ScriptLoader.unloadScripts(ScriptLoader.getLoadedScripts());
 
 				// load test directory scripts
