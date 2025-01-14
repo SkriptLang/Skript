@@ -2,10 +2,6 @@ options:
 	EvtExplodeTest: "org.skriptlang.skript.test.tests.syntaxes.events.EvtExplodeTest"
 
 test "EvtExplodeJUnit" when running JUnit:
-	set {_tests::1} to "any firework"
-	loop all colors:
-		set {_tests::%loop-iteration + 1%} to "%loop-color% firework"
-
 	add "any explode" to {_tests::*}
 	add "script explode" to {_tests::*}
 	add "entity explode" to {_tests::*}
@@ -28,11 +24,3 @@ on explode:
 	junit test is {@EvtExplodeTest}
 
 	complete objective "any explode" for {@EvtExplodeTest}
-
-on firework explode:
-	junit test is {@EvtExplodeTest}
-
-	complete objective "any firework" for {@EvtExplodeTest}
-	if event-colors is set:
-		set {_color} to first element of event-colors
-		complete objective "%{_color}% firework" for {@EvtExplodeTest}

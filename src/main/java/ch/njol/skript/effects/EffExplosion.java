@@ -39,8 +39,8 @@ public class EffExplosion extends Effect {
 				"[create|make] [a] fake explosion [%directions% %locations%]",
 				"[create|make] [an] explosion[ ]effect [%directions% %locations%]");
 
-		EventValues.registerEventValue(ScriptExplodeEvent.class, Location.class, ScriptExplodeEvent::getLocation);
-		EventValues.registerEventValue(ScriptExplodeEvent.class, Number.class, ScriptExplodeEvent::getPower);
+		EventValues.registerEventValue(ScriptExplodeEvent.class, Location.class, ScriptExplodeEvent::location);
+		EventValues.registerEventValue(ScriptExplodeEvent.class, Number.class, ScriptExplodeEvent::power);
 	}
 
 	private Expression<Number> force;
@@ -110,20 +110,16 @@ public class EffExplosion extends Effect {
 			this.power = power;
 		}
 
-		public @NotNull Location getLocation() {
+		public @NotNull Location location() {
 			return at;
 		}
 
-		public float getPower() {
+		public float power() {
 			return power;
 		}
 
 		@Override
 		public @NotNull HandlerList getHandlers() {
-			return HANDLER_LIST;
-		}
-
-		public static HandlerList getHandlerList() {
 			return HANDLER_LIST;
 		}
 
