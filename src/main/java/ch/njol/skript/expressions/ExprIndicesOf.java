@@ -28,7 +28,7 @@ import java.util.Map;
 @Description({
 	"Get the first, last or all positions of a character (or text) in another text using "
 		+ "'positions of %text% in %text%'. -1 is returned when the value does not occur in the text. "
-		+ "Positions range from 1 to the <a href='#ExprIndicesOf'>length</a> of the text.",
+		+ "Positions range from 1 to the <a href='#ExprIndicesOf'>length</a> of the text (inclusive).",
 	"",
 	"Using 'indices/positions of %objects% in %objects%', you can get the indices or positions of "
 		+ "a list where the value at that index is the provided value. "
