@@ -57,7 +57,7 @@ public class ExprDamagedItem extends PropertyExpression<ItemType, ItemType> {
 
 	@Override
 	protected ItemType[] get(Event event, ItemType[] source) {
-		Number damage = this.damage.getSingle(e);
+		Number damage = this.damage.getSingle(event);
 		if (damage == null)
 			return source;
 		return get(source.clone(), item -> {
