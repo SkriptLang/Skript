@@ -92,9 +92,8 @@ These allow you to check values from these files.
 
 Configs are arranged as a tree of 'nodes', which have values:
 
-node name: value
-node name: value
-
+regular node: value
+regular node: value
 section node: # This node contains more nodes!
 	regular node: value
 	regular node: value
