@@ -43,6 +43,7 @@ public class ExprTestModes extends SimpleExpression<Object> {
 			for (Field field : FIELDS) {
 				if (field.getName().equalsIgnoreCase(fieldName)) {
 					try {
+						field.setAccessible(true);
 						return field.get(TestMode.get());
 					} catch (IllegalArgumentException | IllegalAccessException e) {
 						return null;
