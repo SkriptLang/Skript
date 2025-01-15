@@ -19,7 +19,8 @@ import ch.njol.skript.lang.SkriptParser;
 import ch.njol.util.Kleenean;
 
 @Name("Damaged Item")
-@Description({"Directly changes the durability of an item. In MC versions 1.12.2 and lower, this can be used to apply data values to items/blocks",
+@Description({
+	"Directly changes the durability of an item.",
 	"Damage is used to remove the specified number from the base durability of an item. E.g 400 - damage",
 	"Durability is used to modify the total durability"
 })
