@@ -20,7 +20,7 @@ example: # Nested loops
 	# For loops are designed to help when nesting multiple loops
 	for each {_word} in {words::*}:
 		for each {_player} in all players:
-			send "The word is " + {_word} to {_player}
+			send "The word is %{_word}%" to {_player}
 
 	# This is exactly the same as the following
 	loop {words::*}:
