@@ -1018,7 +1018,7 @@ public class BukkitClasses {
 		Registry<PotionEffectType> petRegistry = BukkitUtils.getPotionEffectTypeRegistry();
 		if (petRegistry != null) {
 			Classes.registerClass(new RegistryClassInfo<>(PotionEffectType.class, petRegistry, "potioneffecttype", "potion effect types", false)
-				.user("potion ?effect? ?types?")
+				.user("potion ?effect ?types?")
 				.name("Potion Effect Type")
 				.description("A potion effect type, e.g. 'strength' or 'swiftness'.")
 				.examples("apply swiftness 5 to the player",
