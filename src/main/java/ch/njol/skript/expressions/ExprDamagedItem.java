@@ -82,4 +82,5 @@ public class ExprDamagedItem extends PropertyExpression<ItemType, ItemType> {
 
 		return getExpr().toString(event, debug) + " with damage value " + damage.toString(event, debug);
 	}
+
 }
