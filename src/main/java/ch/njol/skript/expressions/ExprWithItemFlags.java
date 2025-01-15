@@ -24,7 +24,7 @@ import org.jetbrains.annotations.Nullable;
 	"give player torch with hide placed on item flag",
 	"set {_item} to diamond sword with all item flags"
 })
-@Since("INSERT VERSION")
+@Since("2.10")
 public class ExprWithItemFlags extends SimpleExpression<ItemType> {
 
 	static {

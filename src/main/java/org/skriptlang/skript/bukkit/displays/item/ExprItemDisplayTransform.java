@@ -19,7 +19,7 @@ import org.jetbrains.annotations.Nullable;
 	"set the item transform of the last spawned item display to first person left handed",
 	"set the item transform of the last spawned item display to no transform # Reset to default"
 })
-@Since("INSERT VERSION")
+@Since("2.10")
 public class ExprItemDisplayTransform extends SimplePropertyExpression<Display, ItemDisplayTransform> {
 
 	static {

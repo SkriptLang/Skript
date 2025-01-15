@@ -44,7 +44,7 @@ import java.util.function.Consumer;
 	"broadcast 1st banner pattern of block at location(0,0,0)",
 	"clear banner patterns of {_banneritem}"
 })
-@Since("INSERT VERSION")
+@Since("2.10")
 public class ExprBannerPatterns extends PropertyExpression<Object, Pattern> {
 
 	static {

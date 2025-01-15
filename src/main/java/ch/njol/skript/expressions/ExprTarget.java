@@ -153,20 +153,6 @@ public class ExprTarget extends PropertyExpression<LivingEntity, Entity> {
 	}
 
 	/**
-	 * Gets an entity's target.
-	 *
-	 * @param origin The entity to get the target of.
-	 * @param type The exact EntityData to find. Can be null for any entity.
-	 * @return The entity's target.
-	 * @deprecated Use {@link #getTarget(LivingEntity, EntityData, double)} to include raysize.
-	 */
-	@Deprecated
-	@ScheduledForRemoval
-	public static <T extends Entity> T getTarget(LivingEntity origin, @Nullable EntityData<T> type) {
-		return getTarget(origin, type, 0.0D);
-	}
-
-	/**
 	 * Gets an entity's target entity.
 	 *
 	 * @param origin The entity to get the target of.

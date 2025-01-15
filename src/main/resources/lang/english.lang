@@ -129,6 +129,25 @@ skript command:
 		addons: Installed Skript Addons: <aqua>%s
 		dependencies: Installed dependencies: <aqua>%s
 
+# -- Log Messages --
+log:
+	# runtime errors
+	runtime:
+		error: <light red>The script '<gray>%s<light red>' encountered an error while executing the '<gray>%s<light red>' %s<light red>:\n
+		errors skipped: <gold>%d<light red> runtime error[s] were thrown but not printed in the last frame. From: <gray>%s
+		errors timed out: <gold>Line %d<light red> of script '<gray>%s<light red>' produced too many runtime errors (<gray>%d<light red> allowed per frame). No errors from this line will be printed for %d frames.
+		error notification: <light red>Script '<gray>%s<light red>' produced runtime errors. Please check console logs for details.
+		error notification plural: <light red>Script '<gray>%s<light red>' and %d others produced runtime errors. Please check console logs for details.
+
+		warning: <yellow>The script '<gray>%s<yellow>' encountered a warning while executing the '<gray>%s<yellow>' %s<yellow>:\n
+		warnings skipped: <yellow>%d<yellow> runtime warning[s] were thrown but not printed in the last frame. From: <gray>%s
+		warnings timed out: <gold>Line %d<yellow> of script '<gray>%s<yellow>' produced too many runtime warnings (<gray>%d<yellow> allowed per frame). No warnings from this line will be printed for %d frames.
+		warning notification: <yellow>Script '<gray>%s<yellow>' produced runtime warnings. Please check console logs for details.
+		warning notification plural: <gold>Script '<gray>%s<yellow>' and %d others produced runtime warnings. Please check console logs for details.
+
+		line info: <gold>    Line %s<white>: <gray>%s\n \n
+
+
 # -- Updater --
 updater:
 	not started: Skript has not yet checked for the latest version. Use <gold>/skript update check<reset> to do so.

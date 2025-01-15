@@ -17,7 +17,7 @@ import org.jetbrains.annotations.Nullable;
 		"\tapply lure enchantment bonus"
 })
 @Events("Fishing")
-@Since("INSERT VERSION")
+@Since("2.10")
 public class EffFishingLure extends Effect {
 
 	static {

@@ -32,7 +32,7 @@ import org.jetbrains.annotations.UnknownNullability;
 	"",
 	"reveal hidden players of players"
 })
-@Since("2.3, INSERT VERSION (entities)")
+@Since("2.3, 2.10 (entities)")
 @RequiredPlugins("Minecraft 1.19+ (entities)")
 public class EffEntityVisibility extends Effect {
 

@@ -37,7 +37,7 @@ import java.util.stream.Stream;
 	"helmet of player is neither a helmet nor air # player is wearing a block, e.g. from another plugin"
 })
 @Keywords("armor")
-@Since("1.0, 2.8.0 (armor), INSERT VERSION (body armor)")
+@Since("1.0, 2.8.0 (armor), 2.10 (body armor)")
 public class ExprArmorSlot extends PropertyExpression<LivingEntity, Slot> {
 
 	private static final Set<Class<?>> bodyEntities = new HashSet<>(Arrays.asList(Horse.class, Llama.class, TraderLlama.class));
