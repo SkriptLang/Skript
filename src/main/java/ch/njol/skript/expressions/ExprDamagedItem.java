@@ -45,7 +45,7 @@ public class ExprDamagedItem extends PropertyExpression<ItemType, ItemType> {
 
 	@Override
 	@SuppressWarnings({"unchecked", "null"})
-	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
+	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		setExpr((Expression<ItemType>) exprs[0]);
 		damage = (Expression<Number>) exprs[1];
 		hasDurability = matchedPattern > 1 ? true : false;
