@@ -76,8 +76,9 @@ public class ExprDamagedItem extends PropertyExpression<ItemType, ItemType> {
 	
 	@Override
 	public String toString(Nullable Event event, boolean debug) {
-		if (pattern > 1){
-			return getExpr().toString(e, debug) + " with durability " + damage.toString(e, debug);
-		}else return getExpr().toString(e, debug) + " with damage value " + damage.toString(e, debug);
+		if (pattern > 1)
+			return getExpr().toString(event, debug) + " with durability " + damage.toString(event, debug);
+
+		return getExpr().toString(event, debug) + " with damage value " + damage.toString(event, debug);
 	}
 }
