@@ -1770,11 +1770,11 @@ public final class BukkitEventValues {
 					return event.getLootContext().getLocation();
 				}
 			}, EventValues.TIME_NOW);
-			EventValues.registerEventValue(LootGenerateEvent.class, String.class, new Getter<String, LootGenerateEvent>() {
+			EventValues.registerEventValue(LootGenerateEvent.class, LootTable.class, new Getter<LootTable, LootGenerateEvent>() {
 				@Override
 				@Nullable
 				public Location get(LootGenerateEvent event) {
-					return event.getLootTable().toString;
+					return event.getLootTable();
 				}
 			}, EventValues.TIME_NOW);
 		}
