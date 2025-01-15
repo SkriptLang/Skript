@@ -228,7 +228,8 @@ void createTestTask(String name, String desc, String environments, int javaVersi
 			junit,
 			modifiers.contains(Modifiers.DEBUG),
 			project.findProperty('verbosity') ?: "null",
-			timeout
+			timeout,
+			gradle.taskGraph.hasTask(':clean')
 		]
 
 		// Do first is used when throwing exceptions.
