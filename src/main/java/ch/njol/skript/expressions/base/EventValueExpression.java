@@ -135,7 +135,7 @@ public class EventValueExpression<T> extends SimpleExpression<T> implements Defa
 	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, ParseResult parser) {
 		if (expressions.length != 0)
 			throw new SkriptAPIException(this.getClass().getName() + " has expressions in its pattern but does not override init(...)");
-		return init(matchedPattern,	isDelayed, parser);
+		return init(matchedPattern, isDelayed, parser);
 	}
 
 	@Override
