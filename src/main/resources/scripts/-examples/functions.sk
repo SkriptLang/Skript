@@ -4,30 +4,30 @@
 # This demonstrates how to declare and run a simple function.
 #
 
-function sayMessage(message: text):
-    broadcast {_message} # our message argument is available in `{_message}`.
+function say_message(message: text):
+	broadcast {_message} # our message argument is available in `{_message}`.
 
 on first join:
-    wait 1 second
-    sayMessage("Welcome, %player%!") # Runs the `sayMessage` function.
+	wait 1 second
+	say_message("Welcome, %player%!") # Runs the `say_message` function.
 
 #
 # An example of a function with multiple parameters and a return type.
 # This demonstrates how to return a value and use it.
 #
 
-function giveApple(name: text, amount: number) :: item:
-    set {_item} to an apple
-    set the name of {_item} to {_name}
-    set the item amount of {_item} to {_amount}
-    return {_item} # Gives this value to the code that called the function.
+function give_apple(name: text, amount: number) :: item:
+	set {_item} to an apple
+	set the name of {_item} to {_name}
+	set the item amount of {_item} to {_amount}
+	return {_item} # Gives this value to the code that called the function.
 
 command /appleexample:
-    permission: skript.example.apple
-    trigger:
-        send "Giving you an apple!"
-        set {_item} to giveApple("Banana", 4)
-        give player {_item}
+	permission: skript.example.apple
+	trigger:
+		send "Giving you an apple!"
+		set {_item} to give_apple("Banana", 4)
+		give player {_item}
 
 #
 # An example of a recursive (self-calling) function that is used to repeat a complex task.
