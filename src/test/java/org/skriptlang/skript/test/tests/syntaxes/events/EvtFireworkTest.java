@@ -19,6 +19,10 @@ import java.util.List;
 
 public class EvtFireworkTest extends SkriptJUnitTest {
 
+	static {
+		setShutdownDelay(1);
+	}
+
 	private EntityType entityType;
 	private final List<Firework> fireworkList = new ArrayList<>();
 

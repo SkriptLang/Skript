@@ -19,6 +19,10 @@ import java.util.List;
 
 public class EvtExplodeTest extends SkriptJUnitTest {
 
+	static {
+		setShutdownDelay(1);
+	}
+
 	private Pig pig;
 
 	@Before

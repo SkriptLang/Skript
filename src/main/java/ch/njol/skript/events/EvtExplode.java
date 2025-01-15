@@ -9,14 +9,13 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.event.Event;
 import org.bukkit.event.entity.EntityExplodeEvent;
-import org.bukkit.event.entity.FireworkExplodeEvent;
 import org.jetbrains.annotations.Nullable;
 
 public class EvtExplode extends SkriptEvent {
 
 	static {
 		Skript.registerEvent("Explode", EvtExplode.class,
-				CollectionUtils.array(EffExplosion.ScriptExplodeEvent.class, FireworkExplodeEvent.class, EntityExplodeEvent.class),
+				CollectionUtils.array(EffExplosion.ScriptExplodeEvent.class, EntityExplodeEvent.class),
 				"[a] script[ed] explo(d(e|ing)|sion)",
 				"[a] [%-entitytypes%] explo(d(e|ing)|sion)"
 			)
