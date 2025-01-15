@@ -28,7 +28,7 @@ import ch.njol.util.Kleenean;
 		"set target block of player to wool with data value 1", "set target block of player to potato plant with data value 7",
 		"give player wooden sword with 1 durability named \"VERY BROKEN SWORD\"",
 		"set player's tool to diamond hoe with durability 500"})
-@Since("2.4, 2.10 (with durability)")
+@Since("2.4, INSERT VERSION (with durability)")
 public class ExprDamagedItem extends PropertyExpression<ItemType, ItemType> {
 
 	static {
