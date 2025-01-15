@@ -20,25 +20,25 @@ We can start with basic access to scripts.
 example: # Getting a script
 
 	# You can obtain the current script
-	set {script} to the current script
-	{script} exists
+	set {_script} to the current script
+	{_script} exists
 
 	# You can also find a script by name
-	set {script} to the script named "my cool script.sk"
+	set {_script} to the script named "my cool script.sk"
 
 	# Even if it's in a folder
-	set {script} to the script named "examples/events.sk"
+	set {_script} to the script named "examples/events.sk"
 
 	# Even if it's not enabled
-	set {script} to the script named "-disabled script.sk"
+	set {_script} to the script named "-disabled script.sk"
 
 
 example: # Looping scripts
 
 	# It's possible to find multiple scripts at a time.
-	set {scripts::*} to all loaded scripts
-	set {scripts::*} to to the scripts named "my script.sk" and "my cooler script.sk"
-	set {scripts::*} to the scripts in folder "examples/"
+	set {_scripts::*} to all loaded scripts
+	set {_scripts::*} to the scripts named "my script.sk" and "my cooler script.sk"
+	set {_scripts::*} to the scripts in folder "examples/"
 
 	loop all loaded scripts:
 		broadcast name of loop-value
@@ -47,40 +47,40 @@ example: # Looping scripts
 example: # The name and path of a script
 
 	# Scripts have a name, which is their file name (without .sk)
-	set {script} to the script named "my script.sk"
-	the name of {script} is "my script"
+	set {_script} to the script named "my script.sk"
+	the name of {_script} is "my script"
 
 	# This doesn't include their folder name
-	set {script} to the script named "folder/my script.sk"
-	the name of {script} is "my script"
+	set {_script} to the script named "folder/my script.sk"
+	the name of {_script} is "my script"
 
 	# However, if you just print out a script, it will include the whole path
-	set {script} to the script named "folder/my script.sk"
-	"%{script}%" is "folder/my script.sk"
+	set {_script} to the script named "folder/my script.sk"
+	"%{_script}%" is "folder/my script.sk"
 
 
 example: # Enabling, disabling and loading scripts
 
 	# You can enable a disabled script
-	set {script} to the script named "-disabled script.sk"
+	set {_script} to the script named "-disabled script.sk"
 	# This parses and loads its code
-	enable {script}
+	enable {_script}
 
 	# Now that it's been enabled, you can disable it again
-	set {script} to the script named "disabled script.sk"
+	set {_script} to the script named "disabled script.sk"
 	# This unloads its code and renames the script
-	disable {script}
+	disable {_script}
 
 	# A disabled script is skipped when Skript loads
 	# If you want to remove it temporarily, you can `unload` it
-	set {script} to the script named "my cool script.sk"
-	unload {script}
+	set {_script} to the script named "my cool script.sk"
+	unload {_script}
 
 	# You can then load it again, which is the same as enabling
-	load {script}
+	load {_script}
 
 	# Or just reload it
-	reload {script}
+	reload {_script}
 
 
 ###
@@ -147,7 +147,7 @@ example: # Value conversion
 example: # Looping nodes
 
 	# A config can be treated as a node
-	set {_node} to the the skript config
+	set {_node} to the skript config
 	# The nodes inside a section (or a config)
 	loop the nodes of {_node}:
 		# Nodes have a name
@@ -175,23 +175,23 @@ on damage:
 example: # Reading a script
 
 	# A script is also a config
-	set {script} to the script named "my script.sk"
+	set {_script} to the script named "my script.sk"
 
 	# The code in each line is the node name
-	set {node} to the node "on first join" in {script}
+	set {_node} to the node "on first join" in {_script}
 
 	# This event is a section, so we can loop it
-	loop the nodes of {node}:
+	loop the nodes of {_node}:
 		# There is only one line (node) in the section
 		the name of loop-value is "give apple to the player"
 
 	# You can traverse the node tree like this
-	set {node} to the node "on damage" in {script}
-	set {node} to the node "if the attacker exists" in {node}
+	set {_node} to the node "on damage" in {_script}
+	set {_node} to the node "if the attacker exists" in {_node}
 	# The first line inside that section
-	set {node} to the first element of nodes of {node}
+	set {_node} to the first element of nodes of {_node}
 
-	the name of {node} is "teleport the attacker to the victim"
+	the name of {_node} is "teleport the attacker to the victim"
 
 
 
@@ -205,35 +205,35 @@ The final part of script reflection is the ability to find and run a function.
 example: # Finding a function
 
 	# You can find a function by name
-	set {my function} to the function "my_function"
-	set {my function} to the function "my_function()"
+	set {_my function} to the function "my_function"
+	set {_my function} to the function "my_function()"
 
 	# You can also find a function from a particular script
-	set {my function} to the function "my_function" from {my script}
+	set {_my function} to the function "my_function" from {_my script}
 
 	# You can even get multiple functions at once
-	set {functions::*} to all functions from the current script
+	set {_functions::*} to all functions from the current script
 
 
 example: # Running a function
 
-	set {my function} to the function "my_function()"
+	set {_my function} to the function "my_function()"
 	# You can now run this function
-	run {my function}
+	run {_my function}
 
 	# You can also provide the arguments for running this function
-	run {my function} with arguments "hello" and 7.5
+	run {_my function} with arguments "hello" and 7.5
 
 
 example: # The result of a function
 
 	# Some functions return a result
-	set {my function} to the function "my_function()"
+	set {_my function} to the function "my_function()"
 	# Asking for the result runs the function
-	set {result} to the result of {my function}
+	set {_result} to the result of {_my function}
 
 	# You can also ask for the result with arguments
-	set {result} to the result of {my function} with arguments "hello" and 7.5
+	set {_result} to the result of {_my function} with arguments "hello" and 7.5
 
 
 # An example command to run a function by name

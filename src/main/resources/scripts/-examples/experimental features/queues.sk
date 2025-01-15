@@ -134,7 +134,7 @@ example: # Continuous processing of a queue
 
 	# Create a queue of all players (now) and some items
 	set {players} to a queue of all players
-	set {gifts} to potato, apple and carrot
+	set {gifts} to a queue of potato, apple and carrot
 
 	# This will keep cycling through the 'players' and 'gifts' queues
 	# until all of the initial players are no longer online
