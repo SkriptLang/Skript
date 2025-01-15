@@ -73,7 +73,7 @@ public class SimpleLiteral<T> implements Literal<T>, DefaultExpression<T> {
 	}
 
 	@Override
-	public boolean init() {
+	public boolean init(int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		return true;
 	}
 
@@ -88,22 +88,22 @@ public class SimpleLiteral<T> implements Literal<T>, DefaultExpression<T> {
 
 	@Override
 	public T[] getArray(Event event) {
-		return this.data();
+		return getArray();
 	}
 
 	@Override
 	public T[] getAll() {
-		return this.data();
+		return getArray();
 	}
 
 	@Override
 	public T[] getAll(Event event) {
-		return this.data();
+		return getArray();
 	}
 
 	@Override
 	public T getSingle() {
-		return CollectionUtils.getRandom(data);
+		return CollectionUtils.getRandom(getArray());
 	}
 
 	@Override

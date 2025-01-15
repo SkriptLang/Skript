@@ -213,7 +213,7 @@ public class SkriptParser {
 									ExprInfo exprInfo = types.get(i).getExprInfo();
 									if (!exprInfo.isOptional) {
 										DefaultExpression<?> expr = getDefaultExpression(exprInfo, info.patterns[patternIndex]);
-										if (!expr.init())
+										if (!expr.init(patternIndex, getParser().getHasDelayBefore(), parseResult))
 											continue patternsLoop;
 										parseResult.exprs[i] = expr;
 									}

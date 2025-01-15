@@ -135,10 +135,14 @@ public class EventValueExpression<T> extends SimpleExpression<T> implements Defa
 	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, ParseResult parser) {
 		if (expressions.length != 0)
 			throw new SkriptAPIException(this.getClass().getName() + " has expressions in its pattern but does not override init(...)");
-		return init();
+		return init(matchedPattern,	isDelayed, parser);
 	}
 
 	@Override
+	public boolean init(int matchedPattern, Kleenean isDelayed, ParseResult parser) {
+		return init();
+	}
+
 	public boolean init() {
 		ParseLogHandler log = SkriptLogger.startParseLogHandler();
 		try {
@@ -182,9 +186,8 @@ public class EventValueExpression<T> extends SimpleExpression<T> implements Defa
 	}
 
 	@Override
-	@Nullable
 	@SuppressWarnings("unchecked")
-	protected T[] get(Event event) {
+	protected T @Nullable [] get(Event event) {
 		T value = getValue(event);
 		if (value == null)
 			return (T[]) Array.newInstance(componentType, 0);
@@ -220,16 +223,15 @@ public class EventValueExpression<T> extends SimpleExpression<T> implements Defa
 	}
 
 	@Override
-	@Nullable
 	@SuppressWarnings("unchecked")
-	public Class<?>[] acceptChange(ChangeMode mode) {
+	public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
 		if (changer == null)
 			changer = (Changer<? super T>) Classes.getSuperClassInfo(componentType).getChanger();
 		return changer == null ? null : changer.acceptChange(mode);
 	}
 
 	@Override
-	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
+	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
 		if (changer == null)
 			throw new SkriptAPIException("The changer cannot be null");
 		ChangerUtils.change(changer, getArray(event), delta, mode);
@@ -262,9 +264,6 @@ public class EventValueExpression<T> extends SimpleExpression<T> implements Defa
 		return false;
 	}
 
-	/**
-	 * @return true
-	 */
 	@Override
 	public boolean isDefault() {
 		return true;
@@ -284,7 +283,7 @@ public class EventValueExpression<T> extends SimpleExpression<T> implements Defa
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
 		if (!debug || event == null)
-			return "event-" + Classes.getSuperClassInfo(componentType).getName().toString(!single);
+			return "the event-" + Classes.getSuperClassInfo(componentType).getName().toString(!single);
 		return Classes.getDebugMessage(getValue(event));
 	}
 

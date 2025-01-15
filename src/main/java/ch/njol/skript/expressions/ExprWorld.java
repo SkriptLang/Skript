@@ -10,7 +10,6 @@ import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer.ChangeMode;
-import org.skriptlang.skript.lang.converter.Converter;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
@@ -24,48 +23,47 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
 
-/**
- * @author Peter Güttinger
- */
 @Name("World")
 @Description("The world the event occurred in.")
-@Examples({"world is \"world_nether\"",
-		"teleport the player to the world's spawn",
-		"set the weather in the player's world to rain",
-		"set {_world} to world of event-chunk"})
+@Examples({
+	"world is \"world_nether\"",
+	"teleport the player to the world's spawn",
+	"set the weather in the player's world to rain",
+	"set {_world} to world of event-chunk"
+})
 @Since("1.0")
 public class ExprWorld extends PropertyExpression<Object, World> {
 
 	static {
 		Skript.registerExpression(ExprWorld.class, World.class, ExpressionType.PROPERTY, "[the] world [of %locations/entities/chunk%]", "%locations/entities/chunk%'[s] world");
 	}
-	
+
 	@Override
-	public boolean init(final Expression<?>[] exprs, final int matchedPattern, final Kleenean isDelayed, final ParseResult parser) {
+	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parser) {
 		Expression<?> expr = exprs[0];
 		if (expr == null) {
 			expr = new EventValueExpression<>(World.class);
-			if (!((EventValueExpression<?>) expr).init())
+			if (!((EventValueExpression<?>) expr).init(matchedPattern, isDelayed, parser))
 				return false;
 		}
 		setExpr(expr);
 		return true;
 	}
-	
+
 	@Override
-	protected World[] get(final Event e, final Object[] source) {
-		if (source instanceof World[]) // event value (see init)
-			return (World[]) source;
+	protected World[] get(Event event, Object[] source) {
+		if (source instanceof World[] worlds) // event value (see init)
+			return worlds;
 		return get(source, obj -> {
-			if (obj instanceof Entity) {
-				if (getTime() > 0 && e instanceof PlayerTeleportEvent && obj.equals(((PlayerTeleportEvent) e).getPlayer()) && !Delay.isDelayed(e))
-					return ((PlayerTeleportEvent) e).getTo().getWorld();
+			if (obj instanceof Entity entity) {
+				if (getTime() > 0 && event instanceof PlayerTeleportEvent playerTeleportEvent && obj.equals(playerTeleportEvent.getPlayer()) && !Delay.isDelayed(event))
+					return playerTeleportEvent.getTo().getWorld();
 				else
-					return ((Entity) obj).getWorld();
-			} else if (obj instanceof Location) {
-				return ((Location) obj).getWorld();
-			} else if (obj instanceof Chunk) {
-				return ((Chunk) obj).getWorld();
+					return entity.getWorld();
+			} else if (obj instanceof Location location) {
+				return location.getWorld();
+			} else if (obj instanceof Chunk chunk) {
+				return chunk.getWorld();
 			}
 			assert false : obj;
 			return null;
@@ -73,28 +71,25 @@ public class ExprWorld extends PropertyExpression<Object, World> {
 	}
 
 	@Override
-	@Nullable
-	public Class<?>[] acceptChange(final ChangeMode mode) {
-		if (mode == ChangeMode.SET)
-			return CollectionUtils.array(World.class);
-		return null;
+	public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
+		return mode == ChangeMode.SET ? CollectionUtils.array(World.class) : null;
 	}
 
 	@Override
-	public void change(Event e, @Nullable Object[] delta, ChangeMode mode) {
+	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
 		if (delta == null)
 			return;
 
-		for (Object o : getExpr().getArray(e)) {
-			if (o instanceof Location) {
-				((Location) o).setWorld((World) delta[0]);
+		World world = (World) delta[0];
+		for (Object object : getExpr().getArray(event)) {
+			if (object instanceof Location location) {
+				location.setWorld(world);
 			}
 		}
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
-	public boolean setTime(final int time) {
+	public boolean setTime(int time) {
 		return super.setTime(time, getExpr(), PlayerTeleportEvent.class);
 	}
 
@@ -104,8 +99,8 @@ public class ExprWorld extends PropertyExpression<Object, World> {
 	}
 
 	@Override
-	public String toString(final @Nullable Event e, final boolean debug) {
-		return "the world" + (getExpr().isDefault() ? "" : " of " + getExpr().toString(e, debug));
+	public String toString(@Nullable Event event, boolean debug) {
+		return "world" + (getExpr().isDefault() ? "" : " of " + getExpr().toString(event, debug));
 	}
 
 }
