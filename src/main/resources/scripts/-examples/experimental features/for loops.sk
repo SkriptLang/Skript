@@ -8,7 +8,7 @@ example: # A simple loop
 
 	# For-loops allow you to extract the loop value directly into a variable
 	for each {_player} in all players:
-    send "Hello!" to {_player}
+		send "Hello!" to {_player}
 
   # This is exactly the same as using a regular loop and loop-value
   loop all players:
