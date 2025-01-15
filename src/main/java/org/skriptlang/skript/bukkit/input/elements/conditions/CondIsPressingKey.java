@@ -2,6 +2,7 @@ package org.skriptlang.skript.bukkit.input.elements.conditions;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.*;
+import ch.njol.skript.effects.Delay;
 import ch.njol.skript.lang.Condition;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
@@ -46,6 +47,7 @@ public class CondIsPressingKey extends Condition {
 	private Expression<Player> players;
 	private Expression<InputKey> inputKeys;
 	private boolean past;
+	private boolean delayed;
 
 	@Override
 	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
@@ -54,8 +56,14 @@ public class CondIsPressingKey extends Condition {
 		//noinspection unchecked
 		inputKeys = (Expression<InputKey>) expressions[1];
 		past = matchedPattern > 1;
-		if (past && !getParser().isCurrentEvent(PlayerInputEvent.class))
-			Skript.warning("Checking the past state of a player's input outside the 'player input' event has no effect.");
+		delayed = !isDelayed.isFalse();
+		if (past) {
+			if (!getParser().isCurrentEvent(PlayerInputEvent.class)) {
+				Skript.warning("Checking the past state of a player's input outside the 'player input' event has no effect.");
+			} else if (delayed) {
+				Skript.warning("Checking the past state of a player's input after the event has passed has no effect.");
+			}
+		}
 		setNegated(matchedPattern == 1 || matchedPattern == 3);
 		return true;
 	}
@@ -65,10 +73,11 @@ public class CondIsPressingKey extends Condition {
 		Player eventPlayer = event instanceof PlayerInputEvent inputEvent ? inputEvent.getPlayer() : null;
 		InputKey[] inputKeys = this.inputKeys.getAll(event);
 		boolean and = this.inputKeys.getAnd();
+		boolean delayed = this.delayed || Delay.isDelayed(event);
 		return players.check(event, player -> {
 			Input input;
 			// If we want to get the new input of the event-player, we must get it from the event
-			if (!past && player.equals(eventPlayer)) {
+			if (!delayed && !past && player.equals(eventPlayer)) {
 				input = ((PlayerInputEvent) event).getInput();
 			} else { // Otherwise, we get the current (or past in case of an event-player) input
 				input = player.getCurrentInput();
