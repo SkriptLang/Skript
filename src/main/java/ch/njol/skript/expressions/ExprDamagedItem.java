@@ -62,7 +62,7 @@ public class ExprDamagedItem extends PropertyExpression<ItemType, ItemType> {
 		return get(source.clone(), item -> {
 			if (pattern > 1){
 				ItemUtils.setDamage(item, (ItemUtils.getMaxDamage(item) - damage.intValue()));
-			}else{
+			} else {
 				item.iterator().forEachRemaining(i -> i.setDurability(damage.intValue()));
 			}
 			return item;
