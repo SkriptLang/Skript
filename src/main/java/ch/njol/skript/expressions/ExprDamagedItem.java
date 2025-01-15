@@ -18,9 +18,9 @@ import ch.njol.util.Kleenean;
 
 @Name("Damaged Item")
 @Description({
-		"Directly changes the durability of an item.",
-		"Damage is used to remove the specified number from the base durability of an item. E.g 400 - damage",
-		"Durability is used to modify the total durability"
+		"Changes the durability of an item.",
+		"Damage is used to remove the specified number from the base durability of an item, e.g. 400 - damage. "
+		+ "Durability is used to modify the total durability."
 })
 @Examples({"give player diamond sword with damage value 100", "set player's tool to diamond hoe damaged by 250",
 		"give player diamond sword with damage 700 named \"BROKEN SWORD\"",
