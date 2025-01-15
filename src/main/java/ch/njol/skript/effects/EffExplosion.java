@@ -123,6 +123,10 @@ public class EffExplosion extends Effect {
 			return HANDLER_LIST;
 		}
 
+		public static HandlerList getHandlerList() {
+			return HANDLER_LIST;
+		}
+
 	}
 
 }
