@@ -1770,6 +1770,13 @@ public final class BukkitEventValues {
 					return event.getLootContext().getLocation();
 				}
 			}, EventValues.TIME_NOW);
+			EventValues.registerEventValue(LootGenerateEvent.class, String.class, new Getter<String, LootGenerateEvent>() {
+				@Override
+				@Nullable
+				public Location get(LootGenerateEvent event) {
+					return event.getLootTable().toString;
+				}
+			}, EventValues.TIME_NOW);
 		}
 
 		// EntityResurrectEvent
