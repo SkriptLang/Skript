@@ -23,7 +23,7 @@ public interface Changer<T> {
 
 	enum ChangeMode {
 		ADD, SET, REMOVE, REMOVE_ALL, DELETE, RESET,
-		/** Used for internal setting after a value has been modified within a change method */
+		/** Used for internal setting after a value has been modified, like within a change method */
 		INTERNAL;
 
 		public boolean supportsKeyedChange() {
