@@ -3,6 +3,7 @@ package ch.njol.skript.expressions;
 import ch.njol.skript.lang.SyntaxStringBuilder;
 import ch.njol.skript.lang.Variable;
 import ch.njol.skript.util.LiteralUtils;
+import ch.njol.util.Pair;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
@@ -19,9 +20,9 @@ import ch.njol.util.Kleenean;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 
 @Name("Indices Of")
 @Description({
@@ -29,9 +30,11 @@ import java.util.Map.Entry;
 		+ "'positions of %text% in %text%'. -1 is returned when the value does not occur in the text. "
 		+ "Positions range from 1 to the <a href='#ExprIndicesOf'>length</a> of the text.",
 	"",
-	"Using 'indices/positions of %objects%', you can get the indices or positions of a list where the value at that index is the provided value. "
+	"Using 'indices/positions of %objects% in %objects%', you can get the indices or positions of "
+		+ "a list where the value at that index is the provided value. "
 		+ "Indices are only supported for variable lists and will return the string indices of the given value. "
-		+ "Positions can be used with any list and will return the numerical position of the value in the list, counting up from 1. "
+		+ "Positions can be used with any list and will return "
+		+ "the numerical position of the value in the list, counting up from 1. "
 		+ "Note that nothing is returned if the value is not found in the list."
 })
 @Examples({
@@ -77,24 +80,25 @@ public class ExprIndicesOf extends SimpleExpression<Object> {
 		);
 	}
 	
-	private IndexType type;
-	private boolean position;
-	private boolean string;
+	private IndexType indexType;
+	private boolean position, string;
 	private Expression<?> value, objects;
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		if (exprs[1].isSingle() && (matchedPattern > 0)) {
-			Skript.error("'" + exprs[1] + "' can only ever have one value at most, thus the 'indices of x in list' expression has no effect.");
+			Skript.error("'" + exprs[1] + "' can only ever have one value at most, "
+				+ "thus the 'indices of x in list' expression has no effect.");
 			return false;
 		}
 
 		if (!(exprs[1] instanceof Variable<?>) && matchedPattern == 2) {
-			Skript.error("'" + exprs[1] + "' is not a list variable. You can only get the indices of a list variable.");
+			Skript.error("'" + exprs[1] + "' is not a list variable. "
+				+ "You can only get the indices of a list variable.");
 			return false;
 		}
 
-		type = IndexType.values()[parseResult.mark];
+		indexType = IndexType.values()[parseResult.mark];
 		position = matchedPattern <= 1;
 		string = matchedPattern == 0;
 		value = LiteralUtils.defendExpression(exprs[0]);
@@ -106,45 +110,31 @@ public class ExprIndicesOf extends SimpleExpression<Object> {
 	@Override
 	protected Object @Nullable [] get(Event event) {
 		Object value = this.value.getSingle(event);
-		if (value == null) {
+		if (value == null)
 			return (Object[]) Array.newInstance(getReturnType(), 0);
-		}
 
 		if (this.position) {
 			if (string) {
 				String haystack = (String) objects.getSingle(event);
-				if (haystack == null) {
+				if (haystack == null)
 					return new Long[0];
-				}
 
 				return getStringPositions(haystack, (String) value);
 			}
 
-			Object[] list = objects.getArray(event);
-			if (list == null) {
-				return new Long[0];
-			}
-
-			return getListPositions(list, value);
+			return getListPositions(objects, value, event);
 		}
 
 		assert objects instanceof Variable<?>;
 
-		Variable<?> list = (Variable<?>) objects;
-		//noinspection unchecked
-		Map<String, Object> variable = (Map<String, Object>) list.getRaw(event);
-		if (variable == null) {
-			return new String[0];
-		}
-
-		return getVariableIndices(variable, value);
+		return getVariableIndices((Variable<?>) objects, value, event);
 	}
 
 	private Long[] getStringPositions(String haystack, String needle) {
 		List<Long> positions = new ArrayList<>();
 		long position = haystack.indexOf(needle);
 
-		if (type == IndexType.ALL) {
+		if (indexType == IndexType.ALL) {
 			while (position != -1) {
 				positions.add(position + 1);
 				position = haystack.indexOf(needle, (int) position + 1);
@@ -152,58 +142,65 @@ public class ExprIndicesOf extends SimpleExpression<Object> {
 			return positions.toArray(new Long[0]);
 		}
 
-		if (type == IndexType.LAST) {
+		if (indexType == IndexType.LAST)
 			position = haystack.lastIndexOf(needle);
-		}
 
 		return new Long[]{(position == -1 ? -1 : position + 1)};
 	}
 
-	private Long[] getListPositions(Object[] list, Object value) {
+	private Long[] getListPositions(Expression<?> list, Object value, Event event) {
+		Iterator<?> iterator = list.iterator(event);
+		if (iterator == null)
+			return new Long[0];
+
 		List<Long> positions = new ArrayList<>();
 
-		long position = 1;
-		for (Object object : list) {
-			if (!object.equals(value)) {
-				position++;
-				continue;
-			}
-
-			if (type == IndexType.FIRST) {
-				return new Long[]{position};
-			}
-			positions.add(position);
-
+		long position = 0;
+		while (iterator.hasNext()) {
 			position++;
+
+			if (!iterator.next().equals(value))
+				continue;
+
+			if (indexType == IndexType.FIRST)
+				return new Long[]{position};
+
+			positions.add(position);
 		}
 
-		if (type == IndexType.LAST) {
+		if (indexType == IndexType.LAST)
 			return new Long[]{positions.get(positions.size() - 1)};
-		}
 
 		return positions.toArray(new Long[0]);
 	}
 
-	private String[] getVariableIndices(Map<String, Object> variable, Object value) {
+	private String[] getVariableIndices(Variable<?> variable, Object value, Event event) {
+		Iterator<Pair<String, Object>> iterator = variable.variablesIterator(event);
+		if (iterator == null)
+			return new String[0];
+
 		List<String> indices = new ArrayList<>();
 
-		for (Entry<String, Object> entry : variable.entrySet()) {
-			Object entryValue = entry.getValue();
-			// the value of {foo::1} when {foo::1::bar} is set is a map with a null key of the value {foo::1}
-			if (entryValue instanceof Map<?, ?> map)
-				entryValue = map.get(null);
+		while (iterator.hasNext()) {
+			var pair = iterator.next();
 
-			if (entryValue.equals(value)) {
-				if (type == IndexType.FIRST)
-					return new String[]{entry.getKey()};
-				indices.add(entry.getKey());
+			Object pairValue = pair.getValue();
+			// when {foo::1::bar} is set, the value of {foo::1} is a map with a null key that holds the value of {foo::1}
+			if (pairValue instanceof Map<?, ?> map)
+				pairValue = map.get(null);
+
+			if (pairValue.equals(value)) {
+				if (indexType == IndexType.FIRST)
+					return new String[]{pair.getKey()};
+
+				indices.add(pair.getKey());
 			}
 		}
 
 		if (indices.isEmpty())
 			return new String[0];
 
-		if (type == IndexType.LAST)
+		if (indexType == IndexType.LAST)
 			return new String[]{indices.get(indices.size() - 1)};
 
 		return indices.toArray(new String[0]);
@@ -211,7 +208,7 @@ public class ExprIndicesOf extends SimpleExpression<Object> {
 	
 	@Override
 	public boolean isSingle() {
-		return type == IndexType.FIRST || type == IndexType.LAST;
+		return indexType == IndexType.FIRST || indexType == IndexType.LAST;
 	}
 	
 	@Override
@@ -225,11 +222,11 @@ public class ExprIndicesOf extends SimpleExpression<Object> {
 	public String toString(@Nullable Event event, boolean debug) {
 		SyntaxStringBuilder builder = new SyntaxStringBuilder(event, debug);
 
-		builder.append(type.name().toLowerCase());
+		builder.append(indexType.name().toLowerCase());
 		if (position) {
 			builder.append("positions");
 		} else {
-			builder.append("index");
+			builder.append("indices");
 		}
 		builder.append("of value", value, "in", objects);
 
