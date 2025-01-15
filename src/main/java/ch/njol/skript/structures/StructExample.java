@@ -21,9 +21,10 @@ import org.skriptlang.skript.lang.structure.Structure;
 	"They are used as miniature tutorials for demonstrating code snippets in the example files.",
 	"Scripts containing an example are seen as 'examples' by the parser and may have special safety restrictions."
 })
-@Examples({
-	"example:",
-	"\tbroadcast \"hello world\""
+@Examples({"""
+	example:
+		broadcast "hello world"
+		# this is never run"""
 })
 @Since("INSERT VERSION")
 public class StructExample extends Structure {
