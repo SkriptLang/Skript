@@ -66,9 +66,9 @@ command /anotherloopexample:
 			send "%loop-index%. %loop-value%"
 			give loop-value to player
 
-        loop blocks in radius 2 of player:
-            loop-block is a chest
-            loop items in loop-block: # Loop-block comes from the first loop, loop-item from the second.
-                loop-item is a dirt block # Matches any dirt block item
-                send "%loop-block% contains %loop-item%!"
-                exit loop # Exits the item loop.
+		loop blocks in radius 2 of player:
+			loop-block is a chest
+			loop items in loop-block: # Loop-block comes from the first loop, loop-item from the second.
+				loop-item is a dirt block # Matches any dirt block item
+				send "%loop-block% contains %loop-item%!"
+				exit loop # Exits the item loop.

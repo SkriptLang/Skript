@@ -48,8 +48,8 @@ command /home <text> [<text>]:
 #
 
 aliases:
-    # Creates an alias `blacklisted` for this list of items.
-    blacklisted = TNT, bedrock, obsidian, spawner, lava, lava bucket
+	# Creates an alias `blacklisted` for this list of items.
+	blacklisted = TNT, bedrock, obsidian, spawner, lava, lava bucket
 
 command /item <items>:
 	description: Give yourself some items.

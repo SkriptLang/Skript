@@ -132,11 +132,14 @@ public class SecLoop extends LoopSection {
 				Object value = expression.getSingle(event);
 				if (value instanceof Iterable<?> iterable) {
 					iter = iterable.iterator();
+					// Guaranteed to be ordered so we try it first
+				} else if (value instanceof Container<?> container) {
+					iter = container.containerIterator();
 				} else {
 					iter = Collections.singleton(value).iterator();
 				}
 			} else {
-				iter = expression instanceof Variable variable ? variable.variablesIterator(event) :
+				iter = expression instanceof Variable<?> variable ? variable.variablesIterator(event) :
 					expression.iterator(event);
 				if (iter != null && iter.hasNext()) {
 					iteratorMap.put(event, iter);

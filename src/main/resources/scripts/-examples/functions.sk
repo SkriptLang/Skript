@@ -34,22 +34,22 @@ command /appleexample:
 # Please note that self-calling functions can loop infinitely, so use with caution.
 #
 
-function destroyGold(source: block) :: blocks:
-    add {_source} to {_found::*}
-    break {_source} naturally using an iron pickaxe
-    loop blocks in radius 1 of {_source}:
-        loop-block is a gold ore block
-        break loop-block naturally using an iron pickaxe
-        if {_found::*} does not contain loop-block:
-            add destroyGold(loop-block) to {_found::*}
-    return {_found::*}
+function destroy_gold(source: block) :: blocks:
+	add {_source} to {_found::*}
+	break {_source} naturally using an iron pickaxe
+	loop blocks in radius 1 of {_source}:
+		loop-block is a gold ore block
+		break loop-block naturally using an iron pickaxe
+		if {_found::*} does not contain loop-block:
+			add destroy_gold(loop-block) to {_found::*}
+	return {_found::*}
 
 command /oreexample:
-    permission: skript.example.ore
-    trigger:
-        if the player's target block is a gold ore block:
-            send "Destroying all connected ore."
-            set {_found::*} to destroyGold(player's target block)
-            send "Destroyed %size of {_found::*}% connected ores!"
-        else:
-            send "<red>You must be looking at an ore block!"
+	permission: skript.example.ore
+	trigger:
+		if the player's target block is a gold ore block:
+			send "Destroying all connected ore."
+			set {_found::*} to destroy_gold(player's target block)
+			send "Destroyed %size of {_found::*}% connected ores!"
+		else:
+			send "<red>You must be looking at an ore block!"
