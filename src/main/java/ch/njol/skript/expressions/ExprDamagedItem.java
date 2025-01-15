@@ -33,10 +33,10 @@ public class ExprDamagedItem extends PropertyExpression<ItemType, ItemType> {
 
 	static {
 		Skript.registerExpression(ExprDamagedItem.class, ItemType.class, ExpressionType.COMBINED,
-				"%itemtype% with (damage|data) [value] %number%",
-				"%itemtype% damaged by %number%",
-				"%itemtype% with durability %number%",
-				"%itemtype% with %number% durability");
+				"%itemtypes% with (damage|data) [value] %number%",
+				"%itemtypes% damaged by %number%",
+				"%itemtypes% with durability %number%",
+				"%itemtypes% with %number% durability");
 	}
 
 	@SuppressWarnings("null")
