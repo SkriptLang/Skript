@@ -1,5 +1,7 @@
 package ch.njol.skript.config;
 
+import org.jetbrains.annotations.Nullable;
+
 /**
  * @author Peter Güttinger
  */
@@ -21,6 +23,11 @@ public class SimpleNode extends Node {
 
 	public void set(final String s) {
 		key = s;
+	}
+
+	@Override
+	public @Nullable Node get(String key) {
+		return null;
 	}
 
 }

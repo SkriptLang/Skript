@@ -4,6 +4,15 @@ test "name of world":
 	set the name of {_thing} to "blob"
 	assert name of {_thing} is "world" with "world name changed"
 
+	# silly test for plural any-named
+	set {_things::*} to the world "world", the world "world" and the world "world"
+
+	set {_blah::*} to the names of {_things::*}
+	assert {_blah::*} is "world", "world" and "world" with "names were wrong"
+	delete {_blah::*}
+	set {_blah::*} to the name of {_things::*}
+	assert {_blah::*} is "world", "world" and "world" with "names were wrong"
+
 test "name of entity":
 	set {_before} to 5
 	spawn a pig at spawn of "world":
@@ -24,3 +33,55 @@ test "name of item":
 	assert name of {_thing} does not exist with "name was set"
 	set the name of {_thing} to "blob"
 	assert name of {_thing} is "blob" with "item name didn't change"
+
+using script reflection
+
+test "config name (new)":
+	set {_node} to the skript config
+	set {_node} to node "language" of {_node}
+	assert name of {_node} is "language" with "config node name was wrong"
+
+	# node in node
+	set {_node} to the skript config
+	set {_node} to node "disable hooks.vault" of {_node}
+	assert name of {_node} is "vault" with "config node name was wrong"
+	assert "%{_node}%" is "disable hooks.vault" with "config node path was wrong"
+
+test "node name (new)":
+	set {_node} to the current script
+	set {_node} to the first element of nodes of {_node}
+	assert name of {_node} is "test ""name of world""" with "first node name was wrong"
+
+	set {_node} to the current script
+	set {_node} to the 4th element of nodes of {_node} # Obviously, this changes if this file changes
+	assert name of {_node} is "using script reflection" with "4th node name was wrong"
+
+	# root node
+	set {_node} to the skript config
+	set {_node} to node "language" of {_node}
+	assert name of {_node} is "language" with "config node name was wrong"
+
+	# node in node
+	set {_node} to the skript config
+	set {_node} to node "disable hooks.vault" of {_node}
+	assert name of {_node} is "vault" with "config node name was wrong"
+	assert "%{_node}%" is "disable hooks.vault" with "config node path was wrong"
+
+test "script name (new)":
+	set {_name} to the script's name
+	assert {_name} is "ExprName" with "script name is wrong"
+	# New behaviour includes just the name, since path is available by string-ifying the script
+
+test "function name (new)":
+	set {_function} to the function named "testExprName"
+	set {_name} to {_function}'s name
+	assert {_name} is "testExprName" with "function name is wrong"
+
+	# we want to make sure any brackets don't somehow get included
+	set {_function} to the function named "testExprName()"
+	set {_name} to {_function}'s name
+	assert {_name} is "testExprName" with "function name is wrong"
+
+local function testExprName():
+	# do nothing
+	stop

@@ -31,16 +31,16 @@ public class EffTestPluralClassInfos extends Effect {
 		if (TestMode.ENABLED) {
 			Classes.registerClass(new ClassInfo<>(Example1.class, "testgui")
 				.user("example1")
-				.name("Test -ui"));
+				.name(ClassInfo.NO_DOC));
 			Classes.registerClass(new ClassInfo<>(Example2.class, "exemplus")
 				.user("example2")
-				.name("Test -i"));
+				.name(ClassInfo.NO_DOC));
 			Classes.registerClass(new ClassInfo<>(Example3.class, "aardwolf")
 				.user("example3")
-				.name("Test -ves"));
+				.name(ClassInfo.NO_DOC));
 			Classes.registerClass(new ClassInfo<>(Example4.class, "hoof")
 				.user("example3")
-				.name("Test -ves 2"));
+				.name(ClassInfo.NO_DOC));
 			Skript.registerEffect(EffTestPluralClassInfos.class,
 				"classinfo test for %testgui%",
 				"classinfo test for %testguis%",

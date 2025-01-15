@@ -14,7 +14,7 @@ import org.bukkit.entity.Entity;
 @Name("Is Custom Name Visible")
 @Description("Checks if an entity's custom name is visible.")
 @Examples("send true if target's custom name is visible")
-@Since("INSERT VERSION")
+@Since("2.10")
 public class CondIsCustomNameVisible extends PropertyCondition<Entity> {
 
 	static {

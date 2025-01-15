@@ -38,7 +38,7 @@ import java.util.Locale;
 	"set z component of {_v} to 3",
 	"send \"%x component of {_v}%, %y component of {_v}%, %z component of {_v}%\""
 })
-@Since("2.2-dev28, INSERT VERSION (quaternions)")
+@Since("2.2-dev28, 2.10 (quaternions)")
 public class ExprXYZComponent extends SimplePropertyExpression<Object, Number> {
 
 	private static final boolean IS_RUNNING_1194 = Skript.isRunningMinecraft(1, 19, 4);
