@@ -105,7 +105,7 @@ public class SpawnerUtils {
 	}
 
 	/**
-	 * Returns the current trial spawner configuration of the spawner. I.e. ominous or regular.
+	 * Returns the current trial spawner configuration of the spawner. I.e. ominous or normal.
 	 * @param spawner the spawner
 	 * @return the current trial spawner configuration
 	 */

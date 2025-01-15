@@ -58,10 +58,11 @@ public class SpawnerModule implements AddonModule {
 				@Override
 				public String toString(TrialSpawnerConfig config, int flags) {
 					StringBuilder builder = new StringBuilder();
-					if (config.ominous())
+					if (config.ominous()) {
 						builder.append("ominous ");
-					else
+					} else {
 						builder.append("normal ");
+					}
 					builder.append("trial spawner configuration of trial spawner at ")
 						.append(Classes.toString(config.state().getLocation()));
 					return builder.toString();
@@ -169,7 +170,7 @@ public class SpawnerModule implements AddonModule {
 
 				@Override
 				public String toString(Drops equipment, int flags) {
-					return "equipment drop chance of "
+					return "equipment drop with chance "
 						+ equipment.getDropChance()
 						+ " for "
 						+ Classes.toString(equipment.getEquipmentSlot());
@@ -177,7 +178,7 @@ public class SpawnerModule implements AddonModule {
 
 				@Override
 				public String toVariableNameString(Drops equipment) {
-					return "equipment drop chance:" + equipment.getEquipmentSlot() + ',' + equipment.getDropChance();
+					return "equipment drop:" + equipment.getEquipmentSlot() + ',' + equipment.getDropChance();
 				}
 			})
 		);

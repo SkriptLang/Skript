@@ -27,12 +27,7 @@ import java.util.List;
 	"Every spawn attempt, the spawner will pick a random entry "
 		+ "from the list of potential spawner entries and spawn it."
 		+ "The spawner entity will be overwritten to the "
-		+ "entity snapshot of the highest weighted spawner entry from the list.",
-	"",
-	"Apparently adding/setting spawner entries to the potential spawns of a spawner "
-		+ "will ignore any equipment loot tables and always spawn the entities naked. "
-		+ "Although it does not seem to affect the spawn rules or weight."
-		+ "Setting the spawner entity will spawn the entity with the equipment loot table.",
+		+ "entity snapshot of the highest weighted spawner entry from the list of potential spawns.",
 	"",
 	"Please note that this expression gets the trial spawner configuration "
 		+ "with the current state (i.e. ominous, normal) of the trial spawner block, if such is provided.",
@@ -53,8 +48,8 @@ public class ExprPotentialSpawns extends PropertyExpression<Object, SpawnerEntry
 			.supplier(ExprPotentialSpawns::new)
 			.priority(PropertyExpression.DEFAULT_PRIORITY)
 			.addPatterns(
-				"[the] potential spawns (of|from) %entities/blocks/trialspawnerconfigs%",
-				"%entities/blocks/trialspawnerconfigs%'[s] potential spawns")
+				"[the] potential spawn[s] (of|from) %entities/blocks/trialspawnerconfigs%",
+				"%entities/blocks/trialspawnerconfigs%'[s] potential spawn[s]")
 			.build();
 
 		SpawnerModule.SYNTAX_REGISTRY.register(SyntaxRegistry.EXPRESSION, info);
@@ -112,20 +107,18 @@ public class ExprPotentialSpawns extends PropertyExpression<Object, SpawnerEntry
 
 			BaseSpawner spawner = SpawnerUtils.getAsBaseSpawner(object);
 
+			List<SpawnerEntry> potentialSpawns = spawner.getPotentialSpawns();
+
 			switch (mode) {
 				case SET -> spawner.setPotentialSpawns(entries);
-				case ADD -> {
-					for (SpawnerEntry entry : entries) {
-						spawner.addPotentialSpawn(entry);
-					}
-				}
-				case REMOVE -> {
-					List<SpawnerEntry> potentialSpawns = spawner.getPotentialSpawns();
-					potentialSpawns.removeAll(entries);
-					spawner.setPotentialSpawns(potentialSpawns);
-				}
+				case ADD -> potentialSpawns.addAll(entries);
+				case REMOVE -> potentialSpawns.removeAll(entries);
 				case RESET, DELETE -> spawner.setPotentialSpawns(new ArrayList<>());
 			}
+
+			if (mode == ChangeMode.ADD || mode == ChangeMode.REMOVE)
+				spawner.setPotentialSpawns(potentialSpawns);
+			// this is done because apparently there is a bug with the add method
 
 			SpawnerUtils.updateState(spawner);
 		}

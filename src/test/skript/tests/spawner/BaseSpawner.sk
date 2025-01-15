@@ -1,0 +1,54 @@
+test "base spawner":
+	if running below minecraft "1.21":
+		stop
+
+	# This file contains all expressions/effects/conditions that are related to base spawners
+
+	set {_pastblock} to block data of test-block
+
+	set test-block to a spawner
+
+	# ExprActivationRange
+
+	set spawner activation range of test-block to 5
+	assert spawner activation range of test-block is 5 with "simple spawner activation range set failed"
+
+	set spawner activation range of test-block to -1
+	assert spawner activation range of test-block is -1 with "negative spawner activation range set failed"
+
+	set spawner activation range of test-block to 2.3
+	assert spawner activation range of test-block is 2 with "decimal spawner activation range set failed"
+
+	set spawner activation range of test-block to 2.99999
+	assert spawner activation range of test-block is 2 with "close decimal spawner activation range set failed"
+
+	set spawner activation range of test-block to nan value
+	assert spawner activation range of test-block is 0 with "nan spawner activation range set failed"
+
+	set spawner activation range of test-block to infinity value
+	assert spawner activation range of test-block is -1 with "infinity spawner activation range set failed"
+	# apparently it gets set to -1
+
+	reset spawner activation range of test-block
+	assert spawner activation range of test-block is 16 with "spawner activation range reset failed"
+
+	# ExprPotentialSpawns
+
+	assert potential spawns of test-block is not set with "default potential spawns is set"
+
+	set {_entry} to a spawner entry using entity snapshot of a zombie
+	add {_entry} to potential spawns of test-block
+
+	assert potential spawns of test-block contains {_entry} with "potential spawns doesn't contain value"
+
+	remove {_entry} from potential spawns of test-block
+
+	assert potential spawns of test-block does not contain {_entry} set with "potential spawns contains value"
+
+	clear potential spawns of test-block
+
+	# ExprSpawnedEntity
+
+	
+
+
