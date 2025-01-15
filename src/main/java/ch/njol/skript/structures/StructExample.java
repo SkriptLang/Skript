@@ -67,7 +67,7 @@ public class StructExample extends Structure {
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return "function";
+		return "example";
 	}
 
 }
