@@ -85,34 +85,32 @@ public class ExprTag extends SimpleExpression<Tag> {
 		};
 
 		nextName: for (String name : this.names.getArray(event)) {
-			// get key
-			NamespacedKey key;
-			boolean providedNamespace = name.contains(":");
-			for (String namespace : namespaces) {
-				if (providedNamespace) {
-					key = NamespacedKey.fromString(name);
-					if (key == null)
-						continue nextName;
-				} else {
-					// populate namespace if not provided
-					key = new NamespacedKey(namespace, name);
-				}
-
-				for (TagType<?> type : types) {
-					Tag<?> tag = TagModule.tagRegistry.getTag(origin, type, key);
-					if (tag != null
-						// ensures that only datapack/minecraft tags are sent when specifically requested
-						&& (origin != TagOrigin.BUKKIT || (datapackOnly ^ tag.getKey().getNamespace().equals("minecraft")))
-					) {
+			if (name.contains(":")) {
+				tags.add(findTag(NamespacedKey.fromString(name)));
+			} else {
+				for (String namespace : namespaces) {
+					Tag<?> tag = findTag(new NamespacedKey(namespace, name));
+					if (tag != null) {
 						tags.add(tag);
-						continue nextName; // ensure 1:1
+						continue nextName;
 					}
 				}
-				if (providedNamespace)
-					continue nextName;
 			}
 		}
-		return tags.toArray(new Tag[0]);
+		return tags.toArray(Tag[]::new);
+	}
+
+	private Tag<?> findTag(NamespacedKey key) {
+		for (TagType<?> type : types) {
+			Tag<?> tag = TagModule.tagRegistry.getTag(origin, type, key);
+			if (tag != null
+				// ensures that only datapack/minecraft tags are sent when specifically requested
+				&& (origin != TagOrigin.BUKKIT || (datapackOnly ^ tag.getKey().getNamespace().equals("minecraft")))
+			) {
+				return tag;
+			}
+		}
+		return null;
 	}
 
 	@Override
