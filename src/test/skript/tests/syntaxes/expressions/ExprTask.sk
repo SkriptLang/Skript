@@ -1,0 +1,14 @@
+using script reflection
+using tasks
+
+test "basic tasks":
+	set {ExprTask} to false
+
+	set {_task} to a task:
+		set {ExprTask} to true
+
+	assert {ExprTask} is false with "task ran prematurely"
+	run {_task}
+	assert {ExprTask} is true with "task didn't run"
+
+	delete {ExprTask}

@@ -31,6 +31,7 @@ import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.script.Script;
+import org.skriptlang.skript.util.Completable;
 import org.skriptlang.skript.util.Executable;
 import org.skriptlang.skript.util.Task;
 
@@ -847,7 +848,7 @@ public class SkriptClasses {
 			.examples("run {_function} with arguments 1 and true")
 			.since("2.10"));
 
-		Classes.registerClass(new ClassInfo<>(Task.class, "completable")
+		Classes.registerClass(new ClassInfo<>(Completable.class, "completable")
 			.user("completables?")
 			.name("Completable")
 			.description("Something that can be completed (e.g. a task).")

@@ -12,8 +12,8 @@ import ch.njol.skript.variables.Variables;
 /**
  * @author Peter Güttinger
  */
-public class IndeterminateDelay extends Delay {
-	
+public class IndeterminateDelay extends Delay { // todo remove???
+
 	@Override
 	@Nullable
 	protected TriggerItem walk(Event event) {
@@ -24,13 +24,13 @@ public class IndeterminateDelay extends Delay {
 
 		if (next != null && Skript.getInstance().isEnabled()) { // See https://github.com/SkriptLang/Skript/issues/3702
 			Delay.addDelayedEvent(event);
-			Timespan duration = this.duration.getSingle(event);
+			Timespan duration = (Timespan) this.target.getSingle(event); // todo
 			if (duration == null)
 				return null;
-			
+
 			// Back up local variables
 			Object localVars = Variables.removeLocals(event);
-			
+
 			Bukkit.getScheduler().scheduleSyncDelayedTask(Skript.getInstance(), () -> {
 				Skript.debug(getIndentation() + "... continuing after " + (System.nanoTime() - start) / 1_000_000_000. + "s");
 
@@ -44,10 +44,10 @@ public class IndeterminateDelay extends Delay {
 
 		return null;
 	}
-	
+
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
 		return "wait for operation to finish";
 	}
-	
+
 }
