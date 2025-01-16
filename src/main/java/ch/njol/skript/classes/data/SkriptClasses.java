@@ -32,6 +32,7 @@ import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.script.Script;
 import org.skriptlang.skript.util.Executable;
+import org.skriptlang.skript.util.Task;
 
 import java.io.File;
 import java.io.StreamCorruptedException;
@@ -845,6 +846,20 @@ public class SkriptClasses {
 					"This may also return a result.")
 			.examples("run {_function} with arguments 1 and true")
 			.since("2.10"));
+
+		Classes.registerClass(new ClassInfo<>(Task.class, "completable")
+			.user("completables?")
+			.name("Completable")
+			.description("Something that can be completed (e.g. a task).")
+			.examples("complete the current task", "{task} is completed")
+			.since("INSERT VERSION"));
+
+		Classes.registerClass(new ClassInfo<>(Task.class, "task")
+			.user("tasks?")
+			.name("Task")
+			.description("A task is an executable section of code. Other triggers can wait for its completion.")
+			.examples("run {_task}")
+			.since("INSERT VERSION"));
 
 		Classes.registerClass(new ClassInfo<>(DynamicFunctionReference.class, "function")
 			.user("functions?")
