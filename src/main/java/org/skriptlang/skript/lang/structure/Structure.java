@@ -19,6 +19,7 @@ import ch.njol.util.coll.iterator.CheckedIterator;
 import ch.njol.util.coll.iterator.ConsumingIterator;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.UnknownNullability;
 import org.skriptlang.skript.lang.entry.EntryContainer;
 import org.skriptlang.skript.lang.entry.EntryData;
 import org.skriptlang.skript.lang.entry.EntryValidator;
@@ -84,6 +85,13 @@ public abstract class Structure implements SyntaxElement, Debuggable {
 		return entryContainer;
 	}
 
+	/**
+	 * Override to set a custom entry validator for this structure.
+	 * 
+	 * @return The entry validator for this structure, or null if no validation is necessary.
+	 */
+	public EntryValidator entryValidator() { return null; }
+
 	@Override
 	public final boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		StructureData structureData = getParser().getData(StructureData.class);
@@ -97,7 +105,11 @@ public abstract class Structure implements SyntaxElement, Debuggable {
 			return init(literals, matchedPattern, parseResult, null);
 		}
 
-		EntryValidator entryValidator = structureInfo.entryValidator;
+
+		EntryValidator entryValidator = entryValidator();
+		if (entryValidator == null && structureInfo.entryValidator != null) {
+			entryValidator = structureInfo.entryValidator;
+		}
 		if (entryValidator == null) {
 			// No validation necessary, the structure itself will handle it
 			entryContainer = EntryContainer.withoutValidator((SectionNode) structureData.node);
@@ -115,11 +127,16 @@ public abstract class Structure implements SyntaxElement, Debuggable {
 	 * The initialization phase of a Structure.
 	 * Typically, this should be used for preparing fields (e.g. handling arguments, parse tags)
 	 * Logic such as trigger loading should be saved for a loading phase (e.g. {@link #load()}).
+	 * 
+	 * @param args The arguments of the Structure.
+	 * @param matchedPattern The matched pattern of the Structure.
+	 * @param parseResult The parse result of the Structure.
+	 * @param entryContainer The EntryContainer of the Structure. Will not be null if the Structure provides {@link #entryValidator()}.
 	 * @return Whether initialization was successful.
 	 */
 	public abstract boolean init(
 		Literal<?>[] args, int matchedPattern, ParseResult parseResult,
-		@Nullable EntryContainer entryContainer
+		@UnknownNullability EntryContainer entryContainer
 	);
 
 	/**

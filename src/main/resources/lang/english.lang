@@ -131,6 +131,12 @@ skript command:
 
 # -- Log Messages --
 log:
+	auto reload:
+		async required: <light red>'script loader thread size' in the config.sk must be a value greater than 0 to use auto reload
+		error: <light red>Encountered <gold>%2$s <light red>error¦¦s¦ while automatically reloading <gold>%1$s<light red>! <gray>(<gold>%3$sms<gray>)
+		reloaded: <lime>Automatically reloaded <gold>%s<lime>. <gray>(<gold>%2$sms<gray>)
+		script: <gold>%s<reset>
+
 	# runtime errors
 	runtime:
 		error: <light red>The script '<gray>%s<light red>' encountered an error while executing the '<gray>%s<light red>' %s<light red>:\n
