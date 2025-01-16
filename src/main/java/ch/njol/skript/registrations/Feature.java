@@ -15,6 +15,7 @@ public enum Feature implements Experiment {
 	QUEUES("queues", LifeCycle.EXPERIMENTAL),
 	FOR_EACH_LOOPS("for loop", LifeCycle.EXPERIMENTAL, "for [each] loop[s]"),
 	SCRIPT_REFLECTION("reflection", LifeCycle.EXPERIMENTAL, "[script] reflection"),
+	TASKS("tasks", LifeCycle.EXPERIMENTAL, "tasks"),
 	;
 
 	private final String codeName;

@@ -7,6 +7,7 @@ import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.*;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.skript.registrations.Feature;
 import ch.njol.skript.timings.SkriptTimings;
 import ch.njol.skript.util.Timespan;
 import ch.njol.skript.variables.Variables;
@@ -49,6 +50,8 @@ public class Delay extends Effect {
 
 	@Override
 	public boolean init(Expression<?>[] expressions, int pattern, Kleenean delayed, ParseResult result) {
+		if (pattern == 1 && !this.getParser().hasExperiment(Feature.TASKS))
+			return false;
 		this.getParser().setHasDelayBefore(Kleenean.TRUE);
 
 		if (pattern == 1) {
