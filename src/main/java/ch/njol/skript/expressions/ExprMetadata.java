@@ -36,7 +36,7 @@ import java.util.List;
 	"broadcast \"%metadata value \"\"healer\"\" of player%\"",
 	"clear metadata value \"healer\" of player"
 })
-@Since("2.2-dev36, INSERT VERSION (add, remove)")
+@Since("2.2-dev36, 2.10 (add, remove)")
 public class ExprMetadata<T> extends SimpleExpression<T> {
 
 	static {

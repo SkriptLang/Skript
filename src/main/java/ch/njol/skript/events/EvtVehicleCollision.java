@@ -29,7 +29,7 @@ public class EvtVehicleCollision extends SkriptEvent {
 				"vehicle entity collision [(with|of) [a[n]] %-entitydatas%]")
 				.description("Called when a vehicle collides with a block or entity.")
 				.examples("on vehicle collision:", "on vehicle collision with obsidian:", "on vehicle collision with a zombie:")
-				.since("INSERT VERSION");
+				.since("2.10");
 
 		// VehicleBlockCollisionEvent
 		EventValues.registerEventValue(VehicleBlockCollisionEvent.class, Block.class, VehicleBlockCollisionEvent::getBlock);

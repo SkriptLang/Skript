@@ -56,9 +56,9 @@ final class BukkitSyntaxInfosImpl {
 		}
 
 		@Override
-		public Builder<? extends Builder<?, E>, E> builder() {
+		public Builder<? extends Builder<?, E>, E> toBuilder() {
 			var builder = new BuilderImpl<>(type(), name);
-			defaultInfo.builder().applyTo(builder);
+			defaultInfo.toBuilder().applyTo(builder);
 			builder.listeningBehavior(listeningBehavior);
 			builder.documentationId(id);
 			if (since != null) {

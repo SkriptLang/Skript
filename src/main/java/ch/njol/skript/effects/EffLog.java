@@ -44,20 +44,17 @@ public class EffLog extends Effect {
 	static {
 		Skript.registerEffect(EffLog.class, "log %strings% [(to|in) [file[s]] %-strings%] [with [the|a] severity [of] (1:warning|2:severe)]");
 	}
-	
+
 	private static final File logsFolder = new File(Skript.getInstance().getDataFolder(), "logs");
-	
+
 	final static HashMap<String, PrintWriter> writers = new HashMap<>();
 	static {
-		Skript.closeOnDisable(new Closeable() {
-			@Override
-			public void close() {
-				for (PrintWriter pw : writers.values())
-					pw.close();
-			}
+		Skript.closeOnDisable(() -> {
+			for (PrintWriter pw : writers.values())
+				pw.close();
 		});
 	}
-	
+
 	@SuppressWarnings("null")
 	private Expression<String> messages;
 	@Nullable
@@ -83,7 +80,7 @@ public class EffLog extends Effect {
 		}
 		return true;
 	}
-	
+
 	@SuppressWarnings("resource")
 	@Override
 	protected void execute(Event event) {

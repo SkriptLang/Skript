@@ -13,6 +13,7 @@ import ch.njol.skript.lang.function.Functions;
 import ch.njol.skript.registrations.Classes;
 import org.skriptlang.skript.lang.structure.Structure;
 
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Objects;
 import java.util.function.Predicate;
@@ -78,7 +79,7 @@ public class DocumentationIdProvider {
 		}
 		int collisionCount = calculateCollisionCount(syntaxElementIterator,
 			elementInfo -> elementInfo.getElementClass() == syntaxClass,
-			elementInfo -> elementInfo == syntaxInfo);
+			elementInfo -> Arrays.equals(elementInfo.getPatterns(), syntaxInfo.getPatterns()));
 		DocumentationId documentationIdAnnotation = syntaxClass.getAnnotation(DocumentationId.class);
 		if (documentationIdAnnotation == null) {
 			return addCollisionSuffix(syntaxClass.getSimpleName(), collisionCount);
@@ -138,7 +139,7 @@ public class DocumentationIdProvider {
 		String eventId = getEventId(eventInfo);
 		int collisionCount = calculateCollisionCount(Skript.getEvents().iterator(),
 			otherEventInfo -> eventId.equals(getEventId(otherEventInfo)),
-			otherEventInfo -> otherEventInfo == eventInfo);
+			otherEventInfo -> Arrays.equals(otherEventInfo.getPatterns(), eventInfo.getPatterns()));
 		return addCollisionSuffix(eventId, collisionCount);
 	}
 

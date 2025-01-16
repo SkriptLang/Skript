@@ -30,7 +30,7 @@ import java.util.Objects;
 	"play sound (hurt sound of player) at player",
 	"set {_sounds::*} to death sounds of (all mobs in radius 10 of player)"
 })
-@Since("INSERT VERSION")
+@Since("2.10")
 @RequiredPlugins("Spigot 1.19.2+")
 public class ExprEntitySound extends SimpleExpression<String> {
 

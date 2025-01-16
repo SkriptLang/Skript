@@ -54,7 +54,7 @@ import java.util.regex.Pattern;
 		"\tthen:",
 			"\t\t kill all players"
 })
-@Since("1.0, 2.8.0 (loop-counter), INSERT VERSION (previous, next)")
+@Since("1.0, 2.8.0 (loop-counter), 2.10 (previous, next)")
 public class ExprLoopValue extends SimpleExpression<Object> {
 
 	enum LoopState {

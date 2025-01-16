@@ -5,9 +5,6 @@ import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
-import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.SkriptParser.ParseResult;
-import ch.njol.util.Kleenean;
 import org.bukkit.inventory.AnvilInventory;
 import org.bukkit.inventory.Inventory;
 import org.jetbrains.annotations.Nullable;
@@ -28,8 +25,8 @@ public class ExprAnvilText extends SimplePropertyExpression<Inventory, String> {
 	}
 
 	@Override
-	@Nullable
-	public String convert(Inventory inv) {
+	@SuppressWarnings("removal")
+	public @Nullable String convert(Inventory inv) {
 		if (!(inv instanceof AnvilInventory))
 			return null;
 		return ((AnvilInventory) inv).getRenameText();
@@ -44,5 +41,5 @@ public class ExprAnvilText extends SimplePropertyExpression<Inventory, String> {
 	public String getPropertyName() {
 		return "anvil text input";
 	}
-	
+
 }

@@ -1,50 +1,42 @@
 package ch.njol.skript.test.runner;
 
-import ch.njol.skript.conditions.CondCompare;
-import ch.njol.skript.config.Node;
-import ch.njol.skript.lang.VerboseAssert;
-import ch.njol.skript.registrations.Classes;
-import ch.njol.skript.util.LiteralUtils;
-import org.bukkit.event.Event;
-import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.lang.comparator.Relation;
-import org.skriptlang.skript.lang.script.Script;
-
 import ch.njol.skript.Skript;
+import ch.njol.skript.config.Node;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.NoDoc;
-import ch.njol.skript.lang.Condition;
-import ch.njol.skript.lang.Effect;
-import ch.njol.skript.lang.Expression;
+import ch.njol.skript.lang.*;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
-import ch.njol.skript.lang.TriggerItem;
 import ch.njol.skript.log.ParseLogHandler;
 import ch.njol.skript.log.SkriptLogger;
+import ch.njol.skript.util.LiteralUtils;
 import ch.njol.util.Kleenean;
+import org.bukkit.event.Event;
+import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.script.Script;
 
 @Name("Assert")
 @Description("Assert that condition is true. Test fails when it is not.")
 @NoDoc
-public class EffAssert extends Effect  {
+public class EffAssert extends Effect {
+
+	private static final String DEFAULT_ERROR = "Assertion failed.";
 
 	static {
 		if (TestMode.ENABLED)
 			Skript.registerEffect(EffAssert.class,
-					"assert <.+> [(1:to fail)] with [error] %string%",
-					"assert <.+> [(1:to fail)] with [error] %string%, expected [value] %object%, [and] (received|got) [value] %object%");
+				"assert <.+> [(1:to fail)] with [error] %string%",
+				"assert <.+> [(1:to fail)] with [error] %string%, expected [value] %object%, [and] (received|got) [value] %object%",
+				"assert <.+> [(1:to fail)]");
 	}
 
-	@Nullable
-	private Condition condition;
+	private @Nullable Condition condition;
 	private Script script;
 	private int line;
 
-	private Expression<String> errorMsg;
-	@Nullable
-	private Expression<?> expected;
-	@Nullable
-	private Expression<?> got;
+	private @Nullable Expression<String> errorMsg;
+	private @Nullable Expression<?> expected;
+	private @Nullable Expression<?> got;
 	private boolean shouldFail;
 
 	@Override
@@ -56,49 +48,47 @@ public class EffAssert extends Effect  {
 		}
 
 		String conditionString = parseResult.regexes.get(0).group();
-		errorMsg = (Expression<String>) exprs[0];
+		if (matchedPattern < 2)
+			this.errorMsg = (Expression<String>) exprs[0];
 		boolean canInit = true;
 		if (exprs.length > 1) {
-			expected = LiteralUtils.defendExpression(exprs[1]);
-			got = LiteralUtils.defendExpression(exprs[2]);
+			this.expected = LiteralUtils.defendExpression(exprs[1]);
+			this.got = LiteralUtils.defendExpression(exprs[2]);
 			canInit = LiteralUtils.canInitSafely(expected, got);
 		}
-		shouldFail = parseResult.mark != 0;
-		script = getParser().getCurrentScript();
+		this.shouldFail = parseResult.mark != 0;
+		this.script = getParser().getCurrentScript();
 		Node node = getParser().getNode();
-		line = node != null ? node.getLine() : -1;
-		
-		ParseLogHandler logHandler = SkriptLogger.startParseLogHandler();
-		try {
-			condition = Condition.parse(conditionString, "Can't understand this condition: " + conditionString);
+		this.line = node != null ? node.getLine() : -1;
+
+		try (ParseLogHandler logHandler = SkriptLogger.startParseLogHandler()) {
+			this.condition = Condition.parse(conditionString, "Can't understand this condition: " + conditionString);
 
 			if (shouldFail)
 				return true;
-			
+
 			if (condition == null) {
 				logHandler.printError();
 			} else {
 				logHandler.printLog();
 			}
-		} finally {
-			logHandler.stop();
 		}
 
 		return (condition != null) && canInit;
 	}
 
 	@Override
-	protected void execute(Event event) {}
+	protected void execute(Event event) {
+	}
 
 	@Nullable
 	@Override
 	public TriggerItem walk(Event event) {
 		if (shouldFail && condition == null)
-			return getNext();
+			return this.getNext();
 
 		if (condition.check(event) == shouldFail) {
-			String message = errorMsg.getSingle(event);
-			assert message != null; // Should not happen, developer needs to fix test.
+			String message = errorMsg != null ? errorMsg.getOptionalSingle(event).orElse(DEFAULT_ERROR) : DEFAULT_ERROR;
 
 			// generate expected/got message if possible
 			String expectedMessage = "";
@@ -129,7 +119,7 @@ public class EffAssert extends Effect  {
 			}
 			return null;
 		}
-		return getNext();
+		return this.getNext();
 	}
 
 	@Override

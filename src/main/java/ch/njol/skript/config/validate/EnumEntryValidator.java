@@ -1,25 +1,22 @@
 package ch.njol.skript.config.validate;
 
 import java.util.Locale;
+import java.util.function.Consumer;
 
 import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.config.EntryNode;
 import ch.njol.skript.config.Node;
-import ch.njol.util.Setter;
 
-/**
- * @author Peter Güttinger
- */
+@Deprecated(forRemoval = true)
 public class EnumEntryValidator<E extends Enum<E>> extends EntryValidator {
-	
+
 	private final Class<E> enumType;
-	private final Setter<E> setter;
-	@Nullable
-	private String allowedValues = null;
-	
-	public EnumEntryValidator(final Class<E> enumType, final Setter<E> setter) {
+	private final Consumer<E> setter;
+	private @Nullable String allowedValues = null;
+
+	public EnumEntryValidator(final Class<E> enumType, final Consumer<E> setter) {
 		assert enumType != null;
 		this.enumType = enumType;
 		this.setter = setter;
@@ -33,14 +30,14 @@ public class EnumEntryValidator<E extends Enum<E>> extends EntryValidator {
 			allowedValues = "" + b.toString();
 		}
 	}
-	
-	public EnumEntryValidator(final Class<E> enumType, final Setter<E> setter, final String allowedValues) {
+
+	public EnumEntryValidator(final Class<E> enumType, final Consumer<E> setter, final String allowedValues) {
 		assert enumType != null;
 		this.enumType = enumType;
 		this.setter = setter;
 		this.allowedValues = allowedValues;
 	}
-	
+
 	@Override
 	public boolean validate(final Node node) {
 		if (!super.validate(node))
@@ -50,12 +47,12 @@ public class EnumEntryValidator<E extends Enum<E>> extends EntryValidator {
 			final E e = Enum.valueOf(enumType, n.getValue().toUpperCase(Locale.ENGLISH).replace(' ', '_'));
 			assert e != null;
 //			if (setter != null)
-			setter.set(e);
+			setter.accept(e);
 		} catch (final IllegalArgumentException e) {
 			Skript.error("'" + n.getValue() + "' is not a valid value for '" + n.getKey() + "'" + (allowedValues == null ? "" : ". Allowed values are: " + allowedValues));
 			return false;
 		}
 		return true;
 	}
-	
+
 }

@@ -20,7 +20,7 @@ import org.bukkit.inventory.ItemStack;
 	"If 'properly' is used, this will only return true if the entity is wearing specifically a saddle item."
 })
 @Examples("send whether {_horse} is saddled")
-@Since("INSERT VERSION")
+@Since("2.10")
 public class CondIsSaddled extends PropertyCondition<LivingEntity> {
 
 	static {

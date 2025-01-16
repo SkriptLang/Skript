@@ -7,13 +7,13 @@
 #
 
 command /timer:
-    permission: skript.example.timer
-    trigger:
-        if {timer} is set:
-            send "This command was last run %time since {timer}% ago."
-        else:
-            send "This command has never been run."
-        set {timer} to now
+	permission: skript.example.timer
+	trigger:
+		if {timer} is set:
+			send "This command was last run %time since {timer}% ago."
+		else:
+			send "This command has never been run."
+		set {timer} to now
 
 #
 # This example stores two items in a global list variable `{items::%uuid of player%::*}`.
@@ -21,17 +21,17 @@ command /timer:
 #
 
 on join:
-    set {items::%uuid of player%::helmet} to player's helmet
-    set {items::%uuid of player%::boots} to player's boots
-    send "Stored your helmet and boots."
+	set {items::%uuid of player%::helmet} to player's helmet
+	set {items::%uuid of player%::boots} to player's boots
+	send "Stored your helmet and boots."
 
 command /outfit:
-    executable by: players
-    permission: skript.example.outfit
-    trigger:
-        give player {items::%uuid of player%::*} # gives the contents of the list
-        clear {items::%uuid of player%::*} # clears this list
-        send "Gave you the helmet and boots you joined with."
+	executable by: players
+	permission: skript.example.outfit
+	trigger:
+		give player {items::%uuid of player%::*} # gives the contents of the list
+		clear {items::%uuid of player%::*} # clears this list
+		send "Gave you the helmet and boots you joined with."
 
 #
 # An example of adding, looping and removing the contents of a list variable.
@@ -39,15 +39,15 @@ command /outfit:
 #
 
 command /shoppinglist:
-    permission: skript.example.list
-    trigger:
-        add "bacon" to {_shopping list::*}
-        add "eggs" to {_shopping list::*}
-        add "oats" and "sugar" to {_shopping list::*}
-        send "You have %size of {_shopping list::*}% things in your shopping list:"
-        loop {_shopping list::*}:
-            send "%loop-index%. %loop-value%"
-        send "You bought some %{_shopping list::1}%!"
-        remove "bacon" from {_shopping list::*}
-        send "Removing bacon from your list."
-        send "You now have %size of {_shopping list::*}% things in your shopping list."
+	permission: skript.example.list
+	trigger:
+		add "bacon" to {_shopping list::*}
+		add "eggs" to {_shopping list::*}
+		add "oats" and "sugar" to {_shopping list::*}
+		send "You have %size of {_shopping list::*}% things in your shopping list:"
+		loop {_shopping list::*}:
+			send "%loop-index%. %loop-value%"
+		send "You bought some %{_shopping list::1}%!"
+		remove "bacon" from {_shopping list::*}
+		send "Removing bacon from your list."
+		send "You now have %size of {_shopping list::*}% things in your shopping list."

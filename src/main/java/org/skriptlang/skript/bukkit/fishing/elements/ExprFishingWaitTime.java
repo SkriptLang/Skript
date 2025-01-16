@@ -25,7 +25,7 @@ import org.jetbrains.annotations.Nullable;
 		"\tset max waiting time to 20 seconds",
 })
 @Events("Fishing")
-@Since("INSERT VERSION")
+@Since("2.10")
 public class ExprFishingWaitTime extends SimpleExpression<Timespan> {
 
 	private static final int DEFAULT_MINIMUM_TICKS = 5 * 20;

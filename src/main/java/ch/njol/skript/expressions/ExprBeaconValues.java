@@ -38,7 +38,7 @@ import java.util.function.Consumer;
 })
 @RequiredPlugins("Paper (range)")
 @Events({"Beacon Effect", "Beacon Toggle", "Beacon Change Effect"})
-@Since("INSERT VERSION")
+@Since("2.10")
 public class ExprBeaconValues extends PropertyExpression<Block, Object> {
 
 	enum BeaconValues {

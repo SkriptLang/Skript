@@ -24,7 +24,7 @@ import net.md_5.bungee.api.chat.BaseComponent;
 	"Note that currently you can only use Skript chat codes when running Paper."
 })
 @Examples("set text of the last spawned text display to \"example\"")
-@Since("INSERT VERSION")
+@Since("2.10")
 public class ExprTextOf extends SimplePropertyExpression<Object, String> {
 
 	private static final boolean IS_RUNNING_PAPER = Skript.getServerPlatform() == ServerPlatform.BUKKIT_PAPER;

@@ -1,3 +1,6 @@
+aliases:
+	sword = diamond sword, iron sword, golden sword, stone sword, wooden sword
+
 test "item is of type condition":
 	assert stone is of type stone with "stone isn't of type stone"
 	assert 12 stone is of type stone with "12 stone isn't of type stone"
@@ -7,7 +10,7 @@ test "item is of type condition":
 	assert diamond sword of sharpness is of type diamond sword with "enchanted diamond sword isn't of type diamond sword"
 	assert stone sword is of type sword with "stone sword isn't of type sword"
 
-	assert gold sword of smite named "test" is not of type iron sword with "enchanted named gold sword is of type iron sword"
+	assert golden sword of smite named "test" is not of type iron sword with "enchanted named gold sword is of type iron sword"
 
 	assert armor stand is of type armor stand with "armor stand isn't of type armor stand"
 	assert 12 armor stand is of type 1 armor stand with "12 armor stand isn't of type 1 armor stand"

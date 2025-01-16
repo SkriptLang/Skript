@@ -12,7 +12,6 @@ import ch.njol.skript.expressions.ExprSortedList;
 import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.InputSource;
-import ch.njol.skript.lang.ParseContext;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.Variable;
@@ -44,7 +43,7 @@ import java.util.Set;
 	"sort {_words::*} in descending order by length of input # longest to shortest",
 	"sort {_words::*} based on {tastiness::%input%} # sort based on custom value"
 })
-@Since("2.9.0, INSERT VERSION (sort order)")
+@Since("2.9.0, 2.10 (sort order)")
 @Keywords("input")
 public class EffSort extends Effect implements InputSource {
 
@@ -54,19 +53,15 @@ public class EffSort extends Effect implements InputSource {
 			ParserInstance.registerData(InputData.class, InputData::new);
 	}
 
-	@Nullable
-	private Expression<?> mappingExpr;
-	@Nullable
-	private String unparsedExpression;
-	private Variable<?> unsortedObjects;
+
+	private @Nullable Expression<?> mappingExpr;
+	private @UnknownNullability Variable<?> unsortedObjects;
 	private boolean descendingOrder;
 
-	private Set<ExprInput<?>> dependentInputs = new HashSet<>();
+	private final Set<ExprInput<?>> dependentInputs = new HashSet<>();
 
-	@Nullable
-	private Object currentValue;
-	@UnknownNullability
-	private String currentIndex;
+	private @Nullable Object currentValue;
+	private @UnknownNullability String currentIndex;
 
 	@Override
 	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
@@ -77,16 +72,12 @@ public class EffSort extends Effect implements InputSource {
 		unsortedObjects = (Variable<?>) expressions[0];
 		descendingOrder = parseResult.hasTag("descending");
 
+		//noinspection DuplicatedCode
 		if (!parseResult.regexes.isEmpty()) {
-			unparsedExpression = parseResult.regexes.get(0).group();
+			@Nullable String unparsedExpression = parseResult.regexes.get(0).group();
 			assert unparsedExpression != null;
-			InputData inputData = getParser().getData(InputData.class);
-			InputSource originalSource = inputData.getSource();
-			inputData.setSource(this);
-			mappingExpr = new SkriptParser(unparsedExpression, SkriptParser.PARSE_EXPRESSIONS, ParseContext.DEFAULT)
-				.parseExpression(Object.class);
-			inputData.setSource(originalSource);
-			return mappingExpr != null && mappingExpr.isSingle();
+			mappingExpr = parseExpression(unparsedExpression, getParser(), SkriptParser.PARSE_EXPRESSIONS);
+			return mappingExpr != null;
 		}
 		return true;
 	}

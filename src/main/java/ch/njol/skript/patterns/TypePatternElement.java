@@ -191,7 +191,9 @@ public class TypePatternElement extends PatternElement {
 							}
 						}
 					} finally {
-						expressionLogHandler.printError();
+						if (!expressionLogHandler.isStopped()) { // we have already printed the logs
+							expressionLogHandler.printError();
+						}
 					}
 				}
 

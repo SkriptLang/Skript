@@ -20,7 +20,7 @@ public class InputModule {
 			.user("input ?keys?")
 			.name("Input Key")
 			.description("Represents a movement input key that is pressed by a player.")
-			.since("INSERT VERSION")
+			.since("2.10")
 			.requiredPlugins("Minecraft 1.21.3+"));
 
 		EventValues.registerEventValue(PlayerInputEvent.class, InputKey[].class,

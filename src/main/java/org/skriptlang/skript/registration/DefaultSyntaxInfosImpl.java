@@ -30,9 +30,9 @@ final class DefaultSyntaxInfosImpl {
 		}
 
 		@Override
-		public Expression.Builder<? extends Expression.Builder<?, E, R>, E, R> builder() {
+		public Expression.Builder<? extends Expression.Builder<?, E, R>, E, R> toBuilder() {
 			var builder = new BuilderImpl<>(type(), returnType);
-			super.builder().applyTo(builder);
+			super.toBuilder().applyTo(builder);
 			return builder;
 		}
 
@@ -107,9 +107,9 @@ final class DefaultSyntaxInfosImpl {
 		}
 
 		@Override
-		public Structure.Builder<? extends Structure.Builder<?, E>, E> builder() {
+		public Structure.Builder<? extends Structure.Builder<?, E>, E> toBuilder() {
 			var builder = new BuilderImpl<>(type());
-			super.builder().applyTo(builder);
+			super.toBuilder().applyTo(builder);
 			if (entryValidator != null) {
 				builder.entryValidator(entryValidator);
 			}
@@ -189,8 +189,8 @@ final class DefaultSyntaxInfosImpl {
 				if (builder instanceof Structure.Builder structureBuilder) {
 					if (entryValidator != null) {
 						structureBuilder.entryValidator(entryValidator);
-						structureBuilder.nodeType(nodeType);
 					}
+					structureBuilder.nodeType(nodeType);
 				}
 			}
 		}

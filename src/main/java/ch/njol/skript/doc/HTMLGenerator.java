@@ -45,8 +45,8 @@ import java.util.stream.Collectors;
  */
 public class HTMLGenerator extends DocumentationGenerator {
 
-	private static final String SKRIPT_VERSION = Skript.getVersion().toString().replaceAll("-(dev|alpha|beta)\\d*", ""); // Filter branches
-	private static final Pattern NEW_TAG_PATTERN = Pattern.compile(SKRIPT_VERSION + "(?!\\.)"); // (?!\\.) to avoid matching 2.6 in 2.6.1 etc.
+	private static final String SKRIPT_VERSION = Skript.getVersion().toString().replaceAll("-(dev|alpha|beta|pre)\\d*", "").replace(".0", ""); // Filter branches
+	private static final Pattern NEW_TAG_PATTERN = Pattern.compile(SKRIPT_VERSION + "(?!\\.[1-9])"); // (?!\\.) to avoid matching 2.6 in 2.6.1 etc.
 	private static final Pattern RETURN_TYPE_LINK_PATTERN = Pattern.compile("( ?href=\"(classes\\.html|)#|)\\$\\{element\\.return-type-linkcheck}");
 
 	private final String skeleton;
@@ -384,15 +384,7 @@ public class HTMLGenerator extends DocumentationGenerator {
 
 			i += Character.charCount(c);
 		}
-		return replaceBr(sb.toString());
-	}
-
-	/**
-	 * Replaces specifically `<br/>` with `\n` - This is useful in code blocks where you can't use newlines due to the
-	 * minifyHtml method (execute after minifyHtml)
-	 */
-	private static String replaceBr(String page) {
-		return page.replaceAll("<br/>", "\n");
+		return sb.toString();
 	}
 
 	private static String handleIf(String desc, String start, boolean value) {
@@ -434,21 +426,21 @@ public class HTMLGenerator extends DocumentationGenerator {
 
 		// Since
 		Since since = c.getAnnotation(Since.class);
-		desc = desc.replace("${element.since}", getDefaultIfNullOrEmpty((since != null ? since.value() : null), "Unknown"));
+		desc = desc.replace("${element.since}", Joiner.on("<br/>").join(getDefaultIfNullOrEmpty((since != null ? since.value() : null), "Unknown")));
 
 		Keywords keywords = c.getAnnotation(Keywords.class);
 		desc = desc.replace("${element.keywords}", keywords == null ? "" : Joiner.on(", ").join(keywords.value()));
 
 		// Description
 		Description description = c.getAnnotation(Description.class);
-		desc = desc.replace("${element.desc}", Joiner.on("\n").join(getDefaultIfNullOrEmpty((description != null ? description.value() : null), "Unknown description.")).replace("\n\n", "<p>"));
-		desc = desc.replace("${element.desc-safe}", Joiner.on("\n").join(getDefaultIfNullOrEmpty((description != null ? description.value() : null), "Unknown description."))
+		desc = desc.replace("${element.desc}", Joiner.on("<br>").join(getDefaultIfNullOrEmpty((description != null ? description.value() : null), "Unknown description.")).replace("\n\n", "<p>"));
+		desc = desc.replace("${element.desc-safe}", Joiner.on("<br>").join(getDefaultIfNullOrEmpty((description != null ? description.value() : null), "Unknown description."))
 			.replace("\\", "\\\\").replace("\"", "\\\"").replace("\t", "    "));
 
 		// Examples
 		Examples examples = c.getAnnotation(Examples.class);
 		desc = desc.replace("${element.examples}", Joiner.on("<br>").join(getDefaultIfNullOrEmpty((examples != null ? Documentation.escapeHTML(examples.value()) : null), "Missing examples.")));
-		desc = desc.replace("${element.examples-safe}", Joiner.on("\\n").join(getDefaultIfNullOrEmpty((examples != null ? Documentation.escapeHTML(examples.value()) : null), "Missing examples."))
+		desc = desc.replace("${element.examples-safe}", Joiner.on("<br>").join(getDefaultIfNullOrEmpty((examples != null ? Documentation.escapeHTML(examples.value()) : null), "Missing examples."))
 			.replace("\\", "\\\\").replace("\"", "\\\"").replace("\t", "    "));
 
 		// Documentation ID
@@ -488,7 +480,13 @@ public class HTMLGenerator extends DocumentationGenerator {
 		desc = handleIf(desc, "${if by-addon}", false);
 
 		// New Elements
-		desc = handleIf(desc, "${if new-element}", NEW_TAG_PATTERN.matcher((since != null ? since.value() : "")).find());
+		if (since != null) {
+			String[] value = since.value();
+			String s = value[value.length - 1];
+			desc = handleIf(desc, "${if new-element}", NEW_TAG_PATTERN.matcher(s).find());
+		} else {
+			desc = handleIf(desc, "${if new-element}", false);
+		}
 
 		// Structure - EntryData
 		if (info instanceof StructureInfo) {
@@ -558,9 +556,9 @@ public class HTMLGenerator extends DocumentationGenerator {
 
 		// Description
 		String[] description = getDefaultIfNullOrEmpty(info.getDescription(), "Missing description.");
-		desc = desc.replace("${element.desc}", Joiner.on("\n").join(description).replace("\n\n", "<p>"));
+		desc = desc.replace("${element.desc}", Joiner.on("<br>").join(description).replace("\n\n", "<p>"));
 		desc = desc
-			.replace("${element.desc-safe}", Joiner.on("\\n").join(description)
+			.replace("${element.desc-safe}", Joiner.on("<br>").join(description)
 				.replace("\\", "\\\\").replace("\"", "\\\"").replace("\t", "    "));
 
 		// By Addon
@@ -573,7 +571,7 @@ public class HTMLGenerator extends DocumentationGenerator {
 		String[] examples = getDefaultIfNullOrEmpty(info.getExamples(), "Missing examples.");
 		desc = desc.replace("${element.examples}", Joiner.on("\n<br>").join(Documentation.escapeHTML(examples)));
 		desc = desc
-			.replace("${element.examples-safe}", Joiner.on("\\n").join(examples)
+			.replace("${element.examples-safe}", Joiner.on("<br>").join(examples)
 				.replace("\\", "\\\\").replace("\"", "\\\"").replace("\t", "    "));
 
 		String[] keywords = info.getKeywords();
@@ -669,9 +667,9 @@ public class HTMLGenerator extends DocumentationGenerator {
 
 		// Description
 		String[] description = getDefaultIfNullOrEmpty(info.getDescription(), "Missing description.");
-		desc = desc.replace("${element.desc}", Joiner.on("\n").join(description).replace("\n\n", "<p>"));
+		desc = desc.replace("${element.desc}", Joiner.on("<br>").join(description).replace("\n\n", "<p>"));
 		desc = desc
-			.replace("${element.desc-safe}", Joiner.on("\\n").join(description)
+			.replace("${element.desc-safe}", Joiner.on("<br>").join(description)
 				.replace("\\", "\\\\").replace("\"", "\\\"").replace("\t", "    "));
 
 		// By Addon
@@ -683,7 +681,7 @@ public class HTMLGenerator extends DocumentationGenerator {
 		// Examples
 		String[] examples = getDefaultIfNullOrEmpty(info.getExamples(), "Missing examples.");
 		desc = desc.replace("${element.examples}", Joiner.on("\n<br>").join(Documentation.escapeHTML(examples)));
-		desc = desc.replace("${element.examples-safe}", Joiner.on("\\n").join(Documentation.escapeHTML(examples))
+		desc = desc.replace("${element.examples-safe}", Joiner.on("<br>").join(Documentation.escapeHTML(examples))
 			.replace("\\", "\\\\").replace("\"", "\\\"").replace("\t", "    "));
 
 		Keywords keywords = c.getAnnotation(Keywords.class);
@@ -773,9 +771,9 @@ public class HTMLGenerator extends DocumentationGenerator {
 
 		// Description
 		String[] description = getDefaultIfNullOrEmpty(info.getDescription(), "Missing description.");
-		desc = desc.replace("${element.desc}", Joiner.on("\n").join(description));
+		desc = desc.replace("${element.desc}", Joiner.on("<br>").join(description));
 		desc = desc
-			.replace("${element.desc-safe}", Joiner.on("\\n").join(description)
+			.replace("${element.desc-safe}", Joiner.on("<br>").join(description)
 				.replace("\\", "\\\\").replace("\"", "\\\"").replace("\t", "    "));
 
 		// By Addon
@@ -788,7 +786,7 @@ public class HTMLGenerator extends DocumentationGenerator {
 		String[] examples = getDefaultIfNullOrEmpty(info.getExamples(), "Missing examples.");
 		desc = desc.replace("${element.examples}", Joiner.on("\n<br>").join(Documentation.escapeHTML(examples)));
 		desc = desc
-			.replace("${element.examples-safe}", Joiner.on("\\n").join(examples)
+			.replace("${element.examples-safe}", Joiner.on("<br>").join(examples)
 				.replace("\\", "\\\\").replace("\"", "\\\"").replace("\t", "    "));
 
 		String[] keywords = info.getKeywords();

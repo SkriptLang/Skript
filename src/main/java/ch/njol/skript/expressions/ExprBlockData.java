@@ -25,7 +25,7 @@ import org.jetbrains.annotations.Nullable;
 	"",
 	"set block data of target block to oak_stairs[facing=south;waterlogged=true]"
 })
-@Since("2.5, 2.5.2 (set), INSERT VERSION (block displays)")
+@Since("2.5, 2.5.2 (set), 2.10 (block displays)")
 public class ExprBlockData extends SimplePropertyExpression<Object, BlockData> {
 
 	static {

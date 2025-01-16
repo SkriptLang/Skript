@@ -1,5 +1,5 @@
 test "book author":
-	set {_i} to book with text
+	set {_i} to written book
 	assert {_i}'s book author is not set with "non-existent book author failed"
 	set {_i}'s book author to "aB1$😀"
-	assert caseEquals({_i}'s book author, "aB1$😀") is true with "set book author failed"
+	assert case_equals({_i}'s book author, "aB1$😀") is true with "set book author failed"

@@ -12,7 +12,6 @@ import org.bukkit.block.Block;
 import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.localization.Language;
-import ch.njol.skript.localization.LanguageChangeListener;
 import ch.njol.skript.localization.Noun;
 import ch.njol.util.coll.CollectionUtils;
 
@@ -82,12 +81,7 @@ public enum StructureType {
 	final static Map<Pattern, StructureType> parseMap = new HashMap<>();
 	
 	static {
-		Language.addListener(new LanguageChangeListener() {
-			@Override
-			public void onLanguageChange() {
-				parseMap.clear();
-			}
-		});
+		Language.addListener(parseMap::clear);
 	}
 	
 	@Nullable

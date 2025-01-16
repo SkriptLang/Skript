@@ -23,7 +23,7 @@ import org.jetbrains.annotations.Nullable;
 @Examples({
 	"on spread:",
 		"\tif the source block is a grass block:",
-			"\t\tset the source block to a dirt block"
+			"\t\tset the source block to dirt"
 })
 @Since("2.7")
 public class ExprSourceBlock extends SimpleExpression<Block> {

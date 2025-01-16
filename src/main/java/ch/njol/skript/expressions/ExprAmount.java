@@ -21,10 +21,6 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
 
-/**
- *
- * @author Peter Güttinger
- */
 @Name("Amount")
 @Description({"The amount or size of something.",
 		"Please note that <code>amount of %items%</code> will not return the number of items, but the number of stacks, e.g. 1 for a stack of 64 torches. To get the amount of items in a stack, see the <a href='#ExprItemAmount'>item amount</a> expression.",

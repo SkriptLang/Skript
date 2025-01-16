@@ -27,7 +27,7 @@ import org.skriptlang.skript.util.Executable;
 	"set {_list::*} to the results of {_function}",
 	"set {_result} to the result of {_function} with arguments 13 and true"
 })
-@Since("INSERT VERSION")
+@Since("2.10")
 @Keywords({"run", "result", "execute", "function", "reflection"})
 public class ExprResult extends PropertyExpression<Executable<Event, Object>, Object> {
 

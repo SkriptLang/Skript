@@ -12,9 +12,18 @@ a:
 
 	# Comment g
 
-# Comment a'
-h: false
-i: true # Comment i
+# Comment a
+
+h:
+	c: true
+	d: false
+
+# Comment h
+i: false
+j: true # value differs from old config
+k: true # Comment k
+
+l: true
 
 x.z:
 	y: true

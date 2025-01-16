@@ -8,13 +8,13 @@ import ch.njol.skript.log.LogEntry;
 import ch.njol.skript.log.ParseLogHandler;
 import ch.njol.skript.log.SkriptLogger;
 import ch.njol.skript.registrations.Classes;
-import ch.njol.util.Checker;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
 import ch.njol.util.coll.iterator.NonNullIterator;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.function.Predicate;
 import java.util.logging.Level;
 
 /**
@@ -167,12 +167,12 @@ public class UnparsedLiteral implements Literal<Object> {
 	}
 
 	@Override
-	public boolean check(Event event, Checker<? super Object> checker) {
+	public boolean check(Event event, Predicate<? super Object> checker) {
 		throw invalidAccessException();
 	}
 
 	@Override
-	public boolean check(Event event, Checker<? super Object> checker, boolean negated) {
+	public boolean check(Event event, Predicate<? super Object> checker, boolean negated) {
 		throw invalidAccessException();
 	}
 

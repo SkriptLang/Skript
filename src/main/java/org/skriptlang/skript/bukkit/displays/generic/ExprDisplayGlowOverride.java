@@ -19,7 +19,7 @@ import org.jetbrains.annotations.Nullable;
 	"This overrides whatever color is already set for the scoreboard team of the displays."
 })
 @Examples("set glow color override of the last spawned text display to blue")
-@Since("INSERT VERSION")
+@Since("2.10")
 public class ExprDisplayGlowOverride extends SimplePropertyExpression<Display, Color> {
 
 	static {

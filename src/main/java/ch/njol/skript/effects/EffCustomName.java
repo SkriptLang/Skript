@@ -19,7 +19,7 @@ import org.jetbrains.annotations.Nullable;
 	"show the custom name of event-entity",
 	"hide target's display name"
 })
-@Since("INSERT VERSION")
+@Since("2.10")
 public class EffCustomName extends Effect {
 
 	static {

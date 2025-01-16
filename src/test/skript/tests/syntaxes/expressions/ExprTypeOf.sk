@@ -1,0 +1,18 @@
+test "type of expression":
+	spawn a sheep at event-location:
+		set {_e} to entity
+	assert type of {_e} = sheep with "Type of entity should be sheep"
+	assert type of zombie = zombie with "Type of entitydata should be zombie"
+	delete entity within {_e}
+
+	set {_i} to 1 of diamond sword named "BOB"
+	assert type of {_i} = diamond sword with "Type of item should be diamond sword"
+
+	set {_p} to potion effect of night vision for 10 seconds
+	assert type of {_p} = night vision with "Type of potion effect should be nice vision"
+
+	set {_data} to oak_stairs[]
+	assert type of {_data} = oak stairs with "Type of blockdata should be oak stairs"
+
+	set {_ench} to sharpness 10
+	assert type of {_ench} = sharpness with "Type of enchantment type should be sharpness"

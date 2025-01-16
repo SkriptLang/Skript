@@ -23,7 +23,7 @@ import ch.njol.util.Kleenean;
 @Keywords("lead")
 @Events("Unleash")
 @RequiredPlugins("Paper 1.16+")
-@Since("INSERT VERSION")
+@Since("2.10")
 public class CondLeashWillDrop extends Condition {
 
 	static {

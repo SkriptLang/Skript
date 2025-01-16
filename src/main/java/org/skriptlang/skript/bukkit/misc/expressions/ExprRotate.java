@@ -41,7 +41,7 @@ import java.util.Objects;
 	"set {_new} to {_vector} rotated around vector(1, 1, 1) by 45",
 	"set {_new} to {_quaternion} rotated by x 45, y 90, z 135"
 })
-@Since("INSERT VERSION")
+@Since("2.10")
 public class ExprRotate extends SimpleExpression<Object> {
 
 	static {

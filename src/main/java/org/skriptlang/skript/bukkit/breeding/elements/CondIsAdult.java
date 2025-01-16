@@ -15,7 +15,7 @@ import org.bukkit.entity.LivingEntity;
 		"\tevent-entity is not an adult",
 		"\tkill event-entity"
 })
-@Since("INSERT VERSION")
+@Since("2.10")
 public class CondIsAdult extends PropertyCondition<LivingEntity> {
 
 	static {

@@ -18,7 +18,7 @@ import org.skriptlang.skript.bukkit.loottables.LootTableUtils;
 	"set {_seed} loot table seed of block",
 	"set loot table seed of entity to 123456789"
 })
-@Since("INSERT VERSION")
+@Since("2.10")
 public class ExprLootTableSeed extends SimplePropertyExpression<Object, Long> {
 
 	static {

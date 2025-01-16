@@ -1,3 +1,6 @@
+aliases:
+	test any wool = white wool, red wool, black wool
+
 test "item enchantment glint" when running minecraft "1.20.5":
 	# Glint
 	set {_item} to diamond with enchantment glint
@@ -34,7 +37,7 @@ test "item enchantment glint" when running minecraft "1.20.5":
 test "item enchantment glint - edge cases" when running minecraft "1.20.5":
 	assert {_null} is forced to glint to fail with "Condition 'item is forced to glint' expected to fail with non itemtypes #1"
 	assert {_null} has enchantment glint override to fail with "Condition 'item has enchantment glint override' expected to fail with non itemtypes #1"
-	assert any wool does not have enchantment glint override with "Condition 'does not have enchantment glint override' failed with plural itemtype aliases"
+	assert (test any wool) does not have enchantment glint override with "Condition 'does not have enchantment glint override' failed with plural itemtype aliases"
 	assert diamond with enchantment glint = diamond with enchantment glint with "Item with enchantment glint comparison failed #1"
 	assert diamond with enchantment glint != diamond without enchantment glint with "Item with enchantment glint comparison failed #2"
 	assert diamond != diamond with enchantment glint with "Item with enchantment glint comparison failed #3"

@@ -5,30 +5,42 @@ package ch.njol.skript.update;
  * Status of currently installed release.
  */
 public enum ReleaseStatus {
-	
+
 	/**
 	 * Latest release in channel. This is a good thing.
 	 */
-	LATEST,
+	LATEST("latest"),
 	
 	/**
 	 * Old, probably unsupported release.
 	 */
-	OUTDATED,
+	OUTDATED("outdated"),
 	
 	/**
-	 * Updates have not been checked, so it not known if any exist.
+	 * Updates have not been checked, so it is not known if any exist.
 	 */
-	UNKNOWN,
+	UNKNOWN("unknown"),
 	
 	/**
 	 * Updates have been checked, but this release was not found at all.
 	 * It might be not yet published.
 	 */
-	CUSTOM,
+	CUSTOM("custom"),
 
 	/**
 	 * Running a developer/nightly build, updates will not be checked.
 	 */
-	DEVELOPMENT
+	DEVELOPMENT("development");
+
+	private final String name;
+
+	ReleaseStatus(String name) {
+		this.name = name;
+	}
+
+	@Override
+	public String toString() {
+		return name;
+	}
+
 }

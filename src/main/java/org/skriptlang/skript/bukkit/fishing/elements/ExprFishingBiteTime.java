@@ -25,7 +25,7 @@ import org.jetbrains.annotations.Nullable;
 })
 @RequiredPlugins("Paper 1.20.6")
 @Events("Fishing")
-@Since("INSERT VERSION")
+@Since("2.10")
 public class ExprFishingBiteTime extends SimpleExpression<Timespan> {
 
 	static {

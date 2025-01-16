@@ -1,0 +1,175 @@
+using examples
+
+# This flag enables the experimental 'queues' feature within this file
+using queues
+
+example: # Creating queues
+
+	# Queues are a storage container for objects.
+	set {queue} to a queue
+
+	# Queues function like {lists::*} but are a single variable.
+	add "hello" to {queue}
+	remove "hello" from {queue}
+	clear {queue}
+
+	# You can create a queue with some initial items in it
+	set {queue} to a queue of "hello" and "world"
+
+	# You can also create a queue of things from a list
+	# Anything can go in a queue
+	set {my items::*} to potato, apple and carrot
+	set {queue} to a queue of {my items::*}
+
+
+example: # Taking items from a queue
+
+	set {queue} to a queue of "hello" and "world"
+
+	# Asking for an item from the queue also removes it
+	the first element of {queue} is "hello"
+	# 'hello' is gone
+
+	the first element of {queue} is "world"
+	# 'world' is gone
+
+	{queue} is empty
+
+
+example: # Taking items from the end of a queue
+
+	set {queue} to a queue of "hello" and "world"
+
+	the last element of {queue} is "world"
+	# 'world' is gone
+
+	the last element of {queue} is "hello"
+	# 'hello' is gone
+
+	{queue} is empty
+
+
+example: # Processing a queue
+
+	# Queues are First In, First Out (FIFO)
+	# This means new items are added to the END, and removed from the START
+
+	set {queue} to a queue of "hello"
+
+	add "world" to {queue}
+	# Queue is now 'hello', 'world'
+	broadcast the first element of {queue}
+	# 'hello' is gone
+
+	add "hello" to {queue}
+	# Queue is now 'world', 'hello'
+
+
+example: # Looping a queue
+
+	# Looping items in a queue also removes them
+	set {queue} to a queue of all players
+
+	loop {queue}:
+		send "Good morning!" to loop-value
+
+	# All the items were processed
+	{queue} is empty
+
+	# This means queues are good for pausing and resuming a task
+	# without losing your progress!
+	set {queue} to a queue of all players
+	set {count} to 0
+
+	loop {queue}:
+		teleport loop-value to {my cool battle arena}
+		# Each player is removed in this loop
+		add 1 to {count}
+
+		if {count} is 10:
+			# We have too many players in the battle arena for now!
+			exit loop
+
+	wait 1 minute
+	# Only the players we didn't loop before are still in the queue
+	loop {queue}:
+		teleport loop-value to {my cool battle arena}
+
+
+example: # Turning a queue into a list
+
+	set {queue} to a queue of "hello" and "world"
+	# We can copy the items in the queue into a list
+	set {my list::*} to dequeued {queue}
+	{my list::*} is "hello" and "world"
+	# Deconstructing the queue does not remove them from the queue
+
+	the first 2 elements in {queue} are "hello" and "world"
+	# But asking for the elements does!
+	{queue} is empty
+
+
+example: # Peeking at a queue without removing items
+
+	# Sometimes, we want to check what the next item will be, without removing it
+	set {queue} to a queue of "hello" and "world"
+	# We can 'peek' at the first and last elements
+	the start of {queue} is "hello"
+	the end of {queue} is "world"
+
+	# We can also change these values
+	set the end of {queue} to "there"
+	# The queue is now 'hello', 'there'
+
+	# The other change effects (set, add, remove, delete) also work here
+	add "well," to the start of {queue}
+	# The queue is now 'well,', 'hello', 'there'
+
+	delete the end of {queue}
+	# The queue is now 'well,', 'hello'
+
+
+using for loops
+example: # Continuous processing of a queue
+
+	# Create a queue of all players (now) and some items
+	set {players} to a queue of all players
+	set {gifts} to a queue of potato, apple and carrot
+
+	# This will keep cycling through the 'players' and 'gifts' queues
+	# until all of the initial players are no longer online
+	for each {_player} in {players}:
+		{_player} is online
+		set {_item} to the first element of {gifts}
+		give {_item} to {_player}
+
+		# Add the player and item back to their queue
+		add {_player} to {players}
+		add {_item} to {gifts}
+		# As items are added to the END of a queue, this will cycle round in order
+
+		# This will loop forever, so we want a delay
+		wait 30 seconds
+
+
+#
+# A queue for rotating periodical announcements
+#
+
+on script load:
+	# Create an empty queue
+	set {advert messages} to a queue
+
+	# Add some messages to it
+	add "Welcome to my server!" to {advert messages}
+	add "All furniture, 5%% off in store and online!" to {advert messages}
+	add "Discount sale on christmas trees!" to {advert messages}
+	add "Vote for [candidate name]!" to {advert messages}
+
+every 3 minutes:
+	# Take the first message out of the queue
+	set {_message} to the first element of {advert messages}
+	broadcast "<red>" + {_message}
+
+	# Add the message back to the end of the queue
+	add {_message} to {advert messages}

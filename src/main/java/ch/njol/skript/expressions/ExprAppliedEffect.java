@@ -23,7 +23,7 @@ import org.jetbrains.annotations.Nullable;
 })
 @Events("Beacon Effect")
 @RequiredPlugins("Paper")
-@Since("INSERT VERSION")
+@Since("2.10")
 public class ExprAppliedEffect extends SimpleExpression<PotionEffectType> {
 
 	static {

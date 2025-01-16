@@ -29,7 +29,7 @@ import java.util.concurrent.CompletableFuture;
 	"",
 	"clear player's prefix"
 })
-@Since("2.0, INSERT VERSION (delete)")
+@Since("2.0, 2.10 (delete)")
 @RequiredPlugins({"Vault", "a chat plugin that supports Vault"})
 public class ExprPrefixSuffix extends SimplePropertyExpression<Player, String> {
 	static {

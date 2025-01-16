@@ -37,7 +37,7 @@ import org.jetbrains.annotations.Nullable;
 	"set the spawn egg entity of {_item} to a zombie"
 })
 @RequiredPlugins("Minecraft 1.20.2+, Minecraft 1.20.5+ (comparisons)")
-@Since("INSERT VERSION")
+@Since("2.10")
 public class ExprSpawnEggEntity extends SimplePropertyExpression<Object, EntitySnapshot> {
 
 	static {

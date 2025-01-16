@@ -33,7 +33,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 		"\tset looted entity to last spawned pig",
 	"give player loot items of loot table \"minecraft:entities/iron_golem\" with loot context {_context}"
 })
-@Since("INSERT VERSION")
+@Since("2.10")
 public class ExprSecCreateLootContext extends SectionExpression<LootContext> {
 
 	static {

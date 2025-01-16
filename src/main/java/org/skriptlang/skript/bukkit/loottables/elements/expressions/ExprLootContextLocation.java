@@ -23,7 +23,7 @@ import org.skriptlang.skript.bukkit.loottables.LootContextCreateEvent;
 			"\t\tset loot location to location of last spawned pig",
 	"send loot location of {_context} to player"
 })
-@Since("INSERT VERSION")
+@Since("2.10")
 public class ExprLootContextLocation extends SimplePropertyExpression<LootContext, Location> {
 
 	static {

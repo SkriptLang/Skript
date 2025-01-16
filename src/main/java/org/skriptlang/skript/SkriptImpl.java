@@ -32,7 +32,7 @@ final class SkriptImpl implements Skript {
 	 * Registry Management
 	 */
 
-	private static final Map<Class<?>, Registry<?>> registries = new ConcurrentHashMap<>();
+	private final Map<Class<?>, Registry<?>> registries = new ConcurrentHashMap<>();
 
 	@Override
 	public <R extends Registry<?>> void storeRegistry(Class<R> registryClass, R registry) {
@@ -68,7 +68,7 @@ final class SkriptImpl implements Skript {
 	 * SkriptAddon Management
 	 */
 
-	private static final Map<String, SkriptAddon> addons = new HashMap<>();
+	private final Map<String, SkriptAddon> addons = new HashMap<>();
 
 	@Override
 	public SkriptAddon registerAddon(Class<?> source, String name) {

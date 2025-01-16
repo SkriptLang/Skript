@@ -532,7 +532,7 @@ public class DefaultFunctions {
 				"dye player's leggings rgb(120, 30, 45)",
 				"set the colour of a text display to rgb(10, 50, 100, 50)"
 			)
-			.since("2.5, INSERT VERSION (alpha)");
+			.since("2.5, 2.10 (alpha)");
 
 		Functions.registerFunction(new SimpleJavaFunction<Player>("player", new Parameter[] {
 			new Parameter<>("nameOrUUID", DefaultClasses.STRING, true, null),
@@ -649,7 +649,7 @@ public class DefaultFunctions {
 					})
 					.description("Returns a quaternion from the given W, X, Y and Z parameters. ")
 					.examples("quaternion(1, 5.6, 45.21, 10)")
-					.since("INSERT VERSION");
+					.since("2.10");
 			}
 
 			if (Skript.classExists("org.joml.AxisAngle4f")) {
@@ -669,7 +669,7 @@ public class DefaultFunctions {
 					})
 					.description("Returns a quaternion from the given angle (in degrees) and axis (as a vector). This represents a rotation around the given axis by the given angle.")
 					.examples("axisangle(90, (vector from player's facing))")
-					.since("INSERT VERSION");
+					.since("2.10");
 			}
 		} // end joml functions
 
@@ -710,7 +710,7 @@ public class DefaultFunctions {
 					"\ttrigger:",
 						"\t\tset {_money} to formatNumber({money::%sender's uuid%})",
 						"\t\tsend \"Your balance: %{_money}%\" to sender")
-			.since("INSERT VERSION");
+			.since("2.10");
 	}
 
 }

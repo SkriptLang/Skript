@@ -16,7 +16,7 @@ public class CountingLogHandler extends LogHandler {
 	public CountingLogHandler(Level minimum) {
 		this.minimum = minimum.intValue();
 	}
-	
+
 	@Override
 	public LogResult log(LogEntry entry) {
 		if (entry.level.intValue() >= minimum)

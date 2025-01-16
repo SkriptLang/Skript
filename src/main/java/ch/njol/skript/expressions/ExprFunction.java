@@ -27,7 +27,7 @@ import java.util.Objects;
 		"set {_function} to the function named \"myFunction\"",
 		"run {_function} with arguments 13 and true"
 })
-@Since("INSERT VERSION")
+@Since("2.10")
 @SuppressWarnings("rawtypes")
 public class ExprFunction extends SimpleExpression<DynamicFunctionReference> {
 

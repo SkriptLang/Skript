@@ -62,8 +62,8 @@ public class ExprHoverList extends SimpleExpression<String> {
 	}
 
 	@Override
-	@Nullable
-	public String[] get(Event event) {
+	@SuppressWarnings({"removal"})
+	public String @Nullable [] get(Event event) {
 		if (!(event instanceof PaperServerListPingEvent))
 			return null;
 
@@ -96,8 +96,8 @@ public class ExprHoverList extends SimpleExpression<String> {
 		return null;
 	}
 
-	@SuppressWarnings("null")
 	@Override
+	@SuppressWarnings({"null", "removal"})
 	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
 		if (!(event instanceof PaperServerListPingEvent))
 			return;

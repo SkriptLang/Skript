@@ -30,7 +30,7 @@ import org.jetbrains.annotations.Nullable;
 	"message \"display entity has arrived at %{_location}%\""
 })
 @RequiredPlugins("Spigot 1.20.4+")
-@Since("INSERT VERSION")
+@Since("2.10")
 public class ExprDisplayTeleportDuration extends SimplePropertyExpression<Display, Timespan> {
 
 	static {

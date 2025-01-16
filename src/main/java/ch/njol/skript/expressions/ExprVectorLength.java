@@ -7,7 +7,6 @@ import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import ch.njol.skript.lang.Expression;
-import ch.njol.util.VectorMath;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.event.Event;
 import org.bukkit.util.Vector;
@@ -58,7 +57,7 @@ public class ExprVectorLength extends SimplePropertyExpression<Vector, Number> {
 				final double finalDeltaLength = deltaLength;
 				final double finalDeltaLengthSquared = deltaLength * deltaLength;
 				changeFunction = vector -> {
-					if (VectorMath.isZero(vector) || (finalDeltaLength < 0 && vector.lengthSquared() < finalDeltaLengthSquared)) {
+					if (vector.isZero() || (finalDeltaLength < 0 && vector.lengthSquared() < finalDeltaLengthSquared)) {
 						vector.zero();
 					} else {
 						double newLength = finalDeltaLength + vector.length();
@@ -72,7 +71,7 @@ public class ExprVectorLength extends SimplePropertyExpression<Vector, Number> {
 			case SET:
 				final double finalDeltaLength1 = deltaLength;
 				changeFunction = vector -> {
-					if (finalDeltaLength1 < 0 || VectorMath.isZero(vector)) {
+					if (finalDeltaLength1 < 0 || vector.isZero()) {
 						vector.zero();
 					} else {
 						if (!vector.isNormalized())

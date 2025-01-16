@@ -47,6 +47,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -1419,6 +1420,17 @@ public class ItemType implements Unit, Iterable<ItemData>, Container<ItemStack>,
 	}
 
 	/**
+	 * @return All Materials this ItemType represents.
+	 */
+	public Material[] getMaterials() {
+		Set<Material> materials = new HashSet<>();
+		for (ItemData data : types) {
+			materials.add(data.getType());
+		}
+		return materials.toArray(new Material[0]);
+  }
+
+  /**
 	 * @return A random block material this ItemType represents.
 	 * @throws IllegalStateException If {@link #hasBlock()} is false.
 	 */

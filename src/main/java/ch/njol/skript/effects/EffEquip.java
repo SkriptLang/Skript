@@ -44,7 +44,7 @@ import org.jetbrains.annotations.UnknownNullability;
 	"unequip all armor from player",
 	"unequip player's armor"
 })
-@Since("1.0, 2.7 (multiple entities, unequip), INSERT VERSION (wolves)")
+@Since("1.0, 2.7 (multiple entities, unequip), 2.10 (wolves)")
 public class EffEquip extends Effect {
 
 	private static ItemType CHESTPLATE;

@@ -11,7 +11,6 @@ import ch.njol.skript.lang.function.JavaFunction;
 import ch.njol.skript.lang.function.Parameter;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.Utils;
-import ch.njol.util.Callback;
 import ch.njol.util.NonNullPair;
 import ch.njol.util.StringUtils;
 import ch.njol.util.coll.CollectionUtils;
@@ -26,6 +25,7 @@ import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -187,7 +187,7 @@ public class Documentation {
 		cleanedPatterns = CP_PARSE_TAGS_PATTERN.matcher(cleanedPatterns).replaceAll(""); // Remove new parse tags, see https://regex101.com/r/mTebpn/1
 		cleanedPatterns = CP_EXTRA_OPTIONAL_PATTERN.matcher(cleanedPatterns).replaceAll("[$1]"); // Remove unnecessary parentheses such as [(script)]
 
-		Callback<String, Matcher> callback = m -> { // Replace optional parentheses with optional brackets
+		Function<Matcher, String> callback = m -> { // Replace optional parentheses with optional brackets
 			String group = m.group();
 
 			boolean startToEnd = group.contains("(|"); // Due to regex limitation we search from the beginning to the end but if it has '|)' we will begin from the opposite direction
@@ -246,40 +246,37 @@ public class Documentation {
 		assert cleanedPatterns != null;
 
 		final String s = StringUtils.replaceAll(cleanedPatterns, "(?<!\\\\)%(.+?)(?<!\\\\)%", // Convert %+?% (aka types) inside patterns to links
-			new Callback<String, Matcher>() {
-				@Override
-				public String run(final Matcher m) {
-					String s = m.group(1);
-					if (s.startsWith("-"))
-						s = s.substring(1);
-					String flag = "";
-					if (s.startsWith("*") || s.startsWith("~")) {
-						flag = s.substring(0, 1);
-						s = s.substring(1);
-					}
-					final int a = s.indexOf("@");
-					if (a != -1)
-						s = s.substring(0, a);
-					final StringBuilder b = new StringBuilder("%");
-					b.append(flag);
-					boolean first = true;
-					for (final String c : s.split("/")) {
-						assert c != null;
-						if (!first)
-							b.append("/");
-						first = false;
-						final NonNullPair<String, Boolean> p = Utils.getEnglishPlural(c);
-						final ClassInfo<?> ci = Classes.getClassInfoNoError(p.getFirst());
-						if (ci != null && ci.hasDocs()) { // equals method throws null error when doc name is null
-							b.append("<a href='./classes.html#").append(p.getFirst()).append("'>").append(ci.getName().toString(p.getSecond())).append("</a>");
-						} else {
-							b.append(c);
-							if (ci != null && ci.hasDocs())
-								Skript.warning("Used class " + p.getFirst() + " has no docName/name defined");
-						}
-					}
-					return "" + b.append("%").toString();
+			m -> {
+				String s1 = m.group(1);
+				if (s1.startsWith("-"))
+					s1 = s1.substring(1);
+				String flag = "";
+				if (s1.startsWith("*") || s1.startsWith("~")) {
+					flag = s1.substring(0, 1);
+					s1 = s1.substring(1);
 				}
+				final int a = s1.indexOf("@");
+				if (a != -1)
+					s1 = s1.substring(0, a);
+				final StringBuilder b = new StringBuilder("%");
+				b.append(flag);
+				boolean first = true;
+				for (final String c : s1.split("/")) {
+					assert c != null;
+					if (!first)
+						b.append("/");
+					first = false;
+					final NonNullPair<String, Boolean> p = Utils.getEnglishPlural(c);
+					final ClassInfo<?> ci = Classes.getClassInfoNoError(p.getFirst());
+					if (ci != null && ci.hasDocs()) { // equals method throws null error when doc name is null
+						b.append("<a href='./classes.html#").append(p.getFirst()).append("'>").append(ci.getName().toString(p.getSecond())).append("</a>");
+					} else {
+						b.append(c);
+						if (ci != null && ci.hasDocs())
+							Skript.warning("Used class " + p.getFirst() + " has no docName/name defined");
+					}
+				}
+				return b.append("%").toString();
 			});
 		assert s != null : patterns;
 		return s;
@@ -294,7 +291,7 @@ public class Documentation {
 			return;
 		}
 		final String desc = validateHTML(StringUtils.join(elementClass.getAnnotation(Description.class).value(), "<br/>"), type + "s");
-		final String since = validateHTML(elementClass.getAnnotation(Since.class).value(), type + "s");
+		final String since = validateHTML(StringUtils.join(elementClass.getAnnotation(Since.class).value(), "<br/>"), type + "s");
 		if (desc == null || since == null) {
 			Skript.warning("" + elementClass.getSimpleName() + "'s description or 'since' is invalid");
 			return;

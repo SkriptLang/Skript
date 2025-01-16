@@ -15,7 +15,7 @@ import org.jetbrains.annotations.Nullable;
 		"\tteleport player to fishing hook"
 })
 @Events("Fishing")
-@Since("INSERT VERSION")
+@Since("2.10")
 public class ExprFishingHook extends EventValueExpression<Entity> {
 
 	static {

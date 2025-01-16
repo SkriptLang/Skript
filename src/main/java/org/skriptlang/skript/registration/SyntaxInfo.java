@@ -5,7 +5,6 @@ import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Unmodifiable;
 import org.skriptlang.skript.registration.SyntaxInfoImpl.BuilderImpl;
-import org.skriptlang.skript.util.Builder.Buildable;
 import org.skriptlang.skript.util.Priority;
 
 import java.util.Collection;
@@ -16,7 +15,7 @@ import java.util.function.Supplier;
  * @param <E> The class providing the implementation of the syntax this info represents.
  */
 @ApiStatus.Experimental
-public interface SyntaxInfo<E extends SyntaxElement> extends Buildable<SyntaxInfo.Builder<?, ?>, SyntaxInfo<?>>, DefaultSyntaxInfos {
+public interface SyntaxInfo<E extends SyntaxElement> extends DefaultSyntaxInfos {
 
 	/**
 	 * A priority for infos with patterns that only match simple text (they do not have any {@link Expression}s).
@@ -49,11 +48,10 @@ public interface SyntaxInfo<E extends SyntaxElement> extends Buildable<SyntaxInf
 	}
 
 	/**
-	 * {@inheritDoc}
+	 * @return A builder representing this SyntaxInfo.
 	 */
-	@Override
 	@Contract("-> new")
-	Builder<? extends Builder<?, E>, E> builder();
+	Builder<? extends Builder<?, E>, E> toBuilder();
 
 	/**
 	 * @return The origin of this syntax.
@@ -87,7 +85,7 @@ public interface SyntaxInfo<E extends SyntaxElement> extends Buildable<SyntaxInf
 	 * @param <B> The type of builder being used.
 	 * @param <E> The class providing the implementation of the syntax info being built.
 	 */
-	interface Builder<B extends Builder<B, E>, E extends SyntaxElement> extends org.skriptlang.skript.util.Builder<Builder<?, ?>, SyntaxInfo<?>> {
+	interface Builder<B extends Builder<B, E>, E extends SyntaxElement> {
 
 		/**
 		 * Sets the origin the syntax info will use.
@@ -165,7 +163,6 @@ public interface SyntaxInfo<E extends SyntaxElement> extends Buildable<SyntaxInf
 		 * In cases like this, you are expected to correct the values.
 		 * @param builder The builder to apply values onto.
 		 */
-		@Override
 		void applyTo(Builder<?, ?> builder);
 
 	}

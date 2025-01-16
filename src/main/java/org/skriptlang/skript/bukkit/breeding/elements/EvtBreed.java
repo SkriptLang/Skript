@@ -21,7 +21,7 @@ public class EvtBreed extends SkriptEvent {
 					"\tsend \"When a %breeding mother% and %breeding father% love each " +
 						"other very much they make %offspring%\" to breeder"
 			)
-			.since("INSERT VERSION");
+			.since("2.10");
 	}
 
 	private @Nullable Literal<EntityType> entitiesLiteral;

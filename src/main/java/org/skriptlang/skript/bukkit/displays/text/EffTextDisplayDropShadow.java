@@ -21,7 +21,7 @@ import org.jetbrains.annotations.Nullable;
 	"if {_display} has drop shadow:",
 		"\tremove drop shadow from the text of {_display}"
 })
-@Since("INSERT VERSION")
+@Since("2.10")
 public class EffTextDisplayDropShadow extends Effect {
 
 	static {

@@ -49,8 +49,8 @@ public class ExprAnvilRepairCost extends SimplePropertyExpression<Inventory, Int
 	}
 
 	@Override
-	@Nullable
-	public Integer convert(Inventory inventory) {
+	@SuppressWarnings("removal")
+	public @Nullable Integer convert(Inventory inventory) {
 		if (!(inventory instanceof AnvilInventory))
 			return null;
 
@@ -59,19 +59,15 @@ public class ExprAnvilRepairCost extends SimplePropertyExpression<Inventory, Int
 	}
 
 	@Override
-	@Nullable
-	public Class<?>[] acceptChange(ChangeMode mode) {
-		switch (mode) {
-			case ADD:
-			case REMOVE:
-			case SET:
-				return CollectionUtils.array(Number.class);
-			default:
-				return null;
-		}
+	public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
+		return switch (mode) {
+			case ADD, REMOVE, SET -> CollectionUtils.array(Number.class);
+			default -> null;
+		};
 	}
 
 	@Override
+	@SuppressWarnings("removal")
 	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
 		int value = ((Number) delta[0]).intValue() * (mode == ChangeMode.REMOVE ? -1 : 1);
 		for (Inventory inventory : getExpr().getArray(event)) {
@@ -97,5 +93,5 @@ public class ExprAnvilRepairCost extends SimplePropertyExpression<Inventory, Int
 	public String getPropertyName() {
 		return "anvil item" + (isMax ? " max" : "") + " repair cost";
 	}
-	
+
 }

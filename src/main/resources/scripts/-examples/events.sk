@@ -5,10 +5,10 @@
 #
 
 on join:
-    set the join message to "Oh look, %player% joined! :)"
+	set the join message to "Oh look, %player% joined! :)"
 
 on quit:
-    set the quit message to "Oh no, %player% left! :("
+	set the quit message to "Oh no, %player% left! :("
 
 #
 # This example cancels damage for players if they have a specific permission.
@@ -16,14 +16,14 @@ on quit:
 #
 
 on damage:
-    victim is a player
-    if the victim has permission "skript.example.damage":
-        cancel the event # Stops the default behaviour - the victim taking damage.
-    else:
-        send "Ouch! You took %damage% damage." to the victim
-        add damage to {damage::%uuid of victim%::taken}
-        if the attacker is a player:
-            add damage to {damage::%uuid of attacker%::dealt}
+	victim is a player
+	if the victim has permission "skript.example.damage":
+		cancel the event # Stops the default behaviour - the victim taking damage.
+	else:
+		send "Ouch! You took %damage% damage." to the victim
+		add damage to {damage::%uuid of victim%::taken}
+		if the attacker is a player:
+			add damage to {damage::%uuid of attacker%::dealt}
 
 #
 # This example allows players to wear specified blocks as hats.
@@ -31,14 +31,14 @@ on damage:
 #
 
 aliases: # An alias for our allowed hat items.
-    custom helmets = iron block, gold block, diamond block
+	custom helmets = iron block, gold block, diamond block
 
 on inventory click:
-    event-slot is the helmet slot of player # Check that player clicked their head slot.
-    inventory action is place all or nothing
-    player has permission "skript.example.helmet"
-    cursor slot of player is custom helmets # Check if the item is in our custom alias.
-    cancel the event
-    set {_old helmet} to the helmet of player
-    set the helmet of player to the cursor slot of player
-    set the cursor slot of player to {_old helmet}
+	event-slot is the helmet slot of player # Check that player clicked their head slot.
+	inventory action is place all or nothing
+	player has permission "skript.example.helmet"
+	cursor slot of player is custom helmets # Check if the item is in our custom alias.
+	cancel the event
+	set {_old helmet} to the helmet of player
+	set the helmet of player to the cursor slot of player
+	set the cursor slot of player to {_old helmet}

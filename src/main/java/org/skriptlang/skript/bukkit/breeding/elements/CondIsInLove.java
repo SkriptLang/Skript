@@ -15,7 +15,7 @@ import org.bukkit.entity.LivingEntity;
 		"\tif entity is in love:",
 			"broadcast \"That was quick!\""
 })
-@Since("INSERT VERSION")
+@Since("2.10")
 public class CondIsInLove extends PropertyCondition<LivingEntity> {
 
 	static {

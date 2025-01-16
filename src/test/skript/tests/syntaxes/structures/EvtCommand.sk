@@ -1,0 +1,24 @@
+
+
+on command "testing1":
+	add 1 to {evt-command::one command}
+
+
+on command "testing1 argument":
+	add 1 to {evt-command::one command with argument}
+
+on command "testing1" or "testing2":
+	add 1 to {evt-command::both}
+
+test "command event":
+	execute console command "/testing1"
+	execute console command "/testing1 argument"
+	execute console command "/testing1 argument 2"
+	execute console command "/testing2"
+	execute console command "/testing2 argument"
+
+	assert {evt-command::one command} is 3 with "testing1 command event triggered the wrong amount of times"
+	assert {evt-command::one command with argument} is 2 with "testing1 argument command event triggered the wrong amount of times"
+	assert {evt-command::both} is 5 with "testing1 or testing2 command event triggered the wrong amount of times"
+
+	delete {evt-command::*}

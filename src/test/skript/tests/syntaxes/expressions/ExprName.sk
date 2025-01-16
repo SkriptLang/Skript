@@ -4,6 +4,15 @@ test "name of world":
 	set the name of {_thing} to "blob"
 	assert name of {_thing} is "world" with "world name changed"
 
+	# silly test for plural any-named
+	set {_things::*} to the world "world", the world "world" and the world "world"
+
+	set {_blah::*} to the names of {_things::*}
+	assert {_blah::*} is "world", "world" and "world" with "names were wrong"
+	delete {_blah::*}
+	set {_blah::*} to the name of {_things::*}
+	assert {_blah::*} is "world", "world" and "world" with "names were wrong"
+
 test "name of entity":
 	set {_before} to 5
 	spawn a pig at spawn of "world":

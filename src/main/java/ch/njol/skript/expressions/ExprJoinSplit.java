@@ -27,7 +27,7 @@ import ch.njol.util.StringUtils;
 	"message \"Online players: %join all players' names with \"\" | \"\"%\" # %all players% would use the default \"x, y, and z\"",
 	"set {_s::*} to the string argument split at \",\""
 })
-@Since("2.1, 2.5.2 (regex support), 2.7 (case sensitivity), INSERT VERSION (without trailing string)")
+@Since("2.1, 2.5.2 (regex support), 2.7 (case sensitivity), 2.10 (without trailing string)")
 public class ExprJoinSplit extends SimpleExpression<String> {
 
 	static {

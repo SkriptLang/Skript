@@ -26,7 +26,7 @@ import java.util.Set;
 	"add hide potion effects to item flags of player's held item",
 	"remove hide enchants from item flags of {legendary sword}"
 })
-@Since("INSERT VERSION")
+@Since("2.10")
 public class ExprItemFlags extends PropertyExpression<ItemType, ItemFlag> {
 
 	static {

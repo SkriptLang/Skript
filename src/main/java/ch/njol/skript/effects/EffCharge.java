@@ -21,7 +21,7 @@ import org.jetbrains.annotations.Nullable;
 	"on spawn of creeper:",
 		"\tcharge the event-entity"
 })
-@Since("2.5, INSERT VERSION (wither skulls)")
+@Since("2.5, 2.10 (wither skulls)")
 public class EffCharge extends Effect {
 
 	static {

@@ -30,7 +30,7 @@ import java.util.Objects;
 	"\t\tsend \"Loaded Scripts: %enabled scripts%\" to player",
 	"\t\tsend \"Unloaded Scripts: %disabled scripts%\" to player"
 })
-@Since("INSERT VERSION")
+@Since("2.10")
 public class ExprScripts extends SimpleExpression<Script> {
 
 	static {

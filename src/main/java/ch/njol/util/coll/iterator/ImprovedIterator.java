@@ -4,6 +4,10 @@ import java.util.Iterator;
 
 import org.jetbrains.annotations.Nullable;
 
+/**
+ * @deprecated use {@link Iterator}
+ */
+@Deprecated
 public class ImprovedIterator<T> implements Iterator<T> {
 	
 	private final Iterator<T> iter;

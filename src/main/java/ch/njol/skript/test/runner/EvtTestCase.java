@@ -26,7 +26,7 @@ public class EvtTestCase extends SkriptEvent {
 		}
 	}
 
-	private Expression<String> name;
+	private Literal<String> name;
 
 	@Nullable
 	private Condition condition;
@@ -34,7 +34,7 @@ public class EvtTestCase extends SkriptEvent {
 	@Override
 	@SuppressWarnings("unchecked")
 	public boolean init(Literal<?>[] args, int matchedPattern, SkriptParser.ParseResult parseResult) {
-		name = (Expression<String>) args[0];
+		name = (Literal<String>) args[0];
 		if (!parseResult.regexes.isEmpty()) { // Do not parse or run unless condition is met
 			String cond = parseResult.regexes.get(0).group();
 			condition = Condition.parse(cond, "Can't understand this condition: " + cond);
@@ -44,7 +44,7 @@ public class EvtTestCase extends SkriptEvent {
 
 	@Override
 	public boolean check(Event event) {
-		String n = name.getSingle(event);
+		String n = name.getSingle();
 		if (n == null)
 			return false;
 		Skript.info("Running test case " + n);
@@ -57,11 +57,13 @@ public class EvtTestCase extends SkriptEvent {
 		return condition != null ? condition.check(new SkriptTestEvent()) : true;
 	}
 
+	public String getTestName() {
+		return name.getSingle();
+	}
+
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		if (event != null)
-			return "test " + name.getSingle(event);
-		return "test case";
+		return "test " + name.getSingle();
 	}
 
 }

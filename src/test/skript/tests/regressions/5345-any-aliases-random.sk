@@ -1,9 +1,12 @@
+aliases:
+	any boots = diamond boots, iron boots, golden boots, leather boots
+
 function randomAliases(empty: boolean = true) :: item:
 	return random item out of any boots
 
 test "any aliases random":
 	assert (random itemtype out of 14, a diamond helmet, false and console) is a diamond helmet with "Could not grab the diamond helmet out of the list."
-	assert (random itemtype out of 14, a diamond helmet, a gold helmet, false and console) is any helmet with "Could not grab any helmet out of the list."
+	assert (random itemtype out of 14, a diamond helmet, a golden helmet, false and console) is diamond helmet or golden helmet with "Could not grab any helmet out of the list."
 	assert random item out of any boots is any boots with "Failed to return the same types as the list."
 	set {_list::*} to true, any boots and false
 	assert random number out of {_list::*} is not set with "Failed to error when finding incorrect type."

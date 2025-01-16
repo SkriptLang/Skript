@@ -28,7 +28,7 @@ import java.util.List;
 			"\t\tremove jack-o-lantern from bartering output",
 			"\t\tbroadcast \"it's not halloween yet!\""
 })
-@Since("INSERT VERSION")
+@Since("2.10")
 public class ExprBarterDrops extends SimpleExpression<ItemType> {
 	
 	static {

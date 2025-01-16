@@ -1,5 +1,10 @@
+aliases:
+	closed birch door = minecraft:birch_door[open=false]
+	any door = birch door, closed birch door
+	any wood door = birch door, closed birch door
+
 test "item comparison":
 	set {_test} to a dragon head
 	assert {_test} is a dragon head with "failed to compare against a head"
-	set {_test} to a door
+	set {_test} to any door
 	assert {_test} is any door, any wood door, birch door or a closed birch door with "failed to compare against a door"

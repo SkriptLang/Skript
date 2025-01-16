@@ -33,7 +33,7 @@ import java.util.*;
 	"set {_item} to snout banner pattern item",
 	"set {_item} to thing banner pattern item"
 })
-@Since("INSERT VERSION")
+@Since("2.10")
 public class ExprBannerItem extends SimpleExpression<ItemType> {
 
 	private static final Map<Object, Material> bannerMaterials = new HashMap<>();

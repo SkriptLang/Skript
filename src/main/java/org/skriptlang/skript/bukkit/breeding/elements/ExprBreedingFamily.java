@@ -22,7 +22,7 @@ import org.jetbrains.annotations.Nullable;
 		"\tsend \"When a %breeding mother% and %breeding father% love each other very much, " +
 		"they make a %bred offspring%\" to breeder"
 })
-@Since("INSERT VERSION")
+@Since("2.10")
 public class ExprBreedingFamily extends SimpleExpression<LivingEntity> {
 
 	static {

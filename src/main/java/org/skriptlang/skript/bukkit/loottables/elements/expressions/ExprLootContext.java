@@ -13,7 +13,7 @@ import org.bukkit.loot.LootContext;
 	"set {_context} to a new loot context at {_location}:",
 		"\tbroadcast loot context"
 })
-@Since("INSERT VERSION")
+@Since("2.10")
 public class ExprLootContext extends EventValueExpression<LootContext> {
 
 	static {

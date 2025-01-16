@@ -35,7 +35,7 @@ public class EvtLeash extends SkriptEvent {
 					"on player unleash:",
 						"\tsend \"<%event-entity%> Thanks for freeing me!\" to player"
 			)
-			.since("INSERT VERSION");
+			.since("2.10");
 
 		// PlayerLeashEntityEvent
 		// event-player is explicitly registered due to event does not extend PlayerEvent

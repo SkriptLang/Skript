@@ -1,3 +1,6 @@
+aliases:
+	test any boots = diamond boots, iron boots, golden boots, chainmail boots, leather boots
+
 test "equip effect":
 
 	# === ARMOUR ===
@@ -18,11 +21,11 @@ test "equip effect":
 	equip {_zombie} with iron helmet
 	equip {_zombie} with diamond chestplate
 	equip {_zombie} with diamond leggings
-	equip {_zombie} with any boots
+	equip {_zombie} with test any boots
 	assert helmet of {_zombie} is iron helmet with "equipping a zombie with a helmet should do exactly that"
 	assert chestplate of {_zombie} is diamond chestplate with "equipping a zombie with a chestplate should do exactly that"
 	assert leggings of {_zombie} is diamond leggings with "equipping a zombie with leggings should do exactly that"
-	assert boots of {_zombie} is any boots with "equipping a zombie with boots should do exactly that"
+	assert boots of {_zombie} is test any boots with "equipping a zombie with boots should do exactly that"
 
 	unequip {_zombie}'s armour
 	assert helmet of {_zombie} is air with "unequipping an entity should remove its armour"
@@ -35,11 +38,11 @@ test "equip effect":
 	spawn a horse at (spawn of world "world"):
 		set {_horse} to entity
 
-	equip {_horse} with diamond horse armour
-	assert {_horse} is wearing diamond horse armour with "equipping a horse with horse armour should do exactly that"
+	equip {_horse} with diamond horse armor
+	assert {_horse} is wearing diamond horse armor with "equipping a horse with horse armour should do exactly that"
 
-	unequip diamond horse armour from {_horse}
-	assert {_horse} is not wearing diamond horse armour with "unequipping horse armour from a horse should do exactly that"
+	unequip diamond horse armor from {_horse}
+	assert {_horse} is not wearing diamond horse armor with "unequipping horse armour from a horse should do exactly that"
 
 	# === SADDLES ===
 

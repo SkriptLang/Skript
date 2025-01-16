@@ -1,12 +1,15 @@
 package ch.njol.util;
 
+import org.jetbrains.annotations.ApiStatus;
+
 import javax.annotation.Nullable;
 
 /**
- * @author Peter G�ttinger
- *
+ * @deprecated use {@link java.util.function.Predicate}
  */
-public abstract interface Predicate<T> {
-  public abstract boolean test(@Nullable T paramT);
+@Deprecated(forRemoval = true)
+@FunctionalInterface
+public interface Predicate<T> extends java.util.function.Predicate<T> {
+  boolean test(@Nullable T paramT);
 }
 

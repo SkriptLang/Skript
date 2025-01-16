@@ -22,7 +22,7 @@ import ch.njol.util.Kleenean;
 })
 @Keywords("lead")
 @Events("Unleash")
-@Since("INSERT VERSION")
+@Since("2.10")
 public class EffDropLeash extends Effect {
 
 	static {

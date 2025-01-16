@@ -1,8 +1,9 @@
 package ch.njol.util;
 
 /**
- * @author Peter Güttinger
+ * @deprecated Use a use-case specific record.
  */
+@Deprecated
 public class NonNullPair<T1, T2> extends Pair<T1, T2> {
 	private static final long serialVersionUID = 820250942098905541L;
 	

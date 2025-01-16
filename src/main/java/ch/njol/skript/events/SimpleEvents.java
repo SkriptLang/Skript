@@ -642,7 +642,7 @@ public class SimpleEvents {
 					"\t\tsend \"Diamonds belong in the money pit!\" to player",
 					"\t\tcancel event"
 				)
-				.since("INSERT VERSION");
+				.since("2.10");
 		}
 		{
 			final Class<? extends Event> eventClass;
@@ -714,7 +714,7 @@ public class SimpleEvents {
 					"on beacon change effect:",
 					"on player change beacon effect:"
 				)
-				.since("INSERT VERSION")
+				.since("2.10")
 				.requiredPlugins("Paper");
 		}
 
@@ -724,7 +724,7 @@ public class SimpleEvents {
 				"on broadcast:",
 					"\tset broadcast-message to \"&c[BROADCAST] %broadcasted message%\""
 			)
-			.since("INSERT VERSION");
+			.since("2.10");
 
 		Skript.registerEvent("Experience Cooldown Change", SimpleEvent.class, PlayerExpCooldownChangeEvent.class, "player (experience|[e]xp) cooldown change")
 			.description(
@@ -738,7 +738,7 @@ public class SimpleEvents {
 					"\tbroadcast past event-timespan",
 					"\tbroadcast xp cooldown change reason"
 			)
-			.since("INSERT VERSION");
+			.since("2.10");
 
 		Skript.registerEvent("Vehicle Move", SimpleEvent.class, VehicleMoveEvent.class, "vehicle move")
 			.description(
@@ -749,7 +749,7 @@ public class SimpleEvents {
 					"\tbroadcast past event-location",
 					"\tbroadcast event-location"
 			)
-			.since("INSERT VERSION");
+			.since("2.10");
 
 		if (Skript.classExists("com.destroystokyo.paper.event.player.PlayerElytraBoostEvent")) {
 			Skript.registerEvent("Elytra Boost", SimpleEvent.class, PlayerElytraBoostEvent.class, "elytra boost")
@@ -760,7 +760,7 @@ public class SimpleEvents {
 							"\t\tprevent the used firework from being consume"
 				)
 				.requiredPlugins("Paper")
-				.since("INSERT VERSION");
+				.since("2.10");
 		}
 
 	}

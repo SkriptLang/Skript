@@ -3,6 +3,8 @@ package ch.njol.skript.lang;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.parser.ParserInstance;
 import ch.njol.util.Kleenean;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * Represents a general part of the syntax.
@@ -28,5 +30,11 @@ public interface SyntaxElement {
 	default ParserInstance getParser() {
 		return ParserInstance.get();
 	}
+
+	/**
+	 * @return A string naming the type of syntax this is. e.g. "expression", "section".
+	 */
+	@Contract(pure = true)
+	@NotNull String getSyntaxTypeName();
 
 }

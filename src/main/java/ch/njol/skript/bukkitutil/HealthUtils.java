@@ -4,6 +4,9 @@ import ch.njol.skript.Skript;
 import ch.njol.util.Math2;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+
+import org.bukkit.NamespacedKey;
+import org.bukkit.Registry;
 import org.bukkit.attribute.Attributable;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
@@ -29,7 +32,7 @@ public class HealthUtils {
 	private static final Attribute MAX_HEALTH;
 	static {
 		if (Skript.isRunningMinecraft(1, 21, 3)) { // In 1.21.3, Attribute became an Interface
-			MAX_HEALTH = Attribute.valueOf("MAX_HEALTH");
+			MAX_HEALTH = Registry.ATTRIBUTE.get(NamespacedKey.minecraft("max_health"));
 		} else {
 			MAX_HEALTH = (Attribute) Enum.valueOf((Class) Attribute.class, "GENERIC_MAX_HEALTH");
 		}
@@ -133,6 +136,7 @@ public class HealthUtils {
 			((LivingEntity) event.getEntity()).setLastDamage(damage * 2);
 	}
 
+	@SuppressWarnings("removal")
 	public static void setDamageCause(Damageable damageable, DamageCause cause) {
 		if (OLD_DAMAGE_EVENT_CONSTRUCTOR != null) {
 			try {

@@ -28,7 +28,7 @@ import java.util.List;
 	"on bucket catch of a puffer fish:",
 		"\tsend \"You caught a fish with a %future event-item%!\" to player"
 })
-@Since("INSERT VERSION")
+@Since("2.10")
 public class EvtBucketEntity extends SkriptEvent {
 
 	static {

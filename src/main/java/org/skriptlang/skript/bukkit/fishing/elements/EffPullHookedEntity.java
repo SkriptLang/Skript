@@ -17,7 +17,7 @@ import org.jetbrains.annotations.Nullable;
 		"\tpull in hooked entity"
 })
 @Events("Fishing")
-@Since("INSERT VERSION")
+@Since("2.10")
 public class EffPullHookedEntity extends Effect {
 
 	static {

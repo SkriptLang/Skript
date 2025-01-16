@@ -26,7 +26,7 @@ import org.jetbrains.annotations.Nullable;
 	"update {_blocks::*} to be sand without physics updates",
 	"update {_blocks::*} as stone without neighbouring updates"
 })
-@Since("INSERT VERSION")
+@Since("2.10")
 // Originally sourced from SkBee by ShaneBee (https://github.com/ShaneBeee/SkBee/blob/master/src/main/java/com/shanebeestudios/skbee/elements/other/effects/EffBlockstateUpdate.java)
 public class EffBlockUpdate extends Effect {
 

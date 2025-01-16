@@ -19,7 +19,7 @@ import ch.njol.util.Kleenean;
 	"force the player's tool to stop glinting"
 })
 @RequiredPlugins("Spigot 1.20.5+")
-@Since("INSERT VERSION")
+@Since("2.10")
 public class EffForceEnchantmentGlint extends Effect {
 
 	static {

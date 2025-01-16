@@ -18,7 +18,7 @@ import org.jetbrains.annotations.Nullable;
 			"\t\tprevent the used firework from being consume"
 })
 @RequiredPlugins("Paper")
-@Since("INSERT VERSION")
+@Since("2.10")
 public class CondElytraBoostConsume extends Condition {
 
 	static {

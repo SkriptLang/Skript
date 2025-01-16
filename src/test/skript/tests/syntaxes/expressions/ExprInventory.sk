@@ -1,5 +1,5 @@
 test "item inventory":
-	set {_shulker} to any shulker box
+	set {_shulker} to a shulker box
 	assert inventory of {_shulker} is set with "Failed to get shulker inventory"
 	set slot 1 of inventory of {_shulker} to dirt
 	assert slot 1 of inventory of {_shulker} is dirt with "Failed to set slot in shulker inventory"

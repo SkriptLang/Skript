@@ -34,7 +34,7 @@ import org.jetbrains.annotations.Nullable;
 	"reset villager level of event-entity",
 	"set villager experience of last spawned entity to 100"
 })
-@Since("INSERT VERSION")
+@Since("2.10")
 public class ExprVillagerLevel extends SimplePropertyExpression<LivingEntity, Number> {
 
 	private static final boolean HAS_INCREASE_METHOD = Skript.methodExists(Villager.class, "increaseLevel", int.class);

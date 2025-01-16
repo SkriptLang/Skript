@@ -29,7 +29,7 @@ import java.util.function.Consumer;
 	"set skull owner of {_block} to \"Njol\" parsed as offlineplayer",
 	"set head owner of player's tool to {_player}"
 })
-@Since("2.9.0, INSERT VERSION (of items)")
+@Since("2.9.0, 2.10 (of items)")
 public class ExprSkullOwner extends SimplePropertyExpression<Object, OfflinePlayer> {
 
 	static {

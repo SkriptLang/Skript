@@ -45,7 +45,7 @@ import java.util.Locale;
 	"rotate {_vector} around vector(1, 1, 1) by 45",
 	"rotate {_quaternion} by x 45, y 90, z 135"
 })
-@Since("2.2-dev28, INSERT VERSION (quaternions, displays)")
+@Since("2.2-dev28, 2.10 (quaternions, displays)")
 public class EffRotate extends Effect {
 
 	static {

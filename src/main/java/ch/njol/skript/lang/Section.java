@@ -8,6 +8,7 @@ import ch.njol.skript.lang.parser.ParserInstance;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -243,6 +244,11 @@ public abstract class Section extends TriggerSection implements SyntaxElement {
 			return owner != null;
 		}
 
+	}
+
+	@Override
+	public @NotNull String getSyntaxTypeName() {
+		return "section";
 	}
 
 }

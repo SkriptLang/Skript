@@ -20,7 +20,7 @@ import org.jetbrains.annotations.Nullable;
 	"force last spawned text display to be visible through walls",
 	"prevent all text displays from being visible through walls"
 })
-@Since("INSERT VERSION")
+@Since("2.10")
 public class EffTextDisplaySeeThroughBlocks extends Effect {
 
 	static {

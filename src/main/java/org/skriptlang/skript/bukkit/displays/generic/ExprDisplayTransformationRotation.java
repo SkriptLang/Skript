@@ -22,7 +22,7 @@ import org.joml.Quaternionf;
         "The left rotation is applied first, with the right rotation then being applied based on the rotated axis."
 })
 @Examples("set left transformation rotation of last spawned block display to quaternion(1, 0, 0, 0) # reset block display")
-@Since("INSERT VERSION")
+@Since("2.10")
 public class ExprDisplayTransformationRotation extends SimplePropertyExpression<Display, Quaternionf> {
 
 	static {

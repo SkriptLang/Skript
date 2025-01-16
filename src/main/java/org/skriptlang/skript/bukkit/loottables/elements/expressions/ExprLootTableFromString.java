@@ -22,7 +22,7 @@ import java.util.List;
 @Name("Loot Table from Key")
 @Description("Returns the loot table from a namespaced key.")
 @Examples("set {_table} to loot table \"minecraft:chests/simple_dungeon\"")
-@Since("INSERT VERSION")
+@Since("2.10")
 public class ExprLootTableFromString extends SimpleExpression<LootTable> {
 
 	static {

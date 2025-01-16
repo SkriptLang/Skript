@@ -12,7 +12,7 @@ import ch.njol.skript.log.RetainingLogHandler;
 import ch.njol.skript.log.SkriptLogger;
 import ch.njol.skript.util.SkriptColor;
 import ch.njol.skript.variables.Variables;
-import org.apache.commons.lang.Validate;
+import com.google.common.base.Preconditions;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
@@ -82,7 +82,7 @@ public abstract class Commands {
 		return commandMap;
 	}
 
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({"unchecked", "removal"})
 	private static void init() {
 		try {
 			if (Bukkit.getPluginManager() instanceof SimplePluginManager) {
@@ -186,8 +186,7 @@ public abstract class Commands {
 					log.printLog();
 					if (!effectCommand.isCancelled()) {
 						sender.sendMessage(ChatColor.GRAY + "executing '" + SkriptColor.replaceColorChar(command) + "'");
-						// TODO: remove logPlayerCommands for 2.8.0
-						if ((SkriptConfig.logEffectCommands.value() || SkriptConfig.logPlayerCommands.value()) && !(sender instanceof ConsoleCommandSender))
+						if (SkriptConfig.logEffectCommands.value() && !(sender instanceof ConsoleCommandSender))
 							Skript.info(sender.getName() + " issued effect command: " + SkriptColor.replaceColorChar(command));
 						TriggerItem.walk(effect, effectCommand);
 						Variables.removeLocals(effectCommand);
@@ -321,7 +320,7 @@ public abstract class Commands {
 			this.aliasFor = aliasFor.startsWith("/") ? aliasFor : "/" + aliasFor;
 			this.helpMap = helpMap;
 			name = alias.startsWith("/") ? alias : "/" + alias;
-			Validate.isTrue(!name.equals(this.aliasFor), "Command " + name + " cannot be alias for itself");
+			Preconditions.checkState(!name.equals(this.aliasFor), "Command " + name + " cannot be alias for itself");
 			shortText = ChatColor.YELLOW + "Alias for " + ChatColor.WHITE + this.aliasFor;
 		}
 

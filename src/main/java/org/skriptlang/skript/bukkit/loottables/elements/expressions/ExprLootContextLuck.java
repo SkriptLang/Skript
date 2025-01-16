@@ -24,7 +24,7 @@ import org.skriptlang.skript.bukkit.loottables.LootContextWrapper;
 		"\tset looter to player",
 		"\tset looted entity to last spawned pig"
 })
-@Since("INSERT VERSION")
+@Since("2.10")
 public class ExprLootContextLuck extends SimplePropertyExpression<LootContext, Float> {
 
 	static {

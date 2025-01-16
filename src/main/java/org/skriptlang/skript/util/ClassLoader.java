@@ -2,6 +2,7 @@ package org.skriptlang.skript.util;
 
 import ch.njol.skript.Skript;
 import ch.njol.util.StringUtils;
+import com.google.common.base.MoreObjects;
 import com.google.common.reflect.ClassPath;
 import com.google.common.reflect.ClassPath.ResourceInfo;
 import org.jetbrains.annotations.Contract;
@@ -14,6 +15,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.TreeSet;
 import java.util.function.Consumer;
+import java.util.function.Predicate;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.stream.Collectors;
@@ -51,19 +53,21 @@ public class ClassLoader {
 
 	private final String basePackage;
 	private final Collection<String> subPackages;
+	private final @Nullable Predicate<String> filter;
 	private final boolean initialize;
 	private final boolean deep;
 	private final @Nullable Consumer<Class<?>> forEachClass;
 
-	private ClassLoader(String basePackage, Collection<String> subPackages, boolean initialize,
-						boolean deep, @Nullable Consumer<Class<?>> forEachClass) {
-		if (basePackage.isEmpty()) {
-			throw new IllegalArgumentException("The base package must be set");
+	private ClassLoader(String basePackage, Collection<String> subPackages, @Nullable Predicate<String> filter,
+						boolean initialize, boolean deep, @Nullable Consumer<Class<?>> forEachClass) {
+		if (!basePackage.isEmpty()) { // allow empty base package
+			basePackage = basePackage.replace('.', '/') + "/";
 		}
-		this.basePackage = basePackage.replace('.', '/') + "/";
+		this.basePackage = basePackage;
 		this.subPackages = subPackages.stream()
 				.map(subPackage -> subPackage.replace('.', '/') + "/")
 				.collect(Collectors.toSet());
+		this.filter = filter;
 		this.initialize = initialize;
 		this.deep = deep;
 		this.forEachClass = forEachClass;
@@ -127,8 +131,9 @@ public class ClassLoader {
 		// classes will be loaded in alphabetical order
 		Collection<String> classNames = new TreeSet<>(String::compareToIgnoreCase);
 		for (String name : classPaths) {
-			if (!name.startsWith(this.basePackage) || !name.endsWith(".class") || name.endsWith("package-info.class"))
+			if (!name.startsWith(this.basePackage) || !name.endsWith(".class") || name.endsWith("package-info.class")) {
 				continue;
+			}
 			boolean load;
 			if (this.subPackages.isEmpty()) {
 				// loaded only if within base package when deep searches are forbidden
@@ -147,7 +152,10 @@ public class ClassLoader {
 
 			if (load) {
 				// replace separators and .class extension
-				classNames.add(name.replace('/', '.').substring(0, name.length() - 6));
+				name = name.replace('/', '.').substring(0, name.length() - 6);
+				if (filter == null || filter.test(name)) { // final check for loading
+					classNames.add(name);
+				}
 			}
 		}
 
@@ -155,8 +163,9 @@ public class ClassLoader {
 		for (String className : classNames) {
 			try {
 				Class<?> clazz = Class.forName(className, this.initialize, loader);
-				if (this.forEachClass != null)
+				if (this.forEachClass != null) {
 					this.forEachClass.accept(clazz);
+				}
 			} catch (ClassNotFoundException ex) {
 				throw new RuntimeException("Failed to load class: " + className, ex);
 			} catch (ExceptionInInitializerError err) {
@@ -166,12 +175,44 @@ public class ClassLoader {
 	}
 
 	/**
+	 * @return A builder representing this ClassLoader.
+	 */
+	@Contract("-> new")
+	public Builder toBuilder() {
+		Builder builder = builder()
+			.basePackage(this.basePackage)
+			.addSubPackages(this.subPackages)
+			.initialize(this.initialize)
+			.deep(this.deep);
+		if (filter != null) {
+			builder.filter(this.filter);
+		}
+		if (forEachClass != null) {
+			builder.forEachClass(this.forEachClass);
+		}
+		return builder;
+	}
+
+	@Override
+	public String toString() {
+		return MoreObjects.toStringHelper(this)
+				.add("basePackage", basePackage)
+				.add("subPackages", subPackages)
+				.add("filter", filter)
+				.add("initialize", initialize)
+				.add("deep", deep)
+				.add("forEachClass", forEachClass)
+				.toString();
+	}
+
+	/**
 	 * A builder for constructing a {@link ClassLoader}.
 	 */
 	public static final class Builder {
 
 		private String basePackage = "";
 		private final Collection<String> subPackages = new HashSet<>();
+		private @Nullable Predicate<String> filter = null;
 		private boolean initialize;
 		private boolean deep;
 		private @Nullable Consumer<Class<?>> forEachClass;
@@ -233,6 +274,18 @@ public class ClassLoader {
 		}
 
 		/**
+		 * A predicate for whether a fully qualified class name should be loaded as a {@link Class}.
+		 * @param filter A predicate for filtering class names.
+		 *  It should return true for class names to load.
+		 * @return This builder.
+		 */
+		@Contract("_ -> this")
+		public Builder filter(Predicate<String> filter) {
+			this.filter = filter;
+			return this;
+		}
+
+		/**
 		 * Sets whether the loader will initialize found classes.
 		 * @param initialize Whether classes should be initialized when found.
 		 * @return This builder.
@@ -271,7 +324,7 @@ public class ClassLoader {
 		 */
 		@Contract("-> new")
 		public ClassLoader build() {
-			return new ClassLoader(basePackage, subPackages, initialize, deep, forEachClass);
+			return new ClassLoader(basePackage, subPackages, filter, initialize, deep, forEachClass);
 		}
 
 	}

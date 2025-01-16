@@ -23,7 +23,7 @@ public class BreedingModule {
 				"on love mode enter:",
 					"\tcancel event # No one is allowed love here"
 			)
-			.since("INSERT VERSION");
+			.since("2.10");
 
 		EventValues.registerEventValue(EntityBreedEvent.class, ItemStack.class, EntityBreedEvent::getBredWith);
 		EventValues.registerEventValue(EntityEnterLoveModeEvent.class, LivingEntity.class, EntityEnterLoveModeEvent::getEntity);

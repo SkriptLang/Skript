@@ -34,7 +34,7 @@ import org.jetbrains.annotations.UnknownNullability;
 	"heal the player",
 	"repair tool of player"
 })
-@Since("1.0, INSERT VERSION (damage cause)")
+@Since("1.0, 2.10 (damage cause)")
 @RequiredPlugins("Spigot 1.20.4+ (for damage cause)")
 public class EffHealth extends Effect {
 	private static final boolean SUPPORTS_DAMAGE_SOURCE = Skript.classExists("org.bukkit.damage.DamageSource");

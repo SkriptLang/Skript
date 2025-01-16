@@ -21,7 +21,7 @@ import org.jetbrains.annotations.Nullable;
 	"\tentity is not an adult",
 	"\tmake entity an adult",
 })
-@Since("INSERT VERSION")
+@Since("2.10")
 public class EffMakeAdultOrBaby extends Effect {
 
 	static {
