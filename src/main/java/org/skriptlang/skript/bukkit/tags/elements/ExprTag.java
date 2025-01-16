@@ -59,7 +59,7 @@ public class ExprTag extends SimpleExpression<Tag> {
 	}
 
 	private Expression<String> names;
-	TagType<?>[] types;
+	public TagType<?>[] types;
 	private TagOrigin origin;
 	private boolean datapackOnly;
 
@@ -75,7 +75,6 @@ public class ExprTag extends SimpleExpression<Tag> {
 
 	@Override
 	protected Tag<?> @Nullable [] get(Event event) {
-		String[] names = this.names.getArray(event);
 		List<Tag<?>> tags = new ArrayList<>();
 
 		String[] namespaces = switch (origin) {
@@ -85,22 +84,22 @@ public class ExprTag extends SimpleExpression<Tag> {
 			case SKRIPT -> new String[]{"skript"};
 		};
 
-		nextName: for (String name : names) {
+		nextName: for (String name : this.names.getArray(event)) {
 			// get key
 			NamespacedKey key;
+			boolean providedNamespace = name.contains(":");
 			for (String namespace : namespaces) {
-				if (name.contains(":")) {
+				if (providedNamespace) {
 					key = NamespacedKey.fromString(name);
+					if (key == null)
+						continue nextName;
 				} else {
 					// populate namespace if not provided
 					key = new NamespacedKey(namespace, name);
 				}
-				if (key == null)
-					continue;
 
-				Tag<?> tag;
 				for (TagType<?> type : types) {
-					tag = TagModule.tagRegistry.getTag(origin, type, key);
+					Tag<?> tag = TagModule.tagRegistry.getTag(origin, type, key);
 					if (tag != null
 						// ensures that only datapack/minecraft tags are sent when specifically requested
 						&& (origin != TagOrigin.BUKKIT || (datapackOnly ^ tag.getKey().getNamespace().equals("minecraft")))
@@ -109,6 +108,8 @@ public class ExprTag extends SimpleExpression<Tag> {
 						continue nextName; // ensure 1:1
 					}
 				}
+				if (providedNamespace)
+					continue nextName;
 			}
 		}
 		return tags.toArray(new Tag[0]);
