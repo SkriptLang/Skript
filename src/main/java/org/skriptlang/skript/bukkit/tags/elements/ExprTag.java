@@ -78,33 +78,36 @@ public class ExprTag extends SimpleExpression<Tag> {
 		String[] names = this.names.getArray(event);
 		List<Tag<?>> tags = new ArrayList<>();
 
-		String namespace = switch (origin) {
-			case ANY, BUKKIT -> "minecraft";
-			case PAPER -> "paper";
-			case SKRIPT -> "skript";
+		String[] namespaces = switch (origin) {
+			case ANY -> new String[]{"minecraft", "paper", "skript"};
+			case BUKKIT -> new String[]{"minecraft"};
+			case PAPER -> new String[]{"paper"};
+			case SKRIPT -> new String[]{"skript"};
 		};
 
 		nextName: for (String name : names) {
 			// get key
 			NamespacedKey key;
-			if (name.contains(":")) {
-				key = NamespacedKey.fromString(name);
-			} else {
-				// populate namespace if not provided
-				key = new NamespacedKey(namespace, name);
-			}
-			if (key == null)
-				continue;
+			for (String namespace : namespaces) {
+				if (name.contains(":")) {
+					key = NamespacedKey.fromString(name);
+				} else {
+					// populate namespace if not provided
+					key = new NamespacedKey(namespace, name);
+				}
+				if (key == null)
+					continue;
 
-			Tag<?> tag;
-			for (TagType<?> type : types) {
-				tag = TagModule.tagRegistry.getTag(origin, type, key);
-				if (tag != null
-					// ensures that only datapack/minecraft tags are sent when specifically requested
-					&& (origin != TagOrigin.BUKKIT || (datapackOnly ^ tag.getKey().getNamespace().equals("minecraft")))
-				) {
-					tags.add(tag);
-					continue nextName; // ensure 1:1
+				Tag<?> tag;
+				for (TagType<?> type : types) {
+					tag = TagModule.tagRegistry.getTag(origin, type, key);
+					if (tag != null
+						// ensures that only datapack/minecraft tags are sent when specifically requested
+						&& (origin != TagOrigin.BUKKIT || (datapackOnly ^ tag.getKey().getNamespace().equals("minecraft")))
+					) {
+						tags.add(tag);
+						continue nextName; // ensure 1:1
+					}
 				}
 			}
 		}
