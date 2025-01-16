@@ -80,7 +80,7 @@ public final class Task implements Executable<Event, Void>, Completable { // tod
 		return ready;
 	}
 
-	private static class TaskEvent extends Event {
+	public static class TaskEvent extends Event {
 
 		private final Task task;
 

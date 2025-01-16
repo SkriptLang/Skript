@@ -24,11 +24,12 @@ public class ExprSecTask extends SectionExpression<Task> {
 		if (TestMode.ENABLED)
 			Skript.registerExpression(ExprSecTask.class, Task.class, ExpressionType.SIMPLE,
 				"[an] auto[matic|[ |-]completing] task",
-				"[a] [new] task"
+				"[a] [new] task",
+				"the [current] task"
 			);
 	}
 
-	protected boolean automatic;
+	protected boolean automatic, current;
 
 	@Override
 	public boolean init(Expression<?>[] expressions,
@@ -39,20 +40,29 @@ public class ExprSecTask extends SectionExpression<Task> {
 						@Nullable List<TriggerItem> triggerItems) {
 		if (!this.getParser().hasExperiment(Feature.TASKS))
 			return false;
+		this.automatic = pattern == 0;
+		this.current = pattern == 2;
+		if (current)
+			return true;
 		if (node == null) {
 //			Skript.error("Task expression needs a section!");
 			return false; // We don't error here because the `a task` classinfo will take over instead
 		}
-		this.automatic = pattern == 0;
 		this.loadCode(node);
 		return true;
 	}
 
 	@Override
 	protected Task[] get(Event event) {
+		if (current) {
+			if (event instanceof Task.TaskEvent ours)
+				return new Task[] {ours.task()};
+			// todo runtime error
+			return new Task[0];
+		}
 		Object variables = Variables.copyLocalVariables(event);
 		return new Task[] {
-			new Task(automatic,variables, this::runSection)
+			new Task(automatic, variables, this::runSection)
 		};
 	}
 
@@ -68,6 +78,10 @@ public class ExprSecTask extends SectionExpression<Task> {
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
+		if (automatic)
+			return "an automatic task";
+		if (current)
+			return "the current task";
 		return "a new task";
 	}
 
