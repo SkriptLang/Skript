@@ -15,21 +15,28 @@ public final class Task implements Executable<Event, Void>, Completable { // tod
 
 	private final Object variables;
 	private final Consumer<Event> runner;
+	private final boolean autoComplete;
 
 	private transient final CountDownLatch latch = new CountDownLatch(1);
 	private transient volatile boolean ready;
 
-	public Task(Object variables, Consumer<Event> runner) {
+	public Task(boolean autoComplete, Object variables, Consumer<Event> runner) {
 		this.variables = variables;
 		this.runner = runner;
+		this.autoComplete = autoComplete;
 	}
 
 	@Override
 	public Void execute(Event event, Object... arguments) {
 		TaskEvent here = new TaskEvent(this);
 		Variables.setLocalVariables(here, variables);
-		this.runner.accept(here);
-		Variables.removeLocals(here);
+		try {
+			this.runner.accept(here);
+		} finally {
+			if (autoComplete)
+				this.complete();
+			Variables.removeLocals(here);
+		}
 		return null;
 	}
 
