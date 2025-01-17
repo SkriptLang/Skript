@@ -9,7 +9,9 @@ import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
+import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.Literal;
+import ch.njol.skript.lang.LiteralString;
 import ch.njol.skript.lang.ParseContext;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
@@ -20,6 +22,7 @@ import ch.njol.skript.log.LogEntry;
 import ch.njol.skript.log.RedirectingLogHandler;
 import ch.njol.skript.log.SkriptLogger;
 import ch.njol.skript.log.TimingLogHandler;
+import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.Task;
 import ch.njol.skript.util.Utils;
 import ch.njol.util.OpenCloseable;
@@ -42,6 +45,8 @@ import org.skriptlang.skript.lang.entry.EntryContainer;
 import org.skriptlang.skript.lang.entry.EntryData;
 import org.skriptlang.skript.lang.entry.EntryValidator;
 import org.skriptlang.skript.lang.entry.KeyValueEntryData;
+import org.skriptlang.skript.lang.entry.util.ExpressionEntryData;
+import org.skriptlang.skript.lang.entry.util.LiteralEntryData;
 import org.skriptlang.skript.lang.script.Script;
 import org.skriptlang.skript.lang.script.ScriptData;
 import org.skriptlang.skript.lang.structure.Structure;
@@ -80,14 +85,7 @@ public class StructAutoReload extends Structure {
 	@Override
 	public EntryValidator entryValidator(Literal<?> @NotNull [] arguments, int matchedPattern, ParseResult parseResult) {
 		return EntryValidator.builder()
-			// Uses OfflinePlayer because this is determined at parse time. Runtime will make sure it's a Player.
-			.addEntryData(new KeyValueEntryData<OfflinePlayer[]>("recipients", null, true) {
-				@Override
-				protected OfflinePlayer @Nullable [] getValue(String value) {
-					Literal<? extends OfflinePlayer> recipients = SkriptParser.parseLiteral(value, OfflinePlayer.class, ParseContext.DEFAULT);
-					return recipients.getArray();
-				}
-			})
+			.addEntryData(new ExpressionEntryData<>("recipients", null, true, String.class, SkriptParser.PARSE_EXPRESSIONS)) // LiteralString doesn't work with PARSE_LITERAL
 			.addEntry("permission", "skript.reloadnotify", true)
 			.build();
 	}
@@ -108,7 +106,13 @@ public class StructAutoReload extends Structure {
 
 		// Container can be null if the structure is simple.
 		if (container != null) {
-			recipients = container.getOptional("recipients", OfflinePlayer[].class, false); // Must be false otherwise the API will throw an exception.
+			@SuppressWarnings("unchecked")
+			Expression<String> strings = (Expression<String>) container.getOptional("recipients", false); // Must be false otherwise the API will throw an exception.
+			if (strings != null && strings instanceof LiteralString literal) {
+				recipients = Arrays.stream(literal.getArray())
+					.map(string -> Classes.parse(string, OfflinePlayer.class, ParseContext.PARSE))
+					.toArray(OfflinePlayer[]::new);
+			}
 			permission = container.getOptional("permission", String.class, false);
 		}
 
@@ -191,17 +195,15 @@ public class StructAutoReload extends Structure {
 	public final class AutoReload implements ScriptData {
 
 		private final List<OfflinePlayer> recipients = new ArrayList<>();
+		private final String permission;
 		private long lastReload; // Compare with File#lastModified()
 
 		// private constructor to prevent instantiation.
 		private AutoReload(long lastReload, @Nullable String permission, @Nullable OfflinePlayer... recipients) {
-			if (recipients != null) {
+			if (recipients != null)
 				this.recipients.addAll(Lists.newArrayList(recipients));
-			} else if (permission != null) {
-				Bukkit.getOnlinePlayers().stream()
-					.filter(p -> p.hasPermission(permission))
-					.forEach(this.recipients::add);
-			}
+
+			this.permission = permission;
 			this.lastReload = lastReload;
 		}
 
@@ -214,7 +216,15 @@ public class StructAutoReload extends Structure {
 		@Unmodifiable
 		public List<CommandSender> getRecipients() {
 			List<CommandSender> senders = Lists.newArrayList(Bukkit.getConsoleSender());
-			senders.addAll(recipients.stream().filter(OfflinePlayer::isOnline).map(OfflinePlayer::getPlayer).toList());
+			if (!recipients.isEmpty()) {
+				senders.addAll(recipients.stream().filter(OfflinePlayer::isOnline).map(OfflinePlayer::getPlayer).toList());
+				return Collections.unmodifiableList(senders);
+			}
+
+			// Collect players with permission. Recipients overrides the permission node.
+			Bukkit.getOnlinePlayers().stream()
+				.filter(p -> p.hasPermission(permission))
+				.forEach(senders::add);
 			return Collections.unmodifiableList(senders); // Unmodifiable to denote that changes won't affect the data.
 		}
 
