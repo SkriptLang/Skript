@@ -23,18 +23,19 @@ import ch.njol.skript.util.Task;
 import ch.njol.skript.util.Utils;
 import ch.njol.util.OpenCloseable;
 import ch.njol.util.StringUtils;
-
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.logging.Level;
 
 import org.bukkit.Bukkit;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.Unmodifiable;
 import org.skriptlang.skript.lang.entry.EntryContainer;
 import org.skriptlang.skript.lang.entry.EntryData;
 import org.skriptlang.skript.lang.entry.EntryValidator;
@@ -47,13 +48,19 @@ import com.google.common.collect.Lists;
 @Name("Auto Reload")
 @Description({
 	"Place at the top of a script file to enable and configure automatic reloading of the script.",
-	"When the script is saved, Skript will automatically reload the script."
+	"When the script is saved, Skript will automatically reload the script.",
+	"The config.sk node 'script loader thread size' must be set to a positive number for this to be enabled.",
+	"",
+	"available optional nodes:",
+	"\trecipients: The players to send reload messages to. Defaults to console.",
+	"\tpermission: The permission required to receive reload messages. 'recipients' will override this node.",
 })
 @Examples({
 	"auto reload",
 	"",
 	"auto reload:",
-	"\trecipients: \"SkriptDev\", \"SkriptLang\" and \"Njol\"",
+	"\trecipients: \"SkriptDev\", \"61699b2e-d327-4a01-9f1e-0ea8c3f06bc6\" and \"Njol\"", // UUID is Dinnerbone's.
+	"\tpermission: \"skript.reloadnotify\"",
 })
 @Since("INSERT VERSION")
 public class StructAutoReload extends Structure {
@@ -67,12 +74,13 @@ public class StructAutoReload extends Structure {
 	@Override
 	public EntryValidator entryValidator() {
 		return EntryValidator.builder()
-				.addEntryData(new EntryData<Player[]>("recipients", null, true) {
+				// Uses OfflinePlayer because this is determined at parse time. Runtime will make sure it's a Player.
+				.addEntryData(new EntryData<OfflinePlayer[]>("recipients", null, true) {
 
 					@Override
-					public Player @Nullable [] getValue(Node node) {
+					public OfflinePlayer @Nullable [] getValue(Node node) {
 						EntryNode entry = (EntryNode) node;
-						Literal<? extends Player> recipients = SkriptParser.parseLiteral(entry.getValue(), Player.class, ParseContext.DEFAULT);
+						Literal<? extends OfflinePlayer> recipients = SkriptParser.parseLiteral(entry.getValue(), OfflinePlayer.class, ParseContext.DEFAULT);
 						return recipients.getArray();
 					}
 
@@ -82,6 +90,7 @@ public class StructAutoReload extends Structure {
 					}
 
 				})
+				.addEntry("permission", "skript.reloadnotify", true)
 				.build();
 	}
 
@@ -99,15 +108,22 @@ public class StructAutoReload extends Structure {
 			return false;
 		}
 
-		List<Player> recipients = new ArrayList<>();
-		Player[] parsed = container.get("recipients", Player[].class, false);
-		if (parsed != null) {
-			recipients.addAll(Lists.newArrayList(parsed));
+		OfflinePlayer[] recipients = null;
+		String permission = "skript.reloadnotify";
+
+		// Container can be null if the structure is simple.
+		if (container != null) {
+			recipients = container.get("recipients", OfflinePlayer[].class, false);
+			permission = container.get("permission", String.class, false);
 		}
 
 		script = getParser().getCurrentScript();
 		File file = script.getConfig().getFile();
-		script.addData(new AutoReload(recipients, file.lastModified()));
+		if (file == null || !file.exists()) {
+			Skript.error(Language.get("log.auto reload.file not found"));
+			return false;
+		}
+		script.addData(new AutoReload(file.lastModified(), permission, recipients));
 		return true;
 	}
 
@@ -118,11 +134,13 @@ public class StructAutoReload extends Structure {
 
 	@Override
 	public boolean postLoad() {
-		task = new Task(Skript.getInstance(), 0, 20 * 5, true) {
+		task = new Task(Skript.getInstance(), 0, 20 * 2, true) {
 			@Override
 			public void run() {
 				AutoReload data = script.getData(AutoReload.class);
 				File file = script.getConfig().getFile();
+				if (file == null || !file.exists())
+					return;
 				long lastModified = file.lastModified();
 				if (lastModified <= data.getLastReloadTime())
 					return;
@@ -133,7 +151,7 @@ public class StructAutoReload extends Structure {
 					TimingLogHandler timingLogHandler = new TimingLogHandler().start()
 				) {
 					OpenCloseable openCloseable = OpenCloseable.combine(logHandler, timingLogHandler);
-					ScriptLoader.reloadScript(script, openCloseable).thenRun(() -> reloaded(logHandler, timingLogHandler)).get(lastModified, null);
+					ScriptLoader.reloadScript(script, openCloseable).thenRun(() -> reloaded(logHandler, timingLogHandler));
 				} catch (Exception e) {
 					//noinspection ThrowableNotThrown
 					Skript.exception(e, "Exception occurred while automatically reloading a script", script.getConfig().getFileName());
@@ -177,23 +195,32 @@ public class StructAutoReload extends Structure {
 
 	public final class AutoReload implements ScriptData {
 
-		private final List<CommandSender> recipients = Lists.newArrayList(Bukkit.getConsoleSender());
+		private final List<OfflinePlayer> recipients = new ArrayList<>();
 		private long lastReload; // Compare with File#lastModified()
 
 		// private constructor to prevent instantiation.
-		// We want to allow modification, but no replacement in Script#addData
-		private AutoReload(List<Player> recipients, long lastReload) {
-			this.recipients.addAll(recipients);
+		private AutoReload(long lastReload, @Nullable String permission, @Nullable OfflinePlayer... recipients) {
+			if (recipients != null) {
+				this.recipients.addAll(Lists.newArrayList(recipients));
+			} else if (permission != null) {
+				Bukkit.getOnlinePlayers().stream()
+					.filter(p -> p.hasPermission(permission))
+					.forEach(this.recipients::add);
+			}
 			this.lastReload = lastReload;
 		}
 
 		/**
-		 * Gets the recipients to recieve reload errors.
+		 * Returns a new list of the recipients to recieve reload errors.
+		 * Console command sender included.
 		 * 
-		 * @return the recipients in a list, empty if none
+		 * @return the recipients in a list
 		 */
+		@Unmodifiable
 		public List<CommandSender> getRecipients() {
-			return recipients;
+			List<CommandSender> senders = Lists.newArrayList(Bukkit.getConsoleSender());
+			senders.addAll(recipients.stream().filter(OfflinePlayer::isOnline).map(OfflinePlayer::getPlayer).toList());
+			return Collections.unmodifiableList(senders); // Unmodifiable to denote that changes won't affect the data.
 		}
 
 		public long getLastReloadTime() {

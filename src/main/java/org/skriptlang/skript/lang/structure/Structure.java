@@ -94,17 +94,15 @@ public abstract class Structure implements SyntaxElement, Debuggable {
 
 	@Override
 	public final boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		StructureData structureData = getParser().getData(StructureData.class);
-
 		Literal<?>[] literals = Arrays.copyOf(expressions, expressions.length, Literal[].class);
-
+		
+		StructureData structureData = getParser().getData(StructureData.class);
 		StructureInfo<? extends Structure> structureInfo = structureData.structureInfo;
 		assert structureInfo != null;
 
 		if (structureData.node instanceof SimpleNode) { // simple structures do not have validators
 			return init(literals, matchedPattern, parseResult, null);
 		}
-
 
 		EntryValidator entryValidator = entryValidator();
 		if (entryValidator == null && structureInfo.entryValidator != null) {

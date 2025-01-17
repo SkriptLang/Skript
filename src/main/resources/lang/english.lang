@@ -132,9 +132,10 @@ skript command:
 # -- Log Messages --
 log:
 	auto reload:
-		async required: <light red>'script loader thread size' in the config.sk must be a value greater than 0 to use auto reload
+		file not found: Script '%s' was loaded without a file existance. Cannot check against file changes for the auto reload.
+		async required: 'script loader thread size' in the config.sk must be a value greater than 0 to use auto reload
 		error: <light red>Encountered <gold>%2$s <light red>error¦¦s¦ while automatically reloading <gold>%1$s<light red>! <gray>(<gold>%3$sms<gray>)
-		reloaded: <lime>Automatically reloaded <gold>%s<lime>. <gray>(<gold>%2$sms<gray>)
+		reloaded: <lime>Successfully automatically reloaded <gold>%s<lime>. <gray>(<gold>%2$sms<gray>)
 		script: <gold>%s<reset>
 
 	# runtime errors
