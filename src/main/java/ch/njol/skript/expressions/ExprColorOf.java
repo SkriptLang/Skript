@@ -15,11 +15,11 @@ import ch.njol.skript.util.ColorRGB;
 import ch.njol.skript.util.SkriptColor;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
-import org.bukkit.DyeColor;
 import org.bukkit.FireworkEffect;
 import org.bukkit.block.Banner;
 import org.bukkit.block.Block;
-import org.bukkit.block.BlockState;
+import org.bukkit.boss.BarColor;
+import org.bukkit.boss.BossBar;
 import org.bukkit.entity.Display;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Item;
@@ -30,6 +30,7 @@ import org.bukkit.material.Colorable;
 import org.bukkit.material.MaterialData;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.displays.DisplayData;
+import org.skriptlang.skript.lang.converter.Converters;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -51,9 +52,7 @@ import java.util.function.Consumer;
 public class ExprColorOf extends PropertyExpression<Object, Color> {
 
 	static {
-		String types = "blocks/itemtypes/entities/fireworkeffects";
-		if (Skript.isRunningMinecraft(1, 19, 4))
-			types += "/displays";
+		String types = "blocks/itemtypes/entities/fireworkeffects/bossbars/displays";
 		register(ExprColorOf.class, Color.class, "colo[u]r[s]", types);
 	}
 
@@ -65,38 +64,33 @@ public class ExprColorOf extends PropertyExpression<Object, Color> {
 
 	@Override
 	protected Color[] get(Event event, Object[] source) {
-		if (source instanceof FireworkEffect[]) {
-			List<Color> colors = new ArrayList<>();
-			for (FireworkEffect effect : (FireworkEffect[]) source) {
+		List<Color> colors = new ArrayList<>();
+		for (Object object : source) {
+			if (object instanceof Colorable colorable) {
+				colors.add(SkriptColor.fromDyeColor(colorable.getColor()));
+			} else if (object instanceof FireworkEffect effect) {
 				effect.getColors().stream()
 					.map(ColorRGB::fromBukkitColor)
 					.forEach(colors::add);
-			}
-			return colors.toArray(new Color[0]);
-		} else if (source instanceof BossBar[]) {
-			List<Color> colors = new ArrayList<>();
-
-			for (BossBar bar : (BossBar[]) source) {
-				colors.add(SkriptColor.fromBossBarColor(bar.getColor()));
-			}
-
-			if (colors.size() == 0)
-				return null;
-			return colors.toArray(new Color[0]);
-		}
-		return get(source, object -> {
-			if (object instanceof Display) {
+			} else if (object instanceof Display) {
 				if (!(object instanceof TextDisplay display))
-					return null;
-				if (display.isDefaultBackground())
-					return ColorRGB.fromBukkitColor(DisplayData.DEFAULT_BACKGROUND_COLOR);
-				org.bukkit.Color bukkitColor = display.getBackgroundColor();
-				if (bukkitColor == null)
-					return null;
-				return ColorRGB.fromBukkitColor(bukkitColor);
+					continue;
+				if (display.isDefaultBackground()) {
+					colors.add(ColorRGB.fromBukkitColor(DisplayData.DEFAULT_BACKGROUND_COLOR));
+				} else {
+					org.bukkit.Color bukkitColor = display.getBackgroundColor();
+					if (bukkitColor != null)
+						colors.add(ColorRGB.fromBukkitColor(bukkitColor));
+				}
+			} else if (object instanceof BossBar bar) {
+				colors.add(SkriptColor.fromBossBarColor(bar.getColor()));
+			} else {
+				Colorable converted = Converters.convert(object, Colorable.class);
+				if (converted != null)
+					colors.add(SkriptColor.fromDyeColor(converted.getColor()));
 			}
-			return getColor(object);
-		});
+		}
+		return colors.toArray(new Color[0]);
 	}
 
 	@Override
@@ -148,7 +142,7 @@ public class ExprColorOf extends PropertyExpression<Object, Color> {
 				fireworkChanger.accept(effect);
 			} else if (mode == ChangeMode.SET && (object instanceof Block || object instanceof Colorable)) {
 				assert colors[0] != null;
-				Colorable colorable = getColorable(object);
+				Colorable colorable = Converters.convert(object, Colorable.class);
 				if (colorable != null) {
 					try {
 						colorable.setColor(colors[0].asDyeColor());
@@ -177,9 +171,11 @@ public class ExprColorOf extends PropertyExpression<Object, Color> {
 				if (object instanceof Item item) {
 					item.setItemStack(stack);
 				}
-			} else if (o instanceof BossBar) {
+			} else if (object instanceof BossBar bar) {
+				assert colors != null && colors.length > 0;
+				BarColor barColor = colors[0].asBossBarColor();
 				if (barColor != null)
-					((BossBar) o).setColor(barColor);
+					bar.setColor(barColor);
 			}
 		}
 	}
@@ -197,9 +193,7 @@ public class ExprColorOf extends PropertyExpression<Object, Color> {
 	private Consumer<TextDisplay> getDisplayChanger(ChangeMode mode, Color @Nullable [] colors) {
 		Color color = (colors != null && colors.length == 1) ? colors[0] : null;
 		return switch (mode) {
-			case RESET -> display -> {
-				display.setDefaultBackground(true);
-			};
+			case RESET -> display -> display.setDefaultBackground(true);
 			case SET -> display -> {
 				if (color != null) {
 					if (display.isDefaultBackground())
@@ -221,52 +215,13 @@ public class ExprColorOf extends PropertyExpression<Object, Color> {
 				for (Color color : colors)
 					effect.getColors().remove(color.asBukkitColor());
 			};
-			case DELETE, RESET -> effect -> {
-				effect.getColors().clear();
-			};
+			case DELETE, RESET -> effect -> effect.getColors().clear();
 			case SET -> effect -> {
 				effect.getColors().clear();
 				for (Color color : colors)
 					effect.getColors().add(color.asBukkitColor());
 			};
-			default -> effect -> {};
 		};
-	}
-
-	@SuppressWarnings({"removal"})
-	private @Nullable Colorable getColorable(Object colorable) {
-		if (colorable instanceof Item || colorable instanceof ItemType) {
-			ItemStack item = colorable instanceof Item ?
-					((Item) colorable).getItemStack() : ((ItemType) colorable).getRandom();
-
-			if (item == null)
-				return null;
-			MaterialData data = item.getData();
-			if (data instanceof Colorable)
-				return (Colorable) data;
-		} else if (colorable instanceof Block) {
-			BlockState state = ((Block) colorable).getState();
-			if (state instanceof Colorable)
-				return (Colorable) state;
-		} else if (colorable instanceof Colorable) {
-			return (Colorable) colorable;
-		}
-		return null;
-	}
-
-	private @Nullable Color getColor(Object object) {
-		Colorable colorable = getColorable(object);
-		if (colorable != null) {
-			DyeColor dyeColor = colorable.getColor();
-			if (dyeColor == null)
-				return null;
-			return SkriptColor.fromDyeColor(dyeColor);
-		}
-		if (object instanceof Block block) {
-			if (block.getState() instanceof Banner banner)
-				return SkriptColor.fromDyeColor(banner.getBaseColor());
-		}
-		return null;
 	}
 
 }

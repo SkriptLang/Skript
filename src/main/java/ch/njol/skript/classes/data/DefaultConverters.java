@@ -14,31 +14,33 @@ import ch.njol.skript.lang.util.common.AnyNamed;
 import ch.njol.skript.util.*;
 import ch.njol.skript.util.slot.Slot;
 import org.bukkit.*;
+import org.bukkit.block.Banner;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.DoubleChest;
+import org.bukkit.boss.BossBar;
 import org.bukkit.command.BlockCommandSender;
 import org.bukkit.command.CommandSender;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.enchantments.EnchantmentOffer;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.EntitySnapshot;
-import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Player;
+import org.bukkit.entity.*;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
+import org.bukkit.material.Colorable;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.scoreboard.Objective;
 import org.bukkit.scoreboard.Team;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnknownNullability;
 import org.skriptlang.skript.lang.converter.Converter;
 import org.skriptlang.skript.lang.converter.Converters;
 import org.skriptlang.skript.lang.script.Script;
 
+@SuppressWarnings("removal")
 public class DefaultConverters {
 
 	public DefaultConverters() {}
@@ -154,6 +156,40 @@ public class DefaultConverters {
 			return null;
 		}, Converter.NO_CHAINING);
 
+		// Anything with a dye colour -> Colorable
+		Converters.registerConverter(BossBar.class, Colorable.class, //<editor-fold desc="Converter" defaultstate="collapsed">
+			bar -> new Colorable() {
+				@Override
+				public @Nullable DyeColor getColor() {
+					return Utils.getDyeColor(bar.getColor());
+				}
+
+				@Override
+				public void setColor(DyeColor color) {
+					bar.setColor(Utils.getBarColor(color));
+				}
+			},
+			//</editor-fold>
+			Converter.NO_RIGHT_CHAINING);
+		Converters.registerConverter(ItemStack.class, Colorable.class,
+			item -> item.getData() instanceof Colorable colorable ? colorable : null,
+			Converter.NO_RIGHT_CHAINING);
+		Converters.registerConverter(Block.class, Colorable.class,
+			block -> block.getState() instanceof Colorable colorable ? colorable
+				: block.getState() instanceof Banner banner ? new Colorable() {
+				@Override
+				public DyeColor getColor() {
+					return banner.getBaseColor();
+				}
+
+				@Override
+				public void setColor(DyeColor color) {
+					banner.setBaseColor(color);
+					banner.update();
+				}
+			} : null,
+			Converter.NO_RIGHT_CHAINING);
+
 		// Anything with a name -> AnyNamed
 		Converters.registerConverter(OfflinePlayer.class, AnyNamed.class, player -> player::getName, Converter.NO_RIGHT_CHAINING);
 		if (Skript.classExists("org.bukkit.generator.WorldInfo"))
@@ -166,6 +202,25 @@ public class DefaultConverters {
 		Converters.registerConverter(WorldType.class, AnyNamed.class, type -> type::getName, Converter.NO_RIGHT_CHAINING);
 		Converters.registerConverter(Team.class, AnyNamed.class, team -> team::getName, Converter.NO_RIGHT_CHAINING);
 		Converters.registerConverter(Objective.class, AnyNamed.class, objective -> objective::getName, Converter.NO_RIGHT_CHAINING);
+		Converters.registerConverter(BossBar.class, AnyNamed.class, //<editor-fold desc="Converter" defaultstate="collapsed">
+			nameable -> new AnyNamed() {
+				@Override
+				public String name() {
+					return nameable.getTitle();
+				}
+
+				@Override
+				public boolean supportsNameChange() {
+					return true;
+				}
+
+				@Override
+				public void setName(String name) {
+					nameable.setTitle(name);
+				}
+			},
+			//</editor-fold>
+			Converter.NO_RIGHT_CHAINING);
 		Converters.registerConverter(Nameable.class, AnyNamed.class, //<editor-fold desc="Converter" defaultstate="collapsed">
 			nameable -> new AnyNamed() {
 				@Override
@@ -321,13 +376,8 @@ public class DefaultConverters {
 //			}
 //		});
 
-//		// Item - ItemStack
-//		Converters.registerConverter(Item.class, ItemStack.class, new Converter<Item, ItemStack>() {
-//			@Override
-//			public ItemStack convert(final Item i) {
-//				return i.getItemStack();
-//			}
-//		});
+		// Item - ItemStack
+		Converters.registerConverter(Item.class, ItemStack.class, Item::getItemStack, Converter.NO_LEFT_CHAINING);
 
 		// Location - World
 //		Skript.registerConverter(Location.class, World.class, new Converter<Location, World>() {

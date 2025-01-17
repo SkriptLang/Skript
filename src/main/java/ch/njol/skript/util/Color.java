@@ -2,6 +2,7 @@ package ch.njol.skript.util;
 
 import ch.njol.yggdrasil.YggdrasilSerializable.YggdrasilExtendedSerializable;
 import org.bukkit.DyeColor;
+import org.bukkit.boss.BarColor;
 import org.jetbrains.annotations.Nullable;
 
 public interface Color extends YggdrasilExtendedSerializable {
@@ -45,7 +46,7 @@ public interface Color extends YggdrasilExtendedSerializable {
 	 */
 	@Nullable
 	BarColor asBossBarColor();
-	
+
 	/**
 	 * @return Name of the color.
 	 */

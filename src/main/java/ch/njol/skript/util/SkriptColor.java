@@ -6,6 +6,7 @@ import ch.njol.skript.variables.Variables;
 import ch.njol.yggdrasil.Fields;
 import org.bukkit.ChatColor;
 import org.bukkit.DyeColor;
+import org.bukkit.boss.BarColor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -26,21 +27,21 @@ public enum SkriptColor implements Color {
 	// DyeColor.LIGHT_GRAY on 1.13, DyeColor.SILVER on earlier (dye colors were changed in 1.12)
 	LIGHT_GREY(DyeColor.LIGHT_GRAY, ChatColor.GRAY, null),
 	WHITE(DyeColor.WHITE, ChatColor.WHITE, BarColor.WHITE),
-	
+
 	DARK_BLUE(DyeColor.BLUE, ChatColor.DARK_BLUE, BarColor.BLUE),
 	BROWN(DyeColor.BROWN, ChatColor.BLUE, null),
 	DARK_CYAN(DyeColor.CYAN, ChatColor.DARK_AQUA, BarColor.BLUE),
 	LIGHT_CYAN(DyeColor.LIGHT_BLUE, ChatColor.AQUA, BarColor.BLUE),
-	
+
 	DARK_GREEN(DyeColor.GREEN, ChatColor.DARK_GREEN, BarColor.GREEN),
 	LIGHT_GREEN(DyeColor.LIME, ChatColor.GREEN, BarColor.GREEN),
-	
+
 	YELLOW(DyeColor.YELLOW, ChatColor.YELLOW, BarColor.YELLOW),
 	ORANGE(DyeColor.ORANGE, ChatColor.GOLD, BarColor.YELLOW),
-	
+
 	DARK_RED(DyeColor.RED, ChatColor.DARK_RED, BarColor.RED),
 	LIGHT_RED(DyeColor.PINK, ChatColor.RED, BarColor.RED),
-	
+
 	DARK_PURPLE(DyeColor.PURPLE, ChatColor.DARK_PURPLE, BarColor.PURPLE),
 	LIGHT_PURPLE(DyeColor.MAGENTA, ChatColor.LIGHT_PURPLE, BarColor.PURPLE),
 
@@ -49,7 +50,7 @@ public enum SkriptColor implements Color {
 	private final static Map<String, SkriptColor> names = new HashMap<>();
 	private final static Set<SkriptColor> colors = new HashSet<>();
 	private final static String LANGUAGE_NODE = "colors";
-	
+
 	static {
 		colors.addAll(Arrays.asList(values()));
 		Language.addListener(() -> {
@@ -62,20 +63,20 @@ public enum SkriptColor implements Color {
 			}
 		});
 	}
-	
+
 	private ChatColor chat;
 	private DyeColor dye;
 	private @Nullable BarColor bar;
 
 	@Nullable
 	private Adjective adjective;
-	
+
 	SkriptColor(DyeColor dye, ChatColor chat, @Nullable BarColor bar) {
 		this.chat = chat;
 		this.dye = dye;
 		this.bar = bar;
 	}
-	
+
 	@Override
 	public org.bukkit.Color asBukkitColor() {
 		return dye.getColor();
@@ -116,12 +117,12 @@ public enum SkriptColor implements Color {
 		assert adjective != null;
 		return adjective.toString();
 	}
-	
+
 	@Override
 	public Fields serialize() throws NotSerializableException {
 		return new Fields(this, Variables.yggdrasil);
 	}
-	
+
 	@Override
 	public void deserialize(@NotNull Fields fields) throws StreamCorruptedException {
 		dye = fields.getObject("dye", DyeColor.class);
@@ -131,16 +132,16 @@ public enum SkriptColor implements Color {
 			adjective = fields.getObject("adjective", Adjective.class);
 		} catch (StreamCorruptedException ignored) {}
 	}
-	
+
 	public String getFormattedChat() {
 		return "" + chat;
 	}
-	
+
 	@Nullable
 	public Adjective getAdjective() {
 		return adjective;
 	}
-	
+
 	public ChatColor asChatColor() {
 		return chat;
 	}
@@ -149,17 +150,17 @@ public enum SkriptColor implements Color {
 	public byte getWoolData() {
 		return dye.getWoolData();
 	}
-	
+
 	@Deprecated
 	public byte getDyeData() {
 		return (byte) (15 - dye.getWoolData());
 	}
-	
+
 	private void setAdjective(@Nullable Adjective adjective) {
 		this.adjective = adjective;
 	}
-	
-	
+
+
 	/**
 	 * @param name The String name of the color defined by Skript's .lang files.
 	 * @return Skript Color if matched up with the defined name
@@ -168,7 +169,7 @@ public enum SkriptColor implements Color {
 	public static SkriptColor fromName(String name) {
 		return names.get(name);
 	}
-	
+
 	/**
 	 * @param dye DyeColor to match against a defined Skript Color.
 	 * @return Skript Color if matched up with the defined DyeColor
@@ -183,7 +184,7 @@ public enum SkriptColor implements Color {
 		assert false;
 		return null;
 	}
-	
+
 	public static SkriptColor fromBukkitColor(org.bukkit.Color color) {
 		for (SkriptColor c : colors) {
 			if (c.asBukkitColor().equals(color) || c.asDyeColor().getFireworkColor().equals(color))
@@ -210,7 +211,7 @@ public enum SkriptColor implements Color {
 	public static SkriptColor fromDyeData(short data) {
 		if (data < 0 || data >= 16)
 			return null;
-		
+
 		for (SkriptColor color : colors) {
 			DyeColor c = color.asDyeColor();
 			assert c != null;
@@ -219,7 +220,7 @@ public enum SkriptColor implements Color {
 		}
 		return null;
 	}
-	
+
 	/**
 	 * @deprecated Magic numbers
 	 * @param data short to match against a defined Skript Color.
