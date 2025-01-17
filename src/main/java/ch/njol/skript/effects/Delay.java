@@ -77,6 +77,9 @@ public class Delay extends Effect {
 		debug(event, true);
 		if (this.getNext() == null || !Skript.getInstance().isEnabled())
 			return null;
+		Task currentTask = getCurrentTask(event);
+		if (currentTask != null && currentTask.isCancelled())
+			return null; // A delay is a good opportunity to exit from this trigger if the current task is cancelled
 		addDelayedEvent(event);
 		if (single instanceof Timespan timespan)
 			return this.walk(event, timespan);
@@ -92,9 +95,14 @@ public class Delay extends Effect {
 		// Back up local variables
 		Object variables = Variables.removeLocals(event);
 
-		Bukkit.getScheduler().scheduleSyncDelayedTask(Skript.getInstance(),
+		Task currentTask = getCurrentTask(event);
+
+		int taskId = Bukkit.getScheduler().scheduleSyncDelayedTask(Skript.getInstance(),
 			() -> reschedule(start, variables, next, event),
-			Math.max(duration.getAs(Timespan.TimePeriod.TICK), 1)); // Minimum delay is one tick
+			Math.max(duration.getAs(Timespan.TimePeriod.TICK), 1));// Minimum delay is one tick
+
+		if (currentTask != null && !currentTask.isCancelled())
+			currentTask.scheduleCancellationStep(() -> Bukkit.getScheduler().cancelTask(taskId));
 		return null;
 	}
 
@@ -106,6 +114,7 @@ public class Delay extends Effect {
 
 		// Back up local variables
 		Object variables = Variables.removeLocals(event);
+		Task currentTask = getCurrentTask(event);
 
 		Bukkit.getScheduler().runTaskAsynchronously(Skript.getInstance(), () -> {
 			if (timeout != null) {
@@ -114,8 +123,11 @@ public class Delay extends Effect {
 			} else {
 				task.await();
 			}
-			Bukkit.getScheduler().runTask(Skript.getInstance(),
-				() -> reschedule(start, variables, next, event));
+			if (currentTask != null && !currentTask.isCancelled()) {
+				// Don't restart the trigger if its execution was cancelled while we were asleep
+				Bukkit.getScheduler().runTask(Skript.getInstance(),
+					() -> reschedule(start, variables, next, event));
+			}
 		});
 		return null;
 	}
@@ -172,6 +184,10 @@ public class Delay extends Effect {
 	 */
 	public static void addDelayedEvent(Event event) {
 		DELAYED.add(event);
+	}
+
+	public static @Nullable Task getCurrentTask(Event event) {
+		return event instanceof Task.TaskEvent taskEvent ? taskEvent.task() : null;
 	}
 
 }

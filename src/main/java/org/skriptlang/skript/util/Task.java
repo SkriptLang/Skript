@@ -6,24 +6,32 @@ import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
 // todo doc
-public final class Task implements Executable<Event, Void>, Completable { // todo change to context with context api
+public final class Task implements Executable<Event, Void>, Completable, Cancellable { // todo change to context with context api
 
-	private final Object variables;
-	private final Consumer<Event> runner;
+	private transient final Object variables;
+	private transient final Consumer<Event> runner;
 	private final boolean autoComplete;
 
 	private transient final CountDownLatch latch = new CountDownLatch(1);
-	private transient volatile boolean ready;
+	private transient volatile boolean ready, cancelled;
+	/**
+	 * A collection of tasks to be run when the task is shut down prematurely.
+	 * This is used for cancelling parts of the task that are still in progress.
+	 */
+	private transient final List<Runnable> cancellationSteps;
 
 	public Task(boolean autoComplete, Object variables, Consumer<Event> runner) {
 		this.variables = variables;
 		this.runner = runner;
 		this.autoComplete = autoComplete;
+		this.cancellationSteps = new ArrayList<>(8);
 	}
 
 	@Override
@@ -48,10 +56,16 @@ public final class Task implements Executable<Event, Void>, Completable { // tod
 		return runner;
 	}
 
+	public void scheduleCancellationStep(Runnable runnable) {
+		synchronized (cancellationSteps) {
+			this.cancellationSteps.add(runnable);
+		}
+	}
+
 	@Contract(pure = false)
 	public boolean await(long timeout, TimeUnit unit) {
 		try {
-			if (this.ready) return true;
+			if (ready || cancelled) return true;
 			return latch.await(timeout, unit);
 		} catch (InterruptedException e) {
 			return false;
@@ -61,7 +75,7 @@ public final class Task implements Executable<Event, Void>, Completable { // tod
 	@Contract(pure = false)
 	public boolean await() {
 		try {
-			if (this.ready) return true;
+			if (ready || cancelled) return true;
 			this.latch.await();
 			return true;
 		} catch (InterruptedException e) {
@@ -78,6 +92,20 @@ public final class Task implements Executable<Event, Void>, Completable { // tod
 	@Override
 	public boolean isComplete() {
 		return ready;
+	}
+
+	@Override
+	public void cancel() {
+		if (cancelled)
+			return;
+		this.cancelled = true;
+		this.latch.countDown();
+		this.cancellationSteps.forEach(Runnable::run);
+	}
+
+	@Override
+	public boolean isCancelled() {
+		return cancelled;
 	}
 
 	public static class TaskEvent extends Event {

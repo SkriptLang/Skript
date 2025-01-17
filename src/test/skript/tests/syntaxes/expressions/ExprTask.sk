@@ -8,7 +8,26 @@ test "basic tasks":
 		set {ExprTask} to true
 
 	assert {ExprTask} is false with "task ran prematurely"
+	assert {_task} is not complete with "task completed prematurely"
+
 	run {_task}
 	assert {ExprTask} is true with "task didn't run"
+	assert {_task} is not complete with "task wrongly completed"
+
+	delete {ExprTask}
+
+
+test "auto-completing tasks":
+	set {ExprTask} to false
+
+	set {_task} to an automatic task:
+		set {ExprTask} to true
+
+	assert {ExprTask} is false with "task ran prematurely"
+	assert {_task} is not complete with "task completed prematurely"
+
+	run {_task}
+	assert {ExprTask} is true with "task didn't run"
+	assert {_task} is complete with "task didn't autocomplete"
 
 	delete {ExprTask}

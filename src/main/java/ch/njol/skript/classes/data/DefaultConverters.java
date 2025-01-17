@@ -38,6 +38,7 @@ import org.jetbrains.annotations.UnknownNullability;
 import org.skriptlang.skript.lang.converter.Converter;
 import org.skriptlang.skript.lang.converter.Converters;
 import org.skriptlang.skript.lang.script.Script;
+import org.skriptlang.skript.util.Cancellable;
 
 public class DefaultConverters {
 
@@ -255,6 +256,20 @@ public class DefaultConverters {
 				}
 			}
 			return null;
+		});
+
+		// Cancellable (task to bukkit) - for checking whether things are cancelled
+		Converters.registerConverter(Cancellable.class, org.bukkit.event.Cancellable.class, cancellable -> new org.bukkit.event.Cancellable() {
+			@Override
+			public boolean isCancelled() {
+				return cancellable.isCancelled();
+			}
+
+			@Override
+			public void setCancelled(boolean cancel) {
+				if (cancel)
+					cancellable.cancel();
+			}
 		});
 
 		// Enchantment - EnchantmentType
