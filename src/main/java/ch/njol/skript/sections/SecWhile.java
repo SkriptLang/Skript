@@ -6,11 +6,13 @@ import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
+import ch.njol.skript.effects.Delay;
 import ch.njol.skript.lang.*;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.util.Task;
 
 import java.util.List;
 
@@ -67,9 +69,11 @@ public class SecWhile extends LoopSection {
 		return true;
 	}
 
-	@Nullable
 	@Override
-	protected TriggerItem walk(Event event) {
+	protected @Nullable TriggerItem walk(Event event) {
+		Task currentTask = Delay.getCurrentTask(event);
+		if (currentTask != null && currentTask.isCancelled())
+			return null; // The task this is running inside has been cancelled
 		if ((doWhile && !ranDoWhile) || condition.check(event)) {
 			ranDoWhile = true;
 			currentLoopCounter.put(event, (currentLoopCounter.getOrDefault(event, 0L)) + 1);
