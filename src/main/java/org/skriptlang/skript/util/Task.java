@@ -20,7 +20,7 @@ public final class Task implements Executable<Event, Void>, Completable, Cancell
 	private final boolean autoComplete;
 
 	private transient final CountDownLatch latch = new CountDownLatch(1);
-	private transient volatile boolean ready, cancelled;
+	private volatile boolean started, ready, cancelled;
 	/**
 	 * A collection of tasks to be run when the task is shut down prematurely.
 	 * This is used for cancelling parts of the task that are still in progress.
@@ -36,6 +36,8 @@ public final class Task implements Executable<Event, Void>, Completable, Cancell
 
 	@Override
 	public Void execute(Event event, Object... arguments) {
+		if (this.markStarted())
+			return null; // Don't restart old tasks
 		TaskEvent here = new TaskEvent(this);
 		Variables.setLocalVariables(here, variables);
 		try {
@@ -46,6 +48,19 @@ public final class Task implements Executable<Event, Void>, Completable, Cancell
 			Variables.removeLocals(here);
 		}
 		return null;
+	}
+
+	/**
+	 * Marks this task as having been started.
+	 * If the task has previously been started, it should be aborted here.
+	 *
+	 * @return Whether to abort the task
+	 */
+	private synchronized boolean markStarted() {
+		if (started)
+			return true;
+		this.started = true;
+		return false;
 	}
 
 	public Object variables() {
