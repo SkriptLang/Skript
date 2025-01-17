@@ -868,7 +868,9 @@ public class SkriptClasses {
 			.name("Task")
 			.description("A task is an executable section of code. Other triggers can wait for its completion.")
 			.examples("run {_task}")
-			.since("INSERT VERSION"));
+			.since("INSERT VERSION")
+			.serializer(new YggdrasilSerializer<>())
+		);
 
 		Classes.registerClass(new ClassInfo<>(DynamicFunctionReference.class, "function")
 			.user("functions?")
