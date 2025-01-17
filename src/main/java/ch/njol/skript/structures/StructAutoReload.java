@@ -18,6 +18,7 @@ import ch.njol.skript.localization.Language;
 import ch.njol.skript.localization.PluralizingArgsMessage;
 import ch.njol.skript.log.LogEntry;
 import ch.njol.skript.log.RedirectingLogHandler;
+import ch.njol.skript.log.SkriptLogger;
 import ch.njol.skript.log.TimingLogHandler;
 import ch.njol.skript.util.Task;
 import ch.njol.skript.util.Utils;
@@ -25,6 +26,7 @@ import ch.njol.util.OpenCloseable;
 import ch.njol.util.StringUtils;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.logging.Level;
@@ -39,6 +41,7 @@ import org.jetbrains.annotations.Unmodifiable;
 import org.skriptlang.skript.lang.entry.EntryContainer;
 import org.skriptlang.skript.lang.entry.EntryData;
 import org.skriptlang.skript.lang.entry.EntryValidator;
+import org.skriptlang.skript.lang.entry.KeyValueEntryData;
 import org.skriptlang.skript.lang.script.Script;
 import org.skriptlang.skript.lang.script.ScriptData;
 import org.skriptlang.skript.lang.structure.Structure;
@@ -68,31 +71,26 @@ public class StructAutoReload extends Structure {
 	public static final Priority PRIORITY = new Priority(10);
 
 	static {
-		EntryValidator entryValidator = EntryValidator.builder()
-			// Uses OfflinePlayer because this is determined at parse time. Runtime will make sure it's a Player.
-			.addEntryData(new EntryData<OfflinePlayer[]>("recipients", null, true) {
-
-				@Override
-				public OfflinePlayer @Nullable [] getValue(Node node) {
-					EntryNode entry = (EntryNode) node;
-					Literal<? extends OfflinePlayer> recipients = SkriptParser.parseLiteral(entry.getValue(), OfflinePlayer.class, ParseContext.DEFAULT);
-					return recipients.getArray();
-				}
-
-				@Override
-				public boolean canCreateWith(Node node) {
-					return node instanceof EntryNode;
-				}
-
-			})
-			.addEntry("permission", "skript.reloadnotify", true)
-			.build();
-		
-		Skript.registerStructure(StructAutoReload.class, entryValidator, "auto[matically] reload");
+		Skript.registerStructure(StructAutoReload.class, "auto[matically] reload");
 	}
 
 	private Script script;
 	private Task task;
+
+	@Override
+	public EntryValidator entryValidator(Literal<?> @NotNull [] arguments, int matchedPattern, ParseResult parseResult) {
+		return EntryValidator.builder()
+			// Uses OfflinePlayer because this is determined at parse time. Runtime will make sure it's a Player.
+			.addEntryData(new KeyValueEntryData<OfflinePlayer[]>("recipients", null, true) {
+				@Override
+				protected OfflinePlayer @Nullable [] getValue(String value) {
+					Literal<? extends OfflinePlayer> recipients = SkriptParser.parseLiteral(value, OfflinePlayer.class, ParseContext.DEFAULT);
+					return recipients.getArray();
+				}
+			})
+			.addEntry("permission", "skript.reloadnotify", true)
+			.build();
+	}
 
 	@Override
 	public boolean init(Literal<?> @NotNull [] arguments, int pattern, ParseResult result, EntryContainer container) {
@@ -110,8 +108,8 @@ public class StructAutoReload extends Structure {
 
 		// Container can be null if the structure is simple.
 		if (container != null) {
-			recipients = container.get("recipients", OfflinePlayer[].class, false);
-			permission = container.get("permission", String.class, false);
+			recipients = container.getOptional("recipients", OfflinePlayer[].class, false); // Must be false otherwise the API will throw an exception.
+			permission = container.getOptional("permission", String.class, false);
 		}
 
 		script = getParser().getCurrentScript();
@@ -136,7 +134,7 @@ public class StructAutoReload extends Structure {
 			public void run() {
 				AutoReload data = script.getData(AutoReload.class);
 				File file = script.getConfig().getFile();
-				if (file == null || !file.exists())
+				if (data == null || file == null || !file.exists())
 					return;
 				long lastModified = file.lastModified();
 				if (lastModified <= data.getLastReloadTime())
@@ -173,20 +171,20 @@ public class StructAutoReload extends Structure {
 		return "auto reload";
 	}
 
-	private static final ArgsMessage m_reload_error = new ArgsMessage("log.auto reload.error");
-	private static final ArgsMessage m_reloaded = new ArgsMessage("log.auto reload.reloaded");
-
 	private void reloaded(RedirectingLogHandler logHandler, TimingLogHandler timingLogHandler) {
+		String prefix = Language.get("skript.prefix");
+		ArgsMessage m_reload_error = new ArgsMessage("log.auto reload.error");
+		ArgsMessage m_reloaded = new ArgsMessage("log.auto reload.reloaded");
 		String what = PluralizingArgsMessage.format(Language.format("log.auto reload.script", script.getConfig().getFileName()));
 		String timeTaken = String.valueOf(timingLogHandler.getTimeTaken());
 
 		String message;
 		if (logHandler.numErrors() == 0) {
 			message = StringUtils.fixCapitalization(PluralizingArgsMessage.format(m_reloaded.toString(what, timeTaken)));
-			logHandler.log(new LogEntry(Level.INFO, Utils.replaceEnglishChatStyles(message)));
+			logHandler.log(new LogEntry(Level.INFO, Utils.replaceEnglishChatStyles(prefix + message)));
 		} else {
 			message = StringUtils.fixCapitalization(PluralizingArgsMessage.format(m_reload_error.toString(what, logHandler.numErrors(), timeTaken)));
-			logHandler.log(new LogEntry(Level.SEVERE, Utils.replaceEnglishChatStyles(message)));
+			logHandler.log(new LogEntry(Level.SEVERE, Utils.replaceEnglishChatStyles(prefix + message)));
 		}
 	}
 
