@@ -68,30 +68,27 @@ public class StructAutoReload extends Structure {
 	public static final Priority PRIORITY = new Priority(10);
 
 	static {
-		Skript.registerSimpleStructure(StructAutoReload.class, "auto[matically] reload");
-	}
+		EntryValidator entryValidator = EntryValidator.builder()
+			// Uses OfflinePlayer because this is determined at parse time. Runtime will make sure it's a Player.
+			.addEntryData(new EntryData<OfflinePlayer[]>("recipients", null, true) {
 
-	@Override
-	public EntryValidator entryValidator() {
-		return EntryValidator.builder()
-				// Uses OfflinePlayer because this is determined at parse time. Runtime will make sure it's a Player.
-				.addEntryData(new EntryData<OfflinePlayer[]>("recipients", null, true) {
+				@Override
+				public OfflinePlayer @Nullable [] getValue(Node node) {
+					EntryNode entry = (EntryNode) node;
+					Literal<? extends OfflinePlayer> recipients = SkriptParser.parseLiteral(entry.getValue(), OfflinePlayer.class, ParseContext.DEFAULT);
+					return recipients.getArray();
+				}
 
-					@Override
-					public OfflinePlayer @Nullable [] getValue(Node node) {
-						EntryNode entry = (EntryNode) node;
-						Literal<? extends OfflinePlayer> recipients = SkriptParser.parseLiteral(entry.getValue(), OfflinePlayer.class, ParseContext.DEFAULT);
-						return recipients.getArray();
-					}
+				@Override
+				public boolean canCreateWith(Node node) {
+					return node instanceof EntryNode;
+				}
 
-					@Override
-					public boolean canCreateWith(Node node) {
-						return node instanceof EntryNode;
-					}
-
-				})
-				.addEntry("permission", "skript.reloadnotify", true)
-				.build();
+			})
+			.addEntry("permission", "skript.reloadnotify", true)
+			.build();
+		
+		Skript.registerStructure(StructAutoReload.class, entryValidator, "auto[matically] reload");
 	}
 
 	private Script script;

@@ -86,11 +86,14 @@ public abstract class Structure implements SyntaxElement, Debuggable {
 	}
 
 	/**
-	 * Override to set a custom entry validator for this structure.
+	 * Override to set a custom entry validator for this structure depending on the parse results.
 	 * 
+	 * @param arguments The arguments of the structure.
+	 * @param matchedPattern The matched pattern of the structure.
+	 * @param parseResult The parse result of the structure.
 	 * @return The entry validator for this structure, or null if no validation is necessary.
 	 */
-	public EntryValidator entryValidator() { return null; }
+	public EntryValidator entryValidator(Literal<?> @NotNull [] arguments, int matchedPattern, ParseResult parseResult) { return null; }
 
 	@Override
 	public final boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
@@ -104,7 +107,7 @@ public abstract class Structure implements SyntaxElement, Debuggable {
 			return init(literals, matchedPattern, parseResult, null);
 		}
 
-		EntryValidator entryValidator = entryValidator();
+		EntryValidator entryValidator = entryValidator(literals, matchedPattern, parseResult);
 		if (entryValidator == null && structureInfo.entryValidator != null) {
 			entryValidator = structureInfo.entryValidator;
 		}
