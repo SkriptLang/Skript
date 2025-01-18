@@ -20,6 +20,7 @@ import com.google.common.io.Files;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
 import org.bukkit.event.block.BlockCanBuildEvent;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.entry.EntryData;
 import org.skriptlang.skript.lang.entry.EntryValidator;
@@ -29,12 +30,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Locale;
+import java.util.*;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -438,10 +434,7 @@ public class HTMLGenerator extends DocumentationGenerator {
 			.replace("\\", "\\\\").replace("\"", "\\\"").replace("\t", "    "));
 
 		// Examples
-		Examples examples = c.getAnnotation(Examples.class);
-		desc = desc.replace("${element.examples}", Joiner.on("<br>").join(getDefaultIfNullOrEmpty((examples != null ? Documentation.escapeHTML(examples.value()) : null), "Missing examples.")));
-		desc = desc.replace("${element.examples-safe}", Joiner.on("<br>").join(getDefaultIfNullOrEmpty((examples != null ? Documentation.escapeHTML(examples.value()) : null), "Missing examples."))
-			.replace("\\", "\\\\").replace("\"", "\\\"").replace("\t", "    "));
+		desc = extractExamples(desc, c);
 
 		// Documentation ID
 		desc = desc.replace("${element.id}", DocumentationIdProvider.getId(info));
@@ -539,6 +532,29 @@ public class HTMLGenerator extends DocumentationGenerator {
 		}
 
 		assert desc != null;
+		return desc;
+	}
+
+	private @NotNull String extractExamples(String desc, Class<?> syntax) {
+		if (syntax.isAnnotationPresent(Example.class)) {
+			Example examples = syntax.getAnnotation(Example.class);
+			return this.addExamples(desc, examples.value());
+		} else if (syntax.isAnnotationPresent(Example.Examples.class)) {
+			Example.Examples examples = syntax.getAnnotation(Example.Examples.class);
+			return this.addExamples(desc, Arrays.stream(examples.value())
+				.map(Example::value).toArray(String[]::new));
+		} else if (syntax.isAnnotationPresent(Examples.class)) {
+			Examples examples = syntax.getAnnotation(Examples.class);
+			return this.addExamples(desc, examples.value());
+		} else {
+			return this.addExamples(desc, (String[]) null);
+		}
+	}
+
+	private @NotNull String addExamples(String desc, String @Nullable ... examples) {
+		desc = desc.replace("${element.examples}", Joiner.on("<br>").join(getDefaultIfNullOrEmpty((examples != null ? Documentation.escapeHTML(examples) : null), "Missing examples.")));
+		desc = desc.replace("${element.examples-safe}", Joiner.on("<br>").join(getDefaultIfNullOrEmpty((examples != null ? Documentation.escapeHTML(examples) : null), "Missing examples."))
+			.replace("\\", "\\\\").replace("\"", "\\\"").replace("\t", "    "));
 		return desc;
 	}
 
