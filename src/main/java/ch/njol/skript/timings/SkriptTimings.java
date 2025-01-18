@@ -174,7 +174,7 @@ public class SkriptTimings extends Timings {
 
 		public TimingInstance(Timeable timeable) {
 			this.timeable = timeable;
-			this.startTime = System.currentTimeMillis();
+			this.startTime = System.nanoTime();
 		}
 	}
 
@@ -202,7 +202,7 @@ public class SkriptTimings extends Timings {
 				}
 				lineTiming = lineTimings.get(line);
 
-				long endTime = System.currentTimeMillis() - timing.startTime;
+				long endTime = (System.nanoTime() - timing.startTime) / 1000000;
 				lineTiming.stop(endTime);
 			}
 		}
@@ -214,7 +214,7 @@ public class SkriptTimings extends Timings {
 	private static class LineTiming {
 		private final boolean async;
 		private long count = 0;
-		private long total = 0;
+		private double total = 0;
 
 		public LineTiming(boolean async) {
 			this.async = async;
@@ -230,7 +230,7 @@ public class SkriptTimings extends Timings {
 		}
 
 		public TimingResult getResults() {
-			long averageTime = 0;
+			double averageTime = 0;
 			if (this.count > 0 && this.total > 0) {
 				averageTime = this.total / this.count;
 			}
@@ -244,7 +244,7 @@ public class SkriptTimings extends Timings {
 	 * @param count       How many times the element was timed
 	 * @param averageTime The average time it took the element to execute
 	 */
-	public record TimingResult(long count, long averageTime) {
+	public record TimingResult(long count, double averageTime) {
 	}
 
 	// == TIMINGS PRINTER ==
@@ -270,7 +270,7 @@ public class SkriptTimings extends Timings {
 				LineTiming lineTiming = scriptTiming != null ? scriptTiming.lineTimings.get(line) : null;
 				if (lineTiming != null) {
 					TimingResult results = lineTiming.getResults();
-					long averageTime = results.averageTime();
+					double averageTime = results.averageTime();
 					String timingColor = "<light green>";
 					if (lineTiming.isAsync())
 						timingColor = "<light aqua>";
@@ -282,7 +282,7 @@ public class SkriptTimings extends Timings {
 						timingColor = "<orange>";
 					else if (averageTime > 20)
 						timingColor = "<yellow>";
-					String format = String.format(" <grey>#(%s%s<reset>ms [<light aqua>x%s<reset>]<grey>)",
+					String format = String.format(" <grey>#(%s%.2f<reset>ms [<light aqua>x%s<reset>]<grey>)",
 						timingColor, averageTime, results.count());
 
 					if (print)
