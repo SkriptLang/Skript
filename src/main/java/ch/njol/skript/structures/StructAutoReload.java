@@ -3,13 +3,12 @@ package ch.njol.skript.structures;
 import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptConfig;
-import ch.njol.skript.config.EntryNode;
-import ch.njol.skript.config.Node;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
+import ch.njol.skript.lang.ExpressionList;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.LiteralString;
 import ch.njol.skript.lang.ParseContext;
@@ -20,7 +19,6 @@ import ch.njol.skript.localization.Language;
 import ch.njol.skript.localization.PluralizingArgsMessage;
 import ch.njol.skript.log.LogEntry;
 import ch.njol.skript.log.RedirectingLogHandler;
-import ch.njol.skript.log.SkriptLogger;
 import ch.njol.skript.log.TimingLogHandler;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.Task;
@@ -42,11 +40,8 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
 import org.skriptlang.skript.lang.entry.EntryContainer;
-import org.skriptlang.skript.lang.entry.EntryData;
 import org.skriptlang.skript.lang.entry.EntryValidator;
-import org.skriptlang.skript.lang.entry.KeyValueEntryData;
 import org.skriptlang.skript.lang.entry.util.ExpressionEntryData;
-import org.skriptlang.skript.lang.entry.util.LiteralEntryData;
 import org.skriptlang.skript.lang.script.Script;
 import org.skriptlang.skript.lang.script.ScriptData;
 import org.skriptlang.skript.lang.structure.Structure;
@@ -85,7 +80,7 @@ public class StructAutoReload extends Structure {
 	@Override
 	public EntryValidator entryValidator(Literal<?> @NotNull [] arguments, int matchedPattern, ParseResult parseResult) {
 		return EntryValidator.builder()
-			.addEntryData(new ExpressionEntryData<>("recipients", null, true, String.class, SkriptParser.PARSE_EXPRESSIONS)) // LiteralString doesn't work with PARSE_LITERAL
+			.addEntryData(new ExpressionEntryData<>("recipients", null, true, String.class, SkriptParser.PARSE_EXPRESSIONS)) // LiteralString doesn't work with PARSE_LITERALS
 			.addEntry("permission", "skript.reloadnotify", true)
 			.build();
 	}
@@ -107,9 +102,21 @@ public class StructAutoReload extends Structure {
 		// Container can be null if the structure is simple.
 		if (container != null) {
 			@SuppressWarnings("unchecked")
-			Expression<String> strings = (Expression<String>) container.getOptional("recipients", false); // Must be false otherwise the API will throw an exception.
-			if (strings != null && strings instanceof LiteralString literal) {
-				recipients = Arrays.stream(literal.getArray())
+			Expression<String> expression = (Expression<String>) container.getOptional("recipients", false); // Must be false otherwise the API will throw an exception.
+			List<String> strings = new ArrayList<>();
+			if (expression instanceof LiteralString literal) {
+				strings.add(literal.getSingle());
+			} else if (expression instanceof ExpressionList list) {
+				@SuppressWarnings("unchecked")
+				List<Expression<String>> expressions = (List<Expression<String>>) list.getAllExpressions();
+				expressions.stream()
+					.filter(LiteralString.class::isInstance)
+					.map(LiteralString.class::cast)
+					.map(LiteralString::getSingle)
+					.forEach(strings::add);
+			}
+			if (!strings.isEmpty()) {
+				recipients = strings.stream()
 					.map(string -> Classes.parse(string, OfflinePlayer.class, ParseContext.PARSE))
 					.toArray(OfflinePlayer[]::new);
 			}
