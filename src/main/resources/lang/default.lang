@@ -2680,6 +2680,7 @@ types:
 	function: function¦s @a
 	named: named thing¦s @a
 	numbered: numbered thing¦s @a
+	valued: valued thing¦s @a
 	containing: container¦s @a
 
 	# Hooks

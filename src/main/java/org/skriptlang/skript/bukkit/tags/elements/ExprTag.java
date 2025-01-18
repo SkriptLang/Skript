@@ -11,6 +11,7 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.skript.lang.util.ContextlessEvent;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.lang.util.SimpleLiteral;
 import ch.njol.util.Kleenean;
@@ -130,8 +131,8 @@ public class ExprTag extends SimpleExpression<Tag> {
 	@Override
 	public Expression<? extends Tag> simplify() {
 		if (names instanceof Literal<String>)
-			return new SimpleLiteral<>(getArray(null), Tag.class, true);
-		return this;
+			return new SimpleLiteral<>(getArray(ContextlessEvent.get()), Tag.class, true);
+		return super.simplify();
 	}
 
 }

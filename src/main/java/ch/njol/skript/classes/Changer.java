@@ -1,6 +1,7 @@
 package ch.njol.skript.classes;
 
 import org.bukkit.event.Event;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.classes.data.DefaultChangers;
@@ -50,7 +51,7 @@ public interface Changer<T> {
 	
 	abstract class ChangerUtils {
 
-		public static <T> void change(Changer<T> changer, Object[] what, Object @Nullable [] delta, ChangeMode mode) {
+		public static <T> void change(@NotNull Changer<T> changer, Object[] what, Object @Nullable [] delta, ChangeMode mode) {
 			//noinspection unchecked
 			changer.change((T[]) what, delta, mode);
 		}
@@ -63,19 +64,36 @@ public interface Changer<T> {
 		 * @param types The types to test for
 		 * @return Whether <tt>expression.{@link Expression#change(Event, Object[], ChangeMode) change}(event, type[], mode)</tt> can be used or not.
 		 */
-		public static boolean acceptsChange(final Expression<?> expression, final ChangeMode mode, final Class<?>... types) {
-			final Class<?>[] validTypes = expression.acceptChange(mode);
+		public static boolean acceptsChange(@NotNull Expression<?> expression, ChangeMode mode, Class<?>... types) {
+			Class<?>[] validTypes = expression.acceptChange(mode);
 			if (validTypes == null)
 				return false;
-			for (final Class<?> type : types) {
-				for (final Class<?> validType : validTypes) {
-					if (validType.isArray() ? validType.getComponentType().isAssignableFrom(type) : validType.isAssignableFrom(type))
+
+			for (int i = 0; i < validTypes.length; i++) {
+				if (validTypes[i].isArray())
+					validTypes[i] = validTypes[i].getComponentType();
+			}
+
+			return acceptsChangeTypes(validTypes, types);
+		}
+
+		/**
+		 * Tests whether any of the given types is accepted by the given array of valid types.
+		 *
+		 * @param types The types to test for
+		 * @param validTypes The valid types. All array classes should be unwrapped to their component type before calling.
+		 * @return Whether any of the types is accepted by the valid types.
+		 */
+		public static boolean acceptsChangeTypes(Class<?>[] validTypes, Class<?> @NotNull ... types) {
+			for (Class<?> type : types) {
+				for (Class<?> validType : validTypes) {
+					if (validType.isAssignableFrom(type))
 						return true;
 				}
 			}
 			return false;
 		}
-		
+
 	}
 	
 }
