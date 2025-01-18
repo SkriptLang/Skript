@@ -202,7 +202,7 @@ public class SkriptTimings extends Timings {
 				}
 				lineTiming = lineTimings.get(line);
 
-				long endTime = (System.nanoTime() - timing.startTime) / 1000000;
+				double endTime = (double) (System.nanoTime() - timing.startTime) / 1000000;
 				lineTiming.stop(endTime);
 			}
 		}
@@ -224,7 +224,7 @@ public class SkriptTimings extends Timings {
 			return this.async;
 		}
 
-		private void stop(long time) {
+		private void stop(double time) {
 			this.count++;
 			this.total += time;
 		}
