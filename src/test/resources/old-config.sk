@@ -10,8 +10,9 @@ a:
 	outdated value: true
 
 # Comment a'
-h: false
-i: true # Comment i
+i: false
+j: false # Comment j
+k: false # Comment k
 
 outdated value: true
 
