@@ -17,6 +17,8 @@ import org.skriptlang.skript.bukkit.spawner.SpawnerModule;
 import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.registration.SyntaxOrigin;
 
+import java.util.List;
+
 public class EvtSpawnerSpawn extends SkriptEvent {
 
 	static {
@@ -25,7 +27,7 @@ public class EvtSpawnerSpawn extends SkriptEvent {
 			.origin(SyntaxOrigin.of(Skript.instance()))
 			.supplier(EvtSpawnerSpawn::new)
 			.priority(SyntaxInfo.COMBINED)
-			.addEvents(SpawnerSpawnEvent.class, TrialSpawnerSpawnEvent.class)
+			.addEvents(List.of(SpawnerSpawnEvent.class, TrialSpawnerSpawnEvent.class))
 			.addPattern("[:trial] spawner spawn[ing] [of %-entitydatas%]")
 			.addDescription("Called when a spawner spawns an entity.")
 			.addExamples(
