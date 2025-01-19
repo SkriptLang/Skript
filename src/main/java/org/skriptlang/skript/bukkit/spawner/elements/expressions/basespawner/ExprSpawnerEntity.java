@@ -84,7 +84,12 @@ public class ExprSpawnerEntity extends SimplePropertyExpression<Object, EntitySn
 				case SpawnerEntry entry -> spawner.setSpawnedEntity(entry);
 				case EntitySnapshot snapshot -> spawner.setSpawnedEntity(snapshot);
 				case Entity entity -> spawner.setSpawnedEntity(entity.createSnapshot());
-				case EntityData<?> data -> spawner.setSpawnedEntity(data.create().createSnapshot());
+				case EntityData<?> data -> {
+					Entity entity = data.create();
+					if (entity == null)
+						return;
+					spawner.setSpawnedEntity(entity.createSnapshot());
+				}
 				case null, default -> spawner.setSpawnedEntity((EntitySnapshot) null);
 			}
 
