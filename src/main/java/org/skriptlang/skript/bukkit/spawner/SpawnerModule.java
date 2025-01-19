@@ -41,7 +41,7 @@ public class SpawnerModule implements AddonModule {
 
 	@Override
 	public void load(SkriptAddon addon) {
-		if (!Skript.classExists("org.bukkit.spawner.BaseSpawner"))
+		if (!Skript.isRunningMinecraft(1, 21))
 			return;
 
 		Classes.registerClass(new ClassInfo<>(TrialSpawnerConfig.class, "trialspawnerconfig")

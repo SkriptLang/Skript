@@ -22,7 +22,6 @@ import java.util.List;
 public class EvtSpawnerSpawn extends SkriptEvent {
 
 	static {
-		//noinspection unchecked
 		var info = BukkitSyntaxInfos.Event.builder(EvtSpawnerSpawn.class, "Spawner Spawn")
 			.origin(SyntaxOrigin.of(Skript.instance()))
 			.supplier(EvtSpawnerSpawn::new)
