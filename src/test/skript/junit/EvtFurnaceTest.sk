@@ -17,7 +17,6 @@ on load:
 on smelt:
 	junit test is {@EvtFurnaceTest}
 	complete objective "smelt event" for junit test {@EvtFurnaceTest}
-	broadcast "%smelted item%"
 	if smelted item is an iron ingot:
 		complete objective "smelt - got smelted item" for junit test {@EvtFurnaceTest}
 

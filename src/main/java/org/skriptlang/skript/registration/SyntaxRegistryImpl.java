@@ -28,6 +28,14 @@ final class SyntaxRegistryImpl implements SyntaxRegistry {
 	}
 
 	@Override
+	@SuppressWarnings({"unchecked", "rawtypes"})
+	public void unregister(SyntaxInfo info) {
+		for (Key key : registers.keySet()) {
+			unregister(key, info);
+		}
+	}
+
+	@Override
 	public <I extends SyntaxInfo<?>> void unregister(Key<I> key, I info) {
 		register(key).remove(info);
 		if (key instanceof ChildKey) {
@@ -72,6 +80,11 @@ final class SyntaxRegistryImpl implements SyntaxRegistry {
 		@Override
 		public <I extends SyntaxInfo<?>> void register(Key<I> key, I info) {
 			throw new UnsupportedOperationException("Cannot register syntax infos with an unmodifiable syntax registry.");
+		}
+
+		@Override
+		public void unregister(SyntaxInfo<?> info) {
+			throw new UnsupportedOperationException("Cannot unregister syntax infos from an unmodifiable syntax registry.");
 		}
 
 		@Override

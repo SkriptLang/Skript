@@ -22,10 +22,7 @@ import java.nio.channels.FileChannel;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Iterator;
-import java.util.LinkedHashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Represents a config file.
@@ -219,6 +216,7 @@ public class Config implements Comparable<Config>, Validated, NodeNavigator, Any
 		Set<Node> newNodes = discoverNodes(newer.getMainNode());
 		Set<Node> oldNodes = discoverNodes(getMainNode());
 
+		// find the nodes that are in the new config but not in the old one
 		newNodes.removeAll(oldNodes);
 		Set<Node> nodesToUpdate = new LinkedHashSet<>(newNodes);
 
@@ -226,6 +224,33 @@ public class Config implements Comparable<Config>, Validated, NodeNavigator, Any
 			return false;
 
 		for (Node node : nodesToUpdate) {
+			/*
+			 prevents nodes that are already in the config from being added again
+			 this happens when section nodes are added to the config, as their children
+			 are also carried over from the new config, but are also in 'nodesToUpdate'
+
+			 example:
+			 nodesToUpdate is this
+			 - x
+			 - x.y
+			 - x.z
+
+			 and if the method adds x, since x has children in the new config,
+			 it'll add the children to the to-be-updated config, so it'll add
+			 x:
+			   y: 'whatever'
+			   z: 'whatever'
+
+			 but it also wants to add x.y since that node previously did not exist,
+			 but now it does, so it duplicates it without that if statement
+			 x:
+			  y: 'whatever'
+			  y: 'whatever'
+			  z: 'whatever'
+			*/
+			if (get(node.getPathSteps()) != null)
+				continue;
+
 			Skript.debug("Updating node %s", node);
 			SectionNode newParent = node.getParent();
 			Preconditions.checkNotNull(newParent);
@@ -235,16 +260,22 @@ public class Config implements Comparable<Config>, Validated, NodeNavigator, Any
 
 			int index = node.getIndex();
 			if (index >= parent.size()) {
+				// in case we have some user-added comments or something goes wrong, to ensure index is within bounds
+
 				Skript.debug("Adding node %s to %s (size mismatch)", node, parent);
 				parent.add(node);
 				continue;
 			}
 
 			Node existing = parent.getAt(index);
-			if (existing != null) { // insert between existing
+			if (existing != null) {
+				// there's already something at the node we want to add the new node
+
 				Skript.debug("Adding node %s to %s at index %s", node, parent, index);
 				parent.add(index, node);
 			} else {
+				// there's nothing at the index we want to add the new node
+
 				Skript.debug("Adding node %s to %s", node, parent);
 				parent.add(node);
 			}

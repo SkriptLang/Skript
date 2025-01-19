@@ -4,7 +4,7 @@
 #
 
 at 18:00:
-    set the time to 7:00
+	set the time to 7:00
 
 #
 # This example schedules a repeating action. Each time the delay elapses, the trigger will be run.
@@ -12,25 +12,25 @@ at 18:00:
 #
 
 every 5 minutes:
-    broadcast "Did you know that five minutes have passed?"
-    loop all players:
-        if loop-player has permission "skript.example.apple":
-            give loop-player an apple
+	broadcast "Did you know that five minutes have passed?"
+	loop all players:
+		if loop-player has permission "skript.example.apple":
+			give loop-player an apple
 
 #
 # This example shows how the `wait` effect can be used to delay code being run.
 #
 
 command /waitexample:
-    permission: skript.example.wait
-    trigger:
-        send "Waiting for two seconds..."
-        wait 2 seconds
-        send "Finished waiting!"
+	permission: skript.example.wait
+	trigger:
+		send "Waiting for two seconds..."
+		wait 2 seconds
+		send "Finished waiting!"
 
-        send "Counting to five."
-        set {_count} to 0
-        while {_count} is less than 5:
-            wait 3 ticks # Minecraft game ticks: 20 ticks = 1 second.
-            add 0.5 to {_count}
-        send "Finished counting!"
+		send "Counting to five."
+		set {_count} to 0
+		while {_count} is less than 5:
+			wait 3 ticks # Minecraft game ticks: 20 ticks = 1 second.
+			add 0.5 to {_count}
+		send "Finished counting!"
