@@ -15,7 +15,7 @@ import org.skriptlang.skript.bukkit.spawner.util.SpawnerUtils;
 @Description({
 	"Get the radius of the area in which the spawner can spawn entities, by default 4.",
 	"Please note that this expression gets the trial spawner configuration "
-		+ "with the current state (i.e. ominous, normal) of the trial spawner block, if such is provided.",
+		+ "with the current state (i.e. ominous, normal) of the trial spawner block, if one is provided.",
 	"",
 	"Base spawners are trial spawner configurations, spawner minecarts and creature spawners."
 })

@@ -3,6 +3,7 @@ package org.skriptlang.skript.bukkit.spawner.elements.expressions.spawnerentry;
 import ch.njol.skript.Skript;
 import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.doc.*;
+import ch.njol.skript.entity.EntityData;
 import ch.njol.skript.expressions.base.SectionExpression;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
@@ -12,6 +13,7 @@ import ch.njol.skript.registrations.EventValues;
 import ch.njol.skript.variables.Variables;
 import ch.njol.util.Kleenean;
 import org.bukkit.block.spawner.SpawnerEntry;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntitySnapshot;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
@@ -35,8 +37,15 @@ import java.util.List;
 		"\tset the spawn rule to a spawn rule:",
 			"\t\tset the minimum block light spawn level to 10",
 			"\t\tset the maximum block light spawn level to 15",
-			"\t\tset the minimum sky light spawn level to 0",
 			"\t\tset the maximum sky light spawn level to 15",
+	"add {_entry} to potential spawns of target block",
+	"",
+	"set {_entry} to a spawner entry with event-entity:",
+		"\tset the weight to 10",
+		"\tset the spawn rule to a spawn rule:",
+			"\t\tset the minimum block light spawn level to 12",
+			"\t\tset the maximum block light spawn level to 12",
+			"\t\tset the maximum sky light spawn level to 5",
 	"add {_entry} to potential spawns of target block"
 })
 @Since("INSERT VERSION")
@@ -48,7 +57,7 @@ public class ExprSecSpawnerEntry extends SectionExpression<SpawnerEntry> {
 			.origin(SyntaxOrigin.of(Skript.instance()))
 			.supplier(ExprSecSpawnerEntry::new)
 			.priority(SyntaxInfo.COMBINED)
-			.addPattern("[a] spawner entry (using|with) %entitysnapshot%")
+			.addPattern("[a] spawner entry (using|with) %entitysnapshot/entity/entitydata%")
 			.build();
 
 		SpawnerModule.SYNTAX_REGISTRY.register(SyntaxRegistry.EXPRESSION, info);
@@ -57,7 +66,7 @@ public class ExprSecSpawnerEntry extends SectionExpression<SpawnerEntry> {
 	}
 
 	private Trigger trigger;
-	private Expression<EntitySnapshot> snapshot;
+	private Expression<?> object;
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int pattern, Kleenean delayed, ParseResult result, @Nullable SectionNode node,
@@ -65,18 +74,32 @@ public class ExprSecSpawnerEntry extends SectionExpression<SpawnerEntry> {
 		if (node != null)
 			//noinspection unchecked
 			trigger = loadCode(node, "create spawner entry", null, SpawnerEntryCreateEvent.class);
-		//noinspection unchecked
-		snapshot = (Expression<EntitySnapshot>) exprs[0];
+		object = exprs[0];
 		return true;
 	}
 
 	@Override
 	protected SpawnerEntry @Nullable [] get(Event event) {
-		EntitySnapshot snapshot = this.snapshot.getSingle(event);
-		if (snapshot == null)
+		Object object = this.object.getSingle(event);
+		if (object == null)
 			return new SpawnerEntry[0];
 
-		SpawnerEntry entry = new SpawnerEntry(snapshot, 1, null);
+		EntitySnapshot entitySnapshot = switch (object) {
+			case EntitySnapshot snapshot -> snapshot;
+			case Entity entity -> entity.createSnapshot();
+			case EntityData<?> data -> {
+				Entity entity = data.create();
+				if (entity == null)
+					yield null;
+				yield entity.createSnapshot();
+			}
+			default -> null;
+		};
+
+		if (entitySnapshot == null)
+			return new SpawnerEntry[0];
+
+		SpawnerEntry entry = new SpawnerEntry(entitySnapshot, 1, null);
 		if (trigger != null) {
 			SpawnerEntryCreateEvent createEvent = new SpawnerEntryCreateEvent(entry);
 			Variables.withLocalVariables(event, createEvent, () ->
@@ -99,7 +122,7 @@ public class ExprSecSpawnerEntry extends SectionExpression<SpawnerEntry> {
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return "spawner entry using " + snapshot.toString(event, debug);
+		return "spawner entry using " + object.toString(event, debug);
 	}
 
 }

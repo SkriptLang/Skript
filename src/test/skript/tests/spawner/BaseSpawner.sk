@@ -26,8 +26,8 @@ test "base spawner":
 	assert spawner activation range of test-block is 0 with "nan spawner activation range set failed"
 
 	set spawner activation range of test-block to infinity value
-	assert spawner activation range of test-block is -1 with "infinity spawner activation range set failed"
 	# apparently it gets set to -1
+	assert spawner activation range of test-block is -1 with "infinity spawner activation range set failed"
 
 	reset spawner activation range of test-block
 	assert spawner activation range of test-block is 16 with "spawner activation range reset failed"
@@ -43,12 +43,23 @@ test "base spawner":
 
 	remove {_entry} from potential spawns of test-block
 
-	assert potential spawns of test-block does not contain {_entry} set with "potential spawns contains value"
+	assert potential spawns of test-block contains {_entry} to fail with "potential spawns contains value"
 
 	clear potential spawns of test-block
 
-	# ExprSpawnedEntity
+	# ExprSpawnerEntity
 
-	
+	set spawner entity of event-block to a pig
+	assert spawner entity of event-block is entity snapshot of a pig with "pig spawner entity set failed"
+
+	set spawner entity of event-block to entity snapshot of a zombie
+	assert spawner entity of event-block is entity snapshot of a zombie with "zombie spawner entity set failed"
+
+	set spawner entity of event-block to spawner entry with entity snapshot of a cow
+	assert spawner entity of event-block is entity snapshot of a cow with "cow spawner entity set failed"
+
+	# ExprSpawnerType
+
+
 
 

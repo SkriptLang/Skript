@@ -30,7 +30,7 @@ import java.util.List;
 		+ "entity snapshot of the highest weighted spawner entry from the list of potential spawns.",
 	"",
 	"Please note that this expression gets the trial spawner configuration "
-		+ "with the current state (i.e. ominous, normal) of the trial spawner block, if such is provided.",
+		+ "with the current state (i.e. ominous, normal) of the trial spawner block, if one is provided.",
 	"",
 	"Base spawners are trial spawner configurations, spawner minecarts and creature spawners."
 })
@@ -116,9 +116,9 @@ public class ExprPotentialSpawns extends PropertyExpression<Object, SpawnerEntry
 				case RESET, DELETE -> spawner.setPotentialSpawns(new ArrayList<>());
 			}
 
+			// this is done because apparently there is a bug with the add method
 			if (mode == ChangeMode.ADD || mode == ChangeMode.REMOVE)
 				spawner.setPotentialSpawns(potentialSpawns);
-			// this is done because apparently there is a bug with the add method
 
 			SpawnerUtils.updateState(spawner);
 		}

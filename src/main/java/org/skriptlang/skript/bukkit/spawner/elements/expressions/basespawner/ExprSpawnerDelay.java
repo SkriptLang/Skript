@@ -27,7 +27,7 @@ import org.skriptlang.skript.bukkit.spawner.util.SpawnerUtils;
 	"Keep in mind that this is not the case for trial spawner configurations. Their spawn delay will remain as 2 seconds "
 		+ "instead of the time until the next spawn attempt.",
 	"Please note that this expression gets the trial spawner configuration "
-		+ "with the current state (i.e. ominous, normal) of the trial spawner block, if such is provided.",
+		+ "with the current state (i.e. ominous, normal) of the trial spawner block, if one is provided.",
 	"",
 	"Base spawners are trial spawner configurations, spawner minecarts and creature spawners."
 })

@@ -20,7 +20,7 @@ import org.skriptlang.skript.bukkit.spawner.util.SpawnerUtils;
 @Description({
 	"Retrieves, sets, or resets the spawner's entity type",
 	"Please note that this expression gets the trial spawner configuration "
-		+ "with the current state (i.e. ominous, normal) of the trial spawner block, if such is provided.",
+		+ "with the current state (i.e. ominous, normal) of the trial spawner block, if one is provided.",
 	"",
 	"Base spawners are trial spawner configurations, spawner minecarts and creature spawners."
 })
