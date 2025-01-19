@@ -32,8 +32,7 @@ public record ErrorSource(
 	 * @return A new error source.
 	 */
 	public static @NotNull ErrorSource fromNodeAndElement(@Nullable Node node, @NotNull SyntaxElement element) {
-		Name annotation = element.getClass().getAnnotation(Name.class);
-		String elementName = annotation != null ? annotation.value().trim().replaceAll("\n", "") : element.getClass().getSimpleName();
+		String elementName = element.getClass().getAnnotation(Name.class).value().trim().replaceAll("\n", "");
 		if (node == null) {
 			return new ErrorSource(element.getSyntaxTypeName(), elementName, 0, "-unknown-", "-unknown-");
 		}
