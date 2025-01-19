@@ -9,14 +9,14 @@ import org.bukkit.loot.LootTable;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.spawner.SpawnerModule;
-import org.skriptlang.skript.bukkit.spawner.util.SpawnerEntryEquipmentWrapper;
+import org.skriptlang.skript.bukkit.spawner.util.SpawnerEntryEquipment;
 
 @Name("Spawner Entry - Equipment with Loot Table")
 @Description("Returns the equipment loot table of a spawner entry equipment.")
 @Examples("set {_loot table} to loot table of {_equipment}")
 @Since("INSERT VERSION")
 @RequiredPlugins("Minecraft 1.21+")
-public class ExprEquipmentWithLootTable extends SimplePropertyExpression<SpawnerEntryEquipmentWrapper, LootTable> {
+public class ExprEquipmentWithLootTable extends SimplePropertyExpression<SpawnerEntryEquipment, LootTable> {
 
 	static {
 		register(SpawnerModule.SYNTAX_REGISTRY, ExprEquipmentWithLootTable.class, LootTable.class,
@@ -24,7 +24,7 @@ public class ExprEquipmentWithLootTable extends SimplePropertyExpression<Spawner
 	}
 
 	@Override
-	public @NotNull LootTable convert(SpawnerEntryEquipmentWrapper equipment) {
+	public @NotNull LootTable convert(SpawnerEntryEquipment equipment) {
 		return equipment.getEquipmentLootTable();
 	}
 
@@ -40,7 +40,7 @@ public class ExprEquipmentWithLootTable extends SimplePropertyExpression<Spawner
 		assert delta != null;
 		LootTable lootTable = (LootTable) delta[0];
 
-		for (SpawnerEntryEquipmentWrapper equipment : getExpr().getArray(event)) {
+		for (SpawnerEntryEquipment equipment : getExpr().getArray(event)) {
 			equipment.setEquipmentLootTable(lootTable);
 		}
 	}

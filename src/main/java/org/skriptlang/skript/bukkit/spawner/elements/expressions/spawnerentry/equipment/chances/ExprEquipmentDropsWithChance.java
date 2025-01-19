@@ -7,7 +7,7 @@ import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.spawner.SpawnerModule;
-import org.skriptlang.skript.bukkit.spawner.util.SpawnerEntryEquipmentWrapper.Drops;
+import org.skriptlang.skript.bukkit.spawner.util.SpawnerEntryEquipment.Drops;
 
 @Name("Spawner Entry - Equipment Drop with Chance")
 @Description("Returns the drop chance of an already existing equipment drop.")

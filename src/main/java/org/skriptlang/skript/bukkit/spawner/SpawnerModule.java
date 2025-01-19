@@ -24,8 +24,8 @@ import org.jetbrains.annotations.NotNull;
 import org.skriptlang.skript.addon.AddonModule;
 import org.skriptlang.skript.addon.SkriptAddon;
 import org.skriptlang.skript.bukkit.spawner.util.SpawnRuleWrapper;
-import org.skriptlang.skript.bukkit.spawner.util.SpawnerEntryEquipmentWrapper;
-import org.skriptlang.skript.bukkit.spawner.util.SpawnerEntryEquipmentWrapper.Drops;
+import org.skriptlang.skript.bukkit.spawner.util.SpawnerEntryEquipment;
+import org.skriptlang.skript.bukkit.spawner.util.SpawnerEntryEquipment.Drops;
 import org.skriptlang.skript.bukkit.spawner.util.TrialSpawnerConfig;
 import org.skriptlang.skript.bukkit.spawner.util.WeightedLootTable;
 import org.skriptlang.skript.lang.converter.Converter;
@@ -47,7 +47,12 @@ public class SpawnerModule implements AddonModule {
 		Classes.registerClass(new ClassInfo<>(TrialSpawnerConfig.class, "trialspawnerconfig")
 			.user("(trial ?)?spawner ?config(urations?)?")
 			.name("Trial Spawner Configuration")
-			.description("Represents a trial spawner configuration.")
+			.description("Represents a trial spawner configuration. Trial spawner configurations fall under the "
+				+ "base spawner category, having more configuration options. When using the base spawner expressions, "
+				+ "effects or conditions, you can use this configuration to specify the type of trial spawner you want. "
+				+ "If you were to specify a trial spawner block in those expressions, it would use the current configuration."
+				+ "You can find more information about this in the Minecraft wiki for "
+				+ "<a href='https://minecraft.wiki/w/Trial_Spawner'>trial spawners</a>")
 			.since("INSERT VERSION")
 			.parser(new Parser<>() {
 				@Override
@@ -78,7 +83,9 @@ public class SpawnerModule implements AddonModule {
 		Classes.registerClass(new ClassInfo<>(WeightedLootTable.class, "weightedloottable")
 			.user("weighted ?loot ?tables?")
 			.name("Weighted Loot Table")
-			.description("Represents a weighted loot table. Trial spawners pick a weighted loot table to use as its reward.")
+			.description(
+				"Represents a weighted loot table. Trial spawners pick a weighted loot table to use as its reward.",
+				"Note that this is a weighted type. That is, you can use 'weight of %weighted loot table%'")
 			.since("INSERT VERSION")
 			.parser(new Parser<>() {
 				@Override
@@ -103,7 +110,10 @@ public class SpawnerModule implements AddonModule {
 		Classes.registerClass(new ClassInfo<>(SpawnerEntry.class, "spawnerentry")
 			.user("spawner ?entry")
 			.name("Spawner Entry")
-			.description("Represents a spawner entry.")
+			.description("Represents a spawner entry. Spawner entries are entities that spawn from a spawner with "
+				+ "more configuration, e.g. spawn rules, spawn weight, and equipment. You can find more information "
+				+ "about this in the Minecraft wiki for <a href='https://minecraft.wiki/w/Monster_Spawner'>spawners</a>",
+				"Note that this is a weighted type. That is, you can use 'weight of %spawner entry%'")
 			.since("INSERT VERSION")
 			.defaultExpression(new EventValueExpression<>(SpawnerEntry.class))
 			.parser(new Parser<>() {
@@ -131,10 +141,14 @@ public class SpawnerModule implements AddonModule {
 			})
 		);
 
-		Classes.registerClass(new ClassInfo<>(SpawnerEntryEquipmentWrapper.class, "spawnerentryequipment")
+		Classes.registerClass(new ClassInfo<>(SpawnerEntryEquipment.class, "spawnerentryequipment")
 			.user("spawner ?entry ?equipments?")
 			.name("Spawner Entry Equipment")
-			.description("Represents a spawner entry equipment.")
+			.description(
+				"Represents a spawner entry equipment. Spawner entry equipments are used to specify the equipment "
+				+ "that an entity will spawn with. This includes the equipment loot table and the drop chances for each "
+				+ "equipment slot. You can find more information about this in the Minecraft wiki for "
+				+ "<a href='https://minecraft.wiki/w/Monster_Spawner'>spawners</a>")
 			.since("INSERT VERSION")
 			.parser(new Parser<>() {
 				@Override
@@ -143,7 +157,7 @@ public class SpawnerModule implements AddonModule {
 				}
 
 				@Override
-				public String toString(SpawnerEntryEquipmentWrapper equipment, int flags) {
+				public String toString(SpawnerEntryEquipment equipment, int flags) {
 					return "spawner entry equipment with "
 						+ Classes.toString(equipment.getEquipmentLootTable())
 						+ " and "
@@ -151,7 +165,7 @@ public class SpawnerModule implements AddonModule {
 				}
 
 				@Override
-				public String toVariableNameString(SpawnerEntryEquipmentWrapper equipment) {
+				public String toVariableNameString(SpawnerEntryEquipment equipment) {
 					return "spawner entry equipment:" + equipment.hashCode();
 				}
 			})
@@ -160,7 +174,9 @@ public class SpawnerModule implements AddonModule {
 		Classes.registerClass(new ClassInfo<>(Drops.class, "equipmentdropchance")
 			.user("(spawner entry ?)?equipment ?drop ?chances?")
 			.name("Spawner Entry Equipment Drop Chance")
-			.description("Represents a spawner entry's equipment drop chance.")
+			.description("Represents a spawner entry's equipment drop chance. This is used to specify the drop chance "
+				+ "for an equipment slot. You can find more information about this in the Minecraft wiki for "
+				+ "<a href='https://minecraft.wiki/w/Monster_Spawner'>spawners</a>")
 			.since("INSERT VERSION")
 			.parser(new Parser<>() {
 				@Override
@@ -186,7 +202,9 @@ public class SpawnerModule implements AddonModule {
 		Classes.registerClass(new ClassInfo<>(SpawnRule.class, "spawnrule")
 			.user("spawn ?rules?")
 			.name("Spawn Rule")
-			.description("Represents a spawn rule.")
+			.description("Represents a spawn rule. Spawn rules are used to specify the light levels required for an entity "
+				+ "to spawn. You can find more information about this in the Minecraft wiki for "
+				+ "<a href='https://minecraft.wiki/w/Monster_Spawner'>spawners</a>")
 			.since("INSERT VERSION")
 			.defaultExpression(new EventValueExpression<>(SpawnRuleWrapper.class))
 			.parser(new Parser<>() {
@@ -227,7 +245,9 @@ public class SpawnerModule implements AddonModule {
 
 		SYNTAX_REGISTRY = addon.syntaxRegistry();
 		try {
-			Skript.getAddonInstance().loadClasses("org.skriptlang.skript.bukkit.spawner", "elements");
+			Skript.getAddonInstance().loadClasses(
+				"org.skriptlang.skript.bukkit.spawner",
+				"elements");
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
@@ -263,9 +283,10 @@ public class SpawnerModule implements AddonModule {
 		EventValues.registerEventValue(TrialSpawnerSpawnEvent.class, Location.class, TrialSpawnerSpawnEvent::getLocation);
 		EventValues.registerEventValue(TrialSpawnerSpawnEvent.class, Entity.class, TrialSpawnerSpawnEvent::getEntity);
 
-		if (Skript.classExists("com.destroystokyo.paper.event.entity.PreSpawnerSpawnEvent"))
+		if (Skript.classExists("com.destroystokyo.paper.event.entity.PreSpawnerSpawnEvent")) {
 			EventValues.registerEventValue(PreSpawnerSpawnEvent.class, EntityData.class,
 				event -> EntityUtils.toSkriptEntityData(event.getType()));
+		}
 	}
 
 }

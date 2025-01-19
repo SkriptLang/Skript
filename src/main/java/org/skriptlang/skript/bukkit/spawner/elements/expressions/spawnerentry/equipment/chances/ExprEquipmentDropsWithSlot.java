@@ -9,7 +9,7 @@ import org.bukkit.inventory.EquipmentSlot;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.spawner.SpawnerModule;
-import org.skriptlang.skript.bukkit.spawner.util.SpawnerEntryEquipmentWrapper.Drops;
+import org.skriptlang.skript.bukkit.spawner.util.SpawnerEntryEquipment.Drops;
 
 @Name("Spawner Entry - Equipment Drop with Slot")
 @Description("Returns the equipment slot of an already existing equipment drop.")

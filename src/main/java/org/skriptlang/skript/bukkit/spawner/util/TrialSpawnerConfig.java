@@ -5,7 +5,7 @@ import org.bukkit.spawner.TrialSpawnerConfiguration;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * Represents a trial spawner configuration. This is used because trial spawner states
+ * A wrapper for {@link TrialSpawnerConfiguration}. This is used because trial spawner states
  * need to be updated once their configuration is changed.
  * @param config the config
  * @param state the state of the trial spawner

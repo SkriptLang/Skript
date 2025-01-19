@@ -14,8 +14,8 @@ import org.bukkit.event.Event;
 import org.bukkit.loot.LootTable;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.spawner.SpawnerModule;
-import org.skriptlang.skript.bukkit.spawner.util.SpawnerEntryEquipmentWrapper;
-import org.skriptlang.skript.bukkit.spawner.util.SpawnerEntryEquipmentWrapper.Drops;
+import org.skriptlang.skript.bukkit.spawner.util.SpawnerEntryEquipment;
+import org.skriptlang.skript.bukkit.spawner.util.SpawnerEntryEquipment.Drops;
 import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.registration.SyntaxOrigin;
 import org.skriptlang.skript.registration.SyntaxRegistry;
@@ -35,10 +35,10 @@ import java.util.List;
 	"set spawner entity of event-block to {_entry}",
 })
 @Since("INSERT VERSION")
-public class ExprSpawnerEntryEquipment extends SimpleExpression<SpawnerEntryEquipmentWrapper> {
+public class ExprSpawnerEntryEquipment extends SimpleExpression<SpawnerEntryEquipment> {
 
 	static {
-		var info = SyntaxInfo.Expression.builder(ExprSpawnerEntryEquipment.class, SpawnerEntryEquipmentWrapper.class)
+		var info = SyntaxInfo.Expression.builder(ExprSpawnerEntryEquipment.class, SpawnerEntryEquipment.class)
 			.origin(SyntaxOrigin.of(Skript.instance()))
 			.supplier(ExprSpawnerEntryEquipment::new)
 			.priority(SyntaxInfo.COMBINED)
@@ -60,14 +60,14 @@ public class ExprSpawnerEntryEquipment extends SimpleExpression<SpawnerEntryEqui
 	}
 
 	@Override
-	protected SpawnerEntryEquipmentWrapper @Nullable [] get(Event event) {
+	protected SpawnerEntryEquipment @Nullable [] get(Event event) {
 		LootTable lootTable = this.lootTable.getSingle(event);
 		if (lootTable == null)
-			return new SpawnerEntryEquipmentWrapper[0];
+			return new SpawnerEntryEquipment[0];
 
 		List<Drops> chances = Arrays.asList(this.chances.getArray(event));
 
-		return new SpawnerEntryEquipmentWrapper[]{new SpawnerEntryEquipmentWrapper(lootTable, chances)};
+		return new SpawnerEntryEquipment[]{new SpawnerEntryEquipment(lootTable, chances)};
 	}
 
 	@Override
@@ -76,8 +76,8 @@ public class ExprSpawnerEntryEquipment extends SimpleExpression<SpawnerEntryEqui
 	}
 
 	@Override
-	public Class<? extends SpawnerEntryEquipmentWrapper> getReturnType() {
-		return SpawnerEntryEquipmentWrapper.class;
+	public Class<? extends SpawnerEntryEquipment> getReturnType() {
+		return SpawnerEntryEquipment.class;
 	}
 
 	@Override

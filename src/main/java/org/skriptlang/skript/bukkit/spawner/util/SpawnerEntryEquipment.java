@@ -13,13 +13,13 @@ import java.util.Map;
 /**
  * A wrapper for {@link Equipment} to allow the usage of {@link Drops}.
  */
-public class SpawnerEntryEquipmentWrapper {
+public class SpawnerEntryEquipment {
 
 	private @NotNull LootTable equipmentLootTable;
 	private @NotNull List<Drops> drops;
 	private transient @Nullable Equipment cachedEquipment;
 
-	public SpawnerEntryEquipmentWrapper(@NotNull LootTable equipmentLootTable, @NotNull List<Drops> drops) {
+	public SpawnerEntryEquipment(@NotNull LootTable equipmentLootTable, @NotNull List<Drops> drops) {
 		this.equipmentLootTable = equipmentLootTable;
 		this.drops = drops;
 	}

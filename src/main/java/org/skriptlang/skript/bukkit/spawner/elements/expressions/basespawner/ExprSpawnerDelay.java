@@ -56,6 +56,7 @@ public class ExprSpawnerDelay extends SimplePropertyExpression<Object, Timespan>
 		if (SpawnerUtils.isBaseSpawner(object)) {
 			return new Timespan(TimePeriod.TICK, SpawnerUtils.getAsBaseSpawner(object).getDelay());
 		} else if (SpawnerUtils.isTrialSpawner(object)) {
+			// get current trial spawner config if a trial spawner block was specified
 			TrialSpawner spawner = SpawnerUtils.getAsTrialSpawner(object);
 			return new Timespan(TimePeriod.TICK, SpawnerUtils.getCurrentTrialConfig(spawner).config().getDelay());
 		}
@@ -84,6 +85,7 @@ public class ExprSpawnerDelay extends SimplePropertyExpression<Object, Timespan>
 
 		for (Object object : getExpr().getArray(event)) {
 			if (SpawnerUtils.isTrialSpawner(object)) {
+				// get current trial spawner config if a trial spawner block was specified
 				TrialSpawner trialSpawner = SpawnerUtils.getAsTrialSpawner(object);
 				object = SpawnerUtils.getCurrentTrialConfig(trialSpawner);
 			}

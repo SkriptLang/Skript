@@ -29,7 +29,7 @@ import org.skriptlang.skript.bukkit.spawner.util.SpawnerUtils;
 		"\tif event-block is spawner:",
 			"\t\tsend \"Spawner's type is %target block's spawner type%\""
 })
-@Since("2.4, 2.9.2 (trial spawner), INSERT VERSION (trial spawner config, pattern change)")
+@Since("2.4, 2.9.2 (trial spawner), INSERT VERSION (trial spawner config)")
 @RequiredPlugins("Minecraft 1.21+ (since INSERT VERSION)")
 public class ExprSpawnerType extends SimplePropertyExpression<Object, EntityData> {
 
@@ -38,11 +38,11 @@ public class ExprSpawnerType extends SimplePropertyExpression<Object, EntityData
 			"spawner [entity|spawned] type[s]", "entities/blocks/trialspawnerconfigs");
 	}
 
-	@Nullable
-	public EntityData<?> convert(Object object) {
+	public @Nullable EntityData<?> convert(Object object) {
 		if (SpawnerUtils.isBaseSpawner(object)) {
 			return EntityUtils.toSkriptEntityData(SpawnerUtils.getAsBaseSpawner(object).getSpawnedType());
 		} else if (SpawnerUtils.isTrialSpawner(object)) {
+			// get current trial spawner config if a trial spawner block was specified
 			TrialSpawner spawner = SpawnerUtils.getAsTrialSpawner(object);
 			TrialSpawnerConfiguration config = SpawnerUtils.getCurrentTrialConfig(spawner).config();
 			return EntityUtils.toSkriptEntityData(config.getSpawnedType());
@@ -66,6 +66,7 @@ public class ExprSpawnerType extends SimplePropertyExpression<Object, EntityData
 
 		for (Object object : getExpr().getArray(event)) {
 			if (SpawnerUtils.isTrialSpawner(object)) {
+				// get current trial spawner config if a trial spawner block was specified
 				TrialSpawner trialSpawner = SpawnerUtils.getAsTrialSpawner(object);
 				object = SpawnerUtils.getCurrentTrialConfig(trialSpawner);
 			}

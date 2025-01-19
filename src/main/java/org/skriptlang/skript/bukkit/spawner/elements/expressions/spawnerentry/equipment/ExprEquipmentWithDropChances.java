@@ -12,8 +12,8 @@ import org.bukkit.event.Event;
 import org.bukkit.inventory.EquipmentSlot;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.spawner.SpawnerModule;
-import org.skriptlang.skript.bukkit.spawner.util.SpawnerEntryEquipmentWrapper;
-import org.skriptlang.skript.bukkit.spawner.util.SpawnerEntryEquipmentWrapper.Drops;
+import org.skriptlang.skript.bukkit.spawner.util.SpawnerEntryEquipment;
+import org.skriptlang.skript.bukkit.spawner.util.SpawnerEntryEquipment.Drops;
 import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.registration.SyntaxOrigin;
 import org.skriptlang.skript.registration.SyntaxRegistry;
@@ -25,7 +25,7 @@ import java.util.ArrayList;
 @Examples("set {_chances::*} to drop chances of {_equipment}")
 @Since("INSERT VERSION")
 @RequiredPlugins("Minecraft 1.21+")
-public class ExprEquipmentWithDropChances extends PropertyExpression<SpawnerEntryEquipmentWrapper, Drops> {
+public class ExprEquipmentWithDropChances extends PropertyExpression<SpawnerEntryEquipment, Drops> {
 
 	static {
 		var info = SyntaxInfo.Expression.builder(ExprEquipmentWithDropChances.class, Drops.class)
@@ -43,12 +43,12 @@ public class ExprEquipmentWithDropChances extends PropertyExpression<SpawnerEntr
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		//noinspection unchecked
-		setExpr((Expression<? extends SpawnerEntryEquipmentWrapper>) exprs[0]);
+		setExpr((Expression<? extends SpawnerEntryEquipment>) exprs[0]);
 		return true;
 	}
 
 	@Override
-	protected Drops[] get(Event event, SpawnerEntryEquipmentWrapper[] source) {
+	protected Drops[] get(Event event, SpawnerEntryEquipment[] source) {
 		return new Drops[0];
 	}
 

@@ -39,6 +39,7 @@ public class ExprSpawnRange extends SimplePropertyExpression<Object, Integer> {
 		if (SpawnerUtils.isBaseSpawner(object)) {
 			return SpawnerUtils.getAsBaseSpawner(object).getSpawnRange();
 		} else if (SpawnerUtils.isTrialSpawner(object)) {
+			// get current trial spawner config if a trial spawner block was specified
 			TrialSpawner trialSpawner = SpawnerUtils.getAsTrialSpawner(object);
 			return SpawnerUtils.getCurrentTrialConfig(trialSpawner).config().getSpawnRange();
 		}
@@ -59,6 +60,7 @@ public class ExprSpawnRange extends SimplePropertyExpression<Object, Integer> {
 
 		for (Object object : getExpr().getArray(event)) {
 			if (SpawnerUtils.isTrialSpawner(object)) {
+				// get current trial spawner config if a trial spawner block was specified
 				TrialSpawner trialSpawner = SpawnerUtils.getAsTrialSpawner(object);
 				object = SpawnerUtils.getCurrentTrialConfig(trialSpawner);
 			}

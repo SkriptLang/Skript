@@ -47,6 +47,7 @@ public class ExprSpawnerEntity extends SimplePropertyExpression<Object, EntitySn
 		if (SpawnerUtils.isBaseSpawner(object)) {
 			return SpawnerUtils.getAsBaseSpawner(object).getSpawnedEntity();
 		} else if (SpawnerUtils.isTrialSpawner(object)) {
+			// get current trial spawner config if a trial spawner block was specified
 			TrialSpawner spawner = SpawnerUtils.getAsTrialSpawner(object);
 			return SpawnerUtils.getCurrentTrialConfig(spawner).config().getSpawnedEntity();
 		}
@@ -69,6 +70,7 @@ public class ExprSpawnerEntity extends SimplePropertyExpression<Object, EntitySn
 
 		for (Object object : getExpr().getArray(event)) {
 			if (SpawnerUtils.isTrialSpawner(object)) {
+				// get current trial spawner config if a trial spawner block was specified
 				TrialSpawner trialSpawner = SpawnerUtils.getAsTrialSpawner(object);
 				object = SpawnerUtils.getCurrentTrialConfig(trialSpawner);
 			}
