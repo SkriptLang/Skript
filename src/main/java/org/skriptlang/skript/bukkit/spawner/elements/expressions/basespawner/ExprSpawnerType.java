@@ -1,7 +1,6 @@
 package org.skriptlang.skript.bukkit.spawner.elements.expressions.basespawner;
 
 import ch.njol.skript.bukkitutil.EntityUtils;
-import ch.njol.skript.classes.Changer;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.*;
 import ch.njol.skript.entity.EntityData;
@@ -50,16 +49,14 @@ public class ExprSpawnerType extends SimplePropertyExpression<Object, EntityData
 		return null;
 	}
 
-	@Nullable
 	@Override
-	public Class<?>[] acceptChange(Changer.ChangeMode mode) {
+	public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
 		return switch (mode) {
 			case SET, DELETE -> CollectionUtils.array(EntityData.class);
 			default -> null;
 		};
 	}
 
-	@SuppressWarnings("null")
 	@Override
 	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
 		EntityType type = delta != null ? EntityUtils.toBukkitEntityType((EntityData<?>) delta[0]) : null;
