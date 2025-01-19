@@ -12,7 +12,8 @@ import org.skriptlang.skript.bukkit.spawner.util.SpawnerUtils;
 
 @Name("Spawner - Spawn Count")
 @Description({
-	"Returns the spawn count. The spawn count is the number of entities "
+	"Returns the spawn count.",
+	"The spawn count is the number of entities "
 		+ "that the spawner will attempt to spawn each spawn attempt. By default, the value is 4.",
 	"If the spawner entity is an item, the spawn count is the number of stacks of items to spawn.",
 	"",
@@ -25,7 +26,7 @@ import org.skriptlang.skript.bukkit.spawner.util.SpawnerUtils;
 	"reset spawn count of target block"
 })
 @Since("INSERT VERSION")
-@RequiredPlugins("Minecraft 1.21+")
+@RequiredPlugins("MC 1.21+")
 public class ExprSpawnCount extends SimplePropertyExpression<Object, Integer> {
 
 	static {
@@ -56,6 +57,8 @@ public class ExprSpawnCount extends SimplePropertyExpression<Object, Integer> {
 				continue;
 
 			Spawner spawner = SpawnerUtils.getAsSpawner(object);
+
+			assert spawner != null;
 
 			switch (mode) {
 				case SET -> spawner.setSpawnCount(count);

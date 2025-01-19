@@ -33,7 +33,7 @@ public class ExprSpawnLocation extends SimpleExpression<Location> implements Eve
 				.origin(SyntaxOrigin.of(Skript.instance()))
 				.supplier(ExprSpawnLocation::new)
 				.priority(SyntaxInfo.SIMPLE)
-				.addPattern("[the] [entity] spawn location")
+				.addPattern("[the] entity spawn location")
 				.build();
 
 			SpawnerModule.SYNTAX_REGISTRY.register(SyntaxRegistry.EXPRESSION, info);
@@ -67,7 +67,7 @@ public class ExprSpawnLocation extends SimpleExpression<Location> implements Eve
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return "the spawn location";
+		return "the entity spawn location";
 	}
 
 }

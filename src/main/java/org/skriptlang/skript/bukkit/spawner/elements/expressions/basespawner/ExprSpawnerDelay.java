@@ -3,11 +3,8 @@ package org.skriptlang.skript.bukkit.spawner.elements.expressions.basespawner;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.*;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
-import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.util.Timespan;
 import ch.njol.skript.util.Timespan.TimePeriod;
-import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.block.TrialSpawner;
 import org.bukkit.event.Event;
@@ -18,7 +15,7 @@ import org.skriptlang.skript.bukkit.spawner.util.SpawnerUtils;
 
 @Name("Base Spawner - Spawn Delay")
 @Description({
-	"The spawn delay of a base spawner is the time until the spawner will"
+	"The spawn delay of a base spawner is the time until the spawner will "
 		+ "attempt to spawn its' potential spawns.",
 	"If the spawner is inactive during the spawn attempt, the delay will remain as 0 seconds, "
 		+ "and the spawner will attempt to spawn the potential spawns every tick until it is successful.",
@@ -26,7 +23,8 @@ import org.skriptlang.skript.bukkit.spawner.util.SpawnerUtils;
 		+ "spawn delays of the spawner.",
 	"Keep in mind that this is not the case for trial spawner configurations. Their spawn delay will remain as 2 seconds "
 		+ "instead of the time until the next spawn attempt.",
-	"Please note that this expression gets the trial spawner configuration "
+	"",
+	"This expression gets the trial spawner configuration "
 		+ "with the current state (i.e. ominous, normal) of the trial spawner block, if one is provided.",
 	"",
 	"Base spawners are trial spawner configurations, spawner minecarts and creature spawners."
@@ -44,11 +42,6 @@ public class ExprSpawnerDelay extends SimplePropertyExpression<Object, Timespan>
 	static {
 		register(SpawnerModule.SYNTAX_REGISTRY, ExprSpawnerDelay.class, Timespan.class,
 			"spawn[er|ing] delay", "entities/blocks/trialspawnerconfigs");
-	}
-
-	@Override
-	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		return super.init(expressions, matchedPattern, isDelayed, parseResult);
 	}
 
 	@Override
@@ -94,6 +87,8 @@ public class ExprSpawnerDelay extends SimplePropertyExpression<Object, Timespan>
 				continue;
 
 			BaseSpawner base = SpawnerUtils.getAsBaseSpawner(object);
+
+			assert base != null;
 
 			switch (mode) {
 				case SET -> base.setDelay(ticksAsInt);

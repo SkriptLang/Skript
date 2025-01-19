@@ -14,7 +14,7 @@ import org.skriptlang.skript.bukkit.spawner.util.SpawnerUtils;
 @Name("Base Spawner - Spawn Range")
 @Description({
 	"Get the radius of the area in which the spawner can spawn entities, by default 4.",
-	"Please note that this expression gets the trial spawner configuration "
+	"This expression gets the trial spawner configuration "
 		+ "with the current state (i.e. ominous, normal) of the trial spawner block, if one is provided.",
 	"",
 	"Base spawners are trial spawner configurations, spawner minecarts and creature spawners."
@@ -26,7 +26,7 @@ import org.skriptlang.skript.bukkit.spawner.util.SpawnerUtils;
 	"reset the spawn radius of the target block"
 })
 @Since("INSERT VERSION")
-@RequiredPlugins("Minecraft 1.21+")
+@RequiredPlugins("MC 1.21+ 1.21+")
 public class ExprSpawnRange extends SimplePropertyExpression<Object, Integer> {
 
 	static {
@@ -69,6 +69,8 @@ public class ExprSpawnRange extends SimplePropertyExpression<Object, Integer> {
 				continue;
 
 			BaseSpawner spawner = SpawnerUtils.getAsBaseSpawner(object);
+
+			assert spawner != null;
 
 			switch (mode) {
 				case SET -> spawner.setSpawnRange(range);

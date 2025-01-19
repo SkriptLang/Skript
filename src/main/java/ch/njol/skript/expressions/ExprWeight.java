@@ -2,7 +2,7 @@ package ch.njol.skript.expressions;
 
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
-import ch.njol.skript.lang.util.common.AnyWeight;
+import ch.njol.skript.lang.util.common.AnyWeighted;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
@@ -15,7 +15,7 @@ public class ExprWeight extends SimplePropertyExpression<Object, Integer> {
 
 	@Override
 	public @Nullable Integer convert(Object object) {
-		if (object instanceof AnyWeight weighted)
+		if (object instanceof AnyWeighted weighted)
 			return weighted.weight();
 		assert false;
 		return null;
@@ -35,7 +35,7 @@ public class ExprWeight extends SimplePropertyExpression<Object, Integer> {
 		int weight = (int) delta[0];
 
 		for (Object object : getExpr().getArray(event)) {
-			if (!(object instanceof AnyWeight weighted))
+			if (!(object instanceof AnyWeighted weighted))
 				continue;
 
 			if (!weighted.supportsWeightChange()) {

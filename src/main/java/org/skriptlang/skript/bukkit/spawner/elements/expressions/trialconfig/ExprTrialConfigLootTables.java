@@ -39,7 +39,7 @@ import java.util.Map;
 	"# loot table with weight 1 ^"
 })
 @Since("INSERT VERSION")
-@RequiredPlugins("Minecraft 1.21+")
+@RequiredPlugins("MC 1.21+")
 public class ExprTrialConfigLootTables extends PropertyExpression<TrialSpawnerConfig, WeightedLootTable> {
 
 	static {

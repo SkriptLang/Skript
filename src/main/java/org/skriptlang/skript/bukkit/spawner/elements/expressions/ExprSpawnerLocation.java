@@ -67,7 +67,7 @@ public class ExprSpawnerLocation extends SimpleExpression<Location> implements E
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return "the attacker";
+		return "the spawner's location";
 	}
 
 }

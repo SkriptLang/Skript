@@ -8,7 +8,7 @@ import ch.njol.skript.classes.Parser;
 import ch.njol.skript.entity.EntityData;
 import ch.njol.skript.expressions.base.EventValueExpression;
 import ch.njol.skript.lang.ParseContext;
-import ch.njol.skript.lang.util.common.AnyWeight;
+import ch.njol.skript.lang.util.common.AnyWeighted;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.registrations.EventValues;
 import com.destroystokyo.paper.event.entity.PreSpawnerSpawnEvent;
@@ -47,13 +47,15 @@ public class SpawnerModule implements AddonModule {
 		Classes.registerClass(new ClassInfo<>(TrialSpawnerConfig.class, "trialspawnerconfig")
 			.user("(trial ?)?spawner ?config(urations?)?")
 			.name("Trial Spawner Configuration")
-			.description("Represents a trial spawner configuration. Trial spawner configurations fall under the "
+			.description(
+				"Represents a trial spawner configuration. Trial spawner configurations fall under the "
 				+ "base spawner category, having more configuration options. When using the base spawner expressions, "
 				+ "effects or conditions, you can use this configuration to specify the type of trial spawner you want. "
 				+ "If you were to specify a trial spawner block in those expressions, it would use the current configuration."
 				+ "You can find more information about this in the Minecraft wiki for "
 				+ "<a href='https://minecraft.wiki/w/Trial_Spawner'>trial spawners</a>")
 			.since("INSERT VERSION")
+			.requiredPlugins("MC 1.21+")
 			.parser(new Parser<>() {
 				@Override
 				public boolean canParse(ParseContext context) {
@@ -85,8 +87,9 @@ public class SpawnerModule implements AddonModule {
 			.name("Weighted Loot Table")
 			.description(
 				"Represents a weighted loot table. Trial spawners pick a weighted loot table to use as its reward.",
-				"Note that this is a weighted type. That is, you can use 'weight of %weighted loot table%'")
+				"This is a weighted type. The weight expression can be used here, e.g. `weight of %weighted loot table%`")
 			.since("INSERT VERSION")
+			.requiredPlugins("MC 1.21+")
 			.parser(new Parser<>() {
 				@Override
 				public boolean canParse(ParseContext context) {
@@ -108,14 +111,15 @@ public class SpawnerModule implements AddonModule {
 		);
 
 		Classes.registerClass(new ClassInfo<>(SpawnerEntry.class, "spawnerentry")
-			.user("spawner ?entry")
+			.user("spawner ?entr(y|ies)")
 			.name("Spawner Entry")
 			.description("Represents a spawner entry. Spawner entries are entities that spawn from a spawner with "
 				+ "more configuration, e.g. spawn rules, spawn weight, and equipment. You can find more information "
 				+ "about this in the Minecraft wiki for <a href='https://minecraft.wiki/w/Monster_Spawner'>spawners</a>",
-				"Note that this is a weighted type. That is, you can use 'weight of %spawner entry%'")
+				"This is a weighted type. The weight expression can be used here, e.g. `weight of %spawner entry%`")
 			.since("INSERT VERSION")
 			.defaultExpression(new EventValueExpression<>(SpawnerEntry.class))
+			.requiredPlugins("MC 1.21+")
 			.parser(new Parser<>() {
 				@Override
 				public boolean canParse(ParseContext context) {
@@ -150,6 +154,7 @@ public class SpawnerModule implements AddonModule {
 				+ "equipment slot. You can find more information about this in the Minecraft wiki for "
 				+ "<a href='https://minecraft.wiki/w/Monster_Spawner'>spawners</a>")
 			.since("INSERT VERSION")
+			.requiredPlugins("MC 1.21+")
 			.parser(new Parser<>() {
 				@Override
 				public boolean canParse(ParseContext context) {
@@ -178,6 +183,7 @@ public class SpawnerModule implements AddonModule {
 				+ "for an equipment slot. You can find more information about this in the Minecraft wiki for "
 				+ "<a href='https://minecraft.wiki/w/Monster_Spawner'>spawners</a>")
 			.since("INSERT VERSION")
+			.requiredPlugins("MC 1.21+")
 			.parser(new Parser<>() {
 				@Override
 				public boolean canParse(ParseContext context) {
@@ -206,6 +212,7 @@ public class SpawnerModule implements AddonModule {
 				+ "to spawn. You can find more information about this in the Minecraft wiki for "
 				+ "<a href='https://minecraft.wiki/w/Monster_Spawner'>spawners</a>")
 			.since("INSERT VERSION")
+			.requiredPlugins("MC 1.21+")
 			.defaultExpression(new EventValueExpression<>(SpawnRuleWrapper.class))
 			.parser(new Parser<>() {
 				@Override
@@ -252,8 +259,8 @@ public class SpawnerModule implements AddonModule {
 			throw new RuntimeException(e);
 		}
 
-		Converters.registerConverter(SpawnerEntry.class, AnyWeight.class,
-			entry -> new AnyWeight() {
+		Converters.registerConverter(SpawnerEntry.class, AnyWeighted.class,
+			entry -> new AnyWeighted() {
 				@Override
 				public @NotNull Integer weight() {
 					return entry.getSpawnWeight();

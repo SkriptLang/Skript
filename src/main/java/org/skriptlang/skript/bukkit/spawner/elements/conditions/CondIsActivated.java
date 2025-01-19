@@ -9,8 +9,8 @@ import org.skriptlang.skript.bukkit.spawner.util.SpawnerUtils;
 
 @Name("Spawner - Is Active")
 @Description(
-	"Check if a spawner is active. Inactive spawners can mean that no player is in the activation range of the spawner "
-		+ "or the sky/block light spawn levels do not match the requirement or even if there is no potential spawn "
+	"Check if a spawner is active. Inactive spawners have no player in the activation range of the spawner, "
+		+ "or the sky/block light spawn levels do not match the requirement, or, if there is no potential spawn "
 		+ "assigned to the spawner."
 )
 @Examples({

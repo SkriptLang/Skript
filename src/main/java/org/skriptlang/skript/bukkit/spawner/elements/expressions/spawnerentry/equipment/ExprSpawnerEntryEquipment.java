@@ -1,10 +1,7 @@
 package org.skriptlang.skript.bukkit.spawner.elements.expressions.spawnerentry.equipment;
 
 import ch.njol.skript.Skript;
-import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
-import ch.njol.skript.doc.Name;
-import ch.njol.skript.doc.Since;
+import ch.njol.skript.doc.*;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.SyntaxStringBuilder;
@@ -25,8 +22,8 @@ import java.util.List;
 
 @Name("Spawner Entry Equipment")
 @Description({
-	"Returns an equipment loot table with the given drop chances. " +
-		"The loot table must be an equipment loot table, otherwise the entities will spawn naked."
+	"Returns an equipment loot table with the given drop chances.",
+	"The loot table must be an equipment loot table, otherwise the entities will spawn naked."
 })
 @Examples({
 	"set {_entry} to a spawner entry using entity snapshot of a skeleton:",
@@ -35,6 +32,7 @@ import java.util.List;
 	"set spawner entity of event-block to {_entry}",
 })
 @Since("INSERT VERSION")
+@RequiredPlugins("MC 1.21+")
 public class ExprSpawnerEntryEquipment extends SimpleExpression<SpawnerEntryEquipment> {
 
 	static {
@@ -83,7 +81,10 @@ public class ExprSpawnerEntryEquipment extends SimpleExpression<SpawnerEntryEqui
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
 		SyntaxStringBuilder builder = new SyntaxStringBuilder(event, debug);
-		return builder.append("spawner equipment with", lootTable, "and", chances).toString();
+
+		builder.append("spawner equipment with", lootTable, "and", chances);
+
+		return builder.toString();
 	}
 
 }

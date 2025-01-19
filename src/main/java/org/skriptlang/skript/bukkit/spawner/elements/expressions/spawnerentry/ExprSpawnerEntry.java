@@ -9,7 +9,7 @@ import org.skriptlang.skript.bukkit.spawner.SpawnerModule;
 @Description("The spawner entry used in the create spawner entry section.")
 @Examples("the spawner entry")
 @Since("INSERT VERSION")
-@RequiredPlugins("Minecraft 1.21+")
+@RequiredPlugins("MC 1.21+")
 public class ExprSpawnerEntry extends EventValueExpression<SpawnerEntry> {
 
     static {

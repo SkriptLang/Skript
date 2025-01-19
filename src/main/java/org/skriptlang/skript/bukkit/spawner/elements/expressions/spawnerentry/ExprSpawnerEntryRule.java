@@ -12,7 +12,8 @@ import org.skriptlang.skript.bukkit.spawner.SpawnerModule;
 
 @Name("Spawner Entry - Spawn Rule")
 @Description({
-	"The spawn rule of the spawner entry. Spawn rules are used to determine the conditions "
+	"The spawn rule of the spawner entry.",
+	"Spawn rules are used to determine the conditions "
 		+ " under which the spawner entry will spawn entities."
 })
 @Examples({
@@ -26,7 +27,7 @@ import org.skriptlang.skript.bukkit.spawner.SpawnerModule;
 	"add {_entry} to potential spawns of target block"
 })
 @Since("INSERT VERSION")
-@RequiredPlugins("Minecraft 1.21+")
+@RequiredPlugins("MC 1.21+")
 public class ExprSpawnerEntryRule extends SimplePropertyExpression<SpawnerEntry, SpawnRule> {
 
 	static {

@@ -21,7 +21,7 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 @Name("Trial Spawner - Is Tracking")
 @Description({
 	"Check whether trial spawners or trial spawner configs are tracking players or entities.",
-	"Being tracked means you have entered the activation range of the spawner. "
+	"Being tracked means the player or entity has entered the activation range of the spawner."
 		+ "If a player or entity leaves the activation range, they will continue to be tracked."
 })
 @Examples({

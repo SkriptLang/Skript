@@ -13,7 +13,7 @@ import org.skriptlang.skript.bukkit.spawner.util.SpawnerEntryEquipment.Drops;
 @Description("Returns the drop chance of an already existing equipment drop.")
 @Examples("set {_chance} to drop chance of {_equipment drop chance}")
 @Since("INSERT VERSION")
-@RequiredPlugins("Minecraft 1.21+")
+@RequiredPlugins("MC 1.21+")
 public class ExprEquipmentDropsWithChance extends SimplePropertyExpression<Drops, Float> {
 
 	static {

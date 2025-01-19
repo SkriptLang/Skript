@@ -6,7 +6,6 @@ import org.bukkit.block.TrialSpawner;
 import org.bukkit.entity.minecart.SpawnerMinecart;
 import org.bukkit.spawner.BaseSpawner;
 import org.bukkit.spawner.Spawner;
-import org.jetbrains.annotations.UnknownNullability;
 
 /**
  * Utility class for spawners.
@@ -41,7 +40,7 @@ public class SpawnerUtils {
 
 	/**
 	 * Returns whether the object is an instance of {@link TrialSpawner}. This also returns true for {@link TrialSpawnerConfig}.
-	 * @param object
+	 * @param object the object
 	 * @return whether the object is a TrialSpawner
 	 */
 	public static boolean isTrialSpawner(Object object) {
@@ -59,7 +58,7 @@ public class SpawnerUtils {
 	 * @return the object as a base spawner
 	 * @see #isBaseSpawner(Object)
 	 */
-	public static @UnknownNullability BaseSpawner getAsBaseSpawner(Object object) {
+	public static BaseSpawner getAsBaseSpawner(Object object) {
 		if (object instanceof Block block) {
 			return (BaseSpawner) block.getState();
 		} else if (object instanceof SpawnerMinecart spawner) {
@@ -76,9 +75,9 @@ public class SpawnerUtils {
 	 * @return the object as a spawner
 	 * @see #isSpawner(Object)
 	 */
-	public static @UnknownNullability Spawner getAsSpawner(Object object) {
-		if (object instanceof Block block) {
-			return (Spawner) block.getState();
+	public static Spawner getAsSpawner(Object object) {
+		if (object instanceof Block block && block.getState() instanceof Spawner spawner) {
+			return spawner;
 		} else if (object instanceof SpawnerMinecart spawner) {
 			return spawner;
 		}
@@ -91,7 +90,7 @@ public class SpawnerUtils {
 	 * @return the object as a trial spawner
 	 * @see #isTrialSpawner(Object)
 	 */
-	public static @UnknownNullability TrialSpawner getAsTrialSpawner(Object object) {
+	public static TrialSpawner getAsTrialSpawner(Object object) {
 		if (object instanceof Block block)
 			object = block.getState();
 

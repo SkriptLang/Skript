@@ -29,7 +29,7 @@ import java.util.List;
 		+ "The spawner entity will be overwritten to the "
 		+ "entity snapshot of the highest weighted spawner entry from the list of potential spawns.",
 	"",
-	"Please note that this expression gets the trial spawner configuration "
+	"This expression gets the trial spawner configuration "
 		+ "with the current state (i.e. ominous, normal) of the trial spawner block, if one is provided.",
 	"",
 	"Base spawners are trial spawner configurations, spawner minecarts and creature spawners."
@@ -108,6 +108,8 @@ public class ExprPotentialSpawns extends PropertyExpression<Object, SpawnerEntry
 				continue;
 
 			BaseSpawner spawner = SpawnerUtils.getAsBaseSpawner(object);
+
+			assert spawner != null;
 
 			List<SpawnerEntry> potentialSpawns = spawner.getPotentialSpawns();
 

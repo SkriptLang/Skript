@@ -31,7 +31,7 @@ import java.util.List;
 		"\tsend \"You're being tracked by %event-block%\" to loop-player"
 })
 @Since("INSERT VERSION")
-@RequiredPlugins("Minecraft 1.21+")
+@RequiredPlugins("MC 1.21+")
 public class ExprTrackedEntities extends PropertyExpression<Object, Entity> {
 
 	static {

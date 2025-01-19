@@ -32,7 +32,7 @@ import org.skriptlang.skript.bukkit.spawner.SpawnerModule;
 	"set spawner entity of event-block to {_entry}"
 })
 @Since("INSERT VERSION")
-@RequiredPlugins("Minecraft 1.21+")
+@RequiredPlugins("MC 1.21+")
 public class ExprSpawnRuleBlockLight extends SimplePropertyExpression<SpawnRule, Integer> {
 
 	static {

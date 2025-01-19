@@ -19,10 +19,11 @@ import java.util.function.Consumer;
 
 @Name("Base Spawner - Spawner Entity")
 @Description({
-	"Get the spawner entity of a base spawner. "
-		+ "This is the entity that the spawner will spawn and displays the small entity inside the spawner.",
-	"This will override any previous entries that have been added to potential spawns of the spawner",
-	"Please note that this expression gets the trial spawner configuration "
+	"Get the spawner entity of a base spawner.",
+	"This is the entity that the spawner will spawn and displays the small entity inside the spawner.",
+	"Setting this will override any previous entries that have been added to potential spawns of the spawner",
+	"",
+	"This expression gets the trial spawner configuration "
 		+ "with the current state (i.e. ominous, normal) of the trial spawner block, if one is provided.",
 	"",
 	"Base spawners are trial spawner configurations, spawner minecarts and creature spawners."

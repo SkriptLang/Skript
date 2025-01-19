@@ -22,7 +22,7 @@ import org.skriptlang.skript.bukkit.spawner.util.SpawnerUtils;
 	"broadcast \"The trial spawner will wait for %{_cooldown}% before spawning more mobs.\""
 })
 @Since("INSERT VERSION")
-@RequiredPlugins("Minecraft 1.21+")
+@RequiredPlugins("MC 1.21+")
 public class ExprCooldownLength extends SimplePropertyExpression<Object, Timespan> {
 
 	static {

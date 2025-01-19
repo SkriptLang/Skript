@@ -18,7 +18,7 @@ import org.skriptlang.skript.bukkit.spawner.util.SpawnerUtils;
 @Name("Base Spawner - Spawner Type")
 @Description({
 	"Retrieves, sets, or resets the spawner's entity type",
-	"Please note that this expression gets the trial spawner configuration "
+	"This expression gets the trial spawner configuration "
 		+ "with the current state (i.e. ominous, normal) of the trial spawner block, if one is provided.",
 	"",
 	"Base spawners are trial spawner configurations, spawner minecarts and creature spawners."
@@ -29,7 +29,7 @@ import org.skriptlang.skript.bukkit.spawner.util.SpawnerUtils;
 			"\t\tsend \"Spawner's type is %target block's spawner type%\""
 })
 @Since("2.4, 2.9.2 (trial spawner), INSERT VERSION (trial spawner config)")
-@RequiredPlugins("Minecraft 1.21+ (since INSERT VERSION)")
+@RequiredPlugins("MC 1.21+ (since INSERT VERSION)")
 public class ExprSpawnerType extends SimplePropertyExpression<Object, EntityData> {
 
 	static {
@@ -72,6 +72,8 @@ public class ExprSpawnerType extends SimplePropertyExpression<Object, EntityData
 				continue;
 
 			BaseSpawner spawner = SpawnerUtils.getAsBaseSpawner(object);
+
+			assert spawner != null;
 
 			switch (mode) {
 				case SET -> spawner.setSpawnedType(type);

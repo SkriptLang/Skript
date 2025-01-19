@@ -13,7 +13,8 @@ import org.skriptlang.skript.bukkit.spawner.util.SpawnerUtils;
 
 @Name("Base Spawner - Activation Range")
 @Description({
-	"Get the activation range of the base spawner, by default 16. The activation range is the distance "
+	"Gets the activation range of the base spawner. By default, this is 16.",
+	"The activation range is the distance "
 		+ "from the spawner that players must be within for the spawner to be active.",
 	"Setting this value to less than or equal to 0, makes the spawner always active "
 		+ "(given that there are players online).",
@@ -60,6 +61,8 @@ public class ExprActivationRange extends SimplePropertyExpression<Object, Intege
 			if (SpawnerUtils.isBaseSpawner(object)) {
 				BaseSpawner spawner = SpawnerUtils.getAsBaseSpawner(object);
 
+				assert spawner != null;
+
 				switch (mode) {
 					case SET -> spawner.setRequiredPlayerRange(count);
 					case ADD -> spawner.setRequiredPlayerRange(spawner.getRequiredPlayerRange() + count);
@@ -70,8 +73,9 @@ public class ExprActivationRange extends SimplePropertyExpression<Object, Intege
 				SpawnerUtils.updateState(spawner);
 
 			} else if (SpawnerUtils.isTrialSpawner(object)) {
-
 				TrialSpawner spawner = SpawnerUtils.getAsTrialSpawner(object);
+
+				assert spawner != null;
 
 				switch (mode) {
 					case SET -> spawner.setRequiredPlayerRange(count);

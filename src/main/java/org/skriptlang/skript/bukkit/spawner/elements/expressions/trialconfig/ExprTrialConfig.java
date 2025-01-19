@@ -27,7 +27,7 @@ import org.skriptlang.skript.bukkit.spawner.util.TrialSpawnerConfig;
 		"\tsend \"{_config} is normal!\""
 })
 @Since("INSERT VERSION")
-@RequiredPlugins("Minecraft 1.21+")
+@RequiredPlugins("MC 1.21+")
 public class ExprTrialConfig extends SimplePropertyExpression<Block, TrialSpawnerConfig> {
 
 	static {

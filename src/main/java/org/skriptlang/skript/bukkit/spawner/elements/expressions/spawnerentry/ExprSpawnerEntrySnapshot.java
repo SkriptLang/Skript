@@ -1,10 +1,7 @@
 package org.skriptlang.skript.bukkit.spawner.elements.expressions.spawnerentry;
 
 import ch.njol.skript.classes.Changer.ChangeMode;
-import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
-import ch.njol.skript.doc.Name;
-import ch.njol.skript.doc.Since;
+import ch.njol.skript.doc.*;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.block.spawner.SpawnerEntry;
@@ -22,6 +19,7 @@ import org.skriptlang.skript.bukkit.spawner.SpawnerModule;
 	"# the spawner will now spawn pigs"
 })
 @Since("INSERT VERSION")
+@RequiredPlugins("MC 1.21+")
 public class ExprSpawnerEntrySnapshot extends SimplePropertyExpression<SpawnerEntry, EntitySnapshot> {
 
 	static {

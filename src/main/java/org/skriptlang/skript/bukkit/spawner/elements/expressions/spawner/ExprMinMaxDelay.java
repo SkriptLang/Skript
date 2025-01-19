@@ -1,10 +1,7 @@
 package org.skriptlang.skript.bukkit.spawner.elements.expressions.spawner;
 
 import ch.njol.skript.classes.Changer.ChangeMode;
-import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
-import ch.njol.skript.doc.Name;
-import ch.njol.skript.doc.Since;
+import ch.njol.skript.doc.*;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
@@ -33,18 +30,19 @@ import org.skriptlang.skript.bukkit.spawner.util.SpawnerUtils;
 	"set max spawn delay of target block to 500 ticks"
 })
 @Since("INSERT VERSION")
+@RequiredPlugins("MC 1.21+")
 public class ExprMinMaxDelay extends SimplePropertyExpression<Object, Timespan> {
 
 	static {
 		register(SpawnerModule.SYNTAX_REGISTRY, ExprMinMaxDelay.class, Timespan.class,
-			"(1:max[imum]|min[imum]) spawn[er|ing] delay", "entities/blocks");
+			"(:max[imum]|min[imum]) spawn[er|ing] delay", "entities/blocks");
 	}
 
 	private boolean isMax;
 
 	@Override
 	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		isMax = parseResult.mark == 1;
+		isMax = parseResult.hasTag("max");
 		return super.init(expressions, matchedPattern, isDelayed, parseResult);
 	}
 
@@ -54,6 +52,8 @@ public class ExprMinMaxDelay extends SimplePropertyExpression<Object, Timespan> 
 			return null;
 
 		Spawner spawner = SpawnerUtils.getAsSpawner(object);
+
+		assert spawner != null;
 
 		if (isMax)
 			return new Timespan(TimePeriod.TICK, spawner.getMaxSpawnDelay());

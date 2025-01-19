@@ -10,7 +10,7 @@ import org.jetbrains.annotations.UnknownNullability;
  * @see AnyProvider
  */
 @FunctionalInterface
-public interface AnyWeight extends AnyProvider {
+public interface AnyWeighted extends AnyProvider {
 
 	/**
 	 * @return This thing's weight

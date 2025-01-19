@@ -36,7 +36,7 @@ import org.skriptlang.skript.bukkit.spawner.util.TrialSpawnerConfig;
 	"set the simultaneous trial spawner mob count of {_spawner} to 4",
 })
 @Since("INSERT VERSION")
-@RequiredPlugins("Minecraft 1.21+")
+@RequiredPlugins("MC 1.21+")
 public class ExprTrialConfigMobCount extends SimplePropertyExpression<TrialSpawnerConfig, Float> {
 
 	static {

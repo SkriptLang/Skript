@@ -2555,7 +2555,7 @@ input keys:
 	sneak: sneak key, sneaking key
 	sprint: sprint key, sprinting key
 
-//todo: remove after merge of equippable pr
+# todo: remove after merge of equippable pr
 equipment slots:
 	body: body equipment slot
 	chest: chest equipment slot, chestplate equipment slot

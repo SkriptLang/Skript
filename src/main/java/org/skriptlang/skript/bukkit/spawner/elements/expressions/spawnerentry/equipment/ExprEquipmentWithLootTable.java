@@ -15,7 +15,7 @@ import org.skriptlang.skript.bukkit.spawner.util.SpawnerEntryEquipment;
 @Description("Returns the equipment loot table of a spawner entry equipment.")
 @Examples("set {_loot table} to loot table of {_equipment}")
 @Since("INSERT VERSION")
-@RequiredPlugins("Minecraft 1.21+")
+@RequiredPlugins("MC 1.21+")
 public class ExprEquipmentWithLootTable extends SimplePropertyExpression<SpawnerEntryEquipment, LootTable> {
 
 	static {

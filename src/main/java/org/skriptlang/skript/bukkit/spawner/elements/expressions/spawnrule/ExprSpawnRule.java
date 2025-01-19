@@ -9,7 +9,7 @@ import org.skriptlang.skript.bukkit.spawner.SpawnerModule;
 @Description("The spawn rule used in the create spawn rule section.")
 @Examples("the spawn rule")
 @Since("INSERT VERSION")
-@RequiredPlugins("Minecraft 1.21+")
+@RequiredPlugins("MC 1.21+")
 public class ExprSpawnRule extends EventValueExpression<SpawnRule> {
 
 	static {

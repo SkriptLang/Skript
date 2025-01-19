@@ -1,6 +1,6 @@
 package org.skriptlang.skript.bukkit.spawner.util;
 
-import ch.njol.skript.lang.util.common.AnyWeight;
+import ch.njol.skript.lang.util.common.AnyWeighted;
 import org.bukkit.loot.LootTable;
 import org.jetbrains.annotations.NotNull;
 
@@ -8,7 +8,7 @@ import org.jetbrains.annotations.NotNull;
  * Represents a loot table with a weight. Weighted loot tables are used by trial spawners to pick a random loot table
  * from a list of loot tables for the reward.
  */
-public class WeightedLootTable implements AnyWeight {
+public class WeightedLootTable implements AnyWeighted {
 
 	private @NotNull LootTable lootTable;
 	private int weight;

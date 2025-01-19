@@ -40,7 +40,7 @@ import java.util.List;
 	"set the simultaneous trial spawner mob count per player of {_spawner} to 4",
 })
 @Since("INSERT VERSION")
-@RequiredPlugins("Minecraft 1.21+")
+@RequiredPlugins("MC 1.21+")
 public class ExprTrialConfigMobCountPerPlayer extends PropertyExpression<TrialSpawnerConfig, Float> {
 
 	static {

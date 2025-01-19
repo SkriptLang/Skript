@@ -34,8 +34,8 @@ public class EffTrialSpawnerTrack extends Effect {
 			.supplier(EffTrialSpawnerTrack::new)
 			.priority(SyntaxInfo.COMBINED)
 			.addPatterns(
-				"make [the] %blocks/trialspawnerconfigs% (1:start|stop) tracking %entities%",
-				"make [the] %blocks/trialspawnerconfigs% (1:start|stop) tracking %players%")
+				"make [the] %blocks/trialspawnerconfigs% (:start|stop) tracking %entities%",
+				"make [the] %blocks/trialspawnerconfigs% (:start|stop) tracking %players%")
 			.build();
 
 		SpawnerModule.SYNTAX_REGISTRY.register(SyntaxRegistry.EFFECT, info);
@@ -47,7 +47,7 @@ public class EffTrialSpawnerTrack extends Effect {
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		start = parseResult.mark == 1;
+		start = parseResult.hasTag("start");
 		blocks = exprs[0];
 		objects = exprs[1];
 		return true;

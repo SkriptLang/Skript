@@ -34,7 +34,7 @@ public class EffMakeOminous extends Effect {
 			.origin(SyntaxOrigin.of(Skript.instance()))
 			.supplier(EffMakeOminous::new)
 			.priority(SyntaxInfo.COMBINED)
-			.addPatterns("make [the] trial spawner state of %blocks/blockdatas% (1:ominous|normal)")
+			.addPatterns("make [the] trial spawner state of %blocks/blockdatas% (:ominous|normal)")
 			.build();
 
 		SpawnerModule.SYNTAX_REGISTRY.register(SyntaxRegistry.EFFECT, info);
@@ -45,7 +45,7 @@ public class EffMakeOminous extends Effect {
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		ominous = parseResult.mark == 1;
+		ominous = parseResult.hasTag("ominous");
 		spawners = exprs[0];
 		return true;
 	}

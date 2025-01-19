@@ -20,7 +20,7 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 @Description("Returns equipment drops of the specified equipment slot with the given chance.")
 @Examples("set {_chance} to helmet slot with drop chance 50%")
 @Since("INSERT VERSION")
-@RequiredPlugins("Minecraft 1.21+")
+@RequiredPlugins("MC 1.21+")
 public class ExprEquipmentDrops extends SimpleExpression<Drops> {
 
 	static {
@@ -72,10 +72,12 @@ public class ExprEquipmentDrops extends SimpleExpression<Drops> {
 	public String toString(@Nullable Event event, boolean debug) {
 		SyntaxStringBuilder builder = new SyntaxStringBuilder(event, debug);
 
-		builder.append("spawner entry drop chance for")
-			.append(slot)
-			.append("with drop chance")
-			.append(chance != null ? chance : 1);
+		builder.append("spawner entry drop chance for", slot, "with drop chance");
+		if (chance != null) {
+			builder.append(chance);
+		} else {
+			builder.append(1);
+		}
 
 		return builder.toString();
 	}

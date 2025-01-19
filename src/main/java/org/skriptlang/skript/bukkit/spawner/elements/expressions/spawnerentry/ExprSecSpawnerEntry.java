@@ -16,9 +16,9 @@ import org.bukkit.block.spawner.SpawnerEntry;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntitySnapshot;
 import org.bukkit.event.Event;
+import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.spawner.SpawnerModule;
-import org.skriptlang.skript.bukkit.spawner.events.SpawnerEntryCreateEvent;
 import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.registration.SyntaxOrigin;
 import org.skriptlang.skript.registration.SyntaxRegistry;
@@ -49,7 +49,7 @@ import java.util.List;
 	"add {_entry} to potential spawns of target block"
 })
 @Since("INSERT VERSION")
-@RequiredPlugins("Minecraft 1.21+")
+@RequiredPlugins("MC 1.21+")
 public class ExprSecSpawnerEntry extends SectionExpression<SpawnerEntry> {
 
 	static {
@@ -125,6 +125,25 @@ public class ExprSecSpawnerEntry extends SectionExpression<SpawnerEntry> {
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
 		return "spawner entry using " + object.toString(event, debug);
+	}
+
+	public static class SpawnerEntryCreateEvent extends Event {
+
+		private final SpawnerEntry entry;
+
+		public SpawnerEntryCreateEvent(SpawnerEntry entry) {
+			this.entry = entry;
+		}
+
+		public SpawnerEntry getSpawnerEntry() {
+			return entry;
+		}
+
+		@Override
+		public HandlerList getHandlers() {
+			throw new UnsupportedOperationException();
+		}
+
 	}
 
 }

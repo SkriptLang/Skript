@@ -16,7 +16,7 @@ import ch.njol.skript.lang.util.SimpleLiteral;
 import ch.njol.skript.lang.util.common.AnyAmount;
 import ch.njol.skript.lang.util.common.AnyContains;
 import ch.njol.skript.lang.util.common.AnyNamed;
-import ch.njol.skript.lang.util.common.AnyWeight;
+import ch.njol.skript.lang.util.common.AnyWeighted;
 import ch.njol.skript.lang.util.common.AnyValued;
 import ch.njol.skript.localization.Noun;
 import ch.njol.skript.localization.RegexMessage;
@@ -918,14 +918,14 @@ public class SkriptClasses {
 				.since("2.10")
 		);
 
-		Classes.registerClass(new AnyInfo<>(AnyWeight.class, "weighted")
+		Classes.registerClass(new AnyInfo<>(AnyWeighted.class, "weighted")
 				.user("weighteds?")
 				.name("Any Weighted Thing")
 				.description("Something that has a weight.")
 				.usage("")
 				.examples("the weight of {_thing}")
 				.since("INSERT VERSION")
-				.defaultExpression(new EventValueExpression<>(AnyWeight.class))
+				.defaultExpression(new EventValueExpression<>(AnyWeighted.class))
 		);
 	}
 

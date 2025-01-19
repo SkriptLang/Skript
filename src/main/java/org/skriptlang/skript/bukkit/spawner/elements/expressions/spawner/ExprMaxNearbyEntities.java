@@ -12,8 +12,8 @@ import org.skriptlang.skript.bukkit.spawner.util.SpawnerUtils;
 
 @Name("Spawner - Maximum Nearby Entity Amount")
 @Description({
-	"Get the maximum amount of similar entities within the spawn range, by default 16. "
-		+ "The spawner will no longer spawn entities if the value was surpassed.",
+	"Get the maximum amount of similar entities within the spawn range. This is 16 by default.",
+	"The spawner will no longer spawn entities if the value was surpassed.",
 	"",
 	"Spawners are creature spawners and spawner minecarts."
 })
@@ -24,7 +24,7 @@ import org.skriptlang.skript.bukkit.spawner.util.SpawnerUtils;
 	"reset maximum nearby entity amount of target block"
 })
 @Since("INSERT VERSION")
-@RequiredPlugins("Minecraft 1.21+")
+@RequiredPlugins("MC 1.21+")
 public class ExprMaxNearbyEntities extends SimplePropertyExpression<Object, Integer> {
 
 	static {
@@ -56,6 +56,8 @@ public class ExprMaxNearbyEntities extends SimplePropertyExpression<Object, Inte
 				continue;
 
 			Spawner spawner = SpawnerUtils.getAsSpawner(object);
+
+			assert spawner != null;
 
 			switch (mode) {
 				case SET -> spawner.setMaxNearbyEntities(count);

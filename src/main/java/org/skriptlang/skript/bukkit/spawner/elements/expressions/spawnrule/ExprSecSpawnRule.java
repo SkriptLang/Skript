@@ -13,9 +13,9 @@ import ch.njol.skript.variables.Variables;
 import ch.njol.util.Kleenean;
 import org.bukkit.block.spawner.SpawnRule;
 import org.bukkit.event.Event;
+import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.spawner.SpawnerModule;
-import org.skriptlang.skript.bukkit.spawner.events.SpawnRuleCreateEvent;
 import org.skriptlang.skript.bukkit.spawner.util.SpawnRuleWrapper;
 import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.registration.SyntaxOrigin;
@@ -40,7 +40,7 @@ import java.util.List;
 	"add {_entry} to potential spawns of target block"
 })
 @Since("INSERT VERSION")
-@RequiredPlugins("Minecraft 1.21+")
+@RequiredPlugins("MC 1.21+")
 public class ExprSecSpawnRule extends SectionExpression<SpawnRule> {
 
 	static {
@@ -92,6 +92,25 @@ public class ExprSecSpawnRule extends SectionExpression<SpawnRule> {
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
 		return "spawn rule";
+	}
+
+	public static class SpawnRuleCreateEvent extends Event {
+
+		private final SpawnRule rule;
+
+		public SpawnRuleCreateEvent(SpawnRule rule) {
+			this.rule = rule;
+		}
+
+		public SpawnRule getSpawnRule() {
+			return rule;
+		}
+
+		@Override
+		public HandlerList getHandlers() {
+			throw new UnsupportedOperationException();
+		}
+
 	}
 
 }

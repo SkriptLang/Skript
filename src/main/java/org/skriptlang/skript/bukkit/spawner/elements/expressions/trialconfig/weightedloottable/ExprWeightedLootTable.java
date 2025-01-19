@@ -28,7 +28,7 @@ import org.skriptlang.skript.registration.SyntaxRegistry;
 	"set {_weighted} to {_loot} with weight 10"
 })
 @Since("INSERT VERSION")
-@RequiredPlugins("Minecraft 1.21+")
+@RequiredPlugins("MC 1.21+")
 public class ExprWeightedLootTable extends SimpleExpression<WeightedLootTable> {
 
 	static {

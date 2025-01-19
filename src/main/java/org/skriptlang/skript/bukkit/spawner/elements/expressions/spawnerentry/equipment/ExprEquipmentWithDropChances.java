@@ -19,12 +19,13 @@ import org.skriptlang.skript.registration.SyntaxOrigin;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 
 import java.util.ArrayList;
+import java.util.List;
 
 @Name("Spawner Entry - Equipment with Drops")
 @Description("Returns the drops of a spawner entry equipment.")
 @Examples("set {_chances::*} to drop chances of {_equipment}")
 @Since("INSERT VERSION")
-@RequiredPlugins("Minecraft 1.21+")
+@RequiredPlugins("MC 1.21+")
 public class ExprEquipmentWithDropChances extends PropertyExpression<SpawnerEntryEquipment, Drops> {
 
 	static {
@@ -49,7 +50,11 @@ public class ExprEquipmentWithDropChances extends PropertyExpression<SpawnerEntr
 
 	@Override
 	protected Drops[] get(Event event, SpawnerEntryEquipment[] source) {
-		return new Drops[0];
+		List<Drops> drops = new ArrayList<>();
+		for (SpawnerEntryEquipment equipment : source) {
+			drops.addAll(equipment.getDropChances());
+		}
+		return drops.toArray(new Drops[0]);
 	}
 
 	@Override

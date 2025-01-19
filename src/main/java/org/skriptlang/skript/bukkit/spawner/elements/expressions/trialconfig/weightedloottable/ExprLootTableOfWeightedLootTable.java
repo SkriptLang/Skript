@@ -20,7 +20,7 @@ import org.skriptlang.skript.bukkit.spawner.util.WeightedLootTable;
 	"set {_loot table} to loot table of {_weighted} # \"minecraft:chests/simple_dungeon\""
 })
 @Since("INSERT VERSION")
-@RequiredPlugins("Minecraft 1.21+")
+@RequiredPlugins("MC 1.21+")
 public class ExprLootTableOfWeightedLootTable extends SimplePropertyExpression<WeightedLootTable, LootTable> {
 
 	static {
