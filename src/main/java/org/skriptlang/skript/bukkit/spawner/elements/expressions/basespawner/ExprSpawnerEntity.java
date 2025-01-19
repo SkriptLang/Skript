@@ -15,6 +15,8 @@ import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.spawner.SpawnerModule;
 import org.skriptlang.skript.bukkit.spawner.util.SpawnerUtils;
 
+import java.util.function.Consumer;
+
 @Name("Base Spawner - Spawner Entity")
 @Description({
 	"Get the spawner entity of a base spawner. "
@@ -68,6 +70,27 @@ public class ExprSpawnerEntity extends SimplePropertyExpression<Object, EntitySn
 	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
 		Object value = delta != null ? delta[0] : null;
 
+		Consumer<BaseSpawner> consumer = spawner -> {};
+		if (value instanceof SpawnerEntry entry)
+			consumer = spawner -> spawner.setSpawnedEntity(entry);
+
+		EntitySnapshot entitySnapshot;
+		if (value instanceof EntitySnapshot snapshot) {
+			entitySnapshot = snapshot;
+		} else if (value instanceof Entity entity) {
+			entitySnapshot = entity.createSnapshot();
+		} else if (value instanceof EntityData<?> data) {
+			Entity entity = data.create();
+			if (entity == null)
+				return;
+			entitySnapshot = entity.createSnapshot();
+		} else {
+			entitySnapshot = null;
+		}
+
+		if (entitySnapshot != null)
+			consumer = spawner -> spawner.setSpawnedEntity(entitySnapshot);
+
 		for (Object object : getExpr().getArray(event)) {
 			if (SpawnerUtils.isTrialSpawner(object)) {
 				// get current trial spawner config if a trial spawner block was specified
@@ -80,18 +103,7 @@ public class ExprSpawnerEntity extends SimplePropertyExpression<Object, EntitySn
 
 			BaseSpawner spawner = SpawnerUtils.getAsBaseSpawner(object);
 
-			switch (value) {
-				case SpawnerEntry entry -> spawner.setSpawnedEntity(entry);
-				case EntitySnapshot snapshot -> spawner.setSpawnedEntity(snapshot);
-				case Entity entity -> spawner.setSpawnedEntity(entity.createSnapshot());
-				case EntityData<?> data -> {
-					Entity entity = data.create();
-					if (entity == null)
-						return;
-					spawner.setSpawnedEntity(entity.createSnapshot());
-				}
-				case null, default -> spawner.setSpawnedEntity((EntitySnapshot) null);
-			}
+			consumer.accept(spawner);
 
 			SpawnerUtils.updateState(spawner);
 		}

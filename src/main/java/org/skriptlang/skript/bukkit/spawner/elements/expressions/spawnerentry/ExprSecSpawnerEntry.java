@@ -84,17 +84,19 @@ public class ExprSecSpawnerEntry extends SectionExpression<SpawnerEntry> {
 		if (object == null)
 			return new SpawnerEntry[0];
 
-		EntitySnapshot entitySnapshot = switch (object) {
-			case EntitySnapshot snapshot -> snapshot;
-			case Entity entity -> entity.createSnapshot();
-			case EntityData<?> data -> {
-				Entity entity = data.create();
-				if (entity == null)
-					yield null;
-				yield entity.createSnapshot();
-			}
-			default -> null;
-		};
+		EntitySnapshot entitySnapshot;
+		if (object instanceof EntitySnapshot snapshot) {
+			entitySnapshot = snapshot;
+		} else if (object instanceof Entity entity) {
+			entitySnapshot = entity.createSnapshot();
+		} else if (object instanceof EntityData<?> data) {
+			Entity entity = data.create();
+			if (entity == null)
+				return new SpawnerEntry[0];
+			entitySnapshot = entity.createSnapshot();
+		} else {
+			return new SpawnerEntry[0];
+		}
 
 		if (entitySnapshot == null)
 			return new SpawnerEntry[0];
