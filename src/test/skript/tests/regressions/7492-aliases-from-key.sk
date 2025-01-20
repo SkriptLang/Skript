@@ -12,8 +12,8 @@ test "Aliases from Minecraft keys":
 	assert {_i} = oak stairs with "Should have gotten oak stairs"
 
 	# Test with a space inside
-	set {_i} to 1 of minecraft:waxed_copper trapdoor
-	assert {_i} = waxed copper trapdoor with "Should be waxed copper trapdoor"
+	set {_i} to 1 of minecraft:deepslate_diamond ore
+	assert {_i} = deepslate diamond ore with "Should be deepslate diamond ore"
 
 	# Test that this doesn't break any other aliases
 	set {_i} to 1 of my_cool_custom_item
