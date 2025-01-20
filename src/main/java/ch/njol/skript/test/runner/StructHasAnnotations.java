@@ -1,6 +1,7 @@
 package ch.njol.skript.test.runner;
 
 import ch.njol.skript.Skript;
+import ch.njol.skript.doc.NoDoc;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser;
 import org.bukkit.event.Event;
@@ -13,6 +14,7 @@ import org.skriptlang.skript.lang.structure.Structure;
  * Used for checking whether the parser can correctly see & dispose of an annotation.
  * This exists only for testing {@link ch.njol.skript.structures.StructAnnotate} and has no other purpose.
  */
+@NoDoc
 public class StructHasAnnotations extends Structure {
 
 	static {
