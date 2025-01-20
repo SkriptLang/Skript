@@ -3,6 +3,7 @@ package org.skriptlang.skript.lang.script;
 import ch.njol.skript.lang.parser.ParserInstance;
 import ch.njol.skript.patterns.MatchResult;
 import ch.njol.skript.patterns.SkriptPattern;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -48,6 +49,7 @@ import java.util.Objects;
  */
 public interface Annotation extends CharSequence {
 
+	@Contract("_ -> new")
 	static @NotNull Annotation create(String text) {
 		return new SimpleAnnotation(text);
 	}
@@ -148,7 +150,7 @@ record SimpleAnnotation(String value) implements Annotation {
 	}
 
 	@Override
-	public String subSequence(int start, int end) {
+	public @NotNull String subSequence(int start, int end) {
 		if (start == 0)
 			return '@' + value.substring(0, end - 1);
 		return value.substring(start - 1, end - 1);
