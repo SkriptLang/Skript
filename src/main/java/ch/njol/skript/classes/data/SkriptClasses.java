@@ -905,7 +905,7 @@ public class SkriptClasses {
 			.description("Something that has a value.")
 			.usage("")
 			.examples("the text of {node}")
-			.since("INSERT VERSION")
+			.since("2.10")
 		);
 
 		Classes.registerClass(new AnyInfo<>(AnyContains.class, "containing")
