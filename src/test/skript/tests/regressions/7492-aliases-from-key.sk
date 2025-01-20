@@ -11,12 +11,21 @@ test "Aliases from Minecraft keys":
 	set {_i} to 1 of oak_stairs
 	assert {_i} = oak stairs with "Should have gotten oak stairs"
 
-	# Test with a space inside
-	set {_i} to 1 of minecraft:deepslate_diamond ore
-	assert {_i} = deepslate diamond ore with "Should be deepslate diamond ore"
-
 	# Test that this doesn't break any other aliases
 	set {_i} to 1 of my_cool_custom_item
 	assert {_i} = netherite axe with "Should be a netherite axe"
 	set {_i} to 1 of potion of harming
 	assert {_i} = potion of harming with "Should be potion of harming"
+
+	# Test that this doesn't conflict with BlockData
+	set {_data} to minecraft:oak_stairs[]
+	assert {_data} is set with "This should be set"
+
+	set {_loc} to location(1,1,1)
+	set {_data} to block data of block at {_loc}
+	set block at {_loc} to oak_stairs[waterlogged=false]
+	assert block at {_loc} = oak_stairs[waterlogged=false] with "Should match blockdata"
+	assert block at {_loc} = oak stairs with "Should match itemtype"
+	assert block at {_loc} = minecraft:oak_stairs with "Should match MC key'd itemtype"
+
+	set block at {_loc} to {_data}

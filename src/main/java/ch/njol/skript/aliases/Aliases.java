@@ -318,8 +318,8 @@ public abstract class Aliases {
 			return itemType.clone();
 
 		// Try to parse as Minecraft key `minecraft:some_item` or `some_item`
-		if (input.contains(":") || input.contains("_")) {
-			NamespacedKey namespacedKey = NamespacedKey.fromString(input.replace(" ", "_"));
+		if ((input.contains(":") || input.contains("_")) && !input.contains(" ")) {
+			NamespacedKey namespacedKey = NamespacedKey.fromString(input);
 			if (namespacedKey != null) {
 				Material material = Registry.MATERIAL.get(namespacedKey);
 				if (material != null)
