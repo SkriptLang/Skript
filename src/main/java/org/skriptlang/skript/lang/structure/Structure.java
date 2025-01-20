@@ -14,6 +14,7 @@ import ch.njol.skript.lang.SyntaxElement;
 import ch.njol.skript.lang.parser.ParserInstance;
 import ch.njol.skript.log.ParseLogHandler;
 import ch.njol.skript.log.SkriptLogger;
+import ch.njol.skript.test.runner.EvtTestCase;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.iterator.CheckedIterator;
 import ch.njol.util.coll.iterator.ConsumingIterator;
@@ -22,12 +23,10 @@ import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.entry.EntryContainer;
 import org.skriptlang.skript.lang.entry.EntryData;
 import org.skriptlang.skript.lang.entry.EntryValidator;
+import org.skriptlang.skript.lang.script.Annotated;
 import org.skriptlang.skript.lang.script.Annotation;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Iterator;
+import java.util.*;
 
 /**
  * Structures are the root elements in every script. They are essentially the "headers".
@@ -38,7 +37,7 @@ import java.util.Iterator;
  * The values of these entries can be obtained by parsing the Structure's sub{@link Node}s
  *  through registered {@link EntryData}.
  */
-public abstract class Structure implements SyntaxElement, Debuggable {
+public abstract class Structure implements SyntaxElement, Debuggable, Annotated {
 
 	/**
 	 * The default {@link Priority} of every registered Structure.
@@ -69,8 +68,9 @@ public abstract class Structure implements SyntaxElement, Debuggable {
 
 	}
 
-	@Nullable
-	private EntryContainer entryContainer = null;
+	private @Nullable EntryContainer entryContainer = null;
+
+	private @Nullable Collection<Annotation> annotations;
 
 	/**
 	 * @return An EntryContainer containing this Structure's {@link EntryData} and {@link Node} parse results.
@@ -101,7 +101,7 @@ public abstract class Structure implements SyntaxElement, Debuggable {
 		}
 		// make the top-level annotations visible inside this structure
 		// note: simple structures don't need this since they have no contents
-		structureData.setAnnotations(this.getParser().copyAnnotations());
+		this.annotations = this.getParser().copyAnnotations();
 
 		EntryValidator entryValidator = structureInfo.entryValidator;
 		if (entryValidator == null) {
@@ -215,16 +215,21 @@ public abstract class Structure implements SyntaxElement, Debuggable {
 		}
 	}
 
+	@Override
+	public @NotNull Collection<Annotation> annotations() {
+		if (annotations == null)
+			return Collections.emptySet();
+		return annotations;
+	}
+
 	static {
 		ParserInstance.registerData(StructureData.class, StructureData::new);
 	}
 
-	@SuppressWarnings("NotNullFieldNotInitialized")
 	public static class StructureData extends ParserInstance.Data {
 
 		private Node node;
 		private @Nullable StructureInfo<? extends Structure> structureInfo;
-		private @Nullable Collection<Annotation> annotations;
 
 		public StructureData(ParserInstance parserInstance) {
 			super(parserInstance);
@@ -233,27 +238,6 @@ public abstract class Structure implements SyntaxElement, Debuggable {
 		@Nullable
 		public StructureInfo<? extends Structure> getStructureInfo() {
 			return structureInfo;
-		}
-
-		/**
-		 * Sets the annotation container for this structure.
-		 *
-		 * @param annotations The annotation container
-		 */
-		public void setAnnotations(@Nullable Collection<Annotation> annotations) {
-			this.annotations = annotations;
-		}
-
-		/**
-		 * Returns the annotations visible to the structure.
-		 * The collection may be empty if no annotations were placed before the structure.
-		 *
-		 * @return The annotations applied to the current structure
-		 */
-		public @NotNull Collection<Annotation> getAnnotations() {
-			if (annotations == null)
-				return Collections.emptySet();
-			return annotations;
 		}
 
 	}

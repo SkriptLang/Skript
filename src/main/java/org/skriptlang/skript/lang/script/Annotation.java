@@ -65,8 +65,7 @@ public interface Annotation extends CharSequence {
 	/**
 	 * @return The annotation's content after the initial '@'
 	 */
-	@NotNull
-	String value();
+	@NotNull String value();
 
 	/**
 	 * Whether the content of this annotation equals the given value.
@@ -98,7 +97,7 @@ public interface Annotation extends CharSequence {
 		}
 
 		@Override
-		public String toString() {
+		public @NotNull String toString() {
 			return annotation.toString();
 		}
 

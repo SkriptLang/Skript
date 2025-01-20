@@ -16,5 +16,20 @@ test has an annotation
 test does not have an annotation
 test does not have an annotation
 
+@some annotation
 test "annotation on structure":
+	# Check it's not picked up locally
+	assert annotation "some annotation" not present with "annotation from structure detected"
+
+	# Check it is picked up from the structure
+	assert annotation "some annotation" present on structure with "annotation from structure not detected"
+
+	@foo bar
+	assert annotation "foo bar" not present on structure with "local annotation misidentified as structural"
+
 	@the test is done at parsing time, we just need to pass!
+
+
+test "annotation not on structure":
+	assert annotation "some annotation" not present with "annotation from structure detected"
+	assert annotation "some annotation" not present on structure with "annotation from previous structure detected"

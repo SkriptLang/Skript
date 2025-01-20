@@ -10,6 +10,8 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.VariableString;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
+import org.skriptlang.skript.lang.script.Annotated;
+import org.skriptlang.skript.lang.structure.Structure;
 
 @Name("Has Annotations")
 @Description({
@@ -20,16 +22,18 @@ public class CondHasAnnotations extends Condition {
 
 	static {
 		if (TestMode.ENABLED)
-			Skript.registerCondition(CondHasAnnotations.class, "annotation %string% [not:not] present");
+			Skript.registerCondition(CondHasAnnotations.class,
+				"annotation %string% [not:not] present [structural:on [the] structure]");
 	}
 
 	private Expression<?> pattern;
-	private boolean result, negated;
+	private boolean result, negated, structural;
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		String pattern;
 		this.pattern = exprs[0];
+		this.structural = parseResult.hasTag("structural");
 		if (this.pattern instanceof VariableString) {
 			VariableString string = (VariableString) exprs[0];
 			if (!string.isSimple())
@@ -38,7 +42,10 @@ public class CondHasAnnotations extends Condition {
 		} else {
 			pattern = exprs[0].toString(null, false);
 		}
-		this.result = (negated = parseResult.hasTag("not")) ^ this.getParser().hasAnnotationMatching(pattern);
+		Annotated annotated = structural ? this.getParser().getCurrentStructure() : this.getParser();
+
+		assert annotated != null;
+		this.result = (negated = parseResult.hasTag("not")) ^ annotated.hasAnnotationMatching(pattern);
 		return true;
 	}
 
@@ -49,7 +56,9 @@ public class CondHasAnnotations extends Condition {
 
 	@Override
 	public String toString(Event event, boolean debug) {
-		return "annotation" + pattern + (negated ? " not " : " ") + "present";
+		return "annotation " + pattern
+			+ (negated ? " not " : " ") + "present"
+			+ (structural ? " on structure" : "");
 	}
 
 }
