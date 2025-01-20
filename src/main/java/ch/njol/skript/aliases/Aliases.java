@@ -226,24 +226,24 @@ public abstract class Aliases {
 			return null;
 		s = s.trim();
 
-		final ItemType itemType = new ItemType();
+		final ItemType t = new ItemType();
 
 		Matcher m;
 		if ((m = p_of_every.matcher(s)).matches()) {
-			itemType.setAmount(Utils.parseInt("" + m.group(1)));
-			itemType.setAll(true);
+			t.setAmount(Utils.parseInt("" + m.group(1)));
+			t.setAll(true);
 			s = "" + m.group(m.groupCount());
 		} else if ((m = p_of.matcher(s)).matches()) {
-			itemType.setAmount(Utils.parseInt("" + m.group(1)));
+			t.setAmount(Utils.parseInt("" + m.group(1)));
 			s = "" + m.group(m.groupCount());
 		} else if ((m = p_every.matcher(s)).matches()) {
-			itemType.setAll(true);
+			t.setAll(true);
 			s = "" + m.group(m.groupCount());
 		} else {
 			final int l = s.length();
 			s = Noun.stripIndefiniteArticle(s);
 			if (s.length() != l) // had indefinite article
-				itemType.setAmount(1);
+				t.setAmount(1);
 		}
 
 		String lc = s.toLowerCase(Locale.ENGLISH);
@@ -251,7 +251,7 @@ public abstract class Aliases {
 		int c = -1;
 		outer:
 		while ((c = lc.indexOf(of, c + 1)) != -1) {
-			ItemType t2 = itemType.clone();
+			ItemType t2 = t.clone();
 			try (BlockingLogHandler ignored = new BlockingLogHandler().start()) {
 				if (parseType("" + s.substring(0, c), t2, false) == null)
 					continue;
@@ -268,13 +268,13 @@ public abstract class Aliases {
 			return t2;
 		}
 
-		if (parseType(s, itemType, false) == null)
+		if (parseType(s, t, false) == null)
 			return null;
 
-		if (itemType.numTypes() == 0)
+		if (t.numTypes() == 0)
 			return null;
 
-		return itemType;
+		return t;
 	}
 
 	/**
