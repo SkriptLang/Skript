@@ -21,7 +21,7 @@ test "Aliases from Minecraft keys":
 	set {_data} to minecraft:oak_stairs[]
 	assert {_data} is set with "This should be set"
 
-	set {_loc} to location(1,1,1)
+	set {_loc} to event-location
 	set {_data} to block data of block at {_loc}
 	set block at {_loc} to oak_stairs[waterlogged=false]
 	assert block at {_loc} = oak_stairs[waterlogged=false] with "Should match blockdata"
