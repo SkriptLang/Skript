@@ -17,6 +17,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
+import org.bukkit.Registry;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.script.Script;
 
@@ -225,24 +226,24 @@ public abstract class Aliases {
 			return null;
 		s = s.trim();
 
-		final ItemType t = new ItemType();
+		final ItemType itemType = new ItemType();
 
 		Matcher m;
 		if ((m = p_of_every.matcher(s)).matches()) {
-			t.setAmount(Utils.parseInt("" + m.group(1)));
-			t.setAll(true);
+			itemType.setAmount(Utils.parseInt("" + m.group(1)));
+			itemType.setAll(true);
 			s = "" + m.group(m.groupCount());
 		} else if ((m = p_of.matcher(s)).matches()) {
-			t.setAmount(Utils.parseInt("" + m.group(1)));
+			itemType.setAmount(Utils.parseInt("" + m.group(1)));
 			s = "" + m.group(m.groupCount());
 		} else if ((m = p_every.matcher(s)).matches()) {
-			t.setAll(true);
+			itemType.setAll(true);
 			s = "" + m.group(m.groupCount());
 		} else {
 			final int l = s.length();
 			s = Noun.stripIndefiniteArticle(s);
 			if (s.length() != l) // had indefinite article
-				t.setAmount(1);
+				itemType.setAmount(1);
 		}
 
 		String lc = s.toLowerCase(Locale.ENGLISH);
@@ -250,7 +251,7 @@ public abstract class Aliases {
 		int c = -1;
 		outer:
 		while ((c = lc.indexOf(of, c + 1)) != -1) {
-			ItemType t2 = t.clone();
+			ItemType t2 = itemType.clone();
 			try (BlockingLogHandler ignored = new BlockingLogHandler().start()) {
 				if (parseType("" + s.substring(0, c), t2, false) == null)
 					continue;
@@ -267,13 +268,13 @@ public abstract class Aliases {
 			return t2;
 		}
 
-		if (parseType(s, t, false) == null)
+		if (parseType(s, itemType, false) == null)
 			return null;
 
-		if (t.numTypes() == 0)
+		if (itemType.numTypes() == 0)
 			return null;
 
-		return t;
+		return itemType;
 	}
 
 	/**
@@ -316,6 +317,15 @@ public abstract class Aliases {
 		if (itemType != null)
 			return itemType.clone();
 
+		// Try to parse as Minecraft key `minecraft:some_item` or `some_item`
+		if (input.contains(":") || input.contains("_")) {
+			NamespacedKey namespacedKey = NamespacedKey.fromString(input.replace(" ", "_"));
+			if (namespacedKey != null) {
+				Material material = Registry.MATERIAL.get(namespacedKey);
+				if (material != null)
+					return new ItemType(material);
+			}
+		}
 		// try to parse `ACTUALNAME block` as ACTUALNAME
 		if (input.endsWith(" " + blockSingular) || input.endsWith(" " + blockPlural)) {
 			String stripped = input.substring(0, input.lastIndexOf(" "));

@@ -1,0 +1,22 @@
+aliases:
+	my_cool_custom_item = netherite axe
+
+test "Aliases from Minecraft keys":
+
+	# Test as fully qualified NamespacedKey
+	set {_i} to 1 of minecraft:diamond_sword
+	assert {_i} = diamond sword with "Should have gotten a diamond sword"
+
+	# Test with just key
+	set {_i} to 1 of oak_stairs
+	assert {_i} = oak stairs with "Should have gotten oak stairs"
+
+	# Test with a space inside
+	set {_i} to 1 of minecraft:waxed_copper trapdoor
+	assert {_i} = waxed copper trapdoor with "Should be waxed copper trapdoor"
+
+	# Test that this doesn't break any other aliases
+	set {_i} to 1 of my_cool_custom_item
+	assert {_i} = netherite axe with "Should be a netherite axe"
+	set {_i} to 1 of potion of harming
+	assert {_i} = potion of harming with "Should be potion of harming"
