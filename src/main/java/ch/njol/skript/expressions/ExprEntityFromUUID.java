@@ -48,9 +48,9 @@ public class ExprEntityFromUUID extends SimpleExpression<Object> {
 	private boolean offline, player, world;
 
 	@Override
-	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
+	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		//noinspection unchecked
-		uuids = (Expression<UUID>) expressions[0];
+		uuids = (Expression<UUID>) exprs[0];
 		offline = parseResult.hasTag("offline");
 		player = matchedPattern == 0;
 		world = parseResult.hasTag("world");
