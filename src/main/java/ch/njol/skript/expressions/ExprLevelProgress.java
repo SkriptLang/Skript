@@ -1,17 +1,12 @@
 package ch.njol.skript.expressions;
 
+import ch.njol.skript.classes.Changer.ChangeMode;
+import ch.njol.skript.doc.*;
+import ch.njol.skript.expressions.base.SimplePropertyExpression;
+import ch.njol.util.Math2;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
-
-import ch.njol.skript.classes.Changer.ChangeMode;
-import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Events;
-import ch.njol.skript.doc.Examples;
-import ch.njol.skript.doc.Name;
-import ch.njol.skript.doc.Since;
-import ch.njol.skript.expressions.base.SimplePropertyExpression;
-import ch.njol.util.Math2;
 
 /**
  * @author Peter Güttinger
@@ -35,7 +30,7 @@ import ch.njol.util.Math2;
 		"on xp spawn:",
 		"\tcancel event"})
 @Since("2.0")
-@Events("level change")
+@Events("Level Change")
 public class ExprLevelProgress extends SimplePropertyExpression<Player, Number> {
 	
 	static {

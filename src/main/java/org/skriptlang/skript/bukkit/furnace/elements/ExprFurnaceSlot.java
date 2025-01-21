@@ -1,11 +1,7 @@
 package org.skriptlang.skript.bukkit.furnace.elements;
 
 import ch.njol.skript.Skript;
-import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Events;
-import ch.njol.skript.doc.Examples;
-import ch.njol.skript.doc.Name;
-import ch.njol.skript.doc.Since;
+import ch.njol.skript.doc.*;
 import ch.njol.skript.effects.Delay;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
@@ -46,7 +42,7 @@ import java.util.List;
 		"\tif the fuel slot is charcoal:",
 			"\t\tadd 5 seconds to the burn time"
 })
-@Events({"smelt", "fuel burn"})
+@Events({"Smelt", "Fuel Burn"})
 @Since("1.0, 2.8.0 (syntax rework)")
 public class ExprFurnaceSlot extends SimpleExpression<Slot> {
 

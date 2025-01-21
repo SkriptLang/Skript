@@ -26,7 +26,7 @@ import org.jetbrains.annotations.Nullable;
 @Examples({"set weather to clear",
 		"weather in \"world\" is rainy"})
 @Since("1.0")
-@Events("weather change")
+@Events("Weather Change")
 public class ExprWeather extends PropertyExpression<World, WeatherType> {
 	static {
 		Skript.registerExpression(ExprWeather.class, WeatherType.class, ExpressionType.PROPERTY, "[the] weather [(in|of) %worlds%]", "%worlds%'[s] weather");

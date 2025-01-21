@@ -1,26 +1,21 @@
 package ch.njol.skript.expressions;
 
-import java.util.List;
-
+import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer.ChangeMode;
+import ch.njol.skript.doc.*;
 import ch.njol.skript.lang.EventRestrictedSyntax;
+import ch.njol.skript.lang.Expression;
+import ch.njol.skript.lang.ExpressionType;
+import ch.njol.skript.lang.SkriptParser;
+import ch.njol.skript.lang.util.SimpleExpression;
+import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.block.Block;
 import org.bukkit.event.Event;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.jetbrains.annotations.Nullable;
 
-import ch.njol.skript.Skript;
-import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Events;
-import ch.njol.skript.doc.Examples;
-import ch.njol.skript.doc.Name;
-import ch.njol.skript.doc.Since;
-import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.ExpressionType;
-import ch.njol.skript.lang.SkriptParser;
-import ch.njol.skript.lang.util.SimpleExpression;
-import ch.njol.util.Kleenean;
+import java.util.List;
 
 @Name("Exploded Blocks")
 @Description("Get all the blocks that were destroyed in an explode event. Supports add/remove/set/clear/delete blocks.")
@@ -42,7 +37,7 @@ import ch.njol.util.Kleenean;
 	"",
 	"on explode:",
 		"\tadd blocks above event-entity to exploded blocks"})
-@Events("explode")
+@Events("Explode")
 @Since("2.5, 2.8.6 (modify blocks)")
 public class ExprExplodedBlocks extends SimpleExpression<Block> implements EventRestrictedSyntax {
 

@@ -1,20 +1,15 @@
 package ch.njol.skript.conditions;
 
-import org.bukkit.event.Event;
-import org.bukkit.event.player.PlayerResourcePackStatusEvent;
-import org.bukkit.event.player.PlayerResourcePackStatusEvent.Status;
-import org.jetbrains.annotations.Nullable;
-
 import ch.njol.skript.Skript;
-import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Events;
-import ch.njol.skript.doc.Examples;
-import ch.njol.skript.doc.Name;
-import ch.njol.skript.doc.Since;
+import ch.njol.skript.doc.*;
 import ch.njol.skript.lang.Condition;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
+import org.bukkit.event.Event;
+import org.bukkit.event.player.PlayerResourcePackStatusEvent;
+import org.bukkit.event.player.PlayerResourcePackStatusEvent.Status;
+import org.jetbrains.annotations.Nullable;
 
 @Name("Resource Pack")
 @Description("Checks state of the resource pack in a <a href='events.html#resource_pack_request_action'>resource pack request response</a> event.")
@@ -22,7 +17,7 @@ import ch.njol.util.Kleenean;
 		"	if the resource pack wasn't accepted:",
 		"		kick the player due to \"You have to install the resource pack to play in this server!\""})
 @Since("2.4")
-@Events("resource pack request response")
+@Events("Resource Pack Request Response")
 public class CondResourcePack extends Condition {
 
 	static {

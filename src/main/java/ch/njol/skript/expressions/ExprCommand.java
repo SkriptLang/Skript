@@ -1,24 +1,19 @@
 package ch.njol.skript.expressions;
 
-import ch.njol.skript.command.ScriptCommandEvent;
-import ch.njol.skript.lang.EventRestrictedSyntax;
-import ch.njol.util.coll.CollectionUtils;
-import org.bukkit.event.Event;
-import org.bukkit.event.player.PlayerCommandPreprocessEvent;
-import org.bukkit.event.server.ServerCommandEvent;
-import org.jetbrains.annotations.Nullable;
-
 import ch.njol.skript.Skript;
-import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Events;
-import ch.njol.skript.doc.Examples;
-import ch.njol.skript.doc.Name;
-import ch.njol.skript.doc.Since;
+import ch.njol.skript.command.ScriptCommandEvent;
+import ch.njol.skript.doc.*;
+import ch.njol.skript.lang.EventRestrictedSyntax;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
+import ch.njol.util.coll.CollectionUtils;
+import org.bukkit.event.Event;
+import org.bukkit.event.player.PlayerCommandPreprocessEvent;
+import org.bukkit.event.server.ServerCommandEvent;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * @author Peter Güttinger
@@ -32,7 +27,7 @@ import ch.njol.util.Kleenean;
 		"\t\t\tmessage \"You're not allowed to use commands during the game\"",
 		"\t\t\tcancel the event"})
 @Since("2.0, 2.7 (support for script commands)")
-@Events("command")
+@Events("Command")
 public class ExprCommand extends SimpleExpression<String> implements EventRestrictedSyntax {
 
 	static {

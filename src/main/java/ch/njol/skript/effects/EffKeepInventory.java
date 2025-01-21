@@ -1,20 +1,15 @@
 package ch.njol.skript.effects;
 
-import org.bukkit.event.Event;
-import org.bukkit.event.entity.EntityDeathEvent;
-import org.bukkit.event.entity.PlayerDeathEvent;
-import org.jetbrains.annotations.Nullable;
-
 import ch.njol.skript.Skript;
-import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Events;
-import ch.njol.skript.doc.Examples;
-import ch.njol.skript.doc.Name;
-import ch.njol.skript.doc.Since;
+import ch.njol.skript.doc.*;
 import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
+import org.bukkit.event.Event;
+import org.bukkit.event.entity.EntityDeathEvent;
+import org.bukkit.event.entity.PlayerDeathEvent;
+import org.jetbrains.annotations.Nullable;
 
 @Name("Keep Inventory / Experience")
 @Description("Keeps the inventory or/and experiences of the dead player in a death event.")
@@ -24,7 +19,7 @@ import ch.njol.util.Kleenean;
 			"\t\tkeep the inventory and experiences"
 })
 @Since("2.4")
-@Events("death")
+@Events("Death")
 public class EffKeepInventory extends Effect {
 
 	static {

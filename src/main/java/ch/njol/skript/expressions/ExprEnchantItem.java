@@ -1,18 +1,9 @@
 package ch.njol.skript.expressions;
 
-import org.bukkit.event.Event;
-import org.bukkit.event.enchantment.EnchantItemEvent;
-import org.bukkit.event.enchantment.PrepareItemEnchantEvent;
-import org.jetbrains.annotations.Nullable;
-
 import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.classes.Changer.ChangeMode;
-import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Events;
-import ch.njol.skript.doc.Examples;
-import ch.njol.skript.doc.Name;
-import ch.njol.skript.doc.Since;
+import ch.njol.skript.doc.*;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
@@ -20,6 +11,10 @@ import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.log.ErrorQuality;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
+import org.bukkit.event.Event;
+import org.bukkit.event.enchantment.EnchantItemEvent;
+import org.bukkit.event.enchantment.PrepareItemEnchantEvent;
+import org.jetbrains.annotations.Nullable;
 
 @Name("Enchant Item")
 @Description({"The enchant item in an enchant prepare event or enchant event.",
@@ -28,7 +23,7 @@ import ch.njol.util.coll.CollectionUtils;
 			"\tset the enchanted item to a diamond chestplate",
 			"on enchant prepare:",
 			"\tset the enchant item to a wooden sword"})
-@Events({"enchant prepare", "enchant"})
+@Events({"Enchant Prepare", "Enchant"})
 @Since("2.5")
 public class ExprEnchantItem extends SimpleExpression<ItemType> {
 

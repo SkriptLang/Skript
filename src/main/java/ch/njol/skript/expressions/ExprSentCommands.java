@@ -35,7 +35,7 @@ import java.util.List;
 		"\tremove \"help\" from command list"
 })
 @Since("2.8.0")
-@Events("send command list")
+@Events("Send Command List")
 public class ExprSentCommands extends SimpleExpression<String> {
 
 	static {
