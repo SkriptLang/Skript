@@ -119,15 +119,10 @@ public class Variable<T> implements Expression<T>, KeyReceiverExpression<T>, Key
 				/*
 				A lot of people already use '-' so we want to skip this warning iff they're using it here
 				*/
-				if (first == '-') {
-					for (VariablesStorage store : Variables.getStores()) {
-						@Nullable Pattern pattern = store.getNamePattern();
-						if (pattern != null && pattern.pattern().equals("(?!-).*"))
-							continue check_reserved_tokens;
-					}
-				}
-				Skript.warning("The character '" + token + "' is reserved at the start of variable names, " +
-					"and may be restricted in future versions");
+				if (first == '-')
+					continue;
+				Skript.warning("The character '" + token + "' is reserved at the start of variable names, "
+					+ "and may be restricted in future versions");
 			}
 		}
 		name = name.startsWith(LOCAL_VARIABLE_TOKEN) ? name.substring(LOCAL_VARIABLE_TOKEN.length()).trim() : name.trim();
