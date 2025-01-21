@@ -10,6 +10,16 @@ import ch.njol.skript.events.EvtSkript;
 import ch.njol.skript.hooks.Hook;
 import ch.njol.skript.lang.*;
 import ch.njol.skript.lang.Effect;
+import ch.njol.skript.lang.Expression;
+import ch.njol.skript.lang.ExpressionInfo;
+import ch.njol.skript.lang.ExpressionType;
+import ch.njol.skript.lang.Section;
+import ch.njol.skript.lang.SkriptEvent;
+import ch.njol.skript.lang.SkriptEventInfo;
+import ch.njol.skript.lang.Statement;
+import ch.njol.skript.lang.SyntaxElementInfo;
+import ch.njol.skript.lang.Trigger;
+import ch.njol.skript.lang.TriggerItem;
 import ch.njol.skript.lang.Condition.ConditionType;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.localization.Language;
@@ -19,12 +29,7 @@ import ch.njol.skript.log.*;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.registrations.EventValues;
 import ch.njol.skript.registrations.Feature;
-import ch.njol.skript.test.runner.EffObjectives;
-import ch.njol.skript.test.runner.SkriptAsyncJUnitTest;
-import ch.njol.skript.test.runner.SkriptJUnitTest;
-import ch.njol.skript.test.runner.SkriptTestEvent;
-import ch.njol.skript.test.runner.TestMode;
-import ch.njol.skript.test.runner.TestTracker;
+import ch.njol.skript.test.runner.*;
 import ch.njol.skript.timings.SkriptTimings;
 import ch.njol.skript.update.ReleaseManifest;
 import ch.njol.skript.update.ReleaseStatus;
@@ -67,7 +72,6 @@ import org.junit.runner.JUnitCore;
 import org.junit.runner.Result;
 import org.junit.runner.notification.Failure;
 import org.skriptlang.skript.bukkit.SkriptMetrics;
-import org.skriptlang.skript.bukkit.tags.TagModule;
 import org.skriptlang.skript.bukkit.breeding.BreedingModule;
 import org.skriptlang.skript.bukkit.displays.DisplayModule;
 import org.skriptlang.skript.bukkit.fishing.FishingModule;
@@ -77,19 +81,21 @@ import org.skriptlang.skript.bukkit.log.runtime.BukkitRuntimeErrorConsumer;
 import org.skriptlang.skript.bukkit.loottables.LootTableModule;
 import org.skriptlang.skript.bukkit.registration.BukkitRegistryKeys;
 import org.skriptlang.skript.bukkit.registration.BukkitSyntaxInfos;
+import org.skriptlang.skript.bukkit.tags.TagModule;
 import org.skriptlang.skript.lang.comparator.Comparator;
 import org.skriptlang.skript.lang.comparator.Comparators;
 import org.skriptlang.skript.lang.converter.Converter;
 import org.skriptlang.skript.lang.converter.Converters;
 import org.skriptlang.skript.lang.entry.EntryValidator;
-import org.skriptlang.skript.log.runtime.RuntimeErrorManager;
 import org.skriptlang.skript.lang.experiment.ExperimentRegistry;
 import org.skriptlang.skript.lang.script.Script;
 import org.skriptlang.skript.lang.structure.Structure;
 import org.skriptlang.skript.lang.structure.StructureInfo;
+import org.skriptlang.skript.log.runtime.RuntimeErrorManager;
 import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.registration.SyntaxOrigin;
 import org.skriptlang.skript.registration.SyntaxRegistry;
+import org.skriptlang.skript.util.ClassLoader;
 
 import java.io.File;
 import java.io.IOException;
@@ -105,7 +111,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.*;
-import java.util.Map.Entry;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicLong;
@@ -154,7 +159,7 @@ public final class Skript extends JavaPlugin implements Listener {
 	@Nullable
 	private static Skript instance = null;
 
-	static org.skriptlang.skript.@UnknownNullability Skript skript = null;
+	private static org.skriptlang.skript.@UnknownNullability Skript skript = null;
 	private static org.skriptlang.skript.@UnknownNullability Skript unmodifiableSkript = null;
 
 	private static boolean disabled = false;
@@ -459,7 +464,7 @@ public final class Skript extends JavaPlugin implements Listener {
 
 		// initialize the modern Skript instance
 		skript = org.skriptlang.skript.Skript.of(getClass(), getName());
-		unmodifiableSkript = skript.unmodifiableView();
+		unmodifiableSkript = new ModernSkriptBridge.SpecialUnmodifiableSkript(skript);
 		skript.localizer().setSourceDirectories("lang",
 				getDataFolder().getAbsolutePath() + "lang");
 		// initialize the old Skript SkriptAddon instance
@@ -675,122 +680,11 @@ public final class Skript extends JavaPlugin implements Listener {
 				debug("Early init done");
 
 				if (TestMode.ENABLED) {
-					// Ignore late init (scripts, etc.) in test mode
-					Bukkit.getScheduler().runTaskLater(Skript.this, () -> {
-						info("Skript testing environment enabled, starting...");
-
-						// Delay is in Minecraft ticks.
-						AtomicLong shutdownDelay = new AtomicLong(0);
-						List<Class<?>> asyncTests = new ArrayList<>();
-						CompletableFuture<Void> onAsyncComplete = CompletableFuture.completedFuture(null);
-
-						if (TestMode.GEN_DOCS) {
-							Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "skript gen-docs");
-						} else if (TestMode.DEV_MODE) { // Developer controlled environment.
-							info("Test development mode enabled. Test scripts are at " + TestMode.TEST_DIR);
-							return;
-						} else {
-							info("Loading all tests from " + TestMode.TEST_DIR);
-
-							// Treat parse errors as fatal testing failure
-							CountingLogHandler errorCounter = new CountingLogHandler(Level.SEVERE);
-							try {
-								errorCounter.start();
-								File testDir = TestMode.TEST_DIR.toFile();
-								assert testDir != null;
-								ScriptLoader.loadScripts(testDir, errorCounter);
-							} finally {
-								errorCounter.stop();
-							}
-
-							Bukkit.getPluginManager().callEvent(new SkriptTestEvent());
-							if (errorCounter.getCount() > 0) {
-								TestTracker.testStarted("parse scripts");
-								TestTracker.testFailed(errorCounter.getCount() + " error(s) found");
-							}
-							if (errored) { // Check for exceptions thrown while script was executing
-								TestTracker.testStarted("run scripts");
-								TestTracker.testFailed("exception was thrown during execution");
-							}
-							if (TestMode.JUNIT) {
-								AtomicLong milliseconds = new AtomicLong(0),
-									tests = new AtomicLong(0), fails = new AtomicLong(0),
-									ignored = new AtomicLong(0), size = new AtomicLong(0);
-
-								info("Running sync JUnit tests...");
-								try {
-									List<Class<?>> classes = Lists.newArrayList(Utils.getClasses(Skript.getInstance(), "org.skriptlang.skript.test", "tests"));
-									// Don't attempt to run inner/anonymous classes as tests
-									classes.removeIf(Class::isAnonymousClass);
-									classes.removeIf(Class::isLocalClass);
-									// Test that requires package access. This is only present when compiling with src/test.
-									classes.add(Class.forName("ch.njol.skript.variables.FlatFileStorageTest"));
-									size.set(classes.size());
-									for (Class<?> clazz : classes) {
-										if (SkriptAsyncJUnitTest.class.isAssignableFrom(clazz)) {
-											asyncTests.add(clazz); // do these later, all together
-											continue;
-										}
-
-										runTest(clazz, shutdownDelay, tests, milliseconds, ignored, fails);
-									}
-								} catch (IOException e) {
-									Skript.exception(e, "Failed to execute JUnit runtime tests.");
-								} catch (ClassNotFoundException e) {
-									// Should be the Skript test jar gradle task.
-									assert false : "Class 'ch.njol.skript.variables.FlatFileStorageTest' was not found.";
-								} catch (InstantiationException | IllegalAccessException | IllegalArgumentException |
-										 InvocationTargetException | NoSuchMethodException | SecurityException e) {
-									Skript.exception(e, "Failed to initalize test JUnit classes.");
-								}
-								if (ignored.get() > 0)
-									Skript.warning("There were " + ignored + " ignored test cases! This can mean they are not properly setup in order in that class!");
-
-								onAsyncComplete = CompletableFuture.runAsync(() -> {
-									info("Running async JUnit tests...");
-									try {
-										for (Class<?> clazz : asyncTests) {
-											runTest(clazz, shutdownDelay, tests, milliseconds, ignored, fails);
-										}
-									} catch (InstantiationException | IllegalAccessException | IllegalArgumentException |
-											 InvocationTargetException | NoSuchMethodException | SecurityException e) {
-										Skript.exception(e, "Failed to initalize test JUnit classes.");
-									}
-									if (ignored.get() > 0)
-										Skript.warning("There were " + ignored + " ignored test cases! " +
-											"This can mean they are not properly setup in order in that class!");
-
-									info("Completed " + tests + " JUnit tests in " + size + " classes with " + fails +
-										" failures in " + milliseconds + " milliseconds.");
-								});
-							}
-						}
-
-						onAsyncComplete.thenRun(() -> {
-							double display = shutdownDelay.get() / 20.0;
-							info("Testing done, shutting down the server in " + display + " second" + (display == 1 ? "" : "s") + "...");
-
-							// Delay server shutdown to stop the server from crashing because the current tick takes a long time due to all the tests
-							Bukkit.getScheduler().runTaskLater(Skript.this, () -> {
-								info("Shutting down server.");
-								if (TestMode.JUNIT && !EffObjectives.isJUnitComplete())
-									EffObjectives.fail();
-
-								info("Collecting results to " + TestMode.RESULTS_FILE);
-								String results = new GsonBuilder()
-									.setPrettyPrinting() // Easier to read lines
-									.disableHtmlEscaping() // Fixes issue with "'" character in test strings going unicode
-									.create().toJson(TestTracker.collectResults());
-								try {
-									Files.write(TestMode.RESULTS_FILE, results.getBytes(StandardCharsets.UTF_8));
-								} catch (IOException e) {
-									Skript.exception(e, "Failed to write test results.");
-								}
-
-								Bukkit.getServer().shutdown();
-							}, shutdownDelay.get());
-						});
-					}, 20); // 20 ticks is necessary on 1.19.4 to allow the server time to properly load/start ticking, for some reason
+					if (TestMode.DEV_MODE) {
+						runTests(); // Dev mode doesn't need a delay
+					} else {
+						Bukkit.getWorlds().get(0).getChunkAtAsync(100, 100).thenRun(() -> runTests());
+					}
 				}
 
 				Skript.metrics = new Metrics(Skript.getInstance(), 722); // 722 is our bStats plugin ID
@@ -855,29 +749,33 @@ public final class Skript extends JavaPlugin implements Listener {
 		}
 
 		// Send a warning to console when the plugin is reloaded
-		Bukkit.getPluginManager().registerEvents(new Listener() {
-			@EventHandler
-			public void onServerReload(ServerLoadEvent event) {
-				if ((event.getType() != ServerLoadEvent.LoadType.RELOAD))
-					return;
-
-				for (OfflinePlayer player : Bukkit.getOperators()) {
-					if (player.isOnline()) {
-						player.getPlayer().sendMessage(ChatColor.YELLOW + getWarningMessage());
-						player.getPlayer().sendMessage(ChatColor.YELLOW + getRestartMessage());
-					}
-				}
-
-				Skript.warning(getWarningMessage());
-				Skript.warning(getRestartMessage());
-			}
-		}, this);
+		Bukkit.getPluginManager().registerEvents(new ServerReloadListener(), this);
 
 		// Tell Timings that we are here!
 		SkriptTimings.setSkript(this);
 	}
 
+	private static class ServerReloadListener implements Listener {
+
+		@EventHandler
+		public void onServerReload(ServerLoadEvent event) {
+			if ((event.getType() != ServerLoadEvent.LoadType.RELOAD))
+				return;
+
+			for (OfflinePlayer player : Bukkit.getOperators()) {
+				if (player.isOnline()) {
+					player.getPlayer().sendMessage(ChatColor.YELLOW + getWarningMessage());
+					player.getPlayer().sendMessage(ChatColor.YELLOW + getRestartMessage());
+				}
+			}
+
+			Skript.warning(getWarningMessage());
+			Skript.warning(getRestartMessage());
+		}
+	}
+
 	private class JoinUpdateNotificationListener implements Listener {
+
 		@EventHandler
 		public void onJoin(PlayerJoinEvent event) {
 			if (!event.getPlayer().hasPermission("skript.admin"))
@@ -905,7 +803,135 @@ public final class Skript extends JavaPlugin implements Listener {
 				}
 			};
 		}
-  }
+  	}
+
+	private void runTests() {
+		info("Skript testing environment enabled, starting...");
+
+		// Delay is in Minecraft ticks.
+		AtomicLong shutdownDelay = new AtomicLong(0);
+		List<Class<?>> asyncTests = new ArrayList<>();
+		CompletableFuture<Void> onAsyncComplete = CompletableFuture.completedFuture(null);
+
+		if (TestMode.GEN_DOCS) {
+			Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "skript gen-docs");
+		} else if (TestMode.DEV_MODE) { // Developer controlled environment.
+			info("Test development mode enabled. Test scripts are at " + TestMode.TEST_DIR);
+			return;
+		} else {
+			info("Loading all tests from " + TestMode.TEST_DIR);
+
+			// Treat parse errors as fatal testing failure
+			TestingLogHandler errorCounter = new TestingLogHandler(Level.SEVERE);
+			try {
+				errorCounter.start();
+
+				// load example scripts (cleanup after)
+				ScriptLoader.loadScripts(new File(getScriptsFolder(), "-examples" + File.separator), errorCounter);
+				// unload these as to not interfere with the tests
+				ScriptLoader.unloadScripts(ScriptLoader.getLoadedScripts());
+
+				// load test directory scripts
+				ScriptLoader.loadScripts(TestMode.TEST_DIR.toFile(), errorCounter);
+			} finally {
+				errorCounter.stop();
+			}
+
+			Bukkit.getPluginManager().callEvent(new SkriptTestEvent());
+			if (errorCounter.getCount() > 0) {
+				TestTracker.testStarted("parse scripts");
+				TestTracker.testFailed(errorCounter.getCount() + " error(s) found");
+			}
+			if (errored) { // Check for exceptions thrown while script was executing
+				TestTracker.testStarted("run scripts");
+				TestTracker.testFailed("exception was thrown during execution");
+			}
+			if (TestMode.JUNIT) {
+				AtomicLong milliseconds = new AtomicLong(0),
+					tests = new AtomicLong(0), fails = new AtomicLong(0),
+					ignored = new AtomicLong(0), size = new AtomicLong(0);
+
+				info("Running sync JUnit tests...");
+				try {
+					// Search for all test classes
+					Set<Class<?>> classes = new HashSet<>();
+					ClassLoader.builder()
+						.addSubPackages("org.skriptlang.skript", "ch.njol.skript")
+						.filter(fqn -> fqn.endsWith("Test"))
+						.initialize(true)
+						.deep(true)
+						.forEachClass(clazz -> {
+							if (clazz.isAnonymousClass() || clazz.isLocalClass())
+								return;
+							classes.add(clazz);
+						})
+						.build()
+						.loadClasses(Skript.class, getFile());
+					// remove some known non-tests that get picked up
+					classes.remove(SkriptJUnitTest.class);
+					classes.remove(SkriptAsyncJUnitTest.class);
+
+					size.set(classes.size());
+					for (Class<?> clazz : classes) {
+						if (SkriptAsyncJUnitTest.class.isAssignableFrom(clazz)) {
+							asyncTests.add(clazz); // do these later, all together
+							continue;
+						}
+
+						runTest(clazz, shutdownDelay, tests, milliseconds, ignored, fails);
+					}
+				} catch (InstantiationException | IllegalAccessException | IllegalArgumentException |
+						 InvocationTargetException | NoSuchMethodException | SecurityException e) {
+					Skript.exception(e, "Failed to initalize test JUnit classes.");
+				}
+				if (ignored.get() > 0)
+					Skript.warning("There were " + ignored + " ignored test cases! This can mean they are not properly setup in order in that class!");
+
+				onAsyncComplete = CompletableFuture.runAsync(() -> {
+					info("Running async JUnit tests...");
+					try {
+						for (Class<?> clazz : asyncTests) {
+							runTest(clazz, shutdownDelay, tests, milliseconds, ignored, fails);
+						}
+					} catch (InstantiationException | IllegalAccessException | IllegalArgumentException |
+							 InvocationTargetException | NoSuchMethodException | SecurityException e) {
+						Skript.exception(e, "Failed to initalize test JUnit classes.");
+					}
+					if (ignored.get() > 0)
+						Skript.warning("There were " + ignored + " ignored test cases! " +
+							"This can mean they are not properly setup in order in that class!");
+
+					info("Completed " + tests + " JUnit tests in " + size + " classes with " + fails +
+						" failures in " + milliseconds + " milliseconds.");
+				});
+			}
+		}
+
+		onAsyncComplete.thenRun(() -> {
+			double display = shutdownDelay.get() / 20.0;
+			info("Testing done, shutting down the server in " + display + " second" + (display == 1 ? "" : "s") + "...");
+
+			// Delay server shutdown to stop the server from crashing because the current tick takes a long time due to all the tests
+			Bukkit.getScheduler().runTaskLater(Skript.this, () -> {
+				info("Shutting down server.");
+				if (TestMode.JUNIT && !EffObjectives.isJUnitComplete())
+					EffObjectives.fail();
+
+				info("Collecting results to " + TestMode.RESULTS_FILE);
+				String results = new GsonBuilder()
+					.setPrettyPrinting() // Easier to read lines
+					.disableHtmlEscaping() // Fixes issue with "'" character in test strings going unicode
+					.create().toJson(TestTracker.collectResults());
+				try {
+					Files.write(TestMode.RESULTS_FILE, results.getBytes(StandardCharsets.UTF_8));
+				} catch (IOException e) {
+					Skript.exception(e, "Failed to write test results.");
+				}
+
+				Bukkit.getServer().shutdown();
+			}, shutdownDelay.get());
+		});
+	}
 
 	private void runTest(Class<?> clazz, AtomicLong shutdownDelay, AtomicLong tests,
 						 AtomicLong milliseconds, AtomicLong ignored, AtomicLong fails)
@@ -1433,7 +1459,18 @@ public final class Skript extends JavaPlugin implements Listener {
 
 	}
 
-	private static SyntaxOrigin getSyntaxOrigin(JavaPlugin plugin) {
+	/**
+	 * Attempts to create a SyntaxOrigin from a provided class.
+	 */
+	@ApiStatus.Internal
+	@ApiStatus.Experimental
+	public static SyntaxOrigin getSyntaxOrigin(Class<?> source) {
+		JavaPlugin plugin;
+		try {
+			plugin = JavaPlugin.getProvidingPlugin(source);
+		} catch (IllegalArgumentException e) { // Occurs when the method fails to determine the providing plugin
+			return () -> source.getName();
+		}
 		SkriptAddon addon = getAddon(plugin);
 		if (addon != null) {
 			return SyntaxOrigin.of(addon);
@@ -1462,7 +1499,7 @@ public final class Skript extends JavaPlugin implements Listener {
 		checkAcceptRegistrations();
 		skript.syntaxRegistry().register(SyntaxRegistry.CONDITION, SyntaxInfo.builder(conditionClass)
 				.priority(type.priority())
-				.origin(getSyntaxOrigin(JavaPlugin.getProvidingPlugin(conditionClass)))
+				.origin(getSyntaxOrigin(conditionClass))
 				.addPatterns(patterns)
 				.build()
 		);
@@ -1477,7 +1514,7 @@ public final class Skript extends JavaPlugin implements Listener {
 	public static <E extends Effect> void registerEffect(Class<E> effectClass, String... patterns) throws IllegalArgumentException {
 		checkAcceptRegistrations();
 		skript.syntaxRegistry().register(SyntaxRegistry.EFFECT, SyntaxInfo.builder(effectClass)
-				.origin(getSyntaxOrigin(JavaPlugin.getProvidingPlugin(effectClass)))
+				.origin(getSyntaxOrigin(effectClass))
 				.addPatterns(patterns)
 				.build()
 		);
@@ -1493,7 +1530,7 @@ public final class Skript extends JavaPlugin implements Listener {
 	public static <E extends Section> void registerSection(Class<E> sectionClass, String... patterns) throws IllegalArgumentException {
 		checkAcceptRegistrations();
 		skript.syntaxRegistry().register(SyntaxRegistry.SECTION, SyntaxInfo.builder(sectionClass)
-				.origin(getSyntaxOrigin(JavaPlugin.getProvidingPlugin(sectionClass)))
+				.origin(getSyntaxOrigin(sectionClass))
 				.addPatterns(patterns)
 				.build()
 		);
@@ -1544,7 +1581,7 @@ public final class Skript extends JavaPlugin implements Listener {
 		checkAcceptRegistrations();
 		skript.syntaxRegistry().register(SyntaxRegistry.EXPRESSION, SyntaxInfo.Expression.builder(expressionType, returnType)
 				.priority(type.priority())
-				.origin(getSyntaxOrigin(JavaPlugin.getProvidingPlugin(expressionType)))
+				.origin(getSyntaxOrigin(expressionType))
 				.addPatterns(patterns)
 				.build()
 		);
@@ -1611,7 +1648,7 @@ public final class Skript extends JavaPlugin implements Listener {
 	public static <E extends Structure> void registerStructure(Class<E> structureClass, String... patterns) {
 		checkAcceptRegistrations();
 		skript.syntaxRegistry().register(SyntaxRegistry.STRUCTURE, SyntaxInfo.Structure.builder(structureClass)
-				.origin(getSyntaxOrigin(JavaPlugin.getProvidingPlugin(structureClass)))
+				.origin(getSyntaxOrigin(structureClass))
 				.addPatterns(patterns)
 				.build()
 		);
@@ -1620,7 +1657,7 @@ public final class Skript extends JavaPlugin implements Listener {
 	public static <E extends Structure> void registerSimpleStructure(Class<E> structureClass, String... patterns) {
 		checkAcceptRegistrations();
 		skript.syntaxRegistry().register(SyntaxRegistry.STRUCTURE, SyntaxInfo.Structure.builder(structureClass)
-			.origin(getSyntaxOrigin(JavaPlugin.getProvidingPlugin(structureClass)))
+			.origin(getSyntaxOrigin(structureClass))
 			.addPatterns(patterns)
 			.nodeType(SyntaxInfo.Structure.NodeType.SIMPLE)
 			.build()
@@ -1632,7 +1669,7 @@ public final class Skript extends JavaPlugin implements Listener {
 	) {
 		checkAcceptRegistrations();
 		skript.syntaxRegistry().register(SyntaxRegistry.STRUCTURE, SyntaxInfo.Structure.builder(structureClass)
-				.origin(getSyntaxOrigin(JavaPlugin.getProvidingPlugin(structureClass)))
+				.origin(getSyntaxOrigin(structureClass))
 				.addPatterns(patterns)
 				.entryValidator(entryValidator)
 				.build()

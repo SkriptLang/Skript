@@ -107,7 +107,12 @@ public class SecFor extends SecLoop {
 					.getName() + " implements Container but is missing the required @ContainerType annotation");
 			this.expression = new ContainerExpression((Expression<? extends Container<?>>) expression, type.value());
 		}
-		if (expression.isSingle()) {
+		if (this.getParser().hasExperiment(Feature.QUEUES) // Todo: change this if other iterable things are added
+			&& expression.isSingle()
+			&& (expression instanceof Variable<?> || Iterable.class.isAssignableFrom(expression.getReturnType()))) {
+			// Some expressions return one thing but are potentially iterable anyway, e.g. queues
+			super.iterableSingle = true;
+		} else if (expression.isSingle()) {
 			Skript.error("Can't loop '" + expression + "' because it's only a single value");
 			return false;
 		}

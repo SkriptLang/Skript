@@ -43,7 +43,7 @@ public interface DefaultSyntaxInfos {
 		 */
 		@Override
 		@Contract("-> new")
-		Builder<? extends Builder<?, E, R>, E, R> builder();
+		Builder<? extends Builder<?, E, R>, E, R> toBuilder();
 
 		/**
 		 * @return The class representing the supertype of all values the Expression may return.
@@ -132,7 +132,7 @@ public interface DefaultSyntaxInfos {
 		 */
 		@Override
 		@Contract("-> new")
-		Builder<? extends Builder<?, E>, E> builder();
+		Builder<? extends Builder<?, E>, E> toBuilder();
 
 		/**
 		 * @return The entry validator to use for handling the Structure's entries.

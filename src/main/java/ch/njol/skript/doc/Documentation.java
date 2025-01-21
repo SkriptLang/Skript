@@ -291,7 +291,7 @@ public class Documentation {
 			return;
 		}
 		final String desc = validateHTML(StringUtils.join(elementClass.getAnnotation(Description.class).value(), "<br/>"), type + "s");
-		final String since = validateHTML(elementClass.getAnnotation(Since.class).value(), type + "s");
+		final String since = validateHTML(StringUtils.join(elementClass.getAnnotation(Since.class).value(), "<br/>"), type + "s");
 		if (desc == null || since == null) {
 			Skript.warning("" + elementClass.getSimpleName() + "'s description or 'since' is invalid");
 			return;
