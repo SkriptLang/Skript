@@ -1,0 +1,18 @@
+test "entity from uuid":
+	set {_lookup} to offline player from ("a0789aeb-7b46-43f6-86fb-cb671fed5775" parsed as uuid)
+	assert {_lookup} is set with "Failed to look up offline player"
+
+	spawn a pig at test-location
+	set {_pig} to last spawned pig
+
+	set {_lookup} to entity from (uuid of {_pig})
+	assert {_lookup} is set with "Failed to look up entity"
+
+	delete entity within {_pig}
+
+	set {_lookup} to entity from ("blah" parsed as uuid)
+	assert {_lookup} is set to fail with "entity is set without a valid uuid"
+
+	# because im not online, should fail
+	set {_lookup} to player from ("a0789aeb-7b46-43f6-86fb-cb671fed5775" parsed as uuid)
+	assert {_lookup} is set to fail with "player is set without being online"

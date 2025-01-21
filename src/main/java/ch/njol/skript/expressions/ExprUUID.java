@@ -27,7 +27,12 @@ import java.util.UUID;
 			"\t\t{uuid::%name of player%} is not uuid of player",
 			"\t\tkick player due to \"Someone with your name has played on this server before\"",
 		"\telse:",
-			"\t\tset {uuid::%name of player%} to uuid of player"
+			"\t\tset {uuid::%name of player%} to uuid of player",
+	"",
+	"command /what-is-my-uuid:",
+		"\ttrigger:",
+			"\t\tset {_uuid} to uuid of player",
+			"\t\tsend \"Your UUID is '%string within {_uuid}%'\"",
 })
 @Since("2.1.2, 2.2 (offline players' UUIDs), 2.2-dev24 (other entities' UUIDs), INSERT VERSION (return UUIDs)")
 public class ExprUUID extends SimplePropertyExpression<Object, UUID> {
