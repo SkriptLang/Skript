@@ -13,6 +13,8 @@ import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
 
+import java.util.UUID;
+
 /**
  * @author Peter Güttinger
  */
@@ -29,19 +31,19 @@ import ch.njol.skript.expressions.base.SimplePropertyExpression;
 		"		kick player due to \"Someone with your name has played on this server before\"",
 		"	else:",
 		"		set {uuid::%name of player%} to uuid of player"})
-@Since("2.1.2, 2.2 (offline players' UUIDs), 2.2-dev24 (other entities' UUIDs)")
-public class ExprUUID extends SimplePropertyExpression<Object, String> {
+@Since("2.1.2, 2.2 (offline players' UUIDs), 2.2-dev24 (other entities' UUIDs), INSERT VERSION (return UUIDs)")
+public class ExprUUID extends SimplePropertyExpression<Object, UUID> {
 
 	static {
-		register(ExprUUID.class, String.class, "UUID", "offlineplayers/worlds/entities");
+		register(ExprUUID.class, UUID.class, "UUID", "offlineplayers/worlds/entities");
 	}
 
 	@Override
 	@Nullable
-	public String convert(final Object o) {
+	public UUID convert(final Object o) {
 		if (o instanceof OfflinePlayer) {
 			try {
-				return ((OfflinePlayer) o).getUniqueId().toString();
+				return ((OfflinePlayer) o).getUniqueId();
 			} catch (UnsupportedOperationException e) {
 				// Some plugins (ProtocolLib) try to emulate offline players, but fail miserably
 				// They will throw this exception... and somehow server may freeze when this happens
@@ -50,16 +52,16 @@ public class ExprUUID extends SimplePropertyExpression<Object, String> {
 				return null;
 			}
 		} else if (o instanceof Entity) {
-			return ((Entity)o).getUniqueId().toString();
+			return ((Entity)o).getUniqueId();
 		} else if (o instanceof World) {
-			return ((World) o).getUID().toString();
+			return ((World) o).getUID();
 		}
 		return null;
 	}
 	
 	@Override
-	public Class<? extends String> getReturnType() {
-		return String.class;
+	public Class<? extends UUID> getReturnType() {
+		return UUID.class;
 	}
 	
 	@Override

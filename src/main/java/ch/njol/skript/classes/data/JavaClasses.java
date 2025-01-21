@@ -19,6 +19,7 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Quaternionf;
 
+import java.util.UUID;
 import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -325,6 +326,36 @@ public class JavaClasses {
 						return null;
 					}
 				}));
+
+		Classes.registerClass(new ClassInfo<>(UUID.class, "uuid")
+			.user("(uuid|universal(ly)? unique identifier)s?")
+			.name("UUID")
+			.description(
+				"A UUID is a universally unique identifier, which is a 128-bit number that is unique to each entity. "
+					+ "They are usually encoded as 36-character strings, which include 32 hexadecimal digits and "
+					+ "four hyphens, typically in this format: \"123e4567-e89b-12d3-a456-426614174000\"",
+				"In minecraft, it is used to identify entities (like players) in a way "
+					+ "that is unique across all entities, regardless of the entity's state.")
+			.since("INSERT VERSION")
+			.parser(new Parser<>() {
+				@Override
+				public @Nullable UUID parse(String s, ParseContext context) {
+					if (Utils.isValidUUID(s))
+						return UUID.fromString(s);
+					return null;
+				}
+
+				@Override
+				public String toString(UUID uuid, int flags) {
+					return "uuid \"" + uuid.toString() + "\"";
+				}
+
+				@Override
+				public String toVariableNameString(UUID uuid) {
+					return "uuid:" + uuid.toString();
+				}
+			})
+		);
 	}
 
 	/**

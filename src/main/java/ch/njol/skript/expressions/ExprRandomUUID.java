@@ -20,10 +20,10 @@ import ch.njol.util.Kleenean;
 @Description("Returns a random UUID.")
 @Examples("set {_uuid} to random uuid")
 @Since("2.5.1")
-public class ExprRandomUUID extends SimpleExpression<String> {
+public class ExprRandomUUID extends SimpleExpression<UUID> {
 	
 	static {
-		Skript.registerExpression(ExprRandomUUID.class, String.class, ExpressionType.SIMPLE, "[a] random uuid");
+		Skript.registerExpression(ExprRandomUUID.class, UUID.class, ExpressionType.SIMPLE, "[a] random uuid");
 	}
 	
 	@Override
@@ -33,8 +33,8 @@ public class ExprRandomUUID extends SimpleExpression<String> {
 	
 	@Override
 	@Nullable
-	protected String[] get(Event e) {
-		return new String[] {UUID.randomUUID().toString()};
+	protected UUID[] get(Event e) {
+		return new UUID[]{ UUID.randomUUID() };
 	}
 	
 	@Override
@@ -43,8 +43,8 @@ public class ExprRandomUUID extends SimpleExpression<String> {
 	}
 	
 	@Override
-	public Class<? extends String> getReturnType() {
-		return String.class;
+	public Class<? extends UUID> getReturnType() {
+		return UUID.class;
 	}
 	
 	@Override
