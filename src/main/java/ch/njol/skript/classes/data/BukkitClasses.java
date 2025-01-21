@@ -90,10 +90,10 @@ public class BukkitClasses {
 				.parser(new Parser<Entity>() {
 					@Override
 					public @Nullable Entity parse(final String s, final ParseContext context) {
-						if (!Utils.isValidUUID(s))
-							return null;
+						if (Utils.isValidUUID(s))
+							return Bukkit.getEntity(UUID.fromString(s));
 
-						return Bukkit.getEntity(UUID.fromString(s));
+						return null;
 					}
 
 					@Override
@@ -626,8 +626,10 @@ public class BukkitClasses {
 						if (context == ParseContext.COMMAND || context == ParseContext.PARSE) {
 							if (string.isEmpty())
 								return null;
+
 							if (Utils.isValidUUID(string))
 								return Bukkit.getPlayer(UUID.fromString(string));
+
 							String name = string.toLowerCase(Locale.ENGLISH);
 							int nameLength = name.length(); // caching
 							List<Player> players = new ArrayList<>();

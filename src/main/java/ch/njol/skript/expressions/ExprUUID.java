@@ -18,18 +18,17 @@ import java.util.UUID;
  * @author Peter Güttinger
  */
 @Name("UUID")
-@Description({"The UUID of a player, entity or world.",
-		"In the future there will be an option to use a player's UUID instead of the name in variable names (i.e. when %player% is used), but for now this can be used.",
-		"<em>Please note that this expression does not work for offline players if you are under 1.8!</em>"}) 
-// TODO [UUID] update documentation after release. Add note about requiring Bukkit 1.7.(9/10)?
-@Examples({"# prevents people from joining the server if they use the name of a player",
-		"# who has played on this server at least once since this script has been added",
-		"on login:",
-		"	if {uuid::%name of player%} exists:",
-		"		{uuid::%name of player%} is not uuid of player",
-		"		kick player due to \"Someone with your name has played on this server before\"",
-		"	else:",
-		"		set {uuid::%name of player%} to uuid of player"})
+@Description("The UUID of a player, entity or world.")
+@Examples({
+	"# prevents people from joining the server if they use the name of a player",
+	"# who has played on this server at least once since this script has been added",
+	"on login:",
+		"\tif {uuid::%name of player%} exists:",
+			"\t\t{uuid::%name of player%} is not uuid of player",
+			"\t\tkick player due to \"Someone with your name has played on this server before\"",
+		"\telse:",
+			"\t\tset {uuid::%name of player%} to uuid of player"
+})
 @Since("2.1.2, 2.2 (offline players' UUIDs), 2.2-dev24 (other entities' UUIDs), INSERT VERSION (return UUIDs)")
 public class ExprUUID extends SimplePropertyExpression<Object, UUID> {
 
@@ -39,10 +38,10 @@ public class ExprUUID extends SimplePropertyExpression<Object, UUID> {
 
 	@Override
 	@Nullable
-	public UUID convert(final Object o) {
-		if (o instanceof OfflinePlayer) {
+	public UUID convert(final Object object) {
+		if (object instanceof OfflinePlayer player) {
 			try {
-				return ((OfflinePlayer) o).getUniqueId();
+				return player.getUniqueId();
 			} catch (UnsupportedOperationException e) {
 				// Some plugins (ProtocolLib) try to emulate offline players, but fail miserably
 				// They will throw this exception... and somehow server may freeze when this happens
@@ -50,10 +49,10 @@ public class ExprUUID extends SimplePropertyExpression<Object, UUID> {
 				e.printStackTrace();
 				return null;
 			}
-		} else if (o instanceof Entity) {
-			return ((Entity)o).getUniqueId();
-		} else if (o instanceof World) {
-			return ((World) o).getUID();
+		} else if (object instanceof Entity entity) {
+			return entity.getUniqueId();
+		} else if (object instanceof World world) {
+			return world.getUID();
 		}
 		return null;
 	}

@@ -11,6 +11,7 @@ import ch.njol.skript.entity.EntityType;
 import ch.njol.skript.entity.XpOrbData;
 import ch.njol.skript.lang.util.common.AnyAmount;
 import ch.njol.skript.lang.util.common.AnyNamed;
+import ch.njol.skript.lang.util.common.AnyValued;
 import ch.njol.skript.util.*;
 import ch.njol.skript.util.slot.Slot;
 import org.bukkit.*;
@@ -277,8 +278,19 @@ public class DefaultConverters {
 		Converters.registerConverter(Script.class, Config.class, Script::getConfig);
 		Converters.registerConverter(Config.class, Node.class, Config::getMainNode);
 
-		// UUID -> String
+		// UUID -> String & AnyValued
 		Converters.registerConverter(UUID.class, String.class, UUID::toString);
+		Converters.registerConverter(UUID.class, AnyValued.class, uuid -> new AnyValued<String>() {
+			@Override
+			public String value() {
+				return uuid.toString();
+			}
+
+			@Override
+			public Class<String> valueType() {
+				return String.class;
+			}
+		});
 
 //		// Entity - String (UUID) // Very slow, thus disabled for now
 //		Converters.registerConverter(String.class, Entity.class, new Converter<String, Entity>() {

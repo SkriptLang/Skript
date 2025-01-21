@@ -339,9 +339,9 @@ public class JavaClasses {
 			.since("INSERT VERSION")
 			.parser(new Parser<>() {
 				@Override
-				public @Nullable UUID parse(String s, ParseContext context) {
-					if (Utils.isValidUUID(s))
-						return UUID.fromString(s);
+				public @Nullable UUID parse(String string, ParseContext context) {
+					if (Utils.isValidUUID(string))
+						return UUID.fromString(string);
 					return null;
 				}
 
@@ -352,7 +352,7 @@ public class JavaClasses {
 
 				@Override
 				public String toVariableNameString(UUID uuid) {
-					return "uuid:" + uuid.toString();
+					return uuid.toString();
 				}
 			})
 		);
