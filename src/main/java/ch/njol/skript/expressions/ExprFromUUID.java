@@ -24,10 +24,10 @@ import java.util.List;
 import java.util.UUID;
 
 @Name("Entity/Player/World from UUID")
-@Description({
-	"Get an entity, player or world from a UUID.",
-	"Use 'offline player' to get an offline player."
-})
+@Description(
+	"Get an entity, player, offline player or world from a UUID. "
+		+ "Unloaded entities or players that are offline (when using 'player from %uuid%') will return nothing."
+)
 @Examples({
 	"set {_player} to player from \"a0789aeb-7b46-43f6-86fb-cb671fed5775\" parsed as uuid",
 	"set {_offline player} to offline player from {_some uuid}",
@@ -35,25 +35,26 @@ import java.util.UUID;
 	"set {_world} to world from {_some uuid}"
 })
 @Since("INSERT VERSION")
-public class ExprEntityFromUUID extends SimpleExpression<Object> {
+public class ExprFromUUID extends SimpleExpression<Object> {
 
 	static {
-		Skript.registerExpression(ExprEntityFromUUID.class, Object.class, ExpressionType.SIMPLE,
+		Skript.registerExpression(ExprFromUUID.class, Object.class, ExpressionType.SIMPLE,
 			"[:offline[ ]]player[s] from %uuids%",
-			"(entit(y|ies)|:world[s]) from %uuids%"
+			"entit(y|ies) from %uuids%",
+			"world[s] from %uuids%"
 		);
 	}
 
 	private Expression<UUID> uuids;
-	private boolean offline, player, world;
+	private boolean player, offline, world;
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		//noinspection unchecked
 		uuids = (Expression<UUID>) exprs[0];
-		offline = parseResult.hasTag("offline");
 		player = matchedPattern == 0;
-		world = parseResult.hasTag("world");
+		offline = parseResult.hasTag("offline");
+		world = matchedPattern == 2;
 		return true;
 	}
 
@@ -72,31 +73,31 @@ public class ExprEntityFromUUID extends SimpleExpression<Object> {
 				if (player != null)
 					entities.add(player);
 
-			} else if (!world) {
-				Entity entity = Bukkit.getEntity(uuid);
-				if (entity != null)
-					entities.add(entity);
-
-			} else {
+			} else if (world) {
 				World world = Bukkit.getWorld(uuid);
 				if (world != null)
 					entities.add(world);
+
+			} else {
+				Entity entity = Bukkit.getEntity(uuid);
+				if (entity != null)
+					entities.add(entity);
 			}
 		}
 
 		if (player) {
 			if (offline)
 				//noinspection SuspiciousToArrayCall
-				return entities.toArray(new OfflinePlayer[0]);
+				return entities.toArray(OfflinePlayer[]::new);
 			//noinspection SuspiciousToArrayCall
-			return entities.toArray(new Player[0]);
+			return entities.toArray(Player[]::new);
 		}
 
 		if (world)
 			//noinspection SuspiciousToArrayCall
-			return entities.toArray(new World[0]);
+			return entities.toArray(World[]::new);
 		//noinspection SuspiciousToArrayCall
-		return entities.toArray(new Entity[0]);
+		return entities.toArray(Entity[]::new);
 	}
 
 	@Override
@@ -123,12 +124,12 @@ public class ExprEntityFromUUID extends SimpleExpression<Object> {
 
 		if (world) {
 			builder.append("worlds");
-		} else if (!player) {
-			builder.append("entities");
-		} else {
+		} else if (player) {
 			if (offline)
 				builder.append("offline");
 			builder.append("players");
+		} else {
+			builder.append("entities");
 		}
 
 		builder.append("from", uuids);

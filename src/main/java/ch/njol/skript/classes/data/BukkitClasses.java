@@ -697,7 +697,7 @@ public class BukkitClasses {
 					public @Nullable OfflinePlayer parse(final String s, final ParseContext context) {
 						if (Utils.isValidUUID(s))
 							return Bukkit.getOfflinePlayer(UUID.fromString(s));
-						else if (!SkriptConfig.playerNameRegexPattern.value().matcher(s).matches())
+						else if (SkriptConfig.playerNameRegexPattern.value().matcher(s).matches())
 							return Bukkit.getOfflinePlayer(s);
 						return null;
 					}

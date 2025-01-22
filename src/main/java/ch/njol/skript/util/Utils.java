@@ -904,6 +904,7 @@ public abstract class Utils {
 	}
 
 	/**
+	 * Checks if the provided string is a valid {@link UUID}.
 	 * @param uuid the string
 	 * @return whether the given string is a valid UUID
 	 */

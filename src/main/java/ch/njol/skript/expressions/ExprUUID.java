@@ -34,7 +34,7 @@ import java.util.UUID;
 			"\t\tset {_uuid} to uuid of player",
 			"\t\tsend \"Your UUID is '%string within {_uuid}%'\"",
 })
-@Since("2.1.2, 2.2 (offline players' UUIDs), 2.2-dev24 (other entities' UUIDs), INSERT VERSION (return UUIDs)")
+@Since("2.1.2, 2.2 (offline players' uuids), 2.2-dev24 (other entities' uuids)")
 public class ExprUUID extends SimplePropertyExpression<Object, UUID> {
 
 	static {

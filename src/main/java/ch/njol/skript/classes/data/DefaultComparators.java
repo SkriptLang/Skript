@@ -667,8 +667,9 @@ public class DefaultComparators {
 			});
 		}
 
-		// UUID - UUID
+		// UUID
 		Comparators.registerComparator(UUID.class, UUID.class, (one, two) -> Relation.get(one.equals(two)));
+		Comparators.registerComparator(UUID.class, String.class, (one, two) -> Relation.get(one.toString().equals(two)));
 	}
 	
 }
