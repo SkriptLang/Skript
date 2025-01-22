@@ -17,7 +17,7 @@ test "uuid":
 	set {_lookup} to entity from ("blah" parsed as uuid)
 	assert {_lookup} is set to fail with "entity is set without a valid uuid"
 
-	# because im not online, should fail
+	# because this player is not online, should fail
 	set {_lookup} to player from ("a0789aeb-7b46-43f6-86fb-cb671fed5775" parsed as uuid)
 	assert {_lookup} is "Burbulinis" to fail with "player is set without being online"
 

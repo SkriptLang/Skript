@@ -334,9 +334,9 @@ public class JavaClasses {
 			.name("UUID")
 			.description(
 				"UUIDs are unique identifiers that ensure things can be reliably distinguished from each other. "
-					+ "They're generated in a way that makes it practically impossible for duplicates to occur.",
+					+ "They are generated in a way that makes it practically impossible for duplicates to occur.",
 				"Read more about UUIDs and how they are used in Minecraft "
-					+ "in <a href='https://minecraft.wiki/w/UUID'>the UUID wiki</a>.")
+					+ "in <a href='https://minecraft.wiki/w/UUID'>the wiki entry about UUIDs</a>.")
 			.since("INSERT VERSION")
 			.parser(new UUIDParser())
 			.serializer(new UUIDSerializer())

@@ -24,10 +24,10 @@ import java.util.List;
 import java.util.UUID;
 
 @Name("Entity/Player/World from UUID")
-@Description(
-	"Get an entity, player, offline player or world from a UUID. "
-		+ "Unloaded entities or players that are offline (when using 'player from %uuid%') will return nothing."
-)
+@Description({
+	"Get an entity, player, offline player or world from a UUID.",
+	"Unloaded entities or players that are offline (when using 'player from %uuid%') will return nothing."
+})
 @Examples({
 	"set {_player} to player from \"a0789aeb-7b46-43f6-86fb-cb671fed5775\" parsed as uuid",
 	"set {_offline player} to offline player from {_some uuid}",
