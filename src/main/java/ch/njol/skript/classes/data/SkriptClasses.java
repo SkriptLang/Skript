@@ -1,79 +1,50 @@
-/**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
 package ch.njol.skript.classes.data;
 
-import java.io.StreamCorruptedException;
-import java.util.Iterator;
-import java.util.Locale;
-import java.util.regex.Pattern;
-
-import org.bukkit.Material;
-import org.bukkit.enchantments.Enchantment;
-import org.bukkit.inventory.ItemStack;
-import org.jetbrains.annotations.Nullable;
-
+import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.Aliases;
 import ch.njol.skript.aliases.ItemData;
 import ch.njol.skript.aliases.ItemType;
-import ch.njol.skript.bukkitutil.EnchantmentUtils;
 import ch.njol.skript.bukkitutil.ItemUtils;
-import ch.njol.skript.classes.Changer;
-import ch.njol.skript.classes.ClassInfo;
-import ch.njol.skript.classes.EnumSerializer;
-import ch.njol.skript.classes.Parser;
-import ch.njol.skript.classes.Serializer;
-import ch.njol.skript.classes.YggdrasilSerializer;
+import ch.njol.skript.classes.*;
+import ch.njol.skript.config.Config;
+import ch.njol.skript.config.Node;
 import ch.njol.skript.expressions.base.EventValueExpression;
 import ch.njol.skript.lang.ParseContext;
+import ch.njol.skript.lang.function.DynamicFunctionReference;
 import ch.njol.skript.lang.util.SimpleLiteral;
+import ch.njol.skript.lang.util.common.AnyAmount;
+import ch.njol.skript.lang.util.common.AnyContains;
+import ch.njol.skript.lang.util.common.AnyNamed;
+import ch.njol.skript.lang.util.common.AnyValued;
 import ch.njol.skript.localization.Noun;
 import ch.njol.skript.localization.RegexMessage;
 import ch.njol.skript.registrations.Classes;
-import ch.njol.skript.util.Color;
-import ch.njol.skript.util.ColorRGB;
-import ch.njol.skript.util.Date;
-import ch.njol.skript.util.Direction;
-import ch.njol.skript.util.EnchantmentType;
-import ch.njol.skript.util.Experience;
-import ch.njol.skript.util.GameruleValue;
-import ch.njol.skript.util.SkriptColor;
-import ch.njol.skript.util.StructureType;
-import ch.njol.skript.util.Time;
-import ch.njol.skript.util.Timeperiod;
-import ch.njol.skript.util.Timespan;
-import ch.njol.skript.util.Utils;
-import ch.njol.skript.util.WeatherType;
+import ch.njol.skript.util.*;
 import ch.njol.skript.util.slot.Slot;
 import ch.njol.skript.util.visual.VisualEffect;
 import ch.njol.skript.util.visual.VisualEffects;
 import ch.njol.yggdrasil.Fields;
+import org.skriptlang.skript.lang.util.SkriptQueue;
+import org.bukkit.Material;
+import org.bukkit.enchantments.Enchantment;
+import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.script.Script;
+import org.skriptlang.skript.util.Executable;
 
+import java.io.File;
+import java.io.StreamCorruptedException;
+import java.nio.file.Path;
 import java.util.Arrays;
+import java.util.Iterator;
+import java.util.Locale;
+import java.util.regex.Pattern;
 
-/**
- * @author Peter Güttinger
- */
 @SuppressWarnings("rawtypes")
 public class SkriptClasses {
 	public SkriptClasses() {}
-	
+
 	static {
 		//noinspection unchecked
 		Classes.registerClass(new ClassInfo<>(ClassInfo.class, "classinfo")
@@ -96,17 +67,17 @@ public class SkriptClasses {
 					public ClassInfo parse(final String s, final ParseContext context) {
 						return Classes.getClassInfoFromUserInput(Noun.stripIndefiniteArticle(s));
 					}
-					
+
 					@Override
 					public String toString(final ClassInfo c, final int flags) {
 						return c.toString(flags);
 					}
-					
+
 					@Override
 					public String toVariableNameString(final ClassInfo c) {
 						return c.getCodeName();
 					}
-					
+
 					@Override
 					public String getDebugMessage(final ClassInfo c) {
 						return c.getCodeName();
@@ -120,17 +91,17 @@ public class SkriptClasses {
 						f.putObject("codeName", c.getCodeName());
 						return f;
 					}
-					
+
 					@Override
 					public boolean canBeInstantiated() {
 						return false;
 					}
-					
+
 					@Override
 					public void deserialize(final ClassInfo o, final Fields f) throws StreamCorruptedException {
 						assert false;
 					}
-					
+
 					@Override
 					protected ClassInfo deserialize(final Fields fields) throws StreamCorruptedException {
 						final String codeName = fields.getObject("codeName", String.class);
@@ -141,20 +112,20 @@ public class SkriptClasses {
 							throw new StreamCorruptedException("Invalid ClassInfo " + codeName);
 						return ci;
 					}
-					
+
 //					return c.getCodeName();
 					@Override
 					@Nullable
 					public ClassInfo deserialize(final String s) {
 						return Classes.getClassInfoNoError(s);
 					}
-					
+
 					@Override
 					public boolean mustSyncDeserialization() {
 						return false;
 					}
 				}));
-		
+
 		Classes.registerClass(new ClassInfo<>(WeatherType.class, "weathertype")
 				.user("weather ?types?", "weather conditions?", "weathers?")
 				.name("Weather Type")
@@ -171,12 +142,12 @@ public class SkriptClasses {
 					public WeatherType parse(final String s, final ParseContext context) {
 						return WeatherType.parse(s);
 					}
-					
+
 					@Override
 					public String toString(final WeatherType o, final int flags) {
 						return o.toString(flags);
 					}
-					
+
 					@Override
 					public String toVariableNameString(final WeatherType o) {
 						return "" + o.name().toLowerCase(Locale.ENGLISH);
@@ -184,7 +155,7 @@ public class SkriptClasses {
 
 				})
 				.serializer(new EnumSerializer<>(WeatherType.class)));
-		
+
 		Classes.registerClass(new ClassInfo<>(ItemType.class, "itemtype")
 				.user("item ?types?", "materials?")
 				.name("Item Type")
@@ -238,7 +209,7 @@ public class SkriptClasses {
 								Enchantment e = ench.getType();
 								if (e == null)
 									continue;
-								b.append("#" + EnchantmentUtils.getKey(e));
+								b.append("#" + e.getKey().toString());
 								b.append(":" + ench.getLevel());
 							}
 						}
@@ -298,7 +269,7 @@ public class SkriptClasses {
 					@Nullable
 					public Timespan parse(final String s, final ParseContext context) {
 						try {
-							return Timespan.parse(s);
+							return Timespan.parse(s, context);
 						} catch (IllegalArgumentException e) {
 							Skript.error("'" + s + "' is not a valid timespan");
 							return null;
@@ -312,7 +283,7 @@ public class SkriptClasses {
 
 					@Override
 					public String toVariableNameString(final Timespan o) {
-						return "timespan:" + o.getMilliSeconds();
+						return "timespan:" + o.getAs(Timespan.TimePeriod.MILLISECOND);
 					}
 				}).serializer(new YggdrasilSerializer<>()));
 
@@ -376,7 +347,38 @@ public class SkriptClasses {
 						"subtract a day from {_yesterday}",
 						"# now {_yesterday} represents the date 24 hours before now")
 				.since("1.4")
-				.serializer(new YggdrasilSerializer<>()));
+				.serializer(new Serializer<Date>() {
+
+					@Override
+					public Fields serialize(Date date) {
+						Fields fields = new Fields();
+						fields.putPrimitive("time", date.getTime());
+						return fields;
+					}
+
+
+					@Override
+					protected Date deserialize(Fields fields)
+						throws StreamCorruptedException {
+						long time = fields.getPrimitive("time", long.class);
+						return new Date(time);
+					}
+
+					@Override
+					public void deserialize(Date date, Fields fields) {
+						throw new IllegalStateException("Cannot deserialize to an existing date object.");
+					}
+
+					@Override
+					public boolean mustSyncDeserialization() {
+						return false;
+					}
+
+					@Override
+					protected boolean canBeInstantiated() {
+						return false;
+					}
+				}));
 
 		Classes.registerClass(new ClassInfo<>(Direction.class, "direction")
 				.user("directions?")
@@ -626,7 +628,7 @@ public class SkriptClasses {
 				.since("2.0")
 				.parser(new Parser<Experience>() {
 					private final RegexMessage pattern = new RegexMessage("types.experience.pattern", Pattern.CASE_INSENSITIVE);
-					
+
 					@Override
 					@Nullable
 					public Experience parse(String s, final ParseContext context) {
@@ -639,12 +641,12 @@ public class SkriptClasses {
 							return new Experience(xp);
 						return null;
 					}
-					
+
 					@Override
 					public String toString(final Experience xp, final int flags) {
 						return xp.toString();
 					}
-					
+
 					@Override
 					public String toVariableNameString(final Experience xp) {
 						return "" + xp.getXP();
@@ -681,7 +683,7 @@ public class SkriptClasses {
 
 				})
 				.serializer(new YggdrasilSerializer<>()));
-		
+
 		Classes.registerClass(new ClassInfo<>(GameruleValue.class, "gamerulevalue")
 				.user("gamerule values?")
 				.name("Gamerule Value")
@@ -691,6 +693,229 @@ public class SkriptClasses {
 				.since("2.5")
 				.serializer(new YggdrasilSerializer<GameruleValue>())
 		);
+
+		Classes.registerClass(new ClassInfo<>(SkriptQueue.class, "queue")
+				.user("queues?")
+				.name("Queue")
+				.description("A queued list of values. Entries are removed from a queue when they are queried.")
+				.examples(
+					"set {queue} to a new queue",
+					"add \"hello\" to {queue}",
+					"broadcast the 1st element of {queue}"
+				)
+				.since("2.10")
+				.changer(new Changer<>() {
+					@Override
+					public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
+						return switch (mode) {
+							case ADD, REMOVE, DELETE -> new Class[] {Object.class};
+							case RESET -> new Class[0];
+							default -> null;
+						};
+					}
+
+					@Override
+					public void change(SkriptQueue[] what, Object @Nullable [] delta, ChangeMode mode) {
+						for (SkriptQueue queue : what) {
+							switch (mode) {
+								case RESET, DELETE -> queue.clear();
+								case ADD -> {
+									assert delta != null;
+									queue.addAll(Arrays.asList(delta));
+								}
+								case REMOVE -> {
+									assert delta != null;
+									queue.removeAll(Arrays.asList(delta));
+								}
+							}
+						}
+					}
+				})
+				.serializer(new YggdrasilSerializer<>())
+		);
+
+
+		Classes.registerClass(new ClassInfo<>(Config.class, "config")
+			.user("configs?")
+			.name("Config")
+			.description("A configuration (or code) loaded by Skript, such as the config.sk or aliases.",
+				"Configs can be reloaded or navigated to find options.")
+			.usage("")
+			.examples("the skript config")
+			.since("2.10")
+			.parser(new Parser<Config>() {
+
+				@Override
+				public boolean canParse(ParseContext context) {
+					return false;
+				}
+
+				@Override
+				public String toString(Config config, int flags) {
+					@Nullable File file = config.getFile();
+					if (file == null)
+						return config.getFileName();
+					return Skript.getInstance().getDataFolder().getAbsoluteFile().toPath()
+						.relativize(file.toPath().toAbsolutePath()).toString();
+				}
+
+				@Override
+				public String toVariableNameString(Config config) {
+					return this.toString(config, 0);
+				}
+			}));
+
+		Classes.registerClass(new ClassInfo<>(Node.class, "node")
+			.user("nodes?")
+			.name("Node")
+			.description("A node (entry) from a script config file.",
+				"This may have navigable children.")
+			.usage("")
+			.examples("the current script")
+			.since("2.10")
+			.parser(new Parser<Node>() {
+
+				@Override
+				public boolean canParse(ParseContext context) {
+					return false;
+				}
+
+				@Override
+				public String toString(Node node, int flags) {
+					return node.getPath();
+				}
+
+				@Override
+				public String toVariableNameString(Node node) {
+					return this.toString(node, 0);
+				}
+
+			}));
+
+		Classes.registerClass(new ClassInfo<>(Script.class, "script")
+				.user("scripts?")
+				.name("Script")
+				.description("A script loaded by Skript.",
+					"Disabled scripts will report as being empty since their content has not been loaded.")
+				.usage("")
+				.examples("the current script")
+				.since("2.10")
+				.parser(new Parser<Script>() {
+					final Path path = Skript.getInstance().getScriptsFolder().getAbsoluteFile().toPath();
+
+					@Override
+					public boolean canParse(final ParseContext context) {
+						return switch (context) {
+							case PARSE, COMMAND -> true;
+							default -> false;
+						};
+					}
+
+					@Override
+					@Nullable
+					public Script parse(final String name, final ParseContext context) {
+						return switch (context) {
+							case PARSE, COMMAND -> {
+								@Nullable File file = ScriptLoader.getScriptFromName(name);
+								if (file == null || !file.isFile())
+									yield null;
+								yield ScriptLoader.getScript(file);
+							}
+							default -> null;
+						};
+					}
+
+					@Override
+					public String toString(final Script script, final int flags) {
+						@Nullable File file = script.getConfig().getFile();
+						if (file == null)
+							return script.getConfig().getFileName();
+						return path.relativize(file.toPath().toAbsolutePath()).toString();
+					}
+					@Override
+					public String toVariableNameString(final Script script) {
+						return this.toString(script, 0);
+					}
+				}));
+
+		Classes.registerClass(new ClassInfo<>(Executable.class, "executable")
+			.user("executables?")
+			.name("Executable")
+			.description("Something that can be executed (run) and may accept arguments, e.g. a function.",
+					"This may also return a result.")
+			.examples("run {_function} with arguments 1 and true")
+			.since("2.10"));
+
+		Classes.registerClass(new ClassInfo<>(DynamicFunctionReference.class, "function")
+			.user("functions?")
+			.name("Function")
+			.description("A function loaded by Skript.",
+					"This can be executed (with arguments) and may return a result.")
+			.examples("run {_function} with arguments 1 and true",
+					"set {_result} to the result of {_function}")
+			.since("2.10")
+			.parser(new Parser<DynamicFunctionReference<?>>() {
+
+				@Override
+				public boolean canParse(final ParseContext context) {
+					return switch (context) {
+						case PARSE, COMMAND -> true;
+						default -> false;
+					};
+				}
+
+				@Override
+				@Nullable
+				public DynamicFunctionReference<?> parse(final String name, final ParseContext context) {
+					return switch (context) {
+						case PARSE, COMMAND -> DynamicFunctionReference.parseFunction(name);
+						default -> null;
+					};
+				}
+
+				@Override
+				public String toString(DynamicFunctionReference<?> function, final int flags) {
+					return function.toString();
+				}
+
+				@Override
+				public String toVariableNameString(DynamicFunctionReference<?> function) {
+					return this.toString(function, 0);
+				}
+			}));
+
+		Classes.registerClass(new AnyInfo<>(AnyNamed.class, "named")
+				.name("Any Named Thing")
+				.description("Something that has a name (e.g. an item).")
+				.usage("")
+				.examples("{thing}'s name")
+				.since("2.10")
+		);
+
+		Classes.registerClass(new AnyInfo<>(AnyAmount.class, "numbered")
+				.name("Any Numbered/Sized Thing")
+				.description("Something that has an amount or size.")
+				.usage("")
+				.examples("the size of {thing}", "the amount of {thing}")
+				.since("2.10")
+		);
+
+		Classes.registerClass(new AnyInfo<>(AnyValued.class, "valued")
+			.name("Any Valued Thing")
+			.description("Something that has a value.")
+			.usage("")
+			.examples("the text of {node}")
+			.since("2.10")
+		);
+
+		Classes.registerClass(new AnyInfo<>(AnyContains.class, "containing")
+				.user("any container")
+				.name("Anything with Contents")
+				.description("Something that contains other things.")
+				.usage("")
+				.examples("{a} contains {b}")
+				.since("2.10")
+		);
 	}
-	
+
 }

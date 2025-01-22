@@ -1,22 +1,27 @@
-/**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
 package ch.njol.skript.util;
+
+import ch.njol.skript.Skript;
+import ch.njol.skript.effects.EffTeleport;
+import ch.njol.skript.localization.Language;
+import ch.njol.skript.registrations.Classes;
+import ch.njol.util.NonNullPair;
+import ch.njol.util.Pair;
+import ch.njol.util.StringUtils;
+import ch.njol.util.coll.CollectionUtils;
+import com.google.common.collect.Iterables;
+import com.google.common.io.ByteArrayDataInput;
+import com.google.common.io.ByteArrayDataOutput;
+import com.google.common.io.ByteStreams;
+import net.md_5.bungee.api.ChatColor;
+import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
+import org.bukkit.plugin.Plugin;
+import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.plugin.messaging.Messenger;
+import org.bukkit.plugin.messaging.PluginMessageListener;
+import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.io.IOException;
@@ -25,39 +30,11 @@ import java.lang.reflect.Method;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Predicate;
-import java.util.jar.JarEntry;
-import java.util.jar.JarFile;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
-
-import org.bukkit.Bukkit;
-import org.bukkit.entity.Player;
-import org.bukkit.plugin.Plugin;
-import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.plugin.messaging.Messenger;
-import org.bukkit.plugin.messaging.PluginMessageListener;
-
-import com.google.common.collect.Iterables;
-import com.google.common.io.ByteArrayDataInput;
-import com.google.common.io.ByteArrayDataOutput;
-import com.google.common.io.ByteStreams;
-
-import ch.njol.skript.Skript;
-import ch.njol.skript.effects.EffTeleport;
-import ch.njol.skript.localization.Language;
-import ch.njol.skript.localization.LanguageChangeListener;
-import ch.njol.skript.registrations.Classes;
-import ch.njol.util.Callback;
-import ch.njol.util.Checker;
-import ch.njol.util.NonNullPair;
-import ch.njol.util.Pair;
-import ch.njol.util.StringUtils;
-import ch.njol.util.coll.CollectionUtils;
-import ch.njol.util.coll.iterator.EnumerationIterable;
-import net.md_5.bungee.api.ChatColor;
-import org.jetbrains.annotations.Nullable;
-import org.jetbrains.annotations.NotNull;
 
 /**
  * Utility class.
@@ -70,7 +47,7 @@ public abstract class Utils {
 	protected final static Deque<WordEnding> plurals = new LinkedList<>();
 
 	static {
-		plurals.add(new WordEnding("axe", "axes"));
+		plurals.add(new WordEnding("axe", "axes")); // not complete since we have battleaxe, etc.
 		plurals.add(new WordEnding("x", "xes"));
 
 		plurals.add(new WordEnding("ay", "ays"));
@@ -79,14 +56,20 @@ public abstract class Utils {
 		plurals.add(new WordEnding("oy", "oys"));
 		plurals.add(new WordEnding("uy", "uys"));
 		plurals.add(new WordEnding("kie", "kies"));
-		plurals.add(new WordEnding("zombie", "zombies"));
+		plurals.add(new WordEnding("zombie", "zombies", true));
 		plurals.add(new WordEnding("y", "ies"));
 
-		plurals.add(new WordEnding("wife", "wives")); // we have to do the -ife -> ives first
+		plurals.add(new WordEnding("wife", "wives", true)); // we have to do the -ife -> ives first
 		plurals.add(new WordEnding("life", "lives"));
-		plurals.add(new WordEnding("knife", "knives"));
+		plurals.add(new WordEnding("knife", "knives", true));
 		plurals.add(new WordEnding("ive", "ives"));
-		plurals.add(new WordEnding("elf", "elves")); // self shelf elf
+
+		plurals.add(new WordEnding("lf", "lves")); // self shelf elf wolf half etc.
+		plurals.add(new WordEnding("thief", "thieves", true));
+		plurals.add(new WordEnding("ief", "iefs")); // chiefs, fiefs, briefs
+
+		plurals.add(new WordEnding("hoof", "hooves"));
+
 		plurals.add(new WordEnding("fe", "ves"));// most -f words' plurals can end in -fs as well as -ves
 
 		plurals.add(new WordEnding("h", "hes"));
@@ -97,22 +80,25 @@ public abstract class Utils {
 		plurals.add(new WordEnding("api", "apis")); // api fix
 		plurals.add(new WordEnding("us", "i"));
 
-		plurals.add(new WordEnding("hoe", "hoes"));
-		plurals.add(new WordEnding("toe", "toes"));
+		plurals.add(new WordEnding("hoe", "hoes", true));
+		plurals.add(new WordEnding("toe", "toes", true));
+		plurals.add(new WordEnding("foe", "foes", true));
+		plurals.add(new WordEnding("woe", "woes", true));
 		plurals.add(new WordEnding("o", "oes"));
 
-		plurals.add(new WordEnding("alias", "aliases"));
-		plurals.add(new WordEnding("gas", "gases"));
+		plurals.add(new WordEnding("alias", "aliases", true));
+		plurals.add(new WordEnding("gas", "gases", true));
 
-		plurals.add(new WordEnding("child", "children"));
+		plurals.add(new WordEnding("child", "children")); // grandchild, etc.
 
-		plurals.add(new WordEnding("sheep", "sheep"));
+		plurals.add(new WordEnding("sheep", "sheep", true));
 
 		// general ending
 		plurals.add(new WordEnding("", "s"));
 	}
 
-	private Utils() {}
+	private Utils() {
+	}
 
 	public static String join(final Object[] objects) {
 		assert objects != null;
@@ -122,7 +108,7 @@ public abstract class Utils {
 				b.append(", ");
 			b.append(Classes.toString(objects[i]));
 		}
-		return "" + b.toString();
+		return b.toString();
 	}
 
 	public static String join(final Iterable<?> objects) {
@@ -136,7 +122,7 @@ public abstract class Utils {
 				first = false;
 			b.append(Classes.toString(o));
 		}
-		return "" + b.toString();
+		return b.toString();
 	}
 
 	@SuppressWarnings("unchecked")
@@ -152,7 +138,7 @@ public abstract class Utils {
 		} else if (s.matches("an? .+")) {
 			return new Pair<>(s.split(" ", 2)[1], 1);
 		}
-		return new Pair<>(s, Integer.valueOf(-1));
+		return new Pair<>(s, -1);
 	}
 
 //	public final static class AmountResponse {
@@ -204,57 +190,35 @@ public abstract class Utils {
 	 * Loads classes of the plugin by package. Useful for registering many syntax elements like Skript does it.
 	 *
 	 * @param basePackage The base package to add to all sub packages, e.g. <tt>"ch.njol.skript"</tt>.
-	 * @param subPackages Which subpackages of the base package should be loaded, e.g. <tt>"expressions", "conditions", "effects"</tt>. Subpackages of these packages will be loaded
-	 *            as well. Use an empty array to load all subpackages of the base package.
-	 * @throws IOException If some error occurred attempting to read the plugin's jar file.
+	 * @param subPackages Which subpackages of the base package should be loaded, e.g. <tt>"expressions",
+	 *                       "conditions", "effects"</tt>. Subpackages of these packages will be loaded
+	 *                    as well. Use an empty array to load all subpackages of the base package.
 	 * @return This SkriptAddon
+	 * @throws IOException If some error occurred attempting to read the plugin's jar file.
+	 * @deprecated Use {@link org.skriptlang.skript.util.ClassLoader}.
 	 */
+	@Deprecated
 	public static Class<?>[] getClasses(Plugin plugin, String basePackage, String... subPackages) throws IOException {
-		assert subPackages != null;
-		JarFile jar = new JarFile(getFile(plugin));
-		for (int i = 0; i < subPackages.length; i++)
-			subPackages[i] = subPackages[i].replace('.', '/') + "/";
-		basePackage = basePackage.replace('.', '/') + "/";
 		List<Class<?>> classes = new ArrayList<>();
-		try {
-			List<String> classNames = new ArrayList<>();
-
-			for (JarEntry e : new EnumerationIterable<>(jar.entries())) {
-				if (e.getName().startsWith(basePackage) && e.getName().endsWith(".class") && !e.getName().endsWith("package-info.class")) {
-					boolean load = subPackages.length == 0;
-					for (String sub : subPackages) {
-						if (e.getName().startsWith(sub, basePackage.length())) {
-							load = true;
-							break;
-						}
-					}
-
-					if (load)
-						classNames.add(e.getName().replace('/', '.').substring(0, e.getName().length() - ".class".length()));
-				}
-			}
-
-			classNames.sort(String::compareToIgnoreCase);
-
-			for (String c : classNames) {
-				try {
-					classes.add(Class.forName(c, true, plugin.getClass().getClassLoader()));
-				} catch (ClassNotFoundException | NoClassDefFoundError ex) {
-					Skript.exception(ex, "Cannot load class " + c);
-				} catch (ExceptionInInitializerError err) {
-					Skript.exception(err.getCause(), "class " + c + " generated an exception while loading");
-				}
-			}
-		} finally {
-			try {
-				jar.close();
-			} catch (IOException e) {}
+		org.skriptlang.skript.util.ClassLoader loader = org.skriptlang.skript.util.ClassLoader.builder()
+			.basePackage(basePackage)
+			.addSubPackages(subPackages)
+			.deep(true)
+			.initialize(true)
+			.forEachClass(classes::add)
+			.build();
+		File jarFile = getFile(plugin);
+		if (jarFile != null) {
+			loader.loadClasses(plugin.getClass(), jarFile);
+		} else {
+			loader.loadClasses(plugin.getClass());
 		}
-		return classes.toArray(new Class<?>[classes.size()]);
+		return classes.toArray(new Class[0]);
 	}
 
 	/**
-	 * The first invocation of this method uses reflection to invoke the protected method {@link JavaPlugin#getFile()} to get the plugin's jar file.
+	 * The first invocation of this method uses reflection to invoke the protected method {@link JavaPlugin#getFile()}
+	 * to get the plugin's jar file.
 	 *
 	 * @return The jar file of the plugin.
 	 */
@@ -285,14 +249,55 @@ public abstract class Utils {
 	public static NonNullPair<String, Boolean> getEnglishPlural(String word) {
 		assert word != null;
 		if (word.isEmpty())
-			return new NonNullPair<>("", Boolean.FALSE);
-		for (final WordEnding ending : plurals) {
-			if (word.endsWith(ending.plural()))
-				return new NonNullPair<>(word.substring(0, word.length() - ending.plural().length()) + ending.singular(), Boolean.TRUE);
-			if (word.endsWith(ending.plural().toUpperCase(Locale.ENGLISH)))
-				return new NonNullPair<>(word.substring(0, word.length() - ending.plural().length()) + ending.singular().toUpperCase(Locale.ENGLISH), Boolean.TRUE);
+			return new NonNullPair<>("", false);
+		if (!couldBeSingular(word)) {
+			for (final WordEnding ending : plurals) {
+				if (ending.isCompleteWord()) {
+					// Complete words shouldn't be used as partial pieces
+					if (word.length() != ending.plural().length())
+						continue;
+				}
+				if (word.endsWith(ending.plural()))
+					return new NonNullPair<>(
+						word.substring(0, word.length() - ending.plural().length()) + ending.singular(),
+						true
+					);
+				if (word.endsWith(ending.plural().toUpperCase(Locale.ENGLISH)))
+					return new NonNullPair<>(
+						word.substring(0, word.length() - ending.plural().length())
+							+ ending.singular().toUpperCase(Locale.ENGLISH),
+						true
+					);
+			}
 		}
-		return new NonNullPair<>(word, Boolean.FALSE);
+		return new NonNullPair<>(word, false);
+	}
+
+	private static boolean couldBeSingular(String word) {
+		for (final WordEnding ending : plurals) {
+			if (ending.singular().isBlank())
+				continue;
+			if (ending.isCompleteWord() && ending.singular().length() != word.length())
+				continue; // Skip complete words
+
+			if (word.endsWith(ending.singular()) || word.toLowerCase().endsWith(ending.singular())) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * Adds a singular/plural word override for the given words.
+	 * This is inserted first in the list of words to be checked: it will always be matched
+	 * and will override all other plurality rules.
+	 * This will only match the word <s>exactly</s>, and will not apply to derivations of the word.
+	 *
+	 * @param singular The singular form of the word
+	 * @param plural   The plural form of the word
+	 */
+	public static void addPluralOverride(String singular, String plural) {
+		Utils.plurals.addFirst(new WordEnding(singular, plural, true));
 	}
 
 	/**
@@ -304,6 +309,11 @@ public abstract class Utils {
 	public static String toEnglishPlural(String word) {
 		assert word != null && word.length() != 0;
 		for (WordEnding ending : plurals) {
+			if (ending.isCompleteWord()) {
+				// Complete words shouldn't be used as partial pieces
+				if (word.length() != ending.singular().length())
+					continue;
+			}
 			if (word.endsWith(ending.singular()))
 				return word.substring(0, word.length() - ending.singular().length()) + ending.plural();
 		}
@@ -351,7 +361,7 @@ public abstract class Utils {
 	/**
 	 * Adds 'a' or 'an' to the given string, depending on the first character of the string.
 	 *
-	 * @param s The string to add the article to
+	 * @param s    The string to add the article to
 	 * @param capA Whether to use a capital a or not
 	 * @return The given string with an appended a/an (or A/An if capA is true) and a space at the beginning
 	 * @see #a(String)
@@ -429,12 +439,12 @@ public abstract class Utils {
 
 	/**
 	 * Sends a plugin message using the first player from {@link Bukkit#getOnlinePlayers()}.
-	 *
+	 * <p>
 	 * The next plugin message to be received through {@code channel} will be assumed to be
 	 * the response.
 	 *
 	 * @param channel the channel for this plugin message
-	 * @param data the data to add to the outgoing message
+	 * @param data    the data to add to the outgoing message
 	 * @return a completable future for the message of the responding plugin message, if there is one.
 	 * this completable future will complete exceptionally if no players are online.
 	 */
@@ -444,32 +454,35 @@ public abstract class Utils {
 
 	/**
 	 * Sends a plugin message using the from {@code player}.
-	 *
+	 * <p>
 	 * The next plugin message to be received through {@code channel} will be assumed to be
 	 * the response.
 	 *
-	 * @param player the player to send the plugin message through
+	 * @param player  the player to send the plugin message through
 	 * @param channel the channel for this plugin message
-	 * @param data the data to add to the outgoing message
+	 * @param data    the data to add to the outgoing message
 	 * @return a completable future for the message of the responding plugin message, if there is one.
 	 * this completable future will complete exceptionally if no players are online.
 	 */
-	public static CompletableFuture<ByteArrayDataInput> sendPluginMessage(Player player, String channel, String... data) {
+	public static CompletableFuture<ByteArrayDataInput> sendPluginMessage(Player player, String channel,
+																		  String... data) {
 		return sendPluginMessage(player, channel, r -> true, data);
 	}
 
 	/**
 	 * Sends a plugin message using the first player from {@link Bukkit#getOnlinePlayers()}.
 	 *
-	 * @param channel the channel for this plugin message
+	 * @param channel         the channel for this plugin message
 	 * @param messageVerifier verifies that a plugin message is the response to the sent message
-	 * @param data the data to add to the outgoing message
+	 * @param data            the data to add to the outgoing message
 	 * @return a completable future for the message of the responding plugin message, if there is one.
 	 * this completable future will complete exceptionally if the player is null.
 	 * @throws IllegalStateException when there are no players online
 	 */
-	public static CompletableFuture<ByteArrayDataInput> sendPluginMessage(String channel,
-			Predicate<ByteArrayDataInput> messageVerifier, String... data) throws IllegalStateException {
+	public static CompletableFuture<ByteArrayDataInput> sendPluginMessage(
+		String channel,
+		Predicate<ByteArrayDataInput> messageVerifier, String... data
+	) throws IllegalStateException {
 		Player firstPlayer = Iterables.getFirst(Bukkit.getOnlinePlayers(), null);
 		if (firstPlayer == null)
 			throw new IllegalStateException("There are no players online");
@@ -478,26 +491,28 @@ public abstract class Utils {
 
 	/**
 	 * Sends a plugin message.
-	 *
+	 * <p>
 	 * Example usage using the "GetServers" bungee plugin message channel via an overload:
 	 * <code>
-	 *     Utils.sendPluginMessage("BungeeCord", r -> "GetServers".equals(r.readUTF()), "GetServers")
-	 *     			.thenAccept(response -> Bukkit.broadcastMessage(response.readUTF()) // comma delimited server broadcast
-	 *     			.exceptionally(ex -> {
-	 *     			 	Skript.warning("Failed to get servers because there are no players online");
-	 *     			 	return null;
-	 *     			});
+	 * Utils.sendPluginMessage("BungeeCord", r -> "GetServers".equals(r.readUTF()), "GetServers")
+	 * .thenAccept(response -> Bukkit.broadcastMessage(response.readUTF()) // comma delimited server broadcast
+	 * .exceptionally(ex -> {
+	 * Skript.warning("Failed to get servers because there are no players online");
+	 * return null;
+	 * });
 	 * </code>
 	 *
-	 * @param player the player to send the plugin message through
-	 * @param channel the channel for this plugin message
+	 * @param player          the player to send the plugin message through
+	 * @param channel         the channel for this plugin message
 	 * @param messageVerifier verifies that a plugin message is the response to the sent message
-	 * @param data the data to add to the outgoing message
+	 * @param data            the data to add to the outgoing message
 	 * @return a completable future for the message of the responding plugin message, if there is one.
 	 * this completable future will complete exceptionally if the player is null.
 	 */
-	public static CompletableFuture<ByteArrayDataInput> sendPluginMessage(Player player, String channel,
-			Predicate<ByteArrayDataInput> messageVerifier, String... data) {
+	public static CompletableFuture<ByteArrayDataInput> sendPluginMessage(
+		Player player, String channel,
+		Predicate<ByteArrayDataInput> messageVerifier, String... data
+	) {
 		CompletableFuture<ByteArrayDataInput> completableFuture = new CompletableFuture<>();
 
 		Skript skript = Skript.getInstance();
@@ -508,14 +523,15 @@ public abstract class Utils {
 		PluginMessageListener listener = (sendingChannel, sendingPlayer, message) -> {
 			ByteArrayDataInput input = ByteStreams.newDataInput(message);
 			if (channel.equals(sendingChannel) && sendingPlayer == player && !completableFuture.isDone()
-					&& !completableFuture.isCancelled() && messageVerifier.test(input)) {
+				&& !completableFuture.isCancelled() && messageVerifier.test(input)) {
 				completableFuture.complete(input);
 			}
 		};
 
 		messenger.registerIncomingPluginChannel(skript, channel, listener);
 
-		completableFuture.whenComplete((r, ex) -> messenger.unregisterIncomingPluginChannel(skript, channel, listener));
+		completableFuture.whenComplete((r, ex) -> messenger.unregisterIncomingPluginChannel(skript, channel,
+			listener));
 
 		// if we haven't gotten a response after a minute, let's just assume there wil never be one
 		Bukkit.getScheduler().scheduleSyncDelayedTask(skript, () -> {
@@ -532,25 +548,20 @@ public abstract class Utils {
 		return completableFuture;
 	}
 
-	final static ChatColor[] styles = {ChatColor.BOLD, ChatColor.ITALIC, ChatColor.STRIKETHROUGH, ChatColor.UNDERLINE, ChatColor.MAGIC, ChatColor.RESET};
+	final static ChatColor[] styles = {ChatColor.BOLD, ChatColor.ITALIC, ChatColor.STRIKETHROUGH, ChatColor.UNDERLINE,
+		ChatColor.MAGIC, ChatColor.RESET};
 	final static Map<String, String> chat = new HashMap<>();
 	final static Map<String, String> englishChat = new HashMap<>();
 
-	public final static boolean HEX_SUPPORTED = Skript.isRunningMinecraft(1, 16);
-	public final static boolean COPY_SUPPORTED = Skript.isRunningMinecraft(1, 15);
-
 	static {
-		Language.addListener(new LanguageChangeListener() {
-			@Override
-			public void onLanguageChange() {
-				final boolean english = englishChat.isEmpty();
-				chat.clear();
-				for (final ChatColor style : styles) {
-					for (final String s : Language.getList("chat styles." + style.name())) {
-						chat.put(s.toLowerCase(Locale.ENGLISH), style.toString());
-						if (english)
-							englishChat.put(s.toLowerCase(Locale.ENGLISH), style.toString());
-					}
+		Language.addListener(() -> {
+			final boolean english = englishChat.isEmpty();
+			chat.clear();
+			for (final ChatColor style : styles) {
+				for (final String s : Language.getList("chat styles." + style.name())) {
+					chat.put(s.toLowerCase(Locale.ENGLISH), style.toString());
+					if (english)
+						englishChat.put(s.toLowerCase(Locale.ENGLISH), style.toString());
 				}
 			}
 		});
@@ -565,100 +576,104 @@ public abstract class Utils {
 		return chat.get(s);
 	}
 
-	private final static Pattern stylePattern = Pattern.compile("<([^<>]+)>");
-
 	/**
 	 * Replaces &lt;chat styles&gt; in the message
 	 *
 	 * @param message
 	 * @return message with localised chat styles converted to Minecraft's format
 	 */
-	public static String replaceChatStyles(final String message) {
+	public static @NotNull String replaceChatStyles(String message) {
 		if (message.isEmpty())
 			return message;
-		String m = StringUtils.replaceAll(Matcher.quoteReplacement("" + message.replace("<<none>>", "")), stylePattern, new Callback<String, Matcher>() {
-			@Override
-			public String run(final Matcher m) {
-				SkriptColor color = SkriptColor.fromName("" + m.group(1));
-				if (color != null)
-					return color.getFormattedChat();
-				final String tag = m.group(1).toLowerCase(Locale.ENGLISH);
-				final String f = chat.get(tag);
-				if (f != null)
-					return f;
-				if (HEX_SUPPORTED && tag.startsWith("#")) { // Check for parsing hex colors
-					ChatColor chatColor = parseHexColor(tag);
-					if (chatColor != null)
-						return chatColor.toString();
-				}
-				return "" + m.group();
-			}
-		});
-		assert m != null;
-		// Restore user input post-sanitization
-		// Sometimes, the message has already been restored
-		if (!message.equals(m)) {
-			m = m.replace("\\$", "$").replace("\\\\", "\\");
-		}
-		m = ChatColor.translateAlternateColorCodes('&', "" + m);
-		return "" + m;
+
+		return replaceChatStyle(message.replace("<<none>>", ""));
 	}
 
 	/**
-	 * Replaces english &lt;chat styles&gt; in the message. This is used for messages in the language file as the language of colour codes is not well defined while the language is
+	 * Replaces english &lt;chat styles&gt; in the message. This is used for messages in the language file as the
+	 * language of colour codes is not well defined while the language is
 	 * changing, and for some hardcoded messages.
 	 *
 	 * @param message
 	 * @return message with english chat styles converted to Minecraft's format
 	 */
-	public static String replaceEnglishChatStyles(final String message) {
+	public static @NotNull String replaceEnglishChatStyles(String message) {
 		if (message.isEmpty())
 			return message;
-		String m = StringUtils.replaceAll(Matcher.quoteReplacement(message), stylePattern, new Callback<String, Matcher>() {
-			@Override
-			public String run(final Matcher m) {
-				SkriptColor color = SkriptColor.fromName("" + m.group(1));
-				if (color != null)
-					return color.getFormattedChat();
-				final String tag = m.group(1).toLowerCase(Locale.ENGLISH);
-				final String f = englishChat.get(tag);
-				if (f != null)
-					return f;
-				if (HEX_SUPPORTED && tag.startsWith("#")) { // Check for parsing hex colors
-					ChatColor chatColor = parseHexColor(tag);
-					if (chatColor != null)
-						return chatColor.toString();
-				}
-				return "" + m.group();
+
+		return replaceChatStyle(message);
+	}
+
+	private final static Pattern STYLE_PATTERN = Pattern.compile("<([^<>]+)>");
+
+	private static @NotNull String replaceChatStyle(String message) {
+		String m = StringUtils.replaceAll(Matcher.quoteReplacement(message), STYLE_PATTERN, matcher -> {
+			SkriptColor color = SkriptColor.fromName(matcher.group(1));
+			if (color != null)
+				return color.getFormattedChat();
+
+			String tag = matcher.group(1).toLowerCase(Locale.ENGLISH);
+			String f = englishChat.get(tag);
+			if (f != null)
+				return f;
+
+			if (tag.startsWith("#")) {
+				ChatColor chatColor = parseHexColor(tag);
+				if (chatColor != null)
+					return chatColor.toString();
+			} else if (tag.startsWith("u:") || tag.startsWith("unicode:")) {
+				String character = parseUnicode(tag);
+				if (character != null)
+					return character;
 			}
+			return matcher.group();
 		});
-		assert m != null;
+
 		// Restore user input post-sanitization
 		// Sometimes, the message has already been restored
 		if (!message.equals(m)) {
 			m = m.replace("\\$", "$").replace("\\\\", "\\");
 		}
-		m = ChatColor.translateAlternateColorCodes('&', "" + m);
-		return "" + m;
+
+		return ChatColor.translateAlternateColorCodes('&', m);
 	}
 
-	private static final Pattern HEX_PATTERN = Pattern.compile("(?i)#{0,2}[0-9a-f]{6}");
+	private static final Pattern UNICODE_PATTERN = Pattern.compile("(?i)u(?:nicode)?:(?<code>[0-9a-f]{4,})");
+
+	/**
+	 * Tries to extract a Unicode character from the given string.
+	 *
+	 * @param string The string.
+	 * @return The Unicode character, or null if it could not be parsed.
+	 */
+	public static @Nullable String parseUnicode(String string) {
+		Matcher matcher = UNICODE_PATTERN.matcher(string);
+		if (!matcher.matches())
+			return null;
+
+		try {
+			return Character.toString(Integer.parseInt(matcher.group("code"), 16));
+		} catch (IllegalArgumentException ex) {
+			return null;
+		}
+	}
+
+	private static final Pattern HEX_PATTERN = Pattern.compile("(?i)#{0,2}(?<code>[0-9a-f]{6})");
 
 	/**
 	 * Tries to get a {@link ChatColor} from the given string.
-	 * @param hex The hex code to parse.
+	 *
+	 * @param string The string code to parse.
 	 * @return The ChatColor, or null if it couldn't be parsed.
 	 */
-	@SuppressWarnings("null")
-	@Nullable
-	public static ChatColor parseHexColor(String hex) {
-		if (!HEX_SUPPORTED || !HEX_PATTERN.matcher(hex).matches()) // Proper hex code validation
+	public static @Nullable ChatColor parseHexColor(String string) {
+		Matcher matcher = HEX_PATTERN.matcher(string);
+		if (!matcher.matches())
 			return null;
 
-		hex = hex.replace("#", "");
 		try {
-			return ChatColor.of('#' + hex.substring(0, 6));
-		} catch (IllegalArgumentException e) {
+			return ChatColor.of('#' + matcher.group("code"));
+		} catch (IllegalArgumentException ex) {
 			return null;
 		}
 	}
@@ -697,14 +712,15 @@ public abstract class Utils {
 	 * Note that if the "best guess" is <i>not</i> a real supertype, it can never be selected.
 	 *
 	 * @param bestGuess The fallback class to guess
-	 * @param classes The types to check
+	 * @param classes   The types to check
+	 * @param <Found>   The highest common denominator found
+	 * @param <Type>    The input type spread
 	 * @return The most appropriate common class of all provided
-	 * @param <Found> The highest common denominator found
-	 * @param <Type> The input type spread
 	 */
 	@SafeVarargs
 	@SuppressWarnings("unchecked")
-	public static <Found, Type extends Found> Class<Found> highestDenominator(Class<? super Found> bestGuess, @NotNull Class<? extends Type> @NotNull ... classes) {
+	public static <Found, Type extends Found> Class<Found> highestDenominator(Class<? super Found> bestGuess,
+																			  @NotNull Class<? extends Type> @NotNull ... classes) {
 		assert classes.length > 0;
 		Class<?> chosen = classes[0];
 		outer:
@@ -736,7 +752,8 @@ public abstract class Utils {
 	}
 
 	/**
-	 * Parses a number that was validated to be an integer but might still result in a {@link NumberFormatException} when parsed with {@link Integer#parseInt(String)} due to
+	 * Parses a number that was validated to be an integer but might still result in a {@link NumberFormatException}
+	 * when parsed with {@link Integer#parseInt(String)} due to
 	 * overflow.
 	 * This method will return {@link Integer#MIN_VALUE} or {@link Integer#MAX_VALUE} respectively if that happens.
 	 *
@@ -753,7 +770,8 @@ public abstract class Utils {
 	}
 
 	/**
-	 * Parses a number that was validated to be an integer but might still result in a {@link NumberFormatException} when parsed with {@link Long#parseLong(String)} due to
+	 * Parses a number that was validated to be an integer but might still result in a {@link NumberFormatException}
+	 * when parsed with {@link Long#parseLong(String)} due to
 	 * overflow.
 	 * This method will return {@link Long#MIN_VALUE} or {@link Long#MAX_VALUE} respectively if that happens.
 	 *
@@ -772,6 +790,7 @@ public abstract class Utils {
 	/**
 	 * Gets class for name. Throws RuntimeException instead of checked one.
 	 * Use this only when absolutely necessary.
+	 *
 	 * @param name Class name.
 	 * @return The class.
 	 */
@@ -786,16 +805,16 @@ public abstract class Utils {
 	}
 
 	/**
-	 * Finds the index of the last in a {@link List} that matches the given {@link Checker}.
+	 * Finds the index of the last in a {@link List} that matches the given {@link Predicate}.
 	 *
-	 * @param list the {@link List} to search.
-	 * @param checker the {@link Checker} to match elements against.
+	 * @param list    the {@link List} to search.
+	 * @param checker the {@link Predicate} to match elements against.
 	 * @return the index of the element found, or -1 if no matching element was found.
 	 */
-	public static <T> int findLastIndex(List<T> list, Checker<T> checker) {
+	public static <T> int findLastIndex(List<T> list, Predicate<T> checker) {
 		int lastIndex = -1;
 		for (int i = 0; i < list.size(); i++) {
-			if (checker.check(list.get(i)))
+			if (checker.test(list.get(i)))
 				lastIndex = i;
 		}
 		return lastIndex;
@@ -809,13 +828,10 @@ public abstract class Utils {
 		return true;
 	}
 
-	protected static class WordEnding { // To be a record in 2.10
+	protected record WordEnding(String singular, String plural, boolean isCompleteWord) {
 
-		private final String singular, plural;
-
-		private WordEnding(String singular, String plural) {
-			this.singular = singular;
-			this.plural = plural;
+		public WordEnding(String singular, String plural) {
+			this(singular, plural, false);
 		}
 
 		public String singular() {
@@ -829,8 +845,7 @@ public abstract class Utils {
 		@Override
 		public boolean equals(Object object) {
 			if (this == object) return true;
-			if (!(object instanceof WordEnding)) return false;
-			WordEnding ending = (WordEnding) object;
+			if (!(object instanceof WordEnding ending)) return false;
 			return Objects.equals(singular, ending.singular) && Objects.equals(plural, ending.plural);
 		}
 
@@ -839,6 +854,53 @@ public abstract class Utils {
 			return Objects.hash(singular, plural);
 		}
 
+	}
+
+	/**
+	 * Prints a warning about the loading/use of a class that has been deprecated or removed.
+	 * This is a fairly-unsafe method and should only be used during class-loading.
+	 *
+	 * @param source The class about which to print the warning. This MUST be the class calling this method.
+	 * @return 0 (for use by interfaces)
+	 */
+	@ApiStatus.Internal
+	public static int loadedRemovedClassWarning(Class<?> source) {
+		Logger logger = Skript.getInstance().getLogger();
+		Exception exception = new Exception();
+		exception.fillInStackTrace();
+		StackTraceElement[] stackTrace = exception.getStackTrace();
+		StackTraceElement caller = stackTrace[2];
+		String authors, name;
+		try {
+			Class<?> callingClass = Class.forName(caller.getClassName());
+			JavaPlugin plugin = JavaPlugin.getProvidingPlugin(callingClass);
+			name = plugin.getDescription().getFullName();
+			authors = String.valueOf(plugin.getDescription().getAuthors());
+		} catch (ClassNotFoundException | IllegalArgumentException | ClassCastException error) {
+			name = caller.getClassLoaderName();
+			authors = "(unknown)";
+		}
+		logger.log(Level.SEVERE,
+			String.format("""
+						
+						
+						WARNING!
+						
+						An addon attempted to load a deprecated/outdated/removed '%s' class.
+						
+						The plugin '%s' tried to use a class that has been deprecated/removed in this version of Skript.
+						Please make sure you are using the latest supported version of the addon.
+						
+						If there are no supported versions, you should contact the author(s): %s, and ask them to update it.
+						
+						(This addon may not work correctly on this version of Skript.)
+						
+						""",
+				source.getSimpleName(),
+				name,
+				authors)
+		);
+		return 0;
 	}
 
 }

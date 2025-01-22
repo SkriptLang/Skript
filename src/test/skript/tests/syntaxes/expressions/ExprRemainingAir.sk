@@ -1,6 +1,6 @@
 test "remaining air":
 
-	spawn a pig at location of spawn of world "world":
+	spawn a pig at test-location:
 		set {_e} to event-entity
 
 	reset remaining air of {_e}

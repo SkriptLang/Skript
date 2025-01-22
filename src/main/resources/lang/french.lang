@@ -40,10 +40,9 @@ skript command:
 			all: Désactive tous les scripts
 			<script>: Désactive un script spécifique ou un dossier de scripts
 		update:
-			description: Vérifie les mises à jour, liste le journal des modifications ou télécharge la dernière version de Skript
+			description: Vérifie les mises à jour ou liste le journal des modifications.
 			check: Vérifie la présence d'une nouvelle version
 			changes: Liste toutes les modifications apportées depuis la version actuelle
-			download: Télécharge la dernière version
 		info: Affiche un message contenant les liens vers les alias et la documentation de Skript
 		gen-docs: Génère la documentation en utilisant docs/templates dans le dossier du plugin
 		test: Utilisé pour exécuter les tests Skript

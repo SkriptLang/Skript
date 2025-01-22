@@ -1,21 +1,3 @@
-/**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
 package ch.njol.skript.command;
 
 import ch.njol.skript.ScriptLoader;
@@ -43,7 +25,7 @@ import ch.njol.skript.util.chat.BungeeConverter;
 import ch.njol.skript.util.chat.MessageComponent;
 import ch.njol.skript.variables.Variables;
 import ch.njol.util.StringUtils;
-import ch.njol.util.Validate;
+import com.google.common.base.Preconditions;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.OfflinePlayer;
@@ -165,7 +147,13 @@ public class ScriptCommand implements TabExecutor {
 		@Nullable VariableString cooldownMessage, String cooldownBypass,
 		@Nullable VariableString cooldownStorage, int executableBy, SectionNode node
 	) {
-		Validate.notNull(name, pattern, arguments, description, usage, aliases, node);
+		Preconditions.checkNotNull(name);
+		Preconditions.checkNotNull(pattern);
+		Preconditions.checkNotNull(arguments);
+		Preconditions.checkNotNull(description);
+		Preconditions.checkNotNull(usage);
+		Preconditions.checkNotNull(aliases);
+		Preconditions.checkNotNull(node);
 		this.name = name;
 		label = "" + name.toLowerCase(Locale.ENGLISH);
 		this.permission = permission;
@@ -556,7 +544,7 @@ public class ScriptCommand implements TabExecutor {
 			return 0;
 		Timespan cooldown = this.cooldown;
 		assert cooldown != null;
-		long remaining = cooldown.getMilliSeconds() - getElapsedMilliseconds(uuid, event);
+		long remaining = cooldown.getAs(Timespan.TimePeriod.MILLISECOND) - getElapsedMilliseconds(uuid, event);
 		if (remaining < 0)
 			remaining = 0;
 		return remaining;
@@ -565,7 +553,7 @@ public class ScriptCommand implements TabExecutor {
 	public void setRemainingMilliseconds(UUID uuid, Event event, long milliseconds) {
 		Timespan cooldown = this.cooldown;
 		assert cooldown != null;
-		long cooldownMs = cooldown.getMilliSeconds();
+		long cooldownMs = cooldown.getAs(Timespan.TimePeriod.MILLISECOND);
 		if (milliseconds > cooldownMs)
 			milliseconds = cooldownMs;
 		setElapsedMilliSeconds(uuid, event, cooldownMs - milliseconds);
@@ -573,11 +561,11 @@ public class ScriptCommand implements TabExecutor {
 
 	public long getElapsedMilliseconds(UUID uuid, Event event) {
 		Date lastUsage = getLastUsage(uuid, event);
-		return lastUsage == null ? 0 : new Date().getTimestamp() - lastUsage.getTimestamp();
+		return lastUsage == null ? 0 : Date.now().getTime() - lastUsage.getTime();
 	}
 
 	public void setElapsedMilliSeconds(UUID uuid, Event event, long milliseconds) {
-		Date date = new Date();
+		Date date = Date.now();
 		date.subtract(new Timespan(milliseconds));
 		setLastUsage(uuid, event, date);
 	}

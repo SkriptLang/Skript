@@ -1,0 +1,41 @@
+using script reflection
+
+test "skript config":
+	set {_config} to the skript config
+	assert {_config} exists with "config doesn't exist"
+
+	set {_value} to the boolean value at "color codes reset formatting" in {_config}
+	assert {_value} exists with "navigation failed"
+	assert {_value} is true with "colour codes do not reset formatting (direct)"
+	delete {_value}
+
+	set {_node} to the node "number accuracy" of {_config}
+	set {_value} to the number value of {_node}
+	assert {_value} is 2 with "number accuracy wasn't 2 (indirect)"
+	delete {_value}
+
+	set {_node} to the node "effect command token" of {_config}
+	set {_value} to the text value of {_node}
+	assert {_value} is "!" with "effect command token (indirect)"
+	delete {_value}
+
+	set {_node} to the node "language" of {_config}
+	set {_value} to the text value of {_node}
+	assert {_value} is "english" with "language (indirect)"
+	delete {_value}
+
+	set {_count} to 0
+	loop the nodes of {_config}:
+		add 1 to {_count}
+	assert {_count} is greater than 10 with "too few nodes in config!"
+
+test "script config":
+	set {_config} to the current script
+	set {_node} to node "test ""script config""" of {_config}
+	set {_line} to the first element of nodes of {_node}
+	assert name of {_line} is "set {_config} to the current script" with "our first line was wrong"
+
+	set {_count} to 0
+	loop the nodes of {_node}:
+		add 1 to {_count}
+	assert {_count} is 7 with "wrong number of lines in this section"

@@ -1,0 +1,17 @@
+test "entity sounds":
+	spawn a zombie at (spawn of world "world"):
+		assert damage sound of entity is "ENTITY.ZOMBIE.HURT" with "damage sound of zombie should return ENTITY.ZOMBIE.HURT"
+		assert death sound of entity is "ENTITY.ZOMBIE.DEATH" with "death sound of zombie should return ENTITY.ZOMBIE.DEATH"
+		assert swim sound of entity is "ENTITY.HOSTILE.SWIM" with "swim sound of zombie should return ENTITY.HOSTILE.SWIM"
+		assert normal fall damage sound of entity is "ENTITY.HOSTILE.SMALL_FALL" with "fall sound of zombie should return ENTITY.HOSTILE.SMALL_FALL"
+		assert high fall damage sound of entity is "ENTITY.HOSTILE.BIG_FALL" with "high fall sound of zombie should return ENTITY.HOSTILE.BIG_FALL"
+		assert fall damage sound from a height of 10 of entity is "ENTITY.HOSTILE.BIG_FALL" with "fall sound from height of 10 sound of zombie should return ENTITY.HOSTILE.BIG_FALL"
+		assert fall damage sound from a height of {_none} of entity is "ENTITY.HOSTILE.SMALL_FALL" with "fall sound from invalid height sound of zombie should return ENTITY.HOSTILE.SMALL_FALL"
+		assert splash sound of entity is "ENTITY.HOSTILE.SPLASH" with "splash sound of zombie should return ENTITY.HOSTILE.SPLASH"
+		assert speedy splash sound of entity is "ENTITY.GENERIC.SPLASH" with "speedy splash sound of zombie should return ENTITY.GENERIC.SPLASH"
+		assert eating sound of entity is "ENTITY.GENERIC.EAT" with "eating sound of zombie should return ENTITY.GENERIC.EAT"
+		assert eating sound of entity using golden apple is "ENTITY.GENERIC.EAT" with "eating sound of zombie using golden apple should return ENTITY.GENERIC.EAT"
+		assert drinking sound of entity is "ENTITY.GENERIC.DRINK" with "drinking sound of zombie should return ENTITY.GENERIC.DRINK"
+		assert drinking sound of entity using potion is "ENTITY.GENERIC.DRINK" with "drinking sound of zombie using potion should return ENTITY.GENERIC.DRINK"
+		assert ambient sound of entity is "ENTITY.ZOMBIE.AMBIENT" with "ambient sound of zombie should return ENTITY.ZOMBIE.AMBIENT"
+		delete entity
