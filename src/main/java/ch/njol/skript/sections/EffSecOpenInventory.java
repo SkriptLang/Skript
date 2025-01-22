@@ -56,16 +56,16 @@ public class EffSecOpenInventory extends EffectSection {
 
 		ANVIL("anvil"),
 		CARTOGRAPHY("cartography [table]", Skript.methodExists(HumanEntity.class, "openCartographyTable", Location.class, boolean.class),
-				"Opening a cartography table inventory requires PaperSpigot."),
+				"Opening a cartography table inventory requires Paper."),
 		ENCHANTING("enchant(ment|ing) [table]", new Version(1, 14)),
 		GRINDSTONE("grindstone", Skript.methodExists(HumanEntity.class, "openGrindstone", Location.class, boolean.class),
-				"Opening a grindstone inventory requires PaperSpigot."),
+				"Opening a grindstone inventory requires Paper."),
 		LOOM("loom", Skript.methodExists(HumanEntity.class, "openLoom", Location.class, boolean.class),
-				"Opening a loom inventory requires PaperSpigot."),
+				"Opening a loom inventory requires Paper."),
 		SMITHING("smithing [table]", Skript.methodExists(HumanEntity.class, "openSmithingTable", Location.class, boolean.class),
-				"Opening a smithing table inventory requires PaperSpigot."),
+				"Opening a smithing table inventory requires Paper."),
 		STONECUTTER("stone[ ]cutter", Skript.methodExists(HumanEntity.class, "openSmithingTable", Location.class, boolean.class),
-				"Opening a stone cutter inventory requires PaperSpigot."),
+				"Opening a stone cutter inventory requires Paper."),
 		WORKBENCH("(crafting [table]|workbench)");
 
 		private @Nullable String methodError;
