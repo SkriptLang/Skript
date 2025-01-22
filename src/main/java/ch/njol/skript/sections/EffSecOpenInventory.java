@@ -37,7 +37,7 @@ import ch.njol.skript.util.Version;
 	"Opens an inventory to a player. The player can then access and modify the inventory as if it was a chest that they just opened.",
 	"Note that 'show' and 'open' have different effects, 'show' will show just a view of the inventory.",
 	"Whereas 'open' will attempt to make an inventory real and usable. Like a workbench allowing recipes to work.",
-	"When using as a section. The section allows to modification via the event-inventory."
+	"When using as a section. The section allows for modification of the inventory via the event-inventory."
 })
 @Examples({
 	"show crafting table to player #unmodifiable, use open instead to allow for recipes to work",
@@ -121,13 +121,19 @@ public class EffSecOpenInventory extends EffectSection {
 	public static class InventorySectionEvent extends Event {
 
 		private final Inventory inventory;
+		private final Player[] players;
 
-		public InventorySectionEvent(Inventory inventory) {
+		public InventorySectionEvent(Inventory inventory, Player... players) {
 			this.inventory = inventory;
+			this.players = players;
 		}
 
 		public Inventory getInventory() {
 			return inventory;
+		}
+
+		public Player[] getPlayers() {
+			return players;
 		}
 
 		@Override
@@ -139,8 +145,9 @@ public class EffSecOpenInventory extends EffectSection {
 
 	static {
 		EventValues.registerEventValue(InventorySectionEvent.class, Inventory.class, InventorySectionEvent::getInventory);
+		EventValues.registerEventValue(InventorySectionEvent.class, Player[].class, InventorySectionEvent::getPlayers);
 		Skript.registerSection(EffSecOpenInventory.class,
-				"[show|create] %inventory/inventorytype% (to|for) %players%",
+				"(show|create|open) %inventory/inventorytype% (to|for) %players%",
 				"open [a[n]] " + OpenableInventorySyntax.construct() + " [view|window|inventory] (to|for) %players%",
 
 				"close [the] inventory [view] (of|for) %players%",
@@ -176,16 +183,7 @@ public class EffSecOpenInventory extends EffectSection {
 		}
 
 		players = (Expression<Player>) exprs[exprs.length - 1];
-		if (object instanceof Literal && object != null) {
-			Literal<?> literal = (Literal<?>) object;
-			Object object = literal.getSingle();
-			if (object instanceof InventoryType && !((InventoryType) object).isCreatable()) {
-				Skript.error("You can't open a '" + literal.toString() + "' inventory to players. It's not creatable.");
-				return false;
-			}
-		}
-
-		if (exprs[0] instanceof Literal<?> lit && lit.getSingle() instanceof InventoryType inventoryType && !inventoryType.isCreatable()) {
+		if (exprs[0] instanceof Literal<?> literal && literal.getSingle() instanceof InventoryType inventoryType && !inventoryType.isCreatable()) {
 			Skript.error("Cannot create an inventory of type " + Classes.toString(inventoryType));
 			return false;
 		}
@@ -209,7 +207,8 @@ public class EffSecOpenInventory extends EffectSection {
 			if (inventory == null)
 				return super.walk(event, false);
 
-			if (trigger != null) {
+			Player[] players = this.players.getArray(event);
+			if (players.length > 0 && trigger != null) {
 				InventorySectionEvent inventoryEvent = new InventorySectionEvent(inventory);
 				Object localVars = Variables.copyLocalVariables(event);
 				Variables.setLocalVariables(inventoryEvent, localVars);
@@ -218,7 +217,7 @@ public class EffSecOpenInventory extends EffectSection {
 				Variables.removeLocals(inventoryEvent);
 			}
 
-			for (Player player : players.getArray(event))
+			for (Player player : players)
 				player.openInventory(inventory);
 
 		} else {
