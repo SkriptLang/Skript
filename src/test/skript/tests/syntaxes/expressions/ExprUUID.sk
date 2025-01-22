@@ -9,8 +9,13 @@ test "uuid":
 	spawn a pig at test-location
 	set {_pig} to last spawned pig
 
-	set {_lookup} to entity from (uuid of {_pig})
-	assert {_lookup} is set with "Failed to look up entity"
+	set {_uuid} to uuid of {_pig}
+
+	set {_lookup} to entity from {_uuid}
+	assert {_lookup} is {_pig} with "Failed to look up pig"
+
+	set {_le pig} to {_uuid} parsed as entity
+	assert {_le pig} is {_pig} with "failed to parse uuid as entity"
 
 	delete entity within {_pig}
 

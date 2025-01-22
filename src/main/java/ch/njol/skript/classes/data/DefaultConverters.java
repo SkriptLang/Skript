@@ -278,19 +278,8 @@ public class DefaultConverters {
 		Converters.registerConverter(Script.class, Config.class, Script::getConfig);
 		Converters.registerConverter(Config.class, Node.class, Config::getMainNode);
 
-		// UUID -> String & AnyValued
+		// UUID -> String
 		Converters.registerConverter(UUID.class, String.class, UUID::toString);
-		Converters.registerConverter(UUID.class, AnyValued.class, uuid -> new AnyValued<String>() {
-			@Override
-			public String value() {
-				return uuid.toString();
-			}
-
-			@Override
-			public Class<String> valueType() {
-				return String.class;
-			}
-		});
 
 //		// Entity - String (UUID) // Very slow, thus disabled for now
 //		Converters.registerConverter(String.class, Entity.class, new Converter<String, Entity>() {
