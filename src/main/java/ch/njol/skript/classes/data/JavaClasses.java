@@ -843,8 +843,8 @@ public class JavaClasses {
 		}
 
 		@Override
-		public void deserialize(UUID o, Fields f) throws NotSerializableException {
-			throw new NotSerializableException();
+		public void deserialize(UUID o, Fields f) {
+			assert false;
 		}
 
 		@Override
