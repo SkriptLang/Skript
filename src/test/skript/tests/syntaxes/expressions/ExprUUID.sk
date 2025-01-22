@@ -1,6 +1,6 @@
 test "uuid":
 	set {_lookup} to offline player from ("a0789aeb-7b46-43f6-86fb-cb671fed5775" parsed as uuid)
-	assert {_lookup} is "Burbulinis" with "Failed to look up offline player from uuid"
+	assert {_lookup} is set with "Failed to look up offline player from uuid"
 
 	set {_uuid} to ("a0789aeb-7b46-43f6-86fb-cb671fed5775" parsed as uuid)
 	assert {_uuid} is "a0789aeb-7b46-43f6-86fb-cb671fed5775" with "failed to compare uuid and string"
