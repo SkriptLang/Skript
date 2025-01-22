@@ -21,7 +21,6 @@ import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.BlockUtils;
 import ch.njol.skript.util.PotionEffectUtils;
 import ch.njol.skript.util.StringMode;
-import ch.njol.util.StringUtils;
 import ch.njol.yggdrasil.Fields;
 import io.papermc.paper.world.MoonPhase;
 import org.bukkit.*;
@@ -60,6 +59,7 @@ import org.bukkit.util.CachedServerIcon;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.Nullable;
 
+import java.io.NotSerializableException;
 import java.io.StreamCorruptedException;
 import java.util.*;
 import java.util.Map.Entry;
@@ -1492,6 +1492,39 @@ public class BukkitClasses {
 					public String toVariableNameString(EntitySnapshot snapshot) {
 						return toString(snapshot, 0);
 					}
+				})
+				.serializer(new Serializer<EntitySnapshot>() {
+
+					@Override
+					public Fields serialize(EntitySnapshot snapshot) throws NotSerializableException {
+						Fields fields = new Fields();
+						fields.putPrimitive("snapshot", snapshot.getAsString());
+						return fields;
+					}
+
+					@Override
+					public void deserialize(EntitySnapshot o, Fields f)
+							throws StreamCorruptedException, NotSerializableException {
+						assert false; // canBeInstantiated is false
+					}
+
+					@Override
+					public EntitySnapshot deserialize(Fields fields) throws StreamCorruptedException, NotSerializableException {
+						EntityFactory factory = Bukkit.getEntityFactory();
+						String input = fields.getPrimitive("snapshot", String.class);
+						return factory.createEntitySnapshot(input);
+					}
+
+					@Override
+					public boolean mustSyncDeserialization() {
+						return false;
+					}
+
+					@Override
+					protected boolean canBeInstantiated() {
+						return false;
+					}
+
 				})
 			);
 		}
