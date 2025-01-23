@@ -249,11 +249,11 @@ public class EventValueExpression<T> extends SimpleExpression<T> implements Defa
 	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
 		if (mode == ChangeMode.SET) {
 			EventConverter<Event, T> converter = eventConverters.get(event.getClass());
-			if (converter != null && delta != null) {
-				if (type.isArray()) {
-					converter.set(event, (T)delta);
-				} else {
+			if (converter != null) {
+				if (!type.isArray() && delta != null) {
 					converter.set(event, (T)delta[0]);
+				} else {
+					converter.set(event, (T)delta);
 				}
 			}
 		}
