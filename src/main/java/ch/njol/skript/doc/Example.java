@@ -2,7 +2,6 @@ package ch.njol.skript.doc;
 
 import java.lang.annotation.*;
 
-
 /**
  * An example to be used in documentation for the annotated element.
  * Multiple example annotations can be stacked on a single syntax element.
