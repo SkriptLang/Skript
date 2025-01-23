@@ -257,8 +257,6 @@ public class EventValueExpression<T> extends SimpleExpression<T> implements Defa
 				}
 			}
 		}
-//		if (changer == null)
-//			throw new SkriptAPIException("The changer cannot be null");
 		if (changer != null) {
 			ChangerUtils.change(changer, getArray(event), delta, mode);
 		}
