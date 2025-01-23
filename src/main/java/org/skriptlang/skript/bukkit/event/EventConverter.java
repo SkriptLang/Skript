@@ -1,7 +1,8 @@
-package org.skriptlang.skript.lang.converter;
+package org.skriptlang.skript.bukkit.event;
 
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.converter.Converter;
 
 /**
  * Used as a converter in EventValue registration to allow for setting event-values
