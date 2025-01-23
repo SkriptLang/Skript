@@ -57,7 +57,7 @@ import org.bukkit.potion.PotionEffectType;
 import org.bukkit.potion.PotionType;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.converter.Converter;
-import org.skriptlang.skript.bukkit.event.EventConverter;
+import ch.njol.skript.registrations.EventConverter;
 
 import java.util.ArrayList;
 import java.util.HashSet;

@@ -1,4 +1,4 @@
-package org.skriptlang.skript.bukkit.event;
+package ch.njol.skript.registrations;
 
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
