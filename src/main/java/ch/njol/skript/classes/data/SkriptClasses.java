@@ -12,11 +12,9 @@ import ch.njol.skript.config.Node;
 import ch.njol.skript.expressions.base.EventValueExpression;
 import ch.njol.skript.lang.ParseContext;
 import ch.njol.skript.lang.function.DynamicFunctionReference;
+import ch.njol.skript.lang.util.DefaultConvertedExpression;
 import ch.njol.skript.lang.util.SimpleLiteral;
-import ch.njol.skript.lang.util.common.AnyAmount;
-import ch.njol.skript.lang.util.common.AnyContains;
-import ch.njol.skript.lang.util.common.AnyNamed;
-import ch.njol.skript.lang.util.common.AnyValued;
+import ch.njol.skript.lang.util.common.*;
 import ch.njol.skript.localization.Noun;
 import ch.njol.skript.localization.RegexMessage;
 import ch.njol.skript.registrations.Classes;
@@ -25,6 +23,7 @@ import ch.njol.skript.util.slot.Slot;
 import ch.njol.skript.util.visual.VisualEffect;
 import ch.njol.skript.util.visual.VisualEffects;
 import ch.njol.yggdrasil.Fields;
+import org.bukkit.command.CommandSender;
 import org.skriptlang.skript.lang.util.SkriptQueue;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
@@ -890,6 +889,23 @@ public class SkriptClasses {
 				.usage("")
 				.examples("{thing}'s name")
 				.since("2.10")
+		);
+
+		Classes.registerClass(new AnyInfo<>(AnyReceiver.class, "receiver")
+			.name("Any Receiver")
+			.description("Something that can receive messages, e.g. a player, the console.")
+			.usage("")
+			.examples("send \"hello\" to player")
+			.defaultExpression(new EventValueExpression<>(CommandSender.class), AnyReceiver.class)
+			.since("INSERT VERSION")
+		);
+
+		Classes.registerClass(new AnyInfo<>(AnySender.class, "sender")
+			.name("Any Sender")
+			.description("Something that can send messages, e.g. a player.")
+			.usage("")
+			.examples("send \"hello\" to all players from player")
+			.since("INSERT VERSION")
 		);
 
 		Classes.registerClass(new AnyInfo<>(AnyAmount.class, "numbered")
