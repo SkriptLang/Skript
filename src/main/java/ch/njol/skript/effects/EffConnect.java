@@ -52,7 +52,7 @@ public class EffConnect extends Effect {
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		players = (Expression<Player>) exprs[0];
 		server = (Expression<String>) exprs[1];
-		transfer = matchedPattern == 1;
+		transfer = matchedPattern == 2;
 
 		if (transfer) {
 			port = (Expression<Number>) exprs[2];
