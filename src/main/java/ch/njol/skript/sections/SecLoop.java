@@ -10,6 +10,7 @@ import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.*;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.ContainerExpression;
+import ch.njol.skript.registrations.Feature;
 import ch.njol.skript.util.Container;
 import ch.njol.skript.util.Container.ContainerType;
 import ch.njol.skript.util.LiteralUtils;
@@ -19,10 +20,7 @@ import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnknownNullability;
 
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.WeakHashMap;
+import java.util.*;
 
 @Name("Loop")
 @Description({
@@ -85,6 +83,7 @@ public class SecLoop extends LoopSection {
 	private boolean guaranteedToLoop;
 	private Object nextValue = null;
 	private boolean loopPeeking;
+	protected boolean iterableSingle;
 
 	@Override
 	@SuppressWarnings("unchecked")
@@ -107,7 +106,12 @@ public class SecLoop extends LoopSection {
 			this.expression = new ContainerExpression((Expression<? extends Container<?>>) expression, type.value());
 		}
 
-		if (expression.isSingle()) {
+		if (this.getParser().hasExperiment(Feature.QUEUES) // Todo: change this if other iterable things are added
+			&& expression.isSingle()
+			&& (expression instanceof Variable<?> || Iterable.class.isAssignableFrom(expression.getReturnType()))) {
+			// Some expressions return one thing but are potentially iterable anyway, e.g. queues
+			this.iterableSingle = true;
+		} else if (expression.isSingle()) {
 			Skript.error("Can't loop '" + expression + "' because it's only a single value");
 			return false;
 		}
@@ -124,11 +128,24 @@ public class SecLoop extends LoopSection {
 	protected @Nullable TriggerItem walk(Event event) {
 		Iterator<?> iter = iteratorMap.get(event);
 		if (iter == null) {
-			iter = expression instanceof Variable variable ? variable.variablesIterator(event) : expression.iterator(event);
-			if (iter != null && iter.hasNext()) {
-				iteratorMap.put(event, iter);
+			if (iterableSingle) {
+				Object value = expression.getSingle(event);
+				if (value instanceof Iterable<?> iterable) {
+					iter = iterable.iterator();
+					// Guaranteed to be ordered so we try it first
+				} else if (value instanceof Container<?> container) {
+					iter = container.containerIterator();
+				} else {
+					iter = Collections.singleton(value).iterator();
+				}
 			} else {
-				iter = null;
+				iter = expression instanceof Variable<?> variable ? variable.variablesIterator(event) :
+					expression.iterator(event);
+				if (iter != null && iter.hasNext()) {
+					iteratorMap.put(event, iter);
+				} else {
+					iter = null;
+				}
 			}
 		}
 

@@ -7,7 +7,6 @@ import ch.njol.skript.lang.SkriptEvent.ListeningBehavior;
 import ch.njol.skript.lang.SkriptEventInfo.ModernSkriptEventInfo;
 import org.bukkit.event.Event;
 import org.bukkit.event.player.PlayerInteractAtEntityEvent;
-import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
@@ -211,11 +210,11 @@ public sealed class SkriptEventInfo<E extends SkriptEvent> extends StructureInfo
 
 		public ModernSkriptEventInfo(String name, String[] patterns, Class<E> eventClass, String originClassPath, Class<? extends Event>[] events) {
 			super(name, patterns, eventClass, originClassPath, events);
-			origin = SyntaxOrigin.of(Skript.getAddon(JavaPlugin.getProvidingPlugin(eventClass)));
+			this.origin = Skript.getSyntaxOrigin(eventClass);
 		}
 
 		@Override
-		public Builder<? extends Builder<?, E>, E> builder() {
+		public Builder<? extends Builder<?, E>, E> toBuilder() {
 			return BukkitSyntaxInfos.Event.builder(type(), name())
 				.origin(origin)
 				.addPatterns(patterns())
