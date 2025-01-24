@@ -7,6 +7,12 @@ import org.bukkit.util.Vector;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
+/**
+ * Iterates through blocks in a straight line from a start to end location (inclusive).
+ * <p>
+ * Given start and end locations are always cloned and block-centered.
+ * Iterates through all blocks the line passes through in order from start to end location.
+ */
 public class BlockLineIterator implements Iterator<Block> {
 
 	private final Location current;
@@ -14,20 +20,38 @@ public class BlockLineIterator implements Iterator<Block> {
 	private final Vector step;
 	private boolean finished;
 
+	/**
+	 * @param start start location
+	 * @param end end location
+	 */
 	public BlockLineIterator(Location start, Location end) {
 		current = start.toCenterLocation();
 		this.end = end.toCenterLocation().toVector();
 		step = this.end.clone().subtract(current.toVector()).normalize();
 	}
 
+	/**
+	 * @param start first block
+	 * @param end last block
+	 */
 	public BlockLineIterator(Block start, Block end) {
 		this(start.getLocation(), end.getLocation());
 	}
 
+	/**
+	 * @param start start location
+	 * @param direction direction
+	 * @param distance distance
+	 */
 	public BlockLineIterator(Location start, Vector direction, double distance) {
 		this(start, start.toCenterLocation().add(direction.clone().normalize().multiply(distance)));
 	}
 
+	/**
+	 * @param start first block
+	 * @param direction direction
+	 * @param distance distance
+	 */
 	public BlockLineIterator(Block start, Vector direction, double distance) {
 		this(start.getLocation(), direction, distance);
 	}
@@ -43,44 +67,69 @@ public class BlockLineIterator implements Iterator<Block> {
 		if (current.toCenterLocation().toVector().equals(end)) finished = true;
 		Block block = current.getBlock();
 		// moves the current position just slightly from the edge to the next block
-		double eps = 1 + Math.ulp(1) * (Math.abs(current.getBlockX()) + Math.abs(current.getBlockZ()));
-		double t = calculateExact(current.toVector()) * eps;
+		double epsilon = 1 + Math.ulp(1) * (Math.abs(current.getBlockX()) + Math.abs(current.getBlockZ()));
+		double t = calculateParamToNext(current.toVector()) * epsilon;
 		current.add(step.clone().multiply(t));
 		return block;
 	}
 
+	/**
+	 * Represents a plane in three-dimensional space
+	 * where (a, b, c) is the normal vector
+	 * and d is the distance from the origin.
+	 *
+	 * @param a a
+	 * @param b b
+	 * @param c c
+	 * @param d distance from the origin
+	 */
 	private record Plane(double a, double b, double c, double d) {
+
+		/**
+		 * Creates a plane from three points.
+		 * The three points must not be collinear.
+		 *
+		 * @param p1 first point
+		 * @param p2 second point
+		 * @param p3 third point
+		 * @return plane passing through the three points
+		 */
 		static Plane create(Vector p1, Vector p2, Vector p3) {
-			Vector v1 = p2.clone().subtract(p1);
-			Vector v2 = p3.clone().subtract(p1);
-			Vector normal = v1.clone().crossProduct(v2);
+			Vector first = p2.clone().subtract(p1);
+			Vector second = p3.clone().subtract(p1);
+			Vector normal = first.clone().crossProduct(second);
 			double a = normal.getX();
 			double b = normal.getY();
 			double c = normal.getZ();
 			double d = -(a * p1.getX() + b * p1.getY() + c * p1.getZ());
 			return new Plane(a, b, c, d);
 		}
+
 	}
 
-	private double calculateExact(Vector from) {
-		double xSgn = Math.signum(step.getX());
-		double ySgn = Math.signum(step.getY());
-		double zSgn = Math.signum(step.getZ());
+	/**
+	 * Calculates the parameter (distance) to the next block in the direction of {@link #step} from
+	 * given point.
+	 *
+	 * @param from The starting point
+	 * @return the minimum distance from the point {@code from} in the direction of {@link #step} to next block
+	 */
+	private double calculateParamToNext(Vector from) {
 		Vector center = center(from);
-		Vector xPlanePoint = center.clone().add(new Vector(xSgn > 0 ? 0.5 : -0.5, 0, 0));
-		Vector yPlanePoint = center.clone().add(new Vector(0, ySgn > 0 ? 0.5 : -0.5, 0));
-		Vector zPlanePoint = center.clone().add(new Vector(0, 0, zSgn > 0 ? 0.5 : -0.5));
-		double xDist = planeDist(from, Plane.create(
+		Vector xPlanePoint = center.clone().add(new Vector(step.getX() >= 0 ? 0.5 : -0.5, 0, 0));
+		Vector yPlanePoint = center.clone().add(new Vector(0, step.getY() >= 0 ? 0.5 : -0.5, 0));
+		Vector zPlanePoint = center.clone().add(new Vector(0, 0, step.getZ() >= 0 ? 0.5 : -0.5));
+		double xDist = planeDistance(from, Plane.create(
 			xPlanePoint,
 			xPlanePoint.clone().add(new Vector(0, 1, 0)),
 			xPlanePoint.clone().add(new Vector(0, 0, 1))
 		));
-		double yDist = planeDist(from, Plane.create(
+		double yDist = planeDistance(from, Plane.create(
 			yPlanePoint,
 			yPlanePoint.clone().add(new Vector(1, 0, 0)),
 			yPlanePoint.clone().add(new Vector(0, 0, 1))
 		));
-		double zDist = planeDist(from, Plane.create(
+		double zDist = planeDistance(from, Plane.create(
 			zPlanePoint,
 			zPlanePoint.clone().add(new Vector(1, 0, 0)),
 			zPlanePoint.clone().add(new Vector(0, 1, 0))
@@ -88,14 +137,32 @@ public class BlockLineIterator implements Iterator<Block> {
 		return Math.min(xDist, Math.min(yDist, zDist));
 	}
 
-	private double planeDist(Vector from, Plane plane) {
-		double v = 0 - plane.d - plane.a() * from.getX() - plane.b() * from.getY() - plane.c() * from.getZ();
+	/**
+	 * Calculates the distance between a point and plane.
+	 *
+	 * @param point point
+	 * @param plane plane
+	 * @return distance
+	 */
+	private double planeDistance(Vector point, Plane plane) {
+		double value = -plane.d;
+		value -= plane.a() * point.getX() + plane.b() * point.getY() + plane.c() * point.getZ();
 		double t = plane.a() * step.getX() + plane.b() * step.getY() + plane.c() * step.getZ();
-		double r = v / t;
-		if (!Double.isFinite(r)) return 2;
-		return r;
+		double ratio = value / t;
+		// in this use-case the value is either between 0 and sqrt(2) or infinity, we choose the
+		// minimum out of 3 distances, in case of infinity we return 2, so it never gets chosen
+		// (there is always one distance guaranteed to be between 0 and sqrt(2), see #calculateExact(Vector))
+		if (!Double.isFinite(ratio)) return 2;
+		return ratio;
 	}
 
+	/**
+	 * Creates vector at the center of a block at the coordinates provided
+	 * by {@code vector}.
+	 *
+	 * @param vector point
+	 * @return coordinates at the center of a block at given point
+	 */
 	private static Vector center(Vector vector) {
 		Vector center = vector.clone();
 		center.setX(vector.getBlockX() + 0.5);
