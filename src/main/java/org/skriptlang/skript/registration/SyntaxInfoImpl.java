@@ -42,7 +42,7 @@ class SyntaxInfoImpl<T extends SyntaxElement> implements SyntaxInfo<T> {
 	}
 
 	@Override
-	public Builder<? extends Builder<?, T>, T> builder() {
+	public Builder<? extends Builder<?, T>, T> toBuilder() {
 		var builder = new BuilderImpl<>(type);
 		builder.origin(origin);
 		if (supplier != null) {

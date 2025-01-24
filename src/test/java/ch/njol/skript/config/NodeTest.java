@@ -1,13 +1,35 @@
-package org.skriptlang.skript.test.tests.config;
-
-import static org.junit.Assert.assertArrayEquals;
+package ch.njol.skript.config;
 
 import org.junit.Test;
 
-import ch.njol.skript.config.Node;
 import ch.njol.util.NonNullPair;
 
+import java.io.IOException;
+import java.io.InputStream;
+
+import static org.junit.Assert.*;
+import static org.junit.Assert.assertFalse;
+
 public class NodeTest {
+
+	@Test
+	public void testGetPathSteps() {
+		Config newer = getConfig("new-config");
+
+		Node node = newer.getNodeAt("a", "b", "c");
+
+		assertNotNull(node);
+		assertArrayEquals(new String[] {"a", "b", "c"}, node.getPathSteps());
+	}
+
+	@Test
+	public void testIsValid() {
+		Config valid = getConfig("new-config");
+		Config invalid = getConfig("invalid-config");
+
+		assertTrue(valid.getMainNode().isValid());
+		assertFalse(invalid.getMainNode().isValid());
+	}
 
 	@Test
 	public void splitLineTest() {
@@ -36,6 +58,14 @@ public class NodeTest {
 			assertArrayEquals(d[0], new String[] {d[1], d[2]}, new String[] {p.getFirst(), p.getSecond()});
 		}
 
+	}
+
+	private Config getConfig(String name) {
+		try (InputStream resource = getClass().getResourceAsStream("/" + name + ".sk")) {
+			return new Config(resource, name + ".sk", false, false, ":");
+		} catch (IOException ex) {
+			throw new RuntimeException(ex);
+		}
 	}
 
 }

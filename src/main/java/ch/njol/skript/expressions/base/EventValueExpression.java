@@ -153,7 +153,7 @@ public class EventValueExpression<T> extends SimpleExpression<T> implements Defa
 					hasValue = converters.get(event) != null;
 					continue;
 				}
-				if (EventValues.hasMultipleGetters(event, type, getTime()) == Kleenean.TRUE) {
+				if (EventValues.hasMultipleConverters(event, type, getTime()) == Kleenean.TRUE) {
 					Noun typeName = Classes.getExactClassInfo(componentType).getName();
 					log.printError("There are multiple " + typeName.toString(true) + " in " + Utils.a(getParser().getCurrentEventName()) + " event. " +
 							"You must define which " + typeName + " to use.");
@@ -161,9 +161,9 @@ public class EventValueExpression<T> extends SimpleExpression<T> implements Defa
 				}
 				Converter<?, ? extends T> converter;
 				if (exact) {
-					converter = EventValues.getExactEventValueGetter(event, type, getTime());
+					converter = EventValues.getExactEventValueConverter(event, type, getTime());
 				} else {
-					converter = EventValues.getEventValueGetter(event, type, getTime());
+					converter = EventValues.getEventValueConverter(event, type, getTime());
 				}
 				if (converter != null) {
 					converters.put(event, converter);

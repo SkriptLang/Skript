@@ -384,15 +384,7 @@ public class HTMLGenerator extends DocumentationGenerator {
 
 			i += Character.charCount(c);
 		}
-		return replaceBr(sb.toString());
-	}
-
-	/**
-	 * Replaces specifically `<br/>` with `\n` - This is useful in code blocks where you can't use newlines due to the
-	 * minifyHtml method (execute after minifyHtml)
-	 */
-	private static String replaceBr(String page) {
-		return page.replaceAll("<br/>", "\n");
+		return sb.toString();
 	}
 
 	private static String handleIf(String desc, String start, boolean value) {

@@ -1,8 +1,5 @@
-package org.skriptlang.skript.test.tests.config;
+package ch.njol.skript.config;
 
-import ch.njol.skript.config.Config;
-import ch.njol.skript.config.ConfigHelper;
-import ch.njol.skript.config.Node;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -14,15 +11,6 @@ import static org.junit.Assert.*;
 public class ConfigTest {
 
 	@Test
-	public void testIsInvalid() {
-		Config valid = getConfig("new-config");
-		Config invalid = getConfig("invalid-config");
-
-		assertTrue(valid.getMainNode().isValid());
-		assertFalse(invalid.getMainNode().isValid());
-	}
-
-	@Test
 	public void testUpdateNodes() {
 		Config old = getConfig("old-config");
 		Config newer = getConfig("new-config");
@@ -31,16 +19,35 @@ public class ConfigTest {
 
 		assertTrue("updateNodes did not update any nodes", updated);
 
-		Set<Node> newNodes = ConfigHelper.discoverNodes(newer.getMainNode());
-		Set<Node> updatedNodes = ConfigHelper.discoverNodes(old.getMainNode());
+		Set<Node> newNodes = Config.discoverNodes(newer.getMainNode());
+		Set<Node> updatedNodes = Config.discoverNodes(old.getMainNode());
 
 		for (Node node : newNodes) {
 			assertTrue("Node " + node + " was not updated", updatedNodes.contains(node));
 		}
 
-		// maintains old values
-		assertEquals("true", old.getValue("outdated value"));
+		// keeps removed/user-added nodes
+		assertEquals("true", old.get(new String[] {"outdated value"}));
 		assertEquals("true", old.get("a", "outdated value"));
+
+		// adds new nodes
+		assertEquals("true", old.get("h", "c"));
+		assertEquals("true", old.get(new String[] {"l"}));
+
+		// keeps values of nodes
+		assertEquals("false", old.get(new String[] {"j"}));
+		assertEquals("false", old.get(new String[] {"k"}));
+
+		// doesnt duplicate nested
+		SectionNode node = (SectionNode) old.get("h");
+		assertNotNull(node);
+
+		int size = 0;
+		for (Node ignored : node) { // count non-void nodes
+			size++;
+		}
+
+		assertEquals(2, size);
 	}
 
 	private Config getConfig(String name) {

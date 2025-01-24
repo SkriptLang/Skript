@@ -16,6 +16,7 @@ import ch.njol.skript.lang.util.SimpleLiteral;
 import ch.njol.skript.lang.util.common.AnyAmount;
 import ch.njol.skript.lang.util.common.AnyContains;
 import ch.njol.skript.lang.util.common.AnyNamed;
+import ch.njol.skript.lang.util.common.AnyValued;
 import ch.njol.skript.localization.Noun;
 import ch.njol.skript.localization.RegexMessage;
 import ch.njol.skript.registrations.Classes;
@@ -897,6 +898,14 @@ public class SkriptClasses {
 				.usage("")
 				.examples("the size of {thing}", "the amount of {thing}")
 				.since("2.10")
+		);
+
+		Classes.registerClass(new AnyInfo<>(AnyValued.class, "valued")
+			.name("Any Valued Thing")
+			.description("Something that has a value.")
+			.usage("")
+			.examples("the text of {node}")
+			.since("2.10")
 		);
 
 		Classes.registerClass(new AnyInfo<>(AnyContains.class, "containing")
