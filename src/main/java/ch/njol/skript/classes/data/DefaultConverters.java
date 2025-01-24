@@ -313,7 +313,31 @@ public class DefaultConverters {
 			},
 			//</editor-fold>
 			Converter.NO_RIGHT_CHAINING);
-		Converters.registerConverter(Player.class, AnySender.class, player -> () -> player);
+		// This is a compatibility trick for the 'send player to server' syntax
+		// The player is the 'message' and the string is the receiver
+		Converters.registerConverter(String.class, AnyReceiver.class, //<editor-fold desc="Converter" defaultstate="collapsed">
+			receiver -> new AnyReceiver<Player, Object>() {
+
+				@Override
+				public void send(Player player) throws IllegalArgumentException {
+					player.transfer(receiver, 25565);
+				}
+
+				@Override
+				public void sendSafely(@Nullable Object message, @Nullable AnySender<?> sender) {
+					if (message instanceof Player player)
+						this.send(player);
+				}
+
+				@Override
+				public boolean isSafeMessageObject(@Nullable Object message) {
+					return message instanceof Player;
+				}
+			},
+			//</editor-fold>
+			Converter.NO_CHAINING);
+		// Currently not safe to use the 'sender' feature of a message, but leaving this for the future
+//		Converters.registerConverter(Player.class, AnySender.class, player -> () -> player);
 
 		// InventoryHolder - Location
 		// since the individual ones can't be trusted to chain.

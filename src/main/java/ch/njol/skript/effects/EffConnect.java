@@ -37,7 +37,7 @@ public class EffConnect extends Effect {
 
 	static {
 		Skript.registerEffect(EffConnect.class,
-				"(send|connect) %players% to [proxy|bungeecord] [server] %string%",
+				"(send|connect) %players% to [proxy|bungeecord] server %string%",
 				"transfer %players% to server %string% [on port %-number%]"
 		);
 	}
