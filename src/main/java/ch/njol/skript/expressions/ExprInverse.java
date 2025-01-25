@@ -40,7 +40,7 @@ public class ExprInverse extends SimpleExpression<Boolean> {
 
 	static {
 		Skript.registerExpression(ExprInverse.class, Boolean.class, ExpressionType.COMBINED, 
-			"[the] (inverse|opposite) of %booleans%"
+			"[the] (inverse|opposite)[s] of %booleans%"
 		);
 	}
 
