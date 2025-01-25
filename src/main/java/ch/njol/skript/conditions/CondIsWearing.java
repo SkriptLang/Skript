@@ -57,7 +57,6 @@ public class CondIsWearing extends Condition {
 	
 	@Override
 	public boolean check(Event event) {
-		Skript.info(HAS_BODY_SLOT ? "Has body slot" : "Does not have body slot");
 		ItemType[] cachedTypes = types.getAll(event);
 
 		return entities.check(event, entity -> {
