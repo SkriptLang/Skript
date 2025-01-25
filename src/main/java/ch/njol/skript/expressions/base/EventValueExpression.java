@@ -255,6 +255,7 @@ public class EventValueExpression<T> extends SimpleExpression<T> implements Defa
 				} else {
 					converter.set(event, (T)delta);
 				}
+				return;
 			}
 		}
 		if (changer != null) {
