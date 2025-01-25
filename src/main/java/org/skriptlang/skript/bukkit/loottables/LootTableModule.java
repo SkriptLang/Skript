@@ -21,6 +21,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 import java.io.StreamCorruptedException;
+import java.util.UUID;
 
 public class LootTableModule {
 
@@ -60,7 +61,7 @@ public class LootTableModule {
 				@Override
 				public Fields serialize(LootTable lootTable) {
 					Fields fields = new Fields();
-					fields.putObject("key", lootTable.getKey());
+					fields.putObject("key", lootTable.getKey().toString());
 					return fields;
 				}
 
@@ -71,10 +72,15 @@ public class LootTableModule {
 
 				@Override
 				protected LootTable deserialize(Fields fields) throws StreamCorruptedException {
-					NamespacedKey key = fields.getAndRemoveObject("key", NamespacedKey.class);
+					String key = fields.getAndRemoveObject("key", String.class);
 					if (key == null)
-						throw new IllegalArgumentException();
-					return Bukkit.getLootTable(key);
+						throw new StreamCorruptedException();
+
+					NamespacedKey namespacedKey = NamespacedKey.fromString(key);
+					if (namespacedKey == null)
+						throw new StreamCorruptedException();
+
+					return Bukkit.getLootTable(namespacedKey);
 				}
 
 				@Override
