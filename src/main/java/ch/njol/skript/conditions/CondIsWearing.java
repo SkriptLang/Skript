@@ -35,6 +35,7 @@ import java.util.Arrays;
 public class CondIsWearing extends Condition {
 
 	private static final boolean HAS_CAN_USE_SLOT_METHOD = Skript.methodExists(LivingEntity.class, "canUseEquipmentSlot", EquipmentSlot.class);
+	private static final boolean HAS_BODY_SLOT = Skript.fieldExists(EquipmentSlot.class, "BODY");
 	
 	static {
 		PropertyCondition.register(CondIsWearing.class, "wearing %itemtypes%", "livingentities");
@@ -56,6 +57,7 @@ public class CondIsWearing extends Condition {
 	
 	@Override
 	public boolean check(Event event) {
+		Skript.info(HAS_BODY_SLOT ? "Has body slot" : "Does not have body slot");
 		ItemType[] cachedTypes = types.getAll(event);
 
 		return entities.check(event, entity -> {
@@ -65,14 +67,16 @@ public class CondIsWearing extends Condition {
 
 			ItemStack[] contents = Arrays.stream(EquipmentSlot.values())
 				.filter(slot -> {
+					// this method was added in 1.20.6
 					if (HAS_CAN_USE_SLOT_METHOD)
 						return entity.canUseEquipmentSlot(slot);
 
 					// according to wiki it appears to be that these are the only ones with a body equipment slot
-					if (slot == EquipmentSlot.BODY)
+					// body slot was added in 1.20.5
+					if (HAS_BODY_SLOT && slot == EquipmentSlot.BODY)
 						return entity instanceof Donkey || entity instanceof Mule;
 
-					return false;
+					return true;
 				})
 				.map(equipment::getItem)
 				.toArray(ItemStack[]::new);
