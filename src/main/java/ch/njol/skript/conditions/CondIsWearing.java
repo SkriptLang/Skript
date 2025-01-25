@@ -1,5 +1,6 @@
 package ch.njol.skript.conditions;
 
+import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.conditions.base.PropertyCondition;
 import ch.njol.skript.conditions.base.PropertyCondition.PropertyType;
@@ -12,7 +13,9 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
+import org.bukkit.entity.Donkey;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Mule;
 import org.bukkit.event.Event;
 import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.EquipmentSlot;
@@ -30,6 +33,8 @@ import java.util.Arrays;
 })
 @Since("1.0")
 public class CondIsWearing extends Condition {
+
+	private static final boolean HAS_CAN_USE_SLOT_METHOD = Skript.methodExists(LivingEntity.class, "canUseEquipmentSlot", EquipmentSlot.class);
 	
 	static {
 		PropertyCondition.register(CondIsWearing.class, "wearing %itemtypes%", "livingentities");
@@ -59,7 +64,16 @@ public class CondIsWearing extends Condition {
 				return false; // spigot nullability, no identifier as to why this occurs
 
 			ItemStack[] contents = Arrays.stream(EquipmentSlot.values())
-				.filter(entity::canUseEquipmentSlot)
+				.filter(slot -> {
+					if (HAS_CAN_USE_SLOT_METHOD)
+						return entity.canUseEquipmentSlot(slot);
+
+					// according to wiki it appears to be that these are the only ones with a body equipment slot
+					if (slot == EquipmentSlot.BODY)
+						return entity instanceof Donkey || entity instanceof Mule;
+
+					return false;
+				})
 				.map(equipment::getItem)
 				.toArray(ItemStack[]::new);
 

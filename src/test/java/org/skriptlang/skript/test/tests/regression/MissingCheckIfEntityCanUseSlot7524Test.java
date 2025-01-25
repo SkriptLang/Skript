@@ -1,10 +1,12 @@
 package org.skriptlang.skript.test.tests.regression;
 
+import ch.njol.skript.Skript;
 import ch.njol.skript.lang.Condition;
 import ch.njol.skript.lang.util.ContextlessEvent;
 import ch.njol.skript.test.runner.SkriptJUnitTest;
 import ch.njol.skript.variables.Variables;
 import org.bukkit.Material;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.EquipmentSlot;
@@ -15,6 +17,8 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class MissingCheckIfEntityCanUseSlot7524Test extends SkriptJUnitTest {
+
+	private static final boolean HAS_CAN_USE_SLOT_METHOD = Skript.methodExists(LivingEntity.class, "canUseEquipmentSlot", EquipmentSlot.class);
 
 	private Player player;
 	private EntityEquipment equipment;
@@ -38,28 +42,23 @@ public class MissingCheckIfEntityCanUseSlot7524Test extends SkriptJUnitTest {
 		EasyMock.expect(player.isValid()).andStubReturn(true);
 		EasyMock.expect(player.getEquipment()).andReturn(equipment);
 
-		EasyMock.expect(player.canUseEquipmentSlot(EquipmentSlot.CHEST)).andReturn(true);
-		EasyMock.expect(player.canUseEquipmentSlot(EquipmentSlot.LEGS)).andReturn(true);
-		EasyMock.expect(player.canUseEquipmentSlot(EquipmentSlot.FEET)).andReturn(true);
-		EasyMock.expect(player.canUseEquipmentSlot(EquipmentSlot.HEAD)).andReturn(true);
-		EasyMock.expect(player.canUseEquipmentSlot(EquipmentSlot.HAND)).andReturn(true);
-		EasyMock.expect(player.canUseEquipmentSlot(EquipmentSlot.OFF_HAND)).andReturn(true);
-		EasyMock.expect(player.canUseEquipmentSlot(EquipmentSlot.BODY)).andReturn(false);
+		if (HAS_CAN_USE_SLOT_METHOD) {
+			EasyMock.expect(player.canUseEquipmentSlot(EquipmentSlot.CHEST)).andReturn(true);
+			EasyMock.expect(player.canUseEquipmentSlot(EquipmentSlot.LEGS)).andReturn(true);
+			EasyMock.expect(player.canUseEquipmentSlot(EquipmentSlot.FEET)).andReturn(true);
+			EasyMock.expect(player.canUseEquipmentSlot(EquipmentSlot.HEAD)).andReturn(true);
+			EasyMock.expect(player.canUseEquipmentSlot(EquipmentSlot.HAND)).andReturn(true);
+			EasyMock.expect(player.canUseEquipmentSlot(EquipmentSlot.OFF_HAND)).andReturn(true);
+			EasyMock.expect(player.canUseEquipmentSlot(EquipmentSlot.BODY)).andReturn(false);
+		}
 
 		EasyMock.expect(equipment.getItem(EquipmentSlot.CHEST)).andReturn(new ItemStack(Material.DIAMOND_CHESTPLATE));
-		EasyMock.expect(equipment.getItem(EquipmentSlot.LEGS)).andReturn(new ItemStack(Material.DIAMOND_LEGGINGS));
-		EasyMock.expect(equipment.getItem(EquipmentSlot.FEET)).andReturn(new ItemStack(Material.DIAMOND_BOOTS));
-		EasyMock.expect(equipment.getItem(EquipmentSlot.HEAD)).andReturn(new ItemStack(Material.DIAMOND_HELMET));
-		EasyMock.expect(equipment.getItem(EquipmentSlot.HAND)).andReturn(new ItemStack(Material.DIAMOND_SWORD));
-		EasyMock.expect(equipment.getItem(EquipmentSlot.OFF_HAND)).andReturn(new ItemStack(Material.DIAMOND_SHOVEL));
 
 		EasyMock.replay(player, equipment);
 
-		isWearingCondition.run(event);
+		assert isWearingCondition.check(event);
 
 		EasyMock.verify(player, equipment);
-
-		Assert.assertTrue(isWearingCondition.evaluate(event).isTrue());
 	}
 
 }
