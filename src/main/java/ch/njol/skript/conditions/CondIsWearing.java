@@ -13,9 +13,7 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
-import org.bukkit.entity.Donkey;
-import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Mule;
+import org.bukkit.entity.*;
 import org.bukkit.event.Event;
 import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.EquipmentSlot;
@@ -70,10 +68,13 @@ public class CondIsWearing extends Condition {
 					if (HAS_CAN_USE_SLOT_METHOD)
 						return entity.canUseEquipmentSlot(slot);
 
-					// according to wiki it appears to be that these are the only ones with a body equipment slot
 					// body slot was added in 1.20.5
 					if (HAS_BODY_SLOT && slot == EquipmentSlot.BODY)
-						return entity instanceof Donkey || entity instanceof Mule;
+						// this may change in the future, but for now this is the only way to figure out
+						// if the entity can use the body slot
+						return entity instanceof Horse
+							|| entity instanceof Wolf
+							|| entity instanceof Llama;
 
 					return true;
 				})
