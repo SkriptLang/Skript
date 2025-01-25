@@ -34,6 +34,16 @@ test "name of item":
 	set the name of {_thing} to "blob"
 	assert name of {_thing} is "blob" with "item name didn't change"
 
+test "name of block":
+	set {_data} to blockdata of block at event-location
+	set block at event-location to a chest
+	assert name of block at event-location is not set with "The block shouldn't have a name yet"
+	set name of block at event-location to "Mr Chesty"
+	assert name of block at event-location = "Mr Chesty" with "The block should have a name now"
+	reset name of block at event-location
+	assert name of block at event-location is not set with "The block should no longer have a name"
+	set block at event-location to {_data}
+
 using script reflection
 
 test "config name (new)":
@@ -53,7 +63,7 @@ test "node name (new)":
 	assert name of {_node} is "test ""name of world""" with "first node name was wrong"
 
 	set {_node} to the current script
-	set {_node} to the 4th element of nodes of {_node} # Obviously, this changes if this file changes
+	set {_node} to the 5th element of nodes of {_node} # Obviously, this changes if this file changes
 	assert name of {_node} is "using script reflection" with "4th node name was wrong"
 
 	# root node
