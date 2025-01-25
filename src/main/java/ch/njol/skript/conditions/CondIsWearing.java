@@ -59,6 +59,7 @@ public class CondIsWearing extends Condition {
 				return false; // spigot nullability, no identifier as to why this occurs
 
 			ItemStack[] contents = Arrays.stream(EquipmentSlot.values())
+				.filter(entity::canUseEquipmentSlot)
 				.map(equipment::getItem)
 				.toArray(ItemStack[]::new);
 
