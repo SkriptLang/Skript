@@ -79,7 +79,5 @@ test "loop queue":
 		add 1 to {_count}
 		if {_count} is less than 10:
 			add {_word} to {_queue}
-		broadcast {_count}
-		broadcast {_queue}
 
 	assert {_count} is 11
