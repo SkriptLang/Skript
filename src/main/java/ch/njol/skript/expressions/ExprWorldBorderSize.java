@@ -27,7 +27,6 @@ public class ExprWorldBorderSize extends SimplePropertyExpression<WorldBorder, D
 	}
 
 	private boolean radius;
-	private static final double MAX_WORLDBORDER_SIZE = 6.0E7;
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
@@ -51,12 +50,13 @@ public class ExprWorldBorderSize extends SimplePropertyExpression<WorldBorder, D
 
 	@Override
 	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
-		double input = mode == ChangeMode.RESET ? MAX_WORLDBORDER_SIZE : Math2.fit(1, ((Number) delta[0]).doubleValue() * (radius ? 2 : 1), MAX_WORLDBORDER_SIZE);
+		double input = mode == ChangeMode.RESET ? null : ((Number) delta[0]).doubleValue() * (radius ? 2 : 1);
 		for (WorldBorder worldBorder : getExpr().getArray(event)) {
 			switch (mode) {
-				case SET, RESET -> worldBorder.setSize(input);
-				case ADD -> worldBorder.setSize(worldBorder.getSize() + input);
-				case REMOVE -> worldBorder.setSize(worldBorder.getSize() - input);
+				case RESET -> worldBorder.setSize(worldBorder.getMaxSize());
+				case SET -> worldBorder.setSize(Math2.fit(1, input, worldBorder.getMaxSize()));
+				case ADD -> worldBorder.setSize(Math2.fit(1, worldBorder.getSize() + input, worldBorder.getMaxSize()));
+				case REMOVE -> worldBorder.setSize(Math2.fit(1, worldBorder.getSize() - input, worldBorder.getMaxSize()));
 			}
 		}
 	}

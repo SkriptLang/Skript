@@ -13,8 +13,8 @@ import org.jetbrains.annotations.Nullable;
 
 @Name("Warning Distance of World Border")
 @Description({
-	"The warning distance of a world border. The player's screen will be tinted red when they are within this distance of the border",
-	"Note: Distance can not be less than 0"
+	"The warning distance of a world border. The player's screen will be tinted red when they are within this distance of the border.",
+	"Players only see a red tint when approaching a world's worldborder and the warning distance has to be an integer greater than 0."
 })
 @Examples("set world border warning distance of {_worldborder} to 1")
 @Since("INSERT VERSION")
@@ -42,11 +42,10 @@ public class ExprWorldBorderWarningDistance extends SimplePropertyExpression<Wor
 		int input = mode == ChangeMode.RESET ? 5 : ((Number) delta[0]).intValue();
 		for (WorldBorder worldBorder : getExpr().getArray(event)) {
 			switch (mode) {
-				case SET, RESET -> worldBorder.setWarningDistance(input);
-				case ADD -> worldBorder.setWarningDistance(worldBorder.getWarningDistance() + input);
-				case REMOVE -> worldBorder.setWarningDistance(worldBorder.getWarningDistance() - input);
+				case SET, RESET -> worldBorder.setWarningDistance(Math.max(input, 0));
+				case ADD -> worldBorder.setWarningDistance(Math.max(worldBorder.getWarningDistance() + input, 0));
+				case REMOVE -> worldBorder.setWarningDistance(Math.max(worldBorder.getWarningDistance() - input, 0));
 			}
-			worldBorder.setWarningDistance(Math.max(worldBorder.getWarningDistance(), 0));
 		}
 	}
 

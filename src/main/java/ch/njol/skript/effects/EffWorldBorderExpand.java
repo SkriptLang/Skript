@@ -70,7 +70,7 @@ public class EffWorldBorderExpand extends Effect {
 			if (timespan != null)
 				speed = timespan.getAs(TimePeriod.SECOND);
 		}
-		WorldBorder[] worldBorders = this.worldBorders.getAll(event);
+		WorldBorder[] worldBorders = this.worldBorders.getArray(event);
 		if (to) {
 			for (WorldBorder worldBorder : worldBorders)
 				worldBorder.setSize(Math2.fit(1, input, MAX_WORLDBORDER_SIZE), speed);

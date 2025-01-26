@@ -43,9 +43,8 @@ public class ExprWorldBorderWarningTime extends SimplePropertyExpression<WorldBo
 			switch (mode) {
 				case SET, RESET -> worldBorder.setWarningTime(input);
 				case ADD -> worldBorder.setWarningTime(worldBorder.getWarningTime() + input);
-				case REMOVE -> worldBorder.setWarningTime(worldBorder.getWarningTime() - input);
+				case REMOVE -> worldBorder.setWarningTime(Math.max(worldBorder.getWarningTime() - input, 0));
 			}
-			worldBorder.setWarningTime(Math.max(worldBorder.getWarningTime(), 0));
 		}
 	}
 

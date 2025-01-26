@@ -42,11 +42,10 @@ public class ExprWorldBorderDamageAmount extends SimplePropertyExpression<WorldB
 		double input = mode == ChangeMode.RESET ? 0.2 : ((Number) delta[0]).doubleValue();
 		for (WorldBorder worldBorder : getExpr().getArray(event)) {
 			switch (mode) {
-				case SET, RESET -> worldBorder.setDamageAmount(input);
-				case ADD -> worldBorder.setDamageAmount(worldBorder.getDamageAmount() + input);
-				case REMOVE -> worldBorder.setDamageAmount(worldBorder.getDamageAmount() - input);
+				case SET, RESET -> worldBorder.setDamageAmount(Math.max(input, 0));
+				case ADD -> worldBorder.setDamageAmount(Math.max(worldBorder.getDamageAmount() + input, 0));
+				case REMOVE -> worldBorder.setDamageAmount(Math.max(worldBorder.getDamageAmount() - input, 0));
 			}
-			worldBorder.setDamageAmount(Math.max(worldBorder.getDamageAmount(), 0));
 		}
 	}
 

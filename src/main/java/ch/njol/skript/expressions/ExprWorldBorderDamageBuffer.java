@@ -42,11 +42,10 @@ public class ExprWorldBorderDamageBuffer extends SimplePropertyExpression<WorldB
 		double input = mode == ChangeMode.RESET ? 5 : ((Number) delta[0]).doubleValue();
 		for (WorldBorder worldBorder : getExpr().getArray(event)) {
 			switch (mode) {
-				case SET, RESET -> worldBorder.setDamageBuffer(input);
-				case ADD -> worldBorder.setDamageBuffer(worldBorder.getDamageBuffer() + input);
-				case REMOVE -> worldBorder.setDamageBuffer(worldBorder.getDamageBuffer() - input);
+				case SET, RESET -> worldBorder.setDamageBuffer(Math.max(input, 0));
+				case ADD -> worldBorder.setDamageBuffer(Math.max(worldBorder.getDamageBuffer() + input, 0));
+				case REMOVE -> worldBorder.setDamageBuffer(Math.max(worldBorder.getDamageBuffer() - input, 0));
 			}
-			worldBorder.setDamageBuffer(Math.max(worldBorder.getDamageBuffer(), 0));
 		}
 	}
 
