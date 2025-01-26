@@ -18,6 +18,7 @@ import org.bukkit.event.Event;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.UnknownNullability;
 import org.skriptlang.skript.lang.experiment.Experiment;
 import org.skriptlang.skript.lang.experiment.ExperimentSet;
 import org.skriptlang.skript.lang.experiment.Experimented;
@@ -577,7 +578,7 @@ public final class ParserInstance implements Experimented {
 	 * or null (after {@code false} has been asserted) if the given data class isn't registered.
 	 */
 	@SuppressWarnings("unchecked")
-	public <T extends Data> T getData(Class<T> dataClass) {
+	public <T extends Data> @UnknownNullability T getData(Class<T> dataClass) {
 		if (dataMap.containsKey(dataClass)) {
 			return (T) dataMap.get(dataClass);
 		} else if (dataRegister.containsKey(dataClass)) {
