@@ -32,9 +32,9 @@ public class EffWorldBorderExpand extends Effect {
 
 	static {
 		Skript.registerEffect(EffWorldBorderExpand.class,
-			"(expand|grow) [(diameter|:radius) of] %worldborders% (by|:to) %number% [over [a period of] %-timespan%]",
+			"(expand|grow) [[the] (diameter|:radius) of] %worldborders% (by|:to) %number% [over [a period of] %-timespan%]",
 			"(expand|grow) %worldborders%['s (diameter|:radius)] (by|:to) %number% [over [a period of] %-timespan%]",
-			"(contract|shrink) [(diameter|:radius) of] %worldborders% (by|:to) %number% [over [a period of] %-timespan%]",
+			"(contract|shrink) [[the] (diameter|:radius) of] %worldborders% (by|:to) %number% [over [a period of] %-timespan%]",
 			"(contract|shrink) %worldborders%['s (diameter|:radius)] (by|:to) %number% [over [a period of] %-timespan%]"
 		);
 	}
