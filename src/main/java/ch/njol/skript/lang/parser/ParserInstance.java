@@ -25,11 +25,7 @@ import org.skriptlang.skript.lang.script.Script;
 import org.skriptlang.skript.lang.structure.Structure;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Function;
 
 public final class ParserInstance implements Experimented {
@@ -718,8 +714,8 @@ public final class ParserInstance implements Experimented {
 	@Deprecated
 	public @Nullable SkriptEvent getCurrentSkriptEvent() {
 		Structure structure = getCurrentStructure();
-		if (structure instanceof SkriptEvent)
-			return (SkriptEvent) structure;
+		if (structure instanceof SkriptEvent event)
+			return event;
 		return null;
 	}
 
@@ -728,7 +724,7 @@ public final class ParserInstance implements Experimented {
 	 */
 	@Deprecated
 	public void setCurrentSkriptEvent(@Nullable SkriptEvent currentSkriptEvent) {
-		setCurrentStructure(currentSkriptEvent);
+		this.setCurrentStructure(currentSkriptEvent);
 	}
 
 	/**
@@ -736,7 +732,7 @@ public final class ParserInstance implements Experimented {
 	 */
 	@Deprecated
 	public void deleteCurrentSkriptEvent() {
-		setCurrentStructure(null);
+		this.setCurrentStructure(null);
 	}
 
 	/**

@@ -196,7 +196,7 @@ public class SkriptParser {
 						assert pattern != null;
 						ParseResult parseResult;
 						try {
-							parsingStack.push(new ParsingStack.Element(info, i));
+							parsingStack.push(new ParsingStack.Element(info, patternIndex));
 							parseResult = parse_i(pattern);
 						} catch (MalformedPatternException e) {
 							String message = "pattern compiling exception, element class: " + info.getElementClass().getName();
@@ -213,7 +213,7 @@ public class SkriptParser {
 							// Recursive parsing call done, pop the element from the parsing stack
 							ParsingStack.Element stackElement = parsingStack.pop();
 
-							assert stackElement.getSyntaxElementInfo() == info && stackElement.getPatternIndex() == i;
+							assert stackElement.syntaxElementInfo() == info && stackElement.patternIndex() == patternIndex;
 						}
 						if (parseResult != null) {
 							assert parseResult.source != null; // parse results from parse_i have a source

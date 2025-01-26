@@ -1,21 +1,3 @@
-/**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
 package ch.njol.skript.lang.parser;
 
 import ch.njol.skript.lang.Expression;
@@ -32,7 +14,8 @@ import java.util.LinkedList;
 /**
  * A stack that keeps track of what Skript is currently parsing.
  * <p>
- * When accessing the stack from within {@link SyntaxElement#init(Expression[], int, Kleenean, SkriptParser.ParseResult)},
+ * When accessing the stack from within
+ * {@link SyntaxElement#init(Expression[], int, Kleenean, SkriptParser.ParseResult)},
  * the stack element corresponding to that {@link SyntaxElement} is <b>not</b>
  * on the parsing stack.
  */
@@ -73,9 +56,8 @@ public class ParsingStack implements Iterable<ParsingStack.Element> {
 	 * starting with the top element at index 0.
 	 *
 	 * @param index the index in stack.
-	 *
 	 * @throws IndexOutOfBoundsException if the index is not appointed
-	 * 									  to an element in the stack.
+	 *                                   to an element in the stack.
 	 */
 	public Element peek(int index) throws IndexOutOfBoundsException {
 		if (index < 0 || index >= size()) {
@@ -138,7 +120,7 @@ public class ParsingStack implements Iterable<ParsingStack.Element> {
 			} else {
 				for (Element element : stack) {
 					printStream.println("\t" + element.getSyntaxElementClass().getName() +
-						" @ " + element.getPatternIndex());
+						" @ " + element.patternIndex());
 				}
 			}
 		}
@@ -155,16 +137,10 @@ public class ParsingStack implements Iterable<ParsingStack.Element> {
 	/**
 	 * A stack element, containing details about the syntax element it is about.
 	 */
-	public static class Element {
+	public record Element(SyntaxElementInfo<?> syntaxElementInfo, int patternIndex) {
 
-		private final SyntaxElementInfo<?> syntaxElementInfo;
-		private final int patternIndex;
-
-		public Element(SyntaxElementInfo<?> syntaxElementInfo, int patternIndex) {
+		public Element {
 			assert patternIndex >= 0 && patternIndex < syntaxElementInfo.getPatterns().length;
-
-			this.syntaxElementInfo = syntaxElementInfo;
-			this.patternIndex = patternIndex;
 		}
 
 		/**
@@ -175,7 +151,8 @@ public class ParsingStack implements Iterable<ParsingStack.Element> {
 		 * @see #getSyntaxElementClass()
 		 * @see #getPattern()
 		 */
-		public SyntaxElementInfo<?> getSyntaxElementInfo() {
+		@Override
+		public SyntaxElementInfo<?> syntaxElementInfo() {
 			return syntaxElementInfo;
 		}
 
@@ -183,7 +160,8 @@ public class ParsingStack implements Iterable<ParsingStack.Element> {
 		 * Gets the index to the registered patterns for the syntax element
 		 * of this stack element.
 		 */
-		public int getPatternIndex() {
+		@Override
+		public int patternIndex() {
 			return patternIndex;
 		}
 
