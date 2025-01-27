@@ -22,6 +22,7 @@ import ch.njol.skript.lang.Trigger;
 import ch.njol.skript.lang.TriggerItem;
 import ch.njol.skript.lang.Condition.ConditionType;
 import ch.njol.skript.lang.util.SimpleExpression;
+import ch.njol.skript.lang.variable.VariableManager;
 import ch.njol.skript.localization.Language;
 import ch.njol.skript.localization.Message;
 import ch.njol.skript.localization.PluralizingArgsMessage;
@@ -753,6 +754,10 @@ public final class Skript extends JavaPlugin implements Listener {
 
 		// Tell Timings that we are here!
 		SkriptTimings.setSkript(this);
+	}
+
+	public VariableManager variablesManager() {
+		return null; // todo
 	}
 
 	private static class ServerReloadListener implements Listener {

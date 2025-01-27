@@ -1,0 +1,8 @@
+using named variables
+using examples
+
+variable &test1 is a text
+
+test "named variables":
+	set _test to "hello"
+	set &test1 to _test
