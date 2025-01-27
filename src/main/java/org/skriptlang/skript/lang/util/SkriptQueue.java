@@ -100,7 +100,21 @@ public class SkriptQueue extends LinkedList<@NotNull Object>
 
 	@Override
 	public Iterator<Object> containerIterator() {
-		return this.iterator();
+		return new Iterator<>() {
+			@Override
+			public boolean hasNext() {
+				return !SkriptQueue.this.isEmpty();
+			}
+
+			@Override
+			public Object next() {
+				return SkriptQueue.this.pollFirst();
+			}
+
+			@Override
+			public void remove() {
+			}
+		};
 	}
 
 }
