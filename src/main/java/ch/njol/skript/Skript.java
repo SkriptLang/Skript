@@ -10,6 +10,16 @@ import ch.njol.skript.events.EvtSkript;
 import ch.njol.skript.hooks.Hook;
 import ch.njol.skript.lang.*;
 import ch.njol.skript.lang.Effect;
+import ch.njol.skript.lang.Expression;
+import ch.njol.skript.lang.ExpressionInfo;
+import ch.njol.skript.lang.ExpressionType;
+import ch.njol.skript.lang.Section;
+import ch.njol.skript.lang.SkriptEvent;
+import ch.njol.skript.lang.SkriptEventInfo;
+import ch.njol.skript.lang.Statement;
+import ch.njol.skript.lang.SyntaxElementInfo;
+import ch.njol.skript.lang.Trigger;
+import ch.njol.skript.lang.TriggerItem;
 import ch.njol.skript.lang.Condition.ConditionType;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.localization.Language;
@@ -85,6 +95,7 @@ import org.skriptlang.skript.log.runtime.RuntimeErrorManager;
 import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.registration.SyntaxOrigin;
 import org.skriptlang.skript.registration.SyntaxRegistry;
+import org.skriptlang.skript.util.ClassLoader;
 
 import java.io.File;
 import java.io.IOException;
@@ -148,7 +159,7 @@ public final class Skript extends JavaPlugin implements Listener {
 	@Nullable
 	private static Skript instance = null;
 
-	static org.skriptlang.skript.@UnknownNullability Skript skript = null;
+	private static org.skriptlang.skript.@UnknownNullability Skript skript = null;
 	private static org.skriptlang.skript.@UnknownNullability Skript unmodifiableSkript = null;
 
 	private static boolean disabled = false;
@@ -453,7 +464,7 @@ public final class Skript extends JavaPlugin implements Listener {
 
 		// initialize the modern Skript instance
 		skript = org.skriptlang.skript.Skript.of(getClass(), getName());
-		unmodifiableSkript = skript.unmodifiableView();
+		unmodifiableSkript = new ModernSkriptBridge.SpecialUnmodifiableSkript(skript);
 		skript.localizer().setSourceDirectories("lang",
 				getDataFolder().getAbsolutePath() + "lang");
 		// initialize the old Skript SkriptAddon instance
@@ -669,10 +680,11 @@ public final class Skript extends JavaPlugin implements Listener {
 				debug("Early init done");
 
 				if (TestMode.ENABLED) {
-					if (TestMode.DEV_MODE)
+					if (TestMode.DEV_MODE) {
 						runTests(); // Dev mode doesn't need a delay
-					else
+					} else {
 						Bukkit.getWorlds().get(0).getChunkAtAsync(100, 100).thenRun(() -> runTests());
+					}
 				}
 
 				Skript.metrics = new Metrics(Skript.getInstance(), 722); // 722 is our bStats plugin ID
@@ -813,9 +825,14 @@ public final class Skript extends JavaPlugin implements Listener {
 			TestingLogHandler errorCounter = new TestingLogHandler(Level.SEVERE);
 			try {
 				errorCounter.start();
-				File testDir = TestMode.TEST_DIR.toFile();
-				assert testDir != null;
-				ScriptLoader.loadScripts(testDir, errorCounter);
+
+				// load example scripts (cleanup after)
+				ScriptLoader.loadScripts(new File(getScriptsFolder(), "-examples" + File.separator), errorCounter);
+				// unload these as to not interfere with the tests
+				ScriptLoader.unloadScripts(ScriptLoader.getLoadedScripts());
+
+				// load test directory scripts
+				ScriptLoader.loadScripts(TestMode.TEST_DIR.toFile(), errorCounter);
 			} finally {
 				errorCounter.stop();
 			}
@@ -836,14 +853,24 @@ public final class Skript extends JavaPlugin implements Listener {
 
 				info("Running sync JUnit tests...");
 				try {
-					List<Class<?>> classes = Lists.newArrayList(Utils.getClasses(Skript.getInstance(), "org.skriptlang.skript.test", "tests"));
-					// Don't attempt to run inner/anonymous classes as tests
-					classes.removeIf(Class::isAnonymousClass);
-					classes.removeIf(Class::isLocalClass);
-					// Test that requires package access. This is only present when compiling with src/test.
-					classes.add(Class.forName("ch.njol.skript.variables.FlatFileStorageTest"));
-					classes.add(Class.forName("ch.njol.skript.config.ConfigTest"));
-					classes.add(Class.forName("ch.njol.skript.config.NodeTest"));
+					// Search for all test classes
+					Set<Class<?>> classes = new HashSet<>();
+					ClassLoader.builder()
+						.addSubPackages("org.skriptlang.skript", "ch.njol.skript")
+						.filter(fqn -> fqn.endsWith("Test"))
+						.initialize(true)
+						.deep(true)
+						.forEachClass(clazz -> {
+							if (clazz.isAnonymousClass() || clazz.isLocalClass())
+								return;
+							classes.add(clazz);
+						})
+						.build()
+						.loadClasses(Skript.class, getFile());
+					// remove some known non-tests that get picked up
+					classes.remove(SkriptJUnitTest.class);
+					classes.remove(SkriptAsyncJUnitTest.class);
+
 					size.set(classes.size());
 					for (Class<?> clazz : classes) {
 						if (SkriptAsyncJUnitTest.class.isAssignableFrom(clazz)) {
@@ -853,11 +880,6 @@ public final class Skript extends JavaPlugin implements Listener {
 
 						runTest(clazz, shutdownDelay, tests, milliseconds, ignored, fails);
 					}
-				} catch (IOException e) {
-					Skript.exception(e, "Failed to execute JUnit runtime tests.");
-				} catch (ClassNotFoundException e) {
-					// Should be the Skript test jar gradle task.
-					assert false : "Class 'ch.njol.skript.variables.FlatFileStorageTest' was not found.";
 				} catch (InstantiationException | IllegalAccessException | IllegalArgumentException |
 						 InvocationTargetException | NoSuchMethodException | SecurityException e) {
 					Skript.exception(e, "Failed to initalize test JUnit classes.");
@@ -1437,7 +1459,18 @@ public final class Skript extends JavaPlugin implements Listener {
 
 	}
 
-	private static SyntaxOrigin getSyntaxOrigin(JavaPlugin plugin) {
+	/**
+	 * Attempts to create a SyntaxOrigin from a provided class.
+	 */
+	@ApiStatus.Internal
+	@ApiStatus.Experimental
+	public static SyntaxOrigin getSyntaxOrigin(Class<?> source) {
+		JavaPlugin plugin;
+		try {
+			plugin = JavaPlugin.getProvidingPlugin(source);
+		} catch (IllegalArgumentException e) { // Occurs when the method fails to determine the providing plugin
+			return () -> source.getName();
+		}
 		SkriptAddon addon = getAddon(plugin);
 		if (addon != null) {
 			return SyntaxOrigin.of(addon);
@@ -1466,7 +1499,7 @@ public final class Skript extends JavaPlugin implements Listener {
 		checkAcceptRegistrations();
 		skript.syntaxRegistry().register(SyntaxRegistry.CONDITION, SyntaxInfo.builder(conditionClass)
 				.priority(type.priority())
-				.origin(getSyntaxOrigin(JavaPlugin.getProvidingPlugin(conditionClass)))
+				.origin(getSyntaxOrigin(conditionClass))
 				.addPatterns(patterns)
 				.build()
 		);
@@ -1481,7 +1514,7 @@ public final class Skript extends JavaPlugin implements Listener {
 	public static <E extends Effect> void registerEffect(Class<E> effectClass, String... patterns) throws IllegalArgumentException {
 		checkAcceptRegistrations();
 		skript.syntaxRegistry().register(SyntaxRegistry.EFFECT, SyntaxInfo.builder(effectClass)
-				.origin(getSyntaxOrigin(JavaPlugin.getProvidingPlugin(effectClass)))
+				.origin(getSyntaxOrigin(effectClass))
 				.addPatterns(patterns)
 				.build()
 		);
@@ -1497,7 +1530,7 @@ public final class Skript extends JavaPlugin implements Listener {
 	public static <E extends Section> void registerSection(Class<E> sectionClass, String... patterns) throws IllegalArgumentException {
 		checkAcceptRegistrations();
 		skript.syntaxRegistry().register(SyntaxRegistry.SECTION, SyntaxInfo.builder(sectionClass)
-				.origin(getSyntaxOrigin(JavaPlugin.getProvidingPlugin(sectionClass)))
+				.origin(getSyntaxOrigin(sectionClass))
 				.addPatterns(patterns)
 				.build()
 		);
@@ -1548,7 +1581,7 @@ public final class Skript extends JavaPlugin implements Listener {
 		checkAcceptRegistrations();
 		skript.syntaxRegistry().register(SyntaxRegistry.EXPRESSION, SyntaxInfo.Expression.builder(expressionType, returnType)
 				.priority(type.priority())
-				.origin(getSyntaxOrigin(JavaPlugin.getProvidingPlugin(expressionType)))
+				.origin(getSyntaxOrigin(expressionType))
 				.addPatterns(patterns)
 				.build()
 		);
@@ -1615,7 +1648,7 @@ public final class Skript extends JavaPlugin implements Listener {
 	public static <E extends Structure> void registerStructure(Class<E> structureClass, String... patterns) {
 		checkAcceptRegistrations();
 		skript.syntaxRegistry().register(SyntaxRegistry.STRUCTURE, SyntaxInfo.Structure.builder(structureClass)
-				.origin(getSyntaxOrigin(JavaPlugin.getProvidingPlugin(structureClass)))
+				.origin(getSyntaxOrigin(structureClass))
 				.addPatterns(patterns)
 				.build()
 		);
@@ -1624,7 +1657,7 @@ public final class Skript extends JavaPlugin implements Listener {
 	public static <E extends Structure> void registerSimpleStructure(Class<E> structureClass, String... patterns) {
 		checkAcceptRegistrations();
 		skript.syntaxRegistry().register(SyntaxRegistry.STRUCTURE, SyntaxInfo.Structure.builder(structureClass)
-			.origin(getSyntaxOrigin(JavaPlugin.getProvidingPlugin(structureClass)))
+			.origin(getSyntaxOrigin(structureClass))
 			.addPatterns(patterns)
 			.nodeType(SyntaxInfo.Structure.NodeType.SIMPLE)
 			.build()
@@ -1636,7 +1669,7 @@ public final class Skript extends JavaPlugin implements Listener {
 	) {
 		checkAcceptRegistrations();
 		skript.syntaxRegistry().register(SyntaxRegistry.STRUCTURE, SyntaxInfo.Structure.builder(structureClass)
-				.origin(getSyntaxOrigin(JavaPlugin.getProvidingPlugin(structureClass)))
+				.origin(getSyntaxOrigin(structureClass))
 				.addPatterns(patterns)
 				.entryValidator(entryValidator)
 				.build()
