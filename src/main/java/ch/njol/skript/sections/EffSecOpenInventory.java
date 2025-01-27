@@ -57,7 +57,7 @@ public class EffSecOpenInventory extends EffectSection {
 		ANVIL("anvil"),
 		CARTOGRAPHY("cartography [table]", Skript.methodExists(HumanEntity.class, "openCartographyTable", Location.class, boolean.class),
 				"Opening a cartography table inventory requires Paper."),
-		ENCHANTING("enchant(ment|ing) [table]", new Version(1, 14)),
+		ENCHANTING("enchant(ment|ing) [table]"),
 		GRINDSTONE("grindstone", Skript.methodExists(HumanEntity.class, "openGrindstone", Location.class, boolean.class),
 				"Opening a grindstone inventory requires Paper."),
 		LOOM("loom", Skript.methodExists(HumanEntity.class, "openLoom", Location.class, boolean.class),
