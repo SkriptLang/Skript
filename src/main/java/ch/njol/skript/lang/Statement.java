@@ -48,11 +48,12 @@ public abstract class Statement extends TriggerItem implements SyntaxElement {
 			log.clear();
 
 			Statement statement;
+			var iterator = Skript.instance().syntaxRegistry().syntaxes(org.skriptlang.skript.registration.SyntaxRegistry.STATEMENT).iterator();
 			if (node != null) {
 				Section.SectionContext sectionContext = ParserInstance.get().getData(Section.SectionContext.class);
 				statement = sectionContext.modify(node, items, () -> {
 						//noinspection unchecked,rawtypes
-						Statement parsed = (Statement) SkriptParser.parse(input, (Iterator) Skript.getStatements().iterator(), defaultError);
+						Statement parsed = (Statement) SkriptParser.parse(input, (Iterator) iterator, defaultError);
 						if (parsed != null && !sectionContext.claimed()) {
 							Skript.error("The line '" + input + "' is a valid statement but cannot function as a section (:) because there is no syntax in the line to manage it.");
 							return null;
@@ -61,7 +62,7 @@ public abstract class Statement extends TriggerItem implements SyntaxElement {
 				});
 			} else {
 				//noinspection unchecked,rawtypes
-				statement = (Statement) SkriptParser.parse(input, (Iterator) Skript.getStatements().iterator(), defaultError);
+				statement = (Statement) SkriptParser.parse(input, (Iterator) iterator, defaultError);
 			}
 
 			if (statement != null) {
