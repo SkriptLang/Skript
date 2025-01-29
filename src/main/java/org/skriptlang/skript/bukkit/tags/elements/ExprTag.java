@@ -59,7 +59,7 @@ public class ExprTag extends SimpleExpression<Tag> {
 	}
 
 	private Expression<String> names;
-	public TagType<?>[] types;
+	TagType<?>[] types;
 	private TagOrigin origin;
 	private boolean datapackOnly;
 
