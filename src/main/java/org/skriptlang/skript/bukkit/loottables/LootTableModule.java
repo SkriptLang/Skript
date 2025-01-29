@@ -85,7 +85,7 @@ LootTableModule {
 
 				@Override
 				public boolean mustSyncDeserialization() {
-					return false;
+					return true;
 				}
 
 				@Override
