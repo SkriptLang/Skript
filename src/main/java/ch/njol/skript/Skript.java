@@ -125,8 +125,6 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
 
-import static io.papermc.lib.PaperLib.isPaper;
-
 // TODO meaningful error if someone uses an %expression with percent signs% outside of text or a variable
 
 /**
@@ -682,7 +680,7 @@ public final class Skript extends JavaPlugin implements Listener {
 				debug("Early init done");
 
 				if (TestMode.ENABLED) {
-					if (!TestMode.DEV_MODE) {
+					if (TestMode.DEV_MODE) {
 						runTests(); // Dev mode doesn't need a delay
 					} else {
 						PaperLib.getChunkAtAsync(Bukkit.getWorlds().get(0), 100, 100).thenRun(() -> runTests());
