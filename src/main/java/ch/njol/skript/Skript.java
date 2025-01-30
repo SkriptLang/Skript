@@ -46,6 +46,7 @@ import ch.njol.util.coll.iterator.CheckedIterator;
 import ch.njol.util.coll.iterator.EnumerationIterable;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import io.papermc.lib.PaperLib;
 import org.bstats.bukkit.Metrics;
 import org.bukkit.*;
 import org.bukkit.command.CommandSender;
@@ -684,13 +685,7 @@ public final class Skript extends JavaPlugin implements Listener {
 					if (!TestMode.DEV_MODE) {
 						runTests(); // Dev mode doesn't need a delay
 					} else {
-						World world = Bukkit.getWorlds().get(0);
-						if (isPaper()) {
-							world.getChunkAtAsync(100, 100).thenRun(() -> runTests());
-						} else {
-							world.getChunkAt(100, 100);
-							runTests();
-						}
+						PaperLib.getChunkAtAsync(Bukkit.getWorlds().get(0), 100, 100).thenRun(() -> runTests());
 					}
 				}
 
