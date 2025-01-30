@@ -683,27 +683,19 @@ public final class Skript extends JavaPlugin implements Listener {
 				debug("Early init done");
 
 				if (TestMode.ENABLED) {
-					if (TestMode.DEV_MODE) {
+					if (!TestMode.DEV_MODE) {
 						runTests(); // Dev mode doesn't need a delay
 					} else {
 						World world = Bukkit.getWorlds().get(0);
-						if (isPaper())
+						if (isPaper()) {
 							world.getChunkAtAsync(100, 100).thenRun(() -> runTests());
-						else {
-							Bukkit.getServer().getPluginManager().registerEvents(new Listener() {
-								@EventHandler
-								public void onChunkLoad(ChunkLoadEvent event) {
-									Chunk chunk = event.getChunk();
-									if (chunk.getX() == 100 && chunk.getZ() == 100) {
-										runTests();
-										event.getHandlers().unregister(this);
-									}
-								}
-							}, Skript.getInstance());
+						} else {
 							world.getChunkAt(100, 100);
+							runTests();
 						}
 					}
 				}
+
 
 				Skript.metrics = new Metrics(Skript.getInstance(), 722); // 722 is our bStats plugin ID
 				SkriptMetrics.setupMetrics(Skript.metrics);
