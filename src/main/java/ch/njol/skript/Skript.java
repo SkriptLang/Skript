@@ -687,7 +687,6 @@ public final class Skript extends JavaPlugin implements Listener {
 					}
 				}
 
-
 				Skript.metrics = new Metrics(Skript.getInstance(), 722); // 722 is our bStats plugin ID
 				SkriptMetrics.setupMetrics(Skript.metrics);
 
