@@ -14,6 +14,7 @@ import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
@@ -158,6 +159,11 @@ public class VisualEffect implements SyntaxElement, YggdrasilSerializable {
 			return false;
 		VisualEffect that = (VisualEffect) o;
 		return type == that.type && Objects.equals(data, that.data);
+	}
+
+	@Override
+	public @NotNull String getSyntaxTypeName() {
+		return "visual effect"; // why is this a unique syntax element, it really needs to go
 	}
 	
 }

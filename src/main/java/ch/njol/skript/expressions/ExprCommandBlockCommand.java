@@ -21,7 +21,7 @@ import org.jetbrains.annotations.Nullable;
 	"send command of {_block}",
 	"set command of {_cmdMinecart} to \"say asdf\""
 })
-@Since("INSERT VERSION")
+@Since("2.10")
 public class ExprCommandBlockCommand extends SimplePropertyExpression<Object, String> {
 
 	static {

@@ -24,7 +24,7 @@ import org.jetbrains.annotations.Nullable;
 			"\t\tteleport hooked entity to player",
 })
 @Events("Fishing")
-@Since("INSERT VERSION")
+@Since("2.10")
 public class ExprFishingHookEntity extends SimpleExpression<Entity> {
 
 	static {

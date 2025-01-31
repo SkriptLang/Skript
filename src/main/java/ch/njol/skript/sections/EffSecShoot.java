@@ -14,7 +14,6 @@ import ch.njol.skript.lang.Trigger;
 import ch.njol.skript.lang.TriggerItem;
 import ch.njol.skript.registrations.EventValues;
 import ch.njol.skript.util.Direction;
-import ch.njol.skript.util.Getter;
 import ch.njol.skript.variables.Variables;
 import ch.njol.util.Kleenean;
 import org.bukkit.Location;
@@ -40,7 +39,7 @@ import java.util.function.Consumer;
 	"shoot a pig from all players:",
 		"\tadd event-entity to {_projectiles::*}"
 })
-@Since("INSERT VERSION")
+@Since("2.10")
 public class EffSecShoot extends EffectSection {
 
 	//TODO: Remove reflect method once 1.19 is no longer supported
@@ -62,7 +61,7 @@ public class EffSecShoot extends EffectSection {
 		},
 		PROJECTILE_NO_WORLD_NO_TRIGGER {
 			@Override
-			public @Nullable Entity shootHandler(EntityData<?> entityData, LivingEntity shooter, Location location, Class<? extends Entity> type, Vector vector, Consumer<?> consumer) {
+			public @NotNull Entity shootHandler(EntityData<?> entityData, LivingEntity shooter, Location location, Class<? extends Entity> type, Vector vector, Consumer<?> consumer) {
 				//noinspection unchecked
 				Projectile projectile = shooter.launchProjectile((Class<? extends Projectile>) type);
 				set(projectile, entityData);
@@ -85,7 +84,7 @@ public class EffSecShoot extends EffectSection {
 		},
 		PROJECTILE_WORLD_NO_TRIGGER {
 			@Override
-			public @Nullable Entity shootHandler(EntityData<?> entityData, LivingEntity shooter, Location location, Class<? extends Entity> type, Vector vector, Consumer<?> consumer) {
+			public @NotNull Entity shootHandler(EntityData<?> entityData, LivingEntity shooter, Location location, Class<? extends Entity> type, Vector vector, Consumer<?> consumer) {
 				Projectile projectile = (Projectile) shooter.getWorld().spawn(location, type);
 				projectile.setShooter(shooter);
 				return projectile;
@@ -145,25 +144,15 @@ public class EffSecShoot extends EffectSection {
 			"shoot %entitydatas% [from %livingentities/locations%] [(at|with) (speed|velocity) %-number%] [%-direction%]",
 			"(make|let) %livingentities/locations% shoot %entitydatas% [(at|with) (speed|velocity) %-number%] [%-direction%]"
 		);
-		EventValues.registerEventValue(ShootEvent.class, Entity.class, new Getter<Entity, ShootEvent>() {
-			@Override
-			public @Nullable Entity get(ShootEvent shootEvent) {
-				return shootEvent.getProjectile();
-			}
-		}, EventValues.TIME_NOW);
-		EventValues.registerEventValue(ShootEvent.class, Projectile.class, new Getter<Projectile, ShootEvent>() {
-			@Override
-			public @Nullable Projectile get(ShootEvent shootEvent) {
-				return shootEvent.getProjectile() instanceof Projectile projectile ? projectile : null;
-			}
-		}, EventValues.TIME_NOW);
+		EventValues.registerEventValue(ShootEvent.class, Entity.class, ShootEvent::getProjectile, EventValues.TIME_NOW);
+		EventValues.registerEventValue(ShootEvent.class, Projectile.class, shootEvent -> shootEvent.getProjectile()
+			instanceof Projectile projectile ? projectile : null,
+			EventValues.TIME_NOW);
 
 		if (!Skript.isRunningMinecraft(1, 20, 3)) {
 			try {
 				launchWithBukkitConsumer = LivingEntity.class.getMethod("launchProjectile", Class.class, Vector.class, org.bukkit.util.Consumer.class);
-			} catch (NoSuchMethodException e) {
-				throw new RuntimeException(e);
-			}
+			} catch (NoSuchMethodException ignored) {}
 		}
 		boolean launchHasJavaConsumer = Skript.methodExists(LivingEntity.class, "launchProjectile", Class.class, Vector.class, Consumer.class);
 		RUNNING_PAPER = launchWithBukkitConsumer != null || launchHasJavaConsumer;

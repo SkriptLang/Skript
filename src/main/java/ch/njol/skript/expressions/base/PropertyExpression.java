@@ -8,13 +8,17 @@ import ch.njol.skript.lang.SyntaxElement;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
 import com.google.common.base.Preconditions;
+import java.util.Arrays;
 import org.bukkit.event.Event;
+import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.UnknownNullability;
 import org.skriptlang.skript.lang.converter.Converter;
 import org.skriptlang.skript.lang.converter.Converters;
-
-import java.util.Arrays;
+import org.skriptlang.skript.registration.SyntaxInfo;
+import org.skriptlang.skript.registration.SyntaxRegistry;
+import org.skriptlang.skript.util.Priority;
 
 /**
  * Represents an expression which represents a property of another one. Remember to set the expression with {@link #setExpr(Expression)} in
@@ -27,18 +31,15 @@ public abstract class PropertyExpression<F, T> extends SimpleExpression<T> {
 
 	/**
 	 * A helper method to get the property patterns given a property, type, and default expression parameter.
-	 *
-	 * @param property 		the property
-	 * @param fromType 		the type(s) that the property should apply to
-	 * @param defaultExpr 	whether the type(s) should be optional
-	 *
+	 * @param property the property
+	 * @param fromType the type(s) that the property should apply to
+	 * @param defaultExpr whether the type(s) should be optional
 	 * @return an array of strings representing the patterns of the given property and type(s)
 	 * @throws IllegalArgumentException if property or fromType is null
 	 */
 	private static String[] patternsOf(String property, String fromType, boolean defaultExpr) {
-		if (property == null || fromType == null)
-			throw new IllegalArgumentException("'property' or 'fromType' was null.");
-
+		Preconditions.checkNotNull(property, "property must be present");
+		Preconditions.checkNotNull(fromType, "fromType must be present");
 		String types = defaultExpr ? "[of %" + fromType + "%]" : "of %" + fromType + "%";
 		return new String[]{"[the] " + property + " " + types, "%" + fromType + "%'[s] " + property};
 	}
@@ -72,6 +73,36 @@ public abstract class PropertyExpression<F, T> extends SimpleExpression<T> {
 	}
 
 	/**
+	 * A priority for {@link PropertyExpression}s.
+	 * They will be registered before {@link SyntaxInfo#PATTERN_MATCHES_EVERYTHING} expressions
+	 *  but after {@link SyntaxInfo#COMBINED} expressions.
+	 */
+	@ApiStatus.Experimental
+	public static final Priority DEFAULT_PRIORITY = Priority.before(SyntaxInfo.PATTERN_MATCHES_EVERYTHING);
+
+	/**
+	 * Registers an expression with the two default property patterns "property of %types%" and "%types%'[s] property"
+	 *
+	 * @param registry The SyntaxRegistry to register with.
+	 * @param expressionClass The PropertyExpression class being registered.
+	 * @param returnType The class representing the expression's return type.
+	 * @param property The name of the property.
+	 * @param fromType Should be plural to support multiple objects but doesn't have to be.
+	 * @param <T> The return type.
+	 * @param <E> The Expression type.
+	 * @return The registered {@link SyntaxInfo}.
+	 */
+	@ApiStatus.Experimental
+	public static <E extends Expression<T>, T> SyntaxInfo.Expression<E, T> register(SyntaxRegistry registry, Class<E> expressionClass, Class<T> returnType, String property, String fromType) {
+		SyntaxInfo.Expression<E, T> info = SyntaxInfo.Expression.builder(expressionClass, returnType)
+				.priority(DEFAULT_PRIORITY)
+				.addPatterns(getPatterns(property, fromType))
+				.build();
+		registry.register(SyntaxRegistry.EXPRESSION, info);
+		return info;
+	}
+
+	/**
 	 * Registers an expression as {@link ExpressionType#PROPERTY} with the two default property patterns "property of %types%" and "%types%'[s] property"
 	 *
 	 * @param expressionClass the PropertyExpression class being registered.
@@ -81,6 +112,29 @@ public abstract class PropertyExpression<F, T> extends SimpleExpression<T> {
 	 */
 	public static <T> void register(Class<? extends Expression<T>> expressionClass, Class<T> type, String property, String fromType) {
 		Skript.registerExpression(expressionClass, type, ExpressionType.PROPERTY, getPatterns(property, fromType));
+	}
+
+	/**
+	 * Registers an expression with the two default property patterns "property [of %types%]" and "%types%'[s] property"
+	 * This method also makes the expression type optional to force a default expression on the property expression.
+	 *
+	 * @param registry The SyntaxRegistry to register with.
+	 * @param expressionClass The PropertyExpression class being registered.
+	 * @param returnType The class representing the expression's return type.
+	 * @param property The name of the property.
+	 * @param fromType Should be plural to support multiple objects but doesn't have to be.
+	 * @param <T> The return type.
+	 * @param <E> The Expression type.
+	 * @return The registered {@link SyntaxInfo}.
+	 */
+	@ApiStatus.Experimental
+	public static <E extends Expression<T>, T> SyntaxInfo.Expression<E, T> registerDefault(SyntaxRegistry registry, Class<E> expressionClass, Class<T> returnType, String property, String fromType) {
+		SyntaxInfo.Expression<E, T> info = SyntaxInfo.Expression.builder(expressionClass, returnType)
+				.priority(DEFAULT_PRIORITY)
+				.addPatterns(getDefaultPatterns(property, fromType))
+				.build();
+		registry.register(SyntaxRegistry.EXPRESSION, info);
+		return info;
 	}
 
 	/**
@@ -141,11 +195,10 @@ public abstract class PropertyExpression<F, T> extends SimpleExpression<T> {
 	 * @return An array containing the converted values
 	 * @throws ArrayStoreException if the converter returned invalid values
 	 */
-	@SuppressWarnings("deprecation") // for backwards compatibility
-	protected T[] get(final F[] source, final ch.njol.skript.classes.Converter<? super F, ? extends T> converter) {
+	protected T[] get(final F[] source, Converter<? super F, ? extends T> converter) {
 		assert source != null;
 		assert converter != null;
-		return ch.njol.skript.registrations.Converters.convertUnsafe(source, getReturnType(), converter);
+		return Converters.convertUnsafe(source, getReturnType(), converter);
 	}
 
 	@Override

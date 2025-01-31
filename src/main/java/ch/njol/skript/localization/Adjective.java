@@ -57,9 +57,7 @@ public class Adjective extends Message {
 	@Override
 	public String toString() {
 		validate();
-		if (Skript.testing())
-			Skript.warning("Invalid use of Adjective.toString()");
-		return "" + def;
+		return def;
 	}
 	
 	public String toString(int gender, int flags) {

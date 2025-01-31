@@ -299,7 +299,7 @@ public class JavaClasses {
 				.user("quaternionf?s?")
 				.name("Quaternion")
 				.description("Quaternions are four dimensional vectors, often used for representing rotations.")
-				.since("INSERT VERSION")
+				.since("2.10")
 				.parser(new Parser<>() {
 					public boolean canParse(ParseContext context) {
 						return false;

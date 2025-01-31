@@ -8,7 +8,6 @@ import ch.njol.skript.expressions.base.PropertyExpression;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
-import ch.njol.skript.util.Getter;
 import ch.njol.util.Kleenean;
 import ch.njol.util.Math2;
 import ch.njol.util.coll.CollectionUtils;
@@ -39,7 +38,7 @@ import java.util.function.Consumer;
 })
 @RequiredPlugins("Paper (range)")
 @Events({"Beacon Effect", "Beacon Toggle", "Beacon Change Effect"})
-@Since("INSERT VERSION")
+@Since("2.10")
 public class ExprBeaconValues extends PropertyExpression<Block, Object> {
 
 	enum BeaconValues {
@@ -100,31 +99,28 @@ public class ExprBeaconValues extends PropertyExpression<Block, Object> {
 
 	@Override
 	protected Object @Nullable [] get(Event event, Block[] source) {
-		return get(source, new Getter<Object, Block>() {
-			@Override
-			public @Nullable Object get(Block block) {
-				Beacon beacon  = (Beacon) block.getState();
-				return switch (valueType) {
-					case PRIMARY -> {
-						if (SUPPORTS_CHANGE_EVENT && event instanceof PlayerChangeBeaconEffectEvent changeEvent) {
-							yield changeEvent.getPrimary();
-						} else if (beacon.getPrimaryEffect() != null) {
-							yield beacon.getPrimaryEffect().getType();
-						}
-						yield null;
+		return get(source, block -> {
+			Beacon beacon  = (Beacon) block.getState();
+			return switch (valueType) {
+				case PRIMARY -> {
+					if (SUPPORTS_CHANGE_EVENT && event instanceof PlayerChangeBeaconEffectEvent changeEvent) {
+						yield changeEvent.getPrimary();
+					} else if (beacon.getPrimaryEffect() != null) {
+						yield beacon.getPrimaryEffect().getType();
 					}
-					case SECONDARY-> {
-						if (SUPPORTS_CHANGE_EVENT && event instanceof PlayerChangeBeaconEffectEvent changeEvent) {
-							yield changeEvent.getSecondary();
-						} else if (beacon.getSecondaryEffect() != null) {
-							yield beacon.getSecondaryEffect().getType();
-						}
-						yield null;
+					yield null;
+				}
+				case SECONDARY-> {
+					if (SUPPORTS_CHANGE_EVENT && event instanceof PlayerChangeBeaconEffectEvent changeEvent) {
+						yield changeEvent.getSecondary();
+					} else if (beacon.getSecondaryEffect() != null) {
+						yield beacon.getSecondaryEffect().getType();
 					}
-					case RANGE -> beacon.getEffectRange();
-					case TIER -> beacon.getTier();
-				};
-			}
+					yield null;
+				}
+				case RANGE -> beacon.getEffectRange();
+				case TIER -> beacon.getTier();
+			};
 		});
 	}
 

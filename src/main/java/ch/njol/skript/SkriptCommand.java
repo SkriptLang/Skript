@@ -10,16 +10,19 @@ import ch.njol.skript.localization.Language;
 import ch.njol.skript.localization.PluralizingArgsMessage;
 import ch.njol.skript.log.LogEntry;
 import ch.njol.skript.log.RedirectingLogHandler;
+import ch.njol.skript.log.TestingLogHandler;
 import ch.njol.skript.log.TimingLogHandler;
 import ch.njol.skript.test.runner.SkriptTestEvent;
 import ch.njol.skript.test.runner.TestMode;
 import ch.njol.skript.test.runner.TestTracker;
+import ch.njol.skript.test.utils.TestResults;
 import ch.njol.skript.util.ExceptionUtils;
 import ch.njol.skript.util.FileUtils;
 import ch.njol.skript.util.SkriptColor;
 import ch.njol.skript.util.Utils;
 import ch.njol.util.OpenCloseable;
 import ch.njol.util.StringUtils;
+import com.google.gson.GsonBuilder;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -32,12 +35,8 @@ import org.skriptlang.skript.lang.script.Script;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
-import java.nio.file.Path;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.nio.file.Files;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 
@@ -89,7 +88,6 @@ public class SkriptCommand implements CommandExecutor {
 		String text = Language.format(CONFIG_NODE + ".reload." + "player reload", sender.getName(), what);
 		logHandler.log(new LogEntry(Level.INFO, Utils.replaceEnglishChatStyles(text)), sender);
 	}
-
 
 	private static final ArgsMessage m_reloaded = new ArgsMessage(CONFIG_NODE + ".reload.reloaded");
 	private static final ArgsMessage m_reload_error = new ArgsMessage(CONFIG_NODE + ".reload.error");
@@ -406,18 +404,26 @@ public class SkriptCommand implements CommandExecutor {
 						return true;
 					}
 				} else {
-					scriptFile = TestMode.TEST_DIR.resolve(
-						Arrays.stream(args).skip(1).collect(Collectors.joining(" ")) + ".sk"
-					).toFile();
-					TestMode.lastTestFile = scriptFile;
+					if (args[1].equalsIgnoreCase("all")) {
+						scriptFile = TestMode.TEST_DIR.toFile();
+					} else {
+						scriptFile = getScriptFromArgs(sender, args, TestMode.TEST_DIR.toFile());
+						TestMode.lastTestFile = scriptFile;
+					}
 				}
 
-				if (!scriptFile.exists()) {
+				if (scriptFile == null || !scriptFile.exists()) {
 					Skript.error(sender, "Test script doesn't exist!");
 					return true;
 				}
 
-				ScriptLoader.loadScripts(scriptFile, logHandler)
+				// Close previous loggers before we create a new one
+				// This prevents closing logger errors
+				timingLogHandler.close();
+				logHandler.close();
+
+				TestingLogHandler errorCounter = new TestingLogHandler(Level.SEVERE).start();
+				ScriptLoader.loadScripts(scriptFile, errorCounter)
 					.thenAccept(scriptInfo ->
 						// Code should run on server thread
 						Bukkit.getScheduler().scheduleSyncDelayedTask(Skript.getInstance(), () -> {
@@ -425,9 +431,22 @@ public class SkriptCommand implements CommandExecutor {
 							ScriptLoader.unloadScripts(ScriptLoader.getLoadedScripts());
 
 							// Get results and show them
-							String[] lines = TestTracker.collectResults().createReport().split("\n");
+							TestResults testResults = TestTracker.collectResults();
+							String[] lines = testResults.createReport().split("\n");
 							for (String line : lines) {
 								Skript.info(sender, line);
+							}
+
+							// Log results to file
+							Skript.info(sender, "Collecting results to " + TestMode.RESULTS_FILE);
+							String results = new GsonBuilder()
+								.setPrettyPrinting() // Easier to read lines
+								.disableHtmlEscaping() // Fixes issue with "'" character in test strings going unicode
+								.create().toJson(testResults);
+							try {
+								Files.writeString(TestMode.RESULTS_FILE, results);
+							} catch (IOException e) {
+								Skript.exception(e, "Failed to write test results.");
 							}
 						})
 					);
@@ -440,7 +459,7 @@ public class SkriptCommand implements CommandExecutor {
 				ScriptLoader.getDisabledScripts().stream()
 						.flatMap(file -> {
 							if (file.isDirectory()) {
-								return Arrays.stream(file.listFiles());
+								return getSubFiles(file).stream();
 							}
 							return Arrays.stream(new File[]{file});
 						})
@@ -462,10 +481,27 @@ public class SkriptCommand implements CommandExecutor {
 	private static final ArgsMessage m_invalid_script = new ArgsMessage(CONFIG_NODE + ".invalid script");
 	private static final ArgsMessage m_invalid_folder = new ArgsMessage(CONFIG_NODE + ".invalid folder");
 
-	@Nullable
-	private static File getScriptFromArgs(CommandSender sender, String[] args) {
+	private static List<File> getSubFiles(File file) {
+		List<File> files = new ArrayList<>();
+		if (file.isDirectory()) {
+			for (File listFile : file.listFiles(f -> !f.isHidden())) {
+				if (listFile.isDirectory()) {
+					files.addAll(getSubFiles(listFile));
+				} else if (listFile.getName().endsWith(".sk")) {
+					files.add(listFile);
+				}
+			}
+		}
+		return files;
+	}
+
+	private static @Nullable File getScriptFromArgs(CommandSender sender, String[] args) {
+		return getScriptFromArgs(sender, args, Skript.getInstance().getScriptsFolder());
+	}
+
+	private static @Nullable File getScriptFromArgs(CommandSender sender, String[] args, File directoryFile) {
 		String script = StringUtils.join(args, " ", 1, args.length);
-		File f = getScriptFromName(script);
+		File f = ScriptLoader.getScriptFromName(script, directoryFile);
 		if (f == null) {
 			// Always allow '/' and '\' regardless of OS
 			boolean directory = script.endsWith("/") || script.endsWith("\\") || script.endsWith(File.separator);
@@ -475,32 +511,13 @@ public class SkriptCommand implements CommandExecutor {
 		return f;
 	}
 
+	/**
+	 * Moved to {@link ScriptLoader#getScriptFromName(String)}
+	 */
 	@Nullable
+	@Deprecated(forRemoval = true)
 	public static File getScriptFromName(String script) {
-		if (script.endsWith("/") || script.endsWith("\\")) { // Always allow '/' and '\' regardless of OS
-			script = script.replace('/', File.separatorChar).replace('\\', File.separatorChar);
-		} else if (!StringUtils.endsWithIgnoreCase(script, ".sk")) {
-			int dot = script.lastIndexOf('.');
-			if (dot > 0 && !script.substring(dot + 1).equals(""))
-				return null;
-			script = script + ".sk";
-		}
-
-		if (script.startsWith(ScriptLoader.DISABLED_SCRIPT_PREFIX))
-			script = script.substring(ScriptLoader.DISABLED_SCRIPT_PREFIX_LENGTH);
-
-		File scriptFile = new File(Skript.getInstance().getScriptsFolder(), script);
-		if (!scriptFile.exists()) {
-			scriptFile = new File(scriptFile.getParentFile(), ScriptLoader.DISABLED_SCRIPT_PREFIX + scriptFile.getName());
-			if (!scriptFile.exists()) {
-				return null;
-			}
-		}
-		try {
-			return scriptFile.getCanonicalFile();
-		} catch (IOException e) {
-			throw Skript.exception(e, "An exception occurred while trying to get the script file from the string '" + script + "'");
-		}
+		return ScriptLoader.getScriptFromName(script);
 	}
 
 	private static File toggleFile(File file, boolean enable) throws IOException {

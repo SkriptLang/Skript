@@ -36,7 +36,7 @@ import java.util.concurrent.ThreadLocalRandom;
 	"give player loot items of entity's loot table with loot context {_context}",
 	"# this will give the player the items that the entity would drop with the given loot context"
 })
-@Since("INSERT VERSION")
+@Since("2.10")
 public class ExprLootItems extends SimpleExpression<ItemStack> {
 
 	static {

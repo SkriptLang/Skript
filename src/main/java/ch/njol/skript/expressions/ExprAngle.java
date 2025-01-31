@@ -25,7 +25,7 @@ import org.jetbrains.annotations.Nullable;
 	"180 degrees is pi # true",
 	"pi radians is 180 degrees # true"
 })
-@Since("INSERT VERSION")
+@Since("2.10")
 public class ExprAngle extends SimpleExpression<Number> {
 
 	static {

@@ -17,7 +17,6 @@ import ch.njol.skript.log.SkriptLogger;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.iterator.CheckedIterator;
 import ch.njol.util.coll.iterator.ConsumingIterator;
-import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.entry.EntryContainer;
@@ -78,8 +77,7 @@ public abstract class Structure implements SyntaxElement, Debuggable {
 	 * If the EntryContainer is needed outside of {@link #init(Literal[], int, ParseResult, EntryContainer)},
 	 * the Structure should keep a reference to it.
 	 */
-	@Deprecated
-	@ApiStatus.ScheduledForRemoval
+	@Deprecated(forRemoval = true)
 	public final EntryContainer getEntryContainer() {
 		if (entryContainer == null)
 			throw new IllegalStateException("This Structure hasn't been initialized!");
@@ -95,7 +93,7 @@ public abstract class Structure implements SyntaxElement, Debuggable {
 		StructureInfo<? extends Structure> structureInfo = structureData.structureInfo;
 		assert structureInfo != null;
 
-		if (structureInfo.simple) { // simple structures do not have validators
+		if (structureData.node instanceof SimpleNode) { // simple structures do not have validators
 			return init(literals, matchedPattern, parseResult, null);
 		}
 
@@ -177,6 +175,11 @@ public abstract class Structure implements SyntaxElement, Debuggable {
 		return toString(null, false);
 	}
 
+	@Override
+	public @NotNull String getSyntaxTypeName() {
+		return "structure";
+	}
+
 	@Nullable
 	public static Structure parse(String expr, Node node, @Nullable String defaultError) {
 		return parse(expr, node, defaultError, Skript.getStructures().iterator());
@@ -188,10 +191,10 @@ public abstract class Structure implements SyntaxElement, Debuggable {
 			throw new IllegalArgumentException("only simple or section nodes may be parsed as a structure");
 		ParserInstance.get().getData(StructureData.class).node = node;
 
-		if (node instanceof SimpleNode) { // only allow simple structures for simple nodes
-			iterator = new CheckedIterator<>(iterator, item -> item != null && item.simple);
-		} else { // only allow non-simple structures for section nodes
-			iterator = new CheckedIterator<>(iterator, item -> item != null && !item.simple);
+		if (node instanceof SimpleNode) { // filter out section only structures
+			iterator = new CheckedIterator<>(iterator, item -> item != null && item.nodeType.canBeSimple());
+		} else { // filter out simple only structures
+			iterator = new CheckedIterator<>(iterator, item -> item != null && item.nodeType.canBeSection());
 		}
 		iterator = new ConsumingIterator<>(iterator, elementInfo -> ParserInstance.get().getData(StructureData.class).structureInfo = elementInfo);
 
