@@ -60,6 +60,7 @@ import org.bukkit.util.CachedServerIcon;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.Nullable;
 
+import java.io.NotSerializableException;
 import java.io.StreamCorruptedException;
 import java.util.*;
 import java.util.Map.Entry;
@@ -1536,6 +1537,76 @@ public class BukkitClasses {
 					.description("Teleport Flags are settings to retain during a teleport.")
 					.requiredPlugins("Paper 1.19+")
 					.since("2.10"));
+
+		Classes.registerClass(new ClassInfo<>(Statistic.class, "statistic")
+			.user("statistics?")
+			.name("Statistic")
+			.description(
+				"Represents a countable statistic, which is tracked by the server. "
+					+ "Statistics are put into scripts by surrounding their name with double quotes, "
+					+ "e.g. \"PLAY_ONE_MINUTE\", \"play one minute\", \"PLay_One minute\". "
+					+ "For the list of all available statistics, see <a href='https://minecraft.wiki/w/Statistics'>the Minecraft wiki</a>.")
+			.since("INSERT VERSION")
+			.after("string")
+			.defaultExpression(new EventValueExpression<>(Statistic.class))
+			.parser(new Parser<>() {
+				@Override
+				public @Nullable Statistic parse(String value, ParseContext context) {
+					String name = value.toUpperCase(Locale.ENGLISH).replace(' ', '_');
+					try {
+						return Statistic.valueOf(name);
+					} catch (Exception ignored) {
+						return null;
+					}
+				}
+
+				@Override
+				public String toString(Statistic statistic, int flags) {
+					return statistic.toString().toLowerCase(Locale.ENGLISH).replace('_', ' ');
+				}
+
+				@Override
+				public String toVariableNameString(Statistic statistic) {
+					return "statistic:" + statistic.toString();
+				}
+			})
+			.serializer(new Serializer<>() {
+				@Override
+				public Fields serialize(Statistic statistic) {
+					Fields fields = new Fields();
+					fields.putObject("name", statistic.toString());
+					return fields;
+				}
+
+				@Override
+				public void deserialize(Statistic o, Fields f) {
+					assert false;
+				}
+
+				@Override
+				protected Statistic deserialize(Fields fields) throws StreamCorruptedException {
+					String name = fields.getObject("name", String.class);
+					if (name == null)
+						throw new StreamCorruptedException();
+
+					try {
+						return Statistic.valueOf(name);
+					} catch (IllegalArgumentException e) {
+						throw new StreamCorruptedException();
+					}
+				}
+
+				@Override
+				public boolean mustSyncDeserialization() {
+					return false;
+				}
+
+				@Override
+				protected boolean canBeInstantiated() {
+					return false;
+				}
+			})
+		);
 	}
 
 }
