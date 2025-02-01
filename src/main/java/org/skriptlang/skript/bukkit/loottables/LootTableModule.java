@@ -22,8 +22,7 @@ import org.jetbrains.annotations.Nullable;
 import java.io.IOException;
 import java.io.StreamCorruptedException;
 
-public class
-LootTableModule {
+public class LootTableModule {
 
 	public static void load() throws IOException {
 
