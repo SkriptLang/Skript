@@ -60,10 +60,15 @@ public class CondIsTagged extends Condition {
  		return elements.check(event, element -> {
 			boolean isAny = (element instanceof ItemType itemType && !itemType.isAll());
 			Keyed[] values = TagModule.getKeyed(element);
-			if (values == null)
+			if (values == null || values.length == 0)
 				return false;
 
+			Class<? extends Keyed> valueClass = values[0].getClass();
+
 			for (Tag<Keyed> tag : tags) {
+				// cursed check to ensure the tag is the same type as the values
+				if (!tag.getValues().iterator().next().getClass().isAssignableFrom(valueClass))
+					return false;
 				 if (isTagged(tag, values, !isAny)) {
 					 if (!and)
 						 return true;
