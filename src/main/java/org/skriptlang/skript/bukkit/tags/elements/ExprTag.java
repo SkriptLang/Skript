@@ -118,7 +118,7 @@ public class ExprTag extends SimpleExpression<Tag> implements SyntaxRuntimeError
 		return tags.toArray(Tag[]::new);
 	}
 
-	private Tag<?> findTag(NamespacedKey key) {
+	private @Nullable Tag<?> findTag(NamespacedKey key) {
 		for (TagType<?> type : types) {
 			Tag<?> tag = TagModule.tagRegistry.getTag(origin, type, key);
 			if (tag != null
