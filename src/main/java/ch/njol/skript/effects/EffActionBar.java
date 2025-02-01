@@ -53,7 +53,7 @@ public class EffActionBar extends Effect {
 	}
 
 	private String toString(Object object) {
-		return object instanceof String ? (String) object : Classes.toString(object);
+		return Classes.toString(object);
 	}
 
 	@Override
