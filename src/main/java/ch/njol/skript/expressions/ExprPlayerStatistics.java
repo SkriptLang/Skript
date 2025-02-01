@@ -35,22 +35,21 @@ import org.skriptlang.skript.log.runtime.*;
 		+ "<a href='https://www.digminecraft.com/getting_started/statistics.php'>the DigMinecraft page about statistics</a>."
 })
 @Examples({
-	"set {_stat} to \"kill entity\" parsed as a statistic",
-	"set the statistic {_stat} for a pig of player to 10",
-	"add 5 to the statistic {_stat} for a pig of player",
-	"broadcast \"You have left the game %statistic \"leave game\" parsed as statistic of player% times!\""
+	"set the statistic \"kill entity\" for a pig of player to 10",
+	"add 5 to the statistic \"kill entity\" for a pig of player",
+	"broadcast \"You have left the game %statistic \"leave game\" of player% times!\""
 })
 @Since("INSERT VERSION")
 public class ExprPlayerStatistics extends SimpleExpression<Integer> implements RuntimeErrorProducer {
 
 	static {
 		Skript.registerExpression(ExprPlayerStatistics.class, Integer.class, ExpressionType.COMBINED,
-			"[the] statistic %statistic% [for %-entitydata/itemtype%] (from|of) %offlineplayers%",
-			"%offlineplayers%'[s] statistic %statistic% [for %-entitydata/itemtype%]"
+			"[the] statistic %string% [for %-entitydata/itemtype%] (from|of) %offlineplayers%",
+			"%offlineplayers%'[s] statistic %string% [for %-entitydata/itemtype%]"
 		);
 	}
 
-	private Expression<Statistic> statistic;
+	private Expression<String> statistic;
 	private Expression<OfflinePlayer> player;
 	private Expression<?> ofType;
 
@@ -61,11 +60,11 @@ public class ExprPlayerStatistics extends SimpleExpression<Integer> implements R
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		if (matchedPattern == 0) {
 			player = (Expression<OfflinePlayer>) exprs[2];
-			statistic = (Expression<Statistic>) exprs[0];
+			statistic = (Expression<String>) exprs[0];
 			ofType = exprs[1];
 		} else {
 			player = (Expression<OfflinePlayer>) exprs[0];
-			statistic = (Expression<Statistic>) exprs[1];
+			statistic = (Expression<String>) exprs[1];
 			ofType = exprs[2];
 		}
 		node = getParser().getNode();
@@ -75,9 +74,16 @@ public class ExprPlayerStatistics extends SimpleExpression<Integer> implements R
 
 	@Override
 	protected Integer @Nullable [] get(Event event) {
-		Statistic statistic = this.statistic.getSingle(event);
-		if (statistic == null)
+		String string = this.statistic.getSingle(event);
+		if (string == null)
 			return null;
+
+		Statistic statistic;
+		try {
+			statistic = Statistic.valueOf(string.toUpperCase().replace(' ', '_'));
+		} catch (IllegalArgumentException e) {
+			return null;
+		}
 
 		Object ofType = this.ofType == null ? null : this.ofType.getSingle(event);
 
@@ -99,9 +105,16 @@ public class ExprPlayerStatistics extends SimpleExpression<Integer> implements R
 
 	@Override
 	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
-		Statistic statistic = this.statistic.getSingle(event);
-		if (statistic == null)
+		String string = this.statistic.getSingle(event);
+		if (string == null)
 			return;
+
+		Statistic statistic;
+		try {
+			statistic = Statistic.valueOf(string.toUpperCase().replace(' ', '_'));
+		} catch (IllegalArgumentException e) {
+			return;
+		}
 
 		Object ofType = this.ofType == null ? null : this.ofType.getSingle(event);
 

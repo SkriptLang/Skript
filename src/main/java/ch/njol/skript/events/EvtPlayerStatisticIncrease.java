@@ -13,18 +13,26 @@ import org.bukkit.event.Event;
 import org.bukkit.event.player.PlayerStatisticIncrementEvent;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Locale;
+
 public class EvtPlayerStatisticIncrease extends SkriptEvent {
 
 	static {
 		Skript.registerEvent("Player Statistic Increase", EvtPlayerStatisticIncrease.class, PlayerStatisticIncrementEvent.class,
 			"player statistic increase [of %*-strings%]")
-			.description("Called when a player's statistic increases.")
+			.description(
+				"Called when a player's statistic increases. Some statistics like 'play one minute' do not call this event, "
+					+ "because it simply gets called too much.")
 			.examples(
 				"on player statistic increase:",
-					"\tbroadcast \"%player%'s statistic '%event-statistic%' increased! They now have done that %future statistic value% times!\"")
+					"\tbroadcast \"%player%'s statistic '%event-string%' increased! It is now %future statistic value%!\"",
+				"on player statistic increase of \"leave game\":",
+					"\tbroadcast \"%player% left the game for %future statistic value% times..\"")
 			.since("INSERT VERSION");
 
-		EventValues.registerEventValue(PlayerStatisticIncrementEvent.class, Statistic.class, PlayerStatisticIncrementEvent::getStatistic);
+		EventValues.registerEventValue(PlayerStatisticIncrementEvent.class, String.class, event ->
+			event.getStatistic().name().toLowerCase(Locale.ENGLISH).replaceAll("_", " ")
+		);
 
 		EventValues.registerEventValue(PlayerStatisticIncrementEvent.class, ItemType.class, event -> {
 			if (event.getMaterial() == null)

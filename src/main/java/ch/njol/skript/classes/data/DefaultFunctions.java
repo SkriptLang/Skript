@@ -705,28 +705,6 @@ public class DefaultFunctions {
 						"\t\tset {_money} to formatNumber({money::%sender's uuid%})",
 						"\t\tsend \"Your balance: %{_money}%\" to sender")
 			.since("2.10");
-
-		Functions.registerFunction(new SimpleJavaFunction<>("statistic", new Parameter[] {
-				new Parameter<>("statistics", DefaultClasses.STRING, false, null)
-			}, Classes.getExactClassInfo(Statistic.class), false) {
-				@Override
-				public Statistic[] executeSimple(Object[][] params) {
-					List<Statistic> stats = new ArrayList<>();
-					for (Object string : params[0]) {
-						String statistic = ((String) string).toUpperCase(Locale.ENGLISH).replace(' ', '_');
-						try {
-							stats.add(Statistic.valueOf(statistic));
-						} catch (Exception ignored) {}
-					}
-
-					return stats.toArray(Statistic[]::new);
-				}
-			})
-			.description("Returns a statistic from strings.")
-			.examples(
-				"set {_stats::*} to statistic(\"climb one cm\", \"crouch_one_cm\")",
-				"add statistic(\"mine_BLOCK\") to {_stats::*}")
-			.since("INSERT VERSION");
 	}
 
 }
