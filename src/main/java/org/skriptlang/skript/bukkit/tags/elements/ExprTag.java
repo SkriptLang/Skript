@@ -90,11 +90,11 @@ public class ExprTag extends SimpleExpression<Tag> implements SyntaxRuntimeError
 		};
 
 		nextName: for (String name : this.names.getArray(event)) {
-      boolean invalidKey = false;
+			boolean invalidKey = false;
 			try {
 				if (name.contains(":")) {
 					NamespacedKey key = NamespacedKey.fromString(name);
-          invalidKey = key == null;
+					invalidKey = key == null;
 					if (!invalidKey) {
 						tags.add(findTag(key));
 					}
