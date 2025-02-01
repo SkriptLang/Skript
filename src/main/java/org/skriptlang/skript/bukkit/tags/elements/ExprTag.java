@@ -1,6 +1,7 @@
 package org.skriptlang.skript.bukkit.tags.elements;
 
 import ch.njol.skript.Skript;
+import ch.njol.skript.config.Node;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Keywords;
@@ -22,6 +23,7 @@ import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.tags.TagModule;
 import org.skriptlang.skript.bukkit.tags.TagType;
 import org.skriptlang.skript.bukkit.tags.sources.TagOrigin;
+import org.skriptlang.skript.log.runtime.SyntaxRuntimeErrorProducer;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -51,7 +53,7 @@ import java.util.List;
 @Since("2.10")
 @RequiredPlugins("Paper (paper tags)")
 @Keywords({"blocks", "minecraft tag", "type", "category"})
-public class ExprTag extends SimpleExpression<Tag> {
+public class ExprTag extends SimpleExpression<Tag> implements SyntaxRuntimeErrorProducer {
 
 	static {
 		Skript.registerExpression(ExprTag.class, Tag.class, ExpressionType.COMBINED,
@@ -63,6 +65,8 @@ public class ExprTag extends SimpleExpression<Tag> {
 	private TagOrigin origin;
 	private boolean datapackOnly;
 
+	private Node node;
+
 	@Override
 	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		//noinspection unchecked
@@ -70,6 +74,7 @@ public class ExprTag extends SimpleExpression<Tag> {
 		types = TagType.fromParseMark(parseResult.mark);
 		origin = TagOrigin.fromParseTags(parseResult.tags);
 		datapackOnly = origin == TagOrigin.BUKKIT && parseResult.hasTag("datapack");
+		node = getParser().getNode();
 		return true;
 	}
 
@@ -85,16 +90,29 @@ public class ExprTag extends SimpleExpression<Tag> {
 		};
 
 		nextName: for (String name : this.names.getArray(event)) {
-			if (name.contains(":")) {
-				tags.add(findTag(NamespacedKey.fromString(name)));
-			} else {
-				for (String namespace : namespaces) {
-					Tag<?> tag = findTag(new NamespacedKey(namespace, name));
-					if (tag != null) {
-						tags.add(tag);
-						continue nextName;
+      boolean invalidKey = false;
+			try {
+				if (name.contains(":")) {
+					NamespacedKey key = NamespacedKey.fromString(name);
+          invalidKey = key == null;
+					if (!invalidKey) {
+						tags.add(findTag(key));
+					}
+				} else {
+					for (String namespace : namespaces) {
+						Tag<?> tag = findTag(new NamespacedKey(namespace, name));
+						if (tag != null) {
+							tags.add(tag);
+							continue nextName;
+						}
 					}
 				}
+			} catch (IllegalArgumentException e) {
+				invalidKey = true;
+			}
+			if (invalidKey) {
+				error("Invalid tag key: '" + name + "'. Tags may only contain a-z, 0-9, _, ., /, or - characters.");
+				continue;
 			}
 		}
 		return tags.toArray(Tag[]::new);
@@ -122,6 +140,11 @@ public class ExprTag extends SimpleExpression<Tag> {
 	@SuppressWarnings("rawtypes")
 	public Class<? extends Tag> getReturnType() {
 		return Tag.class;
+	}
+
+	@Override
+	public Node getNode() {
+		return node;
 	}
 
 	@Override
