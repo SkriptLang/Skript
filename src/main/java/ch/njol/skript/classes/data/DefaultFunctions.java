@@ -719,7 +719,7 @@ public class DefaultFunctions {
 						} catch (Exception ignored) {}
 					}
 
-					return stats.toArray(new Statistic[0]);
+					return stats.toArray(Statistic[]::new);
 				}
 			})
 			.description("Returns a statistic from strings.")

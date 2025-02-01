@@ -4,6 +4,7 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.bukkitutil.EntityUtils;
 import ch.njol.skript.classes.Changer.ChangeMode;
+import ch.njol.skript.config.Node;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
@@ -54,7 +55,7 @@ public class ExprPlayerStatistics extends SimpleExpression<Integer> implements R
 	private Expression<OfflinePlayer> player;
 	private Expression<?> ofType;
 
-	private ParserInstance parser;
+	private Node node;
 
 	@Override
 	@SuppressWarnings("unchecked")
@@ -68,7 +69,7 @@ public class ExprPlayerStatistics extends SimpleExpression<Integer> implements R
 			statistic = (Expression<Statistic>) exprs[1];
 			ofType = exprs[2];
 		}
-		parser = getParser();
+		node = getParser().getNode();
 
 		return true;
 	}
@@ -111,12 +112,10 @@ public class ExprPlayerStatistics extends SimpleExpression<Integer> implements R
 		int value = delta == null ? 0 : (Integer) delta[0];
 
 		for (OfflinePlayer player : this.player.getArray(event)) {
-			int statisticValue = getStatistic(player, statistic, ofType);
-
 			switch (mode) {
 				case SET -> applyStatistic(player, statistic, value, ofType);
-				case ADD -> applyStatistic(player, statistic, statisticValue + value, ofType);
-				case REMOVE -> applyStatistic(player, statistic, statisticValue - value, ofType);
+				case ADD -> applyStatistic(player, statistic, getStatistic(player, statistic, ofType) + value, ofType);
+				case REMOVE -> applyStatistic(player, statistic, getStatistic(player, statistic, ofType) - value, ofType);
 				case DELETE, RESET -> applyStatistic(player, statistic, 0, ofType);
 			}
 		}
@@ -135,7 +134,7 @@ public class ExprPlayerStatistics extends SimpleExpression<Integer> implements R
 
 	private void applyStatistic(OfflinePlayer player, Statistic statistic, Integer value, Object type) {
 		if (value < 0) {
-			error("Cannot set the statistic '" + statistic + "' to '" + value + "' because it must be a positive number");
+			error("Cannot set the statistic '" + statistic + "' to '" + value + "' because it is a negative number.");
 			return;
 		}
 
@@ -153,18 +152,18 @@ public class ExprPlayerStatistics extends SimpleExpression<Integer> implements R
 	private boolean shouldContinue(Statistic statistic, Object ofType) {
 		Type statisticType = statistic.getType();
 		if (ofType == null && statisticType != Type.UNTYPED) {
-			error("The statistic '" + statistic + "' requires an entity data or item type to be specified");
+			error("The statistic '" + statistic + "' requires an entity data or item type to be specified.");
 			return false;
 		} else if (this.ofType != null && statisticType == Type.UNTYPED) {
 			warning("The statistic '" + statistic + "' does not require an entity data or item type to be provided, "
-				+ "so it will be ignored");
+				+ "so it will be ignored.");
 		}
 
 		if (ofType instanceof ItemType && statisticType == Type.ENTITY) {
-			error("The statistic '" + statistic + "' requires an entity data, but '" + Classes.toString(ofType) + "' was provided");
+			error("The statistic '" + statistic + "' requires an entity data, but '" + Classes.toString(ofType) + "' was provided.");
 			return false;
 		} else if (ofType instanceof EntityData && (statisticType == Type.ITEM || statisticType == Type.BLOCK)) {
-			error("The statistic '" + statistic + "' requires an item type, but '" + Classes.toString(ofType) + "' was provided");
+			error("The statistic '" + statistic + "' requires an item type, but '" + Classes.toString(ofType) + "' was provided.");
 			return false;
 		}
 
@@ -194,7 +193,7 @@ public class ExprPlayerStatistics extends SimpleExpression<Integer> implements R
 
 	@Override
 	public @NotNull ErrorSource getErrorSource() {
-		return ErrorSource.fromNodeAndElement(parser.getNode(), this);
+		return ErrorSource.fromNodeAndElement(node, this);
 	}
 
 }
