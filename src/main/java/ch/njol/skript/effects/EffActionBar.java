@@ -24,9 +24,8 @@ import net.md_5.bungee.api.chat.BaseComponent;
 @Examples("send action bar \"Hello player!\" to player")
 @Since("2.3, INSERT_VERSION (object support)")
 public class EffActionBar extends Effect {
-
 	static {
-		Skript.registerEffect(EffActionBar.class, "send [the] action[ ]bar [with text] %string% [to %players%]");
+		Skript.registerEffect(EffActionBar.class, "send [the] action[ ]bar [with text] %object% [to %players%]");
 	}
 
 	private Expression<String> message;
@@ -44,16 +43,13 @@ public class EffActionBar extends Effect {
 	@Override
 	@SuppressWarnings("deprecation")
 	protected void execute(Event event) {
-		if (message.getSingle(event) == null)
+		Object msgObj = message.getSingle(event);
+		if (msgObj == null)
 			return;
-		String msg = toString(message.getSingle(event));
+		String msg = Classes.toString(msgObj);
 		BaseComponent[] components = BungeeConverter.convert(ChatMessages.parseToArray(msg));
 		for (Player player : recipients.getArray(event))
 			player.spigot().sendMessage(ChatMessageType.ACTION_BAR, components);
-	}
-
-	private String toString(Object object) {
-		return Classes.toString(object);
 	}
 
 	@Override

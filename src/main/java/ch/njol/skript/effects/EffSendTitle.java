@@ -17,7 +17,6 @@ import ch.njol.skript.util.Timespan;
 import ch.njol.skript.util.LiteralUtils;
 import ch.njol.util.Kleenean;
 
-
 @Name("Title - Send")
 @Description({
 	"Sends a title/subtitle to the given player(s) with optional fadein/stay/fadeout times. ",
@@ -73,8 +72,8 @@ public class EffSendTitle extends Effect {
 	@SuppressWarnings("null")
 	@Override
 	protected void execute(final Event event) {
-		String title = this.title != null ? toString(this.title.getSingle(event)) : "";
-		String subtitle = this.subtitle != null ? toString(this.subtitle.getSingle(event)) : null;
+		String title = this.title != null ? Classes.toString(this.title.getSingle(event)) : "";
+		String subtitle = this.subtitle != null ? Classes.toString(this.subtitle.getSingle(event)) : null;
 		int fadeIn, stay, fadeOut;
 
 		fadeIn = getTicks(this.fadeIn, event);
@@ -84,10 +83,6 @@ public class EffSendTitle extends Effect {
 		for (Player p : recipients.getArray(event)) {
 			p.sendTitle(title, subtitle, fadeIn, stay, fadeOut);
 		}
-	}
-
-	private String toString(Object object) {
-		return Classes.toString(object);
 	}
 
 	private int getTicks(@Nullable Expression<Timespan> timespan, Event event) {
