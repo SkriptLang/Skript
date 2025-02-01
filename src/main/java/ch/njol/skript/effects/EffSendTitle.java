@@ -42,18 +42,14 @@ public class EffSendTitle extends Effect {
 			"send subtitle %object% [to %players%] [for %-timespan%] [with fade[(-| )]in %-timespan%] [[and] [with] fade[(-| )]out %-timespan%]");
 	}
 
-	@Nullable
-	private Expression<?> title;
-	@Nullable
-	private Expression<?> subtitle;
-	@SuppressWarnings("null")
-	private Expression<Player> recipients;
-	@Nullable
-	private Expression<Timespan> fadeIn, stay, fadeOut;
+	private @Nullable Expression<?> title;
+	private @Nullable Expression<?> subtitle;
+	private @Nullable Expression<Player> recipients;
+	private @Nullable Expression<Timespan> fadeIn, stay, fadeOut;
 
-	@SuppressWarnings({"unchecked", "null"})
 	@Override
-	public boolean init(final Expression<?>[] exprs, final int matchedPattern, final Kleenean isDelayed, final ParseResult parser) {
+	@SuppressWarnings("unchecked")
+	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parser) {
 		if (matchedPattern == 0) title = LiteralUtils.defendExpression(exprs[0]);
 		subtitle = LiteralUtils.defendExpression(exprs[1 - matchedPattern]);
 		recipients = (Expression<Player>) exprs[2 - matchedPattern];
@@ -69,9 +65,9 @@ public class EffSendTitle extends Effect {
 		}
 	}
 
-	@SuppressWarnings("null")
 	@Override
-	protected void execute(final Event event) {
+	@SuppressWarnings("null")
+	protected void execute(Event event) {
 		String title = this.title != null ? Classes.toString(this.title.getSingle(event)) : "";
 		String subtitle = this.subtitle != null ? Classes.toString(this.subtitle.getSingle(event)) : null;
 		int fadeIn, stay, fadeOut;
@@ -91,7 +87,7 @@ public class EffSendTitle extends Effect {
 	}
 
 	@Override
-	public String toString(final @Nullable Event event, final boolean debug) {
+	public String toString(@Nullable Event event, boolean debug) {
 		SyntaxStringBuilder builder = new SyntaxStringBuilder(event, debug);
 		if (title != null) {
 			builder.append("send title");
