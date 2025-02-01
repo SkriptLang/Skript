@@ -60,7 +60,6 @@ import org.bukkit.util.CachedServerIcon;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.NotSerializableException;
 import java.io.StreamCorruptedException;
 import java.util.*;
 import java.util.Map.Entry;
