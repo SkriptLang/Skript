@@ -22,7 +22,7 @@ public class EvtPlayerStatisticIncrease extends SkriptEvent {
 			"player statistic increase [of %*-strings%]")
 			.description(
 				"Called when a player's statistic increases. Some statistics like 'play one minute' do not call this event, "
-					+ "because it simply gets called too much.")
+					+ "because they get called too often.")
 			.examples(
 				"on player statistic increase:",
 					"\tbroadcast \"%player%'s statistic '%event-string%' increased! It is now %future statistic value%!\"",

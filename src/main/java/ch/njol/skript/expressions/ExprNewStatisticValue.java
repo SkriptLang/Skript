@@ -44,7 +44,9 @@ public class ExprNewStatisticValue extends SimpleExpression<Number> implements E
 
 	@Override
 	protected Number @Nullable [] get(Event event) {
-		PlayerStatisticIncrementEvent statisticEvent = ((PlayerStatisticIncrementEvent) event);
+		if (!(event instanceof PlayerStatisticIncrementEvent statisticEvent))
+			return null;
+
 		if (future)
 			return new Number[] {statisticEvent.getNewValue()};
 		return new Number[] {statisticEvent.getPreviousValue()};
