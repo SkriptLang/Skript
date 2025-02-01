@@ -1,9 +1,10 @@
 package ch.njol.skript.effects;
 
+import ch.njol.skript.lang.SyntaxStringBuilder;
+import ch.njol.skript.registrations.Classes;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
-
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
@@ -13,11 +14,13 @@ import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.util.Timespan;
+import ch.njol.skript.util.LiteralUtils;
 import ch.njol.util.Kleenean;
+
 
 @Name("Title - Send")
 @Description({
-	"Sends a title/subtitle to the given player(s) with optional fadein/stay/fadeout times for Minecraft versions 1.11 and above. ",
+	"Sends a title/subtitle to the given player(s) with optional fadein/stay/fadeout times. ",
 	"",
 	"If you're sending only the subtitle, it will be shown only if there's a title displayed at the moment, otherwise it will " +
 	"be sent with the next title. To show only the subtitle, use: <code>send title \" \" with subtitle \"yourtexthere\" to player</code>.",
@@ -32,90 +35,83 @@ import ch.njol.util.Kleenean;
 	"send title \"Hello %player%!\" with subtitle \"Welcome to our server\" to player for 5 seconds with fadein 1 second and fade out 1 second",
 	"send subtitle \"Party!\" to all players"
 })
-@Since("2.3")
+@Since("2.3, INSERT VERSION (object support)")
 public class EffSendTitle extends Effect {
-	
-	private final static boolean TIME_SUPPORTED = Skript.methodExists(Player.class,"sendTitle", String.class, String.class, int.class, int.class, int.class);
-	
 	static {
-		if (TIME_SUPPORTED)
-			Skript.registerEffect(EffSendTitle.class,
-					"send title %string% [with subtitle %-string%] [to %players%] [for %-timespan%] [with fade[(-| )]in %-timespan%] [[and] [with] fade[(-| )]out %-timespan%]",
-					"send subtitle %string% [to %players%] [for %-timespan%] [with fade[(-| )]in %-timespan%] [[and] [with] fade[(-| )]out %-timespan%]");
-		else
-			Skript.registerEffect(EffSendTitle.class,
-					"send title %string% [with subtitle %-string%] [to %players%]",
-					"send subtitle %string% [to %players%]");
+		Skript.registerEffect(EffSendTitle.class,
+			"send title %object% [with subtitle %-object%] [to %players%] [for %-timespan%] [with fade[(-| )]in %-timespan%] [[and] [with] fade[(-| )]out %-timespan%]",
+			"send subtitle %object% [to %players%] [for %-timespan%] [with fade[(-| )]in %-timespan%] [[and] [with] fade[(-| )]out %-timespan%]");
 	}
-	
+
 	@Nullable
-	private Expression<String> title;
+	private Expression<?> title;
 	@Nullable
-	private Expression<String> subtitle;
+	private Expression<?> subtitle;
 	@SuppressWarnings("null")
 	private Expression<Player> recipients;
 	@Nullable
 	private Expression<Timespan> fadeIn, stay, fadeOut;
-	
+
 	@SuppressWarnings({"unchecked", "null"})
 	@Override
 	public boolean init(final Expression<?>[] exprs, final int matchedPattern, final Kleenean isDelayed, final ParseResult parser) {
-		title = matchedPattern == 0 ? (Expression<String>) exprs[0] : null;
-		subtitle = (Expression<String>) exprs[1 - matchedPattern];
+		if (matchedPattern == 0) title = LiteralUtils.defendExpression(exprs[0]);
+		subtitle = LiteralUtils.defendExpression(exprs[1 - matchedPattern]);
 		recipients = (Expression<Player>) exprs[2 - matchedPattern];
-		if (TIME_SUPPORTED) {
-			stay = (Expression<Timespan>) exprs[3 - matchedPattern];
-			fadeIn = (Expression<Timespan>) exprs[4 - matchedPattern];
-			fadeOut = (Expression<Timespan>) exprs[5 - matchedPattern];
+		stay = (Expression<Timespan>) exprs[3 - matchedPattern];
+		fadeIn = (Expression<Timespan>) exprs[4 - matchedPattern];
+		fadeOut = (Expression<Timespan>) exprs[5 - matchedPattern];
+		if (title != null && subtitle != null) {
+			return LiteralUtils.canInitSafely(title, subtitle);
+		} else if (title != null) {
+			return LiteralUtils.canInitSafely(title);
+		} else {
+			return LiteralUtils.canInitSafely(subtitle);
 		}
-		return true;
 	}
-	
+
 	@SuppressWarnings("null")
 	@Override
-	protected void execute(final Event e) {
-		String title = this.title != null ? this.title.getSingle(e) : null;
-		String subtitle = this.subtitle != null ? this.subtitle.getSingle(e) : null;
-		
-		if (TIME_SUPPORTED) {
-			int fadeIn, stay, fadeOut;
-			fadeIn = stay = fadeOut = -1;
+	protected void execute(final Event event) {
+		String title = this.title != null ? toString(this.title.getSingle(event)) : "";
+		String subtitle = this.subtitle != null ? toString(this.subtitle.getSingle(event)) : null;
+		int fadeIn, stay, fadeOut;
 
-			if (this.fadeIn != null) {
-				Timespan t = this.fadeIn.getSingle(e);
-				fadeIn = t != null ? (int) t.getAs(Timespan.TimePeriod.TICK) : -1;
-			}
+		fadeIn = getTicks(this.fadeIn, event);
+		stay = getTicks(this.stay, event);
+		fadeOut = getTicks(this.fadeOut, event);
 
-			if (this.stay != null) {
-				Timespan t = this.stay.getSingle(e);
-				stay = t != null ? (int) t.getAs(Timespan.TimePeriod.TICK) : -1;
-			}
-
-			if (this.fadeOut != null) {
-				Timespan t = this.fadeOut.getSingle(e);
-				fadeOut = t != null ? (int) t.getAs(Timespan.TimePeriod.TICK) : -1;
-			}
-			
-			for (Player p : recipients.getArray(e))
-				p.sendTitle(title, subtitle, fadeIn, stay, fadeOut);
-		} else {
-			for (Player p : recipients.getArray(e))
-				p.sendTitle(title, subtitle);
+		for (Player p : recipients.getArray(event)) {
+			p.sendTitle(title, subtitle, fadeIn, stay, fadeOut);
 		}
 	}
-	
-	// TODO: util method to simplify this
-	@Override
-	public String toString(final @Nullable Event e, final boolean debug) {
-		String title = this.title != null ? this.title.toString(e, debug) : "",
-		sub = subtitle != null ? subtitle.toString(e, debug) : "",
-		in = fadeIn != null ? fadeIn.toString(e, debug) : "",
-		stay = this.stay != null ? this.stay.toString(e, debug) : "",
-		out = fadeOut != null ? this.fadeOut.toString(e, debug) : "";
-		return ("send title " + title +
-				sub == "" ? "" : " with subtitle " + sub) + " to " +
-				recipients.toString(e, debug) + (TIME_SUPPORTED ?
-				" for " + stay + " with fade in " + in + " and fade out" + out : "");
+
+	private String toString(Object object) {
+		return object instanceof String ? (String) object : Classes.toString(object);
 	}
-	
+
+	private int getTicks(@Nullable Expression<Timespan> timespan, Event event) {
+		Timespan t = timespan != null ? timespan.getSingle(event) : null;
+		return t != null ? (int) t.getAs(Timespan.TimePeriod.TICK) : -1;
+	}
+
+	@Override
+	public String toString(final @Nullable Event event, final boolean debug) {
+		SyntaxStringBuilder builder = new SyntaxStringBuilder(event, debug);
+		if (title != null) {
+			builder.append("send title");
+			builder.append(title);
+			if (subtitle != null) {
+				builder.append("with subtitle");
+			}
+		} else {
+			builder.append("send subtitle");
+		}
+		if (subtitle != null) builder.append(subtitle);
+		if (recipients != null) builder.append("to", recipients);
+		if (stay != null) builder.append("for", stay);
+		if (fadeIn != null) builder.append("with fade in", fadeIn);
+		if (fadeOut != null) builder.append("with fade out", fadeOut);
+		return builder.toString();
+	}
 }

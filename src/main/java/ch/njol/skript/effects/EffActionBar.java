@@ -1,5 +1,6 @@
 package ch.njol.skript.effects;
 
+import ch.njol.skript.registrations.Classes;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
@@ -21,7 +22,7 @@ import net.md_5.bungee.api.chat.BaseComponent;
 @Name("Action Bar")
 @Description("Sends an action bar message to the given player(s).")
 @Examples("send action bar \"Hello player!\" to player")
-@Since("2.3")
+@Since("2.3, INSERT_VERSION (object support)")
 public class EffActionBar extends Effect {
 
 	static {
@@ -43,12 +44,16 @@ public class EffActionBar extends Effect {
 	@Override
 	@SuppressWarnings("deprecation")
 	protected void execute(Event event) {
-		String msg = message.getSingle(event);
-		if (msg == null)
+		if (message.getSingle(event) == null)
 			return;
+		String msg = toString(message.getSingle(event));
 		BaseComponent[] components = BungeeConverter.convert(ChatMessages.parseToArray(msg));
 		for (Player player : recipients.getArray(event))
 			player.spigot().sendMessage(ChatMessageType.ACTION_BAR, components);
+	}
+
+	private String toString(Object object) {
+		return object instanceof String ? (String) object : Classes.toString(object);
 	}
 
 	@Override
