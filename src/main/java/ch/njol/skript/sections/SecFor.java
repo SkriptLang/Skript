@@ -118,7 +118,7 @@ public class SecFor extends SecLoop {
 		}
 		//</editor-fold>
 		this.loadOptionalCode(sectionNode);
-		super.setNext(this);
+		this.setInternalNext(this);
 		return true;
 	}
 
