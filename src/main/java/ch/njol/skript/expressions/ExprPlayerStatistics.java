@@ -145,10 +145,8 @@ public class ExprPlayerStatistics extends SimpleExpression<Integer> implements R
 	}
 
 	private void applyStatistic(OfflinePlayer player, Statistic statistic, Integer value, Object type) {
-		if (value < 0) {
-			error("Cannot set the statistic '" + statistic + "' to '" + value + "' because it is a negative number.");
-			return;
-		}
+		if (value < 0)
+			value = 0;
 
 		Type statisticType = statistic.getType();
 
