@@ -107,11 +107,16 @@ public class EffSendTitle extends Effect {
 		} else {
 			builder.append("send subtitle");
 		}
-		if (subtitle != null) builder.append(subtitle);
-		if (recipients != null) builder.append("to", recipients);
-		if (stay != null) builder.append("for", stay);
-		if (fadeIn != null) builder.append("with fade in", fadeIn);
-		if (fadeOut != null) builder.append("with fade out", fadeOut);
+		if (subtitle != null)
+			builder.append(subtitle);
+		if (recipients != null)
+			builder.append("to", recipients);
+		if (stay != null)
+			builder.append("for", stay);
+		if (fadeIn != null)
+			builder.append("with fade in", fadeIn);
+		if (fadeOut != null)
+			builder.append("with fade out", fadeOut);
 		return builder.toString();
 	}
 }
