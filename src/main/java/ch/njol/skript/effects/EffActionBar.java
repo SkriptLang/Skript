@@ -1,6 +1,7 @@
 package ch.njol.skript.effects;
 
 import ch.njol.skript.registrations.Classes;
+import ch.njol.skript.util.LiteralUtils;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
@@ -35,9 +36,9 @@ public class EffActionBar extends Effect {
 	@Override
 	@SuppressWarnings("unchecked")
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		message = exprs[0];
+		message = LiteralUtils.defendExpression(exprs[0]);
 		recipients = (Expression<Player>) exprs[1];
-		return true;
+		return LiteralUtils.canInitSafely(message);
 	}
 
 	@Override
