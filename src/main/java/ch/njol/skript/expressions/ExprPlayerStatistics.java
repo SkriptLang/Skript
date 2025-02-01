@@ -4,6 +4,10 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.bukkitutil.EntityUtils;
 import ch.njol.skript.classes.Changer.ChangeMode;
+import ch.njol.skript.doc.Description;
+import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Name;
+import ch.njol.skript.doc.Since;
 import ch.njol.skript.entity.EntityData;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
@@ -12,19 +16,35 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.SyntaxStringBuilder;
 import ch.njol.skript.lang.parser.ParserInstance;
 import ch.njol.skript.lang.util.SimpleExpression;
+import ch.njol.skript.registrations.Classes;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.Statistic;
+import org.bukkit.Statistic.Type;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.log.runtime.*;
 
-public class ExprStatistic extends SimpleExpression<Integer> implements RuntimeErrorProducer {
+@Name("Player Statistics")
+@Description({
+	"Get or set the statistics of a player.",
+	"Some statistics require an entity type or item type to be specified. "
+		+ "For example, the 'KILL_ENTITY' statistic requires an entity type. You can see more about this in "
+		+ "<a href='https://www.digminecraft.com/getting_started/statistics.php'>the DigMinecraft page about statistics</a>."
+})
+@Examples({
+	"set {_stat} to \"kill entity\" parsed as a statistic",
+	"set the statistic {_stat} for a pig of player to 10",
+	"add 5 to the statistic {_stat} for a pig of player",
+	"broadcast \"You have left the game %statistic \"leave game\" parsed as statistic of player% times!\""
+})
+@Since("INSERT VERSION")
+public class ExprPlayerStatistics extends SimpleExpression<Integer> implements RuntimeErrorProducer {
 
 	static {
-		Skript.registerExpression(ExprStatistic.class, Integer.class, ExpressionType.COMBINED,
+		Skript.registerExpression(ExprPlayerStatistics.class, Integer.class, ExpressionType.COMBINED,
 			"[the] statistic %statistic% [for %-entitydata/itemtype%] (from|of) %offlineplayers%",
 			"%offlineplayers%'[s] statistic %statistic% [for %-entitydata/itemtype%]"
 		);
@@ -61,10 +81,8 @@ public class ExprStatistic extends SimpleExpression<Integer> implements RuntimeE
 
 		Object ofType = this.ofType == null ? null : this.ofType.getSingle(event);
 
-		if (ofType == null && statistic.getType() != Statistic.Type.UNTYPED) {
-			error("The statistic '" + statistic + "' requires an entity data or item type to be specified");
+		if (!shouldContinue(statistic, ofType))
 			return null;
-		}
 
 		return player.stream(event)
 			.map(player -> getStatistic(player, statistic, ofType))
@@ -87,10 +105,8 @@ public class ExprStatistic extends SimpleExpression<Integer> implements RuntimeE
 
 		Object ofType = this.ofType == null ? null : this.ofType.getSingle(event);
 
-		if (ofType == null && statistic.getType() != Statistic.Type.UNTYPED) {
-			error("The statistic '" + statistic + "' requires an entity data or item type to be specified");
+		if (!shouldContinue(statistic, ofType))
 			return;
-		}
 
 		int value = delta == null ? 0 : (Integer) delta[0];
 
@@ -106,39 +122,53 @@ public class ExprStatistic extends SimpleExpression<Integer> implements RuntimeE
 		}
 	}
 
-	public int getStatistic(OfflinePlayer player, Statistic statistic, Object type) {
-		if (type instanceof ItemType item && (statistic.getType() == Statistic.Type.ITEM
-			|| statistic.getType() == Statistic.Type.BLOCK)) {
+	private int getStatistic(OfflinePlayer player, Statistic statistic, Object type) {
+		Type statisticType = statistic.getType();
+		if (type instanceof ItemType item && (statisticType == Type.ITEM || statisticType == Type.BLOCK)) {
 			return player.getStatistic(statistic, item.getMaterial());
-		} else if (type instanceof EntityData<?> data && statistic.getType() == Statistic.Type.ENTITY) {
+		} else if (type instanceof EntityData<?> data && statisticType == Type.ENTITY) {
 			return player.getStatistic(statistic, EntityUtils.toBukkitEntityType(data));
 		}
-
-		if (this.ofType != null && statistic.getType() == Statistic.Type.UNTYPED)
-			warning("The statistic '" + statistic + "' does not require an entity data or item type to be specified, "
-				+ "so the specified entity data or item type will be ignored");
 
 		return player.getStatistic(statistic);
 	}
 
-	public void applyStatistic(OfflinePlayer player, Statistic statistic, Integer value, Object type) {
+	private void applyStatistic(OfflinePlayer player, Statistic statistic, Integer value, Object type) {
 		if (value < 0) {
-			error("Cannot set a statistic value to a negative number");
+			error("Cannot set the statistic '" + statistic + "' to '" + value + "' because it must be a positive number");
 			return;
 		}
 
-		if (type instanceof ItemType item && (statistic.getType() == Statistic.Type.ITEM
-			|| statistic.getType() == Statistic.Type.BLOCK)) {
+		Type statisticType = statistic.getType();
+
+		if (type instanceof ItemType item && (statisticType == Type.ITEM || statisticType == Type.BLOCK)) {
 			player.setStatistic(statistic, item.getMaterial(), value);
-		} else if (type instanceof EntityData<?> data && statistic.getType() == Statistic.Type.ENTITY) {
+		} else if (type instanceof EntityData<?> data && statisticType == Type.ENTITY) {
 			player.setStatistic(statistic, EntityUtils.toBukkitEntityType(data), value);
+		} else {
+			player.setStatistic(statistic, value);
+		}
+	}
+
+	private boolean shouldContinue(Statistic statistic, Object ofType) {
+		Type statisticType = statistic.getType();
+		if (ofType == null && statisticType != Type.UNTYPED) {
+			error("The statistic '" + statistic + "' requires an entity data or item type to be specified");
+			return false;
+		} else if (this.ofType != null && statisticType == Type.UNTYPED) {
+			warning("The statistic '" + statistic + "' does not require an entity data or item type to be provided, "
+				+ "so it will be ignored");
 		}
 
-		if (this.ofType != null && statistic.getType() == Statistic.Type.UNTYPED)
-			warning("The statistic '" + statistic + "' does not require an entity data or item type to be specified, "
-				+ "so the specified entity data or item type will be ignored");
+		if (ofType instanceof ItemType && statisticType == Type.ENTITY) {
+			error("The statistic '" + statistic + "' requires an entity data, but '" + Classes.toString(ofType) + "' was provided");
+			return false;
+		} else if (ofType instanceof EntityData && (statisticType == Type.ITEM || statisticType == Type.BLOCK)) {
+			error("The statistic '" + statistic + "' requires an item type, but '" + Classes.toString(ofType) + "' was provided");
+			return false;
+		}
 
-		player.setStatistic(statistic, value);
+		return true;
 	}
 
 	@Override

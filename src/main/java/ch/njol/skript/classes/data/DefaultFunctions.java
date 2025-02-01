@@ -18,10 +18,7 @@ import ch.njol.skript.util.Date;
 import ch.njol.util.Math2;
 import ch.njol.util.StringUtils;
 import ch.njol.util.coll.CollectionUtils;
-import org.bukkit.Bukkit;
-import org.bukkit.Location;
-import org.bukkit.OfflinePlayer;
-import org.bukkit.World;
+import org.bukkit.*;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.Nullable;
@@ -31,11 +28,8 @@ import org.joml.Vector3f;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.util.ArrayList;
+import java.util.*;
 import java.text.DecimalFormat;
-import java.util.Calendar;
-import java.util.List;
-import java.util.UUID;
 
 public class DefaultFunctions {
 
@@ -711,6 +705,28 @@ public class DefaultFunctions {
 						"\t\tset {_money} to formatNumber({money::%sender's uuid%})",
 						"\t\tsend \"Your balance: %{_money}%\" to sender")
 			.since("2.10");
+
+		Functions.registerFunction(new SimpleJavaFunction<>("statistic", new Parameter[] {
+				new Parameter<>("statistics", DefaultClasses.STRING, false, null)
+			}, Classes.getExactClassInfo(Statistic.class), false) {
+				@Override
+				public Statistic[] executeSimple(Object[][] params) {
+					List<Statistic> stats = new ArrayList<>();
+					for (Object string : params[0]) {
+						String statistic = ((String) string).toUpperCase(Locale.ENGLISH).replace(' ', '_');
+						try {
+							stats.add(Statistic.valueOf(statistic));
+						} catch (Exception ignored) {}
+					}
+
+					return stats.toArray(new Statistic[0]);
+				}
+			})
+			.description("Returns a statistic from strings.")
+			.examples(
+				"set {_stats::*} to statistic(\"climb one cm\", \"crouch_one_cm\")",
+				"add statistic(\"mine_BLOCK\") to {_stats::*}")
+			.since("INSERT VERSION");
 	}
 
 }

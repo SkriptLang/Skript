@@ -1545,9 +1545,9 @@ public class BukkitClasses {
 				"Represents a countable statistic, which is tracked by the server. "
 					+ "Statistics are put into scripts by surrounding their name with double quotes, "
 					+ "e.g. \"PLAY_ONE_MINUTE\", \"play one minute\", \"PLay_One minute\". "
-					+ "For the list of all available statistics, see <a href='https://minecraft.wiki/w/Statistics'>the Minecraft wiki</a>.")
+					+ "For the list of all available statistics and their required values, see "
+					+ "<a href='https://www.digminecraft.com/getting_started/statistics.php'>the DigMinecraft page about statistics</a>.")
 			.since("INSERT VERSION")
-			.after("string")
 			.defaultExpression(new EventValueExpression<>(Statistic.class))
 			.parser(new Parser<>() {
 				@Override
