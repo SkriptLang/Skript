@@ -28,14 +28,14 @@ public class EffActionBar extends Effect {
 		Skript.registerEffect(EffActionBar.class, "send [the] action[ ]bar [with text] %object% [to %players%]");
 	}
 
-	private Expression<String> message;
+	private Expression<?> message;
 
 	private Expression<Player> recipients;
 
 	@Override
 	@SuppressWarnings("unchecked")
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		message = (Expression<String>) exprs[0];
+		message = exprs[0];
 		recipients = (Expression<Player>) exprs[1];
 		return true;
 	}
