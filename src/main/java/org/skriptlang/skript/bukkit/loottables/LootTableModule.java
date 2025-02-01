@@ -3,11 +3,13 @@ package org.skriptlang.skript.bukkit.loottables;
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.classes.Parser;
+import ch.njol.skript.classes.Serializer;
 import ch.njol.skript.expressions.base.EventValueExpression;
 import ch.njol.skript.lang.ParseContext;
 import ch.njol.skript.lang.util.SimpleEvent;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.registrations.EventValues;
+import ch.njol.yggdrasil.Fields;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.NamespacedKey;
@@ -18,6 +20,7 @@ import org.bukkit.loot.LootTable;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
+import java.io.StreamCorruptedException;
 
 public class LootTableModule {
 
@@ -51,6 +54,42 @@ public class LootTableModule {
 				@Override
 				public String toVariableNameString(LootTable o) {
 					return "loot table:" + o.getKey();
+				}
+			})
+			.serializer(new Serializer<>() {
+				@Override
+				public Fields serialize(LootTable lootTable) {
+					Fields fields = new Fields();
+					fields.putObject("key", lootTable.getKey().toString());
+					return fields;
+				}
+
+				@Override
+				public void deserialize(LootTable lootTable, Fields fields) {
+					assert false;
+				}
+
+				@Override
+				protected LootTable deserialize(Fields fields) throws StreamCorruptedException {
+					String key = fields.getAndRemoveObject("key", String.class);
+					if (key == null)
+						throw new StreamCorruptedException();
+
+					NamespacedKey namespacedKey = NamespacedKey.fromString(key);
+					if (namespacedKey == null)
+						throw new StreamCorruptedException();
+
+					return Bukkit.getLootTable(namespacedKey);
+				}
+
+				@Override
+				public boolean mustSyncDeserialization() {
+					return true;
+				}
+
+				@Override
+				protected boolean canBeInstantiated() {
+					return false;
 				}
 			})
 		);
