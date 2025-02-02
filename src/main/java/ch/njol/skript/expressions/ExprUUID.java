@@ -14,9 +14,6 @@ import ch.njol.skript.expressions.base.SimplePropertyExpression;
 
 import java.util.UUID;
 
-/**
- * @author Peter Güttinger
- */
 @Name("UUID")
 @Description("The UUID of a player, entity or world.")
 @Examples({
@@ -42,8 +39,7 @@ public class ExprUUID extends SimplePropertyExpression<Object, UUID> {
 	}
 
 	@Override
-	@Nullable
-	public UUID convert(final Object object) {
+	public @Nullable UUID convert(Object object) {
 		if (object instanceof OfflinePlayer player) {
 			try {
 				return player.getUniqueId();
@@ -61,15 +57,15 @@ public class ExprUUID extends SimplePropertyExpression<Object, UUID> {
 		}
 		return null;
 	}
-	
+
 	@Override
 	public Class<? extends UUID> getReturnType() {
 		return UUID.class;
 	}
-	
+
 	@Override
 	protected String getPropertyName() {
 		return "UUID";
 	}
-	
+
 }

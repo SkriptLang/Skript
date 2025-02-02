@@ -11,7 +11,6 @@ import ch.njol.skript.entity.EntityType;
 import ch.njol.skript.entity.XpOrbData;
 import ch.njol.skript.lang.util.common.AnyAmount;
 import ch.njol.skript.lang.util.common.AnyNamed;
-import ch.njol.skript.lang.util.common.AnyValued;
 import ch.njol.skript.util.*;
 import ch.njol.skript.util.slot.Slot;
 import org.bukkit.*;

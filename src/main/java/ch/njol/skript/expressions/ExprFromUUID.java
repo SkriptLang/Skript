@@ -38,7 +38,7 @@ import java.util.UUID;
 public class ExprFromUUID extends SimpleExpression<Object> {
 
 	static {
-		Skript.registerExpression(ExprFromUUID.class, Object.class, ExpressionType.SIMPLE,
+		Skript.registerExpression(ExprFromUUID.class, Object.class, ExpressionType.PROPERTY,
 			"[:offline[ ]]player[s] from %uuids%",
 			"entit(y|ies) from %uuids%",
 			"world[s] from %uuids%"

@@ -19,7 +19,6 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Quaternionf;
 
-import java.io.NotSerializableException;
 import java.io.StreamCorruptedException;
 import java.util.UUID;
 import java.util.function.Function;
