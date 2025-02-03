@@ -1,0 +1,23 @@
+test "effect send actionbar":
+	set {_p} to first element of players
+	set {_item} to a diamond sword with name "&bDiamond Sword"
+
+	send actionbar {_item} to {_p}
+	broadcast "Actionbar"
+	wait 1 second
+
+	send actionbar {_p} to {_p}
+	broadcast "Actionbar"
+	wait 1 second
+
+	send actionbar "Test" to {_p}
+	broadcast "Actionbar"
+	wait 1 second
+
+	send actionbar {_null} to {_p}
+	broadcast "Done"
+
+
+
+
+

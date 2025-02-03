@@ -1,0 +1,31 @@
+test "send title effect":
+	set {_p} to first element of players
+	set {_item} to a diamond sword with name "&bDiamond Sword"
+
+	send title {_item} to {_p}
+	broadcast "Title Sent"
+	wait 1 second
+
+	send subtitle {_item} to {_p}
+	broadcast "Title Sent"
+	wait 1 second
+
+	send title {_item} with subtitle {_item} to {_p}
+	broadcast "Title Sent"
+	wait 1 second
+
+	send title "title" with subtitle true to {_p} for 1 second with fade out 2 seconds
+	broadcast "Title Sent"
+	wait 5 seconds
+
+	send title {_null} with subtitle {_null} to {_p} for 3 seconds
+	broadcast "Title Sent"
+	wait 1 second
+
+	send subtitle yes to {_p} for 1 second with fadein 0 ticks with fadeout 2 second
+	broadcast "Title Sent"
+	wait 3 seconds
+
+	send title yes with subtitle {_null} to {_p}
+	broadcast "Done"
+

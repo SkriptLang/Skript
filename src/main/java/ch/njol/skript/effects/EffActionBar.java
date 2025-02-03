@@ -45,9 +45,7 @@ public class EffActionBar extends Effect {
 	@SuppressWarnings("deprecation")
 	protected void execute(Event event) {
 		Object msgObj = message.getSingle(event);
-		if (msgObj == null)
-			return;
-		String msg = Classes.toString(msgObj);
+		String msg = msgObj != null ? Classes.toString(msgObj) : "";
 		BaseComponent[] components = BungeeConverter.convert(ChatMessages.parseToArray(msg));
 		for (Player player : recipients.getArray(event))
 			player.spigot().sendMessage(ChatMessageType.ACTION_BAR, components);

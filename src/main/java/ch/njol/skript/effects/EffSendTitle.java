@@ -56,20 +56,22 @@ public class EffSendTitle extends Effect {
 		stay = (Expression<Timespan>) exprs[3 - matchedPattern];
 		fadeIn = (Expression<Timespan>) exprs[4 - matchedPattern];
 		fadeOut = (Expression<Timespan>) exprs[5 - matchedPattern];
-		if (title != null && subtitle != null) {
-			return LiteralUtils.canInitSafely(title, subtitle);
-		} else if (title != null) {
-			return LiteralUtils.canInitSafely(title);
-		} else {
-			return LiteralUtils.canInitSafely(subtitle);
-		}
+		if (title != null && !LiteralUtils.canInitSafely(title))
+			return false;
+		if (subtitle != null && !LiteralUtils.canInitSafely(subtitle))
+			return false;
+		return true;
 	}
 
 	@Override
 	@SuppressWarnings("null")
 	protected void execute(Event event) {
-		String title = this.title != null ? Classes.toString(this.title.getSingle(event)) : "";
-		String subtitle = this.subtitle != null ? Classes.toString(this.subtitle.getSingle(event)) : null;
+		Object titleObj = this.title != null ? this.title.getSingle(event) : null;
+		Object subtitleObj = this.subtitle != null ? this.subtitle.getSingle(event) : null;
+
+		String title = titleObj != null ? Classes.toString(titleObj) : "";
+		String subtitle = subtitleObj != null ? Classes.toString(subtitleObj) : "";
+
 		int fadeIn, stay, fadeOut;
 
 		fadeIn = getTicks(this.fadeIn, event);
