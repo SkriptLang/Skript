@@ -1,9 +1,12 @@
 package org.skriptlang.skript.util;
 
+import com.google.common.base.MoreObjects;
 import com.google.common.collect.ImmutableSet;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 class PriorityImpl implements Priority {
@@ -33,7 +36,7 @@ class PriorityImpl implements Priority {
 	}
 
 	@Override
-	public int compareTo(Priority other) {
+	public int compareTo(@NotNull Priority other) {
 		if (this == other) {
 			return 0;
 		}
@@ -77,6 +80,26 @@ class PriorityImpl implements Priority {
 	@Override
 	public Collection<Priority> before() {
 		return before;
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(after, before);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (!(obj instanceof Priority priority))
+			return false;
+		return compareTo(priority) == 0;
+	}
+
+	@Override
+	public String toString() {
+		return MoreObjects.toStringHelper(this)
+				.add("after", after)
+				.add("before", before)
+				.toString();
 	}
 
 }

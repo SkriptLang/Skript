@@ -12,7 +12,11 @@ test "color of displays":
 	spawn a text display at spawn of world "world":
 		set {_e} to entity
 
-	assert color of {_e} is rgb(0,0,0, 64) with "default background colour failed"
+	if running minecraft "1.21.4":
+		# Paper changed return behaviour in 1.21.4#125
+		assert color of {_e} is not set with "default background colour failed"
+	else:
+		assert color of {_e} is rgb(0,0,0, 64) with "default background colour failed"
 
 	set colour of {_e} to red
 	assert color of {_e} is red with "failed to set background colour"

@@ -1,7 +1,7 @@
 options:
 	test: "org.skriptlang.skript.test.tests.syntaxes.events.PlayerElytraBoostEventTest"
 
-test "PlayerElytraBoosEventTest" when running JUnit:
+test "PlayerElytraBoostEventTest" when running JUnit:
 	set {_tests::*} to "boost event called", "boost event - firework item", "boost event - player" and "boost event - firework entity"
 	ensure junit test {@test} completes {_tests::*}
 

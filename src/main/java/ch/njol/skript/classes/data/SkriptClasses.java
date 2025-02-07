@@ -16,6 +16,7 @@ import ch.njol.skript.lang.util.SimpleLiteral;
 import ch.njol.skript.lang.util.common.AnyAmount;
 import ch.njol.skript.lang.util.common.AnyContains;
 import ch.njol.skript.lang.util.common.AnyNamed;
+import ch.njol.skript.lang.util.common.AnyValued;
 import ch.njol.skript.localization.Noun;
 import ch.njol.skript.localization.RegexMessage;
 import ch.njol.skript.registrations.Classes;
@@ -24,19 +25,21 @@ import ch.njol.skript.util.slot.Slot;
 import ch.njol.skript.util.visual.VisualEffect;
 import ch.njol.skript.util.visual.VisualEffects;
 import ch.njol.yggdrasil.Fields;
-import org.skriptlang.skript.lang.util.SkriptQueue;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.script.Script;
+import org.skriptlang.skript.lang.util.SkriptQueue;
 import org.skriptlang.skript.util.Executable;
 
 import java.io.File;
+import java.io.NotSerializableException;
 import java.io.StreamCorruptedException;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Locale;
 import java.util.regex.Pattern;
 
@@ -730,7 +733,51 @@ public class SkriptClasses {
 						}
 					}
 				})
-				.serializer(new YggdrasilSerializer<>())
+				.parser(new Parser<SkriptQueue>() {
+
+					@Override
+					public boolean canParse(ParseContext context) {
+						return false;
+					}
+
+					@Override
+					public String toString(SkriptQueue queue, int flags) {
+						return Classes.toString(queue.toArray(), flags, true);
+					}
+
+					@Override
+					public String toVariableNameString(SkriptQueue queue) {
+						return this.toString(queue, 0);
+					}
+
+				})
+				.serializer(new Serializer<SkriptQueue>() {
+					@Override
+					public Fields serialize(SkriptQueue queue) throws NotSerializableException {
+						Fields fields = new Fields();
+						fields.putObject("contents", queue.toArray());
+						return fields;
+					}
+
+					@Override
+					public void deserialize(SkriptQueue queue, Fields fields)
+						throws StreamCorruptedException, NotSerializableException {
+						Object[] contents = fields.getObject("contents", Object[].class);
+						queue.clear();
+						if (contents != null)
+							queue.addAll(List.of(contents));
+					}
+
+					@Override
+					public boolean mustSyncDeserialization() {
+						return false;
+					}
+
+					@Override
+					protected boolean canBeInstantiated() {
+						return true;
+					}
+				})
 		);
 
 
@@ -897,6 +944,14 @@ public class SkriptClasses {
 				.usage("")
 				.examples("the size of {thing}", "the amount of {thing}")
 				.since("2.10")
+		);
+
+		Classes.registerClass(new AnyInfo<>(AnyValued.class, "valued")
+			.name("Any Valued Thing")
+			.description("Something that has a value.")
+			.usage("")
+			.examples("the text of {node}")
+			.since("2.10")
 		);
 
 		Classes.registerClass(new AnyInfo<>(AnyContains.class, "containing")
