@@ -67,7 +67,7 @@ public class BukkitRuntimeErrorConsumer implements RuntimeErrorConsumer {
 		ErrorSource source = error.source();
 		String code = source.lineText();
 		if (error.toHighlight() != null && !error.toHighlight().isEmpty())
-			code = code.replace("§", "&").replace(error.toHighlight(), "§f§n" + error.toHighlight() + "§7");
+			code = code.replace("§", "&").replaceFirst(error.toHighlight(), "§f§n$0§7");
 
 		SkriptLogger.sendFormatted(Bukkit.getConsoleSender(),
 				String.format(skriptInfo, source.script(), source.syntaxName(), source.syntaxType()) +
