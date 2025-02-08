@@ -12,7 +12,9 @@ import ch.njol.skript.expressions.ExprParse;
 import ch.njol.skript.lang.function.ExprFunctionCall;
 import ch.njol.skript.lang.function.FunctionReference;
 import ch.njol.skript.lang.function.Functions;
+import ch.njol.skript.lang.parser.ParseStackOverflowException;
 import ch.njol.skript.lang.parser.ParserInstance;
+import ch.njol.skript.lang.parser.ParsingStack;
 import ch.njol.skript.lang.util.SimpleLiteral;
 import ch.njol.skript.localization.Language;
 import ch.njol.skript.localization.Message;
@@ -183,6 +185,7 @@ public class SkriptParser {
 	}
 
 	private <T extends SyntaxElement> @Nullable T parse(Iterator<? extends SyntaxElementInfo<? extends T>> source) {
+		ParsingStack parsingStack = getParser().getParsingStack();
 		try (ParseLogHandler log = SkriptLogger.startParseLogHandler()) {
 			while (source.hasNext()) {
 				SyntaxElementInfo<? extends T> info = source.next();
@@ -193,15 +196,24 @@ public class SkriptParser {
 						assert pattern != null;
 						ParseResult parseResult;
 						try {
+							parsingStack.push(new ParsingStack.Element(info, patternIndex));
 							parseResult = parse_i(pattern);
 						} catch (MalformedPatternException e) {
 							String message = "pattern compiling exception, element class: " + info.getElementClass().getName();
 							try {
 								JavaPlugin providingPlugin = JavaPlugin.getProvidingPlugin(info.getElementClass());
 								message += " (provided by " + providingPlugin.getName() + ")";
-							} catch (IllegalArgumentException | IllegalStateException ignored) {}
-							throw new RuntimeException(message, e);
+							} catch (IllegalArgumentException | IllegalStateException ignored) { }
 
+							throw new RuntimeException(message, e);
+						} catch (StackOverflowError e) {
+							// Parsing caused a stack overflow, possibly due to too long lines
+							throw new ParseStackOverflowException(e, new ParsingStack(parsingStack));
+						} finally {
+							// Recursive parsing call done, pop the element from the parsing stack
+							ParsingStack.Element stackElement = parsingStack.pop();
+
+							assert stackElement.syntaxElementInfo() == info && stackElement.patternIndex() == patternIndex;
 						}
 						if (parseResult != null) {
 							assert parseResult.source != null; // parse results from parse_i have a source
@@ -249,6 +261,8 @@ public class SkriptParser {
 					}
 				}
 			}
+
+			// No successful syntax elements parsed, print errors and return
 			log.printError();
 			return null;
 		}
