@@ -8,11 +8,15 @@ import ch.njol.skript.lang.SyntaxElementInfo;
 import ch.njol.skript.lang.function.Functions;
 import ch.njol.skript.lang.function.JavaFunction;
 import ch.njol.skript.registrations.Classes;
+import ch.njol.skript.registrations.EventValues;
+import ch.njol.skript.registrations.EventValues.EventValueInfo;
+import com.google.common.collect.Multimap;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
+import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.structure.Structure;
 import org.skriptlang.skript.lang.structure.StructureInfo;
@@ -21,8 +25,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Iterator;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Stream;
 
 /**
@@ -98,6 +101,33 @@ public class JSONGenerator extends DocumentationGenerator {
 		syntaxJsonObject.add("description", convertToJsonArray(eventInfo.getDescription()));
 		syntaxJsonObject.add("examples", convertToJsonArray(eventInfo.getExamples()));
 		syntaxJsonObject.add("patterns", convertToJsonArray(eventInfo.patterns));
+
+		// Event Values
+		Set<String> eventValues = new TreeSet<>();
+		Multimap<Class<? extends Event>, EventValueInfo<?, ?>> allEventValues = EventValues.getPerEventEventValues();
+		for (Class<? extends Event> supportedEvent : eventInfo.events) {
+			for (Class<? extends Event> event : allEventValues.keySet()) {
+				if (!event.isAssignableFrom(supportedEvent))
+					continue;
+
+				Collection<EventValueInfo<?, ?>> eventValueInfos = allEventValues.get(event);
+
+				for (EventValueInfo<?, ?> eventValueInfo : eventValueInfos) {
+					Class<?>[] excludes = eventValueInfo.excludes();
+					if (excludes != null && Set.of(excludes).contains(event))
+						continue;
+
+					ClassInfo<?> exactClassInfo = Classes.getExactClassInfo(eventValueInfo.c());
+					if (exactClassInfo == null)
+						continue;
+
+					eventValues.add("event-%s".formatted(exactClassInfo.getName()));
+				}
+			}
+		}
+
+		syntaxJsonObject.add("eventValues", convertToJsonArray(eventValues.toArray(new String[0])));
+
 		return syntaxJsonObject;
 	}
 
