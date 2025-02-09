@@ -80,8 +80,15 @@ public class JSONGenerator extends DocumentationGenerator {
 			syntaxJsonObject.add("examples", new JsonArray());
 		}
 
-
 		syntaxJsonObject.add("patterns", convertToJsonArray(syntaxInfo.getPatterns()));
+
+		Events events = syntaxClass.getAnnotation(Events.class);
+		if (events != null) {
+			syntaxJsonObject.add("events", convertToJsonArray(events.value()));
+		} else {
+			syntaxJsonObject.add("events", new JsonArray());
+		}
+
 		return syntaxJsonObject;
 	}
 
