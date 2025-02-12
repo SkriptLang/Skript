@@ -44,8 +44,12 @@ public class ExprNoDamageTicks extends SimplePropertyExpression<LivingEntity, Lo
 			Integer noDamageTicks = switch (mode) {
 				case REMOVE_ALL -> null;
 				case DELETE, RESET, SET -> ticks;
-				case ADD -> livingEntity.getNoDamageTicks() + ticks;
-				case REMOVE -> livingEntity.getNoDamageTicks() - ticks;
+				default -> {
+					int currentTicks;
+					if (livingEntity instanceof Wither wither) currentTicks = wither.getInvulnerableTicks();
+					else currentTicks = livingEntity.getNoDamageTicks();
+					yield currentTicks + (mode == ChangeMode.ADD ? ticks : -ticks);
+				}
 			};
 			if (noDamageTicks == null) continue;
 			if (noDamageTicks < 0) noDamageTicks = 0;
