@@ -24,7 +24,7 @@ test "no damage ticks":
 		add 5 to entity's invulnerability ticks
 		assert entity's invulnerability ticks is 35 with "wither no damage ticks add failed"
 		remove 12 from entity's invulnerability ticks
-		assert entity's invulnerability ticks is 28 with "wither no damage ticks remove failed"
+		assert entity's invulnerability ticks is 23 with "wither no damage ticks remove failed"
 		remove 999 from entity's invulnerability ticks
 		assert entity's invulnerability ticks is 0 with "wither no damage ticks remove failed"
 		remove -2 from entity's invulnerability ticks
