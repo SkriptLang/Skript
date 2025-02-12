@@ -1,6 +1,7 @@
 package ch.njol.skript.expressions;
 
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Wither;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
@@ -16,7 +17,7 @@ import ch.njol.util.coll.CollectionUtils;
 @Description("The number of ticks that an entity is invulnerable to damage for.")
 @Examples({"on damage:",
 		"	set victim's invulnerability ticks to 20 #Victim will not take damage for the next second"})
-@Since("2.5")
+@Since("2.5, INSERT VERSION (Wither Invulnerability)")
 public class ExprNoDamageTicks extends SimplePropertyExpression<LivingEntity, Long> {
 	
 	static {
@@ -25,7 +26,7 @@ public class ExprNoDamageTicks extends SimplePropertyExpression<LivingEntity, Lo
 
 	@Override
 	public Long convert(LivingEntity e) {
-		return (long) e.getNoDamageTicks();
+		return (long) (e instanceof Wither wither ? wither.getInvulnerableTicks() : e.getNoDamageTicks());
 	}
 	
 	@Override
@@ -38,29 +39,19 @@ public class ExprNoDamageTicks extends SimplePropertyExpression<LivingEntity, Lo
 	
 	@Override
 	public void change(final Event e, final @Nullable Object[] delta, final ChangeMode mode) {
-		int d = delta == null ? 0 : ((Number) delta[0]).intValue();
-		for (LivingEntity le : getExpr().getArray(e)) {
-			switch (mode) {
-				case ADD:
-					int r1 = le.getNoDamageTicks() + d;
-					if (r1 < 0) r1 = 0;
-					le.setNoDamageTicks(r1);
-					break;
-				case SET:
-					le.setNoDamageTicks(d);
-					break;
-				case DELETE:
-				case RESET:
-					le.setNoDamageTicks(0);
-					break;
-				case REMOVE:
-					int r2 = le.getNoDamageTicks() - d;
-					if (r2 < 0) r2 = 0;
-					le.setNoDamageTicks(r2);
-					break;
-				case REMOVE_ALL:
-					assert false;		
-			}
+		int ticks = delta == null ? 0 : delta[0] instanceof Number number ? number.intValue() : 0;
+		for (LivingEntity livingEntity : getExpr().getArray(e)) {
+			Integer noDamageTicks = switch (mode) {
+				case REMOVE_ALL -> null;
+				case DELETE, RESET, SET -> ticks;
+				case ADD -> livingEntity.getNoDamageTicks() + ticks;
+				case REMOVE -> livingEntity.getNoDamageTicks() - ticks;
+			};
+			if (noDamageTicks == null) continue;
+			if (noDamageTicks < 0) noDamageTicks = 0;
+			if (livingEntity instanceof Wither wither)
+				wither.setInvulnerableTicks(noDamageTicks);
+			else livingEntity.setNoDamageTicks(noDamageTicks);
 		}
 	}
 	
