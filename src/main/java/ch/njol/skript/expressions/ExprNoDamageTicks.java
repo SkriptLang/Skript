@@ -17,7 +17,7 @@ import ch.njol.util.coll.CollectionUtils;
 @Description("The number of ticks that an entity is invulnerable to damage for.")
 @Examples({"on damage:",
 		"	set victim's invulnerability ticks to 20 #Victim will not take damage for the next second"})
-@Since("2.5, INSERT VERSION (Wither Invulnerability)")
+@Since("2.5")
 public class ExprNoDamageTicks extends SimplePropertyExpression<LivingEntity, Long> {
 	
 	static {
