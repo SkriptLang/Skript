@@ -25,7 +25,7 @@ public class ExprNoDamageTicks extends SimplePropertyExpression<LivingEntity, Lo
 	}
 
 	@Override
-	public Long convert(LivingEntity e) {
+	public Long convert(LivingEntity entity) {
 		return (long) (e instanceof Wither wither ? wither.getInvulnerableTicks() : e.getNoDamageTicks());
 	}
 	
