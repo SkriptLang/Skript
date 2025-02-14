@@ -18,7 +18,7 @@ test "no damage ticks":
 	assert {_m}'s invulnerability ticks is 0 with "no damage ticks delete failed"
 	delete {_m}
 
-	spawn wither at location(10,200,10):
+	spawn wither at test-location:
 		set entity's invulnerability ticks to 30
 		assert entity's invulnerability ticks is 30 with "wither no damage ticks set failed"
 		add 5 to entity's invulnerability ticks
