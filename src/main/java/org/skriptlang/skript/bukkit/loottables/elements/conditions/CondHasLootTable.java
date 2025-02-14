@@ -35,6 +35,11 @@ public class CondHasLootTable extends PropertyCondition<Object> {
 	}
 
 	@Override
+	protected PropertyType getPropertyType() {
+		return PropertyType.HAVE;
+	}
+
+	@Override
 	protected String getPropertyName() {
 		return "a loot table";
 	}

@@ -19,18 +19,19 @@ import ch.njol.skript.conditions.base.PropertyCondition;
 @Since("2.5, 2.10 (gamemode)")
 @RequiredPlugins("Paper 1.20.6+ (gamemodes)")
 public class CondIsInvulnerable extends PropertyCondition<Object> {
+
 	private static final boolean SUPPORTS_GAMEMODE = Skript.methodExists(GameMode.class, "isInvulnerable");
 	
 	static {
-		register(CondIsInvulnerable.class, PropertyType.BE, "(invulnerable|invincible)", "entities" + (SUPPORTS_GAMEMODE ? "/gamemodes" : ""));
+		register(CondIsInvulnerable.class, "(invulnerable|invincible)", "entities" + (SUPPORTS_GAMEMODE ? "/gamemodes" : ""));
 	}
 	
 	@Override
 	public boolean check(Object object) {
-		if (object instanceof Entity) {
-			return ((Entity) object).isInvulnerable();
-		} else if (SUPPORTS_GAMEMODE && object instanceof GameMode) {
-			return ((GameMode) object).isInvulnerable();
+		if (object instanceof Entity entity) {
+			return entity.isInvulnerable();
+		} else if (SUPPORTS_GAMEMODE && object instanceof GameMode gameMode) {
+			return gameMode.isInvulnerable();
 		}
 		return false;
 	}

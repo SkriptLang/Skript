@@ -28,7 +28,12 @@ public class CondHasCustomModelData extends PropertyCondition<ItemType> {
 	public boolean check(ItemType item) {
 		return item.getItemMeta().hasCustomModelData();
 	}
-	
+
+	@Override
+	protected PropertyType getPropertyType() {
+		return PropertyType.HAVE;
+	}
+
 	@Override
 	protected String getPropertyName() {
 		return "custom model data";

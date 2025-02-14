@@ -14,7 +14,7 @@ public class CondEntityIsWet extends PropertyCondition<Entity> {
 	
 	static {
 		if (Skript.methodExists(Entity.class, "isInWaterOrRainOrBubbleColumn"))
-			register(CondEntityIsWet.class, PropertyType.BE, "wet", "entities");
+			register(CondEntityIsWet.class, "wet", "entities");
 	}
 
 	@Override
