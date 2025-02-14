@@ -51,11 +51,14 @@ public class ExprNoDamageTicks extends SimplePropertyExpression<LivingEntity, Lo
 					yield currentTicks + (mode == ChangeMode.ADD ? ticks : -ticks);
 				}
 			};
-			if (noDamageTicks == null) continue;
-			if (noDamageTicks < 0) noDamageTicks = 0;
+			if (noDamageTicks == null) 
+				continue;
+			if (noDamageTicks < 0) 
+				noDamageTicks = 0;
 			if (livingEntity instanceof Wither wither)
 				wither.setInvulnerableTicks(noDamageTicks);
-			else livingEntity.setNoDamageTicks(noDamageTicks);
+			else 
+				livingEntity.setNoDamageTicks(noDamageTicks);
 		}
 	}
 	
