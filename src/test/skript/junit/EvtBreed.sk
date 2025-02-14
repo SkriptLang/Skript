@@ -30,7 +30,7 @@ on breed of pig:
 		complete objective "correct breeding father" for {_test}
 
 	if:
-		bred child is pig
+		bred child is a pig
 		bred child's name is "child"
 	then:
 		complete objective "correct bred child" for {_test}

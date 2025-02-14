@@ -681,10 +681,18 @@ public final class BukkitEventValues {
 		// InventoryMoveItemEvent
 		EventValues.registerEventValue(InventoryMoveItemEvent.class, Inventory.class, InventoryMoveItemEvent::getSource);
 		EventValues.registerEventValue(InventoryMoveItemEvent.class, Inventory.class, InventoryMoveItemEvent::getDestination, TIME_FUTURE);
-		EventValues.registerEventValue(InventoryMoveItemEvent.class, Block.class,
-			event -> event.getSource().getLocation().getBlock());
-		EventValues.registerEventValue(InventoryMoveItemEvent.class, Block.class,
-			event -> event.getDestination().getLocation().getBlock(), TIME_FUTURE);
+		EventValues.registerEventValue(InventoryMoveItemEvent.class, Block.class, event -> {
+			Location location = event.getSource().getLocation();
+			if (location == null)
+				return null;
+			return location.getBlock();
+		});
+		EventValues.registerEventValue(InventoryMoveItemEvent.class, Block.class, event -> {
+			Location location = event.getDestination().getLocation();
+			if (location == null)
+				return null;
+			return location.getBlock();
+		}, TIME_FUTURE);
 		EventValues.registerEventValue(InventoryMoveItemEvent.class, ItemStack.class, InventoryMoveItemEvent::getItem);
 
 		// EntityRegainHealthEvent
@@ -693,8 +701,8 @@ public final class BukkitEventValues {
 		// FurnaceExtractEvent
 		EventValues.registerEventValue(FurnaceExtractEvent.class, Player.class, FurnaceExtractEvent::getPlayer);
 		EventValues.registerEventValue(FurnaceExtractEvent.class, ItemStack[].class,
-			event -> new ItemStack[]{ItemStack.of(event.getItemType(), event.getItemAmount())
-		});
+			event -> new ItemStack[]{new ItemStack(event.getItemType(), event.getItemAmount())}
+		);
 
 		// BlockDropItemEvent
 		EventValues.registerEventValue(BlockDropItemEvent.class, Block.class,
