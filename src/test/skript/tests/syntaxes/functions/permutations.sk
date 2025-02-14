@@ -1,0 +1,14 @@
+test "permutations function":
+	assert permutations(5, 3) = 60 with "permutations of 5 with a set of 3 failed"
+	assert permutations(10, 2) = 90 with "permutations of 10 with a set of 8 failed"
+	assert permutations(10, 4) = 5040 with "permutations of 10 with a set of 4 failed"
+	assert permutations(10, 8) = 1814400 with "permutations of 10 with a set of 8 failed"
+	assert permutations(100, 5) = 9034502400 with "permutations of 100 with a set of 5 failed"
+	assert permutations(150, 10) = 4244078637389118400000 with "permutations of 150 with a set of 10 failed"
+	assert permutations(500, 10) = 891997464644302400000000000 with "permutations of 500 with a set of 10 failed"
+	assert permutations(500, 100) = 19054359613385316000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000 with "permutation of 500 with a set of 100 failed"
+
+	assert permutations(500, 500) = infinity value with "permutations of 500 with a set of 500 failed"
+
+	assert permutations(10, 11) is not set with "permutations with a size greater than options should be null"
+	assert permutations(10, -1) is not set with "permutations with a size less than 0 should be null"
