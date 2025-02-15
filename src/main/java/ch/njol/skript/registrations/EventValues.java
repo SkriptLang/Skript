@@ -5,12 +5,15 @@ import ch.njol.skript.expressions.base.EventValueExpression;
 import ch.njol.skript.util.Getter;
 import ch.njol.util.Kleenean;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Multimap;
+import com.google.common.collect.MultimapBuilder;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.converter.Converter;
 import org.skriptlang.skript.lang.converter.Converters;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 public class EventValues {
@@ -454,12 +457,32 @@ public class EventValues {
 		return getEventValueConverter(event, c, TIME_PAST, false) != null || getEventValueConverter(event, c, TIME_FUTURE, false) != null;
 	}
 
-	private record EventValueInfo<E extends Event, T>(
+
+	/**
+	 * @return All the event values for each registered event's class.
+	 */
+	public static Multimap<Class<? extends Event>, EventValueInfo<?, ?>> getPerEventEventValues() {
+		Multimap<Class<? extends Event>, EventValueInfo<?, ?>> eventValues = MultimapBuilder
+			.hashKeys()
+			.hashSetValues()
+			.build();
+
+		for (int i = TIME_PAST; i <= TIME_FUTURE; i++) {
+			for (EventValueInfo<?, ?> eventValueInfo : getEventValuesListForTime(i)) {
+				Collection<EventValueInfo<?, ?>> existing = eventValues.get(eventValueInfo.event);
+				existing.add(eventValueInfo);
+				eventValues.putAll(eventValueInfo.event, existing);
+			}
+		}
+		return eventValues;
+	}
+
+	public record EventValueInfo<E extends Event, T>(
 		Class<E> event, Class<T> c, Converter<E, T> converter,
 		@Nullable String excludeErrorMessage,
 		@Nullable Class<? extends E>[] excludes
 	) {
-		private EventValueInfo {
+		public EventValueInfo {
 			assert event != null;
 			assert c != null;
 			assert converter != null;

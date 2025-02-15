@@ -13,8 +13,11 @@ import ch.njol.skript.lang.SyntaxElementInfo;
 import ch.njol.skript.lang.function.Functions;
 import ch.njol.skript.lang.function.JavaFunction;
 import ch.njol.skript.registrations.Classes;
+import ch.njol.skript.registrations.EventValues;
+import ch.njol.skript.registrations.EventValues.EventValueInfo;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Multimap;
 import com.google.common.io.Files;
 
 import org.bukkit.event.Cancellable;
@@ -29,12 +32,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Locale;
+import java.util.*;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -53,6 +51,7 @@ public class HTMLGenerator extends DocumentationGenerator {
 
 	public HTMLGenerator(File templateDir, File outputDir) {
 		super(templateDir, outputDir);
+
 		this.skeleton = readFile(new File(this.templateDir + "/template.html")); // Skeleton which contains every other page
 	}
 
@@ -479,6 +478,9 @@ public class HTMLGenerator extends DocumentationGenerator {
 //		desc = desc.replace("${element.by-addon}", addon);
 		desc = handleIf(desc, "${if by-addon}", false);
 
+		// Event Values
+		desc = handleIf(desc, "${if event-values}", false);
+
 		// New Elements
 		if (since != null) {
 			String[] value = since.value();
@@ -619,6 +621,33 @@ public class HTMLGenerator extends DocumentationGenerator {
 		// Return Type
 		desc = handleIf(desc, "${if return-type}", false);
 
+		// Event Values
+		Set<String> eventValues = new TreeSet<>();
+		Multimap<Class<? extends Event>, EventValueInfo<?, ?>> allEventValues = EventValues.getPerEventEventValues();
+		for (Class<? extends Event> supportedEvent : info.events) {
+			for (Class<? extends Event> event : allEventValues.keySet()) {
+				if (!event.isAssignableFrom(supportedEvent))
+					continue;
+
+				Collection<EventValueInfo<?, ?>> eventValueInfos = allEventValues.get(event);
+
+				for (EventValueInfo<?, ?> eventValueInfo : eventValueInfos) {
+					Class<?>[] excludes = eventValueInfo.excludes();
+					if (excludes != null && Set.of(excludes).contains(event))
+						continue;
+
+					ClassInfo<?> exactClassInfo = Classes.getExactClassInfo(eventValueInfo.c());
+					if (exactClassInfo == null)
+						continue;
+
+					eventValues.add("event-%s".formatted(exactClassInfo.getName()));
+				}
+			}
+		}
+
+		desc = handleIf(desc, "${if event-values}", !eventValues.isEmpty());
+		desc = desc.replace("${element.event-values}", Joiner.on(", ").join(eventValues));
+
 		desc = handleIf(desc, "${if structure-optional-entrydata}", false);
 		desc = handleIf(desc, "${if structure-required-entrydata}", false);
 
@@ -724,6 +753,9 @@ public class HTMLGenerator extends DocumentationGenerator {
 		desc = handleIf(desc, "${if structure-optional-entrydata}", false);
 		desc = handleIf(desc, "${if structure-required-entrydata}", false);
 
+		// Event Values
+		desc = handleIf(desc, "${if event-values}", false);
+
 		// Generate Templates
 		List<String> toGen = Lists.newArrayList();
 		int generate = desc.indexOf("${generate");
@@ -813,6 +845,9 @@ public class HTMLGenerator extends DocumentationGenerator {
 
 		// Type
 		desc = desc.replace("${element.type}", "Function");
+
+		// Event Values
+		desc = handleIf(desc, "${if event-values}", false);
 
 		desc = handleIf(desc, "${if structure-optional-entrydata}", false);
 		desc = handleIf(desc, "${if structure-required-entrydata}", false);
