@@ -8,6 +8,7 @@ import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
+import ch.njol.skript.lang.ExperimentalSyntax;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.TriggerItem;
@@ -49,7 +50,7 @@ import java.util.Map;
 	"\tbroadcast \"%{_index}% = %{_value}%\"",
 })
 @Since("2.10")
-public class SecFor extends SecLoop {
+public class SecFor extends SecLoop implements ExperimentalSyntax {
 
 	static {
 		Skript.registerSection(SecFor.class,
@@ -69,8 +70,6 @@ public class SecFor extends SecLoop {
 						ParseResult parseResult,
 						SectionNode sectionNode,
 						List<TriggerItem> triggerItems) {
-		if (!this.getParser().hasExperiment(Feature.FOR_EACH_LOOPS))
-			return false;
 		//<editor-fold desc="Set the key/value expressions based on the pattern" defaultstate="collapsed">
 		switch (matchedPattern) {
 			case 0:
@@ -120,6 +119,11 @@ public class SecFor extends SecLoop {
 		this.loadOptionalCode(sectionNode);
 		this.setInternalNext(this);
 		return true;
+	}
+
+	@Override
+	public Feature requiredExperiment() {
+		return Feature.FOR_EACH_LOOPS;
 	}
 
 	@Override

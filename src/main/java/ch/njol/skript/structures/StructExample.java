@@ -4,6 +4,7 @@ import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.Skript;
 import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.doc.*;
+import ch.njol.skript.lang.ExperimentalSyntax;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.function.FunctionEvent;
@@ -27,7 +28,7 @@ import org.skriptlang.skript.lang.structure.Structure;
 		# this is never run"""
 })
 @Since("2.10")
-public class StructExample extends Structure {
+public class StructExample extends Structure implements ExperimentalSyntax {
 
 	public static final Priority PRIORITY = new Priority(550);
 
@@ -42,11 +43,14 @@ public class StructExample extends Structure {
 	@Override
 	public boolean init(Literal<?>[] literals, int matchedPattern, ParseResult parseResult,
 						@Nullable EntryContainer entryContainer) {
-		if (!this.getParser().hasExperiment(Feature.EXAMPLES))
-			return false;
 		assert entryContainer != null; // cannot be null for non-simple structures
 		this.source = entryContainer.getSource();
 		return true;
+	}
+
+	@Override
+	public Feature requiredExperiment() {
+		return Feature.EXAMPLES;
 	}
 
 	@Override
