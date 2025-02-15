@@ -9,18 +9,22 @@ import ch.njol.yggdrasil.YggdrasilSerializable;
  */
 public class Experience implements YggdrasilSerializable {
 	
-	private final int xp;
+	private int xp;
 	
 	public Experience() {
 		xp = -1;
 	}
 	
-	public Experience(final int xp) {
+	public Experience(int xp) {
 		this.xp = xp;
 	}
 	
 	public int getXP() {
 		return xp == -1 ? 1 : xp;
+	}
+
+	public void setXP(int xp) {
+		this.xp = xp;
 	}
 	
 	public int getInternalXP() {
@@ -41,17 +45,14 @@ public class Experience implements YggdrasilSerializable {
 	}
 	
 	@Override
-	public boolean equals(final @Nullable Object obj) {
+	public boolean equals(@Nullable Object obj) {
 		if (this == obj)
 			return true;
 		if (obj == null)
 			return false;
-		if (!(obj instanceof Experience))
+		if (!(obj instanceof Experience other))
 			return false;
-		final Experience other = (Experience) obj;
-		if (xp != other.xp)
-			return false;
-		return true;
+		return xp == other.xp;
 	}
 	
 }
