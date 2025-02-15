@@ -32,6 +32,7 @@ import ch.njol.util.Kleenean;
 import ch.njol.util.NonNullPair;
 import ch.njol.util.StringUtils;
 import ch.njol.util.coll.CollectionUtils;
+import ch.njol.util.coll.iterator.CheckedIterator;
 import com.google.common.primitives.Booleans;
 import org.bukkit.event.Event;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -577,6 +578,55 @@ public class SkriptParser {
 				log.printError();
 				return null;
 			}
+
+			// try to parse as Literal expression
+
+			//noinspection rawtypes,unchecked
+			Literal<?> parsedLiteral = (Literal<?>) parse(expr,
+					new CheckedIterator<SyntaxElementInfo<SyntaxElement>>((Iterator) Skript.getExpressions(types),
+							type -> type != null && Literal.class.isAssignableFrom(type.getElementClass())),
+					null);
+			if (parsedLiteral != null) { // Expression/VariableString parsing success
+				Class<?> parsedReturnType = parsedLiteral.getReturnType();
+				for (int i = 0; i < types.length; i++) {
+					Class<?> type = types[i];
+					if (type == null) // Ignore invalid (null) types
+						continue;
+
+					// Check return type against the expression's return type
+					if (type.isAssignableFrom(parsedReturnType)) {
+						if (!exprInfo.isPlural[i] && !parsedLiteral.isSingle()) { // Wrong number of arguments
+							if (context == ParseContext.COMMAND) {
+								Skript.error(Commands.m_too_many_arguments.toString(exprInfo.classes[i].getName().getIndefiniteArticle(), exprInfo.classes[i].getName().toString()));
+							} else {
+								Skript.error("'" + expr + "' can only accept a single " + exprInfo.classes[i].getName() + ", not more");
+							}
+							return null;
+						}
+
+						log.printLog();
+						return parsedLiteral;
+					}
+				}
+
+				if (onlySingular && !parsedLiteral.isSingle()) {
+					Skript.error("'" + expr + "' can only accept singular expressions, not plural");
+					return null;
+				}
+
+				// No directly same type found
+				Literal<?> convertedLiteral = parsedLiteral.getConvertedExpression((Class<Object>[]) types);
+				if (convertedLiteral != null) {
+					log.printLog();
+					return convertedLiteral;
+				}
+
+				// Print errors, if we couldn't get the correct type
+				log.printError(parsedLiteral.toString(null, false) + " " + Language.get("is") + " " + notOfType(types), ErrorQuality.NOT_AN_EXPRESSION);
+				return null;
+			}
+			log.clear();
+
 			if (exprInfo.classes[0].getC() == Object.class) {
 				// Do check if a literal with this name actually exists before returning an UnparsedLiteral
 				if (!allowUnparsedLiteral || Classes.parseSimple(expr, Object.class, context) == null) {
