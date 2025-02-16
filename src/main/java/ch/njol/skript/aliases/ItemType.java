@@ -11,8 +11,6 @@ import ch.njol.skript.localization.GeneralWords;
 import ch.njol.skript.localization.Language;
 import ch.njol.skript.localization.Noun;
 import ch.njol.skript.util.BlockUtils;
-import ch.njol.skript.util.Container;
-import ch.njol.skript.util.Container.ContainerType;
 import ch.njol.skript.util.EnchantmentType;
 import ch.njol.skript.variables.Variables;
 import ch.njol.util.coll.iterator.EmptyIterable;
@@ -58,8 +56,7 @@ import java.util.RandomAccess;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-@ContainerType(ItemStack.class)
-public class ItemType implements Unit, Iterable<ItemData>, Container<ItemStack>, YggdrasilExtendedSerializable,
+public class ItemType implements Unit, Iterable<ItemData>, YggdrasilExtendedSerializable,
 	AnyNamed, AnyAmount {
 
 	static {
@@ -489,35 +486,17 @@ public class ItemType implements Unit, Iterable<ItemData>, Container<ItemStack>,
 		modified();
 	}
 
-	@Override
+	/**
+	 * Return an Iterator of ItemStacks this ItemType contains
+	 * <p>Do note that some ItemTypes will not contain an ItemStack
+	 * if they're a block only Material, such as water.</p>
+	 *
+	 * @return Iterator of ItemStacks this ItemType contains
+	 * @deprecated Use {@link #getAll()} instead
+	 */
+	@Deprecated
 	public Iterator<ItemStack> containerIterator() {
-		return new Iterator<ItemStack>() {
-			@SuppressWarnings("null")
-			Iterator<ItemData> iter = types.iterator();
-
-			@Override
-			public boolean hasNext() {
-				return iter.hasNext();
-			}
-
-			@Override
-			public ItemStack next() {
-				ItemStack is = null;
-				while (is == null) {
-					if (!hasNext())
-						throw new NoSuchElementException();
-					is = iter.next().getStack();
-				}
-				is = is.clone();
-				is.setAmount(getAmount());
-				return is;
-			}
-
-			@Override
-			public void remove() {
-				throw new UnsupportedOperationException();
-			}
-		};
+		return getAll().iterator();
 	}
 
 	/**
@@ -532,10 +511,18 @@ public class ItemType implements Unit, Iterable<ItemData>, Container<ItemStack>,
 				return EmptyIterable.get();
 			return new SingleItemIterable<>(i);
 		}
-		return new Iterable<ItemStack>() {
+		return new Iterable<>() {
 			@Override
-			public Iterator<ItemStack> iterator() {
-				return containerIterator();
+			public @NotNull Iterator<ItemStack> iterator() {
+				List<ItemStack> items = new ArrayList<>();
+				for (ItemData itemData : types) {
+					ItemStack stack = itemData.getStack();
+					if (stack != null) {
+						items.add(stack);
+					}
+				}
+
+				return items.iterator();
 			}
 		};
 	}
