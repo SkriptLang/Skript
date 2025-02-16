@@ -1,0 +1,12 @@
+options:
+	test: "org.skriptlang.skript.test.tests.syntaxes.events.EvtVehicleEnterTest"
+
+test "EvtVehicleEnterTest" when running JUnit:
+	ensure {@test} completes "vehicle - pig" and "entity - player"
+
+on vehicle enter:
+	junit test is {@test}
+	if event-entity is a player:
+		complete "entity - player" for {@test}
+	if event-vehicle is a pig:
+		complete "vehicle - pig" for {@test}

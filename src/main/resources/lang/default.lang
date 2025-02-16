@@ -2653,6 +2653,7 @@ types:
 	lootcontext: loot context¦s @a
 	bannerpatterntype: banner pattern type¦s @a
 	bannerpattern: banner pattern¦s @a
+	vehicle: vehicle¦s @a
 
 	# Skript
 	weathertype: weather type¦s @a
