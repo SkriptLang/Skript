@@ -1,0 +1,487 @@
+options:
+	test: "EventValuesTest"
+
+# This is to test parsing of event-value expressions
+
+on beacon effect:
+	set {_values::*} to event-player and event-block
+
+on beacon toggle:
+	set {_values::*} to event-block
+
+on break:
+	set {_values::*} to event-player, event-block and past event-block
+
+on burn:
+	set {_value::*} to event-block
+
+on place:
+	set {_values::*} to event-player, event-block, past event-block, past event-item, event-item and future event-item
+
+on fade:
+	set {_values::*} to past event-block, event-block and future event-block
+
+on form:
+	set {_values::*} to past event-block and event-block
+
+on block drop:
+	set {_values::*} to past event-block, event-block, event-player, event-items and event-entities
+
+on book edit:
+	set {_values::*} to event-player, past event-item, event-item, past event-strings and event-strings
+
+on click:
+	set {_values::*} to event-item, event-block, event-direction, event-player and event-entity
+
+on command:
+	set {_values::*} to event-player, event-sender, event-world and event-block
+
+on damage:
+	set {_values::*} to event-world, event-location, event-damage cause and event-projectile
+
+on death:
+	set {_values::*} to event-world, event-location, event-damage cause, event-items and event-projectile
+
+on spawn:
+	set {_values::*} to event-entity
+
+on entity change block:
+	set {_values::*} to past event-block, event-block, past event-block data and event-block data
+
+on entity potion effect:
+	set {_values::*} to past event-potion effect, event-potion effect and event-potion effect type
+
+on target:
+	set {_values::*} to event-entity
+
+on entity transform:
+	set {_values::*} to event-entities and event-transform reason
+
+on xp change:
+	set {_values::*} to event-player and event-experience
+
+on xp spawn:
+	set {_values::*} to event-location and event-experience
+
+on firework explode:
+	set {_values::*} to event-firework, event-firework effect and event-colors
+
+on first join:
+	set {_values::*} to event-player
+
+on gamemode change:
+	set {_values::*} to event-player
+
+on grow:
+	set {_values::*} to past event-block and event-block
+
+on heal:
+	set {_values::*} to event-entity and event-heal reason
+
+on dispense:
+	set {_values::*} to event-block and event-item
+
+on item spawn:
+	set {_values::*} to event-item
+
+on entity drop:
+	set {_values::*} to event-entity, event-dropped item and event-item
+
+on player drop:
+	set {_values::*} to event-player, event-dropped item and event-item
+
+on preparing craft:
+	set {_values::*} to event-slot, event-item, event-inventory, event-player and event-string
+
+on craft:
+	set {_values::*} to event-string and event-item
+
+on entity pickup:
+	set {_values::*} to event-entity, event-dropped item and event-itemtype
+
+on player pickup:
+	set {_values::*} to event-player, event-dropped item and event-itemtype
+
+on consume:
+	set {_values::*} to event-player and event-item
+
+on inventory click:
+	set {_values::*} to event-player, event-world, event-item, event-slot, event-inventory action, event-click type and event-inventory
+
+on item despawn:
+	set {_values::*} to event-dropped item and event-item
+
+on item merge:
+	set {_values::*} to event-dropped item and event-item and future event-dropped item
+
+on inventory item move:
+	set {_values::*} to event-inventory, future event-inventory, event-block, event-item and future event-block
+
+on stonecutting:
+	set {_values::*} to event-player and event-item
+
+on leash:
+	set {_values::*} to event-player and event-entity
+
+on unleash:
+	set {_values::*} to event-entity and event-unleash reason
+
+on player unleash:
+	set {_values::*} to event-player and event-unleash reason
+
+on level change:
+	set {_values::*} to event-player and event-entity
+
+on entity move:
+	set {_values::*} to event-entity
+
+on step on dirt:
+	set {_values::*} to event-player, event-block, past event-location, event-location, past event-chunk and event-chunk
+
+on send command list:
+	set {_values::*} to event-player and event-entity
+
+on resource pack response:
+	set {_values::*} to event-player and event-entity
+
+on load:
+	set {_values::*} to event-sender
+
+on unload:
+	set {_values::*} to event-sender
+
+on skript load:
+	set {_values::*} to event-sender
+
+on skript unload:
+	set {_values::*} to event-sender
+
+on start spectating:
+	set {_values::*} to event-player and event-entity
+
+on entity teleport:
+	set {_values::*} to event-entity, past event-location and event-location
+
+on player teleport:
+	set {_values::*} to event-player, past event-location and event-location
+
+on vehicle collision:
+	set {_values::*} to event-world, event-entity and event-block
+
+on weather change:
+	set {_values::*} to event-world
+
+on world save:
+	set {_values::*} to event-world
+
+on world init:
+	set {_values::*} to event-world
+
+on world load:
+	set {_values::*} to event-world
+
+on world unload:
+	set {_values::*} to event-world
+
+on can build check:
+	set {_values::*} to past event-block, event-block and event-player
+
+on block damage:
+	set {_values::*} to event-block and event-player
+
+on flow:
+	set {_values::*} to event-block and future event-block
+
+on ignite:
+	set {_values::*} to event-block and event-player
+
+on physics:
+	set {_values::*} to event-block
+
+on piston extend:
+	set {_values::*} to event-block
+
+on piston retract:
+	set {_values::*} to event-block
+
+on redstone:
+	set {_values::*} to event-block
+
+on spread:
+	set {_values::*} to event-block
+
+on chunk load:
+	set {_values::*} to event-world and event-chunk
+
+on chunk generate:
+	set {_values::*} to event-world and event-chunk
+
+on chunk unload:
+	set {_values::*} to event-world and event-chunk
+
+on creeper power:
+	set {_values::*} to event-entity
+
+on zombie break door:
+	set {_values::*} to event-entity, past event-block, event-block, event-block data and future event-block data
+
+on combust:
+	set {_values::*} to event-entity
+
+on explode:
+	set {_values::*} to event-entity
+
+on portal enter:
+	set {_values::*} to event-entity
+
+on tame:
+	set {_values::*} to event-entity
+
+on explosion prime:
+	set {_values::*} to event-entity
+
+on hunger level change:
+	set {_values::*} to event-entity
+
+on leaves decay:
+	set {_values::*} to event-block
+
+on lightning:
+	set {_values::*} to event-entity
+
+on pig zap:
+	set {_values::*} to event-entity, event-entities and event-transform reason
+
+on bed enter:
+	set {_values::*} to event-player and event-block
+
+on leave bed:
+	set {_values::*} to event-player and event-block
+
+on bucket empty:
+	set {_values::*} to event-player, past event-block and event-block
+
+on bucket fill:
+	set {_values::*} to event-player, event-block and future event-block
+
+on throw egg:
+	set {_values::*} to event-player and event-projectile
+
+on tool break:
+	set {_values::*} to event-player and event-item
+
+on item damage:
+	set {_values::*} to event-player and event-item
+
+on tool change:
+	set {_values::*} to event-player, past event-slot and event-slot
+
+on join:
+	set {_values::*} to event-player and event-entity
+
+on connect:
+	set {_values::*} to event-player and event-entity
+
+on kick:
+	set {_values::*} to event-player and event-entity
+
+on entity portal:
+	set {_values::*} to event-entity, past event-location and event-location
+
+on portal:
+	set {_values::*} to event-player, event-teleport cause, event-block, past event-location, event-location, past event-chunk and event-chunk
+
+on leave:
+	set {_values::*} to event-player and event-quit reason
+
+on respawn:
+	set {_values::*} to event-player and event-entity
+
+on toggle sneak:
+	set {_values::*} to event-player and event-entity
+
+on toggle sprint:
+	set {_values::*} to event-player and event-entity
+
+on portal create:
+	set {_values::*} to event-world, event-blocks and event-entity
+
+on projectile collide:
+	set {_values::*} to event-projectile and event-entity
+
+on shoot:
+	set {_values::*} to event-projectile
+
+on sign change:
+	set {_values::*} to event-player, event-strings and event-block
+
+on spawn change:
+	set {_values::*} to event-world
+
+on vehicle create:
+	#set {_values::*} to event-vehicle, event-world and event-entity
+	set {_values::*} to event-world and event-entity
+
+on vehicle damage:
+	#set {_values::*} to event-vehicle, event-world and event-entity
+	set {_values::*} to event-world and event-entity
+
+on vehicle enter:
+	#set {_values::*} to event-vehicle, event-world and event-entity
+	set {_values::*} to event-world and event-entity
+
+on vehicle destroy:
+	#set {_values::*} to event-vehicle, event-world and event-entity
+	set {_values::*} to event-world and event-entity
+
+on vehicle exit:
+	#set {_values::*} to event-vehicle, event-world and event-entity
+	set {_values::*} to event-world and event-entity
+
+on mount:
+	set {_values::*} to event-entity
+
+on dismount:
+	set {_values::*} to event-entity
+
+on toggle gliding:
+	set {_values::*} to event-entity
+
+on area effect:
+	set {_values::*} to event-living entities and event-potion effect type
+
+on sheep grow wool:
+	set {_values::*} to event-entity
+
+on inventory open:
+	set {_values::*} to event-player and event-inventory
+
+on inventory close:
+	set {_values::*} to event-player, event-inventory and event-inventory close reason
+
+on slime split:
+	set {_values::*} to event-entity
+
+on resurrect:
+	set {_values::*} to event-entity and event-slot
+
+on world change:
+	set {_values::*} to event-player and past event-world
+
+on toggle flight:
+	set {_values::*} to event-player
+
+on locale change:
+	set {_values::*} to event-player
+
+on jump:
+	set {_values::*} to event-player
+
+on swap item:
+	set {_values::*} to event-player
+
+on toggle swim:
+	set {_values::*} to event-entity
+
+on riptide:
+	set {_values::*} to event-player and event-item
+
+on armor change:
+	set {_values::*} to event-player
+
+on sponge absorb:
+	set {_values::*} to event-block, event-world and event-location
+
+on enchant prepare:
+	set {_values::*} to event-player, event-item, event-block and event-inventory
+
+on enchant:
+	set {_values::*} to event-player, event-item, event-enchantment types and event-block
+
+on inventory pickup:
+	set {_values::*} to event-inventory, event-dropped item and event-item
+
+on horse jump:
+	set {_values::*} to event-entity
+
+on fertilize:
+	set {_values::*} to event-player and event-blocks
+
+on arm swing:
+	set {_values::*} to event-player
+
+on anvil prepare:
+	set {_values::*} to event-item and event-inventory
+
+on player trade:
+	set {_values::*} to event-player and event-entity
+
+on entity jump:
+	set {_values::*} to event-entity
+
+on anvil damage:
+	set {_values::*} to event-inventory
+
+on stop item use:
+	set {_values::*} to event-player, event-timespan and event-item
+
+on ready arrow:
+	set {_values::*} to event-player
+
+on inventory slot change:
+	set {_values::*} to event-player, past event-item, event-item and event-slot
+
+on chat:
+	set {_values::*} to event-player
+
+on deep sleep:
+	set {_values::*} to event-player
+
+on arrow pickup:
+	set {_values::*} to event-player, event-projectile and event-item
+
+on inventory drag:
+	set {_values::*} to event-player, event-world, past event-item, event-item, event-items, event-slots, event-click type and event-inventories
+
+on piglin barter:
+	set {_values::*} to event-entity
+
+on bell ring:
+	set {_values::*} to event-block, event-entity and event-direction
+
+on bell resonate:
+	set {_values::*} to event-block and event-entities
+
+on enderman anger:
+	set {_values::*} to event-entity and event-player
+
+on player change beacon effect:
+	set {_values::*} to event-player and event-block
+
+on player xp cooldown change:
+	set {_values::*} to event-player, event-experience cooldown change reason, past event-timespan and event-timespan
+
+on vehicle move:
+	#set {_values::*} to event-vehicle, past event-location and event-location
+	set {_values::*} to past event-location and event-location
+
+on elytra boost:
+	set {_values::*} to event-player, event-item and event-entity
+
+on breed:
+	set {_values::*} to event-entity and event-item
+
+on fish caught:
+	set {_values::*} to event-player
+
+on smelt:
+	set {_values::*} to event-block
+
+on fuel burn:
+	set {_values::*} to event-block
+
+on furnace extract:
+	set {_values::*} to event-block, event-player and event-items
+
+on smelt start:
+	set {_values::*} to event-block
