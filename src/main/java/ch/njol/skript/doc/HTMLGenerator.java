@@ -29,12 +29,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Locale;
+import java.util.*;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -387,21 +382,30 @@ public class HTMLGenerator extends DocumentationGenerator {
 		return sb.toString();
 	}
 
-	private static String handleIf(String desc, String start, boolean value) {
+	/**
+	 * Handles an optional part in an HTML description.
+	 * @param desc The existing description.
+	 * @param condition The condition string to check.
+	 * @param value Whether
+	 * @return The modified description.
+	 */
+	private static String handleIf(String desc, String condition, boolean value) {
 		assert desc != null;
-		int ifStart = desc.indexOf(start);
+		int ifStart = desc.indexOf(condition);
+
 		while (ifStart != -1) {
 			int ifEnd = desc.indexOf("${end}", ifStart);
-			String data = desc.substring(ifStart + start.length() + 1, ifEnd);
+			String data = desc.substring(ifStart + condition.length() + 1, ifEnd);
 
 			String before = desc.substring(0, ifStart);
 			String after = desc.substring(ifEnd + 6);
-			if (value)
-				desc = before + data + after;
-			else
-				desc = before + after;
 
-			ifStart = desc.indexOf(start, ifEnd);
+			if (value)
+				desc = before + data + after; // include if condition is met
+			else
+				desc = before + after; // skip if condition is not met
+
+			ifStart = desc.indexOf(condition, ifEnd);
 		}
 
 		return desc;
@@ -605,10 +609,14 @@ public class HTMLGenerator extends DocumentationGenerator {
 		}
 		desc = desc.replace("${element.events-safe}", events == null ? "" : Joiner.on(", ").join((events != null ? events.value() : null)));
 
-		// Required Plugins
-		String[] requiredPlugins = info.getRequiredPlugins();
-		desc = handleIf(desc, "${if required-plugins}", requiredPlugins != null);
-		desc = desc.replace("${element.required-plugins}", Joiner.on(", ").join(requiredPlugins == null ? new String[0] : requiredPlugins));
+		// RequiredPlugins
+		String[] plugins = info.getRequiredPlugins();
+		desc = handleIf(desc, "${if required-plugins}", plugins != null && plugins.length > 0);
+		if (plugins == null) {
+			desc = desc.replace("${element.required-plugins}", "");
+		} else {
+			desc = desc.replace("${element.required-plugins}", Joiner.on(", ").join(plugins));
+		}
 
 		// New Elements
 		desc = handleIf(desc, "${if new-element}", NEW_TAG_PATTERN.matcher(since).find());
