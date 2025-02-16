@@ -34,6 +34,8 @@ This document does *not* cover the distribution or publication of artifacts buil
 
 Plans for a new release model began in March 2023 and several models were discussed, with this being the final version agreed upon by the organisation's administrative group and approved by the core contributors.
 
+An update to the release model was made in February 2025 to accommodate a more frequent Minecraft release schedule and to help limit update sizes further.
+
 ### Motivations
 
 The release cycle for the `2.7.0` version was significant in that it took an unusually long time and included an unusually-large number of additions and changes.
@@ -58,6 +60,11 @@ Members of the organisation and the wider community identified several problems 
     - There was no clear cut-off point for new features; feature pull requests were being included even up to 3 days before release
 
 Of these, the principle complaint is that the `2.7.0` version took a significant amount of time to finish and this had an adverse effect on the community and the wider ecosystem.
+
+As of February 2025, Mojang has committed to 'drops', which means significant upstream changes happen much more frequently. 
+This corresponds to Skript having a much higher lag time on releasing support for new content due to the mismatch in release dates.
+In addition, an uptick in contributions has led to `2.10` being one of the largest updates yet. 
+The size of the update meant that some of the previous concerns, like short notice additions and an extensive changelog, were still persistent despite the new release schedule.
 
 ### Goals
 
@@ -98,6 +105,7 @@ A 'patch' version (labelled `0.0.X`) may contain:
 - Bug fixes
 - Non-impactful<sup>2</sup> improvements to existing features
 - Changes to meta content (e.g. documentation)
+- Opt-in experiments
 
 There may be **very rare** occasions when a breaking change is necessary in a patch release. These may occur if and only if: either a breaking change is required in order to fix an issue, and the issue is significant enough to need fixing in a patch rather than waiting for a major release, or an issue occurred with an inclusion in the version immediately-prior to this, which must be changed or reverted in some way.
 
@@ -138,18 +146,20 @@ A table of (expected) dates is displayed below.
 | 15th Jan | Feature release | 0.1.0                   |
 | 1st Feb  | Patch           | 0.1.1                   |
 | 1st Mar  | Patch           | 0.1.2                   |
-| 1st Apr  | Patch           | 0.1.3                   |
-| 1st May  | Patch           | 0.1.4                   |
-| 1st Jun  | Patch           | 0.1.5                   |
-| 1st Jul  | Pre-release     | 0.2.0-pre1              |
-| 15th Jul | Feature release | 0.2.0                   |
-| 1st Aug  | Patch           | 0.2.1                   |
-| 1st Sep  | Patch           | 0.2.2                   |
-| 1st Oct  | Patch           | 0.2.3                   |
-| 1st Nov  | Patch           | 0.2.4                   |
-| 1st Dec  | Patch           | 0.2.5                   |
+| 1st Apr  | Pre-release     | 0.2.0-pre1              |
+| 15th Apr | Feature release | 0.2.0                   |
+| 1st May  | Patch           | 0.2.1                   |
+| 1st Jun  | Patch           | 0.2.2                   |
+| 1st Jul  | Pre-release     | 0.3.0-pre1              |
+| 15th Jul | Feature release | 0.3.0                   |
+| 1st Aug  | Patch           | 0.3.1                   |
+| 1st Sep  | Patch           | 0.3.2                   |
+| 1st Oct  | Pre-release     | 0.4.0-pre1              |
+| 15th Oct | Feature release | 0.4.0                   |
+| 1st Nov  | Patch           | 0.4.1                   |
+| 1st Dec  | Patch           | 0.4.2                   |
 
-An estimated 14 releases are expected per year, with 10 patches, 2 pre-releases and 2 feature-releases that immediately follow them.
+An estimated 16 releases are expected per year, with 8 patches, 4 pre-releases and 4 feature-releases.
 
 Please note that the actual number may differ from this in cases such as:
 - A version requiring multiple pre-releases to correct mistakes (`0.3.0-pre1`, `0.3.0-pre2`)
@@ -160,14 +170,16 @@ There is no fixed timetable for the circulation of unpublished builds to the pub
 
 ### Major Version Schedule
 
-A [feature version](#feature-releases) will be released on the **15th of January** and the **15th of July**.
+A [feature version](#feature-releases) will be released on the **15th of January**, the **15th of April**, the **15th of July**, and the **15th of October**.
 
-This will include all finished content from the previous 6 months that was tested in the pre-release.
+This will include all finished content that was tested in the pre-release.
 
 Any features, additions or changes that were *not* ready or approved at the time of the pre-release may **not** be included in the feature release [according to goal 3](#goals). \
 The feature release must **not** be delayed to accomodate content that was not ready by the deadline [according to goal 5](#goals).
 
 If there is no content ready at the scheduled date of a feature release, the release will be skipped and a notice published explaining this.
+
+The April and October releases are intended to include minimal breaking changes and focus more on including new features and opt-in experiments.
 
 ### Pre-Release Schedule
 
