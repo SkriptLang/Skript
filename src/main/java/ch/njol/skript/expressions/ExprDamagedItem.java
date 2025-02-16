@@ -1,5 +1,7 @@
 package ch.njol.skript.expressions;
 
+import ch.njol.skript.bukkitutil.ItemUtils;
+import ch.njol.skript.lang.SkriptParser;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
@@ -12,54 +14,73 @@ import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.PropertyExpression;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
-import ch.njol.skript.lang.SkriptParser;
 import ch.njol.util.Kleenean;
 
 @Name("Damaged Item")
-@Description("Directly damages an item. In MC versions 1.12.2 and lower, this can be used to apply data values to items/blocks")
+@Description({
+		"Changes the durability of an item.",
+		"Damage is used to remove the specified number from the base durability of an item, e.g. 400 - damage. "
+		+ "Durability is used to modify the total durability."
+})
 @Examples({"give player diamond sword with damage value 100", "set player's tool to diamond hoe damaged by 250",
-	"give player diamond sword with damage 700 named \"BROKEN SWORD\"",
-	"set {_item} to diamond hoe with damage value 50 named \"SAD HOE\"",
-	"set target block of player to wool with data value 1", "set target block of player to potato plant with data value 7"})
-@Since("2.4")
+		"give player diamond sword with damage 700 named \"BROKEN SWORD\"",
+		"set {_item} to diamond hoe with damage value 50 named \"SAD HOE\"",
+		"set target block of player to wool with data value 1", "set target block of player to potato plant with data value 7",
+		"give player wooden sword with 1 durability named \"VERY BROKEN SWORD\"",
+		"set player's tool to diamond hoe with durability 500"})
+@Since("2.4, INSERT VERSION (with durability)")
 public class ExprDamagedItem extends PropertyExpression<ItemType, ItemType> {
-	
+
 	static {
 		Skript.registerExpression(ExprDamagedItem.class, ItemType.class, ExpressionType.COMBINED,
-				"%itemtype% with (damage|data) [value] %number%",
-				"%itemtype% damaged by %number%");
+				"%itemtypes% with (damage|data) [value] %number%",
+				"%itemtypes% damaged by %number%",
+				"%itemtypes% with durability %number%",
+				"%itemtypes% with %number% durability");
 	}
-	
+
 	@SuppressWarnings("null")
 	private Expression<Number> damage;
-	
-	@SuppressWarnings({"unchecked", "null"})
+	private boolean hasDurability;
+
 	@Override
-	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
+	@SuppressWarnings({"unchecked", "null"})
+	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		setExpr((Expression<ItemType>) exprs[0]);
 		damage = (Expression<Number>) exprs[1];
+		hasDurability = matchedPattern > 1 ? true : false;
+		if (matchedPattern == 0) {
+			Skript.warning("Data value is deprecated and is only used in older Minecraft versions that do not support this Skript version.");
+		}
 		return true;
 	}
-	
+
 	@Override
-	protected ItemType[] get(Event e, ItemType[] source) {
-		Number damage = this.damage.getSingle(e);
+	protected ItemType[] get(Event event, ItemType[] source) {
+		Number damage = this.damage.getSingle(event);
 		if (damage == null)
 			return source;
 		return get(source.clone(), item -> {
-			item.iterator().forEachRemaining(i -> i.setDurability(damage.intValue()));
+			if (hasDurability == true) {
+				ItemUtils.setDamage(item, ItemUtils.getMaxDamage(item) - damage.intValue());
+			} else {
+				item.iterator().forEachRemaining(i -> i.setDurability(damage.intValue()));
+			}
 			return item;
 		});
 	}
-	
+
 	@Override
 	public Class<? extends ItemType> getReturnType() {
 		return ItemType.class;
 	}
-	
+
 	@Override
-	public String toString(final @Nullable Event e, boolean debug) {
-		return getExpr().toString(e, debug) + " with damage value " + damage.toString(e, debug);
+	public String toString(@Nullable Event event, boolean debug) {
+		if (hasDurability == true)
+			return getExpr().toString(event, debug) + " with durability " + damage.toString(event, debug);
+
+		return getExpr().toString(event, debug) + " with damage value " + damage.toString(event, debug);
 	}
-	
+
 }
