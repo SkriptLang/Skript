@@ -47,6 +47,7 @@ public enum SkriptColor implements Color {
 	private final static Map<String, SkriptColor> names = new HashMap<>();
 	private final static Set<SkriptColor> colors = new HashSet<>();
 	private final static String LANGUAGE_NODE = "colors";
+	private final static Map<Character, SkriptColor> BY_CHAR = new HashMap<>();
 	
 	static {
 		colors.addAll(Arrays.asList(values()));
@@ -57,6 +58,7 @@ public enum SkriptColor implements Color {
 				color.setAdjective(new Adjective(node + ".adjective"));
 				for (String name : Language.getList(node + ".names"))
 					names.put(name.toLowerCase(Locale.ENGLISH), color);
+				BY_CHAR.put(color.asChatColor().getChar(), color);
 			}
 		});
 	}
@@ -229,6 +231,15 @@ public enum SkriptColor implements Color {
 	 */
 	public static String replaceColorChar(String s) {
 		return s.replace('\u00A7', '&');
+	}
+
+	/**
+	 * Retrieve a {@link SkriptColor} correlating to the color character from {@code character}
+	 * @param character
+	 * @return The resulting {@link SkriptColor}
+	 */
+	public static @Nullable SkriptColor fromColorChar(char character) {
+		return BY_CHAR.get(character);
 	}
 
 	@Override
