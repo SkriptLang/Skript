@@ -1,21 +1,20 @@
 package ch.njol.skript.util;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import org.jetbrains.annotations.Nullable;
-
 import ch.njol.skript.Skript;
 import ch.njol.skript.localization.Message;
 import ch.njol.util.Math2;
 import ch.njol.yggdrasil.YggdrasilSerializable;
+import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.util.Cyclical;
+
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * @author Peter Güttinger
  */
 public class Time implements YggdrasilSerializable, Cyclical<Integer> {
-	
+
 	private final static int TICKS_PER_HOUR = 1000, TICKS_PER_DAY = 24 * TICKS_PER_HOUR;
 	private final static double TICKS_PER_MINUTE = 1000. / 60;
 	/**
@@ -29,10 +28,10 @@ public class Time implements YggdrasilSerializable, Cyclical<Integer> {
 	private static final Pattern TIME_PATTERN = Pattern.compile("\\d?\\d:\\d\\d", Pattern.CASE_INSENSITIVE);
 
 	public Time() {
-		time = 0;
+		this(0);
 	}
 	
-	public Time(final int time) {
+	public Time(int time) {
 		this.time = Math2.mod(time, TICKS_PER_DAY);
 	}
 	
@@ -49,13 +48,27 @@ public class Time implements YggdrasilSerializable, Cyclical<Integer> {
 	public int getTime() {
 		return (time + HOUR_ZERO) % TICKS_PER_DAY;
 	}
-	
+
+	public int getHour() {
+		int thisTime = time;
+		if (time < 0)
+			thisTime = Math.abs(time);
+		int hour = (thisTime + HOUR_ZERO) / TICKS_PER_HOUR;
+		if (hour >= 24)
+			hour -= 24;
+		return hour;
+	}
+
+	public int getMinute() {
+		return (int) Math2.round(((time + HOUR_ZERO) % TICKS_PER_HOUR) / TICKS_PER_MINUTE);
+	}
+
 	@Override
 	public String toString() {
 		return toString(time);
 	}
 	
-	public static String toString(final int ticks) {
+	public static String toString(int ticks) {
 		assert 0 <= ticks && ticks < TICKS_PER_DAY;
 		final int t = (ticks + HOUR_ZERO) % TICKS_PER_DAY;
 		int hours = t / TICKS_PER_HOUR;
@@ -131,9 +144,8 @@ public class Time implements YggdrasilSerializable, Cyclical<Integer> {
 			return true;
 		if (obj == null)
 			return false;
-		if (!(obj instanceof Time))
+		if (!(obj instanceof Time other))
 			return false;
-		final Time other = (Time) obj;
 		return time == other.time;
 	}
 	
