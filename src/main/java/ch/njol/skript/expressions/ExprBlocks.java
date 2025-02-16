@@ -28,13 +28,14 @@ import ch.njol.util.Kleenean;
 import ch.njol.util.coll.iterator.ArrayIterator;
 
 @Name("Blocks")
-@Description({"Blocks relative to other blocks or between other blocks. Can be used to get blocks relative to other blocks or for looping.",
-		"Blocks from/to and between will return a straight line whereas blocks within will return a cuboid."})
+@Description({"Blocks relative to other blocks or between other blocks.",
+	"Can be used to get blocks relative to other blocks or for looping.",
+	"Blocks from/to and between will return a straight line whereas blocks within will return a cuboid."})
 @Examples({"loop blocks above the player:",
-		"loop blocks between the block below the player and the targeted block:",
-		"set the blocks below the player, the victim and the targeted block to air",
-		"set all blocks within {loc1} and {loc2} to stone",
-		"set all blocks within chunk at player to air"})
+	"loop blocks between the block below the player and the targeted block:",
+	"set the blocks below the player, the victim and the targeted block to air",
+	"set all blocks within {loc1} and {loc2} to stone",
+	"set all blocks within chunk at player to air"})
 @Since("1.0, 2.5.1 (within/cuboid/chunk)")
 public class ExprBlocks extends SimpleExpression<Block> {
 
@@ -100,7 +101,7 @@ public class ExprBlocks extends SimpleExpression<Block> {
 			return from.stream(event)
 					.filter(Location.class::isInstance)
 					.map(Location.class::cast)
-				    .filter(location -> {
+					.filter(location -> {
 						if (SUPPORTS_WORLD_LOADED)
 							return location.isWorldLoaded();
 						return location.getChunk().isLoaded();
@@ -129,15 +130,20 @@ public class ExprBlocks extends SimpleExpression<Block> {
 				Object object = from.getSingle(event);
 				if (object == null)
 					return null;
-				Location location = object instanceof Location ? (Location) object : ((Block) object).getLocation().add(0.5, 0.5, 0.5);
+				Location location = object instanceof Location
+					? (Location) object
+					: ((Block) object).getLocation().add(0.5, 0.5, 0.5);
 				Direction direction = this.direction.getSingle(event);
 				if (direction == null || location.getWorld() == null)
 					return null;
-				Vector vector = object != location ? direction.getDirection((Block) object) : direction.getDirection(location);
+				Vector vector = object != location
+					? direction.getDirection((Block) object)
+					: direction.getDirection(location);
 				// Cannot be zero.
 				if (vector.getX() == 0 && vector.getY() == 0 && vector.getZ() == 0)
 					return null;
-				int distance = SkriptConfig.maxTargetBlockDistance.value();
+				// start block + (max - 1) == max
+				int distance = SkriptConfig.maxTargetBlockDistance.value() - 1;
 				if (this.direction instanceof ExprDirection) {
 					Expression<Number> numberExpression = ((ExprDirection) this.direction).amount;
 					if (numberExpression != null) {
@@ -188,7 +194,7 @@ public class ExprBlocks extends SimpleExpression<Block> {
 			return "blocks from " + from.toString(event, debug) + " to " + end.toString(event, debug);
 		} else {
 			assert direction != null;
-			return "block" + (isSingle() ? "" : "s") + " " + direction.toString(event, debug) + " " + from.toString(event, debug);
+			return "blocks " + direction.toString(event, debug) + " " + from.toString(event, debug);
 		}
 	}
 
