@@ -33,4 +33,4 @@ test "no damage ticks":
 		assert entity's invulnerability ticks is 1 with "wither no damage ticks add failed"
 		delete entity's invulnerability ticks
 		assert entity's invulnerability ticks is 0 with "wither no damage ticks delete failed"
-		set {_wither} to entity
+		delete entity
