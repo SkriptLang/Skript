@@ -23,49 +23,43 @@ import ch.njol.skript.log.SkriptLogger;
 import ch.njol.util.Kleenean;
 import ch.njol.util.StringUtils;
 
-/**
- * @author Peter Güttinger
- */
 @Name("Creature/Entity/Player/Projectile/Villager/Powered Creeper/etc.")
-@Description({"The entity involved in an event (an entity is a player, a creature or an inanimate object like ignited TNT, a dropped item or an arrow).",
-		"You can use the specific type of the entity that's involved in the event, e.g. in a 'death of a creeper' event you can use 'the creeper' instead of 'the entity'."})
-@Examples({"give a diamond sword of sharpness 3 to the player",
-		"kill the creeper",
-		"kill all powered creepers in the wolf's world",
-		"projectile is an arrow"})
+@Description({
+	"The entity involved in an event (an entity is a player, a creature or an inanimate object like ignited TNT, a dropped item or an arrow).",
+	"You can use the specific type of the entity that's involved in the event, e.g. in a 'death of a creeper' event you can use 'the creeper' instead of 'the entity'."
+})
+@Examples({
+	"give a diamond sword of sharpness 3 to the player",
+	"kill the creeper",
+	"kill all powered creepers in the wolf's world",
+	"projectile is an arrow"
+})
 @Since("1.0")
 public class ExprEntity extends SimpleExpression<Entity> {
+
 	static {
 		Skript.registerExpression(ExprEntity.class, Entity.class, ExpressionType.PATTERN_MATCHES_EVERYTHING, "[the] [event-]<.+>");
 	}
-	
-	@SuppressWarnings("null")
-	private EntityData<?> type;
-	
-	@SuppressWarnings("null")
+
 	private EventValueExpression<Entity> entity;
-	
+	private EntityData<?> type;
+
 	@Override
-	public boolean init(final Expression<?>[] exprs, final int matchedPattern, final Kleenean isDelayed, final ParseResult parseResult) {
-		final RetainingLogHandler log = SkriptLogger.startRetainingLog();
+	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
+		RetainingLogHandler log = SkriptLogger.startRetainingLog();
 		try {
 			if (!StringUtils.startsWithIgnoreCase(parseResult.expr, "the ") && !StringUtils.startsWithIgnoreCase(parseResult.expr, "event-")) {
 				
-				String s = parseResult.regexes.get(0).group();
-				final ItemType item = Aliases.parseItemType("" + s);
+				String input = parseResult.regexes.get(0).group();
+				ItemType item = Aliases.parseItemType("" + input);
 				log.clear();
 				if (item != null) {
 					log.printLog();
 					return false;
 				}
-				
-				//if(!StringUtils.startsWithIgnoreCase(parseResult.expr, "the event-") && !s.equalsIgnoreCase("player") && !s.equalsIgnoreCase("entity")){
-				//	return false;
-				//}
-				
 			}
 			
-			final EntityData<?> type = EntityData.parseWithoutIndefiniteArticle("" + parseResult.regexes.get(0).group());
+			EntityData<?> type = EntityData.parseWithoutIndefiniteArticle("" + parseResult.regexes.get(0).group());
 			log.clear();
 			log.printLog();
 			if (type == null || type.isPlural().isTrue())
@@ -75,31 +69,20 @@ public class ExprEntity extends SimpleExpression<Entity> {
 			log.stop();
 		}
 		entity = new EventValueExpression<>(type.getType());
-		return entity.init();
+		return entity.init(matchedPattern, isDelayed, parseResult);
 	}
-	
+
 	@Override
-	public boolean isSingle() {
-		return true;
-	}
-	
-	@Override
-	public Class<? extends Entity> getReturnType() {
-		return type.getType();
-	}
-	
-	@Override
-	@Nullable
-	protected Entity[] get(final Event e) {
-		final Entity[] es = entity.getArray(e);
-		if (es.length == 0 || type.isInstance(es[0]))
-			return es;
+	protected Entity @Nullable [] get(Event event) {
+		Entity[] entities = entity.getArray(event);
+		if (entities.length == 0 || type.isInstance(entities[0]))
+			return entities;
 		return null;
 	}
-	
-	@SuppressWarnings("unchecked")
+
 	@Override
 	@Nullable
+	@SuppressWarnings("unchecked")
 	public <R> Expression<? extends R> getConvertedExpression(Class<R>... to) {
 		for (Class<R> t : to) {
 			if (t.equals(EntityData.class)) {
@@ -108,10 +91,20 @@ public class ExprEntity extends SimpleExpression<Entity> {
 		}
 		return super.getConvertedExpression(to);
 	}
-	
+
 	@Override
-	public String toString(final @Nullable Event e, final boolean debug) {
+	public boolean isSingle() {
+		return true;
+	}
+
+	@Override
+	public Class<? extends Entity> getReturnType() {
+		return type.getType();
+	}
+
+	@Override
+	public String toString(@Nullable Event event, boolean debug) {
 		return "the " + type;
 	}
-	
+
 }
