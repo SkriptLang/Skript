@@ -55,7 +55,9 @@ import org.bukkit.inventory.*;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.potion.PotionType;
+import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.converter.Converter;
+import ch.njol.skript.registrations.EventConverter;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -298,7 +300,17 @@ public final class BukkitEventValues {
 		EventValues.registerEventValue(EntityPickupItemEvent.class, Item.class, EntityPickupItemEvent::getItem);
 		EventValues.registerEventValue(EntityPickupItemEvent.class, ItemType.class, event -> new ItemType(event.getItem().getItemStack()));
 		// PlayerItemConsumeEvent
-		EventValues.registerEventValue(PlayerItemConsumeEvent.class, ItemStack.class, PlayerItemConsumeEvent::getItem);
+		EventValues.registerEventValue(PlayerItemConsumeEvent.class, ItemStack.class, new EventConverter<>() {
+			@Override
+			public void set(PlayerItemConsumeEvent event, @Nullable ItemStack itemStack) {
+				event.setItem(itemStack);
+			}
+
+			@Override
+			public ItemStack convert(PlayerItemConsumeEvent from) {
+				return from.getItem();
+			}
+		});
 		// PlayerItemBreakEvent
 		EventValues.registerEventValue(PlayerItemBreakEvent.class, ItemStack.class, PlayerItemBreakEvent::getBrokenItem);
 		// PlayerInteractEntityEvent

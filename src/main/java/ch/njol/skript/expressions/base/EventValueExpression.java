@@ -10,6 +10,7 @@ import ch.njol.skript.lang.DefaultExpression;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.skript.lang.parser.ParserInstance;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.localization.Noun;
 import ch.njol.skript.log.ParseLogHandler;
@@ -18,6 +19,8 @@ import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.registrations.EventValues;
 import ch.njol.skript.util.Utils;
 import ch.njol.util.Kleenean;
+import ch.njol.util.coll.CollectionUtils;
+import ch.njol.skript.registrations.EventConverter;
 import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 import org.skriptlang.skript.util.Priority;
@@ -95,6 +98,7 @@ public class EventValueExpression<T> extends SimpleExpression<T> implements Defa
 	}
 
 	private final Map<Class<? extends Event>, Converter<?, ? extends T>> converters = new HashMap<>();
+	private final Map<Class<? extends Event>, EventConverter<Event, T>> eventConverters = new HashMap<>();
 
 	private final Class<?> componentType;
 	private final Class<? extends T> type;
@@ -103,6 +107,7 @@ public class EventValueExpression<T> extends SimpleExpression<T> implements Defa
 	private Changer<? super T> changer;
 	private final boolean single;
 	private final boolean exact;
+	private boolean isDelayed;
 
 	public EventValueExpression(Class<? extends T> type) {
 		this(type, null);
@@ -140,10 +145,12 @@ public class EventValueExpression<T> extends SimpleExpression<T> implements Defa
 
 	@Override
 	public boolean init() {
+		ParserInstance parser = getParser();
+		isDelayed = parser.getHasDelayBefore().isTrue();
 		ParseLogHandler log = SkriptLogger.startParseLogHandler();
 		try {
 			boolean hasValue = false;
-			Class<? extends Event>[] events = getParser().getCurrentEvents();
+			Class<? extends Event>[] events = parser.getCurrentEvents();
 			if (events == null) {
 				assert false;
 				return false;
@@ -155,7 +162,7 @@ public class EventValueExpression<T> extends SimpleExpression<T> implements Defa
 				}
 				if (EventValues.hasMultipleConverters(event, type, getTime()) == Kleenean.TRUE) {
 					Noun typeName = Classes.getExactClassInfo(componentType).getName();
-					log.printError("There are multiple " + typeName.toString(true) + " in " + Utils.a(getParser().getCurrentEventName()) + " event. " +
+					log.printError("There are multiple " + typeName.toString(true) + " in " + Utils.a(parser.getCurrentEventName()) + " event. " +
 							"You must define which " + typeName + " to use.");
 					return false;
 				}
@@ -168,10 +175,13 @@ public class EventValueExpression<T> extends SimpleExpression<T> implements Defa
 				if (converter != null) {
 					converters.put(event, converter);
 					hasValue = true;
+					if (converter instanceof EventConverter eventConverter) {
+						eventConverters.put(event, eventConverter);
+					}
 				}
 			}
 			if (!hasValue) {
-				log.printError("There's no " + Classes.getSuperClassInfo(componentType).getName().toString(!single) + " in " + Utils.a(getParser().getCurrentEventName()) + " event");
+				log.printError("There's no " + Classes.getSuperClassInfo(componentType).getName().toString(!single) + " in " + Utils.a(parser.getCurrentEventName()) + " event");
 				return false;
 			}
 			log.printLog();
@@ -223,6 +233,13 @@ public class EventValueExpression<T> extends SimpleExpression<T> implements Defa
 	@Nullable
 	@SuppressWarnings("unchecked")
 	public Class<?>[] acceptChange(ChangeMode mode) {
+		if (mode == ChangeMode.SET && !eventConverters.isEmpty()) {
+			if (isDelayed) {
+				Skript.error("Event values cannot be changed after the event has already passed.");
+				return null;
+			}
+			return CollectionUtils.array(type);
+		}
 		if (changer == null)
 			changer = (Changer<? super T>) Classes.getSuperClassInfo(componentType).getChanger();
 		return changer == null ? null : changer.acceptChange(mode);
@@ -230,9 +247,20 @@ public class EventValueExpression<T> extends SimpleExpression<T> implements Defa
 
 	@Override
 	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
-		if (changer == null)
-			throw new SkriptAPIException("The changer cannot be null");
-		ChangerUtils.change(changer, getArray(event), delta, mode);
+		if (mode == ChangeMode.SET) {
+			EventConverter<Event, T> converter = eventConverters.get(event.getClass());
+			if (converter != null) {
+				if (!type.isArray() && delta != null) {
+					converter.set(event, (T)delta[0]);
+				} else {
+					converter.set(event, (T)delta);
+				}
+				return;
+			}
+		}
+		if (changer != null) {
+			ChangerUtils.change(changer, getArray(event), delta, mode);
+		}
 	}
 
 	@Override
