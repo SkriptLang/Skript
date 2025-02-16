@@ -569,7 +569,13 @@ public final class BukkitEventValues {
 		EventValues.registerEventValue(PlayerRiptideEvent.class, ItemStack.class, PlayerRiptideEvent::getItem);
 		//PlayerArmorChangeEvent
 		if (Skript.classExists("com.destroystokyo.paper.event.player.PlayerArmorChangeEvent")) {
-			EventValues.registerEventValue(PlayerArmorChangeEvent.class, ItemStack.class, PlayerArmorChangeEvent::getNewItem);
+			EventValues.registerEventValue(PlayerArmorChangeEvent.class, EquipmentSlot.class,
+				event -> switch (event.getSlotType()) {
+					case HEAD -> EquipmentSlot.HEAD;
+					case CHEST -> EquipmentSlot.CHEST;
+					case LEGS -> EquipmentSlot.LEGS;
+					case FEET -> EquipmentSlot.FEET;
+			});
 		}
 		//PlayerInventorySlotChangeEvent
 		if (Skript.classExists("io.papermc.paper.event.player.PlayerInventorySlotChangeEvent")) {

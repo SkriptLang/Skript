@@ -6,8 +6,8 @@ import ch.njol.skript.aliases.Aliases;
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.bukkitutil.BukkitUtils;
 import ch.njol.skript.bukkitutil.EntityUtils;
-import ch.njol.skript.bukkitutil.SkriptTeleportFlag;
 import ch.njol.skript.bukkitutil.ItemUtils;
+import ch.njol.skript.bukkitutil.SkriptTeleportFlag;
 import ch.njol.skript.classes.*;
 import ch.njol.skript.classes.registry.RegistryClassInfo;
 import ch.njol.skript.entity.EntityData;
@@ -21,7 +21,6 @@ import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.BlockUtils;
 import ch.njol.skript.util.PotionEffectUtils;
 import ch.njol.skript.util.StringMode;
-import ch.njol.util.StringUtils;
 import ch.njol.yggdrasil.Fields;
 import io.papermc.paper.world.MoonPhase;
 import org.bukkit.*;
@@ -1536,6 +1535,14 @@ public class BukkitClasses {
 					.description("Teleport Flags are settings to retain during a teleport.")
 					.requiredPlugins("Paper 1.19+")
 					.since("2.10"));
+
+		Classes.registerClass(new EnumClassInfo<>(EquipmentSlot.class, "equipmentslot", "equipment slots")
+			.user("equipment ?slots?")
+			.name("Equipment Slot")
+			.description("Represents an equipment slot of an entity.")
+			.since("INSERT VERSION")
+		);
+
 	}
 
 }
