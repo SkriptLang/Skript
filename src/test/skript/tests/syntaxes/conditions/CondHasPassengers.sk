@@ -1,0 +1,25 @@
+test "has passengers":
+	spawn a cow at spawn of world "world"
+	set {_cow} to last spawned cow
+	spawn a pig at spawn of world "world"
+	set {_pig} to the last spawned pig
+	assert {_pig} has no passengers with "The pig had passengers after being spawned"
+	set passengers of {_pig} to {_cow}
+	assert {_pig} has a passenger with "The pig did not have any passengers"
+	assert size of passengers of {_pig} is 1 with "The size of the passengers was incorrect"
+	eject any passengers from {_pig}
+	make {_pig} ride on {_cow}
+	assert {_cow} has a passenger with "The cow did not have any passengers"
+	assert vehicle of {_pig} is {_cow} with "The cow did not have the pig as a passenger"
+	clear entity within {_pig}
+	assert {_pig} is not valid with "The pig is not dead"
+
+	eject any passengers from {_cow} # takes a tick for the game to register the pig died to update passengers
+	assert vehicle of {_cow} is not set with "The cow had passengers 1"
+	assert {_cow} does not have a passenger with "The cow had passengers 2"
+	make {_cow} ride a sheep # Spawns a sheep
+	assert last spawned sheep is set with "A sheep did not get set"
+	assert passengers of last spawned sheep contains {_cow} with "The sheep did not have the cow as a passenger"
+	eject any passengers from the last spawned sheep
+	assert passengers of the last spawned sheep is not set with "The last spawned sheep had passengers"
+	clear all entities
