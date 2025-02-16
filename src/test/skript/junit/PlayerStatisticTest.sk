@@ -1,0 +1,20 @@
+options:
+	test: "org.skriptlang.skript.test.tests.syntaxes.expressions.ExprPlayerStatisticTest"
+
+test "ExprPlayerStatisticTest" when running JUnit:
+	set {_tests::*} to "statistic increase event called", "player kills", "future statistic value" and "past statistic value"
+	ensure junit test {@test} completes {_tests::*}
+
+on player statistic increase:
+	junit test is {@test}
+	complete objective "statistic increase event called" for {@test}
+
+	if future statistic value is 5:
+		complete objective "future statistic value" for {@test}
+
+	if past statistic value is 0:
+		complete objective "past statistic value" for {@test}
+
+	set {_kills} to statistic "player kills" of player
+	if {_kills} is 10:
+		complete objective "player kills" for {@test}
