@@ -1,0 +1,14 @@
+test "beehive flower":
+	set {_old} to block data of test-block
+	set {_flower} to block at test-block ~ vector(1, 0, 0)
+	set {_old2} to block data of {_flower}
+	set block at test-block to beehive
+	set {_hive} to block at test-block
+	set block at {_flower} to sunflower
+	set the target flower of {_hive} to {_flower}
+	assert the block at (target flower of {_hive}) is {_flower} with "Beehive flower target did not change"
+	clear the target flower of {_hive}
+	assert the target flower of {_hive} is not set with "Beehive flower target was not cleared"
+
+	set block data of test-block to {_old}
+	set block data of {_flower} to {_old2}
