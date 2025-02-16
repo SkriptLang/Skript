@@ -1,6 +1,11 @@
 package ch.njol.skript.lang;
 
 import ch.njol.skript.Skript;
+import ch.njol.skript.config.Node;
+import ch.njol.skript.lang.parser.ParserInstance;
+import ch.njol.skript.timings.Timeable;
+import ch.njol.skript.timings.Timing;
+import ch.njol.skript.util.AsyncEffect;
 import ch.njol.skript.util.SkriptColor;
 import ch.njol.util.StringUtils;
 import org.bukkit.event.Event;
@@ -17,8 +22,10 @@ import java.io.File;
  * @see Trigger
  * @see Statement
  */
-public abstract class TriggerItem implements Debuggable {
+public abstract class TriggerItem implements Debuggable, Timeable {
 
+	private final @Nullable ParserInstance parserInstance = ParserInstance.get() != null ? ParserInstance.get() : null;
+	public final @Nullable Node node = parserInstance != null ? parserInstance.getNode() : null;
 	protected @Nullable TriggerSection parent = null;
 	private @Nullable TriggerItem next = null;
 
@@ -37,12 +44,15 @@ public abstract class TriggerItem implements Debuggable {
 	 * @return The next item to run or null to stop execution
 	 */
 	protected @Nullable TriggerItem walk(Event event) {
+		Timing timing = Skript.getTimings().start(this);
 		if (run(event)) {
 			debug(event, true);
+			Skript.getTimings().stop(timing, this instanceof AsyncEffect);
 			return next;
 		} else {
 			debug(event, false);
 			TriggerSection parent = this.parent;
+			Skript.getTimings().stop(timing, this instanceof AsyncEffect);
 			return parent == null ? null : parent.getNext();
 		}
 	}
@@ -172,6 +182,11 @@ public abstract class TriggerItem implements Debuggable {
 	 */
 	public @Nullable TriggerItem getActualNext() {
 		return next;
+	}
+
+	@Override
+	public @Nullable Node getNode() {
+		return node;
 	}
 
 }

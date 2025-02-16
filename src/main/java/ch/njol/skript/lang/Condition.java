@@ -3,6 +3,7 @@ package ch.njol.skript.lang;
 import ch.njol.skript.Skript;
 import ch.njol.skript.conditions.base.PropertyCondition;
 import ch.njol.skript.lang.util.SimpleExpression;
+import ch.njol.skript.timings.Timing;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.ApiStatus;
@@ -75,12 +76,18 @@ public abstract class Condition extends Statement implements Conditional<Event> 
 
 	@Override
 	public Kleenean evaluate(Event event) {
-		return Kleenean.get(check(event));
+		Timing timing = Skript.getTimings().start(this);
+		Kleenean kleenean = Kleenean.get(check(event));
+		Skript.getTimings().stop(timing);
+		return kleenean;
 	}
 
 	@Override
 	public final boolean run(Event event) {
-		return check(event);
+		Timing timing = Skript.getTimings().start(this);
+		boolean check = check(event);
+		Skript.getTimings().stop(timing);
+		return check;
 	}
 
 	/**

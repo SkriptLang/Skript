@@ -14,6 +14,7 @@ import ch.njol.skript.lang.parser.ParserInstance;
 import ch.njol.skript.lang.util.ContextlessEvent;
 import ch.njol.skript.patterns.PatternCompiler;
 import ch.njol.skript.patterns.SkriptPattern;
+import ch.njol.skript.timings.Timing;
 import ch.njol.skript.util.Patterns;
 import ch.njol.util.Kleenean;
 import com.google.common.collect.Iterables;
@@ -283,7 +284,9 @@ public class SecConditional extends Section {
 
 	@Override
 	protected @Nullable TriggerItem walk(Event event) {
+		Timing timing = Skript.getTimings().start(this);
 		if (type == ConditionalType.THEN || (parseIf && !parseIfPassed)) {
+			Skript.getTimings().stop(timing);
 			return getActualNext();
 		} else if (parseIf || checkConditions(event)) {
 			// if this is a multiline if, we need to run the "then" section instead
@@ -291,8 +294,10 @@ public class SecConditional extends Section {
 			TriggerItem skippedNext = getSkippedNext();
 			if (sectionToRun.last != null)
 				sectionToRun.last.setNext(skippedNext);
+			Skript.getTimings().stop(timing);
 			return sectionToRun.first != null ? sectionToRun.first : skippedNext;
 		} else {
+			Skript.getTimings().stop(timing);
 			return getActualNext();
 		}
 	}

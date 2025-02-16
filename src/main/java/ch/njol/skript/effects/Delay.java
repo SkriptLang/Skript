@@ -9,9 +9,7 @@ import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
-import ch.njol.skript.lang.Trigger;
 import ch.njol.skript.lang.TriggerItem;
-import ch.njol.skript.timings.SkriptTimings;
 import ch.njol.skript.util.Timespan;
 import ch.njol.skript.variables.Variables;
 import ch.njol.util.Kleenean;
@@ -79,17 +77,9 @@ public class Delay extends Effect {
 				if (localVars != null)
 					Variables.setLocalVariables(event, localVars);
 
-				Object timing = null; // Timings reference must be kept so that it can be stopped after TriggerItem execution
-				if (SkriptTimings.enabled()) { // getTrigger call is not free, do it only if we must
-					Trigger trigger = getTrigger();
-					if (trigger != null)
-						timing = SkriptTimings.start(trigger.getDebugLabel());
-				}
-
 				TriggerItem.walk(next, event);
 				Variables.removeLocals(event); // Clean up local vars, we may be exiting now
 
-				SkriptTimings.stop(timing); // Stop timing if it was even started
 			}, Math.max(duration.getAs(Timespan.TimePeriod.TICK), 1)); // Minimum delay is one tick, less than it is useless!
 		}
 		return null;

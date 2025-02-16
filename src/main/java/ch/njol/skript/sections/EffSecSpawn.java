@@ -10,6 +10,7 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.Trigger;
 import ch.njol.skript.lang.TriggerItem;
 import ch.njol.skript.registrations.EventValues;
+import ch.njol.skript.timings.Timing;
 import ch.njol.skript.util.Direction;
 import ch.njol.skript.variables.Variables;
 import ch.njol.util.Kleenean;
@@ -117,6 +118,7 @@ public class EffSecSpawn extends EffectSection {
 
 	@Override
 	protected @Nullable TriggerItem walk(Event event) {
+		Timing timing = Skript.getTimings().start(this);
 		lastSpawned = null;
 
 		Consumer<? extends Entity> consumer;
@@ -161,6 +163,7 @@ public class EffSecSpawn extends EffectSection {
 			}
 		}
 
+		Skript.getTimings().stop(timing);
 		return super.walk(event, false);
 	}
 

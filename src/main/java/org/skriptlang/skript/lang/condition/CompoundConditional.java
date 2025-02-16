@@ -1,5 +1,7 @@
 package org.skriptlang.skript.lang.condition;
 
+import ch.njol.skript.config.Node;
+import ch.njol.skript.lang.parser.ParserInstance;
 import ch.njol.util.Kleenean;
 import com.google.common.base.Preconditions;
 import org.bukkit.event.Event;
@@ -25,6 +27,8 @@ class CompoundConditional<T> implements Conditional<T> {
 
 	private final LinkedHashSet<Conditional<T>> componentConditionals = new LinkedHashSet<>();
 	private final Operator operator;
+	private final ParserInstance parser = ParserInstance.get() != null ? ParserInstance.get() : null;
+	private final Node node = parser != null ? parser.getNode() : null;
 
 	/**
 	 * Whether a cache will be used during evaluation. True if this compound contains other compounds, otherwise false.
@@ -150,6 +154,11 @@ class CompoundConditional<T> implements Conditional<T> {
 	@Override
 	public String toString() {
 		return toString(null, false);
+	}
+
+	@Override
+	public Node getNode() {
+		return this.node;
 	}
 
 }

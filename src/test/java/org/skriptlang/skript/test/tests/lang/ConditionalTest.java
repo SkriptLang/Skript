@@ -1,5 +1,6 @@
 package org.skriptlang.skript.test.tests.lang;
 
+import ch.njol.skript.config.Node;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
@@ -367,6 +368,12 @@ public class ConditionalTest {
 		public String toString(@Nullable Event context, boolean debug) {
 			return value.toString();
 		}
+
+		@Override
+		public Node getNode() {
+			return null;
+		}
+
 	}
 
 }
