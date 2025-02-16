@@ -286,7 +286,12 @@ public class Documentation {
 		Class<?> elementClass = info.getElementClass();
 		if (elementClass.getAnnotation(NoDoc.class) != null)
 			return;
-		if (elementClass.getAnnotation(Name.class) == null || elementClass.getAnnotation(Description.class) == null || elementClass.getAnnotation(Examples.class) == null || elementClass.getAnnotation(Since.class) == null) {
+		if (elementClass.getAnnotation(Name.class) == null
+			|| elementClass.getAnnotation(Description.class) == null
+			|| (!elementClass.isAnnotationPresent(Examples.class)
+			&& !elementClass.isAnnotationPresent(Example.class)
+			&& !elementClass.isAnnotationPresent(Example.Examples.class))
+			|| elementClass.getAnnotation(Since.class) == null) {
 			Skript.warning("" + elementClass.getSimpleName() + " is missing information");
 			return;
 		}

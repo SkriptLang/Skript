@@ -13,6 +13,7 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.structure.Structure;
 import org.skriptlang.skript.lang.structure.StructureInfo;
@@ -21,6 +22,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Objects;
 import java.util.stream.Stream;
@@ -39,7 +41,7 @@ public class JSONGenerator extends DocumentationGenerator {
 	 * @param strings the String array to convert
 	 * @return the JsonArray containing the Strings
 	 */
-	private static @Nullable JsonArray convertToJsonArray(String @Nullable [] strings) {
+	private static @Nullable JsonArray convertToJsonArray(String @Nullable ... strings) {
 		if (strings == null)
 			return null;
 		JsonArray jsonArray = new JsonArray();
@@ -73,9 +75,18 @@ public class JSONGenerator extends DocumentationGenerator {
 			syntaxJsonObject.add("description", new JsonArray());
 		}
 
-		Examples examplesAnnotation = syntaxClass.getAnnotation(Examples.class);
-		if (examplesAnnotation != null) {
+		if (syntaxClass.isAnnotationPresent(Examples.class)) {
+			@NotNull Examples examplesAnnotation = syntaxClass.getAnnotation(Examples.class);
 			syntaxJsonObject.add("examples", convertToJsonArray(examplesAnnotation.value()));
+		} else if (syntaxClass.isAnnotationPresent(Example.Examples.class)) {
+			// If there are multiple examples, they get containerised
+			@NotNull Example.Examples examplesAnnotation = syntaxClass.getAnnotation(Example.Examples.class);
+			syntaxJsonObject.add("examples", convertToJsonArray(Arrays.stream(examplesAnnotation.value())
+				.map(Example::value).toArray(String[]::new)));
+		} else if (syntaxClass.isAnnotationPresent(Example.class)) {
+			// If the user adds just one example, it isn't containerised
+			@NotNull Example example = syntaxClass.getAnnotation(Example.class);
+			syntaxJsonObject.add("examples", convertToJsonArray(example.value()));
 		} else {
 			syntaxJsonObject.add("examples", new JsonArray());
 		}
