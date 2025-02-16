@@ -1,22 +1,19 @@
 package ch.njol.skript;
 
+import ch.njol.skript.util.Utils;
+import ch.njol.skript.util.Version;
+import org.bukkit.plugin.java.JavaPlugin;
+import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.localization.Localizer;
+import org.skriptlang.skript.registration.SyntaxRegistry;
+import org.skriptlang.skript.util.Registry;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.function.Supplier;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import org.bukkit.Bukkit;
-import org.bukkit.plugin.Plugin;
-import org.bukkit.plugin.java.JavaPlugin;
-import org.jetbrains.annotations.Nullable;
-
-import ch.njol.skript.util.Utils;
-import ch.njol.skript.util.Version;
-import org.jetbrains.annotations.ApiStatus;
-import org.skriptlang.skript.localization.Localizer;
-import org.skriptlang.skript.registration.SyntaxRegistry;
-import org.skriptlang.skript.util.Registry;
 
 /**
  * Utility class for Skript addons. Use {@link Skript#registerAddon(JavaPlugin)} to create a SkriptAddon instance for your plugin.
@@ -64,7 +61,7 @@ public final class SkriptAddon implements org.skriptlang.skript.addon.SkriptAddo
 
 	/**
 	 * Loads classes of the plugin by package. Useful for registering many syntax elements like Skript does it.
-	 * 
+	 *
 	 * @param basePackage The base package to add to all sub packages, e.g. <tt>"ch.njol.skript"</tt>.
 	 * @param subPackages Which subpackages of the base package should be loaded, e.g. <tt>"expressions", "conditions", "effects"</tt>. Subpackages of these packages will be loaded
 	 *            as well. Use an empty array to load all subpackages of the base package.
@@ -79,7 +76,7 @@ public final class SkriptAddon implements org.skriptlang.skript.addon.SkriptAddo
 	/**
 	 * Makes Skript load language files from the specified directory, e.g. "lang" or "skript lang" if you have a lang folder yourself. Localised files will be read from the
 	 * plugin's jar and the plugin's data folder, but the default English file is only taken from the jar and <b>must</b> exist!
-	 * 
+	 *
 	 * @param directory Directory name
 	 * @return This SkriptAddon
 	 */
@@ -100,7 +97,7 @@ public final class SkriptAddon implements org.skriptlang.skript.addon.SkriptAddo
 	 * The first invocation of this method uses reflection to invoke the protected method {@link JavaPlugin#getFile()} to get the plugin's jar file.
 	 * The file is then cached and returned upon subsequent calls to this method to reduce usage of reflection.
 	 * Only nullable if there was an exception thrown.
-	 * 
+	 *
 	 * @return The jar file of the plugin.
 	 */
 	@Nullable

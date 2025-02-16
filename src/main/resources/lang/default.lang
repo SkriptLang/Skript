@@ -375,7 +375,7 @@ time:
 	real: real, rl, irl
 	minecraft: mc, minecraft
 
-# -- Chat and Wool Colours --
+# -- Chat, Wool and Boss Bar Colours --
 colors:
 	black:
 		adjective: black
@@ -417,14 +417,17 @@ colors:
 		adjective: red
 		names: red, dark red
 	light_red:
-		adjective: pink
-		names: pink, light red
+		adjective: red
+		names: light red
 	dark_purple:
 		adjective: purple
 		names: purple, dark purple
 	light_purple:
 		adjective: magenta
 		names: magenta, light purple
+	pink:
+		adjective: pink
+		names: pink
 
 # -- Chat Styles --
 chat styles:
@@ -2653,6 +2656,9 @@ types:
 	lootcontext: loot context¦s @a
 	bannerpatterntype: banner pattern type¦s @a
 	bannerpattern: banner pattern¦s @a
+	bossbar: boss bar¦s @a
+	bossbarstyle: boss bar style¦s @a
+	bossbarflag: boss bar flag¦s @a
 
 	# Skript
 	weathertype: weather type¦s @a
@@ -2689,3 +2695,16 @@ types:
 
 	# Other
 	quaternion: quaternion¦s @a
+
+# -- Boss Bars --
+boss bar styles:
+	segmented_6: 6 segments
+	segmented_10: 10 segments
+	segmented_12: 12 segments
+	segmented_20: 20 segments
+	solid: solid
+
+boss bar flags:
+	create_fog: fog
+	darken_sky: darken sky
+	play_boss_music: play boss music

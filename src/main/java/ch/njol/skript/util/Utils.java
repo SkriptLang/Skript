@@ -14,6 +14,8 @@ import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Bukkit;
+import org.bukkit.DyeColor;
+import org.bukkit.boss.BarColor;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -901,6 +903,32 @@ public abstract class Utils {
 				authors)
 		);
 		return 0;
+	}
+
+	public static BarColor getBarColor(@Nullable DyeColor dye) {
+		if (dye == null)
+			return BarColor.PINK; // default to pink since it's the original
+		return switch (dye) {
+			case WHITE, LIGHT_GRAY -> BarColor.WHITE;
+			case LIGHT_BLUE, BLACK, CYAN, BLUE -> BarColor.BLUE;
+			case LIME, GRAY, GREEN -> BarColor.GREEN;
+			case YELLOW -> BarColor.YELLOW;
+			case PURPLE -> BarColor.PURPLE;
+			case RED -> BarColor.RED;
+			default -> BarColor.PINK;
+		};
+	}
+
+	public static DyeColor getDyeColor(BarColor color) {
+		return switch (color) {
+			case PINK -> DyeColor.PINK;
+			case BLUE -> DyeColor.BLUE;
+			case RED -> DyeColor.RED;
+			case GREEN -> DyeColor.GREEN;
+			case YELLOW -> DyeColor.YELLOW;
+			case PURPLE -> DyeColor.PURPLE;
+			case WHITE -> DyeColor.WHITE;
+		};
 	}
 
 }
