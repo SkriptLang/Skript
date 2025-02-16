@@ -14,6 +14,7 @@ import ch.njol.util.Kleenean;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.World;
+import org.bukkit.WorldBorder;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
 import org.bukkit.event.Event;
@@ -39,12 +40,12 @@ import org.jetbrains.annotations.Nullable;
 		"\tcancel event",
 		"\tsend \"Back up!\" to attacker and victim",
 })
-@Since("2.7")
+@Since("2.7, INSERT VERSION (worldborder)")
 @RequiredPlugins("MC 1.17+ (within block)")
 public class CondIsWithin extends Condition {
 
 	static {
-		String validTypes = "entity/chunk/world";
+		String validTypes = "entity/chunk/world/worldborder";
 		if (Skript.methodExists(Block.class, "getCollisionShape"))
 			validTypes += "/block";
 
@@ -71,7 +72,7 @@ public class CondIsWithin extends Condition {
 			loc1 = (Expression<Location>) exprs[1];
 			loc2 = (Expression<Location>) exprs[2];
 		} else {
-			// within an entity/block/chunk/world
+			// within an entity/block/chunk/world/worldborder
 			withinLocations = false;
 			area = exprs[1];
 		}
@@ -90,7 +91,7 @@ public class CondIsWithin extends Condition {
 			return locsToCheck.check(event, box::contains, isNegated());
 		}
 
-		// else, within an entity/block/chunk/world
+		// else, within an entity/block/chunk/world/worldborder
 		Object area = this.area.getSingle(event);
 		if (area == null)
 			return isNegated();
@@ -123,6 +124,11 @@ public class CondIsWithin extends Condition {
 		// Worlds
 		if (area instanceof World) {
 			return locsToCheck.check(event, (loc) -> loc.getWorld().equals(area), isNegated());
+		}
+
+		// Worldborders
+		if (area instanceof WorldBorder worldBorder) {
+			return locsToCheck.check(event, worldBorder::isInside, isNegated());
 		}
 
 		// fall-back
