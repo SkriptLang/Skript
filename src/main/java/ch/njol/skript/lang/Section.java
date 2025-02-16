@@ -159,9 +159,11 @@ public abstract class Section extends TriggerSection implements SyntaxElement {
 	@Nullable
 	public static Section parse(String expr, @Nullable String defaultError, SectionNode sectionNode, List<TriggerItem> triggerItems) {
 		SectionContext sectionContext = ParserInstance.get().getData(SectionContext.class);
-		//noinspection unchecked,rawtypes
-		return sectionContext.modify(sectionNode, triggerItems,
-			() -> (Section) SkriptParser.parse(expr, (Iterator) Skript.getSections().iterator(), defaultError));
+		return sectionContext.modify(sectionNode, triggerItems, () -> {
+			var iterator = Skript.instance().syntaxRegistry().syntaxes(org.skriptlang.skript.registration.SyntaxRegistry.SECTION).iterator();
+			//noinspection unchecked,rawtypes
+			return (Section) SkriptParser.parse(expr, (Iterator) iterator, defaultError);
+		});
 	}
 
 	static {

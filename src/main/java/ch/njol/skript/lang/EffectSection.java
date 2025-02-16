@@ -54,14 +54,13 @@ public abstract class EffectSection extends Section {
 	public static @Nullable EffectSection parse(String input, @Nullable String defaultError, @Nullable SectionNode sectionNode, @Nullable List<TriggerItem> triggerItems) {
 		SectionContext sectionContext = ParserInstance.get().getData(SectionContext.class);
 
-		//noinspection unchecked,rawtypes
-		return sectionContext.modify(sectionNode, triggerItems, () ->
-			(EffectSection) SkriptParser.parse(
-				input,
-				(Iterator) Skript.getSections().stream()
-					.filter(info -> EffectSection.class.isAssignableFrom(info.getElementClass()))
-					.iterator(),
-				defaultError));
+		return sectionContext.modify(sectionNode, triggerItems, () -> {
+			var iterator = Skript.instance().syntaxRegistry().syntaxes(org.skriptlang.skript.registration.SyntaxRegistry.SECTION).stream()
+					.filter(info -> EffectSection.class.isAssignableFrom(info.type()))
+					.iterator();
+			//noinspection unchecked,rawtypes
+			return (EffectSection) SkriptParser.parse(input, (Iterator) iterator, defaultError);
+		});
 	}
 
 }
