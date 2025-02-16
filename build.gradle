@@ -34,7 +34,7 @@ dependencies {
 	implementation group: 'com.google.code.findbugs', name: 'findbugs', version: '3.0.1'
 
 	// bundled with Minecraft 1.19.4+ for display entity transforms
-	implementation group: 'org.joml', name: 'joml', version: '1.10.5'
+	implementation group: 'org.joml', name: 'joml', version: '1.10.8'
 
 	// Plugin hook libraries
 	implementation group: 'com.sk89q.worldguard', name: 'worldguard-legacy', version: '7.0.0-SNAPSHOT', {
