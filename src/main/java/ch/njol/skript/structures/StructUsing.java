@@ -10,7 +10,6 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.jetbrains.annotations.UnknownNullability;
 import org.skriptlang.skript.lang.entry.EntryContainer;
 import org.skriptlang.skript.lang.experiment.Experiment;
 import org.skriptlang.skript.lang.structure.Structure;
@@ -22,7 +21,7 @@ import org.skriptlang.skript.lang.structure.Structure;
 })
 @Examples({
 	"using 1.21",
-	"using my-cool-addon-feature"
+	"using the experiment my-cool-addon-feature"
 })
 @Since("2.9.0")
 public class StructUsing extends Structure {
@@ -30,7 +29,7 @@ public class StructUsing extends Structure {
 	public static final Priority PRIORITY = new Priority(15);
 
 	static {
-		Skript.registerSimpleStructure(StructUsing.class, "using <.+>");
+		Skript.registerSimpleStructure(StructUsing.class, "(using|enable) [[the] experiment] <.+>");
 	}
 
 	@SuppressWarnings("NotNullFieldNotInitialized")
