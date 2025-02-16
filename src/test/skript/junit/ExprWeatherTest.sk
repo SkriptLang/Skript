@@ -1,0 +1,26 @@
+options:
+	test: "org.skriptlang.skript.test.tests.syntaxes.expressions.ExprWeatherTest"
+
+test "world weather":
+	set weather of world "world" to rainy
+	assert the weather of world "world" is rainy with "World weather should be rainy"
+	set weather of world "world" to thunder
+	assert the weather of world "world" is thunder with "World weather should be thunder"
+	clear the weather of world "world"
+	assert the weather of world "world" is clear with "World weather was not cleared"
+
+on load:
+	set {_tests::*} to "rainy to thunder" and "thunder to sunny"
+	ensure junit test {@test} completes {_tests::*}
+
+on weather change to rainy:
+	junit test is {@test}
+	set weather of event-world to thunder
+	if weather of event-world is thunder:
+		complete "rainy to thunder" for {@test}
+
+on weather change to thunder:
+	junit test is {@test}
+	set weather of event-world to sunny
+	if weather of event-world is sunny:
+		complete "thunder to sunny" for {@test}
