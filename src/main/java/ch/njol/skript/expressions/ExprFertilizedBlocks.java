@@ -1,30 +1,23 @@
 package ch.njol.skript.expressions;
 
-
-import java.util.Iterator;
-
-import org.bukkit.event.Event;
-import org.bukkit.event.block.BlockFertilizeEvent;
-import org.jetbrains.annotations.Nullable;
-
 import ch.njol.skript.Skript;
-import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Events;
-import ch.njol.skript.doc.Examples;
-import ch.njol.skript.doc.Name;
-import ch.njol.skript.doc.RequiredPlugins;
-import ch.njol.skript.doc.Since;
+import ch.njol.skript.doc.*;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.util.BlockStateBlock;
 import ch.njol.util.Kleenean;
+import org.bukkit.event.Event;
+import org.bukkit.event.block.BlockFertilizeEvent;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.Iterator;
 
 @Name("Fertilized Blocks")
 @Description("The blocks fertilized in block fertilize events.")
 @RequiredPlugins("Minecraft 1.13 or newer")
-@Events("block fertilize")
+@Events("Block Fertilize")
 @Examples("the fertilized blocks")
 @Since("2.5")
 public class ExprFertilizedBlocks extends SimpleExpression<BlockStateBlock> {

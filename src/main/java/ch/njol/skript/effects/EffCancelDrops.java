@@ -1,21 +1,15 @@
 package ch.njol.skript.effects;
 
-import org.bukkit.event.Event;
-import org.bukkit.event.block.BlockBreakEvent;
-import org.bukkit.event.entity.EntityDeathEvent;
-import org.jetbrains.annotations.Nullable;
-
 import ch.njol.skript.Skript;
-import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Events;
-import ch.njol.skript.doc.Examples;
-import ch.njol.skript.doc.Name;
-import ch.njol.skript.doc.RequiredPlugins;
-import ch.njol.skript.doc.Since;
+import ch.njol.skript.doc.*;
 import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
+import org.bukkit.event.Event;
+import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.entity.EntityDeathEvent;
+import org.jetbrains.annotations.Nullable;
 
 @Name("Cancel Drops")
 @Description("Cancels drops of items or experiences in a death or block break event. " +
@@ -29,7 +23,7 @@ import ch.njol.util.Kleenean;
 		"\tcancel the experience drops"})
 @Since("2.4")
 @RequiredPlugins("1.12.2 or newer (cancelling item drops of blocks)")
-@Events({"death", "break / mine"})
+@Events({"Death", "Break / Mine"})
 public class EffCancelDrops extends Effect {
 
 	private static final boolean CAN_CANCEL_BLOCK_ITEM_DROPS = Skript.methodExists(BlockBreakEvent.class, "setDropItems", boolean.class);

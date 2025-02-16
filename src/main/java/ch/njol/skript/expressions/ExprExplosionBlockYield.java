@@ -1,16 +1,8 @@
 package ch.njol.skript.expressions;
 
-import org.bukkit.event.Event;
-import org.bukkit.event.entity.EntityExplodeEvent;
-import org.jetbrains.annotations.Nullable;
-
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer.ChangeMode;
-import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Events;
-import ch.njol.skript.doc.Examples;
-import ch.njol.skript.doc.Name;
-import ch.njol.skript.doc.Since;
+import ch.njol.skript.doc.*;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
@@ -18,6 +10,9 @@ import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.log.ErrorQuality;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
+import org.bukkit.event.Event;
+import org.bukkit.event.entity.EntityExplodeEvent;
+import org.jetbrains.annotations.Nullable;
 
 @Name("Explosion Block Yield")
 @Description({"The percentage of exploded blocks dropped in an explosion event.",
@@ -25,7 +20,7 @@ import ch.njol.util.coll.CollectionUtils;
 				"Attempting to change the yield to a value less than 0 will have no effect."})
 @Examples({"on explode:",
 			"set the explosion's block yield to 10%"})
-@Events("explosion")
+@Events("Explosion")
 @Since("2.5")
 public class ExprExplosionBlockYield extends SimpleExpression<Number> {
 

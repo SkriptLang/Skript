@@ -1,25 +1,20 @@
 package ch.njol.skript.expressions;
 
-import java.util.Iterator;
-import java.util.List;
-
+import ch.njol.skript.Skript;
+import ch.njol.skript.doc.*;
+import ch.njol.skript.lang.Expression;
+import ch.njol.skript.lang.ExpressionType;
+import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.skript.lang.util.SimpleExpression;
+import ch.njol.util.Kleenean;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.event.Event;
 import org.bukkit.event.world.PortalCreateEvent;
 import org.jetbrains.annotations.Nullable;
 
-import ch.njol.skript.Skript;
-import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Events;
-import ch.njol.skript.doc.Examples;
-import ch.njol.skript.doc.Name;
-import ch.njol.skript.doc.Since;
-import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.ExpressionType;
-import ch.njol.skript.lang.SkriptParser.ParseResult;
-import ch.njol.skript.lang.util.SimpleExpression;
-import ch.njol.util.Kleenean;
+import java.util.Iterator;
+import java.util.List;
 
 @Name("Portal")
 @Description("The blocks associated with a portal in the portal creation event.")
@@ -27,7 +22,7 @@ import ch.njol.util.Kleenean;
 		"	loop portal blocks:",
 		"		broadcast \"%loop-block% is part of a portal!\""})
 @Since("2.4")
-@Events("portal_create")
+@Events("Portal Create")
 public class ExprPortal extends SimpleExpression<Block> {
 
 	// 1.14+ returns List<BlockState>, 1.13.2 and below returns ArrayList<Block> 
