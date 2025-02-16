@@ -627,11 +627,7 @@ public final class BukkitEventValues {
 		EventValues.registerEventValue(EntityResurrectEvent.class, Slot.class, event -> {
 			EquipmentSlot hand = event.getHand();
 			EntityEquipment equipment = event.getEntity().getEquipment();
-			if (equipment == null || hand == null)
-				return null;
-			return new ch.njol.skript.util.slot.EquipmentSlot(equipment,
-				(hand == EquipmentSlot.HAND) ? ch.njol.skript.util.slot.EquipmentSlot.EquipSlot.TOOL
-					: ch.njol.skript.util.slot.EquipmentSlot.EquipSlot.OFF_HAND);
+			return new ch.njol.skript.util.slot.EquipmentSlot(equipment, hand);
 		});
 
 		// PlayerItemHeldEvent
