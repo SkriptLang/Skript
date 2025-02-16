@@ -70,6 +70,7 @@ skript command:
 		x scripts in folder success: <gold>%1$s<lime> 폴더 속 <gold>%2$s<reset>개의 스크립트
 		x scripts in folder error: <gold>%1$s<light red> 폴더 속 <gold>%2$s<reset>개의 스크립트
 		empty folder: <gold>%s<reset>에 활성화된 스크립트가 없습니다.
+		no previous reload: <light red>이전에 다시 로드된 스크립트가 없습니다.<reset>
 	enable:
 		all:
 			enabling: 비활성화된 모든 스크립트를 활성화하는 중...

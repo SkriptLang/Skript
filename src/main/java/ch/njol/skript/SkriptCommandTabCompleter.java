@@ -2,7 +2,6 @@ package ch.njol.skript;
 
 import ch.njol.skript.doc.Documentation;
 import ch.njol.skript.test.runner.TestMode;
-import ch.njol.util.StringUtils;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
@@ -34,52 +33,65 @@ public class SkriptCommandTabCompleter implements TabCompleter {
 			String scriptsPathString = scripts.toPath().toString();
 			int scriptsPathLength = scriptsPathString.length();
 
-			String scriptArg = StringUtils.join(args, " ", 1, args.length);
+			String scriptArg = args[args.length - 1];
 			String fs = File.separator;
 
 			boolean enable = args[0].equalsIgnoreCase("enable");
 
 			// Live update, this will get all old and new (even not loaded) scripts
 			// TODO Find a better way for caching, it isn't exactly ideal to be calling this method constantly
-			try (Stream<Path> files = Files.walk(scripts.toPath())) {
-				files.map(Path::toFile)
-					.forEach(file -> {
-						if (!(enable ? ScriptLoader.getDisabledScriptsFilter() : ScriptLoader.getLoadedScriptsFilter()).accept(file))
-							return;
+			if (args.length == 2 || !args[1].matches("(?i)(all|scripts|aliases|config)")) {
+				try (Stream<Path> files = Files.walk(scripts.toPath())) {
+					files.map(Path::toFile)
+						.forEach(file -> {
+							if (!(enable ? ScriptLoader.getDisabledScriptsFilter() : ScriptLoader.getLoadedScriptsFilter()).accept(file))
+								return;
 
-						// Ignore hidden files like .git/ for users that use git source control.
-						if (file.isHidden())
-							return;
+							// Ignore hidden files like .git/ for users that use git source control.
+							if (file.isHidden())
+								return;
 
-						String fileString = file.toString().substring(scriptsPathLength);
-						if (fileString.isEmpty())
-							return;
+							if (!enable && SkriptCommand.scriptIsDisabled(file))
+								return;
 
-						if (file.isDirectory()) {
-							fileString = fileString + fs; // Add file separator at the end of directories
-						} else if (file.getParentFile().toPath().toString().equals(scriptsPathString)) {
-							fileString = fileString.substring(1); // Remove file separator from the beginning of files or directories in root only
+							String fileString = file.toString().substring(scriptsPathLength);
 							if (fileString.isEmpty())
 								return;
-						}
 
-						// Make sure the user's argument matches with the file's name or beginning of file path
-						if (scriptArg.length() > 0 && !file.getName().startsWith(scriptArg) && !fileString.startsWith(scriptArg))
-							return;
+							if (file.isDirectory()) {
+								fileString = fileString + fs; // Add file separator at the end of directories
+							} else if (file.getParentFile().toPath().toString().equals(scriptsPathString)) {
+								fileString = fileString.substring(1); // Remove file separator from the beginning of files or directories in root only
+								if (fileString.isEmpty())
+									return;
+							}
 
-						// Trim off previous arguments if needed
-						if (args.length > 2 && fileString.length() >= scriptArg.length())
-							fileString = fileString.substring(scriptArg.lastIndexOf(" ") + 1);
+							// Make sure the user's argument matches with the file's name or beginning of file path
+							if (scriptArg.length() > 0 && !file.getName().startsWith(scriptArg) && !fileString.startsWith(scriptArg))
+								return;
 
-						// Just in case
-						if (fileString.isEmpty())
-							return;
+							// Trim off previous arguments if needed
+							if (args.length > 2 && fileString.length() >= scriptArg.length())
+								fileString = fileString.substring(scriptArg.lastIndexOf(" ") + 1);
 
-						options.add(fileString);
-					});
-			} catch (Exception e) {
-				//noinspection ThrowableNotThrown
-				Skript.exception(e, "An error occurred while trying to update the list of disabled scripts!");
+							// Just in case
+							if (fileString.isEmpty())
+								return;
+
+							// If we provide a directory, then there's no reason to keep providing scripts within the directory
+							if (args[0].equalsIgnoreCase("reload") && args.length > 2) {
+								for (int i = 1; i < args.length - 1; i++) {
+									if (fileString.contains(args[i]))
+										return;
+								}
+							}
+
+							options.add(fileString);
+						});
+				} catch (Exception e) {
+					//noinspection ThrowableNotThrown
+					Skript.exception(e, "An error occurred while trying to update the list of disabled scripts!");
+				}
 			}
 			
 			// These will be added even if there are incomplete script arg
@@ -89,6 +101,7 @@ public class SkriptCommandTabCompleter implements TabCompleter {
 					options.add("config");
 					options.add("aliases");
 					options.add("scripts");
+					options.add("lastReloaded");
 				}
 			}
 
