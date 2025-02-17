@@ -1,0 +1,12 @@
+test "CondIsInvulnerable" when running minecraft "1.20.6":
+	assert creative is invulnerable with "Creative mode should be invulnerable"
+	assert survival is not invulnerable with "Survival mode should not be invulnerable"
+
+test "CondIsInvulnerable":
+	spawn armor stand at spawn of world "world":
+		make entity invulnerable
+		assert entity is invulnerable with "Entity should be invulnerable"
+		make entity vulnerable
+		assert entity is not invulnerable with "Entity should be vulnerable"
+		delete entity
+	assert {_none} is not invulnerable with "Empty variable should be vulnerable"

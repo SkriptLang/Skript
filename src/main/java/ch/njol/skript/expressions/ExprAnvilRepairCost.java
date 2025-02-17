@@ -1,21 +1,3 @@
-/**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
 package ch.njol.skript.expressions;
 
 import ch.njol.skript.Skript;
@@ -67,8 +49,8 @@ public class ExprAnvilRepairCost extends SimplePropertyExpression<Inventory, Int
 	}
 
 	@Override
-	@Nullable
-	public Integer convert(Inventory inventory) {
+	@SuppressWarnings("removal")
+	public @Nullable Integer convert(Inventory inventory) {
 		if (!(inventory instanceof AnvilInventory))
 			return null;
 
@@ -77,19 +59,15 @@ public class ExprAnvilRepairCost extends SimplePropertyExpression<Inventory, Int
 	}
 
 	@Override
-	@Nullable
-	public Class<?>[] acceptChange(ChangeMode mode) {
-		switch (mode) {
-			case ADD:
-			case REMOVE:
-			case SET:
-				return CollectionUtils.array(Number.class);
-			default:
-				return null;
-		}
+	public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
+		return switch (mode) {
+			case ADD, REMOVE, SET -> CollectionUtils.array(Number.class);
+			default -> null;
+		};
 	}
 
 	@Override
+	@SuppressWarnings("removal")
 	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
 		int value = ((Number) delta[0]).intValue() * (mode == ChangeMode.REMOVE ? -1 : 1);
 		for (Inventory inventory : getExpr().getArray(event)) {
@@ -115,5 +93,5 @@ public class ExprAnvilRepairCost extends SimplePropertyExpression<Inventory, Int
 	public String getPropertyName() {
 		return "anvil item" + (isMax ? " max" : "") + " repair cost";
 	}
-	
+
 }

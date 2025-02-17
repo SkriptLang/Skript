@@ -1,0 +1,33 @@
+test "line width":
+	
+	spawn item display at spawn of world "world":
+		set {_id} to entity
+
+	assert line width of {_id} is not set with "item display has line width"
+	set line width of {_id} to 55
+	assert line width of {_id} is not set with "item display has line width"
+	reset line width of {_id}
+	assert line width of {_id} is not set with "item display has line width"
+		
+	delete entity within {_id}
+	spawn text display at spawn of world "world":
+		set {_td} to entity
+
+	assert line width of {_td} is 200 with "failed default line width"
+	set line width of {_td} to 185.4
+	assert line width of {_td} is 185 with "failed to set line width"
+	set line width of {_td} to -50
+	assert line width of {_td} is 0 with "failed to set line width"
+	set line width of {_td} to 900
+	assert line width of {_td} is 900 with "failed to set line width"
+	add 50 to line width of {_td}
+	assert line width of {_td} is 950 with "failed to add to line width"
+	remove 1000 from line width of {_td}
+	assert line width of {_td} is 0 with "failed to remove from line width"
+	reset line width of {_td}
+	assert line width of {_td} is 200 with "failed to reset line width"
+
+	set line width of {_td} to infinity value
+	assert line width of {_td} is 2147483647 with "failed to set line width"
+
+	delete entity within {_td}

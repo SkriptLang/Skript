@@ -1,37 +1,18 @@
-/**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
 package ch.njol.skript.expressions.arithmetic;
-
-import java.util.List;
-import java.util.function.Function;
-
-import org.bukkit.event.Event;
 
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.util.Utils;
-import ch.njol.util.Checker;
+import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.arithmetic.Arithmetics;
 import org.skriptlang.skript.lang.arithmetic.Operation;
 import org.skriptlang.skript.lang.arithmetic.OperationInfo;
 import org.skriptlang.skript.lang.arithmetic.Operator;
-import org.skriptlang.skript.lang.arithmetic.Arithmetics;
 import org.skriptlang.skript.lang.converter.Converters;
+
+import java.util.List;
+import java.util.function.Function;
+import java.util.function.Predicate;
 
 /**
  * Represents a chain of arithmetic operations between two operands.
@@ -43,7 +24,7 @@ import org.skriptlang.skript.lang.converter.Converters;
 public class ArithmeticChain<L, R, T> implements ArithmeticGettable<T> {
 
 	@SuppressWarnings("unchecked")
-	private static final Checker<Object>[] CHECKERS = new Checker[] {
+	private static final Predicate<Object>[] CHECKERS = new Predicate[] {
 		o -> o.equals(Operator.ADDITION) || o.equals(Operator.SUBTRACTION),
 		o -> o.equals(Operator.MULTIPLICATION) || o.equals(Operator.DIVISION),
 		o -> o.equals(Operator.EXPONENTIATION)
@@ -129,7 +110,7 @@ public class ArithmeticChain<L, R, T> implements ArithmeticGettable<T> {
 	@Nullable
 	@SuppressWarnings("unchecked")
 	public static <L, R, T> ArithmeticGettable<T> parse(List<Object> chain) {
-		for (Checker<Object> checker : CHECKERS) {
+		for (Predicate<Object> checker : CHECKERS) {
 			int lastIndex = Utils.findLastIndex(chain, checker);
 
 			if (lastIndex != -1) {

@@ -1,29 +1,6 @@
-/**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
 package ch.njol.skript.conditions;
 
-import org.bukkit.entity.LivingEntity;
-import org.bukkit.event.Event;
-import org.bukkit.inventory.EntityEquipment;
-import org.bukkit.inventory.ItemStack;
-import org.jetbrains.annotations.Nullable;
-
+import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.conditions.base.PropertyCondition;
 import ch.njol.skript.conditions.base.PropertyCondition.PropertyType;
@@ -34,30 +11,42 @@ import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Condition;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
+import org.bukkit.entity.*;
+import org.bukkit.event.Event;
+import org.bukkit.inventory.EntityEquipment;
+import org.bukkit.inventory.EquipmentSlot;
+import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.Nullable;
 
-/**
- * @author Peter Güttinger
- */
+import java.util.Arrays;
+
 @Name("Is Wearing")
-@Description("Checks whether a player is wearing some armour.")
-@Examples({"player is wearing an iron chestplate and iron leggings",
-		"player is wearing all diamond armour"})
+@Description("Checks whether an entity is wearing some items (usually armor).")
+@Examples({
+	"player is wearing an iron chestplate and iron leggings",
+	"player is wearing all diamond armour",
+	"target is wearing wolf armor"
+})
 @Since("1.0")
 public class CondIsWearing extends Condition {
+
+	private static final boolean HAS_CAN_USE_SLOT_METHOD = Skript.methodExists(LivingEntity.class, "canUseEquipmentSlot", EquipmentSlot.class);
+	private static final boolean HAS_BODY_SLOT = Skript.fieldExists(EquipmentSlot.class, "BODY");
 	
 	static {
 		PropertyCondition.register(CondIsWearing.class, "wearing %itemtypes%", "livingentities");
 	}
 	
-	@SuppressWarnings("null")
+	@SuppressWarnings("NotNullFieldNotInitialized")
 	private Expression<LivingEntity> entities;
-	@SuppressWarnings("null")
+	@SuppressWarnings("NotNullFieldNotInitialized")
 	private Expression<ItemType> types;
 	
 	@SuppressWarnings({"unchecked", "null"})
 	@Override
-	public boolean init(final Expression<?>[] vars, final int matchedPattern, final Kleenean isDelayed, final ParseResult parseResult) {
+	public boolean init(Expression<?>[] vars, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		entities = (Expression<LivingEntity>) vars[0];
 		types = (Expression<ItemType>) vars[1];
 		setNegated(matchedPattern == 1);
@@ -65,26 +54,47 @@ public class CondIsWearing extends Condition {
 	}
 	
 	@Override
-	public boolean check(final Event e) {
-		return entities.check(e,
-				en -> types.check(e,
-						t -> {
-							EntityEquipment equip = en.getEquipment();
-							if (equip == null)
-								return false; // No equipment -> not wearing anything
-							for (final ItemStack is : equip.getArmorContents()) {
-								if (t.isOfType(is) ^ t.isAll())
-									return !t.isAll();
-							}
-							return t.isAll();
-						}),
-				isNegated());
+	public boolean check(Event event) {
+		ItemType[] cachedTypes = types.getAll(event);
+
+		return entities.check(event, entity -> {
+			EntityEquipment equipment = entity.getEquipment();
+			if (equipment == null)
+				return false; // spigot nullability, no identifier as to why this occurs
+
+			ItemStack[] contents = Arrays.stream(EquipmentSlot.values())
+				.filter(slot -> {
+					// this method was added in 1.20.6
+					if (HAS_CAN_USE_SLOT_METHOD)
+						return entity.canUseEquipmentSlot(slot);
+
+					// body slot was added in 1.20.5
+					if (HAS_BODY_SLOT && slot == EquipmentSlot.BODY)
+						// this may change in the future, but for now this is the only way to figure out
+						// if the entity can use the body slot
+						return entity instanceof Horse
+							|| entity instanceof Wolf
+							|| entity instanceof Llama;
+
+					return true;
+				})
+				.map(equipment::getItem)
+				.toArray(ItemStack[]::new);
+
+			return SimpleExpression.check(cachedTypes, type -> {
+				for (ItemStack content : contents) {
+					if (type.isOfType(content) ^ type.isAll())
+						return !type.isAll();
+				}
+				return type.isAll();
+			}, false, false);
+		}, isNegated());
 	}
-	
+
 	@Override
-	public String toString(final @Nullable Event e, final boolean debug) {
-		return PropertyCondition.toString(this, PropertyType.BE, e, debug, entities,
-				"wearing " + types.toString(e, debug));
+	public String toString(@Nullable Event event, boolean debug) {
+		return PropertyCondition.toString(this, PropertyType.BE, event, debug, entities,
+				"wearing " + types.toString(event, debug));
 	}
 	
 }
