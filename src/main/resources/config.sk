@@ -142,10 +142,8 @@ number accuracy: 2
 # Money bypasses this setting and is displayed as configured in your economy plugin if you have one.
 
 
-maximum target block distance: 100
+maximum target block distance: 1000
 # How far to search for a player's targeted block in blocks/meters.
-# Lower values improve performance, but might reduce the usability of your scripts.
-# This value is limited by the server (e.g. by 'view-distance' in the server.properties), but is guaranteed to work up to 100 meters.
 
 
 case sensitive: false
