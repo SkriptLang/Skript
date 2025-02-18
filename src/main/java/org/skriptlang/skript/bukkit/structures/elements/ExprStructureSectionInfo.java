@@ -75,7 +75,7 @@ public class ExprStructureSectionInfo extends SimpleExpression<Object> {
 	static {
 		if (Skript.classExists("org.bukkit.structure.Structure")) {
 			Skript.registerExpression(ExprStructureSectionInfo.class, Object.class, ExpressionType.SIMPLE,
-					"includes entities", "rotation", "integrity", "pallet [index]", "mirror"
+					"includes entities", "rotation", "integrity", "pallet [index]", "mirror", "excludes air"
 			);
 		}
 	}
@@ -93,7 +93,8 @@ public class ExprStructureSectionInfo extends SimpleExpression<Object> {
 			int max = details.getStructure().getPaletteCount();
 			details.setPallet(Math.min(max, Math.max(-1, pallet)));
 		}),
-		MIRROR(Mirror.class, StructurePlaceEvent::setMirror);
+		MIRROR(Mirror.class, StructurePlaceEvent::setMirror),
+		EXCLUDES_AIR(Boolean.class, StructurePlaceEvent::setExcludesAir);
 
 		private final BiConsumer<StructurePlaceEvent, Object> consumer;
 		private final Class<? extends Object> returnType;
@@ -136,6 +137,7 @@ public class ExprStructureSectionInfo extends SimpleExpression<Object> {
 			case PALLET -> CollectionUtils.array(details.getPallet());
 			case MIRROR -> CollectionUtils.array(details.getMirror());
 			case ROTATION -> CollectionUtils.array(details.getRotation());
+			case EXCLUDES_AIR -> CollectionUtils.array(details.excludesAir());
 		};
 	}
 

@@ -18,16 +18,22 @@
  */
 package org.skriptlang.skript.bukkit.structures.elements;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.bukkit.Location;
+import org.bukkit.block.BlockState;
 import org.bukkit.block.structure.Mirror;
 import org.bukkit.block.structure.StructureRotation;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
+import org.bukkit.generator.LimitedRegion;
 import org.bukkit.structure.Structure;
+import org.bukkit.util.BlockTransformer;
+import org.bukkit.util.EntityTransformer;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.NotNull;
 
@@ -65,10 +71,10 @@ public class EffSecStructurePlace extends EffectSection {
 	public class StructurePlaceEvent extends Event {
 
 		private StructureRotation rotation = StructureRotation.NONE;
+		private boolean entities, excludesAir;
 		private Mirror mirror = Mirror.NONE;
 		private final Structure structure;
 		private float integrity = 1F;
-		private boolean entities;
 		private int pallet = 0;
 
 		public StructurePlaceEvent(Structure structure, boolean entities) {
@@ -118,6 +124,14 @@ public class EffSecStructurePlace extends EffectSection {
 
 		public void setIntegrity(float integrity) {
 			this.integrity = integrity;
+		}
+
+		public boolean excludesAir() {
+			return excludesAir;
+		}
+
+		public void setExcludesAir(boolean excludesAir) {
+			this.excludesAir = excludesAir;
 		}
 
 		@Override
@@ -175,8 +189,27 @@ public class EffSecStructurePlace extends EffectSection {
 			Variables.removeLocals(details);
 		}
 
+		Collection<EntityTransformer> entityTransforms = new ArrayList<>();
+		Collection<BlockTransformer> blockTransforms = new ArrayList<>();
+		if (details.excludesAir()) {
+			blockTransforms.add((region, x, y, z, current, state) -> {
+				if (current.getType().isAir())
+					return state.getWorld();
+				return current;
+			});
+		}
 		for (Location location : locations.getArray(event)) {
-			structure.place(location, details.includeEntities(), details.getRotation(), details.getMirror(), details.getPallet(), details.getIntegrity(), new Random());
+			structure.place(
+				location,
+				details.includeEntities(),
+				details.getRotation(),
+				details.getMirror(),
+				details.getPallet(),
+				details.getIntegrity(),
+				new Random(),
+				blockTransforms,
+				entityTransforms
+			);
 		}
 
 		return super.walk(event, false);

@@ -62,7 +62,7 @@ public class ExprStructure extends SimpleExpression<Structure> {
 		if (Skript.classExists("org.bukkit.structure.Structure"))
 			Skript.registerExpression(ExprStructure.class, Structure.class, ExpressionType.COMBINED,
 					"[register:registered|unregistered] structure[s] [named] %strings%",
-					"[a] [new] structure between %location% (and|to) %location% [(including|with) entities:entities]"
+					"[a] [new] structure between %location% (and|to) %location% [entities:(including|with) entities]"
 			);
 	}
 
@@ -76,8 +76,8 @@ public class ExprStructure extends SimpleExpression<Structure> {
 	@Override
 	@SuppressWarnings("unchecked")
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		register = !parseResult.hasTag("register");
 		if (matchedPattern == 0) {
+			register = !parseResult.hasTag("register");
 			names = (Expression<String>) exprs[0];
 			return true;
 		}
