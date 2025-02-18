@@ -1,0 +1,12 @@
+test "loot items":
+
+	set {_context} to a loot context at test-location
+	set {_items::*} to loot of loot table "minecraft:chests/simple_dungeon" with {_context}
+
+	assert {_items::*} is set with "loot items not set"
+
+	set {_items::*} to loot of loot table "minecraft:entities/pig" with {_context}
+	assert {_items::*} is not set with "loot items set"
+
+	set {_items::*} to loot of loot table "minecraft:chests/simple_dungeon"
+	assert {_items::*} is set with "loot items with chest loot table without context not set"

@@ -97,6 +97,7 @@ If we need to remove or alter contributed code due to a licensing issue we will 
 	- The exception to this is breaking up conditional statements (e.g. `if (x || y)`) where the
     condition starts may be aligned
 * Each class begins with an empty line
+* Each Java file ends with an empty line
 * No squeezing of multiple lines of code on a single line
 * Separate method declarations with empty lines
   	- Empty line after last method in a class is *not* required

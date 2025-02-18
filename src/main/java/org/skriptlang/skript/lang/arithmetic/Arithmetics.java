@@ -1,21 +1,3 @@
-/**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
 package org.skriptlang.skript.lang.arithmetic;
 
 import ch.njol.skript.Skript;
@@ -72,7 +54,7 @@ public final class Arithmetics {
 		getOperations_i(operator).add(new OperationInfo<>(leftClass, rightClass, returnType, operation));
 	}
 
-	private static boolean exactOperationExists(Operator operator, Class<?> leftClass, Class<?> rightClass) {
+	public static boolean exactOperationExists(Operator operator, Class<?> leftClass, Class<?> rightClass) {
 		for (OperationInfo<?, ?, ?> info : getOperations_i(operator)) {
 			if (info.getLeft() == leftClass && info.getRight() == rightClass)
 				return true;
@@ -188,7 +170,7 @@ public final class Arithmetics {
 		differences.put(type, new DifferenceInfo<>(type, returnType, operation));
 	}
 
-	private static boolean exactDifferenceExists(Class<?> type) {
+	public static boolean exactDifferenceExists(Class<?> type) {
 		return differences.containsKey(type);
 	}
 

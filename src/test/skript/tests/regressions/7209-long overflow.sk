@@ -1,0 +1,34 @@
+test "long overflow, addition":
+	set {_double-const} to 9000000000000000000.0
+	set {_long-const} to 9000000000000000000
+
+	loop 100 times:
+		set {_double} to {_double} + {_double-const}
+		set {_long} to {_long} + {_long-const}
+		assert {_double} is {_long} with "long value did not overflow to a double"
+
+	assert {_long} is 9000000000000000000 * 100.0 with "wrong final value"
+
+test "long underflow, subtraction":
+	set {_double-const} to 9000000000000000000.0
+	set {_long-const} to 9000000000000000000
+
+	loop 100 times:
+		set {_double} to {_double} - {_double-const}
+		set {_long} to {_long} - {_long-const}
+		assert {_double} is {_long} with "long value did not overflow to a double"
+
+	assert {_long} is 9000000000000000000 * -100.0 with "wrong final value"
+
+test "long overflow, multiplication":
+	set {_double} to 10.0
+	set {_long} to 10
+
+	loop 100 times:
+		set {_double} to {_double} * 10
+		set {_long} to {_long} * 10
+		assert {_double} is {_long} with "long value did not overflow to a double"
+
+	# the 6 is due to floating point error
+	assert {_long} is 100000000000000060000000000000000000000000000000000000000000000000000000000000000000000000000000000000 with "wrong final value"
+

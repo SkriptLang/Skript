@@ -1,0 +1,26 @@
+parse:
+	results: {PlayerLogin::parse::*}
+	code:
+		on connect:
+			cancel event
+
+parse:
+	results: {PlayerQuit::parse::*}
+	code:
+		on quit:
+			cancel event
+
+parse:
+	results: {SwimToggle::parse::*}
+	code:
+		on swim toggle:
+			cancel event
+
+test "cancelling swim toggle":
+	assert {SwimToggle::parse::*} contains "Cancelling a toggle swim event has no effect" with "cancelling swim toggle doesn't error"
+
+test "cancelling player login":
+	assert {PlayerLogin::parse::*} contains "A connect event cannot be cancelled, but the player may be kicked ('kick player by reason of ""...""')" with "cancelling player login doesn't error"
+
+test "cancelling regular event":
+	assert {PlayerQuit::parse::*} contains "An on quit event cannot be cancelled" with "cancelling regular event doesn't error"

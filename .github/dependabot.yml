@@ -1,5 +1,12 @@
 version: 2
 updates:
+  - package-ecosystem: "gitsubmodule"
+    target-branch: "dev/patch"
+    directory: "/"
+    schedule:
+        interval: "weekly"
+    labels:
+      - "dependencies"
   - package-ecosystem: "github-actions"
     target-branch: "dev/patch"
     directory: "/"

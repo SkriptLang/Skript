@@ -1,26 +1,4 @@
-/**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
 package ch.njol.skript.expressions;
-
-import org.bukkit.event.Event;
-import org.bukkit.util.Vector;
-import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
@@ -32,8 +10,10 @@ import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
-import ch.njol.util.VectorMath;
 import ch.njol.util.coll.CollectionUtils;
+import org.bukkit.event.Event;
+import org.bukkit.util.Vector;
+import org.jetbrains.annotations.Nullable;
 
 @Name("Vectors - Spherical Shape")
 @Description("Forms a 'spherical shaped' vector using yaw and pitch to manipulate the current point.")
@@ -44,6 +24,8 @@ import ch.njol.util.coll.CollectionUtils;
 })
 @Since("2.2-dev28")
 public class ExprVectorSpherical extends SimpleExpression<Vector> {
+
+	private static final double DEG_TO_RAD = Math.PI / 180;
 
 	static {
 		Skript.registerExpression(ExprVectorSpherical.class, Vector.class, ExpressionType.SIMPLE,
@@ -70,7 +52,8 @@ public class ExprVectorSpherical extends SimpleExpression<Vector> {
 		Number pitch = this.pitch.getSingle(event);
 		if (radius == null || yaw == null || pitch == null)
 			return null;
-		return CollectionUtils.array(VectorMath.fromSphericalCoordinates(radius.doubleValue(), VectorMath.fromSkriptYaw(yaw.floatValue()), pitch.floatValue() + 90));
+		return CollectionUtils.array(fromSphericalCoordinates(radius.doubleValue(),
+			ExprYawPitch.fromSkriptYaw(yaw.floatValue()), pitch.floatValue() + 90));
 	}
 
 	@Override
@@ -87,6 +70,17 @@ public class ExprVectorSpherical extends SimpleExpression<Vector> {
 	public String toString(@Nullable Event event, boolean debug) {
 		return "spherical vector with radius " + radius.toString(event, debug) + ", yaw " + yaw.toString(event, debug) +
 				" and pitch" + pitch.toString(event, debug);
+	}
+
+	public static Vector fromSphericalCoordinates(double radius, double theta, double phi) {
+		double r = Math.abs(radius);
+		double t = theta * DEG_TO_RAD;
+		double p = phi * DEG_TO_RAD;
+		double sinp = Math.sin(p);
+		double x = r * sinp * Math.cos(t);
+		double y = r * Math.cos(p);
+		double z = r * sinp * Math.sin(t);
+		return new Vector(x, y, z);
 	}
 
 }

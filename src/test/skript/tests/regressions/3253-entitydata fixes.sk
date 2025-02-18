@@ -1,41 +1,40 @@
 test "entity data fixes":
-	spawn a baby zombie at spawn of world "world"
+	spawn a baby zombie at test-location
 	assert last spawned entity is a baby zombie with "last spawned entity should have been a baby zombie"
 	assert last spawned entity is a baby entity with "last spawned entity should have been a baby entity"
 
-	spawn an adult zombie at spawn of world "world"
+	spawn an adult zombie at test-location
 	assert last spawned entity is an adult zombie with "last spawned entity should have been an adult zombie"
 	assert last spawned entity is an adult entity with "last spawned entity should have been an adult entity"
 
-	spawn a baby cow at spawn of world "world"
+	spawn a baby cow at test-location
 	assert last spawned entity is a baby cow with "last spawned entity should have been a baby cow"
 	assert last spawned entity is a baby entity with "last spawned entity should have been a baby entity"
 
-	spawn an adult cow at spawn of world "world"
+	spawn an adult cow at test-location
 	assert last spawned entity is an adult cow with "last spawned entity should have been an adult cow"
 	assert last spawned entity is an adult entity with "last spawned entity should have been an adult entity"
 
-	spawn a baby sheep at spawn of world "world"
+	spawn a baby sheep at test-location
 	assert last spawned entity is a baby sheep with "last spawned entity should have been a baby sheep"
 	assert last spawned entity is a baby entity with "last spawned entity should have been a baby entity"
 
-	spawn an adult sheep at spawn of world "world"
+	spawn an adult sheep at test-location
 	assert last spawned entity is an adult sheep with "last spawned entity should have been an adult sheep"
 	assert last spawned entity is an adult entity with "last spawned entity should have been an adult entity"
 
-test "entity data fixes - 1.16.5" when running minecraft "1.16.5":
-	spawn a baby piglin at spawn of world "world"
+	spawn a baby piglin at test-location
 	assert last spawned entity is a baby piglin with "last spawned entity should have been a baby piglin"
 	assert last spawned entity is a baby entity with "last spawned entity should have been a baby entity"
 
-	spawn an adult piglin at spawn of world "world"
+	spawn an adult piglin at test-location
 	assert last spawned entity is an adult piglin with "last spawned entity should have been an adult piglin"
 	assert last spawned entity is an adult entity with "last spawned entity should have been an adult entity"
 
-	spawn a baby zoglin at spawn of world "world"
+	spawn a baby zoglin at test-location
 	assert last spawned entity is a baby zoglin with "last spawned entity should have been a baby zoglin"
 	assert last spawned entity is a baby entity with "last spawned entity should have been a baby entity"
 
-	spawn an adult zoglin at spawn of world "world"
+	spawn an adult zoglin at test-location
 	assert last spawned entity is an adult zoglin with "last spawned entity should have been an adult zoglin"
 	assert last spawned entity is an adult entity with "last spawned entity should have been an adult entity"

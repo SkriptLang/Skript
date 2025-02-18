@@ -1,21 +1,3 @@
-/**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
 package ch.njol.skript.util;
 
 import java.util.ArrayList;
@@ -31,7 +13,7 @@ import org.jetbrains.annotations.Nullable;
 // Bukkit does not provide a way to get a PotionEffect from PotionData
 // This class allows us to convert base PotionData of an item into a PotionEffect
 public enum PotionDataUtils {
-	
+
 	FIRE_RESISTANCE(PotionType.FIRE_RESISTANCE, false, false, 3600, 0),
 	FIRE_RESISTANCE_LONG(PotionType.FIRE_RESISTANCE, true, false, 9600, 0),
 	HARMING(PotionEffectUtils.HAS_OLD_POTION_FIELDS ? "INSTANT_DAMAGE" : "HARMING", false, false, 1, 0),
@@ -70,7 +52,7 @@ public enum PotionDataUtils {
 	WATER_BREATHING_LONG(PotionType.WATER_BREATHING, true, false, 9600, 0),
 	WEAKNESS(PotionType.WEAKNESS, false, false, 1800, 0),
 	WEAKNESS_LONG(PotionType.WEAKNESS, false, false, 4800, 0);
-	
+
 	@Nullable
 	private String name;
 	@Nullable
@@ -79,7 +61,7 @@ public enum PotionDataUtils {
 	private final boolean upgraded;
 	private final int duration;
 	private final int amplifier;
-	
+
 	PotionDataUtils(PotionType potionType, boolean extended, boolean upgraded, int duration, int amplifier) {
 		this.potionType = potionType;
 		this.extended = extended;
@@ -87,7 +69,7 @@ public enum PotionDataUtils {
 		this.duration = duration;
 		this.amplifier = amplifier;
 	}
-	
+
 	PotionDataUtils(String potionType, boolean extended, boolean upgraded, int duration, int amplifier) {
 		try {
 			this.potionType = PotionType.valueOf(potionType.toUpperCase(Locale.ENGLISH));
@@ -100,14 +82,14 @@ public enum PotionDataUtils {
 		this.duration = duration;
 		this.amplifier = amplifier;
 	}
-	
+
 	/**
 	 * Convert {@link PotionData} to a {@link PotionEffect}
 	 *
 	 * @param potionData PotionData to convert
 	 * @return List of PotionEffects from the data
 	 */
-	@SuppressWarnings("null")
+	@SuppressWarnings({"removal", "null"})
 	public static List<PotionEffect> getPotionEffects(PotionData potionData) {
 		List<PotionEffect> potionEffects = new ArrayList<>();
 		for (PotionDataUtils value : PotionDataUtils.values()) {
@@ -127,7 +109,7 @@ public enum PotionDataUtils {
 
 	private static final PotionEffectType SLOW = PotionEffectUtils.HAS_OLD_POTION_FIELDS ? PotionEffectType.getByName("SLOW") : PotionEffectType.SLOWNESS;
 	private static final PotionEffectType DAMAGE_RESISTANCE = PotionEffectUtils.HAS_OLD_POTION_FIELDS ? PotionEffectType.getByName("DAMAGE_RESISTANCE") : PotionEffectType.RESISTANCE;
-	
+
 	// Bukkit does not account for the fact that Turtle Master has 2 potion effects
 	@SuppressWarnings("null")
 	private static List<PotionEffect> getSpecialTurtle(PotionDataUtils data) {
@@ -135,7 +117,7 @@ public enum PotionDataUtils {
 		int duration = data.extended ? 800 : 400;
 		int slowAmp = data.upgraded ? 5 : 3;
 		int resistanceAmp = data.upgraded ? 3 : 2;
-		
+
 		// This is a stupid bandaid because for some reason Skript wont compare these with potion effects from Skript
 		PotionEffectType slow = PotionEffectUtils.parseByEffectType(SLOW);
 		PotionEffectType damage = PotionEffectUtils.parseByEffectType(DAMAGE_RESISTANCE);
@@ -145,5 +127,5 @@ public enum PotionDataUtils {
 		}
 		return potionEffects;
 	}
-	
+
 }

@@ -1,0 +1,68 @@
+test "display entity data":
+	spawn a text display at spawn of world "world":
+		set {_text} to entity
+
+	spawn a block display at spawn of world "world":
+		set {_block} to entity
+
+	spawn an item display at spawn of world "world":
+		set {_item} to entity
+
+	assert {_text} is a display with "text display was not a display"
+	assert {_text} is a text display with "text display was not a text display"
+	assert {_text} is not an item display with "text display was an item display"
+	assert {_text} is not a block display with "text display was a block display"
+
+	assert {_block} is a display with "block display was not a display"
+	assert {_block} is a block display with "block display was not a block display"
+	assert {_block} is not an item display with "block display was an item display"
+	assert {_block} is not a text display with "block display was a text display"
+
+	assert {_item} is a display with "item display was not a display"
+	assert {_item} is a item display with "item display was not an item display"
+	assert {_item} is not an text display with "item display was a text display"
+	assert {_item} is not a block display with "item display was a block display"
+
+	spawn a block display of a spruce log at spawn of world "world":
+		set {_block1} to entity
+
+	assert size of block displays is 2 with "did not find all block displays"
+
+	spawn a red bed block display at spawn of world "world":
+		set {_block2} to entity
+
+	assert size of block displays is 3 with "did not find all block displays"
+	assert size of block displays of a spruce log is 1 with "did not find correct amount of spruce block displays"
+	assert size of red bed block displays is 1 with "did not find correct amount of block display of a red beds"
+
+	assert {_block2} is a display with "block display was not a display"
+	assert {_block2} is a block display with "block display was not a block display"
+	assert {_block2} is not a block display of a spruce log with "block display of a red bed was a block display of a spruce log"
+	assert {_block2} is a block display of a red bed with "block display of a red bed was not a block display of a red bed"
+	assert {_block2} is not an item display with "block display was an item display"
+	assert {_block2} is not a text display with "block display was a text display"
+
+	spawn an item display of an oak log at spawn of world "world":
+		set {_item1} to entity
+
+	spawn a item display of a diamond at spawn of world "world":
+		set {_item2} to entity
+
+	assert size of item displays is 3 with "did not find all item displays"
+	assert size of item displays of oak log is 1 with "did not find correct amount of spruce item displays of oak logs"
+	assert size of item displays of diamond is 1 with "did not find correct amount of item displays of diamonds"
+
+	assert {_item2} is a display with "item display was not a display"
+	assert {_item2} is a item display with "item display was not a item display"
+	assert {_item2} is not an item display of an oak log with "item display of a diamond was an oak log block display"
+	assert {_item2} is a diamond item display with "item display of a diamond was not a diamond block display"
+	assert {_item2} is not a block display with "item display was a block display"
+	assert {_item2} is not a text display with "item display was a text display"
+
+	delete display within {_text}
+	delete display within {_item}
+	delete display within {_item1}
+	delete display within {_item2}
+	delete display within {_block}
+	delete display within {_block1}
+	delete display within {_block2}

@@ -1,21 +1,3 @@
-/**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
 package ch.njol.skript.lang;
 
 import ch.njol.skript.config.Config;
@@ -38,6 +20,7 @@ public abstract class SelfRegisteringSkriptEvent extends SkriptEvent {
 	 * Normally, that method would register the parsed trigger with {@link ch.njol.skript.SkriptEventHandler}.
 	 * A reference to the {@link Trigger} is available through {@link #trigger}.
 	 */
+	@Deprecated
 	public abstract void register(Trigger t);
 
 	/**
@@ -48,6 +31,7 @@ public abstract class SelfRegisteringSkriptEvent extends SkriptEvent {
 	 * Normally, that method would unregister the parsed trigger with {@link ch.njol.skript.SkriptEventHandler}.
 	 * A reference to the {@link Trigger} is available through {@link #trigger}.
 	 */
+	@Deprecated
 	public abstract void unregister(Trigger t);
 
 	/**
@@ -57,6 +41,7 @@ public abstract class SelfRegisteringSkriptEvent extends SkriptEvent {
 	 * @deprecated This method should no longer be used.
 	 * Each trigger should be unregistered through {@link #unregister(Trigger)}.
 	 */
+	@Deprecated
 	public abstract void unregisterAll();
 
 	@Override

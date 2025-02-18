@@ -1,0 +1,18 @@
+on load:
+	#Note: Can not test 'secondary effect' due to the requirements in order to set it are too long of a time
+	# Than that can be allowed in this test
+
+	set {_loc} to spawn of world "world" ~ vector(5,5,5)
+	set block at {_loc} to beacon
+
+	set {_block} to block at {_loc}
+	set primary beacon effect of {_block} to haste
+	assert primary beacon effect of {_block} is haste with "Set beacon primary effect to haste"
+	clear primary beacon effect of {_block}
+	assert primary beacon effect of {_block} is not set with "Clear beacon primary effect"
+	set range of {_block} to 10
+	assert range of {_block} is 10 with "Set beacon range to 10"
+	add 5 to range of {_block}
+	assert range of {_block} is 15 with "Add 5 to beacon range"
+
+	set block at {_loc} to air

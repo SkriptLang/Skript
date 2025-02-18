@@ -1,0 +1,18 @@
+test "create un-creatable inventory":
+	# Test creating inventory types which cannot be created
+	assert merchant inventory named "BOB" is set to fail with "This should fail, cannot create a merchant inventory"
+	assert composter inventory named "BOB" is set to fail with "This should fail, cannot create a player inventory"
+
+	# Test creating inventory types which can be created
+	assert chest inventory named "BOB" is set with "Should be able to create a named chest inventory"
+	assert hopper inventory named "Mr Hopper" is set with "Should be able to create a named hopper inventory"
+
+	# Test opening an inventory type which cannot be created
+	parse:
+		open merchant inventory to {_null}
+	assert last parse logs is "Cannot create an inventory of type merchant inventory" with "Opening a merchant inventory should fail"
+
+	# Test opening an inventory type which can be created
+	parse:
+		open chest inventory to {_null}
+	assert last parse logs is not set with "Opening a chest inventory should run fine"

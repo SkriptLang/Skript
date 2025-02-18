@@ -1,0 +1,35 @@
+test "date in past or future":
+
+	# now is not in the past or future
+	# there's a very slight chance that the date created by `now` and the date used in the condition will be a millisecond apart
+	# so these comparisons are not 100% reliable. It's approximately one in a million on my machine, but would increase on worse hardware.
+	# We check specifically for ExprNow to help avoid this.
+	assert now is not in the past with "now should not be in the past"
+	assert now is not in the future with "now should not be in the future"
+	assert now has not passed with "now should not have passed"
+
+	# yesterday is in the past
+	assert 1 day ago is in the past with "yesterday should be in the past"
+	assert 1 day ago is not in the future with "yesterday should not be in the future"
+	assert 1 day ago has passed with "yesterday should have passed"
+
+	# tomorrow is in the future
+	assert 1 day from now is not in the past with "tomorrow should not be in the past"
+	assert 1 day from now is in the future with "tomorrow should be in the future"
+	assert 1 day from now has not passed with "tomorrow should not have passed"
+
+	# null is not in the past or future
+	assert {_null} is not in the past with "null should not be in the past"
+	assert {_null} is not in the future with "null should not be in the future"
+	assert {_null} has not passed with "null should not have passed"
+
+	# multiple dates
+	set {_dates::*} to 1 day ago, 1 second ago, and 100 years ago
+	assert {_dates::*} are in the past with "all dates should be in the past"
+	assert {_dates::*} are not in the future with "all dates should not be in the future"
+	assert {_dates::*} have passed with "all dates should have passed"
+
+	set {_dates::*} to 1 day from now, 1 second from now, and 100 years from now
+	assert {_dates::*} are not in the past with "all dates should not be in the past"
+	assert {_dates::*} are in the future with "all dates should be in the future"
+	assert {_dates::*} have not passed with "all dates should not have passed"

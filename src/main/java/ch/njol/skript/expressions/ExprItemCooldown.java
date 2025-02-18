@@ -1,21 +1,3 @@
-/**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
 package ch.njol.skript.expressions;
 
 import ch.njol.skript.Skript;
@@ -83,7 +65,7 @@ public class ExprItemCooldown extends SimpleExpression<Timespan> {
 		int i = 0;
 		for (Player player : players) {
 			for (ItemType itemType : itemTypes) {
-				timespan[i++] = Timespan.fromTicks_i(player.getCooldown(itemType.getMaterial()));
+				timespan[i++] = new Timespan(Timespan.TimePeriod.TICK, player.getCooldown(itemType.getMaterial()));
 			}
 		}
 		return timespan;
@@ -100,7 +82,7 @@ public class ExprItemCooldown extends SimpleExpression<Timespan> {
 		if (mode != ChangeMode.RESET && mode != ChangeMode.DELETE && delta == null)
 			return;
 		
-		int ticks = delta != null ? (int) ((Timespan) delta[0]).getTicks_i() : 0; // 0 for DELETE/RESET
+		int ticks = delta != null ? (int) ((Timespan) delta[0]).getAs(Timespan.TimePeriod.TICK) : 0; // 0 for DELETE/RESET
 		Player[] players = this.players.getArray(event);
 		List<ItemType> itemTypes = this.itemtypes.stream(event)
 				.filter(ItemType::hasType)

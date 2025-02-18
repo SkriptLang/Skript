@@ -1,26 +1,10 @@
-/**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
 package ch.njol.skript.expressions;
 
 import java.util.List;
 import java.util.regex.MatchResult;
 
+import ch.njol.skript.lang.EventRestrictedSyntax;
+import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.event.Event;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.event.server.ServerCommandEvent;
@@ -61,7 +45,7 @@ import ch.njol.util.StringUtils;
 	"heal the last argument"
 })
 @Since("1.0, 2.7 (support for command events)")
-public class ExprArgument extends SimpleExpression<Object> {
+public class ExprArgument extends SimpleExpression<Object> implements EventRestrictedSyntax {
 
 	static {
 		Skript.registerExpression(ExprArgument.class, Object.class, ExpressionType.SIMPLE,
@@ -86,10 +70,6 @@ public class ExprArgument extends SimpleExpression<Object> {
 	@SuppressWarnings("unchecked")
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		boolean scriptCommand = getParser().isCurrentEvent(ScriptCommandEvent.class);
-		if (!scriptCommand && !getParser().isCurrentEvent(PlayerCommandPreprocessEvent.class, ServerCommandEvent.class)) {
-			Skript.error("The 'argument' expression can only be used in a script command or command event");
-			return false;
-		}
 
 		switch (matchedPattern) {
 			case 0:
@@ -210,7 +190,13 @@ public class ExprArgument extends SimpleExpression<Object> {
 
 		return true;
 	}
-	
+
+	@Override
+	public Class<? extends Event>[] supportedEvents() {
+		return CollectionUtils.array(ScriptCommandEvent.class, PlayerCommandPreprocessEvent.class,
+			ServerCommandEvent.class);
+	}
+
 	@Override
 	@Nullable
 	protected Object[] get(final Event e) {

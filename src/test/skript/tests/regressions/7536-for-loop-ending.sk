@@ -1,0 +1,17 @@
+using for each loops
+
+test "for each loops ending (start)":
+	clear {7536 For Each::*}
+	for each {_word} in ("test", "test2"):
+		add {_word} to {7536 For Each::*}
+		for each {_word 2} in ("example", "example2"):
+			add {_word 2} to {7536 For Each::*}
+
+	assert the size of {7536 For Each::*} is 6 with "Wrong number of variables: %{7536 For Each::*}%"
+
+# Need to make sure that trigger didn't just die
+test "for each loops ending (result)":
+	assert the size of {7536 For Each::*} is 6 with "Wrong number of variables: %{7536 For Each::*}%"
+	assert {7536 For Each::*} is ("test", "example", "example2", "test2", "example", "example2") with "Wrong loop order: %{7536 For Each::*}%"
+
+	delete {7536 For Each::*}

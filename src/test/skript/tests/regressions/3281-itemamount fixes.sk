@@ -1,6 +1,6 @@
 test "item amount fixes":
 	set time in world "world" to night # we dont want our poor zombie to die
-	spawn a zombie at spawn of world "world"
+	spawn a zombie at test-location
 	set {_e} to last spawned zombie
 
 	set {_e}'s tool to dirt
@@ -11,7 +11,7 @@ test "item amount fixes":
 
 	set time in world "world" to day
 
-	drop dirt at location 20 above spawn of world "world"
+	drop dirt at location 20 above test-location
 	set {_d} to last dropped item
 	assert item amount of item of {_d} = 1 with "Item amount of dirt should have been 1"
 	set item amount of item of {_d} to 10

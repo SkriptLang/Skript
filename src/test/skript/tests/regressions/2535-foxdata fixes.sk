@@ -1,4 +1,4 @@
-test "fox EntityData fixes" when running minecraft "1.15.2":
+test "fox EntityData fixes":
 	spawn red fox at location(0, 64, 0, world "world")
 	spawn 3 snow foxes at location(0, 64, 0, world "world")
 	delete all foxes

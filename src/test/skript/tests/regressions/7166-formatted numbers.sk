@@ -1,0 +1,26 @@
+test "formatted numbers function":
+	assert formatNumber(123456789) is "123,456,789" with "default number format failed ##1"
+	assert formatNumber(1234567) is "1,234,567" with "default number format failed ##2"
+	assert formatNumber(123.456) is "123.46" with "default number format failed ##3"
+
+	assert formatNumber(12345678, "##,##.00") is "12,34,56,78.00" with "custom number format failed ##1"
+	assert formatNumber(12345678, "####,####") is "1234,5678" with "custom number format failed ##2"
+	assert formatNumber(123456.789, "$###,###.##") is "$123,456.79" with "custom number format failed ##3"
+
+	assert formatNumber(12345678, "##.,##") is not set with "invalid number format returns a value"
+	assert formatNumber(123.45678, "##.,##") is not set with "invalid number format returns a value"
+
+	set {_n} to "a" parsed as number
+	assert formatNumber({_n}) is not set with "invalid number returns a value"
+	assert formatNumber({_n}, "##,##") is not set with "invalid number with format returns a value"
+	assert formatNumber({_n}, "##.,##") is not set with "invalid number with invalid format returns a value"
+
+	set {_n} to NaN value
+	assert formatNumber({_n}) is "NaN" with "NaN doesn't return a value"
+	assert formatNumber({_n}, "##,##") is "NaN" with "NaN with format doesn't return a value"
+	assert formatNumber({_n}, "##.,##") is not set with "NaN with invalid format returns a value"
+
+	set {_n} to infinity value
+	assert formatNumber({_n}) is "∞" with "infinity doesn't return a value"
+	assert formatNumber({_n}, "##,##") is "∞" with "infinity with format doesn't return a value"
+	assert formatNumber({_n}, "##.,##") is not set with "infinity with invalid format returns a value"

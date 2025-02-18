@@ -1,0 +1,20 @@
+test "argb":
+
+	set {_colour} to rgb(0, 0, 0, 0)
+	assert {_colour}'s red value is 0 with "failed to get red"
+	assert {_colour}'s green value is 0 with "failed to get green"
+	assert blue value of {_colour} is 0 with "failed to get blue"
+	assert alpha value of {_colour} is 0 with "failed to get alpha"
+
+	set {_colour} to rgb(9, 102, 55, 10)
+	assert {_colour}'s red value is 9 with "failed to get red"
+	assert {_colour}'s green value is 102 with "failed to get green"
+	assert blue value of {_colour} is 55 with "failed to get blue"
+	assert alpha value of {_colour} is 10 with "failed to get alpha"
+
+	set {_colour} to red
+	assert {_colour}'s red value is 176 with "failed to get red"
+	assert {_colour}'s green value is 46 with "failed to get green"
+	assert blue value of {_colour} is 38 with "failed to get blue"
+	assert alpha value of {_colour} is 255 with "failed to get alpha"
+

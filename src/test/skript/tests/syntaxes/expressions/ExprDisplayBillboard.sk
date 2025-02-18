@@ -1,0 +1,50 @@
+test "display billboard":
+
+	spawn a text display at spawn of world "world":
+		set {_e} to entity
+
+	assert bill-boarding of {_e} is fixed with "incorrect default bill-boarding"
+
+	set bill-boarding of {_e} to vertical
+	assert bill-boarding of {_e} is vertical with "failed to set bill-boarding"
+	set bill-boarding of {_e} to horizontal
+	assert bill-boarding of {_e} is horizontal with "failed to set bill-boarding"
+	set bill-boarding of {_e} to center
+	assert bill-boarding of {_e} is center with "failed to set bill-boarding"
+	reset bill-boarding of {_e}
+	assert bill-boarding of {_e} is fixed with "failed to reset bill-boarding"
+
+	delete entity within {_e}
+
+	spawn an item display at spawn of world "world":
+		set {_e} to entity
+
+	assert bill-boarding of {_e} is fixed with "incorrect default bill-boarding"
+
+	set bill-boarding of {_e} to vertical
+	assert bill-boarding of {_e} is vertical with "failed to set bill-boarding"
+	set bill-boarding of {_e} to horizontal
+	assert bill-boarding of {_e} is horizontal with "failed to set bill-boarding"
+	set bill-boarding of {_e} to center
+	assert bill-boarding of {_e} is center with "failed to set bill-boarding"
+	reset bill-boarding of {_e}
+	assert bill-boarding of {_e} is fixed with "failed to reset bill-boarding"
+
+	delete entity within {_e}
+
+
+	spawn a block display at spawn of world "world":
+		set {_e} to entity
+
+	assert bill-boarding of {_e} is fixed with "incorrect default bill-boarding"
+
+	set bill-boarding of {_e} to vertical
+	assert bill-boarding of {_e} is vertical with "failed to set bill-boarding"
+	set bill-boarding of {_e} to horizontal
+	assert bill-boarding of {_e} is horizontal with "failed to set bill-boarding"
+	set bill-boarding of {_e} to center
+	assert bill-boarding of {_e} is center with "failed to set bill-boarding"
+	reset bill-boarding of {_e}
+	assert bill-boarding of {_e} is fixed with "failed to reset bill-boarding"
+
+	delete entity within {_e}

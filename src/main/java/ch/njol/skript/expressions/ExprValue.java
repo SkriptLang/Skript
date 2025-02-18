@@ -1,82 +1,164 @@
-/**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
 package ch.njol.skript.expressions;
+
+import ch.njol.skript.Skript;
+import ch.njol.skript.classes.Changer.ChangeMode;
+import ch.njol.skript.classes.ClassInfo;
+import ch.njol.skript.config.Node;
+import ch.njol.skript.doc.Description;
+import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Name;
+import ch.njol.skript.doc.Since;
+import ch.njol.skript.expressions.base.SimplePropertyExpression;
+import ch.njol.skript.lang.Expression;
+import ch.njol.skript.lang.ExpressionType;
+import ch.njol.skript.lang.Literal;
+import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.skript.lang.util.common.AnyValued;
+import ch.njol.skript.registrations.Feature;
+import ch.njol.util.Kleenean;
+import org.bukkit.event.Event;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Array;
 
-import org.bukkit.event.Event;
-import org.jetbrains.annotations.Nullable;
+@Name("Value")
+@Description({
+	"Returns the value of something that has a value, e.g. a node in a config.",
+	"The value is automatically converted to the specified type (e.g. text, number) where possible."
+})
+@Examples({
+	"""
+		set {_node} to node "language" in the skript config
+		broadcast the text value of {_node}""",
+	"""
+		set {_node} to node "update check interval" in the skript config
+		
+		broadcast text value of {_node}
+		# text value of {_node} = "12 hours" (text)
+		
+		wait for {_node}'s timespan value
+		# timespan value of {_node} = 12 hours (duration)""",
 
-import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.Literal;
-import ch.njol.skript.lang.SkriptParser.ParseResult;
-import ch.njol.skript.lang.Unit;
-import ch.njol.skript.lang.util.SimpleExpression;
-import ch.njol.util.Kleenean;
+})
+@Since("2.10 (Nodes), 2.10 (Any)")
+public class ExprValue extends SimplePropertyExpression<Object, Object> {
 
-/**
- * @author Peter Güttinger
- */
-public class ExprValue extends SimpleExpression<Unit> {
-//	static { // REMIND add this (>2.0)
-//		Skript.registerExpression(ExprValue.class, Unit.class, ExpressionType.PATTERN_MATCHES_EVERYTHING, "%~number% %*unit%");
-//	}
-	
-	@SuppressWarnings("null")
-	private Expression<Number> amount;
-	@SuppressWarnings("null")
-	private Unit unit;
-	
-	@SuppressWarnings({"unchecked", "null"})
+	static {
+		Skript.registerExpression(ExprValue.class, Object.class, ExpressionType.PROPERTY,
+			"[the] %*classinfo% value [at] %string% (from|in) %node%",
+			"[the] %*classinfo% value of %valued%",
+			"[the] %*classinfo% values of %valueds%",
+			"%valued%'s %*classinfo% value",
+			"%valueds%'[s] %*classinfo% values"
+		);
+	}
+
+	private boolean isSingle;
+	private ClassInfo<?> classInfo;
+	private @Nullable Expression<String> pathExpression;
+
 	@Override
-	public boolean init(final Expression<?>[] exprs, final int matchedPattern, final Kleenean isDelayed, final ParseResult parseResult) {
-		amount = (Expression<Number>) exprs[0];
-		unit = ((Literal<Unit>) exprs[1]).getSingle();
+	@SuppressWarnings("unchecked")
+	public boolean init(Expression<?>[] expressions, int pattern, Kleenean isDelayed, ParseResult parseResult) {
+		@NotNull Literal<ClassInfo<?>> format;
+		switch (pattern) {
+			case 0:
+				if (!this.getParser().hasExperiment(Feature.SCRIPT_REFLECTION))
+					return false;
+				this.isSingle = true;
+				format = (Literal<ClassInfo<?>>) expressions[0];
+				this.pathExpression = (Expression<String>) expressions[1];
+				this.setExpr(expressions[2]);
+				break;
+			case 1:
+				this.isSingle = true;
+			case 2:
+				format = (Literal<ClassInfo<?>>) expressions[0];
+				this.setExpr(expressions[1]);
+				break;
+			case 3:
+				this.isSingle = true;
+			default:
+				format = (Literal<ClassInfo<?>>) expressions[1];
+				this.setExpr(expressions[0]);
+		}
+		this.classInfo = format.getSingle();
 		return true;
 	}
-	
+
 	@Override
-	@Nullable
-	protected Unit[] get(final Event e) {
-		final Number a = amount.getSingle(e);
-		if (a == null)
+	public @Nullable Object convert(@Nullable Object object) {
+		if (object == null)
 			return null;
-		final Unit u = unit.clone();
-		u.setAmount(a.doubleValue());
-		final Unit[] one = (Unit[]) Array.newInstance(unit.getClass(), 1);
-		one[0] = u;
-		return one;
+		if (object instanceof AnyValued<?> valued)
+			return valued.convertedValue(classInfo);
+		return null;
 	}
-	
+
+	@Override
+	protected Object[] get(Event event, Object[] source) {
+		if (pathExpression != null) {
+			if (!(source[0] instanceof Node main))
+				return (Object[]) Array.newInstance(this.getReturnType(), 0);
+			String path = pathExpression.getSingle(event);
+			Node node = main.getNodeAt(path);
+			Object[] array = (Object[]) Array.newInstance(this.getReturnType(), 1);
+			if (!(node instanceof AnyValued<?> valued))
+				return (Object[]) Array.newInstance(this.getReturnType(), 0);
+			array[0] = this.convert(valued);
+			return array;
+		}
+		return super.get(source, this);
+	}
+
+	@Override
+	public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
+		if (pathExpression != null) // todo editable configs soon
+			return null;
+		return switch (mode) {
+			case SET -> new Class<?>[] {Object.class};
+			case RESET, DELETE -> new Class<?>[0];
+			default -> null;
+		};
+	}
+
+	@Override
+	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
+		if (pathExpression != null)
+			return;
+		Object newValue = delta != null ? delta[0] : null;
+		for (Object object : getExpr().getArray(event)) {
+			if (!(object instanceof AnyValued<?> valued))
+				continue;
+			if (valued.supportsValueChange())
+				valued.changeValueSafely(newValue);
+		}
+	}
+
+	@Override
+	public Class<?> getReturnType() {
+		return classInfo.getC();
+	}
+
 	@Override
 	public boolean isSingle() {
-		return true;
+		return isSingle;
 	}
-	
+
 	@Override
-	public Class<? extends Unit> getReturnType() {
-		return unit.getClass();
+	protected String getPropertyName() {
+		return classInfo.getCodeName() + " value" + (isSingle ? "" : "s");
 	}
-	
+
 	@Override
-	public String toString(final @Nullable Event e, final boolean debug) {
-		return amount.toString(e, debug) + " " + unit.toString();
+	public String toString(@Nullable Event event, boolean debug) {
+		if (pathExpression != null) {
+			return "the " + this.getPropertyName()
+				+ " at " + pathExpression.toString(event, debug)
+				+ " in " + this.getExpr().toString(event, debug);
+		}
+		return super.toString(event, debug);
 	}
-	
+
 }

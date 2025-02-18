@@ -1,8 +1,0 @@
-on test "health utils update":
-	spawn a pig at spawn of world "world"
-	set {_pig} to last spawned pig
-	set max health of {_pig} to 20
-	set health of {_pig} to 20
-	assert max health of {_pig} = 20 with "pig failed to set max health to 20: Max health of pig = %max health of {_pig}%"
-	assert health of {_pig} = 20 with "pig failed to set health to 20: Health of pig = %health of {_pig}%"
-	delete last spawned pig

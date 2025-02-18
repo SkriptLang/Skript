@@ -1,0 +1,230 @@
+test "EvtFishJUnit" when running JUnit:
+	add "cast - correct player" to {_tests::*}
+	add "cast - correct fish" to {_tests::*}
+	add "cast - not in open water" to {_tests::*}
+	add "cast - correct fish hooked" to {_tests::*}
+	add "cast - set waiting time" to {_tests::*}
+	add "cast - add waiting time" to {_tests::*}
+	add "cast - remove waiting time" to {_tests::*}
+	add "cast - reset waiting time" to {_tests::*}
+	add "cast - set approach angle" to {_tests::*}
+	add "cast - add approach angle" to {_tests::*}
+	add "cast - remove approach angle" to {_tests::*}
+	add "cast - reset approach angle" to {_tests::*}
+	add "cast - invalid approach angle" to {_tests::*}
+	add "cast - lure enchantment bonus" to {_tests::*}
+	add "cast - apply lure enchantment bonus" to {_tests::*}
+	add "cast - remove lure enchantment bonus" to {_tests::*}
+	if method "org.bukkit.entity.FishHook#getTimeUntilBite" exists:
+		add "cast - bite time" to {_tests::*}
+		add "cast - remove bite time" to {_tests::*}
+		add "cast - add bite time" to {_tests::*}
+		add "cast - invalid bite time" to {_tests::*}
+
+	add "catch - correct player" to {_tests::*}
+	add "catch - correct fish" to {_tests::*}
+	add "catch - not in open water" to {_tests::*}
+	add "catch - correct fish hooked" to {_tests::*}
+	add "catch - set waiting time" to {_tests::*}
+	add "catch - add waiting time" to {_tests::*}
+	add "catch - remove waiting time" to {_tests::*}
+	add "catch - reset waiting time" to {_tests::*}
+	add "catch - set approach angle" to {_tests::*}
+	add "catch - add approach angle" to {_tests::*}
+	add "catch - remove approach angle" to {_tests::*}
+	add "catch - reset approach angle" to {_tests::*}
+	add "catch - invalid approach angle" to {_tests::*}
+	add "catch - lure enchantment bonus" to {_tests::*}
+	add "catch - apply lure enchantment bonus" to {_tests::*}
+	add "catch - remove lure enchantment bonus" to {_tests::*}
+	if method "org.bukkit.entity.FishHook#getTimeUntilBite" exists:
+		add "catch - bite time" to {_tests::*}
+		add "catch - remove bite time" to {_tests::*}
+		add "catch - add bite time" to {_tests::*}
+		add "catch - invalid bite time" to {_tests::*}
+
+	ensure junit test "org.skriptlang.skript.test.tests.syntaxes.events.EvtFishTest" completes {_tests::*}
+
+on fishing line cast:
+	set {_test} to "org.skriptlang.skript.test.tests.syntaxes.events.EvtFishTest"
+	junit test is {_test}
+
+	if player's name is "Efnilite":
+		complete objective "cast - correct player" for {_test}
+
+	if event-entity is a cod:
+		complete objective "cast - correct fish" for {_test}
+
+	if fishing hook is not in open water:
+		complete objective "cast - not in open water" for {_test}
+
+	if hooked entity is a cod:
+		complete objective "cast - correct fish hooked" for {_test}
+
+	set max fish waiting time to 20 seconds
+	if max fish waiting time is 20 seconds:
+		complete objective "cast - set waiting time" for {_test}
+
+	add 1 second to min fish waiting time
+	if min fish waiting time is 6 seconds:
+		complete objective "cast - add waiting time" for {_test}
+
+	remove 1 second from max fish waiting time
+	if max fish waiting time is 19 seconds:
+		complete objective "cast - remove waiting time" for {_test}
+
+	reset min fish waiting time
+	reset max fish waiting time
+	if:
+		min fish waiting time is 5 seconds
+		max fish waiting time is 30 seconds
+	then:
+		complete objective "cast - reset waiting time" for {_test}
+
+	set max fish approach angle to 40
+	if max fish approach angle is 40:
+		complete objective "cast - set approach angle" for {_test}
+
+	add 10 to min fish approach angle
+	if min fish approach angle is 10:
+		complete objective "cast - add approach angle" for {_test}
+
+	remove 10 from min fish approach angle
+	if min fish approach angle is 0:
+		complete objective "cast - remove approach angle" for {_test}
+
+	reset max fish approach angle
+	reset min fish approach angle
+	if:
+		min fish approach angle is 0
+		max fish approach angle is 360
+	then:
+		complete objective "cast - reset approach angle" for {_test}
+
+	set min fish approach angle to 720
+	set max fish approach angle to -3
+	if:
+		min fish approach angle is 360
+		max fish approach angle is 0
+	then:
+		complete objective "cast - invalid approach angle" for {_test}
+
+	if lure enchantment bonus isn't applied:
+		complete objective "cast - lure enchantment bonus" for {_test}
+
+	apply the lure enchantment bonus
+	if lure enchantment bonus is applied:
+		complete objective "cast - apply lure enchantment bonus" for {_test}
+
+	remove the lure enchantment bonus
+	if lure enchantment bonus is not applied:
+		complete objective "cast - remove lure enchantment bonus" for {_test}
+
+	parse if method "org.bukkit.entity.FishHook#getTimeUntilBite" exists:
+		set fishing bite time to 1 second
+		if fishing bite time is 1 second:
+			complete objective "cast - bite time" for {_test}
+
+		remove 0.5 seconds from fishing bite time
+		if fishing bite time is 0.5 seconds:
+			complete objective "cast - remove bite time" for {_test}
+
+		add 0.5 seconds to fishing bite time
+		if fishing bite time is 1 second:
+			complete objective "cast - add bite time" for {_test}
+
+		set fishing bite time to 0 second
+		if fishing bite time is 1 tick:
+			complete objective "catch - invalid bite time" for {_test}
+
+on fish catch:
+	set {_test} to "org.skriptlang.skript.test.tests.syntaxes.events.EvtFishTest"
+	junit test is {_test}
+
+	if player's name is "Efnilite":
+		complete objective "catch - correct player" for {_test}
+
+	if event-entity is a salmon:
+		complete objective "catch - correct fish" for {_test}
+
+	if fishing hook is not in open water:
+		complete objective "catch - not in open water" for {_test}
+
+	if hooked entity is a salmon:
+		complete objective "catch - correct fish hooked" for {_test}
+
+	set max fish waiting time to 20 seconds
+	if max fish waiting time is 20 seconds:
+		complete objective "catch - set waiting time" for {_test}
+
+	add 1 second to min fish waiting time
+	if min fish waiting time is 6 seconds:
+		complete objective "catch - add waiting time" for {_test}
+
+	remove 1 second from max fish waiting time
+	if max fish waiting time is 19 seconds:
+		complete objective "catch - remove waiting time" for {_test}
+
+	reset min fish waiting time
+	reset max fish waiting time
+	if:
+		min fish waiting time is 5 seconds
+		max fish waiting time is 30 seconds
+	then:
+		complete objective "catch - reset waiting time" for {_test}
+
+	set max fish approach angle to 40
+	if max fish approach angle is 40:
+		complete objective "catch - set approach angle" for {_test}
+
+	add 10 to min fish approach angle
+	if min fish approach angle is 10:
+		complete objective "catch - add approach angle" for {_test}
+
+	remove 10 from min fish approach angle
+	if min fish approach angle is 0:
+		complete objective "catch - remove approach angle" for {_test}
+
+	set min fish approach angle to 720
+	set max fish approach angle to -3
+	if:
+		min fish approach angle is 360
+		max fish approach angle is 0
+	then:
+		complete objective "catch - invalid approach angle" for {_test}
+
+	reset min fish approach angle
+	reset max fish approach angle
+	if:
+		min fish approach angle is 0
+		max fish approach angle is 360
+	then:
+		complete objective "catch - reset approach angle" for {_test}
+
+	if lure enchantment bonus isn't applied:
+		complete objective "catch - lure enchantment bonus" for {_test}
+
+	apply the lure enchantment bonus
+	if lure enchantment bonus is applied:
+		complete objective "catch - apply lure enchantment bonus" for {_test}
+
+	remove the lure enchantment bonus
+	if lure enchantment bonus is not applied:
+		complete objective "catch - remove lure enchantment bonus" for {_test}
+
+	parse if method "org.bukkit.entity.FishHook#getTimeUntilBite" exists:
+		set fishing bite time to 1 second
+		if fishing bite time is 1 second:
+			complete objective "catch - bite time" for {_test}
+
+		remove 0.5 seconds from fishing bite time
+		if fishing bite time is 0.5 seconds:
+			complete objective "catch - remove bite time" for {_test}
+
+		add 0.5 seconds to fishing bite time
+		if fishing bite time is 1 second:
+			complete objective "catch - add bite time" for {_test}
+
+		set fishing bite time to 0 second
+		if fishing bite time is 1 tick:
+			complete objective "catch - invalid bite time" for {_test}

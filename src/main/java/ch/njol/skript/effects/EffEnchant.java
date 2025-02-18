@@ -1,27 +1,4 @@
-/**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
 package ch.njol.skript.effects;
-
-import org.bukkit.enchantments.Enchantment;
-import org.bukkit.event.Event;
-import org.bukkit.inventory.ItemStack;
-import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.ItemType;
@@ -36,6 +13,11 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.util.EnchantmentType;
 import ch.njol.util.Kleenean;
+import org.bukkit.event.Event;
+import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.function.Function;
 
 /**
  * @author Peter Güttinger
@@ -72,29 +54,26 @@ public class EffEnchant extends Effect {
 	
 	@Override
 	protected void execute(Event event) {
-		ItemType[] items = this.items.getArray(event);
-		if (items.length == 0) // short circuit
-			return;
+		Function<ItemType, ItemType> changeFunction;
 
 		if (enchantments != null) {
 			EnchantmentType[] types = enchantments.getArray(event);
 			if (types.length == 0)
 				return;
-			for (ItemType item : items) {
-				for (EnchantmentType type : types) {
-					Enchantment enchantment = type.getType();
-					assert enchantment != null;
-					item.addEnchantments(new EnchantmentType(enchantment, type.getLevel()));
-				}
-			}
+			changeFunction = item -> {
+				item.addEnchantments(types);
+				return item;
+			};
 		} else {
-			for (ItemType item : items) {
+			changeFunction = item -> {
 				item.clearEnchantments();
-			}
+				return item;
+			};
 		}
-		this.items.change(event, items.clone(), ChangeMode.SET);
+
+		this.items.changeInPlace(event, changeFunction);
 	}
-	
+
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
 		return enchantments == null ? "disenchant " + items.toString(event, debug) : "enchant " + items.toString(event, debug) + " with " + enchantments;

@@ -1,0 +1,61 @@
+# Since code takes time to run, we need to give some leeway to the values.
+# Precision to within a tick should be more than enough.
+local function isRoughlyEqual(timespan1: timespan, timespan2: timespan) :: boolean:
+	set {_diff} to difference between {_timespan1} and {_timespan2}
+	if {_diff} is less than 1 tick:
+		return true
+	return false
+
+test "time since":
+
+	# normal dates
+	set {_time} to time since now
+	assert isRoughlyEqual({_time}, 0 seconds) is true with "Time since now failed (expected 0 seconds, got %{_time}%)"
+
+	set {_time} to time since 1 day ago
+	assert isRoughlyEqual({_time}, 1 day) is true with "Time since 1 day ago failed (expected 1 day, got %{_time}%)"
+
+	set {_time} to time since 1 hour ago
+	assert isRoughlyEqual({_time}, 1 hour) is true with "Time since 1 hour ago failed (expected 1 hour, got %{_time}%)"
+
+	# future date
+	set {_time} to time since 1 minute from now
+	assert isRoughlyEqual({_time}, 0 seconds) is true with "Time since 1 minute from now failed (expected 0 seconds, got %{_time}%)"
+
+	# null date
+	set {_time} to time since {_none}
+	assert {_time} is not set with "Time since none failed (expected <none>, got %{_time}%)"
+
+	# multiple dates
+	set {_times::*} to time since (1 day ago, 1 hour ago, 1 minute ago, 1 minute from now)
+	assert isRoughlyEqual({_times::1}, 1 day) is true with "Time since multiple dates failed (expected 1 day, got %{_times::1}%)"
+	assert isRoughlyEqual({_times::2}, 1 hour) is true with "Time since multiple dates failed (expected 1 hour, got %{_times::2}%)"
+	assert isRoughlyEqual({_times::3}, 1 minute) is true with "Time since multiple dates failed (expected 1 minute, got %{_times::3}%)"
+	assert isRoughlyEqual({_times::4}, 0 seconds) is true with "Time since multiple dates failed (expected 0 seconds, got %{_times::4}%)"
+
+test "time until":
+
+	# normal dates
+	set {_time} to time until now
+	assert isRoughlyEqual({_time}, 0 seconds) is true with "Time until now failed (expected 0 seconds, got %{_time}%)"
+
+	set {_time} to time until 1 day from now
+	assert isRoughlyEqual({_time}, 1 day) is true with "Time until 1 day from now failed (expected 1 day, got %{_time}%)"
+
+	set {_time} to time until 1 hour from now
+	assert isRoughlyEqual({_time}, 1 hour) is true with "Time until 1 hour from now failed (expected 1 hour, got %{_time}%)"
+
+	# past date
+	set {_time} to time until 1 minute ago
+	assert isRoughlyEqual({_time}, 0 seconds) is true with "Time until 1 minute ago failed (expected 0 seconds, got %{_time}%)"
+
+	# null date
+	set {_time} to time until {_none}
+	assert {_time} is not set with "Time until none failed (expected <none>, got %{_time}%)"
+
+	# multiple dates
+	set {_times::*} to time until (1 day from now, 1 hour from now, 1 minute from now, 1 minute ago)
+	assert isRoughlyEqual({_times::1}, 1 day) is true with "Time until multiple dates failed (expected 1 day, got %{_times::1}%)"
+	assert isRoughlyEqual({_times::2}, 1 hour) is true with "Time until multiple dates failed (expected 1 hour, got %{_times::2}%)"
+	assert isRoughlyEqual({_times::3}, 1 minute) is true with "Time until multiple dates failed (expected 1 minute, got %{_times::3}%)"
+	assert isRoughlyEqual({_times::4}, 0 seconds) is true with "Time until multiple dates failed (expected 0 seconds, got %{_times::4}%)"

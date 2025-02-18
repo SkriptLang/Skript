@@ -1,21 +1,3 @@
-/**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
 package ch.njol.skript.events;
 
 import ch.njol.skript.Skript;
@@ -24,7 +6,6 @@ import ch.njol.skript.entity.EntityData;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptEvent;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
-import ch.njol.util.Checker;
 
 import org.bukkit.entity.Enderman;
 import org.bukkit.entity.FallingBlock;
@@ -35,6 +16,7 @@ import org.bukkit.event.entity.EntityChangeBlockEvent;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Locale;
+import java.util.function.Predicate;
 
 public class EvtEntityBlockChange extends SkriptEvent {
 
@@ -74,14 +56,14 @@ public class EvtEntityBlockChange extends SkriptEvent {
 		GENERIC("(entity|%*-entitydatas%) chang(e|ing) block[s]");
 
 		@Nullable
-		private final Checker<EntityChangeBlockEvent> checker;
+		private final Predicate<EntityChangeBlockEvent> checker;
 		private final String pattern;
 
 		ChangeEvent(String pattern) {
 			this(pattern, null);
 		}
 
-		ChangeEvent(String pattern, @Nullable Checker<EntityChangeBlockEvent> checker) {
+		ChangeEvent(String pattern, @Nullable Predicate<EntityChangeBlockEvent> checker) {
 			this.pattern = pattern;
 			this.checker = checker;
 		}
@@ -116,7 +98,7 @@ public class EvtEntityBlockChange extends SkriptEvent {
 			return false;
 		if (this.event.checker == null)
 			return true;
-		return this.event.checker.check((EntityChangeBlockEvent) event);
+		return this.event.checker.test((EntityChangeBlockEvent) event);
 	}
 
 	@Override

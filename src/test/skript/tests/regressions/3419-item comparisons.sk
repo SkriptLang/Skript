@@ -2,13 +2,13 @@ test "item comparisons":
 
 	# Basic Material Comparisons
 
-	set {_a} to a dirt block
+	set {_a} to dirt
 	set {_b} to a diamond block
 
-	assert {_a} is a dirt block with "{_a} is not a dirt block (it should be)"
+	assert {_a} is dirt with "{_a} is not dirt (it should be)"
 	assert {_a} is not a diamond block with "{_a} is a diamond block (it shouldn't be)"
 
-	assert {_b} is not a dirt block with "{_b} is a dirt block (it shouldn't be)"
+	assert {_b} is not dirt with "{_b} is dirt (it shouldn't be)"
 	assert {_b} is a diamond block with "{_b} is not a diamond block (it should be)"
 
 	assert {_a} is not {_b} with "{_a} is {_b} (it shouldn't be) (Basic Material Comparisons)"
@@ -32,18 +32,18 @@ test "item comparisons":
 
 	# Different Enchantment Comparisons
 
-	set {_a} to a dirt block of sharpness 1
-	set {_b} to a dirt block of sharpness 2
+	set {_a} to dirt of sharpness 1
+	set {_b} to dirt of sharpness 2
 
-	assert {_a} is a dirt block with "{_a} is not a dirt block (it should be)"
-	assert {_a} is a dirt block of sharpness 1 with "{_a} is not a dirt block of sharpness 1 (it should be)"
-	assert {_a} is not a dirt block of sharpness 2 with "{_a} is a dirt block of sharpness 2 (it shouldn't be)"
-	assert a dirt block of sharpness 1 is {_a} with "a dirt block of sharpness 1 is not {_a} (it should be)"
+	assert {_a} is dirt with "{_a} is not dirt (it should be)"
+	assert {_a} is dirt of sharpness 1 with "{_a} is not dirt of sharpness 1 (it should be)"
+	assert {_a} is not dirt of sharpness 2 with "{_a} is dirt of sharpness 2 (it shouldn't be)"
+	assert dirt of sharpness 1 is {_a} with "dirt of sharpness 1 is not {_a} (it should be)"
 
-	assert {_b} is a dirt block with "{_b} is not a dirt block (it should be)"
-	assert {_b} is not a dirt block of sharpness 1 with "{_b} is a dirt block of sharpness 1 (it shouldn't be)"
-	assert {_b} is a dirt block of sharpness 2 with "{_b} is not a dirt block of sharpness 2 (it should be)"
-	assert a dirt block of sharpness 1 is not {_b} with "a dirt block of sharpness 1 is {_b} (it shouldn't be)"
+	assert {_b} is dirt with "{_b} is not dirt (it should be)"
+	assert {_b} is not dirt of sharpness 1 with "{_b} is dirt of sharpness 1 (it shouldn't be)"
+	assert {_b} is dirt of sharpness 2 with "{_b} is not dirt of sharpness 2 (it should be)"
+	assert dirt of sharpness 1 is not {_b} with "dirt of sharpness 1 is {_b} (it shouldn't be)"
 
 	assert {_a} is not {_b} with "{_a} is {_b} (it shouldn't be) (Different Enchantment Comparisons"
 	assert {_b} is not {_a} with "{_b} is {_a} (it shouldn't be) (Different Enchantment Comparisons)"
@@ -65,18 +65,18 @@ test "item comparisons":
 	# Skull Comparisons
 
 	set {_a} to a skeleton skull named "Skulliest Skull"
-	set {_b} to an ender dragon skull named "Skully Skull"
+	set {_b} to a dragon head named "Skully Skull"
 
 	assert {_a} is a skeleton skull with "{_a} is not a skeleton skull (it should be)"
 	assert {_a} is not a plain skeleton skull with "{_a} is an unnamed skeleton skull (it shouldn't be)"
 	assert {_a} is a skeleton skull named "Skulliest Skull" with "{_a} is not a skeleton skull named ""Skulliest Skull"" (it should be)"
 
-	assert {_a} is not an ender dragon skull with "{_a} is an ender dragon skull (it should't be)"
-	assert {_a} is not an ender dragon skull named "Skulliest Skull" with "{_a} is an ender dragon skull named ""Skulliest Skull"" (it shouldn't be)"
+	assert {_a} is not a dragon head with "{_a} is a dragon head (it should't be)"
+	assert {_a} is not a dragon head named "Skulliest Skull" with "{_a} is a dragon head named ""Skulliest Skull"" (it shouldn't be)"
 
-	assert {_b} is an ender dragon skull with "{_b} is not an ender dragon skull (it should be)"
-	assert {_b} is not a plain ender dragon skull with "{_b} is an unnamed ender dragon skull (it shouldn't be)"
-	assert {_b} is an ender dragon skull named "Skully Skull" with "{_b} is not an ender dragon skull named ""Skully Skull"" (it should be)"
+	assert {_b} is a dragon head with "{_b} is not a dragon head (it should be)"
+	assert {_b} is not a plain dragon head with "{_b} is an unnamed dragon head (it shouldn't be)"
+	assert {_b} is a dragon head named "Skully Skull" with "{_b} is not a dragon head named ""Skully Skull"" (it should be)"
 
 	assert {_b} is not a skeleton skull with "{_b} is a skeleton skull (it shouldn't be)"
 	assert {_b} is not a skeleton skull named "Skully Skull" with "{_b} is a skeleton skull named ""Skully Skull"" (it shouldn't be)"
@@ -84,30 +84,30 @@ test "item comparisons":
 	assert {_a} is not {_b} with "{_a} is {_b} (it shouldn't be) (Skull Comparisons)"
 	assert {_b} is not {_a} with "{_b} is {_a} (it shouldn't be) (Skull Comparisons)"
 
-	# Player Skull Comparisons
+	# Player Head Comparisons
 
 	set {_p1} to "APickledWalrus" parsed as an offlineplayer
 	set {_p2} to "ShaneBee" parsed as an offlineplayer
 	set {_a} to skull of {_p1}
 	set {_b} to skull of {_p2}
 
-	assert {_a} is a player skull with "{_a} is not a player skull (it should be)"
+	assert {_a} is a player head with "{_a} is not a player head (it should be)"
 	assert {_a} is the skull of {_p1} with "{_a} is not the skull of {_p1} (it should be)"
 	assert {_a} is not the skull of {_p2} with "{_a} is the skull of {_p2} (it shouldn't be)"
 
-	assert {_b} is a player skull with "{_b} is not a player skull (it should be)"
+	assert {_b} is a player head with "{_b} is not a player head (it should be)"
 	assert {_b} is the skull of {_p2} with "{_b} is not the skull of {_p2} (it should be)"
 	assert {_b} is not the skull of {_p1} with "{_b} is the skull of {_p1} (it shouldn't be)"
 
-	assert {_a} is not {_b} with "{_a} is {_b} (it shouldn't be) (Player Skull Comparisons)"
-	assert {_b} is not {_a} with "{_b} is {_a} (it shouldn't be) (Player Skull Comparisons)"
+	assert {_a} is not {_b} with "{_a} is {_b} (it shouldn't be) (Player Head Comparisons)"
+	assert {_b} is not {_a} with "{_b} is {_a} (it shouldn't be) (Player Head Comparisons)"
 
 	# Remove / Remove All Tests
 
-	set block at spawn of world "world" to air
-	set block at spawn of world "world" to a chest
+	set test-block to air
+	set test-block to a chest
 
-	set {_inventory} to inventory of block at spawn of world "world"
+	set {_inventory} to inventory of test-block
 	add 64 diamonds and 64 diamonds named "Fake Diamond" to {_inventory}
 
 	remove 4 of plain diamonds from {_inventory}
@@ -123,7 +123,7 @@ test "item comparisons":
 	remove all diamonds from {_inventory}
 	assert {_inventory} is empty with "{_inventory} still has diamonds, but it shouldn't."
 
-	set block at spawn of world "world" to air
+	set block at test-location to air
 
 	# Different Meta Comparisons
 
@@ -133,24 +133,24 @@ test "item comparisons":
 	assert {_one} is {_two} with "a diamond sword of sharpness 1 named ""TEST"" should be a diamond sword of sharpness 1"
 	assert {_two} is not {_one} with "a diamond sword of sharpness 1 should NOT be a diamond sword of sharpness 1 named ""TEST"""
 
-	set {_three} to a sand block of unbreaking 3 with lore "Sandy Block"
-	set {_four} to a sand block of unbreaking 3
+	set {_three} to sand of unbreaking 3 with lore "Sandy Block"
+	set {_four} to sand of unbreaking 3
 
-	assert {_three} is {_four} with "a sand block of unbreaking 3 with lore ""Sandy Block"" should be a sand block of unbreaking 3"
-	assert {_four} is not {_three} with "a sand block of unbreaking 3 should NOT be a sand block of unbreaking 3 with lore ""Sandy Block"""
+	assert {_three} is {_four} with "sand of unbreaking 3 with lore ""Sandy Block"" should be sand of unbreaking 3"
+	assert {_four} is not {_three} with "sand of unbreaking 3 should NOT be sand of unbreaking 3 with lore ""Sandy Block"""
 
 	# Same material but different data values (1.12 and below) (see https://github.com/SkriptLang/Skript/issues/4643)
 
 
-	set block at spawn of world "world" to a chest
-	set {_inventory} to inventory of block at spawn of world "world"
+	set test-block to a chest
+	set {_inventory} to inventory of test-block
 	add 64 white wool and 64 red wool to {_inventory}
 
 	assert amount of white wool in {_inventory} is 64 with "Inventory doesn't have 64 white wool, but it should (amount found: %amount of white wool in {_inventory}%)"
 	assert amount of red wool in {_inventory} is 64 with "Inventory doesn't have 64 red wool, but it should (amount found: %amount of red wool in {_inventory}%)"
 
 	remove all items from {_inventory}
-	set block at spawn of world "world" to air
+	set test-block to air
 
 	# type comparisons (see https://github.com/SkriptLang/Skript/issues/5693)
 

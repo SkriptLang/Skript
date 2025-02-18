@@ -1,0 +1,14 @@
+test "villager profession expression":
+	spawn a librarian at event-location:
+		# Make sure he keeps his job
+		set villager level of entity to 2
+		set {_e} to entity
+
+	assert villager profession of {_e} = librarian profession with "The villager should have spawned as a librarian"
+	set villager profession of {_e} to nitwit profession
+	assert villager profession of {_e} = nitwit profession with "The villager should now be a nitwit"
+	delete villager profession of {_e}
+	assert villager profession of {_e} = no profession with "The villager should now have no profession"
+
+	# Thank you for your service
+	delete entity within {_e}

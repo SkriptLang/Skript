@@ -1,21 +1,3 @@
-/**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
 package ch.njol.skript.expressions;
 
 import ch.njol.skript.Skript;
@@ -28,6 +10,7 @@ import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
+import ch.njol.skript.registrations.Feature;
 import ch.njol.skript.util.LiteralUtils;
 import ch.njol.skript.util.Patterns;
 import ch.njol.util.Kleenean;
@@ -37,13 +20,16 @@ import com.google.common.collect.Iterators;
 import org.apache.commons.lang.ArrayUtils;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.util.SkriptQueue;
 
 import java.lang.reflect.Array;
 import java.util.Iterator;
+import java.util.concurrent.ThreadLocalRandom;
 
 @Name("Elements")
 @Description({
-		"The first, last, range or a random element of a set, e.g. a list variable.",
+		"The first, last, range or a random element of a set, e.g. a list variable, or a queue.",
+		"Asking for elements from a queue will also remove them from the queue, see the new queue expression for more information.",
 		"See also: <a href='#ExprRandom'>random expression</a>"
 })
 @Examples({
@@ -51,7 +37,9 @@ import java.util.Iterator;
 	"set {_last} to last element of {top players::*}",
 	"set {_random player} to random element out of all players",
 	"send 2nd last element of {top players::*} to player",
-	"set {page2::*} to elements from 11 to 20 of {top players::*}"
+	"set {page2::*} to elements from 11 to 20 of {top players::*}",
+	"broadcast the 1st element in {queue}",
+	"broadcast the first 3 elements in {queue}"
 })
 @Since("2.0, 2.7 (relative to last element), 2.8.0 (range of elements)")
 public class ExprElement<T> extends SimpleExpression<T> {
@@ -61,7 +49,13 @@ public class ExprElement<T> extends SimpleExpression<T> {
 		{"[the] (first|1:last) %integer% elements [out] of %objects%", new ElementType[] {ElementType.FIRST_X_ELEMENTS, ElementType.LAST_X_ELEMENTS}},
 		{"[a] random element [out] of %objects%", new ElementType[] {ElementType.RANDOM}},
 		{"[the] %integer%(st|nd|rd|th) [1:[to] last] element [out] of %objects%", new ElementType[] {ElementType.ORDINAL, ElementType.TAIL_END_ORDINAL}},
-		{"[the] elements (from|between) %integer% (to|and) %integer% [out] of %objects%", new ElementType[] {ElementType.RANGE}}
+		{"[the] elements (from|between) %integer% (to|and) %integer% [out] of %objects%", new ElementType[] {ElementType.RANGE}},
+
+		{"[the] (first|next|1:last) element (of|in) %queue%", new ElementType[] {ElementType.FIRST_ELEMENT, ElementType.LAST_ELEMENT}},
+		{"[the] (first|1:last) %integer% elements (of|in) %queue%", new ElementType[] {ElementType.FIRST_X_ELEMENTS, ElementType.LAST_X_ELEMENTS}},
+		{"[a] random element (of|in) %queue%", new ElementType[] {ElementType.RANDOM}},
+		{"[the] %integer%(st|nd|rd|th) [1:[to] last] element (of|in) %queue%", new ElementType[] {ElementType.ORDINAL, ElementType.TAIL_END_ORDINAL}},
+		{"[the] elements (from|between) %integer% (to|and) %integer% (of|in) %queue%", new ElementType[] {ElementType.RANGE}},
 	});
 
 	static {
@@ -83,33 +77,38 @@ public class ExprElement<T> extends SimpleExpression<T> {
 	private Expression<? extends T> expr;
 	private	@Nullable Expression<Integer> startIndex, endIndex;
 	private ElementType type;
+	private boolean queue;
 
 	@Override
 	@SuppressWarnings("unchecked")
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		ElementType[] types = PATTERNS.getInfo(matchedPattern);
-		expr = LiteralUtils.defendExpression(exprs[exprs.length - 1]);
+		this.queue = matchedPattern > 4;
+		if (queue && !this.getParser().hasExperiment(Feature.QUEUES))
+			return false;
+		if (queue) {
+			this.expr = (Expression<T>) exprs[exprs.length - 1];
+		} else {
+			this.expr = LiteralUtils.defendExpression(exprs[exprs.length - 1]);
+		}
 		switch (type = types[parseResult.mark]) {
 			case RANGE:
 				endIndex = (Expression<Integer>) exprs[1];
-				//$FALL-THROUGH$
-			case FIRST_X_ELEMENTS:
-			case LAST_X_ELEMENTS:
-			case ORDINAL:
-			case TAIL_END_ORDINAL:
+			case FIRST_X_ELEMENTS, LAST_X_ELEMENTS, ORDINAL, TAIL_END_ORDINAL:
 				startIndex = (Expression<Integer>) exprs[0];
 				break;
 			default:
 				startIndex = null;
 				break;
 		}
-		return LiteralUtils.canInitSafely(expr);
+		return queue || LiteralUtils.canInitSafely(expr);
 	}
 
 	@Override
-	@Nullable
 	@SuppressWarnings("unchecked")
-	protected T[] get(Event event) {
+	protected T @Nullable [] get(Event event) {
+		if (queue)
+			return this.getFromQueue(event);
 		Iterator<? extends T> iterator = expr.iterator(event);
 		if (iterator == null || !iterator.hasNext())
 			return null;
@@ -175,6 +174,40 @@ public class ExprElement<T> extends SimpleExpression<T> {
 		return elementArray;
 	}
 
+	@SuppressWarnings("unchecked")
+	private T @Nullable [] getFromQueue(Event event) {
+		SkriptQueue queue = (SkriptQueue) expr.getSingle(event);
+		if (queue == null)
+			return null;
+		Integer startIndex = 0, endIndex = 0;
+		if (this.startIndex != null) {
+			startIndex = this.startIndex.getSingle(event);
+			if (startIndex == null || startIndex <= 0 && type != ElementType.RANGE)
+				return null;
+		}
+		if (this.endIndex != null) {
+			endIndex = this.endIndex.getSingle(event);
+			if (endIndex == null)
+				return null;
+		}
+		return switch (type) {
+			case FIRST_ELEMENT -> CollectionUtils.array((T) queue.pollFirst());
+			case LAST_ELEMENT -> CollectionUtils.array((T) queue.pollLast());
+			case RANDOM -> CollectionUtils.array((T) queue.removeSafely(ThreadLocalRandom.current().nextInt(0, queue.size())));
+			case ORDINAL -> CollectionUtils.array((T) queue.removeSafely(startIndex - 1));
+			case TAIL_END_ORDINAL -> CollectionUtils.array((T) queue.removeSafely(queue.size() - startIndex));
+			case FIRST_X_ELEMENTS -> CollectionUtils.array((T[]) queue.removeRangeSafely(0, startIndex));
+			case LAST_X_ELEMENTS -> CollectionUtils.array((T[]) queue.removeRangeSafely(queue.size() - startIndex, queue.size()));
+			case RANGE -> {
+				boolean reverse = startIndex > endIndex;
+				T[] elements = CollectionUtils.array((T[]) queue.removeRangeSafely(Math.min(startIndex, endIndex) - 1, Math.max(startIndex, endIndex)));
+				if (reverse)
+					ArrayUtils.reverse(elements);
+				yield elements;
+			}
+		};
+	}
+
 	@Override
 	@Nullable
 	@SuppressWarnings("unchecked")
@@ -188,6 +221,7 @@ public class ExprElement<T> extends SimpleExpression<T> {
 		exprElement.startIndex = startIndex;
 		exprElement.endIndex = endIndex;
 		exprElement.type = type;
+		exprElement.queue = queue;
 		return exprElement;
 	}
 
@@ -198,6 +232,8 @@ public class ExprElement<T> extends SimpleExpression<T> {
 
 	@Override
 	public Class<? extends T> getReturnType() {
+		if (queue)
+			return (Class<? extends T>) Object.class;
 		return expr.getReturnType();
 	}
 

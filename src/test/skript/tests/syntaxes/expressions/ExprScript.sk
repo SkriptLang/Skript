@@ -1,0 +1,51 @@
+options:
+	path: (join ("..", "..", "..", "..", "..", "..", "src", "test", "skript", "tests", "syntaxes", "expressions" and "") by file_separator())
+	misc: (join ("..", "..", "..", "..", "..", "..", "src", "test", "skript", "tests", "misc" and "") by file_separator())
+	test: (join ("..", "..", "..", "..", "..", "..", "src", "test", "skript", "tests" and "") by file_separator())
+
+	# Princess test script is in another castle, Mario!
+	# paths are relativised to the "/scripts/" directory
+	# but we are loading these scripts from the test folder :(
+
+using script reflection
+
+test "current script":
+	assert the current script exists with "current script doesn't exist"
+	set {_expected} to {@path} + "ExprScript.sk"
+	assert "%script%" is {_expected} with "script stringify is wrong"
+
+test "script by name":
+	set {_script} to the script named {@path} + "ExprName.sk"
+	assert {_script} exists with "script not retrieved"
+	set {_script::*} to the scripts named ({@path} + "ExprName.sk" and {@path} + "ExprParse.sk")
+	assert size of {_script::*} is 2 with "wrong number of scripts found"
+
+test "all scripts":
+	set {_count} to 0
+	loop all loaded scripts:
+		assert "%loop-value%" starts with {@test} with "script from another place"
+		add 1 to {_count}
+	assert {_count} is greater than 1 with "not enough tests scripts found"
+	# This depends pretty heavily on the current test layout but it's just a parse trial more than anything
+
+test "scripts in directory":
+	set {_count} to 0
+	loop the scripts in folder {@misc}:
+		assert "%loop-value%" starts with {@misc} with "script from wrong directory: %loop-value%"
+		add 1 to {_count}
+	assert {_count} is greater than 5 with "not enough tests scripts found"
+	# This depends pretty heavily on the current test layout but it's just a parse trial more than anything
+
+test "disabled script object":
+	set {_path} to {@misc} + "-disabled.sk"
+	set {_script} to script named {_path}
+	assert {_script} exists with "can't get handle for disabled script"
+	set {EffScriptFile} to false
+	enable {_script}
+	assert {EffScriptFile} is true with "couldn't enable script from handle"
+
+	set {_path} to {@misc} + "disabled.sk"
+	set {_script} to script named {_path}
+	assert {_script} exists with "can't get handle for enabled script"
+	disable {_script}
+	delete {EffScriptFile}

@@ -1,0 +1,14 @@
+test "is entity ticking":
+
+	spawn an adult zombie at location(512, 1, 512):
+		add entity to {_z::*}
+
+	spawn an adult zombie at (spawn of world "world"):
+		add entity to {_z::*}
+
+	assert {_z::1} isn't ticking with "Chunk isn't loaded, therefore should not tick"
+
+	assert {_z::2} is ticking with "Chunk is loaded, therefore should tick"
+
+	delete entities within {_z::*}
+

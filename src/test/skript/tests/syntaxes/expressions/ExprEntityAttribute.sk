@@ -1,5 +1,5 @@
 test "attributes 1":
-	spawn cow at spawn of world "world":
+	spawn cow at test-location:
 		assert movement speed attribute of event-entity is set with "attribute get failed"
 		set movement speed attribute of event-entity to 3.14
 		assert movement speed attribute of event-entity is 3.14 with "attribute set failed"
@@ -15,7 +15,7 @@ test "attributes 1":
 
 test "attributes 2" when minecraft version is not "1.9.4":
 	# Test the Reset ChangeMode only on versions that have it
-	spawn cow at spawn of world "world":
+	spawn cow at test-location:
 		reset movement speed attribute of event-entity
 		assert movement speed attribute of event-entity is set with "attribute reset failed" # No need to compare with a fixed constant
 		delete event-entity

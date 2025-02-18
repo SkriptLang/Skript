@@ -1,0 +1,23 @@
+test "quaternions":
+	set {_a} to quaternion(1, 2, 3, 4)
+	assert w of {_a} is 1 with error "failed to get w component of quaternion"
+	assert x of {_a} is 2 with error "failed to get x component of quaternion"
+	assert y of {_a} is 3 with error "failed to get y component of quaternion"
+	assert z of {_a} is 4 with error "failed to get z component of quaternion"
+
+
+	set {_a} to quaternion(-1.2, 0.0, -infinity value, NaN value)
+	assert w of {_a} is -1.2 with error "failed to get w component of quaternion"
+	assert x of {_a} is 0 with error "failed to get x component of quaternion"
+	assert y of {_a} is -infinity value with error "failed to get y component of quaternion"
+	assert isNaN(z of {_a}) is true with error "failed to get z component of quaternion"
+
+test "axis angle":
+	set {_a} to axisAngle(100, vector(2, 3, 4))
+	assert w of {_a} is 0.642787516117096 with error "failed to get w component of axis angle"
+	assert x of {_a} is 1.5320889949798584 with error "failed to get x component of axis angle"
+	assert y of {_a} is 2.298133373260498 with error "failed to get y component of axis angle"
+	assert z of {_a} is 3.064177989959717 with error "failed to get z component of axis angle"
+
+	set {_a} to axisAngle(-1.2, vector(0.0, -infinity value, NaN value))
+	assert {_a} is not set with error "invalid axis angle was set"

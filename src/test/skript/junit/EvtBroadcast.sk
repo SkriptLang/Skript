@@ -1,0 +1,18 @@
+test "EvtBroadcastJUnit" when running JUnit:
+
+	set {_tests::1} to "set broadcasted message"
+	set {_tests::2} to "clear broadcasted message"
+
+	ensure junit test "org.skriptlang.skript.test.tests.syntaxes.events.EvtBroadcastTest" completes {_tests::*}
+
+on broadcast:
+	set {_test} to "org.skriptlang.skript.test.tests.syntaxes.events.EvtBroadcastTest"
+	junit test is {_test}
+
+	set broadcast message to "hello"
+	if broadcasted message is "hello":
+		complete objective "set broadcasted message" for {_test}
+
+	clear broadcast-message
+	if broadcasted message is "":
+		complete objective "clear broadcasted message" for {_test}

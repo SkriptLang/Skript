@@ -1,0 +1,50 @@
+using examples
+
+# This flag enables the experimental 'for each loops' feature within this file
+using for loops
+
+
+example: # A simple loop
+
+	# For-loops allow you to extract the loop value directly into a variable
+	for each {_player} in all players:
+		send "Hello!" to {_player}
+
+	# This is exactly the same as using a regular loop and loop-value
+	loop all players:
+		send "Hello!" to loop-value
+
+
+example: # Nested loops
+
+	# For loops are designed to help when nesting multiple loops
+	for each {_word} in {words::*}:
+		for each {_player} in all players:
+			send "The word is %{_word}%" to {_player}
+
+	# This is exactly the same as the following
+	loop {words::*}:
+		loop all players:
+			send "The word is %loop-value-1%" to loop-value-2
+
+
+example: # Keeping the last value
+
+	# Since the loop value is extracted to a variable,
+	# this is still available at the end of the loop
+	for {_player} in all players:
+		send "Hello!" to {_player}
+
+	# The final player to be looped is still in the variable
+	send "(You're my favourite)" to {_player}
+
+
+example: # Index and value
+
+	# For a list with keys, you can extract both the key and the value
+	for index {_number}, value {_value} in {my list::*}:
+		broadcast "%{_number}%. %{_value}%"
+
+	# You can also loop only the indices
+	for index {_key} in {my list::*}:
+		broadcast {_key}

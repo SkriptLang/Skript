@@ -1,21 +1,3 @@
-/**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
 package ch.njol.skript.lang;
 
 import ch.njol.skript.Skript;
@@ -111,6 +93,20 @@ public abstract class TriggerItem implements Debuggable {
 	}
 
 	/**
+	 * Returns whether this item stops the execution of the current trigger or section(s).
+	 * <br>
+	 * If present, and there are statement(s) after this one, the parser will print a warning
+	 * to the user.
+	 * <p>
+	 * <b>Note: This method is used purely to print warnings and doesn't affect parsing, execution or anything else.</b>
+	 *
+	 * @return whether this item stops the execution of the current trigger or section.
+	 */
+	public @Nullable ExecutionIntent executionIntent() {
+		return null;
+	}
+
+	/**
 	 * how much to indent each level
 	 */
 	private final static String INDENT = "  ";
@@ -164,6 +160,17 @@ public abstract class TriggerItem implements Debuggable {
 	}
 
 	public @Nullable TriggerItem getNext() {
+		return next;
+	}
+
+	/**
+	 * This method guarantees to return next {@link TriggerItem} after this item.
+	 * This is not always the case for {@link #getNext()}, for example, {@code getNext()}
+	 * of a {@link ch.njol.skript.sections.SecLoop loop section} usually returns itself.
+	 * 
+	 * @return The next {@link TriggerItem}.
+	 */
+	public @Nullable TriggerItem getActualNext() {
 		return next;
 	}
 

@@ -4,7 +4,7 @@ test "nearest entity does not allow duplicate entities":
 # server doesn't spawn the entities until the next tick, and we can't wait in the test system so... commented for now
 #test "nearest entity":
 #	delete all entities
-#	spawn a cow at spawn of world "world"
+#	spawn a cow at test-location
 #	set {_cow} to last spawned cow
 #	spawn a creeper 10 blocks to the left of {_cow}
 #	set {_close creeper} to last spawned creeper

@@ -1,0 +1,6 @@
+test "case equals function":
+	assert case_equals("") is true with "case equals function failed"
+	assert case_equals("dummy") is true with "case equals function failed"
+	assert case_equals("hi", "Hi") is false with "case equals function failed"
+	assert case_equals("text", "text", "tExt") is false with "case equals function failed"
+	assert case_equals("🐢<-turtle", "🐢<-turtle", "🐢<-turtle", "🐢<-turtle") is true with "case equals function failed"

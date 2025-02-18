@@ -1,0 +1,12 @@
+test "regex exceptions not handled":
+	parse:
+		set {_split::*} to regex split "test" at "\b{_name}\b"
+	assert last parse logs is "'\b{_name}\b' is not a valid regular expression" with "regex split did not error with invalid regex literal"
+
+	set {_pattern} to "\b{_name}\b"
+	set {_split::*} to regex split "test" at {_pattern}
+	assert {_split::*} is not set with "regex split returned a value with invalid regex expression"
+
+	assert regex split "apple,banana;cherry" at "[,;]" is "apple", "banana" and "cherry" with "regex split did not split correctly with literal"
+	set {_pattern} to "[,;]"
+	assert regex split "apple,banana;cherry" at {_pattern} is "apple", "banana" and "cherry" with "regex split did not split correctly with expression"

@@ -1,0 +1,112 @@
+options:
+	EvtBeaconTest: "org.skriptlang.skript.test.tests.syntaxes.events.EvtBeaconTest"
+
+on load:
+	set {_tests::1} to "beacon activated"
+	set {_tests::2} to "activated - got block"
+
+	set {_tests::3} to "beacon deactivated"
+	set {_tests::4} to "deactivated - got block"
+
+	set {_tests::5} to "beacon toggled"
+	set {_tests::6} to "toggled - got block"
+
+	set {_tests::7} to "beacon change effect"
+	set {_tests::8} to "change effect - got player"
+	set {_tests::9} to "change effect - got primary effect type"
+	set {_tests::10} to "change effect - got secondary effect type"
+	set {_tests::11} to "change effect - got block"
+
+	set {_tests::12} to "beacon effect"
+	set {_tests::13} to "beacon effect - primary"
+	set {_tests::14} to "effect - primary - got block"
+	set {_tests::15} to "effect - primary - got player"
+	set {_tests::16} to "effect - primary - got health boost effect"
+
+	set {_tests::17} to "beacon effect - secondary"
+	set {_tests::18} to "effect - secondary - got block"
+	set {_tests::19} to "effect - secondary - got player"
+	set {_tests::20} to "effect - secondary - got regeneration effect"
+
+	set {_tests::21} to "primary beacon effect"
+	set {_tests::22} to "primary effect - got block"
+	set {_tests::23} to "primary effect - got player"
+	set {_tests::24} to "primary effect - got health boost effect"
+
+	set {_tests::25} to "secondary beacon effect"
+	set {_tests::26} to "secondary effect - got block"
+	set {_tests::27} to "secondary effect - got player"
+	set {_tests::28} to "secondary effect - got regeneration effect"
+
+	ensure junit test {@EvtBeaconTest} completes {_tests::*}
+
+
+on beacon activate:
+	junit test is {@EvtBeaconTest}
+	complete objective "beacon activated" for junit test {@EvtBeaconTest}
+	if event-block is set:
+		complete objective "activated - got block" for junit test {@EvtBeaconTest}
+
+on beacon deactivate:
+	junit test is {@EvtBeaconTest}
+	complete objective "beacon deactivated" for junit test {@EvtBeaconTest}
+	if event-block is set:
+		complete objective "deactivated - got block" for junit test {@EvtBeaconTest}
+
+on beacon toggle:
+	junit test is {@EvtBeaconTest}
+	complete objective "beacon toggled" for junit test {@EvtBeaconTest}
+	if event-block is set:
+		complete objective "toggled - got block" for junit test {@EvtBeaconTest}
+
+on beacon change effect:
+	junit test is {@EvtBeaconTest}
+	complete objective "beacon change effect" for junit test {@EvtBeaconTest}
+	if event-player is set:
+		complete objective "change effect - got player" for junit test {@EvtBeaconTest}
+	if primary beacon effect is health boost:
+		complete objective "change effect - got primary effect type" for junit test {@EvtBeaconTest}
+	if secondary beacon effect is regeneration:
+		complete objective "change effect - got secondary effect type" for junit test {@EvtBeaconTest}
+	if event-block is set:
+		complete objective "change effect - got block" for junit test {@EvtBeaconTest}
+
+on beacon effect:
+	junit test is {@EvtBeaconTest}
+	complete objective "beacon effect" for junit test {@EvtBeaconTest}
+	if applied effect is the primary effect:
+		complete objective "beacon effect - primary" for junit test {@EvtBeaconTest}
+		if event-block is set:
+			complete objective "effect - primary - got block" for junit test {@EvtBeaconTest}
+		if event-player is set:
+			complete objective "effect - primary - got player" for junit test {@EvtBeaconTest}
+		if applied effect is health boost:
+			complete objective "effect - primary - got health boost effect" for junit test {@EvtBeaconTest}
+	else:
+		complete objective "beacon effect - secondary" for junit test {@EvtBeaconTest}
+		if event-block is set:
+			complete objective "effect - secondary - got block" for junit test {@EvtBeaconTest}
+		if event-player is set:
+			complete objective "effect - secondary - got player" for junit test {@EvtBeaconTest}
+		if applied effect is regeneration:
+			complete objective "effect - secondary - got regeneration effect" for junit test {@EvtBeaconTest}
+
+on primary beacon effect:
+	junit test is {@EvtBeaconTest}
+	complete objective "primary beacon effect" for junit test {@EvtBeaconTest}
+	if event-block is set:
+		complete objective "primary effect - got block" for junit test {@EvtBeaconTest}
+	if event-player is set:
+		complete objective "primary effect - got player" for junit test {@EvtBeaconTest}
+	if applied effect is health boost:
+		complete objective "primary effect - got health boost effect" for junit test {@EvtBeaconTest}
+
+on secondary beacon effect:
+	junit test is {@EvtBeaconTest}
+	complete objective "secondary beacon effect" for junit test {@EvtBeaconTest}
+	if event-block is set:
+		complete objective "secondary effect - got block" for junit test {@EvtBeaconTest}
+	if event-player is set:
+		complete objective "secondary effect - got player" for junit test {@EvtBeaconTest}
+	if applied effect is regeneration:
+		complete objective "secondary effect - got regeneration effect" for junit test {@EvtBeaconTest}

@@ -1,0 +1,30 @@
+test "loot table condition":
+	spawn a pig at test-location
+	set {_pig} to last spawned pig
+
+	assert {_pig} has loot table with "default has loot table failed"
+
+	set loot table of {_pig} to loot table "minecraft:entities/cow"
+	assert {_pig} has loot table with "simple has loot table failed"
+
+	set loot table of {_pig} to "bleh blah bluh" parsed as loot table
+	assert {_pig} has loot table with "pig doesn't have loot table after setting invalid loot table"
+
+	delete entity within {_pig}
+
+	set {_pastBlock} to block data of test-block
+
+	set test-block to chest
+
+	assert test-block doesn't have loot table with "has loot table without setting it"
+
+	set loot table of test-block to loot table "minecraft:chests/simple_dungeon"
+	assert test-block has loot table with "simple has loot table failed"
+
+	clear loot table of test-block
+	assert test-block doesn't have a loot table with "block still has loot table after clearing loot table"
+
+	set loot table of test-block to "bleh blah bluh" parsed as loot table
+	assert test-block doesn't have a loot table with "block still has loot table after setting invalid loot table"
+
+	set test-block to {_pastBlock}

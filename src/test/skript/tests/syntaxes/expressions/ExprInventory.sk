@@ -1,12 +1,12 @@
 test "item inventory":
-  set {_shulker} to any shulker box
-  assert inventory of {_shulker} is set with "Failed to get shulker inventory"
-  set slot 1 of inventory of {_shulker} to dirt
-  assert slot 1 of inventory of {_shulker} is dirt with "Failed to set slot in shulker inventory"
+	set {_shulker} to a shulker box
+	assert inventory of {_shulker} is set with "Failed to get shulker inventory"
+	set slot 1 of inventory of {_shulker} to dirt
+	assert slot 1 of inventory of {_shulker} is dirt with "Failed to set slot in shulker inventory"
 
-  set {_chest} to chest
-  assert inventory of {_chest} is set with "Failed to get chest inventory"
-  set slot 1 of inventory of {_chest} to dirt
-  assert slot 1 of inventory of {_chest} is dirt with "Failed to set slot in chest inventory"
+	set {_chest} to chest
+	assert inventory of {_chest} is set with "Failed to get chest inventory"
+	set slot 1 of inventory of {_chest} to dirt
+	assert slot 1 of inventory of {_chest} is dirt with "Failed to set slot in chest inventory"
 
-  assert inventory of dirt is not set with "Inventory was found for an item without an inventory"
+	assert inventory of dirt is not set with "Inventory was found for an item without an inventory"

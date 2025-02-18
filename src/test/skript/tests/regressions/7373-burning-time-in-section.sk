@@ -1,0 +1,5 @@
+test "7373 burning time section":
+	spawn a pig at event-location:
+		set burning time of event-entity to 9000 ticks
+		set {_e} to entity
+	delete entity within {_e}

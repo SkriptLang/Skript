@@ -1,0 +1,68 @@
+test "previous and next loop value":
+	loop 5 times:
+		if any:
+			{_last} is set
+			previous loop-number is set
+		then:
+			assert {_last} = previous loop-number with "previous loop number does not match"
+		if {_next} is set:
+			assert loop-number = {_next} with "current loop number does not match the expected next loop number"
+		set {_last} to loop-number
+		set {_next} to next loop-number
+
+	clear {_last}
+	clear {_next}
+
+	set {_list::iron} to iron ingot
+	set {_list::gold} to gold ingot
+	set {_list::diamond} to diamond
+	set {_list::emerald} to emerald
+	set {_list::netherite} to netherite ingot
+	loop {_list::*}:
+		if any:
+			{_last} is set
+			previous loop-value is set
+		then:
+			assert {_last} = previous loop-value with "previous loop value does not match"
+		if {_next} is set:
+			assert loop-value = {_next} with "current loop value does not match the expected next loop value"
+		set {_last} to loop-value
+		set {_next} to next loop-value
+
+	clear {_last}
+	clear {_next}
+
+	loop {_list::*}:
+		if any:
+			{_last} is set
+			previous loop-index is set
+		then:
+			assert {_last} = previous loop-index with "previous loop index does not match"
+		if {_next} is set:
+			assert loop-index = {_next} with "current loop index does not match the expected next loop index"
+		set {_last} to loop-index
+		set {_next} to next loop-index
+
+	clear {_list::*}
+
+	set {_count} to 0
+	loop {_list::*}:
+		set {_count} to loop-iteration
+	assert {_count} = 0 with "Looping nothing should not be more than 0"
+
+	add diamond to {_list::*}
+	loop {_list::*}:
+		assert previous loop-value is not set with "Looping one object should not have a previous loop-value"
+		assert next loop-value is not set with "Looping one object should not have a next loop-value"
+		assert loop-value is a diamond with "Current loop-value should be a diamond"
+
+test "loop peeking":
+	parse:
+		loop test loop peeking disabled:
+			set {_next} to next loop-value
+	assert last parse logs contains "The expression 'test loop peeking' does not allow the usage of 'next loop-value'." with "Disabled loop peeking did not error."
+
+	parse:
+		loop test loop peeking enabled:
+			set {_next} to next loop-value
+	assert last parse logs does not contain "The expression 'test loop peeking' does not allow the usage of 'next loop-value'." with "Enabled loop peeking should not error."

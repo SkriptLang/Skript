@@ -1,0 +1,54 @@
+test "furnace slot":
+	# init
+	set test-block to furnace
+	set {_furnace} to test-block
+
+	# ore slot test
+	set ore slot of {_furnace} to 32 iron ores
+	assert ore slot of {_furnace} is 32 iron ores with "expected ore slot to have '32 iron ores', but it had '%ore slot of {_furnace}%'"
+	assert fuel slot of {_furnace} is air with "expected fuel slot to have nothing, but it had '%fuel slot of {_furnace}%'"
+	assert result slot of {_furnace} is air with "expected result slot to have nothing, but it had '%result slot of {_furnace}%'"
+	clear ore slot of {_furnace}
+	assert ore slot of {_furnace} is air with "expected ore slot to have nothing, but it had '%ore slot of {_furnace}%'"
+
+	# fuel slot test
+	set fuel slot of {_furnace} to lava bucket
+	assert fuel slot of {_furnace} is lava bucket with "expected fuel slot to have 'lava bucket', but it had '%fuel slot of {_furnace}%'"
+	assert ore slot of {_furnace} is air with "expected ore slot to have nothing, but it had '%ore slot of {_furnace}%'"
+	assert result slot of {_furnace} is air with "expected result slot to have nothing, but it had '%result slot of {_furnace}%'"
+	clear fuel slot of {_furnace}
+	assert fuel slot of {_furnace} is air with "expected fuel slot to have nothing, but it had '%fuel slot of {_furnace}%'"
+
+	# ore slot test
+	set result slot of {_furnace} to 32 iron ingots
+	assert result slot of {_furnace} is 32 iron ingots with "expected result slot to have '32 iron ingots', but it had '%result slot of {_furnace}%'"
+	assert ore slot of {_furnace} is air with "expected ore slot to have nothing, but it had '%ore slot of {_furnace}%'"
+	assert fuel slot of {_furnace} is air with "expected fuel slot to have nothing, but it had '%fuel slot of {_furnace}%'"
+	clear result slot of {_furnace}
+	assert result slot of {_furnace} is air with "expected result slot to have nothing, but it had '%result slot of {_furnace}%'"
+
+	# cleanup
+	set test-block to air
+
+test "furnace expressions":
+	set {_loc} to location(0, 0, 0, world)
+	set block at {_loc} to furnace
+	set block at location(0, 0, 0, world) to furnace
+	set {_furnace} to block at location(0, 0, 0, world)
+
+	set the cook time of {_furnace} to 10 seconds
+	assert the cook time of {_furnace} is 10 seconds with "Set furnace cook time to 10"
+	clear the cook time of {_furnace}
+	assert the cook time of {_furnace} is 0 seconds with "Clear furnace cook time"
+
+	set the total cook time of {_furnace} to 20 seconds
+	assert the total cook time of {_furnace} is 20 seconds with "Set furnace total cook time to 20"
+	clear the total cook time of {_furnace}
+	assert the total cook time of {_furnace} is 0 seconds with "Clear furnace total cook time"
+
+	set the fuel burn time of {_furnace} to 50 seconds
+	assert the fuel burn time of {_furnace} is 50 seconds with "Set furnace fuel burn time to 50"
+	clear the fuel burn time of {_furnace}
+	assert the fuel burn time of {_furnace} is 0 seconds with "Clear furnace fuel burn time"
+
+	set block at location(0, 0, 0, world) to air

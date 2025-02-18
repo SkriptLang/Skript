@@ -1,34 +1,4 @@
-/**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
 package ch.njol.skript.expressions;
-
-import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Player;
-import org.bukkit.event.Event;
-import org.bukkit.event.player.PlayerBucketEmptyEvent;
-import org.bukkit.event.player.PlayerBucketEvent;
-import org.bukkit.event.player.PlayerBucketFillEvent;
-import org.bukkit.event.player.PlayerItemHeldEvent;
-import org.bukkit.inventory.EntityEquipment;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.PlayerInventory;
-import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
@@ -41,11 +11,20 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.registrations.Classes;
-import ch.njol.skript.util.Getter;
 import ch.njol.skript.util.slot.EquipmentSlot;
 import ch.njol.skript.util.slot.InventorySlot;
 import ch.njol.skript.util.slot.Slot;
 import ch.njol.util.Kleenean;
+import org.bukkit.entity.LivingEntity;
+import org.bukkit.event.Event;
+import org.bukkit.event.player.PlayerBucketEmptyEvent;
+import org.bukkit.event.player.PlayerBucketEvent;
+import org.bukkit.event.player.PlayerBucketFillEvent;
+import org.bukkit.event.player.PlayerItemHeldEvent;
+import org.bukkit.inventory.EntityEquipment;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.PlayerInventory;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * @author Peter Güttinger
@@ -75,51 +54,49 @@ public class ExprTool extends PropertyExpression<LivingEntity, Slot> {
 	}
 
 	@Override
-	protected Slot[] get(final Event e, final LivingEntity[] source) {
-		final boolean delayed = Delay.isDelayed(e);
-		return get(source, new Getter<Slot, LivingEntity>() {
-			@Override
-			@Nullable
-			public Slot get(final LivingEntity ent) {
-				if (!delayed) {
-					if (!offHand && e instanceof PlayerItemHeldEvent && ((PlayerItemHeldEvent) e).getPlayer() == ent) {
-						final PlayerInventory i = ((PlayerItemHeldEvent) e).getPlayer().getInventory();
-						return new InventorySlot(i, getTime() >= 0 ? ((PlayerItemHeldEvent) e).getNewSlot() : ((PlayerItemHeldEvent) e).getPreviousSlot());
-					} else if (e instanceof PlayerBucketEvent && ((PlayerBucketEvent) e).getPlayer() == ent) {
-						final PlayerInventory i = ((PlayerBucketEvent) e).getPlayer().getInventory();
-						boolean isOffHand = ((PlayerBucketEvent) e).getHand() == org.bukkit.inventory.EquipmentSlot.OFF_HAND || offHand;
-						return new InventorySlot(i, isOffHand ? EquipmentSlot.EquipSlot.OFF_HAND.slotNumber
-							: ((PlayerBucketEvent) e).getPlayer().getInventory().getHeldItemSlot()) {
-							@Override
-							@Nullable
-							public ItemStack getItem() {
-								return getTime() <= 0 ? super.getItem() : ((PlayerBucketEvent) e).getItemStack();
-							}
+	protected Slot[] get(Event event, LivingEntity[] source) {
+		final boolean delayed = Delay.isDelayed(event);
+		return get(source, entity -> {
+			if (!delayed) {
+				if (!offHand && event instanceof PlayerItemHeldEvent playerItemHeldEvent
+					&& playerItemHeldEvent.getPlayer() == entity) {
+					final PlayerInventory i = playerItemHeldEvent.getPlayer().getInventory();
+					return new InventorySlot(i, getTime() >= 0 ? playerItemHeldEvent.getNewSlot() : playerItemHeldEvent.getPreviousSlot());
+				} else if (event instanceof PlayerBucketEvent playerBucketEvent
+					&& playerBucketEvent.getPlayer() == entity) {
+					final PlayerInventory i = playerBucketEvent.getPlayer().getInventory();
+					boolean isOffHand = playerBucketEvent.getHand() == org.bukkit.inventory.EquipmentSlot.OFF_HAND || offHand;
+					return new InventorySlot(i, isOffHand ? EquipmentSlot.EquipSlot.OFF_HAND.slotNumber
+						: playerBucketEvent.getPlayer().getInventory().getHeldItemSlot()) {
+						@Override
+						public ItemStack getItem() {
+							return getTime() <= 0 ? super.getItem() : playerBucketEvent.getItemStack();
+						}
 
-							@Override
-							public void setItem(final @Nullable ItemStack item) {
-								if (getTime() >= 0) {
-									((PlayerBucketEvent) e).setItemStack(item);
-								} else {
-									super.setItem(item);
-								}
+						@Override
+						public void setItem(final @Nullable ItemStack item) {
+							if (getTime() >= 0) {
+								playerBucketEvent.setItemStack(item);
+							} else {
+								super.setItem(item);
 							}
-						};
-					}
+						}
+					};
 				}
-				final EntityEquipment eq = ent.getEquipment();
-				if (eq == null)
-					return null;
-				return new EquipmentSlot(eq, offHand ? EquipmentSlot.EquipSlot.OFF_HAND : EquipmentSlot.EquipSlot.TOOL) {
-					@Override
-					public String toString(@Nullable Event event, boolean debug) {
-						String time = getTime() == 1 ? "future " : getTime() == -1 ? "former " : "";
-						String hand = offHand ? "off hand" : "";
-						String item = Classes.toString(getItem());
-						return String.format("%s %s tool of %s", time, hand, item);
-					}
-				};
 			}
+
+			EntityEquipment equipment = entity.getEquipment();
+			if (equipment == null)
+				return null;
+			return new EquipmentSlot(equipment, offHand ? EquipmentSlot.EquipSlot.OFF_HAND : EquipmentSlot.EquipSlot.TOOL) {
+				@Override
+				public String toString(@Nullable Event event, boolean debug) {
+					String time = getTime() == 1 ? "future " : getTime() == -1 ? "former " : "";
+					String hand = offHand ? "off hand" : "";
+					String item = Classes.toString(getItem());
+					return String.format("%s %s tool of %s", time, hand, item);
+				}
+			};
 		});
 	}
 

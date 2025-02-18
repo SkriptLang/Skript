@@ -1,4 +1,4 @@
-test "custom model data expressions/condition" when running minecraft "1.15.2":
+test "custom model data expressions/condition":
 	set {_item} to a diamond sword with custom model data 456
 	assert {_item} has custom model data with "{_item} does not have custom model data"
 	if {_item} has custom model data:

@@ -1,0 +1,38 @@
+test "new banner pattern":
+	set {_pattern} to a creeper banner pattern colored red
+	# Will fail due to the "banner pattern" item alias in skript-aliases
+	# assert {_pattern} is a banner pattern with "New banner pattern is not a banner pattern type"
+	set {_item} to a white banner
+	add {_pattern} to the banner patterns of {_item}
+	assert the banner patterns of {_item} contains {_pattern} with "Banner pattern not applied to item"
+	remove {_pattern} from the banner patterns of {_item}
+	assert the banner patterns of {_item} does not contain {_pattern} with "Banner pattern was not removed from item"
+	set the 1st banner pattern of {_item} to {_pattern}
+	assert the 1st banner pattern of {_item} is {_pattern} with "Banner pattern not applied to 1st banner pattern of item"
+	clear the 1st banner pattern of {_item}
+	assert the 1st banner pattern of {_item} is not set with "1st banner pattern of item was not cleared"
+
+	set {_old} to block at test-location
+	set block at test-location to a red banner
+	assert the block at test-location is a red banner with "Banner block was not set"
+	add {_pattern} to the banner patterns of (block at test-location)
+	assert the banner patterns of (block at test-location) contains {_pattern} with "Banner pattern not applied to block"
+	remove {_pattern} from the banner patterns of (block at test-location)
+	assert the banner patterns of (block at test-location) does not contain {_pattern} with "Banner pattern was not removed from block"
+	set the 1st banner pattern of (block at test-location) to {_pattern}
+	assert the 1st banner pattern of (block at test-location) is {_pattern} with "Banner pattern not applied to 1st banner pattern of block"
+	clear the 1st banner pattern of (block at test-location)
+	assert the 1st banner pattern of (block at test-location) is not set with "1st banner pattern of block was not cleared"
+	set block at test-location to {_old}
+
+test "invalid banner usage":
+	set {_pattern} to a border banner pattern colored gray
+	set {_item} to a diamond chestplate
+	set the banner patterns of {_item} to {_pattern}
+	assert the banner patterns of {_item} is not set with "Non-Banner item should not have banner patterns"
+
+	set the block at test-location to air
+	set the banner patterns of block at test-location to {_pattern}
+	assert the banner patterns of block at test-location is not set with "Non-Banner block should not have banner patterns"
+
+	assert a creeper banner pattern colored rgb(255, 0, 0) is not set with "RGB colors should not return a banner pattern"

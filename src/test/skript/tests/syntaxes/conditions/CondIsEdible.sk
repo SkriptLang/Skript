@@ -3,4 +3,4 @@ test "edible condition":
 	assert dirt isn't edible with "dirt is edible"
 	assert diamond isn't edible with "diamond is edible"
 	assert golden apple is edible with "golden apple isn't edible"
-	assert steak is edible with "steak isn't edible"
+	assert cooked beef is edible with "cooked beef isn't edible"

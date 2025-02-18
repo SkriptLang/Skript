@@ -4,16 +4,25 @@ test "continue effect":
 			continue
 		assert loop-value is not 5 with "continue in loop failed"
 	set {_i} to 0
+
 	while {_i} is smaller than 10:
 		increase {_i} by 1
 		if {_i} is equal to 5:
 			continue
 		assert {_i} is not 5 with "continue in while failed"
+
 	loop integers from 1 to 10:
 		continue this loop if loop-value is 5
-		assert loop-value is not 5 with "leveled continue failed"
+		assert loop-value is not 5 with "leveled continue failed #1"
 		loop integers from 11 to 20:
 			continue 2nd loop if loop-value-2 is 15
-			assert loop-value-2 is not 15 with "leveled continue failed"
+			assert loop-value-2 is not 15 with "leveled continue failed #2"
 			continue 1st loop if loop-value-1 is 10
-		assert loop-value is not 10 with "leveled continue failed"
+		assert loop-value is not 10 with "leveled continue failed #3"
+
+	set {_ran} to false
+	loop 10 times:
+		loop 10 times:
+			continue
+		set {_ran} to true
+	assert {_ran} is true with "continue in nested loop continued outermost loop"

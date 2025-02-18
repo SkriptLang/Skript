@@ -11,7 +11,7 @@ test "whitelist":
 	reset whitelist
 	assert whitelist is not set with "Failed to empty whitelist"
 
-test "enforce whitelist" when running minecraft "1.17":
+test "enforce whitelist":
 	enforce whitelist
 	assert server whitelist is enforced with "Failed to enforce server whitelist"
 	unenforce whitelist

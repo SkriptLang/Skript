@@ -1,6 +1,4 @@
 test "book pages":
-	set {_i} to book with text
-	assert {_i}'s book pages is not set with "non-existent book pages failed"
 	set {_i} to a written book
 	assert {_i}'s book pages is not set with "non-existent book pages failed 2"
 	set pages of {_i} to "&aPages testing" and "test 2"

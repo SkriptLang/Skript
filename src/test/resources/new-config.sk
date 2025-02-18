@@ -1,0 +1,29 @@
+# Comment a
+a:
+	b: # Comment b
+		c: true # Comment c
+		d: false
+		e: true
+	f: true
+	# Comment f
+	# Comment f'
+
+	g: true
+
+	# Comment g
+
+# Comment a
+
+h:
+	c: true
+	d: false
+
+# Comment h
+i: false
+j: true # value differs from old config
+k: true # Comment k
+
+l: true
+
+x.z:
+	y: true

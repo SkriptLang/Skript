@@ -1,0 +1,22 @@
+test "is conditional":
+
+	set {_l} to location(0,0,0,world)
+	set {_original} to blockdata of block at {_l}
+	set block at {_l} to command block
+	set {_b} to block at {_l}
+
+	assert {_b} is not conditional with "a new command block shouldn't be conditional"
+
+	make command block {_b} conditional
+	assert {_b} is conditional with "making a command block conditional should do exactly that"
+
+	make command block {_b} unconditional
+	assert {_b} is unconditional with "making a command block unconditional should do exactly that"
+
+	set block at {_b} to stone
+	assert {_b} is not conditional with "a non-command block should not be conditional"
+
+	make command block {_b} conditional
+	assert {_b} is not conditional with "making a non-command block conditional shouldn't do anything"
+
+	set block at {_l} to {_original}

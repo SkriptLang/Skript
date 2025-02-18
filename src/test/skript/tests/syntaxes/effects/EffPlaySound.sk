@@ -1,0 +1,3 @@
+test "play sound effect":
+	play sound "block.stone.break" with volume 1 at spawn of world "world"
+	play sound "BLOCK_STONE_BREAK" with volume 1 at spawn of world "world"

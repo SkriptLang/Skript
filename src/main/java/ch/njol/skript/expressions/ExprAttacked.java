@@ -1,25 +1,9 @@
-/**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
 package ch.njol.skript.expressions;
 
 import java.lang.reflect.Array;
 
+import ch.njol.skript.lang.EventRestrictedSyntax;
+import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.entity.Entity;
 import org.bukkit.event.Event;
 import org.bukkit.event.entity.EntityDamageEvent;
@@ -54,7 +38,7 @@ import ch.njol.util.Kleenean;
 	"\tdamage the attacked by 1 heart"})
 @Since("1.3, 2.6.1 (projectile hit event)")
 @Events({"damage", "death", "projectile hit"})
-public class ExprAttacked extends SimpleExpression<Entity> {
+public class ExprAttacked extends SimpleExpression<Entity> implements EventRestrictedSyntax {
 
 	private static final boolean SUPPORT_PROJECTILE_HIT = Skript.methodExists(ProjectileHitEvent.class, "getHitEntity");
 
@@ -67,11 +51,6 @@ public class ExprAttacked extends SimpleExpression<Entity> {
 
 	@Override
 	public boolean init(Expression<?>[] vars, int matchedPattern, Kleenean isDelayed, ParseResult parser) {
-		if (!getParser().isCurrentEvent(EntityDamageEvent.class, EntityDeathEvent.class, VehicleDamageEvent.class, VehicleDestroyEvent.class, ProjectileHitEvent.class)
-			|| !SUPPORT_PROJECTILE_HIT && getParser().isCurrentEvent(ProjectileHitEvent.class)) {
-			Skript.error("The expression 'victim' can only be used in a damage" + (SUPPORT_PROJECTILE_HIT ? ", death, or projectile hit" : " or death") + " event");
-			return false;
-		}
 		String type = parser.regexes.size() == 0 ? null : parser.regexes.get(0).group();
 		if (type == null) {
 			this.type = EntityData.fromClass(Entity.class);
@@ -84,6 +63,12 @@ public class ExprAttacked extends SimpleExpression<Entity> {
 			this.type = t;
 		}
 		return true;
+	}
+
+	@Override
+	public Class<? extends Event>[] supportedEvents() {
+		return CollectionUtils.array(EntityDamageEvent.class, EntityDeathEvent.class,
+			VehicleDamageEvent.class, VehicleDestroyEvent.class, ProjectileHitEvent.class);
 	}
 
 	@Override

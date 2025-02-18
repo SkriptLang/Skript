@@ -1,21 +1,3 @@
-/**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
 package ch.njol.skript.hooks.regions.events;
 
 import ch.njol.skript.Skript;
@@ -27,7 +9,6 @@ import ch.njol.skript.lang.SkriptEvent;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.Trigger;
 import ch.njol.skript.registrations.EventValues;
-import ch.njol.skript.util.Getter;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
@@ -60,18 +41,8 @@ public class EvtRegionBorder extends SkriptEvent {
 					"\tmessage \"Leaving %region%.\""
 				).since("2.1")
 				.requiredPlugins("Supported regions plugin");
-		EventValues.registerEventValue(RegionBorderEvent.class, Region.class, new Getter<Region, RegionBorderEvent>() {
-			@Override
-			public Region get(RegionBorderEvent e) {
-				return e.getRegion();
-			}
-		}, EventValues.TIME_NOW);
-		EventValues.registerEventValue(RegionBorderEvent.class, Player.class, new Getter<Player, RegionBorderEvent>() {
-			@Override
-			public Player get(RegionBorderEvent e) {
-				return e.getPlayer();
-			}
-		}, EventValues.TIME_NOW);
+		EventValues.registerEventValue(RegionBorderEvent.class, Region.class, RegionBorderEvent::getRegion);
+		EventValues.registerEventValue(RegionBorderEvent.class, Player.class, RegionBorderEvent::getPlayer);
 	}
 
 	// Even WorldGuard doesn't have events, and this way all region plugins are supported for sure.

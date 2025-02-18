@@ -1,7 +1,7 @@
-test "glowing sign blocks" when running minecraft "1.17.1":
+test "glowing sign blocks":
 	set {_loc} to spawn of "world"
 	set {_original block} to type of block at {_loc}
-	set block at {_loc} to sign
+	set block at {_loc} to oak wall sign
 	assert block at {_loc} doesn't have glowing text with "Sign had glowing text erroneously (1)"
 	make block at {_loc} have glowing text
 	assert block at {_loc} has glowing text with "Sign had normal text erroneously"
@@ -9,8 +9,8 @@ test "glowing sign blocks" when running minecraft "1.17.1":
 	assert block at {_loc} doesn't have glowing text with "Sign had glowing text erroneously (2)"
 	set block at {_loc} to {_original block}
 
-test "glowing sign items" when running minecraft "1.17.1":
-	set {_sign} to floor sign
+test "glowing sign items":
+	set {_sign} to oak sign
 	assert {_sign} doesn't have glowing text with "Sign had glowing text erroneously (1)"
 	make {_sign} have glowing text
 	assert {_sign} has glowing text with "Sign had normal text erroneously"

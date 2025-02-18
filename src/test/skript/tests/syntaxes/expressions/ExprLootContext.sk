@@ -1,0 +1,43 @@
+test "loot context":
+
+	set {_context} to a loot context at test-location
+	assert loot location of {_context} is test-location with "loot context location failed"
+
+	spawn a pig at test-location
+	set {_pig} to last spawned pig
+
+	set {_context} to a loot context at test-location:
+		assert loot context is set with "loot context not set"
+		set looted entity to {_pig}
+		set loot luck value to 10
+		set loot location to location(1,1,1, world "world")
+		assert loot location is location(1,1,1, world "world") with "loot context location set failed"
+
+	assert looted entity of {_context} is {_pig} with "loot context entity failed"
+	assert loot luck value of {_context} is 10 with "simple loot context luck value failed"
+
+	delete entity within {_pig}
+
+	set {_context} to a loot context at test-location:
+		set loot luck value to -1
+	assert the loot luck of {_context} is -1 with "negative loot luck set failed"
+
+	set {_context} to a loot context at test-location:
+		set loot luck value to 2
+	assert the loot luck of {_context} is 2 with "existing loot luck set failed"
+
+	set {_context} to a loot context at test-location:
+		set loot luck value to 3.3
+	assert the loot luck of {_context} is 3.3 with "decimal loot luck set failed"
+
+	set {_context} to a loot context at test-location:
+		set loot luck value to 3.999
+	assert the loot luck of {_context} is 3.999 with "close decimal loot luck set failed"
+
+	set {_context} to a loot context at test-location:
+		set loot luck value to -3.3
+	assert the loot luck of {_context} is -3.3 with "negative decimal loot luck set failed"
+
+	set {_context} to a loot context at test-location:
+		set loot luck value to -3.999
+	assert the loot luck of {_context} is -3.999 with "negative close decimal loot luck set failed"

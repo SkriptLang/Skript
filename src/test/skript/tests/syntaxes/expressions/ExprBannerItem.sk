@@ -1,0 +1,7 @@
+test "banner item":
+	set {_pattern} to a creeper banner pattern item
+	assert {_pattern} is set with "Creeper banner pattern should return an item"
+
+	parse:
+		set {_invalid} to a base banner pattern item
+	assert {_invalid} is not set with "Base banner pattern type should not get an item (unless updated)"

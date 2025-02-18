@@ -1,5 +1,5 @@
 test "total experience":
-	spawn 10 xp at spawn of world "world":
+	spawn 10 xp at test-location:
 		assert experience of entity is 10 with "spawned orb should have 10 experience in section"
 		set experience of entity to 100
 		assert experience of entity is 100 with "set experience of entity did not work"
