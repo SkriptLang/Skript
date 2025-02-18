@@ -143,12 +143,12 @@ public class EffSecStructurePlace extends EffectSection {
 
 	static {
 		if (Skript.classExists("org.bukkit.structure.Structure"))
-			Skript.registerSection(EffSecStructurePlace.class, "place %structure% at %locations% [entities:without entities]");
+			Skript.registerSection(EffSecStructurePlace.class, "place %structure% at %locations% [entities:without entities] [air:excluding air]");
 	}
 
 	private Expression<Structure> structure;
 	private Expression<Location> locations;
-	private boolean entities;
+	private boolean entities, excludeAir;
 
 	@Nullable
 	private Trigger trigger;
@@ -159,6 +159,7 @@ public class EffSecStructurePlace extends EffectSection {
 		structure = (Expression<Structure>) exprs[0];
 		locations = (Expression<Location>) exprs[1];
 		entities = !parseResult.hasTag("entities"); // Negated
+		excludeAir = !parseResult.hasTag("air"); // Negated
 
 		if (sectionNode != null) {
 			AtomicBoolean delayed = new AtomicBoolean(false);
@@ -191,7 +192,7 @@ public class EffSecStructurePlace extends EffectSection {
 
 		Collection<EntityTransformer> entityTransforms = new ArrayList<>();
 		Collection<BlockTransformer> blockTransforms = new ArrayList<>();
-		if (details.excludesAir()) {
+		if (details.excludesAir() || excludeAir) {
 			blockTransforms.add((region, x, y, z, current, state) -> {
 				if (current.getType().isAir())
 					return state.getWorld();
