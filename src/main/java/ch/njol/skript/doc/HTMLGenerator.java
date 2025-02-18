@@ -45,8 +45,8 @@ import java.util.stream.Collectors;
  */
 public class HTMLGenerator extends DocumentationGenerator {
 
-	private static final String SKRIPT_VERSION = Skript.getVersion().toString().replaceAll("-(dev|alpha|beta)\\d*", ""); // Filter branches
-	private static final Pattern NEW_TAG_PATTERN = Pattern.compile(SKRIPT_VERSION + "(?!\\.)"); // (?!\\.) to avoid matching 2.6 in 2.6.1 etc.
+	private static final String SKRIPT_VERSION = Skript.getVersion().toString().replaceAll("-(dev|alpha|beta|pre)\\d*", "").replace(".0", ""); // Filter branches
+	private static final Pattern NEW_TAG_PATTERN = Pattern.compile(SKRIPT_VERSION + "(?!\\.[1-9])"); // (?!\\.) to avoid matching 2.6 in 2.6.1 etc.
 	private static final Pattern RETURN_TYPE_LINK_PATTERN = Pattern.compile("( ?href=\"(classes\\.html|)#|)\\$\\{element\\.return-type-linkcheck}");
 
 	private final String skeleton;
@@ -384,15 +384,7 @@ public class HTMLGenerator extends DocumentationGenerator {
 
 			i += Character.charCount(c);
 		}
-		return replaceBr(sb.toString());
-	}
-
-	/**
-	 * Replaces specifically `<br/>` with `\n` - This is useful in code blocks where you can't use newlines due to the
-	 * minifyHtml method (execute after minifyHtml)
-	 */
-	private static String replaceBr(String page) {
-		return page.replaceAll("<br/>", "\n");
+		return sb.toString();
 	}
 
 	private static String handleIf(String desc, String start, boolean value) {
@@ -434,7 +426,7 @@ public class HTMLGenerator extends DocumentationGenerator {
 
 		// Since
 		Since since = c.getAnnotation(Since.class);
-		desc = desc.replace("${element.since}", getDefaultIfNullOrEmpty((since != null ? since.value() : null), "Unknown"));
+		desc = desc.replace("${element.since}", Joiner.on("<br/>").join(getDefaultIfNullOrEmpty((since != null ? since.value() : null), "Unknown")));
 
 		Keywords keywords = c.getAnnotation(Keywords.class);
 		desc = desc.replace("${element.keywords}", keywords == null ? "" : Joiner.on(", ").join(keywords.value()));
@@ -488,7 +480,13 @@ public class HTMLGenerator extends DocumentationGenerator {
 		desc = handleIf(desc, "${if by-addon}", false);
 
 		// New Elements
-		desc = handleIf(desc, "${if new-element}", NEW_TAG_PATTERN.matcher((since != null ? since.value() : "")).find());
+		if (since != null) {
+			String[] value = since.value();
+			String s = value[value.length - 1];
+			desc = handleIf(desc, "${if new-element}", NEW_TAG_PATTERN.matcher(s).find());
+		} else {
+			desc = handleIf(desc, "${if new-element}", false);
+		}
 
 		// Structure - EntryData
 		if (info instanceof StructureInfo) {

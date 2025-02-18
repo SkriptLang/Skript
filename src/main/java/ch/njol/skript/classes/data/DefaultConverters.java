@@ -206,9 +206,11 @@ public class DefaultConverters {
 				@Override
 				public void setName(String name) {
 					BlockState state = block.getState();
-					if (state instanceof Nameable nameable)
+					if (state instanceof Nameable nameable) {
 						//noinspection deprecation
 						nameable.setCustomName(name);
+						state.update(true, false);
+					}
 				}
 			},
 			//</editor-fold>

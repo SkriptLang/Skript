@@ -21,8 +21,8 @@ import org.jetbrains.annotations.Nullable;
 })
 @Examples({
 	"on fishing line cast:",
-		"\tset min waiting time to 10 seconds",
-		"\tset max waiting time to 20 seconds",
+		"\tset min fish waiting time to 10 seconds",
+		"\tset max fishing waiting time to 20 seconds",
 })
 @Events("Fishing")
 @Since("2.10")

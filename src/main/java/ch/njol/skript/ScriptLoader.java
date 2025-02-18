@@ -9,11 +9,11 @@ import ch.njol.skript.lang.Section;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.lang.Statement;
 import ch.njol.skript.lang.TriggerItem;
-import ch.njol.skript.lang.TriggerSection;
-import ch.njol.skript.lang.function.EffFunctionCall;
 import ch.njol.skript.lang.parser.ParserInstance;
-import ch.njol.skript.log.*;
-import ch.njol.skript.sections.SecLoop;
+import ch.njol.skript.log.CountingLogHandler;
+import ch.njol.skript.log.LogEntry;
+import ch.njol.skript.log.RetainingLogHandler;
+import ch.njol.skript.log.SkriptLogger;
 import ch.njol.skript.structures.StructOptions.OptionsData;
 import ch.njol.skript.test.runner.TestMode;
 import ch.njol.skript.util.ExceptionUtils;
@@ -21,12 +21,10 @@ import ch.njol.skript.util.SkriptColor;
 import ch.njol.skript.util.Task;
 import ch.njol.skript.util.Timespan;
 import ch.njol.skript.variables.TypeHints;
-import ch.njol.util.Kleenean;
 import ch.njol.util.NonNullPair;
 import ch.njol.util.OpenCloseable;
 import ch.njol.util.StringUtils;
 import org.bukkit.Bukkit;
-import org.bukkit.event.Event;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.script.Script;
@@ -41,11 +39,7 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.Callable;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -607,6 +601,8 @@ public class ScriptLoader {
 
 					openCloseable.close();
 				}
+			}).exceptionally(t -> {
+				throw Skript.exception(t);
 			});
 	}
 
@@ -1000,7 +996,7 @@ public class ScriptLoader {
 					RetainingLogHandler backup = handler.backup();
 					handler.clear();
 
-					item = Statement.parse(expr, "Can't understand this effect: " + expr, (SectionNode) subNode, items);
+					item = Statement.parse(expr, "Can't understand this condition/effect: " + expr, (SectionNode) subNode, items);
 
 					if (item != null)
 						break find_section;
@@ -1018,7 +1014,6 @@ public class ScriptLoader {
 					continue;
 				} finally {
 					handler.printLog();
-					handler.close();
 				}
 
 				if (Skript.debug() || subNode.debug())
@@ -1192,11 +1187,24 @@ public class ScriptLoader {
 
 	/**
 	 * Gets a script's file from its name, if one exists.
+	 *
 	 * @param script The script name/path
 	 * @return The script file, if one is found
 	 */
 	@Nullable
 	public static File getScriptFromName(String script) {
+		return getScriptFromName(script, Skript.getInstance().getScriptsFolder());
+	}
+
+	/**
+	 * Gets a script's file from its name and directory, if one exists.
+	 *
+	 * @param script The script name/path
+	 * @param directory The scripts (or testing scripts) directory
+	 * @return The script file, if one is found
+	 */
+	@Nullable
+	public static File getScriptFromName(String script, File directory) {
 		if (script.endsWith("/") || script.endsWith("\\")) { // Always allow '/' and '\' regardless of OS
 			script = script.replace('/', File.separatorChar).replace('\\', File.separatorChar);
 		} else if (!StringUtils.endsWithIgnoreCase(script, ".sk")) {
@@ -1209,8 +1217,7 @@ public class ScriptLoader {
 		if (script.startsWith(ScriptLoader.DISABLED_SCRIPT_PREFIX))
 			script = script.substring(ScriptLoader.DISABLED_SCRIPT_PREFIX_LENGTH);
 
-		File scriptsFolder = Skript.getInstance().getScriptsFolder();
-		File scriptFile = new File(scriptsFolder, script);
+		File scriptFile = new File(directory, script);
 		if (!scriptFile.exists()) {
 			scriptFile = new File(scriptFile.getParentFile(), ScriptLoader.DISABLED_SCRIPT_PREFIX + scriptFile.getName());
 			if (!scriptFile.exists()) {
@@ -1220,7 +1227,7 @@ public class ScriptLoader {
 		try {
 			// Unless it's a test, check if the user is asking for a script in the scripts folder
 			// and not something outside Skript's domain.
-			if (TestMode.ENABLED || scriptFile.getCanonicalPath().startsWith(scriptsFolder.getCanonicalPath() + File.separator))
+			if (TestMode.ENABLED || scriptFile.getCanonicalPath().startsWith(directory.getCanonicalPath() + File.separator))
 				return scriptFile.getCanonicalFile();
 			return null;
 		} catch (IOException e) {
