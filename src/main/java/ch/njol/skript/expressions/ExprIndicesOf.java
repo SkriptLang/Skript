@@ -19,10 +19,7 @@ import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
 
 import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Name("Indices Of")
 @Description({
@@ -74,12 +71,12 @@ public class ExprIndicesOf extends SimpleExpression<Object> {
 
 	static {
 		Skript.registerExpression(ExprIndicesOf.class, Object.class, ExpressionType.COMBINED,
-			"[the] [first|1:last|2:all] (position[s]|indices|index[es]) of [[the] value] %string% in %string%",
-			"[the] [first|1:last|2:all] position[s] of [[the] value] %object% in %~objects%",
-			"[the] [first|1:last|2:all] (indices|index[es]) of [[the] value] %object% in %~objects%"
+			"[the] [1:first|2:last|3:all] (position[mult:s]|mult:indices|index[mult:es]) of [[the] value] %string% in %string%",
+			"[the] [1:first|2:last|3:all] position[mult:s] of [[the] value] %object% in %~objects%",
+			"[the] [1:first|2:last|3:all] (mult:indices|index[mult:es]) of [[the] value] %object% in %~objects%"
 		);
 	}
-	
+
 	private IndexType indexType;
 	private boolean position, string;
 	private Expression<?> value, objects;
@@ -98,7 +95,10 @@ public class ExprIndicesOf extends SimpleExpression<Object> {
 			return false;
 		}
 
-		indexType = IndexType.values()[parseResult.mark];
+		indexType = IndexType.values()[parseResult.mark == 0 ? 0 : parseResult.mark - 1];
+		if (parseResult.mark == 0 && parseResult.hasTag("mult"))
+			indexType = IndexType.ALL;
+
 		position = matchedPattern <= 1;
 		string = matchedPattern == 0;
 		value = LiteralUtils.defendExpression(exprs[0]);
@@ -106,7 +106,7 @@ public class ExprIndicesOf extends SimpleExpression<Object> {
 
 		return LiteralUtils.canInitSafely(value);
 	}
-	
+
 	@Override
 	protected Object @Nullable [] get(Event event) {
 		Object value = this.value.getSingle(event);
@@ -145,7 +145,9 @@ public class ExprIndicesOf extends SimpleExpression<Object> {
 		if (indexType == IndexType.LAST)
 			position = haystack.lastIndexOf(needle);
 
-		return new Long[]{(position == -1 ? -1 : position + 1)};
+		if (position == -1)
+			return new Long[0];
+		return new Long[]{position + 1};
 	}
 
 	private Long[] getListPositions(Expression<?> list, Object value, Event event) {
@@ -171,7 +173,7 @@ public class ExprIndicesOf extends SimpleExpression<Object> {
 		if (indexType == IndexType.LAST)
 			return new Long[]{positions.get(positions.size() - 1)};
 
-		return positions.toArray(new Long[0]);
+		return positions.toArray(Long[]::new);
 	}
 
 	private String[] getVariableIndices(Variable<?> variable, Object value, Event event) {
@@ -203,14 +205,14 @@ public class ExprIndicesOf extends SimpleExpression<Object> {
 		if (indexType == IndexType.LAST)
 			return new String[]{indices.get(indices.size() - 1)};
 
-		return indices.toArray(new String[0]);
+		return indices.toArray(String[]::new);
 	}
-	
+
 	@Override
 	public boolean isSingle() {
 		return indexType == IndexType.FIRST || indexType == IndexType.LAST;
 	}
-	
+
 	@Override
 	public Class<?> getReturnType() {
 		if (position)
@@ -222,7 +224,7 @@ public class ExprIndicesOf extends SimpleExpression<Object> {
 	public String toString(@Nullable Event event, boolean debug) {
 		SyntaxStringBuilder builder = new SyntaxStringBuilder(event, debug);
 
-		builder.append(indexType.name().toLowerCase());
+		builder.append(indexType.name().toLowerCase(Locale.ENGLISH));
 		if (position) {
 			builder.append("positions");
 		} else {
@@ -236,5 +238,5 @@ public class ExprIndicesOf extends SimpleExpression<Object> {
 	private enum IndexType {
 		FIRST, LAST, ALL
 	}
-	
+
 }
