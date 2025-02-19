@@ -47,7 +47,7 @@ public class ExprQueue extends SimpleExpression<SkriptQueue> {
 
 	static {
 		Skript.registerExpression(ExprQueue.class, SkriptQueue.class, ExpressionType.COMBINED,
-			"[a] new queue [(of|with) %-objects%]");
+			"[a] [new] queue [(of|with) %-objects%]");
 	}
 
 	private @Nullable Expression<?> contents;
@@ -88,8 +88,8 @@ public class ExprQueue extends SimpleExpression<SkriptQueue> {
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
 		if (contents == null)
-			return "a new queue";
-		return "a new queue of " + contents.toString(event, debug);
+			return "a queue";
+		return "a queue of " + contents.toString(event, debug);
 	}
 
 }

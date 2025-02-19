@@ -19,6 +19,7 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.plugin.messaging.Messenger;
 import org.bukkit.plugin.messaging.PluginMessageListener;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -29,6 +30,8 @@ import java.lang.reflect.Method;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Predicate;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
@@ -94,7 +97,8 @@ public abstract class Utils {
 		plurals.add(new WordEnding("", "s"));
 	}
 
-	private Utils() {}
+	private Utils() {
+	}
 
 	public static String join(final Object[] objects) {
 		assert objects != null;
@@ -186,10 +190,11 @@ public abstract class Utils {
 	 * Loads classes of the plugin by package. Useful for registering many syntax elements like Skript does it.
 	 *
 	 * @param basePackage The base package to add to all sub packages, e.g. <tt>"ch.njol.skript"</tt>.
-	 * @param subPackages Which subpackages of the base package should be loaded, e.g. <tt>"expressions", "conditions", "effects"</tt>. Subpackages of these packages will be loaded
-	 *            as well. Use an empty array to load all subpackages of the base package.
-	 * @throws IOException If some error occurred attempting to read the plugin's jar file.
+	 * @param subPackages Which subpackages of the base package should be loaded, e.g. <tt>"expressions",
+	 *                       "conditions", "effects"</tt>. Subpackages of these packages will be loaded
+	 *                    as well. Use an empty array to load all subpackages of the base package.
 	 * @return This SkriptAddon
+	 * @throws IOException If some error occurred attempting to read the plugin's jar file.
 	 * @deprecated Use {@link org.skriptlang.skript.util.ClassLoader}.
 	 */
 	@Deprecated
@@ -212,7 +217,8 @@ public abstract class Utils {
 	}
 
 	/**
-	 * The first invocation of this method uses reflection to invoke the protected method {@link JavaPlugin#getFile()} to get the plugin's jar file.
+	 * The first invocation of this method uses reflection to invoke the protected method {@link JavaPlugin#getFile()}
+	 * to get the plugin's jar file.
 	 *
 	 * @return The jar file of the plugin.
 	 */
@@ -288,7 +294,7 @@ public abstract class Utils {
 	 * This will only match the word <s>exactly</s>, and will not apply to derivations of the word.
 	 *
 	 * @param singular The singular form of the word
-	 * @param plural The plural form of the word
+	 * @param plural   The plural form of the word
 	 */
 	public static void addPluralOverride(String singular, String plural) {
 		Utils.plurals.addFirst(new WordEnding(singular, plural, true));
@@ -355,7 +361,7 @@ public abstract class Utils {
 	/**
 	 * Adds 'a' or 'an' to the given string, depending on the first character of the string.
 	 *
-	 * @param s The string to add the article to
+	 * @param s    The string to add the article to
 	 * @param capA Whether to use a capital a or not
 	 * @return The given string with an appended a/an (or A/An if capA is true) and a space at the beginning
 	 * @see #a(String)
@@ -433,12 +439,12 @@ public abstract class Utils {
 
 	/**
 	 * Sends a plugin message using the first player from {@link Bukkit#getOnlinePlayers()}.
-	 *
+	 * <p>
 	 * The next plugin message to be received through {@code channel} will be assumed to be
 	 * the response.
 	 *
 	 * @param channel the channel for this plugin message
-	 * @param data the data to add to the outgoing message
+	 * @param data    the data to add to the outgoing message
 	 * @return a completable future for the message of the responding plugin message, if there is one.
 	 * this completable future will complete exceptionally if no players are online.
 	 */
@@ -448,26 +454,27 @@ public abstract class Utils {
 
 	/**
 	 * Sends a plugin message using the from {@code player}.
-	 *
+	 * <p>
 	 * The next plugin message to be received through {@code channel} will be assumed to be
 	 * the response.
 	 *
-	 * @param player the player to send the plugin message through
+	 * @param player  the player to send the plugin message through
 	 * @param channel the channel for this plugin message
-	 * @param data the data to add to the outgoing message
+	 * @param data    the data to add to the outgoing message
 	 * @return a completable future for the message of the responding plugin message, if there is one.
 	 * this completable future will complete exceptionally if no players are online.
 	 */
-	public static CompletableFuture<ByteArrayDataInput> sendPluginMessage(Player player, String channel, String... data) {
+	public static CompletableFuture<ByteArrayDataInput> sendPluginMessage(Player player, String channel,
+																		  String... data) {
 		return sendPluginMessage(player, channel, r -> true, data);
 	}
 
 	/**
 	 * Sends a plugin message using the first player from {@link Bukkit#getOnlinePlayers()}.
 	 *
-	 * @param channel the channel for this plugin message
+	 * @param channel         the channel for this plugin message
 	 * @param messageVerifier verifies that a plugin message is the response to the sent message
-	 * @param data the data to add to the outgoing message
+	 * @param data            the data to add to the outgoing message
 	 * @return a completable future for the message of the responding plugin message, if there is one.
 	 * this completable future will complete exceptionally if the player is null.
 	 * @throws IllegalStateException when there are no players online
@@ -484,21 +491,21 @@ public abstract class Utils {
 
 	/**
 	 * Sends a plugin message.
-	 *
+	 * <p>
 	 * Example usage using the "GetServers" bungee plugin message channel via an overload:
 	 * <code>
-	 *     Utils.sendPluginMessage("BungeeCord", r -> "GetServers".equals(r.readUTF()), "GetServers")
-	 *     			.thenAccept(response -> Bukkit.broadcastMessage(response.readUTF()) // comma delimited server broadcast
-	 *     			.exceptionally(ex -> {
-	 *     			 	Skript.warning("Failed to get servers because there are no players online");
-	 *     			 	return null;
-	 *                });
+	 * Utils.sendPluginMessage("BungeeCord", r -> "GetServers".equals(r.readUTF()), "GetServers")
+	 * .thenAccept(response -> Bukkit.broadcastMessage(response.readUTF()) // comma delimited server broadcast
+	 * .exceptionally(ex -> {
+	 * Skript.warning("Failed to get servers because there are no players online");
+	 * return null;
+	 * });
 	 * </code>
 	 *
-	 * @param player the player to send the plugin message through
-	 * @param channel the channel for this plugin message
+	 * @param player          the player to send the plugin message through
+	 * @param channel         the channel for this plugin message
 	 * @param messageVerifier verifies that a plugin message is the response to the sent message
-	 * @param data the data to add to the outgoing message
+	 * @param data            the data to add to the outgoing message
 	 * @return a completable future for the message of the responding plugin message, if there is one.
 	 * this completable future will complete exceptionally if the player is null.
 	 */
@@ -523,7 +530,8 @@ public abstract class Utils {
 
 		messenger.registerIncomingPluginChannel(skript, channel, listener);
 
-		completableFuture.whenComplete((r, ex) -> messenger.unregisterIncomingPluginChannel(skript, channel, listener));
+		completableFuture.whenComplete((r, ex) -> messenger.unregisterIncomingPluginChannel(skript, channel,
+			listener));
 
 		// if we haven't gotten a response after a minute, let's just assume there wil never be one
 		Bukkit.getScheduler().scheduleSyncDelayedTask(skript, () -> {
@@ -540,7 +548,8 @@ public abstract class Utils {
 		return completableFuture;
 	}
 
-	final static ChatColor[] styles = {ChatColor.BOLD, ChatColor.ITALIC, ChatColor.STRIKETHROUGH, ChatColor.UNDERLINE, ChatColor.MAGIC, ChatColor.RESET};
+	final static ChatColor[] styles = {ChatColor.BOLD, ChatColor.ITALIC, ChatColor.STRIKETHROUGH, ChatColor.UNDERLINE,
+		ChatColor.MAGIC, ChatColor.RESET};
 	final static Map<String, String> chat = new HashMap<>();
 	final static Map<String, String> englishChat = new HashMap<>();
 
@@ -581,7 +590,8 @@ public abstract class Utils {
 	}
 
 	/**
-	 * Replaces english &lt;chat styles&gt; in the message. This is used for messages in the language file as the language of colour codes is not well defined while the language is
+	 * Replaces english &lt;chat styles&gt; in the message. This is used for messages in the language file as the
+	 * language of colour codes is not well defined while the language is
 	 * changing, and for some hardcoded messages.
 	 *
 	 * @param message
@@ -632,6 +642,7 @@ public abstract class Utils {
 
 	/**
 	 * Tries to extract a Unicode character from the given string.
+	 *
 	 * @param string The string.
 	 * @return The Unicode character, or null if it could not be parsed.
 	 */
@@ -651,6 +662,7 @@ public abstract class Utils {
 
 	/**
 	 * Tries to get a {@link ChatColor} from the given string.
+	 *
 	 * @param string The string code to parse.
 	 * @return The ChatColor, or null if it couldn't be parsed.
 	 */
@@ -700,14 +712,15 @@ public abstract class Utils {
 	 * Note that if the "best guess" is <i>not</i> a real supertype, it can never be selected.
 	 *
 	 * @param bestGuess The fallback class to guess
-	 * @param classes The types to check
+	 * @param classes   The types to check
+	 * @param <Found>   The highest common denominator found
+	 * @param <Type>    The input type spread
 	 * @return The most appropriate common class of all provided
-	 * @param <Found> The highest common denominator found
-	 * @param <Type> The input type spread
 	 */
 	@SafeVarargs
 	@SuppressWarnings("unchecked")
-	public static <Found, Type extends Found> Class<Found> highestDenominator(Class<? super Found> bestGuess, @NotNull Class<? extends Type> @NotNull ... classes) {
+	public static <Found, Type extends Found> Class<Found> highestDenominator(Class<? super Found> bestGuess,
+																			  @NotNull Class<? extends Type> @NotNull ... classes) {
 		assert classes.length > 0;
 		Class<?> chosen = classes[0];
 		outer:
@@ -739,7 +752,8 @@ public abstract class Utils {
 	}
 
 	/**
-	 * Parses a number that was validated to be an integer but might still result in a {@link NumberFormatException} when parsed with {@link Integer#parseInt(String)} due to
+	 * Parses a number that was validated to be an integer but might still result in a {@link NumberFormatException}
+	 * when parsed with {@link Integer#parseInt(String)} due to
 	 * overflow.
 	 * This method will return {@link Integer#MIN_VALUE} or {@link Integer#MAX_VALUE} respectively if that happens.
 	 *
@@ -756,7 +770,8 @@ public abstract class Utils {
 	}
 
 	/**
-	 * Parses a number that was validated to be an integer but might still result in a {@link NumberFormatException} when parsed with {@link Long#parseLong(String)} due to
+	 * Parses a number that was validated to be an integer but might still result in a {@link NumberFormatException}
+	 * when parsed with {@link Long#parseLong(String)} due to
 	 * overflow.
 	 * This method will return {@link Long#MIN_VALUE} or {@link Long#MAX_VALUE} respectively if that happens.
 	 *
@@ -775,6 +790,7 @@ public abstract class Utils {
 	/**
 	 * Gets class for name. Throws RuntimeException instead of checked one.
 	 * Use this only when absolutely necessary.
+	 *
 	 * @param name Class name.
 	 * @return The class.
 	 */
@@ -791,7 +807,7 @@ public abstract class Utils {
 	/**
 	 * Finds the index of the last in a {@link List} that matches the given {@link Predicate}.
 	 *
-	 * @param list the {@link List} to search.
+	 * @param list    the {@link List} to search.
 	 * @param checker the {@link Predicate} to match elements against.
 	 * @return the index of the element found, or -1 if no matching element was found.
 	 */
@@ -838,6 +854,53 @@ public abstract class Utils {
 			return Objects.hash(singular, plural);
 		}
 
+	}
+
+	/**
+	 * Prints a warning about the loading/use of a class that has been deprecated or removed.
+	 * This is a fairly-unsafe method and should only be used during class-loading.
+	 *
+	 * @param source The class about which to print the warning. This MUST be the class calling this method.
+	 * @return 0 (for use by interfaces)
+	 */
+	@ApiStatus.Internal
+	public static int loadedRemovedClassWarning(Class<?> source) {
+		Logger logger = Skript.getInstance().getLogger();
+		Exception exception = new Exception();
+		exception.fillInStackTrace();
+		StackTraceElement[] stackTrace = exception.getStackTrace();
+		StackTraceElement caller = stackTrace[2];
+		String authors, name;
+		try {
+			Class<?> callingClass = Class.forName(caller.getClassName());
+			JavaPlugin plugin = JavaPlugin.getProvidingPlugin(callingClass);
+			name = plugin.getDescription().getFullName();
+			authors = String.valueOf(plugin.getDescription().getAuthors());
+		} catch (ClassNotFoundException | IllegalArgumentException | ClassCastException error) {
+			name = caller.getClassLoaderName();
+			authors = "(unknown)";
+		}
+		logger.log(Level.SEVERE,
+			String.format("""
+						
+						
+						WARNING!
+						
+						An addon attempted to load a deprecated/outdated/removed '%s' class.
+						
+						The plugin '%s' tried to use a class that has been deprecated/removed in this version of Skript.
+						Please make sure you are using the latest supported version of the addon.
+						
+						If there are no supported versions, you should contact the author(s): %s, and ask them to update it.
+						
+						(This addon may not work correctly on this version of Skript.)
+						
+						""",
+				source.getSimpleName(),
+				name,
+				authors)
+		);
+		return 0;
 	}
 
 }

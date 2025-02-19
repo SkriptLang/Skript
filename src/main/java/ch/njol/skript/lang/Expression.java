@@ -308,13 +308,18 @@ public interface Expression<T> extends SyntaxElement, Debuggable, Loopable<T> {
 	 * changing the expression. For example, {@code set vector length of {_v} to 1}, rather than
 	 * {@code set {_v} to vector(0,1,0)}.
 	 * <br>
-	 * This is a 1 to 1 transformation and should not add or remove elements.
-	 * For {@link Variable}s, this will retain indices. For non-{@link Variable}s, it will
-	 * evaluate {@link #getArray(Event)}, apply the change function on each, and call
-	 * {@link #change(Event, Object[], ChangeMode)} with the modified values and {@link ChangeMode#SET}.
+	 * This is a 1 to 1 transformation and should not add elements.
+	 * Returning null will remove the element.
+	 * Returning a type not accepted by {@link #acceptChange(ChangeMode)} for {@link ChangeMode#SET}
+	 * will depend on the implementer. The default implementation will remove the element.
+	 * <br>
+	 * This expression must support {@link ChangeMode#SET} for this method to work.
 	 *
 	 * @param event The event to use for local variables and evaluation
 	 * @param changeFunction A 1-to-1 function that transforms a single input to a single output.
+	 *                       Returning null will remove the element.
+	 *                       Returning a type not accepted by {@link #acceptChange(ChangeMode)} for {@link ChangeMode#SET}
+	 *                       will depend on the implementer. The default implementation will remove the element.
 	 * @param <R> The output type of the change function. Must be a type returned
 	 *              by {{@link #acceptChange(ChangeMode)}} for {@link ChangeMode#SET}.
 	 */
@@ -329,13 +334,18 @@ public interface Expression<T> extends SyntaxElement, Debuggable, Loopable<T> {
 	 * changing the expression. For example, {@code set vector length of {_v} to 1}, rather than
 	 * {@code set {_v} to vector(0,1,0)}.
 	 * <br>
-	 * This is a 1 to 1 transformation and should not add or remove elements.
-	 * For {@link Variable}s, this will retain indices. For non-{@link Variable}s, it will
-	 * evaluate the expression, apply the change function on each value, and call
-	 * {@link #change(Event, Object[], ChangeMode)} with the modified values and {@link ChangeMode#SET}.
+	 * This is a 1 to 1 transformation and should not add elements.
+	 * Returning null will remove the element.
+	 * Returning a type not accepted by {@link #acceptChange(ChangeMode)} for {@link ChangeMode#SET}
+	 * will depend on the implementer. The default implementation will remove the element.
+	 * <br>
+	 * This expression must support {@link ChangeMode#SET} for this method to work.
 	 *
 	 * @param event The event to use for local variables and evaluation
 	 * @param changeFunction A 1-to-1 function that transforms a single input to a single output.
+	 *                       Returning null will remove the element.
+	 *                       Returning a type not accepted by {@link #acceptChange(ChangeMode)} for {@link ChangeMode#SET}
+	 *                       will depend on the implementer. The default implementation will remove the element.
 	 * @param getAll Whether to evaluate with {@link #getAll(Event)} or {@link #getArray(Event)}.
 	 * @param <R> The output type of the change function. Must be a type returned
 	 *              by {{@link #acceptChange(ChangeMode)}} for {@link ChangeMode#SET}.
@@ -345,9 +355,17 @@ public interface Expression<T> extends SyntaxElement, Debuggable, Loopable<T> {
 		T[] values = getAll ? getAll(event) : getArray(event);
 		if (values.length == 0)
 			return;
+
+		@SuppressWarnings("DataFlowIssue")
+		Class<?>[] validClasses = Arrays.stream(acceptChange(ChangeMode.SET))
+				.map(c -> c.isArray() ? c.getComponentType() : c)
+				.toArray(Class<?>[]::new);
+
 		List<R> newValues = new ArrayList<>();
 		for (T value : values) {
-			newValues.add(changeFunction.apply(value));
+			R newValue = changeFunction.apply(value);
+			if (newValue != null && ChangerUtils.acceptsChangeTypes(validClasses, newValue.getClass()))
+				newValues.add(newValue);
 		}
 		change(event, newValues.toArray(), ChangeMode.SET);
 	}

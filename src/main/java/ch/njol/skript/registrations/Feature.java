@@ -11,6 +11,7 @@ import org.skriptlang.skript.lang.experiment.LifeCycle;
  * Experimental feature toggles as provided by Skript itself.
  */
 public enum Feature implements Experiment {
+	EXAMPLES("examples", LifeCycle.STABLE),
 	QUEUES("queues", LifeCycle.EXPERIMENTAL),
 	FOR_EACH_LOOPS("for loop", LifeCycle.EXPERIMENTAL, "for [each] loop[s]"),
 	SCRIPT_REFLECTION("reflection", LifeCycle.EXPERIMENTAL, "[script] reflection"),
