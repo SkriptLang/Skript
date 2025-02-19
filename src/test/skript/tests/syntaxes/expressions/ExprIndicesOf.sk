@@ -42,5 +42,5 @@ test "index of":
     set {_position} to position of "abc" in "nothing"
     assert {_position} is not set with "position of string is set"
 
-	set {_position} to all positions of "nothing" in "abc"
+	set {_position::*} to all positions of "nothing" in "abc"
 	assert {_position::*} is not set with "all positions of string is set"
