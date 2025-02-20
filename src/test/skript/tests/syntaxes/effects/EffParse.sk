@@ -1,0 +1,32 @@
+test "parse effect":
+	# test single value
+	set {_value} to "5"
+	parse {_value} as int
+	assert {_value} = 5 with "couldn't parse a single value"
+
+	set {_value} to "a"
+	parse {_value} as int
+	assert {_value} isn't set with "failed parse didn't delete the value"
+
+	# test lists
+	set {_values::*} to "1", "2a", "3"
+    parse {_values::*} as int
+    assert {_values::1} = 1 with "couldn't parse a list - 1"
+    assert {_values::2} isn't set with "couldn't parse a list - 2"
+    assert {_values::3} = 3 with "couldn't parse a list - 3"
+
+	# test multiple expressions
+	set {_a} to "3"
+	set {_b} to "hello"
+	set {_c} to "5"
+	parse {_a}, {_b} and {_c} as int
+    assert {_a} = 3 with "couldn't parse multiple expressions - 1"
+    assert {_b} isn't set with "couldn't parse multiple expressions - 2"
+    assert {_c} = 5 with "couldn't parse multiple expressions - 3"
+
+    # test if lists keep their indices
+    set {_a::a} to "3"
+    set {_a::b} to "5"
+    parse {_a::*} as integer
+    assert {_a::a} = 3 with "lists didn't keep their indices - 1"
+    assert {_a::b} = 5 with "lists didn't keep their indices - 2"
