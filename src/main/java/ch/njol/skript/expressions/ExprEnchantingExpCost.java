@@ -1,16 +1,8 @@
 package ch.njol.skript.expressions;
 
-import org.bukkit.event.Event;
-import org.bukkit.event.enchantment.EnchantItemEvent;
-import org.jetbrains.annotations.Nullable;
-
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer.ChangeMode;
-import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Events;
-import ch.njol.skript.doc.Examples;
-import ch.njol.skript.doc.Name;
-import ch.njol.skript.doc.Since;
+import ch.njol.skript.doc.*;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
@@ -19,13 +11,16 @@ import ch.njol.skript.log.ErrorQuality;
 import ch.njol.skript.util.Experience;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
+import org.bukkit.event.Event;
+import org.bukkit.event.enchantment.EnchantItemEvent;
+import org.jetbrains.annotations.Nullable;
 
 @Name("Enchanting Experience Cost")
 @Description({"The cost of enchanting in an enchant event.", 
 				"This is number that was displayed in the enchantment table, not the actual number of levels removed."})
 @Examples({"on enchant:",
 			"\tsend \"Cost: %the displayed enchanting cost%\" to player"})
-@Events("enchant")
+@Events("Enchant")
 @Since("2.5")
 public class ExprEnchantingExpCost extends SimpleExpression<Long> {
 

@@ -37,7 +37,7 @@ import java.util.UUID;
 })
 @Since("2.3")
 @RequiredPlugins("Paper 1.12.2 or newer")
-@Events("server list ping")
+@Events("Server List Ping")
 public class ExprHoverList extends SimpleExpression<String> {
 
 	static {

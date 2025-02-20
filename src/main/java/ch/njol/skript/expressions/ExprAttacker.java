@@ -1,6 +1,14 @@
 package ch.njol.skript.expressions;
 
+import ch.njol.skript.Skript;
+import ch.njol.skript.doc.*;
 import ch.njol.skript.lang.EventRestrictedSyntax;
+import ch.njol.skript.lang.Expression;
+import ch.njol.skript.lang.ExpressionType;
+import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.skript.lang.util.SimpleExpression;
+import ch.njol.skript.registrations.Classes;
+import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Projectile;
@@ -11,20 +19,6 @@ import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.vehicle.VehicleDamageEvent;
 import org.bukkit.event.vehicle.VehicleDestroyEvent;
 import org.jetbrains.annotations.Nullable;
-
-import ch.njol.skript.Skript;
-import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Events;
-import ch.njol.skript.doc.Examples;
-import ch.njol.skript.doc.Name;
-import ch.njol.skript.doc.Since;
-import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.ExpressionType;
-import ch.njol.skript.lang.SkriptParser.ParseResult;
-import ch.njol.skript.lang.util.SimpleExpression;
-import ch.njol.skript.log.ErrorQuality;
-import ch.njol.skript.registrations.Classes;
-import ch.njol.util.Kleenean;
 
 /**
  * @author Peter Güttinger
@@ -37,7 +31,7 @@ import ch.njol.util.Kleenean;
 		"	health of attacker is less than or equal to 2",
 		"	damage victim by 1 heart"})
 @Since("1.3")
-@Events({"damage", "death", "destroy"})
+@Events({"Damage", "Death", "Destroy"})
 public class ExprAttacker extends SimpleExpression<Entity> implements EventRestrictedSyntax {
 
 	static {

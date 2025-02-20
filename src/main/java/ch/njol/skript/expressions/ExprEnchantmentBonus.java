@@ -1,27 +1,22 @@
 package ch.njol.skript.expressions;
 
-import org.bukkit.event.Event;
-import org.bukkit.event.enchantment.PrepareItemEnchantEvent;
-import org.jetbrains.annotations.Nullable;
-
 import ch.njol.skript.Skript;
-import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Events;
-import ch.njol.skript.doc.Examples;
-import ch.njol.skript.doc.Name;
-import ch.njol.skript.doc.Since;
+import ch.njol.skript.doc.*;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.log.ErrorQuality;
 import ch.njol.util.Kleenean;
+import org.bukkit.event.Event;
+import org.bukkit.event.enchantment.PrepareItemEnchantEvent;
+import org.jetbrains.annotations.Nullable;
 
 @Name("Enchantment Bonus")
 @Description("The enchantment bonus in an enchant prepare event. This represents the number of bookshelves affecting/surrounding the enchantment table.")
 @Examples({"on enchant:", 
 			"\tsend \"There are %enchantment bonus% bookshelves surrounding this enchantment table!\" to player"})
-@Events("enchant prepare")
+@Events("Enchant Prepare")
 @Since("2.5")
 public class ExprEnchantmentBonus extends SimpleExpression<Long> {
 

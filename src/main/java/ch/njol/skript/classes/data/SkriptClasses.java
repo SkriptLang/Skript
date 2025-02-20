@@ -354,19 +354,15 @@ public class SkriptClasses {
 					@Override
 					public Fields serialize(Date date) {
 						Fields fields = new Fields();
-						fields.putPrimitive("timestamp", date.getTime());
+						fields.putPrimitive("time", date.getTime());
 						return fields;
 					}
 
 
 					@Override
-					protected Date deserialize(Fields fields) throws StreamCorruptedException {
-						long time;
-						if (fields.hasField("time")) { // compatibility for 2.10.0 (#7542)
-							time = fields.getPrimitive("time", long.class);
-						} else {
-							time = fields.getPrimitive("timestamp", long.class);
-						}
+					protected Date deserialize(Fields fields)
+						throws StreamCorruptedException {
+						long time = fields.getPrimitive("time", long.class);
 						return new Date(time);
 					}
 

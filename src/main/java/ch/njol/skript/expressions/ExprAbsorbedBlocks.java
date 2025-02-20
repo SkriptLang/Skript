@@ -1,19 +1,7 @@
 package ch.njol.skript.expressions;
 
-import java.util.Iterator;
-import java.util.List;
-
-import org.bukkit.block.BlockState;
-import org.bukkit.event.Event;
-import org.bukkit.event.block.SpongeAbsorbEvent;
-import org.jetbrains.annotations.Nullable;
-
 import ch.njol.skript.Skript;
-import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Events;
-import ch.njol.skript.doc.Examples;
-import ch.njol.skript.doc.Name;
-import ch.njol.skript.doc.Since;
+import ch.njol.skript.doc.*;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
@@ -21,10 +9,17 @@ import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.log.ErrorQuality;
 import ch.njol.skript.util.BlockStateBlock;
 import ch.njol.util.Kleenean;
+import org.bukkit.block.BlockState;
+import org.bukkit.event.Event;
+import org.bukkit.event.block.SpongeAbsorbEvent;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.Iterator;
+import java.util.List;
 
 @Name("Absorbed blocks")
 @Description("The blocks absorbed by a sponge block.")
-@Events("sponge absorb")
+@Events("Sponge Absorb")
 @Examples("the absorbed blocks")
 @Since("2.5")
 public class ExprAbsorbedBlocks extends SimpleExpression<BlockStateBlock> {

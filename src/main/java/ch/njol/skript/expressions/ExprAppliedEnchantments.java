@@ -1,17 +1,8 @@
 package ch.njol.skript.expressions;
 
-import org.bukkit.enchantments.Enchantment;
-import org.bukkit.event.Event;
-import org.bukkit.event.enchantment.EnchantItemEvent;
-import org.jetbrains.annotations.Nullable;
-
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer.ChangeMode;
-import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Events;
-import ch.njol.skript.doc.Examples;
-import ch.njol.skript.doc.Name;
-import ch.njol.skript.doc.Since;
+import ch.njol.skript.doc.*;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
@@ -20,13 +11,17 @@ import ch.njol.skript.log.ErrorQuality;
 import ch.njol.skript.util.EnchantmentType;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
+import org.bukkit.enchantments.Enchantment;
+import org.bukkit.event.Event;
+import org.bukkit.event.enchantment.EnchantItemEvent;
+import org.jetbrains.annotations.Nullable;
 
 @Name("Applied Enchantments")
 @Description({"The applied enchantments in an enchant event.",
 				" Deleting or removing the applied enchantments will prevent the item's enchantment."})
 @Examples({"on enchant:",
 			"\tset the applied enchantments to sharpness 10 and fire aspect 5"})
-@Events("enchant")
+@Events("Enchant")
 @Since("2.5")
 public class ExprAppliedEnchantments extends SimpleExpression<EnchantmentType> {
 
