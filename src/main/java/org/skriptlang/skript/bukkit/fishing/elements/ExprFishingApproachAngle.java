@@ -21,10 +21,7 @@ import org.jetbrains.annotations.Nullable;
 })
 @Examples({
 	"on fish approach:",
-		"\tif any:",
-			"\t\tmaximum fishing approach angle is bigger than 300.5 degrees",
-			"\t\tmin fishing approach angle is smaller than 59.5 degrees",
-		"\tthen:",
+		"\tif fishing approach angle is bigger than 300.5 degrees or fishing approach angle is smaller than 59.5 degrees:",
 			"\t\tcancel event"
 })
 @Events("Fishing")

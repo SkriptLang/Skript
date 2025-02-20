@@ -53,22 +53,17 @@ public class CondIsTagged extends Condition {
 
 	@Override
 	public boolean check(Event event) {
-		Tag<Keyed>[] tags = this.tags.getAll(event);
+		Tag<Keyed>[] tags = this.tags.getArray(event);
 		if (tags.length == 0)
 			return isNegated();
 		boolean and = this.tags.getAnd();
  		return elements.check(event, element -> {
 			boolean isAny = (element instanceof ItemType itemType && !itemType.isAll());
 			Keyed[] values = TagModule.getKeyed(element);
-			if (values == null || values.length == 0)
+			if (values == null)
 				return false;
 
-			Class<? extends Keyed> valueClass = values[0].getClass();
-
 			for (Tag<Keyed> tag : tags) {
-				// cursed check to ensure the tag is the same type as the values
-				if (!tag.getValues().iterator().next().getClass().isAssignableFrom(valueClass))
-					return false;
 				 if (isTagged(tag, values, !isAny)) {
 					 if (!and)
 						 return true;
