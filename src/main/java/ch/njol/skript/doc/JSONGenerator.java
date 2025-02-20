@@ -13,6 +13,9 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
+import org.bukkit.event.Cancellable;
+import org.bukkit.event.Event;
+import org.bukkit.event.block.BlockCanBuildEvent;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.structure.Structure;
 import org.skriptlang.skript.lang.structure.StructureInfo;
@@ -95,27 +98,39 @@ public class JSONGenerator extends DocumentationGenerator {
 
 	/**
 	 * Generates the documentation JsonObject for an event
-	 * @param eventInfo the event to generate the documentation object for
+	 * @param info the event to generate the documentation object for
 	 * @return a documentation JsonObject for the event
 	 */
-	private JsonObject generateEventElement(SkriptEventInfo<?> eventInfo) {
+	private JsonObject generateEventElement(SkriptEventInfo<?> info) {
 		JsonObject syntaxJsonObject = new JsonObject();
 
-		syntaxJsonObject.addProperty("id", DocumentationIdProvider.getId(eventInfo));
-		syntaxJsonObject.addProperty("name", eventInfo.getName());
-		syntaxJsonObject.add("patterns", convertToJsonArray(eventInfo.getPatterns()));
+		syntaxJsonObject.addProperty("id", DocumentationIdProvider.getId(info));
+		syntaxJsonObject.addProperty("name", info.getName());
+		syntaxJsonObject.add("patterns", convertToJsonArray(info.getPatterns()));
 
-		if (eventInfo.getDescription() != null) {
-			syntaxJsonObject.add("description", convertToJsonArray(eventInfo.getDescription()));
+		if (info.getDescription() != null) {
+			syntaxJsonObject.add("description", convertToJsonArray(info.getDescription()));
 		}
-		if (eventInfo.getSince() != null) {
-			syntaxJsonObject.addProperty("since", eventInfo.getSince());
+		if (info.getSince() != null) {
+			syntaxJsonObject.addProperty("since", info.getSince());
 		}
-		if (eventInfo.getRequiredPlugins() != null) {
-			syntaxJsonObject.add("requirements", convertToJsonArray(eventInfo.getRequiredPlugins()));
+		if (info.getRequiredPlugins() != null) {
+			syntaxJsonObject.add("requirements", convertToJsonArray(info.getRequiredPlugins()));
 		}
-		if (eventInfo.getExamples() != null) {
-			syntaxJsonObject.add("examples", convertToJsonArray(eventInfo.getExamples()));
+		if (info.getExamples() != null) {
+			syntaxJsonObject.add("examples", convertToJsonArray(info.getExamples()));
+		}
+
+		boolean cancellable = false;
+		for (Class<? extends Event> event : info.events) {
+			if (Cancellable.class.isAssignableFrom(event) || BlockCanBuildEvent.class.isAssignableFrom(event)) {
+				cancellable = true;
+				break;
+			}
+		}
+
+		if (cancellable) {
+			syntaxJsonObject.addProperty("cancellable", cancellable);
 		}
 
 		return syntaxJsonObject;
