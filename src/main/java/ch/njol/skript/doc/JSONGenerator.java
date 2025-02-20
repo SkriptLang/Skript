@@ -13,6 +13,9 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
+import org.bukkit.event.Cancellable;
+import org.bukkit.event.Event;
+import org.bukkit.event.block.BlockCanBuildEvent;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.structure.Structure;
 import org.skriptlang.skript.lang.structure.StructureInfo;
@@ -60,44 +63,76 @@ public class JSONGenerator extends DocumentationGenerator {
 		if (nameAnnotation == null || syntaxClass.getAnnotation(NoDoc.class) != null)
 			return null;
 		JsonObject syntaxJsonObject = new JsonObject();
+
 		syntaxJsonObject.addProperty("id", DocumentationIdProvider.getId(syntaxInfo));
 		syntaxJsonObject.addProperty("name", nameAnnotation.value());
+		syntaxJsonObject.add("patterns", convertToJsonArray(syntaxInfo.getPatterns()));
 
 		Since sinceAnnotation = syntaxClass.getAnnotation(Since.class);
-		syntaxJsonObject.add("since", sinceAnnotation == null ? null : convertToJsonArray(sinceAnnotation.value()));
+		if (sinceAnnotation != null) {
+			syntaxJsonObject.add("since", convertToJsonArray(sinceAnnotation.value()));
+		}
 
 		Description descriptionAnnotation = syntaxClass.getAnnotation(Description.class);
 		if (descriptionAnnotation != null) {
 			syntaxJsonObject.add("description", convertToJsonArray(descriptionAnnotation.value()));
-		} else {
-			syntaxJsonObject.add("description", new JsonArray());
 		}
 
 		Examples examplesAnnotation = syntaxClass.getAnnotation(Examples.class);
 		if (examplesAnnotation != null) {
 			syntaxJsonObject.add("examples", convertToJsonArray(examplesAnnotation.value()));
-		} else {
-			syntaxJsonObject.add("examples", new JsonArray());
 		}
 
+		Events events = syntaxClass.getAnnotation(Events.class);
+		if (events != null) {
+			syntaxJsonObject.add("events", convertToJsonArray(events.value()));
+		}
 
-		syntaxJsonObject.add("patterns", convertToJsonArray(syntaxInfo.getPatterns()));
+		RequiredPlugins requirements = syntaxClass.getAnnotation(RequiredPlugins.class);
+		if (requirements != null) {
+			syntaxJsonObject.add("requirements", convertToJsonArray(requirements.value()));
+		}
+
 		return syntaxJsonObject;
 	}
 
 	/**
 	 * Generates the documentation JsonObject for an event
-	 * @param eventInfo the event to generate the documentation object for
+	 * @param info the event to generate the documentation object for
 	 * @return a documentation JsonObject for the event
 	 */
-	private JsonObject generateEventElement(SkriptEventInfo<?> eventInfo) {
+	private JsonObject generateEventElement(SkriptEventInfo<?> info) {
 		JsonObject syntaxJsonObject = new JsonObject();
-		syntaxJsonObject.addProperty("id", DocumentationIdProvider.getId(eventInfo));
-		syntaxJsonObject.addProperty("name", eventInfo.name);
-		syntaxJsonObject.addProperty("since", eventInfo.getSince());
-		syntaxJsonObject.add("description", convertToJsonArray(eventInfo.getDescription()));
-		syntaxJsonObject.add("examples", convertToJsonArray(eventInfo.getExamples()));
-		syntaxJsonObject.add("patterns", convertToJsonArray(eventInfo.patterns));
+
+		syntaxJsonObject.addProperty("id", DocumentationIdProvider.getId(info));
+		syntaxJsonObject.addProperty("name", info.getName());
+		syntaxJsonObject.add("patterns", convertToJsonArray(info.getPatterns()));
+
+		if (info.getDescription() != null) {
+			syntaxJsonObject.add("description", convertToJsonArray(info.getDescription()));
+		}
+		if (info.getSince() != null) {
+			syntaxJsonObject.addProperty("since", info.getSince());
+		}
+		if (info.getRequiredPlugins() != null) {
+			syntaxJsonObject.add("requirements", convertToJsonArray(info.getRequiredPlugins()));
+		}
+		if (info.getExamples() != null) {
+			syntaxJsonObject.add("examples", convertToJsonArray(info.getExamples()));
+		}
+
+		boolean cancellable = false;
+		for (Class<? extends Event> event : info.events) {
+			if (Cancellable.class.isAssignableFrom(event) || BlockCanBuildEvent.class.isAssignableFrom(event)) {
+				cancellable = true;
+				break;
+			}
+		}
+
+		if (cancellable) {
+			syntaxJsonObject.addProperty("cancellable", cancellable);
+		}
+
 		return syntaxJsonObject;
 	}
 
@@ -147,10 +182,22 @@ public class JSONGenerator extends DocumentationGenerator {
 		JsonObject syntaxJsonObject = new JsonObject();
 		syntaxJsonObject.addProperty("id", DocumentationIdProvider.getId(classInfo));
 		syntaxJsonObject.addProperty("name", getClassInfoName(classInfo));
-		syntaxJsonObject.addProperty("since", classInfo.getSince());
-		syntaxJsonObject.add("description", convertToJsonArray(classInfo.getDescription()));
-		syntaxJsonObject.add("examples", convertToJsonArray(classInfo.getExamples()));
-		syntaxJsonObject.add("patterns", convertToJsonArray(classInfo.getUsage()));
+
+		if (classInfo.getUsage() != null && classInfo.getUsage().length > 0 && !classInfo.getUsage()[0].isEmpty()) {
+			syntaxJsonObject.add("patterns", convertToJsonArray(classInfo.getUsage()));
+		}
+		if (classInfo.getDescription() != null) {
+			syntaxJsonObject.add("description", convertToJsonArray(classInfo.getDescription()));
+		}
+		if (classInfo.getSince() != null) {
+			syntaxJsonObject.addProperty("since", classInfo.getSince());
+		}
+		if (classInfo.getRequiredPlugins() != null) {
+			syntaxJsonObject.add("requirements", convertToJsonArray(classInfo.getRequiredPlugins()));
+		}
+		if (classInfo.getExamples() != null && classInfo.getExamples().length > 0 && !classInfo.getExamples()[0].isEmpty()) {
+			syntaxJsonObject.add("examples", convertToJsonArray(classInfo.getExamples()));
+		}
 		return syntaxJsonObject;
 	}
 
@@ -187,13 +234,18 @@ public class JSONGenerator extends DocumentationGenerator {
 		JsonObject functionJsonObject = new JsonObject();
 		functionJsonObject.addProperty("id", DocumentationIdProvider.getId(function));
 		functionJsonObject.addProperty("name", function.getName());
-		functionJsonObject.addProperty("since", function.getSince());
-		functionJsonObject.add("description", convertToJsonArray(function.getDescription()));
-		functionJsonObject.add("examples", convertToJsonArray(function.getExamples()));
 
-		ClassInfo<?> returnType = function.getReturnType();
-		if (returnType != null) {
-			functionJsonObject.addProperty("return-type", getClassInfoName(returnType));
+		if (function.getSince() != null) {
+			functionJsonObject.addProperty("since", function.getSince());
+		}
+		if (function.getDescription() != null) {
+			functionJsonObject.add("description", convertToJsonArray(function.getDescription()));
+		}
+		if (function.getExamples() != null) {
+			functionJsonObject.add("examples", convertToJsonArray(function.getExamples()));
+		}
+		if (function.getReturnType() != null) {
+			functionJsonObject.addProperty("return-type", getClassInfoName(function.getReturnType()));
 		}
 
 		String functionSignature = function.getSignature().toString(false, false);

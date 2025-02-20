@@ -382,19 +382,21 @@ public class SkriptCommand implements CommandExecutor {
 
 			} else if (args[0].equalsIgnoreCase("gen-docs")) {
 				File templateDir = Documentation.getDocsTemplateDirectory();
-				if (!templateDir.exists()) {
-					Skript.error(sender, "Cannot generate docs! Documentation templates not found at '" + Documentation.getDocsTemplateDirectory().getPath() + "'");
-					TestMode.docsFailed = true;
-					return true;
-				}
 				File outputDir = Documentation.getDocsOutputDirectory();
 				outputDir.mkdirs();
-				HTMLGenerator htmlGenerator = new HTMLGenerator(templateDir, outputDir);
-				JSONGenerator jsonGenerator = new JSONGenerator(templateDir, outputDir);
+
 				Skript.info(sender, "Generating docs...");
-				htmlGenerator.generate(); // Try to generate docs... hopefully
+				JSONGenerator jsonGenerator = new JSONGenerator(templateDir, outputDir);
 				jsonGenerator.generate();
-				Skript.info(sender, "Documentation generated!");
+
+				if (!templateDir.exists()) {
+					Skript.info(sender, "JSON-only documentation generated!");
+					return true;
+				}
+
+				HTMLGenerator htmlGenerator = new HTMLGenerator(templateDir, outputDir);
+				htmlGenerator.generate(); // Try to generate docs... hopefully
+				Skript.info(sender, "All documentation generated!");
 			} else if (args[0].equalsIgnoreCase("test") && TestMode.DEV_MODE) {
 				File scriptFile;
 				if (args.length == 1) {
