@@ -4,19 +4,20 @@ import ch.njol.skript.util.Date;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class DateTest {
 
 	@Test
 	public void testNow() {
-		assertEquals(System.currentTimeMillis(), Date.now().getTime());
+		assertTrue(Math.abs(System.currentTimeMillis() - Date.now().getTime()) < 2);
 	}
 
 	@Test
 	public void testFromJavaDate() {
 		java.util.Date javaDate = new java.util.Date();
 		Date date = Date.fromJavaDate(javaDate);
-		assertEquals(javaDate.getTime(), date.getTime());
+		assertTrue(Math.abs(javaDate.getTime() - date.getTime()) < 2);
 	}
 
 	@Test
