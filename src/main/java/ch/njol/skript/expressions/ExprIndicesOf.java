@@ -24,7 +24,7 @@ import java.util.*;
 @Name("Indices Of")
 @Description({
 	"Get the first, last or all positions of a character (or text) in another text using "
-		+ "'positions of %text% in %text%'. -1 is returned when the value does not occur in the text. "
+		+ "'positions of %text% in %text%'. Nothing is returned when the value does not occur in the text. "
 		+ "Positions range from 1 to the <a href='#ExprIndicesOf'>length</a> of the text (inclusive).",
 	"",
 	"Using 'indices/positions of %objects% in %objects%', you can get the indices or positions of "
@@ -32,7 +32,7 @@ import java.util.*;
 		+ "Indices are only supported for variable lists and will return the string indices of the given value. "
 		+ "Positions can be used with any list and will return "
 		+ "the numerical position of the value in the list, counting up from 1. "
-		+ "Note that nothing is returned if the value is not found in the list."
+		+ "As well, nothing is returned if the value is not found in the list."
 })
 @Examples({
 	"set {_first} to the first position of \"@\" in the text argument",
