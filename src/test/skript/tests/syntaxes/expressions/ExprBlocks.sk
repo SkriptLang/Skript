@@ -9,7 +9,7 @@ test "blocks void":
 test "blocks vector direction":
 	set {_loc} to location(0.5, 20.5, 0.5)
 	set {_blocks::*} to blocks vector(1,0,0) {_loc}
-	assert size of {_blocks::*} is 100 with "Blocks vector(1,0,0) loc is not 100"
+	assert size of {_blocks::*} is 1000 with "Blocks vector(1,0,0) loc is not 1000"
 	set blocks at {_blocks::*} to stone
 	assert blocks at {_blocks::*} is stone with "1 or more blocks were not set to stone"
 	set blocks at {_blocks::*} to air
