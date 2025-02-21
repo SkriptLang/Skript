@@ -5,6 +5,7 @@ import org.junit.Test;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static org.junit.Assert.*;
@@ -13,21 +14,21 @@ public class ConfigTest {
 
 	@Test
 	public void testValueNodeSettingGetting() {
-		Map<ConfigSection, ConfigNode[]> nodes = new HashMap<>();
+		Map<ConfigSection, List<ConfigNode>> nodes = new HashMap<>();
 
 		ConfigSection section = new ConfigSection("section", "", new String[]{"comment"});
 
-		nodes.put(null, new ConfigNode[]{
+		nodes.put(null, List.of(
 			new ConfigEntry<>("one", 1, "", new String[0]),
 			new ConfigEntry<>("two", 2, "", new String[0]),
 			section,
 			new ConfigEntry<>("four", 4, "", new String[0])
-		});
+		));
 
-		nodes.put(section, new ConfigNode[]{
+		nodes.put(section, List.of(
 			new ConfigEntry<>("three", 3, "", new String[0]),
 			new ConfigEntry<>("false", false, "", new String[0])
-		});
+		));
 
 		ConfigImpl config = new ConfigImpl(nodes);
 

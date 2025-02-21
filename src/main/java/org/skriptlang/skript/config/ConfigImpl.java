@@ -14,7 +14,7 @@ import java.util.*;
 
 class ConfigImpl implements Config {
 
-	private final Map<ConfigSection, ConfigNode[]> nodes;
+	private final Map<ConfigSection, List<ConfigNode>> nodes;
 	private final Path path;
 
 	ConfigImpl(@NotNull Path path) throws IOException {
@@ -36,7 +36,7 @@ class ConfigImpl implements Config {
 		}
 	}
 
-	ConfigImpl(@NotNull Map<ConfigSection, ConfigNode[]> nodes) {
+	ConfigImpl(@NotNull Map<ConfigSection, List<ConfigNode>> nodes) {
 		this.path = Path.of("");
 		this.nodes = nodes;
 	}
@@ -81,13 +81,12 @@ class ConfigImpl implements Config {
 
 				ConfigSection section = new ConfigSection(key, inlineComment, comments.toArray(new String[0]));
 				nodes.add(section);
-				stack.add(section);
 
-				this.nodes.merge(stack.getFirst(), nodes.toArray(new ConfigNode[0]), (existing, newNodes) -> {
-					ConfigNode[] combined = Arrays.copyOf(existing, existing.length + newNodes.length);
-					System.arraycopy(newNodes, 0, combined, existing.length, newNodes.length);
-					return combined;
-				});
+				List<ConfigNode> existing = this.nodes.getOrDefault(stack.peekFirst(), new ArrayList<>());
+				existing.addAll(nodes);
+				this.nodes.put(stack.peekFirst(), existing);
+
+				stack.add(section);
 				nodes.clear();
 				comments.clear();
 			} else {
@@ -104,7 +103,9 @@ class ConfigImpl implements Config {
 			}
 		}
 
-		this.nodes.put(stack.getFirst(), nodes.toArray(new ConfigNode[0]));
+		List<ConfigNode> existing = this.nodes.getOrDefault(stack.peekFirst(), new ArrayList<>());
+		existing.addAll(nodes);
+		this.nodes.put(stack.peekFirst(), existing);
 	}
 
 	@Override
@@ -133,7 +134,7 @@ class ConfigImpl implements Config {
 		ConfigSection parent = null;
 		for (int i = 0; i < keys.length - 1; i++) {
 			int finalI = i;
-			parent = (ConfigSection) Arrays.stream(nodes.get(parent))
+			parent = (ConfigSection) nodes.get(parent).stream()
 				.filter(node -> node instanceof ConfigSection && node.key().equals(keys[finalI]))
 				.findFirst()
 				.orElse(null);
@@ -143,7 +144,7 @@ class ConfigImpl implements Config {
 			}
 		}
 
-		return Arrays.stream(nodes.get(parent))
+		return nodes.get(parent).stream()
 			.filter(node -> node.key().equals(keys[keys.length - 1]))
 			.findFirst()
 			.orElse(null);
@@ -153,7 +154,7 @@ class ConfigImpl implements Config {
 	public ConfigNode[] getNodeChildren(@NotNull String path) {
 		ConfigNode node = getNode(path);
 		if (node instanceof ConfigSection section) {
-			return nodes.get(section);
+			return nodes.get(section).toArray(new ConfigNode[0]);
 		}
 		return null;
 	}
@@ -178,7 +179,11 @@ class ConfigImpl implements Config {
 		return toStringRecursively(nodes.get(null), 0);
 	}
 
-	private String toStringRecursively(ConfigNode[] map, int depth) {
+	private String toStringRecursively(List<ConfigNode> map, int depth) {
+		if (map == null) {
+			return "";
+		}
+
 		StringJoiner joiner = new StringJoiner("\n");
 
 		for (ConfigNode node : map) {
