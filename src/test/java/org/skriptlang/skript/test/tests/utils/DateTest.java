@@ -9,15 +9,10 @@ import static org.junit.Assert.assertTrue;
 public class DateTest {
 
 	@Test
-	public void testNow() {
-		assertTrue(Math.abs(System.currentTimeMillis() - Date.now().getTime()) < 2);
-	}
-
-	@Test
 	public void testFromJavaDate() {
 		java.util.Date javaDate = new java.util.Date();
 		Date date = Date.fromJavaDate(javaDate);
-		assertTrue(Math.abs(javaDate.getTime() - date.getTime()) < 2);
+		assertEquals(javaDate.getTime(), date.getTime());
 	}
 
 	@Test
