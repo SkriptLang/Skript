@@ -69,29 +69,19 @@ public class JSONGenerator extends DocumentationGenerator {
 		syntaxJsonObject.add("patterns", convertToJsonArray(syntaxInfo.getPatterns()));
 
 		Since sinceAnnotation = syntaxClass.getAnnotation(Since.class);
-		if (sinceAnnotation != null) {
-			syntaxJsonObject.add("since", convertToJsonArray(sinceAnnotation.value()));
-		}
+		syntaxJsonObject.add("since", convertToJsonArray(sinceAnnotation.value()));
 
 		Description descriptionAnnotation = syntaxClass.getAnnotation(Description.class);
-		if (descriptionAnnotation != null) {
-			syntaxJsonObject.add("description", convertToJsonArray(descriptionAnnotation.value()));
-		}
+		syntaxJsonObject.add("description", convertToJsonArray(descriptionAnnotation.value()));
 
 		Examples examplesAnnotation = syntaxClass.getAnnotation(Examples.class);
-		if (examplesAnnotation != null) {
-			syntaxJsonObject.add("examples", convertToJsonArray(examplesAnnotation.value()));
-		}
+		syntaxJsonObject.add("examples", convertToJsonArray(examplesAnnotation.value()));
 
 		Events events = syntaxClass.getAnnotation(Events.class);
-		if (events != null) {
-			syntaxJsonObject.add("events", convertToJsonArray(events.value()));
-		}
+		syntaxJsonObject.add("events", convertToJsonArray(events.value()));
 
 		RequiredPlugins requirements = syntaxClass.getAnnotation(RequiredPlugins.class);
-		if (requirements != null) {
-			syntaxJsonObject.add("requirements", convertToJsonArray(requirements.value()));
-		}
+		syntaxJsonObject.add("requirements", convertToJsonArray(requirements.value()));
 
 		return syntaxJsonObject;
 	}
@@ -103,23 +93,15 @@ public class JSONGenerator extends DocumentationGenerator {
 	 */
 	private JsonObject generateEventElement(SkriptEventInfo<?> info) {
 		JsonObject syntaxJsonObject = new JsonObject();
-
 		syntaxJsonObject.addProperty("id", DocumentationIdProvider.getId(info));
 		syntaxJsonObject.addProperty("name", info.getName());
-		syntaxJsonObject.add("patterns", convertToJsonArray(info.getPatterns()));
+		syntaxJsonObject.addProperty("since", info.getSince());
 
-		if (info.getDescription() != null) {
-			syntaxJsonObject.add("description", convertToJsonArray(info.getDescription()));
-		}
-		if (info.getSince() != null) {
-			syntaxJsonObject.addProperty("since", info.getSince());
-		}
-		if (info.getRequiredPlugins() != null) {
-			syntaxJsonObject.add("requirements", convertToJsonArray(info.getRequiredPlugins()));
-		}
-		if (info.getExamples() != null) {
-			syntaxJsonObject.add("examples", convertToJsonArray(info.getExamples()));
-		}
+		syntaxJsonObject.add("patterns", convertToJsonArray(info.getPatterns()));
+		syntaxJsonObject.add("description", convertToJsonArray(info.getDescription()));
+		syntaxJsonObject.add("requirements", convertToJsonArray(info.getRequiredPlugins()));
+		syntaxJsonObject.add("examples", convertToJsonArray(info.getExamples()));
+
 
 		boolean cancellable = false;
 		for (Class<? extends Event> event : info.events) {
@@ -129,9 +111,7 @@ public class JSONGenerator extends DocumentationGenerator {
 			}
 		}
 
-		if (cancellable) {
-			syntaxJsonObject.addProperty("cancellable", cancellable);
-		}
+		syntaxJsonObject.addProperty("cancellable", cancellable);
 
 		return syntaxJsonObject;
 	}
@@ -182,22 +162,13 @@ public class JSONGenerator extends DocumentationGenerator {
 		JsonObject syntaxJsonObject = new JsonObject();
 		syntaxJsonObject.addProperty("id", DocumentationIdProvider.getId(classInfo));
 		syntaxJsonObject.addProperty("name", getClassInfoName(classInfo));
+		syntaxJsonObject.addProperty("since", classInfo.getSince());
 
-		if (classInfo.getUsage() != null && classInfo.getUsage().length > 0 && !classInfo.getUsage()[0].isEmpty()) {
-			syntaxJsonObject.add("patterns", convertToJsonArray(classInfo.getUsage()));
-		}
-		if (classInfo.getDescription() != null) {
-			syntaxJsonObject.add("description", convertToJsonArray(classInfo.getDescription()));
-		}
-		if (classInfo.getSince() != null) {
-			syntaxJsonObject.addProperty("since", classInfo.getSince());
-		}
-		if (classInfo.getRequiredPlugins() != null) {
-			syntaxJsonObject.add("requirements", convertToJsonArray(classInfo.getRequiredPlugins()));
-		}
-		if (classInfo.getExamples() != null && classInfo.getExamples().length > 0 && !classInfo.getExamples()[0].isEmpty()) {
-			syntaxJsonObject.add("examples", convertToJsonArray(classInfo.getExamples()));
-		}
+		syntaxJsonObject.add("patterns", convertToJsonArray(classInfo.getUsage()));
+		syntaxJsonObject.add("description", convertToJsonArray(classInfo.getDescription()));
+		syntaxJsonObject.add("requirements", convertToJsonArray(classInfo.getRequiredPlugins()));
+		syntaxJsonObject.add("examples", convertToJsonArray(classInfo.getExamples()));
+
 		return syntaxJsonObject;
 	}
 
@@ -234,19 +205,11 @@ public class JSONGenerator extends DocumentationGenerator {
 		JsonObject functionJsonObject = new JsonObject();
 		functionJsonObject.addProperty("id", DocumentationIdProvider.getId(function));
 		functionJsonObject.addProperty("name", function.getName());
+		functionJsonObject.addProperty("since", function.getSince());
+		functionJsonObject.addProperty("return-type", getClassInfoName(function.getReturnType()));
 
-		if (function.getSince() != null) {
-			functionJsonObject.addProperty("since", function.getSince());
-		}
-		if (function.getDescription() != null) {
-			functionJsonObject.add("description", convertToJsonArray(function.getDescription()));
-		}
-		if (function.getExamples() != null) {
-			functionJsonObject.add("examples", convertToJsonArray(function.getExamples()));
-		}
-		if (function.getReturnType() != null) {
-			functionJsonObject.addProperty("return-type", getClassInfoName(function.getReturnType()));
-		}
+		functionJsonObject.add("description", convertToJsonArray(function.getDescription()));
+		functionJsonObject.add("examples", convertToJsonArray(function.getExamples()));
 
 		String functionSignature = function.getSignature().toString(false, false);
 		functionJsonObject.add("patterns", convertToJsonArray(new String[] { functionSignature }));
