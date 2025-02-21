@@ -41,7 +41,7 @@ import java.util.*;
 		"\t# removes everything after the first \"abc\" from {_s}",
 	"",
 	"set {_list::*} to 1, 2, 3, 1, 2, 3",
-	"set {_indices::*} to all indices of the value 1 in {_list::*}",
+	"set {_indices::*} to indices of the value 1 in {_list::*}",
 	"# {_indices::*} is now \"1\" and \"4\"",
 	"",
 	"set {_indices::*} to all indices of the value 2 in {_list::*}",
@@ -134,6 +134,9 @@ public class ExprIndicesOf extends SimpleExpression<Object> {
 		List<Long> positions = new ArrayList<>();
 		long position = haystack.indexOf(needle);
 
+		if (position == -1)
+			return new Long[0];
+
 		if (indexType == IndexType.ALL) {
 			while (position != -1) {
 				positions.add(position + 1);
@@ -145,8 +148,6 @@ public class ExprIndicesOf extends SimpleExpression<Object> {
 		if (indexType == IndexType.LAST)
 			position = haystack.lastIndexOf(needle);
 
-		if (position == -1)
-			return new Long[0];
 		return new Long[]{position + 1};
 	}
 
