@@ -21,91 +21,21 @@ class ConfigImpl implements Config {
 		Preconditions.checkNotNull(path, "path is not set");
 
 		this.path = path;
-		this.nodes = new HashMap<>();
-
-		parse(Files.readAllLines(path).toArray(new String[0]));
+		this.nodes = new ConfigReader(Files.readAllLines(path)).nodes;
 	}
 
 	ConfigImpl(@NotNull InputStream stream) throws IOException {
 		this.path = Path.of("");
-		this.nodes = new HashMap<>();
 
 		try (InputStreamReader is = new InputStreamReader(stream);
 			 BufferedReader br = new BufferedReader(is)) {
-			parse(br.lines().toList().toArray(new String[0]));
+			this.nodes = new ConfigReader(br.lines().toList()).nodes;
 		}
 	}
 
 	ConfigImpl(@NotNull Map<ConfigSection, List<ConfigNode>> nodes) {
 		this.path = Path.of("");
 		this.nodes = nodes;
-	}
-
-	private void parse(String[] lines) {
-		Deque<ConfigSection> stack = new ArrayDeque<>();
-		List<ConfigNode> nodes = new ArrayList<>();
-		int indentation = 0;
-
-		List<String> comments = new ArrayList<>();
-
-		for (String line : lines) {
-			String trimmed = line.trim();
-			if (trimmed.isEmpty()) {
-				comments.add(trimmed);
-				continue;
-			}
-			if (trimmed.charAt(0) == '#') {
-				comments.add(trimmed.substring(1).trim());
-				continue;
-			}
-
-			String[] parts = line.split(":", 2);
-			int currentIndentation = (int) parts[0].chars().filter(ch -> ch == '\t').count();
-			String key = parts[0].trim();
-			String fullValue = parts[1].trim();
-			String value = fullValue.replaceFirst("#.*", "").trim();
-
-			String inlineComment = "";
-			if (fullValue.indexOf('#') != -1) {
-				inlineComment = fullValue.substring(fullValue.indexOf('#') + 1).trim();
-			}
-
-			if (value.isBlank()) {
-				if (currentIndentation > indentation + 1) {
-					throw new IllegalStateException("Invalid indentation");
-				}
-				for (int i = 0; i < indentation - currentIndentation; i++) {
-					stack.poll();
-				}
-				indentation++;
-
-				ConfigSection section = new ConfigSection(key, inlineComment, comments.toArray(new String[0]));
-				nodes.add(section);
-
-				List<ConfigNode> existing = this.nodes.getOrDefault(stack.peekFirst(), new ArrayList<>());
-				existing.addAll(nodes);
-				this.nodes.put(stack.peekFirst(), existing);
-
-				stack.add(section);
-				nodes.clear();
-				comments.clear();
-			} else {
-				if (currentIndentation > indentation) {
-					throw new IllegalStateException("Invalid indentation");
-				}
-				for (int i = 0; i < indentation - currentIndentation; i++) {
-					stack.poll();
-				}
-				indentation = currentIndentation;
-
-				nodes.add(new ConfigEntry<>(key, value, inlineComment, comments.toArray(new String[0])));
-				comments.clear();
-			}
-		}
-
-		List<ConfigNode> existing = this.nodes.getOrDefault(stack.peekFirst(), new ArrayList<>());
-		existing.addAll(nodes);
-		this.nodes.put(stack.peekFirst(), existing);
 	}
 
 	@Override
@@ -196,5 +126,77 @@ class ConfigImpl implements Config {
 		}
 
 		return joiner.toString();
+	}
+
+	private static class ConfigReader {
+
+		private final Map<ConfigSection, List<ConfigNode>> nodes = new HashMap<>();
+		private int parseLine = 0;
+
+		public ConfigReader(List<String> lines) {
+			parse(null, lines, 0);
+		}
+
+		private void parse(ConfigSection parent, List<String> lines, int indentation) {
+			List<ConfigNode> nodes = new ArrayList<>();
+			List<String> comments = new ArrayList<>();
+
+			while (parseLine < lines.size()) {
+				String line = lines.get(parseLine);
+				String trimmed = line.trim();
+
+				// if the line is empty or a comment, we add it to the comments list and continue
+				if (trimmed.isEmpty()) {
+					comments.add(trimmed);
+					parseLine++;
+					continue;
+				}
+				if (trimmed.charAt(0) == '#') {
+					comments.add(trimmed.substring(1).trim());
+					parseLine++;
+					continue;
+				}
+
+				String[] parts = line.split(":", 2);
+				int currentIndentation = (int) parts[0].chars().filter(ch -> ch == '\t').count();
+				String key = parts[0].trim();
+				String fullValue = parts[1].trim();
+				String value = fullValue.replaceFirst("#.*", "").trim();
+
+				String inlineComment = "";
+				if (fullValue.indexOf('#') != -1) {
+					inlineComment = fullValue.substring(fullValue.indexOf('#') + 1).trim();
+				}
+
+				// if the current line is less indented than the previous line, we are done with this section
+				if (currentIndentation < indentation) {
+					break;
+				}
+
+				if (value.isBlank()) {
+					if (currentIndentation > indentation + 1) {
+						throw new IllegalStateException("Invalid indentation");
+					}
+
+					ConfigSection section = new ConfigSection(key, inlineComment, comments.toArray(new String[0]));
+					nodes.add(section);
+
+					parseLine++;
+					parse(section, lines, indentation + 1);
+				} else {
+					if (currentIndentation > indentation) {
+						throw new IllegalStateException("Invalid indentation");
+					}
+
+					nodes.add(new ConfigEntry<>(key, value, inlineComment, comments.toArray(new String[0])));
+					comments.clear();
+					parseLine++;
+				}
+			}
+
+			List<ConfigNode> existing = this.nodes.getOrDefault(parent, new ArrayList<>());
+			existing.addAll(nodes);
+			this.nodes.put(parent, existing);
+		}
 	}
 }
