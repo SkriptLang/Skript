@@ -2,7 +2,6 @@ package org.skriptlang.skript.lang.util;
 
 import ch.njol.skript.lang.util.common.AnyAmount;
 import ch.njol.skript.util.Container;
-import ch.njol.yggdrasil.YggdrasilSerializable;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
@@ -13,7 +12,7 @@ import java.util.*;
  */
 @Container.ContainerType(Object.class)
 public class SkriptQueue extends LinkedList<@NotNull Object>
-	implements Deque<Object>, Queue<Object>, YggdrasilSerializable, AnyAmount, Container<Object> {
+	implements Deque<Object>, Queue<Object>, AnyAmount, Container<Object> {
 
 	@Override
 	public boolean add(Object element) {
@@ -101,7 +100,21 @@ public class SkriptQueue extends LinkedList<@NotNull Object>
 
 	@Override
 	public Iterator<Object> containerIterator() {
-		return this.iterator();
+		return new Iterator<>() {
+			@Override
+			public boolean hasNext() {
+				return !SkriptQueue.this.isEmpty();
+			}
+
+			@Override
+			public Object next() {
+				return SkriptQueue.this.pollFirst();
+			}
+
+			@Override
+			public void remove() {
+			}
+		};
 	}
 
 }
