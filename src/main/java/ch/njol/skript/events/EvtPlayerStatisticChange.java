@@ -13,26 +13,22 @@ import org.bukkit.event.Event;
 import org.bukkit.event.player.PlayerStatisticIncrementEvent;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Locale;
-
-public class EvtPlayerStatisticIncrease extends SkriptEvent {
+public class EvtPlayerStatisticChange extends SkriptEvent {
 
 	static {
-		Skript.registerEvent("Player Statistic Increase", EvtPlayerStatisticIncrease.class, PlayerStatisticIncrementEvent.class,
-			"player statistic increase [of %*-strings%]")
+		Skript.registerEvent("Player Statistic Change", EvtPlayerStatisticChange.class, PlayerStatisticIncrementEvent.class,
+			"player statistic (change|increase|increment) [of %-statistics%]")
 			.description(
-				"Called when a player's statistic increases. Some statistics like 'play one minute' do not call this event, "
+				"Called when a player's statistic changes. Some statistics like 'play one minute' do not call this event, "
 					+ "because they get called too often.")
 			.examples(
 				"on player statistic increase:",
-					"\tbroadcast \"%player%'s statistic '%event-string%' increased! It is now %future statistic value%!\"",
+					"\tbroadcast \"%player%'s statistic '%event-statistic%' increased! It is now %future statistic value%!\"",
 				"on player statistic increase of \"leave game\":",
 					"\tbroadcast \"%player% left the game for %future statistic value% times..\"")
 			.since("INSERT VERSION");
 
-		EventValues.registerEventValue(PlayerStatisticIncrementEvent.class, String.class, event ->
-			event.getStatistic().name().toLowerCase(Locale.ENGLISH).replaceAll("_", " ")
-		);
+		EventValues.registerEventValue(PlayerStatisticIncrementEvent.class, Statistic.class, PlayerStatisticIncrementEvent::getStatistic);
 
 		EventValues.registerEventValue(PlayerStatisticIncrementEvent.class, ItemType.class, event -> {
 			if (event.getMaterial() == null)
@@ -46,12 +42,12 @@ public class EvtPlayerStatisticIncrease extends SkriptEvent {
 		});
 	}
 
-	private Literal<String> statistics;
+	private Literal<Statistic> statistics;
 
 	@Override
 	public boolean init(Literal<?>[] args, int matchedPattern, ParseResult parseResult) {
 		//noinspection unchecked
-		statistics = (Literal<String>) args[0];
+		statistics = (Literal<Statistic>) args[0];
 		return true;
 	}
 
@@ -60,8 +56,8 @@ public class EvtPlayerStatisticIncrease extends SkriptEvent {
 		if (statistics != null) {
 			Statistic statistic = ((PlayerStatisticIncrementEvent) event).getStatistic();
 
-			for (String string : this.statistics.getAll(event)) {
-				if (statistic.name().equalsIgnoreCase(string.replace(' ', '_')))
+			for (Statistic value : this.statistics.getAll(event)) {
+				if (statistic.equals(value))
 					return true;
 			}
 

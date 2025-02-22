@@ -14,7 +14,7 @@ import org.bukkit.event.player.PlayerStatisticIncrementEvent;
 import org.jetbrains.annotations.Nullable;
 
 @Name("New/Previous Statistic Value")
-@Description("Get the new or previous value of a statistic after it has been incremented.")
+@Description("Get the new or previous value of a statistic after it has been incremented or changed.")
 @Examples({
 	"on player statistic change:",
 		"\tset {_new} to new statistic value",
@@ -26,7 +26,7 @@ public class ExprNewStatisticValue extends SimpleExpression<Number> implements E
 
 	static {
 		Skript.registerExpression(ExprNewStatisticValue.class, Number.class, ExpressionType.SIMPLE,
-			"(future|new) statistic value", "(past|previous) statistic value");
+			"(future|new) statistic [value]", "(past|previous) statistic [value]");
 	}
 
 	private boolean future;

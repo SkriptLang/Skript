@@ -23,7 +23,6 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.Statistic;
 import org.bukkit.Statistic.Type;
 import org.bukkit.event.Event;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.log.runtime.*;
 
@@ -31,25 +30,25 @@ import org.skriptlang.skript.log.runtime.*;
 @Description({
 	"Get or set the statistics of a player.",
 	"Some statistics require an entity type or item type to be specified. "
-		+ "For example, the 'KILL_ENTITY' statistic requires an entity type. You can see more about this in "
+		+ "For example, the 'kill entity' statistic requires an entity type. You can see more about this in "
 		+ "<a href='https://www.digminecraft.com/getting_started/statistics.php'>the DigMinecraft page about statistics</a>."
 })
 @Examples({
-	"set the statistic \"kill entity\" for a pig of player to 10",
-	"add 5 to the statistic \"kill entity\" for a pig of player",
+	"set the mc kill entity statistic for a pig of player to 10",
+	"add 5 to the minecraft kill entity statistic for a pig of player",
 	"broadcast \"You have left the game %statistic \"leave game\" of player% times!\""
 })
 @Since("INSERT VERSION")
-public class ExprPlayerStatistics extends SimpleExpression<Integer> implements RuntimeErrorProducer {
+public class ExprPlayerStatistics extends SimpleExpression<Integer> implements SyntaxRuntimeErrorProducer {
 
 	static {
 		Skript.registerExpression(ExprPlayerStatistics.class, Integer.class, ExpressionType.COMBINED,
-			"[the] statistic %string% [for %-entitydata/itemtype%] (from|of) %offlineplayers%",
-			"%offlineplayers%'[s] statistic %string% [for %-entitydata/itemtype%]"
+			"[the] (minecraft|mc) %statistic% [for %-entitydata/itemtype%] (from|of) %offlineplayers%",
+			"%offlineplayers%'[s] (minecraft|mc) %statistic% [for %-entitydata/itemtype%]"
 		);
 	}
 
-	private Expression<String> statistic;
+	private Expression<Statistic> statistic;
 	private Expression<OfflinePlayer> player;
 	private Expression<?> ofType;
 
@@ -60,11 +59,11 @@ public class ExprPlayerStatistics extends SimpleExpression<Integer> implements R
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		if (matchedPattern == 0) {
 			player = (Expression<OfflinePlayer>) exprs[2];
-			statistic = (Expression<String>) exprs[0];
+			statistic = (Expression<Statistic>) exprs[0];
 			ofType = exprs[1];
 		} else {
 			player = (Expression<OfflinePlayer>) exprs[0];
-			statistic = (Expression<String>) exprs[1];
+			statistic = (Expression<Statistic>) exprs[1];
 			ofType = exprs[2];
 		}
 		node = getParser().getNode();
@@ -74,16 +73,9 @@ public class ExprPlayerStatistics extends SimpleExpression<Integer> implements R
 
 	@Override
 	protected Integer @Nullable [] get(Event event) {
-		String string = this.statistic.getSingle(event);
-		if (string == null)
+		Statistic statistic = this.statistic.getSingle(event);
+		if (statistic == null)
 			return null;
-
-		Statistic statistic;
-		try {
-			statistic = Statistic.valueOf(string.toUpperCase().replace(' ', '_'));
-		} catch (IllegalArgumentException e) {
-			return null;
-		}
 
 		Object ofType = this.ofType == null ? null : this.ofType.getSingle(event);
 
@@ -105,16 +97,9 @@ public class ExprPlayerStatistics extends SimpleExpression<Integer> implements R
 
 	@Override
 	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
-		String string = this.statistic.getSingle(event);
-		if (string == null)
+		Statistic statistic = this.statistic.getSingle(event);
+		if (statistic == null)
 			return;
-
-		Statistic statistic;
-		try {
-			statistic = Statistic.valueOf(string.toUpperCase().replace(' ', '_'));
-		} catch (IllegalArgumentException e) {
-			return;
-		}
 
 		Object ofType = this.ofType == null ? null : this.ofType.getSingle(event);
 
@@ -202,8 +187,8 @@ public class ExprPlayerStatistics extends SimpleExpression<Integer> implements R
 	}
 
 	@Override
-	public @NotNull ErrorSource getErrorSource() {
-		return ErrorSource.fromNodeAndElement(node, this);
+	public Node getNode() {
+		return node;
 	}
 
 }
