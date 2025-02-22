@@ -5,6 +5,12 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.StringJoiner;
 
+/**
+ * Represents a line with a key and value in a {@link Config},
+ * along with the comments that belong to it.
+ *
+ * @param <T> The type of the entry's value.
+ */
 public class ConfigEntry<T> implements ConfigNode, AnyValued<T> {
 
 	private String key;

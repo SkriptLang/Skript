@@ -12,6 +12,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
 
+/**
+ * The current implementation of the {@link Config} interface.
+ */
 class ConfigImpl implements Config {
 
 	private final Map<ConfigSection, List<ConfigNode>> nodes;

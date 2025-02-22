@@ -4,6 +4,10 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.StringJoiner;
 
+/**
+ * Represents a line which starts a section in a {@link Config},
+ * along with the comments that belong to it.
+ */
 public class ConfigSection implements ConfigNode {
 
 	private String key;
