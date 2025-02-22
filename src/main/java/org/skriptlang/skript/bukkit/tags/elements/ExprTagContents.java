@@ -8,11 +8,15 @@ import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Keywords;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
+import ch.njol.skript.entity.EntityData;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
+import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.skript.lang.util.ContextlessEvent;
 import ch.njol.skript.lang.util.SimpleExpression;
-import ch.njol.skript.util.Utils;
+import ch.njol.skript.lang.util.SimpleLiteral;
+import ch.njol.skript.registrations.Classes;
 import ch.njol.util.Kleenean;
 import org.bukkit.Material;
 import org.bukkit.Tag;
@@ -22,7 +26,9 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.tags.TagType;
 
+import java.lang.reflect.Array;
 import java.util.Objects;
+import java.util.stream.Stream;
 
 @Name("Tags Contents")
 @Description({
@@ -45,12 +51,16 @@ public class ExprTagContents extends SimpleExpression<Object> {
 	}
 
 	private Expression<Tag<?>> tag;
-	private TagType<?> @Nullable [] tagTypes;
+
+	private Class<?> returnType;
+	private Class<?>[] possibleReturnTypes;
 
 	@Override
 	public boolean init(Expression<?> @NotNull [] expressions, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		//noinspection unchecked
 		tag = (Expression<Tag<?>>) expressions[0];
+
+		TagType<?>[] tagTypes = null;
 		if (expressions[0] instanceof ExprTag exprTag) {
 			tagTypes = exprTag.types;
 		} else if (expressions[0] instanceof ExprTagsOf exprTagsOf) {
@@ -58,14 +68,38 @@ public class ExprTagContents extends SimpleExpression<Object> {
 		} else if (expressions[0] instanceof ExprTagsOfType exprTagsOfType) {
 			tagTypes = exprTagsOfType.types;
 		}
+		if (tagTypes != null) { // try to determine the return type
+			possibleReturnTypes = new Class<?>[tagTypes.length];
+			for (int i = 0; i < tagTypes.length; i++) {
+				Class<?> type = tagTypes[i].type();
+				// map types
+				if (type == Material.class) {
+					type = ItemType.class;
+				} else if (type == EntityType.class) {
+					type = EntityData.class;
+				}
+				possibleReturnTypes[i] = type;
+			}
+			returnType = Classes.getSuperClassInfo(possibleReturnTypes).getC();
+		} else {
+			returnType = Object.class;
+			possibleReturnTypes = new Class<?>[]{returnType};
+		}
+
 		return true;
 	}
 
 	@Override
+	@SuppressWarnings({"unchecked", "rawtypes", "RedundantCast"}) // cast to avoid type issues
 	protected Object @Nullable [] get(Event event) {
+		return ((Stream) stream(event)).toArray(length -> Array.newInstance(getReturnType(), length));
+	}
+
+	@Override
+	public Stream<?> stream(Event event) {
 		Tag<?> tag = this.tag.getSingle(event);
 		if (tag == null)
-			return null;
+			return Stream.empty();
 		return tag.getValues().stream()
 			.map(value -> {
 				if (value instanceof Material material) {
@@ -75,8 +109,7 @@ public class ExprTagContents extends SimpleExpression<Object> {
 				}
 				return null;
 			})
-			.filter(Objects::nonNull)
-			.toArray();
+			.filter(Objects::nonNull);
 	}
 
 	@Override
@@ -86,19 +119,26 @@ public class ExprTagContents extends SimpleExpression<Object> {
 
 	@Override
 	public Class<?> getReturnType() {
-		if (tagTypes != null) {
-			Class<?>[] possibleTypes = new Class<?>[tagTypes.length];
-			for (int i = 0; i < tagTypes.length; i++) {
-				possibleTypes[i] = tagTypes[i].type();
-			}
-			return Utils.getSuperType(possibleTypes);
-		}
-		return Object.class;
+		return returnType;
+	}
+
+	@Override
+	public Class<?>[] possibleReturnTypes() {
+		return possibleReturnTypes;
 	}
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
 		return "the tag contents of " + tag.toString(event, debug);
+	}
+
+	@Override
+	public Expression<?> simplify() {
+		if (tag instanceof Literal<Tag<?>>) {
+			Object[] values = getArray(ContextlessEvent.get());
+			return new SimpleLiteral(values, values.getClass().getComponentType(), true);
+		}
+		return super.simplify();
 	}
 
 }

@@ -2,6 +2,7 @@ package org.skriptlang.skript.bukkit.input.elements.expressions;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.*;
+import ch.njol.skript.effects.Delay;
 import ch.njol.skript.expressions.base.PropertyExpression;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
@@ -29,9 +30,12 @@ public class ExprCurrentInputKeys extends PropertyExpression<Player, InputKey> {
 		register(ExprCurrentInputKeys.class, InputKey.class, "[current] (inputs|input keys)", "players");
 	}
 
+	private boolean delayed;
+
 	@Override
 	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		setExpr((Expression<? extends Player>) expressions[0]);
+		delayed = !isDelayed.isFalse();
 		return true;
 	}
 
@@ -41,9 +45,11 @@ public class ExprCurrentInputKeys extends PropertyExpression<Player, InputKey> {
 		if (SUPPORTS_TIME_STATES && getTime() == EventValues.TIME_NOW && event instanceof PlayerInputEvent inputEvent)
 			eventPlayer = inputEvent.getPlayer();
 
+		boolean delayed = this.delayed || Delay.isDelayed(event);
+
 		List<InputKey> inputKeys = new ArrayList<>();
 		for (Player player : source) {
-			if (player.equals(eventPlayer)) {
+			if (!delayed && player.equals(eventPlayer)) {
 				inputKeys.addAll(InputKey.fromInput(((PlayerInputEvent) event).getInput()));
 			} else {
 				inputKeys.addAll(InputKey.fromInput(player.getCurrentInput()));

@@ -4,15 +4,15 @@
 #
 
 options:
-    my server name: Server Name
-    condition: player is alive
-    nice message: "You're alive!"
+	my server name: Server Name
+	condition: player is alive
+	nice message: "You're alive!"
 
 on join:
-    send "Welcome to {@my server name}"
-    # Options don't need `%...%` since they are raw inputs.
-    if {@condition}: # The raw `player is alive` is copied here during parsing.
-        send {@nice message}
+	send "Welcome to {@my server name}"
+	# Options don't need `%...%` since they are raw inputs.
+	if {@condition}: # The raw `player is alive` is copied here during parsing.
+		send {@nice message}
 
 #
 # An example of custom aliases for groups of items.
@@ -20,11 +20,11 @@ on join:
 #
 
 aliases:
-    pretty items = iron ingot, gold ingot, diamond
+	pretty items = iron ingot, gold ingot, diamond
 
 on join:
-    player has permission "skript.example.aliases"
-    give player random item out of pretty items # A random item from our alias.
+	player has permission "skript.example.aliases"
+	give player random item out of pretty items # A random item from our alias.
 
 #
 # An example showing how default variables can be used.
@@ -33,12 +33,12 @@ on join:
 #
 
 variables:
-    score::%player% = 100
-    some variable = "Hello"
+	{score::%player%} = 100
+	{some variable} = "Hello"
 
 command /variabletest:
-    permission: skript.example.variables
-    trigger:
-        add 1 to {score::%player%}
-        send "Your score is now %{score::%player%}%."
-        send {some variable}
+	permission: skript.example.variables
+	trigger:
+		add 1 to {score::%player%}
+		send "Your score is now %{score::%player%}%."
+		send {some variable}

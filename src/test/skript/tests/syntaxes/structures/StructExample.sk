@@ -1,0 +1,21 @@
+using examples
+
+example:
+	# None of this should be run
+	broadcast "foo bar"
+	wait 1 second
+	broadcast "hello world"
+
+example:
+	spawn a pig at spawn of world "world"
+
+parse:
+	results: {examples::*}
+	code:
+		example:
+			aldhfgfkudshgk
+
+test "examples":
+	# Examples should get parsed
+	assert {examples::*} contains "Can't understand this condition/effect: aldhfgfkudshgk" with "%{examples::*}%"
+	delete {examples::*}

@@ -44,11 +44,15 @@ public class TestResults {
 
 	public String createReport() {
 		StringBuilder sb = new StringBuilder("Succeeded:\n");
+		if (succeeded.isEmpty())
+			sb.append("<reset> - none\n");
 		for (String test : succeeded)
-			sb.append("<light green>").append(test).append('\n');
+			sb.append("<reset> - <light green>").append(test).append('\n');
 		sb.append("<reset>Failed:\n");
+		if (failed.isEmpty())
+			sb.append("<reset> - none");
 		for (Map.Entry<String, String> entry : failed.entrySet())
-			sb.append("<light red>").append(entry.getKey()).append("<reset>: <gray>").append(entry.getValue()).append('\n');
+			sb.append("<reset> - <light red>").append(entry.getKey()).append("<reset>: <gray>").append(entry.getValue()).append('\n');
 		return sb.toString();
 	}
 

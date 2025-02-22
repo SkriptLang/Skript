@@ -3,6 +3,7 @@ package ch.njol.skript.classes;
 import java.util.Arrays;
 
 import org.bukkit.event.Event;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.classes.data.DefaultChangers;
@@ -67,7 +68,7 @@ public interface Changer<T> {
 		 * @return Whether the changer accepted any of the given modes
 		 * @throws UnsupportedOperationException If the changer does not accept any of the given modes
 		 */
-		public static <T> boolean change(Changer<T> changer, Object[] what, Object @Nullable [] delta, ChangeMode... modes) {
+		public static <T> boolean change(@NotNull Changer<T> changer, Object[] what, Object @Nullable [] delta, ChangeMode... modes) {
 			for (ChangeMode mode : modes) {
 				// Asserts that the what array is of the correct type or inherits from it.
 				// what can't be T[] because of type erasure with expressions.
@@ -105,13 +106,30 @@ public interface Changer<T> {
 		 * @param types The types to test for
 		 * @return Whether <tt>expression.{@link Expression#change(Event, Object[], ChangeMode) change}(event, type[], mode)</tt> can be used or not.
 		 */
-		public static boolean acceptsChange(Expression<?> expression, ChangeMode mode, Class<?>... types) {
+		public static boolean acceptsChange(@NotNull Expression<?> expression, ChangeMode mode, Class<?>... types) {
 			Class<?>[] validTypes = expression.acceptChange(mode);
 			if (validTypes == null)
 				return false;
+
+			for (int i = 0; i < validTypes.length; i++) {
+				if (validTypes[i].isArray())
+					validTypes[i] = validTypes[i].getComponentType();
+			}
+
+			return acceptsChangeTypes(validTypes, types);
+		}
+
+		/**
+		 * Tests whether any of the given types is accepted by the given array of valid types.
+		 *
+		 * @param types The types to test for
+		 * @param validTypes The valid types. All array classes should be unwrapped to their component type before calling.
+		 * @return Whether any of the types is accepted by the valid types.
+		 */
+		public static boolean acceptsChangeTypes(Class<?>[] validTypes, Class<?> @NotNull ... types) {
 			for (Class<?> type : types) {
 				for (Class<?> validType : validTypes) {
-					if (validType.isArray() ? validType.getComponentType().isAssignableFrom(type) : validType.isAssignableFrom(type))
+					if (validType.isAssignableFrom(type))
 						return true;
 				}
 			}
