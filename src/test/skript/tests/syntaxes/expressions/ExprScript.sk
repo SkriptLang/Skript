@@ -4,7 +4,7 @@ options:
 	test: (join ("..", "..", "..", "..", "..", "..", "src", "test", "skript", "tests" and "") by file_separator())
 
 	# Princess test script is in another castle, Mario!
-	# paths are relativised to the ", "scripts", " directory
+	# paths are relativised to the "/scripts/" directory
 	# but we are loading these scripts from the test folder :(
 
 using script reflection

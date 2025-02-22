@@ -233,6 +233,8 @@ public class Environment {
 			args.add("-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=8000");
 		if (clean)
 			args.add("-Dskript.testing.clean=" + jUnit);
+		args.add("-Duser.language=en");
+		args.add("-Duser.country=US");
 		args.addAll(jvmArgs);
 		args.addAll(Arrays.asList(commandLine));
 

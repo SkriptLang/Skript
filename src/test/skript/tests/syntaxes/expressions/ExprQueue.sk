@@ -1,15 +1,15 @@
 using queues
 
 test "queue creation":
-	set {_queue} to a new queue
+	set {_queue} to a queue
 	assert {_queue} exists with "queue was not created"
 
 	delete {_queue}
-	set {_queue} to a new queue of "hello" and "there"
+	set {_queue} to a queue of "hello" and "there"
 	assert {_queue} exists with "queue was not created"
 
 test "queue polling behaviour":
-	set {_queue} to a new queue of "hello" and "there"
+	set {_queue} to a queue of "hello" and "there"
 
 	set {_word} to the first element in {_queue}
 	assert {_word} is "hello" with "element not polled"
@@ -17,7 +17,7 @@ test "queue polling behaviour":
 	set {_word} to the first element in {_queue}
 	assert {_word} is "there" with "element not polled"
 
-	set {_queue} to a new queue of "hello" and "there"
+	set {_queue} to a queue of "hello" and "there"
 
 	set {_word} to the last element in {_queue}
 	assert {_word} is "there" with "element not polled"
@@ -27,7 +27,7 @@ test "queue polling behaviour":
 	assert {_queue} is empty with "queue was not empty"
 
 test "queue start/end":
-	set {_queue} to a new queue of "hello" and "there"
+	set {_queue} to a queue of "hello" and "there"
 
 	set {_word} to the start of {_queue}
 	assert {_word} is "hello" with "element not found"
@@ -44,13 +44,13 @@ test "queue start/end":
 	assert {_queue} is empty with "queue was not empty"
 
 test "queue emptiness":
-	set {_queue} to a new queue
+	set {_queue} to a queue
 	assert {_queue} is empty with "queue was not empty"
 
-	set {_queue} to a new queue of "hello" and "there"
+	set {_queue} to a queue of "hello" and "there"
 	assert {_queue} is not empty with "queue was empty"
 
-	set {_queue} to a new queue
+	set {_queue} to a queue
 	add "hello" to {_queue}
 	assert {_queue} is not empty with "queue was empty"
 	set {_var} to the first element in {_queue}
@@ -58,7 +58,7 @@ test "queue emptiness":
 
 test "dequeue queue":
 
-	set {_queue} to a new queue of "hello" and "there"
+	set {_queue} to a queue of "hello" and "there"
 	assert {_queue} is not empty with "queue was empty"
 
 	set {_words::*} to dequeued {_queue}
@@ -69,3 +69,15 @@ test "dequeue queue":
 	assert {_words::*} are "hello" and "there" with "elements not polled"
 
 	assert {_queue} is empty with "queue was not empty"
+
+using for loops
+test "loop queue":
+	set {_queue} to a queue of "hello" and "there"
+	set {_count} to 0
+
+	for each {_word} in {_queue}:
+		add 1 to {_count}
+		if {_count} is less than 10:
+			add {_word} to {_queue}
+
+	assert {_count} is 11
