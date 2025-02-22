@@ -1,5 +1,6 @@
-# Comment a
 a:
+	# Comment a
+
 	b: # Comment b
 		c: true # Comment c
 		d: false
@@ -9,21 +10,19 @@ a:
 	# Comment f'
 
 	g: true
-
 	# Comment g
 
-# Comment a
-
 h:
+	# Comment h
+
 	c: true
 	d: false
 
-# Comment h
 i: false
 j: true # value differs from old config
 k: true # Comment k
 
 l: true
 
-x.z:
+x:
 	y: true
