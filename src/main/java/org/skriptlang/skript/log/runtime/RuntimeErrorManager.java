@@ -1,7 +1,7 @@
 package org.skriptlang.skript.log.runtime;
 
 import ch.njol.skript.Skript;
-import ch.njol.skript.SkriptConfig;
+import ch.njol.skript.config.SkriptConfig;
 import ch.njol.skript.util.Task;
 import ch.njol.skript.util.Timespan;
 import org.jetbrains.annotations.ApiStatus;
@@ -43,18 +43,18 @@ public class RuntimeErrorManager implements Closeable {
 	 * Tracked consumers are maintained during refreshes.
 	 */
 	public static void refresh() {
-		long frameLength = SkriptConfig.runtimeErrorFrameDuration.value().getAs(Timespan.TimePeriod.TICK);
+		long frameLength = SkriptConfig.RUNTIME_ERROR_FRAME_DURATION.value().getAs(Timespan.TimePeriod.TICK);
 
-		int errorLimit = SkriptConfig.runtimeErrorLimitTotal.value();
-		int errorLineLimit = SkriptConfig.runtimeErrorLimitLine.value();
-		int errorLineTimeout = SkriptConfig.runtimeErrorLimitLineTimeout.value();
-		int errorTimeoutLength = Math.max(SkriptConfig.runtimeErrorTimeoutDuration.value(), 1);
+		int errorLimit = SkriptConfig.RUNTIME_ERROR_LIMIT_TOTAL.value();
+		int errorLineLimit = SkriptConfig.RUNTIME_ERROR_LIMIT_LINE.value();
+		int errorLineTimeout = SkriptConfig.RUNTIME_ERROR_LIMIT_LINE_TIMEOUT.value();
+		int errorTimeoutLength = Math.max(SkriptConfig.RUNTIME_ERROR_TIMEOUT_DURATION.value(), 1);
 		FrameLimit errorFrame = new FrameLimit(errorLimit, errorLineLimit, errorLineTimeout, errorTimeoutLength);
 
-		int warningLimit = SkriptConfig.runtimeWarningLimitTotal.value();
-		int warningLineLimit = SkriptConfig.runtimeWarningLimitLine.value();
-		int warningLineTimeout = SkriptConfig.runtimeWarningLimitLineTimeout.value();
-		int warningTimeoutLength = Math.max(SkriptConfig.runtimeWarningTimeoutDuration.value(), 1);
+		int warningLimit = SkriptConfig.RUNTIME_WARNING_LIMIT_TOTAL.value();
+		int warningLineLimit = SkriptConfig.RUNTIME_WARNING_LIMIT_LINE.value();
+		int warningLineTimeout = SkriptConfig.RUNTIME_WARNING_LIMIT_LINE_TIMEOUT.value();
+		int warningTimeoutLength = Math.max(SkriptConfig.RUNTIME_WARNING_TIMEOUT_DURATION.value(), 1);
 		FrameLimit warningFrame = new FrameLimit(warningLimit, warningLineLimit, warningLineTimeout, warningTimeoutLength);
 
 		List<RuntimeErrorConsumer> oldConsumers = List.of();

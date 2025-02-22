@@ -2,7 +2,7 @@ package ch.njol.skript.command;
 
 import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.Skript;
-import ch.njol.skript.SkriptConfig;
+import ch.njol.skript.config.SkriptConfig;
 import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.TriggerItem;
 import ch.njol.skript.lang.parser.ParserInstance;
@@ -146,7 +146,7 @@ public abstract class Commands {
 					event.setCancelled(true);
 
 				// we can also handle case sensitivity here:
-				if (SkriptConfig.caseInsensitiveCommands.value()) {
+				if (SkriptConfig.CASE_INSENSITIVE_COMMANDS.value()) {
 					cmd[0] = event.getMessage().charAt(0) + label;
 					event.setMessage(String.join(" ", cmd));
 				}
@@ -158,7 +158,8 @@ public abstract class Commands {
 		public void onServerCommand(ServerCommandEvent event) {
 			if (event.getCommand().isEmpty() || event.isCancelled())
 				return;
-			if ((Skript.testing() || SkriptConfig.enableEffectCommands.value()) && event.getCommand().startsWith(SkriptConfig.effectCommandToken.value())) {
+			if ((Skript.testing() || SkriptConfig.ENABLE_EFFECT_COMMANDS.value())
+				&& event.getCommand().startsWith(SkriptConfig.EFFECT_COMMAND_TOKEN.value())) {
 				if (handleEffectCommand(event.getSender(), event.getCommand()))
 					event.setCancelled(true);
 			}
@@ -166,10 +167,11 @@ public abstract class Commands {
 	};
 
 	static boolean handleEffectCommand(CommandSender sender, String command) {
-		if (!(Skript.testing() || sender instanceof ConsoleCommandSender || sender.hasPermission("skript.effectcommands") || SkriptConfig.allowOpsToUseEffectCommands.value() && sender.isOp()))
+		if (!(Skript.testing() || sender instanceof ConsoleCommandSender || sender.hasPermission("skript.effectcommands")
+			|| SkriptConfig.ALLOW_OPS_TO_USE_EFFECT_COMMANDS.value() && sender.isOp()))
 			return false;
 		try {
-			command = "" + command.substring(SkriptConfig.effectCommandToken.value().length()).trim();
+			command = "" + command.substring(SkriptConfig.EFFECT_COMMAND_TOKEN.value().length()).trim();
 			RetainingLogHandler log = SkriptLogger.startRetainingLog();
 			try {
 				// Call the event on the Bukkit API for addon developers.
@@ -186,7 +188,7 @@ public abstract class Commands {
 					log.printLog();
 					if (!effectCommand.isCancelled()) {
 						sender.sendMessage(ChatColor.GRAY + "executing '" + SkriptColor.replaceColorChar(command) + "'");
-						if (SkriptConfig.logEffectCommands.value() && !(sender instanceof ConsoleCommandSender))
+						if (SkriptConfig.LOG_EFFECT_COMMANDS.value() && !(sender instanceof ConsoleCommandSender))
 							Skript.info(sender.getName() + " issued effect command: " + SkriptColor.replaceColorChar(command));
 						TriggerItem.walk(effect, effectCommand);
 						Variables.removeLocals(effectCommand);
@@ -281,7 +283,8 @@ public abstract class Commands {
 			Bukkit.getPluginManager().registerEvents(new Listener() {
 				@EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
 				public void onPlayerChat(AsyncPlayerChatEvent event) {
-					if ((!SkriptConfig.enableEffectCommands.value() && !Skript.testing()) || !event.getMessage().startsWith(SkriptConfig.effectCommandToken.value()))
+					if ((!SkriptConfig.ENABLE_EFFECT_COMMANDS.value() && !Skript.testing())
+						|| !event.getMessage().startsWith(SkriptConfig.EFFECT_COMMAND_TOKEN.value()))
 						return;
 					if (!event.isAsynchronous()) {
 						if (handleEffectCommand(event.getPlayer(), event.getMessage()))

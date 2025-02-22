@@ -2,7 +2,7 @@ package ch.njol.skript.lang;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptAPIException;
-import ch.njol.skript.SkriptConfig;
+import ch.njol.skript.config.SkriptConfig;
 import ch.njol.skript.lang.SkriptEvent.ListeningBehavior;
 import ch.njol.skript.lang.SkriptEventInfo.ModernSkriptEventInfo;
 import org.bukkit.event.Event;
@@ -65,7 +65,7 @@ public sealed class SkriptEventInfo<E extends SkriptEvent> extends StructureInfo
 		this.id = "" + name.toLowerCase(Locale.ENGLISH).replaceAll("[#'\"<>/&]", "").replaceAll("\\s+", "_");
 
 		// default listening behavior should be dependent on config setting
-		this.listeningBehavior = SkriptConfig.listenCancelledByDefault.value() ? ListeningBehavior.ANY : ListeningBehavior.UNCANCELLED;
+		this.listeningBehavior = SkriptConfig.LISTEN_CANCELLED_BY_DEFAULT.value() ? ListeningBehavior.ANY : ListeningBehavior.UNCANCELLED;
 	}
   
 	/**

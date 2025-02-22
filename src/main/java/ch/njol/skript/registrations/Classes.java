@@ -20,6 +20,7 @@ import java.util.Set;
 import java.util.regex.Pattern;
 
 import ch.njol.skript.command.Commands;
+import ch.njol.skript.config.SkriptConfig;
 import ch.njol.skript.entity.EntityData;
 import ch.njol.skript.util.Date;
 import ch.njol.skript.util.Utils;
@@ -31,7 +32,6 @@ import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptAPIException;
-import ch.njol.skript.SkriptConfig;
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.classes.Parser;
 import ch.njol.skript.classes.Serializer;
@@ -85,7 +85,7 @@ public abstract class Classes {
 			classInfosByCodeName.put(info.getCodeName(), info);
 			tempClassInfos.add(info);
 		} catch (RuntimeException e) {
-			if (SkriptConfig.apiSoftExceptions.value())
+			if (SkriptConfig.API_SOFT_EXCEPTIONS.value())
 				Skript.warning("Ignored an exception due to user configuration: " + e.getMessage());
 			else
 				throw e;
@@ -125,7 +125,7 @@ public abstract class Classes {
 	private static void sortClassInfos() {
 		assert classInfos == null;
 
-		if (!Skript.testing() && SkriptConfig.addonSafetyChecks.value())
+		if (!Skript.testing() && SkriptConfig.ADDON_SAFETY_CHECKS.value())
 			removeNullElements();
 
 		// merge before, after & sub/supertypes in after

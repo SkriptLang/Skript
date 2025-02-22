@@ -639,9 +639,6 @@ public class ScriptLoader {
 		parser.setActive(script);
 
 		try {
-			if (SkriptConfig.keepConfigsLoaded.value())
-				SkriptConfig.configs.add(config);
-
 			try (CountingLogHandler ignored = new CountingLogHandler(SkriptLogger.SEVERE).start()) {
 				for (Node node : config.getMainNode()) {
 					if (!(node instanceof SimpleNode) && !(node instanceof SectionNode)) {
@@ -968,7 +965,8 @@ public class ScriptLoader {
 				item = Statement.parse(expr, items, "Can't understand this condition/effect: " + expr);
 				if (item == null)
 					continue;
-				long requiredTime = SkriptConfig.longParseTimeWarningThreshold.value().getAs(Timespan.TimePeriod.MILLISECOND);
+				long requiredTime = ch.njol.skript.config.SkriptConfig.LONG_PARSE_TIME_WARNING_THRESHOLD.value()
+					.getAs(Timespan.TimePeriod.MILLISECOND);
 				if (requiredTime > 0) {
 					long timeTaken = System.currentTimeMillis() - start;
 					if (timeTaken > requiredTime)
@@ -1028,7 +1026,7 @@ public class ScriptLoader {
 			}
 
 			if (executionStops
-					&& !SkriptConfig.disableUnreachableCodeWarnings.value()
+					&& !ch.njol.skript.config.SkriptConfig.DISABLE_UNREACHABLE_CODE_WARNINGS.value()
 					&& parser.isActive()
 					&& !parser.getCurrentScript().suppressesWarning(ScriptWarning.UNREACHABLE_CODE)) {
 				Skript.warning("Unreachable code. The previous statement stops further execution.");
