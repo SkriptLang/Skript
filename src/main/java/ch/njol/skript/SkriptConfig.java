@@ -22,7 +22,6 @@ import ch.njol.skript.variables.Variables;
 import co.aikar.timings.Timings;
 import org.bukkit.event.EventPriority;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.config.Config;
 import org.skriptlang.skript.util.event.EventRegistry;
 
 import java.io.File;
@@ -39,7 +38,6 @@ import java.util.regex.PatternSyntaxException;
 /**
  * @deprecated Use {@link ch.njol.skript.config.SkriptConfig} instead.
  */
-@SuppressWarnings("unused")
 @Deprecated(forRemoval = true)
 public class SkriptConfig {
 
@@ -193,6 +191,9 @@ public class SkriptConfig {
 
 	public static final Option<Boolean> disableObjectCannotBeSavedWarnings = new Option<>("disable variable will not be saved warnings", false);
 	public static final Option<Boolean> disableMissingAndOrWarnings = new Option<>("disable variable missing and/or warnings", false);
+	public static final Option<Boolean> allowFunctionsBeforeDefs = new Option<>("allow function calls before definations", false)
+		.optional(true);
+
 	public static final Option<Boolean> disableVariableStartingWithExpressionWarnings =
 		new Option<>("disable starting a variable's name with an expression warnings", false);
 	public static final Option<Boolean> disableUnreachableCodeWarnings = new Option<>("disable unreachable code warnings", false);
@@ -376,7 +377,7 @@ public class SkriptConfig {
 	// also used for reloading
 	static void load() {
 		if (mainConfig != null)
-//			mainConfig.invalidate(); // todo
+			mainConfig.invalidate(); // todo
 		try {
 			File configFile = new File(Skript.getInstance().getDataFolder(), "config.sk");
 
@@ -391,7 +392,7 @@ public class SkriptConfig {
 
 			Config mainConfig;
 			try {
-				mainConfig = Config.load(configFile.toPath());
+				mainConfig = new Config(configFile, false, false, ":");
 			} catch (IOException ex) {
 				Skript.exception(ex, "Could not load the main config");
 				return;
@@ -400,38 +401,38 @@ public class SkriptConfig {
 
 			String configVersion = mainConfig.getValue(version.key);
 			if (configVersion == null || Skript.getVersion().compareTo(new Version(configVersion)) != 0) {
-//				if (!mainConfig.getMainNode().isValid()) {
-//					Skript.error("Your config is outdated, but cannot be updated because it contains errors.");
-//					return;
-//				}
+				if (!mainConfig.getMainNode().isValid()) {
+					Skript.error("Your config is outdated, but cannot be updated because it contains errors.");
+					return;
+				}
 
 				try (InputStream stream = Skript.getInstance().getResource("config.sk")) {
 					if (stream == null) {
 						Skript.error("Your config is outdated, but Skript couldn't find the newest config in its jar.");
 						return;
 					}
-					Config newConfig = Config.load(stream);
+					Config newConfig = new Config(stream, "Skript.jar/config.sk", false, false, ":");
 
 					File backup = FileUtils.backup(configFile);
-//					boolean updated = mainConfig.updateNodes(newConfig);
-//					mainConfig.setValue(version.key, Skript.getVersion().toString());
-					mainConfig.save();
+					boolean updated = mainConfig.updateNodes(newConfig);
+					mainConfig.getMainNode().set(version.key, Skript.getVersion().toString());
+					mainConfig.save(configFile);
 					SkriptConfig.mainConfig = mainConfig;
 
-//					if (updated) {
-//						Skript.info("Your configuration has been updated to the latest version. " +
-//							"A backup of your old config file has been created as " + backup.getName());
-//					} else {
-//						Skript.info("Your configuration is outdated, but no changes were performed. " +
-//							"A backup of your config file has been created as " + backup.getName());
-//					}
+					if (updated) {
+						Skript.info("Your configuration has been updated to the latest version. " +
+							"A backup of your old config file has been created as " + backup.getName());
+					} else {
+						Skript.info("Your configuration is outdated, but no changes were performed. " +
+							"A backup of your config file has been created as " + backup.getName());
+					}
 				} catch (IOException ex) {
 					Skript.exception(ex, "Could not update the main config");
 					return;
 				}
 			}
 
-//			mainConfig.load(SkriptConfig.class);
+			mainConfig.load(SkriptConfig.class);
 		} catch (RuntimeException ex) {
 			Skript.exception(ex, "An error occurred while loading the config");
 		}

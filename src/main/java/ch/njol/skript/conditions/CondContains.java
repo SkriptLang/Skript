@@ -1,8 +1,8 @@
 package ch.njol.skript.conditions;
 
 import ch.njol.skript.Skript;
-import ch.njol.skript.SkriptConfig;
 import ch.njol.skript.aliases.ItemType;
+import ch.njol.skript.config.SkriptConfig;
 import ch.njol.skript.lang.util.common.AnyContains;
 import org.skriptlang.skript.lang.comparator.Relation;
 import ch.njol.skript.doc.Description;
@@ -118,7 +118,7 @@ public class CondContains extends Condition {
 				});
 			}, isNegated(), containers.getAnd());
 			case STRING -> {
-				boolean caseSensitive = SkriptConfig.caseSensitive.value();
+				boolean caseSensitive = SkriptConfig.CASE_SENSITIVE.value();
 
 				yield SimpleExpression.check(containerValues, o -> {
 					String string = (String) o;

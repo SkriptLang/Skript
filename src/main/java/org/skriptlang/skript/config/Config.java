@@ -10,7 +10,7 @@ import java.nio.file.Path;
 
 /**
  * Represents a configuration file.
- * Configuration files are immutable; they can only be read.
+ * Configuration files are read-only.
  */
 public interface Config extends AnyNamed {
 

@@ -1,16 +1,7 @@
 package ch.njol.skript.expressions;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
-import java.util.NoSuchElementException;
-
-import org.bukkit.event.Event;
-import org.jetbrains.annotations.Nullable;
-
 import ch.njol.skript.Skript;
-import ch.njol.skript.SkriptConfig;
+import ch.njol.skript.config.SkriptConfig;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
@@ -20,6 +11,10 @@ import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
+import org.bukkit.event.Event;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.*;
 
 /**
  * @author Peter Güttinger
@@ -81,7 +76,7 @@ public class ExprNumbers extends SimpleExpression<Number> {
 		} else if (mode == 2) {
 			
 			final String[] split = (reverse ? f : s).toString().split("\\.");
-			final int numberAccuracy = SkriptConfig.numberAccuracy.value();
+			final int numberAccuracy = SkriptConfig.NUMBER_ACCURACY.value();
 			int precision = Math.min(split.length > 1 ? split[1].length() : 0, numberAccuracy);
 			
 			final double multiplier = Math.pow(10, precision);
@@ -133,7 +128,7 @@ public class ExprNumbers extends SimpleExpression<Number> {
 				final double max = finish.doubleValue();
 				
 				final String[] split = (reverse ? finish : starting).toString().split("\\.");
-				final int numberAccuracy = SkriptConfig.numberAccuracy.value();
+				final int numberAccuracy = SkriptConfig.NUMBER_ACCURACY.value();
 				final int precision = Math.min(split.length > 1 ? split[1].length() : 0, numberAccuracy);
 				final double multiplier = Math.pow(10, precision);
 				

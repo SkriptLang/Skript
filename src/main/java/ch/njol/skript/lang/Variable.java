@@ -11,11 +11,11 @@ import java.util.function.Function;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptAPIException;
-import ch.njol.skript.SkriptConfig;
 import ch.njol.skript.classes.Changer;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.classes.Changer.ChangerUtils;
 import ch.njol.skript.classes.ClassInfo;
+import ch.njol.skript.config.SkriptConfig;
 import ch.njol.skript.variables.VariablesStorage;
 import org.skriptlang.skript.lang.arithmetic.Arithmetics;
 import org.skriptlang.skript.lang.arithmetic.OperationInfo;
@@ -197,7 +197,7 @@ public class Variable<T> implements Expression<T>, KeyReceiverExpression<T>, Key
 		ParserInstance parser = ParserInstance.get();
 		Script currentScript = parser.isActive() ? parser.getCurrentScript() : null;
 		if (currentScript != null
-			&& !SkriptConfig.disableVariableStartingWithExpressionWarnings.value()
+			&& !SkriptConfig.DISABLE_VARIABLE_STARTING_WITH_EXPRESSION_WARNINGS.value()
 			&& !currentScript.suppressesWarning(ScriptWarning.VARIABLE_STARTS_WITH_EXPRESSION)
 			&& (isLocal ? name.substring(LOCAL_VARIABLE_TOKEN.length()) : name).startsWith("%")) {
 			Skript.warning("Starting a variable's name with an expression is discouraged ({" + name + "}). " +
@@ -369,7 +369,7 @@ public class Variable<T> implements Expression<T>, KeyReceiverExpression<T>, Key
 	 * as a new player object has been created by the server.
 	 */
 	public static <T> @Nullable T convertIfOldPlayer(String key, boolean local, Event event, @Nullable T object) {
-		if (SkriptConfig.enablePlayerVariableFix.value() && object instanceof Player oldPlayer) {
+		if (SkriptConfig.ENABLE_PLAYER_VARIABLE_FIX.value() && object instanceof Player oldPlayer) {
 			if (!oldPlayer.isValid() && oldPlayer.isOnline()) {
 				Player newPlayer = Bukkit.getPlayer(oldPlayer.getUniqueId());
 				Variables.setVariable(key, newPlayer, event, local);

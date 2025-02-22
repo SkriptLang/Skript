@@ -1,7 +1,6 @@
 package ch.njol.skript.classes.data;
 
 import ch.njol.skript.Skript;
-import ch.njol.skript.SkriptConfig;
 import ch.njol.skript.aliases.Aliases;
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.bukkitutil.BukkitUtils;
@@ -10,6 +9,7 @@ import ch.njol.skript.bukkitutil.SkriptTeleportFlag;
 import ch.njol.skript.bukkitutil.ItemUtils;
 import ch.njol.skript.classes.*;
 import ch.njol.skript.classes.registry.RegistryClassInfo;
+import ch.njol.skript.config.SkriptConfig;
 import ch.njol.skript.entity.EntityData;
 import ch.njol.skript.entity.WolfData;
 import ch.njol.skript.expressions.ExprDamageCause;
@@ -679,7 +679,7 @@ public class BukkitClasses {
 
 					@Override
 					public String toVariableNameString(final Player p) {
-						if (SkriptConfig.usePlayerUUIDsInVariableNames.value())
+						if (SkriptConfig.USE_PLAYER_UUIDS_IN_VARIABLE_NAMES.value())
 							return "" + p.getUniqueId();
 						else
 							return "" + p.getName();
@@ -714,7 +714,7 @@ public class BukkitClasses {
 						if (context == ParseContext.COMMAND || context == ParseContext.PARSE) {
 							if (UUID_PATTERN.matcher(s).matches())
 								return Bukkit.getOfflinePlayer(UUID.fromString(s));
-							else if (!SkriptConfig.playerNameRegexPattern.value().matcher(s).matches())
+							else if (!SkriptConfig.PLAYER_NAME_REGEX_PATTTERN.value().matcher(s).matches())
 								return null;
 							return Bukkit.getOfflinePlayer(s);
 						}
@@ -734,7 +734,7 @@ public class BukkitClasses {
 
 					@Override
 					public String toVariableNameString(OfflinePlayer p) {
-						if (SkriptConfig.usePlayerUUIDsInVariableNames.value() || p.getName() == null)
+						if (SkriptConfig.USE_PLAYER_UUIDS_IN_VARIABLE_NAMES.value() || p.getName() == null)
 							return "" + p.getUniqueId();
 						else
 							return "" + p.getName();

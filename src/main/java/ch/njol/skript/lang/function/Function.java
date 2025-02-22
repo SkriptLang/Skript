@@ -1,7 +1,7 @@
 package ch.njol.skript.lang.function;
 
-import ch.njol.skript.SkriptConfig;
 import ch.njol.skript.classes.ClassInfo;
+import ch.njol.skript.config.SkriptConfig;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.Bukkit;
 import org.jetbrains.annotations.Nullable;
@@ -17,7 +17,7 @@ public abstract class Function<T> {
 	 * Execute functions even when some parameters are not present.
 	 * Field is updated by SkriptConfig in case of reloads.
 	 */
-	public static boolean executeWithNulls = SkriptConfig.executeFunctionsWithMissingParams.value();
+	public static boolean executeWithNulls = SkriptConfig.EXECUTE_FUNCTIONS_WITH_MISSING_PARAMS.value();
 
 	private final Signature<T> sign;
 	

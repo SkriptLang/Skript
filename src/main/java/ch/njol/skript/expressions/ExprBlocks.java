@@ -2,6 +2,7 @@ package ch.njol.skript.expressions;
 
 import java.util.Iterator;
 
+import ch.njol.skript.config.SkriptConfig;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
@@ -12,7 +13,6 @@ import org.jetbrains.annotations.Nullable;
 import com.google.common.collect.Lists;
 
 import ch.njol.skript.Skript;
-import ch.njol.skript.SkriptConfig;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
@@ -137,7 +137,7 @@ public class ExprBlocks extends SimpleExpression<Block> {
 				// Cannot be zero.
 				if (vector.getX() == 0 && vector.getY() == 0 && vector.getZ() == 0)
 					return null;
-				int distance = SkriptConfig.maxTargetBlockDistance.value();
+				int distance = SkriptConfig.MAX_TARGET_BLOCK_DISTANCE.value();
 				if (this.direction instanceof ExprDirection) {
 					Expression<Number> numberExpression = ((ExprDirection) this.direction).amount;
 					if (numberExpression != null) {

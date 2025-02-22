@@ -1,11 +1,11 @@
 package ch.njol.skript.classes.data;
 
 import ch.njol.skript.Skript;
-import ch.njol.skript.SkriptConfig;
 import ch.njol.skript.aliases.Aliases;
 import ch.njol.skript.aliases.ItemData;
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.classes.ClassInfo;
+import ch.njol.skript.config.SkriptConfig;
 import ch.njol.skript.entity.BoatChestData;
 import ch.njol.skript.entity.BoatData;
 import ch.njol.skript.entity.EntityData;
@@ -395,7 +395,7 @@ public class DefaultComparators {
 		Comparators.registerComparator(String.class, String.class, new Comparator<String, String>() {
 			@Override
 			public Relation compare(String s1, String s2) {
-				return Relation.get(StringUtils.equals(s1, s2, SkriptConfig.caseSensitive.value()));
+				return Relation.get(StringUtils.equals(s1, s2, SkriptConfig.CASE_SENSITIVE.value()));
 			}
 
 			@Override

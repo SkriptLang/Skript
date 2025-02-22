@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import ch.njol.skript.config.SkriptConfig;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.event.Event;
@@ -15,7 +16,6 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.Skript;
-import ch.njol.skript.SkriptConfig;
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.classes.Changer.ChangerUtils;
@@ -219,7 +219,7 @@ public class ExprLore extends SimpleExpression<String> {
 	}
 
 	private String handleRemove(String input, String toRemove, boolean all) {
-		if (SkriptConfig.caseSensitive.value()) {
+		if (SkriptConfig.CASE_SENSITIVE.value()) {
 			if (all) {
 				return input.replace(toRemove, "");
 			} else {

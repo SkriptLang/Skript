@@ -2,9 +2,9 @@ package ch.njol.skript.lang;
 
 import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.Skript;
-import ch.njol.skript.SkriptConfig;
 import ch.njol.skript.SkriptEventHandler;
 import ch.njol.skript.config.SectionNode;
+import ch.njol.skript.config.SkriptConfig;
 import ch.njol.skript.events.EvtClick;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.structures.StructEvent.EventData;
@@ -202,7 +202,7 @@ public abstract class SkriptEvent extends Structure {
 	 * Defined by the user-specified priority, or otherwise the default event priority.
 	 */
 	public EventPriority getEventPriority() {
-		return eventPriority != null ? eventPriority : SkriptConfig.defaultEventPriority.value();
+		return eventPriority != null ? eventPriority : SkriptConfig.DEFAULT_EVENT_PRIORITY.value();
 	}
 
 	/**

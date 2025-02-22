@@ -1,6 +1,6 @@
 package ch.njol.skript.util;
 
-import ch.njol.skript.SkriptConfig;
+import ch.njol.skript.config.SkriptConfig;
 import ch.njol.yggdrasil.YggdrasilSerializable;
 import org.jetbrains.annotations.Nullable;
 
@@ -129,7 +129,7 @@ public class Date extends java.util.Date implements YggdrasilSerializable {
 
 	@Override
 	public String toString() {
-		return SkriptConfig.formatDate(getTime());
+		return SkriptConfig.DATE_FORMAT.value().format(getTime());
 	}
 
 }

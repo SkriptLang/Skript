@@ -2,10 +2,10 @@ package ch.njol.skript.aliases;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptAddon;
-import ch.njol.skript.SkriptConfig;
 import ch.njol.skript.config.Config;
 import ch.njol.skript.config.Node;
 import ch.njol.skript.config.SectionNode;
+import ch.njol.skript.config.SkriptConfig;
 import ch.njol.skript.entity.EntityData;
 import ch.njol.skript.lang.parser.ParserInstance;
 import ch.njol.skript.localization.*;
@@ -56,7 +56,7 @@ public abstract class Aliases {
 	 * If user had an obscure config option set, don't crash due to missing
 	 * Java item types.
 	 */
-	private static final boolean noHardExceptions = SkriptConfig.apiSoftExceptions.value();
+	private static final boolean noHardExceptions = SkriptConfig.API_SOFT_EXCEPTIONS.value();
 	static String itemSingular = "item";
 	static String itemPlural = "items";
 	static String blockSingular = "block";
@@ -458,7 +458,7 @@ public abstract class Aliases {
 
 		// Load aliases.zip OR aliases from jar (never both)
 		Path zipPath = dataFolder.resolve("aliases-english.zip");
-		if (!SkriptConfig.loadDefaultAliases.value()) {
+		if (!SkriptConfig.LOAD_DEFAULT_ALIASES.value()) {
 			// Or do nothing, if user requested that default aliases are not loaded
 		} else if (Files.exists(zipPath)) { // Load if it exists
 			try (FileSystem zipFs = FileSystems.newFileSystem(zipPath, Skript.class.getClassLoader())) {

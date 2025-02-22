@@ -3,7 +3,7 @@ package ch.njol.skript.expressions;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
-import ch.njol.skript.SkriptConfig;
+import ch.njol.skript.config.SkriptConfig;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SyntaxStringBuilder;
 import org.bukkit.event.Event;
@@ -53,7 +53,7 @@ public class ExprJoinSplit extends SimpleExpression<String> {
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		join = matchedPattern == 0;
 		regex = matchedPattern >= 3;
-		caseSensitivity = SkriptConfig.caseSensitive.value() || parseResult.hasTag("case");
+		caseSensitivity = SkriptConfig.CASE_SENSITIVE.value() || parseResult.hasTag("case");
 		removeTrailing = parseResult.hasTag("trailing");
 		//noinspection unchecked
 		strings = (Expression<String>) exprs[0];

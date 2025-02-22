@@ -19,6 +19,8 @@ import org.skriptlang.skript.util.event.EventRegistry;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Locale;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
 /**
  * Represents all options in Skript's config file.
@@ -94,7 +96,7 @@ public interface SkriptConfig {
 				if (input.equalsIgnoreCase("default"))
 					return null;
 				return new SimpleDateFormat(input);
-			} catch (final IllegalArgumentException e) {
+			} catch (IllegalArgumentException e) {
 				Skript.error("'" + input + "' is not a valid date format. Please refer to https://docs.oracle.com/javase/8/docs/api/java/text/SimpleDateFormat.html for instructions.");
 			}
 			return null;
@@ -120,7 +122,7 @@ public interface SkriptConfig {
 		EventPriority parse(String input) {
 			try {
 				return EventPriority.valueOf(input.toUpperCase(Locale.ENGLISH));
-			} catch (final IllegalArgumentException e) {
+			} catch (IllegalArgumentException e) {
 				Skript.error("The plugin priority must be one of lowest, low, normal, high, or highest.");
 				return null;
 			}
@@ -189,6 +191,18 @@ public interface SkriptConfig {
 				}
 			}
 			ScriptLoader.setAsyncLoaderSize(asyncLoaderSize);
+		}
+	};
+
+	ConfigOption<Pattern> PLAYER_NAME_REGEX_PATTTERN = new ConfigOption<>("player name regex pattern", Pattern.compile("[a-zA-Z0-9_]{1,16}")) {
+		@Override
+		Pattern parse(String input) {
+			try {
+				return Pattern.compile(input);
+			} catch (PatternSyntaxException e) {
+				Skript.error("Invalid player name regex pattern: " + e.getMessage());
+				return null;
+			}
 		}
 	};
 

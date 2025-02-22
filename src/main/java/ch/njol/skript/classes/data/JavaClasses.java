@@ -1,10 +1,10 @@
 package ch.njol.skript.classes.data;
 
 import ch.njol.skript.Skript;
-import ch.njol.skript.SkriptConfig;
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.classes.Parser;
 import ch.njol.skript.classes.Serializer;
+import ch.njol.skript.config.SkriptConfig;
 import ch.njol.skript.expressions.base.EventValueExpression;
 import ch.njol.skript.lang.ParseContext;
 import ch.njol.skript.lang.VariableString;
@@ -430,7 +430,7 @@ public class JavaClasses {
 
 		@Override
 		public String toString(Number number, int flags) {
-			return StringUtils.toString(number.doubleValue(), SkriptConfig.numberAccuracy.value());
+			return StringUtils.toString(number.doubleValue(), SkriptConfig.NUMBER_ACCURACY.value());
 		}
 
 		@Override
@@ -592,7 +592,7 @@ public class JavaClasses {
 
 		@Override
 		public String toString(Double d, int flags) {
-			return StringUtils.toString(d, SkriptConfig.numberAccuracy.value());
+			return StringUtils.toString(d, SkriptConfig.NUMBER_ACCURACY.value());
 		}
 
 		@Override
@@ -646,7 +646,7 @@ public class JavaClasses {
 
 		@Override
 		public String toString(Float f, int flags) {
-			return StringUtils.toString(f, SkriptConfig.numberAccuracy.value());
+			return StringUtils.toString(f, SkriptConfig.NUMBER_ACCURACY.value());
 		}
 
 		@Override

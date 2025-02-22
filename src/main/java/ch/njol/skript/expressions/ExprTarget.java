@@ -2,6 +2,7 @@ package ch.njol.skript.expressions;
 
 import java.util.function.Predicate;
 
+import ch.njol.skript.config.SkriptConfig;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
@@ -13,11 +14,9 @@ import org.bukkit.event.Event;
 import org.bukkit.event.entity.EntityTargetEvent;
 import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.Vector;
-import org.jetbrains.annotations.ApiStatus.ScheduledForRemoval;
 import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.Skript;
-import ch.njol.skript.SkriptConfig;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
@@ -73,7 +72,7 @@ public class ExprTarget extends PropertyExpression<LivingEntity, Entity> {
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parser) {
 		type = exprs[matchedPattern] == null ? null : (EntityData<?>) exprs[matchedPattern].getSingle(null);
 		setExpr((Expression<? extends LivingEntity>) exprs[1 - matchedPattern]);
-		targetBlockDistance = SkriptConfig.maxTargetBlockDistance.value();
+		targetBlockDistance = SkriptConfig.MAX_TARGET_BLOCK_DISTANCE.value();
 		if (targetBlockDistance < 0)
 			targetBlockDistance = 100;
 		ignoreBlocks = parser.hasTag("blocks");

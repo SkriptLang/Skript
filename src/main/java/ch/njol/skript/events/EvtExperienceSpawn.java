@@ -1,8 +1,8 @@
 package ch.njol.skript.events;
 
 import ch.njol.skript.Skript;
-import ch.njol.skript.SkriptConfig;
 import ch.njol.skript.SkriptEventHandler;
+import ch.njol.skript.config.SkriptConfig;
 import ch.njol.skript.events.bukkit.ExperienceSpawnEvent;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptEvent;
@@ -111,7 +111,7 @@ public class EvtExperienceSpawn extends SkriptEvent {
 	public boolean postLoad() {
 		TRIGGERS.add(trigger);
 		if (REGISTERED_EXECUTORS.compareAndSet(false, true)) {
-			EventPriority priority = SkriptConfig.defaultEventPriority.value();
+			EventPriority priority = SkriptConfig.DEFAULT_EVENT_PRIORITY.value();
 			//noinspection unchecked
 			for (Class<? extends Event> clazz : new Class[]{BlockExpEvent.class, EntityDeathEvent.class, ExpBottleEvent.class, PlayerFishEvent.class})
 				Bukkit.getPluginManager().registerEvent(clazz, new Listener(){}, priority, EXECUTOR, Skript.getInstance(), true);

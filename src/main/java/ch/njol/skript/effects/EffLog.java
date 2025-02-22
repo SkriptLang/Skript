@@ -9,12 +9,12 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.logging.Level;
 
+import ch.njol.skript.config.SkriptConfig;
 import org.skriptlang.skript.lang.script.Script;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.Skript;
-import ch.njol.skript.SkriptConfig;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
@@ -62,7 +62,7 @@ public class EffLog extends Effect {
 
 	private Level logLevel = Level.INFO;
 	private static String getLogPrefix(Level logLevel) {
-		String timestamp = SkriptConfig.formatDate(System.currentTimeMillis());
+		String timestamp = SkriptConfig.DATE_FORMAT.value().format(System.currentTimeMillis());
 		if (logLevel == Level.INFO)
 			return "[" + timestamp + "]";
 		return "[" + timestamp + " " + logLevel + "]";

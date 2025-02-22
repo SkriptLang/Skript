@@ -2,9 +2,9 @@ package ch.njol.skript.command;
 
 import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.Skript;
-import ch.njol.skript.SkriptConfig;
 import ch.njol.skript.command.Commands.CommandAliasHelpTopic;
 import ch.njol.skript.config.SectionNode;
+import ch.njol.skript.config.SkriptConfig;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.lang.Trigger;
@@ -270,7 +270,7 @@ public class ScriptCommand implements TabExecutor {
 
 				if (getLastUsage(uuid, event) != null) {
 					if (getRemainingMilliseconds(uuid, event) <= 0) {
-						if (!SkriptConfig.keepLastUsageDates.value())
+						if (!SkriptConfig.KEEP_LAST_USAGE_DATES.value())
 							setLastUsage(uuid, event, null);
 					} else {
 						String msg = cooldownMessage.getSingle(event);

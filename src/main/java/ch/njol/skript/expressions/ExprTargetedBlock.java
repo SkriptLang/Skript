@@ -1,8 +1,8 @@
 package ch.njol.skript.expressions;
 
 import ch.njol.skript.Skript;
-import ch.njol.skript.SkriptConfig;
 import ch.njol.skript.bukkitutil.ItemUtils;
+import ch.njol.skript.config.SkriptConfig;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
@@ -52,7 +52,7 @@ public class ExprTargetedBlock extends PropertyExpression<LivingEntity, Block> {
 
 	@Override
 	protected Block[] get(Event event, LivingEntity[] source) {
-		Integer distance = SkriptConfig.maxTargetBlockDistance.value();
+		Integer distance = SkriptConfig.MAX_TARGET_BLOCK_DISTANCE.value();
 		return get(source, livingEntity -> {
 			Block block;
 			if (actual) {
