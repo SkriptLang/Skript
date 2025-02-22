@@ -1,6 +1,7 @@
 package org.skriptlang.skript.config;
 
 import ch.njol.skript.lang.util.common.AnyNamed;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
@@ -20,6 +21,7 @@ public interface Config extends AnyNamed {
 	 * @return The loaded {@link Config}.
 	 * @throws IOException if reading the file fails.
 	 */
+	@Contract("_ -> new")
 	static Config load(@NotNull Path path) throws IOException {
 		return new ConfigImpl(path);
 	}
@@ -31,6 +33,7 @@ public interface Config extends AnyNamed {
 	 * @return The loaded {@link Config}.
 	 * @throws IOException if reading the stream fails.
 	 */
+	@Contract("_ -> new")
 	static Config load(@NotNull InputStream stream) throws IOException {
 		return new ConfigImpl(stream);
 	}

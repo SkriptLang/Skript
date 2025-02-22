@@ -15,7 +15,7 @@ import java.util.*;
 /**
  * The current implementation of the {@link Config} interface.
  */
-class ConfigImpl implements Config {
+final class ConfigImpl implements Config {
 
 	private final Map<ConfigSection, List<ConfigNode>> nodes;
 	private final Path path;
@@ -28,6 +28,8 @@ class ConfigImpl implements Config {
 	}
 
 	ConfigImpl(@NotNull InputStream stream) throws IOException {
+		Preconditions.checkNotNull(stream, "stream is not set");
+
 		this.path = Path.of("");
 
 		try (InputStreamReader is = new InputStreamReader(stream);
@@ -37,12 +39,16 @@ class ConfigImpl implements Config {
 	}
 
 	ConfigImpl(@NotNull Map<ConfigSection, List<ConfigNode>> nodes) {
+		Preconditions.checkNotNull(nodes, "nodes is not set");
+
 		this.path = Path.of("");
 		this.nodes = nodes;
 	}
 
 	@Override
 	public <T> T getValue(@NotNull String path) {
+		Preconditions.checkNotNull(path, "path is not set");
+
 		ConfigNode node = getNode(path);
 		if (node instanceof ConfigEntry<?> configEntry) {
 			//noinspection unchecked
@@ -53,6 +59,8 @@ class ConfigImpl implements Config {
 
 	@Override
 	public ConfigNode getNode(@NotNull String path) {
+		Preconditions.checkNotNull(path, "path is not set");
+
 		String[] keys = path.split("\\.");
 
 		ConfigSection parent = null;
@@ -76,6 +84,8 @@ class ConfigImpl implements Config {
 
 	@Override
 	public ConfigNode[] getNodeChildren(@NotNull String path) {
+		Preconditions.checkNotNull(path, "path is not set");
+
 		ConfigNode node = getNode(path);
 		if (node instanceof ConfigSection section) {
 			return nodes.get(section).toArray(new ConfigNode[0]);
