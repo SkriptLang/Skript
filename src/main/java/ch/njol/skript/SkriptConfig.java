@@ -1,9 +1,6 @@
 package ch.njol.skript;
 
-import ch.njol.skript.config.ConfigOption;
-import ch.njol.skript.config.EnumParser;
-import ch.njol.skript.config.Option;
-import ch.njol.skript.config.OptionSection;
+import ch.njol.skript.config.*;
 import ch.njol.skript.hooks.Hook;
 import ch.njol.skript.hooks.VaultHook;
 import ch.njol.skript.hooks.regions.GriefPreventionHook;
@@ -40,11 +37,10 @@ import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
 /**
- * Important: don't save values from the config, a '/skript reload config/configs/all' won't work correctly otherwise!
- *
- * @author Peter Güttinger
+ * @deprecated Use {@link ch.njol.skript.config.SkriptConfig} instead.
  */
 @SuppressWarnings("unused")
+@Deprecated(forRemoval = true)
 public class SkriptConfig {
 
 	//<editor-fold desc="SkriptConfig events">

@@ -13,6 +13,10 @@ import org.skriptlang.skript.lang.converter.Converter;
 import java.util.Locale;
 import java.util.function.Consumer;
 
+/**
+ * @deprecated Use {@link ConfigOption} instead.
+ */
+@Deprecated(forRemoval = true)
 public class Option<T> {
 
 	public final String key;
