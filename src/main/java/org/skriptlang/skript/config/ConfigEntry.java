@@ -81,9 +81,6 @@ public class ConfigEntry<T> implements ConfigNode, AnyValued<T> {
 				joiner.add("# %s".formatted(comment));
 			}
 		}
-		if (comments.length > 0) {
-			joiner.add("");
-		}
 
 		return joiner.toString();
 	}

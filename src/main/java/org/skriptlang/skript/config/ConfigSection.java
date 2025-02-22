@@ -64,9 +64,6 @@ public class ConfigSection implements ConfigNode {
 				joiner.add("\t# %s".formatted(comment));
 			}
 		}
-		if (comments.length > 0) {
-			joiner.add("");
-		}
 
 		return joiner.toString();
 	}
