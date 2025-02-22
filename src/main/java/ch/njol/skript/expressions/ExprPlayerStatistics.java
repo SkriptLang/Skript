@@ -36,7 +36,7 @@ import org.skriptlang.skript.log.runtime.*;
 @Examples({
 	"set the mc kill entity statistic for a pig of player to 10",
 	"add 5 to the minecraft kill entity statistic for a pig of player",
-	"broadcast \"You have left the game %statistic \"leave game\" of player% times!\""
+	"broadcast \"You have left the game %mc leave game statistic of player% times!\""
 })
 @Since("INSERT VERSION")
 public class ExprPlayerStatistics extends SimpleExpression<Integer> implements SyntaxRuntimeErrorProducer {

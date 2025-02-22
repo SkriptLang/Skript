@@ -24,7 +24,7 @@ public class EvtPlayerStatisticChange extends SkriptEvent {
 			.examples(
 				"on player statistic increase:",
 					"\tbroadcast \"%player%'s statistic '%event-statistic%' increased! It is now %future statistic value%!\"",
-				"on player statistic increase of \"leave game\":",
+				"on player statistic increase of leave game statistic:",
 					"\tbroadcast \"%player% left the game for %future statistic value% times..\"")
 			.since("INSERT VERSION");
 
