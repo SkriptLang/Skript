@@ -418,7 +418,7 @@ public class SkriptConfig {
 
 					File backup = FileUtils.backup(configFile);
 //					boolean updated = mainConfig.updateNodes(newConfig);
-					mainConfig.setValue(version.key, Skript.getVersion().toString());
+//					mainConfig.setValue(version.key, Skript.getVersion().toString());
 					mainConfig.save();
 					SkriptConfig.mainConfig = mainConfig;
 

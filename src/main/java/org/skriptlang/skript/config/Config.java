@@ -9,8 +9,8 @@ import java.nio.file.Path;
 
 /**
  * Represents a configuration file.
+ * Configuration files are immutable; they can only be read.
  */
-// TODO immutable?
 public interface Config extends AnyNamed {
 
 	/**
@@ -48,19 +48,6 @@ public interface Config extends AnyNamed {
 	 * @return The value at the specified path.
 	 */
 	<T> T getValue(@NotNull String path);
-
-	/**
-	 * Sets the value at the specified path.
-	 *
-	 * <p>
-	 * A path is a string, where each node is seperated by a dot '{@code .}' character.
-	 * </p>
-	 *
-	 * @param path  The path to the value.
-	 * @param value The value to set.
-	 * @param <T>   The type of the value.
-	 */
-	<T> void setValue(@NotNull String path, T value);
 
 	/**
 	 * Gets the node at the specified path,

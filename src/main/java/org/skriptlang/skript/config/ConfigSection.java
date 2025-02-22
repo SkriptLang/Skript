@@ -8,11 +8,9 @@ import java.util.StringJoiner;
  * Represents a line which starts a section in a {@link Config},
  * along with the comments that belong to it.
  */
-public class ConfigSection implements ConfigNode {
-
-	private String key;
-	private String inlineComment;
-	private String[] comments;
+public record ConfigSection(
+	String key, String inlineComment, String[] comments
+) implements ConfigNode {
 
 	public ConfigSection(@NotNull String key, @NotNull String inlineComment,
 						 @NotNull String @NotNull [] comments) {
@@ -27,28 +25,13 @@ public class ConfigSection implements ConfigNode {
 	}
 
 	@Override
-	public void key(@NotNull String key) {
-		this.key = key;
-	}
-
-	@Override
 	public @NotNull String inlineComment() {
 		return inlineComment;
 	}
 
 	@Override
-	public void inlineComment(@NotNull String inlineComment) {
-		this.inlineComment = inlineComment;
-	}
-
-	@Override
 	public @NotNull String @NotNull [] comments() {
 		return comments;
-	}
-
-	@Override
-	public void comments(@NotNull String @NotNull [] comments) {
-		this.comments = comments;
 	}
 
 	@Override

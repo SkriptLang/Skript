@@ -11,12 +11,10 @@ import java.util.StringJoiner;
  *
  * @param <T> The type of the entry's value.
  */
-public class ConfigEntry<T> implements ConfigNode, AnyValued<T> {
-
-	private String key;
-	private T value;
-	private String inlineComment;
-	private String[] comments;
+public record ConfigEntry<T>(
+	String key, T value, String inlineComment,
+	String[] comments
+) implements ConfigNode, AnyValued<T> {
 
 	public ConfigEntry(@NotNull String key, T value,
 					   @NotNull String inlineComment, @NotNull String @NotNull [] comments) {
@@ -31,19 +29,6 @@ public class ConfigEntry<T> implements ConfigNode, AnyValued<T> {
 		return key;
 	}
 
-	@Override
-	public void key(@NotNull String key) {
-		this.key = key;
-	}
-
-	@Override
-	public T value() {
-		return value;
-	}
-
-	public void value(T value) {
-		this.value = value;
-	}
 
 	@Override
 	public Class<T> valueType() {
@@ -56,18 +41,8 @@ public class ConfigEntry<T> implements ConfigNode, AnyValued<T> {
 	}
 
 	@Override
-	public void inlineComment(@NotNull String inlineComment) {
-		this.inlineComment = inlineComment;
-	}
-
-	@Override
 	public @NotNull String @NotNull [] comments() {
 		return comments;
-	}
-
-	@Override
-	public void comments(@NotNull String @NotNull [] comments) {
-		this.comments = comments;
 	}
 
 	@Override

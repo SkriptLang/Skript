@@ -52,15 +52,6 @@ class ConfigImpl implements Config {
 	}
 
 	@Override
-	public <T> void setValue(@NotNull String path, T value) {
-		ConfigNode node = getNode(path);
-		if (node instanceof ConfigEntry<?> configEntry) {
-			//noinspection unchecked
-			((ConfigEntry<T>) configEntry).value(value);
-		}
-	}
-
-	@Override
 	public ConfigNode getNode(@NotNull String path) {
 		String[] keys = path.split("\\.");
 
