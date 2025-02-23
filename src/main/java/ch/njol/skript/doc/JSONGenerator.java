@@ -104,19 +104,15 @@ public class JSONGenerator extends DocumentationGenerator {
 		syntaxJsonObject.add("description", convertToJsonArray(info.getDescription()));
 		syntaxJsonObject.add("requirements", convertToJsonArray(info.getRequiredPlugins()));
 		syntaxJsonObject.add("examples", convertToJsonArray(info.getExamples()));
+		syntaxJsonObject.addProperty("cancellable", isCancellable(info));
+		syntaxJsonObject.add("eventValues", getEventValues(info));
 
+		return syntaxJsonObject;
+	}
 
-		boolean cancellable = false;
-		for (Class<? extends Event> event : info.events) {
-			if (Cancellable.class.isAssignableFrom(event) || BlockCanBuildEvent.class.isAssignableFrom(event)) {
-				cancellable = true;
-				break;
-			}
-		}
+	private static JsonArray getEventValues(SkriptEventInfo<?> info) {
+		JsonArray eventValues = new JsonArray();
 
-		syntaxJsonObject.addProperty("cancellable", cancellable);
-
-		Set<String> eventValues = new TreeSet<>();
 		Multimap<Class<? extends Event>, EventValueInfo<?, ?>> allEventValues = EventValues.getPerEventEventValues();
 		for (Class<? extends Event> supportedEvent : info.events) {
 			for (Class<? extends Event> event : allEventValues.keySet()) {
@@ -134,13 +130,25 @@ public class JSONGenerator extends DocumentationGenerator {
 					if (exactClassInfo == null)
 						continue;
 
-					eventValues.add("event-%s".formatted(exactClassInfo.getName()));
+					JsonObject object = new JsonObject();
+					object.addProperty("name", exactClassInfo.getName().toString());
+					object.addProperty("id", DocumentationIdProvider.getId(exactClassInfo));
+
 				}
 			}
 		}
-		syntaxJsonObject.addProperty("event-values", Joiner.on(", ").join(eventValues));
+		return eventValues;
+	}
 
-		return syntaxJsonObject;
+	private static boolean isCancellable(SkriptEventInfo<?> info) {
+		boolean cancellable = false;
+		for (Class<? extends Event> event : info.events) {
+			if (Cancellable.class.isAssignableFrom(event) || BlockCanBuildEvent.class.isAssignableFrom(event)) {
+				cancellable = true;
+				break;
+			}
+		}
+		return cancellable;
 	}
 
 
@@ -233,7 +241,7 @@ public class JSONGenerator extends DocumentationGenerator {
 		functionJsonObject.addProperty("id", DocumentationIdProvider.getId(function));
 		functionJsonObject.addProperty("name", function.getName());
 		functionJsonObject.addProperty("since", function.getSince());
-		functionJsonObject.addProperty("return-type", getClassInfoName(function.getReturnType()));
+		functionJsonObject.add("returnType", getReturnType(function));
 
 		functionJsonObject.add("description", convertToJsonArray(function.getDescription()));
 		functionJsonObject.add("examples", convertToJsonArray(function.getExamples()));
@@ -241,6 +249,13 @@ public class JSONGenerator extends DocumentationGenerator {
 		String functionSignature = function.getSignature().toString(false, false);
 		functionJsonObject.add("patterns", convertToJsonArray(new String[] { functionSignature }));
 		return functionJsonObject;
+	}
+
+	private JsonObject getReturnType(JavaFunction<?> function) {
+		JsonObject returnType = new JsonObject();
+		returnType.addProperty("name", getClassInfoName(function.getReturnType()));
+		returnType.addProperty("id", DocumentationIdProvider.getId(function.getReturnType()));
+		return returnType;
 	}
 
 	/**

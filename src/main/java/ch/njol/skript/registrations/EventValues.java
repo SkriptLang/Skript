@@ -458,6 +458,14 @@ public class EventValues {
 	}
 
 	/**
+	 * All supported time states for an event value.
+	 * @return An array of all the time states.
+	 */
+	public static int[] getTimeStates() {
+		return new int[] {TIME_PAST, TIME_NOW, TIME_FUTURE};
+	}
+
+	/**
 	 * @return All the event values for each registered event's class.
 	 */
 	public static Multimap<Class<? extends Event>, EventValueInfo<?, ?>> getPerEventEventValues() {
