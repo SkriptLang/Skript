@@ -15,6 +15,7 @@ import org.bukkit.event.Event;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.simplification.Simplifiable;
 
 @Name("Item Tooltips")
 @Description({
@@ -39,7 +40,6 @@ public class EffTooltip extends Effect {
 		}
 	}
 
-	@SuppressWarnings("NotNullFieldNotInitialized")
 	private Expression<ItemType> items;
 	private boolean hide, entire;
 
@@ -67,6 +67,12 @@ public class EffTooltip extends Effect {
 			}
 			item.setItemMeta(meta);
 		}
+	}
+
+	@Override
+	public Effect simplify(Step step, @Nullable Simplifiable<?> source) {
+		items = simplifyChild(items, step, source);
+		return this;
 	}
 
 	@Override

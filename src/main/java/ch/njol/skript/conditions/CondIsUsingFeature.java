@@ -14,6 +14,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.experiment.ExperimentSet;
 import org.skriptlang.skript.lang.script.Script;
+import org.skriptlang.skript.lang.simplification.Simplifiable;
 
 @Name("Is Using Experimental Feature")
 @Description("Checks whether a script is using an experimental feature by name.")
@@ -63,6 +64,13 @@ public class CondIsUsingFeature extends Condition {
 			}
 		}
 		return isUsing ^ this.isNegated();
+	}
+
+	@Override
+	public Condition simplify(Step step, @Nullable Simplifiable<?> source) {
+		names = simplifyChild(names, step, source);
+		scripts = simplifyChild(scripts, step, source);
+		return this;
 	}
 
 	@Override

@@ -16,6 +16,7 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.util.Timespan;
 import ch.njol.util.Kleenean;
+import org.skriptlang.skript.lang.simplification.Simplifiable;
 
 /**
  * @author Peter Güttinger
@@ -53,11 +54,6 @@ public class EffPoison extends Effect {
 	}
 	
 	@Override
-	public String toString(final @Nullable Event e, final boolean debug) {
-		return "poison " + entites.toString(e, debug);
-	}
-	
-	@Override
 	protected void execute(final Event e) {
 		for (final LivingEntity le : entites.getArray(e)) {
 			if (!cure) {
@@ -76,6 +72,18 @@ public class EffPoison extends Effect {
 				le.removePotionEffect(PotionEffectType.POISON);
 			}
 		}
+	}
+
+	@Override
+	public Effect simplify(Step step, @Nullable Simplifiable<?> source) {
+		entites = simplifyChild(entites, step, source);
+		duration = simplifyChild(duration, step, source);
+		return this;
+	}
+
+	@Override
+	public String toString(final @Nullable Event e, final boolean debug) {
+		return "poison " + entites.toString(e, debug);
 	}
 	
 }

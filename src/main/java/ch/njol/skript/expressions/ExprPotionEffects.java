@@ -1,14 +1,5 @@
 package ch.njol.skript.expressions;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.bukkit.entity.LivingEntity;
-import org.bukkit.event.Event;
-import org.bukkit.potion.PotionEffect;
-import org.bukkit.potion.PotionEffectType;
-import org.jetbrains.annotations.Nullable;
-
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
@@ -22,6 +13,15 @@ import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.util.PotionEffectUtils;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
+import org.bukkit.entity.LivingEntity;
+import org.bukkit.event.Event;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
+import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.simplification.Simplifiable;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Name("Potion Effects")
 @Description({"Represents the active potion effects of entities and itemtypes.",
@@ -117,7 +117,13 @@ public class ExprPotionEffects extends SimpleExpression<PotionEffect> {
 	public Class<? extends PotionEffect> getReturnType() {
 		return PotionEffect.class;
 	}
-	
+
+	@Override
+	public Expression<PotionEffect> simplify(Step step, @Nullable Simplifiable<?> source) {
+		objects = simplifyChild(objects, step, source);
+		return this;
+	}
+
 	@Override
 	public String toString(@Nullable Event e, boolean d) {
 		return "active potion effects of " + objects.toString(e, d);

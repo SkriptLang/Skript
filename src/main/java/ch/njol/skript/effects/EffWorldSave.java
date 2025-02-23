@@ -12,6 +12,7 @@ import ch.njol.util.Kleenean;
 import org.bukkit.World;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.simplification.Simplifiable;
 
 @Name("Save World")
 @Description({
@@ -42,6 +43,12 @@ public class EffWorldSave extends Effect {
 	protected void execute(Event event) {
 		for (World world : worlds.getArray(event))
 			world.save();
+	}
+
+	@Override
+	public Effect simplify(Step step, @Nullable Simplifiable<?> source) {
+		worlds = simplifyChild(worlds, step, source);
+		return this;
 	}
 
 	@Override

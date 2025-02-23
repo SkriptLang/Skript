@@ -16,6 +16,7 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.log.ErrorQuality;
 import ch.njol.util.Kleenean;
+import org.skriptlang.skript.lang.simplification.Simplifiable;
 
 @Name("Make Incendiary")
 @Description("Sets if an entity's explosion will leave behind fire. This effect is also usable in an explosion prime event.")
@@ -66,6 +67,12 @@ public class EffIncendiary extends Effect {
 					((Explosive) entity).setIsIncendiary(causeFire);
 			}
 		}
+	}
+
+	@Override
+	public Effect simplify(Step step, @Nullable Simplifiable<?> source) {
+		entities = simplifyChild(entities, step, source);
+		return this;
 	}
 
 	@Override

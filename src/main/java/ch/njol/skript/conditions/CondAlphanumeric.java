@@ -13,6 +13,7 @@ import ch.njol.skript.lang.Condition;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
+import org.skriptlang.skript.lang.simplification.Simplifiable;
 
 @Name("Alphanumeric")
 @Description({"Checks if the given string is alphanumeric."})
@@ -42,7 +43,13 @@ public class CondAlphanumeric extends Condition {
 	public boolean check(Event e) {
 		return isNegated() ^ strings.check(e, StringUtils::isAlphanumeric);
 	}
-	
+
+	@Override
+	public Condition simplify(Step step, @Nullable Simplifiable<?> source) {
+		strings = simplifyChild(strings, step, source);
+		return this;
+	}
+
 	@Override
 	public String toString(@Nullable Event e, boolean debug) {
 		return strings.toString(e, debug) + " is" + (isNegated() ? "n't" : "") + " alphanumeric";

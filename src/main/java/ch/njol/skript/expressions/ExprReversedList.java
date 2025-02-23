@@ -14,6 +14,7 @@ import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.simplification.Simplifiable;
 
 import java.lang.reflect.Array;
 
@@ -27,7 +28,6 @@ public class ExprReversedList extends SimpleExpression<Object> {
 		Skript.registerExpression(ExprReversedList.class, Object.class, ExpressionType.COMBINED, "reversed %objects%");
 	}
 
-	@SuppressWarnings("NotNullFieldNotInitialized")
 	private Expression<?> list;
 
 	@SuppressWarnings("unused")
@@ -85,6 +85,12 @@ public class ExprReversedList extends SimpleExpression<Object> {
 	@Override
 	public Class<?> getReturnType() {
 		return list.getReturnType();
+	}
+
+	@Override
+	public Expression<Object> simplify(Step step, @Nullable Simplifiable<?> source) {
+		list = simplifyChild(list, step, source);
+		return this;
 	}
 
 	@Override

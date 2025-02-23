@@ -11,6 +11,7 @@ import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
+import org.skriptlang.skript.lang.simplification.Simplifiable;
 
 @Name("Force Enchantment Glint")
 @Description("Forces the items to glint or not, or removes its existing enchantment glint enforcement.")
@@ -60,6 +61,12 @@ public class EffForceEnchantmentGlint extends Effect {
 			meta.setEnchantmentGlintOverride(glint);
 			itemType.setItemMeta(meta);
 		}
+	}
+
+	@Override
+	public Effect simplify(Step step, @Nullable Simplifiable<?> source) {
+		itemTypes = simplifyChild(itemTypes, step, source);
+		return this;
 	}
 
 	@Override

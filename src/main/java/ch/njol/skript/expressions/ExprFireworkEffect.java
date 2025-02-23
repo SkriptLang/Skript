@@ -17,6 +17,7 @@ import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.util.Color;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
+import org.skriptlang.skript.lang.simplification.Simplifiable;
 
 @Name("Firework Effect")
 @Description("Represents a 'firework effect' which can be used in the <a href='effects.html#EffFireworkLaunch'>launch firework</a> effect.")
@@ -86,6 +87,14 @@ public class ExprFireworkEffect extends SimpleExpression<FireworkEffect> {
 		builder.flicker(flicker);
 		builder.trail(trail);
 		return CollectionUtils.array(builder.build());
+	}
+
+	@Override
+	public Expression<FireworkEffect> simplify(Step step, @Nullable Simplifiable<?> source) {
+		type = simplifyChild(type, step, source);
+		color = simplifyChild(color, step, source);
+		fade = simplifyChild(fade, step, source);
+		return this;
 	}
 
 	@Override

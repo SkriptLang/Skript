@@ -1,16 +1,5 @@
 package ch.njol.skript.expressions;
 
-import java.net.InetAddress;
-import java.net.InetSocketAddress;
-import java.util.stream.Stream;
-
-import org.bukkit.entity.Player;
-import org.bukkit.event.Event;
-import org.bukkit.event.player.PlayerLoginEvent;
-import org.bukkit.event.server.ServerListPingEvent;
-import org.jetbrains.annotations.Nullable;
-
-import com.destroystokyo.paper.event.server.PaperServerListPingEvent;
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
@@ -22,6 +11,17 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
+import com.destroystokyo.paper.event.server.PaperServerListPingEvent;
+import org.bukkit.entity.Player;
+import org.bukkit.event.Event;
+import org.bukkit.event.player.PlayerLoginEvent;
+import org.bukkit.event.server.ServerListPingEvent;
+import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.simplification.Simplifiable;
+
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
+import java.util.stream.Stream;
 
 @Name("IP")
 @Description("The IP address of a player, or the connected player in a <a href='events.html#connect'>connect</a> event, " +
@@ -116,6 +116,12 @@ public class ExprIP extends SimpleExpression<String> {
 	@Override
 	public Class<String> getReturnType() {
 		return String.class;
+	}
+
+	@Override
+	public Expression<String> simplify(Step step, @Nullable Simplifiable<?> source) {
+		players = simplifyChild(players, step, source);
+		return this;
 	}
 
 	@Override

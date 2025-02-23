@@ -17,6 +17,7 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.simplification.Simplifiable;
 
 import java.net.InetSocketAddress;
 import java.util.Date;
@@ -118,6 +119,14 @@ public class EffBan extends Effect {
 				assert false;
 			}
 		}
+	}
+
+	@Override
+	public Effect simplify(Step step, @Nullable Simplifiable<?> source) {
+		players = simplifyChild(players, step, source);
+		reason = simplifyChild(reason, step, source);
+		expires = simplifyChild(expires, step, source);
+		return this;
 	}
 
 	@Override

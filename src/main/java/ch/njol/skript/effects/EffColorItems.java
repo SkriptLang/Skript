@@ -21,6 +21,7 @@ import ch.njol.skript.util.Color;
 import ch.njol.skript.util.ColorRGB;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
+import org.skriptlang.skript.lang.simplification.Simplifiable;
 
 @Name("Color Items")
 @Description("Colors items in a given <a href='classes.html#color'>color</a>. " +
@@ -132,7 +133,14 @@ public class EffColorItems extends Effect {
 			}
 		}
 	}
-	
+
+	@Override
+	public Effect simplify(Step step, @Nullable Simplifiable<?> source) {
+		items = simplifyChild(items, step, source);
+		color = simplifyChild(color, step, source);
+		return this;
+	}
+
 	@Override
 	public String toString(@Nullable Event e, boolean debug) {
 		return "dye " + items.toString(e, debug) + " " + color.toString(e, debug);

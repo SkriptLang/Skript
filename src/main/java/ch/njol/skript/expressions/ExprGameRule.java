@@ -19,6 +19,7 @@ import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.util.GameruleValue;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
+import org.skriptlang.skript.lang.simplification.Simplifiable;
 
 @Name("Gamerule Value")
 @Description("The gamerule value of a world.")
@@ -92,7 +93,14 @@ public class ExprGameRule extends SimpleExpression<GameruleValue> {
 	public Class<? extends GameruleValue> getReturnType() {
 		return GameruleValue.class;
 	}
-	
+
+	@Override
+	public Expression<GameruleValue> simplify(Step step, @Nullable Simplifiable<?> source) {
+		gamerule = simplifyChild(gamerule, step, source);
+		world = simplifyChild(world, step, source);
+		return this;
+	}
+
 	@Override
 	public String toString(@Nullable Event e, boolean debug) {
 		return "the gamerule value of " + gamerule.toString(e, debug) + " for world " + world.toString(e, debug);

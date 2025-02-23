@@ -1,16 +1,5 @@
 package ch.njol.skript.expressions;
 
-import java.util.Iterator;
-
-import org.bukkit.Chunk;
-import org.bukkit.Location;
-import org.bukkit.block.Block;
-import org.bukkit.event.Event;
-import org.bukkit.util.Vector;
-import org.jetbrains.annotations.Nullable;
-
-import com.google.common.collect.Lists;
-
 import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptConfig;
 import ch.njol.skript.doc.Description;
@@ -26,6 +15,16 @@ import ch.njol.skript.util.BlockLineIterator;
 import ch.njol.skript.util.Direction;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.iterator.ArrayIterator;
+import com.google.common.collect.Lists;
+import org.bukkit.Chunk;
+import org.bukkit.Location;
+import org.bukkit.block.Block;
+import org.bukkit.event.Event;
+import org.bukkit.util.Vector;
+import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.simplification.Simplifiable;
+
+import java.util.Iterator;
 
 @Name("Blocks")
 @Description({"Blocks relative to other blocks or between other blocks. Can be used to get blocks relative to other blocks or for looping.",
@@ -175,6 +174,15 @@ public class ExprBlocks extends SimpleExpression<Block> {
 	@Override
 	public boolean isSingle() {
 		return false;
+	}
+
+	@Override
+	public Expression<Block> simplify(Step step, @Nullable Simplifiable<?> source) {
+		direction = simplifyChild(direction, step, source);
+		end = simplifyChild(end, step, source);
+		chunk = simplifyChild(chunk, step, source);
+		from = simplifyChild(from, step, source);
+		return this;
 	}
 
 	@Override

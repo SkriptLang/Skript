@@ -2,6 +2,7 @@ package ch.njol.skript.expressions;
 
 import org.bukkit.event.Event;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.Skript;
@@ -16,6 +17,7 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
+import org.skriptlang.skript.lang.simplification.Simplifiable;
 
 @Name("Item with CustomModelData")
 @Description("Get an item with a CustomModelData tag. (Value is an integer between 0 and 99999999)")
@@ -60,7 +62,14 @@ public class ExprItemWithCustomModelData extends PropertyExpression<ItemType, It
 	public Class<? extends ItemType> getReturnType() {
 		return ItemType.class;
 	}
-	
+
+	@Override
+	public Expression<ItemType> simplify(@NotNull Step step, @Nullable Simplifiable<?> source) {
+		super.simplify(step, source);
+		data = simplifyChild(data, step, source);
+		return this;
+	}
+
 	@Override
 	public String toString(@Nullable Event e, boolean d) {
 		return getExpr().toString(e, d) + " with custom model data " + data.toString(e, d);

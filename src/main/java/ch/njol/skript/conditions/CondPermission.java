@@ -1,9 +1,5 @@
 package ch.njol.skript.conditions;
 
-import org.bukkit.command.CommandSender;
-import org.bukkit.event.Event;
-import org.jetbrains.annotations.Nullable;
-
 import ch.njol.skript.Skript;
 import ch.njol.skript.conditions.base.PropertyCondition;
 import ch.njol.skript.conditions.base.PropertyCondition.PropertyType;
@@ -14,7 +10,12 @@ import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Condition;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
+import org.bukkit.command.CommandSender;
+import org.bukkit.event.Event;
+import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.simplification.Simplifiable;
 
 /**
  * @author Peter Güttinger
@@ -49,8 +50,9 @@ public class CondPermission extends Condition {
 	
 	@Override
 	public boolean check(final Event e) {
+		String[] perms = permissions.getArray(e);
 		return senders.check(e,
-				s -> permissions.check(e,
+				s -> SimpleExpression.check(perms,
 						perm -> {
 							if (s.hasPermission(perm))
 								return true;
@@ -63,9 +65,17 @@ public class CondPermission extends Condition {
 								}
 							}
 							return false;
-						}), isNegated());
+						}, false, permissions.getAnd()
+					), isNegated());
 	}
-	
+
+	@Override
+	public Condition simplify(Step step, @Nullable Simplifiable<?> source) {
+		senders = simplifyChild(senders, step, source);
+		permissions = simplifyChild(permissions, step, source);
+		return this;
+	}
+
 	@Override
 	public String toString(final @Nullable Event e, final boolean debug) {
 		return PropertyCondition.toString(this, PropertyType.HAVE, e, debug, senders,

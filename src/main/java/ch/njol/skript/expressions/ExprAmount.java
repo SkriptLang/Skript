@@ -6,18 +6,15 @@ import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
-import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.ExpressionList;
-import ch.njol.skript.lang.ExpressionType;
-import ch.njol.skript.lang.Literal;
+import ch.njol.skript.lang.*;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
-import ch.njol.skript.lang.Variable;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.lang.util.common.AnyAmount;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.simplification.Simplifiable;
 
 import java.util.Map;
 
@@ -159,6 +156,18 @@ public class ExprAmount extends SimpleExpression<Number> {
 	@Override
 	public Class<? extends Number> getReturnType() {
 		return any != null ? Number.class : Long.class;
+	}
+
+	@Override
+	public Expression<Number> simplify(Step step, @Nullable Simplifiable<?> source) {
+		exprs = (ExpressionList<?>) simplifyChild(exprs, step, source);
+		any = simplifyChild(any, step, source);
+
+		// todo: when can any be simplified safely?
+
+		if (exprs instanceof LiteralList<?>)
+			return getAsSimplifiedLiteral();
+		return this;
 	}
 
 	@Override

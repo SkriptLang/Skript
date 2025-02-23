@@ -7,11 +7,10 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
-import java.util.function.Predicate;
-import org.jetbrains.annotations.ApiStatus;
+import org.skriptlang.skript.lang.simplification.Simplifiable;
 import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.registration.SyntaxRegistry;
 import org.skriptlang.skript.util.Priority;
@@ -213,6 +212,12 @@ public abstract class PropertyCondition<T> extends Condition implements Predicat
 	 */
 	protected final void setExpr(Expression<? extends T> expr) {
 		this.expr = expr;
+	}
+
+	@Override
+	public Condition simplify(Step step, @Nullable Simplifiable<?> source) {
+		expr = simplifyChild(expr, step, source);
+		return this;
 	}
 
 	@Override

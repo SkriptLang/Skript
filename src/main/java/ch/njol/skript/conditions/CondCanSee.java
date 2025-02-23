@@ -12,6 +12,7 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.simplification.Simplifiable;
 
 @Name("Can See")
 @Description("Checks whether the given players can see the provided entities.")
@@ -59,6 +60,13 @@ public class CondCanSee extends Condition {
 				player -> entities.check(event,
 						player::canSee
 				), isNegated());
+	}
+
+	@Override
+	public Condition simplify(Step step, @Nullable Simplifiable<?> source) {
+		viewers = simplifyChild(viewers, step, source);
+		entities = simplifyChild(entities, step, source);
+		return this;
 	}
 
 	@Override

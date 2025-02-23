@@ -1,13 +1,5 @@
 package ch.njol.skript.conditions;
 
-import java.util.Arrays;
-import java.util.List;
-
-import org.bukkit.entity.Entity;
-import org.bukkit.event.Event;
-import org.jetbrains.annotations.Nullable;
-
-import ch.njol.skript.Skript;
 import ch.njol.skript.conditions.base.PropertyCondition;
 import ch.njol.skript.conditions.base.PropertyCondition.PropertyType;
 import ch.njol.skript.doc.Description;
@@ -18,6 +10,13 @@ import ch.njol.skript.lang.Condition;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
+import org.bukkit.entity.Entity;
+import org.bukkit.event.Event;
+import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.simplification.Simplifiable;
+
+import java.util.Arrays;
+import java.util.List;
 
 @Name("Has Scoreboard Tag")
 @Description("Checks whether the given entities has the given <a href='expressions.html#ExprScoreboardTags'>scoreboard tags</a>.")
@@ -50,7 +49,14 @@ public class CondHasScoreboardTag extends Condition {
 				entity -> entity.getScoreboardTags().containsAll(tagsList),
 				isNegated());
 	}
-	
+
+	@Override
+	public Condition simplify(Step step, @Nullable Simplifiable<?> source) {
+		entities = simplifyChild(entities, step, source);
+		tags = simplifyChild(tags, step, source);
+		return this;
+	}
+
 	@Override
 	public String toString(@Nullable Event e, boolean debug) {
 		return PropertyCondition.toString(this, PropertyType.HAVE, e, debug, entities,

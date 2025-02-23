@@ -15,6 +15,7 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionList;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
+import org.skriptlang.skript.lang.simplification.Simplifiable;
 
 /**
  * @author Peter Güttinger
@@ -73,6 +74,12 @@ public class CondIsSet extends Condition implements VerboseAssert {
 	public String getReceivedMessage(Event event) {
 		// TODO: may need to make this enumerate each value: "a, b, <none>, and d"
 		return VerboseAssert.getExpressionValue(expr,event);
+	}
+
+	@Override
+	public Condition simplify(Step step, @Nullable Simplifiable<?> source) {
+		expr = simplifyChild(expr, step, source);
+		return this;
 	}
 
 	@Override

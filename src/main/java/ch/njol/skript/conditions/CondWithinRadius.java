@@ -9,10 +9,12 @@ import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Condition;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
 import org.bukkit.Location;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.simplification.Simplifiable;
 
 @Name("Is Within Radius")
 @Description("Checks whether a location is within a certain radius of another location.")
@@ -48,11 +50,22 @@ public class CondWithinRadius extends Condition {
 	public boolean check(Event event) {
 		double radius = this.radius.getOptionalSingle(event).orElse(0).doubleValue();
 		double radiusSquared = radius * radius * Skript.EPSILON_MULT;
-		return locations.check(event, location -> points.check(event, center -> {
-			if (!location.getWorld().equals(center.getWorld()))
-				return false;
-			return location.distanceSquared(center) <= radiusSquared;
-		}), isNegated());
+		Location[] points = this.points.getArray(event);
+		return locations.check(event,
+				location -> SimpleExpression.check(points, center -> {
+					if (!location.getWorld().equals(center.getWorld()))
+						return false;
+					return location.distanceSquared(center) <= radiusSquared;
+				}, false, this.points.getAnd()
+			), isNegated());
+	}
+
+	@Override
+	public Condition simplify(Step step, @Nullable Simplifiable<?> source) {
+		locations = simplifyChild(locations, step, source);
+		radius = simplifyChild(radius, step, source);
+		points = simplifyChild(points, step, source);
+		return this;
 	}
 
 	@Override

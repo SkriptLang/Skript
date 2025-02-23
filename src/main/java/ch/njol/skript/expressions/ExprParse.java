@@ -28,6 +28,7 @@ import ch.njol.util.NonNullPair;
 import org.bukkit.ChatColor;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.simplification.Simplifiable;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
@@ -234,6 +235,12 @@ public class ExprParse extends SimpleExpression<Object> {
 		if (classInfo != null)
 			return classInfo.getC();
 		return patternExpressions.length == 1 ? patternExpressions[0].getFirst().getC() : Object.class;
+	}
+
+	@Override
+	public Expression<Object> simplify(Step step, @Nullable Simplifiable<?> source) {
+		text = simplifyChild(text, step, source);
+		return this;
 	}
 
 	@Override

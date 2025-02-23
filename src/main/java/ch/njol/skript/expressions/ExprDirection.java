@@ -20,6 +20,7 @@ import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.util.Direction;
 import ch.njol.util.Kleenean;
 import ch.njol.util.Math2;
+import org.skriptlang.skript.lang.simplification.Simplifiable;
 
 /**
  * @author Peter Güttinger
@@ -182,7 +183,15 @@ public class ExprDirection extends SimpleExpression<Direction> {
 	public Class<? extends Direction> getReturnType() {
 		return Direction.class;
 	}
-	
+
+	@Override
+	public ExprDirection simplify(Step step, @Nullable Simplifiable<?> source) {
+		amount = simplifyChild(amount, step, source);
+		relativeTo = simplifyChild(relativeTo, step, source);
+		next = (ExprDirection) simplifyChild(next, step, source);
+		return this;
+	}
+
 	@Override
 	public String toString(final @Nullable Event e, final boolean debug) {
 		final Expression<?> relativeTo = this.relativeTo;

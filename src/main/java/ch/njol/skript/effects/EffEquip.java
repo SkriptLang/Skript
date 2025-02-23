@@ -1,7 +1,6 @@
 package ch.njol.skript.effects;
 
 import ch.njol.skript.Skript;
-import ch.njol.skript.aliases.ItemData;
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.bukkitutil.PlayerUtils;
 import ch.njol.skript.doc.Description;
@@ -14,23 +13,12 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
 import org.bukkit.Material;
 import org.bukkit.Tag;
-import org.bukkit.entity.AbstractHorse;
-import org.bukkit.entity.ChestedHorse;
-import org.bukkit.entity.Horse;
-import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Llama;
-import org.bukkit.entity.Player;
-import org.bukkit.entity.Steerable;
-import org.bukkit.entity.Wolf;
+import org.bukkit.entity.*;
 import org.bukkit.event.Event;
-import org.bukkit.inventory.AbstractHorseInventory;
-import org.bukkit.inventory.EntityEquipment;
-import org.bukkit.inventory.EquipmentSlot;
-import org.bukkit.inventory.HorseInventory;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.LlamaInventory;
+import org.bukkit.inventory.*;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnknownNullability;
+import org.skriptlang.skript.lang.simplification.Simplifiable;
 
 @Name("Equip")
 @Description({
@@ -106,7 +94,6 @@ public class EffEquip extends Effect {
 				"unequip %livingentities%'[s] (armo[u]r|equipment)");
 	}
 
-	@SuppressWarnings("NotNullFieldNotInitialized")
 	private Expression<LivingEntity> entities;
 	private @UnknownNullability Expression<ItemType> itemTypes;
 
@@ -203,6 +190,13 @@ public class EffEquip extends Effect {
 					PlayerUtils.updateInventory(player);
 			}
 		}
+	}
+
+	@Override
+	public Effect simplify(Step step, @Nullable Simplifiable<?> source) {
+		entities = simplifyChild(entities, step, source);
+		itemTypes = simplifyChild(itemTypes, step, source);
+		return this;
 	}
 
 	@Override

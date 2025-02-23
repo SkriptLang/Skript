@@ -18,6 +18,7 @@ import org.bukkit.entity.Sheep;
 import org.bukkit.entity.Snowman;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.simplification.Simplifiable;
 
 @Name("Shear")
 @Description({
@@ -76,7 +77,13 @@ public class EffShear extends Effect {
 			}
 		}
 	}
-	
+
+	@Override
+	public Effect simplify(Step step, @Nullable Simplifiable<?> source) {
+		entity = simplifyChild(entity, step, source);
+		return this;
+	}
+
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
 		return (shear ? "" : "un") + "shear " + entity.toString(event, debug);

@@ -10,6 +10,7 @@ import com.destroystokyo.paper.ClientOption;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.simplification.Simplifiable;
 
 @Name("Can See Messages")
 @Description("Checks whether a player can see specific message types in chat.")
@@ -66,6 +67,12 @@ public class CondChatVisibility extends Condition {
 			case 4 -> current != ClientOption.ChatVisibility.SYSTEM;
 			default -> throw new IllegalStateException("Unexpected value: " + pattern);
 		};
+	}
+
+	@Override
+	public Condition simplify(Step step, @Nullable Simplifiable<?> source) {
+		player = simplifyChild(player, step, source);
+		return this;
 	}
 
 	@Override

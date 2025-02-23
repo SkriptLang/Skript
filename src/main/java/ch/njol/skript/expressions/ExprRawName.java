@@ -1,11 +1,5 @@
 package ch.njol.skript.expressions;
 
-import java.util.Arrays;
-import java.util.List;
-
-import org.bukkit.event.Event;
-import org.jetbrains.annotations.Nullable;
-
 import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.doc.Description;
@@ -17,6 +11,12 @@ import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
+import org.bukkit.event.Event;
+import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.simplification.Simplifiable;
+
+import java.util.Arrays;
+import java.util.List;
 
 @Name("Raw Name")
 @Description("The raw Minecraft material name of the given item. Note that this is not guaranteed to give same results on all servers.")
@@ -56,7 +56,13 @@ public class ExprRawName extends SimpleExpression<String> {
 	public Class<? extends String> getReturnType() {
 		return String.class;
 	}
-	
+
+	@Override
+	public Expression<String> simplify(Step step, @Nullable Simplifiable<?> source) {
+		types = simplifyChild(types, step, source);
+		return this;
+	}
+
 	@SuppressWarnings("null")
 	@Override
 	public String toString(final @Nullable Event e, final boolean debug) {

@@ -15,6 +15,7 @@ import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.simplification.Simplifiable;
 
 import java.util.ArrayList;
 
@@ -57,12 +58,12 @@ public class ExprBreakSpeed extends SimpleExpression<Float> {
 	@Nullable
 	protected Float[] get(Event event) {
 		ArrayList<Float> speeds = new ArrayList<>();
+		Player[] players = this.players.getArray(event);
 		for (Block block : this.blocks.getArray(event)) {
-			for (Player player : this.players.getArray(event)) {
+			for (Player player : players) {
 				speeds.add(block.getBreakSpeed(player));
 			}
 		}
-
 		return speeds.toArray(new Float[0]);
 	}
 
@@ -77,7 +78,15 @@ public class ExprBreakSpeed extends SimpleExpression<Float> {
 	}
 
 	@Override
+	public Expression<Float> simplify(Step step, @Nullable Simplifiable<?> source) {
+		blocks = blocks.simplify(step, source);
+		players = players.simplify(step, source);
+		return this;
+	}
+
+	@Override
 	public String toString(@Nullable Event event, boolean debug) {
 		return "break speed of " + blocks.toString(event, debug) + " for " + players.toString(event, debug);
 	}
+
 }

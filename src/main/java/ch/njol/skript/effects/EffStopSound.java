@@ -12,6 +12,7 @@ import org.bukkit.SoundCategory;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.simplification.Simplifiable;
 
 import java.util.regex.Pattern;
 
@@ -89,6 +90,14 @@ public class EffStopSound extends Effect {
 				}
 			}
 		}
+	}
+
+	@Override
+	public Effect simplify(Step step, @Nullable Simplifiable<?> source) {
+		sounds = simplifyChild(sounds, step, source);
+		category = simplifyChild(category, step, source);
+		players = simplifyChild(players, step, source);
+		return this;
 	}
 
 	@Override

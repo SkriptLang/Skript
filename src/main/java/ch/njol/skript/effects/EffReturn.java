@@ -16,6 +16,7 @@ import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnknownNullability;
+import org.skriptlang.skript.lang.simplification.Simplifiable;
 
 import java.util.List;
 
@@ -113,6 +114,12 @@ public class EffReturn extends Effect {
 	@Override
 	public ExecutionIntent executionIntent() {
 		return ExecutionIntent.stopSections(breakLevels);
+	}
+
+	@Override
+	public Effect simplify(Step step, @Nullable Simplifiable<?> source) {
+		value = simplifyChild(value, step, source);
+		return this;
 	}
 
 	@Override

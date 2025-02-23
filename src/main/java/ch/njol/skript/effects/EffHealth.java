@@ -22,6 +22,7 @@ import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnknownNullability;
+import org.skriptlang.skript.lang.simplification.Simplifiable;
 
 @Name("Damage/Heal/Repair")
 @Description({
@@ -120,6 +121,14 @@ public class EffHealth extends Effect {
 
 			}
 		}
+	}
+
+	@Override
+	public Effect simplify(Step step, @Nullable Simplifiable<?> source) {
+		damageables = simplifyChild(damageables, step, source);
+		amount = simplifyChild(amount, step, source);
+		exprCause = simplifyChild(exprCause, step, source);
+		return this;
 	}
 
 	@Override

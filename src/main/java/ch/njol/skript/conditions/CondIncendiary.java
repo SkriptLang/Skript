@@ -16,6 +16,7 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.log.ErrorQuality;
 import ch.njol.util.Kleenean;
+import org.skriptlang.skript.lang.simplification.Simplifiable;
 
 @Name("Is Incendiary")
 @Description("Checks if an entity will create fire when it explodes. This condition is also usable in an explosion prime event.")
@@ -61,6 +62,12 @@ public class CondIncendiary extends Condition {
 			return ((ExplosionPrimeEvent) e).getFire() ^ isNegated();
 		}
 		return entities.check(e, entity -> entity instanceof Explosive && ((Explosive) entity).isIncendiary(), isNegated());
+	}
+
+	@Override
+	public Condition simplify(Step step, @Nullable Simplifiable<?> source) {
+		entities = simplifyChild(entities, step, source);
+		return this;
 	}
 
 	@Override

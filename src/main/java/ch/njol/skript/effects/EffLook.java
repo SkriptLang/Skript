@@ -18,6 +18,7 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
 import io.papermc.paper.entity.LookAnchor;
+import org.skriptlang.skript.lang.simplification.Simplifiable;
 
 @Name("Look At")
 @Description("Forces the mob(s) or player(s) to look at an entity, vector or location. Vanilla max head pitches range from 10 to 50.")
@@ -97,6 +98,15 @@ public class EffLook extends Effect {
 		} else {
 			PaperEntityUtils.lookAt(object, speed, maxPitch, entities.getArray(event));
 		}
+	}
+
+	@Override
+	public Effect simplify(Step step, @Nullable Simplifiable<?> source) {
+		entities = simplifyChild(entities, step, source);
+		target = simplifyChild(target, step, source);
+		speed = simplifyChild(speed, step, source);
+		maxPitch = simplifyChild(maxPitch, step, source);
+		return this;
 	}
 
 	@Override

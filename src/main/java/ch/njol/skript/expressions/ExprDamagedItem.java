@@ -1,6 +1,7 @@
 package ch.njol.skript.expressions;
 
 import org.bukkit.event.Event;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.Skript;
@@ -14,6 +15,7 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.util.Kleenean;
+import org.skriptlang.skript.lang.simplification.Simplifiable;
 
 @Name("Damaged Item")
 @Description("Directly damages an item. In MC versions 1.12.2 and lower, this can be used to apply data values to items/blocks")
@@ -56,7 +58,14 @@ public class ExprDamagedItem extends PropertyExpression<ItemType, ItemType> {
 	public Class<? extends ItemType> getReturnType() {
 		return ItemType.class;
 	}
-	
+
+	@Override
+	public Expression<ItemType> simplify(@NotNull Step step, @Nullable Simplifiable<?> source) {
+		super.simplify(step, source);
+		damage = simplifyChild(damage, step, source);
+		return this;
+	}
+
 	@Override
 	public String toString(final @Nullable Event e, boolean debug) {
 		return getExpr().toString(e, debug) + " with damage value " + damage.toString(e, debug);

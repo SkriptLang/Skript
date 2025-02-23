@@ -13,6 +13,7 @@ import ch.njol.skript.registrations.Feature;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.simplification.Simplifiable;
 import org.skriptlang.skript.lang.util.SkriptQueue;
 
 @Name("De-queue Queue (Experimental)")
@@ -63,6 +64,12 @@ public class ExprDequeuedQueue extends SimpleExpression<Object> {
 	@Override
 	public Class<Object> getReturnType() {
 		return Object.class;
+	}
+
+	@Override
+	public Expression<Object> simplify(Step step, @Nullable Simplifiable<?> source) {
+		queue = simplifyChild(queue, step, source);
+		return this;
 	}
 
 	@Override

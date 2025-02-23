@@ -18,6 +18,7 @@ import org.bukkit.World;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.script.Script;
+import org.skriptlang.skript.lang.simplification.Simplifiable;
 
 @Name("Is Loaded")
 @Description({
@@ -98,6 +99,15 @@ public class CondIsLoaded extends Condition {
 			case 3 -> objects.check(e, ScriptLoader.getLoadedScripts()::contains, isNegated());
 			default -> false;
 		};
+	}
+
+	@Override
+	public Condition simplify(Step step, @Nullable Simplifiable<?> source) {
+		locations = simplifyChild(locations, step, source);
+		x = simplifyChild(x, step, source);
+		z = simplifyChild(z, step, source);
+		objects = simplifyChild(objects, step, source);
+		return this;
 	}
 
 	@Override

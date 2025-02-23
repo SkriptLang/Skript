@@ -12,6 +12,7 @@ import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.simplification.Simplifiable;
 
 @Name("Percent of")
 @Description("Returns a percentage of one or more numbers.")
@@ -62,6 +63,13 @@ public class ExprPercent extends SimpleExpression<Number> {
 	@Override
 	public Class<? extends Number> getReturnType() {
 		return Number.class;
+	}
+
+	@Override
+	public Expression<Number> simplify(Step step, @Nullable Simplifiable<?> source) {
+		percent = simplifyChild(percent, step, source);
+		numbers = simplifyChild(numbers, step, source);
+		return this;
 	}
 
 	@Override

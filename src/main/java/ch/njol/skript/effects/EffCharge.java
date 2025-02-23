@@ -14,6 +14,7 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.WitherSkull;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.simplification.Simplifiable;
 
 @Name("Charge Entity")
 @Description("Charges or uncharges a creeper or wither skull. A creeper is charged when it has been struck by lightning.")
@@ -51,6 +52,12 @@ public class EffCharge extends Effect {
 				witherSkull.setCharged(charge);
             }
 		}
+	}
+
+	@Override
+	public Effect simplify(Step step, @Nullable Simplifiable<?> source) {
+		entities = simplifyChild(entities, step, source);
+		return this;
 	}
 
 	@Override

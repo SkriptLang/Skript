@@ -14,6 +14,7 @@ import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
+import org.skriptlang.skript.lang.simplification.Simplifiable;
 
 @Name("Make Fly")
 @Description("Forces a player to start/stop flying.")
@@ -47,6 +48,12 @@ public class EffMakeFly extends Effect {
 			player.setAllowFlight(flying);
 			player.setFlying(flying);
 		}
+	}
+
+	@Override
+	public Effect simplify(Step step, @Nullable Simplifiable<?> source) {
+		players = simplifyChild(players, step, source);
+		return this;
 	}
 
 	@Override

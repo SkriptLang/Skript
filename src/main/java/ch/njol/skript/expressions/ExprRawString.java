@@ -16,6 +16,7 @@ import ch.njol.util.Kleenean;
 import ch.njol.util.StringUtils;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.simplification.Simplifiable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,9 +35,7 @@ public class ExprRawString extends SimpleExpression<String> {
 		Skript.registerExpression(ExprRawString.class, String.class, ExpressionType.COMBINED, "raw %strings%");
 	}
 
-	@SuppressWarnings("NotNullFieldNotInitialized")
 	private Expression<String> expr;
-	@SuppressWarnings("NotNullFieldNotInitialized")
 	private Expression<? extends String>[] messages;
 
 	@Override
@@ -82,6 +81,12 @@ public class ExprRawString extends SimpleExpression<String> {
 	@Override
 	public Class<? extends String> getReturnType() {
 		return String.class;
+	}
+
+	@Override
+	public Expression<String> simplify(Step step, @Nullable Simplifiable<?> source) {
+		expr = simplifyChild(expr, step, source);
+		return this;
 	}
 
 	@Override

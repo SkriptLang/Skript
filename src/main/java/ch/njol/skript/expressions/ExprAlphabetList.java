@@ -1,10 +1,5 @@
 package ch.njol.skript.expressions;
 
-import java.util.Arrays;
-
-import org.bukkit.event.Event;
-import org.jetbrains.annotations.Nullable;
-
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
@@ -12,9 +7,15 @@ import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
+import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
+import org.bukkit.event.Event;
+import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.simplification.Simplifiable;
+
+import java.util.Arrays;
 
 @Name("Alphabetical Sort")
 @Description("Sorts given strings in alphabetical order.")
@@ -51,7 +52,17 @@ public class ExprAlphabetList extends SimpleExpression<String>{
 	
 	@Override
 	public boolean isSingle() {
-		return false;
+		return texts.isSingle();
+	}
+
+	@Override
+	public Expression<String> simplify(Step step, @Nullable Simplifiable<?> source) {
+		texts = simplifyChild(texts, step, source);
+		if (texts.isSingle())
+			return texts;
+		if (texts instanceof Literal<String>)
+			return getAsSimplifiedLiteral();
+		return this;
 	}
 
 	@Override

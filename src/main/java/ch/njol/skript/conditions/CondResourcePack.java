@@ -15,6 +15,7 @@ import ch.njol.skript.lang.Condition;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
+import org.skriptlang.skript.lang.simplification.Simplifiable;
 
 @Name("Resource Pack")
 @Description("Checks state of the resource pack in a <a href='events.html#resource_pack_request_action'>resource pack request response</a> event.")
@@ -54,7 +55,13 @@ public class CondResourcePack extends Condition {
 		Status state = ((PlayerResourcePackStatusEvent) e).getStatus();
 		return states.check(e, state::equals, isNegated());
 	}
-	
+
+	@Override
+	public Condition simplify(Step step, @Nullable Simplifiable<?> source) {
+		states = simplifyChild(states, step, source);
+		return this;
+	}
+
 	@Override
 	public String toString(final @Nullable Event e, final boolean debug) {
 		return "resource pack was " + (isNegated() ? "not " : "") + states.toString(e, debug);

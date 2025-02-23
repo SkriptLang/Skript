@@ -15,6 +15,7 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.util.Direction;
 import ch.njol.util.Kleenean;
+import org.skriptlang.skript.lang.simplification.Simplifiable;
 
 /**
  * @author Peter Güttinger
@@ -66,7 +67,15 @@ public class EffPush extends Effect {
 			en.setVelocity(en.getVelocity().add(mod)); // REMIND add NoCheatPlus exception to players
 		}
 	}
-	
+
+	@Override
+	public Effect simplify(Step step, @Nullable Simplifiable<?> source) {
+		entities = simplifyChild(entities, step, source);
+		direction = simplifyChild(direction, step, source);
+		speed = simplifyChild(speed, step, source);
+		return this;
+	}
+
 	@Override
 	public String toString(final @Nullable Event e, final boolean debug) {
 		return "push " + entities.toString(e, debug) + " " + direction.toString(e, debug) + (speed != null ? " at speed " + speed.toString(e, debug) : "");

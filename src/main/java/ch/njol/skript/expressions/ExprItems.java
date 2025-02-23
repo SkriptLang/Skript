@@ -17,6 +17,7 @@ import org.bukkit.Material;
 import org.bukkit.event.Event;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.simplification.Simplifiable;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -112,6 +113,12 @@ public class ExprItems extends SimpleExpression<ItemType> {
 	@Override
 	public boolean isSingle() {
 		return false;
+	}
+
+	@Override
+	public Expression<ItemType> simplify(Step step, @Nullable Simplifiable<?> source) {
+		itemTypeExpr = simplifyChild(itemTypeExpr, step, source);
+		return this;
 	}
 
 	@Override

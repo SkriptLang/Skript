@@ -14,6 +14,7 @@ import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
+import org.skriptlang.skript.lang.simplification.Simplifiable;
 
 /**
  * @author Peter Güttinger
@@ -58,7 +59,14 @@ public class ExprDistance extends SimpleExpression<Number> {
 	public boolean isSingle() {
 		return true;
 	}
-	
+
+	@Override
+	public Expression<Number> simplify(Step step, @Nullable Simplifiable<?> source) {
+		loc1 = simplifyChild(loc1, step, source);
+		loc2 = simplifyChild(loc2, step, source);
+		return this;
+	}
+
 	@Override
 	public Class<? extends Number> getReturnType() {
 		return Number.class;

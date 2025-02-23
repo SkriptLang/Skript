@@ -13,6 +13,7 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.util.Version;
 import ch.njol.util.Kleenean;
+import org.skriptlang.skript.lang.simplification.Simplifiable;
 
 @Name("Running Minecraft")
 @Description("Checks if current Minecraft version is given version or newer.")
@@ -40,7 +41,13 @@ public class CondMinecraftVersion extends Condition {
 		String ver = version.getSingle(e);
 		return ver != null ? Skript.isRunningMinecraft(new Version(ver)) ^ isNegated() : false;
 	}
-	
+
+	@Override
+	public Condition simplify(Step step, @Nullable Simplifiable<?> source) {
+		version = simplifyChild(version, step, source);
+		return this;
+	}
+
 	@Override
 	public String toString(@Nullable Event e, boolean debug) {
 		return "is running minecraft " + version.toString(e, debug);

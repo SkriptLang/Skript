@@ -18,6 +18,7 @@ import org.bukkit.block.data.BlockData;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.simplification.Simplifiable;
 
 import java.util.Objects;
 
@@ -126,6 +127,12 @@ public class ExprBlockSound extends SimpleExpression<String> {
 	@Override
 	public @NotNull Class<? extends String> getReturnType() {
 		return String.class;
+	}
+
+	@Override
+	public Expression<String> simplify(Step step, @Nullable Simplifiable<?> source) {
+		objects = simplifyChild(objects, step, source);
+		return this;
 	}
 
 	@Override

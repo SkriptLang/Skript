@@ -24,7 +24,9 @@ import org.bukkit.block.banner.PatternType;
 import org.bukkit.event.Event;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BannerMeta;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.simplification.Simplifiable;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -56,23 +58,21 @@ public class ExprBannerPatterns extends PropertyExpression<Object, Pattern> {
 		);
 	}
 
-	private Expression<?> objects;
 	private Expression<Integer> patternNumber = null;
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		if (matchedPattern <= 1) {
-			objects = exprs[0];
+			setExpr(exprs[0]);
 		} else if (matchedPattern == 2) {
 			//noinspection unchecked
 			patternNumber = (Expression<Integer>) exprs[0];
-			objects = exprs[1];
+			setExpr(exprs[1]);
 		} else {
 			//noinspection unchecked
 			patternNumber = (Expression<Integer>) exprs[1];
-			objects = exprs[0];
+			setExpr(exprs[0]);
 		}
-		setExpr(objects);
 		return true;
 	}
 
@@ -80,7 +80,7 @@ public class ExprBannerPatterns extends PropertyExpression<Object, Pattern> {
 	protected Pattern @Nullable [] get(Event event, Object[] source) {
 		List<Pattern> patterns = new ArrayList<>();
 		Integer placement = patternNumber != null ? patternNumber.getSingle(event) : null;
-		for (Object object : objects.getArray(event)) {
+		for (Object object : getExpr().getArray(event)) {
 			if (object instanceof Block block) {
 				if (!(block.getState() instanceof Banner banner))
 					continue;
@@ -234,7 +234,7 @@ public class ExprBannerPatterns extends PropertyExpression<Object, Pattern> {
 			blockChanger = getAllBlockChanger(mode, patternList);
 		}
 
-		for (Object object : objects.getArray(event)) {
+		for (Object object : getExpr().getArray(event)) {
 			if (object instanceof Block block && block.getState() instanceof Banner banner) {
 				blockChanger.accept(banner);
 				banner.update(true, false);
@@ -267,6 +267,13 @@ public class ExprBannerPatterns extends PropertyExpression<Object, Pattern> {
 	}
 
 	@Override
+	public Expression<Pattern> simplify(@NotNull Step step, @Nullable Simplifiable<?> source) {
+		super.simplify(step, source);
+		patternNumber = simplifyChild(patternNumber, step, source);
+		return this;
+	}
+
+	@Override
 	public String toString(@Nullable Event event, boolean debug) {
 		SyntaxStringBuilder builder = new SyntaxStringBuilder(event, debug);
 		if (patternNumber != null) {
@@ -274,7 +281,7 @@ public class ExprBannerPatterns extends PropertyExpression<Object, Pattern> {
 		} else {
 			builder.append("banner patterns");
 		}
-		builder.append("of", objects);
+		builder.append("of", getExpr());
 		return builder.toString();
 	}
 

@@ -7,6 +7,7 @@ import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
+import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.util.Direction;
@@ -14,6 +15,7 @@ import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.simplification.Simplifiable;
 
 @Name("Vectors - Create from Direction")
 @Description({
@@ -66,6 +68,14 @@ public class ExprVectorFromDirection extends SimpleExpression<Vector> {
 	@Override
 	public Class<? extends Vector> getReturnType() {
 		return Vector.class;
+	}
+
+	@Override
+	public Expression<Vector> simplify(Step step, @Nullable Simplifiable<?> source) {
+		direction = simplifyChild(direction, step, source);
+		if (direction instanceof Literal<Direction>)
+			return getAsSimplifiedLiteral();
+		return this;
 	}
 
 	@Override

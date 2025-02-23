@@ -24,6 +24,7 @@ import ch.njol.util.coll.CollectionUtils;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.bungeecord.BungeeComponentSerializer;
 import net.md_5.bungee.api.chat.BaseComponent;
+import org.skriptlang.skript.lang.simplification.Simplifiable;
 
 @Name("Custom Chest Inventory")
 @Description("Returns a chest inventory with the given amount of rows and the name. Use the <a href=effects.html#EffOpenInventory>open inventory</a> effect to open it.")
@@ -99,6 +100,13 @@ public class ExprChestInventory extends SimpleExpression<Inventory> {
 	@Override
 	public Class<? extends Inventory> getReturnType() {
 		return Inventory.class;
+	}
+
+	@Override
+	public Expression<Inventory> simplify(Step step, @Nullable Simplifiable<?> source) {
+		rows = simplifyChild(rows, step, source);
+		name = simplifyChild(name, step, source);
+		return this;
 	}
 
 	@Override

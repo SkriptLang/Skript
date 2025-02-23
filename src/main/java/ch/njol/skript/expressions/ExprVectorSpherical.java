@@ -7,6 +7,7 @@ import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
+import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
@@ -14,6 +15,7 @@ import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.event.Event;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.simplification.Simplifiable;
 
 @Name("Vectors - Spherical Shape")
 @Description("Forms a 'spherical shaped' vector using yaw and pitch to manipulate the current point.")
@@ -64,6 +66,17 @@ public class ExprVectorSpherical extends SimpleExpression<Vector> {
 	@Override
 	public Class<? extends Vector> getReturnType() {
 		return Vector.class;
+	}
+
+	@Override
+	public Expression<Vector> simplify(Step step, @Nullable Simplifiable<?> source) {
+		//noinspection DuplicatedCode
+		radius = simplifyChild(radius, step, source);
+		yaw = simplifyChild(yaw, step, source);
+		pitch = simplifyChild(pitch, step, source);
+		if (radius instanceof Literal<Number> && yaw instanceof Literal<Number> && pitch instanceof Literal<Number>)
+			return getAsSimplifiedLiteral();
+		return this;
 	}
 
 	@Override

@@ -18,6 +18,7 @@ import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.simplification.Simplifiable;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -38,10 +39,8 @@ public class ExprItemCooldown extends SimpleExpression<Timespan> {
 				"[the] [item] cooldown of %itemtypes% for %players%",
 				"%players%'[s] [item] cooldown for %itemtypes%");
 	}
-	
-	@SuppressWarnings("NotNullFieldNotInitialized")
+
 	private Expression<Player> players;
-	@SuppressWarnings("NotNullFieldNotInitialized")
 	private Expression<ItemType> itemtypes;
 	
 	@Override
@@ -117,7 +116,14 @@ public class ExprItemCooldown extends SimpleExpression<Timespan> {
 	public Class<? extends Timespan> getReturnType() {
 		return Timespan.class;
 	}
-	
+
+	@Override
+	public Expression<Timespan> simplify(Step step, @Nullable Simplifiable<?> source) {
+		players = simplifyChild(players, step, source);
+		itemtypes = simplifyChild(itemtypes, step, source);
+		return this;
+	}
+
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
 		return "cooldown of " + itemtypes.toString(event, debug) + " for " + players.toString(event, debug);

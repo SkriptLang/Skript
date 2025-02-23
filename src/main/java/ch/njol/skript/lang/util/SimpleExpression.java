@@ -7,6 +7,7 @@ import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
+import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.Loopable;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.Utils;
@@ -18,11 +19,11 @@ import org.bukkit.event.Event;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.converter.Converter;
+import org.skriptlang.skript.lang.simplification.SimplifiedLiteral;
 
 import java.lang.reflect.Array;
 import java.util.Arrays;
 import java.util.Iterator;
-import java.util.List;
 import java.util.function.Predicate;
 
 /**
@@ -331,11 +332,6 @@ public abstract class SimpleExpression<T> implements Expression<T> {
 	}
 
 	@Override
-	public Expression<? extends T> simplify() {
-		return this;
-	}
-
-	@Override
 	public boolean getAnd() {
 		return true;
 	}
@@ -344,4 +340,17 @@ public abstract class SimpleExpression<T> implements Expression<T> {
 	public boolean supportsLoopPeeking() {
 		return true;
 	}
+
+	/**
+	 * Attempts to create a {@link SimplifiedLiteral} by evaluating the expression with a {@link ContextlessEvent}.
+	 * This should only be attempted IFF the expression's children are all literals and
+	 * {@link #getAll(Event)} would always return the exact same value, no matter the context in which it is called.
+	 * The value of {@link #toString(Event, boolean)} will be evaluated and captured for the literal's toString methods.
+	 *
+	 * @return A simplified literal with the data from this expression's evaluation.
+	 */
+	protected Literal<T> getAsSimplifiedLiteral() {
+		return SimplifiedLiteral.fromExpression(this);
+	}
+
 }

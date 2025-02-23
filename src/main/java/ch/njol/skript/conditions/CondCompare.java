@@ -30,6 +30,7 @@ import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.Patterns;
 import ch.njol.skript.util.Utils;
 import ch.njol.util.Kleenean;
+import org.skriptlang.skript.lang.simplification.Simplifiable;
 import org.skriptlang.skript.lang.util.Cyclical;
 
 import java.util.function.Predicate;
@@ -402,6 +403,14 @@ public class CondCompare extends Condition implements VerboseAssert {
 				return !shouldMatch;
 		}
 		return shouldMatch;
+	}
+
+	@Override
+	public Condition simplify(Step step, @Nullable Simplifiable<?> source) {
+		first = simplifyChild(first, step, source);
+		second = simplifyChild(second, step, source);
+		third = simplifyChild(third, step, source);
+		return this;
 	}
 
 	@Override

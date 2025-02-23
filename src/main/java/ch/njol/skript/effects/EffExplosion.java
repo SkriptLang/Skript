@@ -14,6 +14,7 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.util.Direction;
 import ch.njol.util.Kleenean;
+import org.skriptlang.skript.lang.simplification.Simplifiable;
 
 /**
  * @author Peter Güttinger
@@ -68,6 +69,13 @@ public class EffExplosion extends Effect {
 			else
 				location.getWorld().createExplosion(location, power.floatValue(), setFire);
 		}
+	}
+
+	@Override
+	public Effect simplify(Step step, @Nullable Simplifiable<?> source) {
+		force = simplifyChild(force, step, source);
+		locations = simplifyChild(locations, step, source);
+		return this;
 	}
 
 	@Override

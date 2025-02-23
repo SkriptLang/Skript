@@ -22,6 +22,7 @@ import org.bukkit.event.Event;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.simplification.Simplifiable;
 
 @Name("Drop")
 @Description("Drops one or more items.")
@@ -37,9 +38,7 @@ public class EffDrop extends Effect {
 	@Nullable
 	public static Entity lastSpawned = null;
 
-	@SuppressWarnings("NotNullFieldNotInitialized")
 	private Expression<?> drops;
-	@SuppressWarnings("NotNullFieldNotInitialized")
 	private Expression<Location> locations;
 
 	private boolean useVelocity;
@@ -81,6 +80,13 @@ public class EffDrop extends Effect {
 				}
 			}
 		}
+	}
+
+	@Override
+	public Effect simplify(Step step, @Nullable Simplifiable<?> source) {
+		drops = simplifyChild(drops, step, source);
+		locations = simplifyChild(locations, step, source);
+		return this;
 	}
 
 	@Override

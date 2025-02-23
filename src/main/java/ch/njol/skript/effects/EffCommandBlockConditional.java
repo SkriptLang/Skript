@@ -13,6 +13,7 @@ import org.bukkit.block.Block;
 import org.bukkit.block.data.type.CommandBlock;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.simplification.Simplifiable;
 
 @Name("Conditional / Unconditional")
 @Description(
@@ -48,6 +49,12 @@ public class EffCommandBlockConditional extends Effect {
 				block.setBlockData(cmdBlock);
 			}
 		}
+	}
+
+	@Override
+	public Effect simplify(Step step, @Nullable Simplifiable<?> source) {
+		blocks = simplifyChild(blocks, step, source);
+		return this;
 	}
 
 	@Override

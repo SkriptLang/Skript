@@ -13,6 +13,7 @@ import ch.njol.util.Kleenean;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.simplification.Simplifiable;
 
 @Name("Cancel Active Item")
 @Description({
@@ -49,6 +50,12 @@ public class EffCancelItemUse extends Effect {
 		for (LivingEntity entity : entities.getArray(event)) {
 			entity.clearActiveItem();
 		}
+	}
+
+	@Override
+	public Effect simplify(Step step, @Nullable Simplifiable<?> source) {
+		entities = simplifyChild(entities, step, source);
+		return this;
 	}
 
 	@Override

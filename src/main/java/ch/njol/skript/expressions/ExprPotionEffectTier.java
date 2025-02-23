@@ -15,6 +15,7 @@ import org.bukkit.event.Event;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.simplification.Simplifiable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -65,6 +66,13 @@ public class ExprPotionEffectTier extends SimpleExpression<Integer> {
 	@Override
 	public Class<? extends Integer> getReturnType() {
 		return Integer.class;
+	}
+
+	@Override
+	public Expression<Integer> simplify(Step step, @Nullable Simplifiable<?> source) {
+		typeExpr = simplifyChild(typeExpr, step, source);
+		entityExpr = simplifyChild(entityExpr, step, source);
+		return this;
 	}
 
 	@Override

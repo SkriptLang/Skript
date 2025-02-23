@@ -13,10 +13,11 @@ import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
-import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.event.Event;
 import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.simplification.Simplifiable;
 
 import java.lang.reflect.Array;
 
@@ -30,7 +31,6 @@ public class ExprXOf extends PropertyExpression<Object, Object> {
 		Skript.registerExpression(ExprXOf.class, Object.class, ExpressionType.PATTERN_MATCHES_EVERYTHING, "%number% of %itemstacks/itemtypes/entitytype%");
 	}
 
-	@SuppressWarnings("NotNullFieldNotInitialized")
 	private Expression<Number> amount;
 
 	@Override
@@ -68,6 +68,13 @@ public class ExprXOf extends PropertyExpression<Object, Object> {
 	@Override
 	public Class<?> getReturnType() {
 		return getExpr().getReturnType();
+	}
+
+	@Override
+	public Expression<Object> simplify(@NotNull Step step, @Nullable Simplifiable<?> source) {
+		super.simplify(step, source);
+		amount = simplifyChild(amount, step, source);
+		return this;
 	}
 
 	@Override

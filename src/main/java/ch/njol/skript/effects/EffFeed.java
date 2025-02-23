@@ -12,6 +12,7 @@ import ch.njol.util.Kleenean;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.simplification.Simplifiable;
 
 @Name("Feed")
 @Description("Feeds the specified players.")
@@ -50,7 +51,14 @@ public class EffFeed extends Effect {
         }
     }
 
-    @Override
+	@Override
+	public Effect simplify(Step step, @Nullable Simplifiable<?> source) {
+		players = simplifyChild(players, step, source);
+		beefs = simplifyChild(beefs, step, source);
+		return this;
+	}
+
+	@Override
     public String toString(@Nullable Event e, boolean debug) {
         return "feed " + players.toString(e, debug) + (beefs != null ? " by " + beefs.toString(e, debug) : "");
     }

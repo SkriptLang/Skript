@@ -22,6 +22,7 @@ import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
+import org.skriptlang.skript.lang.simplification.Simplifiable;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
@@ -142,7 +143,13 @@ public class ExprInventory extends SimpleExpression<Object> {
 	public Class<?> getReturnType() {
 		return inLoop ? Slot.class : Inventory.class;
 	}
-	
+
+	@Override
+	public Expression<Object> simplify(Step step, @Nullable Simplifiable<?> source) {
+		holders = simplifyChild(holders, step, source);
+		return this;
+	}
+
 	@Override
 	public String toString(@Nullable Event e, boolean debug) {
 		return "inventor" + (holders.isSingle() ? "y" : "ies") + " of " + holders.toString(e, debug);
