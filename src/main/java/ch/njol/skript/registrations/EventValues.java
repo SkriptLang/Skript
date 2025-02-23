@@ -474,8 +474,8 @@ public class EventValues {
 			.hashSetValues()
 			.build();
 
-		for (int i = TIME_PAST; i <= TIME_FUTURE; i++) {
-			for (EventValueInfo<?, ?> eventValueInfo : getEventValuesListForTime(i)) {
+		for (int time : getTimeStates()) {
+			for (EventValueInfo<?, ?> eventValueInfo : getEventValuesListForTime(time)) {
 				Collection<EventValueInfo<?, ?>> existing = eventValues.get(eventValueInfo.event);
 				existing.add(eventValueInfo);
 				eventValues.putAll(eventValueInfo.event, existing);
