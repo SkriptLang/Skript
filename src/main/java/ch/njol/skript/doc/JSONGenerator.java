@@ -15,7 +15,6 @@ import com.google.gson.*;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
 import org.bukkit.event.block.BlockCanBuildEvent;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.structure.Structure;
 import org.skriptlang.skript.lang.structure.StructureInfo;
@@ -44,9 +43,9 @@ public class JSONGenerator extends DocumentationGenerator {
 	 * @param strings the String array to convert
 	 * @return the JsonArray containing the Strings
 	 */
-	private static @NotNull JsonArray convertToJsonArray(String @Nullable [] strings) {
-		if (strings == null)
-			return new JsonArray();
+	private static JsonArray convertToJsonArray(String @Nullable [] strings) {
+		if (strings == null || strings.length == 0)
+			return null;
 		JsonArray jsonArray = new JsonArray();
 		for (String string : strings)
 			jsonArray.add(new JsonPrimitive(string));
@@ -71,19 +70,19 @@ public class JSONGenerator extends DocumentationGenerator {
 		syntaxJsonObject.add("patterns", convertToJsonArray(syntaxInfo.getPatterns()));
 
 		Since since = syntaxClass.getAnnotation(Since.class);
-		syntaxJsonObject.add("since", since == null ? new JsonArray() : convertToJsonArray(since.value()));
+		syntaxJsonObject.add("since", since == null ? null : convertToJsonArray(since.value()));
 
 		Description description = syntaxClass.getAnnotation(Description.class);
-		syntaxJsonObject.add("description", description == null ? new JsonArray() : convertToJsonArray(description.value()));
+		syntaxJsonObject.add("description", description == null ? null : convertToJsonArray(description.value()));
 
 		Examples examples = syntaxClass.getAnnotation(Examples.class);
-		syntaxJsonObject.add("examples", examples == null ? new JsonArray() : convertToJsonArray(examples.value()));
+		syntaxJsonObject.add("examples", examples == null ? null : convertToJsonArray(examples.value()));
 
 		Events events = syntaxClass.getAnnotation(Events.class);
-		syntaxJsonObject.add("events", events == null ? new JsonArray() : convertToJsonArray(events.value()));
+		syntaxJsonObject.add("events", events == null ? null : convertToJsonArray(events.value()));
 
 		RequiredPlugins requirements = syntaxClass.getAnnotation(RequiredPlugins.class);
-		syntaxJsonObject.add("requirements", requirements == null ? new JsonArray() : convertToJsonArray(requirements.value()));
+		syntaxJsonObject.add("requirements", requirements == null ? null : convertToJsonArray(requirements.value()));
 
 		return syntaxJsonObject;
 	}
@@ -286,7 +285,12 @@ public class JSONGenerator extends DocumentationGenerator {
 	 */
 	private void saveDocs(Path outputPath, JsonObject jsonDocs) {
 		try {
-			Gson jsonGenerator = new GsonBuilder().disableHtmlEscaping().setPrettyPrinting().create();
+			Gson jsonGenerator = new GsonBuilder()
+				.disableHtmlEscaping()
+				.setPrettyPrinting()
+				.serializeNulls()
+				.create();
+
 			Files.writeString(outputPath, jsonGenerator.toJson(jsonDocs));
 		} catch (IOException exception) {
 			//noinspection ThrowableNotThrown
