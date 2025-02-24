@@ -1,0 +1,13 @@
+test "dropped item lifetime":
+	###
+		Combines:
+			EffItemLifetime
+			CondItemLifetime
+	###
+	drop a stone at test-location
+	set {_drop} to last dropped item
+
+	prevent {_drop} from naturally despawning
+	assert {_drop} can not despawn naturally with "Dropped Item should not be able to despawn"
+
+	clear entity within {_drop}
