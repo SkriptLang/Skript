@@ -70,20 +70,20 @@ public class JSONGenerator extends DocumentationGenerator {
 		syntaxJsonObject.addProperty("name", nameAnnotation.value());
 		syntaxJsonObject.add("patterns", convertToJsonArray(syntaxInfo.getPatterns()));
 
-		Since sinceAnnotation = syntaxClass.getAnnotation(Since.class);
-		syntaxJsonObject.add("since", convertToJsonArray(sinceAnnotation.value()));
+		Since since = syntaxClass.getAnnotation(Since.class);
+		syntaxJsonObject.add("since", since == null ? new JsonArray() : convertToJsonArray(since.value()));
 
-		Description descriptionAnnotation = syntaxClass.getAnnotation(Description.class);
-		syntaxJsonObject.add("description", convertToJsonArray(descriptionAnnotation.value()));
+		Description description = syntaxClass.getAnnotation(Description.class);
+		syntaxJsonObject.add("description", description == null ? new JsonArray() : convertToJsonArray(description.value()));
 
-		Examples examplesAnnotation = syntaxClass.getAnnotation(Examples.class);
-		syntaxJsonObject.add("examples", convertToJsonArray(examplesAnnotation.value()));
+		Examples examples = syntaxClass.getAnnotation(Examples.class);
+		syntaxJsonObject.add("examples", examples == null ? new JsonArray() : convertToJsonArray(examples.value()));
 
 		Events events = syntaxClass.getAnnotation(Events.class);
-		syntaxJsonObject.add("events", convertToJsonArray(events.value()));
+		syntaxJsonObject.add("events", events == null ? new JsonArray() : convertToJsonArray(events.value()));
 
 		RequiredPlugins requirements = syntaxClass.getAnnotation(RequiredPlugins.class);
-		syntaxJsonObject.add("requirements", convertToJsonArray(requirements.value()));
+		syntaxJsonObject.add("requirements", requirements == null ? new JsonArray() : convertToJsonArray(requirements.value()));
 
 		return syntaxJsonObject;
 	}
