@@ -134,7 +134,7 @@ public class JSONGenerator extends DocumentationGenerator {
 						continue;
 
 					JsonObject object = new JsonObject();
-					object.addProperty("name", exactClassInfo.getName().toString());
+					object.addProperty("name", getClassInfoName(exactClassInfo));
 					object.addProperty("id", DocumentationIdProvider.getId(exactClassInfo));
 					eventValues.add(object);
 				}
