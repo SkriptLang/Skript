@@ -2,7 +2,7 @@ package ch.njol.skript.conditions;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.ItemType;
-import ch.njol.skript.config.SkriptConfig;
+import org.skriptlang.skript.config.SkriptConfig;
 import ch.njol.skript.lang.util.common.AnyContains;
 import org.skriptlang.skript.lang.comparator.Relation;
 import ch.njol.skript.doc.Description;

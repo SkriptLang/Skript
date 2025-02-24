@@ -2,7 +2,7 @@ package ch.njol.skript.lang.function;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.ClassInfo;
-import ch.njol.skript.config.SkriptConfig;
+import org.skriptlang.skript.config.SkriptConfig;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ParseContext;
 import ch.njol.skript.lang.SkriptParser;
@@ -29,7 +29,7 @@ public final class Parameter<T> {
 	/**
 	 * Name of this parameter. Will be used as name for the local variable
 	 * that contains value of it inside function.
-	 * If {@link ch.njol.skript.config.SkriptConfig#CASE_INSENSITIVE_VARIABLES} is {@code true},
+	 * If {@link SkriptConfig#CASE_INSENSITIVE_VARIABLES} is {@code true},
 	 * then the valid variable names may not necessarily match this string in casing.
 	 */
 	final String name;

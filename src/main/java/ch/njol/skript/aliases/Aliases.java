@@ -5,7 +5,7 @@ import ch.njol.skript.SkriptAddon;
 import ch.njol.skript.config.Config;
 import ch.njol.skript.config.Node;
 import ch.njol.skript.config.SectionNode;
-import ch.njol.skript.config.SkriptConfig;
+import org.skriptlang.skript.config.SkriptConfig;
 import ch.njol.skript.entity.EntityData;
 import ch.njol.skript.lang.parser.ParserInstance;
 import ch.njol.skript.localization.*;

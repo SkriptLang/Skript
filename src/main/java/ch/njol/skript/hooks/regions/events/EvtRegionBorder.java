@@ -1,7 +1,7 @@
 package ch.njol.skript.hooks.regions.events;
 
 import ch.njol.skript.Skript;
-import ch.njol.skript.config.SkriptConfig;
+import org.skriptlang.skript.config.SkriptConfig;
 import ch.njol.skript.hooks.regions.RegionsPlugin;
 import ch.njol.skript.hooks.regions.classes.Region;
 import ch.njol.skript.lang.Literal;

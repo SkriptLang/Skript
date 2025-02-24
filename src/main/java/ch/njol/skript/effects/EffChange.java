@@ -3,7 +3,7 @@ package ch.njol.skript.effects;
 import java.util.Arrays;
 import java.util.logging.Level;
 
-import ch.njol.skript.config.SkriptConfig;
+import org.skriptlang.skript.config.SkriptConfig;
 import ch.njol.skript.expressions.ExprParse;
 import ch.njol.skript.lang.*;
 import org.skriptlang.skript.lang.script.ScriptWarning;

@@ -1,4 +1,4 @@
-package ch.njol.skript.config;
+package org.skriptlang.skript.config;
 
 import org.jetbrains.annotations.NotNull;
 

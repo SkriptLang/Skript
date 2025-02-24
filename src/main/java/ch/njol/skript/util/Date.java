@@ -1,6 +1,6 @@
 package ch.njol.skript.util;
 
-import ch.njol.skript.config.SkriptConfig;
+import org.skriptlang.skript.config.SkriptConfig;
 import ch.njol.yggdrasil.YggdrasilSerializable;
 import org.jetbrains.annotations.Nullable;
 

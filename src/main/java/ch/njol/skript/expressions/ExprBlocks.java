@@ -2,7 +2,7 @@ package ch.njol.skript.expressions;
 
 import java.util.Iterator;
 
-import ch.njol.skript.config.SkriptConfig;
+import org.skriptlang.skript.config.SkriptConfig;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.block.Block;

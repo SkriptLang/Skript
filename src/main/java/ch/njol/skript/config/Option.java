@@ -8,10 +8,8 @@ import ch.njol.skript.classes.Parser;
 import ch.njol.skript.lang.ParseContext;
 import ch.njol.skript.registrations.Classes;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.config.ConfigOption;
 import org.skriptlang.skript.lang.converter.Converter;
-
-import java.util.Locale;
-import java.util.function.Consumer;
 
 /**
  * @deprecated Use {@link ConfigOption} instead.

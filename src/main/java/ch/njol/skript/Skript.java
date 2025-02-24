@@ -44,7 +44,6 @@ import ch.njol.util.Kleenean;
 import ch.njol.util.StringUtils;
 import ch.njol.util.coll.iterator.CheckedIterator;
 import ch.njol.util.coll.iterator.EnumerationIterable;
-import com.google.common.collect.Lists;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import org.bstats.bukkit.Metrics;
@@ -284,7 +283,7 @@ public final class Skript extends JavaPlugin implements Listener {
 		Skript.debug("Server platform: " + serverPlatform);
 		if (!serverPlatform.works) {
 			Skript.error("It seems that this server platform (" + serverPlatform.name + ") does not work with Skript.");
-			if (ch.njol.skript.config.SkriptConfig.ALLOW_UNSAFE_PLATFORMS.value()) {
+			if (org.skriptlang.skript.config.SkriptConfig.ALLOW_UNSAFE_PLATFORMS.value()) {
 				Skript.error("However, you have chosen to ignore this. Skript will probably still not work.");
 			} else {
 				Skript.error("To prevent potentially unsafe behaviour, Skript has been disabled.");
@@ -508,8 +507,8 @@ public final class Skript extends JavaPlugin implements Listener {
 		SkriptConfig.load();
 
 		// Register the runtime error refresh after loading, so we can do the first instantiation manually.
-		ch.njol.skript.config.SkriptConfig.eventRegistry()
-			.register(ch.njol.skript.config.SkriptConfig.ReloadEvent.class, RuntimeErrorManager::refresh);
+		org.skriptlang.skript.config.SkriptConfig.eventRegistry()
+			.register(org.skriptlang.skript.config.SkriptConfig.ReloadEvent.class, RuntimeErrorManager::refresh);
 
 		// init runtime error manager and add bukkit consumer.
 		RuntimeErrorManager.refresh();
@@ -1338,7 +1337,7 @@ public final class Skript extends JavaPlugin implements Listener {
 
 	// TODO localise Infinity, -Infinity, NaN (and decimal point?)
 	public static String toString(final double n) {
-		return StringUtils.toString(n, ch.njol.skript.config.SkriptConfig.NUMBER_ACCURACY.value());
+		return StringUtils.toString(n, org.skriptlang.skript.config.SkriptConfig.NUMBER_ACCURACY.value());
 	}
 
 	public final static UncaughtExceptionHandler UEH = new UncaughtExceptionHandler() {

@@ -1,8 +1,9 @@
-package ch.njol.skript.config;
+package org.skriptlang.skript.config;
 
 import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptUpdater;
+import ch.njol.skript.config.EnumParser;
 import ch.njol.skript.lang.function.Function;
 import ch.njol.skript.localization.Language;
 import ch.njol.skript.log.SkriptLogger;
@@ -138,7 +139,6 @@ public interface SkriptConfig {
 	ConfigOption<Boolean> DISABLE_VARIABLE_STARTING_WITH_EXPRESSION_WARNINGS = new ConfigOption<>("disable starting a variable's name with an expression warnings", false);
 	ConfigOption<Boolean> DISABLE_UNREACHABLE_CODE_WARNINGS = new ConfigOption<>("disable unreachable code warnings", false);
 
-	ConfigOption<Boolean> ENABLE_SCRIPT_CACHING = new ConfigOption<>("enable script caching", false);
 	ConfigOption<Boolean> ADDON_SAFETY_CHECKS = new ConfigOption<>("addon safety checks", false);
 	ConfigOption<Boolean> API_SOFT_EXCEPTIONS = new ConfigOption<>("soft api exceptions", false);
 
@@ -173,24 +173,6 @@ public interface SkriptConfig {
 		@Override
 		void onLoad() {
 			ChatMessages.colorResetCodes = value();
-		}
-	};
-
-	ConfigOption<String> SCRIPT_LOADER_THREAD_SIZE = new ConfigOption<>("script loader thread size", "0") {
-		@Override
-		void onLoad() {
-			int asyncLoaderSize;
-			if (value().equalsIgnoreCase("processor count")) {
-				asyncLoaderSize = Runtime.getRuntime().availableProcessors();
-			} else {
-				try {
-					asyncLoaderSize = Integer.parseInt(value());
-				} catch (NumberFormatException e) {
-					Skript.error("Invalid option: " + value());
-					return;
-				}
-			}
-			ScriptLoader.setAsyncLoaderSize(asyncLoaderSize);
 		}
 	};
 

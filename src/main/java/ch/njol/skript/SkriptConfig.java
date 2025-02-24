@@ -36,7 +36,7 @@ import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
 /**
- * @deprecated Use {@link ch.njol.skript.config.SkriptConfig} instead.
+ * @deprecated Use {@link org.skriptlang.skript.config.SkriptConfig} instead.
  */
 @Deprecated(forRemoval = true)
 public class SkriptConfig {

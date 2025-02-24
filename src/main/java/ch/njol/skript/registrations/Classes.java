@@ -20,9 +20,8 @@ import java.util.Set;
 import java.util.regex.Pattern;
 
 import ch.njol.skript.command.Commands;
-import ch.njol.skript.config.SkriptConfig;
+import org.skriptlang.skript.config.SkriptConfig;
 import ch.njol.skript.entity.EntityData;
-import ch.njol.skript.util.Date;
 import ch.njol.skript.util.Utils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;

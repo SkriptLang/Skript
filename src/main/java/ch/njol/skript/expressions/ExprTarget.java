@@ -2,7 +2,7 @@ package ch.njol.skript.expressions;
 
 import java.util.function.Predicate;
 
-import ch.njol.skript.config.SkriptConfig;
+import org.skriptlang.skript.config.SkriptConfig;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;

@@ -1,7 +1,7 @@
 package org.skriptlang.skript.log.runtime;
 
 import ch.njol.skript.Skript;
-import ch.njol.skript.config.SkriptConfig;
+import org.skriptlang.skript.config.SkriptConfig;
 import ch.njol.skript.util.Task;
 import ch.njol.skript.util.Timespan;
 import org.jetbrains.annotations.ApiStatus;

@@ -3,7 +3,7 @@ package ch.njol.skript.expressions;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
-import ch.njol.skript.config.SkriptConfig;
+import org.skriptlang.skript.config.SkriptConfig;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SyntaxStringBuilder;
 import org.bukkit.event.Event;

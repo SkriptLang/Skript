@@ -1,8 +1,8 @@
 package org.skriptlang.skript.bukkit;
 
 import ch.njol.skript.Skript;
-import ch.njol.skript.config.ConfigOption;
-import ch.njol.skript.config.SkriptConfig;
+import org.skriptlang.skript.config.ConfigOption;
+import org.skriptlang.skript.config.SkriptConfig;
 import ch.njol.skript.localization.Language;
 import ch.njol.skript.update.Updater;
 import ch.njol.skript.util.Version;

@@ -27,6 +27,7 @@ import ch.njol.util.StringUtils;
 import org.bukkit.Bukkit;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.config.SkriptConfig;
 import org.skriptlang.skript.lang.script.Script;
 import org.skriptlang.skript.lang.script.ScriptWarning;
 import org.skriptlang.skript.lang.structure.Structure;
@@ -965,7 +966,7 @@ public class ScriptLoader {
 				item = Statement.parse(expr, items, "Can't understand this condition/effect: " + expr);
 				if (item == null)
 					continue;
-				long requiredTime = ch.njol.skript.config.SkriptConfig.LONG_PARSE_TIME_WARNING_THRESHOLD.value()
+				long requiredTime = SkriptConfig.LONG_PARSE_TIME_WARNING_THRESHOLD.value()
 					.getAs(Timespan.TimePeriod.MILLISECOND);
 				if (requiredTime > 0) {
 					long timeTaken = System.currentTimeMillis() - start;
@@ -1026,7 +1027,7 @@ public class ScriptLoader {
 			}
 
 			if (executionStops
-					&& !ch.njol.skript.config.SkriptConfig.DISABLE_UNREACHABLE_CODE_WARNINGS.value()
+					&& !SkriptConfig.DISABLE_UNREACHABLE_CODE_WARNINGS.value()
 					&& parser.isActive()
 					&& !parser.getCurrentScript().suppressesWarning(ScriptWarning.UNREACHABLE_CODE)) {
 				Skript.warning("Unreachable code. The previous statement stops further execution.");
