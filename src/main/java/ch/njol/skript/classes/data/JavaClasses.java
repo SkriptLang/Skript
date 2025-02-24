@@ -19,6 +19,8 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Quaternionf;
 
+import java.io.StreamCorruptedException;
+import java.util.UUID;
 import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -325,6 +327,19 @@ public class JavaClasses {
 						return null;
 					}
 				}));
+
+		Classes.registerClass(new ClassInfo<>(UUID.class, "uuid")
+			.user("uuids?")
+			.name("UUID")
+			.description(
+				"UUIDs are unique identifiers that ensure things can be reliably distinguished from each other. "
+					+ "They are generated in a way that makes it practically impossible for duplicates to occur.",
+				"Read more about UUIDs and how they are used in Minecraft "
+					+ "in <a href='https://minecraft.wiki/w/UUID'>the wiki entry about UUIDs</a>.")
+			.since("INSERT VERSION")
+			.parser(new UUIDParser())
+			.serializer(new UUIDSerializer())
+		);
 	}
 
 	/**
@@ -788,6 +803,63 @@ public class JavaClasses {
 
 		@Override
 		public boolean mustSyncDeserialization() {
+			return false;
+		}
+
+	}
+
+	private static class UUIDParser extends Parser<UUID> {
+
+		@Override
+		public @Nullable UUID parse(String string, ParseContext context) {
+			if (Utils.isValidUUID(string))
+				return UUID.fromString(string);
+			return null;
+		}
+
+		@Override
+		public String toString(UUID uuid, int flags) {
+			return uuid.toString();
+		}
+
+		@Override
+		public String toVariableNameString(UUID uuid) {
+			return uuid.toString();
+		}
+
+	}
+
+	private static class UUIDSerializer extends Serializer<UUID> {
+
+		@Override
+		public Fields serialize(UUID uuid) {
+			Fields fields = new Fields();
+
+			fields.putPrimitive("mostsignificantbits", uuid.getMostSignificantBits());
+			fields.putPrimitive("leastsignificantbits", uuid.getLeastSignificantBits());
+
+			return fields;
+		}
+
+		@Override
+		public void deserialize(UUID o, Fields f) {
+			assert false;
+		}
+
+		@Override
+		protected UUID deserialize(Fields fields) throws StreamCorruptedException {
+			long mostSignificantBits = fields.getAndRemovePrimitive("mostsignificantbits", long.class);
+			long leastSignificantBits = fields.getAndRemovePrimitive("leastsignificantbits", long.class);
+			return new UUID(mostSignificantBits, leastSignificantBits);
+		}
+
+		@Override
+		public boolean mustSyncDeserialization() {
+			return false;
+		}
+
+		@Override
+		protected boolean canBeInstantiated() {
 			return false;
 		}
 
