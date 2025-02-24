@@ -39,6 +39,8 @@ import org.skriptlang.skript.lang.converter.Converter;
 import org.skriptlang.skript.lang.converter.Converters;
 import org.skriptlang.skript.lang.script.Script;
 
+import java.util.UUID;
+
 public class DefaultConverters {
 
 	public DefaultConverters() {}
@@ -276,6 +278,9 @@ public class DefaultConverters {
 		// Script -> Config & Node
 		Converters.registerConverter(Script.class, Config.class, Script::getConfig);
 		Converters.registerConverter(Config.class, Node.class, Config::getMainNode);
+
+		// UUID -> String
+		Converters.registerConverter(UUID.class, String.class, UUID::toString);
 
 //		// Entity - String (UUID) // Very slow, thus disabled for now
 //		Converters.registerConverter(String.class, Entity.class, new Converter<String, Entity>() {

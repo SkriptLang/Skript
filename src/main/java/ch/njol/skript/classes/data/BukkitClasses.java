@@ -5,11 +5,10 @@ import ch.njol.skript.aliases.Aliases;
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.bukkitutil.BukkitUtils;
 import ch.njol.skript.bukkitutil.EntityUtils;
-import ch.njol.skript.bukkitutil.SkriptTeleportFlag;
 import ch.njol.skript.bukkitutil.ItemUtils;
+import ch.njol.skript.bukkitutil.SkriptTeleportFlag;
 import ch.njol.skript.classes.*;
 import ch.njol.skript.classes.registry.RegistryClassInfo;
-import org.skriptlang.skript.config.SkriptConfig;
 import ch.njol.skript.entity.EntityData;
 import ch.njol.skript.entity.WolfData;
 import ch.njol.skript.expressions.ExprDamageCause;
@@ -21,6 +20,7 @@ import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.BlockUtils;
 import ch.njol.skript.util.PotionEffectUtils;
 import ch.njol.skript.util.StringMode;
+import ch.njol.skript.util.Utils;
 import ch.njol.yggdrasil.Fields;
 import io.papermc.paper.world.MoonPhase;
 import org.bukkit.*;
@@ -58,6 +58,7 @@ import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.CachedServerIcon;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.config.SkriptConfig;
 
 import java.io.StreamCorruptedException;
 import java.util.*;
@@ -90,25 +91,10 @@ public class BukkitClasses {
 				.defaultExpression(new EventValueExpression<>(Entity.class))
 				.parser(new Parser<Entity>() {
 					@Override
-					@Nullable
-					public Entity parse(final String s, final ParseContext context) {
-						UUID uuid;
-						try {
-							uuid = UUID.fromString(s);
-						} catch (IllegalArgumentException iae) {
-							return null;
-						}
-						if (GET_ENTITY_METHOD_EXISTS) {
-							return Bukkit.getEntity(uuid);
-						} else {
-							for (World world : Bukkit.getWorlds()) {
-								for (Entity entity : world.getEntities()) {
-									if (entity.getUniqueId().equals(uuid)) {
-										return entity;
-									}
-								}
-							}
-						}
+					public @Nullable Entity parse(final String s, final ParseContext context) {
+						if (Utils.isValidUUID(s))
+							return Bukkit.getEntity(UUID.fromString(s));
+
 						return null;
 					}
 
@@ -642,8 +628,10 @@ public class BukkitClasses {
 						if (context == ParseContext.COMMAND || context == ParseContext.PARSE) {
 							if (string.isEmpty())
 								return null;
-							if (UUID_PATTERN.matcher(string).matches())
+
+							if (Utils.isValidUUID(string))
 								return Bukkit.getPlayer(UUID.fromString(string));
+
 							String name = string.toLowerCase(Locale.ENGLISH);
 							int nameLength = name.length(); // caching
 							List<Player> players = new ArrayList<>();
@@ -708,16 +696,11 @@ public class BukkitClasses {
 				.after("string", "world")
 				.parser(new Parser<OfflinePlayer>() {
 					@Override
-					@Nullable
-					public OfflinePlayer parse(final String s, final ParseContext context) {
-						if (context == ParseContext.COMMAND || context == ParseContext.PARSE) {
-							if (UUID_PATTERN.matcher(s).matches())
-								return Bukkit.getOfflinePlayer(UUID.fromString(s));
-							else if (!SkriptConfig.PLAYER_NAME_REGEX_PATTTERN.value().matcher(s).matches())
-								return null;
+					public @Nullable OfflinePlayer parse(final String s, final ParseContext context) {
+						if (Utils.isValidUUID(s))
+							return Bukkit.getOfflinePlayer(UUID.fromString(s));
+						else if (SkriptConfig.PLAYER_NAME_REGEX_PATTTERN.value().matcher(s).matches())
 							return Bukkit.getOfflinePlayer(s);
-						}
-						assert false;
 						return null;
 					}
 
