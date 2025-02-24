@@ -118,7 +118,13 @@ public class ItemData implements Cloneable, YggdrasilExtendedSerializable {
 	 * Some properties about this item.
 	 */
 	int itemFlags;
-	
+
+	public static ItemData wildcard() {
+		ItemData data = new ItemData(Material.AIR);
+		data.isAnything = true;
+		return data;
+	}
+
 	public ItemData(Material type, @Nullable String tags) {
 		this.type = type;
 
@@ -148,6 +154,8 @@ public class ItemData implements Cloneable, YggdrasilExtendedSerializable {
 		this.isAlias = data.isAlias;
 		this.plain = data.plain;
 		this.itemFlags = data.itemFlags;
+		this.isAnything = data.isAnything;
+		this.itemForm = data.itemForm;
 	}
 
 	public ItemData(Material material, @Nullable BlockValues values) {

@@ -1,0 +1,22 @@
+test "any item literal":
+	assert a diamond sword is any item with "diamond sword should be in any item"
+	assert a diamond sword is an item with "diamond sword should be an item"
+	assert a diamond sword is an item type with "diamond sword should be an item type"
+	assert a diamond sword is an item tagged as (tag "swords") with "diamond sword should be an item tagged as 'swords'"
+
+parse:
+	results: {LitAnyItem::parse-a::*}
+	code:
+		on right click with any item tagged as tag "pickaxes":
+			broadcast "test"
+
+parse:
+	results: {LitAnyItem::parse-b::*}
+	code:
+		on right click with any item tagged as tag {_tag}:
+			broadcast "test"
+
+
+test "any item literal parse check":
+	assert {LitAnyItem::parse-a::*} is not set with "Any item literal failed to parse"
+	assert {LitAnyItem::parse-b::*} is "The tag in an any/all item expression must be a literal." with "Any item literal didn't fail properly when given a non-literal tag"

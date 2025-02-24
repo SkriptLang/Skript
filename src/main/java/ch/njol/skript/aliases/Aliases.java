@@ -64,9 +64,7 @@ public abstract class Aliases {
 
 	static {
 		everything.setAll(true);
-		ItemData all = new ItemData(Material.AIR);
-		all.isAnything = true;
-		everything.add(all);
+		everything.add(ItemData.wildcard());
 	}
 
 	@Nullable
