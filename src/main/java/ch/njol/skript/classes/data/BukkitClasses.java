@@ -53,6 +53,7 @@ import org.bukkit.event.player.PlayerExpCooldownChangeEvent.ChangeReason;
 import org.bukkit.event.player.PlayerQuitEvent.QuitReason;
 import org.bukkit.event.player.PlayerResourcePackStatusEvent.Status;
 import org.bukkit.event.player.PlayerTeleportEvent.TeleportCause;
+import org.bukkit.event.player.PlayerExpCooldownChangeEvent.ChangeReason;
 import org.bukkit.inventory.*;
 import org.bukkit.metadata.Metadatable;
 import org.bukkit.potion.PotionEffect;
@@ -1475,6 +1476,31 @@ public class BukkitClasses {
 				})
 			);
 		}
+
+		Classes.registerClass(new ClassInfo<>(WorldBorder.class, "worldborder")
+			.user("world ?borders?")
+			.name("World Border")
+			.description("Represents the border of a world or player.")
+			.since("INSERT VERSION")
+			.parser(new Parser<WorldBorder>() {
+				@Override
+				public boolean canParse(ParseContext context) {
+					return false;
+				}
+
+				@Override
+				public String toString(WorldBorder border, int flags) {
+					if (border.getWorld() == null)
+						return "virtual world border";
+					return "world border of world named '" + border.getWorld().getName() + "'";
+				}
+
+				@Override
+				public String toVariableNameString(WorldBorder border) {
+					return toString(border, 0);
+				}
+			})
+			.defaultExpression(new EventValueExpression<>(WorldBorder.class)));
 
 		Classes.registerClass(new ClassInfo<>(org.bukkit.block.banner.Pattern.class, "bannerpattern")
 			.user("banner ?patterns?")

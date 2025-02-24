@@ -2595,6 +2595,7 @@ types:
 	block: block¦s @a
 	location: location¦s @a
 	world: world¦s @a
+	worldborder: worldborder¦s @a
 	inventory: inventor¦y¦ies @an
 	player: player¦s @a
 	offlineplayer: offline player¦s @a
