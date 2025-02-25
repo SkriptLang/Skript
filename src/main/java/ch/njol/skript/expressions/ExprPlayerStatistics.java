@@ -34,17 +34,17 @@ import org.skriptlang.skript.log.runtime.*;
 		+ "<a href='https://www.digminecraft.com/getting_started/statistics.php'>the DigMinecraft page about statistics</a>."
 })
 @Examples({
-	"set the mc kill entity statistic for a pig of player to 10",
-	"add 5 to the minecraft kill entity statistic for a pig of player",
-	"broadcast \"You have left the game %mc leave game statistic of player% times!\""
+	"set the statistic kill entity statistic for a pig of player to 10",
+	"add 5 to the statistic kill entity statistic for a pig of player",
+	"broadcast \"You have left the game %statistic leave game statistic of player% times!\""
 })
 @Since("INSERT VERSION")
 public class ExprPlayerStatistics extends SimpleExpression<Integer> implements SyntaxRuntimeErrorProducer {
 
 	static {
 		Skript.registerExpression(ExprPlayerStatistics.class, Integer.class, ExpressionType.COMBINED,
-			"[the] (minecraft|mc) %statistic% [for %-entitydata/itemtype%] (from|of) %offlineplayers%",
-			"%offlineplayers%'[s] (minecraft|mc) %statistic% [for %-entitydata/itemtype%]"
+			"[the] [mc|minecraft] statistic %statistic% [for %-entitydata/itemtype%] (from|of) %offlineplayers%",
+			"%offlineplayers%'[s] [mc|minecraft] statistic %statistic% [for %-entitydata/itemtype%]"
 		);
 	}
 
@@ -55,17 +55,13 @@ public class ExprPlayerStatistics extends SimpleExpression<Integer> implements S
 	private Node node;
 
 	@Override
-	@SuppressWarnings("unchecked")
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		if (matchedPattern == 0) {
-			player = (Expression<OfflinePlayer>) exprs[2];
-			statistic = (Expression<Statistic>) exprs[0];
-			ofType = exprs[1];
-		} else {
-			player = (Expression<OfflinePlayer>) exprs[0];
-			statistic = (Expression<Statistic>) exprs[1];
-			ofType = exprs[2];
-		}
+		//noinspection unchecked
+		player = (Expression<OfflinePlayer>) exprs[(matchedPattern ^ 1) * 2];
+		//noinspection unchecked
+		statistic = (Expression<Statistic>) exprs[matchedPattern];
+
+		ofType = exprs[matchedPattern + 1];
 		node = getParser().getNode();
 
 		return true;
