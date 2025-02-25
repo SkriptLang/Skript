@@ -49,18 +49,18 @@ public record ConfigEntry<T>(
 	public String toString() {
 		StringJoiner joiner = new StringJoiner("\n");
 
-		if (!inlineComment.isBlank()) {
-			joiner.add("%s: %s # %s".formatted(key, value, inlineComment));
-		} else {
-			joiner.add("%s: %s".formatted(key, value));
-		}
-
 		for (String comment : comments) {
 			if (comment.isBlank()) {
 				joiner.add("");
 			} else {
 				joiner.add("# %s".formatted(comment));
 			}
+		}
+
+		if (!inlineComment.isBlank()) {
+			joiner.add("%s: %s # %s".formatted(key, value, inlineComment));
+		} else {
+			joiner.add("%s: %s".formatted(key, value));
 		}
 
 		return joiner.toString();

@@ -38,18 +38,18 @@ public record ConfigSection(
 	public String toString() {
 		StringJoiner joiner = new StringJoiner("\n");
 
-		if (!inlineComment.isBlank()) {
-			joiner.add("%s: # %s".formatted(key, inlineComment));
-		} else {
-			joiner.add("%s:".formatted(key));
-		}
-
 		for (String comment : comments) {
 			if (comment.isBlank()) {
 				joiner.add("");
 			} else {
-				joiner.add("\t# %s".formatted(comment));
+				joiner.add("# %s".formatted(comment));
 			}
+		}
+
+		if (!inlineComment.isBlank()) {
+			joiner.add("%s: # %s".formatted(key, inlineComment));
+		} else {
+			joiner.add("%s:".formatted(key));
 		}
 
 		return joiner.toString();
