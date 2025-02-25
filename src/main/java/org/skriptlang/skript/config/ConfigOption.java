@@ -75,7 +75,10 @@ public class ConfigOption<T> {
 	 * @return The value of the option.
 	 */
 	public T value() {
-		T parsed = parse(String.valueOf(SkriptConfig.getConfig().getValue(key)));
+		Object object = SkriptConfig.getConfig().getValue(key);
+		String string = String.valueOf(object);
+
+		T parsed = parse(string);
 		if (parsed != null) {
 			return parsed;
 		}

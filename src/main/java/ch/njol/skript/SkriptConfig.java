@@ -1,6 +1,9 @@
 package ch.njol.skript;
 
-import ch.njol.skript.config.*;
+import ch.njol.skript.config.Config;
+import ch.njol.skript.config.EnumParser;
+import ch.njol.skript.config.Option;
+import ch.njol.skript.config.OptionSection;
 import ch.njol.skript.hooks.Hook;
 import ch.njol.skript.hooks.VaultHook;
 import ch.njol.skript.hooks.regions.GriefPreventionHook;
@@ -39,6 +42,7 @@ import java.util.regex.PatternSyntaxException;
  * @deprecated Use {@link org.skriptlang.skript.config.SkriptConfig} instead.
  */
 @Deprecated(forRemoval = true)
+@SuppressWarnings("removal")
 public class SkriptConfig {
 
 	//<editor-fold desc="SkriptConfig events">
@@ -189,7 +193,7 @@ public class SkriptConfig {
 
 	public static final Option<Boolean> caseSensitive = new Option<>("case sensitive", false);
 	public static final Option<Boolean> allowFunctionsBeforeDefs = new Option<>("allow function calls before definations", false)
-		.optional(true);
+			.optional(true);
 
 	public static final Option<Boolean> disableObjectCannotBeSavedWarnings = new Option<>("disable variable will not be saved warnings", false);
 	public static final Option<Boolean> disableMissingAndOrWarnings = new Option<>("disable variable missing and/or warnings", false);

@@ -41,6 +41,10 @@ public class ConfigTest {
 	public void testParsing() {
 		Config config = getConfig("new-config");
 
+		System.out.println(config.getNode("a"));
+		System.out.println("====================");
+		System.out.println(config.getNode("a.b"));
+		System.out.println("====================");
 		System.out.println(config);
 	}
 

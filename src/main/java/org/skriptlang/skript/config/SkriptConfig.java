@@ -279,5 +279,4 @@ public interface SkriptConfig {
 		return Configs.config;
 	}
 
-
 }

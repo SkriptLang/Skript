@@ -54,4 +54,5 @@ public record ConfigSection(
 
 		return joiner.toString();
 	}
+
 }

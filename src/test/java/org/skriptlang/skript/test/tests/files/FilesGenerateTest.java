@@ -1,14 +1,13 @@
 package org.skriptlang.skript.test.tests.files;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import ch.njol.skript.Skript;
+import org.junit.Test;
+import org.skriptlang.skript.config.SkriptConfig;
 
 import java.io.File;
 
-import org.junit.Test;
-
-import ch.njol.skript.Skript;
-import ch.njol.skript.SkriptConfig;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Ensures that the default files from Skript are generated.
@@ -31,7 +30,7 @@ public class FilesGenerateTest {
 	@Test
 	@SuppressWarnings("deprecation")
 	public void checkConfigurationVersion() {
-		assertEquals(SkriptConfig.getConfig().getValue("version"), Skript.getInstance().getDescription().getVersion());
+		assertEquals(SkriptConfig.VERSION.value(), Skript.getInstance().getDescription().getVersion());
 	}
 
 }

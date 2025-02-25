@@ -29,9 +29,9 @@ public record ConfigEntry<T>(
 		return key;
 	}
 
-
 	@Override
 	public Class<T> valueType() {
+		//noinspection unchecked
 		return (Class<T>) value.getClass();
 	}
 
@@ -65,4 +65,5 @@ public record ConfigEntry<T>(
 
 		return joiner.toString();
 	}
+
 }

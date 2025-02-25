@@ -1,5 +1,7 @@
 package org.skriptlang.skript.config;
 
+import ch.njol.skript.classes.data.JavaClasses;
+import ch.njol.skript.util.Timespan;
 import com.google.common.base.Preconditions;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.UnknownNullability;
@@ -134,14 +136,23 @@ final class ConfigImpl implements Config {
 
 	private static class ConfigReader {
 
+		private final List<String> lines;
 		private final Map<ConfigSection, List<ConfigNode>> nodes = new HashMap<>();
 		private int parseLine = 0;
 
 		public ConfigReader(List<String> lines) {
-			parse(null, lines, 0);
+			this.lines = lines;
+
+			parse(null, 0);
 		}
 
-		private void parse(ConfigSection parent, List<String> lines, int indentation) {
+		/**
+		 * Parses a config file into a map of nodes.
+		 *
+		 * @param parent The parent section, or null for the root section.
+		 * @param indentation The current indentation of the section.
+		 */
+		private void parse(ConfigSection parent, int indentation) {
 			List<ConfigNode> nodes = new ArrayList<>();
 			List<String> comments = new ArrayList<>();
 
@@ -179,20 +190,20 @@ final class ConfigImpl implements Config {
 
 				if (value.isBlank()) {
 					if (currentIndentation > indentation + 1) {
-						throw new IllegalStateException("Invalid indentation");
+						throw new IllegalStateException("Invalid indentation on line " + parseLine);
 					}
 
 					ConfigSection section = new ConfigSection(key, inlineComment, comments.toArray(new String[0]));
 					nodes.add(section);
 
 					parseLine++;
-					parse(section, lines, indentation + 1);
+					parse(section, indentation + 1);
 				} else {
 					if (currentIndentation > indentation) {
-						throw new IllegalStateException("Invalid indentation");
+						throw new IllegalStateException("Invalid indentation on line " + parseLine);
 					}
 
-					nodes.add(new ConfigEntry<>(key, value, inlineComment, comments.toArray(new String[0])));
+					nodes.add(new ConfigEntry<>(key, parseValue(value), inlineComment, comments.toArray(new String[0])));
 					comments.clear();
 					parseLine++;
 				}
@@ -202,5 +213,33 @@ final class ConfigImpl implements Config {
 			existing.addAll(nodes);
 			this.nodes.put(parent, existing);
 		}
+
+		/**
+		 * Attempts to parse primitives.
+		 *
+		 * @param value The value.
+		 * @return The parsed value, or the original value if parsing into a different type failed.
+		 */
+		private Object parseValue(String value) {
+			String lower = value.toLowerCase(Locale.ENGLISH);
+
+			if (lower.equals("true") || lower.equals("false")) {
+				return Boolean.parseBoolean(lower);
+			}
+			if (JavaClasses.INTEGER_PATTERN.matcher(lower).matches()) {
+				return Integer.parseInt(lower);
+			}
+			if (JavaClasses.DECIMAL_PATTERN.matcher(lower).matches()) {
+				return Double.parseDouble(lower);
+			}
+			Timespan timespan = Timespan.parse(lower);
+			if (timespan != null) {
+				return timespan;
+			}
+
+			return value;
+		}
+
 	}
+
 }
