@@ -51,7 +51,8 @@ public class PlatformMain {
 		long timeout = Long.parseLong(args[9]);
 		if (timeout < 0)
 			timeout = 0;
-		Set<String> jvmArgs = Sets.newHashSet(Arrays.copyOfRange(args, 10, args.length));
+		boolean clean = "true".equals(args[10]);
+		Set<String> jvmArgs = Sets.newHashSet(Arrays.copyOfRange(args, 11, args.length));
 		if (jvmArgs.stream().noneMatch(arg -> arg.contains("-Xmx")))
 			jvmArgs.add("-Xmx5G");
 
@@ -82,7 +83,7 @@ public class PlatformMain {
 		for (Environment env : envs) {
 			System.out.println("Starting testing on " + env.getName());
 			env.initialize(dataRoot, runnerRoot, false);
-			TestResults results = env.runTests(runnerRoot, testsRoot, devMode, genDocs, jUnit, debug, verbosity, timeout, jvmArgs);
+			TestResults results = env.runTests(runnerRoot, testsRoot, devMode, genDocs, jUnit, debug, verbosity, timeout, clean, jvmArgs);
 			if (results == null) {
 				if (devMode) {
 					// Nothing to report, it's the dev mode environment.
@@ -126,12 +127,14 @@ public class PlatformMain {
 
 		// All succeeded tests in a single line
 		StringBuilder output = new StringBuilder(String.format("%s Results %s%n", StringUtils.repeat("-", 25), StringUtils.repeat("-", 25)));
-		output.append("\nTested environments: " + String.join(", ",
+		output.append("\nTested environments (" + envs.size() + "): " + String.join(", ",
 				envs.stream().map(Environment::getName).collect(Collectors.toList())));
-		output.append("\nSucceeded:\n  " + String.join((jUnit ? "\n  " : ", "), succeeded));
+		
+		String total = String.format("\n\nSucceeded (%d/%d):", succeeded.size(), allTests.size());
+		output.append(total + "\n  " + String.join((jUnit ? "\n  " : ", "), succeeded));
 
 		if (!failNames.isEmpty()) { // More space for failed tests, they're important
-			output.append("\nFailed:");
+			output.append("\n\nFailed:");
 			for (String failed : failNames) {
 				List<NonNullPair<Environment, String>> errors = failures.get(failed);
 				output.append("\n  " + failed + " (on " + errors.size() + " environment" + (errors.size() == 1 ? "" : "s") + ")");
