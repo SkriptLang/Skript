@@ -1,11 +1,6 @@
 package ch.njol.skript.expressions;
 
-import ch.njol.skript.Skript;
-import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
-import ch.njol.skript.doc.Keywords;
-import ch.njol.skript.doc.Name;
-import ch.njol.skript.doc.Since;
+import ch.njol.skript.doc.*;
 import ch.njol.skript.expressions.base.PropertyExpression;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
@@ -19,7 +14,10 @@ import org.bukkit.event.Event;
 import org.bukkit.inventory.EntityEquipment;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Locale;
+import java.util.Set;
 import java.util.stream.Stream;
 
 @Name("Armor Slot")
@@ -76,13 +74,13 @@ public class ExprArmorSlot extends PropertyExpression<LivingEntity, Slot> {
 						if (isBody) {
 							if (!bodyEntities.contains(equipment.getHolder().getType().getEntityClass()))
 								return null;
-							return Stream.of(new EquipmentSlot(equipment, EquipSlot.BODY, explicitSlot));
+							return Stream.of(new EquipmentSlot(equipment, org.bukkit.inventory.EquipmentSlot.BODY, explicitSlot));
 						}
 						return Stream.of(
-								new EquipmentSlot(equipment, EquipSlot.HELMET, explicitSlot),
-								new EquipmentSlot(equipment, EquipSlot.CHESTPLATE, explicitSlot),
-								new EquipmentSlot(equipment, EquipSlot.LEGGINGS, explicitSlot),
-								new EquipmentSlot(equipment, EquipSlot.BOOTS, explicitSlot)
+								new EquipmentSlot(equipment, org.bukkit.inventory.EquipmentSlot.HEAD, explicitSlot),
+								new EquipmentSlot(equipment, org.bukkit.inventory.EquipmentSlot.CHEST, explicitSlot),
+								new EquipmentSlot(equipment, org.bukkit.inventory.EquipmentSlot.LEGS, explicitSlot),
+								new EquipmentSlot(equipment, org.bukkit.inventory.EquipmentSlot.FEET, explicitSlot)
 						);
 					})
 					.toArray(Slot[]::new);
