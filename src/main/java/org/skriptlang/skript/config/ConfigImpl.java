@@ -136,6 +136,7 @@ final class ConfigImpl implements Config {
 
 	private static class ConfigReader {
 
+		private final List<String> comments = new ArrayList<>();
 		private final List<String> lines;
 		private final Map<ConfigSection, List<ConfigNode>> nodes = new HashMap<>();
 		private int parseLine = 0;
@@ -154,7 +155,6 @@ final class ConfigImpl implements Config {
 		 */
 		private void parse(ConfigSection parent, int indentation) {
 			List<ConfigNode> nodes = new ArrayList<>();
-			List<String> comments = new ArrayList<>();
 
 			while (parseLine < lines.size()) {
 				String line = lines.get(parseLine);
@@ -167,7 +167,13 @@ final class ConfigImpl implements Config {
 					continue;
 				}
 				if (trimmed.charAt(0) == '#') {
-					comments.add(trimmed.substring(1).trim());
+					if (trimmed.length() < 2) {
+						error("Lines with only comment symbols are not allowed");
+					}
+					if (trimmed.charAt(1) != ' ') {
+						error("Comments must start with a space after the comment symbol");
+					}
+					comments.add(trimmed.substring(2));
 					parseLine++;
 					continue;
 				}
@@ -190,17 +196,18 @@ final class ConfigImpl implements Config {
 
 				if (value.isBlank()) {
 					if (currentIndentation > indentation + 1) {
-						throw new IllegalStateException("Invalid indentation on line " + parseLine);
+						error("Invalid indentation: expected %d, got %d".formatted(indentation, currentIndentation));
 					}
 
 					ConfigSection section = new ConfigSection(key, inlineComment, comments.toArray(new String[0]));
+					comments.clear();
+					parseLine++;
 					nodes.add(section);
 
-					parseLine++;
 					parse(section, indentation + 1);
 				} else {
 					if (currentIndentation > indentation) {
-						throw new IllegalStateException("Invalid indentation on line " + parseLine);
+						error("Invalid indentation: expected %d, got %d".formatted(indentation, currentIndentation));
 					}
 
 					nodes.add(new ConfigEntry<>(key, parseValue(value), inlineComment, comments.toArray(new String[0])));
@@ -220,7 +227,7 @@ final class ConfigImpl implements Config {
 		 * @param value The value.
 		 * @return The parsed value, or the original value if parsing into a different type failed.
 		 */
-		private Object parseValue(String value) {
+		private static Object parseValue(String value) {
 			String lower = value.toLowerCase(Locale.ENGLISH);
 
 			if (lower.equals("true") || lower.equals("false")) {
@@ -240,6 +247,9 @@ final class ConfigImpl implements Config {
 			return value;
 		}
 
+		private void error(String error) {
+			throw new IllegalStateException("Error on line %d: %s".formatted(parseLine + 1, error));
+		}
 	}
 
 }
