@@ -53,6 +53,27 @@ public interface Config extends AnyNamed {
 	<T> T getValue(@NotNull String path);
 
 	/**
+	 * Gets the value at the specified path,
+	 * or returns {@code defaultValue} if there is no value at the path.
+	 *
+	 * <p>
+	 * A path is a string, where each node is seperated by a dot '{@code .}' character.
+	 * </p>
+	 *
+	 * @param path The path to the value.
+	 * @param defaultValue The default value to return if the path doesn't exist.
+	 * @param <T>  The type of the value.
+	 * @return The value at the specified path, or {@code defaultValue} if the path doesn't exist.
+	 */
+	default <T> T getValue(@NotNull String path, @NotNull T defaultValue) {
+		T value = getValue(path);
+		if (value == null) {
+			return defaultValue;
+		}
+		return value;
+	}
+
+	/**
 	 * Gets the node at the specified path,
 	 * or null if there is no node at the path.
 	 *
@@ -66,14 +87,14 @@ public interface Config extends AnyNamed {
 	ConfigNode getNode(@NotNull String path);
 
 	/**
-	 * Gets the children of the node at the specified path.
+	 * Gets the non-deep children of the node at the specified path.
 	 *
 	 * <p>
 	 * A path is a string, where each node is seperated by a dot '{@code .}' character.
 	 * </p>
 	 *
 	 * @param path The path to the node.
-	 * @return The children of the node at the specified path.
+	 * @return The non-deep children of the node at the specified path.
 	 */
 	ConfigNode[] getNodeChildren(@NotNull String path);
 
