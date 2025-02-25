@@ -1,9 +1,7 @@
 package org.skriptlang.skript.config;
 
-import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptUpdater;
-import ch.njol.skript.config.EnumParser;
 import ch.njol.skript.lang.function.Function;
 import ch.njol.skript.localization.Language;
 import ch.njol.skript.log.SkriptLogger;
@@ -17,6 +15,8 @@ import co.aikar.timings.Timings;
 import org.bukkit.event.EventPriority;
 import org.skriptlang.skript.util.event.EventRegistry;
 
+import java.io.IOException;
+import java.nio.file.Path;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Locale;
@@ -63,18 +63,18 @@ public interface SkriptConfig {
 		@Override
 		void onLoad() {
 			ReleaseChannel channel;
-			String value = value();
+			String value = value().toLowerCase(Locale.ENGLISH);
 			switch (value) {
 				case "alpha", "beta" -> {
 					Skript.warning("'alpha' and 'beta' are no longer valid release channels. Use 'prerelease' instead.");
 
-					channel = new ReleaseChannel((name) -> true, value());
+					channel = new ReleaseChannel(name -> true, value());
 				}
-				case "prerelease" -> channel = new ReleaseChannel((name) -> true, value());
-				case "stable" -> channel = new ReleaseChannel((name) -> !(name.contains("-")), value());
-				case "none" -> channel = new ReleaseChannel((name) -> false, value());
+				case "prerelease" -> channel = new ReleaseChannel(name -> true, value());
+				case "stable" -> channel = new ReleaseChannel(name -> !(name.contains("-")), value());
+				case "none" -> channel = new ReleaseChannel(name -> false, value());
 				default -> {
-					channel = new ReleaseChannel((name) -> false, value());
+					channel = new ReleaseChannel(name -> false, value());
 					Skript.error("Unknown release channel '%s'.".formatted(value()));
 				}
 			}
@@ -105,8 +105,6 @@ public interface SkriptConfig {
 	};
 
 	ConfigOption<Verbosity> VERBOSITY = new ConfigOption<>("verbosity", Verbosity.NORMAL) {
-		private static final EnumParser<Verbosity> parser = new EnumParser<>(Verbosity.class, "verbosity");
-
 		@Override
 		void onLoad() {
 			SkriptLogger.setVerbosity(value());
@@ -114,7 +112,12 @@ public interface SkriptConfig {
 
 		@Override
 		Verbosity parse(String input) {
-			return parser.convert(input);
+			try {
+				return Verbosity.valueOf(input.toUpperCase(Locale.ENGLISH).replace(" ", "_"));
+			} catch (IllegalArgumentException e) {
+				Skript.error("The verbosity must be one of low, normal, high, very high, or debug.");
+				return null;
+			}
 		}
 	};
 
@@ -253,5 +256,28 @@ public interface SkriptConfig {
 		return Events.eventRegistry;
 	}
 	//</editor-fold>
+
+	/**
+	 * Stores all configuration instances for Skript.
+	 */
+	class Configs {
+		private static final Config config;
+
+		static {
+			try {
+				config = Config.load(Path.of(Skript.getInstance().getDataFolder().toString(), "config.sk"));
+			} catch (IOException e) {
+				throw new RuntimeException(e);
+			}
+		}
+	}
+
+	/**
+	 * @return The configuration instance for Skript.
+	 */
+	static Config getConfig() {
+		return Configs.config;
+	}
+
 
 }

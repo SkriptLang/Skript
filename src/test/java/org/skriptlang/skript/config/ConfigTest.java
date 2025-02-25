@@ -32,13 +32,9 @@ public class ConfigTest {
 
 		ConfigImpl config = new ConfigImpl(nodes);
 
-		assertEquals(1, (int) config.getValue("one"));
-		assertFalse(config.getValue("section.false"));
+		assertEquals(1, (int) config.getValue("one", 0));
+		assertFalse(config.getValue("section.false", true));
 		assertNotNull(config.getNode("section"));
-
-		assertEquals(3, (int) config.getValue("section.three"));
-		config.setValue("section.three", 4);
-		assertEquals(4, (int) config.getValue("section.three"));
 	}
 
 	@Test

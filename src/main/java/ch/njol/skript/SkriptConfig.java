@@ -188,11 +188,11 @@ public class SkriptConfig {
 	public static final Option<Integer> maxTargetBlockDistance = new Option<>("maximum target block distance", 100);
 
 	public static final Option<Boolean> caseSensitive = new Option<>("case sensitive", false);
+	public static final Option<Boolean> allowFunctionsBeforeDefs = new Option<>("allow function calls before definations", false)
+		.optional(true);
 
 	public static final Option<Boolean> disableObjectCannotBeSavedWarnings = new Option<>("disable variable will not be saved warnings", false);
 	public static final Option<Boolean> disableMissingAndOrWarnings = new Option<>("disable variable missing and/or warnings", false);
-	public static final Option<Boolean> allowFunctionsBeforeDefs = new Option<>("allow function calls before definations", false)
-		.optional(true);
 
 	public static final Option<Boolean> disableVariableStartingWithExpressionWarnings =
 		new Option<>("disable starting a variable's name with an expression warnings", false);

@@ -65,15 +65,25 @@ public class ConfigOption<T> {
 
 	/**
 	 * Gets the value of the option.
+	 * <p>
+	 * First tries to parse the value from the configuration as a string.
+	 * If this succeeds, it will return the parsed value.
+	 * If the value in the config is null, it will return the default value.
+	 * If the value in the config is not null, it will return the value in the config.
+	 * </p>
 	 *
 	 * @return The value of the option.
 	 */
 	public T value() {
-		T parsed = parse(String.valueOf(ch.njol.skript.SkriptConfig.getConfig().getValue(key)));
+		T parsed = parse(String.valueOf(SkriptConfig.getConfig().getValue(key)));
 		if (parsed != null) {
 			return parsed;
 		}
-		return ch.njol.skript.SkriptConfig.getConfig().getValue(key);
+		T value = SkriptConfig.getConfig().getValue(key);
+		if (value == null) {
+			return defaultValue;
+		}
+		return value;
 	}
 
 }
