@@ -1,21 +1,3 @@
-/**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
 package ch.njol.skript.variables;
 
 import ch.njol.skript.Skript;
@@ -37,14 +19,13 @@ import ch.njol.util.StringUtils;
 import ch.njol.util.SynchronizedReference;
 import ch.njol.util.coll.iterator.EmptyIterator;
 import ch.njol.yggdrasil.Yggdrasil;
-import com.google.common.collect.HashMultimap;
-import com.google.common.collect.Multimap;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.configuration.serialization.ConfigurationSerialization;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.UnmodifiableView;
 import org.skriptlang.skript.lang.converter.Converters;
 
 import java.lang.reflect.Constructor;
@@ -152,13 +133,20 @@ public final class Variables {
 	}
 
 	/**
-	 * The variable storages configured.
+	 * The loaded variable storages that the user wants to use.
 	 */
 	static final List<VariableStorage> STORAGES = new ArrayList<>();
 
 	/**
+	 * @return a copy of the list of variable storage handlers
+	 */
+	public static @UnmodifiableView List<VariableStorage> getLoadedStorages() {
+		return Collections.unmodifiableList(STORAGES);
+	}
+
+	/**
 	 * Register a VariableStorage class for Skript to create if the user config value matches.
-	 * 
+	 *
 	 * @param <T> A class to extend VariableStorage.
 	 * @param storage The class of the VariableStorage implementation.
 	 * @param names The names used in the config of Skript to select this VariableStorage.
@@ -255,7 +243,7 @@ public final class Variables {
 						constructor.setAccessible(true);
 						variablesStorage = (VariableStorage) constructor.newInstance(unloadedStorage.getSource(), type);
 					} catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
-						Skript.exception(e, "Failed to initalize database type '" + type + "' ensure constructors are properly created.");
+						Skript.exception(e, "API Failed to initalize database '" + name + "' ensure constructors are properly created.");
 						successful = false;
 						continue;
 					}
@@ -431,13 +419,26 @@ public final class Variables {
 	 * @param event the event to copy local variables from.
 	 * @return the copy.
 	 */
-	@Nullable
-	public static Object copyLocalVariables(Event event) {
+	public static @Nullable Object copyLocalVariables(Event event) {
 		VariablesMap from = localVariables.get(event);
 		if (from == null)
 			return null;
 
 		return from.copy();
+	}
+
+	/**
+	 * Copies local variables from provider to user, runs action, then copies variables back to provider.
+	 * Removes local variables from user after action is finished.
+	 * @param provider The originator of the local variables.
+	 * @param user The event to copy the variables to and back from.
+	 * @param action The code to run while the variables are copied.
+	 */
+	public static void withLocalVariables(Event provider, Event user, @NotNull Runnable action) {
+		Variables.setLocalVariables(user, Variables.copyLocalVariables(provider));
+		action.run();
+		Variables.setLocalVariables(provider, Variables.copyLocalVariables(user));
+		Variables.removeLocals(user);
 	}
 
 	/**
@@ -763,8 +764,8 @@ public final class Variables {
 					// Warn if needed
 					if (loadConflicts <= MAX_CONFLICT_WARNINGS) {
 						Skript.warning("The variable {" + name + "} was loaded twice from different databases (" +
-							existingVariableStorage.databaseName + " and " + source.databaseName +
-							"), only the one from " + source.databaseName + " will be kept.");
+							existingVariableStorage.getUserConfigurationName() + " and " + source.getUserConfigurationName() +
+							"), only the one from " + source.getUserConfigurationName() + " will be kept.");
 					} else if (loadConflicts == MAX_CONFLICT_WARNINGS + 1) {
 						Skript.warning("[!] More than " + MAX_CONFLICT_WARNINGS +
 							" variables were loaded more than once from different databases, " +

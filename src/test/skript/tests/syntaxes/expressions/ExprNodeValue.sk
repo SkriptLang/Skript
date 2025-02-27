@@ -1,0 +1,30 @@
+using script reflection
+
+test "node of":
+	set {_node} to the current script
+	set {_node} to the first element of nodes of {_node}
+	assert text value of {_node} does not exist with "simple node had value?"
+
+	set {_node} to the current script
+	set {_node} to node "test ""node of""" of {_node} # this :)
+	assert size of (nodes of {_node}) is greater than 0 with "section node was empty"
+
+	# root node
+	set {_node} to the skript config
+	set {_node} to node "language" in {_node}
+	assert name of {_node} is "language" with "config node name was wrong"
+	assert text value of {_node} is "english" with "config is in wrong language"
+
+	# node in node
+	set {_node} to the skript config
+	set {_node} to node "disable hooks.vault" in {_node}
+	assert text value of {_node} is "false" with "wrong node text value"
+	assert boolean value of {_node} is false with "wrong node boolean value"
+
+	# weird type node
+	set {_node} to node "update check interval" in the skript config
+	assert text value of {_node} is "12 hours" with "wrong node text value"
+	set {_time} to {_node}'s timespan value
+	assert {_time} is 12 hours with "wrong node timespan value"
+	assert {_time} is greater than 11 hours with "wrong node timespan value"
+	assert {_time} is less than 13 hours with "wrong node timespan value"

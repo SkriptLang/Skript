@@ -1,7 +1,0 @@
-
-# Test not related to a made issue. Details at pull request.
-test "100 blocks fix":
-	set {_l} to test-location ~ vector(0, -1, 0)
-	set block at {_l} to air
-	assert blocks 5 below {_l} contains air, grass block, dirt block, dirt block, bedrock block and void air with "Failed to get correct blocks (got '%blocks 5 below test-location%')"
-	assert size of blocks 3 below location below {_l} is 4 with "Failed to match asserted size"

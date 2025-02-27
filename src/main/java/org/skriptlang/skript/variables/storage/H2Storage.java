@@ -31,12 +31,17 @@ import ch.njol.skript.SkriptAddon;
 import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.variables.JdbcStorage;
 import ch.njol.skript.variables.SerializedVariable;
-import ch.njol.util.NonNullPair;
 
 public class H2Storage extends JdbcStorage {
 
-	H2Storage(SkriptAddon source, String name) {
-		super(source, name,
+	/**
+	 * Creates a new H2 storage.
+	 * 
+	 * @param source The source of the storage.
+	 * @param name The database name.
+	 */
+	H2Storage(SkriptAddon source, String type) {
+		super(source, type,
 				"CREATE TABLE IF NOT EXISTS %s (" +
 				"`name`         VARCHAR(" + MAX_VARIABLE_NAME_LENGTH + ")  NOT NULL  PRIMARY KEY," +
 				"`type`         VARCHAR(" + MAX_CLASS_CODENAME_LENGTH + ")," +
@@ -82,7 +87,7 @@ public class H2Storage extends JdbcStorage {
 	}
 
 	@Override
-	protected @Nullable Function<@Nullable ResultSet, NonNullPair<Long, SerializedVariable>> get(boolean testOperation) {
+	protected @Nullable Function<@Nullable ResultSet, JdbcVariableResult> get(boolean testOperation) {
 		return result -> {
 			if (result == null)
 				return null;
@@ -90,12 +95,12 @@ public class H2Storage extends JdbcStorage {
 			try {
 				String name = result.getString(i++);
 				if (name == null) {
-					Skript.error("Variable with a NULL name found in the database '" + databaseName + "', ignoring it");
+					Skript.error("Variable with a NULL name found in the database '" + getUserConfigurationName() + "', ignoring it");
 					return null;
 				}
 				String type = result.getString(i++);
 				byte[] value = result.getBytes(i++);
-				return new NonNullPair<>(-1L, new SerializedVariable(name, type, value));
+				return new JdbcVariableResult(-1L, new SerializedVariable(name, type, value));
 			} catch (SQLException e) {
 				Skript.exception(e, "Failed to collect variable from database.");
 				return null;

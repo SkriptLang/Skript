@@ -1,4 +1,4 @@
-test "spawn xp orb overwriting merged value" when running minecraft "1.14.4":
+test "spawn xp orb overwriting merged value":
 	# 1.13.2 seems not to merge xp orbs in the same way, so this test is skipped
 
 	# 1.21 also does not merge orbs, so this test is disabled.

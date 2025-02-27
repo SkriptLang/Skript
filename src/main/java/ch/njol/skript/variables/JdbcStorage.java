@@ -42,7 +42,6 @@ import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.Task;
 import ch.njol.skript.util.Timespan;
 import ch.njol.skript.util.Timespan.TimePeriod;
-import ch.njol.util.NonNullPair;
 import ch.njol.util.SynchronizedReference;
 
 public abstract class JdbcStorage extends VariableStorage {
@@ -130,6 +129,8 @@ public abstract class JdbcStorage extends VariableStorage {
 	 */
 	protected abstract String getReplaceQuery();
 
+	public record MonitorQueries(String monitorQuery, String cleanUpQuery) {};
+
 	/**
 	 * The select statement that will insert 1. the last row ID, and 2. the generated uuid.
 	 * So ensure this statement returns a selection for inputting those two values.
@@ -144,7 +145,7 @@ public abstract class JdbcStorage extends VariableStorage {
 	 * @return The string to be used for selecting.
 	 */
 	@Nullable
-	protected NonNullPair<String, String> getMonitorQueries() {
+	protected MonitorQueries getMonitorQueries() {
 		return null;
 	};
 
@@ -154,6 +155,8 @@ public abstract class JdbcStorage extends VariableStorage {
 	 * @return The query that will be used to select the elements.
 	 */
 	protected abstract String getSelectQuery();
+
+	public record JdbcVariableResult(Long rowId, SerializedVariable variable) {};
 
 	/**
 	 * Construct a VariableResult from the SQL ResultSet based on the extending class getSelectQuery.
@@ -165,7 +168,7 @@ public abstract class JdbcStorage extends VariableStorage {
 	 * @return a VariableResult from the SQL ResultSet based on your getSelectQuery.
 	 */
 	@Nullable
-	protected abstract Function<@Nullable ResultSet, NonNullPair<Long, SerializedVariable>> get(boolean testOperation);
+	protected abstract Function<@Nullable ResultSet, JdbcVariableResult> get(boolean testOperation);
 
 	private ResultSet query(HikariDataSource source, String query) throws SQLException {
 		Statement statement = source.getConnection().createStatement();
@@ -201,15 +204,15 @@ public abstract class JdbcStorage extends VariableStorage {
 					if (MONITOR_CLEAN_UP_QUERY != null)
 						MONITOR_CLEAN_UP_QUERY.close();
 				} catch (SQLException e) {}
-				@Nullable NonNullPair<String, String> monitorStatement = getMonitorQueries();
-				if (monitorStatement != null) {
-					MONITOR_QUERY = connection.prepareStatement(monitorStatement.getFirst());
-					MONITOR_CLEAN_UP_QUERY = connection.prepareStatement(monitorStatement.getSecond());
+				@Nullable MonitorQueries queries = getMonitorQueries();
+				if (queries != null) {
+					MONITOR_QUERY = connection.prepareStatement(queries.monitorQuery);
+					MONITOR_CLEAN_UP_QUERY = connection.prepareStatement(queries.cleanUpQuery);
 				} else {
 					monitor = false;
 				}
 			} catch (SQLException e) {
-				Skript.exception(e, "Could not prepare queries for the database '" + databaseName + "': " + e.getLocalizedMessage());
+				Skript.exception(e, "Could not prepare queries for the database '" + getDatabaseType() + "': " + e.getLocalizedMessage());
 				return false;
 			}
 		}
@@ -245,16 +248,16 @@ public abstract class JdbcStorage extends VariableStorage {
 			try {
 				this.database.set(db = new HikariDataSource(configuration));
 			} catch (Exception exception) { // MySQL can throw SQLSyntaxErrorException but not exposed from HikariDataSource.
-				Skript.error("Cannot connect to the database '" + databaseName + "'! Please make sure that all settings are correct.");
+				Skript.error("Cannot connect to the database '" + getUserConfigurationName() + "'! Please make sure that all settings are correct.");
 				return false;
 			}
 
 			if (db == null || db.isClosed()) {
-				Skript.error("Cannot connect to the database '" + databaseName + "'! Please make sure that all settings are correct.");
+				Skript.error("Cannot connect to the database '" + getUserConfigurationName() + "'! Please make sure that all settings are correct.");
 				return false;
 			}
 			if (createTableQuery == null || !createTableQuery.contains("%s")) {
-				Skript.error("Could not create the variables table in the database. The query to create the variables table '" + table + "' in the database '" + databaseName + "' is null.");
+				Skript.error("Could not create the variables table in the database. The query to create the variables table '" + table + "' in the database '" + getUserConfigurationName() + "' is null.");
 				return false;
 			}
 
@@ -262,7 +265,7 @@ public abstract class JdbcStorage extends VariableStorage {
 			try {
 				query(db, String.format(createTableQuery, table));
 			} catch (SQLException e) {
-				Skript.error("Could not create the variables table '" + table + "' in the database '" + databaseName + "': " + e.getLocalizedMessage() + ". " +
+				Skript.error("Could not create the variables table '" + table + "' in the database '" + getUserConfigurationName() + "': " + e.getLocalizedMessage() + ". " +
 						"Please create the table yourself using the following query: " + String.format(createTableQuery, table).replace(",", ", ").replaceAll("\\s+", " "));
 				return false;
 			}
@@ -305,25 +308,25 @@ public abstract class JdbcStorage extends VariableStorage {
 			@Nullable
 			public SQLException call() throws Exception {
 				try {
-					@Nullable Function<ResultSet, NonNullPair<Long, SerializedVariable>> handle = get(false);
+					@Nullable Function<ResultSet, JdbcVariableResult> handle = get(false);
 					while (result.next()) {
-						@Nullable NonNullPair<Long, SerializedVariable> returnPair = handle.apply(result);
-						if (returnPair == null)
+						@Nullable JdbcVariableResult variableResult = handle.apply(result);
+						if (variableResult == null)
 							continue;
-						SerializedVariable variable = returnPair.getSecond();
-						lastRowID = returnPair.getFirst();
+						SerializedVariable variable = variableResult.variable();
+						lastRowID = variableResult.rowId();
 
 						if (variable.getValue() == null) {
 							Variables.variableLoaded(variable.getName(), null, JdbcStorage.this);
 						} else {
 							ClassInfo<?> c = Classes.getClassInfoNoError(variable.getType());
 							if (c == null || c.getSerializer() == null) {
-								Skript.error("Cannot load the variable {" + variable.getName() + "} from the database '" + databaseName + "', because the type '" + variable.getType() + "' cannot be recognised or cannot be stored in variables");
+								Skript.error("Cannot load the variable {" + variable.getName() + "} from the database '" + getUserConfigurationName() + "', because the type '" + variable.getType() + "' cannot be recognised or cannot be stored in variables");
 								continue;
 							}
 							Object object = Classes.deserialize(c, variable.getData());
 							if (object == null) {
-								Skript.error("Cannot load the variable {" + variable.getName() + "} from the database '" + databaseName + "', because it cannot be loaded as " + c.getName().withIndefiniteArticle());
+								Skript.error("Cannot load the variable {" + variable.getName() + "} from the database '" + getUserConfigurationName() + "', because it cannot be loaded as " + c.getName().withIndefiniteArticle());
 								continue;
 							}
 							Variables.variableLoaded(variable.getName(), object, JdbcStorage.this);
@@ -370,12 +373,12 @@ public abstract class JdbcStorage extends VariableStorage {
 					Thread.sleep(Math.max(0, lastCommit + delay - System.currentTimeMillis()));
 				} catch (InterruptedException e) {}
 			}
-		}, "Skript database '" + databaseName + "' transaction committing thread").start();
+		}, "Skript database '" + getUserConfigurationName() + "' transaction committing thread").start();
 	}
 
 	@Override
 	protected void allLoaded() {
-		Skript.debug("Database " + databaseName + " loaded. Queue size = " + changesQueue.size());
+		Skript.debug("Database " + getUserConfigurationName() + " loaded. Queue size = " + changesQueue.size());
 		if (!monitor)
 			return;
 		Skript.newThread(() -> {
@@ -408,7 +411,7 @@ public abstract class JdbcStorage extends VariableStorage {
 					} catch (final InterruptedException e) {}
 				}
 			}
-		}, "Skript database '" + databaseName + "' monitor thread").start();
+		}, "Skript database '" + getUserConfigurationName() + "' monitor thread").start();
 	}
 
 	@Override
@@ -421,7 +424,7 @@ public abstract class JdbcStorage extends VariableStorage {
 		synchronized (database) {
 			HikariDataSource database = this.database.get();
 			if (database == null || database.isClosed()) {
-				Skript.exception("Cannot reconnect to the database '" + databaseName + "'!");
+				Skript.exception("Cannot reconnect to the database '" + getUserConfigurationName() + "'!");
 				return false;
 			}
 			return true;
@@ -539,7 +542,7 @@ public abstract class JdbcStorage extends VariableStorage {
 		}
 	}
 
-	NonNullPair<Long, SerializedVariable> executeTestQuery() throws SQLException {
+	JdbcVariableResult executeTestQuery() throws SQLException {
 		synchronized (database) {
 			database.get().getConnection().commit();
 		}

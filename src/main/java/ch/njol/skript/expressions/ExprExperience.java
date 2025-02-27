@@ -10,6 +10,10 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.util.Experience;
 import ch.njol.util.Kleenean;
+import org.bukkit.event.Event;
+import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.player.PlayerExpChangeEvent;
+import org.bukkit.event.player.PlayerFishEvent;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.event.Event;
 import org.bukkit.event.block.BlockBreakEvent;
@@ -32,9 +36,12 @@ import org.jetbrains.annotations.Nullable;
 	"",
 	"on breed:",
 		"\tbreeding father is a cow",
-		"\tset dropped experience to 10"
+		"\tset dropped experience to 10",
+   "",
+   "on fish catch:",
+		"\tadd 70 to dropped experience",
 })
-@Since("2.1, 2.5.3 (block break event), 2.7 (experience change event), INSERT VERSION (breeding event)")
+@Since("2.1, 2.5.3 (block break event), 2.7 (experience change event), 2.10 (breeding, fishing)")
 @Events({"experience spawn", "break / mine", "experience change", "entity breeding"})
 public class ExprExperience extends SimpleExpression<Experience> {
 
@@ -47,15 +54,15 @@ public class ExprExperience extends SimpleExpression<Experience> {
 	public boolean init(Expression<?>[] expressions, int matchedPattern,
 						Kleenean isDelayed, ParseResult parseResult) {
 		if (!getParser().isCurrentEvent(ExperienceSpawnEvent.class, BlockBreakEvent.class,
-			PlayerExpChangeEvent.class, EntityBreedEvent.class)) {
-			Skript.error("The experience expression can only be used in experience spawn, " +
-				"block break, player experience change and entity breeding events");
+			PlayerExpChangeEvent.class, EntityBreedEvent.class, PlayerFishEvent.class)) {
+			Skript.error("The 'experience' expression can only be used in experience spawn, " +
+				"block break, player experience change, entity breeding or fishing events");
 			return false;
 		}
 
 		return true;
 	}
-	
+
 	@Override
 	protected Experience @Nullable [] get(Event event) {
 		Experience[] exp;
@@ -68,13 +75,15 @@ public class ExprExperience extends SimpleExpression<Experience> {
 			exp = new Experience[]{new Experience(playerExpChangeEvent.getAmount())};
 		} else if (event instanceof EntityBreedEvent entityBreedEvent) {
 			exp = new Experience[]{new Experience(entityBreedEvent.getExperience())};
+		} else if (event instanceof PlayerFishEvent fishEvent) {
+			exp = new Experience[]{new Experience(fishEvent.getExpToDrop())};
 		} else {
 			exp = new Experience[0];
 		}
 
 		return exp;
 	}
-	
+
 	@Override
 	public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
 		return switch (mode) {
@@ -84,7 +93,7 @@ public class ExprExperience extends SimpleExpression<Experience> {
 			default -> null;
 		};
 	}
-	
+
 	@Override
 	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
 		int exp;
@@ -97,6 +106,8 @@ public class ExprExperience extends SimpleExpression<Experience> {
 			exp = playerExpChangeEvent.getAmount();
 		} else if (event instanceof EntityBreedEvent entityBreedEvent) {
 			exp = entityBreedEvent.getExperience();
+		} else if (event instanceof PlayerFishEvent fishEvent) {
+			exp = fishEvent.getExpToDrop();
 		} else {
 			return;
 		}
@@ -110,6 +121,8 @@ public class ExprExperience extends SimpleExpression<Experience> {
 					case REMOVE, REMOVE_ALL -> exp -= value;
 				}
 			}
+		} else {
+			exp = 0;
 		}
 
 		exp = Math.max(0, exp);
@@ -121,22 +134,24 @@ public class ExprExperience extends SimpleExpression<Experience> {
 			playerExpChangeEvent.setAmount(exp);
 		} else if (event instanceof EntityBreedEvent entityBreedEvent) {
 			entityBreedEvent.setExperience(exp);
+		} else if (event instanceof PlayerFishEvent fishEvent) {
+			fishEvent.setExpToDrop(exp);
 		}
 	}
-	
+
 	@Override
 	public boolean isSingle() {
 		return true;
 	}
-	
+
 	@Override
 	public Class<? extends Experience> getReturnType() {
 		return Experience.class;
 	}
-	
+
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
 		return "the experience";
 	}
-	
+
 }

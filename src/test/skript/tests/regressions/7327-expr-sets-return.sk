@@ -1,0 +1,10 @@
+test "ExprSets class return failure":
+
+	set {_i} to diamond sword with item flag all item flags
+	assert {_i} is set with "Item with all item flags should be set"
+
+	set {_i::*} to 1 of all itemtypes
+	assert {_i::*} is set with "X of set of all itemtypes should be set"
+
+	# You're a lone wolf, Just want to make sure you don't error
+	set custom model data of all itemtypes to 10

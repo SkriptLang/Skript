@@ -1,4 +1,4 @@
-test "leather horse armor unequipable" when running minecraft "1.14":
+test "leather horse armor unequipable":
 	if minecraft version is "1.20.6":
 		stop # horse armor equipping is broken on Paper 1.20.6. see https://github.com/PaperMC/Paper/pull/11139
 

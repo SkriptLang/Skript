@@ -15,7 +15,7 @@ import org.bukkit.entity.LivingEntity;
 		"\tentity can't age",
 		"\tbroadcast \"An immortal has been born!\" to player"
 })
-@Since("INSERT VERSION")
+@Since("2.10")
 public class CondCanAge extends PropertyCondition<LivingEntity> {
 
 	static {

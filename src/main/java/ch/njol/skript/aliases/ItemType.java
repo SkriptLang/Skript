@@ -4,6 +4,8 @@ import ch.njol.skript.aliases.ItemData.OldItemData;
 import ch.njol.skript.bukkitutil.BukkitUnsafe;
 import ch.njol.skript.bukkitutil.ItemUtils;
 import ch.njol.skript.lang.Unit;
+import ch.njol.skript.lang.util.common.AnyAmount;
+import ch.njol.skript.lang.util.common.AnyNamed;
 import ch.njol.skript.localization.Adjective;
 import ch.njol.skript.localization.GeneralWords;
 import ch.njol.skript.localization.Language;
@@ -35,6 +37,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.NotSerializableException;
@@ -44,6 +47,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -55,7 +59,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @ContainerType(ItemStack.class)
-public class ItemType implements Unit, Iterable<ItemData>, Container<ItemStack>, YggdrasilExtendedSerializable {
+public class ItemType implements Unit, Iterable<ItemData>, Container<ItemStack>, YggdrasilExtendedSerializable,
+	AnyNamed, AnyAmount {
 
 	static {
 		// This handles updating ItemType and ItemData variable records
@@ -1415,6 +1420,17 @@ public class ItemType implements Unit, Iterable<ItemData>, Container<ItemStack>,
 	}
 
 	/**
+	 * @return All Materials this ItemType represents.
+	 */
+	public Material[] getMaterials() {
+		Set<Material> materials = new HashSet<>();
+		for (ItemData data : types) {
+			materials.add(data.getType());
+		}
+		return materials.toArray(new Material[0]);
+  }
+
+  /**
 	 * @return A random block material this ItemType represents.
 	 * @throws IllegalStateException If {@link #hasBlock()} is false.
 	 */
@@ -1442,6 +1458,39 @@ public class ItemType implements Unit, Iterable<ItemData>, Container<ItemStack>,
 			copy.add_(data.aliasCopy());
 		}
 		return copy;
+	}
+
+	@Override
+	public @Nullable String name() {
+		ItemMeta meta = this.getItemMeta();
+		return meta.hasDisplayName() ? meta.getDisplayName() : null;
+	}
+
+	@Override
+	public boolean supportsNameChange() {
+		return true;
+	}
+
+	@Override
+	public void setName(String name) {
+		ItemMeta meta = this.getItemMeta();
+		meta.setDisplayName(name);
+		this.setItemMeta(meta);
+	}
+
+	@Override
+	public @NotNull Number amount() {
+		return this.getAmount();
+	}
+
+	@Override
+	public boolean supportsAmountChange() {
+		return true;
+	}
+
+	@Override
+	public void setAmount(@Nullable Number amount) throws UnsupportedOperationException {
+		this.setAmount(amount != null ? amount.intValue() : 0);
 	}
 
 }

@@ -169,6 +169,9 @@ fabric.properties
 
 # Reason: https://github.com/joeblau/gitignore.io/issues/186#issuecomment-249601023
 
+# Exception for the icon
+!.idea/icon.png
+
 *.iml
 modules.xml
 .idea/misc.xml

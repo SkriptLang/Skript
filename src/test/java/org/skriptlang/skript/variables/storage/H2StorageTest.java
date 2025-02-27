@@ -20,6 +20,7 @@ package org.skriptlang.skript.variables.storage;
 
 import static org.junit.Assert.assertTrue;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.concurrent.ExecutionException;
@@ -30,6 +31,7 @@ import org.junit.Test;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.config.Config;
+import ch.njol.skript.config.ConfigReader;
 import ch.njol.skript.config.EntryNode;
 import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.registrations.Classes;
@@ -52,7 +54,7 @@ public class H2StorageTest {
 			return;
 		Config config;
 		try {
-			config = new Config(testSection, "h2-junit.sk", false, false, ":");
+			config = new Config(new ByteArrayInputStream(testSection.getBytes(ConfigReader.UTF_8)), "h2-junit.sk", false, false, ":");
 		} catch (IOException e) {
 			e.printStackTrace();
 			return;

@@ -4,7 +4,6 @@ import ch.njol.skript.config.Config;
 import ch.njol.skript.config.EnumParser;
 import ch.njol.skript.config.Option;
 import ch.njol.skript.config.OptionSection;
-import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.hooks.Hook;
 import ch.njol.skript.hooks.VaultHook;
 import ch.njol.skript.hooks.regions.GriefPreventionHook;
@@ -26,6 +25,7 @@ import ch.njol.skript.variables.Variables;
 import co.aikar.timings.Timings;
 import org.bukkit.event.EventPriority;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.util.event.EventRegistry;
 
 import java.io.File;
 import java.io.IOException;
@@ -40,19 +40,50 @@ import java.util.regex.PatternSyntaxException;
 
 /**
  * Important: don't save values from the config, a '/skript reload config/configs/all' won't work correctly otherwise!
- * 
+ *
  * @author Peter Güttinger
  */
 @SuppressWarnings("unused")
 public class SkriptConfig {
 
+	//<editor-fold desc="SkriptConfig events">
+	/**
+	 * Used for listening to events involving Skript's configuration.
+	 * @see #eventRegistry()
+	 */
+	public interface Event extends org.skriptlang.skript.util.event.Event { }
+
+	/**
+	 * Called when Skript's configuration is successfully reloaded.
+	 * This occurs when the reload process has finished, meaning the config is safe to reference.
+	 */
+	@FunctionalInterface
+	public interface ReloadEvent extends Event {
+
+		/**
+		 * The method that is called when this event triggers.
+		 */
+		void onReload();
+
+	}
+
+	private static final EventRegistry<Event> eventRegistry = new EventRegistry<>();
+
+	/**
+	 * @return An event registry for the configuration's events.
+	 */
+	public static EventRegistry<Event> eventRegistry() {
+		return eventRegistry;
+	}
+	//</editor-fold>
+
 	@Nullable
 	static Config mainConfig;
 	static Collection<Config> configs = new ArrayList<>();
-	
+
 	static final Option<String> version = new Option<>("version", Skript.getVersion().toString())
 			.optional(true);
-	
+
 	public static final Option<String> language = new Option<>("language", "english")
 			.optional(true)
 			.setter(s -> {
@@ -60,7 +91,7 @@ public class SkriptConfig {
 					Skript.error("No language file found for '" + s + "'!");
 				}
 			});
-	
+
 	public static final Option<Boolean> checkForNewVersion = new Option<>("check for new version", false)
 			.setter(t -> {
 				SkriptUpdater updater = Skript.getInstance().getUpdater();
@@ -71,7 +102,7 @@ public class SkriptConfig {
 			.setter(t -> {
 				SkriptUpdater updater = Skript.getInstance().getUpdater();
 				if (updater != null)
-					updater.setCheckFrequency(t.getTicks());
+					updater.setCheckFrequency(t.getAs(Timespan.TimePeriod.TICK));
 			});
 	static final Option<Integer> updaterDownloadTries = new Option<>("updater download tries", 7)
 			.optional(true);
@@ -107,19 +138,14 @@ public class SkriptConfig {
 	public static final Option<String> effectCommandToken = new Option<>("effect command token", "!");
 	public static final Option<Boolean> allowOpsToUseEffectCommands = new Option<>("allow ops to use effect commands", false);
 
-	/*
-	 * @deprecated Will be removed in 2.8.0. Use {@link #logEffectCommands} instead.
-	 */
-	@Deprecated
-	public static final Option<Boolean> logPlayerCommands = new Option<>("log player commands", false).optional(true);
 	public static final Option<Boolean> logEffectCommands = new Option<>("log effect commands", false);
 
 	// everything handled by Variables
 	public static final OptionSection databases = new OptionSection("databases");
-	
+
 	public static final Option<Boolean> usePlayerUUIDsInVariableNames = new Option<>("use player UUIDs in variable names", false); // TODO change to true later (as well as in the default config)
 	public static final Option<Boolean> enablePlayerVariableFix = new Option<>("player variable fix", true);
-	
+
 	@SuppressWarnings("null")
 	private static final DateFormat shortDateFormat = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT);
 	public static final Option<DateFormat> dateFormat = new Option<>("date format", shortDateFormat, s -> {
@@ -132,17 +158,17 @@ public class SkriptConfig {
 		}
 		return null;
 	});
-	
+
 	public static String formatDate(final long timestamp) {
 		final DateFormat f = dateFormat.value();
 		synchronized (f) {
 			return "" + f.format(timestamp);
 		}
 	}
-	
+
 	public static final Option<Verbosity> verbosity = new Option<>("verbosity", Verbosity.NORMAL, new EnumParser<>(Verbosity.class, "verbosity"))
 			.setter(SkriptLogger::setVerbosity);
-	
+
 	public static final Option<EventPriority> defaultEventPriority = new Option<>("plugin priority", EventPriority.NORMAL, s -> {
 		try {
 			return EventPriority.valueOf(s.toUpperCase(Locale.ENGLISH));
@@ -158,14 +184,14 @@ public class SkriptConfig {
 	public static final Option<Boolean> listenCancelledByDefault = new Option<>("listen to cancelled events by default", false)
 			.optional(true);
 
-	
+
 	/**
 	 * Maximum number of digits to display after the period for floats and doubles
 	 */
 	public static final Option<Integer> numberAccuracy = new Option<>("number accuracy", 2);
-	
+
 	public static final Option<Integer> maxTargetBlockDistance = new Option<>("maximum target block distance", 100);
-	
+
 	public static final Option<Boolean> caseSensitive = new Option<>("case sensitive", false);
 	public static final Option<Boolean> allowFunctionsBeforeDefs = new Option<>("allow function calls before definations", false)
 			.optional(true);
@@ -175,19 +201,20 @@ public class SkriptConfig {
 	public static final Option<Boolean> disableVariableStartingWithExpressionWarnings =
 		new Option<>("disable starting a variable's name with an expression warnings", false);
 	public static final Option<Boolean> disableUnreachableCodeWarnings = new Option<>("disable unreachable code warnings", false);
-	
+
 	@Deprecated
 	public static final Option<Boolean> enableScriptCaching = new Option<>("enable script caching", false)
 			.optional(true);
-	
+
 	public static final Option<Boolean> keepConfigsLoaded = new Option<>("keep configs loaded", false)
 			.optional(true);
-	
+
 	public static final Option<Boolean> addonSafetyChecks = new Option<>("addon safety checks", false)
 			.optional(true);
-	
+
 	public static final Option<Boolean> apiSoftExceptions = new Option<>("soft api exceptions", false);
-	
+
+	@SuppressWarnings("removal")
 	public static final Option<Boolean> enableTimings = new Option<>("enable timings", false)
 			.setter(t -> {
 				if (!Skript.classExists("co.aikar.timings.Timings")) { // Check for Timings
@@ -207,7 +234,7 @@ public class SkriptConfig {
 					Skript.info("Timings support enabled!");
 				SkriptTimings.setEnabled(t); // Config option will be used
 			});
-	
+
 	public static final Option<String> parseLinks = new Option<>("parse links in chat messages", "disabled")
 			.setter(t -> {
 				try {
@@ -237,7 +264,7 @@ public class SkriptConfig {
 
 	public static final Option<Boolean> caseInsensitiveCommands = new Option<>("case-insensitive commands", false)
 		.optional(true);
-	
+
 	public static final Option<Boolean> colorResetCodes = new Option<>("color codes reset formatting", true)
 			.setter(t -> {
 				try {
@@ -250,7 +277,7 @@ public class SkriptConfig {
 	public static final Option<String> scriptLoaderThreadSize = new Option<>("script loader thread size", "0")
 			.setter(s -> {
 				int asyncLoaderSize;
-				
+
 				if (s.equalsIgnoreCase("processor count")) {
 					asyncLoaderSize = Runtime.getRuntime().availableProcessors();
 				} else {
@@ -261,17 +288,17 @@ public class SkriptConfig {
 						return;
 					}
 				}
-				
+
 				ScriptLoader.setAsyncLoaderSize(asyncLoaderSize);
 			})
 			.optional(true);
-	
+
 	public static final Option<Boolean> allowUnsafePlatforms = new Option<>("allow unsafe platforms", false)
 			.optional(true);
 
 	public static final Option<Boolean> keepLastUsageDates = new Option<>("keep command last usage dates", false)
 			.optional(true);
-	
+
 	public static final Option<Boolean> loadDefaultAliases = new Option<>("load default aliases", true)
 			.optional(true);
 
@@ -329,114 +356,93 @@ public class SkriptConfig {
 
 	public static final Option<Timespan> longParseTimeWarningThreshold = new Option<>("long parse time warning threshold", new Timespan(0));
 
+
+	public static final Option<Timespan> runtimeErrorFrameDuration = new Option<>("runtime errors.frame duration", new Timespan(Timespan.TimePeriod.SECOND, 1));
+
+	public static final Option<Integer> runtimeErrorLimitTotal = new Option<>("runtime errors.total errors per frame", 8);
+	public static final Option<Integer> runtimeWarningLimitTotal = new Option<>("runtime errors.total warnings per frame", 8);
+
+	public static final Option<Integer> runtimeErrorLimitLine = new Option<>("runtime errors.errors from one line per frame", 2);
+	public static final Option<Integer> runtimeWarningLimitLine = new Option<>("runtime errors.warnings from one line per frame", 2);
+
+	public static final Option<Integer> runtimeErrorLimitLineTimeout = new Option<>("runtime errors.error spam timeout limit", 4);
+	public static final Option<Integer> runtimeWarningLimitLineTimeout = new Option<>("runtime errors.warning spam timeout limit", 4);
+
+	public static final Option<Integer> runtimeErrorTimeoutDuration = new Option<>("runtime errors.error timeout length", 10);
+	public static final Option<Integer> runtimeWarningTimeoutDuration = new Option<>("runtime errors.warning timeout length", 10);
+
 	/**
 	 * This should only be used in special cases
 	 */
-	@Nullable
-	public static Config getConfig() {
+	public static @Nullable Config getConfig() {
 		return mainConfig;
 	}
-	
+
 	// also used for reloading
-	static boolean load() {
+	static void load() {
+		if (mainConfig != null)
+			mainConfig.invalidate(); // todo
 		try {
-			final File oldConfigFile = new File(Skript.getInstance().getDataFolder(), "config.cfg");
-			final File configFile = new File(Skript.getInstance().getDataFolder(), "config.sk");
-			if (oldConfigFile.exists()) {
-				if (!configFile.exists()) {
-					oldConfigFile.renameTo(configFile);
-					Skript.info("[1.3] Renamed your 'config.cfg' to 'config.sk' to match the new format");
-				} else {
-					Skript.error("Found both a new and an old config, ignoring the old one");
-				}
-			}
+			File configFile = new File(Skript.getInstance().getDataFolder(), "config.sk");
+
 			if (!configFile.exists()) {
 				Skript.error("Config file 'config.sk' does not exist!");
-				return false;
+				return;
 			}
 			if (!configFile.canRead()) {
 				Skript.error("Config file 'config.sk' cannot be read!");
-				return false;
+				return;
 			}
-			
-			Config mc;
-			try {
-				mc = new Config(configFile, false, false, ":");
-			} catch (final IOException e) {
-				Skript.error("Could not load the main config: " + e.getLocalizedMessage());
-				return false;
-			}
-			mainConfig = mc;
 
-			String configVersion = mc.get(version.key);
+			Config mainConfig;
+			try {
+				mainConfig = new Config(configFile, false, false, ":");
+			} catch (IOException ex) {
+				Skript.exception(ex, "Could not load the main config");
+				return;
+			}
+			SkriptConfig.mainConfig = mainConfig;
+
+			String configVersion = mainConfig.getValue(version.key);
 			if (configVersion == null || Skript.getVersion().compareTo(new Version(configVersion)) != 0) {
-				try {
-					final InputStream in = Skript.getInstance().getResource("config.sk");
-					if (in == null) {
+				if (!mainConfig.getMainNode().isValid()) {
+					Skript.error("Your config is outdated, but cannot be updated because it contains errors.");
+					return;
+				}
+
+				try (InputStream stream = Skript.getInstance().getResource("config.sk")) {
+					if (stream == null) {
 						Skript.error("Your config is outdated, but Skript couldn't find the newest config in its jar.");
-						return false;
+						return;
 					}
-					final Config newConfig = new Config(in, "Skript.jar/config.sk", false, false, ":");
-					in.close();
-					
-					boolean forceUpdate = false;
-					
-					if (mc.getMainNode().get("database") != null) { // old database layout
-						forceUpdate = true;
-						try {
-							final SectionNode oldDB = (SectionNode) mc.getMainNode().get("database");
-							assert oldDB != null;
-							final SectionNode newDBs = (SectionNode) newConfig.getMainNode().get(databases.key);
-							assert newDBs != null;
-							final SectionNode newDB = (SectionNode) newDBs.get("database 1");
-							assert newDB != null;
-							
-							newDB.setValues(oldDB);
-							
-							// '.db' was dynamically added before
-							final String file = newDB.getValue("file");
-							assert file != null;
-							if (!file.endsWith(".db"))
-								newDB.set("file", file + ".db");
-							
-							final SectionNode def = (SectionNode) newDBs.get("default");
-							assert def != null;
-							def.set("backup interval", "" + mc.get("variables backup interval"));
-						} catch (final Exception e) {
-							Skript.error("An error occurred while trying to update the config's database section.");
-							Skript.error("You'll have to update the config yourself:");
-							Skript.error("Open the new config.sk as well as the created backup, and move the 'database' section from the backup to the start of the 'databases' section");
-							Skript.error("of the new config (i.e. the line 'databases:' should be directly above 'database:'), and add a tab in front of every line that you just copied.");
-							return false;
-						}
+					Config newConfig = new Config(stream, "Skript.jar/config.sk", false, false, ":");
+
+					File backup = FileUtils.backup(configFile);
+					boolean updated = mainConfig.updateNodes(newConfig);
+					mainConfig.getMainNode().set(version.key, Skript.getVersion().toString());
+					mainConfig.save(configFile);
+					SkriptConfig.mainConfig = mainConfig;
+
+					if (updated) {
+						Skript.info("Your configuration has been updated to the latest version. " +
+							"A backup of your old config file has been created as " + backup.getName());
+					} else {
+						Skript.info("Your configuration is outdated, but no changes were performed. " +
+							"A backup of your config file has been created as " + backup.getName());
 					}
-					
-					if (newConfig.setValues(mc, version.key, databases.key) || forceUpdate) { // new config is different
-						final File bu = FileUtils.backup(configFile);
-						newConfig.getMainNode().set(version.key, Skript.getVersion().toString());
-						if (mc.getMainNode().get(databases.key) != null)
-							newConfig.getMainNode().set(databases.key, mc.getMainNode().get(databases.key));
-						mc = mainConfig = newConfig;
-						mc.save(configFile);
-						Skript.info("Your configuration has been updated to the latest version. A backup of your old config file has been created as " + bu.getName());
-					} else { // only the version changed
-						mc.getMainNode().set(version.key, Skript.getVersion().toString());
-						mc.save(configFile);
-					}
-				} catch (final IOException e) {
-					Skript.error("Could not load the new config from the jar file: " + e.getLocalizedMessage());
+				} catch (IOException ex) {
+					Skript.exception(ex, "Could not update the main config");
+					return;
 				}
 			}
-			
-			mc.load(SkriptConfig.class);
-			
-//			if (!keepConfigsLoaded.value())
-//				mainConfig = null;
-		} catch (final RuntimeException e) {
-			Skript.exception(e, "An error occurred while loading the config");
-			return false;
+
+			mainConfig.load(SkriptConfig.class);
+		} catch (RuntimeException ex) {
+			Skript.exception(ex, "An error occurred while loading the config");
 		}
-		return true;
+
+		// trigger reload event handlers
+		eventRegistry().events(ReloadEvent.class).forEach(ReloadEvent::onReload);
 	}
 
 }

@@ -27,7 +27,6 @@ import ch.njol.skript.SkriptAddon;
 import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.variables.JdbcStorage;
 import ch.njol.skript.variables.SerializedVariable;
-import ch.njol.util.NonNullPair;
 
 import com.zaxxer.hikari.HikariConfig;
 
@@ -35,8 +34,14 @@ import org.jetbrains.annotations.Nullable;
 
 public class MySQLStorage extends JdbcStorage {
 
-	MySQLStorage(SkriptAddon source, String name) {
-		super(source, name,
+	/**
+	 * Creates a new MySQL storage.
+	 * 
+	 * @param source The source of the storage.
+	 * @param type The database type.
+	 */
+	MySQLStorage(SkriptAddon source, String type) {
+		super(source, type,
 				"CREATE TABLE IF NOT EXISTS %s (" +
 				"rowid        BIGINT  NOT NULL  AUTO_INCREMENT," +
 				"name         VARCHAR(" + MAX_VARIABLE_NAME_LENGTH + ")  NOT NULL," +
@@ -77,8 +82,8 @@ public class MySQLStorage extends JdbcStorage {
 	}
 
 	@Override
-	protected NonNullPair<String, String> getMonitorQueries() {
-		return new NonNullPair<>(
+	protected MonitorQueries getMonitorQueries() {
+		return new MonitorQueries(
 				"SELECT rowid, name, type, value FROM " + getTableName() + " WHERE rowid > ?",
 				"DELETE FROM " + getTableName() + " WHERE value IS NULL AND rowid < ?"
 		);
@@ -90,7 +95,7 @@ public class MySQLStorage extends JdbcStorage {
 	}
 
 	@Override
-	protected @Nullable Function<@Nullable ResultSet, NonNullPair<Long, SerializedVariable>> get(boolean testOperation) {
+	protected @Nullable Function<@Nullable ResultSet, JdbcVariableResult> get(boolean testOperation) {
 		return result -> {
 			if (result == null)
 				return null;
@@ -99,12 +104,12 @@ public class MySQLStorage extends JdbcStorage {
 				long rowid = result.getLong(i++); // rowid is used for monitor changes.
 				String name = result.getString(i++);
 				if (name == null) {
-					Skript.error("Variable with NULL name found in the database '" + databaseName + "', ignoring it");
+					Skript.error("Variable with NULL name found in the database '" + getUserConfigurationName() + "', ignoring it");
 					return null;
 				}
 				String type = result.getString(i++);
 				byte[] value = result.getBytes(i++);
-				return new NonNullPair<>(rowid, new SerializedVariable(name, type, value));
+				return new JdbcVariableResult(rowid, new SerializedVariable(name, type, value));
 			} catch (SQLException e) {
 				Skript.exception(e, "Failed to collect variable from database.");
 				return null;

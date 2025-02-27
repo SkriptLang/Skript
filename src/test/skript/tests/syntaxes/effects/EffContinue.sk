@@ -19,3 +19,10 @@ test "continue effect":
 			assert loop-value-2 is not 15 with "leveled continue failed #2"
 			continue 1st loop if loop-value-1 is 10
 		assert loop-value is not 10 with "leveled continue failed #3"
+
+	set {_ran} to false
+	loop 10 times:
+		loop 10 times:
+			continue
+		set {_ran} to true
+	assert {_ran} is true with "continue in nested loop continued outermost loop"

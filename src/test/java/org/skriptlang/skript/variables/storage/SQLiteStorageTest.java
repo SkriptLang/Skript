@@ -20,6 +20,7 @@ package org.skriptlang.skript.variables.storage;
 
 import static org.junit.Assert.assertTrue;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.concurrent.ExecutionException;
@@ -27,16 +28,13 @@ import java.util.concurrent.TimeoutException;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.skriptlang.skript.variables.storage.H2Storage;
-import org.skriptlang.skript.variables.storage.SQLiteStorage;
-
 import ch.njol.skript.Skript;
 import ch.njol.skript.config.Config;
+import ch.njol.skript.config.ConfigReader;
 import ch.njol.skript.config.EntryNode;
 import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.variables.StorageAccessor;
-import ch.njol.skript.variables.Variables;
 
 public class SQLiteStorageTest {
 
@@ -56,7 +54,7 @@ public class SQLiteStorageTest {
 			return;
 		Config config;
 		try {
-			config = new Config(testSection, "sqlite-junit.sk", false, false, ":");
+			config = new Config(new ByteArrayInputStream(testSection.getBytes(ConfigReader.UTF_8)), "sqlite-junit.sk", false, false, ":");
 		} catch (IOException e) {
 			e.printStackTrace();
 			return;
