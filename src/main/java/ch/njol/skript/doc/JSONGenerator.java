@@ -10,6 +10,7 @@ import ch.njol.skript.lang.function.JavaFunction;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.registrations.EventValues;
 import ch.njol.skript.registrations.EventValues.EventValueInfo;
+import ch.njol.skript.util.Version;
 import com.google.common.collect.Multimap;
 import com.google.gson.*;
 import org.bukkit.event.Cancellable;
@@ -34,8 +35,29 @@ import java.util.stream.Stream;
  */
 public class JSONGenerator extends DocumentationGenerator {
 
+	/**
+	 * The current version of the JSON generator
+	 */
+	public static final Version JSON_VERSION = new Version(1, 0);
+
+	private static final Gson GSON = new GsonBuilder()
+		.disableHtmlEscaping()
+		.setPrettyPrinting()
+		.serializeNulls()
+		.create();
+
 	public JSONGenerator(File templateDir, File outputDir) {
 		super(templateDir, outputDir);
+	}
+
+	/**
+	 * @return The version of the JSON generator
+	 */
+	private static JsonObject getVersion() {
+		JsonObject version = new JsonObject();
+		version.addProperty("major", JSON_VERSION.getMajor());
+		version.addProperty("minor", JSON_VERSION.getMinor());
+		return version;
 	}
 
 	/**
@@ -285,13 +307,7 @@ public class JSONGenerator extends DocumentationGenerator {
 	 */
 	private void saveDocs(Path outputPath, JsonObject jsonDocs) {
 		try {
-			Gson jsonGenerator = new GsonBuilder()
-				.disableHtmlEscaping()
-				.setPrettyPrinting()
-				.serializeNulls()
-				.create();
-
-			Files.writeString(outputPath, jsonGenerator.toJson(jsonDocs));
+			Files.writeString(outputPath, GSON.toJson(jsonDocs));
 		} catch (IOException exception) {
 			//noinspection ThrowableNotThrown
 			Skript.exception(exception, "An error occurred while trying to generate JSON documentation");
@@ -303,6 +319,7 @@ public class JSONGenerator extends DocumentationGenerator {
 		JsonObject jsonDocs = new JsonObject();
 
 		jsonDocs.add("skriptVersion", new JsonPrimitive(Skript.getVersion().toString()));
+		jsonDocs.add("version", getVersion());
 		jsonDocs.add("conditions", generateSyntaxElementArray(Skript.getConditions().iterator()));
 		jsonDocs.add("effects", generateSyntaxElementArray(Skript.getEffects().iterator()));
 		jsonDocs.add("expressions", generateSyntaxElementArray(Skript.getExpressions()));
