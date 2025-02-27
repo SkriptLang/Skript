@@ -91,6 +91,9 @@ public class JSONGenerator extends DocumentationGenerator {
 		syntaxJsonObject.addProperty("name", nameAnnotation.value());
 		syntaxJsonObject.add("patterns", convertToJsonArray(syntaxInfo.getPatterns()));
 
+		Deprecated deprecated = syntaxClass.getAnnotation(Deprecated.class);
+		syntaxJsonObject.addProperty("deprecated", deprecated != null);
+
 		Since since = syntaxClass.getAnnotation(Since.class);
 		syntaxJsonObject.add("since", since == null ? null : convertToJsonArray(since.value()));
 
@@ -105,6 +108,9 @@ public class JSONGenerator extends DocumentationGenerator {
 
 		RequiredPlugins requirements = syntaxClass.getAnnotation(RequiredPlugins.class);
 		syntaxJsonObject.add("requirements", requirements == null ? null : convertToJsonArray(requirements.value()));
+
+		Keywords keywords = syntaxClass.getAnnotation(Keywords.class);
+		syntaxJsonObject.add("keywords", keywords == null ? null : convertToJsonArray(keywords.value()));
 
 		return syntaxJsonObject;
 	}
@@ -126,6 +132,7 @@ public class JSONGenerator extends DocumentationGenerator {
 		syntaxJsonObject.add("requirements", convertToJsonArray(info.getRequiredPlugins()));
 		syntaxJsonObject.add("examples", convertToJsonArray(info.getExamples()));
 		syntaxJsonObject.add("eventValues", getEventValues(info));
+		syntaxJsonObject.add("keywords", convertToJsonArray(info.getKeywords()));
 
 		return syntaxJsonObject;
 	}
