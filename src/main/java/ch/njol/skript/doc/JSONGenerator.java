@@ -16,6 +16,12 @@ import com.google.gson.*;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
 import org.bukkit.event.block.BlockCanBuildEvent;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.structure.Structure;
 import org.skriptlang.skript.lang.structure.StructureInfo;
@@ -25,6 +31,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collection;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Objects;
 import java.util.Set;
@@ -66,7 +73,7 @@ public class JSONGenerator extends DocumentationGenerator {
 	 * @param strings the String array to convert
 	 * @return the JsonArray containing the Strings
 	 */
-	private static JsonArray convertToJsonArray(String @Nullable [] strings) {
+	private static JsonArray convertToJsonArray(String @Nullable ... strings) {
 		if (strings == null || strings.length == 0)
 			return null;
 		JsonArray jsonArray = new JsonArray();
@@ -103,8 +110,21 @@ public class JSONGenerator extends DocumentationGenerator {
 		Description description = syntaxClass.getAnnotation(Description.class);
 		syntaxJsonObject.add("description", description == null ? null : convertToJsonArray(description.value()));
 
-		Examples examples = syntaxClass.getAnnotation(Examples.class);
-		syntaxJsonObject.add("examples", examples == null ? null : convertToJsonArray(examples.value()));
+		if (syntaxClass.isAnnotationPresent(Examples.class)) {
+			@NotNull Examples examplesAnnotation = syntaxClass.getAnnotation(Examples.class);
+			syntaxJsonObject.add("examples", convertToJsonArray(examplesAnnotation.value()));
+		} else if (syntaxClass.isAnnotationPresent(Example.Examples.class)) {
+			// If there are multiple examples, they get containerised
+			@NotNull Example.Examples examplesAnnotation = syntaxClass.getAnnotation(Example.Examples.class);
+			syntaxJsonObject.add("examples", convertToJsonArray(Arrays.stream(examplesAnnotation.value())
+				.map(Example::value).toArray(String[]::new)));
+		} else if (syntaxClass.isAnnotationPresent(Example.class)) {
+			// If the user adds just one example, it isn't containerised
+			@NotNull Example example = syntaxClass.getAnnotation(Example.class);
+			syntaxJsonObject.add("examples", convertToJsonArray(example.value()));
+		} else {
+			syntaxJsonObject.add("examples", null);
+		}
 
 		Events events = syntaxClass.getAnnotation(Events.class);
 		syntaxJsonObject.add("events", events == null ? null : convertToJsonArray(events.value()));
