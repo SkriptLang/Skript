@@ -25,7 +25,7 @@ import org.jetbrains.annotations.Nullable;
 public class ExprTestWorld extends SimpleExpression<World> {
 
 	static {
-		if (TestMode.TEST_ELEMENTS)
+		if (TestMode.canGenerateTestElements(ExprTestWorld.class))
 			Skript.registerExpression(ExprTestWorld.class, World.class, ExpressionType.SIMPLE,
 					"[the] test(-| )world");
 	}

@@ -19,7 +19,7 @@ import javax.annotation.Nullable;
 public class ExprParseLogs extends SimpleExpression<String> {
 
 	static {
-		if (TestMode.TEST_ELEMENTS)
+		if (TestMode.canGenerateTestElements(ExprParseLogs.class))
 			Skript.registerExpression(ExprParseLogs.class, String.class, ExpressionType.SIMPLE, "[the] [last] parse logs");
 	}
 

@@ -25,7 +25,7 @@ import ch.njol.util.Kleenean;
 public class EffObjectives extends Effect  {
 
 	static {
-		if (TestMode.TEST_ELEMENTS)
+		if (TestMode.canGenerateTestElements(EffObjectives.class))
 			Skript.registerEffect(EffObjectives.class,
 					"ensure [[junit] test] %string% completes [(objective|trigger)[s]] %strings%",
 					"complete [(objective|trigger)[s]] %strings% (for|on) [[junit] test] %string%"

@@ -14,7 +14,7 @@ import org.bukkit.event.Event;
 public class EffRunRunnable extends Effect {
 
 	static {
-		if (TestMode.TEST_ELEMENTS)
+		if (TestMode.canGenerateTestElements(EffRunRunnable.class))
 			Skript.registerEffect(EffRunRunnable.class, "run %object%");
 	}
 

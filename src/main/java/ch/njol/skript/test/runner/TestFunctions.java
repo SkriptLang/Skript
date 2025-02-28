@@ -16,7 +16,7 @@ public class TestFunctions {
 	static {
 		// Prevent accidental registration if something visits this class
 		// To prevent these functions from showing up in the docs, don't register when generating docs
-		if (TestMode.TEST_ELEMENTS)
+		if (TestMode.canGenerateTestElements(ExprTestWorld.class))
 			registerTestFunctions();
 	}
 

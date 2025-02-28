@@ -17,7 +17,7 @@ import java.util.List;
 public class SecReturnable extends Section implements ReturnHandler<Object> {
 
 	static {
-		if (TestMode.TEST_ELEMENTS)
+		if (TestMode.canGenerateTestElements(SecReturnable.class))
 			Skript.registerSection(SecReturnable.class, "returnable [:plural] %*classinfo% section");
 	}
 

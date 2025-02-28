@@ -4,6 +4,7 @@ import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+import ch.njol.skript.doc.NoDoc;
 import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.test.utils.TestResults;
@@ -71,5 +72,9 @@ public class TestMode {
 	 * True when test elements should be registered, false if not.
 	 */
 	public static final boolean TEST_ELEMENTS = ENABLED && !GEN_DOCS;
+
+	public static boolean canGenerateTestElements(Class<?> clazz) {
+		return TEST_ELEMENTS && clazz.getAnnotation(NoDoc.class) == null;
+	}
 
 }

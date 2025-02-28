@@ -28,7 +28,7 @@ public class EffTestPluralClassInfos extends Effect {
 		class Example2 {}
 		class Example3 {}
 		class Example4 {}
-		if (TestMode.TEST_ELEMENTS) {
+		if (TestMode.canGenerateTestElements(EffTestPluralClassInfos.class)) {
 			Classes.registerClass(new ClassInfo<>(Example1.class, "testgui")
 				.user("example1")
 				.name(ClassInfo.NO_DOC));

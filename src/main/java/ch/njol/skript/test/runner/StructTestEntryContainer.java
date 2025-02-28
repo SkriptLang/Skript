@@ -28,7 +28,7 @@ public class StructTestEntryContainer extends Structure {
 	}
 
 	static {
-		if (TestMode.TEST_ELEMENTS)
+		if (TestMode.canGenerateTestElements(StructTestEntryContainer.class))
 			Skript.registerStructure(StructTestEntryContainer.class,
 				EntryValidator.builder()
 					.addSection("has entry", true)

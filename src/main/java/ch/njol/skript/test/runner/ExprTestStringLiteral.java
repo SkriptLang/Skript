@@ -17,7 +17,7 @@ import org.jetbrains.annotations.Nullable;
 public class ExprTestStringLiteral extends SimpleExpression<String> {
 
 	static {
-		if (TestMode.TEST_ELEMENTS)
+		if (TestMode.canGenerateTestElements(ExprTestStringLiteral.class))
 			Skript.registerExpression(ExprTestStringLiteral.class, String.class, ExpressionType.SIMPLE, "test string literal %*string%");
 	}
 
