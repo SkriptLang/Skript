@@ -18,7 +18,7 @@ import org.jetbrains.annotations.Nullable;
 public class ExprExperimentalOnly extends SimpleExpression<Boolean> {
 
 	static {
-		if (TestMode.canGenerateTestElements(ExprExperimentalOnly.class))
+		if (TestMode.ENABLED)
 			Skript.registerExpression(ExprExperimentalOnly.class, Boolean.class, ExpressionType.SIMPLE, "experimental only");
 	}
 

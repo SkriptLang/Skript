@@ -68,13 +68,4 @@ public class TestMode {
 	 */
 	public static boolean docsFailed;
 
-	/**
-	 * True when test elements should be registered, false if not.
-	 * @param clazz the class to check
-	 * @return true if test elements should be registered
-	 */
-	public static boolean canGenerateTestElements(Class<?> clazz) {
-		return ENABLED && clazz.getAnnotation(NoDoc.class) == null;
-	}
-
 }

@@ -32,7 +32,7 @@ public class ExprSecRunnable extends SectionExpression<Object> {
 	}
 
 	static {
-		if (TestMode.canGenerateTestElements(ExprSecRunnable.class))
+		if (TestMode.ENABLED)
 			Skript.registerExpression(ExprSecRunnable.class, Object.class, ExpressionType.SIMPLE, "[a] new runnable");
 	}
 

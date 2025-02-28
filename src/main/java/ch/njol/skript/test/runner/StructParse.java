@@ -31,7 +31,7 @@ import org.skriptlang.skript.lang.structure.Structure;
 public class StructParse extends Structure {
 
 	static {
-		if (TestMode.canGenerateTestElements(StructParse.class))
+		if (TestMode.ENABLED)
 			Skript.registerStructure(StructParse.class, "parse");
 	}
 

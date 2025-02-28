@@ -21,7 +21,7 @@ import ch.njol.util.Kleenean;
 public class CondRunningJUnit extends Condition {
 
 	static {
-		if (TestMode.canGenerateTestElements(CondRunningJUnit.class))
+		if (TestMode.ENABLED)
 			Skript.registerCondition(CondRunningJUnit.class, "running junit");
 	}
 
