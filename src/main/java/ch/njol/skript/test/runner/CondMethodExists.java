@@ -31,7 +31,8 @@ public class CondMethodExists extends PropertyCondition<String> {
 	private final static Pattern SIGNATURE_PATTERN = Pattern.compile("(?<class>.+)#(?<name>.+)\\((?<params>.*)\\)");
 
 	static {
-		Skript.registerCondition(CondMethodExists.class, "method[s] %strings% [dont:do(esn't|n't)] exist[s]");
+		if (TestMode.TEST_ELEMENTS)
+			Skript.registerCondition(CondMethodExists.class, "method[s] %strings% [dont:do(esn't|n't)] exist[s]");
 	}
 
 	private Expression<String> signatures;

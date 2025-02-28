@@ -25,7 +25,8 @@ import java.util.List;
 public class SecParse extends Section {
 
 	static {
-		Skript.registerSection(SecParse.class, "parse");
+		if (TestMode.TEST_ELEMENTS)
+			Skript.registerSection(SecParse.class, "parse");
 	}
 
 	private String[] logs;

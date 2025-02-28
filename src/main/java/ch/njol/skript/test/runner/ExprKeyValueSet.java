@@ -16,7 +16,7 @@ import java.util.Map;
 public class ExprKeyValueSet extends SimpleExpression<Object> implements KeyProviderExpression<Object> {
 
 	static {
-		if (TestMode.ENABLED)
+		if (TestMode.TEST_ELEMENTS)
 			Skript.registerExpression(ExprKeyValueSet.class, Object.class, ExpressionType.SIMPLE,
 				"test key values of %~objects%",
 				"test key values"

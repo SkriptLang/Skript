@@ -23,7 +23,7 @@ public class EffAssert extends Effect {
 	private static final String DEFAULT_ERROR = "Assertion failed.";
 
 	static {
-		if (TestMode.ENABLED)
+		if (TestMode.TEST_ELEMENTS)
 			Skript.registerEffect(EffAssert.class,
 				"assert <.+> [(1:to fail)] with [error] %string%",
 				"assert <.+> [(1:to fail)] with [error] %string%, expected [value] %object%, [and] (received|got) [value] %object%",

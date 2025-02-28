@@ -31,7 +31,8 @@ import org.skriptlang.skript.lang.structure.Structure;
 public class StructParse extends Structure {
 
 	static {
-		Skript.registerStructure(StructParse.class, "parse");
+		if (TestMode.TEST_ELEMENTS)
+			Skript.registerStructure(StructParse.class, "parse");
 	}
 
 	private static final EntryValidator validator = EntryValidator.builder()

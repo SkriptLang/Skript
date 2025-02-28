@@ -32,7 +32,7 @@ import ch.njol.util.Kleenean;
 public class EffDebug extends Effect  {
 
 	static {
-		if (TestMode.ENABLED)
+		if (TestMode.TEST_ELEMENTS)
 			Skript.registerEffect(EffDebug.class,
 					"debug [:verbose] %objects%",
 					"debug-effect <.+>",

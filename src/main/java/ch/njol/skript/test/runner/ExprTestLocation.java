@@ -25,7 +25,7 @@ import org.jetbrains.annotations.Nullable;
 public class ExprTestLocation extends SimpleExpression<Location> {
 
 	static {
-		if (TestMode.ENABLED)
+		if (TestMode.TEST_ELEMENTS)
 			Skript.registerExpression(ExprTestLocation.class, Location.class, ExpressionType.SIMPLE,
 					"[the] test(-| )location");
 	}

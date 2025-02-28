@@ -12,9 +12,10 @@ import org.jetbrains.annotations.Nullable;
 public class ExprTestLoopPeeking extends SimpleExpression<Object> {
 
 	static {
-		Skript.registerExpression(ExprTestLoopPeeking.class, Object.class, ExpressionType.SIMPLE,
-			"test loop peeking disabled",
-			"test loop peeking enabled");
+		if (TestMode.TEST_ELEMENTS)
+			Skript.registerExpression(ExprTestLoopPeeking.class, Object.class, ExpressionType.SIMPLE,
+				"test loop peeking disabled",
+				"test loop peeking enabled");
 	}
 
 	private boolean toPeek;

@@ -67,4 +67,9 @@ public class TestMode {
 	 */
 	public static boolean docsFailed;
 
+	/**
+	 * True when test elements should be registered, false if not.
+	 */
+	public static final boolean TEST_ELEMENTS = ENABLED && !GEN_DOCS;
+
 }
