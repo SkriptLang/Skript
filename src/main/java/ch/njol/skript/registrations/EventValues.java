@@ -111,7 +111,7 @@ public class EventValues {
 	) {
 		Skript.checkAcceptRegistrations();
 		List<EventValueInfo<?, ?>> eventValues = getEventValuesList(time);
-		EventValueInfo<E, T> element = new EventValueInfo<>(event, type, converter, excludeErrorMessage, excludes);
+		EventValueInfo<E, T> element = new EventValueInfo<>(event, type, converter, excludeErrorMessage, excludes, time);
 
 		for (int i = 0; i < eventValues.size(); i++) {
 			EventValueInfo<?, ?> info = eventValues.get(i);
@@ -487,7 +487,7 @@ public class EventValues {
 	public record EventValueInfo<E extends Event, T>(
 		Class<E> event, Class<T> c, Converter<E, T> converter,
 		@Nullable String excludeErrorMessage,
-		@Nullable Class<? extends E>[] excludes
+		@Nullable Class<? extends E>[] excludes, int time
 	) {
 		public EventValueInfo {
 			assert event != null;

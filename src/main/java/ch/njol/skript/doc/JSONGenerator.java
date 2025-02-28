@@ -16,11 +16,6 @@ import com.google.gson.*;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
 import org.bukkit.event.block.BlockCanBuildEvent;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonPrimitive;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.structure.Structure;
@@ -30,11 +25,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Collection;
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Stream;
 
 /**
@@ -168,7 +159,7 @@ public class JSONGenerator extends DocumentationGenerator {
 	 * @return a JsonArray containing the documentation JsonObjects for each event value
 	 */
 	private static JsonArray getEventValues(SkriptEventInfo<?> info) {
-		JsonArray eventValues = new JsonArray();
+		Set<JsonObject> eventValues = new HashSet<>();
 
 		Multimap<Class<? extends Event>, EventValueInfo<?, ?>> allEventValues = EventValues.getPerEventEventValues();
 		for (Class<? extends Event> supportedEvent : info.events) {
@@ -187,14 +178,26 @@ public class JSONGenerator extends DocumentationGenerator {
 					if (exactClassInfo == null)
 						continue;
 
+					String prefix = "";
+					if (eventValueInfo.time() == EventValues.TIME_PAST) {
+						prefix = "past ";
+					} else if (eventValueInfo.time() == EventValues.TIME_FUTURE) {
+						prefix = "future ";
+					}
+
 					JsonObject object = new JsonObject();
-					object.addProperty("name", getClassInfoName(exactClassInfo));
 					object.addProperty("id", DocumentationIdProvider.getId(exactClassInfo));
+					object.addProperty("name", prefix + getClassInfoName(exactClassInfo).toLowerCase(Locale.ENGLISH));
 					eventValues.add(object);
 				}
 			}
 		}
-		return eventValues;
+
+		JsonArray array = new JsonArray();
+		for (JsonObject eventValue : eventValues) {
+			array.add(eventValue);
+		}
+		return array;
 	}
 
 	/**
@@ -353,8 +356,9 @@ public class JSONGenerator extends DocumentationGenerator {
 	 * @return the cleaned patterns
 	 */
 	private static JsonArray cleanPatterns(String... strings) {
-		if (strings == null)
+		if (strings == null || strings.length == 0 || (strings.length == 1 && strings[0].isBlank()))
 			return null;
+
 		for (int i = 0; i < strings.length; i++) {
 			strings[i] = Documentation.cleanPatterns(strings[i], false, false);
 		}
