@@ -62,6 +62,7 @@ public class JSONGenerator extends DocumentationGenerator {
 
 	/**
 	 * Coverts a String array to a JsonArray
+	 *
 	 * @param strings the String array to convert
 	 * @return the JsonArray containing the Strings
 	 */
@@ -77,19 +78,21 @@ public class JSONGenerator extends DocumentationGenerator {
 	/**
 	 * Generates the documentation JsonObject for an element that is annotated with documentation
 	 * annotations (e.g. effects, conditions, etc.)
+	 *
 	 * @param syntaxInfo the syntax info element to generate the documentation object of
 	 * @return the JsonObject representing the documentation of the provided syntax element
 	 */
-	private static @Nullable JsonObject generatedAnnotatedElement(SyntaxElementInfo<?> syntaxInfo) {
+	private static JsonObject generatedAnnotatedElement(SyntaxElementInfo<?> syntaxInfo) {
 		Class<?> syntaxClass = syntaxInfo.getElementClass();
-		Name nameAnnotation = syntaxClass.getAnnotation(Name.class);
-		if (nameAnnotation == null || syntaxClass.getAnnotation(NoDoc.class) != null)
+		Name name = syntaxClass.getAnnotation(Name.class);
+		if (name == null || syntaxClass.getAnnotation(NoDoc.class) != null)
 			return null;
+
 		JsonObject syntaxJsonObject = new JsonObject();
 
 		syntaxJsonObject.addProperty("id", DocumentationIdProvider.getId(syntaxInfo));
-		syntaxJsonObject.addProperty("name", nameAnnotation.value());
-		syntaxJsonObject.add("patterns", convertToJsonArray(syntaxInfo.getPatterns()));
+		syntaxJsonObject.addProperty("name", name.value());
+		syntaxJsonObject.add("patterns", cleanPatterns(syntaxInfo.getPatterns()));
 
 		Deprecated deprecated = syntaxClass.getAnnotation(Deprecated.class);
 		syntaxJsonObject.addProperty("deprecated", deprecated != null);
@@ -117,6 +120,7 @@ public class JSONGenerator extends DocumentationGenerator {
 
 	/**
 	 * Generates the documentation JsonObject for an event
+	 *
 	 * @param info the event to generate the documentation object for
 	 * @return a documentation JsonObject for the event
 	 */
@@ -127,7 +131,7 @@ public class JSONGenerator extends DocumentationGenerator {
 		syntaxJsonObject.addProperty("since", info.getSince());
 		syntaxJsonObject.addProperty("cancellable", isCancellable(info));
 
-		syntaxJsonObject.add("patterns", convertToJsonArray(info.getPatterns()));
+		syntaxJsonObject.add("patterns", cleanPatterns(info.getPatterns()));
 		syntaxJsonObject.add("description", convertToJsonArray(info.getDescription()));
 		syntaxJsonObject.add("requirements", convertToJsonArray(info.getRequiredPlugins()));
 		syntaxJsonObject.add("examples", convertToJsonArray(info.getExamples()));
@@ -139,6 +143,7 @@ public class JSONGenerator extends DocumentationGenerator {
 
 	/**
 	 * Generates the documentation for the event values of an event
+	 *
 	 * @param info the event to generate the event values of
 	 * @return a JsonArray containing the documentation JsonObjects for each event value
 	 */
@@ -192,6 +197,7 @@ public class JSONGenerator extends DocumentationGenerator {
 
 	/**
 	 * Generates a JsonArray containing the documentation JsonObjects for each structure in the iterator
+	 *
 	 * @param infos the structures to generate documentation for
 	 * @return a JsonArray containing the documentation JsonObjects for each structure
 	 */
@@ -211,6 +217,7 @@ public class JSONGenerator extends DocumentationGenerator {
 
 	/**
 	 * Generates a JsonArray containing the documentation JsonObjects for each syntax element in the iterator
+	 *
 	 * @param infos the syntax elements to generate documentation for
 	 * @return a JsonArray containing the documentation JsonObjects for each syntax element
 	 */
@@ -226,18 +233,20 @@ public class JSONGenerator extends DocumentationGenerator {
 
 	/**
 	 * Generates the documentation JsonObject for a classinfo
+	 *
 	 * @param classInfo the ClassInfo to generate the documentation of
 	 * @return the documentation Jsonobject of the ClassInfo
 	 */
-	private static @Nullable JsonObject generateClassInfoElement(ClassInfo<?> classInfo) {
+	private static JsonObject generateClassInfoElement(ClassInfo<?> classInfo) {
 		if (!classInfo.hasDocs())
 			return null;
+
 		JsonObject syntaxJsonObject = new JsonObject();
 		syntaxJsonObject.addProperty("id", DocumentationIdProvider.getId(classInfo));
 		syntaxJsonObject.addProperty("name", getClassInfoName(classInfo));
 		syntaxJsonObject.addProperty("since", classInfo.getSince());
 
-		syntaxJsonObject.add("patterns", convertToJsonArray(classInfo.getUsage()));
+		syntaxJsonObject.add("patterns", cleanPatterns(classInfo.getUsage()));
 		syntaxJsonObject.add("description", convertToJsonArray(classInfo.getDescription()));
 		syntaxJsonObject.add("requirements", convertToJsonArray(classInfo.getRequiredPlugins()));
 		syntaxJsonObject.add("examples", convertToJsonArray(classInfo.getExamples()));
@@ -247,6 +256,7 @@ public class JSONGenerator extends DocumentationGenerator {
 
 	/**
 	 * Generates a JsonArray containing the documentation JsonObjects for each classinfo in the iterator
+	 *
 	 * @param classInfos the classinfos to generate documentation for
 	 * @return a JsonArray containing the documentation JsonObjects for each classinfo
 	 */
@@ -262,6 +272,7 @@ public class JSONGenerator extends DocumentationGenerator {
 
 	/**
 	 * Gets either the explicitly declared documentation name or code name of a ClassInfo
+	 *
 	 * @param classInfo the ClassInfo to get the effective name of
 	 * @return the effective name of the ClassInfo
 	 */
@@ -271,6 +282,7 @@ public class JSONGenerator extends DocumentationGenerator {
 
 	/**
 	 * Generates the documentation JsonObject for a JavaFunction
+	 *
 	 * @param function the JavaFunction to generate the JsonObject of
 	 * @return the JsonObject of the JavaFunction
 	 */
@@ -285,7 +297,7 @@ public class JSONGenerator extends DocumentationGenerator {
 		functionJsonObject.add("examples", convertToJsonArray(function.getExamples()));
 
 		String functionSignature = function.getSignature().toString(false, false);
-		functionJsonObject.add("patterns", convertToJsonArray(new String[] { functionSignature }));
+		functionJsonObject.add("patterns", cleanPatterns(functionSignature));
 		return functionJsonObject;
 	}
 
@@ -298,6 +310,7 @@ public class JSONGenerator extends DocumentationGenerator {
 
 	/**
 	 * Generates a JsonArray containing the documentation JsonObjects for each function in the iterator
+	 *
 	 * @param functions the functions to generate documentation for
 	 * @return a JsonArray containing the documentation JsonObjects for each function
 	 */
@@ -308,9 +321,25 @@ public class JSONGenerator extends DocumentationGenerator {
 	}
 
 	/**
+	 * Cleans the provided patterns
+	 *
+	 * @param strings the patterns to clean
+	 * @return the cleaned patterns
+	 */
+	private static JsonArray cleanPatterns(String... strings) {
+		if (strings == null)
+			return null;
+		for (int i = 0; i < strings.length; i++) {
+			strings[i] = Documentation.cleanPatterns(strings[i], false);
+		}
+		return convertToJsonArray(strings);
+	}
+
+	/**
 	 * Writes the documentation JsonObject to an output path
+	 *
 	 * @param outputPath the path to write the documentation to
-	 * @param jsonDocs the documentation JsonObject
+	 * @param jsonDocs   the documentation JsonObject
 	 */
 	private void saveDocs(Path outputPath, JsonObject jsonDocs) {
 		try {
@@ -325,7 +354,7 @@ public class JSONGenerator extends DocumentationGenerator {
 	public void generate() {
 		JsonObject jsonDocs = new JsonObject();
 
-		jsonDocs.add("skriptVersion", new JsonPrimitive(Skript.getVersion().toString()));
+		jsonDocs.addProperty("skriptVersion", Skript.getVersion().toString());
 		jsonDocs.add("version", getVersion());
 		jsonDocs.add("conditions", generateSyntaxElementArray(Skript.getConditions().iterator()));
 		jsonDocs.add("effects", generateSyntaxElementArray(Skript.getEffects().iterator()));
