@@ -20,7 +20,7 @@ import ch.njol.util.Kleenean;
 @Name("Cancel Drops")
 @Description("Cancels drops of items or experiences in a death or block break event. " +
 		"Please note that this doesn't keep items or experiences of a dead player. If you want to do that, " +
-		"use the <a href='effects.html#EffKeepInventory'>Keep Inventory / Experience</a> effect.")
+		"use the <a href='#EffKeepInventory'>Keep Inventory / Experience</a> effect.")
 @Examples({"on death of a zombie:",
 		"\tif name of the entity is \"&cSpecial\":",
 		"\t\tcancel drops of items",
