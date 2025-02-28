@@ -321,6 +321,12 @@ public class JSONGenerator extends DocumentationGenerator {
 		return functionJsonObject;
 	}
 
+	/**
+	 * Gets the return type of JavaFunction, with the name and id
+	 *
+	 * @param function the JavaFunction to get the return type of
+	 * @return the JsonObject representing the return type of the JavaFunction
+	 */
 	private static JsonObject getReturnType(JavaFunction<?> function) {
 		JsonObject returnType = new JsonObject();
 		returnType.addProperty("name", getClassInfoName(function.getReturnType()));
