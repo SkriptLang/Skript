@@ -1,8 +1,12 @@
 package ch.njol.skript.util;
 
 import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.util.Vector;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
+import org.joml.Vector3d;
 
 import java.util.Iterator;
 import java.util.NoSuchElementException;
@@ -10,32 +14,36 @@ import java.util.NoSuchElementException;
 /**
  * Iterates through blocks in a straight line from a start to end location (inclusive).
  * <p>
- * Given start and end locations are always cloned and block-centered.
+ * Given start and end locations are always cloned but may not be block-centered.
  * Iterates through all blocks the line passes through in order from start to end location.
  */
 public class BlockLineIterator implements Iterator<Block> {
 
-	private final Location current;
-	private final Vector end;
-	private final Vector step;
+	private final Vector3d current;
+	private final Vector3d end;
+	private final Vector3d centeredEnd;
+	final Vector3d step; // package private for tests
+	private final World world;
 	private boolean finished;
 
 	/**
 	 * @param start start location
 	 * @param end end location
 	 */
-	public BlockLineIterator(Location start, Location end) {
-		current = start.toCenterLocation();
-		this.end = end.toCenterLocation().toVector();
-		step = this.end.clone().subtract(current.toVector()).normalize();
+	public BlockLineIterator(@NotNull Location start, @NotNull Location end) {
+		this.current = start.toVector().toVector3d();
+		this.world = start.getWorld();
+		this.end = end.toVector().toVector3d();
+		this.centeredEnd = centered(this.end);
+		this.step = this.end.sub(current, new Vector3d()).normalize();
 	}
 
 	/**
 	 * @param start first block
 	 * @param end last block
 	 */
-	public BlockLineIterator(Block start, Block end) {
-		this(start.getLocation(), end.getLocation());
+	public BlockLineIterator(@NotNull Block start, @NotNull Block end) {
+		this(start.getLocation().toCenterLocation(), end.getLocation().toCenterLocation());
 	}
 
 	/**
@@ -43,8 +51,8 @@ public class BlockLineIterator implements Iterator<Block> {
 	 * @param direction direction to travel in
 	 * @param distance maximum distance to travel
 	 */
-	public BlockLineIterator(Location start, Vector direction, double distance) {
-		this(start, start.toCenterLocation().add(direction.clone().normalize().multiply(distance)));
+	public BlockLineIterator(Location start, @NotNull Vector direction, double distance) {
+		this(start, start.clone().add(direction.clone().normalize().multiply(distance)));
 	}
 
 	/**
@@ -52,8 +60,8 @@ public class BlockLineIterator implements Iterator<Block> {
 	 * @param direction direction to travel in
 	 * @param distance maximum distance to travel
 	 */
-	public BlockLineIterator(Block start, Vector direction, double distance) {
-		this(start.getLocation(), direction, distance);
+	public BlockLineIterator(@NotNull Block start, Vector direction, double distance) {
+		this(start.getLocation().toCenterLocation(), direction, distance);
 	}
 
 	@Override
@@ -64,103 +72,40 @@ public class BlockLineIterator implements Iterator<Block> {
 	@Override
 	public Block next() {
 		if (!hasNext()) throw new NoSuchElementException("Reached the final block destination");
-		if (current.toCenterLocation().toVector().equals(end)) finished = true;
-		Block block = current.getBlock();
-		// moves the current position just slightly from the edge to the next block
-		double epsilon = 1 + Math.ulp(1 + Math.abs(current.getBlockX()) + Math.abs(current.getBlockZ()));
-		double t = calculateParamToNext(current.toVector()) * epsilon;
-		current.add(step.clone().multiply(t));
+		// sanity check (is the current->end vector pointing away from step)
+		if (end.sub(current, new Vector3d()).dot(step) < 0) throw new NoSuchElementException("Overshot the final block!");
+		// get block and check end
+		Vector3d center = centered(current);
+		Block block = getBlock(center, world);
+		if (center.equals(centeredEnd)) finished = true;
+		// calculate next position
+		double t = stepsToNextFace(current, step, center) + Math.ulp(1);
+		current.fma(t, step);
 		return block;
 	}
 
 	/**
-	 * Represents a plane in three-dimensional space
-	 * where (a, b, c) is the normal vector
-	 * and d is the distance from the origin.
-	 *
-	 * @param a a (normal vector x)
-	 * @param b b (normal vector y)
-	 * @param c c (normal vector z)
-	 * @param d distance from the origin
+	 * Calculates the number of steps to the next closest block face this ray, defined by start and step, will encounter.
+	 * Block faces are determined by the center vector, which is interpreted as the center of the block.
+	 * @param start the current location of the ray to check.
+	 * @param step the direction of the ray.
+	 * @param center the center location of the block the ray is currently within.
+	 * @return a scalar floating point number representing the number of times step must be added to start in order
+	 * 			to arrive at the closest block face.
 	 */
-	private record Plane(double a, double b, double c, double d) {
-
-		/**
-		 * Creates a plane from three points.
-		 * The three points must not be collinear.
-		 *
-		 * @param p1 first point
-		 * @param p2 second point
-		 * @param p3 third point
-		 * @return plane passing through the three points
-		 */
-		static Plane create(Vector p1, Vector p2, Vector p3) {
-			Vector firstPlaneVector = p2.clone().subtract(p1);
-			Vector secondPlaneVector = p3.clone().subtract(p1);
-			Vector normal = firstPlaneVector.clone().crossProduct(secondPlaneVector);
-			double a = normal.getX();
-			double b = normal.getY();
-			double c = normal.getZ();
-			double d = -(a * p1.getX() + b * p1.getY() + c * p1.getZ());
-			return new Plane(a, b, c, d);
-		}
-
-	}
-
-	private static final Vector POSITIVE_X_STEP = new Vector(0.5, 0, 0);
-	private static final Vector NEGATIVE_X_STEP = new Vector(-0.5, 0, 0);
-	private static final Vector POSITIVE_Y_STEP = new Vector(0, 0.5, 0);
-	private static final Vector NEGATIVE_Y_STEP = new Vector(0, -0.5, 0);
-	private static final Vector POSITIVE_Z_STEP = new Vector(0, 0, 0.5);
-	private static final Vector NEGATIVE_Z_STEP = new Vector(0, 0, -0.5);
-
-	/**
-	 * Calculates the distance to the next block in the direction of {@link #step} from
-	 * given point.
-	 *
-	 * @param from The starting point
-	 * @return the minimum distance from the point {@code from} in the direction of {@link #step} to next block
-	 */
-	private double calculateParamToNext(Vector from) {
-		Vector center = center(from);
-		Vector xPlanePoint = center.clone().add(step.getX() >= 0 ? POSITIVE_X_STEP : NEGATIVE_X_STEP);
-		Vector yPlanePoint = center.clone().add(step.getY() >= 0 ? POSITIVE_Y_STEP : NEGATIVE_Y_STEP);
-		Vector zPlanePoint = center.clone().add(step.getZ() >= 0 ? POSITIVE_Z_STEP : NEGATIVE_Z_STEP);
-		double xDist = planeDistance(from, Plane.create(
-			xPlanePoint,
-			xPlanePoint.clone().add(new Vector(0, 1, 0)),
-			xPlanePoint.clone().add(new Vector(0, 0, 1))
-		));
-		double yDist = planeDistance(from, Plane.create(
-			yPlanePoint,
-			yPlanePoint.clone().add(new Vector(1, 0, 0)),
-			yPlanePoint.clone().add(new Vector(0, 0, 1))
-		));
-		double zDist = planeDistance(from, Plane.create(
-			zPlanePoint,
-			zPlanePoint.clone().add(new Vector(1, 0, 0)),
-			zPlanePoint.clone().add(new Vector(0, 1, 0))
-		));
-
-		double min = -1;
-		if (Double.isFinite(xDist)) min = xDist;
-		if (Double.isFinite(yDist) && (min == -1 || yDist < min)) min = yDist;
-		if (Double.isFinite(zDist) && (min == -1 || zDist < min)) min = zDist;
-		return min;
-	}
-
-	/**
-	 * Calculates the distance between a point and plane along the step vector.
-	 *
-	 * @param point point
-	 * @param plane plane
-	 * @return distance
-	 */
-	private double planeDistance(Vector point, Plane plane) {
-		double value = -plane.d;
-		value -= plane.a() * point.getX() + plane.b() * point.getY() + plane.c() * point.getZ();
-		double t = plane.a() * step.getX() + plane.b() * step.getY() + plane.c() * step.getZ();
-		return value / t;
+	static double stepsToNextFace(Vector3d start, @NotNull Vector3d step, Vector3d center) {
+		Vector3d neededSteps = new Vector3d(Math.signum(step.x), Math.signum(step.y), Math.signum(step.z))
+				.mulAdd(0.5, center)
+				.sub(start)
+				.div(step);
+		// get min component, ignoring NaN
+		if (Double.isNaN(neededSteps.x))
+			neededSteps.x = Double.POSITIVE_INFINITY;
+		if (Double.isNaN(neededSteps.y))
+			neededSteps.y = Double.POSITIVE_INFINITY;
+		if (Double.isNaN(neededSteps.z))
+			neededSteps.z = Double.POSITIVE_INFINITY;
+		return neededSteps.get(neededSteps.minComponent());
 	}
 
 	/**
@@ -170,12 +115,18 @@ public class BlockLineIterator implements Iterator<Block> {
 	 * @param vector point
 	 * @return coordinates at the center of a block at given point
 	 */
-	private static Vector center(Vector vector) {
-		Vector center = vector.clone();
-		center.setX(vector.getBlockX() + 0.5);
-		center.setY(vector.getBlockY() + 0.5);
-		center.setZ(vector.getBlockZ() + 0.5);
-		return center;
+	@Contract("_ -> new")
+	private static Vector3d centered(@NotNull Vector3d vector) {
+		return vector.floor(new Vector3d()).add(0.5, 0.5, 0.5);
+	}
+
+	/**
+	 * @param vector the xyz coordinates of the block to get.
+	 * @param world the world which the block should be obtained from
+	 * @return the block at the given xyz coords in the given world.
+	 */
+	private static @NotNull Block getBlock(@NotNull Vector3d vector, @NotNull World world) {
+		return Vector.fromJOML(vector).toLocation(world).getBlock();
 	}
 
 }
