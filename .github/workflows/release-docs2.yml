@@ -1,0 +1,58 @@
+name: Update Docs
+
+on:
+    push:
+        branches:
+            - master
+
+jobs:
+    build:
+        name: Generate Docs JSON
+        runs-on: ubuntu-latest
+        steps:
+            -   name: Checkout repository
+                uses: actions/checkout@v4
+
+            -   name: Set up JDK 21
+                uses: actions/setup-java@v4
+                with:
+                    java-version: '21'
+                    distribution: 'adopt'
+                    cache: gradle
+
+            -   name: Build and generate docs.json
+                run: |
+                    ./gradlew genReleaseDocs javadoc
+
+            -   name: Upload docs.json artifact
+                uses: actions/upload-artifact@v4
+                with:
+                    name: docs-json
+                    path: plugins/Skript/docs/docs.json
+
+    deploy:
+        name: Deploy Docs Update
+        needs: build
+        runs-on: ubuntu-latest
+        steps:
+            -   name: Checkout docs repository
+                uses: actions/checkout@v4
+                with:
+                    repository: SkriptLang/docs
+                    token: ${{ secrets.DOCS_REPO_TOKEN }}
+                    path: docs-repo
+
+            -   name: Download docs.json artifact
+                uses: actions/download-artifact@v4
+                with:
+                    name: docs-json
+                    path: docs-repo/src/assets/docs
+
+            -   name: Commit and push changes
+                run: |
+                    cd docs-repo
+                    git config --global user.name "github-actions[bot]"
+                    git config --global user.email "github-actions[bot]@users.noreply.github.com"
+                    git add src/assets/docs/docs.json
+                    git commit -m "Update docs.json" || exit 0
+                    git push origin master
