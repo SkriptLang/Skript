@@ -164,30 +164,37 @@ public class JSONGenerator extends DocumentationGenerator {
 		Multimap<Class<? extends Event>, EventValueInfo<?, ?>> allEventValues = EventValues.getPerEventEventValues();
 		for (Class<? extends Event> supportedEvent : info.events) {
 			for (Class<? extends Event> event : allEventValues.keySet()) {
-				if (!event.isAssignableFrom(supportedEvent))
+				if (!event.isAssignableFrom(supportedEvent)) {
 					continue;
+				}
 
 				Collection<EventValueInfo<?, ?>> eventValueInfos = allEventValues.get(event);
 
 				for (EventValueInfo<?, ?> eventValueInfo : eventValueInfos) {
 					Class<?>[] excludes = eventValueInfo.excludes();
-					if (excludes != null && Set.of(excludes).contains(event))
+					if (excludes != null && Set.of(excludes).contains(event)) {
 						continue;
+					}
 
 					ClassInfo<?> exactClassInfo = Classes.getExactClassInfo(eventValueInfo.c());
-					if (exactClassInfo == null)
+					if (exactClassInfo == null) {
 						continue;
+					}
 
-					String prefix = "";
+					String name = getClassInfoName(exactClassInfo).toLowerCase(Locale.ENGLISH);
+					if (name.isBlank()) {
+						continue;
+					}
+
 					if (eventValueInfo.time() == EventValues.TIME_PAST) {
-						prefix = "past ";
+						name = "past " + name;
 					} else if (eventValueInfo.time() == EventValues.TIME_FUTURE) {
-						prefix = "future ";
+						name = "future " + name;
 					}
 
 					JsonObject object = new JsonObject();
 					object.addProperty("id", DocumentationIdProvider.getId(exactClassInfo));
-					object.addProperty("name", prefix + getClassInfoName(exactClassInfo).toLowerCase(Locale.ENGLISH));
+					object.addProperty("name", name);
 					eventValues.add(object);
 				}
 			}
