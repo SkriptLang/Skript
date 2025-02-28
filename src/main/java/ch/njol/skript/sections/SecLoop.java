@@ -119,7 +119,7 @@ public class SecLoop extends LoopSection {
 
 		guaranteedToLoop = guaranteedToLoop(expression);
 		loadOptionalCode(sectionNode);
-		super.setNext(this);
+		this.setInternalNext(this);
 
 		return true;
 	}
@@ -130,11 +130,11 @@ public class SecLoop extends LoopSection {
 		if (iter == null) {
 			if (iterableSingle) {
 				Object value = expression.getSingle(event);
-				if (value instanceof Iterable<?> iterable) {
-					iter = iterable.iterator();
-					// Guaranteed to be ordered so we try it first
-				} else if (value instanceof Container<?> container) {
+				if (value instanceof Container<?> container) {
+					// Container may have special behaviour over regular iterator
 					iter = container.containerIterator();
+				} else if (value instanceof Iterable<?> iterable) {
+					iter = iterable.iterator();
 				} else {
 					iter = Collections.singleton(value).iterator();
 				}
@@ -208,6 +208,13 @@ public class SecLoop extends LoopSection {
 	public SecLoop setNext(@Nullable TriggerItem next) {
 		actualNext = next;
 		return this;
+	}
+
+	/**
+	 * @see LoopSection#setNext(TriggerItem)
+	 */
+	protected void setInternalNext(TriggerItem item) {
+		super.setNext(item);
 	}
 
 	@Nullable

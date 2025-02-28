@@ -99,21 +99,24 @@ public class DefaultOperations {
 		// Timespan - Number
 		// Number - Timespan
 		Arithmetics.registerOperation(Operator.MULTIPLICATION, Timespan.class, Number.class, (left, right) -> {
-			long scalar = right.longValue();
-			if (scalar < 0)
+			double scalar = right.doubleValue();
+			if (scalar < 0 || !Double.isFinite(scalar))
 				return null;
-			return new Timespan(Math2.multiplyClamped(left.getAs(TimePeriod.MILLISECOND), scalar));
+			double value = left.getAs(TimePeriod.MILLISECOND) * scalar;
+			return new Timespan((long) Math.min(value, Long.MAX_VALUE));
 		}, (left, right) -> {
-			long scalar = left.longValue();
-			if (scalar < 0)
+			double scalar = left.doubleValue();
+			if (scalar < 0 || !Double.isFinite(scalar))
 				return null;
-			return new Timespan(scalar * right.getAs(TimePeriod.MILLISECOND));
+			double value = right.getAs(TimePeriod.MILLISECOND) * scalar;
+			return new Timespan((long) Math.min(value, Long.MAX_VALUE));
 		});
 		Arithmetics.registerOperation(Operator.DIVISION, Timespan.class, Number.class, (left, right) -> {
-			long scalar = right.longValue();
-			if (scalar <= 0)
+			double scalar = right.doubleValue();
+			if (scalar <= 0 || !Double.isFinite(scalar))
 				return null;
-			return new Timespan(left.getAs(TimePeriod.MILLISECOND) / scalar);
+			double value = left.getAs(TimePeriod.MILLISECOND) / scalar;
+			return new Timespan((long) Math.min(value, Long.MAX_VALUE));
 		});
 
 		// Timespan / Timespan = Number

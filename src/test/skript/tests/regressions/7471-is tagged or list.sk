@@ -1,0 +1,6 @@
+test "is tagged or list":
+	register a custom item tag named "or_list_tag_1" using oak log
+	register a custom item tag named "or_list_tag_2" using spruce log
+
+	loop 10 times:
+		assert oak log is tagged as custom tag "or_list_tag_1" or custom tag "or_list_tag_2"
