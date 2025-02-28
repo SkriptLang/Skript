@@ -99,16 +99,16 @@ public class JSONGenerator extends DocumentationGenerator {
 
 		syntaxJsonObject.addProperty("id", DocumentationIdProvider.getId(syntaxInfo));
 		syntaxJsonObject.addProperty("name", name.value());
-		syntaxJsonObject.add("patterns", cleanPatterns(syntaxInfo.getPatterns()));
+		Since since = syntaxClass.getAnnotation(Since.class);
+		syntaxJsonObject.add("since", since == null ? null : convertToJsonArray(since.value()));
 
 		Deprecated deprecated = syntaxClass.getAnnotation(Deprecated.class);
 		syntaxJsonObject.addProperty("deprecated", deprecated != null);
 
-		Since since = syntaxClass.getAnnotation(Since.class);
-		syntaxJsonObject.add("since", since == null ? null : convertToJsonArray(since.value()));
-
 		Description description = syntaxClass.getAnnotation(Description.class);
 		syntaxJsonObject.add("description", description == null ? null : convertToJsonArray(description.value()));
+
+		syntaxJsonObject.add("patterns", cleanPatterns(syntaxInfo.getPatterns()));
 
 		if (syntaxClass.isAnnotationPresent(Examples.class)) {
 			@NotNull Examples examplesAnnotation = syntaxClass.getAnnotation(Examples.class);
@@ -350,7 +350,7 @@ public class JSONGenerator extends DocumentationGenerator {
 		if (strings == null)
 			return null;
 		for (int i = 0; i < strings.length; i++) {
-			strings[i] = Documentation.cleanPatterns(strings[i]);
+			strings[i] = Documentation.cleanPatterns(strings[i], false, false);
 		}
 		return convertToJsonArray(strings);
 	}
