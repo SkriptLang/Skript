@@ -40,8 +40,8 @@ public class BlockLineIterator implements Iterator<Block> {
 
 	/**
 	 * @param start start location
-	 * @param direction direction
-	 * @param distance distance
+	 * @param direction direction to travel in
+	 * @param distance maximum distance to travel
 	 */
 	public BlockLineIterator(Location start, Vector direction, double distance) {
 		this(start, start.toCenterLocation().add(direction.clone().normalize().multiply(distance)));
@@ -49,8 +49,8 @@ public class BlockLineIterator implements Iterator<Block> {
 
 	/**
 	 * @param start first block
-	 * @param direction direction
-	 * @param distance distance
+	 * @param direction direction to travel in
+	 * @param distance maximum distance to travel
 	 */
 	public BlockLineIterator(Block start, Vector direction, double distance) {
 		this(start.getLocation(), direction, distance);
@@ -67,7 +67,7 @@ public class BlockLineIterator implements Iterator<Block> {
 		if (current.toCenterLocation().toVector().equals(end)) finished = true;
 		Block block = current.getBlock();
 		// moves the current position just slightly from the edge to the next block
-		double epsilon = 1 + Math.ulp(1) * (Math.abs(current.getBlockX()) + Math.abs(current.getBlockZ()));
+		double epsilon = 1 + Math.ulp(1 + Math.abs(current.getBlockX()) + Math.abs(current.getBlockZ()));
 		double t = calculateParamToNext(current.toVector()) * epsilon;
 		current.add(step.clone().multiply(t));
 		return block;
@@ -78,9 +78,9 @@ public class BlockLineIterator implements Iterator<Block> {
 	 * where (a, b, c) is the normal vector
 	 * and d is the distance from the origin.
 	 *
-	 * @param a a
-	 * @param b b
-	 * @param c c
+	 * @param a a (normal vector x)
+	 * @param b b (normal vector y)
+	 * @param c c (normal vector z)
 	 * @param d distance from the origin
 	 */
 	private record Plane(double a, double b, double c, double d) {
@@ -95,9 +95,9 @@ public class BlockLineIterator implements Iterator<Block> {
 		 * @return plane passing through the three points
 		 */
 		static Plane create(Vector p1, Vector p2, Vector p3) {
-			Vector first = p2.clone().subtract(p1);
-			Vector second = p3.clone().subtract(p1);
-			Vector normal = first.clone().crossProduct(second);
+			Vector firstPlaneVector = p2.clone().subtract(p1);
+			Vector secondPlaneVector = p3.clone().subtract(p1);
+			Vector normal = firstPlaneVector.clone().crossProduct(secondPlaneVector);
 			double a = normal.getX();
 			double b = normal.getY();
 			double c = normal.getZ();
@@ -107,8 +107,15 @@ public class BlockLineIterator implements Iterator<Block> {
 
 	}
 
+	private static final Vector POSITIVE_X_STEP = new Vector(0.5, 0, 0);
+	private static final Vector NEGATIVE_X_STEP = new Vector(-0.5, 0, 0);
+	private static final Vector POSITIVE_Y_STEP = new Vector(0, 0.5, 0);
+	private static final Vector NEGATIVE_Y_STEP = new Vector(0, -0.5, 0);
+	private static final Vector POSITIVE_Z_STEP = new Vector(0, 0, 0.5);
+	private static final Vector NEGATIVE_Z_STEP = new Vector(0, 0, -0.5);
+
 	/**
-	 * Calculates the parameter (distance) to the next block in the direction of {@link #step} from
+	 * Calculates the distance to the next block in the direction of {@link #step} from
 	 * given point.
 	 *
 	 * @param from The starting point
@@ -116,9 +123,9 @@ public class BlockLineIterator implements Iterator<Block> {
 	 */
 	private double calculateParamToNext(Vector from) {
 		Vector center = center(from);
-		Vector xPlanePoint = center.clone().add(new Vector(step.getX() >= 0 ? 0.5 : -0.5, 0, 0));
-		Vector yPlanePoint = center.clone().add(new Vector(0, step.getY() >= 0 ? 0.5 : -0.5, 0));
-		Vector zPlanePoint = center.clone().add(new Vector(0, 0, step.getZ() >= 0 ? 0.5 : -0.5));
+		Vector xPlanePoint = center.clone().add(step.getX() >= 0 ? POSITIVE_X_STEP : NEGATIVE_X_STEP);
+		Vector yPlanePoint = center.clone().add(step.getY() >= 0 ? POSITIVE_Y_STEP : NEGATIVE_Y_STEP);
+		Vector zPlanePoint = center.clone().add(step.getZ() >= 0 ? POSITIVE_Z_STEP : NEGATIVE_Z_STEP);
 		double xDist = planeDistance(from, Plane.create(
 			xPlanePoint,
 			xPlanePoint.clone().add(new Vector(0, 1, 0)),
@@ -134,11 +141,16 @@ public class BlockLineIterator implements Iterator<Block> {
 			zPlanePoint.clone().add(new Vector(1, 0, 0)),
 			zPlanePoint.clone().add(new Vector(0, 1, 0))
 		));
-		return Math.min(xDist, Math.min(yDist, zDist));
+
+		double min = -1;
+		if (Double.isFinite(xDist)) min = xDist;
+		if (Double.isFinite(yDist) && (min == -1 || yDist < min)) min = yDist;
+		if (Double.isFinite(zDist) && (min == -1 || zDist < min)) min = zDist;
+		return min;
 	}
 
 	/**
-	 * Calculates the distance between a point and plane.
+	 * Calculates the distance between a point and plane along the step vector.
 	 *
 	 * @param point point
 	 * @param plane plane
@@ -148,12 +160,7 @@ public class BlockLineIterator implements Iterator<Block> {
 		double value = -plane.d;
 		value -= plane.a() * point.getX() + plane.b() * point.getY() + plane.c() * point.getZ();
 		double t = plane.a() * step.getX() + plane.b() * step.getY() + plane.c() * step.getZ();
-		double ratio = value / t;
-		// in this use-case the value is either between 0 and sqrt(2) or infinity, we choose the
-		// minimum out of 3 distances, in case of infinity we return 2, so it never gets chosen
-		// (there is always one distance guaranteed to be between 0 and sqrt(2), see #calculateExact(Vector))
-		if (!Double.isFinite(ratio)) return 2;
-		return ratio;
+		return value / t;
 	}
 
 	/**
