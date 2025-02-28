@@ -29,6 +29,7 @@ public sealed class SkriptEventInfo<E extends SkriptEvent> extends StructureInfo
 	private ListeningBehavior listeningBehavior;
 	private @Nullable String since = null;
 	private @Nullable String documentationID = null;
+
 	private String @Nullable [] description = null;
 	private String @Nullable [] examples = null;
 	private String @Nullable [] keywords = null;
