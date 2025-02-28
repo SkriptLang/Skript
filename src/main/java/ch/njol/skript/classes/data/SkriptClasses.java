@@ -342,7 +342,7 @@ public class SkriptClasses {
 		Classes.registerClass(new ClassInfo<>(Date.class, "date")
 				.user("dates?")
 				.name("Date")
-				.description("A date is a certain point in the real world's time which can be obtained with <a href='#ExprNow'>now expression</a>, <a href='#ExprUnixDate'>unix date expression</a> and <a href='./#date'>date function</a>.",
+				.description("A date is a certain point in the real world's time which can be obtained with <a href='#ExprNow'>now expression</a>, <a href='#ExprUnixDate'>unix date expression</a> and <a href='#date'>date function</a>.",
 						"See <a href='#time'>time</a> and <a href='#timespan'>timespan</a> for the other time types of Skript.")
 				.usage("")
 				.examples("set {_yesterday} to now",
