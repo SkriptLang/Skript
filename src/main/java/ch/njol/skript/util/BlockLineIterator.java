@@ -97,7 +97,7 @@ public class BlockLineIterator implements Iterator<Block> {
 		Vector3d neededSteps = new Vector3d(Math.signum(step.x), Math.signum(step.y), Math.signum(step.z))
 				.mulAdd(0.5, center)
 				.sub(start)
-				.div(step);
+				.div(step, new Vector3d()); // need to make new vector due to JOML method signature issue
 		// get min component, ignoring NaN
 		if (Double.isNaN(neededSteps.x))
 			neededSteps.x = Double.POSITIVE_INFINITY;
