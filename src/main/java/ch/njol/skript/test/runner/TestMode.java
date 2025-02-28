@@ -70,11 +70,11 @@ public class TestMode {
 
 	/**
 	 * True when test elements should be registered, false if not.
+	 * @param clazz the class to check
+	 * @return true if test elements should be registered
 	 */
-	public static final boolean TEST_ELEMENTS = ENABLED && !GEN_DOCS;
-
 	public static boolean canGenerateTestElements(Class<?> clazz) {
-		return TEST_ELEMENTS && clazz.getAnnotation(NoDoc.class) == null;
+		return ENABLED && clazz.getAnnotation(NoDoc.class) == null;
 	}
 
 }
