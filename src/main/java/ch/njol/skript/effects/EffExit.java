@@ -28,7 +28,7 @@ import java.util.List;
 			"\t\texit 2 sections",
 		"\tset loop-block to water"
 })
-@Since("<i>unknown</i> (before 2.1)")
+@Since("unknown (before 2.1)")
 public class EffExit extends Effect {
 
 	static {

@@ -16,7 +16,7 @@ import ch.njol.skript.doc.Since;
 @Examples({"on damage of player:",
 	  	"	victim is blocking",
 	 	"	damage attacker by 0.5 hearts"})
-@Since("<i>unknown</i> (before 2.1)")
+@Since("unknown (before 2.1)")
 public class CondIsBlocking extends PropertyCondition<Player> {
 	
 	static {

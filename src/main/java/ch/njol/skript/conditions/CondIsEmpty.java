@@ -15,7 +15,7 @@ import org.skriptlang.skript.lang.util.SkriptQueue;
 @Name("Is Empty")
 @Description("Checks whether an inventory, an inventory slot, a queue, or a text is empty.")
 @Examples("player's inventory is empty")
-@Since("<i>unknown</i> (before 2.1)")
+@Since("unknown (before 2.1)")
 public class CondIsEmpty extends PropertyCondition<Object> {
 
 	static {
