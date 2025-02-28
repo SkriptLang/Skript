@@ -16,7 +16,9 @@ import ch.njol.skript.expressions.base.SimplePropertyExpression;
  * @author Peter Güttinger
  */
 @Name("Compass Target")
-@Description("The location a player's compass is pointing at.")
+@Description({"The location a player's compass is pointing at.",
+	"As of Minecraft 1.21.4, the compass is controlled by the resource pack and by default will not point to " +
+		"this compass target when used outside of the overworld dimension."})
 @Examples({"# make all player's compasses target a player stored in {compass::target::%player%}",
 		"every 5 seconds:",
 		"\tloop all players:",
