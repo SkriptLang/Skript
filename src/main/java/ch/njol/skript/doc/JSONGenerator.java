@@ -350,7 +350,7 @@ public class JSONGenerator extends DocumentationGenerator {
 		if (strings == null)
 			return null;
 		for (int i = 0; i < strings.length; i++) {
-			strings[i] = Documentation.cleanPatterns(strings[i], false);
+			strings[i] = Documentation.cleanPatterns(strings[i]);
 		}
 		return convertToJsonArray(strings);
 	}
