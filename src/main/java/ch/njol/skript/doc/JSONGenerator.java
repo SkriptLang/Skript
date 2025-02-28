@@ -317,7 +317,7 @@ public class JSONGenerator extends DocumentationGenerator {
 		functionJsonObject.add("examples", convertToJsonArray(function.getExamples()));
 
 		String functionSignature = function.getSignature().toString(false, false);
-		functionJsonObject.add("patterns", cleanPatterns(functionSignature));
+		functionJsonObject.add("patterns", convertToJsonArray(functionSignature));
 		return functionJsonObject;
 	}
 
