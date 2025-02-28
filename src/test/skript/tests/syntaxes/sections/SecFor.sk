@@ -15,6 +15,7 @@ test "for section":
 	delete {_value}
 
 	for {_key}, {_value} in {_list::*}:
+		set {_key} to {_key} parsed as integer
 		assert {_key} is greater than 0 with "Expected key > 0, found %{_key}%"
 		assert {_key} is less than 4 with "Expected key < 4, found %{_key}%"
 		assert {_value} is greater than 0 with "Expected value > 0, found %{_value}%"
@@ -27,6 +28,7 @@ test "for section":
 
 
 	for key {_key} and value {_value} in {_list::*}:
+		set {_key} to {_key} parsed as integer
 		assert {_key} is greater than 0 with "Expected key > 0, found %{_key}%"
 		assert {_key} is less than 4 with "Expected key < 4, found %{_key}%"
 		assert {_value} is greater than 0 with "Expected value > 0, found %{_value}%"
@@ -38,6 +40,7 @@ test "for section":
 	delete {_value}
 
 	for {_key} and {_value} in {_list::*}:
+		set {_key} to {_key} parsed as integer
 		assert {_key} is greater than 0 with "Expected key > 0, found %{_key}%"
 		assert {_key} is less than 4 with "Expected key < 4, found %{_key}%"
 		assert {_value} is greater than 0 with "Expected value > 0, found %{_value}%"
@@ -50,6 +53,7 @@ test "for section":
 
 	# 'loop' syntax alternative
 	loop {_key} and {_value} in {_list::*}:
+		set {_key} to {_key} parsed as integer
 		assert {_key} is greater than 0 with "Expected key > 0, found %{_key}%"
 		assert {_key} is less than 4 with "Expected key < 4, found %{_key}%"
 		assert {_value} is greater than 0 with "Expected value > 0, found %{_value}%"
