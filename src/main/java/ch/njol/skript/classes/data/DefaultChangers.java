@@ -1,5 +1,6 @@
 package ch.njol.skript.classes.data;
 
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
@@ -22,17 +23,14 @@ import ch.njol.skript.classes.Changer;
 import ch.njol.skript.util.Experience;
 import ch.njol.util.coll.CollectionUtils;
 
-/**
- * @author Peter Güttinger
- */
 public class DefaultChangers {
-	
+
 	public DefaultChangers() {}
-	
+
 	public final static Changer<Entity> entityChanger = new Changer<Entity>() {
+
 		@Override
-		@Nullable
-		public Class<? extends Object>[] acceptChange(final ChangeMode mode) {
+		public Class<? extends Object> @Nullable [] acceptChange(ChangeMode mode) {
 			switch (mode) {
 				case ADD:
 					return CollectionUtils.array(ItemType[].class, Inventory.class, Experience[].class);
@@ -45,59 +43,62 @@ public class DefaultChangers {
 				case SET:
 				case RESET: // REMIND reset entity? (unshear, remove held item, reset weapon/armour, ...)
 					return null;
+				case INTERNAL:
+					return CollectionUtils.array(Location.class);
+				default:
+					return null;
 			}
-			assert false;
-			return null;
 		}
-		
+
 		@Override
-		public void change(final Entity[] entities, final @Nullable Object[] delta, final ChangeMode mode) {
+		public void change(Entity[] entities, Object @Nullable [] delta, ChangeMode mode) {
 			if (delta == null) {
-				for (final Entity e : entities) {
-					if (!(e instanceof Player))
-						e.remove();
+				for (Entity entity : entities) {
+					if (!(entity instanceof Player))
+						entity.remove();
 				}
 				return;
 			}
 			boolean hasItem = false;
-			for (final Entity e : entities) {
-				for (final Object d : delta) {
-					if (d instanceof PotionEffectType) {
+			for (Entity entity : entities) {
+				for (Object object : delta) {
+					if (object instanceof Location location) {
+						assert mode == ChangeMode.INTERNAL;
+						entity.teleport(location);
+					} else if (object instanceof PotionEffectType) {
 						assert mode == ChangeMode.REMOVE || mode == ChangeMode.REMOVE_ALL;
-						if (!(e instanceof LivingEntity))
-							continue;
-						((LivingEntity) e).removePotionEffect((PotionEffectType) d);
+						if (entity instanceof LivingEntity livingEntity)
+							livingEntity.removePotionEffect((PotionEffectType) object);
 					} else {
-						if (e instanceof Player) {
-							final Player p = (Player) e;
-							if (d instanceof Experience) {
-								p.giveExp(((Experience) d).getXP());
-							} else if (d instanceof Inventory) {
-								PlayerInventory inventory = p.getInventory();
-								for (ItemStack itemStack : (Inventory) d) {
+						if (entity instanceof Player player) {
+							if (object instanceof Experience experience) {
+								player.giveExp(experience.getXP());
+							} else if (object instanceof Inventory inventory) {
+								PlayerInventory playerInventory = player.getInventory();
+								for (ItemStack itemStack : inventory) {
 									if (itemStack == null)
 										continue;
 									if (mode == ChangeMode.ADD) {
-										inventory.addItem(itemStack);
+										playerInventory.addItem(itemStack);
 									} else {
-										inventory.remove(itemStack);
+										playerInventory.remove(itemStack);
 									}
 								}
-							} else if (d instanceof ItemType) {
+							} else if (object instanceof ItemType itemType) {
 								hasItem = true;
-								final PlayerInventory invi = p.getInventory();
+								final PlayerInventory invi = player.getInventory();
 								if (mode == ChangeMode.ADD)
-									((ItemType) d).addTo(invi);
+									itemType.addTo(invi);
 								else if (mode == ChangeMode.REMOVE)
-									((ItemType) d).removeFrom(invi);
+									itemType.removeFrom(invi);
 								else
-									((ItemType) d).removeAll(invi);
+									itemType.removeAll(invi);
 							}
 						}
 					}
 				}
-				if (e instanceof Player && hasItem)
-					PlayerUtils.updateInventory((Player) e);
+				if (entity instanceof Player player && hasItem)
+					PlayerUtils.updateInventory(player);
 			}
 		}
 	};
