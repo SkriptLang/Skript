@@ -1,6 +1,6 @@
 package ch.njol.skript.expressions;
 
-import ch.njol.skript.classes.Changer;
+import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser;
@@ -15,15 +15,12 @@ import ch.njol.skript.doc.*;
 import org.jetbrains.annotations.Nullable;
 
 @Name("Kick Message")
-@Description(
-	"The <a href='classes.html#kickreason'>kick message</a> as to why a player was kicked " +
-	"(does not appear in chat but the kicked player's screen)<a href='events.html#kick'>kick</a> event.")
+@Description("The kick message that is displayed on-screen when a player is kicked.")
 @Examples({
 	"on kick:",
 		"\tkick message is 'Invalid hotbar selection (Hacking?)'",
 		"\tcancel event"
 })
-@RequiredPlugins("xxx Paper 1.16.5+")
 @Since("INSERT VERSION")
 @Events("Kick")
 public class ExprKickMessage extends SimpleExpression<String> {
@@ -47,12 +44,12 @@ public class ExprKickMessage extends SimpleExpression<String> {
 
 	@Override
 	@Nullable
-	public Class<?>[] acceptChange(final Changer.ChangeMode mode) {
-		return mode == Changer.ChangeMode.SET ? CollectionUtils.array(String.class) : null;
+	public Class<?>[] acceptChange(final ChangeMode mode) {
+		return mode == ChangeMode.SET ? CollectionUtils.array(String.class) : null;
 	}
 
 	@Override
-	public void change(Event e, final Object[] delta, Changer.ChangeMode mode) {
+	public void change(Event e, final Object[] delta, ChangeMode mode) {
 		assert delta != null;
 		assert delta.length == 1;
 		if (e instanceof PlayerKickEvent event && delta[0] instanceof String text) {
@@ -69,8 +66,10 @@ public class ExprKickMessage extends SimpleExpression<String> {
 	public Class<? extends String> getReturnType() {
 		return String.class;
 	}
+
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
 		return "the kick reason";
 	}
+
 }
