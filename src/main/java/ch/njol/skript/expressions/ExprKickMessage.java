@@ -35,7 +35,7 @@ public class ExprKickMessage extends SimpleExpression<String> {
 
 	@Override
 	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
-		return getParser().isCurrentEvent(PlayerKickEvent.class);
+		return true;
 	}
 
 	@Override
