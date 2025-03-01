@@ -1,5 +1,9 @@
 package ch.njol.skript.conditions;
 
+import org.bukkit.entity.Entity;
+import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemStack;
+
 import ch.njol.skript.conditions.base.PropertyCondition;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
@@ -8,18 +12,19 @@ import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.util.common.AnyAmount;
 import ch.njol.skript.util.slot.Slot;
 import org.bukkit.Material;
-import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.ItemStack;
 import org.skriptlang.skript.lang.util.SkriptQueue;
 
 @Name("Is Empty")
-@Description("Checks whether an inventory, an inventory slot, a queue, or a text is empty.")
+@Description({
+	"Checks whether an inventory, an inventory slot, a queue, or a text is empty.",
+	"An entity can be a type, which will check if there are no passengers."
+})
 @Examples("player's inventory is empty")
-@Since("<i>unknown</i> (before 2.1)")
+@Since("<i>unknown</i> (before 2.1), INSERT VERSION (Entity)")
 public class CondIsEmpty extends PropertyCondition<Object> {
 
 	static {
-		register(CondIsEmpty.class, "empty", "inventories/slots/strings/numbered");
+		register(CondIsEmpty.class, "empty", "entities/inventories/slots/strings/numbered");
 	}
 
 	@Override
@@ -39,9 +44,10 @@ public class CondIsEmpty extends PropertyCondition<Object> {
 			final ItemStack item = slot.getItem();
 			return item == null || item.getType() == Material.AIR;
 		}
-		if (object instanceof AnyAmount numbered) {
+		if (object instanceof Entity entity)
+			return entity.isEmpty();
+		if (object instanceof AnyAmount numbered)
 			return numbered.isEmpty();
-		}
 		assert false;
 		return false;
 	}
