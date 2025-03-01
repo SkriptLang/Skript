@@ -7,7 +7,11 @@ import ch.njol.skript.SkriptEventHandler;
 import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.events.EvtClick;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.skript.lang.parser.ParserInstance;
+import ch.njol.skript.log.ParseLogHandler;
+import ch.njol.skript.log.SkriptLogger;
 import ch.njol.skript.structures.StructEvent.EventData;
+import ch.njol.util.coll.iterator.ConsumingIterator;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventPriority;
 import org.skriptlang.skript.bukkit.registration.BukkitSyntaxInfos;
@@ -244,7 +248,21 @@ public abstract class SkriptEvent extends Structure {
 
 	@Nullable
 	public static SkriptEvent parse(String expr, SectionNode sectionNode, @Nullable String defaultError) {
-		return (SkriptEvent) Structure.parse(expr, sectionNode, defaultError, Skript.getEvents().iterator());
+		ParserInstance.get().getData(StructureData.class).node = sectionNode;
+
+		var iterator = Skript.instance().syntaxRegistry().syntaxes(org.skriptlang.skript.bukkit.registration.BukkitRegistryKeys.EVENT).iterator();
+		iterator = new ConsumingIterator<>(iterator, info ->
+			ParserInstance.get().getData(StructureData.class).structureInfo = (SkriptEventInfo<?>) SyntaxElementInfo.fromModern(info));
+
+		try (ParseLogHandler parseLogHandler = SkriptLogger.startParseLogHandler()) {
+			SkriptEvent event = SkriptParser.parseStatic(expr, iterator, ParseContext.EVENT, defaultError);
+			if (event != null) {
+				parseLogHandler.printLog();
+				return event;
+			}
+			parseLogHandler.printError();
+			return null;
+		}
 	}
 
 	/**
