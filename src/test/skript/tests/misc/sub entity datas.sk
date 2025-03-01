@@ -1,0 +1,39 @@
+
+test "fireball":
+	spawn a fireball at test-location:
+		set {_entity} to entity
+	assert {_entity} is a fireball with "Entity should be a fireball"
+	clear entity within {_entity}
+
+test "small fireball":
+	spawn a small fireball at test-location:
+		set {_entity} to entity
+	assert {_entity} is a fireball with "Entity should be a fireball"
+	assert {_entity} is a small fireball with "Entity should be a small fireball"
+	clear entity within {_entity}
+
+test "large fireball":
+	spawn a large fireball at test-location:
+		set {_entity} to entity
+	assert {_entity} is a fireball with "Entity should be a fireball"
+	assert {_entity} is a large fireball with "Entity should be a large fireball"
+	clear entity within {_entity}
+
+test "dragon fireball":
+	spawn a dragon fireball at test-location:
+		set {_entity} to entity
+	assert {_entity} is a fireball with "Entity should be a fireball"
+	assert {_entity} is a dragon fireball with "Entity should be a dragon fireball"
+	clear entity within {_entity}
+
+test "wither skull":
+	spawn a wither skull at test-location:
+		set {_entity} to entity
+	assert {_entity} is a wither skull with "Entity should be a wither skull"
+	clear entity within {_entity}
+
+test "wind charge" when running minecraft "1.21.0":
+	spawn a wind charge at test-location:
+		set {_entity} to entity
+	assert {_entity} is a wind charge with "Entity should be a wind charge"
+	clear entity within {_entity}
