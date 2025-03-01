@@ -15,7 +15,7 @@ import ch.njol.skript.doc.Since;
 public class CondIsSilent extends PropertyCondition<Entity> {
 	
 	static {
-		register(CondIsSilent.class, PropertyType.BE, "silent", "entities");
+		register(CondIsSilent.class, "silent", "entities");
 	}
 	
 	@Override
@@ -27,4 +27,5 @@ public class CondIsSilent extends PropertyCondition<Entity> {
 	protected String getPropertyName() {
 		return "silent";
 	}
+
 }

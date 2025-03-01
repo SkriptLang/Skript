@@ -25,7 +25,6 @@ public class CondIsBaby extends PropertyCondition<LivingEntity> {
 	@Override
 	public boolean check(LivingEntity entity) {
 		return entity instanceof Ageable ageable && !ageable.isAdult();
-
 	}
 
 	@Override

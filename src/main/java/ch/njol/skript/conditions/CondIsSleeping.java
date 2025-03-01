@@ -8,16 +8,15 @@ import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 
-/**
- * @author Peter Güttinger
- */
 @Name("Is Sleeping")
 @Description("Checks whether a player is sleeping.")
-@Examples({"# cut your enemies' throats in their sleep >=)",
-		"on attack:",
-		"	attacker is holding a sword",
-		"	victim is sleeping",
-		"	increase the damage by 1000"})
+@Examples({
+	"# cut your enemies' throats in their sleep >=)",
+	"on attack:",
+		"\tattacker is holding a sword",
+		"\tvictim is sleeping",
+		"\tincrease the damage by 1000"
+})
 @Since("1.4.4")
 public class CondIsSleeping extends PropertyCondition<Player> {
 	
@@ -26,8 +25,8 @@ public class CondIsSleeping extends PropertyCondition<Player> {
 	}
 	
 	@Override
-	public boolean check(final Player p) {
-		return p.isSleeping();
+	public boolean check(Player player) {
+		return player.isSleeping();
 	}
 	
 	@Override

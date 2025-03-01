@@ -8,14 +8,13 @@ import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 
-/**
- * @author Peter Güttinger
- */
 @Name("Is Blocking")
 @Description("Checks whether a player is blocking with their shield.")
-@Examples({"on damage of player:",
-	  	"	victim is blocking",
-	 	"	damage attacker by 0.5 hearts"})
+@Examples({
+	"on damage of player:",
+	  	"\tvictim is blocking",
+	 	"\tdamage attacker by 0.5 hearts"
+})
 @Since("<i>unknown</i> (before 2.1)")
 public class CondIsBlocking extends PropertyCondition<Player> {
 	
@@ -24,8 +23,8 @@ public class CondIsBlocking extends PropertyCondition<Player> {
 	}
 	
 	@Override
-	public boolean check(final Player p) {
-		return p.isBlocking();
+	public boolean check(Player player) {
+		return player.isBlocking();
 	}
 	
 	@Override

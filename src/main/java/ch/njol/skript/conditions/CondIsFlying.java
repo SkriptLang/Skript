@@ -8,9 +8,6 @@ import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 
-/**
- * @author Peter Güttinger
- */
 @Name("Is Flying")
 @Description("Checks whether a player is flying.")
 @Examples("player is not flying")
@@ -22,8 +19,8 @@ public class CondIsFlying extends PropertyCondition<Player> {
 	}
 	
 	@Override
-	public boolean check(final Player p) {
-		return p.isFlying();
+	public boolean check(Player player) {
+		return player.isFlying();
 	}
 	
 	@Override
