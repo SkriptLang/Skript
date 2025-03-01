@@ -7,7 +7,6 @@ import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
-import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.event.Event;
 import org.bukkit.event.player.PlayerKickEvent;
 import ch.njol.skript.Skript;
@@ -37,7 +36,7 @@ public class ExprKickMessage extends SimpleExpression<String> {
 	@Override
 	protected String @Nullable [] get(Event event) {
 		if (event instanceof PlayerKickEvent playerKickEvent) {
-			return new String[] { MiniMessage.miniMessage().serialize(playerKickEvent.reason()) };
+			return new String[] { playerKickEvent.getReason() };
 		}
 		return new String[0];
 	}
