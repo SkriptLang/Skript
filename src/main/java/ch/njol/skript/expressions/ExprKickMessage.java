@@ -33,8 +33,17 @@ public class ExprKickMessage extends SimpleExpression<String> {
 			Skript.registerExpression(ExprKickMessage.class, String.class, ExpressionType.SIMPLE, "(disconnect|kick) message");
 	}
 
-	protected String[] get(final PlayerKickEvent e) {
-		return new String[] { e.reason().toString() };
+	@Override
+	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
+		return getParser().isCurrentEvent(PlayerKickEvent.class);
+	}
+
+	@Override
+	protected String @Nullable [] get(Event event) {
+		if (event instanceof PlayerKickEvent playerKickEvent) {
+			return new String[] { MiniMessage.miniMessage().serialize(playerKickEvent.reason()) };
+		}
+		return new String[0];
 	}
 
 	@Override
@@ -62,20 +71,6 @@ public class ExprKickMessage extends SimpleExpression<String> {
 	public Class<? extends String> getReturnType() {
 		return String.class;
 	}
-
-	@Override
-	protected String @Nullable [] get(Event event) {
-		if (event instanceof PlayerKickEvent playerKickEvent) {
-			return new String[] { MiniMessage.miniMessage().serialize(playerKickEvent.reason()) };
-		}
-		return new String[0];
-	}
-
-	@Override
-	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
-		return getParser().isCurrentEvent(PlayerKickEvent.class);
-	}
-
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
 		return "the kick reason";
