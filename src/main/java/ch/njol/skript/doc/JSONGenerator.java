@@ -200,6 +200,10 @@ public class JSONGenerator extends DocumentationGenerator {
 			}
 		}
 
+		if (eventValues.isEmpty()) {
+			return null;
+		}
+
 		JsonArray array = new JsonArray();
 		for (JsonObject eventValue : eventValues) {
 			array.add(eventValue);
