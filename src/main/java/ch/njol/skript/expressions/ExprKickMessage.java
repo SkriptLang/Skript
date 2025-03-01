@@ -24,7 +24,7 @@ import org.jetbrains.annotations.Nullable;
 		"\tcancel event"
 })
 @RequiredPlugins("xxx Paper 1.16.5+")
-@Since("xxx 2.8.0")
+@Since("INSERT VERSION")
 @Events("Kick")
 public class ExprKickMessage extends SimpleExpression<String> {
 
