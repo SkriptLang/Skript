@@ -29,8 +29,7 @@ import org.jetbrains.annotations.Nullable;
 public class ExprKickMessage extends SimpleExpression<String> {
 
 	static {
-		if (Skript.classExists("org.bukkit.event.player.PlayerKickEvent"))
-			Skript.registerExpression(ExprKickMessage.class, String.class, ExpressionType.SIMPLE, "(disconnect|kick) message");
+		Skript.registerExpression(ExprKickMessage.class, String.class, ExpressionType.SIMPLE, "(disconnect|kick) message");
 	}
 
 	@Override
