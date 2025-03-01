@@ -56,8 +56,7 @@ public class ExprKickMessage extends SimpleExpression<String> {
 		assert delta != null;
 		assert delta.length == 1;
 		if (e instanceof PlayerKickEvent event && delta[0] instanceof String text) {
-			// avoid deprecated api
-			event.reason(MiniMessage.miniMessage().deserialize(text));
+			event.setReason(text);
 		}
 	}
 
