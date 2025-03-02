@@ -42,8 +42,7 @@ public class ExprKickMessage extends SimpleExpression<String> {
 	}
 
 	@Override
-	@Nullable
-	public Class<?>[] @Nullable acceptChange(final ChangeMode mode) {
+	public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
 		return mode == ChangeMode.SET ? CollectionUtils.array(String.class) : null;
 	}
 
