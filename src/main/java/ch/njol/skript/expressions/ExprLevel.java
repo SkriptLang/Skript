@@ -1,5 +1,6 @@
 package ch.njol.skript.expressions;
 
+import ch.njol.skript.doc.*;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.entity.EntityDeathEvent;
@@ -10,11 +11,6 @@ import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer.ChangeMode;
-import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Events;
-import ch.njol.skript.doc.Examples;
-import ch.njol.skript.doc.Name;
-import ch.njol.skript.doc.Since;
 import ch.njol.skript.effects.Delay;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
 
@@ -25,8 +21,9 @@ import ch.njol.skript.expressions.base.SimplePropertyExpression;
 @Description("The level of a player.")
 @Examples({"reduce the victim's level by 1",
 		"set the player's level to 0"})
-@Since("<i>unknown</i> (before 2.1)")
+@AvailableEvents(PlayerLevelChangeEvent.class)
 @Events("level change")
+@Since("<i>unknown</i> (before 2.1)")
 public class ExprLevel extends SimplePropertyExpression<Player, Long> {
 	static {
 		register(ExprLevel.class, Long.class, "level", "players");

@@ -1,5 +1,6 @@
 package ch.njol.skript.expressions;
 
+import ch.njol.skript.doc.*;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
@@ -7,10 +8,6 @@ import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.command.EffectCommandEvent;
-import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
-import ch.njol.skript.doc.Name;
-import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
@@ -20,6 +17,8 @@ import ch.njol.util.Kleenean;
 @Name("Me")
 @Description("A 'me' expression that can be used in players' effect commands only.")
 @Examples({"!heal me", "!kick myself", "!give a diamond axe to me"})
+@AvailableEvents(EffectCommandEvent.class)
+@Events("Effect Command")
 @Since("2.1.1")
 public class ExprMe extends SimpleExpression<Player> {
 

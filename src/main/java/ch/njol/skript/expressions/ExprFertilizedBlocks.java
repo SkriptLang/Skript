@@ -3,17 +3,12 @@ package ch.njol.skript.expressions;
 
 import java.util.Iterator;
 
+import ch.njol.skript.doc.*;
 import org.bukkit.event.Event;
 import org.bukkit.event.block.BlockFertilizeEvent;
 import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.Skript;
-import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Events;
-import ch.njol.skript.doc.Examples;
-import ch.njol.skript.doc.Name;
-import ch.njol.skript.doc.RequiredPlugins;
-import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
@@ -24,6 +19,7 @@ import ch.njol.util.Kleenean;
 @Name("Fertilized Blocks")
 @Description("The blocks fertilized in block fertilize events.")
 @RequiredPlugins("Minecraft 1.13 or newer")
+@AvailableEvents(BlockFertilizeEvent.class)
 @Events("block fertilize")
 @Examples("the fertilized blocks")
 @Since("2.5")

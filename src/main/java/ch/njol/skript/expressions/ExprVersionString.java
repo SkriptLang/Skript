@@ -2,12 +2,7 @@ package ch.njol.skript.expressions;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer.ChangeMode;
-import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Events;
-import ch.njol.skript.doc.Examples;
-import ch.njol.skript.doc.Name;
-import ch.njol.skript.doc.RequiredPlugins;
-import ch.njol.skript.doc.Since;
+import ch.njol.skript.doc.*;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
@@ -16,6 +11,7 @@ import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
 import com.destroystokyo.paper.event.server.PaperServerListPingEvent;
 import org.bukkit.event.Event;
+import org.bukkit.event.server.ServerListPingEvent;
 import org.jetbrains.annotations.Nullable;
 
 @Name("Version String")
@@ -29,9 +25,10 @@ import org.jetbrains.annotations.Nullable;
 		"\tset the protocol version to 0 # 13w41a (1.7), so it will show the version string always",
 		"\tset the version string to \"&lt;light green&gt;Version: &lt;orange&gt;%minecraft version%\""
 })
-@Since("2.3")
-@RequiredPlugins("Paper 1.12.2+")
+@AvailableEvents(ServerListPingEvent.class)
 @Events("Server List Ping")
+@RequiredPlugins("Paper 1.12.2+")
+@Since("2.3")
 public class ExprVersionString extends SimpleExpression<String> {
 
 	private static final boolean PAPER_EVENT_EXISTS = Skript.classExists("com.destroystokyo.paper.event.server.PaperServerListPingEvent");
