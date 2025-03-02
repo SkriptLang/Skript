@@ -9,6 +9,8 @@ import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Condition;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.skript.lang.SyntaxStringBuilder;
+import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.util.AABB;
 import ch.njol.util.Kleenean;
 import org.bukkit.Chunk;
@@ -38,15 +40,21 @@ import org.jetbrains.annotations.Nullable;
 	"if attacker's location is inside of victim:",
 		"\tcancel event",
 		"\tsend \"Back up!\" to attacker and victim",
+	"",
+	"if player is in world \"world1\" or world \"world2\":",
+		"\tkill player",
+	"",
+	"if player is in world \"world\" and chunk at location(0, 0, 0):",
+		"\tgive player 1 diamond"
 })
-@Since("2.7")
+@Since("2.7, INSERT VERSION (multiple)")
 @RequiredPlugins("MC 1.17+ (within block)")
 public class CondIsWithin extends Condition {
 
 	static {
-		String validTypes = "entity/chunk/world";
+		String validTypes = "entities/chunks/worlds";
 		if (Skript.methodExists(Block.class, "getCollisionShape"))
-			validTypes += "/block";
+			validTypes += "/blocks";
 
 		Skript.registerCondition(CondIsWithin.class,
 				"%locations% (is|are) within %location% and %location%",
@@ -90,54 +98,42 @@ public class CondIsWithin extends Condition {
 			return locsToCheck.check(event, box::contains, isNegated());
 		}
 
-		// else, within an entity/block/chunk/world
-		Object area = this.area.getSingle(event);
-		if (area == null)
-			return isNegated();
-
-		// Entities
-		if (area instanceof Entity) {
-			BoundingBox box = ((Entity) area).getBoundingBox();
-			return locsToCheck.check(event, (loc) -> box.contains(loc.toVector()), isNegated());
-		}
-
-		// Blocks
-		if (area instanceof Block) {
-			for (BoundingBox box : ((Block) area).getCollisionShape().getBoundingBoxes()) {
-				// getCollisionShape().getBoundingBoxes() returns a list of bounding boxes relative to the block's position,
-				// so we need to subtract the block position from each location
-				Vector blockVector = ((Block) area).getLocation().toVector();
-				if (!locsToCheck.check(event, (loc) -> box.contains(loc.toVector().subtract(blockVector)), isNegated())) {
+		Object[] areas = area.getArray(event);
+		return locsToCheck.check(event, location ->
+				SimpleExpression.check(areas, object -> {
+					if (object instanceof Entity entity) {
+						BoundingBox entityBox = entity.getBoundingBox();
+						return entityBox.contains(location.toVector());
+					} else if (object instanceof Block block) {
+						// getCollisionShape().getBoundingBoxes() returns a list of bounding boxes relative to the blocks' position,
+						// so we need to subtract the block position from each location.
+						for (BoundingBox blockBox : block.getCollisionShape().getBoundingBoxes()) {
+							Vector blockVector = block.getLocation().toVector();
+							if (blockBox.contains(location.toVector().subtract(blockVector)))
+								return true;
+						}
+						// if this location is not within the block, return false
+						return false;
+					} else if (object instanceof Chunk chunk) {
+						return location.getChunk().equals(chunk);
+					} else if (object instanceof World world) {
+						return location.getWorld().equals(world);
+					}
 					return false;
-				}
-			}
-			// if all locations are within the block, return true
-			return true;
-		}
-
-		// Chunks
-		if (area instanceof Chunk) {
-			return locsToCheck.check(event, (loc) -> loc.getChunk().equals(area), isNegated());
-		}
-
-		// Worlds
-		if (area instanceof World) {
-			return locsToCheck.check(event, (loc) -> loc.getWorld().equals(area), isNegated());
-		}
-
-		// fall-back
-		return false;
+				}, false, area.getAnd()),
+			isNegated());
 	}
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		String str = locsToCheck.toString(event, debug) + " is within ";
+		SyntaxStringBuilder builder = new SyntaxStringBuilder(event, debug);
+		builder.append(locsToCheck, "is within");
 		if (withinLocations) {
-			str += loc1.toString(event, debug) + " and " + loc2.toString(event, debug);
+			builder.append(loc1, "and", loc2);
 		} else {
-			str += area.toString(event, debug);
+			builder.append(area);
 		}
-		return str;
+		return builder.toString();
 	}
 
 }
