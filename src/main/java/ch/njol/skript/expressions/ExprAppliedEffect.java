@@ -21,6 +21,7 @@ import org.jetbrains.annotations.Nullable;
 		"\telse if applied effect = secondary effect:",
 			"\t\tbroadcast \"Is Secondary\""
 })
+@AvailableEvents(BeaconEffectEvent.class)
 @Events("Beacon Effect")
 @RequiredPlugins("Paper")
 @Since("2.10")

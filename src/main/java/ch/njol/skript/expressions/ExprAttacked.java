@@ -2,6 +2,7 @@ package ch.njol.skript.expressions;
 
 import java.lang.reflect.Array;
 
+import ch.njol.skript.doc.*;
 import ch.njol.skript.lang.EventRestrictedSyntax;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.entity.Entity;
@@ -16,11 +17,6 @@ import org.bukkit.event.vehicle.VehicleEvent;
 import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.Skript;
-import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Events;
-import ch.njol.skript.doc.Examples;
-import ch.njol.skript.doc.Name;
-import ch.njol.skript.doc.Since;
 import ch.njol.skript.entity.EntityData;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
@@ -37,6 +33,8 @@ import ch.njol.util.Kleenean;
 	"\tvictim is a creeper",
 	"\tdamage the attacked by 1 heart"})
 @Since("1.3, 2.6.1 (projectile hit event)")
+@AvailableEvents({EntityDamageEvent.class, EntityDeathEvent.class,
+	VehicleDamageEvent.class, VehicleDestroyEvent.class, ProjectileHitEvent.class})
 @Events({"damage", "death", "projectile hit"})
 public class ExprAttacked extends SimpleExpression<Entity> implements EventRestrictedSyntax {
 

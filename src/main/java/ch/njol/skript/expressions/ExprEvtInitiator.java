@@ -1,11 +1,7 @@
 package ch.njol.skript.expressions;
 
 import ch.njol.skript.Skript;
-import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Events;
-import ch.njol.skript.doc.Examples;
-import ch.njol.skript.doc.Name;
-import ch.njol.skript.doc.Since;
+import ch.njol.skript.doc.*;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
@@ -24,6 +20,7 @@ import org.jetbrains.annotations.Nullable;
 		"\tholder of event-initiator-inventory is a chest",
 		"\tbroadcast \"Item transport happening at %location at holder of event-initiator-inventory%!\""
 })
+@AvailableEvents(InventoryMoveItemEvent.class)
 @Events("Inventory Item Move")
 @Since("2.8.0")
 public class ExprEvtInitiator extends SimpleExpression<Inventory> {
