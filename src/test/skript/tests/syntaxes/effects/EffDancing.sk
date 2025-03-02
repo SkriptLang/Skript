@@ -1,0 +1,15 @@
+test "allay dancing":
+	spawn an allay at test-location:
+		set {_entity} to entity
+	make {_entity} start dancing
+	assert {_entity} is dancing with "Allay should be dancing"
+	make {_entity} stop dancing
+	assert {_entity} is not dancing with "Allay should not be dancing"
+	clear entity within {_entity}
+
+test "invalid entities":
+	spawn a villager and a zombie at test-location:
+		add entity to {_entities::*}
+	make {_entities::*} start dancing
+	assert {_entities::*} is not dancing with "Invalid entities should not not be dancing"
+	clear entities within {_entities::*}
