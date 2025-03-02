@@ -1,13 +1,10 @@
 package ch.njol.skript.expressions;
 
-import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Events;
-import ch.njol.skript.doc.Examples;
-import ch.njol.skript.doc.Name;
-import ch.njol.skript.doc.Since;
+import ch.njol.skript.doc.*;
 import ch.njol.skript.expressions.base.EventValueExpression;
 import ch.njol.skript.registrations.EventValues;
 
+import org.bukkit.event.entity.EntityRegainHealthEvent;
 import org.bukkit.event.entity.EntityRegainHealthEvent.RegainReason;
 
 @Name("Heal Reason")
@@ -17,6 +14,7 @@ import org.bukkit.event.entity.EntityRegainHealthEvent.RegainReason;
 		"\theal reason is satiated",
 		"\tsend \"You ate enough food and gained full health back!\""
 })
+@AvailableEvent(EntityRegainHealthEvent.class)
 @Events("heal")
 @Since("2.5")
 public class ExprHealReason extends EventValueExpression<RegainReason> {
