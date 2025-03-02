@@ -1,0 +1,44 @@
+aliases:
+	my_cool_custom_item = netherite axe
+
+test "Aliases from Minecraft keys":
+
+	# Test as fully qualified NamespacedKey
+	set {_i} to 1 of minecraft:diamond_sword
+	assert {_i} = diamond sword with "Should have gotten a diamond sword"
+
+	# Test with just key
+	set {_i} to 1 of oak_stairs
+	assert {_i} = oak stairs with "Should have gotten oak stairs"
+
+	# Test that this doesn't break any other aliases
+	set {_i} to 1 of my_cool_custom_item
+	assert {_i} = netherite axe with "Should be a netherite axe"
+	set {_i} to 1 of potion of harming
+	assert {_i} = potion of harming with "Should be potion of harming"
+
+	# Test this works with enchantments (as per ItemType parsing)
+	set {_i} to minecraft:diamond_axe of unbreaking 3 and sharpness 10
+	assert {_i} is a diamond axe with "Should be a diamond axe"
+	assert enchantments of {_i} contains unbreaking 3 and sharpness 10 with "Should be enchanted"
+
+	# Test with amount (as per ItemType parsing)
+	set {_i} to 10 of minecraft:pink_wool
+	assert {_i} = 10 of pink wool with "Should be 10 of pink wool"
+
+	# Test with parsing
+	set {_i} to "minecraft:oak_door" parsed as itemtype
+	assert {_i} = oak door with "Should have parsed as oak door"
+
+	# Test that this doesn't conflict with BlockData
+	set {_data} to minecraft:oak_stairs[]
+	assert {_data} is set with "This should be set"
+
+	set {_loc} to event-location
+	set {_data} to block data of block at {_loc}
+	set block at {_loc} to oak_stairs[waterlogged=false]
+	assert block at {_loc} = oak_stairs[waterlogged=false] with "Should match blockdata"
+	assert block at {_loc} = oak stairs with "Should match itemtype"
+	assert block at {_loc} = minecraft:oak_stairs with "Should match MC key'd itemtype"
+
+	set block at {_loc} to {_data}
