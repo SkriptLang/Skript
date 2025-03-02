@@ -23,4 +23,10 @@ test "ghast explosive power":
 	assert the explosive yield of {_entity} is 100 with "Explosive yield of ghast should have had 100 added"
 	clear the explosive yield of {_entity}
 	assert the explosive yield of {_entity} is 0 with "Explosive yield of ghast was not cleared"
+	set the explosive yield of {_entity} to nan value
+	assert the explosive yield of {_entity} is 0 with "Explosive yield of ghast should have no effect of nan value"
+	set the explosive yield of {_entity} to infinity value
+	assert the explosive yield of {_entity} is 127 with "Explosive yield of ghast should be capped at 127 (max)"
+	set the explosive yield of {_entity} to -100000
+	assert the explosive yield of {_entity} is 0 with "Explosive yield of ghast should be capped at 0 (min)"
 	clear entity within {_entity}

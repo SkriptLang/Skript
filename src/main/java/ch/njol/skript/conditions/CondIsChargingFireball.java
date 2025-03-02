@@ -11,14 +11,14 @@ import org.bukkit.entity.LivingEntity;
 @Name("Is Charging Fireball")
 @Description("Check whether a ghast is charging a fireball.")
 @Examples({
-	"if last spawned ghast is charging:",
+	"if last spawned ghast is charging fireball:",
 		"\tkill last spawned ghast"
 })
 @Since("INSERT VERSION")
-public class CondIsCharging extends PropertyCondition<LivingEntity> {
+public class CondIsChargingFireball extends PropertyCondition<LivingEntity> {
 
 	static {
-		register(CondIsCharging.class, "charging [[a] fireball]", "livingentities");
+		register(CondIsChargingFireball.class, "charging [a] fireball", "livingentities");
 	}
 
 	@Override

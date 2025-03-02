@@ -19,7 +19,8 @@ import java.util.function.Supplier;
 @Name("Explosive Yield")
 @Description({
 	"The yield of an explosive (creeper, ghast, primed tnt, fireball, etc.). This is how big of an explosion is caused by the entity.",
-	"Read <a href='https://minecraft.wiki/w/Explosion'>this wiki page</a> for more information"
+	"Read <a href='https://minecraft.wiki/w/Explosion'>this wiki page</a> for more information.",
+	"The yield of ghasts can only be set to between 0 and 127."
 })
 @Examples({
 	"on spawn of a creeper:",
@@ -34,7 +35,6 @@ public class ExprExplosiveYield extends SimplePropertyExpression<Entity, Number>
 	static {
 		register(ExprExplosiveYield.class, Number.class, "explosive (yield|radius|size|power)", "entities");
 	}
-
 
 	@Override
 	public @Nullable Number convert(Entity entity) {
@@ -78,14 +78,14 @@ public class ExprExplosiveYield extends SimplePropertyExpression<Entity, Number>
 					}
 				}
 			} else if (entity instanceof Creeper creeper) {
-				changeExplosionInteger(mode, intValue, creeper::getExplosionRadius, creeper::setExplosionRadius);
+				changeExplosionInteger(mode, intValue, creeper::getExplosionRadius, creeper::setExplosionRadius, Integer.MAX_VALUE);
 			} else if (SUPPORTS_GHASTS && entity instanceof Ghast ghast) {
-				changeExplosionInteger(mode, intValue, ghast::getExplosionPower, ghast::setExplosionPower);
+				changeExplosionInteger(mode, intValue, ghast::getExplosionPower, ghast::setExplosionPower, 127);
 			}
 		}
 	}
 
-	private void changeExplosionInteger(ChangeMode mode, int value, Supplier<Integer> getter, Consumer<Integer> setter) {
+	private void changeExplosionInteger(ChangeMode mode, int value, Supplier<Integer> getter, Consumer<Integer> setter, int max) {
 		setter.accept(Math2.fit(0,
 				switch (mode) {
 					case SET, DELETE -> value;
@@ -93,7 +93,7 @@ public class ExprExplosiveYield extends SimplePropertyExpression<Entity, Number>
 					case REMOVE -> getter.get() - value;
 					default -> throw new IllegalArgumentException("Unexpected mode: " + mode);
 				},
-			Integer.MAX_VALUE));
+			max));
 	}
 
 	@Override
