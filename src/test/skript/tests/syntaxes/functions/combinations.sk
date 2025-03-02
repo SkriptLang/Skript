@@ -1,0 +1,13 @@
+test "combinations function":
+	assert combinations(5, 3) = 10 with "combinations of 5 with a set of 3 failed"
+	assert combinations(10, 2) = 45 with "combinations of 10 with a set of 2 failed"
+	assert combinations(10, 4) = 210 with "combinations of 10 with a set of 4 failed"
+	assert combinations(100, 5) = 75287520 with "combinations of 100 with a set of 5 failed"
+	assert combinations(150, 10) = 1169554298222310 with "combinations of 150 with a set of 10 failed"
+	assert combinations(500, 10) = 245810588801891070000 with "combinations of 500 with a set of 10 failed"
+	assert combinations(500, 100) = 204169423593847550000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000 with "combinations of 500 with a set of 100 failed"
+
+	assert combinations(500, 500) = infinity value with "combinations of 500 with a set of 500 failed"
+
+	assert combinations(10, 11) is not set with "combinations with a size greater than options should be null"
+	assert combinations(10, -1) is not set with "combinations with a size less than 0 should be null"
