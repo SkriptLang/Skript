@@ -45,7 +45,6 @@ import org.skriptlang.skript.lang.comparator.Comparators;
 import org.skriptlang.skript.lang.comparator.Relation;
 
 import java.util.Objects;
-import java.util.UUID;
 
 @SuppressWarnings({"rawtypes"})
 public class DefaultComparators {
@@ -666,10 +665,6 @@ public class DefaultComparators {
 				}
 			});
 		}
-
-		// UUID
-		Comparators.registerComparator(UUID.class, UUID.class, (one, two) -> Relation.get(one.equals(two)));
-		Comparators.registerComparator(UUID.class, String.class, (one, two) -> Relation.get(one.toString().equals(two)));
 	}
 	
 }
