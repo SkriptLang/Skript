@@ -46,6 +46,7 @@ public class EvtMove extends SkriptEvent {
 
 	private EntityData<?> entityData;
 	private boolean isPlayer;
+	private boolean canBePlayer;
 	private Move moveType;
 
 	private enum Move {
@@ -73,9 +74,10 @@ public class EvtMove extends SkriptEvent {
 		entityData = ((Literal<EntityData<?>>) args[0]).getSingle();
 		isPlayer = Player.class.isAssignableFrom(entityData.getType());
 		if (!HAS_ENTITY_MOVE && !isPlayer) {
-			Skript.error("Entity move event requires Paper 1.16.5+");
+			Skript.error("Entity move event requires Paper");
 			return false;
 		}
+		canBePlayer = entityData.getType().isAssignableFrom(Player.class);
 		if (matchedPattern > 0) {
 			moveType = Move.MOVE_OR_ROTATE;
 		} else if (parseResult.hasTag("rotate")) {
@@ -89,28 +91,22 @@ public class EvtMove extends SkriptEvent {
 	@Override
 	public boolean check(Event event) {
 		Location from, to;
-		if (isPlayer && event instanceof PlayerMoveEvent) {
-			PlayerMoveEvent playerEvent = (PlayerMoveEvent) event;
-			from = playerEvent.getFrom();
-			to = playerEvent.getTo();
-		} else if (HAS_ENTITY_MOVE && event instanceof EntityMoveEvent) {
-			EntityMoveEvent entityEvent = (EntityMoveEvent) event;
-			if (!(entityData.isInstance(entityEvent.getEntity())))
+		if (canBePlayer && event instanceof PlayerMoveEvent playerMoveEvent) {
+			from = playerMoveEvent.getFrom();
+			to = playerMoveEvent.getTo();
+		} else if (HAS_ENTITY_MOVE && event instanceof EntityMoveEvent entityMoveEvent) {
+			if (!(entityData.isInstance(entityMoveEvent.getEntity())))
 				return false;
-			from = entityEvent.getFrom();
-			to = entityEvent.getTo();
+			from = entityMoveEvent.getFrom();
+			to = entityMoveEvent.getTo();
 		} else {
 			return false;
 		}
-		switch (moveType) {
-			case MOVE:
-				return hasChangedPosition(from, to);
-			case ROTATE:
-				return hasChangedOrientation(from, to);
-			case MOVE_OR_ROTATE:
-				return true;
-		}
-		return false;
+		return switch (moveType) {
+			case MOVE -> hasChangedPosition(from, to);
+			case ROTATE -> hasChangedOrientation(from, to);
+			case MOVE_OR_ROTATE -> true;
+		};
 	}
 
 	@Override
@@ -119,6 +115,8 @@ public class EvtMove extends SkriptEvent {
 		if (isPlayer) {
 			return new Class[] {PlayerMoveEvent.class};
 		} else if (HAS_ENTITY_MOVE) {
+			if (canBePlayer)
+				return new Class[] {EntityMoveEvent.class, PlayerMoveEvent.class};
 			return new Class[] {EntityMoveEvent.class};
 		}
 		throw new IllegalStateException("This event has not yet initialized!");
