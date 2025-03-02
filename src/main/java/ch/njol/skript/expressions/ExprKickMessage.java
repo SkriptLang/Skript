@@ -1,6 +1,7 @@
 package ch.njol.skript.expressions;
 
 import ch.njol.skript.classes.Changer.ChangeMode;
+import ch.njol.skript.lang.EventRestrictedSyntax;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
@@ -22,7 +23,7 @@ import org.jetbrains.annotations.Nullable;
 })
 @Since("INSERT VERSION")
 @Events("Kick")
-public class ExprKickMessage extends SimpleExpression<String> {
+public class ExprKickMessage extends SimpleExpression<String> implements EventRestrictedSyntax {
 
 	static {
 		Skript.registerExpression(ExprKickMessage.class, String.class, ExpressionType.SIMPLE, "kick (message|reason)");
@@ -70,4 +71,8 @@ public class ExprKickMessage extends SimpleExpression<String> {
 		return "the kick reason";
 	}
 
+	@Override
+	public Class<? extends Event>[] supportedEvents() {
+		return CollectionUtils.array(PlayerKickEvent.class);
+	}
 }
