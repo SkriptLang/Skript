@@ -47,7 +47,7 @@ public class ExprKickMessage extends SimpleExpression<String> {
 	}
 
 	@Override
-	public void change(Event e, final Object[] delta, ChangeMode mode) {
+	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
 		assert delta != null;
 		assert delta.length == 1;
 		if (e instanceof PlayerKickEvent event && delta[0] instanceof String text) {
