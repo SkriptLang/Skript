@@ -132,13 +132,11 @@ public class JSONGenerator extends DocumentationGenerator {
 			@NotNull AvailableEvent.AvailableEvents availableEventsAnnotation = syntaxClass.getAnnotation(AvailableEvent.AvailableEvents.class);
 			syntaxJsonObject.add("availableEvents", convertToJsonArray(Arrays.stream(availableEventsAnnotation.value())
 				.map(AvailableEvent::value)
-				.flatMap(Stream::of)
 				.map(Class::getSimpleName)
 				.toArray(String[]::new)));
 		} else if (syntaxClass.isAnnotationPresent(Example.class)) {
 			@NotNull AvailableEvent availableEvent = syntaxClass.getAnnotation(AvailableEvent.class);
-			syntaxJsonObject.add("availableEvents", convertToJsonArray(Arrays.stream(availableEvent.value())
-				.map(Class::getSimpleName).toArray(String[]::new)));
+			syntaxJsonObject.add("availableEvents", convertToJsonArray(availableEvent.value().getSimpleName()));
 		} else {
 			syntaxJsonObject.add("availableEvents", null);
 		}
