@@ -1,0 +1,14 @@
+options:
+	test: "org.skriptlang.skript.test.tests.syntaxes.events.StructTestSubValidators"
+
+test "StructTestSubValidators" when running JUnit:
+	ensure junit test {@test} completes "sub section" and "sub sub section"
+
+test sub validators:
+	sub validator 1:
+		sub section:
+			complete objective "sub section" for {@test}
+	sub validator 2:
+		sub sub validator:
+			sub sub section:
+				complete objective "sub sub section" for {@test}

@@ -1,12 +1,9 @@
 package org.skriptlang.skript.lang.entry.util;
 
 import ch.njol.skript.lang.VariableString;
-import ch.njol.skript.lang.parser.ParserInstance;
-import org.skriptlang.skript.lang.entry.KeyValueEntryData;
 import ch.njol.skript.util.StringMode;
-import ch.njol.util.Kleenean;
-import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.entry.KeyValueEntryData;
 
 /**
  * A type of {@link KeyValueEntryData} designed to parse its value as a {@link VariableString}.
@@ -40,8 +37,7 @@ public class VariableStringEntryData extends KeyValueEntryData<VariableString> {
 	}
 
 	@Override
-	@Nullable
-	protected VariableString getValue(String value) {
+	protected @Nullable VariableString getValue(String value) {
 		// Double up quotations outside of expressions
 		if (stringMode != StringMode.VARIABLE_NAME)
 			value = VariableString.quote(value);
