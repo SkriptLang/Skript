@@ -1,0 +1,81 @@
+test "has adventure restrictions" when running below minecraft "1.20.5":
+
+	set {_tool} to stone shovel
+	assert {_tool} has no break restrictions with "plain shovel has unexpected break restrictions"
+	assert {_tool} has no place restrictions with "plain shovel has unexpected place restrictions"
+
+	# no restrictions: should be able to break nothing
+	assert {_tool} cannot break dirt in adventure mode with "plain shovel can unexpectedly break dirt in adventure"
+	assert {_tool} cannot break any log in adventure mode with "plain shovel can unexpectedly break logs in adventure"
+
+	# add basic restrictions
+	allow {_tool} to break dirt in adventure mode
+	assert {_tool} can break dirt in adventure mode with "shovel should be able to break dirt in adventure"
+	add oak log to break restrictions of {_tool}
+	assert {_tool} can break oak log in adventure mode with "shovel should be able to break oak logs in adventure"
+	assert {_tool} can break any logs in adventure mode with "shovel should be able to break any log in adventure"
+	assert {_tool} cannot break all logs in adventure mode with "shovel should not be able to break all logs in adventure"
+
+	# removal
+	prevent {_tool} from breaking dirt in adventure mode
+	assert {_tool} cannot break dirt in adventure mode with "shovel should not be able to break dirt in adventure"
+
+	remove all logs from break restrictions of {_tool}
+	assert {_tool} cannot break oak log in adventure mode with "shovel should not be able to break oak log in adventure"
+
+	# any log
+	allow {_tool} to break any log in adventure mode
+	assert {_tool} can break oak log in adventure mode with "shovel should be able to break oak logs in adventure"
+	assert {_tool} can break spruce log in adventure mode with "shovel should be able to break spruce logs in adventure"
+	assert {_tool} can break birch log in adventure mode with "shovel should be able to break birch logs in adventure"
+	assert {_tool} can break any log in adventure mode with "shovel should be able to break any log in adventure"
+	assert {_tool} can break all logs in adventure mode with "shovel should be able to break all logs in adventure"
+
+	# multiple inputs
+	set {_a} to stone shovel
+	set {_b} to iron pickaxe
+	set {_c} to dirt block
+
+	assert {_a}, {_b}, and {_c} cannot break dirt in adventure mode with "AND tools can unexpectedly break dirt in adventure"
+	assert {_a}, {_b}, or {_c} cannot break dirt in adventure mode with "OR tools can unexpectedly break dirt in adventure"
+
+	allow {_a} and {_b} to break dirt in adventure mode
+	assert {_a}, {_b}, and {_c} can break dirt in adventure mode to fail with "AND tools can unexpectedly break dirt in adventure 2"
+	assert {_a}, {_b}, or {_c} can break dirt in adventure mode with "OR tools should be able to break dirt in adventure"
+
+	allow {_c} to break dirt in adventure mode
+	assert {_a}, {_b}, and {_c} can break dirt in adventure mode with "AND tools should be able to break dirt in adventure"
+	assert {_a}, {_b}, or {_c} can break dirt in adventure mode with "OR tools should be able to break dirt in adventure 2"
+
+
+	# multiple inputs and any keys
+	set {_a} to stone shovel
+	set {_b} to iron pickaxe
+	set {_c} to dirt block
+
+	allow {_a} to break oak logs in adventure mode
+	allow {_b} to break spruce logs in adventure mode
+	allow {_c} to break birch logs in adventure mode
+	assert {_a}, {_b}, and {_c} can break any logs in adventure mode with "AND tools should be able to break any logs in adventure"
+	assert {_a}, {_b}, or {_c} can break any logs in adventure mode with "OR tools should be able to break any logs in adventure"
+	assert {_a}, {_b}, and {_c} cannot break all logs in adventure mode with "AND tools should not be able to break all logs in adventure"
+	assert {_a}, {_b}, or {_c} cannot break all logs in adventure mode with "OR tools should not be able to break all logs in adventure"
+
+	# multiple inputs multiple keys
+	set {_a} to stone shovel
+	set {_b} to iron pickaxe
+	set {_c} to dirt block
+
+	allow {_a} to break oak logs in adventure mode
+	allow {_b} to break spruce logs in adventure mode
+	allow {_c} to break birch logs in adventure mode
+	assert ({_a}, {_b}, and {_c}) can break (oak logs, spruce logs, and birch logs) in adventure mode to fail with "AND tools, AND keys should fail"
+	assert ({_a}, {_b}, and {_c}) can break (oak logs, spruce logs, or birch logs) in adventure mode with "AND tools, OR keys should pass"
+	assert ({_a}, {_b}, or {_c}) can break (oak logs, spruce logs, and birch logs) in adventure mode to fail with "OR tools, AND keys should fail"
+	assert ({_a}, {_b}, or {_c}) can break (oak logs, spruce logs, or birch logs) in adventure mode with "OR tools, OR keys should pass"
+
+
+	assert ({_a}, {_b}, and {_c}) cannot break (oak logs, spruce logs, and birch logs) in adventure mode with "negated AND tools, AND keys should pass"
+	assert ({_a}, {_b}, and {_c}) cannot break (oak logs, spruce logs, or birch logs) in adventure mode to fail with "negated AND tools, OR keys should fail"
+	assert ({_a}, {_b}, or {_c}) cannot break (oak logs, spruce logs, and birch logs) in adventure mode with "negated OR tools, AND keys should pass"
+	assert ({_a}, {_b}, or {_c}) cannot break (oak logs, spruce logs, or birch logs) in adventure mode to fail with "negated OR tools, OR keys should fail"
