@@ -47,7 +47,7 @@ public class RegistryParser<R extends Keyed> extends Parser<R> {
 			String namespace = namespacedKey.getNamespace();
 			String key = namespacedKey.getKey();
 			String keyWithSpaces = key.replace("_", " ");
-			String languageKey = languageNode + "." + key;
+			String languageKey;
 
 			// Put the full namespaced key as a pattern
 			parseMap.put(namespacedKey.toString(), registryObject);
@@ -55,6 +55,9 @@ public class RegistryParser<R extends Keyed> extends Parser<R> {
 			// If the object is a vanilla Minecraft object, we'll add the key with spaces as a pattern
 			if (namespace.equalsIgnoreCase(NamespacedKey.MINECRAFT)) {
 				parseMap.put(keyWithSpaces, registryObject);
+				languageKey = languageNode + "." + key;
+			} else {
+				languageKey = namespacedKey.toString();
 			}
 
 			String[] options = Language.getList(languageKey);

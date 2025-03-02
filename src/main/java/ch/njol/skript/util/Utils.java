@@ -903,4 +903,30 @@ public abstract class Utils {
 		return 0;
 	}
 
+	/**
+	 * Checks if the provided string is a valid {@link UUID}.
+	 * @param uuid the string
+	 * @return whether the given string is a valid UUID
+	 */
+	public static boolean isValidUUID(String uuid) {
+		if (uuid == null || uuid.length() != 36)
+			return false;
+
+		if (uuid.charAt(8) != '-' || uuid.charAt(13) != '-' || uuid.charAt(18) != '-' || uuid.charAt(23) != '-') {
+			return false;
+		}
+
+		for (int i = 0; i < 36; i++) {
+			if (i == 8 || i == 13 || i == 18 || i == 23)
+				continue;
+
+			char c = uuid.charAt(i);
+			if (!((c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F'))) {
+				return false;
+			}
+		}
+
+		return true;
+	}
+
 }

@@ -19,37 +19,36 @@ import ch.njol.util.Kleenean;
 @Name("Random UUID")
 @Description("Returns a random UUID.")
 @Examples("set {_uuid} to random uuid")
-@Since("2.5.1")
-public class ExprRandomUUID extends SimpleExpression<String> {
-	
+@Since("2.5.1, INSERT VERSION (return UUIDs)")
+public class ExprRandomUUID extends SimpleExpression<UUID> {
+
 	static {
-		Skript.registerExpression(ExprRandomUUID.class, String.class, ExpressionType.SIMPLE, "[a] random uuid");
+		Skript.registerExpression(ExprRandomUUID.class, UUID.class, ExpressionType.SIMPLE, "[a] random uuid");
 	}
-	
+
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		return true;
 	}
-	
+
 	@Override
-	@Nullable
-	protected String[] get(Event e) {
-		return new String[] {UUID.randomUUID().toString()};
+	protected UUID @Nullable [] get(Event e) {
+		return new UUID[]{ UUID.randomUUID() };
 	}
-	
+
 	@Override
 	public boolean isSingle() {
 		return true;
 	}
-	
+
 	@Override
-	public Class<? extends String> getReturnType() {
-		return String.class;
+	public Class<? extends UUID> getReturnType() {
+		return UUID.class;
 	}
-	
+
 	@Override
 	public String toString(@Nullable Event e, boolean debug) {
 		return "random uuid";
 	}
-	
+
 }

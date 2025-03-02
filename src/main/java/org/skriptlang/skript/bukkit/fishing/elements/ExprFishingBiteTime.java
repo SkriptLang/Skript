@@ -21,7 +21,7 @@ import org.jetbrains.annotations.Nullable;
 })
 @Examples({
 	"on fish approach:",
-	"\tset fishing bite time to 5 seconds",
+		"\tset fishing bite time to 5 seconds",
 })
 @RequiredPlugins("Paper 1.20.6")
 @Events("Fishing")

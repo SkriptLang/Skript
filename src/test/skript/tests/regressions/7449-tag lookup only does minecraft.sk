@@ -1,0 +1,5 @@
+test "7449 - tag lookup only uses minecraft namespace":
+	register an item tag named "my_favorite_blocks" using oak log, stone, and podzol
+	assert tag "my_favorite_blocks" is tag "skript:my_favorite_blocks" with "Tag lookup didn't find a skript tag ""helmets"" namespace"
+	assert tag "helmets" is tag "paper:helmets" with "Tag lookup didn't find a paper tag ""helmets"" namespace"
+	assert tag "dirt" is tag "minecraft:dirt" with "Tag lookup didn't find a minecraft tag ""dirt"" namespace"

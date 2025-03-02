@@ -25,7 +25,7 @@ import org.jetbrains.annotations.Nullable;
 public class ExprExperienceCooldownChangeReason extends EventValueExpression<ChangeReason> {
 
 	static {
-		register(ExprExperienceCooldownChangeReason.class, ChangeReason.class, "[the] (experience|[e]xp) cooldown change (reason|cause|type)");
+		register(ExprExperienceCooldownChangeReason.class, ChangeReason.class, "(experience|[e]xp) cooldown change (reason|cause|type)");
 	}
 
 	public ExprExperienceCooldownChangeReason() {

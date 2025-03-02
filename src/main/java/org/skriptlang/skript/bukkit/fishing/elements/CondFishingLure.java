@@ -14,7 +14,7 @@ import org.jetbrains.annotations.Nullable;
 @Description("Checks if the lure enchantment is applied to the current fishing event.")
 @Examples({
 	"on fishing line cast:",
-		"\tif lure enchantment is applied:",
+		"\tif lure enchantment bonus is applied:",
 			"\t\tcancel event"
 })
 @Events("Fishing")
@@ -49,7 +49,7 @@ public class CondFishingLure extends Condition {
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return "lure enchantment " + (isNegated() ? "is" : "isn't") + " applied";
+		return "lure enchantment bonus " + (isNegated() ? "is" : "isn't") + " applied";
 	}
 
 }

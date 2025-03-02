@@ -13,4 +13,7 @@ test "CondIsTagged":
 
 	spawn a skeleton at spawn of world "world":
 		assert entity is tagged as entity tag "minecraft:skeletons" with "skeleton is not a skeleton"
+		assert entity is not tagged as item tag "doors" with "failed to handle checking entity for item tag"
 		delete entity
+
+	assert stone sword is not tagged as entity tag "skeletons" with "failed to handle checking item for entity tag"

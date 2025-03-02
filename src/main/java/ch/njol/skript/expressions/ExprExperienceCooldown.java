@@ -29,7 +29,7 @@ import org.jetbrains.annotations.Nullable;
 public class ExprExperienceCooldown extends SimplePropertyExpression<Player, Timespan> {
 
 	static {
-		register(ExprExperienceCooldown.class, Timespan.class, "[the] (experience|[e]xp) [pickup|collection] cooldown", "players");
+		register(ExprExperienceCooldown.class, Timespan.class, "(experience|[e]xp) [pickup|collection] cooldown", "players");
 	}
 
 	private static final int maxTicks = Integer.MAX_VALUE;
