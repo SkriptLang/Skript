@@ -25,7 +25,7 @@ import org.jetbrains.annotations.Nullable;
 		"\tset the protocol version to 0 # 13w41a (1.7), so it will show the version string always",
 		"\tset the version string to \"&lt;light green&gt;Version: &lt;orange&gt;%minecraft version%\""
 })
-@AvailableEvents(ServerListPingEvent.class)
+@AvailableEvent(ServerListPingEvent.class)
 @Events("Server List Ping")
 @RequiredPlugins("Paper 1.12.2+")
 @Since("2.3")

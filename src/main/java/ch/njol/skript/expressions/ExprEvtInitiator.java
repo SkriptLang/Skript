@@ -20,7 +20,7 @@ import org.jetbrains.annotations.Nullable;
 		"\tholder of event-initiator-inventory is a chest",
 		"\tbroadcast \"Item transport happening at %location at holder of event-initiator-inventory%!\""
 })
-@AvailableEvents(InventoryMoveItemEvent.class)
+@AvailableEvent(InventoryMoveItemEvent.class)
 @Events("Inventory Item Move")
 @Since("2.8.0")
 public class ExprEvtInitiator extends SimpleExpression<Inventory> {

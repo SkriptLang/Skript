@@ -1,7 +1,6 @@
 package ch.njol.skript.expressions;
 
 import ch.njol.skript.command.CommandEvent;
-import ch.njol.skript.command.ScriptCommandEvent;
 import ch.njol.skript.doc.*;
 import org.bukkit.command.CommandSender;
 
@@ -23,7 +22,7 @@ import org.bukkit.event.server.ServerCommandEvent;
 @Since("2.0")
 // TODO REMOVE
 // 	Should this use CommandEvent or ScriptCommandEvent?
-@AvailableEvents({PlayerCommandPreprocessEvent.class, ServerCommandEvent.class, CommandEvent.class})
+@AvailableEvent({PlayerCommandPreprocessEvent.class, ServerCommandEvent.class, CommandEvent.class})
 @Events("command")
 public class ExprCommandSender extends EventValueExpression<CommandSender> {
 

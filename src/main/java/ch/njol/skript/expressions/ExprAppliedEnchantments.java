@@ -22,7 +22,7 @@ import ch.njol.util.coll.CollectionUtils;
 				" Deleting or removing the applied enchantments will prevent the item's enchantment."})
 @Examples({"on enchant:",
 			"\tset the applied enchantments to sharpness 10 and fire aspect 5"})
-@AvailableEvents(EnchantItemEvent.class)
+@AvailableEvent(EnchantItemEvent.class)
 @Events("enchant")
 @Since("2.5")
 public class ExprAppliedEnchantments extends SimpleExpression<EnchantmentType> {

@@ -31,7 +31,7 @@ import ch.njol.util.Math2;
 		"\t\t\tset level progress of the loop-player to 0.99",
 		"on xp spawn:",
 		"\tcancel event"})
-@AvailableEvents(PlayerLevelChangeEvent.class)
+@AvailableEvent(PlayerLevelChangeEvent.class)
 @Events("level change")
 @Since("2.0")
 public class ExprLevelProgress extends SimplePropertyExpression<Player, Number> {

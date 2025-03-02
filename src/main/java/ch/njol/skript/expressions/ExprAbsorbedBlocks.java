@@ -20,7 +20,7 @@ import ch.njol.util.Kleenean;
 
 @Name("Absorbed blocks")
 @Description("The blocks absorbed by a sponge block.")
-@AvailableEvents(SpongeAbsorbEvent.class)
+@AvailableEvent(SpongeAbsorbEvent.class)
 @Events("sponge absorb")
 @Examples("the absorbed blocks")
 @Since("2.5")

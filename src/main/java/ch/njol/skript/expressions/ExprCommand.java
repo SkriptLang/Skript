@@ -31,7 +31,7 @@ import ch.njol.util.Kleenean;
 @Since("2.0, 2.7 (support for script commands)")
 // TODO REMOVE
 // 	Should this use CommandEvent or ScriptCommandEvent?
-@AvailableEvents({PlayerCommandPreprocessEvent.class, ServerCommandEvent.class, CommandEvent.class})
+@AvailableEvent({PlayerCommandPreprocessEvent.class, ServerCommandEvent.class, CommandEvent.class})
 @Events("command")
 public class ExprCommand extends SimpleExpression<String> implements EventRestrictedSyntax {
 

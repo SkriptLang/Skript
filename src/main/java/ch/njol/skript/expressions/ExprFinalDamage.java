@@ -18,7 +18,7 @@ import ch.njol.util.Kleenean;
 @Name("Final Damage")
 @Description("How much damage is done in a damage event, considering all types of damage reduction. Can NOT be changed.")
 @Examples({"send \"%final damage%\" to victim"})
-@AvailableEvents(EntityDamageEvent.class)
+@AvailableEvent(EntityDamageEvent.class)
 @Events("damage")
 @Since("2.2-dev19")
 public class ExprFinalDamage extends SimpleExpression<Number> {

@@ -17,7 +17,7 @@ import ch.njol.util.Kleenean;
 @Name("Me")
 @Description("A 'me' expression that can be used in players' effect commands only.")
 @Examples({"!heal me", "!kick myself", "!give a diamond axe to me"})
-@AvailableEvents(EffectCommandEvent.class)
+@AvailableEvent(EffectCommandEvent.class)
 @Events("Effect Command")
 @Since("2.1.1")
 public class ExprMe extends SimpleExpression<Player> {

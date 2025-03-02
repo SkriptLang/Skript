@@ -7,8 +7,8 @@ import java.lang.annotation.*;
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
-public @interface AvailableEvents {
+@interface AvailableEvents {
 
-	public Class<? extends Event>[] value();
+	Class<? extends Event>[] value();
 
 }

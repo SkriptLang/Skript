@@ -14,7 +14,6 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
-import ch.njol.skript.log.ErrorQuality;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
 
@@ -32,7 +31,7 @@ import ch.njol.util.coll.CollectionUtils;
 		"\tincrease the damage by 2"
 })
 @Since("1.3.5, 2.8.0 (item damage event)")
-@AvailableEvents({EntityDamageEvent.class, VehicleDamageEvent.class, PlayerItemDamageEvent.class})
+@AvailableEvent({EntityDamageEvent.class, VehicleDamageEvent.class, PlayerItemDamageEvent.class})
 @Events({"Damage", "Vehicle Damage", "Item Damage"})
 public class ExprDamage extends SimpleExpression<Number> {
 	
