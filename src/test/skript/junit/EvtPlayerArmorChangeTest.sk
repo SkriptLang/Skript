@@ -1,0 +1,23 @@
+options:
+	test: "org.skriptlang.skript.test.tests.syntaxes.events.EvtPlayerArmorChangeTest"
+
+on load:
+	set {_tests::*} to "general change - called", "general change - old diamond helmet" and "general change - new netherite helmet"
+	add "helmet change - called", "helmet change - old diamond helmet" and "helmet change - new netherite helmet" to {_tests::*}
+	ensure junit test {@test} completes {_tests::*}
+
+on player armor change:
+	junit test is {@test}
+	complete "general change - called" for {@test}
+	if the old armor item is a diamond helmet:
+		complete "general change - old diamond helmet" for {@test}
+	if the new armor item is a netherite helmet:
+		complete "general change - new netherite helmet" for {@test}
+
+on player armor change from helmet slot:
+	junit test is {@test}
+	complete "helmet change - called" for {@test}
+	if the old armor item is a diamond helmet:
+		complete "helmet change - old diamond helmet" for {@test}
+	if the new armor item is a netherite helmet:
+		complete "helmet change - new netherite helmet" for {@test}

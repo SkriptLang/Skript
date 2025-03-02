@@ -6,15 +6,11 @@ import ch.njol.skript.lang.util.SimpleEvent;
 import com.destroystokyo.paper.event.block.AnvilDamagedEvent;
 import com.destroystokyo.paper.event.entity.EntityJumpEvent;
 import com.destroystokyo.paper.event.entity.ProjectileCollideEvent;
-import com.destroystokyo.paper.event.player.PlayerArmorChangeEvent;
 import com.destroystokyo.paper.event.player.PlayerElytraBoostEvent;
 import com.destroystokyo.paper.event.player.PlayerJumpEvent;
 import com.destroystokyo.paper.event.player.PlayerReadyArrowEvent;
 import com.destroystokyo.paper.event.server.PaperServerListPingEvent;
-import io.papermc.paper.event.player.PlayerDeepSleepEvent;
-import io.papermc.paper.event.player.PlayerInventorySlotChangeEvent;
-import io.papermc.paper.event.player.PlayerStopUsingItemEvent;
-import io.papermc.paper.event.player.PlayerTradeEvent;
+import io.papermc.paper.event.player.*;
 import org.bukkit.event.Event;
 import org.bukkit.event.block.*;
 import org.bukkit.event.enchantment.EnchantItemEvent;
@@ -27,7 +23,6 @@ import org.bukkit.event.server.ServerListPingEvent;
 import org.bukkit.event.vehicle.*;
 import org.bukkit.event.weather.LightningStrikeEvent;
 import org.bukkit.event.world.*;
-import io.papermc.paper.event.player.PlayerChangeBeaconEffectEvent;
 
 /**
  * @author Peter Güttinger
@@ -437,16 +432,6 @@ public class SimpleEvents {
 				.examples("on riptide:",
 					"	send \"You are riptiding!\"")
 				.since("2.5");
-		}
-		if (Skript.classExists("com.destroystokyo.paper.event.player.PlayerArmorChangeEvent")) {
-			Skript.registerEvent("Armor Change", SimpleEvent.class, PlayerArmorChangeEvent.class, "[player] armo[u]r change[d]")
-				.description("Called when armor pieces of a player are changed.")
-				.requiredPlugins("Paper")
-				.keywords("armour")
-				.examples(
-						"on armor change:",
-							"\tsend \"You equipped %event-item%!\""
-				).since("2.5");
 		}
 		if (Skript.classExists("org.bukkit.event.block.SpongeAbsorbEvent")) {
 			Skript.registerEvent("Sponge Absorb", SimpleEvent.class, SpongeAbsorbEvent.class, "sponge absorb")

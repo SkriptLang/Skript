@@ -966,6 +966,7 @@ public class SkriptClasses {
 				.examples("{a} contains {b}")
 				.since("2.10")
 		);
+
 	}
 
 }
