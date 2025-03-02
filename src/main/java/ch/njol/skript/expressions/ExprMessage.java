@@ -51,7 +51,7 @@ import org.jetbrains.annotations.Nullable;
 		"on broadcast:",
 			"\tset broadcast message to \"&a[BROADCAST] %broadcast message%\""
 })
-@AvailableEvent({AsyncPlayerChatEvent.class, PlayerJoinEvent.class, PlayerQuitEvent.class, PlayerKickEvent.class, EntityDeathEvent.class, BroadcastMessageEvent.class})
+@AvailableEvents({AsyncPlayerChatEvent.class, PlayerJoinEvent.class, PlayerQuitEvent.class, PlayerKickEvent.class, EntityDeathEvent.class, BroadcastMessageEvent.class})
 @Events({"chat", "join", "quit", "death", "broadcast"})
 @Since("1.4.6 (chat message), 1.4.9 (join & quit messages), 2.0 (death message), 2.9.0 (clear message), 2.10 (broadcasted message)")
 public class ExprMessage extends SimpleExpression<String> {

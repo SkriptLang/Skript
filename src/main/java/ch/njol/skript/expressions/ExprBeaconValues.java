@@ -37,7 +37,7 @@ import java.util.function.Consumer;
 	"add 1 to range of {_block}"
 })
 @RequiredPlugins("Paper (range)")
-@AvailableEvent({PlayerChangeBeaconEffectEvent.class, BeaconEffectEvent.class, BeaconActivatedEvent.class, BeaconDeactivatedEvent.class})
+@AvailableEvents({PlayerChangeBeaconEffectEvent.class, BeaconEffectEvent.class, BeaconActivatedEvent.class, BeaconDeactivatedEvent.class})
 @Events({"Beacon Effect", "Beacon Toggle", "Beacon Change Effect"})
 @Since("2.10")
 public class ExprBeaconValues extends PropertyExpression<Block, Object> {

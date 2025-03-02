@@ -37,7 +37,7 @@ import ch.njol.util.coll.CollectionUtils;
 		"\tshow the inventory of the clicked block to the player"
 })
 @Since("1.0, 2.2-dev35 (more clickable things)")
-@AvailableEvent({PlayerInteractEntityEvent.class, PlayerInteractAtEntityEvent.class, InventoryClickEvent.class, EnchantItemEvent.class, PlayerInteractEvent.class})
+@AvailableEvents({PlayerInteractEntityEvent.class, PlayerInteractAtEntityEvent.class, InventoryClickEvent.class, EnchantItemEvent.class, PlayerInteractEvent.class})
 @Events({"click", "inventory click"})
 public class ExprClicked extends SimpleExpression<Object> {
 

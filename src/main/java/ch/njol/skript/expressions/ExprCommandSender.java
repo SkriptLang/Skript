@@ -20,9 +20,9 @@ import org.bukkit.event.server.ServerCommandEvent;
 		"\tlog \"%executor% used command /%command% %arguments%\" to \"commands.log\""
 })
 @Since("2.0")
-// TODO REMOVE
+// FIXME
 // 	Should this use CommandEvent or ScriptCommandEvent?
-@AvailableEvent({PlayerCommandPreprocessEvent.class, ServerCommandEvent.class, CommandEvent.class})
+@AvailableEvents({PlayerCommandPreprocessEvent.class, ServerCommandEvent.class, CommandEvent.class})
 @Events("command")
 public class ExprCommandSender extends EventValueExpression<CommandSender> {
 

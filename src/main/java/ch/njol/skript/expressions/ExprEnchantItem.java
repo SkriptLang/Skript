@@ -24,7 +24,7 @@ import ch.njol.util.coll.CollectionUtils;
 			"\tset the enchanted item to a diamond chestplate",
 			"on enchant prepare:",
 			"\tset the enchant item to a wooden sword"})
-@AvailableEvent({EnchantItemEvent.class, PrepareItemEnchantEvent.class})
+@AvailableEvents({EnchantItemEvent.class, PrepareItemEnchantEvent.class})
 @Events({"enchant prepare", "enchant"})
 @Since("2.5")
 public class ExprEnchantItem extends SimpleExpression<ItemType> {

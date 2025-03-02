@@ -33,7 +33,7 @@ import ch.njol.util.Kleenean;
 	"\tvictim is a creeper",
 	"\tdamage the attacked by 1 heart"})
 @Since("1.3, 2.6.1 (projectile hit event)")
-@AvailableEvent({EntityDamageEvent.class, EntityDeathEvent.class,
+@AvailableEvents({EntityDamageEvent.class, EntityDeathEvent.class,
 	VehicleDamageEvent.class, VehicleDestroyEvent.class})
 @Events({"damage", "death", "projectile hit"})
 public class ExprAttacked extends SimpleExpression<Entity> implements EventRestrictedSyntax {
