@@ -1,7 +1,5 @@
 package ch.njol.skript.effects;
 
-import org.bukkit.Location;
-import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.Player;
@@ -16,71 +14,63 @@ import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.SkriptParser;
+import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
 
 @Name("Send Block Change")
-@Description("Makes a player see a block as something it really isn't. BlockData support is only for MC 1.13+")
-@Examples({"make player see block at player as dirt",
-		"make player see target block as campfire[facing=south]"})
-@Since("2.2-dev37c, 2.5.1 (block data support)")
+@Description("Makes players see blocks as something else.")
+@Examples({
+	"make player see block at player as dirt",
+	"make player see target block as campfire[facing=south]"
+})
+@Since("2.2-dev37c, 2.5.1 (block data support), INSERT VERSION (reset)")
 public class EffSendBlockChange extends Effect {
-
-	private static final boolean BLOCK_DATA_SUPPORT = Skript.classExists("org.bukkit.block.data.BlockData");
-	private static final boolean SUPPORTED =
-			Skript.methodExists(
-					Player.class,
-					"sendBlockChange",
-					Location.class,
-					Material.class,
-					byte.class
-			);
 
 	static {
 		Skript.registerEffect(EffSendBlockChange.class,
-				BLOCK_DATA_SUPPORT ? "make %players% see %blocks% as %itemtype/blockdata%" : "make %players% see %blocks% as %itemtype%"
-		);
+				"make %players% see %blocks% as %itemtype/blockdata%",
+				"make %players% see %blocks% (as normal|the same as the server)");
 	}
 
-	@SuppressWarnings("null")
+	@Nullable
+	private Expression<Object> as;
+	private Expression<Block> blocks;
 	private Expression<Player> players;
 
-	@SuppressWarnings("null")
-	private Expression<Block> blocks;
-
-	@SuppressWarnings("null")
-	private Expression<Object> as;
-	
 	@Override
 	@SuppressWarnings("unchecked")
-	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
-		if (!SUPPORTED) {
-			Skript.error("The send block change effect is not supported on this version. " +
-				"If Spigot has added a replacement method without magic values " +
-				"please open an issue at https://github.com/SkriptLang/Skript/issues " +
-				"and support will be added for it.");
-			return false;
-		}
+	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		players = (Expression<Player>) exprs[0];
 		blocks = (Expression<Block>) exprs[1];
-		as = (Expression<Object>) exprs[2];
+		if (matchedPattern == 0)
+			as = (Expression<Object>) exprs[2];
 		return true;
 	}
 
 	@Override
-	protected void execute(Event e) {
-		Object object = this.as.getSingle(e);
-		if (object instanceof ItemType) {
-			ItemType itemType = (ItemType) object;
-			for (Player player : players.getArray(e)) {
-				for (Block block : blocks.getArray(e)) {
+	protected void execute(Event event) {
+		Object object = null;
+		if (this.as != null) {
+			object = this.as.getSingle(event);
+			if (object == null)
+				return;
+		}
+		// Reset the block the players are seeing to be synced with server.
+		if (object == null) {
+			for (Player player : players.getArray(event)) {
+				for (Block block : blocks.getArray(event)) {
+					player.sendBlockChange(block.getLocation(), block.getBlockData());
+				}
+			}
+		} else if (object instanceof ItemType itemType) {
+			for (Player player : players.getArray(event)) {
+				for (Block block : blocks.getArray(event)) {
 					itemType.sendBlockChange(player, block.getLocation());
 				}
 			}
-		} else if (BLOCK_DATA_SUPPORT && object instanceof BlockData) {
-			BlockData blockData = (BlockData) object;
-			for (Player player : players.getArray(e)) {
-				for (Block block : blocks.getArray(e)) {
+		} else if (object instanceof BlockData blockData) {
+			for (Player player : players.getArray(event)) {
+				for (Block block : blocks.getArray(event)) {
 					player.sendBlockChange(block.getLocation(), blockData);
 				}
 			}
@@ -88,12 +78,16 @@ public class EffSendBlockChange extends Effect {
 	}
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
-		return String.format(
-				"make %s see %s as %s",
-				players.toString(e, debug),
-				blocks.toString(e, debug),
-				as.toString(e, debug)
+	public String toString(@Nullable Event event, boolean debug) {
+		if (as == null)
+			return String.format("make %s see %s as normal",
+					players.toString(event, debug),
+					blocks.toString(event, debug)
+			);
+		return String.format("make %s see %s as %s",
+				players.toString(event, debug),
+				blocks.toString(event, debug),
+				as.toString(event, debug)
 		);
 	}
 
