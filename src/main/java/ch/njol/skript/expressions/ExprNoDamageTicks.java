@@ -1,65 +1,72 @@
 package ch.njol.skript.expressions;
 
-import org.bukkit.entity.LivingEntity;
-import org.bukkit.event.Event;
-import org.jetbrains.annotations.Nullable;
-
+import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
+import ch.njol.skript.lang.Expression;
+import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.util.Kleenean;
+import ch.njol.util.Math2;
 import ch.njol.util.coll.CollectionUtils;
+import org.bukkit.entity.LivingEntity;
+import org.bukkit.event.Event;
+import org.jetbrains.annotations.Nullable;
 
 @Name("No Damage Ticks")
 @Description("The number of ticks that an entity is invulnerable to damage for.")
-@Examples({"on damage:",
-		"	set victim's invulnerability ticks to 20 #Victim will not take damage for the next second"})
-@Since("2.5")
+@Examples({
+	"on damage:",
+		"\tset victim's invulnerability ticks to 20 #Victim will not take damage for the next second"
+})
+@Since("2.5, INSERT VERSION (deprecated)")
+@Deprecated
 public class ExprNoDamageTicks extends SimplePropertyExpression<LivingEntity, Long> {
 	
 	static {
-		register(ExprNoDamageTicks.class, Long.class, "(invulnerability|invincibility|no damage) tick[s]", "livingentities");
+		registerDefault(ExprNoDamageTicks.class, Long.class,"(invulnerability|invincibility|no damage) tick[s]", "livingentities");
 	}
 
 	@Override
-	public Long convert(LivingEntity e) {
-		return (long) e.getNoDamageTicks();
+	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
+		Skript.warning("This expression is deprecated. Please use 'invulnerability time' instead of 'invulnerability ticks'.");
+		return super.init(expressions, matchedPattern, isDelayed, parseResult);
+	}
+
+	@Override
+	public Long convert(LivingEntity entity) {
+		return (long) entity.getNoDamageTicks();
 	}
 	
 	@Override
-	@Nullable
-	public Class<?>[] acceptChange(final ChangeMode mode) {
-		if (mode == ChangeMode.REMOVE_ALL)
-			return null;
-		return CollectionUtils.array(Number.class);
+	public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
+		return switch (mode) {
+			case SET, DELETE, RESET, ADD, REMOVE -> CollectionUtils.array(Number.class);
+			default -> null;
+		};
 	}
 	
 	@Override
-	public void change(final Event e, final @Nullable Object[] delta, final ChangeMode mode) {
-		int d = delta == null ? 0 : ((Number) delta[0]).intValue();
-		for (LivingEntity le : getExpr().getArray(e)) {
+	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
+		int providedTicks = 0;
+		if (delta != null && delta[0] instanceof Number number)
+			providedTicks = number.intValue();
+		for (LivingEntity entity : getExpr().getArray(event)) {
 			switch (mode) {
-				case ADD:
-					int r1 = le.getNoDamageTicks() + d;
-					if (r1 < 0) r1 = 0;
-					le.setNoDamageTicks(r1);
-					break;
-				case SET:
-					le.setNoDamageTicks(d);
-					break;
-				case DELETE:
-				case RESET:
-					le.setNoDamageTicks(0);
-					break;
-				case REMOVE:
-					int r2 = le.getNoDamageTicks() - d;
-					if (r2 < 0) r2 = 0;
-					le.setNoDamageTicks(r2);
-					break;
-				case REMOVE_ALL:
-					assert false;		
+				case SET, DELETE, RESET -> entity.setNoDamageTicks(providedTicks);
+				case ADD -> {
+					int current = entity.getNoDamageTicks();
+					int value = Math2.fit(0, current + providedTicks, Integer.MAX_VALUE);
+					entity.setNoDamageTicks(value);
+				}
+				case REMOVE -> {
+					int current = entity.getNoDamageTicks();
+					int value = Math2.fit(0, current - providedTicks, Integer.MAX_VALUE);
+					entity.setNoDamageTicks(value);
+				}
 			}
 		}
 	}
@@ -70,7 +77,7 @@ public class ExprNoDamageTicks extends SimplePropertyExpression<LivingEntity, Lo
 	}
 	
 	@Override
-	public Class<? extends Long> getReturnType() {
+	public Class<Long> getReturnType() {
 		return Long.class;
 	}
 	

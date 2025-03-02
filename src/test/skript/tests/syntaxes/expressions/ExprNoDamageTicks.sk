@@ -1,18 +1,37 @@
 test "no damage ticks":
-	spawn zombie at location(0, 64, 0, world "world")
-	set {_m} to last spawned zombie
-	assert {_m}'s invulnerability ticks is 0 with "entity spawned with no damage ticks"
-	set {_m}'s invulnerability ticks to 25
-	assert {_m}'s invulnerability ticks is 25 with "no damage ticks set failed"
-	add 5 to {_m}'s invulnerability ticks
-	assert {_m}'s invulnerability ticks is 30 with "no damage ticks add failed"
-	remove 12 from {_m}'s invulnerability ticks
-	assert {_m}'s invulnerability ticks is 18 with "no damage ticks remove failed"
-	remove 999 from {_m}'s invulnerability ticks
-	assert {_m}'s invulnerability ticks is 0 with "no damage ticks remove failed"
-	remove -2 from {_m}'s invulnerability ticks
-	assert {_m}'s invulnerability ticks is 2 with "no damage ticks remove failed"
-	add -1 to {_m}'s invulnerability ticks
-	assert {_m}'s invulnerability ticks is 1 with "no damage ticks add failed"
-	delete {_m}'s invulnerability ticks
-	assert {_m}'s invulnerability ticks is 0 with "no damage ticks delete failed"
+	spawn zombie at test-location:
+		set {_entity} to entity
+	assert {_entity}'s invulnerability ticks is 0 with "entity spawned with no damage ticks"
+	set {_entity}'s invulnerability ticks to 25
+	assert {_entity}'s invulnerability ticks is 25 with "no damage ticks set failed"
+	add 5 to {_entity}'s invulnerability ticks
+	assert {_entity}'s invulnerability ticks is 30 with "no damage ticks add failed"
+	remove 12 from {_entity}'s invulnerability ticks
+	assert {_entity}'s invulnerability ticks is 18 with "no damage ticks remove failed"
+	remove 999 from {_entity}'s invulnerability ticks
+	assert {_entity}'s invulnerability ticks is 0 with "no damage ticks remove failed"
+	remove -2 from {_entity}'s invulnerability ticks
+	assert {_entity}'s invulnerability ticks is 2 with "no damage ticks remove failed"
+	add -1 to {_entity}'s invulnerability ticks
+	assert {_entity}'s invulnerability ticks is 1 with "no damage ticks add failed"
+	delete {_entity}'s invulnerability ticks
+	assert {_entity}'s invulnerability ticks is 0 with "no damage ticks delete failed"
+	clear entity within {_entity}
+
+test "no damage time":
+	spawn zombie at test-location:
+		set {_entity} to entity
+	assert {_entity}'s invulnerability timespan is 0 seconds with "entity spawned with no damage timespan"
+	set {_entity}'s invulnerability timespan to 1 second
+	assert {_entity}'s invulnerability timespan is 1 second with "no damage timespan set failed"
+	add 5 seconds to {_entity}'s invulnerability timespan
+	assert {_entity}'s invulnerability timespan is 6 seconds with "no damage timespan add failed"
+	remove 3 seconds from {_entity}'s invulnerability timespan
+	assert {_entity}'s invulnerability timespan is 3 seconds with "no damage timespan remove failed"
+	remove 999 minutes from {_entity}'s invulnerability timespan
+	assert {_entity}'s invulnerability timespan is 0 seconds with "no damage timespan remove failed"
+	add 20 hours to {_entity}'s invulnerability timespan
+	assert {_entity}'s invulnerability timespan is 20 hours with "no damage timespan add failed"
+	delete {_entity}'s invulnerability timespan
+	assert {_entity}'s invulnerability timespan is 0 seconds with "no damage timespan delete failed"
+	clear entity within {_entity}
