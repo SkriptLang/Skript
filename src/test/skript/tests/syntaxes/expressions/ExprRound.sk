@@ -1,0 +1,15 @@
+test "rounding":
+	assert floored 4.6 is 4 with "Floored 4.6 failed"
+	assert rounded 4.6 is 5 with "Rounded 4.6 failed"
+	assert rounded 4.4 is 4 with "Rounded 4.4 failed"
+	assert ceiled 4.4 is 5 with "Ceiled 4.4 failed"
+
+	assert 10.6 floored is 10 with "Floored 10.6 failed"
+	assert 10.6 rounded is 11 with "Rounded 10.6 failed"
+	assert 10.4 rounded is 10 with "Rounded 10.4 failed"
+	assert 10.4 ceiled is 11 with "Ceiled 10.4 failed"
+
+	set {_nums::*} to 67.3, 98.5, 105.7, 300.1 and 500
+	assert floored {_nums::*} is (67, 98, 105, 300 and 500) with "Failed to floor multiple numbers"
+	assert rounded {_nums::*} is (67, 99, 106, 300 and 500) with "Failed to round multiple numbers"
+	assert ceiled {_nums::*} is (68, 99, 106, 301 and 500) with "Failed to ceil multiple numbers"
