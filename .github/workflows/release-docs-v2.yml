@@ -31,6 +31,9 @@ jobs:
                   name: docs-json
                   path: plugins/Skript/docs/docs.json
 
+            - name: List all files in the repo
+              run: find . -type f | grep docs.json
+
     deploy:
         name: Deploy Docs Update
         needs: build
