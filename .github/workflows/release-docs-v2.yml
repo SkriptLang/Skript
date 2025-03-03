@@ -15,7 +15,7 @@ jobs:
             - name: Checkout repository
               uses: actions/checkout@v4
 
-            - name: Set up Java (if needed)
+            - name: Set up Java
               uses: actions/setup-java@v3
               with:
                   distribution: 'temurin'
