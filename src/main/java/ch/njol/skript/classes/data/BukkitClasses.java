@@ -1540,7 +1540,7 @@ public class BukkitClasses {
 			.user("vehicles?")
 			.name("Vehicle")
 			.description("Represents a vehicle.")
-			.since("INSERT VERSION")
+			.since("2.10.2")
 			.changer(DefaultChangers.entityChanger)
 		);
 
