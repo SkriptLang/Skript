@@ -13,7 +13,7 @@ import ch.njol.skript.lang.SkriptEventInfo;
  * @author Peter Güttinger
  *
  * @deprecated
- * This annotation is deprecated, please use {@link AvailableEvent} or {@link AvailableEvents} instead
+ * This annotation is deprecated, please use {@link AvailableEvents} instead
  *
  */
 @Target(ElementType.TYPE)
