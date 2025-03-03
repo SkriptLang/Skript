@@ -1,0 +1,59 @@
+name: Release Documentation v2
+
+on:
+    release:
+        types: [published]
+    push:
+        branches:
+            - feature/docs-v2-auto-update
+
+jobs:
+    build:
+        name: Generate Docs JSON
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v4
+
+            - name: Set up Java (if needed)
+              uses: actions/setup-java@v3
+              with:
+                  distribution: 'temurin'
+                  java-version: '17'
+
+            - name: Build and generate docs.json
+              run: |
+                  ./gradlew genReleaseDocs
+
+            - name: Upload docs.json artifact
+              uses: actions/upload-artifact@v4
+              with:
+                  name: docs-json
+                  path: plugins/Skript/docs/docs.json
+
+    deploy:
+        name: Deploy Docs Update
+        needs: build
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout docs repository
+              uses: actions/checkout@v4
+              with:
+                  repository: SkriptLang/docs
+                  token: ${{ secrets.DOCS_DEPLOY_KEY }}
+                  path: docs-repo
+
+            - name: Download docs.json artifact
+              uses: actions/download-artifact@v4
+              with:
+                  name: docs-json
+                  path: docs-repo/src/assets/docs
+
+            - name: Commit and push changes
+              run: |
+                  cd docs-repo
+                  git config --global user.name "github-actions[bot]"
+                  git config --global user.email "github-actions[bot]@users.noreply.github.com"
+                  git add src/assets/docs/docs.json
+                  git commit -m "Update docs.json from latest Skript build" || exit 0
+                  git push origin master
