@@ -486,7 +486,12 @@ public final class BukkitEventValues {
 			return null;
 		});
 		// CraftItemEvent
-		EventValues.registerEventValue(CraftItemEvent.class, ItemStack.class, event -> event.getRecipe().getResult());
+		EventValues.registerEventValue(CraftItemEvent.class, ItemStack.class, event -> {
+			Recipe recipe = event.getRecipe();
+			if (recipe instanceof ComplexRecipe)
+				return event.getCurrentItem();
+			return recipe.getResult();
+		});
 		//InventoryOpenEvent
 		EventValues.registerEventValue(InventoryOpenEvent.class, Player.class, event -> (Player) event.getPlayer());
 		EventValues.registerEventValue(InventoryOpenEvent.class, Inventory.class, InventoryEvent::getInventory);
