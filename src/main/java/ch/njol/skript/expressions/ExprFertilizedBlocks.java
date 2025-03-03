@@ -19,7 +19,7 @@ import ch.njol.util.Kleenean;
 @Name("Fertilized Blocks")
 @Description("The blocks fertilized in block fertilize events.")
 @RequiredPlugins("Minecraft 1.13 or newer")
-@AvailableEvent(BlockFertilizeEvent.class)
+@AvailableEvents(BlockFertilizeEvent.class)
 @Events("block fertilize")
 @Examples("the fertilized blocks")
 @Since("2.5")

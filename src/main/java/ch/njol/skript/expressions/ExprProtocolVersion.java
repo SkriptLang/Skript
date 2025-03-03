@@ -31,7 +31,7 @@ import ch.njol.util.coll.CollectionUtils;
 @Examples({"on server list ping:",
 		"\tset the version string to \"&lt;light green&gt;Version: &lt;orange&gt;%minecraft version%\"",
 		"\tset the protocol version to 0 # 13w41a (1.7) - so the player will see the custom version string almost always"})
-@AvailableEvent(ServerListPingEvent.class)
+@AvailableEvents(ServerListPingEvent.class)
 @Events("server list ping")
 @RequiredPlugins("Paper 1.12.2 or newer")
 @Since("2.3")

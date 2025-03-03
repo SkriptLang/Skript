@@ -6,8 +6,6 @@ import java.lang.annotation.*;
 
 /**
  * Provides a list of {@link org.bukkit.event.Event} that the syntax element can be used in.
- * <p>
- * This annotation can only be used once per element, for stacking, see {@link AvailableEvent}
  */
 
 @Target(ElementType.TYPE)

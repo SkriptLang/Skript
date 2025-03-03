@@ -21,7 +21,7 @@ import ch.njol.util.coll.CollectionUtils;
 				"Attempting to change the yield to a value less than 0 will have no effect."})
 @Examples({"on explode:",
 			"set the explosion's block yield to 10%"})
-@AvailableEvent(EntityExplodeEvent.class)
+@AvailableEvents(EntityExplodeEvent.class)
 @Events("explosion")
 @Since("2.5")
 public class ExprExplosionBlockYield extends SimpleExpression<Number> {

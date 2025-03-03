@@ -20,7 +20,7 @@ import org.jetbrains.annotations.Nullable;
 @Description("The health of a creature, e.g. a player, mob, villager, etc. The minimum value is 0, and the maximum is the creature's max health (e.g. 10 for players).")
 @Examples({"message \"You have %health% HP left.\""})
 @Since("1.0")
-@AvailableEvent(EntityDamageEvent.class)
+@AvailableEvents(EntityDamageEvent.class)
 @Events("damage")
 public class ExprHealth extends PropertyExpression<LivingEntity, Number> {
 	

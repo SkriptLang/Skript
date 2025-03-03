@@ -21,7 +21,7 @@ import ch.njol.skript.expressions.base.SimplePropertyExpression;
 @Description("The level of a player.")
 @Examples({"reduce the victim's level by 1",
 		"set the player's level to 0"})
-@AvailableEvent(PlayerLevelChangeEvent.class)
+@AvailableEvents(PlayerLevelChangeEvent.class)
 @Events("level change")
 @Since("<i>unknown</i> (before 2.1)")
 public class ExprLevel extends SimplePropertyExpression<Player, Long> {

@@ -23,7 +23,7 @@ import ch.njol.util.coll.CollectionUtils;
 		"\tincrease the heal amount by 2",
 		"\tremove 0.5 from the healing amount"
 })
-@AvailableEvent(EntityRegainHealthEvent.class)
+@AvailableEvents(EntityRegainHealthEvent.class)
 @Events("heal")
 @Since("2.5.1")
 public class ExprHealAmount extends SimpleExpression<Double> {

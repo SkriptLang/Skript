@@ -21,7 +21,7 @@ import ch.njol.util.coll.CollectionUtils;
 				"This is number that was displayed in the enchantment table, not the actual number of levels removed."})
 @Examples({"on enchant:",
 			"\tsend \"Cost: %the displayed enchanting cost%\" to player"})
-@AvailableEvent(EnchantItemEvent.class)
+@AvailableEvents(EnchantItemEvent.class)
 @Events("enchant")
 @Since("2.5")
 public class ExprEnchantingExpCost extends SimpleExpression<Long> {

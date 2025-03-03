@@ -29,7 +29,7 @@ import ch.njol.util.Kleenean;
 		"\t\t\tmessage \"You're not allowed to use commands during the game\"",
 		"\t\t\tcancel the event"})
 @Since("2.0, 2.7 (support for script commands)")
-// FIXME
+// TODO REMOVE
 // 	Should this use CommandEvent or ScriptCommandEvent?
 @AvailableEvents({PlayerCommandPreprocessEvent.class, ServerCommandEvent.class, CommandEvent.class})
 @Events("command")

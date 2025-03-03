@@ -11,7 +11,7 @@ import ch.njol.skript.expressions.base.EventValueExpression;
 @Name("The Egg")
 @Description("The egg thrown in a Player Egg Throw event.")
 @Examples("spawn an egg at the egg")
-@AvailableEvent(PlayerEggThrowEvent.class)
+@AvailableEvents(PlayerEggThrowEvent.class)
 @Events("Egg Throw")
 @Since("2.7")
 public class ExprEgg extends EventValueExpression<Egg> {

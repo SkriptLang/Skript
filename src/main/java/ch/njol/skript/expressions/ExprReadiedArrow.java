@@ -20,7 +20,7 @@ import org.jetbrains.annotations.Nullable;
 		"\tif selected arrow is not a spectral arrow:",
 			"\t\tcancel event"
 })
-@AvailableEvent(PlayerReadyArrowEvent.class)
+@AvailableEvents(PlayerReadyArrowEvent.class)
 @Events("ready arrow")
 @Since("2.8.0")
 public class ExprReadiedArrow extends SimpleExpression<ItemStack> {

@@ -9,6 +9,7 @@ import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
+import com.destroystokyo.paper.event.brigadier.AsyncPlayerSendCommandsEvent;
 import com.google.common.collect.Lists;
 import org.bukkit.event.Event;
 import org.bukkit.event.player.PlayerCommandSendEvent;
@@ -30,7 +31,7 @@ import java.util.List;
 		"\tset command list to command list where [input does not contain \":\"]",
 		"\tremove \"help\" from command list"
 })
-@AvailableEvent(PlayerCommandSendEvent.class)
+@AvailableEvents(PlayerCommandSendEvent.class)
 @Events("send command list")
 @Since("2.8.0")
 public class ExprSentCommands extends SimpleExpression<String> {

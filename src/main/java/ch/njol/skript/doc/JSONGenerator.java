@@ -117,29 +117,14 @@ public class JSONGenerator extends DocumentationGenerator {
 			syntaxJsonObject.add("examples", null);
 		}
 
+		AvailableEvents availableEvents = syntaxClass.getAnnotation(AvailableEvents.class);
+		syntaxJsonObject.add("availableEvents", availableEvents == null ? null : convertToJsonArray(Arrays.stream(availableEvents.value()).map(Class::getSimpleName).toArray(String[]::new)));
+
 		Events events = syntaxClass.getAnnotation(Events.class);
 		syntaxJsonObject.add("events", events == null ? null : convertToJsonArray(events.value()));
 
 		RequiredPlugins requirements = syntaxClass.getAnnotation(RequiredPlugins.class);
 		syntaxJsonObject.add("requirements", requirements == null ? null : convertToJsonArray(requirements.value()));
-
-
-		if (syntaxClass.isAnnotationPresent(AvailableEvents.class)) {
-			@NotNull AvailableEvents availableEventsAnnotation = syntaxClass.getAnnotation(AvailableEvents.class);
-			syntaxJsonObject.add("availableEvents", convertToJsonArray(Arrays.stream(availableEventsAnnotation.value())
-				.map(Class::getSimpleName).toArray(String[]::new)));
-		} else if (syntaxClass.isAnnotationPresent(AvailableEvent.AvailableEvents.class)) {
-			@NotNull AvailableEvent.AvailableEvents availableEventsAnnotation = syntaxClass.getAnnotation(AvailableEvent.AvailableEvents.class);
-			syntaxJsonObject.add("availableEvents", convertToJsonArray(Arrays.stream(availableEventsAnnotation.value())
-				.map(AvailableEvent::value)
-				.map(Class::getSimpleName)
-				.toArray(String[]::new)));
-		} else if (syntaxClass.isAnnotationPresent(Example.class)) {
-			@NotNull AvailableEvent availableEvent = syntaxClass.getAnnotation(AvailableEvent.class);
-			syntaxJsonObject.add("availableEvents", convertToJsonArray(availableEvent.value().getSimpleName()));
-		} else {
-			syntaxJsonObject.add("availableEvents", null);
-		}
 
 		Keywords keywords = syntaxClass.getAnnotation(Keywords.class);
 		syntaxJsonObject.add("keywords", keywords == null ? null : convertToJsonArray(keywords.value()));

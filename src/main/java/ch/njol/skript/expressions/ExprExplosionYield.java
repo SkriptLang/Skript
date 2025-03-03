@@ -3,6 +3,7 @@ package ch.njol.skript.expressions;
 import ch.njol.skript.doc.*;
 import org.bukkit.event.Event;
 import org.bukkit.event.entity.ExplosionPrimeEvent;
+import org.checkerframework.checker.units.qual.A;
 import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.Skript;
@@ -21,7 +22,7 @@ import ch.njol.util.coll.CollectionUtils;
 				" Read <a href='https://minecraft.wiki/w/Explosion'>this wiki page</a> for more information"})
 @Examples({"on explosion prime:",
 		"\tset the yield of the explosion to 10"})
-@AvailableEvent(ExplosionPrimeEvent.class)
+@AvailableEvents(ExplosionPrimeEvent.class)
 @Events("explosion prime")
 @Since("2.5")
 public class ExprExplosionYield extends SimpleExpression<Number> {
