@@ -39,7 +39,7 @@ public class ExprKickMessage extends SimpleExpression<String> implements EventRe
 		if (event instanceof PlayerKickEvent playerKickEvent) {
 			return new String[] { playerKickEvent.getReason() };
 		}
-		return new String[0];
+		return null;
 	}
 
 	@Override
