@@ -39,7 +39,7 @@ import java.util.function.Predicate;
 		"but some values can also be compared using greater than/less than. In that case you can also test for whether an object is between two others.",
 		"Note: This is the only element where not all patterns are shown. It has actually another two sets of similar patters, " +
 				"but with <code>(was|were)</code> or <code>will be</code> instead of <code>(is|are)</code> respectively, " +
-				"which check different <a href='expressions.html#ExprTimeState'>time states</a> of the first expression."})
+				"which check different <a href='#ExprTimeState'>time states</a> of the first expression."})
 @Examples({"the clicked block is a stone slab or a double stone slab",
 		"time in the player's world is greater than 8:00",
 		"the creature is not an enderman or an ender dragon"})

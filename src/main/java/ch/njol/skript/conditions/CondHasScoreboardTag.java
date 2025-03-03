@@ -20,7 +20,7 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
 
 @Name("Has Scoreboard Tag")
-@Description("Checks whether the given entities has the given <a href='expressions.html#ExprScoreboardTags'>scoreboard tags</a>.")
+@Description("Checks whether the given entities has the given <a href='#ExprScoreboardTags'>scoreboard tags</a>.")
 @Examples("if the targeted armor stand has the scoreboard tag \"test tag\":")
 @Since("2.3")
 public class CondHasScoreboardTag extends Condition {

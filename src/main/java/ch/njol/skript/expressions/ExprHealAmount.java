@@ -21,7 +21,7 @@ import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
 
 @Name("Heal Amount")
-@Description("The amount of health healed in a <a href='/events.html#heal'>heal event</a>.")
+@Description("The amount of health healed in a <a href='/#heal'>heal event</a>.")
 @Examples({
 	"on player healing:",
 		"\tincrease the heal amount by 2",

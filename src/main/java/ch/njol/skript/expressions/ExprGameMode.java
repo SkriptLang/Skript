@@ -24,7 +24,7 @@ import org.jetbrains.annotations.Nullable;
  * @author Peter Güttinger
  */
 @Name("Game Mode")
-@Description("The gamemode of a player. (<a href=\"classes.html#gamemode\">Gamemodes</a>)")
+@Description("The gamemode of a player. (<a href=\"#gamemode\">Gamemodes</a>)")
 @Examples({"player's gamemode is survival",
 		"set the player's gamemode to creative"})
 @Since("1.0")

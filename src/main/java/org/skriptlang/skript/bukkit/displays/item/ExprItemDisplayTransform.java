@@ -14,7 +14,7 @@ import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
 @Name("Item Display Transform")
-@Description("Returns or changes the <a href='classes.html#itemdisplaytransform'>item display transform</a> of <a href='classes.html#display'>item displays</a>.")
+@Description("Returns or changes the <a href='#itemdisplaytransform'>item display transform</a> of <a href='#display'>item displays</a>.")
 @Examples({
 	"set the item transform of the last spawned item display to first person left handed",
 	"set the item transform of the last spawned item display to no transform # Reset to default"

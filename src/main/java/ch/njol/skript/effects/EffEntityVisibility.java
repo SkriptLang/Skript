@@ -19,7 +19,7 @@ import org.jetbrains.annotations.UnknownNullability;
 	"Change visibility of the given entities for the given players.",
 	"If no players are given, will hide the entities from all online players.",
 	"",
-	"When reveal is used in combination of the <a href='expressions.html#ExprHiddenPlayers'>hidden players</a> " +
+	"When reveal is used in combination of the <a href='#ExprHiddenPlayers'>hidden players</a> " +
 	"expression and the viewers are not specified, " +
 	"this will default it to the given player in the hidden players expression.",
 	"",

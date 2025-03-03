@@ -14,7 +14,7 @@ public class EvtLevel extends SkriptEvent {
 	
 	static {
 		Skript.registerEvent("Level Change", EvtLevel.class, PlayerLevelChangeEvent.class, "[player] level (change|1¦up|-1¦down)")
-			.description("Called when a player's <a href='expressions.html#ExprLevel'>level</a> changes, e.g. by gathering experience or by enchanting something.")
+			.description("Called when a player's <a href='#ExprLevel'>level</a> changes, e.g. by gathering experience or by enchanting something.")
 			.examples("on level change:")
 			.since("1.0, 2.4 (level up/down)");
 	}
