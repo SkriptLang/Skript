@@ -5,7 +5,7 @@ import org.bukkit.event.Event;
 import java.lang.annotation.*;
 
 /**
- * Provides a list of {@link org.bukkit.event.Event} that the syntax element can be used in.
+ * Provides a list of {@link org.bukkit.event.Event}s that this syntax element can be used in.
  */
 
 @Target(ElementType.TYPE)
