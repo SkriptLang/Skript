@@ -1,5 +1,6 @@
 package ch.njol.skript.expressions;
 
+import ch.njol.skript.doc.*;
 import org.bukkit.event.Event;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.player.PlayerItemDamageEvent;
@@ -9,11 +10,6 @@ import org.jetbrains.annotations.Nullable;
 import ch.njol.skript.Skript;
 import ch.njol.skript.bukkitutil.HealthUtils;
 import ch.njol.skript.classes.Changer.ChangeMode;
-import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Events;
-import ch.njol.skript.doc.Examples;
-import ch.njol.skript.doc.Name;
-import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
@@ -36,6 +32,7 @@ import ch.njol.util.coll.CollectionUtils;
 		"\tincrease the damage by 2"
 })
 @Since("1.3.5, 2.8.0 (item damage event)")
+@AvailableEvents({EntityDamageEvent.class, VehicleDamageEvent.class, PlayerItemDamageEvent.class})
 @Events({"Damage", "Vehicle Damage", "Item Damage"})
 public class ExprDamage extends SimpleExpression<Number> {
 	

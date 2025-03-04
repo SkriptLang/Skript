@@ -1,6 +1,7 @@
 
 package ch.njol.skript.expressions;
 
+import ch.njol.skript.doc.*;
 import org.bukkit.event.Event;
 import org.bukkit.event.entity.EntityRegainHealthEvent;
 import org.jetbrains.annotations.Nullable;
@@ -8,11 +9,6 @@ import org.jetbrains.annotations.Nullable;
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer;
 import ch.njol.skript.classes.Changer.ChangeMode;
-import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Events;
-import ch.njol.skript.doc.Examples;
-import ch.njol.skript.doc.Name;
-import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
@@ -27,6 +23,7 @@ import ch.njol.util.coll.CollectionUtils;
 		"\tincrease the heal amount by 2",
 		"\tremove 0.5 from the healing amount"
 })
+@AvailableEvents(EntityRegainHealthEvent.class)
 @Events("heal")
 @Since("2.5.1")
 public class ExprHealAmount extends SimpleExpression<Double> {

@@ -117,6 +117,9 @@ public class JSONGenerator extends DocumentationGenerator {
 			syntaxJsonObject.add("examples", null);
 		}
 
+		AvailableEvents availableEvents = syntaxClass.getAnnotation(AvailableEvents.class);
+		syntaxJsonObject.add("availableEvents", availableEvents == null ? null : convertToJsonArray(Arrays.stream(availableEvents.value()).map(Class::getSimpleName).toArray(String[]::new)));
+
 		Events events = syntaxClass.getAnnotation(Events.class);
 		syntaxJsonObject.add("events", events == null ? null : convertToJsonArray(events.value()));
 
