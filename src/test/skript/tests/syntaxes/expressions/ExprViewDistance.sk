@@ -1,0 +1,38 @@
+###
+	Includes ExprSimulationDistance
+	Because it relies on view distance to be accurate
+###
+
+test "view distance" when running minecraft "1.21":
+	set the view distance of world "world" to 5
+	assert the view distance of world "world" is 5 with "World View Distance was not set"
+	set the simulation distance of world "world" to 5
+	assert the simulation distance of world "world" is 5 with "World Simulation Distance was not set"
+
+	add 10 to the view distance of world "world"
+	assert the view distance of world "world" is 15 with "World View Distance did not have 10 added"
+	add 10 to the simulation distance of world "world"
+	assert the simulation distance of world "world" is 15 with "World Simulation Distance did not have 10 added"
+
+	remove 5 from the simulation distance of world "world"
+	assert the simulation distance of world "world" is 10 with "World Simulation Distance did not have 5 removed"
+	remove 5 from the view distance of world "world"
+	assert the view distance of world "world" is 10 with "World View Distance did not have 5 removed"
+
+	clear the view distance of world "world"
+	assert the view distance of world "world" is 2 with "World View Distance was not cleared"
+	clear the simulation distance of world "world"
+	assert the simulation distance of world "world" is 2 with "World Simulation Distance was not cleared"
+
+	add 10000 to the view distance of world "world"
+	assert the view distance of world "world" is 32 with "World View Distance should be capped at 32 maximum"
+	add 10000 to the simulation distance of world "world"
+	assert the simulation distance of world "world" is 32 with "World Simulation Distance should be capped at 32 maximum"
+
+	remove 10000 from the view distance of world "world"
+	assert the view distance of world "world" is 2 with "World View Distance should be capped at 2 minimum"
+	remove 10000 from the simulation distance of world "world"
+	assert the simulation distance of world "world" is 2 with "World Simulation Distance should be capped at 2 minimum"
+
+	reset the view distance of world "world"
+	reset the simulation distance of world "world"
