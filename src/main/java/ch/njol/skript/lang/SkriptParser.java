@@ -249,6 +249,10 @@ public class SkriptParser {
 									continue;
 								}
 							}
+							if (element instanceof ExperimentalSyntax experimentalSyntax) {
+								if (!experimentalSyntax.isSatisfiedBy(getParser().getExperimentSet()))
+									continue;
+							}
 
 							boolean success = element.init(parseResult.exprs, patternIndex, getParser().getHasDelayBefore(), parseResult);
 							if (success) {
