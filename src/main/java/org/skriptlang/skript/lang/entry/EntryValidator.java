@@ -38,8 +38,7 @@ public class EntryValidator {
 
 	private final List<EntryData<?>> entryData;
 
-	@Nullable
-	private final Predicate<Node> unexpectedNodeTester;
+	private final @Nullable Predicate<Node> unexpectedNodeTester;
 
 	private final Function<String, String> unexpectedEntryMessage, missingRequiredEntryMessage;
 
@@ -71,8 +70,7 @@ public class EntryValidator {
 	 *         The returned map uses the matched entry data's key as a key and uses a pair containing the entry data and matching node
 	 *         Will return null if the provided node couldn't be validated.
 	 */
-	@Nullable
-	public EntryContainer validate(SectionNode sectionNode) {
+	public @Nullable EntryContainer validate(SectionNode sectionNode) {
 		List<EntryData<?>> entries = new ArrayList<>(entryData);
 		Map<String, Node> handledNodes = new HashMap<>();
 		List<Node> unhandledNodes = new ArrayList<>();
@@ -132,11 +130,9 @@ public class EntryValidator {
 		private final List<EntryData<?>> entryData = new ArrayList<>();
 		private String entrySeparator = DEFAULT_ENTRY_SEPARATOR;
 
-		@Nullable
-		private Predicate<Node> unexpectedNodeTester;
+		private @Nullable Predicate<Node> unexpectedNodeTester;
 
-		@Nullable
-		private Function<String, String> unexpectedEntryMessage, missingRequiredEntryMessage;
+		private @Nullable Function<String, String> unexpectedEntryMessage, missingRequiredEntryMessage;
 
 		/**
 		 * Updates the separator to be used when creating KeyValue entries. Please note
