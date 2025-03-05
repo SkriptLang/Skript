@@ -3,14 +3,11 @@ package ch.njol.skript.classes.data;
 import ch.njol.skript.Skript;
 import ch.njol.skript.expressions.base.EventValueExpression;
 import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.function.FunctionEvent;
-import ch.njol.skript.lang.function.Functions;
-import ch.njol.skript.lang.function.JavaFunction;
-import ch.njol.skript.lang.function.Parameter;
-import ch.njol.skript.lang.function.SimpleJavaFunction;
+import ch.njol.skript.lang.function.*;
 import ch.njol.skript.lang.util.SimpleLiteral;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.registrations.DefaultClasses;
+import ch.njol.skript.util.Date;
 import ch.njol.skript.util.*;
 import ch.njol.util.Math2;
 import ch.njol.util.StringUtils;
@@ -28,11 +25,9 @@ import org.joml.Vector3f;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.util.ArrayList;
 import java.text.DecimalFormat;
-import java.util.Calendar;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class DefaultFunctions {
 
@@ -721,6 +716,246 @@ public class DefaultFunctions {
 			.examples("uuid(\"069a79f4-44e9-4726-a5be-fca90e38aaf5\")")
 			.since("INSERT VERSION")
 		);
+
+		Functions.registerFunction(new SimpleJavaFunction<Number>("mean", new Parameter[]{
+			new Parameter<>("numbers", DefaultClasses.NUMBER, false, null)
+		}, DefaultClasses.NUMBER, true) {
+			@Override
+			public Number @Nullable [] executeSimple(Object[][] params) {
+				Double total = 0d;
+				int length = params[0].length;
+				for (int i = 0; i < length; i++) {
+					Number number = (Number) params[0][i];
+					if (Double.isInfinite(number.doubleValue()) || Double.isNaN(number.doubleValue()))
+						return null;
+					if (total.isInfinite() || total.isNaN())
+						return null;
+					total += number.doubleValue() / length;
+				}
+				return new Number[]{total};
+			}
+		})
+			.description(
+				"Get the mean (average) of a list of numbers.",
+				"You cannot get the mean of a set of numbers that includes infinity or NaN."
+			)
+			.examples(
+				"mean(1, 2, 3) = 2",
+				"mean(0, 5, 10) = 5",
+				"mean(13, 97, 376, 709) = 298.75"
+			)
+			.since("INSERT VERSION");
+
+		Functions.registerFunction(new SimpleJavaFunction<Number>("median", new Parameter[]{
+			new Parameter<>("numbers", DefaultClasses.NUMBER, false, null)
+		}, DefaultClasses.NUMBER, true) {
+			@Override
+			public Number @Nullable [] executeSimple(Object[][] params) {
+				AtomicBoolean invalid = new AtomicBoolean(false);
+				// median requires the numbers to be sorted from lowest to biggest
+				Number[] sorted = Arrays.stream(params[0])
+					.filter(object -> {
+						if (!(object instanceof Number number))
+							return false;
+						if (Double.isNaN(number.doubleValue())) {
+							invalid.set(true);
+							return false;
+						}
+						return true;
+					})
+					.map(object -> (Number) object)
+					.sorted(((o1, o2) -> {
+						Double n1 = o1.doubleValue();
+						Double n2 = o2.doubleValue();
+						return n1.compareTo(n2);
+					}))
+					.toArray(Number[]::new);
+				if (invalid.get())
+					return null;
+				int size = sorted.length;
+				// If the size of numbers provided is odd, we can just grab the middle number
+				if (size % 2 == 1)
+					return new Number[]{sorted[Math2.ceil(size /2)]};
+				// If not, we grab the rounded up and rounded down numbers, then get the average of those
+				int half = size / 2;
+				double first = (sorted[half - 1]).doubleValue();
+				double second = (sorted[half]).doubleValue();
+				double median = (first+second)/2;
+				return new Number[]{median};
+			}
+		})
+			.description(
+				"Get the middle value of a sorted list of numbers. "
+				+ "If the list has an even number of values, the median is the average of the two middle numbers.",
+				"You cannot get the median of a set of numbers that includes NaN."
+			)
+			.examples(
+				"median(1, 2, 3, 4, 5) = 3",
+				"median(1, 2, 3, 4, 5, 6) = 3.5",
+				"median(0, 123, 456, 789) = 289.5"
+			)
+			.since("INSERT VERSION");
+
+		Functions.registerFunction(new SimpleJavaFunction<>("factorial", new Parameter[]{
+			new Parameter<>("number", DefaultClasses.NUMBER, true, null)
+		}, DefaultClasses.NUMBER, true) {
+			@Override
+			public Number @Nullable [] executeSimple(Object[][] params) {
+				Double number = ((Number) params[0][0]).doubleValue();
+				if (number < 0) {
+					return null;
+				} else if (number <= 1) { // 0 and 1
+					return new Number[]{1};
+				} else if (number > 170) {
+					return new Number[]{Double.POSITIVE_INFINITY};
+				}
+				Double result = 1d;
+				for (double i = number; i > 1; i--) {
+					if (result.isInfinite() || result.isNaN())
+						break;
+					result *= i;
+				}
+				return new Number[]{result};
+			}
+		})
+			.description(
+				"Get the factorial of a number.",
+				"Getting the factorial of any number above 21 will return an approximation, not an exact value.",
+				"Any number after 170 will always return Infinity.",
+				"Should not be used to calculate permutations or combinations manually."
+			)
+			.examples(
+				"factorial(0) = 1",
+				"factorial(3) = 3*2*1 = 6",
+				"factorial(5) = 5*4*3*2*1 = 120",
+				"factorial(171) = Infinity"
+			)
+			.since("INSERT VERSION");
+
+		Functions.registerFunction(new SimpleJavaFunction<Number>("root", new Parameter[]{
+			new Parameter<>("n", DefaultClasses.NUMBER, true, null),
+			new Parameter<>("number", DefaultClasses.NUMBER, true, null)
+		}, DefaultClasses.NUMBER, true) {
+			@Override
+			public Number @Nullable [] executeSimple(Object[][] params) {
+				Double n = ((Number) params[0][0]).doubleValue();
+				Double number = ((Number) params[1][0]).doubleValue();
+				if (n == 0) {
+					return null;
+				} else if (n == 1) {
+					return new Number[]{number};
+				} else if (n == 2) {
+					return new Number[]{Math.sqrt(number)};
+				}
+				return new Number[]{Math.pow(number, (1 / n))};
+			}
+		})
+			.description("Calculates the <i>n</i>th root of a number.")
+			.examples(
+				"root(2, 4) = 2 # same as sqrt(4)",
+				"root(4, 16) = 2",
+				"root(-4, 16) = 0.5 # same as 16^(-1/4)"
+			)
+			.since("INSERT VERSION");
+
+		Functions.registerFunction(new SimpleJavaFunction<Number>("permutations", new Parameter[]{
+			new Parameter<>("options", DefaultClasses.NUMBER, true, null),
+			new Parameter<>("selected", DefaultClasses.NUMBER, true, null)
+		}, DefaultClasses.NUMBER, true) {
+			@Override
+			public Number @Nullable [] executeSimple(Object[][] params) {
+				Double options = ((Number) params[0][0]).doubleValue();
+				Double selected = ((Number) params[1][0]).doubleValue();
+				if (selected > options || selected < 0) { // Illegal argument
+					return null;
+				} else if (selected.equals(0d)) { // Will always be 1
+					return new Number[]{1};
+				} else if (selected.equals(1d)) { // Will always be the number from 'options'
+					return new Number[]{options};
+				}
+				// We can simplify this as there will always be a factorial that can cancel out
+				// Example: options = 10, selected = 2; 10!/(10-2)! = 10!/8!
+				// We can deduce that 10! = (10)(9)(8!) ; allowing the '8!' factorial to cancel out, leaving us with: (10)(9)
+				// Which allows us to start from 10 and go down to 10-2, but will never reach 8 as 'i' needs to be higher
+				Double result = 1d;
+				for (double i = options; i > options - selected; i--) {
+					if (result.isInfinite() || result.isNaN())
+						break;
+					result *= i;
+				}
+				return new Number[]{result};
+			}
+		})
+			.description(
+				"Get the number of possible ordered arrangements from 1 to 'options' with each arrangement having a size equal to 'selected'",
+				"For example, permutations with 3 options and an arrangement size of 1, returns 3: (1), (2), (3)",
+				"Permutations with 3 options and an arrangement size of 2 returns 6: (1, 2), (1, 3), (2, 1), (2, 3), (3, 1), (3, 2)",
+				"Note that the bigger the 'options' and lower the 'selected' may result in approximations or even infinity values.",
+				"Permutations differ from combinations in that permutations account for the arrangement of elements within the set, "
+					+ "whereas combinations focus on unique sets and ignore the order of elements.",
+				"Example: (1, 2) and (2, 1) are two distinct permutations because the positions of '1' and '2' are different, "
+					+ "but they represent a single combination since order doesn't matter in combinations."
+			)
+			.examples(
+				"permutations(10, 2) = 90",
+				"permutations(10, 4) = 5040",
+				"permutations(size of {some list::*}, 2)"
+			)
+			.since("INSERT VERSION");
+
+		Functions.registerFunction(new SimpleJavaFunction<Number>("combinations", new Parameter[]{
+				new Parameter<>("options", DefaultClasses.NUMBER, true, null),
+				new Parameter<>("selected", DefaultClasses.NUMBER, true, null)
+			}, DefaultClasses.NUMBER, true) {
+				@Override
+				public Number @Nullable [] executeSimple(Object[][] params) {
+					Double options = ((Number) params[0][0]).doubleValue();
+					Double selected = ((Number) params[1][0]).doubleValue();
+					if (selected > options || selected < 0) { // Illegal arguments
+						return null;
+					} else if (selected.equals(0d)) { // Will always return 1
+						return new Number[]{1};
+					} else if (selected.equals(1d)) { // Will always be the number from 'options'
+						return new Number[]{options};
+					}
+					// By the same reasoning from 'permutations' there will always be a factorial that can cancel out
+					// Example: options = 10, selected = 2 ; 10!/(10-2)!(2!) = 10!/(8!)(2!)
+					// 10! = (10)(9)(8!) ; the 8! cancel out, leaving us with: (10)(9)/2!
+					// 'top' will calculate the leftovers in the numerator: (10)(9)
+					Double top = 1d;
+					for (double i = options; i > options - selected; i--) {
+						if (top.isInfinite() || top.isNaN())
+							return new Number[]{top};
+						top *= i;
+					}
+					// 'bottom' will calculate the leftovers in the denominator: 2!
+					Double bottom = selected;
+					for (double i = selected - 1; i > 1; i--) {
+						if (bottom.isInfinite() || bottom.isNaN())
+							break;
+						bottom *= i;
+					}
+					// Then we divide
+					return new Number[]{top/bottom};
+				}
+			})
+			.description(
+				"Get the number of possible sets from 1 to 'options' with each set having a size equal to 'selected'",
+				"For example, a combination with 3 options and a set size of 1, returns 3: (1), (2), (3)",
+				"A combination of 3 options with a set size of 2 returns 3: (1, 2), (1, 3), (2, 3)",
+				"Note that the bigger the 'options' and lower the 'selected' may result in approximations or even infinity values.",
+				"Combinations differ from permutations in that combinations focus on unique sets, ignoring the order of elements, "
+					+ "whereas permutations account for the arrangement of elements within the set.",
+				"Example: (1, 2) and (2, 1) represent a single combination since order doesn't matter in combinations, "
+					+ "but they are two distinct permutations because permutations consider the order."
+			)
+			.examples(
+				"combinations(10, 8) = 45",
+				"combinations(5, 3) = 10",
+				"combinations(size of {some list::*}, 2)"
+			)
+			.since("INSERT VERSION");
+
 	}
 
 }
