@@ -17,6 +17,7 @@ import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.simplification.Simplifiable;
 
 import java.util.stream.Stream;
 
@@ -119,6 +120,13 @@ public class ExprEnchantmentLevel extends SimpleExpression<Long> {
 	@Override
 	public Class<? extends Long> getReturnType() {
 		return Long.class;
+	}
+
+	@Override
+	public Expression<Long> simplify(Step step, @Nullable Simplifiable<?> source) {
+		items = simplifyChild(items, step, source);
+		enchants = simplifyChild(enchants, step, source);
+		return this;
 	}
 
 	@Override

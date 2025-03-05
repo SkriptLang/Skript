@@ -15,6 +15,7 @@ import ch.njol.util.Kleenean;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.simplification.Simplifiable;
 
 @Name("Has Item Cooldown")
 @Description("Check whether a cooldown is active on the specified material for a specific player.")
@@ -53,7 +54,14 @@ public class CondHasItemCooldown extends Condition {
 				)
 		);
 	}
-	
+
+	@Override
+	public Condition simplify(Step step, @Nullable Simplifiable<?> source) {
+		players = simplifyChild(players, step, source);
+		itemtypes = simplifyChild(itemtypes, step, source);
+		return this;
+	}
+
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
 		return PropertyCondition.toString(this, PropertyType.HAVE, event, debug, players,

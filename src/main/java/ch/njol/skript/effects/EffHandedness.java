@@ -14,6 +14,7 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Mob;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.simplification.Simplifiable;
 
 @Name("Handedness")
 @Description("Make mobs left or right-handed. This does not affect players.")
@@ -49,6 +50,12 @@ public class EffHandedness extends Effect {
 				((Mob) livingEntity).setLeftHanded(leftHanded);
 			}
 		}
+	}
+
+	@Override
+	public Effect simplify(Step step, @Nullable Simplifiable<?> source) {
+		livingEntities = simplifyChild(livingEntities, step, source);
+		return this;
 	}
 
 	@Override

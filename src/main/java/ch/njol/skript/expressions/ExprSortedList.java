@@ -17,6 +17,7 @@ import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.comparator.Comparator;
 import org.skriptlang.skript.lang.comparator.Comparators;
 import org.skriptlang.skript.lang.comparator.Relation;
+import org.skriptlang.skript.lang.simplification.Simplifiable;
 
 import java.lang.reflect.Array;
 
@@ -30,7 +31,6 @@ public class ExprSortedList extends SimpleExpression<Object> {
 		Skript.registerExpression(ExprSortedList.class, Object.class, ExpressionType.COMBINED, "sorted %objects%");
 	}
 
-	@SuppressWarnings("NotNullFieldNotInitialized")
 	private Expression<?> list;
 
 	@SuppressWarnings("unused")
@@ -93,6 +93,12 @@ public class ExprSortedList extends SimpleExpression<Object> {
 	@Override
 	public Class<?> getReturnType() {
 		return list.getReturnType();
+	}
+
+	@Override
+	public Expression<Object> simplify(Step step, @Nullable Simplifiable<?> source) {
+		list = simplifyChild(list, step, source);
+		return this;
 	}
 
 	@Override

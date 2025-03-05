@@ -14,6 +14,7 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.util.Timespan;
 import ch.njol.util.Kleenean;
+import org.skriptlang.skript.lang.simplification.Simplifiable;
 
 @Name("Title - Send")
 @Description({
@@ -103,7 +104,19 @@ public class EffSendTitle extends Effect {
 				p.sendTitle(title, subtitle);
 		}
 	}
-	
+
+	@Override
+	public Effect simplify(Step step, @Nullable Simplifiable<?> source) {
+		//noinspection DuplicatedCode
+		title = simplifyChild(title, step, source);
+		subtitle = simplifyChild(subtitle, step, source);
+		recipients = simplifyChild(recipients, step, source);
+		stay = simplifyChild(stay, step, source);
+		fadeIn = simplifyChild(fadeIn, step, source);
+		fadeOut = simplifyChild(fadeOut, step, source);
+		return this;
+	}
+
 	// TODO: util method to simplify this
 	@Override
 	public String toString(final @Nullable Event e, final boolean debug) {

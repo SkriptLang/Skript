@@ -25,6 +25,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnknownNullability;
 import org.skriptlang.skript.lang.converter.Converters;
+import org.skriptlang.skript.lang.simplification.Simplifiable;
 
 import java.lang.reflect.Array;
 import java.util.Collections;
@@ -131,6 +132,13 @@ public class ExprTransform extends SimpleExpression<Object> implements InputSour
 	@Override
 	public Class<?> getReturnType() {
 		return mappingExpr.getReturnType();
+	}
+
+	@Override
+	public Expression<Object> simplify(Step step, @Nullable Simplifiable<?> source) {
+		mappingExpr = simplifyChild(mappingExpr, step, source);
+		unmappedObjects = simplifyChild(unmappedObjects, step, source);
+		return this;
 	}
 
 	@Override

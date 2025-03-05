@@ -14,6 +14,7 @@ import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.simplification.Simplifiable;
 
 import java.lang.reflect.Array;
 import java.util.Arrays;
@@ -30,7 +31,6 @@ public class ExprShuffledList extends SimpleExpression<Object> {
 		Skript.registerExpression(ExprShuffledList.class, Object.class, ExpressionType.COMBINED, "shuffled %objects%");
 	}
 
-	@SuppressWarnings("NotNullFieldNotInitialized")
 	private Expression<?> list;
 
 	@SuppressWarnings("unused")
@@ -80,6 +80,12 @@ public class ExprShuffledList extends SimpleExpression<Object> {
 	@Override
 	public boolean isSingle() {
 		return false;
+	}
+
+	@Override
+	public Expression<Object> simplify(Step step, @Nullable Simplifiable<?> source) {
+		list = simplifyChild(list, step, source);
+		return this;
 	}
 
 	@Override

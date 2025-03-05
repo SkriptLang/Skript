@@ -21,6 +21,7 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Mob;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.simplification.Simplifiable;
 
 @Name("Is Pathfinding")
 @Description({
@@ -76,6 +77,13 @@ public class CondIsPathfinding extends Condition {
 			LivingEntity entityTarget = (LivingEntity) target;
 			return location.distance(((Mob) entityTarget).getLocation()) < 1;
 		}, isNegated());
+	}
+
+	@Override
+	public Condition simplify(Step step, @Nullable Simplifiable<?> source) {
+		entities = simplifyChild(entities, step, source);
+		target = simplifyChild(target, step, source);
+		return this;
 	}
 
 	@Override

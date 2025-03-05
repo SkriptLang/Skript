@@ -1,12 +1,5 @@
 package ch.njol.skript.effects;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.regex.Pattern;
-
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
@@ -34,6 +27,10 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.event.Event;
 import org.bukkit.event.server.BroadcastMessageEvent;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.simplification.Simplifiable;
+
+import java.util.*;
+import java.util.regex.Pattern;
 
 @Name("Broadcast")
 @Description("Broadcasts a message to the server.")
@@ -104,6 +101,13 @@ public class EffBroadcast extends Effect {
 				}
 			}
 		}
+	}
+
+	@Override
+	public Effect simplify(Step step, @Nullable Simplifiable<?> source) {
+		messageExpr = simplifyChild(messageExpr, step, source);
+		worlds = simplifyChild(worlds, step, source);
+		return this;
 	}
 
 	@Override

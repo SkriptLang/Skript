@@ -19,7 +19,9 @@ import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.simplification.Simplifiable;
 
 /**
  * @author Peter Güttinger
@@ -86,7 +88,14 @@ public class ExprNamed extends PropertyExpression<Object, Object> {
 	public Class<?> getReturnType() {
 		return getExpr().getReturnType() == InventoryType.class ? Inventory.class : ItemType.class;
 	}
-	
+
+	@Override
+	public Expression<Object> simplify(@NotNull Step step, @Nullable Simplifiable<?> source) {
+		super.simplify(step, source);
+		name = simplifyChild(name, step, source);
+		return this;
+	}
+
 	@Override
 	public String toString(final @Nullable Event e, final boolean debug) {
 		return getExpr().toString(e, debug) + " named " + name;

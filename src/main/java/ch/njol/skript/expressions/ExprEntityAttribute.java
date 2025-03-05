@@ -17,7 +17,9 @@ import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.entity.Entity;
 import org.bukkit.event.Event;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.simplification.Simplifiable;
 
 import java.util.Objects;
 import java.util.stream.Stream;
@@ -108,6 +110,13 @@ public class ExprEntityAttribute extends PropertyExpression<Entity, Number> {
 	@Override
 	public Class<? extends Number> getReturnType() {
 		return Number.class;
+	}
+
+	@Override
+	public Expression<Number> simplify(@NotNull Step step, @Nullable Simplifiable<?> source) {
+		super.simplify(step, source);
+		attributes = simplifyChild(attributes, step, source);
+		return this;
 	}
 
 	@Override

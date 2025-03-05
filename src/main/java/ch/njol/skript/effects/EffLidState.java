@@ -13,6 +13,7 @@ import org.bukkit.block.Block;
 import org.bukkit.block.Lidded;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.simplification.Simplifiable;
 
 @Name("Open/Close Lid")
 @Description("Open or close the lid of the block(s).")
@@ -52,6 +53,12 @@ public class EffLidState extends Effect {
 				}
 			}
 		}
+	}
+
+	@Override
+	public Effect simplify(Step step, @Nullable Simplifiable<?> source) {
+		blocks = simplifyChild(blocks, step, source);
+		return this;
 	}
 
 	@Override

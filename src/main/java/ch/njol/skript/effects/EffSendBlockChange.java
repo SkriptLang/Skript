@@ -18,6 +18,7 @@ import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.util.Kleenean;
+import org.skriptlang.skript.lang.simplification.Simplifiable;
 
 @Name("Send Block Change")
 @Description("Makes a player see a block as something it really isn't. BlockData support is only for MC 1.13+")
@@ -85,6 +86,14 @@ public class EffSendBlockChange extends Effect {
 				}
 			}
 		}
+	}
+
+	@Override
+	public Effect simplify(Step step, @Nullable Simplifiable<?> source) {
+		players = simplifyChild(players, step, source);
+		blocks = simplifyChild(blocks, step, source);
+		as = simplifyChild(as, step, source);
+		return this;
 	}
 
 	@Override

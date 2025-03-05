@@ -20,6 +20,7 @@ import org.bukkit.event.Event;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.simplification.Simplifiable;
 
 import java.io.StreamCorruptedException;
 import java.lang.reflect.Field;
@@ -357,8 +358,12 @@ public class Direction implements YggdrasilRobustSerializable {
 		}
 	}
 	
-	public static Expression<Location> combine(final Expression<? extends Direction> dirs, final Expression<? extends Location> locs) {
-		return new SimpleExpression<Location>() {
+	public static Expression<Location> combine(final Expression<? extends Direction> sourceDirs, final Expression<? extends Location> sourceLocs) {
+		return new SimpleExpression<>() {
+
+			private Expression<? extends Direction> dirs = sourceDirs;
+			private Expression<? extends Location> locs = sourceLocs;
+
 			@SuppressWarnings("null")
 			@Override
 			protected Location[] get(final Event e) {
@@ -373,7 +378,7 @@ public class Direction implements YggdrasilRobustSerializable {
 				}
 				return r;
 			}
-			
+
 			@SuppressWarnings("null")
 			@Override
 			public Location[] getAll(final Event e) {
@@ -388,39 +393,44 @@ public class Direction implements YggdrasilRobustSerializable {
 				}
 				return r;
 			}
-			
+
 			@Override
 			public boolean getAnd() {
 //				return (dirs.isSingle() || dirs.getAnd()) && (locs.isSingle() || locs.getAnd());
 				return locs.getAnd();
 			}
-			
+
 			@Override
 			public boolean isSingle() {
 //				return dirs.isSingle() && locs.isSingle();
 				return locs.isSingle();
 			}
-			
+
 			@Override
 			public Class<? extends Location> getReturnType() {
 				return Location.class;
 			}
-			
+
 			@Override
 			public boolean init(final Expression<?>[] exprs, final int matchedPattern, final Kleenean isDelayed, final ParseResult parseResult) {
 				throw new UnsupportedOperationException();
 			}
-			
+
 			@Override
 			public String toString(final @Nullable Event e, final boolean debug) {
 				return dirs.toString(e, debug) + " " + locs.toString(e, debug);
 			}
-			
+
 			@Override
-			public Expression<? extends Location> simplify() {
-				if (dirs instanceof Literal && dirs.isSingle() && Direction.ZERO.equals(((Literal<?>) dirs).getSingle())) {
-					return locs;
+			public Expression<Location> simplify(Step step, @Nullable Simplifiable<?> source) {
+				dirs = simplifyChild(dirs, step, source);
+				locs = simplifyChild(locs, step, source);
+				if (dirs instanceof Literal<?> literalDirs && dirs.isSingle() && Direction.ZERO.equals(literalDirs.getSingle())) {
+					//noinspection unchecked
+					return (Expression<Location>) locs;
 				}
+				if (dirs instanceof Literal<?> literalDirs && locs instanceof Literal<?> literalLocs)
+					return getAsSimplifiedLiteral();
 				return this;
 			}
 		};

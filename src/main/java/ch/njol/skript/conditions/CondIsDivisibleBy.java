@@ -11,6 +11,7 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.simplification.Simplifiable;
 
 @Name("Is Evenly Divisible By")
 @Description("Check if a number is evenly divisible by another number.")
@@ -48,6 +49,13 @@ public class CondIsDivisibleBy extends Condition {
 			return isNegated();
 		double divisor = divisorNumber.doubleValue();
 		return dividend.check(event, dividendNumber -> (dividendNumber.doubleValue() % divisor == 0), isNegated());
+	}
+
+	@Override
+	public Condition simplify(Step step, @Nullable Simplifiable<?> source) {
+		dividend = simplifyChild(dividend, step, source);
+		divisor = simplifyChild(divisor, step, source);
+		return this;
 	}
 
 	@Override

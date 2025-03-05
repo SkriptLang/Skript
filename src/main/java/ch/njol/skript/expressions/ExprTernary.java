@@ -10,13 +10,13 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.lang.util.SimpleExpression;
-import org.skriptlang.skript.lang.converter.Converters;
 import ch.njol.skript.util.LiteralUtils;
 import ch.njol.skript.util.Utils;
 import ch.njol.util.Kleenean;
-import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.converter.Converters;
+import org.skriptlang.skript.lang.simplification.Simplifiable;
 
 import java.lang.reflect.Array;
 
@@ -101,6 +101,14 @@ public class ExprTernary<T> extends SimpleExpression<T> {
 	@Override
 	public boolean isSingle() {
 		return ifTrue.isSingle() && ifFalse.isSingle();
+	}
+
+	@Override
+	public Expression<T> simplify(Step step, @Nullable Simplifiable<?> source) {
+		ifTrue = simplifyChild(ifTrue, step, source);
+		ifFalse = simplifyChild(ifFalse, step, source);
+		// todo: simplify condition
+		return this;
 	}
 
 	@Override

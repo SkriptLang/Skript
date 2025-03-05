@@ -24,6 +24,7 @@ import org.skriptlang.skript.lang.arithmetic.Operation;
 import org.skriptlang.skript.lang.arithmetic.OperationInfo;
 import org.skriptlang.skript.lang.arithmetic.Operator;
 import org.skriptlang.skript.lang.converter.Converters;
+import org.skriptlang.skript.lang.simplification.Simplifiable;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
@@ -159,6 +160,13 @@ public class ExprMetadata<T> extends SimpleExpression<T> {
 	@Override
 	public Expression<?> getSource() {
 		return source == null ? this : source;
+	}
+
+	@Override
+	public Expression<T> simplify(Step step, @Nullable Simplifiable<?> source) {
+		keys = simplifyChild(keys, step, source);
+		holders = simplifyChild(holders, step, source);
+		return this;
 	}
 
 	@Override

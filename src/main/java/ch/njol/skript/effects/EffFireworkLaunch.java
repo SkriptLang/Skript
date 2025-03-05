@@ -18,6 +18,7 @@ import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
+import org.skriptlang.skript.lang.simplification.Simplifiable;
 
 @Name("Launch firework")
 @Description("Launch firework effects at the given location(s).")
@@ -32,11 +33,8 @@ public class EffFireworkLaunch extends Effect {
 	@Nullable
 	public static Entity lastSpawned = null;
 
-	@SuppressWarnings("NotNullFieldNotInitialized")
 	private Expression<FireworkEffect> effects;
-	@SuppressWarnings("NotNullFieldNotInitialized")
 	private Expression<Location> locations;
-	@SuppressWarnings("NotNullFieldNotInitialized")
 	private Expression<Number> lifetime;
 	
 	@Override
@@ -65,7 +63,15 @@ public class EffFireworkLaunch extends Effect {
 			lastSpawned = firework;
 		}
 	}
-	
+
+	@Override
+	public Effect simplify(Step step, @Nullable Simplifiable<?> source) {
+		effects = simplifyChild(effects, step, source);
+		locations = simplifyChild(locations, step, source);
+		lifetime = simplifyChild(lifetime, step, source);
+		return this;
+	}
+
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
 		return "Launch firework(s) " + effects.toString(event, debug) +

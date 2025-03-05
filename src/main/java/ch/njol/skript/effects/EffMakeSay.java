@@ -12,6 +12,7 @@ import ch.njol.util.Kleenean;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.simplification.Simplifiable;
 
 @Name("Make Say")
 @Description("Forces a player to send a message to the chat. If the message starts with a slash it will force the player to use command.")
@@ -46,6 +47,13 @@ public class EffMakeSay extends Effect {
 				player.chat(message);
 			}
 		}
+	}
+
+	@Override
+	public Effect simplify(Step step, @Nullable Simplifiable<?> source) {
+		players = simplifyChild(players, step, source);
+		messages = simplifyChild(messages, step, source);
+		return this;
 	}
 
 	@Override

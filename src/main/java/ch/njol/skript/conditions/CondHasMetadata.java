@@ -14,6 +14,7 @@ import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.bukkit.metadata.Metadatable;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.simplification.Simplifiable;
 
 @Name("Has Metadata")
 @Description("Checks whether a metadata holder has a metadata tag.")
@@ -47,6 +48,13 @@ public class CondHasMetadata extends Condition {
 				holder -> values.check(e,
 						holder::hasMetadata
 				), isNegated());
+	}
+
+	@Override
+	public Condition simplify(Step step, @Nullable Simplifiable<?> source) {
+		holders = simplifyChild(holders, step, source);
+		values = simplifyChild(values, step, source);
+		return this;
 	}
 
 	@Override

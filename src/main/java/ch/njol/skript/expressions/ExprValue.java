@@ -19,6 +19,7 @@ import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.simplification.Simplifiable;
 
 import java.lang.reflect.Array;
 
@@ -149,6 +150,13 @@ public class ExprValue extends SimplePropertyExpression<Object, Object> {
 	@Override
 	protected String getPropertyName() {
 		return classInfo.getCodeName() + " value" + (isSingle ? "" : "s");
+	}
+
+	@Override
+	public Expression<Object> simplify(@NotNull Step step, @Nullable Simplifiable<?> source) {
+		super.simplify(step, source);
+		pathExpression = simplifyChild(pathExpression, step, source);
+		return this;
 	}
 
 	@Override

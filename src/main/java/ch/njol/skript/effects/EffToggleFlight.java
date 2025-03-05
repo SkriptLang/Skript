@@ -13,6 +13,7 @@ import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
+import org.skriptlang.skript.lang.simplification.Simplifiable;
 
 @Name("Toggle Flight")
 @Description("Toggle the <a href='expressions.html#ExprFlightMode'>flight mode</a> of a player.")
@@ -43,6 +44,12 @@ public class EffToggleFlight extends Effect {
 	protected void execute(final Event e) {
 		for (Player player : players.getArray(e))
 			player.setAllowFlight(allow);
+	}
+
+	@Override
+	public Effect simplify(Step step, @Nullable Simplifiable<?> source) {
+		players = simplifyChild(players, step, source);
+		return this;
 	}
 
 	@Override

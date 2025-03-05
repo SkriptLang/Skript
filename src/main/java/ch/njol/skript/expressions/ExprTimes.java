@@ -17,6 +17,7 @@ import ch.njol.util.Kleenean;
 import com.google.common.collect.Iterators;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.simplification.Simplifiable;
 
 import java.util.Iterator;
 import java.util.stream.LongStream;
@@ -101,6 +102,15 @@ public class ExprTimes extends SimpleExpression<Long> {
 	@Override
 	public Class<? extends Long> getReturnType() {
 		return Long.class;
+	}
+
+	@Override
+	public Expression<Long> simplify(Step step, @Nullable Simplifiable<?> source) {
+		end = simplifyChild(end, step, source);
+		// todo: iterator literal
+		if (end instanceof Literal<Number>)
+			return getAsSimplifiedLiteral();
+		return this;
 	}
 
 	@Override

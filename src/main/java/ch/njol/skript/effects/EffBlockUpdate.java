@@ -14,6 +14,7 @@ import org.bukkit.block.data.BlockData;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.simplification.Simplifiable;
 
 @Name("Update Block")
 @Description({
@@ -56,6 +57,13 @@ public class EffBlockUpdate extends Effect {
 		for (Block block : this.blocks.getArray(event)) {
 			block.setBlockData(data, this.physics);
 		}
+	}
+
+	@Override
+	public Effect simplify(Step step, @Nullable Simplifiable<?> source) {
+		blocks = simplifyChild(blocks, step, source);
+		blockData = simplifyChild(blockData, step, source);
+		return this;
 	}
 
 	@Override

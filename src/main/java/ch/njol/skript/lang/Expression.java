@@ -16,6 +16,7 @@ import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.converter.Converter;
+import org.skriptlang.skript.lang.simplification.Simplifiable;
 
 import java.util.*;
 import java.util.function.Function;
@@ -30,7 +31,7 @@ import java.util.stream.StreamSupport;
  * @see SimpleExpression
  * @see SyntaxElement
  */
-public interface Expression<T> extends SyntaxElement, Debuggable, Loopable<T> {
+public interface Expression<T> extends SyntaxElement, Debuggable, Loopable<T>, Simplifiable<Expression<T>> {
 
 	/**
 	 * Get the single value of this expression.
@@ -246,17 +247,10 @@ public interface Expression<T> extends SyntaxElement, Debuggable, Loopable<T> {
 	 */
 	Expression<?> getSource();
 
-	/**
-	 * Simplifies the expression, e.g. if it only contains literals the expression may be simplified to a literal, and wrapped expressions are unwrapped.
-	 * <p>
-	 * After this method was used the toString methods are likely not useful anymore.
-	 * <p>
-	 * This method is not yet used but will be used to improve efficiency in the future.
-	 *
-	 * @return A reference to a simpler version of this expression. Can change this expression directly and return itself if applicable, i.e. no references to the expression before
-	 *         this method call should be kept!
-	 */
-	Expression<? extends T> simplify();
+	@Override
+	default Expression<T> simplify(Step step, @Nullable Simplifiable<?> source) {
+		return this;
+	}
 
 	/**
 	 * Tests whether this expression supports the given mode, and if yes what type it expects the <code>delta</code> to be.

@@ -2,19 +2,19 @@ package ch.njol.skript.conditions;
 
 import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.Skript;
-import ch.njol.skript.SkriptCommand;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Condition;
 import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.parser.ParserInstance;
-import org.skriptlang.skript.lang.script.Script;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.skript.lang.parser.ParserInstance;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.script.Script;
+import org.skriptlang.skript.lang.simplification.Simplifiable;
 
 import java.io.File;
 
@@ -66,6 +66,12 @@ public class CondScriptLoaded extends Condition {
 			File scriptFile = ScriptLoader.getScriptFromName(scriptName);
 			return scriptFile != null && ScriptLoader.getLoadedScripts().contains(ScriptLoader.getScript(scriptFile));
 		}, isNegated());
+	}
+
+	@Override
+	public Condition simplify(Step step, @Nullable Simplifiable<?> source) {
+		scripts = simplifyChild(scripts, step, source);
+		return this;
 	}
 
 	@Override

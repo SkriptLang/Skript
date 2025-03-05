@@ -12,6 +12,7 @@ import ch.njol.util.Kleenean;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.simplification.Simplifiable;
 
 @Name("Make Invisible")
 @Description({
@@ -44,6 +45,12 @@ public class EffInvisible extends Effect {
 	protected void execute(Event event) {
 		for (LivingEntity entity : livingEntities.getArray(event))
 			entity.setInvisible(invisible);
+	}
+
+	@Override
+	public Effect simplify(Step step, @Nullable Simplifiable<?> source) {
+		livingEntities = simplifyChild(livingEntities, step, source);
+		return this;
 	}
 
 	@Override

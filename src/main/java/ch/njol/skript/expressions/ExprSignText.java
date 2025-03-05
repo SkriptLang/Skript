@@ -1,17 +1,6 @@
 package ch.njol.skript.expressions;
 
-import ch.njol.skript.bukkitutil.ItemUtils;
-import org.bukkit.Material;
-import org.bukkit.block.Block;
-import org.bukkit.block.BlockState;
-import org.bukkit.block.Sign;
-import org.bukkit.event.Event;
-import org.bukkit.event.block.SignChangeEvent;
-import org.jetbrains.annotations.Nullable;
-
 import ch.njol.skript.Skript;
-import ch.njol.skript.aliases.Aliases;
-import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
@@ -24,6 +13,13 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.lang.util.SimpleLiteral;
 import ch.njol.util.Kleenean;
+import org.bukkit.block.Block;
+import org.bukkit.block.BlockState;
+import org.bukkit.block.Sign;
+import org.bukkit.event.Event;
+import org.bukkit.event.block.SignChangeEvent;
+import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.simplification.Simplifiable;
 
 /**
  * @author Peter Güttinger
@@ -85,11 +81,6 @@ public class ExprSignText extends SimpleExpression<String> {
 		if (!(b.getState() instanceof Sign))
 			return new String[0];
 		return new String[] {((Sign) b.getState()).getLine(line)};
-	}
-	
-	@Override
-	public String toString(final @Nullable Event e, final boolean debug) {
-		return "line " + line.toString(e, debug) + " of " + block.toString(e, debug);
 	}
 	
 	// TODO allow add, remove, and remove all (see ExprLore)
@@ -155,6 +146,18 @@ public class ExprSignText extends SimpleExpression<String> {
 	@Override
 	public boolean setTime(final int time) {
 		return super.setTime(time, SignChangeEvent.class, block);
+	}
+
+	@Override
+	public Expression<String> simplify(Step step, @Nullable Simplifiable<?> source) {
+		line = simplifyChild(line, step, source);
+		block = simplifyChild(block, step, source);
+		return this;
+	}
+
+	@Override
+	public String toString(final @Nullable Event e, final boolean debug) {
+		return "line " + line.toString(e, debug) + " of " + block.toString(e, debug);
 	}
 	
 }

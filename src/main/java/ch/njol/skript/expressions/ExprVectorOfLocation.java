@@ -1,5 +1,6 @@
 package ch.njol.skript.expressions;
 
+import ch.njol.skript.lang.Literal;
 import org.bukkit.Location;
 import org.bukkit.event.Event;
 import org.bukkit.util.Vector;
@@ -16,6 +17,7 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
+import org.skriptlang.skript.lang.simplification.Simplifiable;
 
 @Name("Vectors - Vector from Location")
 @Description("Creates a vector from a location.")
@@ -56,6 +58,14 @@ public class ExprVectorOfLocation extends SimpleExpression<Vector> {
 	@Override
 	public Class<? extends Vector> getReturnType() {
 		return Vector.class;
+	}
+
+	@Override
+	public Expression<Vector> simplify(Step step, @Nullable Simplifiable<?> source) {
+		location = simplifyChild(location, step, source);
+		if (location instanceof Literal<Location>)
+			return getAsSimplifiedLiteral();
+		return this;
 	}
 
 	@Override

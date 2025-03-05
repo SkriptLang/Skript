@@ -14,6 +14,7 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.util.Utils;
 import ch.njol.util.Kleenean;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.simplification.Simplifiable;
 
 @Name("Connect")
 @Description({
@@ -104,6 +105,14 @@ public class EffConnect extends Effect {
 					}
 				});
 		}
+	}
+
+	@Override
+	public Effect simplify(Step step, @Nullable Simplifiable<?> source) {
+		players = simplifyChild(players, step, source);
+		server = simplifyChild(server, step, source);
+		port = simplifyChild(port, step, source);
+		return this;
 	}
 
 	@Override

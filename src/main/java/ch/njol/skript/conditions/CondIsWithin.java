@@ -20,6 +20,7 @@ import org.bukkit.event.Event;
 import org.bukkit.util.BoundingBox;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.simplification.Simplifiable;
 
 @Name("Is Within")
 @Description({
@@ -127,6 +128,15 @@ public class CondIsWithin extends Condition {
 
 		// fall-back
 		return false;
+	}
+
+	@Override
+	public Condition simplify(Step step, @Nullable Simplifiable<?> source) {
+		locsToCheck = simplifyChild(locsToCheck, step, source);
+		loc1 = simplifyChild(loc1, step, source);
+		loc2 = simplifyChild(loc2, step, source);
+		area = simplifyChild(area, step, source);
+		return this;
 	}
 
 	@Override

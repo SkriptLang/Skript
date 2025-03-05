@@ -19,6 +19,7 @@ import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.simplification.Simplifiable;
 
 import java.util.Arrays;
 
@@ -38,10 +39,8 @@ public class CondIsWearing extends Condition {
 	static {
 		PropertyCondition.register(CondIsWearing.class, "wearing %itemtypes%", "livingentities");
 	}
-	
-	@SuppressWarnings("NotNullFieldNotInitialized")
+
 	private Expression<LivingEntity> entities;
-	@SuppressWarnings("NotNullFieldNotInitialized")
 	private Expression<ItemType> types;
 	
 	@SuppressWarnings({"unchecked", "null"})
@@ -89,6 +88,13 @@ public class CondIsWearing extends Condition {
 				return type.isAll();
 			}, false, false);
 		}, isNegated());
+	}
+
+	@Override
+	public Condition simplify(Step step, @Nullable Simplifiable<?> source) {
+		entities = simplifyChild(entities, step, source);
+		types = simplifyChild(types, step, source);
+		return this;
 	}
 
 	@Override

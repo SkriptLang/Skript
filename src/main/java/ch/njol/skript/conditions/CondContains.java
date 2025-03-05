@@ -21,6 +21,7 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.skriptlang.skript.lang.converter.Converters;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.simplification.Simplifiable;
 
 import java.util.Arrays;
 import java.util.Objects;
@@ -154,6 +155,13 @@ public class CondContains extends Condition {
 				}, isNegated());
 			}
 		};
+	}
+
+	@Override
+	public Condition simplify(Step step, @Nullable Simplifiable<?> source) {
+		containers = simplifyChild(containers, step, source);
+		items = simplifyChild(items, step, source);
+		return this;
 	}
 
 	@Override

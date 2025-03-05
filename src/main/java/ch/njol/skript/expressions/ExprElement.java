@@ -20,6 +20,7 @@ import com.google.common.collect.Iterators;
 import org.apache.commons.lang.ArrayUtils;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.simplification.Simplifiable;
 import org.skriptlang.skript.lang.util.SkriptQueue;
 
 import java.lang.reflect.Array;
@@ -235,6 +236,14 @@ public class ExprElement<T> extends SimpleExpression<T> {
 		if (queue)
 			return (Class<? extends T>) Object.class;
 		return expr.getReturnType();
+	}
+
+	@Override
+	public Expression<T> simplify(Step step, @Nullable Simplifiable<?> source) {
+		expr = simplifyChild(expr, step, source);
+		startIndex = simplifyChild(startIndex, step, source);
+		endIndex = simplifyChild(endIndex, step, source);
+		return this;
 	}
 
 	@Override

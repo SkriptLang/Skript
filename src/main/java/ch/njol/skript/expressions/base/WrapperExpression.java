@@ -11,6 +11,7 @@ import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.converter.ConverterInfo;
 import org.skriptlang.skript.lang.converter.Converters;
+import org.skriptlang.skript.lang.simplification.Simplifiable;
 
 import java.util.Iterator;
 
@@ -119,11 +120,6 @@ public abstract class WrapperExpression<T> extends SimpleExpression<T> {
 	}
 	
 	@Override
-	public Expression<? extends T> simplify() {
-		return expr;
-	}
-	
-	@Override
 	@Nullable
 	public Object[] beforeChange(Expression<?> changed, @Nullable Object[] delta) {
 		return expr.beforeChange(changed, delta); // Forward to what we're wrapping
@@ -139,4 +135,9 @@ public abstract class WrapperExpression<T> extends SimpleExpression<T> {
 		return expr.canReturn(returnType);
 	}
 
+	@Override
+	public Expression<T> simplify(Step step, @Nullable Simplifiable<?> source) {
+		expr = expr.simplify(step, source);
+		return this;
+	}
 }

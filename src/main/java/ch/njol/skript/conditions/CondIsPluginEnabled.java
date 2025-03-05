@@ -13,6 +13,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.event.Event;
 import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.simplification.Simplifiable;
 
 @Name("Is Plugin Enabled")
 @Description({"Check if a plugin is enabled/disabled on the server.",
@@ -58,6 +59,12 @@ public class CondIsPluginEnabled extends Condition {
 					return p != null && p.isEnabled();
 			}
 		});
+	}
+
+	@Override
+	public Condition simplify(Step step, @Nullable Simplifiable<?> source) {
+		plugins = simplifyChild(plugins, step, source);
+		return this;
 	}
 
 	@Override

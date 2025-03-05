@@ -14,6 +14,7 @@ import ch.njol.skript.lang.Condition;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
+import org.skriptlang.skript.lang.simplification.Simplifiable;
 
 @Name("Is Block Redstone Powered")
 @Description("Checks if a block is indirectly or directly powered by redstone")
@@ -51,7 +52,13 @@ public class CondIsBlockRedstonePowered extends Condition {
 			? blocks.check(e, Block::isBlockIndirectlyPowered, isNegated())
 			: blocks.check(e, Block::isBlockPowered, isNegated());
 	}
-	
+
+	@Override
+	public Condition simplify(Step step, @Nullable Simplifiable<?> source) {
+		blocks = simplifyChild(blocks, step, source);
+		return this;
+	}
+
 	@Override
 	public String toString(@Nullable Event e, boolean debug) {
 		return PropertyCondition.toString(this, PropertyCondition.PropertyType.BE, e, debug, blocks, (isIndirectlyPowered ? "indirectly " : "") + "powered");

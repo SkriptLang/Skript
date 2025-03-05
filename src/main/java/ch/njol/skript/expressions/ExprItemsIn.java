@@ -1,17 +1,7 @@
 package ch.njol.skript.expressions;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.NoSuchElementException;
-
-import ch.njol.skript.aliases.ItemType;
-import org.bukkit.event.Event;
-import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.ItemStack;
-import org.jetbrains.annotations.Nullable;
-
 import ch.njol.skript.Skript;
+import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
@@ -24,6 +14,16 @@ import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.util.slot.InventorySlot;
 import ch.njol.skript.util.slot.Slot;
 import ch.njol.util.Kleenean;
+import org.bukkit.event.Event;
+import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.simplification.Simplifiable;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.NoSuchElementException;
 
 @Name("Items In")
 @Description({
@@ -128,13 +128,6 @@ public class ExprItemsIn extends SimpleExpression<Slot> {
 	}
 
 	@Override
-	public String toString(@Nullable Event event, boolean debug) {
-		if (types == null)
-			return "items in " + inventories.toString(event, debug);
-		return "all " + types.toString(event, debug) + " in " + inventories.toString(event, debug);
-	}
-
-	@Override
 	public boolean isSingle() {
 		return false;
 	}
@@ -142,6 +135,20 @@ public class ExprItemsIn extends SimpleExpression<Slot> {
 	@Override
 	public Class<Slot> getReturnType() {
 		return Slot.class;
+	}
+
+	@Override
+	public Expression<Slot> simplify(Step step, @Nullable Simplifiable<?> source) {
+		inventories = simplifyChild(inventories, step, source);
+		types = simplifyChild(types, step, source);
+		return this;
+	}
+
+	@Override
+	public String toString(@Nullable Event event, boolean debug) {
+		if (types == null)
+			return "items in " + inventories.toString(event, debug);
+		return "all " + types.toString(event, debug) + " in " + inventories.toString(event, debug);
 	}
 
 	private boolean isAllowedItem(@Nullable ItemType[] types, @Nullable ItemStack item) {

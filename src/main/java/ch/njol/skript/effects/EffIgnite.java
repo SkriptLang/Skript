@@ -17,6 +17,7 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.util.Timespan;
 import ch.njol.util.Kleenean;
+import org.skriptlang.skript.lang.simplification.Simplifiable;
 
 @Name("Ignite/Extinguish")
 @Description("Lights entities on fire or extinguishes them.")
@@ -76,6 +77,13 @@ public class EffIgnite extends Effect {
 				entity.setFireTicks(duration);
 			}
 		}
+	}
+
+	@Override
+	public Effect simplify(Step step, @Nullable Simplifiable<?> source) {
+		entities = simplifyChild(entities, step, source);
+		duration = simplifyChild(duration, step, source);
+		return this;
 	}
 
 	@Override

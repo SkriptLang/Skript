@@ -14,6 +14,7 @@ import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.simplification.Simplifiable;
 
 @Name("Make Fire Resistant")
 @Description("Makes items fire resistant.")
@@ -30,7 +31,6 @@ public class EffFireResistant extends Effect {
 			Skript.registerEffect(EffFireResistant.class, "make %itemtypes% [:not] (fire resistant|resistant to fire)");
 	}
 
-	@SuppressWarnings("NotNullFieldNotInitialized")
 	private Expression<ItemType> items;
 	private boolean not;
 
@@ -49,6 +49,12 @@ public class EffFireResistant extends Effect {
 			meta.setFireResistant(!not);
 			item.setItemMeta(meta);
 		}
+	}
+
+	@Override
+	public Effect simplify(Step step, @Nullable Simplifiable<?> source) {
+		items = simplifyChild(items, step, source);
+		return this;
 	}
 
 	@Override

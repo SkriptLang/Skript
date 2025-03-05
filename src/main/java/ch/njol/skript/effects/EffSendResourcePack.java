@@ -14,6 +14,7 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
 import ch.njol.util.StringUtils;
+import org.skriptlang.skript.lang.simplification.Simplifiable;
 
 @Name("Send Resource Pack")
 @Description({"Request that the player's client download and switch resource packs. The client will download ",
@@ -85,6 +86,14 @@ public class EffSendResourcePack extends Effect {
 				}
 			} catch (Exception ignored) {}
 		}
+	}
+
+	@Override
+	public Effect simplify(Step step, @Nullable Simplifiable<?> source) {
+		url = simplifyChild(url, step, source);
+		hash = simplifyChild(hash, step, source);
+		recipients = simplifyChild(recipients, step, source);
+		return this;
 	}
 
 	@Override

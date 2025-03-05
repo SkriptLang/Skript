@@ -18,6 +18,7 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.util.Direction;
 import ch.njol.skript.util.visual.VisualEffect;
 import ch.njol.util.Kleenean;
+import org.skriptlang.skript.lang.simplification.Simplifiable;
 
 @Name("Play Effect")
 @Description({"Plays a <a href='classes.html#visualeffect'>visual effect</a> at a given location or on a given entity.",
@@ -33,11 +34,8 @@ public class EffVisualEffect extends Effect {
 			"(play|show) %number% %visualeffects% (on|%directions%) %locations% [(to %-players%|in (radius|range) of %-number%)]");
 	}
 
-	@SuppressWarnings("NotNullFieldNotInitialized")
 	private Expression<VisualEffect> effects;
-	@SuppressWarnings("NotNullFieldNotInitialized")
 	private Expression<Direction> direction;
-	@SuppressWarnings("NotNullFieldNotInitialized")
 	private Expression<?> where;
 
 	@Nullable
@@ -119,7 +117,19 @@ public class EffVisualEffect extends Effect {
 			}
 		}
 	}
-	
+
+	@Override
+	public Effect simplify(Step step, @Nullable Simplifiable<?> source) {
+		//noinspection DuplicatedCode
+		effects = simplifyChild(effects, step, source);
+		direction = simplifyChild(direction, step, source);
+		where = simplifyChild(where, step, source);
+		players = simplifyChild(players, step, source);
+		radius = simplifyChild(radius, step, source);
+		count = simplifyChild(count, step, source);
+		return this;
+	}
+
 	@Override
 	public String toString(@Nullable Event e, boolean debug) {
 		return "play " + effects.toString(e, debug) + " " + direction.toString(e, debug) + " "

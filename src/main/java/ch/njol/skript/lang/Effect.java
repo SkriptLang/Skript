@@ -7,6 +7,7 @@ import ch.njol.skript.log.SkriptLogger;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.simplification.Simplifiable;
 
 import java.util.Iterator;
 
@@ -16,7 +17,7 @@ import java.util.Iterator;
  *
  * @see Skript#registerEffect(Class, String...)
  */
-public abstract class Effect extends Statement {
+public abstract class Effect extends Statement implements Simplifiable<Effect> {
 
 	protected Effect() {}
 
@@ -67,6 +68,11 @@ public abstract class Effect extends Statement {
 	@Override
 	public @NotNull String getSyntaxTypeName() {
 		return "effect";
+	}
+
+	@Override
+	public Effect simplify(Step step, @Nullable Simplifiable<?> source) {
+		return this;
 	}
 
 }

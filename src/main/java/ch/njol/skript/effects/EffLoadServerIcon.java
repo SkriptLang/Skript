@@ -1,25 +1,21 @@
 package ch.njol.skript.effects;
 
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-
-import org.bukkit.Bukkit;
-import org.bukkit.event.Event;
-import org.bukkit.util.CachedServerIcon;
-import org.jetbrains.annotations.Nullable;
-
-import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.Skript;
-import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
-import ch.njol.skript.doc.Name;
-import ch.njol.skript.doc.RequiredPlugins;
-import ch.njol.skript.doc.Since;
+import ch.njol.skript.doc.*;
+import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.util.AsyncEffect;
 import ch.njol.util.Kleenean;
+import org.bukkit.Bukkit;
+import org.bukkit.event.Event;
+import org.bukkit.util.CachedServerIcon;
+import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.simplification.Simplifiable;
+
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 @Name("Load Server Icon")
 @Description({"Loads server icons from the given files. You can get the loaded icon using the",
@@ -77,6 +73,12 @@ public class EffLoadServerIcon extends AsyncEffect {
 			}
 		}
     }
+
+	@Override
+	public Effect simplify(Step step, @Nullable Simplifiable<?> source) {
+		path = simplifyChild(path, step, source);
+		return this;
+	}
 
 	@Override
 	public String toString(@Nullable Event e, boolean debug) {

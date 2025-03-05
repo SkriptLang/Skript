@@ -15,6 +15,7 @@ import org.bukkit.event.Event;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.simplification.Simplifiable;
 
 @Name("Item with Item Flags")
 @Description("Creates a new item with the specified item flags.")
@@ -70,6 +71,13 @@ public class ExprWithItemFlags extends SimpleExpression<ItemType> {
 	@Override
 	public Class<? extends ItemType> getReturnType() {
 		return ItemType.class;
+	}
+
+	@Override
+	public Expression<ItemType> simplify(Step step, @Nullable Simplifiable<?> source) {
+		itemFlags = simplifyChild(itemFlags, step, source);
+		itemTypes = simplifyChild(itemTypes, step, source);
+		return this;
 	}
 
 	@Override

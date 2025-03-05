@@ -12,6 +12,7 @@ import ch.njol.skript.util.LiteralUtils;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.simplification.Simplifiable;
 import org.skriptlang.skript.util.Executable;
 
 @Name("Run (Experimental)")
@@ -78,6 +79,13 @@ public class EffRun extends Effect {
 			arguments = new Object[0];
 		}
 		task.execute(event, arguments);
+	}
+
+	@Override
+	public Effect simplify(Step step, @Nullable Simplifiable<?> source) {
+		executable = simplifyChild(executable, step, source);
+		arguments = simplifyChild(arguments, step, source);
+		return this;
 	}
 
 	@Override

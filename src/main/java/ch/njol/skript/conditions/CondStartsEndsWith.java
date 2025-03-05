@@ -12,6 +12,7 @@ import ch.njol.skript.lang.Condition;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.util.Kleenean;
+import org.skriptlang.skript.lang.simplification.Simplifiable;
 
 @Name("Starts/Ends With")
 @Description("Checks if a text starts or ends with another.")
@@ -80,7 +81,14 @@ public class CondStartsEndsWith extends Condition {
 			},
 			isNegated());
 	}
-	
+
+	@Override
+	public Condition simplify(Step step, @Nullable Simplifiable<?> source) {
+		strings = simplifyChild(strings, step, source);
+		affix = simplifyChild(affix, step, source);
+		return this;
+	}
+
 	@Override
 	public String toString(@Nullable Event e, boolean debug) {
 		if (isNegated())

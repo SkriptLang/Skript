@@ -12,6 +12,7 @@ import ch.njol.util.Kleenean;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.simplification.Simplifiable;
 
 @Name("Toggle Picking Up Items")
 @Description("Determines whether living entities are able to pick up items or not")
@@ -47,6 +48,12 @@ public class EffToggleCanPickUpItems extends Effect {
 		for (LivingEntity entity : entities.getArray(event)) {
 			entity.setCanPickupItems(allowPickUp);
 		}
+	}
+
+	@Override
+	public Effect simplify(Step step, @Nullable Simplifiable<?> source) {
+		entities = simplifyChild(entities, step, source);
+		return this;
 	}
 
 	@Override

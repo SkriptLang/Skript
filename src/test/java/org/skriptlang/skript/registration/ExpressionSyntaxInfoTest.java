@@ -7,13 +7,14 @@ import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 import org.junit.Test;
+import org.skriptlang.skript.lang.simplification.Simplifiable;
 import org.skriptlang.skript.registration.ExpressionSyntaxInfoTest.MockExpression;
 
 import java.util.Iterator;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 public class ExpressionSyntaxInfoTest extends BaseSyntaxInfoTests<MockExpression, SyntaxInfo.Expression.Builder<?, MockExpression, String>> {
 
@@ -86,7 +87,7 @@ public class ExpressionSyntaxInfoTest extends BaseSyntaxInfoTests<MockExpression
 		}
 
 		@Override
-		public Expression<? extends String> simplify() {
+		public Expression<String> simplify(Step step, @Nullable Simplifiable<?> source) {
 			throw new UnsupportedOperationException();
 		}
 

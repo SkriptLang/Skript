@@ -16,6 +16,7 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.util.Timespan;
 import ch.njol.util.Kleenean;
+import org.skriptlang.skript.lang.simplification.Simplifiable;
 
 @Name("Potion Effect")
 @Description({"Create a new potion effect to apply to an entity or item type. Do note that when applying potion effects ",
@@ -81,7 +82,15 @@ public class ExprPotionEffect extends SimpleExpression<PotionEffect> {
 	public Class<? extends PotionEffect> getReturnType() {
 		return PotionEffect.class;
 	}
-	
+
+	@Override
+	public Expression<PotionEffect> simplify(Step step, @Nullable Simplifiable<?> source) {
+		potionEffectType = simplifyChild(potionEffectType, step, source);
+		tier = simplifyChild(tier, step, source);
+		timespan = simplifyChild(timespan, step, source);
+		return this;
+	}
+
 	@Override
 	public String toString(final @Nullable Event e, final boolean debug) {
 		StringBuilder builder = new StringBuilder();

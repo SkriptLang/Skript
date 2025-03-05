@@ -24,9 +24,10 @@ import ch.njol.util.coll.iterator.SingleItemIterator;
 import com.google.common.collect.Lists;
 import org.bukkit.ChatColor;
 import org.bukkit.event.Event;
-import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.script.Script;
+import org.skriptlang.skript.lang.simplification.Simplifiable;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -720,7 +721,15 @@ public class VariableString implements Expression<String> {
 	}
 
 	@Override
-	public Expression<String> simplify() {
+	public Expression<String> simplify(Step step, @Nullable Simplifiable<?> source) {
+		if (isSimple || strings == null)
+			return this;
+		for (int i = 0; i < strings.length; i++) {
+			Object object = strings[i];
+			if (object instanceof Simplifiable<?> simplifiable) {
+				strings[i] = simplifyChild(simplifiable, step, source);
+			}
+		}
 		return this;
 	}
 

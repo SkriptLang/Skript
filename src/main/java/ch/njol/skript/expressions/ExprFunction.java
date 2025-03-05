@@ -18,6 +18,7 @@ import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.script.Script;
+import org.skriptlang.skript.lang.simplification.Simplifiable;
 
 import java.util.Objects;
 
@@ -112,6 +113,13 @@ public class ExprFunction extends SimpleExpression<DynamicFunctionReference> {
 	@Override
 	public Class<? extends DynamicFunctionReference> getReturnType() {
 		return DynamicFunctionReference.class;
+	}
+
+	@Override
+	public Expression<DynamicFunctionReference> simplify(Step step, @Nullable Simplifiable<?> source) {
+		name = simplifyChild(name, step, source);
+		script = simplifyChild(script, step, source);
+		return this;
 	}
 
 	@Override

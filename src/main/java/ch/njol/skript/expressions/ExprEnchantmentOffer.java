@@ -1,23 +1,8 @@
 package ch.njol.skript.expressions;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Random;
-
-import org.bukkit.enchantments.EnchantmentOffer;
-import org.bukkit.event.Event;
-import org.bukkit.event.enchantment.PrepareItemEnchantEvent;
-import org.jetbrains.annotations.Nullable;
-
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer.ChangeMode;
-import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Events;
-import ch.njol.skript.doc.Examples;
-import ch.njol.skript.doc.Name;
-import ch.njol.skript.doc.RequiredPlugins;
-import ch.njol.skript.doc.Since;
+import ch.njol.skript.doc.*;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
@@ -26,6 +11,16 @@ import ch.njol.skript.log.ErrorQuality;
 import ch.njol.skript.util.EnchantmentType;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
+import org.bukkit.enchantments.EnchantmentOffer;
+import org.bukkit.event.Event;
+import org.bukkit.event.enchantment.PrepareItemEnchantEvent;
+import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.simplification.Simplifiable;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Random;
 
 @Name("Enchantment Offer")
 @Description("The enchantment offer in enchant prepare events.")
@@ -167,6 +162,12 @@ public class ExprEnchantmentOffer extends SimpleExpression<EnchantmentOffer> {
 	@Override
 	public Class<? extends EnchantmentOffer> getReturnType() {
 		return EnchantmentOffer.class;
+	}
+
+	@Override
+	public Expression<EnchantmentOffer> simplify(Step step, @Nullable Simplifiable<?> source) {
+		exprOfferNumber = simplifyChild(exprOfferNumber, step, source);
+		return this;
 	}
 
 	@Override

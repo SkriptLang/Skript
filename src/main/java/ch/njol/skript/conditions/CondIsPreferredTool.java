@@ -16,6 +16,7 @@ import org.bukkit.block.data.BlockData;
 import org.bukkit.event.Event;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.simplification.Simplifiable;
 
 @Name("Is Preferred Tool")
 @Description(
@@ -71,6 +72,13 @@ public class CondIsPreferredTool extends Condition {
 				}
 				return false;
 			}), isNegated());
+	}
+
+	@Override
+	public Condition simplify(Step step, @Nullable Simplifiable<?> source) {
+		items = simplifyChild(items, step, source);
+		blocks = simplifyChild(blocks, step, source);
+		return this;
 	}
 
 	@Override

@@ -1,12 +1,6 @@
 
 package ch.njol.skript.conditions;
 
-import java.util.Arrays;
-import java.util.regex.Pattern;
-
-import org.bukkit.event.Event;
-import org.jetbrains.annotations.Nullable;
-
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
@@ -16,6 +10,12 @@ import ch.njol.skript.lang.Condition;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
+import org.bukkit.event.Event;
+import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.simplification.Simplifiable;
+
+import java.util.Arrays;
+import java.util.regex.Pattern;
 
 @Name("Matches")
 @Description("Checks whether the defined strings match the input regexes (Regular expressions).")
@@ -75,7 +75,14 @@ public class CondMatches extends Condition {
 	public boolean matches(String str, Pattern pattern) {
 		return partial ? pattern.matcher(str).find() : str.matches(pattern.pattern());
 	}
-	
+
+	@Override
+	public Condition simplify(Step step, @Nullable Simplifiable<?> source) {
+		strings = simplifyChild(strings, step, source);
+		regex = simplifyChild(regex, step, source);
+		return this;
+	}
+
 	@Override
 	public String toString(@Nullable Event e, boolean debug) {
 		return strings.toString(e, debug) + " " + (isNegated() ? "doesn't match" : "matches") + " " + regex.toString(e, debug);

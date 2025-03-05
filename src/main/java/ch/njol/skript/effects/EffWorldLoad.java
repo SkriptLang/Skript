@@ -15,6 +15,7 @@ import org.bukkit.World.Environment;
 import org.bukkit.WorldCreator;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.simplification.Simplifiable;
 
 @Name("Load World")
 @Description({
@@ -70,6 +71,13 @@ public class EffWorldLoad extends Effect {
 				Bukkit.unloadWorld((World) world, save);
 			}
 		}
+	}
+
+	@Override
+	public Effect simplify(Step step, @Nullable Simplifiable<?> source) {
+		worlds = simplifyChild(worlds, step, source);
+		environment = simplifyChild(environment, step, source);
+		return this;
 	}
 
 	@Override

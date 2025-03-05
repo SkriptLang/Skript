@@ -7,12 +7,14 @@ import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
+import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
 import org.apache.commons.lang.ArrayUtils;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.simplification.Simplifiable;
 
 @Name("Characters Between")
 @Description({
@@ -96,7 +98,17 @@ public class ExprCharacters extends SimpleExpression<String> {
 	}
 
 	@Override
+	public Expression<String> simplify(Step step, @Nullable Simplifiable<?> source) {
+		start = simplifyChild(start, step, source);
+		end = simplifyChild(end, step, source);
+		if (start instanceof Literal<String> && end instanceof Literal<String>)
+			return getAsSimplifiedLiteral();
+		return this;
+	}
+
+	@Override
 	public String toString(@Nullable Event event, boolean debug) {
 		return "all the " + (isAlphanumeric ? "alphanumeric " : "") + "characters between " + start.toString(event, debug) + " and " + end.toString(event, debug);
 	}
+
 }

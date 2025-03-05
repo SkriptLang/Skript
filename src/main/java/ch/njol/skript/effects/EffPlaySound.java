@@ -16,6 +16,7 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.simplification.Simplifiable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -179,6 +180,19 @@ public class EffPlaySound extends Effect {
 				}
 			}
 		}
+	}
+
+	@Override
+	public Effect simplify(Step step, @Nullable Simplifiable<?> source) {
+		//noinspection DuplicatedCode
+		sounds = simplifyChild(sounds, step, source);
+		seed = simplifyChild(seed, step, source);
+		category = simplifyChild(category, step, source);
+		volume = simplifyChild(volume, step, source);
+		pitch = simplifyChild(pitch, step, source);
+		emitters = simplifyChild(emitters, step, source);
+		players = simplifyChild(players, step, source);
+		return this;
 	}
 
 	@Override

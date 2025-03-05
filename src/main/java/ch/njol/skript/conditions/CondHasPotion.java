@@ -15,6 +15,7 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.Event;
 import org.bukkit.potion.PotionEffectType;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.simplification.Simplifiable;
 
 @Name("Has Potion")
 @Description("Checks whether the given living entities have specific potion effects.")
@@ -50,6 +51,13 @@ public class CondHasPotion extends Condition {
 				livingEntity -> potionEffects.check(e,
 					livingEntity::hasPotionEffect
 				), isNegated());
+	}
+
+	@Override
+	public Condition simplify(Step step, @Nullable Simplifiable<?> source) {
+		livingEntities = simplifyChild(livingEntities, step, source);
+		potionEffects = simplifyChild(potionEffects, step, source);
+		return this;
 	}
 
 	@Override
