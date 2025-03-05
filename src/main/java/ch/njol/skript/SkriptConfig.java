@@ -21,6 +21,7 @@ import ch.njol.skript.util.Timespan;
 import ch.njol.skript.util.Version;
 import ch.njol.skript.util.chat.ChatMessages;
 import ch.njol.skript.util.chat.LinkParseMode;
+import ch.njol.skript.variables.FlatFileStorage;
 import ch.njol.skript.variables.Variables;
 import co.aikar.timings.Timings;
 import org.bukkit.event.EventPriority;
@@ -370,6 +371,9 @@ public class SkriptConfig {
 
 	public static final Option<Integer> runtimeErrorTimeoutDuration = new Option<>("runtime errors.error timeout length", 10);
 	public static final Option<Integer> runtimeWarningTimeoutDuration = new Option<>("runtime errors.warning timeout length", 10);
+
+	public static final Option<Integer> variableChangesUntilSave = new Option<>("variable changes until save", 1000)
+		.setter(FlatFileStorage::setRequiredChangesForResave);
 
 	/**
 	 * This should only be used in special cases
