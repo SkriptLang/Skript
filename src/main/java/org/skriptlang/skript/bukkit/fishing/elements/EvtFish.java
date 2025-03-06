@@ -64,9 +64,9 @@ public class EvtFish extends SkriptEvent {
 		EventValues.registerEventValue(PlayerFishEvent.class, Entity.class, PlayerFishEvent::getCaught);
 
 		// Register event value for event-state
-		EventValues.registerEventValue(PlayerFishEvent.class, EvtFish.State.class, event -> {
-			for (EvtFish.State state : EvtFish.State.values()) {
-				if (state.state == event.getState()) {
+		EventValues.registerEventValue(PlayerFishEvent.class, PlayerFishEvent.State.class, event -> {
+			for (PlayerFishEvent.State state : PlayerFishEvent.State.values()) {
+				if (state == event.getState()) {
 					return state;
 				}
 			}
