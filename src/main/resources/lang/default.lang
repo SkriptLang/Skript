@@ -2561,7 +2561,7 @@ fishing states:
 	caught_fish: fish caught, caught fish
 	caught_entity: entity caught, caught entity
 	in_ground: bobber in ground, in ground
-	fish_escape: fish escape, fish escaped
+	failed_attempt: fish escape, fish escaped, failed attempt
 	reel_in: reel in
 	bite: bite, fish bite
 	lured: lured, fish lured
