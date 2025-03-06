@@ -2555,6 +2555,17 @@ input keys:
 	sneak: sneak key, sneaking key
 	sprint: sprint key, sprinting key
 
+# -- Fishing States --
+fishing states:
+	fishing: fishing line cast, rod cast, fishing rod cast, fishing
+	caught_fish: fish caught, caught fish
+	caught_entity: entity caught, caught entity
+	in_ground: bobber in ground, in ground
+	fish_escape: fish escape, fish escaped
+	reel_in: reel in
+	bite: bite, fish bite
+	lured: lured, fish lured
+
 # -- Boolean --
 boolean:
 	true:
@@ -2654,6 +2665,7 @@ types:
 	bannerpatterntype: banner pattern type¦s @a
 	bannerpattern: banner pattern¦s @a
 	vehicle: vehicle¦s @a
+	fishingstate: fishing state¦s @a
 
 	# Skript
 	weathertype: weather type¦s @a
