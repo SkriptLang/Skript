@@ -11,13 +11,9 @@ import org.bukkit.event.player.PlayerFishEvent;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class EvtFish extends SkriptEvent {
 
-	private enum State {
-
+	public enum State {
 		FISHING(PlayerFishEvent.State.FISHING, "[fishing] (line|rod) cast", "fishing line cast"),
 		CAUGHT_FISH(PlayerFishEvent.State.CAUGHT_FISH, "fish (caught|catch)", "fish caught"),
 		CAUGHT_ENTITY(PlayerFishEvent.State.CAUGHT_ENTITY, "entity (hook[ed]|caught|catch)", "entity hooked"),
@@ -25,7 +21,8 @@ public class EvtFish extends SkriptEvent {
 		FISH_ESCAPE(PlayerFishEvent.State.FAILED_ATTEMPT, "fish (escape|get away)", "fish escape"),
 		REEL_IN(PlayerFishEvent.State.REEL_IN, "[fishing] (rod|line) reel in", "fishing rod reel in"),
 		BITE(PlayerFishEvent.State.BITE, "fish bit(e|ing)", "fish bite"),
-		LURED(getOptional("LURED"), "(fish approach[ing]|(bobber|hook) lure[d])", "fish approaching");
+		LURED(getOptional("LURED"), "(fish approach[ing]|(bobber|hook) lure[d])", "fish approaching"),
+		STATE_CHANGE(null, "fishing state change[d]", "fishing state change[d]");
 
 		private final @Nullable PlayerFishEvent.State state;
 		private final String pattern;
@@ -47,31 +44,43 @@ public class EvtFish extends SkriptEvent {
 	}
 
 	static {
-		List<String> patterns = new ArrayList<>();
-		for (State state : State.values()) {
-			if (state.state == null)
-				continue;
-
-			patterns.add(state.pattern);
-		}
-
-		Skript.registerEvent("Fishing", EvtFish.class, PlayerFishEvent.class, patterns.toArray(new String[0]))
+		Skript.registerEvent("Fishing", EvtFish.class, PlayerFishEvent.class, buildPatterns())
 			.description(
 				"Called when a player triggers a fishing event.",
 				"An entity hooked event is triggered when an entity gets caught by a fishing rod.",
 				"A fish escape event is called when the player fails to click on time, and the fish escapes.",
-				"A fish approaching event is when the bobber is waiting to be hooked, and a fish is approaching."
+				"A fish approaching event is when the bobber is waiting to be hooked, and a fish is approaching.",
+				"A fishing state change event is triggered whenever the fishing state changes."
 			)
 			.examples(
 				"on fishing line cast:",
-					"\tsend \"You caught a fish!\" to player",
-				"on fishing state of caught entity:",
-					"\tpush event-entity vector from entity to player"
+				"\tsend \"You caught a fish!\" to player",
+				"on entity caught:",
+				"\tpush event-entity vector from entity to player"
 			)
 			.requiredPlugins("Paper (bobber lured)")
 			.since("2.10");
 
 		EventValues.registerEventValue(PlayerFishEvent.class, Entity.class, PlayerFishEvent::getCaught);
+
+		// Register event value for event-state
+		EventValues.registerEventValue(PlayerFishEvent.class, EvtFish.State.class, event -> {
+			for (EvtFish.State state : EvtFish.State.values()) {
+				if (state.state == event.getState()) {
+					return state;
+				}
+			}
+			return null;
+		}, 0);
+	}
+
+	private static String[] buildPatterns() {
+		State[] states = State.values();
+		String[] patterns = new String[states.length];
+		for (int i = 0; i < states.length; i++) {
+			patterns[i] = states[i].pattern;
+		}
+		return patterns;
 	}
 
 	private State state;
@@ -86,13 +95,11 @@ public class EvtFish extends SkriptEvent {
 	public boolean check(Event event) {
 		if (!(event instanceof PlayerFishEvent fishEvent))
 			return false;
-
-		return state.state == fishEvent.getState();
+		return state == State.STATE_CHANGE || state.state == fishEvent.getState();
 	}
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
 		return state.toString;
 	}
-
 }
