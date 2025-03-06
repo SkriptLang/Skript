@@ -1,7 +1,6 @@
 package ch.njol.skript.events;
 
 import ch.njol.skript.Skript;
-import ch.njol.skript.doc.*;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptEvent;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
@@ -10,15 +9,6 @@ import io.papermc.paper.event.block.BeaconDeactivatedEvent;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
-@Name("Beacon Toggle")
-@Description("Called when a beacon is activated or deactivated.")
-@Examples({
-	"on beacon toggle:",
-	"on beacon activate:",
-	"on beacon deactivate:"
-})
-@RequiredPlugins("Paper")
-@Since("2.10")
 public class EvtBeaconToggle extends SkriptEvent {
 
 	static {
@@ -26,7 +16,15 @@ public class EvtBeaconToggle extends SkriptEvent {
 			Skript.registerEvent("Beacon Toggle", EvtBeaconToggle.class, new Class[] {BeaconActivatedEvent.class, BeaconDeactivatedEvent.class},
 					"beacon toggle",
 					"beacon activat(e|ion)",
-					"beacon deactivat(e|ion)");
+					"beacon deactivat(e|ion)")
+				.description("Called when a beacon is activated or deactivated.")
+				.examples(
+					"on beacon toggle:",
+					"on beacon activate:",
+					"on beacon deactivate:"
+				)
+				.since("2.10")
+				.requiredPlugins("Paper");
 	}
 
 	private boolean isActivate, isToggle;
