@@ -13,7 +13,7 @@ import org.jetbrains.annotations.Nullable;
 
 public class EvtFish extends SkriptEvent {
 
-	public enum State {
+	private enum State {
 		FISHING(PlayerFishEvent.State.FISHING, "[fishing] (line|rod) cast", "fishing line cast"),
 		CAUGHT_FISH(PlayerFishEvent.State.CAUGHT_FISH, "fish (caught|catch)", "fish caught"),
 		CAUGHT_ENTITY(PlayerFishEvent.State.CAUGHT_ENTITY, "entity (hook[ed]|caught|catch)", "entity hooked"),
