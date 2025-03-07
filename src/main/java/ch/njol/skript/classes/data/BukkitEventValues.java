@@ -747,18 +747,15 @@ public final class BukkitEventValues {
 			EventValues.registerEventValue(WorldBorderBoundsChangeEvent.class, Number.class, WorldBorderBoundsChangeEvent::getNewSize);
 			EventValues.registerEventValue(WorldBorderBoundsChangeEvent.class, Number.class, WorldBorderBoundsChangeEvent::getOldSize, EventValues.TIME_PAST);
 			EventValues.registerEventValue(WorldBorderBoundsChangeEvent.class, Timespan.class, event -> new Timespan(event.getDuration()));
-			EventValues.registerEventValue(WorldBorderBoundsChangeEvent.class, WorldBorder.class, WorldBorderBoundsChangeEvent::getWorldBorder);
 
 			// WorldBorderBoundsChangeFinishEvent
 			EventValues.registerEventValue(WorldBorderBoundsChangeFinishEvent.class, Number.class, WorldBorderBoundsChangeFinishEvent::getNewSize);
 			EventValues.registerEventValue(WorldBorderBoundsChangeFinishEvent.class, Number.class, WorldBorderBoundsChangeFinishEvent::getOldSize, EventValues.TIME_PAST);
 			EventValues.registerEventValue(WorldBorderBoundsChangeFinishEvent.class, Timespan.class, event -> new Timespan((long) event.getDuration()));
-			EventValues.registerEventValue(WorldBorderBoundsChangeFinishEvent.class, WorldBorder.class, WorldBorderBoundsChangeFinishEvent::getWorldBorder);
 
 			// WorldBorderCenterChangeEvent
 			EventValues.registerEventValue(WorldBorderCenterChangeEvent.class, Location.class, WorldBorderCenterChangeEvent::getNewCenter);
 			EventValues.registerEventValue(WorldBorderCenterChangeEvent.class, Location.class, WorldBorderCenterChangeEvent::getOldCenter, EventValues.TIME_PAST);
-			EventValues.registerEventValue(WorldBorderCenterChangeEvent.class, WorldBorder.class, WorldBorderCenterChangeEvent::getWorldBorder);
 		}
 	}
 
