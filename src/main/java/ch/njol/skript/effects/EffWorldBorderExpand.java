@@ -83,8 +83,9 @@ public class EffWorldBorderExpand extends Effect implements SyntaxRuntimeErrorPr
 		}
 		WorldBorder[] worldBorders = this.worldBorders.getArray(event);
 		if (to) {
+			input = Math2.fit(1, input, MAX_WORLDBORDER_SIZE);
 			for (WorldBorder worldBorder : worldBorders)
-				worldBorder.setSize(Math2.fit(1, input, MAX_WORLDBORDER_SIZE), speed);
+				worldBorder.setSize(input, speed);
 		} else {
 			if (shrink)
 				input = -input;
