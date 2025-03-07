@@ -85,14 +85,14 @@ test "spawn entities":
 	add "ender dragon" and "wither" to {_entities::*}
 	add "oak boat", "oak chest boat", "armor stand", "primed tnt", "firework", "arrow", "trident" and "egg" to {_entities::*}
 	add "snowball", "end crystal", "eye of ender", "regular minecart", "falling sand" and "falling gravel" to {_entities::*}
-	add "falling powder snow" to {_entities::*}
+	add "falling powder snow", "fireball" and "wither skull" to {_entities::*}
 
 	if running minecraft "1.20.0":
 		add "camel" and "sniffer" to {_entities::*}
 	if running minecraft "1.20.6":
 		add "armadillo" to {_entities::*}
-	if running minecraft "1.21":
-		add "bogged" and "breeze" to {_entities::*}
+	if running minecraft "1.21.0":
+		add "bogged", "breeze" and "wind charge" to {_entities::*}
 
 	# Note: Had to remove 'fireball' and 'wind charge'
 
