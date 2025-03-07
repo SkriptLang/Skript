@@ -1,6 +1,7 @@
 package ch.njol.skript.effects;
 
 import ch.njol.skript.Skript;
+import ch.njol.skript.config.Node;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
@@ -16,6 +17,7 @@ import ch.njol.util.Math2;
 import org.bukkit.WorldBorder;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.log.runtime.SyntaxRuntimeErrorProducer;
 
 @Name("Expand/Shrink World Border")
 @Description({
@@ -28,7 +30,7 @@ import org.jetbrains.annotations.Nullable;
 	"shrink world border of world \"world\" to 100 in 10 seconds"
 })
 @Since("INSERT VERSION")
-public class EffWorldBorderExpand extends Effect {
+public class EffWorldBorderExpand extends Effect implements SyntaxRuntimeErrorProducer {
 
 	static {
 		Skript.registerEffect(EffWorldBorderExpand.class,
@@ -43,25 +45,34 @@ public class EffWorldBorderExpand extends Effect {
 	private boolean radius;
 	private boolean to;
 	private Expression<WorldBorder> worldBorders;
-	private Expression<Number> number;
+	private Expression<Number> numberExpr;
 	private @Nullable Expression<Timespan> timespan;
-	private static final double MAX_WORLDBORDER_SIZE = 6.0E7;
+	private static final double MAX_WORLDBORDER_SIZE = 59999968;
+	private Node node;
 
 	@Override
 	@SuppressWarnings("unchecked")
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		worldBorders = (Expression<WorldBorder>) exprs[0];
-		number = (Expression<Number>) exprs[1];
+		numberExpr = (Expression<Number>) exprs[1];
 		timespan = (Expression<Timespan>) exprs[2];
 		shrink = matchedPattern > 1;
 		radius = parseResult.hasTag("radius");
 		to = parseResult.hasTag("to");
+		node = getParser().getNode();
 		return true;
 	}
 
 	@Override
 	protected void execute(Event event) {
-		double input = number.getOptionalSingle(event).orElse(0).doubleValue();
+		Number number = numberExpr.getSingle(event);
+		if (number == null)
+			return;
+		double input = number.doubleValue();
+		if (Double.isNaN(input)) {
+			error("You can't " + (shrink ? "shrink" : "grow") + " a world border " + (to ? "to" : "by") + " NaN.");
+			return;
+		}
 		if (radius)
 			input *= 2;
 		long speed = 0;
@@ -86,13 +97,18 @@ public class EffWorldBorderExpand extends Effect {
 	}
 
 	@Override
+	public Node getNode() {
+		return node;
+	}
+
+	@Override
 	public String toString(@Nullable Event event, boolean debug) {
 		SyntaxStringBuilder builder = new SyntaxStringBuilder(event, debug);
 		builder.append(shrink ? "shrink" : "expand");
 		builder.append(radius ? "radius" : "diameter");
 		builder.append("of", worldBorders);
 		builder.append(to ? "to" : "by");
-		builder.append(number);
+		builder.append(numberExpr);
 		if (timespan != null)
 			builder.append("over", timespan);
 		return builder.toString();

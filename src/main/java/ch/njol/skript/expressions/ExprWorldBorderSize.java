@@ -17,7 +17,10 @@ import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
 @Name("Size of World Border")
-@Description("The size of a world border.")
+@Description({
+	"The size of a world border.",
+	"The size can not be smaller than 1."
+})
 @Examples("set world border radius of {_worldborder} to 10")
 @Since("INSERT VERSION")
 public class ExprWorldBorderSize extends SimplePropertyExpression<WorldBorder, Double> {
@@ -27,13 +30,12 @@ public class ExprWorldBorderSize extends SimplePropertyExpression<WorldBorder, D
 	}
 
 	private boolean radius;
-	private static final double MAX_WORLDBORDER_SIZE = 6.0E7;
+	private static final double MAX_WORLDBORDER_SIZE = 59999968;
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		radius = parseResult.hasTag("radius");
-		setExpr((Expression<? extends WorldBorder>) exprs[0]);
-		return true;
+		return super.init(exprs, matchedPattern, isDelayed, parseResult);
 	}
 
 	@Override
@@ -52,6 +54,10 @@ public class ExprWorldBorderSize extends SimplePropertyExpression<WorldBorder, D
 	@Override
 	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
 		double input = mode == ChangeMode.RESET ? MAX_WORLDBORDER_SIZE : ((Number) delta[0]).doubleValue() * (radius ? 2 : 1);
+		if (Double.isNaN(input)) {
+			error("NaN is not a valid world border size");
+			return;
+		}
 		for (WorldBorder worldBorder : getExpr().getArray(event)) {
 			switch (mode) {
 				case SET, RESET -> worldBorder.setSize(Math2.fit(1, input, MAX_WORLDBORDER_SIZE));

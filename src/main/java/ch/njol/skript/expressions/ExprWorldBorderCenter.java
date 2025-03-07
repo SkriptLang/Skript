@@ -11,12 +11,13 @@ import org.bukkit.Location;
 import org.bukkit.WorldBorder;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.log.runtime.SyntaxRuntimeErrorProducer;
 
 @Name("Center of World Border")
 @Description("The center of a world border.")
 @Examples("set world border center of {_worldborder} to location(10, 0, 20)")
 @Since("INSERT VERSION")
-public class ExprWorldBorderCenter extends SimplePropertyExpression<WorldBorder, Location> {
+public class ExprWorldBorderCenter extends SimplePropertyExpression<WorldBorder, Location> implements SyntaxRuntimeErrorProducer {
 
 	static {
 		registerDefault(ExprWorldBorderCenter.class, Location.class, "world[ ]border (center|middle)", "worldborders");
@@ -37,7 +38,11 @@ public class ExprWorldBorderCenter extends SimplePropertyExpression<WorldBorder,
 
 	@Override
 	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
-		Location location = mode == ChangeMode.SET ? (Location) delta[0] : null;
+		Location location = mode == ChangeMode.SET ? (Location) delta[0] : new Location(null, 0, 0, 0);
+		if (Double.isNaN(location.getX()) || Double.isNaN(location.getZ())) {
+			error("Your location can't have a NaN value as one of its components");
+			return;
+		}
 		for (WorldBorder worldBorder : getExpr().getArray(event)) {
 			switch (mode) {
 				case SET:

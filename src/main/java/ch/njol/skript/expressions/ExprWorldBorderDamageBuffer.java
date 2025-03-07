@@ -40,6 +40,10 @@ public class ExprWorldBorderDamageBuffer extends SimplePropertyExpression<WorldB
 	@Override
 	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
 		double input = mode == ChangeMode.RESET ? 5 : ((Number) delta[0]).doubleValue();
+		if (Double.isNaN(input)) {
+			error("NaN is not a valid world border damage buffer");
+			return;
+		}
 		for (WorldBorder worldBorder : getExpr().getArray(event)) {
 			switch (mode) {
 				case SET, RESET -> worldBorder.setDamageBuffer(Math.max(input, 0));
