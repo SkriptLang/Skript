@@ -776,7 +776,7 @@ public class SimpleEvents {
 				.requiredPlugins("Paper 1.16+")
 				.examples(
 					"on worldborder bounds change:",
-						"\tbroadcast \"The border is changing from a diameter of %past event-number% to %event-number% over %event-timespan%\""
+						"\tbroadcast \"The diameter of %event-worldborder% is changing from %past event-number% to %event-number% over the next %event-timespan%\""
 				)
 				.since("INSERT VERSION");
 
