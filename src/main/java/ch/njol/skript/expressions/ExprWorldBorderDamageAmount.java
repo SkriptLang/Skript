@@ -10,6 +10,7 @@ import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.WorldBorder;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.log.runtime.SyntaxRuntimeErrorProducer;
 
 @Name("Damage Amount of World Border")
 @Description({
@@ -18,7 +19,7 @@ import org.jetbrains.annotations.Nullable;
 })
 @Examples("set world border damage amount of {_worldborder} to 1")
 @Since("INSERT VERSION")
-public class ExprWorldBorderDamageAmount extends SimplePropertyExpression<WorldBorder, Double> {
+public class ExprWorldBorderDamageAmount extends SimplePropertyExpression<WorldBorder, Double> implements SyntaxRuntimeErrorProducer {
 
 	static {
 		registerDefault(ExprWorldBorderDamageAmount.class, Double.class, "world[ ]border damage amount", "worldborders");
@@ -40,6 +41,14 @@ public class ExprWorldBorderDamageAmount extends SimplePropertyExpression<WorldB
 	@Override
 	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
 		double input = mode == ChangeMode.RESET ? 0.2 : ((Number) delta[0]).doubleValue();
+		if (Double.isNaN(input)) {
+			error("NaN is not a valid world border damage amount");
+			return;
+		}
+		if (Double.isInfinite(input)) {
+			error("World border damage amount cannot be infinite");
+			return;
+		}
 		for (WorldBorder worldBorder : getExpr().getArray(event)) {
 			switch (mode) {
 				case SET, RESET -> worldBorder.setDamageAmount(Math.max(input, 0));
