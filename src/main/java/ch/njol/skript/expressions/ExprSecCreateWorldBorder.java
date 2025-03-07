@@ -61,7 +61,8 @@ public class ExprSecCreateWorldBorder extends SectionExpression<WorldBorder> {
 
 	@Override
 	protected WorldBorder @Nullable [] get(Event event) {
-		if (trigger == null) return new WorldBorder[] {worldBorder};
+		if (trigger == null) 
+			return new WorldBorder[] {worldBorder};
 		CreateWorldborderEvent worldborderEvent = new CreateWorldborderEvent(worldBorder);
 		Variables.withLocalVariables(event, worldborderEvent, () -> TriggerItem.walk(trigger, worldborderEvent));
 		return new WorldBorder[] {worldborderEvent.getWorldBorder()};
@@ -97,5 +98,7 @@ public class ExprSecCreateWorldBorder extends SectionExpression<WorldBorder> {
 		public @NotNull HandlerList getHandlers() {
 			throw new IllegalStateException();
 		}
+
 	}
+
 }
