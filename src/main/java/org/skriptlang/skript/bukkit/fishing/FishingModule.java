@@ -17,7 +17,7 @@ public class FishingModule {
 			.user("fishing ?states?")
 			.name("Fishing State")
 			.description("Represents the different states of a fishing event.")
-			.since("2.10")
+			.since("INSERT VERSION")
 		);
 
 	}
