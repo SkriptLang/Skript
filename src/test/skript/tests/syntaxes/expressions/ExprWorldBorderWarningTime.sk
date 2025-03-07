@@ -2,12 +2,12 @@ test "worldborder warning time":
 	set {_border} to worldborder of world("world")
 	assert worldborder warning time of {_border} is 15 seconds with "Default warning time is not 15 seconds"
 	set worldborder warning time of {_border} to 10 seconds
-	assert worldborder warning time of {_border} is 10 seconds with "failed to set warning time"
+	assert worldborder warning time of {_border} is 10 seconds with "Failed to set warning time"
 	add 3 seconds to worldborder warning time of {_border}
-	assert worldborder warning time of {_border} is 13 seconds with "failed to add to warning time"
+	assert worldborder warning time of {_border} is 13 seconds with "Failed to add to warning time"
 	remove 8 seconds from worldborder warning time of {_border}
-	assert worldborder warning time of {_border} is 5 seconds with "failed to remove from warning time"
+	assert worldborder warning time of {_border} is 5 seconds with "Failed to remove from warning time"
 	remove 10 seconds from worldborder warning time of {_border}
-	assert worldborder warning time of {_border} is 0 seconds with "warning time should not go below 0"
+	assert worldborder warning time of {_border} is 0 seconds with "Warning time should not go below 0"
 	reset worldborder warning time of {_border}
-	assert worldborder warning time of {_border} is 15 seconds with "failed to reset warning time"
+	assert worldborder warning time of {_border} is 15 seconds with "Failed to reset warning time"
