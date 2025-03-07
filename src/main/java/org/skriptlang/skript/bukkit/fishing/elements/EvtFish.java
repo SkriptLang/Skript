@@ -96,4 +96,5 @@ public class EvtFish extends SkriptEvent {
 	public String toString(@Nullable Event event, boolean debug) {
 		return state.toString;
 	}
-}00
+	
+}
