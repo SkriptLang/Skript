@@ -1,5 +1,6 @@
 package ch.njol.skript.expressions;
 
+import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
@@ -14,7 +15,7 @@ import org.jetbrains.annotations.Nullable;
 @Name("Warning Distance of World Border")
 @Description({
 	"The warning distance of a world border. The player's screen will be tinted red when they are within this distance of the border.",
-	"Players only see a red tint when approaching a world's worldborder and the warning distance has to be an integer greater than 0."
+	"Players only see a red tint when approaching a world's worldborder and the warning distance has to be an integer greater than or equal to 0."
 })
 @Examples("set world border warning distance of {_worldborder} to 1")
 @Since("INSERT VERSION")
@@ -40,11 +41,32 @@ public class ExprWorldBorderWarningDistance extends SimplePropertyExpression<Wor
 	@Override
 	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
 		int input = mode == ChangeMode.RESET ? 5 : ((Number) delta[0]).intValue();
+		if (mode != ChangeMode.RESET && Double.isNaN(((Number) delta[0]).doubleValue())) {
+			error("NaN is not a valid world border warning distance");
+			return;
+		}
 		for (WorldBorder worldBorder : getExpr().getArray(event)) {
 			switch (mode) {
-				case SET, RESET -> worldBorder.setWarningDistance(Math.max(input, 0));
-				case ADD -> worldBorder.setWarningDistance(Math.max(worldBorder.getWarningDistance() + input, 0));
-				case REMOVE -> worldBorder.setWarningDistance(Math.max(worldBorder.getWarningDistance() - input, 0));
+				case SET, RESET:
+					worldBorder.setWarningDistance(Math.max(input, 0));
+					break;
+				case ADD:
+					if (((long) worldBorder.getWarningDistance() + input) > Integer.MAX_VALUE) {
+						worldBorder.setWarningDistance(Integer.MAX_VALUE);
+					} else if (((long) worldBorder.getWarningDistance() + input) < Integer.MIN_VALUE) {
+						worldBorder.setWarningDistance(Integer.MIN_VALUE);
+					} else {
+						worldBorder.setWarningDistance(Math.max(worldBorder.getWarningDistance() + input, 0));
+					}
+					break;
+				case REMOVE:
+					if (((long) worldBorder.getWarningDistance() - input) > Integer.MAX_VALUE) {
+						worldBorder.setWarningDistance(Integer.MAX_VALUE);
+					} else if (((long) worldBorder.getWarningDistance() - input) < Integer.MIN_VALUE) {
+						worldBorder.setWarningDistance(Integer.MIN_VALUE);
+					} else {
+						worldBorder.setWarningDistance(Math.max(worldBorder.getWarningDistance() - input, 0));
+					}
 			}
 		}
 	}
