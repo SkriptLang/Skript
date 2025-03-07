@@ -54,9 +54,13 @@ public class EvtFish extends SkriptEvent {
 			)
 			.examples(
 				"on fishing line cast:",
-				"\tsend \"You caught a fish!\" to player",
+					"\tsend \"You caught a fish!\" to player",
 				"on entity caught:",
-				"\tpush event-entity vector from entity to player"
+					"\tpush event-entity vector from entity to player"
+				"on fishing state change:",
+					"\tif event-fishing state is fish caught:",
+						"\t\tbroadcast \"A fish has been caught!\""
+					
 			)
 			.requiredPlugins("Paper (bobber lured)")
 			.since("2.10");
