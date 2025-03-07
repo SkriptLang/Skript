@@ -54,7 +54,7 @@ public class ExprWorldBorderWarningDistance extends SimplePropertyExpression<Wor
 					if (((long) worldBorder.getWarningDistance() + input) > Integer.MAX_VALUE) {
 						worldBorder.setWarningDistance(Integer.MAX_VALUE);
 					} else if (((long) worldBorder.getWarningDistance() + input) < Integer.MIN_VALUE) {
-						worldBorder.setWarningDistance(Integer.MIN_VALUE);
+						worldBorder.setWarningDistance(0);
 					} else {
 						worldBorder.setWarningDistance(Math.max(worldBorder.getWarningDistance() + input, 0));
 					}
@@ -63,7 +63,7 @@ public class ExprWorldBorderWarningDistance extends SimplePropertyExpression<Wor
 					if (((long) worldBorder.getWarningDistance() - input) > Integer.MAX_VALUE) {
 						worldBorder.setWarningDistance(Integer.MAX_VALUE);
 					} else if (((long) worldBorder.getWarningDistance() - input) < Integer.MIN_VALUE) {
-						worldBorder.setWarningDistance(Integer.MIN_VALUE);
+						worldBorder.setWarningDistance(0);
 					} else {
 						worldBorder.setWarningDistance(Math.max(worldBorder.getWarningDistance() - input, 0));
 					}
