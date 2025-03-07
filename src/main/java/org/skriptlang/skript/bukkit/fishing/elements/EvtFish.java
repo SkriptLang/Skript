@@ -22,7 +22,7 @@ public class EvtFish extends SkriptEvent {
 		REEL_IN(PlayerFishEvent.State.REEL_IN, "[fishing] (rod|line) reel in", "fishing rod reel in"),
 		BITE(PlayerFishEvent.State.BITE, "fish bit(e|ing)", "fish bite"),
 		LURED(getOptional("LURED"), "(fish approach[ing]|(bobber|hook) lure[d])", "fish approaching"),
-		STATE_CHANGE(null, "fishing state change[d]", "fishing state change[d]");
+		STATE_CHANGE(null, "fishing state change[d]", "fishing state changed");
 
 		private final @Nullable PlayerFishEvent.State state;
 		private final String pattern;
