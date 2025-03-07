@@ -63,15 +63,9 @@ public class EvtFish extends SkriptEvent {
 
 		EventValues.registerEventValue(PlayerFishEvent.class, Entity.class, PlayerFishEvent::getCaught);
 
-		// Register event value for event-state
-		EventValues.registerEventValue(PlayerFishEvent.class, PlayerFishEvent.State.class, event -> {
-			for (PlayerFishEvent.State state : PlayerFishEvent.State.values()) {
-				if (state == event.getState()) {
-					return state;
-				}
-			}
-			return null;
-		}, 0);
+		// Register event value for event-fishing state
+		EventValues.registerEventValue(PlayerFishEvent.class, PlayerFishEvent.State.class, PlayerFishEvent::getState);
+
 	}
 
 	private static String[] buildPatterns() {
@@ -102,4 +96,4 @@ public class EvtFish extends SkriptEvent {
 	public String toString(@Nullable Event event, boolean debug) {
 		return state.toString;
 	}
-}
+}00
