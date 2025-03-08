@@ -1,0 +1,32 @@
+test "worldborder center":
+	set {_border} to worldborder of world("world")
+	assert worldborder center of {_border} is location(0, 0, 0, "world") with "default border center is not (0,0)"
+	set worldborder center of {_border} to location(2, 0, 4, "world")
+	assert worldborder center of {_border} is location(2, 0, 4, "world") with "failed to set border center"
+	set worldborder center of {_border} to location(31000000, 0, 0, "world")
+	assert worldborder center of {_border} is location(29999984, 0, 0, "world") with "border center x-coord was not restricted to fit inside the world"
+	set worldborder center of {_border} to location(0, 0, -31000000, "world")
+	assert worldborder center of {_border} is location(0, 0, -29999984, "world") with "border center z-coord was not restricted to fit inside the world"
+	set worldborder center of {_border} to location(12, 5, 23)
+	assert worldborder center of {_border} is location(12, 0, 23, "world") with "having a y-coordinate in the location affected the other coordinates"
+	set worldborder center of {_border} to location(10.3, 0, 12.7)
+	assert worldborder center of {_border} is location(10.3, 0, 12.7, "world") with "positive decimals were changed"
+	set worldborder center of {_border} to location(-4.5, 0, -34.2)
+	assert worldborder center of {_border} is location(-4.5, 0, -34.2, "world") with "negative decimals were changed"
+
+	# edge cases
+	set worldborder center of {_border} to {_None}
+	assert worldborder center of {_border} is location(-4.5, 0, -34.2, "world") with "setting location of border to None moved border"
+	set worldborder center of {_border} to location({_None}, 0, {_None})
+	assert worldborder center of {_border} is location(-4.5, 0, -34.2, "world") with "using a location with None components changed the border center"
+	set worldborder center of {_border} to location(NaN value, 0, 1)
+	assert worldborder center of {_border} is location(-4.5, 0, -34.2, "world") with "using a location with x-coord NaN changed the border center"
+	set worldborder center of {_border} to location(2, 0, NaN value)
+	assert worldborder center of {_border} is location(-4.5, 0, -34.2, "world") with "using a location with z-coord NaN changed the border center"
+	set worldborder center of {_border} to location(infinity value, 0, infinity value)
+	assert worldborder center of {_border} is location(29999984, 0, 29999984, "world") with "border center coords were not rounded correctly when using +infinity"
+	set worldborder center of {_border} to location(-infinity value, 0, -infinity value)
+	assert worldborder center of {_border} is location(-29999984, 0, -29999984, "world") with "border center coords were not rounded correctly when using -infinity"
+
+	reset worldborder center of {_border}
+	assert worldborder center of {_border} is location(0, 0, 0, "world") with "failed to reset border center"

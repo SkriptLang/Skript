@@ -1,0 +1,67 @@
+test "worldborder damage buffer":
+	set {_border} to worldborder of world("world")
+	assert worldborder damage buffer of {_border} is 5 with "Default worldborder damage buffer is not 5"
+
+	# set tests
+	set worldborder damage buffer of {_border} to 1
+	assert worldborder damage buffer of {_border} is 1 with "Failed to set worldborder damage buffer to an integer"
+	set worldborder damage buffer of {_border} to 1.5
+	assert worldborder damage buffer of {_border} is 1.5 with "Failed to set worldborder damage buffer to a float"
+	set worldborder damage buffer of {_border} to {_None}
+	assert worldborder damage buffer of {_border} is 1.5 with "Setting worldborder damage buffer to None changed the damage"
+	set worldborder damage buffer of {_border} to NaN value
+	assert worldborder damage buffer of {_border} is 1.5 with "Setting worldborder damage buffer to NaN changed the damage"
+	set worldborder damage buffer of {_border} to infinity value
+	assert worldborder damage buffer of {_border} is infinity value with "Failed to set worldborder damage buffer to infinity"
+	set worldborder damage buffer of {_border} to -infinity value
+	assert worldborder damage buffer of {_border} is 0 with "Setting worldborder damage buffer to -infinity did not stop at 0"
+	set worldborder damage buffer of {_border} to 1.5
+
+	# add tests
+	add 0.5 to worldborder damage buffer of {_border}
+	assert worldborder damage buffer of {_border} is 2 with "Failed adding float to damage buffer"
+	add 1 to worldborder damage buffer of {_border}
+	assert worldborder damage buffer of {_border} is 3 with "Failed adding integer to damage buffer"
+	add -0.5 to worldborder damage buffer of {_border}
+	assert worldborder damage buffer of {_border} is 2.5 with "Failed adding negative float to damage buffer"
+	add -1 to worldborder damage buffer of {_border}
+	assert worldborder damage buffer of {_border} is 1.5 with "Failed adding negative integer to damage buffer"
+	add {_None} to worldborder damage buffer of {_border}
+	assert worldborder damage buffer of {_border} is 1.5 with "Adding None to worldborder damage buffer changed the damage buffer"
+	add NaN value to worldborder damage buffer of {_border}
+	assert worldborder damage buffer of {_border} is 1.5 with "Adding NaN to worldborder damage buffer changed the damage buffer"
+	add infinity value to worldborder damage buffer of {_border}
+	assert worldborder damage buffer of {_border} is infinity value with "Failed adding infinity to damage buffer"
+	set worldborder damage buffer of {_border} to 1.5
+	add -infinity value to worldborder damage buffer of {_border}
+	assert worldborder damage buffer of {_border} is 0 with "Adding -infinity to worldborder damage buffer did not stop at 0"
+	set worldborder damage buffer of {_border} to 1.5
+
+	# remove tests
+	remove 0.5 from worldborder damage buffer of {_border}
+	assert worldborder damage buffer of {_border} is 1 with "Failed removing float from damage buffer"
+	remove 1 from worldborder damage buffer of {_border}
+	assert worldborder damage buffer of {_border} is 0 with "Failed removing integer from damage buffer"
+	remove -0.5 from worldborder damage buffer of {_border}
+	assert worldborder damage buffer of {_border} is 0.5 with "Failed removing negative float from damage buffer"
+	remove -1 from worldborder damage buffer of {_border}
+	assert worldborder damage buffer of {_border} is 1.5 with "Failed removing negative integer from damage buffer"
+	remove {_None} from worldborder damage buffer of {_border}
+	assert worldborder damage buffer of {_border} is 1.5 with "Removing None from worldborder damage buffer changed the damage buffer"
+	remove NaN value from worldborder damage buffer of {_border}
+	assert worldborder damage buffer of {_border} is 1.5 with "Removing NaN from worldborder damage buffer changed the damage buffer"
+	remove infinity value from worldborder damage buffer of {_border}
+	assert worldborder damage buffer of {_border} is 0 with "Removing infinity from worldborder damage buffer did not stop at 0"
+	set worldborder damage buffer of {_border} to 1.5
+	remove -infinity value from worldborder damage buffer of {_border}
+	assert worldborder damage buffer of {_border} is infinity value with "Failed removing -infinity from damage buffer"
+
+	set worldborder damage buffer of {_border} to -10
+	assert worldborder damage buffer of {_border} is 0 with "Damage buffer should was set to a number less than 0"
+	remove 1 from worldborder damage buffer of {_border}
+	assert worldborder damage buffer of {_border} is 0 with "Damage buffer went below 0 when subtracting"
+	add -1 to worldborder damage buffer of {_border}
+	assert worldborder damage buffer of {_border} is 0 with "Damage buffer went below 0 when adding"
+
+	reset worldborder damage buffer of {_border}
+	assert worldborder damage buffer of {_border} is 5 with "Failed to reset border damage buffer"

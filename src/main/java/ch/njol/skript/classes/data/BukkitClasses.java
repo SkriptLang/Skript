@@ -22,7 +22,6 @@ import ch.njol.skript.util.BlockUtils;
 import ch.njol.skript.util.PotionEffectUtils;
 import ch.njol.skript.util.StringMode;
 import ch.njol.skript.util.Utils;
-import ch.njol.util.StringUtils;
 import ch.njol.yggdrasil.Fields;
 import io.papermc.paper.world.MoonPhase;
 import org.bukkit.*;
@@ -1475,6 +1474,31 @@ public class BukkitClasses {
 				})
 			);
 		}
+
+		Classes.registerClass(new ClassInfo<>(WorldBorder.class, "worldborder")
+			.user("world ?borders?")
+			.name("World Border")
+			.description("Represents the border of a world or player.")
+			.since("INSERT VERSION")
+			.parser(new Parser<WorldBorder>() {
+				@Override
+				public boolean canParse(ParseContext context) {
+					return false;
+				}
+
+				@Override
+				public String toString(WorldBorder border, int flags) {
+					if (border.getWorld() == null)
+						return "virtual world border";
+					return "world border of world named '" + border.getWorld().getName() + "'";
+				}
+
+				@Override
+				public String toVariableNameString(WorldBorder border) {
+					return toString(border, 0);
+				}
+			})
+			.defaultExpression(new EventValueExpression<>(WorldBorder.class)));
 
 		Classes.registerClass(new ClassInfo<>(org.bukkit.block.banner.Pattern.class, "bannerpattern")
 			.user("banner ?patterns?")

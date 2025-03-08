@@ -1,0 +1,53 @@
+test "worldborder expand":
+	set {_border} to worldborder of world("world")
+
+	# diameter / size tests
+	assert worldborder size of {_border} is 59999968 with "The original diameter of the world's worldborder isn't 59,999,968"
+	shrink {_border} to 100
+	assert worldborder size of {_border} is 100 with "The diameter did not shrink to 100"
+	grow {_border} by 10
+	assert worldborder size of {_border} is 110 with "The diameter did not grow by 10"
+	expand {_border} by -10
+	assert worldborder size of {_border} is 100 with "The diameter did not expand by -10"
+	shrink diameter of {_border} by 10
+	assert worldborder size of {_border} is 90 with "The diameter did not shrink by 10"
+	contract {_border} by -10
+	assert worldborder size of {_border} is 100 with "The diameter did not contract by -10"
+	grow {_border}'s diameter by 0
+	assert worldborder size of {_border} is 100 with "Growing the diameter by 0 changed the diameter"
+
+	# radius tests
+	grow {_border}'s radius to 100
+	assert worldborder radius of {_border} is 100 with "The radius did not grow to 100"
+	grow {_border}'s radius by 10
+	assert worldborder radius of {_border} is 110 with "The radius did not grow by 10"
+	expand radius of {_border} by -10
+	assert worldborder radius of {_border} is 100 with "The radius did not expand by -10"
+	shrink radius of {_border} by 10
+	assert worldborder radius of {_border} is 90 with "The radius did not shrink by 10"
+	contract {_border}'s radius by -10
+	assert worldborder radius of {_border} is 100 with "The radius did not contract by -10"
+	shrink {_border}'s radius by 0
+	assert worldborder radius of {_border} is 100 with "Shrinking the radius by 0 changed the radius"
+
+	# edge cases
+	grow {_border} by {_None}
+	assert worldborder radius of {_border} is 100 with "Growing border by None changed the radius"
+	shrink {_border} to {_None}
+	assert worldborder radius of {_border} is 100 with "Shrinking border to None changed the radius"
+	shrink {_border} by NaN value
+	assert worldborder radius of {_border} is 100 with "Shrinking border by NaN changed the radius"
+	grow {_border} to NaN value
+	assert worldborder radius of {_border} is 100 with "Growing border to NaN changed the radius"
+
+	# infinite values
+	grow {_border} to infinity value
+	assert worldborder size of {_border} is 59999968 with "Border size was not grown to the maximum size of 59,999,968 (+infinity input)"
+	expand {_border} to -infinity value
+	assert worldborder size of {_border} is 1 with "Border size was not grown to the minimum size of 1 (-infinity input)"
+	shrink {_border} by -infinity value
+	assert worldborder size of {_border} is 59999968 with "Border size did not shrink to maximum size of 59,999,968 (-infinity input)"
+	shrink {_border} by infinity value
+	assert worldborder size of {_border} is 1 with "Border size did not shrink to minimum size of 1 (+infinity input)"
+
+	reset worldborder size of {_border}

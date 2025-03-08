@@ -21,6 +21,10 @@ import com.destroystokyo.paper.event.player.PlayerArmorChangeEvent;
 import com.destroystokyo.paper.event.player.PlayerElytraBoostEvent;
 import io.papermc.paper.event.entity.EntityMoveEvent;
 import io.papermc.paper.event.player.*;
+import io.papermc.paper.event.world.border.WorldBorderBoundsChangeEvent;
+import io.papermc.paper.event.world.border.WorldBorderBoundsChangeFinishEvent;
+import io.papermc.paper.event.world.border.WorldBorderCenterChangeEvent;
+import io.papermc.paper.event.world.border.WorldBorderEvent;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
@@ -734,6 +738,25 @@ public final class BukkitEventValues {
 			EventValues.registerEventValue(PlayerElytraBoostEvent.class, Entity.class, PlayerElytraBoostEvent::getFirework);
 		}
 
+		// === WorldBorderEvents ===
+		if (Skript.classExists("io.papermc.paper.event.world.border.WorldBorderEvent")) {
+			// WorldBorderEvent
+			EventValues.registerEventValue(WorldBorderEvent.class, WorldBorder.class, WorldBorderEvent::getWorldBorder);
+
+			// WorldBorderBoundsChangeEvent
+			EventValues.registerEventValue(WorldBorderBoundsChangeEvent.class, Number.class, WorldBorderBoundsChangeEvent::getNewSize);
+			EventValues.registerEventValue(WorldBorderBoundsChangeEvent.class, Number.class, WorldBorderBoundsChangeEvent::getOldSize, EventValues.TIME_PAST);
+			EventValues.registerEventValue(WorldBorderBoundsChangeEvent.class, Timespan.class, event -> new Timespan(event.getDuration()));
+
+			// WorldBorderBoundsChangeFinishEvent
+			EventValues.registerEventValue(WorldBorderBoundsChangeFinishEvent.class, Number.class, WorldBorderBoundsChangeFinishEvent::getNewSize);
+			EventValues.registerEventValue(WorldBorderBoundsChangeFinishEvent.class, Number.class, WorldBorderBoundsChangeFinishEvent::getOldSize, EventValues.TIME_PAST);
+			EventValues.registerEventValue(WorldBorderBoundsChangeFinishEvent.class, Timespan.class, event -> new Timespan((long) event.getDuration()));
+
+			// WorldBorderCenterChangeEvent
+			EventValues.registerEventValue(WorldBorderCenterChangeEvent.class, Location.class, WorldBorderCenterChangeEvent::getNewCenter);
+			EventValues.registerEventValue(WorldBorderCenterChangeEvent.class, Location.class, WorldBorderCenterChangeEvent::getOldCenter, EventValues.TIME_PAST);
+		}
 	}
 
 }
