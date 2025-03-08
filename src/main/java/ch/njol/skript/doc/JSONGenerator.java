@@ -44,6 +44,8 @@ public class JSONGenerator extends DocumentationGenerator {
 		.serializeNulls()
 		.create();
 
+	private static final HashMap<Class<? extends Event>, List<SkriptEventInfo<?>>> events = new HashMap<>();
+
 	public JSONGenerator(File templateDir, File outputDir) {
 		super(templateDir, outputDir);
 	}
@@ -70,6 +72,17 @@ public class JSONGenerator extends DocumentationGenerator {
 		JsonArray jsonArray = new JsonArray();
 		for (String string : strings)
 			jsonArray.add(new JsonPrimitive(string));
+		return jsonArray;
+	}
+
+	private static JsonArray convertToJsonArray(@Nullable List<String> list) {
+		if (list == null || list.isEmpty()) {
+			return null;
+		}
+		JsonArray jsonArray = new JsonArray();
+		for (String string : list) {
+			jsonArray.add(new JsonPrimitive(string));
+		}
 		return jsonArray;
 	}
 
@@ -118,7 +131,16 @@ public class JSONGenerator extends DocumentationGenerator {
 		}
 
 		AvailableEvents availableEvents = syntaxClass.getAnnotation(AvailableEvents.class);
-		syntaxJsonObject.add("availableEvents", availableEvents == null ? null : convertToJsonArray(Arrays.stream(availableEvents.value()).map(Class::getSimpleName).toArray(String[]::new)));
+		ArrayList<String> skriptEventNames = new ArrayList<>();
+		if (availableEvents != null) {
+			for (Class<? extends Event> event : availableEvents.value()) {
+				if (events.get(event) == null) continue;
+				for (SkriptEventInfo<?> skriptEvent : events.get(event)) {
+					skriptEventNames.add(skriptEvent.getName());
+				}
+			}
+		}
+		syntaxJsonObject.add("availableEvents", skriptEventNames.isEmpty() ? null : convertToJsonArray(skriptEventNames));
 
 		Events events = syntaxClass.getAnnotation(Events.class);
 		syntaxJsonObject.add("events", events == null ? null : convertToJsonArray(events.value()));
@@ -375,6 +397,18 @@ public class JSONGenerator extends DocumentationGenerator {
 		return convertToJsonArray(strings);
 	}
 
+	private void cacheEvents() {
+		for (SkriptEventInfo<?> eventInfo : Skript.getEvents()) {
+			for (Class<? extends Event> event : eventInfo.events) {
+				if (events.get(event) == null) {
+					events.put(event, new ArrayList<>(Collections.singleton(eventInfo)));
+					continue;
+				}
+				events.get(event).add(eventInfo);
+			}
+		}
+	}
+
 	/**
 	 * Writes the documentation JsonObject to an output path
 	 *
@@ -393,6 +427,8 @@ public class JSONGenerator extends DocumentationGenerator {
 	@Override
 	public void generate() {
 		JsonObject jsonDocs = new JsonObject();
+
+		cacheEvents();
 
 		jsonDocs.addProperty("skriptVersion", Skript.getVersion().toString());
 		jsonDocs.add("version", getVersion());
