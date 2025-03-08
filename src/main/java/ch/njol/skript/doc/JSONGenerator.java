@@ -75,17 +75,6 @@ public class JSONGenerator extends DocumentationGenerator {
 		return jsonArray;
 	}
 
-	private static JsonArray convertToJsonArray(@Nullable List<String> list) {
-		if (list == null || list.isEmpty()) {
-			return null;
-		}
-		JsonArray jsonArray = new JsonArray();
-		for (String string : list) {
-			jsonArray.add(new JsonPrimitive(string));
-		}
-		return jsonArray;
-	}
-
 	/**
 	 * Generates the documentation JsonObject for an element that is annotated with documentation
 	 * annotations (e.g. effects, conditions, etc.)
@@ -131,16 +120,19 @@ public class JSONGenerator extends DocumentationGenerator {
 		}
 
 		AvailableEvents availableEvents = syntaxClass.getAnnotation(AvailableEvents.class);
-		ArrayList<String> skriptEventNames = new ArrayList<>();
+		JsonArray skriptEvents = new JsonArray();
 		if (availableEvents != null) {
 			for (Class<? extends Event> event : availableEvents.value()) {
 				if (events.get(event) == null) continue;
 				for (SkriptEventInfo<?> skriptEvent : events.get(event)) {
-					skriptEventNames.add(skriptEvent.getName());
+					JsonObject skriptEventJson = new JsonObject();
+					skriptEventJson.addProperty("id", skriptEvent.getId());
+					skriptEventJson.addProperty("name", skriptEvent.getName());
+					skriptEvents.add(skriptEventJson);
 				}
 			}
 		}
-		syntaxJsonObject.add("availableEvents", skriptEventNames.isEmpty() ? null : convertToJsonArray(skriptEventNames));
+		syntaxJsonObject.add("availableEvents", skriptEvents.isEmpty() ? null : skriptEvents);
 
 		Events events = syntaxClass.getAnnotation(Events.class);
 		syntaxJsonObject.add("events", events == null ? null : convertToJsonArray(events.value()));
