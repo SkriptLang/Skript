@@ -120,19 +120,7 @@ public class JSONGenerator extends DocumentationGenerator {
 		}
 
 		AvailableEvents availableEvents = syntaxClass.getAnnotation(AvailableEvents.class);
-		JsonArray skriptEvents = new JsonArray();
-		if (availableEvents != null) {
-			for (Class<? extends Event> event : availableEvents.value()) {
-				if (events.get(event) == null) continue;
-				for (SkriptEventInfo<?> skriptEvent : events.get(event)) {
-					JsonObject skriptEventJson = new JsonObject();
-					skriptEventJson.addProperty("id", skriptEvent.getDocumentationID() == null ? skriptEvent.getId() : skriptEvent.getDocumentationID());
-					skriptEventJson.addProperty("name", skriptEvent.getName());
-					skriptEvents.add(skriptEventJson);
-				}
-			}
-		}
-		syntaxJsonObject.add("availableEvents", skriptEvents.isEmpty() ? null : skriptEvents);
+		syntaxJsonObject.add("availableEvents", getSkriptEvents(availableEvents));
 
 		Events events = syntaxClass.getAnnotation(Events.class);
 		syntaxJsonObject.add("events", events == null ? null : convertToJsonArray(events.value()));
@@ -144,6 +132,21 @@ public class JSONGenerator extends DocumentationGenerator {
 		syntaxJsonObject.add("keywords", keywords == null ? null : convertToJsonArray(keywords.value()));
 
 		return syntaxJsonObject;
+	}
+
+	private static @Nullable JsonArray getSkriptEvents(@Nullable AvailableEvents availableEvents) {
+		if (availableEvents == null || availableEvents.value().length == 0) return null;
+		JsonArray skriptEvents = new JsonArray();
+		for (Class<? extends Event> event : availableEvents.value()) {
+			if (events.get(event) == null) continue;
+			for (SkriptEventInfo<?> skriptEvent : events.get(event)) {
+				JsonObject skriptEventJson = new JsonObject();
+				skriptEventJson.addProperty("id", skriptEvent.getDocumentationID() == null ? skriptEvent.getId() : skriptEvent.getDocumentationID());
+				skriptEventJson.addProperty("name", skriptEvent.getName());
+				skriptEvents.add(skriptEventJson);
+			}
+		}
+		return skriptEvents;
 	}
 
 	/**
