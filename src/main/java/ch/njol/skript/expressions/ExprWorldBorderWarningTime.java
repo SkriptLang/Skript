@@ -1,5 +1,6 @@
 package ch.njol.skript.expressions;
 
+import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
@@ -38,12 +39,31 @@ public class ExprWorldBorderWarningTime extends SimplePropertyExpression<WorldBo
 
 	@Override
 	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
-		int input = mode == ChangeMode.RESET ? 15 : (int) (((Timespan) delta[0]).getAs(TimePeriod.SECOND));
+		long input = mode == ChangeMode.RESET ? 15 : (((Timespan) delta[0]).getAs(TimePeriod.SECOND));
 		for (WorldBorder worldBorder : getExpr().getArray(event)) {
 			switch (mode) {
-				case SET, RESET -> worldBorder.setWarningTime(input);
-				case ADD -> worldBorder.setWarningTime(worldBorder.getWarningTime() + input);
-				case REMOVE -> worldBorder.setWarningTime(Math.max(worldBorder.getWarningTime() - input, 0));
+				case SET, RESET:
+					worldBorder.setWarningTime((int) Math.min(input, Integer.MAX_VALUE));
+					break;
+				case ADD:
+					Skript.adminBroadcast("----------");
+					Skript.adminBroadcast("Current Value: " + worldBorder.getWarningTime());
+					if (worldBorder.getWarningTime() + input > Integer.MAX_VALUE) {
+						Skript.adminBroadcast("Greater than max: " + (worldBorder.getWarningTime() + input));
+						worldBorder.setWarningTime(Integer.MAX_VALUE);
+					} else {
+						Skript.adminBroadcast("Less than max: " + (worldBorder.getWarningTime() + input));
+						Skript.adminBroadcast("After cast: " + (int)(worldBorder.getWarningTime() + input));
+						worldBorder.setWarningTime((int) (worldBorder.getWarningTime() + input));
+					}
+					Skript.adminBroadcast("----------");
+					break;
+				case REMOVE:
+					if (worldBorder.getWarningTime() - input > Integer.MAX_VALUE) {
+						worldBorder.setWarningTime(Integer.MAX_VALUE);
+					} else {
+						worldBorder.setWarningTime((int) Math.max(worldBorder.getWarningTime() - input, 0));
+					}
 			}
 		}
 	}
