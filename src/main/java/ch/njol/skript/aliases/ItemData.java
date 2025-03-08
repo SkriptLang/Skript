@@ -607,7 +607,7 @@ public class ItemData implements Cloneable, YggdrasilExtendedSerializable {
 					data.itemFlags |= ItemFlags.CHANGED_TAGS;
 				data.stack.setItemMeta(meta);
 			}
-			if (ItemUtils.getDamage(stack) > 0)
+			if (ItemUtils.getDamage(stack) > 0) // https://github.com/SkriptLang/Skript/issues/7687
 				ItemUtils.setDamage(data.stack, 0); // Set to undamaged iff item is damaged
 		}
 		data.type = type;
