@@ -395,7 +395,7 @@ public class JSONGenerator extends DocumentationGenerator {
 	private void cacheEvents() {
 		for (SkriptEventInfo<?> eventInfo : Skript.getEvents()) {
 			for (Class<? extends Event> event : eventInfo.events) {
-				if (events.get(event) == null) {
+				if (events.containsKey(event)) {
 					events.put(event, new ArrayList<>(Collections.singleton(eventInfo)));
 					continue;
 				}
