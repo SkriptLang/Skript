@@ -1,0 +1,10 @@
+test "ItemData copy not adding damage tag":
+	# Test that we're not adding a damage tag to a non-damagable item
+	set {_item} to 1 of oak log
+	set {_plaincopy} to type of {_item}
+	assert {_item} = 1 of oak log with "Item should match a plain copy"
+
+	# Make sure we don't break any other behaviour
+	set {_item} to 1 of diamond sword damaged by 500
+	set {_plaincopy} to type of {_item}
+	assert {_item} = 1 of diamond sword with "Item should match a plain copy"
