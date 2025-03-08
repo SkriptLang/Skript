@@ -46,17 +46,11 @@ public class ExprWorldBorderWarningTime extends SimplePropertyExpression<WorldBo
 					worldBorder.setWarningTime((int) Math.min(input, Integer.MAX_VALUE));
 					break;
 				case ADD:
-					Skript.adminBroadcast("----------");
-					Skript.adminBroadcast("Current Value: " + worldBorder.getWarningTime());
 					if (worldBorder.getWarningTime() + input > Integer.MAX_VALUE) {
-						Skript.adminBroadcast("Greater than max: " + (worldBorder.getWarningTime() + input));
 						worldBorder.setWarningTime(Integer.MAX_VALUE);
 					} else {
-						Skript.adminBroadcast("Less than max: " + (worldBorder.getWarningTime() + input));
-						Skript.adminBroadcast("After cast: " + (int)(worldBorder.getWarningTime() + input));
 						worldBorder.setWarningTime((int) (worldBorder.getWarningTime() + input));
 					}
-					Skript.adminBroadcast("----------");
 					break;
 				case REMOVE:
 					if (worldBorder.getWarningTime() - input > Integer.MAX_VALUE) {
