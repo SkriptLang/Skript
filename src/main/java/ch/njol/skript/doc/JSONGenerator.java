@@ -126,7 +126,7 @@ public class JSONGenerator extends DocumentationGenerator {
 				if (events.get(event) == null) continue;
 				for (SkriptEventInfo<?> skriptEvent : events.get(event)) {
 					JsonObject skriptEventJson = new JsonObject();
-					skriptEventJson.addProperty("id", skriptEvent.getId());
+					skriptEventJson.addProperty("id", skriptEvent.getDocumentationID() == null ? skriptEvent.getId() : skriptEvent.getDocumentationID());
 					skriptEventJson.addProperty("name", skriptEvent.getName());
 					skriptEvents.add(skriptEventJson);
 				}
