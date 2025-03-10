@@ -44,7 +44,15 @@ public class EvtFish extends SkriptEvent {
 	}
 
 	static {
-		Skript.registerEvent("Fishing", EvtFish.class, PlayerFishEvent.class, buildPatterns())
+		List<String> patterns = new ArrayList<>();
+		for (State state : State.values()) {
+			if (state.state == null)
+				continue;
+
+			patterns.add(state.pattern);
+		}
+
+		Skript.registerEvent("Fishing", EvtFish.class, PlayerFishEvent.class, patterns.toArray(new String[0]))
 			.description(
 				"Called when a player triggers a fishing event.",
 				"An entity hooked event is triggered when an entity gets caught by a fishing rod.",
@@ -70,15 +78,6 @@ public class EvtFish extends SkriptEvent {
 		// Register event value for event-fishing state
 		EventValues.registerEventValue(PlayerFishEvent.class, PlayerFishEvent.State.class, PlayerFishEvent::getState);
 
-	}
-
-	private static String[] buildPatterns() {
-		State[] states = State.values();
-		String[] patterns = new String[states.length];
-		for (int i = 0; i < states.length; i++) {
-			patterns[i] = states[i].pattern;
-		}
-		return patterns;
 	}
 
 	private State state;
