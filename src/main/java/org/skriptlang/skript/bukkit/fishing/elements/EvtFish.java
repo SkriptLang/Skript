@@ -11,6 +11,9 @@ import org.bukkit.event.player.PlayerFishEvent;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class EvtFish extends SkriptEvent {
 
 	private enum State {
@@ -71,7 +74,7 @@ public class EvtFish extends SkriptEvent {
 					
 			)
 			.requiredPlugins("Paper (bobber lured)")
-			.since("2.10", "INSERT VERSION (state change)");
+			.since("2.10, INSERT VERSION (state change)");
 
 		EventValues.registerEventValue(PlayerFishEvent.class, Entity.class, PlayerFishEvent::getCaught);
 
