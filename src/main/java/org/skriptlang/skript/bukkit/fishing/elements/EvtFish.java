@@ -49,7 +49,7 @@ public class EvtFish extends SkriptEvent {
 	static {
 		List<String> patterns = new ArrayList<>();
 		for (State state : State.values()) {
-			if (state.state == null)
+			if (state.state == null && state != State.STATE_CHANGE)
 				continue;
 
 			patterns.add(state.pattern);
