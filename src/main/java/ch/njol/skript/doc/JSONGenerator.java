@@ -36,7 +36,7 @@ public class JSONGenerator extends DocumentationGenerator {
 	/**
 	 * The current version of the JSON generator
 	 */
-	public static final Version JSON_VERSION = new Version(1, 0);
+	public static final Version JSON_VERSION = new Version(2, 0);
 
 	private static final Gson GSON = new GsonBuilder()
 		.disableHtmlEscaping()
