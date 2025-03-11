@@ -44,7 +44,7 @@ public class JSONGenerator extends DocumentationGenerator {
 		.serializeNulls()
 		.create();
 
-	private static final HashMap<Class<? extends Event>, List<SkriptEventInfo<?>>> events = new HashMap<>();
+	private static final Map<Class<? extends Event>, List<SkriptEventInfo<?>>> events = new HashMap<>();
 
 	public JSONGenerator(File templateDir, File outputDir) {
 		super(templateDir, outputDir);
@@ -120,10 +120,8 @@ public class JSONGenerator extends DocumentationGenerator {
 		}
 
 		AvailableEvents availableEvents = syntaxClass.getAnnotation(AvailableEvents.class);
-		syntaxJsonObject.add("availableEvents", getSkriptEvents(availableEvents));
+		syntaxJsonObject.add("events", getSkriptEvents(availableEvents));
 
-		Events events = syntaxClass.getAnnotation(Events.class);
-		syntaxJsonObject.add("events", events == null ? null : convertToJsonArray(events.value()));
 
 		RequiredPlugins requirements = syntaxClass.getAnnotation(RequiredPlugins.class);
 		syntaxJsonObject.add("requirements", requirements == null ? null : convertToJsonArray(requirements.value()));
@@ -395,7 +393,7 @@ public class JSONGenerator extends DocumentationGenerator {
 	private void cacheEvents() {
 		for (SkriptEventInfo<?> eventInfo : Skript.getEvents()) {
 			for (Class<? extends Event> event : eventInfo.events) {
-				if (events.containsKey(event)) {
+				if (!events.containsKey(event)) {
 					events.put(event, new ArrayList<>(Collections.singleton(eventInfo)));
 					continue;
 				}
