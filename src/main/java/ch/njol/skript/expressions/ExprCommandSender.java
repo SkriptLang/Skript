@@ -1,6 +1,5 @@
 package ch.njol.skript.expressions;
 
-import ch.njol.skript.command.CommandEvent;
 import ch.njol.skript.command.ScriptCommandEvent;
 import ch.njol.skript.doc.*;
 import org.bukkit.command.CommandSender;
@@ -21,9 +20,7 @@ import org.bukkit.event.server.ServerCommandEvent;
 		"\tlog \"%executor% used command /%command% %arguments%\" to \"commands.log\""
 })
 @Since("2.0")
-// TODO REMOVE
-// 	Should this use CommandEvent or ScriptCommandEvent?
-@AvailableEvents({PlayerCommandPreprocessEvent.class, ServerCommandEvent.class, CommandEvent.class})
+@AvailableEvents({PlayerCommandPreprocessEvent.class, ServerCommandEvent.class, ScriptCommandEvent.class})
 @Events("command")
 public class ExprCommandSender extends EventValueExpression<CommandSender> {
 

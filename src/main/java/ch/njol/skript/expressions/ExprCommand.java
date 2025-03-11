@@ -1,6 +1,5 @@
 package ch.njol.skript.expressions;
 
-import ch.njol.skript.command.CommandEvent;
 import ch.njol.skript.command.ScriptCommandEvent;
 import ch.njol.skript.doc.*;
 import ch.njol.skript.lang.EventRestrictedSyntax;
@@ -29,9 +28,7 @@ import ch.njol.util.Kleenean;
 		"\t\t\tmessage \"You're not allowed to use commands during the game\"",
 		"\t\t\tcancel the event"})
 @Since("2.0, 2.7 (support for script commands)")
-// TODO REMOVE
-// 	Should this use CommandEvent or ScriptCommandEvent?
-@AvailableEvents({PlayerCommandPreprocessEvent.class, ServerCommandEvent.class, CommandEvent.class})
+@AvailableEvents({PlayerCommandPreprocessEvent.class, ServerCommandEvent.class, ScriptCommandEvent.class})
 @Events("command")
 public class ExprCommand extends SimpleExpression<String> implements EventRestrictedSyntax {
 
