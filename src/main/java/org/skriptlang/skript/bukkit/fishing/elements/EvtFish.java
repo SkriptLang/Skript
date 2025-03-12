@@ -81,6 +81,9 @@ public class EvtFish extends SkriptEvent {
 		// Register event value for event-fishing state
 		EventValues.registerEventValue(PlayerFishEvent.class, PlayerFishEvent.State.class, PlayerFishEvent::getState);
 
+		// Register event value for fishing hook
+		EventValues.registerEventValue(PlayerFishEvent.class, FishHook.class, PlayerFishEvent::getHook);
+
 	}
 
 	private State state;
