@@ -4,8 +4,6 @@ import java.lang.reflect.Array;
 import java.util.*;
 import java.util.Map.Entry;
 import java.util.regex.Pattern;
-import java.util.NoSuchElementException;
-import java.util.TreeMap;
 import java.util.function.Predicate;
 import java.util.function.Function;
 
@@ -16,7 +14,7 @@ import ch.njol.skript.classes.Changer;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.classes.Changer.ChangerUtils;
 import ch.njol.skript.classes.ClassInfo;
-import ch.njol.skript.variables.VariablesStorage;
+import ch.njol.skript.variables.VariableStorage;
 import org.skriptlang.skript.lang.arithmetic.Arithmetics;
 import org.skriptlang.skript.lang.arithmetic.OperationInfo;
 import org.skriptlang.skript.lang.arithmetic.Operator;
@@ -41,20 +39,11 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.lang.arithmetic.Arithmetics;
-import org.skriptlang.skript.lang.arithmetic.OperationInfo;
-import org.skriptlang.skript.lang.arithmetic.Operator;
 import org.skriptlang.skript.lang.comparator.Comparators;
 import org.skriptlang.skript.lang.comparator.Relation;
 import org.skriptlang.skript.lang.converter.Converters;
 import org.skriptlang.skript.lang.script.Script;
 import org.skriptlang.skript.lang.script.ScriptWarning;
-
-import java.lang.reflect.Array;
-import java.util.*;
-import java.util.Map.Entry;
-import java.util.function.Function;
-import java.util.function.Predicate;
 
 public class Variable<T> implements Expression<T>, KeyReceiverExpression<T>, KeyProviderExpression<T> {
 
@@ -120,8 +109,8 @@ public class Variable<T> implements Expression<T>, KeyReceiverExpression<T>, Key
 				A lot of people already use '-' so we want to skip this warning iff they're using it here
 				*/
 				if (first == '-') {
-					for (VariablesStorage store : Variables.getStores()) {
-						@Nullable Pattern pattern = store.getNamePattern();
+					for (VariableStorage storage : Variables.getLoadedStorages()) {
+						@Nullable Pattern pattern = storage.getNamePattern();
 						if (pattern != null && pattern.pattern().equals("(?!-).*"))
 							continue check_reserved_tokens;
 					}
