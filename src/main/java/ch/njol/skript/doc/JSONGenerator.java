@@ -50,6 +50,10 @@ public class JSONGenerator extends DocumentationGenerator {
 		super(templateDir, outputDir);
 	}
 
+	static {
+		cacheEvents();
+	}
+
 	/**
 	 * @return The version of the JSON generator
 	 */
@@ -390,7 +394,7 @@ public class JSONGenerator extends DocumentationGenerator {
 		return convertToJsonArray(strings);
 	}
 
-	private void cacheEvents() {
+	private static void cacheEvents() {
 		for (SkriptEventInfo<?> eventInfo : Skript.getEvents()) {
 			for (Class<? extends Event> event : eventInfo.events) {
 				if (!events.containsKey(event)) {
@@ -420,8 +424,6 @@ public class JSONGenerator extends DocumentationGenerator {
 	@Override
 	public void generate() {
 		JsonObject jsonDocs = new JsonObject();
-
-		cacheEvents();
 
 		jsonDocs.addProperty("skriptVersion", Skript.getVersion().toString());
 		jsonDocs.add("version", getVersion());
