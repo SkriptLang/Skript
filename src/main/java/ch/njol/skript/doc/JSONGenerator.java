@@ -307,7 +307,7 @@ public class JSONGenerator extends DocumentationGenerator {
 	 * @return the effective name of the ClassInfo
 	 */
 	private static String getClassInfoName(ClassInfo<?> classInfo) {
-		return Objects.requireNonNullElse(classInfo.getDocName(), classInfo.getCodeName());
+		return Objects.requireNonNullElse(classInfo.getName().getSingular(), classInfo.getCodeName());
 	}
 
 	/**
