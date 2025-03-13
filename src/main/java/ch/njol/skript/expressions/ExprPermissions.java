@@ -1,70 +1,145 @@
 package ch.njol.skript.expressions;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.bukkit.entity.Entity;
+import org.bukkit.event.Event;
+import org.bukkit.permissions.PermissionAttachment;
+import org.bukkit.permissions.PermissionAttachmentInfo;
+import org.jetbrains.annotations.Nullable;
+
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
+import ch.njol.skript.expressions.base.PropertyExpression;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
-import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
 
-import org.bukkit.entity.Player;
-import org.bukkit.event.Event;
-import org.bukkit.permissions.PermissionAttachment;
-import org.bukkit.permissions.PermissionAttachmentInfo;
-import org.jetbrains.annotations.Nullable;
-
-import java.util.HashSet;
-import java.util.Set;
-
-@Name("All Permissions")
-@Description("Returns all permissions of the defined player(s). Note that the modifications to resulting list do not actually change permissions.")
+@Name("Permissions")
+@Description({
+	"All permissions of the provided permissible(s). A permissible is anything that can have permissions (like the player).",
+	"A couple of notes: Plugins like Skript cannot modify the default permissions such as bukkit.* permissions.",
+	"Skript also doesn't save the permissions after server restart.",
+	"You will need a permissions plugin or to save them yourself in variables."
+})
 @Examples("set {_permissions::*} to all permissions of the player")
-@Since("2.2-dev33")
-public class ExprPermissions extends SimpleExpression<String> {
-	
+@Since("2.2-dev33, INSERT VERSION (changers)")
+public class ExprPermissions extends PropertyExpression<Entity, String> {
+
 	static {
-		Skript.registerExpression(ExprPermissions.class, String.class, ExpressionType.PROPERTY, "[(all [[of] the]|the)] permissions (from|of) %players%", "[(all [[of] the]|the)] %players%'[s] permissions");
+		Skript.registerExpression(ExprPermissions.class, String.class, ExpressionType.PROPERTY,
+				"[all [[of] the]|the] permissions (from|of) %entities%",
+				"%entities%'[s] permissions"
+		);
 	}
-	
-	@SuppressWarnings("null")
-	private Expression<Player> players;
-	
-	@SuppressWarnings({"null", "unchecked"})
+
 	@Override
-	public boolean init(final Expression<?>[] exprs, final int matchedPattern, final Kleenean isDelayed, final ParseResult parseResult) {
-		players = (Expression<Player>) exprs[0];
+	@SuppressWarnings("unchecked")
+	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
+		setExpr((Expression<Entity>) exprs[0]);
 		return true;
 	}
 
 	@Override
-	@Nullable
-	protected String[] get(Event e) {
-		final Set<String> permissions = new HashSet<>();
-		for (Player player : players.getArray(e))
-			for (final PermissionAttachmentInfo permission : player.getEffectivePermissions())
-				permissions.add(permission.getPermission());
-		return permissions.toArray(new String[permissions.size()]);
+	protected String[] get(Event event, Entity[] source) {
+		return getExpr().stream(event)
+				.flatMap(permissible -> permissible.getEffectivePermissions().stream())
+				.map(PermissionAttachmentInfo::getPermission)
+				.toArray(String[]::new);
 	}
-	
+
+	@Override
+	public Class<?>[] acceptChange(ChangeMode mode) {
+		switch (mode) {
+			case ADD:
+			case REMOVE:
+				return CollectionUtils.array(String[].class);
+			case DELETE:
+				return CollectionUtils.array();
+			default:
+				return null;
+		}
+	}
+
+	@Override
+	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
+		List<String> permissions = new ArrayList<>();
+		if (mode != ChangeMode.DELETE) {
+			assert delta != null;
+			for (Object permission : delta) {
+				if (permission == null)
+					continue;
+				permissions.add((String) permission);
+			}
+		}
+
+		switch (mode) {
+			case DELETE:
+			case REMOVE:
+				for (Entity entity : getExpr().getArray(event)) {
+					for (PermissionAttachmentInfo info : entity.getEffectivePermissions()) {
+						PermissionAttachment attachment = info.getAttachment();
+						if (attachment == null)
+							continue;
+						for (String permission : attachment.getPermissions().keySet()) {
+							if (mode == ChangeMode.DELETE) {
+								attachment.unsetPermission(permission);
+							} else if (permissions.contains(permission)) {
+								attachment.unsetPermission(permission);
+							}
+						}
+					}
+				}
+				break;
+			case ADD:
+				for (Entity entity : getExpr().getArray(event)) {
+					PermissionAttachment attachment = getPermission(entity);
+					for (String permission : permissions) {
+						attachment.setPermission(permission, true);
+					}
+				}
+				break;
+			default:
+				break;
+		}
+	}
+
 	@Override
 	public boolean isSingle() {
 		return false;
 	}
-	
+
 	@Override
-	public Class<String> getReturnType() {
+	public Class<? extends String> getReturnType() {
 		return String.class;
 	}
-	
+
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return "permissions of " + players.toString(event, debug);
+		return "permissions of " + getExpr().toString(event, debug);
+	}
+
+	/**
+	 * Grabs the PermissionAttachment added by Skript.
+	 * 
+	 * @param entity The entity to grab the attachment from
+	 * @return PermissionAttachment with Skript as the plugin
+	 */
+	private PermissionAttachment getPermission(Entity entity) {
+		Skript instance = Skript.getInstance();
+		for (PermissionAttachmentInfo info : entity.getEffectivePermissions()) {
+			PermissionAttachment attachment = info.getAttachment();
+			if (attachment != null && attachment.getPlugin().equals(instance))
+				return attachment;
+		}
+		return entity.addAttachment(instance);
 	}
 
 }

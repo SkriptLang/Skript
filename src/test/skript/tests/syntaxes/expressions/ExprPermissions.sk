@@ -1,0 +1,12 @@
+test "permissions":
+	spawn cow at spawn of world "world":
+		# Entities have default bukkit permissions.
+		add "permission.test" to permissions of event-entity
+		assert permissions of event-entity contains "permission.test" with "permission failed to be added"
+		add "permission.test1" and "permission.test2" to permissions of event-entity
+		assert permissions of event-entity contains "permission.test", "permission.test1" and "permission.test2" with "multiple permissions failed to be added"
+		remove "permission.test1" from permissions of event-entity
+		assert permissions of event-entity contains "permission.test" and "permission.test2" with "failed to remove permission"
+		clear permissions of event-entity
+		assert permissions of event-entity doesn't contain "permission.test", "permission.test1" and "permission.test2" with "permissions were not cleared"
+		delete event-entity
