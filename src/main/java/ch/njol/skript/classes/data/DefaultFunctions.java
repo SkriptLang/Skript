@@ -11,10 +11,7 @@ import ch.njol.skript.lang.function.SimpleJavaFunction;
 import ch.njol.skript.lang.util.SimpleLiteral;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.registrations.DefaultClasses;
-import ch.njol.skript.util.Color;
-import ch.njol.skript.util.ColorRGB;
-import ch.njol.skript.util.Contract;
-import ch.njol.skript.util.Date;
+import ch.njol.skript.util.*;
 import ch.njol.util.Math2;
 import ch.njol.util.StringUtils;
 import ch.njol.util.coll.CollectionUtils;
@@ -544,9 +541,8 @@ public class DefaultFunctions {
 				boolean isExact = (boolean) params[1][0];
 				UUID uuid = null;
 				if (name.length() > 16 || name.contains("-")) { // shortcut
-					try {
+					if (Utils.isValidUUID(name))
 						uuid = UUID.fromString(name);
-					} catch (IllegalArgumentException ignored) {}
 				}
 				return CollectionUtils.array(uuid != null ? Bukkit.getPlayer(uuid) : (isExact ? Bukkit.getPlayerExact(name) : Bukkit.getPlayer(name)));
 			}
@@ -569,10 +565,8 @@ public class DefaultFunctions {
 					String name = (String) params[0][0];
 					UUID uuid = null;
 					if (name.length() > 16 || name.contains("-")) { // shortcut
-						try {
+						if (Utils.isValidUUID(name))
 							uuid = UUID.fromString(name);
-						} catch (IllegalArgumentException ignored) {
-						}
 					}
 					OfflinePlayer result;
 
@@ -711,6 +705,22 @@ public class DefaultFunctions {
 						"\t\tset {_money} to formatNumber({money::%sender's uuid%})",
 						"\t\tsend \"Your balance: %{_money}%\" to sender")
 			.since("2.10");
+
+		Functions.registerFunction(new SimpleJavaFunction<>("uuid", new Parameter[]{
+				new Parameter<>("uuid", DefaultClasses.STRING, true, null)
+			}, Classes.getExactClassInfo(UUID.class), true) {
+				@Override
+				public UUID[] executeSimple(Object[][] params) {
+					String uuid = (String) params[0][0];
+					if (Utils.isValidUUID(uuid))
+						return CollectionUtils.array(UUID.fromString(uuid));
+					return new UUID[0];
+				}
+			}
+			.description("Returns a UUID from the given string. The string must be in the format of a UUID.")
+			.examples("uuid(\"069a79f4-44e9-4726-a5be-fca90e38aaf5\")")
+			.since("INSERT VERSION")
+		);
 	}
 
 }
