@@ -1,15 +1,12 @@
 package ch.njol.skript.expressions;
 
+import ch.njol.skript.doc.*;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
+import org.bukkit.event.player.PlayerLevelChangeEvent;
 import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.classes.Changer.ChangeMode;
-import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Events;
-import ch.njol.skript.doc.Examples;
-import ch.njol.skript.doc.Name;
-import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import ch.njol.util.Math2;
 
@@ -34,8 +31,9 @@ import ch.njol.util.Math2;
 		"\t\t\tset level progress of the loop-player to 0.99",
 		"on xp spawn:",
 		"\tcancel event"})
-@Since("2.0")
+@AvailableEvents(PlayerLevelChangeEvent.class)
 @Events("level change")
+@Since("2.0")
 public class ExprLevelProgress extends SimplePropertyExpression<Player, Number> {
 	
 	static {
