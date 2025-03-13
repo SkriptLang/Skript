@@ -181,11 +181,9 @@ public class JSONGenerator extends DocumentationGenerator {
 						continue;
 					}
 
-					String name;
+					String name = classInfo.getName().getSingular();
 					if (eventValueInfo.c().isArray()) {
-						name = Objects.requireNonNullElse(classInfo.getName().getPlural(), classInfo.getCodeName());
-					} else {
-						name = Objects.requireNonNullElse(classInfo.getName().getSingular(), classInfo.getCodeName());
+						name = classInfo.getName().getPlural();
 					}
 					if (name.isBlank()) {
 						continue;
