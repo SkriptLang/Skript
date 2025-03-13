@@ -14,6 +14,7 @@ import ch.njol.skript.lang.SyntaxElement;
 import ch.njol.skript.lang.parser.ParserInstance;
 import ch.njol.skript.log.ParseLogHandler;
 import ch.njol.skript.log.SkriptLogger;
+import ch.njol.skript.test.runner.EvtTestCase;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.iterator.CheckedIterator;
 import ch.njol.util.coll.iterator.ConsumingIterator;
@@ -22,9 +23,10 @@ import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.entry.EntryContainer;
 import org.skriptlang.skript.lang.entry.EntryData;
 import org.skriptlang.skript.lang.entry.EntryValidator;
+import org.skriptlang.skript.lang.script.Annotated;
+import org.skriptlang.skript.lang.script.Annotation;
 
-import java.util.Arrays;
-import java.util.Iterator;
+import java.util.*;
 
 /**
  * Structures are the root elements in every script. They are essentially the "headers".
@@ -35,7 +37,7 @@ import java.util.Iterator;
  * The values of these entries can be obtained by parsing the Structure's sub{@link Node}s
  *  through registered {@link EntryData}.
  */
-public abstract class Structure implements SyntaxElement, Debuggable {
+public abstract class Structure implements SyntaxElement, Debuggable, Annotated {
 
 	/**
 	 * The default {@link Priority} of every registered Structure.
@@ -47,14 +49,14 @@ public abstract class Structure implements SyntaxElement, Debuggable {
 	 * As the priority approaches 0, it becomes more important. Example:
 	 * priority of 1 (loads first), priority of 2 (loads second), priority of 3 (loads third)
 	 */
-	public static class Priority implements Comparable<Priority> {
+	public record Priority(int priority) implements Comparable<Priority> {
 
-		private final int priority;
-
-		public Priority(int priority) {
-			this.priority = priority;
-		}
-
+		/**
+		* Deprecated in favour of {@link #priority()}.
+		*
+		* @return The priority
+		*/
+		@Deprecated(forRemoval = true)
 		public int getPriority() {
 			return priority;
 		}
@@ -66,8 +68,9 @@ public abstract class Structure implements SyntaxElement, Debuggable {
 
 	}
 
-	@Nullable
-	private EntryContainer entryContainer = null;
+	private @Nullable EntryContainer entryContainer = null;
+
+	private @Nullable Collection<Annotation> annotations;
 
 	/**
 	 * @return An EntryContainer containing this Structure's {@link EntryData} and {@link Node} parse results.
@@ -86,7 +89,7 @@ public abstract class Structure implements SyntaxElement, Debuggable {
 
 	@Override
 	public final boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		StructureData structureData = getParser().getData(StructureData.class);
+		StructureData structureData = this.getParser().getData(StructureData.class);
 
 		Literal<?>[] literals = Arrays.copyOf(expressions, expressions.length, Literal[].class);
 
@@ -96,6 +99,9 @@ public abstract class Structure implements SyntaxElement, Debuggable {
 		if (structureData.node instanceof SimpleNode) { // simple structures do not have validators
 			return init(literals, matchedPattern, parseResult, null);
 		}
+		// make the top-level annotations visible inside this structure
+		// note: simple structures don't need this since they have no contents
+		this.annotations = this.getParser().copyAnnotations();
 
 		EntryValidator entryValidator = structureInfo.entryValidator;
 		if (entryValidator == null) {
@@ -209,16 +215,21 @@ public abstract class Structure implements SyntaxElement, Debuggable {
 		}
 	}
 
+	@Override
+	public @NotNull Collection<Annotation> annotations() {
+		if (annotations == null)
+			return Collections.emptySet();
+		return annotations;
+	}
+
 	static {
 		ParserInstance.registerData(StructureData.class, StructureData::new);
 	}
 
-	@SuppressWarnings("NotNullFieldNotInitialized")
 	public static class StructureData extends ParserInstance.Data {
 
 		private Node node;
-		@Nullable
-		private StructureInfo<? extends Structure> structureInfo;
+		private @Nullable StructureInfo<? extends Structure> structureInfo;
 
 		public StructureData(ParserInstance parserInstance) {
 			super(parserInstance);
