@@ -12,6 +12,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Array;
 import java.util.*;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.Predicate;
 
 /**
@@ -200,8 +201,13 @@ public class ExpressionList<T> implements Expression<T> {
 
 	@Override
 	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) throws UnsupportedOperationException {
-		for (Expression<?> expr : expressions) {
-			expr.change(event, delta, mode);
+		if (and) {
+			for (Expression<?> expr : expressions) {
+				expr.change(event, delta, mode);
+			}
+		} else {
+			int i = ThreadLocalRandom.current().nextInt(expressions.length);
+			expressions[i].change(event, delta, mode);
 		}
 	}
 

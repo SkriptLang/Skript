@@ -1,0 +1,11 @@
+test "any of":
+	set {_a} to any of 1, 2, and 3
+	assert {_a} is 1, 2, or 3 with error "any of 1, 2, and 3 was not 1, 2, or 3"
+	set {_a} to any of 1, 2, or 3
+	assert {_a} is 1, 2, or 3 with error "any of 1, 2, or 3 was not 1, 2, or 3"
+	assert 1 is any of 1, 2, and 3 with error "1 was not any of 1, 2, and 3"
+	set {_a::*} to 1, 2, and 3
+	assert 1 is any of {_a::*} with error "1 was not any of 1, 2, and 3 as a variable"
+
+	assert 1 is any of the integers from 1 to 3 with error "1 was not any of integers from 1 to 3"
+	assert any of the integers from 1 to 3 are evenly divisible by 2 with error "none of integers from 1 to 3 were divisible by 2"
