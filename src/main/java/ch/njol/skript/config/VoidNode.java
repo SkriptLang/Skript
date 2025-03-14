@@ -24,7 +24,6 @@ public class VoidNode extends Node {
 		return key;
 	}
 
-	@Deprecated
 	public void set(final String s) {
 		key = s;
 	}
