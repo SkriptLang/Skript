@@ -76,6 +76,9 @@ public class DefaultConverters {
 		// BlockCommandSender - Block
 		Converters.registerConverter(BlockCommandSender.class, Block.class, BlockCommandSender::getBlock);
 
+		// Experience - Number
+		Converters.registerConverter(Experience.class, Number.class, Experience::getXP);
+
 		// Entity - Player
 		Converters.registerConverter(Entity.class, Player.class, e -> {
 			if (e instanceof Player)
