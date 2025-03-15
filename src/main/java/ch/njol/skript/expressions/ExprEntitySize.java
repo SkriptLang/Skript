@@ -16,9 +16,9 @@ import org.jetbrains.annotations.Nullable;
 
 @Name("Entity Size")
 @Description({
-	"Changes the entity size of slimes and phantoms, this is not the same as changing the scale attribute of an entity.",
-	"When changing the size of a slime, its health is fully resorted and will have changes done to the MAX_HEALTH, MOVEMENT_SPEED and ATTACK_DAMAGE attributes",
-	"The maximum size of a slime is 126 and the maximum size of a phantom is 64"
+	"Changes the entity size of slimes and phantoms. This is not the same as changing the scale attribute of an entity.",
+	"When changing the size of a slime, its health is fully resorted and will have changes done to its max health, movement speed and attack damage.",
+	"The maximum size of a slime is 126 and the maximum size of a phantom is 64."
 })
 @Example("""
 	spawn a slime at player:
