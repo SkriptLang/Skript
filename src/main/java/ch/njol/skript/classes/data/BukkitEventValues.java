@@ -734,6 +734,14 @@ public final class BukkitEventValues {
 			EventValues.registerEventValue(PlayerElytraBoostEvent.class, Entity.class, PlayerElytraBoostEvent::getFirework);
 		}
 
+		// BrewEvent
+		EventValues.registerEventValue(BrewEvent.class, ItemStack[].class,
+			event -> event.getResults().toArray(new ItemStack[0])
+		);
+
+		// BrewingStandFuelEvent
+		EventValues.registerEventValue(BrewingStandFuelEvent.class, ItemStack.class, BrewingStandFuelEvent::getFuel);
+
 	}
 
 }
