@@ -42,7 +42,6 @@ public class VisualEffects {
 	private static VisualEffectType[] visualEffectTypes;
 
 	static {
-		Variables.yggdrasil.registerSingleClass(VisualEffectType.class, "VisualEffect.NewType");
 		Variables.yggdrasil.registerSingleClass(Effect.class, "Bukkit_Effect");
 		Variables.yggdrasil.registerSingleClass(EntityEffect.class, "Bukkit_EntityEffect");
 	}
@@ -57,6 +56,14 @@ public class VisualEffects {
 
 	public static VisualEffectType get(int i) {
 		return visualEffectTypes[i];
+	}
+
+	public static @Nullable VisualEffectType get(String id) {
+		for (VisualEffectType type : visualEffectTypes) {
+			if (id.equals(type.getId()))
+				return type;
+		}
+		return null;
 	}
 
 	public static String getAllNames() {
