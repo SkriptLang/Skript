@@ -61,7 +61,7 @@ public class Variable<T> implements Expression<T>, KeyReceiverExpression<T>, Key
 	private final static String SINGLE_SEPARATOR_CHAR = ":";
 	public final static String SEPARATOR = SINGLE_SEPARATOR_CHAR + SINGLE_SEPARATOR_CHAR;
 	public final static String LOCAL_VARIABLE_TOKEN = "_";
-	private static final char[] reservedTokens = {'~', '.', '+', '$', '!', '&', '^', '*', '-'};
+	private static final char[] reservedTokens = {'~', '.', '+', '$', '!', '&', '^', '*'};
 
 	/**
 	 * Script this variable was created in.
@@ -113,21 +113,10 @@ public class Variable<T> implements Expression<T>, KeyReceiverExpression<T>, Key
 	public static boolean isValidVariableName(String name, boolean allowListVariable, boolean printErrors) {
 		assert !name.isEmpty(): "Variable name should not be empty";
 		char first = name.charAt(0);
-		check_reserved_tokens:
 		for (char token : reservedTokens) {
 			if (first == token && printErrors) {
-				/*
-				A lot of people already use '-' so we want to skip this warning iff they're using it here
-				*/
-				if (first == '-') {
-					for (VariablesStorage store : Variables.getStores()) {
-						@Nullable Pattern pattern = store.getNamePattern();
-						if (pattern != null && pattern.pattern().equals("(?!-).*"))
-							continue check_reserved_tokens;
-					}
-				}
-				Skript.warning("The character '" + token + "' is reserved at the start of variable names, " +
-					"and may be restricted in future versions");
+				Skript.warning("The character '" + token + "' is reserved at the start of variable names, "
+					+ "and may be restricted in future versions");
 			}
 		}
 		name = name.startsWith(LOCAL_VARIABLE_TOKEN) ? name.substring(LOCAL_VARIABLE_TOKEN.length()).trim() : name.trim();

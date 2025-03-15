@@ -385,7 +385,7 @@ public abstract class VariablesStorage implements Closeable {
 	 * @see #variableNamePattern
 	 */
 	boolean accept(@Nullable String var) {
-		if (var == null)
+		if (var == null || var.startsWith("-"))
 			return false;
 
 		return variableNamePattern == null || variableNamePattern.matcher(var).matches();
