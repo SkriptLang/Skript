@@ -61,7 +61,10 @@ public class ExprEntitySize extends SimplePropertyExpression<LivingEntity, Integ
 		if (delta == null && mode != ChangeMode.RESET)
 			return;
 
-		int deltaValue = delta != null ? ((Number) delta[0]).intValue() : -1;
+		double deltaValueDouble = delta != null ? ((Number) delta[0]).doubleValue() : -1;
+		if (Double.isNaN(deltaValueDouble) || Double.isInfinite(deltaValueDouble))
+			return;
+		int  deltaValue = (int) deltaValueDouble;
 		if (mode == ChangeMode.REMOVE)
 			deltaValue = -deltaValue;
 
