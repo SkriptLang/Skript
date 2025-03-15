@@ -17,11 +17,11 @@ test "ExprEntitySize - Slimes":
 	set entity size of {_entity} to nan value
 	assert entity size of {_entity} is 12
 
-	reset entity size of {_entity}
-	assert entity size of {_entity} is 1
-
 	set entity size of {_entity} to {_blank}
-	assert entity size of {_entity} is 1
+	assert entity size of {_entity} is 12
+
+	reset entity size of {_entity}
+	assert entity size of {_entity} is 0
 
 	delete entity within {_entity}
 
@@ -43,10 +43,10 @@ test "ExprEntitySize - Phantoms":
 	set entity size of {_entity} to nan value
 	assert entity size of {_entity} is 12
 
-	reset entity size of {_entity}
-	assert entity size of {_entity} is 0
-
 	set entity size of {_entity} to {_blank}
+	assert entity size of {_entity} is 12
+
+	reset entity size of {_entity}
 	assert entity size of {_entity} is 0
 
 	delete entity within {_entity}

@@ -28,10 +28,8 @@ import org.jetbrains.annotations.Nullable;
 @Since("INSERT VERSION")
 public class ExprEntitySize extends SimplePropertyExpression<LivingEntity, Integer> {
 
-	// The minimum size of a slime is one, whereas phantoms' are 0
-	// Setting a slime size to 1 is the same as 0, however 2 is not the same as 1
-	private static final int MINIMUM_SLIME_SIZE = 1;
-	private static final int MINIMUM_PHANTOM_SIZE = 0;
+	private static final int MAXIMUM_SLIME_SIZE = 127;
+	private static final int MAXIMUM_PHANTOM_SIZE = 64;
 
 	static {
 		register(ExprEntitySize.class, Integer.class, "entity size", "livingentities");
@@ -42,7 +40,8 @@ public class ExprEntitySize extends SimplePropertyExpression<LivingEntity, Integ
 		if (from instanceof Phantom phantom) {
 			return phantom.getSize();
 		} else if (from instanceof Slime slime) {
-			return slime.getSize();
+			// We follow nbt format of 0-126 for slimes, bukkit uses a 1-127 value
+			return slime.getSize()-1;
 		}
 		return null;
 	}
@@ -64,7 +63,7 @@ public class ExprEntitySize extends SimplePropertyExpression<LivingEntity, Integ
 		double deltaValueDouble = delta != null ? ((Number) delta[0]).doubleValue() : -1;
 		if (Double.isNaN(deltaValueDouble) || Double.isInfinite(deltaValueDouble))
 			return;
-		int  deltaValue = (int) deltaValueDouble;
+		int deltaValue = (int) deltaValueDouble;
 		if (mode == ChangeMode.REMOVE)
 			deltaValue = -deltaValue;
 
@@ -72,10 +71,10 @@ public class ExprEntitySize extends SimplePropertyExpression<LivingEntity, Integ
 			case ADD, REMOVE -> {
 				for (LivingEntity entity : getExpr().getArray(event)) {
 					if (entity instanceof Phantom phantom) {
-						int newSize = Math2.fit(MINIMUM_PHANTOM_SIZE, (phantom.getSize() + deltaValue), Integer.MAX_VALUE);
+						int newSize = Math2.fit(0, (phantom.getSize() + deltaValue), MAXIMUM_PHANTOM_SIZE);
 						phantom.setSize(newSize);
 					} else if (entity instanceof Slime slime) {
-						int newSize = Math2.fit(MINIMUM_SLIME_SIZE, (slime.getSize() + deltaValue), Integer.MAX_VALUE);
+						int newSize = Math2.fit(1, (slime.getSize() + deltaValue), MAXIMUM_SLIME_SIZE);
 						slime.setSize(newSize);
 					}
 				}
@@ -83,18 +82,19 @@ public class ExprEntitySize extends SimplePropertyExpression<LivingEntity, Integ
 			case SET -> {
 				for (LivingEntity entity : getExpr().getArray(event)) {
 					if (entity instanceof Phantom phantom) {
-						phantom.setSize(Math2.fit(MINIMUM_PHANTOM_SIZE, deltaValue, Integer.MAX_VALUE));
+						phantom.setSize(Math2.fit(0, deltaValue, Integer.MAX_VALUE));
 					} else if (entity instanceof Slime slime) {
-						slime.setSize(Math2.fit(MINIMUM_SLIME_SIZE, deltaValue, Integer.MAX_VALUE));
+						// We follow nbt format of 0-126 for slimes, bukkit uses a 1-127 value
+						slime.setSize(Math2.fit(1, deltaValue+1, MAXIMUM_SLIME_SIZE));
 					}
 				}
 			}
 			case RESET -> {
 				for (LivingEntity entity : getExpr().getArray(event)) {
 					if (entity instanceof Phantom phantom) {
-						phantom.setSize(MINIMUM_PHANTOM_SIZE);
+						phantom.setSize(0);
 					} else if (entity instanceof Slime slime) {
-						slime.setSize(MINIMUM_SLIME_SIZE);
+						slime.setSize(1);
 					}
 				}
 			}
