@@ -40,7 +40,7 @@ public class ExprEntitySize extends SimplePropertyExpression<LivingEntity, Integ
 		if (from instanceof Phantom phantom) {
 			return phantom.getSize();
 		} else if (from instanceof Slime slime) {
-			// We follow nbt format of 0-126 for slimes, bukkit uses a 1-127 value
+			// Skript follows the nbt format of 0-126 for slimes, as bukkit uses a 1-127 value
 			return slime.getSize()-1;
 		}
 		return null;
@@ -60,21 +60,21 @@ public class ExprEntitySize extends SimplePropertyExpression<LivingEntity, Integ
 		if (delta == null && mode != ChangeMode.RESET)
 			return;
 
-		double deltaValueDouble = delta != null ? ((Number) delta[0]).doubleValue() : -1;
-		if (Double.isNaN(deltaValueDouble) || Double.isInfinite(deltaValueDouble))
+		double deltaSizeDouble = delta != null ? ((Number) delta[0]).doubleValue() : -1;
+		if (Double.isNaN(deltaSizeDouble) || Double.isInfinite(deltaSizeDouble))
 			return;
-		int deltaValue = (int) deltaValueDouble;
+		int deltaSize = (int) deltaSizeDouble;
 		if (mode == ChangeMode.REMOVE)
-			deltaValue = -deltaValue;
+			deltaSize = -deltaSize;
 
 		switch (mode) {
 			case ADD, REMOVE -> {
 				for (LivingEntity entity : getExpr().getArray(event)) {
 					if (entity instanceof Phantom phantom) {
-						int newSize = Math2.fit(0, (phantom.getSize() + deltaValue), MAXIMUM_PHANTOM_SIZE);
+						int newSize = Math2.fit(0, (phantom.getSize() + deltaSize), MAXIMUM_PHANTOM_SIZE);
 						phantom.setSize(newSize);
 					} else if (entity instanceof Slime slime) {
-						int newSize = Math2.fit(1, (slime.getSize() + deltaValue), MAXIMUM_SLIME_SIZE);
+						int newSize = Math2.fit(1, (slime.getSize() + deltaSize), MAXIMUM_SLIME_SIZE);
 						slime.setSize(newSize);
 					}
 				}
@@ -82,10 +82,10 @@ public class ExprEntitySize extends SimplePropertyExpression<LivingEntity, Integ
 			case SET -> {
 				for (LivingEntity entity : getExpr().getArray(event)) {
 					if (entity instanceof Phantom phantom) {
-						phantom.setSize(Math2.fit(0, deltaValue, Integer.MAX_VALUE));
+						phantom.setSize(Math2.fit(0, deltaSize, Integer.MAX_VALUE));
 					} else if (entity instanceof Slime slime) {
-						// We follow nbt format of 0-126 for slimes, bukkit uses a 1-127 value
-						slime.setSize(Math2.fit(1, deltaValue+1, MAXIMUM_SLIME_SIZE));
+						// Skript follows the nbt format of 0-126 for slimes, as bukkit uses a 1-127 value
+						slime.setSize(Math2.fit(1, deltaSize+1, MAXIMUM_SLIME_SIZE));
 					}
 				}
 			}
