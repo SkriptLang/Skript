@@ -1,0 +1,23 @@
+test "warden entity anger":
+	spawn a warden at test-location:
+		set {_warden} to entity
+
+	spawn a pig, a sheep and a cow at test-location:
+		add entity to {_entities::*}
+
+	loop {_entities::*}:
+		set {_rng} to a random integer between 1 and 79
+		set the anger level of {_warden} towards loop-value to {_rng}
+		assert the anger level of {_warden} towards loop-value is {_rng} with "Anger level was not correctly set"
+		remove 99999 from the anger level of {_warden} towards loop-value
+		assert the anger level of {_warden} towards loop-value is 0 with "Anger level should be clamped to 0 min"
+		add 99999 to the anger level of {_warden} towards loop-value
+		assert the anger level of {_warden} towards loop-value is 150 with "Anger level should be clamped to 150 max"
+		clear the anger level of {_warden} towards loop-value
+		assert the anger level of {_warden} towards loop-value is 0 with "Anger level was not cleared"
+
+	set the most angered entity of {_warden} to {_entities::1}
+	assert the most angered entity of {_warden} is {_entities::1} with "Most angered entity was not correctly set"
+
+	clear entity within {_warden}
+	clear entities within {_entities::*}
