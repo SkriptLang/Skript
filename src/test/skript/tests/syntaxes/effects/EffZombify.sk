@@ -1,0 +1,20 @@
+test "zombify villager":
+	clear all entities
+
+	spawn a villager at test-location:
+		set {_entity} to entity
+	zombify {_entity}
+	assert {_entity} is a zombie villager with "Zombifying a villager within a variable should update the variable"
+	clear entity within {_entity}
+
+	spawn 5 villagers at test-location:
+		add entity to {_entities::*}
+	assert size of {_entities::*} is 5 with "5 villagers did not spawn"
+	zombify {_entities::*}
+	loop {_entities::*}:
+		assert loop-value is a zombie villager with "Failed to update list variable with new zombie villager"
+	unzombify {_entities::*}
+	# Requires 2 ticks after unzombifying for proper check
+	# assert size of all villagers is 5 with "Should be 5 villagers after unzombifying zombie villagers"
+	# assert size of all zombie villagers is 0 with "All zombie villagers should be villagers"
+	clear all entities
