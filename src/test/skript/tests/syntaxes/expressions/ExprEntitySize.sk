@@ -1,0 +1,27 @@
+
+test "ExprEntitySize - Slimes & Phantoms":
+	spawn a slime at test location:
+		set entity size of entity to 5
+		set {_entity} to entity
+	assert entity size of {_entity} is 5
+	remove 3 from entity size of {_entity}
+	assert entity size of {_entity} is 2
+	add 10 to entity size of {_entity}
+	assert entity size of {_entity} is 12
+	reset entity size of {_entity}
+	assert entity size of {_entity} is 1
+
+	delete entity within {_entity}
+
+	spawn a phantom at test location:
+		set entity size of entity to 5
+		set {_entity} to entity
+	assert entity size of {_entity} is 5
+	remove 3 from entity size of {_entity}
+	assert entity size of {_entity} is 2
+	add 10 to entity size of {_entity}
+	assert entity size of {_entity} is 12
+	reset entity size of {_entity}
+	assert entity size of {_entity} is 0
+
+	delete entity within {_entity}
