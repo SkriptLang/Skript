@@ -1,5 +1,7 @@
 package ch.njol.skript.effects;
 
+import ch.njol.skript.registrations.Classes;
+import ch.njol.skript.util.LiteralUtils;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
@@ -21,31 +23,29 @@ import net.md_5.bungee.api.chat.BaseComponent;
 @Name("Action Bar")
 @Description("Sends an action bar message to the given player(s).")
 @Examples("send action bar \"Hello player!\" to player")
-@Since("2.3")
+@Since("2.3, INSERT_VERSION (object support)")
 public class EffActionBar extends Effect {
-
 	static {
-		Skript.registerEffect(EffActionBar.class, "send [the] action[ ]bar [with text] %string% [to %players%]");
+		Skript.registerEffect(EffActionBar.class, "send [the] action[ ]bar [with text] %object% [to %players%]");
 	}
 
-	private Expression<String> message;
+	private Expression<?> message;
 
 	private Expression<Player> recipients;
 
 	@Override
 	@SuppressWarnings("unchecked")
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		message = (Expression<String>) exprs[0];
+		message = LiteralUtils.defendExpression(exprs[0]);
 		recipients = (Expression<Player>) exprs[1];
-		return true;
+		return LiteralUtils.canInitSafely(message);
 	}
 
 	@Override
 	@SuppressWarnings("deprecation")
 	protected void execute(Event event) {
-		String msg = message.getSingle(event);
-		if (msg == null)
-			return;
+		Object msgObj = message.getSingle(event);
+		String msg = msgObj != null ? Classes.toString(msgObj) : "";
 		BaseComponent[] components = BungeeConverter.convert(ChatMessages.parseToArray(msg));
 		for (Player player : recipients.getArray(event))
 			player.spigot().sendMessage(ChatMessageType.ACTION_BAR, components);
