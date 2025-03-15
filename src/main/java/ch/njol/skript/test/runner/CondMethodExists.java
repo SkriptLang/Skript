@@ -23,7 +23,7 @@ import java.util.regex.Pattern;
 
 @Name("Method Exists")
 @Description("Checks if a method exists")
-@Examples("if method \"org.bukkit.Bukkit#getPluginCommand(java.lang.String)")
+@Examples("if method \"org.bukkit.Bukkit#getPluginCommand(java.lang.String)\" exists")
 @Since("2.7")
 @NoDoc
 public class CondMethodExists extends PropertyCondition<String> {

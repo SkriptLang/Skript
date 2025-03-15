@@ -9,7 +9,10 @@ import ch.njol.skript.doc.Since;
 
 @Name("Is Block")
 @Description("Checks whether an item is a block.")
-@Examples({"player's held item is a block", "{list::*} are blocks"})
+@Examples({
+	"player's held item is a block",
+	"{list::*} are blocks"
+})
 @Since("2.4")
 public class CondIsBlock extends PropertyCondition<ItemType> {
 	
@@ -18,8 +21,8 @@ public class CondIsBlock extends PropertyCondition<ItemType> {
 	}
 	
 	@Override
-	public boolean check(ItemType i) {
-		return i.getMaterial().isBlock();
+	public boolean check(ItemType itemType) {
+		return itemType.getMaterial().isBlock();
 	}
 	
 	@Override

@@ -9,7 +9,10 @@ import ch.njol.skript.doc.Since;
 
 @Name("Is Edible")
 @Description("Checks whether an item is edible.")
-@Examples({"steak is edible", "player's tool is edible"})
+@Examples({
+	"steak is edible",
+	"player's tool is edible"
+})
 @Since("2.2-dev36")
 public class CondIsEdible extends PropertyCondition<ItemType> {
 
@@ -18,8 +21,8 @@ public class CondIsEdible extends PropertyCondition<ItemType> {
 	}
 
 	@Override
-	public boolean check(ItemType i) {
-		return i.getMaterial().isEdible();
+	public boolean check(ItemType itemType) {
+		return itemType.getMaterial().isEdible();
 	}
 
 	@Override

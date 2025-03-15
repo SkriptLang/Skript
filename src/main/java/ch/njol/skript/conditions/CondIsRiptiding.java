@@ -1,13 +1,11 @@
 package ch.njol.skript.conditions;
 
-import org.bukkit.entity.LivingEntity;
-
-import ch.njol.skript.Skript;
 import ch.njol.skript.conditions.base.PropertyCondition;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
+import org.bukkit.entity.LivingEntity;
 
 @Name("Is Riptiding")
 @Description("Checks to see if an entity is currently using the Riptide enchantment.")
@@ -16,9 +14,7 @@ import ch.njol.skript.doc.Since;
 public class CondIsRiptiding extends PropertyCondition<LivingEntity> {
 	
 	static {
-		if (Skript.methodExists(LivingEntity.class, "isRiptiding")) {
-			register(CondIsRiptiding.class, PropertyType.BE, "riptiding", "livingentities");
-		}
+		register(CondIsRiptiding.class, "riptiding", "livingentities");
 	}
 	
 	@Override
