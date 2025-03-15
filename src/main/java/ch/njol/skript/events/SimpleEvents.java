@@ -763,6 +763,11 @@ public class SimpleEvents {
 				.since("2.10");
 		}
 
+		Skript.registerEvent("Bat Toggle Sleep", SimpleEvent.class, BatToggleSleepEvent.class, "bat toggle sleep")
+			.description("Called when a bat attempts to go to sleep or wakes up.")
+			.examples("on bat toggle sleep:")
+			.since("INSERT VERSION");
+
 	}
 
 }
