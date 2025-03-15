@@ -64,18 +64,18 @@ public class ExprEntitySize extends SimplePropertyExpression<LivingEntity, Integ
 		if (Double.isNaN(deltaSizeDouble) || Double.isInfinite(deltaSizeDouble))
 			return;
 		// Due to how double to int conversions happen, we are required to reassign from delta to prevent integer overflows
-		int deltaSize = delta != null ? ((Number) delta[0]).intValue() : 0;
+		int sizeDelta = delta != null ? ((Number) delta[0]).intValue() : 0;
 		if (mode == ChangeMode.REMOVE)
-			deltaSize = -deltaSize;
+			sizeDelta = -sizeDelta;
 
 		switch (mode) {
 			case ADD, REMOVE -> {
 				for (LivingEntity entity : getExpr().getArray(event)) {
 					if (entity instanceof Phantom phantom) {
-						int newSize = Math2.fit(0, (phantom.getSize() + deltaSize), MAXIMUM_PHANTOM_SIZE);
+						int newSize = Math2.fit(0, (phantom.getSize() + sizeDelta), MAXIMUM_PHANTOM_SIZE);
 						phantom.setSize(newSize);
 					} else if (entity instanceof Slime slime) {
-						int newSize = Math2.fit(1, (slime.getSize() + deltaSize), MAXIMUM_SLIME_SIZE);
+						int newSize = Math2.fit(1, (slime.getSize() + sizeDelta), MAXIMUM_SLIME_SIZE);
 						slime.setSize(newSize);
 					}
 				}
@@ -83,10 +83,10 @@ public class ExprEntitySize extends SimplePropertyExpression<LivingEntity, Integ
 			case SET, RESET -> {
 				for (LivingEntity entity : getExpr().getArray(event)) {
 					if (entity instanceof Phantom phantom) {
-						phantom.setSize(Math2.fit(0, deltaSize, Integer.MAX_VALUE));
+						phantom.setSize(Math2.fit(0, sizeDelta, Integer.MAX_VALUE));
 					} else if (entity instanceof Slime slime) {
 						// Skript follows the nbt format of 0-126 for slimes, as bukkit uses a 1-127 value
-						slime.setSize(Math2.fit(1, deltaSize+1, MAXIMUM_SLIME_SIZE));
+						slime.setSize(Math2.fit(1, sizeDelta+1, MAXIMUM_SLIME_SIZE));
 					}
 				}
 			}
