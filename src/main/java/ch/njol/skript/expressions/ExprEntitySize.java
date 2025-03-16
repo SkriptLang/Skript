@@ -102,4 +102,5 @@ public class ExprEntitySize extends SimplePropertyExpression<LivingEntity, Integ
 	protected String getPropertyName() {
 		return "entity size";
 	}
+
 }
