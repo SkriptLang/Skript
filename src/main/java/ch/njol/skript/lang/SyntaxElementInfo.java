@@ -76,13 +76,11 @@ public class SyntaxElementInfo<E extends SyntaxElement> {
 					rawName, event.patterns().toArray(new String[0]),
 					event.type(), event.origin().name(),
 					(Class<? extends Event>[]) event.events().toArray(new Class<?>[0]));
-			String since = event.since();
-			if (since != null)
-				eventInfo.since(since);
 			String documentationId = event.documentationId();
 			if (documentationId != null)
 				eventInfo.documentationID(documentationId);
 			eventInfo.listeningBehavior(event.listeningBehavior())
+					.since(event.since().toArray(new String[0]))
 					.description(event.description().toArray(new String[0]))
 					.examples(event.examples().toArray(new String[0]))
 					.keywords(event.keywords().toArray(new String[0]))
