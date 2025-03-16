@@ -18,4 +18,4 @@ test "item flags":
 
 	set {_i2} to unbreakable diamond sword of unbreaking 3 with all item flags
 	# This is limited to things that are applicable on the item
-	assert item flags of {_i2} is hide enchants, hide unbreakable and hide additional tooltip with "Item does not have hide enchants, unbreakable and additional tooltip flag"
+	assert item flags of {_i2} is set with "Item does not have item flags, when using with all item flags"
