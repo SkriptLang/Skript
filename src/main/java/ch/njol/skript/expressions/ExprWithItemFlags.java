@@ -31,7 +31,7 @@ public class ExprWithItemFlags extends SimpleExpression<ItemType> {
 		Skript.registerExpression(ExprWithItemFlags.class, ItemType.class, ExpressionType.COMBINED,
 			"%itemtypes% with [the] item flag[s] %itemflags%",
 			"%itemtypes% with [the] %itemflags% item flag[s]",
-			"%itemtypes% with all item[ ]flags");
+			"%itemtypes% with all item flags");
 	}
 
 	private Expression<ItemFlag> itemFlags;
