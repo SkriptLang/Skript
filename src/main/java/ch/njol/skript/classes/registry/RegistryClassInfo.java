@@ -23,7 +23,7 @@ public class RegistryClassInfo<R extends Keyed> extends ClassInfo<R> {
 	 * @param languageNode The language node of the type
 	 */
 	public RegistryClassInfo(Class<R> registryClass, Registry<R> registry, String codeName, String languageNode) {
-		this(registryClass, registry, codeName, languageNode, new EventValueExpression<>(registryClass), Comparators.exactComparatorExists(registryClass, registryClass));
+		this(registryClass, registry, codeName, languageNode, new EventValueExpression<>(registryClass), true);
 	}
 
 	/**
@@ -45,7 +45,7 @@ public class RegistryClassInfo<R extends Keyed> extends ClassInfo<R> {
 	 * @param defaultExpression The default expression of the type
 	 */
 	public RegistryClassInfo(Class<R> registryClass, Registry<R> registry, String codeName, String languageNode, DefaultExpression<R> defaultExpression) {
-		this(registryClass, registry, codeName, languageNode,  defaultExpression, Comparators.exactComparatorExists(registryClass, registryClass));
+		this(registryClass, registry, codeName, languageNode,  defaultExpression, true);
 	}
 
 	/**
@@ -65,7 +65,7 @@ public class RegistryClassInfo<R extends Keyed> extends ClassInfo<R> {
 			.defaultExpression(defaultExpression)
 			.parser(registryParser);
 
-		if (registerComparator)
+		if (registerComparator && !Comparators.exactComparatorExists(registryClass, registryClass))
 			Comparators.registerComparator(registryClass, registryClass, (o1, o2) -> Relation.get(o1.getKey().equals(o2.getKey())));
 	}
 

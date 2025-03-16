@@ -25,7 +25,7 @@ public class EnumClassInfo<T extends Enum<T>> extends ClassInfo<T> {
 	 * @param languageNode The language node of the type
 	 */
 	public EnumClassInfo(Class<T> enumClass, String codeName, String languageNode) {
-		this(enumClass, codeName, languageNode, new EventValueExpression<>(enumClass), Comparators.exactComparatorExists(enumClass, enumClass));
+		this(enumClass, codeName, languageNode, new EventValueExpression<>(enumClass), true);
 	}
 
 	/**
@@ -45,7 +45,7 @@ public class EnumClassInfo<T extends Enum<T>> extends ClassInfo<T> {
 	 * @param defaultExpression The default expression of the type
 	 */
 	public EnumClassInfo(Class<T> enumClass, String codeName, String languageNode, DefaultExpression<T> defaultExpression) {
-		this(enumClass, codeName, languageNode, defaultExpression, Comparators.exactComparatorExists(enumClass, enumClass));
+		this(enumClass, codeName, languageNode, defaultExpression, true);
 	}
 
 	/**
@@ -78,7 +78,7 @@ public class EnumClassInfo<T extends Enum<T>> extends ClassInfo<T> {
 					return enumUtils.toString(constant, StringMode.VARIABLE_NAME);
 				}
 			});
-		if (registerComparator)
+		if (registerComparator && !Comparators.exactComparatorExists(enumClass, enumClass))
 			Comparators.registerComparator(enumClass, enumClass, (o1, o2) -> Relation.get(o1.ordinal() - o2.ordinal()));
 	}
 
