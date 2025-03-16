@@ -10,6 +10,7 @@ import ch.njol.skript.events.bukkit.SkriptStopEvent;
 import ch.njol.skript.registrations.EventValues;
 import ch.njol.skript.util.Color;
 import ch.njol.skript.util.*;
+import ch.njol.skript.util.slot.EquipmentSlot.EquipSlot;
 import ch.njol.skript.util.slot.InventorySlot;
 import ch.njol.skript.util.slot.Slot;
 import com.destroystokyo.paper.event.block.AnvilDamagedEvent;
@@ -570,6 +571,13 @@ public final class BukkitEventValues {
 		//PlayerArmorChangeEvent
 		if (Skript.classExists("com.destroystokyo.paper.event.player.PlayerArmorChangeEvent")) {
 			EventValues.registerEventValue(PlayerArmorChangeEvent.class, ItemStack.class, PlayerArmorChangeEvent::getNewItem);
+			EventValues.registerEventValue(PlayerArmorChangeEvent.class, ItemStack.class, PlayerArmorChangeEvent::getNewItem, TIME_FUTURE);
+			EventValues.registerEventValue(PlayerArmorChangeEvent.class, ItemStack.class, PlayerArmorChangeEvent::getOldItem, TIME_PAST);
+			EventValues.registerEventValue(PlayerArmorChangeEvent.class, Slot.class, event -> {
+				EntityEquipment equipment = event.getPlayer().getEquipment();
+				EquipSlot equipSlot = EquipSlot.fromBukkitEquipmentSlot(event.getSlot());
+				return new ch.njol.skript.util.slot.EquipmentSlot(equipment, equipSlot);
+			});
 		}
 		//PlayerInventorySlotChangeEvent
 		if (Skript.classExists("io.papermc.paper.event.player.PlayerInventorySlotChangeEvent")) {
@@ -630,8 +638,7 @@ public final class BukkitEventValues {
 			if (equipment == null || hand == null)
 				return null;
 			return new ch.njol.skript.util.slot.EquipmentSlot(equipment,
-				(hand == EquipmentSlot.HAND) ? ch.njol.skript.util.slot.EquipmentSlot.EquipSlot.TOOL
-					: ch.njol.skript.util.slot.EquipmentSlot.EquipSlot.OFF_HAND);
+				(hand == EquipmentSlot.HAND) ? EquipSlot.TOOL : EquipSlot.OFF_HAND);
 		});
 
 		// PlayerItemHeldEvent

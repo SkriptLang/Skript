@@ -120,6 +120,18 @@ public class EquipmentSlot extends SlotWithIndex {
 		public abstract ItemStack get(EntityEquipment e);
 		
 		public abstract void set(EntityEquipment e, @Nullable ItemStack item);
+
+		public static EquipSlot fromBukkitEquipmentSlot(org.bukkit.inventory.EquipmentSlot equipmentSlot) {
+			return switch (equipmentSlot) {
+				case HEAD -> EquipSlot.HELMET;
+				case CHEST -> EquipSlot.CHESTPLATE;
+				case LEGS -> EquipSlot.LEGGINGS;
+				case FEET -> EquipSlot.BOOTS;
+				case HAND -> EquipSlot.TOOL;
+				case OFF_HAND -> EquipSlot.OFF_HAND;
+				case BODY -> EquipSlot.BODY;
+			};
+		}
 		
 	}
 	
