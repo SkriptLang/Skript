@@ -33,6 +33,12 @@ public class EvtEntityShootBow extends SkriptEvent {
 					chance of 30%:
 						damage event-slot by 10
 						send "Your bow has taken increased damage!" to shooter
+				
+				on stray shooting bow:
+					set {_e} to event-entity
+					spawn a cow at {_e}:
+						set velocity of entity to velocity of {_e}
+					set event-entity to last spawned entity
 				""")
 			.since("INSERT VERSION");
 
