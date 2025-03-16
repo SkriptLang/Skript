@@ -576,7 +576,6 @@ public class HTMLGenerator extends DocumentationGenerator {
 		desc = descTemp.replace("${element.name}", docName);
 
 		// Since
-		//desc = desc.replace("${element.since}", Joiner.on("<br/>").join(getDefaultIfNullOrEmpty((since != null ? since.value() : null), "Unknown")));
 		String[] since = getDefaultIfNullOrEmpty(info.getSince(), "Unknown");
 		desc = desc.replace("${element.since}", Joiner.on("<br>/").join(since));
 
