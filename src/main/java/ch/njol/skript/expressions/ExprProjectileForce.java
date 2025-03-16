@@ -56,7 +56,7 @@ public class ExprProjectileForce extends SimpleExpression<Float> implements Even
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return "shot force";
+		return "projectile force";
 	}
 
 }
