@@ -31,6 +31,7 @@ import org.jetbrains.annotations.Nullable;
 """)
 @Since("1.0")
 public class ExprTool extends PropertyExpression<LivingEntity, Slot> {
+
 	static {
 		String[] patterns = new String[]{
 			"[the] (tool|held item|weapon|main[ ]hand) [of %livingentities%]",
@@ -115,7 +116,7 @@ public class ExprTool extends PropertyExpression<LivingEntity, Slot> {
 	}
 
 	@Override
-	public boolean setTime(final int time) {
+	public boolean setTime(int time) {
 		return super.setTime(time, getExpr(), PlayerItemHeldEvent.class, PlayerBucketEvent.class);
 	}
 
