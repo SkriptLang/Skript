@@ -1,0 +1,19 @@
+test "basic block iterator test":
+	set {_l1} to location(0, 100, 0, world "world")
+	set {_l2} to location(10, 100, 10, world "world")
+	set {_origin} to location(5, 100, 5, world "world")
+	loop blocks within {_l1} and {_l2}:
+		set {_loc} to location of loop-value
+		assert blocks from {_origin} to {_loc} is set with "failed to find blocks between %{_origin}% and %{_loc}%."
+
+test "ensure non-centered block iterators are not equal":
+	set {_l1} to location(0.1, 0.1, 0.1, world "world")
+	set {_l2} to location(0.9, 0.9, 0.9, world "world")
+	set {_dir} to vector(1, 0, -1)
+	assert blocks {_dir} {_l1} are not blocks {_dir} {_l2} with "block iterators from offset locations returned same values."
+
+test "ensure same block iterators are equal":
+	set {_l1} to location(0.1, 0.1, 0.1, world "world")
+	set {_l2} to location(0.9, 0.9, 0.9, world "world")
+	set {_dir} to vector(1, 0, -1)
+	assert blocks {_dir} (block at {_l1}) are blocks {_dir} (block at {_l2}) with "block iterators from same block returned different values."

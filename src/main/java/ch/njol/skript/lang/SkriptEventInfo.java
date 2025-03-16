@@ -27,8 +27,13 @@ public sealed class SkriptEventInfo<E extends SkriptEvent> extends StructureInfo
 	public final String name;
   
 	private ListeningBehavior listeningBehavior;
-	private String @Nullable [] description, examples, keywords, requiredPlugins;
-	private @Nullable String since, documentationID;
+	private @Nullable String since = null;
+	private @Nullable String documentationID = null;
+
+	private String @Nullable [] description = null;
+	private String @Nullable [] examples = null;
+	private String @Nullable [] keywords = null;
+	private String @Nullable [] requiredPlugins = null;
 
 	private final String id;
 

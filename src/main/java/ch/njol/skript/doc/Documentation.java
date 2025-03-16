@@ -179,7 +179,10 @@ public class Documentation {
 	}
 
 	protected static String cleanPatterns(String patterns, boolean escapeHTML) {
+		return cleanPatterns(patterns, escapeHTML, true);
+	}
 
+	protected static String cleanPatterns(String patterns, boolean escapeHTML, boolean useLinks) {
 		String cleanedPatterns = escapeHTML ? escapeHTML(patterns) : patterns;
 
 		cleanedPatterns = CP_PARSE_MARKS_PATTERN.matcher(cleanedPatterns).replaceAll(""); // Remove marks
@@ -268,8 +271,13 @@ public class Documentation {
 					first = false;
 					final NonNullPair<String, Boolean> p = Utils.getEnglishPlural(c);
 					final ClassInfo<?> ci = Classes.getClassInfoNoError(p.getFirst());
+
 					if (ci != null && ci.hasDocs()) { // equals method throws null error when doc name is null
-						b.append("<a href='./classes.html#").append(p.getFirst()).append("'>").append(ci.getName().toString(p.getSecond())).append("</a>");
+						if (useLinks) {
+							b.append("<a href='./classes.html#").append(p.getFirst()).append("'>").append(ci.getName().toString(p.getSecond())).append("</a>");
+						} else {
+							b.append(ci.getName().toString(p.getSecond()));
+						}
 					} else {
 						b.append(c);
 						if (ci != null && ci.hasDocs())
@@ -286,7 +294,12 @@ public class Documentation {
 		Class<?> elementClass = info.getElementClass();
 		if (elementClass.getAnnotation(NoDoc.class) != null)
 			return;
-		if (elementClass.getAnnotation(Name.class) == null || elementClass.getAnnotation(Description.class) == null || elementClass.getAnnotation(Examples.class) == null || elementClass.getAnnotation(Since.class) == null) {
+		if (elementClass.getAnnotation(Name.class) == null
+			|| elementClass.getAnnotation(Description.class) == null
+			|| (!elementClass.isAnnotationPresent(Examples.class)
+			&& !elementClass.isAnnotationPresent(Example.class)
+			&& !elementClass.isAnnotationPresent(Example.Examples.class))
+			|| elementClass.getAnnotation(Since.class) == null) {
 			Skript.warning("" + elementClass.getSimpleName() + " is missing information");
 			return;
 		}

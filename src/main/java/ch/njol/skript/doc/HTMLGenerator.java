@@ -20,6 +20,7 @@ import com.google.common.io.Files;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
 import org.bukkit.event.block.BlockCanBuildEvent;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.entry.EntryData;
 import org.skriptlang.skript.lang.entry.EntryValidator;
@@ -29,12 +30,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Locale;
+import java.util.*;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -387,21 +383,30 @@ public class HTMLGenerator extends DocumentationGenerator {
 		return sb.toString();
 	}
 
-	private static String handleIf(String desc, String start, boolean value) {
+	/**
+	 * Handles an optional part in an HTML description.
+	 * @param desc The existing description.
+	 * @param condition The condition string to check.
+	 * @param value Whether
+	 * @return The modified description.
+	 */
+	private static String handleIf(String desc, String condition, boolean value) {
 		assert desc != null;
-		int ifStart = desc.indexOf(start);
+		int ifStart = desc.indexOf(condition);
+
 		while (ifStart != -1) {
 			int ifEnd = desc.indexOf("${end}", ifStart);
-			String data = desc.substring(ifStart + start.length() + 1, ifEnd);
+			String data = desc.substring(ifStart + condition.length() + 1, ifEnd);
 
 			String before = desc.substring(0, ifStart);
 			String after = desc.substring(ifEnd + 6);
-			if (value)
-				desc = before + data + after;
-			else
-				desc = before + after;
 
-			ifStart = desc.indexOf(start, ifEnd);
+			if (value)
+				desc = before + data + after; // include if condition is met
+			else
+				desc = before + after; // skip if condition is not met
+
+			ifStart = desc.indexOf(condition, ifEnd);
 		}
 
 		return desc;
@@ -438,10 +443,7 @@ public class HTMLGenerator extends DocumentationGenerator {
 			.replace("\\", "\\\\").replace("\"", "\\\"").replace("\t", "    "));
 
 		// Examples
-		Examples examples = c.getAnnotation(Examples.class);
-		desc = desc.replace("${element.examples}", Joiner.on("<br>").join(getDefaultIfNullOrEmpty((examples != null ? Documentation.escapeHTML(examples.value()) : null), "Missing examples.")));
-		desc = desc.replace("${element.examples-safe}", Joiner.on("<br>").join(getDefaultIfNullOrEmpty((examples != null ? Documentation.escapeHTML(examples.value()) : null), "Missing examples."))
-			.replace("\\", "\\\\").replace("\"", "\\\"").replace("\t", "    "));
+		desc = extractExamples(desc, c);
 
 		// Documentation ID
 		desc = desc.replace("${element.id}", DocumentationIdProvider.getId(info));
@@ -542,6 +544,29 @@ public class HTMLGenerator extends DocumentationGenerator {
 		return desc;
 	}
 
+	private @NotNull String extractExamples(String desc, Class<?> syntax) {
+		if (syntax.isAnnotationPresent(Example.class)) {
+			Example examples = syntax.getAnnotation(Example.class);
+			return this.addExamples(desc, examples.value());
+		} else if (syntax.isAnnotationPresent(Example.Examples.class)) {
+			Example.Examples examples = syntax.getAnnotation(Example.Examples.class);
+			return this.addExamples(desc, Arrays.stream(examples.value())
+				.map(Example::value).toArray(String[]::new));
+		} else if (syntax.isAnnotationPresent(Examples.class)) {
+			Examples examples = syntax.getAnnotation(Examples.class);
+			return this.addExamples(desc, examples.value());
+		} else {
+			return this.addExamples(desc, (String[]) null);
+		}
+	}
+
+	private @NotNull String addExamples(String desc, String @Nullable ... examples) {
+		desc = desc.replace("${element.examples}", Joiner.on("<br>").join(getDefaultIfNullOrEmpty((examples != null ? Documentation.escapeHTML(examples) : null), "Missing examples.")));
+		desc = desc.replace("${element.examples-safe}", Joiner.on("<br>").join(getDefaultIfNullOrEmpty((examples != null ? Documentation.escapeHTML(examples) : null), "Missing examples."))
+			.replace("\\", "\\\\").replace("\"", "\\\"").replace("\t", "    "));
+		return desc;
+	}
+
 	private String generateEvent(String descTemp, SkriptEventInfo<?> info, @Nullable String page) {
 		Class<?> c = info.getElementClass();
 		String desc;
@@ -605,10 +630,14 @@ public class HTMLGenerator extends DocumentationGenerator {
 		}
 		desc = desc.replace("${element.events-safe}", events == null ? "" : Joiner.on(", ").join((events != null ? events.value() : null)));
 
-		// Required Plugins
-		String[] requiredPlugins = info.getRequiredPlugins();
-		desc = handleIf(desc, "${if required-plugins}", requiredPlugins != null);
-		desc = desc.replace("${element.required-plugins}", Joiner.on(", ").join(requiredPlugins == null ? new String[0] : requiredPlugins));
+		// RequiredPlugins
+		String[] plugins = info.getRequiredPlugins();
+		desc = handleIf(desc, "${if required-plugins}", plugins != null && plugins.length > 0);
+		if (plugins == null) {
+			desc = desc.replace("${element.required-plugins}", "");
+		} else {
+			desc = desc.replace("${element.required-plugins}", Joiner.on(", ").join(plugins));
+		}
 
 		// New Elements
 		desc = handleIf(desc, "${if new-element}", NEW_TAG_PATTERN.matcher(since).find());
