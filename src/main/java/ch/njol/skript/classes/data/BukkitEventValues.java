@@ -55,7 +55,6 @@ import org.bukkit.inventory.*;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.potion.PotionType;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.converter.Converter;
 import ch.njol.skript.registrations.EventConverter;
