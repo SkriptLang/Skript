@@ -21,8 +21,8 @@ public abstract class SlotWithIndex extends Slot {
 	
 	@Override
 	public boolean isSameSlot(Slot o) {
-		if (o instanceof SlotWithIndex) {
-			return getIndex() == ((SlotWithIndex) o).getIndex();
+		if (o instanceof SlotWithIndex slotWithIndex) {
+			return getRawIndex() == slotWithIndex.getRawIndex();
 		}
 		return false;
 	}
