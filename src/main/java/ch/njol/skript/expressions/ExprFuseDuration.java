@@ -49,13 +49,13 @@ public class ExprFuseDuration extends SimplePropertyExpression<Entity, Timespan>
 
 	@Override
 	public @Nullable Timespan convert(Entity entity) {
-		if (entity instanceof TNTPrimed) {
-			return getTimespan(((TNTPrimed) entity).getFuseTicks());
-		} else if (entity instanceof Creeper) {
-			int fuseTicks = max ? ((Creeper) entity).getMaxFuseTicks() : ((Creeper) entity).getMaxFuseTicks() - ((Creeper) entity).getFuseTicks();
+		if (entity instanceof TNTPrimed tnt) {
+			return getTimespan(tnt.getFuseTicks());
+		} else if (entity instanceof Creeper creeper) {
+			int fuseTicks = max ? creeper.getMaxFuseTicks() : (creeper.getMaxFuseTicks() - creeper.getFuseTicks());
 			return getTimespan(fuseTicks);
-		} else if (entity instanceof ExplosiveMinecart) {
-			return getTimespan(((ExplosiveMinecart) entity).getFuseTicks());
+		} else if (entity instanceof ExplosiveMinecart minecart) {
+			return getTimespan(minecart.getFuseTicks());
 		}
 		return null;
 	}
@@ -76,12 +76,12 @@ public class ExprFuseDuration extends SimplePropertyExpression<Entity, Timespan>
 	@Override
 	public void change(Event event, Object @NotNull [] delta, ChangeMode mode) {
 		for (Entity entity : getExpr().getArray(event)) {
-			if (entity instanceof TNTPrimed) {
-				changeTNTFuseTicks((TNTPrimed) entity, delta, mode);
-			} else if (entity instanceof Creeper) {
-				changeCreeperFuseTicks((Creeper) entity, delta, mode);
-			} else if (entity instanceof ExplosiveMinecart) {
-				changeMinecartFuseTicks((ExplosiveMinecart) entity, delta, mode);
+			if (entity instanceof TNTPrimed tnt) {
+				changeTNTFuseTicks(tnt, delta, mode);
+			} else if (entity instanceof Creeper creeper) {
+				changeCreeperFuseTicks(creeper, delta, mode);
+			} else if (entity instanceof ExplosiveMinecart minecart) {
+				changeMinecartFuseTicks(minecart, delta, mode);
 			}
 		}
 	}
@@ -97,13 +97,13 @@ public class ExprFuseDuration extends SimplePropertyExpression<Entity, Timespan>
 			int currentMaxTicks = creeper.getMaxFuseTicks();
 			int newMaxTicks = calculateNewTicks(creeper, currentMaxTicks, delta, mode);
 			creeper.setMaxFuseTicks(Math.max(newMaxTicks, 0));
+			return;
 		}
 
 		int currentTicks = creeper.getFuseTicks();
 		int maxTicks = creeper.getMaxFuseTicks();
 		int newTicks = calculateNewTicks(creeper, currentTicks, delta, mode);
-
-		//creeper.setFuseTicks(Math.max(maxTicks - Math.max(newTicks, 0), 0));
+		
 		creeper.setFuseTicks(maxTicks - Math2.fit(newTicks, 0, maxTicks));
 	}
 
@@ -151,4 +151,5 @@ public class ExprFuseDuration extends SimplePropertyExpression<Entity, Timespan>
 	protected String getPropertyName() {
 		return max ? "maximum fuse duration" : "fuse duration";
 	}
+
 }
