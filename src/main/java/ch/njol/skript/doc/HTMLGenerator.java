@@ -576,8 +576,9 @@ public class HTMLGenerator extends DocumentationGenerator {
 		desc = descTemp.replace("${element.name}", docName);
 
 		// Since
-		String since = getDefaultIfNullOrEmpty(info.getSince(), "Unknown");
-		desc = desc.replace("${element.since}", since);
+		//desc = desc.replace("${element.since}", Joiner.on("<br/>").join(getDefaultIfNullOrEmpty((since != null ? since.value() : null), "Unknown")));
+		String[] since = getDefaultIfNullOrEmpty(info.getSince(), "Unknown");
+		desc = desc.replace("${element.since}", Joiner.on("<br>/").join(since));
 
 		// Description
 		String[] description = getDefaultIfNullOrEmpty(info.getDescription(), "Missing description.");
@@ -640,7 +641,8 @@ public class HTMLGenerator extends DocumentationGenerator {
 		}
 
 		// New Elements
-		desc = handleIf(desc, "${if new-element}", NEW_TAG_PATTERN.matcher(since).find());
+		String lastValue = since[since.length - 1];
+		desc = handleIf(desc, "${if new-element}", NEW_TAG_PATTERN.matcher(lastValue).find());
 
 		// Type
 		desc = desc.replace("${element.type}", "Event");
