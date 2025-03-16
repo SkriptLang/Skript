@@ -55,6 +55,7 @@ import org.bukkit.inventory.*;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.potion.PotionType;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.converter.Converter;
 import ch.njol.skript.registrations.EventConverter;
@@ -745,18 +746,6 @@ public final class BukkitEventValues {
 			EventValues.registerEventValue(PlayerElytraBoostEvent.class, ItemStack.class, PlayerElytraBoostEvent::getItemStack);
 			EventValues.registerEventValue(PlayerElytraBoostEvent.class, Entity.class, PlayerElytraBoostEvent::getFirework);
 		}
-
-		// EntityShootBowEvent
-		EventValues.registerEventValue(EntityShootBowEvent.class, ItemStack.class, EntityShootBowEvent::getBow);
-		EventValues.registerEventValue(EntityShootBowEvent.class, Entity.class, EntityShootBowEvent::getProjectile);
-
-		EventValues.registerEventValue(EntityShootBowEvent.class, Slot.class, event -> {
-			EntityEquipment equipment = event.getEntity().getEquipment();
-			ch.njol.skript.util.slot.EquipmentSlot.EquipSlot equipmentSlot = event.getHand() == EquipmentSlot.OFF_HAND
-				? ch.njol.skript.util.slot.EquipmentSlot.EquipSlot.OFF_HAND
-				: ch.njol.skript.util.slot.EquipmentSlot.EquipSlot.TOOL;
-			return new ch.njol.skript.util.slot.EquipmentSlot(equipment, equipmentSlot);
-		});
 
 	}
 
