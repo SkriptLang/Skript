@@ -13,10 +13,10 @@ public class EvtEntityShootBow extends SkriptEvent {
 
 	static {
 		Skript.registerEvent("On Entity Shoot Bow", EvtEntityShootBow.class, EntityShootBowEvent.class,
-			"%entitydata% shoot bow")
+			"%entitydata% shoot[ing] bow")
 			.description("""
 				Called when an entity shoots a bow.
-				NOTE: event-entity refers to the shot projectile/entity
+				event-entity refers to the shot projectile/entity.
 				""")
 			.examples("""
 				on player shoot bow:

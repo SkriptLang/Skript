@@ -13,7 +13,7 @@ import org.bukkit.event.Event;
 import org.bukkit.event.entity.EntityShootBowEvent;
 import org.jetbrains.annotations.Nullable;
 
-@Name("Shot Force")
+@Name("Projectile Force")
 @Description("Returns the force at which a projectile was shot within an entity shoot bow event.")
 @Example("""
 	on entity shoot projectile:
