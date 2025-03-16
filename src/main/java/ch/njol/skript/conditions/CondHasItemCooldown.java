@@ -4,10 +4,7 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.conditions.base.PropertyCondition;
 import ch.njol.skript.conditions.base.PropertyCondition.PropertyType;
-import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
-import ch.njol.skript.doc.Name;
-import ch.njol.skript.doc.Since;
+import ch.njol.skript.doc.*;
 import ch.njol.skript.lang.Condition;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
@@ -24,7 +21,8 @@ import org.jetbrains.annotations.Nullable;
 	"if player has player's tool on cooldown:",
 		"\tsend \"You can't use this item right now. Wait %item cooldown of player's tool for player%\""
 })
-@Since("2.8.0")
+@RequiredPlugins("MC 1.21.2 (cooldown group)")
+@Since({"2.8.0", "INSERT VERSION (cooldown group)"})
 public class CondHasItemCooldown extends Condition {
 
 	private static final boolean SUPPORTS_COOLDOWN_GROUP = Skript.methodExists(HumanEntity.class, "getCooldown", ItemStack.class);
