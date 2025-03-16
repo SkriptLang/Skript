@@ -12,8 +12,10 @@ import ch.njol.skript.lang.Condition;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
+import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
+import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
 @Name("Has Item Cooldown")
@@ -24,6 +26,8 @@ import org.jetbrains.annotations.Nullable;
 })
 @Since("2.8.0")
 public class CondHasItemCooldown extends Condition {
+
+	private static final boolean SUPPORTS_COOLDOWN_GROUP = Skript.methodExists(HumanEntity.class, "getCooldown", ItemStack.class);
 
 	static {
 		Skript.registerCondition(CondHasItemCooldown.class, 
@@ -48,9 +52,18 @@ public class CondHasItemCooldown extends Condition {
 	@Override
 	public boolean check(Event event) {
 		return players.check(event, (player) ->
-				itemtypes.check(event, (itemType) ->
-					itemType.hasType() && player.hasCooldown(itemType.getMaterial())
-				)
+				itemtypes.check(event, (itemType) -> {
+					if (!itemType.hasType())
+						return false;
+					for (ItemStack item : itemType.getAll()) {
+						if (SUPPORTS_COOLDOWN_GROUP && player.hasCooldown(item)) {
+							return true;
+						} else if (player.hasCooldown(item.getType())) {
+							return true;
+						}
+					}
+					return false;
+				})
 		);
 	}
 	

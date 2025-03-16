@@ -15,12 +15,16 @@ import ch.njol.skript.util.Timespan;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.Material;
+import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
+import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Name("Item Cooldown")
 @Description("Change the cooldown of a specific material to a certain amount of <a href='./classes.html#timespan'>Timespan</a>.")
@@ -32,7 +36,9 @@ import java.util.stream.Collectors;
 })
 @Since("2.8.0")
 public class ExprItemCooldown extends SimpleExpression<Timespan> {
-	
+
+	private static final boolean SUPPORTS_COOLDOWN_GROUP = Skript.methodExists(HumanEntity.class, "getCooldown", ItemStack.class);
+
 	static {
 		Skript.registerExpression(ExprItemCooldown.class, Timespan.class, ExpressionType.COMBINED, 
 				"[the] [item] cooldown of %itemtypes% for %players%",
@@ -56,19 +62,28 @@ public class ExprItemCooldown extends SimpleExpression<Timespan> {
 	protected Timespan[] get(Event event) {
 		Player[] players = this.players.getArray(event);
 
-		List<ItemType> itemTypes = this.itemtypes.stream(event)
+		List<ItemStack> itemStacks = this.itemtypes.stream(event)
 				.filter(ItemType::hasType)
-				.collect(Collectors.toList());
+				.map(ItemType::getAll)
+				.flatMap(iterator -> {
+					List<ItemStack> items = new ArrayList<>();
+					iterator.forEach(items::add);
+					return Stream.of(items.toArray(ItemStack[]::new));
+				})
+				.distinct()
+				.toList();
 
-		Timespan[] timespan = new Timespan[players.length * itemTypes.size()];
-		
-		int i = 0;
+		List<Timespan> timespans = new ArrayList<>();
 		for (Player player : players) {
-			for (ItemType itemType : itemTypes) {
-				timespan[i++] = new Timespan(Timespan.TimePeriod.TICK, player.getCooldown(itemType.getMaterial()));
+			for (ItemStack item : itemStacks) {
+				if (SUPPORTS_COOLDOWN_GROUP) {
+					timespans.add(new Timespan(Timespan.TimePeriod.TICK, player.getCooldown(item)));
+					continue;
+				}
+				timespans.add(new Timespan(Timespan.TimePeriod.TICK, player.getCooldown(item.getType())));
 			}
 		}
-		return timespan;
+		return timespans.toArray(Timespan[]::new);
 	}
 
 	@Override
@@ -84,23 +99,40 @@ public class ExprItemCooldown extends SimpleExpression<Timespan> {
 		
 		int ticks = delta != null ? (int) ((Timespan) delta[0]).getAs(Timespan.TimePeriod.TICK) : 0; // 0 for DELETE/RESET
 		Player[] players = this.players.getArray(event);
-		List<ItemType> itemTypes = this.itemtypes.stream(event)
+		List<ItemStack> itemStacks = this.itemtypes.stream(event)
 				.filter(ItemType::hasType)
-				.collect(Collectors.toList());
+				.map(ItemType::getAll)
+				.flatMap(iterator -> {
+					List<ItemStack> items = new ArrayList<>();
+					iterator.forEach(items::add);
+					return Stream.of(items.toArray(ItemStack[]::new));
+				})
+				.distinct()
+				.toList();
 
 		for (Player player : players) {
-			for (ItemType itemtype : itemTypes) {
-				Material material = itemtype.getMaterial();
+			for (ItemStack itemStack : itemStacks) {
+				Material material = itemStack.getType();
 				switch (mode) {
-					case RESET:
-					case DELETE:
-					case SET:
+					case RESET, DELETE, SET:
+						if (SUPPORTS_COOLDOWN_GROUP) {
+							player.setCooldown(itemStack, ticks);
+							break;
+						}
 						player.setCooldown(material, ticks);
 						break;
 					case REMOVE:
+						if (SUPPORTS_COOLDOWN_GROUP) {
+							player.setCooldown(itemStack, Math.max(player.getCooldown(itemStack) - ticks, 0));
+							break;
+						}
 						player.setCooldown(material, Math.max(player.getCooldown(material) - ticks, 0));
 						break;
 					case ADD:
+						if (SUPPORTS_COOLDOWN_GROUP) {
+							player.setCooldown(itemStack, player.getCooldown(itemStack) + ticks);
+							break;
+						}
 						player.setCooldown(material, player.getCooldown(material) + ticks);
 						break;
 				}
