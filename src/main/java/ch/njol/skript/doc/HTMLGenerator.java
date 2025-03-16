@@ -577,7 +577,7 @@ public class HTMLGenerator extends DocumentationGenerator {
 
 		// Since
 		String[] since = getDefaultIfNullOrEmpty(info.getSince(), "Unknown");
-		desc = desc.replace("${element.since}", Joiner.on("<br>/").join(since));
+		desc = desc.replace("${element.since}", Joiner.on("<br/>").join(since));
 
 		// Description
 		String[] description = getDefaultIfNullOrEmpty(info.getDescription(), "Missing description.");
