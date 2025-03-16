@@ -29,7 +29,8 @@ public class SkriptCommandTabCompleter implements TabCompleter {
 			options.add("check");
 			options.add("changes");
 		} else if (args[0].matches("(?i)(reload|disable|enable|test)") && args.length >= 2) {
-			File scripts = TestMode.DEV_MODE ? TestMode.TEST_DIR.toFile() : Skript.getInstance().getScriptsFolder();
+			boolean useTestDirectory = args[0].equalsIgnoreCase("test") && TestMode.DEV_MODE;
+			File scripts = useTestDirectory ? TestMode.TEST_DIR.toFile() : Skript.getInstance().getScriptsFolder();
 			String scriptsPathString = scripts.toPath().toString();
 			int scriptsPathLength = scriptsPathString.length();
 

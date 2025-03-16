@@ -36,14 +36,13 @@ public class SimpleEntityData extends EntityData<Entity> {
 		}
 		
 		@Override
-		public boolean equals(final @Nullable Object obj) {
+		public boolean equals(@Nullable Object obj) {
 			if (this == obj)
 				return true;
 			if (obj == null)
 				return false;
-			if (!(obj instanceof SimpleEntityDataInfo))
+			if (!(obj instanceof SimpleEntityDataInfo other))
 				return false;
-			final SimpleEntityDataInfo other = (SimpleEntityDataInfo) obj;
 			if (c != other.c)
 				return false;
 			assert codeName.equals(other.codeName);
@@ -66,8 +65,13 @@ public class SimpleEntityData extends EntityData<Entity> {
 	}
 
 	private static void addSuperEntity(String codeName, Class<? extends Entity> entityClass) {
-		types.add(new SimpleEntityDataInfo(codeName, entityClass, true, Kleenean.UNKNOWN));
+		addSuperEntity(codeName, entityClass, Kleenean.UNKNOWN);
 	}
+
+	private static void addSuperEntity(String codeName, Class<? extends Entity> entityClass, Kleenean allowSpawning) {
+		types.add(new SimpleEntityDataInfo(codeName, entityClass, true, allowSpawning));
+	}
+
 	static {
 		// Simple Entities
 		addSimpleEntity("arrow", Arrow.class);
@@ -86,7 +90,7 @@ public class SimpleEntityData extends EntityData<Entity> {
 		addSimpleEntity("ender eye", EnderSignal.class);
 		addSimpleEntity("small fireball", SmallFireball.class);
 		addSimpleEntity("large fireball", LargeFireball.class);
-		addSimpleEntity("fireball", Fireball.class);
+		addSuperEntity("fireball", Fireball.class, Kleenean.TRUE);
 		addSimpleEntity("fish hook", FishHook.class);
 		addSimpleEntity("ghast", Ghast.class);
 		addSimpleEntity("giant", Giant.class);
@@ -146,41 +150,36 @@ public class SimpleEntityData extends EntityData<Entity> {
 
 		addSimpleEntity("illusioner", Illusioner.class);
 
-		if (Skript.isRunningMinecraft(1, 14)) {
-			addSimpleEntity("pillager", Pillager.class);
-			addSimpleEntity("ravager", Ravager.class);
-			addSimpleEntity("wandering trader", WanderingTrader.class);
-		}
+		// 1.14
+		addSimpleEntity("pillager", Pillager.class);
+		addSimpleEntity("ravager", Ravager.class);
+		addSimpleEntity("wandering trader", WanderingTrader.class);
 
-		if (Skript.isRunningMinecraft(1, 16)) {
-			addSimpleEntity("piglin", Piglin.class);
-			addSimpleEntity("hoglin", Hoglin.class);
-			addSimpleEntity("zoglin", Zoglin.class);
-			addSimpleEntity("strider", Strider.class);
-		}
+		// 1.16
+		addSimpleEntity("piglin", Piglin.class);
+		addSimpleEntity("hoglin", Hoglin.class);
+		addSimpleEntity("zoglin", Zoglin.class);
+		addSimpleEntity("strider", Strider.class);
 
-		if (Skript.classExists("org.bukkit.entity.PiglinBrute")) // Added in 1.16.2
-			addSimpleEntity("piglin brute", PiglinBrute.class);
+		// 1.16.2
+		addSimpleEntity("piglin brute", PiglinBrute.class);
 
-		if (Skript.isRunningMinecraft(1, 17)) {
-			addSimpleEntity("glow squid", GlowSquid.class);
-			addSimpleEntity("marker", Marker.class);
-			addSimpleEntity("glow item frame", GlowItemFrame.class);
-		}
+		// 1.17
+		addSimpleEntity("glow squid", GlowSquid.class);
+		addSimpleEntity("marker", Marker.class);
+		addSimpleEntity("glow item frame", GlowItemFrame.class);
 
-		if (Skript.isRunningMinecraft(1, 19)) {
-			addSimpleEntity("allay", Allay.class);
-			addSimpleEntity("tadpole", Tadpole.class);
-			addSimpleEntity("warden", Warden.class);
-		}
+		// 1.19
+		addSimpleEntity("allay", Allay.class);
+		addSimpleEntity("tadpole", Tadpole.class);
+		addSimpleEntity("warden", Warden.class);
 
-		if (Skript.isRunningMinecraft(1, 19, 3))
-			addSimpleEntity("camel", Camel.class);
+		// 1.19.3
+		addSimpleEntity("camel", Camel.class);
 
-		if (Skript.isRunningMinecraft(1, 19, 4)) {
-			addSimpleEntity("sniffer", Sniffer.class);
-			addSimpleEntity("interaction", Interaction.class);
-		}
+		// 1.19.4
+		addSimpleEntity("sniffer", Sniffer.class);
+		addSimpleEntity("interaction", Interaction.class);
 
 		if (Skript.isRunningMinecraft(1, 20, 3)) {
 			addSimpleEntity("breeze", Breeze.class);
@@ -258,9 +257,9 @@ public class SimpleEntityData extends EntityData<Entity> {
 	}
 
 	static {
-		final String[] codeNames = new String[types.size()];
+		String[] codeNames = new String[types.size()];
 		int i = 0;
-		for (final SimpleEntityDataInfo info : types) {
+		for (SimpleEntityDataInfo info : types) {
 			codeNames[i++] = info.codeName;
 		}
 		EntityData.register(SimpleEntityData.class, "simple", Entity.class, 0, codeNames);
@@ -272,64 +271,84 @@ public class SimpleEntityData extends EntityData<Entity> {
 		this(Entity.class);
 	}
 	
-	private SimpleEntityData(final SimpleEntityDataInfo info) {
+	private SimpleEntityData(SimpleEntityDataInfo info) {
 		assert info != null;
 		this.info = info;
 		matchedPattern = types.indexOf(info);
 	}
 	
-	public SimpleEntityData(final Class<? extends Entity> c) {
-		assert c != null && c.isInterface() : c;
+	public SimpleEntityData(Class<? extends Entity> entityClass) {
+		assert entityClass != null && entityClass.isInterface() : entityClass;
 		int i = 0;
-		for (final SimpleEntityDataInfo info : types) {
-			if (info.c.isAssignableFrom(c)) {
-				this.info = info;
-				matchedPattern = i;
-				return;
+		SimpleEntityDataInfo closestInfo = null;
+		int closestPattern = 0;
+		for (SimpleEntityDataInfo info : types) {
+			if (info.c.isAssignableFrom(entityClass)) {
+				if (closestInfo == null || closestInfo.c.isAssignableFrom(info.c)) {
+					closestInfo = info;
+					closestPattern = i;
+				}
 			}
 			i++;
+		}
+		if (closestInfo != null) {
+			this.info = closestInfo;
+			this.matchedPattern = closestPattern;
+			return;
 		}
 		throw new IllegalStateException();
 	}
 	
-	public SimpleEntityData(final Entity e) {
+	public SimpleEntityData(Entity entity) {
 		int i = 0;
-		for (final SimpleEntityDataInfo info : types) {
-			if (info.c.isInstance(e)) {
-				this.info = info;
-				matchedPattern = i;
-				return;
+		SimpleEntityDataInfo closestInfo = null;
+		int closestPattern = 0;
+		for (SimpleEntityDataInfo info : types) {
+			if (info.c.isInstance(entity)) {
+				if (closestInfo == null || closestInfo.c.isAssignableFrom(info.c)) {
+					closestInfo = info;
+					closestPattern = i;
+				}
 			}
 			i++;
 		}
+		if (closestInfo != null) {
+			this.info = closestInfo;
+			this.matchedPattern = closestPattern;
+			return;
+		}
 		throw new IllegalStateException();
 	}
-	
-	@SuppressWarnings("null")
+
 	@Override
-	protected boolean init(final Literal<?>[] exprs, final int matchedPattern, final ParseResult parseResult) {
+	protected boolean init(Literal<?>[] exprs, int matchedPattern, ParseResult parseResult) {
 		info = types.get(matchedPattern);
 		assert info != null : matchedPattern;
 		return true;
 	}
 	
 	@Override
-	protected boolean init(final @Nullable Class<? extends Entity> c, final @Nullable Entity e) {
+	protected boolean init(@Nullable Class<? extends Entity> entityClass, @Nullable Entity entity) {
 		assert false;
 		return false;
 	}
 	
 	@Override
-	public void set(final Entity entity) {}
+	public void set(Entity entity) {}
 	
 	@Override
-	public boolean match(final Entity e) {
+	public boolean match(Entity entity) {
 		if (info.isSupertype)
-			return info.c.isInstance(e);
-		for (final SimpleEntityDataInfo info : types) {
-			if (info.c.isInstance(e))
-				return this.info.c == info.c;
+			return info.c.isInstance(entity);
+		SimpleEntityDataInfo closest = null;
+		for (SimpleEntityDataInfo info : types) {
+			if (info.c.isInstance(entity)) {
+				if (closest == null || closest.c.isAssignableFrom(info.c))
+					closest = info;
+			}
 		}
+		if (closest != null)
+			return this.info.c == closest.c;
 		assert false;
 		return false;
 	}
@@ -345,10 +364,9 @@ public class SimpleEntityData extends EntityData<Entity> {
 	}
 	
 	@Override
-	protected boolean equals_i(final EntityData<?> obj) {
-		if (!(obj instanceof SimpleEntityData))
+	protected boolean equals_i(EntityData<?> obj) {
+		if (!(obj instanceof SimpleEntityData other))
 			return false;
-		final SimpleEntityData other = (SimpleEntityData) obj;
 		return info.equals(other.info);
 	}
 
@@ -363,17 +381,17 @@ public class SimpleEntityData extends EntityData<Entity> {
 
 	@Override
 	public Fields serialize() throws NotSerializableException {
-		final Fields f = super.serialize();
-		f.putObject("info.codeName", info.codeName);
-		return f;
+		Fields fields = super.serialize();
+		fields.putObject("info.codeName", info.codeName);
+		return fields;
 	}
 	
 	@Override
-	public void deserialize(final Fields fields) throws StreamCorruptedException, NotSerializableException {
-		final String codeName = fields.getAndRemoveObject("info.codeName", String.class);
-		for (final SimpleEntityDataInfo i : types) {
-			if (i.codeName.equals(codeName)) {
-				info = i;
+	public void deserialize(Fields fields) throws StreamCorruptedException, NotSerializableException {
+		String codeName = fields.getAndRemoveObject("info.codeName", String.class);
+		for (SimpleEntityDataInfo info : types) {
+			if (info.codeName.equals(codeName)) {
+				this.info = info;
 				super.deserialize(fields);
 				return;
 			}
@@ -381,27 +399,27 @@ public class SimpleEntityData extends EntityData<Entity> {
 		throw new StreamCorruptedException("Invalid SimpleEntityDataInfo code name " + codeName);
 	}
 	
-//		return info.c.getName();
+
 	@Override
 	@Deprecated
-	protected boolean deserialize(final String s) {
+	protected boolean deserialize(String string) {
 		try {
-			final Class<?> c = Class.forName(s);
-			for (final SimpleEntityDataInfo i : types) {
-				if (i.c == c) {
-					info = i;
+			Class<?> c = Class.forName(string);
+			for (SimpleEntityDataInfo info : types) {
+				if (info.c == c) {
+					this.info = info;
 					return true;
 				}
 			}
 			return false;
-		} catch (final ClassNotFoundException e) {
+		} catch (ClassNotFoundException e) {
 			return false;
 		}
 	}
 	
 	@Override
-	public boolean isSupertypeOf(final EntityData<?> e) {
-		return info.c == e.getType() || info.isSupertype && info.c.isAssignableFrom(e.getType());
+	public boolean isSupertypeOf(EntityData<?> entityData) {
+		return info.c == entityData.getType() || info.isSupertype && info.c.isAssignableFrom(entityData.getType());
 	}
 	
 	@Override

@@ -25,11 +25,11 @@ import org.jetbrains.annotations.Nullable;
 	"if exp collection cooldown of player >= 10 minutes:",
 		"\tclear the experience pickup cooldown of player"
 })
-@Since("INSERT VERSION")
+@Since("2.10")
 public class ExprExperienceCooldown extends SimplePropertyExpression<Player, Timespan> {
 
 	static {
-		register(ExprExperienceCooldown.class, Timespan.class, "[the] (experience|[e]xp) [pickup|collection] cooldown", "players");
+		register(ExprExperienceCooldown.class, Timespan.class, "(experience|[e]xp) [pickup|collection] cooldown", "players");
 	}
 
 	private static final int maxTicks = Integer.MAX_VALUE;

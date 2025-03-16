@@ -42,7 +42,7 @@ import java.util.List;
 		"heal all tamed wolves in radius 2000 around {town center}",
 		"delete all monsters in chunk at player",
 		"size of all players within {_corner::1} and {_corner::2}}"})
-@Since("1.2.1, 2.5 (chunks), INSERT VERSION (within)")
+@Since("1.2.1, 2.5 (chunks), 2.10 (within)")
 public class ExprEntities extends SimpleExpression<Entity> {
 
 	static {
