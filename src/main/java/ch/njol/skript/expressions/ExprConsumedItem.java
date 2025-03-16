@@ -61,4 +61,5 @@ public class ExprConsumedItem extends SimpleExpression<ItemStack> implements Eve
 	public String toString(@Nullable Event event, boolean debug) {
 		return "the consumed item";
 	}
+
 }

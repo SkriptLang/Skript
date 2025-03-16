@@ -58,4 +58,5 @@ public class ExprShotForce extends SimpleExpression<Float> implements EventRestr
 	public String toString(@Nullable Event event, boolean debug) {
 		return "shot force";
 	}
+
 }

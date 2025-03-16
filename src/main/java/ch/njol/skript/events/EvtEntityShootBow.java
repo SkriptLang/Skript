@@ -49,4 +49,5 @@ public class EvtEntityShootBow extends SkriptEvent {
 	public String toString(@Nullable Event event, boolean debug) {
 		return this.entityData.toString(event, debug) + " shoot bow";
 	}
+
 }
