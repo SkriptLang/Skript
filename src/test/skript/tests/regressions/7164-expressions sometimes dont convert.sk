@@ -2,7 +2,7 @@ test "expressions sometimes dont convert":
 	assert formatted ({_foo} + {_bar}) is not set with "formatting nothing shouldn't throw an error"
 
 	set {_foo} to "test"
-	assert formatted ({_foo} + {_bar}) is not set with "formatting string + none shouldn't throw an error"
+	assert formatted ({_foo} + {_bar}) is "test" with "formatting string + none shouldn't throw an error"
 
 	set {_foo} to 1
 	set {_bar} to 2
