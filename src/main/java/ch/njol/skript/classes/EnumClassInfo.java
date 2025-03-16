@@ -25,7 +25,7 @@ public class EnumClassInfo<T extends Enum<T>> extends ClassInfo<T> {
 	 * @param languageNode The language node of the type
 	 */
 	public EnumClassInfo(Class<T> enumClass, String codeName, String languageNode) {
-		this(enumClass, codeName, languageNode, new EventValueExpression<>(enumClass), true);
+		this(enumClass, codeName, languageNode, new EventValueExpression<>(enumClass), Comparators.exactComparatorExists(enumClass, enumClass));
 	}
 
 	/**
@@ -45,7 +45,7 @@ public class EnumClassInfo<T extends Enum<T>> extends ClassInfo<T> {
 	 * @param defaultExpression The default expression of the type
 	 */
 	public EnumClassInfo(Class<T> enumClass, String codeName, String languageNode, DefaultExpression<T> defaultExpression) {
-		this(enumClass, codeName, languageNode, defaultExpression, true);
+		this(enumClass, codeName, languageNode, defaultExpression, Comparators.exactComparatorExists(enumClass, enumClass));
 	}
 
 	/**

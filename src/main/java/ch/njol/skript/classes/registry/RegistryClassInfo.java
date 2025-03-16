@@ -23,7 +23,7 @@ public class RegistryClassInfo<R extends Keyed> extends ClassInfo<R> {
 	 * @param languageNode The language node of the type
 	 */
 	public RegistryClassInfo(Class<R> registryClass, Registry<R> registry, String codeName, String languageNode) {
-		this(registryClass, registry, codeName, languageNode, new EventValueExpression<>(registryClass), true);
+		this(registryClass, registry, codeName, languageNode, new EventValueExpression<>(registryClass), Comparators.exactComparatorExists(registryClass, registryClass));
 	}
 
 	/**
@@ -45,7 +45,7 @@ public class RegistryClassInfo<R extends Keyed> extends ClassInfo<R> {
 	 * @param defaultExpression The default expression of the type
 	 */
 	public RegistryClassInfo(Class<R> registryClass, Registry<R> registry, String codeName, String languageNode, DefaultExpression<R> defaultExpression) {
-		this(registryClass, registry, codeName, languageNode,  defaultExpression, true);
+		this(registryClass, registry, codeName, languageNode,  defaultExpression, Comparators.exactComparatorExists(registryClass, registryClass));
 	}
 
 	/**
