@@ -22,7 +22,7 @@ import static ch.njol.skript.util.slot.EquipmentSlot.*;
 public class EvtEntityShootBow extends SkriptEvent {
 
 	static {
-		Skript.registerEvent("On Entity Shoot Bow", EvtEntityShootBow.class, EntityShootBowEvent.class,
+		Skript.registerEvent("Entity Shoot Bow", EvtEntityShootBow.class, EntityShootBowEvent.class,
 			"%entitydata% shoot[ing] (bow|projectile)")
 			.description("""
 				Called when an entity shoots a bow.
