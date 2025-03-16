@@ -5,7 +5,7 @@ import ch.njol.skript.doc.*;
 import ch.njol.skript.lang.EventRestrictedSyntax;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
-import ch.njol.skript.lang.SkriptParser;
+import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
@@ -20,15 +20,15 @@ import org.jetbrains.annotations.Nullable;
 		set the velocity of shooter to vector(0,1,0) * shot force
 	""")
 @Since("INSERT VERSION")
-public class ExprShotForce extends SimpleExpression<Float> implements EventRestrictedSyntax {
+public class ExprProjectileForce extends SimpleExpression<Float> implements EventRestrictedSyntax {
 
 	static {
-		Skript.registerExpression(ExprShotForce.class, Float.class, ExpressionType.SIMPLE,
-			"[the] shot force");
+		Skript.registerExpression(ExprProjectileForce.class, Float.class, ExpressionType.SIMPLE,
+			"[the] projectile force");
 	}
 
 	@Override
-	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
+	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		return true;
 	}
 
