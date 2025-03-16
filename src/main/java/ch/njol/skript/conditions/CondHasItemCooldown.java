@@ -25,7 +25,7 @@ import org.jetbrains.annotations.Nullable;
 @Since({"2.8.0", "INSERT VERSION (cooldown group)"})
 public class CondHasItemCooldown extends Condition {
 
-	private static final boolean SUPPORTS_COOLDOWN_GROUP = Skript.methodExists(HumanEntity.class, "getCooldown", ItemStack.class);
+	private static final boolean SUPPORTS_COOLDOWN_GROUP = Skript.methodExists(HumanEntity.class, "hasCooldown", ItemStack.class);
 
 	static {
 		Skript.registerCondition(CondHasItemCooldown.class, 
