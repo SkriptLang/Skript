@@ -997,7 +997,7 @@ entities:
 		name: zombie nitwit¦s
 		pattern: <age> zombie nitwit(|1¦s)
 	zombie armorer:
-		name: zombie armourer¦s
+		name: zombie armorer¦s
 		pattern: <age> zombie armo[u]rer(|1¦s)
 	zombie cartographer:
 		name: zombie cartographer¦s
