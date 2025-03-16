@@ -9,6 +9,7 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.block.Block;
+import org.bukkit.block.data.BlockData;
 import org.bukkit.block.data.Brushable;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
@@ -24,7 +25,7 @@ import org.jetbrains.annotations.Nullable;
 })
 @Since("INSERT VERSION")
 @RequiredPlugins("Minecraft 1.20+")
-public class ExprDustedStage extends PropertyExpression<Block, Integer> {
+public class ExprDustedStage extends PropertyExpression<Object, Integer> {
 
 	private static final boolean SUPPORTS_DUSTING = Skript.classExists("org.bukkit.block.data.Brushable");
 
@@ -32,7 +33,7 @@ public class ExprDustedStage extends PropertyExpression<Block, Integer> {
 		if (SUPPORTS_DUSTING)
 			register(ExprDustedStage.class, Integer.class,
 				"[:max[imum]] dust[ed|ing] (value|stage|progress[ion])",
-				"blocks");
+				"blocks/blockdatas");
 	}
 
 	private boolean isMax;
@@ -45,9 +46,10 @@ public class ExprDustedStage extends PropertyExpression<Block, Integer> {
 	}
 
 	@Override
-	protected Integer @Nullable [] get(Event event, Block[] source) {
-		return get(source, block -> {
-			if (block.getBlockData() instanceof Brushable brushable) {
+	protected Integer @Nullable [] get(Event event, Object[] source) {
+		return get(source, obj -> {
+			Brushable brushable = getBrushable(obj);
+			if (brushable != null) {
 				return isMax ? brushable.getMaximumDusted() : brushable.getDusted();
 			}
 			return null;
@@ -59,25 +61,71 @@ public class ExprDustedStage extends PropertyExpression<Block, Integer> {
 		if (isMax) {
 			Skript.error("Attempting to modify the max dusted stage is not supported.");
 			return null;
-		} else if (mode == ChangeMode.SET) {
-			return CollectionUtils.array(Integer.class);
 		}
-		return null;
+
+		return switch (mode) {
+			case SET, ADD, REMOVE, RESET -> CollectionUtils.array(Integer.class);
+			default -> null;
+		};
 	}
 
 	@Override
 	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
-		if (isMax || mode != ChangeMode.SET || delta.length == 0)
-			return;
+		if (isMax) return;
+		Integer value = (delta != null && delta.length > 0) ? (Integer) delta[0] : null;
 
-		int value = (Integer) delta[0];
-		for (Block block : getExpr().getArray(event)) {
-			if (block.getBlockData() instanceof Brushable brushable) {
-				brushable.setDusted(value);
-				block.setBlockData(brushable);
+		for (Object obj : getExpr().getArray(event)) {
+			Brushable brushable = getBrushable(obj);
+			if (brushable == null)
+				continue;
+
+			int currentValue = brushable.getDusted();
+			int maxValue = brushable.getMaximumDusted();
+			int newValue = currentValue;
+
+			switch (mode) {
+				case SET -> {
+					if (value != null) {
+						newValue = value;
+					}
+				}
+				case ADD -> {
+					if (value != null) {
+						newValue = currentValue + value;
+					}
+				}
+				case REMOVE -> {
+					if (value != null) {
+						newValue = currentValue - value;
+					}
+				}
+				case RESET -> newValue = 0;
+				default -> {
+					return;
+				}
+			}
+
+			newValue = Math.max(0, Math.min(newValue, maxValue));
+
+			brushable.setDusted(newValue);
+			if (obj instanceof Block) {
+				((Block) obj).setBlockData(brushable);
 			}
 		}
 	}
+
+	@Nullable
+	private Brushable getBrushable(Object obj) {
+		if (obj instanceof Block block) {
+			BlockData blockData = block.getBlockData();
+			if (blockData instanceof Brushable)
+				return (Brushable) blockData;
+		} else if (obj instanceof Brushable brushable) {
+			return brushable;
+		}
+		return null;
+	}
+
 
 	@Override
 	public Class<? extends Integer> getReturnType() {
