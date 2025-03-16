@@ -17,7 +17,7 @@ import org.jetbrains.annotations.Nullable;
 @Description("Returns the force at which a projectile was shot within an entity shoot bow event.")
 @Example("""
 	on entity shoot projectile:
-		set the velocity of shooter to vector(0,1,0) * shot force
+		set the velocity of shooter to vector(0,1,0) * projectile force
 	""")
 @Since("INSERT VERSION")
 public class ExprProjectileForce extends SimpleExpression<Float> implements EventRestrictedSyntax {
