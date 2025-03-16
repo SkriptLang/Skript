@@ -13,7 +13,7 @@ import org.bukkit.event.Event;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
-@Name("Dusted Item")
+@Name("Buried Item")
 @Description({
 	"Represents the item that is uncovered when dusting.",
 	"The only blocks that can currently be \"dusted\" are Suspicious Gravel and Suspicious Sand."
@@ -59,7 +59,7 @@ public class ExprBrushableItem extends SimplePropertyExpression<Block, ItemStack
 				BlockState state = block.getState();
 				if (state instanceof BrushableBlock brushableBlock) {
 					brushableBlock.setItem(newItem);
-					state.update(true);
+					state.update();
 				}
 			}
 		}
