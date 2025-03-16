@@ -2,7 +2,6 @@ package ch.njol.skript.expressions;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer.ChangeMode;
-import ch.njol.skript.config.Node;
 import ch.njol.skript.doc.*;
 import ch.njol.skript.expressions.base.PropertyExpression;
 import ch.njol.skript.lang.Expression;
@@ -13,7 +12,6 @@ import org.bukkit.block.Block;
 import org.bukkit.block.data.Brushable;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.log.runtime.SyntaxRuntimeErrorProducer;
 
 @Name("Dusted Stage")
 @Description({
@@ -26,10 +24,9 @@ import org.skriptlang.skript.log.runtime.SyntaxRuntimeErrorProducer;
 })
 @Since("INSERT VERSION")
 @RequiredPlugins("Minecraft 1.20+")
-public class ExprDustedStage extends PropertyExpression<Block, Integer> implements SyntaxRuntimeErrorProducer {
+public class ExprDustedStage extends PropertyExpression<Block, Integer> {
 
 	private static final boolean SUPPORTS_DUSTING = Skript.classExists("org.bukkit.block.data.Brushable");
-	private final Node node = getParser().getNode();
 
 	static {
 		if (SUPPORTS_DUSTING)
@@ -59,10 +56,12 @@ public class ExprDustedStage extends PropertyExpression<Block, Integer> implemen
 
 	@Override
 	public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
-		if (!isMax && mode == ChangeMode.SET) {
+		if (isMax) {
+			Skript.error("Attempting to modify the max dusted stage is not supported.");
+			return null;
+		} else if (mode == ChangeMode.SET) {
 			return CollectionUtils.array(Integer.class);
 		}
-		error("Attempting to modify the max dusted stage is not supported.");
 		return null;
 	}
 
@@ -90,8 +89,4 @@ public class ExprDustedStage extends PropertyExpression<Block, Integer> implemen
 		return getExpr().toString(event, debug) + "'s " + (isMax ? "maximum " : "") + " dusted stage";
 	}
 
-	@Override
-	public Node getNode() {
-		return this.node;
-	}
 }
