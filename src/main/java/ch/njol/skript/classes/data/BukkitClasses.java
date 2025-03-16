@@ -45,6 +45,7 @@ import org.bukkit.block.Biome;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.DoubleChest;
+import org.bukkit.block.banner.PatternType;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.command.CommandSender;
 import org.bukkit.enchantments.Enchantment;
@@ -1567,6 +1568,39 @@ public class BukkitClasses {
 				.since("INSERT VERSION")
 			);
 		}
+
+		Classes.registerClass(new ClassInfo<>(org.bukkit.block.banner.Pattern.class, "bannerpattern")
+			.user("banner ?patterns?")
+			.name("Banner Pattern")
+			.description("Represents a banner pattern.")
+			.since("INSERT VERSION")
+		);
+
+		ClassInfo<?> patternTypeInfo;
+		Registry<PatternType> patternRegistry = Bukkit.getRegistry(PatternType.class);
+		if (patternRegistry != null) {
+			patternTypeInfo = new RegistryClassInfo<>(PatternType.class, patternRegistry, "bannerpatterntype", "banner pattern types");
+		} else {
+			try {
+				Class<?> patternClass = Class.forName("org.bukkit.block.banner.PatternType");
+				if (patternClass.isEnum()) {
+					//noinspection unchecked,rawtypes
+					Class<? extends Enum> enumClass = (Class<? extends Enum>) patternClass;
+					//noinspection rawtypes,unchecked
+					patternTypeInfo = new EnumClassInfo<>(enumClass, "bannerpatterntype", "banner pattern types");
+				} else {
+					throw new IllegalStateException("PatternType is neither an enum nor a valid registry.");
+				}
+			} catch (ClassNotFoundException e) {
+				throw new RuntimeException(e);
+			}
+		}
+		Classes.registerClass(patternTypeInfo
+			.user("banner ?pattern ?types?")
+			.name("Banner Pattern Type")
+			.description("Represents the various banner patterns that can be applied to a banner.")
+			.since("INSERT VERSION")
+		);
 
 	}
 

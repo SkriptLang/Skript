@@ -62,7 +62,6 @@ import ch.njol.skript.util.chat.ChatMessages;
 import ch.njol.skript.variables.Variables;
 import ch.njol.util.Closeable;
 import ch.njol.util.Kleenean;
-import ch.njol.util.NullableChecker;
 import ch.njol.util.StringUtils;
 import ch.njol.util.coll.iterator.CheckedIterator;
 import ch.njol.util.coll.iterator.EnumerationIterable;
@@ -70,6 +69,7 @@ import ch.njol.util.coll.iterator.EnumerationIterable;
 import com.google.common.collect.Lists;
 import com.google.gson.Gson;
 
+import com.google.gson.GsonBuilder;
 import org.bstats.bukkit.Metrics;
 import org.bstats.charts.SimplePie;
 import org.bukkit.*;
@@ -87,11 +87,15 @@ import org.bukkit.event.server.ServerLoadEvent;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.Unmodifiable;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnknownNullability;
 import org.junit.After;
 import org.junit.runner.JUnitCore;
 import org.junit.runner.Result;
+import org.skriptlang.skript.bukkit.registration.BukkitRegistryKeys;
+import org.skriptlang.skript.bukkit.registration.BukkitSyntaxInfos;
 import org.junit.runner.notification.Failure;
 import org.skriptlang.skript.bukkit.SkriptMetrics;
 import org.skriptlang.skript.bukkit.breeding.BreedingModule;
@@ -109,6 +113,9 @@ import org.skriptlang.skript.lang.experiment.ExperimentRegistry;
 import org.skriptlang.skript.lang.script.Script;
 import org.skriptlang.skript.lang.structure.Structure;
 import org.skriptlang.skript.lang.structure.StructureInfo;
+import org.skriptlang.skript.registration.SyntaxOrigin;
+import org.skriptlang.skript.registration.SyntaxRegistry;
+import org.skriptlang.skript.registration.SyntaxInfo;
 
 import java.io.File;
 import java.io.IOException;
@@ -143,6 +150,8 @@ import java.util.logging.Filter;
 import java.util.logging.Level;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
@@ -181,14 +190,24 @@ public final class Skript extends JavaPlugin implements Listener {
 	@Nullable
 	private static Skript instance = null;
 
+	static org.skriptlang.skript.@UnknownNullability Skript skript = null;
+	private static org.skriptlang.skript.@UnknownNullability Skript unmodifiableSkript = null;
+
 	private static boolean disabled = false;
 	private static boolean partDisabled = false;
 
 	public static Skript getInstance() {
-		final Skript i = instance;
-		if (i == null)
+		if (instance == null)
 			throw new IllegalStateException();
-		return i;
+		return instance;
+	}
+
+	@ApiStatus.Experimental
+	public static org.skriptlang.skript.Skript instance() {
+		if (unmodifiableSkript == null) {
+			throw new SkriptAPIException("Skript is still initializing");
+		}
+		return unmodifiableSkript;
 	}
 
 	/**
@@ -209,7 +228,6 @@ public final class Skript extends JavaPlugin implements Listener {
 	/**
 	 * Check minecraft version and assign it to minecraftVersion field
 	 * This method is created to update MC version before onEnable method
-	 * To fix {@link Utils#HEX_SUPPORTED} being assigned before minecraftVersion is properly assigned
 	 */
 	public static void updateMinecraftVersion() {
 		String bukkitV = Bukkit.getBukkitVersion();
@@ -394,8 +412,6 @@ public final class Skript extends JavaPlugin implements Listener {
 		} catch (Exception e) {
 			Skript.exception(e, "Update checker could not be initialized.");
 		}
-		experimentRegistry = new ExperimentRegistry(this);
-		Feature.registerAll(getAddonInstance(), experimentRegistry);
 
 		if (!getDataFolder().isDirectory())
 			getDataFolder().mkdirs();
@@ -470,8 +486,16 @@ public final class Skript extends JavaPlugin implements Listener {
 			}
 		}
 
-		// initialize the Skript addon instance
+		// initialize the modern Skript instance
+		skript = org.skriptlang.skript.Skript.of(getClass(), getName());
+		unmodifiableSkript = skript.unmodifiableView();
+		skript.localizer().setSourceDirectories("lang",
+				getDataFolder().getAbsolutePath() + "lang");
+		// initialize the old Skript SkriptAddon instance
 		getAddonInstance();
+
+		experimentRegistry = new ExperimentRegistry(this);
+		Feature.registerAll(getAddonInstance(), experimentRegistry);
 
 		// Load classes which are always safe to use
 		new JavaClasses(); // These may be needed in configuration
@@ -619,7 +643,6 @@ public final class Skript extends JavaPlugin implements Listener {
 				}
 
 				stopAcceptingRegistrations();
-
 
 				Documentation.generate(); // TODO move to test classes?
 
@@ -773,7 +796,10 @@ public final class Skript extends JavaPlugin implements Listener {
 									EffObjectives.fail();
 
 								info("Collecting results to " + TestMode.RESULTS_FILE);
-								String results = new Gson().toJson(TestTracker.collectResults());
+								String results = new GsonBuilder()
+									.setPrettyPrinting() // Easier to read lines
+									.disableHtmlEscaping() // Fixes issue with "'" character in test strings going unicode
+									.create().toJson(TestTracker.collectResults());
 								try {
 									Files.write(TestMode.RESULTS_FILE, results.getBytes(StandardCharsets.UTF_8));
 								} catch (IOException e) {
@@ -1227,7 +1253,6 @@ public final class Skript extends JavaPlugin implements Listener {
 	private void beforeDisable() {
 		partDisabled = true;
 		EvtSkript.onSkriptStop(); // TODO [code style] warn user about delays in Skript stop events
-
 		ScriptLoader.unloadScripts(ScriptLoader.getLoadedScripts());
 	}
 
@@ -1339,193 +1364,230 @@ public final class Skript extends JavaPlugin implements Listener {
 
 	private static void stopAcceptingRegistrations() {
 		Converters.createChainedConverters();
-
 		acceptRegistrations = false;
-
 		Classes.onRegistrationsStop();
 	}
 
 	// ================ ADDONS ================
 
-	private final static HashMap<String, SkriptAddon> addons = new HashMap<>();
+	@Deprecated
+	private static final Set<SkriptAddon> addons = new HashSet<>();
 
 	/**
 	 * Registers an addon to Skript. This is currently not required for addons to work, but the returned {@link SkriptAddon} provides useful methods for registering syntax elements
 	 * and adding new strings to Skript's localization system (e.g. the required "types.[type]" strings for registered classes).
-	 *
-	 * @param p The plugin
+	 * 
+	 * @param plugin The plugin
 	 */
-	public static SkriptAddon registerAddon(final JavaPlugin p) {
+	public static SkriptAddon registerAddon(JavaPlugin plugin) {
 		checkAcceptRegistrations();
-		if (addons.containsKey(p.getName()))
-			throw new IllegalArgumentException("The plugin " + p.getName() + " is already registered");
-		final SkriptAddon addon = new SkriptAddon(p);
-		addons.put(p.getName(), addon);
+		SkriptAddon addon = new SkriptAddon(plugin);
+		addons.add(addon);
 		return addon;
 	}
 
-	@Nullable
-	public static SkriptAddon getAddon(final JavaPlugin p) {
-		return addons.get(p.getName());
+	public static @Nullable SkriptAddon getAddon(JavaPlugin plugin) {
+		if (plugin == Skript.getInstance()) {
+			return Skript.getAddonInstance();
+		}
+		for (SkriptAddon addon : getAddons()) {
+			if (addon.plugin == plugin) {
+				return addon;
+			}
+		}
+		return null;
 	}
 
-	@Nullable
-	public static SkriptAddon getAddon(final String name) {
-		return addons.get(name);
+	public static @Nullable SkriptAddon getAddon(String name) {
+		if (name.equals(Skript.getInstance().getName())) {
+			return Skript.getAddonInstance();
+		}
+		for (SkriptAddon addon : getAddons()) {
+			if (addon.getName().equals(name)) {
+				return addon;
+			}
+		}
+		return null;
 	}
 
-	@SuppressWarnings("null")
-	public static Collection<SkriptAddon> getAddons() {
-		return Collections.unmodifiableCollection(addons.values());
+	public static @Unmodifiable Collection<SkriptAddon> getAddons() {
+		Set<SkriptAddon> addons = new HashSet<>(Skript.addons);
+		addons.addAll(instance().addons().stream()
+			.filter(addon -> addons.stream().noneMatch(oldAddon -> oldAddon.name().equals(addon.name())))
+			.map(SkriptAddon::fromModern)
+			.collect(Collectors.toSet())
+		);
+		return Collections.unmodifiableCollection(addons);
 	}
 
-	@Nullable
-	private static SkriptAddon addon;
+	@Deprecated
+	private static @Nullable SkriptAddon addon;
 
 	/**
 	 * @return A {@link SkriptAddon} representing Skript.
 	 */
 	public static SkriptAddon getAddonInstance() {
 		if (addon == null) {
-			addon = new SkriptAddon(Skript.getInstance());
-			addon.setLanguageFileDirectory("lang");
+			addon = SkriptAddon.fromModern(instance());
 		}
 		return addon;
 	}
 
 	// ================ CONDITIONS & EFFECTS & SECTIONS ================
 
-	private static final List<SyntaxElementInfo<? extends Condition>> conditions = new ArrayList<>(50);
-	private static final List<SyntaxElementInfo<? extends Effect>> effects = new ArrayList<>(50);
-	private static final List<SyntaxElementInfo<? extends Statement>> statements = new ArrayList<>(100);
-	private static final List<SyntaxElementInfo<? extends Section>> sections = new ArrayList<>(50);
+	private static final class BukkitOrigin implements SyntaxOrigin {
 
-	public static Collection<SyntaxElementInfo<? extends Statement>> getStatements() {
-		return statements;
+		private final String name;
+
+		private BukkitOrigin(Plugin plugin) {
+			this.name = plugin.getName();
+		}
+
+		@Override
+		public String name() {
+			return name;
+		}
+
 	}
 
-	public static Collection<SyntaxElementInfo<? extends Effect>> getEffects() {
-		return effects;
-	}
-
-	public static Collection<SyntaxElementInfo<? extends Section>> getSections() {
-		return sections;
-	}
-
-	// ================ CONDITIONS ================
-	public static Collection<SyntaxElementInfo<? extends Condition>> getConditions() {
-		return conditions;
-	}
-
-	private final static int[] conditionTypesStartIndices = new int[ConditionType.values().length];
-
-	/**
-	 * registers a {@link Condition}.
-	 *
-	 * @param condition The condition's class
-	 * @param patterns Skript patterns to match this condition
-	 */
-	public static <E extends Condition> void registerCondition(Class<E> condition, String... patterns) throws IllegalArgumentException {
-		registerCondition(condition, ConditionType.COMBINED, patterns);
+	private static SyntaxOrigin getSyntaxOrigin(JavaPlugin plugin) {
+		SkriptAddon addon = getAddon(plugin);
+		if (addon != null) {
+			return SyntaxOrigin.of(addon);
+		}
+		return new BukkitOrigin(plugin);
 	}
 
 	/**
-	 * registers a {@link Condition}.
+	 * Registers a {@link Condition}.
 	 * 
-	 * @param condition The condition's class
-	 * @param type The conditions {@link ConditionType type}. This is used to determine in which order to try to parse conditions.
+	 * @param conditionClass The condition's class
 	 * @param patterns Skript patterns to match this condition
 	 */
-	public static <E extends Condition> void registerCondition(Class<E> condition, ConditionType type, String... patterns) throws IllegalArgumentException {
+	public static <E extends Condition> void registerCondition(Class<E> conditionClass, String... patterns) throws IllegalArgumentException {
+		registerCondition(conditionClass, ConditionType.COMBINED, patterns);
+	}
+
+	/**
+	 * Registers a {@link Condition}.
+	 *
+	 * @param conditionClass The condition's class
+	 * @param type The type of condition which affects its priority in the parsing search
+	 * @param patterns Skript patterns to match this condition
+	 */
+	public static <E extends Condition> void registerCondition(Class<E> conditionClass, ConditionType type, String... patterns) throws IllegalArgumentException {
 		checkAcceptRegistrations();
-		String originClassPath = Thread.currentThread().getStackTrace()[2].getClassName();
-		final SyntaxElementInfo<E> info = new SyntaxElementInfo<>(patterns, condition, originClassPath);
-		conditions.add(conditionTypesStartIndices[type.ordinal()], info);
-		statements.add(conditionTypesStartIndices[type.ordinal()], info);
-		for (int i = type.ordinal(); i < ConditionType.values().length; i++)
-			conditionTypesStartIndices[i]++;
+		skript.syntaxRegistry().register(SyntaxRegistry.CONDITION, SyntaxInfo.builder(conditionClass)
+				.priority(type.priority())
+				.origin(getSyntaxOrigin(JavaPlugin.getProvidingPlugin(conditionClass)))
+				.addPatterns(patterns)
+				.build()
+		);
 	}
 
 	/**
 	 * Registers an {@link Effect}.
-	 *
-	 * @param effect The effect's class
+	 * 
+	 * @param effectClass The effect's class
 	 * @param patterns Skript patterns to match this effect
 	 */
-	public static <E extends Effect> void registerEffect(final Class<E> effect, final String... patterns) throws IllegalArgumentException {
+	public static <E extends Effect> void registerEffect(Class<E> effectClass, String... patterns) throws IllegalArgumentException {
 		checkAcceptRegistrations();
-		String originClassPath = Thread.currentThread().getStackTrace()[2].getClassName();
-		final SyntaxElementInfo<E> info = new SyntaxElementInfo<>(patterns, effect, originClassPath);
-		effects.add(info);
-		statements.add(info);
+		skript.syntaxRegistry().register(SyntaxRegistry.EFFECT, SyntaxInfo.builder(effectClass)
+				.origin(getSyntaxOrigin(JavaPlugin.getProvidingPlugin(effectClass)))
+				.addPatterns(patterns)
+				.build()
+		);
 	}
 
 	/**
 	 * Registers a {@link Section}.
 	 *
-	 * @param section The section's class
+	 * @param sectionClass The section's class
 	 * @param patterns Skript patterns to match this section
 	 * @see Section
 	 */
-	public static <E extends Section> void registerSection(Class<E> section, String... patterns) throws IllegalArgumentException {
+	public static <E extends Section> void registerSection(Class<E> sectionClass, String... patterns) throws IllegalArgumentException {
 		checkAcceptRegistrations();
-		String originClassPath = Thread.currentThread().getStackTrace()[2].getClassName();
-		SyntaxElementInfo<E> info = new SyntaxElementInfo<>(patterns, section, originClassPath);
-		sections.add(info);
+		skript.syntaxRegistry().register(SyntaxRegistry.SECTION, SyntaxInfo.builder(sectionClass)
+				.origin(getSyntaxOrigin(JavaPlugin.getProvidingPlugin(sectionClass)))
+				.addPatterns(patterns)
+				.build()
+		);
+	}
+
+	public static @Unmodifiable Collection<SyntaxElementInfo<? extends Statement>> getStatements() {
+		return instance().syntaxRegistry()
+				.syntaxes(SyntaxRegistry.STATEMENT).stream()
+				.map(SyntaxElementInfo::<SyntaxElementInfo<Statement>, Statement>fromModern)
+				.collect(Collectors.toUnmodifiableList());
+	}
+
+	public static @Unmodifiable Collection<SyntaxElementInfo<? extends Condition>> getConditions() {
+		return instance().syntaxRegistry()
+				.syntaxes(SyntaxRegistry.CONDITION).stream()
+				.map(SyntaxElementInfo::<SyntaxElementInfo<Condition>, Condition>fromModern)
+				.collect(Collectors.toUnmodifiableList());
+	}
+
+	public static @Unmodifiable Collection<SyntaxElementInfo<? extends Effect>> getEffects() {
+		return instance().syntaxRegistry()
+				.syntaxes(SyntaxRegistry.EFFECT).stream()
+				.map(SyntaxElementInfo::<SyntaxElementInfo<Effect>, Effect>fromModern)
+				.collect(Collectors.toUnmodifiableList());
+	}
+
+	public static @Unmodifiable Collection<SyntaxElementInfo<? extends Section>> getSections() {
+		return instance().syntaxRegistry()
+				.syntaxes(SyntaxRegistry.SECTION).stream()
+				.map(SyntaxElementInfo::<SyntaxElementInfo<Section>, Section>fromModern)
+				.collect(Collectors.toUnmodifiableList());
 	}
 
 	// ================ EXPRESSIONS ================
 
-	private final static List<ExpressionInfo<?, ?>> expressions = new ArrayList<>(100);
-
-	private final static int[] expressionTypesStartIndices = new int[ExpressionType.values().length];
-
 	/**
 	 * Registers an expression.
-	 *
-	 * @param c The expression's class
+	 * 
+	 * @param expressionType The expression's class
 	 * @param returnType The superclass of all values returned by the expression
 	 * @param type The expression's {@link ExpressionType type}. This is used to determine in which order to try to parse expressions.
 	 * @param patterns Skript patterns that match this expression
 	 * @throws IllegalArgumentException if returnType is not a normal class
 	 */
-	public static <E extends Expression<T>, T> void registerExpression(final Class<E> c, final Class<T> returnType, final ExpressionType type, final String... patterns) throws IllegalArgumentException {
+	public static <E extends Expression<T>, T> void registerExpression(
+		Class<E> expressionType, Class<T> returnType, ExpressionType type, String... patterns
+	) throws IllegalArgumentException {
 		checkAcceptRegistrations();
-		if (returnType.isAnnotation() || returnType.isArray() || returnType.isPrimitive())
-			throw new IllegalArgumentException("returnType must be a normal type");
-		String originClassPath = Thread.currentThread().getStackTrace()[2].getClassName();
-		final ExpressionInfo<E, T> info = new ExpressionInfo<>(patterns, returnType, c, originClassPath, type);
-		expressions.add(expressionTypesStartIndices[type.ordinal()], info);
-		for (int i = type.ordinal(); i < ExpressionType.values().length; i++) {
-			expressionTypesStartIndices[i]++;
-		}
+		skript.syntaxRegistry().register(SyntaxRegistry.EXPRESSION, SyntaxInfo.Expression.builder(expressionType, returnType)
+				.priority(type.priority())
+				.origin(getSyntaxOrigin(JavaPlugin.getProvidingPlugin(expressionType)))
+				.addPatterns(patterns)
+				.build()
+		);
 	}
 
-	@SuppressWarnings("null")
 	public static Iterator<ExpressionInfo<?, ?>> getExpressions() {
-		return expressions.iterator();
+		List<ExpressionInfo<?, ?>> list = new ArrayList<>();
+		for (SyntaxInfo.Expression<?, ?> info : instance().syntaxRegistry().syntaxes(SyntaxRegistry.EXPRESSION))
+			list.add((ExpressionInfo<?, ?>) SyntaxElementInfo.fromModern(info));
+		return list.iterator();
 	}
 
-	public static Iterator<ExpressionInfo<?, ?>> getExpressions(final Class<?>... returnTypes) {
-		return new CheckedIterator<>(getExpressions(), new NullableChecker<ExpressionInfo<?, ?>>() {
-			@Override
-			public boolean check(final @Nullable ExpressionInfo<?, ?> i) {
-				if (i == null || i.returnType == Object.class)
+	public static Iterator<ExpressionInfo<?, ?>> getExpressions(Class<?>... returnTypes) {
+		return new CheckedIterator<>(getExpressions(), info -> {
+			if (info == null || info.returnType == Object.class)
+				return true;
+			for (Class<?> returnType : returnTypes) {
+				assert returnType != null;
+				if (Converters.converterExists(info.returnType, returnType))
 					return true;
-				for (final Class<?> returnType : returnTypes) {
-					assert returnType != null;
-					if (Converters.converterExists(i.returnType, returnType))
-						return true;
-				}
-				return false;
 			}
+			return false;
 		});
 	}
 
 	// ================ EVENTS ================
-
-	private static final List<SkriptEventInfo<?>> events = new ArrayList<>(50);
-	private static final List<StructureInfo<? extends Structure>> structures = new ArrayList<>(10);
 
 	/**
 	 * Registers an event.
@@ -1546,51 +1608,66 @@ public final class Skript extends JavaPlugin implements Listener {
 	 * Registers an event.
 	 *
 	 * @param name The name of the event, used for error messages
-	 * @param c The event's class
+	 * @param eventClass The event's class
 	 * @param events The Bukkit events this event applies to
 	 * @param patterns Skript patterns to match this event
 	 * @return A SkriptEventInfo representing the registered event. Used to generate Skript's documentation.
 	 */
-	public static <E extends SkriptEvent> SkriptEventInfo<E> registerEvent(String name, Class<E> c, Class<? extends Event>[] events, String... patterns) {
+	@SuppressWarnings("ConstantConditions") // caused by bad array annotations
+	public static <E extends SkriptEvent> SkriptEventInfo<E> registerEvent(
+		String name, Class<E> eventClass, Class<? extends Event>[] events, String... patterns
+	) {
 		checkAcceptRegistrations();
-		String originClassPath = Thread.currentThread().getStackTrace()[2].getClassName();
-
-		String[] transformedPatterns = new String[patterns.length];
 		for (int i = 0; i < patterns.length; i++)
-			transformedPatterns[i] = SkriptEvent.fixPattern(patterns[i]);
-
-		SkriptEventInfo<E> r = new SkriptEventInfo<>(name, transformedPatterns, c, originClassPath, events);
-		Skript.events.add(r);
-		return r;
+			patterns[i] = BukkitSyntaxInfos.fixPattern(patterns[i]);
+		var legacy = new SkriptEventInfo.ModernSkriptEventInfo<>(name, patterns, eventClass, "", events);
+		skript.syntaxRegistry().register(BukkitRegistryKeys.EVENT, legacy);
+		return legacy;
 	}
 
-	public static <E extends Structure> void registerStructure(Class<E> c, String... patterns) {
+	public static <E extends Structure> void registerStructure(Class<E> structureClass, String... patterns) {
 		checkAcceptRegistrations();
-		String originClassPath = Thread.currentThread().getStackTrace()[2].getClassName();
-		StructureInfo<E> structureInfo = new StructureInfo<>(patterns, c, originClassPath);
-		structures.add(structureInfo);
+		skript.syntaxRegistry().register(SyntaxRegistry.STRUCTURE, SyntaxInfo.Structure.builder(structureClass)
+				.origin(getSyntaxOrigin(JavaPlugin.getProvidingPlugin(structureClass)))
+				.addPatterns(patterns)
+				.build()
+		);
 	}
 
-	public static <E extends Structure> void registerSimpleStructure(Class<E> c, String... patterns) {
+	public static <E extends Structure> void registerSimpleStructure(Class<E> structureClass, String... patterns) {
 		checkAcceptRegistrations();
-		String originClassPath = Thread.currentThread().getStackTrace()[2].getClassName();
-		StructureInfo<E> structureInfo = new StructureInfo<>(patterns, c, originClassPath, true);
-		structures.add(structureInfo);
+		skript.syntaxRegistry().register(SyntaxRegistry.STRUCTURE, SyntaxInfo.Structure.builder(structureClass)
+			.origin(getSyntaxOrigin(JavaPlugin.getProvidingPlugin(structureClass)))
+			.addPatterns(patterns)
+			.nodeType(SyntaxInfo.Structure.NodeType.SIMPLE)
+			.build()
+		);
 	}
 
-	public static <E extends Structure> void registerStructure(Class<E> c, EntryValidator entryValidator, String... patterns) {
+	public static <E extends Structure> void registerStructure(
+		Class<E> structureClass, EntryValidator entryValidator, String... patterns
+	) {
 		checkAcceptRegistrations();
-		String originClassPath = Thread.currentThread().getStackTrace()[2].getClassName();
-		StructureInfo<E> structureInfo = new StructureInfo<>(patterns, c, originClassPath, entryValidator);
-		structures.add(structureInfo);
+		skript.syntaxRegistry().register(SyntaxRegistry.STRUCTURE, SyntaxInfo.Structure.builder(structureClass)
+				.origin(getSyntaxOrigin(JavaPlugin.getProvidingPlugin(structureClass)))
+				.addPatterns(patterns)
+				.entryValidator(entryValidator)
+				.build()
+		);
 	}
 
-	public static Collection<SkriptEventInfo<?>> getEvents() {
-		return events;
+	public static @Unmodifiable Collection<SkriptEventInfo<?>> getEvents() {
+		return instance().syntaxRegistry()
+				.syntaxes(BukkitRegistryKeys.EVENT).stream()
+				.map(SyntaxElementInfo::<SkriptEventInfo<SkriptEvent>, SkriptEvent>fromModern)
+				.collect(Collectors.toUnmodifiableList());
 	}
 
-	public static List<StructureInfo<? extends Structure>> getStructures() {
-		return structures;
+	public static @Unmodifiable List<StructureInfo<? extends Structure>> getStructures() {
+		return instance().syntaxRegistry()
+				.syntaxes(SyntaxRegistry.STRUCTURE).stream()
+				.map(SyntaxElementInfo::<StructureInfo<Structure>, Structure>fromModern)
+				.collect(Collectors.toUnmodifiableList());
 	}
 
 	// ================ COMMANDS ================

@@ -2472,6 +2472,59 @@ experience cooldown change reasons:
 	plugin: plugin
 	pickup_orb: orb pickup, pickup orb
 
+# -- Banner Pattern Types --
+banner pattern types:
+	base: base banner pattern
+	border: border banner pattern, bordure banner pattern, bordure indented banner pattern
+	bricks: bricks banner pattern, field masoned banner pattern
+	circle: circle banner pattern
+	creeper: creeper banner pattern, creeper charged banner pattern
+	cross: cross banner pattern
+	curly_border: curly border banner pattern
+	diagonal_left: left diagonal banner pattern
+	diagonal_right: right diagonal banner pattern
+	diagonal_up_left: diagonal up left banner pattern
+	diagonal_up_right: diagonal up right banner pattern
+	flow: flow banner pattern
+	flower: flower banner pattern
+	globe: globe banner pattern
+	gradient: gradient banner pattern
+	gradient_up: gradient up banner pattern
+	guster: guster banner pattern
+	half_horizontal: horizontal half banner pattern
+	half_horizontal_bottom: horizontal bottom half banner pattern
+	half_vertical: vertical half banner pattern
+	half_vertical_right: right vertical half banner pattern
+	mojang: mojang banner pattern, thing banner pattern
+	piglin: piglin banner pattern, snout banner pattern
+	rhombus: rhombus banner pattern
+	skull: skull banner pattern
+	small_stripes: small stripes banner pattern
+	square_bottom_left: bottom left square banner pattern
+	square_bottom_right: bottom right square banner pattern
+	square_top_left: top left square banner pattern
+	square_top_right: top right square banner pattern
+	straight_cross: straight cross banner pattern
+	stripe_bottom: bottom stripe banner pattern
+	stripe_center: center stripe banner pattern
+	stripe_downleft: down left stripe banner pattern
+	stripe_downright: down right stripe banner pattern
+	stripe_left: left stripe banner pattern
+	stripe_middle: middle stripe banner pattern
+	stripe_right: right stripe banner pattern
+	stripe_top: top stripe banner pattern
+	triangle_bottom: bottom triangle banner pattern
+	triangle_top: top triangle banner pattern
+	triangles_bottom: tbottom triangles banner pattern
+	triangles_top: top triangles banner pattern
+	stripe_small: small stripe banner pattern
+	diagonal_left_mirror: left diagonal mirror banner pattern
+	diagonal_right_mirror: right diagonal mirror banner pattern
+	circle_middle: middle circle banner pattern
+	rhombus_middle: middle rhombus banner pattern
+	half_vertical_mirror: vertical half mirror banner pattern
+	half_horizontal_mirror: horizontal half mirror banner pattern
+
 # -- Input Keys --
 input keys:
 	forward: forward movement key, forward key
@@ -2575,6 +2628,8 @@ types:
 	entitysnapshot: entity snapshot¦s @an
 	loottable: loot table¦s @a
 	lootcontext: loot context¦s @a
+	bannerpatterntype: banner pattern type¦s @a
+	bannerpattern: banner pattern¦s @a
 
 	# Skript
 	weathertype: weather type¦s @a
@@ -2594,6 +2649,9 @@ types:
 	experience.pattern: (e?xp|experience( points?)?)
 	classinfo: type¦s @a
 	visualeffect: visual effect¦s @a
+	named: named thing¦s @a
+	numbered: numbered thing¦s @a
+	containing: container¦s @a
 
 	# Hooks
 	money: money

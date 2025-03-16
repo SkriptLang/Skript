@@ -40,6 +40,7 @@ import ch.njol.util.coll.iterator.EnumerationIterable;
 import net.md_5.bungee.api.ChatColor;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.NotNull;
+import org.skriptlang.skript.util.ClassLoader;
 
 /**
  * Utility class.
@@ -198,49 +199,25 @@ public abstract class Utils {
 	 *            as well. Use an empty array to load all subpackages of the base package.
 	 * @throws IOException If some error occurred attempting to read the plugin's jar file.
 	 * @return This SkriptAddon
+	 * @deprecated Use {@link org.skriptlang.skript.util.ClassLoader}.
 	 */
+	@Deprecated
 	public static Class<?>[] getClasses(Plugin plugin, String basePackage, String... subPackages) throws IOException {
-		assert subPackages != null;
-		JarFile jar = new JarFile(getFile(plugin));
-		for (int i = 0; i < subPackages.length; i++)
-			subPackages[i] = subPackages[i].replace('.', '/') + "/";
-		basePackage = basePackage.replace('.', '/') + "/";
 		List<Class<?>> classes = new ArrayList<>();
-		try {
-			List<String> classNames = new ArrayList<>();
-
-			for (JarEntry e : new EnumerationIterable<>(jar.entries())) {
-				if (e.getName().startsWith(basePackage) && e.getName().endsWith(".class") && !e.getName().endsWith("package-info.class")) {
-					boolean load = subPackages.length == 0;
-					for (String sub : subPackages) {
-						if (e.getName().startsWith(sub, basePackage.length())) {
-							load = true;
-							break;
-						}
-					}
-
-					if (load)
-						classNames.add(e.getName().replace('/', '.').substring(0, e.getName().length() - ".class".length()));
-				}
-			}
-
-			classNames.sort(String::compareToIgnoreCase);
-
-			for (String c : classNames) {
-				try {
-					classes.add(Class.forName(c, true, plugin.getClass().getClassLoader()));
-				} catch (ClassNotFoundException | NoClassDefFoundError ex) {
-					Skript.exception(ex, "Cannot load class " + c);
-				} catch (ExceptionInInitializerError err) {
-					Skript.exception(err.getCause(), "class " + c + " generated an exception while loading");
-				}
-			}
-		} finally {
-			try {
-				jar.close();
-			} catch (IOException e) {}
+		ClassLoader loader = ClassLoader.builder()
+			.basePackage(basePackage)
+			.addSubPackages(subPackages)
+			.deep(true)
+			.initialize(true)
+			.forEachClass(classes::add)
+			.build();
+		File jarFile = getFile(plugin);
+		if (jarFile != null) {
+			loader.loadClasses(plugin.getClass(), jarFile);
+		} else {
+			loader.loadClasses(plugin.getClass());
 		}
-		return classes.toArray(new Class<?>[classes.size()]);
+		return classes.toArray(new Class[0]);
 	}
 
 	/**
@@ -572,9 +549,6 @@ public abstract class Utils {
 	final static Map<String, String> chat = new HashMap<>();
 	final static Map<String, String> englishChat = new HashMap<>();
 
-	public final static boolean HEX_SUPPORTED = Skript.isRunningMinecraft(1, 16);
-	public final static boolean COPY_SUPPORTED = Skript.isRunningMinecraft(1, 15);
-
 	static {
 		Language.addListener(new LanguageChangeListener() {
 			@Override
@@ -601,43 +575,17 @@ public abstract class Utils {
 		return chat.get(s);
 	}
 
-	private final static Pattern stylePattern = Pattern.compile("<([^<>]+)>");
-
 	/**
 	 * Replaces &lt;chat styles&gt; in the message
 	 *
 	 * @param message
 	 * @return message with localised chat styles converted to Minecraft's format
 	 */
-	public static String replaceChatStyles(final String message) {
+	public static @NotNull String replaceChatStyles(String message) {
 		if (message.isEmpty())
 			return message;
-		String m = StringUtils.replaceAll(Matcher.quoteReplacement("" + message.replace("<<none>>", "")), stylePattern, new Callback<String, Matcher>() {
-			@Override
-			public String run(final Matcher m) {
-				SkriptColor color = SkriptColor.fromName("" + m.group(1));
-				if (color != null)
-					return color.getFormattedChat();
-				final String tag = m.group(1).toLowerCase(Locale.ENGLISH);
-				final String f = chat.get(tag);
-				if (f != null)
-					return f;
-				if (HEX_SUPPORTED && tag.startsWith("#")) { // Check for parsing hex colors
-					ChatColor chatColor = parseHexColor(tag);
-					if (chatColor != null)
-						return chatColor.toString();
-				}
-				return "" + m.group();
-			}
-		});
-		assert m != null;
-		// Restore user input post-sanitization
-		// Sometimes, the message has already been restored
-		if (!message.equals(m)) {
-			m = m.replace("\\$", "$").replace("\\\\", "\\");
-		}
-		m = ChatColor.translateAlternateColorCodes('&', "" + m);
-		return "" + m;
+
+		return replaceChatStyle(message.replace("<<none>>", ""));
 	}
 
 	/**
@@ -647,54 +595,81 @@ public abstract class Utils {
 	 * @param message
 	 * @return message with english chat styles converted to Minecraft's format
 	 */
-	public static String replaceEnglishChatStyles(final String message) {
+	public static @NotNull String replaceEnglishChatStyles(String message) {
 		if (message.isEmpty())
 			return message;
-		String m = StringUtils.replaceAll(Matcher.quoteReplacement(message), stylePattern, new Callback<String, Matcher>() {
-			@Override
-			public String run(final Matcher m) {
-				SkriptColor color = SkriptColor.fromName("" + m.group(1));
-				if (color != null)
-					return color.getFormattedChat();
-				final String tag = m.group(1).toLowerCase(Locale.ENGLISH);
-				final String f = englishChat.get(tag);
-				if (f != null)
-					return f;
-				if (HEX_SUPPORTED && tag.startsWith("#")) { // Check for parsing hex colors
-					ChatColor chatColor = parseHexColor(tag);
-					if (chatColor != null)
-						return chatColor.toString();
-				}
-				return "" + m.group();
+
+		return replaceChatStyle(message);
+	}
+
+	private final static Pattern STYLE_PATTERN = Pattern.compile("<([^<>]+)>");
+
+	private static @NotNull String replaceChatStyle(String message) {
+		String m = StringUtils.replaceAll(Matcher.quoteReplacement(message), STYLE_PATTERN, matcher -> {
+			SkriptColor color = SkriptColor.fromName(matcher.group(1));
+			if (color != null)
+				return color.getFormattedChat();
+
+			String tag = matcher.group(1).toLowerCase(Locale.ENGLISH);
+			String f = englishChat.get(tag);
+			if (f != null)
+				return f;
+
+			if (tag.startsWith("#")) {
+				ChatColor chatColor = parseHexColor(tag);
+				if (chatColor != null)
+					return chatColor.toString();
+			} else if (tag.startsWith("u:") || tag.startsWith("unicode:")) {
+				String character = parseUnicode(tag);
+				if (character != null)
+					return character;
 			}
+			return matcher.group();
 		});
-		assert m != null;
+
 		// Restore user input post-sanitization
 		// Sometimes, the message has already been restored
 		if (!message.equals(m)) {
 			m = m.replace("\\$", "$").replace("\\\\", "\\");
 		}
-		m = ChatColor.translateAlternateColorCodes('&', "" + m);
-		return "" + m;
+
+		return ChatColor.translateAlternateColorCodes('&', m);
 	}
 
-	private static final Pattern HEX_PATTERN = Pattern.compile("(?i)#{0,2}[0-9a-f]{6}");
+	private static final Pattern UNICODE_PATTERN = Pattern.compile("(?i)u(?:nicode)?:(?<code>[0-9a-f]{4,})");
+
+	/**
+	 * Tries to extract a Unicode character from the given string.
+	 * @param string The string.
+	 * @return The Unicode character, or null if it could not be parsed.
+	 */
+	public static @Nullable String parseUnicode(String string) {
+		Matcher matcher = UNICODE_PATTERN.matcher(string);
+		if (!matcher.matches())
+			return null;
+
+		try {
+			return Character.toString(Integer.parseInt(matcher.group("code"), 16));
+		} catch (IllegalArgumentException ex) {
+			return null;
+		}
+	}
+
+	private static final Pattern HEX_PATTERN = Pattern.compile("(?i)#{0,2}(?<code>[0-9a-f]{6})");
 
 	/**
 	 * Tries to get a {@link ChatColor} from the given string.
-	 * @param hex The hex code to parse.
+	 * @param string The string code to parse.
 	 * @return The ChatColor, or null if it couldn't be parsed.
 	 */
-	@SuppressWarnings("null")
-	@Nullable
-	public static ChatColor parseHexColor(String hex) {
-		if (!HEX_SUPPORTED || !HEX_PATTERN.matcher(hex).matches()) // Proper hex code validation
+	public static @Nullable ChatColor parseHexColor(String string) {
+		Matcher matcher = HEX_PATTERN.matcher(string);
+		if (!matcher.matches())
 			return null;
 
-		hex = hex.replace("#", "");
 		try {
-			return ChatColor.of('#' + hex.substring(0, 6));
-		} catch (IllegalArgumentException e) {
+			return ChatColor.of('#' + matcher.group("code"));
+		} catch (IllegalArgumentException ex) {
 			return null;
 		}
 	}

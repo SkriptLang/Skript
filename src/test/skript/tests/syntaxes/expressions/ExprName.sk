@@ -1,0 +1,26 @@
+test "name of world":
+	set {_thing} to the world "world"
+	assert name of {_thing} is "world" with "name was wrong"
+	set the name of {_thing} to "blob"
+	assert name of {_thing} is "world" with "world name changed"
+
+test "name of entity":
+	set {_before} to 5
+	spawn a pig at spawn of "world":
+		assert event-entity is a pig with "entity not a pig"
+		set {_test} to event-entity
+		set event-entity's name to "foo"
+		assert {_test} is set with "entity not set"
+		assert {_test} is a pig with "entity variable not a pig"
+		assert event-entity's name is "foo" with "name didn't change"
+	assert {_test} exists with "entity didn't carry out"
+	assert {_test}'s name is "foo" with "name didn't carry out"
+	set {_test}'s name to "bar"
+	assert {_test}'s name is "bar" with "name didn't change"
+	delete the last spawned pig
+
+test "name of item":
+	set {_thing} to 3 of stone
+	assert name of {_thing} does not exist with "name was set"
+	set the name of {_thing} to "blob"
+	assert name of {_thing} is "blob" with "item name didn't change"
