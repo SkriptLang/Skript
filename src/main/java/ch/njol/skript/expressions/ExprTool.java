@@ -7,6 +7,7 @@ import ch.njol.skript.expressions.base.PropertyExpression;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.skript.lang.SyntaxStringBuilder;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.slot.EquipmentSlot;
 import ch.njol.skript.util.slot.InventorySlot;
@@ -111,8 +112,11 @@ public class ExprTool extends PropertyExpression<LivingEntity, Slot> {
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		String hand = offHand ? "off hand" : "";
-		return String.format("%s tool of %s", hand, getExpr().toString(event, debug));
+		SyntaxStringBuilder syntaxBuilder = new SyntaxStringBuilder(event, debug);
+		if (offHand)
+			syntaxBuilder.append("off hand");
+		syntaxBuilder.append("tool of", getExpr());
+		return syntaxBuilder.toString();
 	}
 
 	@Override
