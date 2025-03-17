@@ -23,7 +23,7 @@ import ch.njol.util.coll.CollectionUtils;
 public class ExprEntityTamer extends SimplePropertyExpression<LivingEntity, OfflinePlayer> {
 	
 	static {
-		register(ExprEntityTamer.class, OfflinePlayer.class, "(owner|tamer)", "livingentities");
+		register(ExprEntityTamer.class, OfflinePlayer.class, "tamer", "livingentities");
 	}
 	
 	@Nullable
