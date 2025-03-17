@@ -47,16 +47,6 @@ public class ExprOwner extends SimplePropertyExpression<AnyOwner, Object> {
 			if (!owner.supportsChangingOwner()) {
 				continue;
 			}
-//			Bukkit.broadcastMessage("Delta: " + (delta == null ? "unknown" : delta[0]));
-//			Bukkit.broadcastMessage("DeltaClas: " + deltaClass);
-//			Bukkit.broadcastMessage("OwnerType: " + owner.getOwnerType());
-//			Bukkit.broadcastMessage("ReturnType: " + owner.getReturnType());
-//			Bukkit.broadcastMessage("Owner: " + owner.getOwner());
-//			Bukkit.broadcastMessage("owner ClassInfo: " + Classes.getSuperClassInfo(owner.getReturnType()));
-//			if (deltaClass != null) {
-//				Bukkit.broadcastMessage("delta ClassInfo: " + Classes.getSuperClassInfo(deltaClass));
-//				Bukkit.broadcastMessage("isAssignableFrom: " + owner.getReturnType().isAssignableFrom(deltaClass));
-//			}
 			if (deltaClass != null && !owner.getReturnType().isAssignableFrom(deltaClass)) {
 				error("The owner of " + Utils.a(owner.getOwnerString()) + " cannot be set to " + Utils.a(Classes.getSuperClassInfo(deltaClass).toString())
 					+ ", it must be set to " + Utils.a(Classes.getSuperClassInfo(owner.getReturnType()).toString()) + ".");
