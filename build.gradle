@@ -27,14 +27,14 @@ allprojects {
 
 dependencies {
 	shadow group: 'io.papermc', name: 'paperlib', version: '1.0.8'
-	shadow group: 'org.bstats', name: 'bstats-bukkit', version: '3.0.2'
-	shadow group: 'net.kyori', name: 'adventure-text-serializer-bungeecord', version: '4.3.2'
+	shadow group: 'org.bstats', name: 'bstats-bukkit', version: '3.1.0'
+	shadow group: 'net.kyori', name: 'adventure-text-serializer-bungeecord', version: '4.3.4'
 
 	implementation group: 'io.papermc.paper', name: 'paper-api', version: '1.21.4-R0.1-SNAPSHOT'
 	implementation group: 'com.google.code.findbugs', name: 'findbugs', version: '3.0.1'
 
 	// bundled with Minecraft 1.19.4+ for display entity transforms
-	implementation group: 'org.joml', name: 'joml', version: '1.10.5'
+	implementation group: 'org.joml', name: 'joml', version: '1.10.8'
 
 	// Plugin hook libraries
 	implementation group: 'com.sk89q.worldguard', name: 'worldguard-legacy', version: '7.0.0-SNAPSHOT', {
@@ -48,7 +48,7 @@ dependencies {
 	implementation fileTree(dir: 'lib', include: '*.jar')
 
 	testShadow group: 'junit', name: 'junit', version: '4.13.2'
-	testShadow group: 'org.easymock', name: 'easymock', version: '5.4.0'
+	testShadow group: 'org.easymock', name: 'easymock', version: '5.5.0'
 }
 
 checkstyle {
