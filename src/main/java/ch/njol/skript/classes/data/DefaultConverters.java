@@ -285,29 +285,6 @@ public class DefaultConverters {
 		// UUID -> String
 		Converters.registerConverter(UUID.class, String.class, UUID::toString);
 
-		// Item(Entity) -> AnyOwner
-		Converters.registerConverter(Item.class, AnyOwner.class, from -> new AnyOwner<UUID>() {
-			@Override
-			public UUID getOwner() {
-				return from.getOwner();
-			}
-
-			@Override
-			public void setOwner(@Nullable UUID value) {
-				from.setOwner(value);
-			}
-
-			@Override
-			public boolean supportsChangingOwner() {
-				return true;
-			}
-
-			@Override
-			public boolean supportsChangeValue(Class<?> classy) {
-				return UUID.class.isAssignableFrom(classy);
-			}
-		});
-
 		// Block -> AnyOwner
 		Converters.registerConverter(Block.class, AnyOwner.class, from -> {
 			BlockState state = from.getState();
@@ -332,9 +309,15 @@ public class DefaultConverters {
 				}
 
 				@Override
-				public boolean supportsChangeValue(Class<?> classy) {
-					return OfflinePlayer.class.isAssignableFrom(classy);
+				public String getOwnerType() {
+					return "player head";
 				}
+
+				@Override
+				public Class<OfflinePlayer> getReturnType() {
+					return OfflinePlayer.class;
+				}
+
 			};
 		});
 
@@ -359,9 +342,15 @@ public class DefaultConverters {
 					}
 
 					@Override
-					public boolean supportsChangeValue(Class<?> classy) {
-						return UUID.class.isAssignableFrom(classy);
+					public String getOwnerType() {
+						return "area effect cloud";
 					}
+
+					@Override
+					public Class<UUID> getReturnType() {
+						return UUID.class;
+					}
+
 				};
 			} else if (from instanceof EvokerFangs evokerFangs) {
 				return new AnyOwner<LivingEntity>() {
@@ -381,9 +370,15 @@ public class DefaultConverters {
 					}
 
 					@Override
-					public boolean supportsChangeValue(Class<?> classy) {
-						return LivingEntity.class.isAssignableFrom(classy);
+					public String getOwnerType() {
+						return "evoker fangs";
 					}
+
+					@Override
+					public Class<LivingEntity> getReturnType() {
+						return LivingEntity.class;
+					}
+
 				};
 			} else if (from instanceof Tameable tameable) {
 				return new AnyOwner<AnimalTamer>() {
@@ -403,9 +398,43 @@ public class DefaultConverters {
 					}
 
 					@Override
-					public boolean supportsChangeValue(Class<?> classy) {
-						return AnimalTamer.class.isAssignableFrom(classy);
+					public String getOwnerType() {
+						return "tamable entity";
 					}
+
+					@Override
+					public Class<AnimalTamer> getReturnType() {
+						return AnimalTamer.class;
+					}
+
+				};
+			} else if (from instanceof Item item) {
+				return new AnyOwner<UUID>() {
+					@Override
+					public @UnknownNullability UUID getOwner() {
+						return item.getOwner();
+					}
+
+					@Override
+					public void setOwner(@Nullable UUID value) {
+						item.setOwner(value);
+					}
+
+					@Override
+					public boolean supportsChangingOwner() {
+						return true;
+					}
+
+					@Override
+					public String getOwnerType() {
+						return "dropped item";
+					}
+
+					@Override
+					public Class<UUID> getReturnType() {
+						return UUID.class;
+					}
+
 				};
 			}
 			return null;
@@ -432,9 +461,15 @@ public class DefaultConverters {
 				}
 
 				@Override
-				public boolean supportsChangeValue(Class<?> classy) {
-					return OfflinePlayer.class.isAssignableFrom(classy);
+				public String getOwnerType() {
+					return "player head";
 				}
+
+				@Override
+				public Class<OfflinePlayer> getReturnType() {
+					return OfflinePlayer.class;
+				}
+
 			};
 		});
 

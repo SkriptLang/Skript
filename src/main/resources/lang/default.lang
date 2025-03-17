@@ -2687,7 +2687,8 @@ types:
 	numbered: numbered thing¦s @a
 	valued: valued thing¦s @a
 	containing: container¦s @a
-	ownable: ownable¦s @a, any owner¦s @a
+	ownable: ownable¦s @a
+	animaltamer: animal tamer¦s @an
 
 	# Hooks
 	money: money

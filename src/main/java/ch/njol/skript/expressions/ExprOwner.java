@@ -2,13 +2,13 @@ package ch.njol.skript.expressions;
 
 import ch.njol.skript.classes.Changer;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
-import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.lang.util.common.AnyOwner;
-import ch.njol.util.Kleenean;
+import ch.njol.skript.registrations.Classes;
+import ch.njol.skript.util.Utils;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
+import org.bukkit.entity.AnimalTamer;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
@@ -25,7 +25,6 @@ public class ExprOwner extends SimplePropertyExpression<AnyOwner, Object> {
 
 	@Override
 	public @Nullable Object convert(AnyOwner from) {
-		Bukkit.broadcastMessage("ExprOwner#convert was called");
 		return from.getOwner();
 	}
 
@@ -37,28 +36,33 @@ public class ExprOwner extends SimplePropertyExpression<AnyOwner, Object> {
 	@Override
 	public Class<?> @Nullable [] acceptChange(Changer.ChangeMode mode) {
 		return switch (mode) {
-			case SET -> CollectionUtils.array(OfflinePlayer.class, UUID.class);
-			case DELETE -> CollectionUtils.array();
+			case SET -> CollectionUtils.array(Object.class);
+			case RESET, DELETE -> CollectionUtils.array();
 			default -> null;
 		};
 	}
 
 	@Override
 	public void change(Event event, Object @Nullable [] delta, Changer.ChangeMode mode) {
-		Bukkit.broadcastMessage("ExprOwner#change was called");
+		@Nullable Class<?> deltaClass = delta == null ? null : delta[0].getClass();
 		for (AnyOwner owner : getExpr().getArray(event)) {
 			if (!owner.supportsChangingOwner()) {
-				Bukkit.broadcastMessage("Unable to find a support change");
 				continue;
 			}
-			if (delta != null && !owner.supportsChangeValue(delta[0].getClass())) {
-				Bukkit.broadcastMessage("Unable to find a safe cast, " + delta[0].getClass().getName());
+//			Bukkit.broadcastMessage("Delta: " + (delta == null ? "unknown" : delta[0]));
+//			Bukkit.broadcastMessage("DeltaClas: " + deltaClass);
+//			Bukkit.broadcastMessage("OwnerType: " + owner.getOwnerType());
+//			Bukkit.broadcastMessage("ReturnType: " + owner.getReturnType());
+//			Bukkit.broadcastMessage("Owner: " + owner.getOwner());
+//			Bukkit.broadcastMessage("owner ClassInfo: " + Classes.getSuperClassInfo(owner.getReturnType()));
+//			if (deltaClass != null) {
+//				Bukkit.broadcastMessage("delta ClassInfo: " + Classes.getSuperClassInfo(deltaClass));
+//				Bukkit.broadcastMessage("isAssignableFrom: " + owner.getReturnType().isAssignableFrom(deltaClass));
+//			}
+			if (deltaClass != null && !owner.getReturnType().isAssignableFrom(deltaClass)) {
+				error("The owner of " + Utils.a(owner.getOwnerType()) + " cannot be set to " + Utils.a(Classes.getSuperClassInfo(deltaClass).toString())
+					+ ", it must be set to " + Utils.a(Classes.getSuperClassInfo(owner.getReturnType()).toString()) + ".");
 				continue;
-			}
-			if (delta == null) {
-				Bukkit.broadcastMessage("AnyOwner#setOwner was called with delta as null");
-			} else {
-				Bukkit.broadcastMessage("AnyOwner#setOwner was called with delta[0] " +  delta[0].getClass().getName());
 			}
 			owner.setOwner(delta == null ? null : delta[0]);
 		}

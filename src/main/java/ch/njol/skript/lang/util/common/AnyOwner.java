@@ -4,31 +4,36 @@ import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnknownNullability;
 
 @FunctionalInterface
-public interface AnyOwner<F> extends AnyProvider {
+public interface AnyOwner<T> extends AnyProvider {
 
 	/**
 	 * @return The owner of this
 	 */
-	@UnknownNullability F getOwner();
+	@UnknownNullability
+	T getOwner();
 
 	/**
 	 * Sets the owner of this
 	 * @param value The new owner to set
 	 */
-	default void setOwner(@Nullable F value) {
+	default void setOwner(@Nullable T value) {
 		throw new UnsupportedOperationException();
 	}
 
 	/**
-	 * This is called before {@link #setOwner(F)}
+	 * This is called before {@link #setOwner(T)}
 	 * @return True if this supports changing owner, otherwise False
 	 */
 	default boolean supportsChangingOwner() {
 		return false;
 	}
 
-	default boolean supportsChangeValue(Class<?> classy) {
-		return false;
+	default String getOwnerType() {
+		return null;
+	}
+
+	default Class<T> getReturnType() {
+		return null;
 	}
 
 }

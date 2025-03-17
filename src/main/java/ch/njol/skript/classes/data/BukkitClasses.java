@@ -1526,6 +1526,13 @@ public class BukkitClasses {
 			.changer(DefaultChangers.entityChanger)
 		);
 
+		Classes.registerClass(new ClassInfo<>(AnimalTamer.class, "animaltamer")
+			.user("animal ?tamers?")
+			.name("Animal Tamer")
+			.description("Represents an entity who is able to tame animals")
+			.since("INSERT VERSION")
+		);
+
 	}
 
 }
