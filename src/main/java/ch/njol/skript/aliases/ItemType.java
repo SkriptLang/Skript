@@ -3,6 +3,7 @@ package ch.njol.skript.aliases;
 import ch.njol.skript.aliases.ItemData.OldItemData;
 import ch.njol.skript.bukkitutil.BukkitUnsafe;
 import ch.njol.skript.bukkitutil.ItemUtils;
+import ch.njol.skript.bukkitutil.SkullUtils;
 import ch.njol.skript.lang.Unit;
 import ch.njol.skript.lang.util.common.AnyAmount;
 import ch.njol.skript.lang.util.common.AnyNamed;
@@ -397,7 +398,7 @@ public class ItemType implements Unit, Iterable<ItemData>, Container<ItemStack>,
 				Skull skull = (Skull) block.getState();
 				if (offlinePlayer.getName() != null) {
 					skull.setOwningPlayer(offlinePlayer);
-				} else if (ItemUtils.CAN_CREATE_PLAYER_PROFILE) {
+				} else if (SkullUtils.CAN_CREATE_PLAYER_PROFILE) {
 					//noinspection deprecation
 					skull.setOwnerProfile(Bukkit.createPlayerProfile(offlinePlayer.getUniqueId(), ""));
 				} else {

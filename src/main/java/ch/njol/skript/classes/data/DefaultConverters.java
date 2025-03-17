@@ -3,6 +3,8 @@ package ch.njol.skript.classes.data;
 import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.bukkitutil.EntityUtils;
+import ch.njol.skript.bukkitutil.ItemUtils;
+import ch.njol.skript.bukkitutil.SkullUtils;
 import ch.njol.skript.command.Commands;
 import ch.njol.skript.config.Config;
 import ch.njol.skript.config.Node;
@@ -11,29 +13,30 @@ import ch.njol.skript.entity.EntityType;
 import ch.njol.skript.entity.XpOrbData;
 import ch.njol.skript.lang.util.common.AnyAmount;
 import ch.njol.skript.lang.util.common.AnyNamed;
+import ch.njol.skript.lang.util.common.AnyOwner;
 import ch.njol.skript.util.*;
 import ch.njol.skript.util.slot.Slot;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.DoubleChest;
+import org.bukkit.block.Skull;
 import org.bukkit.command.BlockCommandSender;
 import org.bukkit.command.CommandSender;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.enchantments.EnchantmentOffer;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.EntitySnapshot;
-import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Player;
+import org.bukkit.entity.*;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
+import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.scoreboard.Objective;
 import org.bukkit.scoreboard.Team;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnknownNullability;
 import org.skriptlang.skript.lang.converter.Converter;
 import org.skriptlang.skript.lang.converter.Converters;
@@ -282,79 +285,158 @@ public class DefaultConverters {
 		// UUID -> String
 		Converters.registerConverter(UUID.class, String.class, UUID::toString);
 
-//		// Entity - String (UUID) // Very slow, thus disabled for now
-//		Converters.registerConverter(String.class, Entity.class, new Converter<String, Entity>() {
-//
-//			@Override
-//			@Nullable
-//			public Entity convert(String f) {
-//				Collection<? extends Player> players = PlayerUtils.getOnlinePlayers();
-//				for (Player p : players) {
-//					if (p.getName().equals(f) || p.getUniqueId().toString().equals(f))
-//						return p;
-//				}
-//
-//				return null;
-//			}
-//
-//		});
+		// Item(Entity) -> AnyOwner
+		Converters.registerConverter(Item.class, AnyOwner.class, from -> new AnyOwner<UUID>() {
+			@Override
+			public UUID getOwner() {
+				return from.getOwner();
+			}
 
-		// Number - Vector; DISABLED due to performance problems
-//		Converters.registerConverter(Number.class, Vector.class, new Converter<Number, Vector>() {
-//			@Override
-//			@Nullable
-//			public Vector convert(Number number) {
-//				return new Vector(number.doubleValue(), number.doubleValue(), number.doubleValue());
-//			}
-//		});
+			@Override
+			public void setOwner(@Nullable UUID value) {
+				from.setOwner(value);
+			}
 
-//		// World - Time
-//		Skript.registerConverter(World.class, Time.class, new Converter<World, Time>() {
-//			@Override
-//			public Time convert(final World w) {
-//				if (w == null)
-//					return null;
-//				return new Time((int) w.getTime());
-//			}
-//		});
+			@Override
+			public boolean supportsChangingOwner() {
+				return true;
+			}
 
-//		// Slot - Inventory
-//		Skript.addConverter(Slot.class, Inventory.class, new Converter<Slot, Inventory>() {
-//			@Override
-//			public Inventory convert(final Slot s) {
-//				if (s == null)
-//					return null;
-//				return s.getInventory();
-//			}
-//		});
+			@Override
+			public boolean supportsChangeValue(Class<?> classy) {
+				return UUID.class.isAssignableFrom(classy);
+			}
+		});
 
-//		// Item - ItemStack
-//		Converters.registerConverter(Item.class, ItemStack.class, new Converter<Item, ItemStack>() {
-//			@Override
-//			public ItemStack convert(final Item i) {
-//				return i.getItemStack();
-//			}
-//		});
+		// Block -> AnyOwner
+		Converters.registerConverter(Block.class, AnyOwner.class, from -> {
+			BlockState state = from.getState();
+			if (!(state instanceof Skull))
+				return null;
+			return new AnyOwner<OfflinePlayer>() {
+				@Override
+				public OfflinePlayer getOwner() {
+					return SkullUtils.getOwningPlayer(from);
+				}
 
-		// Location - World
-//		Skript.registerConverter(Location.class, World.class, new Converter<Location, World>() {
-//			private final static long serialVersionUID = 3270661123492313649L;
-//
-//			@Override
-//			public World convert(final Location l) {
-//				if (l == null)
-//					return null;
-//				return l.getWorld();
-//			}
-//		});
+				@Override
+				public void setOwner(@Nullable OfflinePlayer value) {
+					if (value == null)
+						return;
+					SkullUtils.setOwningPlayer(from, value);
+				}
 
-		// Location - Block
-//		Converters.registerConverter(Location.class, Block.class, new Converter<Location, Block>() {
-//			@Override
-//			public Block convert(final Location l) {
-//				return l.getBlock();
-//			}
-//		});
+				@Override
+				public boolean supportsChangingOwner() {
+					return true;
+				}
+
+				@Override
+				public boolean supportsChangeValue(Class<?> classy) {
+					return OfflinePlayer.class.isAssignableFrom(classy);
+				}
+			};
+		});
+
+		// Entity -> AnyOwner
+		Converters.registerConverter(Entity.class, AnyOwner.class, from -> {
+			if (from instanceof AreaEffectCloud areaEffectCloud) {
+				return new AnyOwner<UUID>() {
+
+					@Override
+					public @UnknownNullability UUID getOwner() {
+						return areaEffectCloud.getOwnerUniqueId();
+					}
+
+					@Override
+					public void setOwner(@Nullable UUID value) {
+						areaEffectCloud.setOwnerUniqueId(value);
+					}
+
+					@Override
+					public boolean supportsChangingOwner() {
+						return true;
+					}
+
+					@Override
+					public boolean supportsChangeValue(Class<?> classy) {
+						return UUID.class.isAssignableFrom(classy);
+					}
+				};
+			} else if (from instanceof EvokerFangs evokerFangs) {
+				return new AnyOwner<LivingEntity>() {
+					@Override
+					public @UnknownNullability LivingEntity getOwner() {
+						return evokerFangs.getOwner();
+					}
+
+					@Override
+					public void setOwner(@Nullable LivingEntity value) {
+						evokerFangs.setOwner(value);
+					}
+
+					@Override
+					public boolean supportsChangingOwner() {
+						return true;
+					}
+
+					@Override
+					public boolean supportsChangeValue(Class<?> classy) {
+						return LivingEntity.class.isAssignableFrom(classy);
+					}
+				};
+			} else if (from instanceof Tameable tameable) {
+				return new AnyOwner<AnimalTamer>() {
+					@Override
+					public @UnknownNullability AnimalTamer getOwner() {
+						return tameable.getOwner();
+					}
+
+					@Override
+					public void setOwner(@Nullable AnimalTamer value) {
+						tameable.setOwner(value);
+					}
+
+					@Override
+					public boolean supportsChangingOwner() {
+						return true;
+					}
+
+					@Override
+					public boolean supportsChangeValue(Class<?> classy) {
+						return AnimalTamer.class.isAssignableFrom(classy);
+					}
+				};
+			}
+			return null;
+		});
+
+		// ItemType -> AnyOwner
+		Converters.registerConverter(ItemType.class, AnyOwner.class, from -> {
+			if (!(from.getItemMeta() instanceof SkullMeta))
+				return null;
+			return new AnyOwner<OfflinePlayer>() {
+				@Override
+				public @UnknownNullability OfflinePlayer getOwner() {
+					return SkullUtils.getOwningPlayer(from);
+				}
+
+				@Override
+				public void setOwner(@Nullable OfflinePlayer value) {
+					SkullUtils.setOwningPlayer(from, value);
+				}
+
+				@Override
+				public boolean supportsChangingOwner() {
+					return true;
+				}
+
+				@Override
+				public boolean supportsChangeValue(Class<?> classy) {
+					return OfflinePlayer.class.isAssignableFrom(classy);
+				}
+			};
+		});
 
 	}
 

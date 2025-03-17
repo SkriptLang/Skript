@@ -2,25 +2,17 @@ package ch.njol.skript.expressions;
 
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.bukkitutil.ItemUtils;
+import ch.njol.skript.bukkitutil.SkullUtils;
 import ch.njol.skript.classes.Changer.ChangeMode;
-import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
-import ch.njol.skript.doc.Name;
-import ch.njol.skript.doc.Since;
+import ch.njol.skript.doc.*;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import ch.njol.skript.util.slot.Slot;
 import ch.njol.util.coll.CollectionUtils;
-import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.block.Block;
-import org.bukkit.block.Skull;
 import org.bukkit.event.Event;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.SkullMeta;
-import org.bukkit.profile.PlayerProfile;
 import org.jetbrains.annotations.Nullable;
-
-import java.util.function.Consumer;
 
 @Name("Skull Owner")
 @Description("The skull owner of a player skull.")
@@ -38,14 +30,13 @@ public class ExprSkullOwner extends SimplePropertyExpression<Object, OfflinePlay
 
 	@Override
 	public @Nullable OfflinePlayer convert(Object object) {
-		if (object instanceof Block block && block.getState() instanceof Skull skull) {
-			return skull.getOwningPlayer();
-		} else {
-			ItemStack skullItem = ItemUtils.asItemStack(object);
-			if (skullItem == null || !(skullItem.getItemMeta() instanceof SkullMeta skullMeta))
-				return null;
-			return skullMeta.getOwningPlayer();
-		}
+		if (object instanceof Block block)
+			return SkullUtils.getOwningPlayer(block);
+
+		ItemStack itemStack = ItemUtils.asItemStack(object);
+		if (itemStack == null)
+			return null;
+		return SkullUtils.getOwningPlayer(itemStack);
 	}
 
 	@Override
@@ -58,53 +49,21 @@ public class ExprSkullOwner extends SimplePropertyExpression<Object, OfflinePlay
 	@Override
 	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
 		OfflinePlayer offlinePlayer = (OfflinePlayer) delta[0];
-		Consumer<Skull> blockChanger = getBlockChanger(offlinePlayer);
-		Consumer<SkullMeta> metaChanger = getMetaChanger(offlinePlayer);
 		for (Object object : getExpr().getArray(event)) {
-			if (object instanceof Block block && block.getState() instanceof Skull skull) {
-				blockChanger.accept(skull);
-				skull.update(true, false);
-			} else {
-				ItemStack skullItem = ItemUtils.asItemStack(object);
-				if (skullItem == null || !(skullItem.getItemMeta() instanceof SkullMeta skullMeta))
+			if (object instanceof Block block) {
+				SkullUtils.setOwningPlayer(block, offlinePlayer);
+			} else if (object instanceof ItemStack itemStack) {
+				SkullUtils.setOwningPlayer(itemStack, offlinePlayer);
+			} else if (object instanceof ItemType itemType) {
+				SkullUtils.setOwningPlayer(itemType, offlinePlayer);
+			} else if (object instanceof Slot slot) {
+				ItemStack itemStack = slot.getItem();
+				if (itemStack == null)
 					continue;
-				metaChanger.accept(skullMeta);
-				if (object instanceof Slot slot) {
-					skullItem.setItemMeta(skullMeta);
-					slot.setItem(skullItem);
-				} else if (object instanceof ItemType itemType) {
-					itemType.setItemMeta(skullMeta);
-				} else if (object instanceof ItemStack itemStack) {
-					itemStack.setItemMeta(skullMeta);
-				}
+				SkullUtils.setOwningPlayer(itemStack, offlinePlayer);
+				slot.setItem(itemStack);
 			}
 		}
-	}
-
-	private Consumer<Skull> getBlockChanger(OfflinePlayer offlinePlayer) {
-		if (offlinePlayer.getName() != null) {
-			return skull -> skull.setOwningPlayer(offlinePlayer);
-		} else if (ItemUtils.CAN_CREATE_PLAYER_PROFILE) {
-			//noinspection deprecation
-			PlayerProfile profile = Bukkit.createPlayerProfile(offlinePlayer.getUniqueId(), "");
-			//noinspection deprecation
-			return skull -> skull.setOwnerProfile(profile);
-		}
-		//noinspection deprecation
-		return skull -> skull.setOwner("");
-	}
-
-	private Consumer<SkullMeta> getMetaChanger(OfflinePlayer offlinePlayer) {
-		if (offlinePlayer.getName() != null) {
-			return skullMeta -> skullMeta.setOwningPlayer(offlinePlayer);
-		} else if (ItemUtils.CAN_CREATE_PLAYER_PROFILE) {
-			//noinspection deprecation
-			PlayerProfile profile = Bukkit.createPlayerProfile(offlinePlayer.getUniqueId(), "");
-			//noinspection deprecation
-			return skullMeta -> skullMeta.setOwnerProfile(profile);
-		}
-		//noinspection deprecation
-		return skullMeta -> skullMeta.setOwner("");
 	}
 
 	@Override

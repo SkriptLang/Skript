@@ -13,10 +13,7 @@ import ch.njol.skript.expressions.base.EventValueExpression;
 import ch.njol.skript.lang.ParseContext;
 import ch.njol.skript.lang.function.DynamicFunctionReference;
 import ch.njol.skript.lang.util.SimpleLiteral;
-import ch.njol.skript.lang.util.common.AnyAmount;
-import ch.njol.skript.lang.util.common.AnyContains;
-import ch.njol.skript.lang.util.common.AnyNamed;
-import ch.njol.skript.lang.util.common.AnyValued;
+import ch.njol.skript.lang.util.common.*;
 import ch.njol.skript.localization.Noun;
 import ch.njol.skript.localization.RegexMessage;
 import ch.njol.skript.registrations.Classes;
@@ -966,6 +963,22 @@ public class SkriptClasses {
 				.examples("{a} contains {b}")
 				.since("2.10")
 		);
+
+		Classes.registerClass(new AnyInfo<>(AnyOwner.class, "ownable")
+			.user("any owners?", "ownables?")
+			.name("Anything with an Owner")
+			.description("Anything that has some form of ownership, an example of such is dropped items, tamable animals and player skulls")
+			.examples("""
+				set the owner of last spawned wolf to the player
+				set block at player to player head
+				set the owner of block at player to offlinePlayer("Notch")
+				spawn a dropped diamond at player:
+					set display name of entity to "Pick me up if you can"
+					set owner of the entity to random uuid
+				""")
+			.since("INSERT VERSION")
+		);
+
 	}
 
 }
