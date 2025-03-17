@@ -4,7 +4,7 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.entity.EntityData;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptEvent;
-import ch.njol.skript.lang.SkriptParser;
+import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.registrations.EventConverter;
 import ch.njol.skript.registrations.EventValues;
 import ch.njol.skript.util.slot.Slot;
@@ -69,7 +69,7 @@ public class EvtEntityShootBow extends SkriptEvent {
 	private Literal<EntityData<?>> entityData;
 
 	@Override
-	public boolean init(Literal<?>[] args, int matchedPattern, SkriptParser.ParseResult parseResult) {
+	public boolean init(Literal<?>[] args, int matchedPattern, ParseResult parseResult) {
 		//noinspection unchecked
 		entityData = (Literal<EntityData<?>>) args[0];
 		return true;
