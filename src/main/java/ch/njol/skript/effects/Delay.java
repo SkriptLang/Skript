@@ -18,6 +18,7 @@ import ch.njol.util.Kleenean;
 import org.bukkit.Bukkit;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.simplification.Simplifiable;
 
 import java.util.Collections;
 import java.util.Set;
@@ -98,6 +99,12 @@ public class Delay extends Effect {
 	@Override
 	protected void execute(Event event) {
 		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public Effect simplify(Step step, @Nullable Simplifiable<?> source) {
+		duration = simplifyChild(duration, step, source);
+		return this;
 	}
 
 	@Override

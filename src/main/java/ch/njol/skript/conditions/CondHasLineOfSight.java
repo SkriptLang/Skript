@@ -14,6 +14,7 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.simplification.Simplifiable;
 
 @Name("Has Line of Sight")
 @Description("Checks whether living entities have an unobstructed line of sight to other entities or locations.")
@@ -54,6 +55,13 @@ public class CondHasLineOfSight extends Condition {
 				return false;
 			}
 		}, isNegated());
+	}
+
+	@Override
+	public Condition simplify(Step step, @Nullable Simplifiable<?> source) {
+		viewers = simplifyChild(viewers, step, source);
+		targets = simplifyChild(targets, step, source);
+		return this;
 	}
 
 	@Override

@@ -6,6 +6,7 @@ import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.*;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import ch.njol.skript.lang.Expression;
+import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
@@ -15,7 +16,9 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.simplification.Simplifiable;
 
 @Name("Yaw / Pitch")
 @Description({
@@ -203,6 +206,15 @@ public class ExprYawPitch extends SimplePropertyExpression<Object, Float> {
 	@Override
 	public Class<? extends Float> getReturnType() {
 		return Float.class;
+	}
+
+	@Override
+	public Expression<Float> simplify(@NotNull Step step, @Nullable Simplifiable<?> source) {
+		super.simplify(step, source);
+		// don't simplify if it's an entity, since their yaw/pitch can change
+		if (getExpr() instanceof Literal<?> literal && (literal.getReturnType() == Location.class || literal.getReturnType() == Vector.class))
+			return getAsSimplifiedLiteral();
+		return this;
 	}
 
 	@Override

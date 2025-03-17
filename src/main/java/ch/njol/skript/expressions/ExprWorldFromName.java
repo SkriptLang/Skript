@@ -14,6 +14,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.simplification.Simplifiable;
 
 @Name("World from Name")
 @Description("Returns the world from a string.")
@@ -26,7 +27,6 @@ public class ExprWorldFromName extends SimpleExpression<World> {
 		Skript.registerExpression(ExprWorldFromName.class, World.class, ExpressionType.SIMPLE, "[the] world [(named|with name)] %string%");
 	}
 
-	@SuppressWarnings("NotNullFieldNotInitialized")
 	private Expression<String> worldName;
 
 	@Override
@@ -57,6 +57,12 @@ public class ExprWorldFromName extends SimpleExpression<World> {
 	@Override
 	public Class<World> getReturnType() {
 		return World.class;
+	}
+
+	@Override
+	public Expression<World> simplify(Step step, @Nullable Simplifiable<?> source) {
+		worldName = simplifyChild(worldName, step, source);
+		return this;
 	}
 
 	@Override

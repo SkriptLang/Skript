@@ -13,6 +13,7 @@ import ch.njol.util.Kleenean;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.simplification.Simplifiable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -62,6 +63,12 @@ public class ExprHiddenPlayers extends SimpleExpression<Player> {
 	@Override
 	public Class<? extends Player> getReturnType() {
 		return Player.class;
+	}
+
+	@Override
+	public Expression<Player> simplify(Step step, @Nullable Simplifiable<?> source) {
+		viewers = simplifyChild(viewers, step, source);
+		return this;
 	}
 
 	@Override

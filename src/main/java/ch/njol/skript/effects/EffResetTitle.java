@@ -13,6 +13,7 @@ import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
+import org.skriptlang.skript.lang.simplification.Simplifiable;
 
 @Name("Title - Reset")
 @Description("Resets the title of the player to the default values.")
@@ -41,7 +42,13 @@ public class EffResetTitle extends Effect {
 		for (Player recipient : recipients.getArray(e))
 			recipient.resetTitle();
 	}
-	
+
+	@Override
+	public Effect simplify(Step step, @Nullable Simplifiable<?> source) {
+		recipients = simplifyChild(recipients, step, source);
+		return this;
+	}
+
 	@Override
 	public String toString(@Nullable Event e, boolean debug) {
 		return "reset the title of " + recipients.toString(e, debug);

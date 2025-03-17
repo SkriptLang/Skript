@@ -14,6 +14,7 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.Event;
 import org.bukkit.inventory.EquipmentSlot;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.simplification.Simplifiable;
 
 @Name("Is Hand Raised")
 @Description({
@@ -68,6 +69,12 @@ public class CondIsHandRaised extends Condition {
 				livingEntity.isHandRaised() && ((hand == null) || livingEntity.getHandRaised().equals(hand)),
 				isNegated()
 		);
+	}
+
+	@Override
+	public Condition simplify(Step step, @Nullable Simplifiable<?> source) {
+		entities = simplifyChild(entities, step, source);
+		return this;
 	}
 
 	@Override

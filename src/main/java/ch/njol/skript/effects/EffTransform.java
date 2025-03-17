@@ -21,6 +21,7 @@ import ch.njol.util.StringUtils;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnknownNullability;
+import org.skriptlang.skript.lang.simplification.Simplifiable;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -133,6 +134,13 @@ public class EffTransform extends Effect implements InputSource {
 	@Override
 	public @UnknownNullability String getCurrentIndex() {
 		return currentIndex;
+	}
+
+	@Override
+	public Effect simplify(Step step, @Nullable Simplifiable<?> source) {
+		// don't evaluate the input values until the effect is executed
+		mappingExpr = simplifyChild(mappingExpr, step, source);
+		return this;
 	}
 
 	@Override

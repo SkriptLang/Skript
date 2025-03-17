@@ -1,21 +1,5 @@
 package ch.njol.skript.expressions;
 
-import java.util.function.Predicate;
-
-import org.bukkit.GameMode;
-import org.bukkit.Location;
-import org.bukkit.OfflinePlayer;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Mob;
-import org.bukkit.entity.Player;
-import org.bukkit.event.Event;
-import org.bukkit.event.entity.EntityTargetEvent;
-import org.bukkit.util.RayTraceResult;
-import org.bukkit.util.Vector;
-import org.jetbrains.annotations.ApiStatus.ScheduledForRemoval;
-import org.jetbrains.annotations.Nullable;
-
 import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptConfig;
 import ch.njol.skript.classes.Changer.ChangeMode;
@@ -32,6 +16,22 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.registrations.EventValues;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
+import org.bukkit.GameMode;
+import org.bukkit.Location;
+import org.bukkit.OfflinePlayer;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Mob;
+import org.bukkit.entity.Player;
+import org.bukkit.event.Event;
+import org.bukkit.event.entity.EntityTargetEvent;
+import org.bukkit.util.RayTraceResult;
+import org.bukkit.util.Vector;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.simplification.Simplifiable;
+
+import java.util.function.Predicate;
 
 @Name("Target")
 @Description({
@@ -145,6 +145,13 @@ public class ExprTarget extends PropertyExpression<LivingEntity, Entity> {
 	@Override
 	public Class<? extends Entity> getReturnType() {
 		return type != null ? type.getType() : Entity.class;
+	}
+
+	@Override
+	public Expression<Entity> simplify(@NotNull Step step, @Nullable Simplifiable<?> source) {
+		super.simplify(step, source);
+		raysize = simplifyChild(raysize, step, source);
+		return this;
 	}
 
 	@Override

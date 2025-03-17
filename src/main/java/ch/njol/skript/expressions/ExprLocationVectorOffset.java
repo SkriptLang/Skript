@@ -16,6 +16,7 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
+import org.skriptlang.skript.lang.simplification.Simplifiable;
 
 
 /**
@@ -67,6 +68,13 @@ public class ExprLocationVectorOffset extends SimpleExpression<Location> {
 	@Override
 	public Class<? extends Location> getReturnType() {
 		return Location.class;
+	}
+
+	@Override
+	public Expression<Location> simplify(Step step, @Nullable Simplifiable<?> source) {
+		location = simplifyChild(location, step, source);
+		vectors = simplifyChild(vectors, step, source);
+		return this;
 	}
 
 	@Override

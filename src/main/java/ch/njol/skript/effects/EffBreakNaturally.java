@@ -15,6 +15,7 @@ import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.util.Kleenean;
+import org.skriptlang.skript.lang.simplification.Simplifiable;
 
 @Name("Break Block")
 @Description({"Breaks the block and spawns items as if a player had mined it",
@@ -58,7 +59,14 @@ public class EffBreakNaturally extends Effect {
 			}
 		}
 	}
-	
+
+	@Override
+	public Effect simplify(Step step, @Nullable Simplifiable<?> source) {
+		blocks = simplifyChild(blocks, step, source);
+		tool = simplifyChild(tool, step, source);
+		return this;
+	}
+
 	@Override
 	public String toString(final @Nullable Event e, final boolean debug) {
 		return "break " + blocks.toString(e, debug) + " naturally" + (tool != null ? " using " + tool.toString(e, debug) : "");

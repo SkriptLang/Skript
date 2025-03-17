@@ -15,6 +15,7 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.util.EnchantmentType;
 import ch.njol.util.Kleenean;
+import org.skriptlang.skript.lang.simplification.Simplifiable;
 
 /**
  * @author Peter Güttinger
@@ -29,7 +30,7 @@ public class CondIsEnchanted extends Condition {
 	static {
 		PropertyCondition.register(CondIsEnchanted.class, "enchanted [with %-enchantmenttype%]", "itemtypes");
 	}
-	
+
 	@SuppressWarnings("NotNullFieldNotInitialized")
 	private Expression<ItemType> items;
 	@Nullable
@@ -53,6 +54,13 @@ public class CondIsEnchanted extends Condition {
 		
 	}
 	
+	@Override
+	public Condition simplify(Step step, @Nullable Simplifiable<?> source) {
+		items = simplifyChild(items, step, source);
+		enchs = simplifyChild(enchs, step, source);
+		return this;
+	}
+
 	@Override
 	public String toString(final @Nullable Event e, final boolean debug) {
 		final Expression<EnchantmentType> es = enchs;

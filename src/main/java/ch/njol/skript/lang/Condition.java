@@ -9,6 +9,7 @@ import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.condition.Conditional;
+import org.skriptlang.skript.lang.simplification.Simplifiable;
 import org.skriptlang.skript.registration.SyntaxInfo;
 import org.skriptlang.skript.util.Priority;
 
@@ -20,7 +21,7 @@ import java.util.function.Predicate;
  *
  * @see Skript#registerCondition(Class, String...)
  */
-public abstract class Condition extends Statement implements Conditional<Event> {
+public abstract class Condition extends Statement implements Conditional<Event>, Simplifiable<Condition> {
 
 	public enum ConditionType {
 		/**
@@ -115,6 +116,11 @@ public abstract class Condition extends Statement implements Conditional<Event> 
 			input = input.substring(1, input.length() - 1);
 		//noinspection unchecked,rawtypes
 		return (Condition) SkriptParser.parse(input, (Iterator) Skript.getConditions().iterator(), defaultError);
+	}
+
+	@Override
+	public Condition simplify(Step step, @Nullable Simplifiable<?> source) {
+		return this;
 	}
 
 }

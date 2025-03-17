@@ -14,6 +14,7 @@ import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
+import org.skriptlang.skript.lang.simplification.Simplifiable;
 
 @Name("Leash entities")
 @Description({
@@ -66,6 +67,13 @@ public class EffLeash extends Effect {
 			for (LivingEntity target : targets.getArray(e))
 				target.setLeashHolder(null);
 		}
+	}
+
+	@Override
+	public Effect simplify(Step step, @Nullable Simplifiable<?> source) {
+		holder = simplifyChild(holder, step, source);
+		targets = simplifyChild(targets, step, source);
+		return this;
 	}
 
 	@Override

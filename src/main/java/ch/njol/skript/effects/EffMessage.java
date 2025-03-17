@@ -1,33 +1,29 @@
 package ch.njol.skript.effects;
 
-import java.util.List;
-import java.util.UUID;
-
-import ch.njol.skript.registrations.Classes;
-import ch.njol.skript.util.LiteralUtils;
-import ch.njol.skript.util.chat.MessageComponent;
-import ch.njol.util.coll.CollectionUtils;
-import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
-import org.bukkit.event.Event;
-import org.jetbrains.annotations.Nullable;
-
 import ch.njol.skript.Skript;
-import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
-import ch.njol.skript.doc.Name;
-import ch.njol.skript.doc.RequiredPlugins;
-import ch.njol.skript.doc.Since;
+import ch.njol.skript.doc.*;
 import ch.njol.skript.expressions.ExprColoured;
 import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionList;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.VariableString;
+import ch.njol.skript.registrations.Classes;
+import ch.njol.skript.util.LiteralUtils;
 import ch.njol.skript.util.chat.BungeeConverter;
 import ch.njol.skript.util.chat.ChatMessages;
+import ch.njol.skript.util.chat.MessageComponent;
 import ch.njol.util.Kleenean;
+import ch.njol.util.coll.CollectionUtils;
 import net.md_5.bungee.api.chat.BaseComponent;
+import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
+import org.bukkit.event.Event;
+import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.simplification.Simplifiable;
+
+import java.util.List;
+import java.util.UUID;
 
 @Name("Message")
 @Description({"Sends a message to the given player. Only styles written",
@@ -57,16 +53,13 @@ public class EffMessage extends Effect {
 			Skript.registerEffect(EffMessage.class, "(message|send [message[s]]) %objects% [to %commandsenders%]");
 	}
 
-	@SuppressWarnings("NotNullFieldNotInitialized")
 	private Expression<?>[] messages;
 
 	/**
 	 * Used for {@link EffMessage#toString(Event, boolean)}
 	 */
-	@SuppressWarnings("NotNullFieldNotInitialized")
 	private Expression<?> messageExpr;
 
-	@SuppressWarnings("NotNullFieldNotInitialized")
 	private Expression<CommandSender> recipients;
 	
 	@Nullable
@@ -141,6 +134,14 @@ public class EffMessage extends Effect {
 			return new Expression[] {CollectionUtils.getRandom(messages)};
 		}
 		return messages;
+	}
+
+	@Override
+	public Effect simplify(Step step, @Nullable Simplifiable<?> source) {
+		messageExpr = simplifyChild(messageExpr, step, source);
+		recipients = simplifyChild(recipients, step, source);
+		sender = simplifyChild(sender, step, source);
+		return this;
 	}
 
 	private String toString(Object object) {

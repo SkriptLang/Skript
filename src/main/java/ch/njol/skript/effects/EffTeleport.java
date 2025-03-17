@@ -20,6 +20,7 @@ import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.simplification.Simplifiable;
 
 import java.util.Arrays;
 import java.util.Objects;
@@ -169,6 +170,14 @@ public class EffTeleport extends Effect {
 	@Override
 	protected void execute(Event event) {
 		assert false;
+	}
+
+	@Override
+	public Effect simplify(Step step, @Nullable Simplifiable<?> source) {
+		entities = simplifyChild(entities, step, source);
+		location = simplifyChild(location, step, source);
+		teleportFlags = simplifyChild(teleportFlags, step, source);
+		return this;
 	}
 
 	@Override

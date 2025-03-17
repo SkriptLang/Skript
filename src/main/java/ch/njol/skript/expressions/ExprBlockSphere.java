@@ -1,13 +1,5 @@
 package ch.njol.skript.expressions;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-
-import org.bukkit.Location;
-import org.bukkit.block.Block;
-import org.bukkit.event.Event;
-import org.jetbrains.annotations.Nullable;
-
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
@@ -21,6 +13,14 @@ import ch.njol.skript.util.BlockSphereIterator;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.iterator.EmptyIterator;
 import ch.njol.util.coll.iterator.IteratorIterable;
+import org.bukkit.Location;
+import org.bukkit.block.Block;
+import org.bukkit.event.Event;
+import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.simplification.Simplifiable;
+
+import java.util.ArrayList;
+import java.util.Iterator;
 
 /**
  * @author Peter Güttinger
@@ -75,12 +75,7 @@ public class ExprBlockSphere extends SimpleExpression<Block> {
 	public Class<? extends Block> getReturnType() {
 		return Block.class;
 	}
-	
-	@Override
-	public String toString(final @Nullable Event e, final boolean debug) {
-		return "the blocks in radius " + radius + " around " + center.toString(e, debug);
-	}
-	
+
 	@Override
 	public boolean isLoopOf(final String s) {
 		return s.equalsIgnoreCase("block");
@@ -90,5 +85,17 @@ public class ExprBlockSphere extends SimpleExpression<Block> {
 	public boolean isSingle() {
 		return false;
 	}
-	
+
+	@Override
+	public Expression<Block> simplify(Step step, @Nullable Simplifiable<?> source) {
+		center = center.simplify(step, source);
+		radius = radius.simplify(step, source);
+		return this;
+	}
+
+	@Override
+	public String toString(final @Nullable Event e, final boolean debug) {
+		return "the blocks in radius " + radius + " around " + center.toString(e, debug);
+	}
+
 }

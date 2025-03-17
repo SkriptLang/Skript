@@ -13,6 +13,7 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.Tameable;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.simplification.Simplifiable;
 
 @Name("Tame / Untame")
 @Description("Tame a tameable entity (horse, parrot, cat, etc.).")
@@ -44,6 +45,12 @@ public class EffTame extends Effect {
 			if (entity instanceof Tameable)
 				((Tameable) entity).setTamed(tame);
 		}
+	}
+
+	@Override
+	public Effect simplify(Step step, @Nullable Simplifiable<?> source) {
+		entities = simplifyChild(entities, step, source);
+		return this;
 	}
 
 	@Override

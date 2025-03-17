@@ -14,6 +14,7 @@ import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
+import org.skriptlang.skript.lang.simplification.Simplifiable;
 
 @Name("Swing Hand")
 @Description("Makes an entity swing their hand. This does nothing if the entity does not have an animation for swinging their hand.")
@@ -58,7 +59,13 @@ public class EffSwingHand extends Effect {
 			}
 		}
 	}
-	
+
+	@Override
+	public Effect simplify(Step step, @Nullable Simplifiable<?> source) {
+		entities = simplifyChild(entities, step, source);
+		return this;
+	}
+
 	@Override
 	public String toString(@Nullable Event e, boolean debug) {
 		return "make " + entities.toString(e, debug) + " swing their " + (isMainHand ? "hand" : "off hand");

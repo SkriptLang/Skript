@@ -15,6 +15,7 @@ import ch.njol.skript.util.Utils;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.simplification.Simplifiable;
 
 import java.lang.reflect.Array;
 
@@ -91,6 +92,13 @@ public class ExprDefaultValue<T> extends SimpleExpression<T> {
 	@Override
 	public boolean isSingle() {
 		return first.isSingle() && second.isSingle();
+	}
+
+	@Override
+	public Expression<T> simplify(Step step, @Nullable Simplifiable<?> source) {
+		first = simplifyChild(first, step, source);
+		second = simplifyChild(second, step, source);
+		return this;
 	}
 
 	@Override

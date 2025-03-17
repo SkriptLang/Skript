@@ -18,6 +18,7 @@ import ch.njol.skript.lang.VariableString;
 import ch.njol.skript.util.StringMode;
 import ch.njol.skript.util.Utils;
 import ch.njol.util.Kleenean;
+import org.skriptlang.skript.lang.simplification.Simplifiable;
 
 @Name("Command")
 @Description({
@@ -87,6 +88,13 @@ public class EffCommand extends Effect {
 				Skript.dispatchCommand(Bukkit.getConsoleSender(), command);
 			}
 		}
+	}
+
+	@Override
+	public Effect simplify(Step step, @Nullable Simplifiable<?> source) {
+		senders = simplifyChild(senders, step, source);
+		commands = simplifyChild(commands, step, source);
+		return this;
 	}
 
 	@Override

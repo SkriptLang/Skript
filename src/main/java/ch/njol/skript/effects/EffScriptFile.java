@@ -17,6 +17,7 @@ import ch.njol.skript.util.FileUtils;
 import ch.njol.util.Kleenean;
 import ch.njol.util.OpenCloseable;
 import org.bukkit.event.Event;
+import org.skriptlang.skript.lang.simplification.Simplifiable;
 
 import java.io.File;
 import java.io.FileFilter;
@@ -173,6 +174,13 @@ public class EffScriptFile extends Effect {
 			if (script != null)
 				ScriptLoader.unloadScript(script);
 		}
+	}
+
+	@Override
+	public Effect simplify(Step step, @Nullable Simplifiable<?> source) {
+		scriptExpression = simplifyChild(scriptExpression, step, source);
+		scriptNameExpression = simplifyChild(scriptNameExpression, step, source);
+		return this;
 	}
 
 	@Override

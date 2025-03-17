@@ -1,14 +1,5 @@
 package ch.njol.skript.expressions;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.bukkit.entity.Player;
-import org.bukkit.event.Event;
-import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.InventoryHolder;
-import org.jetbrains.annotations.Nullable;
-
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
@@ -19,6 +10,15 @@ import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
+import org.bukkit.entity.Player;
+import org.bukkit.event.Event;
+import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.InventoryHolder;
+import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.simplification.Simplifiable;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Name("Inventory Holder/Viewers/Rows/Slots")
 @Description({"Gets the amount of rows/slots, viewers and holder of an inventory.",
@@ -96,7 +96,13 @@ public class ExprInventoryInfo extends SimpleExpression<Object> {
 	public Class<?> getReturnType() {
 		return type == HOLDER ? InventoryHolder.class : (type == ROWS || type == SLOTS) ? Number.class : Player.class;
 	}
-	
+
+	@Override
+	public Expression<Object> simplify(Step step, @Nullable Simplifiable<?> source) {
+		inventories = simplifyChild(inventories, step, source);
+		return this;
+	}
+
 	@Override
 	public String toString(@Nullable Event e, boolean debug) {
 		return (type == HOLDER ? "holder of " : type == ROWS ? "rows of " : type == SLOTS ? "slots of " : "viewers of ") + inventories.toString(e, debug);

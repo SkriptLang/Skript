@@ -23,6 +23,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnknownNullability;
 import org.skriptlang.skript.lang.converter.Converters;
+import org.skriptlang.skript.lang.simplification.Simplifiable;
 
 import java.util.Collections;
 import java.util.HashSet;
@@ -120,6 +121,13 @@ public class ExprFilter extends SimpleExpression<Object> implements InputSource 
 	@Override
 	public Class<?> getReturnType() {
 		return unfilteredObjects.getReturnType();
+	}
+
+	@Override
+	public Expression<Object> simplify(Step step, @Nullable Simplifiable<?> source) {
+		unfilteredObjects = simplifyChild(unfilteredObjects, step, source);
+		// TODO: simplify condition
+		return this;
 	}
 
 	@Override

@@ -15,6 +15,7 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.util.Direction;
 import ch.njol.skript.util.StructureType;
 import ch.njol.util.Kleenean;
+import org.skriptlang.skript.lang.simplification.Simplifiable;
 
 /**
  * @author Peter Güttinger
@@ -55,7 +56,14 @@ public class EffTree extends Effect {
 			type.grow(l.getBlock());
 		}
 	}
-	
+
+	@Override
+	public Effect simplify(Step step, @Nullable Simplifiable<?> source) {
+		blocks = simplifyChild(blocks, step, source);
+		type = simplifyChild(type, step, source);
+		return this;
+	}
+
 	@Override
 	public String toString(final @Nullable Event e, final boolean debug) {
 		return "grow tree of type " + type.toString(e, debug) + " " + blocks.toString(e, debug);

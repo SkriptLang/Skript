@@ -1,9 +1,5 @@
 package ch.njol.skript.expressions;
 
-import org.bukkit.event.Event;
-import org.bukkit.util.Vector;
-import org.jetbrains.annotations.Nullable;
-
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
@@ -11,10 +7,15 @@ import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
+import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
+import org.bukkit.event.Event;
+import org.bukkit.util.Vector;
+import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.simplification.Simplifiable;
 
 @Name("Vectors - Cross Product")
 @Description("Gets the cross product between two vectors.")
@@ -55,6 +56,15 @@ public class ExprVectorCrossProduct extends SimpleExpression<Vector> {
 	@Override
 	public Class<? extends Vector> getReturnType() {
 		return Vector.class;
+	}
+
+	@Override
+	public Expression<Vector> simplify(Step step, @Nullable Simplifiable<?> source) {
+		first = simplifyChild(first, step, source);
+		second = simplifyChild(second, step, source);
+		if (first instanceof Literal<Vector> && second instanceof Literal<Vector>)
+			return getAsSimplifiedLiteral();
+		return this;
 	}
 
 	@Override

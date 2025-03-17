@@ -18,6 +18,7 @@ import org.bukkit.entity.Entity;
 import ch.njol.skript.lang.util.SimpleExpression;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.simplification.Simplifiable;
 
 import java.lang.reflect.Array;
 import java.util.Arrays;
@@ -91,6 +92,12 @@ public class ExprNearestEntity extends SimpleExpression<Entity> {
 			types[i] = entityDatas[i].getType();
 		}
 		return knownReturnType = Utils.highestDenominator(Entity.class, types);
+	}
+
+	@Override
+	public Expression<Entity> simplify(Step step, @Nullable Simplifiable<?> source) {
+		relativeTo = simplifyChild(relativeTo, step, source);
+		return this;
 	}
 
 	@Override

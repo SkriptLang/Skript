@@ -13,7 +13,9 @@ import ch.njol.skript.registrations.Feature;
 import ch.njol.skript.util.LiteralUtils;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.simplification.Simplifiable;
 import org.skriptlang.skript.util.Executable;
 
 @Name("Result (Experimental)")
@@ -101,6 +103,13 @@ public class ExprResult extends PropertyExpression<Executable<Event, Object>, Ob
 	@Override
 	public boolean isSingle() {
 		return !isPlural;
+	}
+
+	@Override
+	public Expression<Object> simplify(@NotNull Step step, @Nullable Simplifiable<?> source) {
+		super.simplify(step, source);
+		arguments = simplifyChild(arguments, step, source);
+		return this;
 	}
 
 	@Override

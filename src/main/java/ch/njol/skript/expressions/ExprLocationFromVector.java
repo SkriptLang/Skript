@@ -1,22 +1,23 @@
 package ch.njol.skript.expressions;
 
 import ch.njol.skript.Skript;
-import ch.njol.skript.lang.ExpressionType;
-import org.bukkit.Location;
-import org.bukkit.World;
-import org.bukkit.event.Event;
-import org.bukkit.util.Vector;
-
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
+import ch.njol.skript.lang.ExpressionType;
+import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
+import org.bukkit.Location;
+import org.bukkit.World;
+import org.bukkit.event.Event;
+import org.bukkit.util.Vector;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.simplification.Simplifiable;
 
 /**
  * @author bi0qaw
@@ -89,6 +90,20 @@ public class ExprLocationFromVector extends SimpleExpression<Location> {
 	@Override
 	public Class<? extends Location> getReturnType() {
 		return Location.class;
+	}
+
+	@Override
+	public Expression<Location> simplify(Step step, @Nullable Simplifiable<?> source) {
+		//noinspection DuplicatedCode
+		vector = simplifyChild(vector, step, source);
+		world = simplifyChild(world, step, source);
+		yaw = simplifyChild(yaw, step, source);
+		pitch = simplifyChild(pitch, step, source);
+		if (vector instanceof Literal<Vector> && world instanceof Literal<World>
+				&& (yaw == null || yaw instanceof Literal<Number>)
+				&& (pitch == null || pitch instanceof Literal<Number>))
+			return getAsSimplifiedLiteral();
+		return this;
 	}
 
 	@Override

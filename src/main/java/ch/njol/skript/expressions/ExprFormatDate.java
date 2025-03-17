@@ -14,7 +14,9 @@ import ch.njol.skript.lang.VariableString;
 import ch.njol.skript.util.Date;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.simplification.Simplifiable;
 
 import java.text.SimpleDateFormat;
 
@@ -101,6 +103,13 @@ public class ExprFormatDate extends PropertyExpression<Date, String> {
 	@Override
 	public Class<? extends String> getReturnType() {
 		return String.class;
+	}
+
+	@Override
+	public Expression<String> simplify(@NotNull Step step, @Nullable Simplifiable<?> source) {
+		super.simplify(step, source);
+		customFormat = simplifyChild(customFormat, step, source);
+		return this;
 	}
 
 	@Override

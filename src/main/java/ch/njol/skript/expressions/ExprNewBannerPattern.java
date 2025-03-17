@@ -15,6 +15,7 @@ import org.bukkit.block.banner.Pattern;
 import org.bukkit.block.banner.PatternType;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.simplification.Simplifiable;
 
 @Name("Banner Pattern")
 @Description("Creates a new banner pattern.")
@@ -62,6 +63,13 @@ public class ExprNewBannerPattern extends SimpleExpression<Pattern> {
 	@Override
 	public Class<Pattern> getReturnType() {
 		return Pattern.class;
+	}
+
+	@Override
+	public Expression<Pattern> simplify(Step step, @Nullable Simplifiable<?> source) {
+		selectedPattern = simplifyChild(selectedPattern, step, source);
+		selectedColor = simplifyChild(selectedColor, step, source);
+		return this;
 	}
 
 	@Override

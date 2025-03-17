@@ -12,6 +12,7 @@ import ch.njol.util.Kleenean;
 import org.bukkit.entity.Entity;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.simplification.Simplifiable;
 
 @Name("Toggle Custom Name Visibility")
 @Description("Toggles the custom name visibility of an entity.")
@@ -43,6 +44,12 @@ public class EffCustomName extends Effect {
 		for (Entity entity : entities.getArray(event)) {
 			entity.setCustomNameVisible(showCustomName);
 		}
+	}
+
+	@Override
+	public Effect simplify(Step step, @Nullable Simplifiable<?> source) {
+		entities = simplifyChild(entities, step, source);
+		return this;
 	}
 
 	@Override

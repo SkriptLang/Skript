@@ -16,6 +16,7 @@ import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.simplification.Simplifiable;
 
 import java.util.function.Function;
 
@@ -72,6 +73,13 @@ public class EffEnchant extends Effect {
 		}
 
 		this.items.changeInPlace(event, changeFunction);
+	}
+
+	@Override
+	public Effect simplify(Step step, @Nullable Simplifiable<?> source) {
+		items = simplifyChild(items, step, source);
+		enchantments = simplifyChild(enchantments, step, source);
+		return this;
 	}
 
 	@Override

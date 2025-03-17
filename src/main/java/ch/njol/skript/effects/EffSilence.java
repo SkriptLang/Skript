@@ -13,6 +13,7 @@ import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
+import org.skriptlang.skript.lang.simplification.Simplifiable;
 
 @Name("Silence Entity")
 @Description("Controls whether or not an entity is silent.")
@@ -46,7 +47,13 @@ public class EffSilence extends Effect {
 			entity.setSilent(silence);
 		}
 	}
-	
+
+	@Override
+	public Effect simplify(Step step, @Nullable Simplifiable<?> source) {
+		entities = simplifyChild(entities, step, source);
+		return this;
+	}
+
 	@Override
 	public String toString(@Nullable Event e, boolean debug) {
 		return (silence ? "silence " : "unsilence ") + entities.toString(e, debug);

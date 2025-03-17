@@ -14,6 +14,7 @@ import ch.njol.skript.util.Date;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.simplification.Simplifiable;
 
 @Name("In The Past/Future")
 @Description({
@@ -76,6 +77,12 @@ public class CondPastFuture extends Condition {
 		if (isFuture)
 			return dates.check(event, date -> date.compareTo(new Date()) > 0, isNegated());
 		return dates.check(event, date -> date.compareTo(new Date()) < 0, isNegated());
+	}
+
+	@Override
+	public Condition simplify(Step step, @Nullable Simplifiable<?> source) {
+		dates = simplifyChild(dates, step, source);
+		return this;
 	}
 
 	@Override

@@ -13,6 +13,7 @@ import ch.njol.util.Kleenean;
 import org.bukkit.World;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.simplification.Simplifiable;
 
 @Name("Do Respawn Anchors Work")
 @Description("Checks whether or not respawn anchors work in a world.")
@@ -40,6 +41,12 @@ public class CondAnchorWorks extends Condition {
 	@Override
 	public boolean check(Event event) {
 		return worlds.check(event, World::isRespawnAnchorWorks, isNegated());
+	}
+
+	@Override
+	public Condition simplify(Step step, @Nullable Simplifiable<?> source) {
+		worlds = simplifyChild(worlds, step, source);
+		return this;
 	}
 
 	@Override

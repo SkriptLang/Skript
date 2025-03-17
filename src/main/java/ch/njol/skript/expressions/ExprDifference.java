@@ -17,6 +17,7 @@ import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.arithmetic.Arithmetics;
 import org.skriptlang.skript.lang.arithmetic.DifferenceInfo;
+import org.skriptlang.skript.lang.simplification.Simplifiable;
 
 import java.lang.reflect.Array;
 
@@ -163,6 +164,13 @@ public class ExprDifference extends SimpleExpression<Object> {
 	@Override
 	public Class<?> getReturnType() {
 		return differenceInfo == null ? Object.class : differenceInfo.getReturnType();
+	}
+
+	@Override
+	public Expression<Object> simplify(Step step, @Nullable Simplifiable<?> source) {
+		first = simplifyChild(first, step, source);
+		second = simplifyChild(second, step, source);
+		return this;
 	}
 
 	@Override

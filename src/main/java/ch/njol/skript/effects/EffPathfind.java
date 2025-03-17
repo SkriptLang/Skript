@@ -16,6 +16,7 @@ import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
+import org.skriptlang.skript.lang.simplification.Simplifiable;
 
 @Name("Pathfind")
 @Description({"Make an entity pathfind towards a location or another entity. Not all entities can pathfind. " +
@@ -68,6 +69,14 @@ public class EffPathfind extends Effect {
 				((Mob) entity).getPathfinder().stopPathfinding();
 			}
 		}
+	}
+
+	@Override
+	public Effect simplify(Step step, @Nullable Simplifiable<?> source) {
+		entities = simplifyChild(entities, step, source);
+		target = simplifyChild(target, step, source);
+		speed = simplifyChild(speed, step, source);
+		return this;
 	}
 
 	@Override

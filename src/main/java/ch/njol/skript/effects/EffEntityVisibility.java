@@ -13,6 +13,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnknownNullability;
+import org.skriptlang.skript.lang.simplification.Simplifiable;
 
 @Name("Entity Visibility")
 @Description({
@@ -83,6 +84,13 @@ public class EffEntityVisibility extends Effect {
 			}
 		}
     }
+
+	@Override
+	public Effect simplify(Step step, @Nullable Simplifiable<?> source) {
+		hidden = simplifyChild(hidden, step, source);
+		viewers = simplifyChild(viewers, step, source);
+		return this;
+	}
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {

@@ -1,10 +1,5 @@
 package ch.njol.skript.expressions;
 
-import org.bukkit.Location;
-import org.bukkit.World;
-import org.bukkit.event.Event;
-import org.jetbrains.annotations.Nullable;
-
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
@@ -12,9 +7,15 @@ import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
+import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
+import org.bukkit.Location;
+import org.bukkit.World;
+import org.bukkit.event.Event;
+import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.simplification.Simplifiable;
 
 /**
  * FIXME doesn't parse - update documentation when fixed
@@ -66,7 +67,19 @@ public class ExprLocationAt extends SimpleExpression<Location> {
 	public Class<? extends Location> getReturnType() {
 		return Location.class;
 	}
-	
+
+	@Override
+	public Expression<Location> simplify(Step step, @Nullable Simplifiable<?> source) {
+		//noinspection DuplicatedCode
+		world = simplifyChild(world, step, source);
+		x = simplifyChild(x, step, source);
+		y = simplifyChild(y, step, source);
+		z = simplifyChild(z, step, source);
+		if (world instanceof Literal<World> && x instanceof Literal<Number> && y instanceof Literal<Number> && z instanceof Literal<Number>)
+			return getAsSimplifiedLiteral();
+		return this;
+	}
+
 	@Override
 	public String toString(final @Nullable Event e, final boolean debug) {
 		return "the location at (" + x.toString(e, debug) + ", " + y.toString(e, debug) + ", " + z.toString(e, debug) + ") in " + world.toString(e, debug);

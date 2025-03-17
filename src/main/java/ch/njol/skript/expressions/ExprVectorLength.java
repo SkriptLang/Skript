@@ -7,10 +7,13 @@ import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import ch.njol.skript.lang.Expression;
+import ch.njol.skript.lang.Literal;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.event.Event;
 import org.bukkit.util.Vector;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.simplification.Simplifiable;
 
 import java.util.function.Function;
 
@@ -85,13 +88,21 @@ public class ExprVectorLength extends SimplePropertyExpression<Vector, Number> {
 				return;
 		}
 
-		//noinspection unchecked,DataFlowIssue
+		// noinspection unchecked
 		((Expression<Vector>) getExpr()).changeInPlace(event, changeFunction);
 	}
 
 	@Override
 	public Class<? extends Number> getReturnType() {
 		return Number.class;
+	}
+
+	@Override
+	public Expression<Number> simplify(@NotNull Step step, @Nullable Simplifiable<?> source) {
+		super.simplify(step, source);
+		if (getExpr() instanceof Literal<? extends Vector>)
+			return getAsSimplifiedLiteral();
+		return this;
 	}
 
 	@Override

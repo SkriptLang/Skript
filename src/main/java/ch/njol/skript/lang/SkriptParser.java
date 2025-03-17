@@ -39,6 +39,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.script.Script;
 import org.skriptlang.skript.lang.script.ScriptWarning;
+import org.skriptlang.skript.lang.simplification.Simplifiable;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -251,7 +252,11 @@ public class SkriptParser {
 							}
 
 							boolean success = element.init(parseResult.exprs, patternIndex, getParser().getHasDelayBefore(), parseResult);
+
 							if (success) {
+								if (element instanceof Simplifiable<?> simplifiable)
+									//noinspection unchecked
+									element = (T) simplifiable.simplify(Simplifiable.Step.IMMEDIATE, null);
 								log.printLog();
 								return element;
 							}

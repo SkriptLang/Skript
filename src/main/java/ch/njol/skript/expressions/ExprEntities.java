@@ -25,6 +25,7 @@ import org.bukkit.event.Event;
 import org.bukkit.util.BoundingBox;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnknownNullability;
+import org.skriptlang.skript.lang.simplification.Simplifiable;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
@@ -212,6 +213,18 @@ public class ExprEntities extends SimpleExpression<Entity> {
 	@Override
 	public Class<? extends Entity> getReturnType() {
 		return returnType;
+	}
+
+	@Override
+	public Expression<Entity> simplify(Step step, @Nullable Simplifiable<?> source) {
+		types = simplifyChild(types, step, source);
+		worlds = simplifyChild(worlds, step, source);
+		chunks = simplifyChild(chunks, step, source);
+		radius = simplifyChild(radius, step, source);
+		center = simplifyChild(center, step, source);
+		from = simplifyChild(from, step, source);
+		to = simplifyChild(to, step, source);
+		return this;
 	}
 
 	@Override

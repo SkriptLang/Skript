@@ -21,6 +21,7 @@ import ch.njol.util.Pair;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnknownNullability;
+import org.skriptlang.skript.lang.simplification.Simplifiable;
 
 import java.util.HashSet;
 import java.util.Iterator;
@@ -136,6 +137,13 @@ public class EffSort extends Effect implements InputSource {
 	@Override
 	public @UnknownNullability String getCurrentIndex() {
 		return currentIndex;
+	}
+
+	@Override
+	public Effect simplify(Step step, @Nullable Simplifiable<?> source) {
+		// don't simplify unsortedObjects, it's a variable
+		mappingExpr = simplifyChild(mappingExpr, step, source);
+		return this;
 	}
 
 	@Override

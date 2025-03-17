@@ -21,6 +21,7 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.simplification.Simplifiable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -168,6 +169,14 @@ public class EffReplace extends Effect {
 			};
 		}
 		return replaceFunction;
+	}
+
+	@Override
+	public Effect simplify(Step step, @Nullable Simplifiable<?> source) {
+		haystack = simplifyChild(haystack, step, source);
+		needles = simplifyChild(needles, step, source);
+		replacement = simplifyChild(replacement, step, source);
+		return this;
 	}
 
 	@Override

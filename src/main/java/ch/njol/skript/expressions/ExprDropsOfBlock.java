@@ -1,26 +1,22 @@
 package ch.njol.skript.expressions;
 
-import java.util.ArrayList;
-
-import org.bukkit.block.Block;
-import org.bukkit.entity.Entity;
-import org.bukkit.event.Event;
-import org.bukkit.inventory.ItemStack;
-import org.jetbrains.annotations.Nullable;
-
 import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.ItemType;
-import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
-import ch.njol.skript.doc.Name;
-import ch.njol.skript.doc.RequiredPlugins;
-import ch.njol.skript.doc.Since;
+import ch.njol.skript.doc.*;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.log.ErrorQuality;
 import ch.njol.util.Kleenean;
+import org.bukkit.block.Block;
+import org.bukkit.entity.Entity;
+import org.bukkit.event.Event;
+import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.simplification.Simplifiable;
+
+import java.util.ArrayList;
 
 @Name("Drops Of Block")
 @Description("A list of the items that will drop when a block is broken.")
@@ -108,7 +104,15 @@ public class ExprDropsOfBlock extends SimpleExpression<ItemType> {
 	public Class<? extends ItemType> getReturnType() {
 		return ItemType.class;
 	}
-	
+
+	@Override
+	public Expression<ItemType> simplify(Step step, @Nullable Simplifiable<?> source) {
+		block = simplifyChild(block, step, source);
+		item = simplifyChild(item, step, source);
+		entity = simplifyChild(entity, step, source);
+		return this;
+	}
+
 	@Override
 	public String toString(@Nullable Event e, boolean debug) {
 		return "drops of " + block.toString(e, debug) + (item != null ? (" using " + item.toString(e, debug) + (entity != null ? " as " + entity.toString(e, debug) : null)) : "");

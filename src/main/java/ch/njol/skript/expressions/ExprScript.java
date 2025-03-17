@@ -15,6 +15,7 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
+import org.skriptlang.skript.lang.simplification.Simplifiable;
 
 import java.io.File;
 import java.io.FileFilter;
@@ -118,6 +119,12 @@ public class ExprScript extends SimpleExpression<Script> {
 	@Override
 	public Class<? extends Script> getReturnType() {
 		return Script.class;
+	}
+
+	@Override
+	public Expression<Script> simplify(Step step, @Nullable Simplifiable<?> source) {
+		name = simplifyChild(name, step, source);
+		return this;
 	}
 
 	@Override

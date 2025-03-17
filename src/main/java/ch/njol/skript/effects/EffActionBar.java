@@ -17,6 +17,7 @@ import ch.njol.skript.util.chat.ChatMessages;
 import ch.njol.util.Kleenean;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.BaseComponent;
+import org.skriptlang.skript.lang.simplification.Simplifiable;
 
 @Name("Action Bar")
 @Description("Sends an action bar message to the given player(s).")
@@ -49,6 +50,13 @@ public class EffActionBar extends Effect {
 		BaseComponent[] components = BungeeConverter.convert(ChatMessages.parseToArray(msg));
 		for (Player player : recipients.getArray(event))
 			player.spigot().sendMessage(ChatMessageType.ACTION_BAR, components);
+	}
+
+	@Override
+	public Effect simplify(Step step, @Nullable Simplifiable<?> source) {
+		message = simplifyChild(message, step, source);
+		recipients = simplifyChild(recipients, step, source);
+		return this;
 	}
 
 	@Override

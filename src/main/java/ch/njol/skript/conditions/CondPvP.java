@@ -13,6 +13,7 @@ import ch.njol.skript.lang.Condition;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
+import org.skriptlang.skript.lang.simplification.Simplifiable;
 
 /**
  * @author Peter Güttinger
@@ -44,7 +45,13 @@ public class CondPvP extends Condition {
 	public boolean check(final Event e) {
 		return worlds.check(e, w -> w.getPVP() == enabled, isNegated());
 	}
-	
+
+	@Override
+	public Condition simplify(Step step, @Nullable Simplifiable<?> source) {
+		worlds = simplifyChild(worlds, step, source);
+		return this;
+	}
+
 	@Override
 	public String toString(final @Nullable Event e, final boolean debug) {
 		return "PvP is " + (enabled ? "enabled" : "disabled") + " in " + worlds.toString(e, debug);

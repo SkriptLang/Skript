@@ -1,19 +1,8 @@
 package ch.njol.skript.expressions;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
-import org.bukkit.entity.Entity;
-import org.bukkit.event.Event;
-import org.bukkit.event.vehicle.VehicleEnterEvent;
-import org.bukkit.event.vehicle.VehicleExitEvent;
-import org.jetbrains.annotations.Nullable;
-
 import ch.njol.skript.Skript;
 import ch.njol.skript.bukkitutil.PassengerUtils;
 import ch.njol.skript.classes.Changer.ChangeMode;
-import org.skriptlang.skript.lang.converter.Converter;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
@@ -25,6 +14,17 @@ import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
+import org.bukkit.entity.Entity;
+import org.bukkit.event.Event;
+import org.bukkit.event.vehicle.VehicleEnterEvent;
+import org.bukkit.event.vehicle.VehicleExitEvent;
+import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.converter.Converter;
+import org.skriptlang.skript.lang.simplification.Simplifiable;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * @author Peter Güttinger
@@ -48,10 +48,17 @@ public class ExprPassenger extends SimpleExpression<Entity> { // REMIND create '
 	static { // It was necessary to convert to SimpleExpression due to the method 'isSingle()'.
 		Skript.registerExpression(ExprPassenger.class, Entity.class, ExpressionType.PROPERTY, "[the] passenger[s] of %entities%", "%entities%'[s] passenger[s]");
 	}
-	
+
 	@SuppressWarnings("null")
 	private Expression<Entity> vehicle;
-	
+
+	@SuppressWarnings({"unchecked", "null"})
+	@Override
+	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
+		vehicle = (Expression<Entity>) exprs[0];
+		return true;
+	}
+
 	@Override
 	@Nullable
 	protected Entity[] get(Event e) {
@@ -78,14 +85,6 @@ public class ExprPassenger extends SimpleExpression<Entity> { // REMIND create '
 				entities.addAll(Arrays.asList(array));
 		}
 		return entities.toArray(new Entity[entities.size()]);
-	}
-	
-	
-	@SuppressWarnings({"unchecked", "null"})
-	@Override
-	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		vehicle = (Expression<Entity>) exprs[0];
-		return true;
 	}
 
 	@Override
@@ -147,26 +146,33 @@ public class ExprPassenger extends SimpleExpression<Entity> { // REMIND create '
 		}
 		
 	}
-	
-	@Override
-	public Class<? extends Entity> getReturnType() {
-		return Entity.class;
-	}
-	
-	@Override
-	public String toString(@Nullable Event e, boolean debug) {
-		return "the passenger of " + vehicle.toString(e, debug);
-	}
-	
+
 	@Override
 	public boolean isSingle() {
 		// In case it doesn't have multiple passenger support, it's up to the source expression to determine if it's single, otherwise is always false
 		return !PassengerUtils.hasMultiplePassenger() ? vehicle.isSingle() : false;
+	}
+
+	@Override
+	public Class<? extends Entity> getReturnType() {
+		return Entity.class;
+	}
+
+	@Override
+	public Expression<Entity> simplify(Step step, @Nullable Simplifiable<?> source) {
+		vehicle = simplifyChild(vehicle, step, source);
+		return this;
+	}
+
+	@Override
+	public String toString(@Nullable Event e, boolean debug) {
+		return "the passenger of " + vehicle.toString(e, debug);
 	}
 	
 	@SuppressWarnings("unchecked")
 	@Override
 	public boolean setTime(final int time) {
 		return super.setTime(time, vehicle, VehicleEnterEvent.class, VehicleExitEvent.class);
-	}	
+	}
+
 }

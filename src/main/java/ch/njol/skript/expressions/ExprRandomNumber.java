@@ -1,14 +1,5 @@
 package ch.njol.skript.expressions;
 
-import java.util.Arrays;
-import java.util.Random;
-import java.util.concurrent.ThreadLocalRandom;
-
-import ch.njol.skript.lang.Literal;
-import ch.njol.util.Math2;
-import org.bukkit.event.Event;
-import org.jetbrains.annotations.Nullable;
-
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
@@ -16,9 +7,18 @@ import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
+import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
+import ch.njol.util.Math2;
+import org.bukkit.event.Event;
+import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.simplification.Simplifiable;
+
+import java.util.Arrays;
+import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 
 @Name("Random Numbers")
 @Description({
@@ -109,6 +109,14 @@ public class ExprRandomNumber extends SimpleExpression<Number> {
 	@Override
 	public Class<? extends Number> getReturnType() {
 		return isInteger ? Long.class : Double.class;
+	}
+
+	@Override
+	public Expression<Number> simplify(Step step, @Nullable Simplifiable<?> source) {
+		amount = simplifyChild(amount, step, source);
+		lower = simplifyChild(lower, step, source);
+		upper = simplifyChild(upper, step, source);
+		return this;
 	}
 
 	@Override

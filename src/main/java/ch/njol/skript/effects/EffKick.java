@@ -16,6 +16,7 @@ import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
+import org.skriptlang.skript.lang.simplification.Simplifiable;
 
 /**
  * @author Peter Güttinger
@@ -45,11 +46,6 @@ public class EffKick extends Effect {
 	}
 	
 	@Override
-	public String toString(final @Nullable Event e, final boolean debug) {
-		return "kick " + players.toString(e, debug) + (reason != null ? " on account of " + reason.toString(e, debug) : "");
-	}
-	
-	@Override
 	protected void execute(final Event e) {
 		final String r = reason != null ? reason.getSingle(e) : "";
 		if (r == null)
@@ -63,6 +59,18 @@ public class EffKick extends Effect {
 				p.kickPlayer(r);
 			}
 		}
+	}
+
+	@Override
+	public Effect simplify(Step step, @Nullable Simplifiable<?> source) {
+		players = simplifyChild(players, step, source);
+		reason = simplifyChild(reason, step, source);
+		return this;
+	}
+
+	@Override
+	public String toString(final @Nullable Event e, final boolean debug) {
+		return "kick " + players.toString(e, debug) + (reason != null ? " on account of " + reason.toString(e, debug) : "");
 	}
 	
 }

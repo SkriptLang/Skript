@@ -19,6 +19,7 @@ import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.log.ErrorQuality;
 import ch.njol.util.Kleenean;
+import org.skriptlang.skript.lang.simplification.Simplifiable;
 
 /**
  * @author Peter Güttinger
@@ -72,7 +73,14 @@ public class CondCanHold extends Condition {
 							t -> t.getItem().addTo(buf));
 				}, isNegated());
 	}
-	
+
+	@Override
+	public Condition simplify(Step step, @Nullable Simplifiable<?> source) {
+		invis = simplifyChild(invis, step, source);
+		items = simplifyChild(items, step, source);
+		return this;
+	}
+
 	@Override
 	public String toString(@Nullable Event e, boolean debug) {
 		return PropertyCondition.toString(this, PropertyType.CAN, e, debug, invis,

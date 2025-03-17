@@ -15,6 +15,7 @@ import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
+import org.skriptlang.skript.lang.simplification.Simplifiable;
 
 @Name("Force Attack")
 @Description("Makes a living entity attack an entity with a melee attack.")
@@ -31,10 +32,8 @@ public class EffForceAttack extends Effect {
 	}
 	
 	private static final boolean ATTACK_IS_SUPPORTED = Skript.methodExists(LivingEntity.class, "attack", Entity.class);
-	
-	@SuppressWarnings("null")
+
 	private Expression<LivingEntity> entities;
-	@SuppressWarnings("null")
 	private Expression<Entity> target;
 	
 	@SuppressWarnings("unchecked")
@@ -58,7 +57,14 @@ public class EffForceAttack extends Effect {
 			}
 		}
 	}
-	
+
+	@Override
+	public Effect simplify(Step step, @Nullable Simplifiable<?> source) {
+		entities = simplifyChild(entities, step, source);
+		target = simplifyChild(target, step, source);
+		return this;
+	}
+
 	@Override
 	public String toString(@Nullable Event e, boolean debug) {
 		return "make " + entities.toString(e, debug) + " attack " + target.toString(e, debug);

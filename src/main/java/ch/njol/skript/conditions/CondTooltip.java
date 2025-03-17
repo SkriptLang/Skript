@@ -15,6 +15,7 @@ import org.bukkit.event.Event;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.simplification.Simplifiable;
 
 @Name("Has Item Tooltips")
 @Description({
@@ -59,6 +60,12 @@ public class CondTooltip extends Condition {
 		if (entire)
 			return items.check(event, item -> item.getItemMeta().isHideTooltip(), isNegated());
 		return items.check(event, item -> item.getItemMeta().hasItemFlag(ItemFlag.HIDE_ADDITIONAL_TOOLTIP), isNegated());
+	}
+
+	@Override
+	public Condition simplify(Step step, @Nullable Simplifiable<?> source) {
+		items = simplifyChild(items, step, source);
+		return this;
 	}
 
 	@Override

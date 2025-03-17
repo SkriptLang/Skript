@@ -15,6 +15,7 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.Event;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.simplification.Simplifiable;
 
 @Name("Knockback")
 @Description("Apply the same velocity as a knockback to living entities in a direction. Mechanics such as knockback resistance will be factored in.")
@@ -61,6 +62,14 @@ public class EffKnockback extends Effect {
 			// ensure velocity is sent to client
 			livingEntity.setVelocity(livingEntity.getVelocity());
 		}
+	}
+
+	@Override
+	public Effect simplify(Step step, @Nullable Simplifiable<?> source) {
+		entities = simplifyChild(entities, step, source);
+		direction = simplifyChild(direction, step, source);
+		strength = simplifyChild(strength, step, source);
+		return this;
 	}
 
 	@Override

@@ -18,6 +18,7 @@ import org.bukkit.block.BlockState;
 import org.bukkit.entity.Entity;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.simplification.Simplifiable;
 
 @Name("Ring Bell")
 @Description({
@@ -81,6 +82,14 @@ public class EffRing extends Effect {
 				bell.ring(actualEntity, blockFace);
 			}
 		}
+	}
+
+	@Override
+	public Effect simplify(Step step, @Nullable Simplifiable<?> source) {
+		blocks = simplifyChild(blocks, step, source);
+		entity = simplifyChild(entity, step, source);
+		direction = simplifyChild(direction, step, source);
+		return this;
 	}
 
 	@Override

@@ -16,7 +16,9 @@ import ch.njol.skript.registrations.Feature;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.event.Event;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.simplification.Simplifiable;
 
 import java.util.Iterator;
 import java.util.LinkedHashSet;
@@ -122,6 +124,13 @@ public class ExprNode extends PropertyExpression<Node, Node> {
 	@Override
 	public Class<? extends Node> getReturnType() {
 		return Node.class;
+	}
+
+	@Override
+	public Expression<Node> simplify(@NotNull Step step, @Nullable Simplifiable<?> source) {
+		super.simplify(step, source);
+		pathExpression = simplifyChild(pathExpression, step, source);
+		return this;
 	}
 
 	@Override

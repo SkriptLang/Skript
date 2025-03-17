@@ -13,6 +13,7 @@ import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
+import org.skriptlang.skript.lang.simplification.Simplifiable;
 
 /**
  * @author Peter Güttinger
@@ -62,7 +63,14 @@ public class ExprIndexOf extends SimpleExpression<Long> {
 	public Class<? extends Long> getReturnType() {
 		return Long.class;
 	}
-	
+
+	@Override
+	public Expression<Long> simplify(Step step, @Nullable Simplifiable<?> source) {
+		haystack = simplifyChild(haystack, step, source);
+		needle = simplifyChild(needle, step, source);
+		return this;
+	}
+
 	@Override
 	public String toString(final @Nullable Event e, final boolean debug) {
 		return "the " + (first ? "first" : "last") + " index of " + needle.toString(e, debug) + " in " + haystack.toString(e, debug);

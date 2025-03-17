@@ -18,6 +18,7 @@ import org.bukkit.event.Event;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.comparator.Relation;
+import org.skriptlang.skript.lang.simplification.Simplifiable;
 
 import java.util.function.Predicate;
 
@@ -33,9 +34,7 @@ public class CondIsOfType extends Condition {
 		PropertyCondition.register(CondIsOfType.class, "of type[s] %itemtypes/entitydatas%", "itemstacks/entities");
 	}
 
-	@SuppressWarnings("NotNullFieldNotInitialized")
 	private Expression<?> what;
-	@SuppressWarnings("NotNullFieldNotInitialized")
 	private Expression<?> types;
 
 	@SuppressWarnings("null")
@@ -63,6 +62,13 @@ public class CondIsOfType extends Condition {
 					}
 				}),
 			isNegated());
+	}
+
+	@Override
+	public Condition simplify(Step step, @Nullable Simplifiable<?> source) {
+		what = simplifyChild(what, step, source);
+		types = simplifyChild(types, step, source);
+		return this;
 	}
 
 	@Override

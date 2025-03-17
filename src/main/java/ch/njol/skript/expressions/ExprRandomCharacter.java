@@ -13,6 +13,7 @@ import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.simplification.Simplifiable;
 
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
@@ -109,6 +110,14 @@ public class ExprRandomCharacter extends SimpleExpression<String> {
 	@Override
 	public Class<? extends String> getReturnType() {
 		return String.class;
+	}
+
+	@Override
+	public Expression<String> simplify(Step step, @Nullable Simplifiable<?> source) {
+		amount = simplifyChild(amount, step, source);
+		from = simplifyChild(from, step, source);
+		to = simplifyChild(to, step, source);
+		return this;
 	}
 
 	@Override

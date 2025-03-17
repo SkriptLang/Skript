@@ -1,14 +1,5 @@
 package ch.njol.skript.expressions;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.bukkit.entity.HumanEntity;
-import org.bukkit.event.Event;
-import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.PlayerInventory;
-import org.jetbrains.annotations.Nullable;
-
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
@@ -22,6 +13,15 @@ import ch.njol.skript.util.slot.EquipmentSlot;
 import ch.njol.skript.util.slot.InventorySlot;
 import ch.njol.skript.util.slot.Slot;
 import ch.njol.util.Kleenean;
+import org.bukkit.entity.HumanEntity;
+import org.bukkit.event.Event;
+import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.PlayerInventory;
+import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.simplification.Simplifiable;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Name("Inventory Slot")
 @Description({"Represents a slot in an inventory. It can be used to change the item in an inventory too."})
@@ -92,7 +92,14 @@ public class ExprInventorySlot extends SimpleExpression<Slot> {
 	public Class<? extends Slot> getReturnType() {
 		return Slot.class;
 	}
-	
+
+	@Override
+	public Expression<Slot> simplify(Step step, @Nullable Simplifiable<?> source) {
+		slots = simplifyChild(slots, step, source);
+		invis = simplifyChild(invis, step, source);
+		return this;
+	}
+
 	@Override
 	public String toString(@Nullable Event e, boolean debug) {
 		return "slots " + slots.toString(e, debug) + " of " + invis.toString(e, debug);

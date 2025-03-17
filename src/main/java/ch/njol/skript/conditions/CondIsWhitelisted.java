@@ -14,6 +14,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.simplification.Simplifiable;
 
 @Name("Is Whitelisted")
 @Description("Whether or not the server or a player is whitelisted, or the server is whitelist enforced.")
@@ -59,6 +60,12 @@ public class CondIsWhitelisted extends Condition {
 		if (isServer)
 			return (isEnforce ? Bukkit.isWhitelistEnforced() : Bukkit.hasWhitelist()) ^ isNegated();
 		return players.check(event, OfflinePlayer::isWhitelisted, isNegated());
+	}
+
+	@Override
+	public Condition simplify(Step step, @Nullable Simplifiable<?> source) {
+		players = simplifyChild(players, step, source);
+		return this;
 	}
 
 	@Override

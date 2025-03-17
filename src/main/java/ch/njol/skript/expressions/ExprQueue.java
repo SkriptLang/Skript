@@ -14,6 +14,7 @@ import ch.njol.skript.util.LiteralUtils;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.simplification.Simplifiable;
 import org.skriptlang.skript.lang.util.SkriptQueue;
 
 import java.util.Iterator;
@@ -83,6 +84,12 @@ public class ExprQueue extends SimpleExpression<SkriptQueue> {
 	@Override
 	public Class<? extends SkriptQueue> getReturnType() {
 		return SkriptQueue.class;
+	}
+
+	@Override
+	public Expression<SkriptQueue> simplify(Step step, @Nullable Simplifiable<?> source) {
+		contents = simplifyChild(contents, step, source);
+		return this;
 	}
 
 	@Override

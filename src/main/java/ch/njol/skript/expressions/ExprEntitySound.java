@@ -21,6 +21,7 @@ import org.bukkit.entity.Mob;
 import org.bukkit.event.Event;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.simplification.Simplifiable;
 
 import java.util.Objects;
 
@@ -163,6 +164,14 @@ public class ExprEntitySound extends SimpleExpression<String> {
 	@Override
 	public Class<? extends String> getReturnType() {
 		return String.class;
+	}
+
+	@Override
+	public Expression<String> simplify(Step step, @Nullable Simplifiable<?> source) {
+		height = simplifyChild(height, step, source);
+		entities = simplifyChild(entities, step, source);
+		item = simplifyChild(item, step, source);
+		return this;
 	}
 
 	@Override

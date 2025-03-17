@@ -1,7 +1,5 @@
 package ch.njol.skript.expressions;
 
-import java.util.Arrays;
-
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.Description;
@@ -19,6 +17,9 @@ import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.simplification.Simplifiable;
+
+import java.util.Arrays;
 
 @Name("Chunk")
 @Description("Returns the <a href='./classes.html#chunk'>chunk</a> of a block, location or entity is in, or a list of the loaded chunks of a world.")
@@ -97,7 +98,14 @@ public class ExprChunk extends SimpleExpression<Chunk> {
 	public Class<? extends Chunk> getReturnType() {
 		return Chunk.class;
 	}
-	
+
+	@Override
+	public Expression<Chunk> simplify(Step step, @Nullable Simplifiable<?> source) {
+		locations = simplifyChild(locations, step, source);
+		worlds = simplifyChild(worlds, step, source);
+		return this;
+	}
+
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
 		if (pattern == 2)

@@ -1,14 +1,5 @@
 package ch.njol.skript.lang;
 
-import java.lang.reflect.Array;
-import java.util.*;
-import java.util.Map.Entry;
-import java.util.regex.Pattern;
-import java.util.NoSuchElementException;
-import java.util.TreeMap;
-import java.util.function.Predicate;
-import java.util.function.Function;
-
 import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptAPIException;
 import ch.njol.skript.SkriptConfig;
@@ -16,10 +7,6 @@ import ch.njol.skript.classes.Changer;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.classes.Changer.ChangerUtils;
 import ch.njol.skript.classes.ClassInfo;
-import ch.njol.skript.variables.VariablesStorage;
-import org.skriptlang.skript.lang.arithmetic.Arithmetics;
-import org.skriptlang.skript.lang.arithmetic.OperationInfo;
-import org.skriptlang.skript.lang.arithmetic.Operator;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.parser.ParserInstance;
 import ch.njol.skript.lang.util.SimpleExpression;
@@ -29,6 +16,7 @@ import ch.njol.skript.util.StringMode;
 import ch.njol.skript.util.Utils;
 import ch.njol.skript.variables.TypeHints;
 import ch.njol.skript.variables.Variables;
+import ch.njol.skript.variables.VariablesStorage;
 import ch.njol.util.Kleenean;
 import ch.njol.util.Pair;
 import ch.njol.util.StringUtils;
@@ -49,12 +37,14 @@ import org.skriptlang.skript.lang.comparator.Relation;
 import org.skriptlang.skript.lang.converter.Converters;
 import org.skriptlang.skript.lang.script.Script;
 import org.skriptlang.skript.lang.script.ScriptWarning;
+import org.skriptlang.skript.lang.simplification.Simplifiable;
 
 import java.lang.reflect.Array;
 import java.util.*;
 import java.util.Map.Entry;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.regex.Pattern;
 
 public class Variable<T> implements Expression<T>, KeyReceiverExpression<T>, KeyProviderExpression<T> {
 
@@ -71,7 +61,7 @@ public class Variable<T> implements Expression<T>, KeyReceiverExpression<T>, Key
 	/**
 	 * The name of this variable, excluding the local variable token, but including the list variable token '::*'.
 	 */
-	private final VariableString name;
+	private VariableString name;
 
 	private final Class<T> superType;
 	private final Class<? extends T>[] types;
@@ -778,7 +768,8 @@ public class Variable<T> implements Expression<T>, KeyReceiverExpression<T>, Key
 	}
 
 	@Override
-	public Expression<? extends T> simplify() {
+	public Expression<T> simplify(Step step, @Nullable Simplifiable<?> source) {
+		this.name = (VariableString) simplifyChild(this.name, step, source);
 		return this;
 	}
 

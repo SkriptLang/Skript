@@ -12,6 +12,7 @@ import ch.njol.skript.lang.Condition;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
+import org.skriptlang.skript.lang.simplification.Simplifiable;
 
 /**
  * @author Peter Güttinger
@@ -49,7 +50,13 @@ public class CondChance extends Condition {
 			return false;
 		return Math.random() < (percent ? n.doubleValue() / 100 : n.doubleValue());
 	}
-	
+
+	@Override
+	public Condition simplify(Step step, @Nullable Simplifiable<?> source) {
+		chance = simplifyChild(chance, step, source);
+		return this;
+	}
+
 	@Override
 	public String toString(final @Nullable Event e, final boolean debug) {
 		return "chance of " + chance.toString(e, debug) + (percent ? "%" : "");
