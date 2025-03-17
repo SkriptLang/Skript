@@ -28,7 +28,7 @@ public interface AnyOwner<T> extends AnyProvider {
 		return false;
 	}
 
-	default String getOwnerType() {
+	default String getOwnerString() {
 		return null;
 	}
 

@@ -309,7 +309,7 @@ public class DefaultConverters {
 				}
 
 				@Override
-				public String getOwnerType() {
+				public String getOwnerString() {
 					return "player head";
 				}
 
@@ -342,7 +342,7 @@ public class DefaultConverters {
 					}
 
 					@Override
-					public String getOwnerType() {
+					public String getOwnerString() {
 						return "area effect cloud";
 					}
 
@@ -370,7 +370,7 @@ public class DefaultConverters {
 					}
 
 					@Override
-					public String getOwnerType() {
+					public String getOwnerString() {
 						return "evoker fangs";
 					}
 
@@ -398,7 +398,7 @@ public class DefaultConverters {
 					}
 
 					@Override
-					public String getOwnerType() {
+					public String getOwnerString() {
 						return "tamable entity";
 					}
 
@@ -426,7 +426,7 @@ public class DefaultConverters {
 					}
 
 					@Override
-					public String getOwnerType() {
+					public String getOwnerString() {
 						return "dropped item";
 					}
 
@@ -461,7 +461,7 @@ public class DefaultConverters {
 				}
 
 				@Override
-				public String getOwnerType() {
+				public String getOwnerString() {
 					return "player head";
 				}
 

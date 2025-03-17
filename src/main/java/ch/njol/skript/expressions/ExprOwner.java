@@ -6,9 +6,7 @@ import ch.njol.skript.lang.util.common.AnyOwner;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.Utils;
 import ch.njol.util.coll.CollectionUtils;
-import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
-import org.bukkit.entity.AnimalTamer;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
@@ -60,7 +58,7 @@ public class ExprOwner extends SimplePropertyExpression<AnyOwner, Object> {
 //				Bukkit.broadcastMessage("isAssignableFrom: " + owner.getReturnType().isAssignableFrom(deltaClass));
 //			}
 			if (deltaClass != null && !owner.getReturnType().isAssignableFrom(deltaClass)) {
-				error("The owner of " + Utils.a(owner.getOwnerType()) + " cannot be set to " + Utils.a(Classes.getSuperClassInfo(deltaClass).toString())
+				error("The owner of " + Utils.a(owner.getOwnerString()) + " cannot be set to " + Utils.a(Classes.getSuperClassInfo(deltaClass).toString())
 					+ ", it must be set to " + Utils.a(Classes.getSuperClassInfo(owner.getReturnType()).toString()) + ".");
 				continue;
 			}
