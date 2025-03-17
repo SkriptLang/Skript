@@ -3,7 +3,6 @@ package ch.njol.skript.classes.data;
 import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.bukkitutil.EntityUtils;
-import ch.njol.skript.bukkitutil.ItemUtils;
 import ch.njol.skript.bukkitutil.SkullUtils;
 import ch.njol.skript.command.Commands;
 import ch.njol.skript.config.Config;
