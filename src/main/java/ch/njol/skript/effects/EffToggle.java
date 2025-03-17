@@ -46,7 +46,7 @@ public class EffToggle extends Effect {
 	@SuppressWarnings("null")
 	private Expression<?> togglables;
 	private State state;
-	
+
 	@Override
 	public boolean init(Expression<?>[] vars, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		togglables = (Expression<?>) vars[0];
@@ -61,17 +61,17 @@ public class EffToggle extends Effect {
 				Block block = (Block) obj;
 				BlockData data = block.getBlockData();
 				if (state == State.TOGGLE) {
-					if (data instanceof Openable) { // open = NOT was open
-						((Openable) data).setOpen(!((Openable) data).isOpen());
-					} else if (data instanceof Powerable) { // power = NOT power
-						((Powerable) data).setPowered(!((Powerable) data).isPowered());
+					if (data instanceof Openable openable) { // open = NOT was open
+						openable.setOpen(!openable.isOpen());
+					} else if (data instanceof Powerable powerable) { // power = NOT power
+						powerable.setPowered(!powerable.isPowered());
 					}
 				} else {
-					boolean value = state == State.ACTIVATE; 
-					if (data instanceof Openable) {
-						((Openable) data).setOpen(value);
-					} else if (data instanceof Powerable) {
-						((Powerable) data).setPowered(value);
+					boolean value = state == State.ACTIVATE;
+					if (data instanceof Openable openable) {
+						openable.setOpen(value);
+					} else if (data instanceof Powerable powerable) {
+						powerable.setPowered(value);
 					}
 				}
 
@@ -87,12 +87,12 @@ public class EffToggle extends Effect {
 		};
 
 		togglables.changeInPlace(event, (Function) changeFunction);
-		
+
 	}
-	
+
 	@Override
-	public String toString(@Nullable Event event, final boolean debug) {
+	public String toString(@Nullable Event event, boolean debug) {
 		return "toggle " + togglables.toString(event, debug);
 	}
-	
+
 }

@@ -36,8 +36,7 @@ public class ExprInverse extends SimpleExpression<Boolean> {
 	}
 	
 	@Override
-	@Nullable
-	protected Boolean[] get(Event event) {
+	protected Boolean @Nullable [] get(Event event) {
 		Boolean[] original = booleanExpr.getArray(event);
 		Boolean[] toggled = new Boolean[original.length];
 		for (int i = 0; i < original.length; i++) {
