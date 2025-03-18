@@ -283,7 +283,7 @@ public class DefaultChangers {
 		@Override
 		public void change(Block[] blocks, Object @Nullable [] delta, ChangeMode mode) {
 			if (mode != ChangeMode.DELETE && delta == null)
-				assert delta != null;
+				assert false;
 			for (Block block : blocks) {
 				switch (mode) {
 					case SET -> {
