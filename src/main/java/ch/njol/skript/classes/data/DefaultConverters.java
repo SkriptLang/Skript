@@ -15,6 +15,7 @@ import ch.njol.skript.lang.util.common.AnyNamed;
 import ch.njol.skript.lang.util.common.AnyOwner;
 import ch.njol.skript.util.*;
 import ch.njol.skript.util.slot.Slot;
+import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
@@ -284,42 +285,6 @@ public class DefaultConverters {
 		// UUID -> String
 		Converters.registerConverter(UUID.class, String.class, UUID::toString);
 
-		// Block -> AnyOwner
-		Converters.registerConverter(Block.class, AnyOwner.class, from -> {
-			BlockState state = from.getState();
-			if (!(state instanceof Skull))
-				return null;
-			return new AnyOwner<OfflinePlayer>() {
-				@Override
-				public OfflinePlayer getOwner() {
-					return SkullUtils.getOwningPlayer(from);
-				}
-
-				@Override
-				public void setOwner(@Nullable OfflinePlayer value) {
-					if (value == null)
-						return;
-					SkullUtils.setOwningPlayer(from, value);
-				}
-
-				@Override
-				public boolean supportsChangingOwner() {
-					return true;
-				}
-
-				@Override
-				public String getOwnerString() {
-					return "player head";
-				}
-
-				@Override
-				public Class<OfflinePlayer> getReturnType() {
-					return OfflinePlayer.class;
-				}
-
-			};
-		});
-
 		// Entity -> AnyOwner
 		Converters.registerConverter(Entity.class, AnyOwner.class, from -> {
 			if (from instanceof AreaEffectCloud areaEffectCloud) {
@@ -331,8 +296,14 @@ public class DefaultConverters {
 					}
 
 					@Override
-					public void setOwner(@Nullable UUID value) {
-						areaEffectCloud.setOwnerUniqueId(value);
+					public void setOwner(@Nullable Object value) {
+						if (value instanceof UUID uuid) {
+							areaEffectCloud.setOwnerUniqueId(uuid);
+						} else if (value instanceof Entity entity) {
+							areaEffectCloud.setOwnerUniqueId(entity.getUniqueId());
+						} else {
+							areaEffectCloud.setOwnerUniqueId(null);
+						}
 					}
 
 					@Override
@@ -341,26 +312,29 @@ public class DefaultConverters {
 					}
 
 					@Override
-					public String getOwnerString() {
+					public String getDisplayName() {
 						return "area effect cloud";
 					}
 
 					@Override
-					public Class<UUID> getReturnType() {
-						return UUID.class;
+					public Class<?>[] getAcceptedTypes() {
+						return CollectionUtils.array(UUID.class, Entity.class);
 					}
 
 				};
 			} else if (from instanceof EvokerFangs evokerFangs) {
 				return new AnyOwner<LivingEntity>() {
+
 					@Override
 					public @UnknownNullability LivingEntity getOwner() {
 						return evokerFangs.getOwner();
 					}
 
 					@Override
-					public void setOwner(@Nullable LivingEntity value) {
-						evokerFangs.setOwner(value);
+					public void setOwner(@Nullable Object value) {
+						if (value != null && !(value instanceof LivingEntity))
+							return;
+						evokerFangs.setOwner((LivingEntity) value);
 					}
 
 					@Override
@@ -369,26 +343,28 @@ public class DefaultConverters {
 					}
 
 					@Override
-					public String getOwnerString() {
-						return "evoker fangs";
+					public String getDisplayName() {
+						return "evoker fang";
 					}
 
 					@Override
-					public Class<LivingEntity> getReturnType() {
-						return LivingEntity.class;
+					public Class<?>[] getAcceptedTypes() {
+						return CollectionUtils.array(LivingEntity.class);
 					}
 
 				};
-			} else if (from instanceof Tameable tameable) {
+			} else if (from instanceof Tameable tamable) {
 				return new AnyOwner<AnimalTamer>() {
 					@Override
 					public @UnknownNullability AnimalTamer getOwner() {
-						return tameable.getOwner();
+						return tamable.getOwner();
 					}
 
 					@Override
-					public void setOwner(@Nullable AnimalTamer value) {
-						tameable.setOwner(value);
+					public void setOwner(@Nullable Object value) {
+						if (value != null && !(value instanceof AnimalTamer))
+							return;
+						tamable.setOwner((AnimalTamer) value);
 					}
 
 					@Override
@@ -397,13 +373,13 @@ public class DefaultConverters {
 					}
 
 					@Override
-					public String getOwnerString() {
+					public String getDisplayName() {
 						return "tamable entity";
 					}
 
 					@Override
-					public Class<AnimalTamer> getReturnType() {
-						return AnimalTamer.class;
+					public Class<?>[] getAcceptedTypes() {
+						return CollectionUtils.array(AnimalTamer.class);
 					}
 
 				};
@@ -415,8 +391,14 @@ public class DefaultConverters {
 					}
 
 					@Override
-					public void setOwner(@Nullable UUID value) {
-						item.setOwner(value);
+					public void setOwner(@Nullable Object value) {
+						if (value instanceof UUID uuid) {
+							item.setOwner(uuid);
+						} else if (value instanceof Entity entity) {
+							item.setOwner(entity.getUniqueId());
+						} else {
+							item.setOwner(null);
+						}
 					}
 
 					@Override
@@ -425,33 +407,35 @@ public class DefaultConverters {
 					}
 
 					@Override
-					public String getOwnerString() {
+					public String getDisplayName() {
 						return "dropped item";
 					}
 
 					@Override
-					public Class<UUID> getReturnType() {
-						return UUID.class;
+					public Class<?>[] getAcceptedTypes() {
+						return CollectionUtils.array(Entity.class, UUID.class);
 					}
-
 				};
 			}
 			return null;
-		});
+		}, Converter.NO_RIGHT_CHAINING);
 
-		// ItemType -> AnyOwner
-		Converters.registerConverter(ItemType.class, AnyOwner.class, from -> {
-			if (!(from.getItemMeta() instanceof SkullMeta))
+		// Block -> AnyOwner
+		Converters.registerConverter(Block.class, AnyOwner.class, block -> {
+			if (!(block.getState() instanceof Skull))
 				return null;
 			return new AnyOwner<OfflinePlayer>() {
+
 				@Override
 				public @UnknownNullability OfflinePlayer getOwner() {
-					return SkullUtils.getOwningPlayer(from);
+					return SkullUtils.getOwningPlayer(block);
 				}
 
 				@Override
-				public void setOwner(@Nullable OfflinePlayer value) {
-					SkullUtils.setOwningPlayer(from, value);
+				public void setOwner(@Nullable Object value) {
+					if (value != null && !(value instanceof OfflinePlayer))
+						return;
+					SkullUtils.setOwningPlayer(block, (OfflinePlayer) value);
 				}
 
 				@Override
@@ -460,17 +444,51 @@ public class DefaultConverters {
 				}
 
 				@Override
-				public String getOwnerString() {
+				public String getDisplayName() {
 					return "player head";
 				}
 
 				@Override
-				public Class<OfflinePlayer> getReturnType() {
-					return OfflinePlayer.class;
+				public Class<?>[] getAcceptedTypes() {
+					return CollectionUtils.array(OfflinePlayer.class);
+				}
+			};
+		}, Converter.NO_RIGHT_CHAINING);
+
+		// ItemType -> AnyOwner
+		Converters.registerConverter(ItemType.class, AnyOwner.class, itemType -> {
+			if (!(itemType.getItemMeta() instanceof SkullMeta))
+				return null;
+			return new AnyOwner<OfflinePlayer>() {
+
+				@Override
+				public @UnknownNullability OfflinePlayer getOwner() {
+					return SkullUtils.getOwningPlayer(itemType);
 				}
 
+				@Override
+				public void setOwner(@Nullable Object value) {
+					if (value != null && !(value instanceof OfflinePlayer))
+						return;
+					SkullUtils.setOwningPlayer(itemType, (OfflinePlayer) value);
+				}
+
+				@Override
+				public boolean supportsChangingOwner() {
+					return true;
+				}
+
+				@Override
+				public String getDisplayName() {
+					return "player head";
+				}
+
+				@Override
+				public Class<?>[] getAcceptedTypes() {
+					return CollectionUtils.array(OfflinePlayer.class);
+				}
 			};
-		});
+		},Converter.NO_RIGHT_CHAINING);
 
 	}
 

@@ -7,6 +7,7 @@ import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.Utils;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.OfflinePlayer;
+import org.bukkit.entity.AnimalTamer;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
@@ -28,7 +29,7 @@ public class ExprOwner extends SimplePropertyExpression<AnyOwner, Object> {
 
 	@Override
 	public Class<?>[] possibleReturnTypes() {
-		return CollectionUtils.array(UUID.class, LivingEntity.class, OfflinePlayer.class, Player.class);
+		return CollectionUtils.array(UUID.class, LivingEntity.class, OfflinePlayer.class, Player.class, AnimalTamer.class);
 	}
 
 	@Override
@@ -45,11 +46,11 @@ public class ExprOwner extends SimplePropertyExpression<AnyOwner, Object> {
 		@Nullable Class<?> deltaClass = delta == null ? null : delta[0].getClass();
 		for (AnyOwner owner : getExpr().getArray(event)) {
 			if (!owner.supportsChangingOwner()) {
+				// TODO: throw a runtime error for an owner that doesn't support changers?
 				continue;
 			}
-			if (deltaClass != null && !owner.getReturnType().isAssignableFrom(deltaClass)) {
-				error("The owner of " + Utils.a(owner.getOwnerString()) + " cannot be set to " + Utils.a(Classes.getSuperClassInfo(deltaClass).toString())
-					+ ", it must be set to " + Utils.a(Classes.getSuperClassInfo(owner.getReturnType()).toString()) + ".");
+			if (deltaClass != null && !owner.isAcceptedType(deltaClass)) {
+				error(owner.getErrorMessage(deltaClass));
 				continue;
 			}
 			owner.setOwner(delta == null ? null : delta[0]);
