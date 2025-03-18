@@ -89,4 +89,5 @@ public class ExprOwner extends SimplePropertyExpression<AnyOwner, Object> {
 	protected String getPropertyName() {
 		return "owner";
 	}
+
 }
