@@ -916,7 +916,11 @@ public class BukkitClasses {
 				.serializer(new ConfigurationSerializer<>()));
 
 		Classes.registerClass(new ClassInfo<>(Item.class, "itementity")
-				.name(ClassInfo.NO_DOC)
+				.user("dropped ?items?", "item ?entit(y|ies)")
+				.name("Dropped Entity")
+				.description("Represetns an item entity that is on the ground.")
+				.examples("spawn a dropped diamond sword of sharpness 1 at location(0,100,0,\"world\")")
+				.usage("dropped <itemtype>")
 				.since("2.0")
 				.changer(DefaultChangers.itemChanger));
 
