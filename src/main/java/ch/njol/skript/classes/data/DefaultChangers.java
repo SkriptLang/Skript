@@ -287,7 +287,7 @@ public class DefaultChangers {
 						Object deltaObject = delta[0];
 						if (deltaObject instanceof ItemType itemType) {
 							itemType.getBlock().setBlock(block, true);
-							if (itemType.getItemMeta() instanceof SkullMeta)
+							if (itemType.getItemMeta() instanceof SkullMeta skullMeta && skullMeta.hasOwner())
 								SkullUtils.setOwningPlayer(block, SkullUtils.getOwningPlayer(itemType));
 						} else if (deltaObject instanceof BlockData blockData) {
 							block.setBlockData(blockData, true);
