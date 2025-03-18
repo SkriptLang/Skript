@@ -7,7 +7,7 @@ import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.*;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.SkriptParser;
+import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.util.slot.Slot;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
@@ -33,7 +33,7 @@ public class ExprSkullOwner extends SimplePropertyExpression<Object, OfflinePlay
 	}
 
 	@Override
-	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
+	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		ScriptWarning.printDeprecationWarning("The skull owner expression has been deprecated in favor of the owner of ownable expression.");
 		return super.init(expressions, matchedPattern, isDelayed, parseResult);
 	}
