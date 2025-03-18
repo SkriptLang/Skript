@@ -6,17 +6,14 @@ on:
     push:
         branches:
             - feature/docs-v2-auto-update
-
-    # Allows you to run this workflow manually from the Actions tab
     workflow_dispatch:
 
-
 jobs:
-    build:
-        name: Generate docs.json
+    update-docs:
+        name: Build and Deploy Documentation
         runs-on: ubuntu-latest
         steps:
-            - name: Checkout repository
+            - name: Checkout main repository
               uses: actions/checkout@v4
 
             - name: Set up Java
@@ -39,17 +36,6 @@ jobs:
                 echo "docs.json found at $DOCS_JSON"
                 echo "docs_json=$DOCS_JSON" >> $GITHUB_ENV
 
-            - name: Upload docs.json
-              uses: actions/upload-artifact@v4
-              with:
-                  name: docs-json
-                  path: ${{ env.docs_json }}
-
-    deploy:
-        name: Deploy updated docs
-        needs: build
-        runs-on: ubuntu-latest
-        steps:
             - name: Checkout docs repository
               uses: actions/checkout@v4
               with:
@@ -57,11 +43,9 @@ jobs:
                   token: ${{ secrets.DOCS_TOKEN }}
                   path: docs-repo
 
-            - name: Download docs.json
-              uses: actions/download-artifact@v4
-              with:
-                  name: docs-json
-                  path: docs-repo/src/assets/docs
+            - name: Move docs.json to the docs repo
+              run: |
+                  mv ${{ env.docs_json }} docs-repo/src/assets/docs/docs.json
 
             - name: Commit and push changes
               run: |
