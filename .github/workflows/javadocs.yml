@@ -1,0 +1,52 @@
+name: Release Javadocs
+
+on:
+    release:
+        types: [published]
+    push:
+        branches:
+            - feature/javadocs
+    workflow_dispatch:
+
+jobs:
+  build:
+    name: Generate Javadocs
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          repository: SkriptLang/Skript
+          path: Skript
+
+      - name: Set up Java
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Generate Javadocs
+        run: |
+          cd Skript
+          ./gradlew javadoc
+          mkdir -p ../generated-javadocs
+          cp -r build/docs/javadoc/* ../generated-javadocs/
+
+      - name: Checkout Javadocs Repository
+        uses: actions/checkout@v4
+        with:
+          repository: SkriptLang/javadocs
+          token: ${{ secrets.JAVADOCS_TOKEN }}
+          path: javadocs-repo
+
+      - name: Commit and Push Javadocs
+        run: |
+          cd javadocs-repo
+          rm -rf *  # Clear old files
+          cp -r ../generated-javadocs/* .
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add .
+          git commit -m "Update Javadocs from latest Skript build" || exit 0
+          git push origin master
