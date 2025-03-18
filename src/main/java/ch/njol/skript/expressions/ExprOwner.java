@@ -18,7 +18,7 @@ import java.util.UUID;
 @Name("Entity Owner")
 @Description({
 	"The owner of an ownable, such as a player or uuid",
-	"Implementation of ownables in Skript are, player heads (item and block), tamable entities, evoker fangs, dropped items and area effect clouds",
+	"Implementation of ownables in Skript are, player heads (item and block), tameable entities, evoker fangs, dropped items and area effect clouds",
 })
 @Example("""
 	set owner of player's tool to offlineplayer("Notch")

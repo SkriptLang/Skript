@@ -967,7 +967,7 @@ public class SkriptClasses {
 		Classes.registerClass(new AnyInfo<>(AnyOwner.class, "ownable")
 			.user("any owners?", "ownables?")
 			.name("Anything with an Owner")
-			.description("Anything that has some form of ownership, an example of such is dropped items, tamable animals and player skulls")
+			.description("Anything that has some form of ownership, an example of such is dropped items, tameable animals and player skulls")
 			.examples("""
 				set the owner of last spawned wolf to the player
 				set block at player to player head

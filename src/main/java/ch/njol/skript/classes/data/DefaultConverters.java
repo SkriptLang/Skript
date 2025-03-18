@@ -353,18 +353,18 @@ public class DefaultConverters {
 					}
 
 				};
-			} else if (from instanceof Tameable tamable) {
+			} else if (from instanceof Tameable tameable) {
 				return new AnyOwner<AnimalTamer>() {
 					@Override
 					public @UnknownNullability AnimalTamer getOwner() {
-						return tamable.getOwner();
+						return tameable.getOwner();
 					}
 
 					@Override
 					public void setOwner(@Nullable Object value) {
 						if (value != null && !(value instanceof AnimalTamer))
 							return;
-						tamable.setOwner((AnimalTamer) value);
+						tameable.setOwner((AnimalTamer) value);
 					}
 
 					@Override
@@ -374,7 +374,7 @@ public class DefaultConverters {
 
 					@Override
 					public String getDisplayName() {
-						return "tamable entity";
+						return "tameable entity";
 					}
 
 					@Override
