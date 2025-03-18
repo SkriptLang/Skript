@@ -1,8 +1,16 @@
 package ch.njol.skript.classes.data;
 
+import ch.njol.skript.Skript;
+import ch.njol.skript.aliases.ItemType;
+import ch.njol.skript.bukkitutil.PlayerUtils;
+import ch.njol.skript.bukkitutil.SkullUtils;
+import ch.njol.skript.classes.Changer;
+import ch.njol.skript.util.Experience;
+import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
+import org.bukkit.block.data.Bisected;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Item;
@@ -12,15 +20,9 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
+import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.potion.PotionEffectType;
 import org.jetbrains.annotations.Nullable;
-
-import ch.njol.skript.Skript;
-import ch.njol.skript.aliases.ItemType;
-import ch.njol.skript.bukkitutil.PlayerUtils;
-import ch.njol.skript.classes.Changer;
-import ch.njol.skript.util.Experience;
-import ch.njol.util.coll.CollectionUtils;
 
 /**
  * @author Peter Güttinger
@@ -269,67 +271,65 @@ public class DefaultChangers {
 	
 	public final static Changer<Block> blockChanger = new Changer<Block>() {
 		@Override
-		@Nullable
-		public Class<?>[] acceptChange(final ChangeMode mode) {
-			if (mode == ChangeMode.RESET)
-				return null; // REMIND regenerate?
-			if (mode == ChangeMode.SET)
-				return CollectionUtils.array(ItemType.class, BlockData.class);
-			return CollectionUtils.array(ItemType[].class, Inventory[].class);
+		public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
+			return switch (mode) {
+				case SET -> CollectionUtils.array(ItemType.class, BlockData.class);
+				case ADD, REMOVE, REMOVE_ALL ->  CollectionUtils.array(ItemType[].class, Inventory[].class);
+				case DELETE -> CollectionUtils.array();
+				default -> null;
+			};
 		}
 		
 		@Override
-		public void change(final Block[] blocks, final @Nullable Object[] delta, final ChangeMode mode) {
+		public void change(Block[] blocks, Object @Nullable [] delta, ChangeMode mode) {
+			if (mode != ChangeMode.DELETE && delta == null)
+				assert delta != null;
 			for (Block block : blocks) {
-				assert block != null;
 				switch (mode) {
-					case SET:
-						assert delta != null;
-						Object object = delta[0];
-						if (object instanceof ItemType) {
-							((ItemType) object).getBlock().setBlock(block, true);
-						} else if (object instanceof BlockData) {
-							block.setBlockData(((BlockData) object));
+					case SET -> {
+						Object deltaObject = delta[0];
+						if (deltaObject instanceof ItemType itemType) {
+							itemType.getBlock().setBlock(block, true);
+							if (itemType.getItemMeta() instanceof SkullMeta)
+								SkullUtils.setOwningPlayer(block, SkullUtils.getOwningPlayer(itemType));
+						} else if (deltaObject instanceof BlockData blockData) {
+							block.setBlockData(blockData, true);
 						}
-						break;
-					case DELETE:
-						block.setType(Material.AIR, true);
-						break;
-					case ADD:
-					case REMOVE:
-					case REMOVE_ALL:
-						assert delta != null;
-						BlockState state = block.getState();
-						if (!(state instanceof InventoryHolder))
-							break;
-						Inventory invi = ((InventoryHolder) state).getInventory();
-						if (mode == ChangeMode.ADD) {
-							for (Object obj : delta) {
-								if (obj instanceof Inventory) {
-									for (ItemStack i : (Inventory) obj) {
-										if (i != null)
-											invi.addItem(i);
-									}
-								} else {
-									((ItemType) obj).addTo(invi);
-								}
-							}
-						} else {
-							for (Object obj : delta) {
-								if (obj instanceof Inventory) {
-									invi.removeItem(((Inventory) obj).getContents());
-								} else {
-									if (mode == ChangeMode.REMOVE)
-										((ItemType) obj).removeFrom(invi);
-									else
-										((ItemType) obj).removeAll(invi);
+					}
+					case ADD -> {
+						if (!(block.getState() instanceof InventoryHolder inventoryHolder))
+							return;
+						Inventory inventory = inventoryHolder.getInventory();
+						for (Object object : delta) {
+							if (object instanceof ItemType itemType) {
+								itemType.addTo(inventory);
+							} else if (object instanceof Inventory sourceInventory) {
+								for (ItemStack itemStack : sourceInventory) {
+									inventory.addItem(itemStack);
 								}
 							}
 						}
-						state.update();
-						break;
-					case RESET:
-						assert false;
+					}
+					case REMOVE, REMOVE_ALL -> {
+						if (!(block.getState() instanceof InventoryHolder inventoryHolder))
+							return;
+						Inventory inventory = inventoryHolder.getInventory();
+						boolean removeAll = mode == ChangeMode.REMOVE_ALL;
+						for (Object object : delta) {
+							if (object instanceof ItemType itemType) {
+								if (removeAll) {
+									itemType.removeAll(inventory);
+									continue;
+								}
+								itemType.removeFrom(inventory);
+							} else if (object instanceof Inventory sourceInventory) {
+								for (ItemStack itemStack : sourceInventory) {
+									inventory.removeItem(itemStack);
+								}
+							}
+						}
+					}
+					case DELETE -> block.setType(Material.AIR, true);
 				}
 			}
 		}
