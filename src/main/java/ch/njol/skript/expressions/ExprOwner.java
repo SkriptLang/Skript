@@ -22,7 +22,20 @@ import java.util.UUID;
 })
 @Example("""
 	set owner of player's tool to offlineplayer("Notch")
+	set {_head} to player head
+	set owner of {_head} to random player out of players
 	set block at {_myFavoriteSpot} to player head
+	set owner of block at {_myFavoriteSpot} to offlineplayer("ReadyPlayer2")
+	"""
+)
+@Example("""
+	set {dogTrainer} to random player out of players
+	spawn a wolf at {dogHouse}:
+		set owner of entity to {dogTrainer}
+	
+	spawn a dropped diamond sword of sharpness at player:
+		set display name of entity to "Only the chosen one can pick me up"
+		set owner of entity to random uuid
 	"""
 )
 @Since("2.5, INSERT VERSION (ownable)")
