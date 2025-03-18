@@ -24,9 +24,6 @@ import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.potion.PotionEffectType;
 import org.jetbrains.annotations.Nullable;
 
-/**
- * @author Peter Güttinger
- */
 public class DefaultChangers {
 	
 	public DefaultChangers() {}
