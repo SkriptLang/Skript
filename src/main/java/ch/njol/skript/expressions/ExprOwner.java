@@ -1,10 +1,9 @@
 package ch.njol.skript.expressions;
 
 import ch.njol.skript.classes.Changer;
+import ch.njol.skript.doc.*;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import ch.njol.skript.lang.util.common.AnyOwner;
-import ch.njol.skript.registrations.Classes;
-import ch.njol.skript.util.Utils;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.AnimalTamer;
@@ -15,11 +14,22 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.UUID;
 
-@SuppressWarnings("rawtypes")
+
+@Name("Entity Owner")
+@Description({
+	"The owner of an ownable, such as a player or uuid",
+	"Implementation of ownables in Skript are, player heads (item and block), tamable entities, evoker fangs, dropped items and area effect clouds",
+})
+@Example("""
+	set owner of player's tool to offlineplayer("Notch")
+	set block at {_myFavoriteSpot} to player head
+	"""
+)
+@Since("2.5, INSERT VERSION (ownable)")
 public class ExprOwner extends SimplePropertyExpression<AnyOwner, Object> {
 
 	static {
-		register(ExprOwner.class, Object.class, "owner[s]", "ownables");
+		register(ExprOwner.class, Object.class, "(owner|tamer)", "ownables");
 	}
 
 	@Override
