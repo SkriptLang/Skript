@@ -2,12 +2,14 @@ package ch.njol.skript.util.slot;
 
 import ch.njol.skript.bukkitutil.PlayerUtils;
 import ch.njol.skript.registrations.Classes;
+import com.google.common.base.Preconditions;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
@@ -127,8 +129,7 @@ public class EquipmentSlot extends SlotWithIndex {
 		public abstract void set(EntityEquipment e, @Nullable ItemStack item);
 		
 	}
-	
-	private static final EquipSlot[] SKRIPT_VALUES = EquipSlot.values();
+
 	private static final org.bukkit.inventory.EquipmentSlot[] BUKKIT_VALUES = org.bukkit.inventory.EquipmentSlot.values();
 
 	private static final Map<org.bukkit.inventory.EquipmentSlot, Integer> BUKKIT_SLOT_INDICES = new HashMap<>();
@@ -151,13 +152,15 @@ public class EquipmentSlot extends SlotWithIndex {
 	 * @deprecated Use {@link EquipmentSlot#EquipmentSlot(EntityEquipment, org.bukkit.inventory.EquipmentSlot, boolean)} instead
 	 */
 	@Deprecated
-	public EquipmentSlot(EntityEquipment entityEquipment, EquipSlot skriptSlot, boolean slotToString) {
+	public EquipmentSlot(@NotNull EntityEquipment entityEquipment, @NotNull EquipSlot skriptSlot, boolean slotToString) {
+		Preconditions.checkNotNull(entityEquipment, "entityEquipment cannot be null");
+		Preconditions.checkNotNull(skriptSlot, "skriptSlot cannot be null");
 		this.entityEquipment = entityEquipment;
 		int slotIndex = -1;
 		if (skriptSlot == EquipSlot.TOOL) {
 			Entity holder = entityEquipment.getHolder();
-			if (holder instanceof Player)
-				slotIndex = ((Player) holder).getInventory().getHeldItemSlot();
+			if (holder instanceof Player player)
+				slotIndex = player.getInventory().getHeldItemSlot();
 		}
 		this.slotIndex = slotIndex;
 		this.skriptSlot = skriptSlot;
@@ -168,15 +171,17 @@ public class EquipmentSlot extends SlotWithIndex {
 	 * @deprecated Use {@link EquipmentSlot#EquipmentSlot(EntityEquipment, org.bukkit.inventory.EquipmentSlot)} instead
 	 */
 	@Deprecated
-	public EquipmentSlot(EntityEquipment entityEquipment, EquipSlot skriptSlot) {
+	public EquipmentSlot(@NotNull EntityEquipment entityEquipment, @NotNull EquipSlot skriptSlot) {
 		this(entityEquipment, skriptSlot, false);
 	}
 
-	public EquipmentSlot(EntityEquipment equipment, org.bukkit.inventory.EquipmentSlot bukkitSlot, boolean slotToString) {
-		this.entityEquipment = equipment;
+	public EquipmentSlot(@NotNull EntityEquipment entityEquipment, @NotNull org.bukkit.inventory.EquipmentSlot bukkitSlot, boolean slotToString) {
+		Preconditions.checkNotNull(entityEquipment, "entityEquipment cannot be null");
+		Preconditions.checkNotNull(bukkitSlot, "bukkitSlot cannot be null");
+		this.entityEquipment = entityEquipment;
 		int slotIndex = -1;
 		if (bukkitSlot == org.bukkit.inventory.EquipmentSlot.HAND) {
-			Entity holder = equipment.getHolder();
+			Entity holder = entityEquipment.getHolder();
 			if (holder instanceof Player player)
 				slotIndex = player.getInventory().getHeldItemSlot();
 		}
@@ -185,17 +190,17 @@ public class EquipmentSlot extends SlotWithIndex {
 		this.slotToString = slotToString;
 	}
 
-	public EquipmentSlot(EntityEquipment equipment, org.bukkit.inventory.EquipmentSlot bukkitSlot) {
+	public EquipmentSlot(@NotNull EntityEquipment equipment, @NotNull org.bukkit.inventory.EquipmentSlot bukkitSlot) {
 		this(equipment, bukkitSlot, false);
 	}
-	
-	@SuppressWarnings("null")
-	public EquipmentSlot(HumanEntity holder, int index) {
+
+	public EquipmentSlot(@NotNull HumanEntity holder, int index) {
 		/*
 		 * slot: 6 entries in EquipSlot, indices descending
 		 *  So this math trick gets us the EquipSlot from inventory slot index
 		 * slotToString: Referring to numeric slot id, right?
 		 */
+		//noinspection DataFlowIssue
 		this(holder.getEquipment(), BUKKIT_VALUES[41 - index], true);
 	}
 
