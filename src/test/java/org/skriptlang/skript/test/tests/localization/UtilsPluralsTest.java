@@ -6,7 +6,7 @@ import org.junit.Test;
 
 import ch.njol.skript.util.Utils;
 
-public class UtilsPlurals {
+public class UtilsPluralsTest {
 
 	/**
 	 * Testing method {@link Utils#getEnglishPlural(String)}

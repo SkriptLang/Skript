@@ -85,14 +85,14 @@ test "spawn entities":
 	add "ender dragon" and "wither" to {_entities::*}
 	add "oak boat", "oak chest boat", "armor stand", "primed tnt", "firework", "arrow", "trident" and "egg" to {_entities::*}
 	add "snowball", "end crystal", "eye of ender", "regular minecart", "falling sand" and "falling gravel" to {_entities::*}
-	add "falling powder snow" to {_entities::*}
+	add "falling powder snow", "fireball" and "wither skull" to {_entities::*}
 
 	if running minecraft "1.20.0":
 		add "camel" and "sniffer" to {_entities::*}
 	if running minecraft "1.20.6":
 		add "armadillo" to {_entities::*}
-	if running minecraft "1.21":
-		add "bogged" and "breeze" to {_entities::*}
+	if running minecraft "1.21.0":
+		add "bogged", "breeze" and "wind charge" to {_entities::*}
 
 	# Note: Had to remove 'fireball' and 'wind charge'
 
@@ -109,3 +109,53 @@ test "spawn entities":
 		else:
 			assert false is true with "Failed to parse '%loop-value%' as an entity type", expected loop-value, got {_parse}
 	clear all entities
+
+test "spawn villagers by profession":
+	clear all entities
+	spawn 2 unemployed villagers at test-location
+	assert size of all unemployed villagers is 2 with "Should be 2 unemployed villagers"
+	assert size of all villagers is 2 with "Should be 2 total villagers"
+	spawn 2 armorers at test-location
+	assert size of all armorers is 2 with "Should be 2 armorer villagers"
+	assert size of all villagers is 4 with "Should be 4 total villagers"
+	spawn 2 butchers at test-location
+	assert size of all butchers is 2 with "Should be 2 butcher villagers"
+	assert size of all villagers is 6 with "Should be 6 total villagers"
+	delete all butchers
+	assert size of all butchers is 0 with "Should be 0 butcher villagers"
+	assert size of all villagers is 4 with "Should be 4 total villagers"
+	delete all armorers
+	assert size of all armorers is 0 with "Should be 0 armorer villagers"
+	assert size of all villagers is 2 with "Should be 2 total villagers"
+	delete all unemployed villagers
+	assert size of all unemployed villagers is 0 with "Should be 0 unemployed villagers"
+	assert size of all villagers is 0 with "Should be 0 total villagers"
+	spawn 10 villagers at test-location
+	assert size of all villagers is 10 with "Should be 10 villagers"
+	delete all villagers
+	assert size of all villagers is 0 with "Should be 0 villagers"
+
+test "spawn zombie villagers by profession":
+	clear all entities
+	spawn 2 unemployed zombie villagers at test-location
+	assert size of all unemployed zombie villagers is 2 with "Should be 2 unemployed zombie villagers"
+	assert size of all zombie villagers is 2 with "Should be 2 total zombie villagers"
+	spawn 2 zombie armorers at test-location
+	assert size of all zombie armorers is 2 with "Should be 2 zombie armorer villagers"
+	assert size of all zombie villagers is 4 with "Should be 4 total zombie villagers"
+	spawn 2 zombie butchers at test-location
+	assert size of all zombie butchers is 2 with "Should be 2 zombie butcher villagers"
+	assert size of all zombie villagers is 6 with "Should be 6 total zombie villagers"
+	delete all zombie butchers
+	assert size of all zombie butchers is 0 with "Should be 0 zombie butcher villagers"
+	assert size of all zombie villagers is 4 with "Should be 4 zombie total villagers"
+	delete all zombie armorers
+	assert size of all zombie armorers is 0 with "Should be 0 zombie armorer villagers"
+	assert size of all zombie villagers is 2 with "Should be 2 total zombie villagers"
+	delete all unemployed zombie villagers
+	assert size of all unemployed villagers is 0 with "Should be 0 zombie unemployed villagers"
+	assert size of all zombie villagers is 0 with "Should be 0 total zombie villagers"
+	spawn 10 zombie villagers at test-location
+	assert size of all zombie villagers is 10 with "Should be 10 zombie villagers"
+	delete all zombie villagers
+	assert size of all zombie villagers is 0 with "Should be 0 zombie villagers"

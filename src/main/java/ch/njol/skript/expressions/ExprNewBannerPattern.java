@@ -24,34 +24,23 @@ import org.jetbrains.annotations.Nullable;
 	"remove {_pattern} from banner patterns of {_banneritem}",
 	"set the 1st banner pattern of block at location(0,0,0) to {_pattern}",
 	"clear the 1st banner pattern of block at location(0,0,0)",
-	"",
-	"set {_pattern} to a red mojang banner pattern"
 })
 @Since("2.10")
 public class ExprNewBannerPattern extends SimpleExpression<Pattern> {
 
 	static {
-		Skript.registerExpression(ExprNewBannerPattern.class, Pattern.class, ExpressionType.PATTERN_MATCHES_EVERYTHING,
-			"[a] %bannerpatterntype% colo[u]red %color%",
-			"[a] %*color% %bannerpatterntype%");
+		Skript.registerExpression(ExprNewBannerPattern.class, Pattern.class, ExpressionType.COMBINED,
+			"[a] %bannerpatterntype% colo[u]red %color%");
 	}
 
 	private Expression<PatternType> selectedPattern;
 	private Expression<Color> selectedColor;
 
 	@Override
+	@SuppressWarnings("unchecked")
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		if (matchedPattern == 0) {
-			//noinspection unchecked
-			selectedPattern = (Expression<PatternType>) exprs[0];
-			//noinspection unchecked
-			selectedColor = (Expression<Color>) exprs[1];
-		} else {
-			//noinspection unchecked
-			selectedPattern = (Expression<PatternType>) exprs[1];
-			//noinspection unchecked
-			selectedColor = (Expression<Color>) exprs[0];
-		}
+		selectedPattern = (Expression<PatternType>) exprs[0];
+		selectedColor = (Expression<Color>) exprs[1];
 		return true;
 	}
 
