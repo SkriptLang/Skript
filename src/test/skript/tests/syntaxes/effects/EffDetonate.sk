@@ -5,10 +5,11 @@ test "detonate entity effect":
 	assert last spawned entity isn't valid with "creepers should instantly detonate when spawned"
 
 test "detonate explosive minecart":
-	spawn a minecart with tnt at event-location
-	assert last spawned entity is valid with "minecarts with tnt should not detonate when they are first spawned"
-	detonate last spawned entity
-	assert last spawned entity isn't valid with "minecarts with tnt should instantly detonate when they are first spawned"
+	spawn a minecart with tnt at event-location:
+		set {_entity} to entity
+	assert {_entity} is valid with "minecarts with tnt should not detonate when they are first spawned"
+	detonate {_entity}
+	assert {_entity} isn't valid with "minecarts with tnt should instantly detonate when they are first spawned"
 
 test "detonate wind charge" when running minecraft "1.21":
 	spawn a wind charge at event-location ~ vector(0, 100, 0)
