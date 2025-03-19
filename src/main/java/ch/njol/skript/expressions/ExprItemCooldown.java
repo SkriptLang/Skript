@@ -19,6 +19,7 @@ import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -59,18 +60,7 @@ public class ExprItemCooldown extends SimpleExpression<Timespan> {
 	@Override
 	protected Timespan[] get(Event event) {
 		Player[] players = this.players.getArray(event);
-
-		List<ItemStack> itemStacks = this.itemtypes.stream(event)
-				.filter(ItemType::hasType)
-				.map(ItemType::getAll)
-				.flatMap(iterator -> {
-					List<ItemStack> items = new ArrayList<>();
-					iterator.forEach(items::add);
-					return items.stream();
-				})
-				.distinct()
-				.toList();
-
+		List<ItemStack> itemStacks = convertToItemList(this.itemtypes.getArray(event));
 		List<Timespan> timespans = new ArrayList<>();
 		for (Player player : players) {
 			for (ItemStack item : itemStacks) {
@@ -97,45 +87,49 @@ public class ExprItemCooldown extends SimpleExpression<Timespan> {
 		
 		int ticks = delta != null ? (int) ((Timespan) delta[0]).getAs(Timespan.TimePeriod.TICK) : 0; // 0 for DELETE/RESET
 		Player[] players = this.players.getArray(event);
-		List<ItemStack> itemStacks = this.itemtypes.stream(event)
-				.filter(ItemType::hasType)
-				.map(ItemType::getAll)
-				.flatMap(iterator -> {
-					List<ItemStack> items = new ArrayList<>();
-					iterator.forEach(items::add);
-					return Stream.of(items.toArray(ItemStack[]::new));
-				})
-				.distinct()
-				.toList();
+		List<ItemStack> itemStacks = convertToItemList(itemtypes.getArray(event));
 
 		for (Player player : players) {
 			for (ItemStack itemStack : itemStacks) {
 				Material material = itemStack.getType();
 				switch (mode) {
-					case RESET, DELETE, SET:
+					case RESET, DELETE, SET -> {
 						if (SUPPORTS_COOLDOWN_GROUP) {
 							player.setCooldown(itemStack, ticks);
 							break;
 						}
 						player.setCooldown(material, ticks);
-						break;
-					case REMOVE:
+					}
+					case REMOVE -> {
 						if (SUPPORTS_COOLDOWN_GROUP) {
 							player.setCooldown(itemStack, Math.max(player.getCooldown(itemStack) - ticks, 0));
 							break;
 						}
 						player.setCooldown(material, Math.max(player.getCooldown(material) - ticks, 0));
-						break;
-					case ADD:
+					}
+					case ADD -> {
 						if (SUPPORTS_COOLDOWN_GROUP) {
 							player.setCooldown(itemStack, player.getCooldown(itemStack) + ticks);
 							break;
 						}
 						player.setCooldown(material, player.getCooldown(material) + ticks);
-						break;
+					}
 				}
 			}
 		}
+	}
+
+	private List<ItemStack> convertToItemList(ItemType ...itemTypes) {
+		return Arrays.stream(itemTypes)
+			.filter(ItemType::hasType)
+			.map(ItemType::getAll)
+			.flatMap(iterator -> {
+				List<ItemStack> itemStacks = new ArrayList<>();
+				iterator.forEach(itemStacks::add);
+				return itemStacks.stream();
+			})
+			.distinct()
+			.toList();
 	}
 
 	@Override
