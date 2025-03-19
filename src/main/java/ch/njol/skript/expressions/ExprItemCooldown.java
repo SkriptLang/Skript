@@ -66,7 +66,7 @@ public class ExprItemCooldown extends SimpleExpression<Timespan> {
 				.flatMap(iterator -> {
 					List<ItemStack> items = new ArrayList<>();
 					iterator.forEach(items::add);
-					return Stream.of(items.toArray(ItemStack[]::new));
+					return items.stream();
 				})
 				.distinct()
 				.toList();
