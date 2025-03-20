@@ -51,7 +51,7 @@ jobs:
                   cd docs-repo
                   git config --global user.name "github-actions[bot]"
                   git config --global user.email "github-actions[bot]@users.noreply.github.com"
-                  git remote set-url origin ${{ secrets.DOCS_TOKEN }}@github.com:SkriptLang/docs
+                  git remote set-url origin https://${{ secrets.DOCS_TOKEN }}@github.com:SkriptLang/docs
                   git add src/assets/docs/docs.json
                   git commit -m "Update docs.json from latest Skript build" || exit 0
                   git push origin master
