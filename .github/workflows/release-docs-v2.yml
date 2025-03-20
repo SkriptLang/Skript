@@ -49,7 +49,7 @@ jobs:
             - name: Save deploy key
               run: |
                  eval `ssh-agent`
-                 echo "$DOCS_TOKEN" | tr -d '\r' | ssh-add - > /dev/null
+                 echo "${{ secrets.DOCS_TOKEN }}" | tr -d '\r' | ssh-add - > /dev/null
                  mkdir ~/.ssh
                  ssh-keyscan www.github.com >> ~/.ssh/known_hosts
 
