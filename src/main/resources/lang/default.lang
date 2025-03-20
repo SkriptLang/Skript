@@ -975,6 +975,9 @@ entities:
 	zombie villager:
 		name: zombie villager¦s
 		pattern: <age> zombie villager(|1¦s)
+	zombie normal:
+		name: zombie villager¦s
+		pattern: <age> unemployed zombie villager(|1¦s)
 	zombie farmer:
 		name: zombie farmer¦s
 		pattern: <age> zombie farmer(|1¦s)

@@ -59,7 +59,9 @@ import org.bukkit.inventory.*;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.potion.PotionType;
+import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.converter.Converter;
+import ch.njol.skript.registrations.EventConverter;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -290,6 +292,7 @@ public final class BukkitEventValues {
 		EventValues.registerEventValue(PlayerDropItemEvent.class, Player.class, PlayerEvent::getPlayer);
 		EventValues.registerEventValue(PlayerDropItemEvent.class, Item.class, PlayerDropItemEvent::getItemDrop);
 		EventValues.registerEventValue(PlayerDropItemEvent.class, ItemStack.class, event -> event.getItemDrop().getItemStack());
+		EventValues.registerEventValue(PlayerDropItemEvent.class, Entity.class, PlayerEvent::getPlayer);
 		// EntityDropItemEvent
 		EventValues.registerEventValue(EntityDropItemEvent.class, Item.class, EntityDropItemEvent::getItemDrop);
 		EventValues.registerEventValue(EntityDropItemEvent.class, ItemStack.class, event -> event.getItemDrop().getItemStack());
@@ -297,12 +300,23 @@ public final class BukkitEventValues {
 		EventValues.registerEventValue(PlayerPickupItemEvent.class, Player.class, PlayerEvent::getPlayer);
 		EventValues.registerEventValue(PlayerPickupItemEvent.class, Item.class, PlayerPickupItemEvent::getItem);
 		EventValues.registerEventValue(PlayerPickupItemEvent.class, ItemStack.class, event -> event.getItem().getItemStack());
+		EventValues.registerEventValue(PlayerPickupItemEvent.class, Entity.class, PlayerEvent::getPlayer);
 		// EntityPickupItemEvent
 		EventValues.registerEventValue(EntityPickupItemEvent.class, Entity.class, EntityPickupItemEvent::getEntity);
 		EventValues.registerEventValue(EntityPickupItemEvent.class, Item.class, EntityPickupItemEvent::getItem);
 		EventValues.registerEventValue(EntityPickupItemEvent.class, ItemType.class, event -> new ItemType(event.getItem().getItemStack()));
 		// PlayerItemConsumeEvent
-		EventValues.registerEventValue(PlayerItemConsumeEvent.class, ItemStack.class, PlayerItemConsumeEvent::getItem);
+		EventValues.registerEventValue(PlayerItemConsumeEvent.class, ItemStack.class, new EventConverter<>() {
+			@Override
+			public void set(PlayerItemConsumeEvent event, @Nullable ItemStack itemStack) {
+				event.setItem(itemStack);
+			}
+
+			@Override
+			public ItemStack convert(PlayerItemConsumeEvent from) {
+				return from.getItem();
+			}
+		});
 		// PlayerItemBreakEvent
 		EventValues.registerEventValue(PlayerItemBreakEvent.class, ItemStack.class, PlayerItemBreakEvent::getBrokenItem);
 		// PlayerInteractEntityEvent
@@ -633,9 +647,7 @@ public final class BukkitEventValues {
 			EntityEquipment equipment = event.getEntity().getEquipment();
 			if (equipment == null || hand == null)
 				return null;
-			return new ch.njol.skript.util.slot.EquipmentSlot(equipment,
-				(hand == EquipmentSlot.HAND) ? ch.njol.skript.util.slot.EquipmentSlot.EquipSlot.TOOL
-					: ch.njol.skript.util.slot.EquipmentSlot.EquipSlot.OFF_HAND);
+			return new ch.njol.skript.util.slot.EquipmentSlot(equipment, hand);
 		});
 
 		// PlayerItemHeldEvent
