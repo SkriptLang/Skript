@@ -234,6 +234,14 @@ long parse time warning threshold: 0 seconds
 #   stating that the statement has taken a long time to parse.
 # A value of 0 seconds means that this warning should be disabled.
 
+variable changes until save: 1000
+# This setting controls the total number of times that global variables need to be changed
+#   until saving variables to 'variables.csv'.
+# 'set {a} to 1' is one change, 'set {b} to 2' now makes it two.
+# You cannot provide a value of zero or less.
+# WARNING: This setting should be used at your own discretion.
+#          This setting can lag your server depending on how often variables get saved and
+#          the number of variables needing to be saved.
 
 # ==== Runtime Errors ====
 
