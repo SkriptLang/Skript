@@ -40,9 +40,7 @@ jobs:
               uses: actions/checkout@v4
               with:
                   repository: SkriptLang/docs
-                  token: ${{ secrets.DOCS_TOKEN }}
                   path: docs-repo
-                  ref: "master"
 
             - name: Move docs.json to the docs repo
               run: |
