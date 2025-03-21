@@ -12,7 +12,12 @@ test "within condition":
 	assert location(-10, 10, -10, "world") is not within {_chunk1} with "failed within chunk"
 
 	# worlds
-	assert location(10, 10, 10, "world") is within world("world") with "failed within world"
+	assert location(10, 10, 10, "world") is within test-world with "failed within world"
+
+	# worldborders
+	set {_border} to worldborder of test-world
+	assert {_loc1} is within {_border} with "failed within worldborder"
+	assert location(30000500, 0, 0, "world") is not within {_border} with "failed not within worldborder"
 
 	# blocks
 	set block at {_loc1} to stone
@@ -31,3 +36,49 @@ test "within condition":
 	assert {_loc1} is not within {_pig} with "failed within entity"
 
 	delete random entity of {_pig}
+
+test "within stairs block":
+	set {_loc} to location of test-block
+	set {_old} to block data of test-block
+	set test-block to oak stairs[facing=north]
+
+	set {_pass::-y} to {_loc} ~ vector(0, -0.2, 0)
+	set {_pass::-z} to {_loc} ~ vector(0, 0, -0.2)
+	set {_pass::-y+z} to {_loc} ~ vector(0, -0.2, 0.2)
+	set {_pass::+x-y} to {_loc} ~ vector(0.2, -0.2, 0)
+	set {_pass::+x-z} to {_loc} ~ vector(0.2, 0, -0.2)
+	set {_pass::+y-z} to {_loc} ~ vector(0, 0.2, -0.2)
+	set {_pass::-x-y} to {_loc} ~ vector(-0.2, -0.2, 0)
+	set {_pass::-x-z} to {_loc} ~ vector(-0.2, 0, -0.2)
+	set {_pass::-y-z} to {_loc} ~ vector(0, -0.2, -0.2)
+	set {_pass::+x-y+z} to {_loc} ~ vector(0.2, -0.2, 0.2)
+	set {_pass::+x+y-z} to {_loc} ~ vector(0.2, 0.2, -0.2)
+	set {_pass::+x-y-z} to {_loc} ~ vector(0.2, -0.2, -0.2)
+	set {_pass::-x-y+z} to {_loc} ~ vector(-0.2, -0.2, 0.2)
+	set {_pass::-x+y-z} to {_loc} ~ vector(-0.2, 0.2, -0.2)
+	set {_pass::-x-y-z} to {_loc} ~ vector(-0.2, -0.2, -0.2)
+
+	set {_fail::+x} to {_loc} ~ vector(0.2, 0, 0)
+	set {_fail::+y} to {_loc} ~ vector(0, 0.2, 0)
+	set {_fail::+z} to {_loc} ~ vector(0, 0, 0.2)
+	set {_fail::-x} to {_loc} ~ vector(-0.2, 0, 0)
+	set {_fail::+x+y} to {_loc} ~ vector(0.2, 0.2, 0)
+	set {_fail::+x+z} to {_loc} ~ vector(0.2, 0, 0.2)
+	set {_fail::+y+z} to {_loc} ~ vector(0, 0.2, 0.2)
+	set {_fail::-x+y} to {_loc} ~ vector(-0.2, 0.2, 0)
+	set {_fail::-x+z} to {_loc} ~ vector(-0.2, 0, 0.2)
+	set {_fail::+x+y+z} to {_loc} ~ vector(0.2, 0.2, 0.2)
+	set {_fail::-x+y+z} to {_loc} ~ vector(-0.2, 0.2, 0.2)
+
+	assert {_pass::*} is within test-block with "Failed multiple locs within stairs block"
+	assert {_fail::*} is not within test-block with "Failed multiple locs not within stairs block"
+
+	set block data of test-block to {_old}
+
+test "within multiple condition":
+	set {_chunk} to chunk at test-location
+	spawn a pig at test-location:
+		set {_entity} to entity
+	assert {_entity} is within test-world and {_chunk} with "Failed within world and chunk"
+	assert {_entity} is within test-world or {_chunk} with "Failed within world or chunk"
+	clear entity within {_entity}
