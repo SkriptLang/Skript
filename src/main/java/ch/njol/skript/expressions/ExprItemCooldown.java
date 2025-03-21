@@ -36,6 +36,9 @@ import java.util.stream.Stream;
 @Since({"2.8.0", "INSERT VERSION (cooldown group)"})
 public class ExprItemCooldown extends SimpleExpression<Timespan> {
 
+	// Cooldown groups were added in 1.12.2, to add cooldowns to a "group" of items
+	// a link to the data component can be found here https://minecraft.wiki/w/Data_component_format#use_cooldown
+	// The cooldown is applied to the material if no cooldown group is defined on the provided itemstack.
 	private static final boolean SUPPORTS_COOLDOWN_GROUP = Skript.methodExists(HumanEntity.class, "getCooldown", ItemStack.class);
 
 	static {
@@ -86,6 +89,8 @@ public class ExprItemCooldown extends SimpleExpression<Timespan> {
 			return;
 		
 		int ticks = delta != null ? (int) ((Timespan) delta[0]).getAs(Timespan.TimePeriod.TICK) : 0; // 0 for DELETE/RESET
+		if (mode == ChangeMode.REMOVE && ticks != 0)
+			ticks = -ticks;
 		Player[] players = this.players.getArray(event);
 		List<ItemStack> itemStacks = convertToItemList(itemtypes.getArray(event));
 
@@ -100,19 +105,12 @@ public class ExprItemCooldown extends SimpleExpression<Timespan> {
 						}
 						player.setCooldown(material, ticks);
 					}
-					case REMOVE -> {
+					case ADD, REMOVE -> {
 						if (SUPPORTS_COOLDOWN_GROUP) {
-							player.setCooldown(itemStack, Math.max(player.getCooldown(itemStack) - ticks, 0));
+							player.setCooldown(itemStack, Math.max(player.getCooldown(itemStack) + ticks, 0));
 							break;
 						}
-						player.setCooldown(material, Math.max(player.getCooldown(material) - ticks, 0));
-					}
-					case ADD -> {
-						if (SUPPORTS_COOLDOWN_GROUP) {
-							player.setCooldown(itemStack, player.getCooldown(itemStack) + ticks);
-							break;
-						}
-						player.setCooldown(material, player.getCooldown(material) + ticks);
+						player.setCooldown(material, Math.max(player.getCooldown(material) + ticks, 0));
 					}
 				}
 			}
