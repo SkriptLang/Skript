@@ -42,12 +42,12 @@ import java.util.Iterator;
 		add "world" to {queue}
 		broadcast the first 2 elements of {queue} # removes 'hello', 'world'"""
 })
-@Since("INSERT VERSION (experimental)")
+@Since("2.10 (experimental)")
 public class ExprQueue extends SimpleExpression<SkriptQueue> {
 
 	static {
 		Skript.registerExpression(ExprQueue.class, SkriptQueue.class, ExpressionType.COMBINED,
-			"[a] new queue [(of|with) %-objects%]");
+			"[a] [new] queue [(of|with) %-objects%]");
 	}
 
 	private @Nullable Expression<?> contents;
@@ -88,8 +88,8 @@ public class ExprQueue extends SimpleExpression<SkriptQueue> {
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
 		if (contents == null)
-			return "a new queue";
-		return "a new queue of " + contents.toString(event, debug);
+			return "a queue";
+		return "a queue of " + contents.toString(event, debug);
 	}
 
 }

@@ -32,7 +32,7 @@ import ch.njol.util.Closeable;
  * @see DatabaseStorage
  */
 // FIXME ! large databases (>25 MB) cause the server to be unresponsive instead of loading slowly
-@SuppressWarnings("SuspiciousIndentAfterControlStatement")
+@SuppressWarnings({"SuspiciousIndentAfterControlStatement", "removal"})
 public abstract class VariablesStorage implements Closeable {
 
 	/**

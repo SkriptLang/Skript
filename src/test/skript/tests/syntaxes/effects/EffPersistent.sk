@@ -1,0 +1,17 @@
+test "entity persistence":
+	spawn a zombie, a skeleton and a villager at test-location
+	assert all entities are persistent with "All entities should be persistent by default"
+	prevent all entities from persisting
+	assert all entities are not persistent with "Failed to make all entities not persistent"
+	force all entities to persist
+	assert all entities are persistent with "Failed to make all entities persistent"
+	clear all entities
+
+test "leaves persistence":
+	set {_old} to block data of test-block
+	set test-block to oak leaves
+	prevent test-block from persisting
+	assert test-block is not persistent with "Failed to make leaves not persistent"
+	force test-block to persist
+	assert test-block is persistent with "Failed to make leaves persist"
+	set block data of test-block to {_old}

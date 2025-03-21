@@ -33,7 +33,7 @@ public final class SkriptAddon implements org.skriptlang.skript.addon.SkriptAddo
 	 * Package-private constructor. Use {@link Skript#registerAddon(JavaPlugin)} to get a SkriptAddon for your plugin.
 	 */
 	SkriptAddon(JavaPlugin plugin) {
-		this(plugin, Skript.skript.registerAddon(plugin.getClass(), plugin.getName()));
+		this(plugin, Skript.instance().registerAddon(plugin.getClass(), plugin.getName()));
 	}
 
 	SkriptAddon(JavaPlugin plugin, org.skriptlang.skript.addon.SkriptAddon addon) {

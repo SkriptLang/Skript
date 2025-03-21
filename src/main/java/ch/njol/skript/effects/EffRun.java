@@ -21,7 +21,7 @@ import org.skriptlang.skript.util.Executable;
 		"run {_function}",
 		"run {_function} with arguments {_things::*}",
 })
-@Since("INSERT VERSION")
+@Since("2.10")
 @Keywords({"run", "execute", "reflection", "function"})
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class EffRun extends Effect {

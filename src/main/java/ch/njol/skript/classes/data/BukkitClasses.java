@@ -7,6 +7,7 @@ import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.bukkitutil.BukkitUtils;
 import ch.njol.skript.bukkitutil.EntityUtils;
 import ch.njol.skript.bukkitutil.ItemUtils;
+import ch.njol.skript.bukkitutil.SkriptTeleportFlag;
 import ch.njol.skript.classes.*;
 import ch.njol.skript.classes.registry.RegistryClassInfo;
 import ch.njol.skript.entity.EntityData;
@@ -20,7 +21,7 @@ import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.BlockUtils;
 import ch.njol.skript.util.PotionEffectUtils;
 import ch.njol.skript.util.StringMode;
-import ch.njol.util.StringUtils;
+import ch.njol.skript.util.Utils;
 import ch.njol.yggdrasil.Fields;
 import io.papermc.paper.world.MoonPhase;
 import org.bukkit.*;
@@ -70,10 +71,7 @@ public class BukkitClasses {
 
 	public BukkitClasses() {}
 
-	public static final Pattern UUID_PATTERN = Pattern.compile("(?i)[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}");
-
 	static {
-		final boolean GET_ENTITY_METHOD_EXISTS = Skript.methodExists(Bukkit.class, "getEntity", UUID.class);
 		Classes.registerClass(new ClassInfo<>(Entity.class, "entity")
 				.user("entit(y|ies)")
 				.name("Entity")
@@ -90,25 +88,10 @@ public class BukkitClasses {
 				.defaultExpression(new EventValueExpression<>(Entity.class))
 				.parser(new Parser<Entity>() {
 					@Override
-					@Nullable
-					public Entity parse(final String s, final ParseContext context) {
-						UUID uuid;
-						try {
-							uuid = UUID.fromString(s);
-						} catch (IllegalArgumentException iae) {
-							return null;
-						}
-						if (GET_ENTITY_METHOD_EXISTS) {
-							return Bukkit.getEntity(uuid);
-						} else {
-							for (World world : Bukkit.getWorlds()) {
-								for (Entity entity : world.getEntities()) {
-									if (entity.getUniqueId().equals(uuid)) {
-										return entity;
-									}
-								}
-							}
-						}
+					public @Nullable Entity parse(final String s, final ParseContext context) {
+						if (Utils.isValidUUID(s))
+							return Bukkit.getEntity(UUID.fromString(s));
+
 						return null;
 					}
 
@@ -319,7 +302,8 @@ public class BukkitClasses {
 				.description("A location in a <a href='#world'>world</a>. Locations are world-specific and even store a <a href='#direction'>direction</a>, " +
 						"e.g. if you save a location and later teleport to it you will face the exact same direction you did when you saved the location.")
 				.usage("")
-				.examples("")
+				.examples("teleport player to location at 0, 69, 0",
+						  "set {home::%uuid of player%} to location of the player")
 				.since("1.0")
 				.defaultExpression(new EventValueExpression<>(Location.class))
 				.parser(new Parser<Location>() {
@@ -642,8 +626,10 @@ public class BukkitClasses {
 						if (context == ParseContext.COMMAND || context == ParseContext.PARSE) {
 							if (string.isEmpty())
 								return null;
-							if (UUID_PATTERN.matcher(string).matches())
+
+							if (Utils.isValidUUID(string))
 								return Bukkit.getPlayer(UUID.fromString(string));
+
 							String name = string.toLowerCase(Locale.ENGLISH);
 							int nameLength = name.length(); // caching
 							List<Player> players = new ArrayList<>();
@@ -708,16 +694,11 @@ public class BukkitClasses {
 				.after("string", "world")
 				.parser(new Parser<OfflinePlayer>() {
 					@Override
-					@Nullable
-					public OfflinePlayer parse(final String s, final ParseContext context) {
-						if (context == ParseContext.COMMAND || context == ParseContext.PARSE) {
-							if (UUID_PATTERN.matcher(s).matches())
-								return Bukkit.getOfflinePlayer(UUID.fromString(s));
-							else if (!SkriptConfig.playerNameRegexPattern.value().matcher(s).matches())
-								return null;
+					public @Nullable OfflinePlayer parse(final String s, final ParseContext context) {
+						if (Utils.isValidUUID(s))
+							return Bukkit.getOfflinePlayer(UUID.fromString(s));
+						else if (SkriptConfig.playerNameRegexPattern.value().matcher(s).matches())
 							return Bukkit.getOfflinePlayer(s);
-						}
-						assert false;
 						return null;
 					}
 
@@ -1014,73 +995,19 @@ public class BukkitClasses {
 				}
 			}));
 
-		Classes.registerClass(new ClassInfo<>(PotionEffectType.class, "potioneffecttype")
-				.user("potion( ?effect)? ?types?") // "type" had to be made non-optional to prevent clashing with potion effects
+		Registry<PotionEffectType> petRegistry = BukkitUtils.getPotionEffectTypeRegistry();
+		if (petRegistry != null) {
+			Classes.registerClass(new RegistryClassInfo<>(PotionEffectType.class, petRegistry, "potioneffecttype", "potion effect types", false)
+				.user("potion ?effect ?types?")
 				.name("Potion Effect Type")
 				.description("A potion effect type, e.g. 'strength' or 'swiftness'.")
-				.usage(StringUtils.join(PotionEffectUtils.getNames(), ", "))
 				.examples("apply swiftness 5 to the player",
-						"apply potion of speed 2 to the player for 60 seconds",
-						"remove invisibility from the victim")
-				.since("")
-				.supplier(PotionEffectType.values())
-				.parser(new Parser<PotionEffectType>() {
-					@Override
-					@Nullable
-					public PotionEffectType parse(final String s, final ParseContext context) {
-						return PotionEffectUtils.parseType(s);
-					}
-
-					@Override
-					public String toString(final PotionEffectType p, final int flags) {
-						return PotionEffectUtils.toString(p, flags);
-					}
-
-					@Override
-					public String toVariableNameString(final PotionEffectType p) {
-						return "" + p.getName();
-					}
-				})
-				.serializer(new Serializer<PotionEffectType>() {
-					@Override
-					public Fields serialize(final PotionEffectType o) {
-						final Fields f = new Fields();
-						f.putObject("name", o.getName());
-						return f;
-					}
-
-					@Override
-					public boolean canBeInstantiated() {
-						return false;
-					}
-
-					@Override
-					public void deserialize(final PotionEffectType o, final Fields f) {
-						assert false;
-					}
-
-					@Override
-					protected PotionEffectType deserialize(final Fields fields) throws StreamCorruptedException {
-						final String name = fields.getObject("name", String.class);
-						assert name != null;
-						final PotionEffectType t = PotionEffectType.getByName(name);
-						if (t == null)
-							throw new StreamCorruptedException("Invalid PotionEffectType " + name);
-						return t;
-					}
-
-					// return o.getName();
-					@Override
-					@Nullable
-					public PotionEffectType deserialize(final String s) {
-						return PotionEffectType.getByName(s);
-					}
-
-					@Override
-					public boolean mustSyncDeserialization() {
-						return false;
-					}
-				}));
+					"apply potion of speed 2 to the player for 60 seconds",
+					"remove invisibility from the victim")
+				.since(""));
+		} else {
+			Classes.registerClass(PotionEffectUtils.getLegacyClassInfo());
+		}
 
 		// REMIND make my own damage cause class (that e.g. stores the attacker entity, the projectile, or the attacking block)
 		Classes.registerClass(new EnumClassInfo<>(DamageCause.class, "damagecause", "damage causes", new ExprDamageCause())
@@ -1469,19 +1396,19 @@ public class BukkitClasses {
 			.user("unleash ?(reason|cause)s?")
 			.name("Unleash Reason")
 			.description("Represents an unleash reason of an unleash event.")
-			.since("INSERT VERSION"));
+			.since("2.10"));
 
 		Classes.registerClass(new EnumClassInfo<>(ItemFlag.class, "itemflag", "item flags")
 				.user("item ?flags?")
 				.name("Item Flag")
 				.description("Represents flags that may be applied to hide certain attributes of an item.")
-				.since("INSERT VERSION"));
+				.since("2.10"));
 
 		Classes.registerClass(new EnumClassInfo<>(EntityPotionEffectEvent.Cause.class, "entitypotioncause", "entity potion causes")
 				.user("(entity )?potion ?effect ?cause")
 				.name("Entity Potion Cause")
 				.description("Represents the cause of the action of a potion effect on an entity, e.g. arrow, command")
-				.since("INSERT VERSION"));
+				.since("2.10"));
 
 		ClassInfo<?> wolfVariantClassInfo;
 		if (Skript.classExists("org.bukkit.entity.Wolf$Variant") && BukkitUtils.registryExists("WOLF_VARIANT")) {
@@ -1505,20 +1432,20 @@ public class BukkitClasses {
 			.user("(experience|[e]xp) cooldown change (reason|cause)s?")
 			.name("Experience Cooldown Change Reason")
 			.description("Represents a change reason of an <a href='events.html#experience cooldown change event'>experience cooldown change event</a>.")
-			.since("INSERT VERSION"));
+			.since("2.10"));
 
 		Classes.registerClass(new RegistryClassInfo<>(Villager.Type.class, Registry.VILLAGER_TYPE, "villagertype", "villager types")
 			.user("villager ?types?")
 			.name("Villager Type")
 			.description("Represents the different types of villagers. These are usually the biomes a villager can be from.")
 			.after("biome")
-			.since("INSERT VERSION"));
+			.since("2.10"));
 
 		Classes.registerClass(new RegistryClassInfo<>(Villager.Profession.class, Registry.VILLAGER_PROFESSION, "villagerprofession", "villager professions")
 			.user("villager ?professions?")
 			.name("Villager Profession")
 			.description("Represents the different professions of villagers.")
-			.since("INSERT VERSION"));
+			.since("2.10"));
 
 		if (Skript.classExists("org.bukkit.entity.EntitySnapshot")) {
 			Classes.registerClass(new ClassInfo<>(EntitySnapshot.class, "entitysnapshot")
@@ -1529,7 +1456,7 @@ public class BukkitClasses {
 						+ "Essentially, these are a way to create templates for entities.",
 					"Individual attributes of a snapshot cannot be modified or retrieved.")
 				.requiredPlugins("Minecraft 1.20.2+")
-				.since("INSERT VERSION")
+				.since("2.10")
 				.parser(new Parser<>() {
 					@Override
 					public boolean canParse(ParseContext context) {
@@ -1549,11 +1476,36 @@ public class BukkitClasses {
 			);
 		}
 
+		Classes.registerClass(new ClassInfo<>(WorldBorder.class, "worldborder")
+			.user("world ?borders?")
+			.name("World Border")
+			.description("Represents the border of a world or player.")
+			.since("INSERT VERSION")
+			.parser(new Parser<WorldBorder>() {
+				@Override
+				public boolean canParse(ParseContext context) {
+					return false;
+				}
+
+				@Override
+				public String toString(WorldBorder border, int flags) {
+					if (border.getWorld() == null)
+						return "virtual world border";
+					return "world border of world named '" + border.getWorld().getName() + "'";
+				}
+
+				@Override
+				public String toVariableNameString(WorldBorder border) {
+					return toString(border, 0);
+				}
+			})
+			.defaultExpression(new EventValueExpression<>(WorldBorder.class)));
+
 		Classes.registerClass(new ClassInfo<>(org.bukkit.block.banner.Pattern.class, "bannerpattern")
 			.user("banner ?patterns?")
 			.name("Banner Pattern")
 			.description("Represents a banner pattern.")
-			.since("INSERT VERSION")
+			.since("2.10")
 		);
 
 		ClassInfo<?> patternTypeInfo;
@@ -1579,7 +1531,23 @@ public class BukkitClasses {
 			.user("banner ?pattern ?types?")
 			.name("Banner Pattern Type")
 			.description("Represents the various banner patterns that can be applied to a banner.")
-			.since("INSERT VERSION")
+			.since("2.10")
+		);
+
+		if (Skript.classExists("io.papermc.paper.entity.TeleportFlag"))
+			Classes.registerClass(new EnumClassInfo<>(SkriptTeleportFlag.class, "teleportflag", "teleport flags")
+					.user("teleport ?flags?")
+					.name("Teleport Flag")
+					.description("Teleport Flags are settings to retain during a teleport.")
+					.requiredPlugins("Paper 1.19+")
+					.since("2.10"));
+
+		Classes.registerClass(new ClassInfo<>(Vehicle.class, "vehicle")
+			.user("vehicles?")
+			.name("Vehicle")
+			.description("Represents a vehicle.")
+			.since("2.10.2")
+			.changer(DefaultChangers.entityChanger)
 		);
 
 	}

@@ -1,7 +1,6 @@
 package ch.njol.skript.expressions;
 
 import ch.njol.skript.Skript;
-import ch.njol.skript.classes.Converter;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
@@ -89,7 +88,7 @@ public class ExprTool extends PropertyExpression<LivingEntity, Slot> {
 			EntityEquipment equipment = entity.getEquipment();
 			if (equipment == null)
 				return null;
-			return new EquipmentSlot(equipment, offHand ? EquipmentSlot.EquipSlot.OFF_HAND : EquipmentSlot.EquipSlot.TOOL) {
+			return new EquipmentSlot(equipment, offHand ? org.bukkit.inventory.EquipmentSlot.OFF_HAND : org.bukkit.inventory.EquipmentSlot.HAND) {
 				@Override
 				public String toString(@Nullable Event event, boolean debug) {
 					String time = getTime() == 1 ? "future " : getTime() == -1 ? "former " : "";

@@ -21,7 +21,7 @@ test "entities in chunk":
 	spawn 2 sheep at location(28, -60, 20, world "world")
 
 	assert size of all entities in chunk at spawn of world "world" >= 10 with "Size of all entities in spawn chunk is not >= 10"
-	assert size of all entities in radius 3 of {_radius center} >= 10 with "Size of all entities in radius 3 of spawn is not >= 10"
+	assert size of all entities in radius 3 of {_radius center} >= 10 with "Size of all entities in radius 3 of -24, -60, -24 is not >= 10"
 	assert size of all entities within {_corner::1} and {_corner::2} >= 10 with "Size of all entities within cuboid is not >= 10"
 
 

@@ -13,9 +13,6 @@ import java.io.PrintWriter;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-/**
- * @author Peter Güttinger
- */
 public abstract class Node implements AnyNamed, Validated, NodeNavigator {
 
 	@Nullable
@@ -479,16 +476,13 @@ public abstract class Node implements AnyNamed, Validated, NodeNavigator {
 			if (node.getKey() == null || node.getKey().isEmpty())
 				break;
 
-			path.add(0, node.getKey() + ".");
+			path.add(0, node.getKey());
 			node = node.getParent();
 		}
 
 		if (path.isEmpty())
 			return new String[0];
 
-		int lastIndex = path.size() - 1;
-		String lastValue = path.get(lastIndex);
-		path.set(lastIndex, lastValue.substring(0, lastValue.length() - 1)); // trim trailing dot
 		return path.toArray(new String[0]);
 	}
 

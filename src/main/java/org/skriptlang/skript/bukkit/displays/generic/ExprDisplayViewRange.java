@@ -18,7 +18,7 @@ import org.jetbrains.annotations.Nullable;
 	"For example, a player with 150% entity view distance will see a block display with a view range of 1.2 at 1.2 * 64 * 150% = 115.2 blocks away."
 })
 @Examples("set view range of the last spawned text display to 2.9")
-@Since("INSERT VERSION")
+@Since("2.10")
 public class ExprDisplayViewRange extends SimplePropertyExpression<Display, Float> {
 
 	static {

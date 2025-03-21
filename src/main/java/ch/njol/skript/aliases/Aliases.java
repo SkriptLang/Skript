@@ -17,6 +17,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
+import org.bukkit.Registry;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.script.Script;
 
@@ -59,12 +60,8 @@ public abstract class Aliases {
 	private static final boolean noHardExceptions = SkriptConfig.apiSoftExceptions.value();
 	static String itemSingular = "item";
 	static String itemPlural = "items";
-	@Nullable
-	static String itemGender = null;
 	static String blockSingular = "block";
 	static String blockPlural = "blocks";
-	@Nullable
-	static String blockGender = null;
 
 	static {
 		everything.setAll(true);
@@ -310,47 +307,62 @@ public abstract class Aliases {
 	/**
 	 * Gets an alias from the aliases defined in the config.
 	 *
-	 * @param s The alias to get, case does not matter
+	 * @param rawInput The alias to get, case does not matter
 	 * @return A copy of the ItemType represented by the given alias or null if no such alias exists.
 	 */
 	@Nullable
-	private static ItemType getAlias(final String s) {
-		ItemType i;
-		String lc = "" + s.toLowerCase(Locale.ENGLISH);
-		final Matcher m = p_any.matcher(lc);
-		if (m.matches()) {
-			lc = "" + m.group(m.groupCount());
-		}
-		if ((i = getAlias_i(lc)) != null)
-			return i.clone();
-		boolean b;
-		if ((b = lc.endsWith(" " + blockSingular)) || lc.endsWith(" " + blockPlural)) {
-			if ((i = getAlias_i("" + s.substring(0, s.length() - (b ? blockSingular.length() : blockPlural.length()) - 1))) != null) {
-				i = i.clone();
-				for (int j = 0; j < i.numTypes(); j++) {
-					final ItemData d = i.getTypes().get(j);
-					if (d.getType().isBlock()) {
-						i.remove(d);
-						j--;
-					}
-				}
-				if (i.getTypes().isEmpty())
-					return null;
-				return i;
+	private static ItemType getAlias(final String rawInput) {
+		String input = rawInput.toLowerCase(Locale.ENGLISH).trim();
+		ItemType itemType = getAlias_i(input);
+		if (itemType != null)
+			return itemType.clone();
+
+		// Try to parse as Minecraft key `minecraft:some_item` or `some_item`
+		if ((input.contains(":") || input.contains("_")) && !input.contains(" ")) {
+			NamespacedKey namespacedKey = NamespacedKey.fromString(input);
+			if (namespacedKey != null) {
+				Material material = Registry.MATERIAL.get(namespacedKey);
+				if (material != null)
+					return new ItemType(material);
 			}
-		} else if ((b = lc.endsWith(" " + itemSingular)) || lc.endsWith(" " + itemPlural)) {
-			if ((i = getAlias_i("" + s.substring(0, s.length() - (b ? itemSingular.length() : itemPlural.length()) - 1))) != null) {
-				i = i.clone();
-				for (int j = 0; j < i.numTypes(); j++) {
-					final ItemData d = i.getTypes().get(j);
-					if (!d.isAnything && d.getType().isBlock()) {
-						i.remove(d);
+		}
+		// try to parse `ACTUALNAME block` as ACTUALNAME
+		if (input.endsWith(" " + blockSingular) || input.endsWith(" " + blockPlural)) {
+			String stripped = input.substring(0, input.lastIndexOf(" "));
+			itemType = getAlias_i(stripped);
+			if (itemType != null) {
+				itemType = itemType.clone();
+				// remove all non-block datas and types that already end with "block"
+				for (int j = 0; j < itemType.numTypes(); j++) {
+					ItemData d = itemType.getTypes().get(j);
+					if (!d.getType().isBlock() || d.getType().getKey().getKey().endsWith(blockSingular)) {
+						itemType.remove(d);
 						j--;
 					}
 				}
-				if (i.getTypes().isEmpty())
+				// if no block itemdatas were found, return null
+				if (itemType.getTypes().isEmpty())
 					return null;
-				return i;
+				return itemType;
+			}
+		// do the same for items
+		} else if (input.endsWith(" " + itemSingular) || input.endsWith(" " + itemPlural)) {
+			String stripped = input.substring(0, input.lastIndexOf(" "));
+			itemType = getAlias_i(stripped);
+			if (itemType != null) {
+				itemType = itemType.clone();
+				// remove all non-item datas
+				for (int j = 0; j < itemType.numTypes(); j++) {
+					ItemData data = itemType.getTypes().get(j);
+					if (!data.isAnything && !data.getType().isItem()) {
+						itemType.remove(data);
+						--j;
+					}
+				}
+				// if no item itemdatas were found, return null
+				if (itemType.getTypes().isEmpty())
+					return null;
+				return itemType;
 			}
 		}
 		return null;

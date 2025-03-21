@@ -15,6 +15,7 @@ import ch.njol.util.Closeable;
 /**
  * @author Peter Güttinger
  */
+@SuppressWarnings("removal")
 public abstract class Task implements Runnable, Closeable {
 
 	private final Plugin plugin;
