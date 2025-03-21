@@ -1,6 +1,6 @@
 # we want to ensure particles parse and play on all versions
 test "visual effects":
-	set {_} to location of spawn of world "world"
+	set {_} to test-location
 	play angry villager at {_}
 	play air breaking at {_}
 	play sprinting dust of air at {_}

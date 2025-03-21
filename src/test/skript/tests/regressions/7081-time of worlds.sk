@@ -1,0 +1,29 @@
+test "time of worlds":
+
+	set {_w} to world "world"
+	set {_startTime} to time of {_w}
+
+	set time of {_w} to 00:00
+	assert time of {_w} is 00:00 with "time in world should be 00:00"
+	add 1 hour and 20 minutes to time of {_w} # add 4 Minecraft days
+	assert time of {_w} is 00:00 with "time in world should be 00:00"
+	add 1 minecraft hour and 20 minecraft minutes to time of {_w}
+	assert time of {_w} is 01:20 with "time in world should be 01:20"
+	add 1 minecraft day to time of {_w}
+	assert time of {_w} is 01:20 with "time in world should be 01:20"
+
+	remove 1 hour and 20 minutes from time of {_w} # remove 4 Minecraft days
+	assert time of {_w} is 01:20 with "time in world should be 01:20"
+	remove 1 minecraft hour and 20 minecraft minutes from time of {_w}
+	assert time of {_w} is 00:00 with "time in world should be 00:00"
+
+	add 1 minecraft hour to time of {_w}
+	assert time of {_w} is 01:00 with "time in world should be 01:00"
+	add 01:01 to time of {_w}
+	assert time of {_w} is 02:01 with "time in world should be 02:01"
+	remove 01:01 from time of {_w}
+	assert time of {_w} is 01:00 with "time in world should be 01:00"
+	remove 1 minecraft hour from time of {_w}
+	assert time of {_w} is 00:00 with "time in world should be 00:00"
+
+	set time of {_w} to {_startTime}

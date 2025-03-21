@@ -1,0 +1,23 @@
+test "loot table":
+
+	spawn a pig at test-location
+	set {_pig} to last spawned pig
+
+	assert loot table of {_pig} is loot table "minecraft:entities/pig" with "entity loot table is not 'minecraft:entities/pig'"
+
+	delete entity within {_pig}
+
+	set {_pastBlock} to block data of test-block
+
+	set test-block to chest
+
+	set loot table of test-block to loot table "minecraft:chests/simple_dungeon"
+	assert loot table of test-block is loot table "minecraft:chests/simple_dungeon" with "block loot table is not 'minecraft:chests/simple_dungeon'"
+
+	set loot table of test-block to loot table "minecraft:entities/pig"
+	assert loot table of test-block is loot table "minecraft:entities/pig" with "block loot table is not 'minecraft:entities/pig'"
+
+	set loot table of test-block to "invalidloottable" parsed as loot table
+	assert loot table of test-block is not set with "block loot table is set"
+
+	set test-block to {_pastBlock}

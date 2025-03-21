@@ -1,0 +1,244 @@
+using examples
+
+# This flag enables the experimental 'script reflection' feature within this file
+# Script reflection is a collection of powerful tools for scripts to inspect themselves
+using script reflection
+
+
+###
+THE BASICS
+=====
+
+'Reflection' is for something to look at itself (like in a mirror).
+
+Script reflection is a collection of powerful tools for scripts to inspect themselves.
+
+We can start with basic access to scripts.
+###
+
+
+example: # Getting a script
+
+	# You can obtain the current script
+	set {_script} to the current script
+	{_script} exists
+
+	# You can also find a script by name
+	set {_script} to the script named "my cool script.sk"
+
+	# Even if it's in a folder
+	set {_script} to the script named "examples/events.sk"
+
+	# Even if it's not enabled
+	set {_script} to the script named "-disabled script.sk"
+
+
+example: # Looping scripts
+
+	# It's possible to find multiple scripts at a time.
+	set {_scripts::*} to all loaded scripts
+	set {_scripts::*} to the scripts named "my script.sk" and "my cooler script.sk"
+	set {_scripts::*} to the scripts in folder "examples/"
+
+	loop all loaded scripts:
+		broadcast name of loop-value
+
+
+example: # The name and path of a script
+
+	# Scripts have a name, which is their file name (without .sk)
+	set {_script} to the script named "my script.sk"
+	the name of {_script} is "my script"
+
+	# This doesn't include their folder name
+	set {_script} to the script named "folder/my script.sk"
+	the name of {_script} is "my script"
+
+	# However, if you just print out a script, it will include the whole path
+	set {_script} to the script named "folder/my script.sk"
+	"%{_script}%" is "folder/my script.sk"
+
+
+example: # Enabling, disabling and loading scripts
+
+	# You can enable a disabled script
+	set {_script} to the script named "-disabled script.sk"
+	# This parses and loads its code
+	enable {_script}
+
+	# Now that it's been enabled, you can disable it again
+	set {_script} to the script named "disabled script.sk"
+	# This unloads its code and renames the script
+	disable {_script}
+
+	# A disabled script is skipped when Skript loads
+	# If you want to remove it temporarily, you can `unload` it
+	set {_script} to the script named "my cool script.sk"
+	unload {_script}
+
+	# You can then load it again, which is the same as enabling
+	load {_script}
+
+	# Or just reload it
+	reload {_script}
+
+
+###
+CONFIGS
+=====
+
+There are also tools provided for reading Skript's built-in configuration files.
+These allow you to check values from these files.
+
+Configs are arranged as a tree of 'nodes', which have values:
+
+regular node: value
+regular node: value
+section node: # This node contains more nodes!
+	regular node: value
+	regular node: value
+	another section node: # Sections can contain sections!
+		regular node: value
+###
+
+
+example: # Get the Skript config
+
+	set {_config} to the skript config
+	{_config} exists
+
+
+example: # Reading a simple node value
+
+	# Since configs are arranged in 'nodes' which have values,
+	# we just need to ask for these nodes, and then ask for their values
+
+	# You can get a node value directly from a config by name
+	set {_value} to the boolean value at "color codes reset formatting" in the skript config
+	broadcast "Do colour codes reset formatting? %{_value}%"
+
+	# You can also get a node specifically
+	set {_node} to the node "number accuracy" of {_config}
+	# And then check its value
+	set {_value} to the number value of {_node}
+	broadcast "Number accuracy: %{_value}%"
+
+
+example: # Value conversion
+
+	set {_node} to the node "number accuracy" of the skript config
+
+	# By specifying the TYPE of value you want, it is automatically parsed and converted
+	set {_value} to the text value of {_node}
+	{_value} is a text
+
+	set {_value} to the number value of {_node}
+	{_value} is a number
+
+	delete {_value}
+
+	# If it is impossible to convert or parse the value to what you asked for,
+	# it will be nothing
+	set {_value} to the player value of {_node}
+	# '0.1' can't be converted to a player
+	{_value} does not exist
+
+
+example: # Looping nodes
+
+	# A config can be treated as a node
+	set {_node} to the skript config
+	# The nodes inside a section (or a config)
+	loop the nodes of {_node}:
+		# Nodes have a name
+		broadcast the name of loop-value
+
+
+###
+MORE CONFIGS
+=====
+
+Scripts themselves are stored as configs, where each line is a node.
+This means that you are able to read the content of a script.
+
+The examples in this section will use a 'my script.sk' which has the following code:
+
+on first join:
+	give apple to the player
+
+on damage:
+	if the attacker exists:
+		teleport the attacker to the victim
+###
+
+
+example: # Reading a script
+
+	# A script is also a config
+	set {_script} to the script named "my script.sk"
+
+	# The code in each line is the node name
+	set {_node} to the node "on first join" in {_script}
+
+	# This event is a section, so we can loop it
+	loop the nodes of {_node}:
+		# There is only one line (node) in the section
+		the name of loop-value is "give apple to the player"
+
+	# You can traverse the node tree like this
+	set {_node} to the node "on damage" in {_script}
+	set {_node} to the node "if the attacker exists" in {_node}
+	# The first line inside that section
+	set {_node} to the first element of nodes of {_node}
+
+	the name of {_node} is "teleport the attacker to the victim"
+
+
+
+###
+FUNCTIONS
+=====
+
+The final part of script reflection is the ability to find and run a function.
+###
+
+example: # Finding a function
+
+	# You can find a function by name
+	set {_my function} to the function "my_function"
+	set {_my function} to the function "my_function()"
+
+	# You can also find a function from a particular script
+	set {_my function} to the function "my_function" from {_my script}
+
+	# You can even get multiple functions at once
+	set {_functions::*} to all functions from the current script
+
+
+example: # Running a function
+
+	set {_my function} to the function "my_function()"
+	# You can now run this function
+	run {_my function}
+
+	# You can also provide the arguments for running this function
+	run {_my function} with arguments "hello" and 7.5
+
+
+example: # The result of a function
+
+	# Some functions return a result
+	set {_my function} to the function "my_function()"
+	# Asking for the result runs the function
+	set {_result} to the result of {_my function}
+
+	# You can also ask for the result with arguments
+	set {_result} to the result of {_my function} with arguments "hello" and 7.5
+
+
+# An example command to run a function by name
+command /func <text>:
+	permission: skript.example.reflection
+	trigger:
+		set {_function} to the function arg-text
+		run {_function}

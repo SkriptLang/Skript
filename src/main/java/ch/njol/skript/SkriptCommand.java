@@ -1,58 +1,42 @@
-/**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
 package ch.njol.skript;
 
 import ch.njol.skript.aliases.Aliases;
 import ch.njol.skript.command.CommandHelp;
 import ch.njol.skript.doc.Documentation;
 import ch.njol.skript.doc.HTMLGenerator;
+import ch.njol.skript.doc.JSONGenerator;
 import ch.njol.skript.localization.ArgsMessage;
 import ch.njol.skript.localization.Language;
 import ch.njol.skript.localization.PluralizingArgsMessage;
 import ch.njol.skript.log.LogEntry;
 import ch.njol.skript.log.RedirectingLogHandler;
+import ch.njol.skript.log.TestingLogHandler;
 import ch.njol.skript.log.TimingLogHandler;
 import ch.njol.skript.test.runner.SkriptTestEvent;
 import ch.njol.skript.test.runner.TestMode;
 import ch.njol.skript.test.runner.TestTracker;
+import ch.njol.skript.test.utils.TestResults;
 import ch.njol.skript.util.ExceptionUtils;
 import ch.njol.skript.util.FileUtils;
 import ch.njol.skript.util.SkriptColor;
+import ch.njol.skript.util.Utils;
 import ch.njol.util.OpenCloseable;
 import ch.njol.util.StringUtils;
+import com.google.gson.GsonBuilder;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginDescriptionFile;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.script.Script;
 
 import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.nio.file.Files;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 
@@ -62,27 +46,28 @@ public class SkriptCommand implements CommandExecutor {
 	private static final String CONFIG_NODE = "skript command";
 	private static final ArgsMessage m_reloading = new ArgsMessage(CONFIG_NODE + ".reload.reloading");
 
-	// TODO /skript scripts show/list - lists all enabled and/or disabled scripts in the scripts folder and/or subfolders (maybe add a pattern [using * and **])
 	// TODO document this command on the website
 	private static final CommandHelp SKRIPT_COMMAND_HELP = new CommandHelp("<gray>/<gold>skript", SkriptColor.LIGHT_CYAN, CONFIG_NODE + ".help")
-		.add(new CommandHelp("reload", SkriptColor.DARK_CYAN)
-			.add("all")
-			.add("config")
-			.add("aliases")
-			.add("scripts")
-			.add("<script>")
-		).add(new CommandHelp("enable", SkriptColor.DARK_CYAN)
-			.add("all")
-			.add("<script>")
-		).add(new CommandHelp("disable", SkriptColor.DARK_CYAN)
-			.add("all")
-			.add("<script>")
-		).add(new CommandHelp("update", SkriptColor.DARK_CYAN)
-			.add("check")
-			.add("changes")
-			.add("download")
-		).add("info"
-		).add("help");
+			.add(new CommandHelp("reload", SkriptColor.DARK_RED)
+				.add("all")
+				.add("config")
+				.add("aliases")
+				.add("scripts")
+				.add("<script>")
+			).add(new CommandHelp("enable", SkriptColor.DARK_RED)
+				.add("all")
+				.add("<script>")
+			).add(new CommandHelp("disable", SkriptColor.DARK_RED)
+				.add("all")
+				.add("<script>")
+			).add(new CommandHelp("update", SkriptColor.DARK_RED)
+				.add("check")
+				.add("changes")
+			)
+			.add("list")
+			.add("show")
+			.add("info")
+			.add("help");
 
 	static {
 		// Add command to generate documentation
@@ -100,9 +85,9 @@ public class SkriptCommand implements CommandExecutor {
 		Skript.info(sender, message);
 
 		// Log reloading message
-		logHandler.log(new LogEntry(Level.INFO, Language.format(CONFIG_NODE + ".reload." + "player reload", sender.getName(), what)));
+		String text = Language.format(CONFIG_NODE + ".reload." + "player reload", sender.getName(), what);
+		logHandler.log(new LogEntry(Level.INFO, Utils.replaceEnglishChatStyles(text)), sender);
 	}
-
 
 	private static final ArgsMessage m_reloaded = new ArgsMessage(CONFIG_NODE + ".reload.reloaded");
 	private static final ArgsMessage m_reload_error = new ArgsMessage(CONFIG_NODE + ".reload.error");
@@ -114,10 +99,10 @@ public class SkriptCommand implements CommandExecutor {
 		String message;
 		if (logHandler.numErrors() == 0) {
 			message = StringUtils.fixCapitalization(PluralizingArgsMessage.format(m_reloaded.toString(what, timeTaken)));
-			logHandler.log(new LogEntry(Level.INFO, message));
+			logHandler.log(new LogEntry(Level.INFO, Utils.replaceEnglishChatStyles(message)));
 		} else {
 			message = StringUtils.fixCapitalization(PluralizingArgsMessage.format(m_reload_error.toString(what, logHandler.numErrors(), timeTaken)));
-			logHandler.log(new LogEntry(Level.SEVERE, message));
+			logHandler.log(new LogEntry(Level.SEVERE, Utils.replaceEnglishChatStyles(message)));
 		}
 	}
 
@@ -156,15 +141,15 @@ public class SkriptCommand implements CommandExecutor {
 					reloading(sender, "config, aliases and scripts", logHandler);
 					SkriptConfig.load();
 					Aliases.clear();
-					Aliases.load();
-
-					ScriptLoader.unloadScripts(ScriptLoader.getLoadedScripts());
-					ScriptLoader.loadScripts(Skript.getInstance().getScriptsFolder(), OpenCloseable.combine(logHandler, timingLogHandler))
-						.thenAccept(info -> {
-							if (info.files == 0)
-								Skript.warning(Skript.m_no_scripts.toString());
-							reloaded(sender, logHandler, timingLogHandler, "config, aliases and scripts");
-						});
+					Aliases.loadAsync().thenRun(() -> {
+						ScriptLoader.unloadScripts(ScriptLoader.getLoadedScripts());
+						ScriptLoader.loadScripts(Skript.getInstance().getScriptsFolder(), OpenCloseable.combine(logHandler, timingLogHandler))
+							.thenAccept(info -> {
+								if (info.files == 0)
+									Skript.warning(Skript.m_no_scripts.toString());
+								reloaded(sender, logHandler, timingLogHandler, "config, aliases and scripts");
+							});
+					});
 				} else if (args[1].equalsIgnoreCase("scripts")) {
 					reloading(sender, "scripts", logHandler);
 
@@ -182,8 +167,7 @@ public class SkriptCommand implements CommandExecutor {
 				} else if (args[1].equalsIgnoreCase("aliases")) {
 					reloading(sender, "aliases", logHandler);
 					Aliases.clear();
-					Aliases.load();
-					reloaded(sender, logHandler, timingLogHandler, "aliases");
+					Aliases.loadAsync().thenRun(() -> reloaded(sender, logHandler, timingLogHandler, "aliases"));
 				} else { // Reloading an individual Script or folder
 					File scriptFile = getScriptFromArgs(sender, args);
 					if (scriptFile == null)
@@ -213,7 +197,11 @@ public class SkriptCommand implements CommandExecutor {
 								if (scriptInfo.files == 0) {
 									info(sender, "reload.empty folder", fileName);
 								} else {
-									reloaded(sender, logHandler, timingLogHandler, "x scripts in folder", fileName, scriptInfo.files);
+									if (logHandler.numErrors() == 0) {
+										reloaded(sender, logHandler, timingLogHandler, "x scripts in folder success", fileName, scriptInfo.files);
+									} else {
+										reloaded(sender, logHandler, timingLogHandler, "x scripts in folder error", fileName, scriptInfo.files);
+									}
 								}
 							});
 					}
@@ -354,8 +342,6 @@ public class SkriptCommand implements CommandExecutor {
 					updater.updateCheck(sender);
 				} else if (args[1].equalsIgnoreCase("changes")) {
 					updater.changesCheck(sender);
-				} else if (args[1].equalsIgnoreCase("download")) {
-					updater.updateCheck(sender);
 				}
 			} else if (args[0].equalsIgnoreCase("info")) {
 				info(sender, "info.aliases");
@@ -396,17 +382,21 @@ public class SkriptCommand implements CommandExecutor {
 
 			} else if (args[0].equalsIgnoreCase("gen-docs")) {
 				File templateDir = Documentation.getDocsTemplateDirectory();
-				if (!templateDir.exists()) {
-					Skript.error(sender, "Cannot generate docs! Documentation templates not found at '" + Documentation.getDocsTemplateDirectory().getPath() + "'");
-					TestMode.docsFailed = true;
-					return true;
-				}
 				File outputDir = Documentation.getDocsOutputDirectory();
 				outputDir.mkdirs();
-				HTMLGenerator generator = new HTMLGenerator(templateDir, outputDir);
+
 				Skript.info(sender, "Generating docs...");
-				generator.generate(); // Try to generate docs... hopefully
-				Skript.info(sender, "Documentation generated!");
+				JSONGenerator jsonGenerator = new JSONGenerator(templateDir, outputDir);
+				jsonGenerator.generate();
+
+				if (!templateDir.exists()) {
+					Skript.info(sender, "JSON-only documentation generated!");
+					return true;
+				}
+
+				HTMLGenerator htmlGenerator = new HTMLGenerator(templateDir, outputDir);
+				htmlGenerator.generate(); // Try to generate docs... hopefully
+				Skript.info(sender, "All documentation generated!");
 			} else if (args[0].equalsIgnoreCase("test") && TestMode.DEV_MODE) {
 				File scriptFile;
 				if (args.length == 1) {
@@ -416,18 +406,26 @@ public class SkriptCommand implements CommandExecutor {
 						return true;
 					}
 				} else {
-					scriptFile = TestMode.TEST_DIR.resolve(
-						Arrays.stream(args).skip(1).collect(Collectors.joining(" ")) + ".sk"
-					).toFile();
-					TestMode.lastTestFile = scriptFile;
+					if (args[1].equalsIgnoreCase("all")) {
+						scriptFile = TestMode.TEST_DIR.toFile();
+					} else {
+						scriptFile = getScriptFromArgs(sender, args, TestMode.TEST_DIR.toFile());
+						TestMode.lastTestFile = scriptFile;
+					}
 				}
 
-				if (!scriptFile.exists()) {
+				if (scriptFile == null || !scriptFile.exists()) {
 					Skript.error(sender, "Test script doesn't exist!");
 					return true;
 				}
 
-				ScriptLoader.loadScripts(scriptFile, logHandler)
+				// Close previous loggers before we create a new one
+				// This prevents closing logger errors
+				timingLogHandler.close();
+				logHandler.close();
+
+				TestingLogHandler errorCounter = new TestingLogHandler(Level.SEVERE).start();
+				ScriptLoader.loadScripts(scriptFile, errorCounter)
 					.thenAccept(scriptInfo ->
 						// Code should run on server thread
 						Bukkit.getScheduler().scheduleSyncDelayedTask(Skript.getInstance(), () -> {
@@ -435,12 +433,41 @@ public class SkriptCommand implements CommandExecutor {
 							ScriptLoader.unloadScripts(ScriptLoader.getLoadedScripts());
 
 							// Get results and show them
-							String[] lines = TestTracker.collectResults().createReport().split("\n");
+							TestResults testResults = TestTracker.collectResults();
+							String[] lines = testResults.createReport().split("\n");
 							for (String line : lines) {
 								Skript.info(sender, line);
 							}
+
+							// Log results to file
+							Skript.info(sender, "Collecting results to " + TestMode.RESULTS_FILE);
+							String results = new GsonBuilder()
+								.setPrettyPrinting() // Easier to read lines
+								.disableHtmlEscaping() // Fixes issue with "'" character in test strings going unicode
+								.create().toJson(testResults);
+							try {
+								Files.writeString(TestMode.RESULTS_FILE, results);
+							} catch (IOException e) {
+								Skript.exception(e, "Failed to write test results.");
+							}
 						})
 					);
+			} else if (args[0].equalsIgnoreCase("list") || args[0].equalsIgnoreCase("show")) {
+				info(sender, "list.enabled.header");
+				ScriptLoader.getLoadedScripts().stream()
+						.map(script -> script.getConfig().getFileName())
+						.forEach(name -> info(sender, "list.enabled.element", name));
+				info(sender, "list.disabled.header");
+				ScriptLoader.getDisabledScripts().stream()
+						.flatMap(file -> {
+							if (file.isDirectory()) {
+								return getSubFiles(file).stream();
+							}
+							return Arrays.stream(new File[]{file});
+						})
+						.map(File::getPath)
+						.map(path -> path.substring(Skript.getInstance().getScriptsFolder().getPath().length() + 1))
+						.forEach(path -> info(sender, "list.disabled.element", path));
 			} else if (args[0].equalsIgnoreCase("help")) {
 				SKRIPT_COMMAND_HELP.showHelp(sender);
 			}
@@ -456,10 +483,27 @@ public class SkriptCommand implements CommandExecutor {
 	private static final ArgsMessage m_invalid_script = new ArgsMessage(CONFIG_NODE + ".invalid script");
 	private static final ArgsMessage m_invalid_folder = new ArgsMessage(CONFIG_NODE + ".invalid folder");
 
-	@Nullable
-	private static File getScriptFromArgs(CommandSender sender, String[] args) {
+	private static List<File> getSubFiles(File file) {
+		List<File> files = new ArrayList<>();
+		if (file.isDirectory()) {
+			for (File listFile : file.listFiles(f -> !f.isHidden())) {
+				if (listFile.isDirectory()) {
+					files.addAll(getSubFiles(listFile));
+				} else if (listFile.getName().endsWith(".sk")) {
+					files.add(listFile);
+				}
+			}
+		}
+		return files;
+	}
+
+	private static @Nullable File getScriptFromArgs(CommandSender sender, String[] args) {
+		return getScriptFromArgs(sender, args, Skript.getInstance().getScriptsFolder());
+	}
+
+	private static @Nullable File getScriptFromArgs(CommandSender sender, String[] args, File directoryFile) {
 		String script = StringUtils.join(args, " ", 1, args.length);
-		File f = getScriptFromName(script);
+		File f = ScriptLoader.getScriptFromName(script, directoryFile);
 		if (f == null) {
 			// Always allow '/' and '\' regardless of OS
 			boolean directory = script.endsWith("/") || script.endsWith("\\") || script.endsWith(File.separator);
@@ -469,32 +513,13 @@ public class SkriptCommand implements CommandExecutor {
 		return f;
 	}
 
+	/**
+	 * Moved to {@link ScriptLoader#getScriptFromName(String)}
+	 */
 	@Nullable
+	@Deprecated(forRemoval = true)
 	public static File getScriptFromName(String script) {
-		if (script.endsWith("/") || script.endsWith("\\")) { // Always allow '/' and '\' regardless of OS
-			script = script.replace('/', File.separatorChar).replace('\\', File.separatorChar);
-		} else if (!StringUtils.endsWithIgnoreCase(script, ".sk")) {
-			int dot = script.lastIndexOf('.');
-			if (dot > 0 && !script.substring(dot + 1).equals(""))
-				return null;
-			script = script + ".sk";
-		}
-
-		if (script.startsWith(ScriptLoader.DISABLED_SCRIPT_PREFIX))
-			script = script.substring(ScriptLoader.DISABLED_SCRIPT_PREFIX_LENGTH);
-
-		File scriptFile = new File(Skript.getInstance().getScriptsFolder(), script);
-		if (!scriptFile.exists()) {
-			scriptFile = new File(scriptFile.getParentFile(), ScriptLoader.DISABLED_SCRIPT_PREFIX + scriptFile.getName());
-			if (!scriptFile.exists()) {
-				return null;
-			}
-		}
-		try {
-			return scriptFile.getCanonicalFile();
-		} catch (IOException e) {
-			throw Skript.exception(e, "An exception occurred while trying to get the script file from the string '" + script + "'");
-		}
+		return ScriptLoader.getScriptFromName(script);
 	}
 
 	private static File toggleFile(File file, boolean enable) throws IOException {

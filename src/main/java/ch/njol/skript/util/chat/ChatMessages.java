@@ -1,21 +1,3 @@
-/**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
 package ch.njol.skript.util.chat;
 
 import ch.njol.skript.Skript;
@@ -26,7 +8,7 @@ import ch.njol.skript.util.Utils;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import net.md_5.bungee.api.ChatColor;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -86,34 +68,28 @@ public class ChatMessages {
 	 */
 	public static void registerListeners() {
 		// When language changes or server is loaded loop through all chatcodes
-		Language.addListener(new LanguageChangeListener() {
-			
-			@Override
-			public void onLanguageChange() {
-				codes.clear();
-				
-				Skript.debug("Parsing message style lang files");
-				for (SkriptChatCode code : SkriptChatCode.values()) {
-					assert code != null;
-					if (code == SkriptChatCode.copy_to_clipboard && !Utils.COPY_SUPPORTED)
-						continue;
-					registerChatCode(code);
-				}
-				
-				// Re-register any missing addon chat codes
-				for (ChatCode code : addonCodes) {
-					assert code != null;
-					registerChatCode(code);
-				}
-				
-				// Add formatting chars
-				addColorChar('k', SkriptChatCode.obfuscated);
-				addColorChar('l', SkriptChatCode.bold);
-				addColorChar('m', SkriptChatCode.strikethrough);
-				addColorChar('n', SkriptChatCode.underlined);
-				addColorChar('o', SkriptChatCode.italic);
-				addColorChar('r', SkriptChatCode.reset);
+		Language.addListener(() -> {
+			codes.clear();
+
+			Skript.debug("Parsing message style lang files");
+			for (SkriptChatCode code : SkriptChatCode.values()) {
+				assert code != null;
+				registerChatCode(code);
 			}
+
+			// Re-register any missing addon chat codes
+			for (ChatCode code : addonCodes) {
+				assert code != null;
+				registerChatCode(code);
+			}
+
+			// Add formatting chars
+			addColorChar('k', SkriptChatCode.obfuscated);
+			addColorChar('l', SkriptChatCode.bold);
+			addColorChar('m', SkriptChatCode.strikethrough);
+			addColorChar('n', SkriptChatCode.underlined);
+			addColorChar('o', SkriptChatCode.italic);
+			addColorChar('r', SkriptChatCode.reset);
 		});
 	}
 	
@@ -231,7 +207,7 @@ public class ChatMessages {
 					}
 					name = name.toLowerCase(Locale.ENGLISH); // Tags are case-insensitive
 					
-					boolean tryHex = Utils.HEX_SUPPORTED && name.startsWith("#");
+					boolean tryHex = name.startsWith("#");
 					ChatColor chatColor = null;
 					if (tryHex) {
 						chatColor = Utils.parseHexColor(name);
@@ -279,7 +255,7 @@ public class ChatMessages {
 				
 				char color = chars[i + 1];
 				
-				boolean tryHex = Utils.HEX_SUPPORTED && color == 'x';
+				boolean tryHex = color == 'x';
 				ChatColor chatColor = null;
 				if (tryHex && i + 14 < chars.length) { // Try to parse hex "&x&1&2&3&4&5&6"
 					chatColor = Utils.parseHexColor(msg.substring(i + 2, i + 14).replace("&", "").replace("§", ""));
@@ -442,7 +418,7 @@ public class ChatMessages {
 
 				char color = chars[i + 1];
 
-				boolean tryHex = Utils.HEX_SUPPORTED && color == 'x';
+				boolean tryHex = color == 'x';
 				ChatColor chatColor = null;
 				if (tryHex && i + 14 < chars.length) { // Try to parse hex "&x&1&2&3&4&5&6"
 					chatColor = Utils.parseHexColor(msg.substring(i + 2, i + 14).replace("&", "").replace("§", ""));
@@ -600,9 +576,8 @@ public class ChatMessages {
 				builder.append(component.text);
 			}
 			String plain = builder.toString();
-			
-			if (Utils.HEX_SUPPORTED) // Strip '§x', '&x'
-				plain = HEX_COLOR_PATTERN.matcher(plain).replaceAll("");
+
+			plain = HEX_COLOR_PATTERN.matcher(plain).replaceAll("");
 			
 			result = ANY_COLOR_PATTERN.matcher(plain).replaceAll(""); // strips colors & or § (ex. &5)
 		} while (!previous.equals(result));

@@ -1,0 +1,18 @@
+test "item flags":
+	set {_i} to diamond sword of unbreaking 2
+
+	add hide enchants to item flags of {_i}
+	assert item flags of {_i} is hide enchants with "Hide Enchants did not get added to item."
+
+	remove hide enchants from item flags of {_i}
+	assert item flags of {_i} isn't set with "Hide Enchants did not get removed from item."
+
+	set item flags of {_i} to hide attributes
+	assert item flags of {_i} is hide attributes with "Item flags did not get set."
+
+	reset item flags of {_i}
+	assert item flags of {_i} isn't set with "Item Flags did not reset."
+
+	set {_i} to diamond sword of unbreaking 2 with item flags hide enchants
+	assert item flags of {_i} is hide enchants with "Item does not have hide enchants item flag"
+

@@ -1,21 +1,3 @@
-/**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
 package ch.njol.skript.expressions;
 
 import ch.njol.skript.Skript;
@@ -31,7 +13,7 @@ import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.Statistic;
 import org.bukkit.event.Event;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 @Name("Time Played")
 @Description({
@@ -75,7 +57,7 @@ public class ExprTimePlayed extends SimplePropertyExpression<OfflinePlayer, Time
 		if (delta == null)
 			return;
 
-		long ticks = ((Timespan) delta[0]).getTicks();
+		long ticks = ((Timespan) delta[0]).getAs(Timespan.TimePeriod.TICK);
 		for (OfflinePlayer offlinePlayer : getExpr().getArray(event)) {
 			if (!IS_OFFLINE_SUPPORTED && !offlinePlayer.isOnline())
 				continue;
@@ -84,7 +66,7 @@ public class ExprTimePlayed extends SimplePropertyExpression<OfflinePlayer, Time
 			if (playerTimespan == null)
 				continue;
 
-			long playerTicks = playerTimespan.getTicks();
+			long playerTicks = playerTimespan.getAs(Timespan.TimePeriod.TICK);
 			switch (mode) {
 				case ADD:
 					ticks = playerTicks + ticks;
@@ -115,9 +97,9 @@ public class ExprTimePlayed extends SimplePropertyExpression<OfflinePlayer, Time
 	@Nullable
 	private Timespan getTimePlayed(OfflinePlayer offlinePlayer) {
 		if (IS_OFFLINE_SUPPORTED) {
-			return Timespan.fromTicks(offlinePlayer.getStatistic(Statistic.PLAY_ONE_MINUTE));
+			return new Timespan(Timespan.TimePeriod.TICK, offlinePlayer.getStatistic(Statistic.PLAY_ONE_MINUTE));
 		} else if (offlinePlayer.isOnline()) {
-			return Timespan.fromTicks(offlinePlayer.getPlayer().getStatistic(Statistic.PLAY_ONE_MINUTE));
+			return new Timespan(Timespan.TimePeriod.TICK, offlinePlayer.getPlayer().getStatistic(Statistic.PLAY_ONE_MINUTE));
 		}
 		return null;
 	}

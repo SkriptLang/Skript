@@ -1,21 +1,3 @@
-/**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
 package ch.njol.skript.lang;
 
 import ch.njol.skript.Skript;
@@ -30,7 +12,9 @@ import ch.njol.skript.expressions.ExprParse;
 import ch.njol.skript.lang.function.ExprFunctionCall;
 import ch.njol.skript.lang.function.FunctionReference;
 import ch.njol.skript.lang.function.Functions;
+import ch.njol.skript.lang.parser.ParseStackOverflowException;
 import ch.njol.skript.lang.parser.ParserInstance;
+import ch.njol.skript.lang.parser.ParsingStack;
 import ch.njol.skript.lang.util.SimpleLiteral;
 import ch.njol.skript.localization.Language;
 import ch.njol.skript.localization.Message;
@@ -49,19 +33,14 @@ import ch.njol.util.NonNullPair;
 import ch.njol.util.StringUtils;
 import ch.njol.util.coll.CollectionUtils;
 import com.google.common.primitives.Booleans;
+import org.bukkit.event.Event;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.script.Script;
 import org.skriptlang.skript.lang.script.ScriptWarning;
 
-import java.util.ArrayList;
-import java.util.Deque;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Supplier;
@@ -206,6 +185,7 @@ public class SkriptParser {
 	}
 
 	private <T extends SyntaxElement> @Nullable T parse(Iterator<? extends SyntaxElementInfo<? extends T>> source) {
+		ParsingStack parsingStack = getParser().getParsingStack();
 		try (ParseLogHandler log = SkriptLogger.startParseLogHandler()) {
 			while (source.hasNext()) {
 				SyntaxElementInfo<? extends T> info = source.next();
@@ -216,15 +196,24 @@ public class SkriptParser {
 						assert pattern != null;
 						ParseResult parseResult;
 						try {
+							parsingStack.push(new ParsingStack.Element(info, patternIndex));
 							parseResult = parse_i(pattern);
 						} catch (MalformedPatternException e) {
 							String message = "pattern compiling exception, element class: " + info.getElementClass().getName();
 							try {
 								JavaPlugin providingPlugin = JavaPlugin.getProvidingPlugin(info.getElementClass());
 								message += " (provided by " + providingPlugin.getName() + ")";
-							} catch (IllegalArgumentException | IllegalStateException ignored) {}
-							throw new RuntimeException(message, e);
+							} catch (IllegalArgumentException | IllegalStateException ignored) { }
 
+							throw new RuntimeException(message, e);
+						} catch (StackOverflowError e) {
+							// Parsing caused a stack overflow, possibly due to too long lines
+							throw new ParseStackOverflowException(e, new ParsingStack(parsingStack));
+						} finally {
+							// Recursive parsing call done, pop the element from the parsing stack
+							ParsingStack.Element stackElement = parsingStack.pop();
+
+							assert stackElement.syntaxElementInfo() == info && stackElement.patternIndex() == patternIndex;
 						}
 						if (parseResult != null) {
 							assert parseResult.source != null; // parse results from parse_i have a source
@@ -243,7 +232,26 @@ public class SkriptParser {
 								}
 							}
 							T element = info.getElementClass().newInstance();
-							if (element.init(parseResult.exprs, patternIndex, getParser().getHasDelayBefore(), parseResult)) {
+
+							if (element instanceof EventRestrictedSyntax eventRestrictedSyntax) {
+								Class<? extends Event>[] supportedEvents = eventRestrictedSyntax.supportedEvents();
+								if (!getParser().isCurrentEvent(supportedEvents)) {
+									Iterator<String> iterator = Arrays.stream(supportedEvents)
+										.map(it -> "the " + it.getSimpleName()
+											.replaceAll("([A-Z])", " $1")
+											.toLowerCase()
+											.trim())
+										.iterator();
+
+									String events = StringUtils.join(iterator, ", ", " or ");
+
+									Skript.error("'" + parseResult.expr + "' can only be used in " + events);
+									continue;
+								}
+							}
+
+							boolean success = element.init(parseResult.exprs, patternIndex, getParser().getHasDelayBefore(), parseResult);
+							if (success) {
 								log.printLog();
 								return element;
 							}
@@ -253,6 +261,8 @@ public class SkriptParser {
 					}
 				}
 			}
+
+			// No successful syntax elements parsed, print errors and return
 			log.printError();
 			return null;
 		}
@@ -302,6 +312,10 @@ public class SkriptParser {
 	}
 
 	private static @Nullable Expression<?> parseExpression(Class<?>[] types, String expr) {;
+		if (expr.startsWith("“") || expr.startsWith("”") || expr.endsWith("”") || expr.endsWith("“")) {
+			Skript.error("Pretty quotes are not allowed, change to regular quotes (\")");
+			return null;
+		}
 		if (expr.startsWith("\"") && expr.length() != 1 && nextQuote(expr, 1) == expr.length() - 1) {
 			return VariableString.newInstance("" + expr.substring(1, expr.length() - 1));
 		} else {
@@ -351,9 +365,9 @@ public class SkriptParser {
 			if ((flags & PARSE_EXPRESSIONS) != 0) {
 				Expression<?> parsedExpression = parseExpression(types, expr);
 				if (parsedExpression != null) { // Expression/VariableString parsing success
+					Class<?> parsedReturnType = parsedExpression.getReturnType();
 					for (Class<? extends T> type : types) {
-						// Check return type against everything that expression accepts
-						if (parsedExpression.canReturn(type)) {
+						if (type.isAssignableFrom(parsedReturnType)) {
 							log.printLog();
 							return (Expression<? extends T>) parsedExpression;
 						}
@@ -519,13 +533,14 @@ public class SkriptParser {
 			if ((flags & PARSE_EXPRESSIONS) != 0) {
 				Expression<?> parsedExpression = parseExpression(types, expr);
 				if (parsedExpression != null) { // Expression/VariableString parsing success
+					Class<?> parsedReturnType = parsedExpression.getReturnType();
 					for (int i = 0; i < types.length; i++) {
 						Class<?> type = types[i];
 						if (type == null) // Ignore invalid (null) types
 							continue;
 
-						// Check return type against everything that expression accepts
-						if (parsedExpression.canReturn(type)) {
+						// Check return type against the expression's return type
+						if (type.isAssignableFrom(parsedReturnType)) {
 							if (!exprInfo.isPlural[i] && !parsedExpression.isSingle()) { // Wrong number of arguments
 								if (context == ParseContext.COMMAND) {
 									Skript.error(Commands.m_too_many_arguments.toString(exprInfo.classes[i].getName().getIndefiniteArticle(), exprInfo.classes[i].getName().toString()), ErrorQuality.SEMANTIC_ERROR);
@@ -1145,7 +1160,15 @@ public class SkriptParser {
 				}
 				Class<?> c = types[i];
 				assert c != null;
-				message.append(Classes.getSuperClassInfo(c).getName().withIndefiniteArticle());
+				ClassInfo<?> classInfo = Classes.getSuperClassInfo(c);
+				// if there's a registered class info,
+				if (classInfo != null) {
+					// use the article,
+					message.append(classInfo.getName().withIndefiniteArticle());
+				} else {
+					// otherwise fallback to class name
+					message.append(c.getName());
+				}
 			}
 			return message.toString();
 		}

@@ -1,0 +1,25 @@
+test "text of text displays":
+	spawn item display at spawn of world "world":
+		set {_id} to entity
+
+	assert text of {_id} is not set with "item display has text"
+	set text of {_id} to "55"
+	assert text of {_id} is not set with "item display has text"
+	reset text of {_id}
+	assert text of {_id} is not set with "item display has text"
+
+	delete entity within {_id}
+	spawn text display at spawn of world "world":
+		set {_td} to entity
+
+	assert text of {_td} is "" with "failed default text"
+	set text of {_td} to "hello!"
+	assert text of {_td} is "hello!" with "failed to set text"
+	set text of {_td} to ""
+	assert text of {_td} is "" with "failed to set text"
+	set text of {_td} to "èa_.21&*5ö!"
+	assert text of {_td} is "èa_.21&*5ö!" with "failed to set text"
+	reset text of {_td}
+	assert text of {_td} is "" with "failed to reset text"
+
+	delete entity within {_td}
