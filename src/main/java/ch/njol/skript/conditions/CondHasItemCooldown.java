@@ -25,6 +25,9 @@ import org.jetbrains.annotations.Nullable;
 @Since({"2.8.0", "INSERT VERSION (cooldown group)"})
 public class CondHasItemCooldown extends Condition {
 
+	// Cooldown groups were added in 1.12.2, to add cooldowns to a "group" of items
+	// a link to the data component can be found here https://minecraft.wiki/w/Data_component_format#use_cooldown
+	// The cooldown is applied to the material if no cooldown group is defined on the provided itemstack.
 	private static final boolean SUPPORTS_COOLDOWN_GROUP = Skript.methodExists(HumanEntity.class, "hasCooldown", ItemStack.class);
 
 	static {
