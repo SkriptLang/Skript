@@ -83,7 +83,7 @@ public class ExprEntitySize extends SimplePropertyExpression<LivingEntity, Integ
 			case SET, RESET -> {
 				for (LivingEntity entity : getExpr().getArray(event)) {
 					if (entity instanceof Phantom phantom) {
-						phantom.setSize(Math2.fit(0, sizeDelta, Integer.MAX_VALUE));
+						phantom.setSize(Math2.fit(0, sizeDelta, MAXIMUM_PHANTOM_SIZE));
 					} else if (entity instanceof Slime slime) {
 						// Skript follows the nbt format of 0-126 for slimes, as bukkit uses a 1-127 value
 						slime.setSize(Math2.fit(1, sizeDelta+1, MAXIMUM_SLIME_SIZE));
