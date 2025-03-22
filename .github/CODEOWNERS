@@ -27,39 +27,39 @@
 # Personal specialties
 
 # Runtime errors
-/src/main/java/org/skriptlang/skript/log/runtime/ @sovdeeth
-/src/main/java/org/skriptlang/skript/bukkit/log/runtime/ @sovdeeth
+/src/main/java/org/skriptlang/skript/log/runtime/ @sovdeeth @skriptlang/core-developers
+/src/main/java/org/skriptlang/skript/bukkit/log/runtime/ @sovdeeth @skriptlang/core-developers
 
 # Tags
-/src/main/java/org/skriptlang/skript/bukkit/tags/ @sovdeeth
+/src/main/java/org/skriptlang/skript/bukkit/tags/ @sovdeeth @skriptlang/core-developers
 
 # Conditionals
-/src/main/java/org/skriptlang/skript/lang/condition/ @sovdeeth
+/src/main/java/org/skriptlang/skript/lang/condition/ @sovdeeth @skriptlang/core-developers
 
 # Displays/Rotation
-/src/main/java/org/skriptlang/skript/bukkit/misc/rotation/ @sovdeeth
-/src/main/java/org/skriptlang/skript/bukkit/displays/ @sovdeeth
+/src/main/java/org/skriptlang/skript/bukkit/misc/rotation/ @sovdeeth @skriptlang/core-developers
+/src/main/java/org/skriptlang/skript/bukkit/displays/ @sovdeeth @skriptlang/core-developers
 
 # Commands
-/src/main/java/ch/njol/skript/command/ @sovdeeth
+/src/main/java/ch/njol/skript/command/ @sovdeeth @skriptlang/core-developers
 
 # Aliases
-/src/main/java/ch/njol/skript/aliases @sovdeeth
+/src/main/java/ch/njol/skript/aliases @sovdeeth @skriptlang/core-developers
 
 # Registration API
-/src/main/java/org/skriptlang/skript/registration/ @APickledWalrus
-/src/main/java/org/skriptlang/skript/bukkit/registration/ @APickledWalrus
-/src/main/java/org/skriptlang/skript/addon/ @APickledWalrus
+/src/main/java/org/skriptlang/skript/registration/ @APickledWalrus @skriptlang/core-developers
+/src/main/java/org/skriptlang/skript/bukkit/registration/ @APickledWalrus @skriptlang/core-developers
+/src/main/java/org/skriptlang/skript/addon/ @APickledWalrus @skriptlang/core-developers
 
 # EntryData
-/src/main/java/org/skriptlang/skript/lang/entry/ @APickledWalrus
+/src/main/java/org/skriptlang/skript/lang/entry/ @APickledWalrus @skriptlang/core-developers
 
 # Arithmetic
-/src/main/java/org/skriptlang/skript/lang/arithmetic/ @UnderscoreTud
-/src/main/java/ch/njol/skript/expressions/arithmetic/ @UnderscoreTud
+/src/main/java/org/skriptlang/skript/lang/arithmetic/ @UnderscoreTud @skriptlang/core-developers
+/src/main/java/ch/njol/skript/expressions/arithmetic/ @UnderscoreTud @skriptlang/core-developers
 
 # Input API
-/src/main/java/org/skriptlang/skript/bukkit/input/ @UnderscoreTud
+/src/main/java/org/skriptlang/skript/bukkit/input/ @UnderscoreTud @skriptlang/core-developers
 
 # Documentation
-/src/main/java/ch/njol/skript/doc/ @Pikachu920 @AyhamAl-Ali @Efnilite
+/src/main/java/ch/njol/skript/doc/ @Pikachu920 @AyhamAl-Ali @Efnilite @skriptlang/core-developers
