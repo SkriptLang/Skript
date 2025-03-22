@@ -52,9 +52,12 @@ public class ExprAngle extends SimpleExpression<Number> {
 	protected Number @Nullable [] get(Event event) {
 		Number[] numbers = angle.getArray(event);
 
-		if (isRadians)
+		if (isRadians) {
+			Double[] degrees = new Double[numbers.length];
 			for (int i = 0; i < numbers.length; i++)
-            	numbers[i] = Math.toDegrees(numbers[i].doubleValue());
+				degrees[i] = Math.toDegrees(numbers[i].doubleValue());
+			return degrees;
+		}
 
 		return numbers;
 	}

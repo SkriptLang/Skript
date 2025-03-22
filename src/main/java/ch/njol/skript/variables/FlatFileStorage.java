@@ -76,7 +76,7 @@ public class FlatFileStorage extends VariablesStorage {
 	 * The amount of {@link #changes} needed
 	 * for a new {@link #saveVariables(boolean) save}.
 	 */
-	private static final int REQUIRED_CHANGES_FOR_RESAVE = 1000;
+	private static int REQUIRED_CHANGES_FOR_RESAVE = 1000;
 
 	/**
 	 * The amount of variable changes written since the last full save.
@@ -604,6 +604,19 @@ public class FlatFileStorage extends VariablesStorage {
 		}
 
 		printWriter.println();
+	}
+
+	/**
+	 * Change the required amount of variable changes until variables are saved.
+	 * Cannot be zero or less.
+	 * @param value
+	 */
+	public static void setRequiredChangesForResave(int value) {
+		if (value <= 0) {
+			Skript.warning("Variable changes until save cannot be zero or less. Using default of 1000.");
+			value = 1000;
+		}
+		REQUIRED_CHANGES_FOR_RESAVE = value;
 	}
 
 }
