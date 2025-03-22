@@ -28,6 +28,11 @@ public class CondCanAge extends PropertyCondition<LivingEntity> {
 	}
 
 	@Override
+	protected PropertyType getPropertyType() {
+		return PropertyType.CAN;
+	}
+
+	@Override
 	protected String getPropertyName() {
 		return "age";
 	}
