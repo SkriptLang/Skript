@@ -1,6 +1,5 @@
 package org.skriptlang.skript.bukkit.breeding.elements;
 
-import ch.njol.skript.Skript;
 import ch.njol.skript.conditions.base.PropertyCondition;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
@@ -26,6 +25,11 @@ public class CondCanBreed extends PropertyCondition<LivingEntity> {
 	@Override
 	public boolean check(LivingEntity entity) {
 		return entity instanceof Breedable breedable && breedable.canBreed();
+	}
+
+	@Override
+	protected PropertyType getPropertyType() {
+		return PropertyType.CAN;
 	}
 
 	@Override
