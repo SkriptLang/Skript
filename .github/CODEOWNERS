@@ -11,17 +11,17 @@
 /src/test/ @skriptlang/core-developers
 
 # Changes to critical code
-/src/main/java/org/skriptlang/skript/lang/ @skriptlang/core-maintainers
-/src/main/java/ch/njol/skript/lang/ @skriptlang/core-maintainers
-/src/main/java/ch/njol/skript/variables/ @skriptlang/core-maintainers
-/src/main/java/ch/njol/yggdrasil/ @skriptlang/core-maintainers
-/src/main/java/ch/njol/skript/Skript.java @skriptlang/core-maintainers
-/src/main/java/ch/njol/skript/test/ @skriptlang/core-maintainers
-/src/main/java/ch/njol/skript/patterns/ @skriptlang/core-maintainers
-/src/main/java/ch/njol/skript/expressions/base/ @skriptlang/core-maintainers
-/src/main/java/ch/njol/skript/conditions/base/ @skriptlang/core-maintainers
-/src/main/java/ch/njol/skript/config/ @skriptlang/core-maintainers
-/src/main/java/ch/njol/skript/classes/ @skriptlang/core-maintainers
+/src/main/java/org/skriptlang/skript/lang/ @skriptlang/core-maintainers @skriptlang/core-developers
+/src/main/java/ch/njol/skript/lang/ @skriptlang/core-maintainers @skriptlang/core-developers
+/src/main/java/ch/njol/skript/variables/ @skriptlang/core-maintainers @skriptlang/core-developers
+/src/main/java/ch/njol/yggdrasil/ @skriptlang/core-maintainers @skriptlang/core-developers
+/src/main/java/ch/njol/skript/Skript.java @skriptlang/core-maintainers @skriptlang/core-developers
+/src/main/java/ch/njol/skript/test/ @skriptlang/core-maintainers @skriptlang/core-developers
+/src/main/java/ch/njol/skript/patterns/ @skriptlang/core-maintainers @skriptlang/core-developers
+/src/main/java/ch/njol/skript/expressions/base/ @skriptlang/core-maintainers @skriptlang/core-developers
+/src/main/java/ch/njol/skript/conditions/base/ @skriptlang/core-maintainers @skriptlang/core-developers
+/src/main/java/ch/njol/skript/config/ @skriptlang/core-maintainers @skriptlang/core-developers
+/src/main/java/ch/njol/skript/classes/ @skriptlang/core-maintainers @skriptlang/core-developers
 /src/main/java/ch/njol/skript/classes/data/ @skriptlang/core-developers # classes is critical but classes/data is not
 
 # Personal specialties
