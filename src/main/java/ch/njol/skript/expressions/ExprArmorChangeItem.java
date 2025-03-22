@@ -19,8 +19,7 @@ import org.jetbrains.annotations.Nullable;
 @Examples("""
 	on armor change
 		broadcast the old armor item
-	"""
-)
+	""")
 @RequiredPlugins("Paper")
 @Events("Armor Change")
 @Since("INSERT VERSION")
