@@ -25,7 +25,7 @@ public class EvtPlayerArmorChange extends SkriptEvent {
 	static {
 		if (Skript.classExists("com.destroystokyo.paper.event.player.PlayerArmorChangeEvent")) {
 			Skript.registerEvent("Armor Change", EvtPlayerArmorChange.class, PlayerArmorChangeEvent.class,
-				"[player] armo[u]r change[d]",
+					"[player] armo[u]r change[d]",
 					"[player] %equipmentslot% change[d]")
 				.description("Called when armor pieces of a player are changed.")
 				.requiredPlugins("Paper")
