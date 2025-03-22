@@ -1,0 +1,9 @@
+test "playing dead":
+	# Combines: EffPlayingDead and CondPlayingDead
+	spawn an axolotl at test-location:
+		set {_entity} to entity
+	make {_entity} start playing dead
+	assert {_entity} is playing dead with "Axolotl should be playing dead"
+	make {_entity} stop playing dead
+	assert {_entity} is not playing dead with "Axolotl should not be playing dead"
+	clear entity within {_entity}
