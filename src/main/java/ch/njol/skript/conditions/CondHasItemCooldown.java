@@ -2,18 +2,24 @@ package ch.njol.skript.conditions;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.ItemType;
+import ch.njol.skript.bukkitutil.ItemUtils;
 import ch.njol.skript.conditions.base.PropertyCondition;
 import ch.njol.skript.conditions.base.PropertyCondition.PropertyType;
 import ch.njol.skript.doc.*;
 import ch.njol.skript.lang.Condition;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 @Name("Has Item Cooldown")
 @Description("Check whether a cooldown is active on the specified material for a specific player.")
@@ -39,39 +45,34 @@ public class CondHasItemCooldown extends Condition {
 	}
 
 	private Expression<Player> players;
-	private Expression<ItemType> itemtypes;
+	private Expression<ItemType> itemTypes;
 
 	@Override
 	@SuppressWarnings("unchecked")
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		players = (Expression<Player>) exprs[0];
-		itemtypes = (Expression<ItemType>) exprs[1];
+		itemTypes = (Expression<ItemType>) exprs[1];
 		setNegated(matchedPattern > 1);
 		return true;
 	}
 
 	@Override
 	public boolean check(Event event) {
-		return players.check(event, (player) ->
-				itemtypes.check(event, (itemType) -> {
-					if (!itemType.hasType())
-						return false;
-					for (ItemStack item : itemType.getAll()) {
-						if (SUPPORTS_COOLDOWN_GROUP && player.hasCooldown(item)) {
-							return true;
-						} else if (player.hasCooldown(item.getType())) {
-							return true;
-						}
-					}
+		return players.check(event, (player) -> {
+			return SimpleExpression.check(itemTypes.getArray(event), itemType -> {
+				if (!itemType.hasType())
 					return false;
-				})
-		);
+				if (SUPPORTS_COOLDOWN_GROUP)
+					return itemType.satisfies(player::hasCooldown);
+				return itemType.satisfies(item -> player.hasCooldown(item.getType()));
+			}, false, itemTypes.getAnd());
+		}, isNegated());
 	}
-	
+
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
 		return PropertyCondition.toString(this, PropertyType.HAVE, event, debug, players,
-				itemtypes.toString(event, debug) + " on cooldown");
+				itemTypes.toString(event, debug) + " on cooldown");
 	}
 
 }
