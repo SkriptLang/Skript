@@ -1,0 +1,6 @@
+test "root function":
+	assert root(2, 4) = 2 with "root 2 of 4 failed"
+	assert root(4, 16) = 2 with "root 4 of 16 should be 2"
+	assert root(-4, 16) = 0.5 with "root -4 of 16 should be 0.5"
+
+	assert root(0, 0) is not set with "root 0 should be null"
