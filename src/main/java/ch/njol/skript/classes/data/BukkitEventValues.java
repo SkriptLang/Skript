@@ -591,11 +591,7 @@ public final class BukkitEventValues {
 			EventValues.registerEventValue(PlayerArmorChangeEvent.class, ItemStack.class, PlayerArmorChangeEvent::getNewItem);
 			EventValues.registerEventValue(PlayerArmorChangeEvent.class, ItemStack.class, PlayerArmorChangeEvent::getNewItem, TIME_FUTURE);
 			EventValues.registerEventValue(PlayerArmorChangeEvent.class, ItemStack.class, PlayerArmorChangeEvent::getOldItem, TIME_PAST);
-			EventValues.registerEventValue(PlayerArmorChangeEvent.class, Slot.class, event -> {
-				EntityEquipment equipment = event.getPlayer().getEquipment();
-				EquipSlot equipSlot = EquipSlot.fromBukkitEquipmentSlot(event.getSlot());
-				return new ch.njol.skript.util.slot.EquipmentSlot(equipment, equipSlot);
-			});
+			EventValues.registerEventValue(PlayerArmorChangeEvent.class, Slot.class, event ->new ch.njol.skript.util.slot.EquipmentSlot(event.getPlayer().getEquipment(), event.getSlot()));
 		}
 		//PlayerInventorySlotChangeEvent
 		if (Skript.classExists("io.papermc.paper.event.player.PlayerInventorySlotChangeEvent")) {
