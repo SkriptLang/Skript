@@ -1,0 +1,2 @@
+test "expr angle array store exception":
+	set {_a::*} to (integers from 1 to 5) in radians
