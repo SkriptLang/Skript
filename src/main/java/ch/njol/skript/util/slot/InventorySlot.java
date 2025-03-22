@@ -54,8 +54,7 @@ public class InventorySlot extends SlotWithIndex {
 	}
 
 	@Override
-	@Nullable
-	public ItemStack getItem() {
+	public @Nullable ItemStack getItem() {
 		if (index == -999) //Non-existent slot, e.g. Outside GUI
 			return null;
 		ItemStack item = invi.getItem(index);
@@ -85,7 +84,7 @@ public class InventorySlot extends SlotWithIndex {
 	}
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
+	public String toString(@Nullable Event event, boolean debug) {
 		InventoryHolder holder = invi != null ? invi.getHolder() : null;
 
 		if (holder instanceof BlockState)

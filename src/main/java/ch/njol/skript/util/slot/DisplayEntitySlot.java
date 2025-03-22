@@ -7,16 +7,15 @@ import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
 public class DisplayEntitySlot extends Slot {
-	
+
 	private ItemDisplay display;
-	
+
 	public DisplayEntitySlot(ItemDisplay display) {
 		this.display = display;
 	}
 
 	@Override
-	@Nullable
-	public ItemStack getItem() {
+	public @Nullable ItemStack getItem() {
 		return display.getItemStack();
 	}
 
@@ -35,8 +34,13 @@ public class DisplayEntitySlot extends Slot {
 
 	@Override
 	public boolean isSameSlot(Slot other) {
-		if (other instanceof DisplayEntitySlot) // Same display
-			return ((DisplayEntitySlot) other).display.equals(display);
+		return this.equals(other);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (obj instanceof DisplayEntitySlot) // Same display
+			return ((DisplayEntitySlot) obj).display.equals(display);
 		return false;
 	}
 

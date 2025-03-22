@@ -1,7 +1,5 @@
 package ch.njol.skript.util.slot;
 
-import ch.njol.skript.aliases.Aliases;
-import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.bukkitutil.ItemUtils;
 import ch.njol.skript.lang.util.common.AnyAmount;
 import ch.njol.skript.lang.util.common.AnyNamed;
@@ -22,8 +20,7 @@ public abstract class Slot implements Debuggable, AnyNamed, AnyAmount {
 
 	protected Slot() {}
 
-	@Nullable
-	public abstract ItemStack getItem();
+	public abstract @Nullable ItemStack getItem();
 
 	public abstract void setItem(final @Nullable ItemStack item);
 
@@ -41,8 +38,23 @@ public abstract class Slot implements Debuggable, AnyNamed, AnyAmount {
 	 * Ignores slot contents.
 	 * @param o Another slot
 	 * @return True if positions equal, false otherwise.
+	 * @deprecated Override the {@link #equals(Object)} method instead
 	 */
+	@Deprecated(since = "INSERT VERSION", forRemoval = true)
 	public abstract boolean isSameSlot(Slot o);
+
+	/**
+	 * Checks if a given slot is in the same position as this.
+	 * Ignores slot contents
+	 * @param obj Another slot
+	 * @return True if positions equal, false otherwise.	q
+	 */
+	@Override
+	public boolean equals(Object obj) {
+		if (!(obj instanceof Slot slot))
+			return false;
+		return isSameSlot(slot);
+	}
 
 	/**
 	 * @return The name of the item in this slot

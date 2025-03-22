@@ -118,16 +118,16 @@ public class EquipmentSlot extends SlotWithIndex {
 		EquipSlot() {
 			slotNumber = -1;
 		}
-		
+
 		EquipSlot(int number) {
 			slotNumber = number;
 		}
-		
+
 		@Nullable
 		public abstract ItemStack get(EntityEquipment e);
-		
+
 		public abstract void set(EntityEquipment e, @Nullable ItemStack item);
-		
+
 	}
 
 	private static final org.bukkit.inventory.EquipmentSlot[] BUKKIT_VALUES = org.bukkit.inventory.EquipmentSlot.values();
@@ -141,7 +141,7 @@ public class EquipmentSlot extends SlotWithIndex {
 		BUKKIT_SLOT_INDICES.put(org.bukkit.inventory.EquipmentSlot.HEAD, 39);
 		BUKKIT_SLOT_INDICES.put(org.bukkit.inventory.EquipmentSlot.OFF_HAND, 40);
 	}
-	
+
 	private final EntityEquipment entityEquipment;
 	private EquipSlot skriptSlot;
 	private final int slotIndex;
