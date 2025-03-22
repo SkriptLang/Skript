@@ -12,7 +12,6 @@ import ch.njol.skript.doc.Since;
 @Description("Whether a player is allowed to fly.")
 @Examples("player can fly")
 @Since("2.3")
-
 public class CondCanFly extends PropertyCondition<Player> {
 	
 	static {
@@ -33,4 +32,5 @@ public class CondCanFly extends PropertyCondition<Player> {
 	protected String getPropertyName() {
 		return "fly";
 	}
+
 }

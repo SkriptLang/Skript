@@ -28,6 +28,11 @@ public class CondChatFiltering extends PropertyCondition<Player> {
 	}
 
 	@Override
+	protected PropertyType getPropertyType() {
+		return PropertyType.HAVE;
+	}
+
+	@Override
 	protected String getPropertyName() {
 		return "chat filtering enabled";
 	}
