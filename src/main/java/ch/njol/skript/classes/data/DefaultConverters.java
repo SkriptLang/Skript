@@ -11,6 +11,7 @@ import ch.njol.skript.entity.EntityType;
 import ch.njol.skript.entity.XpOrbData;
 import ch.njol.skript.lang.util.common.AnyAmount;
 import ch.njol.skript.lang.util.common.AnyNamed;
+import ch.njol.skript.lang.util.common.AnyUUID;
 import ch.njol.skript.util.*;
 import ch.njol.skript.util.slot.Slot;
 import org.bukkit.*;
@@ -284,6 +285,27 @@ public class DefaultConverters {
 
 		// UUID -> String
 		Converters.registerConverter(UUID.class, String.class, UUID::toString);
+
+		// Entity - AnyUUID
+		Converters.registerConverter(Entity.class, AnyUUID.class, entity -> new AnyUUID() {
+			@Override
+			public UUID uuid() {
+				return entity.getUniqueId();
+			}
+
+			@Override
+			public boolean isOfflinePlayer() {
+				return entity instanceof OfflinePlayer;
+			}
+		}, Converter.NO_RIGHT_CHAINING);
+
+		// World - AnyUUID
+		Converters.registerConverter(World.class, AnyUUID.class, world -> new AnyUUID() {
+			@Override
+			public UUID uuid() {
+				return world.getUID();
+			}
+		}, Converter.NO_RIGHT_CHAINING);
 
 //		// Entity - String (UUID) // Very slow, thus disabled for now
 //		Converters.registerConverter(String.class, Entity.class, new Converter<String, Entity>() {

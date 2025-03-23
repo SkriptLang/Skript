@@ -13,10 +13,7 @@ import ch.njol.skript.expressions.base.EventValueExpression;
 import ch.njol.skript.lang.ParseContext;
 import ch.njol.skript.lang.function.DynamicFunctionReference;
 import ch.njol.skript.lang.util.SimpleLiteral;
-import ch.njol.skript.lang.util.common.AnyAmount;
-import ch.njol.skript.lang.util.common.AnyContains;
-import ch.njol.skript.lang.util.common.AnyNamed;
-import ch.njol.skript.lang.util.common.AnyValued;
+import ch.njol.skript.lang.util.common.*;
 import ch.njol.skript.localization.Noun;
 import ch.njol.skript.localization.RegexMessage;
 import ch.njol.skript.registrations.Classes;
@@ -966,6 +963,16 @@ public class SkriptClasses {
 				.examples("{a} contains {b}")
 				.since("2.10")
 		);
+
+		Classes.registerClass(new AnyInfo<>(AnyUUID.class, "identifiable")
+				.user("any (identifiable|uuid)")
+				.name("Any Identifiable Thing")
+				.description("Anything thats has a unique identifier (uuid).")
+				.usage("")
+				.examples("the uuid of {thing}")
+				.since("INSERT VERSION")
+		);
+
 	}
 
 }

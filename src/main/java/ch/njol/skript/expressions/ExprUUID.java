@@ -1,5 +1,6 @@
 package ch.njol.skript.expressions;
 
+import ch.njol.skript.lang.util.common.AnyUUID;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.World;
 import org.bukkit.entity.Entity;
@@ -32,17 +33,17 @@ import java.util.UUID;
 			"\t\tsend \"Your UUID is '%string within {_uuid}%'\"",
 })
 @Since("2.1.2, 2.2 (offline players' uuids), 2.2-dev24 (other entities' uuids)")
-public class ExprUUID extends SimplePropertyExpression<Object, UUID> {
+public class ExprUUID extends SimplePropertyExpression<AnyUUID, UUID> {
 
 	static {
-		register(ExprUUID.class, UUID.class, "UUID", "offlineplayers/worlds/entities");
+		register(ExprUUID.class, UUID.class, "UUID", "identifiable");
 	}
 
 	@Override
-	public @Nullable UUID convert(Object object) {
-		if (object instanceof OfflinePlayer player) {
+	public @Nullable UUID convert(AnyUUID anyUUID) {
+		if (anyUUID.isOfflinePlayer()) {
 			try {
-				return player.getUniqueId();
+				return anyUUID.uuid();
 			} catch (UnsupportedOperationException e) {
 				// Some plugins (ProtocolLib) try to emulate offline players, but fail miserably
 				// They will throw this exception... and somehow server may freeze when this happens
@@ -50,12 +51,9 @@ public class ExprUUID extends SimplePropertyExpression<Object, UUID> {
 				e.printStackTrace();
 				return null;
 			}
-		} else if (object instanceof Entity entity) {
-			return entity.getUniqueId();
-		} else if (object instanceof World world) {
-			return world.getUID();
 		}
-		return null;
+
+		return anyUUID.uuid();
 	}
 
 	@Override
