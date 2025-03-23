@@ -33,6 +33,11 @@ public interface AnyUUID extends AnyProvider {
 		throw new UnsupportedOperationException();
 	}
 
+	/**
+	 * Whether this is an offline player. This is used to catch an UnsupportedOperationException
+	 * when trying to access the UUID of an emulated offline player by plugins like ProtocolLib.
+	 * @return whether this is an offline player
+	 */
 	default boolean isOfflinePlayer() {
 		return false;
 	}
