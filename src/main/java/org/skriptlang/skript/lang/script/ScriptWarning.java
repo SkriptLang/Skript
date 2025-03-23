@@ -41,7 +41,12 @@ public enum ScriptWarning {
 	/**
 	 * The code cannot be reached due to a previous statement stopping further execution
 	 */
-	UNREACHABLE_CODE("unreachable code");
+	UNREACHABLE_CODE("unreachable code"),
+
+	/**
+	 * MD5 used for hashing
+	 */
+	MD5_HASH("MD5", "MD5 [hash[ing]] [algorithm]");
 
 	private final String warningName;
 	private final String pattern;
