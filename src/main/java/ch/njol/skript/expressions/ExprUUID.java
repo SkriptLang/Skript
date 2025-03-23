@@ -1,9 +1,6 @@
 package ch.njol.skript.expressions;
 
 import ch.njol.skript.lang.util.common.AnyUUID;
-import org.bukkit.OfflinePlayer;
-import org.bukkit.World;
-import org.bukkit.entity.Entity;
 import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.Skript;
@@ -40,10 +37,10 @@ public class ExprUUID extends SimplePropertyExpression<AnyUUID, UUID> {
 	}
 
 	@Override
-	public @Nullable UUID convert(AnyUUID anyUUID) {
-		if (anyUUID.isOfflinePlayer()) {
+	public @Nullable UUID convert(AnyUUID identifiable) {
+		if (identifiable.isOfflinePlayer()) {
 			try {
-				return anyUUID.uuid();
+				return identifiable.uuid();
 			} catch (UnsupportedOperationException e) {
 				// Some plugins (ProtocolLib) try to emulate offline players, but fail miserably
 				// They will throw this exception... and somehow server may freeze when this happens
@@ -53,7 +50,7 @@ public class ExprUUID extends SimplePropertyExpression<AnyUUID, UUID> {
 			}
 		}
 
-		return anyUUID.uuid();
+		return identifiable.uuid();
 	}
 
 	@Override

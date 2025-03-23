@@ -1,5 +1,6 @@
 package ch.njol.skript.lang.util.common;
 
+import org.bukkit.OfflinePlayer;
 import org.jetbrains.annotations.UnknownNullability;
 
 import java.util.UUID;
@@ -7,7 +8,7 @@ import java.util.UUID;
 public interface AnyUUID extends AnyProvider {
 
 	/**
-	 * @return This thing's uuid
+	 * @return This thing's {@link UUID}
 	 */
 	@UnknownNullability UUID uuid();
 
@@ -34,8 +35,9 @@ public interface AnyUUID extends AnyProvider {
 	}
 
 	/**
-	 * Whether this is an offline player. This is used to catch an UnsupportedOperationException
+	 * Whether this is an {@link OfflinePlayer}. This is used to catch an {@link UnsupportedOperationException}
 	 * when trying to access the UUID of an emulated offline player by plugins like ProtocolLib.
+	 *
 	 * @return whether this is an offline player
 	 */
 	default boolean isOfflinePlayer() {
