@@ -3,6 +3,7 @@ package ch.njol.skript.events;
 import ch.njol.skript.Skript;
 import ch.njol.skript.entity.EntityData;
 import ch.njol.skript.lang.Literal;
+import ch.njol.skript.lang.LiteralList;
 import ch.njol.skript.lang.SkriptEvent;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.registrations.EventConverter;
@@ -72,6 +73,8 @@ public class EvtEntityShootBow extends SkriptEvent {
 	public boolean init(Literal<?>[] args, int matchedPattern, ParseResult parseResult) {
 		//noinspection unchecked
 		entityDatas = (Literal<EntityData<?>>) args[0];
+		if (entityDatas instanceof LiteralList<EntityData<?>> list && list.getAnd())
+			list.invertAnd();
 		return true;
 	}
 
