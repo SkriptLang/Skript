@@ -13,7 +13,7 @@ import ch.njol.skript.registrations.Classes;
  */
 public class ThrowableProjectileSlot extends Slot {
 
-	private ThrowableProjectile projectile;
+	private final ThrowableProjectile projectile;
 
 	public ThrowableProjectileSlot(ThrowableProjectile projectile) {
 		this.projectile = projectile;
@@ -37,14 +37,14 @@ public class ThrowableProjectileSlot extends Slot {
 	@Override
 	public void setAmount(int amount) {}
 
-	@Override
-	public boolean isSameSlot(Slot o) {
-		return this.equals(o);
+	public ThrowableProjectile getProjectile() {
+		return projectile;
 	}
 
 	@Override
-	public boolean equals(Object obj) {
-		return obj instanceof ThrowableProjectileSlot slot && slot.projectile.equals(projectile);
+	public boolean isSameSlot(Slot slot) {
+		return slot instanceof ThrowableProjectileSlot throwableSlot
+			&& throwableSlot.getProjectile().equals(projectile);
 	}
 
 	@Override

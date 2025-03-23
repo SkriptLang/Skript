@@ -84,11 +84,11 @@ public class InventorySlot extends SlotWithIndex {
 	}
 
 	@Override
-	public boolean equals(Object obj) {
-		if (obj instanceof InventorySlot inventorySlot) {
-			return inventorySlot.inventory.equals(inventory) && inventorySlot.index == index;
+	public boolean isSameSlot(Slot slot) {
+		if (slot instanceof InventorySlot inventorySlot) {
+			return inventorySlot.getInventory().equals(inventory) && inventorySlot.getIndex() == index;
 		}
-		return super.equals(obj);
+		return super.equals(slot);
 	}
 
 	@Override

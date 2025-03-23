@@ -8,7 +8,7 @@ import org.jetbrains.annotations.Nullable;
 
 public class DisplayEntitySlot extends Slot {
 
-	private ItemDisplay display;
+	private final ItemDisplay display;
 
 	public DisplayEntitySlot(ItemDisplay display) {
 		this.display = display;
@@ -32,16 +32,14 @@ public class DisplayEntitySlot extends Slot {
 	@Override
 	public void setAmount(int amount) {}
 
-	@Override
-	public boolean isSameSlot(Slot other) {
-		return this.equals(other);
+	public ItemDisplay getItemDisplay() {
+		return display;
 	}
 
 	@Override
-	public boolean equals(Object obj) {
-		if (obj instanceof DisplayEntitySlot) // Same display
-			return ((DisplayEntitySlot) obj).display.equals(display);
-		return false;
+	public boolean isSameSlot(Slot slot) {
+		return slot instanceof DisplayEntitySlot displayEntitySlot
+			&& displayEntitySlot.getItemDisplay().equals(display);
 	}
 
 	@Override

@@ -38,23 +38,8 @@ public abstract class Slot implements Debuggable, AnyNamed, AnyAmount {
 	 * Ignores slot contents.
 	 * @param o Another slot
 	 * @return True if positions equal, false otherwise.
-	 * @deprecated Override the {@link #equals(Object)} method instead
 	 */
-	@Deprecated(since = "INSERT VERSION", forRemoval = true)
 	public abstract boolean isSameSlot(Slot o);
-
-	/**
-	 * Checks if a given slot is in the same position as this.
-	 * Ignores slot contents
-	 * @param obj Another slot
-	 * @return True if positions equal, false otherwise.	q
-	 */
-	@Override
-	public boolean equals(Object obj) {
-		if (!(obj instanceof Slot slot))
-			return false;
-		return isSameSlot(slot);
-	}
 
 	/**
 	 * @return The name of the item in this slot

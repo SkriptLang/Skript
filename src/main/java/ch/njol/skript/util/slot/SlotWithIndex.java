@@ -20,13 +20,9 @@ public abstract class SlotWithIndex extends Slot {
 	}
 
 	@Override
-	public boolean isSameSlot(Slot o) {
-		return this.equals(o);
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		return obj instanceof SlotWithIndex slot && getRawIndex() == slot.getRawIndex();
+	public boolean isSameSlot(Slot slot) {
+		return slot instanceof SlotWithIndex slotWithIndex
+			&& getRawIndex() == slotWithIndex.getRawIndex();
 	}
 
 }

@@ -12,7 +12,7 @@ import ch.njol.skript.registrations.Classes;
  */
 public class ItemFrameSlot extends Slot {
 
-	private ItemFrame frame;
+	private final ItemFrame frame;
 
 	public ItemFrameSlot(ItemFrame frame) {
 		this.frame = frame;
@@ -36,14 +36,14 @@ public class ItemFrameSlot extends Slot {
 	@Override
 	public void setAmount(int amount) {}
 
-	@Override
-	public boolean isSameSlot(Slot o) {
-		return this.equals(o);
+	public ItemFrame getItemFrame() {
+		return frame;
 	}
 
 	@Override
-	public boolean equals(Object obj) {
-		return obj instanceof ItemFrameSlot slot && slot.frame.equals(frame);
+	public boolean isSameSlot(Slot slot) {
+		return slot instanceof ItemFrameSlot itemFrameSlot
+			&& itemFrameSlot.getItemFrame().equals(frame);
 	}
 
 	@Override

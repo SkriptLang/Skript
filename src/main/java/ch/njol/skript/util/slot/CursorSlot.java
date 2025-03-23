@@ -69,14 +69,9 @@ public class CursorSlot extends Slot {
 
 	@Override
 	public boolean isSameSlot(Slot slot) {
-		return this.equals(slot);
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (!(obj instanceof CursorSlot cursor))
-			return false;
-		return cursor.getPlayer().equals(this.player) && cursor.isInventoryClick() == isInventoryClick();
+		return slot instanceof CursorSlot cursorSlot
+			&& cursorSlot.getPlayer().equals(this.player)
+			&& cursorSlot.isInventoryClick() == isInventoryClick();
 	}
 
 	@Override

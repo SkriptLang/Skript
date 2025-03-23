@@ -12,7 +12,7 @@ import ch.njol.skript.registrations.Classes;
  */
 public class DroppedItemSlot extends Slot {
 
-	private Item entity;
+	private final Item entity;
 
 	public DroppedItemSlot(Item item) {
 		this.entity = item;
@@ -39,14 +39,14 @@ public class DroppedItemSlot extends Slot {
 		entity.getItemStack().setAmount(amount);
 	}
 
-	@Override
-	public boolean isSameSlot(Slot o) {
-		return this.equals(o);
+	public Item getItemEntity() {
+		return entity;
 	}
 
 	@Override
-	public boolean equals(Object obj) {
-		return obj instanceof DroppedItemSlot slot && slot.entity.equals(entity);
+	public boolean isSameSlot(Slot slot) {
+		return slot instanceof DroppedItemSlot droppedItemSlot
+			&& droppedItemSlot.getItemEntity().equals(entity);
 	}
 
 	@Override
