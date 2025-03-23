@@ -60,7 +60,7 @@ public class ExprHash extends PropertyExpression<String, String> {
 	@Override
 	protected String[] get(Event event, String[] source) {
 		// Apply it to all strings
-		final String[] r = new String[source.length];
+		String[] result = new String[source.length];
 		for (int i = 0; i < r.length; i++)
 			r[i] = HEX_FORMAT.formatHex(digest.digest(source[i].getBytes(StandardCharsets.UTF_8)));
 
