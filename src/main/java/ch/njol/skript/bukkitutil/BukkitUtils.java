@@ -1,34 +1,26 @@
 package ch.njol.skript.bukkitutil;
 
 import ch.njol.skript.Skript;
+import com.google.common.collect.BiMap;
+import com.google.common.collect.HashBiMap;
 import org.bukkit.Registry;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.potion.PotionEffectType;
 import org.jetbrains.annotations.Nullable;
-
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Utility class with methods pertaining to Bukkit API
  */
 public class BukkitUtils {
 
-	private static final Map<EquipmentSlot, Integer> BUKKIT_EQUIPMENT_INDICES = new HashMap<>();
-	private static final Map<Integer, EquipmentSlot> BUKKIT_EQUIPMENT_INDICES_REVERSED = new HashMap<>();
+	private static final BiMap<EquipmentSlot, Integer> BUKKIT_EQUIPMENT_SLOT_INDICES = HashBiMap.create();
 
 	static {
-		BUKKIT_EQUIPMENT_INDICES.put(EquipmentSlot.FEET, 36);
-		BUKKIT_EQUIPMENT_INDICES.put(EquipmentSlot.LEGS, 37);
-		BUKKIT_EQUIPMENT_INDICES.put(EquipmentSlot.CHEST, 38);
-		BUKKIT_EQUIPMENT_INDICES.put(EquipmentSlot.HEAD, 39);
-		BUKKIT_EQUIPMENT_INDICES.put(EquipmentSlot.OFF_HAND, 40);
-
-		BUKKIT_EQUIPMENT_INDICES_REVERSED.put(36, EquipmentSlot.FEET);
-		BUKKIT_EQUIPMENT_INDICES_REVERSED.put(37, EquipmentSlot.LEGS);
-		BUKKIT_EQUIPMENT_INDICES_REVERSED.put(38, EquipmentSlot.CHEST);
-		BUKKIT_EQUIPMENT_INDICES_REVERSED.put(39, EquipmentSlot.HEAD);
-		BUKKIT_EQUIPMENT_INDICES_REVERSED.put(40, EquipmentSlot.OFF_HAND);
+		BUKKIT_EQUIPMENT_SLOT_INDICES.put(EquipmentSlot.FEET, 36);
+		BUKKIT_EQUIPMENT_SLOT_INDICES.put(EquipmentSlot.LEGS, 37);
+		BUKKIT_EQUIPMENT_SLOT_INDICES.put(EquipmentSlot.CHEST, 38);
+		BUKKIT_EQUIPMENT_SLOT_INDICES.put(EquipmentSlot.HEAD, 39);
+		BUKKIT_EQUIPMENT_SLOT_INDICES.put(EquipmentSlot.OFF_HAND, 40);
 	}
 
 	/**
@@ -63,7 +55,7 @@ public class BukkitUtils {
 	 * @return The equipment slot index of the provided slot, otherwise null if invalid
 	 */
 	public static Integer getEquipmentSlotIndex(EquipmentSlot equipmentSlot) {
-		return  BUKKIT_EQUIPMENT_INDICES.get(equipmentSlot);
+		return  BUKKIT_EQUIPMENT_SLOT_INDICES.get(equipmentSlot);
 	}
 
 	/**
@@ -72,7 +64,7 @@ public class BukkitUtils {
 	 * @return The equipment slot the provided slot index, otherwise null if invalid
 	 */
 	public static EquipmentSlot getEquipmentSlotFromIndex(Integer slotIndex) {
-		return  BUKKIT_EQUIPMENT_INDICES_REVERSED.get(slotIndex);
+		return BUKKIT_EQUIPMENT_SLOT_INDICES.inverse().get(slotIndex);
 	}
 
 }
