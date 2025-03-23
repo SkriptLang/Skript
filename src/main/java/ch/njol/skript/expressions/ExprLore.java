@@ -4,12 +4,14 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.bukkitutil.ItemUtils;
 import ch.njol.skript.classes.Changer.ChangeMode;
+import ch.njol.skript.classes.Changer.ChangerUtils;
 import ch.njol.skript.doc.*;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.SyntaxStringBuilder;
 import ch.njol.skript.lang.util.SimpleExpression;
+import ch.njol.skript.registrations.EventValues;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.event.Event;
@@ -31,7 +33,6 @@ import java.util.List;
 	remove line 1 of lore of {_item} from lore of {_item}
 	set line 3 of lore of {_item} to "-----"
 	""")
-@Examples("set the 1st line of the item's lore to \"&lt;orange&gt;Excalibur 2.0\"")
 @Since("2.1")
 public class ExprLore extends SimpleExpression<String> {
 
@@ -83,6 +84,10 @@ public class ExprLore extends SimpleExpression<String> {
 
 	@Override
 	public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
+		if (this.item.getTime() != EventValues.TIME_NOW && !ChangerUtils.acceptsChange(item, ChangeMode.SET, ItemStack.class, ItemType.class)) {
+			// Allows past/future expressions only if they accept the set change mode
+			return null;
+		}
 		boolean acceptsMany = this.lineNumber == null;
 		return switch (mode) {
 			case SET -> CollectionUtils.array(acceptsMany ? String[].class : String.class);
@@ -96,10 +101,6 @@ public class ExprLore extends SimpleExpression<String> {
 			}
 			default -> null;
 		};
-//  TODO: see if this method is required, should only limit ability to use event-item which isn't necessary and just falsely limits Skript
-//		if (ChangerUtils.acceptsChange(item, ChangeMode.SET, ItemStack.class, ItemType.class)) {
-//			return CollectionUtils.array(acceptsMany ? String[].class : String.class);
-//		}
 	}
 
 	@Override
@@ -110,7 +111,7 @@ public class ExprLore extends SimpleExpression<String> {
 		ItemStack modifiedItem = ItemUtils.asItemStack(item);
 		assert modifiedItem != null; // validateItem has already run a check against this
 		ItemMeta itemMeta = modifiedItem.getItemMeta();
-//		noinspection deprecation
+		//noinspection deprecation
 		List<String> modifiedLore = itemMeta.hasLore() ? itemMeta.getLore() : new ArrayList<>();
 		assert modifiedLore != null; // lore can never be null here, if it's unset we create an empty list
 
