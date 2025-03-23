@@ -31,15 +31,15 @@ import org.skriptlang.skript.lang.script.ScriptWarning;
 public class ExprHash extends PropertyExpression<String, String> {
 	static {
 		Skript.registerExpression(ExprHash.class, String.class, ExpressionType.SIMPLE,
-				"%strings% hash[ed] with (:MD5|:SHA-256|:SHA-384|:SHA-512)");
+				"%strings% hash[ed] with (:(MD5|SHA-256|SHA-384|SHA-512))");
 	}
 
 	private static final HexFormat hexFormat = HexFormat.of().withLowerCase();
 	private MessageDigest digest;
 	
-	@SuppressWarnings({"unchecked", "null"})
 	@Override
-	public boolean init(final Expression<?>[] exprs, final int matchedPattern, final Kleenean isDelayed, final ParseResult parseResult) {
+	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
+		//noinspection unchecked
 		setExpr((Expression<? extends String>) exprs[0]);
 		String algorithm = parseResult.tags.get(0).toUpperCase();
 		try {
@@ -56,7 +56,7 @@ public class ExprHash extends PropertyExpression<String, String> {
 	
 	@SuppressWarnings("null")
 	@Override
-	protected String[] get(final Event e, final String[] source) {
+	protected String[] get(Event event, String[] source) {
 		// Apply it to all strings
 		final String[] r = new String[source.length];
 		for (int i = 0; i < r.length; i++)
@@ -66,8 +66,8 @@ public class ExprHash extends PropertyExpression<String, String> {
 	}
 	
 	@Override
-	public String toString(final @Nullable Event e, final boolean debug) {
-		return "hash of " + getExpr();
+	public String toString(@Nullable Event event, boolean debug) {
+		return "hash of " + getExpr().toString(event, debug);
 	}
 	
 	@Override
