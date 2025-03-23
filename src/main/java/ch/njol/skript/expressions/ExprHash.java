@@ -19,22 +19,24 @@ import org.skriptlang.skript.lang.script.ScriptWarning;
 
 
 @Name("Hash")
-@Description({"Hashes the given text using the MD5 or SHA algorithms. Each algorithm is suitable for different use cases.<p>",
+@Description({"Hashes the given text using the MD5 or SHA algorithms. Each algorithm is suitable for different use cases.",
 		"These hashing algorithms are not suitable for hashing passwords.",
 		"If handling passwords, use a <a href='https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html#password-hashing-algorithms'>hashing algorithm specifically designed for passwords</a>.",
-		"<p>MD5 is provided mostly for backwards compatibility, as it is outdated and not secure. ",
+		"MD5 is provided mostly for backwards compatibility, as it is outdated and not secure. ",
 		"SHA is more secure, but is not suitable for hashing passwords (even with salting). ",
 		"When hashing data, you <strong>must</strong> specify algorithms that will be used for security reasons! ",
-		"<p>Please note that a hash cannot be reversed under normal circumstances. You will not be able to get original value from a hash with Skript."})
+		"Please note that a hash cannot be reversed under normal circumstances. You will not be able to get original value from a hash with Skript."})
 @Example("set {_hash} to \"hello world\" hashed with SHA-256")
 @Since("2.0, 2.2-dev32 (SHA-256 algorithm), INSERT VERSION (SHA-384, SHA-512)")
 public class ExprHash extends PropertyExpression<String, String> {
+
+	private static final HexFormat HEX_FORMAT = HexFormat.of().withLowerCase();
+
 	static {
 		Skript.registerExpression(ExprHash.class, String.class, ExpressionType.SIMPLE,
 				"%strings% hash[ed] with (:(MD5|SHA-256|SHA-384|SHA-512))");
 	}
 
-	private static final HexFormat hexFormat = HexFormat.of().withLowerCase();
 	private MessageDigest digest;
 	
 	@Override
@@ -60,7 +62,7 @@ public class ExprHash extends PropertyExpression<String, String> {
 		// Apply it to all strings
 		final String[] r = new String[source.length];
 		for (int i = 0; i < r.length; i++)
-			r[i] = hexFormat.formatHex(digest.digest(source[i].getBytes(StandardCharsets.UTF_8)));
+			r[i] = HEX_FORMAT.formatHex(digest.digest(source[i].getBytes(StandardCharsets.UTF_8)));
 
 		return r;
 	}
