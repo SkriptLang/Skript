@@ -1,6 +1,7 @@
 package ch.njol.skript.expressions;
 
 import ch.njol.skript.Skript;
+import ch.njol.skript.bukkitutil.BukkitUtils;
 import ch.njol.skript.doc.*;
 import ch.njol.skript.effects.Delay;
 import ch.njol.skript.expressions.base.PropertyExpression;
@@ -25,12 +26,10 @@ import org.jetbrains.annotations.Nullable;
 
 @Name("Tool")
 @Description("The item an entity is holding in their main or off hand.")
-@Example("""
-	player's tool is a pickaxe
-	player's off hand tool is a shield
-	set tool of all players to a diamond sword
-	set offhand tool of target entity to a bow
-""")
+@Example("player's tool is a pickaxe")
+@Example("player's off hand tool is a shield")
+@Example("set tool of all players to a diamond sword")
+@Example("set offhand tool of target entity to a bow")
 @Since("1.0")
 public class ExprTool extends PropertyExpression<LivingEntity, Slot> {
 
@@ -69,8 +68,8 @@ public class ExprTool extends PropertyExpression<LivingEntity, Slot> {
 
 					PlayerInventory inventory = playerBucketEvent.getPlayer().getInventory();
 					boolean isOffHand = offHand || playerBucketEvent.getHand() == org.bukkit.inventory.EquipmentSlot.OFF_HAND;
-					int inventorySlot = isOffHand ? EquipmentSlot.EquipSlot.OFF_HAND.slotNumber : inventory.getHeldItemSlot();
-
+					int inventorySlot = isOffHand ? BukkitUtils.getEquipmentSlotIndex(org.bukkit.inventory.EquipmentSlot.OFF_HAND)
+						: inventory.getHeldItemSlot();
 					return new InventorySlot(inventory, inventorySlot) {
 						@Override
 						public ItemStack getItem() {
