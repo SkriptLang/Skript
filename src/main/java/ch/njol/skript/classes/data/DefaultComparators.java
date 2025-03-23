@@ -95,12 +95,7 @@ public class DefaultComparators {
 			public Relation compare(Slot slot1, Slot slot2) {
 				if (slot1 instanceof EquipmentSlot != slot2 instanceof EquipmentSlot)
 					return Relation.NOT_EQUAL;
-				return Relation.get(slot1.equals(slot2));
-			}
-
-			@Override
-			public boolean supportsOrdering() {
-				return false;
+				return Relation.get(slot1.isSameSlot(slot2));
 			}
 
 		});
