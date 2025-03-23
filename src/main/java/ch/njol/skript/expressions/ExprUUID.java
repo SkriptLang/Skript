@@ -1,6 +1,9 @@
 package ch.njol.skript.expressions;
 
+import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.lang.util.common.AnyIdentifier;
+import ch.njol.util.coll.CollectionUtils;
+import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.Skript;
@@ -51,6 +54,31 @@ public class ExprUUID extends SimplePropertyExpression<AnyIdentifier, UUID> {
 		}
 
 		return identifiable.identifier();
+	}
+
+	@Override
+	public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
+		if (mode == ChangeMode.SET)
+			return CollectionUtils.array(UUID.class);
+		return null;
+	}
+
+	@Override
+	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
+		assert delta != null;
+
+		UUID uuid = (UUID) delta[0];
+
+		AnyIdentifier identifiable = getExpr().getSingle(event);
+		if (identifiable == null)
+			return;
+
+		if (!identifiable.supportsChange()) {
+			error("'" + rawExpr + "' cannot be changed.");
+			return;
+		}
+
+		identifiable.setIdentifier(uuid);
 	}
 
 	@Override
