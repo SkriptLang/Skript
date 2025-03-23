@@ -20,27 +20,27 @@ import ch.njol.skript.util.BlockInventoryHolder;
  */
 public class InventorySlot extends SlotWithIndex {
 
-	private final Inventory invi;
+	private final Inventory inventory;
 	private final int index;
 	private final int rawIndex;
 
-	public InventorySlot(Inventory invi, int index, int rawIndex) {
-		assert invi != null;
+	public InventorySlot(Inventory inventory, int index, int rawIndex) {
+		assert inventory != null;
 		assert index >= 0;
-		this.invi = invi;
+		this.inventory = inventory;
 		this.index = index;
 		this.rawIndex = rawIndex;
 	}
 
-	public InventorySlot(Inventory invi, int index) {
-		assert invi != null;
+	public InventorySlot(Inventory inventory, int index) {
+		assert inventory != null;
 		assert index >= 0;
-		this.invi = invi;
+		this.inventory = inventory;
 		this.index = rawIndex = index;
 	}
 
 	public Inventory getInventory() {
-		return invi;
+		return inventory;
 	}
 
 	@Override
@@ -57,46 +57,54 @@ public class InventorySlot extends SlotWithIndex {
 	public @Nullable ItemStack getItem() {
 		if (index == -999) //Non-existent slot, e.g. Outside GUI
 			return null;
-		ItemStack item = invi.getItem(index);
+		ItemStack item = inventory.getItem(index);
 		return item == null  ? new ItemStack(Material.AIR, 1) : item.clone();
 	}
 
 	@Override
 	public void setItem(final @Nullable ItemStack item) {
-		invi.setItem(index, item != null && item.getType() != Material.AIR ? item : null);
-		if (invi instanceof PlayerInventory)
-			PlayerUtils.updateInventory((Player) invi.getHolder());
+		inventory.setItem(index, item != null && item.getType() != Material.AIR ? item : null);
+		if (inventory instanceof PlayerInventory)
+			PlayerUtils.updateInventory((Player) inventory.getHolder());
 	}
 
 	@Override
 	public int getAmount() {
-		ItemStack item = invi.getItem(index);
+		ItemStack item = inventory.getItem(index);
 		return item != null ? item.getAmount() : 0;
 	}
 
 	@Override
 	public void setAmount(int amount) {
-		ItemStack item = invi.getItem(index);
+		ItemStack item = inventory.getItem(index);
 		if (item != null)
 			item.setAmount(amount);
-		if (invi instanceof PlayerInventory)
-			PlayerUtils.updateInventory((Player) invi.getHolder());
+		if (inventory instanceof PlayerInventory)
+			PlayerUtils.updateInventory((Player) inventory.getHolder());
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (obj instanceof InventorySlot inventorySlot) {
+			return inventorySlot.inventory.equals(inventory) && inventorySlot.index == index;
+		}
+		return super.equals(obj);
 	}
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		InventoryHolder holder = invi != null ? invi.getHolder() : null;
+		InventoryHolder holder = inventory.getHolder();
 
 		if (holder instanceof BlockState)
 			holder = new BlockInventoryHolder((BlockState) holder);
 
 		if (holder != null) {
-			if (invi instanceof CraftingInventory) // 4x4 crafting grid is contained in player too!
+			if (inventory instanceof CraftingInventory) // 4x4 crafting grid is contained in player too!
 				return "crafting slot " + index + " of " + Classes.toString(holder);
 
 			return "inventory slot " + index + " of " + Classes.toString(holder);
 		}
-		return "inventory slot " + index + " of " + Classes.toString(invi);
+		return "inventory slot " + index + " of " + Classes.toString(inventory);
 	}
 
 }
