@@ -964,10 +964,10 @@ public class SkriptClasses {
 				.since("2.10")
 		);
 
-		Classes.registerClass(new AnyInfo<>(AnyUUID.class, "identifiable")
+		Classes.registerClass(new AnyInfo<>(AnyIdentifier.class, "identifiable")
 				.user("any (identifiable|uuid)")
 				.name("Any Identifiable Thing")
-				.description("Anything thats has a unique identifier (uuid).")
+				.description("Something that has a unique identifier (uuid).")
 				.usage("")
 				.examples("the uuid of {thing}")
 				.since("INSERT VERSION")

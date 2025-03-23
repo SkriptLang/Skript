@@ -1,6 +1,6 @@
 package ch.njol.skript.expressions;
 
-import ch.njol.skript.lang.util.common.AnyUUID;
+import ch.njol.skript.lang.util.common.AnyIdentifier;
 import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.Skript;
@@ -30,17 +30,17 @@ import java.util.UUID;
 			"\t\tsend \"Your UUID is '%string within {_uuid}%'\"",
 })
 @Since("2.1.2, 2.2 (offline players' uuids), 2.2-dev24 (other entities' uuids)")
-public class ExprUUID extends SimplePropertyExpression<AnyUUID, UUID> {
+public class ExprUUID extends SimplePropertyExpression<AnyIdentifier, UUID> {
 
 	static {
 		register(ExprUUID.class, UUID.class, "UUID", "identifiable");
 	}
 
 	@Override
-	public @Nullable UUID convert(AnyUUID identifiable) {
+	public @Nullable UUID convert(AnyIdentifier identifiable) {
 		if (identifiable.isOfflinePlayer()) {
 			try {
-				return identifiable.uuid();
+				return identifiable.identifier();
 			} catch (UnsupportedOperationException e) {
 				// Some plugins (ProtocolLib) try to emulate offline players, but fail miserably
 				// They will throw this exception... and somehow server may freeze when this happens
@@ -50,7 +50,7 @@ public class ExprUUID extends SimplePropertyExpression<AnyUUID, UUID> {
 			}
 		}
 
-		return identifiable.uuid();
+		return identifiable.identifier();
 	}
 
 	@Override
