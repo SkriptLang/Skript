@@ -61,10 +61,10 @@ public class ExprHash extends PropertyExpression<String, String> {
 	protected String[] get(Event event, String[] source) {
 		// Apply it to all strings
 		String[] result = new String[source.length];
-		for (int i = 0; i < r.length; i++)
-			r[i] = HEX_FORMAT.formatHex(digest.digest(source[i].getBytes(StandardCharsets.UTF_8)));
+		for (int i = 0; i < result.length; i++)
+			result[i] = HEX_FORMAT.formatHex(digest.digest(source[i].getBytes(StandardCharsets.UTF_8)));
 
-		return r;
+		return result;
 	}
 	
 	@Override
