@@ -35,13 +35,12 @@ import org.jetbrains.annotations.Nullable;
 public class ExprTool extends PropertyExpression<LivingEntity, Slot> {
 
 	static {
-		String[] patterns = new String[]{
+		Skript.registerExpression(ExprTool.class, Slot.class, ExpressionType.PROPERTY,
 			"[the] (tool|held item|weapon) [of %livingentities%]",
 			"%livingentities%'[s] (tool|held item|weapon)",
 			"[the] off[ ]hand (tool|item) [of %livingentities%]",
 			"%livingentities%'[s] off[ ]hand (tool|item)"
-		};
-		Skript.registerExpression(ExprTool.class, Slot.class, ExpressionType.PROPERTY, patterns);;
+		);
 	}
 
 	private boolean offHand;
