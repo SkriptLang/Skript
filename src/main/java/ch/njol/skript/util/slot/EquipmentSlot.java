@@ -1,6 +1,7 @@
 package ch.njol.skript.util.slot;
 
 import ch.njol.skript.bukkitutil.PlayerUtils;
+import ch.njol.skript.lang.SyntaxStringBuilder;
 import ch.njol.skript.registrations.Classes;
 import com.google.common.base.Preconditions;
 import org.bukkit.entity.Entity;
@@ -28,88 +29,81 @@ public class EquipmentSlot extends SlotWithIndex {
 	public enum EquipSlot {
 		TOOL {
 			@Override
-			@Nullable
-			public ItemStack get(final EntityEquipment e) {
-				return e.getItemInMainHand();
+			public ItemStack get(final EntityEquipment entityEquipment) {
+				return entityEquipment.getItemInMainHand();
 			}
 
 			@Override
-			public void set(final EntityEquipment e, final @Nullable ItemStack item) {
-				e.setItemInMainHand(item);
+			public void set(final EntityEquipment entityEquipment, final @Nullable ItemStack item) {
+				entityEquipment.setItemInMainHand(item);
 			}
 		},
 		OFF_HAND(40) {
 
 			@Override
-			@Nullable
-			public ItemStack get(EntityEquipment e) {
-				return e.getItemInOffHand();
+			public ItemStack get(EntityEquipment entityEquipment) {
+				return entityEquipment.getItemInOffHand();
 			}
 
 			@Override
-			public void set(EntityEquipment e, @Nullable ItemStack item) {
-				e.setItemInOffHand(item);
+			public void set(EntityEquipment entityEquipment, @Nullable ItemStack item) {
+				entityEquipment.setItemInOffHand(item);
 			}
 			
 		},
 		HELMET(39) {
 			@Override
-			@Nullable
-			public ItemStack get(final EntityEquipment e) {
-				return e.getHelmet();
+			public @Nullable ItemStack get(final EntityEquipment entityEquipment) {
+				return entityEquipment.getHelmet();
 			}
 			
 			@Override
-			public void set(final EntityEquipment e, final @Nullable ItemStack item) {
-				e.setHelmet(item);
+			public void set(final EntityEquipment entityEquipment, final @Nullable ItemStack item) {
+				entityEquipment.setHelmet(item);
 			}
 		},
 		CHESTPLATE(38) {
 			@Override
-			@Nullable
-			public ItemStack get(final EntityEquipment e) {
-				return e.getChestplate();
+			public @Nullable ItemStack get(final EntityEquipment entityEquipment) {
+				return entityEquipment.getChestplate();
 			}
 			
 			@Override
-			public void set(final EntityEquipment e, final @Nullable ItemStack item) {
-				e.setChestplate(item);
+			public void set(final EntityEquipment entityEquipment, final @Nullable ItemStack item) {
+				entityEquipment.setChestplate(item);
 			}
 		},
 		LEGGINGS(37) {
 			@Override
-			@Nullable
-			public ItemStack get(final EntityEquipment e) {
-				return e.getLeggings();
+			public @Nullable ItemStack get(final EntityEquipment entityEquipment) {
+				return entityEquipment.getLeggings();
 			}
 			
 			@Override
-			public void set(final EntityEquipment e, final @Nullable ItemStack item) {
-				e.setLeggings(item);
+			public void set(final EntityEquipment entityEquipment, final @Nullable ItemStack item) {
+				entityEquipment.setLeggings(item);
 			}
 		},
 		BOOTS(36) {
 			@Override
-			@Nullable
-			public ItemStack get(final EntityEquipment e) {
-				return e.getBoots();
+			public @Nullable ItemStack get(final EntityEquipment entityEquipment) {
+				return entityEquipment.getBoots();
 			}
 			
 			@Override
-			public void set(final EntityEquipment e, final @Nullable ItemStack item) {
-				e.setBoots(item);
+			public void set(final EntityEquipment entityEquipment, final @Nullable ItemStack item) {
+				entityEquipment.setBoots(item);
 			}
 		},
-
 		BODY() {
 			@Override
-			public @Nullable ItemStack get(EntityEquipment equipment) {
-				return equipment.getItem(org.bukkit.inventory.EquipmentSlot.BODY);
+			public ItemStack get(EntityEquipment entityEquipment) {
+				return entityEquipment.getItem(org.bukkit.inventory.EquipmentSlot.BODY);
 			}
 
 			@Override
-			public void set(EntityEquipment equipment, @Nullable ItemStack item) {
-				equipment.setItem(org.bukkit.inventory.EquipmentSlot.BODY, item);
+			public void set(EntityEquipment entityEquipment, @Nullable ItemStack item) {
+				entityEquipment.setItem(org.bukkit.inventory.EquipmentSlot.BODY, item);
 			}
 		};
 		
@@ -123,16 +117,14 @@ public class EquipmentSlot extends SlotWithIndex {
 			slotNumber = number;
 		}
 
-		@Nullable
-		public abstract ItemStack get(EntityEquipment e);
+		public abstract @Nullable ItemStack get(EntityEquipment entityEquipment);
 
-		public abstract void set(EntityEquipment e, @Nullable ItemStack item);
+		public abstract void set(EntityEquipment entityEquipment, @Nullable ItemStack item);
 
 	}
 
-	private static final org.bukkit.inventory.EquipmentSlot[] BUKKIT_VALUES = org.bukkit.inventory.EquipmentSlot.values();
-
 	private static final Map<org.bukkit.inventory.EquipmentSlot, Integer> BUKKIT_SLOT_INDICES = new HashMap<>();
+	private static final Map<Integer, org.bukkit.inventory.EquipmentSlot> BUKKIT_SLOT_INDICES_REVERSED = new HashMap<>();
 
 	static {
 		BUKKIT_SLOT_INDICES.put(org.bukkit.inventory.EquipmentSlot.FEET, 36);
@@ -140,6 +132,11 @@ public class EquipmentSlot extends SlotWithIndex {
 		BUKKIT_SLOT_INDICES.put(org.bukkit.inventory.EquipmentSlot.CHEST, 38);
 		BUKKIT_SLOT_INDICES.put(org.bukkit.inventory.EquipmentSlot.HEAD, 39);
 		BUKKIT_SLOT_INDICES.put(org.bukkit.inventory.EquipmentSlot.OFF_HAND, 40);
+		BUKKIT_SLOT_INDICES_REVERSED.put(36, org.bukkit.inventory.EquipmentSlot.FEET);
+		BUKKIT_SLOT_INDICES_REVERSED.put(37, org.bukkit.inventory.EquipmentSlot.LEGS);
+		BUKKIT_SLOT_INDICES_REVERSED.put(38, org.bukkit.inventory.EquipmentSlot.CHEST);
+		BUKKIT_SLOT_INDICES_REVERSED.put(39, org.bukkit.inventory.EquipmentSlot.HEAD);
+		BUKKIT_SLOT_INDICES_REVERSED.put(40, org.bukkit.inventory.EquipmentSlot.OFF_HAND);
 	}
 
 	private final EntityEquipment entityEquipment;
@@ -200,8 +197,7 @@ public class EquipmentSlot extends SlotWithIndex {
 		 *  So this math trick gets us the EquipSlot from inventory slot index
 		 * slotToString: Referring to numeric slot id, right?
 		 */
-		//noinspection DataFlowIssue
-		this(holder.getEquipment(), BUKKIT_VALUES[41 - index], true);
+		this(holder.getEquipment(), BUKKIT_SLOT_INDICES_REVERSED.get(index), true);
 	}
 
 	@Override
@@ -268,14 +264,15 @@ public class EquipmentSlot extends SlotWithIndex {
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
 		if (slotToString) {
-			StringBuilder builder = new StringBuilder("the ");
+			SyntaxStringBuilder syntaxBuilder = new SyntaxStringBuilder(event, debug);
+			syntaxBuilder.append("the ");
 			if (skriptSlot != null) {
-				builder.append(skriptSlot.name().toLowerCase(Locale.ENGLISH));
+				syntaxBuilder.append(skriptSlot.name().toLowerCase(Locale.ENGLISH));
 			} else {
-				builder.append(bukkitSlot.name().replace('_', ' ').toLowerCase(Locale.ENGLISH));
+				syntaxBuilder.append(bukkitSlot.name().replace('_', ' ').toLowerCase(Locale.ENGLISH));
 			}
-			builder.append(" of ").append(Classes.toString(entityEquipment.getHolder()));
-			return builder.toString();
+			syntaxBuilder.append(" of ").append(Classes.toString(entityEquipment.getHolder()));
+			return syntaxBuilder.toString();
 		}
 		return Classes.toString(getItem());
 	}
