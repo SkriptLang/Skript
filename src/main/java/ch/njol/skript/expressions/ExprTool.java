@@ -9,6 +9,7 @@ import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.SyntaxStringBuilder;
 import ch.njol.skript.registrations.Classes;
+import ch.njol.skript.registrations.EventValues;
 import ch.njol.skript.util.slot.EquipmentSlot;
 import ch.njol.skript.util.slot.InventorySlot;
 import ch.njol.skript.util.slot.Slot;
@@ -35,19 +36,19 @@ public class ExprTool extends PropertyExpression<LivingEntity, Slot> {
 
 	static {
 		String[] patterns = new String[]{
-			"[the] (tool|held item|weapon|main[ ]hand) [of %livingentities%]",
-			"%livingentities%'[s] (tool|held item|weapon|main[ ]hand)",
-			"[the] off[ ]hand [tool|item] [of %livingentities%]",
-			"%livingentities%'[s] off[ ]hand [tool|item]"
+			"[the] (tool|held item|weapon) [of %livingentities%]",
+			"%livingentities%'[s] (tool|held item|weapon)",
+			"[the] off[ ]hand (tool|item) [of %livingentities%]",
+			"%livingentities%'[s] off[ ]hand (tool|item)"
 		};
 		Skript.registerExpression(ExprTool.class, Slot.class, ExpressionType.PROPERTY, patterns);;
 	}
 
 	private boolean offHand;
 
-	@SuppressWarnings({"unchecked", "null"})
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parser) {
+		//noinspection unchecked
 		setExpr((Expression<LivingEntity>) exprs[0]);
 		offHand = matchedPattern >= 2;
 		return true;
@@ -96,10 +97,15 @@ public class ExprTool extends PropertyExpression<LivingEntity, Slot> {
 			return new EquipmentSlot(equipment, offHand ? org.bukkit.inventory.EquipmentSlot.OFF_HAND : org.bukkit.inventory.EquipmentSlot.HAND) {
 				@Override
 				public String toString(@Nullable Event event, boolean debug) {
-					String time = getTime() == 1 ? "future " : getTime() == -1 ? "former " : "";
-					String hand = offHand ? "off hand" : "";
-					String item = Classes.toString(getItem());
-					return String.format("%s %s tool of %s", time, hand, item);
+					SyntaxStringBuilder syntaxBuilder = new SyntaxStringBuilder(event, debug);
+					switch (getTime()) {
+						case EventValues.TIME_FUTURE -> syntaxBuilder.append("future");
+						case EventValues.TIME_PAST -> syntaxBuilder.append("former");
+					}
+					if (offHand)
+						syntaxBuilder.append("off hand");
+					syntaxBuilder.append("tool of", Classes.toString(getItem()));
+					return syntaxBuilder.toString();
 				}
 			};
 		});
