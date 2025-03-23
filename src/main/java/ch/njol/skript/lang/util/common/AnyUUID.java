@@ -35,8 +35,9 @@ public interface AnyUUID extends AnyProvider {
 	}
 
 	/**
-	 * Whether this is an {@link OfflinePlayer}. This is used to catch an {@link UnsupportedOperationException}
-	 * when trying to access the UUID of an emulated offline player by plugins like ProtocolLib.
+	 * Whether this is an {@link OfflinePlayer}. This is used to know whether to try and catch an
+	 * {@link UnsupportedOperationException} when trying to access the UUIDs of emulated
+	 * offline players by plugins like ProtocolLib.
 	 *
 	 * @return whether this is an offline player
 	 */
