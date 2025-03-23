@@ -15,7 +15,6 @@ import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.event.Event;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.jaxen.expr.Expr;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -89,10 +88,8 @@ public class ExprLore extends SimpleExpression<String> {
 			case SET -> CollectionUtils.array(acceptsMany ? String[].class : String.class);
 			case DELETE -> CollectionUtils.array();
 			case ADD, REMOVE, REMOVE_ALL -> {
-				// this should not accept remove "hello" from line 1 of lore of player's tool
-				// users should instead use replace "hello" in line 1 of lore of player's tool
 				if (!acceptsMany) {
-					Skript.error("You cannot remove/add lore to a single line, you can however replace/concat lore within a line.");
+					Skript.error("You cannot add/remove the lore from a single line, you can however replace/concat lore.");
 					yield null;
 				}
 				yield CollectionUtils.array(String[].class);
@@ -109,7 +106,7 @@ public class ExprLore extends SimpleExpression<String> {
 	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
 		Object item = this.item.getSingle(event);
 		if (!validateItem(item))
-			return; // Validates to ensure it is a valid item, has item meta,
+			return; // Validates to ensure it is a valid item and has item meta.
 		ItemStack modifiedItem = ItemUtils.asItemStack(item);
 		assert modifiedItem != null; // validateItem has already run a check against this
 		ItemMeta itemMeta = modifiedItem.getItemMeta();
@@ -159,7 +156,7 @@ public class ExprLore extends SimpleExpression<String> {
 		if (modifiedLore != null && !modifiedLore.isEmpty()) {
 			if (IS_RUNNING_1_21_5) {
 				// The maximum amount of lore an item can have is 256
-				// this change was made in 1.21.5, was unable to find the source for older versions
+				// this change was made in 1.21.5
 				// source: https://minecraft.wiki/w/Data_component_format#lore
 				modifiedLore = modifiedLore.stream().limit(256).toList();
 			} else {
@@ -177,7 +174,7 @@ public class ExprLore extends SimpleExpression<String> {
 
 	private boolean validateItem(Object item) {
 		ItemStack itemStack = ItemUtils.asItemStack(item);
-		return itemStack != null && itemStack.hasItemMeta();
+		return itemStack != null && itemStack.getItemMeta() != null;
 	}
 
 	@Override
