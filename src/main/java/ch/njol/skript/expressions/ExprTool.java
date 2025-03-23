@@ -86,7 +86,6 @@ public class ExprTool extends PropertyExpression<LivingEntity, Slot> {
 							}
 						}
 					};
-
 				}
 			}
 
