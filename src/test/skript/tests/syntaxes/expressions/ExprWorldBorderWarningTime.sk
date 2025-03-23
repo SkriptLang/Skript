@@ -1,0 +1,20 @@
+test "worldborder warning time":
+	set {_max} to 2147483647 seconds
+	set {_border} to worldborder of world("world")
+	assert worldborder warning time of {_border} is 15 seconds with "Default warning time is not 15 seconds"
+	set worldborder warning time of {_border} to 10 seconds
+	assert worldborder warning time of {_border} is 10 seconds with "Failed to set warning time"
+	add 3 seconds to worldborder warning time of {_border}
+	assert worldborder warning time of {_border} is 13 seconds with "Failed to add to warning time"
+	remove 8 seconds from worldborder warning time of {_border}
+	assert worldborder warning time of {_border} is 5 seconds with "Failed to remove from warning time"
+	remove 10 seconds from worldborder warning time of {_border}
+	assert worldborder warning time of {_border} is 0 seconds with "Warning time should not go below 0"
+	set worldborder warning time of {_border} to 99 years
+	assert worldborder warning time of {_border} is {_max} with "Setting with number larger than Integer Max failed"
+	remove 123 years from worldborder warning time of {_border}
+	assert worldborder warning time of {_border} is 0 seconds with "Subtraction with number larger than Integer Max failed"
+	add 999 years to worldborder warning time of {_border}
+	assert worldborder warning time of {_border} is {_max} with "Addition with numbers larger than Integer Max failed"
+	reset worldborder warning time of {_border}
+	assert worldborder warning time of {_border} is 15 seconds with "Failed to reset warning time"
