@@ -1,0 +1,35 @@
+test "ExprLore - Lore of Item":
+	set {_item} to a diamond
+	set lore of {_item} to "Line1", "Line2", "Line3" and "Line4"
+	assert lore of {_item} is "Line1", "Line2", "Line3" and "Line4"
+
+	copy {_item} into {_item2}
+	set lore of {_item2} to {_null}
+	assert lore of {_item2} is not set
+
+	remove "Line2" from lore of {_item}
+	remove {_null} from lore of {_item}
+	assert lore of {_item} is "Line1", "Line3" and "Line4"
+
+	add "Line5" and "Line5" to lore of {_item}
+	add {_null} to lore of {_item}
+	assert lore of {_item} is "Line1", "Line3", "Line4", "Line5" and "Line5"
+
+	remove all "Line5" from lore of {_item}
+	assert lore of {_item} is "Line1", "Line3" and "Line4"
+
+	clear lore of {_item}
+	assert lore of {_item} is not set with "The lore of an item after being cleared did not become null"
+
+test "ExprLore - Line X of Lore of Item":
+	set {_item} to a diamond
+	set lore of {_item} to "Line1", "Line2", "Line3"
+
+	delete line 3 of lore of {_item}
+	assert line 3 of lore of {_item} is not set with "Line 3 of item was not removed"
+
+	set line 6 of lore of {_item} to "3 Blanks = 1 Word"
+	assert line 6 of lore of {_item} is "3 Blanks = 1 Word"
+
+	set line 4 of lore of {_item} to {_null}
+	assert size of lore of {_item} is 5 with "Setting a line to a null value, did not default to delete"
