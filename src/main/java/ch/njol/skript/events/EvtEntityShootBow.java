@@ -7,23 +7,22 @@ import ch.njol.skript.lang.SkriptEvent;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.registrations.EventConverter;
 import ch.njol.skript.registrations.EventValues;
+import ch.njol.skript.util.slot.EquipmentSlot;
 import ch.njol.skript.util.slot.Slot;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.Event;
 import org.bukkit.event.entity.EntityShootBowEvent;
 import org.bukkit.inventory.EntityEquipment;
-import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
-import static ch.njol.skript.util.slot.EquipmentSlot.*;
 
 public class EvtEntityShootBow extends SkriptEvent {
 
 	static {
 		Skript.registerEvent("Entity Shoot Bow", EvtEntityShootBow.class, EntityShootBowEvent.class,
-			"%entitydata% shoot[ing] (bow|projectile)")
+				"%entitydatas% shoot[ing] (bow|projectile)")
 			.description("""
 				Called when an entity shoots a bow.
 				event-entity refers to the shot projectile/entity.
@@ -60,18 +59,19 @@ public class EvtEntityShootBow extends SkriptEvent {
 
 		EventValues.registerEventValue(EntityShootBowEvent.class, Slot.class, event -> {
 			EntityEquipment equipment = event.getEntity().getEquipment();
-			EquipSlot equipmentSlot = event.getHand() == EquipmentSlot.OFF_HAND ? EquipSlot.OFF_HAND : EquipSlot.TOOL;
-			return new ch.njol.skript.util.slot.EquipmentSlot(equipment, equipmentSlot);
+			if (equipment == null)
+				return null;
+			return new EquipmentSlot(equipment, event.getHand());
 		});
 
 	}
 
-	private Literal<EntityData<?>> entityData;
+	private Literal<EntityData<?>> entityDatas;
 
 	@Override
 	public boolean init(Literal<?>[] args, int matchedPattern, ParseResult parseResult) {
 		//noinspection unchecked
-		entityData = (Literal<EntityData<?>>) args[0];
+		entityDatas = (Literal<EntityData<?>>) args[0];
 		return true;
 	}
 
@@ -79,14 +79,13 @@ public class EvtEntityShootBow extends SkriptEvent {
 	public boolean check(Event event) {
 		if (!(event instanceof EntityShootBowEvent shootBowEvent))
 			return false;
-		EntityData<?> entityData = this.entityData.getSingle();
-		if (entityData == null) return false;
-		return entityData.isInstance(shootBowEvent.getEntity());
+		LivingEntity eventEntity = shootBowEvent.getEntity();
+		return entityDatas.check(event, entityData -> entityData.isInstance(eventEntity));
 	}
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return this.entityData.toString(event, debug) + " shoot bow";
+		return this.entityDatas.toString(event, debug) + " shoot bow";
 	}
 
 }
