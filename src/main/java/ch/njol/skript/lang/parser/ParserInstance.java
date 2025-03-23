@@ -21,6 +21,8 @@ import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.experiment.Experiment;
 import org.skriptlang.skript.lang.experiment.ExperimentSet;
 import org.skriptlang.skript.lang.experiment.Experimented;
+import org.skriptlang.skript.lang.script.Annotated;
+import org.skriptlang.skript.lang.script.Annotation;
 import org.skriptlang.skript.lang.script.Script;
 import org.skriptlang.skript.lang.structure.Structure;
 
@@ -28,7 +30,7 @@ import java.io.File;
 import java.util.*;
 import java.util.function.Function;
 
-public final class ParserInstance implements Experimented {
+public final class ParserInstance implements Experimented, Annotated {
 
 	private static final ThreadLocal<ParserInstance> PARSER_INSTANCES = ThreadLocal.withInitial(ParserInstance::new);
 
@@ -85,7 +87,8 @@ public final class ParserInstance implements Experimented {
 		this.currentSections = new ArrayList<>();
 		this.hasDelayBefore = Kleenean.FALSE;
 		this.node = null;
-		dataMap.clear();
+		this.dataMap.clear();
+		this.annotations.clear();
 	}
 
 	// Script API
@@ -490,7 +493,7 @@ public final class ParserInstance implements Experimented {
 	@ApiStatus.Internal
 	public void addExperiment(Experiment experiment) {
 		Script script = this.getCurrentScript();
-		ExperimentSet set = script.getData(ExperimentSet.class, () -> new ExperimentSet());
+		ExperimentSet set = script.getData(ExperimentSet.class, ExperimentSet::new);
 		set.add(experiment);
 	}
 
@@ -520,6 +523,56 @@ public final class ParserInstance implements Experimented {
 		if (set == null)
 			return new ExperimentSet();
 		return new ExperimentSet(set);
+	}
+
+	// Annotations API
+
+	private final @NotNull Set<Annotation> annotations = new LinkedHashSet<>(4);
+
+	public @NotNull Collection<Annotation> annotations() {
+		return annotations;
+	}
+
+	/**
+	 * Registers an annotation visible to the upcoming syntax element.
+	 * Annotations are (typically) disposed of after the next non-meta line of code.
+	 * @param annotation The annotation to be registered.
+	 */
+	public void addAnnotation(Annotation annotation) {
+		this.annotations.add(annotation);
+	}
+
+	/**
+	 * Disposes of all registered annotations.
+	 * This is usually run after a line of code.
+	 */
+	public void forgetAnnotations() {
+		this.annotations.clear();
+	}
+
+	/**
+	 * Checks whether an annotation by exact text is visible to the parser at this stage.
+	 * @param text The exact content of the annotation
+	 * @return Whether an annotation with this content is present
+	 */
+	@Override
+	public boolean hasAnnotation(String text) {
+		if (annotations.isEmpty())
+			return false;
+		for (Annotation annotation : annotations) {
+			if (annotation.valueEquals(text))
+				return true;
+		}
+		return false;
+	}
+
+	/**
+	 * Replaces the current set of visible annotations with the given collection.
+	 * @param annotations The new set of visible annotations.
+	 */
+	public void replaceAnnotations(Collection<Annotation> annotations) {
+		this.annotations.clear();
+		this.annotations.addAll(annotations);
 	}
 
 	// ParserInstance Data API
@@ -644,6 +697,7 @@ public final class ParserInstance implements Experimented {
 		private final List<TriggerSection> currentSections;
 		private final Kleenean hasDelayBefore;
 		private final Map<Class<? extends Data>, Data> dataMap;
+		private final Set<Annotation> annotations;
 
 		private Backup(ParserInstance parser) {
 			//noinspection ConstantConditions - parser will be active, meaning there is a current script
@@ -656,6 +710,7 @@ public final class ParserInstance implements Experimented {
 			this.currentSections = new ArrayList<>(parser.currentSections);
 			this.hasDelayBefore = parser.hasDelayBefore;
 			this.dataMap = new HashMap<>(parser.dataMap);
+			this.annotations = new HashSet<>(parser.annotations);
 		}
 
 		private void apply(ParserInstance parser) {
@@ -667,6 +722,8 @@ public final class ParserInstance implements Experimented {
 			parser.hasDelayBefore = this.hasDelayBefore;
 			parser.dataMap.clear();
 			parser.dataMap.putAll(this.dataMap);
+			parser.annotations.clear();
+			parser.annotations.addAll(this.annotations);
 		}
 
 	}

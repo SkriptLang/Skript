@@ -10,10 +10,10 @@ import org.bukkit.event.Event;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.script.Annotation;
+import org.skriptlang.skript.lang.structure.Structure;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 import java.util.function.Supplier;
 
 /**
@@ -48,6 +48,7 @@ public abstract class Section extends TriggerSection implements SyntaxElement {
 	@Override
 	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		SectionContext sectionContext = getParser().getData(SectionContext.class);
+		sectionContext.setAnnotations(this.getParser().copyAnnotations());
 		return init(expressions, matchedPattern, isDelayed, parseResult, sectionContext.sectionNode, sectionContext.triggerItems)
 			&& sectionContext.claim(this);
 	}
@@ -67,7 +68,10 @@ public abstract class Section extends TriggerSection implements SyntaxElement {
 	 * (although the loaded code may change it), the calling code must deal with this.
 	 */
 	protected void loadCode(SectionNode sectionNode) {
-		ParserInstance parser = getParser();
+		ParserInstance parser = this.getParser();
+		Set<Annotation> annotations = parser.copyAnnotations();
+		parser.forgetAnnotations(); // scope annotations correctly for section headers
+
 		List<TriggerSection> previousSections = parser.getCurrentSections();
 
 		List<TriggerSection> sections = new ArrayList<>(previousSections);
@@ -78,6 +82,7 @@ public abstract class Section extends TriggerSection implements SyntaxElement {
 			setTriggerItems(ScriptLoader.loadItems(sectionNode));
 		} finally {
 			parser.setCurrentSections(previousSections);
+			parser.replaceAnnotations(annotations);
 		}
 	}
 
@@ -158,10 +163,17 @@ public abstract class Section extends TriggerSection implements SyntaxElement {
 
 	@Nullable
 	public static Section parse(String expr, @Nullable String defaultError, SectionNode sectionNode, List<TriggerItem> triggerItems) {
-		SectionContext sectionContext = ParserInstance.get().getData(SectionContext.class);
-		//noinspection unchecked,rawtypes
+		ParserInstance parser = ParserInstance.get();
+		SectionContext sectionContext = parser.getData(SectionContext.class);
+		Set<Annotation> annotations = parser.copyAnnotations();
+		parser.forgetAnnotations();
 		return sectionContext.modify(sectionNode, triggerItems,
-			() -> (Section) SkriptParser.parse(expr, (Iterator) Skript.getSections().iterator(), defaultError));
+			() -> {
+				ParserInstance local = ParserInstance.get();
+				local.forgetAnnotations();
+				local.replaceAnnotations(annotations);
+				return (Section) SkriptParser.parse(expr, (Iterator) Skript.getSections().iterator(), defaultError);
+		});
 	}
 
 	static {
@@ -173,6 +185,7 @@ public abstract class Section extends TriggerSection implements SyntaxElement {
 
 		protected SectionNode sectionNode;
 		protected List<TriggerItem> triggerItems;
+		protected @Nullable Collection<Annotation> annotations;
 		protected @Nullable Debuggable owner;
 
 		public SectionContext(ParserInstance parserInstance) {
@@ -242,6 +255,27 @@ public abstract class Section extends TriggerSection implements SyntaxElement {
 		 */
 		public boolean claimed() {
 			return owner != null;
+		}
+
+		/**
+		 * Sets the annotation container for this section.
+		 *
+		 * @param annotations The annotations container
+		 */
+		public void setAnnotations(@Nullable Collection<Annotation> annotations) {
+			this.annotations = annotations;
+		}
+
+		/**
+		 * Returns the annotations visible to the section header (the line that it started from).
+		 * The collection may be empty if no annotations were placed before the header line.
+		 *
+		 * @return The annotation applied to the current section
+		 */
+		public @NotNull Collection<Annotation> getAnnotations() {
+			if (annotations == null)
+				return Collections.emptySet();
+			return annotations;
 		}
 
 	}
