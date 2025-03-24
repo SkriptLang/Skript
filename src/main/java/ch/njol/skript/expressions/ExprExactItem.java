@@ -14,7 +14,7 @@ import org.jetbrains.annotations.Nullable;
 @Description(
 	"Get an exact item representation of a block, carrying over any data. "
 	+ "For example, using this expression on a chest block with items stored inside will return a chest "
-	+ "item with the exact same items, when the item is placed."
+	+ "item with the exact same items in its inventory as the chest block."
 )
 @Examples("set {_item} to exact item of block at location(0, 0, 0)")
 @Since("INSERT VERSION")
