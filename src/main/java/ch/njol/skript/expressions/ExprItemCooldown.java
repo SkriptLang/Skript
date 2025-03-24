@@ -25,7 +25,11 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Name("Item Cooldown")
-@Description("Change the cooldown of a specific material to a certain amount of <a href='./classes.html#timespan'>Timespan</a>.")
+@Description("""
+	Gets the current cooldown of a provided item for a player.
+	If the provided item has a cooldown group component specified the cooldown of the group will be prioritized.
+	Otherwise the cooldown of the item material will be used.
+	""")
 @Examples({
 	"on right click using stick:",
 		"\tset item cooldown of player's tool for player to 1 minute",

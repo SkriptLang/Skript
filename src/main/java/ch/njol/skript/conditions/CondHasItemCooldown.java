@@ -22,7 +22,11 @@ import java.util.Arrays;
 import java.util.List;
 
 @Name("Has Item Cooldown")
-@Description("Check whether a cooldown is active on the specified material for a specific player.")
+@Description("""
+	Checks whether a cooldown is active on the specified item for a specific player.
+	If the provided item has a cooldown group component specified, the cooldown group will take priority.
+	Otherwise, the cooldown of the item material will be used.
+	""")
 @Examples({
 	"if player has player's tool on cooldown:",
 		"\tsend \"You can't use this item right now. Wait %item cooldown of player's tool for player%\""
