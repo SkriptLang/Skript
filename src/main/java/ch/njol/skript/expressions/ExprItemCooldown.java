@@ -36,7 +36,7 @@ import java.util.stream.Stream;
 @Since({"2.8.0", "INSERT VERSION (cooldown group)"})
 public class ExprItemCooldown extends SimpleExpression<Timespan> {
 
-	// Cooldown groups were added in 1.12.2, to add cooldowns to a "group" of items
+	// Cooldown groups were added in 1.21.2, to add cooldowns to a "group" of items
 	// a link to the data component can be found here https://minecraft.wiki/w/Data_component_format#use_cooldown
 	// The cooldown is applied to the material if no cooldown group is defined on the provided itemstack.
 	private static final boolean SUPPORTS_COOLDOWN_GROUP = Skript.methodExists(HumanEntity.class, "getCooldown", ItemStack.class);
