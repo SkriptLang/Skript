@@ -47,7 +47,7 @@ public class ExprBrewingTime extends SimplePropertyExpression<Block, Timespan> {
 	@Override
 	public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
 		return switch (mode) {
-			case ADD, REMOVE, SET, DELETE -> CollectionUtils.array(Timespan.class);
+			case SET, ADD, REMOVE-> CollectionUtils.array(Timespan.class);
 			default -> null;
 		};
 	}
@@ -81,7 +81,7 @@ public class ExprBrewingTime extends SimplePropertyExpression<Block, Timespan> {
 		if (mode == ChangeMode.REMOVE)
 			providedValue = -providedValue;
 		setter.accept(switch (mode) {
-			case SET, DELETE -> Math2.fit(0, providedValue, Integer.MAX_VALUE);
+			case SET -> Math2.fit(0, providedValue, Integer.MAX_VALUE);
 			case ADD, REMOVE -> Math2.fit(0, getter.get() + providedValue, Integer.MAX_VALUE);
 			default -> throw new IllegalStateException("Unexpected mode: " + mode);
 		});
