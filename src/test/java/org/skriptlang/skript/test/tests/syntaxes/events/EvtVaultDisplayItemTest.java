@@ -14,7 +14,7 @@ import java.lang.reflect.Constructor;
 
 public class EvtVaultDisplayItemTest extends SkriptJUnitTest {
 
-	private final boolean VAULT_EVENT_EXISTS = Skript.classExists("org.bukkit.event.block.VaultDisplayItemEvent");
+	private static final boolean VAULT_EVENT_EXISTS = Skript.classExists("org.bukkit.event.block.VaultDisplayItemEvent");
 	private Block vault;
 	private final ItemStack item = new ItemStack(Material.DIAMOND);
 

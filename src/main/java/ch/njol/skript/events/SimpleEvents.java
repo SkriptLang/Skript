@@ -811,8 +811,8 @@ public class SimpleEvents {
 				.description("Called when a vault in a trial chamber is about to display an item.")
 				.examples(
 					"""
-						on vault display item:
-							set event-item to a netherite ingot	
+					on vault display item:
+						set event-item to a netherite ingot	
 					"""
 				)
 				.since("INSERT VERSION")
