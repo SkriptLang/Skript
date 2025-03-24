@@ -63,7 +63,7 @@ public class BukkitUtils {
 	 * @param slotIndex The index of the equipment slot
 	 * @return The equipment slot the provided slot index, otherwise null if invalid
 	 */
-	public static EquipmentSlot getEquipmentSlotFromIndex(Integer slotIndex) {
+	public static EquipmentSlot getEquipmentSlotFromIndex(int slotIndex) {
 		return BUKKIT_EQUIPMENT_SLOT_INDICES.inverse().get(slotIndex);
 	}
 
