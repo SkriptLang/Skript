@@ -8,22 +8,19 @@ import org.bukkit.entity.TropicalFish;
 import org.bukkit.entity.TropicalFish.Pattern;
 import org.jetbrains.annotations.Nullable;
 
-import ch.njol.skript.Skript;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.util.Color;
 
 public class TropicalFishData extends EntityData<TropicalFish> {
 
-	@SuppressWarnings("null")
-	private static Object[] patterns;
+	private static final Pattern[] patterns = Pattern.values();
 
 	static {
 		register(TropicalFishData.class, "tropical fish", TropicalFish.class, 0,
 				"tropical fish", "kob", "sunstreak", "snooper",
 				"dasher", "brinely", "spotty", "flopper",
 				"stripey", "glitter", "blockfish", "betty", "clayfish");
-		patterns = Pattern.values();
 	}
 
 	public TropicalFishData() {
@@ -38,13 +35,12 @@ public class TropicalFishData extends EntityData<TropicalFish> {
 		matchedPattern = pattern;
 	}
 
-	@Nullable
-	private DyeColor patternColor;
-	@Nullable
-	private DyeColor bodyColor;
+	private @Nullable DyeColor patternColor;
+	private @Nullable DyeColor bodyColor;
 
 	@Override
 	protected boolean init(Literal<?>[] exprs, int matchedPattern, ParseResult parseResult) {
+		this.matchedPattern = matchedPattern;
 		if (exprs.length == 0)
 			return true; // FIXME aliases reloading must work
 		
@@ -74,9 +70,9 @@ public class TropicalFishData extends EntityData<TropicalFish> {
 	@Override
 	public void set(TropicalFish entity) {
 		if (matchedPattern == 0)
-			entity.setPattern((Pattern) patterns[ThreadLocalRandom.current().nextInt(patterns.length)]);
+			entity.setPattern(patterns[ThreadLocalRandom.current().nextInt(patterns.length)]);
 		else
-			entity.setPattern((Pattern) patterns[matchedPattern]);
+			entity.setPattern(patterns[matchedPattern]);
 
 		if (bodyColor != null)
 			entity.setBodyColor(bodyColor);
@@ -102,12 +98,11 @@ public class TropicalFishData extends EntityData<TropicalFish> {
 
 	@Override
 	protected boolean equals_i(EntityData<?> obj) {
-		if (!(obj instanceof TropicalFishData))
+		if (!(obj instanceof TropicalFishData fishData))
 			return false;
 
-		TropicalFishData other = (TropicalFishData) obj;
-		return matchedPattern == other.matchedPattern
-			&& bodyColor == other.bodyColor && patternColor == other.patternColor;
+		return matchedPattern == fishData.matchedPattern
+			&& bodyColor == fishData.bodyColor && patternColor == fishData.patternColor;
 	}
 
 	@Override
@@ -117,16 +112,15 @@ public class TropicalFishData extends EntityData<TropicalFish> {
 
 	@Override
 	public boolean isSupertypeOf(EntityData<?> e) {
-		if (!(e instanceof TropicalFishData))
+		if (!(e instanceof TropicalFishData fishData))
 			return false;
 
-		TropicalFishData other = (TropicalFishData) e;
-		return matchedPattern == other.matchedPattern
-			&& bodyColor == other.bodyColor && patternColor == other.patternColor;
+		return matchedPattern == fishData.matchedPattern
+			&& bodyColor == fishData.bodyColor && patternColor == fishData.patternColor;
 	}
 
 	@Override
-	public EntityData getSuperType() {
+	public EntityData<TropicalFish> getSuperType() {
 		return new TropicalFishData(matchedPattern);
 	}
 }
