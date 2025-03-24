@@ -17,10 +17,10 @@ public class TropicalFishData extends EntityData<TropicalFish> {
 	private static final Pattern[] patterns = Pattern.values();
 
 	static {
-		register(TropicalFishData.class, "tropical fish", TropicalFish.class, 0,
-				"tropical fish", "kob", "sunstreak", "snooper",
-				"dasher", "brinely", "spotty", "flopper",
-				"stripey", "glitter", "blockfish", "betty", "clayfish");
+		register(TropicalFishData.class, "tropical fish", TropicalFish.class, 12,
+				"kob", "sunstreak", "snooper", "dasher",
+				"brinely", "spotty", "flopper", "stripey",
+				"glitter", "blockfish", "betty", "clayfish", "tropical fish");
 	}
 
 	public TropicalFishData() {
@@ -28,7 +28,7 @@ public class TropicalFishData extends EntityData<TropicalFish> {
 	}
 
 	public TropicalFishData(Pattern pattern) {
-		matchedPattern = pattern.ordinal() + 1;
+		matchedPattern = pattern.ordinal();
 	}
 
 	private TropicalFishData(int pattern) {
@@ -40,7 +40,6 @@ public class TropicalFishData extends EntityData<TropicalFish> {
 
 	@Override
 	protected boolean init(Literal<?>[] exprs, int matchedPattern, ParseResult parseResult) {
-		this.matchedPattern = matchedPattern;
 		if (exprs.length == 0)
 			return true; // FIXME aliases reloading must work
 		
@@ -60,7 +59,7 @@ public class TropicalFishData extends EntityData<TropicalFish> {
 	@Override
 	protected boolean init(@Nullable Class<? extends TropicalFish> c, @Nullable TropicalFish tropicalFish) {
 		if (tropicalFish != null) {
-			matchedPattern = tropicalFish.getPattern().ordinal() + 1;
+			matchedPattern = tropicalFish.getPattern().ordinal();
 			bodyColor = tropicalFish.getBodyColor();
 			patternColor = tropicalFish.getPatternColor();
 		}
@@ -69,7 +68,7 @@ public class TropicalFishData extends EntityData<TropicalFish> {
 
 	@Override
 	public void set(TropicalFish entity) {
-		if (matchedPattern == 0)
+		if (matchedPattern == patterns.length)
 			entity.setPattern(patterns[ThreadLocalRandom.current().nextInt(patterns.length)]);
 		else
 			entity.setPattern(patterns[matchedPattern]);
@@ -82,7 +81,7 @@ public class TropicalFishData extends EntityData<TropicalFish> {
 
 	@Override
 	protected boolean match(TropicalFish entity) {
-		boolean samePattern = matchedPattern == 0 || matchedPattern == entity.getPattern().ordinal() + 1;
+		boolean samePattern = matchedPattern == patterns.length || matchedPattern == entity.getPattern().ordinal();
 		boolean sameBody = bodyColor == null || bodyColor == entity.getBodyColor();
 
 		if (patternColor == null)
