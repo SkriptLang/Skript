@@ -1,0 +1,19 @@
+options:
+	test: "org.skriptlang.skript.test.tests.syntaxes.events.EvtVaultDisplayItemTest"
+
+test "VaultDisplayItem" when running JUnit:
+	running minecraft "1.21.1"
+	set {_tests::*} to "event called", "display is diamond" and "display changed"
+	ensure {@test} completes {_tests::*}
+
+parse:
+	results: {EvtVaultDisplayItem::*}
+	code:
+		on vault display item:
+			junit test is {@test}
+			complete "event called" for {@test}
+			if event-item is a diamond:
+				complete "display is diamond" for {@test}
+			set event-item to a netherite ingot
+			if event-item is a netherite ingot:
+				complete "display changed" for {@test}
