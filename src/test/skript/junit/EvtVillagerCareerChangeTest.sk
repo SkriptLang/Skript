@@ -1,0 +1,17 @@
+options:
+	test: "org.skriptlang.skript.test.tests.syntaxes.events.EvtVillagerCareerChangeTest"
+
+test "VillagerCareerChange" when running JUnit:
+	set {_tests::*} to "event called", "profession is armorer", "profession changed" and "career change reason is employed"
+	ensure {@test} completes {_tests::*}
+
+on villager career change:
+	junit test is {@test}
+	complete "event called" for {@test}
+	if event-villagerprofession is armorer profession:
+		complete "profession is armorer" for {@test}
+	set event-villagerprofession to butcher profession
+	if event-villagerprofession is butcher profession:
+		complete "profession changed" for {@test}
+	if event-career change reason is employed:
+		complete "career change reason is employed" for {@test}

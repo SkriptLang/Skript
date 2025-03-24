@@ -2558,6 +2558,11 @@ input keys:
 	sneak: sneak key, sneaking key
 	sprint: sprint key, sprinting key
 
+# -- Villager Career Change Reasons
+villager career change reasons:
+	employed: employed, employment
+	losing_job: losing job, lost job
+
 # -- Boolean --
 boolean:
 	true:
@@ -2659,6 +2664,7 @@ types:
 	bannerpatterntype: banner pattern type¦s @a
 	bannerpattern: banner pattern¦s @a
 	vehicle: vehicle¦s @a
+	villagercareerchangereason: villager career change reason¦s @a
 
 	# Skript
 	weathertype: weather type¦s @a
