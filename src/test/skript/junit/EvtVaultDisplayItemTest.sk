@@ -7,7 +7,7 @@ test "VaultDisplayItem" when running JUnit:
 	ensure {@test} completes {_tests::*}
 
 parse:
-	results: {EvtVaultDisplayItem::*}
+	results: {EvtVaultDisplayItem::parse::*}
 	code:
 		on vault display item:
 			junit test is {@test}
@@ -17,3 +17,9 @@ parse:
 			set event-item to a netherite ingot
 			if event-item is a netherite ingot:
 				complete "display changed" for {@test}
+
+test "VaultDisplayItemParse":
+	if running minecraft "1.21.1":
+		assert {EvtVaultDisplayItem::parse::*} is not set with "EvtVaultDisplayItem failed to parse on supported version"
+	else:
+		assert {EvtVaultDisplayItem::parse::*} is set with "EvtVaultDisplayItem should have failed to parse on unsupported version"
