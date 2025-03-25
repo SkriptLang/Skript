@@ -807,7 +807,7 @@ public class SimpleEvents {
 
 		Skript.registerEvent("Villager Career Change", SimpleEvent.class, VillagerCareerChangeEvent.class,
 				"villager career chang(e[d]|ing)")
-			.description("Called when a villager changes it's career. Can be caused by being employed or losing their job.")
+			.description("Called when a villager changes its career. Can be caused by being employed or losing their job.")
 			.examples("""
 				on villager career change:
 					if all:

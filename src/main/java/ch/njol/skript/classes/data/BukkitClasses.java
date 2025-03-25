@@ -1554,7 +1554,7 @@ public class BukkitClasses {
 		Classes.registerClass(new EnumClassInfo<>(VillagerCareerChangeEvent.ChangeReason.class, "villagercareerchangereason", "villager career change reasons")
 			.user("(villager )?career ?change ?reasons?")
 			.name("Villager Career Change Reason")
-			.description("Represents a reason why a villager changed it's career.")
+			.description("Represents a reason why a villager changed its career.")
 			.since("INSERT VERSION")
 		);
 
