@@ -61,9 +61,9 @@ public abstract class Functions {
 		String name = function.getName();
 		if (!name.matches(functionNamePattern))
 			throw new SkriptAPIException("Invalid function name '" + name + "'");
-//		javaNamespace.addSignature(function.getSignature());
-//		javaNamespace.addFunction(function);
-//		globalFunctions.put(function.getName(), javaNamespace);
+		javaNamespace.addSignature(function.getSignature());
+		javaNamespace.addFunction(function);
+		globalFunctions.put(function.getName(), javaNamespace);
 
 		FunctionRegistry.registerFunction(function);
 
@@ -82,12 +82,12 @@ public abstract class Functions {
 	 */
 	public static @Nullable Function<?> loadFunction(Script script, SectionNode node, Signature<?> signature) {
 		String name = signature.name;
-//		Namespace namespace = getScriptNamespace(script.getConfig().getFileName());
-//		if (namespace == null) {
-//			namespace = globalFunctions.get(name);
-//			if (namespace == null)
-//				return null; // Probably duplicate signature; reported before
-//		}
+		Namespace namespace = getScriptNamespace(script.getConfig().getFileName());
+		if (namespace == null) {
+			namespace = globalFunctions.get(name);
+			if (namespace == null)
+				return null; // Probably duplicate signature; reported before
+		}
 
 		Parameter<?>[] params = signature.parameters;
 		ClassInfo<?> c = signature.returnType;
@@ -98,8 +98,9 @@ public abstract class Functions {
 
 		Function<?> function = new ScriptFunction<>(signature, node);
 
-		// Register the function for signature
-//		namespace.addFunction(function);
+		if (namespace.getFunction(signature.name) != null) {
+			namespace.addFunction(function);
+		}
 
 		FunctionRegistry.registerFunction(script.getConfig().getFileName(), function);
 

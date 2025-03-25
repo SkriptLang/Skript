@@ -6,6 +6,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 class FunctionRegistry {
 
@@ -17,7 +18,7 @@ class FunctionRegistry {
 	 * The pattern for a valid function name.
 	 * Functions must start with a letter and can only contain letters, numbers, and underscores.
 	 */
-	public final static String FUNCTION_NAME_PATTERN = "\\p{IsAlphabetic}[\\p{IsAlphabetic}\\d_]*";
+	final static String FUNCTION_NAME_PATTERN = "\\p{IsAlphabetic}[\\p{IsAlphabetic}\\d_]*";
 
 	/**
 	 * The namespace for functions registered using Java.
@@ -33,11 +34,11 @@ class FunctionRegistry {
 	 * Map for all identifier to function combinations, belonging to a namespace.
 	 */
 	private static final Map<Namespace, Map<FunctionIdentifier, Function<?>>> functions = new HashMap<>();
-	private static final Map<Namespace, Map<FunctionIdentifier, Signature<?>>> signatures = new HashMap<>();
 
-	public static void registerSignature(@NotNull Signature<?> signature) {
-		registerSignature(null, signature);
-	}
+	/**
+	 * Map for all identifier to signature combinations, belonging to a namespace.
+	 */
+	private static final Map<Namespace, Map<FunctionIdentifier, Signature<?>>> signatures = new HashMap<>();
 
 	public static void registerSignature(@Nullable String script, @NotNull Signature<?> signature) {
 		Preconditions.checkNotNull(signature, "signature is null");
@@ -199,30 +200,23 @@ class FunctionRegistry {
 		Map<FunctionIdentifier, Function<?>> identifierFunctionMap = functions.get(namespace);
 		Map<String, Set<FunctionIdentifier>> namespaceIdentifiers = identifiers.get(namespace);
 		if (identifierFunctionMap == null || namespaceIdentifiers == null) {
-			System.out.println(1);
 			return null;
 		}
 
-		System.out.println(provided.name);
 		Set<FunctionIdentifier> existing = namespaceIdentifiers.get(provided.name);
 		if (existing == null) {
-			System.out.println(2);
 			return null;
 		}
 
 		if (existing.size() == 1) {
 			FunctionIdentifier identifier = existing.stream().findAny().orElse(null);
-			System.out.println(identifier);
-			System.out.println("3 " + identifierFunctionMap.get(identifier));
 			return identifierFunctionMap.get(identifier);
 		}
 
 		List<FunctionIdentifier> candidates = candidates(provided, existing);
 		if (candidates.isEmpty()) {
-			System.out.println(4);
 			return null;
 		} else if (candidates.size() == 1) {
-			System.out.println("5 " + identifierFunctionMap.get(candidates.get(0)));
 			return identifierFunctionMap.get(candidates.get(0));
 		} else {
 			throw new SkriptAPIException("Ambiguous function call: " + provided.name);
@@ -292,7 +286,10 @@ class FunctionRegistry {
 //			System.out.println("11 " + signatures.get(namespace).get(candidates.get(0)));
 			return signatures.get(namespace).get(candidates.get(0));
 		} else {
-			throw new SkriptAPIException("Ambiguous signature call: " + identifier.name);
+			String options = candidates.stream().map(Record::toString).collect(Collectors.joining(", "));
+			System.out.println(identifier);
+			System.out.println(options);
+			throw new SkriptAPIException("Ambiguous signature call for '%s'".formatted(identifier.name));
 		}
 	}
 
@@ -333,6 +330,9 @@ class FunctionRegistry {
 		private static FunctionIdentifier of(@NotNull String name, Class<?>... args) {
 			Preconditions.checkNotNull(name, "name is null");
 
+			if (args == null) {
+				return new FunctionIdentifier(name, false, 0);
+			}
 			return new FunctionIdentifier(name, false, args.length, args);
 		}
 
@@ -391,6 +391,13 @@ class FunctionRegistry {
 			}
 
 			return true;
+		}
+
+		@Override
+		public String toString() {
+			return "FunctionIdentifier{name='%s', local=%s, minArgCount=%d, args=[%s]}".formatted(
+				name, local, minArgCount,
+				Arrays.stream(args).map(Class::getSimpleName).collect(Collectors.joining(", ")));
 		}
 	}
 

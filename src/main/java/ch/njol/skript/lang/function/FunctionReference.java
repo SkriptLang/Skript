@@ -7,6 +7,7 @@ import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.config.Node;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser;
+import ch.njol.skript.lang.UnparsedLiteral;
 import ch.njol.skript.log.RetainingLogHandler;
 import ch.njol.skript.log.SkriptLogger;
 import ch.njol.skript.registrations.Classes;
@@ -99,9 +100,12 @@ public class FunctionReference<T> implements Contract, Executable<Event, T[]> {
 	public boolean validateParameterArity(boolean first) {
 		if (!first && script == null)
 			return false;
+
 		Signature<?> sign = Functions.getSignature(functionName, script);
+
 		if (sign == null)
 			return false;
+
 		// Not enough parameters
 		return parameters.length >= sign.getMinParameters();
 	}
@@ -121,25 +125,7 @@ public class FunctionReference<T> implements Contract, Executable<Event, T[]> {
 		function = null;
 		SkriptLogger.setNode(node);
 		Skript.debug("Validating function " + functionName);
-
-		// attempt to get the types of the parameters for this function reference
-		boolean allSameType = true;
-		parameterTypes = new Class<?>[parameters.length];
-		for (int i = 0; i < parameters.length; i++) {
-			parameterTypes[i] = parameters[i].getReturnType();
-
-			if (parameterTypes[0] != Object.class && parameterTypes[i] != Object.class) {
-				allSameType &= parameterTypes[i] == parameterTypes[0];
-			}
-		}
-
-		Signature<?> sign = FunctionRegistry.signature(script, functionName, parameterTypes);
-
-		// functions may have non-single arguments
-		// if all arguments are of the same type (or object) will try to find a function with an array type
-		if (parameterTypes.length > 0 && allSameType && sign == null) {
-			sign = FunctionRegistry.signature(script, functionName, Object[].class);
-		}
+		Signature<?> sign = Functions.getSignature(functionName, script);
 
 		// Check if the requested function exists
 		if (sign == null) {
@@ -228,8 +214,6 @@ public class FunctionReference<T> implements Contract, Executable<Event, T[]> {
 			Parameter<?> p = sign.parameters[singleListParam ? 0 : i];
 			RetainingLogHandler log = SkriptLogger.startRetainingLog();
 			try {
-				System.out.println(parameters[i].getReturnType().getSimpleName());
-				System.out.println(p.type.getC().getSimpleName());
 				//noinspection unchecked
 				Expression<?> e = parameters[i].getConvertedExpression(p.type.getC());
 				if (e == null) {
@@ -275,6 +259,34 @@ public class FunctionReference<T> implements Contract, Executable<Event, T[]> {
 		return true;
 	}
 
+	/**
+	 * Attempts to get this function's signature.
+	 */
+	private Signature<?> getSignature() {
+		// attempt to get the types of the parameters for this function reference
+		boolean allSameType = true;
+		parameterTypes = new Class<?>[parameters.length];
+		for (int i = 0; i < parameters.length; i++) {
+			System.out.println(parameters[i].getClass().getSimpleName());
+			parameterTypes[i] = parameters[i].getReturnType();
+
+			if (parameterTypes[0] != Object.class && parameterTypes[i] != Object.class) {
+				allSameType &= parameterTypes[i] == parameterTypes[0];
+			}
+		}
+		System.out.println("s = " + Arrays.toString(Arrays.stream(parameterTypes).map(Class::getSimpleName).toArray()));
+
+		Signature<?> sign = FunctionRegistry.signature(script, functionName, parameterTypes);
+
+		// functions may have non-single arguments
+		// if all arguments are of the same type (or object) will try to find a function with an array type
+		if (parameterTypes.length > 0 && allSameType && sign == null) {
+			sign = FunctionRegistry.signature(script, functionName, Object[].class);
+		}
+
+		return sign;
+	}
+
 	public @Nullable Function<? extends T> getFunction() {
 		return function;
 	}
@@ -289,7 +301,7 @@ public class FunctionReference<T> implements Contract, Executable<Event, T[]> {
 		// If needed, acquire the function reference
 		if (function == null)
 			//noinspection unchecked
-			function = (Function<? extends T>) FunctionRegistry.function(script, functionName, parameterTypes);
+			function = (Function<? extends T>) Functions.getFunction(functionName, script);
 
 		if (function == null) { // It might be impossible to resolve functions in some cases!
 			Skript.error("Couldn't resolve call for '" + functionName + "'.");
