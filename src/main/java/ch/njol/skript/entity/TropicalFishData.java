@@ -124,4 +124,5 @@ public class TropicalFishData extends EntityData<TropicalFish> {
 	public EntityData<TropicalFish> getSuperType() {
 		return new TropicalFishData(matchedPattern);
 	}
+
 }
