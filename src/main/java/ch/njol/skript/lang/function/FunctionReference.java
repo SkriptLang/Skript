@@ -14,9 +14,9 @@ import ch.njol.skript.util.Contract;
 import ch.njol.skript.util.LiteralUtils;
 import ch.njol.util.StringUtils;
 import org.bukkit.event.Event;
-import org.skriptlang.skript.util.Executable;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.converter.Converters;
+import org.skriptlang.skript.util.Executable;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -106,6 +106,8 @@ public class FunctionReference<T> implements Contract, Executable<Event, T[]> {
 		return parameters.length >= sign.getMinParameters();
 	}
 
+	private Class<?>[] parameterTypes;
+
 	/**
 	 * Validates this function reference. Prints errors if needed.
 	 * @param first True if this is called while loading a script. False when
@@ -119,7 +121,25 @@ public class FunctionReference<T> implements Contract, Executable<Event, T[]> {
 		function = null;
 		SkriptLogger.setNode(node);
 		Skript.debug("Validating function " + functionName);
-		Signature<?> sign = Functions.getSignature(functionName, script);
+
+		// attempt to get the types of the parameters for this function reference
+		boolean allSameType = true;
+		parameterTypes = new Class<?>[parameters.length];
+		for (int i = 0; i < parameters.length; i++) {
+			parameterTypes[i] = parameters[i].getReturnType();
+
+			if (parameterTypes[0] != Object.class && parameterTypes[i] != Object.class) {
+				allSameType &= parameterTypes[i] == parameterTypes[0];
+			}
+		}
+
+		Signature<?> sign = FunctionRegistry.signature(script, functionName, parameterTypes);
+
+		// functions may have non-single arguments
+		// if all arguments are of the same type (or object) will try to find a function with an array type
+		if (parameterTypes.length > 0 && allSameType && sign == null) {
+			sign = FunctionRegistry.signature(script, functionName, Object[].class);
+		}
 
 		// Check if the requested function exists
 		if (sign == null) {
@@ -208,12 +228,14 @@ public class FunctionReference<T> implements Contract, Executable<Event, T[]> {
 			Parameter<?> p = sign.parameters[singleListParam ? 0 : i];
 			RetainingLogHandler log = SkriptLogger.startRetainingLog();
 			try {
+				System.out.println(parameters[i].getReturnType().getSimpleName());
+				System.out.println(p.type.getC().getSimpleName());
 				//noinspection unchecked
 				Expression<?> e = parameters[i].getConvertedExpression(p.type.getC());
 				if (e == null) {
 					if (first) {
 						if (LiteralUtils.hasUnparsedLiteral(parameters[i])) {
-							Skript.error("Can't understand this expression: " + parameters[i].toString());
+							Skript.error("(Function) Can't understand this expression: " + parameters[i].toString());
 						} else {
 							Skript.error("The " + StringUtils.fancyOrderNumber(i + 1) + " argument given to the function '" + functionName + "' is not of the required type " + p.type + "."
 								+ " Check the correct order of the arguments and put lists into parentheses if appropriate (e.g. 'give(player, (iron ore and gold ore))')."
@@ -267,7 +289,7 @@ public class FunctionReference<T> implements Contract, Executable<Event, T[]> {
 		// If needed, acquire the function reference
 		if (function == null)
 			//noinspection unchecked
-			function = (Function<? extends T>) Functions.getFunction(functionName, script);
+			function = (Function<? extends T>) FunctionRegistry.function(script, functionName, parameterTypes);
 
 		if (function == null) { // It might be impossible to resolve functions in some cases!
 			Skript.error("Couldn't resolve call for '" + functionName + "'.");
@@ -348,7 +370,7 @@ public class FunctionReference<T> implements Contract, Executable<Event, T[]> {
 		// If needed, acquire the function reference
 		if (function == null)
 			//noinspection unchecked
-			function = (Function<? extends T>) Functions.getFunction(functionName, script);
+			function = (Function<? extends T>) FunctionRegistry.function(script, functionName, parameterTypes);
 
 		if (function == null) { // It might be impossible to resolve functions in some cases!
 			Skript.error("Couldn't resolve call for '" + functionName + "'.");

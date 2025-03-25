@@ -1,0 +1,24 @@
+function overloaded(x: int, y: int) :: int:
+	return 1
+
+function overloaded(x: int, y: int, z: int) :: int:
+	return 2
+
+function overloaded(x: text, y: text) :: int:
+	return 3
+
+function overloaded(x: text, y: int, z: int) :: int:
+	return 4
+
+test "function overloading":
+	broadcast last parse logs
+
+	broadcast "%overloaded(1, 2)%"
+	broadcast "%overloaded(1, 2, 3)%"
+	broadcast "%overloaded('a', 'b')%"
+	broadcast "%overloaded('a', 2, 3)%"
+
+	assert overloaded(1, 2) = 1
+	assert overloaded(1, 2, 3) = 2
+	assert overloaded('a', 'b') = 3
+	assert overloaded('a', 2, 3) = 4

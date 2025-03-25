@@ -57,10 +57,10 @@ public class DynamicFunctionReference<Result>
 		Function<? extends Result> function;
 		if (source != null) {
 			//noinspection unchecked
-			function = (Function<? extends Result>) Functions.getFunction(name, source.getConfig().getFileName());
+			function = (Function<? extends Result>) FunctionRegistry.function(source.getConfig().getFileName(), name);
 		} else {
 			//noinspection unchecked
-			function = (Function<? extends Result>) Functions.getFunction(name, null);
+			function = (Function<? extends Result>) FunctionRegistry.function(null, name);
 		}
 		this.resolved = function != null;
 		this.function = new WeakReference<>(function);

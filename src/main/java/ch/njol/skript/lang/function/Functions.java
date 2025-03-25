@@ -12,12 +12,7 @@ import ch.njol.util.StringUtils;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.script.Script;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Static methods to work with functions.
@@ -66,9 +61,11 @@ public abstract class Functions {
 		String name = function.getName();
 		if (!name.matches(functionNamePattern))
 			throw new SkriptAPIException("Invalid function name '" + name + "'");
-		javaNamespace.addSignature(function.getSignature());
-		javaNamespace.addFunction(function);
-		globalFunctions.put(function.getName(), javaNamespace);
+//		javaNamespace.addSignature(function.getSignature());
+//		javaNamespace.addFunction(function);
+//		globalFunctions.put(function.getName(), javaNamespace);
+
+		FunctionRegistry.registerFunction(function);
 
 		return function;
 	}
@@ -85,12 +82,13 @@ public abstract class Functions {
 	 */
 	public static @Nullable Function<?> loadFunction(Script script, SectionNode node, Signature<?> signature) {
 		String name = signature.name;
-		Namespace namespace = getScriptNamespace(script.getConfig().getFileName());
-		if (namespace == null) {
-			namespace = globalFunctions.get(name);
-			if (namespace == null)
-				return null; // Probably duplicate signature; reported before
-		}
+//		Namespace namespace = getScriptNamespace(script.getConfig().getFileName());
+//		if (namespace == null) {
+//			namespace = globalFunctions.get(name);
+//			if (namespace == null)
+//				return null; // Probably duplicate signature; reported before
+//		}
+
 		Parameter<?>[] params = signature.parameters;
 		ClassInfo<?> c = signature.returnType;
 
@@ -98,12 +96,14 @@ public abstract class Functions {
 			Skript.debug((signature.local ? "local " : "") + "function " + name + "(" + StringUtils.join(params, ", ") + ")"
 				+ (c != null ? " :: " + (signature.isSingle() ? c.getName().getSingular() : c.getName().getPlural()) : "") + ":");
 
-		Function<?> f = new ScriptFunction<>(signature, node);
+		Function<?> function = new ScriptFunction<>(signature, node);
 
 		// Register the function for signature
-		namespace.addFunction(f);
+//		namespace.addFunction(function);
 
-		return f;
+		FunctionRegistry.registerFunction(script.getConfig().getFileName(), function);
+
+		return function;
 	}
 
 
@@ -148,29 +148,37 @@ public abstract class Functions {
 	 * @see Functions#parseSignature(String, String, String, String, boolean)
 	 */
 	public static @Nullable Signature<?> registerSignature(Signature<?> signature) {
-		// Ensure there are no duplicate functions
-		if (signature.local) {
-			Namespace namespace = getScriptNamespace(signature.script);
-			if (namespace != null && namespace.getSignature(signature.name, true) != null)
-				return signError("A local function named '" + signature.name + "' already exists in the script");
+		boolean exists;
+		Parameter<?>[] parameters = signature.parameters;
+
+		if (parameters.length == 1 && !parameters[0].isSingleValue()) {
+			exists = FunctionRegistry.signatureExists(signature.script, signature.getName(), parameters[0].type.getC().arrayType());
 		} else {
-			if (globalFunctions.containsKey(signature.name)) {
-				Namespace namespace = globalFunctions.get(signature.name);
-				if (namespace == javaNamespace) { // Special messages for built-in functions
-					return signError("Function name '" + signature.name + "' is reserved by Skript");
-				} else {
-					Signature<?> sign = namespace.getSignature(signature.name, false);
-					assert sign != null : "globalFunctions points to a wrong namespace";
-					return signError("A global function named '" + signature.name + "' already exists in script '" + sign.script + "'");
-				}
+			Class<?>[] types = new Class<?>[parameters.length];
+			for (int i = 0; i < parameters.length; i++) {
+				types[i] = parameters[i].type.getC();
 			}
+
+			exists = FunctionRegistry.signatureExists(signature.script, signature.getName(), types);
+		}
+
+		if (exists) {
+			return signError("Function '%s' with the same argument types already exists.".formatted(signature.getName()));
 		}
 
 		Namespace.Key namespaceKey = new Namespace.Key(Namespace.Origin.SCRIPT, signature.script);
 		Namespace namespace = namespaces.computeIfAbsent(namespaceKey, k -> new Namespace());
-		namespace.addSignature(signature);
+		if (namespace.getSignature(signature.name) != null) {
+			namespace.addSignature(signature);
+		}
 		if (!signature.local)
 			globalFunctions.put(signature.name, namespace);
+
+		if (signature.local) {
+			FunctionRegistry.registerSignature(signature.script, signature);
+		} else {
+			FunctionRegistry.registerSignature(null, signature);
+		}
 
 		Skript.debug("Registered function signature: " + signature.name);
 

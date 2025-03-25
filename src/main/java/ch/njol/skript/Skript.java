@@ -1747,8 +1747,8 @@ public final class Skript extends JavaPlugin implements Listener {
 	}
 
 	public static void debug(final String info) {
-		if (!debug())
-			return;
+//		if (!debug())
+//			return;
 		SkriptLogger.log(SkriptLogger.DEBUG, info);
 	}
 
