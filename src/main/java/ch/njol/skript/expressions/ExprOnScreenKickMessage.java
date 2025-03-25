@@ -14,19 +14,19 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.doc.*;
 import org.jetbrains.annotations.Nullable;
 
-@Name("Kick Message")
+@Name("On-screen Kick Message")
 @Description("The kick message that is displayed on-screen when a player is kicked.")
 @Examples({
 	"on kick:",
-		"\tkick message is 'Invalid hotbar selection (Hacking?)'",
+		"\ton-screen kick message is 'Invalid hotbar selection (Hacking?)'",
 		"\tcancel event"
 })
 @Since("INSERT VERSION")
 @Events("Kick")
-public class ExprKickMessage extends SimpleExpression<String> implements EventRestrictedSyntax {
+public class ExprOnScreenKickMessage extends SimpleExpression<String> implements EventRestrictedSyntax {
 
 	static {
-		Skript.registerExpression(ExprKickMessage.class, String.class, ExpressionType.SIMPLE, "kick (message|reason)");
+		Skript.registerExpression(ExprOnScreenKickMessage.class, String.class, ExpressionType.SIMPLE, "on-screen kick message");
 	}
 
 	@Override
@@ -75,4 +75,5 @@ public class ExprKickMessage extends SimpleExpression<String> implements EventRe
 	public Class<? extends Event>[] supportedEvents() {
 		return CollectionUtils.array(PlayerKickEvent.class);
 	}
+
 }
