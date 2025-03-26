@@ -23,9 +23,10 @@ import org.jetbrains.annotations.Nullable;
 	"set {_item with additional tooltip} to diamond with additional tooltip",
 	"set {_item without entire tooltip} to diamond without entire tooltip"
 })
-@RequiredPlugins("Spigot 1.20.5+")
+@RequiredPlugins("Minecraft 1.20.5+")
 @Since("INSERT VERSION")
 public class ExprItemWithTooltip extends PropertyExpression<ItemType, ItemType> {
+
 	static {
 		if (Skript.methodExists(ItemMeta.class, "isHideTooltip")) {// this method was added in the same version as the additional tooltip item flag
 			Skript.registerExpression(ExprItemWithTooltip.class, ItemType.class, ExpressionType.PROPERTY,
