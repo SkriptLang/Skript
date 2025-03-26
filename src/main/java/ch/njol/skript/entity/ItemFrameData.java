@@ -21,7 +21,7 @@ package ch.njol.skript.entity;
 import org.bukkit.Rotation;
 import org.bukkit.entity.ItemFrame;
 import org.bukkit.inventory.ItemStack;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.lang.Literal;
