@@ -6,3 +6,14 @@ test "registry":
 	# Test serialization
 	set {test::enchantment} to minecraft:sharpness
 	assert {test::enchantment} = sharpness with "variable should have been set to sharpness enchantment"
+
+	# Test other registry items
+	assert minecraft:nether_wastes = nether wastes with "Biome should be in registry"
+
+	parse if running minecraft "1.21.2":
+		assert minecraft:movement_speed = movement speed with "Attribute should be in registry"
+	parse if running below minecraft "1.21.2":
+		assert minecraft:generic.movement_speed = movement speed with "Attribute should be in registry"
+
+	parse if running minecraft "1.20.5":
+		assert minecraft:ashen = ashen with "Wolf variants should be in registry"

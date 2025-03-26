@@ -12,14 +12,12 @@ import org.bukkit.block.Block;
 import org.bukkit.block.data.type.CommandBlock;
 
 @Name("Is Conditional")
-@Description(
-	"Checks whether a command block is conditional or not."
-)
+@Description("Checks whether a command block is conditional or not.")
 @Examples({
 	"if {_block} is conditional:",
 		"\tmake {_block} unconditional"
 })
-@Since("INSERT VERSION")
+@Since("2.10")
 public class CondIsCommandBlockConditional extends PropertyCondition<Block> {
 
 	static {

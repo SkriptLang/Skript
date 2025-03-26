@@ -21,11 +21,11 @@ import org.jetbrains.annotations.Nullable;
 })
 @Examples({
 	"on fishing line cast:",
-		"\tset min waiting time to 10 seconds",
-		"\tset max waiting time to 20 seconds",
+		"\tset min fish waiting time to 10 seconds",
+		"\tset max fishing waiting time to 20 seconds",
 })
 @Events("Fishing")
-@Since("INSERT VERSION")
+@Since("2.10")
 public class ExprFishingWaitTime extends SimpleExpression<Timespan> {
 
 	private static final int DEFAULT_MINIMUM_TICKS = 5 * 20;

@@ -45,10 +45,10 @@ import java.util.Map;
 	"loop key {_index} and value {_value} in {list of items::*}:",
 	"\tbroadcast \"%{_index}% = %{_value}%\"",
 	"",
-	"for each {_index} = {_value} in {my list::*}:",
+	"for each {_index}, {_value} in {my list::*}:",
 	"\tbroadcast \"%{_index}% = %{_value}%\"",
 })
-@Since("INSERT VERSION")
+@Since("2.10")
 public class SecFor extends SecLoop {
 
 	static {
@@ -107,13 +107,18 @@ public class SecFor extends SecLoop {
 					.getName() + " implements Container but is missing the required @ContainerType annotation");
 			this.expression = new ContainerExpression((Expression<? extends Container<?>>) expression, type.value());
 		}
-		if (expression.isSingle()) {
+		if (this.getParser().hasExperiment(Feature.QUEUES) // Todo: change this if other iterable things are added
+			&& expression.isSingle()
+			&& (expression instanceof Variable<?> || Iterable.class.isAssignableFrom(expression.getReturnType()))) {
+			// Some expressions return one thing but are potentially iterable anyway, e.g. queues
+			super.iterableSingle = true;
+		} else if (expression.isSingle()) {
 			Skript.error("Can't loop '" + expression + "' because it's only a single value");
 			return false;
 		}
 		//</editor-fold>
 		this.loadOptionalCode(sectionNode);
-		super.setNext(this);
+		this.setInternalNext(this);
 		return true;
 	}
 

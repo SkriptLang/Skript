@@ -35,7 +35,7 @@ import org.jetbrains.annotations.Nullable;
 	"if {_dates::*} have passed:",
 		"\t# this will be false"
 })
-@Since("INSERT VERSION")
+@Since("2.10")
 public class CondPastFuture extends Condition {
 
 	static {

@@ -27,7 +27,7 @@ public class EvtFurnace extends SkriptEvent {
 					"\tbroadcast smelted item",
 					"\tset the smelted item to iron block"
 			)
-			.since("1.0, INSERT VERSION (specific item)");
+			.since("1.0, 2.10 (specific item)");
 
 		Skript.registerEvent("Fuel Burn", EvtFurnace.class, FurnaceBurnEvent.class, "[furnace] fuel burn[ing] [of %-itemtypes%]")
 			.description("Called when a furnace burns an item from its <a href='expressions.html#ExprFurnaceSlot'>fuel slot</a>.")
@@ -37,7 +37,7 @@ public class EvtFurnace extends SkriptEvent {
 					"\tif burned fuel is coal:",
 						"\t\tadd 20 seconds to burn time"
 			)
-			.since("1.0, INSERT VERSION (specific item)");
+			.since("1.0, 2.10 (specific item)");
 
 		Skript.registerEvent("Furnace Item Extract", EvtFurnace.class, FurnaceExtractEvent.class, "furnace [item] extract[ion] [of %-itemtypes%]")
 			.description("Called when a player takes any item out of the furnace.")
@@ -46,7 +46,7 @@ public class EvtFurnace extends SkriptEvent {
 					"\tif event-items is an iron ingot:",
 						"\t\tremove event-items from event-player's inventory"
 			)
-			.since("INSERT VERSION");
+			.since("2.10");
 
 		Skript.registerEvent("Start Smelt", EvtFurnace.class, FurnaceStartSmeltEvent.class,
 			"[furnace] start [of] smelt[ing] [[of] %-itemtypes%]",
@@ -59,7 +59,7 @@ public class EvtFurnace extends SkriptEvent {
 				"on smelting start of raw iron:",
 					"\tadd 20 seconds to total cook time"
 			)
-			.since("INSERT VERSION");
+			.since("2.10");
 	}
 
 	private @Nullable Literal<ItemType> types;

@@ -18,6 +18,8 @@ import org.bukkit.event.Event;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
+import java.lang.reflect.Array;
+
 @Name("X of Item")
 @Description("An expression to be able to use a certain amount of items where the amount can be any expression. Please note that this expression is not stable and might be replaced in the future.")
 @Examples("give level of player of pickaxes to the player")
@@ -44,7 +46,7 @@ public class ExprXOf extends PropertyExpression<Object, Object> {
 	protected Object[] get(Event e, Object[] source) {
 		Number a = amount.getSingle(e);
 		if (a == null)
-			return new Object[0];
+			return (Object[]) Array.newInstance(getReturnType(), 0);
 
 		return get(source, o -> {
 			if (o instanceof ItemStack) {

@@ -1,6 +1,8 @@
 package ch.njol.skript.expressions;
 
 import ch.njol.skript.command.ScriptCommandEvent;
+import ch.njol.skript.lang.EventRestrictedSyntax;
+import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.event.Event;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.event.server.ServerCommandEvent;
@@ -31,7 +33,7 @@ import ch.njol.util.Kleenean;
 		"\t\t\tcancel the event"})
 @Since("2.0, 2.7 (support for script commands)")
 @Events("command")
-public class ExprCommand extends SimpleExpression<String> {
+public class ExprCommand extends SimpleExpression<String> implements EventRestrictedSyntax {
 
 	static {
 		Skript.registerExpression(ExprCommand.class, String.class, ExpressionType.SIMPLE,
@@ -44,12 +46,13 @@ public class ExprCommand extends SimpleExpression<String> {
 	
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		if (!getParser().isCurrentEvent(PlayerCommandPreprocessEvent.class, ServerCommandEvent.class, ScriptCommandEvent.class)) {
-			Skript.error("The 'command' expression can only be used in a script command or command event");
-			return false;
-		}
 		fullCommand = matchedPattern == 0;
 		return true;
+	}
+
+	@Override
+	public Class<? extends Event>[] supportedEvents() {
+		return CollectionUtils.array(PlayerCommandPreprocessEvent.class, ServerCommandEvent.class, ScriptCommandEvent.class);
 	}
 	
 	@Override
@@ -88,5 +91,5 @@ public class ExprCommand extends SimpleExpression<String> {
 	public String toString(@Nullable Event e, boolean debug) {
 		return fullCommand ? "the full command" : "the command";
 	}
-	
+
 }

@@ -8,7 +8,6 @@ import ch.njol.skript.lang.SkriptEvent;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.SyntaxStringBuilder;
 import ch.njol.skript.registrations.EventValues;
-import ch.njol.skript.util.Getter;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.Entity;
@@ -30,23 +29,13 @@ public class EvtVehicleCollision extends SkriptEvent {
 				"vehicle entity collision [(with|of) [a[n]] %-entitydatas%]")
 				.description("Called when a vehicle collides with a block or entity.")
 				.examples("on vehicle collision:", "on vehicle collision with obsidian:", "on vehicle collision with a zombie:")
-				.since("INSERT VERSION");
+				.since("2.10");
 
 		// VehicleBlockCollisionEvent
-		EventValues.registerEventValue(VehicleBlockCollisionEvent.class, Block.class, new Getter<>() {
-			@Override
-			public Block get(VehicleBlockCollisionEvent event) {
-				return event.getBlock();
-			}
-		}, EventValues.TIME_NOW);
+		EventValues.registerEventValue(VehicleBlockCollisionEvent.class, Block.class, VehicleBlockCollisionEvent::getBlock);
 
 		// VehicleEntityCollisionEvent
-		EventValues.registerEventValue(VehicleEntityCollisionEvent.class, Entity.class, new Getter<>() {
-			@Override
-			public Entity get(VehicleEntityCollisionEvent event) {
-				return event.getEntity();
-			}
-		}, EventValues.TIME_NOW);
+		EventValues.registerEventValue(VehicleEntityCollisionEvent.class, Entity.class, VehicleEntityCollisionEvent::getEntity);
 	}
 
 	private Literal<?> expr;

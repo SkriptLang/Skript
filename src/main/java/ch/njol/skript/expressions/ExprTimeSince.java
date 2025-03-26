@@ -24,7 +24,7 @@ import org.jetbrains.annotations.Nullable;
 	"send \"%time since 5 minecraft days ago% has passed since 5 minecraft days ago!\" to player",
 	"send \"%time until {countdown::end}% until the game begins!\" to player"
 })
-@Since("2.5, INSERT VERSION (time until)")
+@Since("2.5, 2.10 (time until)")
 public class ExprTimeSince extends SimplePropertyExpression<Date, Timespan> {
 
 	static {

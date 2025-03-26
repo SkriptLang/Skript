@@ -1,5 +1,7 @@
 package ch.njol.skript.expressions;
 
+import ch.njol.skript.lang.EventRestrictedSyntax;
+import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Projectile;
 import org.bukkit.event.Event;
@@ -36,7 +38,7 @@ import ch.njol.util.Kleenean;
 		"	damage victim by 1 heart"})
 @Since("1.3")
 @Events({"damage", "death", "destroy"})
-public class ExprAttacker extends SimpleExpression<Entity> {
+public class ExprAttacker extends SimpleExpression<Entity> implements EventRestrictedSyntax {
 
 	static {
 		Skript.registerExpression(ExprAttacker.class, Entity.class, ExpressionType.SIMPLE, "[the] (attacker|damager)");
@@ -44,13 +46,15 @@ public class ExprAttacker extends SimpleExpression<Entity> {
 	
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parser) {
-		if (!getParser().isCurrentEvent(EntityDamageEvent.class, EntityDeathEvent.class, VehicleDamageEvent.class, VehicleDestroyEvent.class)) {
-			Skript.error("Cannot use 'attacker' outside of a damage/death/destroy event", ErrorQuality.SEMANTIC_ERROR);
-			return false;
-		}
 		return true;
 	}
-	
+
+	@Override
+	public Class<? extends Event>[] supportedEvents() {
+		return CollectionUtils.array(EntityDamageEvent.class, EntityDeathEvent.class,
+			VehicleDamageEvent.class, VehicleDestroyEvent.class);
+	}
+
 	@Override
 	protected Entity[] get(Event e) {
 		return new Entity[] {getAttacker(e)};

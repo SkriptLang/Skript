@@ -1,3 +1,7 @@
+aliases:
+	test any log = oak log, spruce log, dark oak log
+	test any wool = white wool, red wool, black wool
+
 test "max stack - itemtype":
 	assert max stack size of diamond sword is 1 with "diamond sword max stack size failed"
 	assert max stack size of bucket is 16 with "bucket max stack size failed"
@@ -8,7 +12,7 @@ test "max stack - itemtype":
 	assert max stack size of {_null} is 0 to fail with "max stack size of non itemtype expected to fail ##2"
 	assert max stack size of diamond and diamond sword is 64 and 1 with "max stack size of itemtypes 'and' case failed"
 	assert max stack size of diamond or diamond sword is 64 or 1 with "max stack size of itemtypes 'or' case failed"
-	loop any log and any wool:
+	loop (test any log) and (test any wool):
 		assert max stack size of loop-value is 64 with "max stack size of category itemtypes (%loop-value%) failed"
 
 test "max stack override - itemtype" when running minecraft "1.20.5":
@@ -43,7 +47,7 @@ test "max stack override - itemtype" when running minecraft "1.20.5":
 	assert max stack size of {_item} is 1 with "diamond sword should have max stack size of 1"
 
 	# edge case
-	loop any log and any wool:
+	loop (test any log) and (test any wool):
 		set {_edge} to loop-value
 		set max stack size of {_edge} to 1
 		assert max stack size of {_edge} is 1 with "max stack size override of category itemtypes (%{_edge}%) failed"

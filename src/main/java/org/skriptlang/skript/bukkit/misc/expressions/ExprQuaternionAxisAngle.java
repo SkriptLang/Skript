@@ -32,7 +32,7 @@ import org.joml.Quaternionf;
 	"set rotation angle of {_quaternion} to 135",
 	"set rotation axis of {_quaternion} to vector(0, 1, 0)"
 })
-@Since("INSERT VERSION")
+@Since("2.10")
 public class ExprQuaternionAxisAngle extends SimplePropertyExpression<Quaternionf, Object> {
 
 	static {
