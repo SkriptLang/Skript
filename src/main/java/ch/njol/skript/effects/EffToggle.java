@@ -131,7 +131,6 @@ public class EffToggle extends Effect {
 	 */
 	private void toggleSingleBlock(@NotNull Block block) {
 		BlockData data = block.getBlockData();
-		
 		if (data instanceof Openable openable) {
 			openable.setOpen(action.apply(openable.isOpen()));
 			block.setBlockData(data);
