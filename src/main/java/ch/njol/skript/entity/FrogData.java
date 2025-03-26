@@ -1,21 +1,3 @@
-/**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
 package ch.njol.skript.entity;
 
 import ch.njol.skript.Skript;
@@ -23,7 +5,9 @@ import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser;
 import org.bukkit.entity.Frog;
 import org.bukkit.entity.Frog.Variant;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.Objects;
 
 public class FrogData extends EntityData<Frog> {
 
@@ -42,13 +26,28 @@ public class FrogData extends EntityData<Frog> {
 
 	public FrogData(@Nullable Variant variant) {
 		this.variant = variant;
-		matchedPattern = variant != null ? variant.ordinal() + 1 : 0;
+		matchedPattern = 0;
+		if (variant == Variant.TEMPERATE)
+			matchedPattern = 1;
+		if (variant == Variant.WARM)
+			matchedPattern = 2;
+		if (variant == Variant.COLD)
+			matchedPattern = 3;
 	}
 
 	@Override
 	protected boolean init(Literal<?>[] exprs, int matchedPattern, SkriptParser.ParseResult parseResult) {
-		if (matchedPattern > 0)
-			variant = Variant.values()[matchedPattern - 1];
+		switch (matchedPattern) {
+			case 1:
+				variant = Variant.TEMPERATE;
+				break;
+			case 2:
+				variant = Variant.WARM;
+				break;
+			case 3:
+				variant = Variant.COLD;
+				break;
+		}
 		return true;
 	}
 
@@ -82,7 +81,7 @@ public class FrogData extends EntityData<Frog> {
 
 	@Override
 	protected int hashCode_i() {
-		return variant != null ? variant.hashCode() : 0;
+		return Objects.hashCode(variant);
 	}
 
 	@Override

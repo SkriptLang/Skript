@@ -1,28 +1,10 @@
-/**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
 package ch.njol.yggdrasil;
 
 import java.io.NotSerializableException;
 import java.io.StreamCorruptedException;
 import java.lang.reflect.Field;
 
-import org.eclipse.jdt.annotation.NonNull;
+import org.jetbrains.annotations.NotNull;
 
 import ch.njol.yggdrasil.Fields.FieldContext;
 
@@ -48,7 +30,7 @@ public interface YggdrasilSerializable {
 		 *         <tt>yggdrasil.{@link Yggdrasil#incompatibleField(Object, Field, FieldContext) incompatibleField}(this, field, value)</tt>
 		 *         will be called.
 		 */
-		boolean incompatibleField(@NonNull Field field, @NonNull FieldContext value) throws StreamCorruptedException;
+		boolean incompatibleField(@NotNull Field field, @NotNull FieldContext value) throws StreamCorruptedException;
 		
 		/**
 		 * Called if a field was read from stream which does not exist in this class.
@@ -58,7 +40,7 @@ public interface YggdrasilSerializable {
 		 *         <tt>yggdrasil.{@link Yggdrasil#excessiveField(Object, FieldContext) excessiveField}(this, field)</tt>
 		 *         will be called.
 		 */
-		boolean excessiveField(@NonNull FieldContext field) throws StreamCorruptedException;
+		boolean excessiveField(@NotNull FieldContext field) throws StreamCorruptedException;
 		
 		/**
 		 * Called if a field was not found in the stream.
@@ -67,7 +49,7 @@ public interface YggdrasilSerializable {
 		 * @return Whether the field was handled (e.g. true if the default value is fine). If false,
 		 *         <tt>yggdrasil.{@link Yggdrasil#missingField(Object, Field) missingField}(this, field)</tt> will be called.
 		 */
-		boolean missingField(@NonNull Field field) throws StreamCorruptedException;
+		boolean missingField(@NotNull Field field) throws StreamCorruptedException;
 		
 	}
 	
@@ -122,7 +104,7 @@ public interface YggdrasilSerializable {
 		 * @throws StreamCorruptedException If the Fields object is invalid, i.e. was not written
 		 *                                  by {@link #serialize()} or Yggdrasil's default serialisation.
 		 */
-		void deserialize(@NonNull Fields fields) throws StreamCorruptedException, NotSerializableException;
+		void deserialize(@NotNull Fields fields) throws StreamCorruptedException, NotSerializableException;
 		
 	}
 	

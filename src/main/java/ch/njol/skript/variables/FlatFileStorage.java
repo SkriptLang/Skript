@@ -1,21 +1,3 @@
-/**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
 package ch.njol.skript.variables;
 
 import ch.njol.skript.Skript;
@@ -29,7 +11,7 @@ import ch.njol.skript.util.Task;
 import ch.njol.skript.util.Utils;
 import ch.njol.skript.util.Version;
 import ch.njol.util.NotifyingReference;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -94,7 +76,7 @@ public class FlatFileStorage extends VariablesStorage {
 	 * The amount of {@link #changes} needed
 	 * for a new {@link #saveVariables(boolean) save}.
 	 */
-	private static final int REQUIRED_CHANGES_FOR_RESAVE = 1000;
+	private static int REQUIRED_CHANGES_FOR_RESAVE = 1000;
 
 	/**
 	 * The amount of variable changes written since the last full save.
@@ -126,10 +108,10 @@ public class FlatFileStorage extends VariablesStorage {
 	/**
 	 * Create a new CSV storage of the given name.
 	 *
-	 * @param name the name.
+	 * @param type the databse type i.e. CSV.
 	 */
-	FlatFileStorage(String name) {
-		super(name);
+	FlatFileStorage(String type) {
+		super(type);
 	}
 
 	/**
@@ -439,7 +421,7 @@ public class FlatFileStorage extends VariablesStorage {
 						pw.close();
 						FileUtils.move(tempFile, file, true);
 					} catch (IOException e) {
-						Skript.error("Unable to make a final save of the database '" + databaseName +
+						Skript.error("Unable to make a final save of the database '" + getUserConfigurationName() +
 								"' (no variables are lost): " + ExceptionUtils.toString(e));
 						// FIXME happens at random - check locks/threads
 					}
@@ -622,6 +604,19 @@ public class FlatFileStorage extends VariablesStorage {
 		}
 
 		printWriter.println();
+	}
+
+	/**
+	 * Change the required amount of variable changes until variables are saved.
+	 * Cannot be zero or less.
+	 * @param value
+	 */
+	public static void setRequiredChangesForResave(int value) {
+		if (value <= 0) {
+			Skript.warning("Variable changes until save cannot be zero or less. Using default of 1000.");
+			value = 1000;
+		}
+		REQUIRED_CHANGES_FOR_RESAVE = value;
 	}
 
 }

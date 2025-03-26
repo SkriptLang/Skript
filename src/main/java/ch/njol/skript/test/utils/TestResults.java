@@ -1,21 +1,3 @@
-/**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
 package ch.njol.skript.test.utils;
 
 import java.util.Map;
@@ -62,11 +44,15 @@ public class TestResults {
 
 	public String createReport() {
 		StringBuilder sb = new StringBuilder("Succeeded:\n");
+		if (succeeded.isEmpty())
+			sb.append("<reset> - none\n");
 		for (String test : succeeded)
-			sb.append(test).append('\n');
-		sb.append("Failed:\n");
+			sb.append("<reset> - <light green>").append(test).append('\n');
+		sb.append("<reset>Failed:\n");
+		if (failed.isEmpty())
+			sb.append("<reset> - none");
 		for (Map.Entry<String, String> entry : failed.entrySet())
-			sb.append(entry.getKey()).append(": ").append(entry.getValue()).append('\n');
+			sb.append("<reset> - <light red>").append(entry.getKey()).append("<reset>: <gray>").append(entry.getValue()).append('\n');
 		return sb.toString();
 	}
 

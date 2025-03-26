@@ -1,21 +1,3 @@
-/**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
 package ch.njol.skript.lang.parser;
 
 import ch.njol.skript.ScriptLoader;
@@ -31,6 +13,7 @@ import ch.njol.skript.log.HandlerList;
 import ch.njol.skript.structures.StructOptions.OptionsData;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
+import com.google.common.base.Preconditions;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
@@ -39,15 +22,10 @@ import org.skriptlang.skript.lang.experiment.Experiment;
 import org.skriptlang.skript.lang.experiment.ExperimentSet;
 import org.skriptlang.skript.lang.experiment.Experimented;
 import org.skriptlang.skript.lang.script.Script;
-import org.skriptlang.skript.lang.script.ScriptEvent;
 import org.skriptlang.skript.lang.structure.Structure;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Function;
 
 public final class ParserInstance implements Experimented {
@@ -112,8 +90,7 @@ public final class ParserInstance implements Experimented {
 
 	// Script API
 
-	@Nullable
-	private Script currentScript = null;
+	private @Nullable Script currentScript = null;
 
 	/**
 	 * Internal method for updating the current script. Allows null parameter.
@@ -131,12 +108,18 @@ public final class ParserInstance implements Experimented {
 		);
 
 		// "Script" events
-		if (previous != null)
-			previous.getEvents(ScriptEvent.ScriptInactiveEvent.class)
-				.forEach(eventHandler -> eventHandler.onInactive(currentScript));
-		if (currentScript != null)
-			currentScript.getEvents(ScriptEvent.ScriptActiveEvent.class)
-				.forEach(eventHandler -> eventHandler.onActive(previous));
+		if (previous != null) { // 'previous' is becoming inactive
+			ScriptLoader.eventRegistry().events(ScriptActivityChangeEvent.class)
+					.forEach(event -> event.onActivityChange(this, previous, false, currentScript));
+			previous.eventRegistry().events(ScriptActivityChangeEvent.class)
+					.forEach(event -> event.onActivityChange(this, previous, false, currentScript));
+		}
+		if (currentScript != null) { // 'currentScript' is becoming active
+			ScriptLoader.eventRegistry().events(ScriptActivityChangeEvent.class)
+					.forEach(event -> event.onActivityChange(this, currentScript, true, previous));
+			currentScript.eventRegistry().events(ScriptActivityChangeEvent.class)
+					.forEach(event -> event.onActivityChange(this, currentScript, true, previous));
+		}
 	}
 
 	/**
@@ -151,8 +134,7 @@ public final class ParserInstance implements Experimented {
 
 	// Structure API
 
-	@Nullable
-	private Structure currentStructure = null;
+	private @Nullable Structure currentStructure = null;
 
 	/**
 	 * Updates the Structure currently being handled by this ParserInstance.
@@ -165,8 +147,7 @@ public final class ParserInstance implements Experimented {
 	/**
 	 * @return The Structure currently being handled by this ParserInstance.
 	 */
-	@Nullable
-	public Structure getCurrentStructure() {
+	public @Nullable Structure getCurrentStructure() {
 		return currentStructure;
 	}
 
@@ -191,8 +172,7 @@ public final class ParserInstance implements Experimented {
 
 	// Event API
 
-	@Nullable
-	private String currentEventName;
+	private @Nullable String currentEventName;
 
 	private Class<? extends Event> @Nullable [] currentEvents = null;
 
@@ -200,8 +180,7 @@ public final class ParserInstance implements Experimented {
 		this.currentEventName = currentEventName;
 	}
 
-	@Nullable
-	public String getCurrentEventName() {
+	public @Nullable String getCurrentEventName() {
 		return currentEventName;
 	}
 
@@ -245,6 +224,8 @@ public final class ParserInstance implements Experimented {
 	 * See also {@link #isCurrentEvent(Class[])} for checking with multiple argument classes
 	 */
 	public boolean isCurrentEvent(Class<? extends Event> event) {
+		if (currentEvents == null)
+			return false;
 		for (Class<? extends Event> currentEvent : currentEvents) {
 			// check that current event is same or child of event we want
 			if (event.isAssignableFrom(currentEvent))
@@ -298,12 +279,11 @@ public final class ParserInstance implements Experimented {
 	 * Returns {@code null} if {@link #isCurrentSection(Class)} returns {@code false}.
 	 * @see #getCurrentSections()
 	 */
-	@Nullable
-	@SuppressWarnings("unchecked")
-	public <T extends TriggerSection> T getCurrentSection(Class<T> sectionClass) {
+	public <T extends TriggerSection> @Nullable T getCurrentSection(Class<T> sectionClass) {
 		for (int i = currentSections.size(); i-- > 0;) {
 			TriggerSection triggerSection = currentSections.get(i);
 			if (sectionClass.isInstance(triggerSection))
+				//noinspection unchecked
 				return (T) triggerSection;
 		}
 		return null;
@@ -314,15 +294,76 @@ public final class ParserInstance implements Experimented {
 	 * Modifications to the returned list are not saved.
 	 * @see #getCurrentSections()
 	 */
-	@NotNull
-	@SuppressWarnings("unchecked")
-	public <T extends TriggerSection> List<T> getCurrentSections(Class<T> sectionClass) {
+	public <T extends TriggerSection> @NotNull List<T> getCurrentSections(Class<T> sectionClass) {
 		List<T> list = new ArrayList<>();
 		for (TriggerSection triggerSection : currentSections) {
 			if (sectionClass.isInstance(triggerSection))
+				//noinspection unchecked
 				list.add((T) triggerSection);
 		}
 		return list;
+	}
+
+	/**
+	 * Returns the sections from the current section (inclusive) until the specified section (exclusive).
+	 * <p>
+	 * If we have the following sections:
+	 * <pre>{@code
+	 * Section1
+	 *   └ Section2
+	 *       └ Section3} (we are here)</pre>
+	 * And we call {@code getSectionsUntil(Section1)}, the result will be {@code [Section2, Section3]}.
+	 *
+	 * @param section The section to stop at. (exclusive)
+	 * @return A list of sections from the current section (inclusive) until the specified section (exclusive).
+	 */
+	public List<TriggerSection> getSectionsUntil(TriggerSection section) {
+		return new ArrayList<>(currentSections.subList(currentSections.indexOf(section) + 1, currentSections.size()));
+	}
+
+	/**
+	 * Returns a list of sections up to the specified number of levels from the current section.
+	 * <p>
+	 * If we have the following sections:
+	 * <pre>{@code
+	 * Section1
+	 *   └ Section2
+	 *       └ Section3} (we are here)</pre>
+	 * And we call {@code getSections(2)}, the result will be {@code [Section2, Section3]}.
+	 *
+	 * @param levels The number of levels to retrieve from the current section upwards. Must be greater than 0.
+	 * @return A list of sections up to the specified number of levels.
+	 * @throws IllegalArgumentException if the levels is less than 1.
+	 */
+	public List<TriggerSection> getSections(int levels) {
+		Preconditions.checkArgument(levels > 0, "Depth must be at least 1");
+		return new ArrayList<>(currentSections.subList(Math.max(currentSections.size() - levels, 0), currentSections.size()));
+	}
+
+	/**
+	 * Returns a list of sections to the specified number of levels from the current section.
+	 * Only counting sections of the specified type.
+	 * <p>
+	 * If we have the following sections:
+	 * <pre>{@code
+	 * Section1
+	 *   └ LoopSection2
+	 *       └ Section3
+	 *           └ LoopSection4} (we are here)</pre>
+	 * And we call {@code getSections(2, LoopSection.class)}, the result will be {@code [LoopSection2, Section3, LoopSection4]}.
+	 *
+	 * @param levels The number of levels to retrieve from the current section upwards. Must be greater than 0.
+	 * @param type The class type of the sections to count.
+	 * @return A list of sections of the specified type up to the specified number of levels.
+	 * @throws IllegalArgumentException if the levels is less than 1.
+	 */
+	public List<TriggerSection> getSections(int levels, Class<? extends TriggerSection> type) {
+		Preconditions.checkArgument(levels > 0, "Depth must be at least 1");
+		List<? extends TriggerSection> sections = getCurrentSections(type);
+		if (sections.isEmpty())
+			return new ArrayList<>();
+		TriggerSection section = sections.get(Math.max(sections.size() - levels, 0));
+		return new ArrayList<>(currentSections.subList(currentSections.indexOf(section), currentSections.size()));
 	}
 
 	/**
@@ -388,8 +429,7 @@ public final class ParserInstance implements Experimented {
 		return handlers;
 	}
 
-	@Nullable
-	private Node node;
+	private @Nullable Node node;
 
 	/**
 	 * @param node The node to mark as being handled. This is mainly used for logging.
@@ -403,8 +443,7 @@ public final class ParserInstance implements Experimented {
 	 * @return The node currently marked as being handled. This is mainly used for logging.
 	 * Null indicates no node is currently being handled (that the ParserInstance is aware of).
 	 */
-	@Nullable
-	public Node getNode() {
+	public @Nullable Node getNode() {
 		return node;
 	}
 
@@ -418,17 +457,30 @@ public final class ParserInstance implements Experimented {
 		return indentation;
 	}
 
+	// Parsing stack
+
+	private final ParsingStack parsingStack = new ParsingStack();
+
+	/**
+	 * Gets the current parsing stack.
+	 * <p>
+	 * Although the stack can be modified, doing so is not recommended.
+	 */
+	public ParsingStack getParsingStack() {
+		return parsingStack;
+	}
+
 	// Experiments API
 
 	@Override
 	public boolean hasExperiment(String featureName) {
-		return Skript.experiments().isUsing(this.getCurrentScript(), featureName);
+		return this.isActive() && Skript.experiments().isUsing(this.getCurrentScript(), featureName);
 	}
 
 
 	@Override
 	public boolean hasExperiment(Experiment experiment) {
-		return Skript.experiments().isUsing(this.getCurrentScript(), experiment);
+		return this.isActive() && Skript.experiments().isUsing(this.getCurrentScript(), experiment);
 	}
 
 	/**
@@ -492,7 +544,7 @@ public final class ParserInstance implements Experimented {
 		}
 
 		/**
-		 * @deprecated See {@link ScriptEvent}.
+		 * @deprecated See {@link ScriptLoader.LoaderEvent}.
 		 */
 		@Deprecated
 		public void onCurrentScriptChange(@Nullable Config currentScript) { }
@@ -549,6 +601,29 @@ public final class ParserInstance implements Experimented {
 		return dataList;
 	}
 
+	/**
+	 * Called when a {@link Script} is made active or inactive in a {@link ParserInstance}.
+	 * This event will trigger <b>after</b> the change in activity has occurred.
+	 * @see #isActive()
+	 */
+	@FunctionalInterface
+	public interface ScriptActivityChangeEvent extends ScriptLoader.LoaderEvent, Script.Event {
+
+		/**
+		 * The method that is called when this event triggers.
+		 * @param parser The ParserInstance where the activity change occurred.
+		 * @param script The Script this event was registered for.
+		 * @param active Whether <code>script</code> became active or inactive within <code>parser</code>.
+		 * @param other The Script that was made active or inactive.
+		 *  Whether it was made active or inactive is the negation of the <code>active</code>.
+		 *  That is to say, if <code>script</code> became active, then <code>other</code> became inactive.
+		 *  Null if <code>parser</code> was inactive (meaning no script became inactive)
+		 *   or became inactive (meaning no script became active).
+		 */
+		void onActivityChange(ParserInstance parser, Script script, boolean active, @Nullable Script other);
+
+	}
+
 	// Backup API
 
 	/**
@@ -558,7 +633,7 @@ public final class ParserInstance implements Experimented {
 	 *  That is, the contents of any collections will remain the same, but there is no guarantee that
 	 *  the contents themselves will remain unchanged.
 	 * @see #backup()
-	 * @see #restoreBackup(Backup) 
+	 * @see #restoreBackup(Backup)
 	 */
 	public static class Backup {
 
@@ -636,12 +711,11 @@ public final class ParserInstance implements Experimented {
 	/**
 	 * @deprecated Use {@link #getCurrentStructure()}
 	 */
-	@Nullable
 	@Deprecated
-	public SkriptEvent getCurrentSkriptEvent() {
+	public @Nullable SkriptEvent getCurrentSkriptEvent() {
 		Structure structure = getCurrentStructure();
-		if (structure instanceof SkriptEvent)
-			return (SkriptEvent) structure;
+		if (structure instanceof SkriptEvent event)
+			return event;
 		return null;
 	}
 
@@ -650,7 +724,7 @@ public final class ParserInstance implements Experimented {
 	 */
 	@Deprecated
 	public void setCurrentSkriptEvent(@Nullable SkriptEvent currentSkriptEvent) {
-		setCurrentStructure(currentSkriptEvent);
+		this.setCurrentStructure(currentSkriptEvent);
 	}
 
 	/**
@@ -658,7 +732,7 @@ public final class ParserInstance implements Experimented {
 	 */
 	@Deprecated
 	public void deleteCurrentSkriptEvent() {
-		setCurrentStructure(null);
+		this.setCurrentStructure(null);
 	}
 
 	/**

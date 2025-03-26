@@ -16,8 +16,8 @@ Skript requires **Spigot** to work. You heard it right, **CraftBukkit** does *no
 **Paper**, which is a fork of Spigot, is recommended; it is required for some
 parts of Skript to be available.
 
-Skript supports only the **latest** patch versions of Minecraft 1.13+.
-For example, this means that 1.16.5 is supported, but 1.16.4 is *not*.
+Skript supports only the **latest** patch versions of Minecraft 1.19 and newer.
+For example, this means that 1.19.4 is supported, but 1.19.3 is *not*.
 Testing with all old patch versions is not feasible for us.
 
 Minecraft 1.12 and earlier are not, and will not be supported. New Minecraft
@@ -77,15 +77,14 @@ Skript has some tests written in Skript. Running them requires a Minecraft
 server, but our build script will create one for you. Running the tests is easy:
 
 ```
-./gradlew (quickTest|skriptTest|skriptTestJava11|skriptTestJava17|skriptTestJava21)
+./gradlew (quickTest|skriptTest|skriptTestJava17|skriptTestJava21)
 ```
 
 <code>quickTest</code> runs the test suite on newest supported server version.
 <code>skriptTestJava21</code> (1.20.6+) runs the tests on Java 21 supported versions.
-<code>skriptTestJava17</code> (1.17-1.20.4) runs the tests on Java 17 supported versions.
-<code>skriptTestJava11</code> (1.13-1.16) runs the tests on Java 11 supported versions.
+<code>skriptTestJava17</code> (1.19.4-1.20.4) runs the tests on Java 17 supported versions.
 <code>skriptTest</code> runs the tests on all versions.
-That is, it runs skriptTestJava11, skriptTestJava17, and skriptTestJava21.
+That is, it runs skriptTestJava17, and skriptTestJava21.
 
 By running the tests, you agree to Mojang's End User License Agreement.
 

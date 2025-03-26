@@ -1,21 +1,3 @@
-/**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
 package ch.njol.skript.expressions;
 
 import java.util.Iterator;
@@ -25,7 +7,7 @@ import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.event.Event;
 import org.bukkit.util.Vector;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 import com.google.common.collect.Lists;
 
@@ -46,19 +28,22 @@ import ch.njol.util.Kleenean;
 import ch.njol.util.coll.iterator.ArrayIterator;
 
 @Name("Blocks")
-@Description({"Blocks relative to other blocks or between other blocks. Can be used to get blocks relative to other blocks or for looping.",
-		"Blocks from/to and between will return a straight line whereas blocks within will return a cuboid."})
+@Description({"Blocks relative to other blocks or between other blocks.",
+	"Can be used to get blocks relative to other blocks or for looping.",
+	"Blocks from/to and between will return a straight line whereas blocks within will return a cuboid."})
 @Examples({"loop blocks above the player:",
-		"loop blocks between the block below the player and the targeted block:",
-		"set the blocks below the player, the victim and the targeted block to air",
-		"set all blocks within {loc1} and {loc2} to stone",
-		"set all blocks within chunk at player to air"})
+	"loop blocks between the block below the player and the targeted block:",
+	"set the blocks below the player, the victim and the targeted block to air",
+	"set all blocks within {loc1} and {loc2} to stone",
+	"set all blocks within chunk at player to air"})
 @Since("1.0, 2.5.1 (within/cuboid/chunk)")
 public class ExprBlocks extends SimpleExpression<Block> {
 
+	private static final boolean SUPPORTS_WORLD_LOADED = Skript.methodExists(Location.class, "isWorldLoaded");
+
 	static {
 		Skript.registerExpression(ExprBlocks.class, Block.class, ExpressionType.COMBINED,
-				"[(all [[of] the]|the)] blocks %direction% [%locations%]", // TODO doesn't loop all blocks?
+				"[(all [[of] the]|the)] blocks %direction% [%locations%]",
 				"[(all [[of] the]|the)] blocks from %location% [on] %direction%",
 				"[(all [[of] the]|the)] blocks from %location% to %location%",
 				"[(all [[of] the]|the)] blocks between %location% and %location%",
@@ -116,7 +101,11 @@ public class ExprBlocks extends SimpleExpression<Block> {
 			return from.stream(event)
 					.filter(Location.class::isInstance)
 					.map(Location.class::cast)
-				    .filter(Location::isWorldLoaded)
+					.filter(location -> {
+						if (SUPPORTS_WORLD_LOADED)
+							return location.isWorldLoaded();
+						return location.getChunk().isLoaded();
+					})
 					.map(direction::getRelative)
 					.map(Location::getBlock)
 					.toArray(Block[]::new);
@@ -141,15 +130,20 @@ public class ExprBlocks extends SimpleExpression<Block> {
 				Object object = from.getSingle(event);
 				if (object == null)
 					return null;
-				Location location = object instanceof Location ? (Location) object : ((Block) object).getLocation().add(0.5, 0.5, 0.5);
+				Location location = object instanceof Location
+					? (Location) object
+					: ((Block) object).getLocation().add(0.5, 0.5, 0.5);
 				Direction direction = this.direction.getSingle(event);
 				if (direction == null || location.getWorld() == null)
 					return null;
-				Vector vector = object != location ? direction.getDirection((Block) object) : direction.getDirection(location);
+				Vector vector = object != location
+					? direction.getDirection((Block) object)
+					: direction.getDirection(location);
 				// Cannot be zero.
 				if (vector.getX() == 0 && vector.getY() == 0 && vector.getZ() == 0)
 					return null;
-				int distance = SkriptConfig.maxTargetBlockDistance.value();
+				// start block + (max - 1) == max
+				int distance = SkriptConfig.maxTargetBlockDistance.value() - 1;
 				if (this.direction instanceof ExprDirection) {
 					Expression<Number> numberExpression = ((ExprDirection) this.direction).amount;
 					if (numberExpression != null) {
@@ -200,7 +194,7 @@ public class ExprBlocks extends SimpleExpression<Block> {
 			return "blocks from " + from.toString(event, debug) + " to " + end.toString(event, debug);
 		} else {
 			assert direction != null;
-			return "block" + (isSingle() ? "" : "s") + " " + direction.toString(event, debug) + " " + from.toString(event, debug);
+			return "blocks " + direction.toString(event, debug) + " " + from.toString(event, debug);
 		}
 	}
 

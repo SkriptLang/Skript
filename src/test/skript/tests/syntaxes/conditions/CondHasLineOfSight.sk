@@ -1,10 +1,10 @@
 test "line of sight":
-	set {_a} to (spawn of world "world")
+	set {_a} to test-location
 	set {_b} to {_a} ~ vector(0, 10, 0)
 	loop blocks between {_a} and {_b}:
 		set {_block::%loop-block%} to type of loop-block
 		set loop-block to air
-	spawn pig at spawn of world "world"
+	spawn pig at test-location
 	set {_pig1} to last spawned entity
 	spawn pig at {_b}:
 		assert pig has line of sight to {_pig1} with "Pigs should have line of sight to each other 1"

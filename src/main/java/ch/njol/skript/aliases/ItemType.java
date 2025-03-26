@@ -1,27 +1,11 @@
-/**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
 package ch.njol.skript.aliases;
 
 import ch.njol.skript.aliases.ItemData.OldItemData;
 import ch.njol.skript.bukkitutil.BukkitUnsafe;
 import ch.njol.skript.bukkitutil.ItemUtils;
 import ch.njol.skript.lang.Unit;
+import ch.njol.skript.lang.util.common.AnyAmount;
+import ch.njol.skript.lang.util.common.AnyNamed;
 import ch.njol.skript.localization.Adjective;
 import ch.njol.skript.localization.GeneralWords;
 import ch.njol.skript.localization.Language;
@@ -41,6 +25,7 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.Tag;
+import org.bukkit.Bukkit;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.Skull;
@@ -52,7 +37,8 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.NotSerializableException;
 import java.io.StreamCorruptedException;
@@ -61,6 +47,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -72,7 +59,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @ContainerType(ItemStack.class)
-public class ItemType implements Unit, Iterable<ItemData>, Container<ItemStack>, YggdrasilExtendedSerializable {
+public class ItemType implements Unit, Iterable<ItemData>, Container<ItemStack>, YggdrasilExtendedSerializable,
+	AnyNamed, AnyAmount {
 
 	static {
 		// This handles updating ItemType and ItemData variable records
@@ -391,22 +379,35 @@ public class ItemType implements Unit, Iterable<ItemData>, Container<ItemStack>,
 	 */
 	public boolean setBlock(Block block, boolean applyPhysics) {
 		for (int i = random.nextInt(types.size()); i < types.size(); i++) {
-			ItemData d = types.get(i);
-			Material blockType = ItemUtils.asBlock(d.type);
+			ItemData data = types.get(i);
+			Material blockType = ItemUtils.asBlock(data.type);
+
 			if (blockType == null) // Ignore items which cannot be placed
 				continue;
-			if (BlockUtils.set(block, blockType, d.getBlockValues(), applyPhysics)) {
-				ItemMeta itemMeta = getItemMeta();
-				if (itemMeta instanceof SkullMeta) {
-					OfflinePlayer offlinePlayer = ((SkullMeta) itemMeta).getOwningPlayer();
-					if (offlinePlayer == null)
-						continue;
-					Skull skull = (Skull) block.getState();
+
+			if (!BlockUtils.set(block, blockType, data.getBlockValues(), applyPhysics))
+				continue;
+
+			ItemMeta itemMeta = getItemMeta();
+
+			if (itemMeta instanceof SkullMeta) {
+				OfflinePlayer offlinePlayer = ((SkullMeta) itemMeta).getOwningPlayer();
+				if (offlinePlayer == null)
+					continue;
+				Skull skull = (Skull) block.getState();
+				if (offlinePlayer.getName() != null) {
 					skull.setOwningPlayer(offlinePlayer);
-					skull.update(false, applyPhysics);
+				} else if (ItemUtils.CAN_CREATE_PLAYER_PROFILE) {
+					//noinspection deprecation
+					skull.setOwnerProfile(Bukkit.createPlayerProfile(offlinePlayer.getUniqueId(), ""));
+				} else {
+					//noinspection deprecation
+					skull.setOwner("");
 				}
-				return true;
+				skull.update(false, applyPhysics);
 			}
+
+			return true;
 		}
 		return false;
 	}
@@ -1419,6 +1420,33 @@ public class ItemType implements Unit, Iterable<ItemData>, Container<ItemStack>,
 	}
 
 	/**
+	 * @return All Materials this ItemType represents.
+	 */
+	public Material[] getMaterials() {
+		Set<Material> materials = new HashSet<>();
+		for (ItemData data : types) {
+			materials.add(data.getType());
+		}
+		return materials.toArray(new Material[0]);
+  }
+
+  /**
+	 * @return A random block material this ItemType represents.
+	 * @throws IllegalStateException If {@link #hasBlock()} is false.
+	 */
+	public Material getBlockMaterial() {
+		List<ItemData> blockItemDatas = new ArrayList<>();
+		for (ItemData d : types) {
+			if (d.type.isBlock())
+				blockItemDatas.add(d);
+		}
+		if (blockItemDatas.isEmpty())
+			throw new IllegalStateException("This ItemType does not represent a material. " +
+					"ItemType#hasBlock() should return true before invoking this method.");
+		return blockItemDatas.get(random.nextInt(blockItemDatas.size())).getType();
+	}
+
+	/**
 	 * Returns a base item type of this. Essentially, this calls
 	 * {@link ItemData#aliasCopy()} on all datas and creates a new type
 	 * containing the results.
@@ -1431,4 +1459,38 @@ public class ItemType implements Unit, Iterable<ItemData>, Container<ItemStack>,
 		}
 		return copy;
 	}
+
+	@Override
+	public @Nullable String name() {
+		ItemMeta meta = this.getItemMeta();
+		return meta.hasDisplayName() ? meta.getDisplayName() : null;
+	}
+
+	@Override
+	public boolean supportsNameChange() {
+		return true;
+	}
+
+	@Override
+	public void setName(String name) {
+		ItemMeta meta = this.getItemMeta();
+		meta.setDisplayName(name);
+		this.setItemMeta(meta);
+	}
+
+	@Override
+	public @NotNull Number amount() {
+		return this.getAmount();
+	}
+
+	@Override
+	public boolean supportsAmountChange() {
+		return true;
+	}
+
+	@Override
+	public void setAmount(@Nullable Number amount) throws UnsupportedOperationException {
+		this.setAmount(amount != null ? amount.intValue() : 0);
+	}
+
 }

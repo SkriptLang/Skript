@@ -1,37 +1,28 @@
-/**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
 package ch.njol.skript.entity;
 
+import ch.njol.skript.registrations.Classes;
+import com.google.common.collect.Iterators;
 import org.bukkit.entity.Cat;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.coll.CollectionUtils;
 
+import java.util.Objects;
+
 public class CatData extends EntityData<Cat> {
 	
 	static {
-		if (Skript.classExists("org.bukkit.entity.Cat"))
+		if (Skript.classExists("org.bukkit.entity.Cat")) {
 			EntityData.register(CatData.class, "cat", Cat.class, "cat");
+			types = Iterators.toArray(Classes.getExactClassInfo(Cat.Type.class).getSupplier().get(), Cat.Type.class);
+		}
 	}
+
+	@SuppressWarnings("NotNullFieldNotInitialized")
+	private static Cat.Type[] types;
 	
 	private Cat.@Nullable Type race = null;
 	
@@ -42,7 +33,7 @@ public class CatData extends EntityData<Cat> {
 			race = ((Literal<Cat.Type>) exprs[0]).getSingle();
 		return true;
 	}
-	
+
 	@Override
 	protected boolean init(@Nullable Class<? extends Cat> c, @Nullable Cat cat) {
 		race = (cat == null) ? Cat.Type.TABBY : cat.getCatType();
@@ -51,7 +42,7 @@ public class CatData extends EntityData<Cat> {
 	
 	@Override
 	public void set(Cat entity) {
-		Cat.Type type = race != null ? race : CollectionUtils.getRandom(Cat.Type.values());
+		Cat.Type type = race != null ? race : CollectionUtils.getRandom(types);
 		assert type != null;
 		entity.setCatType(type);
 	}
@@ -73,7 +64,7 @@ public class CatData extends EntityData<Cat> {
 	
 	@Override
 	protected int hashCode_i() {
-		return race != null ? race.hashCode() : 0;
+		return Objects.hashCode(race);
 	}
 	
 	@Override

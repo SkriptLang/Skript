@@ -1,0 +1,35 @@
+test "filter":
+	set {_a::*} to integers between -10 and 10
+
+	assert size of {_a::*} is 21 with "invalid starting size"
+
+	filter {_a::*} to match:
+		mod(input, 2) = 0
+
+	assert size of {_a::*} is 11 with "failed to filter on mod()"
+	assert {_a::*} is -10, -8, -6, -4 ,-2, 0, 2, 4, 6, 8, and 10 with "failed to filter on mod()"
+
+
+	set {_a::*} to integers between -10 and 10
+
+	assert size of {_a::*} is 21 with "invalid starting size"
+
+	filter {_a::*} to match:
+		input is a number
+		mod(input, 2) = 0
+		input > 0
+
+	assert size of {_a::*} is 5 with "failed to filter on mod(), >0, is number"
+	assert {_a::*} is 2, 4, 6, 8, and 10 with "failed to filter on mod(), >0, is number"
+
+
+	set {_a::*} to integers between -10 and 10
+
+	assert size of {_a::*} is 21 with "invalid starting size"
+
+	filter {_a::*} to match any:
+		mod(input, 2) = 0
+		input > 0
+
+	assert size of {_a::*} is 16 with "failed to filter on any of mod(), >0"
+	assert {_a::*} is -10, -8, -6, -4, -2, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, and 10 with "failed to filter on any of mod(), >0"

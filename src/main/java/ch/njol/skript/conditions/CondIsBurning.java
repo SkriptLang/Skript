@@ -1,21 +1,3 @@
-/**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
 package ch.njol.skript.conditions;
 
 import org.bukkit.entity.Entity;
@@ -26,14 +8,13 @@ import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 
-/**
- * @author Peter Güttinger
- */
 @Name("Is Burning")
 @Description("Checks whether an entity is on fire, e.g. a zombie due to being in sunlight, or any entity after falling into lava.")
-@Examples({"# increased attack against burning targets",
-		"victim is burning:",
-		"	increase damage by 2"})
+@Examples({
+	"# increased attack against burning targets",
+	"victim is burning:",
+		"\tincrease damage by 2"
+})
 @Since("1.4.4")
 public class CondIsBurning extends PropertyCondition<Entity> {
 	
@@ -42,8 +23,8 @@ public class CondIsBurning extends PropertyCondition<Entity> {
 	}
 	
 	@Override
-	public boolean check(final Entity e) {
-		return e.getFireTicks() > 0;
+	public boolean check(Entity entity) {
+		return entity.getFireTicks() > 0;
 	}
 	
 	@Override

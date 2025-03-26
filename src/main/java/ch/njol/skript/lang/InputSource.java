@@ -1,25 +1,8 @@
-/**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
 package ch.njol.skript.lang;
 
 import ch.njol.skript.expressions.ExprInput;
 import ch.njol.skript.lang.parser.ParserInstance;
+import ch.njol.skript.util.LiteralUtils;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnknownNullability;
 
@@ -64,13 +47,34 @@ public interface InputSource {
 	}
 
 	/**
+	 * Parses an expression using the given input source and parser instance.
+	 *
+	 * @param expr the string expression to be parsed.
+	 * @param parser the parser instance used for parsing the expression.
+	 * @return the parsed expression, or null if the parsing fails.
+	 */
+	default @Nullable Expression<?> parseExpression(String expr, ParserInstance parser, int flags) {
+		InputData inputData = parser.getData(InputData.class);
+		InputSource originalSource = inputData.getSource();
+		inputData.setSource(this);
+		Expression<?> mappingExpr = new SkriptParser(expr, flags, ParseContext.DEFAULT)
+			.parseExpression(Object.class);
+		if (mappingExpr != null && LiteralUtils.hasUnparsedLiteral(mappingExpr)) {
+			mappingExpr = LiteralUtils.defendExpression(mappingExpr);
+			if (!LiteralUtils.canInitSafely(mappingExpr))
+				return null;
+		}
+		inputData.setSource(originalSource);
+		return mappingExpr;
+	}
+
+	/**
 	 * A {@link ch.njol.skript.lang.parser.ParserInstance.Data} used for
 	 * linking {@link InputSource}s and {@link ExprInput}s.
 	 */
 	class InputData extends ParserInstance.Data {
 
-		@Nullable
-		private InputSource source;
+		private @Nullable InputSource source;
 
 		public InputData(ParserInstance parserInstance) {
 			super(parserInstance);
@@ -92,8 +96,7 @@ public interface InputSource {
 		 *
 		 * @return the source of information.
 		 */
-		@Nullable
-		public InputSource getSource() {
+		public @Nullable InputSource getSource() {
 			return source;
 		}
 

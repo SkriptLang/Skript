@@ -1,0 +1,51 @@
+
+test "boats":
+	set {_boats::*} to "oak boat", "birch boat", "spruce boat", "jungle boat", "acacia boat", "dark oak boat", and "mangrove boat"
+	parse if running minecraft "1.20.4":
+		add "cherry boat" and "bamboo raft" to {_boats::*}
+	# enable when fully released
+	# parse if running minecraft "1.21.3":
+		# add "pale oak boat" to {_boats::*}
+
+	loop {_boats::*}:
+		set {_parse} to loop-value parsed as entity type
+		if {_parse} is set:
+			spawn {_parse} at spawn of "world":
+				set {_boat} to entity
+
+			assert {_boat} is set with "Failed to spawn %loop-value%"
+			set {_a boat} to "a boat" parsed as entity type
+			set {_a boat item} to "%loop-value%" parsed as item type
+			assert {_boat} is {_a boat} with "%loop-value% was not a boat"
+			assert {_boat} is {_a boat item} with "%loop-value% did not match a boat item"
+
+			clear entity within {_boat}
+			clear {_boat}
+		else:
+			assert false is true with "Failed to parse '%loop-value%' as an entity type", expected loop-value, got {_parse}
+
+
+test "chest boats":
+	set {_boats::*} to "oak chest boat", "birch chest boat", "spruce chest boat", "jungle chest boat", "acacia chest boat", "dark oak chest boat", and "mangrove chest boat"
+	parse if running minecraft "1.20.4":
+		add "cherry chest boat" and "bamboo chest raft" to {_boats::*}
+	# enable when fully released
+	# parse if running minecraft "1.21.3":
+		# add "pale oak chest boat" to {_boats::*}
+
+	loop {_boats::*}:
+		set {_parse} to loop-value parsed as entity type
+		if {_parse} is set:
+			spawn {_parse} at spawn of "world":
+				set {_boat} to entity
+
+			assert {_boat} is set with "Failed to spawn %loop-value%"
+			set {_a chest boat} to "a chest boat" parsed as entity type
+			set {_a chest boat item} to "%loop-value%" parsed as item type
+			assert {_boat} is {_a chest boat} with "%loop-value% was not a chest boat"
+			assert {_boat} is {_a chest boat item} with "%loop-value% did not match a chest boat item"
+
+			clear entity within {_boat}
+			clear {_boat}
+		else:
+			assert false is true with "Failed to parse '%loop-value%' as an entity type", expected loop-value, got {_parse}

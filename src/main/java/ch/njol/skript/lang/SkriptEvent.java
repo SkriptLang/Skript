@@ -1,21 +1,3 @@
-/**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
 package ch.njol.skript.lang;
 
 import ch.njol.skript.ScriptLoader;
@@ -26,11 +8,12 @@ import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.events.EvtClick;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.structures.StructEvent.EventData;
-import ch.njol.skript.util.Utils;
-import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventPriority;
-import org.eclipse.jdt.annotation.Nullable;
+import org.skriptlang.skript.bukkit.registration.BukkitSyntaxInfos;
+import ch.njol.skript.util.Utils;
+import org.bukkit.event.Cancellable;
+import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.entry.EntryContainer;
 import org.skriptlang.skript.lang.script.Script;
 import org.skriptlang.skript.lang.structure.Structure;
@@ -55,10 +38,8 @@ public abstract class SkriptEvent extends Structure {
 
 	private String expr;
 	private SectionNode source;
-	@Nullable
-	protected EventPriority eventPriority;
-	@Nullable
-	protected ListeningBehavior listeningBehavior;
+	protected @Nullable EventPriority eventPriority;
+	protected @Nullable ListeningBehavior listeningBehavior;
 	protected boolean supportsListeningBehavior;
 	private SkriptEventInfo<?> skriptEventInfo;
 
@@ -85,8 +66,17 @@ public abstract class SkriptEvent extends Structure {
 			throw new IllegalStateException();
 		skriptEventInfo = (SkriptEventInfo<?>) syntaxElementInfo;
 
+		assert entryContainer != null; // cannot be null for non-simple structures
+		this.source = entryContainer.getSource();
+
+		// use default value for now
+		listeningBehavior = eventData.getListenerBehavior();
+
+		// initialize implementation
+		if (!init(args, matchedPattern, parseResult))
+			return false;
+
 		// evaluate whether this event supports listening to cancelled events
-		supportsListeningBehavior = false;
 		for (Class<? extends Event> eventClass : getEventClasses()) {
 			if (Cancellable.class.isAssignableFrom(eventClass)) {
 				supportsListeningBehavior = true;
@@ -94,7 +84,6 @@ public abstract class SkriptEvent extends Structure {
 			}
 		}
 
-		listeningBehavior = eventData.getListenerBehavior();
 		// if the behavior is non-null, it was set by the user
 		if (listeningBehavior != null && !isListeningBehaviorSupported()) {
 			String eventName = skriptEventInfo.name.toLowerCase(Locale.ENGLISH);
@@ -102,10 +91,7 @@ public abstract class SkriptEvent extends Structure {
 			return false;
 		}
 
-		assert entryContainer != null; // cannot be null for non-simple structures
-		this.source = entryContainer.getSource();
-
-		return init(args, matchedPattern, parseResult);
+		return true;
 	}
 
 	/**
@@ -132,7 +118,6 @@ public abstract class SkriptEvent extends Structure {
 		if (!shouldLoadEvent())
 			return false;
 
-		// noinspection ConstantConditions - entry container cannot be null as this structure is not simple
 		if (Skript.debug() || source.debug())
 			Skript.debug(expr + " (" + this + "):");
 
@@ -254,29 +239,7 @@ public abstract class SkriptEvent extends Structure {
 	 * to be nullable.
 	 */
 	public static String fixPattern(String pattern) {
-		char[] chars = pattern.toCharArray();
-		StringBuilder stringBuilder = new StringBuilder();
-
-		boolean inType = false;
-		for (int i = 0; i < chars.length; i++) {
-			char character = chars[i];
-			stringBuilder.append(character);
-
-			if (character == '%') {
-				// toggle inType
-				inType = !inType;
-
-				// add the dash character if it's not already present
-				// a type specification can have two prefix characters for modification
-				if (inType && i + 2 < chars.length && chars[i + 1] != '-' && chars[i + 2] != '-')
-					stringBuilder.append('-');
-			} else if (character == '\\' && i + 1 < chars.length) {
-				// Make sure we don't toggle inType for escape percentage signs
-				stringBuilder.append(chars[i + 1]);
-				i++;
-			}
-		}
-		return stringBuilder.toString();
+		return BukkitSyntaxInfos.fixPattern(pattern);
 	}
 
 	@Nullable

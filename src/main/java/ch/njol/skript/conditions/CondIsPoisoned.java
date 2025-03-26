@@ -1,21 +1,3 @@
-/**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
 package ch.njol.skript.conditions;
 
 import org.bukkit.entity.LivingEntity;
@@ -27,14 +9,13 @@ import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 
-/**
- * @author Peter Güttinger
- */
 @Name("Is Poisoned")
 @Description("Checks whether an entity is poisoned.")
-@Examples({"player is poisoned:",
-		"	cure the player from poison",
-		"	message \"You have been cured!\""})
+@Examples({
+	"player is poisoned:",
+		"\tcure the player from poison",
+		"\tmessage \"You have been cured!\""
+})
 @Since("1.4.4")
 public class CondIsPoisoned extends PropertyCondition<LivingEntity> {
 	
@@ -43,8 +24,8 @@ public class CondIsPoisoned extends PropertyCondition<LivingEntity> {
 	}
 	
 	@Override
-	public boolean check(final LivingEntity e) {
-		return e.hasPotionEffect(PotionEffectType.POISON);
+	public boolean check(LivingEntity entity) {
+		return entity.hasPotionEffect(PotionEffectType.POISON);
 	}
 	
 	@Override

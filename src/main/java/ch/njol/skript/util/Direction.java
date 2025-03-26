@@ -1,21 +1,3 @@
-/**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
 package ch.njol.skript.util;
 
 import ch.njol.skript.lang.Expression;
@@ -36,8 +18,8 @@ import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.Entity;
 import org.bukkit.event.Event;
 import org.bukkit.util.Vector;
-import org.eclipse.jdt.annotation.NonNull;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.StreamCorruptedException;
 import java.lang.reflect.Field;
@@ -445,7 +427,7 @@ public class Direction implements YggdrasilRobustSerializable {
 	}
 	
 	@Override
-	public boolean incompatibleField(@NonNull final Field f, @NonNull final FieldContext value) throws StreamCorruptedException {
+	public boolean incompatibleField(@NotNull final Field f, @NotNull final FieldContext value) throws StreamCorruptedException {
 		return false;
 	}
 	
@@ -466,7 +448,7 @@ public class Direction implements YggdrasilRobustSerializable {
 	}
 	
 	@Override
-	public boolean excessiveField(@NonNull final FieldContext field) throws StreamCorruptedException {
+	public boolean excessiveField(@NotNull final FieldContext field) throws StreamCorruptedException {
 		if (field.getID().equals("mod")) {
 			final double[] mod = field.getObject(double[].class);
 			if (mod == null)
@@ -492,7 +474,7 @@ public class Direction implements YggdrasilRobustSerializable {
 	}
 	
 	@Override
-	public boolean missingField(@NonNull final Field field) throws StreamCorruptedException {
+	public boolean missingField(@NotNull final Field field) throws StreamCorruptedException {
 		if (!field.getName().equals("relative"))
 			return true;
 		return false;
