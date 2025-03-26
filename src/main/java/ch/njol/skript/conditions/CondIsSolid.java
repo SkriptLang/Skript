@@ -9,7 +9,10 @@ import ch.njol.skript.doc.Since;
 
 @Name("Is Solid")
 @Description("Checks whether an item is solid.")
-@Examples({"grass block is solid", "player's tool isn't solid"})
+@Examples({
+	"grass block is solid",
+	"player's tool isn't solid"
+})
 @Since("2.2-dev36")
 public class CondIsSolid extends PropertyCondition<ItemType> {
 	
@@ -18,8 +21,8 @@ public class CondIsSolid extends PropertyCondition<ItemType> {
 	}
 	
 	@Override
-	public boolean check(ItemType i) {
-		return i.getMaterial().isSolid();
+	public boolean check(ItemType itemType) {
+		return itemType.getMaterial().isSolid();
 	}
 	
 	@Override

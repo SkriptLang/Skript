@@ -1,0 +1,220 @@
+# Default Spanish language file
+
+# Which version of Skript this language file was written for
+version: 2.10.1
+
+# What null (nothing) should show up as in a string/text
+none: <none>
+
+# -- Skript --
+skript:
+	copyright: ~ creado por & © Peter Güttinger aka Njol ~
+	prefix: <gray>[<dark aqua>Skript<gray>] <reset>
+	quotes error: Uso inválido de comillas ("). Si deseas usar comillas en "texto entre comillas", duplícalas: "".
+	brackets error: Cantidad o ubicación inválida de corchetes. Asegúrate de que cada corchete de apertura tenga un correspondiente corchete de cierre.
+	invalid reload: Skript solo puede ser recargado mediante el comando '/reload' de Bukkit o el comando '/skript reload' de Skript.
+	no scripts: No se encontraron scripts, quizás deberías escribir algunos ;)
+	no errors: Todos los scripts se cargaron sin errores.
+	scripts loaded: Cargados %s script¦¦s¦ con un total de %s estructura/s en %s
+	finished loading: Carga finalizada.
+	warning message: Parece que /reload u otro complemento recargaron Skript. Esto no es un comportamiento soportado y puede causar problemas.
+	restart message: Considera reiniciar el servidor en su lugar.
+
+# -- Skript command --
+skript command:
+	usage: Uso:
+	help:
+		description: Comando principal de Skript
+		help: Imprime este mensaje de ayuda. Usa '/skript reload/enable/disable/update' para obtener más información.
+		reload:
+			description: Reloads a specific script, all scripts, the config, or everything
+			all: Recarga la configuración, todas las configuraciones de alias y todos los scripts
+			config: Recarga la configuración principal
+			aliases: Recarga las configuraciones de alias (aliases-english.zip o archivo jar del plugin)
+			scripts: Recarga todos los scripts
+			<script>: Recarga un script específico o una carpeta de scripts
+		enable:
+			description: Habilita todos los scripts o uno específico
+			all: Habilita todos los scripts
+			<script>: Habilita un script específico o una carpeta de scripts
+		disable:
+			description: Deshabilita todos los scripts o uno específico
+			all: Deshabilita todos los scripts
+			<script>: Deshabilita un script específico o una carpeta de scripts
+		update:
+			description: Verifica actualizaciones o lee el registro de cambios
+			check: Verifica si hay una nueva versión
+			changes: Lista todos los cambios desde la versión actual
+		list: Lista todos los scripts habilitados y deshabilitados
+		info: Imprime un mensaje con enlaces a los alias de Skript y la documentación
+		gen-docs: Genera documentación usando docs/templates en la carpeta del plugin
+		test: Usado para ejecutar pruebas internas de Skript
+
+	invalid script: No se puede encontrar el script <grey>'<dark aqua>%s<grey>'<red> en la carpeta de scripts!
+	invalid folder: No se puede encontrar la carpeta <grey>'<dark aqua>%s<grey>'<red> en la carpeta de scripts!
+	reload:
+		warning line info: <dark aqua><bold>Línea %s:<gray> (%s)<reset>\n
+		error line info: <light red><bold>Línea %s:<gray> (%s)<reset>\n
+		reloading: Recargando <dark aqua>%s<reset>...
+		reloaded: <lime>Recargado exitosamente <dark aqua>%s<lime>. <gray>(<dark aqua>%2$sms<gray>)
+		player reload: <lime>%s <reset>está recargando <dark aqua>%s<reset>...
+		error: <light red>Se encontró <dark aqua>%2$s <light red>error¦¦es¦ al recargar <dark aqua>%1$s<light red>! <gray>(<dark aqua>%3$sms<gray>)
+		script disabled: <dark aqua>%s<reset> está actualmente deshabilitado. Use <gray>/<dark aqua>skript <cyan>enable <red>%s<reset> para habilitarlo.
+		warning details: <yellow>    %s<reset>\n
+		error details: <light red>    %s<reset>\n
+		other details: <white>    %s<reset>\n
+		line details: <dark aqua>    Línea: <gray>%s<reset>\n <reset>
+
+		config, aliases and scripts: la configuración, alias y todos los scripts
+		scripts: todos los scripts
+		main config: la configuración principal
+		aliases: los alias
+		script: <dark aqua>%s<reset>
+		scripts in folder: todos los scripts en <dark aqua>%s<reset>
+		x scripts in folder success: <dark aqua>%2$s <lime>script¦¦s¦ en <dark aqua>%1$s<reset>
+		x scripts in folder error: <dark aqua>%2$s <light red>script¦¦s¦ en <dark aqua>%1$s<reset>
+		empty folder: <dark aqua>%s<reset> no contiene scripts habilitados.
+	enable:
+		all:
+			enabling: Habilitando todos los scripts deshabilitados...
+			enabled: Scripts deshabilitados, habilitados y parseados exitosamente.
+			error: <light red>Se encontró <dark aqua>%s <light red>error¦¦es¦ al parsear los scripts deshabilitados!
+			io error: <light red>No se pudieron cargar uno o más scripts - algunos scripts podrían haber sido renombrados y se habilitarán cuando el servidor se reinicie: <dark aqua>%s
+		single:
+			already enabled: <dark aqua>%s<reset> ya está habilitado! Usa <gray>/<dark aqua>skript <cyan>reload <red>%s<reset> para recargarlo si fue modificado.
+			enabling: Habilitando <dark aqua>%s<reset>...
+			enabled: <dark aqua>%s<reset> habilitado y parseado exitosamente.
+			error: <light red>Se encontró <dark aqua>%2$s <light red>error¦¦es¦ al parsear <dark aqua>%1$s<light red>!
+			io error: <light red>No se pudo habilitar <dark aqua>%s<light red>: <dark aqua>%s
+		folder:
+			empty: <dark aqua>%s<reset> no contiene scripts deshabilitados.
+			enabling: Habilitando <dark aqua>%2$s <reset>script¦¦s¦ en <dark aqua>%1$s<reset>...
+			enabled: Scripts deshabilitados y parseados exitosamente en <dark aqua>%1$s<reset>.
+			error: <light red>Se encontró <dark aqua>%2$s <light red>error¦¦es¦ al parsear los scripts en <dark aqua>%1$s<light red>!
+			io error: <light red>Error al habilitar uno o más scripts en <dark aqua>%s <light red>(algunos scripts podrían habilitarse cuando el servidor se reinicie): <dark aqua>%s
+	disable:
+		all:
+			disabled: Scripts deshabilitados exitosamente.
+			io error: <light red>No se pudo renombrar uno o más scripts - algunos scripts podrían haber sido renombrados y se deshabilitarán cuando el servidor se reinicie: <dark aqua>%s
+		single:
+			already disabled: <dark aqua>%s<reset> ya está deshabilitado!
+			disabled: <dark aqua>%s<reset> deshabilitado exitosamente.
+			io error: <light red>No se pudo renombrar <dark aqua>%s<light red>, se habilitará nuevamente cuando reinicies el servidor: <dark aqua>%s
+		folder:
+			empty: <dark aqua>%s<reset> no contiene scripts habilitados.
+			disabled: <dark aqua>%2$s<reset> script(s) deshabilitados exitosamente en <dark aqua>%1$s<reset>.
+			io error: <light red>No se pudo deshabilitar uno o más scripts en <dark aqua>%s <light red>(algunos scripts podrían deshabilitarse cuando el servidor se reinicie): <dark aqua>%s
+	update:
+		# check/download: see Updater
+		changes:
+			# multiple versions:
+			#	title: <dark aqua>%s<r> update¦ se¦ han¦ ha¦ lanzado desde esta versión (<dark aqua>%s<r>) de Skript:
+			#	footer: Para mostrar el registro de cambios de una versión, escribe <dark aqua>/skript update changes <version><reset>
+			# invalid version: No hay un registro de cambios disponible para la versión <dark aqua>%s<red>	
+			title: <bold><cyan>%s<reset> (%s)
+			next page: <grey>página %s de %s. Escribe <dark aqua>/skript update changes %s<gray> para la siguiente página (pista: usa la flecha hacia arriba)
+	list:
+		enabled:
+			header: <white>Scripts habilitados:
+			element: <lime green>  %s
+		disabled:
+			header: <white>Scripts deshabilitados:
+			element: <light red>  %s
+	info:
+		aliases: Los alias de Skript se pueden encontrar aquí: <aqua>https://github.com/SkriptLang/skript-aliases
+		documentation: La documentación de Skript se puede encontrar aquí: <aqua>https://docs.skriptlang.org/
+		tutorials: Los tutoriales de Skript se pueden encontrar aquí: <aqua>https://docs.skriptlang.org/tutorials
+		version: Versión de Skript: <aqua>%s
+		server: Versión del servidor: <aqua>%s
+		addons: Addons de Skript instalados: <aqua>%s
+		dependencies: Dependencias instaladas: <aqua>%s
+
+# -- Log Messages --
+log:
+	# runtime errors
+	runtime:
+		error: <light red>El script '<gray>%s<light red>' encontró un error al ejecutar el '<gray>%s<light red>' %s<light red>:\n
+		errors skipped: <dark aqua>%d<light red> errores en tiempo de ejecución[s] se lanzaron pero no se imprimieron en el último cuadro. De: <gray>%s
+		errors timed out: <dark aqua>Línea %d<light red> del script '<gray>%s<light red>' produjo demasiados errores en tiempo de ejecución (<gray>%d<light red> permitidos por cuadro). No se imprimirán errores de esta línea durante %d cuadros.
+		error notification: <light red>El script '<gray>%s<light red>' produjo errores en tiempo de ejecución. Por favor, revisa los registros de la consola para obtener detalles.
+		error notification plural: <light red>El script '<gray>%s<light red>' y otros %d produjeron errores en tiempo de ejecución. Por favor, revisa los registros de la consola para obtener detalles.
+
+		warning: <yellow>El script '<gray>%s<yellow>' encontró una advertencia al ejecutar el '<gray>%s<yellow>' %s<yellow>:\n
+		warnings skipped: <yellow>%d<yellow> advertencias en tiempo de ejecución[s] se lanzaron pero no se imprimieron en el último cuadro. De: <gray>%s
+		warnings timed out: <dark aqua>Línea %d<yellow> del script '<gray>%s<yellow>' produjo demasiadas advertencias en tiempo de ejecución (<gray>%d<yellow> permitidas por cuadro). No se imprimirán advertencias de esta línea durante %d cuadros.
+		warning notification: <yellow>El script '<gray>%s<yellow>' produjo advertencias en tiempo de ejecución. Por favor, revisa los registros de la consola para obtener detalles.
+		warning notification plural: <dark aqua>El script '<gray>%s<yellow>' y otros %d produjeron advertencias en tiempo de ejecución. Por favor, revisa los registros de la consola para obtener detalles.
+
+		line info: <dark aqua>    Línea %s<white>: <gray>%s\n \n
+
+
+# -- Updater --
+updater:
+	not started: Skript aún no ha verificado la última versión. Usa <dark aqua>/skript update check<reset> para hacerlo.
+	checking: Verificando la última versión de Skript...
+	check in progress: La verificación de una nueva versión está en progreso.
+	updater disabled: El actualizador está deshabilitado, por lo que no se realizó una verificación de la última versión de Skript.
+	check error: <red>Hubo un error al verificar la última versión de Skript:<light red> %s
+	running latest version: Actualmente estás ejecutando la última versión estable de Skript.
+	running latest version (beta): Actualmente estás ejecutando una versión <i>beta<r> de Skript, y no hay una nueva versión <i>estable<r> disponible. Ten en cuenta que debes actualizar manualmente a nuevas versiones beta.
+	update available: Una nueva versión de Skript está disponible: <dark aqua>%s<reset> (actualmente estás ejecutando <dark aqua>%s<reset>)
+	downloading: Descargando Skript <dark aqua>%s<reset>...
+	download in progress: La última versión de Skript se está descargando.
+	download error: <red>Hubo un error al descargar la última versión de Skript:<light red> %s
+	downloaded: La última versión de Skript ha sido descargada. Reinicia el servidor o usa /reload para aplicar los cambios.
+	internal error: Ocurrió un error interno al verificar la última versión de Skript. Por favor, consulta el registro del servidor para obtener detalles.
+	custom version: Actualmente estás ejecutando una versión personalizada de Skript. No se instalarán actualizaciones automáticamente.
+	nightly build: Actualmente estás ejecutando una versión de desarrollo de Skript. No se instalarán actualizaciones automáticamente.
+
+# -- Commands --
+commands:
+	no permission message: No tienes los permisos necesarios para usar este comando.
+	cooldown message: Estás usando este comando con demasiada frecuencia, por favor inténtalo más tarde.
+	executable by players: Este comando solo puede ser utilizado por jugadores.
+	executable by console: Este comando solo puede ser utilizado por la consola.
+	correct usage: Uso correcto:
+	invalid argument: Argumento inválido <gray>'%s<gray>'<reset>. Los permitidos son:
+	too many arguments: Este comando solo puede aceptar un %2$s.
+	internal error: Ocurrió un error interno al intentar ejecutar este comando.
+	no player starts with: No hay ningún jugador en línea cuyo nombre comience con '%s'
+	multiple players start with: Hay varios jugadores en línea cuyos nombres comienzan con '%s'
+
+# -- Hooks --
+hooks:
+	hooked: Conectado exitosamente a %s
+	error: No se pudo conectar a %1$s. Esto puede ocurrir si Skript no es compatible con la versión instalada de %1$s
+
+# -- Aliases --
+aliases:
+	# Errors and warnings
+	empty string: '' no es un tipo de objeto
+	invalid item type: '%s' no es un tipo de objeto
+	empty name: Un alias debe tener nombre
+	brackets error: Uso inválido de corchetes
+	not enough brackets: La sección que comienza en el carácter %s ('%s') debe cerrarse
+	too many brackets: El carácter %s ('%s') cierra una sección inexistente
+	unknown variation: La variación %s no ha sido definida antes
+	missing aliases: Los siguientes ids de Minecraft no tienen alias:
+	empty alias: El alias no tiene id de Minecraft ni etiquetas definidas
+	invalid minecraft id: El id de Minecraft %s no es válido
+	useless variation: La variación no tiene id de Minecraft ni etiquetas especificadas, por lo que es inútil
+	invalid tags: Las etiquetas especificadas no están definidas en JSON válido
+	unexpected section: Las secciones no están permitidas aquí
+	invalid variation section: Una sección debe ser de variación, pero %s no es un nombre de variación válido
+	outside section: Los alias deben estar en secciones
+
+	# Other messages
+	loaded x aliases from: Cargados %s alias en inglés de %s
+	loaded x aliases: Cargado un total de %s alias en inglés
+
+# -- Time --
+time:
+	errors:
+		24 hours: Un día solo tiene 24 horas
+		12 hours: Usar formato de 12 horas no permite más de 12 horas
+		60 minutes: Una hora solo tiene 60 minutos
+
+# -- IO Exceptions --
+io exceptions:
+	unknownhostexception: No se puede conectar a %s
+	accessdeniedexception: Acceso denegado para %s
