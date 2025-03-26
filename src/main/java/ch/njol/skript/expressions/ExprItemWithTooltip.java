@@ -6,7 +6,7 @@ import ch.njol.skript.doc.*;
 import ch.njol.skript.expressions.base.PropertyExpression;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
-import ch.njol.skript.lang.SkriptParser;
+import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.bukkit.inventory.ItemFlag;
@@ -34,12 +34,12 @@ public class ExprItemWithTooltip extends PropertyExpression<ItemType, ItemType> 
 		}
 	}
 
-	private boolean hide, entire;
+	private boolean without, entire;
 
 	@Override
-	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
+	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		setExpr((Expression<ItemType>) expressions[0]);
-		hide = parseResult.hasTag("out");
+		without = parseResult.hasTag("out");
 		entire = !parseResult.hasTag("additional");
 		return true;
 	}
@@ -50,9 +50,9 @@ public class ExprItemWithTooltip extends PropertyExpression<ItemType, ItemType> 
 			itemType = itemType.clone();
 			ItemMeta meta = itemType.getItemMeta();
 			if (entire) {
-				meta.setHideTooltip(hide);
+				meta.setHideTooltip(without);
 			} else {
-				if (hide) {
+				if (without) {
 					meta.addItemFlags(ItemFlag.HIDE_ADDITIONAL_TOOLTIP);
 				} else {
 					meta.removeItemFlags(ItemFlag.HIDE_ADDITIONAL_TOOLTIP);
@@ -70,6 +70,7 @@ public class ExprItemWithTooltip extends PropertyExpression<ItemType, ItemType> 
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return getExpr().toString(event, debug) + (hide ? " without" : " with") + (entire ? " entire" : " additional") + " tooltip";
+		return getExpr().toString(event, debug) + (without ? " without" : " with") + (entire ? " entire" : " additional") + " tooltip";
 	}
+
 }
