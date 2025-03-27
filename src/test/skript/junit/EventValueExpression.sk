@@ -1,0 +1,17 @@
+test "EventValueExpression setters" when running JUnit:
+	set {_tests::1} to "correct starting item"
+	set {_tests::2} to "correct changed item"
+
+	ensure junit test "org.skriptlang.skript.test.tests.syntaxes.expressions.EventValueExpressionTest" completes {_tests::*}
+
+on consume:
+	set {_test} to "org.skriptlang.skript.test.tests.syntaxes.expressions.EventValueExpressionTest"
+	junit test is {_test}
+
+	if event-item is an apple:
+		complete objective "correct starting item" for {_test}
+
+	set event-item to 1 of stick
+
+	if event-item is a stick:
+		complete objective "correct changed item" for {_test}

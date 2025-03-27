@@ -176,7 +176,7 @@ public class JSONGenerator extends DocumentationGenerator {
 						continue;
 					}
 
-					ClassInfo<?> exactClassInfo = Classes.getExactClassInfo(eventValueInfo.c());
+					ClassInfo<?> exactClassInfo = Classes.getExactClassInfo(eventValueInfo.valueClass());
 					if (exactClassInfo == null) {
 						continue;
 					}
