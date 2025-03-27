@@ -1167,6 +1167,12 @@ entities:
 	strider:
 		name: strider¦s
 		pattern: <age> strider(|1¦s)|(4¦)strider (kid(|1¦s)|child(|1¦ren))
+	warm strider:
+		name: warm strider¦s
+		pattern: <age> warm strider(|1¦s)|(4¦)warm strider (kid(|1¦s)|child(|1¦ren))
+	shivering strider:
+		name: shivering strider¦s, cold strider¦s
+		pattern: <age> (cold|shivering) strider(|1¦s)|(4¦)(cold|shivering) strider (kid(|1¦s)|child(|1¦ren))
 	#1.16.2 entity
 	piglin brute:
 		name: piglin brute¦s
