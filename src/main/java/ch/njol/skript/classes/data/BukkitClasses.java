@@ -6,8 +6,8 @@ import ch.njol.skript.aliases.Aliases;
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.bukkitutil.BukkitUtils;
 import ch.njol.skript.bukkitutil.EntityUtils;
-import ch.njol.skript.bukkitutil.SkriptTeleportFlag;
 import ch.njol.skript.bukkitutil.ItemUtils;
+import ch.njol.skript.bukkitutil.SkriptTeleportFlag;
 import ch.njol.skript.classes.*;
 import ch.njol.skript.classes.registry.RegistryClassInfo;
 import ch.njol.skript.entity.EntityData;
@@ -22,7 +22,6 @@ import ch.njol.skript.util.BlockUtils;
 import ch.njol.skript.util.PotionEffectUtils;
 import ch.njol.skript.util.StringMode;
 import ch.njol.skript.util.Utils;
-import ch.njol.util.StringUtils;
 import ch.njol.yggdrasil.Fields;
 import io.papermc.paper.world.MoonPhase;
 import org.bukkit.*;
@@ -303,7 +302,8 @@ public class BukkitClasses {
 				.description("A location in a <a href='#world'>world</a>. Locations are world-specific and even store a <a href='#direction'>direction</a>, " +
 						"e.g. if you save a location and later teleport to it you will face the exact same direction you did when you saved the location.")
 				.usage("")
-				.examples("")
+				.examples("teleport player to location at 0, 69, 0",
+						  "set {home::%uuid of player%} to location of the player")
 				.since("1.0")
 				.defaultExpression(new EventValueExpression<>(Location.class))
 				.parser(new Parser<Location>() {
@@ -855,7 +855,7 @@ public class BukkitClasses {
 				.since("1.0"));
 
 		Classes.registerClass(new ClassInfo<>(ItemStack.class, "itemstack")
-				.user("items?")
+				.user("items?", "item ?stacks?")
 				.name("Item")
 				.description("An item, e.g. a stack of torches, a furnace, or a wooden sword of sharpness 2. " +
 								"Unlike <a href='#itemtype'>item type</a> an item can only represent exactly one item (e.g. an upside-down cobblestone stair facing west), " +
@@ -998,7 +998,7 @@ public class BukkitClasses {
 		Registry<PotionEffectType> petRegistry = BukkitUtils.getPotionEffectTypeRegistry();
 		if (petRegistry != null) {
 			Classes.registerClass(new RegistryClassInfo<>(PotionEffectType.class, petRegistry, "potioneffecttype", "potion effect types", false)
-				.user("potion( ?effect)? ?types?")
+				.user("potion ?effect ?types?")
 				.name("Potion Effect Type")
 				.description("A potion effect type, e.g. 'strength' or 'swiftness'.")
 				.examples("apply swiftness 5 to the player",
@@ -1476,6 +1476,31 @@ public class BukkitClasses {
 			);
 		}
 
+		Classes.registerClass(new ClassInfo<>(WorldBorder.class, "worldborder")
+			.user("world ?borders?")
+			.name("World Border")
+			.description("Represents the border of a world or player.")
+			.since("INSERT VERSION")
+			.parser(new Parser<WorldBorder>() {
+				@Override
+				public boolean canParse(ParseContext context) {
+					return false;
+				}
+
+				@Override
+				public String toString(WorldBorder border, int flags) {
+					if (border.getWorld() == null)
+						return "virtual world border";
+					return "world border of world named '" + border.getWorld().getName() + "'";
+				}
+
+				@Override
+				public String toVariableNameString(WorldBorder border) {
+					return toString(border, 0);
+				}
+			})
+			.defaultExpression(new EventValueExpression<>(WorldBorder.class)));
+
 		Classes.registerClass(new ClassInfo<>(org.bukkit.block.banner.Pattern.class, "bannerpattern")
 			.user("banner ?patterns?")
 			.name("Banner Pattern")
@@ -1516,6 +1541,15 @@ public class BukkitClasses {
 					.description("Teleport Flags are settings to retain during a teleport.")
 					.requiredPlugins("Paper 1.19+")
 					.since("2.10"));
+
+		Classes.registerClass(new ClassInfo<>(Vehicle.class, "vehicle")
+			.user("vehicles?")
+			.name("Vehicle")
+			.description("Represents a vehicle.")
+			.since("2.10.2")
+			.changer(DefaultChangers.entityChanger)
+		);
+
 	}
 
 }
