@@ -25,7 +25,8 @@ public class EvtFish extends SkriptEvent {
 		FISH_ESCAPE(PlayerFishEvent.State.FAILED_ATTEMPT, "fish (escape|get away)", "fish escape"),
 		REEL_IN(PlayerFishEvent.State.REEL_IN, "[fishing] (rod|line) reel in", "fishing rod reel in"),
 		BITE(PlayerFishEvent.State.BITE, "fish bit(e|ing)", "fish bite"),
-		LURED(getOptional("LURED"), "(fish approach[ing]|(bobber|hook) lure[d])", "fish approaching");
+		LURED(getOptional("LURED"), "(fish approach[ing]|(bobber|hook) lure[d])", "fish approaching"),
+		ALL(null, "fish[ing] [state change]", "fishing state change");
 
 		private final @Nullable PlayerFishEvent.State state;
 		private final String pattern;
@@ -54,22 +55,24 @@ public class EvtFish extends SkriptEvent {
 
 			patterns.add(state.pattern);
 		}
+		patterns.add(State.ALL.pattern);
 
 		Skript.registerEvent("Fishing", EvtFish.class, PlayerFishEvent.class, patterns.toArray(new String[0]))
 			.description(
 				"Called when a player triggers a fishing event.",
 				"An entity hooked event is triggered when an entity gets caught by a fishing rod.",
 				"A fish escape event is called when the player fails to click on time, and the fish escapes.",
-				"A fish approaching event is when the bobber is waiting to be hooked, and a fish is approaching."
+				"A fish approaching event is when the bobber is waiting to be hooked, and a fish is approaching.",
+				""
 			)
 			.examples(
 				"on fishing line cast:",
 					"\tsend \"You caught a fish!\" to player",
-				"on fishing state of caught entity:",
+				"on fishing state change:",
 					"\tpush event-entity vector from entity to player"
 			)
 			.requiredPlugins("Paper (bobber lured)")
-			.since("2.10");
+			.since("2.10, INSERT VERSION (state change)");
 
 		EventValues.registerEventValue(PlayerFishEvent.class, Entity.class, PlayerFishEvent::getCaught);
 	}
@@ -86,6 +89,8 @@ public class EvtFish extends SkriptEvent {
 	public boolean check(Event event) {
 		if (!(event instanceof PlayerFishEvent fishEvent))
 			return false;
+		if (state == State.ALL)
+			return true;
 
 		return state.state == fishEvent.getState();
 	}
