@@ -11,7 +11,7 @@ import java.util.Objects;
 public class StriderData extends EntityData<Strider> {
 
 	static {
-		register(StriderData.class, "strider", Strider.class, 0,
+		register(StriderData.class, "strider", Strider.class, 1,
 			"warm strider", "strider", "shivering strider");
 	}
 
