@@ -2555,91 +2555,90 @@ input keys:
 	sneak: sneak key, sneaking key
 	sprint: sprint key, sprinting key
 
-# -- Statistics --
-statistics:
-	animals_bred: animals bred statistic
-	armor_cleaned: armor cleaned statistic
-	aviate_one_cm: aviate one cm statistic
-	banner_cleaned: banner cleaned statistic
-	beacon_interaction: beacon interaction statistic
-	bell_ring: bell ring statistic
-	boat_one_cm: boat one cm statistic
-	break_item: break item statistic
-	brewingstand_interaction: brewing stand interaction statistic, interact with brewing stand statistic
-	cake_slices_eaten: cake slices eaten statistic
-	cauldron_filled: cauldron filled statistic
-	cauldron_used: cauldron used statistic
-	chest_opened: chest opened statistic
-	clean_shulker_box: clean shulker box statistic
-	climb_one_cm: climb one cm statistic
-	craft_item: craft item statistic
-	crafting_table_interaction: crafting table interaction statistic
-	crouch_one_cm: crouch one cm statistic
-	damage_absorbed: damage absorbed statistic
-	damage_blocked_by_shield: damage blocked by shield statistic
-	damage_dealt: damage dealt statistic
-	damage_dealt_absorbed: damage dealt absorbed statistic
-	damage_dealt_resisted: damage dealt resisted statistic
-	damage_resisted: damage resisted statistic
-	damage_taken: damage taken statistic
-	deaths: deaths statistic
-	dispenser_inspected: dispenser inspected statistic
-	drop: drop statistic
-	drop_count: drop count statistic
-	dropper_inspected: dropper inspected statistic
-	enderchest_opened: ender chest opened statistic
-	entity_killed_by: entity killed by statistic
-	fall_one_cm: fall one cm statistic
-	fish_caught: fish caught statistic
-	flower_potted: flower potted statistic
-	fly_one_cm: fly one cm statistic
-	furnace_interaction: furnace interaction statistic
-	hopper_inspected: hopper inspected statistic
-	horse_one_cm: horse one cm statistic
-	interact_with_anvil: interact with anvil statistic, anvil interaction statistic
-	interact_with_blast_furnace: interact with blast furnace statistic, blast furnace interaction statistic
-	interact_with_campfire: interact with campfire statistic, campfire interaction statistic
-	interact_with_cartography_table: interact with cartography table statistic, cartography table interaction statistic
-	interact_with_grindstone: interact with grindstone statistic, grindstone interaction statistic
-	interact_with_lectern: interact with lectern statistic, lectern interaction statistic
-	interact_with_loom: interact with loom statistic, loom interaction statistic
-	interact_with_smithing_table: interact with smithing table statistic, smithing table interaction statistic
-	interact_with_smoker: interact with smoker statistic, smoker interaction statistic
-	interact_with_stonecutter: interact with stone cutter statistic, stone cutter interaction statistic
-	item_enchanted: item enchanted statistic
-	jump: jump statistic
-	kill_entity: kill entity statistic
-	leave_game: leave game statistic
-	mine_block: mine block statistic
-	minecart_one_cm: minecart one cm statistic
-	mob_kills: mob kills statistic
-	noteblock_played: note block played statistic
-	noteblock_tuned: note block tuned statistic
-	open_barrel: open barrel statistic
-	pickup: pick up statistic
-	pig_one_cm: pig one cm statistic
-	play_one_minute: play one minute statistic, ticks played statistic
-	player_kills: player kills statistic
-	raid_trigger: raid trigger statistic
-	raid_win: raid win statistic
-	record_played: record played statistic
-	shulker_box_opened: shulker box opened statistic
-	sleep_in_bed: sleep in bed statistic
-	sneak_time: sneak time statistic
-	sprint_one_cm: sprint one cm statistic
-	strider_one_cm: strider one cm statistic
-	swim_one_cm: swim one cm statistic
-	talked_to_villager: talked to villager statistic
-	target_hit: target hit statistic
-	time_since_death: time since death statistic
-	time_since_rest: time since rest statistic
-	total_world_time: total world time statistic
-	traded_with_villager: traded with villager statistic
-	trapped_chest_triggered: trapped chest triggered statistic
-	use_item: use item statistic
-	walk_on_water_one_cm: walk on water one cm statistic
-	walk_one_cm: walk one cm statistic
-	walk_under_water_one_cm: walk under water one cm statistic
+# -- Statistics --s:
+	animals_bred: animals bred
+	armor_cleaned: armor cleaned
+	aviate_one_cm: aviate one cm
+	banner_cleaned: banner cleaned
+	beacon_interaction: beacon interaction
+	bell_ring: bell ring
+	boat_one_cm: boat one cm
+	break_item: break item
+	brewingstand_interaction: brewing stand interaction, interact with brewing stand
+	cake_slices_eaten: cake slices eaten
+	cauldron_filled: cauldron filled
+	cauldron_used: cauldron used
+	chest_opened: chest opened
+	clean_shulker_box: clean shulker box
+	climb_one_cm: climb one cm
+	craft_item: craft item
+	crafting_table_interaction: crafting table interaction
+	crouch_one_cm: crouch one cm
+	damage_absorbed: damage absorbed
+	damage_blocked_by_shield: damage blocked by shield
+	damage_dealt: damage dealt
+	damage_dealt_absorbed: damage dealt absorbed
+	damage_dealt_resisted: damage dealt resisted
+	damage_resisted: damage resisted
+	damage_taken: damage taken
+	deaths: deaths
+	dispenser_inspected: dispenser inspected
+	drop: drop
+	drop_count: drop count
+	dropper_inspected: dropper inspected
+	enderchest_opened: ender chest opened
+	entity_killed_by: entity killed by
+	fall_one_cm: fall one cm
+	fish_caught: fish caught
+	flower_potted: flower potted
+	fly_one_cm: fly one cm
+	furnace_interaction: furnace interaction
+	hopper_inspected: hopper inspected
+	horse_one_cm: horse one cm
+	interact_with_anvil: interact with anvil, anvil interaction
+	interact_with_blast_furnace: interact with blast furnace, blast furnace interaction
+	interact_with_campfire: interact with campfire, campfire interaction
+	interact_with_cartography_table: interact with cartography table, cartography table interaction
+	interact_with_grindstone: interact with grindstone, grindstone interaction
+	interact_with_lectern: interact with lectern, lectern interaction
+	interact_with_loom: interact with loom, loom interaction
+	interact_with_smithing_table: interact with smithing table, smithing table interaction
+	interact_with_smoker: interact with smoker, smoker interaction
+	interact_with_stonecutter: interact with stone cutter, stone cutter interaction
+	item_enchanted: item enchanted
+	jump: jump
+	kill_entity: kill entity
+	leave_game: leave game
+	mine_block: mine block
+	minecart_one_cm: minecart one cm
+	mob_kills: mob kills
+	noteblock_played: note block played
+	noteblock_tuned: note block tuned
+	open_barrel: open barrel
+	pickup: pick up
+	pig_one_cm: pig one cm
+	play_one_minute: play one minute, ticks played
+	player_kills: player kills
+	raid_trigger: raid trigger
+	raid_win: raid win
+	record_played: record played
+	shulker_box_opened: shulker box opened
+	sleep_in_bed: sleep in bed
+	sneak_time: sneak time
+	sprint_one_cm: sprint one cm
+	strider_one_cm: strider one cm
+	swim_one_cm: swim one cm
+	talked_to_villager: talked to villager
+	target_hit: target hit
+	time_since_death: time since death
+	time_since_rest: time since rest
+	total_world_time: total world time
+	traded_with_villager: traded with villager
+	trapped_chest_triggered: trapped chest triggered
+	use_item: use item
+	walk_on_water_one_cm: walk on water one cm
+	walk_one_cm: walk one cm
+	walk_under_water_one_cm: walk under water one cm
 
 # -- Boolean --
 boolean:
@@ -2740,7 +2739,7 @@ types:
 	lootcontext: loot context¦s @a
 	bannerpatterntype: banner pattern type¦s @a
 	bannerpattern: banner pattern¦s @a
-	statistic: statistic¦s @a
+:¦s @a
 	vehicle: vehicle¦s @a
 
 	# Skript

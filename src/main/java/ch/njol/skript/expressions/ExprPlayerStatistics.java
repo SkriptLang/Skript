@@ -34,17 +34,19 @@ import org.skriptlang.skript.log.runtime.*;
 		+ "<a href='https://www.digminecraft.com/getting_started/statistics.php'>the DigMinecraft page about statistics</a>."
 })
 @Examples({
-	"set the statistic kill entity statistic for a pig of player to 10",
-	"add 5 to the statistic kill entity statistic for a pig of player",
-	"broadcast \"You have left the game %statistic leave game statistic of player% times!\""
+	"set the kill entity statistic for a pig of player to 10",
+	"add 5 to the kill entity statistic for a pig of player",
+	"broadcast \"You have left the game %statistic leave game of player% times!\""
 })
 @Since("INSERT VERSION")
 public class ExprPlayerStatistics extends SimpleExpression<Integer> implements SyntaxRuntimeErrorProducer {
 
 	static {
 		Skript.registerExpression(ExprPlayerStatistics.class, Integer.class, ExpressionType.COMBINED,
-			"[the] [mc|minecraft] statistic %statistic% [for %-entitydata/itemtype%] (from|of) %offlineplayers%",
-			"%offlineplayers%'[s] [mc|minecraft] statistic %statistic% [for %-entitydata/itemtype%]"
+			"[the] statistic %statistic% [for %-entitydata/itemtype%] (from|of) %offlineplayers%",
+			"[the] %statistic% statistic [for %-entitydata/itemtype%] (from|of) %offlineplayers%",
+			"%offlineplayers%'[s] statistic %statistic% [for %-entitydata/itemtype%]",
+			"%offlineplayers%'[s] %statistic% statistic [for %-entitydata/itemtype%]"
 		);
 	}
 
@@ -75,7 +77,7 @@ public class ExprPlayerStatistics extends SimpleExpression<Integer> implements S
 
 		Object ofType = this.ofType == null ? null : this.ofType.getSingle(event);
 
-		if (!shouldContinue(statistic, ofType))
+		if (shouldStop(statistic, ofType))
 			return null;
 
 		return player.stream(event)
@@ -99,7 +101,7 @@ public class ExprPlayerStatistics extends SimpleExpression<Integer> implements S
 
 		Object ofType = this.ofType == null ? null : this.ofType.getSingle(event);
 
-		if (!shouldContinue(statistic, ofType))
+		if (shouldStop(statistic, ofType))
 			return;
 
 		int value = delta == null ? 0 : (Integer) delta[0];
@@ -140,7 +142,7 @@ public class ExprPlayerStatistics extends SimpleExpression<Integer> implements S
 		}
 	}
 
-	private boolean shouldContinue(Statistic statistic, Object ofType) {
+	private boolean shouldStop(Statistic statistic, Object ofType) {
 		Type statisticType = statistic.getType();
 		if (ofType == null && statisticType != Type.UNTYPED) {
 			error("The statistic '" + statistic + "' requires an entity data or item type to be specified.");
