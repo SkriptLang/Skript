@@ -43,10 +43,10 @@ public class ExprPlayerStatistics extends SimpleExpression<Integer> implements S
 
 	static {
 		Skript.registerExpression(ExprPlayerStatistics.class, Integer.class, ExpressionType.COMBINED,
-			"[the] statistic %statistic% [(for|of) %-entitydata/itemtype%] (from|of) %offlineplayers%", // 0
-			"%offlineplayers%'[s] statistic %statistic% [(for|of) %-entitydata/itemtype%]", // 1
-			"[the] %statistic% statistic [(for|of) %-entitydata/itemtype%] (from|of) %offlineplayers%", // 0
-			"%offlineplayers%'[s] %statistic% statistic [(for|of) %-entitydata/itemtype%]" // 1
+			"[the] statistic %statistic% [(for|of) %-entitydata/itemtype%] (from|of) %offlineplayers%",
+			"%offlineplayers%'[s] statistic %statistic% [(for|of) %-entitydata/itemtype%]",
+			"[the] %statistic% statistic [(for|of) %-entitydata/itemtype%] (from|of) %offlineplayers%",
+			"%offlineplayers%'[s] %statistic% statistic [(for|of) %-entitydata/itemtype%]"
 		);
 	}
 
