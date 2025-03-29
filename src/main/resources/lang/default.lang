@@ -2695,3 +2695,14 @@ types:
 
 	# Other
 	quaternion: quaternion¦s @a
+
+# -- Fishing Event State Types --
+fishing states:
+	fishing: fishing, cast
+	caught_fish: caught fish
+	caught_entity: caught entity
+	in_ground: hook in ground, bobber in ground
+	failed_attempt: fish escape
+	reel_in: [rod] reel in
+	bite: fish bite
+	lured: fish approaching, bobber lured, hook lured

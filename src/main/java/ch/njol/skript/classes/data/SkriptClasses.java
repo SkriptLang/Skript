@@ -27,6 +27,8 @@ import ch.njol.skript.util.visual.VisualEffects;
 import ch.njol.yggdrasil.Fields;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
+import org.bukkit.event.inventory.ClickType;
+import org.bukkit.event.player.PlayerFishEvent;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.script.Script;
@@ -966,6 +968,15 @@ public class SkriptClasses {
 				.examples("{a} contains {b}")
 				.since("2.10")
 		);
+
+		Classes.registerClass(new EnumClassInfo<>(PlayerFishEvent.State.class, "fishingstate", "fishing states")
+				.user("fish(ing)? ?states?")
+				.name("Fishing Event State")
+				.description("The state of a fishing event. Mainly useful when listening to fishing state change")
+				.examples("")
+				.since("INSERT VERSION")
+		);
+
 	}
 
 }
