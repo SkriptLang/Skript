@@ -2555,7 +2555,8 @@ input keys:
 	sneak: sneak key, sneaking key
 	sprint: sprint key, sprinting key
 
-# -- Statistics --s:
+# -- Statistics --:
+statistics:
 	animals_bred: animals bred
 	armor_cleaned: armor cleaned
 	aviate_one_cm: aviate one cm

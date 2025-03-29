@@ -43,10 +43,10 @@ public class ExprPlayerStatistics extends SimpleExpression<Integer> implements S
 
 	static {
 		Skript.registerExpression(ExprPlayerStatistics.class, Integer.class, ExpressionType.COMBINED,
-			"[the] statistic %statistic% [for %-entitydata/itemtype%] (from|of) %offlineplayers%",
-			"[the] %statistic% statistic [for %-entitydata/itemtype%] (from|of) %offlineplayers%",
-			"%offlineplayers%'[s] statistic %statistic% [for %-entitydata/itemtype%]",
-			"%offlineplayers%'[s] %statistic% statistic [for %-entitydata/itemtype%]"
+			"[the] statistic %statistic% [(for|of) %-entitydata/itemtype%] (from|of) %offlineplayers%", // 0
+			"%offlineplayers%'[s] statistic %statistic% [(for|of) %-entitydata/itemtype%]", // 1
+			"[the] %statistic% statistic [(for|of) %-entitydata/itemtype%] (from|of) %offlineplayers%", // 0
+			"%offlineplayers%'[s] %statistic% statistic [(for|of) %-entitydata/itemtype%]" // 1
 		);
 	}
 
@@ -58,13 +58,15 @@ public class ExprPlayerStatistics extends SimpleExpression<Integer> implements S
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		//noinspection unchecked
-		player = (Expression<OfflinePlayer>) exprs[(matchedPattern ^ 1) * 2];
-		//noinspection unchecked
-		statistic = (Expression<Statistic>) exprs[matchedPattern];
+		int pattern = matchedPattern & 1;
 
-		ofType = exprs[matchedPattern + 1];
-		node = getParser().getNode();
+		//noinspection unchecked
+		statistic = (Expression<Statistic>) exprs[pattern];
+		//noinspection unchecked
+		player = (Expression<OfflinePlayer>) exprs[pattern == 0 ? 2 : 0];
+		ofType = exprs[1 + pattern];
+
+		node = getNode();
 
 		return true;
 	}
@@ -144,23 +146,29 @@ public class ExprPlayerStatistics extends SimpleExpression<Integer> implements S
 
 	private boolean shouldStop(Statistic statistic, Object ofType) {
 		Type statisticType = statistic.getType();
+
+		String what = "The statistic '" + statistic + "'";
 		if (ofType == null && statisticType != Type.UNTYPED) {
-			error("The statistic '" + statistic + "' requires an entity data or item type to be specified.");
-			return false;
+			if (statisticType == Type.ITEM || statisticType == Type.BLOCK) {
+				error(what + " requires an item type to be specified.");
+			} else if (statisticType == Type.ENTITY) {
+				error(what + " requires an entity data to be specified.");
+			}
+			return true;
 		} else if (this.ofType != null && statisticType == Type.UNTYPED) {
-			warning("The statistic '" + statistic + "' does not require an entity data or item type to be provided, "
+			warning(what + " does not require an entity data or item type to be provided, "
 				+ "so it will be ignored.");
 		}
 
 		if (ofType instanceof ItemType && statisticType == Type.ENTITY) {
-			error("The statistic '" + statistic + "' requires an entity data, but '" + Classes.toString(ofType) + "' was provided.");
-			return false;
+			error(what + " requires an entity data, but '" + Classes.toString(ofType) + "' was provided.");
+			return true;
 		} else if (ofType instanceof EntityData && (statisticType == Type.ITEM || statisticType == Type.BLOCK)) {
-			error("The statistic '" + statistic + "' requires an item type, but '" + Classes.toString(ofType) + "' was provided.");
-			return false;
+			error(what + " requires an item type, but '" + Classes.toString(ofType) + "' was provided.");
+			return true;
 		}
 
-		return true;
+		return false;
 	}
 
 	@Override
