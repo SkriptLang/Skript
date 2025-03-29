@@ -1,0 +1,3 @@
+test "changing or list changes all":
+	set {_a::1} or {_a::2} to 1
+	assert size of {_a::*} is 1

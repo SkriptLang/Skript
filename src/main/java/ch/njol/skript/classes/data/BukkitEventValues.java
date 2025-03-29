@@ -21,6 +21,10 @@ import com.destroystokyo.paper.event.player.PlayerArmorChangeEvent;
 import com.destroystokyo.paper.event.player.PlayerElytraBoostEvent;
 import io.papermc.paper.event.entity.EntityMoveEvent;
 import io.papermc.paper.event.player.*;
+import io.papermc.paper.event.world.border.WorldBorderBoundsChangeEvent;
+import io.papermc.paper.event.world.border.WorldBorderBoundsChangeFinishEvent;
+import io.papermc.paper.event.world.border.WorldBorderCenterChangeEvent;
+import io.papermc.paper.event.world.border.WorldBorderEvent;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
@@ -288,6 +292,7 @@ public final class BukkitEventValues {
 		EventValues.registerEventValue(PlayerDropItemEvent.class, Player.class, PlayerEvent::getPlayer);
 		EventValues.registerEventValue(PlayerDropItemEvent.class, Item.class, PlayerDropItemEvent::getItemDrop);
 		EventValues.registerEventValue(PlayerDropItemEvent.class, ItemStack.class, event -> event.getItemDrop().getItemStack());
+		EventValues.registerEventValue(PlayerDropItemEvent.class, Entity.class, PlayerEvent::getPlayer);
 		// EntityDropItemEvent
 		EventValues.registerEventValue(EntityDropItemEvent.class, Item.class, EntityDropItemEvent::getItemDrop);
 		EventValues.registerEventValue(EntityDropItemEvent.class, ItemStack.class, event -> event.getItemDrop().getItemStack());
@@ -295,6 +300,7 @@ public final class BukkitEventValues {
 		EventValues.registerEventValue(PlayerPickupItemEvent.class, Player.class, PlayerEvent::getPlayer);
 		EventValues.registerEventValue(PlayerPickupItemEvent.class, Item.class, PlayerPickupItemEvent::getItem);
 		EventValues.registerEventValue(PlayerPickupItemEvent.class, ItemStack.class, event -> event.getItem().getItemStack());
+		EventValues.registerEventValue(PlayerPickupItemEvent.class, Entity.class, PlayerEvent::getPlayer);
 		// EntityPickupItemEvent
 		EventValues.registerEventValue(EntityPickupItemEvent.class, Entity.class, EntityPickupItemEvent::getEntity);
 		EventValues.registerEventValue(EntityPickupItemEvent.class, Item.class, EntityPickupItemEvent::getItem);
@@ -641,9 +647,7 @@ public final class BukkitEventValues {
 			EntityEquipment equipment = event.getEntity().getEquipment();
 			if (equipment == null || hand == null)
 				return null;
-			return new ch.njol.skript.util.slot.EquipmentSlot(equipment,
-				(hand == EquipmentSlot.HAND) ? ch.njol.skript.util.slot.EquipmentSlot.EquipSlot.TOOL
-					: ch.njol.skript.util.slot.EquipmentSlot.EquipSlot.OFF_HAND);
+			return new ch.njol.skript.util.slot.EquipmentSlot(equipment, hand);
 		});
 
 		// PlayerItemHeldEvent
@@ -746,6 +750,25 @@ public final class BukkitEventValues {
 			EventValues.registerEventValue(PlayerElytraBoostEvent.class, Entity.class, PlayerElytraBoostEvent::getFirework);
 		}
 
+		// === WorldBorderEvents ===
+		if (Skript.classExists("io.papermc.paper.event.world.border.WorldBorderEvent")) {
+			// WorldBorderEvent
+			EventValues.registerEventValue(WorldBorderEvent.class, WorldBorder.class, WorldBorderEvent::getWorldBorder);
+
+			// WorldBorderBoundsChangeEvent
+			EventValues.registerEventValue(WorldBorderBoundsChangeEvent.class, Number.class, WorldBorderBoundsChangeEvent::getNewSize);
+			EventValues.registerEventValue(WorldBorderBoundsChangeEvent.class, Number.class, WorldBorderBoundsChangeEvent::getOldSize, EventValues.TIME_PAST);
+			EventValues.registerEventValue(WorldBorderBoundsChangeEvent.class, Timespan.class, event -> new Timespan(event.getDuration()));
+
+			// WorldBorderBoundsChangeFinishEvent
+			EventValues.registerEventValue(WorldBorderBoundsChangeFinishEvent.class, Number.class, WorldBorderBoundsChangeFinishEvent::getNewSize);
+			EventValues.registerEventValue(WorldBorderBoundsChangeFinishEvent.class, Number.class, WorldBorderBoundsChangeFinishEvent::getOldSize, EventValues.TIME_PAST);
+			EventValues.registerEventValue(WorldBorderBoundsChangeFinishEvent.class, Timespan.class, event -> new Timespan((long) event.getDuration()));
+
+			// WorldBorderCenterChangeEvent
+			EventValues.registerEventValue(WorldBorderCenterChangeEvent.class, Location.class, WorldBorderCenterChangeEvent::getNewCenter);
+			EventValues.registerEventValue(WorldBorderCenterChangeEvent.class, Location.class, WorldBorderCenterChangeEvent::getOldCenter, EventValues.TIME_PAST);
+		}
 	}
 
 }

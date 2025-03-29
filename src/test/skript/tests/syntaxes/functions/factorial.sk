@@ -1,0 +1,15 @@
+test "factorial function":
+	assert factorial(0) = 1 with "factorial of 0 failed"
+	assert factorial(1) = 1 with "factorial of 1 failed"
+	assert factorial(2) = 2 with "factorial of 2 failed"
+	assert factorial(3) = 6 with "factorial of 3 failed"
+	assert factorial(4) = 24 with "factorial of 4 failed"
+	assert factorial(5) = 120 with "factorial of 5 failed"
+	assert factorial(10) = 3628800 with "factorial of 10 failed"
+	assert factorial(19) = 121645100408832000 with "factorial of 19 failed"
+	assert factorial(20) = 2432902008176640000 with "factorial of 20 failed"
+	assert factorial(21) = 51090942171709440000 with "factorial of 21 failed"
+	assert factorial(100) = 93326215443944180000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000 with "factorial of 100 failed"
+
+	assert factorial(500) = infinity value with "factorial of 500 failed"
+	assert factorial(-1) is not set with "Negative factorials should return null"
