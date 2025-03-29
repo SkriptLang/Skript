@@ -15,6 +15,6 @@ on player statistic increase:
 	if past statistic value is 0:
 		complete objective "past statistic value" for {@test}
 
-	set {_kills} to statistic player kills statistic of player
+	set {_kills} to player kills statistic of player
 	if {_kills} is 10:
 		complete objective "player kills" for {@test}
