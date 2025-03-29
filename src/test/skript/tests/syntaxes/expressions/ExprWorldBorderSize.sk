@@ -1,0 +1,130 @@
+test "worldborder size":
+	set {_max} to 59999968
+
+	# diameter vs radius tests
+	set {_border} to worldborder of world("world")
+	assert worldborder size of {_border} is {_max} with "The original diameter of the world's worldborder isn't %{_max}%"
+	set worldborder size of {_border} to 60000001
+	assert worldborder size of {_border} is {_max} with "The maximum diameter of the world's worldborder isn't %{_max}%"
+	set worldborder size of {_border} to -1
+	assert worldborder size of {_border} is 1 with "The minimum diameter of the world's worldborder isn't 1"
+	remove 1 from worldborder size of {_border}
+	assert worldborder size of {_border} is 1 with "Size went below 1 when subtracting"
+	add -1 to worldborder size of {_border}
+	assert worldborder size of {_border} is 1 with "Size went below 1 when adding"
+	set worldborder diameter of {_border} to 10
+	assert worldborder size of {_border} is 10 with "Worldborder size is not the same as worldborder diameter"
+	assert worldborder radius of {_border} is 5 with "Worldborder radius is not half of worldborder diameter"
+	set worldborder radius of {_border} to 10
+	assert worldborder radius of {_border} is 10 with "Worldborder radius failed to set"
+	assert worldborder diameter of {_border} is 20 with "Worldborder diameter is not double worldborder radius"
+	
+	# set tests (diameter)
+	set worldborder size of {_border} to 1
+	assert worldborder size of {_border} is 1 with "Failed to set worldborder size to an integer"
+	set worldborder size of {_border} to 1.5
+	assert worldborder size of {_border} is 1.5 with "Failed to set worldborder size to a float"
+	set worldborder size of {_border} to {_None}
+	assert worldborder size of {_border} is 1.5 with "Setting worldborder size to None changed the size"
+	set worldborder size of {_border} to NaN value
+	assert worldborder size of {_border} is 1.5 with "Setting worldborder size to NaN value changed the size"
+	set worldborder size of {_border} to infinity value
+	assert worldborder size of {_border} is {_max} with "Setting worldborder size to infinity went past %{_max}%"
+	set worldborder size of {_border} to -infinity value
+	assert worldborder size of {_border} is 1 with "Setting worldborder size to -infinity went under 1"
+	set worldborder size of {_border} to 1.5
+
+	# add tests (diameter)
+	add 0.5 to worldborder size of {_border}
+	assert worldborder size of {_border} is 2 with "Failed adding float to size"
+	add 1 to worldborder size of {_border}
+	assert worldborder size of {_border} is 3 with "Failed adding integer to size"
+	add -0.5 to worldborder size of {_border}
+	assert worldborder size of {_border} is 2.5 with "Failed adding negative float to size"
+	add -1 to worldborder size of {_border}
+	assert worldborder size of {_border} is 1.5 with "Failed adding negative integer to size"
+	add {_None} to worldborder size of {_border}
+	assert worldborder size of {_border} is 1.5 with "Adding None to worldborder size changed the size"
+	add NaN value to worldborder size of {_border}
+	assert worldborder size of {_border} is 1.5 with "Adding NaN value to worldborder size changed the size"
+	add infinity value to worldborder size of {_border}
+	assert worldborder size of {_border} is {_max} with "Adding infinity to worldborder size went past %{_max}%"
+	add -infinity value to worldborder size of {_border}
+	assert worldborder size of {_border} is 1 with "Adding -infinity to worldborder size went under 1"
+	set worldborder size of {_border} to 1.5
+
+	# remove tests (diameter)
+	remove -0.5 from worldborder size of {_border}
+	assert worldborder size of {_border} is 2 with "Failed removing negative float from size"
+	remove -1 from worldborder size of {_border}
+	assert worldborder size of {_border} is 3 with "Failed removing negative integer from size"
+	remove 0.5 from worldborder size of {_border}
+	assert worldborder size of {_border} is 2.5 with "Failed removing float from size"
+	remove 1 from worldborder size of {_border}
+	assert worldborder size of {_border} is 1.5 with "Failed removing integer from size"
+	remove {_None} from worldborder size of {_border}
+	assert worldborder size of {_border} is 1.5 with "Removing None from worldborder size changed the size"
+	remove NaN value from worldborder size of {_border}
+	assert worldborder size of {_border} is 1.5 with "Removing NaN value from worldborder size changed the size"
+	remove infinity value from worldborder size of {_border}
+	assert worldborder size of {_border} is 1 with "Removing infinity from worldborder size went below 1"
+	remove -infinity value from worldborder size of {_border}
+	assert worldborder size of {_border} is {_max} with "Removing -infinity from worldborder size went past %{_max}%"
+	
+	reset worldborder size of {_border}
+	assert worldborder size of {_border} is {_max} with "The reset diameter of the world's worldborder isn't %{_max}%"
+
+	# set tests (radius)
+	set worldborder radius of {_border} to 1
+	assert worldborder radius of {_border} is 1 with "Failed to set worldborder radius to an integer"
+	set worldborder radius of {_border} to 1.5
+	assert worldborder radius of {_border} is 1.5 with "Failed to set worldborder radius to a float"
+	set worldborder radius of {_border} to {_None}
+	assert worldborder radius of {_border} is 1.5 with "Setting worldborder radius to None changed the radius"
+	set worldborder radius of {_border} to NaN value
+	assert worldborder radius of {_border} is 1.5 with "Setting worldborder radius to NaN value changed the radius"
+	set worldborder radius of {_border} to infinity value
+	assert worldborder radius of {_border} is {_max}/2 with "Setting worldborder radius to infinity went past %{_max}/2%"
+	set worldborder radius of {_border} to -infinity value
+	assert worldborder radius of {_border} is 0.5 with "Setting worldborder radius to -infinity went under 0.5"
+	set worldborder radius of {_border} to 1.5
+
+	# add tests (radius)
+	add 0.5 to worldborder radius of {_border}
+	assert worldborder radius of {_border} is 2 with "Failed adding float to radius"
+	add 1 to worldborder radius of {_border}
+	assert worldborder radius of {_border} is 3 with "Failed adding integer to radius"
+	add -0.5 to worldborder radius of {_border}
+	assert worldborder radius of {_border} is 2.5 with "Failed adding negative float to radius"
+	add -1 to worldborder radius of {_border}
+	assert worldborder radius of {_border} is 1.5 with "Failed adding negative integer to radius"
+	add {_None} to worldborder radius of {_border}
+	assert worldborder radius of {_border} is 1.5 with "Adding None to worldborder radius changed the radius"
+	add NaN value to worldborder radius of {_border}
+	assert worldborder radius of {_border} is 1.5 with "Adding NaN value to worldborder radius changed the radius"
+	add infinity value to worldborder radius of {_border}
+	assert worldborder radius of {_border} is {_max}/2 with "Adding infinity to worldborder radius went past %{_max}/2%"
+	add -infinity value to worldborder radius of {_border}
+	assert worldborder radius of {_border} is 0.5 with "Adding -infinity to worldborder radius went under 0.5"
+	set worldborder radius of {_border} to 1.5
+
+	# remove tests (radius)
+	remove -0.5 from worldborder radius of {_border}
+	assert worldborder radius of {_border} is 2 with "Failed removing negative float from radius"
+	remove -1 from worldborder radius of {_border}
+	assert worldborder radius of {_border} is 3 with "Failed removing negative integer from radius"
+	remove 0.5 from worldborder radius of {_border}
+	assert worldborder radius of {_border} is 2.5 with "Failed removing float from radius"
+	remove 1 from worldborder radius of {_border}
+	assert worldborder radius of {_border} is 1.5 with "Failed removing integer from radius"
+	remove {_None} from worldborder radius of {_border}
+	assert worldborder radius of {_border} is 1.5 with "Removing None from worldborder radius changed the radius"
+	remove NaN value from worldborder radius of {_border}
+	assert worldborder radius of {_border} is 1.5 with "Removing NaN value from worldborder radius changed the radius"
+	remove infinity value from worldborder radius of {_border}
+	assert worldborder radius of {_border} is 0.5 with "Removing infinity from worldborder radius went below 0.5"
+	remove -infinity value from worldborder radius of {_border}
+	assert worldborder radius of {_border} is {_max}/2 with "Removing -infinity from worldborder radius went past %{_max}/2%"
+
+	reset worldborder radius of {_border}
+	assert worldborder radius of {_border} is {_max}/2 with "The reset radius of the world's worldborder isn't %{_max}/2%"
