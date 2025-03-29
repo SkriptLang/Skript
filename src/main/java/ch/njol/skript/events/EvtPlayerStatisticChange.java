@@ -17,8 +17,8 @@ public class EvtPlayerStatisticChange extends SkriptEvent {
 
 	static {
 		Skript.registerEvent("Player Statistic Change", EvtPlayerStatisticChange.class, PlayerStatisticIncrementEvent.class,
-			"player statistic (change|increase|increment) [of %-statistics% [statistic[s]]]",
-				"player statistic (change|increase|increment) [of [statistic[s]] %-statistics%]")
+			"player statistic (change|increase|increment) [of %-statistics% statistic[s]]",
+				"player statistic (change|increase|increment) [of statistic[s] %-statistics%]")
 			.description(
 				"Called when a player's statistic changes. Some statistics like 'play one minute' do not call this event, "
 					+ "because they get called too often.")
