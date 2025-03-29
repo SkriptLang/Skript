@@ -2744,7 +2744,7 @@ types:
 	lootcontext: loot context¦s @a
 	bannerpatterntype: banner pattern type¦s @a
 	bannerpattern: banner pattern¦s @a
-:¦s @a
+	statistic: statistic¦s @a
 	vehicle: vehicle¦s @a
 
 	# Skript
