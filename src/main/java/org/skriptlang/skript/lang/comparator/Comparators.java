@@ -2,6 +2,7 @@ package org.skriptlang.skript.lang.comparator;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptAPIException;
+import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.Utils;
 import ch.njol.util.Pair;
 import org.jetbrains.annotations.Nullable;
@@ -359,8 +360,8 @@ public final class Comparators {
 
 		}
 
-		// Same class but no comparator
-		if (firstType != Object.class && firstType == secondType) {
+		// We can likely compare the two classes if they share the same immediate ClassInfo (and it's not Object)
+		if (firstType != Object.class && Classes.getSuperClassInfo(firstType) == Classes.getSuperClassInfo(secondType)) {
 			return (ComparatorInfo<T1, T2>) EQUALS_COMPARATOR_INFO;
 		}
 
