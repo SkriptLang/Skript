@@ -35,10 +35,6 @@ public class ExprFunction extends SimpleExpression<DynamicFunctionReference> {
 		Skript.registerExpression(ExprFunction.class, DynamicFunctionReference.class, ExpressionType.COMBINED,
 				"[the|a] function [named] %string% [(in|from) %-script%]",
 				"[the] functions [named] %strings% [(in|from) %-script%]",
-				"[all [[of] the]|the] functions (in|from) %script%",
-
-				"[the|a] function [named] %string% with param[eter]s %*classinfos% [(in|from) %-script%]",
-				"[the] functions [named] %strings% with param[eter]s %*classinfos% [(in|from) %-script%]",
 				"[all [[of] the]|the] functions (in|from) %script%"
 		);
 	}
