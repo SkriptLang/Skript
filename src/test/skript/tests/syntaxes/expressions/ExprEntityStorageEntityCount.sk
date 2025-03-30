@@ -1,0 +1,39 @@
+test "entity block storage entities" when running minecraft "1.21":
+	###
+		Combines:
+			ExprEntityStorageEntities
+			EffInsertEntityStorage
+			EffClearEntityStorage
+			EffReleaseEntityStorage
+			CondEntityStorageIsFull
+	###
+
+	clear all bees
+
+	set {_old} to block data of test-block
+	set block at test-block to beehive
+	set {_hive} to block at test-block
+
+	set the maximum stored entity count of {_hive} to 20
+	assert the maximum stored entity count of {_hive} is 20 with "Maximum stored entities was not changed"
+	spawn 10 bees at test-location:
+		add entity to {_bees::*}
+	add {_bees::*} into the entity storage of {_hive}
+	assert the stored entity count of {_hive} is 10 with "Stored entities did not have bees added"
+	assert the entity storage of {_hive} is not full with "Stored entities should not be full"
+
+	spawn 10 bees at test-location:
+		add entity to {_bees2::*}
+	add {_bees2::*} into the entity storage of {_hive}
+	assert the stored entity count of {_hive} is 20 with "Stored entities did not have additional bees added"
+	assert the entity storage of {_hive} is full with "Stored entities should be full"
+	spawn 10 bees at test-location:
+		add entity to {_bees3::*}
+	add {_bees3::*} into the entity storage of {_hive}
+	assert the stored entity count of {_hive} is 20 with "Stored entities should not exceed the maximum entity count"
+
+	release the stored entities of {_hive}
+	assert the stored entity count of {_hive} is 0 with "Stored entities should be empty after releasing"
+
+	clear all bees
+	set block data of test-block to {_old}

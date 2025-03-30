@@ -1,0 +1,65 @@
+# Changes in general
+* @skriptlang/core-developers
+
+# Protect github files
+/.github/ @skriptlang/core-maintainers
+
+# Changes to code (specified for future granularity)
+/src/main/java/ @skriptlang/core-developers
+
+# Changes to tests (specified for future granularity)
+/src/test/ @skriptlang/core-developers
+
+# Changes to critical code
+/src/main/java/org/skriptlang/skript/lang/ @skriptlang/core-maintainers
+/src/main/java/ch/njol/skript/lang/ @skriptlang/core-maintainers
+/src/main/java/ch/njol/skript/variables/ @skriptlang/core-maintainers
+/src/main/java/ch/njol/yggdrasil/ @skriptlang/core-maintainers
+/src/main/java/ch/njol/skript/Skript.java @skriptlang/core-maintainers
+/src/main/java/ch/njol/skript/test/ @skriptlang/core-maintainers
+/src/main/java/ch/njol/skript/patterns/ @skriptlang/core-maintainers
+/src/main/java/ch/njol/skript/expressions/base/ @skriptlang/core-maintainers
+/src/main/java/ch/njol/skript/conditions/base/ @skriptlang/core-maintainers
+/src/main/java/ch/njol/skript/config/ @skriptlang/core-maintainers
+/src/main/java/ch/njol/skript/classes/ @skriptlang/core-maintainers
+/src/main/java/ch/njol/skript/classes/data/ @skriptlang/core-developers # classes is critical but classes/data is not
+
+# Personal specialties
+
+# Runtime errors
+/src/main/java/org/skriptlang/skript/log/runtime/ @sovdeeth
+/src/main/java/org/skriptlang/skript/bukkit/log/runtime/ @sovdeeth
+
+# Tags
+/src/main/java/org/skriptlang/skript/bukkit/tags/ @sovdeeth
+
+# Conditionals
+/src/main/java/org/skriptlang/skript/lang/condition/ @sovdeeth
+
+# Displays/Rotation
+/src/main/java/org/skriptlang/skript/bukkit/misc/rotation/ @sovdeeth
+/src/main/java/org/skriptlang/skript/bukkit/displays/ @sovdeeth
+
+# Commands
+/src/main/java/ch/njol/skript/command/ @sovdeeth
+
+# Aliases
+/src/main/java/ch/njol/skript/aliases @sovdeeth
+
+# Registration API
+/src/main/java/org/skriptlang/skript/registration/ @APickledWalrus
+/src/main/java/org/skriptlang/skript/bukkit/registration/ @APickledWalrus
+/src/main/java/org/skriptlang/skript/addon/ @APickledWalrus
+
+# EntryData
+/src/main/java/org/skriptlang/skript/lang/entry/ @APickledWalrus
+
+# Arithmetic
+/src/main/java/org/skriptlang/skript/lang/arithmetic/ @UnderscoreTud
+/src/main/java/ch/njol/skript/expressions/arithmetic/ @UnderscoreTud
+
+# Input API
+/src/main/java/org/skriptlang/skript/bukkit/input/ @UnderscoreTud
+
+# Documentation
+/src/main/java/ch/njol/skript/doc/ @Pikachu920 @AyhamAl-Ali @Efnilite
