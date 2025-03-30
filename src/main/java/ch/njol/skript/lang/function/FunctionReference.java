@@ -7,7 +7,6 @@ import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.config.Node;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser;
-import ch.njol.skript.lang.UnparsedLiteral;
 import ch.njol.skript.log.RetainingLogHandler;
 import ch.njol.skript.log.SkriptLogger;
 import ch.njol.skript.registrations.Classes;
@@ -125,7 +124,7 @@ public class FunctionReference<T> implements Contract, Executable<Event, T[]> {
 		function = null;
 		SkriptLogger.setNode(node);
 		Skript.debug("Validating function " + functionName);
-		Signature<?> sign = Functions.getSignature(functionName, script);
+		Signature<?> sign = getRegisteredSignature();
 
 		// Check if the requested function exists
 		if (sign == null) {
@@ -219,7 +218,7 @@ public class FunctionReference<T> implements Contract, Executable<Event, T[]> {
 				if (e == null) {
 					if (first) {
 						if (LiteralUtils.hasUnparsedLiteral(parameters[i])) {
-							Skript.error("(Function) Can't understand this expression: " + parameters[i].toString());
+							Skript.error("Can't understand this expression: " + parameters[i].toString());
 						} else {
 							Skript.error("The " + StringUtils.fancyOrderNumber(i + 1) + " argument given to the function '" + functionName + "' is not of the required type " + p.type + "."
 								+ " Check the correct order of the arguments and put lists into parentheses if appropriate (e.g. 'give(player, (iron ore and gold ore))')."
@@ -259,32 +258,55 @@ public class FunctionReference<T> implements Contract, Executable<Event, T[]> {
 		return true;
 	}
 
+	// attempt to get the types of the parameters for this function reference
+	private void parseParameters() {
+		if (parameterTypes != null) {
+			return;
+		}
+
+		parameterTypes = new Class<?>[parameters.length];
+		for (int i = 0; i < parameters.length; i++) {
+			Expression<?> parsed = LiteralUtils.defendExpression(parameters[i]);
+			parameterTypes[i] = parsed.getReturnType();
+		}
+	}
+
 	/**
 	 * Attempts to get this function's signature.
 	 */
-	private Signature<?> getSignature() {
-		// attempt to get the types of the parameters for this function reference
-		boolean allSameType = true;
-		parameterTypes = new Class<?>[parameters.length];
-		for (int i = 0; i < parameters.length; i++) {
-			System.out.println(parameters[i].getClass().getSimpleName());
-			parameterTypes[i] = parameters[i].getReturnType();
+	private Signature<?> getRegisteredSignature() {
+		parseParameters();
 
-			if (parameterTypes[0] != Object.class && parameterTypes[i] != Object.class) {
-				allSameType &= parameterTypes[i] == parameterTypes[0];
-			}
-		}
-		System.out.println("s = " + Arrays.toString(Arrays.stream(parameterTypes).map(Class::getSimpleName).toArray()));
-
+		Skript.debug("Getting signature for '%s' with types %s",
+			functionName, Arrays.toString(Arrays.stream(parameterTypes).map(Class::getName).toArray()));
 		Signature<?> sign = FunctionRegistry.signature(script, functionName, parameterTypes);
 
-		// functions may have non-single arguments
-		// if all arguments are of the same type (or object) will try to find a function with an array type
-		if (parameterTypes.length > 0 && allSameType && sign == null) {
-			sign = FunctionRegistry.signature(script, functionName, Object[].class);
+		// if we can't find a signature based on param types, just use the function name
+		// and find whatever matches first
+		if (sign == null) {
+			sign = FunctionRegistry.signature(script, functionName);
 		}
 
 		return sign;
+	}
+
+	/**
+	 * Attempts to get this function's signature.
+	 */
+	private Function<?> getRegisteredFunction() {
+		parseParameters();
+
+		Skript.debug("Getting function '%s' with types %s",
+			functionName, Arrays.toString(Arrays.stream(parameterTypes).map(Class::getName).toArray()));
+		Function<?> function = FunctionRegistry.function(script, functionName, parameterTypes);
+
+		// if we can't find a function based on param types, just use the function name
+		// and find whatever matches first
+		if (function == null) {
+			function = FunctionRegistry.function(script, functionName);
+		}
+
+		return function;
 	}
 
 	public @Nullable Function<? extends T> getFunction() {
@@ -301,7 +323,7 @@ public class FunctionReference<T> implements Contract, Executable<Event, T[]> {
 		// If needed, acquire the function reference
 		if (function == null)
 			//noinspection unchecked
-			function = (Function<? extends T>) Functions.getFunction(functionName, script);
+			function = (Function<? extends T>) getRegisteredFunction();
 
 		if (function == null) { // It might be impossible to resolve functions in some cases!
 			Skript.error("Couldn't resolve call for '" + functionName + "'.");
@@ -382,7 +404,7 @@ public class FunctionReference<T> implements Contract, Executable<Event, T[]> {
 		// If needed, acquire the function reference
 		if (function == null)
 			//noinspection unchecked
-			function = (Function<? extends T>) FunctionRegistry.function(script, functionName, parameterTypes);
+			function = (Function<? extends T>) Functions.getFunction(script, functionName);
 
 		if (function == null) { // It might be impossible to resolve functions in some cases!
 			Skript.error("Couldn't resolve call for '" + functionName + "'.");

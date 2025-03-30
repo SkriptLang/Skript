@@ -1,13 +1,20 @@
 package ch.njol.skript.lang.function;
 
+import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptAPIException;
 import com.google.common.base.Preconditions;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.converter.Converters;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
+/**
+ * A registry for functions.
+ *
+ * @author Efnilite
+ */
 class FunctionRegistry {
 
 	private FunctionRegistry() {
@@ -40,21 +47,30 @@ class FunctionRegistry {
 	 */
 	private static final Map<Namespace, Map<FunctionIdentifier, Signature<?>>> signatures = new HashMap<>();
 
+	/**
+	 * Registers a signature.
+	 *
+	 * @param signature The signature to register.
+	 * @throws SkriptAPIException if a function with the same name and parameters is already registered
+	 *                            in this namespace.
+	 */
 	public static void registerSignature(@Nullable String script, @NotNull Signature<?> signature) {
 		Preconditions.checkNotNull(signature, "signature is null");
 
+		// namespace
 		Namespace namespace = GLOBAL_NAMESPACE;
-		if (script != null) {
-			namespace = new Namespace(signature.isLocal() ? Scope.LOCAL : Scope.GLOBAL, script);
+		if (script != null && signature.isLocal()) {
+			namespace = new Namespace(Scope.LOCAL, script);
 		}
 
 		FunctionIdentifier identifier = FunctionIdentifier.of(signature);
 
+		// register
 		Map<String, Set<FunctionIdentifier>> javaIdentifiers = identifiers.getOrDefault(namespace, new HashMap<>());
 		Set<FunctionIdentifier> identifiersWithName = javaIdentifiers.getOrDefault(identifier.name, new HashSet<>());
 		boolean exists = identifiersWithName.add(identifier);
 		if (!exists) {
-			alreadyRegisteredError(identifier.name, identifier);
+			alreadyRegisteredError(identifier.name, identifier, namespace);
 		}
 		javaIdentifiers.put(identifier.name, identifiersWithName);
 		identifiers.put(namespace, javaIdentifiers);
@@ -92,9 +108,11 @@ class FunctionRegistry {
 		if (!name.matches(FUNCTION_NAME_PATTERN)) {
 			throw new SkriptAPIException("Invalid function name '" + name + "'");
 		}
+
+		// namespace
 		Namespace namespace = GLOBAL_NAMESPACE;
-		if (script != null) {
-			namespace = new Namespace(function.getSignature().isLocal() ? Scope.LOCAL : Scope.GLOBAL, script);
+		if (script != null && function.getSignature().isLocal()) {
+			namespace = new Namespace(Scope.LOCAL, script);
 		}
 
 		FunctionIdentifier identifier = FunctionIdentifier.of(function.getSignature());
@@ -102,38 +120,35 @@ class FunctionRegistry {
 			registerSignature(script, function.getSignature());
 		}
 
+		// register
 		Map<FunctionIdentifier, Function<?>> identifierToFunction = functions.getOrDefault(namespace, new HashMap<>());
 		Function<?> existing = identifierToFunction.put(identifier, function);
 		if (existing != null) {
-			alreadyRegisteredError(name, identifier);
+			alreadyRegisteredError(name, identifier, namespace);
 		}
 		functions.put(namespace, identifierToFunction);
 	}
 
-	private static void alreadyRegisteredError(String name, FunctionIdentifier identifier) {
-		throw new SkriptAPIException("Function '%s' with parameters %s is already registered"
-			.formatted(name, Arrays.toString(Arrays.stream(identifier.args).map(Class::getSimpleName).toArray())));
+	private static void alreadyRegisteredError(String name, FunctionIdentifier identifier, Namespace namespace) {
+		throw new SkriptAPIException("Function '%s' with parameters %s is already registered in %s"
+			.formatted(name, Arrays.toString(Arrays.stream(identifier.args).map(Class::getSimpleName).toArray()),
+				namespace));
 	}
 
 	/**
-	 * Checks if a function with the given name and arguments exists in the given script.
-	 * If no local function is found, checks for global functions.
+	 * Checks if a signature with the given name and arguments exists in the given script.
 	 *
 	 * @param script The script to check in.
 	 * @param name The name of the function.
 	 * @param args The types of the arguments of the function.
-	 * @return True if a function with the given name and argument types exists in the script or globally, false otherwise.
+	 * @return True if a signature with the given name and argument types exists in the script, false otherwise.
 	 */
 	public static boolean signatureExists(@Nullable String script, @NotNull String name, Class<?>... args) {
 		if (script == null) {
 			return signatureExists(GLOBAL_NAMESPACE, FunctionIdentifier.of(name, args));
 		}
 
-		boolean local = signatureExists(new Namespace(Scope.LOCAL, script.toLowerCase()), FunctionIdentifier.of(name, args));
-		if (!local) {
-			return signatureExists(GLOBAL_NAMESPACE, FunctionIdentifier.of(name, args));
-		}
-		return true;
+		return signatureExists(new Namespace(Scope.LOCAL, script.toLowerCase()), FunctionIdentifier.of(name, args));
 	}
 
 	/**
@@ -184,13 +199,9 @@ class FunctionRegistry {
 
 	/**
 	 * Gets a function from a namespace.
-	 * <p>
-	 * To match the arguments, we check if a converter between the candidate type and the provided type exists
-	 * for each argument in the function signature.
-	 * </p>
 	 *
 	 * @param namespace The namespace to get the function from.
-	 * @param provided The provided of the function.
+	 * @param provided The provided identifier of the function.
 	 * @return The function with the given name and argument types, or null if no such function exists.
 	 */
 	private static Function<?> function(@NotNull Namespace namespace, @NotNull FunctionIdentifier provided) {
@@ -200,61 +211,55 @@ class FunctionRegistry {
 		Map<FunctionIdentifier, Function<?>> identifierFunctionMap = functions.get(namespace);
 		Map<String, Set<FunctionIdentifier>> namespaceIdentifiers = identifiers.get(namespace);
 		if (identifierFunctionMap == null || namespaceIdentifiers == null) {
+			Skript.debug("No functions found in namespace %s".formatted(namespace));
 			return null;
 		}
 
 		Set<FunctionIdentifier> existing = namespaceIdentifiers.get(provided.name);
 		if (existing == null) {
+			Skript.debug("No functions named '%s' exist in the '%s' namespace".formatted(provided.name, namespace.name));
 			return null;
 		}
 
 		if (existing.size() == 1) {
 			FunctionIdentifier identifier = existing.stream().findAny().orElse(null);
+			Skript.debug("Exact match for '%s': %s".formatted(provided.name, identifier));
 			return identifierFunctionMap.get(identifier);
 		}
 
-		List<FunctionIdentifier> candidates = candidates(provided, existing);
+		Set<FunctionIdentifier> candidates = candidates(provided, existing);
 		if (candidates.isEmpty()) {
+			Skript.debug("Failed to find a function for '%s'".formatted(provided.name));
 			return null;
 		} else if (candidates.size() == 1) {
-			return identifierFunctionMap.get(candidates.get(0));
+			Skript.debug("Matched function for '%s': %s".formatted(provided.name, candidates.stream().findAny().orElse(null)));
+			return identifierFunctionMap.get(candidates.stream().findAny().orElse(null));
 		} else {
-			throw new SkriptAPIException("Ambiguous function call: " + provided.name);
+			String options = candidates.stream().map(Record::toString).collect(Collectors.joining(", "));
+			Skript.debug("Failed to match an exact function for '%s'".formatted(provided.name));
+			Skript.debug("Identifier: %s".formatted(provided));
+			Skript.debug("Options: %s".formatted(options));
+			Skript.error(("Skript cannot determine which function named '%s' to call. " +
+				"Try clarifying the type of the arguments.").formatted(provided.name));
+			return null;
 		}
 	}
 
 	/**
-	 * Returns a list of candidates for the provided function.
+	 * Gets the signature for a function with the given name and arguments. If no local function is found,
+	 * checks for global functions.
 	 *
-	 * @param provided The provided function.
-	 * @param existing The existing functions with the same name.
-	 * @return A list of candidates for the provided function.
+	 * <ul>
+	 * <li>If {@code script} is null, only global functions will be checked.</li>
+	 * <li>If {@code args} is null or empty,
+	 * the first function with the same name as the {@code name} param will be returned.</li>
+	 * </ul>
+	 *
+	 * @param script The script to get the function from. If null, only global functions will be checked.
+	 * @param name The name of the function.
+	 * @param args The types of the arguments of the function.
+	 * @return The signature for the function with the given name and argument types, or null if no such function exists.
 	 */
-	private static @NotNull List<FunctionIdentifier> candidates(@NotNull FunctionIdentifier provided,
-																Set<FunctionIdentifier> existing) {
-		List<FunctionIdentifier> candidates = new ArrayList<>();
-		for (FunctionIdentifier candidate : existing) {
-			if (!candidate.name.equals(provided.name)) {
-				continue;
-			}
-
-			if (provided.args.length > candidate.args.length
-				|| provided.args.length < candidate.minArgCount) {
-				continue;
-			}
-
-//			When runtime types are added, uncomment this for function overloading between types :)
-//			for (int i = 0; i < provided.args.length; i++) {
-//				if (!Converters.converterExists(provided.args[i], candidate.args[i])) {
-//					continue candidates;
-//				}
-//			}
-
-			candidates.add(candidate);
-		}
-		return candidates;
-	}
-
 	public static Signature<?> signature(@Nullable String script, @NotNull String name, Class<?>... args) {
 		if (script == null) {
 			return signature(GLOBAL_NAMESPACE, FunctionIdentifier.of(name, args));
@@ -267,30 +272,116 @@ class FunctionRegistry {
 		return signature;
 	}
 
-	private static Signature<?> signature(@NotNull Namespace namespace, @NotNull FunctionIdentifier identifier) {
+	/**
+	 * Gets the signature for a function with the given name and arguments.
+	 *
+	 * @param namespace The namespace to get the function from.
+	 * @param provided The provided identifier of the function.
+	 * @return The signature for the function with the given name and argument types, or null if no such signature exists
+	 * in the specified namespace.
+	 */
+	private static Signature<?> signature(@NotNull Namespace namespace, @NotNull FunctionIdentifier provided) {
 		Preconditions.checkNotNull(namespace, "namespace is null");
-		Preconditions.checkNotNull(identifier, "identifier is null");
+		Preconditions.checkNotNull(provided, "provided is null");
 
 		Map<String, Set<FunctionIdentifier>> javaIdentifiers = identifiers.getOrDefault(namespace, new HashMap<>());
 
-		if (!javaIdentifiers.containsKey(identifier.name)) {
-//			System.out.println(9);
+		if (!javaIdentifiers.containsKey(provided.name)) {
+			Skript.debug("No functions named '%s' exist in the '%s' namespace", namespace.name, provided.name);
 			return null;
 		}
 
-		List<FunctionIdentifier> candidates = candidates(identifier, javaIdentifiers.get(identifier.name));
+		Set<FunctionIdentifier> candidates = candidates(provided, javaIdentifiers.get(provided.name));
 		if (candidates.isEmpty()) {
-//			System.out.println(10);
+			Skript.debug("Failed to find a signature for '%s'", provided.name);
 			return null;
 		} else if (candidates.size() == 1) {
-//			System.out.println("11 " + signatures.get(namespace).get(candidates.get(0)));
-			return signatures.get(namespace).get(candidates.get(0));
+			Skript.debug("Matched signature for '%s': %s",
+				provided.name, signatures.get(namespace).get(candidates.stream().findAny().orElse(null)));
+			return signatures.get(namespace).get(candidates.stream().findAny().orElse(null));
 		} else {
 			String options = candidates.stream().map(Record::toString).collect(Collectors.joining(", "));
-			System.out.println(identifier);
-			System.out.println(options);
-			throw new SkriptAPIException("Ambiguous signature call for '%s'".formatted(identifier.name));
+
+			Skript.debug("Failed to match an exact signature for '%s'", provided.name);
+			Skript.debug("Identifier: %s", provided);
+			Skript.debug("Options: %s", options);
+			Skript.error(("Skript cannot determine which function named '%s' to call. " +
+				"Try clarifying the type of the arguments.").formatted(provided.name));
+			return null;
 		}
+	}
+
+	/**
+	 * Returns a list of candidates for the provided function.
+	 *
+	 * @param provided The provided function.
+	 * @param existing The existing functions with the same name.
+	 * @return A list of candidates for the provided function.
+	 */
+	private static @NotNull Set<FunctionIdentifier> candidates(@NotNull FunctionIdentifier provided,
+																Set<FunctionIdentifier> existing) {
+		Set<FunctionIdentifier> candidates = new HashSet<>();
+
+		candidates:
+		for (FunctionIdentifier candidate : existing) {
+			// if the provided name does not match the candidate name, skip
+			if (!candidate.name.equals(provided.name)) {
+				continue;
+			}
+
+			// if the provided arguments are null, that means the function
+			// 1. has no arguments. return the first name match.
+			// 2. has an unknown amount of arguments. return the first name match.
+			if (provided.args == null || provided.args.length == 0) {
+				return Set.of(candidate);
+			}
+
+			// if argument counts are not possible, skip
+			if (provided.args.length > candidate.args.length
+				|| provided.args.length < candidate.minArgCount) {
+				continue;
+			}
+
+			// if the types of the provided arguments do not match the candidate arguments, skip
+			for (int i = 0; i < provided.args.length; i++) {
+				if (!Converters.converterExists(provided.args[i], candidate.args[i])) {
+					continue candidates;
+				}
+			}
+
+			candidates.add(candidate);
+		}
+
+		if (candidates.isEmpty()) {
+			return Set.of();
+		} else if (candidates.size() == 1) {
+			return candidates;
+		}
+
+		// let overloaded(Long, Long) and overloaded(String, String) be two functions.
+		// allow overloaded(1, {_x}) to match Long, Long and avoid String, String,
+		// and allow overloaded({_x}, 1) to match Long, Long and avoid String, String
+		// despite not being an exact match in all arguments,
+		// since variables can be any type.
+		for (FunctionIdentifier candidate : new HashSet<>(candidates)) {
+			int argIndex = 0;
+
+			while (argIndex < provided.args.length) {
+				if (provided.args[argIndex] == Object.class) {
+					argIndex++;
+					continue;
+				}
+
+				if (provided.args[argIndex] != candidate.args[argIndex]) {
+					candidates.remove(candidate);
+					break;
+				}
+
+				argIndex++;
+			}
+		}
+
+		return candidates;
 	}
 
 	/**

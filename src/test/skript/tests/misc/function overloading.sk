@@ -11,9 +11,20 @@ function overloaded(x: text, y: int, z: int) :: int:
 	return 4
 
 test "function overloading":
-	broadcast last parse logs
 
+	# literal overloading
 	assert overloaded(1, 2) = 1
 	assert overloaded(1, 2, 3) = 2
-	assert overloaded('a', 'b') = 3
-	assert overloaded('a', 2, 3) = 4
+	assert overloaded("a", "b") = 3
+	assert overloaded("a", 2, 3) = 4
+
+	# overloading with unknown type
+	assert overloaded(1, {_x}) = 1
+	assert overloaded({_x}, 1) = 1
+
+	# can't determine the type, so error
+	parse:
+		overloaded({_y}, {_x})
+
+	broadcast "%last parse logs%"
+	assert last parse logs contains "Skript cannot determine which function named 'overloaded' to call. Try clarifying the type of the arguments."

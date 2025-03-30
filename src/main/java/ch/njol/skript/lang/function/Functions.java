@@ -98,7 +98,7 @@ public abstract class Functions {
 
 		Function<?> function = new ScriptFunction<>(signature, node);
 
-		if (namespace.getFunction(signature.name) != null) {
+		if (namespace.getFunction(signature.name) == null) {
 			namespace.addFunction(function);
 		}
 
@@ -135,8 +135,10 @@ public abstract class Functions {
 			singleReturn = !p.getSecond();
 			if (returnClass == null)
 				returnClass = Classes.getClassInfoFromUserInput(p.getFirst());
-			if (returnClass == null)
-				return signError("Cannot recognise the type '" + returnType + "'");
+			if (returnClass == null) {
+				Skript.error("Cannot recognise the type '" + returnType + "'");
+				return null;
+			}
 		}
 		//noinspection unchecked
 		return new Signature<>(script, name, parameters.toArray(new Parameter[0]), local, (ClassInfo<Object>) returnClass, singleReturn, null);
@@ -164,12 +166,13 @@ public abstract class Functions {
 		}
 
 		if (exists) {
-			return signError("Function '%s' with the same argument types already exists.".formatted(signature.getName()));
+			Skript.error("Function '%s' with the same argument types already exists.".formatted(signature.getName()));
+			return null;
 		}
 
 		Namespace.Key namespaceKey = new Namespace.Key(Namespace.Origin.SCRIPT, signature.script);
 		Namespace namespace = namespaces.computeIfAbsent(namespaceKey, k -> new Namespace());
-		if (namespace.getSignature(signature.name) != null) {
+		if (namespace.getSignature(signature.name) == null) {
 			namespace.addSignature(signature);
 		}
 		if (!signature.local)
@@ -184,26 +187,6 @@ public abstract class Functions {
 		Skript.debug("Registered function signature: " + signature.name);
 
 		return signature;
-	}
-
-	/**
-	 * Creates an error and returns Function null.
-	 * @param error Error message.
-	 * @return Null.
-	 */
-	private static @Nullable Function<?> error(String error) {
-		Skript.error(error);
-		return null;
-	}
-
-	/**
-	 * Creates an error and returns Signature null.
-	 * @param error Error message.
-	 * @return Null.
-	 */
-	private static @Nullable Signature<?> signError(String error) {
-		Skript.error(error);
-		return null;
 	}
 
 	/**
