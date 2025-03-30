@@ -100,7 +100,7 @@ public class FunctionReference<T> implements Contract, Executable<Event, T[]> {
 		if (!first && script == null)
 			return false;
 
-		Signature<?> sign = Functions.getSignature(functionName, script);
+		Signature<?> sign = getRegisteredSignature();
 
 		if (sign == null)
 			return false;
@@ -404,7 +404,7 @@ public class FunctionReference<T> implements Contract, Executable<Event, T[]> {
 		// If needed, acquire the function reference
 		if (function == null)
 			//noinspection unchecked
-			function = (Function<? extends T>) Functions.getFunction(script, functionName);
+			function = (Function<? extends T>) getRegisteredFunction();
 
 		if (function == null) { // It might be impossible to resolve functions in some cases!
 			Skript.error("Couldn't resolve call for '" + functionName + "'.");
