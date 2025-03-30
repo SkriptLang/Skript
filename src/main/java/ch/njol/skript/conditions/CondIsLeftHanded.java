@@ -33,9 +33,9 @@ public class CondIsLeftHanded extends PropertyCondition<LivingEntity> {
 
 	static {
 		if (CAN_USE_ENTITIES) {
-			register(CondIsLeftHanded.class, PropertyType.BE, "(:left|right)( |-)handed", "livingentities");
+			register(CondIsLeftHanded.class, "(:left|right)( |-)handed", "livingentities");
 		} else {
-			register(CondIsLeftHanded.class, PropertyType.BE, "(:left|right)( |-)handed", "players");
+			register(CondIsLeftHanded.class, "(:left|right)( |-)handed", "players");
 		}
 	}
 
@@ -50,12 +50,12 @@ public class CondIsLeftHanded extends PropertyCondition<LivingEntity> {
 	@Override
 	public boolean check(LivingEntity livingEntity) {
 		// check if entity is a mob and if the method exists
-		if (CAN_USE_ENTITIES && livingEntity instanceof Mob)
-			return ((Mob) livingEntity).isLeftHanded() == (hand == MainHand.LEFT);
+		if (CAN_USE_ENTITIES && livingEntity instanceof Mob mob)
+			return mob.isLeftHanded() == (hand == MainHand.LEFT);
 
 		// check if entity is a player
-		if (livingEntity instanceof HumanEntity)
-			return ((HumanEntity) livingEntity).getMainHand() == hand;
+		if (livingEntity instanceof HumanEntity humanEntity)
+			return humanEntity.getMainHand() == hand;
 
 		// invalid entity
 		return false;
