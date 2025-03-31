@@ -12,15 +12,14 @@ import ch.njol.skript.registrations.Classes;
  */
 public class DroppedItemSlot extends Slot {
 
-	private Item entity;
-	
+	private final Item entity;
+
 	public DroppedItemSlot(Item item) {
 		this.entity = item;
 	}
-	
+
 	@Override
-	@Nullable
-	public ItemStack getItem() {
+	public @Nullable ItemStack getItem() {
 		return entity.getItemStack();
 	}
 
@@ -29,25 +28,30 @@ public class DroppedItemSlot extends Slot {
 		assert item != null;
 		entity.setItemStack(item);
 	}
-	
+
 	@Override
 	public int getAmount() {
 		return entity.getItemStack().getAmount();
 	}
-	
+
 	@Override
 	public void setAmount(int amount) {
 		entity.getItemStack().setAmount(amount);
 	}
-	
-	@Override
-	public boolean isSameSlot(Slot o) {
-		return o instanceof DroppedItemSlot && ((DroppedItemSlot) o).entity.equals(entity);
+
+	public Item getItemEntity() {
+		return entity;
 	}
-	
+
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
+	public boolean isSameSlot(Slot slot) {
+		return slot instanceof DroppedItemSlot droppedItemSlot
+			&& droppedItemSlot.getItemEntity().equals(entity);
+	}
+
+	@Override
+	public String toString(@Nullable Event event, boolean debug) {
 		return Classes.toString(getItem());
 	}
-	
+
 }
