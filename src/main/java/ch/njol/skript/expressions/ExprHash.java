@@ -35,7 +35,7 @@ public class ExprHash extends PropertyExpression<String, String> {
 	private static final HexFormat HEX_FORMAT = HexFormat.of().withLowerCase();
 
 	static {
-		Skript.registerExpression(ExprHash.class, String.class, ExpressionType.SIMPLE,
+		Skript.registerExpression(ExprHash.class, String.class, ExpressionType.COMBINED,
 				"%strings% hash[ed] with (:(MD5|SHA-256|SHA-384|SHA-512))");
 	}
 
