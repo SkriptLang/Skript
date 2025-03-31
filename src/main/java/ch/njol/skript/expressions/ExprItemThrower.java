@@ -1,9 +1,11 @@
 package ch.njol.skript.expressions;
 
+import ch.njol.skript.Skript;
 import ch.njol.skript.bukkitutil.UUIDUtils;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.*;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
+import ch.njol.skript.lang.ExpressionType;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Entity;
@@ -13,11 +15,11 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.UUID;
 
-@Name("Item Thrower")
+@Name("Dropped Item Thrower")
 @Description("The uuid of the entity or player that threw/dropped the dropped item.")
 @Example("""
-	set the dropped item thrower of {_dropped item} to player
-	if the dropped item thrower of {_dropped item} is uuid of player:
+	set the uuid of the dropped item thrower of {_dropped item} to player
+	if the uuid of the dropped item thrower of {_dropped item} is uuid of player:
 	"""
 )
 @Example("clear the item thrower of {_dropped item}")
@@ -25,7 +27,9 @@ import java.util.UUID;
 public class ExprItemThrower extends SimplePropertyExpression<Item, UUID> {
 
 	static {
-		registerDefault(ExprItemThrower.class, UUID.class, "[dropped] item thrower", "itementities");
+		Skript.registerExpression(ExprItemThrower.class, UUID.class, ExpressionType.PROPERTY,
+			"[the] uuid of [the] [dropped] item thrower [of %itementities%]",
+			"[the] [dropped] item thrower's uuid [of %itementities%]");
 	}
 
 	@Override
@@ -59,7 +63,12 @@ public class ExprItemThrower extends SimplePropertyExpression<Item, UUID> {
 
 	@Override
 	protected String getPropertyName() {
-		return "dropped item thrower";
+		return null;
+	}
+
+	@Override
+	public String toString(@Nullable Event event, boolean debug) {
+		return "the uuid of the dropped item thrower of " + getExpr().toString(event, debug);
 	}
 
 }

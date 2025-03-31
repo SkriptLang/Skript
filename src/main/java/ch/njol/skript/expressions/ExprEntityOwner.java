@@ -1,55 +1,39 @@
 package ch.njol.skript.expressions;
 
 import ch.njol.skript.Skript;
-import ch.njol.skript.bukkitutil.UUIDUtils;
 import ch.njol.skript.classes.Changer.ChangeMode;
-import ch.njol.skript.doc.*;
+import ch.njol.skript.doc.Description;
+import ch.njol.skript.doc.Example;
+import ch.njol.skript.doc.Name;
+import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import ch.njol.skript.lang.ExpressionType;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Entity;
-import org.bukkit.entity.Item;
 import org.bukkit.entity.Tameable;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.UUID;
-
 @Name("Entity Owner")
-@Description({
-	"The owner of a tameable entity (i.e. horse or wolf) or a dropped item.",
-	"Getting the owner of a dropped item will only return the uuid of the owner",
-	"Setting the owner of a dropped item means only that entity or player can pick it up.",
-	"Dropping an item does not automatically make the entity or player the owner."
-})
+@Description("The owner of a tameable entity (i.e. horse or wolf).")
 @Example("""
 		set owner of last spawned wolf to player
 		if the owner of last spawned wolf is player:
-	"""
-)
-@Example("""
-		set dropped item owner of last dropped item to player
-		if the dropped item owner of last dropped item is uuid of player:
-	"""
-)
-@Since("2.5, INSERT VERSION (dropped items)")
-public class ExprEntityOwner extends SimplePropertyExpression<Entity, Object> {
+	""")
+@Since("2.5")
+public class ExprEntityOwner extends SimplePropertyExpression<Entity, OfflinePlayer> {
 
 	static {
-		Skript.registerExpression(ExprEntityOwner.class, Object.class, ExpressionType.PROPERTY,
+		Skript.registerExpression(ExprEntityOwner.class, OfflinePlayer.class, ExpressionType.PROPERTY,
 			"[the] (owner|tamer) of %livingentities%",
-			"%livingentities%'[s] (owner|tamer)",
-			"[the] [dropped item] owner of %itementities%",
-			"%itementities%'[s] [dropped item] owner");
+			"%livingentities%'[s] (owner|tamer)");
 	}
 
 	@Override
-	public @Nullable Object convert(Entity entity) {
+	public @Nullable OfflinePlayer convert(Entity entity) {
 		if (entity instanceof Tameable tameable && tameable.isTamed()) {
-			return tameable.getOwner();
-		} else if (entity instanceof Item item) {
-			return item.getOwner();
+			return (OfflinePlayer) tameable.getOwner();
 		}
 		return null;
 	}
@@ -57,41 +41,24 @@ public class ExprEntityOwner extends SimplePropertyExpression<Entity, Object> {
 	@Override
 	public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
 		return switch (mode) {
-			case SET, DELETE, RESET -> CollectionUtils.array(OfflinePlayer.class, Entity.class, UUID.class);
+			case SET, DELETE, RESET -> CollectionUtils.array(OfflinePlayer.class);
 			default -> null;
 		};
 	}
 	
 	@Override
 	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
-		UUID newId = null;
-		OfflinePlayer newPlayer = null;
-		if (delta != null) {
-			if (delta[0] instanceof OfflinePlayer offlinePlayer) {
-				newPlayer = offlinePlayer;
-				newId = offlinePlayer.getUniqueId();
-			} else {
-				newId = UUIDUtils.asUUID(delta[0]);
-			}
-		}
-
+		OfflinePlayer newPlayer = delta == null ? null : (OfflinePlayer) delta[0];
 		for (Entity entity : getExpr().getArray(event)) {
 			if (entity instanceof Tameable tameable) {
 				tameable.setOwner(newPlayer);
-			} else if (entity instanceof Item item) {
-				item.setOwner(newId);
 			}
 		}
 	}
 
 	@Override
-	public Class<Object> getReturnType() {
-		return Object.class;
-	}
-
-	@Override
-	public Class<?>[] possibleReturnTypes() {
-		return CollectionUtils.array(UUID.class, OfflinePlayer.class);
+	public Class<OfflinePlayer> getReturnType() {
+		return OfflinePlayer.class;
 	}
 
 	@Override

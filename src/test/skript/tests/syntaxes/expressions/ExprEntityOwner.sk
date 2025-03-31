@@ -4,26 +4,3 @@ test "entity owner of tameable":
 		set owner of event-entity to "Notch" parsed as offline player
 		assert "%owner of event-entity%" = "Notch" with "Owner of last spawned wolf was not set"
 		delete event-entity
-
-test "item owner of dropped item":
-	###
-		Combines:
-			ExprItemOwner
-			ExprItemThrower
-	###
-	drop a stone at test-location
-	set {_drop} to last dropped item
-
-	spawn a sheep at test-location:
-		set {_owner} to entity
-	set the dropped item owner of {_drop} to uuid of {_owner}
-	assert the dropped item owner of {_drop} is uuid of {_owner} with "Item Owner was not set to sheep"
-
-	spawn a pig at test-location:
-		set {_thrower} to entity
-	set the dropped item thrower of {_drop} to uuid of {_thrower}
-	assert the dropped item thrower of {_drop} is uuid of {_thrower} with "Item Thrower was not set to pig"
-
-	clear entity within {_drop}
-	clear entity within {_owner}
-	clear entity within {_thrower}
