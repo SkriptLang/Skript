@@ -62,7 +62,7 @@ public class ExprLore extends SimpleExpression<String> {
 	@Override
 	protected String @Nullable [] get(Event event) {
 		if (!validateItem(item.getSingle(event)))
-			return String[0];
+			return new String[0];
 		ItemStack itemStack = ItemUtils.asItemStack(item.getSingle(event));
 		assert itemStack != null; // Validated in validateItem
 		ItemMeta itemMeta = itemStack.getItemMeta();
