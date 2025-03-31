@@ -26,10 +26,8 @@ public class EffPandaSneezing extends Effect {
 
 	static {
 		Skript.registerEffect(EffPandaSneezing.class,
-			"make %livingentities% (start sneezing|sneeze)",
-			"force %livingentities% to start sneezing",
-			"make %livingentities% stop sneezing",
-			"fore %livingentities% to stop sneezing");
+			"make %livingentities% (start:(start sneezing|sneeze)|stop sneezing)",
+			"force %livingentities% to (:start|stop) sneezing");
 	}
 
 	private Expression<LivingEntity> entities;
@@ -39,7 +37,7 @@ public class EffPandaSneezing extends Effect {
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		//noinspection unchecked
 		entities = (Expression<LivingEntity>) exprs[0];
-		start = matchedPattern <= 1;
+		start = parseResult.hasTag("start");
 		return true;
 	}
 

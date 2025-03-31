@@ -26,10 +26,8 @@ public class EffPandaRolling extends Effect {
 
 	static {
 		Skript.registerEffect(EffPandaRolling.class,
-			"make %livingentities% (start rolling|roll)",
-			"force %livingentities% to start rolling",
-			"make %livingentities% stop rolling",
-			"fore %livingentities% to stop rolling");
+			"make %livingentities% (start:(start rolling|roll)|stop rolling)",
+			"force %livingentities% to (:start|stop) rolling");
 	}
 
 	private Expression<LivingEntity> entities;
@@ -39,7 +37,7 @@ public class EffPandaRolling extends Effect {
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		//noinspection unchecked
 		entities = (Expression<LivingEntity>) exprs[0];
-		start = matchedPattern <= 1;
+		start = parseResult.hasTag("start");
 		return true;
 	}
 
