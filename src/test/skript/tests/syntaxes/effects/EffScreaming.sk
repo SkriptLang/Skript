@@ -1,0 +1,17 @@
+test "goat scream":
+	spawn a goat at test-location:
+		set {_entity} to entity
+	make {_entity} scream
+	assert {_entity} is screaming with "Goat should be screaming"
+	make {_entity} stop screaming
+	assert {_entity} is not screaming with "Goat should not be screaming"
+	clear entity within {_entity}
+
+test "enderman scream":
+	spawn an enderman at test-location:
+		set {_entity} to entity
+	make {_entity} scream
+	assert {_entity} is screaming with "Enderman should be screaming"
+	make {_entity} stop screaming
+	assert {_entity} is not screaming with "Enderman should not be screaming"
+	clear entity within {_entity}
