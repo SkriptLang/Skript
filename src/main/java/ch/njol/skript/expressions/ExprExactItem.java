@@ -5,6 +5,7 @@ import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
+import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BlockStateMeta;
@@ -26,7 +27,10 @@ public class ExprExactItem extends SimplePropertyExpression<Block, ItemStack> {
 
 	@Override
 	public @Nullable ItemStack convert(Block block) {
-		ItemStack itemStack = new ItemStack(block.getType());
+		Material blockMaterial = block.getType();
+		if (!blockMaterial.isItem())
+			return null;
+		ItemStack itemStack = new ItemStack(blockMaterial);
 		if (itemStack.getItemMeta() instanceof BlockStateMeta blockStateMeta) {
 			blockStateMeta.setBlockState(block.getState());
 			itemStack.setItemMeta(blockStateMeta);
