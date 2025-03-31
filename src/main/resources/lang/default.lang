@@ -2131,8 +2131,8 @@ inventory types:
 	stonecutter: stonecutter inventory @a
 	smithing: smithing inventory @a
 	composter: composter inventory @a
-	chiseled_bookshelf: chiseled bookshelf @a, bookshelf @a
-	decorated_pot: decorated pot @a
+	chiseled_bookshelf: chiseled bookshelf inventory @a, bookshelf inventory @a
+	decorated_pot: decorated pot inventory @a
 	crafter: crafter inventory @a
 
 	jukebox: jukebox @a
