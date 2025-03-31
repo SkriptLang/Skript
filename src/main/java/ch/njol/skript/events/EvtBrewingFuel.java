@@ -6,6 +6,7 @@ import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptEvent;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.SyntaxStringBuilder;
+import ch.njol.skript.registrations.EventValues;
 import org.bukkit.event.Event;
 import org.bukkit.event.inventory.BrewingStandFuelEvent;
 import org.bukkit.inventory.ItemStack;
@@ -24,6 +25,8 @@ public class EvtBrewingFuel extends SkriptEvent {
 				"on brewing fuel consumption of blaze powder:"
 			)
 			.since("INSERT VERSION");
+
+		EventValues.registerEventValue(BrewingStandFuelEvent.class, ItemStack.class, BrewingStandFuelEvent::getFuel);
 	}
 
 	private Literal<ItemType> items;

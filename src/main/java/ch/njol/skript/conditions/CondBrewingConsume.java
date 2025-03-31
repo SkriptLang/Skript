@@ -55,7 +55,7 @@ public class CondBrewingConsume extends Condition implements EventRestrictedSynt
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return "the brewing stand will " + (checkConsume ? "" : "not") + " consume the fuel";
+		return "the brewing stand will" + (checkConsume ? "" : " not") + " consume the fuel";
 	}
 
 }
