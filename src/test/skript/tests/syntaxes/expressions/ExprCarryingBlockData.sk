@@ -1,0 +1,23 @@
+test "enderman carrying block":
+	spawn an enderman at test-location:
+		set {_entity} to entity
+	set the carrying block data of {_entity} to an oak log
+	assert the carrying block data of {_entity} is an oak log[] with "Enderman should be carrying an oak log"
+	set the carrying block data of {_entity} to campfire[lit=true]
+	assert the carrying block data of {_entity} is campfire[lit=true] with "Enderman should be carrying a lit campfire"
+	clear the carrying block data of {_entity}
+	assert the carrying block data of {_entity} is not set with "Enderman should not be carrying anything"
+
+	loop an iron ingot, a diamond and a netherite ingot:
+		set the carrying block data of {_entity} to loop-value
+		assert the carrying block data of {_entity} is not set with "Enderman should not be carrying non block items"
+
+	clear entity within {_entity}
+
+test "invalid entities carrying block":
+	spawn a zombie, a skeleton and a villager at test-location
+
+	set the carrying block data of all entities to oak log[]
+	assert the carrying block data of all entities is not set with "Invalid entities should not be able to carry a block"
+
+	clear all entities
