@@ -11,6 +11,7 @@ import ch.njol.skript.registrations.EventConverter;
 import ch.njol.skript.registrations.EventValues;
 import ch.njol.skript.util.Color;
 import ch.njol.skript.util.*;
+import ch.njol.skript.util.slot.EquipmentSlot.EquipSlot;
 import ch.njol.skript.util.slot.InventorySlot;
 import ch.njol.skript.util.slot.Slot;
 import com.destroystokyo.paper.event.block.AnvilDamagedEvent;
@@ -18,6 +19,7 @@ import com.destroystokyo.paper.event.block.BeaconEffectEvent;
 import com.destroystokyo.paper.event.entity.EndermanAttackPlayerEvent;
 import com.destroystokyo.paper.event.entity.ProjectileCollideEvent;
 import com.destroystokyo.paper.event.inventory.PrepareResultEvent;
+import com.destroystokyo.paper.event.player.PlayerArmorChangeEvent;
 import com.destroystokyo.paper.event.player.PlayerElytraBoostEvent;
 import io.papermc.paper.event.entity.EntityMoveEvent;
 import io.papermc.paper.event.player.*;
@@ -584,6 +586,13 @@ public final class BukkitEventValues {
 		});
 		//PlayerRiptideEvent
 		EventValues.registerEventValue(PlayerRiptideEvent.class, ItemStack.class, PlayerRiptideEvent::getItem);
+		//PlayerArmorChangeEvent
+		if (Skript.classExists("com.destroystokyo.paper.event.player.PlayerArmorChangeEvent")) {
+			EventValues.registerEventValue(PlayerArmorChangeEvent.class, ItemStack.class, PlayerArmorChangeEvent::getNewItem);
+			EventValues.registerEventValue(PlayerArmorChangeEvent.class, ItemStack.class, PlayerArmorChangeEvent::getNewItem, TIME_FUTURE);
+			EventValues.registerEventValue(PlayerArmorChangeEvent.class, ItemStack.class, PlayerArmorChangeEvent::getOldItem, TIME_PAST);
+			EventValues.registerEventValue(PlayerArmorChangeEvent.class, Slot.class, event ->new ch.njol.skript.util.slot.EquipmentSlot(event.getPlayer().getEquipment(), event.getSlot()));
+		}
 		//PlayerInventorySlotChangeEvent
 		if (Skript.classExists("io.papermc.paper.event.player.PlayerInventorySlotChangeEvent")) {
 			EventValues.registerEventValue(PlayerInventorySlotChangeEvent.class, ItemStack.class, PlayerInventorySlotChangeEvent::getNewItemStack);
