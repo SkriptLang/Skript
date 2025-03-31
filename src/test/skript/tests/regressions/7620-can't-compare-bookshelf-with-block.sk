@@ -1,0 +1,16 @@
+test "can't compare bookshelf with block":
+	set {_blockData} to blockdata of block at test location
+
+	set block at test location to bookshelf
+	assert block at test location is bookshelf
+
+	set block at test location to chiseled bookshelf
+	assert block at test location is chiseled bookshelf
+
+	set block at test location to {_blockData}
+
+test "can't compare decorated pot with block" when minecraft version is "1.20.0":
+	set {_blockData} to blockdata of block at test location
+	set block at test location to decorated pot
+	assert block at test location is decorated pot
+	set block at test location to {_blockData}
