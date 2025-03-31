@@ -27,10 +27,8 @@ public class EffEating extends Effect {
 
 	static {
 		Skript.registerEffect(EffEating.class,
-			"make %livingentities% start eating",
-			"force %livingentities% to start eating",
-			"make %livingentities% stop eating",
-			"force %livingentities% to stop eating");
+			"make %livingentities% (:start|stop) eating",
+			"force %livingentities% to (:start|stop) eating");
 	}
 
 	private Expression<LivingEntity> entities;
@@ -40,7 +38,7 @@ public class EffEating extends Effect {
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		//noinspection unchecked
 		entities = (Expression<LivingEntity>) exprs[0];
-		start = matchedPattern <= 1;
+		start = parseResult.hasTag("start");
 		return true;
 	}
 

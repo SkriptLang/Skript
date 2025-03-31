@@ -26,7 +26,7 @@ public class EffPandaRolling extends Effect {
 
 	static {
 		Skript.registerEffect(EffPandaRolling.class,
-			"make %livingentities% start rolling",
+			"make %livingentities% (start rolling|roll)",
 			"force %livingentities% to start rolling",
 			"make %livingentities% stop rolling",
 			"fore %livingentities% to stop rolling");

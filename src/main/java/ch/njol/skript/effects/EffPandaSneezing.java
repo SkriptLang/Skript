@@ -26,7 +26,7 @@ public class EffPandaSneezing extends Effect {
 
 	static {
 		Skript.registerEffect(EffPandaSneezing.class,
-			"make %livingentities% start sneezing",
+			"make %livingentities% (start sneezing|sneeze)",
 			"force %livingentities% to start sneezing",
 			"make %livingentities% stop sneezing",
 			"fore %livingentities% to stop sneezing");
