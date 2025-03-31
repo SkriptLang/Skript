@@ -42,8 +42,8 @@ public class ExprLore extends SimpleExpression<String> {
 		Skript.registerExpression(ExprLore.class, String.class, ExpressionType.PROPERTY,
 				"[the] lore of %itemstack/itemtype%",
 				"%itemstack/itemtype%'[s] lore",
-				"[the] line %number% of [the] lore of %itemstack/itemtype%",
-				"[the] line %number% of %itemstack/itemtype%'[s] lore",
+				"line %number% of [the] lore of %itemstack/itemtype%",
+				"line %number% of %itemstack/itemtype%'[s] lore",
 				"[the] %number%(st|nd|rd|th) line of [the] lore of %itemstack/itemtype%",
 				"[the] %number%(st|nd|rd|th) line of %itemstack/itemtype%'[s] lore");
 	}
@@ -62,14 +62,14 @@ public class ExprLore extends SimpleExpression<String> {
 	@Override
 	protected String @Nullable [] get(Event event) {
 		if (!validateItem(item.getSingle(event)))
-			return null;
+			return String[0];
 		ItemStack itemStack = ItemUtils.asItemStack(item.getSingle(event));
 		assert itemStack != null; // Validated in validateItem
 		ItemMeta itemMeta = itemStack.getItemMeta();
 		//noinspection deprecation
  		List<String> itemLore = itemMeta.getLore();
 		if (itemLore == null || itemLore.isEmpty())
-			return null;
+			return new String[0];
 
 		if (lineNumber == null) {
 			return itemLore.toArray(String[]::new);
@@ -77,7 +77,7 @@ public class ExprLore extends SimpleExpression<String> {
 
 		int loreIndex = this.lineNumber.getOptionalSingle(event).orElse(0).intValue() -1;
 		if (loreIndex < 0 || loreIndex >= itemLore.size()) {
-			return null;
+			return new String[0];
 		}
 		return new String[]{itemLore.get(loreIndex)};
 	}
@@ -94,7 +94,7 @@ public class ExprLore extends SimpleExpression<String> {
 			case DELETE -> CollectionUtils.array();
 			case ADD, REMOVE, REMOVE_ALL -> {
 				if (!acceptsMany) {
-					Skript.error("You cannot add/remove the lore from a single line, you can however replace/concat lore.");
+					Skript.error("You cannot add to or remove from the lore from a single line.");
 					yield null;
 				}
 				yield CollectionUtils.array(String[].class);
