@@ -1,7 +1,5 @@
 package ch.njol.skript.util.slot;
 
-import ch.njol.skript.aliases.Aliases;
-import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.bukkitutil.ItemUtils;
 import ch.njol.skript.lang.util.common.AnyAmount;
 import ch.njol.skript.lang.util.common.AnyNamed;
@@ -22,8 +20,7 @@ public abstract class Slot implements Debuggable, AnyNamed, AnyAmount {
 
 	protected Slot() {}
 
-	@Nullable
-	public abstract ItemStack getItem();
+	public abstract @Nullable ItemStack getItem();
 
 	public abstract void setItem(final @Nullable ItemStack item);
 
