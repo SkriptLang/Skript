@@ -286,6 +286,7 @@ public final class BukkitEventValues {
 		EventValues.registerEventValue(PlayerDropItemEvent.class, Player.class, PlayerEvent::getPlayer);
 		EventValues.registerEventValue(PlayerDropItemEvent.class, Item.class, PlayerDropItemEvent::getItemDrop);
 		EventValues.registerEventValue(PlayerDropItemEvent.class, ItemStack.class, event -> event.getItemDrop().getItemStack());
+		EventValues.registerEventValue(PlayerDropItemEvent.class, Entity.class, PlayerEvent::getPlayer);
 		// EntityDropItemEvent
 		EventValues.registerEventValue(EntityDropItemEvent.class, Item.class, EntityDropItemEvent::getItemDrop);
 		EventValues.registerEventValue(EntityDropItemEvent.class, ItemStack.class, event -> event.getItemDrop().getItemStack());
@@ -293,6 +294,7 @@ public final class BukkitEventValues {
 		EventValues.registerEventValue(PlayerPickupItemEvent.class, Player.class, PlayerEvent::getPlayer);
 		EventValues.registerEventValue(PlayerPickupItemEvent.class, Item.class, PlayerPickupItemEvent::getItem);
 		EventValues.registerEventValue(PlayerPickupItemEvent.class, ItemStack.class, event -> event.getItem().getItemStack());
+		EventValues.registerEventValue(PlayerPickupItemEvent.class, Entity.class, PlayerEvent::getPlayer);
 		// EntityPickupItemEvent
 		EventValues.registerEventValue(EntityPickupItemEvent.class, Entity.class, EntityPickupItemEvent::getEntity);
 		EventValues.registerEventValue(EntityPickupItemEvent.class, Item.class, EntityPickupItemEvent::getItem);
