@@ -1,0 +1,10 @@
+test "panda genes":
+	spawn a brown playful panda at test-location:
+		set {_entity} to entity
+	assert the main gene of {_entity} is brown with "Panda main gene should be brown"
+	assert the hidden gene of {_entity} is playful with "Panda hidden gene should be playful"
+	set the main gene of {_entity} to lazy
+	assert the main gene of {_entity} is lazy with "Panda's mina gene should be set to lazy"
+	set the hidden gene of {_entity} to normal
+	assert the hidden gene of {_entity} is normal with "Panda's hidden gene should be set to normal"
+	clear entity within {_entity}

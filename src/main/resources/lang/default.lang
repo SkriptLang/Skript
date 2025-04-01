@@ -2558,6 +2558,27 @@ input keys:
 	sneak: sneak key, sneaking key
 	sprint: sprint key, sprinting key
 
+# -- Fishing States --
+fishing states:
+	fishing: fishing line cast, rod cast, fishing rod cast, fishing
+	caught_fish: fish caught, caught fish
+	caught_entity: entity caught, caught entity
+	in_ground: bobber in ground, in ground
+	failed_attempt: fish escape, fish escaped, failed attempt
+	reel_in: reel in
+	bite: bite, fish bite
+	lured: lured, fish lured
+
+# -- Equipment Slots --
+equipment slots:
+	head: helmet slot, head slot, helmet
+	chest: chestplate slot, chest slot, chestplate
+	legs: leggings slot, legs slot, leggings
+	feet: feet slot, boots slot, boots
+	hand: tool slot, hand slot, main hand slot, main hand
+	off_hand: off hand slot, off hand
+	body: body slot, body armor slot, body armour slot
+
 # -- Boolean --
 boolean:
 	true:
@@ -2659,6 +2680,9 @@ types:
 	bannerpatterntype: banner pattern type¦s @a
 	bannerpattern: banner pattern¦s @a
 	vehicle: vehicle¦s @a
+	fishingstate: fishing state¦s @a
+	equipmentslot: equipment slot¦s @an
+
 
 	# Skript
 	weathertype: weather type¦s @a
