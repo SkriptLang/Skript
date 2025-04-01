@@ -4,6 +4,7 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptAPIException;
 import ch.njol.skript.SkriptConfig;
 import ch.njol.skript.classes.ClassInfo;
+import ch.njol.skript.classes.Parser;
 import ch.njol.skript.command.Argument;
 import ch.njol.skript.command.Commands;
 import ch.njol.skript.command.ScriptCommand;
@@ -18,6 +19,7 @@ import ch.njol.skript.lang.parser.ParsingStack;
 import ch.njol.skript.lang.util.SimpleLiteral;
 import ch.njol.skript.localization.Language;
 import ch.njol.skript.localization.Message;
+import ch.njol.skript.localization.Noun;
 import ch.njol.skript.log.ErrorQuality;
 import ch.njol.skript.log.LogEntry;
 import ch.njol.skript.log.ParseLogHandler;
@@ -37,6 +39,7 @@ import org.bukkit.event.Event;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.experiment.ExperimentalSyntax;
 import org.skriptlang.skript.lang.script.Script;
 import org.skriptlang.skript.lang.script.ScriptWarning;
 
@@ -49,6 +52,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 import java.util.stream.Stream;
+import java.lang.reflect.Array;
 
 /**
  * Used for parsing my custom patterns.<br>
@@ -249,6 +253,10 @@ public class SkriptParser {
 									continue;
 								}
 							}
+							if (element instanceof ExperimentalSyntax experimentalSyntax) {
+								if (!experimentalSyntax.isSatisfiedBy(getParser().getExperimentSet()))
+									continue;
+							}
 
 							boolean success = element.init(parseResult.exprs, patternIndex, getParser().getHasDelayBefore(), parseResult);
 							if (success) {
@@ -414,6 +422,8 @@ public class SkriptParser {
 		}
 	}
 
+	private static final Pattern LITERAL_SPECIFICATION_PATTERN = Pattern.compile("(?<literal>[^(]+) \\((?<classinfo>[^)]+)\\)");
+
 	private @Nullable Expression<?> parseSingleExpr(boolean allowUnparsedLiteral, @Nullable LogEntry error, ExprInfo exprInfo) {
 		if (expr.isEmpty()) // Empty expressions return nothing, obviously
 			return null;
@@ -577,6 +587,14 @@ public class SkriptParser {
 				log.printError();
 				return null;
 			}
+			if (expr.endsWith(")") && expr.indexOf("(") != -1) {
+				Matcher classInfoMatcher = LITERAL_SPECIFICATION_PATTERN.matcher(expr);
+				if (classInfoMatcher.matches()) {
+					String literalString = classInfoMatcher.group("literal");
+					String unparsedClassInfo = Noun.stripDefiniteArticle(classInfoMatcher.group("classinfo"));
+					return parseSpecifiedLiteral(literalString, unparsedClassInfo, log, types);
+				}
+			}
 			if (exprInfo.classes[0].getC() == Object.class) {
 				// Do check if a literal with this name actually exists before returning an UnparsedLiteral
 				if (!allowUnparsedLiteral || Classes.parseSimple(expr, Object.class, context) == null) {
@@ -609,6 +627,64 @@ public class SkriptParser {
 			log.printError();
 			return null;
 		}
+	}
+
+	/**
+	 * <p>
+	 *     With ambiguous literals being used in multiple {@link ClassInfo}s, users can specify which one they want
+	 *     in the format of 'literal (classinfo)'; Example: black (wolf variant)
+	 *     This checks to ensure the given 'classinfo' exists, is parseable, and is of the accepted types that is required.
+	 *     If so, the literal section of the input is parsed as the given classinfo and the result returned.
+	 * </p>
+	 * @param literalString A {@link String} representing a literal
+	 * @param unparsedClassInfo A {@link String} representing a class info
+	 * @param log The current {@link ParseLogHandler} for containing errors
+	 * @param types An {@link Array} of the acceptable {@link Class}es
+	 * @return {@link SimpleLiteral} or {@code null} if any checks fail
+	 */
+	private @Nullable Expression<?> parseSpecifiedLiteral(
+		String literalString,
+		String unparsedClassInfo,
+		ParseLogHandler log,
+		Class<?> ... types
+	) {
+		ClassInfo<?> classInfo = Classes.parse(unparsedClassInfo, ClassInfo.class, context);
+		if (classInfo == null) {
+			log.printError();
+			return null;
+		}
+		Parser<?> classInfoParser = classInfo.getParser();
+		if (classInfoParser == null || !classInfoParser.canParse(context)) {
+			Skript.error("A " + unparsedClassInfo  + " cannot be parsed.");
+			log.printError();
+			return null;
+		}
+		if (!checkAcceptedType(classInfo.getC(), types)) {
+			Skript.error(expr + " " + Language.get("is") + " " + notOfType(types));
+			log.printError();
+			return null;
+		}
+		Object parsedObject = classInfoParser.parse(literalString, context);
+		if (parsedObject != null) {
+			log.printLog();
+			return new SimpleLiteral<>(parsedObject, false, new UnparsedLiteral(literalString));
+		}
+		log.printError();
+		return null;
+	}
+
+	/**
+	 * Check if the provided {@code clazz} is an accepted type from any class of {@code types}.
+	 * @param clazz The {@link Class} to check
+	 * @param types The {@link Class}es that are accepted
+	 * @return true if {@code clazz} is of a {@link Class} from {@code types}
+	 */
+	private boolean checkAcceptedType(Class<?> clazz, Class<?> ... types) {
+		for (Class<?> targetType : types) {
+			if (targetType.isAssignableFrom(clazz))
+				return true;
+		}
+		return false;
 	}
 
 	/**
