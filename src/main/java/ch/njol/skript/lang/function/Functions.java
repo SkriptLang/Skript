@@ -65,7 +65,7 @@ public abstract class Functions {
 		javaNamespace.addFunction(function);
 		globalFunctions.put(function.getName(), javaNamespace);
 
-		FunctionRegistry.registerFunction(function);
+		FunctionRegistry.register(function);
 
 		return function;
 	}
@@ -102,7 +102,7 @@ public abstract class Functions {
 			namespace.addFunction(function);
 		}
 
-		FunctionRegistry.registerFunction(script.getConfig().getFileName(), function);
+		FunctionRegistry.register(script.getConfig().getFileName(), function);
 
 		return function;
 	}
@@ -179,9 +179,9 @@ public abstract class Functions {
 			globalFunctions.put(signature.name, namespace);
 
 		if (signature.local) {
-			FunctionRegistry.registerSignature(signature.script, signature);
+			FunctionRegistry.register(signature.script, signature);
 		} else {
-			FunctionRegistry.registerSignature(null, signature);
+			FunctionRegistry.register(null, signature);
 		}
 
 		Skript.debug("Registered function signature: " + signature.name);
@@ -348,6 +348,8 @@ public abstract class Functions {
 	}
 
 	public static void unregisterFunction(Signature<?> signature) {
+		FunctionRegistry.remove(signature);
+
 		Iterator<Namespace> namespaceIterator = namespaces.values().iterator();
 		while (namespaceIterator.hasNext()) {
 			Namespace namespace = namespaceIterator.next();

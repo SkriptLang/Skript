@@ -50,12 +50,12 @@ final class FunctionRegistry {
 	/**
 	 * Registers a signature.
 	 *
-	 * @param script The script to register the signature in. If script is null, will register this signature globally.
+	 * @param script    The script to register the signature in. If script is null, will register this signature globally.
 	 * @param signature The signature to register.
 	 * @throws SkriptAPIException if a function with the same name and parameters is already registered
 	 *                            in this namespace.
 	 */
-	public static void registerSignature(@Nullable String script, @NotNull Signature<?> signature) {
+	public static void register(@Nullable String script, @NotNull Signature<?> signature) {
 		Preconditions.checkNotNull(signature, "signature is null");
 
 		// namespace
@@ -89,20 +89,20 @@ final class FunctionRegistry {
 	 *                            a function with the same name and parameters is already registered
 	 *                            in this namespace.
 	 */
-	public static void registerFunction(@NotNull Function<?> function) {
-		registerFunction(null, function);
+	public static void register(@NotNull Function<?> function) {
+		register(null, function);
 	}
 
 	/**
 	 * Registers a function.
 	 *
-	 * @param script The script to register the function in. If script is null, will register this function globally.
+	 * @param script   The script to register the function in. If script is null, will register this function globally.
 	 * @param function The function to register.
 	 * @throws SkriptAPIException if the function name is invalid or if
 	 *                            a function with the same name and parameters is already registered
 	 *                            in this namespace.
 	 */
-	public static void registerFunction(@Nullable String script, @NotNull Function<?> function) {
+	public static void register(@Nullable String script, @NotNull Function<?> function) {
 		Preconditions.checkNotNull(function, "function is null");
 
 		String name = function.getName();
@@ -118,7 +118,7 @@ final class FunctionRegistry {
 
 		FunctionIdentifier identifier = FunctionIdentifier.of(function.getSignature());
 		if (!signatureExists(namespace, identifier)) {
-			registerSignature(script, function.getSignature());
+			register(script, function.getSignature());
 		}
 
 		// register
@@ -146,8 +146,8 @@ final class FunctionRegistry {
 	 * </ul>
 	 *
 	 * @param script The script to check in.
-	 * @param name The name of the function.
-	 * @param args The types of the arguments of the function.
+	 * @param name   The name of the function.
+	 * @param args   The types of the arguments of the function.
 	 * @return True if a signature with the given name and argument types exists in the script, false otherwise.
 	 */
 	public static boolean signatureExists(@Nullable String script, @NotNull String name, Class<?>... args) {
@@ -161,7 +161,7 @@ final class FunctionRegistry {
 	/**
 	 * Checks if a function with the given name and arguments exists in the namespace.
 	 *
-	 * @param namespace The namespace to check in.
+	 * @param namespace  The namespace to check in.
 	 * @param identifier The identifier of the function.
 	 * @return True if a function with the given name and arguments exists in the namespace, false otherwise.
 	 */
@@ -194,8 +194,8 @@ final class FunctionRegistry {
 	 * </ul>
 	 *
 	 * @param script The script to get the function from.
-	 * @param name The name of the function.
-	 * @param args The types of the arguments of the function.
+	 * @param name   The name of the function.
+	 * @param args   The types of the arguments of the function.
 	 * @return The function with the given name and argument types, or null if no such function exists.
 	 */
 	public static Function<?> function(@Nullable String script, @NotNull String name, Class<?>... args) {
@@ -214,7 +214,7 @@ final class FunctionRegistry {
 	 * Gets a function from a namespace.
 	 *
 	 * @param namespace The namespace to get the function from.
-	 * @param provided The provided identifier of the function.
+	 * @param provided  The provided identifier of the function.
 	 * @return The function with the given name and argument types, or null if no such function exists.
 	 */
 	private static Function<?> function(@NotNull Namespace namespace, @NotNull FunctionIdentifier provided) {
@@ -269,8 +269,8 @@ final class FunctionRegistry {
 	 * </ul>
 	 *
 	 * @param script The script to get the function from. If null, only global functions will be checked.
-	 * @param name The name of the function.
-	 * @param args The types of the arguments of the function.
+	 * @param name   The name of the function.
+	 * @param args   The types of the arguments of the function.
 	 * @return The signature for the function with the given name and argument types, or null if no such function exists.
 	 */
 	public static Signature<?> signature(@Nullable String script, @NotNull String name, Class<?>... args) {
@@ -289,7 +289,7 @@ final class FunctionRegistry {
 	 * Gets the signature for a function with the given name and arguments.
 	 *
 	 * @param namespace The namespace to get the function from.
-	 * @param provided The provided identifier of the function.
+	 * @param provided  The provided identifier of the function.
 	 * @return The signature for the function with the given name and argument types, or null if no such signature exists
 	 * in the specified namespace.
 	 */
@@ -332,7 +332,7 @@ final class FunctionRegistry {
 	 * @return A list of candidates for the provided function.
 	 */
 	private static @NotNull Set<FunctionIdentifier> candidates(@NotNull FunctionIdentifier provided,
-																Set<FunctionIdentifier> existing) {
+															   Set<FunctionIdentifier> existing) {
 		Set<FunctionIdentifier> candidates = new HashSet<>();
 
 		candidates:
@@ -395,6 +395,39 @@ final class FunctionRegistry {
 		}
 
 		return candidates;
+	}
+
+	/**
+	 * Removes a function's signature from the registry.
+	 *
+	 * @param signature The signature to remove.
+	 */
+	public static void remove(Signature<?> signature) {
+		String name = signature.getName();
+		FunctionIdentifier identifier = FunctionIdentifier.of(signature);
+
+		for (Namespace namespace : identifiers.keySet()) {
+			if (!identifiers.containsKey(namespace)) {
+				continue;
+			}
+
+			Map<String, Set<FunctionIdentifier>> nameToIdentifiers = identifiers.get(namespace);
+
+			if (!nameToIdentifiers.containsKey(name)) {
+				continue;
+			}
+
+			Set<FunctionIdentifier> identifiers = nameToIdentifiers.get(name);
+			for (FunctionIdentifier other : new HashSet<>(identifiers)) {
+				if (Arrays.equals(identifier.args, other.args) && other.local == signature.isLocal()) {
+					identifiers.remove(other);
+					nameToIdentifiers.put(name, identifiers);
+
+					FunctionRegistry.identifiers.put(namespace, nameToIdentifiers);
+					return;
+				}
+			}
+		}
 	}
 
 	/**
