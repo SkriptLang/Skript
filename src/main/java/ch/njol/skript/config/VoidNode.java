@@ -44,4 +44,5 @@ public class VoidNode extends Node {
 		// at a different position
 		return Objects.hash(Arrays.hashCode(getPathSteps()), comment, getIndex());
 	}
+
 }
