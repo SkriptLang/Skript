@@ -1,0 +1,36 @@
+test "literal specification":
+	parse if running minecraft "1.20.5":
+		assert black (wolf variant) is a wolf variant with "Literal specification should return black - wolf variant"
+	assert black (color) is a color with "Literal specification should return black - color"
+	assert black (cat type) is a cat type with "Literal specification should return black - cat type"
+
+	assert unknown (heal reason) is a heal reason with "Literal specification should return unknown - heal reason"
+	assert unknown (potion effect cause) is a potion effect cause with "Literal specification should return unknown - potion effect cause"
+	assert unknown (inventory action) is an inventory action with "Literal specification should return unknown - inventory action"
+	assert unknown (click type) is a click type with "Literal specification should return unknown - click type"
+	assert unknown (damage cause) is a damage cause with "Literal specification should return unknown - damage cause"
+	assert unknown (unleash reason) is an unleash reason with "Literal specification should return unknown - unleash reason"
+	assert unknown (transform reason) is a transform reason with "Literal specification should return unknown - transform reason"
+	assert unknown (inventory close reason) is an inventory close reason with "Literal specification should return unknown - inventory close reason"
+	assert unknown (teleport cause) is a teleport cause with "Literal specification should return unknown - teleport cause"
+
+	assert custom (heal reason) is a heal reason with "Literal specification should return custom - heal reason"
+	assert custom (damage cause) is a damage cause with "Literal specification should return custom - damage cause"
+	assert custom (inventory action) is an inventory action with "Literal specification should return custom - inventory action"
+	assert custom (click type) is a click type with "Literal specification should return custom - click type"
+	assert custom (spawn reason) is a spawn reason with "Literal specification should return custom - spawn reason"
+	assert custom (environment) is an environment with "Literal specification should return custom - environment"
+
+	assert attack (damage cause) is a damage cause with "Literal specification should return attack - damage cause"
+	assert attack (potion effect cause) is a potion effect cause with "Literal specification should return attack - potion effect cause"
+
+	assert firework (entity type) is an entity type with "Literal specification should return firework - entity type"
+	assert firework (item type) is an item type with "Literal specification should return firework - item type"
+
+	assert firework (the item type) is an item type with "Literal specification should work with definite articles"
+	assert firework (an entity type) is an entity type with "Literal specification should work with indefinite article"
+
+test "literal specification error":
+	parse:
+		set {_block} to oak log (block)
+	assert last parse logs contains "A block cannot be parsed." with "Literal specification should error when specifying an unparseable classinfo"

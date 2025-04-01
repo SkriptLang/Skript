@@ -522,6 +522,17 @@ public final class ParserInstance implements Experimented {
 		return new ExperimentSet(set);
 	}
 
+	/**
+	 * Get the {@link ExperimentSet} of the current {@link Script}
+	 */
+	public ExperimentSet getExperimentSet() {
+		Script script = this.getCurrentScript();
+		ExperimentSet set = script.getData(ExperimentSet.class);
+		if (set == null)
+			return new ExperimentSet();
+		return set;
+	}
+
 	// ParserInstance Data API
 
 	/**
