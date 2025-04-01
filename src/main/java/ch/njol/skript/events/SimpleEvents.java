@@ -766,6 +766,11 @@ public class SimpleEvents {
 				.since("2.10");
 		}
 
+		Skript.registerEvent("Bat Toggle Sleep", SimpleEvent.class, BatToggleSleepEvent.class, "bat toggle sleep")
+			.description("Called when a bat attempts to go to sleep or wakes up.")
+			.examples("on bat toggle sleep:")
+			.since("INSERT VERSION");
+
 		// WorldBorder Events
 		if (Skript.classExists("io.papermc.paper.event.world.border.WorldBorderEvent")) {
 			Skript.registerEvent("World Border Bounds Change", SimpleEvent.class, WorldBorderBoundsChangeEvent.class, "world[ ]border [bounds] chang(e|ing)")
