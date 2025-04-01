@@ -10,8 +10,6 @@ import java.io.IOException;
 public class FishingModule {
 
 	public static void load() throws IOException {
-		Skript.getAddonInstance().loadClasses("org.skriptlang.skript.bukkit.fishing", "elements");
-
 		// Register the Fishing State enum as a Skript type
 		Classes.registerClass(new EnumClassInfo<>(PlayerFishEvent.State.class, "fishingstate", "fishing states")
 			.user("fishing ?states?")
@@ -20,5 +18,6 @@ public class FishingModule {
 			.since("INSERT VERSION")
 		);
 
+		Skript.getAddonInstance().loadClasses("org.skriptlang.skript.bukkit.fishing", "elements");
 	}
 }
