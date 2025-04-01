@@ -8,6 +8,7 @@ import ch.njol.skript.lang.SyntaxStringBuilder;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.registrations.EventValues;
 import ch.njol.skript.util.Utils;
+import ch.njol.skript.util.slot.Slot;
 import com.destroystokyo.paper.event.player.PlayerArmorChangeEvent;
 import org.bukkit.event.Event;
 import org.bukkit.inventory.EquipmentSlot;
@@ -50,6 +51,7 @@ public class EvtPlayerArmorChange extends SkriptEvent {
 				});
 			EventValues.registerEventValue(PlayerArmorChangeEvent.class, ItemStack.class, PlayerArmorChangeEvent::getOldItem, EventValues.TIME_PAST);
 			EventValues.registerEventValue(PlayerArmorChangeEvent.class, ItemStack.class, PlayerArmorChangeEvent::getNewItem, EventValues.TIME_FUTURE);
+			EventValues.registerEventValue(PlayerArmorChangeEvent.class, Slot.class, event -> new ch.njol.skript.util.slot.EquipmentSlot(event.getPlayer().getEquipment(), event.getSlot()));
 		}
 	}
 
