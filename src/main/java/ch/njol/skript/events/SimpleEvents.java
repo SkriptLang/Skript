@@ -647,46 +647,24 @@ public class SimpleEvents {
 				)
 				.since("2.10");
 		}
-		{
-			final Class<? extends Event> eventClass;
-			if (Skript.classExists("org.bukkit.event.block.BellRingEvent")) {
-				eventClass = org.bukkit.event.block.BellRingEvent.class;
-			} else if (Skript.classExists("io.papermc.paper.event.block.BellRingEvent")) {
-				//noinspection deprecation
-				eventClass = io.papermc.paper.event.block.BellRingEvent.class;
-			} else {
-				eventClass = null;
-			}
 
-			if (eventClass != null) {
-				Skript.registerEvent("Bell Ring", SimpleEvent.class, eventClass, "bell ring[ing]")
-						.description("Called when a bell is rung.")
-						.examples(
-							"on bell ring:",
-								"\tsend \"<gold>Ding-dong!<reset>\" to all players in radius 10 of event-block"
-						)
-						.since("2.9.0")
-						.requiredPlugins("Spigot 1.19.4+ or Paper 1.16.5+ (no event-direction)");
-			}
-		}
+		Skript.registerEvent("Bell Ring", SimpleEvent.class, BellRingEvent.class, "bell ring[ing]")
+			.description("Called when a bell is rung.")
+			.examples(
+				"on bell ring:",
+					"\tsend \"<gold>Ding-dong!<reset>\" to all players in radius 10 of event-block"
+			)
+			.since("2.9.0")
+			.requiredPlugins("Spigot 1.19.4+ or Paper 1.16.5+ (no event-direction)");
 
-		/*
-		* Paper supported this in 1.16.5 via io.papermc.paper.event.block.BellRevealRaiderEvent.
-		* The Paper event, however, is called for each raider, while the Spigot event is called once for all raiders.
-		* Supporting both would cause confusing behaviour, with the event being triggered in different ways depending
-		* on the server software and version, so we're only supporting the Spigot event.
-		*/
-		if (Skript.classExists("org.bukkit.event.block.BellResonateEvent")) {
-			Skript.registerEvent("Bell Resonate", SimpleEvent.class, org.bukkit.event.block.BellResonateEvent.class, "bell resonat(e|ing)")
-					.description("Called when a bell resonates, highlighting nearby raiders.")
-					.examples(
-						"on bell resonate:",
-							"\tsend \"<red>Raiders are nearby!\" to all players in radius 32 around event-block"
-					)
-					.since("2.9.0")
-					.requiredPlugins("Spigot 1.19.4+");
-
-		}
+		Skript.registerEvent("Bell Resonate", SimpleEvent.class, org.bukkit.event.block.BellResonateEvent.class, "bell resonat(e|ing)")
+			.description("Called when a bell resonates, highlighting nearby raiders.")
+			.examples(
+				"on bell resonate:",
+					"\tsend \"<red>Raiders are nearby!\" to all players in radius 32 around event-block"
+			)
+			.since("2.9.0")
+			.requiredPlugins("Spigot 1.19.4+");
 
 		if (Skript.classExists("com.destroystokyo.paper.event.entity.EndermanAttackPlayerEvent")) {
 			Skript.registerEvent("Enderman Enrage", SimpleEvent.class, com.destroystokyo.paper.event.entity.EndermanAttackPlayerEvent.class, "enderman (enrage|anger)")
