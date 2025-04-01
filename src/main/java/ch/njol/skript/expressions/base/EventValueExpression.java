@@ -16,19 +16,20 @@ import ch.njol.skript.localization.Noun;
 import ch.njol.skript.log.ParseLogHandler;
 import ch.njol.skript.log.SkriptLogger;
 import ch.njol.skript.registrations.Classes;
+import ch.njol.skript.registrations.EventConverter;
 import ch.njol.skript.registrations.EventValues;
 import ch.njol.skript.util.Utils;
 import ch.njol.util.Kleenean;
 import ch.njol.util.StringUtils;
 import ch.njol.util.coll.CollectionUtils;
-import ch.njol.skript.registrations.EventConverter;
-import org.skriptlang.skript.registration.SyntaxInfo;
-import org.skriptlang.skript.registration.SyntaxRegistry;
-import org.skriptlang.skript.util.Priority;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.converter.Converter;
+import org.skriptlang.skript.registration.DefaultSyntaxInfos;
+import org.skriptlang.skript.registration.SyntaxInfo;
+import org.skriptlang.skript.registration.SyntaxRegistry;
+import org.skriptlang.skript.util.Priority;
 
 import java.lang.reflect.Array;
 import java.util.HashMap;
@@ -82,6 +83,37 @@ public class EventValueExpression<T> extends SimpleExpression<T> implements Defa
 				.priority(DEFAULT_PRIORITY)
 				.addPattern("[the] " + pattern)
 				.build();
+		registry.register(SyntaxRegistry.EXPRESSION, info);
+		return info;
+	}
+
+	/**
+	 * Registers an event value expression with the provided patterns.
+	 * The syntax info will be forced to use the {@link #DEFAULT_PRIORITY} priority.
+	 * This also adds '[the]' to the start of the patterns.
+	 *
+	 * @param registry The SyntaxRegistry to register with.
+	 * @param expressionClass The EventValueExpression class being registered.
+	 * @param returnType The class representing the expression's return type.
+	 * @param patterns The patterns to match for creating this expression.
+	 * @param <T> The return type.
+	 * @param <E> The Expression type.
+	 * @return The registered {@link SyntaxInfo}.
+	 */
+	public static <E extends EventValueExpression<T>, T> DefaultSyntaxInfos.Expression<E, T> register(
+		SyntaxRegistry registry,
+		Class<E> expressionClass,
+		Class<T> returnType,
+		String ... patterns
+	) {
+		for (int i = 0; i < patterns.length; i++) {
+			if (!StringUtils.startsWithIgnoreCase(patterns[i], "[the] "))
+				patterns[i] = "[the] " + patterns[i];
+		}
+		SyntaxInfo.Expression<E, T> info = SyntaxInfo.Expression.builder(expressionClass, returnType)
+			.priority(DEFAULT_PRIORITY)
+			.addPatterns(patterns)
+			.build();
 		registry.register(SyntaxRegistry.EXPRESSION, info);
 		return info;
 	}

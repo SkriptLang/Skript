@@ -7,6 +7,7 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.SyntaxStringBuilder;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.registrations.EventValues;
+import ch.njol.skript.util.Utils;
 import com.destroystokyo.paper.event.player.PlayerArmorChangeEvent;
 import org.bukkit.event.Event;
 import org.bukkit.inventory.EquipmentSlot;
@@ -14,9 +15,6 @@ import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.concurrent.CompletionException;
-
-import static ch.njol.skript.registrations.EventValues.TIME_FUTURE;
-import static ch.njol.skript.registrations.EventValues.TIME_PAST;
 
 public class EvtPlayerArmorChange extends SkriptEvent {
 
@@ -50,8 +48,8 @@ public class EvtPlayerArmorChange extends SkriptEvent {
 					case LEGS -> EquipmentSlot.LEGS;
 					case FEET -> EquipmentSlot.FEET;
 				});
-			EventValues.registerEventValue(PlayerArmorChangeEvent.class, ItemStack.class, PlayerArmorChangeEvent::getOldItem, TIME_PAST);
-			EventValues.registerEventValue(PlayerArmorChangeEvent.class, ItemStack.class, PlayerArmorChangeEvent::getNewItem, TIME_FUTURE);
+			EventValues.registerEventValue(PlayerArmorChangeEvent.class, ItemStack.class, PlayerArmorChangeEvent::getOldItem, EventValues.TIME_PAST);
+			EventValues.registerEventValue(PlayerArmorChangeEvent.class, ItemStack.class, PlayerArmorChangeEvent::getNewItem, EventValues.TIME_FUTURE);
 		}
 	}
 
@@ -64,7 +62,7 @@ public class EvtPlayerArmorChange extends SkriptEvent {
 			Literal<EquipmentSlot> slotLiteral = (Literal<EquipmentSlot>) args[0];
 			slot = slotLiteral.getSingle();
 			if (slot == EquipmentSlot.HAND || slot == EquipmentSlot.OFF_HAND || (BODY_SLOT_EXISTS && slot == EquipmentSlot.BODY)) {
-				Skript.error("You can't detect an armor change event for a '" + Classes.toString(slot) + "'.");
+				Skript.error("You can't detect an armor change event for " + Utils.a(Classes.toString(slot)) + ".");
 				return false;
 			}
 		}
