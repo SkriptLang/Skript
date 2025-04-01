@@ -1550,6 +1550,14 @@ public class BukkitClasses {
 			.changer(DefaultChangers.entityChanger)
 		);
 
+
+		Classes.registerClass(new EnumClassInfo<>(EquipmentSlot.class, "equipmentslot", "equipment slots")
+			.user("equipment ?slots?")
+			.name("Equipment Slot")
+			.description("Represents an equipment slot of an entity.")
+			.since("INSERT VERSION")
+		);
+
 	}
 
 }
