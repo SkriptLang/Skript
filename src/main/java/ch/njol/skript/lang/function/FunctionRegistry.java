@@ -15,7 +15,7 @@ import java.util.stream.Collectors;
  *
  * @author Efnilite
  */
-class FunctionRegistry {
+final class FunctionRegistry {
 
 	private FunctionRegistry() {
 		throw new UnsupportedOperationException("Cannot instantiate utility class");
@@ -50,6 +50,7 @@ class FunctionRegistry {
 	/**
 	 * Registers a signature.
 	 *
+	 * @param script The script to register the signature in. If script is null, will register this signature globally.
 	 * @param signature The signature to register.
 	 * @throws SkriptAPIException if a function with the same name and parameters is already registered
 	 *                            in this namespace.
@@ -95,7 +96,7 @@ class FunctionRegistry {
 	/**
 	 * Registers a function.
 	 *
-	 * @param script The script to register the function in.
+	 * @param script The script to register the function in. If script is null, will register this function globally.
 	 * @param function The function to register.
 	 * @throws SkriptAPIException if the function name is invalid or if
 	 *                            a function with the same name and parameters is already registered
@@ -138,6 +139,12 @@ class FunctionRegistry {
 	/**
 	 * Checks if a signature with the given name and arguments exists in the given script.
 	 *
+	 * <ul>
+	 * <li>If {@code script} is null, only global functions will be checked.</li>
+	 * <li>If {@code args} is null or empty,
+	 * the first function with the same name as the {@code name} param will be returned.</li>
+	 * </ul>
+	 *
 	 * @param script The script to check in.
 	 * @param name The name of the function.
 	 * @param args The types of the arguments of the function.
@@ -179,6 +186,12 @@ class FunctionRegistry {
 
 	/**
 	 * Gets a function from a script. If no local function is found, checks for global functions.
+	 *
+	 * <ul>
+	 * <li>If {@code script} is null, only global functions will be checked.</li>
+	 * <li>If {@code args} is null or empty,
+	 * the first function with the same name as the {@code name} param will be returned.</li>
+	 * </ul>
 	 *
 	 * @param script The script to get the function from.
 	 * @param name The name of the function.
