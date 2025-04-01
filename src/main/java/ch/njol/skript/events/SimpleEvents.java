@@ -657,7 +657,7 @@ public class SimpleEvents {
 			.since("2.9.0")
 			.requiredPlugins("Spigot 1.19.4+ or Paper 1.16.5+ (no event-direction)");
 
-		Skript.registerEvent("Bell Resonate", SimpleEvent.class, org.bukkit.event.block.BellResonateEvent.class, "bell resonat(e|ing)")
+		Skript.registerEvent("Bell Resonate", SimpleEvent.class, BellResonateEvent.class, "bell resonat(e|ing)")
 			.description("Called when a bell resonates, highlighting nearby raiders.")
 			.examples(
 				"on bell resonate:",
