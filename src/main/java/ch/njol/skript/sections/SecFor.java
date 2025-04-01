@@ -8,6 +8,7 @@ import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
+import org.skriptlang.skript.lang.experiment.ExperimentalSyntax;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.TriggerItem;
@@ -20,6 +21,7 @@ import ch.njol.skript.util.LiteralUtils;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.experiment.ExperimentSet;
 
 import java.util.List;
 import java.util.Map;
@@ -49,7 +51,7 @@ import java.util.Map;
 	"\tbroadcast \"%{_index}% = %{_value}%\"",
 })
 @Since("2.10")
-public class SecFor extends SecLoop {
+public class SecFor extends SecLoop implements ExperimentalSyntax {
 
 	static {
 		Skript.registerSection(SecFor.class,
@@ -69,8 +71,6 @@ public class SecFor extends SecLoop {
 						ParseResult parseResult,
 						SectionNode sectionNode,
 						List<TriggerItem> triggerItems) {
-		if (!this.getParser().hasExperiment(Feature.FOR_EACH_LOOPS))
-			return false;
 		//<editor-fold desc="Set the key/value expressions based on the pattern" defaultstate="collapsed">
 		switch (matchedPattern) {
 			case 0:
@@ -118,8 +118,13 @@ public class SecFor extends SecLoop {
 		}
 		//</editor-fold>
 		this.loadOptionalCode(sectionNode);
-		super.setNext(this);
+		this.setInternalNext(this);
 		return true;
+	}
+
+	@Override
+	public boolean isSatisfiedBy(ExperimentSet experimentSet) {
+		return experimentSet.hasExperiment(Feature.FOR_EACH_LOOPS);
 	}
 
 	@Override

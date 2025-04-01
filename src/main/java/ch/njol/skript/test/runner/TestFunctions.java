@@ -14,7 +14,9 @@ import java.io.File;
 public class TestFunctions {
 
 	static {
-		if (TestMode.ENABLED) // Prevent accidental registration if something visits this class
+		// Prevent accidental registration if something visits this class
+		// To prevent these functions from showing up in the docs, don't register when generating docs
+		if (TestMode.ENABLED && !TestMode.GEN_DOCS)
 			registerTestFunctions();
 	}
 

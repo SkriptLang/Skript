@@ -759,7 +759,7 @@ entities:
 		pattern: <age> [unemployed] villager(|1¦s)|(4¦)[[unemployed] villager] (kid(|1¦s)|child(|1¦ren))
 	armorer:
 		name: armorer¦s
-		pattern: <age> armorer(|1¦s)|(4¦)armorer (kid(|1¦s)|child(|1¦ren))
+		pattern: <age> armo[u]rer(|1¦s)|(4¦)armo[u]rer (kid(|1¦s)|child(|1¦ren))
 	cartographer:
 		name: cartographer¦s
 		pattern: <age> cartographer(|1¦s)|(4¦)cartographer (kid(|1¦s)|child(|1¦ren))
@@ -947,7 +947,7 @@ entities:
 		pattern: fish[ ]hook(|1¦s)
 	armor stand:
 		name: armor stand¦s
-		pattern: armor stand(|1¦s)
+		pattern: armo[u]r stand(|1¦s)
 	endermite:
 		name: endermite¦s
 		pattern: endermite(|1¦s)
@@ -975,6 +975,9 @@ entities:
 	zombie villager:
 		name: zombie villager¦s
 		pattern: <age> zombie villager(|1¦s)
+	zombie normal:
+		name: zombie villager¦s
+		pattern: <age> unemployed zombie villager(|1¦s)
 	zombie farmer:
 		name: zombie farmer¦s
 		pattern: <age> zombie farmer(|1¦s)
@@ -995,7 +998,7 @@ entities:
 		pattern: <age> zombie nitwit(|1¦s)
 	zombie armorer:
 		name: zombie armorer¦s
-		pattern: <age> zombie armorer(|1¦s)
+		pattern: <age> zombie armo[u]rer(|1¦s)
 	zombie cartographer:
 		name: zombie cartographer¦s
 		pattern: <age> zombie cartographer(|1¦s)
@@ -1499,7 +1502,7 @@ visual effects:
 			pattern: shield break
 		armor_stand_hit:
 			name: armor stand hit @a
-			pattern: armor stand hit
+			pattern: armo[u]r stand hit
 		thorns_hurt:
 			name: hurt by thorns @-
 			pattern: (hurt|damage) by thorns
@@ -2128,8 +2131,8 @@ inventory types:
 	stonecutter: stonecutter inventory @a
 	smithing: smithing inventory @a
 	composter: composter inventory @a
-	chiseled_bookshelf: chiseled bookshelf @a, bookshelf @a
-	decorated_pot: decorated pot @a
+	chiseled_bookshelf: chiseled bookshelf inventory @a, bookshelf inventory @a
+	decorated_pot: decorated pot inventory @a
 	crafter: crafter inventory @a
 
 	jukebox: jukebox @a
@@ -2236,8 +2239,8 @@ genes:
 # -- Attribute Types --
 attribute types:
 	# Enum variation
-	generic_armor: generic armor, armor
-	generic_armor_toughness: generic armor toughness, armor toughness
+	generic_armor: generic armor, armor, generic armour, armour
+	generic_armor_toughness: generic armor toughness, armor toughness, generic armour toughness, armour toughness
 	generic_attack_damage: generic attack damage, attack damage
 	generic_attack_knockback: generic attack knockback, attack knockback
 	generic_attack_speed: generic attack speed, attack speed
@@ -2269,8 +2272,8 @@ attribute types:
 	player_sweeping_damage_ratio: player sweeping damage ratio, sweeping damage ratio
 	zombie_spawn_reinforcements: zombie spawn reinforcements
 	# Registry variation (minecraft keys)
-	generic.armor: generic armor, armor
-	generic.armor_toughness: generic armor toughness, armor toughness
+	generic.armor: generic armor, armor, generic armour, armour
+	generic.armor_toughness: generic armor toughness, armor toughness, generic armour toughness, armour toughness
 	generic.attack_damage: generic attack damage, attack damage
 	generic.attack_knockback: generic attack knockback, attack knockback
 	generic.attack_speed: generic attack speed, attack speed
@@ -2302,8 +2305,8 @@ attribute types:
 	player.sweeping_damage_ratio: player sweeping damage ratio, sweeping damage ratio
 	zombie.spawn_reinforcements: zombie spawn reinforcements
 	# 1.21.3 removes prefixes, adds tempt range
-	armor: generic armor, armor
-	armor_toughness: generic armor toughness, armor toughness
+	armor: generic armor, armor, generic armour, armour
+	armor_toughness: generic armor toughness, armor toughness, generic armour toughness, armour toughness
 	attack_damage: generic attack damage, attack damage
 	attack_knockback: generic attack knockback, attack knockback
 	attack_speed: generic attack speed, attack speed
@@ -2424,7 +2427,7 @@ unleash reasons:
 # -- Item Flags --
 item flags:
 	hide_additional_tooltip: hide additional tooltip, additional tooltip hidden, hidden additional tooltip
-	hide_armor_trim: hide armor trim, armor trim hidden, hidden armor trim
+	hide_armor_trim: hide armor trim, armor trim hidden, hidden armor trim, hide armour trim, armour trim hidden, hidden armour trim
 	hide_attributes: hide attributes, attributes hidden, hidden attributes
 	hide_destroys: hide destroys, hide destroyable blocks, hide breakable blocks, destroys hidden, hidden destroys
 	hide_dye: hide dye, hide dye color, dye hidden, dye color hidden, hidden dye, hidden dye color
@@ -2482,7 +2485,7 @@ villager professions:
 	cleric: cleric, cleric profession
 	nitwit: nitwit, nitwit profession
 	cartographer: cartographer, cartographer profession
-	armorer: armorer, armorer profession
+	armorer: armorer, armorer profession, armourer, armourer profession
 	butcher: butcher, butcher profession
 	none: no profession, none profession, unemployed
 	fisherman: fisherman, fisherman profession
@@ -2586,6 +2589,7 @@ types:
 	boolean: boolean¦ (yes/no)¦s (yes/no) @a
 	string: text¦s @a
 	chunk: chunk¦s @a
+	uuid: uuid¦s @a
 
 	# Bukkit
 	entity: entit¦y¦ies @an
@@ -2594,6 +2598,7 @@ types:
 	block: block¦s @a
 	location: location¦s @a
 	world: world¦s @a
+	worldborder: worldborder¦s @a
 	inventory: inventor¦y¦ies @an
 	player: player¦s @a
 	offlineplayer: offline player¦s @a
@@ -2653,6 +2658,7 @@ types:
 	lootcontext: loot context¦s @a
 	bannerpatterntype: banner pattern type¦s @a
 	bannerpattern: banner pattern¦s @a
+	vehicle: vehicle¦s @a
 
 	# Skript
 	weathertype: weather type¦s @a
