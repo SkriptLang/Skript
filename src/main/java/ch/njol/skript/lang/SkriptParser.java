@@ -39,6 +39,7 @@ import org.bukkit.event.Event;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.experiment.ExperimentalSyntax;
 import org.skriptlang.skript.lang.script.Script;
 import org.skriptlang.skript.lang.script.ScriptWarning;
 
@@ -251,6 +252,10 @@ public class SkriptParser {
 									Skript.error("'" + parseResult.expr + "' can only be used in " + events);
 									continue;
 								}
+							}
+							if (element instanceof ExperimentalSyntax experimentalSyntax) {
+								if (!experimentalSyntax.isSatisfiedBy(getParser().getExperimentSet()))
+									continue;
 							}
 
 							boolean success = element.init(parseResult.exprs, patternIndex, getParser().getHasDelayBefore(), parseResult);
