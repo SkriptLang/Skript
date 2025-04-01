@@ -2,10 +2,7 @@ package ch.njol.skript.expressions;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer.ChangeMode;
-import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
-import ch.njol.skript.doc.Name;
-import ch.njol.skript.doc.Since;
+import ch.njol.skript.doc.*;
 import ch.njol.skript.expressions.base.PropertyExpression;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
@@ -15,16 +12,14 @@ import ch.njol.util.Kleenean;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Projectile;
 import org.bukkit.event.Event;
+import org.bukkit.event.entity.EntityShootBowEvent;
 import org.bukkit.projectiles.ProjectileSource;
 import org.jetbrains.annotations.Nullable;
 
-/**
- * @author Peter Güttinger
- */
 @Name("Shooter")
 @Description("The shooter of a projectile.")
-@Examples({"shooter is a skeleton"})
-@Since("1.3.7")
+@Example("shooter is a skeleton")
+@Since("1.3.7, INSERT VERSION (entity shoot bow event)")
 public class ExprShooter extends PropertyExpression<Projectile, LivingEntity> {
 	static {
 		Skript.registerExpression(ExprShooter.class, LivingEntity.class, ExpressionType.SIMPLE, "[the] shooter [of %projectile%]");
@@ -41,6 +36,8 @@ public class ExprShooter extends PropertyExpression<Projectile, LivingEntity> {
 	protected LivingEntity @Nullable [] get(Event event, Projectile[] source) {
 		if (event instanceof EffSecShoot.ShootEvent shootEvent && getExpr().isDefault() && !(shootEvent.getProjectile() instanceof Projectile)) {
 			return new LivingEntity[]{shootEvent.getShooter()};
+		} else if (event instanceof EntityShootBowEvent shootBowEvent && getExpr().isDefault()) {
+			return new LivingEntity[]{shootBowEvent.getEntity()};
 		}
 
 		return get(source, projectile -> {

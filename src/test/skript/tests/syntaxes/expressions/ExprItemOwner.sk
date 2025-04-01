@@ -1,0 +1,11 @@
+test "item owner":
+	drop a stone at test-location
+	set {_drop} to last dropped item
+
+	spawn a sheep at test-location:
+		set {_owner} to entity
+	set the uuid of the dropped item owner of {_drop} to uuid of {_owner}
+	assert the uuid of the dropped item owner of {_drop} is uuid of {_owner} with "Item Owner was not set to sheep"
+
+	clear entity within {_drop}
+	clear entity within {_owner}
