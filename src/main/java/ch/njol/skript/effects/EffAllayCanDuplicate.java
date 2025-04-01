@@ -23,7 +23,7 @@ import org.jetbrains.annotations.Nullable;
 	"allow all allays to duplicate",
 	"prevent all allays from duplicating"
 })
-@Since("INSERT VERSION")
+@Since("2.11")
 public class EffAllayCanDuplicate extends Effect {
 
 	static {

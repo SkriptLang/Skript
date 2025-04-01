@@ -23,7 +23,7 @@ import java.util.UUID;
 	"""
 )
 @Example("clear the item thrower of {_dropped item}")
-@Since("INSERT VERSION")
+@Since("2.11")
 public class ExprItemThrower extends SimplePropertyExpression<Item, UUID> {
 
 	static {

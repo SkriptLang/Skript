@@ -223,6 +223,7 @@ public class Config implements Comparable<Config>, Validated, NodeNavigator, Any
 		if (nodesToUpdate.isEmpty())
 			return false;
 
+		Map<SectionNode, Integer> offsets = new HashMap<>();
 		for (Node node : nodesToUpdate) {
 			/*
 			 prevents nodes that are already in the config from being added again
@@ -270,9 +271,14 @@ public class Config implements Comparable<Config>, Validated, NodeNavigator, Any
 			Node existing = parent.getAt(index);
 			if (existing != null) {
 				// there's already something at the node we want to add the new node
+				int offset = offsets.getOrDefault(parent, 0);
 
-				Skript.debug("Adding node %s to %s at index %s", node, parent, index);
-				parent.add(index, node);
+				Skript.debug("Adding node %s to %s at index %s", node, parent, index + offset);
+				// for some reason, the node list isn't updated when adding a node at an index,
+				// so we have to manually shift the nodes after the index here
+				parent.add(Math.min(parent.size(), index + offset), node);
+
+				offsets.put(parent, offset + 1);
 			} else {
 				// there's nothing at the index we want to add the new node
 

@@ -27,7 +27,7 @@ import org.jetbrains.annotations.Nullable;
 	"clear the clone cool down of last spawned allay",
 	"reset the cloning cool down time of last spawned allay"
 })
-@Since("INSERT VERSION")
+@Since("2.11")
 public class ExprDuplicateCooldown extends SimplePropertyExpression<LivingEntity, Timespan> {
 
 	static {

@@ -34,7 +34,7 @@ public class EvtPlayerArmorChange extends SkriptEvent {
 						"\tbroadcast the old armor item",
 					"on helmet change:"
 				)
-				.since("2.5, INSERT VERSION (equipment slots)");
+				.since("2.5, 2.11 (equipment slots)");
 
 			EquipmentSlot bodySlot = null;
 			try {
