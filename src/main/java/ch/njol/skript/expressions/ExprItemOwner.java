@@ -64,12 +64,7 @@ public class ExprItemOwner extends SimplePropertyExpression<Item, UUID> {
 
 	@Override
 	protected String getPropertyName() {
-		return null;
-	}
-
-	@Override
-	public String toString(@Nullable Event event, boolean debug) {
-		return "the uuid of the dropped item owner of " + getExpr().toString(event, debug);
+		return "uuid of the dropped item owner";
 	}
 
 }

@@ -32,8 +32,8 @@ public class ExprEntityOwner extends SimplePropertyExpression<Entity, OfflinePla
 
 	@Override
 	public @Nullable OfflinePlayer convert(Entity entity) {
-		if (entity instanceof Tameable tameable && tameable.isTamed()) {
-			return (OfflinePlayer) tameable.getOwner();
+		if (entity instanceof Tameable tameable && tameable.isTamed() && tameable.getOwner() instanceof OfflinePlayer owner) {
+			return owner;
 		}
 		return null;
 	}
