@@ -19,7 +19,7 @@ import org.jetbrains.annotations.Nullable;
 @Name("Shooter")
 @Description("The shooter of a projectile.")
 @Example("shooter is a skeleton")
-@Since("1.3.7, INSERT VERSION (entity shoot bow event)")
+@Since("1.3.7, 2.11 (entity shoot bow event)")
 public class ExprShooter extends PropertyExpression<Projectile, LivingEntity> {
 	static {
 		Skript.registerExpression(ExprShooter.class, LivingEntity.class, ExpressionType.SIMPLE, "[the] shooter [of %projectile%]");

@@ -21,7 +21,7 @@ import org.bukkit.entity.LivingEntity;
 			force {_goat} to not have a right horn
 	"""
 )
-@Since("INSERT VERSION")
+@Since("2.11")
 public class CondGoatHasHorns extends PropertyCondition<LivingEntity> {
 
 	static {

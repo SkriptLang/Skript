@@ -40,7 +40,7 @@ public class EvtEntityShootBow extends SkriptEvent {
 						set velocity of entity to velocity of {_e}
 					set event-entity to last spawned entity
 				""")
-			.since("INSERT VERSION");
+			.since("2.11");
 
 		EventValues.registerEventValue(EntityShootBowEvent.class, ItemStack.class, EntityShootBowEvent::getBow);
 

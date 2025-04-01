@@ -15,7 +15,7 @@ public class FishingModule {
 			.user("fishing ?states?")
 			.name("Fishing State")
 			.description("Represents the different states of a fishing event.")
-			.since("INSERT VERSION")
+			.since("2.11")
 		);
 
 		Skript.getAddonInstance().loadClasses("org.skriptlang.skript.bukkit.fishing", "elements");

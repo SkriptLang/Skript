@@ -14,7 +14,7 @@ import org.bukkit.entity.LivingEntity;
 	"if last spawned ghast is charging fireball:",
 		"\tkill last spawned ghast"
 })
-@Since("INSERT VERSION")
+@Since("2.11")
 public class CondIsChargingFireball extends PropertyCondition<LivingEntity> {
 
 	static {

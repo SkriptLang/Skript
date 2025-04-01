@@ -14,7 +14,7 @@ import org.bukkit.entity.Panda;
 	if last spawned panda is on its back:
 		make last spawned panda get off its back
 	""")
-@Since("INSERT VERSION")
+@Since("2.11")
 public class CondPandaIsOnBack extends PropertyCondition<LivingEntity> {
 
 	static {

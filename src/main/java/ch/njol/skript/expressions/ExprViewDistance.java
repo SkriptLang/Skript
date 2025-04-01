@@ -30,7 +30,7 @@ import java.util.function.Supplier;
 	"clear the view distance of world \"world\""
 })
 @RequiredPlugins("Paper (change for players), Paper 1.21+ (change for worlds)")
-@Since("2.4, INSERT VERSION (worlds)")
+@Since("2.4, 2.11 (worlds)")
 public class ExprViewDistance extends SimplePropertyExpression<Object, Integer> {
 
 	private static final boolean SUPPORTS_SETTER = Skript.methodExists(Player.class, "setViewDistance", int.class);
