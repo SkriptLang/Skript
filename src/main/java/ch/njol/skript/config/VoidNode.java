@@ -2,6 +2,9 @@ package ch.njol.skript.config;
 
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Arrays;
+import java.util.Objects;
+
 /**
  * An empty line or a comment.
  * <p>
@@ -11,13 +14,8 @@ import org.jetbrains.annotations.Nullable;
  */
 public class VoidNode extends Node {
 
-//	private final int initialLevel;
-//	private final String initialIndentation;
-
 	VoidNode(final String line, final String comment, final SectionNode parent, final int lineNum) {
-		super("" + line.trim(), comment, parent, lineNum);
-//		initialLevel = getLevel();
-//		initialIndentation = "" + line.replaceFirst("\\S.*$", "");
+		super(line.trim(), comment, parent, lineNum);
 	}
 
 	@SuppressWarnings("null")
@@ -30,31 +28,21 @@ public class VoidNode extends Node {
 		key = s;
 	}
 
-	// doesn't work reliably
-//	@Override
-//	protected String getIndentation() {
-//		int levelDiff = getLevel() - initialLevel;
-//		if (levelDiff >= 0) {
-//			return StringUtils.multiply(config.getIndentation(), levelDiff) + initialIndentation;
-//		} else {
-//			final String ci = config.getIndentation();
-//			String ind = initialIndentation;
-//			while (levelDiff < 0 && ind.startsWith(ci)) {
-//				levelDiff++;
-//				ind = "" + ind.substring(ci.length());
-//			}
-//			return ind;
-//		}
-//	}
-
 	@Override
 	String save_i() {
-		return "" + key;
+		return key;
 	}
 
 	@Override
 	public @Nullable Node get(String key) {
 		return null;
+	}
+
+	@Override
+	public int hashCode() {
+		// ensures that two void nodes can exist with the same parent as long as they are
+		// at a different position
+		return Objects.hash(Arrays.hashCode(getPathSteps()), comment, getIndex());
 	}
 
 }
