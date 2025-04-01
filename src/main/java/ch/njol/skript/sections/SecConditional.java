@@ -15,6 +15,7 @@ import ch.njol.skript.lang.util.ContextlessEvent;
 import ch.njol.skript.patterns.PatternCompiler;
 import ch.njol.skript.patterns.SkriptPattern;
 import ch.njol.skript.util.Patterns;
+import ch.njol.skript.util.SkriptColor;
 import ch.njol.util.Kleenean;
 import com.google.common.collect.Iterables;
 import org.bukkit.event.Event;
@@ -202,6 +203,17 @@ public class SecConditional extends Section {
 
 			if (conditionals.isEmpty())
 				return false;
+
+			/*
+				This allows the embedded multilined conditions to be properly debugged.
+				Debugs are caught within the RetainingLogHandler in ScriptLoader#loadItems
+				Which will be printed after the debugged section (e.g 'if all')
+			 */
+			if ((Skript.debug() || sectionNode.debug()) && conditionals.size() > 1) {
+				String indentation = getParser().getIndentation() + "    ";
+				for (Conditional<?> condition : conditionals)
+					Skript.debug(indentation + SkriptColor.replaceColorChar(condition.toString(null, true)));
+			}
 
 			conditional = Conditional.compound(ifAny ? Operator.OR : Operator.AND, conditionals);
 		}
