@@ -298,7 +298,7 @@ final class FunctionRegistry {
 		Map<String, Set<FunctionIdentifier>> javaIdentifiers = identifiers.getOrDefault(namespace, new HashMap<>());
 
 		if (!javaIdentifiers.containsKey(provided.name)) {
-			Skript.debug("No functions named '%s' exist in the '%s' namespace", namespace.name, provided.name);
+			Skript.debug("No signatures named '%s' exist in the '%s' namespace", provided.name, namespace.name);
 			return null;
 		}
 
@@ -316,8 +316,6 @@ final class FunctionRegistry {
 			Skript.debug("Failed to match an exact signature for '%s'", provided.name);
 			Skript.debug("Identifier: %s", provided);
 			Skript.debug("Options: %s", options);
-			Skript.error(("Skript cannot determine which function named '%s' to call. " +
-				"Try clarifying the type of the arguments.").formatted(provided.name));
 			return null;
 		}
 	}
@@ -329,8 +327,10 @@ final class FunctionRegistry {
 	 * @param existing The existing functions with the same name.
 	 * @return A list of candidates for the provided function.
 	 */
-	private static @NotNull Set<FunctionIdentifier> candidates(@NotNull FunctionIdentifier provided,
-															   Set<FunctionIdentifier> existing) {
+	private static @NotNull Set<FunctionIdentifier> candidates(
+		@NotNull FunctionIdentifier provided,
+		Set<FunctionIdentifier> existing
+	) {
 		Set<FunctionIdentifier> candidates = new HashSet<>();
 
 		candidates:
@@ -415,15 +415,32 @@ final class FunctionRegistry {
 				continue;
 			}
 
-			Set<FunctionIdentifier> identifiers = nameToIdentifiers.get(name);
-			for (FunctionIdentifier other : new HashSet<>(identifiers)) {
-				if (Arrays.equals(identifier.args, other.args) && other.local == signature.isLocal()) {
-					identifiers.remove(other);
-					nameToIdentifiers.put(name, identifiers);
-
-					FunctionRegistry.identifiers.put(namespace, nameToIdentifiers);
-					return;
+			Set<FunctionIdentifier> ids = nameToIdentifiers.get(name);
+			for (FunctionIdentifier other : new HashSet<>(ids)) {
+				if (!Arrays.equals(identifier.args, other.args) || other.local != signature.isLocal()) {
+					continue;
 				}
+
+				nameToIdentifiers.computeIfPresent(name, (k, set) -> {
+					set.remove(other);
+					Skript.debug("Removed identifier '%s' from %s", other, namespace);
+					return set.isEmpty() ? null : set;
+				});
+				identifiers.put(namespace, nameToIdentifiers);
+
+				functions.computeIfPresent(namespace, (ns, map) -> {
+					map.remove(other);
+					Skript.debug("Removed function '%s' from %s", other, namespace);
+					return map.isEmpty() ? null : map;
+				});
+
+				signatures.computeIfPresent(namespace, (ns, map) -> {
+					map.remove(other);
+					Skript.debug("Removed signature '%s' from %s", other, namespace);
+					return map.isEmpty() ? null : map;
+				});
+
+				return;
 			}
 		}
 	}

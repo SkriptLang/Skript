@@ -278,7 +278,7 @@ public class FunctionReference<T> implements Contract, Executable<Event, T[]> {
 		parseParameters();
 
 		Skript.debug("Getting signature for '%s' with types %s",
-			functionName, Arrays.toString(Arrays.stream(parameterTypes).map(Class::getName).toArray()));
+			functionName, Arrays.toString(Arrays.stream(parameterTypes).map(Class::getSimpleName).toArray()));
 		Signature<?> sign = FunctionRegistry.signature(script, functionName, parameterTypes);
 
 		// if we can't find a signature based on param types, just use the function name
@@ -297,7 +297,7 @@ public class FunctionReference<T> implements Contract, Executable<Event, T[]> {
 		parseParameters();
 
 		Skript.debug("Getting function '%s' with types %s",
-			functionName, Arrays.toString(Arrays.stream(parameterTypes).map(Class::getName).toArray()));
+			functionName, Arrays.toString(Arrays.stream(parameterTypes).map(Class::getSimpleName).toArray()));
 		Function<?> function = FunctionRegistry.function(script, functionName, parameterTypes);
 
 		// if we can't find a function based on param types, just use the function name
@@ -307,7 +307,8 @@ public class FunctionReference<T> implements Contract, Executable<Event, T[]> {
 		}
 
 		if (function == null) {
-			Skript.error("Skript cannot determine which function named '%s' to call.".formatted(functionName));
+			Skript.error(("Skript cannot determine which function named '%s' to call. " +
+				"Try clarifying the type of the arguments using the value within expression.").formatted(functionName));
 			return null;
 		}
 
