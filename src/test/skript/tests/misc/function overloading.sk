@@ -1,3 +1,19 @@
+local function overloaded(x: int) :: int:
+	return 1
+
+local function overloaded(x: text) :: int:
+	return 2
+
+test "function overloading with 1 parameter":
+	set {_x} to 1
+
+	parse:
+		overloaded({_x})
+
+	assert last parse logs contains "Skript cannot determine which function named 'overloaded' to call. Try clarifying the type of the arguments using the 'value within' expression."
+
+	assert overloaded(number within {_x}) = 1
+
 function overloaded(x: int, y: int) :: int:
 	return 1
 
@@ -10,7 +26,7 @@ function overloaded(x: text, y: text) :: int:
 function overloaded(x: text, y: int, z: int) :: int:
 	return 4
 
-test "function overloading":
+test "function overloading with 2 parameters":
 
 	# literal overloading
 	assert overloaded(1, 2) = 1
@@ -26,4 +42,4 @@ test "function overloading":
 	parse:
 		overloaded({_y}, {_x})
 
-	assert last parse logs contains "Skript cannot determine which function named 'overloaded' to call. Try clarifying the type of the arguments."
+	assert last parse logs contains "Skript cannot determine which function named 'overloaded' to call. Try clarifying the type of the arguments using the 'value within' expression."

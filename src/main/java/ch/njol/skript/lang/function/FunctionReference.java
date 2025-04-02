@@ -27,6 +27,9 @@ import java.util.List;
  */
 public class FunctionReference<T> implements Contract, Executable<Event, T[]> {
 
+	private static final String AMBIGUOUS_ERROR = "Skript cannot determine which function named '%s' to call. " +
+		"Try clarifying the type of the arguments using the 'value within' expression.";
+
 	/**
 	 * Name of function that is called, for logging purposes.
 	 */
@@ -281,10 +284,11 @@ public class FunctionReference<T> implements Contract, Executable<Event, T[]> {
 			functionName, Arrays.toString(Arrays.stream(parameterTypes).map(Class::getSimpleName).toArray()));
 		Signature<?> sign = FunctionRegistry.signature(script, functionName, parameterTypes);
 
-		// if we can't find a signature based on param types, just use the function name
-		// and find whatever matches first
-		if (sign == null) {
-			sign = FunctionRegistry.signature(script, functionName);
+		// if we can't find a signature based on param types,
+		// to avoid weird behaviour, just error
+		if (function == null) {
+			Skript.error(AMBIGUOUS_ERROR.formatted(functionName));
+			return null;
 		}
 
 		return sign;
@@ -300,15 +304,10 @@ public class FunctionReference<T> implements Contract, Executable<Event, T[]> {
 			functionName, Arrays.toString(Arrays.stream(parameterTypes).map(Class::getSimpleName).toArray()));
 		Function<?> function = FunctionRegistry.function(script, functionName, parameterTypes);
 
-		// if we can't find a function based on param types, just use the function name
-		// and find whatever matches first
+		// if we can't find a function based on param types,
+		// to avoid weird behaviour, just error
 		if (function == null) {
-			function = FunctionRegistry.function(script, functionName);
-		}
-
-		if (function == null) {
-			Skript.error(("Skript cannot determine which function named '%s' to call. " +
-				"Try clarifying the type of the arguments using the value within expression.").formatted(functionName));
+			Skript.error(AMBIGUOUS_ERROR.formatted(functionName));
 			return null;
 		}
 
