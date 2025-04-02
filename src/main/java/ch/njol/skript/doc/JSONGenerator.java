@@ -36,7 +36,7 @@ public class JSONGenerator extends DocumentationGenerator {
 	/**
 	 * The current version of the JSON generator
 	 */
-	public static final Version JSON_VERSION = new Version(1, 0);
+	public static final Version JSON_VERSION = new Version(2, 0);
 
 	private static final Gson GSON = new GsonBuilder()
 		.disableHtmlEscaping()
@@ -44,8 +44,14 @@ public class JSONGenerator extends DocumentationGenerator {
 		.serializeNulls()
 		.create();
 
+	private static final Map<Class<? extends Event>, List<SkriptEventInfo<?>>> events = new HashMap<>();
+
 	public JSONGenerator(File templateDir, File outputDir) {
 		super(templateDir, outputDir);
+	}
+
+	static {
+		cacheEvents();
 	}
 
 	/**
@@ -117,8 +123,9 @@ public class JSONGenerator extends DocumentationGenerator {
 			syntaxJsonObject.add("examples", null);
 		}
 
-		Events events = syntaxClass.getAnnotation(Events.class);
-		syntaxJsonObject.add("events", events == null ? null : convertToJsonArray(events.value()));
+		AvailableEvents availableEvents = syntaxClass.getAnnotation(AvailableEvents.class);
+		syntaxJsonObject.add("events", getSkriptEvents(availableEvents));
+
 
 		RequiredPlugins requirements = syntaxClass.getAnnotation(RequiredPlugins.class);
 		syntaxJsonObject.add("requirements", requirements == null ? null : convertToJsonArray(requirements.value()));
@@ -127,6 +134,23 @@ public class JSONGenerator extends DocumentationGenerator {
 		syntaxJsonObject.add("keywords", keywords == null ? null : convertToJsonArray(keywords.value()));
 
 		return syntaxJsonObject;
+	}
+
+	private static @Nullable JsonArray getSkriptEvents(@Nullable AvailableEvents availableEvents) {
+		if (availableEvents == null || availableEvents.value().length == 0) 
+			return null;
+		JsonArray skriptEvents = new JsonArray();
+		for (Class<? extends Event> event : availableEvents.value()) {
+			if (events.get(event) == null) 
+				continue;
+			for (SkriptEventInfo<?> skriptEvent : events.get(event)) {
+				JsonObject skriptEventJson = new JsonObject();
+				skriptEventJson.addProperty("id", skriptEvent.getDocumentationID() == null ? skriptEvent.getId() : skriptEvent.getDocumentationID());
+				skriptEventJson.addProperty("name", skriptEvent.getName());
+				skriptEvents.add(skriptEventJson);
+			}
+		}
+		return skriptEvents;
 	}
 
 	/**
@@ -370,6 +394,18 @@ public class JSONGenerator extends DocumentationGenerator {
 			strings[i] = Documentation.cleanPatterns(strings[i], false, false);
 		}
 		return convertToJsonArray(strings);
+	}
+
+	private static void cacheEvents() {
+		for (SkriptEventInfo<?> eventInfo : Skript.getEvents()) {
+			for (Class<? extends Event> event : eventInfo.events) {
+				if (!events.containsKey(event)) {
+					events.put(event, new ArrayList<>(Collections.singleton(eventInfo)));
+					continue;
+				}
+				events.get(event).add(eventInfo);
+			}
+		}
 	}
 
 	/**

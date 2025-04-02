@@ -3,17 +3,13 @@ package ch.njol.skript.expressions;
 import java.util.Iterator;
 import java.util.List;
 
+import ch.njol.skript.doc.*;
 import org.bukkit.block.BlockState;
 import org.bukkit.event.Event;
 import org.bukkit.event.block.SpongeAbsorbEvent;
 import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.Skript;
-import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Events;
-import ch.njol.skript.doc.Examples;
-import ch.njol.skript.doc.Name;
-import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
@@ -24,6 +20,7 @@ import ch.njol.util.Kleenean;
 
 @Name("Absorbed blocks")
 @Description("The blocks absorbed by a sponge block.")
+@AvailableEvents(SpongeAbsorbEvent.class)
 @Events("sponge absorb")
 @Examples("the absorbed blocks")
 @Since("2.5")

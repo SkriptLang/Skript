@@ -1,5 +1,6 @@
 package ch.njol.skript.expressions;
 
+import ch.njol.skript.doc.*;
 import org.bukkit.event.Event;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.jetbrains.annotations.Nullable;
@@ -7,11 +8,6 @@ import org.jetbrains.annotations.Nullable;
 import ch.njol.skript.Skript;
 import ch.njol.skript.bukkitutil.HealthUtils;
 import ch.njol.skript.classes.Changer.ChangeMode;
-import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Events;
-import ch.njol.skript.doc.Examples;
-import ch.njol.skript.doc.Name;
-import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
@@ -22,8 +18,9 @@ import ch.njol.util.Kleenean;
 @Name("Final Damage")
 @Description("How much damage is done in a damage event, considering all types of damage reduction. Can NOT be changed.")
 @Examples({"send \"%final damage%\" to victim"})
-@Since("2.2-dev19")
+@AvailableEvents(EntityDamageEvent.class)
 @Events("damage")
+@Since("2.2-dev19")
 public class ExprFinalDamage extends SimpleExpression<Number> {
 	
 	static {
