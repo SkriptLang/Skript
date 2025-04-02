@@ -306,6 +306,11 @@ public class FunctionReference<T> implements Contract, Executable<Event, T[]> {
 			function = FunctionRegistry.function(script, functionName);
 		}
 
+		if (function == null) {
+			Skript.error("Skript cannot determine which function named '%s' to call.".formatted(functionName));
+			return null;
+		}
+
 		return function;
 	}
 

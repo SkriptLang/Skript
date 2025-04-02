@@ -1,6 +1,7 @@
 package ch.njol.skript.lang.function;
 
 import ch.njol.skript.ScriptLoader;
+import ch.njol.skript.Skript;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionList;
 import ch.njol.skript.lang.util.common.AnyNamed;
@@ -61,6 +62,9 @@ public class DynamicFunctionReference<Result>
 		} else {
 			//noinspection unchecked
 			function = (Function<? extends Result>) FunctionRegistry.function(null, name);
+		}
+		if (function == null) {
+			Skript.error("Skript cannot determine which dynamic function named '%s' to call.".formatted(name));
 		}
 		this.resolved = function != null;
 		this.function = new WeakReference<>(function);

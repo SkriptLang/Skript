@@ -252,8 +252,6 @@ final class FunctionRegistry {
 			Skript.debug("Failed to match an exact function for '%s'".formatted(provided.name));
 			Skript.debug("Identifier: %s".formatted(provided));
 			Skript.debug("Options: %s".formatted(options));
-			Skript.error(("Skript cannot determine which function named '%s' to call. " +
-				"Try clarifying the type of the arguments.").formatted(provided.name));
 			return null;
 		}
 	}
