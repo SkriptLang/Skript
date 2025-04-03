@@ -14,14 +14,14 @@ import ch.njol.util.Kleenean;
 @Description("Checks whether an item has the enchantment glint overridden, or is forced to glint or not.")
 @Examples({
 	"if the player's tool has the enchantment glint override",
-	"\tsend \"Your tool has the enchantment glint override.\" to player",
+		"\tsend \"Your tool has the enchantment glint override.\" to player",
 	"",
 	"if {_item} is forced to glint:",
-	"\tsend \"This item is forced to glint.\" to player",
+		"\tsend \"This item is forced to glint.\" to player",
 	"else if {_item} is forced to not glint:",
-	"\tsend \"This item is forced to not glint.\" to player",
+		"\tsend \"This item is forced to not glint.\" to player",
 	"else:",
-	"\tsend \"This item does not have any glint override.\" to player"
+		"\tsend \"This item does not have any glint override.\" to player"
 })
 @RequiredPlugins("Spigot 1.20.5+")
 @Since("2.10")
@@ -35,10 +35,12 @@ public class CondItemEnchantmentGlint extends PropertyCondition<ItemType> {
 	}
 
 	private int matchedPattern;
+	private boolean glint;
 
 	@Override
 	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		this.matchedPattern = matchedPattern;
+		glint = !parseResult.hasTag("not");
 		return super.init(expressions, matchedPattern, isDelayed, parseResult);
 	}
 
@@ -58,7 +60,7 @@ public class CondItemEnchantmentGlint extends PropertyCondition<ItemType> {
 	protected String getPropertyName() {
 		if (matchedPattern == 0)
 			return "enchantment glint overridden";
-		return "forced to " + (isNegated() ? "not " : "") + "glint";
+		return "forced to " + (glint ? "" : "not ") + "glint";
 	}
 
 }
