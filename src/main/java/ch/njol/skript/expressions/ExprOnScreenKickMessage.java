@@ -18,7 +18,7 @@ import org.jetbrains.annotations.Nullable;
 @Description("The kick message that is displayed on-screen when a player is kicked.")
 @Examples({
 	"on kick:",
-		"\ton-screen kick message is 'Invalid hotbar selection (Hacking?)'",
+		"\ton-screen kick message is \"Invalid hotbar selection (Hacking?)\"",
 		"\tcancel event"
 })
 @Since("INSERT VERSION")
@@ -68,7 +68,7 @@ public class ExprOnScreenKickMessage extends SimpleExpression<String> implements
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return "the kick reason";
+		return "the on-screen kick reason";
 	}
 
 	@Override
