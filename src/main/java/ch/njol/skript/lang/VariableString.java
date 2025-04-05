@@ -24,8 +24,8 @@ import ch.njol.util.coll.iterator.SingleItemIterator;
 import com.google.common.collect.Lists;
 import org.bukkit.ChatColor;
 import org.bukkit.event.Event;
-import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.script.Script;
 
 import java.util.ArrayList;
@@ -385,6 +385,19 @@ public class VariableString implements Expression<String> {
 	 * @return Message components.
 	 */
 	public List<MessageComponent> getMessageComponents(Event event) {
+		return getMessageComponents(event, null);
+	}
+
+	/**
+	 * Gets message components from this string. Formatting is parsed only
+	 * in simple parts for security reasons. Providing a StringBuilder allows an unformatted output
+	 * identical to {@link #toUnformattedString(Event)} while only evaluating any expressions once.
+	 *
+	 * @param event Currently running event.
+	 * @param unformattedBuilder Unformatted string to append to.
+	 * @return Message components.
+	 */
+	public List<MessageComponent> getMessageComponents(Event event, @Nullable StringBuilder unformattedBuilder) {
 		if (isSimple) { // Trusted, constant string in a script
 			assert simpleUnformatted != null;
 			return ChatMessages.parse(simpleUnformatted);
@@ -408,14 +421,15 @@ public class VariableString implements Expression<String> {
 
 				// Convert it to plain text
 				String text = null;
-				if (string instanceof ExprColoured && ((ExprColoured) string).isUnsafeFormat()) { // Special case: user wants to process formatting
-					String unformatted = Classes.toString(((ExprColoured) string).getArray(event), true, mode);
-					if (unformatted != null) {
-						message.addAll(ChatMessages.parse(unformatted));
+				if (string instanceof Expression<?> expression) {
+					text = Classes.toString(expression.getArray(event), true, mode);
+					if (unformattedBuilder != null)
+						unformattedBuilder.append(text);
+					// Special case: user wants to process formatting
+					if (string instanceof ExprColoured exprColoured && exprColoured.isUnsafeFormat()) {
+						message.addAll(ChatMessages.parse(text));
+						continue;
 					}
-					continue;
-				} else if (string instanceof Expression<?>) {
-					text = Classes.toString(((Expression<?>) string).getArray(event), true, mode);
 				}
 
 				assert text != null;
