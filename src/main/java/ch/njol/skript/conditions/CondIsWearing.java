@@ -1,5 +1,6 @@
 package ch.njol.skript.conditions;
 
+import ch.njol.skript.Skript;
 import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.conditions.base.PropertyCondition;
 import ch.njol.skript.conditions.base.PropertyCondition.PropertyType;
@@ -12,7 +13,7 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
-import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.*;
 import org.bukkit.event.Event;
 import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.EquipmentSlot;
@@ -30,6 +31,9 @@ import java.util.Arrays;
 })
 @Since("1.0")
 public class CondIsWearing extends Condition {
+
+	private static final boolean HAS_CAN_USE_SLOT_METHOD = Skript.methodExists(LivingEntity.class, "canUseEquipmentSlot", EquipmentSlot.class);
+	private static final boolean HAS_BODY_SLOT = Skript.fieldExists(EquipmentSlot.class, "BODY");
 	
 	static {
 		PropertyCondition.register(CondIsWearing.class, "wearing %itemtypes%", "livingentities");
@@ -59,6 +63,21 @@ public class CondIsWearing extends Condition {
 				return false; // spigot nullability, no identifier as to why this occurs
 
 			ItemStack[] contents = Arrays.stream(EquipmentSlot.values())
+				.filter(slot -> {
+					// this method was added in 1.20.6
+					if (HAS_CAN_USE_SLOT_METHOD)
+						return entity.canUseEquipmentSlot(slot);
+
+					// body slot was added in 1.20.5
+					if (HAS_BODY_SLOT && slot == EquipmentSlot.BODY)
+						// this may change in the future, but for now this is the only way to figure out
+						// if the entity can use the body slot
+						return entity instanceof Horse
+							|| entity instanceof Wolf
+							|| entity instanceof Llama;
+
+					return true;
+				})
 				.map(equipment::getItem)
 				.toArray(ItemStack[]::new);
 
