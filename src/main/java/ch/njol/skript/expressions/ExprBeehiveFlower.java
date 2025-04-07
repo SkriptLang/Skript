@@ -19,7 +19,7 @@ import org.jetbrains.annotations.Nullable;
 	"set the target flower of {_beehive} to location(0, 0, 0)",
 	"clear the target flower of {_beehive}"
 })
-@Since("INSERT VERSION")
+@Since("2.11")
 public class ExprBeehiveFlower extends SimplePropertyExpression<Block, Location> {
 
 	static {

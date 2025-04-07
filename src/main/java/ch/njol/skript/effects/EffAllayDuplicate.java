@@ -20,7 +20,7 @@ import org.jetbrains.annotations.Nullable;
 	"This effect will always make an allay duplicate regardless of whether the duplicate attribute is disabled."
 })
 @Examples("make all allays duplicate")
-@Since("INSERT VERSION")
+@Since("2.11")
 public class EffAllayDuplicate extends Effect {
 
 	static {

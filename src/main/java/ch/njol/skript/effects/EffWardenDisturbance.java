@@ -23,7 +23,7 @@ import org.jetbrains.annotations.Nullable;
 	"This effect does not add anger to the warden."
 })
 @Examples("make last spawned warden sense a disturbance at location(0, 0, 0)")
-@Since("INSERT VERSION")
+@Since("2.11")
 public class EffWardenDisturbance extends Effect {
 
 	static {
