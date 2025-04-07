@@ -68,34 +68,28 @@ public class ChatMessages {
 	 */
 	public static void registerListeners() {
 		// When language changes or server is loaded loop through all chatcodes
-		Language.addListener(new LanguageChangeListener() {
-			
-			@Override
-			public void onLanguageChange() {
-				codes.clear();
-				
-				Skript.debug("Parsing message style lang files");
-				for (SkriptChatCode code : SkriptChatCode.values()) {
-					assert code != null;
-					if (code == SkriptChatCode.copy_to_clipboard && !Utils.COPY_SUPPORTED)
-						continue;
-					registerChatCode(code);
-				}
-				
-				// Re-register any missing addon chat codes
-				for (ChatCode code : addonCodes) {
-					assert code != null;
-					registerChatCode(code);
-				}
-				
-				// Add formatting chars
-				addColorChar('k', SkriptChatCode.obfuscated);
-				addColorChar('l', SkriptChatCode.bold);
-				addColorChar('m', SkriptChatCode.strikethrough);
-				addColorChar('n', SkriptChatCode.underlined);
-				addColorChar('o', SkriptChatCode.italic);
-				addColorChar('r', SkriptChatCode.reset);
+		Language.addListener(() -> {
+			codes.clear();
+
+			Skript.debug("Parsing message style lang files");
+			for (SkriptChatCode code : SkriptChatCode.values()) {
+				assert code != null;
+				registerChatCode(code);
 			}
+
+			// Re-register any missing addon chat codes
+			for (ChatCode code : addonCodes) {
+				assert code != null;
+				registerChatCode(code);
+			}
+
+			// Add formatting chars
+			addColorChar('k', SkriptChatCode.obfuscated);
+			addColorChar('l', SkriptChatCode.bold);
+			addColorChar('m', SkriptChatCode.strikethrough);
+			addColorChar('n', SkriptChatCode.underlined);
+			addColorChar('o', SkriptChatCode.italic);
+			addColorChar('r', SkriptChatCode.reset);
 		});
 	}
 	
@@ -213,7 +207,7 @@ public class ChatMessages {
 					}
 					name = name.toLowerCase(Locale.ENGLISH); // Tags are case-insensitive
 					
-					boolean tryHex = Utils.HEX_SUPPORTED && name.startsWith("#");
+					boolean tryHex = name.startsWith("#");
 					ChatColor chatColor = null;
 					if (tryHex) {
 						chatColor = Utils.parseHexColor(name);
@@ -261,7 +255,7 @@ public class ChatMessages {
 				
 				char color = chars[i + 1];
 				
-				boolean tryHex = Utils.HEX_SUPPORTED && color == 'x';
+				boolean tryHex = color == 'x';
 				ChatColor chatColor = null;
 				if (tryHex && i + 14 < chars.length) { // Try to parse hex "&x&1&2&3&4&5&6"
 					chatColor = Utils.parseHexColor(msg.substring(i + 2, i + 14).replace("&", "").replace("§", ""));
@@ -424,7 +418,7 @@ public class ChatMessages {
 
 				char color = chars[i + 1];
 
-				boolean tryHex = Utils.HEX_SUPPORTED && color == 'x';
+				boolean tryHex = color == 'x';
 				ChatColor chatColor = null;
 				if (tryHex && i + 14 < chars.length) { // Try to parse hex "&x&1&2&3&4&5&6"
 					chatColor = Utils.parseHexColor(msg.substring(i + 2, i + 14).replace("&", "").replace("§", ""));
@@ -582,9 +576,8 @@ public class ChatMessages {
 				builder.append(component.text);
 			}
 			String plain = builder.toString();
-			
-			if (Utils.HEX_SUPPORTED) // Strip '§x', '&x'
-				plain = HEX_COLOR_PATTERN.matcher(plain).replaceAll("");
+
+			plain = HEX_COLOR_PATTERN.matcher(plain).replaceAll("");
 			
 			result = ANY_COLOR_PATTERN.matcher(plain).replaceAll(""); // strips colors & or § (ex. &5)
 		} while (!previous.equals(result));

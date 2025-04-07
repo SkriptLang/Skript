@@ -1,3 +1,4 @@
+
 test "boats":
 	set {_boats::*} to "oak boat", "birch boat", "spruce boat", "jungle boat", "acacia boat", "dark oak boat", and "mangrove boat"
 	parse if running minecraft "1.20.4":
@@ -14,7 +15,7 @@ test "boats":
 
 			assert {_boat} is set with "Failed to spawn %loop-value%"
 			set {_a boat} to "a boat" parsed as entity type
-			set {_a boat item} to "a boat" parsed as item type
+			set {_a boat item} to "%loop-value%" parsed as item type
 			assert {_boat} is {_a boat} with "%loop-value% was not a boat"
 			assert {_boat} is {_a boat item} with "%loop-value% did not match a boat item"
 
@@ -40,7 +41,7 @@ test "chest boats":
 
 			assert {_boat} is set with "Failed to spawn %loop-value%"
 			set {_a chest boat} to "a chest boat" parsed as entity type
-			set {_a chest boat item} to "a chest boat" parsed as item type
+			set {_a chest boat item} to "%loop-value%" parsed as item type
 			assert {_boat} is {_a chest boat} with "%loop-value% was not a chest boat"
 			assert {_boat} is {_a chest boat item} with "%loop-value% did not match a chest boat item"
 

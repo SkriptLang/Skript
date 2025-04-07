@@ -1,0 +1,60 @@
+options:
+	path: "../../../../../../src/test/skript/tests/syntaxes/expressions/"
+	misc: "../../../../../../src/test/skript/tests/misc/"
+
+	# Princess test script is in another castle, Mario!
+	# paths are relativised to the /scripts/ directory
+	# but we are loading these scripts from the test folder :(
+
+using script reflection
+
+function testEffRun0():
+	set {EffRun} to true
+
+local function testEffRun1():
+	set {EffRun} to true
+
+test "run functions":
+	delete {EffRun}
+	set {_function} to function "testEffRun0()"
+	run {_function}
+	assert {EffRun} is true with "function didn't run"
+
+	delete {EffRun}
+	set {_function} to function "testEffRun1()"
+	run {_function}
+	assert {EffRun} is true with "local function didn't run"
+	delete {EffRun}
+
+test "run external functions":
+	set {_script} to the script named {@misc} + "dummy.sk"
+	set {_function} to function "testDummy()" from {_script}
+	assert {_function} exists with "function wasn't found"
+	run {_function} # does nothing, just fishing for errors :)
+
+	set {_script} to the script named {@path} + "ExprFunction.sk"
+	delete {ExprFunction}
+
+	set {_function} to function "testExprFunction0()" from {_script}
+	assert {_function} exists with "function wasn't found"
+	run {_function}
+	assert {ExprFunction} is true with "function didn't run"
+	delete {ExprFunction}
+
+	set {_function} to function "testExprFunction1()" from {_script}
+	assert {_function} exists with "function wasn't found"
+	run {_function}
+	assert {ExprFunction} is true with "function didn't run"
+	delete {ExprFunction}
+
+	set {_function} to function "testExprFunction2()" from {_script}
+	assert {_function} exists with "function wasn't found"
+	run {_function} with arguments "hello" and 0
+	assert {ExprFunction} is true with "function with args didn't run"
+	delete {ExprFunction}
+
+	set {_function} to function "testExprFunction3()" from {_script}
+	assert {_function} exists with "function wasn't found"
+	run {_function}
+	assert {ExprFunction} is true with "external local function didn't run"
+	delete {ExprFunction}

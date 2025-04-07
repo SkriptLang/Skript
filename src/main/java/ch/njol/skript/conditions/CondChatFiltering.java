@@ -13,7 +13,7 @@ import org.bukkit.entity.Player;
 		"send \"<gray>This server may contain mature chat messages. You have been warned!\" to player",
 })
 @RequiredPlugins("Paper")
-@Since("INSERT VERSION")
+@Since("2.10")
 public class CondChatFiltering extends PropertyCondition<Player> {
 
 	static {
@@ -25,6 +25,11 @@ public class CondChatFiltering extends PropertyCondition<Player> {
 	@Override
 	public boolean check(Player player) {
 		return player.getClientOption(ClientOption.TEXT_FILTERING_ENABLED);
+	}
+
+	@Override
+	protected PropertyType getPropertyType() {
+		return PropertyType.HAVE;
 	}
 
 	@Override

@@ -9,7 +9,10 @@ import ch.njol.skript.doc.Since;
 
 @Name("Is Flammable")
 @Description("Checks whether an item is flammable.")
-@Examples({"wood is flammable", "player's tool is flammable"})
+@Examples({
+	"wood is flammable",
+	"player's tool is flammable"
+})
 @Since("2.2-dev36")
 public class CondIsFlammable extends PropertyCondition<ItemType> {
 	
@@ -18,8 +21,8 @@ public class CondIsFlammable extends PropertyCondition<ItemType> {
 	}
 	
 	@Override
-	public boolean check(ItemType i) {
-		return i.getMaterial().isFlammable();
+	public boolean check(ItemType itemType) {
+		return itemType.getMaterial().isFlammable();
 	}
 	
 	@Override

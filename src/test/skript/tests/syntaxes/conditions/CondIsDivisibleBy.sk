@@ -12,5 +12,5 @@ test "is divisible":
 	assert -5, -10, and -15 can be evenly divided by 5 with "5, 10, and 15 can be evenly divided by 5!"
 	set {_num} to "5"
 	assert {_num} can be divided by 5 to fail with "You cannot divide by a string!"
-	set {_numlist::*} to "5", "10", "15"
+	set {_numlist::*} to "5", "10", and "15"
 	assert {_numlist::*} can be divided by 5 to fail with "You cannot divide by a string!"

@@ -2,6 +2,7 @@ package ch.njol.skript.lang;
 
 import ch.njol.skript.expressions.ExprInput;
 import ch.njol.skript.lang.parser.ParserInstance;
+import ch.njol.skript.util.LiteralUtils;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnknownNullability;
 
@@ -43,6 +44,28 @@ public interface InputSource {
 	 */
 	default @UnknownNullability String getCurrentIndex() {
 		return null;
+	}
+
+	/**
+	 * Parses an expression using the given input source and parser instance.
+	 *
+	 * @param expr the string expression to be parsed.
+	 * @param parser the parser instance used for parsing the expression.
+	 * @return the parsed expression, or null if the parsing fails.
+	 */
+	default @Nullable Expression<?> parseExpression(String expr, ParserInstance parser, int flags) {
+		InputData inputData = parser.getData(InputData.class);
+		InputSource originalSource = inputData.getSource();
+		inputData.setSource(this);
+		Expression<?> mappingExpr = new SkriptParser(expr, flags, ParseContext.DEFAULT)
+			.parseExpression(Object.class);
+		if (mappingExpr != null && LiteralUtils.hasUnparsedLiteral(mappingExpr)) {
+			mappingExpr = LiteralUtils.defendExpression(mappingExpr);
+			if (!LiteralUtils.canInitSafely(mappingExpr))
+				return null;
+		}
+		inputData.setSource(originalSource);
+		return mappingExpr;
 	}
 
 	/**

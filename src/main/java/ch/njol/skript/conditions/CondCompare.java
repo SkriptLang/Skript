@@ -29,9 +29,10 @@ import ch.njol.skript.log.SkriptLogger;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.Patterns;
 import ch.njol.skript.util.Utils;
-import ch.njol.util.Checker;
 import ch.njol.util.Kleenean;
 import org.skriptlang.skript.lang.util.Cyclical;
+
+import java.util.function.Predicate;
 
 @Name("Comparison")
 @Description({"A very general condition, it simply compares two values. Usually you can only compare for equality (e.g. block is/isn't of &lt;type&gt;), " +
@@ -44,7 +45,7 @@ import org.skriptlang.skript.lang.util.Cyclical;
 		"the creature is not an enderman or an ender dragon"})
 @Since("1.0")
 public class CondCompare extends Condition implements VerboseAssert {
-	
+
 	private final static Patterns<Relation> patterns = new Patterns<>(new Object[][]{
 			{"(1¦neither|) %objects% ((is|are)(|2¦(n't| not|4¦ neither)) ((greater|more|higher|bigger|larger) than|above)|\\>) %objects%", Relation.GREATER},
 			{"(1¦neither|) %objects% ((is|are)(|2¦(n't| not|4¦ neither)) (greater|more|higher|bigger|larger|above) [than] or (equal to|the same as)|\\>=) %objects%", Relation.GREATER_OR_EQUAL},
@@ -54,7 +55,7 @@ public class CondCompare extends Condition implements VerboseAssert {
 			{"(1¦neither|) %objects% (is|are|=) [(equal to|the same as)] %objects%", Relation.EQUAL},
 			{"(1¦neither|) %objects% (is|are) between %objects% and %objects%", Relation.EQUAL},
 			{"(1¦neither|) %objects% (2¦)(is not|are not|isn't|aren't) between %objects% and %objects%", Relation.EQUAL},
-			
+
 			{"(1¦neither|) %objects@-1% (was|were)(|2¦(n't| not|4¦ neither)) ((greater|more|higher|bigger|larger) than|above) %objects%", Relation.GREATER},
 			{"(1¦neither|) %objects@-1% (was|were)(|2¦(n't| not|4¦ neither)) (greater|more|higher|bigger|larger|above) [than] or (equal to|the same as) %objects%", Relation.GREATER_OR_EQUAL},
 			{"(1¦neither|) %objects@-1% (was|were)(|2¦(n't| not|4¦ neither)) ((less|smaller|lower) than|below) %objects%", Relation.SMALLER},
@@ -63,7 +64,7 @@ public class CondCompare extends Condition implements VerboseAssert {
 			{"(1¦neither|) %objects@-1% (was|were) [(equal to|the same as)] %objects%", Relation.EQUAL},
 			{"(1¦neither|) %objects@-1% (was|were) between %objects% and %objects%", Relation.EQUAL},
 			{"(1¦neither|) %objects@-1% (2¦)(was not|were not|wasn't|weren't) between %objects% and %objects%", Relation.EQUAL},
-			
+
 			{"(1¦neither|) %objects@1% (will be|2¦(will (not|4¦neither) be|won't be)) ((greater|more|higher|bigger|larger) than|above) %objects%", Relation.GREATER},
 			{"(1¦neither|) %objects@1% (will be|2¦(will (not|4¦neither) be|won't be)) (greater|more|higher|bigger|larger|above) [than] or (equal to|the same as) %objects%", Relation.GREATER_OR_EQUAL},
 			{"(1¦neither|) %objects@1% (will be|2¦(will (not|4¦neither) be|won't be)) ((less|smaller|lower) than|below) %objects%", Relation.SMALLER},
@@ -73,11 +74,11 @@ public class CondCompare extends Condition implements VerboseAssert {
 			{"(1¦neither|) %objects@1% will be between %objects% and %objects%", Relation.EQUAL},
 			{"(1¦neither|) %objects@1% (2¦)(will not be|won't be) between %objects% and %objects%", Relation.EQUAL}
 	});
-	
+
 	static {
 		Skript.registerCondition(CondCompare.class, ConditionType.PATTERN_MATCHES_EVERYTHING, patterns.getPatterns());
 	}
-	
+
 	private Expression<?> first;
 	private Expression<?> second;
 
@@ -89,7 +90,7 @@ public class CondCompare extends Condition implements VerboseAssert {
 	@Nullable
 	@SuppressWarnings("rawtypes")
 	private Comparator comparator;
-	
+
 	@Override
 	public boolean init(final Expression<?>[] vars, final int matchedPattern, final Kleenean isDelayed, final ParseResult parser) {
 		first = vars[0];
@@ -132,16 +133,16 @@ public class CondCompare extends Condition implements VerboseAssert {
 				}
 			}
 		}
-		
+
 		return true;
 	}
-	
+
 	public static String f(final Expression<?> e) {
 		if (e.getReturnType() == Object.class)
 			return e.toString(null, false);
 		return Classes.getSuperClassInfo(e.getReturnType()).getName().withIndefiniteArticle();
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	private boolean init(String expr) {
 		Expression<?> third = this.third;
@@ -197,11 +198,11 @@ public class CondCompare extends Condition implements VerboseAssert {
 			 * SkriptParser sees that CondCompare takes two objects. Most of the time,
 			 * this works fine. However, when there are multiple conflicting literals,
 			 * it just picks one of them at random.
-			 * 
+			 *
 			 * If our other parameter is not a literal, we can try parsing the other
 			 * explicitly with same return type. This is not guaranteed to succeed,
 			 * but will in work in some cases that were previously ambiguous.
-			 * 
+			 *
 			 * Some damage types not working (issue #2184) would be a good example
 			 * of issues that SkriptParser's lack of context can cause.
 			 */
@@ -216,7 +217,6 @@ public class CondCompare extends Condition implements VerboseAssert {
 					comparator = Comparators.getComparator(first.getReturnType(), secondReturnType);
 				}
 			}
-			
 		}
 
 		return comparator != null;
@@ -253,7 +253,7 @@ public class CondCompare extends Condition implements VerboseAssert {
 	 * For example 'fire' will be VisualEffect without this, but if the user attempts to compare 'fire'
 	 * with a block. This method will see if 'fire' can be compared to the block, and it will find ItemType.
 	 * Essentially solving something a human sees as comparable, but Skript doesn't understand.
-	 * 
+	 *
 	 * @param one The UnparsedLiteral expression to attempt to reconstruct.
 	 * @param two any expression to grab the return type from.
 	 * @return The newly formed Literal, will be SimpleLiteral in most cases.
@@ -287,7 +287,7 @@ public class CondCompare extends Condition implements VerboseAssert {
 	/*
 	 * # := condition (e.g. is, is less than, contains, is enchanted with, has permission, etc.)
 	 * !# := not #
-	 * 
+	 *
 	 * a and b # x === a # x && b # x
 	 * a or b # x === a # x || b # x
 	 * a # x and y === a # x && a # y
@@ -298,25 +298,25 @@ public class CondCompare extends Condition implements VerboseAssert {
 	 * a and b # x or y === a # x or y && b # x or y
 	 * a or b # x and y === a # x and y || b # x and y
 	 * a or b # x or y === a # x or y || b # x or y
-	 * 
-	 * 
+	 *
+	 *
 	 * a and b !# x === a !# x && b !# x
 	 * neither a nor b # x === a !# x && b !# x		// nor = and
 	 * a or b !# x === a !# x || b !# x
-	 * 
+	 *
 	 * a !# x and y === a !# x || a !# y							// e.g. "player doesn't have 2 emeralds and 5 gold ingots" == "NOT(player has 2 emeralds and 5 gold ingots)" == "player doesn't have 2 emeralds OR player doesn't have 5 gold ingots"
 	 * a # neither x nor y === a !# x && a !# y		// nor = or 	// e.g. "player has neither 2 emeralds nor 5 gold ingots" == "player doesn't have 2 emeralds AND player doesn't have 5 gold ingots"
 	 * a # neither x nor y === a !# x && a !# y		// nor = or 	// e.g. "player is neither the attacker nor the victim" == "player is not the attacker AND player is not the victim"
 	 * a !# x or y === a !# x && a !# y								// e.g. "player doesn't have 2 emeralds or 5 gold ingots" == "NOT(player has 2 emeralds or 5 gold ingots)" == "player doesn't have 2 emeralds AND player doesn't have 5 gold ingots"
-	 * 
+	 *
 	 * a and b !# x and y === a !# x and y && b !# x and y === (a !# x || a !# y) && (b !# x || b !# y)
 	 * a and b !# x or y === a !# x or y && b !# x or y
 	 * a and b # neither x nor y === a # neither x nor y && b # neither x nor y
-	 * 
+	 *
 	 * a or b !# x and y === a !# x and y || b !# x and y
 	 * a or b !# x or y === a !# x or y || b !# x or y
 	 * a or b # neither x nor y === a # neither x nor y || b # neither x nor y
-	 * 
+	 *
 	 * neither a nor b # x and y === a !# x and y && b !# x and y		// nor = and
 	 * neither a nor b # x or y === a !# x or y && b !# x or y			// nor = and
 	 */
@@ -331,11 +331,11 @@ public class CondCompare extends Condition implements VerboseAssert {
 				second.getAnd() && !second.isSingle())
 			return compareLists(event);
 
-		return first.check(event, (Checker<Object>) o1 ->
-			second.check(event, (Checker<Object>) o2 -> {
+		return first.check(event, (Predicate<Object>) o1 ->
+			second.check(event, (Predicate<Object>) o2 -> {
 				if (third == null)
 					return relation.isImpliedBy(comparator != null ? comparator.compare(o1, o2) : Comparators.compare(o1, o2));
-				return third.check(event, (Checker<Object>) o3 -> {
+				return third.check(event, (Predicate<Object>) o3 -> {
 					boolean isBetween;
 					if (comparator != null) {
 						if (o1 instanceof Cyclical<?> && o2 instanceof Cyclical<?> && o3 instanceof Cyclical<?>) {
@@ -416,5 +416,5 @@ public class CondCompare extends Condition implements VerboseAssert {
 			s += " (comparator: " + comparator + ")";
 		return s;
 	}
-	
+
 }
