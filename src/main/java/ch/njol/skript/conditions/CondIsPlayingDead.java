@@ -14,7 +14,7 @@ import org.bukkit.entity.LivingEntity;
 	"if last spawned axolotl is playing dead:",
 		"\tmake last spawned axolotl stop playing dead"
 })
-@Since("INSERT VERSION")
+@Since("2.11")
 public class CondIsPlayingDead extends PropertyCondition<LivingEntity> {
 
 	static {

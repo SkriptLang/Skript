@@ -336,7 +336,7 @@ public class JavaClasses {
 					+ "They are generated in a way that makes it practically impossible for duplicates to occur.",
 				"Read more about UUIDs and how they are used in Minecraft "
 					+ "in <a href='https://minecraft.wiki/w/UUID'>the wiki entry about UUIDs</a>.")
-			.since("INSERT VERSION")
+			.since("2.11")
 			.parser(new UUIDParser())
 			.serializer(new UUIDSerializer())
 		);

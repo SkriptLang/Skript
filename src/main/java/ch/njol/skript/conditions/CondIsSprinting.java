@@ -1,16 +1,12 @@
 package ch.njol.skript.conditions;
 
-import org.bukkit.entity.Player;
-
 import ch.njol.skript.conditions.base.PropertyCondition;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
+import org.bukkit.entity.Player;
 
-/**
- * @author Peter Güttinger
- */
 @Name("Is Sprinting")
 @Description("Checks whether a player is sprinting.")
 @Examples("player is not sprinting")
@@ -22,8 +18,8 @@ public class CondIsSprinting extends PropertyCondition<Player> {
 	}
 	
 	@Override
-	public boolean check(final Player p) {
-		return p.isSprinting();
+	public boolean check(Player player) {
+		return player.isSprinting();
 	}
 	
 	@Override

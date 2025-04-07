@@ -1,0 +1,7 @@
+test "panda rolling":
+	spawn a panda at test-location:
+		set {_entity} to entity
+	assert {_entity} is not rolling with "Panda should not be rolling"
+	make {_entity} start rolling
+	assert {_entity} is rolling with "Panda should be rolling"
+	clear entity within {_entity}
