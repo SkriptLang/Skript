@@ -31,7 +31,7 @@ import org.jetbrains.annotations.Nullable;
 		if player has scoreboard tag "vegetarian":
 			set the consumed item to a carrot
 	""")
-@Since("INSERT VERSION")
+@Since("2.11")
 public class ExprConsumedItem extends SimpleExpression<ItemStack> implements EventRestrictedSyntax {
 
 	static {

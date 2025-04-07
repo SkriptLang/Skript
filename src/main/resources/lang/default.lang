@@ -2085,6 +2085,12 @@ inventory actions:
 	clone_stack: clone stack
 	collect_to_cursor: collect to cursor, collect items to cursor
 	unknown: unknown, unsupported, custom
+	pickup_from_bundle: pickup from bundle, pickup items from bundle
+	pickup_all_into_bundle: pickup all into bundle, pickup all items into bundle
+	pickup_some_into_bundle: pickup some into bundle, pickup some items into bundle
+	place_from_bundle: place from bundle, place items from bundle
+	place_all_into_bundle: place all into bundle, place all items into bundle
+	place_some_into_bundle: place some into bundle, place some items into bundle
 
 # -- Inventory Click Types --
 click types:
@@ -2144,6 +2150,7 @@ spawn reasons:
 	bed: bed
 	beehive: beehive
 	breeding: breed, breeding
+	bucket: release from bucket # 'bucket' alone is problematic
 	build_irongolem: built iron golem, build iron golem
 	build_snowman: built snowman, build snowman
 	build_wither: built wither, build wither
@@ -2558,6 +2565,27 @@ input keys:
 	sneak: sneak key, sneaking key
 	sprint: sprint key, sprinting key
 
+# -- Fishing States --
+fishing states:
+	fishing: fishing line cast, rod cast, fishing rod cast, fishing
+	caught_fish: fish caught, caught fish
+	caught_entity: entity caught, caught entity
+	in_ground: bobber in ground, in ground
+	failed_attempt: fish escape, fish escaped, failed attempt
+	reel_in: reel in
+	bite: bite, fish bite
+	lured: lured, fish lured
+
+# -- Equipment Slots --
+equipment slots:
+	head: helmet slot, head slot, helmet
+	chest: chestplate slot, chest slot, chestplate
+	legs: leggings slot, legs slot, leggings
+	feet: feet slot, boots slot, boots
+	hand: tool slot, hand slot, main hand slot, main hand
+	off_hand: off hand slot, off hand
+	body: body slot, body armor slot, body armour slot
+
 # -- Boolean --
 boolean:
 	true:
@@ -2659,6 +2687,9 @@ types:
 	bannerpatterntype: banner pattern type¦s @a
 	bannerpattern: banner pattern¦s @a
 	vehicle: vehicle¦s @a
+	fishingstate: fishing state¦s @a
+	equipmentslot: equipment slot¦s @an
+
 
 	# Skript
 	weathertype: weather type¦s @a

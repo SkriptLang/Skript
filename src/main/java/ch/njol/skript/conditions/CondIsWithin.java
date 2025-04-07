@@ -48,7 +48,7 @@ import org.jetbrains.annotations.Nullable;
 	"if player is in world \"world\" and chunk at location(0, 0, 0):",
 		"\tgive player 1 diamond"
 })
-@Since("2.7, INSERT VERSION (world borders)")
+@Since("2.7, 2.11 (world borders)")
 @RequiredPlugins("MC 1.17+ (within block)")
 public class CondIsWithin extends Condition {
 

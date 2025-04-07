@@ -22,7 +22,7 @@ import org.jetbrains.annotations.Nullable;
 	"The size can not be smaller than 1."
 })
 @Examples("set world border radius of {_worldborder} to 10")
-@Since("INSERT VERSION")
+@Since("2.11")
 public class ExprWorldBorderSize extends SimplePropertyExpression<WorldBorder, Double> {
 
 	static {
