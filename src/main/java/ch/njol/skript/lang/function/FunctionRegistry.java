@@ -57,6 +57,7 @@ final class FunctionRegistry {
 	 */
 	public static void register(@Nullable String script, @NotNull Signature<?> signature) {
 		Preconditions.checkNotNull(signature, "signature is null");
+		Skript.debug("Registering signature '" + signature.getName() + "'");
 
 		// namespace
 		Namespace namespace = GLOBAL_NAMESPACE;
@@ -104,6 +105,7 @@ final class FunctionRegistry {
 	 */
 	public static void register(@Nullable String script, @NotNull Function<?> function) {
 		Preconditions.checkNotNull(function, "function is null");
+		Skript.debug("Registering function '" + function.getName() + "'");
 
 		String name = function.getName();
 		if (!name.matches(FUNCTION_NAME_PATTERN)) {
@@ -127,6 +129,7 @@ final class FunctionRegistry {
 		if (existing != null) {
 			alreadyRegisteredError(name, identifier, namespace);
 		}
+
 		functions.put(namespace, identifierToFunction);
 	}
 
@@ -312,7 +315,6 @@ final class FunctionRegistry {
 			return signatures.get(namespace).get(candidates.stream().findAny().orElse(null));
 		} else {
 			String options = candidates.stream().map(Record::toString).collect(Collectors.joining(", "));
-
 			Skript.debug("Failed to match an exact signature for '%s'", provided.name);
 			Skript.debug("Identifier: %s", provided);
 			Skript.debug("Options: %s", options);
@@ -340,11 +342,11 @@ final class FunctionRegistry {
 				continue;
 			}
 
-			// if the provided arguments are null, that means the function
-			// 1. has no arguments. return the first name match.
-			// 2. has an unknown amount of arguments. return the first name match.
+			// if we have no provided arguments, we can match any function
+			// we can skip the rest of the checks
 			if (provided.args == null || provided.args.length == 0) {
-				return Set.of(candidate);
+				candidates.add(candidate);
+				continue;
 			}
 
 			// if argument counts are not possible, skip
@@ -365,7 +367,10 @@ final class FunctionRegistry {
 
 		if (candidates.isEmpty()) {
 			return Set.of();
-		} else if (candidates.size() == 1) {
+		} else if (candidates.size() == 1 || provided.args == null || provided.args.length == 0) {
+			// if there is only one candidate,
+			// or we should match any function (provided.args == null || provided.args.length == 0),
+			// then return without trying to convert
 			return candidates;
 		}
 
@@ -417,26 +422,29 @@ final class FunctionRegistry {
 
 			Set<FunctionIdentifier> ids = nameToIdentifiers.get(name);
 			for (FunctionIdentifier other : new HashSet<>(ids)) {
-				if (!Arrays.equals(identifier.args, other.args) || other.local != signature.isLocal()) {
+				if (!Arrays.equals(identifier.args, other.args)) {
 					continue;
 				}
 
 				nameToIdentifiers.computeIfPresent(name, (k, set) -> {
-					set.remove(other);
-					Skript.debug("Removed identifier '%s' from %s", other, namespace);
+					if (set.remove(other)) {
+						Skript.debug("Removed identifier '%s' from %s", other, namespace);
+					}
 					return set.isEmpty() ? null : set;
 				});
 				identifiers.put(namespace, nameToIdentifiers);
 
 				functions.computeIfPresent(namespace, (ns, map) -> {
-					map.remove(other);
-					Skript.debug("Removed function '%s' from %s", other, namespace);
+					if (map.remove(other) != null) {
+						Skript.debug("Removed function '%s' from %s", other, namespace);
+					}
 					return map.isEmpty() ? null : map;
 				});
 
 				signatures.computeIfPresent(namespace, (ns, map) -> {
-					map.remove(other);
-					Skript.debug("Removed signature '%s' from %s", other, namespace);
+					if (map.remove(other) != null) {
+						Skript.debug("Removed signature '%s' from %s", other, namespace);
+					}
 					return map.isEmpty() ? null : map;
 				});
 
@@ -537,9 +545,14 @@ final class FunctionRegistry {
 				return false;
 			}
 
+			if (local != other.local) {
+				return false;
+			}
+
 			for (int i = 0; i < args.length; i++) {
-				if (args[i] != other.args[i])
+				if (args[i] != other.args[i]) {
 					return false;
+				}
 			}
 
 			return true;

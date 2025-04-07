@@ -284,9 +284,13 @@ public class FunctionReference<T> implements Contract, Executable<Event, T[]> {
 			functionName, Arrays.toString(Arrays.stream(parameterTypes).map(Class::getSimpleName).toArray()));
 		Signature<?> sign = FunctionRegistry.signature(script, functionName, parameterTypes);
 
-		// if we can't find a signature based on param types,
-		// to avoid weird behaviour, just error
-		if (function == null) {
+
+		// if we can't find a signature based on param types, try to match any function
+		if (sign == null) {
+			sign = FunctionRegistry.signature(script, functionName);
+		}
+
+		if (sign == null) {
 			Skript.error(AMBIGUOUS_ERROR.formatted(functionName));
 			return null;
 		}
@@ -304,8 +308,11 @@ public class FunctionReference<T> implements Contract, Executable<Event, T[]> {
 			functionName, Arrays.toString(Arrays.stream(parameterTypes).map(Class::getSimpleName).toArray()));
 		Function<?> function = FunctionRegistry.function(script, functionName, parameterTypes);
 
-		// if we can't find a function based on param types,
-		// to avoid weird behaviour, just error
+		// if we can't find a signature based on param types, try to match any function
+		if (function == null) {
+			function = FunctionRegistry.function(script, functionName);
+		}
+
 		if (function == null) {
 			Skript.error(AMBIGUOUS_ERROR.formatted(functionName));
 			return null;

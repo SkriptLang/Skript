@@ -5,12 +5,14 @@ local function overloaded(x: text) :: int:
 	return 2
 
 test "function overloading with 1 parameter":
-	set {_x} to 1
+	set {_x} to true
 
 	parse:
 		overloaded({_x})
 
 	assert last parse logs contains "Skript cannot determine which function named 'overloaded' to call. Try clarifying the type of the arguments using the 'value within' expression."
+
+	set {_x} to 1
 
 	assert overloaded(number within {_x}) = 1
 
