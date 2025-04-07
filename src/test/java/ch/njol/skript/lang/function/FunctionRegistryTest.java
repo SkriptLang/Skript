@@ -13,7 +13,7 @@ public class FunctionRegistryTest {
 	private static final String TEST_SCRIPT = "test";
 
 	private static final Function<Boolean> TEST_FUNCTION = new SimpleJavaFunction<>(FUNCTION_NAME, new Parameter[0],
-		DefaultClasses.BOOLEAN, true, true) {
+		DefaultClasses.BOOLEAN, true) {
 		@Override
 		public Boolean @Nullable [] executeSimple(Object[][] params) {
 			return new Boolean[]{true};
@@ -68,6 +68,14 @@ public class FunctionRegistryTest {
 		FunctionRegistry.remove(TEST_FUNCTION.getSignature());
 	}
 
+	private static final Function<Boolean> LOCAL_TEST_FUNCTION = new SimpleJavaFunction<>(FUNCTION_NAME, new Parameter[0],
+		DefaultClasses.BOOLEAN, true, true) {
+		@Override
+		public Boolean @Nullable [] executeSimple(Object[][] params) {
+			return new Boolean[]{true};
+		}
+	};
+
 	@Test
 	public void testSimpleRegisterRemoveRegisterLocal() {
 		assertFalse(FunctionRegistry.signatureExists(TEST_SCRIPT, FUNCTION_NAME));
@@ -75,31 +83,31 @@ public class FunctionRegistryTest {
 		assertNull(FunctionRegistry.signature(null, FUNCTION_NAME));
 		assertNull(FunctionRegistry.function(null, FUNCTION_NAME));
 
-		FunctionRegistry.register(TEST_SCRIPT, TEST_FUNCTION);
+		FunctionRegistry.register(TEST_SCRIPT, LOCAL_TEST_FUNCTION);
 
 		assertTrue(FunctionRegistry.signatureExists(TEST_SCRIPT, FUNCTION_NAME));
 		assertFalse(FunctionRegistry.signatureExists(null, FUNCTION_NAME));
-		assertEquals(TEST_FUNCTION.getSignature(), FunctionRegistry.signature(TEST_SCRIPT, FUNCTION_NAME));
-		assertEquals(TEST_FUNCTION, FunctionRegistry.function(TEST_SCRIPT, FUNCTION_NAME));
+		assertEquals(LOCAL_TEST_FUNCTION.getSignature(), FunctionRegistry.signature(TEST_SCRIPT, FUNCTION_NAME));
+		assertEquals(LOCAL_TEST_FUNCTION, FunctionRegistry.function(TEST_SCRIPT, FUNCTION_NAME));
 
-		FunctionRegistry.remove(TEST_FUNCTION.getSignature());
+		FunctionRegistry.remove(LOCAL_TEST_FUNCTION.getSignature());
 
 		assertFalse(FunctionRegistry.signatureExists(TEST_SCRIPT, FUNCTION_NAME));
 		assertFalse(FunctionRegistry.signatureExists(null, FUNCTION_NAME));
 		assertNull(FunctionRegistry.signature(null, FUNCTION_NAME));
 		assertNull(FunctionRegistry.function(null, FUNCTION_NAME));
 
-		FunctionRegistry.register(TEST_SCRIPT, TEST_FUNCTION);
-		FunctionRegistry.register(TEST_FUNCTION);
+		FunctionRegistry.register(TEST_SCRIPT, LOCAL_TEST_FUNCTION);
+		FunctionRegistry.register(LOCAL_TEST_FUNCTION);
 
 		assertTrue(FunctionRegistry.signatureExists(TEST_SCRIPT, FUNCTION_NAME));
-		assertEquals(TEST_FUNCTION.getSignature(), FunctionRegistry.signature(TEST_SCRIPT, FUNCTION_NAME));
-		assertEquals(TEST_FUNCTION, FunctionRegistry.function(TEST_SCRIPT, FUNCTION_NAME));
+		assertEquals(LOCAL_TEST_FUNCTION.getSignature(), FunctionRegistry.signature(TEST_SCRIPT, FUNCTION_NAME));
+		assertEquals(LOCAL_TEST_FUNCTION, FunctionRegistry.function(TEST_SCRIPT, FUNCTION_NAME));
 		assertTrue(FunctionRegistry.signatureExists(null, FUNCTION_NAME));
-		assertEquals(TEST_FUNCTION.getSignature(), FunctionRegistry.signature(null, FUNCTION_NAME));
-		assertEquals(TEST_FUNCTION, FunctionRegistry.function(null, FUNCTION_NAME));
+		assertEquals(LOCAL_TEST_FUNCTION.getSignature(), FunctionRegistry.signature(null, FUNCTION_NAME));
+		assertEquals(LOCAL_TEST_FUNCTION, FunctionRegistry.function(null, FUNCTION_NAME));
 
-		FunctionRegistry.remove(TEST_FUNCTION.getSignature());
+		FunctionRegistry.remove(LOCAL_TEST_FUNCTION.getSignature());
 	}
 
 	private static final Function<Boolean> TEST_FUNCTION_B = new SimpleJavaFunction<>(FUNCTION_NAME,

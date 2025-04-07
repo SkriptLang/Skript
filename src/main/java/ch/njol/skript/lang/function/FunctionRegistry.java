@@ -72,7 +72,7 @@ final class FunctionRegistry {
 		Set<FunctionIdentifier> identifiersWithName = javaIdentifiers.getOrDefault(identifier.name, new HashSet<>());
 		boolean exists = identifiersWithName.add(identifier);
 		if (!exists) {
-			alreadyRegisteredError(identifier.name, identifier, namespace);
+			return;
 		}
 		javaIdentifiers.put(identifier.name, identifiersWithName);
 		identifiers.put(namespace, javaIdentifiers);
@@ -155,10 +155,10 @@ final class FunctionRegistry {
 	 */
 	public static boolean signatureExists(@Nullable String script, @NotNull String name, Class<?>... args) {
 		if (script == null) {
-			return signatureExists(GLOBAL_NAMESPACE, FunctionIdentifier.of(name, args));
+			return signatureExists(GLOBAL_NAMESPACE, FunctionIdentifier.of(name, false, args));
 		}
 
-		return signatureExists(new Namespace(Scope.LOCAL, script.toLowerCase()), FunctionIdentifier.of(name, args));
+		return signatureExists(new Namespace(Scope.LOCAL, script.toLowerCase()), FunctionIdentifier.of(name, true, args));
 	}
 
 	/**
@@ -179,7 +179,7 @@ final class FunctionRegistry {
 		}
 
 		for (FunctionIdentifier other : javaIdentifiers.get(identifier.name)) {
-			if (Arrays.equals(identifier.args, other.args)) {
+			if (identifier == other) {
 				return true;
 			}
 		}
@@ -203,12 +203,12 @@ final class FunctionRegistry {
 	 */
 	public static Function<?> function(@Nullable String script, @NotNull String name, Class<?>... args) {
 		if (script == null) {
-			return function(GLOBAL_NAMESPACE, FunctionIdentifier.of(name, args));
+			return function(GLOBAL_NAMESPACE, FunctionIdentifier.of(name, false, args));
 		}
 
-		Function<?> function = function(new Namespace(Scope.LOCAL, script), FunctionIdentifier.of(name, args));
+		Function<?> function = function(new Namespace(Scope.LOCAL, script), FunctionIdentifier.of(name, true, args));
 		if (function == null) {
-			return function(GLOBAL_NAMESPACE, FunctionIdentifier.of(name, args));
+			return function(GLOBAL_NAMESPACE, FunctionIdentifier.of(name, false, args));
 		}
 		return function;
 	}
@@ -276,12 +276,12 @@ final class FunctionRegistry {
 	 */
 	public static Signature<?> signature(@Nullable String script, @NotNull String name, Class<?>... args) {
 		if (script == null) {
-			return signature(GLOBAL_NAMESPACE, FunctionIdentifier.of(name, args));
+			return signature(GLOBAL_NAMESPACE, FunctionIdentifier.of(name, false, args));
 		}
 
-		Signature<?> signature = signature(new Namespace(Scope.LOCAL, script), FunctionIdentifier.of(name, args));
+		Signature<?> signature = signature(new Namespace(Scope.LOCAL, script), FunctionIdentifier.of(name, true, args));
 		if (signature == null) {
-			return signature(GLOBAL_NAMESPACE, FunctionIdentifier.of(name, args));
+			return signature(GLOBAL_NAMESPACE, FunctionIdentifier.of(name, false, args));
 		}
 		return signature;
 	}
@@ -487,13 +487,13 @@ final class FunctionRegistry {
 		 * @param args The types of the arguments.
 		 * @return The identifier for the signature.
 		 */
-		private static FunctionIdentifier of(@NotNull String name, Class<?>... args) {
+		private static FunctionIdentifier of(@NotNull String name, boolean local, Class<?>... args) {
 			Preconditions.checkNotNull(name, "name is null");
 
 			if (args == null) {
-				return new FunctionIdentifier(name, false, 0);
+				return new FunctionIdentifier(name, local, 0);
 			}
-			return new FunctionIdentifier(name, false, args.length, args);
+			return new FunctionIdentifier(name, local, args.length, args);
 		}
 
 		/**
@@ -528,7 +528,7 @@ final class FunctionRegistry {
 
 		@Override
 		public int hashCode() {
-			return Objects.hash(name, Arrays.hashCode(args));
+			return Objects.hash(name, local, Arrays.hashCode(args));
 		}
 
 		@Override
