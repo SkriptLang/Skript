@@ -21,8 +21,9 @@ h:
 # Comment h
 i: false
 j: true # value differs from old config
+k: true # Comment k
 
-k: true
+l: true
 
 x.z:
 	y: true

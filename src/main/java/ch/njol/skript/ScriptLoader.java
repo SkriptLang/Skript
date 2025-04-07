@@ -9,11 +9,11 @@ import ch.njol.skript.lang.Section;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.lang.Statement;
 import ch.njol.skript.lang.TriggerItem;
-import ch.njol.skript.lang.TriggerSection;
-import ch.njol.skript.lang.function.EffFunctionCall;
 import ch.njol.skript.lang.parser.ParserInstance;
-import ch.njol.skript.log.*;
-import ch.njol.skript.sections.SecLoop;
+import ch.njol.skript.log.CountingLogHandler;
+import ch.njol.skript.log.LogEntry;
+import ch.njol.skript.log.RetainingLogHandler;
+import ch.njol.skript.log.SkriptLogger;
 import ch.njol.skript.structures.StructOptions.OptionsData;
 import ch.njol.skript.test.runner.TestMode;
 import ch.njol.skript.util.ExceptionUtils;
@@ -21,12 +21,10 @@ import ch.njol.skript.util.SkriptColor;
 import ch.njol.skript.util.Task;
 import ch.njol.skript.util.Timespan;
 import ch.njol.skript.variables.TypeHints;
-import ch.njol.util.Kleenean;
 import ch.njol.util.NonNullPair;
 import ch.njol.util.OpenCloseable;
 import ch.njol.util.StringUtils;
 import org.bukkit.Bukkit;
-import org.bukkit.event.Event;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.script.Script;
@@ -41,11 +39,7 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.Callable;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -968,7 +962,7 @@ public class ScriptLoader {
 			if (!SkriptParser.validateLine(expr))
 				continue;
 
-			TriggerItem item;
+			TriggerItem item = null;
 			if (subNode instanceof SimpleNode) {
 				long start = System.currentTimeMillis();
 				item = Statement.parse(expr, items, "Can't understand this condition/effect: " + expr);
@@ -988,13 +982,13 @@ public class ScriptLoader {
 					Skript.debug(SkriptColor.replaceColorChar(parser.getIndentation() + item.toString(null, true)));
 
 				items.add(item);
-			} else if (subNode instanceof SectionNode) {
+			} else if (subNode instanceof SectionNode subSection) {
 				TypeHints.enterScope(); // Begin conditional type hints
 
 				RetainingLogHandler handler = SkriptLogger.startRetainingLog();
 				find_section:
 				try {
-					item = Section.parse(expr, "Can't understand this section: " + expr, (SectionNode) subNode, items);
+					item = Section.parse(expr, "Can't understand this section: " + expr, subSection, items);
 					if (item != null)
 						break find_section;
 
@@ -1002,7 +996,7 @@ public class ScriptLoader {
 					RetainingLogHandler backup = handler.backup();
 					handler.clear();
 
-					item = Statement.parse(expr, "Can't understand this condition/effect: " + expr, (SectionNode) subNode, items);
+					item = Statement.parse(expr, "Can't understand this condition/effect: " + expr, subSection, items);
 
 					if (item != null)
 						break find_section;
@@ -1019,11 +1013,13 @@ public class ScriptLoader {
 					}
 					continue;
 				} finally {
+					RetainingLogHandler afterParse = handler.backup();
+					handler.clear();
 					handler.printLog();
+					if (item != null && (Skript.debug() || subNode.debug()))
+						Skript.debug(SkriptColor.replaceColorChar(parser.getIndentation() + item.toString(null, true)));
+					afterParse.printLog();
 				}
-
-				if (Skript.debug() || subNode.debug())
-					Skript.debug(SkriptColor.replaceColorChar(parser.getIndentation() + item.toString(null, true)));
 
 				items.add(item);
 
