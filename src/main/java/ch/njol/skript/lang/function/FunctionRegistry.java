@@ -3,6 +3,7 @@ package ch.njol.skript.lang.function;
 import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptAPIException;
 import com.google.common.base.Preconditions;
+import org.jetbrains.annotations.ApiStatus.Internal;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.converter.Converters;
@@ -15,6 +16,7 @@ import java.util.stream.Collectors;
  *
  * @author Efnilite
  */
+@Internal // for now
 final class FunctionRegistry {
 
 	private FunctionRegistry() {
@@ -179,7 +181,7 @@ final class FunctionRegistry {
 		}
 
 		for (FunctionIdentifier other : javaIdentifiers.get(identifier.name)) {
-			if (identifier == other) {
+			if (identifier.equals(other)) {
 				return true;
 			}
 		}
@@ -515,10 +517,11 @@ final class FunctionRegistry {
 					optionalArgs++;
 				}
 
+				Class<?> type = param.getType().getC();
 				if (param.isSingleValue()) {
-					parameters[i] = param.getType().getC();
+					parameters[i] = type;
 				} else {
-					parameters[i] = param.getType().getC().arrayType(); // for functions with Object[] arguments
+					parameters[i] = type.arrayType();
 				}
 			}
 
