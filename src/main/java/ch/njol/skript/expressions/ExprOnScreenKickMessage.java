@@ -26,7 +26,7 @@ import org.jetbrains.annotations.Nullable;
 public class ExprOnScreenKickMessage extends SimpleExpression<String> implements EventRestrictedSyntax {
 
 	static {
-		Skript.registerExpression(ExprOnScreenKickMessage.class, String.class, ExpressionType.SIMPLE, "on-screen kick message");
+		Skript.registerExpression(ExprOnScreenKickMessage.class, String.class, ExpressionType.SIMPLE, "[the] on-screen kick message");
 	}
 
 	@Override
