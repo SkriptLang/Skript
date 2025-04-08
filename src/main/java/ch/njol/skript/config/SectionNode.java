@@ -80,6 +80,13 @@ public class SectionNode extends Node implements Iterable<Node> {
 	public void add(int index, @NotNull Node node) {
 		Preconditions.checkArgument(index >= 0 && index <= size(), "index out of bounds: %s", index);
 
+		// if a node is moved within the same section, and is at the end of that section,
+		// the index should be at most nodes.size() - 1
+		// since the node is removed before being added, the size of nodes is now one smaller.
+		// if this check wasn't present, adding node at index could cause an IndexOutOfBoundsException
+		if (node.getParent() == this) {
+			index = Math.min(index, nodes.size() - 1);
+		}
 		node.remove();
 		nodes.add(index, node);
 		node.parent = this;
