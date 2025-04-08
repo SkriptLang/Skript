@@ -1,0 +1,30 @@
+
+# Bats require time to go to sleep
+
+test "fox wakeup and sleep":
+	spawn a fox at test-location:
+		set {_entity} to entity
+	make {_entity} go to sleep
+	assert {_entity} is sleeping with "Fox should be sleeping"
+	make {_entity} wake up
+	assert {_entity} is not sleeping with "Fox should be awake"
+	clear entity within {_entity}
+
+test "villager wakeup and sleep":
+	set {_old} to block at test-block
+	set block at test-block to red bed
+	spawn a villager at test-location:
+		set {_entity} to entity
+	make {_entity} go to sleep at test-block
+	assert {_entity} is sleeping with "Villager should be sleeping"
+	make {_entity} wake up
+	assert {_entity} is not sleeping with "Villager should be awake"
+	clear entity within {_entity}
+	set block at test-block to {_old}
+
+test "invalid entities":
+	spawn a cow, a sheep and a pig at test-location:
+		add entity to {_entities::*}
+	make {_entities::*} go to sleep
+	assert {_entities::*} is not sleeping with "Invalid entities should not be able to sleep"
+	clear entities within {_entities::*}

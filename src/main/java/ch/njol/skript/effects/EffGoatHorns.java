@@ -22,7 +22,7 @@ import org.jetbrains.annotations.Nullable;
 	"regrow {_goat}'s horns",
 	"remove both horns of all goats"
 })
-@Since("INSERT VERSION")
+@Since("2.11")
 public class EffGoatHorns extends Effect {
 
 	public enum GoatHorn {
