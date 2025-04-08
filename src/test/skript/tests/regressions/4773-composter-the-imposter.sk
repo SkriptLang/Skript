@@ -1,4 +1,4 @@
-test "composter the imposter" when running minecraft "1.14.4":
+test "composter the imposter":
 	set {_block} to type of test-block
 	set test-block to composter
 	assert test-block is composter with "failed to compare composter (itemtype) with a block"

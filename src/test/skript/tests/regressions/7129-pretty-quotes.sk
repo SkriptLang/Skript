@@ -1,0 +1,30 @@
+
+command /prettyquotecommandtest “prettyquoteliteral” <text>:
+	trigger:
+		set {PrettyQuoteArg} to arg
+
+test "pretty quote usage":
+	set {_error} to "Pretty quotes are not allowed, change to regular quotes"
+	parse:
+		set {_test} to "“Embedded Pretty Quotes”"
+	assert last parse logs does not contain {_error} with "Pretty quotes should work inside strings"
+
+	parse:
+		set {_test} to "" #“Pretty Quote Comment”
+	assert last parse logs does not contain {_error} with "Pretty quotes should work in comments"
+
+	parse:
+		set {_test“”} to ""
+	assert last parse logs does not contain {_error} with "Pretty quotes should work in var names"
+
+	parse:
+		set {_test} to “Pretty Quotes”
+	assert last parse logs contain {_error} with "Pretty quote string usage did not produce expected error"
+
+	parse:
+		set {_test} to "test%“test”%"
+	assert last parse logs contain {_error} with "Pretty quote %%string%% usage did not produce expected error"
+
+	execute command "prettyquotecommandtest “prettyquoteliteral” “prettyquotearg”"
+	assert {PrettyQuoteArg} is "“prettyquotearg”" with "Pretty quotes should work in command args"
+	clear {PrettyQuoteArg}

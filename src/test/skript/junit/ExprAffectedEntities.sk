@@ -1,0 +1,27 @@
+on load:
+	set {_tests::1} to "cleared piggies"
+	set {_tests::2} to "add 5 pigs"
+	set {_tests::3} to "remove 2 pigs"
+	set {_tests::4} to "set 4 pigs"
+
+	ensure junit test "org.skriptlang.skript.test.tests.syntaxes.expressions.ExprAffectedEntitiesTest" completes {_tests::*}
+
+on area effect:
+	set {_test} to "org.skriptlang.skript.test.tests.syntaxes.expressions.ExprAffectedEntitiesTest"
+	junit test is {_test}
+	clear affected entities
+	spawn 5 pigs at spawn of world "world":
+		add entity to {_pigs::*}
+	add {_pigs::*} to affected entities
+	if size of affected entities = 5:
+		complete objective "add 5 pigs" for junit test {_test}
+	remove (elements from 1 to 2 of {_pigs::*}) from affected entities
+	if size of affected entities = 3:
+		complete objective "remove 2 pigs" for junit test {_test}
+	set affected entities to (elements from 1 to 4 of {_pigs::*})
+	if size of affected entities = 4:
+		complete objective "set 4 pigs" for junit test {_test}
+	clear affected entities
+	if size of affected entities = 0:
+		complete objective "cleared piggies" for junit test {_test}
+	clear entities within {_pigs::*}

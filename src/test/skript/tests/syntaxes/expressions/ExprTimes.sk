@@ -6,3 +6,7 @@ test "times":
 		add 1 to {_count}
 	assert {_count} is 3 with "count was %{_count}% instead of 3"
 	assert {_three} is 3 with "original number wasn't 3"
+	set {_count} to 0
+	loop thrice:
+		add 1 to {_count}
+	assert {_count} is 3 with "thrice count was %{_count}% instead of 3"

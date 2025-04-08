@@ -1,21 +1,3 @@
-/**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
 package ch.njol.skript.effects;
 
 import java.io.BufferedWriter;
@@ -62,20 +44,17 @@ public class EffLog extends Effect {
 	static {
 		Skript.registerEffect(EffLog.class, "log %strings% [(to|in) [file[s]] %-strings%] [with [the|a] severity [of] (1:warning|2:severe)]");
 	}
-	
+
 	private static final File logsFolder = new File(Skript.getInstance().getDataFolder(), "logs");
-	
+
 	final static HashMap<String, PrintWriter> writers = new HashMap<>();
 	static {
-		Skript.closeOnDisable(new Closeable() {
-			@Override
-			public void close() {
-				for (PrintWriter pw : writers.values())
-					pw.close();
-			}
+		Skript.closeOnDisable(() -> {
+			for (PrintWriter pw : writers.values())
+				pw.close();
 		});
 	}
-	
+
 	@SuppressWarnings("null")
 	private Expression<String> messages;
 	@Nullable
@@ -101,7 +80,7 @@ public class EffLog extends Effect {
 		}
 		return true;
 	}
-	
+
 	@SuppressWarnings("resource")
 	@Override
 	protected void execute(Event event) {

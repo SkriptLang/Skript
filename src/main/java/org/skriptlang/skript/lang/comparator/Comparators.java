@@ -1,25 +1,8 @@
-/**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
 package org.skriptlang.skript.lang.comparator;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptAPIException;
+import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.Utils;
 import ch.njol.util.Pair;
 import org.jetbrains.annotations.Nullable;
@@ -377,8 +360,8 @@ public final class Comparators {
 
 		}
 
-		// Same class but no comparator
-		if (firstType != Object.class && firstType == secondType) {
+		// We can likely compare the two classes if they share the same immediate ClassInfo (and it's not Object)
+		if (firstType != Object.class && Classes.getSuperClassInfo(firstType) == Classes.getSuperClassInfo(secondType)) {
 			return (ComparatorInfo<T1, T2>) EQUALS_COMPARATOR_INFO;
 		}
 

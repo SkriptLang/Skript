@@ -1,0 +1,28 @@
+# includes: ExprDuplicateCooldown, EffAllayDuplicate, EffAllayCanDuplicate, CondAllayCanDuplicate
+test "duplicate cooldown":
+	spawn an allay at test-location:
+		set {_entity} to entity
+
+	set the duplication cooldown of {_entity} to 5 seconds
+	assert the duplication cooldown of {_entity} is 5 seconds with "Duplication cooldown was not set"
+	add 3 seconds to the duplication cooldown of {_entity}
+	assert the duplication cooldown of {_entity} is 8 seconds with "Duplication cooldown did not have 3 seconds added"
+	remove 5 seconds from the duplication cooldown of {_entity}
+	assert the duplication cooldown of {_entity} is 3 seconds with "Duplication cooldown did not have 5 seconds removed"
+	clear the duplication cooldown of {_entity}
+	assert the duplication cooldown of {_entity} is 0 seconds with "Duplication cooldown time was not cleared"
+	set the duplication cooldown of {_entity} to 1 hour
+	remove 2 hours from the duplication cooldown of {_entity}
+	assert the duplication cooldown of {_entity} is 0 seconds with "Duplication cooldown should be 0 seconds after removing more than current"
+
+	allow {_entity} to duplicate
+	assert {_entity} can duplicate with "Allay should be able to duplicate"
+	prevent {_entity} from duplicating
+	assert {_entity} can not duplicate with "Allay should not be able to duplicate"
+
+	make {_entity} duplicate
+	assert the size of all allays is 2 with "Allay did not duplicate"
+	make all allays duplicate
+	assert the size of all allays is 4 with "Allays did not duplicate"
+	clear all allays
+	clear entity within {_entity}

@@ -20,32 +20,34 @@ allprojects {
 		maven { url 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/' }
 		maven { url 'https://oss.sonatype.org/content/repositories/snapshots/' }
 		maven { url 'https://repo.papermc.io/repository/maven-public/' }
-		maven { url = 'https://s01.oss.sonatype.org/content/repositories/snapshots/' } // needed for paper adventure snapshot
 		maven { url 'https://ci.emc.gs/nexus/content/groups/aikar/' }
 	}
 }
 
 dependencies {
 	shadow group: 'io.papermc', name: 'paperlib', version: '1.0.8'
-	shadow group: 'org.bstats', name: 'bstats-bukkit', version: '3.0.2'
-	shadow group: 'net.kyori', name: 'adventure-text-serializer-bungeecord', version: '4.3.2'
+	shadow group: 'org.bstats', name: 'bstats-bukkit', version: '3.1.0'
+	shadow group: 'net.kyori', name: 'adventure-text-serializer-bungeecord', version: '4.3.4'
 
-	implementation group: 'io.papermc.paper', name: 'paper-api', version: '1.21.3-R0.1-SNAPSHOT'
+	implementation group: 'io.papermc.paper', name: 'paper-api', version: '1.21.4-R0.1-SNAPSHOT'
 	implementation group: 'com.google.code.findbugs', name: 'findbugs', version: '3.0.1'
 
 	// bundled with Minecraft 1.19.4+ for display entity transforms
-	implementation group: 'org.joml', name: 'joml', version: '1.10.5'
+	implementation group: 'org.joml', name: 'joml', version: '1.10.8'
 
 	// Plugin hook libraries
-	implementation group: 'com.sk89q.worldguard', name: 'worldguard-legacy', version: '7.0.0-SNAPSHOT'
+	implementation group: 'com.sk89q.worldguard', name: 'worldguard-legacy', version: '7.0.0-SNAPSHOT', {
+		exclude group: 'org.bukkit', module: 'bukkit'
+	}
 	implementation group: 'net.milkbowl.vault', name: 'Vault', version: '1.7.3', {
 		exclude group: 'org.bstats', module: 'bstats-bukkit'
+		exclude group: 'org.bukkit', module: 'bukkit'
 	}
 
 	implementation fileTree(dir: 'lib', include: '*.jar')
 
 	testShadow group: 'junit', name: 'junit', version: '4.13.2'
-	testShadow group: 'org.easymock', name: 'easymock', version: '5.4.0'
+	testShadow group: 'org.easymock', name: 'easymock', version: '5.5.0'
 }
 
 checkstyle {
@@ -244,7 +246,7 @@ void createTestTask(String name, String desc, String environments, int javaVersi
 def java21 = 21
 def java17 = 17
 
-def latestEnv = 'java21/paper-1.21.3.json'
+def latestEnv = 'java21/paper-1.21.4.json'
 def latestJava = java21
 def oldestJava = java17
 

@@ -11,7 +11,7 @@ test "ExprDropsJUnit" when running JUnit:
 	ensure junit test {@test} completes {_tests::*}
 
 on load:
-	set {-cancelled-event-test::call-count} to 0
+	set {cancelled-event-test::call-count} to 0
 
 on form:
 	junit test is {@test}
@@ -26,7 +26,7 @@ on cancelled form:
 on any form:
 	junit test is {@test}
 
-	add 1 to {-cancelled-event-test::call-count}
+	add 1 to {cancelled-event-test::call-count}
 
-	if {-cancelled-event-test::call-count} is 2:
+	if {cancelled-event-test::call-count} is 2:
 		complete objective "listen for any event" for {@test}

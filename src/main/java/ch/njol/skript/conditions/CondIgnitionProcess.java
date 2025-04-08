@@ -1,21 +1,3 @@
-/**
- *   This file is part of Skript.
- *
- *  Skript is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Skript is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Skript.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright Peter Güttinger, SkriptLang team and contributors
- */
 package ch.njol.skript.conditions;
 
 import org.bukkit.entity.Creeper;
@@ -34,11 +16,13 @@ import ch.njol.util.Kleenean;
 
 @Name("Ignition Process")
 @Description("Checks if a creeper is going to explode.")
-@Examples({"if the last spawned creeper is going to explode:",
-			"\tloop all players in radius 3 of the last spawned creeper",
-			"\t\tsend \"RUN!!!\" to the loop-player"})
+@Examples({
+	"if the last spawned creeper is going to explode:",
+		"\tloop all players in radius 3 of the last spawned creeper",
+		"\t\tsend \"RUN!!!\" to the loop-player"
+})
 @Since("2.5")
-@RequiredPlugins("Paper 1.13 or newer")
+@RequiredPlugins("Paper")
 public class CondIgnitionProcess extends PropertyCondition<LivingEntity> {
 
 	static {
@@ -50,7 +34,7 @@ public class CondIgnitionProcess extends PropertyCondition<LivingEntity> {
 		}
 	}
 
-	@SuppressWarnings({"unchecked", "null"})
+	@SuppressWarnings({"unchecked"})
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		setExpr((Expression<LivingEntity>) exprs[0]);
@@ -59,12 +43,13 @@ public class CondIgnitionProcess extends PropertyCondition<LivingEntity> {
 	}
 
 	@Override
-	public boolean check(LivingEntity e) {
-		return e instanceof Creeper && ((Creeper) e).isIgnited();
+	public boolean check(LivingEntity entity) {
+		return entity instanceof Creeper creeper && creeper.isIgnited();
 	}
 
 	@Override
 	protected String getPropertyName() {
 		return "going to explode";
 	}
+
 }

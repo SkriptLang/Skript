@@ -1,0 +1,7 @@
+test "panda sneezing":
+	spawn a panda at test-location:
+		set {_entity} to entity
+	assert {_entity} is not sneezing with "Panda should not be sneezing"
+	make {_entity} start sneezing
+	assert {_entity} is sneezing with "Panda should be sneezing"
+	clear entity within {_entity}

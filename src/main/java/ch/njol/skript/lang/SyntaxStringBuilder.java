@@ -30,31 +30,36 @@ public class SyntaxStringBuilder {
 	}
 
 	/**
-	 * Adds an object to the string.
+	 * Adds an object to the string and returns the builder.
 	 * Spaces are automatically added between the provided objects.
 	 * If the object is a {@link Debuggable} it will be formatted using
 	 * {@link Debuggable#toString(Event, boolean)}.
 	 *
 	 * @param object The object to add.
+	 * @return The builder.
 	 */
-	public void append(@NotNull Object object) {
+	public SyntaxStringBuilder append(@NotNull Object object) {
 		Preconditions.checkNotNull(object);
 		if (object instanceof Debuggable debuggable) {
 			joiner.add(debuggable.toString(event, debug));
 		} else {
 			joiner.add(object.toString());
 		}
+		return this;
 	}
 
 	/**
-	 * Adds multiple objects to the string.
+	 * Adds multiple objects to the string and returns the builder.
 	 * Spaces are automatically added between the provided objects.
+	 *
 	 * @param objects The objects to add.
+	 * @return The builder.
 	 */
-	public void append(@NotNull Object... objects) {
+	public SyntaxStringBuilder append(@NotNull Object... objects) {
 		for (Object object : objects) {
 			append(object);
 		}
+		return this;
 	}
 
 	@Override
