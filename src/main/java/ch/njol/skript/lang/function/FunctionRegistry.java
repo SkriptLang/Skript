@@ -239,12 +239,6 @@ final class FunctionRegistry {
 			return null;
 		}
 
-		if (existing.size() == 1) {
-			FunctionIdentifier identifier = existing.stream().findAny().orElse(null);
-			Skript.debug("Exact match for '%s': %s".formatted(provided.name, identifier));
-			return identifierFunctionMap.get(identifier);
-		}
-
 		Set<FunctionIdentifier> candidates = candidates(provided, existing);
 		if (candidates.isEmpty()) {
 			Skript.debug("Failed to find a function for '%s'".formatted(provided.name));
@@ -422,9 +416,8 @@ final class FunctionRegistry {
 				continue;
 			}
 
-			Set<FunctionIdentifier> ids = nameToIdentifiers.get(name);
-			for (FunctionIdentifier other : new HashSet<>(ids)) {
-				if (!Arrays.equals(identifier.args, other.args)) {
+			for (FunctionIdentifier other : nameToIdentifiers.get(name)) {
+				if (!identifier.equals(other)) {
 					continue;
 				}
 
@@ -480,7 +473,7 @@ final class FunctionRegistry {
 	 * @param name The name of the function.
 	 * @param args The arguments of the function.
 	 */
-	private record FunctionIdentifier(@NotNull String name, boolean local, int minArgCount, Class<?>... args) {
+	record FunctionIdentifier(@NotNull String name, boolean local, int minArgCount, Class<?>... args) {
 
 		/**
 		 * Returns the identifier for the given arguments.
@@ -489,7 +482,7 @@ final class FunctionRegistry {
 		 * @param args The types of the arguments.
 		 * @return The identifier for the signature.
 		 */
-		private static FunctionIdentifier of(@NotNull String name, boolean local, Class<?>... args) {
+		static FunctionIdentifier of(@NotNull String name, boolean local, Class<?>... args) {
 			Preconditions.checkNotNull(name, "name is null");
 
 			if (args == null) {
@@ -504,7 +497,7 @@ final class FunctionRegistry {
 		 * @param signature The signature to get the identifier for.
 		 * @return The identifier for the signature.
 		 */
-		private static FunctionIdentifier of(@NotNull Signature<?> signature) {
+		static FunctionIdentifier of(@NotNull Signature<?> signature) {
 			Preconditions.checkNotNull(signature, "signature is null");
 
 			Parameter<?>[] signatureParams = signature.parameters;
