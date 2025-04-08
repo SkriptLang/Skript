@@ -68,7 +68,7 @@ public class ExprOnScreenKickMessage extends SimpleExpression<String> implements
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return "the on-screen kick reason";
+		return "the on-screen kick message";
 	}
 
 	@Override
