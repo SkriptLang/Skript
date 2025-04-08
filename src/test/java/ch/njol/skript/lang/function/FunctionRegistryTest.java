@@ -302,8 +302,6 @@ public class FunctionRegistryTest {
 		FunctionRegistry.remove(TEST_FUNCTION_B.getSignature());
 	}
 
-	// todo add test for two same functions in diff namespaces
-
 	@Test
 	public void testIdentifierEmptyOf() {
 		FunctionIdentifier identifier = FunctionIdentifier.of(FUNCTION_NAME, true);
@@ -327,7 +325,6 @@ public class FunctionRegistryTest {
 
 		assertEquals(FunctionIdentifier.of(FUNCTION_NAME, true, Boolean.class, Number.class), identifier);
 	}
-
 
 	@Test
 	public void testIdentifierSignatureOf() {
