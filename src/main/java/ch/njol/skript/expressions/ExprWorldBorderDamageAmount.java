@@ -18,7 +18,7 @@ import org.skriptlang.skript.log.runtime.SyntaxRuntimeErrorProducer;
 	"Players only take damage when outside of the world's world border, and the damage value cannot be less than 0.",
 })
 @Examples("set world border damage amount of {_worldborder} to 1")
-@Since("INSERT VERSION")
+@Since("2.11")
 public class ExprWorldBorderDamageAmount extends SimplePropertyExpression<WorldBorder, Double> implements SyntaxRuntimeErrorProducer {
 
 	static {

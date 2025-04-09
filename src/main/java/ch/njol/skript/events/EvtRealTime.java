@@ -36,7 +36,7 @@ public class EvtRealTime extends SkriptEvent {
 					"at 5:00 am and 5:00 pm in real time:",
 					"at 5:00 and 17:00 in real time:"
 				)
-				.since("INSERT VERSION");
+				.since("2.11");
 
 		TIMER = new Timer("EvtSystemTime-Tasks");
 	}
