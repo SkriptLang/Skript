@@ -176,16 +176,20 @@ public class JSONGenerator extends DocumentationGenerator {
 						continue;
 					}
 
-					ClassInfo<?> classInfo = Classes.getExactClassInfo(eventValueInfo.c());
+					Class<?> valueClass = eventValueInfo.valueClass();
+					ClassInfo<?> classInfo;
+					if (valueClass.isArray()) {
+						classInfo = Classes.getExactClassInfo(valueClass.componentType());
+					} else {
+						classInfo = Classes.getExactClassInfo(valueClass);
+					}
+
 					if (classInfo == null) {
-						classInfo = Classes.getExactClassInfo(eventValueInfo.c().componentType());
-						if (classInfo == null) {
-							continue;
-						}
+						continue;
 					}
 
 					String name = classInfo.getName().getSingular();
-					if (eventValueInfo.c().isArray()) {
+					if (valueClass.isArray()) {
 						name = classInfo.getName().getPlural();
 					}
 					if (name.isBlank()) {
