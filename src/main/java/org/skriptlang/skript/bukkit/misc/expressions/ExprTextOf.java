@@ -20,7 +20,7 @@ import net.md_5.bungee.api.chat.BaseComponent;
 
 @Name("Text Of")
 @Description({
-	"Returns or changes the <a href='classes.html#string'>text/string</a> of <a href='classes.html#display'>displays</a>.",
+	"Returns or changes the <a href='#string'>text/string</a> of <a href='#display'>displays</a>.",
 	"Note that currently you can only use Skript chat codes when running Paper."
 })
 @Examples("set text of the last spawned text display to \"example\"")

@@ -19,7 +19,7 @@ public class EvtFurnace extends SkriptEvent {
 		Skript.registerEvent("Smelt", EvtFurnace.class, FurnaceSmeltEvent.class,
 				"[furnace] [ore] smelt[ed|ing] [of %-itemtypes%]",
 				"[furnace] smelt[ed|ing] of ore")
-			.description("Called when a furnace smelts an item in its <a href='expressions.html#ExprFurnaceSlot'>input slot</a>.")
+			.description("Called when a furnace smelts an item in its <a href='#ExprFurnaceSlot'>input slot</a>.")
 			.examples(
 				"on smelt:",
 					"\tclear the smelted item",
@@ -30,7 +30,7 @@ public class EvtFurnace extends SkriptEvent {
 			.since("1.0, 2.10 (specific item)");
 
 		Skript.registerEvent("Fuel Burn", EvtFurnace.class, FurnaceBurnEvent.class, "[furnace] fuel burn[ing] [of %-itemtypes%]")
-			.description("Called when a furnace burns an item from its <a href='expressions.html#ExprFurnaceSlot'>fuel slot</a>.")
+			.description("Called when a furnace burns an item from its <a href='#ExprFurnaceSlot'>fuel slot</a>.")
 			.examples(
 				"on fuel burning:",
 					"\tbroadcast fuel burned",

@@ -24,7 +24,7 @@ public class EvtAtTime extends SkriptEvent implements Comparable<EvtAtTime> {
 
 	static {
 		Skript.registerEvent("*At Time", EvtAtTime.class, ScheduledEvent.class, "at %time% [in %worlds%]")
-				.description("An event that occurs at a given <a href='./classes.html#time'>minecraft time</a> in every world or only in specific worlds.")
+				.description("An event that occurs at a given <a href='#time'>minecraft time</a> in every world or only in specific worlds.")
 				.examples("at 18:00", "at 7am in \"world\"")
 				.since("1.3.4");
 	}

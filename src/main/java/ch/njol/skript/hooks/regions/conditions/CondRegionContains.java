@@ -20,7 +20,7 @@ import java.util.function.Predicate;
 
 @Name("Region Contains")
 @Description({
-	"Checks whether a location is contained in a particular <a href='./classes.html#region'>region</a>.",
+	"Checks whether a location is contained in a particular <a href='#region'>region</a>.",
 	"This condition requires a supported regions plugin to be installed."
 })
 @Examples({

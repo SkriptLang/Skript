@@ -41,12 +41,12 @@ public class EvtItem extends SkriptEvent {
 				.description("Called when a dispenser dispenses an item.")
 				.examples("on dispense of iron block:",
 						"\tsend \"that'd be 19.99 please!\"")
-				.since("<i>unknown</i> (before 2.1)");
+				.since("unknown (before 2.1)");
 		Skript.registerEvent("Item Spawn", EvtItem.class, ItemSpawnEvent.class, "item spawn[ing] [[of] %-itemtypes%]")
 				.description("Called whenever an item stack is spawned in a world, e.g. as drop of a block or mob, a player throwing items out of their inventory, or a dispenser dispensing an item (not shooting it).")
 				.examples("on item spawn of iron sword:",
 						"\tbroadcast \"Someone dropped an iron sword!\"")
-				.since("<i>unknown</i> (before 2.1)");
+				.since("unknown (before 2.1)");
 		Skript.registerEvent("Drop", EvtItem.class, CollectionUtils.array(PlayerDropItemEvent.class, EntityDropItemEvent.class),
 				"[player|1:entity] drop[ping] [[of] %-itemtypes%]")
 				.description("Called when a player drops an item from their inventory, or an entity drops an item, such as a chicken laying an egg.")
@@ -57,7 +57,7 @@ public class EvtItem extends SkriptEvent {
 						"on entity drop of an egg:",
 						"\tif event-entity is a chicken:",
 						"\t\tset item of event-dropped item to a diamond")
-				.since("<i>unknown</i> (before 2.1), 2.7 (entity)");
+				.since("unknown (before 2.1), 2.7 (entity)");
 		if (hasPrepareCraftEvent) { // Must be loaded before CraftItemEvent
 			Skript.registerEvent("Prepare Craft", EvtItem.class, PrepareItemCraftEvent.class, "[player] (preparing|beginning) craft[ing] [[of] %-itemtypes%]")
 					.description("Called just before displaying crafting result to player. Note that setting the result item might or might not work due to Bukkit bugs.")
@@ -68,19 +68,19 @@ public class EvtItem extends SkriptEvent {
 		Skript.registerEvent("Craft", EvtItem.class, CraftItemEvent.class, "[player] craft[ing] [[of] %-itemtypes%]")
 				.description("Called when a player crafts an item.")
 				.examples("on craft:")
-				.since("<i>unknown</i> (before 2.1)");
+				.since("unknown (before 2.1)");
 		if (hasEntityPickupItemEvent) {
 			Skript.registerEvent("Pick Up", EvtItem.class, CollectionUtils.array(PlayerPickupItemEvent.class, EntityPickupItemEvent.class),
 					"[(player|1¦entity)] (pick[ ]up|picking up) [[of] %-itemtypes%]")
 				.description("Called when a player/entity picks up an item. Please note that the item is still on the ground when this event is called.")
 				.examples("on pick up:", "on entity pickup of wheat:")
-				.since("<i>unknown</i> (before 2.1), 2.5 (entity)")
+				.since("unknown (before 2.1), 2.5 (entity)")
 				.keywords("pickup");
 		} else {
 			Skript.registerEvent("Pick Up", EvtItem.class, PlayerPickupItemEvent.class, "[player] (pick[ ]up|picking up) [[of] %-itemtypes%]")
 				.description("Called when a player picks up an item. Please note that the item is still on the ground when this event is called.")
 				.examples("on pick up:")
-				.since("<i>unknown</i> (before 2.1)");
+				.since("unknown (before 2.1)");
 		}
 		// TODO brew event
 //		Skript.registerEvent("Brew", EvtItem.class, BrewEvent.class, "brew[ing] [[of] %itemtypes%]")

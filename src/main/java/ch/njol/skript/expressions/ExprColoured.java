@@ -19,7 +19,7 @@ import org.jetbrains.annotations.Nullable;
 @Description({"Parses &lt;color&gt;s and, optionally, chat styles in a message or removes",
 		"any colors <i>and</i> chat styles from the message. Parsing all",
 		"chat styles requires this expression to be used in same line with",
-		"the <a href=effects.html#EffSend>send effect</a>."})
+		"the <a href=#EffSend>send effect</a>."})
 @Examples({"on chat:",
 		"	set message to colored message # Safe; only colors get parsed",
 		"command /fade &lt;player&gt;:",

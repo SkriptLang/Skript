@@ -19,7 +19,7 @@ import org.jetbrains.annotations.Nullable;
 
 @Name("Display Interpolation Delay/Duration")
 @Description({
-	"Returns or changes the interpolation delay/duration of <a href='classes.html#display'>displays</a>.",
+	"Returns or changes the interpolation delay/duration of <a href='#display'>displays</a>.",
 	"Interpolation duration is the amount of time a display will take to interpolate, or shift, between its current state and a new state.",
 	"Interpolation delay is the amount of ticks before client-side interpolation will commence." +
 	"Setting to 0 seconds will make it immediate.",

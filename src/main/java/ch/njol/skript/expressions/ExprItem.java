@@ -21,7 +21,7 @@ import ch.njol.skript.util.slot.Slot;
 		"\titem is a clock",
 		"\tset the time to 6:00"
 })
-@Since("<i>unknown</i> (before 2.1)")
+@Since("unknown (before 2.1)")
 public class ExprItem extends EventValueExpression<ItemStack> {
 
 	static {

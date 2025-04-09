@@ -17,7 +17,7 @@ import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
 @Name("Readied Arrow/Bow")
-@Description("The bow or arrow in a <a href='events.html#ready_arrow'>Ready Arrow event</a>.")
+@Description("The bow or arrow in a <a href='#ready_arrow'>Ready Arrow event</a>.")
 @Examples({
 	"on player ready arrow:",
 		"\tselected bow's name is \"Spectral Bow\"",

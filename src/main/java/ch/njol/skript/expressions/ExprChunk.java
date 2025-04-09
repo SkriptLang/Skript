@@ -21,7 +21,7 @@ import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
 @Name("Chunk")
-@Description("Returns the <a href='./classes.html#chunk'>chunk</a> of a block, location or entity is in, or a list of the loaded chunks of a world.")
+@Description("Returns the <a href='#chunk'>chunk</a> of a block, location or entity is in, or a list of the loaded chunks of a world.")
 @Examples({
 	"add the chunk at the player to {protected chunks::*}",
 	"set {_chunks::*} to the loaded chunks of the player's world"
