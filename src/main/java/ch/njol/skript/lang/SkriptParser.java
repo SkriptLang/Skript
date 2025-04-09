@@ -43,6 +43,7 @@ import org.skriptlang.skript.lang.experiment.ExperimentalSyntax;
 import org.skriptlang.skript.lang.script.Script;
 import org.skriptlang.skript.lang.script.ScriptWarning;
 
+import java.lang.reflect.Array;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -52,7 +53,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 import java.util.stream.Stream;
-import java.lang.reflect.Array;
 
 /**
  * Used for parsing my custom patterns.<br>
@@ -237,28 +237,13 @@ public class SkriptParser {
 							}
 							T element = info.getElementClass().newInstance();
 
-							if (element instanceof EventRestrictedSyntax eventRestrictedSyntax) {
-								Class<? extends Event>[] supportedEvents = eventRestrictedSyntax.supportedEvents();
-								if (!getParser().isCurrentEvent(supportedEvents)) {
-									Iterator<String> iterator = Arrays.stream(supportedEvents)
-										.map(it -> "the " + it.getSimpleName()
-											.replaceAll("([A-Z])", " $1")
-											.toLowerCase()
-											.trim())
-										.iterator();
+							if (!checkRestrictedEvents(element, parseResult))
+								continue;
 
-									String events = StringUtils.join(iterator, ", ", " or ");
+							if (!checkExperimentalSyntax(element))
+								continue;
 
-									Skript.error("'" + parseResult.expr + "' can only be used in " + events);
-									continue;
-								}
-							}
-							if (element instanceof ExperimentalSyntax experimentalSyntax) {
-								if (!experimentalSyntax.isSatisfiedBy(getParser().getExperimentSet()))
-									continue;
-							}
-
-							boolean success = element.init(parseResult.exprs, patternIndex, getParser().getHasDelayBefore(), parseResult);
+							boolean success = element.preInit() && element.init(parseResult.exprs, patternIndex, getParser().getHasDelayBefore(), parseResult);
 							if (success) {
 								log.printLog();
 								return element;
@@ -274,6 +259,43 @@ public class SkriptParser {
 			log.printError();
 			return null;
 		}
+	}
+
+	/**
+	 * Checks whether the given element is restricted to specific events, and if so, whether the current event is allowed.
+	 * @param element The syntax element to check.
+	 * @param parseResult The parse result for error information.
+	 * @return True if the element is allowed in the current event, false otherwise.
+	 */
+	private boolean checkRestrictedEvents(SyntaxElement element, ParseResult parseResult) {
+		if (element instanceof EventRestrictedSyntax eventRestrictedSyntax) {
+			Class<? extends Event>[] supportedEvents = eventRestrictedSyntax.supportedEvents();
+			if (!getParser().isCurrentEvent(supportedEvents)) {
+				Iterator<String> iterator = Arrays.stream(supportedEvents)
+					.map(it -> "the " + it.getSimpleName()
+						.replaceAll("([A-Z])", " $1")
+						.toLowerCase()
+						.trim())
+					.iterator();
+
+				String events = StringUtils.join(iterator, ", ", " or ");
+				Skript.error("'" + parseResult.expr + "' can only be used in " + events);
+				return false;
+			}
+		}
+		return true;
+	}
+
+	/**
+	 * Checks whether the given element is experimental and if so, whether the current experiment set satisfies it.
+	 * @param element The syntax element to check.
+	 * @return True if the element is allowed in the current experiment set, false otherwise.
+	 */
+	private boolean checkExperimentalSyntax(SyntaxElement element) {
+		if (element instanceof ExperimentalSyntax experimentalSyntax) {
+			return experimentalSyntax.isSatisfiedBy(getParser().getExperimentSet());
+		}
+		return true;
 	}
 
 	private static @NotNull DefaultExpression<?> getDefaultExpression(ExprInfo exprInfo, String pattern) {
