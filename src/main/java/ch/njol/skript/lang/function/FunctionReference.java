@@ -27,7 +27,7 @@ import java.util.List;
  */
 public class FunctionReference<T> implements Contract, Executable<Event, T[]> {
 
-	private static final String AMBIGUOUS_ERROR = "Skript cannot determine which function named '%s' to call. " +
+	static final String AMBIGUOUS_ERROR = "Skript cannot determine which function named '%s' to call. " +
 		"Try clarifying the type of the arguments using the 'value within' expression.";
 
 	/**
@@ -40,7 +40,7 @@ public class FunctionReference<T> implements Contract, Executable<Event, T[]> {
 	 * succeeds, this is not null.
 	 */
 	private @Nullable Signature<? extends T> signature;
-  
+
 	/**
 	 * Actual function reference. Null before the function is called for first
 	 * time.
@@ -88,8 +88,8 @@ public class FunctionReference<T> implements Contract, Executable<Event, T[]> {
 	private Contract contract;
 
 	public FunctionReference(
-			String functionName, @Nullable Node node, @Nullable String script,
-			@Nullable Class<? extends T>[] returnTypes, Expression<?>[] params
+		String functionName, @Nullable Node node, @Nullable String script,
+		@Nullable Class<? extends T>[] returnTypes, Expression<?>[] params
 	) {
 		this.functionName = functionName;
 		this.node = node;
@@ -116,8 +116,9 @@ public class FunctionReference<T> implements Contract, Executable<Event, T[]> {
 
 	/**
 	 * Validates this function reference. Prints errors if needed.
+	 *
 	 * @param first True if this is called while loading a script. False when
-	 * this is called when the function signature changes.
+	 *              this is called when the function signature changes.
 	 * @return True if validation succeeded.
 	 */
 	public boolean validateFunction(boolean first) {
@@ -169,7 +170,7 @@ public class FunctionReference<T> implements Contract, Executable<Event, T[]> {
 				single = sign.single;
 			} else if (single && !sign.single) {
 				Skript.error("The function '" + functionName + "' was redefined with a different, incompatible return type, but is still used in other script(s)."
-						+ " These will continue to use the old version of the function until Skript restarts.");
+					+ " These will continue to use the old version of the function until Skript restarts.");
 				function = previousFunction;
 				return false;
 			}
@@ -280,8 +281,10 @@ public class FunctionReference<T> implements Contract, Executable<Event, T[]> {
 	private Signature<?> getRegisteredSignature() {
 		parseParameters();
 
-		Skript.debug("Getting signature for '%s' with types %s",
-			functionName, Arrays.toString(Arrays.stream(parameterTypes).map(Class::getSimpleName).toArray()));
+		if (Skript.debug()) {
+			Skript.debug("Getting signature for '%s' with types %s",
+				functionName, Arrays.toString(Arrays.stream(parameterTypes).map(Class::getSimpleName).toArray()));
+		}
 		Signature<?> sign = FunctionRegistry.signature(script, functionName, parameterTypes);
 
 
@@ -299,13 +302,15 @@ public class FunctionReference<T> implements Contract, Executable<Event, T[]> {
 	}
 
 	/**
-	 * Attempts to get this function's signature.
+	 * Attempts to get this function's registered implementation.
 	 */
 	private Function<?> getRegisteredFunction() {
 		parseParameters();
 
-		Skript.debug("Getting function '%s' with types %s",
-			functionName, Arrays.toString(Arrays.stream(parameterTypes).map(Class::getSimpleName).toArray()));
+		if (Skript.debug()) {
+			Skript.debug("Getting function '%s' with types %s",
+				functionName, Arrays.toString(Arrays.stream(parameterTypes).map(Class::getSimpleName).toArray()));
+		}
 		Function<?> function = FunctionRegistry.function(script, functionName, parameterTypes);
 
 		// if we can't find a signature based on param types, try to match any function
@@ -394,6 +399,7 @@ public class FunctionReference<T> implements Contract, Executable<Event, T[]> {
 
 	/**
 	 * The contract is used in preference to the function for determining return type, etc.
+	 *
 	 * @return The contract determining this function's parse-time hints, potentially this reference
 	 */
 	public Contract getContract() {

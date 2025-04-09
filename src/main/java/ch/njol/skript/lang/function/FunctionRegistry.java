@@ -52,40 +52,42 @@ final class FunctionRegistry {
 	/**
 	 * Registers a signature.
 	 *
-	 * @param script    The script to register the signature in. If script is null, will register this signature globally.
+	 * @param namespace The namespace to register the signature in.
+	 *                  If namespace is null, will register this signature globally.
+	 *                  Usually represents the path of the script this signature is registered in.
 	 * @param signature The signature to register.
-	 * @throws SkriptAPIException if a function with the same name and parameters is already registered
+	 * @throws SkriptAPIException if a signature with the same name and parameters is already registered
 	 *                            in this namespace.
 	 */
-	public static void register(@Nullable String script, @NotNull Signature<?> signature) {
+	public static void register(@Nullable String namespace, @NotNull Signature<?> signature) {
 		Preconditions.checkNotNull(signature, "signature is null");
 		Skript.debug("Registering signature '" + signature.getName() + "'");
 
 		// namespace
-		Namespace namespace = GLOBAL_NAMESPACE;
-		if (script != null && signature.isLocal()) {
-			namespace = new Namespace(Scope.LOCAL, script);
+		Namespace ns = GLOBAL_NAMESPACE;
+		if (namespace != null && signature.isLocal()) {
+			ns = new Namespace(Scope.LOCAL, namespace);
 		}
 
 		FunctionIdentifier identifier = FunctionIdentifier.of(signature);
 
 		// register
-		Map<String, Set<FunctionIdentifier>> javaIdentifiers = identifiers.getOrDefault(namespace, new HashMap<>());
+		Map<String, Set<FunctionIdentifier>> javaIdentifiers = identifiers.getOrDefault(ns, new HashMap<>());
 		Set<FunctionIdentifier> identifiersWithName = javaIdentifiers.getOrDefault(identifier.name, new HashSet<>());
 		boolean exists = identifiersWithName.add(identifier);
 		if (!exists) {
-			return;
+			alreadyRegisteredError(signature.getName(), identifier, ns);
 		}
 		javaIdentifiers.put(identifier.name, identifiersWithName);
-		identifiers.put(namespace, javaIdentifiers);
+		identifiers.put(ns, javaIdentifiers);
 
-		Map<FunctionIdentifier, Signature<?>> orDefault = signatures.getOrDefault(namespace, new HashMap<>());
+		Map<FunctionIdentifier, Signature<?>> orDefault = signatures.getOrDefault(ns, new HashMap<>());
 		orDefault.put(identifier, signature);
-		signatures.put(namespace, orDefault);
+		signatures.put(ns, orDefault);
 	}
 
 	/**
-	 * Registers a function.
+	 * Registers a global function.
 	 *
 	 * @param function The function to register.
 	 * @throws SkriptAPIException if the function name is invalid or if
@@ -99,13 +101,15 @@ final class FunctionRegistry {
 	/**
 	 * Registers a function.
 	 *
-	 * @param script   The script to register the function in. If script is null, will register this function globally.
-	 * @param function The function to register.
+	 * @param namespace The namespace to register the function in.
+	 *                  If namespace is null, will register this function globally.
+	 *                  Usually represents the path of the script this function is registered in.
+	 * @param function  The function to register.
 	 * @throws SkriptAPIException if the function name is invalid or if
 	 *                            a function with the same name and parameters is already registered
 	 *                            in this namespace.
 	 */
-	public static void register(@Nullable String script, @NotNull Function<?> function) {
+	public static void register(@Nullable String namespace, @NotNull Function<?> function) {
 		Preconditions.checkNotNull(function, "function is null");
 		Skript.debug("Registering function '" + function.getName() + "'");
 
@@ -115,24 +119,24 @@ final class FunctionRegistry {
 		}
 
 		// namespace
-		Namespace namespace = GLOBAL_NAMESPACE;
-		if (script != null && function.getSignature().isLocal()) {
-			namespace = new Namespace(Scope.LOCAL, script);
+		Namespace ns = GLOBAL_NAMESPACE;
+		if (namespace != null && function.getSignature().isLocal()) {
+			ns = new Namespace(Scope.LOCAL, namespace);
 		}
 
 		FunctionIdentifier identifier = FunctionIdentifier.of(function.getSignature());
-		if (!signatureExists(namespace, identifier)) {
-			register(script, function.getSignature());
+		if (!signatureExists(ns, identifier)) {
+			register(namespace, function.getSignature());
 		}
 
 		// register
-		Map<FunctionIdentifier, Function<?>> identifierToFunction = functions.getOrDefault(namespace, new HashMap<>());
+		Map<FunctionIdentifier, Function<?>> identifierToFunction = functions.getOrDefault(ns, new HashMap<>());
 		Function<?> existing = identifierToFunction.put(identifier, function);
 		if (existing != null) {
-			alreadyRegisteredError(name, identifier, namespace);
+			alreadyRegisteredError(name, identifier, ns);
 		}
 
-		functions.put(namespace, identifierToFunction);
+		functions.put(ns, identifierToFunction);
 	}
 
 	private static void alreadyRegisteredError(String name, FunctionIdentifier identifier, Namespace namespace) {
@@ -142,25 +146,26 @@ final class FunctionRegistry {
 	}
 
 	/**
-	 * Checks if a signature with the given name and arguments exists in the given script.
+	 * Checks if a signature with the given name and arguments exists in the given namespace.
 	 *
 	 * <ul>
-	 * <li>If {@code script} is null, only global functions will be checked.</li>
+	 * <li>If {@code namespace} is null, only global signatures will be checked.</li>
 	 * <li>If {@code args} is null or empty,
 	 * the first function with the same name as the {@code name} param will be returned.</li>
 	 * </ul>
 	 *
-	 * @param script The script to check in.
-	 * @param name   The name of the function.
-	 * @param args   The types of the arguments of the function.
+	 * @param namespace The namespace to check in.
+	 *                  Usually represents the path of the script a signature is registered in.
+	 * @param name      The name of the function.
+	 * @param args      The types of the arguments of the function.
 	 * @return True if a signature with the given name and argument types exists in the script, false otherwise.
 	 */
-	public static boolean signatureExists(@Nullable String script, @NotNull String name, Class<?>... args) {
-		if (script == null) {
+	public static boolean signatureExists(@Nullable String namespace, @NotNull String name, Class<?>... args) {
+		if (namespace == null) {
 			return signatureExists(GLOBAL_NAMESPACE, FunctionIdentifier.of(name, false, args));
 		}
 
-		return signatureExists(new Namespace(Scope.LOCAL, script.toLowerCase()), FunctionIdentifier.of(name, true, args));
+		return signatureExists(new Namespace(Scope.LOCAL, namespace.toLowerCase()), FunctionIdentifier.of(name, true, args));
 	}
 
 	/**
@@ -193,22 +198,23 @@ final class FunctionRegistry {
 	 * Gets a function from a script. If no local function is found, checks for global functions.
 	 *
 	 * <ul>
-	 * <li>If {@code script} is null, only global functions will be checked.</li>
+	 * <li>If {@code namespace} is null, only global functions will be checked.</li>
 	 * <li>If {@code args} is null or empty,
 	 * the first function with the same name as the {@code name} param will be returned.</li>
 	 * </ul>
 	 *
-	 * @param script The script to get the function from.
-	 * @param name   The name of the function.
-	 * @param args   The types of the arguments of the function.
+	 * @param namespace The namespace to get the function from.
+	 *                  Usually represents the path of the script this function is registered in.
+	 * @param name      The name of the function.
+	 * @param args      The types of the arguments of the function.
 	 * @return The function with the given name and argument types, or null if no such function exists.
 	 */
-	public static Function<?> function(@Nullable String script, @NotNull String name, Class<?>... args) {
-		if (script == null) {
+	public static Function<?> function(@Nullable String namespace, @NotNull String name, Class<?>... args) {
+		if (namespace == null) {
 			return function(GLOBAL_NAMESPACE, FunctionIdentifier.of(name, false, args));
 		}
 
-		Function<?> function = function(new Namespace(Scope.LOCAL, script), FunctionIdentifier.of(name, true, args));
+		Function<?> function = function(new Namespace(Scope.LOCAL, namespace), FunctionIdentifier.of(name, true, args));
 		if (function == null) {
 			return function(GLOBAL_NAMESPACE, FunctionIdentifier.of(name, false, args));
 		}
@@ -219,6 +225,7 @@ final class FunctionRegistry {
 	 * Gets a function from a namespace.
 	 *
 	 * @param namespace The namespace to get the function from.
+	 *                  Usually represents the path of the script this function is registered in.
 	 * @param provided  The provided identifier of the function.
 	 * @return The function with the given name and argument types, or null if no such function exists.
 	 */
@@ -260,22 +267,23 @@ final class FunctionRegistry {
 	 * checks for global functions.
 	 *
 	 * <ul>
-	 * <li>If {@code script} is null, only global functions will be checked.</li>
+	 * <li>If {@code namespace} is null, only global signatures will be checked.</li>
 	 * <li>If {@code args} is null or empty,
 	 * the first function with the same name as the {@code name} param will be returned.</li>
 	 * </ul>
 	 *
-	 * @param script The script to get the function from. If null, only global functions will be checked.
-	 * @param name   The name of the function.
-	 * @param args   The types of the arguments of the function.
+	 * @param namespace The namespace to get the function from.
+	 *                  Usually represents the path of the script this function is registered in.
+	 * @param name      The name of the function.
+	 * @param args      The types of the arguments of the function.
 	 * @return The signature for the function with the given name and argument types, or null if no such function exists.
 	 */
-	public static Signature<?> signature(@Nullable String script, @NotNull String name, Class<?>... args) {
-		if (script == null) {
+	public static Signature<?> signature(@Nullable String namespace, @NotNull String name, Class<?>... args) {
+		if (namespace == null) {
 			return signature(GLOBAL_NAMESPACE, FunctionIdentifier.of(name, false, args));
 		}
 
-		Signature<?> signature = signature(new Namespace(Scope.LOCAL, script), FunctionIdentifier.of(name, true, args));
+		Signature<?> signature = signature(new Namespace(Scope.LOCAL, namespace), FunctionIdentifier.of(name, true, args));
 		if (signature == null) {
 			return signature(GLOBAL_NAMESPACE, FunctionIdentifier.of(name, false, args));
 		}
@@ -319,7 +327,7 @@ final class FunctionRegistry {
 	}
 
 	/**
-	 * Returns a list of candidates for the provided function.
+	 * Returns a list of candidates for the provided function identifier.
 	 *
 	 * @param provided The provided function.
 	 * @param existing The existing functions with the same name.
@@ -421,31 +429,46 @@ final class FunctionRegistry {
 					continue;
 				}
 
-				nameToIdentifiers.computeIfPresent(name, (k, set) -> {
-					if (set.remove(other)) {
-						Skript.debug("Removed identifier '%s' from %s", other, namespace);
-					}
-					return set.isEmpty() ? null : set;
-				});
-				identifiers.put(namespace, nameToIdentifiers);
-
-				functions.computeIfPresent(namespace, (ns, map) -> {
-					if (map.remove(other) != null) {
-						Skript.debug("Removed function '%s' from %s", other, namespace);
-					}
-					return map.isEmpty() ? null : map;
-				});
-
-				signatures.computeIfPresent(namespace, (ns, map) -> {
-					if (map.remove(other) != null) {
-						Skript.debug("Removed signature '%s' from %s", other, namespace);
-					}
-					return map.isEmpty() ? null : map;
-				});
+				removeUpdateMaps(namespace, other, nameToIdentifiers, name);
 
 				return;
 			}
 		}
+	}
+
+	/**
+	 * Updates the maps by removing the provided function identifier from the maps.
+	 *
+	 * @param namespace         The namespace
+	 * @param toRemove          The identifier to remove
+	 * @param nameToIdentifiers The map of identifiers to functions
+	 * @param name              The name of the function
+	 */
+	private static void removeUpdateMaps(
+		Namespace namespace, FunctionIdentifier toRemove,
+		Map<String, Set<FunctionIdentifier>> nameToIdentifiers, String name
+	) {
+		nameToIdentifiers.computeIfPresent(name, (k, set) -> {
+			if (set.remove(toRemove)) {
+				Skript.debug("Removed identifier '%s' from %s", toRemove, namespace);
+			}
+			return set.isEmpty() ? null : set;
+		});
+		identifiers.put(namespace, nameToIdentifiers);
+
+		functions.computeIfPresent(namespace, (ns, map) -> {
+			if (map.remove(toRemove) != null) {
+				Skript.debug("Removed function '%s' from %s", toRemove, namespace);
+			}
+			return map.isEmpty() ? null : map;
+		});
+
+		signatures.computeIfPresent(namespace, (ns, map) -> {
+			if (map.remove(toRemove) != null) {
+				Skript.debug("Removed signature '%s' from %s", toRemove, namespace);
+			}
+			return map.isEmpty() ? null : map;
+		});
 	}
 
 	/**

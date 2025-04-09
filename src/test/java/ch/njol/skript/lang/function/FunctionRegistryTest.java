@@ -1,14 +1,11 @@
 package ch.njol.skript.lang.function;
 
-import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptAPIException;
 import ch.njol.skript.lang.function.FunctionRegistry.FunctionIdentifier;
 import ch.njol.skript.lang.util.SimpleLiteral;
 import ch.njol.skript.registrations.DefaultClasses;
 import org.jetbrains.annotations.Nullable;
 import org.junit.Test;
-import org.junit.experimental.runners.Enclosed;
-import org.junit.runner.RunWith;
 
 import static org.junit.Assert.*;
 

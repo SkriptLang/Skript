@@ -66,8 +66,7 @@ public class DynamicFunctionReference<Result>
 			function = (Function<? extends Result>) FunctionRegistry.function(null, name);
 		}
 		if (function == null) {
-			Skript.error(("Skript cannot determine which function named '%s' to call. " +
-				"Try clarifying the type of the arguments using the value within expression.").formatted(name));
+			Skript.error(FunctionReference.AMBIGUOUS_ERROR.formatted(name));
 		}
 		this.resolved = function != null;
 		this.function = new WeakReference<>(function);
