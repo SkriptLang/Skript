@@ -1,0 +1,9 @@
+test "mean function":
+	assert mean(1, 2, 3) = 2 with "mean should be 2"
+	assert mean(0, 5, 10) = 5 with "mean should be 5"
+	loop 10 times:
+		add (10 * loop-iteration) to {_ints::*}
+	assert mean({_ints::*}) = 55 with "mean should be 55"
+
+	assert mean(0, 1, 2, infinity value) is not set with "mean should return null when providing infinity"
+	assert mean(0, 1, 2, nan value) is not set with "mean should return null when providing nan"

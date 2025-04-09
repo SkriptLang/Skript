@@ -17,8 +17,7 @@ public class CursorSlot extends Slot {
 	/**
 	 * Represents the cursor as it was used in an InventoryClickEvent.
 	 */
-	@Nullable
-	private final ItemStack eventItemStack;
+	private final @Nullable ItemStack eventItemStack;
 	private final Player player;
 
 	public CursorSlot(Player player) {
@@ -42,8 +41,7 @@ public class CursorSlot extends Slot {
 	}
 
 	@Override
-	@Nullable
-	public ItemStack getItem() {
+	public @Nullable ItemStack getItem() {
 		if (eventItemStack != null)
 			return eventItemStack;
 		return player.getItemOnCursor();
@@ -71,10 +69,9 @@ public class CursorSlot extends Slot {
 
 	@Override
 	public boolean isSameSlot(Slot slot) {
-		if (!(slot instanceof CursorSlot))
-			return false;
-		CursorSlot cursor = (CursorSlot) slot;
-		return cursor.getPlayer().equals(this.player) && cursor.isInventoryClick() == isInventoryClick();
+		return slot instanceof CursorSlot cursorSlot
+			&& cursorSlot.getPlayer().equals(this.player)
+			&& cursorSlot.isInventoryClick() == isInventoryClick();
 	}
 
 	@Override

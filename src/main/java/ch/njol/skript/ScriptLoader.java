@@ -962,7 +962,7 @@ public class ScriptLoader {
 			if (!SkriptParser.validateLine(expr))
 				continue;
 
-			TriggerItem item;
+			TriggerItem item = null;
 			if (subNode instanceof SimpleNode) {
 				long start = System.currentTimeMillis();
 				item = Statement.parse(expr, items, "Can't understand this condition/effect: " + expr);
@@ -982,13 +982,13 @@ public class ScriptLoader {
 					Skript.debug(SkriptColor.replaceColorChar(parser.getIndentation() + item.toString(null, true)));
 
 				items.add(item);
-			} else if (subNode instanceof SectionNode) {
+			} else if (subNode instanceof SectionNode subSection) {
 				TypeHints.enterScope(); // Begin conditional type hints
 
 				RetainingLogHandler handler = SkriptLogger.startRetainingLog();
 				find_section:
 				try {
-					item = Section.parse(expr, "Can't understand this section: " + expr, (SectionNode) subNode, items);
+					item = Section.parse(expr, "Can't understand this section: " + expr, subSection, items);
 					if (item != null)
 						break find_section;
 
@@ -996,7 +996,7 @@ public class ScriptLoader {
 					RetainingLogHandler backup = handler.backup();
 					handler.clear();
 
-					item = Statement.parse(expr, "Can't understand this condition/effect: " + expr, (SectionNode) subNode, items);
+					item = Statement.parse(expr, "Can't understand this condition/effect: " + expr, subSection, items);
 
 					if (item != null)
 						break find_section;
@@ -1013,11 +1013,13 @@ public class ScriptLoader {
 					}
 					continue;
 				} finally {
+					RetainingLogHandler afterParse = handler.backup();
+					handler.clear();
 					handler.printLog();
+					if (item != null && (Skript.debug() || subNode.debug()))
+						Skript.debug(SkriptColor.replaceColorChar(parser.getIndentation() + item.toString(null, true)));
+					afterParse.printLog();
 				}
-
-				if (Skript.debug() || subNode.debug())
-					Skript.debug(SkriptColor.replaceColorChar(parser.getIndentation() + item.toString(null, true)));
 
 				items.add(item);
 
