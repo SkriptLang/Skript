@@ -135,8 +135,8 @@ test "operations effect literals error":
 test "operations effect expression errors":
 	parse:
 		multiply (the hunger level of (random element out of all players)) by 1 hour
-	assert last parse logs contains "This expression cannot be multiplied by a timespan." with "Hunger level should not be able to be multiplied by timespan"
+	assert last parse logs contains "'the food level of a random element of all entities of type player' cannot be multiplied by a time span." with "Hunger level should not be able to be multiplied by timespan"
 
 	parse:
 		divide all worlds by 2
-	assert last parse logs contains "This expression cannot be operated on." with "ExprWorlds should not have a 'SET' ChangeMode"
+	assert last parse logs contains "'worlds' cannot be set to anything and therefore cannot be divided." with "ExprWorlds should not have a 'SET' ChangeMode"

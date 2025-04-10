@@ -199,7 +199,7 @@ public class EffOperations extends Effect implements SyntaxRuntimeErrorProducer 
 
 	private void genericParseError(Expression<?> leftExpr, Class<?> rightType) {
 		Skript.error("'" + leftExpr + "' cannot be " + getOperatorName() + " by "
-			+ Classes.getSuperClassInfo(rightType).getName().withIndefiniteArticle());
+			+ Classes.getSuperClassInfo(rightType).getName().withIndefiniteArticle() + ".");
 	}
 
 	private void noOperationError(Expression<?> leftExpr, Class<?> leftType, Class<?> rightType) {
