@@ -2581,8 +2581,8 @@ equipment slots:
 
 # -- Villager Career Change Reasons
 villager career change reasons:
-	employed: employed, employment
-	losing_job: losing job, lost job
+	employed: employment
+	losing_job: losing job
 
 # -- Boolean --
 boolean:

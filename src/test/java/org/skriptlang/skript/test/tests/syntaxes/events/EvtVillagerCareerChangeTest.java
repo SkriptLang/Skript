@@ -18,6 +18,7 @@ public class EvtVillagerCareerChangeTest extends SkriptJUnitTest {
 	@Before
 	public void setup() {
 		villager = (Villager) getTestWorld().spawnEntity(getTestLocation(), EntityType.VILLAGER);
+		villager.setProfession(Profession.CLERIC);
 	}
 
 	@Test

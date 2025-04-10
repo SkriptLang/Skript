@@ -780,6 +780,8 @@ public final class BukkitEventValues {
 				return event.getProfession();
 			}
 		});
+		EventValues.registerEventValue(VillagerCareerChangeEvent.class, Villager.Profession.class,
+			event -> event.getEntity().getProfession(), TIME_PAST);
 
 	}
 

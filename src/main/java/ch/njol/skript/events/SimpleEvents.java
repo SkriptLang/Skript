@@ -779,8 +779,8 @@ public class SimpleEvents {
 			.examples("""
 				on villager career change:
 					if all:
-						event-career change reason is employed
-						event-villagerprofession is armorer profession
+						event-career change reason is employment
+						event-villager profession is armorer profession
 					then:
 						cancel event
 				""")
