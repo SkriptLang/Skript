@@ -37,20 +37,15 @@ public class PlayerElytraBoostEventTest extends SkriptJUnitTest {
 	@Test
 	public void test() {
 		Constructor<?> constructor = getConstructor(PlayerElytraBoostEvent.class, false, Player.class, ItemStack.class, Firework.class, EquipmentSlot.class);
-		boolean newerConstructor = false;
-		if (constructor != null) {
-			newerConstructor = true;
-		} else {
-			constructor = getConstructor(PlayerElytraBoostEvent.class, Player.class, ItemStack.class, Firework.class);
-		}
-
 		ItemStack rocket = new ItemStack(Material.FIREWORK_ROCKET);
 		Event event;
-		if (newerConstructor) {
+		if (constructor != null) {
 			event = constructInstance(constructor, player, rocket, firework, EquipmentSlot.HAND);
 		} else {
+			constructor = getConstructor(PlayerElytraBoostEvent.class, Player.class, ItemStack.class, Firework.class);
 			event = constructInstance(constructor, player, rocket, firework);
 		}
+
 		Bukkit.getPluginManager().callEvent(event);
 	}
 
