@@ -93,7 +93,7 @@ public abstract class SkriptJUnitTest {
 	 */
 	public static <E extends Entity> E spawnTestEntity(EntityType entityType) {
 		if (delay <= 0D)
-			delay = 1; // A single tick allows the piggy to spawn before server shutdown.
+			delay = 1; // A single tick allows the entity to spawn before server shutdown.
 		//noinspection unchecked
 		return (E) getTestWorld().spawnEntity(getTestLocation(), entityType);
 	}
@@ -170,24 +170,24 @@ public abstract class SkriptJUnitTest {
 	}
 
 	/**
-	 * Construct an instance from the provided {@link Constructor} using the provided {@link Object}s
+	 * Construct a new instance from the provided {@link Constructor} using the provided {@link Object}s
 	 * @param constructor The {@link Constructor} to construct
 	 * @param objects The {@link Object}s used to construct
 	 * @return The constructed instance or {@code null}
-	 * @throws IllegalStateException if unable to construct the {@link Constructor}
+	 * @throws IllegalStateException if unable to construct a new instance
 	 */
-	public static <E> E constructInstance(Constructor<?> constructor, @Nullable Object ... objects) {
-		return constructInstance(constructor, true, objects);
+	public static <E> E newInstance(Constructor<?> constructor, @Nullable Object ... objects) {
+		return newInstance(constructor, true, objects);
 	}
 
 	/**
-	 * Construct an instance from the provided {@link Constructor} using the provided {@link Object}s
+	 * Construct a new instance from the provided {@link Constructor} using the provided {@link Object}s
 	 * @param constructor The {@link Constructor} to construct
-	 * @param throwException Whether to throw an exception if unable to construct the {@link Constructor}
+	 * @param throwException Whether to throw an exception if unable to construct a new instance
 	 * @param objects The {@link Object}s used to construct
 	 * @return The constructed instance or {@code null}
 	 */
-	public static <E> @Nullable E constructInstance(Constructor<?> constructor, boolean throwException, @Nullable Object ... objects) {
+	public static <E> @Nullable E newInstance(Constructor<?> constructor, boolean throwException, @Nullable Object ... objects) {
 		try {
 			//noinspection unchecked
 			return (E) constructor.newInstance(objects);
