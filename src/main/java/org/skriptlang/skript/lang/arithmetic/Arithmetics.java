@@ -87,7 +87,7 @@ public final class Arithmetics {
 	@SuppressWarnings("unchecked")
 	public static <L, R, T> OperationInfo<L, R, T> getOperationInfo(Operator operator, Class<L> leftClass, Class<R> rightClass, Class<T> returnType) {
 		OperationInfo<L, R, ?> info =  getOperationInfo(operator, leftClass, rightClass);
-		if (info != null && (returnType.isAssignableFrom(info.getReturnType()) || info.getReturnType().isAssignableFrom(returnType)))
+		if (info != null && returnType.isAssignableFrom(info.getReturnType()))
 			return (OperationInfo<L, R, T>) info;
 		return null;
 	}
@@ -127,6 +127,23 @@ public final class Arithmetics {
 	public static <L, R, T> OperationInfo<L, R, T> lookupOperationInfo(Operator operator, Class<L> leftClass, Class<R> rightClass, Class<T> returnType) {
 		OperationInfo<L, R, ?> info = lookupOperationInfo(operator, leftClass, rightClass);
 		return info != null ? info.getConverted(leftClass, rightClass, returnType) : null;
+	}
+
+	public static <L, R> @Nullable OperationInfo<L, R, ?> lookupOperationInfo(
+		Operator operator,
+		Class<L> leftClass,
+		Class<R> rightClass,
+		Class<?> ... possibleReturnTypes
+	) {
+		OperationInfo<L, R, ?> info = lookupOperationInfo(operator, leftClass, rightClass);
+		if (info == null)
+			return null;
+		for (Class<?> returnType : possibleReturnTypes) {
+			OperationInfo<L, R, ?> convertedInfo = info.getConverted(leftClass, rightClass, returnType);
+			if (convertedInfo != null)
+				return convertedInfo;
+		}
+		return null;
 	}
 
 	@Nullable

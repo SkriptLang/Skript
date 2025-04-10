@@ -2,11 +2,13 @@ package ch.njol.skript.effects;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.Changer.ChangeMode;
+import ch.njol.skript.classes.Changer.ChangerUtils;
 import ch.njol.skript.config.Node;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
+import ch.njol.skript.expressions.arithmetic.ExprArithmetic;
 import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
@@ -14,7 +16,6 @@ import ch.njol.skript.lang.SyntaxStringBuilder;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.LiteralUtils;
 import ch.njol.skript.util.Patterns;
-import ch.njol.skript.util.Utils;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
@@ -24,7 +25,10 @@ import org.skriptlang.skript.lang.arithmetic.OperationInfo;
 import org.skriptlang.skript.lang.arithmetic.Operator;
 import org.skriptlang.skript.log.runtime.SyntaxRuntimeErrorProducer;
 
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
 
 @Name("Operations")
@@ -71,154 +75,115 @@ public class EffOperations extends Effect implements SyntaxRuntimeErrorProducer 
 	}
 
 	private Operator operator;
-	private Expression<?> base;
-	private Expression<?> operative;
+	private Expression<?> left;
+	private Class<?>[] leftAccepts;
+	private Expression<?> right;
 	private Node node;
 	private Operation<Object, Object, Object> operation = null;
+	private OperationInfo<?, ?, ?> operationInfo;
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		operator = PATTERNS.getInfo(matchedPattern);
-		base = exprs[0];
-		Class<?>[] baseAccepted = base.acceptChange(ChangeMode.SET);
-		if (baseAccepted == null) {
-			printError(true,null, null);
-			return false;
-		} else if (baseAccepted.length == 0) {
-			throw new IllegalStateException("An expression should never return an empty array for a ChangeMode of 'SET'.");
-		}
-		operative = LiteralUtils.defendExpression(exprs[1]);
 		node = getParser().getNode();
-		Class<?> operativeType = operative.getReturnType();
-		Class<?> baseType = base.getReturnType();
-		// Ensure 'baseType' is referencing a non-array class
-		if (baseType.isArray())
-			baseType = baseType.getComponentType();
-		if (baseType.equals(Object.class) && operativeType.equals(Object.class)) {
-			// Both are object, so we should check to see if '#getAllReturnTypes' contains a class
-			// that is accepted within 'baseAccepted'
+		left = exprs[0];
+		right = LiteralUtils.defendExpression(exprs[1]);
+
+		leftAccepts = left.acceptChange(ChangeMode.SET);
+		// Ensure 'left' is changeable
+		if (leftAccepts == null) {
+			Skript.error("'" + left + "' cannot be set to anything and therefore cannot be " + getOperatorName() + ".");
+			return false;
+		} else if (leftAccepts.length == 0) {
+			throw new IllegalStateException("An expression should never return an empty array for a ChangeMode of 'SET'");
+		}
+		// Ensure the accepted classes of 'left' are non-array classes
+		for (int i = 0; i < leftAccepts.length; i++) {
+			if (leftAccepts[i].isArray()) {
+				leftAccepts[i] = leftAccepts[i].getComponentType();
+			}
+		}
+
+		Class<?> leftType = left.getReturnType();
+		Class<?> rightType = right.getReturnType();
+
+		if (leftType.isArray())
+			leftType = leftType.getComponentType();
+
+		if (leftType.equals(Object.class) && rightType.equals(Object.class)) {
+			// 'left' and 'right' return 'Object.class' thus making operation checks non-applicable
+			// However, we can check to make sure any of the registered operations return types are applicable
+			// 		for 'left's acceptedClasses
 			Class<?>[] allReturnTypes = Arithmetics.getAllReturnTypes(operator).toArray(Class[]::new);
-			if (!isOfType(baseAccepted, allReturnTypes)) {
-				printError(true,null, null);
+			if (!ChangerUtils.acceptsChangeTypes(leftAccepts, allReturnTypes)) {
+				Skript.error(left + " cannot be " + getOperatorName() + ".");
 				return false;
 			}
-			return LiteralUtils.canInitSafely(operative);
-		} else if (baseType.equals(Object.class) || operativeType.equals(Object.class)) {
-			// One is 'Object', so we can at least see if the other has any operations registered
-			Class<?>[] returnTypes = null;
-			if (baseType.equals(Object.class)) {
+			return LiteralUtils.canInitSafely(right);
+		} else if (leftType.equals(Object.class) || rightType.equals(Object.class)) {
+			Class<?>[] returnTypes;
+			if (leftType.equals(Object.class)) {
 				returnTypes = Arithmetics.getOperations(operator).stream()
-					.filter(info -> info.getRight().isAssignableFrom(operativeType))
+					.filter(info -> info.getRight().isAssignableFrom(rightType))
 					.map(OperationInfo::getReturnType)
 					.toArray(Class[]::new);
-				if (returnTypes.length == 0) {
-					printError(true,null, operativeType);
-					return false;
-				}
 			} else {
-				returnTypes = Arithmetics.getOperations(operator, baseType).stream()
+				returnTypes = Arithmetics.getOperations(operator, leftType).stream()
 					.map(OperationInfo::getReturnType)
 					.toArray(Class[]::new);
-				if (returnTypes.length == 0) {
-					printError(true,null, null);
-					return false;
-				}
 			}
-			if (!isOfType(baseAccepted, returnTypes)) {
-				printError(true, null, null);
+
+			if (returnTypes.length == 0) {
+				noOperationError(left, leftType, rightType);
+				return false;
+			}
+			if (!ChangerUtils.acceptsChangeTypes(leftAccepts, returnTypes)) {
+				genericParseError(left, rightType);
 				return false;
 			}
 		} else {
-			// We've deduced that the return types from both 'base' and 'operative' are guaranteed not to be 'Object.class'
-			// We can check to see if an operation exists, if not, parse error
-			OperationInfo<Object, Object, Object> operationInfo = getOperationInfo(baseType, operativeType);
-			if (operationInfo == null) {
-				printError(true,null, operativeType);
+			operationInfo = Arithmetics.lookupOperationInfo(operator, leftType, rightType, leftAccepts);
+			if (operationInfo == null || !ChangerUtils.acceptsChangeTypes(leftAccepts, operationInfo.getReturnType())) {
+				genericParseError(left, rightType);
 				return false;
 			}
-			if (!isOfType(baseAccepted, operationInfo.getReturnType())) {
-				printError(true,null, operativeType);
-				return false;
-			}
-			operation = operationInfo.getOperation();
 		}
-		return LiteralUtils.canInitSafely(operative);
+		return LiteralUtils.canInitSafely(right);
 	}
 
 	@Override
 	protected void execute(Event event) {
-		Object operativeObject = operative.getSingle(event);
-		if (operativeObject == null)
+		Object rightObject = right.getSingle(event);
+		if (rightObject == null)
 			return;
-		// Ensure 'operativeType' is not 'Object.class' by using '#getReturnType' or the class of the object
-		Class<?> operativeType = operative.getReturnType().equals(Object.class) ? operativeObject.getClass() : operative.getReturnType();
-		Operation<Object, Object, Object> operation = this.operation;
-		Function<?, Object> changerFunction = null;
-		Class<?> baseType = base.getReturnType();
-		Class<?>[] baseAccepted = base.acceptChange(ChangeMode.SET);
-		assert baseAccepted != null;
-		// Convert array classes to singular, allowing for easier checks
-		if (baseType.isArray())
-			baseType = baseType.getComponentType();
-		// If 'base' is single or the '#getReturnType' returns a non 'Object.class' we can use the same operation
-		if (base.isSingle() || !baseType.equals(Object.class)) {
+
+		Class<?> rightType = rightObject.getClass();
+
+		Map<Class<?>, Operation<Object, Object, ?>> cachedOperations = new HashMap<>();
+		Set<Class<?>> invalidTypes = new HashSet<>();
+
+		Function<?, ?> changerFunction = (leftInput) -> {
+			Class<?> leftType = leftInput.getClass();
+			if (invalidTypes.contains(leftType)) {
+				printArithmeticError(leftType, rightType);
+				return leftInput;
+			}
+			Operation<Object, Object, ?> operation = cachedOperations.get(leftType);
 			if (operation == null) {
-				Object baseObject = base.getSingle(event);
-				if (baseObject == null)
-					return;
-				// If we reached here through 'base.isSingle()', need to ensure the class is not 'Object.class'
-				baseType = baseType.equals(Object.class) ? baseObject.getClass() : baseType;
-				OperationInfo<Object, Object, Object> operationInfo = getOperationInfo(baseType, operativeType);
-				if (operationInfo == null || !isOfType(baseAccepted, operationInfo.getReturnType())) {
-					printError(false, baseType, operativeType);
-					return;
+				//noinspection unchecked
+				OperationInfo<Object, Object, ?> operationInfo = (OperationInfo<Object, Object, ?>) Arithmetics.lookupOperationInfo(operator, leftType, rightType, leftAccepts);
+				if (operationInfo == null) {
+					printArithmeticError(leftType, rightType);
+					invalidTypes.add(leftType);
+					return leftInput;
 				}
 				operation = operationInfo.getOperation();
+				cachedOperations.put(leftType, operation);
 			}
-			Operation<Object, Object, Object> finalOperation = operation;
-			changerFunction = object -> finalOperation.calculate(object, operativeObject);
-		} else {
-			AtomicBoolean errorPrinted = new AtomicBoolean(false);
-			changerFunction = object -> {
-				OperationInfo<Object, Object, Object> operationInfo = getOperationInfo(object.getClass(), operativeType);
-				if (operationInfo != null) {
-					if (isOfType(baseAccepted, operationInfo.getReturnType())) {
-						return operationInfo.getOperation().calculate(object, operativeObject);
-					} else if (!errorPrinted.get()) {
-						errorPrinted.set(true);
-						printError(false, null, operativeType);
-					}
-				}
-				return object;
-			};
-		}
+			return operation.calculate(leftInput, rightObject);
+		};
 		//noinspection unchecked,rawtypes
-		base.changeInPlace(event, (Function) changerFunction);
-	}
-
-	private @Nullable OperationInfo<Object, Object, Object> getOperationInfo(Class<?> leftClass, Class<?> rightClass) {
-		//noinspection unchecked
-		return (OperationInfo<Object, Object, Object>) Arithmetics.lookupOperationInfo(operator, leftClass, rightClass);
-	}
-
-	private boolean isOfType(Class<?>[] acceptedTypes, Class<?>[] checkTypes) {
-		for (Class<?> check : checkTypes) {
-			if (isOfType(acceptedTypes, check)) {
-				return true;
-			}
-		}
-		return false;
-	}
-
-	private boolean isOfType(Class<?>[] acceptedTypes, Class<?> clazz) {
-		for (Class<?> type : acceptedTypes) {
-			if (type.isArray())
-				type = type.getComponentType();
-			if (type.equals(Object.class) || type.isAssignableFrom(clazz)) {
-				return true;
-			}
-		}
-		return false;
+		left.changeInPlace(event, (Function) changerFunction);
 	}
 
 	@Override
@@ -226,11 +191,27 @@ public class EffOperations extends Effect implements SyntaxRuntimeErrorProducer 
 		return node;
 	}
 
-	private String getCodeName(Class<?> clazz) {
-		return Classes.getSuperClassInfo(clazz).getCodeName();
+	private void printArithmeticError(Class<?> left, Class<?> right) {
+		String error = ExprArithmetic.getArithmeticErrorMessage(operator, left, right);
+		if (error != null)
+			error(error);
 	}
 
-	private String getOperatorString() {
+	private void genericParseError(Expression<?> leftExpr, Class<?> rightType) {
+		Skript.error("'" + leftExpr + "' cannot be " + getOperatorName() + " by "
+			+ Classes.getSuperClassInfo(rightType).getName().withIndefiniteArticle());
+	}
+
+	private void noOperationError(Expression<?> leftExpr, Class<?> leftType, Class<?> rightType) {
+		String error = ExprArithmetic.getArithmeticErrorMessage(operator, leftType, rightType);
+		if (error != null) {
+			Skript.error(error);
+		} else {
+			genericParseError(leftExpr, rightType);
+		}
+	}
+
+	private String getOperatorName() {
 		return switch (operator) {
 			case MULTIPLICATION -> "multiplied";
 			case DIVISION -> "divided";
@@ -239,39 +220,15 @@ public class EffOperations extends Effect implements SyntaxRuntimeErrorProducer 
 		};
 	}
 
-	private void printError(boolean parseError, @Nullable Class<?> baseClass, @Nullable Class<?> operativeClass) {
-		String message = "";
-		if (baseClass == null) {
-			if (operativeClass == null) {
-				message = "This expression cannot be operated on.";
-			} else {
-				message = "This expression cannot be " + getOperatorString() + " by "
-					+ Utils.a(getCodeName(operativeClass)) + ".";
-			}
-		} else {
-			if (operativeClass == null) {
-				message = Utils.A(getCodeName(baseClass)) + " cannot be " + getOperatorString() + ".";
-			} else {
-				message = Utils.A(getCodeName(baseClass)) + " cannot be " + getOperatorString() + " by "
-					+ Utils.a(getCodeName(operativeClass)) + ".";
-			}
-		}
-		if (parseError) {
-			Skript.error(message);
-		} else {
-			error(message);
-		}
-	}
-
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
 		SyntaxStringBuilder builder = new SyntaxStringBuilder(event, debug);
 		switch (operator) {
-			case MULTIPLICATION -> builder.append("multiply", base, "by");
-			case DIVISION -> builder.append("divide", base, "by");
-			case EXPONENTIATION -> builder.append("raise", base, "to the power of");
+			case MULTIPLICATION -> builder.append("multiply", left, "by");
+			case DIVISION -> builder.append("divide", left, "by");
+			case EXPONENTIATION -> builder.append("raise", left, "to the power of");
 		}
-		builder.append(operative);
+		builder.append(right);
 		return builder.toString();
 	}
 
