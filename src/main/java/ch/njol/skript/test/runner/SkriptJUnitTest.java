@@ -1,16 +1,15 @@
 package ch.njol.skript.test.runner;
 
-import org.bukkit.Bukkit;
-import org.bukkit.GameRule;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.World;
+import ch.njol.skript.Skript;
+import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Pig;
+import org.jetbrains.annotations.Nullable;
 
-import ch.njol.skript.Skript;
+import java.lang.reflect.Constructor;
+import java.util.Arrays;
 
 /**
  * Class that helps the JUnit test communicate with Skript.
@@ -84,9 +83,19 @@ public abstract class SkriptJUnitTest {
 	 * @return Pig that has been spawned.
 	 */
 	public static Pig spawnTestPig() {
+		return spawnTestEntity(EntityType.PIG);
+	}
+
+	/**
+	 * Spawns a test {@link Entity} from the provided {@code entityType}
+	 * @param entityType The desired {@link EntityType} to spawn
+	 * @return The spawned {@link Entity}
+	 */
+	public static <E extends Entity> E spawnTestEntity(EntityType entityType) {
 		if (delay <= 0D)
 			delay = 1; // A single tick allows the piggy to spawn before server shutdown.
-		return (Pig) getTestWorld().spawnEntity(getTestLocation(), EntityType.PIG);
+		//noinspection unchecked
+		return (E) getTestWorld().spawnEntity(getTestLocation(), entityType);
 	}
 
 	/**
@@ -130,6 +139,63 @@ public abstract class SkriptJUnitTest {
 	public static void clearJUnitTest() {
 		SkriptJUnitTest.currentJUnitTest = null;
 		setShutdownDelay(0);
+	}
+
+	/**
+	 * Get a {@link Constructor} of the provided {@code clazz} and the parameter types from {@code types}.
+	 * @param clazz The {@link Class} to get the constructor
+	 * @param types The {@link Class}es of the parameter types for the {@link Constructor}
+	 * @return The retrieved {@link Constructor} or {@code null}
+	 * @throws IllegalStateException if unable to get {@link Constructor}
+	 */
+	public static Constructor<?> getConstructor(Class<?> clazz, @Nullable Class<?> ... types) {
+		return getConstructor(clazz, true, types);
+	}
+
+	/**
+	 * Get a {@link Constructor} of the provided {@code clazz} and the parameter types from {@code types}
+	 * @param clazz The {@link Class} to get the constructor
+	 * @param throwException Whether to throw an exception if unable to get {@link Constructor}
+	 * @param types The {@link Class}es of the parameter types for the {@link Constructor}
+	 * @return The retrieved {@link Constructor} or {@code null}
+	 */
+	public static @Nullable Constructor<?> getConstructor(Class<?> clazz, boolean throwException, @Nullable Class<?> ... types) {
+		try {
+			return clazz.getConstructor(types);
+		} catch (NoSuchMethodException ignored) {}
+		if (!throwException)
+			return null;
+		throw new IllegalStateException("There is no constructor for the class '" + clazz.getName() + "'"
+			+ (types == null ? "" : " with the types: " + Arrays.toString(types)));
+	}
+
+	/**
+	 * Construct an instance from the provided {@link Constructor} using the provided {@link Object}s
+	 * @param constructor The {@link Constructor} to construct
+	 * @param objects The {@link Object}s used to construct
+	 * @return The constructed instance or {@code null}
+	 * @throws IllegalStateException if unable to construct the {@link Constructor}
+	 */
+	public static <E> E constructInstance(Constructor<?> constructor, @Nullable Object ... objects) {
+		return constructInstance(constructor, true, objects);
+	}
+
+	/**
+	 * Construct an instance from the provided {@link Constructor} using the provided {@link Object}s
+	 * @param constructor The {@link Constructor} to construct
+	 * @param throwException Whether to throw an exception if unable to construct the {@link Constructor}
+	 * @param objects The {@link Object}s used to construct
+	 * @return The constructed instance or {@code null}
+	 */
+	public static <E> @Nullable E constructInstance(Constructor<?> constructor, boolean throwException, @Nullable Object ... objects) {
+		try {
+			//noinspection unchecked
+			return (E) constructor.newInstance(objects);
+		} catch (Exception ignored) {}
+		if (!throwException)
+			return null;
+		throw new IllegalStateException("Unable to construct the provided constructor"
+			+ (objects == null ? "" : " using " + Arrays.toString(objects)));
 	}
 
 }
