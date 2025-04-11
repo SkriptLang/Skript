@@ -10,16 +10,19 @@ import ch.njol.skript.registrations.EventValues;
 import ch.njol.skript.util.Utils;
 import ch.njol.skript.util.slot.Slot;
 import com.destroystokyo.paper.event.player.PlayerArmorChangeEvent;
+import com.destroystokyo.paper.event.player.PlayerArmorChangeEvent.SlotType;
 import org.bukkit.event.Event;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.converter.Converter;
 
-import java.util.concurrent.CompletionException;
+import java.util.Map;
 
 public class EvtPlayerArmorChange extends SkriptEvent {
 
-	private static boolean BODY_SLOT_EXISTS;
+	private static final boolean BODY_SLOT_EXISTS = Skript.fieldExists(EquipmentSlot.class, "BODY");
+	private static Converter<PlayerArmorChangeEvent, EquipmentSlot> GET_SLOT;
 
 	static {
 		if (Skript.classExists("com.destroystokyo.paper.event.player.PlayerArmorChangeEvent")) {
@@ -36,22 +39,30 @@ public class EvtPlayerArmorChange extends SkriptEvent {
 				)
 				.since("2.5, 2.11 (equipment slots)");
 
-			EquipmentSlot bodySlot = null;
-			try {
-				bodySlot = EquipmentSlot.valueOf("BODY");
-			} catch (IllegalArgumentException | NoSuchFieldError | CompletionException ignored) {};
-			BODY_SLOT_EXISTS = bodySlot != null;
+			// get slot function is dependent on version. 1.21.4+ has a new method.
+			if (Skript.methodExists(PlayerArmorChangeEvent.class, "getSlot")) {
+				GET_SLOT = PlayerArmorChangeEvent::getSlot;
+			} else {
+				//noinspection deprecation
+				Map<SlotType, EquipmentSlot> slotTypeMap = Map.of(
+					Enum.valueOf(SlotType.class, "HEAD"), EquipmentSlot.HEAD,
+					Enum.valueOf(SlotType.class, "CHEST"), EquipmentSlot.CHEST,
+					Enum.valueOf(SlotType.class, "LEGS"), EquipmentSlot.LEGS,
+					Enum.valueOf(SlotType.class, "FEET"), EquipmentSlot.FEET);
+				GET_SLOT = event -> {
+					//noinspection deprecation
+					return slotTypeMap.get(event.getSlotType());
+				};
+			}
 
-			EventValues.registerEventValue(PlayerArmorChangeEvent.class, EquipmentSlot.class,
-				event -> switch (event.getSlotType()) {
-					case HEAD -> EquipmentSlot.HEAD;
-					case CHEST -> EquipmentSlot.CHEST;
-					case LEGS -> EquipmentSlot.LEGS;
-					case FEET -> EquipmentSlot.FEET;
-				});
-			EventValues.registerEventValue(PlayerArmorChangeEvent.class, ItemStack.class, PlayerArmorChangeEvent::getOldItem, EventValues.TIME_PAST);
-			EventValues.registerEventValue(PlayerArmorChangeEvent.class, ItemStack.class, PlayerArmorChangeEvent::getNewItem, EventValues.TIME_FUTURE);
-			EventValues.registerEventValue(PlayerArmorChangeEvent.class, Slot.class, event -> new ch.njol.skript.util.slot.EquipmentSlot(event.getPlayer().getEquipment(), event.getSlot()));
+			// Register event values
+			EventValues.registerEventValue(PlayerArmorChangeEvent.class, EquipmentSlot.class, GET_SLOT);
+			EventValues.registerEventValue(PlayerArmorChangeEvent.class, ItemStack.class,
+					PlayerArmorChangeEvent::getOldItem, EventValues.TIME_PAST);
+			EventValues.registerEventValue(PlayerArmorChangeEvent.class, ItemStack.class,
+					PlayerArmorChangeEvent::getNewItem, EventValues.TIME_FUTURE);
+			EventValues.registerEventValue(PlayerArmorChangeEvent.class, Slot.class,
+					event -> new ch.njol.skript.util.slot.EquipmentSlot(event.getPlayer().getEquipment(), event.getSlot()));
 		}
 	}
 
@@ -76,13 +87,7 @@ public class EvtPlayerArmorChange extends SkriptEvent {
 		PlayerArmorChangeEvent changeEvent = (PlayerArmorChangeEvent) event;
 		if (slot == null)
 			return true;
-		EquipmentSlot changedSlot = switch (changeEvent.getSlotType()) {
-			case HEAD -> EquipmentSlot.HEAD;
-			case CHEST -> EquipmentSlot.CHEST;
-			case LEGS -> EquipmentSlot.LEGS;
-			case FEET -> EquipmentSlot.FEET;
-		};
-		return slot == changedSlot;
+		return slot == GET_SLOT.convert(changeEvent);
 	}
 
 	@Override
