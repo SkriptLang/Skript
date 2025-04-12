@@ -11,6 +11,7 @@ import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -33,14 +34,17 @@ public class SkriptCommandTabCompleter implements TabCompleter {
 			String scriptsPathString = scripts.toPath().toString();
 			int scriptsPathLength = scriptsPathString.length();
 
-			String scriptArg = args[args.length - 1];
+			String lastArg = args[args.length - 1];
 			String fs = File.separator;
 
 			boolean enable = args[0].equalsIgnoreCase("enable");
 
 			// Live update, this will get all old and new (even not loaded) scripts
 			// TODO Find a better way for caching, it isn't exactly ideal to be calling this method constantly
-			if (args.length == 2 || !args[1].matches("(?i)(all|scripts|aliases|config)")) {
+			if (args.length == 2 || !args[1].matches("(?i)(all|scripts|aliases|config|lastReloaded)")) {
+				String[] filteredArgs = Arrays.copyOfRange(args, 1, args.length);
+				List<String> separatedArgs = SkriptCommand.separateCommaArguments(true, false, filteredArgs);
+				String currentScript = !separatedArgs.isEmpty() ? separatedArgs.get(0) : "";
 				try (Stream<Path> files = Files.walk(scripts.toPath())) {
 					files.map(Path::toFile)
 						.forEach(file -> {
@@ -51,7 +55,7 @@ public class SkriptCommandTabCompleter implements TabCompleter {
 							if (file.isHidden())
 								return;
 
-							if (!enable && SkriptCommand.scriptIsDisabled(file))
+							if (!enable && SkriptCommand.isScriptDisabled(file))
 								return;
 
 							String fileString = file.toString().substring(scriptsPathLength);
@@ -67,27 +71,36 @@ public class SkriptCommandTabCompleter implements TabCompleter {
 							}
 
 							// Make sure the user's argument matches with the file's name or beginning of file path
-							if (scriptArg.length() > 0 && !file.getName().startsWith(scriptArg) && !fileString.startsWith(scriptArg))
+							if (!currentScript.isEmpty() && !file.getName().startsWith(currentScript) && !fileString.startsWith(currentScript))
 								return;
 
 							// Trim off previous arguments if needed
-							if (args.length > 2 && fileString.length() >= scriptArg.length())
-								fileString = fileString.substring(scriptArg.lastIndexOf(" ") + 1);
+							if (args.length > 2 && fileString.length() >= currentScript.length())
+								fileString = fileString.substring(currentScript.lastIndexOf(" ") + 1);
 
 							// Just in case
 							if (fileString.isEmpty())
 								return;
 
-							// If we provide a directory, then there's no reason to keep providing scripts within the directory
-							if (args[0].equalsIgnoreCase("reload") && args.length > 2) {
-								for (int i = 1; i < args.length - 1; i++) {
-									if (fileString.contains(args[i]))
+							// Need to remove files that are already listed or included in a directory
+							if (args[0].matches("(?i)(reload|disable|test)") && args.length > 2 && !separatedArgs.isEmpty()) {
+								for (String current : separatedArgs) {
+									if (
+										(current.endsWith("\\") && fileString.contains(current))
+										|| fileString.equals(current)
+										|| (!current.endsWith(".sk") && fileString.equals(current + ".sk"))
+									) {
 										return;
+									}
 								}
 							}
 
+							fileString += ",";
 							options.add(fileString);
 						});
+					if (lastArg.isEmpty() && options.isEmpty()) {
+						options.add(",");
+					}
 				} catch (Exception e) {
 					//noinspection ThrowableNotThrown
 					Skript.exception(e, "An error occurred while trying to update the list of disabled scripts!");

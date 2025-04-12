@@ -1,5 +1,6 @@
 package ch.njol.skript;
 
+import ch.njol.skript.ScriptLoader.ScriptInfo;
 import ch.njol.skript.aliases.Aliases;
 import ch.njol.skript.command.CommandHelp;
 import ch.njol.skript.doc.Documentation;
@@ -37,6 +38,9 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.util.*;
 import java.util.Map.Entry;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 
@@ -187,6 +191,9 @@ public class SkriptCommand implements CommandExecutor {
 					}
 
 					List<File> scripts = new ArrayList<>();
+					List<String> scriptNames = new ArrayList<>();
+					int scriptsReloading = 0;
+					int directoriesReloading = 0;
 
 					for (File scriptFile : scriptFiles) {
 						if (ScriptLoader.getDisabledScriptsFilter().accept(scriptFile)) {
@@ -199,36 +206,45 @@ public class SkriptCommand implements CommandExecutor {
 								if (script != null)
 									ScriptLoader.unloadScript(script);
 								scripts.add(scriptFile);
+								scriptsReloading += 1;
+								scriptNames.add(scriptFile.getName());
 							}
 						} else {
 							ScriptLoader.unloadScripts(ScriptLoader.getScripts(scriptFile));
 							scripts.add(scriptFile);
+							directoriesReloading += 1;
+							scriptNames.add(scriptFile.getName());
 						}
 					}
 
-					for (File scriptFile : scriptFiles) {
-						if (!scriptFile.isDirectory()) {
-							reloading(sender, "script", logHandler, scriptFile.getName());
-							ScriptLoader.loadScripts(scriptFile, OpenCloseable.combine(logHandler, timingLogHandler))
-								.thenAccept(scriptInfo ->
-									reloaded(sender, logHandler, timingLogHandler, "script", scriptFile.getName())
-								);
-						} else {
-							String fileName = scriptFile.getName();
-							reloading(sender, "scripts in folder", logHandler, fileName);
-							ScriptLoader.loadScripts(scriptFile, OpenCloseable.combine(logHandler, timingLogHandler))
-								.thenAccept(scriptInfo -> {
-									if (scriptInfo.files == 0) {
-										info(sender, "reload.empty folder", fileName);
+					if (scriptsReloading > 1 || directoriesReloading > 1) {
+						String combinedNames = StringUtils.join(scriptNames.toArray(String[]::new), ", ");
+						reloading(sender, "files", logHandler, combinedNames);
+						reloadScriptFiles(sender, scriptFiles, logHandler, timingLogHandler, null, null);
+						reloaded(sender, logHandler, timingLogHandler, "files", combinedNames);
+					} else if (scriptsReloading == 1) {
+						File scriptFile = scriptFiles[0];
+						reloading(sender, "script", logHandler, scriptFile.getName());
+						ScriptLoader.loadScripts(scriptFile, OpenCloseable.combine(logHandler, timingLogHandler))
+							.thenAccept(scriptInfo ->
+								reloaded(sender, logHandler, timingLogHandler, "script", scriptFile.getName())
+							);
+					} else if (directoriesReloading == 1) {
+						File scriptFile = scriptFiles[0];
+						String fileName = scriptFile.getName();
+						reloading(sender, "scripts in folder", logHandler, fileName);
+						ScriptLoader.loadScripts(scriptFile, OpenCloseable.combine(logHandler, timingLogHandler))
+							.thenAccept(scriptInfo -> {
+								if (scriptInfo.files == 0) {
+									info(sender, "reload.empty folder", fileName);
+								} else {
+									if (logHandler.numErrors() == 0) {
+										reloaded(sender, logHandler, timingLogHandler, "x scripts in folder success", fileName, scriptInfo.files);
 									} else {
-										if (logHandler.numErrors() == 0) {
-											reloaded(sender, logHandler, timingLogHandler, "x scripts in folder success", fileName, scriptInfo.files);
-										} else {
-											reloaded(sender, logHandler, timingLogHandler, "x scripts in folder error", fileName, scriptInfo.files);
-										}
+										reloaded(sender, logHandler, timingLogHandler, "x scripts in folder error", fileName, scriptInfo.files);
 									}
-								});
-						}
+								}
+							});
 					}
 				}
 
@@ -515,6 +531,45 @@ public class SkriptCommand implements CommandExecutor {
 		return true;
 	}
 
+	private static void reloadScriptFiles(
+		CommandSender sender,
+		File[] scriptFiles,
+		RedirectingLogHandler logHandler,
+		TimingLogHandler timingLogHandler,
+		@Nullable Consumer<ScriptInfo> scriptConsumer,
+		@Nullable BiConsumer<ScriptInfo, String> directoryConsumer
+	) {
+		AtomicInteger lastErrors = new AtomicInteger();
+		OpenCloseable combined = OpenCloseable.combine(logHandler, timingLogHandler);
+		for (File scriptFile : scriptFiles) {
+			if (!scriptFile.isDirectory()) {
+				ScriptLoader.loadScripts(scriptFile, combined)
+					.thenAccept(scriptInfo -> {
+						if (scriptConsumer != null)
+							scriptConsumer.accept(scriptInfo);
+					});
+			} else {
+				String fileName = scriptFile.getName();
+				ScriptLoader.loadScripts(scriptFile, combined)
+					.thenAccept(scriptInfo -> {
+						if (scriptInfo.files == 0) {
+							info(sender, "reload.empty folder", fileName);
+						} else {
+							int currentErrors = logHandler.numErrors();
+							if (currentErrors > 0 && currentErrors > lastErrors.get()) {
+								lastErrors.set(currentErrors);
+								info(sender, "x scripts in folder error", fileName,  scriptInfo.files);
+							} else {
+								info(sender, "x scripts in folder success", fileName, scriptInfo.files);
+							}
+						}
+						if (directoryConsumer != null)
+							directoryConsumer.accept(scriptInfo, fileName);
+					});
+			}
+		}
+	}
+
 	private static final ArgsMessage m_invalid_script = new ArgsMessage(CONFIG_NODE + ".invalid script");
 	private static final ArgsMessage m_invalid_folder = new ArgsMessage(CONFIG_NODE + ".invalid folder");
 
@@ -546,37 +601,17 @@ public class SkriptCommand implements CommandExecutor {
 			filtered.add(args[i]);
 		}
 		Map<String, File> scripts = new HashMap<>();
-		for (int i = 0; i < filtered.size(); i++) {
-			String current = filtered.get(i);
-			File thisScript = getScriptFromArg(sender, current, directoryFile);
-			// If the script was found just from one argument then we add it
-			if (thisScript != null) {
-				scripts.put(current, thisScript);
+		for (String currentScript : separateCommaArguments(false, true, filtered.toArray(String[]::new))) {
+			File thisScript = getScriptFromArg(sender, currentScript, directoryFile);
+			if (thisScript == null) {
+				// Always allow '/' and '\' regardless of OS
+				boolean directory = currentScript.endsWith("/") || currentScript.endsWith("\\") || currentScript.endsWith(File.separator);
+				Skript.error(sender, (directory ? m_invalid_folder : m_invalid_script).toString(currentScript));
 				continue;
-			} else {
-				String original = current;
-				boolean found = false;
-				// Now we check the following arguments because of spaces
-				// Example: current = "\examples\chest" ; additional = "menus.sk"
-				for (int i2 = i + 1; i2 < filtered.size(); i2++) {
-					String additional = filtered.get(i2);
-					current = current + " " + additional;
-					File check = getScriptFromArg(sender, current, directoryFile);
-					if (check != null) {
-						scripts.put(current, check);
-						found = true;
-						i += i2 - i;
-						break;
-					}
-				}
-				// If we couldn't find anything, we can assume this argument only was invalid
-				if (!found) {
-					// Always allow '/' and '\' regardless of OS
-					boolean directory = original.endsWith("/") || original.endsWith("\\") || original.endsWith(File.separator);
-					Skript.error(sender, (directory ? m_invalid_folder : m_invalid_script).toString(original));
-				}
 			}
+			scripts.put(currentScript, thisScript);
 		}
+
 		Map<String, File> filteredScripts = new HashMap<>();
 		Set<Entry<String, File>> entries = scripts.entrySet();
 		// Now we check to see if any of the files found is already set to be loaded if the directory was also provided
@@ -592,7 +627,7 @@ public class SkriptCommand implements CommandExecutor {
 				}
 			}
 			if (add && !filteredScripts.containsKey(entry.getKey())) {
-				boolean isDisabled = scriptIsDisabled(entry.getKey());
+				boolean isDisabled = isScriptDisabled(entry.getKey());
 				// If we're enabling and this script is disabled, we can add it
 				// If we're disabling and this script is enabled, we can add it
 				if (enable == isDisabled)
@@ -602,7 +637,23 @@ public class SkriptCommand implements CommandExecutor {
 		return filteredScripts.values().toArray(File[]::new);
 	}
 
-	public static boolean scriptIsDisabled(String path) {
+	/**
+	 * Checks if the provided {@link File} is disabled by checking if the file and the directory parents
+	 * are disabled via the prefix '-'
+	 * @param file
+	 * @return {@code true} if disabled
+	 */
+	public static boolean isScriptDisabled(File file) {
+		return isScriptDisabled(file.getPath());
+	}
+
+	/**
+	 * Checks if the provided {@code path} from a file is disabled by checking if the file and the directory parents
+	 * are disabled via the prefix '-'
+	 * @param path
+	 * @return {@code true} if disabled
+	 */
+	public static boolean isScriptDisabled(String path) {
 		String[] split = path.split("\\\\");
 		for (String segment : split) {
 			if (segment.startsWith("-"))
@@ -611,8 +662,51 @@ public class SkriptCommand implements CommandExecutor {
 		return false;
 	}
 
-	public static boolean scriptIsDisabled(File file) {
-		return scriptIsDisabled(file.getPath());
+	public static List<String> separateCommaArguments(boolean reverse, boolean excludeEmptyArgs, String ... strings) {
+		List<String> result = new ArrayList<>();
+
+		String currentArgument = "";
+		String nextArgument = "";
+		boolean separate = false;
+		for (int i = 0; i < strings.length; i++) {
+			String arg = strings[i];
+			if (arg.equals(",")) {
+				separate = true;
+			} else if (arg.endsWith(",")) {
+				separate = true;
+				if (!currentArgument.isEmpty())
+					currentArgument += " ";
+				currentArgument += arg.substring(0, arg.length() - 1);
+			} else if (arg.startsWith(",")) {
+				separate = true;
+				nextArgument = arg.substring(1);
+			} else if (i < strings.length - 1) {
+				if (currentArgument.isEmpty()) {
+					currentArgument += arg;
+				} else if (!arg.isEmpty()) {
+					currentArgument +=  " " + arg;
+				}
+			} else {
+				separate = true;
+				if (!currentArgument.isEmpty())
+					currentArgument += " ";
+				currentArgument += arg;
+			}
+
+			if (separate) {
+				separate = false;
+				if (!excludeEmptyArgs || !currentArgument.isEmpty())
+					result.add(currentArgument);
+				currentArgument = !nextArgument.isEmpty() ? nextArgument : "";
+				nextArgument = "";
+			}
+		}
+		if (!currentArgument.isEmpty())
+			result.add(currentArgument);
+
+		if (reverse)
+			Collections.reverse(result);
+		return result;
 	}
 
 	private static @Nullable File getScriptFromArg(CommandSender sender, String arg, File directoryFile) {
@@ -621,7 +715,7 @@ public class SkriptCommand implements CommandExecutor {
 
 	private static @Nullable File getScriptFromArgs(CommandSender sender, String[] args, File directoryFile) {
 		String script = StringUtils.join(args, " ", 1, args.length);
-        return ScriptLoader.getScriptFromName(script, directoryFile);
+		return ScriptLoader.getScriptFromName(script, directoryFile);
 	}
 
 	/**
@@ -648,7 +742,7 @@ public class SkriptCommand implements CommandExecutor {
 	}
 
 	private static Set<File> toggleFiles(File folder, boolean enable, boolean change) throws IOException {
-		return toggleFiles(folder, enable, change, scriptIsDisabled(folder));
+		return toggleFiles(folder, enable, change, isScriptDisabled(folder));
 	}
 
 	private static Set<File> toggleFiles(File folder, boolean enable, boolean change, boolean previouslyDisabled) throws IOException {
@@ -656,12 +750,12 @@ public class SkriptCommand implements CommandExecutor {
 		for (File file : folder.listFiles()) {
 			if (file.isDirectory()) {
 				File subFolder = file;
-				boolean isDisabled = scriptIsDisabled(file);
+				boolean isDisabled = isScriptDisabled(file);
 				if (enable == isDisabled && change)
 					subFolder = toggleFile(file, enable);
 				files.addAll(toggleFiles(subFolder, enable, change, isDisabled || previouslyDisabled));
 			} else {
-				boolean isDisabled = scriptIsDisabled(file);
+				boolean isDisabled = isScriptDisabled(file);
 				// If we're enabling and this script is disabled, we don't want it to be parsed
 				if (enable == isDisabled) {
 					// Unless we are enabling 'all' in which we update it

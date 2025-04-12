@@ -69,7 +69,6 @@ skript command:
 		scripts in folder: alle scripts in <gold>%s<reset>
 		x scripts in folder: <gold>%2$s <lime>script¦¦s¦ in <gold>%1$s<reset>
 		empty folder: <gold>%s<reset> bevat geen ingeschakelde scripts.
-		no previous reload: <light red>Er zijn geen scripts die eerder opnieuw zijn geladen.<reset>
 	enable:
 		all:
 			enabling: Alle uitgeschakelde scripts worden ingeschakeld...

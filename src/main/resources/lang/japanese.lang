@@ -70,7 +70,6 @@ skript command:
 		x scripts in folder success: <gold>%1$s<lime>フォルダ内の<gold>%2$s<reset>個のスクリプト
 		x scripts in folder error: <gold>%1$s<light red>フォルダ内の<gold>%2$s<reset>個のスクリプト
 		empty folder: 有効化されたスクリプトが<gold>%s<reset>フォルダ内にありませんでした。
-		no previous reload: <light red>以前にリロードされたスクリプトはありません。<reset>
 	enable:
 		all:
 			enabling: 無効化された全てのスクリプトを有効化しています...

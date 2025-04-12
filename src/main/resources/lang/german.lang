@@ -70,7 +70,6 @@ skript command:
 		x scripts in folder success: <gold>%2$s <lime>Skript¦¦e¦ in <gold>%1$s<reset>
 		x scripts in folder error: <gold>%2$s <light red>Skript¦¦e¦ in <gold>%1$s<reset>
 		empty folder: <gold>%s<reset> enthält keine aktivierten Skripte.
-		no previous reload: <light red>Bisher wurden keine Skripte neu geladen.<reset>
 	enable:
 		all:
 			enabling: Aktiviere alle deaktivierten Skripte...

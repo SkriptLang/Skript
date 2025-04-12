@@ -68,7 +68,6 @@ skript command:
 		x scripts in folder success: <gold>%1$s<reset> klasöründeki <gold>%2$s <lime>script
 		x scripts in folder error: <gold>%1$s<reset> klasöründeki <gold>%2$s <light red>script
 		empty folder: <gold>%s<reset> aktif script içermiyor.
-		no previous reload: <light red>Daha önce hiçbir komut dosyası yeniden yüklenmedi.<reset>
 	enable:
 		all:
 			enabling: Tüm script'ler aktif ediliyor...
