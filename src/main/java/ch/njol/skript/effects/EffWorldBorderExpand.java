@@ -29,7 +29,7 @@ import org.skriptlang.skript.log.runtime.SyntaxRuntimeErrorProducer;
 	"expand world border of player by 100 in 5 seconds",
 	"shrink world border of world \"world\" to 100 in 10 seconds"
 })
-@Since("INSERT VERSION")
+@Since("2.11")
 public class EffWorldBorderExpand extends Effect implements SyntaxRuntimeErrorProducer {
 
 	static {

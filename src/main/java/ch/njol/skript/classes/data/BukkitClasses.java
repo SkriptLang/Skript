@@ -855,7 +855,7 @@ public class BukkitClasses {
 				.since("1.0"));
 
 		Classes.registerClass(new ClassInfo<>(ItemStack.class, "itemstack")
-				.user("items?")
+				.user("items?", "item ?stacks?")
 				.name("Item")
 				.description("An item, e.g. a stack of torches, a furnace, or a wooden sword of sharpness 2. " +
 								"Unlike <a href='#itemtype'>item type</a> an item can only represent exactly one item (e.g. an upside-down cobblestone stair facing west), " +
@@ -1480,7 +1480,7 @@ public class BukkitClasses {
 			.user("world ?borders?")
 			.name("World Border")
 			.description("Represents the border of a world or player.")
-			.since("INSERT VERSION")
+			.since("2.11")
 			.parser(new Parser<WorldBorder>() {
 				@Override
 				public boolean canParse(ParseContext context) {
@@ -1548,6 +1548,14 @@ public class BukkitClasses {
 			.description("Represents a vehicle.")
 			.since("2.10.2")
 			.changer(DefaultChangers.entityChanger)
+		);
+
+
+		Classes.registerClass(new EnumClassInfo<>(EquipmentSlot.class, "equipmentslot", "equipment slots")
+			.user("equipment ?slots?")
+			.name("Equipment Slot")
+			.description("Represents an equipment slot of an entity.")
+			.since("2.11")
 		);
 
 	}
