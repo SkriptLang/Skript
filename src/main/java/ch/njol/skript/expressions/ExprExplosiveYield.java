@@ -27,7 +27,7 @@ import java.util.function.Supplier;
 		"\tset the explosive yield of the event-entity to 10"
 })
 @RequiredPlugins("Paper (ghasts)")
-@Since("2.5, INSERT VERSION (ghasts)")
+@Since("2.5, 2.11 (ghasts)")
 public class ExprExplosiveYield extends SimplePropertyExpression<Entity, Number> {
 
 	private static final boolean SUPPORTS_GHASTS = Skript.methodExists(Ghast.class, "getExplosionPower");

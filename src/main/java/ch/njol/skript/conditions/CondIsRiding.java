@@ -25,7 +25,7 @@ import ch.njol.util.Kleenean;
 	"if player is riding a saddled pig:",
 	"if player is riding last spawned horse:"
 })
-@Since("2.0, INSERT VERSION (entities)")
+@Since("2.0, 2.11 (entities)")
 public class CondIsRiding extends Condition {
 	
 	static {

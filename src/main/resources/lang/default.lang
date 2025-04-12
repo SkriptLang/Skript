@@ -759,7 +759,7 @@ entities:
 		pattern: <age> [unemployed] villager(|1¦s)|(4¦)[[unemployed] villager] (kid(|1¦s)|child(|1¦ren))
 	armorer:
 		name: armorer¦s
-		pattern: <age> armorer(|1¦s)|(4¦)armorer (kid(|1¦s)|child(|1¦ren))
+		pattern: <age> armo[u]rer(|1¦s)|(4¦)armo[u]rer (kid(|1¦s)|child(|1¦ren))
 	cartographer:
 		name: cartographer¦s
 		pattern: <age> cartographer(|1¦s)|(4¦)cartographer (kid(|1¦s)|child(|1¦ren))
@@ -947,7 +947,7 @@ entities:
 		pattern: fish[ ]hook(|1¦s)
 	armor stand:
 		name: armor stand¦s
-		pattern: armor stand(|1¦s)
+		pattern: armo[u]r stand(|1¦s)
 	endermite:
 		name: endermite¦s
 		pattern: endermite(|1¦s)
@@ -998,7 +998,7 @@ entities:
 		pattern: <age> zombie nitwit(|1¦s)
 	zombie armorer:
 		name: zombie armorer¦s
-		pattern: <age> zombie armorer(|1¦s)
+		pattern: <age> zombie armo[u]rer(|1¦s)
 	zombie cartographer:
 		name: zombie cartographer¦s
 		pattern: <age> zombie cartographer(|1¦s)
@@ -1502,7 +1502,7 @@ visual effects:
 			pattern: shield break
 		armor_stand_hit:
 			name: armor stand hit @a
-			pattern: armor stand hit
+			pattern: armo[u]r stand hit
 		thorns_hurt:
 			name: hurt by thorns @-
 			pattern: (hurt|damage) by thorns
@@ -2085,6 +2085,12 @@ inventory actions:
 	clone_stack: clone stack
 	collect_to_cursor: collect to cursor, collect items to cursor
 	unknown: unknown, unsupported, custom
+	pickup_from_bundle: pickup from bundle, pickup items from bundle
+	pickup_all_into_bundle: pickup all into bundle, pickup all items into bundle
+	pickup_some_into_bundle: pickup some into bundle, pickup some items into bundle
+	place_from_bundle: place from bundle, place items from bundle
+	place_all_into_bundle: place all into bundle, place all items into bundle
+	place_some_into_bundle: place some into bundle, place some items into bundle
 
 # -- Inventory Click Types --
 click types:
@@ -2131,8 +2137,8 @@ inventory types:
 	stonecutter: stonecutter inventory @a
 	smithing: smithing inventory @a
 	composter: composter inventory @a
-	chiseled_bookshelf: chiseled bookshelf @a, bookshelf @a
-	decorated_pot: decorated pot @a
+	chiseled_bookshelf: chiseled bookshelf inventory @a, bookshelf inventory @a
+	decorated_pot: decorated pot inventory @a
 	crafter: crafter inventory @a
 
 	jukebox: jukebox @a
@@ -2144,6 +2150,7 @@ spawn reasons:
 	bed: bed
 	beehive: beehive
 	breeding: breed, breeding
+	bucket: release from bucket # 'bucket' alone is problematic
 	build_irongolem: built iron golem, build iron golem
 	build_snowman: built snowman, build snowman
 	build_wither: built wither, build wither
@@ -2239,8 +2246,8 @@ genes:
 # -- Attribute Types --
 attribute types:
 	# Enum variation
-	generic_armor: generic armor, armor
-	generic_armor_toughness: generic armor toughness, armor toughness
+	generic_armor: generic armor, armor, generic armour, armour
+	generic_armor_toughness: generic armor toughness, armor toughness, generic armour toughness, armour toughness
 	generic_attack_damage: generic attack damage, attack damage
 	generic_attack_knockback: generic attack knockback, attack knockback
 	generic_attack_speed: generic attack speed, attack speed
@@ -2272,8 +2279,8 @@ attribute types:
 	player_sweeping_damage_ratio: player sweeping damage ratio, sweeping damage ratio
 	zombie_spawn_reinforcements: zombie spawn reinforcements
 	# Registry variation (minecraft keys)
-	generic.armor: generic armor, armor
-	generic.armor_toughness: generic armor toughness, armor toughness
+	generic.armor: generic armor, armor, generic armour, armour
+	generic.armor_toughness: generic armor toughness, armor toughness, generic armour toughness, armour toughness
 	generic.attack_damage: generic attack damage, attack damage
 	generic.attack_knockback: generic attack knockback, attack knockback
 	generic.attack_speed: generic attack speed, attack speed
@@ -2305,8 +2312,8 @@ attribute types:
 	player.sweeping_damage_ratio: player sweeping damage ratio, sweeping damage ratio
 	zombie.spawn_reinforcements: zombie spawn reinforcements
 	# 1.21.3 removes prefixes, adds tempt range
-	armor: generic armor, armor
-	armor_toughness: generic armor toughness, armor toughness
+	armor: generic armor, armor, generic armour, armour
+	armor_toughness: generic armor toughness, armor toughness, generic armour toughness, armour toughness
 	attack_damage: generic attack damage, attack damage
 	attack_knockback: generic attack knockback, attack knockback
 	attack_speed: generic attack speed, attack speed
@@ -2427,7 +2434,7 @@ unleash reasons:
 # -- Item Flags --
 item flags:
 	hide_additional_tooltip: hide additional tooltip, additional tooltip hidden, hidden additional tooltip
-	hide_armor_trim: hide armor trim, armor trim hidden, hidden armor trim
+	hide_armor_trim: hide armor trim, armor trim hidden, hidden armor trim, hide armour trim, armour trim hidden, hidden armour trim
 	hide_attributes: hide attributes, attributes hidden, hidden attributes
 	hide_destroys: hide destroys, hide destroyable blocks, hide breakable blocks, destroys hidden, hidden destroys
 	hide_dye: hide dye, hide dye color, dye hidden, dye color hidden, hidden dye, hidden dye color
@@ -2485,7 +2492,7 @@ villager professions:
 	cleric: cleric, cleric profession
 	nitwit: nitwit, nitwit profession
 	cartographer: cartographer, cartographer profession
-	armorer: armorer, armorer profession
+	armorer: armorer, armorer profession, armourer, armourer profession
 	butcher: butcher, butcher profession
 	none: no profession, none profession, unemployed
 	fisherman: fisherman, fisherman profession
@@ -2557,6 +2564,27 @@ input keys:
 	jump: jump key, jumping key
 	sneak: sneak key, sneaking key
 	sprint: sprint key, sprinting key
+
+# -- Fishing States --
+fishing states:
+	fishing: fishing line cast, rod cast, fishing rod cast, fishing
+	caught_fish: fish caught, caught fish
+	caught_entity: entity caught, caught entity
+	in_ground: bobber in ground, in ground
+	failed_attempt: fish escape, fish escaped, failed attempt
+	reel_in: reel in
+	bite: bite, fish bite
+	lured: lured, fish lured
+
+# -- Equipment Slots --
+equipment slots:
+	head: helmet slot, head slot, helmet
+	chest: chestplate slot, chest slot, chestplate
+	legs: leggings slot, legs slot, leggings
+	feet: feet slot, boots slot, boots
+	hand: tool slot, hand slot, main hand slot, main hand
+	off_hand: off hand slot, off hand
+	body: body slot, body armor slot, body armour slot
 
 # -- Boolean --
 boolean:
@@ -2659,6 +2687,9 @@ types:
 	bannerpatterntype: banner pattern type¦s @a
 	bannerpattern: banner pattern¦s @a
 	vehicle: vehicle¦s @a
+	fishingstate: fishing state¦s @a
+	equipmentslot: equipment slot¦s @an
+
 
 	# Skript
 	weathertype: weather type¦s @a

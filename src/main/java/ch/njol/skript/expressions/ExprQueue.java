@@ -5,6 +5,7 @@ import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
+import org.skriptlang.skript.lang.experiment.ExperimentalSyntax;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
@@ -14,6 +15,7 @@ import ch.njol.skript.util.LiteralUtils;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.experiment.ExperimentSet;
 import org.skriptlang.skript.lang.util.SkriptQueue;
 
 import java.util.Iterator;
@@ -43,7 +45,7 @@ import java.util.Iterator;
 		broadcast the first 2 elements of {queue} # removes 'hello', 'world'"""
 })
 @Since("2.10 (experimental)")
-public class ExprQueue extends SimpleExpression<SkriptQueue> {
+public class ExprQueue extends SimpleExpression<SkriptQueue> implements ExperimentalSyntax {
 
 	static {
 		Skript.registerExpression(ExprQueue.class, SkriptQueue.class, ExpressionType.COMBINED,
@@ -54,11 +56,14 @@ public class ExprQueue extends SimpleExpression<SkriptQueue> {
 
 	@Override
 	public boolean init(Expression<?>[] expressions, int pattern, Kleenean delayed, ParseResult result) {
-		if (!this.getParser().hasExperiment(Feature.QUEUES))
-			return false;
 		if (expressions[0] != null)
 			this.contents = LiteralUtils.defendExpression(expressions[0]);
 		return contents == null || LiteralUtils.canInitSafely(contents);
+	}
+
+	@Override
+	public boolean isSatisfiedBy(ExperimentSet experimentSet) {
+		return experimentSet.hasExperiment(Feature.QUEUES);
 	}
 
 	@Override
