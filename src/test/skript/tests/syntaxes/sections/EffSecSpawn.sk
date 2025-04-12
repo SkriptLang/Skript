@@ -103,6 +103,10 @@ test "spawn entities":
 			spawn {_parse} at spawn of "world":
 				set {_ent} to entity
 			set {_assert} to whether {_ent} is entity type within {_parse}
+			broadcast "---------------------"
+			broadcast "Loop: %loop-value%"
+			broadcast "Parse: %entity type within {_parse}%"
+			broadcast "Entity: %{_ent}%"
 			assert {_assert} is true with "", expected (entity type within {_parse}), got {_ent}
 			clear entity within {_ent}
 			clear {_ent}

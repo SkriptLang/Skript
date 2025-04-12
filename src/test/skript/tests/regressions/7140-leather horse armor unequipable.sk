@@ -7,6 +7,6 @@ test "leather horse armor unequipable":
 
 	equip {_h} with leather horse armor
 
-	assert {_h} has leather horse armor with "horse doesn't have horse armor"
+	assert body armor of {_h} is a leather horse armor with "horse doesn't have horse armor"
 
 	delete entity within {_h}
