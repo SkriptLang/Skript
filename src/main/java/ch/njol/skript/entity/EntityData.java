@@ -128,7 +128,15 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 		}
 	};
 
+	private final static Map<Class<? extends Entity>, EntityType> CLASS_ENTITY_TYPE_MAP = new HashMap<>();
+
 	static {
+		for (EntityType entityType : EntityType.values()) {
+			Class<? extends Entity> entityClass = entityType.getEntityClass();
+			if (entityClass != null)
+				CLASS_ENTITY_TYPE_MAP.put(entityClass, entityType);
+		}
+
 		Classes.registerClass(new ClassInfo<>(EntityData.class, "entitydata")
 				.user("entity ?types?")
 				.name("Entity Type")
@@ -171,21 +179,55 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 		});
 	}
 
+	public static <E extends Entity> @Nullable EntityType getEntityType(Class<E> entityClass) {
+		if (CLASS_ENTITY_TYPE_MAP.containsKey(entityClass)) {
+			return CLASS_ENTITY_TYPE_MAP.get(entityClass);
+		}
+		EntityType closestEntityType = null;
+		Class<? extends Entity> closestClass = null;
+		for (EntityType entityType : EntityType.values()) {
+			Class<? extends Entity> typeClass = entityType.getEntityClass();
+			if (typeClass != null && typeClass.isAssignableFrom(entityClass)) {
+				if (closestEntityType == null || typeClass.isAssignableFrom(closestClass)) {
+					closestEntityType = entityType;
+					closestClass = typeClass;
+					if (typeClass.equals(entityClass))
+						break;
+				}
+			}
+		}
+		CLASS_ENTITY_TYPE_MAP.put(entityClass, closestEntityType);
+		return closestEntityType;
+	}
+
 	private final static class EntityDataInfo<T extends EntityData<?>> extends SyntaxElementInfo<T>
 		implements LanguageChangeListener {
 
 		final String codeName;
 		final String[] codeNames;
 		final int defaultName;
+		@Nullable EntityType entityType;
 		final Class<? extends Entity> entityClass;
 		final Noun[] names;
 
-		public EntityDataInfo(Class<T> dataClass, String codeName, String[] codeNames, int defaultName, Class<? extends Entity> entityClass) throws IllegalArgumentException {
+		public EntityDataInfo(Class<T> dataClass, String codeName, String[] codeNames, int defaultName, Class<? extends Entity> entityClass) {
+			this(dataClass, codeName, codeNames, defaultName, getEntityType(entityClass), entityClass);
+		}
+
+		public EntityDataInfo(
+			Class<T> dataClass,
+			String codeName,
+			String[] codeNames,
+			int defaultName,
+			@Nullable EntityType entityType,
+			Class<? extends Entity> entityClass
+		) {
 			super(new String[codeNames.length], dataClass, dataClass.getName());
 			assert codeName != null && entityClass != null && codeNames.length > 0;
 			this.codeName = codeName;
 			this.codeNames = codeNames;
 			this.defaultName = defaultName;
+			this.entityType = entityType;
 			this.entityClass = entityClass;
 			this.names = new Noun[codeNames.length];
 			for (int i = 0; i < codeNames.length; i++) {
@@ -234,22 +276,17 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 		register(dataClass, name, entityClass, 0, codeName);
 	}
 
-	@SuppressWarnings("unchecked")
 	public static <E extends Entity, T extends EntityData<E>> void register(
 		Class<T> dataClass,
 		String name,
 		Class<E> entityClass,
 		int defaultName,
-		String... codeNames
+		String ... codeNames
 	) throws IllegalArgumentException {
-		EntityDataInfo<T> info = new EntityDataInfo<>(dataClass, name, codeNames, defaultName, entityClass);
-		for (int i = 0; i < infos.size(); i++) {
-			if (infos.get(i).entityClass.isAssignableFrom(entityClass)) {
-				infos.add(i, (EntityDataInfo<EntityData<?>>) info);
-				return;
-			}
-		}
-		infos.add((EntityDataInfo<EntityData<?>>) info);
+		EntityType entityType = getEntityType(entityClass);
+		EntityDataInfo<T> entityDataInfo = new EntityDataInfo<>(dataClass, name, codeNames, defaultName, entityType, entityClass);
+		//noinspection unchecked
+		infos.add((EntityDataInfo<EntityData<?>>) entityDataInfo);
 	}
 
 	transient EntityDataInfo<?> info;
@@ -259,7 +296,7 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 
 	public EntityData() {
 		for (EntityDataInfo<?> info : infos) {
-			if (getClass() == info.getElementClass()) {
+			if (getClass().equals(info.getElementClass())) {
 				this.info = info;
 				matchedPattern = info.defaultName;
 				return;
@@ -422,11 +459,13 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 	 * @param world World to check if entity can spawn in
 	 * @return True if entity can spawn else false
 	 */
-	@SuppressWarnings({"ConstantValue", "removal"})
+	@SuppressWarnings({"removal"})
 	public boolean canSpawn(@Nullable World world) {
 		if (world == null)
 			return false;
-		EntityType bukkitEntityType = EntityUtils.toBukkitEntityType(this);
+		if (info.entityType == null)
+			info.entityType = EntityUtils.toBukkitEntityType(this);
+		EntityType bukkitEntityType = info.entityType;
 		if (bukkitEntityType == null)
 			return false;
 		if (HAS_ENABLED_BY_FEATURE) {
