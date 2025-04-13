@@ -74,6 +74,7 @@ import org.junit.runner.notification.Failure;
 import org.skriptlang.skript.bukkit.SkriptMetrics;
 import org.skriptlang.skript.bukkit.breeding.BreedingModule;
 import org.skriptlang.skript.bukkit.displays.DisplayModule;
+import org.skriptlang.skript.bukkit.ticking.TickingModule;
 import org.skriptlang.skript.bukkit.fishing.FishingModule;
 import org.skriptlang.skript.bukkit.furnace.FurnaceModule;
 import org.skriptlang.skript.bukkit.input.InputModule;
@@ -555,6 +556,7 @@ public final class Skript extends JavaPlugin implements Listener {
 			// todo: become proper module once registry api is merged
 			FishingModule.load();
 			BreedingModule.load();
+			TickingModule.load();
 			DisplayModule.load();
 			InputModule.load();
 			TagModule.load();
