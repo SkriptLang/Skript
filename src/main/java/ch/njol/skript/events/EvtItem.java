@@ -82,11 +82,6 @@ public class EvtItem extends SkriptEvent {
 				.examples("on pick up:")
 				.since("<i>unknown</i> (before 2.1)");
 		}
-		// TODO brew event
-//		Skript.registerEvent("Brew", EvtItem.class, BrewEvent.class, "brew[ing] [[of] %itemtypes%]")
-//				.description("Called when a potion finished brewing.")
-//				.examples("on brew:")
-//				.since("2.0");
 		if (hasConsumeEvent) {
 			Skript.registerEvent("Consume", EvtItem.class, PlayerItemConsumeEvent.class, "[player] ((eat|drink)[ing]|consum(e|ing)) [[of] %-itemtypes%]")
 					.description("Called when a player is done eating/drinking something, e.g. an apple, bread, meat, milk or a potion.")
@@ -189,8 +184,6 @@ public class EvtItem extends SkriptEvent {
 			itemStack = ((PlayerPickupItemEvent) event).getItem().getItemStack();
 		} else if (hasConsumeEvent && event instanceof PlayerItemConsumeEvent) {
 			itemStack = ((PlayerItemConsumeEvent) event).getItem();
-//		} else if (e instanceof BrewEvent)
-//			itemStack = ((BrewEvent) e).getContents().getContents()
 		} else if (event instanceof InventoryClickEvent) {
 			itemStack = ((InventoryClickEvent) event).getCurrentItem();
 		} else if (event instanceof ItemDespawnEvent) {

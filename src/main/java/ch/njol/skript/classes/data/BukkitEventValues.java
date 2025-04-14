@@ -764,6 +764,7 @@ public final class BukkitEventValues {
 			EventValues.registerEventValue(WorldBorderCenterChangeEvent.class, Location.class, WorldBorderCenterChangeEvent::getNewCenter);
 			EventValues.registerEventValue(WorldBorderCenterChangeEvent.class, Location.class, WorldBorderCenterChangeEvent::getOldCenter, EventValues.TIME_PAST);
 		}
+
 	}
 
 }
