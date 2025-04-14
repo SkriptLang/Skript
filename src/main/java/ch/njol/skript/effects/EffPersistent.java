@@ -36,7 +36,7 @@ import org.jetbrains.annotations.Nullable;
 			"\t\tprevent {_cheater} from persisting",
 			"\t\tkick {_cheater}"
 })
-@Since("INSERT VERSION")
+@Since("2.11")
 public class EffPersistent extends Effect {
 
 	static {

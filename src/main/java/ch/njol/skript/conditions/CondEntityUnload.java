@@ -17,7 +17,7 @@ import org.bukkit.entity.LivingEntity;
 	"if last spawned entity can despawn on chunk unload:",
 		"\tmake last spawned entity not despawn on chunk unload"
 })
-@Since("INSERT VERSION")
+@Since("2.11")
 public class CondEntityUnload extends PropertyCondition<LivingEntity> {
 
 	static {
