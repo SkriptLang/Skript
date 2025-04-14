@@ -129,6 +129,7 @@ public class DefaultOperations {
 		Arithmetics.registerDifference(Date.class, Timespan.class, Date::difference);
 
 		// String - String
+		Arithmetics.registerDefaultValue(String.class, () -> "");
 		Arithmetics.registerOperation(Operator.ADDITION, String.class, String.class, String::concat);
 
 	}
