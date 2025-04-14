@@ -179,6 +179,12 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 		});
 	}
 
+	/**
+	 * Attempts to get an {@link EntityType} from a {@link Class} extending {@link Entity}.
+	 * Ensures at least one {@link EntityType} can represent an entity class through {@link Class#isAssignableFrom(Class)}.
+	 * @param entityClass The {@link Class} extending {@link Entity}
+	 * @return The exact or assignable {@link EntityType} or {@code null}
+	 */
 	public static <E extends Entity> @Nullable EntityType getEntityType(Class<E> entityClass) {
 		if (CLASS_ENTITY_TYPE_MAP.containsKey(entityClass)) {
 			return CLASS_ENTITY_TYPE_MAP.get(entityClass);
@@ -281,7 +287,7 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 		String name,
 		Class<E> entityClass,
 		int defaultName,
-		String ... codeNames
+		String... codeNames
 	) throws IllegalArgumentException {
 		EntityType entityType = getEntityType(entityClass);
 		EntityDataInfo<T> entityDataInfo = new EntityDataInfo<>(dataClass, name, codeNames, defaultName, entityType, entityClass);
