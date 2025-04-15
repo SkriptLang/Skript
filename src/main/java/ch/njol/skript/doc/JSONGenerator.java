@@ -36,7 +36,7 @@ public class JSONGenerator extends DocumentationGenerator {
 	/**
 	 * The current version of the JSON generator
 	 */
-	public static final Version JSON_VERSION = new Version(1, 0);
+	public static final Version JSON_VERSION = new Version(1, 1);
 
 	private static final Gson GSON = new GsonBuilder()
 		.disableHtmlEscaping()
@@ -176,7 +176,7 @@ public class JSONGenerator extends DocumentationGenerator {
 						continue;
 					}
 
-					ClassInfo<?> exactClassInfo = Classes.getExactClassInfo(eventValueInfo.c());
+					ClassInfo<?> exactClassInfo = Classes.getExactClassInfo(eventValueInfo.valueClass());
 					if (exactClassInfo == null) {
 						continue;
 					}
@@ -198,6 +198,10 @@ public class JSONGenerator extends DocumentationGenerator {
 					eventValues.add(object);
 				}
 			}
+		}
+
+		if (eventValues.isEmpty()) {
+			return null;
 		}
 
 		JsonArray array = new JsonArray();

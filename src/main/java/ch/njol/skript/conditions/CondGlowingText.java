@@ -27,14 +27,14 @@ public class CondGlowingText extends PropertyCondition<Object> {
 
 	@Override
 	public boolean check(Object obj) {
-		if (obj instanceof Block) {
-			BlockState state = ((Block) obj).getState();
-			return state instanceof Sign && ((Sign) state).isGlowingText();
-		} else if (obj instanceof ItemType) {
-			ItemMeta meta = ((ItemType) obj).getItemMeta();
-			if (meta instanceof BlockStateMeta) {
-				BlockState state = ((BlockStateMeta) meta).getBlockState();
-				return state instanceof Sign && ((Sign) state).isGlowingText();
+		if (obj instanceof Block block) {
+			BlockState state = block.getState();
+			return state instanceof Sign sign && sign.isGlowingText();
+		} else if (obj instanceof ItemType itemType) {
+			ItemMeta meta = itemType.getItemMeta();
+			if (meta instanceof BlockStateMeta blockStateMeta) {
+				BlockState state = blockStateMeta.getBlockState();
+				return state instanceof Sign sign && sign.isGlowingText();
 			}
 		}
 		return false;

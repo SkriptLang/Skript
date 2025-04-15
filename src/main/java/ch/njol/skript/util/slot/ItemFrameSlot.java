@@ -11,16 +11,15 @@ import ch.njol.skript.registrations.Classes;
  * Represents contents of an item frame.
  */
 public class ItemFrameSlot extends Slot {
-	
-	private ItemFrame frame;
-	
+
+	private final ItemFrame frame;
+
 	public ItemFrameSlot(ItemFrame frame) {
 		this.frame = frame;
 	}
 
 	@Override
-	@Nullable
-	public ItemStack getItem() {
+	public @Nullable ItemStack getItem() {
 		return frame.getItem();
 	}
 
@@ -28,25 +27,28 @@ public class ItemFrameSlot extends Slot {
 	public void setItem(@Nullable ItemStack item) {
 		frame.setItem(item);
 	}
-	
+
 	@Override
 	public int getAmount() {
 		return 1;
 	}
-	
+
 	@Override
 	public void setAmount(int amount) {}
-	
-	@Override
-	public boolean isSameSlot(Slot o) {
-		if (o instanceof ItemFrameSlot) // Same item frame
-			return ((ItemFrameSlot) o).frame.equals(frame);
-		return false;
+
+	public ItemFrame getItemFrame() {
+		return frame;
 	}
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
+	public boolean isSameSlot(Slot slot) {
+		return slot instanceof ItemFrameSlot itemFrameSlot
+			&& itemFrameSlot.getItemFrame().equals(frame);
+	}
+
+	@Override
+	public String toString(@Nullable Event event, boolean debug) {
 		return Classes.toString(getItem());
 	}
-	
+
 }
