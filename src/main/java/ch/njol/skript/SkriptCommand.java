@@ -1,5 +1,6 @@
 package ch.njol.skript;
 
+import ch.njol.skript.ScriptLoader.ScriptInfo;
 import ch.njol.skript.aliases.Aliases;
 import ch.njol.skript.command.CommandHelp;
 import ch.njol.skript.doc.Documentation;
@@ -33,10 +34,13 @@ import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.script.Script;
 
 import java.io.File;
-import java.io.FileFilter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.*;
+import java.util.Map.Entry;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 
@@ -91,6 +95,7 @@ public class SkriptCommand implements CommandExecutor {
 
 	private static final ArgsMessage m_reloaded = new ArgsMessage(CONFIG_NODE + ".reload.reloaded");
 	private static final ArgsMessage m_reload_error = new ArgsMessage(CONFIG_NODE + ".reload.error");
+	private static String @Nullable [] lastReloaded;
 
 	private static void reloaded(CommandSender sender, RedirectingLogHandler logHandler, TimingLogHandler timingLogHandler, String what, Object... args) {
 		what = args.length == 0 ? Language.get(CONFIG_NODE + ".reload." + what) : PluralizingArgsMessage.format(Language.format(CONFIG_NODE + ".reload." + what, args));
@@ -169,29 +174,65 @@ public class SkriptCommand implements CommandExecutor {
 					Aliases.clear();
 					Aliases.loadAsync().thenRun(() -> reloaded(sender, logHandler, timingLogHandler, "aliases"));
 				} else { // Reloading an individual Script or folder
-					File scriptFile = getScriptFromArgs(sender, args);
-					if (scriptFile == null)
-						return true;
-
-					if (!scriptFile.isDirectory()) {
-						if (ScriptLoader.getDisabledScriptsFilter().accept(scriptFile)) {
-							info(sender, "reload.script disabled", scriptFile.getName().substring(ScriptLoader.DISABLED_SCRIPT_PREFIX_LENGTH), StringUtils.join(args, " ", 1, args.length));
+					File[] scriptFiles;
+					if (args[1].equalsIgnoreCase("lastReloaded")) {
+						if (lastReloaded == null || lastReloaded.length == 0) {
+							error(sender, "reload.no previous reload");
 							return true;
 						}
+						scriptFiles = getScriptsFromArgs(sender, lastReloaded);
+						if (scriptFiles == null || scriptFiles.length == 0)
+							return true;
+					} else {
+						scriptFiles = getScriptsFromArgs(sender, args);
+						if (scriptFiles == null || scriptFiles.length == 0)
+							return true;
+						lastReloaded = args;
+					}
 
+					List<File> scripts = new ArrayList<>();
+					List<String> scriptNames = new ArrayList<>();
+					int scriptsReloading = 0;
+					int directoriesReloading = 0;
+
+					for (File scriptFile : scriptFiles) {
+						if (ScriptLoader.getDisabledScriptsFilter().accept(scriptFile)) {
+							info(sender, "reload.script disabled", scriptFile.getName().substring(ScriptLoader.DISABLED_SCRIPT_PREFIX_LENGTH), scriptFile.getName());
+							continue;
+						}
+						if (!scriptFile.isDirectory()) {
+							Script script = ScriptLoader.getScript(scriptFile);
+							if (!scripts.contains(scriptFile)) {
+								if (script != null)
+									ScriptLoader.unloadScript(script);
+								scripts.add(scriptFile);
+								scriptsReloading += 1;
+								scriptNames.add(scriptFile.getName());
+							}
+						} else {
+							ScriptLoader.unloadScripts(ScriptLoader.getScripts(scriptFile));
+							scripts.add(scriptFile);
+							directoriesReloading += 1;
+							scriptNames.add(scriptFile.getName());
+						}
+					}
+
+					if (scriptsReloading > 1 || directoriesReloading > 1) {
+						String combinedNames = StringUtils.join(scriptNames.toArray(String[]::new), ", ");
+						reloading(sender, "files", logHandler, combinedNames);
+						reloadScriptFiles(sender, scriptFiles, logHandler, timingLogHandler, null, null);
+						reloaded(sender, logHandler, timingLogHandler, "files", combinedNames);
+					} else if (scriptsReloading == 1) {
+						File scriptFile = scriptFiles[0];
 						reloading(sender, "script", logHandler, scriptFile.getName());
-
-						Script script = ScriptLoader.getScript(scriptFile);
-						if (script != null)
-							ScriptLoader.unloadScript(script);
 						ScriptLoader.loadScripts(scriptFile, OpenCloseable.combine(logHandler, timingLogHandler))
 							.thenAccept(scriptInfo ->
 								reloaded(sender, logHandler, timingLogHandler, "script", scriptFile.getName())
 							);
-					} else {
-						final String fileName = scriptFile.getName();
+					} else if (directoriesReloading == 1) {
+						File scriptFile = scriptFiles[0];
+						String fileName = scriptFile.getName();
 						reloading(sender, "scripts in folder", logHandler, fileName);
-						ScriptLoader.unloadScripts(ScriptLoader.getScripts(scriptFile));
 						ScriptLoader.loadScripts(scriptFile, OpenCloseable.combine(logHandler, timingLogHandler))
 							.thenAccept(scriptInfo -> {
 								if (scriptInfo.files == 0) {
@@ -212,7 +253,7 @@ public class SkriptCommand implements CommandExecutor {
 				if (args[1].equalsIgnoreCase("all")) {
 					try {
 						info(sender, "enable.all.enabling");
-						ScriptLoader.loadScripts(toggleFiles(Skript.getInstance().getScriptsFolder(), true), logHandler)
+						ScriptLoader.loadScripts(toggleFiles(Skript.getInstance().getScriptsFolder(), true, true), logHandler)
 							.thenAccept(scriptInfo -> {
 								if (logHandler.numErrors() == 0) {
 									info(sender, "enable.all.enabled");
@@ -224,111 +265,116 @@ public class SkriptCommand implements CommandExecutor {
 						error(sender, "enable.all.io error", ExceptionUtils.toString(e));
 					}
 				} else {
-					File scriptFile = getScriptFromArgs(sender, args);
-					if (scriptFile == null)
+					File[] scriptFiles = getScriptsFromArgs(sender, args);
+					if (scriptFiles == null || scriptFiles.length == 0)
 						return true;
 
-					if (!scriptFile.isDirectory()) {
-						if (ScriptLoader.getLoadedScriptsFilter().accept(scriptFile)) {
-							info(sender, "enable.single.already enabled", scriptFile.getName(), StringUtils.join(args, " ", 1, args.length));
-							return true;
-						}
+					for (File scriptFile : scriptFiles) {
+						if (!scriptFile.isDirectory()) {
+							if (ScriptLoader.getLoadedScriptsFilter().accept(scriptFile)) {
+								info(sender, "enable.single.already enabled", scriptFile.getName(), StringUtils.join(args, " ", 1, args.length));
+								return true;
+							}
 
-						try {
-							scriptFile = toggleFile(scriptFile, true);
-						} catch (IOException e) {
-							error(sender, "enable.single.io error", scriptFile.getName().substring(ScriptLoader.DISABLED_SCRIPT_PREFIX_LENGTH), ExceptionUtils.toString(e));
-							return true;
-						}
+							try {
+								scriptFile = toggleFile(scriptFile, true);
+							} catch (IOException e) {
+								error(sender, "enable.single.io error", scriptFile.getName().substring(ScriptLoader.DISABLED_SCRIPT_PREFIX_LENGTH), ExceptionUtils.toString(e));
+								return true;
+							}
 
-						final String fileName = scriptFile.getName();
-						info(sender, "enable.single.enabling", fileName);
-						ScriptLoader.loadScripts(scriptFile, logHandler)
-							.thenAccept(scriptInfo -> {
-								if (logHandler.numErrors() == 0) {
-									info(sender, "enable.single.enabled", fileName);
-								} else {
-									error(sender, "enable.single.error", fileName, logHandler.numErrors());
-								}
-							});
-					} else {
-						Set<File> scriptFiles;
-						try {
-							scriptFiles = toggleFiles(scriptFile, true);
-						} catch (IOException e) {
-							error(sender, "enable.folder.io error", scriptFile.getName(), ExceptionUtils.toString(e));
-							return true;
-						}
+							final String fileName = scriptFile.getName();
+							info(sender, "enable.single.enabling", fileName);
+							ScriptLoader.loadScripts(scriptFile, logHandler)
+								.thenAccept(scriptInfo -> {
+									if (logHandler.numErrors() == 0) {
+										info(sender, "enable.single.enabled", fileName);
+									} else {
+										error(sender, "enable.single.error", fileName, logHandler.numErrors());
+									}
+								});
+						} else {
 
-						if (scriptFiles.isEmpty()) {
-							info(sender, "enable.folder.empty", scriptFile.getName());
-							return true;
-						}
+							// Since we're enabling a directory, we want to change the name of the directory first, then enable scripts
+							// If we do it after we get the files, then reloading will result in "... already exists"
+							File enabledDirectory = FileUtils.move(
+								scriptFile,
+								new File(scriptFile.getParentFile(), scriptFile.getName().substring(ScriptLoader.DISABLED_SCRIPT_PREFIX_LENGTH)),
+								false
+							);
 
-						final String fileName = scriptFile.getName();
-						info(sender, "enable.folder.enabling", fileName, scriptFiles.size());
-						ScriptLoader.loadScripts(scriptFiles, logHandler)
-							.thenAccept(scriptInfo -> {
-								if (logHandler.numErrors() == 0) {
-									info(sender, "enable.folder.enabled", fileName, scriptInfo.files);
-								} else {
-									error(sender, "enable.folder.error", fileName, logHandler.numErrors());
-								}
-							});
+							Set<File> enabledFiles;
+							try {
+								enabledFiles = toggleFiles(enabledDirectory, true, false);
+							} catch (IOException e) {
+								error(sender, "enable.folder.io error", enabledDirectory.getName(), ExceptionUtils.toString(e));
+								return true;
+							}
+
+							final String fileName = enabledDirectory.getName();
+
+							info(sender, "enable.folder.enabling", fileName, enabledFiles.size());
+							ScriptLoader.loadScripts(enabledFiles, logHandler)
+								.thenAccept(scriptInfo -> {
+									if (logHandler.numErrors() == 0) {
+										info(sender, "enable.folder.enabled", fileName, scriptInfo.files);
+									} else {
+										error(sender, "enable.folder.error", fileName, logHandler.numErrors());
+									}
+								});
+						}
 					}
 				}
 
 			} else if (args[0].equalsIgnoreCase("disable")) {
-
 				if (args[1].equalsIgnoreCase("all")) {
 					ScriptLoader.unloadScripts(ScriptLoader.getLoadedScripts());
 					try {
-						toggleFiles(Skript.getInstance().getScriptsFolder(), false);
+						toggleFiles(Skript.getInstance().getScriptsFolder(), false, true);
 						info(sender, "disable.all.disabled");
 					} catch (IOException e) {
 						error(sender, "disable.all.io error", ExceptionUtils.toString(e));
 					}
 				} else {
-					File scriptFile = getScriptFromArgs(sender, args);
-					if (scriptFile == null) // TODO allow disabling deleted/renamed scripts
+					File[] scriptFiles = getScriptsFromArgs(sender, args);
+					if (scriptFiles == null || scriptFiles.length == 0) // TODO allow disabling deleted/renamed scripts
 						return true;
 
-					if (!scriptFile.isDirectory()) {
-						if (ScriptLoader.getDisabledScriptsFilter().accept(scriptFile)) {
-							info(sender, "disable.single.already disabled", scriptFile.getName().substring(ScriptLoader.DISABLED_SCRIPT_PREFIX_LENGTH));
-							return true;
+					for (File scriptFile : scriptFiles) {
+						if (!scriptFile.isDirectory()) {
+							if (ScriptLoader.getDisabledScriptsFilter().accept(scriptFile)) {
+								info(sender, "disable.single.already disabled", scriptFile.getName().substring(ScriptLoader.DISABLED_SCRIPT_PREFIX_LENGTH));
+								return true;
+							}
+
+							Script script = ScriptLoader.getScript(scriptFile);
+							if (script != null)
+								ScriptLoader.unloadScript(script);
+
+							String fileName = scriptFile.getName();
+
+							try {
+								toggleFile(scriptFile, false);
+							} catch (IOException e) {
+								error(sender, "disable.single.io error", scriptFile.getName(), ExceptionUtils.toString(e));
+								return true;
+							}
+							info(sender, "disable.single.disabled", fileName);
+						} else {
+							ScriptLoader.unloadScripts(ScriptLoader.getScripts(scriptFile));
+
+							int totalSubFiles = getSubFiles(scriptFile).size();
+
+							// We're disabling a directory, so we only want to change the name of the directory
+							// After the files within are unloaded
+							FileUtils.move(
+								scriptFile,
+								new File(scriptFile.getParentFile(), ScriptLoader.DISABLED_SCRIPT_PREFIX + scriptFile.getName()),
+								false
+							);
+
+							info(sender, "disable.folder.disabled", scriptFile.getName(), totalSubFiles);
 						}
-
-						Script script = ScriptLoader.getScript(scriptFile);
-						if (script != null)
-							ScriptLoader.unloadScript(script);
-
-						String fileName = scriptFile.getName();
-
-						try {
-							toggleFile(scriptFile, false);
-						} catch (IOException e) {
-							error(sender, "disable.single.io error", scriptFile.getName(), ExceptionUtils.toString(e));
-							return true;
-						}
-						info(sender, "disable.single.disabled", fileName);
-					} else {
-						ScriptLoader.unloadScripts(ScriptLoader.getScripts(scriptFile));
-
-						Set<File> scripts;
-						try {
-							scripts = toggleFiles(scriptFile, false);
-						} catch (IOException e) {
-							error(sender, "disable.folder.io error", scriptFile.getName(), ExceptionUtils.toString(e));
-							return true;
-						}
-
-						if (scripts.isEmpty()) {
-							info(sender, "disable.folder.empty", scriptFile.getName());
-							return true;
-						}
-
-						info(sender, "disable.folder.disabled", scriptFile.getName(), scripts.size());
 					}
 				}
 
@@ -398,26 +444,24 @@ public class SkriptCommand implements CommandExecutor {
 				htmlGenerator.generate(); // Try to generate docs... hopefully
 				Skript.info(sender, "All documentation generated!");
 			} else if (args[0].equalsIgnoreCase("test") && TestMode.DEV_MODE) {
-				File scriptFile;
+				File[] scriptFiles;
 				if (args.length == 1) {
-					scriptFile = TestMode.lastTestFile;
-					if (scriptFile == null) {
-						Skript.error(sender, "No test script has been run yet!");
+					scriptFiles = TestMode.lastTestFiles;
+					if (scriptFiles == null || scriptFiles.length == 0) {
+						Skript.error(sender, "No test script(s) have been ran yet!");
 						return true;
 					}
 				} else {
 					if (args[1].equalsIgnoreCase("all")) {
-						scriptFile = TestMode.TEST_DIR.toFile();
+						scriptFiles = new File[]{TestMode.TEST_DIR.toFile()};
 					} else {
-						scriptFile = getScriptFromArgs(sender, args, TestMode.TEST_DIR.toFile());
-						TestMode.lastTestFile = scriptFile;
+						scriptFiles = getScriptsFromArgs(sender, args, TestMode.TEST_DIR.toFile());
+						TestMode.lastTestFiles = scriptFiles;
 					}
 				}
 
-				if (scriptFile == null || !scriptFile.exists()) {
-					Skript.error(sender, "Test script doesn't exist!");
+				if (scriptFiles == null || scriptFiles.length == 0)
 					return true;
-				}
 
 				// Close previous loggers before we create a new one
 				// This prevents closing logger errors
@@ -425,33 +469,40 @@ public class SkriptCommand implements CommandExecutor {
 				logHandler.close();
 
 				TestingLogHandler errorCounter = new TestingLogHandler(Level.SEVERE).start();
-				ScriptLoader.loadScripts(scriptFile, errorCounter)
-					.thenAccept(scriptInfo ->
-						// Code should run on server thread
-						Bukkit.getScheduler().scheduleSyncDelayedTask(Skript.getInstance(), () -> {
-							Bukkit.getPluginManager().callEvent(new SkriptTestEvent()); // Run it
-							ScriptLoader.unloadScripts(ScriptLoader.getLoadedScripts());
 
-							// Get results and show them
-							TestResults testResults = TestTracker.collectResults();
-							String[] lines = testResults.createReport().split("\n");
-							for (String line : lines) {
-								Skript.info(sender, line);
-							}
+				for (File scriptFile : scriptFiles) {
+					if (!scriptFile.exists()) {
+						Skript.error("The test script '" + scriptFile.getName() + "' doesn't exist!");
+						continue;
+					}
+					ScriptLoader.loadScripts(scriptFile, errorCounter)
+						.thenAccept(scriptInfo ->
+							// Code should run on server thread
+							Bukkit.getScheduler().scheduleSyncDelayedTask(Skript.getInstance(), () -> {
+								Bukkit.getPluginManager().callEvent(new SkriptTestEvent()); // Run it
+								ScriptLoader.unloadScripts(ScriptLoader.getLoadedScripts());
 
-							// Log results to file
-							Skript.info(sender, "Collecting results to " + TestMode.RESULTS_FILE);
-							String results = new GsonBuilder()
-								.setPrettyPrinting() // Easier to read lines
-								.disableHtmlEscaping() // Fixes issue with "'" character in test strings going unicode
-								.create().toJson(testResults);
-							try {
-								Files.writeString(TestMode.RESULTS_FILE, results);
-							} catch (IOException e) {
-								Skript.exception(e, "Failed to write test results.");
-							}
-						})
-					);
+								// Get results and show them
+								TestResults testResults = TestTracker.collectResults();
+								String[] lines = testResults.createReport().split("\n");
+								for (String line : lines) {
+									Skript.info(sender, line);
+								}
+
+								// Log results to file
+								Skript.info(sender, "Collecting results to " + TestMode.RESULTS_FILE);
+								String results = new GsonBuilder()
+									.setPrettyPrinting() // Easier to read lines
+									.disableHtmlEscaping() // Fixes issue with "'" character in test strings going unicode
+									.create().toJson(testResults);
+								try {
+									Files.writeString(TestMode.RESULTS_FILE, results);
+								} catch (IOException e) {
+									Skript.exception(e, "Failed to write test results.");
+								}
+							})
+						);
+				}
 			} else if (args[0].equalsIgnoreCase("list") || args[0].equalsIgnoreCase("show")) {
 				info(sender, "list.enabled.header");
 				ScriptLoader.getLoadedScripts().stream()
@@ -480,6 +531,45 @@ public class SkriptCommand implements CommandExecutor {
 		return true;
 	}
 
+	private static void reloadScriptFiles(
+		CommandSender sender,
+		File[] scriptFiles,
+		RedirectingLogHandler logHandler,
+		TimingLogHandler timingLogHandler,
+		@Nullable Consumer<ScriptInfo> scriptConsumer,
+		@Nullable BiConsumer<ScriptInfo, String> directoryConsumer
+	) {
+		AtomicInteger lastErrors = new AtomicInteger();
+		OpenCloseable combined = OpenCloseable.combine(logHandler, timingLogHandler);
+		for (File scriptFile : scriptFiles) {
+			if (!scriptFile.isDirectory()) {
+				ScriptLoader.loadScripts(scriptFile, combined)
+					.thenAccept(scriptInfo -> {
+						if (scriptConsumer != null)
+							scriptConsumer.accept(scriptInfo);
+					});
+			} else {
+				String fileName = scriptFile.getName();
+				ScriptLoader.loadScripts(scriptFile, combined)
+					.thenAccept(scriptInfo -> {
+						if (scriptInfo.files == 0) {
+							info(sender, "reload.empty folder", fileName);
+						} else {
+							int currentErrors = logHandler.numErrors();
+							if (currentErrors > 0 && currentErrors > lastErrors.get()) {
+								lastErrors.set(currentErrors);
+								info(sender, "x scripts in folder error", fileName,  scriptInfo.files);
+							} else {
+								info(sender, "x scripts in folder success", fileName, scriptInfo.files);
+							}
+						}
+						if (directoryConsumer != null)
+							directoryConsumer.accept(scriptInfo, fileName);
+					});
+			}
+		}
+	}
+
 	private static final ArgsMessage m_invalid_script = new ArgsMessage(CONFIG_NODE + ".invalid script");
 	private static final ArgsMessage m_invalid_folder = new ArgsMessage(CONFIG_NODE + ".invalid folder");
 
@@ -497,20 +587,135 @@ public class SkriptCommand implements CommandExecutor {
 		return files;
 	}
 
-	private static @Nullable File getScriptFromArgs(CommandSender sender, String[] args) {
-		return getScriptFromArgs(sender, args, Skript.getInstance().getScriptsFolder());
+	private static File @Nullable [] getScriptsFromArgs(CommandSender sender, String[] args) {
+		return getScriptsFromArgs(sender, args, Skript.getInstance().getScriptsFolder());
+	}
+
+	private static File @Nullable [] getScriptsFromArgs(CommandSender sender, String[] args, File directoryFile) {
+		List<String> filtered = new ArrayList<>();
+		boolean enable = args[0].equals("enable");
+		// Remove any of the options if someone manually types it after the 1st argument
+		for (int i = 1; i < args.length; i++) {
+			if (args[i].matches("(?i)(all|scripts|aliases|config)"))
+				continue;
+			filtered.add(args[i]);
+		}
+		Map<String, File> scripts = new HashMap<>();
+		for (String currentScript : separateCommaArguments(false, true, filtered.toArray(String[]::new))) {
+			File thisScript = getScriptFromArg(sender, currentScript, directoryFile);
+			if (thisScript == null) {
+				// Always allow '/' and '\' regardless of OS
+				boolean directory = currentScript.endsWith("/") || currentScript.endsWith("\\") || currentScript.endsWith(File.separator);
+				Skript.error(sender, (directory ? m_invalid_folder : m_invalid_script).toString(currentScript));
+				continue;
+			}
+			scripts.put(currentScript, thisScript);
+		}
+
+		Map<String, File> filteredScripts = new HashMap<>();
+		Set<Entry<String, File>> entries = scripts.entrySet();
+		// Now we check to see if any of the files found is already set to be loaded if the directory was also provided
+		for (Entry<String, File> entry : entries) {
+			boolean add = true;
+			for (Entry<String, File> other : entries) {
+				if (entry.getKey().equals(other.getKey()))
+					continue;
+
+				if (entry.getKey().contains(other.getKey()) && entry.getValue().getPath().contains(other.getValue().getPath())) {
+					add = false;
+					break;
+				}
+			}
+			if (add && !filteredScripts.containsKey(entry.getKey())) {
+				boolean isDisabled = isScriptDisabled(entry.getKey());
+				// If we're enabling and this script is disabled, we can add it
+				// If we're disabling and this script is enabled, we can add it
+				if (enable == isDisabled)
+					filteredScripts.put(entry.getKey(), entry.getValue());
+			}
+		}
+		return filteredScripts.values().toArray(File[]::new);
+	}
+
+	/**
+	 * Checks if the provided {@link File} is disabled by checking if the file and the directory parents
+	 * are disabled via the prefix '-'
+	 * @param file
+	 * @return {@code true} if disabled
+	 */
+	public static boolean isScriptDisabled(File file) {
+		return isScriptDisabled(file.getPath());
+	}
+
+	/**
+	 * Checks if the provided {@code path} from a file is disabled by checking if the file and the directory parents
+	 * are disabled via the prefix '-'
+	 * @param path
+	 * @return {@code true} if disabled
+	 */
+	public static boolean isScriptDisabled(String path) {
+		String[] split = path.split("\\\\");
+		for (String segment : split) {
+			if (segment.startsWith("-"))
+				return true;
+		}
+		return false;
+	}
+
+	public static List<String> separateCommaArguments(boolean reverse, boolean excludeEmptyArgs, String ... strings) {
+		List<String> result = new ArrayList<>();
+
+		String currentArgument = "";
+		String nextArgument = "";
+		boolean separate = false;
+		for (int i = 0; i < strings.length; i++) {
+			String arg = strings[i];
+			if (arg.equals(",")) {
+				separate = true;
+			} else if (arg.endsWith(",")) {
+				separate = true;
+				if (!currentArgument.isEmpty())
+					currentArgument += " ";
+				currentArgument += arg.substring(0, arg.length() - 1);
+			} else if (arg.startsWith(",")) {
+				separate = true;
+				nextArgument = arg.substring(1);
+			} else if (i < strings.length - 1) {
+				if (currentArgument.isEmpty()) {
+					currentArgument += arg;
+				} else if (!arg.isEmpty()) {
+					currentArgument +=  " " + arg;
+				}
+			} else {
+				separate = true;
+				if (!currentArgument.isEmpty())
+					currentArgument += " ";
+				currentArgument += arg;
+			}
+
+			if (separate) {
+				separate = false;
+				if (!excludeEmptyArgs || !currentArgument.isEmpty())
+					result.add(currentArgument);
+				currentArgument = !nextArgument.isEmpty() ? nextArgument : "";
+				nextArgument = "";
+			}
+		}
+		if (!currentArgument.isEmpty())
+			result.add(currentArgument);
+
+		if (reverse)
+			Collections.reverse(result);
+		return result;
+	}
+
+	private static @Nullable File getScriptFromArg(CommandSender sender, String arg, File directoryFile) {
+		return getScriptFromArgs(sender, new String[]{"", arg}, directoryFile);
 	}
 
 	private static @Nullable File getScriptFromArgs(CommandSender sender, String[] args, File directoryFile) {
 		String script = StringUtils.join(args, " ", 1, args.length);
-		File f = ScriptLoader.getScriptFromName(script, directoryFile);
-		if (f == null) {
-			// Always allow '/' and '\' regardless of OS
-			boolean directory = script.endsWith("/") || script.endsWith("\\") || script.endsWith(File.separator);
-			Skript.error(sender, (directory ? m_invalid_folder : m_invalid_script).toString(script));
-			return null;
-		}
-		return f;
+		return ScriptLoader.getScriptFromName(script, directoryFile);
 	}
 
 	/**
@@ -536,26 +741,36 @@ public class SkriptCommand implements CommandExecutor {
 		);
 	}
 
-	private static Set<File> toggleFiles(File folder, boolean enable) throws IOException {
-		FileFilter filter = enable ? ScriptLoader.getDisabledScriptsFilter() : ScriptLoader.getLoadedScriptsFilter();
+	private static Set<File> toggleFiles(File folder, boolean enable, boolean change) throws IOException {
+		return toggleFiles(folder, enable, change, isScriptDisabled(folder));
+	}
 
-		Set<File> changed = new HashSet<>();
+	private static Set<File> toggleFiles(File folder, boolean enable, boolean change, boolean previouslyDisabled) throws IOException {
+		Set<File> files = new HashSet<>();
 		for (File file : folder.listFiles()) {
 			if (file.isDirectory()) {
-				changed.addAll(toggleFiles(file, enable));
+				File subFolder = file;
+				boolean isDisabled = isScriptDisabled(file);
+				if (enable == isDisabled && change)
+					subFolder = toggleFile(file, enable);
+				files.addAll(toggleFiles(subFolder, enable, change, isDisabled || previouslyDisabled));
 			} else {
-				if (filter.accept(file)) {
-					String fileName = file.getName();
-					changed.add(FileUtils.move(
-						file,
-						new File(file.getParentFile(), enable ? fileName.substring(ScriptLoader.DISABLED_SCRIPT_PREFIX_LENGTH) : ScriptLoader.DISABLED_SCRIPT_PREFIX + fileName),
-						false
-					));
+				boolean isDisabled = isScriptDisabled(file);
+				// If we're enabling and this script is disabled, we don't want it to be parsed
+				if (enable == isDisabled) {
+					// Unless we are enabling 'all' in which we update it
+					if (change)
+						files.add(toggleFile(file, enable));
+					continue;
 				}
+				// If we're enabling specifically or if we're enabling all, and it was previously disabled
+				// Then we can add it to be parsed
+				if (!change || enable == previouslyDisabled)
+					files.add(file);
 			}
 		}
 
-		return changed;
+		return files;
 	}
 
 }
