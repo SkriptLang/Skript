@@ -19,6 +19,10 @@ public abstract class SimpleJavaFunction<T> extends JavaFunction<T> {
 		super(name, parameters, returnType, single);
 	}
 
+	public SimpleJavaFunction(String name, Parameter<?>[] parameters, ClassInfo<T> returnType, boolean single, boolean local) {
+		super(name, parameters, returnType, single, local);
+	}
+
 	public SimpleJavaFunction(String name, Parameter<?>[] parameters, ClassInfo<T> returnType, boolean single, Contract contract) {
 		super(name, parameters, returnType, single, contract);
 	}

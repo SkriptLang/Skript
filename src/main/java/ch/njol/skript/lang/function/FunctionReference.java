@@ -14,9 +14,9 @@ import ch.njol.skript.util.Contract;
 import ch.njol.skript.util.LiteralUtils;
 import ch.njol.util.StringUtils;
 import org.bukkit.event.Event;
-import org.skriptlang.skript.util.Executable;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.converter.Converters;
+import org.skriptlang.skript.util.Executable;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -26,6 +26,9 @@ import java.util.List;
  * Reference to a Skript function.
  */
 public class FunctionReference<T> implements Contract, Executable<Event, T[]> {
+
+	static final String AMBIGUOUS_ERROR = "Skript cannot determine which function named '%s' to call. " +
+		"Try clarifying the type of the arguments using the 'value within' expression.";
 
 	/**
 	 * Name of function that is called, for logging purposes.
@@ -37,7 +40,7 @@ public class FunctionReference<T> implements Contract, Executable<Event, T[]> {
 	 * succeeds, this is not null.
 	 */
 	private @Nullable Signature<? extends T> signature;
-  
+
 	/**
 	 * Actual function reference. Null before the function is called for first
 	 * time.
@@ -85,8 +88,8 @@ public class FunctionReference<T> implements Contract, Executable<Event, T[]> {
 	private Contract contract;
 
 	public FunctionReference(
-			String functionName, @Nullable Node node, @Nullable String script,
-			@Nullable Class<? extends T>[] returnTypes, Expression<?>[] params
+		String functionName, @Nullable Node node, @Nullable String script,
+		@Nullable Class<? extends T>[] returnTypes, Expression<?>[] params
 	) {
 		this.functionName = functionName;
 		this.node = node;
@@ -99,17 +102,23 @@ public class FunctionReference<T> implements Contract, Executable<Event, T[]> {
 	public boolean validateParameterArity(boolean first) {
 		if (!first && script == null)
 			return false;
-		Signature<?> sign = Functions.getSignature(functionName, script);
+
+		Signature<?> sign = getRegisteredSignature();
+
 		if (sign == null)
 			return false;
+
 		// Not enough parameters
 		return parameters.length >= sign.getMinParameters();
 	}
 
+	private Class<?>[] parameterTypes;
+
 	/**
 	 * Validates this function reference. Prints errors if needed.
+	 *
 	 * @param first True if this is called while loading a script. False when
-	 * this is called when the function signature changes.
+	 *              this is called when the function signature changes.
 	 * @return True if validation succeeded.
 	 */
 	public boolean validateFunction(boolean first) {
@@ -119,7 +128,7 @@ public class FunctionReference<T> implements Contract, Executable<Event, T[]> {
 		function = null;
 		SkriptLogger.setNode(node);
 		Skript.debug("Validating function " + functionName);
-		Signature<?> sign = Functions.getSignature(functionName, script);
+		Signature<?> sign = getRegisteredSignature();
 
 		// Check if the requested function exists
 		if (sign == null) {
@@ -161,7 +170,7 @@ public class FunctionReference<T> implements Contract, Executable<Event, T[]> {
 				single = sign.single;
 			} else if (single && !sign.single) {
 				Skript.error("The function '" + functionName + "' was redefined with a different, incompatible return type, but is still used in other script(s)."
-						+ " These will continue to use the old version of the function until Skript restarts.");
+					+ " These will continue to use the old version of the function until Skript restarts.");
 				function = previousFunction;
 				return false;
 			}
@@ -253,6 +262,70 @@ public class FunctionReference<T> implements Contract, Executable<Event, T[]> {
 		return true;
 	}
 
+	// attempt to get the types of the parameters for this function reference
+	private void parseParameters() {
+		if (parameterTypes != null) {
+			return;
+		}
+
+		parameterTypes = new Class<?>[parameters.length];
+		for (int i = 0; i < parameters.length; i++) {
+			Expression<?> parsed = LiteralUtils.defendExpression(parameters[i]);
+			parameterTypes[i] = parsed.getReturnType();
+		}
+	}
+
+	/**
+	 * Attempts to get this function's signature.
+	 */
+	private Signature<?> getRegisteredSignature() {
+		parseParameters();
+
+		if (Skript.debug()) {
+			Skript.debug("Getting signature for '%s' with types %s",
+				functionName, Arrays.toString(Arrays.stream(parameterTypes).map(Class::getSimpleName).toArray()));
+		}
+		Signature<?> sign = FunctionRegistry.signature(script, functionName, parameterTypes);
+
+
+		// if we can't find a signature based on param types, try to match any function
+		if (sign == null) {
+			sign = FunctionRegistry.signature(script, functionName);
+		}
+
+		if (sign == null) {
+			Skript.error(AMBIGUOUS_ERROR.formatted(functionName));
+			return null;
+		}
+
+		return sign;
+	}
+
+	/**
+	 * Attempts to get this function's registered implementation.
+	 */
+	private Function<?> getRegisteredFunction() {
+		parseParameters();
+
+		if (Skript.debug()) {
+			Skript.debug("Getting function '%s' with types %s",
+				functionName, Arrays.toString(Arrays.stream(parameterTypes).map(Class::getSimpleName).toArray()));
+		}
+		Function<?> function = FunctionRegistry.function(script, functionName, parameterTypes);
+
+		// if we can't find a signature based on param types, try to match any function
+		if (function == null) {
+			function = FunctionRegistry.function(script, functionName);
+		}
+
+		if (function == null) {
+			Skript.error(AMBIGUOUS_ERROR.formatted(functionName));
+			return null;
+		}
+
+		return function;
+	}
+
 	public @Nullable Function<? extends T> getFunction() {
 		return function;
 	}
@@ -267,7 +340,7 @@ public class FunctionReference<T> implements Contract, Executable<Event, T[]> {
 		// If needed, acquire the function reference
 		if (function == null)
 			//noinspection unchecked
-			function = (Function<? extends T>) Functions.getFunction(functionName, script);
+			function = (Function<? extends T>) getRegisteredFunction();
 
 		if (function == null) { // It might be impossible to resolve functions in some cases!
 			Skript.error("Couldn't resolve call for '" + functionName + "'.");
@@ -326,6 +399,7 @@ public class FunctionReference<T> implements Contract, Executable<Event, T[]> {
 
 	/**
 	 * The contract is used in preference to the function for determining return type, etc.
+	 *
 	 * @return The contract determining this function's parse-time hints, potentially this reference
 	 */
 	public Contract getContract() {
@@ -348,7 +422,7 @@ public class FunctionReference<T> implements Contract, Executable<Event, T[]> {
 		// If needed, acquire the function reference
 		if (function == null)
 			//noinspection unchecked
-			function = (Function<? extends T>) Functions.getFunction(functionName, script);
+			function = (Function<? extends T>) getRegisteredFunction();
 
 		if (function == null) { // It might be impossible to resolve functions in some cases!
 			Skript.error("Couldn't resolve call for '" + functionName + "'.");
