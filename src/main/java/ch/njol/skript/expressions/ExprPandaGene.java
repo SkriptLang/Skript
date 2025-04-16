@@ -22,7 +22,7 @@ import org.jetbrains.annotations.Nullable;
 	if the main gene of last spawned panda is lazy:
 		set the main gene of last spawned panda to playful
 	""")
-@Since("INSERT VERSION")
+@Since("2.11")
 public class ExprPandaGene extends SimplePropertyExpression<LivingEntity, Gene> {
 
 	static {

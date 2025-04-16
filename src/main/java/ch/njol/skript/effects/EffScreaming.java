@@ -25,7 +25,7 @@ import org.jetbrains.annotations.Nullable;
 	"""
 )
 @RequiredPlugins("Paper (endermen)")
-@Since("INSERT VERSION")
+@Since("2.11")
 public class EffScreaming extends Effect {
 
 	private static final boolean SUPPORTS_ENDERMAN = Skript.methodExists(Enderman.class, "setScreaming", boolean.class);

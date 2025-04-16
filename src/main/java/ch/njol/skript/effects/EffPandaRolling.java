@@ -21,7 +21,7 @@ import org.jetbrains.annotations.Nullable;
 	if last spawned panda is not rolling:
 		make last spawned panda start rolling
 	""")
-@Since("INSERT VERSION")
+@Since("2.11")
 public class EffPandaRolling extends Effect {
 
 	static {

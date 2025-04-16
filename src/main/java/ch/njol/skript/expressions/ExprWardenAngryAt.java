@@ -21,7 +21,7 @@ import org.jetbrains.annotations.Nullable;
 	"if the most angered entity of last spawned warden is not player:",
 		"\tset the most angered entity of last spawned warden to player"
 })
-@Since("INSERT VERSION")
+@Since("2.11")
 public class ExprWardenAngryAt extends SimplePropertyExpression<LivingEntity, LivingEntity> {
 
 	static {

@@ -1424,7 +1424,7 @@ public class BukkitClasses {
 			.name("Wolf Variant")
 			.description("Represents the variant of a wolf entity.",
 				"NOTE: Minecraft namespaces are supported, ex: 'minecraft:ashen'.")
-			.since("@VERSION")
+			.since("2.10")
 			.requiredPlugins("Minecraft 1.21+")
 			.documentationId("WolfVariant"));
 
@@ -1480,7 +1480,7 @@ public class BukkitClasses {
 			.user("world ?borders?")
 			.name("World Border")
 			.description("Represents the border of a world or player.")
-			.since("INSERT VERSION")
+			.since("2.11")
 			.parser(new Parser<WorldBorder>() {
 				@Override
 				public boolean canParse(ParseContext context) {
@@ -1555,7 +1555,7 @@ public class BukkitClasses {
 			.user("equipment ?slots?")
 			.name("Equipment Slot")
 			.description("Represents an equipment slot of an entity.")
-			.since("INSERT VERSION")
+			.since("2.11")
 		);
 
 	}

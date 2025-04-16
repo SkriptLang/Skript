@@ -14,7 +14,7 @@ import org.bukkit.entity.Panda;
 	if last spawned panda is sneezing:
 		make last spawned panda stop sneezing
 	""")
-@Since("INSERT VERSION")
+@Since("2.11")
 public class CondPandaIsSneezing extends PropertyCondition<LivingEntity> {
 
 	static {

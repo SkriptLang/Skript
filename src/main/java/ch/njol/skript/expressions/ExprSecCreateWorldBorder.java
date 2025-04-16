@@ -33,7 +33,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 			"\t\tset worldborder warning distance of event-worldborder to 5",
 		"\tset worldborder of player to {_border}"
 })
-@Since("INSERT VERSION")
+@Since("2.11")
 public class ExprSecCreateWorldBorder extends SectionExpression<WorldBorder> {
 
 	static {

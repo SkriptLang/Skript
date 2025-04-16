@@ -13,7 +13,7 @@ import org.bukkit.entity.Item;
 	"if all dropped items can despawn naturally:",
 		"\tprevent all dropped items from naturally despawning"
 })
-@Since("INSERT VERSION")
+@Since("2.11")
 public class CondItemDespawn extends PropertyCondition<Item> {
 
 	static {

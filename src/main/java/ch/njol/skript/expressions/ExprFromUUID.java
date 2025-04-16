@@ -34,7 +34,7 @@ import java.util.UUID;
 	"set {_entity} to entity from {_some uuid}",
 	"set {_world} to world from {_some uuid}"
 })
-@Since("INSERT VERSION")
+@Since("2.11")
 public class ExprFromUUID extends SimpleExpression<Object> {
 
 	static {

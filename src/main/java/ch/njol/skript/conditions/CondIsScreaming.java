@@ -20,7 +20,7 @@ import org.bukkit.entity.LivingEntity;
 	"""
 )
 @RequiredPlugins("Paper (endermen)")
-@Since("INSERT VERSION")
+@Since("2.11")
 public class CondIsScreaming extends PropertyCondition<LivingEntity> {
 
 	private static final boolean SUPPORTS_ENDERMAN = Skript.methodExists(Enderman.class, "isScreaming");

@@ -31,7 +31,7 @@ import org.jetbrains.annotations.Nullable;
 	"set the carried blockdata of {_enderman} to {_item}",
 	"clear the carried blockdata of {_enderman}"
 })
-@Since("INSERT VERSION")
+@Since("2.11")
 public class ExprCarryingBlockData extends SimplePropertyExpression<LivingEntity, BlockData> {
 
 	static {

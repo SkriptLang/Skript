@@ -19,7 +19,7 @@ import org.jetbrains.annotations.Nullable;
 	if last spawned panda is eating:
 		make last spawned panda stop eating
 	""")
-@Since("INSERT VERSION")
+@Since("2.11")
 @RequiredPlugins("Paper (horse type)")
 public class EffEating extends Effect {
 

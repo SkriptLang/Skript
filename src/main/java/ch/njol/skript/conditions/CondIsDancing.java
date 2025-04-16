@@ -15,7 +15,7 @@ import org.bukkit.entity.Piglin;
 		"\tbroadcast \"Dance Party!\""
 })
 @RequiredPlugins("Paper 1.20.1+ (piglins)")
-@Since("INSERT VERSION")
+@Since("2.11")
 public class CondIsDancing extends PropertyCondition<LivingEntity> {
 
 	private static final boolean SUPPORTS_PIGLINS = Skript.methodExists(Piglin.class, "isDancing");

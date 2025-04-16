@@ -11,7 +11,7 @@ import org.bukkit.entity.Panda;
 @Name("Panda Is Scared")
 @Description("Whether a panda is scared.")
 @Example("if last spawned panda is scared:")
-@Since("INSERT VERSION")
+@Since("2.11")
 public class CondPandaIsScared extends PropertyCondition<LivingEntity> {
 
 	static {

@@ -20,7 +20,7 @@ import org.jetbrains.annotations.Nullable;
 	"prevent all dropped items from naturally despawning",
 	"allow all dropped items to naturally despawn"
 })
-@Since("INSERT VERSION")
+@Since("2.11")
 public class EffItemDespawn extends Effect {
 
 	static {

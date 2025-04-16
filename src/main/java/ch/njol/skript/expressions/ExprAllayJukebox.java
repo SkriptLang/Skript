@@ -13,7 +13,7 @@ import org.jetbrains.annotations.Nullable;
 @Name("Allay Target Jukebox")
 @Description("The location of the jukebox an allay is set to.")
 @Examples("set {_loc} to the target jukebox of last spawned allay")
-@Since("INSERT VERSION")
+@Since("2.11")
 public class ExprAllayJukebox extends SimplePropertyExpression<LivingEntity, Location> {
 
 	static {

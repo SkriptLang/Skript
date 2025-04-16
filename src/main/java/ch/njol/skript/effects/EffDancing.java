@@ -35,7 +35,7 @@ import org.jetbrains.annotations.Nullable;
 	"make all piglins dance for 5 hours"
 })
 @RequiredPlugins("Paper 1.20.1+ (piglins)")
-@Since("INSERT VERSION")
+@Since("2.11")
 public class EffDancing extends Effect {
 
 	private static final boolean SUPPORTS_PIGLINS = Skript.methodExists(Piglin.class, "setDancing", boolean.class);

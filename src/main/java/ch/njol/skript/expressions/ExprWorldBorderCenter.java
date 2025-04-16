@@ -16,7 +16,7 @@ import org.skriptlang.skript.log.runtime.SyntaxRuntimeErrorProducer;
 @Name("Center of World Border")
 @Description("The center of a world border.")
 @Examples("set world border center of {_worldborder} to location(10, 0, 20)")
-@Since("INSERT VERSION")
+@Since("2.11")
 public class ExprWorldBorderCenter extends SimplePropertyExpression<WorldBorder, Location> implements SyntaxRuntimeErrorProducer {
 
 	static {

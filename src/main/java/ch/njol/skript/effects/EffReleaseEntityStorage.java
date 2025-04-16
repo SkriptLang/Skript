@@ -29,7 +29,7 @@ import java.util.List;
 	"release the entity storage of {_hive} for 5 seconds"
 })
 @RequiredPlugins("Minecraft 1.21")
-@Since("INSERT VERSION")
+@Since("2.11")
 public class EffReleaseEntityStorage extends Effect {
 
 	/*

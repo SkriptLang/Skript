@@ -45,7 +45,7 @@ import java.util.function.Function;
 	"unzombify {_zombieVillager}",
 	"unzombify {_zombieVillager} after 2 seconds"
 })
-@Since("INSERT VERSION")
+@Since("2.11")
 public class EffZombify extends Effect {
 
 	static {

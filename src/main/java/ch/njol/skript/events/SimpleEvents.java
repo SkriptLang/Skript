@@ -732,7 +732,7 @@ public class SimpleEvents {
 		Skript.registerEvent("Bat Toggle Sleep", SimpleEvent.class, BatToggleSleepEvent.class, "bat toggle sleep")
 			.description("Called when a bat attempts to go to sleep or wakes up.")
 			.examples("on bat toggle sleep:")
-			.since("INSERT VERSION");
+			.since("2.11");
 
 		// WorldBorder Events
 		if (Skript.classExists("io.papermc.paper.event.world.border.WorldBorderEvent")) {
@@ -746,7 +746,7 @@ public class SimpleEvents {
 					"on worldborder bounds change:",
 						"\tbroadcast \"The diameter of %event-worldborder% is changing from %past event-number% to %event-number% over the next %event-timespan%\""
 				)
-				.since("INSERT VERSION");
+				.since("2.11");
 
 			Skript.registerEvent("World Border Bounds Finish Change", SimpleEvent.class, WorldBorderBoundsChangeFinishEvent.class, "world[ ]border [bounds] finish chang(e|ing)")
 				.description(
@@ -758,7 +758,7 @@ public class SimpleEvents {
 					"on worldborder bounds finish change:",
 						"\tbroadcast \"Over the past %event-timespan%, the diameter of %event-worldborder% went from %past event-number% to %event-number%\""
 				)
-				.since("INSERT VERSION");
+				.since("2.11");
 
 			Skript.registerEvent("World Border Center Change", SimpleEvent.class, WorldBorderCenterChangeEvent.class, "world[ ]border center chang(e|ing)")
 				.description(
@@ -770,7 +770,7 @@ public class SimpleEvents {
 					"on worldborder center change:",
 						"\tbroadcast \"The center of %event-worldborder% has moved from %past event-location% to %event-location%\""
 				)
-				.since("INSERT VERSION");
+				.since("2.11");
 		}
 	}
 

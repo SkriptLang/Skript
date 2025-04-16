@@ -13,7 +13,7 @@ import org.bukkit.entity.Panda;
 	if last spawned panda is eating:
 		force last spawned panda to stop eating
 	""")
-@Since("INSERT VERSION")
+@Since("2.11")
 @RequiredPlugins("Paper (horse type)")
 public class CondIsEating extends PropertyCondition<LivingEntity> {
 
