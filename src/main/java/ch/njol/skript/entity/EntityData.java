@@ -128,15 +128,7 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 		}
 	};
 
-	private final static Map<Class<? extends Entity>, EntityType> CLASS_ENTITY_TYPE_MAP = new HashMap<>();
-
 	static {
-		for (EntityType entityType : EntityType.values()) {
-			Class<? extends Entity> entityClass = entityType.getEntityClass();
-			if (entityClass != null)
-				CLASS_ENTITY_TYPE_MAP.put(entityClass, entityType);
-		}
-
 		Classes.registerClass(new ClassInfo<>(EntityData.class, "entitydata")
 				.user("entity ?types?")
 				.name("Entity Type")
@@ -179,33 +171,6 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 		});
 	}
 
-	/**
-	 * Attempts to get an {@link EntityType} from a {@link Class} extending {@link Entity}.
-	 * Ensures at least one {@link EntityType} can represent an entity class through {@link Class#isAssignableFrom(Class)}.
-	 * @param entityClass The {@link Class} extending {@link Entity}
-	 * @return The exact or assignable {@link EntityType} or {@code null}
-	 */
-	public static <E extends Entity> @Nullable EntityType getEntityType(Class<E> entityClass) {
-		if (CLASS_ENTITY_TYPE_MAP.containsKey(entityClass)) {
-			return CLASS_ENTITY_TYPE_MAP.get(entityClass);
-		}
-		EntityType closestEntityType = null;
-		Class<? extends Entity> closestClass = null;
-		for (EntityType entityType : EntityType.values()) {
-			Class<? extends Entity> typeClass = entityType.getEntityClass();
-			if (typeClass != null && typeClass.isAssignableFrom(entityClass)) {
-				if (closestEntityType == null || typeClass.isAssignableFrom(closestClass)) {
-					closestEntityType = entityType;
-					closestClass = typeClass;
-					if (typeClass.equals(entityClass))
-						break;
-				}
-			}
-		}
-		CLASS_ENTITY_TYPE_MAP.put(entityClass, closestEntityType);
-		return closestEntityType;
-	}
-
 	private final static class EntityDataInfo<T extends EntityData<?>> extends SyntaxElementInfo<T>
 		implements LanguageChangeListener {
 
@@ -217,7 +182,7 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 		final Noun[] names;
 
 		public EntityDataInfo(Class<T> dataClass, String codeName, String[] codeNames, int defaultName, Class<? extends Entity> entityClass) {
-			this(dataClass, codeName, codeNames, defaultName, getEntityType(entityClass), entityClass);
+			this(dataClass, codeName, codeNames, defaultName, EntityUtils.toBukkitEntityType(entityClass), entityClass);
 		}
 
 		public EntityDataInfo(
@@ -289,8 +254,15 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 		int defaultName,
 		String... codeNames
 	) throws IllegalArgumentException {
-		EntityType entityType = getEntityType(entityClass);
+		EntityType entityType = EntityUtils.toBukkitEntityType(entityClass);
 		EntityDataInfo<T> entityDataInfo = new EntityDataInfo<>(dataClass, name, codeNames, defaultName, entityType, entityClass);
+		for (int i = 0; i < infos.size(); i++) {
+			if (infos.get(i).entityClass.isAssignableFrom(entityClass)) {
+				//noinspection unchecked
+				infos.add(i, (EntityDataInfo<EntityData<?>>) entityDataInfo);
+				return;
+			}
+		}
 		//noinspection unchecked
 		infos.add((EntityDataInfo<EntityData<?>>) entityDataInfo);
 	}
