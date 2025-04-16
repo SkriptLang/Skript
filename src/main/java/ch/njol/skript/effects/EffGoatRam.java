@@ -18,7 +18,7 @@ import org.jetbrains.annotations.Nullable;
 })
 @Examples("make all goats ram player")
 @RequiredPlugins("Paper")
-@Since("INSERT VERSION")
+@Since("2.11")
 public class EffGoatRam extends Effect {
 
 	static {

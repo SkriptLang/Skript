@@ -26,7 +26,7 @@ import org.jetbrains.annotations.Nullable;
 		set entity size of event-entity to 5
 		set name of event-entity to "King Slime Jorg"
 	""")
-@Since("INSERT VERSION")
+@Since("2.11")
 public class ExprEntitySize extends SimplePropertyExpression<LivingEntity, Integer> {
 
 	private static final int MAXIMUM_SLIME_SIZE = 127;

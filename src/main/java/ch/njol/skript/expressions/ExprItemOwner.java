@@ -28,7 +28,7 @@ import java.util.UUID;
 		set the uuid of the dropped item owner of last dropped item to player
 		if the uuid of the dropped item owner of last dropped item is uuid of player:
 	""")
-@Since("INSERT VERSION")
+@Since("2.11")
 public class ExprItemOwner extends SimplePropertyExpression<Item, UUID> {
 
 	static {

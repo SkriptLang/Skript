@@ -19,7 +19,7 @@ import org.jetbrains.annotations.Nullable;
 	on entity shoot projectile:
 		set the velocity of shooter to vector(0,1,0) * projectile force
 	""")
-@Since("INSERT VERSION")
+@Since("2.11")
 public class ExprProjectileForce extends SimpleExpression<Float> implements EventRestrictedSyntax {
 
 	static {

@@ -22,7 +22,7 @@ import org.jetbrains.annotations.Nullable;
 	""")
 @RequiredPlugins("Paper")
 @Events("Armor Change")
-@Since("INSERT VERSION")
+@Since("2.11")
 public class ExprArmorChangeItem extends EventValueExpression<ItemStack> implements EventRestrictedSyntax {
 
 	static {

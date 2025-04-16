@@ -35,7 +35,7 @@ import org.skriptlang.skript.log.runtime.SyntaxRuntimeErrorProducer;
 	"make player go to sleep at location(0, 0, 0) with force",
 	"make player wake up without spawn location update"
 })
-@Since("INSERT VERSION")
+@Since("2.11")
 public class EffWakeupSleep extends Effect implements SyntaxRuntimeErrorProducer {
 
 	static {

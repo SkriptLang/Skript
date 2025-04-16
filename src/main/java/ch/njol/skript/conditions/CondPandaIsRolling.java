@@ -14,7 +14,7 @@ import org.bukkit.entity.Panda;
 	if last spawned panda is rolling:
 		make last spawned panda stop rolling
 	""")
-@Since("INSERT VERSION")
+@Since("2.11")
 public class CondPandaIsRolling extends PropertyCondition<LivingEntity> {
 
 	static {

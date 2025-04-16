@@ -75,7 +75,7 @@ public class EvtFish extends SkriptEvent {
 					
 			)
 			.requiredPlugins("Paper (bobber lured)")
-			.since("2.10, INSERT VERSION (state change)");
+			.since("2.10, 2.11 (state change)");
 
 		EventValues.registerEventValue(PlayerFishEvent.class, Entity.class, PlayerFishEvent::getCaught);
 

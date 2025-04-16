@@ -21,7 +21,7 @@ import org.jetbrains.annotations.Nullable;
 	if last spawned panda is not sneezing:
 		make last spawned panda start sneezing
 	""")
-@Since("INSERT VERSION")
+@Since("2.11")
 public class EffPandaSneezing extends Effect {
 
 	static {

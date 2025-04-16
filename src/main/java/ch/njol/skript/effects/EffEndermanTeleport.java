@@ -26,7 +26,7 @@ import java.util.function.Consumer;
 		"\tmake all endermen teleport towards player"
 })
 @RequiredPlugins("Minecraft 1.20.1+")
-@Since("INSERT VERSION")
+@Since("2.11")
 public class EffEndermanTeleport extends Effect {
 
 	static {

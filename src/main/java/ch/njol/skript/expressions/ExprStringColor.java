@@ -33,7 +33,7 @@ import java.util.List;
 	"set {_color} to the first string color code of \"&aGoodbye!\"",
 	"send \"%{_color}%Howdy!\" to all players"
 })
-@Since("INSERT VERSION")
+@Since("2.11")
 public class ExprStringColor extends PropertyExpression<String, Object> {
 
 	private enum StringColor {

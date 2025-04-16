@@ -13,7 +13,7 @@ import org.bukkit.entity.LivingEntity;
 })
 @Examples("if last spawned enderman has been stared at:")
 @RequiredPlugins("Paper")
-@Since("INSERT VERSION")
+@Since("2.11")
 public class CondEndermanStaredAt extends PropertyCondition<LivingEntity> {
 
 	static {
