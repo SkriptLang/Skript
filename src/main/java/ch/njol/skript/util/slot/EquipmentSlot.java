@@ -1,6 +1,5 @@
 package ch.njol.skript.util.slot;
 
-import ch.njol.skript.bukkitutil.BukkitUtils;
 import ch.njol.skript.bukkitutil.PlayerUtils;
 import ch.njol.skript.lang.SyntaxStringBuilder;
 import ch.njol.skript.registrations.Classes;
@@ -14,7 +13,9 @@ import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 
 /**
  * Represents equipment slot of an entity.
@@ -122,6 +123,22 @@ public class EquipmentSlot extends SlotWithIndex {
 
 	}
 
+	private static final Map<org.bukkit.inventory.EquipmentSlot, Integer> BUKKIT_SLOT_INDICES = new HashMap<>();
+	private static final Map<Integer, org.bukkit.inventory.EquipmentSlot> BUKKIT_SLOT_INDICES_REVERSED = new HashMap<>();
+
+	static {
+		BUKKIT_SLOT_INDICES.put(org.bukkit.inventory.EquipmentSlot.FEET, 36);
+		BUKKIT_SLOT_INDICES.put(org.bukkit.inventory.EquipmentSlot.LEGS, 37);
+		BUKKIT_SLOT_INDICES.put(org.bukkit.inventory.EquipmentSlot.CHEST, 38);
+		BUKKIT_SLOT_INDICES.put(org.bukkit.inventory.EquipmentSlot.HEAD, 39);
+		BUKKIT_SLOT_INDICES.put(org.bukkit.inventory.EquipmentSlot.OFF_HAND, 40);
+		BUKKIT_SLOT_INDICES_REVERSED.put(36, org.bukkit.inventory.EquipmentSlot.FEET);
+		BUKKIT_SLOT_INDICES_REVERSED.put(37, org.bukkit.inventory.EquipmentSlot.LEGS);
+		BUKKIT_SLOT_INDICES_REVERSED.put(38, org.bukkit.inventory.EquipmentSlot.CHEST);
+		BUKKIT_SLOT_INDICES_REVERSED.put(39, org.bukkit.inventory.EquipmentSlot.HEAD);
+		BUKKIT_SLOT_INDICES_REVERSED.put(40, org.bukkit.inventory.EquipmentSlot.OFF_HAND);
+	}
+
 	private final EntityEquipment entityEquipment;
 	private EquipSlot skriptSlot;
 	private final int slotIndex;
@@ -175,7 +192,12 @@ public class EquipmentSlot extends SlotWithIndex {
 	}
 
 	public EquipmentSlot(@NotNull HumanEntity holder, int index) {
-		this(holder.getEquipment(), BukkitUtils.getEquipmentSlotFromIndex(index), true);
+		/*
+		 * slot: 6 entries in EquipSlot, indices descending
+		 *  So this math trick gets us the EquipSlot from inventory slot index
+		 * slotToString: Referring to numeric slot id, right?
+		 */
+		this(holder.getEquipment(), BUKKIT_SLOT_INDICES_REVERSED.get(index), true);
 	}
 
 	@Override
@@ -184,7 +206,7 @@ public class EquipmentSlot extends SlotWithIndex {
 			return skriptSlot.get(entityEquipment);
 		return entityEquipment.getItem(bukkitSlot);
 	}
-
+	
 	@Override
 	public void setItem(@Nullable ItemStack item) {
 		if (skriptSlot != null) {
@@ -195,13 +217,13 @@ public class EquipmentSlot extends SlotWithIndex {
 		if (entityEquipment.getHolder() instanceof Player player)
 			PlayerUtils.updateInventory(player);
 	}
-
+	
 	@Override
 	public int getAmount() {
 		ItemStack item = getItem();
 		return item != null ? item.getAmount() : 0;
 	}
-
+	
 	@Override
 	public void setAmount(int amount) {
 		ItemStack item = getItem();
@@ -209,7 +231,7 @@ public class EquipmentSlot extends SlotWithIndex {
 			item.setAmount(amount);
 		setItem(item);
 	}
-
+	
 	/**
 	 * @deprecated Use {@link EquipmentSlot#EquipmentSlot(EntityEquipment, org.bukkit.inventory.EquipmentSlot)} and {@link #getEquipmentSlot()}
 	 */
@@ -233,8 +255,8 @@ public class EquipmentSlot extends SlotWithIndex {
 			return slotIndex;
 		} else if (skriptSlot != null) {
 			return skriptSlot.slotNumber;
-		} else if (BukkitUtils.getEquipmentSlotIndex(bukkitSlot) != null) {
-			return BukkitUtils.getEquipmentSlotIndex(bukkitSlot);
+		} else if (BUKKIT_SLOT_INDICES.containsKey(bukkitSlot)) {
+			return BUKKIT_SLOT_INDICES.get(bukkitSlot);
 		}
 		return -1;
 	}
@@ -254,5 +276,5 @@ public class EquipmentSlot extends SlotWithIndex {
 		}
 		return Classes.toString(getItem());
 	}
-
+	
 }
