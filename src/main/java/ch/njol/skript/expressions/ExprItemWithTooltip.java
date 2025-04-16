@@ -24,7 +24,7 @@ import org.jetbrains.annotations.Nullable;
 	"set {_item without entire tooltip} to diamond without entire tooltip"
 })
 @RequiredPlugins("Minecraft 1.20.5+")
-@Since("INSERT VERSION")
+@Since("2.11")
 public class ExprItemWithTooltip extends PropertyExpression<ItemType, ItemType> {
 
 	static {
