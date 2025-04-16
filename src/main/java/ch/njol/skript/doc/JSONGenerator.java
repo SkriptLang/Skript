@@ -176,12 +176,22 @@ public class JSONGenerator extends DocumentationGenerator {
 						continue;
 					}
 
-					ClassInfo<?> exactClassInfo = Classes.getExactClassInfo(eventValueInfo.valueClass());
-					if (exactClassInfo == null) {
+					Class<?> valueClass = eventValueInfo.valueClass();
+					ClassInfo<?> classInfo;
+					if (valueClass.isArray()) {
+						classInfo = Classes.getExactClassInfo(valueClass.componentType());
+					} else {
+						classInfo = Classes.getExactClassInfo(valueClass);
+					}
+
+					if (classInfo == null) {
 						continue;
 					}
 
-					String name = getClassInfoName(exactClassInfo).toLowerCase(Locale.ENGLISH);
+					String name = classInfo.getName().getSingular();
+					if (valueClass.isArray()) {
+						name = classInfo.getName().getPlural();
+					}
 					if (name.isBlank()) {
 						continue;
 					}
@@ -193,8 +203,8 @@ public class JSONGenerator extends DocumentationGenerator {
 					}
 
 					JsonObject object = new JsonObject();
-					object.addProperty("id", DocumentationIdProvider.getId(exactClassInfo));
-					object.addProperty("name", name);
+					object.addProperty("id", DocumentationIdProvider.getId(classInfo));
+					object.addProperty("name", name.toLowerCase(Locale.ENGLISH));
 					eventValues.add(object);
 				}
 			}
@@ -277,7 +287,7 @@ public class JSONGenerator extends DocumentationGenerator {
 
 		JsonObject syntaxJsonObject = new JsonObject();
 		syntaxJsonObject.addProperty("id", DocumentationIdProvider.getId(classInfo));
-		syntaxJsonObject.addProperty("name", getClassInfoName(classInfo));
+		syntaxJsonObject.addProperty("name", Objects.requireNonNullElse(classInfo.getDocName(), classInfo.getCodeName()));
 		syntaxJsonObject.addProperty("since", classInfo.getSince());
 
 		syntaxJsonObject.add("patterns", cleanPatterns(classInfo.getUsage()));
@@ -302,16 +312,6 @@ public class JSONGenerator extends DocumentationGenerator {
 				syntaxArray.add(classInfoElement);
 		});
 		return syntaxArray;
-	}
-
-	/**
-	 * Gets either the explicitly declared documentation name or code name of a ClassInfo
-	 *
-	 * @param classInfo the ClassInfo to get the effective name of
-	 * @return the effective name of the ClassInfo
-	 */
-	private static String getClassInfoName(ClassInfo<?> classInfo) {
-		return Objects.requireNonNullElse(classInfo.getDocName(), classInfo.getCodeName());
 	}
 
 	/**
@@ -342,10 +342,16 @@ public class JSONGenerator extends DocumentationGenerator {
 	 * @return the JsonObject representing the return type of the JavaFunction
 	 */
 	private static JsonObject getReturnType(JavaFunction<?> function) {
-		JsonObject returnType = new JsonObject();
-		returnType.addProperty("name", getClassInfoName(function.getReturnType()));
-		returnType.addProperty("id", DocumentationIdProvider.getId(function.getReturnType()));
-		return returnType;
+		JsonObject object = new JsonObject();
+
+		ClassInfo<?> returnType = function.getReturnType();
+		if (returnType == null) {
+			return null;
+		}
+
+		object.addProperty("id", DocumentationIdProvider.getId(returnType));
+		object.addProperty("name", Objects.requireNonNullElse(returnType.getDocName(), returnType.getCodeName()));
+		return object;
 	}
 
 	/**
