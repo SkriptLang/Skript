@@ -1,0 +1,64 @@
+name: Release Documentation v2
+
+on:
+    release:
+        types: [published]
+    push:
+        branches:
+            - feature/docs-v2-auto-update
+    workflow_dispatch:
+
+jobs:
+    update-docs:
+        name: Build and Deploy Documentation
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout main repository
+              uses: actions/checkout@v4
+
+            - name: Set up Java
+              uses: actions/setup-java@v3
+              with:
+                  distribution: 'temurin'
+                  java-version: '17'
+
+            - name: Build and generate docs.json
+              run: |
+                  ./gradlew genReleaseDocs
+
+            - name: Find docs.json
+              run: |
+                DOCS_JSON=$(find . -type f | grep docs.json | head -n 1)
+                if [ -z "$DOCS_JSON" ]; then
+                    echo "docs.json not found"
+                    exit 1
+                fi
+                echo "docs.json found at $DOCS_JSON"
+                echo "docs_json=$DOCS_JSON" >> $GITHUB_ENV
+
+            - name: Checkout docs repository
+              uses: actions/checkout@v4
+              with:
+                  repository: SkriptLang/docs
+                  path: docs-repo
+
+            - name: Move docs.json to the docs repo
+              run: |
+                  mv ${{ env.docs_json }} docs-repo/src/assets/docs/docs.json
+  
+            - name: Save deploy key
+              run: |
+                 eval `ssh-agent`
+                 echo "${{ secrets.DOCS_TOKEN }}" | tr -d '\r' | ssh-add - > /dev/null
+                 mkdir ~/.ssh
+                 ssh-keyscan www.github.com >> ~/.ssh/known_hosts
+
+            - name: Commit and push changes
+              run: |
+                  cd docs-repo
+                  git config --global user.name "github-actions[bot]"
+                  git config --global user.email "github-actions[bot]@users.noreply.github.com"
+                  git remote set-url origin git@github.com:SkriptLang/docs
+                  git add src/assets/docs/docs.json
+                  git commit -m "Update docs.json from latest Skript build" || exit 0
+                  git push origin master
