@@ -129,6 +129,23 @@ public final class Arithmetics {
 		return info != null ? info.getConverted(leftClass, rightClass, returnType) : null;
 	}
 
+	public static <L, R> @Nullable OperationInfo<L, R, ?> lookupOperationInfo(
+		Operator operator,
+		Class<L> leftClass,
+		Class<R> rightClass,
+		Class<?> ... possibleReturnTypes
+	) {
+		OperationInfo<L, R, ?> info = lookupOperationInfo(operator, leftClass, rightClass);
+		if (info == null)
+			return null;
+		for (Class<?> returnType : possibleReturnTypes) {
+			OperationInfo<L, R, ?> convertedInfo = info.getConverted(leftClass, rightClass, returnType);
+			if (convertedInfo != null)
+				return convertedInfo;
+		}
+		return null;
+	}
+
 	@Nullable
 	@SuppressWarnings("unchecked")
 	public static <L, R> OperationInfo<L, R, ?> lookupOperationInfo(Operator operator, Class<L> leftClass, Class<R> rightClass) {
