@@ -30,37 +30,23 @@ public class PlayerElytraBoostEventTest extends SkriptJUnitTest {
 			entityType = EntityType.valueOf("FIREWORK_ROCKET");
 		}
 		assert entityType != null;
-		firework = (Firework) getTestWorld().spawnEntity(getTestLocation(), entityType);
+		firework = spawnTestEntity(entityType);
 		firework.setTicksToDetonate(9999999);
 	}
 
 	@Test
 	public void test() {
-		Constructor<?> constructor = null;
-		boolean newerConstructor = false;
-		try {
-			constructor = PlayerElytraBoostEvent.class.getConstructor(Player.class, ItemStack.class, Firework.class, EquipmentSlot.class);
-			newerConstructor = true;
-		} catch (Exception ignored) {
-			try {
-				constructor = PlayerElytraBoostEvent.class.getConstructor(Player.class, ItemStack.class, Firework.class);
-			} catch (NoSuchMethodException e) {
-				throw new IllegalStateException("No valid constructor for 'PlayerElytraBoostEvent'");
-			}
+		Constructor<?> constructor = getConstructor(PlayerElytraBoostEvent.class, false, Player.class, ItemStack.class, Firework.class, EquipmentSlot.class);
+		ItemStack rocket = new ItemStack(Material.FIREWORK_ROCKET);
+		Event event;
+		if (constructor != null) {
+			event = newInstance(constructor, player, rocket, firework, EquipmentSlot.HAND);
+		} else {
+			constructor = getConstructor(PlayerElytraBoostEvent.class, Player.class, ItemStack.class, Firework.class);
+			event = newInstance(constructor, player, rocket, firework);
 		}
 
-		try {
-			Event event;
-			if (newerConstructor) {
-				event = (Event) constructor.newInstance(player, new ItemStack(Material.FIREWORK_ROCKET), firework, EquipmentSlot.HAND);
-			} else {
-				event = (Event) constructor.newInstance(player, new ItemStack(Material.FIREWORK_ROCKET), firework);
-			}
-
-			Bukkit.getPluginManager().callEvent(event);
-		} catch (Exception e) {
-			throw new RuntimeException("Unable to construct event.");
-		}
+		Bukkit.getPluginManager().callEvent(event);
 	}
 
 	@After
