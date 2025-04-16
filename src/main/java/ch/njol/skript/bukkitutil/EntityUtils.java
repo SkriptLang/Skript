@@ -117,7 +117,10 @@ public class EntityUtils {
 	 * @return Bukkit's EntityType
 	 */
 	public static EntityType toBukkitEntityType(EntityData<?> e) {
-		return SPAWNER_TYPES.get(EntityData.fromClass(e.getType())); // Fix Comparison Issues
+		EntityData<?> entityData = EntityData.fromClass(e.getType()); // Fix Comparison Issues
+		if (SPAWNER_TYPES.containsKey(entityData))
+			return SPAWNER_TYPES.get(entityData);
+        return EntityData.getEntityType(e.getType());
 	}
 
 	/**

@@ -469,9 +469,7 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 	public boolean canSpawn(@Nullable World world) {
 		if (world == null)
 			return false;
-		if (info.entityType == null)
-			info.entityType = EntityUtils.toBukkitEntityType(this);
-		EntityType bukkitEntityType = info.entityType;
+		EntityType bukkitEntityType = info.entityType != null ? info.entityType : EntityUtils.toBukkitEntityType(this);
 		if (bukkitEntityType == null)
 			return false;
 		if (HAS_ENABLED_BY_FEATURE) {
