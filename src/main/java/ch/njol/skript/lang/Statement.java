@@ -48,8 +48,8 @@ public abstract class Statement extends TriggerItem implements SyntaxElement {
 			log.clear();
 
 			Statement statement;
+			Section.SectionContext sectionContext = ParserInstance.get().getData(Section.SectionContext.class);
 			if (node != null) {
-				Section.SectionContext sectionContext = ParserInstance.get().getData(Section.SectionContext.class);
 				statement = sectionContext.modify(node, items, () -> {
 						//noinspection unchecked,rawtypes
 						Statement parsed = (Statement) SkriptParser.parse(input, (Iterator) Skript.getStatements().iterator(), defaultError);
@@ -60,8 +60,10 @@ public abstract class Statement extends TriggerItem implements SyntaxElement {
 						return parsed;
 				});
 			} else {
-				//noinspection unchecked,rawtypes
-				statement = (Statement) SkriptParser.parse(input, (Iterator) Skript.getStatements().iterator(), defaultError);
+				statement = sectionContext.modify(null, null, () -> {
+					//noinspection unchecked,rawtypes
+					return (Statement) SkriptParser.parse(input, (Iterator) Skript.getStatements().iterator(), defaultError);
+				});
 			}
 
 			if (statement != null) {
