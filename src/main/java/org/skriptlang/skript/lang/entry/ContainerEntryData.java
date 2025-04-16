@@ -25,6 +25,10 @@ public class ContainerEntryData extends EntryData<EntryContainer> {
 		this.entryValidator = validatorBuilder.build();
 	}
 
+	public EntryValidator getEntryValidator() {
+		return entryValidator;
+	}
+
 	@Override
 	public @Nullable EntryContainer getValue(Node node) {
 		return entryContainer;

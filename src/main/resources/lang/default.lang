@@ -2085,6 +2085,12 @@ inventory actions:
 	clone_stack: clone stack
 	collect_to_cursor: collect to cursor, collect items to cursor
 	unknown: unknown, unsupported, custom
+	pickup_from_bundle: pickup from bundle, pickup items from bundle
+	pickup_all_into_bundle: pickup all into bundle, pickup all items into bundle
+	pickup_some_into_bundle: pickup some into bundle, pickup some items into bundle
+	place_from_bundle: place from bundle, place items from bundle
+	place_all_into_bundle: place all into bundle, place all items into bundle
+	place_some_into_bundle: place some into bundle, place some items into bundle
 
 # -- Inventory Click Types --
 click types:
@@ -2144,6 +2150,7 @@ spawn reasons:
 	bed: bed
 	beehive: beehive
 	breeding: breed, breeding
+	bucket: release from bucket # 'bucket' alone is problematic
 	build_irongolem: built iron golem, build iron golem
 	build_snowman: built snowman, build snowman
 	build_wither: built wither, build wither
