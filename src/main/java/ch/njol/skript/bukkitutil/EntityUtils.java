@@ -171,6 +171,8 @@ public class EntityUtils {
 	 * @return Skript's EntityData
 	 */
 	public static EntityData<?> toSkriptEntityData(EntityType e) {
+		if (SPAWNER_TYPES.isEmpty())
+			loadSpawnerTypes();
 		return SPAWNER_TYPES.inverse().get(e);
 	}
 
