@@ -786,6 +786,20 @@ public class SimpleEvents {
 				.since("INSERT VERSION")
 				.requiredPlugins("Minecraft 1.21.1+");
 		}
+
+		Skript.registerEvent("Villager Career Change", SimpleEvent.class, VillagerCareerChangeEvent.class,
+				"villager career chang(e[d]|ing)")
+			.description("Called when a villager changes its career. Can be caused by being employed or losing their job.")
+			.examples("""
+				on villager career change:
+					if all:
+						event-career change reason is employment
+						event-villager profession is armorer profession
+					then:
+						cancel event
+				""")
+			.since("INSERT VERSION");
+
 	}
 
 }
