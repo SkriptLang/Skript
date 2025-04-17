@@ -1,0 +1,219 @@
+# Fitxer d'idioma per defecte en anglès
+
+# Versió de Skript per a la qual es va escriure aquest fitxer d'idioma
+version: 2.10.1
+
+# Com s'ha de mostrar "nul" (res) en un text
+none: <none>
+
+# -- Skript --
+skript:
+	copyright: ~ creat per & © Peter Güttinger aka Njol ~
+	prefix: <gray>[<gold>Skript<gray>] <reset>
+	quotes error: Ús invàlid de cometes ("). Si vols fer servir cometes en "text entre cometes", duplica-les: "".
+	brackets error: Quantitat o col·locació invàlida de claudàtors. Si us plau, assegura't que cada claudàtor d'obertura tingui un claudàtor de tancament corresponent.
+	invalid reload: Skript només pot ser recarregat mitjançant l'ordre '/reload' de Bukkit o l'ordre '/skript reload' de Skript.
+	no scripts: No s'han trobat scripts, potser hauries d'escriure'n alguns ;)
+	no errors: Tots els scripts s'han carregat sense errors.
+	scripts loaded: S'han carregat %s script¦¦s¦ amb un total de %s estructura¦¦s¦ en %s
+	finished loading: Càrrega finalitzada.
+	warning message: Sembla que /reload o un altre plugin ha recarregat Skript. Aquest comportament no és compatible i pot causar problemes.
+	restart message: Si us plau, considera reiniciar el servidor en lloc d'això.
+
+# -- Ordre de Skript --
+skript command:
+	usage: Ús:
+	help:
+		description: Ordre principal de Skript
+		help: Mostra aquest missatge d'ajuda. Fes servir '/skript reload/enable/disable/update' per obtenir més informació
+		reload:
+			description: Recarrega un script específic, tots els scripts, la configuració o tot
+			all: Recarrega la configuració, totes les configuracions d'àlies i tots els scripts
+			config: Recarrega la configuració principal
+			aliases: Recarrega les configuracions d'àlies (aliases-english.zip o l'arxiu jar del plugin)
+			scripts: Recarrega tots els scripts
+			<script>: Recarrega un script específic o una carpeta de scripts
+		enable:
+			description: Habilita tots els scripts o un específic
+			all: Habilita tots els scripts
+			<script>: Habilita un script específic o una carpeta de scripts
+		disable:
+			description: Deshabilita tots els scripts o un específic
+			all: Deshabilita tots els scripts
+			<script>: Deshabilita un script específic o una carpeta de scripts
+		update:
+			description: Verifica actualitzacions o llegeix el registre de canvis
+			check: Verifica si hi ha una nova versió
+			changes: Llista tots els canvis des de la versió actual
+		list: Llista tots els scripts habilitats i deshabilitats
+		info: Mostra un missatge amb enllaços als àlies i la documentació de Skript
+		gen-docs: Genera documentació fent servir docs/templates a la carpeta del plugin
+		test: Utilitzat per executar proves internes de Skript
+
+	invalid script: No es pot trobar el script <grey>'<gold>%s<grey>'<red> a la carpeta de scripts!
+	invalid folder: No es pot trobar la carpeta <grey>'<gold>%s<grey>'<red> a la carpeta de scripts!
+	reload:
+		warning line info: <gold><bold>Línia %s:<gray> (%s)<reset>\n
+		error line info: <light red><bold>Línia %s:<gray> (%s)<reset>\n
+		reloading: Recarregant <gold>%s<reset>...
+		reloaded: <lime>Recàrrega exitosa de <gold>%s<lime>. <gray>(<gold>%2$sms<gray>)
+		player reload: <lime>%s <reset>està recarregant <gold>%s<reset>...
+		error: <light red>S'han trobat <gold>%2$s <light red>error¦¦s¦ en recarregar <gold>%1$s<light red>! <gray>(<gold>%3$sms<gray>)
+		script disabled: <gold>%s<reset> està actualment deshabilitat. Fes servir <gray>/<gold>skript <cyan>enable <red>%s<reset> per habilitar-lo.
+		warning details: <yellow>    %s<reset>\n
+		error details: <light red>    %s<reset>\n
+		other details: <white>    %s<reset>\n
+		line details: <gold>    Línia: <gray>%s<reset>\n <reset>
+
+		config, aliases and scripts: la configuració, els àlies i tots els scripts
+		scripts: tots els scripts
+		main config: la configuració principal
+		aliases: els àlies
+		script: <gold>%s<reset>
+		scripts in folder: tots els scripts a <gold>%s<reset>
+		x scripts in folder success: <gold>%2$s <lime>script¦¦s¦ a <gold>%1$s<reset>
+		x scripts in folder error: <gold>%2$s <light red>script¦¦s¦ a <gold>%1$s<reset>
+		empty folder: <gold>%s<reset> no conté cap script habilitat.
+	enable:
+		all:
+			enabling: Habilitant tots els scripts deshabilitats...
+			enabled: Tots els scripts prèviament deshabilitats s'han habilitat i analitzat correctament.
+			error: <light red>S'han trobat <gold>%s <light red>error¦¦s¦ en analitzar els scripts deshabilitats!
+			io error: <light red>No s'han pogut carregar un o més scripts; alguns scripts podrien haver estat reanomenats i s'habilitaran quan el servidor es reiniciï: <gold>%s
+		single:
+			already enabled: <gold>%s<reset> ja està habilitat. Fes servir <gray>/<gold>skript <cyan>reload <red>%s<reset> per recarregar-lo si ha estat modificat.
+			enabling: Habilitant <gold>%s<reset>...
+			enabled: <gold>%s<reset> s'ha habilitat i analitzat correctament.
+			error: <light red>S'han trobat <gold>%2$s <light red>error¦¦s¦ en analitzar <gold>%1$s<light red>!
+			io error: <light red>No s'ha pogut habilitar <gold>%s<light red>: <gold>%s
+		folder:
+			empty: <gold>%s<reset> no conté cap script deshabilitat.
+			enabling: Habilitant <gold>%2$s <reset>script¦¦s¦ a <gold>%1$s<reset>...
+			enabled: S'han habilitat i analitzat correctament <gold>%2$s<reset> scripts prèviament deshabilitats a <gold>%1$s<reset>.
+			error: <light red>S'han trobat <gold>%2$s <light red>error¦¦s¦ en analitzar els scripts a <gold>%1$s<light red>!
+			io error: <light red>Error en habilitar un o més scripts a <gold>%s <light red>(alguns scripts podrien habilitar-se quan el servidor es reiniciï): <gold>%s
+	disable:
+		all:
+			disabled: Tots els scripts s'han deshabilitat correctament.
+			io error: <light red>No s'han pogut reanomenar un o més scripts; alguns scripts podrien haver estat reanomenats i es deshabilitaran quan el servidor es reiniciï: <gold>%s
+		single:
+			already disabled: <gold>%s<reset> ja està deshabilitat.
+			disabled: <gold>%s<reset> s'ha deshabilitat correctament.
+			io error: <light red>No s'ha pogut reanomenar <gold>%s<light red>, s'habilitarà de nou quan reinicis el servidor: <gold>%s
+		folder:
+			empty: <gold>%s<reset> no conté cap script habilitat.
+			disabled: S'han deshabilitat correctament <gold>%2$s<reset> script(s) a <gold>%1$s<reset>.
+			io error: <light red>No s'han pogut deshabilitar un o més scripts a <gold>%s <light red>(alguns scripts podrien deshabilitar-se quan el servidor es reiniciï): <gold>%s
+	update:
+		# check/download: veure Updater
+		changes:
+			# multiple versions:
+			# 	title: <gold>%s<r> actualització¦¦s¦ ha¦n estat llançades des d'aquesta versió (<gold>%s<r>) de Skript:
+			# 	footer: Per mostrar el registre de canvis d'una versió, escriu <gold>/skript update changes <version><reset>
+			# invalid version: No hi ha registre de canvis per a la versió <gold>%s<red> disponible
+			title: <bold><cyan>%s<reset> (%s)
+			next page: <grey>pàgina %s de %s. Escriu <gold>/skript update changes %s<gray> per la següent pàgina (consell: fes servir la tecla de fletxa amunt)
+	list:
+		enabled:
+			header: <white>Scripts habilitats:
+			element: <lime green>  %s
+		disabled:
+			header: <white>Scripts deshabilitats:
+			element: <light red>  %s
+	info:
+		aliases: Els àlies de Skript es poden trobar aquí: <aqua>https://github.com/SkriptLang/skript-aliases
+		documentation: La documentació de Skript es pot trobar aquí: <aqua>https://docs.skriptlang.org/
+		tutorials: Els tutorials de Skript es poden trobar aquí: <aqua>https://docs.skriptlang.org/tutorials
+		version: Versió de Skript: <aqua>%s
+		server: Versió del servidor: <aqua>%s
+		addons: Addons de Skript instal·lats: <aqua>%s
+		dependencies: Dependències instal·lades: <aqua>%s
+
+# -- Missatges de registre --
+log:
+	# errors de temps d'execució
+	runtime:
+		error: <light red>El script '<gray>%s<light red>' ha trobat un error en executar el '<gray>%s<light red>' %s<light red>:\n
+		errors skipped: <gold>%d<light red> error¦¦s¦ de temps d'execució han estat llançats però no impresos en l'últim frame. Des de: <gray>%s
+		errors timed out: <gold>Línia %d<light red> del script '<gray>%s<light red>' ha produït massa errors de temps d'execució (<gray>%d<light red> permesos per frame). No s'imprimiran errors d'aquesta línia durant %d frames.
+		error notification: <light red>El script '<gray>%s<light red>' ha produït errors de temps d'execució. Si us plau, revisa els registres de la consola per a més detalls.
+		error notification plural: <light red>El script '<gray>%s<light red>' i %d altres han produït errors de temps d'execució. Si us plau, revisa els registres de la consola per a més detalls.
+
+		warning: <yellow>El script '<gray>%s<yellow>' ha trobat una advertència en executar el '<gray>%s<yellow>' %s<yellow>:\n
+		warnings skipped: <yellow>%d<yellow> advertència¦¦s¦ de temps d'execució han estat llançades però no impreses en l'últim frame. Des de: <gray>%s
+		warnings timed out: <gold>Línia %d<yellow> del script '<gray>%s<yellow>' ha produït massa advertències de temps d'execució (<gray>%d<yellow> permeses per frame). No s'imprimiran advertències d'aquesta línia durant %d frames.
+		warning notification: <yellow>El script '<gray>%s<yellow>' ha produït advertències de temps d'execució. Si us plau, revisa els registres de la consola per a més detalls.
+		warning notification plural: <gold>El script '<gray>%s<yellow>' i %d altres han produït advertències de temps d'execució. Si us plau, revisa els registres de la consola per a més detalls.
+
+		line info: <gold>    Línia %s<white>: <gray>%s\n \n
+
+# -- Actualitzador --
+updater:
+	not started: Skript encara no ha verificat l'última versió. Fes servir <gold>/skript update check<reset> per fer-ho.
+	checking: Verificant l'última versió de Skript...
+	check in progress: La verificació d'una nova versió està en progrés.
+	updater disabled: L'actualitzador està deshabilitat, per la qual cosa no s'ha realitzat la verificació de l'última versió de Skript.
+	check error: <red>Hi ha hagut un error en verificar l'última versió de Skript:<light red> %s
+	running latest version: Estàs executant l'última versió estable de Skript.
+	running latest version (beta): Estàs executant una versió <i>beta<r> de Skript, i no hi ha una nova versió <i>estable<r> disponible. Tingues en compte que has d'actualitzar manualment a versions beta més noves!
+	update available: Hi ha una nova versió de Skript disponible: <gold>%s<reset> (actualment estàs executant <gold>%s<reset>)
+	downloading: Descarregant Skript <gold>%s<reset>...
+	download in progress: L'última versió de Skript s'està descarregant.
+	download error: <red>Hi ha hagut un error en descarregar l'última versió de Skript:<light red> %s
+	downloaded: L'última versió de Skript s'ha descarregat! Reinicia el servidor o fes servir /reload per aplicar els canvis.
+	internal error: Hi ha hagut un error intern en verificar l'última versió de Skript. Si us plau, consulta el registre del servidor per a més detalls.
+	custom version: Estàs executant una versió personalitzada de Skript. No s'instal·laran actualitzacions automàticament.
+	nightly build: Estàs executant una versió de desenvolupament de Skript. No s'instal·laran actualitzacions automàticament.
+
+# -- Ordres --
+commands:
+	no permission message: No tens el permís necessari per utilitzar aquesta ordre
+	cooldown message: Estàs utilitzant aquesta ordre massa sovint, si us plau, intenta-ho més tard
+	executable by players: Aquesta ordre només pot ser utilitzada per jugadors
+	executable by console: Aquesta ordre només pot ser utilitzada per la consola
+	correct usage: Ús correcte:
+	invalid argument: Argument invàlid <gray>'%s<gray>'<reset>. Els permesos són:
+	too many arguments: Aquesta ordre només pot acceptar un únic %2$s.
+	internal error: Hi ha hagut un error intern en intentar executar aquesta ordre.
+	no player starts with: No hi ha cap jugador en línia el nom del qual comenci amb '%s'
+	multiple players start with: Hi ha diversos jugadors en línia els noms dels quals comencen amb '%s'
+
+# -- Hooks --
+hooks:
+	hooked: Connectat correctament a %s
+	error: No s'ha pogut connectar a %1$s. Això pot passar si Skript no és compatible amb la versió instal·lada de %1$s
+
+# -- Àlies --
+aliases:
+	# Errors i advertències
+	empty string: '' no és un tipus d'ítem
+	invalid item type: '%s' no és un tipus d'ítem
+	empty name: Un àlies ha de tenir un nom
+	brackets error: Ús invàlid de claudàtors
+	not enough brackets: La secció que comença al caràcter %s ('%s') ha de ser tancada
+	too many brackets: El caràcter %s ('%s') tanca una secció inexistent
+	unknown variation: La variació %s no ha estat definida prèviament
+	missing aliases: Els següents IDs de Minecraft no tenen cap àlies:
+	empty alias: L'àlies no té un ID de Minecraft o etiquetes definides
+	invalid minecraft id: L'ID de Minecraft %s no és vàlid
+	useless variation: La variació no té un ID de Minecraft o etiquetes especificades, per la qual cosa és inútil
+	invalid tags: Les etiquetes especificades no estan definides en JSON vàlid
+	unexpected section: Les seccions no estan permeses aquí
+	invalid variation section: Una secció hauria de ser una secció de variació, però %s no és un nom de variació vàlid
+	outside section: Els àlies s'han de col·locar en seccions
+
+	# Altres missatges
+	loaded x aliases from: S'han carregat %s àlies en anglès des de %s
+	loaded x aliases: S'ha carregat un total de %s àlies en anglès
+
+# -- Temps --
+time:
+	errors:
+		24 hours: Un dia només té 24 hores
+		12 hours: El format de 12 hores no permet més de 12 hores
+		60 minutes: Una hora només té 60 minuts
+
+# -- Excepcions d'E/S --
+io exceptions:
+	unknownhostexception: No es pot connectar a %s
+	accessdeniedexception: Accés denegat per a %s
