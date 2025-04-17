@@ -139,9 +139,9 @@ public class JSONGenerator extends DocumentationGenerator {
 		JsonObject syntaxJsonObject = new JsonObject();
 		syntaxJsonObject.addProperty("id", DocumentationIdProvider.getId(info));
 		syntaxJsonObject.addProperty("name", info.getName());
-		syntaxJsonObject.addProperty("since", info.getSince());
 		syntaxJsonObject.addProperty("cancellable", isCancellable(info));
 
+		syntaxJsonObject.add("since", convertToJsonArray(info.getSince()));
 		syntaxJsonObject.add("patterns", cleanPatterns(info.getPatterns()));
 		syntaxJsonObject.add("description", convertToJsonArray(info.getDescription()));
 		syntaxJsonObject.add("requirements", convertToJsonArray(info.getRequiredPlugins()));
