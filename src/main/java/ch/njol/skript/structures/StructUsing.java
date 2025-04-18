@@ -17,7 +17,7 @@ import org.skriptlang.skript.lang.structure.Structure;
 @Name("Using Experimental Feature")
 @Description({
 	"Place at the top of a script file to enable an optional experimental feature.",
-	"For example, this might include "
+	"Experimental features may change behavior in Skript and may contain bugs. Use at your own discretion."
 })
 @Examples({
 	"using 1.21",
@@ -32,7 +32,6 @@ public class StructUsing extends Structure {
 		Skript.registerSimpleStructure(StructUsing.class, "using [[the] experiment] <.+>");
 	}
 
-	@SuppressWarnings("NotNullFieldNotInitialized")
 	private Experiment experiment;
 
 	@Override
