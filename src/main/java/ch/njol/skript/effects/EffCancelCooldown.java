@@ -1,12 +1,9 @@
 package ch.njol.skript.effects;
 
-import org.bukkit.event.Event;
-import org.jetbrains.annotations.Nullable;
-
 import ch.njol.skript.Skript;
 import ch.njol.skript.command.ScriptCommandEvent;
 import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Effect;
@@ -14,20 +11,23 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.log.ErrorQuality;
 import ch.njol.util.Kleenean;
+import org.bukkit.event.Event;
+import org.jetbrains.annotations.Nullable;
 
 @Name("Cancel Command Cooldown")
 @Description({"Only usable in commands. Makes it so the current command usage isn't counted towards the cooldown."})
-@Examples({
-		"command /nick &lt;text&gt;:",
-		"\texecutable by: players",
-		"\tcooldown: 10 seconds",
-		"\ttrigger:",
-		"\t\tif length of arg-1 is more than 16:",
-		"\t\t\t# Makes it so that invalid arguments don't make you wait for the cooldown again",
-		"\t\t\tcancel the cooldown",
-		"\t\t\tsend \"Your nickname may be at most 16 characters.\"",
-		"\t\t\tstop",
-		"\t\tset the player's display name to arg-1"})
+@Example("""
+	command /nick &lt;text&gt;:
+		executable by: players
+		cooldown: 10 seconds
+		trigger:
+			if length of arg-1 is more than 16:
+				# Makes it so that invalid arguments don't make you wait for the cooldown again
+				cancel the cooldown
+				send "Your nickname may be at most 16 characters."
+				stop
+			set the player's display name to arg-1
+	""")
 @Since("2.2-dev34")
 public class EffCancelCooldown extends Effect {
 
@@ -50,15 +50,15 @@ public class EffCancelCooldown extends Effect {
 	}
 
 	@Override
-	protected void execute(Event e) {
-		if (!(e instanceof ScriptCommandEvent))
+	protected void execute(Event event) {
+		if (!(event instanceof ScriptCommandEvent scriptCommandEvent))
 			return;
 
-		((ScriptCommandEvent) e).setCooldownCancelled(cancel);
+		scriptCommandEvent.setCooldownCancelled(cancel, isExecutionDelayed(event));
 	}
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
+	public String toString(@Nullable Event event, boolean debug) {
 		return (cancel ? "" : "un") + "cancel the command cooldown";
 	}
 

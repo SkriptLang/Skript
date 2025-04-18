@@ -84,7 +84,7 @@ public class EffTeleport extends Effect {
 		debug(event, true);
 		TriggerItem next = getNext();
 
-		boolean delayed = Delay.isDelayed(event);
+		boolean delayed = isExecutionDelayed(event);
 		Location location = this.location.getSingle(event);
 		if (location == null)
 			return next;
