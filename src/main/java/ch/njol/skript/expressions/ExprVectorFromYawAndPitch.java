@@ -17,32 +17,29 @@ import org.jetbrains.annotations.Nullable;
 
 import static ch.njol.skript.expressions.ExprYawPitch.fromYawAndPitch;
 
-@Name("Vectors - Vector from Pitch and Yaw")
+@Name("Vectors - Vector from Yaw and Pitch")
 @Description("Creates a vector from a yaw and pitch value.")
 @Examples("set {_v} to vector from yaw 45 and pitch 45")
 @Since("2.2-dev28")
 public class ExprVectorFromYawAndPitch extends SimpleExpression<Vector> {
 
-	private static final double DEG_TO_RAD = Math.PI / 180;
-
 	static {
 		Skript.registerExpression(ExprVectorFromYawAndPitch.class, Vector.class, ExpressionType.COMBINED,
-				"[a] [new] vector (from|with) yaw %number% and pitch %number%");
+			"[a] [new] vector (from|with) yaw %number% and pitch %number%",
+			"[a] [new] vector (from|with) pitch %number% and yaw %number%");
 	}
 
-	@SuppressWarnings("null")
 	private Expression<Number> pitch, yaw;
 
 	@Override
-	@SuppressWarnings({"unchecked", "null"})
+	@SuppressWarnings("unchecked")
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		yaw = (Expression<Number>) exprs[0];
-		pitch = (Expression<Number>) exprs[1];
+		pitch = (Expression<Number>) exprs[matchedPattern ^ 1];
+		yaw = (Expression<Number>) exprs[matchedPattern];
 		return true;
 	}
 
 	@Override
-	@SuppressWarnings("null")
 	protected Vector[] get(Event event) {
 		Number skriptYaw = yaw.getSingle(event);
 		Number skriptPitch = pitch.getSingle(event);

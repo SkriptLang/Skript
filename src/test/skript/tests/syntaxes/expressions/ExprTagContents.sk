@@ -5,3 +5,8 @@ test "tags contents":
 	assert tag contents of item tag "slabs" contains oak slab with "oak slab is not a slab"
 
 	assert tag contents of entity tag "minecraft:skeletons" contains a skeleton with "skeleton is not a skeleton"
+
+	parse:
+		loop tag contents of minecraft item tag "logs":
+			add loop-item to {_list::*}
+	assert last parse logs is not set with "failed to parse tag looping (%last parse logs%)"

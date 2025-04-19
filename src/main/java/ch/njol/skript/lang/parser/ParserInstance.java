@@ -25,11 +25,7 @@ import org.skriptlang.skript.lang.script.Script;
 import org.skriptlang.skript.lang.structure.Structure;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Function;
 
 public final class ParserInstance implements Experimented {
@@ -228,6 +224,8 @@ public final class ParserInstance implements Experimented {
 	 * See also {@link #isCurrentEvent(Class[])} for checking with multiple argument classes
 	 */
 	public boolean isCurrentEvent(Class<? extends Event> event) {
+		if (currentEvents == null)
+			return false;
 		for (Class<? extends Event> currentEvent : currentEvents) {
 			// check that current event is same or child of event we want
 			if (event.isAssignableFrom(currentEvent))
@@ -459,17 +457,30 @@ public final class ParserInstance implements Experimented {
 		return indentation;
 	}
 
+	// Parsing stack
+
+	private final ParsingStack parsingStack = new ParsingStack();
+
+	/**
+	 * Gets the current parsing stack.
+	 * <p>
+	 * Although the stack can be modified, doing so is not recommended.
+	 */
+	public ParsingStack getParsingStack() {
+		return parsingStack;
+	}
+
 	// Experiments API
 
 	@Override
 	public boolean hasExperiment(String featureName) {
-		return Skript.experiments().isUsing(this.getCurrentScript(), featureName);
+		return this.isActive() && Skript.experiments().isUsing(this.getCurrentScript(), featureName);
 	}
 
 
 	@Override
 	public boolean hasExperiment(Experiment experiment) {
-		return Skript.experiments().isUsing(this.getCurrentScript(), experiment);
+		return this.isActive() && Skript.experiments().isUsing(this.getCurrentScript(), experiment);
 	}
 
 	/**
@@ -509,6 +520,17 @@ public final class ParserInstance implements Experimented {
 		if (set == null)
 			return new ExperimentSet();
 		return new ExperimentSet(set);
+	}
+
+	/**
+	 * Get the {@link ExperimentSet} of the current {@link Script}
+	 */
+	public ExperimentSet getExperimentSet() {
+		Script script = this.getCurrentScript();
+		ExperimentSet set = script.getData(ExperimentSet.class);
+		if (set == null)
+			return new ExperimentSet();
+		return set;
 	}
 
 	// ParserInstance Data API
@@ -622,7 +644,7 @@ public final class ParserInstance implements Experimented {
 	 *  That is, the contents of any collections will remain the same, but there is no guarantee that
 	 *  the contents themselves will remain unchanged.
 	 * @see #backup()
-	 * @see #restoreBackup(Backup) 
+	 * @see #restoreBackup(Backup)
 	 */
 	public static class Backup {
 
@@ -703,8 +725,8 @@ public final class ParserInstance implements Experimented {
 	@Deprecated
 	public @Nullable SkriptEvent getCurrentSkriptEvent() {
 		Structure structure = getCurrentStructure();
-		if (structure instanceof SkriptEvent)
-			return (SkriptEvent) structure;
+		if (structure instanceof SkriptEvent event)
+			return event;
 		return null;
 	}
 
@@ -713,7 +735,7 @@ public final class ParserInstance implements Experimented {
 	 */
 	@Deprecated
 	public void setCurrentSkriptEvent(@Nullable SkriptEvent currentSkriptEvent) {
-		setCurrentStructure(currentSkriptEvent);
+		this.setCurrentStructure(currentSkriptEvent);
 	}
 
 	/**
@@ -721,7 +743,7 @@ public final class ParserInstance implements Experimented {
 	 */
 	@Deprecated
 	public void deleteCurrentSkriptEvent() {
-		setCurrentStructure(null);
+		this.setCurrentStructure(null);
 	}
 
 	/**

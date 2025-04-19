@@ -6,15 +6,14 @@ import ch.njol.skript.lang.util.SimpleEvent;
 import com.destroystokyo.paper.event.block.AnvilDamagedEvent;
 import com.destroystokyo.paper.event.entity.EntityJumpEvent;
 import com.destroystokyo.paper.event.entity.ProjectileCollideEvent;
-import com.destroystokyo.paper.event.player.PlayerArmorChangeEvent;
 import com.destroystokyo.paper.event.player.PlayerElytraBoostEvent;
 import com.destroystokyo.paper.event.player.PlayerJumpEvent;
 import com.destroystokyo.paper.event.player.PlayerReadyArrowEvent;
 import com.destroystokyo.paper.event.server.PaperServerListPingEvent;
-import io.papermc.paper.event.player.PlayerDeepSleepEvent;
-import io.papermc.paper.event.player.PlayerInventorySlotChangeEvent;
-import io.papermc.paper.event.player.PlayerStopUsingItemEvent;
-import io.papermc.paper.event.player.PlayerTradeEvent;
+import io.papermc.paper.event.player.*;
+import io.papermc.paper.event.world.border.WorldBorderBoundsChangeEvent;
+import io.papermc.paper.event.world.border.WorldBorderBoundsChangeFinishEvent;
+import io.papermc.paper.event.world.border.WorldBorderCenterChangeEvent;
 import org.bukkit.event.Event;
 import org.bukkit.event.block.*;
 import org.bukkit.event.enchantment.EnchantItemEvent;
@@ -27,7 +26,6 @@ import org.bukkit.event.server.ServerListPingEvent;
 import org.bukkit.event.vehicle.*;
 import org.bukkit.event.weather.LightningStrikeEvent;
 import org.bukkit.event.world.*;
-import io.papermc.paper.event.player.PlayerChangeBeaconEffectEvent;
 
 /**
  * @author Peter Güttinger
@@ -438,16 +436,6 @@ public class SimpleEvents {
 					"	send \"You are riptiding!\"")
 				.since("2.5");
 		}
-		if (Skript.classExists("com.destroystokyo.paper.event.player.PlayerArmorChangeEvent")) {
-			Skript.registerEvent("Armor Change", SimpleEvent.class, PlayerArmorChangeEvent.class, "[player] armo[u]r change[d]")
-				.description("Called when armor pieces of a player are changed.")
-				.requiredPlugins("Paper")
-				.keywords("armour")
-				.examples(
-						"on armor change:",
-							"\tsend \"You equipped %event-item%!\""
-				).since("2.5");
-		}
 		if (Skript.classExists("org.bukkit.event.block.SpongeAbsorbEvent")) {
 			Skript.registerEvent("Sponge Absorb", SimpleEvent.class, SpongeAbsorbEvent.class, "sponge absorb")
 					.description("Called when a sponge absorbs blocks.")
@@ -644,46 +632,24 @@ public class SimpleEvents {
 				)
 				.since("2.10");
 		}
-		{
-			final Class<? extends Event> eventClass;
-			if (Skript.classExists("org.bukkit.event.block.BellRingEvent")) {
-				eventClass = org.bukkit.event.block.BellRingEvent.class;
-			} else if (Skript.classExists("io.papermc.paper.event.block.BellRingEvent")) {
-				//noinspection deprecation
-				eventClass = io.papermc.paper.event.block.BellRingEvent.class;
-			} else {
-				eventClass = null;
-			}
 
-			if (eventClass != null) {
-				Skript.registerEvent("Bell Ring", SimpleEvent.class, eventClass, "bell ring[ing]")
-						.description("Called when a bell is rung.")
-						.examples(
-							"on bell ring:",
-								"\tsend \"<gold>Ding-dong!<reset>\" to all players in radius 10 of event-block"
-						)
-						.since("2.9.0")
-						.requiredPlugins("Spigot 1.19.4+ or Paper 1.16.5+ (no event-direction)");
-			}
-		}
+		Skript.registerEvent("Bell Ring", SimpleEvent.class, BellRingEvent.class, "bell ring[ing]")
+			.description("Called when a bell is rung.")
+			.examples(
+				"on bell ring:",
+					"\tsend \"<gold>Ding-dong!<reset>\" to all players in radius 10 of event-block"
+			)
+			.since("2.9.0")
+			.requiredPlugins("Spigot 1.19.4+ or Paper 1.16.5+ (no event-direction)");
 
-		/*
-		* Paper supported this in 1.16.5 via io.papermc.paper.event.block.BellRevealRaiderEvent.
-		* The Paper event, however, is called for each raider, while the Spigot event is called once for all raiders.
-		* Supporting both would cause confusing behaviour, with the event being triggered in different ways depending
-		* on the server software and version, so we're only supporting the Spigot event.
-		*/
-		if (Skript.classExists("org.bukkit.event.block.BellResonateEvent")) {
-			Skript.registerEvent("Bell Resonate", SimpleEvent.class, org.bukkit.event.block.BellResonateEvent.class, "bell resonat(e|ing)")
-					.description("Called when a bell resonates, highlighting nearby raiders.")
-					.examples(
-						"on bell resonate:",
-							"\tsend \"<red>Raiders are nearby!\" to all players in radius 32 around event-block"
-					)
-					.since("2.9.0")
-					.requiredPlugins("Spigot 1.19.4+");
-
-		}
+		Skript.registerEvent("Bell Resonate", SimpleEvent.class, BellResonateEvent.class, "bell resonat(e|ing)")
+			.description("Called when a bell resonates, highlighting nearby raiders.")
+			.examples(
+				"on bell resonate:",
+					"\tsend \"<red>Raiders are nearby!\" to all players in radius 32 around event-block"
+			)
+			.since("2.9.0")
+			.requiredPlugins("Spigot 1.19.4+");
 
 		if (Skript.classExists("com.destroystokyo.paper.event.entity.EndermanAttackPlayerEvent")) {
 			Skript.registerEvent("Enderman Enrage", SimpleEvent.class, com.destroystokyo.paper.event.entity.EndermanAttackPlayerEvent.class, "enderman (enrage|anger)")
@@ -763,6 +729,63 @@ public class SimpleEvents {
 				.since("2.10");
 		}
 
+		Skript.registerEvent("Bat Toggle Sleep", SimpleEvent.class, BatToggleSleepEvent.class, "bat toggle sleep")
+			.description("Called when a bat attempts to go to sleep or wakes up.")
+			.examples("on bat toggle sleep:")
+			.since("2.11");
+
+		// WorldBorder Events
+		if (Skript.classExists("io.papermc.paper.event.world.border.WorldBorderEvent")) {
+			Skript.registerEvent("World Border Bounds Change", SimpleEvent.class, WorldBorderBoundsChangeEvent.class, "world[ ]border [bounds] chang(e|ing)")
+				.description(
+					"Called when a world border changes its bounds, either over time, or instantly.",
+					"This event does not get called for virtual borders."
+				)
+				.requiredPlugins("Paper 1.16+")
+				.examples(
+					"on worldborder bounds change:",
+						"\tbroadcast \"The diameter of %event-worldborder% is changing from %past event-number% to %event-number% over the next %event-timespan%\""
+				)
+				.since("2.11");
+
+			Skript.registerEvent("World Border Bounds Finish Change", SimpleEvent.class, WorldBorderBoundsChangeFinishEvent.class, "world[ ]border [bounds] finish chang(e|ing)")
+				.description(
+					"Called when a moving world border has finished its move.",
+					"This event does not get called for virtual borders."
+				)
+				.requiredPlugins("Paper 1.16+")
+				.examples(
+					"on worldborder bounds finish change:",
+						"\tbroadcast \"Over the past %event-timespan%, the diameter of %event-worldborder% went from %past event-number% to %event-number%\""
+				)
+				.since("2.11");
+
+			Skript.registerEvent("World Border Center Change", SimpleEvent.class, WorldBorderCenterChangeEvent.class, "world[ ]border center chang(e|ing)")
+				.description(
+					"Called when a world border's center has changed.",
+					"This event does not get called for virtual borders."
+				)
+				.requiredPlugins("Paper 1.16+")
+				.examples(
+					"on worldborder center change:",
+						"\tbroadcast \"The center of %event-worldborder% has moved from %past event-location% to %event-location%\""
+				)
+				.since("2.11");
+		}
+
+		if (Skript.classExists("org.bukkit.event.block.VaultDisplayItemEvent")) {
+			Skript.registerEvent("Vault Display Item", SimpleEvent.class, VaultDisplayItemEvent.class,
+					"vault display[ing] item")
+				.description("Called when a vault in a trial chamber is about to display an item.")
+				.examples(
+					"""
+					on vault display item:
+						set event-item to a netherite ingot	
+					"""
+				)
+				.since("INSERT VERSION")
+				.requiredPlugins("Minecraft 1.21.1+");
+		}
 	}
 
 }

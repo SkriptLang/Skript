@@ -564,7 +564,7 @@ public class ItemData implements Cloneable, YggdrasilExtendedSerializable {
 	@Override
 	public Fields serialize() throws NotSerializableException {
 		Fields fields = new Fields(this); // ItemStack is transient, will be ignored
-		fields.putPrimitive("id", type.ordinal());
+		fields.putObject("key", type.getKey().toString());
 		fields.putObject("meta", stack != null ? stack.getItemMeta() : null);
 		return fields;
 	}
@@ -573,7 +573,16 @@ public class ItemData implements Cloneable, YggdrasilExtendedSerializable {
 
 	@Override
 	public void deserialize(Fields fields) throws StreamCorruptedException, NotSerializableException {
-		this.type = materials[fields.getAndRemovePrimitive("id", int.class)];
+		if (fields.hasField("key")) {
+			String key = fields.getAndRemoveObject("key", String.class);
+			if (key == null)
+				throw new StreamCorruptedException("Material key is null");
+			this.type = Material.matchMaterial(key);
+		} else {
+			// attempt back compat deserialization, though using ordinals is not reliable
+			this.type = materials[fields.getAndRemovePrimitive("id", int.class)];
+		}
+
 		ItemMeta meta = fields.getAndRemoveObject("meta", ItemMeta.class);
 
 		// Initialize ItemStack
@@ -607,7 +616,8 @@ public class ItemData implements Cloneable, YggdrasilExtendedSerializable {
 					data.itemFlags |= ItemFlags.CHANGED_TAGS;
 				data.stack.setItemMeta(meta);
 			}
-			ItemUtils.setDamage(data.stack, 0); // Set to undamaged
+			if (ItemUtils.getDamage(stack) > 0) // https://github.com/SkriptLang/Skript/issues/7687
+				ItemUtils.setDamage(data.stack, 0); // Set to undamaged iff item is damaged
 		}
 		data.type = type;
 		data.blockValues = blockValues;

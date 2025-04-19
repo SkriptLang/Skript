@@ -1,0 +1,6 @@
+test "block line overshoot too aggressive":
+	set {_loc} to location(0,-0.9,0,world "world")
+	set {_step} to vector(0,0.001,0)
+	loop 200 times:
+		assert (size of blocks above {_loc}) is 100 with "failed to get blocks above %{_loc}%"
+		set {_loc} to {_loc} ~ {_step}

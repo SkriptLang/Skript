@@ -1,0 +1,12 @@
+options:
+	max-timespan: 9223372036854775807 milliseconds
+
+test "floating point timespan math":
+	assert (0.9 * 5 seconds) is 4.5 seconds with "failed basic floating point multiplication"
+	assert (1 * 5 seconds) is 5 seconds with "failed basic integer multiplication"
+	assert (0.0 * 5 seconds) is 0 seconds with "failed multiplication by 0"
+	assert (5 seconds / 5) is 1 seconds with "failed integer division"
+	assert (5 seconds / 2.5) is 2 seconds with "failed floating point division"
+	assert (5 seconds / infinity value) is not set with "Division by infinity unexpectedly returned real value"
+
+	assert (5 seconds * 10 ^ 308) is {@max-timespan} with "failed to clamp to the long max value"

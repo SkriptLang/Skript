@@ -1,11 +1,5 @@
 package ch.njol.skript.conditions;
 
-import java.net.InetSocketAddress;
-
-import org.bukkit.Bukkit;
-import org.bukkit.OfflinePlayer;
-import org.bukkit.entity.Player;
-
 import ch.njol.skript.Skript;
 import ch.njol.skript.conditions.base.PropertyCondition;
 import ch.njol.skript.doc.Description;
@@ -15,15 +9,19 @@ import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
+import org.bukkit.Bukkit;
+import org.bukkit.OfflinePlayer;
+import org.bukkit.entity.Player;
 
-/**
- * @author Peter Güttinger
- */
+import java.net.InetSocketAddress;
+
 @Name("Is Banned")
 @Description("Checks whether a player or IP is banned.")
-@Examples({"player is banned",
-		"victim is not IP-banned",
-		"\"127.0.0.1\" is banned"})
+@Examples({
+	"player is banned",
+	"victim is not IP-banned",
+	"\"127.0.0.1\" is banned"
+})
 @Since("1.4")
 public class CondIsBanned extends PropertyCondition<Object> {
 	
@@ -36,8 +34,7 @@ public class CondIsBanned extends PropertyCondition<Object> {
 	}
 	
 	private boolean ipBanned;
-	
-	@SuppressWarnings("null")
+
 	@Override
 	public boolean init(final Expression<?>[] exprs, final int matchedPattern, final Kleenean isDelayed, final ParseResult parseResult) {
 		setExpr(exprs[0]);
@@ -48,17 +45,17 @@ public class CondIsBanned extends PropertyCondition<Object> {
 	
 	@Override
 	public boolean check(Object obj) {
-		if (obj instanceof Player) {
+		if (obj instanceof Player player) {
 			if (ipBanned) {
-				InetSocketAddress sockAddr = ((Player) obj).getAddress();
+				InetSocketAddress sockAddr = player.getAddress();
 				if (sockAddr == null)
 					return false; // Assume not banned, they've never played here
 				return Bukkit.getIPBans().contains(sockAddr.getAddress().getHostAddress());
 			} else {
-				return ((Player) obj).isBanned();
+				return player.isBanned();
 			}
-		} else if (obj instanceof OfflinePlayer) {
-			return ((OfflinePlayer) obj).isBanned();
+		} else if (obj instanceof OfflinePlayer offlinePlayer) {
+			return offlinePlayer.isBanned();
 		} else if (obj instanceof String) {
 			return Bukkit.getIPBans().contains(obj) ||
 					!ipBanned && Bukkit.getBannedPlayers().stream()

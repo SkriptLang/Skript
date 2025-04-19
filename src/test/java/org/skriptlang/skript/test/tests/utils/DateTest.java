@@ -4,13 +4,9 @@ import ch.njol.skript.util.Date;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class DateTest {
-
-	@Test
-	public void testNow() {
-		assertEquals(System.currentTimeMillis(), Date.now().getTime());
-	}
 
 	@Test
 	public void testFromJavaDate() {
