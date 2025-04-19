@@ -531,7 +531,7 @@ public class FlatFileStorage extends VariablesStorage {
 	/**
 	 * A regex pattern of a line in a CSV file.
 	 */
-	private static final Pattern CSV_LINE_PATTERN = Pattern.compile("(?<=^|,)\\s*([^\",]*|\"([^\"]|\"\")*\")\\s*(,|$)");
+	private static final Pattern CSV_LINE_PATTERN = Pattern.compile("(?<=^|,)\\s*([^\",]*|\"([^\"]+|\"\")*\")\\s*(,|$)");
 
 	/**
 	 * Splits the given CSV line into its values.
