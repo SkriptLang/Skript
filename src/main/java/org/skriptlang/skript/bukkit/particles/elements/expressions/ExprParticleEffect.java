@@ -1,9 +1,38 @@
 package org.skriptlang.skript.bukkit.particles.elements.expressions;
 
+import ch.njol.skript.lang.Expression;
+import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.lang.util.SimpleExpression;
+import ch.njol.util.Kleenean;
+import org.bukkit.event.Event;
+import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.particles.ParticleEffect;
 
 public class ExprParticleEffect extends SimpleExpression<ParticleEffect> {
+	@Override
+	protected ParticleEffect @Nullable [] get(Event event) {
+		return new ParticleEffect[0];
+	}
+
+	@Override
+	public boolean isSingle() {
+		return false;
+	}
+
+	@Override
+	public Class<? extends ParticleEffect> getReturnType() {
+		return null;
+	}
+
+	@Override
+	public String toString(@Nullable Event event, boolean debug) {
+		return "";
+	}
+
+	@Override
+	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
+		return false;
+	}
 	// TODO:
 	//  Syntax:
 	//  count + (name + "particle" + data) + offset + extra

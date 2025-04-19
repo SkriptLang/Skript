@@ -4,7 +4,6 @@ import ch.njol.skript.expressions.ExprVectorCylindrical;
 import ch.njol.skript.expressions.ExprVectorFromYawAndPitch;
 import ch.njol.skript.expressions.ExprVectorSpherical;
 import ch.njol.skript.expressions.ExprYawPitch;
-import org.bukkit.block.BlockFace;
 import org.bukkit.util.Vector;
 
 @Deprecated(forRemoval = true)
@@ -105,26 +104,6 @@ public final class VectorMath {
 
 	public static float wrapAngleDeg(float angle) {
 		return ExprVectorFromYawAndPitch.wrapAngleDeg(angle);
-	}
-
-	/**
-	 * Calculates the nearest {@link BlockFace} to an arbitrary unit {@link Vector}.
-	 *
-	 * @param vector a normalized vector
-	 * @return the block face most closely aligned to the input vector
-	 */
-	public static BlockFace toNearestBlockFace(Vector vector) {
-		double maxDot = -1;
-		double dot;
-		BlockFace nearest = BlockFace.NORTH;
-		for (BlockFace face : BlockFace.values()){
-			dot = face.getDirection().dot(vector);
-			if (dot > maxDot) {
-				maxDot = dot;
-				nearest = face;
-			}
-		}
-		return nearest;
 	}
 
 	/**

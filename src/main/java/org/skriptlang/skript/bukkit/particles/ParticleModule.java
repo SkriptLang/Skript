@@ -1,5 +1,6 @@
-package org.skriptlang.skript.bukkit.particles.elements;
+package org.skriptlang.skript.bukkit.particles;
 
+import ch.njol.skript.Skript;
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.classes.Parser;
 import ch.njol.skript.classes.Serializer;
@@ -8,15 +9,14 @@ import ch.njol.skript.lang.ParseContext;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.yggdrasil.Fields;
 import org.bukkit.Effect;
-import org.eclipse.jdt.annotation.Nullable;
-import org.skriptlang.skript.bukkit.particles.GameEffect;
 
+import java.io.IOException;
 import java.io.NotSerializableException;
 import java.io.StreamCorruptedException;
 
-public class Types {
-	static {
+public class ParticleModule {
 
+	public static void load () throws IOException {
 		Classes.registerClass(new ClassInfo<>(GameEffect.class, "gameeffect")
 			.user("game ?effects?")
 			.since("INSERT VERSION")
@@ -63,7 +63,6 @@ public class Types {
 			.defaultExpression(new EventValueExpression<>(GameEffect.class))
 			.parser(new Parser<>() {
 				@Override
-				@Nullable
 				public GameEffect parse(String input, ParseContext context) {
 					return GameEffect.parse(input);
 				}
@@ -79,5 +78,8 @@ public class Types {
 				}
 			}));
 
+		Skript.getAddonInstance().loadClasses("org.skriptlang.skript.bukkit.particles", "elements");
+
 	}
+
 }

@@ -1,7 +1,10 @@
 package org.skriptlang.skript.bukkit.particles;
 
 
+import org.bukkit.Location;
 import org.bukkit.Particle;
+import org.bukkit.World;
+import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.Nullable;
 
@@ -54,6 +57,17 @@ public class ParticleEffect {
 		this.count = 1;
 		this.extra = 0;
 		this.offset = new Vector(0,0,0);
+	}
+
+	public void draw(Location location, boolean force) {
+		World world = location.getWorld();
+		if (world == null)
+			return;
+		world.spawnParticle(particle, location, count, offset.getX(), offset.getY(), offset.getZ(), extra, data, force);
+	}
+
+	public void drawForPlayer(Location location, Player player, boolean force) {
+		player.spawnParticle(particle, location, count, offset.getX(), offset.getY(), offset.getZ(), extra, data, force);
 	}
 
 	// TODO: Add parent interface for ParticleEffect, PlayerEffect, EntityEffect? Would make spawning easier, maybe.

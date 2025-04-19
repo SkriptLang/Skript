@@ -2412,71 +2412,69 @@ transform reasons:
 	infection: infection, villager infection
 
 # -- Game Effects --
-game effects:
-	click1:
-		name: dispenser click sound
-		pattern:
-		enums: click1
-	click2: menu click sound, gui click sound
-	bow_fire: fire bow sound, shoot bow sound
-	extinguish: extinguish fire sound, extinguish sound
-	ghast_shriek: ghast shriek sound
-	ghast_shoot: ghast shoot sound
-	blaze_shoot: blaze shoot sound
-	zombie_chew_wooden_door: zombie chewing on wooden door sound, zombie attacking wooden door sound
-	zombie_chew_iron_door: zombie chewing on iron door sound, zombie attacking iron door sound
-	zombie_destroy_door: zombie destroy door sound, zombie destroying door sound
-	ender_signal: ender eye break, eye of ender break, ender eye breaking, eye of ender breaking
-	mobspawner_flames: mob spawner flames, spawner flames
-	brewing_stand_brew: brewing sound, brewing stand sound
-	chorus_flower_grow: chorus flower growing sound, chorus plant growing sound
-	chorus_flower_death: chorus flower death sound
-	portal_travel: nether portal travel sound
-	endereye_launch: ender eye launch sound, eye of ender launch sound
-	firework_shoot: dispenser shoot sound
-	dragon_breath: dragon breath, dragon's breath
-	anvil_break: break anvil sound
-	anvil_use: use anvil sound
-	anvil_land: anvil land sound
-	enderdragon_shoot: ender dragon shoot sound, dragon shoot sound
-	enderdragon_growl: ender dragon growl sound, dragon growl sound
-	wither_break_block: wither breaking block sound
-	wither_shoot: wither shoot sound
-	zombie_infect: zombie infection sound
-	zombie_converted_villager: zombie converting villager sound
-	zombie_converted_to_drowned: zombie conversion to drowned sound
-	zombie_converts_to_drowned: zombie conversion to drowned sound
-	husk_converted_to_zombie: husk conversion to zombie sound
-	husk_converts_to_zombie: husk conversion to zombie sound
-	skeleton_converted_to_stray: skeleton conversion to stray sound
-	bat_takeoff: bat take off sound, bat take flight sound
-	end_gateway_spawn: end gateway spawn, new end gateway
-	phantom_bite: phantom bite sound
-	phantom_bites: phantom bites sound
-	grindstone_use: use grindstone sound
-	grindstone_used: used grindstone sound
-	book_page_turn: book page turn sound, turn page sound
-	book_page_turned: book page turned sound, turned page sound
-	smithing_table_use: use smithing table sound
-	pointed_dripstone_drip_lava_into_cauldron: lava dripping into cauldron sound
-	pointed_dripstone_drip_water_into_cauldron: water dripping into cauldron sound
-	dripping_dripstone: water dripping sound, lava dripping sound
-	lava_interact: lava interaction
-	lava_converts_block: lava converts block
-	redstone_torch_burnout: redstone touch burnout
-	redstone_torch_burns_out: redstone touch burns out
-	end_portal_frame_fill: fill end portal frame
-	ender_eye_placed: ender eye placed
-	ender_dragon_destroy_block: ender dragon breaking block, dragon breaking block
-	ender_dragon_destroys_block: ender dragon destroys block, dragon destroys block
-	sponge_dry: sponge dry, sponge dry out
-	copper_wax_on: apply wax, wax on
-	copper_wax_off: remove wax, wax off
-	oxidised_copper_scrape: scrape oxidised copper, scrape copper
-	wither_spawned: spawn wither sound
-	ender_dragon_death: ender dragon death sound, dragon death sound
-	end_portal_created_in_overworld: complete end portal sound, create end portal sound
-	composter_composts: composter compost
+# all patterns should include the word 'effect'
+game effect:
+	click1: dispenser click sound effect
+	click2: menu click sound effect, gui click sound effect
+	bow_fire: fire bow sound effect, shoot bow sound effect
+	extinguish: extinguish fire sound effect, extinguish sound effect
+	ghast_shriek: ghast shriek sound effect
+	ghast_shoot: ghast shoot sound effect
+	blaze_shoot: blaze shoot sound effect
+	zombie_chew_wooden_door: zombie chewing on wooden door sound effect, zombie attacking wooden door sound effect
+	zombie_chew_iron_door: zombie chewing on iron door sound effect, zombie attacking iron door sound effect
+	zombie_destroy_door: zombie destroy door sound effect, zombie destroying door sound effect
+	ender_signal: ender eye break effect, eye of ender break effect
+	mobspawner_flames: mob spawner flames effect, spawner flames effect
+	brewing_stand_brew: brewing sound effect
+	chorus_flower_grow: chorus flower growing sound effect
+	chorus_flower_death: chorus flower death sound effect
+	portal_travel: nether portal travel sound effect
+	endereye_launch: ender eye launch sound effect, eye of ender launch sound effect
+	firework_shoot: dispenser shoot sound effect
+	dragon_breath: dragon breath effect, dragon's breath effect
+	anvil_break: break anvil sound effect
+	anvil_use: use anvil sound effect
+	anvil_land: anvil land sound effect
+	enderdragon_shoot: ender dragon shoot sound effect, dragon shoot sound effect
+	enderdragon_growl: ender dragon growl sound effect, dragon growl sound effect
+	wither_break_block: wither breaking block sound effect
+	wither_shoot: wither shoot sound effect
+	zombie_infect: zombie infection sound effect
+	zombie_converted_villager: zombie converting villager sound effect
+	zombie_converted_to_drowned: zombie converting to drowned sound effect
+	zombie_converts_to_drowned: zombie converting to drowned sound effect
+	husk_converted_to_zombie: husk converting to zombie sound effect
+	husk_converts_to_zombie: husk converting to zombie sound effect
+	skeleton_converted_to_stray: skeleton converting to stray sound effect
+	bat_takeoff: bat take off sound effect
+	end_gateway_spawn: end gateway spawn effect
+	phantom_bite: phantom bite sound effect
+	phantom_bites: phantom bites sound effect
+	grindstone_use: use grindstone sound effect
+	grindstone_used: used grindstone sound effect
+	book_page_turn: turn page sound effect
+	book_page_turned: turned page sound effect
+	smithing_table_use: use smithing table sound effect
+	pointed_dripstone_drip_lava_into_cauldron: lava dripping into cauldron sound effect
+	pointed_dripstone_drip_water_into_cauldron: water dripping into cauldron sound effect
+	dripping_dripstone: water dripping sound effect, lava dripping sound effect
+	lava_interact: lava interaction effect
+	lava_converts_block: lava converts block effect
+	redstone_torch_burnout: redstone torch burnout effect
+	redstone_torch_burns_out: redstone torch burns out effect
+	end_portal_frame_fill: fill end portal frame effect
+	ender_eye_placed: ender eye placed effect, eye of ender placed effect
+	ender_dragon_destroy_block: ender dragon breaking block effect, dragon breaking block effect
+	ender_dragon_destroys_block: ender dragon destroys block effect, dragon destroys block effect
+	sponge_dry: sponge dry out effect
+	copper_wax_on: apply wax effect
+	copper_wax_off: remove wax effect
+	oxidised_copper_scrape: scrape oxidised copper effect
+	wither_spawned: spawn wither sound effect
+	ender_dragon_death: ender dragon death sound effect, dragon death sound effect
+	end_portal_created_in_overworld: complete end portal sound effect, create end portal sound effect
+	composter_composts: composter compost effect
 
 	 # these effect are deprecated in 1.19, they do nothing.
 	 # their respective Sounds should be used instead.

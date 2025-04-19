@@ -2,6 +2,10 @@ package org.skriptlang.skript.bukkit.particles;
 
 import ch.njol.skript.util.EnumUtils;
 import org.bukkit.Effect;
+import org.bukkit.Location;
+import org.bukkit.World;
+import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
@@ -12,6 +16,7 @@ import java.util.Locale;
  */
 public class GameEffect {
 
+	// TODO: fix missing key error for effects that require data
 	public static final EnumUtils<Effect> ENUM_UTILS = new EnumUtils<>(Effect.class, "game effect");
 
 	/**
@@ -54,19 +59,45 @@ public class GameEffect {
 		return false;
 	}
 
+	/**
+	 * Plays the effect at the given location. The given location must have a world.
+	 * @param location the location to play the effect at
+	 * @param radius the radius to play the effect in, or null to use the default radius
+	 */
+	public void draw(@NotNull Location location, @Nullable Number radius) {
+		World world = location.getWorld();
+		if (world == null)
+			return;
+		if (radius == null) {
+			location.getWorld().playEffect(location, effect, data);
+		} else {
+			location.getWorld().playEffect(location, effect, data, radius.intValue());
+		}
+	}
+
+	/**
+	 * Plays the effect for the given player.
+	 * @param location the location to play the effect at
+	 * @param player the player to play the effect for
+	 */
+	public void drawForPlayer(Location location, @NotNull Player player) {
+		player.playEffect(location, effect, data);
+	}
+
 	public String toString(int flags) {
 		if (effect.getData() != null)
 			return ENUM_UTILS.toString(getEffect(), flags);
 		return toString();
 	}
 
-	static final String[] namesWithoutData = (String[]) Arrays.stream(Effect.values())
+	static final String[] namesWithoutData = Arrays.stream(Effect.values())
 			.filter(effect -> effect.getData() == null)
 			.map(Enum::name)
-			.toArray();
+			.toArray(String[]::new);
 	public static String[] getAllNamesWithoutData(){
 		return namesWithoutData.clone();
 	}
+
 
 
 // TODO: add getters, setters, maybe builder class? Add spawn method.
