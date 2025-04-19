@@ -1,8 +1,9 @@
 package ch.njol.skript.expressions;
 
-import org.bukkit.OfflinePlayer;
-import org.bukkit.World;
-import org.bukkit.entity.Entity;
+import ch.njol.skript.classes.Changer.ChangeMode;
+import ch.njol.skript.lang.util.common.AnyIdentifier;
+import ch.njol.util.coll.CollectionUtils;
+import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
 import ch.njol.skript.Skript;
@@ -32,17 +33,17 @@ import java.util.UUID;
 			"\t\tsend \"Your UUID is '%string within {_uuid}%'\"",
 })
 @Since("2.1.2, 2.2 (offline players' uuids), 2.2-dev24 (other entities' uuids)")
-public class ExprUUID extends SimplePropertyExpression<Object, UUID> {
+public class ExprUUID extends SimplePropertyExpression<AnyIdentifier, UUID> {
 
 	static {
-		register(ExprUUID.class, UUID.class, "UUID", "offlineplayers/worlds/entities");
+		register(ExprUUID.class, UUID.class, "UUID", "identifiable");
 	}
 
 	@Override
-	public @Nullable UUID convert(Object object) {
-		if (object instanceof OfflinePlayer player) {
+	public @Nullable UUID convert(AnyIdentifier identifiable) {
+		if (identifiable.isOfflinePlayer()) {
 			try {
-				return player.getUniqueId();
+				return identifiable.identifier();
 			} catch (UnsupportedOperationException e) {
 				// Some plugins (ProtocolLib) try to emulate offline players, but fail miserably
 				// They will throw this exception... and somehow server may freeze when this happens
@@ -50,12 +51,34 @@ public class ExprUUID extends SimplePropertyExpression<Object, UUID> {
 				e.printStackTrace();
 				return null;
 			}
-		} else if (object instanceof Entity entity) {
-			return entity.getUniqueId();
-		} else if (object instanceof World world) {
-			return world.getUID();
 		}
+
+		return identifiable.identifier();
+	}
+
+	@Override
+	public Class<?> @Nullable [] acceptChange(ChangeMode mode) {
+		if (mode == ChangeMode.SET)
+			return CollectionUtils.array(UUID.class);
 		return null;
+	}
+
+	@Override
+	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
+		assert delta != null;
+
+		UUID uuid = (UUID) delta[0];
+
+		AnyIdentifier identifiable = getExpr().getSingle(event);
+		if (identifiable == null)
+			return;
+
+		if (!identifiable.supportsChange()) {
+			error("'" + rawExpr + "' cannot be changed.");
+			return;
+		}
+
+		identifiable.setIdentifier(uuid);
 	}
 
 	@Override
