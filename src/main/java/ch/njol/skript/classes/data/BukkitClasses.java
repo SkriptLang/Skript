@@ -1542,6 +1542,15 @@ public class BukkitClasses {
 					.requiredPlugins("Paper 1.19+")
 					.since("2.10"));
 
+		Classes.registerClass(new EnumClassInfo<>(Statistic.class, "statistic", "statistics")
+			.user("statistics?")
+			.name("Statistic")
+			.description(
+			"Represents a countable statistic, which is tracked by the server. "
+				+ "For the list of all available statistics, "
+				+ "see <a href='https://minecraft.wiki/w/Statistics'>the Minecraft wiki</a>.")
+			.since("INSERT VERSION"));
+
 		Classes.registerClass(new ClassInfo<>(Vehicle.class, "vehicle")
 			.user("vehicles?")
 			.name("Vehicle")
