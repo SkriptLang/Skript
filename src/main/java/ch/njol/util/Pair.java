@@ -12,9 +12,9 @@ import java.util.Objects;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * @deprecated Use a use-case specific record.
+ * @deprecated Use a use-case specific record. (Removal 2.13.0)
  */
-@Deprecated
+@Deprecated(forRemoval = true)
 public class Pair<T1, T2> implements Entry<T1, T2>, Cloneable, Serializable {
 	@Serial
 	private static final long serialVersionUID = 8296563685697678334L;

@@ -3,7 +3,7 @@ package ch.njol.util;
 import java.util.function.Predicate;
 
 /**
- * @deprecated use {@link Predicate}
+ * @deprecated use {@link Predicate}. (Removal 2.13.0)
  */
 @Deprecated(forRemoval = true)
 @FunctionalInterface

@@ -1,11 +1,9 @@
 package ch.njol.util;
 
-import org.jetbrains.annotations.ApiStatus;
-
 import javax.annotation.Nullable;
 
 /**
- * @deprecated use {@link java.util.function.Predicate}
+ * @deprecated use {@link java.util.function.Predicate}. (Removal 2.13.0)
  */
 @Deprecated(forRemoval = true)
 @FunctionalInterface

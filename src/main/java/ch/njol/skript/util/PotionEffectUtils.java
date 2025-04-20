@@ -103,10 +103,10 @@ public abstract class PotionEffectUtils {
 	 * Unused currently, will be used soon (TM).
 	 * @param name Name of potion type
 	 * @return
-	 * @deprecated To be removed in a future version.
+	 * @deprecated To be removed in a future version. (Removal 2.13.0)
 	 */
 	@Nullable
-	@Deprecated
+	@Deprecated(forRemoval = true)
 	public static PotionType checkPotionType(String name) {
 		switch (name) {
 			case "uncraftable":

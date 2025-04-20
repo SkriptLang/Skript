@@ -202,11 +202,11 @@ public abstract class Functions {
 	 * it might not have been parsed yet. If you want to check for existence,
 	 * then use {@link #getGlobalSignature(String)}.
 	 *
-	 * @deprecated in favour of {@link #getGlobalFunction(String)} for proper name.
+	 * @deprecated in favour of {@link #getGlobalFunction(String)} for proper name. (Removal 2.13.0)
 	 * @param name Name of function.
 	 * @return Function, or null if it does not exist.
 	 */
-	@Deprecated
+	@Deprecated(forRemoval = true)
 	public static @Nullable Function<?> getFunction(String name) {
 		return getGlobalFunction(name);
 	}
@@ -266,11 +266,11 @@ public abstract class Functions {
 	/**
 	 * Gets a signature of function with given name.
 	 * 
-	 * @deprecated in favour of {@link #getGlobalSignature(String)} for proper name.
+	 * @deprecated in favour of {@link #getGlobalSignature(String)} for proper name. (Removal 2.13.0)
 	 * @param name Name of function.
 	 * @return Signature, or null if function does not exist.
 	 */
-	@Deprecated
+	@Deprecated(forRemoval = true)
 	public static @Nullable Signature<?> getSignature(String name) {
 		return getGlobalSignature(name);
 	}
@@ -328,11 +328,9 @@ public abstract class Functions {
 	private final static Collection<FunctionReference<?>> toValidate = new ArrayList<>();
 
 	/**
-	 * Remember to call {@link #validateFunctions()} after calling this
-	 *
-	 * @return How many functions were removed
+	 * @deprecated (Removal 2.13.0)
 	 */
-	@Deprecated
+	@Deprecated(forRemoval = true)
 	public static int clearFunctions(String script) {
 		// Get and remove function namespace of script
 		Namespace namespace = namespaces.remove(new Namespace.Key(Namespace.Origin.SCRIPT, script));

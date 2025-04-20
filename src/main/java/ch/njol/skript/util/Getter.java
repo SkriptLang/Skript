@@ -6,7 +6,7 @@ import org.skriptlang.skript.lang.converter.Converter;
 /**
  * Used to get a specific value from instances of some type.
  *
- * @deprecated use {@link Converter} instead
+ * @deprecated use {@link Converter} instead. (Removal 2.13.0)
  * @param <R> the returned value type
  * @param <A> the type which holds the value
  */

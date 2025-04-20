@@ -3,7 +3,7 @@ package ch.njol.util;
 import java.util.function.Consumer;
 
 /**
- * @deprecated use {@link Consumer}
+ * @deprecated use {@link Consumer}. (Removal 2.13.0)
  */
 @Deprecated(forRemoval = true)
 @FunctionalInterface

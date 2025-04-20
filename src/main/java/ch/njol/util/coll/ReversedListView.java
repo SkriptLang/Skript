@@ -1,17 +1,16 @@
 package ch.njol.util.coll;
 
+import ch.njol.util.coll.iterator.ReversedListIterator;
+import org.jetbrains.annotations.Nullable;
+
 import java.lang.reflect.Array;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 
-import org.jetbrains.annotations.Nullable;
-
-import ch.njol.util.coll.iterator.ReversedListIterator;
-
 /**
- * @deprecated unused
+ * @deprecated unused. (Removal 2.13.0)
  */
 @Deprecated(forRemoval = true)
 public class ReversedListView<T> implements List<T> {

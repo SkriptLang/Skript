@@ -68,9 +68,9 @@ public class ItemData implements Cloneable, YggdrasilExtendedSerializable {
 	/**
 	 * Before 1.13, data values ("block states") are applicable to items.
 	 *
-	 * @deprecated before 1.13 is no longer supported
+	 * @deprecated before 1.13 is no longer supported. (Removal 2.13.0)
 	 */
-	@Deprecated
+	@Deprecated(forRemoval = true)
 	public static final boolean itemDataValues = false;
 	
 	/**
@@ -179,9 +179,9 @@ public class ItemData implements Cloneable, YggdrasilExtendedSerializable {
 	}
 
 	/**
-	 * @deprecated Use {@link ItemData#ItemData(BlockData)} instead
+	 * @deprecated Use {@link ItemData#ItemData(BlockData)} instead. (Removal 2.13.0)
 	 */
-	@Deprecated
+	@Deprecated(forRemoval = true)
 	public ItemData(BlockState blockState) {
 		this(blockState.getBlockData());
 	}

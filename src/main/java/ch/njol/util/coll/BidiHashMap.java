@@ -1,14 +1,14 @@
 package ch.njol.util.coll;
 
+import org.jetbrains.annotations.Nullable;
+
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import org.jetbrains.annotations.Nullable;
-
 /**
- * @deprecated Use {@link com.google.common.collect.BiMap}
+ * @deprecated Use {@link com.google.common.collect.BiMap}. (Removal 2.13.0)
  */
 @Deprecated(forRemoval = true)
 @SuppressWarnings("removal")

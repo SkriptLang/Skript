@@ -8,9 +8,9 @@ import org.jetbrains.annotations.Nullable;
 import ch.njol.util.NullableChecker;
 
 /**
- * @deprecated unused
+ * @deprecated unused. (Removal 2.13.0)
  */
-@Deprecated
+@Deprecated(forRemoval = true)
 public class StoppableIterator<T> implements Iterator<T> {
 	
 	private final Iterator<T> iter;

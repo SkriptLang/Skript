@@ -5,7 +5,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Collection;
 
 /**
- * use {@link com.google.common.base.Preconditions}
+ * use {@link com.google.common.base.Preconditions}. (Removal 2.13.0)
  */
 @Deprecated(forRemoval = true)
 public final class Validate {

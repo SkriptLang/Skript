@@ -1082,9 +1082,9 @@ public final class Skript extends JavaPlugin implements Listener {
 	 *
 	 * @param className
 	 * @return Whether the given class exists.
-	 * @deprecated use {@link #classExists(String)}
+	 * @deprecated use {@link #classExists(String)}. (Removal 2.13.0)
 	 */
-	@Deprecated
+	@Deprecated(forRemoval = true)
 	public static boolean supports(final String className) {
 		return classExists(className);
 	}

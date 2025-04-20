@@ -5,9 +5,9 @@ import java.util.Iterator;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * @deprecated use {@link Iterator}
+ * @deprecated use {@link Iterator}. (Removal 2.13.0)
  */
-@Deprecated
+@Deprecated(forRemoval = true)
 public class ImprovedIterator<T> implements Iterator<T> {
 	
 	private final Iterator<T> iter;

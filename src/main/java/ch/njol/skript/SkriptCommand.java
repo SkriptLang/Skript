@@ -514,7 +514,7 @@ public class SkriptCommand implements CommandExecutor {
 	}
 
 	/**
-	 * Moved to {@link ScriptLoader#getScriptFromName(String)}
+	 * @deprecated Use {@link ScriptLoader#getScriptFromName(String)} instead. (Removal 2.13.0)
 	 */
 	@Nullable
 	@Deprecated(forRemoval = true)
