@@ -2,6 +2,7 @@ package org.skriptlang.skript.bukkit.particles;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.classes.ClassInfo;
+import ch.njol.skript.classes.EnumClassInfo;
 import ch.njol.skript.classes.Parser;
 import ch.njol.skript.classes.Serializer;
 import ch.njol.skript.expressions.base.EventValueExpression;
@@ -9,10 +10,11 @@ import ch.njol.skript.lang.ParseContext;
 import ch.njol.skript.registrations.Classes;
 import ch.njol.yggdrasil.Fields;
 import org.bukkit.Effect;
+import org.bukkit.EntityEffect;
 
 import java.io.IOException;
-import java.io.NotSerializableException;
 import java.io.StreamCorruptedException;
+import java.util.Arrays;
 
 public class ParticleModule {
 
@@ -23,6 +25,12 @@ public class ParticleModule {
 			.description("Various game effects that can be played for players, like record disc songs, splash potions breaking, or fake bone meal effects.")
 			.name("Game Effect")
 			.usage(GameEffect.getAllNamesWithoutData())
+			.supplier(() -> {
+				Effect[] effects = Effect.values();
+				return Arrays.stream(effects).map(GameEffect::new)
+					.filter(effect -> effect.getData() == null)
+					.iterator();
+			})
 			.serializer(new Serializer<>() {
 				@Override
 				public Fields serialize(GameEffect effect) {
@@ -33,12 +41,12 @@ public class ParticleModule {
 				}
 
 				@Override
-				public void deserialize(GameEffect effect, Fields fields) throws StreamCorruptedException, NotSerializableException {
+				public void deserialize(GameEffect effect, Fields fields) {
 					assert false;
 				}
 
 				@Override
-				protected GameEffect deserialize(Fields fields) throws StreamCorruptedException, NotSerializableException {
+				protected GameEffect deserialize(Fields fields) throws StreamCorruptedException {
 					String name = fields.getAndRemovePrimitive("name", String.class);
 					GameEffect effect;
 					try {
@@ -77,6 +85,12 @@ public class ParticleModule {
 					return o.getEffect().name();
 				}
 			}));
+
+		Classes.registerClass(new EnumClassInfo<>(EntityEffect.class, "entityeffect", "entity effect")
+			.user("entity ?effects?")
+			.name("Entity Effect")
+			.description("Various entity effects that can be played for entities, like wolf howling, or villager happy.")
+			.since("INSERT VERSION"));
 
 		Skript.getAddonInstance().loadClasses("org.skriptlang.skript.bukkit.particles", "elements");
 

@@ -1,9 +1,11 @@
 package org.skriptlang.skript.bukkit.particles.elements.effects;
 
 import ch.njol.skript.Skript;
+import ch.njol.skript.config.Node;
 import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.Direction;
 import ch.njol.util.Kleenean;
 import org.bukkit.EntityEffect;
@@ -14,15 +16,16 @@ import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.particles.GameEffect;
 import org.skriptlang.skript.bukkit.particles.ParticleEffect;
+import org.skriptlang.skript.log.runtime.SyntaxRuntimeErrorProducer;
 
 // TODO: better terminology than "effects", as it's getting confusing.
-public class EffPlayEffect extends Effect {
+public class EffPlayEffect extends Effect implements SyntaxRuntimeErrorProducer {
 	static {
 		Skript.registerEffect(EffPlayEffect.class,
 		"[:force] (play|show|draw) %gameeffects% %directions% %locations%",
 			"[:force] (play|show|draw) %gameeffects% %directions% %locations% (for|to) %-players%",
-			"(play|show|draw) %gameeffects% %directions% %locations% (in|with) [a] [view] (radius|range) of %-number%)");
-		//			"(play|show|draw) %entityeffects% on %entities%)"
+			"(play|show|draw) %gameeffects% %directions% %locations% (in|with) [a] [view] (radius|range) of %-number%)",
+			"(play|show|draw) %entityeffects% on %entities%");
 	}
 
 	private Expression<?> toDraw;
@@ -34,7 +37,7 @@ public class EffPlayEffect extends Effect {
 	// for entity effects
 	private @Nullable Expression<Entity> entities;
 
-
+	private Node node;
 
 	@Override
 	@SuppressWarnings("unchecked")
@@ -53,6 +56,7 @@ public class EffPlayEffect extends Effect {
 			}
 			case 3 -> this.entities = (Expression<Entity>) expressions[1];
 		}
+		this.node = getParser().getNode();
 		return true;
 	}
 
@@ -62,9 +66,16 @@ public class EffPlayEffect extends Effect {
 		if (this.entities != null) {
 			Entity[] entities = this.entities.getArray(event);
 			EntityEffect[] effects = (EntityEffect[]) toDraw.getArray(event);
-			for (Entity entity : entities) {
-				for (EntityEffect effect : effects) {
-					entity.playEffect(effect);
+			for (EntityEffect effect : effects) {
+				boolean played = false;
+				for (Entity entity : entities) {
+					if (effect.isApplicableTo(entity)) {
+						entity.playEffect(effect);
+						played = true;
+					}
+				}
+				if (entities.length > 0 && !played) {
+					warning("Effect " + Classes.toString(effect) + " is not applicable to any of the given entities: (" + Classes.toString(entities, this.entities.getAnd()) + ")");
 				}
 			}
 			return;
@@ -111,5 +122,10 @@ public class EffPlayEffect extends Effect {
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
 		return "";
+	}
+
+	@Override
+	public Node getNode() {
+		return node;
 	}
 }

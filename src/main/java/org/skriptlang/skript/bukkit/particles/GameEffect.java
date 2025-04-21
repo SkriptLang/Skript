@@ -69,6 +69,8 @@ public class GameEffect {
 	 * @param radius the radius to play the effect in, or null to use the default radius
 	 */
 	public void draw(@NotNull Location location, @Nullable Number radius) {
+		if (effect.getData() != null && data == null)
+			return;
 		World world = location.getWorld();
 		if (world == null)
 			return;
