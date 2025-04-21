@@ -23,7 +23,7 @@ import org.jetbrains.annotations.Nullable;
 	"if the no damage timespan of {_entity} is 0 seconds:",
 		"\tset the invincibility time span of {_entity} to 1 minute"
 })
-@Since("INSERT VERSION")
+@Since("2.11")
 public class ExprNoDamageTime extends SimplePropertyExpression<LivingEntity, Timespan> {
 
 	static {

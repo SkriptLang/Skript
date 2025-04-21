@@ -24,7 +24,7 @@ import java.util.function.Consumer;
 	"The max level is 5, which cannot be changed."
 })
 @Examples("set the honey level of {_beehive} to the max honey level of {_beehive}")
-@Since("INSERT VERSION")
+@Since("2.11")
 public class ExprBeehiveHoneyLevel extends SimplePropertyExpression<Block, Integer> {
 
 	static {
