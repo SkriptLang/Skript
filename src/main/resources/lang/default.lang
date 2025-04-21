@@ -2476,18 +2476,56 @@ game effect:
 	end_portal_created_in_overworld: complete end portal sound effect, create end portal sound effect
 	composter_composts: composter compost effect
 
-	 # these effect are deprecated in 1.19, they do nothing.
+	 # these effects are deprecated in 1.19, they do nothing.
 	 # their respective Sounds should be used instead.
-	door_toggle: toggle door sound
-	iron_door_toggle: toggle iron door sound
-	trapdoor_toggle: toggle trapdoor sound
-	iron_trapdoor_toggle: toggle iron trapdoor sound
-	fence_gate_toggle: toggle fence gate sound
-	door_close: close door sound
-	iron_door_close: close iron door sound
-	trapdoor_close: close trapdoor sound
-	iron_trapdoor_close: close iron trapdoor sound
-	fence_gate_close: close fence gate sound
+	door_toggle: toggle door sound effect
+	iron_door_toggle: toggle iron door sound effect
+	trapdoor_toggle: toggle trapdoor sound effect
+	iron_trapdoor_toggle: toggle iron trapdoor sound effect
+	fence_gate_toggle: toggle fence gate sound effect
+	door_close: close door sound effect
+	iron_door_close: close iron door sound effect
+	trapdoor_close: close trapdoor sound effect
+	iron_trapdoor_close: close iron trapdoor sound effect
+	fence_gate_close: close fence gate sound effect
+
+	# to categorize
+	pointed_dripstone_land: pointed dripstone land effect
+	sound_stop_jukebox_song: stop jukebox song sound effect
+	crafter_craft: crafter craft sound effect
+	crafter_fail: crafter fail sound effect
+	particles_egg_crack: egg crack effect
+	gust_dust: gust dust effect
+	trial_spawner_eject_item: trial spawner eject item effect
+	vault_eject_item: vault eject item effect
+	spawn_cobweb: spawn cobweb effect
+	sound_with_charge_shot: charge shot sound effect
+
+	# these effects require data and can't be parsed directly, but exist here in case skript needs a proper name.
+	record_play: play record effect
+	smoke: dispenser black smoke effect
+	step_sound: footstep sound effect
+	potion_break: splash potion break effect
+	instant_potion_break: instant splash potion break effect
+	villager_plant_grow: villager grow plant effect
+	composter_fill_attempt: composting fill effect
+	bone_meal_use: bone meal use effect
+	electric_spark: electric spark effect
+	shoot_white_smoke: dispenser white smoke effect
+	bee_growth: bee grow plant effect
+	turtle_egg_placement: place turtle egg effect
+	smash_attack: mace smash attack effect
+	particles_sculk_charge: sculk charge effect
+	particles_sculk_shriek: sculk shriek effect
+	particles_and_sound_brush_block_complete: brush block effect
+	trial_spawner_spawn: trial spawner spawn effect
+	trial_spawner_spawn_mob_at: trial spawner spawn mob effect
+	trial_spawner_detect_player: trial spawner detect player effect
+	vault_activate: vault activate effect
+	vault_deactivate: vault deactivate effect
+	trial_spawner_detect_player_ominous: ominous trial spawner detect player effect
+	trial_spawner_become_ominous: trial spawner become ominous effect
+	trial_spawner_spawn_item: trial spawner spawn item effect
 
 # -- Teleport Flags --
 teleport flags:

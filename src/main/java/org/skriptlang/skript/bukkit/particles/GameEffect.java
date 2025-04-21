@@ -1,5 +1,7 @@
 package org.skriptlang.skript.bukkit.particles;
 
+import ch.njol.skript.Skript;
+import ch.njol.skript.registrations.Classes;
 import ch.njol.skript.util.EnumUtils;
 import org.bukkit.Effect;
 import org.bukkit.Location;
@@ -16,8 +18,7 @@ import java.util.Locale;
  */
 public class GameEffect {
 
-	// TODO: fix missing key error for effects that require data
-	public static final EnumUtils<Effect> ENUM_UTILS = new EnumUtils<>(Effect.class, "game effect");
+	public static final EnumUtils<Effect> ENUM_UTILS = new EnumUtils<>(Effect.class, "game effect"); // exclude effects that require data
 
 	/**
 	 * The {@link Effect} that this object represents
@@ -36,7 +37,10 @@ public class GameEffect {
 
 	public static GameEffect parse(String input) {
 		Effect effect = ENUM_UTILS.parse(input.toLowerCase(Locale.ENGLISH));
-		if (effect == null || effect.getData() != null) {
+		if (effect == null)
+			return null;
+		if (effect.getData() != null) {
+			Skript.error("The effect " + Classes.toString(effect) + " requires data and cannot be parsed directly. Use the Game Effect expression instead.");
 			return null;
 		}
 		return new GameEffect(effect);
