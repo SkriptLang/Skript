@@ -555,9 +555,9 @@ public final class ParserInstance implements Experimented {
 		}
 
 		/**
-		 * @deprecated See {@link ScriptLoader.LoaderEvent}. (Removal 2.13.0)
+		 * @deprecated See {@link ScriptLoader.LoaderEvent}. 
 		 */
-		@Deprecated(forRemoval = true)
+		@Deprecated(since = "2.11.0", forRemoval = true)
 		public void onCurrentScriptChange(@Nullable Config currentScript) { }
 
 		public void onCurrentEventsChange(Class<? extends Event> @Nullable [] currentEvents) { }
@@ -706,10 +706,10 @@ public final class ParserInstance implements Experimented {
 	// Deprecated API
 
 	/**
-	 * @deprecated Use {@link Script#getData(Class)} instead. The {@link OptionsData} class should be obtained. (Removal 2.13.0)
+	 * @deprecated Use {@link Script#getData(Class)} instead. The {@link OptionsData} class should be obtained. 
 	 * Example: <code>script.getData(OptionsData.class)</code>
 	 */
-	@Deprecated(forRemoval = true)
+	@Deprecated(since = "2.11.0", forRemoval = true)
 	public HashMap<String, String> getCurrentOptions() {
 		if (!isActive())
 			return new HashMap<>(0);

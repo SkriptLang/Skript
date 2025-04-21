@@ -317,25 +317,21 @@ Prefer to avoid referencing the Biome enum directly, since it has changed betwee
 
 ### Deprecating
 
-When deprecating a Java element (such as a class, method, or constructor), follow these conventions:
+When deprecating a Java element (such as a class, method, or constructor):
 
-1. **Replace all internal usages** of the deprecated element within the Skript codebase, where feasible.
-2. Annotate the element with `@Deprecated(forRemoval = true)` to indicate that it is scheduled for removal in a future release.
-3. Add a properly formatted Javadoc `@deprecated` tag:
-	- Clearly state the preferred alternative.
-	- End the comment with versioning information in this format:  
-	  `(Since x.x.x, Removal x.x.x)`
-		- `Since` refers to the version the element was deprecated.
-		- `Removal` is the expected version the element will be removed (typically **two feature releases** later).
+1. Replace all internal usages of the deprecated element within the Skript codebase.
+2. Add a Javadoc `@deprecated` tag that states the recommended alternative.
+3. Annotate the element with `@Deprecated(since = "x.x.x", forRemoval = true)` to indicate it is scheduled for removal and what feature version it was deprecated.
 
 #### Example
 (Current Skript version: `2.11.0`)
 
 ```java
 /**
- * @deprecated Please use ... instead. (Since 2.11.0, Removal 2.13.0)
+ * @deprecated Please use {@link ...} instead.
  */
-@Deprecated(forRemoval = true)
+@Deprecated(since = "2.11.0", forRemoval = true)
 ```
 
-Deprecation PRs are typically merged for a feature release, so the deprecation versioning should reflect the feature release it will be merged.
+Deprecation PRs are typically merged for a feature release, so the `since` version should reflect the feature release the deprecation is introduced in.
+Deprecated elements may be removed three feature releases after the version they were originally deprecated in.

@@ -64,9 +64,9 @@ public class EnchantmentType implements YggdrasilSerializable {
 	 * Checks whether the given item type has this enchantment.
 	 *
 	 * @param item the item to be checked.
-	 * @deprecated Use {@link ItemType#hasEnchantments(Enchantment...)}. (Removal 2.13.0)
+	 * @deprecated Use {@link ItemType#hasEnchantments(Enchantment...)}. 
 	 */
-	@Deprecated(forRemoval = true)
+	@Deprecated(since = "2.11.0", forRemoval = true)
 	public boolean has(final ItemType item) {
 		return item.hasEnchantments(type);
 	}

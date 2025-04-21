@@ -4,9 +4,9 @@ package ch.njol.util;
  * Like {@link java.io.Closeable}, but not used for resources, thus it neither throws checked exceptions nor causes resource leak warnings.
  *
  * This is an auto-closeable resource and so may be used within a try-with-resources section for automatic disposal.
- * @deprecated use {@link java.io.Closeable}. (Removal 2.13.0)
+ * @deprecated use {@link java.io.Closeable}. 
  */
-@Deprecated(forRemoval = true)
+@Deprecated(since = "2.11.0", forRemoval = true)
 public interface Closeable extends AutoCloseable {
 
 	/**

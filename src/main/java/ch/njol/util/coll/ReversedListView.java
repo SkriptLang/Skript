@@ -10,9 +10,9 @@ import java.util.List;
 import java.util.ListIterator;
 
 /**
- * @deprecated unused. (Removal 2.13.0)
+ * @deprecated unused. 
  */
-@Deprecated(forRemoval = true)
+@Deprecated(since = "2.11.0", forRemoval = true)
 public class ReversedListView<T> implements List<T> {
 	
 	private final List<T> list;

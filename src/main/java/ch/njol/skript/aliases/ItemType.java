@@ -174,9 +174,9 @@ public class ItemType implements Unit, Iterable<ItemData>, Container<ItemStack>,
 	}
 
 	/**
-	 * @deprecated Use {@link #ItemType(BlockData)} instead. (Removal 2.13.0)
+	 * @deprecated Use {@link #ItemType(BlockData)} instead. 
 	 */
-	@Deprecated(forRemoval = true)
+	@Deprecated(since = "2.11.0", forRemoval = true)
 	public ItemType(BlockState blockState) {
 		this(blockState.getBlockData());
 	}
@@ -268,9 +268,9 @@ public class ItemType implements Unit, Iterable<ItemData>, Container<ItemStack>,
 	}
 
 	/**
-	 * @deprecated Use {@link #isOfType(BlockData)} instead. (Removal 2.13.0)
+	 * @deprecated Use {@link #isOfType(BlockData)} instead. 
 	 */
-	@Deprecated(forRemoval = true)
+	@Deprecated(since = "2.11.0", forRemoval = true)
 	public boolean isOfType(@Nullable BlockState blockState) {
 		return blockState != null && isOfType(blockState.getBlockData());
 	}
@@ -1239,9 +1239,9 @@ public class ItemType implements Unit, Iterable<ItemData>, Container<ItemStack>,
 	/**
 	 * Gets all enchantments of this item.
 	 * @return Enchantments.
-	 * @deprecated Use {@link ItemType#getEnchantmentTypes()}. (Removal 2.13.0)
+	 * @deprecated Use {@link ItemType#getEnchantmentTypes()}. 
 	 */
-	@Deprecated(forRemoval = true)
+	@Deprecated(since = "2.11.0", forRemoval = true)
 	@Nullable
 	public Map<Enchantment,Integer> getEnchantments() {
 		if (globalMeta == null)

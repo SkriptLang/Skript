@@ -514,10 +514,10 @@ public class SkriptCommand implements CommandExecutor {
 	}
 
 	/**
-	 * @deprecated Use {@link ScriptLoader#getScriptFromName(String)} instead. (Removal 2.13.0)
+	 * @deprecated Use {@link ScriptLoader#getScriptFromName(String)} instead. 
 	 */
 	@Nullable
-	@Deprecated(forRemoval = true)
+	@Deprecated(since = "2.11.0", forRemoval = true)
 	public static File getScriptFromName(String script) {
 		return ScriptLoader.getScriptFromName(script);
 	}

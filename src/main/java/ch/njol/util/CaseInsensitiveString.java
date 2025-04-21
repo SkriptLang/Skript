@@ -5,9 +5,9 @@ import java.io.Serializable;
 import java.util.Locale;
 
 /**
- * @deprecated use {@link java.lang.String#equalsIgnoreCase(String)}. (Removal 2.13.0)
+ * @deprecated use {@link java.lang.String#equalsIgnoreCase(String)}. 
  */
-@Deprecated(forRemoval = true)
+@Deprecated(since = "2.11.0", forRemoval = true)
 public class CaseInsensitiveString implements Serializable, Comparable<CharSequence>, CharSequence {
 
 	private static final long serialVersionUID = 1205018864604639962L;

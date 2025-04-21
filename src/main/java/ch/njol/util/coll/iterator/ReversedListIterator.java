@@ -6,9 +6,9 @@ import java.util.ListIterator;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * @deprecated unused. (Removal 2.13.0)
+ * @deprecated unused. 
  */
-@Deprecated(forRemoval = true)
+@Deprecated(since = "2.11.0", forRemoval = true)
 public class ReversedListIterator<T> implements ListIterator<T> {
 	
 	private final ListIterator<T> iter;

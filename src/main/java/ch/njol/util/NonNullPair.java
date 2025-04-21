@@ -1,9 +1,9 @@
 package ch.njol.util;
 
 /**
- * @deprecated Use a use-case specific record. (Removal 2.13.0)
+ * @deprecated Use a use-case specific record. 
  */
-@Deprecated(forRemoval = true)
+@Deprecated(since = "2.11.0", forRemoval = true)
 public class NonNullPair<T1, T2> extends Pair<T1, T2> {
 	private static final long serialVersionUID = 820250942098905541L;
 	

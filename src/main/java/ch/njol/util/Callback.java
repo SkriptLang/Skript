@@ -5,9 +5,9 @@ import org.jetbrains.annotations.Nullable;
 import java.util.function.Function;
 
 /**
- * @deprecated use {@link Function}. (Removal 2.13.0)
+ * @deprecated use {@link Function}. 
  */
-@Deprecated(forRemoval = true)
+@Deprecated(since = "2.11.0", forRemoval = true)
 @FunctionalInterface
 public interface Callback<R, A> extends Function<A, R> {
 

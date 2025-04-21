@@ -210,7 +210,7 @@ public final class Skript extends JavaPlugin implements Listener {
 
 	@Nullable
 	private static Version version = null;
-	@Deprecated(forRemoval = true) // TODO this field will be replaced by a proper registry later
+	@Deprecated(since = "2.11.0", forRemoval = true) // TODO this field will be replaced by a proper registry later
 	private static @UnknownNullability ExperimentRegistry experimentRegistry;
 
 	public static Version getVersion() {
@@ -1082,9 +1082,9 @@ public final class Skript extends JavaPlugin implements Listener {
 	 *
 	 * @param className
 	 * @return Whether the given class exists.
-	 * @deprecated use {@link #classExists(String)}. (Removal 2.13.0)
+	 * @deprecated use {@link #classExists(String)}. 
 	 */
-	@Deprecated(forRemoval = true)
+	@Deprecated(since = "2.11.0", forRemoval = true)
 	public static boolean supports(final String className) {
 		return classExists(className);
 	}

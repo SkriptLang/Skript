@@ -1531,9 +1531,9 @@ public class SkriptParser {
 
 	/**
 	 * @deprecated due to bad naming conventions,
-	 * use {@link #LIST_SPLIT_PATTERN} instead. (Removal 2.13.0)
+	 * use {@link #LIST_SPLIT_PATTERN} instead. 
 	 */
-	@Deprecated(forRemoval = true)
+	@Deprecated(since = "2.11.0", forRemoval = true)
 	public final static Pattern listSplitPattern = LIST_SPLIT_PATTERN;
 
 	/**

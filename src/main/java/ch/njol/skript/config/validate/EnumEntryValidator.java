@@ -9,9 +9,9 @@ import java.util.Locale;
 import java.util.function.Consumer;
 
 /**
- * @deprecated (Removal 2.13.0)
+ * @deprecated 
  */
-@Deprecated(forRemoval = true)
+@Deprecated(since = "2.11.0", forRemoval = true)
 public class EnumEntryValidator<E extends Enum<E>> extends EntryValidator {
 
 	private final Class<E> enumType;

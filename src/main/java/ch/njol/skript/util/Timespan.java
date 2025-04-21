@@ -201,25 +201,25 @@ public class Timespan implements YggdrasilSerializable, Comparable<Timespan>, Te
 	}
 
 	/**
-	 * @deprecated Use {@link #Timespan(TimePeriod, long)}. (Removal 2.13.0)
+	 * @deprecated Use {@link #Timespan(TimePeriod, long)}. 
 	 */
-	@Deprecated(forRemoval = true)
+	@Deprecated(since = "2.11.0", forRemoval = true)
 	public static Timespan fromTicks(long ticks) {
 		return new Timespan(ticks * 50L);
 	}
 
 	/**
-	 * @deprecated Use {@link #Timespan(TimePeriod, long)} instead. (Removal 2.13.0)
+	 * @deprecated Use {@link #Timespan(TimePeriod, long)} instead. 
 	 */
-	@Deprecated(forRemoval = true)
+	@Deprecated(since = "2.11.0", forRemoval = true)
 	public static Timespan fromTicks_i(long ticks) {
 		return new Timespan(ticks * 50L);
 	}
 
 	/**
-	 * @deprecated Use {@link Timespan#getAs(TimePeriod)}. (Removal 2.13.0)
+	 * @deprecated Use {@link Timespan#getAs(TimePeriod)}. 
 	 */
-	@Deprecated(forRemoval = true)
+	@Deprecated(since = "2.11.0", forRemoval = true)
 	public long getMilliSeconds() {
 		return getAs(TimePeriod.MILLISECOND);
 	}
@@ -227,7 +227,7 @@ public class Timespan implements YggdrasilSerializable, Comparable<Timespan>, Te
 	/**
 	 * @deprecated Use {@link Timespan#getAs(TimePeriod)}
 	 */
-	@Deprecated(forRemoval = true)
+	@Deprecated(since = "2.11.0", forRemoval = true)
 	public long getTicks() {
 		return getAs(TimePeriod.TICK);
 	}
@@ -235,7 +235,7 @@ public class Timespan implements YggdrasilSerializable, Comparable<Timespan>, Te
 	/**
 	 * @deprecated Use {@link Timespan#getAs(TimePeriod)}
 	 */
-	@Deprecated(forRemoval = true)
+	@Deprecated(since = "2.11.0", forRemoval = true)
 	public long getTicks_i() {
 		return getAs(TimePeriod.TICK);
 	}

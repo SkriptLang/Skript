@@ -7,9 +7,9 @@ import ch.njol.skript.expressions.ExprYawPitch;
 import org.bukkit.util.Vector;
 
 /**
- * @deprecated (Removal 2.13.0)
+ * @deprecated 
  */
-@Deprecated(forRemoval = true)
+@Deprecated(since = "2.11.0", forRemoval = true)
 public final class VectorMath {
 
 	public static final double PI = Math.PI;
