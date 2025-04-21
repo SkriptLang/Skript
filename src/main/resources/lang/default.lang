@@ -2475,6 +2475,16 @@ game effect:
 	ender_dragon_death: ender dragon death sound effect, dragon death sound effect
 	end_portal_created_in_overworld: complete end portal sound effect, create end portal sound effect
 	composter_composts: composter compost effect
+	pointed_dripstone_land: pointed dripstone land effect
+	sound_stop_jukebox_song: stop jukebox song sound effect
+	crafter_craft: crafter craft sound effect
+	crafter_fail: crafter fail sound effect
+	particles_egg_crack: egg crack effect
+	gust_dust: gust dust effect
+	trial_spawner_eject_item: trial spawner eject item effect
+	vault_eject_item: vault eject item effect
+	spawn_cobweb: spawn cobweb effect
+	sound_with_charge_shot: charge shot sound effect
 
 	 # these effects are deprecated in 1.19, they do nothing.
 	 # their respective Sounds should be used instead.
@@ -2488,18 +2498,6 @@ game effect:
 	trapdoor_close: close trapdoor sound effect
 	iron_trapdoor_close: close iron trapdoor sound effect
 	fence_gate_close: close fence gate sound effect
-
-	# to categorize
-	pointed_dripstone_land: pointed dripstone land effect
-	sound_stop_jukebox_song: stop jukebox song sound effect
-	crafter_craft: crafter craft sound effect
-	crafter_fail: crafter fail sound effect
-	particles_egg_crack: egg crack effect
-	gust_dust: gust dust effect
-	trial_spawner_eject_item: trial spawner eject item effect
-	vault_eject_item: vault eject item effect
-	spawn_cobweb: spawn cobweb effect
-	sound_with_charge_shot: charge shot sound effect
 
 	# these effects require data and can't be parsed directly, but exist here in case skript needs a proper name.
 	record_play: play record effect
@@ -2805,6 +2803,7 @@ types:
 	vehicle: vehicle¦s @a
 	fishingstate: fishing state¦s @a
 	equipmentslot: equipment slot¦s @an
+	gameeffect: game effect¦s @a
 
 
 	# Skript
