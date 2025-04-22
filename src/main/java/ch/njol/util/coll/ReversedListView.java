@@ -12,7 +12,7 @@ import java.util.ListIterator;
 /**
  * @deprecated unused. 
  */
-@Deprecated(since = "2.11.0", forRemoval = true)
+@Deprecated(since = "2.10.0", forRemoval = true)
 public class ReversedListView<T> implements List<T> {
 	
 	private final List<T> list;

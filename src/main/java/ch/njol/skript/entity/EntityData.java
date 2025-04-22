@@ -102,7 +102,7 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 //		return getInfo((Class<? extends EntityData<?>>) d.getClass()).codeName + ":" + d.serialize();
 		@SuppressWarnings("null")
 		@Override
-		@Deprecated
+		@Deprecated(since = "2.3.0", forRemoval = true)
 		public @Nullable EntityData deserialize(String string) {
 			String[] split = string.split(":", 2);
 			if (split.length != 2)
@@ -458,7 +458,7 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 	 * @param consumer A {@link Consumer} to apply the entity changes to.
 	 * @return The Entity object that is spawned.
 	 */
-	@Deprecated
+	@Deprecated(since = "2.8.0", forRemoval = true)
 	@SuppressWarnings("deprecation")
 	public @Nullable E spawn(Location location, org.bukkit.util.@Nullable Consumer<E> consumer) {
 		return spawn(location, (Consumer<E>) e -> consumer.accept(e));
@@ -624,7 +624,7 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 		fields.setFields(this);
 	}
 
-	@Deprecated
+	@Deprecated(since = "2.3.0", forRemoval = true)
 	protected boolean deserialize(String string) {
 		return false;
 	}

@@ -9,7 +9,7 @@ import org.bukkit.util.Vector;
 /**
  * @deprecated 
  */
-@Deprecated(since = "2.11.0", forRemoval = true)
+@Deprecated(since = "2.10.0", forRemoval = true)
 public final class VectorMath {
 
 	public static final double PI = Math.PI;

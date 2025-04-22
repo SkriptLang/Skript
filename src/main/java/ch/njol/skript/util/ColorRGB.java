@@ -28,7 +28,7 @@ public class ColorRGB implements Color {
 	 * This is to keep inline with other color classes.
 	 * @deprecated 
 	 */
-	@Deprecated(since = "2.11.0", forRemoval = true)
+	@Deprecated(since = "2.10.0", forRemoval = true)
 	@ApiStatus.Internal
 	public ColorRGB(int red, int green, int blue) {
 		this(org.bukkit.Color.fromRGB(
@@ -42,7 +42,7 @@ public class ColorRGB implements Color {
 	 * This is to keep inline with other color classes.
 	 * @deprecated 
 	 */
-	@Deprecated(since = "2.11.0", forRemoval = true)
+	@Deprecated(since = "2.10.0", forRemoval = true)
 	@ApiStatus.Internal
 	public ColorRGB(org.bukkit.Color bukkit) {
 		this.dye = DyeColor.getByColor(bukkit);

@@ -12,7 +12,7 @@ import java.util.Collection;
  * 
  * @deprecated unused. 
  */
-@Deprecated(since = "2.11.0", forRemoval = true)
+@Deprecated(since = "2.10.0", forRemoval = true)
 public final class CyclicList<E> extends AbstractList<E> {
 	
 	private final Object[] items;

@@ -5,7 +5,7 @@ import java.util.function.Consumer;
 /**
  * @deprecated use {@link Consumer}. 
  */
-@Deprecated(since = "2.11.0", forRemoval = true)
+@Deprecated(since = "2.10.0", forRemoval = true)
 @FunctionalInterface
 public interface Setter<T> extends Consumer<T> {
 

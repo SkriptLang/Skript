@@ -106,7 +106,7 @@ public class Date extends java.util.Date implements YggdrasilSerializable {
 	/**
 	 * @deprecated Use {@link #getTime()} instead. 
 	 */
-	@Deprecated(since = "2.11.0", forRemoval = true)
+	@Deprecated(since = "2.10.0", forRemoval = true)
 	public long getTimestamp() {
 		return getTime();
 	}

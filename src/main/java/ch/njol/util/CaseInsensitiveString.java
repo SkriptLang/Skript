@@ -7,7 +7,7 @@ import java.util.Locale;
 /**
  * @deprecated use {@link java.lang.String#equalsIgnoreCase(String)}. 
  */
-@Deprecated(since = "2.11.0", forRemoval = true)
+@Deprecated(since = "2.10.0", forRemoval = true)
 public class CaseInsensitiveString implements Serializable, Comparable<CharSequence>, CharSequence {
 
 	private static final long serialVersionUID = 1205018864604639962L;

@@ -709,7 +709,7 @@ public final class ParserInstance implements Experimented {
 	 * @deprecated Use {@link Script#getData(Class)} instead. The {@link OptionsData} class should be obtained. 
 	 * Example: <code>script.getData(OptionsData.class)</code>
 	 */
-	@Deprecated(since = "2.11.0", forRemoval = true)
+	@Deprecated(since = "2.7.0", forRemoval = true)
 	public HashMap<String, String> getCurrentOptions() {
 		if (!isActive())
 			return new HashMap<>(0);
@@ -720,9 +720,9 @@ public final class ParserInstance implements Experimented {
 	}
 
 	/**
-	 * @deprecated Use {@link #getCurrentStructure()}
+	 * @deprecated Use {@link #getCurrentStructure()} instead.
 	 */
-	@Deprecated
+	@Deprecated(since = "2.7.0", forRemoval = true)
 	public @Nullable SkriptEvent getCurrentSkriptEvent() {
 		Structure structure = getCurrentStructure();
 		if (structure instanceof SkriptEvent event)
@@ -731,17 +731,17 @@ public final class ParserInstance implements Experimented {
 	}
 
 	/**
-	 * @deprecated Use {@link #setCurrentStructure(Structure)}.
+	 * @deprecated Use {@link #setCurrentStructure(Structure)} instead.
 	 */
-	@Deprecated
+	@Deprecated(since = "2.7.0", forRemoval = true)
 	public void setCurrentSkriptEvent(@Nullable SkriptEvent currentSkriptEvent) {
 		this.setCurrentStructure(currentSkriptEvent);
 	}
 
 	/**
-	 * @deprecated Use {@link #setCurrentStructure(Structure)} with 'null'.
+	 * @deprecated Use {@link #setCurrentStructure(Structure)} with 'null' instead.
 	 */
-	@Deprecated
+	@Deprecated(since = "2.7.0", forRemoval = true)
 	public void deleteCurrentSkriptEvent() {
 		this.setCurrentStructure(null);
 	}
@@ -749,7 +749,7 @@ public final class ParserInstance implements Experimented {
 	/**
 	 * @deprecated Addons should no longer be modifying this.
 	 */
-	@Deprecated
+	@Deprecated(since = "2.7.0", forRemoval = true)
 	public void setCurrentScript(@Nullable Config currentScript) {
 		if (currentScript == null)
 			return;

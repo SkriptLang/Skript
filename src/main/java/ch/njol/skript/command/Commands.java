@@ -219,7 +219,7 @@ public abstract class Commands {
 	/*
 	 * @deprecated Use {@link #scriptCommandExists(String)} instead.
 	 */
-	@Deprecated
+	@Deprecated(since = "2.8.0", forRemoval = true)
 	public static boolean skriptCommandExists(String command) {
 		return scriptCommandExists(command);
 	}
@@ -251,7 +251,7 @@ public abstract class Commands {
 		command.registerHelp();
 	}
 
-	@Deprecated
+	@Deprecated(since = "2.7.0", forRemoval = true)
 	public static int unregisterCommands(File script) {
 		int numCommands = 0;
 		for (ScriptCommand c : new ArrayList<>(commands.values())) {

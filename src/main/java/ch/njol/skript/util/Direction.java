@@ -333,7 +333,7 @@ public class Direction implements YggdrasilRobustSerializable {
 	/**
 	 * @deprecated 
 	 */
-	@Deprecated(since = "2.11.0", forRemoval = true)
+	@Deprecated(since = "2.3.0", forRemoval = true)
 	@Nullable
 	public static Direction deserialize(final String s) {
 		final String[] split = s.split(":");

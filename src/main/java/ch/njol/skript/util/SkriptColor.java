@@ -139,7 +139,7 @@ public enum SkriptColor implements Color {
 	/**
 	 * @deprecated 
 	 */
-	@Deprecated(since = "2.11.0", forRemoval = true)
+	@Deprecated(since = "2.3.6", forRemoval = true)
 	public byte getWoolData() {
 		return dye.getWoolData();
 	}
@@ -147,7 +147,7 @@ public enum SkriptColor implements Color {
 	/**
 	 * @deprecated 
 	 */
-	@Deprecated(since = "2.11.0", forRemoval = true)
+	@Deprecated(since = "2.3.6", forRemoval = true)
 	public byte getDyeData() {
 		return (byte) (15 - dye.getWoolData());
 	}
@@ -194,7 +194,7 @@ public enum SkriptColor implements Color {
 	 * @param data short to match against a defined Skript Color.
 	 * @return Skript Color if matched up with the defined short
 	 */
-	@Deprecated(since = "2.11.0", forRemoval = true)
+	@Deprecated(since = "2.3.6", forRemoval = true)
 	@Nullable
 	public static SkriptColor fromDyeData(short data) {
 		if (data < 0 || data >= 16)
@@ -214,7 +214,7 @@ public enum SkriptColor implements Color {
 	 * @param data short to match against a defined Skript Color.
 	 * @return Skript Color if matched up with the defined short
 	 */
-	@Deprecated(since = "2.11.0", forRemoval = true)
+	@Deprecated(since = "2.3.6", forRemoval = true)
 	@Nullable
 	public static SkriptColor fromWoolData(short data) {
 		if (data < 0 || data >= 16)

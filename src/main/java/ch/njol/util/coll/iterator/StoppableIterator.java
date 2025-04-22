@@ -1,16 +1,15 @@
 package ch.njol.util.coll.iterator;
 
+import ch.njol.util.NullableChecker;
+import org.jetbrains.annotations.Nullable;
+
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
-import org.jetbrains.annotations.Nullable;
-
-import ch.njol.util.NullableChecker;
-
 /**
- * @deprecated unused. 
+ * @deprecated unused
  */
-@Deprecated(since = "2.11.0", forRemoval = true)
+@Deprecated(since = "2.10.2", forRemoval = true)
 public class StoppableIterator<T> implements Iterator<T> {
 	
 	private final Iterator<T> iter;

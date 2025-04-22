@@ -1,9 +1,9 @@
 package ch.njol.util.coll.iterator;
 
+import org.jetbrains.annotations.Nullable;
+
 import java.util.Iterator;
 import java.util.NoSuchElementException;
-
-import org.jetbrains.annotations.Nullable;
 
 /**
  * An iterator that iterates over all elements of several iterables.
@@ -12,7 +12,7 @@ import org.jetbrains.annotations.Nullable;
  * 
  * @deprecated use {@link com.google.common.collect.Iterators#concat(Iterator[])}. 
  */
-@Deprecated(since = "2.11.0", forRemoval = true)
+@Deprecated(since = "2.10.0", forRemoval = true)
 public class CombinedIterator<T> implements Iterator<T> {
 	
 	private final Iterator<? extends Iterable<T>> iterators;

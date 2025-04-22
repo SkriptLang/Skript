@@ -46,7 +46,7 @@ public abstract class PlayerUtils {
 	/**
 	 * @deprecated use {@link Bukkit#getOnlinePlayers()} instead
 	 */
-	@Deprecated
+	@Deprecated(since = "2.7.0", forRemoval = true)
 	public static Collection<? extends Player> getOnlinePlayers() {
 		return ImmutableList.copyOf(Bukkit.getOnlinePlayers());
 	}

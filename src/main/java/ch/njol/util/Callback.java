@@ -7,7 +7,7 @@ import java.util.function.Function;
 /**
  * @deprecated use {@link Function}. 
  */
-@Deprecated(since = "2.11.0", forRemoval = true)
+@Deprecated(since = "2.10.0", forRemoval = true)
 @FunctionalInterface
 public interface Callback<R, A> extends Function<A, R> {
 

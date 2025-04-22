@@ -22,7 +22,7 @@ public class ScriptFunction<T> extends Function<T> implements ReturnHandler<T> {
 	/**
 	 * @deprecated use {@link ScriptFunction#ScriptFunction(Signature, SectionNode)}. 
 	 */
-	@Deprecated(since = "2.11.0", forRemoval = true)
+	@Deprecated(since = "2.9.0", forRemoval = true)
 	public ScriptFunction(Signature<T> sign, Script script, SectionNode node) {
 		this(sign, node);
 	}
@@ -64,7 +64,7 @@ public class ScriptFunction<T> extends Function<T> implements ReturnHandler<T> {
 	/**
 	 * @deprecated Use {@link ScriptFunction#returnValues(Event, Expression)}. 
 	 */
-	@Deprecated(since = "2.11.0", forRemoval = true)
+	@Deprecated(since = "2.9.0", forRemoval = true)
 	@ApiStatus.Internal
 	public final void setReturnValue(@Nullable T[] values) {
 		assert !returnValueSet;

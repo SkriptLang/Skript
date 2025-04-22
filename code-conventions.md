@@ -321,17 +321,7 @@ When deprecating a Java element (such as a class, method, or constructor):
 
 1. Replace all internal usages of the deprecated element within the Skript codebase.
 2. Add a Javadoc `@deprecated` tag that states the recommended alternative.
-3. Annotate the element with `@Deprecated(since = "x.x.x", forRemoval = true)` to indicate it is scheduled for removal and what feature version it was deprecated.
+3. Annotate the element with `@Deprecated(since = "INSERT VERSION", forRemoval = true)` to indicate it is scheduled for removal and what feature version it was deprecated.
 
-#### Example
-(Current Skript version: `2.11.0`)
-
-```java
-/**
- * @deprecated Please use {@link ...} instead.
- */
-@Deprecated(since = "2.11.0", forRemoval = true)
-```
-
-Deprecation PRs are typically merged for a feature release, so the `since` version should reflect the feature release the deprecation is introduced in.
-Deprecated elements may be removed three feature releases after the version they were originally deprecated in.
+Deprecation PRs are typically merged for a feature release, so the PR should target `dev/feature` branch.
+Deprecated elements may be removed three feature releases after the version they were deprecated in.

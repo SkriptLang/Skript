@@ -210,7 +210,7 @@ public final class Skript extends JavaPlugin implements Listener {
 
 	@Nullable
 	private static Version version = null;
-	@Deprecated(since = "2.11.0", forRemoval = true) // TODO this field will be replaced by a proper registry later
+	@Deprecated(since = "2.9.0", forRemoval = true) // TODO this field will be replaced by a proper registry later
 	private static @UnknownNullability ExperimentRegistry experimentRegistry;
 
 	public static Version getVersion() {
@@ -1084,7 +1084,7 @@ public final class Skript extends JavaPlugin implements Listener {
 	 * @return Whether the given class exists.
 	 * @deprecated use {@link #classExists(String)}. 
 	 */
-	@Deprecated(since = "2.11.0", forRemoval = true)
+	@Deprecated(since = "2.3.0", forRemoval = true)
 	public static boolean supports(final String className) {
 		return classExists(className);
 	}
@@ -1379,7 +1379,7 @@ public final class Skript extends JavaPlugin implements Listener {
 
 	// ================ ADDONS ================
 
-	@Deprecated
+	@Deprecated(since = "2.10.0", forRemoval = true)
 	private static final Set<SkriptAddon> addons = new HashSet<>();
 
 	/**
@@ -1429,7 +1429,7 @@ public final class Skript extends JavaPlugin implements Listener {
 		return Collections.unmodifiableCollection(addons);
 	}
 
-	@Deprecated
+	@Deprecated(since = "2.10.0", forRemoval = true)
 	private static @Nullable SkriptAddon addon;
 
 	/**

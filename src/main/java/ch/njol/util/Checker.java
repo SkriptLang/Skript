@@ -5,7 +5,7 @@ import java.util.function.Predicate;
 /**
  * @deprecated use {@link Predicate}. 
  */
-@Deprecated(since = "2.11.0", forRemoval = true)
+@Deprecated(since = "2.10.0", forRemoval = true)
 @FunctionalInterface
 public interface Checker<T> extends Predicate<T> {
 

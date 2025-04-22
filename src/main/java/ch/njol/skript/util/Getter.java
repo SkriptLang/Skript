@@ -10,7 +10,7 @@ import org.skriptlang.skript.lang.converter.Converter;
  * @param <R> the returned value type
  * @param <A> the type which holds the value
  */
-@Deprecated(since = "2.11.0", forRemoval = true)
+@Deprecated(since = "2.10.0", forRemoval = true)
 public abstract class Getter<R, A> implements Converter<A, R> {
 
 	/**

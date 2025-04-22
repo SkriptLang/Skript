@@ -134,8 +134,7 @@ public class EntityUtils {
 	 * Teleports to the given location in the entity's world if the location's world is null.
 	 * @deprecated this method is only used by EffTeleport, and with the recent additions of TeleportFlag, this method should be moved within that effect.
 	 */
-	@Deprecated
-	@ScheduledForRemoval
+	@Deprecated(since = "2.10.0", forRemoval = true)
 	public static void teleport(Entity entity, Location location) {
 		if (location.getWorld() == null) {
 			location = location.clone();

@@ -206,7 +206,7 @@ public class SkriptConfig {
 	/**
 	 * @deprecated 
 	 */
-	@Deprecated(since = "2.11.0", forRemoval = true)
+	@Deprecated(since = "2.3.0", forRemoval = true)
 	public static final Option<Boolean> enableScriptCaching = new Option<>("enable script caching", false)
 			.optional(true);
 
