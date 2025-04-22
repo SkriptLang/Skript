@@ -98,7 +98,7 @@ public abstract class PotionEffectUtils {
 	 * Unused currently, will be used soon (TM).
 	 * @param name Name of potion type
 	 * @return
-	 * @deprecated To be removed in a future version. 
+	 * @deprecated To be removed in a future version.
 	 */
 	@Nullable
 	@Deprecated(since = "2.8.5", forRemoval = true)

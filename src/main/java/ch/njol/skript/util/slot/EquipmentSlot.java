@@ -233,7 +233,7 @@ public class EquipmentSlot extends SlotWithIndex {
 	}
 	
 	/**
-	 * @deprecated Use {@link EquipmentSlot#EquipmentSlot(EntityEquipment, org.bukkit.inventory.EquipmentSlot)} and {@link #getEquipmentSlot()}. 
+	 * @deprecated Use {@link EquipmentSlot#EquipmentSlot(EntityEquipment, org.bukkit.inventory.EquipmentSlot)} and {@link #getEquipmentSlot()} instead.
 	 */
 	@Deprecated(since = "2.11.0", forRemoval = true)
 	public EquipSlot getEquipSlot() {

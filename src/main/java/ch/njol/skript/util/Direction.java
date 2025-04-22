@@ -330,9 +330,6 @@ public class Direction implements YggdrasilRobustSerializable {
 	
 //		return "" + relative + ":" + (relative ? pitch + "," + yaw + "," + length : mod[0] + "," + mod[1] + "," + mod[2]);
 
-	/**
-	 * @deprecated 
-	 */
 	@Deprecated(since = "2.3.0", forRemoval = true)
 	@Nullable
 	public static Direction deserialize(final String s) {

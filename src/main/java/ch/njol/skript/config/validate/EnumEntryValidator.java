@@ -8,9 +8,6 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Locale;
 import java.util.function.Consumer;
 
-/**
- * @deprecated 
- */
 @Deprecated(since = "2.10.0", forRemoval = true)
 public class EnumEntryValidator<E extends Enum<E>> extends EntryValidator {
 

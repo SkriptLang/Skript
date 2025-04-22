@@ -44,7 +44,7 @@ public abstract class PlayerUtils {
 	}
 
 	/**
-	 * @deprecated use {@link Bukkit#getOnlinePlayers()} instead
+	 * @deprecated use {@link Bukkit#getOnlinePlayers()} instead.
 	 */
 	@Deprecated(since = "2.7.0", forRemoval = true)
 	public static Collection<? extends Player> getOnlinePlayers() {
