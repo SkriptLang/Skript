@@ -555,7 +555,7 @@ public final class ParserInstance implements Experimented {
 		}
 
 		/**
-		 * @deprecated See {@link ScriptLoader.LoaderEvent}. 
+		 * @deprecated See {@link ScriptLoader.LoaderEvent} instead.
 		 */
 		@Deprecated(since = "2.11.0", forRemoval = true)
 		public void onCurrentScriptChange(@Nullable Config currentScript) { }

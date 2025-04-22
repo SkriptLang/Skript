@@ -3,7 +3,7 @@ package ch.njol.util;
 import javax.annotation.Nullable;
 
 /**
- * @deprecated use {@link java.util.function.Predicate}. 
+ * @deprecated use {@link java.util.function.Predicate} instead.
  */
 @Deprecated(since = "2.10.0", forRemoval = true)
 @FunctionalInterface

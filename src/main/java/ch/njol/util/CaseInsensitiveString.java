@@ -5,7 +5,7 @@ import java.io.Serializable;
 import java.util.Locale;
 
 /**
- * @deprecated use {@link java.lang.String#equalsIgnoreCase(String)}. 
+ * @deprecated use {@link java.lang.String#equalsIgnoreCase(String)} instead.
  */
 @Deprecated(since = "2.10.0", forRemoval = true)
 public class CaseInsensitiveString implements Serializable, Comparable<CharSequence>, CharSequence {

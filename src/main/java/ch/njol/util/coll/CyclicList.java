@@ -10,7 +10,7 @@ import java.util.Collection;
 /**
  * A list with fixed size that overrides the oldest elements when new elements are added and no more space is available.
  * 
- * @deprecated unused. 
+ * @deprecated unused
  */
 @Deprecated(since = "2.10.0", forRemoval = true)
 public final class CyclicList<E> extends AbstractList<E> {

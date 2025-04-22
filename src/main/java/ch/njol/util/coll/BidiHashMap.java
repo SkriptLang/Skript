@@ -8,7 +8,7 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * @deprecated Use {@link com.google.common.collect.BiMap}. 
+ * @deprecated Use {@link com.google.common.collect.BiMap} instead.
  */
 @Deprecated(since = "2.10.0", forRemoval = true)
 @SuppressWarnings("removal")

@@ -216,7 +216,7 @@ public abstract class Commands {
 		return commands.get(key);
 	}
 
-	/*
+	/**
 	 * @deprecated Use {@link #scriptCommandExists(String)} instead.
 	 */
 	@Deprecated(since = "2.8.0", forRemoval = true)

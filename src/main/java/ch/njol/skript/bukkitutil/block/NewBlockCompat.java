@@ -319,7 +319,7 @@ public class NewBlockCompat implements BlockCompat {
 	private NewBlockSetter setter = new NewBlockSetter();
 
 	/**
-	 * @deprecated Use {@link #getBlockValues(BlockData)} instead
+	 * @deprecated Use {@link #getBlockValues(BlockData)} instead.
 	 */
 	@Deprecated(since = "2.8.4", forRemoval = true)
 	@Nullable

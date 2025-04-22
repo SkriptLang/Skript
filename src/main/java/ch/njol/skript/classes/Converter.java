@@ -9,7 +9,7 @@ import org.jetbrains.annotations.Nullable;
  * This class stub has been left behind to prevent loading errors from outdated addons,
  * but its functionality has been largely removed.
  *
- * @deprecated Use {@link org.skriptlang.skript.lang.converter.Converter}
+ * @deprecated Use {@link org.skriptlang.skript.lang.converter.Converter} instead.
  */
 @Deprecated(since = "2.10.0", forRemoval = true)
 public interface Converter<F, T> extends org.skriptlang.skript.lang.converter.Converter<F, T> {

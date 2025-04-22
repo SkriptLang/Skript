@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.ListIterator;
 
 /**
- * @deprecated unused. 
+ * @deprecated unused
  */
 @Deprecated(since = "2.10.0", forRemoval = true)
 public class ReversedListIterator<T> implements ListIterator<T> {

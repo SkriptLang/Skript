@@ -10,7 +10,7 @@ import java.util.NoSuchElementException;
  * <p>
  * Elements are removable from this iterator if the source iterables support element removal, unless removal is blocked on creation.
  * 
- * @deprecated use {@link com.google.common.collect.Iterators#concat(Iterator[])}. 
+ * @deprecated use {@link com.google.common.collect.Iterators#concat(Iterator[])} instead.
  */
 @Deprecated(since = "2.10.0", forRemoval = true)
 public class CombinedIterator<T> implements Iterator<T> {

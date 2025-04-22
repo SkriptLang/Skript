@@ -5,7 +5,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.function.Function;
 
 /**
- * @deprecated use {@link Function}. 
+ * @deprecated use {@link Function} instead.
  */
 @Deprecated(since = "2.10.0", forRemoval = true)
 @FunctionalInterface

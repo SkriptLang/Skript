@@ -1,7 +1,7 @@
 package ch.njol.util;
 
 /**
- * @deprecated Use a use-case specific record. 
+ * @deprecated Use a use-case specific record.
  */
 @Deprecated(since = "2.10.0", forRemoval = true)
 public class NonNullPair<T1, T2> extends Pair<T1, T2> {

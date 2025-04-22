@@ -174,7 +174,7 @@ public class ItemType implements Unit, Iterable<ItemData>, Container<ItemStack>,
 	}
 
 	/**
-	 * @deprecated Use {@link #ItemType(BlockData)} instead. 
+	 * @deprecated Use {@link #ItemType(BlockData)} instead.
 	 */
 	@Deprecated(since = "2.8.4", forRemoval = true)
 	public ItemType(BlockState blockState) {
@@ -268,7 +268,7 @@ public class ItemType implements Unit, Iterable<ItemData>, Container<ItemStack>,
 	}
 
 	/**
-	 * @deprecated Use {@link #isOfType(BlockData)} instead. 
+	 * @deprecated Use {@link #isOfType(BlockData)} instead.
 	 */
 	@Deprecated(since = "2.8.4", forRemoval = true)
 	public boolean isOfType(@Nullable BlockState blockState) {

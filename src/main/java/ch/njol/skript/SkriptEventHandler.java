@@ -251,7 +251,7 @@ public final class SkriptEventHandler {
 	}
 
 	/**
-	 * @deprecated This method no longer does anything as self registered Triggers. 
+	 * @deprecated This method no longer does anything as self registered Triggers.
 	 * 	are unloaded when the {@link ch.njol.skript.lang.SkriptEvent} is unloaded (no need to keep tracking them here).
 	 */
 	@Deprecated(since = "2.7.0", forRemoval = true)
@@ -335,7 +335,7 @@ public final class SkriptEventHandler {
 
 	/**
 	 * Events which are listened even if they are cancelled. This should no longer be used.
-	 * @deprecated Users should specify the listening behavior in the event declaration. "on any %event%:", "on cancelled %event%:". 
+	 * @deprecated Users should specify the listening behavior in the event declaration. "on any %event%:", "on cancelled %event%:".
 	 */
 	@Deprecated(since = "2.9.0", forRemoval = true)
 	public static final Set<Class<? extends Event>> listenCancelled = new HashSet<>();

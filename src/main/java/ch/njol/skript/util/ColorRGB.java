@@ -26,7 +26,6 @@ public class ColorRGB implements Color {
 	/**
 	 * Subject to being private in the future. Use {@link #fromRGB(int, int, int)}
 	 * This is to keep inline with other color classes.
-	 * @deprecated 
 	 */
 	@Deprecated(since = "2.10.0", forRemoval = true)
 	@ApiStatus.Internal
@@ -40,7 +39,6 @@ public class ColorRGB implements Color {
 	/**
 	 * Subject to being private in the future. Use {@link #fromBukkitColor(org.bukkit.Color)}
 	 * This is to keep inline with other color classes.
-	 * @deprecated 
 	 */
 	@Deprecated(since = "2.10.0", forRemoval = true)
 	@ApiStatus.Internal

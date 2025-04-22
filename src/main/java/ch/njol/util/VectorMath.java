@@ -6,9 +6,6 @@ import ch.njol.skript.expressions.ExprVectorSpherical;
 import ch.njol.skript.expressions.ExprYawPitch;
 import org.bukkit.util.Vector;
 
-/**
- * @deprecated 
- */
 @Deprecated(since = "2.10.0", forRemoval = true)
 public final class VectorMath {
 
