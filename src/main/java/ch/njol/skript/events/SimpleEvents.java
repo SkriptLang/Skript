@@ -772,6 +772,20 @@ public class SimpleEvents {
 				)
 				.since("2.11");
 		}
+
+		if (Skript.classExists("org.bukkit.event.block.VaultDisplayItemEvent")) {
+			Skript.registerEvent("Vault Display Item", SimpleEvent.class, VaultDisplayItemEvent.class,
+					"vault display[ing] item")
+				.description("Called when a vault in a trial chamber is about to display an item.")
+				.examples(
+					"""
+					on vault display item:
+						set event-item to a netherite ingot	
+					"""
+				)
+				.since("INSERT VERSION")
+				.requiredPlugins("Minecraft 1.21.1+");
+		}
 	}
 
 }
