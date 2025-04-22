@@ -209,14 +209,14 @@ final class FunctionRegistry {
 	 * @param args      The types of the arguments of the function.
 	 * @return The function with the given name and argument types, or null if no such function exists.
 	 */
-	public static Function<?> function(@Nullable String namespace, @NotNull String name, Class<?>... args) {
+	public static Function<?> getFunction(@Nullable String namespace, @NotNull String name, Class<?>... args) {
 		if (namespace == null) {
-			return function(GLOBAL_NAMESPACE, FunctionIdentifier.of(name, false, args));
+			return getFunction(GLOBAL_NAMESPACE, FunctionIdentifier.of(name, false, args));
 		}
 
-		Function<?> function = function(new Namespace(Scope.LOCAL, namespace), FunctionIdentifier.of(name, true, args));
+		Function<?> function = getFunction(new Namespace(Scope.LOCAL, namespace), FunctionIdentifier.of(name, true, args));
 		if (function == null) {
-			return function(GLOBAL_NAMESPACE, FunctionIdentifier.of(name, false, args));
+			return getFunction(GLOBAL_NAMESPACE, FunctionIdentifier.of(name, false, args));
 		}
 		return function;
 	}
@@ -229,7 +229,7 @@ final class FunctionRegistry {
 	 * @param provided  The provided identifier of the function.
 	 * @return The function with the given name and argument types, or null if no such function exists.
 	 */
-	private static Function<?> function(@NotNull Namespace namespace, @NotNull FunctionIdentifier provided) {
+	private static Function<?> getFunction(@NotNull Namespace namespace, @NotNull FunctionIdentifier provided) {
 		Preconditions.checkNotNull(namespace, "namespace is null");
 		Preconditions.checkNotNull(provided, "provided is null");
 
@@ -278,14 +278,14 @@ final class FunctionRegistry {
 	 * @param args      The types of the arguments of the function.
 	 * @return The signature for the function with the given name and argument types, or null if no such function exists.
 	 */
-	public static Signature<?> signature(@Nullable String namespace, @NotNull String name, Class<?>... args) {
+	public static Signature<?> getSignature(@Nullable String namespace, @NotNull String name, Class<?>... args) {
 		if (namespace == null) {
-			return signature(GLOBAL_NAMESPACE, FunctionIdentifier.of(name, false, args));
+			return getSignature(GLOBAL_NAMESPACE, FunctionIdentifier.of(name, false, args));
 		}
 
-		Signature<?> signature = signature(new Namespace(Scope.LOCAL, namespace), FunctionIdentifier.of(name, true, args));
+		Signature<?> signature = getSignature(new Namespace(Scope.LOCAL, namespace), FunctionIdentifier.of(name, true, args));
 		if (signature == null) {
-			return signature(GLOBAL_NAMESPACE, FunctionIdentifier.of(name, false, args));
+			return getSignature(GLOBAL_NAMESPACE, FunctionIdentifier.of(name, false, args));
 		}
 		return signature;
 	}
@@ -298,7 +298,7 @@ final class FunctionRegistry {
 	 * @return The signature for the function with the given name and argument types, or null if no such signature exists
 	 * in the specified namespace.
 	 */
-	private static Signature<?> signature(@NotNull Namespace namespace, @NotNull FunctionIdentifier provided) {
+	private static Signature<?> getSignature(@NotNull Namespace namespace, @NotNull FunctionIdentifier provided) {
 		Preconditions.checkNotNull(namespace, "namespace is null");
 		Preconditions.checkNotNull(provided, "provided is null");
 

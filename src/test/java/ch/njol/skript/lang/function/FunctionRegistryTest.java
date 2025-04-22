@@ -25,20 +25,20 @@ public class FunctionRegistryTest {
 	@Test
 	public void testSimpleMultipleRegistrationsFunction() {
 		assertFalse(FunctionRegistry.signatureExists(null, FUNCTION_NAME));
-		assertNull(FunctionRegistry.signature(null, FUNCTION_NAME));
-		assertNull(FunctionRegistry.function(null, FUNCTION_NAME));
+		assertNull(FunctionRegistry.getSignature(null, FUNCTION_NAME));
+		assertNull(FunctionRegistry.getFunction(null, FUNCTION_NAME));
 
 		FunctionRegistry.register(TEST_FUNCTION);
 
 		assertTrue(FunctionRegistry.signatureExists(null, FUNCTION_NAME));
-		assertEquals(TEST_FUNCTION.getSignature(), FunctionRegistry.signature(null, FUNCTION_NAME));
-		assertEquals(TEST_FUNCTION, FunctionRegistry.function(null, FUNCTION_NAME));
+		assertEquals(TEST_FUNCTION.getSignature(), FunctionRegistry.getSignature(null, FUNCTION_NAME));
+		assertEquals(TEST_FUNCTION, FunctionRegistry.getFunction(null, FUNCTION_NAME));
 
 		assertThrows(SkriptAPIException.class, () -> FunctionRegistry.register(TEST_FUNCTION));
 
 		assertTrue(FunctionRegistry.signatureExists(null, FUNCTION_NAME));
-		assertEquals(TEST_FUNCTION.getSignature(), FunctionRegistry.signature(null, FUNCTION_NAME));
-		assertEquals(TEST_FUNCTION, FunctionRegistry.function(null, FUNCTION_NAME));
+		assertEquals(TEST_FUNCTION.getSignature(), FunctionRegistry.getSignature(null, FUNCTION_NAME));
+		assertEquals(TEST_FUNCTION, FunctionRegistry.getFunction(null, FUNCTION_NAME));
 
 		FunctionRegistry.remove(TEST_FUNCTION.getSignature());
 	}
@@ -46,26 +46,26 @@ public class FunctionRegistryTest {
 	@Test
 	public void testSimpleRegisterRemoveRegisterGlobal() {
 		assertFalse(FunctionRegistry.signatureExists(null, FUNCTION_NAME));
-		assertNull(FunctionRegistry.signature(null, FUNCTION_NAME));
-		assertNull(FunctionRegistry.function(null, FUNCTION_NAME));
+		assertNull(FunctionRegistry.getSignature(null, FUNCTION_NAME));
+		assertNull(FunctionRegistry.getFunction(null, FUNCTION_NAME));
 
 		FunctionRegistry.register(TEST_FUNCTION);
 
 		assertTrue(FunctionRegistry.signatureExists(null, FUNCTION_NAME));
-		assertEquals(TEST_FUNCTION.getSignature(), FunctionRegistry.signature(null, FUNCTION_NAME));
-		assertEquals(TEST_FUNCTION, FunctionRegistry.function(null, FUNCTION_NAME));
+		assertEquals(TEST_FUNCTION.getSignature(), FunctionRegistry.getSignature(null, FUNCTION_NAME));
+		assertEquals(TEST_FUNCTION, FunctionRegistry.getFunction(null, FUNCTION_NAME));
 
 		FunctionRegistry.remove(TEST_FUNCTION.getSignature());
 
 		assertFalse(FunctionRegistry.signatureExists(null, FUNCTION_NAME));
-		assertNull(FunctionRegistry.signature(null, FUNCTION_NAME));
-		assertNull(FunctionRegistry.function(null, FUNCTION_NAME));
+		assertNull(FunctionRegistry.getSignature(null, FUNCTION_NAME));
+		assertNull(FunctionRegistry.getFunction(null, FUNCTION_NAME));
 
 		FunctionRegistry.register(TEST_FUNCTION);
 
 		assertTrue(FunctionRegistry.signatureExists(null, FUNCTION_NAME));
-		assertEquals(TEST_FUNCTION.getSignature(), FunctionRegistry.signature(null, FUNCTION_NAME));
-		assertEquals(TEST_FUNCTION, FunctionRegistry.function(null, FUNCTION_NAME));
+		assertEquals(TEST_FUNCTION.getSignature(), FunctionRegistry.getSignature(null, FUNCTION_NAME));
+		assertEquals(TEST_FUNCTION, FunctionRegistry.getFunction(null, FUNCTION_NAME));
 
 		FunctionRegistry.remove(TEST_FUNCTION.getSignature());
 	}
@@ -82,32 +82,32 @@ public class FunctionRegistryTest {
 	public void testSimpleRegisterRemoveRegisterLocal() {
 		assertFalse(FunctionRegistry.signatureExists(TEST_SCRIPT, FUNCTION_NAME));
 		assertFalse(FunctionRegistry.signatureExists(null, FUNCTION_NAME));
-		assertNull(FunctionRegistry.signature(null, FUNCTION_NAME));
-		assertNull(FunctionRegistry.function(null, FUNCTION_NAME));
+		assertNull(FunctionRegistry.getSignature(null, FUNCTION_NAME));
+		assertNull(FunctionRegistry.getFunction(null, FUNCTION_NAME));
 
 		FunctionRegistry.register(TEST_SCRIPT, LOCAL_TEST_FUNCTION);
 
 		assertTrue(FunctionRegistry.signatureExists(TEST_SCRIPT, FUNCTION_NAME));
 		assertFalse(FunctionRegistry.signatureExists(null, FUNCTION_NAME));
-		assertEquals(LOCAL_TEST_FUNCTION.getSignature(), FunctionRegistry.signature(TEST_SCRIPT, FUNCTION_NAME));
-		assertEquals(LOCAL_TEST_FUNCTION, FunctionRegistry.function(TEST_SCRIPT, FUNCTION_NAME));
+		assertEquals(LOCAL_TEST_FUNCTION.getSignature(), FunctionRegistry.getSignature(TEST_SCRIPT, FUNCTION_NAME));
+		assertEquals(LOCAL_TEST_FUNCTION, FunctionRegistry.getFunction(TEST_SCRIPT, FUNCTION_NAME));
 
 		FunctionRegistry.remove(LOCAL_TEST_FUNCTION.getSignature());
 
 		assertFalse(FunctionRegistry.signatureExists(TEST_SCRIPT, FUNCTION_NAME));
 		assertFalse(FunctionRegistry.signatureExists(null, FUNCTION_NAME));
-		assertNull(FunctionRegistry.signature(null, FUNCTION_NAME));
-		assertNull(FunctionRegistry.function(null, FUNCTION_NAME));
+		assertNull(FunctionRegistry.getSignature(null, FUNCTION_NAME));
+		assertNull(FunctionRegistry.getFunction(null, FUNCTION_NAME));
 
 		FunctionRegistry.register(TEST_SCRIPT, LOCAL_TEST_FUNCTION);
 		FunctionRegistry.register(TEST_FUNCTION);
 
 		assertTrue(FunctionRegistry.signatureExists(TEST_SCRIPT, FUNCTION_NAME));
-		assertEquals(LOCAL_TEST_FUNCTION.getSignature(), FunctionRegistry.signature(TEST_SCRIPT, FUNCTION_NAME));
-		assertEquals(LOCAL_TEST_FUNCTION, FunctionRegistry.function(TEST_SCRIPT, FUNCTION_NAME));
+		assertEquals(LOCAL_TEST_FUNCTION.getSignature(), FunctionRegistry.getSignature(TEST_SCRIPT, FUNCTION_NAME));
+		assertEquals(LOCAL_TEST_FUNCTION, FunctionRegistry.getFunction(TEST_SCRIPT, FUNCTION_NAME));
 		assertTrue(FunctionRegistry.signatureExists(null, FUNCTION_NAME));
-		assertEquals(TEST_FUNCTION.getSignature(), FunctionRegistry.signature(null, FUNCTION_NAME));
-		assertEquals(TEST_FUNCTION, FunctionRegistry.function(null, FUNCTION_NAME));
+		assertEquals(TEST_FUNCTION.getSignature(), FunctionRegistry.getSignature(null, FUNCTION_NAME));
+		assertEquals(TEST_FUNCTION, FunctionRegistry.getFunction(null, FUNCTION_NAME));
 
 		FunctionRegistry.remove(LOCAL_TEST_FUNCTION.getSignature());
 		FunctionRegistry.remove(TEST_FUNCTION.getSignature());
@@ -136,39 +136,39 @@ public class FunctionRegistryTest {
 	@Test
 	public void testMultipleRegistrations() {
 		assertFalse(FunctionRegistry.signatureExists(null, FUNCTION_NAME, Boolean.class));
-		assertNull(FunctionRegistry.signature(null, FUNCTION_NAME, Boolean.class));
-		assertNull(FunctionRegistry.function(null, FUNCTION_NAME, Boolean.class));
+		assertNull(FunctionRegistry.getSignature(null, FUNCTION_NAME, Boolean.class));
+		assertNull(FunctionRegistry.getFunction(null, FUNCTION_NAME, Boolean.class));
 		assertFalse(FunctionRegistry.signatureExists(null, FUNCTION_NAME, Number.class));
-		assertNull(FunctionRegistry.signature(null, FUNCTION_NAME, Number.class));
-		assertNull(FunctionRegistry.function(null, FUNCTION_NAME, Number.class));
+		assertNull(FunctionRegistry.getSignature(null, FUNCTION_NAME, Number.class));
+		assertNull(FunctionRegistry.getFunction(null, FUNCTION_NAME, Number.class));
 
 		FunctionRegistry.register(TEST_FUNCTION_B);
 
 		assertTrue(FunctionRegistry.signatureExists(null, FUNCTION_NAME, Boolean.class));
-		assertEquals(TEST_FUNCTION_B.getSignature(), FunctionRegistry.signature(null, FUNCTION_NAME, Boolean.class));
-		assertEquals(TEST_FUNCTION_B, FunctionRegistry.function(null, FUNCTION_NAME, Boolean.class));
+		assertEquals(TEST_FUNCTION_B.getSignature(), FunctionRegistry.getSignature(null, FUNCTION_NAME, Boolean.class));
+		assertEquals(TEST_FUNCTION_B, FunctionRegistry.getFunction(null, FUNCTION_NAME, Boolean.class));
 		assertFalse(FunctionRegistry.signatureExists(null, FUNCTION_NAME, Number.class));
-		assertNull(FunctionRegistry.signature(null, FUNCTION_NAME, Number.class));
-		assertNull(FunctionRegistry.function(null, FUNCTION_NAME, Number.class));
+		assertNull(FunctionRegistry.getSignature(null, FUNCTION_NAME, Number.class));
+		assertNull(FunctionRegistry.getFunction(null, FUNCTION_NAME, Number.class));
 
 		FunctionRegistry.register(TEST_FUNCTION_N);
 
 		assertTrue(FunctionRegistry.signatureExists(null, FUNCTION_NAME, Boolean.class));
-		assertEquals(TEST_FUNCTION_B.getSignature(), FunctionRegistry.signature(null, FUNCTION_NAME, Boolean.class));
-		assertEquals(TEST_FUNCTION_B, FunctionRegistry.function(null, FUNCTION_NAME, Boolean.class));
+		assertEquals(TEST_FUNCTION_B.getSignature(), FunctionRegistry.getSignature(null, FUNCTION_NAME, Boolean.class));
+		assertEquals(TEST_FUNCTION_B, FunctionRegistry.getFunction(null, FUNCTION_NAME, Boolean.class));
 		assertTrue(FunctionRegistry.signatureExists(null, FUNCTION_NAME, Number.class));
-		assertEquals(TEST_FUNCTION_N.getSignature(), FunctionRegistry.signature(null, FUNCTION_NAME, Number.class));
-		assertEquals(TEST_FUNCTION_N, FunctionRegistry.function(null, FUNCTION_NAME, Number.class));
+		assertEquals(TEST_FUNCTION_N.getSignature(), FunctionRegistry.getSignature(null, FUNCTION_NAME, Number.class));
+		assertEquals(TEST_FUNCTION_N, FunctionRegistry.getFunction(null, FUNCTION_NAME, Number.class));
 
 		assertThrows(SkriptAPIException.class, () -> FunctionRegistry.register(TEST_FUNCTION_B));
 		assertThrows(SkriptAPIException.class, () -> FunctionRegistry.register(TEST_FUNCTION_N));
 
 		assertTrue(FunctionRegistry.signatureExists(null, FUNCTION_NAME, Boolean.class));
-		assertEquals(TEST_FUNCTION_B.getSignature(), FunctionRegistry.signature(null, FUNCTION_NAME, Boolean.class));
-		assertEquals(TEST_FUNCTION_B, FunctionRegistry.function(null, FUNCTION_NAME, Boolean.class));
+		assertEquals(TEST_FUNCTION_B.getSignature(), FunctionRegistry.getSignature(null, FUNCTION_NAME, Boolean.class));
+		assertEquals(TEST_FUNCTION_B, FunctionRegistry.getFunction(null, FUNCTION_NAME, Boolean.class));
 		assertTrue(FunctionRegistry.signatureExists(null, FUNCTION_NAME, Number.class));
-		assertEquals(TEST_FUNCTION_N.getSignature(), FunctionRegistry.signature(null, FUNCTION_NAME, Number.class));
-		assertEquals(TEST_FUNCTION_N, FunctionRegistry.function(null, FUNCTION_NAME, Number.class));
+		assertEquals(TEST_FUNCTION_N.getSignature(), FunctionRegistry.getSignature(null, FUNCTION_NAME, Number.class));
+		assertEquals(TEST_FUNCTION_N, FunctionRegistry.getFunction(null, FUNCTION_NAME, Number.class));
 
 		FunctionRegistry.remove(TEST_FUNCTION_B.getSignature());
 		FunctionRegistry.remove(TEST_FUNCTION_N.getSignature());
@@ -177,47 +177,47 @@ public class FunctionRegistryTest {
 	@Test
 	public void testRegisterRemoveRegisterGlobal() {
 		assertFalse(FunctionRegistry.signatureExists(null, FUNCTION_NAME, Boolean.class));
-		assertNull(FunctionRegistry.signature(null, FUNCTION_NAME, Boolean.class));
-		assertNull(FunctionRegistry.function(null, FUNCTION_NAME, Boolean.class));
+		assertNull(FunctionRegistry.getSignature(null, FUNCTION_NAME, Boolean.class));
+		assertNull(FunctionRegistry.getFunction(null, FUNCTION_NAME, Boolean.class));
 		assertFalse(FunctionRegistry.signatureExists(null, FUNCTION_NAME, Number.class));
-		assertNull(FunctionRegistry.signature(null, FUNCTION_NAME, Number.class));
-		assertNull(FunctionRegistry.function(null, FUNCTION_NAME, Number.class));
+		assertNull(FunctionRegistry.getSignature(null, FUNCTION_NAME, Number.class));
+		assertNull(FunctionRegistry.getFunction(null, FUNCTION_NAME, Number.class));
 
 		FunctionRegistry.register(TEST_FUNCTION_B);
 
 		assertTrue(FunctionRegistry.signatureExists(null, FUNCTION_NAME, Boolean.class));
-		assertEquals(TEST_FUNCTION_B.getSignature(), FunctionRegistry.signature(null, FUNCTION_NAME, Boolean.class));
-		assertEquals(TEST_FUNCTION_B, FunctionRegistry.function(null, FUNCTION_NAME, Boolean.class));
+		assertEquals(TEST_FUNCTION_B.getSignature(), FunctionRegistry.getSignature(null, FUNCTION_NAME, Boolean.class));
+		assertEquals(TEST_FUNCTION_B, FunctionRegistry.getFunction(null, FUNCTION_NAME, Boolean.class));
 		assertFalse(FunctionRegistry.signatureExists(null, FUNCTION_NAME, Number.class));
-		assertNull(FunctionRegistry.signature(null, FUNCTION_NAME, Number.class));
-		assertNull(FunctionRegistry.function(null, FUNCTION_NAME, Number.class));
+		assertNull(FunctionRegistry.getSignature(null, FUNCTION_NAME, Number.class));
+		assertNull(FunctionRegistry.getFunction(null, FUNCTION_NAME, Number.class));
 
 		FunctionRegistry.remove(TEST_FUNCTION_B.getSignature());
 
 		assertFalse(FunctionRegistry.signatureExists(null, FUNCTION_NAME, Boolean.class));
-		assertNull(FunctionRegistry.signature(null, FUNCTION_NAME, Boolean.class));
-		assertNull(FunctionRegistry.function(null, FUNCTION_NAME, Boolean.class));
+		assertNull(FunctionRegistry.getSignature(null, FUNCTION_NAME, Boolean.class));
+		assertNull(FunctionRegistry.getFunction(null, FUNCTION_NAME, Boolean.class));
 		assertFalse(FunctionRegistry.signatureExists(null, FUNCTION_NAME, Number.class));
-		assertNull(FunctionRegistry.signature(null, FUNCTION_NAME, Number.class));
-		assertNull(FunctionRegistry.function(null, FUNCTION_NAME, Number.class));
+		assertNull(FunctionRegistry.getSignature(null, FUNCTION_NAME, Number.class));
+		assertNull(FunctionRegistry.getFunction(null, FUNCTION_NAME, Number.class));
 
 		FunctionRegistry.register(TEST_FUNCTION_N);
 
 		assertFalse(FunctionRegistry.signatureExists(null, FUNCTION_NAME, Boolean.class));
-		assertNull(FunctionRegistry.signature(null, FUNCTION_NAME, Boolean.class));
-		assertNull(FunctionRegistry.function(null, FUNCTION_NAME, Boolean.class));
+		assertNull(FunctionRegistry.getSignature(null, FUNCTION_NAME, Boolean.class));
+		assertNull(FunctionRegistry.getFunction(null, FUNCTION_NAME, Boolean.class));
 		assertTrue(FunctionRegistry.signatureExists(null, FUNCTION_NAME, Number.class));
-		assertEquals(TEST_FUNCTION_N.getSignature(), FunctionRegistry.signature(null, FUNCTION_NAME, Number.class));
-		assertEquals(TEST_FUNCTION_N, FunctionRegistry.function(null, FUNCTION_NAME, Number.class));
+		assertEquals(TEST_FUNCTION_N.getSignature(), FunctionRegistry.getSignature(null, FUNCTION_NAME, Number.class));
+		assertEquals(TEST_FUNCTION_N, FunctionRegistry.getFunction(null, FUNCTION_NAME, Number.class));
 
 		FunctionRegistry.remove(TEST_FUNCTION_N.getSignature());
 
 		assertFalse(FunctionRegistry.signatureExists(null, FUNCTION_NAME, Boolean.class));
-		assertNull(FunctionRegistry.signature(null, FUNCTION_NAME, Boolean.class));
-		assertNull(FunctionRegistry.function(null, FUNCTION_NAME, Boolean.class));
+		assertNull(FunctionRegistry.getSignature(null, FUNCTION_NAME, Boolean.class));
+		assertNull(FunctionRegistry.getFunction(null, FUNCTION_NAME, Boolean.class));
 		assertFalse(FunctionRegistry.signatureExists(null, FUNCTION_NAME, Number.class));
-		assertNull(FunctionRegistry.signature(null, FUNCTION_NAME, Number.class));
-		assertNull(FunctionRegistry.function(null, FUNCTION_NAME, Number.class));
+		assertNull(FunctionRegistry.getSignature(null, FUNCTION_NAME, Number.class));
+		assertNull(FunctionRegistry.getFunction(null, FUNCTION_NAME, Number.class));
 
 		FunctionRegistry.remove(TEST_FUNCTION_B.getSignature());
 		FunctionRegistry.remove(TEST_FUNCTION_N.getSignature());
@@ -246,25 +246,25 @@ public class FunctionRegistryTest {
 	@Test
 	public void testRegisterRemoveRegisterLocal() {
 		assertFalse(FunctionRegistry.signatureExists(TEST_SCRIPT, FUNCTION_NAME, Boolean.class));
-		assertNull(FunctionRegistry.signature(TEST_SCRIPT, FUNCTION_NAME, Boolean.class));
-		assertNull(FunctionRegistry.function(TEST_SCRIPT, FUNCTION_NAME, Boolean.class));
+		assertNull(FunctionRegistry.getSignature(TEST_SCRIPT, FUNCTION_NAME, Boolean.class));
+		assertNull(FunctionRegistry.getFunction(TEST_SCRIPT, FUNCTION_NAME, Boolean.class));
 		assertFalse(FunctionRegistry.signatureExists(TEST_SCRIPT, FUNCTION_NAME, Number.class));
-		assertNull(FunctionRegistry.signature(TEST_SCRIPT, FUNCTION_NAME, Number.class));
-		assertNull(FunctionRegistry.function(TEST_SCRIPT, FUNCTION_NAME, Number.class));
+		assertNull(FunctionRegistry.getSignature(TEST_SCRIPT, FUNCTION_NAME, Number.class));
+		assertNull(FunctionRegistry.getFunction(TEST_SCRIPT, FUNCTION_NAME, Number.class));
 
 		FunctionRegistry.register(TEST_SCRIPT, LOCAL_TEST_FUNCTION_B);
 
 		assertTrue(FunctionRegistry.signatureExists(TEST_SCRIPT, FUNCTION_NAME, Boolean.class));
-		assertEquals(LOCAL_TEST_FUNCTION_B.getSignature(), FunctionRegistry.signature(TEST_SCRIPT, FUNCTION_NAME, Boolean.class));
-		assertEquals(LOCAL_TEST_FUNCTION_B, FunctionRegistry.function(TEST_SCRIPT, FUNCTION_NAME, Boolean.class));
+		assertEquals(LOCAL_TEST_FUNCTION_B.getSignature(), FunctionRegistry.getSignature(TEST_SCRIPT, FUNCTION_NAME, Boolean.class));
+		assertEquals(LOCAL_TEST_FUNCTION_B, FunctionRegistry.getFunction(TEST_SCRIPT, FUNCTION_NAME, Boolean.class));
 		assertFalse(FunctionRegistry.signatureExists(null, FUNCTION_NAME, Boolean.class));
 		assertFalse(FunctionRegistry.signatureExists(null, FUNCTION_NAME, Number.class));
 
 		FunctionRegistry.remove(LOCAL_TEST_FUNCTION_B.getSignature());
 
 		assertFalse(FunctionRegistry.signatureExists(TEST_SCRIPT, FUNCTION_NAME, Boolean.class));
-		assertNull(FunctionRegistry.signature(TEST_SCRIPT, FUNCTION_NAME, Boolean.class));
-		assertNull(FunctionRegistry.function(TEST_SCRIPT, FUNCTION_NAME, Boolean.class));
+		assertNull(FunctionRegistry.getSignature(TEST_SCRIPT, FUNCTION_NAME, Boolean.class));
+		assertNull(FunctionRegistry.getFunction(TEST_SCRIPT, FUNCTION_NAME, Boolean.class));
 		assertFalse(FunctionRegistry.signatureExists(null, FUNCTION_NAME, Boolean.class));
 		assertFalse(FunctionRegistry.signatureExists(null, FUNCTION_NAME, Number.class));
 
@@ -273,27 +273,27 @@ public class FunctionRegistryTest {
 		assertFalse(FunctionRegistry.signatureExists(TEST_SCRIPT, FUNCTION_NAME, Boolean.class));
 		assertFalse(FunctionRegistry.signatureExists(null, FUNCTION_NAME, Number.class));
 		assertTrue(FunctionRegistry.signatureExists(TEST_SCRIPT, FUNCTION_NAME, Number.class));
-		assertEquals(LOCAL_TEST_FUNCTION_N.getSignature(), FunctionRegistry.signature(TEST_SCRIPT, FUNCTION_NAME, Number.class));
-		assertEquals(LOCAL_TEST_FUNCTION_N, FunctionRegistry.function(TEST_SCRIPT, FUNCTION_NAME, Number.class));
+		assertEquals(LOCAL_TEST_FUNCTION_N.getSignature(), FunctionRegistry.getSignature(TEST_SCRIPT, FUNCTION_NAME, Number.class));
+		assertEquals(LOCAL_TEST_FUNCTION_N, FunctionRegistry.getFunction(TEST_SCRIPT, FUNCTION_NAME, Number.class));
 
 		FunctionRegistry.remove(LOCAL_TEST_FUNCTION_N.getSignature());
 
 		assertFalse(FunctionRegistry.signatureExists(TEST_SCRIPT, FUNCTION_NAME, Boolean.class));
-		assertNull(FunctionRegistry.signature(TEST_SCRIPT, FUNCTION_NAME, Boolean.class));
-		assertNull(FunctionRegistry.function(TEST_SCRIPT, FUNCTION_NAME, Boolean.class));
+		assertNull(FunctionRegistry.getSignature(TEST_SCRIPT, FUNCTION_NAME, Boolean.class));
+		assertNull(FunctionRegistry.getFunction(TEST_SCRIPT, FUNCTION_NAME, Boolean.class));
 		assertFalse(FunctionRegistry.signatureExists(TEST_SCRIPT, FUNCTION_NAME, Number.class));
-		assertNull(FunctionRegistry.signature(TEST_SCRIPT, FUNCTION_NAME, Number.class));
-		assertNull(FunctionRegistry.function(TEST_SCRIPT, FUNCTION_NAME, Number.class));
+		assertNull(FunctionRegistry.getSignature(TEST_SCRIPT, FUNCTION_NAME, Number.class));
+		assertNull(FunctionRegistry.getFunction(TEST_SCRIPT, FUNCTION_NAME, Number.class));
 
 		FunctionRegistry.register(TEST_SCRIPT, LOCAL_TEST_FUNCTION_N);
 		FunctionRegistry.register(null, TEST_FUNCTION_B);
 
 		assertTrue(FunctionRegistry.signatureExists(TEST_SCRIPT, FUNCTION_NAME, Number.class));
-		assertEquals(LOCAL_TEST_FUNCTION_N.getSignature(), FunctionRegistry.signature(TEST_SCRIPT, FUNCTION_NAME, Number.class));
-		assertEquals(LOCAL_TEST_FUNCTION_N, FunctionRegistry.function(TEST_SCRIPT, FUNCTION_NAME, Number.class));
+		assertEquals(LOCAL_TEST_FUNCTION_N.getSignature(), FunctionRegistry.getSignature(TEST_SCRIPT, FUNCTION_NAME, Number.class));
+		assertEquals(LOCAL_TEST_FUNCTION_N, FunctionRegistry.getFunction(TEST_SCRIPT, FUNCTION_NAME, Number.class));
 		assertTrue(FunctionRegistry.signatureExists(null, FUNCTION_NAME, Boolean.class));
-		assertEquals(TEST_FUNCTION_B.getSignature(), FunctionRegistry.signature(null, FUNCTION_NAME, Boolean.class));
-		assertEquals(TEST_FUNCTION_B, FunctionRegistry.function(null, FUNCTION_NAME, Boolean.class));
+		assertEquals(TEST_FUNCTION_B.getSignature(), FunctionRegistry.getSignature(null, FUNCTION_NAME, Boolean.class));
+		assertEquals(TEST_FUNCTION_B, FunctionRegistry.getFunction(null, FUNCTION_NAME, Boolean.class));
 
 		FunctionRegistry.remove(LOCAL_TEST_FUNCTION_N.getSignature());
 		FunctionRegistry.remove(TEST_FUNCTION_B.getSignature());
