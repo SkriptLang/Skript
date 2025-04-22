@@ -764,6 +764,21 @@ public final class BukkitEventValues {
 			EventValues.registerEventValue(WorldBorderCenterChangeEvent.class, Location.class, WorldBorderCenterChangeEvent::getNewCenter);
 			EventValues.registerEventValue(WorldBorderCenterChangeEvent.class, Location.class, WorldBorderCenterChangeEvent::getOldCenter, EventValues.TIME_PAST);
 		}
+
+		if (Skript.classExists("org.bukkit.event.block.VaultDisplayItemEvent")) {
+			EventValues.registerEventValue(VaultDisplayItemEvent.class, ItemStack.class, new EventConverter<>() {
+				@Override
+				public void set(VaultDisplayItemEvent event, @Nullable ItemStack itemStack) {
+					event.setDisplayItem(itemStack);
+				}
+
+				@Override
+				public @Nullable ItemStack convert(VaultDisplayItemEvent event) {
+					return event.getDisplayItem();
+				}
+			});
+		}
+
 	}
 
 }
