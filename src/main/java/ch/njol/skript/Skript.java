@@ -1078,18 +1078,6 @@ public final class Skript extends JavaPlugin implements Listener {
 	}
 
 	/**
-	 * Used to test whether certain Bukkit features are supported.
-	 *
-	 * @param className
-	 * @return Whether the given class exists.
-	 * @deprecated use {@link #classExists(String)}. 
-	 */
-	@Deprecated(since = "2.3.0", forRemoval = true)
-	public static boolean supports(final String className) {
-		return classExists(className);
-	}
-
-	/**
 	 * Tests whether a given class exists in the classpath.
 	 *
 	 * @param className The {@link Class#getCanonicalName() canonical name} of the class
