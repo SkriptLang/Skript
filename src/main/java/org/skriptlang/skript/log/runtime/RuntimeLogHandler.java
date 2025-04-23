@@ -50,7 +50,7 @@ public class RuntimeLogHandler implements OpenCloseable {
 	 * @param error The {@link RuntimeError} to be logged
 	 */
 	public void logError(RuntimeError error) {
-		CACHED_ERRORS.addFirst(error);
+		CACHED_ERRORS.add(0, error);
 	}
 
 	/**

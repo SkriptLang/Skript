@@ -161,7 +161,7 @@ public class RuntimeErrorManager implements Closeable {
 	 * @return {@code handler}
 	 */
 	public RuntimeLogHandler startLogHandler(RuntimeLogHandler handler) {
-		RUNTIME_HANDLERS.addFirst(handler);
+		RUNTIME_HANDLERS.add(0, handler);
 		return handler;
 	}
 
