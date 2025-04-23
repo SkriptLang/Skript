@@ -2,6 +2,7 @@ package org.skriptlang.skript.log.runtime;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptConfig;
+import ch.njol.skript.log.SkriptLogger;
 import ch.njol.skript.util.Task;
 import ch.njol.skript.util.Timespan;
 import org.jetbrains.annotations.ApiStatus;
@@ -10,6 +11,7 @@ import org.skriptlang.skript.log.runtime.Frame.FrameLimit;
 
 import java.io.Closeable;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.logging.Level;
 
@@ -28,6 +30,8 @@ import java.util.logging.Level;
 public class RuntimeErrorManager implements Closeable {
 
 	private static RuntimeErrorManager instance;
+
+	private static final LinkedList<RuntimeLogHandler> RUNTIME_HANDLERS = new LinkedList<>();
 
 	/**
 	 * Prefer using {@link Skript#getRuntimeErrorManager()} instead.
@@ -103,7 +107,11 @@ public class RuntimeErrorManager implements Closeable {
 		// print if < limit
 		if ((error.level() == Level.SEVERE && errorFrame.add(error))
 			|| (error.level() == Level.WARNING && warningFrame.add(error))) {
-			consumers.forEach((consumer -> consumer.printError(error)));
+			if (RUNTIME_HANDLERS.isEmpty()) {
+				consumers.forEach((consumer -> consumer.printError(error)));
+			} else {
+				RUNTIME_HANDLERS.get(0).logError(error);
+			}
 		}
 	}
 
@@ -145,6 +153,32 @@ public class RuntimeErrorManager implements Closeable {
 	@Override
 	public void close() {
 		task.close();
+	}
+
+	/**
+	 * Starts a {@link RuntimeLogHandler} to catch and store {@link RuntimeError}s
+	 * @param handler The {@link RuntimeLogHandler} to start
+	 * @return {@code handler}
+	 */
+	public RuntimeLogHandler startLogHandler(RuntimeLogHandler handler) {
+		RUNTIME_HANDLERS.addFirst(handler);
+		return handler;
+	}
+
+	void stopLogHandler(RuntimeLogHandler handler) {
+		if (!RUNTIME_HANDLERS.contains(handler))
+			return;
+		if (!handler.equals(RUNTIME_HANDLERS.remove())) {
+			int i = 1;
+			while (!handler.equals(RUNTIME_HANDLERS.remove()))
+				i++;
+			SkriptLogger.LOGGER.severe("[Skript] " + i + " runtime handler"
+				+ (i == 1 ?  " was" : "s were") + " not stopped properly!");
+		}
+	}
+
+	boolean isStopped(RuntimeLogHandler handler) {
+		return !RUNTIME_HANDLERS.contains(handler);
 	}
 
 }
