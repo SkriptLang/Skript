@@ -146,7 +146,7 @@ public class ChatMessages {
 		 * DO NOT USE!
 		 */
 		@SuppressWarnings("unused")
-		@Deprecated
+		@Deprecated(since = "2.3.0", forRemoval = true)
 		public String text = "";
 		
 		/**

@@ -77,7 +77,7 @@ public abstract class Structure implements SyntaxElement, Debuggable {
 	 * If the EntryContainer is needed outside of {@link #init(Literal[], int, ParseResult, EntryContainer)},
 	 * the Structure should keep a reference to it.
 	 */
-	@Deprecated(forRemoval = true)
+	@Deprecated(since = "2.10.0", forRemoval = true)
 	public final EntryContainer getEntryContainer() {
 		if (entryContainer == null)
 			throw new IllegalStateException("This Structure hasn't been initialized!");

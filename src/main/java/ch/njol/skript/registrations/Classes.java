@@ -825,7 +825,7 @@ public abstract class Classes {
 	 * @param value
 	 * @return Deserialised value or null if the input is invalid
 	 */
-	@Deprecated
+	@Deprecated(since = "2.3.0", forRemoval = true)
 	@Nullable
 	public static Object deserialize(final String type, final String value) {
 		assert Bukkit.isPrimaryThread();
