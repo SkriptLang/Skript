@@ -177,15 +177,28 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 		final String codeName;
 		final String[] codeNames;
 		final int defaultName;
+		final @Nullable EntityType entityType;
 		final Class<? extends Entity> entityClass;
 		final Noun[] names;
 
-		public EntityDataInfo(Class<T> dataClass, String codeName, String[] codeNames, int defaultName, Class<? extends Entity> entityClass) throws IllegalArgumentException {
+		public EntityDataInfo(Class<T> dataClass, String codeName, String[] codeNames, int defaultName, Class<? extends Entity> entityClass) {
+			this(dataClass, codeName, codeNames, defaultName, EntityUtils.toBukkitEntityType(entityClass), entityClass);
+		}
+
+		public EntityDataInfo(
+			Class<T> dataClass,
+			String codeName,
+			String[] codeNames,
+			int defaultName,
+			@Nullable EntityType entityType,
+			Class<? extends Entity> entityClass
+		) {
 			super(new String[codeNames.length], dataClass, dataClass.getName());
 			assert codeName != null && entityClass != null && codeNames.length > 0;
 			this.codeName = codeName;
 			this.codeNames = codeNames;
 			this.defaultName = defaultName;
+			this.entityType = entityType;
 			this.entityClass = entityClass;
 			this.names = new Noun[codeNames.length];
 			for (int i = 0; i < codeNames.length; i++) {
@@ -234,7 +247,6 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 		register(dataClass, name, entityClass, 0, codeName);
 	}
 
-	@SuppressWarnings("unchecked")
 	public static <E extends Entity, T extends EntityData<E>> void register(
 		Class<T> dataClass,
 		String name,
@@ -242,14 +254,17 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 		int defaultName,
 		String... codeNames
 	) throws IllegalArgumentException {
-		EntityDataInfo<T> info = new EntityDataInfo<>(dataClass, name, codeNames, defaultName, entityClass);
+		EntityType entityType = EntityUtils.toBukkitEntityType(entityClass);
+		EntityDataInfo<T> entityDataInfo = new EntityDataInfo<>(dataClass, name, codeNames, defaultName, entityType, entityClass);
 		for (int i = 0; i < infos.size(); i++) {
 			if (infos.get(i).entityClass.isAssignableFrom(entityClass)) {
-				infos.add(i, (EntityDataInfo<EntityData<?>>) info);
+				//noinspection unchecked
+				infos.add(i, (EntityDataInfo<EntityData<?>>) entityDataInfo);
 				return;
 			}
 		}
-		infos.add((EntityDataInfo<EntityData<?>>) info);
+		//noinspection unchecked
+		infos.add((EntityDataInfo<EntityData<?>>) entityDataInfo);
 	}
 
 	transient EntityDataInfo<?> info;
@@ -422,11 +437,11 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 	 * @param world World to check if entity can spawn in
 	 * @return True if entity can spawn else false
 	 */
-	@SuppressWarnings({"ConstantValue", "removal"})
+	@SuppressWarnings({"removal"})
 	public boolean canSpawn(@Nullable World world) {
 		if (world == null)
 			return false;
-		EntityType bukkitEntityType = EntityUtils.toBukkitEntityType(this);
+		EntityType bukkitEntityType = info.entityType != null ? info.entityType : EntityUtils.toBukkitEntityType(this);
 		if (bukkitEntityType == null)
 			return false;
 		if (HAS_ENABLED_BY_FEATURE) {
