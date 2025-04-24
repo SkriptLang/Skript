@@ -23,7 +23,7 @@ public class EntityUtils {
 	 * Cache Skript EntityData -> Bukkit EntityType
 	 */
 	private static final BiMap<EntityData<?>, EntityType> SPAWNER_TYPES = HashBiMap.create();
-	private final static Map<Class<? extends Entity>, EntityType> CLASS_ENTITY_TYPE_MAP = new HashMap<>();
+	private static final Map<Class<? extends Entity>, EntityType> CLASS_ENTITY_TYPE_MAP = new HashMap<>();
 
 	static {
 		for (EntityType entityType : EntityType.values()) {

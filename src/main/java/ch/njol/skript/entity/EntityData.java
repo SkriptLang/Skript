@@ -177,7 +177,7 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 		final String codeName;
 		final String[] codeNames;
 		final int defaultName;
-		@Nullable EntityType entityType;
+		final @Nullable EntityType entityType;
 		final Class<? extends Entity> entityClass;
 		final Noun[] names;
 
@@ -274,7 +274,7 @@ public abstract class EntityData<E extends Entity> implements SyntaxElement, Ygg
 
 	public EntityData() {
 		for (EntityDataInfo<?> info : infos) {
-			if (getClass().equals(info.getElementClass())) {
+			if (getClass() == info.getElementClass()) {
 				this.info = info;
 				matchedPattern = info.defaultName;
 				return;
