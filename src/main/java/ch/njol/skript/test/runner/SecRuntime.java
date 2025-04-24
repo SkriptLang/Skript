@@ -14,7 +14,7 @@ import com.google.common.collect.Iterables;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.log.runtime.RuntimeError;
-import org.skriptlang.skript.log.runtime.RuntimeLogHandler;
+import org.skriptlang.skript.log.runtime.RuntimeErrorCatcher;
 
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -23,8 +23,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class SecRuntime extends Section {
 
 	static {
-		if (Skript.testing())
-			Skript.registerSection(SecRuntime.class, "runtime");
+		if (TestMode.ENABLED)
+			Skript.registerSection(SecRuntime.class, "catch [run[ ]time] error[s]");
 	}
 
 	private Trigger trigger;
@@ -49,17 +49,18 @@ public class SecRuntime extends Section {
 	@Override
 	protected @Nullable TriggerItem walk(Event event) {
 		SkriptTestEvent testEvent = new SkriptTestEvent();
-		RuntimeLogHandler handler = new RuntimeLogHandler().start();
+		RuntimeErrorCatcher catcher = new RuntimeErrorCatcher().start();
 		Variables.withLocalVariables(event, testEvent, () -> TriggerItem.walk(trigger, testEvent));
-        ExprRuntimeErrors.lastErrors = handler.getErrors().stream().map(RuntimeError::error).toArray(String[]::new);
-		handler.clear();
-		handler.stop();
+        ExprRuntimeErrors.lastErrors = catcher.getCachedErrors().stream().map(RuntimeError::error).toArray(String[]::new);
+		catcher.clearCachedErrors()
+			.clearCachedFrames()
+			.stop();
 		return walk(event, false);
 	}
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return "runtime";
+		return "catch runtime errors";
 	}
 
 }

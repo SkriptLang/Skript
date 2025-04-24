@@ -14,7 +14,7 @@ import org.jetbrains.annotations.Nullable;
 public class ExprRuntimeErrors extends SimpleExpression<String> {
 
 	static {
-		if (Skript.testing())
+		if (TestMode.ENABLED)
 			Skript.registerExpression(ExprRuntimeErrors.class, String.class, ExpressionType.SIMPLE,
 				"last [caught] run[ ]time errors");
 	}
