@@ -23,6 +23,9 @@ public class RuntimeErrorCatcher implements RuntimeErrorConsumer {
 
 	public RuntimeErrorCatcher() {}
 
+	/**
+	 * Gets the {@link RuntimeErrorManager}.
+	 */
 	private RuntimeErrorManager getManager() {
 		return RuntimeErrorManager.getInstance();
 	}
@@ -64,6 +67,9 @@ public class RuntimeErrorCatcher implements RuntimeErrorConsumer {
 		return ImmutableList.copyOf(cachedErrors);
 	}
 
+	/**
+	 * Gets all cached {@link FrameOutput}s stored with it's corresponding {@link Level} in an {@link Entry}
+	 */
 	public List<Entry<FrameOutput, Level>> getCachedFrames() {
 		return ImmutableList.copyOf(cachedFrames);
 	}
