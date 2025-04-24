@@ -6,13 +6,12 @@ import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Example;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
+import ch.njol.skript.expressions.ExprCaughtErrors;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.Section;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.Trigger;
 import ch.njol.skript.lang.TriggerItem;
-import ch.njol.skript.expressions.ExprCaughtErrors;
-import ch.njol.skript.test.runner.TestMode;
 import ch.njol.util.Kleenean;
 import com.google.common.collect.Iterables;
 import org.bukkit.event.Event;
@@ -43,15 +42,15 @@ public class SecCatchErrors extends Section {
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult, SectionNode sectionNode, List<TriggerItem> triggerItems) {
 		if (Iterables.size(sectionNode) == 0) {
-			Skript.error("A runtime section must contain code.");
+			Skript.error("A catch errors section must contain code.");
 			return false;
 		}
 
 		AtomicBoolean delayed = new AtomicBoolean(false);
 		Runnable afterLoading = () -> delayed.set(!getParser().getHasDelayBefore().isFalse());
 		trigger = loadCode(sectionNode, "runtime", afterLoading, Event.class);
-		if (delayed.get() && TestMode.ENABLED) {
-			Skript.error("Delays can't be used within a testing environment.");
+		if (delayed.get()) {
+			Skript.error("Delays can't be used within a catch errors section.");
 			return false;
 		}
 		return true;

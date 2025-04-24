@@ -1,10 +1,11 @@
 package org.skriptlang.skript.log.runtime;
 
 import ch.njol.skript.log.SkriptLogger;
-import com.google.common.collect.ImmutableList;
+import org.jetbrains.annotations.Unmodifiable;
 import org.skriptlang.skript.log.runtime.Frame.FrameOutput;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.logging.Level;
@@ -63,15 +64,15 @@ public class RuntimeErrorCatcher implements RuntimeErrorConsumer {
 	/**
 	 * Gets all the cached {@link RuntimeError}s.
 	 */
-	public List<RuntimeError> getCachedErrors() {
-		return ImmutableList.copyOf(cachedErrors);
+	public @Unmodifiable List<RuntimeError> getCachedErrors() {
+		return Collections.unmodifiableList(cachedErrors);
 	}
 
 	/**
-	 * Gets all cached {@link FrameOutput}s stored with it's corresponding {@link Level} in an {@link Entry}
+	 * Gets all cached {@link FrameOutput}s stored with its corresponding {@link Level} in an {@link Entry}
 	 */
-	public List<Entry<FrameOutput, Level>> getCachedFrames() {
-		return ImmutableList.copyOf(cachedFrames);
+	public @Unmodifiable List<Entry<FrameOutput, Level>> getCachedFrames() {
+		return Collections.unmodifiableList(cachedFrames);
 	}
 
 	/**
