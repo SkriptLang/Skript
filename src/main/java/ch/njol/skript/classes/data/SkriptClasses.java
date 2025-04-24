@@ -167,7 +167,7 @@ public class SkriptClasses {
 								"and can optionally start with 'all' or 'every' to make this item type represent <i>all</i> types that the alias represents, including data ranges.")
 				.usage("[&lt;number&gt; [of]] [all/every] &lt;alias&gt; [of &lt;enchantment&gt; [&lt;level&gt;] [,/and &lt;more enchantments...&gt;]]")
 				.examples("give 4 torches to the player",
-						"add tag values of minecraft tag \"slabs\" to the inventory of the block",
+						"add oak slab to the inventory of the block",
 						"player's tool is a diamond sword of sharpness",
 						"block is dirt or farmland")
 				.since("1.0")
