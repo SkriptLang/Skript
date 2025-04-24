@@ -20,7 +20,7 @@ import ch.njol.util.Kleenean;
 @Examples({"give player diamond sword with damage value 100", "set player's tool to diamond hoe damaged by 250",
 	"give player diamond sword with damage 700 named \"BROKEN SWORD\"",
 	"set {_item} to diamond hoe with damage value 50 named \"SAD HOE\"",
-	"set target block of player to wool with data value 1", "set target block of player to potato plant with data value 7"})
+	"set target block of player to white wool with data value 1", "set target block of player to potatoes with data value 7"})
 @Since("2.4")
 public class ExprDamagedItem extends PropertyExpression<ItemType, ItemType> {
 	

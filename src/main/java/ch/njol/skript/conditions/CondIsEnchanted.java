@@ -21,8 +21,7 @@ import ch.njol.util.Kleenean;
  */
 @Name("Is Enchanted")
 @Description("Checks whether an item is enchanted.")
-@Examples({"tool of the player is enchanted with efficiency 2",
-		"helm, chestplate, leggings or boots are enchanted"})
+@Examples("tool of the player is enchanted with efficiency 2")
 @Since("1.4.6")
 public class CondIsEnchanted extends Condition {
 	
