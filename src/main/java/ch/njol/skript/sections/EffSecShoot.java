@@ -17,6 +17,7 @@ import ch.njol.skript.util.Direction;
 import ch.njol.skript.variables.Variables;
 import ch.njol.util.Kleenean;
 import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Fireball;
 import org.bukkit.entity.LivingEntity;
@@ -41,8 +42,6 @@ import java.util.function.Consumer;
 })
 @Since("2.10")
 public class EffSecShoot extends EffectSection {
-
-	//TODO: Remove reflect method once 1.19 is no longer supported
 
 	// '#shootHandlers' should only return an Entity when there is no 'Trigger' / Consumer
 	// Returning an Entity allows the velocity and 'lastSpawned' to be set
@@ -93,6 +92,12 @@ public class EffSecShoot extends EffectSection {
 				return projectile;
 			}
 		},
+		PROJECTILE_WORLD_TRIGGER_BUKKIT {
+			@Override
+			public @Nullable Entity shootHandler(EntityData<?> entityData, LivingEntity shooter, Location location, Class<? extends Entity> type, Vector vector, Consumer<?> consumer) {
+				return null;
+			}
+		},
 		PROJECTILE_WORLD_TRIGGER {
 			@Override
 			public @Nullable Entity shootHandler(EntityData<?> entityData, LivingEntity shooter, Location location, Class<? extends Entity> type, Vector vector, Consumer<?> consumer) {
@@ -140,7 +145,10 @@ public class EffSecShoot extends EffectSection {
 	}
 
 	private static final boolean RUNNING_PAPER;
+
+	// TODO: Remove 'Method's after 1.20.2+ is the minimum version supported
 	private static Method launchWithBukkitConsumer;
+	private static Method worldSpawnWithBukkitConsumer;
 
 	static {
 		Skript.registerSection(EffSecShoot.class,
@@ -151,9 +159,12 @@ public class EffSecShoot extends EffectSection {
 		EventValues.registerEventValue(ShootEvent.class, Projectile.class,
 			shootEvent -> shootEvent.getProjectile() instanceof Projectile projectile ? projectile : null);
 
-		if (!Skript.isRunningMinecraft(1, 20, 3)) {
+		if (!Skript.isRunningMinecraft(1, 20, 2)) {
 			try {
 				launchWithBukkitConsumer = LivingEntity.class.getMethod("launchProjectile", Class.class, Vector.class, org.bukkit.util.Consumer.class);
+			} catch (NoSuchMethodException ignored) {}
+			try {
+				worldSpawnWithBukkitConsumer = World.class.getMethod("spawn", Location.class, Class.class, org.bukkit.util.Consumer.class);
 			} catch (NoSuchMethodException ignored) {}
 		}
 		boolean launchHasJavaConsumer = Skript.methodExists(LivingEntity.class, "launchProjectile", Class.class, Vector.class, Consumer.class);
@@ -226,6 +237,11 @@ public class EffSecShoot extends EffectSection {
 					if (caseUsage == CaseUsage.PROJECTILE_NO_WORLD_TRIGGER_BUKKIT) {
 						try {
 							launchWithBukkitConsumer.invoke(livingShooter, type, vector, afterSpawnBukkit(event, entityData, livingShooter, vector));
+						} catch (Exception ignored) {
+						}
+					} else if (caseUsage == CaseUsage.PROJECTILE_WORLD_TRIGGER_BUKKIT) {
+						try {
+							worldSpawnWithBukkitConsumer.invoke(livingShooter.getWorld(), type, afterSpawnBukkit(event, entityData, livingShooter, vector));
 						} catch (Exception ignored) {}
 					} else {
 						finalProjectile = caseUsage.shootHandler(entityData, livingShooter, shooterLoc, type, vector, afterSpawn);
@@ -276,6 +292,8 @@ public class EffSecShoot extends EffectSection {
 		}
 		if (!hasTrigger)
 			return CaseUsage.PROJECTILE_WORLD_NO_TRIGGER;
+		if (worldSpawnWithBukkitConsumer != null)
+			return CaseUsage.PROJECTILE_WORLD_TRIGGER_BUKKIT;
 		return CaseUsage.PROJECTILE_WORLD_TRIGGER;
 	}
 
