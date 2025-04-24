@@ -32,3 +32,29 @@ test "EffSecShoot":
 
 	clear entity within {_shooter}
 	clear entity within {_shooter2}
+
+test "EffSecShoot Velocity":
+	spawn a pig at test-location:
+		set {_shooter} to entity
+
+	make {_shooter} shoot an egg at speed 1:
+		set {_sectionVelocity} to velocity of event-entity
+	make {_shooter} shoot an egg at speed 1
+	assert the velocity of last shot entity is {_sectionVelocity} with "EffSecShoot egg velocities don't match"
+
+	make {_shooter} shoot a pig at speed 2:
+		set {_sectionVelocity} to velocity of event-entity
+	make {_shooter} shoot a pig at speed 2
+	assert the velocity of last shot entity is {_sectionVelocity} with "EffSecShoot pig velocities don't match"
+
+	make {_shooter} shoot an arrow at speed 3:
+		set {_sectionVelocity} to velocity of event-entity
+	make {_shooter} shoot an arrow at speed 3
+	assert the velocity of last shot entity is {_sectionVelocity} with "EffSecShoot arrow velocities don't match"
+
+	make {_shooter} shoot an fireball at speed 4:
+		set {_sectionVelocity} to velocity of event-entity
+	make {_shooter} shoot a fireball at speed 4
+	assert the velocity of last shot entity is {_sectionVelocity} with "EffSecShoot fireball velocities don't match"
+
+	clear all entities

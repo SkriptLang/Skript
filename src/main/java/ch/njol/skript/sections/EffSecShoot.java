@@ -44,10 +44,13 @@ public class EffSecShoot extends EffectSection {
 
 	//TODO: Remove reflect method once 1.19 is no longer supported
 
+	// '#shootHandlers' should only return an Entity when there is no 'Trigger' / Consumer
+	// Returning an Entity allows the velocity and 'lastSpawned' to be set
+	// Consumers set velocity and 'lastSpawned'
 	private enum CaseUsage {
 		NOT_PROJECTILE_NO_TRIGGER {
 			@Override
-			public @Nullable Entity shootHandler(EntityData<?> entityData, LivingEntity shooter, Location location, Class<? extends Entity> type, Vector vector, Consumer<?> consumer) {
+			public Entity shootHandler(EntityData<?> entityData, LivingEntity shooter, Location location, Class<? extends Entity> type, Vector vector, Consumer<?> consumer) {
 				return entityData.spawn(location);
 			}
 		},
@@ -61,7 +64,7 @@ public class EffSecShoot extends EffectSection {
 		},
 		PROJECTILE_NO_WORLD_NO_TRIGGER {
 			@Override
-			public @NotNull Entity shootHandler(EntityData<?> entityData, LivingEntity shooter, Location location, Class<? extends Entity> type, Vector vector, Consumer<?> consumer) {
+			public Entity shootHandler(EntityData<?> entityData, LivingEntity shooter, Location location, Class<? extends Entity> type, Vector vector, Consumer<?> consumer) {
 				//noinspection unchecked
 				Projectile projectile = shooter.launchProjectile((Class<? extends Projectile>) type);
 				set(projectile, entityData);
@@ -84,7 +87,7 @@ public class EffSecShoot extends EffectSection {
 		},
 		PROJECTILE_WORLD_NO_TRIGGER {
 			@Override
-			public @NotNull Entity shootHandler(EntityData<?> entityData, LivingEntity shooter, Location location, Class<? extends Entity> type, Vector vector, Consumer<?> consumer) {
+			public Entity shootHandler(EntityData<?> entityData, LivingEntity shooter, Location location, Class<? extends Entity> type, Vector vector, Consumer<?> consumer) {
 				Projectile projectile = (Projectile) shooter.getWorld().spawn(location, type);
 				projectile.setShooter(shooter);
 				return projectile;
@@ -94,7 +97,7 @@ public class EffSecShoot extends EffectSection {
 			@Override
 			public @Nullable Entity shootHandler(EntityData<?> entityData, LivingEntity shooter, Location location, Class<? extends Entity> type, Vector vector, Consumer<?> consumer) {
 				//noinspection unchecked,rawtypes
-				shooter.getWorld().spawn(location, type, (Consumer) consumer);
+                shooter.getWorld().spawn(location, type, (Consumer) consumer);
 				return null;
 			}
 		};
@@ -144,10 +147,9 @@ public class EffSecShoot extends EffectSection {
 			"shoot %entitydatas% [from %livingentities/locations%] [(at|with) (speed|velocity) %-number%] [%-direction%]",
 			"(make|let) %livingentities/locations% shoot %entitydatas% [(at|with) (speed|velocity) %-number%] [%-direction%]"
 		);
-		EventValues.registerEventValue(ShootEvent.class, Entity.class, ShootEvent::getProjectile, EventValues.TIME_NOW);
-		EventValues.registerEventValue(ShootEvent.class, Projectile.class, shootEvent -> shootEvent.getProjectile()
-			instanceof Projectile projectile ? projectile : null,
-			EventValues.TIME_NOW);
+		EventValues.registerEventValue(ShootEvent.class, Entity.class, ShootEvent::getProjectile);
+		EventValues.registerEventValue(ShootEvent.class, Projectile.class,
+			shootEvent -> shootEvent.getProjectile() instanceof Projectile projectile ? projectile : null);
 
 		if (!Skript.isRunningMinecraft(1, 20, 3)) {
 			try {
@@ -204,7 +206,7 @@ public class EffSecShoot extends EffectSection {
 				if (shooter instanceof LivingEntity livingShooter) {
 					vector = finalDirection.getDirection(livingShooter.getLocation()).multiply(finalVelocity.doubleValue());
 					//noinspection rawtypes
-					Consumer afterSpawn = afterSpawn(event, entityData, livingShooter);
+					Consumer afterSpawn = afterSpawn(event, entityData, livingShooter, vector);
 					Class<? extends Entity> type = entityData.getType();
 					Location shooterLoc = livingShooter.getLocation();
 					shooterLoc.setY(shooterLoc.getY() + livingShooter.getEyeHeight() / 2);
@@ -223,7 +225,7 @@ public class EffSecShoot extends EffectSection {
 					CaseUsage caseUsage = getCaseUsage(isProjectile, useWorldSpawn, trigger != null);
 					if (caseUsage == CaseUsage.PROJECTILE_NO_WORLD_TRIGGER_BUKKIT) {
 						try {
-							launchWithBukkitConsumer.invoke(livingShooter, type, vector, afterSpawnBukkit(event, entityData, livingShooter));
+							launchWithBukkitConsumer.invoke(livingShooter, type, vector, afterSpawnBukkit(event, entityData, livingShooter, vector));
 						} catch (Exception ignored) {}
 					} else {
 						finalProjectile = caseUsage.shootHandler(entityData, livingShooter, shooterLoc, type, vector, afterSpawn);
@@ -232,7 +234,7 @@ public class EffSecShoot extends EffectSection {
 					vector = finalDirection.getDirection((Location) shooter).multiply(finalVelocity.doubleValue());
 					if (trigger != null) {
 						//noinspection unchecked,rawtypes
-						entityData.spawn((Location) shooter, (Consumer) afterSpawn(event, entityData, null));
+						entityData.spawn((Location) shooter, (Consumer) afterSpawn(event, entityData, null, vector));
 					} else {
 						finalProjectile = entityData.spawn((Location) shooter);
 					}
@@ -277,11 +279,12 @@ public class EffSecShoot extends EffectSection {
 		return CaseUsage.PROJECTILE_WORLD_TRIGGER;
 	}
 
-	private Consumer<? extends Entity> afterSpawn(Event event, EntityData<?> entityData, @Nullable LivingEntity shooter) {
+	private Consumer<? extends Entity> afterSpawn(Event event, EntityData<?> entityData, @Nullable LivingEntity shooter, Vector vector) {
 		return entity -> {
+			entity.setVelocity(vector);
 			if (entity instanceof Fireball fireball)
 				fireball.setShooter(shooter);
-			else if (entity instanceof Projectile projectile && shooter != null) {
+			else if (entity instanceof Projectile projectile) {
 				projectile.setShooter(shooter);
 				set(projectile, entityData);
 			}
@@ -297,12 +300,13 @@ public class EffSecShoot extends EffectSection {
 	/**
 	 * MC 1.19 uses Bukkit Consumer for LivingEntity#launchProjectile instead of Java Consumer
 	 */
-	@SuppressWarnings("deprecation")
-	private org.bukkit.util.Consumer<? extends Entity> afterSpawnBukkit(Event event, EntityData<?> entityData, @Nullable LivingEntity shooter) {
+	@SuppressWarnings({"deprecation", "removal"})
+	private org.bukkit.util.Consumer<? extends Entity> afterSpawnBukkit(Event event, EntityData<?> entityData, @Nullable LivingEntity shooter, Vector vector) {
 		return entity -> {
+			entity.setVelocity(vector);
 			if (entity instanceof Fireball fireball)
 				fireball.setShooter(shooter);
-			else if (entity instanceof Projectile projectile && shooter != null) {
+			else if (entity instanceof Projectile projectile) {
 				projectile.setShooter(shooter);
 				set(projectile, entityData);
 			}
