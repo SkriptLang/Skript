@@ -8,7 +8,6 @@ import ch.njol.skript.lang.Section;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.Trigger;
 import ch.njol.skript.lang.TriggerItem;
-import ch.njol.skript.variables.Variables;
 import ch.njol.util.Kleenean;
 import com.google.common.collect.Iterables;
 import org.bukkit.event.Event;
@@ -48,9 +47,8 @@ public class SecRuntime extends Section {
 
 	@Override
 	protected @Nullable TriggerItem walk(Event event) {
-		SkriptTestEvent testEvent = new SkriptTestEvent();
 		RuntimeErrorCatcher catcher = new RuntimeErrorCatcher().start();
-		Variables.withLocalVariables(event, testEvent, () -> TriggerItem.walk(trigger, testEvent));
+		TriggerItem.walk(trigger, event);
         ExprRuntimeErrors.lastErrors = catcher.getCachedErrors().stream().map(RuntimeError::error).toArray(String[]::new);
 		catcher.clearCachedErrors()
 			.clearCachedFrames()
