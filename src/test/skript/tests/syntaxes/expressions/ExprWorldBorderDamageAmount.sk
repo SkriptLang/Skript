@@ -11,15 +11,15 @@ test "worldborder damage amount":
 	assert worldborder damage amount of {_border} is 1.5 with "Setting worldborder damage amount to None changed the damage amount"
 	catch runtime errors:
 		set worldborder damage amount of {_border} to NaN value
-	assert last runtime errors contains "NaN is not a valid world border damage amount" with "NaN damage value did not throw error"
+	assert last caught runtime errors contains "NaN is not a valid world border damage amount" with "NaN damage value did not throw error"
 	assert worldborder damage amount of {_border} is 1.5 with "Setting worldborder damage amount to NaN value changed the damage amount"
 	catch runtime errors:
 		set worldborder damage amount of {_border} to infinity value
-	assert last runtime errors contains "World border damage amount cannot be infinite" with "Infinity damage value did not throw error"
+	assert last caught runtime errors contains "World border damage amount cannot be infinite" with "Infinity damage value did not throw error"
 	assert worldborder damage amount of {_border} is 1.5 with "Setting worldborder damage amount to infinity changed the damage amount"
 	catch runtime errors:
 		set worldborder damage amount of {_border} to -infinity value
-	assert last runtime errors contains "World border damage amount cannot be infinite" with "Negative infinity damage value did not throw error"
+	assert last caught runtime errors contains "World border damage amount cannot be infinite" with "Negative infinity damage value did not throw error"
 	assert worldborder damage amount of {_border} is 1.5 with "Setting worldborder damage amount to -infinity changed the damage amount"
 
 	# add tests
@@ -35,7 +35,7 @@ test "worldborder damage amount":
 	assert worldborder damage amount of {_border} is 1.5 with "Adding None to worldborder damage amount changed the damage amount"
 	catch runtime errors:
 		add NaN value to worldborder damage amount of {_border}
-	assert last runtime errors contains "NaN is not a valid world border damage amount" with "Adding NaN damage value did not throw error"
+	assert last caught runtime errors contains "NaN is not a valid world border damage amount" with "Adding NaN damage value did not throw error"
 	assert worldborder damage amount of {_border} is 1.5 with "Adding NaN value to worldborder damage amount changed the damage amount"
 	add infinity value to worldborder damage amount of {_border}
 	assert worldborder damage amount of {_border} is 1.5 with "Adding infinity to worldborder damage amount changed the damage amount"

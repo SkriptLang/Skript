@@ -1,6 +1,7 @@
 package org.skriptlang.skript.log.runtime;
 
 import ch.njol.skript.log.SkriptLogger;
+import com.google.common.collect.ImmutableList;
 import org.skriptlang.skript.log.runtime.Frame.FrameOutput;
 
 import java.util.ArrayList;
@@ -8,9 +9,11 @@ import java.util.List;
 import java.util.Map.Entry;
 import java.util.logging.Level;
 
+/**
+ * A {@link RuntimeErrorConsumer} to be used in {@link RuntimeErrorManager} to catch {@link RuntimeError}s.
+ * This should always be used with {@link #start()} and {@link #stop()}.
+ */
 public class RuntimeErrorCatcher implements RuntimeErrorConsumer {
-
-	private static final RuntimeErrorManager ERROR_MANAGER = RuntimeErrorManager.getInstance();
 
 	private List<RuntimeErrorConsumer> storedConsumers = new ArrayList<>();
 
@@ -20,6 +23,10 @@ public class RuntimeErrorCatcher implements RuntimeErrorConsumer {
 
 	public RuntimeErrorCatcher() {}
 
+	private RuntimeErrorManager getManager() {
+		return RuntimeErrorManager.getInstance();
+	}
+
 	/**
 	 * Starts this {@link RuntimeErrorCatcher}, removing all {@link RuntimeErrorConsumer}s from {@link RuntimeErrorManager}
 	 * and storing them in {@link #storedConsumers}.
@@ -28,8 +35,8 @@ public class RuntimeErrorCatcher implements RuntimeErrorConsumer {
 	 * @return This {@link RuntimeErrorCatcher}
 	 */
 	public RuntimeErrorCatcher start() {
-		storedConsumers = ERROR_MANAGER.removeAllConsumers();
-		ERROR_MANAGER.addConsumer(this);
+		storedConsumers = getManager().removeAllConsumers();
+		getManager().addConsumer(this);
 		return this;
 	}
 
@@ -39,9 +46,11 @@ public class RuntimeErrorCatcher implements RuntimeErrorConsumer {
 	 * Prints all cached {@link RuntimeError}s, {@link #cachedErrors}, and cached {@link FrameOutput}s, {@link #cachedFrames}.
 	 */
 	public void stop() {
-		if (!ERROR_MANAGER.removeConsumer(this))
+		if (!getManager().removeConsumer(this)) {
 			SkriptLogger.LOGGER.severe("[Skript] A 'RuntimeErrorCatcher' was stopped incorrectly.");
-		ERROR_MANAGER.addConsumers(storedConsumers.toArray(RuntimeErrorConsumer[]::new));
+			return;
+		}
+		getManager().addConsumers(storedConsumers.toArray(RuntimeErrorConsumer[]::new));
 		for (RuntimeError runtimeError : cachedErrors)
 			storedConsumers.forEach(consumer -> consumer.printError(runtimeError));
 		for (Entry<FrameOutput, Level> entry : cachedFrames)
@@ -52,7 +61,11 @@ public class RuntimeErrorCatcher implements RuntimeErrorConsumer {
 	 * Gets all the cached {@link RuntimeError}s.
 	 */
 	public List<RuntimeError> getCachedErrors() {
-		return cachedErrors;
+		return ImmutableList.copyOf(cachedErrors);
+	}
+
+	public List<Entry<FrameOutput, Level>> getCachedFrames() {
+		return ImmutableList.copyOf(cachedFrames);
 	}
 
 	/**

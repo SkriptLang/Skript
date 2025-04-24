@@ -21,11 +21,11 @@ test "worldborder center":
 	assert worldborder center of {_border} is location(-4.5, 0, -34.2, "world") with "using a location with None components changed the border center"
 	catch runtime errors:
 		set worldborder center of {_border} to location(NaN value, 0, 1)
-	assert last runtime errors contains "Your location can't have a NaN value as one of its components" with "x-coord NaN value did not throw error"
+	assert last caught runtime errors contains "Your location can't have a NaN value as one of its components" with "x-coord NaN value did not throw error"
 	assert worldborder center of {_border} is location(-4.5, 0, -34.2, "world") with "using a location with x-coord NaN changed the border center"
 	catch runtime errors:
 		set worldborder center of {_border} to location(2, 0, NaN value)
-	assert last runtime errors contains "Your location can't have a NaN value as one of its components" with "z-coord NaN value did not throw error"
+	assert last caught runtime errors contains "Your location can't have a NaN value as one of its components" with "z-coord NaN value did not throw error"
 	assert worldborder center of {_border} is location(-4.5, 0, -34.2, "world") with "using a location with z-coord NaN changed the border center"
 	set worldborder center of {_border} to location(infinity value, 0, infinity value)
 	assert worldborder center of {_border} is location(29999984, 0, 29999984, "world") with "border center coords were not rounded correctly when using +infinity"

@@ -1,7 +1,10 @@
-package ch.njol.skript.test.runner;
+package ch.njol.skript.expressions;
 
 import ch.njol.skript.Skript;
-import ch.njol.skript.doc.NoDoc;
+import ch.njol.skript.doc.Description;
+import ch.njol.skript.doc.Example;
+import ch.njol.skript.doc.Name;
+import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
@@ -10,13 +13,20 @@ import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
-@NoDoc
-public class ExprRuntimeErrors extends SimpleExpression<String> {
+@Name("Last Caught Errors")
+@Description("Gets the last caught runtime errors from a 'catch runtime errors' section.")
+@Example("""
+	catch runtime errors:
+		set worldborder center of {_border} to location(0, 0, NaN value)
+	if last caught runtime errors contains "Your location can't have a NaN value as one of its components":
+		set worldborder center of {_border} to location(0, 0, 0)
+	""")
+@Since("INSERT VERSION")
+public class ExprCaughtErrors extends SimpleExpression<String> {
 
 	static {
-		if (TestMode.ENABLED)
-			Skript.registerExpression(ExprRuntimeErrors.class, String.class, ExpressionType.SIMPLE,
-				"last [caught] run[ ]time errors");
+		Skript.registerExpression(ExprCaughtErrors.class, String.class, ExpressionType.SIMPLE,
+			"last caught [run[ ]time] errors");
 	}
 
 	public static String[] lastErrors;
@@ -43,7 +53,7 @@ public class ExprRuntimeErrors extends SimpleExpression<String> {
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return "last runtime errors";
+		return "last caught runtime errors";
 	}
 
 }
