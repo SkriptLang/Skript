@@ -6,8 +6,11 @@ import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
+import ch.njol.skript.expressions.ExprScriptFileErrors;
 import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
+import ch.njol.skript.log.LogEntry;
+import ch.njol.skript.log.RetainingLogHandler;
 import ch.njol.skript.registrations.Feature;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnknownNullability;
@@ -77,20 +80,34 @@ public class EffScriptFile extends Effect {
 
 	@Override
 	protected void execute(Event event) {
+		OpenCloseable openCloseable = OpenCloseable.EMPTY;
+		RetainingLogHandler logHandler = null;
+		if (mark == RELOAD || mark == ENABLE) {
+			logHandler = new RetainingLogHandler().start();
+			openCloseable = logHandler;
+		}
 		if (scripts) {
 			for (Script script : scriptExpression.getArray(event)) {
 				@Nullable File file = script.getConfig().getFile();
-				this.handle(file, script.getConfig().getFileName());
+				this.handle(file, script.getConfig().getFileName(), openCloseable);
 			}
 		} else {
 			String name = scriptNameExpression.getSingle(event);
-			if (name == null)
-				return;
-			this.handle(ScriptLoader.getScriptFromName(name), name);
+			if (name != null)
+				this.handle(ScriptLoader.getScriptFromName(name), name, openCloseable);
+		}
+		if (logHandler != null) {
+			String[] errors = logHandler.getErrors().stream().map(LogEntry::getMessage).toArray(String[]::new);
+			if (mark == RELOAD) {
+				ExprScriptFileErrors.lastReloadedErrors = errors;
+			} else {
+				ExprScriptFileErrors.lastEnabledErrors = errors;
+			}
+			logHandler.printErrors();
 		}
 	}
 
-	private void handle(@Nullable File scriptFile, @Nullable String name) {
+	private void handle(@Nullable File scriptFile, @Nullable String name, OpenCloseable openCloseable) {
 		if (scriptFile == null || !scriptFile.exists())
 			return;
 		if (name == null)
@@ -117,7 +134,7 @@ public class EffScriptFile extends Effect {
 					}
 				}
 
-				ScriptLoader.loadScripts(scriptFile, OpenCloseable.EMPTY);
+				ScriptLoader.loadScripts(scriptFile, openCloseable);
 				break;
 			case RELOAD:
 				if (filter.accept(scriptFile))
@@ -125,7 +142,7 @@ public class EffScriptFile extends Effect {
 
 				this.unloadScripts(scriptFile);
 
-				ScriptLoader.loadScripts(scriptFile, OpenCloseable.EMPTY);
+				ScriptLoader.loadScripts(scriptFile, openCloseable);
 				break;
 			case UNLOAD:
 				if (hasReflection) { // if we don't use the new features this falls through into DISABLE
