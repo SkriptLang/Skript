@@ -120,7 +120,7 @@ public class EndermanData extends EntityData<Enderman> {
 //		return b.toString();
 	@SuppressWarnings("null")
 	@Override
-	@Deprecated
+	@Deprecated(since = "2.3.0", forRemoval = true)
 	protected boolean deserialize(final String s) {
 		if (s.isEmpty())
 			return true;
