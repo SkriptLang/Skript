@@ -1,4 +1,4 @@
-package ch.njol.skript.expressions;
+package ch.njol.skript.sections;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.config.SectionNode;
