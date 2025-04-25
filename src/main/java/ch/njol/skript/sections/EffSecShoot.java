@@ -102,7 +102,7 @@ public class EffSecShoot extends EffectSection {
 			@Override
 			public @Nullable Entity shootHandler(EntityData<?> entityData, LivingEntity shooter, Location location, Class<? extends Entity> type, Vector vector, Consumer<?> consumer) {
 				//noinspection unchecked,rawtypes
-                shooter.getWorld().spawn(location, type, (Consumer) consumer);
+				shooter.getWorld().spawn(location, type, (Consumer) consumer);
 				return null;
 			}
 		};
@@ -236,12 +236,14 @@ public class EffSecShoot extends EffectSection {
 					CaseUsage caseUsage = getCaseUsage(isProjectile, useWorldSpawn, trigger != null);
 					if (caseUsage == CaseUsage.PROJECTILE_NO_WORLD_TRIGGER_BUKKIT) {
 						try {
-							launchWithBukkitConsumer.invoke(livingShooter, type, vector, afterSpawnBukkit(event, entityData, livingShooter, vector));
+							//noinspection removal
+							launchWithBukkitConsumer.invoke(livingShooter, type, vector, (org.bukkit.util.Consumer<? extends Entity>) afterSpawn::accept);
 						} catch (Exception ignored) {
 						}
 					} else if (caseUsage == CaseUsage.PROJECTILE_WORLD_TRIGGER_BUKKIT) {
 						try {
-							worldSpawnWithBukkitConsumer.invoke(livingShooter.getWorld(), type, afterSpawnBukkit(event, entityData, livingShooter, vector));
+							//noinspection removal
+							worldSpawnWithBukkitConsumer.invoke(livingShooter.getWorld(), type, (org.bukkit.util.Consumer<? extends Entity>) afterSpawn::accept);
 						} catch (Exception ignored) {}
 					} else {
 						finalProjectile = caseUsage.shootHandler(entityData, livingShooter, shooterLoc, type, vector, afterSpawn);
@@ -298,28 +300,6 @@ public class EffSecShoot extends EffectSection {
 	}
 
 	private Consumer<? extends Entity> afterSpawn(Event event, EntityData<?> entityData, @Nullable LivingEntity shooter, Vector vector) {
-		return entity -> {
-			entity.setVelocity(vector);
-			if (entity instanceof Fireball fireball)
-				fireball.setShooter(shooter);
-			else if (entity instanceof Projectile projectile) {
-				projectile.setShooter(shooter);
-				set(projectile, entityData);
-			}
-			ShootEvent shootEvent = new ShootEvent(entity, shooter);
-			lastSpawned = entity;
-			Variables.setLocalVariables(shootEvent, Variables.copyLocalVariables(event));
-			TriggerItem.walk(trigger, shootEvent);
-			Variables.setLocalVariables(event, Variables.copyLocalVariables(shootEvent));
-			Variables.removeLocals(shootEvent);
-		};
-	}
-
-	/**
-	 * MC 1.19 uses Bukkit Consumer for LivingEntity#launchProjectile instead of Java Consumer
-	 */
-	@SuppressWarnings({"deprecation", "removal"})
-	private org.bukkit.util.Consumer<? extends Entity> afterSpawnBukkit(Event event, EntityData<?> entityData, @Nullable LivingEntity shooter, Vector vector) {
 		return entity -> {
 			entity.setVelocity(vector);
 			if (entity instanceof Fireball fireball)
