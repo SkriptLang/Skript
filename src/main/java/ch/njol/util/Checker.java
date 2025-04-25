@@ -3,9 +3,9 @@ package ch.njol.util;
 import java.util.function.Predicate;
 
 /**
- * @deprecated use {@link Predicate}
+ * @deprecated use {@link Predicate} instead.
  */
-@Deprecated(forRemoval = true)
+@Deprecated(since = "2.10.0", forRemoval = true)
 @FunctionalInterface
 public interface Checker<T> extends Predicate<T> {
 

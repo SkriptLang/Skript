@@ -152,7 +152,7 @@ public class FallingBlockData extends EntityData<FallingBlock> {
 	
 //		return ItemType.serialize(types);
 	@Override
-	@Deprecated
+	@Deprecated(since = "2.3.0", forRemoval = true)
 	protected boolean deserialize(final String s) {
 		throw new UnsupportedOperationException("old serialization is not supported");
 //		if (s.isEmpty())

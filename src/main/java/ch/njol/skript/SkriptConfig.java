@@ -203,7 +203,7 @@ public class SkriptConfig {
 		new Option<>("disable starting a variable's name with an expression warnings", false);
 	public static final Option<Boolean> disableUnreachableCodeWarnings = new Option<>("disable unreachable code warnings", false);
 
-	@Deprecated
+	@Deprecated(since = "2.3.0", forRemoval = true)
 	public static final Option<Boolean> enableScriptCaching = new Option<>("enable script caching", false)
 			.optional(true);
 
