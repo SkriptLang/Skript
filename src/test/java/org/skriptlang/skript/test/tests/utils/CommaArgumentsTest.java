@@ -4,12 +4,12 @@ import ch.njol.skript.test.runner.SkriptJUnitTest;
 import org.junit.Assert;
 import org.junit.Test;
 
-import static ch.njol.skript.SkriptCommand.separateCommaArguments;
+import static ch.njol.skript.SkriptCommand.parseAsCommaSeparatedList;
 
 public class CommaArgumentsTest extends SkriptJUnitTest {
 
 	private String[] getArgs(boolean reverse, boolean excludeEmptyArgs, String ... strings) {
-		return separateCommaArguments(reverse, excludeEmptyArgs, strings).toArray(String[]::new);
+		return parseAsCommaSeparatedList(reverse, excludeEmptyArgs, strings).toArray(String[]::new);
 	}
 
 	@Test

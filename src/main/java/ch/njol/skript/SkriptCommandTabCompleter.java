@@ -43,7 +43,7 @@ public class SkriptCommandTabCompleter implements TabCompleter {
 			// TODO Find a better way for caching, it isn't exactly ideal to be calling this method constantly
 			if (args.length == 2 || !args[1].matches("(?i)(all|scripts|aliases|config|lastReloaded)")) {
 				String[] filteredArgs = Arrays.copyOfRange(args, 1, args.length);
-				List<String> separatedArgs = SkriptCommand.separateCommaArguments(true, false, filteredArgs);
+				List<String> separatedArgs = SkriptCommand.parseAsCommaSeparatedList(true, false, filteredArgs);
 				String currentScript = !separatedArgs.isEmpty() ? separatedArgs.get(0) : "";
 				try (Stream<Path> files = Files.walk(scripts.toPath())) {
 					files.map(Path::toFile)

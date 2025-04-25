@@ -592,16 +592,9 @@ public class SkriptCommand implements CommandExecutor {
 	}
 
 	private static File @Nullable [] getScriptsFromArgs(CommandSender sender, String[] args, File directoryFile) {
-		List<String> filtered = new ArrayList<>();
 		boolean enable = args[0].equals("enable");
-		// Remove any of the options if someone manually types it after the 1st argument
-		for (int i = 1; i < args.length; i++) {
-			if (args[i].matches("(?i)(all|scripts|aliases|config)"))
-				continue;
-			filtered.add(args[i]);
-		}
 		Map<String, File> scripts = new HashMap<>();
-		for (String currentScript : separateCommaArguments(false, true, filtered.toArray(String[]::new))) {
+		for (String currentScript : parseAsCommaSeparatedList(false, true, args)) {
 			File thisScript = getScriptFromArg(sender, currentScript, directoryFile);
 			if (thisScript == null) {
 				// Always allow '/' and '\' regardless of OS
@@ -662,7 +655,7 @@ public class SkriptCommand implements CommandExecutor {
 		return false;
 	}
 
-	public static List<String> separateCommaArguments(boolean reverse, boolean excludeEmptyArgs, String ... strings) {
+	public static List<String> parseAsCommaSeparatedList(boolean reverse, boolean excludeEmptyArgs, String ... strings) {
 		List<String> result = new ArrayList<>();
 
 		String currentArgument = "";
