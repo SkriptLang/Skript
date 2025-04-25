@@ -281,8 +281,8 @@ public final class Fields implements Iterable<FieldContext> {
 				yggdrasil.excessiveField(object, context);
 		}
 	}
-	
-	@Deprecated
+
+	@Deprecated(since = "2.3.0", forRemoval = true)
 	public void setFields(Object object, Yggdrasil yggdrasil) throws StreamCorruptedException, NotSerializableException {
 		assert this.yggdrasil == yggdrasil;
 		setFields(object);

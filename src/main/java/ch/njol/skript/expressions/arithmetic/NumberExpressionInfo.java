@@ -3,7 +3,7 @@ package ch.njol.skript.expressions.arithmetic;
 import ch.njol.skript.lang.Expression;
 import org.bukkit.event.Event;
 
-@Deprecated
+@Deprecated(since = "2.8.0", forRemoval = true)
 public class NumberExpressionInfo implements ArithmeticGettable<Number> {
 
 	private final Expression<? extends Number> expression;
