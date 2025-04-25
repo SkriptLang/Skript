@@ -238,8 +238,7 @@ public class EffSecShoot extends EffectSection {
 						try {
 							//noinspection removal
 							launchWithBukkitConsumer.invoke(livingShooter, type, vector, (org.bukkit.util.Consumer<? extends Entity>) afterSpawn::accept);
-						} catch (Exception ignored) {
-						}
+						} catch (Exception ignored) {}
 					} else if (caseUsage == CaseUsage.PROJECTILE_WORLD_TRIGGER_BUKKIT) {
 						try {
 							//noinspection removal
@@ -310,10 +309,7 @@ public class EffSecShoot extends EffectSection {
 			}
 			ShootEvent shootEvent = new ShootEvent(entity, shooter);
 			lastSpawned = entity;
-			Variables.setLocalVariables(shootEvent, Variables.copyLocalVariables(event));
-			TriggerItem.walk(trigger, shootEvent);
-			Variables.setLocalVariables(event, Variables.copyLocalVariables(shootEvent));
-			Variables.removeLocals(shootEvent);
+			Variables.withLocalVariables(event, shootEvent, () -> TriggerItem.walk(trigger, shootEvent));
 		};
 	}
 
