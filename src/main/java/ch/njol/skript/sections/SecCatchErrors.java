@@ -23,7 +23,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 @Name("Catch Runtime Errors")
-@Description("Catch any runtime errors produced by code within the section.")
+@Description("Catch any runtime errors produced by code within the section. This is an in progress feature")
 @Example("""
 	catch runtime errors:
 		set worldborder center of {_border} to location(0, 0, NaN value)
