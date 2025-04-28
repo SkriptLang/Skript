@@ -22,16 +22,28 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-@Name("Create WorldBorder")
-@Description("Create a virtual worldborder. You can make this a real border by setting a world's worldborder to a virtual border.")
+@Name("Create Virtual WorldBorder")
+@Description({
+    "Creates a new virtual worldborder that can be customized inside a section.",
+    "Each time this expression is used, a fresh worldborder is created.",
+    "You can apply the customized worldborder to a player or to a world.",
+    "Setting a world's worldborder to a virtual border makes it a real, visible border."
+})
 @Examples({
-	"set player's worldborder to a virtual worldborder",
-	"",
-	"on join:",
-		"\tset {_border} to a worldborder:",
-			"\t\tset worldborder radius to 25",
-			"\t\tset worldborder warning distance of event-worldborder to 5",
-		"\tset worldborder of player to {_border}"
+    "on join:",
+    "\tset player's worldborder to a virtual worldborder",
+    "\tset {_center} to location of player",
+    "\tset {_border} to a virtual worldborder:",
+    "\t\tset worldborder radius to 50",
+    "\t\tset world border center of event-worldborder {_center}",
+    "\tset player's worldborder to {_border}",
+    "",
+    "on join:",
+    "\tset {_worldborder} to a virtual worldborder:",
+    "\t\tset worldborder radius to 200",
+    "\t\tset worldborder center of event-worldborder to location(0, 64, 0)",
+    "\t\tset worldborder warning distance of event-worldborder to 5",
+    "\tset worldborder of world \"world\" to {_worldborder}"
 })
 @Since("2.11")
 public class ExprSecCreateWorldBorder extends SectionExpression<WorldBorder> {
@@ -80,7 +92,7 @@ public class ExprSecCreateWorldBorder extends SectionExpression<WorldBorder> {
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return "a worldborder";
+		return "a virtual worldborder";
 	}
 
 	public static class CreateWorldborderEvent extends Event {
