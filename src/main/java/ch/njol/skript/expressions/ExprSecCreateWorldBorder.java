@@ -11,6 +11,7 @@ import ch.njol.skript.lang.*;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.registrations.EventValues;
 import ch.njol.skript.variables.Variables;
+import ch.njol.skript.doc.Example;
 import ch.njol.util.Kleenean;
 import org.bukkit.Bukkit;
 import org.bukkit.WorldBorder;
