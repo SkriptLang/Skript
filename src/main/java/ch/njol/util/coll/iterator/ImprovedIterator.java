@@ -1,13 +1,13 @@
 package ch.njol.util.coll.iterator;
 
-import java.util.Iterator;
-
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Iterator;
+
 /**
- * @deprecated use {@link Iterator}
+ * @deprecated use {@link Iterator} instead.
  */
-@Deprecated
+@Deprecated(since = "2.10.0", forRemoval = true)
 public class ImprovedIterator<T> implements Iterator<T> {
 	
 	private final Iterator<T> iter;

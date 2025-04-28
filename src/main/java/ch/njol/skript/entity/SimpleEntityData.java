@@ -401,7 +401,7 @@ public class SimpleEntityData extends EntityData<Entity> {
 	
 
 	@Override
-	@Deprecated
+	@Deprecated(since = "2.3.0", forRemoval = true)
 	protected boolean deserialize(String string) {
 		try {
 			Class<?> c = Class.forName(string);

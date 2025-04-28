@@ -15,7 +15,7 @@ public enum ScriptWarning {
 	/**
 	 * Possible variable conflict (Deprecated)
 	 */
-	@Deprecated
+	@Deprecated(since = "2.10.0", forRemoval = true)
 	VARIABLE_CONFLICT("conflict", "conflict", "Variable conflict warnings no longer need suppression, as they have been removed altogether"),
 
 	/**

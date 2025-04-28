@@ -23,9 +23,9 @@ import java.util.Map;
 public class EquipmentSlot extends SlotWithIndex {
 
 	/**
-	 * @deprecated Use {@link org.bukkit.inventory.EquipmentSlot}, {@link EntityEquipment} instead
+	 * @deprecated Use {@link org.bukkit.inventory.EquipmentSlot}, {@link EntityEquipment} instead. 
 	 */
-	@Deprecated
+	@Deprecated(since = "2.11.0", forRemoval = true)
 	public enum EquipSlot {
 		TOOL {
 			@Override
@@ -146,9 +146,9 @@ public class EquipmentSlot extends SlotWithIndex {
 	private org.bukkit.inventory.EquipmentSlot bukkitSlot;
 
 	/**
-	 * @deprecated Use {@link EquipmentSlot#EquipmentSlot(EntityEquipment, org.bukkit.inventory.EquipmentSlot, boolean)} instead
+	 * @deprecated Use {@link EquipmentSlot#EquipmentSlot(EntityEquipment, org.bukkit.inventory.EquipmentSlot, boolean)} instead. 
 	 */
-	@Deprecated
+	@Deprecated(since = "2.11.0", forRemoval = true)
 	public EquipmentSlot(@NotNull EntityEquipment entityEquipment, @NotNull EquipSlot skriptSlot, boolean slotToString) {
 		Preconditions.checkNotNull(entityEquipment, "entityEquipment cannot be null");
 		Preconditions.checkNotNull(skriptSlot, "skriptSlot cannot be null");
@@ -165,9 +165,9 @@ public class EquipmentSlot extends SlotWithIndex {
 	}
 
 	/**
-	 * @deprecated Use {@link EquipmentSlot#EquipmentSlot(EntityEquipment, org.bukkit.inventory.EquipmentSlot)} instead
+	 * @deprecated Use {@link EquipmentSlot#EquipmentSlot(EntityEquipment, org.bukkit.inventory.EquipmentSlot)} instead. 
 	 */
-	@Deprecated
+	@Deprecated(since = "2.11.0", forRemoval = true)
 	public EquipmentSlot(@NotNull EntityEquipment entityEquipment, @NotNull EquipSlot skriptSlot) {
 		this(entityEquipment, skriptSlot, false);
 	}
@@ -233,9 +233,9 @@ public class EquipmentSlot extends SlotWithIndex {
 	}
 	
 	/**
-	 * @deprecated Use {@link EquipmentSlot#EquipmentSlot(EntityEquipment, org.bukkit.inventory.EquipmentSlot)} and {@link #getEquipmentSlot()}
+	 * @deprecated Use {@link EquipmentSlot#EquipmentSlot(EntityEquipment, org.bukkit.inventory.EquipmentSlot)} and {@link #getEquipmentSlot()} instead.
 	 */
-	@Deprecated
+	@Deprecated(since = "2.11.0", forRemoval = true)
 	public EquipSlot getEquipSlot() {
 		return skriptSlot;
 	}

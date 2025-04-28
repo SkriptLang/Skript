@@ -3,9 +3,9 @@ package ch.njol.util;
 import java.util.function.Consumer;
 
 /**
- * @deprecated use {@link Consumer}
+ * @deprecated use {@link Consumer} instead.
  */
-@Deprecated(forRemoval = true)
+@Deprecated(since = "2.10.0", forRemoval = true)
 @FunctionalInterface
 public interface Setter<T> extends Consumer<T> {
 

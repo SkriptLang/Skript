@@ -1531,16 +1531,16 @@ public class SkriptParser {
 
 	/**
 	 * @deprecated due to bad naming conventions,
-	 * use {@link #LIST_SPLIT_PATTERN} instead.
+	 * use {@link #LIST_SPLIT_PATTERN} instead. 
 	 */
-	@Deprecated
+	@Deprecated(since = "2.7.0", forRemoval = true)
 	public final static Pattern listSplitPattern = LIST_SPLIT_PATTERN;
 
 	/**
 	 * @deprecated due to bad naming conventions,
 	 * use {@link #WILDCARD} instead.
 	 */
-	@Deprecated
+	@Deprecated(since = "2.8.0", forRemoval = true)
 	public final static String wildcard = WILDCARD;
 
 }
