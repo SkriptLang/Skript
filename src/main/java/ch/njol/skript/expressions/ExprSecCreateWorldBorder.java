@@ -30,7 +30,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 })
 @Example("""
 	on join:
-		set player's worldborder to a worldborder:
+		set player's worldborder to a virtual worldborder:
 			set worldborder radius of event-worldborder to 50
 			set worldborder center of event-worldborder to location of player
 	""")
