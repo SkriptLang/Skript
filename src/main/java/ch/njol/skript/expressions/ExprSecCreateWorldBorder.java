@@ -30,18 +30,18 @@ import java.util.concurrent.atomic.AtomicBoolean;
 })
 @Example("""
 on join:
-\tset {_border} to a worldborder:
-\t\tset worldborder radius of event-worldborder to 50
-\t\tset worldborder center of event-worldborder to location of player
-\tset player's worldborder to {_border}
+	set {_border} to a worldborder:
+		set worldborder radius of event-worldborder to 50
+		set worldborder center of event-worldborder to location of player
+	set player's worldborder to {_border}
 """)
 @Example("""
 on join:
-\tset {_border} to a worldborder:
-\t\tset worldborder radius of event-worldborder to 200
-\t\tset worldborder center of event-worldborder to location(0, 64, 0)
-\t\tset worldborder warning distance of event-worldborder to 5
-\tset worldborder of world "world" to {_border}
+	set {_border} to a worldborder:
+		set worldborder radius of event-worldborder to 200
+		set worldborder center of event-worldborder to location(0, 64, 0)
+		set worldborder warning distance of event-worldborder to 5
+	set worldborder of world "world" to {_border}
 """)
 @Since("2.11")
 public class ExprSecCreateWorldBorder extends SectionExpression<WorldBorder> {
