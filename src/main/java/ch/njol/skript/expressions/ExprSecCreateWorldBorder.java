@@ -29,20 +29,18 @@ import java.util.concurrent.atomic.AtomicBoolean;
     "Borders assigned to players apply only to those players, and different players can have different borders."
 })
 @Example("""
-on join:
-	set {_border} to a worldborder:
-		set worldborder radius of event-worldborder to 50
-		set worldborder center of event-worldborder to location of player
-	set player's worldborder to {_border}
-""")
+	on join:
+		set player's worldborder to a worldborder:
+			set worldborder radius of event-worldborder to 50
+			set worldborder center of event-worldborder to location of player
+	""")
 @Example("""
-on join:
-	set {_border} to a worldborder:
-		set worldborder radius of event-worldborder to 200
-		set worldborder center of event-worldborder to location(0, 64, 0)
-		set worldborder warning distance of event-worldborder to 5
-	set worldborder of world "world" to {_border}
-""")
+	on join:
+		set worldborder of world "world" to a worldborder:
+			set worldborder radius of event-worldborder to 200
+			set worldborder center of event-worldborder to location(0, 64, 0)
+			set worldborder warning distance of event-worldborder to 5
+	""")
 @Since("2.11")
 public class ExprSecCreateWorldBorder extends SectionExpression<WorldBorder> {
 
