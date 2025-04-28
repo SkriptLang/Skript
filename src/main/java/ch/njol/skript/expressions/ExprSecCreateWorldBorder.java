@@ -22,29 +22,27 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-@Name("Create Virtual WorldBorder")
+@Name("Create WorldBorder")
 @Description({
-    "Creates a new virtual worldborder that can be customized inside a section.",
-    "Each time this expression is used, a fresh worldborder is created.",
-    "You can apply the customized worldborder to a player or to a world.",
-    "Setting a world's worldborder to a virtual border makes it a real, visible border."
+    "Creates a new, unused world border. World borders can be assigned to either worlds or specific players.",
+    "Borders assigned to worlds apply to all players in that world.",
+    "Borders assigned to players apply only to those players, and different players can have different borders."
 })
-@Examples({
-    "on join:",
-    "\tset player's worldborder to a virtual worldborder",
-    "\tset {_center} to location of player",
-    "\tset {_border} to a virtual worldborder:",
-    "\t\tset worldborder radius to 50",
-    "\t\tset world border center of event-worldborder {_center}",
-    "\tset player's worldborder to {_border}",
-    "",
-    "on join:",
-    "\tset {_worldborder} to a virtual worldborder:",
-    "\t\tset worldborder radius to 200",
-    "\t\tset worldborder center of event-worldborder to location(0, 64, 0)",
-    "\t\tset worldborder warning distance of event-worldborder to 5",
-    "\tset worldborder of world \"world\" to {_worldborder}"
-})
+@Example("""
+on join:
+\tset {_border} to a worldborder:
+\t\tset worldborder radius of event-worldborder to 50
+\t\tset worldborder center of event-worldborder to location of player
+\tset player's worldborder to {_border}
+""")
+@Example("""
+on join:
+\tset {_border} to a worldborder:
+\t\tset worldborder radius of event-worldborder to 200
+\t\tset worldborder center of event-worldborder to location(0, 64, 0)
+\t\tset worldborder warning distance of event-worldborder to 5
+\tset worldborder of world "world" to {_border}
+""")
 @Since("2.11")
 public class ExprSecCreateWorldBorder extends SectionExpression<WorldBorder> {
 
