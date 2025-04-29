@@ -13,7 +13,6 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.Trigger;
 import ch.njol.skript.lang.TriggerItem;
 import ch.njol.util.Kleenean;
-import com.google.common.collect.Iterables;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.log.runtime.RuntimeError;
@@ -41,7 +40,7 @@ public class SecCatchErrors extends Section {
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult, SectionNode sectionNode, List<TriggerItem> triggerItems) {
-		if (Iterables.size(sectionNode) == 0) {
+		if (sectionNode.isEmpty()) {
 			Skript.error("A catch errors section must contain code.");
 			return false;
 		}
