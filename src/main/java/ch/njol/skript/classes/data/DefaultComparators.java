@@ -362,6 +362,12 @@ public class DefaultComparators {
 		Comparators.registerComparator(OfflinePlayer.class, String.class, new Comparator<OfflinePlayer, String>() {
 			@Override
 			public Relation compare(OfflinePlayer p, String name) {
+				UUID uuid = null;
+				try {
+					uuid = UUID.fromString(name);
+				} catch (Exception ignored) {}
+				if (uuid != null)
+					return Relation.get(p.getUniqueId().equals(uuid));
 				String offlineName = p.getName();
 				return offlineName == null ? Relation.NOT_EQUAL : Relation.get(offlineName.equalsIgnoreCase(name));
 			}
