@@ -455,7 +455,7 @@ public abstract class Node implements AnyNamed, Validated, NodeNavigator {
 
 	/**
 	 * Returns the node names in the path to this node from the config root.
-	 * For a node with no key, this will return the path from the root node to its parent.
+	 * If this is not a section node, returns the path to its parent node.
 	 *
 	 * <p>
 	 * Getting the path of node {@code z} in the following example would
@@ -470,7 +470,7 @@ public abstract class Node implements AnyNamed, Validated, NodeNavigator {
 	 */
 	public @NotNull String[] getPathSteps() {
 		List<String> path = new ArrayList<>();
-		Node node = parent;
+		Node node = this;
 
 		while (node != null) {
 			if (node.getKey() == null || node.getKey().isEmpty())
@@ -480,14 +480,8 @@ public abstract class Node implements AnyNamed, Validated, NodeNavigator {
 			node = node.getParent();
 		}
 
-		// allow getting the path steps of a node without key
-		if (getKey() != null) {
-			path.add(getKey());
-		}
-
-		if (path.isEmpty()) {
+		if (path.isEmpty())
 			return new String[0];
-		}
 
 		return path.toArray(new String[0]);
 	}

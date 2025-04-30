@@ -319,9 +319,9 @@ public class NewBlockCompat implements BlockCompat {
 	private NewBlockSetter setter = new NewBlockSetter();
 
 	/**
-	 * @deprecated Use {@link #getBlockValues(BlockData)} instead
+	 * @deprecated Use {@link #getBlockValues(BlockData)} instead.
 	 */
-	@Deprecated
+	@Deprecated(since = "2.8.4", forRemoval = true)
 	@Nullable
 	@Override
 	public BlockValues getBlockValues(BlockState blockState) {
@@ -357,7 +357,7 @@ public class NewBlockCompat implements BlockCompat {
 		return setter;
 	}
 
-	@Deprecated
+	@Deprecated(since = "2.8.4", forRemoval = true)
 	@Override
 	public BlockState fallingBlockToState(FallingBlock entity) {
 		BlockState state = entity.getLocation().getBlock().getState();

@@ -1,13 +1,11 @@
 package ch.njol.skript.conditions;
 
-import org.bukkit.potion.PotionEffect;
-
-import ch.njol.skript.Skript;
 import ch.njol.skript.conditions.base.PropertyCondition;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
+import org.bukkit.potion.PotionEffect;
 
 // This class can be expanded apon for other types if needed.
 @Name("Is Infinite")
@@ -17,8 +15,7 @@ import ch.njol.skript.doc.Since;
 public class CondIsInfinite extends PropertyCondition<PotionEffect> {
 
 	static {
-		if (Skript.methodExists(PotionEffect.class, "isInfinite"))
-			register(CondIsInfinite.class, "infinite", "potioneffects");
+		register(CondIsInfinite.class, "infinite", "potioneffects");
 	}
 
 	@Override

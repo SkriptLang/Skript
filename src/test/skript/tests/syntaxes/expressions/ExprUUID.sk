@@ -1,0 +1,36 @@
+test "uuid":
+	set {_lookup} to offline player from ("a0789aeb-7b46-43f6-86fb-cb671fed5775" parsed as uuid)
+	assert {_lookup} is set with "Failed to look up offline player from uuid"
+
+	set {_uuid} to ("a0789aeb-7b46-43f6-86fb-cb671fed5775" parsed as uuid)
+	assert {_uuid} is "a0789aeb-7b46-43f6-86fb-cb671fed5775" with "failed to compare uuid and string"
+	assert "a0789aeb-7b46-43f6-86fb-cb671fed5775" is {_uuid} with "failed to compare string and uuid"
+
+	spawn a pig at test-location
+	set {_pig} to last spawned pig
+
+	set {_uuid} to uuid of {_pig}
+
+	set {_lookup} to entity from {_uuid}
+	assert {_lookup} is {_pig} with "Failed to look up pig"
+
+	set {_le pig} to {_uuid} parsed as entity
+	assert {_le pig} is {_pig} with "failed to parse uuid as entity"
+
+	delete entity within {_pig}
+
+	set {_lookup} to entity from ("blah" parsed as uuid)
+	assert {_lookup} is set to fail with "entity is set without a valid uuid"
+
+	# because this player is not online, should fail
+	set {_lookup} to player from ("a0789aeb-7b46-43f6-86fb-cb671fed5775" parsed as uuid)
+	assert {_lookup} is "Burbulinis" to fail with "player is set without being online"
+
+	set {_lookup} to "Njol" parsed as offline player
+	assert {_lookup} is "Njol" with "failed to look up offline player from name"
+
+	set {_uuid} to uuid of world of test-location
+	assert {_uuid} is set with "Failed to get world uuid"
+
+	set {_world} to world from {_uuid}
+	assert {_world} is set with "Failed to get world from uuid"
