@@ -1,0 +1,31 @@
+local function easySpawn(type:entitytype) :: entity:
+	spawn {_type} at test location
+	delete spawned entity
+	return spawned entity
+
+test "StriderData - Strider Entity Data":
+	set {_normal_strider} to easySpawn(strider)
+	assert {_normal_strider} is not shivering with "The strider spawned using 'strider' should not be shivering"
+
+	set {_warm_strider} to easySpawn(warm strider)
+	assert {_warm_strider} is not shivering with "The strider spawned using 'warm strider' should not be shivering"
+
+	set {_shivering_strider} to easySpawn(shivering strider)
+	assert {_shivering_strider} is shivering with "The strider spawned using 'shivering strider' wasn't shivering"
+
+
+test "StriderData - Strider Entity Data Comparison":
+	set {_normal_strider} to easySpawn(strider)
+	assert {_normal_strider} is a strider
+	assert {_normal_strider} is a warm strider # Striders should always be warm for one tick after spawning
+	assert {_normal_strider} is not a cold strider
+
+	set {_warm_strider} to easySpawn(warm strider)
+	assert {_warm_strider} is a strider
+	assert {_warm_strider} is a warm strider # Striders should always be warm for one tick after spawning
+	assert {_warm_strider} is not a cold strider
+
+	set {_shivering_strider} to easySpawn(shivering strider)
+	assert {_shivering_strider} is a strider
+	assert {_shivering_strider} is not a warm strider
+	assert {_shivering_strider} is a cold strider
