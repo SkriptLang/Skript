@@ -32,7 +32,7 @@ import java.util.stream.Stream;
 })
 @Examples({
 	"set chestplate of the player to a diamond chestplate",
-	"helmet of player is neither a helmet nor air # player is wearing a block, e.g. from another plugin"
+	"helmet of player is neither tag values of tag \"paper:helmets\" nor air # player is wearing a block, e.g. from another plugin"
 })
 @Keywords("armor")
 @Since("1.0, 2.8.0 (armor), 2.10 (body armor)")
