@@ -10,17 +10,7 @@ import ch.njol.skript.entity.BoatChestData;
 import ch.njol.skript.entity.BoatData;
 import ch.njol.skript.entity.EntityData;
 import ch.njol.skript.entity.RabbitData;
-import ch.njol.skript.util.BlockUtils;
-import ch.njol.skript.util.Color;
-import ch.njol.skript.util.Date;
-import ch.njol.skript.util.EnchantmentType;
-import ch.njol.skript.util.Experience;
-import ch.njol.skript.util.GameruleValue;
-import ch.njol.skript.util.StructureType;
-import ch.njol.skript.util.Time;
-import ch.njol.skript.util.Timeperiod;
-import ch.njol.skript.util.Timespan;
-import ch.njol.skript.util.WeatherType;
+import ch.njol.skript.util.*;
 import ch.njol.skript.util.slot.EquipmentSlot;
 import ch.njol.skript.util.slot.Slot;
 import ch.njol.skript.util.slot.SlotWithIndex;
@@ -361,15 +351,13 @@ public class DefaultComparators {
 		// OfflinePlayer - String
 		Comparators.registerComparator(OfflinePlayer.class, String.class, new Comparator<OfflinePlayer, String>() {
 			@Override
-			public Relation compare(OfflinePlayer p, String name) {
-				UUID uuid = null;
-				try {
-					uuid = UUID.fromString(name);
-				} catch (Exception ignored) {}
-				if (uuid != null)
-					return Relation.get(p.getUniqueId().equals(uuid));
-				String offlineName = p.getName();
-				return offlineName == null ? Relation.NOT_EQUAL : Relation.get(offlineName.equalsIgnoreCase(name));
+			public Relation compare(OfflinePlayer player, String name) {
+				if (Utils.isValidUUID(name)) {
+					UUID uuid = UUID.fromString(name);
+					return Relation.get(player.getUniqueId().equals(uuid));
+				}
+				String playerName = player.getName();
+				return playerName == null ? Relation.NOT_EQUAL : Relation.get(playerName.equalsIgnoreCase(name));
 			}
 
 			@Override
@@ -379,7 +367,7 @@ public class DefaultComparators {
 		});
 
 		// OfflinePlayer - UUID
-		Comparators.registerComparator(OfflinePlayer.class, UUID.class, (one, two) -> Relation.get(one.getUniqueId().equals(two)));
+		Comparators.registerComparator(OfflinePlayer.class, UUID.class, (player, uuid) -> Relation.get(player.getUniqueId().equals(uuid)));
 		
 		// World - String
 		Comparators.registerComparator(World.class, String.class, new Comparator<World, String>() {

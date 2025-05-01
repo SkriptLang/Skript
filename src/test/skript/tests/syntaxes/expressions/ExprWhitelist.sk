@@ -1,12 +1,12 @@
 test "whitelist":
 	reset whitelist
-	add test-player to whitelist
-	assert test-player is whitelisted with "Failed to whitelist a player"
+	add test-offline-player to whitelist
+	assert test-offline-player is whitelisted with "Failed to whitelist a player"
 
-	remove test-player from whitelist
-	assert test-player is not whitelisted with "Failed to remove a player from whitelist"
+	remove test-offline-player from whitelist
+	assert test-offline-player is not whitelisted with "Failed to remove a player from whitelist"
 
-	add test-player to whitelist
+	add test-offline-player to whitelist
 	reset whitelist
 	assert whitelist is not set with "Failed to empty whitelist"
 

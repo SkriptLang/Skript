@@ -13,14 +13,14 @@ import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
 @NoDoc
-public class ExprTestPlayer extends SimpleExpression<OfflinePlayer> {
+public class ExprTestOfflinePlayer extends SimpleExpression<OfflinePlayer> {
 
 	private static final OfflinePlayer PLAYER = Bukkit.getOfflinePlayer("Notch");
 
 	static {
 		if (TestMode.ENABLED) {
-			Skript.registerExpression(ExprTestPlayer.class, OfflinePlayer.class, ExpressionType.SIMPLE,
-				"[the] test(-| )player");
+			Skript.registerExpression(ExprTestOfflinePlayer.class, OfflinePlayer.class, ExpressionType.SIMPLE,
+				"[the] test(-| )offline[-| ]player");
 		}
 	}
 
@@ -46,7 +46,7 @@ public class ExprTestPlayer extends SimpleExpression<OfflinePlayer> {
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return "the test player";
+		return "the test offline player";
 	}
 
 }
