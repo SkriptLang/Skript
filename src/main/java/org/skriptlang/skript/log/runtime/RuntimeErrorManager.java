@@ -138,15 +138,16 @@ public class RuntimeErrorManager implements Closeable {
 	 * Consumers will be maintained when the manager is refreshed.
 	 * @param newConsumers The {@link RuntimeErrorConsumer}s to add.
 	 */
-	public void addConsumers(RuntimeErrorConsumer ... newConsumers) {
+	public void addConsumers(RuntimeErrorConsumer... newConsumers) {
 		synchronized (consumers) {
-            consumers.addAll(Arrays.asList(newConsumers));
+			consumers.addAll(Arrays.asList(newConsumers));
 		}
 	}
 
 	/**
 	 * Removes a {@link RuntimeErrorConsumer} from the tracked list.
 	 * @param consumer The consumer to remove.
+	 * @return {@code true} If the {@code consumer} was removed.
 	 */
 	public boolean removeConsumer(RuntimeErrorConsumer consumer) {
 		synchronized (consumers) {

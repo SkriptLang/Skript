@@ -26,7 +26,7 @@ public class ExprCaughtErrors extends SimpleExpression<String> {
 
 	static {
 		Skript.registerExpression(ExprCaughtErrors.class, String.class, ExpressionType.SIMPLE,
-			"last caught [run[ ]time] errors");
+			"[the] last caught [run[ ]time] errors");
 	}
 
 	public static String[] lastErrors;

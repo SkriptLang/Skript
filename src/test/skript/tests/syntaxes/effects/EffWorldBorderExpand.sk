@@ -1,3 +1,5 @@
+using error catching
+
 test "worldborder expand":
 	set {_border} to worldborder of world("world")
 

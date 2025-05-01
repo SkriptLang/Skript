@@ -1,7 +1,7 @@
 package org.skriptlang.skript.log.runtime;
 
 import ch.njol.skript.log.SkriptLogger;
-import org.jetbrains.annotations.Unmodifiable;
+import org.jetbrains.annotations.UnmodifiableView;
 import org.skriptlang.skript.log.runtime.Frame.FrameOutput;
 
 import java.util.ArrayList;
@@ -64,14 +64,14 @@ public class RuntimeErrorCatcher implements RuntimeErrorConsumer {
 	/**
 	 * Gets all the cached {@link RuntimeError}s.
 	 */
-	public @Unmodifiable List<RuntimeError> getCachedErrors() {
+	public @UnmodifiableView List<RuntimeError> getCachedErrors() {
 		return Collections.unmodifiableList(cachedErrors);
 	}
 
 	/**
 	 * Gets all cached {@link FrameOutput}s stored with its corresponding {@link Level} in an {@link Entry}
 	 */
-	public @Unmodifiable List<Entry<FrameOutput, Level>> getCachedFrames() {
+	public @UnmodifiableView List<Entry<FrameOutput, Level>> getCachedFrames() {
 		return Collections.unmodifiableList(cachedFrames);
 	}
 
