@@ -2586,6 +2586,11 @@ equipment slots:
 	off_hand: off hand slot, off hand
 	body: body slot, body armor slot, body armour slot
 
+# -- Villager Career Change Reasons
+villager career change reasons:
+	employed: employment
+	losing_job: losing job
+
 # -- Boolean --
 boolean:
 	true:
@@ -2689,7 +2694,7 @@ types:
 	vehicle: vehicle¦s @a
 	fishingstate: fishing state¦s @a
 	equipmentslot: equipment slot¦s @an
-
+	villagercareerchangereason: villager career change reason¦s @a
 
 	# Skript
 	weathertype: weather type¦s @a
