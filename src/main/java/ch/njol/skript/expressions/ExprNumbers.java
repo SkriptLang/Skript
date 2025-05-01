@@ -1,14 +1,5 @@
 package ch.njol.skript.expressions;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
-import java.util.NoSuchElementException;
-
-import org.bukkit.event.Event;
-import org.jetbrains.annotations.Nullable;
-
 import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptConfig;
 import ch.njol.skript.doc.Description;
@@ -20,6 +11,10 @@ import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
+import org.bukkit.event.Event;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.*;
 
 /**
  * @author Peter Güttinger
@@ -171,6 +166,12 @@ public class ExprNumbers extends SimpleExpression<Number> {
 	@Override
 	public Class<? extends Number> getReturnType() {
 		return mode == 1 ? Long.class : Double.class;
+	}
+
+	@Override
+	public Expression<? extends Number> simplify() {
+		// intentionally not simplifying as it would cause more work to be done compared to using the original iterator.
+		return this;
 	}
 
 	@Override

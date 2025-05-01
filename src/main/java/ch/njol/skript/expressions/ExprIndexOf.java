@@ -1,5 +1,6 @@
 package ch.njol.skript.expressions;
 
+import ch.njol.skript.lang.Literal;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
@@ -13,6 +14,7 @@ import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
+import org.skriptlang.skript.lang.simplification.SimplifiedLiteral;
 
 /**
  * @author Peter Güttinger
@@ -62,7 +64,14 @@ public class ExprIndexOf extends SimpleExpression<Long> {
 	public Class<? extends Long> getReturnType() {
 		return Long.class;
 	}
-	
+
+	@Override
+	public Expression<? extends Long> simplify() {
+		if (haystack instanceof Literal<String> && needle instanceof Literal<String>)
+			return SimplifiedLiteral.fromExpression(this);
+		return this;
+	}
+
 	@Override
 	public String toString(final @Nullable Event e, final boolean debug) {
 		return "the " + (first ? "first" : "last") + " index of " + needle.toString(e, debug) + " in " + haystack.toString(e, debug);

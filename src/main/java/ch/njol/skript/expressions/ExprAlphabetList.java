@@ -1,10 +1,5 @@
 package ch.njol.skript.expressions;
 
-import java.util.Arrays;
-
-import org.bukkit.event.Event;
-import org.jetbrains.annotations.Nullable;
-
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
@@ -12,9 +7,15 @@ import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
+import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
+import org.bukkit.event.Event;
+import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.simplification.SimplifiedLiteral;
+
+import java.util.Arrays;
 
 @Name("Alphabetical Sort")
 @Description("Sorts given strings in alphabetical order.")
@@ -38,8 +39,8 @@ public class ExprAlphabetList extends SimpleExpression<String>{
 	
 	@Override
 	@Nullable
-	protected String[] get(Event e) {
-		String[] sorted = texts.getAll(e).clone(); // Not yet sorted
+	protected String[] get(Event event) {
+		String[] sorted = texts.getAll(event).clone(); // Not yet sorted
 		Arrays.sort(sorted); // Now sorted
 		return sorted;
 	}
@@ -55,8 +56,15 @@ public class ExprAlphabetList extends SimpleExpression<String>{
 	}
 
 	@Override
-	public String toString(@Nullable Event e, boolean debug) {
-		return "alphabetically sorted strings: " + texts.toString(e, debug);
+	public Expression<? extends String> simplify() {
+		if (texts instanceof Literal<String>)
+			return SimplifiedLiteral.fromExpression(this);
+		return this;
+	}
+
+	@Override
+	public String toString(@Nullable Event event, boolean debug) {
+		return "alphabetically sorted " + texts.toString(event, debug);
 	}
 	
 }

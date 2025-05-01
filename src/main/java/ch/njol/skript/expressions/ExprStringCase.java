@@ -1,5 +1,6 @@
 package ch.njol.skript.expressions;
 
+import ch.njol.skript.lang.Literal;
 import org.apache.commons.lang.WordUtils;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
@@ -14,6 +15,7 @@ import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
+import org.skriptlang.skript.lang.simplification.SimplifiedLiteral;
 
 @Name("Case Text")
 @Description("Copy of given text in Lowercase, Uppercase, Proper Case, camelCase, PascalCase, Snake_Case, and Kebab-Case")
@@ -132,6 +134,13 @@ public class ExprStringCase extends SimpleExpression<String> {
 	@Override
 	public Class<? extends String> getReturnType() {
 		return String.class;
+	}
+
+	@Override
+	public Expression<? extends String> simplify() {
+		if (expr instanceof Literal<String>)
+			return SimplifiedLiteral.fromExpression(this);
+		return this;
 	}
 
 	@Override

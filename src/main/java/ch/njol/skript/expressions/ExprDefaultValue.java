@@ -7,6 +7,7 @@ import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
+import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.lang.util.SimpleExpression;
 import org.skriptlang.skript.lang.converter.Converters;
@@ -15,6 +16,7 @@ import ch.njol.skript.util.Utils;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.simplification.SimplifiedLiteral;
 
 import java.lang.reflect.Array;
 
@@ -91,6 +93,14 @@ public class ExprDefaultValue<T> extends SimpleExpression<T> {
 	@Override
 	public boolean isSingle() {
 		return first.isSingle() && second.isSingle();
+	}
+
+	@Override
+	public Expression<? extends T> simplify() {
+		if (first instanceof Literal<Object> literal
+			&& (second instanceof Literal<Object> || literal.getAll().length > 0))
+			return SimplifiedLiteral.fromExpression(this);
+		return this;
 	}
 
 	@Override

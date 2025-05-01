@@ -39,7 +39,7 @@ public class SimpleLiteral<T> implements Literal<T>, DefaultExpression<T> {
 	protected transient T[] data;
 
 	public SimpleLiteral(T[] data, Class<T> type, boolean and) {
-		assert data != null && data.length != 0;
+		assert data != null;
 		assert type != null;
 		this.data = data;
 		this.type = type;

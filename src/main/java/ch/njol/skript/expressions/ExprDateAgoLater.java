@@ -7,6 +7,7 @@ import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
+import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.util.Date;
@@ -14,6 +15,7 @@ import ch.njol.skript.util.Timespan;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.simplification.SimplifiedLiteral;
 
 @Name("Date Ago/Later")
 @Description("A date the specified timespan before/after another date.")
@@ -66,7 +68,14 @@ public class ExprDateAgoLater extends SimpleExpression<Date> {
         return Date.class;
     }
 
-    @Override
+	@Override
+	public Expression<? extends Date> simplify() {
+		if (date instanceof Literal<Date> && timespan instanceof Literal<Timespan>)
+			return SimplifiedLiteral.fromExpression(this);
+		return this;
+	}
+
+	@Override
     public String toString(@Nullable Event e, boolean debug) {
         return timespan.toString(e, debug) + " " + (ago ? (date != null ? "before " + date.toString(e, debug) : "ago")
 			: (date != null ? "after " + date.toString(e, debug) : "later"));

@@ -5,7 +5,10 @@ import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
+import ch.njol.skript.lang.Expression;
+import ch.njol.skript.lang.Literal;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.simplification.SimplifiedLiteral;
 
 @Name("Character Codepoint")
 @Description("Returns the Unicode codepoint of a character")
@@ -46,6 +49,13 @@ public class ExprCodepoint extends SimplePropertyExpression<String, Integer> {
 	@Override
 	public Class<? extends Integer> getReturnType() {
 		return Integer.class;
+	}
+
+	@Override
+	public Expression<? extends Integer> simplify() {
+		if (getExpr() instanceof Literal<? extends String>)
+			return SimplifiedLiteral.fromExpression(this);
+		return this;
 	}
 
 	@Override

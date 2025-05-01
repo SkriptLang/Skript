@@ -1,23 +1,20 @@
 package ch.njol.skript.expressions;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
-import ch.njol.skript.doc.Keywords;
-import ch.njol.skript.doc.Name;
-import ch.njol.skript.doc.Since;
-import org.bukkit.event.Event;
-import org.jetbrains.annotations.Nullable;
-
 import ch.njol.skript.Skript;
+import ch.njol.skript.doc.*;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
+import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.lang.util.SimpleLiteral;
 import ch.njol.util.Kleenean;
+import org.bukkit.event.Event;
+import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.simplification.SimplifiedLiteral;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author Peter Güttinger
@@ -96,7 +93,16 @@ public class ExprSubstring extends SimpleExpression<String> {
 	public Class<? extends String> getReturnType() {
 		return String.class;
 	}
-	
+
+	@Override
+	public Expression<? extends String> simplify() {
+		if (string instanceof Literal<String>
+			&& (start == null || start instanceof Literal<Number>)
+			&& (end == null || end instanceof Literal<Number>))
+			return SimplifiedLiteral.fromExpression(this);
+		return this;
+	}
+
 	@Override
 	@SuppressWarnings("null")
 	public String toString(final @Nullable Event e, final boolean debug) {

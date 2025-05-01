@@ -5,6 +5,9 @@ import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
+import ch.njol.skript.lang.Expression;
+import ch.njol.skript.lang.Literal;
+import org.skriptlang.skript.lang.simplification.SimplifiedLiteral;
 
 /**
  * @author Peter Güttinger
@@ -28,7 +31,14 @@ public class ExprLength extends SimplePropertyExpression<String, Long> {
 	public Class<? extends Long> getReturnType() {
 		return Long.class;
 	}
-	
+
+	@Override
+	public Expression<? extends Long> simplify() {
+		if (getExpr() instanceof Literal<? extends String>)
+			return SimplifiedLiteral.fromExpression(this);
+		return this;
+	}
+
 	@Override
 	protected String getPropertyName() {
 		return "length";

@@ -120,7 +120,8 @@ public abstract class WrapperExpression<T> extends SimpleExpression<T> {
 	
 	@Override
 	public Expression<? extends T> simplify() {
-		return expr;
+		setExpr(expr.simplify());
+		return this;
 	}
 	
 	@Override

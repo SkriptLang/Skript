@@ -1,15 +1,13 @@
 package ch.njol.skript.expressions;
 
-import ch.njol.skript.doc.Description;
-import ch.njol.skript.doc.Examples;
-import ch.njol.skript.doc.Keywords;
-import ch.njol.skript.doc.Name;
-import ch.njol.skript.doc.Since;
+import ch.njol.skript.doc.*;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import ch.njol.skript.lang.Expression;
+import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.util.Color;
 import ch.njol.util.Kleenean;
+import org.skriptlang.skript.lang.simplification.SimplifiedLiteral;
 
 import java.util.Locale;
 import java.util.function.Function;
@@ -52,6 +50,13 @@ public class ExprARGB extends SimplePropertyExpression<Color, Integer> {
 	@Override
 	protected String getPropertyName() {
 		return color.name().toLowerCase(Locale.ENGLISH);
+	}
+
+	@Override
+	public Expression<? extends Integer> simplify() {
+		if (getExpr() instanceof Literal<? extends Color>)
+			return SimplifiedLiteral.fromExpression(this);
+		return this;
 	}
 
 	/**

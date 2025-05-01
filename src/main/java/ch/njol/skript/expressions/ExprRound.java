@@ -8,6 +8,7 @@ import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.PropertyExpression;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
+import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.SyntaxStringBuilder;
 import ch.njol.skript.util.Patterns;
@@ -15,6 +16,7 @@ import ch.njol.util.Kleenean;
 import ch.njol.util.Math2;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.simplification.SimplifiedLiteral;
 
 @Name("Rounding")
 @Description("Rounds numbers normally, up (ceiling) or down (floor) respectively.")
@@ -74,7 +76,14 @@ public class ExprRound extends PropertyExpression<Number, Long> {
 	public Class<? extends Long> getReturnType() {
 		return Long.class;
 	}
-	
+
+	@Override
+	public Expression<? extends Long> simplify() {
+		if (getExpr() instanceof Literal<? extends Number>)
+			return SimplifiedLiteral.fromExpression(this);
+		return this;
+	}
+
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
 		SyntaxStringBuilder builder = new SyntaxStringBuilder(event, debug);

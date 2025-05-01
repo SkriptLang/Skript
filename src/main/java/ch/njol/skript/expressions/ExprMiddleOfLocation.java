@@ -5,8 +5,11 @@ import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
+import ch.njol.skript.lang.Expression;
+import ch.njol.skript.lang.Literal;
 import org.bukkit.Location;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.simplification.SimplifiedLiteral;
 
 @Name("Middle of Location")
 @Description("Returns the middle/center of a location. In other words, returns the middle of the X, Z coordinates and the floor value of the Y coordinate of a location.")
@@ -33,7 +36,14 @@ public class ExprMiddleOfLocation extends SimplePropertyExpression<Location, Loc
 	public Class<? extends Location> getReturnType() {
 		return Location.class;
 	}
-	
+
+	@Override
+	public Expression<? extends Location> simplify() {
+		if (getExpr() instanceof Literal<? extends Location>)
+			return SimplifiedLiteral.fromExpression(this);
+		return this;
+	}
+
 	@Override
 	protected String getPropertyName() {
 		return "middle point";

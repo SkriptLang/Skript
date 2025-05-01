@@ -18,7 +18,6 @@ import org.skriptlang.skript.lang.converter.Converters;
 import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-import java.util.function.Predicate;
 
 /**
  * Represents a expression converted to another type. This, and not Expression, is the required return type of {@link SimpleExpression#getConvertedExpr(Class...)} because this
@@ -265,11 +264,8 @@ public class ConvertedExpression<F, T> implements Expression<T> {
 	}
 
 	@Override
-	@SuppressWarnings("unchecked")
 	public Expression<? extends T> simplify() {
-		Expression<? extends T> convertedExpression = source.simplify().getConvertedExpression(to);
-		if (convertedExpression != null)
-			return convertedExpression;
+		source = source.simplify();
 		return this;
 	}
 

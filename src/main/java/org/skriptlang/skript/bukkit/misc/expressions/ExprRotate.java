@@ -7,6 +7,7 @@ import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
+import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
@@ -20,6 +21,7 @@ import org.skriptlang.skript.bukkit.misc.rotation.NonMutatingQuaternionRotator;
 import org.skriptlang.skript.bukkit.misc.rotation.NonMutatingVectorRotator;
 import org.skriptlang.skript.bukkit.misc.rotation.Rotator;
 import org.skriptlang.skript.bukkit.misc.rotation.Rotator.Axis;
+import org.skriptlang.skript.lang.simplification.SimplifiedLiteral;
 
 import java.util.Locale;
 import java.util.Objects;
@@ -160,6 +162,27 @@ public class ExprRotate extends SimpleExpression<Object> {
 	@Override
 	public Class<?>[] possibleReturnTypes() {
 		return new Class<?>[]{Quaternionf.class, Vector.class};
+	}
+
+	@Override
+	public Expression<?> simplify() {
+		if (toRotate instanceof Literal<?>) {
+			switch (matchedPattern) {
+				case 0, 1 -> {
+					if (angle instanceof Literal<Number>)
+						return SimplifiedLiteral.fromExpression(this);
+				}
+				case 2 -> {
+					if (angle instanceof Literal<Number> && vector instanceof Literal<?>)
+						return SimplifiedLiteral.fromExpression(this);
+				}
+				case 3 -> {
+					if (x instanceof Literal<Number> && y instanceof Literal<Number> && z instanceof Literal<Number>)
+						return SimplifiedLiteral.fromExpression(this);
+				}
+			}
+		}
+		return this;
 	}
 
 	@Override

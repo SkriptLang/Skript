@@ -1,5 +1,6 @@
 package ch.njol.skript.expressions;
 
+import ch.njol.skript.lang.Literal;
 import org.bukkit.Location;
 import org.bukkit.event.Event;
 import org.bukkit.util.Vector;
@@ -16,6 +17,7 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
+import org.skriptlang.skript.lang.simplification.SimplifiedLiteral;
 
 @Name("Vectors - Vector Between Locations")
 @Description("Creates a vector between two locations.")
@@ -56,6 +58,13 @@ public class ExprVectorBetweenLocations extends SimpleExpression<Vector> {
 	@Override
 	public Class<? extends Vector> getReturnType() {
 		return Vector.class;
+	}
+
+	@Override
+	public Expression<? extends Vector> simplify() {
+		if (from instanceof Literal<Location> && to instanceof Literal<Location>)
+			return SimplifiedLiteral.fromExpression(this);
+		return this;
 	}
 
 	@Override

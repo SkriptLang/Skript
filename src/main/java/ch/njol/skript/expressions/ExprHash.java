@@ -1,12 +1,5 @@
 package ch.njol.skript.expressions;
 
-import java.nio.charset.Charset;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-
-import org.bukkit.event.Event;
-import org.jetbrains.annotations.Nullable;
-
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
@@ -15,8 +8,16 @@ import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.PropertyExpression;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
+import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
+import org.bukkit.event.Event;
+import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.lang.simplification.SimplifiedLiteral;
+
+import java.nio.charset.Charset;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 
 
 @Name("Hash")
@@ -103,15 +104,22 @@ public class ExprHash extends PropertyExpression<String, String> {
 		}
 		return new String(r);
 	}
-	
-	@Override
-	public String toString(final @Nullable Event e, final boolean debug) {
-		return "hash of " + getExpr();
-	}
-	
+
 	@Override
 	public Class<? extends String> getReturnType() {
 		return String.class;
+	}
+
+	@Override
+	public Expression<? extends String> simplify() {
+		if (getExpr() instanceof Literal<? extends String>)
+			return SimplifiedLiteral.fromExpression(this);
+		return this;
+	}
+
+	@Override
+	public String toString(@Nullable Event event, boolean debug) {
+		return "hash of " + getExpr().toString(event, debug);
 	}
 	
 }

@@ -1,5 +1,6 @@
 package ch.njol.skript.expressions;
 
+import ch.njol.skript.lang.Literal;
 import org.bukkit.Location;
 import org.bukkit.block.Biome;
 import org.bukkit.event.Event;
@@ -17,6 +18,7 @@ import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.util.Direction;
 import ch.njol.util.Kleenean;
+import org.skriptlang.skript.lang.simplification.SimplifiedLiteral;
 
 /**
  * @author Peter Güttinger
@@ -75,11 +77,17 @@ public class ExprBiome extends PropertyExpression<Location, Biome> {
 	}
 
 	@Override
+	public Expression<? extends Biome> simplify() {
+		if (getExpr() instanceof Literal<? extends Location>)
+			return SimplifiedLiteral.fromExpression(this);
+		return this;
+	}
+
+	@Override
 	public String toString(@Nullable Event event, boolean debug) {
 		return "the biome at " + getExpr().toString(event, debug);
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public boolean setTime(int time) {
 		super.setTime(time, getExpr());
