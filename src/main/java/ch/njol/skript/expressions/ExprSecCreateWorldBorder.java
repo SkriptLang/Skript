@@ -11,6 +11,7 @@ import ch.njol.skript.lang.*;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.registrations.EventValues;
 import ch.njol.skript.variables.Variables;
+import ch.njol.skript.doc.Example;
 import ch.njol.util.Kleenean;
 import org.bukkit.Bukkit;
 import org.bukkit.WorldBorder;
@@ -23,16 +24,25 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 @Name("Create WorldBorder")
-@Description("Create a virtual worldborder. You can make this a real border by setting a world's worldborder to a virtual border.")
-@Examples({
-	"set player's worldborder to a virtual worldborder",
-	"",
-	"on join:",
-		"\tset {_border} to a worldborder:",
-			"\t\tset worldborder radius to 25",
-			"\t\tset worldborder warning distance of event-worldborder to 5",
-		"\tset worldborder of player to {_border}"
+@Description({
+    "Creates a new, unused world border. World borders can be assigned to either worlds or specific players.",
+    "Borders assigned to worlds apply to all players in that world.",
+    "Borders assigned to players apply only to those players, and different players can have different borders."
 })
+@Example("""
+	on join:
+		set {_location} to location of player
+		set worldborder of player to a virtual worldborder:
+			set worldborder radius to 25
+			set world border center of event-worldborder to {_location}
+	""")
+@Example("""
+	on load:
+		set worldborder of world "world" to a worldborder:
+			set worldborder radius of event-worldborder to 200
+			set worldborder center of event-worldborder to location(0, 64, 0)
+			set worldborder warning distance of event-worldborder to 5
+	""")
 @Since("2.11")
 public class ExprSecCreateWorldBorder extends SectionExpression<WorldBorder> {
 
@@ -80,7 +90,7 @@ public class ExprSecCreateWorldBorder extends SectionExpression<WorldBorder> {
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return "a worldborder";
+		return "a virtual worldborder";
 	}
 
 	public static class CreateWorldborderEvent extends Event {
