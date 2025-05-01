@@ -1,13 +1,11 @@
 package ch.njol.skript.expressions.base;
 
-import ch.njol.skript.config.Node;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.util.LiteralUtils;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.log.runtime.SyntaxRuntimeErrorProducer;
 import org.skriptlang.skript.lang.converter.Converter;
 
 /**
@@ -16,9 +14,8 @@ import org.skriptlang.skript.lang.converter.Converter;
  * @see PropertyExpression
  * @see PropertyExpression#register(Class, Class, String, String)
  */
-public abstract class SimplePropertyExpression<F, T> extends PropertyExpression<F, T> implements Converter<F, T>, SyntaxRuntimeErrorProducer {
+public abstract class SimplePropertyExpression<F, T> extends PropertyExpression<F, T> implements Converter<F, T> {
 
-	private Node node;
 	protected String rawExpr;
   
 	@Override
@@ -29,7 +26,6 @@ public abstract class SimplePropertyExpression<F, T> extends PropertyExpression<
 			return LiteralUtils.canInitSafely(getExpr());
 		}
 		setExpr((Expression<? extends F>) expressions[0]);
-		node = getParser().getNode();
 		rawExpr = parseResult.expr;
 		return true;
 	}
@@ -41,11 +37,6 @@ public abstract class SimplePropertyExpression<F, T> extends PropertyExpression<
 	@Override
 	protected T[] get(Event event, F[] source) {
 		return super.get(source, this);
-	}
-
-	@Override
-	public Node getNode() {
-		return node;
 	}
 
 	/**
