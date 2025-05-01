@@ -24,7 +24,7 @@ import org.skriptlang.skript.bukkit.loottables.LootTableUtils;
 		"\tset loot table of block at event-location to \"minecraft:chests/simple_dungeon\"",
 		"\t# the chest will now generate the loot of a simple dungeon when opened, because it is indeed a lootable block.",
 
-	"set block at event-location to wool block",
+	"set block at event-location to white wool",
 	"if block at event-location is lootable:",
 		"\t# uh oh, nothing will happen because a wool is not a lootable block."
 })
