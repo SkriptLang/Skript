@@ -1,4 +1,4 @@
-package ch.njol.skript.expressions;
+package ch.njol.skript.sections;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.config.SectionNode;
@@ -7,8 +7,11 @@ import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SectionExpression;
-import ch.njol.skript.lang.*;
+import ch.njol.skript.lang.Expression;
+import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.skript.lang.Trigger;
+import ch.njol.skript.lang.TriggerItem;
 import ch.njol.skript.registrations.EventValues;
 import ch.njol.skript.variables.Variables;
 import ch.njol.skript.doc.Example;
@@ -51,12 +54,10 @@ public class ExprSecCreateWorldBorder extends SectionExpression<WorldBorder> {
 		EventValues.registerEventValue(CreateWorldborderEvent.class, WorldBorder.class, CreateWorldborderEvent::getWorldBorder);
 	}
 
-	private WorldBorder worldBorder;
 	private Trigger trigger = null;
 
 	@Override
-	public boolean init(Expression[] expressions, int pattern, Kleenean delayed, ParseResult result, @Nullable SectionNode node, @Nullable List list) {
-		worldBorder = Bukkit.createWorldBorder();
+	public boolean init(Expression<?>[] expressions, int pattern, Kleenean delayed, ParseResult result, @Nullable SectionNode node, @Nullable List<TriggerItem> triggerItems) {
 		if (node != null) {
 			AtomicBoolean isDelayed = new AtomicBoolean(false);
 			Runnable afterLoading = () -> isDelayed.set(!getParser().getHasDelayBefore().isFalse());
@@ -71,6 +72,7 @@ public class ExprSecCreateWorldBorder extends SectionExpression<WorldBorder> {
 
 	@Override
 	protected WorldBorder @Nullable [] get(Event event) {
+		WorldBorder worldBorder = Bukkit.createWorldBorder();
 		if (trigger == null) 
 			return new WorldBorder[] {worldBorder};
 		CreateWorldborderEvent worldborderEvent = new CreateWorldborderEvent(worldBorder);
