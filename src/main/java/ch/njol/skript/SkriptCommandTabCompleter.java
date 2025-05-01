@@ -2,7 +2,6 @@ package ch.njol.skript;
 
 import ch.njol.skript.doc.Documentation;
 import ch.njol.skript.test.runner.TestMode;
-import ch.njol.util.StringUtils;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
@@ -12,6 +11,7 @@ import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -34,52 +34,77 @@ public class SkriptCommandTabCompleter implements TabCompleter {
 			String scriptsPathString = scripts.toPath().toString();
 			int scriptsPathLength = scriptsPathString.length();
 
-			String scriptArg = StringUtils.join(args, " ", 1, args.length);
+			String lastArg = args[args.length - 1];
 			String fs = File.separator;
 
 			boolean enable = args[0].equalsIgnoreCase("enable");
 
 			// Live update, this will get all old and new (even not loaded) scripts
 			// TODO Find a better way for caching, it isn't exactly ideal to be calling this method constantly
-			try (Stream<Path> files = Files.walk(scripts.toPath())) {
-				files.map(Path::toFile)
-					.forEach(file -> {
-						if (!(enable ? ScriptLoader.getDisabledScriptsFilter() : ScriptLoader.getLoadedScriptsFilter()).accept(file))
-							return;
+			if (args.length == 2 || !args[1].matches("(?i)(all|scripts|aliases|config|lastReloaded)")) {
+				String[] filteredArgs = Arrays.copyOfRange(args, 1, args.length);
+				List<String> separatedArgs = SkriptCommand.parseAsCommaSeparatedList(true, false, filteredArgs);
+				String currentScript = !separatedArgs.isEmpty() ? separatedArgs.get(0) : "";
+				try (Stream<Path> files = Files.walk(scripts.toPath())) {
+					files.map(Path::toFile)
+						.forEach(file -> {
+							if (!(enable ? ScriptLoader.getDisabledScriptsFilter() : ScriptLoader.getLoadedScriptsFilter()).accept(file))
+								return;
 
-						// Ignore hidden files like .git/ for users that use git source control.
-						if (file.isHidden())
-							return;
+							// Ignore hidden files like .git/ for users that use git source control.
+							if (file.isHidden())
+								return;
 
-						String fileString = file.toString().substring(scriptsPathLength);
-						if (fileString.isEmpty())
-							return;
+							if (!enable && SkriptCommand.isScriptDisabled(file))
+								return;
 
-						if (file.isDirectory()) {
-							fileString = fileString + fs; // Add file separator at the end of directories
-						} else if (file.getParentFile().toPath().toString().equals(scriptsPathString)) {
-							fileString = fileString.substring(1); // Remove file separator from the beginning of files or directories in root only
+							String fileString = file.toString().substring(scriptsPathLength);
 							if (fileString.isEmpty())
 								return;
-						}
 
-						// Make sure the user's argument matches with the file's name or beginning of file path
-						if (scriptArg.length() > 0 && !file.getName().startsWith(scriptArg) && !fileString.startsWith(scriptArg))
-							return;
+							if (file.isDirectory()) {
+								fileString = fileString + fs; // Add file separator at the end of directories
+							} else if (file.getParentFile().toPath().toString().equals(scriptsPathString)) {
+								fileString = fileString.substring(1); // Remove file separator from the beginning of files or directories in root only
+								if (fileString.isEmpty())
+									return;
+							}
 
-						// Trim off previous arguments if needed
-						if (args.length > 2 && fileString.length() >= scriptArg.length())
-							fileString = fileString.substring(scriptArg.lastIndexOf(" ") + 1);
+							// Make sure the user's argument matches with the file's name or beginning of file path
+							if (!currentScript.isEmpty() && !file.getName().startsWith(currentScript) && !fileString.startsWith(currentScript))
+								return;
 
-						// Just in case
-						if (fileString.isEmpty())
-							return;
+							// Trim off previous arguments if needed
+							if (args.length > 2 && fileString.length() >= currentScript.length())
+								fileString = fileString.substring(currentScript.lastIndexOf(" ") + 1);
 
-						options.add(fileString);
-					});
-			} catch (Exception e) {
-				//noinspection ThrowableNotThrown
-				Skript.exception(e, "An error occurred while trying to update the list of disabled scripts!");
+							// Just in case
+							if (fileString.isEmpty())
+								return;
+
+							// Need to remove files that are already listed or included in a directory
+							if (args[0].matches("(?i)(reload|disable|test)") && args.length > 2 && !separatedArgs.isEmpty()) {
+								for (String current : separatedArgs) {
+									if (
+										(current.endsWith("\\") && fileString.contains(current))
+										|| fileString.equals(current)
+										|| (!current.endsWith(".sk") && fileString.equals(current + ".sk"))
+									) {
+										return;
+									}
+								}
+							}
+
+							fileString += ",";
+							options.add(fileString);
+						});
+					if (lastArg.isEmpty() && options.isEmpty()) {
+						options.add(",");
+					}
+				} catch (Exception e) {
+					//noinspection ThrowableNotThrown
+					Skript.exception(e, "An error occurred while trying to update the list of disabled scripts!");
+				}
 			}
 			
 			// These will be added even if there are incomplete script arg
@@ -89,6 +114,7 @@ public class SkriptCommandTabCompleter implements TabCompleter {
 					options.add("config");
 					options.add("aliases");
 					options.add("scripts");
+					options.add("lastReloaded");
 				}
 			}
 

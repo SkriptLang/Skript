@@ -1,12 +1,11 @@
 package ch.njol.skript.test.runner;
 
+import ch.njol.skript.test.utils.TestResults;
+import org.jetbrains.annotations.Nullable;
+
 import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-
-import org.jetbrains.annotations.Nullable;
-
-import ch.njol.skript.test.utils.TestResults;
 
 /**
  * Static utilities for Skript's 'test mode'.
@@ -61,6 +60,8 @@ public class TestMode {
 	 */
 	@Nullable
 	public static File lastTestFile;
+
+	public static File @Nullable [] lastTestFiles;
 
 	/**
 	 * If the docs failed due to templates or other exceptions. Only updates if TestMode.GEN_DOCS is set.
