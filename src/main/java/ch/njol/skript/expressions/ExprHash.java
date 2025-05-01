@@ -45,7 +45,7 @@ public class ExprHash extends PropertyExpression<String, String> {
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		//noinspection unchecked
 		setExpr((Expression<? extends String>) exprs[0]);
-		String algorithm = parseResult.tags.get(0).toUpperCase();
+		String algorithm = parseResult.tags.get(0).toUpperCase(Locale.ENGLISH);
 		try {
 			digest = MessageDigest.getInstance(algorithm);
 			if (algorithm.equals("MD5") && !getParser().getCurrentScript().suppressesWarning(ScriptWarning.DEPRECATED_SYNTAX)) {
