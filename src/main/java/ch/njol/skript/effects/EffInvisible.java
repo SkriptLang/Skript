@@ -9,6 +9,7 @@ import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
@@ -23,7 +24,7 @@ import org.jetbrains.annotations.Nullable;
 public class EffInvisible extends Effect {
 
 	static {
-		if (Skript.methodExists(LivingEntity.class, "isInvisible"))
+		if (Skript.methodExists(LivingEntity.class, "isInvisible") || Skript.methodExists(Entity.class, "isInvisible"))
 			Skript.registerEffect(EffInvisible.class,
 				"make %livingentities% (invisible|not visible)",
 				"make %livingentities% (visible|not invisible)");
