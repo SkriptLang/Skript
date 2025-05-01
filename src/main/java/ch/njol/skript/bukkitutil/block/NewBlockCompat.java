@@ -1,8 +1,6 @@
 package ch.njol.skript.bukkitutil.block;
 
 import ch.njol.skript.Skript;
-import ch.njol.skript.aliases.Aliases;
-import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.aliases.MatchQuality;
 import ch.njol.skript.bukkitutil.ItemUtils;
 import ch.njol.skript.variables.Variables;
@@ -119,7 +117,11 @@ public class NewBlockCompat implements BlockCompat {
 			if (data == null)
 				throw new StreamCorruptedException("'data' is missing.");
 
-			this.data = Bukkit.createBlockData(data);
+			try {
+				this.data = Bukkit.createBlockData(data);
+			} catch (IllegalArgumentException e) {
+				throw new StreamCorruptedException("Invalid block data: " + data);
+			}
 			this.type = this.data.getMaterial();
 			this.isDefault = isDefault;
 		}
