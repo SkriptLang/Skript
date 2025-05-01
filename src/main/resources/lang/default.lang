@@ -2629,7 +2629,7 @@ types:
 	worldborder: worldborder¦s @a
 	inventory: inventor¦y¦ies @an
 	player: player¦s @a
-	offlineplayer: offline player¦s @a
+	offlineplayer: offline player¦s @an
 	commandsender: command sender¦s @a
 	inventoryholder: inventory holder¦s @an
 	gamemode: gamemode¦s @a
@@ -2644,7 +2644,7 @@ types:
 	enchantment: enchantment¦s @an
 	damagecause: damage cause¦s @a
 	teleportcause: teleport cause¦s @a
-	inventoryaction: inventory action¦s @a
+	inventoryaction: inventory action¦s @an
 	clicktype: click type¦s @a
 	vector: vector¦s @a
 	inventorytype: inventory type¦s @an
@@ -2677,7 +2677,7 @@ types:
 	textalignment: text alignment¦s @a
 	itemdisplaytransform: item display transform¦s @an
 	minecrafttag: minecraft tag¦s @a
-	experiencecooldownchangereason: experience cooldown change reason¦s @a
+	experiencecooldownchangereason: experience cooldown change reason¦s @an
 	inputkey: input key¦s @an
 	villagertype: villager type¦s @a
 	villagerprofession: villager profession¦s @a
