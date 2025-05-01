@@ -22,7 +22,7 @@ import java.lang.reflect.Array;
 
 @Name("X of Item")
 @Description("An expression to be able to use a certain amount of items where the amount can be any expression. Please note that this expression is not stable and might be replaced in the future.")
-@Examples("give level of player of pickaxes to the player")
+@Examples("give level of player of iron pickaxes to the player")
 @Since("1.2")
 public class ExprXOf extends PropertyExpression<Object, Object> {
 
