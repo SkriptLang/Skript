@@ -12,7 +12,6 @@ import ch.njol.skript.classes.*;
 import ch.njol.skript.classes.registry.RegistryClassInfo;
 import ch.njol.skript.entity.EntityData;
 import ch.njol.skript.entity.PigData.PigVariantDummy;
-import ch.njol.skript.entity.WolfData.WolfVariantDummy;
 import ch.njol.skript.expressions.ExprDamageCause;
 import ch.njol.skript.expressions.base.EventValueExpression;
 import ch.njol.skript.lang.ParseContext;
@@ -50,8 +49,8 @@ import org.bukkit.event.player.PlayerExpCooldownChangeEvent.ChangeReason;
 import org.bukkit.event.player.PlayerQuitEvent.QuitReason;
 import org.bukkit.event.player.PlayerResourcePackStatusEvent.Status;
 import org.bukkit.event.player.PlayerTeleportEvent.TeleportCause;
-import org.bukkit.inventory.*;
 import org.bukkit.inventory.BlockInventoryHolder;
+import org.bukkit.inventory.*;
 import org.bukkit.metadata.Metadatable;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
@@ -1409,13 +1408,14 @@ public class BukkitClasses {
 				.description("Represents the cause of the action of a potion effect on an entity, e.g. arrow, command")
 				.since("2.10"));
 
-		ClassInfo<?> wolfVariantClassInfo = getRegsitryClassInfo(
+		ClassInfo<?> wolfVariantClassInfo = getRegistryClassInfo(
 			"org.bukkit.entity.Wolf$Variant",
 			"WOLF_VARIANT",
 			"wolfvariant",
-			"wolf variants",
-			WolfVariantDummy.class
+			"wolf variants"
 		);
+		if (wolfVariantClassInfo == null)
+			wolfVariantClassInfo = new ClassInfo<>(PigVariantDummy.class, "pigvariant");
 		Classes.registerClass(wolfVariantClassInfo
 			.user("wolf ?variants?")
 			.name("Wolf Variant")
@@ -1554,13 +1554,14 @@ public class BukkitClasses {
 			.since("2.11")
 		);
 
-		ClassInfo<?> pigVariantClassInfo = getRegsitryClassInfo(
+		ClassInfo<?> pigVariantClassInfo = getRegistryClassInfo(
 			"org.bukkit.entity.Pig$Variant",
 			"PIG_VARIANT",
 			"pigvariant",
-			"pig variants",
-			PigVariantDummy.class
+			"pig variants"
 		);
+		if (pigVariantClassInfo == null)
+			pigVariantClassInfo = new ClassInfo<>(PigVariantDummy.class, "pigvariant");
 		Classes.registerClass(pigVariantClassInfo
 			.user("pig ?variants?")
 			.name("Pig Variant")
@@ -1574,50 +1575,43 @@ public class BukkitClasses {
 
 	/**
 	 * Gets a {@link RegistryClassInfo} by checking if the {@link Class} from {@code classPath} exists
-	 * 		and {@link Registry} or {@link io.papermc.paper.registry.RegistryKey} contains {@code registryName}.
-	 * If the {@link Class} from {@code classPath} does not exist or neither {@link Registry} and {@link io.papermc.paper.registry.RegistryKey}
-	 * 		does not contain {@code registryName}. A filler {@link ClassInfo} will be created using {@code dummyClass}.
+	 * and {@link Registry} or {@link io.papermc.paper.registry.RegistryKey} contains {@code registryName}.
 	 * @param classPath The {@link String} representation of the desired {@link Class}.
 	 * @param registryName The {@link String} representation of the desired {@link Registry}.
 	 * @param codeName The name used in patterns.
 	 * @param languageNode The language node of the type.
-	 * @param dummyClass The {@link Class} to be used for a filler {@link ClassInfo}.
-	 * @return {@link RegistryClassInfo} or a filler {@link ClassInfo}.
+	 * @return {@link RegistryClassInfo} if the class and registry exists, otherwise {@code null}.
 	 */
-	private static <R extends Keyed> ClassInfo<?> getRegsitryClassInfo(
+	private static <R extends Keyed> @Nullable RegistryClassInfo<?> getRegistryClassInfo(
 		String classPath,
 		String registryName,
 		String codeName,
-		String languageNode,
-		Class<?> dummyClass
+		String languageNode
 	) {
-		if (Skript.classExists(classPath)) {
-            Class<R> registryClass;
-            try {
+		if (!Skript.classExists(classPath))
+			return null;
+		Registry<R> registry = null;
+		if (BukkitUtils.registryExists(registryName)) {
+			try {
+				//noinspection unchecked
+				registry = (Registry<R>) Registry.class.getField(registryName).get(null);
+			} catch (NoSuchFieldException | IllegalAccessException e) {
+				throw new RuntimeException(e);
+			}
+		} else if (PaperUtils.registryExists(registryName)) {
+			registry = PaperUtils.getBukkitRegistry(registryName);
+		}
+		if (registry != null) {
+			Class<R> registryClass;
+			try {
 				//noinspection unchecked
 				registryClass = (Class<R>) Class.forName(classPath);
-            } catch (ClassNotFoundException e) {
-                throw new RuntimeException(e);
-            }
-
-			Registry<R> registry = null;
-			if (BukkitUtils.registryExists(registryName)) {
-				try {
-					//noinspection unchecked
-					registry = (Registry<R>) Registry.class.getField(registryName).get(null);
-				} catch (NoSuchFieldException | IllegalAccessException e) {
-					throw new RuntimeException(e);
-				}
-			} else if (PaperUtils.registryExists(registryName)) {
-				registry = PaperUtils.getBukkitRegistry(registryName);
+			} catch (ClassNotFoundException e) {
+				throw new RuntimeException(e);
 			}
-			if (registry != null)
-				return new RegistryClassInfo<>(registryClass, registry, codeName, languageNode);
+			return new RegistryClassInfo<>(registryClass, registry, codeName, languageNode);
 		}
-		/*
-		 * Registers a dummy/placeholder class to ensure working operation on MC versions that do not have 'registryName'
-		 */
-		return new ClassInfo<>(dummyClass, codeName);
+		return null;
 	}
 
 }
