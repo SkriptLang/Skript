@@ -12,6 +12,7 @@ import ch.njol.skript.classes.*;
 import ch.njol.skript.classes.registry.RegistryClassInfo;
 import ch.njol.skript.entity.EntityData;
 import ch.njol.skript.entity.PigData.PigVariantDummy;
+import ch.njol.skript.entity.WolfData.WolfVariantDummy;
 import ch.njol.skript.expressions.ExprDamageCause;
 import ch.njol.skript.expressions.base.EventValueExpression;
 import ch.njol.skript.lang.ParseContext;
@@ -1415,7 +1416,7 @@ public class BukkitClasses {
 			"wolf variants"
 		);
 		if (wolfVariantClassInfo == null)
-			wolfVariantClassInfo = new ClassInfo<>(PigVariantDummy.class, "pigvariant");
+			wolfVariantClassInfo = new ClassInfo<>(WolfVariantDummy.class, "wolfvariant");
 		Classes.registerClass(wolfVariantClassInfo
 			.user("wolf ?variants?")
 			.name("Wolf Variant")
