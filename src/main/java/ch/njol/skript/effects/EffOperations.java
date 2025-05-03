@@ -92,7 +92,7 @@ public class EffOperations extends Effect implements SyntaxRuntimeErrorProducer 
 		leftAccepts = left.acceptChange(ChangeMode.SET);
 		// Ensure 'left' is changeable
 		if (leftAccepts == null) {
-			Skript.error("'" + left + "' cannot be set to anything and therefore cannot be " + getOperatorName() + ".");
+			Skript.error("'" + left + "' cannot be set to anything and therefore cannot be " + getOperatorVerb() + ".");
 			return false;
 		} else if (leftAccepts.length == 0) {
 			throw new IllegalStateException("An expression should never return an empty array for a ChangeMode of 'SET'");
@@ -107,41 +107,47 @@ public class EffOperations extends Effect implements SyntaxRuntimeErrorProducer 
 		Class<?> leftType = left.getReturnType();
 		Class<?> rightType = right.getReturnType();
 
-		if (leftType.isArray())
-			leftType = leftType.getComponentType();
-
 		if (leftType.equals(Object.class) && rightType.equals(Object.class)) {
 			// 'left' and 'right' return 'Object.class' thus making operation checks non-applicable
 			// However, we can check to make sure any of the registered operations return types are applicable
 			// 		for 'left's acceptedClasses
 			Class<?>[] allReturnTypes = Arithmetics.getAllReturnTypes(operator).toArray(Class[]::new);
 			if (!ChangerUtils.acceptsChangeTypes(leftAccepts, allReturnTypes)) {
-				Skript.error(left + " cannot be " + getOperatorName() + ".");
+				Skript.error(left.toString(null, Skript.debug()) + " cannot be " + getOperatorVerb() + ".");
 				return false;
 			}
 			return LiteralUtils.canInitSafely(right);
 		} else if (leftType.equals(Object.class) || rightType.equals(Object.class)) {
+			// Only one returns 'Object.class'
 			Class<?>[] returnTypes;
 			if (leftType.equals(Object.class)) {
+				// 'left' returns 'Object.class', so we get all operations where 'right' is assignable to the right side
+				// of the operations and store the return types
 				returnTypes = Arithmetics.getOperations(operator).stream()
 					.filter(info -> info.getRight().isAssignableFrom(rightType))
 					.map(OperationInfo::getReturnType)
 					.toArray(Class[]::new);
 			} else {
+				// 'right' returns 'Object.class', so we get all operations where 'left' is assignable to the left side
+				// of the operations and store the return types
 				returnTypes = Arithmetics.getOperations(operator, leftType).stream()
 					.map(OperationInfo::getReturnType)
 					.toArray(Class[]::new);
 			}
 
+			// No operations found, meaning nothing can be done
 			if (returnTypes.length == 0) {
 				noOperationError(left, leftType, rightType);
 				return false;
 			}
+			// Check if 'left' can be changed into at least one of the possible return types
 			if (!ChangerUtils.acceptsChangeTypes(leftAccepts, returnTypes)) {
 				genericParseError(left, rightType);
 				return false;
 			}
 		} else {
+			// Both 'left' and 'right' return an exact class type, so we check if the operation exists
+			// Then if 'left' accepts the return type of the operation
 			operationInfo = Arithmetics.lookupOperationInfo(operator, leftType, rightType, leftAccepts);
 			if (operationInfo == null || !ChangerUtils.acceptsChangeTypes(leftAccepts, operationInfo.getReturnType())) {
 				genericParseError(left, rightType);
@@ -154,8 +160,14 @@ public class EffOperations extends Effect implements SyntaxRuntimeErrorProducer 
 	@Override
 	protected void execute(Event event) {
 		Object rightObject = right.getSingle(event);
-		if (rightObject == null)
+		if (rightObject == null) {
+			error("Cannot operate with a null object.");
 			return;
+		}
+		if (left.isSingle() && left.getSingle(event) == null) {
+			error("Cannot operate on a null object.");
+			return;
+		}
 
 		Class<?> rightType = rightObject.getClass();
 
@@ -198,7 +210,7 @@ public class EffOperations extends Effect implements SyntaxRuntimeErrorProducer 
 	}
 
 	private void genericParseError(Expression<?> leftExpr, Class<?> rightType) {
-		Skript.error("'" + leftExpr + "' cannot be " + getOperatorName() + " by "
+		Skript.error("'" + leftExpr + "' cannot be " + getOperatorVerb() + " by "
 			+ Classes.getSuperClassInfo(rightType).getName().withIndefiniteArticle() + ".");
 	}
 
@@ -211,7 +223,7 @@ public class EffOperations extends Effect implements SyntaxRuntimeErrorProducer 
 		}
 	}
 
-	private String getOperatorName() {
+	private String getOperatorVerb() {
 		return switch (operator) {
 			case MULTIPLICATION -> "multiplied";
 			case DIVISION -> "divided";

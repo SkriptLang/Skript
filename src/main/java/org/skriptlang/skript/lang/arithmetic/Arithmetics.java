@@ -129,15 +129,27 @@ public final class Arithmetics {
 		return info != null ? info.getConverted(leftClass, rightClass, returnType) : null;
 	}
 
+	/**
+	 * Lookup an {@link OperationInfo} that uses the provided args {@code operator}, {@code leftClass} and {@code rightClass},
+	 * and is one of the {@code possibleReturnTypes}
+	 * @param operator The {@link Operator} to be used
+	 * @param leftClass The {@link Class} to be operated on
+	 * @param rightClass The {@link Class} to be operated with
+	 * @param possibleReturnTypes The accepted return type {@link Class}es
+	 */
 	public static <L, R> @Nullable OperationInfo<L, R, ?> lookupOperationInfo(
 		Operator operator,
 		Class<L> leftClass,
 		Class<R> rightClass,
-		Class<?> ... possibleReturnTypes
+		Class<?>... possibleReturnTypes
 	) {
 		OperationInfo<L, R, ?> info = lookupOperationInfo(operator, leftClass, rightClass);
 		if (info == null)
 			return null;
+		for (Class<?> returnType : possibleReturnTypes) {
+			if (info.getReturnType().equals(returnType))
+				return info;
+		}
 		for (Class<?> returnType : possibleReturnTypes) {
 			OperationInfo<L, R, ?> convertedInfo = info.getConverted(leftClass, rightClass, returnType);
 			if (convertedInfo != null)

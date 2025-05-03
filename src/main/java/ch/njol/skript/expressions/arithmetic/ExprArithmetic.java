@@ -310,6 +310,13 @@ public class ExprArithmetic<L, R, T> extends SimpleExpression<T> {
 		return false;
 	}
 
+	/**
+	 * Get an error message in format of "'operator' cant be performed on 'left' and 'right'".
+	 * @param operator The {@link Operator} that was attempted operate
+	 * @param left The left {@link Class} attempted to be operated on
+	 * @param right The right {@link Class} attempted to be operated with
+	 * @return The {@link String} error message
+	 */
 	public static @Nullable String getArithmeticErrorMessage(Operator operator, Class<?> left, Class<?> right) {
 		ClassInfo<?> first = Classes.getSuperClassInfo(left);
 		ClassInfo<?> second = Classes.getSuperClassInfo(right);
