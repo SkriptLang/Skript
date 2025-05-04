@@ -1,3 +1,0 @@
-test "1.17 playsound exception":
-	# would throw exception on <1.17
-	play sound "entity.experience_orb.pickup" with volume 1 at test-location

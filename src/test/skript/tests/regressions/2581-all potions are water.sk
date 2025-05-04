@@ -1,5 +1,4 @@
-test "potion aliases" when minecraft version is not "1.9.4":
-	# Disabled on 1.9 - see #2587
+test "potion aliases":
 	assert speed potion is not water bottle with "potion alias: speed"
 	assert strength potion is not water bottle with "potion alias: strength"
 	assert long strength potion is not water bottle with "potion alias: long strength"
