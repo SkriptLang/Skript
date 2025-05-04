@@ -26,18 +26,18 @@ public class ExprInverse extends SimpleExpression<Boolean> {
 		);
 	}
 
-	private Expression<Boolean> booleanExpr;
+	private Expression<Boolean> booleans;
 
 	@Override
 	@SuppressWarnings("unchecked")
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		booleanExpr = (Expression<Boolean>) exprs[0];
+		booleans = (Expression<Boolean>) exprs[0];
 		return true;
 	}
 	
 	@Override
 	protected Boolean @Nullable [] get(Event event) {
-		Boolean[] original = booleanExpr.getArray(event);
+		Boolean[] original = booleans.getArray(event);
 		Boolean[] toggled = new Boolean[original.length];
 		for (int i = 0; i < original.length; i++) {
 			toggled[i] = !original[i];
@@ -47,7 +47,7 @@ public class ExprInverse extends SimpleExpression<Boolean> {
 
 	@Override
 	public boolean isSingle() {
-		return booleanExpr.isSingle();
+		return booleans.isSingle();
 	}
 	
 	@Override
@@ -57,7 +57,7 @@ public class ExprInverse extends SimpleExpression<Boolean> {
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return "inverse of " + booleanExpr.toString(event, debug);
+		return "inverse of " + booleans.toString(event, debug);
 	}
 
 }
