@@ -71,6 +71,8 @@ public class ClassInfo<T> implements Debuggable {
 	@Nullable
 	private String documentationId = null;
 
+	private @Nullable String[] patterns = null;
+
 	/**
 	 * @param c The class
 	 * @param codeName The name used in patterns
@@ -277,6 +279,11 @@ public class ClassInfo<T> implements Debuggable {
 		return this;
 	}
 
+	public ClassInfo<T> patterns(String[] patterns) {
+		this.patterns = patterns;
+		return this;
+	}
+
 	// === GETTERS ===
 
 	public Class<T> getC() {
@@ -396,6 +403,10 @@ public class ClassInfo<T> implements Debuggable {
 	@Nullable
 	public String getDocumentationID() {
 		return documentationId;
+	}
+
+	public @Nullable String[] getPatterns() {
+		return patterns;
 	}
 
 	public boolean hasDocs() {

@@ -43,6 +43,7 @@ import org.skriptlang.skript.lang.experiment.ExperimentalSyntax;
 import org.skriptlang.skript.lang.script.Script;
 import org.skriptlang.skript.lang.script.ScriptWarning;
 
+import java.lang.reflect.Array;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -52,7 +53,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 import java.util.stream.Stream;
-import java.lang.reflect.Array;
 
 /**
  * Used for parsing my custom patterns.<br>
@@ -251,6 +251,19 @@ public class SkriptParser {
 
 							boolean success = element.init(parseResult.exprs, patternIndex, getParser().getHasDelayBefore(), parseResult);
 							if (success) {
+								for (Expression<?> expr : parseResult.exprs) {
+									if (!(expr instanceof UnparsedLiteral unparsedLiteral))
+										continue;
+									if (!Classes.patternHasMultipleInfos(unparsedLiteral.getData()))
+										continue;
+									String unparsedPattern = unparsedLiteral.getData();
+									List<ClassInfo<?>> patternInfos = Classes.getPatternInfos(unparsedPattern);
+									assert patternInfos != null;
+									String infoCodeName = patternInfos.get(0).getName().getSingular();
+									Skript.warning("'" +  unparsedPattern + "' has multiple types. Consider specifying which type to use: '"
+										+ unparsedPattern + " (" + infoCodeName + ")'");
+									break;
+								}
 								log.printLog();
 								return element;
 							}
@@ -629,6 +642,14 @@ public class SkriptParser {
 				}
 				log.clear();
 				LogEntry logError = log.getError();
+//				if (Classes.patternHasMultipleInfos(expr)) {
+//					List<ClassInfo<?>> patternInfos = Classes.getPatternInfos(expr);
+//					assert patternInfos != null;
+//					String infoCodeName = patternInfos.get(0).getName().getSingular();
+//					Skript.warning("'" + expr + "' has multiple types. Consider specifying which type to use: '"
+//						+ expr + " (" + infoCodeName + ")'");
+//					log.printLog();
+//				}
 				return new UnparsedLiteral(expr, logError != null && (error == null || logError.quality > error.quality) ? logError : error);
 			}
 			for (ClassInfo<?> classInfo : exprInfo.classes) {

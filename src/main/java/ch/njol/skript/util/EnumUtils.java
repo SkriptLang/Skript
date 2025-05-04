@@ -114,4 +114,8 @@ public final class EnumUtils<E extends Enum<E>> {
 		return StringUtils.join(parseMap.keySet(), ", ");
 	}
 
+	public String[] getNames() {
+		return names;
+	}
+
 }

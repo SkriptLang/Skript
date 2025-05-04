@@ -135,4 +135,8 @@ public class RegistryParser<R extends Keyed> extends Parser<R> {
 		return StringUtils.join(strings, ", ");
 	}
 
+	public String[] getNames() {
+		return names.values().toArray(String[]::new);
+	}
+
 }
