@@ -174,4 +174,28 @@ public abstract class TriggerItem implements Debuggable {
 		return next;
 	}
 
+	/**
+	 * Whether there has been a delay between the event being fired and this item being executed.
+	 * {@link TriggerItem}s without enclosing {@link Trigger}s will always return false.
+	 *
+	 * @see Trigger#isExecutionDelayed(Event)
+	 */
+	public boolean isExecutionDelayed(Event event) {
+		Trigger trigger = getTrigger();
+		if (trigger == null)
+			return false;
+		return trigger.isExecutionDelayed(event);
+	}
+
+	/**
+	 * Marks this trigger's execution for this specific event as delayed.
+	 *
+	 * @see Trigger#markExecutionAsDelayed(Event)
+	 */
+	public void markExecutionAsDelayed(Event event) {
+		Trigger trigger = getTrigger();
+		if (trigger != null)
+			trigger.markExecutionAsDelayed(event);
+	}
+
 }

@@ -63,16 +63,11 @@ public class EffIgnite extends Effect {
 			duration = (int) timespan.getAs(Timespan.TimePeriod.TICK);
 		}
 		for (Entity entity : entities.getArray(event)) {
-			if (event instanceof EntityDamageEvent && ((EntityDamageEvent) event).getEntity() == entity && !Delay.isDelayed(event)) {
-				Bukkit.getScheduler().scheduleSyncDelayedTask(Skript.getInstance(), new Runnable() {
-					@Override
-					public void run() {
-						entity.setFireTicks(duration);
-					}
-				});
+			if (event instanceof EntityDamageEvent entityDamageEvent && entityDamageEvent.getEntity() == entity && !isExecutionDelayed(event)) {
+				Bukkit.getScheduler().scheduleSyncDelayedTask(Skript.getInstance(), () -> entity.setFireTicks(duration));
 			} else {
-				if (event instanceof EntityCombustEvent && ((EntityCombustEvent) event).getEntity() == entity && !Delay.isDelayed(event))
-					((EntityCombustEvent) event).setCancelled(true);// can't change the duration, thus simply cancel the event (and create a new one)
+				if (event instanceof EntityCombustEvent entityCombustEvent && entityCombustEvent.getEntity() == entity && !isExecutionDelayed(event))
+					entityCombustEvent.setCancelled(true);// can't change the duration, thus simply cancel the event (and create a new one)
 				entity.setFireTicks(duration);
 			}
 		}

@@ -56,15 +56,26 @@ public class ScriptCommandEvent extends CommandEvent {
 		return cooldownCancelled;
 	}
 
+	/**
+	 * @deprecated Use {@link #setCooldownCancelled(boolean, boolean)} instead.
+	 */
+	@Deprecated(since = "INSERT VERSION", forRemoval = true)
 	public void setCooldownCancelled(boolean cooldownCancelled) {
-		if (Delay.isDelayed(this)) {
-			CommandSender sender = getSender();
-			if (sender instanceof Player) {
-				Date date = cooldownCancelled ? null : executionDate;
-				scriptCommand.setLastUsage(((Player) sender).getUniqueId(), this, date);
-			}
-		} else {
-			this.cooldownCancelled = cooldownCancelled;
+		//noinspection removal
+		setCooldownCancelled(cooldownCancelled, Delay.isDelayed(this));
+	}
+
+	/**
+	 * Sets whether the cooldown should be cancelled.
+	 *
+	 * @param cooldownCancelled Whether the cooldown should be cancelled.
+	 * @param delayed Whether this event is delayed. If true, the sender's cooldown will be retroactively set.
+	 */
+	public void setCooldownCancelled(boolean cooldownCancelled, boolean delayed) {
+		this.cooldownCancelled = cooldownCancelled;
+		if (delayed && getSender() instanceof Player player) {
+			Date date = cooldownCancelled ? null : executionDate;
+			scriptCommand.setLastUsage(player.getUniqueId(), this, date);
 		}
 	}
 
