@@ -22,7 +22,7 @@ public class EnumSerializer<T extends Enum<T>> extends Serializer<T> {
 	 * Enum serialization has been using String serialization since Skript (2.7)
 	 */
 	@Override
-	@Deprecated
+	@Deprecated(since = "2.3.0", forRemoval = true)
 	@Nullable
 	public T deserialize(String s) {
 		try {

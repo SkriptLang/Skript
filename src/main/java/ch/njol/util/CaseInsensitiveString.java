@@ -1,16 +1,13 @@
 package ch.njol.util;
 
-import org.jetbrains.annotations.ApiStatus;
-
+import javax.annotation.Nullable;
 import java.io.Serializable;
 import java.util.Locale;
 
-import javax.annotation.Nullable;
-
 /**
- * @deprecated use {@link java.lang.String#equalsIgnoreCase(String)}
+ * @deprecated use {@link java.lang.String#equalsIgnoreCase(String)} instead.
  */
-@Deprecated(forRemoval = true)
+@Deprecated(since = "2.10.0", forRemoval = true)
 public class CaseInsensitiveString implements Serializable, Comparable<CharSequence>, CharSequence {
 
 	private static final long serialVersionUID = 1205018864604639962L;

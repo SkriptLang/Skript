@@ -195,9 +195,9 @@ public abstract class Utils {
 	 *                    as well. Use an empty array to load all subpackages of the base package.
 	 * @return This SkriptAddon
 	 * @throws IOException If some error occurred attempting to read the plugin's jar file.
-	 * @deprecated Use {@link org.skriptlang.skript.util.ClassLoader}.
+	 * @deprecated Use {@link org.skriptlang.skript.util.ClassLoader} instead.
 	 */
-	@Deprecated
+	@Deprecated(since = "2.10.0", forRemoval = true)
 	public static Class<?>[] getClasses(Plugin plugin, String basePackage, String... subPackages) throws IOException {
 		List<Class<?>> classes = new ArrayList<>();
 		org.skriptlang.skript.util.ClassLoader loader = org.skriptlang.skript.util.ClassLoader.builder()
