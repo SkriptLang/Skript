@@ -96,7 +96,7 @@ public class EffToggle extends Effect {
 			!Changer.ChangerUtils.acceptsChange(togglables, Changer.ChangeMode.SET, Boolean.class)) {
 			Skript.error("Cannot toggle '" + togglables + "' as it cannot be set to booleans.");
 			return false;
-		} else if (type == Type.MIXED && !Changer.ChangerUtils.acceptsChange(togglables, Changer.ChangeMode.SET, Object.class)) {
+		} else if (type == Type.MIXED && !Changer.ChangerUtils.acceptsChange(togglables, Changer.ChangeMode.SET, Block.class, Boolean.class)) {
 			Skript.error("Cannot toggle '" + togglables + "' as it cannot be set to both blocks and booleans.");
 			return false;
 		}
