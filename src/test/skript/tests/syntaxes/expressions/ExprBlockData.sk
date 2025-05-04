@@ -1,14 +1,43 @@
-test "block data":
+test "block data" when running minecraft "1.14.4":
+
 	set {_b} to block at test-location
 	set block at {_b} to campfire[lit=false;waterlogged=true]
 	assert block at {_b} is campfire[lit=false] with "block at spawn should be an unlit campfire"
 
-	assert block at {_b} = campfire[lit=false;waterlogged=true] with "block should have been an unlit, waterlogged campfire"
-	assert block at {_b} = campfire[waterlogged=true] with "block should have been a waterlogged campfire"
-	assert block at {_b} = campfire[] with "block should have been a campfire"
-	assert block at {_b} != campfire[lit=true;waterlogged=false] with "block should not have been an unlit, waterlogged campfire"
+	# === SETUP ===
 
-	set {_data} to block data of block at {_b}
-	assert "%{_data}%" contains "campfire", "lit=false" and "waterlogged=true" with "block data for campfire did not match"
+	set {_block} to block at (spawn of world "world")
+	set {_before} to block data of block at {_block}
 
-	set block at {_b} to air
+	# === BLOCK DATA | BLOCKS ===
+
+	set block at {_block} to campfire[lit=false;waterlogged=true]
+	assert block at {_block} is an unlit campfire with "block at {_block} should have been an unlit campfire"
+	assert block at {_block} is campfire[lit=false;waterlogged=true] with "block at {_block} should have been an unlit, waterlogged campfire"
+	assert block at {_block} is campfire[waterlogged=true] with "block at {_block} should have been a waterlogged campfire"
+	assert block at {_block} is campfire[] with "block at {_block} should have been a campfire"
+	assert block at {_block} is not campfire[lit=true;waterlogged=false] with "block at {_block} should not have been a lit, unwaterlogged campfire"
+
+	# === BLOCK DATA | ITEMS ===
+
+	set {_campfire} to block data of campfire
+	set {_log} to block data of oak log
+	assert {_campfire} is campfire[facing=north;lit=true;signal_fire=false;waterlogged=false] with "block data of campfire should compare properly"
+	assert {_campfire} is campfire[lit=true;waterlogged=false] with "block data of campfire should compare properly"
+	assert {_campfire} is campfire[] with "block data of campfire should compare properly"
+	assert {_log} is oak_log[axis=y] with "block data of oak log should compare properly"
+	assert {_log} is oak_log[] with "block data of oak log should compare properly"
+
+	loop all wool:
+		add loop-value to {_wools::*}
+	set {_datas::*} to block data of all wool
+	assert (size of {_wools::*}) is (size of {_datas::*}) with "getting the block data of an 'all' itemtype should return the block data of all the items"
+
+	# === BLOCK DATA | INVALID ===
+
+	set {_text} to "asdf"
+	assert block data of {_text} and {_none} is not set with "getting the block data of an invalid object should return null"
+
+	# === CLEANUP ===
+
+	set block at {_block} to {_before}
