@@ -1415,8 +1415,10 @@ public class BukkitClasses {
 			"wolfvariant",
 			"wolf variants"
 		);
-		if (wolfVariantClassInfo == null)
+		if (wolfVariantClassInfo == null) {
+			// Registers a dummy/placeholder class to ensure working operation on MC versions that do not have 'Wolf.Variant' (1.20.4-)
 			wolfVariantClassInfo = new ClassInfo<>(WolfVariantDummy.class, "wolfvariant");
+		}
 		Classes.registerClass(wolfVariantClassInfo
 			.user("wolf ?variants?")
 			.name("Wolf Variant")
@@ -1561,8 +1563,10 @@ public class BukkitClasses {
 			"pigvariant",
 			"pig variants"
 		);
-		if (pigVariantClassInfo == null)
+		if (pigVariantClassInfo == null) {
+			// Registers a dummy/placeholder class to ensure working operation on MC versions that do not have 'Pig.Variant' (1.21.4-)
 			pigVariantClassInfo = new ClassInfo<>(PigVariantDummy.class, "pigvariant");
+		}
 		Classes.registerClass(pigVariantClassInfo
 			.user("pig ?variants?")
 			.name("Pig Variant")
@@ -1608,10 +1612,12 @@ public class BukkitClasses {
 				//noinspection unchecked
 				registryClass = (Class<R>) Class.forName(classPath);
 			} catch (ClassNotFoundException e) {
+				Skript.debug("Could not retrieve the class with the path: '" + classPath + "'.");
 				throw new RuntimeException(e);
 			}
 			return new RegistryClassInfo<>(registryClass, registry, codeName, languageNode);
 		}
+		Skript.debug("There were no registries found for '" + registryName + "'.");
 		return null;
 	}
 
