@@ -251,7 +251,7 @@ public abstract class Classes {
 	/**
 	 * Get a {@link Map} containing the patterns that are referenced to multiple {@link ClassInfo}s.
 	 */
-	public static Map<String, List<ClassInfo<?>>> getAllMultiplePatternEntries() {
+	public static Map<String, List<ClassInfo<?>>> getAllMultiplePatterns() {
 		Map<String, List<ClassInfo<?>>> filtered = new HashMap<>();
 		registeredPatterns.forEach(((string, list) -> {
 			if (list.size() > 1)
