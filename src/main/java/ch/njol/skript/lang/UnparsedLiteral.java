@@ -26,6 +26,8 @@ public class UnparsedLiteral implements Literal<Object> {
 
 	private final String data;
 	private final @Nullable LogEntry error;
+	private boolean reparsed = false;
+	private boolean converted = false;
 
 	/**
 	 * @param data non-null, non-empty & trimmed string
@@ -70,6 +72,8 @@ public class UnparsedLiteral implements Literal<Object> {
 				assert type != null;
 				R parsedObject = Classes.parse(data, type, context);
 				if (parsedObject != null) {
+					if (!type.equals(Object.class))
+						converted = true;
 					log.printLog();
 					return new SimpleLiteral<>(parsedObject, false, this);
 				}
@@ -199,6 +203,32 @@ public class UnparsedLiteral implements Literal<Object> {
 	@Override
 	public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		throw invalidAccessException();
+	}
+
+	public <T> @Nullable SimpleLiteral<T> reparse(Class<T> type) {
+		T typedObject = Classes.parse(data, type, ParseContext.DEFAULT);
+		if (typedObject != null) {
+			if (!type.equals(Object.class))
+				reparsed = true;
+			return new SimpleLiteral<T>(typedObject, false, new UnparsedLiteral(data));
+		}
+		return null;
+	}
+
+	/**
+	 * Check if this {@link UnparsedLiteral} was successfully reparsed via {@link #reparse(Class)}.
+	 * @return {@code True} if successfully reparsed.
+	 */
+	public boolean wasReparsed() {
+		return reparsed;
+	}
+
+	/**
+	 * Check if this {@link UnparsedLiteral} was successfully converted via {@link #getConvertedExpression(ParseContext, Class[])}.
+	 * @return {@code True} if successfully converted.
+	 */
+	public boolean wasConverted() {
+		return converted;
 	}
 
 }

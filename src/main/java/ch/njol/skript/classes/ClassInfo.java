@@ -279,6 +279,11 @@ public class ClassInfo<T> implements Debuggable {
 		return this;
 	}
 
+	/**
+	 * Sets the literal patterns of this {@link ClassInfo}
+	 * @param patterns The literal patterns
+	 * @return This {@link ClassInfo} object
+	 */
 	public ClassInfo<T> patterns(String[] patterns) {
 		this.patterns = patterns;
 		return this;
@@ -405,6 +410,10 @@ public class ClassInfo<T> implements Debuggable {
 		return documentationId;
 	}
 
+	/**
+	 * Gets all the literal patterns used for this {@link ClassInfo}.
+	 * @return The literal patterns, or {@code null}.
+	 */
 	public @Nullable String[] getPatterns() {
 		return patterns;
 	}

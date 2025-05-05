@@ -135,6 +135,9 @@ public class RegistryParser<R extends Keyed> extends Parser<R> {
 		return StringUtils.join(strings, ", ");
 	}
 
+	/**
+	 * Gets all literal patterns used for this {@link RegistryParser}
+	 */
 	public String[] getNames() {
 		return names.values().toArray(String[]::new);
 	}
