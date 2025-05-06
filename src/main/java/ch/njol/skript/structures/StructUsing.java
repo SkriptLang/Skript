@@ -58,7 +58,7 @@ public class StructUsing extends Structure {
 			if (name.isEmpty() || (name.trim()).isEmpty())
 				continue;
 			Experiment experiment = Skript.experiments().find(name.trim());
-			experiments.add(experiment)
+			experiments.add(experiment);
 			switch (experiment.phase()) {
 				case MAINSTREAM ->
 					Skript.warning("The experimental feature '" + name + "' is now included by default and is no longer required.");
