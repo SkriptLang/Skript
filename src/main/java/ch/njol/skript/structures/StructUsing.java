@@ -7,12 +7,18 @@ import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.skript.lang.parser.ParserInstance;
+import ch.njol.util.StringUtils;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.entry.EntryContainer;
 import org.skriptlang.skript.lang.experiment.Experiment;
 import org.skriptlang.skript.lang.structure.Structure;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 @Name("Using Experimental Feature")
 @Description({
@@ -22,18 +28,20 @@ import org.skriptlang.skript.lang.structure.Structure;
 })
 @Examples({
 	"using 1.21",
-	"using the experiment my-cool-addon-feature"
+	"using the experiment my-cool-addon-feature",
+	"using feature_1, feature_2"
 })
-@Since("2.9.0")
+@Since("2.9.0, INSERT VERSION (multiple in one)")
 public class StructUsing extends Structure {
 
 	public static final Priority PRIORITY = new Priority(15);
 
 	static {
-		Skript.registerSimpleStructure(StructUsing.class, "using [[the] experiment] <.+>");
+		Skript.registerSimpleStructure(StructUsing.class, "using [[the] experiment[s]] <.+>");
 	}
 
-	private Experiment experiment;
+	private Experiment[] experiments;
+	private String experimentCodeNames;
 
 	@Override
 	public boolean init(Literal<?> @NotNull [] arguments, int pattern, ParseResult result, @Nullable EntryContainer container) {
@@ -41,19 +49,28 @@ public class StructUsing extends Structure {
 		return true;
 	}
 
-	private void enableExperiment(String name) {
-		this.experiment = Skript.experiments().find(name.trim());
-		switch (experiment.phase()) {
-			case MAINSTREAM:
-				Skript.warning("The experimental feature '" + name + "' is now included by default and is no longer required.");
-				break;
-			case DEPRECATED:
-				Skript.warning("The experimental feature '" + name + "' is deprecated and may be removed in future versions.");
-				break;
-			case UNKNOWN:
-				Skript.warning("The experimental feature '" + name + "' was not found.");
+	private void enableExperiment(String pattern) {
+		String[] names = pattern.split(",");
+		List<Experiment> experiments =  new ArrayList<>();
+		ParserInstance parser = getParser();
+		for (int i = 0; i < names.length; i++) {
+			String name = names[i];
+			if (name.isEmpty() || (name.trim()).isEmpty())
+				continue;
+			Experiment experiment = Skript.experiments().find(name.trim());
+			experiments.add(experiment)
+			switch (experiment.phase()) {
+				case MAINSTREAM ->
+					Skript.warning("The experimental feature '" + name + "' is now included by default and is no longer required.");
+				case DEPRECATED ->
+					Skript.warning("The experimental feature '" + name + "' is deprecated and may be removed in future versions.");
+				case UNKNOWN ->
+					Skript.warning("The experimental feature '" + name + "' was not found.");
+			}
+			parser.addExperiment(experiment);
 		}
-		this.getParser().addExperiment(experiment);
+		this.experiments = experiments.toArray(Experiment[]::new);
+		experimentCodeNames = StringUtils.join(Arrays.stream(this.experiments).map(Experiment::codeName).toArray(), ", ");
 	}
 
 	@Override
@@ -68,7 +85,7 @@ public class StructUsing extends Structure {
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return "using " + experiment.codeName();
+		return "using " + experimentCodeNames;
 	}
 
 }
