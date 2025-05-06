@@ -51,7 +51,7 @@ public class StructUsing extends Structure {
 
 	private void enableExperiment(String pattern) {
 		String[] names = pattern.split(",");
-		List<Experiment> experiments =  new ArrayList<>();
+		List<Experiment> experiments = new ArrayList<>();
 		ParserInstance parser = getParser();
 		for (String name : names) {
 			String trimmed = name.trim();
