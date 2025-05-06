@@ -3,10 +3,7 @@ package org.skriptlang.skript.test.tests.syntaxes.events;
 import ch.njol.skript.test.runner.SkriptJUnitTest;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
-import org.bukkit.entity.Cod;
-import org.bukkit.entity.Fish;
-import org.bukkit.entity.Player;
-import org.bukkit.entity.Salmon;
+import org.bukkit.entity.*;
 import org.bukkit.event.player.PlayerBucketEntityEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
@@ -26,8 +23,8 @@ public class EvtBucketEntityTest extends SkriptJUnitTest {
 
 	@Before
 	public void setup() {
-		salmon = getTestLocation().getWorld().spawn(getTestLocation(), Salmon.class);
-		cod = getTestLocation().getWorld().spawn(getTestLocation(), Cod.class);
+		salmon = spawnTestEntity(EntityType.SALMON);
+		cod = spawnTestEntity(EntityType.COD);
 	}
 
 	@Test

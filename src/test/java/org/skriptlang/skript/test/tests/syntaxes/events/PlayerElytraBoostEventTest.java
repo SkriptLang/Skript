@@ -30,37 +30,30 @@ public class PlayerElytraBoostEventTest extends SkriptJUnitTest {
 			entityType = EntityType.valueOf("FIREWORK_ROCKET");
 		}
 		assert entityType != null;
-		firework = (Firework) getTestWorld().spawnEntity(getTestLocation(), entityType);
+		firework = spawnTestEntity(entityType);
 		firework.setTicksToDetonate(9999999);
 	}
 
 	@Test
 	public void test() {
+		ItemStack rocket = new ItemStack(Material.FIREWORK_ROCKET);
 		Constructor<?> constructor = null;
-		boolean newerConstructor = false;
+		Event event = null;
 		try {
-			constructor = PlayerElytraBoostEvent.class.getConstructor(Player.class, ItemStack.class, Firework.class, EquipmentSlot.class);
-			newerConstructor = true;
-		} catch (Exception ignored) {
-			try {
-				constructor = PlayerElytraBoostEvent.class.getConstructor(Player.class, ItemStack.class, Firework.class);
-			} catch (NoSuchMethodException e) {
-				throw new IllegalStateException("No valid constructor for 'PlayerElytraBoostEvent'");
+			constructor = PlayerElytraBoostEvent.class.getDeclaredConstructor(Player.class, ItemStack.class, Firework.class, EquipmentSlot.class);
+			event = (Event) constructor.newInstance(player, rocket, firework, EquipmentSlot.HAND);
+		} catch (Exception ignored) {}
+		if (constructor == null) {
+            try {
+                constructor = PlayerElytraBoostEvent.class.getConstructor(Player.class, ItemStack.class, Firework.class);
+				event = (Event) constructor.newInstance(player, rocket, firework);
+			} catch (Exception e) {
+				throw new RuntimeException("No valid constructor for 'PlayerElytraBoostEvent'");
 			}
 		}
+		assert event != null;
 
-		try {
-			Event event;
-			if (newerConstructor) {
-				event = (Event) constructor.newInstance(player, new ItemStack(Material.FIREWORK_ROCKET), firework, EquipmentSlot.HAND);
-			} else {
-				event = (Event) constructor.newInstance(player, new ItemStack(Material.FIREWORK_ROCKET), firework);
-			}
-
-			Bukkit.getPluginManager().callEvent(event);
-		} catch (Exception e) {
-			throw new RuntimeException("Unable to construct event.");
-		}
+		Bukkit.getPluginManager().callEvent(event);
 	}
 
 	@After
