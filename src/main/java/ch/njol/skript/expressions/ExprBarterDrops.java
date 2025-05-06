@@ -24,8 +24,8 @@ import java.util.List;
 @Description("The items dropped by the piglin in a piglin bartering event.")
 @Examples({
 	"on piglin barter:",
-		"\tif the bartering drops contain a jack-o-lantern:",
-			"\t\tremove jack-o-lantern from bartering output",
+		"\tif the bartering drops contain a jack o lantern:",
+			"\t\tremove jack o lantern from bartering output",
 			"\t\tbroadcast \"it's not halloween yet!\""
 })
 @Since("2.10")
