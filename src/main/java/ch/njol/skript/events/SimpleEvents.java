@@ -41,7 +41,7 @@ public class SimpleEvents {
 		Skript.registerEvent("Block Damage", SimpleEvent.class, BlockDamageEvent.class, "block damag(ing|e)")
 				.description("Called when a player starts to break a block. You can usually just use the leftclick event for this.")
 				.examples("on block damaging:",
-						"\tif block is log:",
+						"\tif block is tagged with minecraft tag \"logs\":",
 						"\t\tsend \"You can't break the holy log!\"")
 				.since("1.0");
 		Skript.registerEvent("Flow", SimpleEvent.class, BlockFromToEvent.class, "[block] flow[ing]", "block mov(e|ing)")
@@ -771,6 +771,20 @@ public class SimpleEvents {
 						"\tbroadcast \"The center of %event-worldborder% has moved from %past event-location% to %event-location%\""
 				)
 				.since("2.11");
+		}
+
+		if (Skript.classExists("org.bukkit.event.block.VaultDisplayItemEvent")) {
+			Skript.registerEvent("Vault Display Item", SimpleEvent.class, VaultDisplayItemEvent.class,
+					"vault display[ing] item")
+				.description("Called when a vault in a trial chamber is about to display an item.")
+				.examples(
+					"""
+					on vault display item:
+						set event-item to a netherite ingot	
+					"""
+				)
+				.since("INSERT VERSION")
+				.requiredPlugins("Minecraft 1.21.1+");
 		}
 	}
 
