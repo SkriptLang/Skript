@@ -53,11 +53,11 @@ public class StructUsing extends Structure {
 		String[] names = pattern.split(",");
 		List<Experiment> experiments =  new ArrayList<>();
 		ParserInstance parser = getParser();
-		for (int i = 0; i < names.length; i++) {
-			String name = names[i];
-			if (name.isEmpty() || (name.trim()).isEmpty())
+		for (String name : names) {
+			String trimmed = name.trim();
+			if (trimmed.isEmpty())
 				continue;
-			Experiment experiment = Skript.experiments().find(name.trim());
+			Experiment experiment = Skript.experiments().find(trimmed);
 			experiments.add(experiment);
 			switch (experiment.phase()) {
 				case MAINSTREAM ->
