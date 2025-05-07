@@ -1,0 +1,4 @@
+test "invalid nested list throws exception":
+	parse:
+		set {_x} to any of (1, (1, (1, (abc))))
+	assert last parse logs contain "Can't understand this expression: 'any of (1, (1, (1, (abc))))'"
