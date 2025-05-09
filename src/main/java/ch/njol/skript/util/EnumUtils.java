@@ -11,10 +11,9 @@ import java.util.HashMap;
 import java.util.Locale;
 
 /**
- * A language utility class to be used for easily handling language values representing an Enum.
- * @param <E> Generic representing the Enum.
- * @see ch.njol.skript.classes.EnumClassInfo
+ * @deprecated Use {@link ch.njol.skript.classes.EnumParser} instead.
  */
+@Deprecated(since = "INSERT VERSION", forRemoval = true)
 public final class EnumUtils<E extends Enum<E>> {
 
 	private final Class<E> enumClass;

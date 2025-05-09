@@ -1,7 +1,7 @@
 package ch.njol.skript;
 
+import ch.njol.skript.classes.EnumParser;
 import ch.njol.skript.config.Config;
-import ch.njol.skript.config.EnumParser;
 import ch.njol.skript.config.Option;
 import ch.njol.skript.config.OptionSection;
 import ch.njol.skript.hooks.Hook;
@@ -167,7 +167,7 @@ public class SkriptConfig {
 		}
 	}
 
-	public static final Option<Verbosity> verbosity = new Option<>("verbosity", Verbosity.NORMAL, new EnumParser<>(Verbosity.class, "verbosity"))
+	public static final Option<Verbosity> verbosity = new Option<>("verbosity", Verbosity.NORMAL, new EnumParser<>(Verbosity.class, "verbosity", false))
 			.setter(SkriptLogger::setVerbosity);
 
 	public static final Option<EventPriority> defaultEventPriority = new Option<>("plugin priority", EventPriority.NORMAL, s -> {

@@ -254,17 +254,8 @@ public class SkriptParser {
 								for (Expression<?> expr : parseResult.exprs) {
 									if (!(expr instanceof UnparsedLiteral unparsedLiteral))
 										continue;
-									if (unparsedLiteral.wasReparsed() || unparsedLiteral.wasConverted())
-										continue;
-									if (!Classes.patternHasMultipleInfos(unparsedLiteral.getData()))
-										continue;
-									String unparsedPattern = unparsedLiteral.getData();
-									List<ClassInfo<?>> patternInfos = Classes.getPatternInfos(unparsedPattern);
-									assert patternInfos != null;
-									String infoCodeName = patternInfos.get(0).getName().getSingular();
-									Skript.warning("'" +  unparsedPattern + "' has multiple types. Consider specifying which type to use: '"
-										+ unparsedPattern + " (" + infoCodeName + ")'");
-									break;
+									if (unparsedLiteral.multipleWarning())
+										break;
 								}
 								log.printLog();
 								return element;
@@ -636,8 +627,12 @@ public class SkriptParser {
 					return parseSpecifiedLiteral(literalString, unparsedClassInfo, log, types);
 				}
 			}
-			if (exprInfo.classes[0].getC() == Object.class) {
-				return getUnparsedLiteral(allowUnparsedLiteral, log, error);
+			if (exprInfo.classes.length == 1 && exprInfo.classes[0].getC() == Object.class) {
+				if (!allowUnparsedLiteral) {
+					log.printError();
+					return null;
+				}
+				return getUnparsedLiteral(log, error);
 			}
 			boolean containsObjectClass = false;
 			for (ClassInfo<?> classInfo : exprInfo.classes) {
@@ -655,8 +650,8 @@ public class SkriptParser {
 					return new SimpleLiteral<>(parsedObject, false, new UnparsedLiteral(expr));
 				}
 			}
-			if (containsObjectClass) {
-				UnparsedLiteral unparsedLiteral = getUnparsedLiteral(allowUnparsedLiteral, log, error);
+			if (allowUnparsedLiteral && containsObjectClass) {
+				UnparsedLiteral unparsedLiteral = getUnparsedLiteral(log, error);
 				if (unparsedLiteral != null)
 					return unparsedLiteral;
 			}
@@ -676,20 +671,17 @@ public class SkriptParser {
 	}
 
 	/**
-	 * Get an {@link UnparsedLiteral} using {@link #expr} if {@code allowUnparsedLiteral} is {@code true}
-	 * and {@link Classes#parseSimple(String, Class, ParseContext)} is not {@code null}.
-	 * @param allowUnparsedLiteral If {@link UnparsedLiteral}s are accepted.
+	 * If {@link #expr} is a valid literal expression, will return {@link UnparsedLiteral}.
 	 * @param log The current {@link ParseLogHandler}.
-	 * @param error A {@link LogEntry} containing a default error.
+	 * @param error A {@link LogEntry} containing a default error to be printed if failed to retrieve.
 	 * @return {@link UnparsedLiteral} or {@code null}.
 	 */
 	private @Nullable UnparsedLiteral getUnparsedLiteral(
-		boolean allowUnparsedLiteral,
 		ParseLogHandler log,
 		@Nullable LogEntry error
 	)  {
 		// Do check if a literal with this name actually exists before returning an UnparsedLiteral
-		if (!allowUnparsedLiteral || Classes.parseSimple(expr, Object.class, context) == null) {
+		if (Classes.parseSimple(expr, Object.class, context) == null) {
 			log.printError();
 			return null;
 		}

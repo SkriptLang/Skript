@@ -1,7 +1,9 @@
 package ch.njol.skript.lang;
 
+import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptAPIException;
 import ch.njol.skript.classes.Changer.ChangeMode;
+import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleLiteral;
 import ch.njol.skript.log.LogEntry;
@@ -14,6 +16,7 @@ import ch.njol.util.coll.iterator.NonNullIterator;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.List;
 import java.util.function.Predicate;
 import java.util.logging.Level;
 
@@ -26,6 +29,7 @@ public class UnparsedLiteral implements Literal<Object> {
 
 	private final String data;
 	private final @Nullable LogEntry error;
+	private @Nullable List<ClassInfo<?>> possibleInfos;
 	private boolean reparsed = false;
 	private boolean converted = false;
 
@@ -33,9 +37,7 @@ public class UnparsedLiteral implements Literal<Object> {
 	 * @param data non-null, non-empty & trimmed string
 	 */
 	public UnparsedLiteral(String data) {
-		assert data.length() > 0;
-		this.data = data;
-		error = null;
+		this(data, null);
 	}
 
 	/**
@@ -47,6 +49,7 @@ public class UnparsedLiteral implements Literal<Object> {
 		assert error == null || error.getLevel() == Level.SEVERE;
 		this.data = data;
 		this.error = error;
+		this.possibleInfos = Classes.getPatternInfos(data);
 	}
 
 	public String getData() {
@@ -229,6 +232,28 @@ public class UnparsedLiteral implements Literal<Object> {
 	 */
 	public boolean wasConverted() {
 		return converted;
+	}
+
+	/**
+	 * Get a {@link List} of all possible {@link ClassInfo}s this {@link UnparsedLiteral} can be parsed as.
+	 */
+	public @Nullable List<ClassInfo<?>> getPossibleInfos() {
+		return possibleInfos;
+	}
+
+	/**
+	 * Print a warning of this {@link UnparsedLiteral} being able to be referenced to multiple {@link ClassInfo}s.
+	 * Will print warning if this {@link UnparsedLiteral} was not successfully reparsed and converted and {@link #possibleInfos}
+	 * has multiple {@link ClassInfo}s.
+	 * @return {@code True} if the warning was printed.
+	 */
+	public boolean multipleWarning() {
+		if (reparsed || converted || possibleInfos == null || possibleInfos.size() <= 1)
+			return false;
+		String infoCodeName = possibleInfos.get(0).getName().getSingular();
+		Skript.warning("'" +  data + "' has multiple types. Consider specifying which type to use: '"
+			+ data + " (" + infoCodeName + ")'");
+		return true;
 	}
 
 }
