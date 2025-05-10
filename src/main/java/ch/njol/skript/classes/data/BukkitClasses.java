@@ -65,7 +65,6 @@ import java.util.*;
 import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 public class BukkitClasses {
 
@@ -1296,31 +1295,36 @@ public class BukkitClasses {
 					.documentationId("CatType"));
 		}
 
+		PatternedParser<GameRule> gameRuleParser = new PatternedParser<>() {
+			@Override
+			public @Nullable GameRule parse(String string, ParseContext context) {
+				return GameRule.getByName(string);
+			}
+
+			@Override
+			public String toString(GameRule gameRule, int flags) {
+				return gameRule.getName();
+			}
+
+			@Override
+			public String toVariableNameString(GameRule gameRule) {
+				return gameRule.getName();
+			}
+
+			@Override
+			public String[] getPatterns() {
+				return Arrays.stream(GameRule.values()).map(GameRule::getName).toArray(String[]::new);
+			}
+		};
 		Classes.registerClass(new ClassInfo<>(GameRule.class, "gamerule")
 			.user("gamerules?")
 			.name("Gamerule")
 			.description("A gamerule")
-			.usage(Arrays.stream(GameRule.values()).map(GameRule::getName).collect(Collectors.joining(", ")))
+			.usage(gameRuleParser.getCombinedPatterns())
 			.since("2.5")
 			.requiredPlugins("Minecraft 1.13 or newer")
 			.supplier(GameRule.values())
-			.parser(new Parser<GameRule>() {
-				@Override
-				@Nullable
-				public GameRule parse(final String input, final ParseContext context) {
-					return GameRule.getByName(input);
-				}
-
-				@Override
-				public String toString(GameRule o, int flags) {
-					return o.getName();
-				}
-
-				@Override
-				public String toVariableNameString(GameRule o) {
-					return o.getName();
-				}
-			})
+			.parser(gameRuleParser)
 		);
 
 		Classes.registerClass(new ClassInfo<>(EnchantmentOffer.class, "enchantmentoffer")
