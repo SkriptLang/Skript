@@ -113,11 +113,4 @@ public final class EnumUtils<E extends Enum<E>> {
 		return StringUtils.join(parseMap.keySet(), ", ");
 	}
 
-	/**
-	 * Gets all literal patterns used for this {@link EnumUtils}.
-	 */
-	public String[] getNames() {
-		return names;
-	}
-
 }
