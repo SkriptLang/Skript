@@ -120,7 +120,7 @@ public class WolfData extends EntityData<Wolf> {
 	/**
 	 * Note that this method is only used when changing Skript versions 2.1 to anything above.
 	 */
-	@Deprecated
+	@Deprecated(since = "2.3.0", forRemoval = true)
 	@Override
 	protected boolean deserialize(String s) {
 		String[] split = s.split("\\|");

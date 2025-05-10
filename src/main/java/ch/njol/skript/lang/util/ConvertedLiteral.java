@@ -3,7 +3,6 @@ package ch.njol.skript.lang.util;
 import ch.njol.skript.SkriptAPIException;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.registrations.Classes;
-import ch.njol.util.Checker;
 import ch.njol.util.coll.CollectionUtils;
 import ch.njol.util.coll.iterator.ArrayIterator;
 import org.bukkit.event.Event;
@@ -12,6 +11,7 @@ import org.skriptlang.skript.lang.converter.ConverterInfo;
 import org.skriptlang.skript.lang.converter.Converters;
 
 import java.util.Iterator;
+import java.util.function.Predicate;
 
 /**
  * @see SimpleLiteral
@@ -73,12 +73,12 @@ public class ConvertedLiteral<F, T> extends ConvertedExpression<F, T> implements
 	}
 
 	@Override
-	public boolean check(Event event, Checker<? super T> checker) {
+	public boolean check(Event event, Predicate<? super T> checker) {
 		return SimpleExpression.check(data, checker, false, getAnd());
 	}
 
 	@Override
-	public boolean check(Event event, Checker<? super T> checker, boolean negated) {
+	public boolean check(Event event, Predicate<? super T> checker, boolean negated) {
 		return SimpleExpression.check(data, checker, negated, getAnd());
 	}
 

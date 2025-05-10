@@ -15,7 +15,7 @@ test "block sounds (1.20+)":
 	assert place sound of {_stone::*} is "BLOCK.STONE.PLACE" with "place sound of stone wasn't BLOCK.STONE.PLACE"
 	assert step sound of {_stone::*} is "BLOCK.STONE.STEP" with "step sound of stone wasn't BLOCK.STONE.STEP"
 
-	set {_wool::*} to getObjects(wool)
+	set {_wool::*} to getObjects(white wool)
 	assert break sound of {_wool::*} is "BLOCK.WOOL.BREAK" with "break sound of stone wasn't BLOCK.WOOL.BREAK"
 	assert fall sound of {_wool::*} is "BLOCK.WOOL.FALL" with "fall sound of stone wasn't BLOCK.WOOL.FALL"
 	assert hit sound of {_wool::*} is "BLOCK.WOOL.HIT" with "hit sound of stone wasn't BLOCK.WOOL.HIT"

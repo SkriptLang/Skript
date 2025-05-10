@@ -99,19 +99,19 @@ enchantments:
 	breach: Breach
 	wind_burst: Wind Burst
 
-# -- Potion Effects --
-potions:
+# -- Potion Effect Types --
+potion effect types:
 	speed: speed, swiftness
-	slow: slowness, slow
-	fast_digging: haste, fast digging, fast mining
-	slow_digging: mining fatigue, slow digging, slow mining
-	increase_damage: strength, increase damage, increased damage
-	heal: instant health, health
-	harm: instant damage, damage
-	jump: jump boost, jump
-	confusion: nausea, confusion
+	slowness: slowness, slow
+	haste: haste, fast digging, fast mining
+	mining_fatigue: mining fatigue, slow digging, slow mining
+	strength: strength, increase damage, increased damage
+	instant_health: instant health, health
+	instant_damage: instant damage, damage
+	jump_boost: jump boost, jump
+	nausea: nausea, confusion
 	regeneration: regeneration
-	damage_resistance: resistance, damage resistance
+	resistance: resistance, damage resistance
 	fire_resistance: fire resistance, fire immunity
 	water_breathing: water breathing
 	invisibility: invisibility
@@ -759,7 +759,7 @@ entities:
 		pattern: <age> [unemployed] villager(|1¦s)|(4¦)[[unemployed] villager] (kid(|1¦s)|child(|1¦ren))
 	armorer:
 		name: armorer¦s
-		pattern: <age> armorer(|1¦s)|(4¦)armorer (kid(|1¦s)|child(|1¦ren))
+		pattern: <age> armo[u]rer(|1¦s)|(4¦)armo[u]rer (kid(|1¦s)|child(|1¦ren))
 	cartographer:
 		name: cartographer¦s
 		pattern: <age> cartographer(|1¦s)|(4¦)cartographer (kid(|1¦s)|child(|1¦ren))
@@ -947,7 +947,7 @@ entities:
 		pattern: fish[ ]hook(|1¦s)
 	armor stand:
 		name: armor stand¦s
-		pattern: armor stand(|1¦s)
+		pattern: armo[u]r stand(|1¦s)
 	endermite:
 		name: endermite¦s
 		pattern: endermite(|1¦s)
@@ -975,6 +975,9 @@ entities:
 	zombie villager:
 		name: zombie villager¦s
 		pattern: <age> zombie villager(|1¦s)
+	zombie normal:
+		name: zombie villager¦s
+		pattern: <age> unemployed zombie villager(|1¦s)
 	zombie farmer:
 		name: zombie farmer¦s
 		pattern: <age> zombie farmer(|1¦s)
@@ -995,7 +998,7 @@ entities:
 		pattern: <age> zombie nitwit(|1¦s)
 	zombie armorer:
 		name: zombie armorer¦s
-		pattern: <age> zombie armorer(|1¦s)
+		pattern: <age> zombie armo[u]rer(|1¦s)
 	zombie cartographer:
 		name: zombie cartographer¦s
 		pattern: <age> zombie cartographer(|1¦s)
@@ -1499,7 +1502,7 @@ visual effects:
 			pattern: shield break
 		armor_stand_hit:
 			name: armor stand hit @a
-			pattern: armor stand hit
+			pattern: armo[u]r stand hit
 		thorns_hurt:
 			name: hurt by thorns @-
 			pattern: (hurt|damage) by thorns
@@ -2082,6 +2085,12 @@ inventory actions:
 	clone_stack: clone stack
 	collect_to_cursor: collect to cursor, collect items to cursor
 	unknown: unknown, unsupported, custom
+	pickup_from_bundle: pickup from bundle, pickup items from bundle
+	pickup_all_into_bundle: pickup all into bundle, pickup all items into bundle
+	pickup_some_into_bundle: pickup some into bundle, pickup some items into bundle
+	place_from_bundle: place from bundle, place items from bundle
+	place_all_into_bundle: place all into bundle, place all items into bundle
+	place_some_into_bundle: place some into bundle, place some items into bundle
 
 # -- Inventory Click Types --
 click types:
@@ -2128,8 +2137,8 @@ inventory types:
 	stonecutter: stonecutter inventory @a
 	smithing: smithing inventory @a
 	composter: composter inventory @a
-	chiseled_bookshelf: chiseled bookshelf @a, bookshelf @a
-	decorated_pot: decorated pot @a
+	chiseled_bookshelf: chiseled bookshelf inventory @a, bookshelf inventory @a
+	decorated_pot: decorated pot inventory @a
 	crafter: crafter inventory @a
 
 	jukebox: jukebox @a
@@ -2141,6 +2150,7 @@ spawn reasons:
 	bed: bed
 	beehive: beehive
 	breeding: breed, breeding
+	bucket: release from bucket # 'bucket' alone is problematic
 	build_irongolem: built iron golem, build iron golem
 	build_snowman: built snowman, build snowman
 	build_wither: built wither, build wither
@@ -2236,8 +2246,8 @@ genes:
 # -- Attribute Types --
 attribute types:
 	# Enum variation
-	generic_armor: generic armor, armor
-	generic_armor_toughness: generic armor toughness, armor toughness
+	generic_armor: generic armor, armor, generic armour, armour
+	generic_armor_toughness: generic armor toughness, armor toughness, generic armour toughness, armour toughness
 	generic_attack_damage: generic attack damage, attack damage
 	generic_attack_knockback: generic attack knockback, attack knockback
 	generic_attack_speed: generic attack speed, attack speed
@@ -2269,8 +2279,8 @@ attribute types:
 	player_sweeping_damage_ratio: player sweeping damage ratio, sweeping damage ratio
 	zombie_spawn_reinforcements: zombie spawn reinforcements
 	# Registry variation (minecraft keys)
-	generic.armor: generic armor, armor
-	generic.armor_toughness: generic armor toughness, armor toughness
+	generic.armor: generic armor, armor, generic armour, armour
+	generic.armor_toughness: generic armor toughness, armor toughness, generic armour toughness, armour toughness
 	generic.attack_damage: generic attack damage, attack damage
 	generic.attack_knockback: generic attack knockback, attack knockback
 	generic.attack_speed: generic attack speed, attack speed
@@ -2302,8 +2312,8 @@ attribute types:
 	player.sweeping_damage_ratio: player sweeping damage ratio, sweeping damage ratio
 	zombie.spawn_reinforcements: zombie spawn reinforcements
 	# 1.21.3 removes prefixes, adds tempt range
-	armor: generic armor, armor
-	armor_toughness: generic armor toughness, armor toughness
+	armor: generic armor, armor, generic armour, armour
+	armor_toughness: generic armor toughness, armor toughness, generic armour toughness, armour toughness
 	attack_damage: generic attack damage, attack damage
 	attack_knockback: generic attack knockback, attack knockback
 	attack_speed: generic attack speed, attack speed
@@ -2401,18 +2411,38 @@ transform reasons:
 	unknown: unknown
 	infection: infection, villager infection
 
+# -- Teleport Flags --
+teleport flags:
+	retain_open_inventory: opened inventory, open inventory, inventory
+	retain_passengers: passengers, passenger
+	retain_vehicle: vehicle
+	retain_direction: directional velocity, pitch and yaw velocity, yaw and pitch velocity
+	retain_pitch: pitch velocity
+	retain_yaw: yaw velocity
+	retain_movement: xyz velocity
+	retain_x: x velocity
+	retain_y: y velocity
+	retain_z: z velocity
+
+# -- Unleash Reasons --
+unleash reasons:
+	distance: distance
+	holder_gone: holder (gone|disappeared)
+	player_unleash: player unleash, player unleashed, unleashed by player
+	unknown: unknown
+
 # -- Item Flags --
 item flags:
-    hide_additional_tooltip: hide additional tooltip, additional tooltip hidden, hidden additional tooltip
-    hide_armor_trim: hide armor trim, armor trim hidden, hidden armor trim
-    hide_attributes: hide attributes, attributes hidden, hidden attributes
-    hide_destroys: hide destroys, hide destroyable blocks, hide breakable blocks, destroys hidden, hidden destroys
-    hide_dye: hide dye, hide dye color, dye hidden, dye color hidden, hidden dye, hidden dye color
-    hide_enchants: hide enchants, hide enchantments, enchants hidden, enchantments hidden, hidden enchants
-    hide_placed_on: hide placed on, placed on hidden, hidden placed on
-    hide_stored_enchants: hide stored enchants, hide stored enchantments, stored enchants hidden, stored enchantments hidden, hidden stored enchants, hidden stored enchantments
-    hide_unbreakable: hide unbreakable, hide unbreakable status, unbreakable hidden, unbreakable status hidden, hidden unbreakable, hidden unbreakable status
-    hide_potion_effects: hide potion effects, hide potions, potion effects hidden, potions hidden, hidden potion effects, hidden potions
+	hide_additional_tooltip: hide additional tooltip, additional tooltip hidden, hidden additional tooltip
+	hide_armor_trim: hide armor trim, armor trim hidden, hidden armor trim, hide armour trim, armour trim hidden, hidden armour trim
+	hide_attributes: hide attributes, attributes hidden, hidden attributes
+	hide_destroys: hide destroys, hide destroyable blocks, hide breakable blocks, destroys hidden, hidden destroys
+	hide_dye: hide dye, hide dye color, dye hidden, dye color hidden, hidden dye, hidden dye color
+	hide_enchants: hide enchants, hide enchantments, enchants hidden, enchantments hidden, hidden enchants
+	hide_placed_on: hide placed on, placed on hidden, hidden placed on
+	hide_stored_enchants: hide stored enchants, hide stored enchantments, stored enchants hidden, stored enchantments hidden, hidden stored enchants, hidden stored enchantments
+	hide_unbreakable: hide unbreakable, hide unbreakable status, unbreakable hidden, unbreakable status hidden, hidden unbreakable, hidden unbreakable status
+	hide_potion_effects: hide potion effects, hide potions, potion effects hidden, potions hidden, hidden potion effects, hidden potions
 
 # -- Display Billboards --
 billboards:
@@ -2462,7 +2492,7 @@ villager professions:
 	cleric: cleric, cleric profession
 	nitwit: nitwit, nitwit profession
 	cartographer: cartographer, cartographer profession
-	armorer: armorer, armorer profession
+	armorer: armorer, armorer profession, armourer, armourer profession
 	butcher: butcher, butcher profession
 	none: no profession, none profession, unemployed
 	fisherman: fisherman, fisherman profession
@@ -2472,15 +2502,58 @@ experience cooldown change reasons:
 	plugin: plugin
 	pickup_orb: orb pickup, pickup orb
 
-# -- Equipment Slots --
-equipment slot:
-	helmet: helmet slot, head slot
-	chestplate: chestplate slot, chest slot
-	leggings: leggings slot, legs slot
-	boots: feet slot, boots slot
-	tool: tool slot, hand slot, main hand slot
-	off_hand: off hand slot
-	body: body slot, body armor slot
+# -- Banner Pattern Types --
+banner pattern types:
+	base: base banner pattern
+	border: border banner pattern, bordure banner pattern, bordure indented banner pattern
+	bricks: bricks banner pattern, field masoned banner pattern
+	circle: circle banner pattern
+	creeper: creeper banner pattern, creeper charged banner pattern
+	cross: cross banner pattern
+	curly_border: curly border banner pattern
+	diagonal_left: left diagonal banner pattern
+	diagonal_right: right diagonal banner pattern
+	diagonal_up_left: diagonal up left banner pattern
+	diagonal_up_right: diagonal up right banner pattern
+	flow: flow banner pattern
+	flower: flower banner pattern
+	globe: globe banner pattern
+	gradient: gradient banner pattern
+	gradient_up: gradient up banner pattern
+	guster: guster banner pattern
+	half_horizontal: horizontal half banner pattern
+	half_horizontal_bottom: horizontal bottom half banner pattern
+	half_vertical: vertical half banner pattern
+	half_vertical_right: right vertical half banner pattern
+	mojang: mojang banner pattern, thing banner pattern
+	piglin: piglin banner pattern, snout banner pattern
+	rhombus: rhombus banner pattern
+	skull: skull banner pattern
+	small_stripes: small stripes banner pattern
+	square_bottom_left: bottom left square banner pattern
+	square_bottom_right: bottom right square banner pattern
+	square_top_left: top left square banner pattern
+	square_top_right: top right square banner pattern
+	straight_cross: straight cross banner pattern
+	stripe_bottom: bottom stripe banner pattern
+	stripe_center: center stripe banner pattern
+	stripe_downleft: down left stripe banner pattern
+	stripe_downright: down right stripe banner pattern
+	stripe_left: left stripe banner pattern
+	stripe_middle: middle stripe banner pattern
+	stripe_right: right stripe banner pattern
+	stripe_top: top stripe banner pattern
+	triangle_bottom: bottom triangle banner pattern
+	triangle_top: top triangle banner pattern
+	triangles_bottom: tbottom triangles banner pattern
+	triangles_top: top triangles banner pattern
+	stripe_small: small stripe banner pattern
+	diagonal_left_mirror: left diagonal mirror banner pattern
+	diagonal_right_mirror: right diagonal mirror banner pattern
+	circle_middle: middle circle banner pattern
+	rhombus_middle: middle rhombus banner pattern
+	half_vertical_mirror: vertical half mirror banner pattern
+	half_horizontal_mirror: horizontal half mirror banner pattern
 
 # -- Input Keys --
 input keys:
@@ -2491,6 +2564,27 @@ input keys:
 	jump: jump key, jumping key
 	sneak: sneak key, sneaking key
 	sprint: sprint key, sprinting key
+
+# -- Fishing States --
+fishing states:
+	fishing: fishing line cast, rod cast, fishing rod cast, fishing
+	caught_fish: fish caught, caught fish
+	caught_entity: entity caught, caught entity
+	in_ground: bobber in ground, in ground
+	failed_attempt: fish escape, fish escaped, failed attempt
+	reel_in: reel in
+	bite: bite, fish bite
+	lured: lured, fish lured
+
+# -- Equipment Slots --
+equipment slots:
+	head: helmet slot, head slot, helmet
+	chest: chestplate slot, chest slot, chestplate
+	legs: leggings slot, legs slot, leggings
+	feet: feet slot, boots slot, boots
+	hand: tool slot, hand slot, main hand slot, main hand
+	off_hand: off hand slot, off hand
+	body: body slot, body armor slot, body armour slot
 
 # -- Boolean --
 boolean:
@@ -2523,6 +2617,7 @@ types:
 	boolean: boolean¦ (yes/no)¦s (yes/no) @a
 	string: text¦s @a
 	chunk: chunk¦s @a
+	uuid: uuid¦s @a
 
 	# Bukkit
 	entity: entit¦y¦ies @an
@@ -2531,6 +2626,7 @@ types:
 	block: block¦s @a
 	location: location¦s @a
 	world: world¦s @a
+	worldborder: worldborder¦s @a
 	inventory: inventor¦y¦ies @an
 	player: player¦s @a
 	offlineplayer: offline player¦s @a
@@ -2574,10 +2670,13 @@ types:
 	quitreason: quit reason¦s @a
 	inventoryclosereason: inventory close reason¦s @an
 	transformreason: transform reason¦s @a
+	unleashreason: unleash reason¦s @an
+	teleportflag: teleport flag¦s @a
 	display: display¦s @a
 	billboard: billboard¦s @a
 	textalignment: text alignment¦s @a
 	itemdisplaytransform: item display transform¦s @an
+	minecrafttag: minecraft tag¦s @a
 	experiencecooldownchangereason: experience cooldown change reason¦s @a
 	inputkey: input key¦s @an
 	villagertype: villager type¦s @a
@@ -2585,6 +2684,11 @@ types:
 	entitysnapshot: entity snapshot¦s @an
 	loottable: loot table¦s @a
 	lootcontext: loot context¦s @a
+	bannerpatterntype: banner pattern type¦s @a
+	bannerpattern: banner pattern¦s @a
+	vehicle: vehicle¦s @a
+	fishingstate: fishing state¦s @a
+	equipmentslot: equipment slot¦s @an
 	equippablecomponent: equippable component¦s @an
 
 	# Skript
@@ -2605,7 +2709,16 @@ types:
 	experience.pattern: (e?xp|experience( points?)?)
 	classinfo: type¦s @a
 	visualeffect: visual effect¦s @a
-	equipmentslot: equipment slot¦s @a
+	queue: queue¦s @a
+	script: script¦s @a
+	config: config¦s @a
+	node: node¦s @a
+	executable: executable¦s @an
+	function: function¦s @a
+	named: named thing¦s @a
+	numbered: numbered thing¦s @a
+	valued: valued thing¦s @a
+	containing: container¦s @a
 
 	# Hooks
 	money: money

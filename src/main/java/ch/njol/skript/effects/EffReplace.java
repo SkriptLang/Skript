@@ -45,7 +45,7 @@ import java.util.regex.Pattern;
 	"",
 	"replace all stone and dirt in player's inventory and player's top inventory with diamond"
 })
-@Since("2.0, 2.2-dev24 (multiple strings, items in inventory), 2.5 (replace first, case sensitivity), INSERT VERSION (regex)")
+@Since("2.0, 2.2-dev24 (multiple strings, items in inventory), 2.5 (replace first, case sensitivity), 2.10 (regex)")
 public class EffReplace extends Effect {
 
 	static {

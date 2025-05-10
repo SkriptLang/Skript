@@ -231,6 +231,7 @@ public class VisualEffects {
 	}
 
 	// exists to avoid NoClassDefFoundError from Vibration
+	@SuppressWarnings({"removal"})
 	private static final class VibrationUtils {
 		private static Vibration buildVibration(Object[] data, Location location) {
 			int arrivalTime = -1;
@@ -240,14 +241,14 @@ public class VisualEffects {
 				Entity entity = (Entity) data[0];
 				if (arrivalTime == -1)
 					arrivalTime = (int) (location.distance(entity.getLocation()) / 20);
-				//noinspection removal - new constructor only exists on newer versions
+				// new constructor only exists on newer versions
 				return new Vibration(location, new Vibration.Destination.EntityDestination(entity), arrivalTime);
 			}
 			// assume it's a location
 			Location destination = data[0] != null ? (Location) data[0] : location;
 			if (arrivalTime == -1)
 				arrivalTime = (int) (location.distance(destination) / 20);
-			//noinspection removal - new constructor only exists on newer versions
+			// new constructor only exists on newer versions
 			return new Vibration(location, new Vibration.Destination.BlockDestination(destination), arrivalTime);
 		}
 	}

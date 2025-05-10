@@ -13,13 +13,13 @@ import ch.njol.skript.doc.Since;
 
 @Name("Is Fuel")
 @Description("Checks whether an item can be used as fuel in a furnace.")
-@Examples({"on right click on furnace:",
-	"\tif player's tool is not fuel:",
-	"\t\tsend \"Please hold a valid fuel item in your hand\"",
-	"\t\tcancel event"
+@Examples({
+	"on right click on furnace:",
+		"\tif player's tool is not fuel:",
+			"\t\tsend \"Please hold a valid fuel item in your hand\"",
+			"\t\tcancel event"
 })
 @Since("2.5.1")
-@RequiredPlugins("Minecraft 1.11.2+")
 public class CondIsFuel extends PropertyCondition<ItemType> {
 	
 	static {

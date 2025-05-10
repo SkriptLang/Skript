@@ -10,17 +10,26 @@ import ch.njol.skript.lang.DefaultExpression;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
+import ch.njol.skript.lang.parser.ParserInstance;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.skript.localization.Noun;
 import ch.njol.skript.log.ParseLogHandler;
 import ch.njol.skript.log.SkriptLogger;
 import ch.njol.skript.registrations.Classes;
+import ch.njol.skript.registrations.EventConverter;
 import ch.njol.skript.registrations.EventValues;
 import ch.njol.skript.util.Utils;
 import ch.njol.util.Kleenean;
+import ch.njol.util.StringUtils;
+import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.event.Event;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.lang.converter.Converter;
+import org.skriptlang.skript.registration.DefaultSyntaxInfos;
+import org.skriptlang.skript.registration.SyntaxInfo;
+import org.skriptlang.skript.registration.SyntaxRegistry;
+import org.skriptlang.skript.util.Priority;
 
 import java.lang.reflect.Array;
 import java.util.HashMap;
@@ -47,6 +56,67 @@ import java.util.Map.Entry;
  */
 public class EventValueExpression<T> extends SimpleExpression<T> implements DefaultExpression<T> {
 
+	/**
+	 * A priority for {@link EventValueExpression}s.
+	 * They will be registered before {@link SyntaxInfo#COMBINED} expressions
+	 *  but after {@link SyntaxInfo#SIMPLE} expressions.
+	 */
+	@ApiStatus.Experimental
+	public static final Priority DEFAULT_PRIORITY = Priority.before(SyntaxInfo.COMBINED);
+
+	/**
+	 * Registers an event value expression with the provided pattern.
+	 * The syntax info will be forced to use the {@link #DEFAULT_PRIORITY} priority.
+	 * This also adds '[the]' to the start of the pattern.
+	 *
+	 * @param registry The SyntaxRegistry to register with.
+	 * @param expressionClass The EventValueExpression class being registered.
+	 * @param returnType The class representing the expression's return type.
+	 * @param pattern The pattern to match for creating this expression.
+	 * @param <T> The return type.
+	 * @param <E> The Expression type.
+	 * @return The registered {@link SyntaxInfo}.
+	 */
+	@ApiStatus.Experimental
+	public static <E extends EventValueExpression<T>, T> SyntaxInfo.Expression<E, T> register(SyntaxRegistry registry, Class<E> expressionClass, Class<T> returnType, String pattern) {
+		SyntaxInfo.Expression<E, T> info = SyntaxInfo.Expression.builder(expressionClass, returnType)
+				.priority(DEFAULT_PRIORITY)
+				.addPattern("[the] " + pattern)
+				.build();
+		registry.register(SyntaxRegistry.EXPRESSION, info);
+		return info;
+	}
+
+	/**
+	 * Registers an event value expression with the provided patterns.
+	 * The syntax info will be forced to use the {@link #DEFAULT_PRIORITY} priority.
+	 * This also adds '[the]' to the start of the patterns.
+	 *
+	 * @param registry The SyntaxRegistry to register with.
+	 * @param expressionClass The EventValueExpression class being registered.
+	 * @param returnType The class representing the expression's return type.
+	 * @param patterns The patterns to match for creating this expression.
+	 * @param <T> The return type.
+	 * @param <E> The Expression type.
+	 * @return The registered {@link SyntaxInfo}.
+	 */
+	public static <E extends EventValueExpression<T>, T> DefaultSyntaxInfos.Expression<E, T> register(
+		SyntaxRegistry registry,
+		Class<E> expressionClass,
+		Class<T> returnType,
+		String ... patterns
+	) {
+		for (int i = 0; i < patterns.length; i++) {
+			if (!StringUtils.startsWithIgnoreCase(patterns[i], "[the] "))
+				patterns[i] = "[the] " + patterns[i];
+		}
+		SyntaxInfo.Expression<E, T> info = SyntaxInfo.Expression.builder(expressionClass, returnType)
+			.priority(DEFAULT_PRIORITY)
+			.addPatterns(patterns)
+			.build();
+		registry.register(SyntaxRegistry.EXPRESSION, info);
+		return info;
+	}
 
 	/**
 	 * Registers an expression as {@link ExpressionType#EVENT} with the provided pattern.
@@ -60,7 +130,24 @@ public class EventValueExpression<T> extends SimpleExpression<T> implements Defa
 		Skript.registerExpression(expression, type, ExpressionType.EVENT, "[the] " + pattern);
 	}
 
+	/**
+	 * Registers an expression as {@link ExpressionType#EVENT} with the provided patterns.
+	 * This also adds '[the]' to the start of all patterns.
+	 *
+	 * @param expression The class that represents this EventValueExpression.
+	 * @param type The return type of the expression.
+	 * @param patterns The patterns for this syntax.
+	 */
+	public static <T> void register(Class<? extends EventValueExpression<T>> expression, Class<T> type, String ... patterns) {
+		for (int i = 0; i < patterns.length; i++) {
+			if (!StringUtils.startsWithIgnoreCase(patterns[i], "[the] "))
+				patterns[i] = "[the] " + patterns[i];
+		}
+		Skript.registerExpression(expression, type, ExpressionType.EVENT, patterns);
+	}
+
 	private final Map<Class<? extends Event>, Converter<?, ? extends T>> converters = new HashMap<>();
+	private final Map<Class<? extends Event>, EventConverter<Event, T>> eventConverters = new HashMap<>();
 
 	private final Class<?> componentType;
 	private final Class<? extends T> type;
@@ -69,6 +156,7 @@ public class EventValueExpression<T> extends SimpleExpression<T> implements Defa
 	private Changer<? super T> changer;
 	private final boolean single;
 	private final boolean exact;
+	private boolean isDelayed;
 
 	public EventValueExpression(Class<? extends T> type) {
 		this(type, null);
@@ -106,10 +194,12 @@ public class EventValueExpression<T> extends SimpleExpression<T> implements Defa
 
 	@Override
 	public boolean init() {
+		ParserInstance parser = getParser();
+		isDelayed = parser.getHasDelayBefore().isTrue();
 		ParseLogHandler log = SkriptLogger.startParseLogHandler();
 		try {
 			boolean hasValue = false;
-			Class<? extends Event>[] events = getParser().getCurrentEvents();
+			Class<? extends Event>[] events = parser.getCurrentEvents();
 			if (events == null) {
 				assert false;
 				return false;
@@ -119,25 +209,28 @@ public class EventValueExpression<T> extends SimpleExpression<T> implements Defa
 					hasValue = converters.get(event) != null;
 					continue;
 				}
-				if (EventValues.hasMultipleGetters(event, type, getTime()) == Kleenean.TRUE) {
+				if (EventValues.hasMultipleConverters(event, type, getTime()) == Kleenean.TRUE) {
 					Noun typeName = Classes.getExactClassInfo(componentType).getName();
-					log.printError("There are multiple " + typeName.toString(true) + " in " + Utils.a(getParser().getCurrentEventName()) + " event. " +
+					log.printError("There are multiple " + typeName.toString(true) + " in " + Utils.a(parser.getCurrentEventName()) + " event. " +
 							"You must define which " + typeName + " to use.");
 					return false;
 				}
 				Converter<?, ? extends T> converter;
 				if (exact) {
-					converter = EventValues.getExactEventValueGetter(event, type, getTime());
+					converter = EventValues.getExactEventValueConverter(event, type, getTime());
 				} else {
-					converter = EventValues.getEventValueGetter(event, type, getTime());
+					converter = EventValues.getEventValueConverter(event, type, getTime());
 				}
 				if (converter != null) {
 					converters.put(event, converter);
 					hasValue = true;
+					if (converter instanceof EventConverter eventConverter) {
+						eventConverters.put(event, eventConverter);
+					}
 				}
 			}
 			if (!hasValue) {
-				log.printError("There's no " + Classes.getSuperClassInfo(componentType).getName().toString(!single) + " in " + Utils.a(getParser().getCurrentEventName()) + " event");
+				log.printError("There's no " + Classes.getSuperClassInfo(componentType).getName().toString(!single) + " in " + Utils.a(parser.getCurrentEventName()) + " event");
 				return false;
 			}
 			log.printLog();
@@ -189,6 +282,13 @@ public class EventValueExpression<T> extends SimpleExpression<T> implements Defa
 	@Nullable
 	@SuppressWarnings("unchecked")
 	public Class<?>[] acceptChange(ChangeMode mode) {
+		if (mode == ChangeMode.SET && !eventConverters.isEmpty()) {
+			if (isDelayed) {
+				Skript.error("Event values cannot be changed after the event has already passed.");
+				return null;
+			}
+			return CollectionUtils.array(type);
+		}
 		if (changer == null)
 			changer = (Changer<? super T>) Classes.getSuperClassInfo(componentType).getChanger();
 		return changer == null ? null : changer.acceptChange(mode);
@@ -196,9 +296,20 @@ public class EventValueExpression<T> extends SimpleExpression<T> implements Defa
 
 	@Override
 	public void change(Event event, @Nullable Object[] delta, ChangeMode mode) {
-		if (changer == null)
-			throw new SkriptAPIException("The changer cannot be null");
-		ChangerUtils.change(changer, getArray(event), delta, mode);
+		if (mode == ChangeMode.SET) {
+			EventConverter<Event, T> converter = eventConverters.get(event.getClass());
+			if (converter != null) {
+				if (!type.isArray() && delta != null) {
+					converter.set(event, (T)delta[0]);
+				} else {
+					converter.set(event, (T)delta);
+				}
+				return;
+			}
+		}
+		if (changer != null) {
+			ChangerUtils.change(changer, getArray(event), delta, mode);
+		}
 	}
 
 	@Override

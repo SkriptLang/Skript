@@ -10,7 +10,6 @@ import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.Trigger;
 import ch.njol.skript.registrations.EventValues;
 import ch.njol.skript.util.Experience;
-import ch.njol.skript.util.Getter;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.event.Event;
@@ -42,18 +41,8 @@ public class EvtExperienceSpawn extends SkriptEvent {
 				"\tworld is \"minigame_world\"",
 				"\tcancel event"
 			).since("2.0");
-		EventValues.registerEventValue(ExperienceSpawnEvent.class, Location.class, new Getter<Location, ExperienceSpawnEvent>() {
-			@Override
-			public Location get(ExperienceSpawnEvent event) {
-				return event.getLocation();
-			}
-		}, EventValues.TIME_NOW);
-		EventValues.registerEventValue(ExperienceSpawnEvent.class, Experience.class, new Getter<Experience, ExperienceSpawnEvent>() {
-			@Override
-			public Experience get(ExperienceSpawnEvent event) {
-				return new Experience(event.getSpawnedXP());
-			}
-		}, EventValues.TIME_NOW);
+		EventValues.registerEventValue(ExperienceSpawnEvent.class, Location.class, ExperienceSpawnEvent::getLocation);
+		EventValues.registerEventValue(ExperienceSpawnEvent.class, Experience.class, event -> new Experience(event.getSpawnedXP()));
 	}
 
 	private static final List<Trigger> TRIGGERS = Collections.synchronizedList(new ArrayList<>());

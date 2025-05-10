@@ -38,7 +38,7 @@ import org.jetbrains.annotations.Nullable;
 		"\tclear smelting item"
 })
 @Events({"smelt", "fuel burn", "smelting start", "furnace extract"})
-@Since("INSERT VERSION")
+@Since("2.10")
 public class ExprFurnaceEventItems extends PropertyExpression<Block, ItemStack> {
 
 	enum FurnaceValues {
