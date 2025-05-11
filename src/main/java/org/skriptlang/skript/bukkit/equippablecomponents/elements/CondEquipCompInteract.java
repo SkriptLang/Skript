@@ -24,7 +24,7 @@ public class CondEquipCompInteract extends PropertyCondition<EquippableWrapper> 
 		if (Skript.methodExists(EquippableComponent.class, "isEquipOnInteract"))
 			Skript.registerCondition(CondEquipCompInteract.class, ConditionType.PROPERTY,
 				"%equippablecomponents% can equip on interact[ion]",
-				"%equippablecomponents% (can|can not|can't) equip on interact[ion]"
+				"%equippablecomponents% (can not|can't) equip on interact[ion]"
 			);
 	}
 
