@@ -1,0 +1,167 @@
+options:
+	sound: "item.armor.equip_generic"
+	slot: chest slot
+	model: "skript:model_key"
+	camera: "skript:camera_key"
+	allowed: a zombie and a skeleton
+
+using equippable components
+
+test "equippable components - new" when running minecraft "1.21.2":
+	set {_component} to a blank equippable component
+	set the equip sound of {_component} to {@sound}
+	assert the equip sound of {_component} is {@sound} with "Equip sound of component was not set"
+	set the equipment slot of {_component} to {@slot}
+	assert the equipment slot of {_component} is {@slot} with "Equipment slot of component was not set"
+	set the model key of {_component} to {@model}
+	assert the model key of {_component} is {@model} with "Model of component was not set"
+	set the allowed entities of {_component} to {@allowed}
+	assert the allowed entities of {_component} is {@allowed} with "Allowed entities of component was not set"
+	set the camera overlay of {_component} to {@camera}
+	assert the camera overlay of {_component} is {@camera} with "Camera overlay of component was not set"
+	make {_component} swappable
+	assert {_component} is swappable with "Component should be swappable"
+	make {_component} unswappable
+	assert {_component} is not swappable with "Component should not be swappable"
+	make {_component} dispensable
+	assert {_component} is dispensable with "Component should be dispensable"
+	make {_component} undispensable
+	assert {_component} is not dispensable with "Component should not be dispensable"
+	make {_component} damageable
+	assert {_component} is damageable with "Component should be damageable"
+	make {_component} undamageable
+	assert {_component} is not damageable with "Component should not be damageable"
+
+	if running minecraft "1.21.5":
+		make {_component} equip on interaction
+		assert {_component} can equip on interaction with "Component should equip on interaction"
+		make {_component} not equip on interaction
+		assert {_component} can not equip on interaction with "Component should not equip on interaction"
+
+test "equippable components - itemtype" when running minecraft "1.21.2":
+	set {_item} to a leather helmet (item type)
+	set the equip sound of {_item} to {@sound}
+	assert the equip sound of {_item} is {@sound} with "Equip sound of itemtype was not set"
+	set the equipment slot of {_item} to {@slot}
+	assert the equipment slot of {_item} is {@slot} with "Equipment slot of itemtype was not set"
+	set the model key of {_item} to {@model}
+	assert the model key of {_item} is {@model} with "Model of itemtype was not set"
+	set the allowed entities of {_item} to {@allowed}
+	assert the allowed entities of {_item} is {@allowed} with "Allowed entities of itemtype was not set"
+	set the camera overlay of {_item} to {@camera}
+	assert the camera overlay of {_item} is {@camera} with "Camera overlay of itemtype was not set"
+	make {_item} swappable
+	assert {_item} is swappable with "ItemType should be swappable"
+	make {_item} unswappable
+	assert {_item} is not swappable with "ItemType should not be swappable"
+	make {_item} dispensable
+	assert {_item} is dispensable with "ItemType should be dispensable"
+	make {_item} undispensable
+	assert {_item} is not dispensable with "ItemType should not be dispensable"
+	make {_item} damageable
+	assert {_item} is damageable with "ItemType should be damageable"
+	make {_item} undamageable
+	assert {_item} is not damageable with "ItemType should not be damageable"
+
+	if running minecraft "1.21.5":
+		make {_item} equip on interaction
+		assert {_item} can equip on interaction with "ItemType should equip on interaction"
+		make {_item} not equip on interaction
+		assert {_item} can not equip on interaction with "ItemType should not equip on interaction"
+
+test "equippable components - itemstack" when running minecraft "1.21.2":
+	set {_item} to a iron helmet (item stack)
+	set the equip sound of {_item} to {@sound}
+	assert the equip sound of {_item} is {@sound} with "Equip sound of itemstack was not set"
+	set the equipment slot of {_item} to {@slot}
+	assert the equipment slot of {_item} is {@slot} with "Equipment slot of itemstack was not set"
+	set the model key of {_item} to {@model}
+	assert the model key of {_item} is {@model} with "Model of itemstack was not set"
+	set the allowed entities of {_item} to {@allowed}
+	assert the allowed entities of {_item} is {@allowed} with "Allowed entities of itemstack was not set"
+	set the camera overlay of {_item} to {@camera}
+	assert the camera overlay of {_item} is {@camera} with "Camera overlay of itemstack was not set"
+	make {_item} swappable
+	assert {_item} is swappable with "ItemStack should be swappable"
+	make {_item} unswappable
+	assert {_item} is not swappable with "ItemStack should not be swappable"
+	make {_item} dispensable
+	assert {_item} is dispensable with "ItemStack should be dispensable"
+	make {_item} undispensable
+	assert {_item} is not dispensable with "ItemStack should not be dispensable"
+	make {_item} damageable
+	assert {_item} is damageable with "ItemStack should be damageable"
+	make {_item} undamageable
+	assert {_item} is not damageable with "ItemStack should not be damageable"
+
+	if running minecraft "1.21.5":
+		make {_item} equip on interaction
+		assert {_item} can equip on interaction with "ItemStack should equip on interaction"
+		make {_item} not equip on interaction
+		assert {_item} can not equip on interaction with "ItemStack should not equip on interaction"
+
+test "equippable components - copy" when running minecraft "1.21.2":
+	set {_item} to a golden helmet
+	set {_component} to the copied equippable component of {_item}
+	set the equip sound of {_component} to {@sound}
+	assert the equip sound of {_component} is {@sound} with "Equip sound of copy was not set"
+	set the equipment slot of {_component} to {@slot}
+	assert the equipment slot of {_component} is {@slot} with "Equipment slot of copy was not set"
+	set the model key of {_component} to {@model}
+	assert the model key of {_component} is {@model} with "Model of copy was not set"
+	set the allowed entities of {_component} to {@allowed}
+	assert the allowed entities of {_component} is {@allowed} with "Allowed entities of copy was not set"
+	set the camera overlay of {_component} to {@camera}
+	assert the camera overlay of {_component} is {@camera} with "Camera overlay of copy was not set"
+	make {_component} swappable
+	assert {_component} is swappable with "Copy should be swappable"
+	make {_component} unswappable
+	assert {_component} is not swappable with "Copy should not be swappable"
+	make {_component} dispensable
+	assert {_component} is dispensable with "Copy should be dispensable"
+	make {_component} undispensable
+	assert {_component} is not dispensable with "Copy should not be dispensable"
+	make {_component} damageable
+	assert {_component} is damageable with "Copy should be damageable"
+	make {_component} undamageable
+	assert {_component} is not damageable with "Copy should not be damageable"
+
+	if running minecraft "1.21.5":
+		make {_component} equip on interaction
+		assert {_component} can equip on interaction with "Copy should equip on interaction"
+		make {_component} not equip on interaction
+		assert {_component} can not equip on interaction with "Copy should not equip on interaction"
+
+test "equippable components - slot" when running minecraft "1.21.2":
+	set {_gui} to a chest inventory with 1 row
+	set slot 1 of {_gui} to a diamond helmet
+	set {_item} to slot 1 of {_gui}
+
+	set the equip sound of {_item} to {@sound}
+	assert the equip sound of {_item} is {@sound} with "Equip sound of slot was not set"
+	set the equipment slot of {_item} to {@slot}
+	assert the equipment slot of {_item} is {@slot} with "Equipment slot of slot was not set"
+	set the model key of {_item} to {@model}
+	assert the model key of {_item} is {@model} with "Model of slot was not set"
+	set the allowed entities of {_item} to {@allowed}
+	assert the allowed entities of {_item} is {@allowed} with "Allowed entities of slot was not set"
+	set the camera overlay of {_item} to {@camera}
+	assert the camera overlay of {_item} is {@camera} with "Camera overlay of slot was not set"
+	make {_item} swappable
+	assert {_item} is swappable with "Slot should be swappable"
+	make {_item} unswappable
+	assert {_item} is not swappable with "Slot should not be swappable"
+	make {_item} dispensable
+	assert {_item} is dispensable with "Slot should be dispensable"
+	make {_item} undispensable
+	assert {_item} is not dispensable with "Slot should not be dispensable"
+	make {_item} damageable
+	assert {_item} is damageable with "Slot should be damageable"
+	make {_item} undamageable
+	assert {_item} is not damageable with "Slot should not be damageable"
+
+	if running minecraft "1.21.5":
+		make {_item} equip on interaction
+		assert {_item} can equip on interaction with "Slot should equip on interaction"
+		make {_item} not equip on interaction
+		assert {_item} can not equip on interaction with "Slot should not equip on interaction"

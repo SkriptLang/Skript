@@ -1,27 +1,24 @@
 package org.skriptlang.skript.bukkit.equippablecomponents.elements;
 
-import ch.njol.skript.Skript;
-import ch.njol.skript.aliases.ItemType;
-import ch.njol.skript.bukkitutil.ItemUtils;
-import ch.njol.skript.bukkitutil.NamespacedUtils;
 import ch.njol.skript.classes.Changer.ChangeMode;
+import ch.njol.skript.config.Node;
 import ch.njol.skript.doc.*;
 import ch.njol.skript.expressions.base.PropertyExpression;
 import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
-import ch.njol.skript.util.slot.Slot;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.NamespacedKey;
 import org.bukkit.event.Event;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.components.EquippableComponent;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.bukkit.equippablecomponents.EquippableExperiment;
+import org.skriptlang.skript.bukkit.equippablecomponents.EquippableWrapper;
+import org.skriptlang.skript.log.runtime.SyntaxRuntimeErrorProducer;
 
 @Name("Equippable Component - Model")
-@Description("The model of the item when equipped.")
+@Description("The model of the item when equipped. "
+	+ "Note that equippable component elements are experimental making them subject to change and may not work as intended.")
 @Examples({
 	"set the model key of {_item} to \"custom_model\"",
 	"",
@@ -31,31 +28,27 @@ import org.jetbrains.annotations.Nullable;
 })
 @RequiredPlugins("Minecraft 1.21.2+")
 @Since("INSERT VERSION")
-public class ExprEquipCompModel extends PropertyExpression<Object, String> {
+public class ExprEquipCompModel extends PropertyExpression<EquippableWrapper, String> implements EquippableExperiment, SyntaxRuntimeErrorProducer {
 
 	static {
-		Skript.registerExpression(ExprEquipCompModel.class, String.class, ExpressionType.PROPERTY,
-			"[the] model (key|id) of %itemstacks/itemtypes/slots/equippablecomponents%"
-		);
+		register(ExprEquipCompModel.class, String.class, "model (key|id)", "equippablecomponents");
 	}
+
+	private Node node;
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		setExpr(exprs[0]);
+		//noinspection unchecked
+		setExpr((Expression<EquippableWrapper>) exprs[0]);
+		node = getParser().getNode();
 		return true;
 	}
 
 	@Override
-	protected String @Nullable [] get(Event event, Object[] source) {
-		return get(source, object -> {
-			if (object instanceof EquippableComponent component)  {
-				return component.getModel().toString();
-			} else {
-				ItemStack itemStack = ItemUtils.asItemStack(object);
-				if (itemStack == null)
-					return null;
-				return itemStack.getItemMeta().getEquippable().getModel().toString();
-			}
+	protected String @Nullable [] get(Event event, EquippableWrapper[] source) {
+		return get(source, wrapper -> {
+			NamespacedKey key = wrapper.getComponent().getModel();
+			return key == null ? null : key.toString();
 		});
 	}
 
@@ -69,29 +62,23 @@ public class ExprEquipCompModel extends PropertyExpression<Object, String> {
 	@Override
 	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
 		NamespacedKey key = null;
-		if (delta[0] != null && delta[0] instanceof String string)
-			key = NamespacedUtils.getNamespacedKey(string);
-
-		for (Object object : getExpr().getArray(event)) {
-			if (object instanceof EquippableComponent component) {
-				component.setModel(key);
-			} else {
-				ItemStack itemStack = ItemUtils.asItemStack(object);
-				if (itemStack == null)
-					continue;
-				ItemMeta meta = itemStack.getItemMeta();
-				EquippableComponent component = meta.getEquippable();
-				component.setModel(key);
-				meta.setEquippable(component);
-				itemStack.setItemMeta(meta);
-				if (object instanceof Slot slot) {
-					slot.setItem(itemStack);
-				} else if (object instanceof ItemType itemType) {
-					itemType.setItemMeta(meta);
-				} else if (object instanceof  ItemStack itemStack1) {
-					itemStack1.setItemMeta(meta);
-				}
+		if (delta != null && delta[0] instanceof String string) {
+			boolean thrown = false;
+			try {
+				key = NamespacedKey.fromString(string);
+			} catch (Exception ignored) {
+				thrown = true;
 			}
+			if (thrown || key == null) {
+				error("The key '" + string + "' is not in a valid format.");
+				return;
+			}
+		}
+
+		for (EquippableWrapper wrapper : getExpr().getArray(event)) {
+			EquippableComponent component = wrapper.getComponent();
+			component.setModel(key);
+			wrapper.applyComponent();
 		}
 	}
 
@@ -103,6 +90,11 @@ public class ExprEquipCompModel extends PropertyExpression<Object, String> {
 	@Override
 	public Class<String> getReturnType() {
 		return String.class;
+	}
+
+	@Override
+	public Node getNode() {
+		return node;
 	}
 
 	@Override

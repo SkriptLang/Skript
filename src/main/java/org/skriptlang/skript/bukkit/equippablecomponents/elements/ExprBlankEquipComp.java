@@ -7,25 +7,25 @@ import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
-import org.bukkit.Material;
 import org.bukkit.event.Event;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.components.EquippableComponent;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.bukkit.equippablecomponents.EquippableExperiment;
+import org.skriptlang.skript.bukkit.equippablecomponents.EquippableWrapper;
 
 @Name("New Equippable Component")
-@Description("Gets a blank equippable component.")
+@Description("Gets a blank equippable component. "
+	+ "Note that equippable component elements are experimental making them subject to change and may not work as intended.")
 @Examples({
-	"set {_component} to a new blank equippable component",
+	"set {_component} to a blank equippable component",
 	"set the equippable component of {_item} to {_component}"
 })
 @RequiredPlugins("Minecraft 1.21.2+")
 @Since("INSERT VERSION")
-public class ExprNewEquipComp extends SimpleExpression<EquippableComponent> {
+public class ExprBlankEquipComp extends SimpleExpression<EquippableWrapper> implements EquippableExperiment {
 
 	static {
-		Skript.registerExpression(ExprNewEquipComp.class, EquippableComponent.class, ExpressionType.SIMPLE,
-			"a new [blank|empty] equippable component");
+		Skript.registerExpression(ExprBlankEquipComp.class, EquippableWrapper.class, ExpressionType.SIMPLE,
+			"a (blank|empty) equippable component");
 	}
 
 	@Override
@@ -34,8 +34,8 @@ public class ExprNewEquipComp extends SimpleExpression<EquippableComponent> {
 	}
 
 	@Override
-	protected EquippableComponent @Nullable [] get(Event event) {
-		return new EquippableComponent[]{(new ItemStack(Material.APPLE)).getItemMeta().getEquippable()};
+	protected EquippableWrapper @Nullable [] get(Event event) {
+		return new EquippableWrapper[] {EquippableWrapper.newComponent()};
 	}
 
 	@Override
@@ -44,8 +44,8 @@ public class ExprNewEquipComp extends SimpleExpression<EquippableComponent> {
 	}
 
 	@Override
-	public Class<EquippableComponent> getReturnType() {
-		return EquippableComponent.class;
+	public Class<EquippableWrapper> getReturnType() {
+		return EquippableWrapper.class;
 	}
 
 	@Override

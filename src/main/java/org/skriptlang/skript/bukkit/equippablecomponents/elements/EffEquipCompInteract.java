@@ -12,35 +12,27 @@ import org.jetbrains.annotations.Nullable;
 import org.skriptlang.skript.bukkit.equippablecomponents.EquippableExperiment;
 import org.skriptlang.skript.bukkit.equippablecomponents.EquippableWrapper;
 
-@Name("Equippable Component - Dispensable")
-@Description("If the item can be dispensed by a dispenser. "
+@Name("Equippable Component - Equip On Interaction")
+@Description("If the item should be equipped when interacted with. "
 	+ "Note that equippable component elements are experimental making them subject to change and may not work as intended.")
-@Examples({
-	"set {_item} to be dispensable",
-	"",
-	"set {_component} to the equippable component of {_item}",
-	"make {_component} undispensable",
-	"set the equippable component of {_item} to {_component}"
-})
-@RequiredPlugins("Minecraft 1.21.2+")
+@Example("make {_item} equip on interaction")
 @Since("INSERT VERSION")
-public class EffEquipCompDispensable extends Effect implements EquippableExperiment {
+@RequiredPlugins("Minecraft 1.21.5+")
+public class EffEquipCompInteract extends Effect implements EquippableExperiment {
 
 	static {
-		Skript.registerEffect(EffEquipCompDispensable.class,
-			"(set|make) %equippablecomponents% [to [be]] dispensable",
-			"(set|make) %equippablecomponents% [to [be]] (un|in|non)dispensable"
-		);
+		if (Skript.methodExists(EquippableComponent.class, "setEquipOnInteract", boolean.class))
+			Skript.registerEffect(EffEquipCompInteract.class, "(set|make) %equippablecomponents% [:not] equip on interact[ion]");
 	}
 
+	private boolean equip;
 	private Expression<EquippableWrapper> wrappers;
-	private boolean dispensable;
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
 		//noinspection unchecked
 		wrappers = (Expression<EquippableWrapper>) exprs[0];
-		dispensable = matchedPattern == 0;
+		equip = !parseResult.hasTag("not");
 		return true;
 	}
 
@@ -48,14 +40,15 @@ public class EffEquipCompDispensable extends Effect implements EquippableExperim
 	protected void execute(Event event) {
 		for (EquippableWrapper wrapper : wrappers.getArray(event)) {
 			EquippableComponent component = wrapper.getComponent();
-			component.setDispensable(dispensable);
+			component.setEquipOnInteract(equip);
 			wrapper.applyComponent();
 		}
 	}
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return "set the " + wrappers.toString(event, debug) + " to be " + (dispensable ? "dispensable" : "undispensable");
+		return "make " + wrappers.toString(event, debug) + (equip ? "" : " not ")
+			+ "equip on interaction";
 	}
 
 }

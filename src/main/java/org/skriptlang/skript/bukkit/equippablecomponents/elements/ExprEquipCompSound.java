@@ -1,27 +1,23 @@
 package org.skriptlang.skript.bukkit.equippablecomponents.elements;
 
-import ch.njol.skript.Skript;
-import ch.njol.skript.aliases.ItemType;
-import ch.njol.skript.bukkitutil.ItemUtils;
 import ch.njol.skript.bukkitutil.SoundUtils;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.*;
 import ch.njol.skript.expressions.base.PropertyExpression;
 import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
-import ch.njol.skript.util.slot.Slot;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.Sound;
 import org.bukkit.event.Event;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.components.EquippableComponent;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.bukkit.equippablecomponents.EquippableExperiment;
+import org.skriptlang.skript.bukkit.equippablecomponents.EquippableWrapper;
 
 @Name("Equippable Component - Equip Sound")
-@Description("The sound to be played when the item is equipped.")
+@Description("The sound to be played when the item is equipped. "
+	+ "Note that equippable component elements are experimental making them subject to change and may not work as intended.")
 @Examples({
 	"set the equip sound of {_item} to \"entity.experience_orb.pickup\"",
 	"",
@@ -31,32 +27,22 @@ import org.jetbrains.annotations.Nullable;
 })
 @RequiredPlugins("Minecraft 1.21.2+")
 @Since("INSERT VERSION")
-public class ExprEquipCompSound extends PropertyExpression<Object, String> {
+public class ExprEquipCompSound extends PropertyExpression<EquippableWrapper, String> implements EquippableExperiment {
 
 	static {
-		Skript.registerExpression(ExprEquipCompSound.class, String.class, ExpressionType.PROPERTY,
-			"[the] equip sound of %itemstacks/itemtypes/slots/equippablecomponents%"
-		);
+		register(ExprEquipCompSound.class, String.class, "equip sound", "equippablecomponents");
 	}
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		setExpr(exprs[0]);
+		//noinspection unchecked
+		setExpr((Expression<EquippableWrapper>) exprs[0]);
 		return true;
 	}
 
 	@Override
-	protected String @Nullable [] get(Event event, Object[] source) {
-		return get(source, object -> {
-			if (object instanceof EquippableComponent component) {
-				return SoundUtils.getKey(component.getEquipSound()).getKey();
-			}
-
-			ItemStack itemStack = ItemUtils.asItemStack(object);
-			if (itemStack == null)
-				return null;
-			return SoundUtils.getKey(itemStack.getItemMeta().getEquippable().getEquipSound()).getKey();
-		});
+	protected String @Nullable [] get(Event event, EquippableWrapper[] source) {
+		return get(source, wrapper -> SoundUtils.getKey(wrapper.getComponent().getEquipSound()).getKey());
 	}
 
 	@Override
@@ -69,31 +55,15 @@ public class ExprEquipCompSound extends PropertyExpression<Object, String> {
 	@Override
 	public void change(Event event, Object @Nullable [] delta, ChangeMode mode) {
 		Sound enumSound = null;
-		if (delta[0] != null) {
+		if (delta != null) {
 			String soundString = (String) delta[0];
 			enumSound = SoundUtils.getSound(soundString);
 		}
 
-		for (Object object : getExpr().getArray(event)) {
-			if (object instanceof EquippableComponent component) {
-				component.setEquipSound(enumSound);
-			} else {
-				ItemStack itemStack = ItemUtils.asItemStack(object);
-				if (itemStack == null)
-					continue;
-				ItemMeta meta = itemStack.getItemMeta();
-				EquippableComponent component = meta.getEquippable();
-				component.setEquipSound(enumSound);
-				meta.setEquippable(component);
-				itemStack.setItemMeta(meta);
-				if (object instanceof Slot slot) {
-					slot.setItem(itemStack);
-				} else if (object instanceof ItemType itemType) {
-					itemType.setItemMeta(meta);
-				} else if (object instanceof ItemStack itemStack1) {
-					itemStack1.setItemMeta(meta);
-				}
-			}
+		for (EquippableWrapper wrapper : getExpr().getArray(event)) {
+			EquippableComponent component = wrapper.getComponent();
+			component.setEquipSound(enumSound);
+			wrapper.applyComponent();
 		}
 	}
 
@@ -111,4 +81,5 @@ public class ExprEquipCompSound extends PropertyExpression<Object, String> {
 	public String toString(@Nullable Event event, boolean debug) {
 		return "the equip sound of " + getExpr().toString(event, debug);
 	}
+
 }

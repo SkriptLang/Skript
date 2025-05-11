@@ -1,35 +1,31 @@
 package org.skriptlang.skript.bukkit.equippablecomponents.elements;
 
-import ch.njol.skript.Skript;
-import ch.njol.skript.aliases.ItemType;
 import ch.njol.skript.bukkitutil.EntityUtils;
-import ch.njol.skript.bukkitutil.ItemUtils;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.*;
 import ch.njol.skript.entity.EntityData;
 import ch.njol.skript.expressions.base.PropertyExpression;
 import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
-import ch.njol.skript.util.slot.Slot;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.event.Event;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.components.EquippableComponent;
 import org.jetbrains.annotations.Nullable;
+import org.skriptlang.skript.bukkit.equippablecomponents.EquippableExperiment;
+import org.skriptlang.skript.bukkit.equippablecomponents.EquippableWrapper;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
-import java.util.function.Consumer;
 
 @SuppressWarnings("rawtypes")
 @Name("Equippable Component - Allowed Entities")
-@Description("The entities allowed to wear the item.")
+@Description("The entities allowed to wear the item. "
+	+ "Note that equippable component elements are experimental making them subject to change and may not work as intended.")
 @Examples({
 	"set the allowed entities of {_item} to zombie and skeleton",
 	"",
@@ -39,40 +35,33 @@ import java.util.function.Consumer;
 })
 @RequiredPlugins("Minecraft 1.21.2+")
 @Since("INSERT VERSION")
-public class ExprEquipCompEntities extends PropertyExpression<Object, EntityData> {
+public class ExprEquipCompEntities extends PropertyExpression<EquippableWrapper, EntityData> implements EquippableExperiment {
 
 	static {
-		Skript.registerExpression(ExprEquipCompEntities.class, EntityData.class, ExpressionType.PROPERTY,
-			"[the] allowed entities of %itemstacks/itemtypes/slots/equippablecomponents%"
-		);
+		register(ExprEquipCompEntities.class, EntityData.class, "allowed entities", "equippablecomponents");
 	}
 
 	@Override
 	public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, ParseResult parseResult) {
-		setExpr(exprs[0]);
+		//noinspection unchecked
+		setExpr((Expression<EquippableWrapper>) exprs[0]);
 		return true;
 	}
 
 	@Override
-	protected EntityData @Nullable [] get(Event event, Object[] source) {
+	protected EntityData @Nullable [] get(Event event, EquippableWrapper[] source) {
 		List<EntityData> types = new ArrayList<>();
-		for (Object object : getExpr().getArray(event)) {
-			EquippableComponent component = null;
-			if (object instanceof EquippableComponent equippableComponent) {
-				component = equippableComponent;
-			} else {
-				ItemStack itemStack = ItemUtils.asItemStack(object);
-				if (itemStack != null)
-					component = itemStack.getItemMeta().getEquippable();
-			}
-			if (component != null) {
-				component.getAllowedEntities().forEach(entityType -> {
-					Class<? extends Entity> clazz = entityType.getEntityClass();
-					types.add(EntityData.fromClass(clazz));
-				});
-			}
+		for (EquippableWrapper wrapper : source) {
+			EquippableComponent component = wrapper.getComponent();
+			Collection<EntityType> allowed = component.getAllowedEntities();
+			if (allowed == null || allowed.isEmpty())
+				continue;
+			allowed.forEach(entityType -> {
+				Class<? extends Entity> entityClass = entityType.getEntityClass();
+				types.add(EntityData.fromClass(entityClass));
+			});
 		}
-		return types.toArray(new EntityData[0]);
+		return types.toArray(EntityData[]::new);
 	}
 
 	@Override
@@ -94,46 +83,24 @@ public class ExprEquipCompEntities extends PropertyExpression<Object, EntityData
 			});
 		}
 
-		Consumer<EquippableComponent> changer = switch (mode) {
-			case SET -> component -> {
-				component.setAllowedEntities(converted);
-			};
-			case ADD -> component -> {
-				List<EntityType> current = component.getAllowedEntities().stream().toList();
-				current.addAll(converted);
-				component.setAllowedEntities(current);
-			};
-			case REMOVE -> component -> {
-				List<EntityType> current = component.getAllowedEntities().stream().toList();
-				current.removeAll(converted);
-				component.setAllowedEntities(current);
-			};
-			case DELETE -> component -> {
-				component.setAllowedEntities(new ArrayList<>());
-			};
-			default -> throw new IllegalStateException("Unexpected value: " + mode);
-		};
-
-		for (Object object : getExpr().getArray(event)) {
-			if (object instanceof EquippableComponent component) {
-				changer.accept(component);
-			} else {
-				ItemStack itemStack = ItemUtils.asItemStack(object);
-				if (itemStack == null)
-					continue;
-				ItemMeta meta = itemStack.getItemMeta();
-				EquippableComponent component = meta.getEquippable();
-				changer.accept(component);
-				meta.setEquippable(component);
-				itemStack.setItemMeta(meta);
-				if (object instanceof Slot slot) {
-					slot.setItem(itemStack);
-				} else if (object instanceof ItemType itemType) {
-					itemType.setItemMeta(meta);
-				} else if (object instanceof ItemStack itemStack1) {
-					itemStack1.setItemMeta(meta);
+		for (EquippableWrapper wrapper : getExpr().getArray(event)) {
+			EquippableComponent component = wrapper.getComponent();
+			Collection<EntityType> allowed = component.getAllowedEntities();
+			List<EntityType> current = allowed != null ? new ArrayList<>(allowed) : new ArrayList<>();
+			switch (mode) {
+				case SET -> component.setAllowedEntities(converted);
+				case ADD -> {
+					current.addAll(converted);
+					component.setAllowedEntities(current);
 				}
+				case REMOVE -> {
+					current.removeAll(converted);
+					component.setAllowedEntities(current);
+				}
+				case DELETE -> component.setAllowedEntities(new ArrayList<>());
+				default -> throw new IllegalStateException("Unexpected value: " + mode);
 			}
+			wrapper.applyComponent();
 		}
 	}
 
@@ -151,4 +118,5 @@ public class ExprEquipCompEntities extends PropertyExpression<Object, EntityData
 	public String toString(@Nullable Event event, boolean debug) {
 		return "the allowed entities of " + getExpr().toString(event, debug);
 	}
+
 }

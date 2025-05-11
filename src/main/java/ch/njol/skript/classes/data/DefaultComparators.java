@@ -5,6 +5,7 @@ import ch.njol.skript.SkriptConfig;
 import ch.njol.skript.aliases.Aliases;
 import ch.njol.skript.aliases.ItemData;
 import ch.njol.skript.aliases.ItemType;
+import ch.njol.skript.bukkitutil.ComponentWrapper;
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.entity.BoatChestData;
 import ch.njol.skript.entity.BoatData;
@@ -663,6 +664,10 @@ public class DefaultComparators {
 		// UUID
 		Comparators.registerComparator(UUID.class, UUID.class, (one, two) -> Relation.get(one.equals(two)));
 		Comparators.registerComparator(UUID.class, String.class, (one, two) -> Relation.get(one.toString().equals(two)));
+
+		// ComponentWrapper
+		Comparators.registerComparator(ComponentWrapper.class, ComponentWrapper.class,
+			((o1, o2) -> Relation.get(o1.getComponent().equals(o2.getComponent()))));
 	}
 	
 }
