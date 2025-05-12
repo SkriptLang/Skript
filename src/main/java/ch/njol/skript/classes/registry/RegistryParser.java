@@ -27,6 +27,7 @@ public class RegistryParser<R extends Keyed> extends PatternedParser<R> {
 
 	private final Map<R, String> names = new HashMap<>();
 	private final Map<String, R> parseMap = new HashMap<>();
+	private String[] patterns;
 
 	public RegistryParser(Registry<R> registry, String languageNode) {
 		assert !languageNode.isEmpty() && !languageNode.endsWith(".") : languageNode;
@@ -86,6 +87,10 @@ public class RegistryParser<R extends Keyed> extends PatternedParser<R> {
 				}
 			}
 		}
+		patterns = parseMap.keySet().stream()
+			.filter(pattern -> !pattern.startsWith("minecraft:"))
+			.sorted()
+			.toArray(String[]::new);
 	}
 
 	/**
@@ -125,7 +130,7 @@ public class RegistryParser<R extends Keyed> extends PatternedParser<R> {
 
 	@Override
 	public String[] getPatterns() {
-		return parseMap.keySet().toArray(String[]::new);
+		return patterns;
 	}
 
 }

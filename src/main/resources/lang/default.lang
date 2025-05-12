@@ -2603,6 +2603,14 @@ operators:
 	divide: division
 	exponentiate: exponentiation
 
+# -- Verbosity --
+verbosity:
+	low: low
+	normal: normal
+	high: high
+	very_high: very high
+	debug: debug
+
 # -- Types --
 types:
 	# Java

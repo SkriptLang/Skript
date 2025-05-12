@@ -74,10 +74,7 @@ public abstract class Classes {
 			if (info.getParser() instanceof PatternedParser<?> patternedParser) {
 				String[] patterns = patternedParser.getPatterns();
 				for (String pattern : patterns) {
-					if (!registeredLiteralPatterns.containsKey(pattern)) {
-						registeredLiteralPatterns.put(pattern, new ArrayList<>());
-					}
-					registeredLiteralPatterns.get(pattern).add(info);
+					registeredLiteralPatterns.computeIfAbsent(pattern, list -> new ArrayList<>()).add(info);
 				}
 			}
 		} catch (RuntimeException e) {

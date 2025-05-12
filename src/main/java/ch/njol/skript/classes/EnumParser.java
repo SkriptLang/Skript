@@ -19,39 +19,23 @@ public class EnumParser<E extends Enum<E>> extends PatternedParser<E> implements
 
 	private final Class<E> enumClass;
 	private final String languageNode;
-	private final boolean isLanguage;
 	private String[] names;
 	private final Map<String, E> parseMap = new HashMap<>();
+	private String[] patterns;
 
 	/**
 	 * @param enumClass The {@link Enum} {@link Class} to be accessed.
 	 * @param languageNode The {@link String} representing the languageNode for the {@link Enum}
 	 */
 	public EnumParser(Class<E> enumClass, String languageNode) {
-		this(enumClass, languageNode, true);
-	}
-
-	/**
-	 * @param enumClass The {@link Enum} {@link Class} to be accessed.
-	 * @param languageNode The {@link String} representing the languageNode for the {@link Enum}
-	 * @param isLanguage {@link Boolean} determining if this {@link EnumParser} represents a node within 'default.lang'
-	 *                   {@code True} to read the node within 'default.lang' to store the patterns and refresh from {@link Language}
-	 *                   {@code False} to read the enum names and store the names
-	 */
-	public EnumParser(Class<E> enumClass, String languageNode, boolean isLanguage) {
 		assert enumClass.isEnum() : enumClass;
 		assert !languageNode.isEmpty() && !languageNode.endsWith(".") : languageNode;
 
 		this.enumClass = enumClass;
 		this.languageNode = languageNode;
-		this.isLanguage = isLanguage;
 
-		if (isLanguage) {
-			refresh();
-			Language.addListener(this::refresh);
-		} else {
-			readEnum();
-		}
+		refresh();
+		Language.addListener(this::refresh);
 	}
 
 	/**
@@ -91,31 +75,12 @@ public class EnumParser<E extends Enum<E>> extends PatternedParser<E> implements
 				}
 			}
 		}
-	}
-
-	/**
-	 * Reads the enum values of {@link #enumClass} and stores the names into {@link #parseMap}.
-	 */
-	private void readEnum() {
-		E[] constants = enumClass.getEnumConstants();
-		names = new String[constants.length];
-		parseMap.clear();
-		for (E constant : constants) {
-			String name = constant.name().toLowerCase(Locale.ENGLISH);
-			int ordinal = constant.ordinal();
-
-			if (names[ordinal] == null)
-				names[ordinal] = name;
-			parseMap.put(name, constant);
-			String nameWithSpaces = name.replace("_", " ");
-			if (!nameWithSpaces.equals(name))
-				parseMap.put(nameWithSpaces, constant);
-		}
+		patterns = parseMap.keySet().toArray(String[]::new);
 	}
 
 	@Override
 	public @Nullable E parse(String string, ParseContext context) {
-		return parseMap.get(string);
+		return parseMap.get(string.toLowerCase(Locale.ENGLISH));
 	}
 
 	@Override
@@ -134,7 +99,7 @@ public class EnumParser<E extends Enum<E>> extends PatternedParser<E> implements
 
 	@Override
 	public String[] getPatterns() {
-		return parseMap.keySet().toArray(String[]::new);
+		return patterns;
 	}
 
 	@Override

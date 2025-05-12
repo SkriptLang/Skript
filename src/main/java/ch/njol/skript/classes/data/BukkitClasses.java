@@ -1296,6 +1296,9 @@ public class BukkitClasses {
 		}
 
 		PatternedParser<GameRule> gameRuleParser = new PatternedParser<>() {
+			
+			private String[] patterns = Arrays.stream(GameRule.values()).map(GameRule::getName).toArray(String[]::new);
+			
 			@Override
 			public @Nullable GameRule parse(String string, ParseContext context) {
 				return GameRule.getByName(string);
@@ -1313,7 +1316,7 @@ public class BukkitClasses {
 
 			@Override
 			public String[] getPatterns() {
-				return Arrays.stream(GameRule.values()).map(GameRule::getName).toArray(String[]::new);
+				return patterns;
 			}
 		};
 		Classes.registerClass(new ClassInfo<>(GameRule.class, "gamerule")
