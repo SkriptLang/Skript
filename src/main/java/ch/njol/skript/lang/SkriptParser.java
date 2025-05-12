@@ -281,7 +281,7 @@ public class SkriptParser {
 		ExperimentSet experiments = getParser().getExperimentSet();
 		ExperimentData experimentData = experimentalSyntax.getExperimentData();
 		if (!experimentData.isValid())
-			throw new IllegalArgumentException("An ExperimentalData must have required Experiments and/or disabled Experiements");
+			throw new IllegalArgumentException("An ExperimentalData must have required and/or disallowed Experiements");
 		Experiment[] required = experimentData.getRequired();
 		if (required != null) {
 			for (Experiment experiment : required) {
