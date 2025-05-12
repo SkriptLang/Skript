@@ -1,4 +1,4 @@
-package org.skriptlang.skript.bukkit.equippablecomponents;
+package org.skriptlang.skript.bukkit.itemcomponents.equippable;
 
 import ch.njol.skript.bukkitutil.ComponentWrapper;
 import ch.njol.skript.util.ItemSource;
@@ -6,6 +6,7 @@ import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.components.EquippableComponent;
+import org.skriptlang.skript.lang.converter.Converter;
 
 import java.util.function.BiConsumer;
 
@@ -27,12 +28,12 @@ public class EquippableWrapper extends ComponentWrapper<EquippableComponent> {
 	}
 
 	@Override
-	public EquippableComponent convertItemStack(ItemStack itemStack) {
-		return itemStack.getItemMeta().getEquippable();
+	protected Converter<ItemMeta, EquippableComponent> getComponentConverter() {
+		return ItemMeta::getEquippable;
 	}
 
 	@Override
-	public BiConsumer<ItemMeta, EquippableComponent> getComponentSetter() {
+	protected BiConsumer<ItemMeta, EquippableComponent> getComponentSetter() {
 		return ItemMeta::setEquippable;
 	}
 

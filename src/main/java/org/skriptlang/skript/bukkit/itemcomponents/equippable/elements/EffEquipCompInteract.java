@@ -1,4 +1,4 @@
-package org.skriptlang.skript.bukkit.equippablecomponents.elements;
+package org.skriptlang.skript.bukkit.itemcomponents.equippable.elements;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.*;
@@ -9,8 +9,8 @@ import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.bukkit.inventory.meta.components.EquippableComponent;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.bukkit.equippablecomponents.EquippableExperiment;
-import org.skriptlang.skript.bukkit.equippablecomponents.EquippableWrapper;
+import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableExperiment;
+import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableWrapper;
 
 @Name("Equippable Component - Equip On Interaction")
 @Description("If the item should be equipped when interacted with. "
@@ -22,7 +22,8 @@ public class EffEquipCompInteract extends Effect implements EquippableExperiment
 
 	static {
 		if (Skript.methodExists(EquippableComponent.class, "setEquipOnInteract", boolean.class))
-			Skript.registerEffect(EffEquipCompInteract.class, "(set|make) %equippablecomponents% [:not] equip on interact[ion]");
+			Skript.registerEffect(EffEquipCompInteract.class,
+				"make %equippablecomponents% [:not] equip (on interact[ion]|when interacted)");
 	}
 
 	private boolean equip;
@@ -38,11 +39,7 @@ public class EffEquipCompInteract extends Effect implements EquippableExperiment
 
 	@Override
 	protected void execute(Event event) {
-		for (EquippableWrapper wrapper : wrappers.getArray(event)) {
-			EquippableComponent component = wrapper.getComponent();
-			component.setEquipOnInteract(equip);
-			wrapper.applyComponent();
-		}
+		wrappers.stream(event).forEach(wrapper -> wrapper.editComponent(component -> component.setEquipOnInteract(equip)));
 	}
 
 	@Override

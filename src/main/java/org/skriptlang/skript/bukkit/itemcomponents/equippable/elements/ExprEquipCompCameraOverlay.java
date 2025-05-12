@@ -1,4 +1,4 @@
-package org.skriptlang.skript.bukkit.equippablecomponents.elements;
+package org.skriptlang.skript.bukkit.itemcomponents.equippable.elements;
 
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.config.Node;
@@ -10,28 +10,28 @@ import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.NamespacedKey;
 import org.bukkit.event.Event;
-import org.bukkit.inventory.meta.components.EquippableComponent;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.bukkit.equippablecomponents.EquippableExperiment;
-import org.skriptlang.skript.bukkit.equippablecomponents.EquippableWrapper;
+import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableExperiment;
+import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableWrapper;
 import org.skriptlang.skript.log.runtime.SyntaxRuntimeErrorProducer;
 
-@Name("Equippable Component - Model")
-@Description("The model of the item when equipped. "
-	+ "Note that equippable component elements are experimental making them subject to change and may not work as intended.")
-@Examples({
-	"set the model key of {_item} to \"custom_model\"",
-	"",
-	"set {_component} to the equippable component of {_item}",
-	"set the model id of {_component} to \"custom_model\"",
-	"set the equippable component of {_item} to {_component}"
+@Name("Equippable Component - Camera Overlay")
+@Description({
+	"The camera overlay for the player when the item is equipped.",
+	"Example: The jack-o'-lantern view when having a jack-o'-lantern equipped as a helmet.",
+	"Note that equippable component elements are experimental making them subject to change and may not work as intended."
 })
+@Example("set the camera overlay of {_item} to \"custom_overlay\"")
+@Example("""
+	set {_component} to the equippable component of {_item}
+	set the camera overlay of {_component} to "custom_overlay"
+	""")
 @RequiredPlugins("Minecraft 1.21.2+")
 @Since("INSERT VERSION")
-public class ExprEquipCompModel extends PropertyExpression<EquippableWrapper, String> implements EquippableExperiment, SyntaxRuntimeErrorProducer {
+public class ExprEquipCompCameraOverlay extends PropertyExpression<EquippableWrapper, String> implements EquippableExperiment, SyntaxRuntimeErrorProducer {
 
 	static {
-		register(ExprEquipCompModel.class, String.class, "model (key|id)", "equippablecomponents");
+		register(ExprEquipCompCameraOverlay.class, String.class, "camera overlay", "equippablecomponents");
 	}
 
 	private Node node;
@@ -47,7 +47,7 @@ public class ExprEquipCompModel extends PropertyExpression<EquippableWrapper, St
 	@Override
 	protected String @Nullable [] get(Event event, EquippableWrapper[] source) {
 		return get(source, wrapper -> {
-			NamespacedKey key = wrapper.getComponent().getModel();
+			NamespacedKey key = wrapper.getComponent().getCameraOverlay();
 			return key == null ? null : key.toString();
 		});
 	}
@@ -74,12 +74,9 @@ public class ExprEquipCompModel extends PropertyExpression<EquippableWrapper, St
 				return;
 			}
 		}
+		NamespacedKey finalKey = key;
 
-		for (EquippableWrapper wrapper : getExpr().getArray(event)) {
-			EquippableComponent component = wrapper.getComponent();
-			component.setModel(key);
-			wrapper.applyComponent();
-		}
+		getExpr().stream(event).forEach(wrapper -> wrapper.editComponent(component -> component.setCameraOverlay(finalKey)));
 	}
 
 	@Override
@@ -99,7 +96,7 @@ public class ExprEquipCompModel extends PropertyExpression<EquippableWrapper, St
 
 	@Override
 	public String toString(@Nullable Event event, boolean debug) {
-		return "the model key of " + getExpr().toString(event, debug);
+		return "the camera overlay of " + getExpr().toString(event, debug);
 	}
 
 }

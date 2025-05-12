@@ -1,4 +1,4 @@
-package org.skriptlang.skript.bukkit.equippablecomponents.elements;
+package org.skriptlang.skript.bukkit.itemcomponents.equippable.elements;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.*;
@@ -9,8 +9,8 @@ import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.bukkit.equippablecomponents.EquippableExperiment;
-import org.skriptlang.skript.bukkit.equippablecomponents.EquippableWrapper;
+import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableExperiment;
+import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableWrapper;
 
 @Name("New Equippable Component")
 @Description("Gets a blank equippable component. "

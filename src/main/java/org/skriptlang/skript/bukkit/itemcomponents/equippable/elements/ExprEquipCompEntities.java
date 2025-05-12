@@ -1,4 +1,4 @@
-package org.skriptlang.skript.bukkit.equippablecomponents.elements;
+package org.skriptlang.skript.bukkit.itemcomponents.equippable.elements;
 
 import ch.njol.skript.bukkitutil.EntityUtils;
 import ch.njol.skript.classes.Changer.ChangeMode;
@@ -14,8 +14,8 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.event.Event;
 import org.bukkit.inventory.meta.components.EquippableComponent;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.bukkit.equippablecomponents.EquippableExperiment;
-import org.skriptlang.skript.bukkit.equippablecomponents.EquippableWrapper;
+import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableExperiment;
+import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableWrapper;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -26,13 +26,11 @@ import java.util.List;
 @Name("Equippable Component - Allowed Entities")
 @Description("The entities allowed to wear the item. "
 	+ "Note that equippable component elements are experimental making them subject to change and may not work as intended.")
-@Examples({
-	"set the allowed entities of {_item} to zombie and skeleton",
-	"",
-	"set {_component} to the equippable component of {_item}",
-	"clear the allowed entities of {_component}",
-	"set the equippable component of {_item} to {_component}"
-})
+@Example("set the allowed entities of {_item} to a zombie and a skeleton")
+@Example("""
+	set {_component} to the equippable component of {_item}
+	clear the allowed entities of {_component}
+	""")
 @RequiredPlugins("Minecraft 1.21.2+")
 @Since("INSERT VERSION")
 public class ExprEquipCompEntities extends PropertyExpression<EquippableWrapper, EntityData> implements EquippableExperiment {
@@ -83,8 +81,7 @@ public class ExprEquipCompEntities extends PropertyExpression<EquippableWrapper,
 			});
 		}
 
-		for (EquippableWrapper wrapper : getExpr().getArray(event)) {
-			EquippableComponent component = wrapper.getComponent();
+		getExpr().stream(event).forEach(wrapper -> wrapper.editComponent(component -> {
 			Collection<EntityType> allowed = component.getAllowedEntities();
 			List<EntityType> current = allowed != null ? new ArrayList<>(allowed) : new ArrayList<>();
 			switch (mode) {
@@ -100,8 +97,7 @@ public class ExprEquipCompEntities extends PropertyExpression<EquippableWrapper,
 				case DELETE -> component.setAllowedEntities(new ArrayList<>());
 				default -> throw new IllegalStateException("Unexpected value: " + mode);
 			}
-			wrapper.applyComponent();
-		}
+		}));
 	}
 
 	@Override

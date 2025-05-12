@@ -1,4 +1,4 @@
-package org.skriptlang.skript.bukkit.equippablecomponents.elements;
+package org.skriptlang.skript.bukkit.itemcomponents.equippable.elements;
 
 import ch.njol.skript.doc.*;
 import ch.njol.skript.expressions.base.PropertyExpression;
@@ -8,8 +8,8 @@ import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.bukkit.equippablecomponents.EquippableExperiment;
-import org.skriptlang.skript.bukkit.equippablecomponents.EquippableWrapper;
+import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableExperiment;
+import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableWrapper;
 
 @Name("Equippable Component - Copy")
 @Description("Grab a copy of an equippable component of an item. Any changes made to the copy will not be present on the item. "

@@ -1,4 +1,4 @@
-package org.skriptlang.skript.bukkit.equippablecomponents.elements;
+package org.skriptlang.skript.bukkit.itemcomponents.equippable.elements;
 
 import ch.njol.skript.classes.Changer.ChangeMode;
 import ch.njol.skript.doc.*;
@@ -9,21 +9,18 @@ import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.event.Event;
 import org.bukkit.inventory.EquipmentSlot;
-import org.bukkit.inventory.meta.components.EquippableComponent;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.bukkit.equippablecomponents.EquippableExperiment;
-import org.skriptlang.skript.bukkit.equippablecomponents.EquippableWrapper;
+import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableExperiment;
+import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableWrapper;
 
 @Name("Equippable Component - Equipment Slot")
 @Description("The equipment slot an item can be equipped to. "
 	+ "Note that equippable component elements are experimental making them subject to change and may not work as intended.")
-@Examples({
-	"set the equipment slot of {_item} to chest slot",
-	"",
-	"set {_component} to the equippable component of {_item}",
-	"set the equipment slot of {_component} to boots slot",
-	"set the equippable component of {_item} to {_component}"
-})
+@Example("set the equipment slot of {_item} to chest slot")
+@Example("""
+	set {_component} to the equippable component of {_item}
+	set the equipment slot of {_component} to boots slot
+	""")
 @RequiredPlugins("Minecraft 1.21.2+")
 @Since("INSERT VERSION")
 public class ExprEquipCompSlot extends PropertyExpression<EquippableWrapper, EquipmentSlot> implements EquippableExperiment {
@@ -59,11 +56,7 @@ public class ExprEquipCompSlot extends PropertyExpression<EquippableWrapper, Equ
 		if (providedSlot == null)
 			return;
 
-		for (EquippableWrapper wrapper : getExpr().getArray(event)) {
-			EquippableComponent component = wrapper.getComponent();
-			component.setSlot(providedSlot);
-			wrapper.applyComponent();
-		}
+		getExpr().stream(event).forEach(wrapper -> wrapper.editComponent(component -> component.setSlot(providedSlot)));
 	}
 
 	@Override

@@ -1,4 +1,4 @@
-package org.skriptlang.skript.bukkit.equippablecomponents.elements;
+package org.skriptlang.skript.bukkit.itemcomponents.equippable.elements;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.*;
@@ -7,29 +7,26 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
-import org.bukkit.inventory.meta.components.EquippableComponent;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.bukkit.equippablecomponents.EquippableExperiment;
-import org.skriptlang.skript.bukkit.equippablecomponents.EquippableWrapper;
+import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableExperiment;
+import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableWrapper;
 
 @Name("Equippable Component - Dispensable")
 @Description("If the item can be dispensed by a dispenser. "
 	+ "Note that equippable component elements are experimental making them subject to change and may not work as intended.")
-@Examples({
-	"set {_item} to be dispensable",
-	"",
-	"set {_component} to the equippable component of {_item}",
-	"make {_component} undispensable",
-	"set the equippable component of {_item} to {_component}"
-})
+@Example("set {_item} to be dispensable")
+@Example("""
+	set {_component} to the equippable component of {_item}
+	make {_component} undispensable
+	""")
 @RequiredPlugins("Minecraft 1.21.2+")
 @Since("INSERT VERSION")
 public class EffEquipCompDispensable extends Effect implements EquippableExperiment {
 
 	static {
 		Skript.registerEffect(EffEquipCompDispensable.class,
-			"(set|make) %equippablecomponents% [to [be]] dispensable",
-			"(set|make) %equippablecomponents% [to [be]] (un|in|non)dispensable"
+			"(set|make) %equippablecomponents% [to be] dispensable",
+			"(set|make) %equippablecomponents% [to be] (un|in|non)dispensable"
 		);
 	}
 
@@ -46,11 +43,7 @@ public class EffEquipCompDispensable extends Effect implements EquippableExperim
 
 	@Override
 	protected void execute(Event event) {
-		for (EquippableWrapper wrapper : wrappers.getArray(event)) {
-			EquippableComponent component = wrapper.getComponent();
-			component.setDispensable(dispensable);
-			wrapper.applyComponent();
-		}
+		wrappers.stream(event).forEach(wrapper -> wrapper.editComponent(component -> component.setDispensable(dispensable)));
 	}
 
 	@Override

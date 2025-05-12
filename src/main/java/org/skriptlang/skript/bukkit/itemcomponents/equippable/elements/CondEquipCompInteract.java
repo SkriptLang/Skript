@@ -1,4 +1,4 @@
-package org.skriptlang.skript.bukkit.equippablecomponents.elements;
+package org.skriptlang.skript.bukkit.itemcomponents.equippable.elements;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.conditions.base.PropertyCondition;
@@ -9,8 +9,8 @@ import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
 import org.bukkit.inventory.meta.components.EquippableComponent;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.bukkit.equippablecomponents.EquippableExperiment;
-import org.skriptlang.skript.bukkit.equippablecomponents.EquippableWrapper;
+import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableExperiment;
+import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableWrapper;
 
 @Name("Equippable Component - Can Equip On Interact")
 @Description("Whether an item can be equipped when interacted with. "
@@ -23,8 +23,8 @@ public class CondEquipCompInteract extends PropertyCondition<EquippableWrapper> 
 	static {
 		if (Skript.methodExists(EquippableComponent.class, "isEquipOnInteract"))
 			Skript.registerCondition(CondEquipCompInteract.class, ConditionType.PROPERTY,
-				"%equippablecomponents% can equip on interact[ion]",
-				"%equippablecomponents% (can not|can't) equip on interact[ion]"
+				"%equippablecomponents% can equip (on interact[ion]|when interacted)",
+				"%equippablecomponents% (can not|can't) equip (on interact[ion]|when interacted)"
 			);
 	}
 
@@ -41,13 +41,12 @@ public class CondEquipCompInteract extends PropertyCondition<EquippableWrapper> 
 
 	@Override
 	public boolean check(EquippableWrapper wrapper) {
-		EquippableComponent component = wrapper.getComponent();
-		return component.isEquipOnInteract();
+		return wrapper.getComponent().isEquipOnInteract();
 	}
 
 	@Override
 	protected String getPropertyName() {
-		return null;
+		return "equip on interaction";
 	}
 
 	@Override

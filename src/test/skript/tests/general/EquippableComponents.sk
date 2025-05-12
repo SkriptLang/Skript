@@ -4,6 +4,7 @@ options:
 	model: "skript:model_key"
 	camera: "skript:camera_key"
 	allowed: a zombie and a skeleton
+	method: "org.bukkit.inventory.meta.components.EquippableComponent#isEquipOnInteract()"
 
 using equippable components
 
@@ -27,12 +28,12 @@ test "equippable components - new" when running minecraft "1.21.2":
 	assert {_component} is dispensable with "Component should be dispensable"
 	make {_component} undispensable
 	assert {_component} is not dispensable with "Component should not be dispensable"
-	make {_component} damageable
-	assert {_component} is damageable with "Component should be damageable"
-	make {_component} undamageable
-	assert {_component} is not damageable with "Component should not be damageable"
+	make {_component} lose durability when hurt
+	assert {_component} will lose durability when hurt with "Component should lose durability when hurt"
+	make {_component} not lose durability when hurt
+	assert {_component} will not lose durability when hurt with "Component should not lose durability when hurt"
 
-	if running minecraft "1.21.5":
+	parse if method {@method} exists:
 		make {_component} equip on interaction
 		assert {_component} can equip on interaction with "Component should equip on interaction"
 		make {_component} not equip on interaction
@@ -58,12 +59,12 @@ test "equippable components - itemtype" when running minecraft "1.21.2":
 	assert {_item} is dispensable with "ItemType should be dispensable"
 	make {_item} undispensable
 	assert {_item} is not dispensable with "ItemType should not be dispensable"
-	make {_item} damageable
-	assert {_item} is damageable with "ItemType should be damageable"
-	make {_item} undamageable
-	assert {_item} is not damageable with "ItemType should not be damageable"
+	make {_item} lose durability when hurt
+	assert {_item} will lose durability when hurt with "ItemType should lose durability when hurt"
+	make {_item} not lose durability when hurt
+	assert {_item} will not lose durability when hurt with "ItemType should not lose durability when hurt"
 
-	if running minecraft "1.21.5":
+	parse if method {@method} exists:
 		make {_item} equip on interaction
 		assert {_item} can equip on interaction with "ItemType should equip on interaction"
 		make {_item} not equip on interaction
@@ -89,12 +90,12 @@ test "equippable components - itemstack" when running minecraft "1.21.2":
 	assert {_item} is dispensable with "ItemStack should be dispensable"
 	make {_item} undispensable
 	assert {_item} is not dispensable with "ItemStack should not be dispensable"
-	make {_item} damageable
-	assert {_item} is damageable with "ItemStack should be damageable"
-	make {_item} undamageable
-	assert {_item} is not damageable with "ItemStack should not be damageable"
+	make {_item} lose durability when hurt
+	assert {_item} will lose durability when hurt with "ItemStack should lose durability when hurt"
+	make {_item} not lose durability when hurt
+	assert {_item} will not lose durability when hurt with "ItemStack should not lose durability when hurt"
 
-	if running minecraft "1.21.5":
+	parse if method {@method} exists:
 		make {_item} equip on interaction
 		assert {_item} can equip on interaction with "ItemStack should equip on interaction"
 		make {_item} not equip on interaction
@@ -121,12 +122,12 @@ test "equippable components - copy" when running minecraft "1.21.2":
 	assert {_component} is dispensable with "Copy should be dispensable"
 	make {_component} undispensable
 	assert {_component} is not dispensable with "Copy should not be dispensable"
-	make {_component} damageable
-	assert {_component} is damageable with "Copy should be damageable"
-	make {_component} undamageable
-	assert {_component} is not damageable with "Copy should not be damageable"
+	make {_component} lose durability when hurt
+	assert {_component} will lose durability when hurt with "Copy should lose durability when hurt"
+	make {_component} not lose durability when hurt
+	assert {_component} will not lose durability when hurt with "Copy should not lose durability when hurt"
 
-	if running minecraft "1.21.5":
+	parse if method {@method} exists:
 		make {_component} equip on interaction
 		assert {_component} can equip on interaction with "Copy should equip on interaction"
 		make {_component} not equip on interaction
@@ -155,12 +156,12 @@ test "equippable components - slot" when running minecraft "1.21.2":
 	assert {_item} is dispensable with "Slot should be dispensable"
 	make {_item} undispensable
 	assert {_item} is not dispensable with "Slot should not be dispensable"
-	make {_item} damageable
-	assert {_item} is damageable with "Slot should be damageable"
-	make {_item} undamageable
-	assert {_item} is not damageable with "Slot should not be damageable"
+	make {_item} lose durability when hurt
+	assert {_item} will lose durability when hurt with "Slot should lose durability when hurt"
+	make {_item} not lose durability when hurt
+	assert {_item} will not lose durability when hurt with "Slot should not lose durability when hurt"
 
-	if running minecraft "1.21.5":
+	parse if method {@method} exists:
 		make {_item} equip on interaction
 		assert {_item} can equip on interaction with "Slot should equip on interaction"
 		make {_item} not equip on interaction

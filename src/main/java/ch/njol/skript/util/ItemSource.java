@@ -9,12 +9,12 @@ import ch.njol.skript.aliases.ItemType;
 /**
  * Container class for containing the origin of a {@link Slot}, {@link ItemStack}, and {@link ItemType}.
  */
-public class ItemSource {
+public class ItemSource<T> {
 
-	private final Object source;
+	private final T source;
 	private final ItemStack itemStack;
 
-	public ItemSource(Object source) {
+	public ItemSource(T source) {
 		ItemStack itemStack = ItemUtils.asItemStack(source);
 		if (itemStack == null)
 			throw new IllegalArgumentException("Object was not a Slot, ItemType or ItemStack");
@@ -25,7 +25,7 @@ public class ItemSource {
 	/**
 	 * Get the source object, can be a {@link Slot}, {@link ItemStack}, or {@link ItemType}.
 	 */
-	public Object getSource() {
+	public T getSource() {
 		return source;
 	}
 

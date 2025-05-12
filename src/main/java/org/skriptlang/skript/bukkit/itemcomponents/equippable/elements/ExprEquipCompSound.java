@@ -1,4 +1,4 @@
-package org.skriptlang.skript.bukkit.equippablecomponents.elements;
+package org.skriptlang.skript.bukkit.itemcomponents.equippable.elements;
 
 import ch.njol.skript.bukkitutil.SoundUtils;
 import ch.njol.skript.classes.Changer.ChangeMode;
@@ -10,21 +10,18 @@ import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
 import org.bukkit.Sound;
 import org.bukkit.event.Event;
-import org.bukkit.inventory.meta.components.EquippableComponent;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.bukkit.equippablecomponents.EquippableExperiment;
-import org.skriptlang.skript.bukkit.equippablecomponents.EquippableWrapper;
+import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableExperiment;
+import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableWrapper;
 
 @Name("Equippable Component - Equip Sound")
 @Description("The sound to be played when the item is equipped. "
 	+ "Note that equippable component elements are experimental making them subject to change and may not work as intended.")
-@Examples({
-	"set the equip sound of {_item} to \"entity.experience_orb.pickup\"",
-	"",
-	"set {_component} to the equippable component of {_item}",
-	"set the equip sound of {_component} to \"block.note_block.pling\"",
-	"set the equippable component of {_item} to {_component}"
-})
+@Example("set the equip sound of {_item} to \"entity.experience_orb.pickup\"")
+@Example("""
+	set {_component} to the equippable component of {_item}
+	set the equip sound of {_component} to "block.note_block.pling"
+	""")
 @RequiredPlugins("Minecraft 1.21.2+")
 @Since("INSERT VERSION")
 public class ExprEquipCompSound extends PropertyExpression<EquippableWrapper, String> implements EquippableExperiment {
@@ -59,12 +56,9 @@ public class ExprEquipCompSound extends PropertyExpression<EquippableWrapper, St
 			String soundString = (String) delta[0];
 			enumSound = SoundUtils.getSound(soundString);
 		}
+		Sound finalSound = enumSound;
 
-		for (EquippableWrapper wrapper : getExpr().getArray(event)) {
-			EquippableComponent component = wrapper.getComponent();
-			component.setEquipSound(enumSound);
-			wrapper.applyComponent();
-		}
+		getExpr().stream(event).forEach(wrapper -> wrapper.editComponent(component -> component.setEquipSound(finalSound)));
 	}
 
 	@Override

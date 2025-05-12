@@ -667,7 +667,13 @@ public class DefaultComparators {
 
 		// ComponentWrapper
 		Comparators.registerComparator(ComponentWrapper.class, ComponentWrapper.class,
-			((o1, o2) -> Relation.get(o1.getComponent().equals(o2.getComponent()))));
+			(o1, o2) -> {
+				boolean relation = true;
+				if (o1.getItemStack() != null && o2.getItemStack() != null)
+					relation = o1.getItemStack().equals(o2.getItemStack());
+				relation &= o1.getComponent().equals(o2.getComponent());
+				return Relation.get(relation);
+			});
 	}
 	
 }

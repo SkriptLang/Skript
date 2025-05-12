@@ -1,4 +1,4 @@
-package org.skriptlang.skript.bukkit.equippablecomponents.elements;
+package org.skriptlang.skript.bukkit.itemcomponents.equippable.elements;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.doc.*;
@@ -7,29 +7,26 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser.ParseResult;
 import ch.njol.util.Kleenean;
 import org.bukkit.event.Event;
-import org.bukkit.inventory.meta.components.EquippableComponent;
 import org.jetbrains.annotations.Nullable;
-import org.skriptlang.skript.bukkit.equippablecomponents.EquippableExperiment;
-import org.skriptlang.skript.bukkit.equippablecomponents.EquippableWrapper;
+import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableExperiment;
+import org.skriptlang.skript.bukkit.itemcomponents.equippable.EquippableWrapper;
 
 @Name("Equippable Component - Swappable")
 @Description("If the item can be swapped by right clicking it in your hand. "
 	+ "Note that equippable component elements are experimental making them subject to change and may not work as intended.")
-@Examples({
-	"set {_item} to be swappable",
-	"",
-	"set {_component} to the equippable component of {_item}",
-	"make {_component} unswappable",
-	"set the equippable component of {_item} to {_component}"
-})
+@Example("set {_item} to be swappable")
+@Example("""
+	set {_component} to the equippable component of {_item}
+	make {_component} unswappable
+	""")
 @RequiredPlugins("Minecraft 1.21.2+")
 @Since("INSERT VERSION")
 public class EffEquipCompSwappable extends Effect implements EquippableExperiment {
 
 	static {
 		Skript.registerEffect(EffEquipCompSwappable.class,
-			"(set|make) %equippablecomponents% [to [be]] swappable",
-			"(set|make) %equippablecomponents% [to [be]] unswappable"
+			"(set|make) %equippablecomponents% [to be] swappable",
+			"(set|make) %equippablecomponents% [to be] unswappable"
 		);
 	}
 
@@ -46,11 +43,7 @@ public class EffEquipCompSwappable extends Effect implements EquippableExperimen
 
 	@Override
 	protected void execute(Event event) {
-		for (EquippableWrapper wrapper : wrappers.getArray(event)) {
-			EquippableComponent component = wrapper.getComponent();
-			component.setSwappable(swappable);
-			wrapper.applyComponent();
-		}
+		wrappers.stream(event).forEach(wrapper -> wrapper.editComponent(component -> component.setSwappable(swappable)));
 	}
 
 	@Override

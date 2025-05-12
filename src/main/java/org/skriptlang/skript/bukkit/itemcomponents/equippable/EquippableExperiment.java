@@ -1,4 +1,4 @@
-package org.skriptlang.skript.bukkit.equippablecomponents;
+package org.skriptlang.skript.bukkit.itemcomponents.equippable;
 
 import ch.njol.skript.registrations.Feature;
 import org.skriptlang.skript.lang.experiment.ExperimentSet;
